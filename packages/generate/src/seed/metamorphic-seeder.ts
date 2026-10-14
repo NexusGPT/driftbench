@@ -3,6 +3,7 @@
 import type { PathRelation, ProposalPhrase } from '../extract/proposal';
 import { type Pick, pickOf, type SpecDraft } from './assemble';
 import { anchorStages, probeDraft } from './deviation-seeder';
+import { draftOutput } from './draft-output';
 import { stageGraph } from './graph';
 import { dimensionId, type PreparedMap, phraseKey } from './map';
 import type { ProbeRequest } from './scenario';
@@ -21,14 +22,15 @@ export function metamorphicSeeder(
   prepared: PreparedMap,
   context: SeedContext,
 ): { drafts: SpecDraft[]; summary: MetamorphicSummary } {
-  const drafts: SpecDraft[] = [];
+  const output = draftOutput(context);
+  const drafts = output.drafts;
   const values: string[] = [];
   const graph = stageGraph(prepared);
   const anchors = anchorStages(prepared, graph);
   let families = 0;
   if (hasPaths(prepared)) return metamorphicOnPaths(prepared, context);
   for (const [key, phrases] of prepared.phrasesOf) {
-    if (phrases.length < 2 || drafts.length >= context.max) continue;
+    if (phrases.length < 2 || output.count >= context.max) continue;
     const target = pickOf(prepared, phrases[0] as (typeof phrases)[number]);
     if (!target || target[0] === prepared.stage || target[0] === prepared.transition) continue;
     families += 1;
@@ -42,7 +44,7 @@ export function metamorphicSeeder(
         target[0] === prepared.deviation
           ? probeDraft(prepared, contextFor, family, 'metamorphic', target, anchors, { stimulus }).draft
           : carrierDraft(prepared, contextFor, family, 'metamorphic', '', [target], { stimulus });
-      drafts.push({
+      output.push({
         ...draft,
         id,
         title: `Metamorphic ${key}, phrasing ${variant + 1} of ${phrases.length}`,
@@ -50,7 +52,7 @@ export function metamorphicSeeder(
       });
     });
   }
-  return { drafts, summary: { families, specs: drafts.length, values } };
+  return { drafts, summary: { families, specs: output.count, values } };
 }
 
 /**
@@ -63,7 +65,8 @@ function metamorphicOnPaths(
   prepared: PreparedMap,
   context: SeedContext,
 ): { drafts: SpecDraft[]; summary: MetamorphicSummary } {
-  const drafts: SpecDraft[] = [];
+  const output = draftOutput(context);
+  const drafts = output.drafts;
   const values: string[] = [];
   let families = 0;
   const transitionKey =
@@ -71,14 +74,14 @@ function metamorphicOnPaths(
   const deviationKey =
     prepared.deviation === undefined ? undefined : dimensionId(prepared, prepared.deviation);
   for (const [key, phrases] of prepared.phrasesOf) {
-    if (drafts.length >= context.max) break;
+    if (output.count >= context.max) break;
     const groups = new Map<string, ProposalPhrase[]>();
     for (const phrase of phrases) {
       const group = JSON.stringify([phrase.when ?? null, phrase.binds ?? null]);
       groups.set(group, [...(groups.get(group) ?? []), phrase]);
     }
     for (const members of groups.values()) {
-      if (members.length < 2 || drafts.length >= context.max) continue;
+      if (members.length < 2 || output.count >= context.max) continue;
       const first = members[0] as ProposalPhrase;
       const target = pickOf(prepared, first);
       if (!target || target[0] === prepared.stage) continue;
@@ -121,13 +124,13 @@ function metamorphicOnPaths(
           relation: 'same observed outcome',
         };
         if ('draft' in built) {
-          drafts.push({ ...built.draft, metamorphic });
+          output.push({ ...built.draft, metamorphic });
           return;
         }
         const old = carrierDraft(prepared, { ...context }, family, 'metamorphic', '', [target], {
           stimulus: { kind: 'phrase', phrase },
         });
-        drafts.push(withReasons({ ...old, id, title, metamorphic }, built.reasons));
+        output.push(withReasons({ ...old, id, title, metamorphic }, built.reasons));
       });
     }
   }
@@ -140,7 +143,7 @@ function metamorphicOnPaths(
   let personasSaid = false;
   for (const path of prepared.relations.paths) {
     for (const axis of contextual) {
-      if (drafts.length >= context.max) break;
+      if (output.count >= context.max) break;
       const dimension = prepared.space.dimensions[axis];
       if (!dimension) continue;
       const family = `gen-metamorphic-${pad(families + 1)}`;
@@ -187,7 +190,7 @@ function metamorphicOnPaths(
       values.push(`${path.id}@${dimension.id}`);
       built.forEach((entry, variant) => {
         if (!('draft' in entry)) return;
-        drafts.push({
+        output.push({
           ...entry.draft,
           id: `${family}-${variant + 1}`,
           title: `Metamorphic ${path.id} over ${dimension.id}, value ${variant + 1} of ${members.length}: ${entry.draft.title}`,
@@ -201,5 +204,5 @@ function metamorphicOnPaths(
       });
     }
   }
-  return { drafts, summary: { families, specs: drafts.length, values } };
+  return { drafts, summary: { families, specs: output.count, values } };
 }

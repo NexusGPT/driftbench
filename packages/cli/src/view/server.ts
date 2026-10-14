@@ -223,10 +223,12 @@ export const QUEUE_KEYS_SCRIPT = `(function () {
 function send(response: ServerResponse, html: string, status = 200, scriptHash?: string): void {
   response.writeHead(status, {
     'content-type': 'text/html; charset=utf-8',
-    // Nothing loads from anywhere: no external script, style, image or font. Forms post to this server.
+    // Nothing loads from anywhere: no external script, style, image or font. The scorecard's font faces are
+    // embedded in the page as data. Forms post to this server.
     'content-security-policy': [
       "default-src 'none'",
       "style-src 'unsafe-inline'",
+      'font-src data:',
       ...(scriptHash === undefined ? [] : [`script-src 'sha256-${scriptHash}'`]),
       "form-action 'self'",
       "base-uri 'none'",

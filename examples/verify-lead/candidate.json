@@ -1,0 +1,9 @@
+{
+  "candidate": "driftbench-v5",
+  "commit": "1e80d19172bf857aa4de45af6d958e9afa65f474",
+  "freezeRecord": "86f08f6dd",
+  "reason": "Best on DEV (77/95, against 74/95 for v4 and 73/95 for driftbench-fable-commit) at 100/120 on practice, and its freeze record predates every confirmation call; the fable gate's +3 of 120 rests on 3 flips and adds nothing on DEV.",
+  "rejected": {
+    "driftbench-fable-commit": "feat/verify-lead-fable 2cbd8828c, practice 103/120, DEV 73/95"
+  }
+}

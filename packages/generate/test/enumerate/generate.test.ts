@@ -169,11 +169,12 @@ describe('generateSuite on a small fictional map', () => {
       { label: 'lookup', count: 0 },
     ]);
     expect(of('lookup.in.account.at-min-length')?.blocks[0]?.expect?.tools).toEqual([
-      { label: 'lookup', count: { min: 1 }, input: { account: { regex: '^[\\s\\S]{1}$' } } },
+      // One run of the tool, its only argument named, so the input is closed.
+      { label: 'lookup', count: 1, input: { account: { regex: '^[\\s\\S]{1}$' } }, input_closed: true },
     ]);
     const notFound = of('lookup.out.found.false');
     expect(notFound?.given?.world?.tools?.lookup?.result).toEqual({ found: false });
-    expect(notFound?.blocks[0]?.expect?.tools).toEqual([{ label: 'lookup', count: { min: 1 } }]);
+    expect(notFound?.blocks[0]?.expect?.tools).toEqual([{ label: 'lookup', count: 1 }]);
     expect((meta(notFound as Spec).concrete as Record<string, unknown>)['lookup.out.found.false']).toBe(
       false,
     );

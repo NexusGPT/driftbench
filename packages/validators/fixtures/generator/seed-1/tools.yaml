@@ -6,8 +6,8 @@ tools:
       type: object
       required: [kind, quantity]
       properties:
-        kind: { type: string, enum: [green, basic, west] }
-        quantity: { type: integer, minimum: 2, maximum: 12 }
+        kind: { type: string, enum: [green, basic, west], default: green }
+        quantity: { type: integer, minimum: 2, maximum: 12, default: 2 }
     output_schema:
       type: object
       required: [found, status]
@@ -20,8 +20,8 @@ tools:
       type: object
       required: [category, limit]
       properties:
-        category: { type: string, enum: [medium, small, east] }
-        limit: { type: integer, minimum: 2, maximum: 12 }
+        category: { type: string, enum: [medium, small, east], default: medium }
+        limit: { type: integer, minimum: 2, maximum: 12, default: 2 }
     output_schema:
       type: object
       required: [available, order]
@@ -34,8 +34,8 @@ tools:
       type: object
       required: [plan, units]
       properties:
-        plan: { type: string, enum: [standard, premium, large] }
-        units: { type: integer, minimum: 2, maximum: 9 }
+        plan: { type: string, enum: [standard, premium, large], default: standard }
+        units: { type: integer, minimum: 2, maximum: 9, default: 2 }
     output_schema:
       type: object
       required: [accepted, route]

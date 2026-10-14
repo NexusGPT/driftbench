@@ -1,6 +1,5 @@
 import { existsSync, statSync } from 'node:fs';
-import { mkdtemp, rm } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { rm } from 'node:fs/promises';
 import { isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { functionAdapter, processAdapter } from '@agent-nexus/driftbench-adapters';
 import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
@@ -83,6 +82,7 @@ import { applyCampaignConfig } from '../campaign-config';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
 import { pluginAdapter, pluginAdapterNames } from '../plugins';
+import { makeScopeFolder } from '../scope-folder';
 import { noStoreAt } from '../store-path';
 import { BUILTIN_TARGETS_NOTE, builtinTarget, builtinTargetHint } from '../targets';
 import { pricesFromConfig } from '../token-prices';
@@ -1802,12 +1802,12 @@ function planFor(
   };
 }
 
-/** A campaign's scope. Its folder is made on first use, under the system temp folder. */
+/** A campaign's scope. Its folder is made on first use, under the system temp folder, and owned by this process. */
 function openScope(): CampaignScope & { folder(): Promise<string | undefined> } {
   let made: Promise<string> | undefined;
   return {
     tempDir() {
-      made ??= mkdtemp(join(tmpdir(), 'driftbench-sandboxes-'));
+      made ??= makeScopeFolder();
       return made;
     },
     folder: async () => made?.catch(() => undefined),

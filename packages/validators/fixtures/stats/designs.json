@@ -10,13 +10,22 @@
     ]
   },
   "shares": {
-    "datasets": 8,
+    "datasets": 20,
     "cells": 12,
     "conversations": 8,
     "wordings": 3,
     "repeats": 4,
     "logitMean": 0.5,
     "logitSd": { "cell": 0.6, "conversation": 0.8, "wording": 0.6 }
+  },
+  "sharesNested": {
+    "datasets": 5,
+    "cells": 16,
+    "conversations": 12,
+    "wordings": 2,
+    "repeats": 4,
+    "logitMean": 0.5,
+    "logitSd": { "cell": 0.6, "conversation": 0.4, "wording": 1.2 }
   },
   "unseen": {
     "draws": 200,
