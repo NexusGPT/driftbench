@@ -90,8 +90,9 @@ between planned acts and acts detected on the realised text.
 
 1. M2.1 determinism (offline): same seed and the same recorded agent acts give an identical planned-act
    sequence across 10 runs.
-2. M2.1 act recovery: a second classifier call labels the realised text; share of turns whose detected
-   acts contain the planned acts is reported. No threshold is set (no hand-labelled sample exists).
+2. M2.1 act recovery: share of turns whose realised text carries every planned `answer` act (the slot's
+   exact value appears in the text, case-insensitive) and no unplanned fact value. No threshold is set
+   (no hand-labelled sample exists). See amendment 1.
 3. M2.1 premature stop: count of engine stops issued before the agent's last tool call or before the
    agent signalled closure (should be 0 by construction; it is measured, not assumed).
 4. M2.3 metric check (offline): the free arm's transcripts with "please" added to every turn must score a
@@ -109,4 +110,6 @@ between planned acts and acts detected on the realised text.
 
 ## Amendments
 
-(none yet)
+1. 2026-10-14, before any H10 data: the act-recovery check uses an exact string match of fact values in
+   place of a second LLM classifier call. Reason: the planned acts that carry facts are checkable exactly,
+   which is stricter and costs nothing; acts with no fact value (acknowledge, goodbye) are not scored.

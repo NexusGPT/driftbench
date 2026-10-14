@@ -79,4 +79,7 @@ says the interval includes 0 (it is not a significant difference).
 
 ## Amendments
 
-(none yet)
+1. 2026-10-14, after the tiny sample, before the full run: the `verify-identity` tool schema came from
+   `ontology.json` (customer_name, account_id, order_id, zip_code) while the guidelines ask for three of
+   full name, zip code, phone and e-mail. The agent refused a phone number it could not pass. Phone and
+   e-mail fields were added to the tool. The 4 pilot conversations are not used as data.
