@@ -29,11 +29,27 @@ for (const line of readFileSync(decisionsPath, 'utf8').split('\n')) {
 }
 const cells = MODELS.map((model) => {
   const g = games.get(model) as Record<string, string[]>;
-  if (Object.keys(g).length !== items.size) throw new Error(`${model}: replayed ${Object.keys(g).length} of ${items.size}`);
-  const correct = [...items.values()].reduce((n, x) => n + (g[x.id] ?? []).filter((v) => v === x.label).length, 0);
-  return { model, contestant: 'pair-ledger', setting: 'long-structured', status: 'complete', pairs: items.size, correct, accuracy: (100 * correct) / (2 * items.size), rules: rules.get(model) };
+  if (Object.keys(g).length !== items.size)
+    throw new Error(`${model}: replayed ${Object.keys(g).length} of ${items.size}`);
+  const correct = [...items.values()].reduce(
+    (n, x) => n + (g[x.id] ?? []).filter((v) => v === x.label).length,
+    0,
+  );
+  return {
+    model,
+    contestant: 'pair-ledger',
+    setting: 'long-structured',
+    status: 'complete',
+    pairs: items.size,
+    correct,
+    accuracy: (100 * correct) / (2 * items.size),
+    rules: rules.get(model),
+  };
 });
-writeFileSync(resolve(HERE, 'results/test/driftbench-long-structured.json'), `${JSON.stringify(games.get('haiku'), null, 0)}\n`);
+writeFileSync(
+  resolve(HERE, 'results/test/driftbench-long-structured.json'),
+  `${JSON.stringify(games.get('haiku'), null, 0)}\n`,
+);
 writeFileSync(
   resolve(HERE, '../../docs/assets/data/sealed/writing-long-structured.json'),
   `${JSON.stringify({ source: 'examples/writing-heldout/replay_test.ts on research/ledger-wp 110c2fec TEST pair-ledger verdicts; no model call', setting: "judgePairLedger(..., { preference: 'long-structured' })", cells }, null, 2)}\n`,
