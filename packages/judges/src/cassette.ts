@@ -1,4 +1,6 @@
-import { readFile, writeFile } from 'node:fs/promises';
+import { randomUUID } from 'node:crypto';
+import { readFile, rename, unlink, writeFile } from 'node:fs/promises';
+import { basename, dirname, join } from 'node:path';
 import { contentHash } from '@agent-nexus/driftbench-core';
 import { z } from 'zod';
 import { ANSWER_AUDIT_PROMPT_FINGERPRINT } from './answer-audit';
@@ -240,7 +242,47 @@ export function requestKey(
   });
 }
 
-/** Wraps a client; every answer and every failure it gives is appended to `cassette`. */
+// Occurrences belong to the cassette, so separate wrappers share invocation order.
+// Only completed entries enter its public array; pending calls never serialize as holes.
+const recordingOrder = new WeakMap<
+  Cassette,
+  { next: number; pending: number; entries: WeakMap<CassetteEntry, number> }
+>();
+
+function reserveOccurrence(cassette: Cassette): (entry: CassetteEntry) => void {
+  let order = recordingOrder.get(cassette);
+  if (!order) {
+    order = { next: 0, pending: 0, entries: new WeakMap() };
+    recordingOrder.set(cassette, order);
+  }
+  const occurrence = order.next++;
+  order.pending++;
+  return (entry) => {
+    // Existing entries precede this recording session. Binary insertion preserves invocation
+    // order without delaying other calls or discarding a later call that finishes first.
+    let low = 0;
+    let high = cassette.entries.length;
+    while (low < high) {
+      const middle = Math.floor((low + high) / 2);
+      const prior = cassette.entries[middle] as CassetteEntry;
+      if ((order.entries.get(prior) ?? -1) < occurrence) low = middle + 1;
+      else high = middle;
+    }
+    order.entries.set(entry, occurrence);
+    cassette.entries.splice(low, 0, entry);
+    order.pending--;
+  };
+}
+
+function requireSettledRecording(cassette: Cassette): void {
+  if (recordingOrder.get(cassette)?.pending)
+    throw new JudgeError(
+      'config',
+      'Cannot play or save a cassette with recordings in flight; await every recording first',
+    );
+}
+
+/** Wraps a client; every answer and failure is retained in invocation order in `cassette`. */
 export function recordingClient(client: JudgeClient, cassette: Cassette): JudgeClient {
   if (!cassette.judges.some((judge) => judge.id === client.id)) {
     cassette.judges.push({
@@ -289,6 +331,7 @@ export function recordingClient(client: JudgeClient, cassette: Cassette): JudgeC
         ? { criterionPromptVersion: 2 as const }
         : {}),
     };
+    const commit = reserveOccurrence(cassette);
     const cost = (result: JudgeResult) => (result.costUsd === undefined ? {} : { cost_usd: result.costUsd });
     try {
       const result =
@@ -297,7 +340,7 @@ export function recordingClient(client: JudgeClient, cassette: Cassette): JudgeC
           : swapped && client.judgeComparison
             ? await client.judgeComparison(request, swapped)
             : await client.judge(request);
-      cassette.entries.push(
+      commit(
         result.defaultJudge ||
           result.thinkingRecovery ||
           result.retryReceipts ||
@@ -320,7 +363,7 @@ export function recordingClient(client: JudgeClient, cassette: Cassette): JudgeC
       );
       return result;
     } catch (cause) {
-      cassette.entries.push({ ...base, error: cause instanceof Error ? cause.message : String(cause) });
+      commit({ ...base, error: cause instanceof Error ? cause.message : String(cause) });
       throw cause;
     }
   };
@@ -345,7 +388,7 @@ export function recordingClient(client: JudgeClient, cassette: Cassette): JudgeC
   };
 }
 
-/** A client that replays the entries of one judge. Each entry is used in order, then the last repeats. */
+/** Replays settled entries in invocation order, then repeats the last. Await all recordings first. */
 export function playerClient(
   cassette: Cassette,
   judgeId: string,
@@ -356,6 +399,7 @@ export function playerClient(
     readonly criterionPromptVersion?: CriterionPromptVersion;
   } = {},
 ): JudgeClient {
+  requireSettledRecording(cassette);
   const judge = cassette.judges.find((candidate) => candidate.id === judgeId);
   if (!judge) throw new JudgeError('config', `the cassette lists no judge "${judgeId}"`);
   const used = new Map<string, number>();
@@ -518,6 +562,33 @@ export async function loadCassette(path: string): Promise<Cassette> {
   return parsed.data;
 }
 
+/** Atomically exports a settled cassette. Await every recording before saving. */
 export async function saveCassette(path: string, cassette: Cassette): Promise<void> {
-  await writeFile(path, `${JSON.stringify(cassette, null, 2)}\n`, 'utf8');
+  requireSettledRecording(cassette);
+  const temporary = join(dirname(path), `.${basename(path)}.${randomUUID()}.tmp`);
+  try {
+    await writeFile(temporary, `${JSON.stringify(cassette, null, 2)}\n`, { encoding: 'utf8', flag: 'wx' });
+  } catch (cause) {
+    // An exclusive-create collision is not our file to remove.
+    if (typeof cause === 'object' && cause !== null && 'code' in cause && cause.code === 'EEXIST')
+      throw cause;
+    await cleanTemporary(temporary, cause);
+  }
+  try {
+    await rename(temporary, path);
+  } catch (cause) {
+    await cleanTemporary(temporary, cause);
+  }
+}
+
+async function cleanTemporary(path: string, cause: unknown): Promise<never> {
+  try {
+    await unlink(path);
+  } catch (cleanup) {
+    if (!(typeof cleanup === 'object' && cleanup !== null && 'code' in cleanup && cleanup.code === 'ENOENT'))
+      throw new AggregateError([cause, cleanup], 'Cassette export and temporary-file cleanup failed', {
+        cause,
+      });
+  }
+  throw cause;
 }

@@ -62,6 +62,8 @@ The verifier checks the full criterion even when blind solutions agree. Agreemen
 
 Routing and verification can require more than one model call. `costUsd` includes all reported charges; `requestCount` includes retries. `defaultJudge` records the policy version, route and provider receipts, including raw failed attempts and retry receipts. Unknown cost is marked `costIncomplete`, never reported as a complete partial total.
 
+`recordingClient` retains concurrent calls in invocation order, including repeated identical requests and failed calls. Await all recordings before creating a cassette player or calling `saveCassette`; both reject a cassette with calls in flight. `saveCassette` writes a complete temporary file before atomically replacing the destination, so concurrent exports leave one complete recording.
+
 `spendCapUsd` caps the client across calls. Set `maxBudgetUsd` as the per-call ceiling. Each in-flight call reserves the smaller of that ceiling and the unreserved balance. The same amount reaches the native command and retry budget. The client refuses another call when no unreserved balance remains or a prior cost is unknown. The Claude command also enforces its per-call budget. Other providers report usage but may not report monetary cost, so an application can supply a metered transport.
 
 Objective verification requests at least 4096 output tokens for every stage. Explicit request or transport reasoning settings add output room by reasoning level. An explicit `createDefaultJudge({ maxTokens })` overrides the procedure allowance, including its reasoning room; the cap also participates in recording identity. Truncated output remains inconclusive. Native command transports retain their own output limits.
