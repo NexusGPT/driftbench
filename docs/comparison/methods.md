@@ -43,27 +43,38 @@ The matrix counts what each tool's public docs or source show, one cited page pe
 
 The result files are copies from the research branches, listed with their commits in [docs/assets/data](../assets/data/README.md).
 
-* The driftbench side is the pair ledger, an opt-in judge mode in review (PR 168), and on the verify benchmark the frozen verify cascade. Neither is the shipped default.
+* One chart per benchmark: `docs/assets/bench-<name>-light.png` and `-dark.png`, drawn by `.github/readme/render.mjs` from `.github/readme/src/chart-data.js`. `tools/readme-charts.mjs` writes that file from the result files in `docs/assets/data/sealed/` and lists every drawn number, with its file, in [chart-facts.csv](../assets/data/chart-facts.csv).
+* Each chart has one panel per model: Claude Haiku 5.5, GPT-6 Luna and Gemini 3.5 Flash-Lite. Bars run from the highest score to the lowest, on one scale of 0 to 100. Gemini 3.8 Flash is not charted.
+* A competitor is drawn when a result file records it. `tools/readme-charts.mjs` reads every contestant of `docs/comparison/benchmarks/<bench>-all-peers.json`, the file the all-competitors run writes, and draws each beside driftbench and promptfoo; a contestant whose cell is incomplete, or run on another model, is drawn as "not run". Today only promptfoo is recorded. A model with no recorded cell is drawn as "not run", and no value is estimated.
+* The driftbench side is the pair ledger, an opt-in judge mode merged in PR 168, and on the verify benchmark the frozen verify cascade. Neither is the shipped default.
 * promptfoo runs its select-best template (llm-rubric on verify) at its pinned commit `8014282`.
 * Each set was frozen before the first model call. JudgeBench: 159 of the 270 pairs share a source question with earlier evaluations. Verify and RubricBench are previously evaluated splits. MM-Eval items were never scored before.
 * A correction across the whole family of cells is pending, so no cell is called a win or a loss. On JudgeBench with Claude Haiku 5.5 the uncorrected p is 0.0139; on MM-Eval with Haiku 0.00061, and with Gemini 3.5 Flash-Lite 0.042 in promptfoo's favour.
 * MM-Eval with Haiku scores 591 of the 600 pairs; the nine missing are safety items.
-* A model left out of a chart was not final: Claude Haiku 5.5 was still running on RubricBench and pending on verify.
-* On verify a judge that always says fail scores 78.7 percent, above both judges. On writing a rule that picks the longer reply scores 67.6 percent, above both judges, and the three models did not pass the development check against such rules.
-* Every comparison chart uses one score axis, 0 to 100.
-* The README shows the JudgeBench chart. The MM-Eval, RubricBench, verify and writing results against promptfoo are not charted in the README for now; their numbers are in the result files named above and in [chart-facts.csv](../assets/data/chart-facts.csv):
+* RubricBench with Claude Haiku 5.5 is complete: 790 of 790 pairs, in `rubricbench-haiku.json`.
+* Verify is run with GPT-6 Luna only. Claude Haiku 5.5 is pending and Gemini 3.5 Flash-Lite has no cell, so both are drawn as "not run".
+* On verify a judge that always says fail scores 78.7 percent, above both judges. On writing a rule that picks the longer reply scores 67.6 percent, above every judge, and the three models did not pass the development check against such rules.
+* Titles compare the bars as drawn, to one decimal: two bars that read 80.8 and 80.8 are equal. On RubricBench with Gemini 3.5 Flash-Lite the scores are 80.76 for driftbench and 80.82 for promptfoo, so the title calls them equal.
 
-| Benchmark | Model | driftbench | promptfoo |
-|---|---|---|---|
-| MM-Eval | Claude Haiku 5.5 | 88.9 | 86.5 |
-| MM-Eval | GPT-6 Luna | 88.1 | 89.0 |
-| MM-Eval | Gemini 3.5 Flash-Lite | 81.4 | 83.8 |
-| RubricBench | GPT-6 Luna | 82.3 | 81.5 |
-| RubricBench | Gemini 3.5 Flash-Lite | 80.8 | 80.8 |
-| verify | GPT-6 Luna | 74.7 | 72.4 |
-| writing | Claude Haiku 5.5 | 61.3 | 56.9 |
-| writing | GPT-6 Luna | 53.8 | 56.9 |
-| writing | Gemini 3.5 Flash-Lite | 59.0 | 60.4 |
+All charted numbers:
+
+| Benchmark | Model | driftbench | promptfoo | No model |
+|---|---|---|---|---|
+| JudgeBench | Claude Haiku 5.5 | 88.9 | 83.0 |  |
+| JudgeBench | GPT-6 Luna | 87.0 | 84.8 |  |
+| JudgeBench | Gemini 3.5 Flash-Lite | 79.6 | 79.6 |  |
+| MM-Eval | Claude Haiku 5.5 | 88.9 | 86.5 |  |
+| MM-Eval | GPT-6 Luna | 88.1 | 89.0 |  |
+| MM-Eval | Gemini 3.5 Flash-Lite | 81.4 | 83.8 |  |
+| RubricBench | Claude Haiku 5.5 | 82.7 | 75.6 |  |
+| RubricBench | GPT-6 Luna | 82.3 | 81.5 |  |
+| RubricBench | Gemini 3.5 Flash-Lite | 80.8 | 80.8 |  |
+| verify | Claude Haiku 5.5 | not run | not run | 78.7 (always fail) |
+| verify | GPT-6 Luna | 74.7 | 72.4 | 78.7 (always fail) |
+| verify | Gemini 3.5 Flash-Lite | not run | not run | 78.7 (always fail) |
+| writing | Claude Haiku 5.5 | 61.3 | 56.9 | 67.6 (longer reply) |
+| writing | GPT-6 Luna | 53.8 | 56.9 | 67.6 (longer reply) |
+| writing | Gemini 3.5 Flash-Lite | 59.0 | 60.4 | 67.6 (longer reply) |
 
 ## What a judgement costs
 
@@ -79,13 +90,14 @@ Each row of a per-tool page is measured head to head, measured against our own e
 
 ## Mixture of Judges
 
-* The README's line, at least as accurate with 3.5 to 20 times fewer costly calls: on the sealed sets MoJ scores 85.0, 94.9 and 65.2 against promptfoo's 84.0, 94.7 and 57.0, with ties on the first two after a Holm correction and a win on the third; promptfoo uses 200 reasoning calls per 100 pairs, MoJ 57, 21 and 10 (200 / 57 = 3.5, 200 / 10 = 20).
+* The README's line, at least as accurate with 3.5 to 19.4 times fewer costly calls: on the sealed sets MoJ scores 85.0, 94.9 and 65.2 against promptfoo's 84.0, 94.7 and 57.0, with ties on the first two after a Holm correction and a win on the third; promptfoo uses 200 reasoning calls per 100 pairs, MoJ 57, 21 and 10 (200 / 57 = 3.5, 200 / 10.3 = 19.4).
 
-* Design and results: `research/moj/RESULTS.md` on `research/system1-judge` at `06fd0edb`, section "Sealed confirmation (run once)". MoJ runs from that research harness; the package's opt-in escalation API (`createEscalation`) is on main.
+* Design and results: [research/moj/RESULTS.md](../../research/moj/RESULTS.md), section "Sealed confirmation (run once)", with [report.json](../../research/moj/results/sealed/report.json); copies from `research/system1-judge` at `06fd0edb`, listed in [research/moj](../../research/moj/README.md). MoJ runs from that research harness; the package's opt-in escalation API (`createEscalation`) is on main.
 * The sealed ids were drawn before any call and the primary configuration (`r9-two-step`) was frozen before any sealed score existed. All contestants run GPT-6 Luna at medium effort. Sealed pairs: JudgeBench 100, MM-Eval 294, writing 300.
 * Results: JudgeBench (strict both-order rule) MoJ 85.0 [77, 91], promptfoo 84.0 [76, 90]; MM-Eval 94.9 [92, 97] against 94.7 [92, 97]; writing 65.2 [60, 70] against 57.0 [51, 62]. Paired tests with a Holm correction over six comparisons: ties on JudgeBench and MM-Eval, a win on writing against promptfoo (+8.2 points, Holm p 0.047). On writing a rule that picks the longer reply scores 69.7, above MoJ.
 * Reasoning (System-2) calls per 100 pairs: MoJ 57, 21 and 10 on JudgeBench, MM-Eval and writing; promptfoo 200 on each. MoJ also makes 246 to 347 System-1 calls per 100 pairs, whose price is not published.
 * Inspect's scorer cascade is cited from its [multiple scorers page](https://inspect.aisi.org.uk/multiple-scorers.html); judge choice and ensembles in the other tools from row 11 of the [comparison](../comparison.md).
+* In this repository: on the 1,212 sealed MM-Eval items, the first judge sent 48 to the panel. The mean item score on those 48 rose from 51.0 to 85.4, with 36 items better and 2 worse; the whole set rose from 89.49 to 91.54. Source: `docs/assets/data/mm-eval-sealed-test.json`, fields `fullPanelEscalationsOnly` and `completeCascadeCohort`; the script writes them under `impact-moj` in [chart-facts.csv](../assets/data/chart-facts.csv). Both arms are driftbench.
 
 ## Tests written by code
 
@@ -104,15 +116,29 @@ Each row of a per-tool page is measured head to head, measured against our own e
 * The example is a recorded run on main: the golden Acme suite on the planted fault `x3-skips-recap` (`driftbench ci ... --target fault:x3-skips-recap --faults examples/acme/faults --route flow:price-sheet=process:acme-ops`), then `campaign status <campaign> --detail` and `--json`. In `gen-twise-066`, block 3 (counted from 0, the fourth block) fails `stage.reached` with `reached order_placed, expected recap` and `forbidden.order.create` with `order.create called 1 time (call-1); the block expects it 0 times`. Block 4 then fails `tools.order.create.count` with `order.create called 0 times, expected exactly 1; calls in this block: none`. The other five blocks pass.
 * That each of the 13 scored Acme faults turns specific blocks red is read from the committed gate report `examples/acme/gated/gate-report.json`; the red block count of each fault is listed in the blast radius containment test.
 * The units the other tools score are cited from row 1 of the [comparison](../comparison.md#where-driftbench-is-ahead).
+* The README's numbers: on the Acme gated suite (195 conversations, 861 blocks), nine planted faults of the sales assistant turn at least one block red. For each, the red share is the red blocks divided by the blocks of the conversations that hold a red block. A whole-conversation score marks every block of those conversations. Eight faults leave some blocks green, with shares of 18.1 to 40.0 percent; the wrong language fault turns 826 of the 861 blocks red, every block of the 171 conversations that fail.
+* The counts come from `examples/acme/gated/gate-report.json`, over the accepted blocks of the dev split, the set `examples/acme/test/radius/contained.test.ts` uses. `tools/readme-charts.mjs` computes them and writes them to [chart-facts.csv](../assets/data/chart-facts.csv) under `impact-blocks`.
+
+| Planted fault | Red blocks | Conversations that fail | Blocks in them | Red share |
+|---|---|---|---|---|
+| `x1-invents-price` | 125 | 125 | 692 | 18.1% |
+| `x3-skips-recap` | 237 | 102 | 601 | 39.4% |
+| `x4-wrong-language` | 826 | 171 | 826 | 100.0% |
+| `x5-drops-coverage-check` | 86 | 86 | 413 | 20.8% |
+| `d2-ignores-goal-shift` | 22 | 9 | 55 | 40.0% |
+| `d4-order-on-loose-yes` | 54 | 25 | 157 | 34.4% |
+| `d6-obeys-instruction` | 13 | 13 | 68 | 19.1% |
+| `d8-hides-tool-failure` | 15 | 15 | 44 | 34.1% |
+| `d9-answers-out-of-scope` | 11 | 11 | 58 | 19.0% |
 
 ## Blast radius: rerun only what a change touches
 
-* The README's numbers: the recap change skips 261 of 867 blocks (30.1 percent) and finds the same 102 failing tests as a full run; the largest saving by change is 95.9 percent (the price sheet task family), rounded to 96.
-
-* The numbers come from `docs/concepts/blast-radius.md` on the blast radius pull requests ([PR 238](https://github.com/achammah/driftbench/pull/238), commit `916220c5`), measured on the Acme gated suite: 195 specs, 867 blocks sent in all, 861 scored.
-* End to end (`packages/cli/test/radius-carry.test.ts` on that branch, no model call): a baseline runs the agents as `acme-v1`; the sales assistant then suffers the planted fault that skips the recap. The radius campaign of the recap change sends 606 of 867 blocks and carries 93 cells (261 blocks): 30.1 percent saved. A full campaign of the same faulty agent fails on 102 cells, the same 102 the radius campaign fails on, none of them carried.
-* By change, the share of blocks not sent ranges from 0 (the reply-language rule, a tool no block names) to 95.9 percent (the price sheet task family). These are counts of blocks, not seconds.
-* For every scored Acme fault, a test asserts that every block the full suite turns red lies inside the radius of its change.
+* The README's numbers, measured on the Acme gated suite of 195 conversations and 861 scored blocks, with `driftbench radius examples/acme/gated/specs --change examples/acme/radius/<manifest>.yaml --mode F`: a rerun of the recap change sends 601 blocks and saves 30.2 percent; the price sheet task family saves 95.9 percent; the reply language rule and a tool no block names save 0, because the radius is the whole suite.
+* The table of eleven changes is in `docs/concepts/blast-radius.md`, section "Measured on Acme". `tools/readme-charts.mjs` reads it and writes each row to [chart-facts.csv](../assets/data/chart-facts.csv) under `impact-radius`; the script stops when the table no longer parses. The commands above reproduce the rows.
+* Containment: for each of the 13 scored faults, `examples/acme/test/radius/contained.test.ts` asserts that every block the committed gate report turns red lies inside the radius of its change. 13 of 13 hold, with no red block outside.
+* End to end (`packages/cli/test/radius-carry.test.ts`, no model call): a baseline runs the agents as `acme-v1`; the sales assistant then suffers the planted fault that skips the recap. The radius campaign of the recap change sends 606 of 867 blocks and carries 93 cells (261 blocks): 30.1 percent saved. A full campaign of the same faulty agent fails on 102 cells, the same 102 the radius campaign fails on, none of them carried.
+* By change, the share of blocks not sent ranges from 0 to 95.9 percent. These are counts of blocks, not seconds.
+* The radius, `driftbench radius` and `campaign run --change` are on main.
 * Caching in the other tools is cited from row 22 of the [comparison](../comparison.md).
 
 ## A judge that shows its work

@@ -37,8 +37,6 @@ driftbench is an open-source evaluation framework for AI agents: chat agents, an
 
 Works with any agent through an [adapter](#adapters). No account, no server. Apache 2.0, TypeScript, Node 22 or newer.
 
-<!-- Benchmark grid: the four public benchmarks side by side, driftbench against every competitor. Template: .github/readme/src/chart.html?c=bench-template-grid. Added here when the result files land. -->
-
 ## Quickstart
 
 About two minutes, most of it the install. You need Node 22 or newer and npm. No API key: the agent below is a short script that stands in for yours.
@@ -162,7 +160,7 @@ Four ideas lead. Each one changes what you learn when a test fails, and what it 
 - **What it is.** A conversation is split into steps, which driftbench calls blocks. Each block has its own starting point and its own expected result, so each block passes or fails on its own.
 - **What others do.** They score a whole scenario, test row, conversation, sample, dataset item or trace (row 1 of our [comparison](docs/comparison.md#where-driftbench-is-ahead)). You learn that the run failed.
 - **Why it matters.** You learn what broke, not only that something did: the report names the step, what was expected and what happened.
-- **Impact.** A failing test names the step that broke and the reason. [How we measured](docs/comparison/methods.md#blocks-a-failure-you-can-diagnose)
+- **Impact.** Nine planted faults of the Acme sales assistant fail at least one block of its gated suite, 195 conversations and 861 blocks. For eight of them, the failing blocks are 18 to 40 percent of the blocks of the conversations that fail. The fault that drops the coverage check fails 86 conversations that hold 413 blocks: a whole-conversation score marks all 413, and driftbench marks the 86 that fail. The ninth fault, a wrong language, fails 826 of the 861 blocks: every block of the 171 conversations that fail. Source: [gate-report.json](examples/acme/gated/gate-report.json); every count is in [chart-facts.csv](docs/assets/data/chart-facts.csv). [How we measured](docs/comparison/methods.md#blocks-a-failure-you-can-diagnose)
 
 ### Blast radius: rerun only what a change touches
 
@@ -177,14 +175,14 @@ Four ideas lead. Each one changes what you learn when a test fails, and what it 
 - **What it is.** Every step says what it uses. When you change one part of your agent, driftbench reruns the steps that use it and keeps the other results from the last run. When it cannot tell, it reruns everything.
 - **What others do.** LangWatch Scenario and Inspect cache model calls, and promptfoo and DeepEval document part of a cache (row 22 of our [comparison](docs/comparison.md)). A cache replays a call that has not changed; it does not decide which tests a change can affect.
 - **Why it matters.** A pull request pays for the tests its change can break, and still finds every failure. The nightly run covers everything.
-- **Impact.** A change to one step skipped 30 percent of the tests and found the same failures as a full run; smaller changes skip up to 96 percent. Being merged in steps ([PR 228](https://github.com/achammah/driftbench/pull/228), [PR 232](https://github.com/achammah/driftbench/pull/232), [PR 238](https://github.com/achammah/driftbench/pull/238)). [How we measured](docs/comparison/methods.md#blast-radius-rerun-only-what-a-change-touches)
+- **Impact.** On the Acme suite of 861 blocks, a rerun of the recap change sends 601 and skips 30.2 percent. A change to the price sheet task family skips 95.9 percent. A change to the reply language rule, which every block depends on, skips 0, and the radius says so. For all 13 planted faults, no block that fails in a full run lies outside the radius of its change. A radius run of the recap change fails on the same 102 cells as a full run. Sources: [blast-radius.md](docs/concepts/blast-radius.md), [contained.test.ts](examples/acme/test/radius/contained.test.ts), [radius-carry.test.ts](packages/cli/test/radius-carry.test.ts). `driftbench radius` and `campaign run --change` are on main. [How we measured](docs/comparison/methods.md#blast-radius-rerun-only-what-a-change-touches)
 
 ### Mixture of Judges: the right judge for each answer
 
 <a href=".github/readme/moj-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/moj-dark.png">
-    <img alt="One answer to judge. First, a quick, cheap judge reads it and says how sure it is and what kind of answer this is. If it is sure, it decides at once. If not, the answer goes to the expert that fits: a fact or a sum to check is solved once and compared; anything else unclear goes to a careful reasoning judge; if still unclear, a panel of models votes. The verdict is pass or fail, with the reason. At least as accurate as promptfoo on three public benchmarks, with 3.5 to 20 times fewer costly calls." src=".github/readme/moj-light.png" width="100%">
+    <img alt="One answer to judge. First, a quick, cheap judge reads it and says how sure it is and what kind of answer this is. If it is sure, it decides at once. If not, the answer goes to the expert that fits: a fact or a sum to check is solved once and compared; anything else unclear goes to a careful reasoning judge; if still unclear, a panel of models votes. The verdict is pass or fail, with the reason. At least as accurate as promptfoo on three public benchmarks, with 3.5 to 19.4 times fewer costly calls." src=".github/readme/moj-light.png" width="100%">
   </picture>
 </a>
 <p align="center"><sub>A cheap judge decides what it is sure of; the rest goes to the expert that fits.</sub></p>
@@ -192,7 +190,7 @@ Four ideas lead. Each one changes what you learn when a test fails, and what it 
 - **What it is.** A quick judge reads every answer first. When it is sure, it decides. When it is not, the answer goes to the expert that fits it: a fact check, a careful reasoning judge, or a panel of models.
 - **What others do.** promptfoo, DeepEval, LangWatch and Langfuse let you pick one judge model; our comparison found ensembles in their docs only in part (row 11). Inspect documents a [scorer cascade](https://inspect.aisi.org.uk/multiple-scorers.html) that stops at the first scorer that settles a sample.
 - **Why it matters.** You pay for careful reasoning only where an answer needs it.
-- **Impact.** At least as accurate as promptfoo on three public benchmarks, with 3.5 to 20 times fewer costly calls. MoJ runs today from our research harness, on the package's opt-in escalation API (`createEscalation`). [How we measured](docs/comparison/methods.md#mixture-of-judges)
+- **Impact.** On 1,212 sealed MM-Eval items, the first judge sent 48 to the panel. On those 48 the score rose from 51.0 to 85.4, and on the whole set from 89.49 to 91.54 ([mm-eval-sealed-test.json](docs/assets/data/mm-eval-sealed-test.json)). Against promptfoo with GPT-6 Luna, MoJ scored 85.0 against 84.0 on JudgeBench, 94.9 against 94.7 on MM-Eval and 65.2 against 57.0 on writing. It used 57, 21 and 10.3 costly reasoning calls per 100 pairs where promptfoo used 200: 3.5 to 19.4 times fewer. Two results are ties and the third is a win after a Holm correction; on writing, a rule that picks the longer reply scores 69.7 on the sealed pairs, above both ([RESULTS.md](research/moj/RESULTS.md), [report.json](research/moj/results/sealed/report.json)). MoJ runs today from that research harness, on the package's opt-in escalation API (`createEscalation`). [How we measured](docs/comparison/methods.md#mixture-of-judges)
 
 ### More that ships
 
@@ -743,6 +741,62 @@ A minimal complete adapter is the `functionAdapter` of [Evaluate your own agent]
 
 Every number comes from a result file in this repository. All scores are on one scale, 0 to 100.
 
+### Public benchmarks, against promptfoo
+
+Five public benchmarks for judges, one chart each. A chart has one panel per model. In each panel, driftbench stands beside every competitor with a recorded result, from the highest score to the lowest. A competitor is drawn when the repository records a result for it; the note under each chart names who is drawn. Today that is promptfoo. A result that was not run says "not run"; none is estimated.
+
+The driftbench side is the pair ledger, an opt-in judge mode merged in [PR 168](https://github.com/achammah/driftbench/pull/168), and on verify the frozen verify cascade. Neither is the shipped default. A correction across the whole family of cells is still pending, so no cell is called a win or a loss.
+
+**JudgeBench.** The same 270 sealed pairs and the same model on both sides.
+
+<a href="docs/assets/bench-judgebench-light.png">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-judgebench-dark.png">
+    <img alt="JudgeBench sealed test, 270 pairs per model, percent correct, one panel per model, bars from highest to lowest. Claude Haiku 5.5: driftbench 88.9, promptfoo 83.0. GPT-6 Luna: driftbench 87.0, promptfoo 84.8. Gemini 3.5 Flash-Lite: promptfoo 79.6, driftbench 79.6." src="docs/assets/bench-judgebench-light.png" width="100%">
+  </picture>
+</a>
+<p align="center"><sub><a href="docs/comparison/methods.md#public-benchmarks-against-promptfoo">How we measured</a></sub></p>
+
+**MM-Eval.** The benchmark's own score on sealed items. Claude Haiku 5.5 scores 591 of 600 pairs; the nine missing are safety items.
+
+<a href="docs/assets/bench-mm-eval-light.png">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-mm-eval-dark.png">
+    <img alt="MM-Eval sealed test, percent correct, one panel per model, bars from highest to lowest. GPT-6 Luna: promptfoo 89.0, driftbench 88.1. Claude Haiku 5.5: driftbench 88.9, promptfoo 86.5. Gemini 3.5 Flash-Lite: promptfoo 83.8, driftbench 81.4." src="docs/assets/bench-mm-eval-light.png" width="100%">
+  </picture>
+</a>
+<p align="center"><sub><a href="docs/comparison/methods.md#public-benchmarks-against-promptfoo">How we measured</a></sub></p>
+
+**RubricBench.** The test split, both orders of every pair, 790 pairs per model.
+
+<a href="docs/assets/bench-rubricbench-light.png">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-rubricbench-dark.png">
+    <img alt="RubricBench test split, 790 pairs per model, percent correct, one panel per model, bars from highest to lowest. Claude Haiku 5.5: driftbench 82.7, promptfoo 75.6. GPT-6 Luna: driftbench 82.3, promptfoo 81.5. Gemini 3.5 Flash-Lite: promptfoo 80.8, driftbench 80.8." src="docs/assets/bench-rubricbench-light.png" width="100%">
+  </picture>
+</a>
+<p align="center"><sub><a href="docs/comparison/methods.md#public-benchmarks-against-promptfoo">How we measured</a></sub></p>
+
+**Verify.** The verify half of LongJudgeBench: is the final answer correct. Only GPT-6 Luna is run; the other two models say "not run". A judge that always says fail scores 78.7, above both.
+
+<a href="docs/assets/bench-verify-light.png">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-verify-dark.png">
+    <img alt="LongJudgeBench verify test split, percent correct, one panel per model. Claude Haiku 5.5: not run for driftbench and promptfoo; a judge that always says fail scores 78.7. GPT-6 Luna, 221 items: a judge that always says fail 78.7, driftbench 74.7, promptfoo 72.4. Gemini 3.5 Flash-Lite: not run; always fail 78.7." src="docs/assets/bench-verify-light.png" width="100%">
+  </picture>
+</a>
+<p align="center"><sub><a href="docs/comparison/methods.md#public-benchmarks-against-promptfoo">How we measured</a></sub></p>
+
+**Writing.** The writing preference half of LongJudgeBench, both orders, 173 pairs per model. A rule that picks the longer reply scores 67.6, above every judge.
+
+<a href="docs/assets/bench-writing-light.png">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-writing-dark.png">
+    <img alt="LongJudgeBench writing preference test split, 173 pairs per model, percent correct, one panel per model. Claude Haiku 5.5: a rule that picks the longer reply 67.6, driftbench 61.3, promptfoo 56.9. GPT-6 Luna: longer reply 67.6, promptfoo 56.9, driftbench 53.8. Gemini 3.5 Flash-Lite: longer reply 67.6, promptfoo 60.4, driftbench 59.0." src="docs/assets/bench-writing-light.png" width="100%">
+  </picture>
+</a>
+<p align="center"><sub><a href="docs/comparison/methods.md#public-benchmarks-against-promptfoo">How we measured</a></sub></p>
+
 ### A panel, only when unsure
 
 <a href=".github/readme/mm-eval-sealed-test-light.png">
@@ -796,18 +850,6 @@ The shipped judge against each framework's own default judge, on held-out hard c
 <p align="center"><sub><a href="docs/comparison/methods.md#the-judge-on-hard-cases">How we measured</a></sub></p>
 
 Every result, test by test and tool by tool, including the tests where another framework is ahead today: [how we measured](docs/comparison/methods.md) and the [per-tool pages](docs/comparison/index.md).
-
-### JudgeBench, against promptfoo
-
-A public benchmark for judges: the same 270 sealed pairs and the same model for both judges, one pair of bars per model. Here driftbench runs the pair ledger, an opt-in judge mode that is in review ([PR 168](https://github.com/achammah/driftbench/pull/168)).
-
-<a href=".github/readme/bench-judgebench-light.png">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/bench-judgebench-dark.png">
-    <img alt="JudgeBench sealed test, 270 pairs, percent correct, driftbench pair ledger against promptfoo select-best. Claude Haiku 5.5: 88.9 against 83.0. GPT-6 Luna: 87.0 against 84.8. Gemini 3.5 Flash-Lite: 79.6 against 79.6." src=".github/readme/bench-judgebench-light.png" width="100%">
-  </picture>
-</a>
-<p align="center"><sub><a href="docs/comparison/methods.md#public-benchmarks-against-promptfoo">How we measured</a></sub></p>
 
 ### What a judgement costs
 
