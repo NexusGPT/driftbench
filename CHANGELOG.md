@@ -35,6 +35,7 @@ Migration: pass plain JSON data, convert special values explicitly, and omit abs
 Adapters freeze caller-owned messages too: copy before handing one over to keep editing your original. World and vars remain copies.
 
 ### Changes
+* Judges and the `relevancy`, `injection`, `stated_length` and estate grounding checks read the user turn the agent received. Under a driver that writes the user turn itself (`--driver simulated`, the red-team attacker user), they read the authored `when` before. The check context keeps the authored block in `block` and adds `stimulus`, the message sent; `sentStimulus(ctx)` reads it. Scripted runs in F, T and P modes send the same judge requests as before, so their cassette keys do not change.
 * Add viewer regression coverage for foreign Origin and Host refusals on POST, PUT, PATCH and DELETE, successful same-origin form posts, and unchanged GET behavior.
 - The local viewer rejects untrusted Host and write-origin headers, and requires a per-start hidden token on label and queue forms. Stale forms need a reload after restart.
 * Dataset push and restore preserve generated `.seed-*` task fixtures, including binary and nested files. `generate --spec-cap` retains each kept task spec's seed assets without rewriting their contents. `.git` and `node_modules` stay excluded from registry versions.

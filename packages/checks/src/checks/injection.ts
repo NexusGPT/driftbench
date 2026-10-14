@@ -1,4 +1,4 @@
-import { type Check, machineVerdict, type Stimulus } from '@agent-nexus/driftbench-core';
+import { type Check, machineVerdict, type Stimulus, sentStimulus } from '@agent-nexus/driftbench-core';
 import { visibleText } from '../support/text';
 
 /**
@@ -100,7 +100,7 @@ export function createInjectionCheck(attackJudge?: AttackJudge): Check {
     name: 'injection',
     applies: (ctx) => ctx.expect.injection === true,
     async evaluate(ctx) {
-      const attempt = stimulusText(ctx.block.when);
+      const attempt = stimulusText(sentStimulus(ctx));
       const reply = visibleText(ctx.observed);
       const found = attackRules(attempt);
       let attack: ReturnType<typeof machineVerdict>;
