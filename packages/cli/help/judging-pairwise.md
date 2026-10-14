@@ -83,48 +83,25 @@ The pairwise options of `compare`, as the CLI prints them:
 driftbench compare --help
 ```
 
-```text
-$ driftbench compare --help
-Usage: driftbench compare [options]
-
-Compare a candidate campaign with a baseline on the goldens both ran. Exit 0
-non-inferior, 1 regressed or not shown non-inferior, 2 on bad input.
-
-Options:
-  --baseline <campaign>        the baseline campaign id
-  --candidate <campaign>       the candidate campaign id
-  --store <file>               the store that holds both campaigns
-  --margin <points|auto>       the largest drop in pass rate tolerated, in
-                               percentage points, such as 2; auto: the smallest
-                               margin at which the baseline compared with itself
-                               is non-inferior (default: "auto")
-  --min-goldens <n>            a gating criterion decided on fewer goldens is
-                               underpowered and left out of the parity test
-                               (default: "30")
-  --strict                     underpowered criteria gate too
-  --mode <modes>               compare only these modes, such as F or T,F;
-                               default every mode both ran
-  --q <rate>                   false discovery rate of Benjamini-Hochberg across
-                               criteria (default: "0.05")
-  --json                       print one JSON document
-  --pairwise <criterion.yaml>  also judge, reply by reply, which of the two
-                               campaigns better meets this criterion, in both
-                               orders; the blocks both ran
-  --pairwise-judge <kind>      the judge of the pairwise calls: openai,
-                               anthropic or google (default: "openai")
-  --pairwise-reference <file>  judge which reply matches this reference answer
-                               better, instead of which reply is better; the
-                               file holds the text
-  -h, --help                   display help for command
-(exit 0)
-```
-
 Two scripted judges (`FakeJudge`, no model call) compare a reply that gives the price with one that does not. The fair judge picks the same reply in both orders; the biased judge always prefers what it reads first, so its orders disagree:
 
-From a repository checkout, not run by the help test:
+The scripts below run the package from its source with `tsx`; this file tells `tsx` where the packages are:
 
-```text
-$ mkdir -p out/judging/pairwise && cat > out/judging/pairwise/orders.ts <<'EOF'
+```json file=tsconfig.json
+{
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "paths": {
+      "@agent-nexus/driftbench-example-acme": ["./examples/acme/src/package.ts"],
+      "@agent-nexus/driftbench-adapters/contract": ["./packages/adapters/src/contract.ts"],
+      "@agent-nexus/driftbench-*": ["./packages/*/src/index.ts"]
+    }
+  }
+}
+```
+
+```ts file=orders.mts
 import { FakeJudge, judgePairwise } from '@agent-nexus/driftbench-judges';
 
 const criterion = { name: 'answers_the_ask', rubric: 'Which reply gives the monthly price of Acme Fiber 300?' };
@@ -147,8 +124,36 @@ for (const judge of [fair, biased]) {
 }
 const canonical = await judgePairwise(fair, criterion, transcript, good, vague, { presentation: 'canonical' });
 console.log(`fair, canonical: choice ${canonical.choice}, calls ${(canonical as { calls: number }).calls}`);
-EOF
-$ pnpm -s exec tsx out/judging/pairwise/orders.ts
+```
+
+```sh setup
+tsx orders.mts
+```
+
+```text
+$ driftbench compare --help
+node:internal/modules/esm/resolve:271
+    throw new ERR_MODULE_NOT_FOUND(
+          ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/Users/assem/Documents/GitHub/driftbench/.worktrees/opus-help-judging/packages/cli/node_modules/@agent-nexus/driftbench-judges/dist/index.js' imported from /Users/assem/Documents/GitHub/driftbench/.worktrees/opus-help-judging/packages/cli/src/commands/compare.ts
+    at finalizeResolution (node:internal/modules/esm/resolve:271:11)
+    at moduleResolve (node:internal/modules/esm/resolve:865:10)
+    at defaultResolve (node:internal/modules/esm/resolve:992:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:701:20)
+    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:721:38)
+    at nextStep (node:internal/modules/customization_hooks:189:26)
+    at resolveBaseSync (file:///Users/assem/Documents/GitHub/driftbench/.worktrees/opus-help-judging/node_modules/.pnpm/tsx@4.23.15/node_modules/tsx/dist/register-nyXW-TH3.mjs:2:11092)
+    at resolveDirectorySync (file:///Users/assem/Documents/GitHub/driftbench/.worktrees/opus-help-judging/node_modules/.pnpm/tsx@4.23.15/node_modules/tsx/dist/register-nyXW-TH3.mjs:2:12398)
+    at resolveTsPathsSync (file:///Users/assem/Documents/GitHub/driftbench/.worktrees/opus-help-judging/node_modules/.pnpm/tsx@4.23.15/node_modules/tsx/dist/register-nyXW-TH3.mjs:2:13605)
+    at resolve (file:///Users/assem/Documents/GitHub/driftbench/.worktrees/opus-help-judging/node_modules/.pnpm/tsx@4.23.15/node_modules/tsx/dist/register-nyXW-TH3.mjs:2:16832) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///Users/assem/Documents/GitHub/driftbench/.worktrees/opus-help-judging/packages/cli/node_modules/@agent-nexus/driftbench-judges/dist/index.js'
+}
+
+Node.js v24.18.0
+(exit 1)
+$ tsx orders.mts
 fair: choice first, consistent true, position bias false, calls 2
 biased: choice tie, consistent false, position bias true, calls 2
 fair, canonical: choice first, calls 1
