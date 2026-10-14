@@ -171,7 +171,7 @@ export function followerAdapter(session: () => FaultSession, version = 'rule-fol
   });
 }
 
-async function writeAll(
+export async function writeAll(
   root: string,
   files: readonly { path: string; text: string; bytes?: Uint8Array }[],
 ): Promise<void> {
