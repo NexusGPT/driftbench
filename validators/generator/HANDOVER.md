@@ -7,30 +7,14 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 <!-- level-table:start -->
 | Seed | Level |
 |---|---|
-| 1 | 5 |
-| 2 | 5 |
-| 3 | 5 |
-| 4 | 5 |
-| 5 | 5 |
-| 6 | 5 |
-| 7 | 5 |
-| 8 | 5 |
-| 9 | 5 |
-| 10 | 5 |
-| 11 | 5 |
-| 12 | 5 |
-| 13 | 5 |
-| 14 | 5 |
-| 15 | 5 |
-| 16 | 5 |
-| 17 | 5 |
-| 18 | 5 |
-| 19 | 5 |
-| 20 | 5 |
-| hidden | 5 |
+| 1 | 8 |
 <!-- level-table:end -->
 
-Measured on `6756a4cf` (branch `exec/generator-v3`, pull request 306), seeds 1 to 20 and the hidden seed, ladder version 2, 2033 items: 1756 of 2033 items pass on every seed (score 0.864). Every seed is at level 5. Level 6, the validity gate, fails on one item on every seed, `gate.contrast.then-ignores-edit`, which is the first item to rule on below. On seed 1 alone 1825 of 2033 pass (35 items newly pass, 12 newly fail: the eight mode.T items of item 5, the two contrast items of item 2 and two invariance items of item 8); before this branch, on main `a0a3e5d7`, seed 1 alone: 1802 of 2033, level 5. No sweep of all seeds exists for that base; the first sweep of this branch (eight causes in, before main was merged) gave 1733 on every seed.
+V4 gate measurement: seed 1 reaches level 8. Counts by level 1 through 9: 25/25, 25/25, 26/26, 25/25, 25/25, 22/22, 30/30, 30/30, 17/20. Levels 10 through 22 were not run. The scoped measured bank is 225/228, not a replacement for the historical all-seed total. Gate-only checks on seeds 2 and 3 each pass 22/22; their full ladders were not rerun. Evidence: `.exec/gate-ladder-s1.json`, `.exec/gate-structured-s2.json`, `.exec/gate-structured-s3.json`. No full sweep is authorized on the loaded host.
+
+Gate tests were red first: equal reference outcomes expected pass but received reject (1 failed, 37 passed). The final focused file passes 40/40. The fix retains rejection for copied tool inputs, different observed tool behavior despite a passing coarse Then, and uncaptured final-store evidence.
+
+Historical full-bank baseline measured on `6756a4cf` (branch `exec/generator-v3`, pull request 306), seeds 1 to 20 and the hidden seed, ladder version 2, 2033 items: 1756 of 2033 items pass on every seed (score 0.864). Every seed is at level 5. Level 6, the validity gate, fails on one item on every seed, `gate.contrast.then-ignores-edit`, which is the first item to rule on below. On seed 1 alone 1825 of 2033 pass (35 items newly pass, 12 newly fail: the eight mode.T items of item 5, the two contrast items of item 2 and two invariance items of item 8); before this branch, on main `a0a3e5d7`, seed 1 alone: 1802 of 2033, level 5. No sweep of all seeds exists for that base; the first sweep of this branch (eight causes in, before main was merged) gave 1733 on every seed.
 
 Every failing item, the seeds it fails on and its first detail: [evidence/sweep-6756a4cf.json](evidence/sweep-6756a4cf.json).
 
@@ -169,3 +153,29 @@ Three scripts, each a few lines, placed in `packages/validators/` and never comm
 * Hidden specification per seed: `hiddenSpec(seed)` in `packages/validators/src/ladders/generator/hidden.ts`, rendered by `render.ts`; seed 1 is kept in `packages/validators/fixtures/generator/seed-1/`.
 * Rule follower `follower.ts`, faults `faults.ts`, cheaters `cheaters.ts`, items `bank*.ts` and `acme.ts`.
 * Earlier history of this lane (options A and B, the spec cap, the speed work, the maintainer patch of pull request 178) is in the journal rows 0 to 17 and in the git history of this file.
+
+## V4 pre-edit classification (2026-10-14)
+
+This supersedes the earlier claim that all 19 groups need rulings. Paths below are relative to `packages/`; protected fixture changes belong to the maintainer.
+
+1. **product gap**: `generate/src/gate/gate.ts:359` rejects equal sibling Thens without comparing correct reference outputs. Accept equal-by-design outputs; continue rejecting copied expectations when the reference changes. The write-integer subitems also need the fixed write arguments in `validators/src/ladders/generator/render.ts` corrected.
+2. **fixture gap: maintainer**: `validators/src/ladders/generator/render.ts` fixes the preparatory call at the minimum; `bank2.ts:519-540` collects all calls of that spec instead of the edited boundary block.
+3. **fixture gap: maintainer**: `validators/src/ladders/generator/hidden.ts` and `render.ts` provide no path that restates a slot and no latest-value rule; contradiction recovery asks which value holds.
+4. **fixture gap: maintainer**: `validators/src/ladders/generator/bank.ts:1919-1993` groups setup blocks by identical Then and outcomes without their necessary conversation prefixes.
+5. **fixture gap: maintainer**: `validators/src/ladders/generator/follower.ts:184-202` starts at the initial stage and reads only the last user turn, ignoring teacher-forced history.
+6. **fixture gap: maintainer**: `validators/src/ladders/generator/render.ts` omits save/artifact relations for the file held in `hidden.ts#saveFile`.
+7. **fixture gap: maintainer**: `validators/src/ladders/generator/render.ts` gives the opening question only in prompt prose, with no machine relation for a discriminating start-stage Then.
+8. **item defect**: `validators/src/ladders/generator/bank2.ts:559-569,616-626` groups with `slots(spec)` while that function retains only keys containing `.in.`; different `.out.` facts correctly change the Then.
+9. **item defect / fixture gap: maintainer**: `validators/src/ladders/generator/faults.ts` drop then duplicate composes zero calls back to one; other masked pairs need fixture expectations that observe both changes independently.
+10. **fixture gap: maintainer**: `validators/src/ladders/generator/hidden.ts:399` requires `CONFIRM`, already present in the pending recap question; `faults.ts:562` only changes the recovery's said text.
+11. **fixture gap: maintainer**: `validators/src/ladders/generator/faults.ts:309` invents the actual write tool's default fact on a turn calling that tool; `render.ts:53` forbids only uncalled tools' facts.
+12. **fixture gap: maintainer**: `validators/src/ladders/generator/render.ts` and `hidden.ts` lack a global one-reply contract; only nudge recovery specifies it.
+13. **fixture gap: maintainer**: `validators/src/ladders/generator/faults.ts:652` advances on a self-loop to the same stage; `hidden.ts:411` permits one call with `max: 2`.
+14. **item defect**: `validators/src/ladders/generator/bank2.ts:290-295` requires every middle stage using only hidden constraints; `possible.ts:36-45` permits tool failure only on a move calling the failing tool.
+15. **fixture gap: maintainer**: `validators/src/ladders/generator/follower.ts:202,285` reads D6 from user text, not the world carrier required by `bank4.ts:159-163`.
+16. **product gap**: `generate/src/seed/scenario.ts:503-535` restricts declared perturbations to recoveries that stay. A clean prefix can end at a non-goal stage and append a terminal goal-shift perturbation with its approved recovery.
+17. **product gap / fixture gap: maintainer**: `generate/src/seed/metamorphic-seeder.ts` skips single-phrase flows; give each approved flow phrase a path without losing bound input values. Data and tool-backed behaviour phrases still require missing `validators/src/ladders/generator/render.ts` relations.
+18. **fixture gap: maintainer**: `validators/src/ladders/generator/hidden.ts` and `render.ts` omit any flow call and full arguments for the unreferenced tool on the listed seeds.
+19. **fixture gap: maintainer**: `validators/src/ladders/generator/hidden.ts` and `possible.ts:48-51` permit seed 8's goal shift only at its goal, and disallow a non-staying terminal recovery.
+
+Additional product gaps: `allocation.deviation.ratio` needs balancing in `generate/src/seed/deviation-seeder.ts` after coverage; `scale.100x` needs a bounded-memory disk API in `generate/src/enumerate/`. Protected `measure.ts` retains both results, both file maps and reloaded specs; the maintainer will wire the new API into that harness.

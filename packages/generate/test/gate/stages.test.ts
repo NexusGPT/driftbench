@@ -1,3 +1,4 @@
+import { functionAdapter } from '@agent-nexus/driftbench-adapters';
 import { describe, expect, it } from 'vitest';
 import {
   blockOutcome,
@@ -261,14 +262,95 @@ describe('stage 4, contrast', () => {
       metadata: generated('deviation', [{ block: 'b1', cell: { deviation, stage: 'start' } }]),
     });
 
-  it('rejects one-slot siblings with another When and the same machine Then', async () => {
+  it('accepts one-slot siblings with equal correct reference outcomes', async () => {
     const result = await gate([
       probe('p1', 'D1_off_topic', 'What is the weather like?', 'start'),
       probe('p2', 'D9_out_of_scope', 'My bill is wrong.', 'start'),
     ]);
     for (const record of result.blocks) {
-      expect(record.stages.contrast).toMatchObject({ status: 'reject', reason: 'then-ignores-edit' });
+      expect(record.stages.contrast).toMatchObject({ status: 'pass' });
     }
+  });
+
+  it('accepts below-minimum and above-maximum requests that both correctly refuse', async () => {
+    const reference = functionAdapter({
+      create: () => ({}),
+      respond: (messages) => {
+        const quantity = Number(messages.at(-1)?.content);
+        const text = quantity < 2 || quantity > 8 ? `Quantity ${quantity} refused.` : 'Quantity accepted.';
+        return {
+          text,
+          segments: [{ type: 'text' as const, text }],
+          toolCalls: [],
+          runtime: { stages: [{ name: 'start' }] },
+          cost: { usd: 0 },
+          latencyMs: 0,
+        };
+      },
+      deterministic: true,
+    });
+    const siblings = [1, 9].map((quantity) =>
+      makeSpec({
+        id: `quantity-${quantity}`,
+        stages: STAGES,
+        blocks: [
+          {
+            id: 'b1',
+            when: { user: String(quantity) },
+            expect: { stage: 'start', must: ['refused'], tools: [{ label: 'order.create', count: 0 }] },
+          },
+        ],
+        metadata: generated('boundary', [{ block: 'b1', cell: { quantity: String(quantity) } }]),
+      }),
+    );
+    const result = await gate(siblings, { references: new Map([['function:shop', reference]]), faults: [] });
+    expect(result.blocks.map((record) => record.reference[0])).toEqual(['pass', 'pass']);
+    for (const record of result.blocks) expect(record.stages.contrast.status).toBe('pass');
+  });
+
+  it('rejects copied expectations when the edit changes the reference output', async () => {
+    const siblings = ['red', 'blue'].map((colour) =>
+      makeSpec({
+        id: `order-${colour}`,
+        stages: STAGES,
+        blocks: [{ ...orderBlock('b1'), when: { user: `Please order the ${colour} one.` } }],
+        metadata: generated('boundary', [{ block: 'b1', cell: { colour } }]),
+      }),
+    );
+    const result = await gate(siblings);
+    for (const record of result.blocks)
+      expect(record.stages.contrast).toMatchObject({ status: 'reject', reason: 'then-ignores-edit' });
+  });
+
+  it('rejects an under-specified copied Then even when both reference runs pass', async () => {
+    const siblings = ['red', 'blue'].map((colour) =>
+      makeSpec({
+        id: `loose-${colour}`,
+        stages: STAGES,
+        blocks: [
+          {
+            id: 'b1',
+            when: { user: `Please order the ${colour} one.` },
+            expect: { stage: 'ordered', tools: [{ label: 'order.create', count: 1 }] },
+          },
+        ],
+        metadata: generated('boundary', [{ block: 'b1', cell: { colour } }]),
+      }),
+    );
+    const result = await gate(siblings);
+    expect(result.blocks.map((record) => record.reference[0])).toEqual(['pass', 'pass']);
+    for (const record of result.blocks)
+      expect(record.stages.contrast).toMatchObject({ status: 'reject', reason: 'then-ignores-edit' });
+  });
+
+  it('does not infer final-store equivalence from equal captured replies', async () => {
+    const specs = [
+      probe('p1', 'D1_off_topic', 'What is the weather like?', 'start'),
+      probe('p2', 'D9_out_of_scope', 'My bill is wrong.', 'start'),
+    ].map((spec) => makeSpec({ ...spec, end_state: 'none' }));
+    const result = await gate(specs);
+    for (const record of result.blocks)
+      expect(record.stages.contrast).toMatchObject({ status: 'reject', reason: 'then-ignores-edit' });
   });
 
   it('keeps one-slot siblings whose Then changes with the edit', async () => {

@@ -23,3 +23,13 @@ What was tried, and why.
 - Balance free context draws on a shared count, since the constraints of some maps keep most behaviours on one channel.
 
 Finding. The remaining failing items are not reachable from the generator: each needs a rule the map does not state, a relation the map does not have, or a change of the rule follower. They are listed, with their evidence, in HANDOVER.md as items to rule on.
+
+
+## V4 reference-equivalent contrast
+
+- Question: must a one-slot edit always change the correct answer?
+- Sources: `packages/generate/src/gate/gate.ts#contrastStage`; `packages/validators/src/ladders/generator/bank4.ts`; maintainer ruling that `gate.contrast.then-ignores-edit` is valid as written.
+- Finding: the blanket product check rejects two valid refusals. Stable passing reference behavior can establish equivalence; matching pass/fail alone cannot.
+- Change: compare structured observed behavior, preserving wording-only contrast and conservative handling of out-of-band state.
+- Result: seed 1 reaches level 8; gate items pass 22/22 on seeds 1, 2 and 3. No full-bank score is inferred.
+- New hypotheses pending empirical checks: canonical Given for repeated setup, explicit current-When binding after a prior lookup, opening-stage read requests, exactly two read-only failure attempts.

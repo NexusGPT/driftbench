@@ -1,7 +1,15 @@
-import type { AgentAdapter, RunResult, Spec } from '@agent-nexus/driftbench-core';
+import type { AgentAdapter, Observed, RunResult, Spec } from '@agent-nexus/driftbench-core';
 import { mulberry32, passK, wilson } from '@agent-nexus/driftbench-stats';
 import { streamSeed } from '../seed/random';
-import { blockOutcome, failingIds, projectRun, type RunContext, runOnce, trivialAdapter } from './agents';
+import {
+  blockOutcome,
+  failingIds,
+  projectObserved,
+  projectRun,
+  type RunContext,
+  runOnce,
+  trivialAdapter,
+} from './agents';
 import { leakageStage, originGrams } from './leakage';
 import {
   auditFamily,
@@ -9,6 +17,7 @@ import {
   deviationOf,
   emptySignature,
   generatedMeta,
+  isObservedField,
   machineSignature,
   mapHashOf,
   observedStage,
@@ -316,7 +325,8 @@ type ContrastContext = {
 
 /**
  * Stage 4. A one-slot sibling (same seeder, same slot dimensions, exactly one value changed, another When)
- * must expect something else: an identical machine Then means the Then ignores the edit. A twin (same
+ * must expect something else when the reference outcome changes. Equal reference outcomes can justify
+ * equal Thens (for example, two invalid values both refuse). A twin (same
  * metamorphic family) must expect the same and come out the same on the reference.
  */
 function contrastStage(record: BlockRecord, spec: Spec, ctx: ContrastContext): StageVerdict {
@@ -357,6 +367,28 @@ function contrastStage(record: BlockRecord, spec: Spec, ctx: ContrastContext): S
     const when = index === undefined ? undefined : other?.blocks[index]?.when;
     if (!when || stimulusText(when) === ownWhen) continue;
     if (!emptySignature(own) && ctx.signatures.get(sibling) === own) {
+      const ownRuns = ctx.runs.get(spec.id)?.reference ?? [];
+      const otherRuns = ctx.runs.get(siblingSpec)?.reference ?? [];
+      // The reference, not the generated label, establishes equivalence. Every repeat must pass
+      // and show the same observed result. Equal pass/fail verdicts alone cannot justify a copied Then.
+      const outcomes = [
+        ...ownRuns.map((run) => ({ run, index: record.index })),
+        ...otherRuns.map((run) => ({ run, index: index as number })),
+      ];
+      const projections = outcomes.map(({ run, index }) => {
+        const block = run.blocks.find((entry) => entry.index === index);
+        return block && run.status === 'completed' && blockOutcome(run, index) === 'pass'
+          ? contrastProjection(block.observed, record.fields)
+          : undefined;
+      });
+      if (
+        ownRuns.length > 0 &&
+        otherRuns.length > 0 &&
+        record.fields.every((field) => CONTRAST_FIELDS.has(field)) &&
+        projections[0] !== undefined &&
+        projections.every((projection) => projection === projections[0])
+      )
+        continue;
       const changed = Object.entries(record.cell)
         .filter(([slot, value]) => blockCell(other as Spec, index as number)[slot] !== value)
         .map(([slot, value]) => `${slot} ${value}`);
@@ -370,13 +402,40 @@ function contrastStage(record: BlockRecord, spec: Spec, ctx: ContrastContext): S
   const checked = [
     ...(twinKeys.length > 0 ? [`${twinKeys.length} twin${twinKeys.length === 1 ? '' : 's'} agree`] : []),
     ...(siblings.length > 0
-      ? [`${siblings.length} one-slot sibling${siblings.length === 1 ? '' : 's'} differ`]
+      ? [`${siblings.length} one-slot sibling${siblings.length === 1 ? '' : 's'} checked`]
       : []),
   ];
   return {
     status: 'pass',
     detail: checked.length > 0 ? checked.join('; ') : 'no one-slot sibling or twin to compare',
   };
+}
+
+// These fields have complete reference evidence in the captured block. Final stores, artifact
+// bytes and custom raw state can be read out of band, so they cannot use this equivalence shortcut.
+const CONTRAST_FIELDS: ReadonlySet<ThenField> = new Set([
+  'tools',
+  'stage',
+  'skills',
+  'guards',
+  'text',
+  'lang',
+  'format',
+]);
+
+/** Behavioural contrast ignores reply phrasing when the Then also asserts observed state.
+ * Refusals can quote different invalid values while correctly making no call and staying put.
+ * Keep message boundaries, tools and their arguments, runtime, artifacts and workspace changes;
+ * a wording-only Then still compares the complete reply. */
+function contrastProjection(observed: Observed, fields: readonly ThenField[]): string {
+  if (!fields.some(isObservedField)) return projectObserved(observed);
+  return projectObserved({
+    ...observed,
+    text: '',
+    segments: observed.segments.map((segment) =>
+      segment.type === 'text' ? { ...segment, text: '' } : segment,
+    ),
+  });
 }
 
 function redFirstStage(
