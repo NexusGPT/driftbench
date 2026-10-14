@@ -292,7 +292,7 @@ for (const cohort of ['archived', 'current'])
       if (!existsSync(path)) {
         summaries.push({
           set,
-          status: 'not recorded',
+          status: model.id === 'gemini-3.8-flash' ? 'dropped by the owner' : 'not recorded',
           planned: slice.n,
           total: 0,
           fixes: null,

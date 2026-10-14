@@ -1,6 +1,6 @@
 # Decoder-only replay
 
-Status: complete Haiku/Luna replay gate passes with zero breaks on all 28 sets. Gemini is not recorded. See [the complete gate table](complete-gate.md).
+Status: complete Haiku/Luna replay gate passes with zero breaks on all 28 sets. Gemini 3.8 Flash was dropped by the owner and is not recorded. See [the complete gate table](complete-gate.md).
 
 Decoder version 2 is opt-in (`criterionDecoderVersion: 2`); the default stays strict version 1. Version 2 nulls ungrounded evidence strings and retains met. It does not relax source-addressed spans. The prompt and fingerprint remain unchanged (`398673b792c1`).
 
@@ -18,88 +18,88 @@ Replay snapshot: 2026-10-13T10:11:28.557Z. Recordings pinned to PR 172 commit `d
 | rendered-evidence | 6 | 5 | 5 | 0 | 0 | recorded |
 | bench-archived/fresh-rubric/haiku | 192 | 186 | 186 | 0 | 0 | recorded |
 | bench-archived/fresh-rubric/gpt-6-luna | 0 | n/a | n/a | n/a | n/a | not recorded |
-| bench-archived/fresh-rubric/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
+| bench-archived/fresh-rubric/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | dropped by the owner |
 | bench-archived/fresh-reference/haiku | 192 | 184 | 185 | 1 | 0 | recorded |
 | bench-archived/fresh-reference/gpt-6-luna | 0 | n/a | n/a | n/a | n/a | not recorded |
-| bench-archived/fresh-reference/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
+| bench-archived/fresh-reference/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | dropped by the owner |
 | bench-archived/map-rubric/haiku | 156 | 156 | 156 | 0 | 0 | recorded |
 | bench-archived/map-rubric/gpt-6-luna | 0 | n/a | n/a | n/a | n/a | not recorded |
-| bench-archived/map-rubric/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
+| bench-archived/map-rubric/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | dropped by the owner |
 | bench-archived/map-reference/haiku | 180 | 171 | 173 | 2 | 0 | recorded |
 | bench-archived/map-reference/gpt-6-luna | 0 | n/a | n/a | n/a | n/a | not recorded |
-| bench-archived/map-reference/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
+| bench-archived/map-reference/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | dropped by the owner |
 | bench-archived/hard-rubric/haiku | 120 | 118 | 118 | 0 | 0 | recorded |
 | bench-archived/hard-rubric/gpt-6-luna | 0 | n/a | n/a | n/a | n/a | not recorded |
-| bench-archived/hard-rubric/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
+| bench-archived/hard-rubric/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | dropped by the owner |
 | bench-archived/hard-factuality/haiku | 120 | 115 | 117 | 2 | 0 | recorded |
 | bench-archived/hard-factuality/gpt-6-luna | 0 | n/a | n/a | n/a | n/a | not recorded |
-| bench-archived/hard-factuality/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
+| bench-archived/hard-factuality/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | dropped by the owner |
 | bench-archived/hard-pii/haiku | 120 | 119 | 120 | 1 | 0 | recorded |
 | bench-archived/hard-pii/gpt-6-luna | 0 | n/a | n/a | n/a | n/a | not recorded |
-| bench-archived/hard-pii/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
+| bench-archived/hard-pii/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | dropped by the owner |
 | bench-archived/hard-goal/haiku | 120 | 111 | 116 | 5 | 0 | recorded |
 | bench-archived/hard-goal/gpt-6-luna | 0 | n/a | n/a | n/a | n/a | not recorded |
-| bench-archived/hard-goal/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
+| bench-archived/hard-goal/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | dropped by the owner |
 | bench-archived/heldout-rubric/haiku | 72 | 71 | 71 | 0 | 0 | recorded |
 | bench-archived/heldout-rubric/gpt-6-luna | 4 | 0 | 0 | 0 | 0 | partial recording |
-| bench-archived/heldout-rubric/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
+| bench-archived/heldout-rubric/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | dropped by the owner |
 | bench-archived/heldout-factuality/haiku | 47 | 37 | 37 | 0 | 0 | partial recording |
 | bench-archived/heldout-factuality/gpt-6-luna | 0 | n/a | n/a | n/a | n/a | not recorded |
-| bench-archived/heldout-factuality/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
+| bench-archived/heldout-factuality/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | dropped by the owner |
 | bench-archived/heldout-pii/haiku | 0 | n/a | n/a | n/a | n/a | not recorded |
 | bench-archived/heldout-pii/gpt-6-luna | 0 | n/a | n/a | n/a | n/a | not recorded |
-| bench-archived/heldout-pii/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
+| bench-archived/heldout-pii/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | dropped by the owner |
 | bench-archived/heldout-goal/haiku | 0 | n/a | n/a | n/a | n/a | not recorded |
 | bench-archived/heldout-goal/gpt-6-luna | 0 | n/a | n/a | n/a | n/a | not recorded |
-| bench-archived/heldout-goal/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
+| bench-archived/heldout-goal/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | dropped by the owner |
 | bench-archived/planted-verify/haiku | 0 | n/a | n/a | n/a | n/a | not recorded |
 | bench-archived/planted-verify/gpt-6-luna | 0 | n/a | n/a | n/a | n/a | not recorded |
-| bench-archived/planted-verify/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
+| bench-archived/planted-verify/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | dropped by the owner |
 | bench-archived/planted-rubric/haiku | 0 | n/a | n/a | n/a | n/a | not recorded |
 | bench-archived/planted-rubric/gpt-6-luna | 0 | n/a | n/a | n/a | n/a | not recorded |
-| bench-archived/planted-rubric/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
+| bench-archived/planted-rubric/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | dropped by the owner |
 | bench-current/fresh-rubric/haiku | 192 | 188 | 188 | 0 | 0 | recorded |
 | bench-current/fresh-rubric/gpt-6-luna | 192 | 191 | 191 | 0 | 0 | recorded |
-| bench-current/fresh-rubric/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
+| bench-current/fresh-rubric/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | dropped by the owner |
 | bench-current/fresh-reference/haiku | 192 | 189 | 189 | 0 | 0 | recorded |
 | bench-current/fresh-reference/gpt-6-luna | 192 | 140 | 140 | 0 | 0 | recorded |
-| bench-current/fresh-reference/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
+| bench-current/fresh-reference/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | dropped by the owner |
 | bench-current/map-rubric/haiku | 156 | 156 | 156 | 0 | 0 | recorded |
 | bench-current/map-rubric/gpt-6-luna | 156 | 156 | 156 | 0 | 0 | recorded |
-| bench-current/map-rubric/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
+| bench-current/map-rubric/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | dropped by the owner |
 | bench-current/map-reference/haiku | 180 | 173 | 173 | 0 | 0 | recorded |
 | bench-current/map-reference/gpt-6-luna | 180 | 145 | 145 | 0 | 0 | recorded |
-| bench-current/map-reference/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
+| bench-current/map-reference/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | dropped by the owner |
 | bench-current/hard-rubric/haiku | 120 | 117 | 117 | 0 | 0 | recorded |
 | bench-current/hard-rubric/gpt-6-luna | 120 | 120 | 120 | 0 | 0 | recorded |
-| bench-current/hard-rubric/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
+| bench-current/hard-rubric/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | dropped by the owner |
 | bench-current/hard-factuality/haiku | 120 | 119 | 119 | 0 | 0 | recorded |
 | bench-current/hard-factuality/gpt-6-luna | 120 | 101 | 101 | 0 | 0 | recorded |
-| bench-current/hard-factuality/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
+| bench-current/hard-factuality/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | dropped by the owner |
 | bench-current/hard-pii/haiku | 120 | 118 | 118 | 0 | 0 | recorded |
 | bench-current/hard-pii/gpt-6-luna | 120 | 114 | 114 | 0 | 0 | recorded |
-| bench-current/hard-pii/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
+| bench-current/hard-pii/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | dropped by the owner |
 | bench-current/hard-goal/haiku | 120 | 106 | 106 | 0 | 0 | recorded |
 | bench-current/hard-goal/gpt-6-luna | 120 | 101 | 101 | 0 | 0 | recorded |
-| bench-current/hard-goal/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
+| bench-current/hard-goal/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | dropped by the owner |
 | bench-current/heldout-rubric/haiku | 72 | 71 | 71 | 0 | 0 | recorded |
 | bench-current/heldout-rubric/gpt-6-luna | 72 | 71 | 71 | 0 | 0 | recorded |
-| bench-current/heldout-rubric/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
+| bench-current/heldout-rubric/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | dropped by the owner |
 | bench-current/heldout-factuality/haiku | 72 | 71 | 71 | 0 | 0 | recorded |
 | bench-current/heldout-factuality/gpt-6-luna | 72 | 64 | 64 | 0 | 0 | recorded |
-| bench-current/heldout-factuality/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
+| bench-current/heldout-factuality/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | dropped by the owner |
 | bench-current/heldout-pii/haiku | 72 | 72 | 72 | 0 | 0 | recorded |
 | bench-current/heldout-pii/gpt-6-luna | 72 | 68 | 68 | 0 | 0 | recorded |
-| bench-current/heldout-pii/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
+| bench-current/heldout-pii/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | dropped by the owner |
 | bench-current/heldout-goal/haiku | 72 | 65 | 65 | 0 | 0 | recorded |
 | bench-current/heldout-goal/gpt-6-luna | 72 | 61 | 61 | 0 | 0 | recorded |
-| bench-current/heldout-goal/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
+| bench-current/heldout-goal/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | dropped by the owner |
 | bench-current/planted-verify/haiku | 190 | 189 | 189 | 0 | 0 | recorded |
 | bench-current/planted-verify/gpt-6-luna | 190 | 187 | 187 | 0 | 0 | recorded |
-| bench-current/planted-verify/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
+| bench-current/planted-verify/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | dropped by the owner |
 | bench-current/planted-rubric/haiku | 120 | 117 | 117 | 0 | 0 | recorded |
 | bench-current/planted-rubric/gpt-6-luna | 120 | 120 | 120 | 0 | 0 | recorded |
-| bench-current/planted-rubric/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | not recorded |
+| bench-current/planted-rubric/gemini-3.8-flash | 0 | n/a | n/a | n/a | n/a | dropped by the owner |
 
 Archived PR 172 recordings use the previous prompt. Current recordings use `398673b792c1`. These are separate cohorts. Partial recordings prove only the listed rows. Missing model/slice cells are not passes.
 
@@ -137,7 +137,7 @@ On current hard-factuality/Haiku, the string-only decoder stays at 104/120 (0 fi
 
 ## Complete benchmark gate
 
-The [complete per-set table](complete-gate.md) covers all 28 current recordings at `d25cc282013bcb170d7bd6e0c4ab0fdc6c4fa85d`. The focused run passes 80 tests in 4 files. Gemini is not recorded. The earlier integration snapshots above remain historical evidence.
+The [complete per-set table](complete-gate.md) covers all 28 current recordings at `d25cc282013bcb170d7bd6e0c4ab0fdc6c4fa85d`. The focused run passes 80 tests in 4 files. Gemini 3.8 Flash was dropped by the owner and is not recorded. The earlier integration snapshots above remain historical evidence.
 
 ## Main integration after PRs 157, 179, 184, 185 and 191
 

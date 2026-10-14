@@ -82,7 +82,14 @@ for (const slice of registry.slices) {
     const path = `benchmarks/cassettes/${slice.name}@${slice.version}/${model.id}.json`;
     if (!recordedFiles.has(path)) {
       assert.equal(model.id, 'gemini-3.8-flash', `Missing required recording ${set}`);
-      summaries.push({ set, total: 0, planned: slice.n, status: 'not recorded', fixes: null, breaks: null });
+      summaries.push({
+        set,
+        total: 0,
+        planned: slice.n,
+        status: 'dropped by the owner',
+        fixes: null,
+        breaks: null,
+      });
       continue;
     }
     const cassette = read(path);

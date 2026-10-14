@@ -573,7 +573,7 @@ function sealedJudgeBench() {
     title: `JudgeBench: driftbench scores ${versus(groups)}.`,
     key: ['driftbench pair ledger', 'promptfoo select-best'],
     groups,
-    note: 'Gemini 3.8 Flash not run: provider quota',
+    note: 'Gemini 3.8 Flash dropped by the owner',
   });
 }
 
@@ -600,7 +600,7 @@ function sealedMmEval() {
     title: `MM-Eval: driftbench scores ${versus(groups)}.`,
     key: ['driftbench pair ledger', 'promptfoo select-best'],
     groups,
-    note: 'Gemini 3.8 Flash partial (393 of 600 pairs): left out',
+    note: 'Gemini 3.8 Flash dropped by the owner (393 of 600 pairs done)',
   });
 }
 
@@ -632,7 +632,7 @@ function sealedRubricBench() {
     title: `RubricBench: driftbench scores ${versus(groups)}.`,
     key: ['driftbench pair ledger', 'promptfoo select-best'],
     groups,
-    note: 'Claude Haiku 5.5 still running · Gemini 3.8 Flash partial: left out',
+    note: 'Claude Haiku 5.5 still running · Gemini 3.8 Flash dropped by the owner',
   });
 }
 
@@ -685,7 +685,7 @@ function sealedWriting() {
     title: `Writing: driftbench scores ${versus(groups)}; picking the longer reply beats both.`,
     key: ['driftbench pair ledger', 'promptfoo select-best', 'no model'],
     groups,
-    note: 'Gemini 3.8 Flash not run: provider quota',
+    note: 'Gemini 3.8 Flash dropped by the owner',
   });
 }
 
