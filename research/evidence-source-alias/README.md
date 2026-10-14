@@ -127,3 +127,5 @@ This change validates where the quote occurs, not the correctness of met. A rema
 The [complete per-set table](complete-gate.md) covers all 28 current recordings at `d25cc282013bcb170d7bd6e0c4ab0fdc6c4fa85d`. The focused run passes 87 tests in 4 files. Gemini 3.8 Flash was dropped by the owner and is not recorded. The earlier integration snapshots above remain historical evidence.
 
 Rebuild with `pnpm exec tsx research/evidence-source-alias/replay.mts d25cc282013bcb170d7bd6e0c4ab0fdc6c4fa85d`. This requires that commit in the local Git object store and the decoder fixture for historical cohorts.
+
+The donor fixture is read from this repo (`packages/judges/test/fixtures/criterion-decoder-recordings.json.gz`), not a sibling worktree. A rebuild on current main reports more fixes than the committed `results.json` (62 against 42 over 5,469 rows, zero breaks), because main now contains the source-alias grounding that the committed snapshot predates. The committed `results.json` stays the frozen snapshot.

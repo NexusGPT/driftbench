@@ -1,0 +1,3118 @@
+{
+  "format": "driftbench-bench-record-v1",
+  "report": {
+    "format": "driftbench-bench-v1",
+    "slice": "fresh-rubric",
+    "datasetVersion": 1,
+    "datasetHash": "eeae156e1b585603c02680ff23750c00a122e06554fcfe0cbf8fb7367976d911",
+    "judge": "haiku",
+    "model": "claude-haiku-5-5",
+    "settings": "[\"-p\",\"--output-format\",\"json\",\"--tools\",\"\",\"--setting-sources\",\"\",\"--strict-mcp-config\",\"--no-session-persistence\",\"--max-turns\",\"1\"]",
+    "fingerprint": "19cf28d04b13",
+    "head": "893474ebad6a3604c735e213b22c053516408849",
+    "startedAt": "2026-10-13T07:16:03.795Z",
+    "finishedAt": "2026-10-13T07:17:18.897Z",
+    "n": 192,
+    "correct": 186,
+    "wilson": {
+      "estimate": 0.96875,
+      "lower": 0.9335100828038957,
+      "upper": 0.9856007177585223
+    },
+    "familyBootstrap": {
+      "estimate": 0.96875,
+      "lower": 0.9322916666666666,
+      "upper": 1,
+      "iterations": 2000,
+      "clusters": 12,
+      "method": "percentile",
+      "seed": 1
+    },
+    "zeroFailure": {
+      "requiredCleanCases": 59,
+      "independentCasesRequired": true,
+      "observedClean": false
+    },
+    "results": [
+      {
+        "id": "fresh-rubric-001",
+        "family": "partial-completion",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-002",
+        "family": "tag-injection",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-003",
+        "family": "scope",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-004",
+        "family": "negation",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-005",
+        "family": "partial-completion",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-006",
+        "family": "partial-completion",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-007",
+        "family": "period",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-008",
+        "family": "disjunction",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-009",
+        "family": "cross-language",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-010",
+        "family": "period",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-011",
+        "family": "scope",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-012",
+        "family": "quoted-claim",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-013",
+        "family": "later-contradiction",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-014",
+        "family": "negation",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-015",
+        "family": "arithmetic",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-016",
+        "family": "quoted-claim",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-017",
+        "family": "disjunction",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-018",
+        "family": "long-fluent",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-019",
+        "family": "tag-injection",
+        "expected": "pass",
+        "outcome": "inconclusive",
+        "correct": false
+      },
+      {
+        "id": "fresh-rubric-020",
+        "family": "quoted-claim",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-021",
+        "family": "negation",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-022",
+        "family": "conjunction",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-023",
+        "family": "negation",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-024",
+        "family": "later-contradiction",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-025",
+        "family": "disjunction",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-026",
+        "family": "quoted-claim",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-027",
+        "family": "scope",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-028",
+        "family": "conjunction",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-029",
+        "family": "long-fluent",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-030",
+        "family": "arithmetic",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-031",
+        "family": "scope",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-032",
+        "family": "quoted-claim",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-033",
+        "family": "cross-language",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-034",
+        "family": "tag-injection",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-035",
+        "family": "quoted-claim",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-036",
+        "family": "later-contradiction",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-037",
+        "family": "cross-language",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-038",
+        "family": "conjunction",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-039",
+        "family": "partial-completion",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-040",
+        "family": "later-contradiction",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-041",
+        "family": "negation",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-042",
+        "family": "quoted-claim",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-043",
+        "family": "period",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-044",
+        "family": "long-fluent",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-045",
+        "family": "disjunction",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-046",
+        "family": "tag-injection",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-047",
+        "family": "later-contradiction",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-048",
+        "family": "negation",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-049",
+        "family": "cross-language",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-050",
+        "family": "tag-injection",
+        "expected": "pass",
+        "outcome": "inconclusive",
+        "correct": false
+      },
+      {
+        "id": "fresh-rubric-051",
+        "family": "conjunction",
+        "expected": "pass",
+        "outcome": "inconclusive",
+        "correct": false
+      },
+      {
+        "id": "fresh-rubric-052",
+        "family": "arithmetic",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-053",
+        "family": "partial-completion",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-054",
+        "family": "conjunction",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-055",
+        "family": "cross-language",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-056",
+        "family": "arithmetic",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-057",
+        "family": "period",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-058",
+        "family": "cross-language",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-059",
+        "family": "scope",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-060",
+        "family": "later-contradiction",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-061",
+        "family": "partial-completion",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-062",
+        "family": "negation",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-063",
+        "family": "conjunction",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-064",
+        "family": "arithmetic",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-065",
+        "family": "long-fluent",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-066",
+        "family": "conjunction",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-067",
+        "family": "later-contradiction",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-068",
+        "family": "disjunction",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-069",
+        "family": "arithmetic",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-070",
+        "family": "quoted-claim",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-071",
+        "family": "later-contradiction",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-072",
+        "family": "arithmetic",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-073",
+        "family": "tag-injection",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-074",
+        "family": "later-contradiction",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-075",
+        "family": "disjunction",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-076",
+        "family": "long-fluent",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-077",
+        "family": "later-contradiction",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-078",
+        "family": "disjunction",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-079",
+        "family": "scope",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-080",
+        "family": "partial-completion",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-081",
+        "family": "tag-injection",
+        "expected": "pass",
+        "outcome": "inconclusive",
+        "correct": false
+      },
+      {
+        "id": "fresh-rubric-082",
+        "family": "scope",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-083",
+        "family": "arithmetic",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-084",
+        "family": "long-fluent",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-085",
+        "family": "long-fluent",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-086",
+        "family": "long-fluent",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-087",
+        "family": "negation",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-088",
+        "family": "later-contradiction",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-089",
+        "family": "disjunction",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-090",
+        "family": "period",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-091",
+        "family": "negation",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-092",
+        "family": "period",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-093",
+        "family": "scope",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-094",
+        "family": "cross-language",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-095",
+        "family": "quoted-claim",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-096",
+        "family": "tag-injection",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-097",
+        "family": "negation",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-098",
+        "family": "period",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-099",
+        "family": "conjunction",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-100",
+        "family": "disjunction",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-101",
+        "family": "conjunction",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-102",
+        "family": "conjunction",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-103",
+        "family": "long-fluent",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-104",
+        "family": "scope",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-105",
+        "family": "cross-language",
+        "expected": "pass",
+        "outcome": "inconclusive",
+        "correct": false
+      },
+      {
+        "id": "fresh-rubric-106",
+        "family": "period",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-107",
+        "family": "negation",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-108",
+        "family": "arithmetic",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-109",
+        "family": "arithmetic",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-110",
+        "family": "period",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-111",
+        "family": "scope",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-112",
+        "family": "disjunction",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-113",
+        "family": "tag-injection",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-114",
+        "family": "conjunction",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-115",
+        "family": "disjunction",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-116",
+        "family": "conjunction",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-117",
+        "family": "partial-completion",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-118",
+        "family": "cross-language",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-119",
+        "family": "period",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-120",
+        "family": "arithmetic",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-121",
+        "family": "long-fluent",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-122",
+        "family": "partial-completion",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-123",
+        "family": "quoted-claim",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-124",
+        "family": "quoted-claim",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-125",
+        "family": "quoted-claim",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-126",
+        "family": "disjunction",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-127",
+        "family": "quoted-claim",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-128",
+        "family": "later-contradiction",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-129",
+        "family": "period",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-130",
+        "family": "scope",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-131",
+        "family": "negation",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-132",
+        "family": "quoted-claim",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-133",
+        "family": "conjunction",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-134",
+        "family": "scope",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-135",
+        "family": "cross-language",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-136",
+        "family": "arithmetic",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-137",
+        "family": "disjunction",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-138",
+        "family": "disjunction",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-139",
+        "family": "tag-injection",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-140",
+        "family": "scope",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-141",
+        "family": "partial-completion",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-142",
+        "family": "disjunction",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-143",
+        "family": "cross-language",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-144",
+        "family": "cross-language",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-145",
+        "family": "negation",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-146",
+        "family": "partial-completion",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-147",
+        "family": "later-contradiction",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-148",
+        "family": "period",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-149",
+        "family": "long-fluent",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-150",
+        "family": "arithmetic",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-151",
+        "family": "conjunction",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-152",
+        "family": "tag-injection",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-153",
+        "family": "cross-language",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-154",
+        "family": "period",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-155",
+        "family": "conjunction",
+        "expected": "pass",
+        "outcome": "inconclusive",
+        "correct": false
+      },
+      {
+        "id": "fresh-rubric-156",
+        "family": "scope",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-157",
+        "family": "tag-injection",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-158",
+        "family": "period",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-159",
+        "family": "quoted-claim",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-160",
+        "family": "cross-language",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-161",
+        "family": "long-fluent",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-162",
+        "family": "long-fluent",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-163",
+        "family": "arithmetic",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-164",
+        "family": "negation",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-165",
+        "family": "later-contradiction",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-166",
+        "family": "arithmetic",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-167",
+        "family": "cross-language",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-168",
+        "family": "partial-completion",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-169",
+        "family": "quoted-claim",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-170",
+        "family": "scope",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-171",
+        "family": "later-contradiction",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-172",
+        "family": "partial-completion",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-173",
+        "family": "partial-completion",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-174",
+        "family": "scope",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-175",
+        "family": "long-fluent",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-176",
+        "family": "partial-completion",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-177",
+        "family": "disjunction",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-178",
+        "family": "period",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-179",
+        "family": "partial-completion",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-180",
+        "family": "tag-injection",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-181",
+        "family": "tag-injection",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-182",
+        "family": "long-fluent",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-183",
+        "family": "later-contradiction",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-184",
+        "family": "period",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-185",
+        "family": "conjunction",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-186",
+        "family": "negation",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-187",
+        "family": "tag-injection",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-188",
+        "family": "cross-language",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-189",
+        "family": "tag-injection",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-190",
+        "family": "arithmetic",
+        "expected": "fail",
+        "outcome": "fail",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-191",
+        "family": "long-fluent",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      },
+      {
+        "id": "fresh-rubric-192",
+        "family": "negation",
+        "expected": "pass",
+        "outcome": "pass",
+        "correct": true
+      }
+    ]
+  },
+  "cassetteSha256": "ae9cdadf9f26cacea7ff64c8ed09b1aa47380b1df18564ecff3d21cd2b449f2b",
+  "resolvedModels": ["claude-haiku-5-5"],
+  "costUsd": 0.07280440000000005,
+  "chargedUsd": 0.07280440000000005,
+  "calls": 192,
+  "spend": [
+    {
+      "at": "2026-10-13T07:16:08.310Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00027840000000000005,
+      "chargedUsd": 0.00027840000000000005,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:08.457Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0002707,
+      "chargedUsd": 0.0002707,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:08.481Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00027800000000000004,
+      "chargedUsd": 0.00027800000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:08.622Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00029280000000000007,
+      "chargedUsd": 0.00029280000000000007,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:08.707Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003135,
+      "chargedUsd": 0.0003135,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:08.716Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00033200000000000005,
+      "chargedUsd": 0.00033200000000000005,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:08.844Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00034250000000000003,
+      "chargedUsd": 0.00034250000000000003,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:08.922Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003394,
+      "chargedUsd": 0.0003394,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:09.311Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004109,
+      "chargedUsd": 0.0004109,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:09.317Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004335,
+      "chargedUsd": 0.0004335,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:09.373Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003907,
+      "chargedUsd": 0.0003907,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:09.383Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003929,
+      "chargedUsd": 0.0003929,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:09.402Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00036800000000000005,
+      "chargedUsd": 0.00036800000000000005,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:09.435Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004018,
+      "chargedUsd": 0.0004018,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:09.449Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003859,
+      "chargedUsd": 0.0003859,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:09.517Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003639,
+      "chargedUsd": 0.0003639,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:12.574Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0002953,
+      "chargedUsd": 0.0002953,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:12.786Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00027790000000000003,
+      "chargedUsd": 0.00027790000000000003,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:13.089Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003084,
+      "chargedUsd": 0.0003084,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:13.527Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00034300000000000004,
+      "chargedUsd": 0.00034300000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:13.938Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005206000000000001,
+      "chargedUsd": 0.0005206000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:14.191Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003290000000000001,
+      "chargedUsd": 0.0003290000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:14.514Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00028740000000000005,
+      "chargedUsd": 0.00028740000000000005,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:14.910Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00029240000000000006,
+      "chargedUsd": 0.00029240000000000006,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:14.949Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00032950000000000004,
+      "chargedUsd": 0.00032950000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:14.976Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003978,
+      "chargedUsd": 0.0003978,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:15.051Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00030480000000000004,
+      "chargedUsd": 0.00030480000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:15.160Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0006795,
+      "chargedUsd": 0.0006795,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:15.217Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003734000000000001,
+      "chargedUsd": 0.0003734000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:15.450Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003889000000000001,
+      "chargedUsd": 0.0003889000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:15.564Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00037140000000000003,
+      "chargedUsd": 0.00037140000000000003,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:16.008Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005746,
+      "chargedUsd": 0.0005746,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:18.563Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003014,
+      "chargedUsd": 0.0003014,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:18.904Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.000431,
+      "chargedUsd": 0.000431,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:18.979Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.000388,
+      "chargedUsd": 0.000388,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:19.381Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004893,
+      "chargedUsd": 0.0004893,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:19.500Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0002812,
+      "chargedUsd": 0.0002812,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:19.528Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00029380000000000004,
+      "chargedUsd": 0.00029380000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:19.701Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00040280000000000003,
+      "chargedUsd": 0.00040280000000000003,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:19.813Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003325,
+      "chargedUsd": 0.0003325,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:19.887Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004195,
+      "chargedUsd": 0.0004195,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:19.952Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00038390000000000006,
+      "chargedUsd": 0.00038390000000000006,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:20.038Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00034940000000000004,
+      "chargedUsd": 0.00034940000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:20.102Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005056,
+      "chargedUsd": 0.0005056,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:20.471Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003079,
+      "chargedUsd": 0.0003079,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:20.518Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.000284,
+      "chargedUsd": 0.000284,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:20.594Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003614,
+      "chargedUsd": 0.0003614,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:21.777Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003995,
+      "chargedUsd": 0.0003995,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:23.908Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00042580000000000005,
+      "chargedUsd": 0.00042580000000000005,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:24.105Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00031340000000000003,
+      "chargedUsd": 0.00031340000000000003,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:24.199Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00032490000000000004,
+      "chargedUsd": 0.00032490000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:24.905Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004063,
+      "chargedUsd": 0.0004063,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:24.912Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00030750000000000005,
+      "chargedUsd": 0.00030750000000000005,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:25.213Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003644,
+      "chargedUsd": 0.0003644,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:25.262Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00039230000000000005,
+      "chargedUsd": 0.00039230000000000005,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:25.287Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003865,
+      "chargedUsd": 0.0003865,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:25.387Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.000366,
+      "chargedUsd": 0.000366,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:25.694Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00033050000000000006,
+      "chargedUsd": 0.00033050000000000006,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:25.908Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00036790000000000005,
+      "chargedUsd": 0.00036790000000000005,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:26.002Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005189000000000001,
+      "chargedUsd": 0.0005189000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:26.792Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00034290000000000004,
+      "chargedUsd": 0.00034290000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:27.523Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.000802,
+      "chargedUsd": 0.000802,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:27.534Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004559000000000001,
+      "chargedUsd": 0.0004559000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:28.057Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004826,
+      "chargedUsd": 0.0004826,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:28.241Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00032300000000000004,
+      "chargedUsd": 0.00032300000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:28.524Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004159000000000001,
+      "chargedUsd": 0.0004159000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:28.705Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003199,
+      "chargedUsd": 0.0003199,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:29.571Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00028890000000000003,
+      "chargedUsd": 0.00028890000000000003,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:30.135Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003309000000000001,
+      "chargedUsd": 0.0003309000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:30.145Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00036540000000000005,
+      "chargedUsd": 0.00036540000000000005,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:30.289Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00033390000000000004,
+      "chargedUsd": 0.00033390000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:30.816Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00040130000000000005,
+      "chargedUsd": 0.00040130000000000005,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:30.874Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00033640000000000005,
+      "chargedUsd": 0.00033640000000000005,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:31.216Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00042500000000000003,
+      "chargedUsd": 0.00042500000000000003,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:31.543Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005361000000000001,
+      "chargedUsd": 0.0005361000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:31.785Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00031000000000000005,
+      "chargedUsd": 0.00031000000000000005,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:31.853Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00036840000000000006,
+      "chargedUsd": 0.00036840000000000006,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:32.660Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003857,
+      "chargedUsd": 0.0003857,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:32.972Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00030080000000000005,
+      "chargedUsd": 0.00030080000000000005,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:33.043Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0002729,
+      "chargedUsd": 0.0002729,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:33.899Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004794,
+      "chargedUsd": 0.0004794,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:34.890Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0006050000000000001,
+      "chargedUsd": 0.0006050000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:34.901Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00033900000000000005,
+      "chargedUsd": 0.00033900000000000005,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:35.109Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005136,
+      "chargedUsd": 0.0005136,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:35.205Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005076000000000001,
+      "chargedUsd": 0.0005076000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:35.262Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00041220000000000004,
+      "chargedUsd": 0.00041220000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:35.678Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003733,
+      "chargedUsd": 0.0003733,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:35.697Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003765,
+      "chargedUsd": 0.0003765,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:35.719Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0002974,
+      "chargedUsd": 0.0002974,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:35.820Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005686,
+      "chargedUsd": 0.0005686,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:36.492Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0002817,
+      "chargedUsd": 0.0002817,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:36.607Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.000303,
+      "chargedUsd": 0.000303,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:38.030Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00030940000000000004,
+      "chargedUsd": 0.00030940000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:38.323Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0002852,
+      "chargedUsd": 0.0002852,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:38.582Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004058,
+      "chargedUsd": 0.0004058,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:38.822Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004094,
+      "chargedUsd": 0.0004094,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:38.984Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.000457,
+      "chargedUsd": 0.000457,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:40.734Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003689,
+      "chargedUsd": 0.0003689,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:40.739Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00030940000000000004,
+      "chargedUsd": 0.00030940000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:40.785Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003554000000000001,
+      "chargedUsd": 0.0003554000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:40.879Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003195,
+      "chargedUsd": 0.0003195,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:40.986Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00045390000000000003,
+      "chargedUsd": 0.00045390000000000003,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:41.333Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0002964,
+      "chargedUsd": 0.0002964,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:41.643Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00027120000000000003,
+      "chargedUsd": 0.00027120000000000003,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:41.952Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00028690000000000003,
+      "chargedUsd": 0.00028690000000000003,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:42.205Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005726,
+      "chargedUsd": 0.0005726,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:43.123Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00029190000000000005,
+      "chargedUsd": 0.00029190000000000005,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:43.247Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003767,
+      "chargedUsd": 0.0003767,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:43.631Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00030030000000000004,
+      "chargedUsd": 0.00030030000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:43.910Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0006478,
+      "chargedUsd": 0.0006478,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:43.960Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00034940000000000004,
+      "chargedUsd": 0.00034940000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:44.259Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00031630000000000004,
+      "chargedUsd": 0.00031630000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:44.630Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003575,
+      "chargedUsd": 0.0003575,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:46.033Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00032090000000000005,
+      "chargedUsd": 0.00032090000000000005,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:46.212Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00029140000000000004,
+      "chargedUsd": 0.00029140000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:46.256Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00031830000000000004,
+      "chargedUsd": 0.00031830000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:46.318Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003384,
+      "chargedUsd": 0.0003384,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:46.435Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003673,
+      "chargedUsd": 0.0003673,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:46.453Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00035940000000000006,
+      "chargedUsd": 0.00035940000000000006,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:47.259Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.000314,
+      "chargedUsd": 0.000314,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:47.478Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004389,
+      "chargedUsd": 0.0004389,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:47.880Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0002764,
+      "chargedUsd": 0.0002764,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:48.107Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00027190000000000005,
+      "chargedUsd": 0.00027190000000000005,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:48.190Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004891,
+      "chargedUsd": 0.0004891,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:48.675Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003177,
+      "chargedUsd": 0.0003177,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:48.706Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003949,
+      "chargedUsd": 0.0003949,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:48.835Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003989,
+      "chargedUsd": 0.0003989,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:48.950Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003579000000000001,
+      "chargedUsd": 0.0003579000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:49.998Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.000297,
+      "chargedUsd": 0.000297,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:50.705Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003290000000000001,
+      "chargedUsd": 0.0003290000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:51.049Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004014,
+      "chargedUsd": 0.0004014,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:51.127Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003644000000000001,
+      "chargedUsd": 0.0003644000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:51.254Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003594,
+      "chargedUsd": 0.0003594,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:51.325Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00035030000000000006,
+      "chargedUsd": 0.00035030000000000006,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:51.778Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003908,
+      "chargedUsd": 0.0003908,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:51.927Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003034,
+      "chargedUsd": 0.0003034,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:52.660Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0002902,
+      "chargedUsd": 0.0002902,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:53.134Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00036980000000000004,
+      "chargedUsd": 0.00036980000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:53.610Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00034080000000000004,
+      "chargedUsd": 0.00034080000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:54.556Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003863,
+      "chargedUsd": 0.0003863,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:54.923Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004479,
+      "chargedUsd": 0.0004479,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:54.960Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00039480000000000006,
+      "chargedUsd": 0.00039480000000000006,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:55.431Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003470000000000001,
+      "chargedUsd": 0.0003470000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:55.902Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00043670000000000004,
+      "chargedUsd": 0.00043670000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:56.102Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0002819,
+      "chargedUsd": 0.0002819,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:56.693Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004579,
+      "chargedUsd": 0.0004579,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:56.705Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00041610000000000003,
+      "chargedUsd": 0.00041610000000000003,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:57.310Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003885,
+      "chargedUsd": 0.0003885,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:57.701Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003594,
+      "chargedUsd": 0.0003594,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:57.949Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004244,
+      "chargedUsd": 0.0004244,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:58.028Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00036090000000000004,
+      "chargedUsd": 0.00036090000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:58.129Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0002904,
+      "chargedUsd": 0.0002904,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:59.135Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00033480000000000006,
+      "chargedUsd": 0.00033480000000000006,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:59.146Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003039,
+      "chargedUsd": 0.0003039,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:59.849Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00027840000000000005,
+      "chargedUsd": 0.00027840000000000005,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:16:59.928Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.000423,
+      "chargedUsd": 0.000423,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:00.202Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003683,
+      "chargedUsd": 0.0003683,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:01.040Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005091000000000001,
+      "chargedUsd": 0.0005091000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:01.252Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004303,
+      "chargedUsd": 0.0004303,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:02.006Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0002852,
+      "chargedUsd": 0.0002852,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:02.255Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005756000000000001,
+      "chargedUsd": 0.0005756000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:02.404Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.000286,
+      "chargedUsd": 0.000286,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:02.686Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00046140000000000005,
+      "chargedUsd": 0.00046140000000000005,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:02.818Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00029640000000000005,
+      "chargedUsd": 0.00029640000000000005,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:04.224Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004778,
+      "chargedUsd": 0.0004778,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:04.500Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00038540000000000004,
+      "chargedUsd": 0.00038540000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:04.628Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0002945,
+      "chargedUsd": 0.0002945,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:04.721Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00039650000000000004,
+      "chargedUsd": 0.00039650000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:04.885Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003664,
+      "chargedUsd": 0.0003664,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:05.094Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00040760000000000004,
+      "chargedUsd": 0.00040760000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:05.322Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004035,
+      "chargedUsd": 0.0004035,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:05.464Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0006875,
+      "chargedUsd": 0.0006875,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:05.596Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00035530000000000007,
+      "chargedUsd": 0.00035530000000000007,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:05.706Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003215,
+      "chargedUsd": 0.0003215,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:07.207Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003964,
+      "chargedUsd": 0.0003964,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:07.676Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004062,
+      "chargedUsd": 0.0004062,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:07.695Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003535,
+      "chargedUsd": 0.0003535,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:07.774Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003329,
+      "chargedUsd": 0.0003329,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:09.010Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004883999999999999,
+      "chargedUsd": 0.0004883999999999999,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:09.106Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005584,
+      "chargedUsd": 0.0005584,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:09.233Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003085,
+      "chargedUsd": 0.0003085,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:09.641Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0002984,
+      "chargedUsd": 0.0002984,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:09.964Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00029390000000000004,
+      "chargedUsd": 0.00029390000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:10.353Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005421,
+      "chargedUsd": 0.0005421,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:10.414Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003255,
+      "chargedUsd": 0.0003255,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:10.558Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003913,
+      "chargedUsd": 0.0003913,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:10.651Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.000583,
+      "chargedUsd": 0.000583,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:11.283Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00037440000000000005,
+      "chargedUsd": 0.00037440000000000005,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:11.679Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004755,
+      "chargedUsd": 0.0004755,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:12.009Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003342,
+      "chargedUsd": 0.0003342,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:13.060Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0006106,
+      "chargedUsd": 0.0006106,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:17:18.895Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00033820000000000003,
+      "chargedUsd": 0.00033820000000000003,
+      "accounting": "provider",
+      "status": "ok"
+    }
+  ]
+}

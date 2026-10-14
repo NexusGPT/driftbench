@@ -122,7 +122,7 @@ On current hard-factuality/Haiku, the string-only decoder stays at 104/120 (0 fi
 
 ## Refreshed recording snapshot
 
-- The source-alias investigation supplies additional PR 172 recordings. This decoder independently replays all 3,727 recorded rows in that frozen snapshot: 38 fixes and zero breaks across 32 recorded or partially recorded sets.
+- The source-alias investigation supplies additional PR 172 recordings. This decoder independently replays all 3,727 recorded rows in that frozen snapshot: 38 fixes and zero breaks (34 on current main, see the correction below) across 32 recorded or partially recorded sets.
 - Long remains 229/240 and short 240/240. Current hard-factuality remains 104/120; source aliases are separate.
 - The refreshed recorded test passes 33 tests. Missing sets remain not recorded; partial sets do not establish a complete slice pass.
 - After merging main `54b0f904`, 100 focused tests across 7 files pass, including escalation compatibility. The scope codemod changes zero files; all 12 immutable file hashes remain unchanged.
@@ -133,7 +133,7 @@ On current hard-factuality/Haiku, the string-only decoder stays at 104/120 (0 fi
 - Merged main `98d82dcf0929e647d6c51f688419e53133a9f8e9`, including the upstream escalation union fix. This draft adds no escalation changes.
 - `node tools/rename-scope.mjs` changes zero files. The focused post-merge run passes 153 tests across 10 files, including all frozen decoder rows, pointwise fact-ledger replay, escalation, cassettes and legacy goldens.
 - All 11 legacy file and fixture hashes still match the initial manifest. Main changed `prompt.ts` to add pointwise fact-ledger routing; this draft's file is byte-identical to main. The default prompt fingerprint remains `398673b792c1`.
-- Frozen replay counts remain 38 fixes and zero breaks across 3,727 rows. The draft gate and missing-slice labels remain in force.
+- Frozen replay counts were 38 fixes and zero breaks across 3,727 rows (34 on current main, see the correction below). The draft gate and missing-slice labels remain in force.
 
 ## Complete benchmark gate
 
@@ -143,5 +143,14 @@ The [complete per-set table](complete-gate.md) covers all 28 current recordings 
 
 - Merged main `eb3e7a98`. Main's frozen tests pin the default request key, the chat-client request keys and the strict rejection of all 1,422 decoration quotes. Version 2 as the default broke all three, so version 2 is now opt-in and the default is the unchanged strict decoder.
 - Main's source-alias grounding (PR 184) now parses 43 bench-current rows that the PR 172 recordings stored as unparsed. Both decoders read those rows identically, so this PR still changes 0 of them. `rebase-fixture.mts` re-reads the committed fixture with zero model calls and records each moved row in `results.json` under `baselineMovedOnMain`.
-- Current totals: Haiku 1751/1798, gpt-6-luna 1639/1798. Decoder version 2: 0 fixes and 0 breaks on all 28 current sets. Historical sets keep 38 fixes and 0 breaks.
+- Current totals: Haiku 1751/1798, gpt-6-luna 1639/1798. Decoder version 2: 0 fixes and 0 breaks on all 28 current sets. Historical sets kept 38 fixes and 0 breaks in the frozen snapshot (34 on current main, see the correction below).
 
+## Rebuilding the snapshot
+
+`replay.mts` rebuilds the fixture and `results.json` from the original git recordings. It passes `criterionDecoderVersion: 2` for the candidate and `1` for the baseline, because the package default is version 1. Regenerating overwrites the committed fixture and `results.json` with a new snapshot, so run it only to refresh the evidence. `rebase-fixture.mts` re-reads the committed fixture and needs no other input. `tools/research-replay.test.ts` pins both decoder versions in CI.
+
+The archived-cohort recordings that `replay.mts` reads are committed under `inputs/pre-main-recordings`. The current-cohort recordings come from commit `d25cc282013bcb170d7bd6e0c4ab0fdc6c4fa85d`, passed as a checkout in `BENCH_FRAME`. The `research replays` CI job (`tools/research-replay-ci.sh`, full history) runs both replays and fails on any assertion or break. It discards the regenerated snapshots: the committed ones are frozen, and their unit tests carry the 63 rows that later changes on main moved. A rebase of the committed fixture on today's main moves 20 more baseline rows than the 43 already recorded.
+
+## Correction: 34 fixes on current main, not 38
+
+A rebuild of `replay.mts` on current main (commit `925e1408f`, recordings at `d25cc282013bcb170d7bd6e0c4ab0fdc6c4fa85d`, 0 model calls) gives 34 fixes and 0 breaks over the same 5,469 rows in 90 summaries. The committed snapshot says 38. The 4 missing fixes are all in `bench-archived/hard-goal/haiku`, which drops from 5 fixes to 1: main now grounds source aliases in the strict decoder, so those 4 rows are already correct before this decoder runs. The research claim is therefore 34 fixes and 0 breaks on current main. The committed snapshot and its tests stay frozen at 38; the rebuild also writes one extra variant summary and different top-level keys. It drops `packageBase`, `recordingCommit`, `snapshotSha256` and `baselineMovedOnMain`, and adds `sourceCommit`, `packageCommit`, `packageSourceHashes`, `candidateSourceHash`, `variants` and `aliasRows`. The `research replays` CI job runs the rebuild and fails on any break.

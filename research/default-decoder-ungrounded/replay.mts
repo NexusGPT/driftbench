@@ -124,8 +124,11 @@ function summarize(set: string, results: any[], extra = {}) {
 }
 function localJson(path: string) {
   const text = readFileSync(path, 'utf8');
-  hashes[path.replace(`${root}/`, '').replace(`${resolve(root, '../bench-frame')}/`, 'bench-frame/')] =
-    sha(text);
+  hashes[
+    path
+      .replace(`${root}/`, '')
+      .replace(`${process.env.BENCH_FRAME ?? resolve(root, '../bench-frame')}/`, 'bench-frame/')
+  ] = sha(text);
   return JSON.parse(text);
 }
 for (const [set, fixturePath, recordingPath] of [
@@ -275,17 +278,16 @@ for (const [set, requestsName, cassetteName] of [
   summaries.push(summarize(set, results));
 }
 // Read archived bench inputs only. No process or write runs in the other worktree.
-const benchRoot = resolve(root, '../bench-frame');
+// BENCH_FRAME is a checkout of the recording commit; the archived recordings are committed beside this script.
+const benchRoot = resolve(process.env.BENCH_FRAME ?? resolve(root, '../bench-frame'));
+const archivedRoot = resolve(import.meta.dirname, 'inputs/pre-main-recordings');
 const registry = localJson(resolve(benchRoot, 'benchmarks/manifest.json'));
 for (const cohort of ['archived', 'current'])
   for (const slice of registry.slices) {
     const cases = localJson(resolve(benchRoot, slice.path, 'cases.spec.json')).metadata.bench;
     for (const model of registry.models) {
       const set = `bench-${cohort}/${slice.name}/${model.id}`;
-      const folder = resolve(
-        benchRoot,
-        cohort === 'archived' ? '.bench-run/pre-main-recordings' : 'benchmarks',
-      );
+      const folder = cohort === 'archived' ? archivedRoot : resolve(benchRoot, 'benchmarks');
       const cassettePath = resolve(folder, 'cassettes', `${slice.name}@${slice.version}`, `${model.id}.json`);
       const partial = !existsSync(cassettePath);
       const path = partial ? `${cassettePath}.partial.json` : cassettePath;
@@ -392,7 +394,7 @@ const variants = aliasRows.length ? [summarize('variant/source-alias/hard-factua
 for (const row of rows) {
   if (row.transportError) continue;
   assert.deepEqual(
-    production(row.raw, row.request),
+    production(row.raw, { ...row.request, criterionDecoderVersion: 2 }),
     row.after,
     `Public decoder differs from simulation: ${row.set}/${row.id}`,
   );
