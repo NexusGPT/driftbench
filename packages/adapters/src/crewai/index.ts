@@ -3,6 +3,7 @@ import {
   AdapterTransportError,
   type AgentAdapter,
   AgentFailure,
+  copyHistory,
   isPlainObject,
   type Message,
   type ResolvedGiven,
@@ -110,8 +111,9 @@ export function crewaiAdapter(options: CrewaiAdapterOptions): AgentAdapter {
     },
 
     async send(session: Session, turn: Turn) {
+      const history = copyHistory(session.history);
       const state = ownState<CrewState>(session, id, 'crewai');
-      const inputs = (options.inputs ?? crewaiInputs)(session.history, turn);
+      const inputs = (options.inputs ?? crewaiInputs)(history, turn);
       const started = performance.now();
       const run = await options.transport.kickoff(inputs);
       const latencyMs = Math.round(performance.now() - started);

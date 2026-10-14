@@ -1,0 +1,23 @@
+{
+  "created": "2026-10-14T03:20:48.347782+00:00",
+  "complete_cells_required": true,
+  "maximum_governed_concurrency": 2,
+  "governed_starts": {
+    "gpt-6.1-sol/governed_starts": 5664,
+    "sonnet-5-5/governed_starts": 6405
+  },
+  "calls_inflight": 0,
+  "model_overlap": false,
+  "answered_requests_resent": 0,
+  "probe_and_pause_contract_verified": true,
+  "models": {
+    "gpt-6.1-sol": {
+      "gates": 2,
+      "trips": 0
+    },
+    "sonnet-5-5": {
+      "gates": 2,
+      "trips": 1
+    }
+  }
+}

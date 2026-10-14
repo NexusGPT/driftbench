@@ -262,7 +262,7 @@ These commands run specs on a target. Each has its options, its output and its e
 
 ```
 driftbench campaign plan <paths...> [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--baseline-rate <rate>] [--rho <rho>] [--store <file>] [--config <file>] [--json]
-driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>] [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--agent-version <label>] [--change <manifest> --from <campaign> [--audit <n>] [--audit-seed <n>] [--max-carry <n>] [--max-age <days>]] [--campaign <id>] [--store <file>] [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--driver scripted|simulated] [--persona <file>]... [--recording <file>]... [--model] [--agent-family <family>] [--judge-family <family>]... [--config <file>] [--json]
+driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>] [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--agent-version <label>] [--change <manifest> --from <campaign> [--audit <n>] [--audit-seed <n>] [--max-carry <n>] [--max-age <days>] [--block-reruns]] [--record-end-state-snapshots] [--campaign <id>] [--store <file>] [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--driver scripted|simulated] [--persona <file>]... [--recording <file>]... [--model] [--agent-family <family>] [--judge-family <family>]... [--config <file>] [--json]
 driftbench campaign resume [campaignId] --store <file> [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--json]
 driftbench campaign status [campaignId] --store <file> [--detail] [--json]
 driftbench campaign export <campaignId> --store <file> --out <dir>
@@ -295,6 +295,8 @@ driftbench smoke <spec> [--target <adapter[:agent]>] [--runs <n>] [--json]
 | `--audit <n>` | with `--change`: draw n of the cells about to be carried, run them fresh and compare each with its stored run on every gating verdict. One that differs is a radius miss: nothing is carried, every cell runs, and the command exits 1. `--audit-seed <n>` sets the draw (default 1) |
 | `--max-carry <n>` | with `--change`: the most campaigns in a row a result is carried (default 5). A result past it runs fresh |
 | `--max-age <days>` | with `--change`: the most days since a carried result was measured (default 7) |
+| `--block-reruns` | with `--change` in mode T: send only the blocks a change can affect and keep the other stored blocks of a cell; see [mode T block reruns](../concepts/blast-radius.md#mode-t-block-reruns) |
+| `--record-end-state-snapshots` | store the raw end-state values each mode T block reads, so a later `--block-reruns` can rerun cells with `end_state` in part; the values may be sensitive |
 | `--campaign <id>` | the campaign id; without it, one is made from the content and the clock |
 | `--dataset <ref>` | `run` only: run the specs of this dataset version of the store and record it in the campaign; needs `--store`. See [datasets](../datasets.md) |
 | `--prompt <ref>` | `run` only: the agent runs with this prompt version of the store, a single text file: every target carries it in `target.prompt`, and the campaign records it; give it once; needs `--store`. Each adapter page says how the text reaches the agent |
@@ -520,20 +522,20 @@ On the approved Acme map:
 
 ```
 $ pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/docs3/cli/generated --t 2
-Actual axis-map coverage (written complete specs): pairs 708 of 708 (100.0%); triples 2885 of 4064 (71.0%).
+Actual axis-map coverage (written complete specs): pairs 708 of 708 (100.0%); triples 2928 of 4064 (72.0%).
 Candidate t-wise array (before the total cap): covering array of 156 rows over 5 dimensions, 356 of 356 allowed 2-tuples (100.0%); 2 pairs no path reaches are left out.
-Uncovered on the axis map: 0 pairs, 1179 triples (see coverage.actual[].uncovered).
+Uncovered on the axis map: 0 pairs, 1136 triples (see coverage.actual[].uncovered).
 Map acme (../../../../examples/acme/map/approved.yaml), hash 7c05b9cee9cc: 51 dimensions, 187 values, 463 constraints, 55 approved phrases.
 Seed 1, t = 2.
 
 Seeder        specs  blocks  complete  incomplete
 graph            12      48        12           0
 twise           156     793       153           3
-boundary         85     146        13          72
+boundary         85     183        13          72
 deviation        21     111        21           0
 metamorphic      42     192        42           0
 task             67      71        67           0
-cover            28     155        28           0
+cover            24     135        24           0
 
 Stage graph: 18 of 23 edges covered in 12 paths from needs.
 Constraints applied: 463.
@@ -568,7 +570,7 @@ Specs with a block the map supports no machine Then for (18), in incomplete/: ge
      1  no approved path needs callback_phone=not-given
      1  no approved path needs catalog.search.in.unknown-key=catalog.search.in.unknown-key.sent
      1  no approved path needs coverage.check.in.unknown-key=coverage.check.in.unknown-key.sent
-Wrote 508 files to _captures/docs3/cli/generated.
+Wrote 504 files to _captures/docs3/cli/generated.
 exit 1
 ```
 
@@ -1330,6 +1332,7 @@ Reference: the F run of the same spec, 5 of 5 blocks pass; collateral counts aga
   5                                closing       ✓
 ✓ Recovery: immediate, 0 blocks to come back (the spec allows 1 block), collateral 0, safe action yes, asked first yes.
 Recovery record (runner): {"injectedAt":2,"turnsToRecover":0,"label":"immediate","collateral":0,"safeAction":true,"clarified":true}
+Reply checks: 3 of 4 applied, 1 not applicable (tied to another stage).
 (exit 0)
 ```
 

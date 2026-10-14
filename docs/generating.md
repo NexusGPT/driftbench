@@ -286,7 +286,7 @@ That is the last line of `pnpm -s driftbench space coverage examples/acme/gated/
 | `graph` | one spec per approved path: the stage graph walked along the paths, so every edge a path takes is covered by a conversation the agent can have |
 | `twise` | a covering array at strength `--t` (default 3) over the axes; each row walks an approved path of a flow its behaviour belongs to |
 | `boundary` | one spec per value of every detail data dimension, on a path that needs it; a tool output value becomes the tool's answer, a tool input value an expected or a forbidden call |
-| `deviation` | one probe per deviation class, injected at a stage of a path whose flow has a recovery for the class; a class a first message can carry may arrive on the first turn, and a class whose recovery stays may arrive after the last stage |
+| `deviation` | one probe per deviation class, injected at a stage of a path whose flow has a recovery for the class; a class a first message can carry may arrive on the first turn, and a class whose recovery stays may arrive after the last stage. After the `cover` seeder, a class probed by fewer than a third as many blocks as the most probed class gets more probes (`gen-deviation-balance-NNN`), until it reaches that third or no approved path can carry it |
 | `metamorphic` | families of specs that differ only in the phrasing of one value, with the same Then by construction |
 | `task` | the instances of every family a `task_family` relation names (`--tasks <n>` per relation, default 8), each with its corner and planted variants; see [task families](#task-families) |
 | `cover` | runs last: one scenario for each allowed pair no complete spec of the other seeders covers, its values fixed and its deviation a probe at its stage; a pair it cannot build is listed in `generate-report.json` under `cover.unbuilt` with the reasons |
@@ -391,20 +391,20 @@ A block the map supports no machine Then for, or a value with no approved phrase
 
 ```
 $ pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out generated --baseline examples/acme/specs --t 2
-Actual axis-map coverage (written complete specs): pairs 708 of 708 (100.0%); triples 2885 of 4064 (71.0%).
+Actual axis-map coverage (written complete specs): pairs 708 of 708 (100.0%); triples 2928 of 4064 (72.0%).
 Candidate t-wise array (before the total cap): covering array of 156 rows over 5 dimensions, 356 of 356 allowed 2-tuples (100.0%); 2 pairs no path reaches are left out.
-Uncovered on the axis map: 0 pairs, 1179 triples (see coverage.actual[].uncovered).
+Uncovered on the axis map: 0 pairs, 1136 triples (see coverage.actual[].uncovered).
 Map acme (../examples/acme/map/approved.yaml), hash 7c05b9cee9cc: 51 dimensions, 187 values, 463 constraints, 55 approved phrases.
 Seed 1, t = 2.
 
 Seeder        specs  blocks  complete  incomplete
 graph            12      48        12           0
 twise           156     793       153           3
-boundary         85     146        13          72
+boundary         85     183        13          72
 deviation        21     111        21           0
 metamorphic      42     192        42           0
 task             67      71        67           0
-cover            28     155        28           0
+cover            24     135        24           0
 
 Stage graph: 18 of 23 edges covered in 12 paths from needs.
 Constraints applied: 463.
@@ -439,11 +439,11 @@ Specs with a block the map supports no machine Then for (18), in incomplete/: ge
      1  no approved path needs callback_phone=not-given
      1  no approved path needs catalog.search.in.unknown-key=catalog.search.in.unknown-key.sent
      1  no approved path needs coverage.check.in.unknown-key=coverage.check.in.unknown-key.sent
-Wrote 508 files to generated.
+Wrote 504 files to generated.
 exit 1
 ```
 
-The files match the committed `examples/acme/generated`, apart from the relative path of the map, which follows the output folder. Exit 1 is the exit for a suite written with incomplete specs: 336 specs are complete, 75 are incomplete. Complete specs cover all 708 allowed pairs. The price-sheet flow has no conversation path: its specs come from the map's `task_family` relation, so B-013, B-014 and `sales-operations` hold allowed pairs through the [task families](#task-families). `--baseline <specs>` measures other specs on the same map for comparison; `--max <n>` caps the specs per seeder.
+The files match the committed `examples/acme/generated`, apart from the relative path of the map, which follows the output folder. Exit 1 is the exit for a suite written with incomplete specs: 332 specs are complete, 75 are incomplete. Complete specs cover all 708 allowed pairs. The price-sheet flow has no conversation path: its specs come from the map's `task_family` relation, so B-013, B-014 and `sales-operations` hold allowed pairs through the [task families](#task-families). `--baseline <specs>` measures other specs on the same map for comparison; `--max <n>` caps the specs per seeder.
 
 `generate-report.json` holds the generator and map identity, the options, the summary (specs, blocks, complete, incomplete), one entry per seeder, the stage graph, the covering array, the boundary values, the deviation probes, the metamorphic families, the constraints applied, the values with no phrase (`no_phrase`), the blocks with no machine Then and why (`no_then`), the coverage, and any invalid spec or lint finding. `generate` exits 0 when every block has an approved phrase and a Then, 1 when the suite is written with incomplete specs, a seeder cut by `--max` or a generator defect, 2 on a usage or input error (nothing written).
 
@@ -518,7 +518,7 @@ See the [measured budget comparison](../comparisons/budget/README.md) for select
 | 1 | observed | `no-machine-then` (the Then holds judged criteria only), `words-only` (the Then reads only words, on a cell that is not about wording) |
 | 2 | leakage | `expected-value-in-when`, `expected-value-in-given`, `ngram-overlap` (13-grams shared with the `--origin` specs above `--overlap`, default 0.5), `same-family-as-judge` (`--judge-family`) |
 | 3 | shortcut | `passed-by-constant`, `passed-by-echo`, `passed-by-first-tool`: a trivial agent passes the block |
-| 4 | contrast | `then-ignores-edit` (a one-slot sibling with another When expects the same machine Then), `twins-disagree` (metamorphic twins expect something else, or come out differently on the reference) |
+| 4 | contrast | `then-ignores-edit` (a one-slot sibling expects the same machine Then even though the reference output changes), `twins-disagree` (metamorphic twins expect something else, or come out differently on the reference) |
 | 5 | red_first | `not-green-on-reference`, `red-on-control`, `targets-no-fault`, `kills-no-fault` |
 | 6 | stability | `flips`: the outcome changes across `--k` repeats on the reference (default 5); the block goes to `review.yaml` |
 | 7 | difficulty | marks `saturated`: every agent passes, or none |
@@ -531,6 +531,7 @@ See the [measured budget comparison](../comparisons/budget/README.md) for select
 * pass^k on the reference, from the k repeats, is recorded for every block in the report.
 * The holdout: whole specs, drawn with `--seed` at the share `--holdout` (default 0.2), go to `holdout/` with `seal.json`, which lists each spec with its hash. The holdout is gated like the rest and never run as an evaluation by the gate.
 * Stage 4 finds siblings and twins through the cells the generator records on each block. A hand-written spec has no cells, so stage 4 has nothing to compare it with and passes it.
+* Equal sibling expectations are accepted when every reference repeat passes and produces the same observed behavior. When a Then asserts structured state, refusal wording may quote different invalid values; message boundaries, tool arguments, runtime traces and artifacts must still agree. Wording-only expectations compare the reply text too. Equal pass/fail verdicts alone do not establish equivalence. Final-store, artifact, workspace and custom assertions retain the conservative contrast check because their complete evidence can live outside the captured reply.
 * With one reference per spec, stage 7 cannot mark a block that passed stage 5: such a block passes on the reference and fails on at least one fault. The mark becomes informative with several reference agents.
 
 ### The leakage rule

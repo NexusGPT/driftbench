@@ -13,6 +13,7 @@ const made: string[] = [];
 let dir = '';
 let viewer: Viewer;
 let labels = '';
+let csrf = '';
 
 beforeAll(async () => {
   dir = await mkdtemp(join(tmpdir(), 'driftbench-queue-view-'));
@@ -38,6 +39,7 @@ describe('the viewer review queue', () => {
     const page = await fetch(`${viewer.url}/queue`);
     expect(page.status).toBe(200);
     const html = await page.text();
+    csrf = html.match(/name="csrf" value="([^"]+)"/)?.[1] ?? '';
     expect(html).toContain('Review queue');
     expect(html).toContain('open');
 
@@ -47,8 +49,8 @@ describe('the viewer review queue', () => {
 
     const taken = await fetch(`${viewer.url}/queue/assign`, {
       method: 'POST',
-      headers: { 'content-type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ criterion: first.criterion, id: first.id }),
+      headers: { 'content-type': 'application/x-www-form-urlencoded', origin: viewer.url },
+      body: new URLSearchParams({ csrf, criterion: first.criterion, id: first.id }),
       redirect: 'manual',
     });
     expect(taken.status).toBe(303);
@@ -56,8 +58,9 @@ describe('the viewer review queue', () => {
 
     const saved = await fetch(`${viewer.url}/labels`, {
       method: 'POST',
-      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      headers: { 'content-type': 'application/x-www-form-urlencoded', origin: viewer.url },
       body: new URLSearchParams({
+        csrf,
         campaign: first.campaign,
         run: first.runId,
         criterion: first.criterion,
@@ -96,8 +99,9 @@ describe('a label on an item another reviewer holds', () => {
     ).toBe(0);
     const saved = await fetch(`${viewer.url}/labels`, {
       method: 'POST',
-      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      headers: { 'content-type': 'application/x-www-form-urlencoded', origin: viewer.url },
       body: new URLSearchParams({
+        csrf,
         campaign: item.campaign,
         run: item.runId,
         criterion: item.criterion,

@@ -1,0 +1,14 @@
+{
+  "stamp": "2026-10-13T07:51:20.999946+00:00",
+  "authorization": "Owner authorized one re-ask of each of the 20 crash-lost keys. All other recorded answers remain unchanged.",
+  "primary_settings": "Original provider default remains unchanged; two Luna calls, six Haiku calls independently queued.",
+  "dialect_settings": "Medium for both contestants; four Luna calls dropping to two after >5 percent transport failures over 50 attempts; six Haiku and four Gemini calls independently queued.",
+  "one_answer": "One final recorded answer per request key. Start journals retain original lost attempts and mark crash_reask. No new unapproved unknown key may resume.",
+  "budget": "Combined measured spend plus USD 0.40 reserved for the 20 lost attempts plus live request reserves must remain <= USD 10.",
+  "sha256": {
+    "comparisons/ledger-hard/resume.py": "32a686320a3ddfd53722ec13ae0786ce68c88cbc8fa13fd5ae21432aa5b143d6",
+    "comparisons/ledger-hard/crash-recovery.json": "7a033003ca9a0813b34d752ed9360a8d8502274ea502f962aa05e8ac59178308",
+    "comparisons/ledger-hard/audit-construction.py": "b08564dc2789b47f7db2c34abb43f05329e5cf1bdc35725269042ee6ad888dce",
+    "comparisons/ledger-hard/construction-cue-audit.json": "e3fa7df6ce99c0596072bd808c4e37f5e0917728a6dc687ed65bb44dc5cd7026"
+  }
+}

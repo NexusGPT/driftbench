@@ -11,6 +11,7 @@ import {
   auditBound,
   auditSample,
   auditVerdict,
+  type BlockReuse,
   type Campaign,
   type CampaignPlan,
   type CellOutcome,
@@ -43,6 +44,7 @@ import {
   type RegistrySource,
   type RetryOptions,
   RunMode,
+  type RunOptions,
   type RunResult,
   radiusOf,
   runCampaign,
@@ -84,6 +86,7 @@ import { pluginAdapter, pluginAdapterNames } from '../plugins';
 import { noStoreAt } from '../store-path';
 import { BUILTIN_TARGETS_NOTE, builtinTarget, builtinTargetHint } from '../targets';
 import { pricesFromConfig } from '../token-prices';
+import { carriedBlocksAgree, planCellBlockReruns } from './campaign-blocks';
 import { campaignProvenance } from './campaign-provenance';
 import { registerCampaignRejudge } from './campaign-rejudge';
 import { agentFamilyOf, describeSource, loadPersonas, portFor, userFactory, userSource } from './personas';
@@ -300,6 +303,8 @@ type RunCommandOptions = {
   auditSeed?: string;
   maxCarry?: string;
   maxAge?: string;
+  blockReruns?: boolean;
+  recordEndStateSnapshots?: boolean;
   store?: string;
   cache: boolean;
   concurrency: string;
@@ -396,6 +401,14 @@ export function registerCampaignCommands(
     .option(
       '--max-age <days>',
       `with --change: the most days since a carried result was measured (default ${DEFAULT_MAX_AGE_DAYS})`,
+    )
+    .option(
+      '--block-reruns',
+      'with --change: in mode T, send only the blocks of a cell the change can affect and keep the other stored blocks',
+    )
+    .option(
+      '--record-end-state-snapshots',
+      'store the raw end-state values each mode T block reads, so a later --block-reruns can recompose them; they may hold sensitive data',
     )
     .option('--campaign <id>', 'the campaign id; one is made from the content and the clock without it')
     .option('--store <file>', 'keep the campaign, its runs and the cache in this store')
@@ -701,6 +714,7 @@ export async function campaignRunCommand(
     ['--audit-seed', options.auditSeed],
     ['--max-carry', options.maxCarry],
     ['--max-age', options.maxAge],
+    ['--block-reruns', options.blockReruns ? 'on' : undefined],
   ] as const) {
     if (value !== undefined && options.change === undefined) {
       io.err(`${flag} sets how a radius run carries: it goes with --change <manifest>.\n`);
@@ -775,6 +789,12 @@ export async function campaignRunCommand(
         return 2;
       }
       for (const entry of loaded) await store.putSpec(entry);
+      // A block rerun keeps the snapshots of its baseline going: a later rerun needs them on every block.
+      const snapshots =
+        options.recordEndStateSnapshots === true ||
+        (options.blockReruns === true &&
+          options.from !== undefined &&
+          (await store.getCampaign(options.from))?.provenance?.endStateSnapshots === true);
       const campaign: Campaign = {
         campaignId,
         specs,
@@ -786,6 +806,7 @@ export async function campaignRunCommand(
         provenance: campaignProvenance(
           runs.flatMap((run) => run.targets),
           (target) => required(adapters.get(showTarget(target)), 'adapter'),
+          snapshots,
         ),
         judge: { mode: 'system1', judges: [] },
         createdAt,
@@ -816,6 +837,25 @@ export async function campaignRunCommand(
                   agentVersion: campaign.agentVersion,
                 });
               },
+              (cell) => {
+                const spec = required(loaded.find((entry) => entry.hash === cell.specHash)?.spec, 'spec');
+                return {
+                  spec,
+                  options: {
+                    adapter: required(adapters.get(showTarget(cell.target)), 'adapter'),
+                    driver: deps.driver(cell, spec),
+                    checks: deps.checks,
+                    mode: cell.mode,
+                    repeat: cell.repeat,
+                    target: cell.target,
+                    perturbationId: cell.perturbationId,
+                    retry: pool.retry,
+                    agentVersion: campaign.agentVersion,
+                    recordProvenance: true,
+                    recordEndStateSnapshots: snapshots,
+                  },
+                };
+              },
               async (cells) => {
                 // The audit runs before the campaign is stored, in a store of its own: what it finds
                 // decides what the campaign carries, and a campaign record never changes once written.
@@ -830,6 +870,7 @@ export async function campaignRunCommand(
                     campaignId,
                     cells,
                     recordProvenance: true,
+                    ...(snapshots ? { recordEndStateSnapshots: true } : {}),
                     recordEvents: true,
                     specFor: (cell) =>
                       required(specs.get(`${cell.specId}@${cell.specHash}`), `spec ${cell.specId}`),
@@ -878,6 +919,7 @@ export async function campaignRunCommand(
         ...(options.cacheSuite === undefined ? {} : { cacheSuite: options.cacheSuite }),
         json: options.json === true,
         kept: options.store !== undefined,
+        ...(radius?.blockReuse ? { blockReuse: radius.blockReuse } : {}),
         ...pool,
         ...(prices ? { prices } : {}),
       });
@@ -1095,6 +1137,8 @@ async function executeCampaign(
     retry?: RetryOptions;
     /** The line a radius campaign prints before its cells: what runs and what is carried. */
     radiusNote?: string;
+    /** Mode T: the stored baseline run to rerun only the radius blocks from, by cell. */
+    blockReuse?: (cell: PlannedCell) => BlockReuse | undefined;
   },
 ): Promise<number> {
   const plan = planOf(campaign, loaded);
@@ -1114,6 +1158,8 @@ async function executeCampaign(
     campaignId: campaign.campaignId,
     cells: plan.cells,
     recordProvenance: campaign.provenance !== undefined,
+    ...(campaign.provenance?.endStateSnapshots ? { recordEndStateSnapshots: true } : {}),
+    ...(flags.blockReuse ? { blockReuse: flags.blockReuse } : {}),
     recordEvents: true,
     specFor: (cell) => required(specs.get(`${cell.specId}@${cell.specHash}`), `spec ${cell.specId}`),
     adapterFor: (target) => required(adapters.get(showTarget(target)), `adapter ${showTarget(target)}`),
@@ -1158,12 +1204,14 @@ async function radiusPlan(
   deps: CampaignDeps,
   io: Io,
   currentProvenance: (cell: PlannedCell) => RunResult['provenance'],
+  blockOptions: (cell: PlannedCell) => { spec: Spec; options: RunOptions },
   runAudit: (cells: PlannedCell[]) => Promise<RunResult[]>,
 ): Promise<{
   plan: RadiusPlan;
   record: NonNullable<Campaign['radius']>;
   note: string;
   auditRuns: RunResult[];
+  blockReuse?: (cell: PlannedCell) => BlockReuse | undefined;
 } | null> {
   if (options.change === undefined || options.from === undefined || options.store === undefined) {
     io.err(
@@ -1227,19 +1275,49 @@ async function radiusPlan(
       ...(maxAge === undefined ? {} : { maxAgeDays: maxAge }),
     },
   );
-  const outside = plan.carried.length;
+  if (options.blockReruns && !campaign.modes.includes('T')) {
+    io.err('--block-reruns reruns blocks of independent mode T cells: it goes with --mode T.\n');
+    return null;
+  }
+  // Mode T cells in the radius keep their stored blocks outside it. A refusal runs the whole cell.
+  let blocks =
+    options.blockReruns && plan.nothing === undefined
+      ? planCellBlockReruns({
+          cells: plan.fresh,
+          baselineRuns,
+          baseline,
+          manifest: manifest.manifest,
+          optionsFor: blockOptions,
+          now: deps.now(),
+          ...(maxCarry === undefined ? {} : { maxCarry }),
+          ...(maxAge === undefined ? {} : { maxAgeDays: maxAge }),
+        })
+      : undefined;
+  const outside = plan.carried.length + (blocks?.partial.size ?? 0);
   let audit: NonNullable<NonNullable<Campaign['radius']>['audit']> | undefined;
   const auditRuns: RunResult[] = [];
-  if (auditSize !== undefined && plan.nothing === undefined) {
+  if (auditSize !== undefined && plan.nothing === undefined && outside > 0) {
     const seed = auditSeed ?? 1;
-    const sample = auditSample(plan.carried, auditSize, seed);
+    const pool = [
+      ...plan.carried.map((entry) => ({ cell: entry.cell, source: entry.source, carried: entry })),
+      ...[...(blocks?.partial ?? [])].flatMap(([cellId, partial]) => {
+        const cell = plan.fresh.find((entry) => entry.cellId === cellId);
+        return cell ? [{ cell, source: partial.reuse.source, partial }] : [];
+      }),
+    ];
+    const sample = auditSample(pool, auditSize, seed);
     const fresh = new Map((await runAudit(sample.map((entry) => entry.cell))).map((run) => [run.runId, run]));
     const missed: NonNullable<NonNullable<Campaign['radius']>['audit']>['missed'] = [];
     for (const entry of sample) {
       const run = fresh.get(entry.cell.cellId);
-      const verdict = run
-        ? auditVerdict(run, entry.source)
-        : { agree: false, differing: ['the audit run did not finish'] };
+      const verdict = !run
+        ? { agree: false, differing: ['the audit run did not finish'] }
+        : 'partial' in entry
+          ? (() => {
+              const differing = carriedBlocksAgree(run, entry.partial);
+              return { agree: differing.length === 0, differing };
+            })()
+          : auditVerdict(run, entry.source);
       if (run) auditRuns.push(run);
       if (!verdict.agree) {
         missed.push({ specId: entry.cell.specId, cellId: entry.cell.cellId, differing: verdict.differing });
@@ -1254,17 +1332,21 @@ async function radiusPlan(
         inside: plan.inside,
         nothing: `the audit found ${missed.length} of ${count(sample.length, 'carried result')} the new agent does not reproduce`,
       };
+      blocks = undefined;
     } else {
       const drawn = new Set(sample.map((entry) => entry.cell.cellId));
+      // A drawn partial cell already ran whole: its stored blocks are not carried any more.
+      const wholeDrawn = sample.filter((entry) => !('partial' in entry));
       plan = {
         ...plan,
         carried: plan.carried.filter((entry) => !drawn.has(entry.cell.cellId)),
-        fresh: [...plan.fresh, ...sample.map((entry) => entry.cell)],
+        fresh: [...plan.fresh, ...wholeDrawn.map((entry) => entry.cell)],
         refused: [
           ...plan.refused,
-          ...sample.map((entry) => ({ cell: entry.cell, reason: 'drawn for the audit' })),
+          ...wholeDrawn.map((entry) => ({ cell: entry.cell, reason: 'drawn for the audit' })),
         ],
       };
+      for (const entry of sample) blocks?.partial.delete(entry.cell.cellId);
     }
   }
   const record = {
@@ -1296,8 +1378,27 @@ async function radiusPlan(
     for (const entry of record.refused) {
       lines.push(`  ${count(entry.cells, 'cell')} outside the radius run fresh: ${entry.reason}.`);
     }
+    if (blocks) {
+      const kept = [...blocks.partial.values()].reduce((sum, entry) => sum + entry.carried.size, 0);
+      const sent = [...blocks.partial.values()].reduce((sum, entry) => sum + entry.indices.size, 0);
+      lines.push(
+        `Mode T block reruns: ${count(blocks.partial.size, 'cell')} send ${count(sent, 'block')} and keep ${count(kept, 'stored block')} from ${baseline.campaignId}.`,
+      );
+      const reasons = new Map<string, number>();
+      for (const reason of blocks.whole.values()) reasons.set(reason, (reasons.get(reason) ?? 0) + 1);
+      for (const [reason, cells] of reasons) lines.push(`  ${count(cells, 'cell')} run whole: ${reason}.`);
+    }
   }
-  return { plan, record, note: `${lines.join('\n')}\n`, auditRuns };
+  const partial = blocks?.partial;
+  return {
+    plan,
+    record,
+    note: `${lines.join('\n')}\n`,
+    auditRuns,
+    ...(partial && partial.size > 0
+      ? { blockReuse: (cell: PlannedCell) => partial.get(cell.cellId)?.reuse }
+      : {}),
+  };
 }
 
 /** The name of the check a council of @agent-nexus/driftbench-judges adds to the checks. */
@@ -1811,11 +1912,15 @@ function summaryLine(outcomes: readonly CellOutcome[]): string {
 
 /** Blocks a radius campaign sent to the agent, and blocks it carried without sending them. */
 function radiusBlocks(outcomes: readonly CellOutcome[]): { sent: number; carried: number } {
-  const blocks = (carried: boolean) =>
-    outcomes
-      .filter((outcome) => outcome.run !== undefined && (outcome.run.carried !== undefined) === carried)
-      .reduce((sum, outcome) => sum + (outcome.run?.blocks.length ?? 0), 0);
-  return { sent: blocks(false), carried: blocks(true) };
+  let sent = 0;
+  let carried = 0;
+  for (const run of outcomes.flatMap((outcome) => (outcome.run ? [outcome.run] : []))) {
+    for (const block of run.blocks) {
+      if (run.carried !== undefined || block.carried !== undefined) carried += 1;
+      else sent += 1;
+    }
+  }
+  return { sent, carried };
 }
 
 /** The closing lines of a radius campaign: fresh against carried, in cells and in blocks, and the saving. */

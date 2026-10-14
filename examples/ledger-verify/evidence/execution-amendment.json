@@ -1,0 +1,14 @@
+{
+  "at": "2026-10-13T08:43:11.639569+00:00",
+  "reason": "Owner cap rises to 40 USD with full 379 evaluation units per model. HTTP 429 waits 60, 120, 240 seconds and remains pending transport. Terminal no-answer failures persist without retries; native error fees are captured. Frozen prompts and verdict parsers are unchanged.",
+  "sourceHashes": {
+    "examples/judge-benchmarks/src/call.ts": "9666f4f7f7a19189d1b7c70992dec4832246b645e9cc6271e76eda689a9e6036"
+  },
+  "priorSourceHashes": {
+    "examples/judge-benchmarks/src/call.ts": "d8a69d68ab0fbf54e0dd9696878037706305b1ae9b28e04e94ccf42225a855af"
+  },
+  "outerTimeoutMs": 2400000,
+  "apiTimeoutMs": 300000,
+  "retryPolicy": "Only missing transport outputs resume once. Returned answers are never retried.",
+  "outerEnvelopeReason": "300-second actual provider attempts; queueing plus three HTTP 429 waits require a longer process envelope. The wrapper has no automatic outer retry."
+}

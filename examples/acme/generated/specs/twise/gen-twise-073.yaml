@@ -72,6 +72,7 @@ blocks:
           count: 2
           input:
             number: "+12025550160"
+          input_closed: true
         - label: catalog.search
           count: 0
       lang: EN

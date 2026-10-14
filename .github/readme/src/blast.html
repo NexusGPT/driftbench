@@ -5,24 +5,25 @@
 <title>driftbench: a change has a blast radius</title>
 <link rel="stylesheet" href="brand.css">
 <style>
-  /* A change to the recap stage lights the blocks that read it and the blocks after them in the same
-     conversation. The rest is carried from the last full run. Numbers: the Acme suite, 195 conversations,
-     861 blocks, from the blast radius design probe. */
+  /* Shown in plain words: 30% is 261 of 867 blocks not sent for the recap change, and the same 102 failing
+     tests found as a full run (docs/comparison/methods.md, blast radius). A change to the recap stage lights the blocks that read it and the blocks after them in the same
+     conversation. The rest is carried from the last full run. Numbers: the end to end run on Acme in docs/concepts/blast-radius.md of the blast radius pull
+     requests: 606 of 867 blocks sent, 261 carried, the same 102 failing tests as a full run. */
   #frame { width: 640px; height: 300px; }
   .chg { left: 16px; top: 64px; width: 124px; height: 84px; align-content: start; padding: 10px 11px; }
-  .chg .nx-node__title { font: 500 12px/1.25 var(--nx-mono); }
+  .chg .nx-node__title { font: 600 13px/1.25 var(--nx-sans); }
   .bk { position: absolute; width: 58px; height: 30px; border-radius: 8px; display: grid; place-items: center;
-    background: var(--nx-card); border: 1px solid var(--nx-ill-panel-border); font: 500 10px/1 var(--nx-mono); color: var(--kind); }
+    background: var(--nx-card); border: 1px solid var(--nx-ill-panel-border); font: 500 11px/1 var(--nx-sans); color: var(--kind); }
   .bk.in { background: var(--tile); color: var(--tile-ink); border-color: transparent; box-shadow: 0 0 0 2px var(--nx-blue); font-weight: 600; }
   .bk.inh { background: var(--tile); color: var(--tile-ink); border-color: transparent; opacity: .78; }
-  .con { left: 482px; top: 64px; width: 124px; height: 156px; padding: 11px 12px; }
+  .con { left: 476px; top: 64px; width: 132px; height: 156px; padding: 11px 12px; }
   .con .nx-kind { position: static; display: block; }
   .con .n { margin-top: 9px; font: 400 26px/1 var(--nx-serif); letter-spacing: var(--nx-serif-track); color: var(--nx-ink); }
   .con .l { margin-top: 3px; font: 400 11px/1.3 var(--nx-sans); color: var(--detail); }
   .con .nx-done { margin-top: 10px; }
   .key { left: 160px; top: 242px; }
-  .key2 { left: 262px; top: 242px; }
-  .key3 { left: 396px; top: 242px; }
+  .key2 { left: 280px; top: 242px; }
+  .key3 { left: 404px; top: 242px; }
   .sw { width: 10px; height: 10px; border-radius: 3px; background: var(--tile); }
 </style>
 </head>
@@ -34,38 +35,38 @@
     </svg>
     <span class="nx-kind" style="left:16px;top:18px">One change</span>
     <div class="nx-node chg nx-node--noico">
-      <span class="nx-node__kind">You change</span>
-      <span class="nx-node__title">stage: recap</span>
+      <span class="nx-node__kind">You change one step</span>
+      <span class="nx-node__title">the order recap</span>
     </div>
-    <span class="nx-kind" style="left:160px;top:18px">Four conversations, block by block</span>
-    <span class="bk" style="left:160px;top:64px">identify</span>
+    <span class="nx-kind" style="left:160px;top:18px">Four test conversations, step by step</span>
+    <span class="bk" style="left:160px;top:64px">greet</span>
     <span class="bk" style="left:224px;top:64px">offer</span>
     <span class="bk in" style="left:288px;top:64px">recap</span>
     <span class="bk inh" style="left:352px;top:64px">order</span>
-    <span class="bk inh" style="left:416px;top:64px">closing</span>
-    <span class="bk" style="left:160px;top:106px">identify</span>
+    <span class="bk inh" style="left:416px;top:64px">close</span>
+    <span class="bk" style="left:160px;top:106px">greet</span>
     <span class="bk" style="left:224px;top:106px">offer</span>
     <span class="bk" style="left:288px;top:106px">offer</span>
     <span class="bk in" style="left:352px;top:106px">recap</span>
-    <span class="bk inh" style="left:416px;top:106px">closing</span>
-    <span class="bk" style="left:160px;top:148px">identify</span>
-    <span class="bk" style="left:224px;top:148px">coverage</span>
+    <span class="bk inh" style="left:416px;top:106px">close</span>
+    <span class="bk" style="left:160px;top:148px">greet</span>
+    <span class="bk" style="left:224px;top:148px">address</span>
     <span class="bk" style="left:288px;top:148px">offer</span>
-    <span class="bk" style="left:352px;top:148px">callback</span>
-    <span class="bk" style="left:416px;top:148px">closing</span>
-    <span class="bk" style="left:160px;top:190px">identify</span>
+    <span class="bk" style="left:352px;top:148px">call back</span>
+    <span class="bk" style="left:416px;top:148px">close</span>
+    <span class="bk" style="left:160px;top:190px">greet</span>
     <span class="bk in" style="left:224px;top:190px">recap</span>
     <span class="bk inh" style="left:288px;top:190px">order</span>
-    <span class="bk inh" style="left:352px;top:190px">closing</span>
+    <span class="bk inh" style="left:352px;top:190px">close</span>
     <div class="nx-ill-panel con">
-      <span class="nx-kind">Radius</span>
-      <div class="n">298</div>
-      <div class="l">of 861 blocks run again</div>
-      <span class="nx-done">237 red, all inside</span>
+      <span class="nx-kind">This change</span>
+      <div class="n">30%</div>
+      <div class="l">of the tests skipped</div>
+      <span class="nx-done">same failures found</span>
     </div>
-    <span class="nx-ipill nx-ipill--flat key"><span class="sw" style="box-shadow:0 0 0 2px var(--nx-blue)"></span>reads it</span>
+    <span class="nx-ipill nx-ipill--flat key"><span class="sw" style="box-shadow:0 0 0 2px var(--nx-blue)"></span>uses that step</span>
     <span class="nx-ipill nx-ipill--flat key2"><span class="sw" style="opacity:.78"></span>comes after it</span>
-    <span class="nx-ipill nx-ipill--flat key3"><span class="sw" style="background:var(--nx-card);border:1px solid var(--nx-line)"></span>carried</span>
+    <span class="nx-ipill nx-ipill--flat key3"><span class="sw" style="background:var(--nx-card);border:1px solid var(--nx-line)"></span>skipped, result kept</span>
   </div>
 </div>
 <script>

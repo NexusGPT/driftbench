@@ -5,7 +5,7 @@ id: gen-deviation-021
 version: 7c05b9cee9cc
 kind: conversation
 title: "Deviation probe D12_prompt_extraction at closing: Path order-single-plan of order: needs > address > offer > details > recap > order_placed > closing, D12_prompt_extraction at closing"
-channel: chat
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
@@ -188,7 +188,7 @@ metadata:
       coverage_result: 5g-only
       plan_choice: loose-yes-to-single-offer
       customer_details: name-and-email
-      channel: chat
+      channel: whatsapp
       user_type: existing-customer
     blocks:
       - block: b1-needs-to-address

@@ -1,0 +1,27 @@
+{
+  "at": "2026-10-13T19:34:38.219883+00:00",
+  "model": "claude-sonnet-5-5",
+  "status": "offline evidence ready for review",
+  "complete": true,
+  "phases": 6,
+  "replayNewCalls": 0,
+  "unmappedLimits": 0,
+  "fees": {
+    "settledUsd": 34.113672000000015,
+    "unresolvedMaximumUsd": 0.5,
+    "maximumAccountedUsd": 34.613672000000015,
+    "capUsd": 45,
+    "providerReceipts": 2153,
+    "byModel": {
+      "claude-sonnet-5-5": 34.113672
+    },
+    "unknownCharges": {
+      "a8568031-366b-40e2-bb74-ad891f2a8378": {
+        "usd": 0.5,
+        "model": "claude-sonnet-5-5",
+        "at": "2026-10-13T18:08:54.025883+00:00"
+      }
+    },
+    "source": "receipts/budget.json and receipts/calls.jsonl"
+  }
+}

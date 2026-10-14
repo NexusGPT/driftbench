@@ -1,0 +1,371 @@
+{
+  "bench": "longjudge-verify",
+  "model": "gemini-3.5-flash-lite",
+  "items": 20,
+  "contestants": [
+    {
+      "contestant": "driftbench-verify-uncertainty-cascade",
+      "source": "two blind paths, backward and final-step checks; recheck acceptances admitting missing premises; exclude reminders not to invent unrequested outputs from uncertainty detection",
+      "mode": "pointwise",
+      "summary": {
+        "metric": "accuracy (LongJudgeBench verify, binary)",
+        "value": {
+          "estimate": 0.7,
+          "lower": 0.4810271816464765,
+          "upper": 0.8545227551323956
+        },
+        "n": 20,
+        "balancedAccuracy": 0.8333333333333333,
+        "byGroup": {
+          "incorrect": {
+            "n": 18,
+            "value": 0.6666666666666666
+          },
+          "correct": {
+            "n": 2,
+            "value": 1
+          }
+        },
+        "missing": 0
+      },
+      "costUsd": 0.45593179999999994,
+      "calls": 94,
+      "decisions": [
+        {
+          "id": "002ba0331c11a198784abdfff1d7b8fb_936d37ed03db3340809ca9409508b906",
+          "pass": false,
+          "correct": false,
+          "responseChars": 17846,
+          "missing": 0
+        },
+        {
+          "id": "00a93c5457ba7180f88944780f9134a0_773a31d04e4d41c29af003fb95f3b960",
+          "pass": false,
+          "correct": false,
+          "responseChars": 2549,
+          "missing": 0
+        },
+        {
+          "id": "012d78a208c04759392be0c8b9d27dc6_dc9a328c94255249105f5d3b465499d5",
+          "pass": false,
+          "correct": false,
+          "responseChars": 5098,
+          "missing": 0
+        },
+        {
+          "id": "045503cb808f8344ae4972c147441517_90dddf89d761d5515d371d5d883e15ec",
+          "pass": true,
+          "correct": false,
+          "responseChars": 2763,
+          "missing": 0
+        },
+        {
+          "id": "0693b094973e7e926583c76785af77ca_5a776264cbecc67bd81bf1bea7505338",
+          "pass": false,
+          "correct": false,
+          "responseChars": 6677,
+          "missing": 0
+        },
+        {
+          "id": "081833aa552befb57c837abfaa3e82c6_3687dcc53ca83b415f453e9939ed2277",
+          "pass": false,
+          "correct": false,
+          "responseChars": 19767,
+          "missing": 0
+        },
+        {
+          "id": "0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1",
+          "pass": true,
+          "correct": false,
+          "responseChars": 14212,
+          "missing": 0
+        },
+        {
+          "id": "1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec",
+          "pass": true,
+          "correct": true,
+          "responseChars": 2454,
+          "missing": 0
+        },
+        {
+          "id": "1bd8144011c39f410df900a04d6e156a_f0ff48079a16eda16a3925eb5c78c21a",
+          "pass": true,
+          "correct": true,
+          "responseChars": 3406,
+          "missing": 0
+        },
+        {
+          "id": "20f09d89d7c677862fd06e2e96e7ec19_a7f2ac04dc8fb1609ab7384631ce736c",
+          "pass": false,
+          "correct": false,
+          "responseChars": 3870,
+          "missing": 0
+        },
+        {
+          "id": "251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d",
+          "pass": true,
+          "correct": false,
+          "responseChars": 22440,
+          "missing": 0
+        },
+        {
+          "id": "2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad",
+          "pass": true,
+          "correct": false,
+          "responseChars": 4331,
+          "missing": 0
+        },
+        {
+          "id": "2fabe7c11c7747a8d772a0ef0448e9a8_ce122c4fd3633a58d1e4ead1e46a9a01",
+          "pass": false,
+          "correct": false,
+          "responseChars": 3704,
+          "missing": 0
+        },
+        {
+          "id": "316ee3d0bc7b041ff6036ff4eedebd63_2a81f176304fb48b93a51804c8813763",
+          "pass": false,
+          "correct": false,
+          "responseChars": 3302,
+          "missing": 0
+        },
+        {
+          "id": "3c59c6f19c05e74596f075c311a4cded_e864f7a031ed4f8dc9c0983cec0121f8",
+          "pass": false,
+          "correct": false,
+          "responseChars": 3288,
+          "missing": 0
+        },
+        {
+          "id": "3e12f104244648c9a58ed98d25d06249_a2144e352f15bb692f84f1721110479b",
+          "pass": true,
+          "correct": false,
+          "responseChars": 5766,
+          "missing": 0
+        },
+        {
+          "id": "426cee0607fecfe6c4787ef3291d8484_e0eb041693a1eaaba4375c74e5eb344b",
+          "pass": true,
+          "correct": false,
+          "responseChars": 26197,
+          "missing": 0
+        },
+        {
+          "id": "465fc22785286db5dd33b22506c32cb7_167ebe0d73af5771692e25d41290c636",
+          "pass": false,
+          "correct": false,
+          "responseChars": 2980,
+          "missing": 0
+        },
+        {
+          "id": "4b4809afe76dd8c903f188bf277830c2_564014cd48e8406e59bd7edae9b402f5",
+          "pass": false,
+          "correct": false,
+          "responseChars": 3530,
+          "missing": 0
+        },
+        {
+          "id": "4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6",
+          "pass": false,
+          "correct": false,
+          "responseChars": 4296,
+          "missing": 0
+        }
+      ]
+    },
+    {
+      "contestant": "promptfoo",
+      "source": "promptfoo 8014282: select-best (pairs) and llm-rubric (single responses)",
+      "mode": "pointwise",
+      "summary": {
+        "metric": "accuracy (LongJudgeBench verify, binary)",
+        "value": {
+          "estimate": 0.4,
+          "lower": 0.21880653237281708,
+          "upper": 0.6134184992377468
+        },
+        "n": 20,
+        "balancedAccuracy": 0.2222222222222222,
+        "byGroup": {
+          "incorrect": {
+            "n": 18,
+            "value": 0.4444444444444444
+          },
+          "correct": {
+            "n": 2,
+            "value": 0
+          }
+        },
+        "missing": 0
+      },
+      "costUsd": 0.06243349999999999,
+      "calls": 20,
+      "decisions": [
+        {
+          "id": "002ba0331c11a198784abdfff1d7b8fb_936d37ed03db3340809ca9409508b906",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 17846,
+          "missing": 0
+        },
+        {
+          "id": "00a93c5457ba7180f88944780f9134a0_773a31d04e4d41c29af003fb95f3b960",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2549,
+          "missing": 0
+        },
+        {
+          "id": "012d78a208c04759392be0c8b9d27dc6_dc9a328c94255249105f5d3b465499d5",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 5098,
+          "missing": 0
+        },
+        {
+          "id": "045503cb808f8344ae4972c147441517_90dddf89d761d5515d371d5d883e15ec",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 2763,
+          "missing": 0
+        },
+        {
+          "id": "0693b094973e7e926583c76785af77ca_5a776264cbecc67bd81bf1bea7505338",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 6677,
+          "missing": 0
+        },
+        {
+          "id": "081833aa552befb57c837abfaa3e82c6_3687dcc53ca83b415f453e9939ed2277",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 19767,
+          "missing": 0
+        },
+        {
+          "id": "0af2a305f4c4e44a69c7fd5e03d7f74e_7ff87a43db7f15aa80827e2230dd95a1",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 14212,
+          "missing": 0
+        },
+        {
+          "id": "1548f1e34026a5988f77c35cbc1e2528_c39553e7f10dd1483084dd94954eb1ec",
+          "pass": false,
+          "score": 0,
+          "correct": true,
+          "responseChars": 2454,
+          "missing": 0
+        },
+        {
+          "id": "1bd8144011c39f410df900a04d6e156a_f0ff48079a16eda16a3925eb5c78c21a",
+          "pass": false,
+          "score": 0,
+          "correct": true,
+          "responseChars": 3406,
+          "missing": 0
+        },
+        {
+          "id": "20f09d89d7c677862fd06e2e96e7ec19_a7f2ac04dc8fb1609ab7384631ce736c",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 3870,
+          "missing": 0
+        },
+        {
+          "id": "251325e4d8bd19d38d1481ec5bb6b952_b0e0faf620816637683d6cefbc8d905d",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 22440,
+          "missing": 0
+        },
+        {
+          "id": "2c0b811d86ed6140f5f9811cf3a320fa_4e375ba613e31acadbdf76cf9dcb95ad",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 4331,
+          "missing": 0
+        },
+        {
+          "id": "2fabe7c11c7747a8d772a0ef0448e9a8_ce122c4fd3633a58d1e4ead1e46a9a01",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 3704,
+          "missing": 0
+        },
+        {
+          "id": "316ee3d0bc7b041ff6036ff4eedebd63_2a81f176304fb48b93a51804c8813763",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 3302,
+          "missing": 0
+        },
+        {
+          "id": "3c59c6f19c05e74596f075c311a4cded_e864f7a031ed4f8dc9c0983cec0121f8",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 3288,
+          "missing": 0
+        },
+        {
+          "id": "3e12f104244648c9a58ed98d25d06249_a2144e352f15bb692f84f1721110479b",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 5766,
+          "missing": 0
+        },
+        {
+          "id": "426cee0607fecfe6c4787ef3291d8484_e0eb041693a1eaaba4375c74e5eb344b",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 26197,
+          "missing": 0
+        },
+        {
+          "id": "465fc22785286db5dd33b22506c32cb7_167ebe0d73af5771692e25d41290c636",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 2980,
+          "missing": 0
+        },
+        {
+          "id": "4b4809afe76dd8c903f188bf277830c2_564014cd48e8406e59bd7edae9b402f5",
+          "pass": false,
+          "score": 0,
+          "correct": false,
+          "responseChars": 3530,
+          "missing": 0
+        },
+        {
+          "id": "4d1497a568219528716b51f87ef72f18_6029e690d7a881057e987894b31db7e6",
+          "pass": true,
+          "score": 1,
+          "correct": false,
+          "responseChars": 4296,
+          "missing": 0
+        }
+      ]
+    }
+  ],
+  "newSpendUsd": 0,
+  "newCalls": 0,
+  "replayed": 114,
+  "failedCalls": 0
+}

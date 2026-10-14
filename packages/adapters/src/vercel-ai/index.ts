@@ -2,6 +2,7 @@ import {
   type AdapterCapabilities,
   type AgentAdapter,
   AgentFailure,
+  copyHistory,
   decideToolRule,
   deniesCall,
   isPlainObject,
@@ -135,6 +136,8 @@ export function vercelAiAdapter(options: VercelAiAdapterOptions): AgentAdapter {
     capabilities: () => ({ ...capabilities }),
 
     async open(given: ResolvedGiven) {
+      // Validate and freeze before user-supplied setup receives the Given.
+      copyHistory(given.prefix);
       const tools = typeof options.tools === 'function' ? options.tools(given) : (options.tools ?? {});
       return openSession(id, given, {
         kind: 'vercel-ai',
@@ -145,12 +148,13 @@ export function vercelAiAdapter(options: VercelAiAdapterOptions): AgentAdapter {
     },
 
     async send(session: Session, turn: Turn) {
+      const history = copyHistory(session.history);
       const state = ownState<VercelState>(session, id, 'vercel-ai');
       const policy = policyOf(turn, session, options);
       const cap = stepCap(maxSteps, turn.budget?.steps);
       const system = [
         options.system ?? '',
-        ...session.history.filter((m) => m.role === 'system').map((m) => m.content),
+        ...history.filter((m) => m.role === 'system').map((m) => m.content),
       ]
         .filter((part) => part !== '')
         .join('\n\n');
@@ -160,7 +164,7 @@ export function vercelAiAdapter(options: VercelAiAdapterOptions): AgentAdapter {
         result = await options.generateText({
           model: retriedModel(options.model, policy, options, turn.index),
           ...(system === '' ? {} : { system }),
-          messages: toModelMessages(session.history, labels),
+          messages: toModelMessages(history, labels),
           ...(Object.keys(state.tools).length === 0
             ? {}
             : { tools: stubbed(state.tools, labels, turn, options.toolPolicy) }),

@@ -1,0 +1,640 @@
+{
+  "at": "2026-10-13T13:07:34.246608+00:00",
+  "errors": [
+    {
+      "id": "958baa18-3acc-4f46-9820-553171bdb4c6",
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T13:01:43.695Z",
+      "message": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent could not be reached (TypeError)",
+      "networkDiagnostics": [
+        {
+          "phase": "fetch",
+          "error": {
+            "name": "TypeError",
+            "causes": [
+              {
+                "name": "ConnectTimeoutError",
+                "code": "UND_ERR_CONNECT_TIMEOUT",
+                "causes": []
+              }
+            ]
+          }
+        }
+      ],
+      "fingerprint": "e521ab2d3f53ebaea9966b66d8b29f774b61a2441e0c13cad77a1a5622beafaf",
+      "phase": "test",
+      "reservationRetained": true
+    },
+    {
+      "id": "f6054ffa-a274-46cb-821d-52cbc1af2f92",
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T13:01:43.873Z",
+      "message": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent could not be reached (TypeError)",
+      "networkDiagnostics": [
+        {
+          "phase": "fetch",
+          "error": {
+            "name": "TypeError",
+            "causes": [
+              {
+                "name": "ConnectTimeoutError",
+                "code": "UND_ERR_CONNECT_TIMEOUT",
+                "causes": []
+              }
+            ]
+          }
+        }
+      ],
+      "fingerprint": "fdbb8a62b2a2831d391f449686072fd42cf02e745c5ee2973511fc9603232b1d",
+      "phase": "test",
+      "reservationRetained": true
+    },
+    {
+      "id": "41cae0a3-16c8-47cf-a43c-e943193b2908",
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T13:01:44.716Z",
+      "message": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent could not be reached (TypeError)",
+      "networkDiagnostics": [
+        {
+          "phase": "fetch",
+          "error": {
+            "name": "TypeError",
+            "causes": [
+              {
+                "name": "ConnectTimeoutError",
+                "code": "UND_ERR_CONNECT_TIMEOUT",
+                "causes": []
+              }
+            ]
+          }
+        }
+      ],
+      "fingerprint": "bef2cf1538c2b460c1be0d781baf3d0226039624185fe37f131a160b5db6f9ba",
+      "phase": "test",
+      "reservationRetained": true
+    },
+    {
+      "id": "5f8c8002-93dd-4406-97c3-a0118e70b749",
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T13:01:44.993Z",
+      "message": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent could not be reached (TypeError)",
+      "networkDiagnostics": [
+        {
+          "phase": "fetch",
+          "error": {
+            "name": "TypeError",
+            "causes": [
+              {
+                "name": "ConnectTimeoutError",
+                "code": "UND_ERR_CONNECT_TIMEOUT",
+                "causes": []
+              }
+            ]
+          }
+        }
+      ],
+      "fingerprint": "fb4f9d032b95859dc21ec635d00cfa771e13857d2a4ec9f81bf24a127ed243c9",
+      "phase": "test",
+      "reservationRetained": true
+    },
+    {
+      "id": "ac80186c-da26-4488-9504-0f1f59200070",
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T13:01:45.548Z",
+      "message": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent could not be reached (TypeError)",
+      "networkDiagnostics": [
+        {
+          "phase": "fetch",
+          "error": {
+            "name": "TypeError",
+            "causes": [
+              {
+                "name": "ConnectTimeoutError",
+                "code": "UND_ERR_CONNECT_TIMEOUT",
+                "causes": []
+              }
+            ]
+          }
+        }
+      ],
+      "fingerprint": "bd87d429952a99b873082477ef2cb9ffcb3b4a3806db9d9d4e2ff9dd96084b82",
+      "phase": "test",
+      "reservationRetained": true
+    },
+    {
+      "id": "3792df07-9adc-4b22-9866-6738866a4bb6",
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T13:01:48.045Z",
+      "message": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent could not be reached (TypeError)",
+      "networkDiagnostics": [
+        {
+          "phase": "fetch",
+          "error": {
+            "name": "TypeError",
+            "causes": [
+              {
+                "name": "ConnectTimeoutError",
+                "code": "UND_ERR_CONNECT_TIMEOUT",
+                "causes": []
+              }
+            ]
+          }
+        }
+      ],
+      "fingerprint": "6650ef261015648482f60621020e2eb9a6a3c139dd8734baa7eee2bab330336d",
+      "phase": "test",
+      "reservationRetained": true
+    },
+    {
+      "id": "056a0184-5b89-4d29-9b4a-ce881a5cf5bf",
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T13:01:50.540Z",
+      "message": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent could not be reached (TypeError)",
+      "networkDiagnostics": [
+        {
+          "phase": "fetch",
+          "error": {
+            "name": "TypeError",
+            "causes": [
+              {
+                "name": "ConnectTimeoutError",
+                "code": "UND_ERR_CONNECT_TIMEOUT",
+                "causes": []
+              }
+            ]
+          }
+        }
+      ],
+      "fingerprint": "fb2db5f4779c5788f35b1f66ae533a4c62228a706035993d6a2f854f044b855c",
+      "phase": "test",
+      "reservationRetained": true
+    },
+    {
+      "id": "dde0f5e4-1551-41dc-979a-f49c3b1aa846",
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T13:01:54.586Z",
+      "message": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent could not be reached (TypeError)",
+      "networkDiagnostics": [
+        {
+          "phase": "fetch",
+          "error": {
+            "name": "TypeError",
+            "causes": [
+              {
+                "name": "ConnectTimeoutError",
+                "code": "UND_ERR_CONNECT_TIMEOUT",
+                "causes": []
+              }
+            ]
+          }
+        }
+      ],
+      "fingerprint": "c249b318de9ee5a740a0535ea9c364e785aaff8658012fb373902511eab7a4f2",
+      "phase": "test",
+      "reservationRetained": true
+    },
+    {
+      "id": "87044a1a-77a6-40b7-9a05-68ce1110d3c8",
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T13:01:54.767Z",
+      "message": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent could not be reached (TypeError)",
+      "networkDiagnostics": [
+        {
+          "phase": "fetch",
+          "error": {
+            "name": "TypeError",
+            "causes": [
+              {
+                "name": "ConnectTimeoutError",
+                "code": "UND_ERR_CONNECT_TIMEOUT",
+                "causes": []
+              }
+            ]
+          }
+        }
+      ],
+      "fingerprint": "1b073b1545f1dab514cf6900f078e525b8873653446d96f510a7a23bc75f71f1",
+      "phase": "test",
+      "reservationRetained": true
+    },
+    {
+      "id": "5fca3bc1-ed66-4f52-894a-cf2d57bd1f67",
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T13:01:55.609Z",
+      "message": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent could not be reached (TypeError)",
+      "networkDiagnostics": [
+        {
+          "phase": "fetch",
+          "error": {
+            "name": "TypeError",
+            "causes": [
+              {
+                "name": "ConnectTimeoutError",
+                "code": "UND_ERR_CONNECT_TIMEOUT",
+                "causes": []
+              }
+            ]
+          }
+        }
+      ],
+      "fingerprint": "fea15e772768d5d767d5067625192bd6e4c9391b2d9512a322be5a845967bda9",
+      "phase": "test",
+      "reservationRetained": true
+    },
+    {
+      "id": "4b2a920c-9594-469d-b456-59d8489fa5f7",
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T13:01:55.883Z",
+      "message": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent could not be reached (TypeError)",
+      "networkDiagnostics": [
+        {
+          "phase": "fetch",
+          "error": {
+            "name": "TypeError",
+            "causes": [
+              {
+                "name": "ConnectTimeoutError",
+                "code": "UND_ERR_CONNECT_TIMEOUT",
+                "causes": []
+              }
+            ]
+          }
+        }
+      ],
+      "fingerprint": "21200aacc732974e914767e310add7866c39e4096b8e4d33fb7405a6f63d9537",
+      "phase": "test",
+      "reservationRetained": true
+    },
+    {
+      "id": "c43d1f99-2f79-4ebb-9161-066cc6c18533",
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T13:01:56.452Z",
+      "message": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent could not be reached (TypeError)",
+      "networkDiagnostics": [
+        {
+          "phase": "fetch",
+          "error": {
+            "name": "TypeError",
+            "causes": [
+              {
+                "name": "ConnectTimeoutError",
+                "code": "UND_ERR_CONNECT_TIMEOUT",
+                "causes": []
+              }
+            ]
+          }
+        }
+      ],
+      "fingerprint": "da3b062e2e634c2894a8103c5d487e891ca49738b40552e585597f0f1abd0321",
+      "phase": "test",
+      "reservationRetained": true
+    },
+    {
+      "id": "40e77ebe-62e9-48d3-a3e9-62a1b24c2343",
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T13:01:58.953Z",
+      "message": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent could not be reached (TypeError)",
+      "networkDiagnostics": [
+        {
+          "phase": "fetch",
+          "error": {
+            "name": "TypeError",
+            "causes": [
+              {
+                "name": "ConnectTimeoutError",
+                "code": "UND_ERR_CONNECT_TIMEOUT",
+                "causes": []
+              }
+            ]
+          }
+        }
+      ],
+      "fingerprint": "b6eae484882e22589a15317434fb4c7eacf790e6ae4cfb7bb693b7f64d8399bb",
+      "phase": "test",
+      "reservationRetained": true
+    },
+    {
+      "id": "3dea4183-c258-4933-88f6-6cab8bbc4896",
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T13:02:01.435Z",
+      "message": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent could not be reached (TypeError)",
+      "networkDiagnostics": [
+        {
+          "phase": "fetch",
+          "error": {
+            "name": "TypeError",
+            "causes": [
+              {
+                "name": "ConnectTimeoutError",
+                "code": "UND_ERR_CONNECT_TIMEOUT",
+                "causes": []
+              }
+            ]
+          }
+        }
+      ],
+      "fingerprint": "82fec5407866e96e4e9ba55b0e73d3c699ff1cb82eeb60fb4c1fde430ee32fd1",
+      "phase": "test",
+      "reservationRetained": true
+    },
+    {
+      "id": "4b327b9e-4421-4c2b-a3d9-facde4fc3563",
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T13:02:05.470Z",
+      "message": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent could not be reached (TypeError)",
+      "networkDiagnostics": [
+        {
+          "phase": "fetch",
+          "error": {
+            "name": "TypeError",
+            "causes": [
+              {
+                "name": "ConnectTimeoutError",
+                "code": "UND_ERR_CONNECT_TIMEOUT",
+                "causes": []
+              }
+            ]
+          }
+        }
+      ],
+      "fingerprint": "1a9d1f8ba7b1017b180f4d8b37c968558cda29cee9659695c19216ce38617636",
+      "phase": "test",
+      "reservationRetained": true
+    },
+    {
+      "id": "6c0a5ad6-1280-4938-ba6d-7246f3341f57",
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T13:02:05.648Z",
+      "message": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent could not be reached (TypeError)",
+      "networkDiagnostics": [
+        {
+          "phase": "fetch",
+          "error": {
+            "name": "TypeError",
+            "causes": [
+              {
+                "name": "ConnectTimeoutError",
+                "code": "UND_ERR_CONNECT_TIMEOUT",
+                "causes": []
+              }
+            ]
+          }
+        }
+      ],
+      "fingerprint": "131560ea7517d335ed90cd26f153a0c96cac919ad5be729fd8dd301a21cc7600",
+      "phase": "test",
+      "reservationRetained": true
+    },
+    {
+      "id": "23837946-cf1f-45aa-9d0c-1d3297318288",
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T13:02:06.502Z",
+      "message": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent could not be reached (TypeError)",
+      "networkDiagnostics": [
+        {
+          "phase": "fetch",
+          "error": {
+            "name": "TypeError",
+            "causes": [
+              {
+                "name": "ConnectTimeoutError",
+                "code": "UND_ERR_CONNECT_TIMEOUT",
+                "causes": []
+              }
+            ]
+          }
+        }
+      ],
+      "fingerprint": "1fce652f7c77c641f0ad4bae9d69ff10aded31034cb73e1dd6b0c1900ef4b6b4",
+      "phase": "test",
+      "reservationRetained": true
+    },
+    {
+      "id": "b940335d-a449-4714-a720-2f76b29472b6",
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T13:02:06.775Z",
+      "message": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent could not be reached (TypeError)",
+      "networkDiagnostics": [
+        {
+          "phase": "fetch",
+          "error": {
+            "name": "TypeError",
+            "causes": [
+              {
+                "name": "ConnectTimeoutError",
+                "code": "UND_ERR_CONNECT_TIMEOUT",
+                "causes": []
+              }
+            ]
+          }
+        }
+      ],
+      "fingerprint": "bba2631d4a10a995cff411f15ed19fe54c7dcc0ea7c54df4af6e146376ef6d2a",
+      "phase": "test",
+      "reservationRetained": true
+    },
+    {
+      "id": "3c78d059-207d-423e-be72-9e0aab5d82ff",
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T13:02:07.336Z",
+      "message": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent could not be reached (TypeError)",
+      "networkDiagnostics": [
+        {
+          "phase": "fetch",
+          "error": {
+            "name": "TypeError",
+            "causes": [
+              {
+                "name": "ConnectTimeoutError",
+                "code": "UND_ERR_CONNECT_TIMEOUT",
+                "causes": []
+              }
+            ]
+          }
+        }
+      ],
+      "fingerprint": "0f11c720360f1d45dbb6127e255f74ee4de38ed1fb08b1d3c96315d5010b51eb",
+      "phase": "test",
+      "reservationRetained": true
+    },
+    {
+      "id": "9501ecba-849a-4bf6-aef1-569cb00c847a",
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T13:02:09.842Z",
+      "message": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent could not be reached (TypeError)",
+      "networkDiagnostics": [
+        {
+          "phase": "fetch",
+          "error": {
+            "name": "TypeError",
+            "causes": [
+              {
+                "name": "ConnectTimeoutError",
+                "code": "UND_ERR_CONNECT_TIMEOUT",
+                "causes": []
+              }
+            ]
+          }
+        }
+      ],
+      "fingerprint": "153109f7ca6d71789a4ee8b4140d8e0221244ede944f0cff3ab6957deebf176d",
+      "phase": "test",
+      "reservationRetained": true
+    },
+    {
+      "id": "2063e62b-78f7-484a-8fa1-3aecb96e7870",
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T13:02:12.325Z",
+      "message": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent could not be reached (TypeError)",
+      "networkDiagnostics": [
+        {
+          "phase": "fetch",
+          "error": {
+            "name": "TypeError",
+            "causes": [
+              {
+                "name": "ConnectTimeoutError",
+                "code": "UND_ERR_CONNECT_TIMEOUT",
+                "causes": []
+              }
+            ]
+          }
+        }
+      ],
+      "fingerprint": "7c93821537c9bbfd3d3c3220ae35b1b5afafbc61a7e1d180f8d4afa6a082c805",
+      "phase": "test",
+      "reservationRetained": true
+    },
+    {
+      "id": "aeb581cd-3bef-47fd-8fe1-369eb0ebba6b",
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T13:02:16.368Z",
+      "message": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent could not be reached (TypeError)",
+      "networkDiagnostics": [
+        {
+          "phase": "fetch",
+          "error": {
+            "name": "TypeError",
+            "causes": [
+              {
+                "name": "ConnectTimeoutError",
+                "code": "UND_ERR_CONNECT_TIMEOUT",
+                "causes": []
+              }
+            ]
+          }
+        }
+      ],
+      "fingerprint": "d9cd0addfce3c2772c894bd6163915a844546038a6f388c4e856d5415d58bbe1",
+      "phase": "test",
+      "reservationRetained": true
+    },
+    {
+      "id": "08fd2d27-63b8-4db4-adad-4b0ee9e519a5",
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T13:02:16.559Z",
+      "message": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent could not be reached (TypeError)",
+      "networkDiagnostics": [
+        {
+          "phase": "fetch",
+          "error": {
+            "name": "TypeError",
+            "causes": [
+              {
+                "name": "ConnectTimeoutError",
+                "code": "UND_ERR_CONNECT_TIMEOUT",
+                "causes": []
+              }
+            ]
+          }
+        }
+      ],
+      "fingerprint": "83dc51ca5a3ed89f36329def1f09e0e2ea01c7da82abb2337eb086097ea9789f",
+      "phase": "test",
+      "reservationRetained": true
+    },
+    {
+      "id": "1880003a-8779-4b27-b2a3-d5295b71b4cb",
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T13:02:17.427Z",
+      "message": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent could not be reached (TypeError)",
+      "networkDiagnostics": [
+        {
+          "phase": "fetch",
+          "error": {
+            "name": "TypeError",
+            "causes": [
+              {
+                "name": "ConnectTimeoutError",
+                "code": "UND_ERR_CONNECT_TIMEOUT",
+                "causes": []
+              }
+            ]
+          }
+        }
+      ],
+      "fingerprint": "cac446a986c2da633e72ab3dc89662c5ba639e04ae2028630b9f3d9d554a34fa",
+      "phase": "test",
+      "reservationRetained": true
+    },
+    {
+      "id": "cada0163-3285-4263-82f0-001717f6fc4a",
+      "model": "gemini-3.5-flash-lite",
+      "at": "2026-10-13T13:04:47.467Z",
+      "message": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent could not be reached (TypeError)",
+      "networkDiagnostics": [
+        {
+          "phase": "response-body",
+          "httpStatus": 200,
+          "error": {
+            "name": "TypeError",
+            "causes": [
+              {
+                "name": "Error",
+                "code": "ECONNRESET",
+                "causes": []
+              }
+            ]
+          }
+        }
+      ],
+      "fingerprint": "b2f12b0440f3c151f1041d51622a6efe009769fdd153609c245e0cd0e5eb0c1d",
+      "phase": "test",
+      "reservationRetained": true
+    }
+  ],
+  "connectTimeoutIds": [
+    "958baa18-3acc-4f46-9820-553171bdb4c6",
+    "f6054ffa-a274-46cb-821d-52cbc1af2f92",
+    "41cae0a3-16c8-47cf-a43c-e943193b2908",
+    "5f8c8002-93dd-4406-97c3-a0118e70b749",
+    "ac80186c-da26-4488-9504-0f1f59200070",
+    "3792df07-9adc-4b22-9866-6738866a4bb6",
+    "056a0184-5b89-4d29-9b4a-ce881a5cf5bf",
+    "dde0f5e4-1551-41dc-979a-f49c3b1aa846",
+    "87044a1a-77a6-40b7-9a05-68ce1110d3c8",
+    "5fca3bc1-ed66-4f52-894a-cf2d57bd1f67",
+    "4b2a920c-9594-469d-b456-59d8489fa5f7",
+    "c43d1f99-2f79-4ebb-9161-066cc6c18533",
+    "40e77ebe-62e9-48d3-a3e9-62a1b24c2343",
+    "3dea4183-c258-4933-88f6-6cab8bbc4896",
+    "4b327b9e-4421-4c2b-a3d9-facde4fc3563",
+    "6c0a5ad6-1280-4938-ba6d-7246f3341f57",
+    "23837946-cf1f-45aa-9d0c-1d3297318288",
+    "b940335d-a449-4714-a720-2f76b29472b6",
+    "3c78d059-207d-423e-be72-9e0aab5d82ff",
+    "9501ecba-849a-4bf6-aef1-569cb00c847a",
+    "2063e62b-78f7-484a-8fa1-3aecb96e7870",
+    "aeb581cd-3bef-47fd-8fe1-369eb0ebba6b",
+    "08fd2d27-63b8-4db4-adad-4b0ee9e519a5",
+    "1880003a-8779-4b27-b2a3-d5295b71b4cb"
+  ],
+  "connectTimeoutCount": 24,
+  "connectTimeoutHoldsUsd": 7.199999999999999,
+  "responseBodyCount": 1,
+  "responseBodyHoldsUsd": 0.3,
+  "allHoldsRetained": true,
+  "settledUsd": 5.893492400000004,
+  "reservedUsd": 18.0,
+  "capUsd": 24
+}

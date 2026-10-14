@@ -5,28 +5,44 @@
 id: gen-boundary-026
 version: 7c05b9cee9cc
 kind: conversation
-title: "Boundary value coverage.check.out.five_g.true: five_g is true"
+title: "Boundary value coverage.check.out.five_g.true: Path upgrade-plan-not-in-catalog of upgrade: needs > identify > offer"
 channel: whatsapp
 lang: EN
 tier: generated
 tags:
+  - flow:upgrade
   - persona:existing-customer
-  - data:5g-only
-given:
-  world:
-    tools:
-      coverage.check:
-        result:
-          found: true
-          address: address-1
-          five_g: true
-          address_id: address_id-1
-          fiber_mbps: 1
+stages:
+  - needs
+  - identify
+  - address
+  - port_number
+  - offer
+  - details
+  - recap
+  - order_placed
+  - callback
+  - handover
+  - closing
+  - build_sheet
+  - add_summary
 blocks:
-  - id: b1-value
+  - id: b1-needs-to-identify
+    when:
+      user: Hi, I already have an Acme plan and I need more data.
+    expect:
+      stage: identify
+      stage_reported: true
+      tools:
+        - label: coverage.check
+          count: 0
+      lang: EN
+  - id: b2-value
     when:
       user: "[no approved phrase for coverage.check.out.five_g=coverage.check.out.five_g.true]"
     expect:
+      stage: identify
+      stage_reported: true
       tools:
         - label: coverage.check
           count:
@@ -42,6 +58,12 @@ blocks:
       lang: EN
       criteria:
         - needs-approved-phrase
+rules:
+  forbidden_tools:
+    - catalog.search
+    - port.check
+    - order.create
+    - notify_sales
 metadata:
   generated:
     by: driftbench generate
@@ -53,20 +75,30 @@ metadata:
       agent: acme
       version: "1"
       hash: 7c05b9cee9cc
+    path: upgrade-plan-not-in-catalog
     cell:
       coverage.check.out.five_g: coverage.check.out.five_g.true
-      coverage.check.out.found: coverage.check.out.found.true
-      coverage.check.out.address_id: coverage.check.out.address_id.present
-      coverage.check.out.fiber_mbps: coverage.check.out.fiber_mbps.above-minimum
-      channel: whatsapp
+      flow: upgrade
       user_type: existing-customer
-      coverage_result: 5g-only
+      account_lookup: plan-not-in-catalog
+      channel: whatsapp
+      coverage_result: none
     blocks:
-      - block: b1-value
+      - block: b1-needs-to-identify
+        seeder: boundary
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: needs-to-identify
+          stage: needs
+        phrase:
+          dimension: stage_transition
+          value: needs-to-identify
+      - block: b2-value
         seeder: boundary
         cell:
           spec: metadata.generated.cell
           coverage.check.out.five_g: coverage.check.out.five_g.true
+          stage: identify
         phrase: null
     concrete:
       coverage.check.out.five_g.true: true

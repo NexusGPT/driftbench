@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import { readdir } from 'node:fs/promises';
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { basename, extname } from 'node:path';
@@ -77,23 +77,38 @@ class HttpError extends Error {
 export async function startViewer(options: ViewerOptions): Promise<Viewer> {
   const store = openStore(options.store);
   const labelledBy = options.labelledBy ?? 'a reviewer, in driftbench view';
+  const csrf = randomBytes(32).toString('hex');
   const cache = new Map<string, { runs: number; html: string }>();
 
   const handle = async (request: IncomingMessage, response: ServerResponse): Promise<void> => {
-    const url = new URL(request.url ?? '/', `http://${HOST}`);
+    const authority = `${HOST}:${request.socket.localPort}`;
+    const origin = `http://${authority}`;
+    if (request.headers.host !== authority) throw new HttpError(403, 'Forbidden: untrusted Host.');
+    if (!['GET', 'HEAD', 'OPTIONS'].includes(request.method ?? '')) {
+      let source = request.headers.origin;
+      if (source === undefined && request.headers.referer !== undefined) {
+        try {
+          source = new URL(request.headers.referer).origin;
+        } catch {
+          throw new HttpError(403, 'Forbidden: invalid Referer.');
+        }
+      }
+      if (source !== origin) throw new HttpError(403, 'Forbidden: untrusted origin.');
+    }
+    const fields = request.method === 'POST' ? new URLSearchParams(await readBody(request)) : undefined;
+    if (fields && fields.get('csrf') !== csrf) throw new HttpError(403, 'Forbidden: invalid form token.');
+    const url = new URL(request.url ?? '/', origin);
     const parts = url.pathname
       .split('/')
       .filter((part) => part !== '')
       .map(decodeURIComponent);
-    if (request.method === 'POST' && url.pathname === '/labels') {
-      const fields = new URLSearchParams(await readBody(request));
+    if (fields && url.pathname === '/labels') {
       const location = await saveFromForm(store, options.labels, labelledBy, fields, options.scales ?? {});
       response.writeHead(303, { location });
       response.end();
       return;
     }
-    if (request.method === 'POST' && url.pathname === '/queue/assign') {
-      const fields = new URLSearchParams(await readBody(request));
+    if (fields && url.pathname === '/queue/assign') {
       const criterion = fields.get('criterion') ?? '';
       const id = fields.get('id') ?? '';
       try {
@@ -113,7 +128,7 @@ export async function startViewer(options: ViewerOptions): Promise<Viewer> {
     if (parts[0] === 'queue' && parts.length === 1)
       return send(
         response,
-        await queuePage(options.labels, labelledBy),
+        await queuePage(options.labels, labelledBy, csrf),
         200,
         scriptHashOf(QUEUE_KEYS_SCRIPT),
       );
@@ -137,7 +152,7 @@ export async function startViewer(options: ViewerOptions): Promise<Viewer> {
       if (!run) throw new HttpError(404, `No run ${parts[3]} in campaign ${parts[1]}.`);
       return send(
         response,
-        await runPage(data, run, options.labels, url.searchParams.get('saved')),
+        await runPage(data, run, options.labels, url.searchParams.get('saved'), csrf),
         200,
         scriptHashOf(LABEL_KEYS_SCRIPT),
       );
@@ -151,6 +166,14 @@ export async function startViewer(options: ViewerOptions): Promise<Viewer> {
       const message = cause instanceof Error ? cause.message : String(cause);
       if (response.headersSent) {
         response.end();
+        return;
+      }
+      if (status === 403) {
+        response.writeHead(status, {
+          'content-type': 'text/plain; charset=utf-8',
+          'cache-control': 'no-store',
+        });
+        response.end(message);
         return;
       }
       send(response, errorPage(status, message), status);
@@ -329,7 +352,7 @@ function scriptHashOf(text: string): string {
   return createHash('sha256').update(text).digest('base64');
 }
 
-async function queuePage(labelsDir: string, reviewer: string): Promise<string> {
+async function queuePage(labelsDir: string, reviewer: string, csrf: string): Promise<string> {
   const queue = await readQueue(labelsDir);
   const agreement = agreementOf(queue);
   const agreementLine =
@@ -340,7 +363,7 @@ async function queuePage(labelsDir: string, reviewer: string): Promise<string> {
     const block = `${runPath(entry.campaign, entry.runId)}#block-${entry.index}`;
     const action =
       entry.state === 'open'
-        ? `<form method="post" action="/queue/assign"><input type="hidden" name="criterion" value="${esc(entry.criterion)}"><input type="hidden" name="id" value="${esc(entry.id)}"><button type="submit">Take</button></form>`
+        ? `<form method="post" action="/queue/assign"><input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="criterion" value="${esc(entry.criterion)}"><input type="hidden" name="id" value="${esc(entry.id)}"><button type="submit">Take</button></form>`
         : entry.state === 'assigned' && entry.assignee === reviewer
           ? `<a href="${esc(block)}">Label it</a>`
           : entry.state === 'done'
@@ -464,6 +487,7 @@ async function runPage(
   run: RunResult,
   labelsDir: string,
   saved: string | null,
+  csrf: string,
 ): Promise<string> {
   const detail = runDetailOf(data, run);
   const spec = data.specs.get(`${run.specId}@${run.specHash}`)?.spec;
@@ -488,6 +512,7 @@ async function runPage(
       .map((option) => `<option value="${esc(option.value)}">${esc(option.label)}</option>`)
       .join('')}</select></label>`;
     return `<div class="labels"><p class="label">Your label for this block${existing.length > 0 ? `, ${existing.length} saved` : ''}</p>${shown ? `<ul>${shown}</ul>` : ''}<form method="post" action="/labels">
+<input type="hidden" name="csrf" value="${csrf}">
 <input type="hidden" name="campaign" value="${esc(campaignId)}"><input type="hidden" name="run" value="${esc(run.runId)}"><input type="hidden" name="block" value="${block.index}">
 ${criterionField}
 ${anchorField}

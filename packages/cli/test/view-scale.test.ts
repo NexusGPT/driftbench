@@ -10,6 +10,7 @@ import { startViewer, type Viewer } from '../src/view/server';
 let dir = '';
 let viewer: Viewer;
 let runId = '';
+let csrf = '';
 
 beforeAll(async () => {
   dir = await mkdtemp(join(tmpdir(), 'driftbench-scale-'));
@@ -38,6 +39,7 @@ beforeAll(async () => {
     const text = await (await fetch(`${viewer.url}${link}`)).text();
     if (text.includes('<option value="no_invented_data">')) {
       runPage = text;
+      csrf = text.match(/name="csrf" value="([^"]+)"/)?.[1] ?? '';
       break;
     }
   }
@@ -51,8 +53,8 @@ beforeAll(async () => {
   await fetch(`${viewer.url}/queue/assign`, {
     method: 'POST',
     redirect: 'manual',
-    headers: { 'content-type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({ criterion: 'no_invented_data', id: `${runId}.b1` }),
+    headers: { 'content-type': 'application/x-www-form-urlencoded', origin: viewer.url },
+    body: new URLSearchParams({ csrf, criterion: 'no_invented_data', id: `${runId}.b1` }),
   });
 }, 120_000);
 
@@ -65,8 +67,9 @@ function save(score: string) {
   return fetch(`${viewer.url}/labels`, {
     method: 'POST',
     redirect: 'manual',
-    headers: { 'content-type': 'application/x-www-form-urlencoded' },
+    headers: { 'content-type': 'application/x-www-form-urlencoded', origin: viewer.url },
     body: new URLSearchParams({
+      csrf,
       campaign: 'c-x3',
       run: runId,
       block: '1',

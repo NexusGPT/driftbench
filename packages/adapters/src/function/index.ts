@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import {
   type AdapterCapabilities,
   type AgentAdapter,
-  cloneJson,
+  copyHistory,
   decideToolRule,
   deniesCall,
   type Message,
@@ -24,7 +24,9 @@ export type { ToolPayload } from '../shared';
  * Each block calls the function with the session history as it is (the runner has appended the block's
  * user messages, so it ends with the current user turn), the block's world and vars, and the session's own
  * state when `create` builds one. The function returns an Observed, which the adapter validates. The
- * history belongs to the runner: the adapter reads it and never appends to it.
+ * history belongs to the runner: the adapter reads it and never appends to it. Each callback gets a fresh
+ * array of the same deeply frozen messages. Copy a message before editing it; a write throws in strict
+ * mode. World, vars and context.target remain copies; state remains the agent's own session state.
  */
 
 export const FUNCTION_ADAPTER_VERSION = '0.1.0';
@@ -38,7 +40,7 @@ export type AgentContext = {
   prompt?: string;
 };
 
-/** The agent. `state` is what `create` built for the session, or undefined without `create`. */
+/** The agent. Messages are shared and deeply frozen; the array is private. `state` is what `create` built. */
 export type AgentFunction<S = undefined> = (
   messages: Message[],
   world: WorldState,
@@ -91,6 +93,7 @@ export function functionAdapter<S = undefined>(options: FunctionAdapterOptions<S
     capabilities: () => ({ ...capabilities }),
 
     async open(given) {
+      const history = copyHistory(given.prefix);
       let agent: S;
       try {
         agent = options.create ? await options.create(given) : (undefined as S);
@@ -103,7 +106,7 @@ export function functionAdapter<S = undefined>(options: FunctionAdapterOptions<S
         adapter: id,
         target: given.target,
         given,
-        history: cloneJson(given.prefix),
+        history,
         state,
       };
     },
@@ -113,7 +116,7 @@ export function functionAdapter<S = undefined>(options: FunctionAdapterOptions<S
       let observed: Observed;
       try {
         observed = await options.respond(
-          cloneJson(session.history),
+          copyHistory(session.history),
           structuredClone(turn.given.world),
           structuredClone(turn.given.vars),
           state.agent,
