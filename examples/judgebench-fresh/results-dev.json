@@ -1,0 +1,64 @@
+{
+  "split": "dev",
+  "candidate": "driftbench",
+  "pairs": 150,
+  "candidateCorrect": 124,
+  "candidateMissing": 0,
+  "tools": [
+    {
+      "tool": "promptfoo",
+      "grader": "select-best (promptfoo 8014282)",
+      "correct": 114,
+      "missing": 0,
+      "wins": 14,
+      "losses": 4,
+      "exactTwoSidedP": 0.0308837890625,
+      "holmP": 0.0926513671875,
+      "verdict": "tie"
+    },
+    {
+      "tool": "deepeval",
+      "grader": "ArenaGEval (DeepEval 4.2.8)",
+      "correct": 119,
+      "missing": 0,
+      "wins": 12,
+      "losses": 7,
+      "exactTwoSidedP": 0.359283447265625,
+      "holmP": 0.53369140625,
+      "verdict": "tie"
+    },
+    {
+      "tool": "inspect",
+      "grader": "model_graded_qa (inspect_ai 0.3.278), pointwise grader, higher score wins",
+      "correct": 110,
+      "missing": 0,
+      "wins": 17,
+      "losses": 3,
+      "exactTwoSidedP": 0.0025768280029296875,
+      "holmP": 0.01030731201171875,
+      "verdict": "win"
+    },
+    {
+      "tool": "langfuse",
+      "grader": "Answer Critic (Langfuse 64ba74f9), pointwise grader, higher score wins",
+      "correct": 105,
+      "missing": 0,
+      "wins": 22,
+      "losses": 3,
+      "exactTwoSidedP": 0.00015652179718017578,
+      "holmP": 0.0007826089859008789,
+      "verdict": "win"
+    },
+    {
+      "tool": "langwatch",
+      "grader": "Comparison, swap and reconcile (LangWatch e683dd9e)",
+      "correct": 119,
+      "missing": 0,
+      "wins": 9,
+      "losses": 4,
+      "exactTwoSidedP": 0.266845703125,
+      "holmP": 0.53369140625,
+      "verdict": "tie"
+    }
+  ]
+}

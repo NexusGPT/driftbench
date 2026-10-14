@@ -6,6 +6,7 @@ import { researchItems } from './bank2';
 import { moreItems } from './bank3';
 import { gateFamilyItems } from './bank4';
 import { CHEATERS } from './cheaters';
+import { familyPhrase, isCodeTaskSpec } from './code-task';
 import { FAULT_CLASSES, type FaultClass } from './faults';
 import { DEVIATION_POOL, type HiddenSpec, phrasePattern, type ToolRole } from './hidden';
 import {
@@ -730,8 +731,11 @@ function differentialItems(): BankItem[] {
                   ? block.when.injection.user
                   : block.when.burst.join('\n')
               : '';
-            if (!patterns.some((pattern) => pattern.test(text)))
-              bad.push(`${spec.id}#${block.id}: "${text}"`);
+            // A task spec holds the family's approved phrases, not the map's (docs/generating.md, task families).
+            const approved = isCodeTaskSpec(spec)
+              ? familyPhrase(generated.hidden, text)
+              : patterns.some((pattern) => pattern.test(text));
+            if (!approved) bad.push(`${spec.id}#${block.id}: "${text}"`);
           }
         }
         return verdict(
@@ -890,11 +894,24 @@ const HOSTILE: HostileCase[] = [
     tier: 2,
     component: C.assemble,
     make: (_spec, files, proposal) => asMap(files, { ...proposal, phrases: [] }),
-    expect: (generated) =>
-      noInvalid(generated) ??
-      (generated.complete.length > 0
-        ? `${generated.complete.length} specs are complete with no approved phrase`
-        : undefined),
+    // The map approves no phrase. A task spec may still be complete when every turn is a phrase its own
+    // family approves (docs/generating.md, task families); any other complete spec holds unapproved text.
+    expect: (generated) => {
+      const unapproved = generated.complete.filter(
+        ({ spec }) =>
+          !isCodeTaskSpec(spec) ||
+          spec.blocks.some(
+            (block) =>
+              !block.when || !('user' in block.when) || !familyPhrase(generated.hidden, block.when.user),
+          ),
+      );
+      return (
+        noInvalid(generated) ??
+        (unapproved.length > 0
+          ? `${unapproved.length} specs are complete with no approved phrase`
+          : undefined)
+      );
+    },
   },
   {
     id: 'single-stage',
@@ -1916,16 +1933,24 @@ function coverageItems(): BankItem[] {
 
 const vectors = new WeakMap<BlockRun, string>();
 
-function vectorOf(block: BlockRun): string {
+/**
+ * What makes two blocks the same test: the Then, and the outcome on every agent, persona-bound faults
+ * included. A block whose persona the agent never hears is the same test on every persona; one where the
+ * user says who they are is not, when an agent failing that user only fails it alone.
+ */
+export function vectorOf(block: BlockRun): string {
   const known = vectors.get(block);
   if (known !== undefined) return known;
+  const sorted = (outcomes: Record<string, Outcome>) =>
+    Object.entries(outcomes)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([, outcome]) => outcome);
   const vector = JSON.stringify([
     block.signature,
     block.reference[0],
     CHEATERS.map((name) => block.cheaters[name]?.outcome),
-    Object.entries(block.faults)
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([, outcome]) => outcome),
+    sorted(block.faults),
+    sorted(block.contextFaults),
   ]);
   vectors.set(block, vector);
   return vector;

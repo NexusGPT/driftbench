@@ -12,6 +12,7 @@ import {
 } from '@agent-nexus/driftbench-judges';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { addJudgeSettingOptions, type JudgeSettingOptions, judgeSettingsFrom } from '../judge-settings';
 import { optionNumber } from '../number';
 
 /**
@@ -41,7 +42,11 @@ export async function isStandIn(command: string): Promise<boolean> {
   }
 }
 
-export type RunJudgeOptions = { judge?: string; judgeCommand?: string; judgeBudget?: string };
+export type RunJudgeOptions = {
+  judge?: string;
+  judgeCommand?: string;
+  judgeBudget?: string;
+} & JudgeSettingOptions;
 
 export type RunJudge = {
   check: Check;
@@ -54,7 +59,7 @@ export type RunJudge = {
 };
 
 export function addJudgeOptions(command: Command): Command {
-  return command
+  return addJudgeSettingOptions(command)
     .option(
       '--judge <judge>',
       'judge the judged criteria with claude:<model>, such as claude:haiku (paid calls)',
@@ -72,9 +77,18 @@ export async function runJudgeFrom(
   env: Record<string, string | undefined> = process.env,
 ): Promise<RunJudge | undefined> {
   const spend = { usd: 0 };
+  const settings = judgeSettingsFrom(options, io);
+  if (settings === undefined) return undefined;
   if (options.judge === undefined) {
-    if (options.judgeCommand !== undefined || options.judgeBudget !== undefined) {
-      io.err('error: --judge-command and --judge-budget need --judge claude:<model>\n');
+    if (
+      options.judgeCommand !== undefined ||
+      options.judgeBudget !== undefined ||
+      options.verify !== undefined ||
+      options.promptBudget !== undefined
+    ) {
+      io.err(
+        'error: --judge-command, --judge-budget, --verify and --prompt-budget need --judge claude:<model>\n',
+      );
       return undefined;
     }
     return { check: noJudgeCheck(), spend, label: 'none', billed: false };
@@ -106,7 +120,7 @@ export async function runJudgeFrom(
     ...(script ? { command: process.execPath, commandArgs: [path] } : { command: path }),
     ...(budget === undefined ? {} : { maxBudgetUsd: budget }),
   });
-  const budgeted = capped(client, spend, budget);
+  const budgeted = capped(settings(client), spend, budget);
   return {
     check: singleJudgeCheck(budgeted),
     piiJudge: (text) => judgePersonalData(budgeted, text),

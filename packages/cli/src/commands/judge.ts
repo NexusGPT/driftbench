@@ -14,6 +14,7 @@ import {
   councilAssignment,
   createClaudeCliJudge,
   createCouncil,
+  criteriaJudge,
   DEFAULT_REPEATS,
   emptyCassette,
   fixtureRequest,
@@ -30,6 +31,7 @@ import {
 } from '@agent-nexus/driftbench-judges';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { addJudgeSettingOptions, type JudgeSettingOptions, judgeSettingsFrom } from '../judge-settings';
 import { optionNumber } from '../number';
 
 const MODES: readonly CouncilMode[] = ['system1', 'hybrid', 'llm'];
@@ -42,7 +44,7 @@ export type JudgeRunOptions = {
   cascade?: boolean;
   assignments?: string;
   json?: boolean;
-};
+} & JudgeSettingOptions;
 
 export type JudgeCalibrateOptions = {
   criteria?: string;
@@ -60,7 +62,7 @@ export type JudgeCalibrateOptions = {
   assign: string;
   only?: string[];
   json?: boolean;
-};
+} & JudgeSettingOptions;
 
 /**
  * `driftbench judge`: the judge council. `judge run` replays a council on recorded answers (a cassette)
@@ -75,8 +77,7 @@ export function registerJudgeCommand(program: Command, io: Io, setExit: (code: n
       'Judge criteria with the council: replay recorded answers, or validate criteria and fixtures',
     );
 
-  judge
-    .command('run')
+  addJudgeSettingOptions(judge.command('run'))
     .description(
       'Replay a council on a cassette over every fixture pair, and report the criteria it separates',
     )
@@ -94,8 +95,7 @@ export function registerJudgeCommand(program: Command, io: Io, setExit: (code: n
       setExit(await judgeRunCommand(options, io));
     });
 
-  judge
-    .command('calibrate')
+  addJudgeSettingOptions(judge.command('calibrate'))
     .description(
       'Run every judge on the fixture pairs and the hand-labelled blocks, and write which judge owns each criterion',
     )
@@ -174,6 +174,8 @@ export async function judgeRunCommand(options: JudgeRunOptions, io: Io): Promise
     io.err(`--mode takes ${MODES.join(', ')}, not "${options.mode}".\n`);
     return 2;
   }
+  const settings = judgeSettingsFrom(options, io);
+  if (settings === undefined) return 2;
   const criteriaDir = resolve(io.cwd, options.criteria);
   const loaded = await loadCriteria(criteriaDir);
   if (loaded.issues.length > 0) {
@@ -197,7 +199,14 @@ export async function judgeRunCommand(options: JudgeRunOptions, io: Io): Promise
     council = createCouncil({
       mode: options.mode as CouncilMode,
       agentFamily: options.agentFamily,
-      judges: cassettePlayers(cassette),
+      judges: cassettePlayers(cassette).map((player) =>
+        settings(
+          criteriaJudge(
+            player,
+            loaded.criteria.map((criterion) => criterion.def),
+          ),
+        ),
+      ),
       ...(earned ? { assignment: earned.assignment, unassigned: earned.unassigned } : {}),
       ...(options.cascade ? { cascade: true } : {}),
     });
@@ -315,11 +324,13 @@ export async function judgeCalibrateCommand(options: JudgeCalibrateOptions, io: 
     return 2;
   }
 
+  const settings = judgeSettingsFrom(options, io);
+  if (settings === undefined) return 2;
   let report: CalibrationReport;
   const recorded = emptyCassette();
   try {
     const judges: JudgeClient[] = options.cassette
-      ? cassettePlayers(await loadCassette(resolve(io.cwd, options.cassette)))
+      ? cassettePlayers(await loadCassette(resolve(io.cwd, options.cassette))).map(settings)
       : [];
     const spend = { usd: 0 };
     for (const model of live) {
@@ -328,7 +339,7 @@ export async function judgeCalibrateCommand(options: JudgeCalibrateOptions, io: 
         ...(options.claudeCommand ? { command: options.claudeCommand } : {}),
       });
       if (options.record) client = recordingClient(client, recorded);
-      judges.push(capped(client, spend, cap));
+      judges.push(capped(settings(client), spend, cap));
     }
     const only = options.only ?? [];
     const unknown = only.filter((name) => !known.has(name));
@@ -339,6 +350,17 @@ export async function judgeCalibrateCommand(options: JudgeCalibrateOptions, io: 
     const chosen =
       only.length > 0 ? loaded.criteria.filter((c) => only.includes(c.def.name)) : loaded.criteria;
     if (options.cascade) {
+      // The cascade writes a report, not an assignment table: the table's rule and mode do not apply to it.
+      if (options.assign !== undefined && options.assign !== 'council') {
+        io.err(
+          `judge calibrate --cascade writes no assignment table: --assign ${options.assign} does not apply to it.\n`,
+        );
+        return 2;
+      }
+      if (options.mode !== 'hybrid') {
+        io.err('judge calibrate --cascade writes no assignment table: --mode does not apply to it.\n');
+        return 2;
+      }
       const [head, ...rest] = judges;
       if (!head || rest.length === 0) {
         io.err('judge calibrate --cascade needs a first judge and at least one to escalate to.\n');
@@ -350,6 +372,7 @@ export async function judgeCalibrateCommand(options: JudgeCalibrateOptions, io: 
         criteria: chosen,
         labels: labels.labels,
         repeats,
+        agentFamily: options.agentFamily,
       });
       const out = resolve(io.cwd, options.out);
       await writeFile(out, `${JSON.stringify(cascade, null, 2)}\n`, 'utf8');

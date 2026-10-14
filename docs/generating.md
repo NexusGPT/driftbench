@@ -76,6 +76,7 @@ The relations are what lets code derive a machine Then. Each one quotes its sour
 | `binds` | the concrete values a data or persona value stands for, such as the email of a found account | 12 |
 | `recovery` | how a flow recovers from one deviation class: the stages it is probed at (`at`), the stage after (`pending` is the stage the conversation had reached), reply patterns, guards and calls; for `D8_tool_failure`, the tool that fails | 24: 7 by code, 17 by the model |
 | `reply_language` | the language every reply is in, whatever the user writes | 1 |
+| `reply_count` | how many replies the agent sends to one user turn: `one`, or `any` when a source says it may send several. A map without it means one reply per user turn | 0 |
 | `task_family` | a flow a code agent does as a task: the [task family](#task-families) folder, its stages, the values every instance holds (`holds`), the family knob values of the instances it places (`instances`), and the deviation class its planted variant carries | 2 |
 
 A phrase may hold a `{slot}` (`It's {email}.`), may say where it fits with `when` (a flow, a stage, a data value), and may state slot values itself with `binds` (`The unlimited one, please.` binds the plan `mobile-l`). The generator fills each slot from the values the cell binds, so a tool input expected in a block is the value the block's own When states.
@@ -285,11 +286,11 @@ That is the last line of `pnpm -s driftbench space coverage examples/acme/gated/
 |---|---|
 | `graph` | one spec per approved path: the stage graph walked along the paths, so every edge a path takes is covered by a conversation the agent can have |
 | `twise` | a covering array at strength `--t` (default 3) over the axes; each row walks an approved path of a flow its behaviour belongs to |
-| `boundary` | one spec per value of every detail data dimension, on a path that needs it; a tool output value becomes the tool's answer, a tool input value an expected or a forbidden call |
+| `boundary` | one spec per value of every detail data dimension, on a path that needs it; a tool output value becomes the tool's answer, a tool input value an expected or a forbidden call. After coverage, one restated slot per tool input a move fills from a slot (`gen-restated-NNN`): just before the move, the user asks for the tool with one value (the call carries the move's arguments with that value, and the reply reports the tool's returned fields as the move's does); then the move's turn states another value, and the move expects the latest one. Only when every phrase of that move states the slot, and never for a side-effecting tool |
 | `deviation` | one probe per deviation class, injected at a stage of a path whose flow has a recovery for the class; a class a first message can carry may arrive on the first turn, and a class whose recovery stays may arrive after the last stage. After the `cover` seeder, a class probed by fewer than a third as many blocks as the most probed class gets more probes (`gen-deviation-balance-NNN`), until it reaches that third or no approved path can carry it |
 | `metamorphic` | families of specs that differ only in the phrasing of one value, with the same Then by construction |
 | `task` | the instances of every family a `task_family` relation names (`--tasks <n>` per relation, default 8), each with its corner and planted variants; see [task families](#task-families) |
-| `cover` | runs last: one scenario for each allowed pair no complete spec of the other seeders covers, its values fixed and its deviation a probe at its stage; a pair it cannot build is listed in `generate-report.json` under `cover.unbuilt` with the reasons |
+| `cover` | runs last: one scenario for each allowed pair no complete spec of the other seeders covers, its values fixed and its deviation a probe at its stage; a pair it cannot build is listed in `generate-report.json` under `cover.unbuilt` with the reasons. Then each approved phrase of a behaviour, a flow or a tool value that no complete spec says gets one spec (`gen-phrase-NNN`): a walk's moves reach a stage and the user says the phrase there; the Then is that stage, plus no run of a side-effecting tool, or for another tool's returned value one run whose reply reports the returned fields as the flow's `states` relations do, said after a move that already ran the tool. The phrases of one dimension go to distinct stages while the walks have stages left. A phrase that states slot values (`binds` or a `{slot}`) is left out, since a stage-only Then cannot judge them |
 
 Every seeded choice comes from `--seed` (default 1), so the same map and seed give the same suite byte for byte.
 
@@ -303,14 +304,15 @@ A complete generated block reads observed state, not only words. Code derives ea
 | `expect.tools` (label, count, input) | the `uses_tool` relations of the flow at that stage, inputs filled from the slots the cell's data values and the phrases bind; every other tool the scenario calls is expected 0 times in that turn |
 | `rules.forbidden_tools` | every tool the scenario never calls |
 | `end_state` on the last block | the path's end state, slots filled |
-| a probe block's stage, `must`, `must_not`, guards and calls | the recovery of that class in that flow; `pending` is the stage the conversation had reached |
+| a probe block's stage, `must`, `must_not`, guards and calls | the recovery of that class in that flow; `pending` is the stage the conversation had reached. A recovery that stays there also keeps the `must_not` patterns with no slot of the `states` relation that reached the stage, such as narrated internal steps |
 | a tool failure | the path's own turn, with the tool failing in its Given; the recovery's stage and calls; calls after the failing tool expected 0 times; the conversation stops there |
 | `expect.must` and `expect.must_not` on a move | the approved `states` relations of the flow or behaviour at that stage, such as returned prices, the pending question, and forbidden invented facts |
 | `expect.lang` on every block | the `reply_language` relation, never the language of the user's message |
+| `rules.one_message_per_turn` on every spec | the `reply_count` relation: one reply per user turn unless the map states `per_turn: any`, so an agent that sends its reply twice fails. With `any`, only the probes of `D7_silence_or_burst` keep the rule, from the nudge recovery |
 
 A `states` relation names a `subject` (`dimension` and `value`), the departing `stage`, optional destination `to`, optional `when`, and `must`, `must_not`, or both. Each supplied list contains at least one regular expression. Both lists reuse the quoted-price relation's `{slot}` syntax: an approved `binds` relation supplies the value, which is escaped as literal regex text. Missing bindings make the scenario incomplete, with the reason in the report. Relations without approval do not contribute assertions. Existing `must`-only maps remain valid.
 
-Generated tool expectations set `input_closed: true` when their explicit `input` names every property of the tool's input schema. Partial map assertions keep allowing other arguments. List every permitted top-level input key to close a generated call. Existing saved specs do not gain these optional assertions automatically.
+Generated tool expectations set `input_closed: true` when their explicit `input` names every property of the tool's input schema. A turn where the user asks directly for one run of a tool, to send a value or to report a returned value, expects one call. With a value of one argument, the call carries that value and, for every other argument whose schema gives a `default`, that default; the input is closed when that names every property. Asked for a returned value, the call carries every argument whose schema gives a `default`, closed the same way. Partial map assertions keep allowing other arguments. List every permitted top-level input key to close a generated call. Existing saved specs do not gain these optional assertions automatically.
 
 Two blocks of `gen-graph-001`, the path `upgrade-order`. The email in the When and the expected input come from the same `binds` relation; the order's inputs come from the path's `uses_tool` relation:
 
@@ -394,7 +396,7 @@ $ pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out genera
 Actual axis-map coverage (written complete specs): pairs 708 of 708 (100.0%); triples 2928 of 4064 (72.0%).
 Candidate t-wise array (before the total cap): covering array of 156 rows over 5 dimensions, 356 of 356 allowed 2-tuples (100.0%); 2 pairs no path reaches are left out.
 Uncovered on the axis map: 0 pairs, 1136 triples (see coverage.actual[].uncovered).
-Map acme (../examples/acme/map/approved.yaml), hash 7c05b9cee9cc: 51 dimensions, 187 values, 463 constraints, 55 approved phrases.
+Map acme (../examples/acme/map/approved.yaml), hash 7a022d4e1380: 51 dimensions, 187 values, 463 constraints, 55 approved phrases.
 Seed 1, t = 2.
 
 Seeder        specs  blocks  complete  incomplete
@@ -404,7 +406,7 @@ boundary         85     183        13          72
 deviation        21     111        21           0
 metamorphic      42     192        42           0
 task             67      71        67           0
-cover            24     135        24           0
+cover            27     142        27           0
 
 Stage graph: 18 of 23 edges covered in 12 paths from needs.
 Constraints applied: 463.
@@ -439,13 +441,23 @@ Specs with a block the map supports no machine Then for (18), in incomplete/: ge
      1  no approved path needs callback_phone=not-given
      1  no approved path needs catalog.search.in.unknown-key=catalog.search.in.unknown-key.sent
      1  no approved path needs coverage.check.in.unknown-key=coverage.check.in.unknown-key.sent
-Wrote 504 files to generated.
+Wrote 507 files to generated.
 exit 1
 ```
 
-The files match the committed `examples/acme/generated`, apart from the relative path of the map, which follows the output folder. Exit 1 is the exit for a suite written with incomplete specs: 332 specs are complete, 75 are incomplete. Complete specs cover all 708 allowed pairs. The price-sheet flow has no conversation path: its specs come from the map's `task_family` relation, so B-013, B-014 and `sales-operations` hold allowed pairs through the [task families](#task-families). `--baseline <specs>` measures other specs on the same map for comparison; `--max <n>` caps the specs per seeder.
+The files match the committed `examples/acme/generated`, apart from the relative path of the map, which follows the output folder. Exit 1 is the exit for a suite written with incomplete specs: 335 specs are complete, 75 are incomplete. Complete specs cover all 708 allowed pairs. The price-sheet flow has no conversation path: its specs come from the map's `task_family` relation, so B-013, B-014 and `sales-operations` hold allowed pairs through the [task families](#task-families). `--baseline <specs>` measures other specs on the same map for comparison; `--max <n>` caps the specs per seeder.
 
 `generate-report.json` holds the generator and map identity, the options, the summary (specs, blocks, complete, incomplete), one entry per seeder, the stage graph, the covering array, the boundary values, the deviation probes, the metamorphic families, the constraints applied, the values with no phrase (`no_phrase`), the blocks with no machine Then and why (`no_then`), the coverage, and any invalid spec or lint finding. `generate` exits 0 when every block has an approved phrase and a Then, 1 when the suite is written with incomplete specs, a seeder cut by `--max` or a generator defect, 2 on a usage or input error (nothing written).
+
+## Streaming generation to disk
+
+The package API `generateSuiteToDisk(prepared, { mapPath, outputDir, seed, t })` writes each spec as it is rendered. It returns `reportPath`, `summary` and `fileCount`; read the full report from `reportPath`. It writes the same spec files as `generateSuite` with the same options, and a report with the same fields and diagnostics in compact JSON.
+
+The output directory must be new or empty. The API keeps the input map, its projected coverage grid and one spec or task-family input at a time. It writes output-sized diagnostics and effective-sample-size placements to temporary files and removes them at the end, so the heap does not grow with the number of specs. On the generator validator's map of seed 1 with a hundred times its behaviours (33343 specs), it finishes under a 96 MB heap cap; `generateSuite` runs out of a 96 MB heap at ten times the behaviours (3470 specs).
+
+This API rejects `budget`, `specCap`, `specCapMode` and maps with `numeric_settings` before writing any file. It never falls back to eager generation. A per-seeder `max` keeps its meaning. The CLI and `generateSuite` stay eager: they keep the whole candidate suite, so a small total cap or budget does not make a large map memory-safe.
+
+A failed disk generation removes its temporary files but can leave already-written specs without a final report. Retry in a fresh output directory. It never overwrites an existing suite.
 
 ## Total spec cap
 
@@ -493,7 +505,7 @@ Selected lines from the Acme comparison command, run from the repository root:
 $ pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/budget/budget-20 --t 2 --seed 1 --budget 20 --force
 Candidate budget array (before the total cap), budget 20: 20 cells of 901 allowed, pairs covered 155 of 356 (43.5%), max deviation from fair share 2.00.
 Coverage on the axis map at t = 2: complete specs 708 of 708 (100.0%), all specs 708 (100.0%).
-Wrote 500 files to _captures/budget/budget-20.
+Wrote 498 files to _captures/budget/budget-20.
 exit 1
 ```
 
@@ -531,7 +543,7 @@ See the [measured budget comparison](../comparisons/budget/README.md) for select
 * pass^k on the reference, from the k repeats, is recorded for every block in the report.
 * The holdout: whole specs, drawn with `--seed` at the share `--holdout` (default 0.2), go to `holdout/` with `seal.json`, which lists each spec with its hash. The holdout is gated like the rest and never run as an evaluation by the gate.
 * Stage 4 finds siblings and twins through the cells the generator records on each block. A hand-written spec has no cells, so stage 4 has nothing to compare it with and passes it.
-* Equal sibling expectations are accepted when every reference repeat passes and produces the same observed behavior. When a Then asserts structured state, refusal wording may quote different invalid values; message boundaries, tool arguments, runtime traces and artifacts must still agree. Wording-only expectations compare the reply text too. Equal pass/fail verdicts alone do not establish equivalence. Final-store, artifact, workspace and custom assertions retain the conservative contrast check because their complete evidence can live outside the captured reply.
+* Equal sibling expectations are accepted when every reference repeat passes and produces the same observed behavior. When a Then asserts structured state, refusal wording may quote different invalid values; message boundaries, tool arguments, runtime traces and artifacts must still agree. Wording-only expectations compare the reply text too. Equal pass/fail verdicts alone do not establish equivalence. A Then on the end state compares the `endStateValue` each reference run recorded: equal values count as the same behaviour, different values do not, and a run that recorded no value (an unreadable store, or a run stored before the field existed) keeps the conservative contrast check. Artifact, workspace and custom assertions retain the conservative contrast check because their complete evidence can live outside the captured reply.
 * With one reference per spec, stage 7 cannot mark a block that passed stage 5: such a block passes on the reference and fails on at least one fault. The mark becomes informative with several reference agents.
 
 ### The leakage rule

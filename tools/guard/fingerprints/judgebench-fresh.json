@@ -1,0 +1,25 @@
+{
+  "comment": "Chemistry arithmetic inside JudgeBench problem texts in examples/judgebench-fresh/pool, read by the phone pattern. Entries are kind plus sha256 of the exact matched text. Each was read in place: a signed number sequence with decimal points, units and operators, in a worked enthalpy calculation.",
+  "entries": [
+    {
+      "kind": "phone",
+      "sha256": "7929090ba39953c0c72311c6d95ba25ca8e400145da34dc6d89148b2bd35d032",
+      "reason": "Arithmetic in a JudgeBench problem statement (confirm.jsonl): a signed decimal term of a thermochemistry sum, not a phone number. Length 17 characters."
+    },
+    {
+      "kind": "phone",
+      "sha256": "e3d8201a79cf33e656c4defc31a45830a2c794fcde6105ce4b039e0f56a42ba2",
+      "reason": "Arithmetic in a JudgeBench problem statement (dev.jsonl): a signed decimal term of a thermochemistry sum, not a phone number. Length 14 characters."
+    },
+    {
+      "kind": "phone",
+      "sha256": "d61b917360609961545a4df0f35e46d79f017f08f9beb89dd5557904ac7e4ef4",
+      "reason": "Arithmetic in a JudgeBench problem statement (dev.jsonl): a signed decimal term of a thermochemistry sum, not a phone number. Length 13 characters."
+    },
+    {
+      "kind": "phone",
+      "sha256": "89d63412985e2d62d8906fc5c214d2392dc1794f9c5c73e99977f5b7ac57d3e7",
+      "reason": "Arithmetic in a JudgeBench problem statement (dev.jsonl): a signed decimal term of a thermochemistry sum, not a phone number. Length 13 characters."
+    }
+  ]
+}

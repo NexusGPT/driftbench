@@ -21,6 +21,10 @@ Node.js 22 or newer. ESM only, with TypeScript types.
 * `importTable`
 * `compareEndState`
 
+`checkSpec(raw, path?)` normalizes and checks an already parsed value, including schema validation,
+semantic checks and lint warnings. Its `SpecValidationResult` omits the content hash. Use
+`validateSpec(raw, path?)` when the result also needs that hash.
+
 The full list of exports is in the type declarations (`dist/index.d.ts`).
 
 ## Documentation
@@ -29,4 +33,4 @@ The full list of exports is in the type declarations (`dist/index.d.ts`).
 
 ## License
 
-Apache-2.0
+MIT

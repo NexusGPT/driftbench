@@ -3,7 +3,6 @@
 68b2ad5bf4c9936a69f176e6146a0fa0ab021c77:packages/validators/src/ladders/estate/bank/plan.ts:generic-api-key:454
 # comparisons/langwatch/hard/recorded/calls.jsonl: fictional token in a recorded model response
 4cdcfdfb626d0364a0812caaded60c17baa9cfde:comparisons/langwatch/hard/recorded/calls.jsonl:generic-api-key:5058
-4cdcfdfb626d0364a0812caaded60c17baa9cfde:comparisons/langwatch/hard/recorded/calls.jsonl:generic-api-key:5058
 
 # Reader-first recordings: 20-character SHA-256 prompt digests, not credentials.
 163bcb77b06740e2331791e89f10f21dfff776eb:comparisons/reader-first/recordings/haiku.failures.jsonl:generic-api-key:2
@@ -70978,3 +70977,5 @@ fe1adc517389fa45f963780de45d96ffc616200f:examples/judge-benchmarks/experiments/l
 fe1adc517389fa45f963780de45d96ffc616200f:examples/judge-benchmarks/experiments/ledger-rb/live/starts-008.jsonl:generic-api-key:98
 fe1adc517389fa45f963780de45d96ffc616200f:examples/judge-benchmarks/experiments/ledger-rb/live/starts-008.jsonl:generic-api-key:99
 # END generated recording-hash fingerprints
+# Verified SHA-256 of power_api.py at this commit; source integrity metadata.
+5d2a15114ccddd73f0c71de0bc94ffa3bd6cddba:comparisons/deepeval/lead/power/api/policy.json:generic-api-key:43

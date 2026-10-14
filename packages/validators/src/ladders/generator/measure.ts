@@ -47,7 +47,7 @@ import {
 import { createPerturbingDriver, createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { baselineSuite } from './baseline';
 import { CHEATERS, type Cheater, cheaterAdapter, replayCalls } from './cheaters';
-import { combinedFault, FAULT_CLASSES, faultFamily, type HiddenFault } from './faults';
+import { combinedFault, contextFaults, FAULT_CLASSES, faultFamily, type HiddenFault } from './faults';
 import { createFollower, type FileSession } from './follower';
 import { type HiddenSpec, hiddenSpec } from './hidden';
 import { MAP_FILES, type RenderedMap, renderMap } from './render';
@@ -121,6 +121,8 @@ export type BlockRun = {
   referenceTrace: string;
   cheaters: Partial<Record<Cheater, { outcome: Outcome; passing: string[] }>>;
   faults: Record<string, Outcome>;
+  /** The outcome of every persona-bound fault (faults.ts#contextFaults), read by the minimality items only. */
+  contextFaults: Record<string, Outcome>;
 };
 
 /** A planted fault: the specs it changed and, per spec, the first block where it changed what the agent did. */
@@ -281,7 +283,7 @@ function fixtureFaultAdapter(fault: HiddenFault): AgentAdapter {
   return followerAdapter(fault.def.agent.create, fault.def.id);
 }
 
-async function writeAll(
+export async function writeAll(
   root: string,
   files: readonly { path: string; text: string; bytes?: Uint8Array }[],
 ): Promise<void> {
@@ -532,6 +534,7 @@ export async function runAll(generated: Generation, parts: GeneratorParts = {}):
   const cheaters = parts.cheaters ?? CHEATERS;
   const replay = replayCalls((parts.baseline ?? baselineSuite)(hidden).map((loaded) => loaded.spec));
   const adapters = faults.map((fault) => ({ fault, adapter: fixtureFaultAdapter(fault) }));
+  const bound = contextFaults(hidden, faults);
   const records = new Map<string, FaultRecord>(
     faults.map((fault) => [fault.def.id, { fault, changedOn: [], ranOn: 0, firstChange: {} }]),
   );
@@ -559,6 +562,16 @@ export async function runAll(generated: Generation, parts: GeneratorParts = {}):
       if (result.changed) record.changedOn.push(spec.id);
       if (result.first !== undefined) record.firstChange[spec.id] = result.first;
     }
+    // A persona-bound fault is the follower until its phrase is said, so on a spec that never says it its
+    // outcomes are the follower's, which outcomesOn would return after an emulation of its own.
+    const text = JSON.stringify(spec);
+    const contextOutcomes = new Map<string, Outcome[]>();
+    for (const fault of bound) {
+      const outcomes = text.includes(JSON.stringify(fault.phrase).slice(1, -1))
+        ? (await outcomesOn(plan, fault.create, followerAdapter(fault.create, fault.id))).outcomes
+        : spec.blocks.map((_, index) => blockOutcome(first, index));
+      contextOutcomes.set(fault.id, outcomes);
+    }
     spec.blocks.forEach((block, index) => {
       const deviation = deviationOf(spec, index);
       const run: BlockRun = {
@@ -576,11 +589,13 @@ export async function runAll(generated: Generation, parts: GeneratorParts = {}):
         referenceTrace: traceOf(first, index),
         cheaters: {},
         faults: {},
+        contextFaults: {},
       };
       for (const [name, result] of cheaterRuns) {
         run.cheaters[name] = { outcome: blockOutcome(result, index), passing: passingIds(result, index) };
       }
       for (const [id, outcomes] of faultOutcomes) run.faults[id] = outcomes[index] ?? 'unjudged';
+      for (const [id, outcomes] of contextOutcomes) run.contextFaults[id] = outcomes[index] ?? 'unjudged';
       blocks.push(run);
     });
   }

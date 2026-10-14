@@ -44,7 +44,14 @@ export function taskSpecs(
   inputs: readonly TaskInput[],
   run: RunIdentity,
 ): Array<{ id: string; spec: Record<string, unknown>; seed?: SeedFiles }> {
-  const out: Array<{ id: string; spec: Record<string, unknown>; seed?: SeedFiles }> = [];
+  return [...streamTaskSpecs(prepared, inputs, run)];
+}
+
+export function* streamTaskSpecs(
+  prepared: PreparedMap,
+  inputs: readonly TaskInput[],
+  run: RunIdentity,
+): Generator<{ id: string; spec: Record<string, unknown>; seed?: SeedFiles }> {
   for (const { relation, variants } of inputs) {
     const tags: string[] = [];
     for (const [dimensionId, values] of Object.entries(relation.holds ?? {})) {
@@ -85,10 +92,9 @@ export function taskSpecs(
           family: relation.family,
         },
       };
-      out.push({ id: String(spec.id), spec, ...(variant.seed ? { seed: variant.seed } : {}) });
+      yield { id: String(spec.id), spec, ...(variant.seed ? { seed: variant.seed } : {}) };
     }
   }
-  return out;
 }
 
 /** How many instances, per relation asked for, are drawn at most while a relation waits for its own. */
