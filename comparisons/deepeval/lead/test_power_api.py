@@ -8,6 +8,7 @@ from unittest.mock import patch
 import urllib.error
 
 import power_api as api
+import power_api_retry
 
 
 class Response(io.BytesIO):
@@ -92,6 +93,20 @@ class TransportTests(unittest.TestCase):
             with self.assertRaises(api.lead.StopRun):
                 self.rec.call("s", "u")
         network.assert_not_called()
+
+    def test_retry_reuses_successful_parity_for_old_timeout(self):
+        key = api.lead.call_key("haiku", "s", "u")
+        api.power.dump(self.rec.directory / "unused.json", {})
+        self.rec.journal("calls.jsonl", {"request_sha256": key, "case": "power/fixture",
+                                         "result": "already answered", "charged_usd": .00001})
+        (self.root / "api/retry").mkdir()
+        retry = power_api_retry.RetryRecorder("retry", {key: {"error": "timed out after 180 seconds"}}, {key}, credential="fixture")
+        retry.local.keys = []
+        retry.local.context = {}
+        with patch.object(api.urllib.request, "urlopen") as network:
+            self.assertEqual(retry.call("s", "u"), "already answered")
+        network.assert_not_called()
+        self.assertEqual(json.loads((self.root / "api/retry/parity-reused.json").read_text()), [key])
 
 
 if __name__ == "__main__":
