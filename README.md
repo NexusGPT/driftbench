@@ -926,9 +926,9 @@ Scores are percent correct.
 | Sensitivity, original 544 items including overlap | 78.86 | 77.21 | 60.85 | 76.84 | 75.92 | 75.18 |
 | LJB TEST, 221 items | 76.02 | 75.57 | 58.82 | 73.30 | 75.11 | 73.30 |
 
-Each row gives v5 one significant win over DeepEval and four ties after exact paired tests with Holm over
-five peers. These are separate analyses from the historical 25-comparison table above. The exclusion is a
-post-review correction using recorded decisions, with no new model calls. [Full results and exclusions](examples/verify-lead/RESULTS.md).
+On the 536 primary items, driftbench-v5 scores 78.73%; DeepEval scores 60.26%, a significant difference after exact paired tests
+with Holm over the five peers. promptfoo (76.87%), Inspect (76.49%), Langfuse (75.75%) and LangWatch (75.19%) are within the
+paired-test noise. The exclusion is a post-review correction using recorded decisions, with no new model calls. [Full results and exclusions](examples/verify-lead/RESULTS.md).
 
 ### What a judgement costs
 
