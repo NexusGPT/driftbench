@@ -1,6 +1,13 @@
 import { extractFinalAnswer } from './answer-extraction';
 import type { DialectCompletion, DialectCompletionRequest, DialectTransport } from './clients/transport';
-import { inconclusive, type JudgeRequest, type JudgeResult, repeatedObjectKey } from './contract';
+import {
+  inconclusive,
+  type JudgeRequest,
+  type JudgeResult,
+  MAX_TOKENS,
+  REASONING_TOKENS,
+  repeatedObjectKey,
+} from './contract';
 
 const METHODS = [
   'Derive the answer directly, checking every domain restriction, sign and quantifier.',
@@ -28,7 +35,10 @@ type Call = {
  */
 export async function verifyAnswer(transport: DialectTransport, request: JudgeRequest): Promise<JudgeResult> {
   const calls: Call[] = [];
-  const audit: Record<string, unknown> = { version: 1, calls };
+  const audit: Record<string, unknown> = { version: 2, calls };
+  const reasoning = request.reasoning ?? transport.reasoning;
+  // Every stage needs enough room to finish its reasoning and final structured answer.
+  const maxTokens = MAX_TOKENS.large + (reasoning === undefined ? 0 : REASONING_TOKENS[reasoning]);
   let decline: DialectCompletion | undefined;
   const finish = (
     outcome: 'pass' | 'fail' | 'inconclusive',
@@ -61,7 +71,7 @@ export async function verifyAnswer(transport: DialectTransport, request: JudgeRe
   const call = async (stage: string, system: string, user: string): Promise<string> => {
     const record: Call = {
       stage,
-      request: { system, user, ...(request.reasoning ? { reasoning: request.reasoning } : {}) },
+      request: { system, user, maxTokens, ...(reasoning === undefined ? {} : { reasoning }) },
     };
     calls.push(record);
     try {

@@ -18,7 +18,7 @@ import { writingRequirementsV1 } from './writing-requirements';
 
 /** One policy across providers and tasks. Routing sees the criterion and user requests, never answers. */
 export const DEFAULT_JUDGE_POLICY = Object.freeze({
-  version: 'default-on-v5',
+  version: 'default-on-v6',
   criterionPromptVersion: 2,
   criterionDecoderVersion: 3,
   pairOrders: 'both',
@@ -83,7 +83,12 @@ export function createDefaultJudge(options: DefaultJudgeOptions): DefaultJudgeCl
     model,
     ...(transport.reasoning === undefined ? {} : { reasoning: transport.reasoning }),
     dialect: transport.dialect,
-    settings: contentHash({ policy: DEFAULT_JUDGE_POLICY, router: ROUTER, transport: transport.fingerprint }),
+    settings: contentHash({
+      policy: DEFAULT_JUDGE_POLICY,
+      router: ROUTER,
+      transport: transport.fingerprint,
+      ...(options.maxTokens === undefined ? {} : { maxTokens: options.maxTokens }),
+    }),
     judgePair: (request) => evaluate(request, true),
     judge: (request) => evaluate(request, false),
   };
@@ -124,8 +129,8 @@ export function createDefaultJudge(options: DefaultJudgeOptions): DefaultJudgeCl
             ...(reservation > 0 ? { maxBudgetUsd: reservation } : {}),
             ...(reasoning === undefined ? {} : { reasoning }),
             maxTokens:
-              input.maxTokens ??
               options.maxTokens ??
+              input.maxTokens ??
               MAX_TOKENS[request.budget ?? 'normal'] +
                 (reasoning === undefined ? 0 : REASONING_TOKENS[reasoning]),
           });
