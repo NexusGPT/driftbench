@@ -79,60 +79,90 @@ Both store the campaign with `judge: { mode: llm, judges: [claude:<model>] }`, o
 
 ## Worked example
 
-The stand-in judge accepted on a replay, and a billed judge refused without a budget (no model call):
+All offline: the stand-in judge `examples/estates/fixture/live/fake/judge.cjs` reads the prompt, answers fail when it holds the words `public holiday`, else pass, and reports 0.0015 USD per call.
+
+First the options themselves: the stand-in accepted on a replay, and a billed judge refused without a budget:
 
 ```sh
 driftbench replay examples/estates/sessions/clean-build.jsonl --decisions examples/estates/sessions/clean-build.decisions.jsonl --steps examples/estates/sessions/clean-build.steps.jsonl --suite examples/estates/sessions/specs/clean-build.yaml --judge claude:haiku --judge-command examples/estates/fixture/live/fake/judge.cjs
 driftbench replay examples/estates/sessions/clean-build.jsonl --suite examples/estates/sessions/specs/clean-build.yaml --judge claude:haiku  # exit 2
 ```
 
+Then a copy of that replay spec with one gating criterion added to its first block. Without a judge the gating criterion is inconclusive and fails the spec; with the stand-in it is judged and passes:
+
+```sh setup
+mkdir -p suite
+python3 -c "p='examples/estates/sessions/specs/clean-build.yaml'; t=open(p).read().replace('      stage: verify\n', '      stage: verify\n      criteria: [states_the_change@gating]\n', 1); t += 'criteria:\n  - name: states_the_change\n    rubric: Does the reply say what changed in src/invoice.ts?\n    pass: The reply names the change.\n    fail: The reply does not name the change.\n'; open('suite/clean-build.yaml', 'w').write(t)"
+```
+
+```sh
+driftbench replay examples/estates/sessions/clean-build.jsonl --decisions examples/estates/sessions/clean-build.decisions.jsonl --steps examples/estates/sessions/clean-build.steps.jsonl --suite suite  # exit 1
+driftbench replay examples/estates/sessions/clean-build.jsonl --decisions examples/estates/sessions/clean-build.decisions.jsonl --steps examples/estates/sessions/clean-build.steps.jsonl --suite suite --judge claude:haiku --judge-command examples/estates/fixture/live/fake/judge.cjs
+```
+
+Last, an estate run on the fixture estate with its stand-in agent and the stand-in judge. The stand-in agent needs the absolute path of its manifest, so this line runs through the shell, with the CLI from source:
+
+The scripts below run the package from its source with `tsx`; this file tells `tsx` where the packages are:
+
+```json file=tsconfig.json
+{
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "paths": {
+      "@agent-nexus/driftbench-example-acme": ["./examples/acme/src/package.ts"],
+      "@agent-nexus/driftbench-adapters/contract": ["./packages/adapters/src/contract.ts"],
+      "@agent-nexus/driftbench-*": ["./packages/*/src/index.ts"]
+    }
+  }
+}
+```
+
+```sh setup
+tsx packages/cli/src/bin.ts estate run examples/estates/fixture/generated/specs/live/obligation/estate.obligation.instruction.route-planner.no-delivery-planned-on-a-public.yaml --estate examples/estates/fixture --runtime claude-code --command examples/estates/fixture/live/fake/claude.mjs --set-env FAKE_MANIFEST=$PWD/examples/estates/fixture/live/fake/manifest.json --store estate-runs.db --states examples/estates/fixture/live/states/library.json --judge claude:haiku --judge-command examples/estates/fixture/live/fake/judge.cjs  # exit 1
+```
+
 ```text
 $ driftbench replay examples/estates/sessions/clean-build.jsonl --decisions examples/estates/sessions/clean-build.decisions.jsonl --steps examples/estates/sessions/clean-build.steps.jsonl --suite examples/estates/sessions/specs/clean-build.yaml --judge claude:haiku --judge-command examples/estates/fixture/live/fake/judge.cjs
 ✓ replay-clean-build  session clean-build from block 0 (metadata)
-1 spec replayed: 1 pass, 0 fail. Judge claude:haiku, 0.0000 USD. Campaign replay-b17abeb8a490 (in memory).
+1 spec replayed: 1 pass, 0 fail. Judge claude:haiku, 0.0000 USD. Campaign replay-5b17b2cf4286 (in memory).
 (exit 0)
-$ driftbench replay examples/estates/sessions/clean-build.jsonl --suite examples/estates/sessions/specs/clean-build.yaml --judge claude:haiku  # exit 2
+$ driftbench replay examples/estates/sessions/clean-build.jsonl --suite examples/estates/sessions/specs/clean-build.yaml --judge claude:haiku
 error: a judge on a command that is not a stand-in is billed: pass --judge-budget <usd>
 (exit 2)
-```
-
-A copy of the replay spec `examples/estates/sessions/specs/clean-build.yaml` with one gating criterion added to its first block. Without a judge, the gating criterion is inconclusive and fails the spec; with the stand-in judge, it is judged and passes, at the stand-in's reported 0.0015 USD:
-
-From a repository checkout, not run by the help test:
-
-```text
-$ mkdir -p out/judging/run-judge/suite
-$ python3 -c "p='examples/estates/sessions/specs/clean-build.yaml'; t=open(p).read().replace('      stage: verify\n', '      stage: verify\n      criteria: [states_the_change@gating]\n', 1); t += 'criteria:\n  - name: states_the_change\n    rubric: Does the reply say what changed in src/invoice.ts?\n    pass: The reply names the change.\n    fail: The reply does not name the change.\n'; open('out/judging/run-judge/suite/clean-build.yaml', 'w').write(t)"
-$ driftbench replay examples/estates/sessions/clean-build.jsonl --decisions examples/estates/sessions/clean-build.decisions.jsonl --steps examples/estates/sessions/clean-build.steps.jsonl --suite out/judging/run-judge/suite
+$ mkdir -p suite
+(exit 0)
+$ python3 -c "p='examples/estates/sessions/specs/clean-build.yaml'; t=open(p).read().replace('      stage: verify
+', '      stage: verify
+      criteria: [states_the_change@gating]
+', 1); t += 'criteria:
+  - name: states_the_change
+    rubric: Does the reply say what changed in src/invoice.ts?
+    pass: The reply names the change.
+    fail: The reply does not name the change.
+'; open('suite/clean-build.yaml', 'w').write(t)"
+(exit 0)
+$ driftbench replay examples/estates/sessions/clean-build.jsonl --decisions examples/estates/sessions/clean-build.decisions.jsonl --steps examples/estates/sessions/clean-build.steps.jsonl --suite suite
 note: replay-clean-build: judged criteria are not run in replay
 ✗ replay-clean-build  session clean-build from block 0 (metadata)
     failing: block 0: judge.states_the_change (inconclusive)
-1 spec replayed: 0 pass, 1 fail. Judge none, 0.0000 USD. Campaign replay-a3621f6f756d (in memory).
+1 spec replayed: 0 pass, 1 fail. Judge none, 0.0000 USD. Campaign replay-57d921f4c03c (in memory).
 (exit 1)
-$ driftbench replay examples/estates/sessions/clean-build.jsonl --decisions examples/estates/sessions/clean-build.decisions.jsonl --steps examples/estates/sessions/clean-build.steps.jsonl --suite out/judging/run-judge/suite --judge claude:haiku --judge-command examples/estates/fixture/live/fake/judge.cjs
+$ driftbench replay examples/estates/sessions/clean-build.jsonl --decisions examples/estates/sessions/clean-build.decisions.jsonl --steps examples/estates/sessions/clean-build.steps.jsonl --suite suite --judge claude:haiku --judge-command examples/estates/fixture/live/fake/judge.cjs
 note: replay-clean-build: judged criteria are not run in replay
 ✓ replay-clean-build  session clean-build from block 0 (metadata)
-1 spec replayed: 1 pass, 0 fail. Judge claude:haiku, 0.0015 USD. Campaign replay-8434622d4213 (in memory).
+1 spec replayed: 1 pass, 0 fail. Judge claude:haiku, 0.0015 USD. Campaign replay-b3e3451867b0 (in memory).
 (exit 0)
-```
-
-The campaign id changes on every run. The stand-in reads the prompt, answers fail when it holds the words `public holiday`, else pass, and reports 0.0015 USD per call. It makes no model call.
-
-An estate run on the fixture estate, with its stand-in agent and the stand-in judge:
-
-From a repository checkout, not run by the help test:
-
-```text
-$ driftbench estate run examples/estates/fixture/generated/specs/live/obligation/estate.obligation.instruction.route-planner.no-delivery-planned-on-a-public.yaml --estate examples/estates/fixture --runtime claude-code --command examples/estates/fixture/live/fake/claude.mjs --set-env FAKE_MANIFEST=$PWD/examples/estates/fixture/live/fake/manifest.json --store out/judging/run-judge/runs.db --states examples/estates/fixture/live/states/library.json --judge claude:haiku --judge-command examples/estates/fixture/live/fake/judge.cjs
+$ tsx packages/cli/src/bin.ts estate run examples/estates/fixture/generated/specs/live/obligation/estate.obligation.instruction.route-planner.no-delivery-planned-on-a-public.yaml --estate examples/estates/fixture --runtime claude-code --command examples/estates/fixture/live/fake/claude.mjs --set-env FAKE_MANIFEST=$PWD/examples/estates/fixture/live/fake/manifest.json --store estate-runs.db --states examples/estates/fixture/live/states/library.json --judge claude:haiku --judge-command examples/estates/fixture/live/fake/judge.cjs
 note: the estate copy is not pinned to a map hash; pass --map to pin it
 ✗ estate.obligation.instruction.route-planner.no-delivery-planned-on-a-public  (0.0015 USD)
     failing: block 0: subagents.route-planner, block 0: judge.instruction.route-planner.no-delivery-planned-on-a-public
     judged instruction.route-planner.no-delivery-planned-on-a-public: fail
-1 spec run live on a stand-in: 0 pass, 1 fail. Cost 0.0015 USD over 1 run that report one, judge claude:haiku 0.0015 USD of it. Campaign estate-run-bda78d9d7365.
+1 spec run live on a stand-in: 0 pass, 1 fail. Cost 0.0015 USD over 1 run that report one, judge claude:haiku 0.0015 USD of it. Campaign estate-run-ea9630d6c6e7.
 (exit 1)
 ```
 
-The judge fails the criterion: the reply plans a delivery on a public holiday.
+The campaign ids change on every run. In the estate run the judge fails the criterion: the reply plans a delivery on a public holiday. The `replay` note `judged criteria are not run in replay` is out of date: the stand-in's 0.0015 USD shows the judge ran.
 
 ## Common errors
 
