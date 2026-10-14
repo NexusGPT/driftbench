@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { Spec } from '../schema/spec';
+import { cloneJsonLeaf, isJsonLeaf, UNSUPPORTED_JSON } from './json-leaf';
 
 /**
  * Compile the existing schema, retaining the runtime parser at recursive JSON leaves. Zod's compiler
@@ -12,7 +13,12 @@ function withRuntimeLeaves(schema: z.ZodType, memo = new Map<z.ZodType, z.ZodTyp
   // Break an unexpected direct schema cycle conservatively; compile() then retains the runtime path.
   memo.set(schema, schema);
   if (schema.type === 'lazy') {
+    const json = isJsonLeaf(schema);
     const leaf = z.unknown().transform((input, ctx) => {
+      if (json) {
+        const copied = cloneJsonLeaf(input);
+        if (copied !== UNSUPPORTED_JSON) return copied;
+      }
       const parsed = schema.safeParse(input);
       if (parsed.success) return parsed.data;
       ctx.addIssue({ code: 'custom', message: 'Use the original schema issues' });

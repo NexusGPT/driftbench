@@ -27,6 +27,7 @@ import {
 } from '../seed/assemble';
 import { DeviationBalance } from '../seed/deviation-balance';
 import type { PreparedMap } from '../seed/map';
+import { indexDimensions, indexPathValues } from '../seed/scenario';
 import {
   type BoundarySummary,
   type BudgetSummary,
@@ -199,7 +200,13 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
   const t = options.t ?? DEFAULT_T;
   const seed = options.seed ?? DEFAULT_SEED;
   const max = options.max ?? Number.POSITIVE_INFINITY;
-  const context: SeedContext = { seed, t, max };
+  const context: SeedContext = {
+    seed,
+    t,
+    max,
+    pathValues: indexPathValues(prepared),
+    dimensionIndex: indexDimensions(prepared),
+  };
   const run: RunIdentity = { seed, mapPath: options.mapPath };
 
   const graph = graphSeeder(prepared, context);

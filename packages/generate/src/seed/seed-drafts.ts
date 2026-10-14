@@ -31,6 +31,9 @@ export type SeedContext = {
   seed: number;
   t: number;
   max: number;
+  /** Generation-local path indices, shared by seeders of the same immutable map snapshot. */
+  pathValues?: ReadonlyMap<PathRelation, ReadonlyMap<string, readonly number[]>>;
+  dimensionIndex?: ReadonlyMap<string, number>;
   /** Consume each completed draft immediately instead of retaining the seeder output. */
   emit?: (draft: SpecDraft) => void;
   /** Replayable disk rows: their final count keeps the existing "row X of N" titles exact. */
@@ -94,6 +97,8 @@ export function scenarioDraft(
     const built = buildScenario(prepared, rng, {
       path,
       fixed,
+      pathValues: context.pathValues?.get(path),
+      dimensionIndex: context.dimensionIndex,
       ...(options.probe ? { probe: options.probe } : {}),
       ...(options.force ? { force: options.force } : {}),
       ...(options.turn ? { turn: options.turn } : {}),

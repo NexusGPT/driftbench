@@ -51,6 +51,9 @@ export type ProbeRequest = {
 
 export type ScenarioRequest = {
   path: PathRelation;
+  /** A generation-local snapshot of this path's value indices. */
+  pathValues?: ReadonlyMap<string, readonly number[]>;
+  dimensionIndex?: ReadonlyMap<string, number>;
   /** Values the seeder fixed: a t-wise row, a boundary value, a probe's class. */
   fixed: readonly Pick[];
   probe?: ProbeRequest;
@@ -121,7 +124,10 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
   const relations = prepared.relations;
   const dimensions = prepared.space.dimensions;
   const fail = (reason: string): Scenario => ({ ok: false, reason: `path ${path.id}: ${reason}` });
-  const indexOf = (id: string) => dimensions.findIndex((dimension) => dimension.id === id);
+  const indexOf = (id: string) =>
+    request.dimensionIndex
+      ? (request.dimensionIndex.get(id) ?? -1)
+      : dimensions.findIndex((dimension) => dimension.id === id);
 
   // The cell: the fixed values, the flow, and a value for every dimension the path's `when` names.
   const cell: Pick[] = [...request.fixed];
@@ -144,17 +150,19 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
         return fail(`it needs ${dimensionKey} in ${values.join(', ')}; the cell holds ${id}`);
       continue;
     }
-    const indices: number[] = [];
-    for (const value of values) {
-      const index = dimensions[dimension]?.index.get(value);
-      if (index !== undefined) indices.push(index);
+    let indices = request.pathValues?.get(dimensionKey);
+    if (!indices) {
+      const resolved: number[] = [];
+      for (const value of values) {
+        const index = dimensions[dimension]?.index.get(value);
+        if (index !== undefined) resolved.push(index);
+      }
+      indices = resolved;
     }
-    const options = prepared.feasibility
-      .allowedValues(cell, dimension, indices)
-      .map((value): Pick => [dimension, value]);
-    const chosen = pick(rng, options);
-    if (!chosen) return fail(`the constraints allow no value of ${dimensionKey} it needs with this cell`);
-    cell.push(chosen);
+    const chosen = pick(rng, prepared.feasibility.allowedValues(cell, dimension, indices));
+    if (chosen === undefined)
+      return fail(`the constraints allow no value of ${dimensionKey} it needs with this cell`);
+    cell.push([dimension, chosen]);
   }
   if (!prepared.feasibility.allowed(cell)) return fail('the constraints forbid its values with this cell');
   // Every stage the walk reaches holds with the cell: a value the path states nothing about (a coverage
@@ -172,11 +180,20 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     prepared.transition === undefined ? undefined : dimensionId(prepared, prepared.transition);
   const deviationKey =
     prepared.deviation === undefined ? undefined : dimensionId(prepared, prepared.deviation);
+  const contexts = new Map<string, Context>();
+  let contextSize = cell.length;
   const contextOf = (stage: string): Context => {
+    if (contextSize !== cell.length) {
+      contexts.clear();
+      contextSize = cell.length;
+    }
+    const known = contexts.get(stage);
+    if (known) return known;
     const context: Record<string, string> = {};
     for (const [dimension, value] of cell)
       context[dimensionId(prepared, dimension)] = valueId(prepared, dimension, value);
     context[stageKey] = stage;
+    contexts.set(stage, context);
     return context;
   };
 
@@ -187,7 +204,8 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     const bound = relations.binds.get(
       `${dimensionId(prepared, entry[0])}=${valueId(prepared, entry[0], entry[1])}`,
     );
-    for (const [slot, value] of Object.entries(bound ?? {})) {
+    if (!bound) continue;
+    for (const [slot, value] of Object.entries(bound)) {
       if (slots[slot] !== undefined) continue;
       slots[slot] = value;
       boundBy.set(slot, entry);
@@ -219,11 +237,15 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     return { kind: 'phrase', phrase: { ...phrase, text: filled.ok ? filled.value : phrase.text } };
   };
   /** The data values whose slots a text or a value reads: what the block's own cell holds. */
-  const sourcesOf = (...values: unknown[]): Pick[] =>
-    values.flatMap(slotsOf).flatMap((slot) => {
-      const source = boundBy.get(slot);
-      return source ? [source] : [];
-    });
+  const sourcesOf = (...values: unknown[]): Pick[] => {
+    const sources: Pick[] = [];
+    for (const value of values)
+      for (const slot of slotsOf(value)) {
+        const source = boundBy.get(slot);
+        if (source) sources.push(source);
+      }
+    return sources;
+  };
 
   // A phrase probe goes in at a stage of the path, chosen before the walk: its phrase may bind a slot a later
   // turn reads (a plan named again at the recap).
@@ -839,4 +861,34 @@ function toolFailure(
     });
   }
   return { ok: true, placed: { classId: TOOL_FAILURE, stage: at, tool: chosen.tool } };
+}
+
+/** Resolve fixed path declarations once per synchronous generation, preserving their value order. */
+export function indexPathValues(
+  prepared: PreparedMap,
+): Map<PathRelation, ReadonlyMap<string, readonly number[]>> {
+  const paths = new Map<PathRelation, ReadonlyMap<string, readonly number[]>>();
+  for (const path of prepared.relations.paths) {
+    const values = new Map<string, readonly number[]>();
+    for (const [id, names] of Object.entries(path.when ?? {})) {
+      const dimension = prepared.space.dimensions.find((entry) => entry.id === id);
+      const indices: number[] = [];
+      for (const name of names) {
+        const index = dimension?.index.get(name);
+        if (index !== undefined) indices.push(index);
+      }
+      values.set(id, indices);
+    }
+    paths.set(path, values);
+  }
+  return paths;
+}
+
+/** Match findIndex's first occurrence, including noncanonical maps constructed by callers. */
+export function indexDimensions(prepared: PreparedMap): Map<string, number> {
+  const indices = new Map<string, number>();
+  prepared.space.dimensions.forEach((dimension, index) => {
+    if (!indices.has(dimension.id)) indices.set(dimension.id, index);
+  });
+  return indices;
 }

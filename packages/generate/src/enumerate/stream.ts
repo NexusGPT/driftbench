@@ -14,6 +14,7 @@ import {
 } from '../seed/assemble';
 import { DeviationBalance } from '../seed/deviation-balance';
 import type { PreparedMap } from '../seed/map';
+import { indexDimensions, indexPathValues } from '../seed/scenario';
 import {
   boundarySeeder,
   coverDraft,
@@ -88,6 +89,8 @@ function writeSuite(
   context: SeedContext,
 ): GenerateDiskResult {
   const { t, seed, max } = context;
+  context.pathValues = indexPathValues(prepared);
+  context.dimensionIndex = indexDimensions(prepared);
   const run = { seed, mapPath: options.mapPath };
   const coverage = new StreamCoverage(prepared, t, scratch);
   const invalid = new DiskArray<GenerateReport['invalid'][number]>(scratch, 'invalid.jsonl');

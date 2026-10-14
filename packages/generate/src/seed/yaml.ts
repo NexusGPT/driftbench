@@ -71,62 +71,62 @@ function keyText(key: string): string {
   return result;
 }
 
+const padding = Array.from({ length: 103 }, (_, index) => ' '.repeat(index));
+
 /** The library's block style for plain objects and arrays, with its scalar spellings. */
 export function stringifyGeneratedYaml(input: unknown, plain?: ReadonlySet<object>): string {
   let text = '';
-  const render = (value: unknown, indent: number, prefix: string, mappingValue = false): void => {
-    if (value === null || typeof value !== 'object') {
-      text += `${prefix}${scalar(value)}\n`;
-      return;
-    }
+  const render = (value: object, indent: number, prefix: string, mappingValue = false): void => {
     // The depth cap also sends cycles to the library, which owns their diagnostics.
     if (indent > 100) throw unsupported;
-    {
-      const array = Array.isArray(value);
-      const trusted = plain?.has(value) === true;
-      const prototype = trusted ? undefined : Object.getPrototypeOf(value);
-      if (
-        !trusted &&
-        (array ? prototype !== Array.prototype : prototype !== Object.prototype && prototype !== null)
-      )
+    const array = Array.isArray(value);
+    const trusted = plain?.has(value) === true;
+    let names: string[] = [];
+    if (!trusted) {
+      const prototype = Object.getPrototypeOf(value);
+      if (array ? prototype !== Array.prototype : prototype !== Object.prototype && prototype !== null)
         throw unsupported;
-      const toJSON = trusted ? undefined : Object.getOwnPropertyDescriptor(value, 'toJSON');
+      const toJSON = Object.getOwnPropertyDescriptor(value, 'toJSON');
       if (toJSON?.get || toJSON?.set || typeof toJSON?.value === 'function') throw unsupported;
-      const names = Object.keys(value);
-      // Sparse or decorated arrays retain the YAML library's treatment.
+      names = Object.keys(value);
       if (array && names.length !== value.length) throw unsupported;
-      let kept = 0;
       for (let index = 0; index < names.length; index += 1) {
         const name = names[index] as string;
         if (array && name !== String(index)) throw unsupported;
-        const descriptor = trusted ? undefined : Object.getOwnPropertyDescriptor(value, name);
+        const descriptor = Object.getOwnPropertyDescriptor(value, name);
         if (descriptor?.get || descriptor?.set) throw unsupported;
-        if (array || (value as Record<string, unknown>)[name] !== undefined) names[kept++] = name;
       }
+    } else if (!array) names = Object.keys(value);
+    if (!array) {
+      let kept = 0;
+      for (const name of names)
+        if ((value as Record<string, unknown>)[name] !== undefined) names[kept++] = name;
       names.length = kept;
-      const entries = names;
-      if (entries.length === 0) {
-        text += `${prefix}${array ? '[]' : '{}'}\n`;
-        return;
+    }
+    const length = array ? value.length : names.length;
+    if (length === 0) {
+      text += `${prefix}${array ? '[]' : '{}'}\n`;
+      return;
+    }
+    if (mappingValue) {
+      text += `${prefix.slice(0, -1)}\n`;
+      prefix = padding[indent] as string;
+    }
+    const pad = padding[indent] as string;
+    if (array) {
+      for (let index = 0; index < length; index += 1) {
+        const child: unknown = value[index];
+        const lead = `${index === 0 ? prefix : pad}- `;
+        if (child !== null && typeof child === 'object') render(child, indent + 2, lead);
+        else text += `${lead}${scalar(child)}\n`;
       }
-      if (mappingValue) {
-        text += `${prefix.slice(0, -1)}\n`;
-        prefix = ' '.repeat(indent);
-      }
-      const pad = ' '.repeat(indent);
-      if (array) {
-        for (let index = 0; index < value.length; index += 1)
-          render(value[index], indent + 2, `${index === 0 ? prefix : pad}- `);
-      } else {
-        for (let index = 0; index < entries.length; index += 1) {
-          const key = entries[index] as string;
-          render(
-            (value as Record<string, unknown>)[key],
-            indent + 2,
-            `${index === 0 ? prefix : pad}${keyText(key)}: `,
-            true,
-          );
-        }
+    } else {
+      for (let index = 0; index < length; index += 1) {
+        const key = names[index] as string;
+        const child = (value as Record<string, unknown>)[key];
+        const lead = `${index === 0 ? prefix : pad}${keyText(key)}: `;
+        if (child !== null && typeof child === 'object') render(child, indent + 2, lead, true);
+        else text += `${lead}${scalar(child)}\n`;
       }
     }
   };
