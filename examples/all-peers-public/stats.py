@@ -44,6 +44,27 @@ def exact_two_sided(wins, losses):
     return min(1.0, 2 * sum(math.comb(n, i) for i in range(k + 1)) / 2 ** n)
 
 
+def holm_adjust(pvalues):
+    """Holm step-down adjusted p-values, in the input order."""
+    order = sorted(range(len(pvalues)), key=lambda i: pvalues[i])
+    adjusted, running = [0.0] * len(pvalues), 0.0
+    for rank, i in enumerate(order):
+        running = max(running, min(1.0, (len(pvalues) - rank) * pvalues[i]))
+        adjusted[i] = running
+    return adjusted
+
+
+def add_holm(results):
+    """One family: every driftbench-against-tool comparison in the five files (promptfoo and the four peers; the
+    MM-Eval primary cohort; the reader-first variant is not a tool and is left out)."""
+    rows = [(r, r['primary' if res['bench'] == 'mmeval' else 'all'])
+            for res in results for r in res['contestants'] if r['contestant'] in PEERS + ('promptfoo',)]
+    adjusted = holm_adjust([c['exactTwoSidedP'] for _, c in rows])
+    for (_, cell), value in zip(rows, adjusted):
+        cell['holmP'] = value
+    return len(rows)
+
+
 def wilson(k, n):
     if not n:
         return None
@@ -183,17 +204,18 @@ def table(result):
     for cohort in cohorts:
         if len(cohorts) > 1:
             lines += [f'## Cohort: {cohort}', '']
-        lines += ['| Contestant | Grader | Score | driftbench minus this | driftbench wins / losses | Exact p | Missing | Grader errors | USD |',
-                  '|---|---|---:|---:|---:|---:|---:|---:|---:|']
+        lines += ['| Contestant | Grader | Score | driftbench minus this | driftbench wins / losses | Exact p | Holm p | Missing | Grader errors | USD |',
+                  '|---|---|---:|---:|---:|---:|---:|---:|---:|---:|']
         for r in result['contestants']:
             s = r[cohort]
             score = pct(s['score']) + (f" ({s['correct']}/{s['n']})" if 'correct' in s else f" (n={s['n']})")
             spend = r.get('spend')
-            lines.append('| {} | {} | {} | {} | {} | {} | {} | {} | {} |'.format(
+            lines.append('| {} | {} | {} | {} | {} | {} | {} | {} | {} | {} |'.format(
                 r['contestant'], r.get('grader', 'recorded cell'), score,
                 '' if r['contestant'] == 'driftbench' else f"{100 * s['driftbenchMinusThis']:+.2f} pts",
                 '' if r['contestant'] == 'driftbench' else f"{s['driftbenchWins']} / {s['driftbenchLosses']}",
                 '' if r['contestant'] == 'driftbench' else f"{s['exactTwoSidedP']:.3g}",
+                f"{s['holmP']:.3g}" if 'holmP' in s else '',
                 r['transportMissing'], r.get('graderErrors', ''),
                 f"{spend['usd']:.4f}" if spend else ''))
         lines.append('')
@@ -202,10 +224,10 @@ def table(result):
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
-    for bench in TITLES:
-        if not (ROOT / 'cells' / bench).exists():
-            continue
-        result = summarize(bench)
+    results = [summarize(bench) for bench in TITLES if (ROOT / 'cells' / bench).exists()]
+    add_holm(results)
+    for result in results:
+        bench = result['bench']
         (OUT / f'{bench}-all-peers.json').write_text(json.dumps(result, indent=1) + '\n')
         (OUT / f'{bench}-all-peers.md').write_text(table(result) + '\n')
         print(table(result))

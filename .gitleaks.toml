@@ -13,3 +13,17 @@ useDefault = true
 description = "judge cassette request keys are 12-character content hashes"
 regexTarget = "line"
 regexes = ['''^[+\s]*"key": "[0-9a-f]{12}",?\s*$''']
+
+# The all-peers call journal stores each request under a field named "key" whose value is the 64-character
+# sha256 of model, system prompt and user text. The generic-api-key rule reads those hashes as secrets.
+# The exception needs both conditions: a file under examples/all-peers-public/cells/calls-parts/, and a
+# finding that is exactly the field "key" followed by a 64-character hex value. Any other finding in the same
+# files, a longer or shorter value, or another field name is still reported.
+[[rules]]
+id = "generic-api-key"
+[[rules.allowlists]]
+description = "all-peers call journal request keys are sha256 content hashes"
+condition = "AND"
+paths = ['''^examples/all-peers-public/cells/calls-parts/part-\d{4}\.jsonl$''']
+regexTarget = "match"
+regexes = ['''^"?key"?\s*[:=]\s*"?[0-9a-f]{64}"?$''']

@@ -38,7 +38,8 @@
     "driftbenchMinusThis": 0.05925925925925926,
     "driftbenchWins": 27,
     "driftbenchLosses": 11,
-    "exactTwoSidedP": 0.013852965261321515
+    "exactTwoSidedP": 0.013852965261321515,
+    "holmP": 0.12467668735189363
    }
   },
   {
@@ -68,7 +69,8 @@
     "driftbenchMinusThis": 0.025925925925925925,
     "driftbenchWins": 15,
     "driftbenchLosses": 8,
-    "exactTwoSidedP": 0.21003961563110352
+    "exactTwoSidedP": 0.21003961563110352,
+    "holmP": 1.0
    }
   },
   {
@@ -98,7 +100,8 @@
     "driftbenchMinusThis": 0.08888888888888889,
     "driftbenchWins": 31,
     "driftbenchLosses": 7,
-    "exactTwoSidedP": 0.00011616700794547796
+    "exactTwoSidedP": 0.00011616700794547796,
+    "holmP": 0.0012778370874002576
    }
   },
   {
@@ -128,7 +131,8 @@
     "driftbenchMinusThis": 0.14074074074074075,
     "driftbenchWins": 47,
     "driftbenchLosses": 9,
-    "exactTwoSidedP": 2.571572048082338e-07
+    "exactTwoSidedP": 2.571572048082338e-07,
+    "holmP": 4.371672481739974e-06
    }
   },
   {
@@ -158,7 +162,8 @@
     "driftbenchMinusThis": 0.05185185185185185,
     "driftbenchWins": 23,
     "driftbenchLosses": 9,
-    "exactTwoSidedP": 0.020061607006937265
+    "exactTwoSidedP": 0.020061607006937265,
+    "holmP": 0.16049285605549812
    }
   }
  ]
