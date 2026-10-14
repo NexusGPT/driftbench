@@ -2750,8 +2750,6 @@ function readLabels(labels: string, criterion: string): z.infer<typeof viewerLab
   return parsed.success ? parsed.data : null;
 }
 
-const post = (base: string, path: string, form: Record<string, string>) => http(base, path, { form });
-
 /** Read the current page, as a reviewer does. Older viewers have no hidden token. */
 async function labelForm(base: string, form: Record<string, string>): Promise<Record<string, string>> {
   const page = await http(
@@ -2773,6 +2771,18 @@ async function labelForm(base: string, form: Record<string, string>): Promise<Re
 async function postLabelForm(base: string, form: Record<string, string>) {
   return http(base, '/labels', {
     form: await labelForm(base, form),
+    headers: { Origin: new URL(base).origin },
+  });
+}
+
+/** Take a queue item through the queue page: its hidden token and the page's own Origin. */
+async function postQueueAssign(base: string, form: Record<string, string>) {
+  const page = await http(base, '/queue');
+  if (page.status !== 200) throw new Error(`expected the queue page, got ${page.status}`);
+  const csrf = viewerForms(page.text, '/queue', base).find((x) => x.method === 'post' && x.fields.csrf)
+    ?.fields.csrf;
+  return http(base, '/queue/assign', {
+    form: csrf === undefined ? form : { ...form, csrf },
     headers: { Origin: new URL(base).origin },
   });
 }
@@ -3721,7 +3731,7 @@ add(
     let after = '';
     let two = '';
     await withViewer(['--store', f.store, '--port', '0', '--labels', labels], f.dir, async (b) => {
-      const r = await post(b, '/labels', {
+      const r = await postLabelForm(b, {
         campaign: 'q1',
         run,
         block: '0',
@@ -3732,7 +3742,7 @@ add(
       after = (await http(b, (r.loc ?? '').replace(/#.*/, ''))).text
         .replace(/<[^>]+>/g, ' ')
         .replace(/\s+/g, ' ');
-      await post(b, '/labels', {
+      await postLabelForm(b, {
         campaign: 'q1',
         run,
         block: '1',
@@ -3778,7 +3788,7 @@ add(
       for (const c of ['../escape', 'a/b', '..', 'x\\y'])
         sts.push(
           (
-            await post(b, '/labels', {
+            await postLabelForm(b, {
               campaign: 'q1',
               run: f.runIds[0] as string,
               block: '0',
@@ -3815,7 +3825,7 @@ add(
     await withViewer(['--store', f.store, '--port', '0', '--labels', labels], f.dir, async (b) => {
       sts.push(
         (
-          await post(b, '/labels', {
+          await postLabelForm(b, {
             campaign: 'q1',
             run: f.runIds[0] as string,
             block: '99',
@@ -3827,7 +3837,7 @@ add(
       );
       sts.push(
         (
-          await post(b, '/labels', {
+          await postLabelForm(b, {
             campaign: 'q1',
             run: f.runIds[0] as string,
             block: '0',
@@ -4014,7 +4024,7 @@ add(
     const f = await judged(ctx.scratch);
     const labels = freshLabels(f);
     await withViewer(['--store', f.store, '--port', '0', '--labels', labels], f.dir, async (b) => {
-      await post(b, '/labels', {
+      await postLabelForm(b, {
         campaign: 'q1',
         run: f.runIds[0] as string,
         block: '0',
@@ -4116,8 +4126,8 @@ add(
       ['--store', f.store, '--port', '0', '--labels', labels, '--labelled-by', 'Tess'],
       f.dir,
       async (b) => {
-        taken = (await post(b, '/queue/assign', { criterion: 'polite', id })).status;
-        await post(b, '/labels', {
+        taken = (await postQueueAssign(b, { criterion: 'polite', id })).status;
+        await postLabelForm(b, {
           campaign: 'q1',
           run: f.runIds[0] as string,
           block: '1',
@@ -4167,7 +4177,7 @@ add(
       f.dir,
       async (b) => {
         st = (
-          await post(b, '/labels', {
+          await postLabelForm(b, {
             campaign: 'q1',
             run: f.runIds[0] as string,
             block: '0',
@@ -4210,7 +4220,7 @@ add(
       ['--store', f.store, '--port', '0', '--labels', labels, '--labelled-by', 'Tess'],
       f.dir,
       async (b) => {
-        st = (await post(b, '/queue/assign', { criterion: 'polite', id })).status;
+        st = (await postQueueAssign(b, { criterion: 'polite', id })).status;
       },
     );
     const l = await cli(['queue', 'list', '--labels', labels], f.dir);
