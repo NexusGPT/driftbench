@@ -1,0 +1,59 @@
+{
+  "at": "2026-10-14T02:17:34.279Z",
+  "phases": [
+    {
+      "model": "gpt-6.1-sol",
+      "phase": "pilot",
+      "items": 20,
+      "identicalDecisions": true,
+      "changed": [],
+      "newCalls": 0
+    },
+    {
+      "model": "gpt-6.1-sol",
+      "phase": "validity",
+      "items": 48,
+      "identicalDecisions": true,
+      "changed": [],
+      "newCalls": 0
+    },
+    {
+      "model": "gpt-6.1-sol",
+      "phase": "noise-0",
+      "items": 30,
+      "identicalDecisions": true,
+      "changed": [],
+      "newCalls": 0
+    },
+    {
+      "model": "gpt-6.1-sol",
+      "phase": "noise-1",
+      "items": 30,
+      "identicalDecisions": true,
+      "changed": [],
+      "newCalls": 0
+    },
+    {
+      "model": "gpt-6.1-sol",
+      "phase": "noise-2",
+      "items": 30,
+      "identicalDecisions": true,
+      "changed": [],
+      "newCalls": 0
+    },
+    {
+      "model": "gpt-6.1-sol",
+      "phase": "results",
+      "items": 221,
+      "identicalDecisions": true,
+      "changed": [],
+      "newCalls": 0
+    }
+  ],
+  "sourceHashes": {
+    "call": "9666f4f7f7a19189d1b7c70992dec4832246b645e9cc6271e76eda689a9e6036",
+    "run": "41d295290938673a96c796be95391ef2a6b1b71039145d3a18cfcc77507dfed0"
+  },
+  "mechanism": "Read-only copied caller prefers the original item/order answer among concurrently returned duplicate keys. Final decisions are recomputed, never replaced by expected labels.",
+  "providerCalls": 0
+}

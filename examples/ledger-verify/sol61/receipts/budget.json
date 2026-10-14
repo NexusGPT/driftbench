@@ -1,16 +1,26 @@
 {
   "capUsd": 40,
-  "spentUsd": 11.266549999999997,
+  "spentUsd": 16.55230049999999,
   "reservations": {
-    "ac084a19-3287-47f8-a726-b33e0dc7ea32": {
-      "usd": 0.353725,
+    "324e13de-c01b-46f7-88ba-c1a4ba2b4f32": {
+      "usd": 0.341745,
       "model": "gpt-6.1-sol",
-      "at": "2026-10-13T22:48:47.429619+00:00"
+      "at": "2026-10-13T22:58:08.974009+00:00"
     },
-    "411c587a-3909-4ba2-bfe6-571c5e2f514d": {
-      "usd": 0.33959,
+    "c785db46-f395-48e8-b9d3-b21c2d139626": {
+      "usd": 0.3460075,
       "model": "gpt-6.1-sol",
-      "at": "2026-10-13T22:48:50.613645+00:00"
+      "at": "2026-10-13T22:58:27.807966+00:00"
+    },
+    "1c629f01-c01d-4520-9b9e-47f9481de1a5": {
+      "usd": 0.343615,
+      "model": "gpt-6.1-sol",
+      "at": "2026-10-14T00:38:25.198812+00:00"
+    },
+    "94f02c02-46f1-42d9-93e1-61a8ac9bb6dd": {
+      "usd": 0.34358,
+      "model": "gpt-6.1-sol",
+      "at": "2026-10-14T00:38:34.604991+00:00"
     }
   },
   "receipts": [
@@ -8569,18 +8579,3295 @@
       "model": "gpt-6.1-sol",
       "usd": 0.001574,
       "reservedUsd": 0.34379
+    },
+    {
+      "id": "411c587a-3909-4ba2-bfe6-571c5e2f514d",
+      "model": "gpt-6.1-sol",
+      "usd": 0.003712,
+      "reservedUsd": 0.33959
+    },
+    {
+      "id": "3516374b-bfa7-46a0-bbe1-588ad455a553",
+      "model": "gpt-6.1-sol",
+      "usd": 0.009616,
+      "reservedUsd": 0.3404225
+    },
+    {
+      "id": "ac084a19-3287-47f8-a726-b33e0dc7ea32",
+      "model": "gpt-6.1-sol",
+      "usd": 0.023606,
+      "reservedUsd": 0.353725
+    },
+    {
+      "id": "7cab0798-783e-4ca5-bcb6-9544b85b1cc2",
+      "model": "gpt-6.1-sol",
+      "usd": 0.01057,
+      "reservedUsd": 0.34121
+    },
+    {
+      "id": "d5094d97-6efd-44df-8907-2ab973b56964",
+      "model": "gpt-6.1-sol",
+      "usd": 0.017261,
+      "reservedUsd": 0.363785
+    },
+    {
+      "id": "a66fbf44-9473-4b0c-863b-52e222469cbc",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004672,
+      "reservedUsd": 0.346845
+    },
+    {
+      "id": "3308a781-6231-4ee0-aa07-2e93ad9e404a",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004222,
+      "reservedUsd": 0.3416925
+    },
+    {
+      "id": "dd35f5c5-3565-4383-b6b1-28a51bbdf88f",
+      "model": "gpt-6.1-sol",
+      "usd": 0.018846,
+      "reservedUsd": 0.354505
+    },
+    {
+      "id": "6fabe600-0960-40fb-8135-c0f7f9ebd32e",
+      "model": "gpt-6.1-sol",
+      "usd": 0.007386,
+      "reservedUsd": 0.342525
+    },
+    {
+      "id": "0cdebd25-72c1-4465-ac04-79da28cf8e11",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0129135,
+      "reservedUsd": 0.364285
+    },
+    {
+      "id": "1f4b0507-7211-4003-971b-b5edd76b5009",
+      "model": "gpt-6.1-sol",
+      "usd": 0.002926,
+      "reservedUsd": 0.3497875
+    },
+    {
+      "id": "9e9963b7-7171-4865-a029-5e245f6c2787",
+      "model": "gpt-6.1-sol",
+      "usd": 0.011246,
+      "reservedUsd": 0.34329
+    },
+    {
+      "id": "3c3e2eba-c250-4856-ab3a-19eaa21ebf56",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004072,
+      "reservedUsd": 0.3417525
+    },
+    {
+      "id": "760ff9f6-32c6-459f-959b-7e27929c3c10",
+      "model": "gpt-6.1-sol",
+      "usd": 0.003576,
+      "reservedUsd": 0.34947
+    },
+    {
+      "id": "1d90f0ce-4544-471e-b9b6-4c8652e6a6c7",
+      "model": "gpt-6.1-sol",
+      "usd": 0.008276,
+      "reservedUsd": 0.342585
+    },
+    {
+      "id": "cf19f674-efab-478a-904e-509e92fd44be",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0164035,
+      "reservedUsd": 0.3450675
+    },
+    {
+      "id": "10b85a76-1c7f-48a2-bc34-2a4191041c6f",
+      "model": "gpt-6.1-sol",
+      "usd": 0.006811,
+      "reservedUsd": 0.352685
+    },
+    {
+      "id": "17699577-6124-4451-8587-3eb1d80e1d24",
+      "model": "gpt-6.1-sol",
+      "usd": 0.008436,
+      "reservedUsd": 0.343385
+    },
+    {
+      "id": "9f2a44bc-e55a-46dc-adcc-2573ca52b045",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004766,
+      "reservedUsd": 0.3555625
+    },
+    {
+      "id": "88aabf66-c772-45e5-965b-28a0f8cd7f87",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0191185,
+      "reservedUsd": 0.34647
+    },
+    {
+      "id": "8b1461f4-f44a-4f53-8fef-59360f76a048",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0390685,
+      "reservedUsd": 0.3459
+    },
+    {
+      "id": "63eeb153-1352-421e-8993-8418af46f3a2",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0265135,
+      "reservedUsd": 0.3473025
+    },
+    {
+      "id": "a246416b-8eda-4289-b5a0-3e6c0ae31b11",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0261135,
+      "reservedUsd": 0.3480675
+    },
+    {
+      "id": "5792dd50-117d-43de-b81d-97bb76e1d265",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0391385,
+      "reservedUsd": 0.346665
+    },
+    {
+      "id": "4463ede6-3a0b-4053-b9e4-b72832d41f6c",
+      "model": "gpt-6.1-sol",
+      "usd": 0.008341,
+      "reservedUsd": 0.3563975
+    },
+    {
+      "id": "48516ca5-25f2-4b36-8a86-40386357be5f",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0040785,
+      "reservedUsd": 0.3548675
+    },
+    {
+      "id": "2c3aafff-a2e0-4c34-88a7-54122c502bf9",
+      "model": "gpt-6.1-sol",
+      "usd": 0.008701,
+      "reservedUsd": 0.35564
+    },
+    {
+      "id": "57b8449b-3531-4294-9fab-e4d5f0360140",
+      "model": "gpt-6.1-sol",
+      "usd": 0.00307,
+      "reservedUsd": 0.340125
+    },
+    {
+      "id": "1f648663-42a7-4453-b56d-c3aa4d750032",
+      "model": "gpt-6.1-sol",
+      "usd": 0.016836,
+      "reservedUsd": 0.35268
+    },
+    {
+      "id": "58d74117-b931-414d-9a90-537066097670",
+      "model": "gpt-6.1-sol",
+      "usd": 0.016004,
+      "reservedUsd": 0.3409575
+    },
+    {
+      "id": "027fead6-55f3-4ea5-a4c2-55d5d4ff3dbc",
+      "model": "gpt-6.1-sol",
+      "usd": 0.024041,
+      "reservedUsd": 0.3535125
+    },
+    {
+      "id": "61563159-d14b-4c60-bb76-c65a4df3d394",
+      "model": "gpt-6.1-sol",
+      "usd": 0.012134,
+      "reservedUsd": 0.3418075
+    },
+    {
+      "id": "3288f3d3-c972-4547-b988-413163a5d073",
+      "model": "gpt-6.1-sol",
+      "usd": 0.00274,
+      "reservedUsd": 0.348115
+    },
+    {
+      "id": "beca52fe-eb24-4d97-93ec-f4200231da15",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0160185,
+      "reservedUsd": 0.3635725
+    },
+    {
+      "id": "221e69fe-563a-4f70-8499-442b76d2549c",
+      "model": "gpt-6.1-sol",
+      "usd": 0.003792,
+      "reservedUsd": 0.33933
+    },
+    {
+      "id": "96baf5e1-526a-43e1-8dd3-98ffbbb2f9ae",
+      "model": "gpt-6.1-sol",
+      "usd": 0.006556,
+      "reservedUsd": 0.3401625
+    },
+    {
+      "id": "0814a915-e0d0-4d1f-baa1-99ca70e53f00",
+      "model": "gpt-6.1-sol",
+      "usd": 0.024291,
+      "reservedUsd": 0.3542925
+    },
+    {
+      "id": "48eefb21-8700-4753-93a4-61489bffad88",
+      "model": "gpt-6.1-sol",
+      "usd": 0.007681,
+      "reservedUsd": 0.3502575
+    },
+    {
+      "id": "dfc05477-5853-4389-ae28-3a53d34f65b5",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0093985,
+      "reservedUsd": 0.36444
+    },
+    {
+      "id": "448021b2-5a5c-47f9-bbbc-02b09c4f8291",
+      "model": "gpt-6.1-sol",
+      "usd": 0.008534,
+      "reservedUsd": 0.340955
+    },
+    {
+      "id": "93a6d072-000b-443f-bf38-401c439c2241",
+      "model": "gpt-6.1-sol",
+      "usd": 0.003908,
+      "reservedUsd": 0.3413625
+    },
+    {
+      "id": "ab100ec1-7fe1-4b8c-a868-47c5722864bc",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0038985,
+      "reservedUsd": 0.3483275
+    },
+    {
+      "id": "0f21d7f1-2bc3-44e5-a43d-2fadeb47ca5a",
+      "model": "gpt-6.1-sol",
+      "usd": 0.002532,
+      "reservedUsd": 0.3397925
+    },
+    {
+      "id": "76bcc5dd-6905-4845-975a-d3da74c5392c",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004362,
+      "reservedUsd": 0.342195
+    },
+    {
+      "id": "7af512cc-55fc-47d6-93f5-0ba0df8985c5",
+      "model": "gpt-6.1-sol",
+      "usd": 0.005742,
+      "reservedUsd": 0.34296
+    },
+    {
+      "id": "1f02b3ea-8f30-4549-b41e-dc46106a7b17",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0043685,
+      "reservedUsd": 0.34911
+    },
+    {
+      "id": "0d76ff06-affa-43ab-b57f-cc117806cf19",
+      "model": "gpt-6.1-sol",
+      "usd": 0.010096,
+      "reservedUsd": 0.340625
+    },
+    {
+      "id": "561486c3-7414-444b-94d2-5ab16b7b174a",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0088935,
+      "reservedUsd": 0.34944
+    },
+    {
+      "id": "1fb15d0f-e9df-41b0-983e-afe06a76067a",
+      "model": "gpt-6.1-sol",
+      "usd": 0.009896,
+      "reservedUsd": 0.341395
+    },
+    {
+      "id": "04a8f3c2-55f5-4d6b-bc56-2650d61b9a9e",
+      "model": "gpt-6.1-sol",
+      "usd": 0.003198,
+      "reservedUsd": 0.3473825
+    },
+    {
+      "id": "370f0956-25c9-4290-8bf4-14c00db0a34d",
+      "model": "gpt-6.1-sol",
+      "usd": 0.006992,
+      "reservedUsd": 0.3397725
+    },
+    {
+      "id": "820139ed-67c7-4705-8696-c7cafadb4151",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0240585,
+      "reservedUsd": 0.3502725
+    },
+    {
+      "id": "4984eaf4-1368-4e31-a143-87023c3ca878",
+      "model": "gpt-6.1-sol",
+      "usd": 0.014736,
+      "reservedUsd": 0.340605
+    },
+    {
+      "id": "98574728-c6b5-4f61-94a1-3b545cf31084",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0201985,
+      "reservedUsd": 0.3510375
+    },
+    {
+      "id": "f2365793-9672-4b50-adcf-5c62fb239a91",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0061785,
+      "reservedUsd": 0.3567175
+    },
+    {
+      "id": "6c76b4f2-f912-4bed-ba6c-d19297da2a42",
+      "model": "gpt-6.1-sol",
+      "usd": 0.001742,
+      "reservedUsd": 0.3460075
+    },
+    {
+      "id": "f85c33d6-9890-45b9-abbf-2415da971865",
+      "model": "gpt-6.1-sol",
+      "usd": 0.002474,
+      "reservedUsd": 0.341945
+    },
+    {
+      "id": "21a3bea1-fb08-4212-a5b7-ed3e412acd13",
+      "model": "gpt-6.1-sol",
+      "usd": 0.009968,
+      "reservedUsd": 0.3427775
+    },
+    {
+      "id": "1184c21e-e198-4551-8978-0f98214b9a45",
+      "model": "gpt-6.1-sol",
+      "usd": 0.01527,
+      "reservedUsd": 0.341745
+    },
+    {
+      "id": "dcfb4103-9758-4ac0-bcd6-1046fa218b18",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0049385,
+      "reservedUsd": 0.3523525
+    },
+    {
+      "id": "a7402bd6-5db9-4971-af62-727785130492",
+      "model": "gpt-6.1-sol",
+      "usd": 0.00314,
+      "reservedUsd": 0.346345
+    },
+    {
+      "id": "414c1f30-a989-4669-8d2e-6fcbc14f65d3",
+      "model": "gpt-6.1-sol",
+      "usd": 0.01131,
+      "reservedUsd": 0.343555
+    },
+    {
+      "id": "6adb8322-e041-4617-8e5a-77f4dcfa92a0",
+      "model": "gpt-6.1-sol",
+      "usd": 0.00308,
+      "reservedUsd": 0.34832
+    },
+    {
+      "id": "e6d34724-bbd8-4dea-a51d-d65b456181c1",
+      "model": "gpt-6.1-sol",
+      "usd": 0.010094,
+      "reservedUsd": 0.3471775
+    },
+    {
+      "id": "226eed90-256b-4ec7-a86e-ffb66f83a7b5",
+      "model": "gpt-6.1-sol",
+      "usd": 0.00571,
+      "reservedUsd": 0.3391975
+    },
+    {
+      "id": "8b98e7b1-28de-46de-8049-5d324ae67e37",
+      "model": "gpt-6.1-sol",
+      "usd": 0.008646,
+      "reservedUsd": 0.3479625
+    },
+    {
+      "id": "fe6266b3-38b6-43d1-8327-f30af5054225",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0046485,
+      "reservedUsd": 0.35361
+    },
+    {
+      "id": "22aa11c2-13ee-47ee-9f95-b119acd71a5f",
+      "model": "gpt-6.1-sol",
+      "usd": 0.00208,
+      "reservedUsd": 0.3480675
+    },
+    {
+      "id": "0bf94b96-d537-4df9-b451-634effbb229d",
+      "model": "gpt-6.1-sol",
+      "usd": 0.017374,
+      "reservedUsd": 0.34003
+    },
+    {
+      "id": "79756125-0857-4203-b6d2-77d4ccb44f5b",
+      "model": "gpt-6.1-sol",
+      "usd": 0.013442,
+      "reservedUsd": 0.345895
+    },
+    {
+      "id": "2589d0b5-0639-4fe8-8cd0-67118a0d964f",
+      "model": "gpt-6.1-sol",
+      "usd": 0.016644,
+      "reservedUsd": 0.3408
+    },
+    {
+      "id": "3b407df7-6023-4699-9dbd-f26ae0c5c112",
+      "model": "gpt-6.1-sol",
+      "usd": 0.017426,
+      "reservedUsd": 0.3467275
+    },
+    {
+      "id": "22f0586c-f416-4a93-825b-6974b0399429",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0040985,
+      "reservedUsd": 0.349035
+    },
+    {
+      "id": "f6873c71-18e3-4656-9e8c-dd810bd91448",
+      "model": "gpt-6.1-sol",
+      "usd": 0.00305,
+      "reservedUsd": 0.3438375
+    },
+    {
+      "id": "823baea3-80b3-4fe7-b7ac-a9d8e950ea4b",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0151635,
+      "reservedUsd": 0.3567725
+    },
+    {
+      "id": "78784911-d98d-4fe8-9f13-cad0c34b4397",
+      "model": "gpt-6.1-sol",
+      "usd": 0.011724,
+      "reservedUsd": 0.34467
+    },
+    {
+      "id": "3f76e1d7-c52a-47c8-b3a4-e5a8f7e50052",
+      "model": "gpt-6.1-sol",
+      "usd": 0.009704,
+      "reservedUsd": 0.34545
+    },
+    {
+      "id": "9ba6fdcb-becc-4f25-a543-8d1f1f62329b",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0046385,
+      "reservedUsd": 0.3516975
+    },
+    {
+      "id": "6868e6fc-1557-4389-8a0d-67978aea89de",
+      "model": "gpt-6.1-sol",
+      "usd": 0.002922,
+      "reservedUsd": 0.341645
+    },
+    {
+      "id": "619e615f-c09a-4c20-aa54-0e6e2bf369e0",
+      "model": "gpt-6.1-sol",
+      "usd": 0.021836,
+      "reservedUsd": 0.3474925
+    },
+    {
+      "id": "f3ed8f81-154b-48f0-8d6e-786763c0b224",
+      "model": "gpt-6.1-sol",
+      "usd": 0.006766,
+      "reservedUsd": 0.3594875
+    },
+    {
+      "id": "90146407-7f21-47bd-a441-d0ed20618bee",
+      "model": "gpt-6.1-sol",
+      "usd": 0.003686,
+      "reservedUsd": 0.3524475
+    },
+    {
+      "id": "e77f3f58-0215-418a-8780-aba84e51265e",
+      "model": "gpt-6.1-sol",
+      "usd": 0.00295,
+      "reservedUsd": 0.3427825
+    },
+    {
+      "id": "15e5b59d-cbe4-43b4-8b92-02463a5bf831",
+      "model": "gpt-6.1-sol",
+      "usd": 0.011386,
+      "reservedUsd": 0.3424775
+    },
+    {
+      "id": "8d9ca201-5365-4e25-a03c-5cfb052d9ec1",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0054085,
+      "reservedUsd": 0.35286
+    },
+    {
+      "id": "6a2c2e5f-8045-425f-931b-200522445003",
+      "model": "gpt-6.1-sol",
+      "usd": 0.011524,
+      "reservedUsd": 0.343615
+    },
+    {
+      "id": "322077eb-0a6e-4ae0-9ab4-49dfe40fbba9",
+      "model": "gpt-6.1-sol",
+      "usd": 0.011996,
+      "reservedUsd": 0.34358
+    },
+    {
+      "id": "1db6c692-d525-49f5-863b-70810b37fcf6",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0043135,
+      "reservedUsd": 0.3525975
+    },
+    {
+      "id": "cf44406c-7172-4c9c-9cb8-6b5841f59758",
+      "model": "gpt-6.1-sol",
+      "usd": 0.010174,
+      "reservedUsd": 0.344395
+    },
+    {
+      "id": "17ba66fc-de60-4f8f-9872-c891bf1a0483",
+      "model": "gpt-6.1-sol",
+      "usd": 0.003496,
+      "reservedUsd": 0.34938
+    },
+    {
+      "id": "ccc7e1fb-8bda-489a-8110-f8e8f65311d5",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0058,
+      "reservedUsd": 0.339575
+    },
+    {
+      "id": "5fd25d8d-f025-4359-b0ad-71cf23d001a3",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004041,
+      "reservedUsd": 0.3541
+    },
+    {
+      "id": "49a881fc-9225-4037-8a50-6b9afb9342bf",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004048,
+      "reservedUsd": 0.344435
+    },
+    {
+      "id": "ebecc24c-98a3-4f5d-8404-2595c6a49909",
+      "model": "gpt-6.1-sol",
+      "usd": 0.009214,
+      "reservedUsd": 0.3404075
+    },
+    {
+      "id": "8d72a977-4681-4d27-9e59-7d5ab897c9bc",
+      "model": "gpt-6.1-sol",
+      "usd": 0.007761,
+      "reservedUsd": 0.3505525
+    },
+    {
+      "id": "31c9a1ca-3f29-4722-95df-79c097a4423f",
+      "model": "gpt-6.1-sol",
+      "usd": 0.016352,
+      "reservedUsd": 0.3452675
+    },
+    {
+      "id": "394467a2-c1f5-4f5b-b652-7c9b54ce207e",
+      "model": "gpt-6.1-sol",
+      "usd": 0.012264,
+      "reservedUsd": 0.3411725
+    },
+    {
+      "id": "b70822b0-7b64-4a11-885d-99e4bdb35de9",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0046435,
+      "reservedUsd": 0.3500925
+    },
+    {
+      "id": "6c6e03d7-49c4-487f-802d-7adcac1c8d9f",
+      "model": "gpt-6.1-sol",
+      "usd": 0.014952,
+      "reservedUsd": 0.3460475
+    },
+    {
+      "id": "e6d6cd8a-b899-4e96-adc7-2a4935479c6c",
+      "model": "gpt-6.1-sol",
+      "usd": 0.001296,
+      "reservedUsd": 0.3436375
+    },
+    {
+      "id": "d5eda3ee-e67e-495b-9e97-55b961507d9e",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0047035,
+      "reservedUsd": 0.351555
+    },
+    {
+      "id": "0a6934bd-838a-4762-a9ca-41dc7e911ffd",
+      "model": "gpt-6.1-sol",
+      "usd": 0.003728,
+      "reservedUsd": 0.33998
+    },
+    {
+      "id": "ca81ee10-c84a-46d7-9998-ddb7e5c51b9b",
+      "model": "gpt-6.1-sol",
+      "usd": 0.00197,
+      "reservedUsd": 0.3410775
+    },
+    {
+      "id": "8cf2b492-e445-40be-93a5-7f2f3364c317",
+      "model": "gpt-6.1-sol",
+      "usd": 0.007642,
+      "reservedUsd": 0.3408125
+    },
+    {
+      "id": "55d8590a-7ec2-432f-93a4-e6a10c0fa98b",
+      "model": "gpt-6.1-sol",
+      "usd": 0.008904,
+      "reservedUsd": 0.34191
+    },
+    {
+      "id": "19bc8172-99a3-4131-9a75-9c99a2ee4cbd",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004031,
+      "reservedUsd": 0.35217
+    },
+    {
+      "id": "065e7ea0-d738-40ca-92d8-fe303cf90074",
+      "model": "gpt-6.1-sol",
+      "usd": 0.009051,
+      "reservedUsd": 0.35093
+    },
+    {
+      "id": "aecdd1d2-a30a-404d-a069-f69797b9d03d",
+      "model": "gpt-6.1-sol",
+      "usd": 0.007584,
+      "reservedUsd": 0.342885
+    },
+    {
+      "id": "e098fe3c-851b-46d1-9343-d522bbffd4b6",
+      "model": "gpt-6.1-sol",
+      "usd": 0.002898,
+      "reservedUsd": 0.3501325
+    },
+    {
+      "id": "03acd125-a8d6-4320-a0d4-b02697aa2080",
+      "model": "gpt-6.1-sol",
+      "usd": 0.007092,
+      "reservedUsd": 0.34165
+    },
+    {
+      "id": "737bba65-a34d-4b9a-b086-352b82c546c9",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0049585,
+      "reservedUsd": 0.34984
+    },
+    {
+      "id": "ac2e30b5-b2d9-4822-a72d-4d9b713333a1",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004656,
+      "reservedUsd": 0.3399325
+    },
+    {
+      "id": "68ed18a7-9424-4c35-83ce-213c244dae74",
+      "model": "gpt-6.1-sol",
+      "usd": 0.00402,
+      "reservedUsd": 0.34134
+    },
+    {
+      "id": "d65e7210-b467-44e0-a7d8-6ef6f957640d",
+      "model": "gpt-6.1-sol",
+      "usd": 0.00698,
+      "reservedUsd": 0.340765
+    },
+    {
+      "id": "0260ee70-abc8-4649-98b0-08447806c173",
+      "model": "gpt-6.1-sol",
+      "usd": 0.00472,
+      "reservedUsd": 0.341535
+    },
+    {
+      "id": "1ba7fd84-c75c-4802-8d7f-3fe039b4f233",
+      "model": "gpt-6.1-sol",
+      "usd": 0.009134,
+      "reservedUsd": 0.3421725
+    },
+    {
+      "id": "6d7ba728-8a4d-4702-b732-50a9d81be892",
+      "model": "gpt-6.1-sol",
+      "usd": 0.003396,
+      "reservedUsd": 0.3461575
+    },
+    {
+      "id": "30363e48-7ae0-46df-bfe7-8abf27ca4ae3",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004681,
+      "reservedUsd": 0.3594575
+    },
+    {
+      "id": "4721c826-c82e-4a4c-af0f-3abc69796c1c",
+      "model": "gpt-6.1-sol",
+      "usd": 0.010414,
+      "reservedUsd": 0.34368
+    },
+    {
+      "id": "4e73e771-85fc-49c0-9731-667ec3f80a88",
+      "model": "gpt-6.1-sol",
+      "usd": 0.005181,
+      "reservedUsd": 0.3511375
+    },
+    {
+      "id": "bee42da6-19d7-4f30-b229-3ea3c7522762",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0136085,
+      "reservedUsd": 0.3497925
+    },
+    {
+      "id": "b91664a2-e0bc-47ce-8677-fe1da50c55a8",
+      "model": "gpt-6.1-sol",
+      "usd": 0.005062,
+      "reservedUsd": 0.33958
+    },
+    {
+      "id": "608338dd-9f5b-4399-91de-ee5a438cacc1",
+      "model": "gpt-6.1-sol",
+      "usd": 0.006286,
+      "reservedUsd": 0.3404125
+    },
+    {
+      "id": "88cec3d9-e8e5-4fb2-899f-fa1a188d6df9",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0071435,
+      "reservedUsd": 0.350595
+    },
+    {
+      "id": "e0b40b74-5e59-4ee0-a2e1-39cba1faeb18",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0202535,
+      "reservedUsd": 0.350625
+    },
+    {
+      "id": "342535b3-3ecb-4577-b67c-4a719d03c0fd",
+      "model": "gpt-6.1-sol",
+      "usd": 0.006148,
+      "reservedUsd": 0.34129
+    },
+    {
+      "id": "6b6445f1-4dc6-493c-9c99-f1d9f3e798aa",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004141,
+      "reservedUsd": 0.347835
+    },
+    {
+      "id": "d8249b9e-be4e-4a8b-970e-bb5fcf32a825",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0185185,
+      "reservedUsd": 0.3899225
+    },
+    {
+      "id": "116a8842-f0f7-4499-84a1-95ce78f15b82",
+      "model": "gpt-6.1-sol",
+      "usd": 0.002266,
+      "reservedUsd": 0.3413075
+    },
+    {
+      "id": "44e0745e-8569-41be-9984-c59767470782",
+      "model": "gpt-6.1-sol",
+      "usd": 0.00236,
+      "reservedUsd": 0.34214
+    },
+    {
+      "id": "f42c4f0a-615e-42fa-9360-36a473f21af2",
+      "model": "gpt-6.1-sol",
+      "usd": 0.006011,
+      "reservedUsd": 0.3523725
+    },
+    {
+      "id": "c49a925e-ef74-4833-9a88-6accc3624dc5",
+      "model": "gpt-6.1-sol",
+      "usd": 0.024191,
+      "reservedUsd": 0.3806425
+    },
+    {
+      "id": "2e1de57e-e7d1-4205-8b7b-1de41d6c5277",
+      "model": "gpt-6.1-sol",
+      "usd": 0.013661,
+      "reservedUsd": 0.3909025
+    },
+    {
+      "id": "34174193-b422-450e-b00c-0c164c120455",
+      "model": "gpt-6.1-sol",
+      "usd": 0.002508,
+      "reservedUsd": 0.342945
+    },
+    {
+      "id": "adcb44a5-1882-44b1-82d8-edbbd3c0cc81",
+      "model": "gpt-6.1-sol",
+      "usd": 0.00946,
+      "reservedUsd": 0.3430825
+    },
+    {
+      "id": "08c4440a-f3b0-45d1-a1e7-0d08be194a8c",
+      "model": "gpt-6.1-sol",
+      "usd": 0.003706,
+      "reservedUsd": 0.3514225
+    },
+    {
+      "id": "68f6f847-8c04-4fc7-bd1e-0abb5671dadd",
+      "model": "gpt-6.1-sol",
+      "usd": 0.011362,
+      "reservedUsd": 0.3437775
+    },
+    {
+      "id": "b94cc3a3-da1d-4f6a-b35d-722ad2111a9b",
+      "model": "gpt-6.1-sol",
+      "usd": 0.009336,
+      "reservedUsd": 0.3396875
+    },
+    {
+      "id": "fe9b7779-dcde-4c8f-8b15-392299118f4d",
+      "model": "gpt-6.1-sol",
+      "usd": 0.012532,
+      "reservedUsd": 0.344555
+    },
+    {
+      "id": "cb2f3777-cf12-433e-b897-7413fd60d7b8",
+      "model": "gpt-6.1-sol",
+      "usd": 0.003496,
+      "reservedUsd": 0.3493575
+    },
+    {
+      "id": "c6729f83-90e0-484a-9354-abdcc6b10d06",
+      "model": "gpt-6.1-sol",
+      "usd": 0.001522,
+      "reservedUsd": 0.3437925
+    },
+    {
+      "id": "8b8e2509-2b14-4169-a529-9e6c6d36c913",
+      "model": "gpt-6.1-sol",
+      "usd": 0.00547,
+      "reservedUsd": 0.34052
+    },
+    {
+      "id": "3d277c40-2fc6-4688-9aa6-6a9e4ee35ee3",
+      "model": "gpt-6.1-sol",
+      "usd": 0.001892,
+      "reservedUsd": 0.33958
+    },
+    {
+      "id": "487a5b91-ab99-4f9a-b542-0a28d92286f5",
+      "model": "gpt-6.1-sol",
+      "usd": 0.007236,
+      "reservedUsd": 0.3404125
+    },
+    {
+      "id": "3b60ce32-057e-40f9-9b17-3b2dbd383d88",
+      "model": "gpt-6.1-sol",
+      "usd": 0.011016,
+      "reservedUsd": 0.350585
+    },
+    {
+      "id": "3cf1f873-659e-49ea-81ee-ad82587d1ca5",
+      "model": "gpt-6.1-sol",
+      "usd": 0.00926,
+      "reservedUsd": 0.3412
+    },
+    {
+      "id": "0fb7de59-df9b-4122-9fe0-6cf993917ea1",
+      "model": "gpt-6.1-sol",
+      "usd": 0.00228,
+      "reservedUsd": 0.3451275
+    },
+    {
+      "id": "c6a4e3d6-a412-4d4c-bb48-281d4d40fbc5",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0047085,
+      "reservedUsd": 0.3539275
+    },
+    {
+      "id": "fab63ad3-5a73-484a-a09c-266550ec270a",
+      "model": "gpt-6.1-sol",
+      "usd": 0.013476,
+      "reservedUsd": 0.341305
+    },
+    {
+      "id": "15d827c3-5a8c-4546-8f2c-e9fa1b4e5377",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0048485,
+      "reservedUsd": 0.35047
+    },
+    {
+      "id": "6b25de3e-58d1-4975-999f-327fc8503fb4",
+      "model": "gpt-6.1-sol",
+      "usd": 0.00381,
+      "reservedUsd": 0.341085
+    },
+    {
+      "id": "eb6b5e13-3b09-48b0-90c5-cafb2d1a2757",
+      "model": "gpt-6.1-sol",
+      "usd": 0.007194,
+      "reservedUsd": 0.3419175
+    },
+    {
+      "id": "35341fa1-5ba6-4aec-b5dc-b5b77543731d",
+      "model": "gpt-6.1-sol",
+      "usd": 0.020286,
+      "reservedUsd": 0.3442625
+    },
+    {
+      "id": "a7a23a7f-4e1e-4b3e-a146-3b4ba486aa36",
+      "model": "gpt-6.1-sol",
+      "usd": 0.005941,
+      "reservedUsd": 0.3522775
+    },
+    {
+      "id": "11dd3e5e-fcea-4d8e-a94a-21badb4158ec",
+      "model": "gpt-6.1-sol",
+      "usd": 0.006298,
+      "reservedUsd": 0.342705
+    },
+    {
+      "id": "f19a8700-dc22-496d-8ff6-d0d35ee677b3",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0037985,
+      "reservedUsd": 0.3505725
+    },
+    {
+      "id": "7cf1c28c-4b81-464f-897b-8d3fe74de717",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0223235,
+      "reservedUsd": 0.345095
+    },
+    {
+      "id": "c65d04e2-d78f-475d-a641-9d7736ebf0a3",
+      "model": "gpt-6.1-sol",
+      "usd": 0.003871,
+      "reservedUsd": 0.3538225
+    },
+    {
+      "id": "0fe2626a-01cb-430a-82b8-1211cc386217",
+      "model": "gpt-6.1-sol",
+      "usd": 0.024711,
+      "reservedUsd": 0.3573925
+    },
+    {
+      "id": "d78c0edf-c99f-4f35-992a-dd955c1db227",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0162085,
+      "reservedUsd": 0.351635
+    },
+    {
+      "id": "e5513d95-0518-4504-8a56-56044867dfe9",
+      "model": "gpt-6.1-sol",
+      "usd": 0.008456,
+      "reservedUsd": 0.3649
+    },
+    {
+      "id": "e9426973-a420-4ec0-8067-fc47abaf98f7",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0060735,
+      "reservedUsd": 0.35211
+    },
+    {
+      "id": "991cf998-3d5d-4e7c-a7e1-ce2428c064b3",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0208235,
+      "reservedUsd": 0.3524675
+    },
+    {
+      "id": "38b3e143-1478-4f53-8392-974cc8d070f7",
+      "model": "gpt-6.1-sol",
+      "usd": 0.01054,
+      "reservedUsd": 0.342805
+    },
+    {
+      "id": "0f8b34c2-fbec-44db-81e8-941c6b465d13",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0044485,
+      "reservedUsd": 0.35355
+    },
+    {
+      "id": "cfb62c8d-4509-4900-af47-63fa8e48799c",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0153485,
+      "reservedUsd": 0.3625275
+    },
+    {
+      "id": "760a1db1-a299-4ff7-a406-7f0167cfadee",
+      "model": "gpt-6.1-sol",
+      "usd": 0.003172,
+      "reservedUsd": 0.344865
+    },
+    {
+      "id": "02f1645b-5b74-4657-a66c-f3b2e41e43cc",
+      "model": "gpt-6.1-sol",
+      "usd": 0.011166,
+      "reservedUsd": 0.3456975
+    },
+    {
+      "id": "ef3471ba-9fdb-4667-8e67-fc53971e0c77",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0211235,
+      "reservedUsd": 0.3532475
+    },
+    {
+      "id": "cfdae8b7-348b-4e17-817a-0529610fc49a",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0096835,
+      "reservedUsd": 0.3637725
+    },
+    {
+      "id": "0e22ce1c-0983-4b4a-9ab7-1dea7a532b13",
+      "model": "gpt-6.1-sol",
+      "usd": 0.01453,
+      "reservedUsd": 0.3464825
+    },
+    {
+      "id": "96a66519-4abd-430a-ac83-e7da7e8f29a4",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0043085,
+      "reservedUsd": 0.3513825
+    },
+    {
+      "id": "efd579e6-566a-4e93-b0a4-7cd371eb55bf",
+      "model": "gpt-6.1-sol",
+      "usd": 0.00166,
+      "reservedUsd": 0.339585
+    },
+    {
+      "id": "2fdea8c3-900b-4dea-a980-51a9015bbc6a",
+      "model": "gpt-6.1-sol",
+      "usd": 0.010891,
+      "reservedUsd": 0.3493625
+    },
+    {
+      "id": "7a22f7e3-ee73-468b-af33-d6ca6dfd5038",
+      "model": "gpt-6.1-sol",
+      "usd": 0.007054,
+      "reservedUsd": 0.3404175
+    },
+    {
+      "id": "36080faa-de0f-4d14-9020-fd7737fe25df",
+      "model": "gpt-6.1-sol",
+      "usd": 0.006084,
+      "reservedUsd": 0.3411825
+    },
+    {
+      "id": "72687812-0f1b-421d-9c9a-21fd20524764",
+      "model": "gpt-6.1-sol",
+      "usd": 0.00218,
+      "reservedUsd": 0.3452375
+    },
+    {
+      "id": "608f5933-49a2-44fd-a492-76455144c3e4",
+      "model": "gpt-6.1-sol",
+      "usd": 0.022546,
+      "reservedUsd": 0.350195
+    },
+    {
+      "id": "758b13a7-6f3d-4a6e-a6a5-3f155a085151",
+      "model": "gpt-6.1-sol",
+      "usd": 0.00617,
+      "reservedUsd": 0.340035
+    },
+    {
+      "id": "47c229d2-3d35-40a0-b211-a8f5cc08dc13",
+      "model": "gpt-6.1-sol",
+      "usd": 0.018946,
+      "reservedUsd": 0.35096
+    },
+    {
+      "id": "6880cc60-21ee-4dfd-b8be-8eb7265f9f88",
+      "model": "gpt-6.1-sol",
+      "usd": 0.021634,
+      "reservedUsd": 0.3408675
+    },
+    {
+      "id": "a5bde646-910d-430f-9aa0-f216af289982",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0071435,
+      "reservedUsd": 0.36013
+    },
+    {
+      "id": "a19539bf-1c20-4ae2-8429-2a6111cdb9a6",
+      "model": "gpt-6.1-sol",
+      "usd": 0.00247,
+      "reservedUsd": 0.34138
+    },
+    {
+      "id": "b3f833c2-8967-4eb0-b64a-648a70c5fa56",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004524,
+      "reservedUsd": 0.3422125
+    },
+    {
+      "id": "14156530-d833-4228-b2a8-c749502c717d",
+      "model": "gpt-6.1-sol",
+      "usd": 0.005636,
+      "reservedUsd": 0.3522675
+    },
+    {
+      "id": "d4164380-88f0-45c5-b20a-8143357a621d",
+      "model": "gpt-6.1-sol",
+      "usd": 0.020964,
+      "reservedUsd": 0.341665
+    },
+    {
+      "id": "e8d0ea3e-c4fa-4b46-987a-d17c0a303220",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0043185,
+      "reservedUsd": 0.3491625
+    },
+    {
+      "id": "d16ef68e-16a4-49f9-812e-3060c0f6accd",
+      "model": "gpt-6.1-sol",
+      "usd": 0.007546,
+      "reservedUsd": 0.3429875
+    },
+    {
+      "id": "e24345fd-1c7d-4db4-a357-31530bdaba52",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0038335,
+      "reservedUsd": 0.3508975
+    },
+    {
+      "id": "c12b5ff0-b6eb-4bd1-b06b-e49c2b6fe489",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004108,
+      "reservedUsd": 0.339385
+    },
+    {
+      "id": "62c8f136-2c00-4e59-bcc3-99e79cf31abb",
+      "model": "gpt-6.1-sol",
+      "usd": 0.001932,
+      "reservedUsd": 0.3465225
+    },
+    {
+      "id": "c7d4f817-50f9-400a-ba04-3ebda4ab2832",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004336,
+      "reservedUsd": 0.3400725
+    },
+    {
+      "id": "7201a49d-6bbb-4534-b291-fd05bfd8b449",
+      "model": "gpt-6.1-sol",
+      "usd": 0.010352,
+      "reservedUsd": 0.3402175
+    },
+    {
+      "id": "ed0c388e-11e5-43ef-82e8-491d57af9c98",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0067,
+      "reservedUsd": 0.340905
+    },
+    {
+      "id": "82870ae4-0a48-4a29-90d4-de9043b86985",
+      "model": "gpt-6.1-sol",
+      "usd": 0.005742,
+      "reservedUsd": 0.34099
+    },
+    {
+      "id": "f2f0b5f5-5be8-4aa4-9fcf-8fb730da7a38",
+      "model": "gpt-6.1-sol",
+      "usd": 0.005541,
+      "reservedUsd": 0.3510225
+    },
+    {
+      "id": "54d6763d-fcb8-47cb-b718-1785c31cba89",
+      "model": "gpt-6.1-sol",
+      "usd": 0.003352,
+      "reservedUsd": 0.3470525
+    },
+    {
+      "id": "58bd10bf-886f-4922-a502-6074d2973fb4",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004231,
+      "reservedUsd": 0.3545875
+    },
+    {
+      "id": "38bceaca-ae40-4597-8eaa-7ca798f817ad",
+      "model": "gpt-6.1-sol",
+      "usd": 0.00636,
+      "reservedUsd": 0.3416725
+    },
+    {
+      "id": "61ff4a92-10b1-4e32-baa9-1b205d33d281",
+      "model": "gpt-6.1-sol",
+      "usd": 0.003314,
+      "reservedUsd": 0.348305
+    },
+    {
+      "id": "f4f9f983-9cb2-40a1-8a22-c1bd77dd56e7",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0086885,
+      "reservedUsd": 0.352415
+    },
+    {
+      "id": "f2a5701b-243c-4d5f-96e1-01229f3c46a3",
+      "model": "gpt-6.1-sol",
+      "usd": 0.006034,
+      "reservedUsd": 0.340125
+    },
+    {
+      "id": "f2f5fdb3-871e-403c-a3ba-fdcdc1d7b114",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0189735,
+      "reservedUsd": 0.3532475
+    },
+    {
+      "id": "980fe943-c2d0-4c1e-9273-7646c9691a7d",
+      "model": "gpt-6.1-sol",
+      "usd": 0.009348,
+      "reservedUsd": 0.3409575
+    },
+    {
+      "id": "8d54e9c6-b31f-4c91-91e1-22f75f27f4d6",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0065735,
+      "reservedUsd": 0.351225
+    },
+    {
+      "id": "d461a372-5db3-465f-88f4-1a735b245535",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0147135,
+      "reservedUsd": 0.3632925
+    },
+    {
+      "id": "cea5d3d3-9015-4be9-a6cf-53ce7211a042",
+      "model": "gpt-6.1-sol",
+      "usd": 0.010752,
+      "reservedUsd": 0.34188
+    },
+    {
+      "id": "956422f4-3cfe-4db3-a27c-12e3abdb0bb7",
+      "model": "gpt-6.1-sol",
+      "usd": 0.006036,
+      "reservedUsd": 0.3520525
+    },
+    {
+      "id": "d32c2a2f-46d2-491f-9e33-3a73e72468e6",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0234535,
+      "reservedUsd": 0.3540125
+    },
+    {
+      "id": "fa4c6b6a-10dd-4c4d-92a0-5b8305c90fba",
+      "model": "gpt-6.1-sol",
+      "usd": 0.008306,
+      "reservedUsd": 0.36569
+    },
+    {
+      "id": "8c884c76-510b-4108-a29f-b86255c416f4",
+      "model": "gpt-6.1-sol",
+      "usd": 0.006828,
+      "reservedUsd": 0.3391325
+    },
+    {
+      "id": "9c30599e-0b3b-4854-a93d-035bf944b1d1",
+      "model": "gpt-6.1-sol",
+      "usd": 0.017472,
+      "reservedUsd": 0.339965
+    },
+    {
+      "id": "72f94b16-fe37-4120-88f1-9bbafdf7cdce",
+      "model": "gpt-6.1-sol",
+      "usd": 0.017882,
+      "reservedUsd": 0.340735
+    },
+    {
+      "id": "2625214e-96aa-4e51-a070-6626d725f4de",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0042285,
+      "reservedUsd": 0.348935
+    },
+    {
+      "id": "a10b947b-2d05-47a5-9833-40cd2292bb7d",
+      "model": "gpt-6.1-sol",
+      "usd": 0.046301,
+      "reservedUsd": 0.3460775
+    },
+    {
+      "id": "48dff6b6-d407-443d-b34c-aad6b57ccf17",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004042,
+      "reservedUsd": 0.3406475
+    },
+    {
+      "id": "b032e840-6bc0-4424-b15c-877d11dbeb5f",
+      "model": "gpt-6.1-sol",
+      "usd": 0.006496,
+      "reservedUsd": 0.34148
+    },
+    {
+      "id": "841b6be1-0471-4511-8514-85f077af7dce",
+      "model": "gpt-6.1-sol",
+      "usd": 0.007506,
+      "reservedUsd": 0.342245
+    },
+    {
+      "id": "cc84c9d0-2554-4a66-b62e-6708d3122357",
+      "model": "gpt-6.1-sol",
+      "usd": 0.003294,
+      "reservedUsd": 0.347465
+    },
+    {
+      "id": "e95ed11d-117e-4ddb-882d-657688c1feb7",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004968,
+      "reservedUsd": 0.3391525
+    },
+    {
+      "id": "82e0e413-b3e6-417d-9e74-c8fbfc3cb06c",
+      "model": "gpt-6.1-sol",
+      "usd": 0.010562,
+      "reservedUsd": 0.339985
+    },
+    {
+      "id": "632917a4-be06-4855-a66d-9760c85db85d",
+      "model": "gpt-6.1-sol",
+      "usd": 0.053586,
+      "reservedUsd": 0.34691
+    },
+    {
+      "id": "3e3cd0ae-0b43-41a1-87ae-39078bcb21d8",
+      "model": "gpt-6.1-sol",
+      "usd": 0.006406,
+      "reservedUsd": 0.3500325
+    },
+    {
+      "id": "88b3cca1-bbb3-42ae-a678-71d93fa1a059",
+      "model": "gpt-6.1-sol",
+      "usd": 0.007242,
+      "reservedUsd": 0.3407525
+    },
+    {
+      "id": "6f8a2b83-26d4-4400-a217-f2632fcbdfc1",
+      "model": "gpt-6.1-sol",
+      "usd": 0.003104,
+      "reservedUsd": 0.34766
+    },
+    {
+      "id": "f7ec9a16-0a47-450f-bac2-cb127d42bdce",
+      "model": "gpt-6.1-sol",
+      "usd": 0.003721,
+      "reservedUsd": 0.35067
+    },
+    {
+      "id": "0068a8db-5330-4bc3-afcc-49e95a7c9675",
+      "model": "gpt-6.1-sol",
+      "usd": 0.001926,
+      "reservedUsd": 0.341005
+    },
+    {
+      "id": "7790373f-9f23-4d2a-99df-47ca804e3ffb",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0061,
+      "reservedUsd": 0.3418375
+    },
+    {
+      "id": "24462f09-0b1d-410a-9f78-e4df5cac42d9",
+      "model": "gpt-6.1-sol",
+      "usd": 0.043986,
+      "reservedUsd": 0.347675
+    },
+    {
+      "id": "e9bbf1b6-c40e-4add-8ccc-37fddb44de7d",
+      "model": "gpt-6.1-sol",
+      "usd": 0.005514,
+      "reservedUsd": 0.3426325
+    },
+    {
+      "id": "1cc0fd0c-fdb2-4b71-96da-82a3a9eaf6dc",
+      "model": "gpt-6.1-sol",
+      "usd": 0.002878,
+      "reservedUsd": 0.347665
+    },
+    {
+      "id": "37f03bfb-8ebb-4bec-beba-a02b5b742606",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0106735,
+      "reservedUsd": 0.36031
+    },
+    {
+      "id": "42a9def1-7e2b-417d-a732-280aa1fee711",
+      "model": "gpt-6.1-sol",
+      "usd": 0.002856,
+      "reservedUsd": 0.344085
+    },
+    {
+      "id": "3a34fbc6-cdb1-4e07-9174-44a594a72471",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0082935,
+      "reservedUsd": 0.3576675
+    },
+    {
+      "id": "21a4fd0f-1936-4603-9b56-9f26f957a790",
+      "model": "gpt-6.1-sol",
+      "usd": 0.01214,
+      "reservedUsd": 0.3449175
+    },
+    {
+      "id": "27b7fd7b-ed0d-4255-8e92-988eafe0d2e1",
+      "model": "gpt-6.1-sol",
+      "usd": 0.012934,
+      "reservedUsd": 0.345745
+    },
+    {
+      "id": "ba5b0c3c-09c9-47a3-9e9b-c71f93094e4d",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0336085,
+      "reservedUsd": 0.3585
+    },
+    {
+      "id": "94f90bd0-f712-47f7-a4c9-bd7ec52f6d74",
+      "model": "gpt-6.1-sol",
+      "usd": 0.005001,
+      "reservedUsd": 0.35059
+    },
+    {
+      "id": "6905c538-ba22-4047-a746-7d23bf204764",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0106085,
+      "reservedUsd": 0.36856
+    },
+    {
+      "id": "5e4e666a-3259-4b4d-9e36-66263c269894",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0085335,
+      "reservedUsd": 0.3587975
+    },
+    {
+      "id": "ea44a774-ab6d-43ed-8de7-f741a01f3176",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0280885,
+      "reservedUsd": 0.35928
+    },
+    {
+      "id": "8e0b33c5-5b3d-425c-8896-0f7b6f626f3e",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0084385,
+      "reservedUsd": 0.36925
+    },
+    {
+      "id": "88c15be9-a368-409c-b492-c9a907f931e7",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0355185,
+      "reservedUsd": 0.35963
+    },
+    {
+      "id": "ec62c635-01f9-4715-aa6f-2cae8f60422c",
+      "model": "gpt-6.1-sol",
+      "usd": 0.010826,
+      "reservedUsd": 0.369725
+    },
+    {
+      "id": "649f360d-7707-45a6-8967-aae0a2d4952c",
+      "model": "gpt-6.1-sol",
+      "usd": 0.010352,
+      "reservedUsd": 0.3402175
+    },
+    {
+      "id": "f0ccd15e-7ad1-4b77-b03b-58adf6cd107a",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0288585,
+      "reservedUsd": 0.36041
+    },
+    {
+      "id": "ba3c256d-65b4-481d-93af-444426ecd210",
+      "model": "gpt-6.1-sol",
+      "usd": 0.011926,
+      "reservedUsd": 0.34105
+    },
+    {
+      "id": "f06b4849-a835-4595-93c2-c85552fc100b",
+      "model": "gpt-6.1-sol",
+      "usd": 0.009281,
+      "reservedUsd": 0.3714825
+    },
+    {
+      "id": "2ee546f2-1f8f-4c3e-ba0a-6f40385671bb",
+      "model": "gpt-6.1-sol",
+      "usd": 0.006681,
+      "reservedUsd": 0.35112
+    },
+    {
+      "id": "5e12fe05-bf91-4189-b009-1ebe5b3c0d12",
+      "model": "gpt-6.1-sol",
+      "usd": 0.00471,
+      "reservedUsd": 0.3408075
+    },
+    {
+      "id": "aa22e904-3fe0-4cb6-99b9-690cac1babe1",
+      "model": "gpt-6.1-sol",
+      "usd": 0.008074,
+      "reservedUsd": 0.34164
+    },
+    {
+      "id": "28964612-e095-48eb-a462-9916bc64ae8a",
+      "model": "gpt-6.1-sol",
+      "usd": 0.01103,
+      "reservedUsd": 0.34184
+    },
+    {
+      "id": "e5b1bb95-12b0-4a73-8cd5-bb5664390645",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0048335,
+      "reservedUsd": 0.3512425
+    },
+    {
+      "id": "fc9f8a56-4d85-4af9-a06d-1d1c7934e0d4",
+      "model": "gpt-6.1-sol",
+      "usd": 0.00326,
+      "reservedUsd": 0.33956
+    },
+    {
+      "id": "3ee1cb60-bf82-4a2a-9fdf-df33a1d01728",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0099485,
+      "reservedUsd": 0.351705
+    },
+    {
+      "id": "37678160-ec67-4ff3-b390-2e799bd83d63",
+      "model": "gpt-6.1-sol",
+      "usd": 0.006634,
+      "reservedUsd": 0.3403925
+    },
+    {
+      "id": "d9d06672-9b51-4be7-b74e-051e39ccef83",
+      "model": "gpt-6.1-sol",
+      "usd": 0.008344,
+      "reservedUsd": 0.34241
+    },
+    {
+      "id": "d10f1bf0-2d81-44ca-8765-dc844e37b2e1",
+      "model": "gpt-6.1-sol",
+      "usd": 0.006034,
+      "reservedUsd": 0.34116
+    },
+    {
+      "id": "d2e8057e-30ce-4e15-bd2a-a80bf4e26fed",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0037685,
+      "reservedUsd": 0.3469425
+    },
+    {
+      "id": "54179e8f-5da7-42c7-a2e2-1d5174b026bb",
+      "model": "gpt-6.1-sol",
+      "usd": 0.001282,
+      "reservedUsd": 0.342805
+    },
+    {
+      "id": "fb9d4e70-5912-4db3-9531-78027d650a1a",
+      "model": "gpt-6.1-sol",
+      "usd": 0.005826,
+      "reservedUsd": 0.351735
+    },
+    {
+      "id": "5386933d-3335-4123-a0c0-851af34bb4b6",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004102,
+      "reservedUsd": 0.33959
+    },
+    {
+      "id": "05b3debb-8a61-42bb-8717-7310a144678c",
+      "model": "gpt-6.1-sol",
+      "usd": 0.010781,
+      "reservedUsd": 0.3446575
+    },
+    {
+      "id": "5d61cdaf-fa74-442c-ac65-dfe5f14a2072",
+      "model": "gpt-6.1-sol",
+      "usd": 0.008616,
+      "reservedUsd": 0.3404225
+    },
+    {
+      "id": "e21195b4-e812-44f0-95b9-b9457bb1bbcc",
+      "model": "gpt-6.1-sol",
+      "usd": 0.018196,
+      "reservedUsd": 0.34549
+    },
+    {
+      "id": "f60d543e-fe07-4e88-9995-0398872f034b",
+      "model": "gpt-6.1-sol",
+      "usd": 0.009381,
+      "reservedUsd": 0.350505
+    },
+    {
+      "id": "add28cc3-5861-4743-ab7c-efc6c53d2fa0",
+      "model": "gpt-6.1-sol",
+      "usd": 0.010831,
+      "reservedUsd": 0.35554
+    },
+    {
+      "id": "aa606a57-1119-4b36-8239-2a8790d7fb47",
+      "model": "gpt-6.1-sol",
+      "usd": 0.00962,
+      "reservedUsd": 0.34121
+    },
+    {
+      "id": "90f2a7b3-e038-4cff-99a2-3ed9ce2408b5",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0041585,
+      "reservedUsd": 0.3493175
+    },
+    {
+      "id": "9bbee5a4-08c2-4a17-8e8d-f564776b1a87",
+      "model": "gpt-6.1-sol",
+      "usd": 0.019316,
+      "reservedUsd": 0.346255
+    },
+    {
+      "id": "7f7c0e4b-28cf-4423-94c1-62c3fabf2270",
+      "model": "gpt-6.1-sol",
+      "usd": 0.001522,
+      "reservedUsd": 0.3417725
+    },
+    {
+      "id": "fe22ef0e-d917-455c-8803-9f865b255d80",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0072385,
+      "reservedUsd": 0.35576
+    },
+    {
+      "id": "03b6fb0d-e0f9-4231-a02a-40bf9e807769",
+      "model": "gpt-6.1-sol",
+      "usd": 0.005326,
+      "reservedUsd": 0.342605
+    },
+    {
+      "id": "ee96eef3-8ac8-4a76-8c6d-bc61d0861ee0",
+      "model": "gpt-6.1-sol",
+      "usd": 0.005888,
+      "reservedUsd": 0.343385
+    },
+    {
+      "id": "4b217e42-aec2-4733-86dd-bbcbc98834e1",
+      "model": "gpt-6.1-sol",
+      "usd": 0.002582,
+      "reservedUsd": 0.3476
+    },
+    {
+      "id": "ac12ae21-f48f-4828-ac39-93418e839255",
+      "model": "gpt-6.1-sol",
+      "usd": 0.006168,
+      "reservedUsd": 0.34125
+    },
+    {
+      "id": "264168e3-6dfe-4604-89d1-45543665cf15",
+      "model": "gpt-6.1-sol",
+      "usd": 0.003651,
+      "reservedUsd": 0.3521125
+    },
+    {
+      "id": "254a1d57-65e7-4dff-85d5-b33c45625fce",
+      "model": "gpt-6.1-sol",
+      "usd": 0.008942,
+      "reservedUsd": 0.3420825
+    },
+    {
+      "id": "c873c39f-4b59-442c-90a0-4b593978a5fa",
+      "model": "gpt-6.1-sol",
+      "usd": 0.010252,
+      "reservedUsd": 0.3440425
+    },
+    {
+      "id": "c7b865bb-162f-4677-8ffb-af34c9cb0344",
+      "model": "gpt-6.1-sol",
+      "usd": 0.00332,
+      "reservedUsd": 0.3482675
+    },
+    {
+      "id": "18020d30-98e7-4037-aa0a-481d20684198",
+      "model": "gpt-6.1-sol",
+      "usd": 0.001486,
+      "reservedUsd": 0.3437225
+    },
+    {
+      "id": "73813445-20e1-4e81-9eb4-88d9a6055676",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0092,
+      "reservedUsd": 0.3431675
+    },
+    {
+      "id": "ce6ba2c6-3ae8-40b3-a2b6-91acfe13f4c9",
+      "model": "gpt-6.1-sol",
+      "usd": 0.003562,
+      "reservedUsd": 0.33959
+    },
+    {
+      "id": "301dc6a5-8a44-4e15-91a7-b0de1fa7fbb0",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004272,
+      "reservedUsd": 0.34826
+    },
+    {
+      "id": "3168deb4-5dfb-4afe-8a2b-99437ed35ddd",
+      "model": "gpt-6.1-sol",
+      "usd": 0.002722,
+      "reservedUsd": 0.3392775
+    },
+    {
+      "id": "d133b3d9-1002-45af-ae16-c309885ed273",
+      "model": "gpt-6.1-sol",
+      "usd": 0.009686,
+      "reservedUsd": 0.3404225
+    },
+    {
+      "id": "acae964a-1850-4ca0-8399-254ca31995d3",
+      "model": "gpt-6.1-sol",
+      "usd": 0.005676,
+      "reservedUsd": 0.34011
+    },
+    {
+      "id": "24db71fc-67cd-4502-acbe-ebcc4eb77dd8",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0101085,
+      "reservedUsd": 0.350535
+    },
+    {
+      "id": "342129d6-87ee-45fb-952d-f1ca8c7134d3",
+      "model": "gpt-6.1-sol",
+      "usd": 0.007816,
+      "reservedUsd": 0.34088
+    },
+    {
+      "id": "21b88121-c2b3-481b-a3c3-2a4020b53fc2",
+      "model": "gpt-6.1-sol",
+      "usd": 0.002258,
+      "reservedUsd": 0.3461475
+    },
+    {
+      "id": "e73085cf-0d4c-43ed-b886-1b8089edc39c",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004416,
+      "reservedUsd": 0.3545875
+    },
+    {
+      "id": "60cc34bf-85f9-46d7-94ed-78ba4b75ea73",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004552,
+      "reservedUsd": 0.3449225
+    },
+    {
+      "id": "fd38bd65-62bd-4607-bb79-0101329ccd75",
+      "model": "gpt-6.1-sol",
+      "usd": 0.01065,
+      "reservedUsd": 0.34121
+    },
+    {
+      "id": "56cff215-12da-48c2-923b-e7825d90aa96",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0048635,
+      "reservedUsd": 0.3491575
+    },
+    {
+      "id": "12511491-f92c-4507-a5c0-985e249d1946",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0015,
+      "reservedUsd": 0.3393925
+    },
+    {
+      "id": "e42a5754-2b95-4b1d-8249-34e45eb2d11e",
+      "model": "gpt-6.1-sol",
+      "usd": 0.003174,
+      "reservedUsd": 0.340225
+    },
+    {
+      "id": "94f8ed58-6dc0-40a3-a637-80d36eced045",
+      "model": "gpt-6.1-sol",
+      "usd": 0.015536,
+      "reservedUsd": 0.345755
+    },
+    {
+      "id": "a0a45d89-b737-444f-8d06-220b98b43f88",
+      "model": "gpt-6.1-sol",
+      "usd": 0.003414,
+      "reservedUsd": 0.341065
+    },
+    {
+      "id": "9b0b3f31-267c-4df1-8c41-3101191f94b8",
+      "model": "gpt-6.1-sol",
+      "usd": 0.00267,
+      "reservedUsd": 0.345925
+    },
+    {
+      "id": "b6cd4278-5e84-4984-af03-5b2b335c4dcf",
+      "model": "gpt-6.1-sol",
+      "usd": 0.003876,
+      "reservedUsd": 0.3528375
+    },
+    {
+      "id": "485c1e2d-9fad-4669-8fe5-c6bbc34cc92e",
+      "model": "gpt-6.1-sol",
+      "usd": 0.013302,
+      "reservedUsd": 0.346605
+    },
+    {
+      "id": "d55df1fd-36dd-490e-b822-39f89c4c536e",
+      "model": "gpt-6.1-sol",
+      "usd": 0.003342,
+      "reservedUsd": 0.3431625
+    },
+    {
+      "id": "7b305db0-db54-4ce6-a1f2-6509a8834b4c",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004571,
+      "reservedUsd": 0.3516875
+    },
+    {
+      "id": "6aded494-e468-4c2d-a714-3e1be2f2f48a",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0040285,
+      "reservedUsd": 0.35119
+    },
+    {
+      "id": "00c4d8f9-7202-431e-ab65-cdc24aff7a9a",
+      "model": "gpt-6.1-sol",
+      "usd": 0.011166,
+      "reservedUsd": 0.343995
+    },
+    {
+      "id": "426f49d8-e81e-4de5-b57c-2cc258311fb4",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004432,
+      "reservedUsd": 0.341525
+    },
+    {
+      "id": "9e24921e-b863-42c1-bef5-5a412c404e07",
+      "model": "gpt-6.1-sol",
+      "usd": 0.012188,
+      "reservedUsd": 0.3447725
+    },
+    {
+      "id": "7c02f7d1-5be6-4bbe-8e6c-0297bc27441e",
+      "model": "gpt-6.1-sol",
+      "usd": 0.011016,
+      "reservedUsd": 0.3423575
+    },
+    {
+      "id": "b0f5527a-3e78-4e69-baee-abaa3a06a971",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0039735,
+      "reservedUsd": 0.3497475
+    },
+    {
+      "id": "a1a5faff-bcac-494d-8aa7-8c69d595bc21",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004086,
+      "reservedUsd": 0.3394425
+    },
+    {
+      "id": "bb61e250-92e7-4c92-bca7-881548d4e2ff",
+      "model": "gpt-6.1-sol",
+      "usd": 0.011506,
+      "reservedUsd": 0.3431275
+    },
+    {
+      "id": "974574a9-4133-4fdb-8403-1bd91dc35df7",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004856,
+      "reservedUsd": 0.35027
+    },
+    {
+      "id": "f61e534d-75f2-408a-8722-39b463a84ceb",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0045935,
+      "reservedUsd": 0.35595
+    },
+    {
+      "id": "c7ad018b-47b5-4f61-b0b6-720eb25aa528",
+      "model": "gpt-6.1-sol",
+      "usd": 0.00851,
+      "reservedUsd": 0.340275
+    },
+    {
+      "id": "5e348737-0a2b-4c45-b7ba-3c3675a81d45",
+      "model": "gpt-6.1-sol",
+      "usd": 0.009381,
+      "reservedUsd": 0.3537775
+    },
+    {
+      "id": "24a8bb5f-7317-4e09-996b-b03327bc2c9f",
+      "model": "gpt-6.1-sol",
+      "usd": 0.010522,
+      "reservedUsd": 0.3410525
+    },
+    {
+      "id": "8f1956b6-22de-4a5b-96f2-abc51f45ed22",
+      "model": "gpt-6.1-sol",
+      "usd": 0.002988,
+      "reservedUsd": 0.346995
+    },
+    {
+      "id": "cc3f845b-34e7-4367-bbee-33e56a76ae03",
+      "model": "gpt-6.1-sol",
+      "usd": 0.003396,
+      "reservedUsd": 0.3520025
+    },
+    {
+      "id": "8ef5404a-062d-4b2a-b6c4-ca49bed87ab2",
+      "model": "gpt-6.1-sol",
+      "usd": 0.002646,
+      "reservedUsd": 0.3398725
+    },
+    {
+      "id": "6d8b68dd-ab93-4ae9-9d53-6f17e55dfd6d",
+      "model": "gpt-6.1-sol",
+      "usd": 0.026516,
+      "reservedUsd": 0.35461
+    },
+    {
+      "id": "5d652a28-38ea-4c3d-8a54-aa46f93daa8e",
+      "model": "gpt-6.1-sol",
+      "usd": 0.00783,
+      "reservedUsd": 0.340705
+    },
+    {
+      "id": "87de2da4-ada8-41b6-a878-60db435bde82",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0107635,
+      "reservedUsd": 0.364655
+    },
+    {
+      "id": "59d4c272-2d97-4c9c-8735-7204de87bf06",
+      "model": "gpt-6.1-sol",
+      "usd": 0.005051,
+      "reservedUsd": 0.3507825
+    },
+    {
+      "id": "80ceeae5-7d18-452c-b8fb-2515f62a07a3",
+      "model": "gpt-6.1-sol",
+      "usd": 0.00709,
+      "reservedUsd": 0.3414775
+    },
+    {
+      "id": "dd6090f3-c78a-42c1-b68d-2b4fd0568aa9",
+      "model": "gpt-6.1-sol",
+      "usd": 0.00293,
+      "reservedUsd": 0.3483875
+    },
+    {
+      "id": "4942d979-2ac2-479e-b673-e2eb7cbd2009",
+      "model": "gpt-6.1-sol",
+      "usd": 0.023936,
+      "reservedUsd": 0.355375
+    },
+    {
+      "id": "f0378cc3-7b84-4c8e-a7c0-4fa74ca5ff77",
+      "model": "gpt-6.1-sol",
+      "usd": 0.009476,
+      "reservedUsd": 0.37009
+    },
+    {
+      "id": "ba3cec8c-44ba-4caa-b985-7713b9dcefb5",
+      "model": "gpt-6.1-sol",
+      "usd": 0.003746,
+      "reservedUsd": 0.3460125
+    },
+    {
+      "id": "a261dec0-184f-4cc1-9ed1-842b911c78f4",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0155785,
+      "reservedUsd": 0.380145
+    },
+    {
+      "id": "ce700a50-3db8-492a-8fbf-4abb4a1e16e5",
+      "model": "gpt-6.1-sol",
+      "usd": 0.006341,
+      "reservedUsd": 0.3491725
+    },
+    {
+      "id": "087d4789-fa29-488c-ab59-1a5d23f28d70",
+      "model": "gpt-6.1-sol",
+      "usd": 0.006241,
+      "reservedUsd": 0.344445
+    },
+    {
+      "id": "c5e21fb7-a359-40c2-aa9b-ec911aca10a3",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0055435,
+      "reservedUsd": 0.3504075
+    },
+    {
+      "id": "713a67d4-9f95-4ba0-ba2d-0de18294ae3d",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0039585,
+      "reservedUsd": 0.346355
+    },
+    {
+      "id": "14bf3d1a-b2a1-45c8-b969-03fb17f2b8f7",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0039335,
+      "reservedUsd": 0.344955
+    },
+    {
+      "id": "7d0a80c4-25f9-4ec1-908e-91240f89958b",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004061,
+      "reservedUsd": 0.34484
+    },
+    {
+      "id": "1c39c53d-6732-496e-ac2f-a1bac9ad85c6",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0059235,
+      "reservedUsd": 0.3487825
+    },
+    {
+      "id": "b04f6604-cc89-4f07-be67-147a55c6474b",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0057085,
+      "reservedUsd": 0.3462825
+    },
+    {
+      "id": "0426178c-8c54-4014-84bd-f1bfce68c1df",
+      "model": "gpt-6.1-sol",
+      "usd": 0.008561,
+      "reservedUsd": 0.36181
+    },
+    {
+      "id": "f71ff014-a862-4569-955c-43e4b8801d06",
+      "model": "gpt-6.1-sol",
+      "usd": 0.005361,
+      "reservedUsd": 0.3484025
+    },
+    {
+      "id": "d88d2859-3788-453a-a341-0d3ff2e5ddeb",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0055535,
+      "reservedUsd": 0.3522675
+    },
+    {
+      "id": "c40325b9-7093-49ea-ae5a-81ae3e596da3",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0058885,
+      "reservedUsd": 0.348175
+    },
+    {
+      "id": "14ff11da-12b0-46bc-9643-d7461282d1fd",
+      "model": "gpt-6.1-sol",
+      "usd": 0.003746,
+      "reservedUsd": 0.3461175
+    },
+    {
+      "id": "9cf18ef2-e6f8-4c81-bb42-784184d23943",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0053435,
+      "reservedUsd": 0.3449925
+    },
+    {
+      "id": "f6f97c29-a07a-49a4-a82d-02b55fea5c19",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0049685,
+      "reservedUsd": 0.347755
+    },
+    {
+      "id": "024a63ee-be7b-4d8b-91b6-3360bdcfd3e3",
+      "model": "gpt-6.1-sol",
+      "usd": 0.005426,
+      "reservedUsd": 0.3484525
+    },
+    {
+      "id": "d1b66e50-db82-4c92-85e9-b6255efc1e24",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004616,
+      "reservedUsd": 0.34442
+    },
+    {
+      "id": "cd93b579-fd2c-4492-954e-311f5cacc5ef",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0145885,
+      "reservedUsd": 0.3737
+    },
+    {
+      "id": "80ccc776-d790-4c18-b3e9-89176172d945",
+      "model": "gpt-6.1-sol",
+      "usd": 0.006746,
+      "reservedUsd": 0.350885
+    },
+    {
+      "id": "36d84a4a-5041-4779-aa9e-d4ecffde3780",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0046535,
+      "reservedUsd": 0.3457875
+    },
+    {
+      "id": "969d9c2e-b396-4d0a-a451-b88a31b618e4",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004906,
+      "reservedUsd": 0.34622
+    },
+    {
+      "id": "741d3e77-2b58-4765-81ef-e8a3e46cf4c0",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004791,
+      "reservedUsd": 0.3481125
+    },
+    {
+      "id": "8af2f893-a261-4a19-b1fc-9fc914b61f17",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0054535,
+      "reservedUsd": 0.3451875
+    },
+    {
+      "id": "a5ab9eff-14a2-4d25-8b71-f1256fb4861c",
+      "model": "gpt-6.1-sol",
+      "usd": 0.024836,
+      "reservedUsd": 0.3971125
+    },
+    {
+      "id": "d10c33e1-4524-42f8-a905-ac8806c9fabc",
+      "model": "gpt-6.1-sol",
+      "usd": 0.031786,
+      "reservedUsd": 0.42636
+    },
+    {
+      "id": "b6704f29-ecce-4b69-8969-6a5558b3560e",
+      "model": "gpt-6.1-sol",
+      "usd": 0.006236,
+      "reservedUsd": 0.349205
+    },
+    {
+      "id": "f8df84cb-609e-4c3c-a1e4-b92b2f59ede2",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0040635,
+      "reservedUsd": 0.3449475
+    },
+    {
+      "id": "e0861180-479a-4609-a3d3-dd25b21a3cbc",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004206,
+      "reservedUsd": 0.345925
+    },
+    {
+      "id": "b81749e2-483b-4bdd-b8ce-e1444d9d3d75",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0111485,
+      "reservedUsd": 0.34797
+    },
+    {
+      "id": "5f7b85bf-2ec7-4971-9b9f-dfb4eb8e5a52",
+      "model": "gpt-6.1-sol",
+      "usd": 0.005141,
+      "reservedUsd": 0.347555
+    },
+    {
+      "id": "0f684a43-0c36-458e-b269-b72d0dfd2950",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0108235,
+      "reservedUsd": 0.3685175
+    },
+    {
+      "id": "90a74030-75e5-4a61-baa0-a87412391024",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0041435,
+      "reservedUsd": 0.34561
+    },
+    {
+      "id": "20e69bee-a52f-427d-b02a-7087455ba028",
+      "model": "gpt-6.1-sol",
+      "usd": 0.005341,
+      "reservedUsd": 0.356955
+    },
+    {
+      "id": "3aaa7f7b-7b85-456f-b32e-34cbef65940e",
+      "model": "gpt-6.1-sol",
+      "usd": 0.014601,
+      "reservedUsd": 0.374315
+    },
+    {
+      "id": "69a10e29-9867-44b0-aad1-87e402ba9972",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0226135,
+      "reservedUsd": 0.40073
+    },
+    {
+      "id": "233cb1ca-79f1-4bb5-aba2-da8c75260530",
+      "model": "gpt-6.1-sol",
+      "usd": 0.006806,
+      "reservedUsd": 0.3530425
+    },
+    {
+      "id": "a4be6f81-c249-4467-a5df-0d7d2910f04a",
+      "model": "gpt-6.1-sol",
+      "usd": 0.014036,
+      "reservedUsd": 0.38323
+    },
+    {
+      "id": "1253ef85-f066-4993-959d-93727b82760d",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0114685,
+      "reservedUsd": 0.374905
+    },
+    {
+      "id": "ab356923-4d07-4996-9fde-f997d788bf46",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0053585,
+      "reservedUsd": 0.3504575
+    },
+    {
+      "id": "d48ef4dd-a8dd-4c37-ad10-31dac0d40d25",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004591,
+      "reservedUsd": 0.351165
+    },
+    {
+      "id": "14f6a007-d06c-4925-9216-3247bc831cdd",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0064435,
+      "reservedUsd": 0.36274
+    },
+    {
+      "id": "adab4139-5bea-48a3-ac58-8c22557763e0",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0276135,
+      "reservedUsd": 0.4128575
+    },
+    {
+      "id": "503cfaef-f269-4242-aec8-26ca956c0542",
+      "model": "gpt-6.1-sol",
+      "usd": 0.014726,
+      "reservedUsd": 0.3803175
+    },
+    {
+      "id": "c9efccd6-73f8-4a48-93ba-a2938361768b",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0051135,
+      "reservedUsd": 0.3483375
+    },
+    {
+      "id": "891ed51a-e943-4c8d-b55d-bc2853c0e380",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0071485,
+      "reservedUsd": 0.35794
+    },
+    {
+      "id": "44b1dad4-9351-4599-ba31-418620becef6",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0113685,
+      "reservedUsd": 0.3721175
+    },
+    {
+      "id": "e89b2a25-a5fd-4237-a6d0-758d4558cb88",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0124635,
+      "reservedUsd": 0.3724
+    },
+    {
+      "id": "7ce734fc-b3a4-4f76-ac55-c2592d35cdce",
+      "model": "gpt-6.1-sol",
+      "usd": 0.008991,
+      "reservedUsd": 0.3695675
+    },
+    {
+      "id": "f8a06727-13f7-4d31-a157-67c09df867c2",
+      "model": "gpt-6.1-sol",
+      "usd": 0.017061,
+      "reservedUsd": 0.38121
+    },
+    {
+      "id": "7a219fa3-dd96-4e25-957f-86acb4009f91",
+      "model": "gpt-6.1-sol",
+      "usd": 0.021346,
+      "reservedUsd": 0.4003775
+    },
+    {
+      "id": "2fb82d35-eb24-4fbc-8bac-567b83fd63ce",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0068435,
+      "reservedUsd": 0.3502675
+    },
+    {
+      "id": "7029293f-f517-4a10-b570-d602709d4d81",
+      "model": "gpt-6.1-sol",
+      "usd": 0.005691,
+      "reservedUsd": 0.35209
+    },
+    {
+      "id": "93d82450-e01a-4bdc-bf19-f7200e37436d",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0118035,
+      "reservedUsd": 0.3777275
+    },
+    {
+      "id": "32c542fb-0ff0-45ad-8fbe-aa5ce0086380",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0437585,
+      "reservedUsd": 0.466375
+    },
+    {
+      "id": "4f4f6776-af59-44f9-b13c-23e526374f4d",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0052085,
+      "reservedUsd": 0.3567925
+    },
+    {
+      "id": "907791f9-b8cb-4b7e-a96a-2fef40393346",
+      "model": "gpt-6.1-sol",
+      "usd": 0.005691,
+      "reservedUsd": 0.3502575
+    },
+    {
+      "id": "170720de-7535-4934-93e3-1cb87d36346b",
+      "model": "gpt-6.1-sol",
+      "usd": 0.005601,
+      "reservedUsd": 0.3511825
+    },
+    {
+      "id": "432d3c28-b2a0-4411-896c-ac96ce069a5c",
+      "model": "gpt-6.1-sol",
+      "usd": 0.041741,
+      "reservedUsd": 0.4807925
+    },
+    {
+      "id": "6e144858-63c9-46ce-847f-6e877419bae6",
+      "model": "gpt-6.1-sol",
+      "usd": 0.010441,
+      "reservedUsd": 0.3691975
+    },
+    {
+      "id": "9ece30a7-a1f2-4bef-bbff-83736f81e880",
+      "model": "gpt-6.1-sol",
+      "usd": 0.022981,
+      "reservedUsd": 0.3958975
+    },
+    {
+      "id": "a83d4aa4-6550-4ea0-9423-b83e1f36b9a9",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0054485,
+      "reservedUsd": 0.34632
+    },
+    {
+      "id": "2cc63e3e-654e-4397-9668-42870394cee5",
+      "model": "gpt-6.1-sol",
+      "usd": 0.006651,
+      "reservedUsd": 0.3539575
+    },
+    {
+      "id": "2a0c6d67-e19a-4a82-8797-1e52ec31bb3e",
+      "model": "gpt-6.1-sol",
+      "usd": 0.005471,
+      "reservedUsd": 0.34888
+    },
+    {
+      "id": "7fc5d463-a942-4027-ac5b-810913d99b40",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0065085,
+      "reservedUsd": 0.3565025
+    },
+    {
+      "id": "1673d129-ec3c-4e0f-acfe-1df5e02c9fc4",
+      "model": "gpt-6.1-sol",
+      "usd": 0.009561,
+      "reservedUsd": 0.3621525
+    },
+    {
+      "id": "ec65abb3-24c2-4d5f-b318-119c3717e5b4",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0049085,
+      "reservedUsd": 0.3500575
+    },
+    {
+      "id": "5e4d2f64-e16e-46f9-bc0a-afe34cec97f9",
+      "model": "gpt-6.1-sol",
+      "usd": 0.016326,
+      "reservedUsd": 0.3838775
+    },
+    {
+      "id": "4470ab1b-0601-4476-9b54-84cceaf59d1e",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004541,
+      "reservedUsd": 0.3477075
+    },
+    {
+      "id": "26918c37-2af5-4ec7-8086-432f8e50d108",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0063735,
+      "reservedUsd": 0.3515425
+    },
+    {
+      "id": "13c150d3-e0c5-4771-a0d9-3a30d3f7f44f",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0105835,
+      "reservedUsd": 0.36903
+    },
+    {
+      "id": "5e4dc185-5fc3-4971-9593-24dc06572964",
+      "model": "gpt-6.1-sol",
+      "usd": 0.005091,
+      "reservedUsd": 0.347085
+    },
+    {
+      "id": "f4780408-392b-4388-b3cb-f9dfe0114b52",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0098285,
+      "reservedUsd": 0.3576825
+    },
+    {
+      "id": "d52c96c9-c7f3-4f52-906a-6705df073e82",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0048135,
+      "reservedUsd": 0.3505275
+    },
+    {
+      "id": "d17316b7-4285-4229-8728-0c224954e83a",
+      "model": "gpt-6.1-sol",
+      "usd": 0.008481,
+      "reservedUsd": 0.35771
+    },
+    {
+      "id": "b2d81603-0e77-429f-b4c2-552cca70038f",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0040785,
+      "reservedUsd": 0.3471425
+    },
+    {
+      "id": "503309e5-b2eb-4b16-9f7e-8dd1d0622966",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0197785,
+      "reservedUsd": 0.39696
+    },
+    {
+      "id": "373d7ab2-5cc7-41cf-a463-3965e6b34f28",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0061235,
+      "reservedUsd": 0.34808
+    },
+    {
+      "id": "764cc1fe-ed88-4992-a03f-921822b31972",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004531,
+      "reservedUsd": 0.3449825
+    },
+    {
+      "id": "daf2d30a-1971-47b6-9d07-40673d24270b",
+      "model": "gpt-6.1-sol",
+      "usd": 0.005726,
+      "reservedUsd": 0.346535
+    },
+    {
+      "id": "42dfc774-406c-4aeb-a750-78f01baccfc0",
+      "model": "gpt-6.1-sol",
+      "usd": 0.008526,
+      "reservedUsd": 0.35493
+    },
+    {
+      "id": "14f0d547-a1ef-491b-bcee-e595e7536c9b",
+      "model": "gpt-6.1-sol",
+      "usd": 0.006586,
+      "reservedUsd": 0.348235
+    },
+    {
+      "id": "0c1ec4f2-ea3c-46a4-b074-467774e4371c",
+      "model": "gpt-6.1-sol",
+      "usd": 0.005716,
+      "reservedUsd": 0.3464075
+    },
+    {
+      "id": "4f80229e-8a55-41d3-b87c-de1b58a1c51b",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0073435,
+      "reservedUsd": 0.3501525
+    },
+    {
+      "id": "764aedbe-8e62-4e46-b2c3-0ef21c932307",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004576,
+      "reservedUsd": 0.34641
+    },
+    {
+      "id": "f3e914bd-4707-4622-b6a6-9781a1bcd3f0",
+      "model": "gpt-6.1-sol",
+      "usd": 0.006186,
+      "reservedUsd": 0.3482025
+    },
+    {
+      "id": "997ef055-c405-4466-b819-11470e7dab91",
+      "model": "gpt-6.1-sol",
+      "usd": 0.005801,
+      "reservedUsd": 0.3465775
+    },
+    {
+      "id": "5ba56146-de5f-41a0-948b-97e707a0a064",
+      "model": "gpt-6.1-sol",
+      "usd": 0.016091,
+      "reservedUsd": 0.389495
+    },
+    {
+      "id": "98b4ec1d-ca14-459a-aa8b-296cc198adc2",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0056435,
+      "reservedUsd": 0.3471775
+    },
+    {
+      "id": "8200605e-325a-43a7-96fa-0d0ad6daf364",
+      "model": "gpt-6.1-sol",
+      "usd": 0.003841,
+      "reservedUsd": 0.3467625
+    },
+    {
+      "id": "19fd2fc8-7604-40e1-acda-fc7b97ab732d",
+      "model": "gpt-6.1-sol",
+      "usd": 0.005711,
+      "reservedUsd": 0.348155
+    },
+    {
+      "id": "cb0423b4-39a8-48ce-8b3a-604c939b31c0",
+      "model": "gpt-6.1-sol",
+      "usd": 0.007081,
+      "reservedUsd": 0.3492675
+    },
+    {
+      "id": "5402a135-c061-4504-8e4d-c682ae3198ef",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0065035,
+      "reservedUsd": 0.3454575
+    },
+    {
+      "id": "c112c138-6920-4c3d-bf19-a4e0dcb9ffc4",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0077435,
+      "reservedUsd": 0.360055
+    },
+    {
+      "id": "b2e5422a-cc13-4119-9796-a3ad185d161b",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0060585,
+      "reservedUsd": 0.34807
+    },
+    {
+      "id": "14ab2791-ac60-4e09-ae10-63cfa5ca8f35",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0304835,
+      "reservedUsd": 0.4532375
+    },
+    {
+      "id": "d09faa6f-754e-44cb-a477-284e3090747b",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0149285,
+      "reservedUsd": 0.3700625
+    },
+    {
+      "id": "c6b6ab8c-6de7-4429-83f1-03d68ea0b86d",
+      "model": "gpt-6.1-sol",
+      "usd": 0.005971,
+      "reservedUsd": 0.35271
+    },
+    {
+      "id": "5675cefe-d80e-45ec-b184-fd3b11d8309b",
+      "model": "gpt-6.1-sol",
+      "usd": 0.032131,
+      "reservedUsd": 0.4210325
+    },
+    {
+      "id": "4a7429f0-42c0-4f39-8d00-96f16414c02c",
+      "model": "gpt-6.1-sol",
+      "usd": 0.007231,
+      "reservedUsd": 0.358695
+    },
+    {
+      "id": "092f3956-5c51-4e70-bc77-2713bc4d1cac",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0078885,
+      "reservedUsd": 0.3521575
+    },
+    {
+      "id": "9d32ab75-50a2-4dd4-a63c-1e4cd77476a1",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0065885,
+      "reservedUsd": 0.3493875
+    },
+    {
+      "id": "1deff702-9940-4701-8493-cea65f31ab9f",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0067285,
+      "reservedUsd": 0.3534625
+    },
+    {
+      "id": "26775c85-12e3-4af3-a93a-0335eb90dcd2",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0400285,
+      "reservedUsd": 0.49497
+    },
+    {
+      "id": "7d818cab-e6a9-4dee-8ec2-988ba2ddb8ee",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004291,
+      "reservedUsd": 0.34545
+    },
+    {
+      "id": "93c65524-f896-49e2-92db-d6141c87ca59",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0061585,
+      "reservedUsd": 0.3492
+    },
+    {
+      "id": "4cbc78f9-3a18-4c35-8ed4-fb98bc686a06",
+      "model": "gpt-6.1-sol",
+      "usd": 0.010951,
+      "reservedUsd": 0.374965
+    },
+    {
+      "id": "e29f1557-5038-440e-950d-8e661d52b538",
+      "model": "gpt-6.1-sol",
+      "usd": 0.007561,
+      "reservedUsd": 0.3524525
+    },
+    {
+      "id": "c47bfaac-63a9-4b30-869b-c673e4a2e997",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0069935,
+      "reservedUsd": 0.353655
+    },
+    {
+      "id": "801685c1-86a4-4c9e-a69e-40bcdd9060ea",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004041,
+      "reservedUsd": 0.34508
+    },
+    {
+      "id": "7095c443-bcf3-4bd8-aa5d-89a10d4648c0",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0065685,
+      "reservedUsd": 0.3488975
+    },
+    {
+      "id": "bfd3a527-261a-4ba5-ab31-12b60c3744b5",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0095735,
+      "reservedUsd": 0.351765
+    },
+    {
+      "id": "a0a79c42-1f7d-45cf-9ce8-e9ebfd1654fb",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004936,
+      "reservedUsd": 0.3464375
+    },
+    {
+      "id": "0a871112-fa9f-4381-a9bc-ea6d6a82339a",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0080635,
+      "reservedUsd": 0.352435
+    },
+    {
+      "id": "246623cd-eb63-4f23-9728-953c3ff9f2ca",
+      "model": "gpt-6.1-sol",
+      "usd": 0.025201,
+      "reservedUsd": 0.42505
+    },
+    {
+      "id": "9bee349f-29ec-4458-867b-95f0c0701e96",
+      "model": "gpt-6.1-sol",
+      "usd": 0.005631,
+      "reservedUsd": 0.3509875
+    },
+    {
+      "id": "5cda7faa-0241-4e92-b6d1-2ff2bc9f1b0b",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0053435,
+      "reservedUsd": 0.3452975
+    },
+    {
+      "id": "53250037-008b-49df-937d-e2d159f421f9",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0275785,
+      "reservedUsd": 0.4388775
+    },
+    {
+      "id": "ad39a430-dd49-4f86-aca8-1928f9bebb2a",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0065035,
+      "reservedUsd": 0.3472825
+    },
+    {
+      "id": "dc9dbe2d-af89-47fa-996f-abac418e422c",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0055035,
+      "reservedUsd": 0.35462
+    },
+    {
+      "id": "88cec1fe-f6e6-4ae8-b82a-d2d87875c54f",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0045635,
+      "reservedUsd": 0.3468225
+    },
+    {
+      "id": "74dcd31a-146c-4d40-88c7-f641df2f11f6",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0079285,
+      "reservedUsd": 0.349275
+    },
+    {
+      "id": "3a7681b0-c827-47f4-8239-545f15c26597",
+      "model": "gpt-6.1-sol",
+      "usd": 0.007366,
+      "reservedUsd": 0.3507275
+    },
+    {
+      "id": "07848a74-d3b1-48ee-a995-5534834dc875",
+      "model": "gpt-6.1-sol",
+      "usd": 0.007651,
+      "reservedUsd": 0.3506075
+    },
+    {
+      "id": "6e0873d5-e065-4303-a3c0-3bfc4bffe7f1",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0063035,
+      "reservedUsd": 0.34811
+    },
+    {
+      "id": "19a2c25c-b066-42cd-9cc7-bd76f92ce0c2",
+      "model": "gpt-6.1-sol",
+      "usd": 0.007816,
+      "reservedUsd": 0.3630825
+    },
+    {
+      "id": "08c54d68-7aeb-454e-b9a1-b3fe4dd1530a",
+      "model": "gpt-6.1-sol",
+      "usd": 0.009501,
+      "reservedUsd": 0.35726
+    },
+    {
+      "id": "90e019d9-72bf-4582-88b2-8e75e004e9fe",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0047235,
+      "reservedUsd": 0.3459325
+    },
+    {
+      "id": "c8078abc-92fb-411c-8c86-1098ac65ac55",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004081,
+      "reservedUsd": 0.346815
+    },
+    {
+      "id": "0d5d9bb1-c6e1-46a0-be10-db4e115e6bff",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0071285,
+      "reservedUsd": 0.355115
+    },
+    {
+      "id": "288a4fea-cf37-42ec-90a0-7d76ba307e23",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0049985,
+      "reservedUsd": 0.34756
+    },
+    {
+      "id": "fcec0e08-4f6a-46cd-926c-3fd060910c32",
+      "model": "gpt-6.1-sol",
+      "usd": 0.025611,
+      "reservedUsd": 0.4240275
+    },
+    {
+      "id": "1a78edc3-4970-478a-9515-dc9b219b5314",
+      "model": "gpt-6.1-sol",
+      "usd": 0.007341,
+      "reservedUsd": 0.3504275
+    },
+    {
+      "id": "c0b3c8c3-ef01-42a0-bab0-86614a10071d",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0073885,
+      "reservedUsd": 0.3488825
+    },
+    {
+      "id": "21e53cf5-0834-486f-bf69-9ffb46023422",
+      "model": "gpt-6.1-sol",
+      "usd": 0.005516,
+      "reservedUsd": 0.34766
+    },
+    {
+      "id": "ef474e6b-469f-4c2d-a3b1-0bf1fd70087c",
+      "model": "gpt-6.1-sol",
+      "usd": 0.006226,
+      "reservedUsd": 0.3501525
+    },
+    {
+      "id": "df8ff4e1-eaa5-45e3-8f8d-cb418e76f0b4",
+      "model": "gpt-6.1-sol",
+      "usd": 0.006946,
+      "reservedUsd": 0.36035
+    },
+    {
+      "id": "c0b5e5f3-d17e-41aa-9a75-73cc2c6c4fa9",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0057835,
+      "reservedUsd": 0.346225
+    },
+    {
+      "id": "c8eb9a84-6924-4d69-8429-ac6f7314d361",
+      "model": "gpt-6.1-sol",
+      "usd": 0.005146,
+      "reservedUsd": 0.3536125
+    },
+    {
+      "id": "9c264cd2-46cc-4afa-b117-f8915a264b0f",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0243935,
+      "reservedUsd": 0.4265975
+    },
+    {
+      "id": "88d4e6bc-aa2e-4706-bc99-524e6882683c",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0055785,
+      "reservedUsd": 0.3592575
+    },
+    {
+      "id": "ec229eee-d8d6-4754-a4e2-ce4f3e45639e",
+      "model": "gpt-6.1-sol",
+      "usd": 0.021761,
+      "reservedUsd": 0.353265
+    },
+    {
+      "id": "f12c0349-8197-45af-bad8-9f87cf05d6f5",
+      "model": "gpt-6.1-sol",
+      "usd": 0.007466,
+      "reservedUsd": 0.3516525
+    },
+    {
+      "id": "ecf662ca-e84e-494c-86f8-58d1c9b1cb96",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0403085,
+      "reservedUsd": 0.4897
+    },
+    {
+      "id": "90880229-ee72-4d5c-86c4-d129b1cbe5b2",
+      "model": "gpt-6.1-sol",
+      "usd": 0.012181,
+      "reservedUsd": 0.3826825
+    },
+    {
+      "id": "3085e848-b7b6-4aa4-b848-76a993a86672",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0068535,
+      "reservedUsd": 0.3618925
+    },
+    {
+      "id": "8745d16f-7e0e-40fb-8a6b-6ab0c3055643",
+      "model": "gpt-6.1-sol",
+      "usd": 0.039411,
+      "reservedUsd": 0.48231
+    },
+    {
+      "id": "3ec2e876-6e44-4627-95df-04756fb4b5ea",
+      "model": "gpt-6.1-sol",
+      "usd": 0.008051,
+      "reservedUsd": 0.3700475
+    },
+    {
+      "id": "3169bf65-af15-463e-b7fa-f2184fe25eb8",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0042485,
+      "reservedUsd": 0.3465625
+    },
+    {
+      "id": "a9f5e109-fc9d-4aec-9ecb-b8f19237720d",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0145085,
+      "reservedUsd": 0.40121
+    },
+    {
+      "id": "aa9cc825-784f-464a-9f1f-40e27fc6a2f4",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0062685,
+      "reservedUsd": 0.357825
+    },
+    {
+      "id": "cb690def-e639-4156-b7ec-63534e1d4184",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0251885,
+      "reservedUsd": 0.41653
+    },
+    {
+      "id": "b074170d-e5a7-4dda-b492-f151847a698d",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0054385,
+      "reservedUsd": 0.35386
+    },
+    {
+      "id": "44aa65dd-934a-4d28-ae11-2aa0feb90a3a",
+      "model": "gpt-6.1-sol",
+      "usd": 0.010391,
+      "reservedUsd": 0.3801575
+    },
+    {
+      "id": "4009c3af-bae0-4970-9635-0b88e5981039",
+      "model": "gpt-6.1-sol",
+      "usd": 0.009386,
+      "reservedUsd": 0.35788
+    },
+    {
+      "id": "311300b9-ea23-461e-9b1a-8335ac8b2488",
+      "model": "gpt-6.1-sol",
+      "usd": 0.011066,
+      "reservedUsd": 0.3531725
+    },
+    {
+      "id": "d0dbb63b-addc-4456-8961-940c06c6ebba",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0059135,
+      "reservedUsd": 0.3615975
+    },
+    {
+      "id": "5406884d-bcfb-4ef7-a2ce-cb82b421fd0b",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0269635,
+      "reservedUsd": 0.420295
+    },
+    {
+      "id": "4e2c40ef-d755-4a9c-bb32-e71c950d770f",
+      "model": "gpt-6.1-sol",
+      "usd": 0.010706,
+      "reservedUsd": 0.3685325
+    },
+    {
+      "id": "65ac68a3-6348-4b20-aca7-36abba827d88",
+      "model": "gpt-6.1-sol",
+      "usd": 0.006606,
+      "reservedUsd": 0.3514425
+    },
+    {
+      "id": "b0c9265a-b1b1-4a9c-95ad-bd2546d1075d",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0045085,
+      "reservedUsd": 0.34682
+    },
+    {
+      "id": "e01916d7-1fad-4d1b-8ba9-c005f9ad603e",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0046885,
+      "reservedUsd": 0.3457275
+    },
+    {
+      "id": "70e2615c-73b3-44a8-8e11-b4b85668198d",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0094385,
+      "reservedUsd": 0.35932
+    },
+    {
+      "id": "fe37ec4b-681b-4634-a71e-c4ce393490ae",
+      "model": "gpt-6.1-sol",
+      "usd": 0.007281,
+      "reservedUsd": 0.364275
+    },
+    {
+      "id": "f3b931f0-83fe-4999-a875-b158e5e00cbf",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004326,
+      "reservedUsd": 0.346835
+    },
+    {
+      "id": "98b1fd28-caad-4dfd-96dc-32c3ebc68172",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0073485,
+      "reservedUsd": 0.3545525
+    },
+    {
+      "id": "db91b0a9-cd33-4fb5-b334-d3f733c1cd3d",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0052285,
+      "reservedUsd": 0.35318
+    },
+    {
+      "id": "58e59ebe-f0a1-467a-b3e9-698dd5b26330",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0163485,
+      "reservedUsd": 0.3885825
+    },
+    {
+      "id": "e2cfb602-197d-4dc8-b58a-5e878efed98f",
+      "model": "gpt-6.1-sol",
+      "usd": 0.008771,
+      "reservedUsd": 0.375415
+    },
+    {
+      "id": "7c52e20b-bc4e-4b43-9242-751aa2e17375",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0049385,
+      "reservedUsd": 0.3518125
+    },
+    {
+      "id": "9ecacfca-caf9-4c5e-986f-05ca9354cde3",
+      "model": "gpt-6.1-sol",
+      "usd": 0.010081,
+      "reservedUsd": 0.3681025
+    },
+    {
+      "id": "dbb3d2c8-ae8f-468c-803d-4d938c789ad4",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0056085,
+      "reservedUsd": 0.35416
+    },
+    {
+      "id": "81fabc13-de42-4841-8228-9e9041ce4411",
+      "model": "gpt-6.1-sol",
+      "usd": 0.014876,
+      "reservedUsd": 0.40997
+    },
+    {
+      "id": "c7aa0b88-4dbd-44f9-b557-0ee0e24fffaa",
+      "model": "gpt-6.1-sol",
+      "usd": 0.015081,
+      "reservedUsd": 0.388285
+    },
+    {
+      "id": "ae0dc0e5-c862-4136-9d8f-6079a155899b",
+      "model": "gpt-6.1-sol",
+      "usd": 0.006876,
+      "reservedUsd": 0.35407
+    },
+    {
+      "id": "06a671a5-ee7f-4635-8875-f622feb0e44d",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0040535,
+      "reservedUsd": 0.350375
+    },
+    {
+      "id": "d797e5cb-61d9-4c2c-9be7-e912f4a4bbed",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0101435,
+      "reservedUsd": 0.3797775
+    },
+    {
+      "id": "a69dea15-5649-499e-9572-c7f7c5f06d8b",
+      "model": "gpt-6.1-sol",
+      "usd": 0.038446,
+      "reservedUsd": 0.451745
+    },
+    {
+      "id": "231c635a-c71f-4db2-b9f9-af799a64e483",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0097735,
+      "reservedUsd": 0.3795075
+    },
+    {
+      "id": "782a32b9-67c9-47ae-882d-28e5f1f44428",
+      "model": "gpt-6.1-sol",
+      "usd": 0.005596,
+      "reservedUsd": 0.3551475
+    },
+    {
+      "id": "1c1b5cd2-6fef-4b31-9185-b5ffb1fea848",
+      "model": "gpt-6.1-sol",
+      "usd": 0.016936,
+      "reservedUsd": 0.3903875
+    },
+    {
+      "id": "d422f17a-7864-4ec0-86e5-287b6154abde",
+      "model": "gpt-6.1-sol",
+      "usd": 0.007421,
+      "reservedUsd": 0.36265
+    },
+    {
+      "id": "5ebe456a-d6f6-4a44-a26d-b16891a884c6",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0171735,
+      "reservedUsd": 0.4030925
+    },
+    {
+      "id": "1c906e40-4b54-404f-a691-b6c33f785957",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0060535,
+      "reservedUsd": 0.3565275
+    },
+    {
+      "id": "7cd46f64-74db-4734-8350-cf1e7952085e",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0264685,
+      "reservedUsd": 0.45747
+    },
+    {
+      "id": "954a7a14-a054-4eea-9583-980a21532552",
+      "model": "gpt-6.1-sol",
+      "usd": 0.005411,
+      "reservedUsd": 0.3538725
+    },
+    {
+      "id": "38446ba9-354c-49e9-98dc-566dc00b21c9",
+      "model": "gpt-6.1-sol",
+      "usd": 0.022526,
+      "reservedUsd": 0.40623
+    },
+    {
+      "id": "9ea32a22-e3ed-40a3-93f1-f28fbd001b2f",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0047935,
+      "reservedUsd": 0.35125
+    },
+    {
+      "id": "5ce20f80-9a39-4aaa-b964-07ac701d9602",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0089235,
+      "reservedUsd": 0.35585
+    },
+    {
+      "id": "be916ea9-d741-4b65-bf2d-2a214dcaf348",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004061,
+      "reservedUsd": 0.3480225
+    },
+    {
+      "id": "faa0d79b-8ef7-450d-95b5-121e9628534f",
+      "model": "gpt-6.1-sol",
+      "usd": 0.012641,
+      "reservedUsd": 0.3871225
+    },
+    {
+      "id": "a1759c35-c2db-4922-9869-a61eb20ed7c3",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0049135,
+      "reservedUsd": 0.345575
+    },
+    {
+      "id": "707c1ca3-a553-4b4d-a7ab-288e5ec10048",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0104585,
+      "reservedUsd": 0.379235
+    },
+    {
+      "id": "4a62bf5a-9764-41d5-b689-c8af54d8a022",
+      "model": "gpt-6.1-sol",
+      "usd": 0.025771,
+      "reservedUsd": 0.4400925
+    },
+    {
+      "id": "146ac8db-5938-4e6a-a645-9944cb8cb0ee",
+      "model": "gpt-6.1-sol",
+      "usd": 0.020391,
+      "reservedUsd": 0.42137
+    },
+    {
+      "id": "f21abe1c-8fc4-4704-8412-cba2553a8c64",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0046535,
+      "reservedUsd": 0.3493175
+    },
+    {
+      "id": "89ddf4ad-6601-4157-9672-0d540af7b45e",
+      "model": "gpt-6.1-sol",
+      "usd": 0.005596,
+      "reservedUsd": 0.3481675
+    },
+    {
+      "id": "c4c62495-31c5-469b-8a49-f08cddebe6ff",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0120385,
+      "reservedUsd": 0.35484
+    },
+    {
+      "id": "9bc7ce24-4850-4914-8771-2309c7803ea2",
+      "model": "gpt-6.1-sol",
+      "usd": 0.010361,
+      "reservedUsd": 0.368315
+    },
+    {
+      "id": "d5efcf55-01bc-4d53-b52c-2cddd7f0b30a",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004986,
+      "reservedUsd": 0.353465
+    },
+    {
+      "id": "98df88e9-d6e4-4ab0-b4d4-a3346515ef6e",
+      "model": "gpt-6.1-sol",
+      "usd": 0.016331,
+      "reservedUsd": 0.39819
+    },
+    {
+      "id": "7fbe1187-bbc0-4b27-8dc4-5982bc05ae09",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0058285,
+      "reservedUsd": 0.35396
+    },
+    {
+      "id": "cea7c38f-bc4f-4247-907e-a81b3a891601",
+      "model": "gpt-6.1-sol",
+      "usd": 0.023456,
+      "reservedUsd": 0.428505
+    },
+    {
+      "id": "8fc3e6cc-4114-4aec-848f-533e25cc2f97",
+      "model": "gpt-6.1-sol",
+      "usd": 0.035281,
+      "reservedUsd": 0.452535
+    },
+    {
+      "id": "57af8048-d51c-452e-932c-77f008c0cba0",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0155935,
+      "reservedUsd": 0.388035
+    },
+    {
+      "id": "45dd5b44-f2e5-4f49-bed9-79160e0f08e5",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0050885,
+      "reservedUsd": 0.3455425
+    },
+    {
+      "id": "3ccf8f1f-c8c5-4b14-beca-a107256987ce",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0120085,
+      "reservedUsd": 0.38127
+    },
+    {
+      "id": "24e3b989-653c-4ee2-83ee-566d89c12156",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0279535,
+      "reservedUsd": 0.4174325
+    },
+    {
+      "id": "70abf4bd-2e51-4435-b44a-4693d405f1bb",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0061335,
+      "reservedUsd": 0.3588025
+    },
+    {
+      "id": "6a8abc7f-a9d8-4853-946f-999555c0c83f",
+      "model": "gpt-6.1-sol",
+      "usd": 0.006586,
+      "reservedUsd": 0.3630725
+    },
+    {
+      "id": "21bdc8a2-f166-4f8b-bca2-a9e92be70fc9",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0050135,
+      "reservedUsd": 0.3523075
+    },
+    {
+      "id": "9098d4f1-7b45-4072-8636-c7b57c33df62",
+      "model": "gpt-6.1-sol",
+      "usd": 0.008161,
+      "reservedUsd": 0.36571
+    },
+    {
+      "id": "06bdc2fa-f4fd-41e9-8a34-a3601986e312",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0045785,
+      "reservedUsd": 0.3469575
+    },
+    {
+      "id": "c9ccb08f-d78e-4858-bcab-505a0a132c9b",
+      "model": "gpt-6.1-sol",
+      "usd": 0.005631,
+      "reservedUsd": 0.35467
+    },
+    {
+      "id": "775f0b05-da2c-473e-82ff-21df49de402d",
+      "model": "gpt-6.1-sol",
+      "usd": 0.003801,
+      "reservedUsd": 0.3512175
+    },
+    {
+      "id": "1c7adb09-962a-429e-aa2e-bf0ea44f9d38",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0055885,
+      "reservedUsd": 0.35423
+    },
+    {
+      "id": "5a69b6b7-36b2-407a-8467-0ed5ce8526d4",
+      "model": "gpt-6.1-sol",
+      "usd": 0.004671,
+      "reservedUsd": 0.3525625
+    },
+    {
+      "id": "451e746b-7304-4d90-8bac-309579592b83",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0235585,
+      "reservedUsd": 0.4330425
+    },
+    {
+      "id": "255849cd-a5d3-434b-92f3-8bc321f73499",
+      "model": "gpt-6.1-sol",
+      "usd": 0.0044135,
+      "reservedUsd": 0.347245
+    },
+    {
+      "id": "89a863c9-e80b-4a4c-bd2c-195db2bf9f4e",
+      "model": "gpt-6.1-sol",
+      "usd": 0.012761,
+      "reservedUsd": 0.3903975
     }
   ],
-  "activeCalls": {
-    "ac084a19-3287-47f8-a726-b33e0dc7ea32": {
-      "pid": 28173,
-      "model": "gpt-6.1-sol",
-      "at": "2026-10-13T22:48:47.370528+00:00"
-    },
-    "411c587a-3909-4ba2-bfe6-571c5e2f514d": {
-      "pid": 29327,
-      "model": "gpt-6.1-sol",
-      "at": "2026-10-13T22:48:50.562708+00:00"
-    }
-  }
+  "activeCalls": {}
 }

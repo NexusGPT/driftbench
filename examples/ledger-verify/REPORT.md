@@ -1,6 +1,6 @@
 # LongJudge verify confirmation
 
-Evidence timestamp: 2026-10-13T22:47:34.619679+00:00.
+Evidence timestamp: 2026-10-14T02:18:25.871990+00:00.
 
 Gemini 3.8 Flash: dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score. It is removed from pending work. Flash Lite remains the Gemini result.
 
@@ -30,6 +30,7 @@ The output-limit column counts observed TEST completion envelopes, cascade / pro
 | gemini-3.8-flash | dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score | not reported | not reported | not reported | not reported | not reported | not reported | not reported | not reported |
 | gemini-3.5-flash-lite | 138/221, 62.44% [55.90%, 68.56%] | 127/221, 57.47% [50.88%, 63.80%] | 5 / 0 | not audited | 4.98% [-2.24%, 11.87%] | 39 / 28 | 0.22154873 | pending | TIE |
 | claude-sonnet-5-5 | 176/221, 79.64% [73.84%, 84.42%] | 152/221, 68.78% [62.39%, 74.52%] | 0 / 0 | 0 / 28 | 10.86% [5.80%, 16.22%] | 31 / 7 | 0.00011616701 | pending | PENDING_HOLM |
+| gpt-6.1-sol | 173/221, 78.28% [72.39%, 83.21%] | 170/221, 76.92% [70.94%, 81.99%] | 0 / 0 | 0 / 0 | 1.36% [-2.26%, 5.00%] | 10 / 7 | 0.62905884 | pending | TIE |
 
 ### Strict headline, audited labels
 
@@ -41,6 +42,7 @@ The output-limit column counts observed TEST completion envelopes, cascade / pro
 | gemini-3.8-flash | dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score | not reported | not reported | not reported | not reported | not reported | not reported | not reported | not reported |
 | gemini-3.5-flash-lite | 158/221, 71.49% [65.21%, 77.04%] | 142/221, 64.25% [57.74%, 70.28%] | 5 / 0 | not audited | 7.24% [0.00%, 14.16%] | 42 / 26 | 0.068118674 | pending | TIE |
 | claude-sonnet-5-5 | 199/221, 90.05% [85.39%, 93.33%] | 167/221, 75.57% [69.50%, 80.76%] | 0 / 0 | 0 / 28 | 14.48% [9.13%, 19.91%] | 37 / 5 | 4.4337048e-07 | pending | PENDING_HOLM |
+| gpt-6.1-sol | 196/221, 88.69% [83.83%, 92.22%] | 193/221, 87.33% [82.30%, 91.09%] | 0 / 0 | 0 / 0 | 1.36% [-2.26%, 5.00%] | 10 / 7 | 0.62905884 | pending | TIE |
 
 ### Product-final sensitivity, official labels
 
@@ -51,6 +53,7 @@ The output-limit column counts observed TEST completion envelopes, cascade / pro
 | gemini-3.8-flash | dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score | not reported | not reported | not reported | not reported | not reported | not reported | not reported | not reported |
 | gemini-3.5-flash-lite | 138/221, 62.44% [55.90%, 68.56%] | 127/221, 57.47% [50.88%, 63.80%] | 5 / 0 | not audited | 4.98% [-2.24%, 11.87%] | 39 / 28 | 0.22154873 | pending | TIE |
 | claude-sonnet-5-5 | 176/221, 79.64% [73.84%, 84.42%] | 152/221, 68.78% [62.39%, 74.52%] | 0 / 0 | 0 / 28 | 10.86% [5.80%, 16.22%] | 31 / 7 | 0.00011616701 | pending | PENDING_HOLM |
+| gpt-6.1-sol | 173/221, 78.28% [72.39%, 83.21%] | 170/221, 76.92% [70.94%, 81.99%] | 0 / 0 | 0 / 0 | 1.36% [-2.26%, 5.00%] | 10 / 7 | 0.62905884 | pending | TIE |
 
 ### Product-final sensitivity, audited labels
 
@@ -61,6 +64,7 @@ The output-limit column counts observed TEST completion envelopes, cascade / pro
 | gemini-3.8-flash | dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score | not reported | not reported | not reported | not reported | not reported | not reported | not reported | not reported |
 | gemini-3.5-flash-lite | 158/221, 71.49% [65.21%, 77.04%] | 142/221, 64.25% [57.74%, 70.28%] | 5 / 0 | not audited | 7.24% [0.00%, 14.16%] | 42 / 26 | 0.068118674 | pending | TIE |
 | claude-sonnet-5-5 | 199/221, 90.05% [85.39%, 93.33%] | 167/221, 75.57% [69.50%, 80.76%] | 0 / 0 | 0 / 28 | 14.48% [9.13%, 19.91%] | 37 / 5 | 4.4337048e-07 | pending | PENDING_HOLM |
+| gpt-6.1-sol | 196/221, 88.69% [83.83%, 92.22%] | 193/221, 87.33% [82.30%, 91.09%] | 0 / 0 | 0 / 0 | 1.36% [-2.26%, 5.00%] | 10 / 7 | 0.62905884 | pending | TIE |
 
 The original three models belong to the prespecified 18-cell family. Flash Lite, Sonnet and Sol are additional cells. Multiplicity adjustment remains pending with the collator. No overall superiority claim is made.
 Per-item strict decisions: results/<model>.strict.json. Original product-final decisions: results/<model>.json.
@@ -80,6 +84,8 @@ Exact intervals, balanced accuracy, valid-verdict coverage and paired difference
 | gemini-3.5-flash-lite | promptfoo | 0 | 0 | 2 | 2 |
 | claude-sonnet-5-5 | driftbench-verify-uncertainty-cascade | 0 | 0 | 0 | 0 |
 | claude-sonnet-5-5 | promptfoo | 0 | 0 | 0 | 0 |
+| gpt-6.1-sol | driftbench-verify-uncertainty-cascade | 0 | 0 | 0 | 0 |
+| gpt-6.1-sol | promptfoo | 0 | 0 | 0 | 0 |
 
 Unclassified historical native errors: 2. Unmapped confirmed limits: 0.
 Counts refer to observed completion envelopes. Native internal attempts are not inferred from aggregate turn counts.
@@ -94,6 +100,7 @@ Receipt ids, exact reasons and request-to-item attribution: evidence/output-limi
 | gemini-3.8-flash | dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score | not reported | not reported |
 | gemini-3.5-flash-lite | 2.047560 / 0.349120 | 12/12, 12/12, 0 / 12/12, 12/12, 0 | 10/30 / 10/30 |
 | claude-sonnet-5-5 | 7.104357 / 1.917252 | 12/12, 12/12, 0 / 12/12, 12/12, 0 | 1/30 / 5/30 |
+| gpt-6.1-sol | 3.796091 / 1.030822 | 12/12, 12/12, 0 / 12/12, 12/12, 0 | 2/30 / 1/30 |
 
 Constant pass / fail: official 21.27% / 78.73%; audited 23.53% / 76.47%.
 Mutation checks cover planted arithmetic truth only. Thresholds: preserve at least 95%, flip at least 90%, no injection changes or missing verdicts.
@@ -111,6 +118,7 @@ Fee sources: receipts/budget.json and receipts/calls.jsonl. Historical replay co
 | gemini-3.8-flash | dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score | not reported | not reported | not reported | not reported | not reported |
 | gemini-3.5-flash-lite | 20 items; missing 0/0 | 48 items; missing 0/0 | 30 items; missing 0/1 | 30 items; missing 0/0 | 30 items; missing 0/1 | 221 items; missing 5/0 |
 | claude-sonnet-5-5 | 20 items; missing 0/4 | 48 items; missing 0/0 | 30 items; missing 0/8 | 30 items; missing 0/8 | 30 items; missing 0/6 | 221 items; missing 0/28 |
+| gpt-6.1-sol | 20 items; missing 0/0 | 48 items; missing 0/0 | 30 items; missing 0/0 | 30 items; missing 0/0 | 30 items; missing 0/0 | 221 items; missing 0/0 |
 
 ## Freeze and recovery
 
@@ -323,7 +331,7 @@ Evidence and unchanged-file hashes: evidence/closed-output-limit-audit.json. The
 | Model | Status | Five-call cost USD | Projected 379-unit cost USD | Settled USD | Reserved or unknown holds USD | Evidence folder |
 |---|---|---|---|---|---|---|
 | claude-sonnet-5-5 | offline evidence ready for review | 0.06976800 | 29.08003000 | 34.11367200 | 0.50000000 | sonnet/ |
-| gpt-6.1-sol | running | 0.06966100 | 36.19988950 | 11.17274000 | 0.68233000 | sol61/ |
+| gpt-6.1-sol | offline evidence ready for review | 0.06966100 | 36.19988950 | 16.55230050 | 1.37494750 | sol61/ |
 
 claude-sonnet-5-5 cost projection breakdown:
 
@@ -364,6 +372,10 @@ Projection uses the original full Luna request counts, with the highest sampled 
 
 Completed 20-item pilot projection for gpt-6.1-sol: 21.90878667 USD. Calibration fees and holds remain in the hard-cap ledger.
 
+The 2026-10-14T00:23:33.599375+00:00 network-pause record contains 2 TEST transport timeouts without answers. Their 0.68775250 USD uncertain-charge holds remain. The standing rule requires the cooldown and ten healthy probes before missing-only recovery at two calls. No returned answer is eligible for resubmission. Source: sol61/evidence/overnight-network-pause.json.
+
+Both overnight transport-missing requests recover after the health gate, for 0.01701200 USD. All 1481 earlier answered receipt records remain byte-for-byte unchanged. The original timeout holds remain reserved. Source: sol61/evidence/overnight-network-recovery.json.
+
 
 | Model | Contestant | Constant-fail official / audited | TEST unique-key cost USD | All-phase attributed settled USD | TEST strict missing / product-final missing | TEST output-limit answers | TEST refusal responses | TEST refused items |
 |---|---|---|---|---|---|---|---|---|
@@ -372,6 +384,11 @@ Completed 20-item pilot projection for gpt-6.1-sol: 21.90878667 USD. Calibration
 
 claude-sonnet-5-5: unattributed settled cost 0.00000000 USD. Exact tokens and receipt attribution: evidence/cells.json newModelCostAttribution.
 
+| gpt-6.1-sol | driftbench-verify-uncertainty-cascade | 174/221 / 169/221 | 8.38936050 | 13.55843590 | 0 / 0 | 0 | 0 | 0 |
+| gpt-6.1-sol | promptfoo | 174/221 / 169/221 | 2.27811600 | 2.99386460 | 0 / 0 | 0 | 0 | 0 |
+
+gpt-6.1-sol: unattributed settled cost 0.00000000 USD. Exact tokens and receipt attribution: evidence/cells.json newModelCostAttribution.
+
 
 Native-refusal rule fixed after the Sonnet pilot and before TEST. No pilot verdict changed. Original product verdicts remain unchanged. A native refusal is terminal at any token count and is never recovered as a transport no-answer. Strict scoring counts every consuming contestant/item as an error; product-final retains the frozen product fallback. The rule applies identically to both contestants.
 
@@ -379,8 +396,8 @@ Native-refusal rule fixed after the Sonnet pilot and before TEST. No pilot verdi
 |---|---|---|---|---|---|
 | claude-sonnet-5-5 | driftbench-verify-uncertainty-cascade | 0 | 0 | 0 | 0 |
 | claude-sonnet-5-5 | promptfoo | 28 | 28 | 54 | 54 |
-| gpt-6.1-sol | driftbench-verify-uncertainty-cascade | pending | pending | 0 (partial audit) | 0 (partial audit) |
-| gpt-6.1-sol | promptfoo | pending | pending | 0 (partial audit) | 0 (partial audit) |
+| gpt-6.1-sol | driftbench-verify-uncertainty-cascade | 0 | 0 | 0 | 0 |
+| gpt-6.1-sol | promptfoo | 0 | 0 | 0 | 0 |
 
 Sources per model folder: evidence/model-amendment.json, evidence/cost-sample.json, evidence/cells.json, evidence/output-limit-errors.json and receipts/native/.
 Scores, paired exact p values and strict/product-final endpoints appear in the tables above for every completed cell. Pending cells have no sealed TEST score.

@@ -77,6 +77,10 @@ def main():
   budget=read(base/'receipts/budget.json') if (base/'receipts/budget.json').exists() and (base/'receipts/budget.json').stat().st_size else {'spentUsd':0,'reservations':{}}
   settled=budget['spentUsd'];held=sum(r['usd'] for r in budget['reservations'].values());assert settled+held<=cap+1e-8
   status=final['status'] if final else progress['status']
+  admission_path=BASE/'evidence/network-admission.json'
+  if not final and admission_path.exists():
+   admission=read(admission_path)
+   if admission.get('model')==model and not admission.get('open'):status='waiting: '+admission['status']
   sections.append(f"| {model} | {status} | {gate['costUsd']:.8f} | {gate['projected379UnitsUsd']:.8f} | {settled:.8f} | {held:.8f} | {folder}/ |" if gate else f'| {model} | {status} | pending | pending | {settled:.8f} | {held:.8f} | {folder}/ |')
   original['newModelFees'][model]=dict(settledUsd=settled,unresolvedMaximumUsd=held,maximumAccountedUsd=settled+held,capUsd=cap)
   for name in ['model-amendment.json','runtime-freeze.json','reporting-freeze.json','cost-sample.json','pilot-projection.json','cache-off-amendment.json','cache-off-cost-selection.json','cache-off-cost-sample.json','cap45-activation.json','cap40-amendment.json','refusal-amendment.json','native-quota-amendment.json','native-quota-recovery.json','native-quota-continuation.json','native-quota-recovery-state.json','native-quota-continuation-state.json']:
@@ -92,6 +96,15 @@ def main():
    projection_sections.append('Projection uses the original full Luna request counts, with the highest sampled cascade fee assigned to unsampled stages. It is an estimate, not a measured full-cell cost.\n')
   pilot_gate=base/'evidence/pilot-projection.json'
   if pilot_gate.exists():projection_sections.append(f"Completed 20-item pilot projection for {model}: {read(pilot_gate)['projected379UnitsUsd']:.8f} USD. Calibration fees and holds remain in the hard-cap ledger.\n")
+  incident_path=base/'evidence/overnight-network-pause.json'
+  if incident_path.exists():
+   incident=read(incident_path)
+   projection_sections.append(f"The {incident['at']} network-pause record contains {len(incident['noAnswerReceipts'])} TEST transport timeouts without answers. Their {incident['retainedHoldUsd']:.8f} USD uncertain-charge holds remain. The standing rule requires the cooldown and ten healthy probes before missing-only recovery at two calls. No returned answer is eligible for resubmission. Source: {folder}/evidence/overnight-network-pause.json.\n")
+   recovery_path=base/'evidence/overnight-network-recovery.json'
+   if recovery_path.exists():
+    recovery=read(recovery_path)
+    assert recovery['status']=='complete' and recovery['originalAnswerPrefixPreserved']
+    projection_sections.append(f"Both overnight transport-missing requests recover after the health gate, for {sum(r['costUsd'] for r in recovery['recoveries']):.8f} USD. All {recovery['preservedAnsweredReceipts']} earlier answered receipt records remain byte-for-byte unchanged. The original timeout holds remain reserved. Source: {folder}/evidence/overnight-network-recovery.json.\n")
   quota=base/'evidence/native-quota-recovery.json'
   if quota.exists():
    q=read(quota);qs=base/'evidence/native-quota-recovery-state.json'

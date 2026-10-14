@@ -1,6 +1,6 @@
 {
   "model": "gpt-6.1-sol",
-  "stop": false,
+  "stop": true,
   "at": "2026-10-13T19:34:39.093096+00:00",
-  "reason": "Owner authorizes Sol cap 40 USD after Sonnet complete"
+  "reason": "Both authorized new cells have complete offline evidence"
 }
