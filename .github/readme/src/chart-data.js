@@ -537,7 +537,7 @@ window.CHART_DATA = {
         "style": "other"
       }
     ],
-    "axis": "score out of 100: correct, % of items",
+    "axis": "score out of 100: median; line = 95% interval, or min to max",
     "panels": [
       {
         "name": "Claude Haiku 5.5",
@@ -546,11 +546,23 @@ window.CHART_DATA = {
           {
             "name": "driftbench",
             "score": 88.89,
-            "ours": true
+            "ours": true,
+            "runs": 1,
+            "margin": [
+              84.58,
+              92.11
+            ],
+            "marginKind": "interval"
           },
           {
             "name": "promptfoo",
-            "score": 82.96
+            "score": 82.96,
+            "runs": 1,
+            "margin": [
+              78.02,
+              86.98
+            ],
+            "marginKind": "interval"
           }
         ]
       },
@@ -561,11 +573,23 @@ window.CHART_DATA = {
           {
             "name": "driftbench",
             "score": 87.04,
-            "ours": true
+            "ours": true,
+            "runs": 1,
+            "margin": [
+              82.51,
+              90.53
+            ],
+            "marginKind": "interval"
           },
           {
             "name": "promptfoo",
-            "score": 84.81
+            "score": 84.81,
+            "runs": 1,
+            "margin": [
+              80.05,
+              88.6
+            ],
+            "marginKind": "interval"
           }
         ]
       },
@@ -576,11 +600,23 @@ window.CHART_DATA = {
           {
             "name": "driftbench",
             "score": 79.63,
-            "ours": true
+            "ours": true,
+            "runs": 1,
+            "margin": [
+              74.43,
+              84
+            ],
+            "marginKind": "interval"
           },
           {
             "name": "promptfoo",
-            "score": 79.63
+            "score": 79.63,
+            "runs": 1,
+            "margin": [
+              74.43,
+              84
+            ],
+            "marginKind": "interval"
           }
         ]
       }
@@ -601,7 +637,7 @@ window.CHART_DATA = {
         "style": "other"
       }
     ],
-    "axis": "score out of 100: correct, % of items",
+    "axis": "score out of 100: median; line = 95% interval, or min to max",
     "panels": [
       {
         "name": "GPT-6 Luna",
@@ -610,11 +646,23 @@ window.CHART_DATA = {
           {
             "name": "driftbench",
             "score": 88.08,
-            "ours": true
+            "ours": true,
+            "runs": 1,
+            "margin": [
+              85.75,
+              90.33
+            ],
+            "marginKind": "interval"
           },
           {
             "name": "promptfoo",
-            "score": 89
+            "score": 89,
+            "runs": 1,
+            "margin": [
+              86.83,
+              91.08
+            ],
+            "marginKind": "interval"
           }
         ]
       },
@@ -625,11 +673,23 @@ window.CHART_DATA = {
           {
             "name": "driftbench",
             "score": 88.86,
-            "ours": true
+            "ours": true,
+            "runs": 1,
+            "margin": [
+              86.43,
+              91.16
+            ],
+            "marginKind": "interval"
           },
           {
             "name": "promptfoo",
-            "score": 86.45
+            "score": 86.45,
+            "runs": 1,
+            "margin": [
+              84.12,
+              88.73
+            ],
+            "marginKind": "interval"
           }
         ]
       },
@@ -640,11 +700,23 @@ window.CHART_DATA = {
           {
             "name": "driftbench",
             "score": 81.42,
-            "ours": true
+            "ours": true,
+            "runs": 1,
+            "margin": [
+              78.83,
+              83.92
+            ],
+            "marginKind": "interval"
           },
           {
             "name": "promptfoo",
-            "score": 83.75
+            "score": 83.75,
+            "runs": 1,
+            "margin": [
+              81.25,
+              86.17
+            ],
+            "marginKind": "interval"
           }
         ]
       }
@@ -665,7 +737,7 @@ window.CHART_DATA = {
         "style": "other"
       }
     ],
-    "axis": "score out of 100: correct, % of items",
+    "axis": "score out of 100: median; line = 95% interval, or min to max",
     "panels": [
       {
         "name": "Claude Haiku 5.5",
@@ -674,11 +746,23 @@ window.CHART_DATA = {
           {
             "name": "driftbench",
             "score": 82.66,
-            "ours": true
+            "ours": true,
+            "runs": 1,
+            "margin": [
+              80.71,
+              84.45
+            ],
+            "marginKind": "interval"
           },
           {
             "name": "promptfoo",
-            "score": 75.57
+            "score": 75.57,
+            "runs": 1,
+            "margin": [
+              73.39,
+              77.62
+            ],
+            "marginKind": "interval"
           }
         ]
       },
@@ -689,11 +773,23 @@ window.CHART_DATA = {
           {
             "name": "driftbench",
             "score": 82.28,
-            "ours": true
+            "ours": true,
+            "runs": 1,
+            "margin": [
+              80.32,
+              84.08
+            ],
+            "marginKind": "interval"
           },
           {
             "name": "promptfoo",
-            "score": 81.52
+            "score": 81.52,
+            "runs": 1,
+            "margin": [
+              79.53,
+              83.36
+            ],
+            "marginKind": "interval"
           }
         ]
       },
@@ -704,11 +800,23 @@ window.CHART_DATA = {
           {
             "name": "driftbench",
             "score": 80.76,
-            "ours": true
+            "ours": true,
+            "runs": 1,
+            "margin": [
+              78.74,
+              82.63
+            ],
+            "marginKind": "interval"
           },
           {
             "name": "promptfoo",
-            "score": 80.82
+            "score": 80.82,
+            "runs": 1,
+            "margin": [
+              78.81,
+              82.69
+            ],
+            "marginKind": "interval"
           }
         ]
       }
@@ -733,7 +841,7 @@ window.CHART_DATA = {
         "style": "baseline"
       }
     ],
-    "axis": "score out of 100: correct, % of items",
+    "axis": "score out of 100: median; line = 95% interval, or min to max",
     "panels": [
       {
         "name": "Claude Haiku 5.5",
@@ -751,7 +859,8 @@ window.CHART_DATA = {
           {
             "name": "always fail",
             "score": 78.73,
-            "baseline": true
+            "baseline": true,
+            "runs": 1
           }
         ]
       },
@@ -762,16 +871,29 @@ window.CHART_DATA = {
           {
             "name": "driftbench",
             "score": 74.66,
-            "ours": true
+            "ours": true,
+            "runs": 1,
+            "margin": [
+              68.54,
+              79.94
+            ],
+            "marginKind": "interval"
           },
           {
             "name": "promptfoo",
-            "score": 72.4
+            "score": 72.4,
+            "runs": 1,
+            "margin": [
+              66.16,
+              77.87
+            ],
+            "marginKind": "interval"
           },
           {
             "name": "always fail",
             "score": 78.73,
-            "baseline": true
+            "baseline": true,
+            "runs": 1
           }
         ]
       },
@@ -791,7 +913,8 @@ window.CHART_DATA = {
           {
             "name": "always fail",
             "score": 78.73,
-            "baseline": true
+            "baseline": true,
+            "runs": 1
           }
         ]
       }
@@ -816,7 +939,7 @@ window.CHART_DATA = {
         "style": "baseline"
       }
     ],
-    "axis": "score out of 100: correct, % of items",
+    "axis": "score out of 100: median; line = 95% interval, or min to max",
     "panels": [
       {
         "name": "Claude Haiku 5.5",
@@ -825,16 +948,29 @@ window.CHART_DATA = {
           {
             "name": "driftbench",
             "score": 61.27,
-            "ours": true
+            "ours": true,
+            "runs": 1,
+            "margin": [
+              56.04,
+              66.25
+            ],
+            "marginKind": "interval"
           },
           {
             "name": "promptfoo",
-            "score": 56.94
+            "score": 56.94,
+            "runs": 1,
+            "margin": [
+              51.67,
+              62.05
+            ],
+            "marginKind": "interval"
           },
           {
             "name": "longer reply",
             "score": 67.63,
-            "baseline": true
+            "baseline": true,
+            "runs": 1
           }
         ]
       },
@@ -845,16 +981,29 @@ window.CHART_DATA = {
           {
             "name": "driftbench",
             "score": 53.76,
-            "ours": true
+            "ours": true,
+            "runs": 1,
+            "margin": [
+              48.49,
+              58.94
+            ],
+            "marginKind": "interval"
           },
           {
             "name": "promptfoo",
-            "score": 56.94
+            "score": 56.94,
+            "runs": 1,
+            "margin": [
+              51.67,
+              62.05
+            ],
+            "marginKind": "interval"
           },
           {
             "name": "longer reply",
             "score": 67.63,
-            "baseline": true
+            "baseline": true,
+            "runs": 1
           }
         ]
       },
@@ -865,16 +1014,29 @@ window.CHART_DATA = {
           {
             "name": "driftbench",
             "score": 58.96,
-            "ours": true
+            "ours": true,
+            "runs": 1,
+            "margin": [
+              53.71,
+              64.02
+            ],
+            "marginKind": "interval"
           },
           {
             "name": "promptfoo",
-            "score": 60.4
+            "score": 60.4,
+            "runs": 1,
+            "margin": [
+              55.16,
+              65.42
+            ],
+            "marginKind": "interval"
           },
           {
             "name": "longer reply",
             "score": 67.63,
-            "baseline": true
+            "baseline": true,
+            "runs": 1
           }
         ]
       }

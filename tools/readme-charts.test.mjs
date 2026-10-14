@@ -94,6 +94,59 @@ describe('readme charts, competitors', () => {
   });
 });
 
+describe('readme charts, median and margin', () => {
+  const runsFixture = {
+    bench: 'judgebench',
+    model: 'claude-haiku-5-5',
+    contestants: [
+      {
+        contestant: 'multi-run',
+        transportMissing: 0,
+        all: { score: 0.5, runs: [0.5, 0.9, 0.7], wilson95: [0.1, 0.2] },
+      },
+      { contestant: 'even-runs', transportMissing: 0, all: { runs: [0.4, 0.6] } },
+      { contestant: 'one-run', transportMissing: 0, all: { score: 0.6, wilson95: [0.55, 0.66] } },
+      { contestant: 'bare', transportMissing: 0, all: { score: 0.3 } },
+    ],
+  };
+  const haiku = (name) =>
+    panelOf(chart('bench-judgebench', { judgebench: runsFixture }), 'Claude Haiku 5.5').bars.find(
+      (b) => b.name === name,
+    );
+
+  it('draws the median of several runs, with min to max as the margin and the run count', () => {
+    const b = haiku('multi-run');
+    expect(b.score).toBe(70);
+    expect(b.margin).toEqual([50, 90]);
+    expect(b.marginKind).toBe('range');
+    expect(b.runs).toBe(3);
+  });
+
+  it('takes the mean of the two middle runs for an even count', () => {
+    expect(haiku('even-runs').score).toBe(50);
+  });
+
+  it('draws a single run with its stored interval and "1 run"', () => {
+    const b = haiku('one-run');
+    expect(b.runs).toBe(1);
+    expect(b.margin).toEqual([55, 66]);
+    expect(b.marginKind).toBe('interval');
+  });
+
+  it('draws a single run with no stored interval as a bar without a margin', () => {
+    const b = haiku('bare');
+    expect(b.runs).toBe(1);
+    expect(b.margin).toBeUndefined();
+  });
+
+  it('gives driftbench and promptfoo the stored interval of their one recorded run', () => {
+    const b = haiku('driftbench');
+    expect(b.runs).toBe(1);
+    expect(b.margin[0]).toBeLessThan(b.score);
+    expect(b.margin[1]).toBeGreaterThan(b.score);
+  });
+});
+
 describe('readme charts, committed files', () => {
   it('match the result files they are read from', () => {
     const run = spawnSync('node', [script, '--check'], { encoding: 'utf8' });

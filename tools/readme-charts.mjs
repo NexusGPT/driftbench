@@ -530,10 +530,33 @@ const inFile = (model) => FILE_MODEL[model] ?? model;
 const PROMPTFOO = 'promptfoo';
 const bar = (name, score, extra = {}) => ({ name, score: score === null ? null : round(score), ...extra });
 
+const median = (values) => {
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = sorted.length >> 1;
+  return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+};
+/** A measured bar: the median of the recorded runs (percent), with the margin drawn on it: min to max when
+ *  there are several runs, else the stored interval when the data has one. `runs` is the run count shown. */
+function measured(name, runs, interval, extra = {}) {
+  const list = Array.isArray(runs) ? runs : [runs];
+  const margin = list.length > 1 ? [Math.min(...list), Math.max(...list)] : interval;
+  return bar(name, median(list), {
+    ...extra,
+    runs: list.length,
+    ...(margin ? { margin: margin.map(round), marginKind: list.length > 1 ? 'range' : 'interval' } : {}),
+  });
+}
+const percentOf = (pair) => pair?.map((v) => v * 100) ?? null;
+
 /** One panel of a ranked chart: a model, the size of its set, and its bars. `sizes` is "n pairs" or null. */
 function modelPanel(chart, model, size, bars, source) {
   for (const b of bars) {
-    fact(chart, `${MODEL[model]}: ${b.name}, percent`, b.score === null ? 'not run' : b.score, source);
+    fact(
+      chart,
+      `${MODEL[model]}: ${b.name}, median percent, runs, margin`,
+      b.score === null ? 'not run' : [b.score, b.runs, b.margin ?? null],
+      source,
+    );
   }
   return { name: MODEL[model], model: size ?? 'not run', bars };
 }
@@ -585,12 +608,16 @@ function addPeers(chart, bench, panels) {
     names.push(name);
     for (const panel of panels) {
       const drawn = hasResult && panel.name === model;
-      const score = drawn ? row[cohort].score * 100 : null;
-      panel.bars.push(bar(name, score, drawn && refused > 0 ? { refused } : {}));
+      const cell = row[cohort];
+      // recorded runs, as fractions: `runs` when the file has several, else the one stored score
+      const runs = drawn ? (cell.runs ?? [cell.score]).map((v) => v * 100) : null;
+      const extra = drawn && refused > 0 ? { refused } : {};
+      const b = drawn ? measured(name, runs, percentOf(cell.wilson95), extra) : bar(name, null);
+      panel.bars.push(b);
       fact(
         chart,
-        `${panel.name}: ${name}, percent${drawn && refused > 0 ? ', refused items counted wrong' : ''}`,
-        score === null ? 'not run' : drawn && refused > 0 ? [round(score), refused] : round(score),
+        `${panel.name}: ${name}, median percent, runs, margin${drawn && refused > 0 ? ', refused items counted wrong' : ''}`,
+        drawn ? [b.score, b.runs, b.margin ?? null, ...(refused > 0 ? [refused] : [])] : 'not run',
         shown,
       );
     }
@@ -606,7 +633,7 @@ const ranked = ({ chart, bench, kicker, title, key, panels, note }) => {
     kicker,
     title,
     key,
-    axis: 'score out of 100: correct, % of items',
+    axis: 'score out of 100: median; line = 95% interval, or min to max',
     panels: orderPanels(panels),
     note: `Competitors with a recorded result on this benchmark in this repository: ${drawn}. ${note}`,
   };
@@ -624,8 +651,14 @@ function sealedJudgeBench() {
           model,
           `${c.n} pairs`,
           [
-            bar('driftbench', pct(c.ledger.correct, c.n), { ours: true }),
-            bar(PROMPTFOO, pct(c.promptfoo.correct, c.n)),
+            measured('driftbench', pct(c.ledger.correct, c.n), percentOf([c.ledger.lower, c.ledger.upper]), {
+              ours: true,
+            }),
+            measured(
+              PROMPTFOO,
+              pct(c.promptfoo.correct, c.n),
+              percentOf([c.promptfoo.lower, c.promptfoo.upper]),
+            ),
           ],
           file,
         )
@@ -657,7 +690,10 @@ function sealedMmEval() {
       'bench-mm-eval',
       model,
       `${c.matched} pairs`,
-      [bar('driftbench', c.scores.ledger * 100, { ours: true }), bar(PROMPTFOO, c.scores.promptfoo * 100)],
+      [
+        measured('driftbench', c.scores.ledger * 100, percentOf(c.intervals.ledger), { ours: true }),
+        measured(PROMPTFOO, c.scores.promptfoo * 100, percentOf(c.intervals.promptfoo)),
+      ],
       file,
     );
   });
@@ -699,8 +735,13 @@ function sealedRubricBench() {
       model,
       `${c.stats.pairs} pairs`,
       [
-        bar('driftbench', c.stats.ours.estimate * 100, { ours: true }),
-        bar(PROMPTFOO, c.stats.peer.estimate * 100),
+        measured(
+          'driftbench',
+          c.stats.ours.estimate * 100,
+          percentOf([c.stats.ours.lower, c.stats.ours.upper]),
+          { ours: true },
+        ),
+        measured(PROMPTFOO, c.stats.peer.estimate * 100, percentOf([c.stats.peer.lower, c.stats.peer.upper])),
       ],
       file,
     );
@@ -725,7 +766,7 @@ function sealedVerify() {
   const fail = data.cheaters.alwaysFailOfficial * 100;
   const panels = MODELS.map((model) => {
     const c = data.cells.find((x) => x.model === inFile(model) && x.official);
-    const baseline = bar('always fail', fail, { baseline: true });
+    const baseline = measured('always fail', fail, null, { baseline: true });
     if (!c)
       return modelPanel('bench-verify', model, null, [...notRun('driftbench', PROMPTFOO), baseline], file);
     const [ours, theirs] = c.official.correct;
@@ -734,7 +775,11 @@ function sealedVerify() {
       'bench-verify',
       model,
       `${n} items`,
-      [bar('driftbench', pct(ours, n), { ours: true }), bar(PROMPTFOO, pct(theirs, n)), baseline],
+      [
+        measured('driftbench', pct(ours, n), percentOf(c.official.wilson95[0]), { ours: true }),
+        measured(PROMPTFOO, pct(theirs, n), percentOf(c.official.wilson95[1])),
+        baseline,
+      ],
       file,
     );
   });
@@ -761,7 +806,7 @@ function sealedWriting() {
     const key = inFile(model);
     const ours = cells.find((c) => c.model === key && c.contestant === 'pair-ledger');
     const peer = cells.find((c) => c.model === key && c.contestant === 'promptfoo');
-    const baseline = bar('longer reply', longer.accuracy, { baseline: true });
+    const baseline = measured('longer reply', longer.accuracy, null, { baseline: true });
     if (ours?.status !== 'complete' || peer?.status !== 'complete') {
       return modelPanel('bench-writing', model, null, [...notRun('driftbench', PROMPTFOO), baseline], file);
     }
@@ -769,7 +814,11 @@ function sealedWriting() {
       'bench-writing',
       model,
       `${ours.pairs} pairs`,
-      [bar('driftbench', ours.accuracy, { ours: true }), bar(PROMPTFOO, peer.accuracy), baseline],
+      [
+        measured('driftbench', ours.accuracy, ours.wilson95, { ours: true }),
+        measured(PROMPTFOO, peer.accuracy, peer.wilson95),
+        baseline,
+      ],
       file,
     );
   });

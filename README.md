@@ -745,7 +745,7 @@ Every number comes from a result file in this repository. All scores are on one 
 
 ### Public benchmarks, against promptfoo
 
-Five public benchmarks for judges, one chart each. A chart has one panel per model. In each panel, driftbench stands beside every competitor with a recorded result, from the highest score to the lowest. A competitor is drawn when the repository records a result for it; the note under each chart names who is drawn. Today that is promptfoo. A result that was not run says "not run"; none is estimated.
+Five public benchmarks for judges, one chart each. A chart has one panel per model. In each panel, driftbench stands beside every competitor with a recorded result, from the highest score to the lowest. A competitor is drawn when the repository records a result for it; the note under each chart names who is drawn. Today that is promptfoo. A result that was not run says "not run"; none is estimated. Each bar is the median of the recorded runs, with its margin drawn as a line (the 95 percent interval of the run, or min to max when there are several runs) and the run count under the label.
 
 The driftbench side is the pair ledger, an opt-in judge mode merged in [PR 168](https://github.com/achammah/driftbench/pull/168), and on verify the frozen verify cascade. Neither is the shipped default. A correction across the whole family of cells is still pending, so no cell is called a win or a loss.
 
