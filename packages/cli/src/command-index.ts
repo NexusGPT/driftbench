@@ -25,6 +25,7 @@ export const COMMAND_MODULES: readonly { names: readonly string[]; load: () => P
   { names: ['perturb'], load: async () => (await import('./commands/perturb')).registerPerturbCommand },
   { names: ['simulate'], load: async () => (await import('./commands/simulate')).registerSimulateCommand },
   { names: ['attack'], load: async () => (await import('./commands/attack')).registerAttackCommand },
+  { names: ['redteam'], load: async () => (await import('./commands/redteam')).registerRedteamCommand },
   { names: ['judge'], load: async () => (await import('./commands/judge')).registerJudgeCommand },
   { names: ['validate'], load: async () => (await import('./commands/validate')).registerValidateCommand },
   { names: ['report'], load: async () => (await import('./commands/report')).registerReportCommand },
@@ -89,6 +90,7 @@ export const COMMAND_HELP: readonly (readonly [term: string, description: string
     'attack [options] <spec>',
     'Attack one spec adaptively: each deviation is picked from the agent’s last replies',
   ],
+  ['redteam', 'Run Crescendo or GOAT; list red-team plugins, generate a spec from one and grade it.'],
   ['judge', 'Judge criteria with the council: replay recorded answers, or validate criteria and fixtures'],
   [
     'validate [options] <component> [level]',
