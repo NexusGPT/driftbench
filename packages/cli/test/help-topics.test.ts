@@ -361,6 +361,20 @@ function workedExample(body: string, section = 'Worked example'): Step[] {
   return steps;
 }
 
+/** What git sees changed or added under examples/ and packages/ of the repository, as one text. */
+function repositoryState(): string {
+  const run = spawnSync(
+    'git',
+    ['status', '--porcelain', '--untracked-files=all', '--', 'examples', 'packages'],
+    {
+      cwd: ROOT,
+      encoding: 'utf8',
+    },
+  );
+  if (run.status !== 0) throw new Error(`git status failed: ${run.stderr}`);
+  return run.stdout;
+}
+
 /** Where a worked example may write: a new relative path, never into the linked repository folders. */
 function scratchPath(scratch: string, path: string): string {
   const parts = path.split('/');
@@ -387,6 +401,9 @@ describe('every worked example runs', () => {
       try {
         symlinkSync(join(ROOT, 'examples'), join(scratch, 'examples'));
         symlinkSync(join(ROOT, 'packages'), join(scratch, 'packages'));
+        // A setup line runs in a shell, which could write through the links: the repository must not change.
+        const shell = steps.some((step) => step.kind === 'shell');
+        const before = shell ? repositoryState() : '';
         for (const step of steps) {
           if (step.kind === 'file') {
             const path = scratchPath(scratch, step.path);
@@ -400,6 +417,12 @@ describe('every worked example runs', () => {
             const code = await main(step.argv, io);
             expect(code, `${step.line}\n${io.stderr()}`).toBe(step.exit);
           }
+        }
+        if (shell) {
+          expect(
+            repositoryState(),
+            'a sh setup line wrote into examples/ or packages/ of the repository',
+          ).toBe(before);
         }
       } finally {
         rmSync(scratch, { recursive: true, force: true });
@@ -424,6 +447,15 @@ describe('every worked example runs', () => {
     ].join('\n');
     expect(workedExample(body).map((step) => step.kind)).toEqual(['file', 'shell', 'shell', 'cli']);
     expect(() => scratchPath('/tmp/s', 'examples/x.yaml')).toThrow();
+    const planted = join(ROOT, 'examples', `.help-confinement-probe-${process.pid}`);
+    const before = repositoryState();
+    try {
+      writeFileSync(planted, 'x');
+      expect(repositoryState()).not.toBe(before);
+    } finally {
+      rmSync(planted, { force: true });
+    }
+    expect(repositoryState()).toBe(before);
     expect(() => scratchPath('/tmp/s', '../x.yaml')).toThrow();
     expect(scratchPath('/tmp/s', 'out/x.yaml')).toBe('/tmp/s/out/x.yaml');
   });
