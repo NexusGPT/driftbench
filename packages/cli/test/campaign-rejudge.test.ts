@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { openStore } from '@agent-nexus/driftbench-store';
 import { expect, it } from 'vitest';
 import { main } from '../src/index';
+import { routedJudge } from './support/routed-judge';
 
 const root = fileURLToPath(new URL('../../../', import.meta.url));
 it('rejudges Acme stored replies, reports carried rows and cost, and refuses an agent-affecting edit', async () => {
@@ -54,6 +55,7 @@ it('rejudges Acme stored replies, reports carried rows and cost, and refuses an 
       join(dir, 'change.yaml'),
       'from: v1\nto: v1\nchanges:\n  - {kind: criterion, id: quote}\n',
     );
+    const fake = await routedJudge(dir);
     const args = [
       'campaign',
       'rejudge',
@@ -69,7 +71,7 @@ it('rejudges Acme stored replies, reports carried rows and cost, and refuses an 
       '--judge',
       'claude:haiku',
       '--judge-command',
-      join(root, 'examples/estates/fixture/live/fake/judge.cjs'),
+      fake.command,
     ];
     const judged = await cli([...args, '--json']);
     expect(judged.err).toBe('');
@@ -78,12 +80,21 @@ it('rejudges Acme stored replies, reports carried rows and cost, and refuses an 
       agentCalls: 0,
       rejudged: 1,
       carried: 1,
-      judgeCostUsd: 0.0015,
+      judgeCostUsd: 0.003,
     });
     const db = openStore(path);
     const [before] = await db.listRuns({ campaignId: 'base' });
     const [after] = await db.listRuns({ campaignId: 'judged' });
-    expect(after?.cost).toBeCloseTo(0.0015);
+    expect(after?.cost).toBeCloseTo(0.003);
+    expect(
+      (await readFile(fake.receipts, 'utf8'))
+        .trim()
+        .split('\n')
+        .map((line) => JSON.parse(line)),
+    ).toEqual([
+      { route: true, budget: null, cost: 0.0015 },
+      { route: false, budget: null, cost: 0.0015 },
+    ]);
     expect(after?.blocks[0]?.verdicts.find((v) => v.name === 'quote')?.outcome).toBe('fail');
     expect(after?.blocks.map((b) => b.observed)).toEqual(before?.blocks.map((b) => b.observed));
     expect((await db.getCampaign('judged'))?.rejudged?.[0]?.oldSpecHash).toBe(before?.specHash);

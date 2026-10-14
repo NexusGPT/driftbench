@@ -102,6 +102,7 @@ export async function runJudgeFrom(
   const script = /\.(c|m)?js$/.test(path);
   const client = createDefaultJudge({
     provider: 'claude-cli',
+    id: `claude-${model}`,
     model,
     env: { ...env, CLAUDE_JUDGE_MODEL: model },
     ...(script ? { command: process.execPath, commandArgs: [path] } : { command: path }),

@@ -326,6 +326,7 @@ export async function judgeCalibrateCommand(options: JudgeCalibrateOptions, io: 
     for (const model of live) {
       let client: JudgeClient = createDefaultJudge({
         provider: 'claude-cli',
+        id: `claude-${process.env.CLAUDE_JUDGE_MODEL?.trim() || model}`,
         ...(cap === undefined ? {} : { maxBudgetUsd: Math.min(0.1, cap), spendCapUsd: cap, spendLedger }),
         model,
         ...(options.claudeCommand ? { command: options.claudeCommand } : {}),
