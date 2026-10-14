@@ -23,6 +23,8 @@ const MAX_CACHED_CELLS = 65_536;
 export class Feasibility {
   private readonly sizes: number[];
   private readonly representatives: number[][];
+  /** Immutable ranges are reused; shuffle still copies and consumes the original random draws. */
+  private readonly valueOrders: Array<readonly number[] | undefined>;
   /** Only constraints naming the chosen value can forbid a cell. */
   private readonly touchingValue: Map<number, number[]>[];
   private readonly cache = new Map<string | number, boolean>();
@@ -33,6 +35,7 @@ export class Feasibility {
 
   constructor(private readonly space: CompiledSpace) {
     this.sizes = space.dimensions.map((dimension) => dimension.values.length);
+    this.valueOrders = new Array(this.sizes.length);
     this.representatives = equivalentValues(space, this.sizes);
     let product = 1;
     const weights = this.sizes.map((size) => {
@@ -168,7 +171,16 @@ export class Feasibility {
     const size = this.sizes[dimension] ?? 0;
     // An unseeded search usually accepts the first value. Do not allocate the whole dimension's
     // range for every recursive visit. Seeded searches keep the same shuffle and random draws.
-    const values = rng ? shuffle(rng, range(size)) : undefined;
+    let values: number[] | undefined;
+    if (rng) {
+      let order = this.valueOrders[dimension];
+      if (!order) {
+        order = range(size);
+        if (Number.isInteger(dimension) && dimension >= 0 && dimension < this.valueOrders.length)
+          this.valueOrders[dimension] = order;
+      }
+      values = shuffle(rng, order);
+    }
     for (let index = 0; index < size; index += 1) {
       const value = values?.[index] ?? index;
       cell[dimension] = value;

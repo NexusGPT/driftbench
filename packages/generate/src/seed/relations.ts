@@ -202,13 +202,27 @@ export function slotsIn(text: string): string[] {
 
 /** The slots every string of a value reads, nested values included. */
 export function slotsOf(value: unknown): string[] {
-  if (typeof value === 'string') return slotsIn(value);
-  if (Array.isArray(value)) return value.flatMap(slotsOf);
-  if (isPlainObject(value)) return Object.values(value).flatMap(slotsOf);
-  return [];
+  const out: string[] = [];
+  appendSlots(value, out);
+  return out;
+}
+
+function appendSlots(value: unknown, out: string[]): void {
+  if (typeof value === 'string') {
+    for (const name of slotNames(value)) out.push(name);
+  } else if (Array.isArray(value)) {
+    const length = value.length;
+    for (let index = 0; index < length; index += 1) if (index in value) appendSlots(value[index], out);
+  } else if (isPlainObject(value)) {
+    for (const child of Object.values(value)) appendSlots(child, out);
+  }
 }
 
 export type Filled<T> = { ok: true; value: T } | { ok: false; missing: string[] };
+
+const filledCache = new Map<string, Map<string, string>>();
+let filledEntries = 0;
+let filledCharacters = 0;
 
 /** A text with each `{slot}` replaced; `literal` writes a value as a literal regular expression. */
 export function fillText(text: string, slots: Slots, literal = false): Filled<string> {
@@ -216,13 +230,32 @@ export function fillText(text: string, slots: Slots, literal = false): Filled<st
   if (names.length === 0) return { ok: true, value: text };
   const missing = names.filter((name) => slots[name] === undefined);
   if (missing.length > 0) return { ok: false, missing: [...new Set(missing)] };
-  return {
-    ok: true,
-    value: text.replace(SLOT, (_all, name: string) => {
-      const value = slots[name] as string;
-      return literal ? escapeRegExp(value) : value;
-    }),
-  };
+  const values = names.map((name) => slots[name] as string);
+  const key =
+    text.length <= 1024 && values.every((value) => typeof value === 'string')
+      ? `${literal ? '1' : '0'}${JSON.stringify(values)}`
+      : undefined;
+  const cached = key === undefined ? undefined : filledCache.get(text)?.get(key);
+  if (cached !== undefined) return { ok: true, value: cached };
+  let at = 0;
+  const value = text.replace(SLOT, () => {
+    const replacement = values[at++] as string;
+    return literal ? escapeRegExp(replacement) : replacement;
+  });
+  if (key !== undefined && value.length <= 4096 && key.length <= 4096) {
+    const size = text.length + key.length + value.length;
+    if (filledEntries >= 4096 || filledCharacters + size > 1_000_000) {
+      filledCache.clear();
+      filledEntries = 0;
+      filledCharacters = 0;
+    }
+    const byValues = filledCache.get(text) ?? new Map<string, string>();
+    byValues.set(key, value);
+    filledCache.set(text, byValues);
+    filledEntries += 1;
+    filledCharacters += size;
+  }
+  return { ok: true, value };
 }
 
 /** A value with every `{slot}` in its strings replaced. */
@@ -279,5 +312,6 @@ export function endState(
 export function phraseFits(phrase: ProposalPhrase, context: Context, slots: Slots): boolean {
   if (!matches(phrase.when, context)) return false;
   const all = { ...slots, ...(phrase.binds ?? {}) };
-  return fillText(phrase.text, all).ok;
+  // Eligibility needs only bound slots, not the rendered string that the chosen phrase will use.
+  return slotNames(phrase.text).every((name) => all[name] !== undefined);
 }

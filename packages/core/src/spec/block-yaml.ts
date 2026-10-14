@@ -13,69 +13,96 @@ const plainKey = /^[a-zA-Z_][a-zA-Z0-9_.-]*$/;
 export function parseBlockYaml(text: string): { value: unknown } | undefined {
   // biome-ignore lint/suspicious/noControlCharactersInRegex: control characters require the full YAML parser.
   if (/[\r\t\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f\u2028\u2029\ufeff]/.test(text)) return;
-  const lines = text.split('\n');
-  if (lines.at(-1) === '') lines.pop();
-  let at = 0;
-  let indentAt = -1;
-  let indent = 0;
-  const indentation = (): number => {
-    if (indentAt !== at) {
-      const line = lines[at] ?? '';
-      indent = 0;
-      while (line.charCodeAt(indent) === 32) indent += 1;
-      indentAt = at;
+  return new BlockParser(text).parse();
+}
+
+class BlockParser {
+  private readonly lines: string[];
+  private at = 0;
+  private indentAt = -1;
+  private indent = 0;
+
+  constructor(private readonly text: string) {
+    this.lines = text.split('\n');
+    if (this.lines.at(-1) === '') this.lines.pop();
+  }
+
+  parse(): { value: unknown } | undefined {
+    try {
+      this.skip();
+      if (this.at === this.lines.length || this.indentation() !== 0) return;
+      const result = this.block(0);
+      this.skip();
+      if (this.at !== this.lines.length) return;
+      return { value: result };
+    } catch {
+      return;
     }
-    return indent;
-  };
-  const skip = () => {
-    while (at < lines.length) {
-      const line = lines[at] ?? '';
-      const leading = indentation();
+  }
+
+  private indentation(): number {
+    if (this.indentAt !== this.at) {
+      const line = this.lines[this.at] ?? '';
+      this.indent = 0;
+      while (line.charCodeAt(this.indent) === 32) this.indent += 1;
+      this.indentAt = this.at;
+    }
+    return this.indent;
+  }
+
+  private skip(): void {
+    while (this.at < this.lines.length) {
+      const line = this.lines[this.at] ?? '';
+      const leading = this.indentation();
       if (leading !== line.length && line[leading] !== '#') break;
-      at += 1;
+      this.at += 1;
     }
-  };
-  const literal = (source: string, indent: number): string => {
-    if ((source !== '|-' && source !== '|') || !text.endsWith('\n')) throw unsupported;
+  }
+
+  private literal(source: string, indent: number): string {
+    if ((source !== '|-' && source !== '|') || !this.text.endsWith('\n')) throw unsupported;
     const content: string[] = [];
     let first = true;
-    while (at < lines.length) {
-      const line = lines[at] ?? '';
-      if (line !== '' && indentation() <= indent) break;
-      if (line !== '' && indentation() < indent + 2) throw unsupported;
-      if (line !== '' && (line.trim() === '' || (first && indentation() !== indent + 2))) throw unsupported;
+    while (this.at < this.lines.length) {
+      const line = this.lines[this.at] ?? '';
+      if (line !== '' && this.indentation() <= indent) break;
+      if (line !== '' && this.indentation() < indent + 2) throw unsupported;
+      if (line !== '' && (line.trim() === '' || (first && this.indentation() !== indent + 2)))
+        throw unsupported;
       if (line !== '') first = false;
       content.push(line.slice(indent + 2));
-      at += 1;
+      this.at += 1;
     }
     if (content.length === 0 || first) throw unsupported;
     const value = content.join('\n').replace(/\n*$/, '');
     return source === '|' ? `${value}\n` : value;
-  };
-  const value = (source: string, indent: number): unknown => {
-    if (source.startsWith('|')) return literal(source, indent);
+  }
+
+  private value(source: string, indent: number): unknown {
+    if (source.startsWith('|')) return this.literal(source, indent);
     if (source !== '') return scalar(source);
-    skip();
-    const line = lines[at];
-    if (line === undefined || indentation() !== indent + 2) throw unsupported;
-    return block(indent + 2);
-  };
-  const map = (indent: number, first?: string): Record<string, unknown> => {
+    this.skip();
+    const line = this.lines[this.at];
+    if (line === undefined || this.indentation() !== indent + 2) throw unsupported;
+    return this.block(indent + 2);
+  }
+
+  private map(indent: number, first?: string): Record<string, unknown> {
     const out: Record<string, unknown> = {};
     let source = first;
     while (true) {
       if (source === undefined) {
-        skip();
-        const line = lines[at];
-        if (line === undefined || indentation() < indent) break;
-        if (indentation() !== indent || line.slice(indent).startsWith('- ')) throw unsupported;
+        this.skip();
+        const line = this.lines[this.at];
+        if (line === undefined || this.indentation() < indent) break;
+        if (this.indentation() !== indent || line.slice(indent).startsWith('- ')) throw unsupported;
         source = line.slice(indent);
-        at += 1;
+        this.at += 1;
       }
       const entry = pair(source);
       const { key } = entry;
       if (Object.hasOwn(out, key)) throw unsupported;
-      const parsed = entry.primitive ? entry.parsed : value(entry.rest, indent);
+      const parsed = entry.primitive ? entry.parsed : this.value(entry.rest, indent);
       if (key === '__proto__')
         Object.defineProperty(out, key, {
           value: parsed,
@@ -87,40 +114,32 @@ export function parseBlockYaml(text: string): { value: unknown } | undefined {
       source = undefined;
     }
     return out;
-  };
-  const sequence = (indent: number, first?: string): unknown[] => {
+  }
+
+  private sequence(indent: number, first?: string): unknown[] {
     const out: unknown[] = [];
     let source = first;
     while (true) {
       if (source === undefined) {
-        skip();
-        const line = lines[at];
-        if (line === undefined || indentation() < indent) break;
-        if (indentation() !== indent || !line.slice(indent).startsWith('- ')) throw unsupported;
+        this.skip();
+        const line = this.lines[this.at];
+        if (line === undefined || this.indentation() < indent) break;
+        if (this.indentation() !== indent || !line.slice(indent).startsWith('- ')) throw unsupported;
         source = line.slice(indent);
-        at += 1;
+        this.at += 1;
       }
       const rest = source.slice(2);
-      if (rest.startsWith('- ')) out.push(sequence(indent + 2, rest));
-      else if (/^[a-zA-Z_][a-zA-Z0-9_.-]*:(?: |$)/.test(rest)) out.push(map(indent + 2, rest));
-      else out.push(value(rest, indent));
+      if (rest.startsWith('- ')) out.push(this.sequence(indent + 2, rest));
+      else if (/^[a-zA-Z_][a-zA-Z0-9_.-]*:(?: |$)/.test(rest)) out.push(this.map(indent + 2, rest));
+      else out.push(this.value(rest, indent));
       source = undefined;
     }
     return out;
-  };
-  const block = (indent: number): unknown => {
-    const source = (lines[at] ?? '').slice(indent);
-    return source.startsWith('- ') ? sequence(indent) : map(indent);
-  };
-  try {
-    skip();
-    if (at === lines.length || indentation() !== 0) return;
-    const result = block(0);
-    skip();
-    if (at !== lines.length) return;
-    return { value: result };
-  } catch {
-    return;
+  }
+
+  private block(indent: number): unknown {
+    const source = (this.lines[this.at] ?? '').slice(indent);
+    return source.startsWith('- ') ? this.sequence(indent) : this.map(indent);
   }
 }
 

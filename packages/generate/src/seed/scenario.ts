@@ -123,7 +123,6 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
   const { path } = request;
   const relations = prepared.relations;
   const dimensions = prepared.space.dimensions;
-  const fail = (reason: string): Scenario => ({ ok: false, reason: `path ${path.id}: ${reason}` });
   const indexOf = (id: string) =>
     request.dimensionIndex
       ? (request.dimensionIndex.get(id) ?? -1)
@@ -131,23 +130,26 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
 
   // The cell: the fixed values, the flow, and a value for every dimension the path's `when` names.
   const cell: Pick[] = [...request.fixed];
-  const held = (dimension: number) => cell.find(([at]) => at === dimension);
   const flowDimension = indexOf('flow');
   const flowValue = dimensions[flowDimension]?.index.get(path.flow);
-  if (flowDimension < 0 || flowValue === undefined) return fail(`the flow ${path.flow} is not in the map`);
-  const heldFlow = held(flowDimension);
+  if (flowDimension < 0 || flowValue === undefined)
+    return failedScenario(path, `the flow ${path.flow} is not in the map`);
+  const heldFlow = held(cell, flowDimension);
   if (heldFlow && heldFlow[1] !== flowValue) {
-    return fail(`the cell holds the flow ${valueId(prepared, flowDimension, heldFlow[1])}, not ${path.flow}`);
+    return failedScenario(
+      path,
+      `the cell holds the flow ${valueId(prepared, flowDimension, heldFlow[1])}, not ${path.flow}`,
+    );
   }
   if (!heldFlow) cell.push([flowDimension, flowValue]);
   for (const [dimensionKey, values] of Object.entries(path.when ?? {})) {
     const dimension = indexOf(dimensionKey);
-    if (dimension < 0) return fail(`${dimensionKey} is not a dimension of the map`);
-    const own = held(dimension);
+    if (dimension < 0) return failedScenario(path, `${dimensionKey} is not a dimension of the map`);
+    const own = held(cell, dimension);
     if (own) {
       const id = valueId(prepared, dimension, own[1]);
       if (!values.includes(id))
-        return fail(`it needs ${dimensionKey} in ${values.join(', ')}; the cell holds ${id}`);
+        return failedScenario(path, `it needs ${dimensionKey} in ${values.join(', ')}; the cell holds ${id}`);
       continue;
     }
     let indices = request.pathValues?.get(dimensionKey);
@@ -161,17 +163,21 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     }
     const chosen = pick(rng, prepared.feasibility.allowedValues(cell, dimension, indices));
     if (chosen === undefined)
-      return fail(`the constraints allow no value of ${dimensionKey} it needs with this cell`);
+      return failedScenario(
+        path,
+        `the constraints allow no value of ${dimensionKey} it needs with this cell`,
+      );
     cell.push([dimension, chosen]);
   }
-  if (!prepared.feasibility.allowed(cell)) return fail('the constraints forbid its values with this cell');
+  if (!prepared.feasibility.allowed(cell))
+    return failedScenario(path, 'the constraints forbid its values with this cell');
   // Every stage the walk reaches holds with the cell: a value the path states nothing about (a coverage
   // result on a flow that checks no coverage) rules the path out.
   if (prepared.stage !== undefined) {
     for (const stage of path.stages.slice(1)) {
       const at = dimensions[prepared.stage]?.index.get(stage);
       if (at !== undefined && !prepared.feasibility.allowed([...cell, [prepared.stage, at]]))
-        return fail(`the constraints forbid the stage ${stage} with this cell`);
+        return failedScenario(path, `the constraints forbid the stage ${stage} with this cell`);
     }
   }
 
@@ -231,21 +237,6 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     );
     return pick(rng, phrases);
   };
-  const stimulusOf = (phrase: ProposalPhrase | undefined, dimension: string, value: string): Stimulus => {
-    if (!phrase) return { kind: 'placeholder', dimension, value };
-    const filled = fillText(phrase.text, { ...slots, ...(phrase.binds ?? {}) });
-    return { kind: 'phrase', phrase: { ...phrase, text: filled.ok ? filled.value : phrase.text } };
-  };
-  /** The data values whose slots a text or a value reads: what the block's own cell holds. */
-  const sourcesOf = (...values: unknown[]): Pick[] => {
-    const sources: Pick[] = [];
-    for (const value of values)
-      for (const slot of slotsOf(value)) {
-        const source = boundBy.get(slot);
-        if (source) sources.push(source);
-      }
-    return sources;
-  };
 
   // A phrase probe goes in at a stage of the path, chosen before the walk: its phrase may bind a slot a later
   // turn reads (a plan named again at the recap).
@@ -253,9 +244,10 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
   let probeAt: number | undefined;
   let recovery: Recovery | undefined;
   if (probe && probe.classId !== TOOL_FAILURE) {
-    if (deviationKey === undefined) return fail('the map has no deviation dimension');
+    if (deviationKey === undefined) return failedScenario(path, 'the map has no deviation dimension');
     recovery = recoveryFor(relations, probe.classId, path.flow);
-    if (!recovery) return fail(`the map gives no recovery from ${probe.classId} in the flow ${path.flow}`);
+    if (!recovery)
+      return failedScenario(path, `the map gives no recovery from ${probe.classId} in the flow ${path.flow}`);
     const allowed = path.stages
       .map((stage, index) => ({ stage, index }))
       // A probe goes in before a move, or after the last stage when its recovery keeps the conversation
@@ -293,10 +285,12 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
         !discriminates(recovery, probe.stage, path.stages[0]) &&
         choosePhraseExists(prepared, deviationKey, probe.classId, contextOf(probe.stage), slots, request)
       )
-        return fail(
+        return failedScenario(
+          path,
           `the first-turn recovery of ${probe.classId} stays at ${probe.stage} without a required tool call; it cannot distinguish an idle or echo reply`,
         );
-      return fail(
+      return failedScenario(
+        path,
         `no stage of the path takes ${probe.classId}: none its recovery allows has an approved phrase`,
       );
     }
@@ -327,6 +321,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       blocks.push({
         id: `b${blocks.length + 1}-aside`,
         stimulus: stimulusOf(
+          slots,
           request.aside.phrase,
           dimensionId(prepared, dimension),
           valueId(prepared, dimension, value),
@@ -339,33 +334,28 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     if (probeAt === index && probe && deviationKey !== undefined && recovery) {
       const stage = path.stages[index] as string;
       const deviation = dimensions[prepared.deviation ?? -1]?.index.get(probe.classId);
-      if (deviation === undefined) return fail(`${probe.classId} is not a value of the deviation dimension`);
+      if (deviation === undefined)
+        return failedScenario(path, `${probe.classId} is not a value of the deviation dimension`);
       const phrase = choosePhrase(deviationKey, probe.classId, contextOf(stage), slots);
       for (const [slot, value] of Object.entries(phrase?.binds ?? {})) slots[slot] = value;
       const tools: ToolExpect[] = [];
       for (const call of recovery.tools) {
         const expected = toolExpect(call.tool, call.count, call.input, slots);
         if (!expected.ok)
-          return fail(`the recovery of ${probe.classId} reads unbound slots ${expected.missing.join(', ')}`);
+          return failedScenario(
+            path,
+            `the recovery of ${probe.classId} reads unbound slots ${expected.missing.join(', ')}`,
+          );
         tools.push(expected.value);
       }
-      const words = (patterns: string[]) => {
-        const out: string[] = [];
-        for (const pattern of patterns) {
-          const filled = fillText(pattern, slots, true);
-          if (!filled.ok) return undefined;
-          out.push(filled.value);
-        }
-        return out;
-      };
-      const must = words(recovery.must);
-      const mustNot = words(recovery.mustNot);
+      const must = filledWords(recovery.must, slots);
+      const mustNot = filledWords(recovery.mustNot, slots);
       if (!must || !mustNot)
-        return fail(`the recovery of ${probe.classId} reads a slot the cell does not bind`);
+        return failedScenario(path, `the recovery of ${probe.classId} reads a slot the cell does not bind`);
       const after = stageAfter(recovery, stage);
       blocks.push({
         id: `b${blocks.length + 1}-${probe.classId}`,
-        stimulus: stimulusOf(phrase, deviationKey, probe.classId),
+        stimulus: stimulusOf(slots, phrase, deviationKey, probe.classId),
         injection: probe.classId,
         ...(after === undefined ? {} : { stage: after }),
         // The cell records where the class is said, as a coverage cell of deviation and stage reads it.
@@ -395,7 +385,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
         ? undefined
         : dimensions[prepared.transition]?.index.get(transitionId);
     if (transitionKey === undefined || transition === undefined) {
-      return fail(`the map has no stage transition ${transitionId}`);
+      return failedScenario(path, `the map has no stage transition ${transitionId}`);
     }
     const context = contextOf(from);
     const phrase = choosePhrase(transitionKey, transitionId, context, slots, index === 0);
@@ -410,17 +400,20 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       if (!subject || call.stage !== from || (call.to !== undefined && call.to !== to)) continue;
       if (!matches(call.when, context)) continue;
       if (toolNames.size > 0 && !toolNames.has(call.tool))
-        return fail(`${call.tool} is not a tool of the map`);
+        return failedScenario(path, `${call.tool} is not a tool of the map`);
       const expected = toolExpect(call.tool, call.count, call.input, slots);
       if (!expected.ok)
-        return fail(`${call.tool} at ${from} reads unbound slots ${expected.missing.join(', ')}`);
+        return failedScenario(
+          path,
+          `${call.tool} at ${from} reads unbound slots ${expected.missing.join(', ')}`,
+        );
       tools.push(expected.value);
       for (const dimension of Object.keys(call.when ?? {})) {
         const at = indexOf(dimension);
-        const value = held(at);
+        const value = held(cell, at);
         if (value) ruled.push(value);
       }
-      ruled.push(...sourcesOf(call.input ?? {}));
+      ruled.push(...sourcesOf(boundBy, call.input ?? {}));
     }
     // What the reply of this turn must state (a quoted price read from the tool's answer), from the map.
     const stated: string[] = [];
@@ -438,7 +431,8 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
         const original = relations.binds.get(
           `${dimensionId(prepared, source[0])}=${valueId(prepared, source[0], source[1])}`,
         )?.[slot];
-        if (slots[slot] !== original) return fail(`the phrase overrides tool output slot ${slot}`);
+        if (slots[slot] !== original)
+          return failedScenario(path, `the phrase overrides tool output slot ${slot}`);
       }
       for (const [patterns, target] of [
         [entry.must ?? [], stated],
@@ -447,22 +441,25 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
         for (const pattern of patterns) {
           const filled = fillText(pattern, slots, true);
           if (!filled.ok)
-            return fail(`what the reply states at ${from} reads unbound slots ${filled.missing.join(', ')}`);
+            return failedScenario(
+              path,
+              `what the reply states at ${from} reads unbound slots ${filled.missing.join(', ')}`,
+            );
           target.push(filled.value);
         }
       }
       for (const dimension of Object.keys(entry.when ?? {})) {
-        const value = held(indexOf(dimension));
+        const value = held(cell, indexOf(dimension));
         if (value) ruled.push(value);
       }
-      const sources = sourcesOf(entry.must, entry.must_not);
+      const sources = sourcesOf(boundBy, entry.must, entry.must_not);
       ruled.push(...sources);
       replyData.push(...sources.filter(([at]) => prepared.toolDimensions.get(at)?.direction === 'out'));
     }
     const carries = unique([[prepared.transition as number, transition], ...ruled]);
     blocks.push({
       id: `b${blocks.length + 1}-${transitionId}`,
-      stimulus: stimulusOf(phrase, transitionKey, transitionId),
+      stimulus: stimulusOf(slots, phrase, transitionKey, transitionId),
       stage: to,
       saidAt: from,
       carries,
@@ -489,20 +486,17 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       break;
     }
   }
-  if (request.turn?.call && !turnPlaced) return fail(`no move of the path calls ${request.turn.call.tool}`);
+  if (request.turn?.call && !turnPlaced)
+    return failedScenario(path, `no move of the path calls ${request.turn.call.tool}`);
 
   let placed: Built['probe'];
   let truncated = turnPlaced;
   // The answer a tool gives once it works again: the bound values the replies state, else its defaults.
-  const answering = (tool: string): ToolAnswer => {
-    const bound = worldFor(prepared, unique(replyData), { useBindings: true }).world?.tools?.[tool];
-    if (bound) return bound;
-    const schema = prepared.tools.find((entry) => entry.name === tool);
-    return { result: (schema ? toolAnswer(schema, []).answer : {}) as never };
-  };
   if (probe && probe.classId === TOOL_FAILURE) {
-    const failed = toolFailure(prepared, rng, path, blocks, cell, probe, answering);
-    if (!failed.ok) return fail(failed.reason);
+    const failed = toolFailure(prepared, rng, path, blocks, cell, probe, (tool) =>
+      answering(prepared, replyData, tool),
+    );
+    if (!failed.ok) return failedScenario(path, failed.reason);
     placed = failed.placed;
     truncated = true;
   } else if (probe && probeAt !== undefined) {
@@ -515,11 +509,14 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
   const inPlay = new Set<string>();
   for (const block of blocks) for (const tool of block.tools ?? []) if (calls(tool)) inPlay.add(tool.label);
   for (const block of blocks) {
-    const listed = new Set((block.tools ?? []).map((tool) => tool.label));
-    const closed = [...inPlay].filter((label) => !listed.has(label)).map((label) => ({ label, count: 0 }));
+    const listed = new Set<string>();
+    for (const tool of block.tools ?? []) listed.add(tool.label);
+    const closed: ToolExpect[] = [];
+    for (const label of inPlay) if (!listed.has(label)) closed.push({ label, count: 0 });
     if (closed.length > 0) block.tools = [...(block.tools ?? []), ...closed];
   }
-  const forbidden = prepared.tools.map((tool) => tool.name).filter((name) => !inPlay.has(name));
+  const forbidden: string[] = [];
+  for (const tool of prepared.tools) if (!inPlay.has(tool.name)) forbidden.push(tool.name);
   const rules: Rules = {
     ...(forbidden.length > 0 ? { forbidden_tools: forbidden } : {}),
     ...(probe?.classId === 'D7_silence_or_burst' ? { one_message_per_turn: true } : {}),
@@ -568,7 +565,10 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
         )
       : pick(rng, options);
     if (wanted && !drawn)
-      return fail(`a clean walk cannot take ${wanted.classId} at ${wanted.stage} as its perturbation`);
+      return failedScenario(
+        path,
+        `a clean walk cannot take ${wanted.classId} at ${wanted.stage} as its perturbation`,
+      );
     const picked = drawn ? [drawn] : [];
     if (request.perturbEvery) {
       for (const option of options) {
@@ -595,7 +595,12 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     if (failure) {
       const block = blocks[failure.index] as BlockDraft;
       block.given = {
-        world: { tools: { ...block.given?.world?.tools, [failure.tool]: answering(failure.tool) } },
+        world: {
+          tools: {
+            ...block.given?.world?.tools,
+            [failure.tool]: answering(prepared, replyData, failure.tool),
+          },
+        },
       };
       perturbations.push({
         id: `p${perturbations.length + 1}-${TOOL_FAILURE}`,
@@ -612,7 +617,8 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
   let end: EndStateSpec | undefined;
   if (!truncated && path.end_state) {
     const filled = endState(path.end_state, slots);
-    if (!filled.ok) return fail(`its end state reads unbound slots ${filled.missing.join(', ')}`);
+    if (!filled.ok)
+      return failedScenario(path, `its end state reads unbound slots ${filled.missing.join(', ')}`);
     end = filled.value;
   }
   const title = `Path ${path.id} of ${path.flow}: ${path.stages.join(' > ')}${
@@ -670,17 +676,8 @@ function recoveryExpect(
   }
   for (const label of inPlay)
     if (!tools.some((tool) => tool.label === label)) tools.push({ label, count: 0 });
-  const words = (patterns: string[]) => {
-    const out: string[] = [];
-    for (const pattern of patterns) {
-      const filled = fillText(pattern, slots, true);
-      if (!filled.ok) return undefined;
-      out.push(filled.value);
-    }
-    return out;
-  };
-  const must = words(recovery.must);
-  const mustNot = words(recovery.mustNot);
+  const must = filledWords(recovery.must, slots);
+  const mustNot = filledWords(recovery.mustNot, slots);
   if (!must || !mustNot) return undefined;
   return {
     stage: stageAfter(recovery, stage) ?? stage,
@@ -891,4 +888,50 @@ export function indexDimensions(prepared: PreparedMap): Map<string, number> {
     if (!indices.has(dimension.id)) indices.set(dimension.id, index);
   });
   return indices;
+}
+
+function failedScenario(path: PathRelation, reason: string): Scenario {
+  return { ok: false, reason: `path ${path.id}: ${reason}` };
+}
+function held(cell: readonly Pick[], dimension: number): Pick | undefined {
+  for (const entry of cell) if (entry[0] === dimension) return entry;
+  return undefined;
+}
+function stimulusOf(
+  slots: Slots,
+  phrase: ProposalPhrase | undefined,
+  dimension: string,
+  value: string,
+): Stimulus {
+  if (!phrase) return { kind: 'placeholder', dimension, value };
+  const filled = fillText(phrase.text, { ...slots, ...(phrase.binds ?? {}) });
+  return { kind: 'phrase', phrase: { ...phrase, text: filled.ok ? filled.value : phrase.text } };
+}
+/** The data values whose slots a text or a value reads: what the block's own cell holds. */
+
+function sourcesOf(boundBy: ReadonlyMap<string, Pick>, ...values: unknown[]): Pick[] {
+  const sources: Pick[] = [];
+  for (const value of values)
+    for (const slot of slotsOf(value)) {
+      const source = boundBy.get(slot);
+      if (source) sources.push(source);
+    }
+  return sources;
+}
+
+function filledWords(patterns: string[], slots: Slots): string[] | undefined {
+  const out: string[] = [];
+  for (const pattern of patterns) {
+    const filled = fillText(pattern, slots, true);
+    if (!filled.ok) return undefined;
+    out.push(filled.value);
+  }
+  return out;
+}
+
+function answering(prepared: PreparedMap, replyData: Pick[], tool: string): ToolAnswer {
+  const bound = worldFor(prepared, unique(replyData), { useBindings: true }).world?.tools?.[tool];
+  if (bound) return bound;
+  const schema = prepared.tools.find((entry) => entry.name === tool);
+  return { result: (schema ? toolAnswer(schema, []).answer : {}) as never };
 }
