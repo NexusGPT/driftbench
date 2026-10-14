@@ -54,7 +54,7 @@ The result files are copies from the research branches, listed with their commit
 * RubricBench with Claude Haiku 5.5 is complete: 790 of 790 pairs, in `rubricbench-haiku.json`.
 * Verify is run with GPT-6 Luna only. Claude Haiku 5.5 is pending and Gemini 3.5 Flash-Lite has no cell, so both are drawn as "not run".
 * On verify a judge that always says fail scores 78.7 percent, above both judges. On writing a rule that picks the longer reply scores 67.6 percent, above every judge, and the three models did not pass the development check against such rules.
-* Titles compare the bars as drawn, to one decimal: two bars that read 80.8 and 80.8 are equal.
+* Titles compare the bars as drawn, to one decimal: two bars that read 80.8 and 80.8 are equal. On RubricBench with Gemini 3.5 Flash-Lite the scores are 80.76 for driftbench and 80.82 for promptfoo, so the title calls them equal.
 
 All charted numbers:
 
@@ -116,7 +116,7 @@ Each row of a per-tool page is measured head to head, measured against our own e
 * The example is a recorded run on main: the golden Acme suite on the planted fault `x3-skips-recap` (`driftbench ci ... --target fault:x3-skips-recap --faults examples/acme/faults --route flow:price-sheet=process:acme-ops`), then `campaign status <campaign> --detail` and `--json`. In `gen-twise-066`, block 3 (counted from 0, the fourth block) fails `stage.reached` with `reached order_placed, expected recap` and `forbidden.order.create` with `order.create called 1 time (call-1); the block expects it 0 times`. Block 4 then fails `tools.order.create.count` with `order.create called 0 times, expected exactly 1; calls in this block: none`. The other five blocks pass.
 * That each of the 13 scored Acme faults turns specific blocks red is read from the committed gate report `examples/acme/gated/gate-report.json`; the red block count of each fault is listed in the blast radius containment test.
 * The units the other tools score are cited from row 1 of the [comparison](../comparison.md#where-driftbench-is-ahead).
-* The README's numbers: on the Acme gated suite (195 conversations, 861 blocks), nine planted faults of the sales assistant turn at least one block red. For each, the red share is the red blocks divided by the blocks of the conversations that hold a red block. A whole-conversation score marks every block of those conversations. Eight faults leave some blocks green, with shares of 18.1 to 40.0 percent; the wrong language fault turns every block red.
+* The README's numbers: on the Acme gated suite (195 conversations, 861 blocks), nine planted faults of the sales assistant turn at least one block red. For each, the red share is the red blocks divided by the blocks of the conversations that hold a red block. A whole-conversation score marks every block of those conversations. Eight faults leave some blocks green, with shares of 18.1 to 40.0 percent; the wrong language fault turns 826 of the 861 blocks red, every block of the 171 conversations that fail.
 * The counts come from `examples/acme/gated/gate-report.json`, over the accepted blocks of the dev split, the set `examples/acme/test/radius/contained.test.ts` uses. `tools/readme-charts.mjs` computes them and writes them to [chart-facts.csv](../assets/data/chart-facts.csv) under `impact-blocks`.
 
 | Planted fault | Red blocks | Conversations that fail | Blocks in them | Red share |
