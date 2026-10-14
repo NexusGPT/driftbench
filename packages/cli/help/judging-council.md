@@ -110,31 +110,25 @@ The cascade on the Acme council cassette: every pass fixture stops at the cheape
 driftbench judge run --criteria examples/acme/criteria --cassette examples/acme/criteria/council.cassette.json --cascade
 ```
 
-```text
-$ driftbench judge run --criteria examples/acme/criteria --cassette examples/acme/criteria/council.cassette.json --cascade
-separated  care_redirect [system1, gating]: pass fixture pass (cascade), fail fixture fail
-separated  checks_before_promising [system1, gating]: pass fixture pass (cascade), fail fixture fail
-separated  coverage_before_offer [system1, gating]: pass fixture pass (cascade), fail fixture fail
-separated  explicit_confirmation [system1, gating]: pass fixture pass (cascade), fail fixture fail
-separated  holds_instructions [system1, gating]: pass fixture pass (cascade), fail fixture fail (split, re-judged)
-separated  honest_failure [system2, gating]: pass fixture pass (cascade), fail fixture fail
-separated  ledger_intact [system2]: pass fixture pass (cascade), fail fixture fail
-separated  no_invented_data [system2, gating]: pass fixture pass (cascade), fail fixture fail
-separated  one_question_per_turn [system1]: pass fixture pass (cascade), fail fixture fail
-separated  plain_language [system1]: pass fixture pass (cascade), fail fixture fail
-separated  resumes_pending_step [system1, gating]: pass fixture pass (cascade), fail fixture fail
-separated  sheet_matches_catalog [system1, gating]: pass fixture pass (cascade), fail fixture fail
-
-12 of 12 criteria separated in mode hybrid.
-(exit 0)
-```
-
 Weights in code, with three scripted judges (`FakeJudge`, no model call). Two judges fail the reply and one passes it; giving the passing judge weight 3 makes it more than half of the total weight:
 
-From a repository checkout, not run by the help test:
+The scripts below run the package from its source with `tsx`; this file tells `tsx` where the packages are:
 
-```text
-$ mkdir -p out/judging/council && cat > out/judging/council/weights.ts <<'EOF'
+```json file=tsconfig.json
+{
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "paths": {
+      "@agent-nexus/driftbench-example-acme": ["./examples/acme/src/package.ts"],
+      "@agent-nexus/driftbench-adapters/contract": ["./packages/adapters/src/contract.ts"],
+      "@agent-nexus/driftbench-*": ["./packages/*/src/index.ts"]
+    }
+  }
+}
+```
+
+```ts file=weights.mts
 import { createCouncil, FakeJudge } from '@agent-nexus/driftbench-judges';
 
 const pass = { outcome: 'pass' as const, reasoning: 'One question.' };
@@ -156,8 +150,36 @@ for (const weights of [undefined, { 'judge-a': 3 }]) {
   const result = await council.judge(request);
   console.log(`weights ${JSON.stringify(weights ?? {})}: ${result.outcome}; ${result.log.join(' | ')}`);
 }
-EOF
-$ pnpm -s exec tsx out/judging/council/weights.ts
+```
+
+```sh setup
+tsx weights.mts
+```
+
+```text
+$ driftbench judge run --criteria examples/acme/criteria --cassette examples/acme/criteria/council.cassette.json --cascade
+node:internal/modules/esm/resolve:271
+    throw new ERR_MODULE_NOT_FOUND(
+          ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/Users/assem/Documents/GitHub/driftbench/.worktrees/opus-help-judging/packages/cli/node_modules/@agent-nexus/driftbench-judges/dist/index.js' imported from /Users/assem/Documents/GitHub/driftbench/.worktrees/opus-help-judging/packages/cli/src/commands/judge.ts
+    at finalizeResolution (node:internal/modules/esm/resolve:271:11)
+    at moduleResolve (node:internal/modules/esm/resolve:865:10)
+    at defaultResolve (node:internal/modules/esm/resolve:992:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:701:20)
+    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:721:38)
+    at nextStep (node:internal/modules/customization_hooks:189:26)
+    at resolveBaseSync (file:///Users/assem/Documents/GitHub/driftbench/.worktrees/opus-help-judging/node_modules/.pnpm/tsx@4.23.15/node_modules/tsx/dist/register-nyXW-TH3.mjs:2:11092)
+    at resolveDirectorySync (file:///Users/assem/Documents/GitHub/driftbench/.worktrees/opus-help-judging/node_modules/.pnpm/tsx@4.23.15/node_modules/tsx/dist/register-nyXW-TH3.mjs:2:12398)
+    at resolveTsPathsSync (file:///Users/assem/Documents/GitHub/driftbench/.worktrees/opus-help-judging/node_modules/.pnpm/tsx@4.23.15/node_modules/tsx/dist/register-nyXW-TH3.mjs:2:13605)
+    at resolve (file:///Users/assem/Documents/GitHub/driftbench/.worktrees/opus-help-judging/node_modules/.pnpm/tsx@4.23.15/node_modules/tsx/dist/register-nyXW-TH3.mjs:2:16832) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///Users/assem/Documents/GitHub/driftbench/.worktrees/opus-help-judging/packages/cli/node_modules/@agent-nexus/driftbench-judges/dist/index.js'
+}
+
+Node.js v24.18.0
+(exit 1)
+$ tsx weights.mts
 weights {}: fail; system1: judge-a pass, judge-b fail, judge-c fail; fail
 weights {"judge-a":3}: pass; system1: judge-a pass, judge-b fail, judge-c fail; pass
 (exit 0)
