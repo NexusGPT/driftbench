@@ -10,6 +10,8 @@ see_also:
   - validate-estate-loop
   - validate-estate-plan
   - validate-estate-maintain
+next:
+  - validate-estate-plan
 ---
 
 ## What it is

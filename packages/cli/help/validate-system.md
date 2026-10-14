@@ -10,6 +10,8 @@ see_also:
   - validate-generator
   - validate-stats
   - validate-mutants-and-rulings
+next:
+  - validate-estate
 ---
 
 ## What it is

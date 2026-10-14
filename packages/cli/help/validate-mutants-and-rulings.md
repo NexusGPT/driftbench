@@ -9,6 +9,8 @@ see_also:
   - validate-protect
   - validate-executor-loop
   - validate-stats
+next:
+  - validate-map
 ---
 
 ## What it is

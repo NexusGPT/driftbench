@@ -27,6 +27,8 @@ see_also:
   - validate-estate-replay
   - validate-estate-stats
   - validate-estate
+next:
+  - validate-estate-scan
 ---
 
 ## What it is

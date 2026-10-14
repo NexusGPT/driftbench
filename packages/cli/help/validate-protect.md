@@ -8,6 +8,8 @@ see_also:
   - validate-floors
   - validate-mutants-and-rulings
   - validate-self-checks
+next:
+  - validate-mutants-and-rulings
 ---
 
 ## What it is

@@ -7,6 +7,8 @@ see_also:
   - validate-overview
   - validate-protect
   - validate-research-replays
+next:
+  - validate-research-replays
 ---
 
 ## What it is
