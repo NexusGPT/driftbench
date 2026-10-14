@@ -2,7 +2,9 @@ import { expect, it } from 'vitest';
 import { fillText, phraseFits, slotsOf } from '../../src/seed/relations';
 
 it('collects slots in depth-first order, retaining duplicates and fresh results', () => {
-  const input = ['{a}', { second: '{b}{a}' }, null, [], [, '{c}']];
+  const sparse = new Array<unknown>(2);
+  sparse[1] = '{c}';
+  const input = ['{a}', { second: '{b}{a}' }, null, [], sparse];
   expect(slotsOf(input)).toEqual(['a', 'b', 'a', 'c']);
   slotsOf(input).push('changed');
   expect(slotsOf(input)).toEqual(['a', 'b', 'a', 'c']);
@@ -20,15 +22,15 @@ it('fills current bindings independently of cache history and literal mode', () 
   const slots = { a: 'x.y', b: 'a"b' };
   for (const a of ['x.y', 'replacement', '', '[]', '\\', '🙂']) {
     slots.a = a;
-    expect(fillText('{a}/{b}/{a}', slots)).toEqual({ ok: true, value: a + '/a"b/' + a });
+    expect(fillText('{a}/{b}/{a}', slots)).toEqual({ ok: true, value: `${a}/a"b/${a}` });
     const escaped = a.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    expect(fillText('{a}/{b}/{a}', slots, true)).toEqual({ ok: true, value: escaped + '/a"b/' + escaped });
+    expect(fillText('{a}/{b}/{a}', slots, true)).toEqual({ ok: true, value: `${escaped}/a"b/${escaped}` });
   }
   expect(fillText('{missing} {missing}', slots)).toEqual({ ok: false, missing: ['missing'] });
   for (let index = 0; index < 5000; index += 1)
-    expect(fillText('case-' + index + ' {a}', { a: 'value' })).toEqual({
+    expect(fillText(`case-${index} {a}`, { a: 'value' })).toEqual({
       ok: true,
-      value: 'case-' + index + ' value',
+      value: `case-${index} value`,
     });
   expect(fillText('{a}', { a: 'changed' })).toEqual({ ok: true, value: 'changed' });
 });
