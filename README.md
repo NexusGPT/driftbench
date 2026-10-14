@@ -747,6 +747,7 @@ Every number comes from a result file in this repository. All scores are on one 
 
 One chart per public benchmark for judges, scores out of 100. In each chart driftbench stands beside promptfoo, DeepEval, Inspect, Langfuse and LangWatch, each with its default judge, on the same sealed items and the same model, Claude Haiku 5.5. That is the one model all of them were run on. The scores of every other model, with the charts that carry them, are in the detail of each benchmark: [JudgeBench](docs/comparison/benchmarks/index.md#judgebench), [MM-Eval](docs/comparison/benchmarks/index.md#mm-eval), [RubricBench](docs/comparison/benchmarks/index.md#rubricbench), [verify and writing](docs/comparison/benchmarks/index.md#longjudgebench). driftbench runs the pair ledger, an opt-in judge mode, and on verify its frozen verify cascade; neither is the shipped default. A refused item counts as wrong for every contestant.
 
+<!-- readme-charts:start -->
 **JudgeBench**
 
 <a href="docs/assets/bench-judgebench-light.png">
@@ -779,7 +780,7 @@ One chart per public benchmark for judges, scores out of 100. In each chart drif
 <a href="docs/assets/bench-verify-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-verify-dark.png">
-    <img alt="Verify: driftbench 74.2, behind Langfuse at 75.1. Claude Haiku 5.5, 221 items, percent correct, highest to lowest: Langfuse 75.1, driftbench 74.2, Inspect 73.3, LangWatch 73.3, promptfoo 72.0, DeepEval 58.8." src="docs/assets/bench-verify-light.png" width="100%">
+    <img alt="Verify: driftbench 74.2, behind Langfuse at 75.1. Claude Haiku 5.5, 221 items, percent correct, highest to lowest: Langfuse 75.1, driftbench 74.2, Inspect 73.3, LangWatch 73.3, promptfoo 71.9, DeepEval 58.8." src="docs/assets/bench-verify-light.png" width="100%">
   </picture>
 </a>
 
@@ -790,9 +791,11 @@ Footnote: the driftbench bar uses its opt-in reader-first setting (long-structur
 <a href="docs/assets/bench-writing-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-writing-dark.png">
-    <img alt="Writing: driftbench 67.6 with its reader-first setting. Claude Haiku 5.5, 346 games, percent correct, highest to lowest: driftbench 67.6, DeepEval 58.4, promptfoo 56.9, LangWatch 52.6, Langfuse 14.4, Inspect 11.6. The driftbench bar uses its opt-in reader-first setting." src="docs/assets/bench-writing-light.png" width="100%">
+    <img alt="Writing: driftbench 67.6 with its reader-first setting. Claude Haiku 5.5, 346 games, percent correct, highest to lowest: driftbench 67.6, DeepEval 58.4, promptfoo 56.9, LangWatch 52.6, Langfuse 14.5, Inspect 11.6. The driftbench bar uses its opt-in reader-first setting." src="docs/assets/bench-writing-light.png" width="100%">
   </picture>
 </a>
+
+<!-- readme-charts:end -->
 
 <p align="center"><sub><a href="docs/comparison/methods.md#public-benchmarks-against-promptfoo">How we measured</a></sub></p>
 
@@ -854,13 +857,15 @@ Every result, test by test and tool by tool, including the tests where another f
 
 The table holds the numbers of the five charts. DeepEval, Inspect, Langfuse and LangWatch run their default judge; driftbench and promptfoo are the recorded cells. Paired exact tests, driftbench against each tool; a win or loss needs a Holm-corrected p below 0.05. Inspect and Langfuse have no pairwise grader, so they score each reply alone and the higher score wins.
 
+<!-- readme-table:start -->
 | Benchmark | driftbench | promptfoo | DeepEval | Inspect | Langfuse | LangWatch |
 |---|---:|---:|---:|---:|---:|---:|
 | JudgeBench, 270 pairs | 88.9 | 83.0 | 86.3 | 80.0 | 74.8 | 83.7 |
 | MM-Eval, 591 items | 88.9 | 86.5 | 84.1 | 75.4 | 73.5 | 83.9 |
 | RubricBench, 1,580 games | 82.7 | 75.6 | 77.6 | 26.6 | 25.1 | 74.9 |
 | LongJudgeBench verify, 221 items | 74.2 | 71.9 | 58.8 | 73.3 | 75.1 | 73.3 |
-| LongJudgeBench writing, 346 games | 61.3 | 56.9 | 58.4 | 11.6 | 14.5 | 52.6 |
+| LongJudgeBench writing, 346 games, driftbench with its reader-first setting | 67.6 | 56.9 | 58.4 | 11.6 | 14.5 | 52.6 |
+<!-- readme-table:end -->
 
 Length-controlled accuracy on writing (a longer-wins rule scores 50): driftbench 59.3, DeepEval 58.3, promptfoo 55.6, LangWatch 51.5, Langfuse 15.8, Inspect 11.8 (source: `examples/writing-heldout/README.md` on `feat/writing-lead`).
 

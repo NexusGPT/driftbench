@@ -912,6 +912,7 @@ function hardPerTool(tool) {
 // The README charts: one per benchmark, driftbench beside every competitor on one model, best case
 // ---------------------------------------------------------------------------------------------
 
+let readerFirstDefault = 0;
 const BEST = [
   {
     chart: 'bench-judgebench',
@@ -999,6 +1000,7 @@ function bestCase({ chart, bench, name, unit, kicker }) {
   let note = `${model}, ${n.toLocaleString('en-US')} ${unit}. Every competitor ran on this model only. A refused item counts as wrong.`;
   if (optIn) {
     const plain = row('driftbench')[cohort];
+    readerFirstDefault = plain.score * 100;
     const longer = json(`${SEALED}/writing.json`).cells.find((c) => c.contestant === 'longer-wins');
     fact(
       chart,
@@ -1262,8 +1264,71 @@ function detailPage() {
   ].join('\n\n')}\n`.replace(/\n{3,}/g, '\n\n');
 }
 
+// ---------------------------------------------------------------------------------------------
+// The README blocks that repeat the numbers of the charts: alt text, labels and the table are written
+// from the same bars the charts draw, so a number cannot differ between them
+// ---------------------------------------------------------------------------------------------
+
+const README = 'README.md';
+const one = (v) => (Math.round(v * 10) / 10).toFixed(1);
+
+function readmeCharts() {
+  const parts = [
+    ['bench-judgebench', 'judgebench', 'JudgeBench'],
+    ['bench-mm-eval', 'mm-eval', 'MM-Eval'],
+    ['bench-rubricbench', 'rubricbench', 'RubricBench'],
+    ['bench-verify', 'verify', 'Verify'],
+    ['bench-writing', 'writing', 'Writing'],
+  ];
+  return parts
+    .map(([chart, file, label]) => {
+      const c = data[chart];
+      const panel = c.panels[0];
+      const alt = `${c.title} ${panel.name}, ${panel.model}, percent correct, highest to lowest: ${panel.bars.map((b) => `${b.name} ${one(b.score)}`).join(', ')}.${chart === 'bench-writing' ? ' The driftbench bar uses its opt-in reader-first setting.' : ''}`;
+      const foot =
+        chart === 'bench-writing'
+          ? `\n\nFootnote: the driftbench bar uses its opt-in reader-first setting (long-structured). Its ${one(panel.bars.find((b) => b.ours).score)} equals the score of a rule that always picks the longer reply; the default setting scores ${one(readerFirstDefault)}.`
+          : '';
+      return `**${label}**${foot}\n\n<a href="docs/assets/bench-${file}-light.png">\n  <picture>\n    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-${file}-dark.png">\n    <img alt="${alt}" src="docs/assets/bench-${file}-light.png" width="100%">\n  </picture>\n</a>\n`;
+    })
+    .join('\n');
+}
+
+function readmeTable() {
+  const names = ['driftbench', PROMPTFOO, 'DeepEval', 'Inspect', 'Langfuse', 'LangWatch'];
+  const rows = [
+    ['bench-judgebench', 'JudgeBench'],
+    ['bench-mm-eval', 'MM-Eval'],
+    ['bench-rubricbench', 'RubricBench'],
+    ['bench-verify', 'LongJudgeBench verify'],
+    ['bench-writing', 'LongJudgeBench writing'],
+  ].map(([chart, label]) => {
+    const panel = data[chart].panels[0];
+    const reader = chart === 'bench-writing' ? ', driftbench with its reader-first setting' : '';
+    const cells = names.map((n) => {
+      const b = panel.bars.find((x) => x.name === n);
+      return b && b.score !== null ? one(b.score) : 'not run';
+    });
+    return `| ${label}, ${panel.model}${reader} | ${cells.join(' | ')} |`;
+  });
+  return `| Benchmark | ${names.join(' | ')} |\n|---|${names.map(() => '---:').join('|')}|\n${rows.join('\n')}`;
+}
+
+function readmeText() {
+  const swap = (text, tag, body) => {
+    const start = `<!-- ${tag}:start -->`;
+    const end = `<!-- ${tag}:end -->`;
+    const a = text.indexOf(start);
+    const b = text.indexOf(end);
+    if (a < 0 || b < 0) throw new Error(`${README}: the markers ${start} and ${end} are missing`);
+    return `${text.slice(0, a + start.length)}\n${body}\n${text.slice(b)}`;
+  };
+  return swap(swap(read(README), 'readme-charts', readmeCharts()), 'readme-table', readmeTable());
+}
+
 const files = new Map();
 files.set(join(ROOT, DETAIL), detailPage());
+files.set(join(ROOT, README), readmeText());
 files.set(
   join(ROOT, '.github', 'readme', 'src', 'chart-data.js'),
   `// Written by tools/readme-charts.mjs from the result files it names. Do not edit by hand.\nwindow.CHART_DATA = ${JSON.stringify(data, null, 2)};\n`,
