@@ -1,10 +1,30 @@
-import { Document, Scalar, stringify } from 'yaml';
-
-// Reuse the public YAML node/document API for scalar spellings without rebuilding its schema.
-const scalarNode = new Scalar<unknown>('');
-const scalarDocument = new Document({ v: scalarNode });
+import { Document, stringify } from 'yaml';
+import { type StringifyContext, stringifyString } from 'yaml/util';
 
 const options = { lineWidth: 0, aliasDuplicateObjects: false };
+// Ask the public custom-tag API for the library's ordinary block-value context once. Scalar
+// formatting then uses its public utility directly, without constructing a mapping for every string.
+let scalarContext: StringifyContext;
+const scalarDocument = new Document(
+  { v: '' },
+  {
+    customTags: (tags) =>
+      tags.map((tag) =>
+        tag.tag === 'tag:yaml.org,2002:str'
+          ? {
+              ...tag,
+              stringify(item, context, onComment, onChompKeep) {
+                const ctx = { actualString: true, ...context };
+                if (!ctx.implicitKey) scalarContext = ctx;
+                return stringifyString(item, ctx, onComment, onChompKeep);
+              },
+            }
+          : tag,
+      ),
+  },
+);
+scalarDocument.toString(options);
+
 const unsupported = Symbol('unsupported YAML value');
 const scalars = new Map<string, string>();
 const keys = new Map<string, string>();
@@ -26,8 +46,7 @@ function scalar(value: unknown): string {
   if (plainText.test(value) && !reserved.has(value)) return value;
   const known = scalars.get(value);
   if (known !== undefined) return known;
-  scalarNode.value = value;
-  const text = scalarDocument.toString(options).slice(3, -1);
+  const text = stringifyString({ value }, scalarContext);
   // Chomping and blank lines between following nodes remain the library's job.
   if (text.includes('\n')) throw unsupported;
   if (text.length > 16_384) return text;
@@ -54,16 +73,15 @@ function keyText(key: string): string {
 
 /** The library's block style for plain objects and arrays, with its scalar spellings. */
 export function stringifyGeneratedYaml(input: unknown): string {
-  const seen = new Set<object>();
-  const lines: string[] = [];
+  let text = '';
   const render = (value: unknown, indent: number, prefix: string, mappingValue = false): void => {
     if (value === null || typeof value !== 'object') {
-      lines.push(`${prefix}${scalar(value)}`);
+      text += `${prefix}${scalar(value)}\n`;
       return;
     }
-    if (seen.has(value) || indent > 100) throw unsupported;
-    seen.add(value);
-    try {
+    // The depth cap also sends cycles to the library, which owns their diagnostics.
+    if (indent > 100) throw unsupported;
+    {
       const array = Array.isArray(value);
       const prototype = Object.getPrototypeOf(value);
       if (array ? prototype !== Array.prototype : prototype !== Object.prototype && prototype !== null)
@@ -84,11 +102,11 @@ export function stringifyGeneratedYaml(input: unknown): string {
       names.length = kept;
       const entries = names;
       if (entries.length === 0) {
-        lines.push(`${prefix}${array ? '[]' : '{}'}`);
+        text += `${prefix}${array ? '[]' : '{}'}\n`;
         return;
       }
       if (mappingValue) {
-        lines.push(prefix.slice(0, -1));
+        text += `${prefix.slice(0, -1)}\n`;
         prefix = ' '.repeat(indent);
       }
       const pad = ' '.repeat(indent);
@@ -106,14 +124,12 @@ export function stringifyGeneratedYaml(input: unknown): string {
           );
         }
       }
-    } finally {
-      seen.delete(value);
     }
   };
   try {
     if (input === null || typeof input !== 'object') throw unsupported;
     render(input, 0, '');
-    return `${lines.join('\n')}\n`;
+    return text;
   } catch {
     return stringify(input, options);
   }

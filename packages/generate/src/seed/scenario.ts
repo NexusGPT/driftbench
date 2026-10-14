@@ -144,11 +144,14 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
         return fail(`it needs ${dimensionKey} in ${values.join(', ')}; the cell holds ${id}`);
       continue;
     }
-    const options = values.flatMap((value): Pick[] => {
+    const indices: number[] = [];
+    for (const value of values) {
       const index = dimensions[dimension]?.index.get(value);
-      if (index === undefined) return [];
-      return prepared.feasibility.allowed([...cell, [dimension, index]]) ? [[dimension, index]] : [];
-    });
+      if (index !== undefined) indices.push(index);
+    }
+    const options = prepared.feasibility
+      .allowedValues(cell, dimension, indices)
+      .map((value): Pick => [dimension, value]);
     const chosen = pick(rng, options);
     if (!chosen) return fail(`the constraints allow no value of ${dimensionKey} it needs with this cell`);
     cell.push(chosen);

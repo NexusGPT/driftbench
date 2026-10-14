@@ -73,6 +73,26 @@ export class Feasibility {
     return result;
   }
 
+  /** Values of one dimension that can extend the partial cell, in the caller's order. */
+  allowedValues(partial: Partial, dimension: number, values: readonly number[]): number[] {
+    // A fixed value is an equality requirement even when another value has identical constraints.
+    const representatives = this.representatives[dimension];
+    if (!representatives || partial.some(([at]) => at === dimension))
+      return values.filter((value) => this.allowed([...partial, [dimension, value]]));
+    const answers = new Map<number, boolean>();
+    const allowed: number[] = [];
+    for (const value of values) {
+      const representative = representatives[value];
+      let answer = representative === undefined ? undefined : answers.get(representative);
+      if (answer === undefined) {
+        answer = this.allowed([...partial, [dimension, value]]);
+        if (representative !== undefined) answers.set(representative, answer);
+      }
+      if (answer) allowed.push(value);
+    }
+    return allowed;
+  }
+
   private cacheKey(partial: Partial): string | number {
     if (!this.weights) return keyOf(partial);
     let key = 0;
