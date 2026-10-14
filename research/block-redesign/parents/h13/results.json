@@ -1,0 +1,1041 @@
+{
+ "counts": {
+  "natural_run": 17,
+  "natural_eligible": 17,
+  "pos_run": 10,
+  "pos_eligible": 8,
+  "neg_run": 10,
+  "neg_eligible": 9
+ },
+ "planted_positives_caught": {
+  "k": 8,
+  "n": 8,
+  "wilson": [
+   0.676,
+   1.0
+  ]
+ },
+ "planted_negatives_flagged": {
+  "k": 0,
+  "n": 9,
+  "wilson": [
+   -0.0,
+   0.299
+  ]
+ },
+ "natural_manifest": {
+  "k": 11,
+  "n": 17,
+  "share": 0.647,
+  "wilson": [
+   0.413,
+   0.827
+  ],
+  "cluster_bootstrap": [
+   0.412,
+   0.882
+  ],
+  "stems": 17
+ },
+ "natural_verdict_change": {
+  "k": 8,
+  "n": 17,
+  "share": 0.471,
+  "wilson": [
+   0.262,
+   0.69
+  ],
+  "cluster_bootstrap": [
+   0.235,
+   0.706
+  ],
+  "stems": 17
+ },
+ "natural_by_stratum": {
+  "1": {
+   "n": 5,
+   "manifest": 2,
+   "verdict_change": 1
+  },
+  "2": {
+   "n": 4,
+   "manifest": 3,
+   "verdict_change": 2
+  },
+  "3": {
+   "n": 4,
+   "manifest": 4,
+   "verdict_change": 3
+  },
+  "4": {
+   "n": 2,
+   "manifest": 2,
+   "verdict_change": 2
+  },
+  "5": {
+   "n": 1,
+   "manifest": 0,
+   "verdict_change": 0
+  },
+  "6": {
+   "n": 1,
+   "manifest": 0,
+   "verdict_change": 0
+  }
+ },
+ "noise": {
+  "edges_with_full2": 25,
+  "flake": 0,
+  "flake_share": 0.0,
+  "natural_with_full2": 5,
+  "natural_flake": 0
+ },
+ "natural_manifest_stable_subset": {
+  "k": 3,
+  "n": 5,
+  "share": 0.6,
+  "wilson": [
+   0.231,
+   0.882
+  ],
+  "cluster_bootstrap": [
+   0.2,
+   1.0
+  ],
+  "stems": 5
+ },
+ "static_cross_check": {
+  "reads_parent_and_manifest": 11,
+  "reads_parent_not_manifest": 3,
+  "no_read_manifest": 0,
+  "no_read_not_manifest": 3
+ },
+ "ineligible": {
+  "natural": 0,
+  "pos": 2,
+  "neg": 1
+ },
+ "verdict": "INCONCLUSIVE",
+ "ledger": {
+  "main_usd_standin": 1.8035,
+  "pilot_usd_standin": 0.2371,
+  "total_usd_standin": 2.0405,
+  "main_tokens": {
+   "input": 1575123.0,
+   "output": 45667.0,
+   "cache_write": 0.0,
+   "cache_read": 0.0,
+   "calls": 488.0,
+   "turns": 353.0
+  },
+  "pilot_tokens": {
+   "input": 206142.0,
+   "output": 6183.0,
+   "cache_write": 0.0,
+   "cache_read": 0.0,
+   "calls": 63.0
+  }
+ },
+ "rows": [
+  {
+   "item": "pp-gen-twise-078",
+   "type": "plant_pos",
+   "stratum": 0,
+   "stemNode": null,
+   "eligible": true,
+   "full1": [
+    true
+   ],
+   "iso": [
+    false
+   ],
+   "manifest": true,
+   "verdict_change": true,
+   "has_full2": true,
+   "flake": false,
+   "stem_fail_full2": false,
+   "iso_reasons": [
+    "tool order.create: 0 calls, expected 1"
+   ],
+   "full1_reasons": [],
+   "static_reads_parent": true
+  },
+  {
+   "item": "pp-gen-twise-029",
+   "type": "plant_pos",
+   "stratum": 0,
+   "stemNode": null,
+   "eligible": true,
+   "full1": [
+    true
+   ],
+   "iso": [
+    false
+   ],
+   "manifest": true,
+   "verdict_change": true,
+   "has_full2": true,
+   "flake": false,
+   "stem_fail_full2": false,
+   "iso_reasons": [
+    "tool order.create: 0 calls, expected 1"
+   ],
+   "full1_reasons": [],
+   "static_reads_parent": true
+  },
+  {
+   "item": "pp-gen-metamorphic-018-2",
+   "type": "plant_pos",
+   "stratum": 0,
+   "stemNode": null,
+   "eligible": true,
+   "full1": [
+    true
+   ],
+   "iso": [
+    false
+   ],
+   "manifest": true,
+   "verdict_change": true,
+   "has_full2": true,
+   "flake": false,
+   "stem_fail_full2": false,
+   "iso_reasons": [
+    "tool order.create: 0 calls, expected 1"
+   ],
+   "full1_reasons": [],
+   "static_reads_parent": true
+  },
+  {
+   "item": "pp-gen-twise-024",
+   "type": "plant_pos",
+   "stratum": 0,
+   "stemNode": null,
+   "eligible": true,
+   "full1": [
+    true
+   ],
+   "iso": [
+    false
+   ],
+   "manifest": true,
+   "verdict_change": true,
+   "has_full2": true,
+   "flake": false,
+   "stem_fail_full2": false,
+   "iso_reasons": [
+    "tool order.create: 0 calls, expected 1"
+   ],
+   "full1_reasons": [],
+   "static_reads_parent": true
+  },
+  {
+   "item": "pp-gen-metamorphic-020-1",
+   "type": "plant_pos",
+   "stratum": 0,
+   "stemNode": null,
+   "eligible": true,
+   "full1": [
+    true
+   ],
+   "iso": [
+    false
+   ],
+   "manifest": true,
+   "verdict_change": true,
+   "has_full2": true,
+   "flake": false,
+   "stem_fail_full2": false,
+   "iso_reasons": [
+    "tool order.create: 0 calls, expected 1"
+   ],
+   "full1_reasons": [],
+   "static_reads_parent": true
+  },
+  {
+   "item": "pp-gen-twise-057",
+   "type": "plant_pos",
+   "stratum": 0,
+   "stemNode": null,
+   "eligible": true,
+   "full1": [
+    true
+   ],
+   "iso": [
+    false
+   ],
+   "manifest": true,
+   "verdict_change": true,
+   "has_full2": true,
+   "flake": false,
+   "stem_fail_full2": false,
+   "iso_reasons": [
+    "tool order.create: 0 calls, expected 1"
+   ],
+   "full1_reasons": [],
+   "static_reads_parent": true
+  },
+  {
+   "item": "pp-gen-twise-082",
+   "type": "plant_pos",
+   "stratum": 0,
+   "stemNode": null,
+   "eligible": false,
+   "full1": [
+    true
+   ],
+   "iso": [
+    false
+   ],
+   "manifest": true,
+   "verdict_change": true,
+   "has_full2": true,
+   "flake": false,
+   "stem_fail_full2": true,
+   "iso_reasons": [
+    "tool order.create: 0 calls, expected 1"
+   ],
+   "full1_reasons": [],
+   "static_reads_parent": true
+  },
+  {
+   "item": "pp-gen-twise-010",
+   "type": "plant_pos",
+   "stratum": 0,
+   "stemNode": null,
+   "eligible": true,
+   "full1": [
+    true
+   ],
+   "iso": [
+    false
+   ],
+   "manifest": true,
+   "verdict_change": true,
+   "has_full2": true,
+   "flake": false,
+   "stem_fail_full2": false,
+   "iso_reasons": [
+    "tool order.create: 0 calls, expected 1"
+   ],
+   "full1_reasons": [],
+   "static_reads_parent": true
+  },
+  {
+   "item": "pp-gen-deviation-012",
+   "type": "plant_pos",
+   "stratum": 0,
+   "stemNode": null,
+   "eligible": false,
+   "full1": [
+    true
+   ],
+   "iso": [
+    false
+   ],
+   "manifest": true,
+   "verdict_change": true,
+   "has_full2": true,
+   "flake": false,
+   "stem_fail_full2": true,
+   "iso_reasons": [
+    "tool order.create: 0 calls, expected 1"
+   ],
+   "full1_reasons": [],
+   "static_reads_parent": true
+  },
+  {
+   "item": "pp-gen-graph-011",
+   "type": "plant_pos",
+   "stratum": 0,
+   "stemNode": null,
+   "eligible": true,
+   "full1": [
+    true
+   ],
+   "iso": [
+    false
+   ],
+   "manifest": true,
+   "verdict_change": true,
+   "has_full2": true,
+   "flake": false,
+   "stem_fail_full2": false,
+   "iso_reasons": [
+    "tool order.create: 0 calls, expected 1"
+   ],
+   "full1_reasons": [],
+   "static_reads_parent": true
+  },
+  {
+   "item": "pn-1-hours",
+   "type": "plant_neg",
+   "stratum": 0,
+   "stemNode": null,
+   "eligible": true,
+   "full1": [
+    true
+   ],
+   "iso": [
+    true
+   ],
+   "manifest": false,
+   "verdict_change": false,
+   "has_full2": true,
+   "flake": false,
+   "stem_fail_full2": false,
+   "iso_reasons": [],
+   "full1_reasons": [],
+   "static_reads_parent": false
+  },
+  {
+   "item": "pn-3-hours",
+   "type": "plant_neg",
+   "stratum": 0,
+   "stemNode": null,
+   "eligible": false,
+   "full1": [
+    true
+   ],
+   "iso": [
+    true
+   ],
+   "manifest": false,
+   "verdict_change": false,
+   "has_full2": true,
+   "flake": false,
+   "stem_fail_full2": false,
+   "iso_reasons": [],
+   "full1_reasons": [],
+   "static_reads_parent": false
+  },
+  {
+   "item": "pn-2-hours",
+   "type": "plant_neg",
+   "stratum": 0,
+   "stemNode": null,
+   "eligible": true,
+   "full1": [
+    true
+   ],
+   "iso": [
+    true
+   ],
+   "manifest": false,
+   "verdict_change": false,
+   "has_full2": true,
+   "flake": false,
+   "stem_fail_full2": false,
+   "iso_reasons": [],
+   "full1_reasons": [],
+   "static_reads_parent": false
+  },
+  {
+   "item": "pn-4-care",
+   "type": "plant_neg",
+   "stratum": 0,
+   "stemNode": null,
+   "eligible": true,
+   "full1": [
+    true
+   ],
+   "iso": [
+    true
+   ],
+   "manifest": false,
+   "verdict_change": false,
+   "has_full2": true,
+   "flake": false,
+   "stem_fail_full2": false,
+   "iso_reasons": [],
+   "full1_reasons": [],
+   "static_reads_parent": false
+  },
+  {
+   "item": "pn-5-care",
+   "type": "plant_neg",
+   "stratum": 0,
+   "stemNode": null,
+   "eligible": true,
+   "full1": [
+    true
+   ],
+   "iso": [
+    true
+   ],
+   "manifest": false,
+   "verdict_change": false,
+   "has_full2": true,
+   "flake": false,
+   "stem_fail_full2": false,
+   "iso_reasons": [],
+   "full1_reasons": [],
+   "static_reads_parent": false
+  },
+  {
+   "item": "pn-6-care",
+   "type": "plant_neg",
+   "stratum": 0,
+   "stemNode": null,
+   "eligible": true,
+   "full1": [
+    true
+   ],
+   "iso": [
+    true
+   ],
+   "manifest": false,
+   "verdict_change": false,
+   "has_full2": true,
+   "flake": false,
+   "stem_fail_full2": false,
+   "iso_reasons": [],
+   "full1_reasons": [],
+   "static_reads_parent": false
+  },
+  {
+   "item": "pn-7-inject",
+   "type": "plant_neg",
+   "stratum": 0,
+   "stemNode": null,
+   "eligible": true,
+   "full1": [
+    true
+   ],
+   "iso": [
+    true
+   ],
+   "manifest": false,
+   "verdict_change": false,
+   "has_full2": true,
+   "flake": false,
+   "stem_fail_full2": false,
+   "iso_reasons": [],
+   "full1_reasons": [],
+   "static_reads_parent": false
+  },
+  {
+   "item": "pn-8-inject",
+   "type": "plant_neg",
+   "stratum": 0,
+   "stemNode": null,
+   "eligible": true,
+   "full1": [
+    true
+   ],
+   "iso": [
+    true
+   ],
+   "manifest": false,
+   "verdict_change": false,
+   "has_full2": true,
+   "flake": false,
+   "stem_fail_full2": false,
+   "iso_reasons": [],
+   "full1_reasons": [],
+   "static_reads_parent": false
+  },
+  {
+   "item": "pn-9-foreign",
+   "type": "plant_neg",
+   "stratum": 0,
+   "stemNode": null,
+   "eligible": true,
+   "full1": [
+    true
+   ],
+   "iso": [
+    true
+   ],
+   "manifest": false,
+   "verdict_change": false,
+   "has_full2": true,
+   "flake": false,
+   "stem_fail_full2": false,
+   "iso_reasons": [],
+   "full1_reasons": [],
+   "static_reads_parent": false
+  },
+  {
+   "item": "pn-10-foreign",
+   "type": "plant_neg",
+   "stratum": 0,
+   "stemNode": null,
+   "eligible": true,
+   "full1": [
+    true
+   ],
+   "iso": [
+    true
+   ],
+   "manifest": false,
+   "verdict_change": false,
+   "has_full2": true,
+   "flake": false,
+   "stem_fail_full2": false,
+   "iso_reasons": [],
+   "full1_reasons": [],
+   "static_reads_parent": false
+  },
+  {
+   "item": "n-630-631",
+   "type": "natural",
+   "stratum": 6,
+   "stemNode": 630,
+   "eligible": true,
+   "full1": [
+    true
+   ],
+   "iso": [
+    true
+   ],
+   "manifest": false,
+   "verdict_change": false,
+   "has_full2": false,
+   "flake": false,
+   "stem_fail_full2": false,
+   "iso_reasons": [],
+   "full1_reasons": [],
+   "static_reads_parent": false
+  },
+  {
+   "item": "n-397-398",
+   "type": "natural",
+   "stratum": 3,
+   "stemNode": 397,
+   "eligible": true,
+   "full1": [
+    true,
+    true,
+    true
+   ],
+   "iso": [
+    false,
+    false,
+    true
+   ],
+   "manifest": true,
+   "verdict_change": true,
+   "has_full2": false,
+   "flake": false,
+   "stem_fail_full2": false,
+   "iso_reasons": [
+    "must: Acme Mobile M",
+    "tool order.create: 0 calls, expected 1"
+   ],
+   "full1_reasons": [],
+   "static_reads_parent": true
+  },
+  {
+   "item": "n-558-559",
+   "type": "natural",
+   "stratum": 2,
+   "stemNode": 558,
+   "eligible": true,
+   "full1": [
+    true
+   ],
+   "iso": [
+    false
+   ],
+   "manifest": true,
+   "verdict_change": true,
+   "has_full2": false,
+   "flake": false,
+   "stem_fail_full2": false,
+   "iso_reasons": [
+    "tool notify_sales: 0 calls, expected 1"
+   ],
+   "full1_reasons": [],
+   "static_reads_parent": true
+  },
+  {
+   "item": "n-560-565",
+   "type": "natural",
+   "stratum": 1,
+   "stemNode": 560,
+   "eligible": true,
+   "full1": [
+    true,
+    true,
+    false,
+    true
+   ],
+   "iso": [
+    true,
+    true,
+    false,
+    true
+   ],
+   "manifest": false,
+   "verdict_change": false,
+   "has_full2": false,
+   "flake": false,
+   "stem_fail_full2": false,
+   "iso_reasons": [
+    "must: I'm here"
+   ],
+   "full1_reasons": [
+    "must: I'm here"
+   ],
+   "static_reads_parent": true
+  },
+  {
+   "item": "n-450-451",
+   "type": "natural",
+   "stratum": 4,
+   "stemNode": 450,
+   "eligible": true,
+   "full1": [
+    true,
+    true
+   ],
+   "iso": [
+    true,
+    false
+   ],
+   "manifest": true,
+   "verdict_change": true,
+   "has_full2": true,
+   "flake": false,
+   "stem_fail_full2": false,
+   "iso_reasons": [
+    "tool order.create: 0 calls, expected 1"
+   ],
+   "full1_reasons": [],
+   "static_reads_parent": true
+  },
+  {
+   "item": "n-352-386",
+   "type": "natural",
+   "stratum": 5,
+   "stemNode": 352,
+   "eligible": true,
+   "full1": [
+    true
+   ],
+   "iso": [
+    true
+   ],
+   "manifest": false,
+   "verdict_change": false,
+   "has_full2": false,
+   "flake": false,
+   "stem_fail_full2": false,
+   "iso_reasons": [],
+   "full1_reasons": [],
+   "static_reads_parent": false
+  },
+  {
+   "item": "n-392-408",
+   "type": "natural",
+   "stratum": 1,
+   "stemNode": 392,
+   "eligible": true,
+   "full1": [
+    true,
+    true
+   ],
+   "iso": [
+    true,
+    true
+   ],
+   "manifest": false,
+   "verdict_change": false,
+   "has_full2": true,
+   "flake": false,
+   "stem_fail_full2": false,
+   "iso_reasons": [],
+   "full1_reasons": [],
+   "static_reads_parent": true
+  },
+  {
+   "item": "n-389-405",
+   "type": "natural",
+   "stratum": 3,
+   "stemNode": 389,
+   "eligible": true,
+   "full1": [
+    true,
+    true,
+    true
+   ],
+   "iso": [
+    true,
+    false,
+    true
+   ],
+   "manifest": true,
+   "verdict_change": true,
+   "has_full2": true,
+   "flake": false,
+   "stem_fail_full2": false,
+   "iso_reasons": [
+    "tool order.create: 0 calls, expected 1"
+   ],
+   "full1_reasons": [],
+   "static_reads_parent": true
+  },
+  {
+   "item": "n-857-868",
+   "type": "natural",
+   "stratum": 1,
+   "stemNode": 857,
+   "eligible": true,
+   "full1": [
+    false,
+    true
+   ],
+   "iso": [
+    false,
+    true
+   ],
+   "manifest": false,
+   "verdict_change": false,
+   "has_full2": true,
+   "flake": false,
+   "stem_fail_full2": false,
+   "iso_reasons": [
+    "must: I'm here"
+   ],
+   "full1_reasons": [
+    "must: I'm here"
+   ],
+   "static_reads_parent": false
+  },
+  {
+   "item": "n-582-607",
+   "type": "natural",
+   "stratum": 2,
+   "stemNode": 582,
+   "eligible": true,
+   "full1": [
+    false,
+    true,
+    true,
+    true
+   ],
+   "iso": [
+    false,
+    false,
+    true,
+    false
+   ],
+   "manifest": true,
+   "verdict_change": false,
+   "has_full2": false,
+   "flake": false,
+   "stem_fail_full2": false,
+   "iso_reasons": [
+    "must: We were|pick up where we left off",
+    "tool catalog.search: 1 calls, expected 0",
+    "tool order.create: input differs"
+   ],
+   "full1_reasons": [
+    "must: We were|pick up where we left off"
+   ],
+   "static_reads_parent": true
+  },
+  {
+   "item": "n-632-633",
+   "type": "natural",
+   "stratum": 4,
+   "stemNode": 632,
+   "eligible": true,
+   "full1": [
+    true,
+    true,
+    true
+   ],
+   "iso": [
+    false,
+    false,
+    true
+   ],
+   "manifest": true,
+   "verdict_change": true,
+   "has_full2": false,
+   "flake": false,
+   "stem_fail_full2": false,
+   "iso_reasons": [
+    "must: Acme Mobile L",
+    "tool order.create: 0 calls, expected 1"
+   ],
+   "full1_reasons": [],
+   "static_reads_parent": true
+  },
+  {
+   "item": "n-132-212",
+   "type": "natural",
+   "stratum": 2,
+   "stemNode": 132,
+   "eligible": true,
+   "full1": [
+    true,
+    true,
+    true
+   ],
+   "iso": [
+    true,
+    true,
+    true
+   ],
+   "manifest": false,
+   "verdict_change": false,
+   "has_full2": false,
+   "flake": false,
+   "stem_fail_full2": false,
+   "iso_reasons": [],
+   "full1_reasons": [],
+   "static_reads_parent": true
+  },
+  {
+   "item": "n-901-921",
+   "type": "natural",
+   "stratum": 1,
+   "stemNode": 901,
+   "eligible": true,
+   "full1": [
+    true,
+    true
+   ],
+   "iso": [
+    true,
+    false
+   ],
+   "manifest": true,
+   "verdict_change": true,
+   "has_full2": false,
+   "flake": false,
+   "stem_fail_full2": false,
+   "iso_reasons": [
+    "tool catalog.search: 0 calls, expected 1"
+   ],
+   "full1_reasons": [],
+   "static_reads_parent": true
+  },
+  {
+   "item": "n-836-864",
+   "type": "natural",
+   "stratum": 1,
+   "stemNode": 836,
+   "eligible": true,
+   "full1": [
+    true,
+    false,
+    false,
+    true
+   ],
+   "iso": [
+    true,
+    false,
+    true,
+    true
+   ],
+   "manifest": true,
+   "verdict_change": false,
+   "has_full2": false,
+   "flake": false,
+   "stem_fail_full2": false,
+   "iso_reasons": [
+    "must: We were|pick up where we left off"
+   ],
+   "full1_reasons": [
+    "must: We were|pick up where we left off",
+    "tool notify_sales: 1 calls, expected 0"
+   ],
+   "static_reads_parent": true
+  },
+  {
+   "item": "n-127-137",
+   "type": "natural",
+   "stratum": 3,
+   "stemNode": 127,
+   "eligible": true,
+   "full1": [
+    false,
+    true,
+    true,
+    true
+   ],
+   "iso": [
+    false,
+    true,
+    false,
+    true
+   ],
+   "manifest": true,
+   "verdict_change": false,
+   "has_full2": false,
+   "flake": false,
+   "stem_fail_full2": false,
+   "iso_reasons": [
+    "must: We were|pick up where we left off",
+    "tool order.create: 0 calls, expected 1"
+   ],
+   "full1_reasons": [
+    "must: We were|pick up where we left off"
+   ],
+   "static_reads_parent": true
+  },
+  {
+   "item": "n-701-702",
+   "type": "natural",
+   "stratum": 3,
+   "stemNode": 701,
+   "eligible": true,
+   "full1": [
+    true,
+    true,
+    true,
+    true
+   ],
+   "iso": [
+    true,
+    true,
+    false,
+    true
+   ],
+   "manifest": true,
+   "verdict_change": true,
+   "has_full2": true,
+   "flake": false,
+   "stem_fail_full2": false,
+   "iso_reasons": [
+    "tool order.create: 0 calls, expected 1"
+   ],
+   "full1_reasons": [],
+   "static_reads_parent": true
+  },
+  {
+   "item": "n-357-358",
+   "type": "natural",
+   "stratum": 2,
+   "stemNode": 357,
+   "eligible": true,
+   "full1": [
+    true,
+    true,
+    true,
+    true
+   ],
+   "iso": [
+    true,
+    false,
+    false,
+    true
+   ],
+   "manifest": true,
+   "verdict_change": true,
+   "has_full2": false,
+   "flake": false,
+   "stem_fail_full2": false,
+   "iso_reasons": [
+    "tool catalog.search: 1 calls, expected 0",
+    "tool order.create: 0 calls, expected 1"
+   ],
+   "full1_reasons": [],
+   "static_reads_parent": true
+  }
+ ]
+}
