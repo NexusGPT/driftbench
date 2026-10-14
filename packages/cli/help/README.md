@@ -87,6 +87,15 @@ runs it:
 * A command must exit 0, unless its line ends with `# exit <n>`, such as `# exit 1`; then it must exit n.
 * Show what a command prints in a separate fenced block with the info string `text`. It is not compared.
 * A command that would call a paid model has no place in a worked example.
+* A step that is not a driftbench command, such as making a file the next command reads, is tested too:
+  * A fenced block whose info string holds `file=<path>`, such as ```` ```yaml file=config/judges.yaml ````,
+    writes its text to that path in the scratch folder, at its place in the order.
+  * A fenced block with the info string `sh setup` holds shell lines (`cp`, `mkdir`, `node -e`, ...), each
+    run with bash in the scratch folder at its place in the order, and must exit 0 unless the line ends
+    with `# exit <n>`. A `driftbench ` line inside it runs like any other.
+  * Both write only to new relative paths: never under `examples/` or `packages/`, never with `..` or an
+    absolute path. So no worked example step stays untested: show a step as `text` only when it calls a
+    paid model, reads git, or runs until stopped, and say which in one line beside it.
 
 ## Style
 
@@ -100,3 +109,4 @@ No em or en dashes. No slogans. Fictional data only: emails at example.com, no r
 * `OVERVIEW.md`, printed at the top of `driftbench help`.
 * Reader commands: `driftbench help <area>` lists one area, `driftbench help search <words>` finds topics,
   `driftbench help --list` prints every command with its one line description and its topic.
+* Worked examples: `file=<path>` blocks and `sh setup` blocks, run in order with the commands.

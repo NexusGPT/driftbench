@@ -1,6 +1,15 @@
-import { mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import {
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, isAbsolute, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { Command } from 'commander';
 import { afterAll, describe, expect, it } from 'vitest';
@@ -124,7 +133,9 @@ describe('the help loader', () => {
 
 describe('the help topics follow the contract of help/README.md', () => {
   it('holds topics, each named <area>-<slug>.md with a known area', () => {
-    const files = readdirSync(DIR).filter((name) => name.endsWith('.md') && !['README.md', 'OVERVIEW.md'].includes(name));
+    const files = readdirSync(DIR).filter(
+      (name) => name.endsWith('.md') && !['README.md', 'OVERVIEW.md'].includes(name),
+    );
     expect(files.length).toBeGreaterThan(0);
     for (const name of files) {
       expect(name, name).toMatch(TOPIC_FILE);
@@ -269,26 +280,55 @@ describe('every command is covered by a help topic', () => {
   }
 });
 
-/** The commands of a topic's worked example, each with the exit code it must end with. */
-function workedExample(
-  body: string,
-  section = 'Worked example',
-): { argv: string[]; exit: number; line: string }[] {
+/**
+ * One step of a worked example, in document order: a driftbench command run through `main`, a shell line of
+ * a `sh setup` block run with bash, or a file a block with `file=<path>` in its info string writes.
+ */
+type Step =
+  | { kind: 'cli'; argv: string[]; exit: number; line: string }
+  | { kind: 'shell'; command: string; exit: number; line: string }
+  | { kind: 'file'; path: string; content: string; line: string };
+
+/** The steps of a topic's runnable section: its worked example, or a recipe's steps. */
+function workedExample(body: string, section = 'Worked example'): Step[] {
   const start = body.indexOf(`## ${section}`);
   const end = body.indexOf('\n## ', start + 1);
   const text = body.slice(start, end === -1 ? undefined : end);
-  const commands: { argv: string[]; exit: number; line: string }[] = [];
-  for (const block of text.matchAll(/^```sh\n([\s\S]*?)^```/gm)) {
-    const lines = (block[1] as string).replace(/\\\n\s*/g, ' ').split('\n');
-    for (const raw of lines) {
+  const steps: Step[] = [];
+  for (const block of text.matchAll(/^```([^\n]*)\n([\s\S]*?)^```/gm)) {
+    const info = (block[1] as string).trim().split(/\s+/);
+    const body = block[2] as string;
+    const file = info.find((word) => word.startsWith('file='));
+    if (file !== undefined) {
+      const path = file.slice('file='.length);
+      steps.push({ kind: 'file', path, content: body, line: `\`\`\`${block[1]}` });
+      continue;
+    }
+    if (info[0] !== 'sh') continue;
+    const setup = info.includes('setup');
+    for (const raw of body.replace(/\\\n\s*/g, ' ').split('\n')) {
       const line = raw.trim();
-      if (!line.startsWith('driftbench ')) continue;
+      if (line === '' || line.startsWith('#')) continue;
       const exit = /#\s*exit\s+(\d+)\s*$/.exec(line);
       const command = exit === null ? line : line.slice(0, exit.index).trim();
-      commands.push({ argv: words(command).slice(1), exit: exit === null ? 0 : Number(exit[1]), line });
+      const code = exit === null ? 0 : Number(exit[1]);
+      if (command.startsWith('driftbench ')) {
+        steps.push({ kind: 'cli', argv: words(command).slice(1), exit: code, line });
+      } else if (setup) {
+        steps.push({ kind: 'shell', command, exit: code, line });
+      }
     }
   }
-  return commands;
+  return steps;
+}
+
+/** Where a worked example may write: a new relative path, never into the linked repository folders. */
+function scratchPath(scratch: string, path: string): string {
+  const parts = path.split('/');
+  if (isAbsolute(path) || parts.includes('..') || ['examples', 'packages'].includes(parts[0] as string)) {
+    throw new Error(`a worked example writes only to new relative paths, not ${path}`);
+  }
+  return join(scratch, path);
 }
 
 /** Shell words: split on spaces, with single and double quotes kept together. */
@@ -300,21 +340,52 @@ function words(line: string): string[] {
 
 describe('every worked example runs', () => {
   for (const topic of TOPICS) {
-    const commands = workedExample(topic.body, runnableSection(topic.area));
-    it(`${topic.id}: ${commands.length} commands`, async () => {
-      expect(commands.length, 'the worked example runs at least one driftbench command').toBeGreaterThan(0);
+    const steps = workedExample(topic.body, runnableSection(topic.area));
+    const commands = steps.filter((step) => step.kind === 'cli').length;
+    it(`${topic.id}: ${commands} commands`, async () => {
+      expect(commands, 'the worked example runs at least one driftbench command').toBeGreaterThan(0);
       const scratch = mkdtempSync(join(tmpdir(), `driftbench-help-${topic.id}-`));
       try {
         symlinkSync(join(ROOT, 'examples'), join(scratch, 'examples'));
         symlinkSync(join(ROOT, 'packages'), join(scratch, 'packages'));
-        for (const command of commands) {
-          const io = capture(scratch);
-          const code = await main(command.argv, io);
-          expect(code, `${command.line}\n${io.stderr()}`).toBe(command.exit);
+        for (const step of steps) {
+          if (step.kind === 'file') {
+            const path = scratchPath(scratch, step.path);
+            mkdirSync(dirname(path), { recursive: true });
+            writeFileSync(path, step.content);
+          } else if (step.kind === 'shell') {
+            const run = spawnSync('bash', ['-c', step.command], { cwd: scratch, encoding: 'utf8' });
+            expect(run.status, `${step.line}\n${run.stdout}${run.stderr}`).toBe(step.exit);
+          } else {
+            const io = capture(scratch);
+            const code = await main(step.argv, io);
+            expect(code, `${step.line}\n${io.stderr()}`).toBe(step.exit);
+          }
         }
       } finally {
         rmSync(scratch, { recursive: true, force: true });
       }
     }, 600_000);
   }
+
+  it('reads setup blocks and file blocks in order, and refuses a file outside the scratch folder', () => {
+    const body = [
+      '## Worked example',
+      '```yaml file=cfg/a.yaml',
+      'campaign: {}',
+      '```',
+      '```sh setup',
+      'cp cfg/a.yaml b.yaml',
+      'false # exit 1',
+      '```',
+      '```sh',
+      'driftbench spec validate b.yaml # exit 1',
+      'echo not run',
+      '```',
+    ].join('\n');
+    expect(workedExample(body).map((step) => step.kind)).toEqual(['file', 'shell', 'shell', 'cli']);
+    expect(() => scratchPath('/tmp/s', 'examples/x.yaml')).toThrow();
+    expect(() => scratchPath('/tmp/s', '../x.yaml')).toThrow();
+    expect(scratchPath('/tmp/s', 'out/x.yaml')).toBe('/tmp/s/out/x.yaml');
+  });
 });
