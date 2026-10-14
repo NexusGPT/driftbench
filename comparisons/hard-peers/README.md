@@ -33,3 +33,5 @@ python3 comparisons/hard-peers/score.py
 ```
 
 `--replay` reads only recorded answers under `calls/` and sends nothing. Without it, a run sends only the calls that have no recorded answer, at concurrency 2, after ten healthy network probes 30 seconds apart. Three consecutive calls without output pause the run for ten minutes and repeat the probe gate. The whole comparison shares one 25 USD cap. DeepEval runs with `deepeval==4.2.8` installed: `python comparisons/hard-peers/deepeval_run.py <row>`.
+
+`calls/old-langwatch.jsonl` is above the leak guard's scan limit, so the repository holds it as two line-aligned parts in `calls/old-langwatch.jsonl.parts/`. Run `python3 comparisons/hard-peers/parts.py join` once to write the original file (it checks the size and sha256 in `parts-manifest.json`); the joined file is git-ignored.
