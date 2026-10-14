@@ -16,7 +16,15 @@ import {
   type WorldState,
 } from '@agent-nexus/driftbench-core';
 import { DEVIATIONS, isWorldClass } from './deviations';
-import { drawPhrasing, type Phrasing, type PhrasingKind, patternsAt, type RedteamPack } from './redteam';
+import {
+  drawPhrasing,
+  type Phrasing,
+  type PhrasingKind,
+  patternsAt,
+  type RedteamPack,
+  type ReplyChecks,
+  replyChecksAt,
+} from './redteam';
 import { createScriptedDriver } from './scripted';
 
 /**
@@ -61,7 +69,15 @@ export type PerturbingDriverOptions = {
 export type PerturbationSource =
   | { kind: 'declared' }
   | { kind: 'given' }
-  | { kind: 'drawn'; phrasingId: string; approved: boolean; packPath: string; seed: number };
+  | {
+      kind: 'drawn';
+      phrasingId: string;
+      approved: boolean;
+      packPath: string;
+      seed: number;
+      /** The reply checks of the phrasing that applied here, and those that did not. */
+      replyChecks: ReplyChecks;
+    };
 
 export type PerturbingDriver = UserDriver & {
   /** The spec to run: the input spec, with the resolved perturbation in its perturbations. */
@@ -158,6 +174,7 @@ export function resolvePerturbation(
         approved: phrasing.approved,
         packPath: phrasing.packPath,
         seed,
+        replyChecks: replyChecksFor(spec, choice.class, choice.inject_at, phrasing),
       },
     };
   }
@@ -265,6 +282,21 @@ export function fromPhrasing(
     ...(Object.keys(merged).length > 0 ? { expect: merged } : {}),
     recovery,
   };
+}
+
+/** The stage a phrasing's stage-bound patterns are judged against: D6 runs under its own block, any other class follows the earlier ones. */
+function replyStage(spec: Spec, cls: DeviationClass, injectAt: number): string | undefined {
+  return cls === 'D6_instruction_in_data' ? spec.blocks[injectAt]?.expect?.stage : stageAt(spec, injectAt);
+}
+
+/** Which of a phrasing's reply checks the perturbation built by `fromPhrasing` carries, and which not. */
+export function replyChecksFor(
+  spec: Spec,
+  cls: DeviationClass,
+  injectAt: number,
+  phrasing: Phrasing,
+): ReplyChecks {
+  return replyChecksAt(phrasing, replyStage(spec, cls, injectAt));
 }
 
 /**

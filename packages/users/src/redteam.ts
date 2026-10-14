@@ -319,3 +319,48 @@ export function patternsAt(
     .filter((entry) => typeof entry === 'string' || (stage !== undefined && entry.at_stage.includes(stage)))
     .map(patternText);
 }
+
+/** A reply check a phrasing carries that the injection did not receive, with why. */
+export type NotApplicable = {
+  key: 'must' | 'must_not';
+  pattern: string;
+  at_stage: string[];
+  /** `no stage`: the spec states no stage there. `other stage`: the stage is stated and is not listed. */
+  reason: 'no stage' | 'other stage';
+};
+
+/** What became of the reply checks of one phrasing at one injection. */
+export type ReplyChecks = {
+  /** The stage the injection arrives in; absent when the spec states none. */
+  stage?: string;
+  total: number;
+  applied: number;
+  notApplicable: NotApplicable[];
+};
+
+/** The accounting of a phrasing's `must` and `must_not` entries at `stage`: applied, or not applicable and why. */
+export function replyChecksAt(
+  phrasing: { must?: readonly ReplyPattern[] | undefined; must_not?: readonly ReplyPattern[] | undefined },
+  stage: string | undefined,
+): ReplyChecks {
+  const notApplicable: NotApplicable[] = [];
+  let total = 0;
+  for (const key of ['must', 'must_not'] as const) {
+    for (const entry of phrasing[key] ?? []) {
+      total += 1;
+      if (typeof entry === 'string' || (stage !== undefined && entry.at_stage.includes(stage))) continue;
+      notApplicable.push({
+        key,
+        pattern: entry.pattern,
+        at_stage: [...entry.at_stage],
+        reason: stage === undefined ? 'no stage' : 'other stage',
+      });
+    }
+  }
+  return {
+    ...(stage === undefined ? {} : { stage }),
+    total,
+    applied: total - notApplicable.length,
+    notApplicable,
+  };
+}
