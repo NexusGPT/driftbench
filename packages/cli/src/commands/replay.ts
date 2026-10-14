@@ -42,7 +42,7 @@ import {
 import { loadValidSpecs } from './campaign';
 
 /**
- * `driftbench replay`: runs a suite of specs over recorded sessions, offline, with no model call.
+ * `driftbench replay`: re-runs the checks of a suite of specs on recorded sessions, with no agent call; the judged criteria call a judge model only with --judge.
  *
  * Each session is read by the Claude Code adapter into blocks of Observed. Each spec is aligned with one
  * session and a first block:
@@ -92,7 +92,9 @@ export function registerReplayCommand(
 ): void {
   const replay = program
     .command('replay')
-    .description('Run a spec suite over recorded sessions, offline, with no model call.')
+    .description(
+      'Re-run the checks of a spec suite on recorded sessions: no agent call; a judge model only with --judge.',
+    )
     .argument('<sessions...>', 'session transcripts (JSONL)')
     .requiredOption('--suite <dir>', 'the spec files or folder to run')
     .option(
