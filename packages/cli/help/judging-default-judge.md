@@ -111,24 +111,25 @@ Real haiku answers to the workbook criterion, recorded through the claude comman
 driftbench judge calibrate --criteria examples/acme/criteria --labels examples/acme/labels --cassette examples/acme/criteria/calibration/claude-haiku.cassette.json --mode llm --assign cheapest --only sheet_matches_catalog --out haiku.yaml
 ```
 
-```text
-$ driftbench judge calibrate --criteria examples/acme/criteria --labels examples/acme/labels --cassette examples/acme/criteria/calibration/claude-haiku.cassette.json --mode llm --assign cheapest --only sheet_matches_catalog --out haiku.yaml
-sheet_matches_catalog [gating]: owned by claude-haiku alone (system2), 0.0003 USD per call
-    claude-haiku       system2  separation 3/3  kappa  1.00  agreement 3/3 [0.44, 1.00]  at the bar
-    alpha across judges n/a; bar: 3/3 separation and kappa 0.8
-Kappa over every labelled block: claude-haiku 1.00 (3/3).
-
-1 of 1 criteria assigned in mode llm (3 repeats, kappa at least 0.8). Spent 0.0026 USD.
-Wrote haiku.yaml.
-(exit 0)
-```
-
 Render the user prompt the default judge receives for the fail fixture of `one_question_per_turn`, then parse three possible model answers (no model call):
 
-From a repository checkout, not run by the help test:
+The scripts below run the package from its source with `tsx`; this file tells `tsx` where the packages are:
 
-```text
-$ mkdir -p out/judging/default && cat > out/judging/default/ledger.ts <<'EOF'
+```json file=tsconfig.json
+{
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "paths": {
+      "@agent-nexus/driftbench-example-acme": ["./examples/acme/src/package.ts"],
+      "@agent-nexus/driftbench-adapters/contract": ["./packages/adapters/src/contract.ts"],
+      "@agent-nexus/driftbench-*": ["./packages/*/src/index.ts"]
+    }
+  }
+}
+```
+
+```ts file=ledger.mts
 import { buildPrompt, fixtureRequest, loadCriteria, parseJudgeText } from '@agent-nexus/driftbench-judges';
 
 const { criteria } = await loadCriteria('examples/acme/criteria');
@@ -145,8 +146,36 @@ for (const [name, raw] of Object.entries(answers)) {
   const result = parseJudgeText(raw, request);
   console.log(`${name}: ${result.answer.outcome}${result.unparsed ? ' (unparsed)' : ''}; ${result.answer.reasoning}`);
 }
-EOF
-$ pnpm -s exec tsx out/judging/default/ledger.ts
+```
+
+```sh setup
+tsx ledger.mts
+```
+
+```text
+$ driftbench judge calibrate --criteria examples/acme/criteria --labels examples/acme/labels --cassette examples/acme/criteria/calibration/claude-haiku.cassette.json --mode llm --assign cheapest --only sheet_matches_catalog --out haiku.yaml
+node:internal/modules/esm/resolve:271
+    throw new ERR_MODULE_NOT_FOUND(
+          ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/Users/assem/Documents/GitHub/driftbench/.worktrees/opus-help-judging/packages/cli/node_modules/@agent-nexus/driftbench-judges/dist/index.js' imported from /Users/assem/Documents/GitHub/driftbench/.worktrees/opus-help-judging/packages/cli/src/commands/judge.ts
+    at finalizeResolution (node:internal/modules/esm/resolve:271:11)
+    at moduleResolve (node:internal/modules/esm/resolve:865:10)
+    at defaultResolve (node:internal/modules/esm/resolve:992:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:701:20)
+    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:721:38)
+    at nextStep (node:internal/modules/customization_hooks:189:26)
+    at resolveBaseSync (file:///Users/assem/Documents/GitHub/driftbench/.worktrees/opus-help-judging/node_modules/.pnpm/tsx@4.23.15/node_modules/tsx/dist/register-nyXW-TH3.mjs:2:11092)
+    at resolveDirectorySync (file:///Users/assem/Documents/GitHub/driftbench/.worktrees/opus-help-judging/node_modules/.pnpm/tsx@4.23.15/node_modules/tsx/dist/register-nyXW-TH3.mjs:2:12398)
+    at resolveTsPathsSync (file:///Users/assem/Documents/GitHub/driftbench/.worktrees/opus-help-judging/node_modules/.pnpm/tsx@4.23.15/node_modules/tsx/dist/register-nyXW-TH3.mjs:2:13605)
+    at resolve (file:///Users/assem/Documents/GitHub/driftbench/.worktrees/opus-help-judging/node_modules/.pnpm/tsx@4.23.15/node_modules/tsx/dist/register-nyXW-TH3.mjs:2:16832) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///Users/assem/Documents/GitHub/driftbench/.worktrees/opus-help-judging/packages/cli/node_modules/@agent-nexus/driftbench-judges/dist/index.js'
+}
+
+Node.js v24.18.0
+(exit 1)
+$ tsx ledger.mts
 CRITERION: one_question_per_turn
 QUESTION: The reply asks the customer at most one question.
 FAIL looks like: Two or more questions in the same reply.
