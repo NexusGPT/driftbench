@@ -83,9 +83,48 @@ describe('history messages', () => {
       },
       {},
     );
-    // Rejects the exposed accessor shape; this does not claim to detect every Proxy.
+    // The accessor shape is reported first; a Proxy with plain data is rejected by the test below.
     expect(() => freezeMessage(proxy)).toThrow(/content.*accessor/);
     expect(text).toBe('before');
+  });
+
+  it('rejects a Proxy message whose get trap answers an absent optional field', () => {
+    const call = { label: 'a', input: { q: 'before' } };
+    const live = [call];
+    const get = vi.fn((target: object, key: string | symbol, receiver: unknown) =>
+      key === 'tool_calls' ? live : Reflect.get(target, key, receiver),
+    );
+    const proxy = new Proxy({ role: 'assistant', content: 'x' }, { get }) as Message;
+    expect(() => copyHistory([proxy])).toThrow(TypeError);
+    expect(() => freezeMessage(proxy)).toThrow(/^message: Proxy object; expected plain JSON data$/);
+    expect(get).not.toHaveBeenCalled();
+    call.input.q = 'caller-change';
+    expect(Object.isFrozen(live)).toBe(false);
+  });
+
+  it.each([
+    ['metadata', { metadata: new Proxy({ tag: 'x' }, {}) }, /message\["metadata"\]: Proxy object/],
+    [
+      'tool input',
+      { tool_calls: [{ label: 'a', input: new Proxy({ q: 'x' }, {}) }] },
+      /message\["tool_calls"\]\["0"\]\["input"\]: Proxy object/,
+    ],
+    [
+      'tool call array',
+      { tool_calls: new Proxy([{ label: 'a' }], {}) },
+      /message\["tool_calls"\]: Proxy object/,
+    ],
+  ])('rejects a nested Proxy value in %s', (_name, extra, pattern) => {
+    const message = { role: 'assistant', content: 'x', ...extra } as unknown as Message;
+    expect(() => freezeMessage(message)).toThrow(TypeError);
+    expect(() => copyHistory([message])).toThrow(pattern);
+    expect(Object.isFrozen(message)).toBe(false);
+  });
+
+  it('rejects a Proxy history array', () => {
+    const history = new Proxy([{ role: 'user', content: 'x' } as Message], {});
+    expect(() => copyHistory(history)).toThrow(/^history: Proxy object; expected plain JSON data$/);
+    expect(() => copyHistory([], history)).toThrow(/^appended: Proxy object/);
   });
 
   it('accepts null-prototype data and freezes its nested values', () => {

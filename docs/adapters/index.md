@@ -58,7 +58,7 @@ History must be an ordinary dense array of non-null plain message objects. Array
 
 The write-error guarantee applies to shared host `Message` objects. SDK adapters can build separate wire representations, and processes receive serialized copies; writes to those independent copies need not throw and cannot change host history.
 
-Proxies are unsupported. Descriptor and prototype checks validate data shape, not the absence of a Proxy; adversarial Proxy traps are outside this contract.
+Proxies are rejected. A Proxy history array, a Proxy message or a Proxy nested value fails with a path-specific `TypeError` before any setup factory runs; no `get` trap is called during the check.
 
 ## What `send` returns
 

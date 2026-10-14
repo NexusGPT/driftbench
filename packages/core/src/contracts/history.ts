@@ -1,3 +1,4 @@
+import { types } from 'node:util';
 import type { Message } from '../schema/common';
 
 const frozen = new WeakSet<object>();
@@ -36,6 +37,8 @@ export function freezeMessage(message: Message): Message {
       entries++;
     }
     if (array && entries !== descriptors.length?.value) invalid(path, 'sparse array');
+    // Descriptors pin present keys only; a get trap could still answer an absent optional field.
+    if (types.isProxy(value)) invalid(path, 'Proxy object');
     Object.freeze(value);
     frozen.add(value);
     seen.delete(value);
@@ -60,6 +63,7 @@ export function copyHistory(messages: readonly Message[], appended: readonly Mes
     }
     if (!Array.isArray(source) || Object.getPrototypeOf(source) !== Array.prototype)
       throw new TypeError(`${path}: expected an ordinary array`);
+    if (types.isProxy(source)) throw new TypeError(`${path}: Proxy object; expected plain JSON data`);
     const length = Object.getOwnPropertyDescriptor(source, 'length')?.value as number;
     const keys = Reflect.ownKeys(source);
     if (keys.length !== length + 1 || keys[length] !== 'length') {

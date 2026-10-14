@@ -112,6 +112,24 @@ describe('function adapter', () => {
     expect(text).toBe('before');
   });
 
+  it('rejects a Proxy message at open before creating the agent', async () => {
+    let created = false;
+    const live = [{ label: 'lookup', input: { q: 'before' } }];
+    const message = new Proxy({ role: 'assistant', content: 'x' } as Message, {
+      get: (target, key, receiver) => (key === 'tool_calls' ? live : Reflect.get(target, key, receiver)),
+    });
+    const adapter = functionAdapter({
+      create: () => {
+        created = true;
+      },
+      respond: () => reply('ok'),
+    });
+    await expect(adapter.open({ ...acmeGiven(target), prefix: [message] })).rejects.toThrow(
+      /message: Proxy object/,
+    );
+    expect(created).toBe(false);
+  });
+
   it.each(['F', 'T', 'P'] as const)(
     'shares frozen messages in fresh callback arrays in mode %s',
     async (mode) => {

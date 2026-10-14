@@ -44,7 +44,7 @@ History must be an ordinary dense array of non-null plain message objects. Array
 
 The write-error guarantee applies to shared host `Message` objects. SDK adapters can build separate wire representations, and processes receive serialized copies; writes to those independent copies need not throw and cannot change host history.
 
-Proxies are unsupported. The boundary checks data shape through property descriptors and prototypes; this is not a reliable Proxy detector or a guarantee for adversarial Proxy traps.
+Proxies are rejected. A Proxy history array, a Proxy message or a Proxy nested value fails with a `TypeError` naming its path, before any setup factory runs. No `get` trap is called during the check.
 
 `world`, `vars` and `context.target` remain copies. `state` remains the agent's own per-session state. The adapter validates what the agent returns. Adapters also freeze ordinary messages from direct callers at `open` and `send`. The caller keeps the same message reference, so later writes to that object also throw; copy it before handing it over if you need to keep editing your original.
 

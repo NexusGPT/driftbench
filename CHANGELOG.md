@@ -6,7 +6,7 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ### Breaking
 
-* History messages are now shared and deeply frozen. Adapters and function callbacks receive fresh arrays of the same messages; strict-mode writes to message fields throw. History must be an ordinary dense array of non-null plain message objects, without accessors or extra own properties. Messages must be plain JSON data; accessors and non-plain values such as Date, Map, class instances and typed arrays are rejected with a property path. Proxies are unsupported; validation checks data shape.
+* History messages are now shared and deeply frozen. Adapters and function callbacks receive fresh arrays of the same messages; strict-mode writes to message fields throw. History must be an ordinary dense array of non-null plain message objects, without accessors or extra own properties. Messages must be plain JSON data; accessors and non-plain values such as Date, Map, class instances and typed arrays are rejected with a property path. A Proxy history array, message or nested value is rejected with its path.
 
 Migration: pass plain JSON data, convert special values explicitly, and omit absent optional fields; copy a message with `structuredClone(message)` before editing it.
 Adapters freeze caller-owned messages too: copy before handing one over to keep editing your original. World and vars remain copies.
