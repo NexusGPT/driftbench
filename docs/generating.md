@@ -303,7 +303,7 @@ A complete generated block reads observed state, not only words. Code derives ea
 | `expect.tools` (label, count, input) | the `uses_tool` relations of the flow at that stage, inputs filled from the slots the cell's data values and the phrases bind; every other tool the scenario calls is expected 0 times in that turn |
 | `rules.forbidden_tools` | every tool the scenario never calls |
 | `end_state` on the last block | the path's end state, slots filled |
-| a probe block's stage, `must`, `must_not`, guards and calls | the recovery of that class in that flow; `pending` is the stage the conversation had reached |
+| a probe block's stage, `must`, `must_not`, guards and calls | the recovery of that class in that flow; `pending` is the stage the conversation had reached. A recovery that stays there also keeps the `must_not` patterns with no slot of the `states` relation that reached the stage, such as narrated internal steps |
 | a tool failure | the path's own turn, with the tool failing in its Given; the recovery's stage and calls; calls after the failing tool expected 0 times; the conversation stops there |
 | `expect.must` and `expect.must_not` on a move | the approved `states` relations of the flow or behaviour at that stage, such as returned prices, the pending question, and forbidden invented facts |
 | `expect.lang` on every block | the `reply_language` relation, never the language of the user's message |
