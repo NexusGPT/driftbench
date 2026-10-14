@@ -5,6 +5,8 @@ commands: []
 see_also:
   - core-getting-started
   - core-configuration
+next:
+  - core-exit-codes
 ---
 
 ## What it is

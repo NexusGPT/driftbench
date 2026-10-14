@@ -8,11 +8,15 @@ import { COMMAND_MODULES } from '../src/command-index';
 import {
   formatHelpIndex,
   HELP_AREAS,
-  HELP_SECTIONS,
   helpDir,
   loadHelpTopics,
+  loadOverview,
+  nextTopics,
   parseTopic,
   runHelpTopics,
+  runnableSection,
+  searchHelpTopics,
+  sectionsFor,
   TOPIC_FILE,
   topicsForCommand,
 } from '../src/help-topics';
@@ -120,7 +124,7 @@ describe('the help loader', () => {
 
 describe('the help topics follow the contract of help/README.md', () => {
   it('holds topics, each named <area>-<slug>.md with a known area', () => {
-    const files = readdirSync(DIR).filter((name) => name.endsWith('.md') && name !== 'README.md');
+    const files = readdirSync(DIR).filter((name) => name.endsWith('.md') && !['README.md', 'OVERVIEW.md'].includes(name));
     expect(files.length).toBeGreaterThan(0);
     for (const name of files) {
       expect(name, name).toMatch(TOPIC_FILE);
@@ -135,12 +139,13 @@ describe('the help topics follow the contract of help/README.md', () => {
         for (const command of topic.commands) expect(COMMANDS, `${topic.id}: ${command}`).toContain(command);
         const ids = TOPICS.map((each) => each.id);
         for (const id of topic.see_also) expect(ids, `${topic.id}: see_also ${id}`).toContain(id);
+        for (const id of topic.next) expect(ids, `${topic.id}: next ${id}`).toContain(id);
       });
 
-      it('has the seven sections in order and no top-level heading', () => {
+      it('has the sections of its area in order and no top-level heading', () => {
         const prose = topic.body.replace(/^```[\s\S]*?^```/gm, '');
         const headings = [...prose.matchAll(/^(#{1,2}) (.+)$/gm)].map((match) => `${match[1]} ${match[2]}`);
-        expect(headings).toEqual(HELP_SECTIONS.map((section) => `## ${section}`));
+        expect(headings).toEqual(sectionsFor(topic.area).map((section) => `## ${section}`));
       });
 
       it('has no em or en dash', () => {
@@ -152,13 +157,28 @@ describe('the help topics follow the contract of help/README.md', () => {
         const io = capture();
         expect(await main(['help', topic.id], io), io.stderr()).toBe(0);
         expect(io.stdout().startsWith(`${topic.title}\n${topic.summary}\n`)).toBe(true);
-        for (const section of HELP_SECTIONS) expect(io.stdout()).toContain(`## ${section}`);
+        for (const section of sectionsFor(topic.area)) expect(io.stdout()).toContain(`## ${section}`);
+        const next = nextTopics(TOPICS, topic);
+        const last = io.stdout().trimEnd().split('\n').at(-1) ?? '';
+        expect(last).toMatch(/^Next: /);
+        for (const id of next) expect(last).toContain(`driftbench help ${id}`);
       });
     });
   }
 });
 
 describe('driftbench help', () => {
+  it('opens with the overview, which names every top-level command', async () => {
+    const overview = loadOverview(DIR);
+    expect(overview).toBeDefined();
+    for (const name of new Set(COMMAND_MODULES.flatMap((module) => module.names))) {
+      expect(overview, `OVERVIEW.md names driftbench ${name}`).toMatch(new RegExp(`driftbench ${name} `));
+    }
+    const io = capture();
+    expect(await main(['help'], io)).toBe(0);
+    expect(io.stdout().startsWith(overview as string)).toBe(true);
+  });
+
   it('prints an index of every topic, grouped by area', async () => {
     const io = capture();
     expect(await main(['help'], io)).toBe(0);
@@ -177,6 +197,43 @@ describe('driftbench help', () => {
     expect(await main(['help', 'no-such-topic'], bad)).toBe(2);
     expect(bad.stderr()).toContain('no help topic or command named "no-such-topic"');
   });
+
+  it('lists one area with help <area>', async () => {
+    const io = capture();
+    expect(await main(['help', 'core'], io)).toBe(0);
+    for (const topic of TOPICS) {
+      if (topic.area === 'core') expect(io.stdout()).toContain(`  ${topic.id}`);
+      else expect(io.stdout()).not.toContain(`  ${topic.id} `);
+    }
+  });
+
+  it('searches the topics with help search <words>, ranked, and says when nothing holds them', async () => {
+    const hits = searchHelpTopics(TOPICS, 'exit code');
+    expect(hits[0]?.topic.id).toBe('core-exit-codes');
+    expect(hits.every((hit) => hit.count > 0)).toBe(true);
+    const io = capture();
+    expect(await main(['help', 'search', 'ANTHROPIC_API_KEY'], io)).toBe(0);
+    expect(io.stdout()).toContain('driftbench help core-configuration');
+    const none = capture();
+    expect(await main(['help', 'search', 'zzqx-nothing'], none)).toBe(0);
+    expect(none.stdout()).toContain('No help topic holds "zzqx-nothing"');
+    const empty = capture();
+    expect(await main(['help', 'search'], empty)).toBe(2);
+  });
+
+  it('prints every command with one line and its topic with help --list', async () => {
+    const io = capture();
+    expect(await main(['help', '--list'], io)).toBe(0);
+    const lines = io.stdout().split('\n');
+    for (const path of COMMANDS.filter((command) => command !== 'help')) {
+      const line = lines.find(
+        (each) => each.startsWith(`driftbench ${path}  `) || each.startsWith(`driftbench ${path} `),
+      );
+      expect(line, path).toBeDefined();
+      const topic = topicsForCommand(TOPICS, path)[0];
+      if (topic !== undefined) expect(line, path).toContain(`(driftbench help ${topic.id})`);
+    }
+  }, 120_000);
 
   it('still prints the usage of a command for help <command>', async () => {
     const io = capture();
@@ -213,12 +270,15 @@ describe('every command is covered by a help topic', () => {
 });
 
 /** The commands of a topic's worked example, each with the exit code it must end with. */
-function workedExample(body: string): { argv: string[]; exit: number; line: string }[] {
-  const start = body.indexOf('## Worked example');
+function workedExample(
+  body: string,
+  section = 'Worked example',
+): { argv: string[]; exit: number; line: string }[] {
+  const start = body.indexOf(`## ${section}`);
   const end = body.indexOf('\n## ', start + 1);
-  const section = body.slice(start, end === -1 ? undefined : end);
+  const text = body.slice(start, end === -1 ? undefined : end);
   const commands: { argv: string[]; exit: number; line: string }[] = [];
-  for (const block of section.matchAll(/^```sh\n([\s\S]*?)^```/gm)) {
+  for (const block of text.matchAll(/^```sh\n([\s\S]*?)^```/gm)) {
     const lines = (block[1] as string).replace(/\\\n\s*/g, ' ').split('\n');
     for (const raw of lines) {
       const line = raw.trim();
@@ -240,7 +300,7 @@ function words(line: string): string[] {
 
 describe('every worked example runs', () => {
   for (const topic of TOPICS) {
-    const commands = workedExample(topic.body);
+    const commands = workedExample(topic.body, runnableSection(topic.area));
     it(`${topic.id}: ${commands.length} commands`, async () => {
       expect(commands.length, 'the worked example runs at least one driftbench command').toBeGreaterThan(0);
       const scratch = mkdtempSync(join(tmpdir(), `driftbench-help-${topic.id}-`));

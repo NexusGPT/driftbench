@@ -5,6 +5,8 @@ commands: []
 see_also:
   - core-global-options
   - core-getting-started
+next:
+  - recipes-test-a-chat-agent
 ---
 
 ## What it is

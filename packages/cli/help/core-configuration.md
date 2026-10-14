@@ -6,6 +6,8 @@ see_also:
   - core-global-options
   - core-project-layout
   - core-exit-codes
+next:
+  - core-project-layout
 ---
 
 ## What it is

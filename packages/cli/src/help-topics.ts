@@ -6,14 +6,15 @@ import type { Io } from './io';
 
 /**
  * The help topics of `driftbench help`: one markdown file per topic in the package's `help` folder, named
- * `<area>-<slug>.md`, with front matter (title, summary, commands, see_also) and seven sections. The folder's
- * README.md is the contract every topic follows. Files are read when help runs, so a topic added later shows
- * up with no code change.
+ * `<area>-<slug>.md`, with front matter (title, summary, commands, see_also, next) and fixed sections. The
+ * folder's README.md is the contract every topic follows; OVERVIEW.md opens the index. Files are read when help
+ * runs, so a topic added later shows up with no code change.
  */
 
 /** The areas, in the order the index lists them. */
 export const HELP_AREAS = [
   'core',
+  'recipes',
   'authoring',
   'running',
   'judging',
@@ -33,6 +34,28 @@ export const HELP_SECTIONS = [
   'Common errors',
 ] as const;
 
+/** The sections of a recipe (area `recipes`), a goal-first walkthrough, in this order. */
+export const RECIPE_SECTIONS = [
+  'Goal',
+  'Before you start',
+  'Steps',
+  'What you have at the end',
+  'When a step fails',
+] as const;
+
+/** The sections a topic of this area must have, in order. */
+export function sectionsFor(area: string): readonly string[] {
+  return area === 'recipes' ? RECIPE_SECTIONS : HELP_SECTIONS;
+}
+
+/** The section whose `sh` blocks a test runs: the worked example, or a recipe's steps. */
+export function runnableSection(area: string): string {
+  return area === 'recipes' ? 'Steps' : 'Worked example';
+}
+
+/** The file printed at the top of `driftbench help`, before the topic list. */
+export const OVERVIEW_FILE = 'OVERVIEW.md';
+
 /** A topic file name: an area, a hyphen, a slug of lower case letters, digits and hyphens. */
 export const TOPIC_FILE = /^([a-z]+)-([a-z0-9]+(?:-[a-z0-9]+)*)\.md$/;
 
@@ -44,6 +67,8 @@ export type HelpTopic = {
   summary: string;
   commands: string[];
   see_also: string[];
+  /** Topic ids to read next. Empty: the topic that follows in the index. */
+  next: string[];
   /** The text after the front matter. */
   body: string;
   /** What is wrong with the front matter, when something is. The topic is still listed and printed. */
@@ -72,7 +97,16 @@ function areaRank(area: string): number {
 /** One topic from its id and its text. A broken front matter is reported in `problem`, never thrown. */
 export function parseTopic(id: string, text: string): HelpTopic {
   const area = id.split('-', 1)[0] as string;
-  const topic: HelpTopic = { id, area, title: id, summary: '', commands: [], see_also: [], body: text };
+  const topic: HelpTopic = {
+    id,
+    area,
+    title: id,
+    summary: '',
+    commands: [],
+    see_also: [],
+    next: [],
+    body: text,
+  };
   const match = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/.exec(text);
   if (match === null) return { ...topic, problem: 'no front matter' };
   topic.body = text.slice(match[0].length);
@@ -93,7 +127,7 @@ export function parseTopic(id: string, text: string): HelpTopic {
     problems.push(`${key} must be one line of text`);
     return undefined;
   };
-  const list = (key: 'commands' | 'see_also') => {
+  const list = (key: 'commands' | 'see_also' | 'next') => {
     const value = fields[key] ?? [];
     if (Array.isArray(value) && value.every((item) => typeof item === 'string')) {
       return value.map((item) => item.trim().replace(/\s+/g, ' '));
@@ -105,23 +139,32 @@ export function parseTopic(id: string, text: string): HelpTopic {
   topic.summary = text1('summary') ?? '';
   topic.commands = list('commands');
   topic.see_also = list('see_also');
+  topic.next = list('next');
   const unknown = Object.keys(fields).filter(
-    (key) => !['title', 'summary', 'commands', 'see_also'].includes(key),
+    (key) => !['title', 'summary', 'commands', 'see_also', 'next'].includes(key),
   );
   if (unknown.length > 0) problems.push(`unknown keys: ${unknown.join(', ')}`);
   return problems.length > 0 ? { ...topic, problem: problems.join('; ') } : topic;
 }
 
-/** The index: every topic grouped by area, with its summary, and how to print one. */
-export function formatHelpIndex(topics: readonly HelpTopic[]): string {
-  const lines = [
-    'driftbench help topics',
+/** The overview that opens the index, or undefined when the file is absent. */
+export function loadOverview(dir: string = helpDir()): string | undefined {
+  const path = join(dir, OVERVIEW_FILE);
+  return existsSync(path) ? readFileSync(path, 'utf8').trim() : undefined;
+}
+
+/** The index: the overview, then every topic grouped by area with its summary, and how to read on. */
+export function formatHelpIndex(topics: readonly HelpTopic[], overview?: string): string {
+  const lines: string[] = [];
+  if (overview !== undefined) lines.push(overview, '');
+  lines.push(
+    'Help topics',
     '',
-    'Print a topic: driftbench help <topic>. List the commands: driftbench --help.',
-    'Usage of one command: driftbench <command> --help, which also names its topics.',
-  ];
+    'Print a topic: driftbench help <topic>. Search them: driftbench help search <word>.',
+    'Every command with one line: driftbench help --list. One command: driftbench <command> --help.',
+  );
   if (topics.length === 0) {
-    lines.push('', 'No topic is installed: the help folder of this package is missing.');
+    lines.push('', 'No topic is installed.');
     return `${lines.join('\n')}\n`;
   }
   const width = Math.max(...topics.map((topic) => topic.id.length));
@@ -136,18 +179,103 @@ export function formatHelpIndex(topics: readonly HelpTopic[]): string {
   return `${lines.join('\n')}\n`;
 }
 
-/** One topic as the reader sees it: title, summary, the commands it covers, its sections, see also. */
-export function formatHelpTopic(topic: HelpTopic): string {
+/**
+ * The topics to read after this one: its `next` list, else the topic that follows it in the index order
+ * (none after the last).
+ */
+export function nextTopics(topics: readonly HelpTopic[], topic: HelpTopic): string[] {
+  if (topic.next.length > 0) return topic.next;
+  const at = topics.findIndex((each) => each.id === topic.id);
+  const following = at === -1 ? undefined : topics[at + 1];
+  return following === undefined ? [] : [following.id];
+}
+
+/** One topic as the reader sees it: title, summary, the commands it covers, its sections, see also, next. */
+export function formatHelpTopic(topic: HelpTopic, next: readonly string[] = []): string {
   const head = [topic.title, topic.summary];
   if (topic.problem !== undefined) head.push(`(broken topic: ${topic.problem})`);
   if (topic.commands.length > 0) {
     head.push('', `Commands: ${topic.commands.map((command) => `driftbench ${command}`).join(', ')}`);
   }
-  const tail =
-    topic.see_also.length > 0
-      ? `\n\nSee also: ${topic.see_also.map((id) => `driftbench help ${id}`).join(', ')}`
-      : '';
-  return `${head.join('\n')}\n\n${topic.body.trim()}${tail}\n`;
+  const tail: string[] = [];
+  if (topic.see_also.length > 0) {
+    tail.push(`See also: ${topic.see_also.map((id) => `driftbench help ${id}`).join(', ')}`);
+  }
+  tail.push(
+    next.length > 0
+      ? `Next: ${next.map((id) => `driftbench help ${id}`).join(', ')}`
+      : 'Next: driftbench help, the index of every topic',
+  );
+  return `${head.join('\n')}\n\n${topic.body.trim()}\n\n${tail.join('\n')}\n`;
+}
+
+/** A topic that holds a word: how many lines hold it, and the first such line. */
+export type SearchHit = { topic: HelpTopic; count: number; first: string };
+
+/**
+ * The topics that hold every word of the query, case blind, in title, summary, commands or body. Ranked by
+ * a match in the title or summary first, then by the number of matching lines.
+ */
+export function searchHelpTopics(topics: readonly HelpTopic[], query: string): SearchHit[] {
+  const words = query
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((word) => word !== '');
+  if (words.length === 0) return [];
+  const hits: (SearchHit & { head: boolean })[] = [];
+  for (const topic of topics) {
+    const lines = [topic.title, topic.summary, ...topic.commands, ...topic.body.split('\n')];
+    const all = lines.join('\n').toLowerCase();
+    if (!words.every((word) => all.includes(word))) continue;
+    const matching = lines.filter((line) => words.some((word) => line.toLowerCase().includes(word)));
+    const head = words.some((word) => `${topic.title} ${topic.summary}`.toLowerCase().includes(word));
+    hits.push({ topic, count: matching.length, first: (matching[0] ?? '').trim(), head });
+  }
+  hits.sort(
+    (a, b) => Number(b.head) - Number(a.head) || b.count - a.count || a.topic.id.localeCompare(b.topic.id),
+  );
+  return hits.map(({ head: _head, ...hit }) => hit);
+}
+
+/** The search result: one block per topic, its id and summary, then its first matching line. */
+export function formatSearch(query: string, hits: readonly SearchHit[]): string {
+  if (hits.length === 0) {
+    return `No help topic holds "${query}". List the topics: driftbench help. Every command: driftbench help --list\n`;
+  }
+  const lines = [`${hits.length} topic${hits.length === 1 ? '' : 's'} hold "${query}":`];
+  for (const hit of hits) {
+    lines.push('', `  driftbench help ${hit.topic.id}  ${hit.topic.summary}`);
+    lines.push(`    ${hit.count} line${hit.count === 1 ? '' : 's'}; first: ${hit.first.slice(0, 160)}`);
+  }
+  return `${lines.join('\n')}\n`;
+}
+
+/** One command for `driftbench help --list`: its path and its one-line description. */
+export type CommandLine = { path: string; description: string };
+
+/**
+ * Every command with its description and the first topic that covers it, grouped under its top-level
+ * command, in the order given.
+ */
+export function formatCommandList(commands: readonly CommandLine[], topics: readonly HelpTopic[]): string {
+  const width = Math.max(...commands.map((command) => command.path.length)) + 'driftbench '.length;
+  const lines = [
+    'Every driftbench command, with one line each and the help topic about it.',
+    'Options of one command: driftbench <command> --help. The topics: driftbench help.',
+  ];
+  let group: string | undefined;
+  for (const command of commands) {
+    const top = command.path.split(' ', 1)[0];
+    if (top !== group) {
+      lines.push('');
+      group = top;
+    }
+    const topic = topicsForCommand(topics, command.path)[0];
+    const about = topic === undefined ? '' : `  (driftbench help ${topic.id})`;
+    const description = command.description.split('\n')[0]?.trim() ?? '';
+    lines.push(`${`driftbench ${command.path}`.padEnd(width)}  ${description}${about}`);
+  }
+  return `${lines.join('\n')}\n`;
 }
 
 /**
@@ -189,8 +317,9 @@ export function commandHelpFooter(topics: readonly HelpTopic[], path: string): s
 }
 
 /**
- * Runs `driftbench help` and `driftbench help <topic>`. Returns the exit code, or undefined when the
- * arguments ask for something else (`help <command>` stays commander's usage of that command).
+ * Runs `driftbench help`, `driftbench help <topic>` and `driftbench help search <words>`. Returns the exit
+ * code, or undefined when the arguments ask for something else: `help <command>` stays commander's usage of
+ * that command, and `help --list` needs the commands (see `main`).
  */
 export function runHelpTopics(
   argv: readonly string[],
@@ -198,21 +327,38 @@ export function runHelpTopics(
   commandNames: ReadonlySet<string>,
   dir: string = helpDir(),
 ): number | undefined {
-  if (argv[0] !== 'help' || argv.length > 2) return undefined;
+  if (argv[0] !== 'help') return undefined;
+  if (argv[1] === 'search') {
+    const query = argv.slice(2).join(' ').trim();
+    if (query === '') {
+      io.err('driftbench: help search takes a word, such as: driftbench help search store\n');
+      return 2;
+    }
+    io.out(formatSearch(query, searchHelpTopics(loadHelpTopics(dir), query)));
+    return 0;
+  }
+  if (argv.length > 2) return undefined;
   const name = argv[1];
   if (name !== undefined && (commandNames.has(name) || name.startsWith('-'))) return undefined;
   const topics = loadHelpTopics(dir);
   if (name === undefined) {
-    io.out(formatHelpIndex(topics));
+    io.out(formatHelpIndex(topics, loadOverview(dir)));
     return 0;
   }
   const topic = findHelpTopic(topics, name);
   if (topic !== undefined) {
-    io.out(formatHelpTopic(topic));
+    io.out(formatHelpTopic(topic, nextTopics(topics, topic)));
+    return 0;
+  }
+  const area = topics.filter((each) => each.area === name);
+  if (area.length > 0) {
+    io.out(formatHelpIndex(area).replace('Help topics', `Help topics of the area ${name}`));
     return 0;
   }
   const near = topics.filter((each) => each.id.includes(name)).map((each) => each.id);
   const hint = near.length > 0 ? ` Close: ${near.join(', ')}.` : '';
-  io.err(`driftbench: no help topic or command named "${name}".${hint} List the topics: driftbench help\n`);
+  io.err(
+    `driftbench: no help topic or command named "${name}".${hint} List the topics: driftbench help. Search them: driftbench help search ${name}\n`,
+  );
   return 2;
 }

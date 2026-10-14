@@ -7,6 +7,8 @@ see_also:
   - core-reading-help
   - core-configuration
   - core-exit-codes
+next:
+  - core-configuration
 ---
 
 ## What it is

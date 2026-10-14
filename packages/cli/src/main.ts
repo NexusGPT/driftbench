@@ -1,7 +1,13 @@
 import { Command, CommanderError, Help } from 'commander';
 import { COMMAND_HELP, COMMAND_MODULES, type Register } from './command-index';
 import type { CampaignDeps } from './commands/campaign';
-import { commandHelpFooter, loadHelpTopics, runHelpTopics } from './help-topics';
+import {
+  type CommandLine,
+  commandHelpFooter,
+  formatCommandList,
+  loadHelpTopics,
+  runHelpTopics,
+} from './help-topics';
 import { type Io, processIo } from './io';
 import { applyPlugins, beginPluginRun, type DriftbenchPlugin, pluginsFromRun } from './plugins';
 import { VERSION } from './version';
@@ -39,6 +45,10 @@ export async function main(argv: string[], io: Io = processIo, options: MainOpti
     // `help` alone and `help <topic>` print the help topics; `help <command>` stays the command's usage.
     const topics = runHelpTopics(run.argv, io, COMMAND_NAMES);
     if (topics !== undefined) return topics;
+    if (run.argv.length === 2 && run.argv[0] === 'help' && run.argv[1] === '--list') {
+      io.out(formatCommandList(await commandLines(io), loadHelpTopics()));
+      return 0;
+    }
     const program = await createProgram(run.argv, io, setExit, options.deps);
 
     try {
@@ -124,6 +134,25 @@ export function fullProgram(
   for (const register of registers) register(program, io, setExit);
   pointToTopics(program, []);
   return program;
+}
+
+/** Every command of the full program with its description, depth first, in the order registered. */
+export async function commandLines(io: Io): Promise<CommandLine[]> {
+  const program = fullProgram(
+    await Promise.all(COMMAND_MODULES.map((module) => module.load())),
+    io,
+    () => {},
+  );
+  const lines: CommandLine[] = [];
+  const walk = (command: Command, path: readonly string[]) => {
+    for (const sub of command.commands) {
+      const own = [...path, sub.name()];
+      lines.push({ path: own.join(' '), description: sub.description() });
+      walk(sub, own);
+    }
+  };
+  walk(program, []);
+  return lines;
 }
 
 /** Ends the usage of every command with the help topics about it, read only when the usage prints. */

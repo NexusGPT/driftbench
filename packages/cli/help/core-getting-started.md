@@ -10,6 +10,9 @@ see_also:
   - core-configuration
   - core-exit-codes
   - core-reading-help
+next:
+  - core-reading-help
+  - recipes-test-a-chat-agent
 ---
 
 ## What it is

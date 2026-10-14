@@ -6,6 +6,8 @@ commands:
 see_also:
   - core-getting-started
   - core-global-options
+next:
+  - core-global-options
 ---
 
 ## What it is
