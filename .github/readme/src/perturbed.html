@@ -9,7 +9,6 @@
      blue path: it leaves the expected line at the injected block and rejoins it two blocks later. */
   #frame { width: 640px; height: 330px; }
   .b { width: 88px; height: 58px; padding: 7px 10px; row-gap: 3px; }
-  .spark { position: absolute; width: 7px; height: 7px; border-radius: 50%; background: var(--nx-spark); }
   .shift { position: absolute; left: 270px; top: 58px; display: flex; align-items: baseline; gap: 8px; }
   .shift .nx-kind { position: static; }
   .shift q { font: 400 11.5px/1 var(--nx-sans); color: var(--nx-ink); quotes: "\201C" "\201D"; }
@@ -38,8 +37,6 @@
       <svg viewBox="0 0 20 6"><path class="nx-edge--soft" d="M1 3 L19 3"/></svg><span class="nx-kind">expected</span>
       <svg viewBox="0 0 20 6" style="margin-left:8px"><path class="nx-edge--new" d="M1.5 3 L18.5 3"/></svg><span class="nx-kind">observed</span>
     </div>
-
-    <span class="spark" style="left:254.5px;top:61px"></span>
     <div class="shift"><span class="nx-kind nx-kind--ink">The user changes course</span><q>Make it two lines.</q></div>
 
     <div class="nx-node nx-node--noico b" style="left:14px;top:92px"><span class="nx-node__kind">step 1</span><span class="nx-node__title">greet</span><span class="nx-node__detail">on track</span></div>

@@ -528,10 +528,19 @@ const MODEL = {
 const FILE_MODEL = { 'claude-haiku-5-5': 'haiku' };
 const inFile = (model) => FILE_MODEL[model] ?? model;
 const PROMPTFOO = 'promptfoo';
+// Competitors are grey, each with its own fill pattern; driftbench is the only coloured bar.
+const PATTERNS = {
+  promptfoo: 'hatch',
+  DeepEval: 'dots',
+  Inspect: 'cross',
+  Langfuse: 'lines',
+  LangWatch: 'light',
+};
 // three decimals: a score read to one decimal later must not be rounded twice
 const bar = (name, score, extra = {}) => ({
   name,
   score: score === null ? null : Number(score.toFixed(3)),
+  ...(PATTERNS[name] && !extra.ours ? { pattern: PATTERNS[name] } : {}),
   ...extra,
 });
 
@@ -573,7 +582,7 @@ const MODEL_IN_PEERS_FILE = { 'claude-haiku-5-5': 'Claude Haiku 5.5' };
 
 /** Adds one bar per recorded competitor to every panel; returns the names drawn. A contestant that is
  *  incomplete in the file, or run on another model, is drawn as "not run" in that panel. */
-function addPeers(chart, bench, panels) {
+function addPeers(chart, bench, panels, labels = {}) {
   const path = join(PEERS_DIR, `${bench}-all-peers.json`);
   if (!existsSync(path)) return [];
   const file = JSON.parse(readFileSync(path, 'utf8'));
@@ -599,6 +608,7 @@ function addPeers(chart, bench, panels) {
     const refused = row.transportMissing ?? 0;
     const hasResult = row[cohort] !== undefined && (row.present === undefined || row.present > 0);
     names.push(name);
+    labels[name] = row.grader ?? name;
     for (const panel of panels) {
       const drawn = hasResult && panel.name === model;
       const score = drawn ? row[cohort].score * 100 : null;
@@ -615,7 +625,8 @@ function addPeers(chart, bench, panels) {
 }
 
 const ranked = ({ chart, bench, kicker, title, key, panels, note }) => {
-  const peers = addPeers(chart, bench, panels);
+  const labels = {};
+  const peers = addPeers(chart, bench, panels, labels);
   const drawn = [PROMPTFOO, ...peers].join(', ');
   // which models have no driftbench result, read from the panels as drawn
   const unrun = panels.filter((p) => p.bars.find((b) => b.ours)?.score === null).map((p) => p.name);
@@ -626,7 +637,11 @@ const ranked = ({ chart, bench, kicker, title, key, panels, note }) => {
     kind: 'ranked',
     kicker,
     title,
-    key,
+    key: [
+      ...key.filter((k) => k.style !== 'other'),
+      ...key.filter((k) => k.style === 'other').map((k) => ({ ...k, pattern: PATTERNS[PROMPTFOO] })),
+      ...peers.map((n) => ({ label: labels[n], style: 'other', pattern: PATTERNS[n] })),
+    ],
     axis: 'score out of 100: correct, % of items',
     panels: orderPanels(panels),
     note: `Competitors with a recorded result on this benchmark in this repository: ${drawn}. ${note}${missing}`.trim(),
@@ -974,6 +989,8 @@ function bestCase({ chart, bench, name, unit, kicker }) {
     if (['driftbench', 'driftbench-reader-first'].includes(c.contestant)) continue;
     bars.push({ id: c.contestant, row: c });
   }
+  const labelOf = { [PROMPTFOO]: bench === 'verify' ? 'promptfoo llm-rubric' : 'promptfoo select-best' };
+  for (const b of bars) if (!b.ours && b.row.grader) labelOf[TOOL_NAME[b.id]] = b.row.grader;
   const drawn = bars.map((b) => {
     const cell = b.row[cohort];
     const refused = b.row.transportMissing ?? 0;
@@ -1021,8 +1038,10 @@ function bestCase({ chart, bench, name, unit, kicker }) {
     kicker,
     title,
     key: [
-      { label: 'driftbench', style: 'ours' },
-      { label: 'competitors, default judge', style: 'other' },
+      { label: optIn ? 'driftbench, reader-first setting' : 'driftbench', style: 'ours' },
+      ...drawn
+        .filter((b) => !b.ours)
+        .map((b) => ({ label: labelOf[b.name], style: 'other', pattern: PATTERNS[b.name] })),
     ],
     axis: 'score out of 100: correct, % of items',
     panels: [

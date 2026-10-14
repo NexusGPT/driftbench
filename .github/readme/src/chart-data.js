@@ -533,8 +533,29 @@ window.CHART_DATA = {
         "style": "ours"
       },
       {
-        "label": "competitors, default judge",
-        "style": "other"
+        "label": "promptfoo select-best",
+        "style": "other",
+        "pattern": "hatch"
+      },
+      {
+        "label": "ArenaGEval (DeepEval 4.2.8)",
+        "style": "other",
+        "pattern": "dots"
+      },
+      {
+        "label": "model_graded_qa (inspect_ai 0.3.278), pointwise grader, higher score wins",
+        "style": "other",
+        "pattern": "cross"
+      },
+      {
+        "label": "Answer Critic (Langfuse 64ba74f9), pointwise grader, higher score wins",
+        "style": "other",
+        "pattern": "lines"
+      },
+      {
+        "label": "Comparison, swap and reconcile (LangWatch e683dd9e)",
+        "style": "other",
+        "pattern": "light"
       }
     ],
     "axis": "score out of 100: correct, % of items",
@@ -550,23 +571,28 @@ window.CHART_DATA = {
           },
           {
             "name": "DeepEval",
-            "score": 86.296
+            "score": 86.296,
+            "pattern": "dots"
           },
           {
             "name": "LangWatch",
-            "score": 83.704
+            "score": 83.704,
+            "pattern": "light"
           },
           {
             "name": "promptfoo",
-            "score": 82.963
+            "score": 82.963,
+            "pattern": "hatch"
           },
           {
             "name": "Inspect",
-            "score": 80
+            "score": 80,
+            "pattern": "cross"
           },
           {
             "name": "Langfuse",
-            "score": 74.815
+            "score": 74.815,
+            "pattern": "lines"
           }
         ]
       }
@@ -583,8 +609,29 @@ window.CHART_DATA = {
         "style": "ours"
       },
       {
-        "label": "competitors, default judge",
-        "style": "other"
+        "label": "promptfoo select-best",
+        "style": "other",
+        "pattern": "hatch"
+      },
+      {
+        "label": "ArenaGEval (DeepEval 4.2.8)",
+        "style": "other",
+        "pattern": "dots"
+      },
+      {
+        "label": "model_graded_qa (inspect_ai 0.3.278), pointwise grader, higher score wins",
+        "style": "other",
+        "pattern": "cross"
+      },
+      {
+        "label": "Answer Critic (Langfuse 64ba74f9), pointwise grader, higher score wins",
+        "style": "other",
+        "pattern": "lines"
+      },
+      {
+        "label": "Comparison, swap and reconcile (LangWatch e683dd9e)",
+        "style": "other",
+        "pattern": "light"
       }
     ],
     "axis": "score out of 100: correct, % of items",
@@ -600,26 +647,31 @@ window.CHART_DATA = {
           },
           {
             "name": "promptfoo",
-            "score": 86.45
+            "score": 86.45,
+            "pattern": "hatch"
           },
           {
             "name": "DeepEval",
             "score": 84.095,
+            "pattern": "dots",
             "refused": 3
           },
           {
             "name": "LangWatch",
             "score": 83.869,
+            "pattern": "light",
             "refused": 7
           },
           {
             "name": "Inspect",
             "score": 75.356,
+            "pattern": "cross",
             "refused": 7
           },
           {
             "name": "Langfuse",
             "score": 73.453,
+            "pattern": "lines",
             "refused": 6
           }
         ]
@@ -637,8 +689,29 @@ window.CHART_DATA = {
         "style": "ours"
       },
       {
-        "label": "competitors, default judge",
-        "style": "other"
+        "label": "promptfoo select-best",
+        "style": "other",
+        "pattern": "hatch"
+      },
+      {
+        "label": "ArenaGEval (DeepEval 4.2.8)",
+        "style": "other",
+        "pattern": "dots"
+      },
+      {
+        "label": "model_graded_qa (inspect_ai 0.3.278), pointwise grader, higher score wins",
+        "style": "other",
+        "pattern": "cross"
+      },
+      {
+        "label": "Answer Critic (Langfuse 64ba74f9), pointwise grader, higher score wins",
+        "style": "other",
+        "pattern": "lines"
+      },
+      {
+        "label": "Comparison, swap and reconcile (LangWatch e683dd9e)",
+        "style": "other",
+        "pattern": "light"
       }
     ],
     "axis": "score out of 100: correct, % of items",
@@ -655,23 +728,28 @@ window.CHART_DATA = {
           {
             "name": "DeepEval",
             "score": 77.595,
+            "pattern": "dots",
             "refused": 1
           },
           {
             "name": "promptfoo",
-            "score": 75.57
+            "score": 75.57,
+            "pattern": "hatch"
           },
           {
             "name": "LangWatch",
-            "score": 74.937
+            "score": 74.937,
+            "pattern": "light"
           },
           {
             "name": "Inspect",
-            "score": 26.582
+            "score": 26.582,
+            "pattern": "cross"
           },
           {
             "name": "Langfuse",
             "score": 25.063,
+            "pattern": "lines",
             "refused": 1
           }
         ]
@@ -689,8 +767,29 @@ window.CHART_DATA = {
         "style": "ours"
       },
       {
-        "label": "competitors, default judge",
-        "style": "other"
+        "label": "promptfoo llm-rubric",
+        "style": "other",
+        "pattern": "hatch"
+      },
+      {
+        "label": "GEval, threshold 0.5 (DeepEval 4.2.8)",
+        "style": "other",
+        "pattern": "dots"
+      },
+      {
+        "label": "model_graded_qa (inspect_ai 0.3.278)",
+        "style": "other",
+        "pattern": "cross"
+      },
+      {
+        "label": "Answer Critic (Langfuse 64ba74f9)",
+        "style": "other",
+        "pattern": "lines"
+      },
+      {
+        "label": "LLM-as-a-Judge Boolean (LangWatch e683dd9e)",
+        "style": "other",
+        "pattern": "light"
       }
     ],
     "axis": "score out of 100: correct, % of items",
@@ -701,7 +800,8 @@ window.CHART_DATA = {
         "bars": [
           {
             "name": "Langfuse",
-            "score": 75.113
+            "score": 75.113,
+            "pattern": "lines"
           },
           {
             "name": "driftbench",
@@ -710,19 +810,23 @@ window.CHART_DATA = {
           },
           {
             "name": "Inspect",
-            "score": 73.303
+            "score": 73.303,
+            "pattern": "cross"
           },
           {
             "name": "LangWatch",
-            "score": 73.303
+            "score": 73.303,
+            "pattern": "light"
           },
           {
             "name": "promptfoo",
-            "score": 71.946
+            "score": 71.946,
+            "pattern": "hatch"
           },
           {
             "name": "DeepEval",
-            "score": 58.824
+            "score": 58.824,
+            "pattern": "dots"
           }
         ]
       }
@@ -735,12 +839,33 @@ window.CHART_DATA = {
     "title": "Writing: driftbench 67.6 with its reader-first setting.",
     "key": [
       {
-        "label": "driftbench",
+        "label": "driftbench, reader-first setting",
         "style": "ours"
       },
       {
-        "label": "competitors, default judge",
-        "style": "other"
+        "label": "promptfoo select-best",
+        "style": "other",
+        "pattern": "hatch"
+      },
+      {
+        "label": "ArenaGEval (DeepEval 4.2.8)",
+        "style": "other",
+        "pattern": "dots"
+      },
+      {
+        "label": "model_graded_qa (inspect_ai 0.3.278), pointwise grader, higher score wins",
+        "style": "other",
+        "pattern": "cross"
+      },
+      {
+        "label": "Answer Critic (Langfuse 64ba74f9), pointwise grader, higher score wins",
+        "style": "other",
+        "pattern": "lines"
+      },
+      {
+        "label": "Comparison, swap and reconcile (LangWatch e683dd9e)",
+        "style": "other",
+        "pattern": "light"
       }
     ],
     "axis": "score out of 100: correct, % of items",
@@ -756,23 +881,28 @@ window.CHART_DATA = {
           },
           {
             "name": "DeepEval",
-            "score": 58.382
+            "score": 58.382,
+            "pattern": "dots"
           },
           {
             "name": "promptfoo",
-            "score": 56.936
+            "score": 56.936,
+            "pattern": "hatch"
           },
           {
             "name": "LangWatch",
-            "score": 52.601
+            "score": 52.601,
+            "pattern": "light"
           },
           {
             "name": "Langfuse",
-            "score": 14.451
+            "score": 14.451,
+            "pattern": "lines"
           },
           {
             "name": "Inspect",
-            "score": 11.561
+            "score": 11.561,
+            "pattern": "cross"
           }
         ]
       }
@@ -790,7 +920,28 @@ window.CHART_DATA = {
       },
       {
         "label": "promptfoo select-best",
-        "style": "other"
+        "style": "other",
+        "pattern": "hatch"
+      },
+      {
+        "label": "ArenaGEval (DeepEval 4.2.8)",
+        "style": "other",
+        "pattern": "dots"
+      },
+      {
+        "label": "model_graded_qa (inspect_ai 0.3.278), pointwise grader, higher score wins",
+        "style": "other",
+        "pattern": "cross"
+      },
+      {
+        "label": "Answer Critic (Langfuse 64ba74f9), pointwise grader, higher score wins",
+        "style": "other",
+        "pattern": "lines"
+      },
+      {
+        "label": "Comparison, swap and reconcile (LangWatch e683dd9e)",
+        "style": "other",
+        "pattern": "light"
       }
     ],
     "axis": "score out of 100: correct, % of items",
@@ -806,23 +957,28 @@ window.CHART_DATA = {
           },
           {
             "name": "promptfoo",
-            "score": 82.963
+            "score": 82.963,
+            "pattern": "hatch"
           },
           {
             "name": "DeepEval",
-            "score": 86.296
+            "score": 86.296,
+            "pattern": "dots"
           },
           {
             "name": "Inspect",
-            "score": 80
+            "score": 80,
+            "pattern": "cross"
           },
           {
             "name": "Langfuse",
-            "score": 74.815
+            "score": 74.815,
+            "pattern": "lines"
           },
           {
             "name": "LangWatch",
-            "score": 83.704
+            "score": 83.704,
+            "pattern": "light"
           }
         ]
       },
@@ -837,23 +993,28 @@ window.CHART_DATA = {
           },
           {
             "name": "promptfoo",
-            "score": 84.815
+            "score": 84.815,
+            "pattern": "hatch"
           },
           {
             "name": "DeepEval",
-            "score": null
+            "score": null,
+            "pattern": "dots"
           },
           {
             "name": "Inspect",
-            "score": null
+            "score": null,
+            "pattern": "cross"
           },
           {
             "name": "Langfuse",
-            "score": null
+            "score": null,
+            "pattern": "lines"
           },
           {
             "name": "LangWatch",
-            "score": null
+            "score": null,
+            "pattern": "light"
           }
         ]
       },
@@ -868,23 +1029,28 @@ window.CHART_DATA = {
           },
           {
             "name": "promptfoo",
-            "score": 79.63
+            "score": 79.63,
+            "pattern": "hatch"
           },
           {
             "name": "DeepEval",
-            "score": null
+            "score": null,
+            "pattern": "dots"
           },
           {
             "name": "Inspect",
-            "score": null
+            "score": null,
+            "pattern": "cross"
           },
           {
             "name": "Langfuse",
-            "score": null
+            "score": null,
+            "pattern": "lines"
           },
           {
             "name": "LangWatch",
-            "score": null
+            "score": null,
+            "pattern": "light"
           }
         ]
       }
@@ -902,7 +1068,28 @@ window.CHART_DATA = {
       },
       {
         "label": "promptfoo select-best",
-        "style": "other"
+        "style": "other",
+        "pattern": "hatch"
+      },
+      {
+        "label": "ArenaGEval (DeepEval 4.2.8)",
+        "style": "other",
+        "pattern": "dots"
+      },
+      {
+        "label": "model_graded_qa (inspect_ai 0.3.278), pointwise grader, higher score wins",
+        "style": "other",
+        "pattern": "cross"
+      },
+      {
+        "label": "Answer Critic (Langfuse 64ba74f9), pointwise grader, higher score wins",
+        "style": "other",
+        "pattern": "lines"
+      },
+      {
+        "label": "Comparison, swap and reconcile (LangWatch e683dd9e)",
+        "style": "other",
+        "pattern": "light"
       }
     ],
     "axis": "score out of 100: correct, % of items",
@@ -918,23 +1105,28 @@ window.CHART_DATA = {
           },
           {
             "name": "promptfoo",
-            "score": 89
+            "score": 89,
+            "pattern": "hatch"
           },
           {
             "name": "DeepEval",
-            "score": null
+            "score": null,
+            "pattern": "dots"
           },
           {
             "name": "Inspect",
-            "score": null
+            "score": null,
+            "pattern": "cross"
           },
           {
             "name": "Langfuse",
-            "score": null
+            "score": null,
+            "pattern": "lines"
           },
           {
             "name": "LangWatch",
-            "score": null
+            "score": null,
+            "pattern": "light"
           }
         ]
       },
@@ -949,26 +1141,31 @@ window.CHART_DATA = {
           },
           {
             "name": "promptfoo",
-            "score": 86.45
+            "score": 86.45,
+            "pattern": "hatch"
           },
           {
             "name": "DeepEval",
             "score": 84.095,
+            "pattern": "dots",
             "refused": 3
           },
           {
             "name": "Inspect",
             "score": 75.356,
+            "pattern": "cross",
             "refused": 7
           },
           {
             "name": "Langfuse",
             "score": 73.453,
+            "pattern": "lines",
             "refused": 6
           },
           {
             "name": "LangWatch",
             "score": 83.869,
+            "pattern": "light",
             "refused": 7
           }
         ]
@@ -984,23 +1181,28 @@ window.CHART_DATA = {
           },
           {
             "name": "promptfoo",
-            "score": 83.75
+            "score": 83.75,
+            "pattern": "hatch"
           },
           {
             "name": "DeepEval",
-            "score": null
+            "score": null,
+            "pattern": "dots"
           },
           {
             "name": "Inspect",
-            "score": null
+            "score": null,
+            "pattern": "cross"
           },
           {
             "name": "Langfuse",
-            "score": null
+            "score": null,
+            "pattern": "lines"
           },
           {
             "name": "LangWatch",
-            "score": null
+            "score": null,
+            "pattern": "light"
           }
         ]
       }
@@ -1018,7 +1220,28 @@ window.CHART_DATA = {
       },
       {
         "label": "promptfoo select-best",
-        "style": "other"
+        "style": "other",
+        "pattern": "hatch"
+      },
+      {
+        "label": "ArenaGEval (DeepEval 4.2.8)",
+        "style": "other",
+        "pattern": "dots"
+      },
+      {
+        "label": "model_graded_qa (inspect_ai 0.3.278), pointwise grader, higher score wins",
+        "style": "other",
+        "pattern": "cross"
+      },
+      {
+        "label": "Answer Critic (Langfuse 64ba74f9), pointwise grader, higher score wins",
+        "style": "other",
+        "pattern": "lines"
+      },
+      {
+        "label": "Comparison, swap and reconcile (LangWatch e683dd9e)",
+        "style": "other",
+        "pattern": "light"
       }
     ],
     "axis": "score out of 100: correct, % of items",
@@ -1034,25 +1257,30 @@ window.CHART_DATA = {
           },
           {
             "name": "promptfoo",
-            "score": 75.57
+            "score": 75.57,
+            "pattern": "hatch"
           },
           {
             "name": "DeepEval",
             "score": 77.595,
+            "pattern": "dots",
             "refused": 1
           },
           {
             "name": "Inspect",
-            "score": 26.582
+            "score": 26.582,
+            "pattern": "cross"
           },
           {
             "name": "Langfuse",
             "score": 25.063,
+            "pattern": "lines",
             "refused": 1
           },
           {
             "name": "LangWatch",
-            "score": 74.937
+            "score": 74.937,
+            "pattern": "light"
           }
         ]
       },
@@ -1067,23 +1295,28 @@ window.CHART_DATA = {
           },
           {
             "name": "promptfoo",
-            "score": 81.519
+            "score": 81.519,
+            "pattern": "hatch"
           },
           {
             "name": "DeepEval",
-            "score": null
+            "score": null,
+            "pattern": "dots"
           },
           {
             "name": "Inspect",
-            "score": null
+            "score": null,
+            "pattern": "cross"
           },
           {
             "name": "Langfuse",
-            "score": null
+            "score": null,
+            "pattern": "lines"
           },
           {
             "name": "LangWatch",
-            "score": null
+            "score": null,
+            "pattern": "light"
           }
         ]
       },
@@ -1098,23 +1331,28 @@ window.CHART_DATA = {
           },
           {
             "name": "promptfoo",
-            "score": 80.823
+            "score": 80.823,
+            "pattern": "hatch"
           },
           {
             "name": "DeepEval",
-            "score": null
+            "score": null,
+            "pattern": "dots"
           },
           {
             "name": "Inspect",
-            "score": null
+            "score": null,
+            "pattern": "cross"
           },
           {
             "name": "Langfuse",
-            "score": null
+            "score": null,
+            "pattern": "lines"
           },
           {
             "name": "LangWatch",
-            "score": null
+            "score": null,
+            "pattern": "light"
           }
         ]
       }
@@ -1131,12 +1369,33 @@ window.CHART_DATA = {
         "style": "ours"
       },
       {
-        "label": "promptfoo llm-rubric",
-        "style": "other"
-      },
-      {
         "label": "no model",
         "style": "baseline"
+      },
+      {
+        "label": "promptfoo llm-rubric",
+        "style": "other",
+        "pattern": "hatch"
+      },
+      {
+        "label": "GEval, threshold 0.5 (DeepEval 4.2.8)",
+        "style": "other",
+        "pattern": "dots"
+      },
+      {
+        "label": "model_graded_qa (inspect_ai 0.3.278)",
+        "style": "other",
+        "pattern": "cross"
+      },
+      {
+        "label": "Answer Critic (Langfuse 64ba74f9)",
+        "style": "other",
+        "pattern": "lines"
+      },
+      {
+        "label": "LLM-as-a-Judge Boolean (LangWatch e683dd9e)",
+        "style": "other",
+        "pattern": "light"
       }
     ],
     "axis": "score out of 100: correct, % of items",
@@ -1152,7 +1411,8 @@ window.CHART_DATA = {
           },
           {
             "name": "promptfoo",
-            "score": 71.946
+            "score": 71.946,
+            "pattern": "hatch"
           },
           {
             "name": "always fail",
@@ -1161,19 +1421,23 @@ window.CHART_DATA = {
           },
           {
             "name": "DeepEval",
-            "score": 58.824
+            "score": 58.824,
+            "pattern": "dots"
           },
           {
             "name": "Inspect",
-            "score": 73.303
+            "score": 73.303,
+            "pattern": "cross"
           },
           {
             "name": "Langfuse",
-            "score": 75.113
+            "score": 75.113,
+            "pattern": "lines"
           },
           {
             "name": "LangWatch",
-            "score": 73.303
+            "score": 73.303,
+            "pattern": "light"
           }
         ]
       },
@@ -1188,7 +1452,8 @@ window.CHART_DATA = {
           },
           {
             "name": "promptfoo",
-            "score": 72.398
+            "score": 72.398,
+            "pattern": "hatch"
           },
           {
             "name": "always fail",
@@ -1197,19 +1462,23 @@ window.CHART_DATA = {
           },
           {
             "name": "DeepEval",
-            "score": null
+            "score": null,
+            "pattern": "dots"
           },
           {
             "name": "Inspect",
-            "score": null
+            "score": null,
+            "pattern": "cross"
           },
           {
             "name": "Langfuse",
-            "score": null
+            "score": null,
+            "pattern": "lines"
           },
           {
             "name": "LangWatch",
-            "score": null
+            "score": null,
+            "pattern": "light"
           }
         ]
       },
@@ -1224,7 +1493,8 @@ window.CHART_DATA = {
           },
           {
             "name": "promptfoo",
-            "score": null
+            "score": null,
+            "pattern": "hatch"
           },
           {
             "name": "always fail",
@@ -1233,19 +1503,23 @@ window.CHART_DATA = {
           },
           {
             "name": "DeepEval",
-            "score": null
+            "score": null,
+            "pattern": "dots"
           },
           {
             "name": "Inspect",
-            "score": null
+            "score": null,
+            "pattern": "cross"
           },
           {
             "name": "Langfuse",
-            "score": null
+            "score": null,
+            "pattern": "lines"
           },
           {
             "name": "LangWatch",
-            "score": null
+            "score": null,
+            "pattern": "light"
           }
         ]
       }
@@ -1262,12 +1536,33 @@ window.CHART_DATA = {
         "style": "ours"
       },
       {
-        "label": "promptfoo select-best",
-        "style": "other"
-      },
-      {
         "label": "no model",
         "style": "baseline"
+      },
+      {
+        "label": "promptfoo select-best",
+        "style": "other",
+        "pattern": "hatch"
+      },
+      {
+        "label": "ArenaGEval (DeepEval 4.2.8)",
+        "style": "other",
+        "pattern": "dots"
+      },
+      {
+        "label": "model_graded_qa (inspect_ai 0.3.278), pointwise grader, higher score wins",
+        "style": "other",
+        "pattern": "cross"
+      },
+      {
+        "label": "Answer Critic (Langfuse 64ba74f9), pointwise grader, higher score wins",
+        "style": "other",
+        "pattern": "lines"
+      },
+      {
+        "label": "Comparison, swap and reconcile (LangWatch e683dd9e)",
+        "style": "other",
+        "pattern": "light"
       }
     ],
     "axis": "score out of 100: correct, % of items",
@@ -1283,7 +1578,8 @@ window.CHART_DATA = {
           },
           {
             "name": "promptfoo",
-            "score": 56.936
+            "score": 56.936,
+            "pattern": "hatch"
           },
           {
             "name": "longer reply",
@@ -1292,19 +1588,23 @@ window.CHART_DATA = {
           },
           {
             "name": "DeepEval",
-            "score": 58.382
+            "score": 58.382,
+            "pattern": "dots"
           },
           {
             "name": "Inspect",
-            "score": 11.561
+            "score": 11.561,
+            "pattern": "cross"
           },
           {
             "name": "Langfuse",
-            "score": 14.451
+            "score": 14.451,
+            "pattern": "lines"
           },
           {
             "name": "LangWatch",
-            "score": 52.601
+            "score": 52.601,
+            "pattern": "light"
           }
         ]
       },
@@ -1319,7 +1619,8 @@ window.CHART_DATA = {
           },
           {
             "name": "promptfoo",
-            "score": 56.936
+            "score": 56.936,
+            "pattern": "hatch"
           },
           {
             "name": "longer reply",
@@ -1328,19 +1629,23 @@ window.CHART_DATA = {
           },
           {
             "name": "DeepEval",
-            "score": null
+            "score": null,
+            "pattern": "dots"
           },
           {
             "name": "Inspect",
-            "score": null
+            "score": null,
+            "pattern": "cross"
           },
           {
             "name": "Langfuse",
-            "score": null
+            "score": null,
+            "pattern": "lines"
           },
           {
             "name": "LangWatch",
-            "score": null
+            "score": null,
+            "pattern": "light"
           }
         ]
       },
@@ -1355,7 +1660,8 @@ window.CHART_DATA = {
           },
           {
             "name": "promptfoo",
-            "score": 60.405
+            "score": 60.405,
+            "pattern": "hatch"
           },
           {
             "name": "longer reply",
@@ -1364,19 +1670,23 @@ window.CHART_DATA = {
           },
           {
             "name": "DeepEval",
-            "score": null
+            "score": null,
+            "pattern": "dots"
           },
           {
             "name": "Inspect",
-            "score": null
+            "score": null,
+            "pattern": "cross"
           },
           {
             "name": "Langfuse",
-            "score": null
+            "score": null,
+            "pattern": "lines"
           },
           {
             "name": "LangWatch",
-            "score": null
+            "score": null,
+            "pattern": "light"
           }
         ]
       }
