@@ -20,9 +20,11 @@ export type DriverContext = {
 export type DriverStep =
   | { kind: 'block'; blockIndex: number; stimulus: Stimulus }
   | { kind: 'injected'; perturbationId: string; stimulus: Stimulus; beforeBlock: number }
-  | { kind: 'stop'; reason: string; verdict?: 'success' | 'failure' };
+  | { kind: 'stop'; reason: string; verdict?: 'success' | 'failure' | 'inconclusive' };
 
 export interface UserDriver {
   readonly id: string;
+  /** Every random seed this driver uses. {} means no randomness; absent means unknown. */
+  readonly seeds?: Readonly<Record<string, string | number>>;
   next(ctx: DriverContext): Promise<DriverStep> | DriverStep;
 }

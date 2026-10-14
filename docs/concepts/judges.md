@@ -46,6 +46,8 @@ A reference to a name the spec does not define is an error. A spec with no `crit
 
 ## Criteria folders and fixture pairs
 
+Every field of a criterion file and of a label file is in the [criteria and labels reference](../reference/criteria.md).
+
 A criteria folder holds one YAML file per criterion, named after it. Each file holds the `criterion`, in the same shape as a spec's `criteria` entry, and a fixture pair: a `pass` slice the criterion must pass and a `fail` slice it must fail.
 
 ```text

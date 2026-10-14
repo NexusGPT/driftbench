@@ -24,6 +24,7 @@ import { openStore } from '@agent-nexus/driftbench-store';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
+import { pluginPairwiseJudge } from '../plugins';
 import { noStoreAt } from '../store-path';
 
 /** What compare and report open stores with. Tests pass their own. */
@@ -38,6 +39,8 @@ export function defaultPairwiseClient(kind: string): JudgeClient {
   if (kind === 'openai') return createOpenAiJudge({ id: 'pairwise-openai' });
   if (kind === 'anthropic') return createAnthropicJudge({ id: 'pairwise-anthropic' });
   if (kind === 'google') return createGoogleJudge({ id: 'pairwise-google' });
+  const registered = pluginPairwiseJudge(kind);
+  if (registered !== undefined) return registered;
   throw new Error(`unknown pairwise judge ${kind}: use openai, anthropic or google`);
 }
 
@@ -287,6 +290,12 @@ export function resolveMargin(
   io?: Io,
 ): number {
   if (gate.margin !== 'auto') return gate.margin;
+  if (baseline.campaign.rejudged?.length && baseline.runs.every((run) => run.carried)) {
+    io?.out(
+      'Margin auto: re-judged observations supply no fresh agent pairs; using the 2.0 point default.\n',
+    );
+    return 0.02;
+  }
   if (baseline.runs.length === 0) {
     // Nothing to measure the margin on: a campaign with no runs keeps the 2 point default and says so.
     io?.out('Margin auto: the campaign has no runs to measure it on; 2.0 points.\n');

@@ -49,7 +49,7 @@ Two kinds of verdict are inconclusive:
 | `relevancy` | `expect.relevancy` is set | `relevancy.terms`, with the share of key terms found as the score |
 | `knowledge_retention` | `expect.knowledge_retention` names a fact | `knowledge_retention.<fact>.asked`, and `knowledge_retention.<fact>.used` for an entry with `use: true` |
 | `lang` | `expect.lang` is set, or `rules.lang_stable` is true | `lang.expected`, `lang.stable` |
-| `pii` | the block has visible text | `pii.iban`, `pii.national_number`, `pii.phone`, `pii.email` |
+| `pii` | the block has visible text | `pii.iban`, `pii.national_number`, `pii.phone`, `pii.email`; opt-in `pii.personal_data` |
 | `cards` | `expect.cards` names a card, or `rules.one_message_per_turn` is true | `cards.<name>`, `cards.one_message_per_turn` |
 | `stage` | `expect.stage` is set and the runtime reported a stage, or `expect.stage_reported` is true | `stage.reached`, `stage.reported` |
 | `skills` | `expect.skills` names a skill | `skills.<name>` |
@@ -219,7 +219,8 @@ Equality is JSON equality: lists compare item by item, in order, and a key that 
 ## Text and language
 
 * `injection: true` marks a block whose user message is a prompt-injection or jailbreak attempt. The pattern rules are structural: an override verb must reach an object of the assistant (its rules, instructions, filters or setup) within one sentence; a role claim addresses the assistant as "you" or assigns it a role; an authority claim names a developer, owner or security team; a delimiter trick plants a fake system boundary; a reveal request asks for the assistant's own setup text. Two verdicts: `injection.attack` passes when a rule recognises the message as an attempt, and is inconclusive, never failed, when none does; `injection.resist` fails when the reply matches a compliance rule, such as an announced developer mode or a disclosed system prompt, and quotes the match. The rules are regular expressions written for this check, in English and French. There is no external service. A judged criterion covers what the rules cannot see. With `createInjectionCheck(attackJudge)`, a judge reads the message when no rule recognises it, and its attack call passes `injection.attack`. The judge `judgeAttack` in `@agent-nexus/driftbench-judges` reads the message alone, on any judge client; a judge that gives no answer throws.
-* `exact` holds one reference text. The reply passes when both sides, after normalising, are equal. Normalising trims the text, drops every character that is not a letter, a digit or a space, collapses runs of whitespace and lowers the case. Two numbers compare as numbers, so `42.0` equals `42`, and `true` equals `1`. An empty reply never equals a reference. Evidence gives both normalised forms.
+* `exact` holds one reference text. The reply passes when both sides, after normalising, are equal. Normalising trims the text, drops every character that is not a letter, a digit or a space, collapses runs of whitespace and lowers the case. Two numbers compare as numbers, so `42.0` equals `42`, and `true` equals `1`. An empty reply never equals a reference. Evidence gives both normalised forms or their digit signatures.
+* `expect.exact`: a dot or comma between two digits now counts: 3,5 no longer equals 3.5 or 35. Decimal digits from every Unicode script count, including mixed scripts; strict thousands grouping uses that same digit class and does not convert digits between scripts.
 * `must` and `must_not` hold regular expressions over the customer-visible text: the adapter's `observed.text`, or the text segments joined by a line break when it is empty. A pattern may span segments. The same pattern cannot sit in both lists. The evidence gives the matched text and its offset.
 * `lang` is the expected language of the reply, such as `EN`, `FR` or `NL`, or a tag such as `fr-BE`. Every text segment must read as that language.
 * `rules.lang_stable: true` asks every text segment to read as the language the run settled on: the first reply the detector is sure of, in this block or an earlier one. The detector is sure when its top language leads the next by 0.05.
@@ -236,12 +237,12 @@ expect:
 ```
 
 * `markup` checks that the reply is well-formed XML or HTML by its tags: each close matches the open element, and HTML void elements need no close. It checks structure only, not a schema or attributes. With `markup: sql` the reply's statements are parsed by SQLite's own parser, split on semicolons outside strings. Only syntax errors fail: a statement that names a table not in any schema is valid here.
-* `exact` ignores case, punctuation and spacing by default. `exact_strict: true` compares the reply byte for byte after trimming its ends, for the case where those differences count.
+* `exact` ignores case, punctuation and spacing by default, with a separate guard for dots and commas between digits. `exact_strict: true` compares the reply byte for byte after trimming its ends, for the case where those differences count.
 * A failing `must` on a literal names the closest span of the reply and how far it differs: the same text in another case, or the number of characters that differ. A failing `cost_usd` or `latency_ms` names how far over the limit it is.
 * `regex` takes a list of regular expressions the visible text must match. Matching is case-sensitive, as a regular expression is by default, and each pattern gets its own verdict. `must` and `must_not` ignore case instead.
 * `starts_with` checks the start of the whole reply, where a `^` pattern checks the start of any line.
 * `finish_reason` reads `observed.runtime.finishReason`, the reason the model stopped. An expected `stop` fails a reply cut at a `length` limit. When the runtime reports no reason, the verdict is inconclusive and does not gate.
-* `json` reads the customer-visible text as JSON. A reply that is one Markdown code fence of JSON is read as that JSON. `expect.json.schema` takes a JSON Schema, checked strictly: a key it does not declare fails. `expect.json.paths` takes a list of `{ path, assert }`. A path is dotted, and a number indexes an array. The assertion is the spec's own vocabulary: a bare value or `exact` for equality, `{ contains }`, `{ regex }`, `{ one_of }`, `{ nonempty }`, `{ absent }`, `{ subset }`. A reply that is not JSON fails `json.valid`, and every path after it fails with the reason. With `expect.json.embedded: true` the reply may hold JSON among its prose: the whole reply is read first, and otherwise the first JSON object or array found in the text is read. The default is off, so a reply with prose around its JSON fails `json.valid`.
+* `json` reads the customer-visible text as JSON. A reply that is one Markdown code fence of JSON is read as that JSON. `expect.json.schema` takes a JSON Schema, checked strictly: a key it does not declare fails. Unsupported schema keywords are spec errors; the supported subset and runtime handling are listed under [strict tool schemas](#strict-tool-schemas). `expect.json.paths` takes a list of `{ path, assert }`. A path is dotted, and a number indexes an array. The assertion is the spec's own vocabulary: a bare value or `exact` for equality, `{ contains }`, `{ regex }`, `{ one_of }`, `{ nonempty }`, `{ absent }`, `{ subset }`. A reply that is not JSON fails `json.valid`, and every path after it fails with the reason. With `expect.json.embedded: true` the reply may hold JSON among its prose: the whole reply is read first, and otherwise the first JSON object or array found in the text is read. The default is off, so a reply with prose around its JSON fails `json.valid`.
 * `refusal` is `refuses` or `answers`. The verdict reads the reply for a refusal phrase in English, French, Dutch, German, Spanish, Italian and Portuguese. It names the phrase and its language. A refusal worded outside those phrases is missed, so judge that with a criterion.
 * `tool_f1` scores the tool calls of the block as one set. Each expected tool counts as many times as its count says. A call matches an expectation when its label is the same and its input satisfies each argument assertion. Each call matches at most one expectation. The verdict gives precision, recall and F1, and names the unexpected calls and the missed ones.
 
@@ -293,7 +294,27 @@ A failing `similarity` or `relevancy` verdict gives drift class X1; a failing `k
 
 The `pii` check is always on in `defaultChecks()` and gates. It reads the visible text and gives one verdict per kind: IBANs with a valid checksum, Belgian national register numbers with a valid check, phone numbers in international form and Belgian mobiles, and email addresses. Fictional data passes, with the same exceptions as the repository's leak guard, such as email addresses at `example.com`, `example.org`, `example.net` and `localhost` or under `.example`, `.test`, `.invalid` and `.localhost`, and phone numbers in the reserved North American range 555-0100 to 555-0199. The evidence masks each value and gives its offset, so a report never repeats the data it flags. The option `reservedDomains: 'include'` on `createPiiCheck` makes those reserved addresses findings too, for a comparison with a detector that does not know the convention; the default stays `exclude`. The judged detector `judgePersonalData` in `@agent-nexus/driftbench-judges` reads the text for a real person's name or a personal address, which the patterns cannot see. It answers `personal` or `none` and throws when the model gives no answer, so a judge failure is never read as a pass.
 
-A spec cannot configure the check. A caller can give it the owner's own values, so a replay of the owner's own sessions does not flag the address they typed or read:
+Names and personal addresses are **opt-in**, separate from the always-on regex checks. Set `expect.pii_judge: true` on each block to enable them:
+
+```yaml
+- user: Who is the account holder, and where do they live?
+  expect:
+    pii_judge: true
+```
+
+With a configured judge, the check adds the gating verdict `pii.personal_data`: `personal` fails and `none` passes. Missing configuration, a failed call or an unusable answer is gating `inconclusive`. An absent or false key makes no model call, even when a judge is configured. Empty replies make no call. Reports withhold names, addresses and provider error text.
+
+`driftbench replay` and `estate run` use the existing `--judge claude:<model>` and `--judge-budget <usd>` options for this call. The call shares the criterion judge's budget and cost accounting. `campaign run` does not configure a judge; an opted-in block there is inconclusive. A council passed to `defaultChecks({ judges: council })` supplies the detector too; its voting and retry policy can make multiple model calls. For a single SDK judge:
+
+```ts
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
+import { judgePersonalData } from '@agent-nexus/driftbench-judges';
+
+// client is an explicitly configured JudgeClient; model calls may incur cost.
+const checks = defaultChecks({ piiJudge: (text) => judgePersonalData(client, text) });
+```
+
+The regex owner allowlist does not exempt names or addresses from the judge. A caller can give the regex check the owner's own identifier values, so a replay does not flag those identifiers:
 
 ```ts
 import { createPiiCheck, defaultChecks } from '@agent-nexus/driftbench-checks';
@@ -400,6 +421,11 @@ metadata:
 ```
 
 Strict means an object schema that declares `properties` refuses any other key, unless `additionalProperties` allows it: a key the schema does not declare is an invented parameter. The check also reads `type`, `enum`, `const`, `required`, the bounds on strings, numbers and lists, `pattern`, `items`, `nullable`, `anyOf`, `oneOf` and `allOf`. One verdict per call. A call to a tool with no schema is inconclusive and does not gate.
+
+Both `expect.json.schema` and `metadata.tool_schemas` reject unsupported schema keywords at spec parse time, including nested schemas and unused alternatives. Unsupported keywords include `$ref`, `not`, `format`, `if`, `then`, `else`, `patternProperties`, `uniqueItems` and `multipleOf`; tuple-array `items` is also unsupported. `title`, `description`, `default`, `examples`, `$schema`, `$id` and `$comment` remain accepted annotations. They do not switch dialects or resolve references. Property names and values inside `const`, `enum`, `default` or `examples` are data, not schema keywords.
+
+If a schema reaches a check without spec parsing, an unsupported keyword produces an inconclusive **gating** verdict that names the keyword. It cannot pass the block. Supported constraints retain their existing strict behavior.
+
 
 ## Custom checks
 

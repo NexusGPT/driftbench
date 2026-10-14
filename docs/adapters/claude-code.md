@@ -82,7 +82,7 @@ const session = await readSession({
 const adapter = replayAdapter({ session, fromBlock: 0 });
 ```
 
-The spec's block k reads the session's block `fromBlock + k`. The stimulus the spec writes is sent nowhere: the recorded user message is what the agent answered. A spec longer than what is left of the session fails the run with an `AgentFailure` that says so. `seedPrefix` and `deterministic` are on; `variants`, `toolStubs`, `trace`, `sandbox` and `endState` are off. The replay adapter does not run the contract suite.
+The spec's block k reads the session's block `fromBlock + k`. The stimulus the spec writes is sent nowhere: it must match the recorded user message. Comparison trims leading and trailing whitespace, including the newline added by a folded YAML string; case and internal whitespace remain significant. An injection compares its user text, and burst messages retain their boundaries. A mismatch fails with an `AgentFailure` naming the session block and both stimuli. There is no opt-out. A spec longer than what is left of the session fails the run with an `AgentFailure` that says so. `seedPrefix` and `deterministic` are on; `variants`, `toolStubs`, `trace`, `sandbox` and `endState` are off. The replay adapter does not run the contract suite.
 
 ## The ordered-pair check
 
@@ -158,7 +158,7 @@ It exits 1, since four specs fail. The negative control runs on the faulty gate-
 
 A session that is not a transcript stops the command before any spec runs, with exit 2 and the `NotATranscriptError` message after `Cannot read the session <name>:`.
 
-The default `pii` check flags any personal data in the visible text, so a replay of the owner's own sessions fails on the address they typed. `--owner` gives the owner's own values, and `--owner-file` a file of them, one per line, where a line starting with `#` is a comment:
+The default `pii` check flags matching email addresses, phone numbers, IBANs and national register numbers in visible text. Names and personal addresses require `expect.pii_judge: true` and a configured judge. Replaying an owner's email address can therefore fail the regex check. `--owner` gives the owner's own values, and `--owner-file` a file of them, one per line, where a line starting with `#` is a comment:
 
 ```sh
 pnpm -s driftbench replay sessions/*.jsonl --suite specs --owner-file owner.txt

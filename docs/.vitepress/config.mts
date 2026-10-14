@@ -131,6 +131,7 @@ export default defineConfig({
         text: 'Running',
         items: [
           { text: 'Running', link: '/running' },
+          { text: 'CLI plugins', link: '/plugins' },
           { text: 'Generating tests', link: '/generating' },
           { text: 'Testing an estate', link: '/estate' },
           { text: 'Datasets and prompts', link: '/datasets' },
@@ -142,8 +143,16 @@ export default defineConfig({
         text: 'Reference',
         items: [
           { text: 'Spec reference', link: '/reference/spec' },
+          { text: 'Task family reference', link: '/reference/family' },
+          { text: 'Map reference', link: '/reference/map' },
+          { text: 'Interview reference', link: '/reference/interview' },
+          { text: 'Criteria and labels', link: '/reference/criteria' },
+          { text: 'Personas and red-team', link: '/reference/users' },
+          { text: 'Change manifest', link: '/reference/change' },
+          { text: 'Estate files', link: '/reference/estate-files' },
           { text: 'CLI', link: '/reference/cli' },
           { text: 'Checks', link: '/reference/checks' },
+          { text: 'Public API', link: '/reference/api' },
         ],
       },
       {

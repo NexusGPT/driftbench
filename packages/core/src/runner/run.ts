@@ -31,6 +31,8 @@ import {
   stimulusMessages,
 } from './given';
 import { describeContradiction, ledgerVerdicts } from './ledger';
+import { preflightTargetPrices, priceObserved, TokenPriceError, TokenPrices } from './pricing';
+import { captureArtifacts, provenanceDigest, provenanceHash, runProvenance } from './provenance';
 import { type RecoveryOptions, recoveryOf } from './recovery';
 import { CallFailure, describeError, type RetryOptions, retryLayer, withRetry } from './retry';
 import { canonicalPreviousStage, flowVerdicts, readStage, stageSignatures } from './stages';
@@ -44,10 +46,16 @@ import { succession } from './succession';
 export type { RunEvent };
 
 export type RunOptions = {
+  /** Dated, user-supplied USD prices for token-only observations. */
+  prices?: TokenPrices;
+  /** A budgeted campaign cannot continue with an unpriced token-only block. */
+  requireTokenPrices?: boolean;
   /** Receives each event as it happens. Absent: no events are reported. */
   onEvent?: (event: RunEvent) => void;
   /** Keeps the events on the run record (its events field), in order. Off by default: a run record stays as it was. */
   recordEvents?: boolean;
+  /** Add execution provenance to records. Off for standalone runs unless requested. */
+  recordProvenance?: boolean;
   adapter: AgentAdapter;
   /** Decides each block's stimulus. The scripted driver of `@agent-nexus/driftbench-users` replays the spec's blocks. */
   driver: UserDriver;
@@ -75,6 +83,8 @@ export type RunOptions = {
   cacheTtlMs?: number;
   /** Names the suite a run belongs to. Its cache keys differ from another suite's, so a new name starts from an empty cache. */
   suite?: string;
+  /** Separates cached blocks from different versions of an agent, even with a pinned target variant. */
+  agentVersion?: string;
   /** Readers for the artifact checks, passed to every CheckContext. */
   artifacts?: ArtifactReaderRegistry;
   retry?: RetryOptions;
@@ -119,6 +129,8 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
   const { version: _version, ...unlabelled } = spec;
   const cacheSpecHash = contentHash(unlabelled);
   const target = options.target ?? spec.target ?? { adapter: options.adapter.id };
+  const prices = options.prices === undefined ? undefined : TokenPrices.parse(options.prices);
+  if (options.requireTokenPrices) preflightTargetPrices([target], prices);
   // In P mode the spec's end state describes the unperturbed run, so it is neither read nor compared, as
   // the Acme light runner and the end_state check do; phase 3 decides what a perturbed run should leave.
   const endState = options.mode === 'P' ? undefined : spec.end_state;
@@ -136,6 +148,9 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
         }
       : undefined;
   const run: RunContext = {
+    prices,
+    requireTokenPrices: options.requireTokenPrices === true,
+    provenance: options.recordProvenance ? runProvenance({ ...options, target }) : undefined,
     spec,
     specHash,
     cacheSpecHash,
@@ -152,6 +167,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     cache,
     cacheTtlMs: options.cacheTtlMs,
     suite: options.suite,
+    agentVersion: options.agentVersion,
     artifacts: options.artifacts,
     retry: options.retry,
     // The spec target's retry settings, the run's own (the command line) over them.
@@ -195,6 +211,9 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
 }
 
 type RunContext = {
+  prices: TokenPrices | undefined;
+  requireTokenPrices: boolean;
+  provenance: RunResult['provenance'];
   spec: Spec;
   specHash: string;
   /** The hash the cache key carries: the spec's, without its version label. */
@@ -212,6 +231,7 @@ type RunContext = {
   cache: ObservedCache | undefined;
   cacheTtlMs: number | undefined;
   suite: string | undefined;
+  agentVersion: string | undefined;
   artifacts: ArtifactReaderRegistry | undefined;
   retry: RetryOptions | undefined;
   policy: RetryPolicy;
@@ -268,6 +288,10 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
   const { sources } = run;
   let state = initialGiven(spec);
   let history: Message[] = [];
+  /** The user messages of the history, one list that grows with it, so the ledger reads each one once. */
+  let users: Message[] = [];
+  /** The spec block whose user messages `users` ends with; NaN after an injected step. */
+  let usersBlock = -1;
   let nextBlock = 0;
   let lastKey: string | undefined;
   let endRead: { states: unknown[]; afterBlock: number } | undefined;
@@ -276,7 +300,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
   /** In mode T, the end state composed before the open session opened. */
   let sessionBase: unknown[] | undefined;
   let status: RunResult['status'] = 'completed';
-  let endVerdict: 'success' | 'failure' | undefined;
+  let endVerdict: RunResult['endVerdict'];
   let error: string | undefined;
 
   try {
@@ -289,6 +313,10 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       const step = await nextStep(run, nextBlock, blocks);
       if (step.kind === 'stop') {
         endVerdict = step.verdict;
+        if (step.verdict === 'inconclusive') {
+          status = 'stopped';
+          error = step.reason;
+        }
         break;
       }
       const planned = planStep(spec, step);
@@ -312,11 +340,18 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
           sessionBase = composed;
         }
         history = canonical.prefix;
+        // The canonical prefix of a block is the one of the block before, then that block's user messages
+        // and a reply (canonicalGiven), unless the block writes a prefix of its own. So after the block
+        // before, the user messages kept are those of this prefix already.
+        const follows =
+          step.blockIndex === usersBlock + 1 && spec.blocks[step.blockIndex]?.given?.prefix === undefined;
+        if (!follows) users = userMessagesOf(history);
       } else {
         state = enterBlock(state, planned.given, planned.world);
         if (planned.given?.prefix) {
           await channel.restart();
           history = structuredClone(planned.given.prefix);
+          users = userMessagesOf(history);
         }
       }
       const user = stimulusMessages(planned.stimulus);
@@ -337,11 +372,16 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         target: run.target,
         adapter: run.adapter.id,
         adapterVersion: run.adapter.version,
+        ...(run.adapter.cacheIdentity === undefined
+          ? {}
+          : { adapterCacheIdentity: run.adapter.cacheIdentity }),
         ...(run.suite === undefined ? {} : { suite: run.suite }),
+        ...(run.agentVersion === undefined ? {} : { agentVersion: run.agentVersion }),
       });
       run.onEvent?.({ type: 'block_start', index: position, at: new Date().toISOString() });
-      const observed = await channel.observe(turn, user, key);
-      if (!observed) return undefined;
+      const raw = await channel.observe(turn, user, key);
+      if (!raw) return undefined;
+      const observed = priceObserved(raw, run.target, run.prices, run.requireTokenPrices);
       // A model call the adapter reported on a segment: its tokens, cost and latency. The time is when the reply came back;
       // the call began latencyMs earlier.
       for (const segment of observed.segments) {
@@ -391,6 +431,9 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         if (planned.lastSpecBlock && composed) endState = endStateValue(run.endState, sources, composed);
       }
 
+      const capture = run.provenance
+        ? captureArtifacts({ observed, readArtifact: channel.readArtifact() })
+        : undefined;
       const verdicts = await applyChecks(run.checks, {
         spec,
         mode: run.mode,
@@ -404,7 +447,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         ledger: facts.ledger,
         endState,
         artifacts: run.artifacts,
-        readArtifact: channel.readArtifact(),
+        readArtifact: capture ? capture.readArtifact : channel.readArtifact(),
       });
       // The stage reached: the runtime's, else the step classifier's. Before the block: in T the stage the
       // spec expects of the blocks before it, in F and P the stage the run's previous block reached.
@@ -419,14 +462,25 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         signatures: run.signatures,
       });
       const flow = flowVerdicts(spec, planned.expect, reading, previous);
-      const userMessages = [...given.prefix, ...user].filter((message) => message.role === 'user');
-      const ledger = ledgerVerdicts(facts.ledger, observed, userMessages);
+      users.push(...userMessagesOf(user));
+      usersBlock = step.kind === 'block' ? step.blockIndex : Number.NaN;
+      const ledger = ledgerVerdicts(facts.ledger, observed, users);
       const all = [...verdicts, ...flow, ...ledger.verdicts];
       const contradictions = [...facts.contradictions, ...ledger.contradictions.map(describeContradiction)];
       const block = {
         index: position,
         ...(planned.blockId !== undefined ? { blockId: planned.blockId } : {}),
         ...(planned.injected ? { injected: true } : {}),
+        ...(capture
+          ? {
+              provenance: {
+                specIndex: step.kind === 'block' ? step.blockIndex : step.beforeBlock,
+                stimulusHash: provenanceHash(planned.stimulus),
+                ledgerHash: provenanceHash(facts.ledger),
+                artifacts: capture.artifacts,
+              },
+            }
+          : {}),
         givenHash: given.hash,
         cacheKey: key,
         observed,
@@ -440,6 +494,10 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       run.onEvent?.({ type: 'block_end', index: position, pass: block.pass, at: new Date().toISOString() });
     }
   } catch (cause) {
+    if (cause instanceof TokenPriceError) {
+      await channel.close();
+      throw cause;
+    }
     if (channel.replay) return undefined;
     status = 'failed';
     error =
@@ -484,6 +542,12 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       : undefined;
   const message = [error, note].filter((part) => part !== undefined).join('; ');
   return {
+    ...(run.provenance
+      ? {
+          provenance: run.provenance,
+          provenanceDigest: provenanceDigest({ provenance: run.provenance, blocks }),
+        }
+      : {}),
     runId: run.runId,
     specId: spec.id,
     specHash: run.specHash,
@@ -813,4 +877,8 @@ function replayChannel(cache: ObservedCache, toolPolicy: readonly ToolRule[] | u
       return undefined;
     },
   };
+}
+
+function userMessagesOf(messages: readonly Message[]): Message[] {
+  return messages.filter((message) => message.role === 'user');
 }

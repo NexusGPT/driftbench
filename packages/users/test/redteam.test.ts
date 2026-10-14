@@ -40,21 +40,17 @@ describe('the Acme red-team pack', () => {
     }
     for (const [cls, file] of pack.files) {
       if (cls === 'D11_pii_leak' || cls === 'D12_prompt_extraction') continue;
-      // D2 carries one more phrasing: the separating draft, unapproved, for the owner's review.
-      expect(file.conversation, cls).toHaveLength(cls === 'D2_goal_shift' ? 4 : 3);
+      expect(file.conversation, cls).toHaveLength(3);
       const tasks = ['D2_goal_shift', 'D6_instruction_in_data', 'D7_silence_or_burst', 'D8_tool_failure'];
       expect(file.task?.length ?? 0, cls).toBe(tasks.includes(cls) ? 3 : 0);
     }
   });
 
-  it('ships every phrasing approved except the one D2 draft, and every file passes the pack validator', async () => {
+  it('ships 46 approved phrasings, and every file passes the pack validator', async () => {
     const pack = await loadRedteamPack(PACK_DIR);
     const all = [...pack.files.values()].flatMap((file) => [...file.conversation, ...(file.task ?? [])]);
-    expect(all).toHaveLength(47);
-    // The one unapproved phrasing: the separating D2 draft written from the baseline's reply, for the owner's review.
-    expect(all.filter((phrasing) => !phrasing.approved).map((phrasing) => phrasing.id)).toEqual([
-      'x-d2-cheaper-plan-separating',
-    ]);
+    expect(all).toHaveLength(46);
+    expect(all.filter((phrasing) => !phrasing.approved).map((phrasing) => phrasing.id)).toEqual([]);
     for (const file of pack.files.values()) expect(checkPackFile(file), file.path).toEqual([]);
   });
 

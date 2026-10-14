@@ -43,9 +43,11 @@ export const MAX_TOKENS: Readonly<Record<Budget, number>> = { normal: 1024, larg
 
 /** One line of a transcript slice. Tool entries carry the tool name. */
 export const TranscriptEntry = z.strictObject({
-  role: z.enum(['user', 'agent', 'tool_call', 'tool_result', 'card', 'context']),
-  text: z.string(),
-  tool: z.string().optional(),
+  role: z
+    .enum(['user', 'agent', 'tool_call', 'tool_result', 'card', 'context'])
+    .describe('Who or what the line comes from: user, agent, tool_call, tool_result, card or context.'),
+  text: z.string().describe('The text of the line.'),
+  tool: z.string().optional().describe('The tool name, on a tool_call or tool_result line.'),
 });
 export type TranscriptEntry = z.infer<typeof TranscriptEntry>;
 

@@ -20,10 +20,19 @@ import {
   runPilot,
 } from '@agent-nexus/driftbench-generate';
 import type { Command } from 'commander';
+import { acmeExample, acmeExampleInstalled, requireAcmeExample } from '../acme-example';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
 import { noStoreAt } from '../store-path';
-import { type CampaignDeps, defaultDeps, loadValidSpecs, parseTarget, showTarget } from './campaign';
+import {
+  type CampaignDeps,
+  defaultDeps,
+  loadValidSpecs,
+  noAdapter,
+  parseTarget,
+  resolveAdapter,
+  showTarget,
+} from './campaign';
 
 const RESAMPLE: readonly Resample[] = ['cells', 'conversations', 'both'];
 
@@ -41,10 +50,24 @@ export const pilotDeps: CampaignDeps = {
   ...defaultDeps,
   adapterFor: async (target, scope) => {
     const seed = target.adapter === 'function' ? randomSeed(target.agent) : undefined;
-    if (seed !== undefined) return randomAgentAdapter(seed === 'default' ? undefined : seed);
+    if (seed !== undefined) {
+      if ((await acmeExample()) === undefined) return undefined;
+      return randomAgentAdapter(seed === 'default' ? undefined : seed);
+    }
     return defaultDeps.adapterFor(target, scope);
   },
 };
+
+/**
+ * Why the pilot cannot run a target. The pilot runs on the Acme example's agents; an install without the
+ * example says so, and names no target it cannot reach.
+ */
+export function pilotNoAdapter(
+  target: TargetRef,
+  exampleInstalled: boolean = acmeExampleInstalled(),
+): string {
+  return noAdapter(target, [], { pilot: true, exampleInstalled });
+}
 
 /** `acme-random` gives the default seed, `acme-random-<n>` seed n; anything else is not the control. */
 function randomSeed(agent: string | undefined): number | 'default' | undefined {
@@ -55,7 +78,7 @@ function randomSeed(agent: string | undefined): number | 'default' | undefined {
 
 /** The seeded random Acme agent of examples/acme/pilot/random-agent behind the function adapter. */
 export async function randomAgentAdapter(seed?: number): Promise<AgentAdapter> {
-  const control = await import('../../../../examples/acme/pilot/random-agent/index');
+  const control = await requireAcmeExample();
   const agent = control.createRandomAgent(seed === undefined ? {} : { seed });
   return functionAdapter<ReturnType<typeof agent.create>>({
     create: (given) => agent.create(given),
@@ -192,11 +215,8 @@ export async function pilotRunCommand(options: RunFlags, io: Io, deps: CampaignD
   const built = await buildDesign(options, io);
   if (!built) return 2;
   const target: TargetRef = parseTarget(options.target);
-  const adapter = await deps.adapterFor(target);
+  const adapter = await resolveAdapter(target, () => deps.adapterFor(target), io, [], { pilot: true });
   if (!adapter) {
-    io.err(
-      `No adapter is set up for ${showTarget(target)}. The pilot reaches function:acme (the Acme sales assistant) and function:${RANDOM_TARGET} or function:${RANDOM_TARGET}-<seed> (its seeded random control).\n`,
-    );
     return 2;
   }
   const store = await open(deps, resolve(io.cwd, options.store), io);
