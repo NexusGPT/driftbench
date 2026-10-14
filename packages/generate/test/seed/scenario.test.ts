@@ -5,8 +5,8 @@ import type { Pick } from '../../src/seed/assemble';
 import { TOOL_FAILURE_ERROR } from '../../src/seed/deviation';
 import { type PreparedMap, prepareMap, type ToolSchema } from '../../src/seed/map';
 import { rngFor } from '../../src/seed/random';
-import { fillText, recoveryFor } from '../../src/seed/relations';
-import { buildScenario } from '../../src/seed/scenario';
+import { fillText, recoveryFor, slotsIn } from '../../src/seed/relations';
+import { buildScenario, indexDimensions, indexPathValues } from '../../src/seed/scenario';
 import { ZED_TOOLS, zedProposal } from '../enumerate/support';
 
 /**
@@ -1131,4 +1131,36 @@ describe('approved reply requirements', () => {
     const refused = buildScenario(bad, rngFor(1, 't'), { path: path(bad, 'balance-found'), fixed: [] });
     expect(refused).toMatchObject({ ok: false, reason: expect.stringContaining('unbound_fact') });
   });
+});
+
+it('keeps slot discovery independent of caller mutation, bindings and bounded cache eviction', () => {
+  const text = '{a} and {b} and {a}';
+  slotsIn(text).push('changed');
+  expect(slotsIn(text)).toEqual(['a', 'b', 'a']);
+  expect(fillText(text, { a: 'one', b: 'two' })).toEqual({ ok: true, value: 'one and two and one' });
+  expect(fillText(text, { a: 'new' })).toEqual({ ok: false, missing: ['b'] });
+  for (let index = 0; index < 3000; index += 1) expect(slotsIn(`text-${index} {x}`)).toEqual(['x']);
+  expect(slotsIn(text)).toEqual(['a', 'b', 'a']);
+});
+
+it('preserves scenario choices and RNG draws with generation-local path indices', () => {
+  const prepared = prepare();
+  const found = path(prepared, 'balance-found');
+  found.when = { account_state: ['found', 'missing', 'found', 'unknown'] };
+  const pathValues = indexPathValues(prepared);
+  const dimensionIndex = indexDimensions(prepared);
+  for (let seed = 1; seed <= 30; seed += 1)
+    for (const candidate of prepared.relations.paths) {
+      const first = rngFor(seed, 'indexed');
+      const second = rngFor(seed, 'indexed');
+      const request = { path: candidate, fixed: [] };
+      const plain = buildScenario(prepared, first, request);
+      const indexed = buildScenario(prepared, second, {
+        ...request,
+        dimensionIndex,
+        pathValues: pathValues.get(candidate),
+      });
+      expect(indexed).toEqual(plain);
+      expect(second()).toBe(first());
+    }
 });

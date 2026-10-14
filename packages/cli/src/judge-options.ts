@@ -12,6 +12,7 @@ import type {
 } from '@agent-nexus/driftbench-judges';
 import type { Command } from 'commander';
 import type { Io } from './io';
+import { addJudgeSettingOptions, type JudgeSettingOptions, judgeSettingsFrom } from './judge-settings';
 import { optionNumber } from './number';
 import { pluginEmbedder } from './plugins';
 
@@ -25,7 +26,8 @@ import { pluginEmbedder } from './plugins';
  * player, with no call. On top of the judges: a label-blind escalation route, a weighted panel with an abstain,
  * and a reference solve. With none of these flags nothing changes: a command judges as it did before.
  *
- * The judges package loads only when a judge flag is given, so a command that judges nothing loads none of it.
+ * The run-wide judge settings of `./judge-settings` (`--verify`, `--prompt-budget`) ride with these flags: each
+ * judge, live or recorded, is wrapped by them.
  */
 
 /** The line a stand-in command carries in its first lines. Any other command is billed. */
@@ -91,7 +93,7 @@ export type JudgeFlags = {
   referenceRoute?: string;
   record?: string;
   agentFamily?: string;
-};
+} & JudgeSettingOptions;
 
 /** The judge flags `replay`, `estate run` and `campaign rejudge` took before; still their option type. */
 export type RunJudgeOptions = JudgeFlags;
@@ -113,7 +115,7 @@ const KIND_HELP = `kind ${JUDGE_KINDS.join(', ')}; http takes http:<family>@<url
 
 /** Adds the judge flags. The groups a command leaves out are not added. */
 export function addJudgeOptions(command: Command, groups: JudgeOptionGroups = {}): Command {
-  command
+  addJudgeSettingOptions(command)
     .option(
       '--judge <kind:model>',
       `judge the judged criteria with this judge, such as claude:haiku or openai:<model> (${KIND_HELP}); repeat it for a council. Keys come from the environment. Paid calls`,
@@ -250,6 +252,8 @@ function shapingFlags(flags: JudgeFlags): string[] {
     ['--reference-samples', flags.referenceSamples],
     ['--reference-route', flags.referenceRoute],
     ['--record', flags.record],
+    ['--verify', flags.verify],
+    ['--prompt-budget', flags.promptBudget],
   ];
   return set.filter(([, value]) => value !== undefined).map(([name]) => name);
 }
@@ -266,7 +270,7 @@ export async function runJudgeFrom(
   if (!judgeAsked(options)) {
     const stray = shapingFlags(options);
     if (stray.length > 0) {
-      io.err(`error: ${stray.join(' and ')} need a judge: --judge <kind>:<model> or --judges <cassette>\n`);
+      io.err(`error: ${stray.join(' and ')} need --judge claude:<model>, another --judge <kind>:<model>, or --judges <cassette>\n`);
       return undefined;
     }
     const { noJudgeCheck } = await import('@agent-nexus/driftbench-judges');
@@ -295,7 +299,7 @@ export async function optionalJudgeFrom(
   if (!judgeAsked(options)) {
     const stray = shapingFlags(options);
     if (stray.length > 0) {
-      io.err(`error: ${stray.join(' and ')} need a judge: --judge <kind>:<model> or --judges <cassette>\n`);
+      io.err(`error: ${stray.join(' and ')} need --judge claude:<model>, another --judge <kind>:<model>, or --judges <cassette>\n`);
       return null;
     }
     return undefined;
@@ -347,6 +351,8 @@ async function buildJudge(
   shape: { council: boolean },
 ): Promise<RunJudge | undefined> {
   const J = await import('@agent-nexus/driftbench-judges');
+  const settings = judgeSettingsFrom(options, io);
+  if (settings === undefined) return undefined;
   let budget: number | undefined;
   if (options.judgeBudget !== undefined) {
     budget = optionNumber(options.judgeBudget);
@@ -382,7 +388,7 @@ async function buildJudge(
         state.billed = true;
       }
       if (cassette) client = J.recordingClient(client, cassette);
-      return capped(client, spend, budget, J.JudgeError);
+      return capped(settings(client), spend, budget, J.JudgeError);
     },
   };
 
@@ -406,7 +412,7 @@ async function buildJudge(
     try {
       const recorded = await J.loadCassette(resolve(io.cwd, options.judges));
       for (const player of J.cassettePlayers(recorded)) {
-        const problem = add(player.id, player);
+        const problem = add(player.id, settings(player));
         if (problem !== undefined) throw new Error(problem);
       }
     } catch (cause) {
@@ -886,7 +892,7 @@ async function panelClient(
   weights: Record<string, number>,
   margin: number | undefined,
 ): Promise<JudgeClient> {
-  const { weightedPanel } = await import('../../judges/src/weighted-panel');
+  const { weightedPanel } = await import('@agent-nexus/driftbench-judges');
   const families = [...new Set(judges.flatMap((judge) => [judge.family, ...(judge.families ?? [])]))];
   const outcomeOf = (result: JudgeResult): 'pass' | 'fail' | 'inconclusive' => {
     if (result.unparsed) return 'inconclusive';
@@ -1241,6 +1247,8 @@ export function judgeAndCheckFlags(options: JudgeFlags & RunCheckFlags): JudgeFl
     'referenceRoute',
     'record',
     'agentFamily',
+    'verify',
+    'promptBudget',
     'owner',
     'ownerFile',
     'toolPolicy',

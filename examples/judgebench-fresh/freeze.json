@@ -1,0 +1,57 @@
+{
+ "dataset": "JudgeBench recipe, fresh pool",
+ "notTheOriginal": "Built with the published JudgeBench recipe from questions outside both JudgeBench splits. Not ScalerLab/JudgeBench.",
+ "seed": "judgebench-recipe-fresh-2026-10-14",
+ "k": 4,
+ "responseModel": "gpt-6-luna",
+ "responseSettings": {
+  "reasoning_effort": "none",
+  "max_completion_tokens": 4096
+ },
+ "responseSystem": "Work through the problem step by step, showing your full reasoning, before you give the final answer.",
+ "checkerModel": "gpt-6-luna",
+ "checkerSettings": {
+  "reasoning_effort": "low",
+  "max_completion_tokens": 2048
+ },
+ "mmluPairsPerCategory": 90,
+ "devPairs": 150,
+ "confirmPairs": 1061,
+ "dev": {
+  "livebench-math": 2,
+  "livebench-reasoning": 6,
+  "mmlu-pro": 142
+ },
+ "confirm": {
+  "livebench-math": 31,
+  "livebench-reasoning": 26,
+  "mmlu-pro": 1004
+ },
+ "labels": {
+  "dev": {
+   "A>B": 81,
+   "B>A": 69
+  },
+  "confirm": {
+   "A>B": 518,
+   "B>A": 543
+  }
+ },
+ "files": {
+  "pool/dev.jsonl": "ce57b27ed636ded635cab9614ecd604d45cc24ec646ca2e9aefa3511b03f08e0",
+  "pool/confirm.jsonl": "e8c44c07a938946232f54d25048a2c97119debbb715af892b27c0f88a71c479d"
+ },
+ "buildInputs": {
+  "build.py": "62930e45ec7e4e0cc50bb4dc7ff1f2f51546e352d15a4217d9755816a0ed4a58",
+  "vendor/livebench/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "vendor/livebench/math_competitions.py": "666df84ea5577fa895fa72f84726c6469a18f6bef9c0dba061be5ba2ed74ec44",
+  "vendor/livebench/spatial.py": "922fdc69cebf3204ccf7e985cb7a3a3b8bddd5abb5055c04f85383cd73c25441",
+  "vendor/livebench/util.py": "fa45fcc988077218d6da08f00f3b6a61b0aea6ae08f417658c2fb5c373827cb7",
+  "vendor/livebench/web_of_lies_v2.py": "18be02858743bc8e6585c159f8c8a9d219613028bb1eab4e8b9886acc68f39a2",
+  "vendor/livebench/zebra_puzzle.py": "aafc95fa85ddda767f882e5fb5d477ca9fc25b14b08a94ac0751832b7d03b803",
+  "work/sources/manifest.json": "2451beb5e8bf863fcdc7977ca5882d34c575bf92d8f2f7fee724f08e49a8682f",
+  "work/run-state.json": "4b30df5c879ae39c3cd3f7d98d90c7c07e4af78c9f6d9bbaeb631b06292bb084"
+ },
+ "frozenAt": "2026-10-14T06:52:38Z",
+ "rule": "Frozen before any judge call. Design work reads pool/dev.jsonl only; pool/confirm.jsonl is judged once."
+}

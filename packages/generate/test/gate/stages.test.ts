@@ -1,4 +1,6 @@
 import { functionAdapter } from '@agent-nexus/driftbench-adapters';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { describe, expect, it } from 'vitest';
 import {
   blockOutcome,
@@ -7,8 +9,10 @@ import {
   leakageStage,
   observedStage,
   originGrams,
+  runOnce,
   thenFields,
 } from '../../src/gate';
+import { sameReferenceOutcome } from '../../src/gate/gate';
 import { gate, generated, makeSpec, orderBlock, shopAdapter, shopFault, shopFaults } from './support';
 
 const STAGES = ['start', 'ordered'];
@@ -343,14 +347,71 @@ describe('stage 4, contrast', () => {
       expect(record.stages.contrast).toMatchObject({ status: 'reject', reason: 'then-ignores-edit' });
   });
 
-  it('does not infer final-store equivalence from equal captured replies', async () => {
+  it('accepts equal Thens on the end state when every reference run recorded the same end state', async () => {
     const specs = [
       probe('p1', 'D1_off_topic', 'What is the weather like?', 'start'),
       probe('p2', 'D9_out_of_scope', 'My bill is wrong.', 'start'),
     ].map((spec) => makeSpec({ ...spec, end_state: 'none' }));
     const result = await gate(specs);
+    for (const record of result.blocks) {
+      expect(record.fields).toContain('end_state');
+      expect(record.stages.contrast.status).toBe('pass');
+    }
+  });
+
+  it('does not infer final-store equivalence from equal captured replies', async () => {
+    // The reply and the calls are the same for both messages; the store the reference leaves is not.
+    type Session = { notes: { tool: string; input: unknown }[] };
+    const reference = functionAdapter<Session>({
+      create: () => ({ notes: [] }),
+      respond: (messages, _world, _vars, session) => {
+        session.notes.push({ tool: 'note', input: { said: messages.at(-1)?.content } });
+        const text = 'Noted.';
+        return {
+          text,
+          segments: [{ type: 'text' as const, text }],
+          toolCalls: [],
+          runtime: { stages: [{ name: 'start' }] },
+          cost: { usd: 0 },
+          latencyMs: 0,
+        };
+      },
+      payloads: (session) => session.notes,
+      deterministic: true,
+    });
+    const specs = [
+      probe('p1', 'D1_off_topic', 'What is the weather like?', 'start'),
+      probe('p2', 'D9_out_of_scope', 'My bill is wrong.', 'start'),
+    ].map((spec) =>
+      makeSpec({ ...spec, end_state: { source: 'tool:note', expect: { said: { nonempty: true } } } }),
+    );
+    const result = await gate(specs, { references: new Map([['function:shop', reference]]), faults: [] });
+    expect(result.blocks.map((record) => record.reference[0])).toEqual(['pass', 'pass']);
     for (const record of result.blocks)
       expect(record.stages.contrast).toMatchObject({ status: 'reject', reason: 'then-ignores-edit' });
+  });
+
+  it('keeps the conservative answer when a run recorded no end-state value', async () => {
+    const specs = [
+      probe('p1', 'D1_off_topic', 'What is the weather like?', 'start'),
+      probe('p2', 'D9_out_of_scope', 'My bill is wrong.', 'start'),
+    ].map((spec) => makeSpec({ ...spec, end_state: 'none' }));
+    const result = await gate(specs);
+    const record = result.blocks[0];
+    if (!record) throw new Error('no block');
+    const recorded = await Promise.all(
+      specs.map((spec) =>
+        runOnce(spec, shopAdapter(), 1, { checks: defaultChecks(), driver: createScriptedDriver }),
+      ),
+    );
+    const outcomes = recorded.map((run) => ({ run, index: 0 }));
+    expect(sameReferenceOutcome(outcomes, record.fields)).toBe(true);
+    // The same runs as stored before the value was recorded: the match and the diff only.
+    const older = outcomes.map(({ run, index }) => {
+      const { endStateValue: _value, ...kept } = run;
+      return { run: kept, index };
+    });
+    expect(sameReferenceOutcome(older, record.fields)).toBe(false);
   });
 
   it('keeps one-slot siblings whose Then changes with the edit', async () => {

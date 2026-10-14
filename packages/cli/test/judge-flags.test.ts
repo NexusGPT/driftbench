@@ -495,7 +495,7 @@ describe('row 1: judges in campaign run, resume, ci and smoke', () => {
       expect(resumed.out).toContain('Judge claude:haiku, 0.0000 USD.');
       const stray = await cli(['campaign', 'resume', '--store', store, '--judge-budget', '1'], dir);
       expect(stray.code).toBe(2);
-      expect(stray.err).toContain('--judge-budget need a judge');
+      expect(stray.err).toContain('--judge-budget need --judge claude:<model>');
     },
     SLOW,
   );

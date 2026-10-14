@@ -54,7 +54,7 @@ import { loadValidSpecs } from './campaign';
  * A spec that names a session not given is skipped with a note. The run is the runner's own: mode F, the
  * scripted driver, `defaultChecks()` plus the ordered-pair check under `rules.custom.ordered`, no cache. Each
  * run is stored (in the store given with `--store`, in memory otherwise) under one replay campaign. Judged
- * criteria are not run. A decision log or step feed belongs to the session whose file name starts its own
+ * criteria are judged by `--judge` when it is given, and are inconclusive without it. A decision log or step feed belongs to the session whose file name starts its own
  * file name (`clean-build.decisions.jsonl` for `clean-build.jsonl`); with one session it belongs to it.
  *
  * Exit 0 when every aligned spec passes, 1 when one fails, 2 on bad input.
@@ -201,7 +201,7 @@ export async function replayCommand(
 
   const loaded = await loadValidSpecs([options.suite], io);
   if (!loaded) return 2;
-  const aligned = align(loaded, entries, io);
+  const aligned = align(loaded, entries, io, judge.label !== 'none');
   if (!aligned) return 2;
   if (aligned.alignments.length === 0) {
     io.err('No spec is aligned with the sessions given: nothing ran.\n');
@@ -437,6 +437,7 @@ function align(
   loaded: readonly LoadedSpec[],
   entries: readonly SessionEntry[],
   io: Io,
+  judged = false,
 ): { alignments: Alignment[]; notes: string[] } | undefined {
   const alignments: Alignment[] = [];
   const notes: string[] = [];
@@ -486,7 +487,8 @@ function align(
   }
   if (bad) return undefined;
   for (const { spec, entry } of alignments) {
-    if (spec.spec.criteria?.length) notes.push(`${spec.spec.id}: judged criteria are not run in replay`);
+    if (!judged && spec.spec.criteria?.length)
+      notes.push(`${spec.spec.id}: judged criteria are inconclusive: no --judge was given`);
     const wantsGuards = spec.spec.blocks.some((block) => (block.expect?.guards?.length ?? 0) > 0);
     if (wantsGuards && !entry.session.meta.decisions) {
       notes.push(

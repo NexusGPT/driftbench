@@ -14,6 +14,7 @@ import {
   councilAssignment,
   createClaudeCliJudge,
   createCouncil,
+  criteriaJudge,
   DEFAULT_REPEATS,
   emptyCassette,
   fixtureRequest,
@@ -38,6 +39,12 @@ import {
   makeLiveJudge,
   panelFrom,
 } from '../judge-options';
+import {
+  addJudgeSettingOptions,
+  type JudgeSettingOptions,
+  type JudgeSettings,
+  judgeSettingsFrom,
+} from '../judge-settings';
 import { optionNumber } from '../number';
 
 const MODES: readonly CouncilMode[] = ['system1', 'hybrid', 'llm'];
@@ -60,7 +67,8 @@ export type JudgeRunOptions = {
   | 'routeDecide'
   | 'panelWeights'
   | 'panelMargin'
->;
+> &
+  JudgeSettingOptions;
 
 export type JudgeCalibrateOptions = {
   criteria?: string;
@@ -83,7 +91,8 @@ export type JudgeCalibrateOptions = {
 } & Pick<
   JudgeFlags,
   'judgeRoute' | 'routeFirst' | 'routeThen' | 'routeOn' | 'routeConfidence' | 'routeDecide'
->;
+> &
+  JudgeSettingOptions;
 
 /**
  * `driftbench judge`: the judge council. `judge run` replays a council on recorded answers (a cassette)
@@ -98,8 +107,7 @@ export function registerJudgeCommand(program: Command, io: Io, setExit: (code: n
       'Judge criteria with the council: replay recorded answers, or validate criteria and fixtures',
     );
 
-  const run = judge
-    .command('run')
+  const run = addJudgeSettingOptions(judge.command('run'))
     .description(
       'Replay a council on a cassette over every fixture pair, and report the criteria it separates',
     )
@@ -117,8 +125,7 @@ export function registerJudgeCommand(program: Command, io: Io, setExit: (code: n
     setExit(await judgeRunCommand(options, io));
   });
 
-  const calibrateCommand = judge
-    .command('calibrate')
+  const calibrateCommand = addJudgeSettingOptions(judge.command('calibrate'))
     .description(
       'Run every judge on the fixture pairs and the hand-labelled blocks, and write which judge owns each criterion',
     )
@@ -229,6 +236,8 @@ export async function judgeRunCommand(options: JudgeRunOptions, io: Io): Promise
     io.err(`--mode takes ${MODES.join(', ')}, not "${options.mode}".\n`);
     return 2;
   }
+  const settings = judgeSettingsFrom(options, io);
+  if (settings === undefined) return 2;
   const criteriaDir = resolve(io.cwd, options.criteria);
   const loaded = await loadCriteria(criteriaDir);
   if (loaded.issues.length > 0) {
@@ -238,7 +247,7 @@ export async function judgeRunCommand(options: JudgeRunOptions, io: Io): Promise
   }
 
   const routed = options.judgeRoute !== undefined || options.panelWeights !== undefined;
-  if (routed) return judgeRunRouted(options, loaded.criteria, io);
+  if (routed) return judgeRunRouted(options, loaded.criteria, settings, io);
   for (const [flag, value] of [
     ['--route-first', options.routeFirst],
     ['--route-then', options.routeThen?.length ? 'set' : undefined],
@@ -267,7 +276,14 @@ export async function judgeRunCommand(options: JudgeRunOptions, io: Io): Promise
     council = createCouncil({
       mode: options.mode as CouncilMode,
       agentFamily: options.agentFamily,
-      judges: cassettePlayers(cassette),
+      judges: cassettePlayers(cassette).map((player) =>
+        settings(
+          criteriaJudge(
+            player,
+            loaded.criteria.map((criterion) => criterion.def),
+          ),
+        ),
+      ),
       ...(earned ? { assignment: earned.assignment, unassigned: earned.unassigned } : {}),
       ...(options.cascade ? { cascade: true } : {}),
     });
@@ -289,6 +305,7 @@ export async function judgeRunCommand(options: JudgeRunOptions, io: Io): Promise
 async function judgeRunRouted(
   options: JudgeRunOptions,
   criteria: readonly LoadedCriterion[],
+  settings: JudgeSettings,
   io: Io,
 ): Promise<number> {
   const fail = (message: string) => {
@@ -303,7 +320,16 @@ async function judgeRunRouted(
     );
   let client: JudgeClient;
   try {
-    const players = cassettePlayers(await loadCassette(resolve(io.cwd, options.cassette ?? '')));
+    // Each player as the council's: the criteria's own settings, then the run-wide ones.
+    const players = cassettePlayers(await loadCassette(resolve(io.cwd, options.cassette ?? ''))).map(
+      (player) =>
+        settings(
+          criteriaJudge(
+            player,
+            criteria.map((criterion) => criterion.def),
+          ),
+        ),
+    );
     const byId = new Map(players.map((player) => [player.id, player]));
     const built =
       options.judgeRoute !== undefined
@@ -477,11 +503,13 @@ export async function judgeCalibrateCommand(options: JudgeCalibrateOptions, io: 
     return 2;
   }
 
+  const settings = judgeSettingsFrom(options, io);
+  if (settings === undefined) return 2;
   let report: CalibrationReport;
   const recorded = emptyCassette();
   try {
     const judges: JudgeClient[] = options.cassette
-      ? cassettePlayers(await loadCassette(resolve(io.cwd, options.cassette)))
+      ? cassettePlayers(await loadCassette(resolve(io.cwd, options.cassette))).map(settings)
       : [];
     const spend = { usd: 0 };
     for (const model of live) {
@@ -490,13 +518,13 @@ export async function judgeCalibrateCommand(options: JudgeCalibrateOptions, io: 
         ...(options.claudeCommand ? { command: options.claudeCommand } : {}),
       });
       if (options.record) client = recordingClient(client, recorded);
-      judges.push(capped(client, spend, cap));
+      judges.push(capped(settings(client), spend, cap));
     }
     const named = new Map<string, JudgeClient>();
     for (const spec of liveJudges) {
       let client = await makeLiveJudge(spec, { claudeCommand: options.claudeCommand });
       if (options.record) client = recordingClient(client, recorded);
-      const wrapped = capped(client, spend, cap);
+      const wrapped = capped(settings(client), spend, cap);
       judges.push(wrapped);
       named.set(spec, wrapped);
     }
@@ -544,6 +572,17 @@ export async function judgeCalibrateCommand(options: JudgeCalibrateOptions, io: 
       }
     }
     if (options.cascade) {
+      // The cascade writes a report, not an assignment table: the table's rule and mode do not apply to it.
+      if (options.assign !== undefined && options.assign !== 'council') {
+        io.err(
+          `judge calibrate --cascade writes no assignment table: --assign ${options.assign} does not apply to it.\n`,
+        );
+        return 2;
+      }
+      if (options.mode !== 'hybrid') {
+        io.err('judge calibrate --cascade writes no assignment table: --mode does not apply to it.\n');
+        return 2;
+      }
       const [head, ...rest] = judges;
       if (!head || rest.length === 0) {
         io.err('judge calibrate --cascade needs a first judge and at least one to escalate to.\n');
@@ -555,6 +594,7 @@ export async function judgeCalibrateCommand(options: JudgeCalibrateOptions, io: 
         criteria: chosen,
         labels: labels.labels,
         repeats,
+        agentFamily: options.agentFamily,
       });
       const out = resolve(io.cwd, options.out);
       await writeFile(out, `${JSON.stringify(cascade, null, 2)}\n`, 'utf8');

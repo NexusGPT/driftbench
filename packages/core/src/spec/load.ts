@@ -1,13 +1,20 @@
-import { readdir, readFile, stat } from 'node:fs/promises';
+import { readFile as readFileCallback } from 'node:fs';
+import { readdir, stat } from 'node:fs/promises';
 import { dirname, extname, join, resolve } from 'node:path';
+import { promisify } from 'node:util';
 import { parse as parseYaml } from 'yaml';
 import type { z } from 'zod';
-import { Spec } from '../schema/spec';
+import type { Spec } from '../schema/spec';
+import { parseBlockYaml } from './block-yaml';
+import { parseSpecSchema } from './compiled-schema';
 import { contentHash } from './hash';
 import { error, type Issue } from './issues';
 import { lintSpec } from './lint';
 import { normalizeSpec } from './normalize';
 import { checkSemantics } from './semantics';
+
+// The callback reader avoids FileHandle wrapper overhead for the many small spec files.
+const readFile = promisify(readFileCallback);
 
 export type LoadResult =
   | { ok: true; path: string; spec: Spec; hash: string; warnings: Issue[] }
@@ -19,18 +26,37 @@ export type LoadedSpec = Extract<LoadResult, { ok: true }>;
 export function parseSpecText(text: string, format: 'yaml' | 'json', path = '<inline>'): LoadResult {
   let raw: unknown;
   try {
-    raw = format === 'json' ? JSON.parse(text) : parseYaml(text, { prettyErrors: true, uniqueKeys: true });
+    raw =
+      format === 'json'
+        ? JSON.parse(text)
+        : (parseBlockYaml(text)?.value ?? parseYaml(text, { prettyErrors: true, uniqueKeys: true }));
   } catch (cause) {
     return { ok: false, path, errors: [error('SPEC_PARSE', '', describe(cause))], warnings: [] };
   }
   return validateSpec(raw, path);
 }
 
-/** Normalises and validates an already parsed value. */
+/** The full schema, semantic and lint result, for callers that do not consume a content hash. */
+export type SpecValidationResult = Omit<LoadedSpec, 'hash'> | Extract<LoadResult, { ok: false }>;
+
+/** Normalises, validates and hashes an already parsed value. */
 export function validateSpec(raw: unknown, path = '<inline>'): LoadResult {
+  const checked = checkSpec(raw, path);
+  if (!checked.ok) return checked;
+  return {
+    ok: true,
+    path: checked.path,
+    spec: checked.spec,
+    hash: contentHash(checked.spec),
+    warnings: checked.warnings,
+  };
+}
+
+/** Runs the same checks as validateSpec without computing an unused content digest. */
+export function checkSpec(raw: unknown, path = '<inline>'): SpecValidationResult {
   const normalized = normalizeSpec(raw);
   const errors = normalized.issues.filter((issue) => issue.level === 'error');
-  const parsed = Spec.safeParse(normalized.value);
+  const parsed = parseSpecSchema(normalized.value);
 
   if (!parsed.success) {
     for (const zodIssue of parsed.error.issues) {
@@ -51,7 +77,6 @@ export function validateSpec(raw: unknown, path = '<inline>'): LoadResult {
     ok: true,
     path,
     spec: parsed.data,
-    hash: contentHash(parsed.data),
     warnings: lintSpec(parsed.data),
   };
 }

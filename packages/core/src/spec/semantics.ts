@@ -11,10 +11,18 @@ export function parseCriterionRef(ref: string): { name: string; gating: boolean 
   return { name: match[1], gating: match[2] === '@gating' };
 }
 
+// Cache only the immutable success result, bounded independently of suite size.
+const validPatterns = new Set<string>();
+
 /** Compiles a spec pattern the way checks will use it. Returns the error message, or undefined. */
 export function patternError(source: string): string | undefined {
+  if (validPatterns.has(source)) return undefined;
   try {
     new RegExp(source, 'm');
+    if (source.length <= 1024) {
+      if (validPatterns.size >= 4096) validPatterns.clear();
+      validPatterns.add(source);
+    }
     return undefined;
   } catch (cause) {
     return cause instanceof Error ? cause.message : String(cause);
