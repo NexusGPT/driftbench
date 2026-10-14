@@ -551,6 +551,22 @@ window.CHART_DATA = {
           {
             "name": "promptfoo",
             "score": 82.96
+          },
+          {
+            "name": "DeepEval",
+            "score": 86.3
+          },
+          {
+            "name": "Inspect",
+            "score": 80
+          },
+          {
+            "name": "Langfuse",
+            "score": 74.81
+          },
+          {
+            "name": "LangWatch",
+            "score": 83.7
           }
         ]
       },
@@ -566,6 +582,22 @@ window.CHART_DATA = {
           {
             "name": "promptfoo",
             "score": 84.81
+          },
+          {
+            "name": "DeepEval",
+            "score": null
+          },
+          {
+            "name": "Inspect",
+            "score": null
+          },
+          {
+            "name": "Langfuse",
+            "score": null
+          },
+          {
+            "name": "LangWatch",
+            "score": null
           }
         ]
       },
@@ -581,11 +613,27 @@ window.CHART_DATA = {
           {
             "name": "promptfoo",
             "score": 79.63
+          },
+          {
+            "name": "DeepEval",
+            "score": null
+          },
+          {
+            "name": "Inspect",
+            "score": null
+          },
+          {
+            "name": "Langfuse",
+            "score": null
+          },
+          {
+            "name": "LangWatch",
+            "score": null
           }
         ]
       }
     ],
-    "note": "Competitors with a recorded result on this benchmark in this repository: promptfoo. 270 pairs per model."
+    "note": "Competitors with a recorded result on this benchmark in this repository: promptfoo, DeepEval, Inspect, Langfuse, LangWatch. 270 pairs per model."
   },
   "bench-mm-eval": {
     "kind": "ranked",
@@ -615,6 +663,22 @@ window.CHART_DATA = {
           {
             "name": "promptfoo",
             "score": 89
+          },
+          {
+            "name": "DeepEval",
+            "score": null
+          },
+          {
+            "name": "Inspect",
+            "score": null
+          },
+          {
+            "name": "Langfuse",
+            "score": null
+          },
+          {
+            "name": "LangWatch",
+            "score": null
           }
         ]
       },
@@ -630,6 +694,26 @@ window.CHART_DATA = {
           {
             "name": "promptfoo",
             "score": 86.45
+          },
+          {
+            "name": "DeepEval",
+            "score": 84.09,
+            "refused": 3
+          },
+          {
+            "name": "Inspect",
+            "score": 75.36,
+            "refused": 7
+          },
+          {
+            "name": "Langfuse",
+            "score": 73.45,
+            "refused": 6
+          },
+          {
+            "name": "LangWatch",
+            "score": 83.87,
+            "refused": 7
           }
         ]
       },
@@ -645,11 +729,27 @@ window.CHART_DATA = {
           {
             "name": "promptfoo",
             "score": 83.75
+          },
+          {
+            "name": "DeepEval",
+            "score": null
+          },
+          {
+            "name": "Inspect",
+            "score": null
+          },
+          {
+            "name": "Langfuse",
+            "score": null
+          },
+          {
+            "name": "LangWatch",
+            "score": null
           }
         ]
       }
     ],
-    "note": "Competitors with a recorded result on this benchmark in this repository: promptfoo. Up to 600 pairs per model; Claude Haiku 5.5 scores 591, nine safety items missing."
+    "note": "Competitors with a recorded result on this benchmark in this repository: promptfoo, DeepEval, Inspect, Langfuse, LangWatch. Up to 600 pairs per model; Claude Haiku 5.5 scores 591, nine safety items missing."
   },
   "bench-rubricbench": {
     "kind": "ranked",
@@ -679,6 +779,24 @@ window.CHART_DATA = {
           {
             "name": "promptfoo",
             "score": 75.57
+          },
+          {
+            "name": "DeepEval",
+            "score": 77.59,
+            "refused": 1
+          },
+          {
+            "name": "Inspect",
+            "score": 26.58
+          },
+          {
+            "name": "Langfuse",
+            "score": 25.06,
+            "refused": 1
+          },
+          {
+            "name": "LangWatch",
+            "score": 74.94
           }
         ]
       },
@@ -694,6 +812,22 @@ window.CHART_DATA = {
           {
             "name": "promptfoo",
             "score": 81.52
+          },
+          {
+            "name": "DeepEval",
+            "score": null
+          },
+          {
+            "name": "Inspect",
+            "score": null
+          },
+          {
+            "name": "Langfuse",
+            "score": null
+          },
+          {
+            "name": "LangWatch",
+            "score": null
           }
         ]
       },
@@ -709,11 +843,27 @@ window.CHART_DATA = {
           {
             "name": "promptfoo",
             "score": 80.82
+          },
+          {
+            "name": "DeepEval",
+            "score": null
+          },
+          {
+            "name": "Inspect",
+            "score": null
+          },
+          {
+            "name": "Langfuse",
+            "score": null
+          },
+          {
+            "name": "LangWatch",
+            "score": null
           }
         ]
       }
     ],
-    "note": "Competitors with a recorded result on this benchmark in this repository: promptfoo. 790 pairs per model."
+    "note": "Competitors with a recorded result on this benchmark in this repository: promptfoo, DeepEval, Inspect, Langfuse, LangWatch. 790 pairs per model."
   },
   "bench-verify": {
     "kind": "ranked",
@@ -752,6 +902,22 @@ window.CHART_DATA = {
             "name": "always fail",
             "score": 78.73,
             "baseline": true
+          },
+          {
+            "name": "DeepEval",
+            "score": 58.82
+          },
+          {
+            "name": "Inspect",
+            "score": 73.3
+          },
+          {
+            "name": "Langfuse",
+            "score": 75.11
+          },
+          {
+            "name": "LangWatch",
+            "score": 73.3
           }
         ]
       },
@@ -772,6 +938,22 @@ window.CHART_DATA = {
             "name": "always fail",
             "score": 78.73,
             "baseline": true
+          },
+          {
+            "name": "DeepEval",
+            "score": null
+          },
+          {
+            "name": "Inspect",
+            "score": null
+          },
+          {
+            "name": "Langfuse",
+            "score": null
+          },
+          {
+            "name": "LangWatch",
+            "score": null
           }
         ]
       },
@@ -792,11 +974,27 @@ window.CHART_DATA = {
             "name": "always fail",
             "score": 78.73,
             "baseline": true
+          },
+          {
+            "name": "DeepEval",
+            "score": null
+          },
+          {
+            "name": "Inspect",
+            "score": null
+          },
+          {
+            "name": "Langfuse",
+            "score": null
+          },
+          {
+            "name": "LangWatch",
+            "score": null
           }
         ]
       }
     ],
-    "note": "Competitors with a recorded result on this benchmark in this repository: promptfoo. Run with GPT-6 Luna only; the other two models are not run."
+    "note": "Competitors with a recorded result on this benchmark in this repository: promptfoo, DeepEval, Inspect, Langfuse, LangWatch. Run with GPT-6 Luna only; the other two models are not run."
   },
   "bench-writing": {
     "kind": "ranked",
@@ -835,6 +1033,22 @@ window.CHART_DATA = {
             "name": "longer reply",
             "score": 67.63,
             "baseline": true
+          },
+          {
+            "name": "DeepEval",
+            "score": 58.38
+          },
+          {
+            "name": "Inspect",
+            "score": 11.56
+          },
+          {
+            "name": "Langfuse",
+            "score": 14.45
+          },
+          {
+            "name": "LangWatch",
+            "score": 52.6
           }
         ]
       },
@@ -855,6 +1069,22 @@ window.CHART_DATA = {
             "name": "longer reply",
             "score": 67.63,
             "baseline": true
+          },
+          {
+            "name": "DeepEval",
+            "score": null
+          },
+          {
+            "name": "Inspect",
+            "score": null
+          },
+          {
+            "name": "Langfuse",
+            "score": null
+          },
+          {
+            "name": "LangWatch",
+            "score": null
           }
         ]
       },
@@ -875,11 +1105,27 @@ window.CHART_DATA = {
             "name": "longer reply",
             "score": 67.63,
             "baseline": true
+          },
+          {
+            "name": "DeepEval",
+            "score": null
+          },
+          {
+            "name": "Inspect",
+            "score": null
+          },
+          {
+            "name": "Langfuse",
+            "score": null
+          },
+          {
+            "name": "LangWatch",
+            "score": null
           }
         ]
       }
     ],
-    "note": "Competitors with a recorded result on this benchmark in this repository: promptfoo. 173 pairs per model."
+    "note": "Competitors with a recorded result on this benchmark in this repository: promptfoo, DeepEval, Inspect, Langfuse, LangWatch. 173 pairs per model."
   },
   "hard-deepeval": {
     "kind": "columns",

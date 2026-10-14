@@ -1,0 +1,13 @@
+{
+  "at": "2026-10-13T07:59:17.818908+00:00",
+  "reason": "Owner-authorized 300-second API timeout requires a longer outer process envelope; prompt and parser bytes are unchanged.",
+  "sourceHashes": {
+    "examples/judge-benchmarks/src/call.ts": "52570261b8866f17aeb99217a088a1c69193ce78fb2d5ccc6ae61edc5fe7ce39"
+  },
+  "priorSourceHashes": {
+    "examples/judge-benchmarks/src/call.ts": "d8a69d68ab0fbf54e0dd9696878037706305b1ae9b28e04e94ccf42225a855af"
+  },
+  "outerTimeoutMs": 330000,
+  "apiTimeoutMs": 300000,
+  "retryPolicy": "Only missing transport outputs resume once. Returned answers are never retried."
+}
