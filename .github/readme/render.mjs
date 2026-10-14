@@ -53,11 +53,16 @@ const jobs = [
   { name: 'moj', src: 'moj.html', out: 'moj-{theme}.png' },
   { name: 'blast', src: 'blast.html', out: 'blast-{theme}.png' },
   // The charts: one page, chart.html?c=<name>, reading chart-data.js (written by tools/readme-charts.mjs).
+  // The five public benchmark charts render into docs/assets, where the README and the docs site both read them.
   { name: 'judge-leads', src: 'chart.html', query: 'c=judge-leads', out: 'judge-leads-{theme}.png' },
   { name: 'judge-cost', src: 'chart.html', query: 'c=judge-cost', out: 'judge-cost-{theme}.png' },
   { name: 'mm-eval-sealed-test', src: 'chart.html', query: 'c=mm-eval-sealed-test', out: 'mm-eval-sealed-test-{theme}.png' },
   { name: 'capability-matrix', src: 'chart.html', query: 'c=capability-matrix', out: 'capability-matrix-{theme}.png' },
-  { name: 'bench-judgebench', src: 'chart.html', query: 'c=bench-judgebench', out: 'bench-judgebench-{theme}.png' },
+  { name: 'bench-judgebench', src: 'chart.html', query: 'c=bench-judgebench', out: '../../docs/assets/bench-judgebench-{theme}.png' },
+  { name: 'bench-mm-eval', src: 'chart.html', query: 'c=bench-mm-eval', out: '../../docs/assets/bench-mm-eval-{theme}.png' },
+  { name: 'bench-rubricbench', src: 'chart.html', query: 'c=bench-rubricbench', out: '../../docs/assets/bench-rubricbench-{theme}.png' },
+  { name: 'bench-verify', src: 'chart.html', query: 'c=bench-verify', out: '../../docs/assets/bench-verify-{theme}.png' },
+  { name: 'bench-writing', src: 'chart.html', query: 'c=bench-writing', out: '../../docs/assets/bench-writing-{theme}.png' },
   { name: 'hard-deepeval', src: 'chart.html', query: 'c=hard-deepeval', out: 'hard-deepeval-{theme}.png' },
   { name: 'hard-promptfoo', src: 'chart.html', query: 'c=hard-promptfoo', out: 'hard-promptfoo-{theme}.png' },
   { name: 'hard-langfuse', src: 'chart.html', query: 'c=hard-langfuse', out: 'hard-langfuse-{theme}.png' },

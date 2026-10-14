@@ -4,7 +4,7 @@
 
 ## chart-facts.csv
 
-Written by the script on every run. It lists the title sentence of each chart and every number drawn, with the file the number was read from. `node tools/readme-charts.mjs --check` exits 1 when a chart or this file no longer matches its sources.
+Written by the script on every run. It lists the title sentence of each chart and every number drawn, with the file the number was read from. The rows `impact-blocks`, `impact-radius` and `impact-moj` are the numbers the README quotes in prose for blocks, blast radius and mixture of judges. `node tools/readme-charts.mjs --check` exits 1 when a chart or this file no longer matches its sources.
 
 ## mm-eval-sealed-test.json
 

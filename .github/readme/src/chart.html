@@ -129,11 +129,10 @@
   </div>
 </div>
 <script src="chart-data.js"></script>
-<script src="chart-template.js"></script>
 <script>
   window.__fonts = ['400 30px "Libre Caslon Display"', '400 12px Geist', '500 14px Geist', '600 14px Geist', '500 11px "Geist Mono"', '400 12px "Geist Mono"'];
   const name = new URLSearchParams(location.search).get('c');
-  const c = window.CHART_DATA[name] || (window.CHART_TEMPLATE || {})[name];
+  const c = window.CHART_DATA[name];
   if (!c) throw new Error('no chart named ' + name);
   const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; };
   const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/\|/g, '&shy;');
@@ -152,8 +151,8 @@
     keyItem('driftbench', 'background:var(--s0)', 'sq');
     ['--s-full', '--s-part', '--s-none'].forEach((v, i) => keyItem(c.key[i], `background:var(${v})`, 'sq'));
   } else if (c.kind === 'ranked') {
-    keyItem('driftbench', 'background:var(--s0)', 'sq');
-    keyItem('other frameworks', 'background:var(--s2)', 'sq');
+    const swatch = { ours: 'background:var(--s0)', other: 'background:var(--s2)', baseline: 'background:var(--s-none);box-shadow:inset 0 0 0 1.5px var(--s2)' };
+    c.key.forEach((k) => keyItem(k.label, swatch[k.style], 'sq'));
   } else if (c.kind === 'single' || c.kind === 'hbars') {
     c.key.forEach((k, i) => keyItem(k, `background:var(--s${i === 0 ? 0 : 2})`, 'sq'));
   } else if (c.kind === 'columns') {
@@ -204,7 +203,7 @@
       plot.append(row);
     }
   } else if (c.kind === 'ranked') {
-    // vertical bars per benchmark, highest to lowest; a null score is an empty bar, "no default grader"
+    // one panel per model, bars highest to lowest; a null score is an empty bar, "not run"
     const H = c.panels.length > 1 ? 170 : 210;
     const grid = el('div', 'rgrid');
     grid.style.gridTemplateColumns = `repeat(${c.panels.length}, 1fr)`;
@@ -218,9 +217,10 @@
       for (const b of sorted) {
         const col = el('div', 'rcol');
         const empty = b.score === null || b.score === undefined;
-        const bar = el('div', 'rbar' + (empty ? ' empty' : ''), empty ? '<span>no default grader</span>' : `<b>${esc(b.score.toFixed(1))}</b>`);
+        const bar = el('div', 'rbar' + (empty ? ' empty' : ''), empty ? '<span>not run</span>' : `<b>${esc(b.score.toFixed(1))}</b>`);
         bar.style.height = (empty ? H * 0.5 : Math.max(2, (b.score / 100) * H)) + 'px';
-        if (!empty) bar.style.background = b.ours ? 'var(--s0)' : 'var(--s2)';
+        if (!empty) bar.style.background = b.ours ? 'var(--s0)' : b.baseline ? 'var(--s-none)' : 'var(--s2)';
+        if (b.baseline) bar.style.boxShadow = 'inset 0 0 0 1.5px var(--s2)';
         col.append(bar);
         labs.append(el('div', 'rlab' + (b.ours ? ' ours' : ''), esc(b.name)));
         bars.append(col);

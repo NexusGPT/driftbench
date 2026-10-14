@@ -507,28 +507,233 @@ function matrixData() {
 }
 
 // ---------------------------------------------------------------------------------------------
-// One chart per benchmark: driftbench beside each competitor, one group per model, percent correct
+// One chart per public benchmark: one panel per model, in each panel driftbench beside every
+// competitor with a recorded result, highest to lowest, score out of 100. A result that was not
+// run is drawn as an empty bar labelled "not run"; nothing is estimated.
 // ---------------------------------------------------------------------------------------------
 
 const SEALED = 'docs/assets/data/sealed';
+// The models of the benchmark runs, in the order of the README. Gemini 3.8 Flash is not charted.
+const MODELS = ['claude-haiku-5-5', 'gpt-6-luna', 'gemini-3.5-flash-lite'];
 const MODEL = {
   'claude-haiku-5-5': 'Claude Haiku 5.5',
   haiku: 'Claude Haiku 5.5',
   'gpt-6-luna': 'GPT-6 Luna',
   'gemini-3.5-flash-lite': 'Gemini 3.5 Flash-Lite',
 };
-const p1 = (v) => v.toFixed(1);
-const columnGroup = (label, sub, ours, theirs, source, chart) => {
-  fact(chart, `${label}: driftbench then competitor, percent`, [round(ours), round(theirs)], source);
-  return {
-    label,
-    sub,
-    bars: [
-      { series: 0, value: round(ours), text: p1(ours) },
-      { series: 1, value: round(theirs), text: p1(theirs) },
+// Some result files name Claude Haiku 5.5 "haiku".
+const FILE_MODEL = { 'claude-haiku-5-5': 'haiku' };
+const inFile = (model) => FILE_MODEL[model] ?? model;
+const PROMPTFOO = 'promptfoo';
+const NOT_ONLY =
+  'promptfoo is the only competitor with a recorded result on this benchmark in this repository.';
+const bar = (name, score, extra = {}) => ({ name, score: score === null ? null : round(score), ...extra });
+
+/** One panel of a ranked chart: a model, the size of its set, and its bars. `sizes` is "n pairs" or null. */
+function modelPanel(chart, model, size, bars, source) {
+  for (const b of bars) {
+    fact(chart, `${MODEL[model]}: ${b.name}, percent`, b.score === null ? 'not run' : b.score, source);
+  }
+  return { name: MODEL[model], model: size ?? 'not run', bars };
+}
+
+/** Panels from the best score down; a panel with nothing run goes last. */
+const orderPanels = (panels) => [...panels].sort((a, b) => best(b) - best(a));
+const best = (panel) => Math.max(-1, ...panel.bars.map((b) => b.score ?? -1));
+
+/** "higher with 2, lower with 1 of 3 models": driftbench against the named competitor, panels where both ran. */
+function versus(panels, competitor) {
+  const pairs = panels
+    .map((p) => [p.bars.find((b) => b.ours), p.bars.find((b) => b.name === competitor)])
+    .filter(([a, b]) => a && b && a.score !== null && b.score !== null);
+  // compared as drawn, to one decimal: two bars that read 80.8 and 80.8 are equal
+  const tenth = (v) => Math.round(v * 10);
+  const n = (test) => pairs.filter(([a, b]) => test(tenth(a.score), tenth(b.score))).length;
+  const parts = [
+    [n((a, b) => a > b), 'higher'],
+    [n((a, b) => a < b), 'lower'],
+    [n((a, b) => a === b), 'equal'],
+  ].filter(([count]) => count);
+  return `${parts.map(([count, word]) => `${word} with ${count}`).join(', ')} of ${pairs.length} ${pairs.length === 1 ? 'model' : 'models'}`;
+}
+
+const ranked = ({ kicker, title, key, panels, note }) => ({
+  kind: 'ranked',
+  kicker,
+  title,
+  key,
+  axis: 'score out of 100: correct, % of items',
+  panels: orderPanels(panels),
+  note,
+});
+const notRun = (ours, competitor) => [bar(ours, null, { ours: true }), bar(competitor, null)];
+
+function sealedJudgeBench() {
+  const file = `${SEALED}/judgebench.json`;
+  const cells = json(file).cells.filter((c) => c.status === 'MEASURED');
+  const panels = MODELS.map((model) => {
+    const c = cells.find((x) => x.model === model);
+    return c
+      ? modelPanel(
+          'bench-judgebench',
+          model,
+          `${c.n} pairs`,
+          [
+            bar('driftbench', pct(c.ledger.correct, c.n), { ours: true }),
+            bar(PROMPTFOO, pct(c.promptfoo.correct, c.n)),
+          ],
+          file,
+        )
+      : modelPanel('bench-judgebench', model, null, notRun('driftbench', PROMPTFOO), file);
+  });
+  return ranked({
+    kicker: 'JudgeBench · sealed test · same items, same model in each panel',
+    title: `JudgeBench: driftbench scores ${versus(panels, PROMPTFOO)}.`,
+    key: [
+      { label: 'driftbench pair ledger', style: 'ours' },
+      { label: 'promptfoo select-best', style: 'other' },
+    ],
+    panels,
+    note: `${NOT_ONLY} 270 pairs per model.`,
+  });
+}
+
+function sealedMmEval() {
+  const file = `${SEALED}/mm-eval.json`;
+  const data = json(file);
+  const panels = MODELS.map((model) => {
+    const c = data.models[inFile(model)]?.primary;
+    // a model whose run covers under 98 percent of the planned items is not charted as a result
+    if (!c || c.matched < data.planned * 0.98)
+      return modelPanel('bench-mm-eval', model, null, notRun('driftbench', PROMPTFOO), file);
+    return modelPanel(
+      'bench-mm-eval',
+      model,
+      `${c.matched} pairs`,
+      [bar('driftbench', c.scores.ledger * 100, { ours: true }), bar(PROMPTFOO, c.scores.promptfoo * 100)],
+      file,
+    );
+  });
+  return ranked({
+    kicker: "MM-Eval · sealed test · the benchmark's own score",
+    title: `MM-Eval: driftbench scores ${versus(panels, PROMPTFOO)}.`,
+    key: [
+      { label: 'driftbench pair ledger', style: 'ours' },
+      { label: 'promptfoo select-best', style: 'other' },
+    ],
+    panels,
+    note: `${NOT_ONLY} Up to 600 pairs per model; Claude Haiku 5.5 scores 591, nine safety items missing.`,
+  });
+}
+
+function sealedRubricBench() {
+  const cells = {
+    'claude-haiku-5-5': [
+      json(`${SEALED}/rubricbench-haiku.json`).cells.find((c) => c.model === 'claude-haiku-5-5'),
+      `${SEALED}/rubricbench-haiku.json`,
+    ],
+    'gpt-6-luna': [
+      { model: 'gpt-6-luna', ...json(`${SEALED}/rubricbench-luna.json`), coverage: { complete: true } },
+      `${SEALED}/rubricbench-luna.json`,
+    ],
+    'gemini-3.5-flash-lite': [
+      json(`${SEALED}/rubricbench-flash-lite.json`).cells.find((c) => c.model === 'gemini-3.5-flash-lite'),
+      `${SEALED}/rubricbench-flash-lite.json`,
     ],
   };
-};
+  const panels = MODELS.map((model) => {
+    const [c, file] = cells[model];
+    if (!c?.coverage?.complete)
+      return modelPanel('bench-rubricbench', model, null, notRun('driftbench', PROMPTFOO), file);
+    return modelPanel(
+      'bench-rubricbench',
+      model,
+      `${c.stats.pairs} pairs`,
+      [
+        bar('driftbench', c.stats.ours.estimate * 100, { ours: true }),
+        bar(PROMPTFOO, c.stats.peer.estimate * 100),
+      ],
+      file,
+    );
+  });
+  return ranked({
+    kicker: 'RubricBench · test split · both orders of every pair',
+    title: `RubricBench: driftbench scores ${versus(panels, PROMPTFOO)}.`,
+    key: [
+      { label: 'driftbench pair ledger', style: 'ours' },
+      { label: 'promptfoo select-best', style: 'other' },
+    ],
+    panels,
+    note: `${NOT_ONLY} 790 pairs per model.`,
+  });
+}
+
+function sealedVerify() {
+  const file = `${SEALED}/verify.json`;
+  const data = json(file);
+  const fail = data.cheaters.alwaysFailOfficial * 100;
+  const panels = MODELS.map((model) => {
+    const c = data.cells.find((x) => x.model === inFile(model) && x.official);
+    const baseline = bar('always fail', fail, { baseline: true });
+    if (!c)
+      return modelPanel('bench-verify', model, null, [...notRun('driftbench', PROMPTFOO), baseline], file);
+    const [ours, theirs] = c.official.correct;
+    const n = c.official.matchedItems;
+    return modelPanel(
+      'bench-verify',
+      model,
+      `${n} items`,
+      [bar('driftbench', pct(ours, n), { ours: true }), bar(PROMPTFOO, pct(theirs, n)), baseline],
+      file,
+    );
+  });
+  return ranked({
+    kicker: 'LongJudgeBench verify · test split · is the final answer correct',
+    title: 'Verify: above promptfoo, below a judge that always says fail.',
+    key: [
+      { label: 'driftbench verify cascade', style: 'ours' },
+      { label: 'promptfoo llm-rubric', style: 'other' },
+      { label: 'no model', style: 'baseline' },
+    ],
+    panels,
+    note: `${NOT_ONLY} Run with GPT-6 Luna only; the other two models are not run.`,
+  });
+}
+
+function sealedWriting() {
+  const file = `${SEALED}/writing.json`;
+  const cells = json(file).cells;
+  const longer = cells.find((c) => c.contestant === 'longer-wins');
+  const panels = MODELS.map((model) => {
+    const key = inFile(model);
+    const ours = cells.find((c) => c.model === key && c.contestant === 'pair-ledger');
+    const peer = cells.find((c) => c.model === key && c.contestant === 'promptfoo');
+    const baseline = bar('longer reply', longer.accuracy, { baseline: true });
+    if (ours?.status !== 'complete' || peer?.status !== 'complete') {
+      return modelPanel('bench-writing', model, null, [...notRun('driftbench', PROMPTFOO), baseline], file);
+    }
+    return modelPanel(
+      'bench-writing',
+      model,
+      `${ours.pairs} pairs`,
+      [bar('driftbench', ours.accuracy, { ours: true }), bar(PROMPTFOO, peer.accuracy), baseline],
+      file,
+    );
+  });
+  return ranked({
+    kicker: 'LongJudgeBench writing preference · test split · both orders',
+    title: `Writing: driftbench scores ${versus(panels, PROMPTFOO)}; picking the longer reply beats both.`,
+    key: [
+      { label: 'driftbench pair ledger', style: 'ours' },
+      { label: 'promptfoo select-best', style: 'other' },
+      { label: 'no model', style: 'baseline' },
+    ],
+    panels,
+    note: `${NOT_ONLY} 173 pairs per model.`,
+  });
+}
+
+const p1 = (v) => v.toFixed(1);
 const columns = (_chart, { kicker, title, key, groups, note, min = 0 }) => ({
   kind: 'columns',
   kicker,
@@ -542,148 +747,6 @@ const columns = (_chart, { kicker, title, key, groups, note, min = 0 }) => ({
   groups,
   note,
 });
-const versus = (groups) => {
-  const pairs = groups.filter((g) => g.bars.length > 1);
-  const n = (test) => pairs.filter((g) => test(g.bars[0].value, g.bars[1].value)).length;
-  const parts = [
-    [n((a, b) => a > b), 'higher'],
-    [n((a, b) => a < b), 'lower'],
-    [n((a, b) => a === b), 'equal'],
-  ].filter(([count]) => count);
-  return `${parts.map(([count, word]) => `${word} with ${count}`).join(', ')} of ${pairs.length} ${pairs.length === 1 ? 'model' : 'models'}`;
-};
-
-function sealedJudgeBench() {
-  const file = `${SEALED}/judgebench.json`;
-  const groups = json(file)
-    .cells.filter((c) => c.status === 'MEASURED')
-    .map((c) =>
-      columnGroup(
-        MODEL[c.model],
-        `${c.n} pairs`,
-        pct(c.ledger.correct, c.n),
-        pct(c.promptfoo.correct, c.n),
-        file,
-        'bench-judgebench',
-      ),
-    );
-  return columns('bench-judgebench', {
-    kicker: 'JudgeBench · sealed test · same items, same model per pair of bars',
-    title: `JudgeBench: driftbench scores ${versus(groups)}.`,
-    key: ['driftbench pair ledger', 'promptfoo select-best'],
-    groups,
-  });
-}
-
-function sealedMmEval() {
-  const file = `${SEALED}/mm-eval.json`;
-  const data = json(file);
-  const groups = [];
-  for (const [model, cell] of Object.entries(data.models)) {
-    const c = cell.primary;
-    if (!c || c.matched < data.planned * 0.98) continue;
-    groups.push(
-      columnGroup(
-        MODEL[model],
-        `${c.matched} pairs`,
-        c.scores.ledger * 100,
-        c.scores.promptfoo * 100,
-        file,
-        'bench-mm-eval',
-      ),
-    );
-  }
-  return columns('bench-mm-eval', {
-    kicker: "MM-Eval · sealed test · the benchmark's own score",
-    title: `MM-Eval: driftbench scores ${versus(groups)}.`,
-    key: ['driftbench pair ledger', 'promptfoo select-best'],
-    groups,
-  });
-}
-
-function sealedRubricBench() {
-  const luna = json(`${SEALED}/rubricbench-luna.json`);
-  const lite = json(`${SEALED}/rubricbench-flash-lite.json`).cells.find(
-    (c) => c.model === 'gemini-3.5-flash-lite',
-  );
-  const groups = [
-    columnGroup(
-      MODEL[luna.model],
-      `${luna.stats.pairs} pairs`,
-      luna.stats.ours.estimate * 100,
-      luna.stats.peer.estimate * 100,
-      `${SEALED}/rubricbench-luna.json`,
-      'bench-rubricbench',
-    ),
-    columnGroup(
-      MODEL[lite.model],
-      `${lite.stats.pairs} pairs`,
-      lite.stats.ours.estimate * 100,
-      lite.stats.peer.estimate * 100,
-      `${SEALED}/rubricbench-flash-lite.json`,
-      'bench-rubricbench',
-    ),
-  ];
-  return columns('bench-rubricbench', {
-    kicker: 'RubricBench · test split · both orders of every pair',
-    title: `RubricBench: driftbench scores ${versus(groups)}.`,
-    key: ['driftbench pair ledger', 'promptfoo select-best'],
-    groups,
-    note: 'Claude Haiku 5.5 still running: left out',
-  });
-}
-
-function sealedVerify() {
-  const file = `${SEALED}/verify.json`;
-  const data = json(file);
-  const c = data.cells.find((x) => x.model === 'gpt-6-luna');
-  const [ours, theirs] = c.official.correct;
-  const n = c.official.matchedItems;
-  const groups = [
-    columnGroup(MODEL[c.model], `${n} items`, pct(ours, n), pct(theirs, n), file, 'bench-verify'),
-  ];
-  const fail = data.cheaters.alwaysFailOfficial * 100;
-  fact('bench-verify', 'a judge that always says fail, percent', round(fail), file);
-  groups.push({
-    label: 'No model',
-    sub: 'always says fail',
-    bars: [{ series: 2, value: round(fail), text: p1(fail) }],
-  });
-  return columns('bench-verify', {
-    kicker: 'LongJudgeBench verify · test split · is the final answer correct',
-    title: 'Verify: above promptfoo, below a judge that always says fail.',
-    key: ['driftbench verify cascade', 'promptfoo llm-rubric', 'no model'],
-    groups,
-    note: 'Claude Haiku 5.5 pending: left out',
-  });
-}
-
-function sealedWriting() {
-  const file = `${SEALED}/writing.json`;
-  const cells = json(file).cells;
-  const groups = [];
-  for (const model of ['haiku', 'gpt-6-luna', 'gemini-3.5-flash-lite']) {
-    const ours = cells.find((c) => c.model === model && c.contestant === 'pair-ledger');
-    const peer = cells.find((c) => c.model === model && c.contestant === 'promptfoo');
-    if (ours?.status !== 'complete' || peer?.status !== 'complete') continue;
-    groups.push(
-      columnGroup(MODEL[model], `${ours.pairs} pairs`, ours.accuracy, peer.accuracy, file, 'bench-writing'),
-    );
-  }
-  const longer = cells.find((c) => c.contestant === 'longer-wins');
-  fact('bench-writing', 'a rule that picks the longer reply, percent', round(longer.accuracy), file);
-  groups.push({
-    label: 'No model',
-    sub: 'picks the longer reply',
-    bars: [{ series: 2, value: round(longer.accuracy), text: p1(longer.accuracy) }],
-  });
-  return columns('bench-writing', {
-    kicker: 'LongJudgeBench writing preference · test split · both orders',
-    title: `Writing: driftbench scores ${versus(groups)}; picking the longer reply beats both.`,
-    key: ['driftbench pair ledger', 'promptfoo select-best', 'no model'],
-    groups,
-  });
-}
 
 function hardPerTool(tool) {
   const group = judgeRows(`hard-${tool}`).find((g) => g.header.toLowerCase().startsWith(tool));
@@ -779,6 +842,94 @@ const CHARTS = {
   'hard-inspect': () => hardPerTool('inspect'),
   'hard-langfuse': () => hardPerTool('langfuse'),
 };
+
+// ---------------------------------------------------------------------------------------------
+// Numbers the README quotes in prose, read from files of this repository and listed in chart-facts.csv
+// ---------------------------------------------------------------------------------------------
+
+const GATE_REPORT = 'examples/acme/gated/gate-report.json';
+const RADIUS_DOC = 'docs/concepts/blast-radius.md';
+
+/** Blocks: how much of a failing conversation a block verdict marks, for each planted fault of the sales assistant. */
+function impactBlocks() {
+  const report = json(GATE_REPORT);
+  // the same set as examples/acme/test/radius/contained.test.ts: accepted blocks of the dev split
+  const suite = report.blocks.filter((b) => b.status === 'accepted' && b.split === 'dev');
+  const blocksOf = new Map();
+  for (const b of suite) {
+    const spec = b.key.split('#')[0];
+    blocksOf.set(spec, (blocksOf.get(spec) ?? 0) + 1);
+  }
+  fact('impact-blocks', 'gated suite: conversations, blocks', [blocksOf.size, suite.length], GATE_REPORT);
+  const shares = [];
+  for (const f of report.mutation.by_fault) {
+    if (f.kind === 'control' || f.equivalent || f.target !== 'function:acme-sales') continue;
+    const red = suite.filter((b) => b.faults?.[f.id]?.outcome === 'fail');
+    const specs = new Set(red.map((b) => b.key.split('#')[0]));
+    const inFailing = [...specs].reduce((n, spec) => n + blocksOf.get(spec), 0);
+    const share = round((red.length / inFailing) * 100);
+    fact(
+      'impact-blocks',
+      `${f.id}: red blocks, failing conversations, blocks in them, red share percent`,
+      [red.length, specs.size, inFailing, share],
+      GATE_REPORT,
+    );
+    shares.push(share);
+  }
+  const partial = shares.filter((v) => v < 100);
+  fact(
+    'impact-blocks',
+    'faults that leave some blocks green: count of faults, lowest and highest red share percent',
+    [partial.length, Math.min(...partial), Math.max(...partial)],
+    GATE_REPORT,
+  );
+}
+
+/** Blast radius: the Acme table of blocks sent, and the containment table, read from the concept page. */
+function impactRadius() {
+  const text = read(RADIUS_DOC);
+  const total = Number(text.match(/holds 195 specs and (\d+) scored blocks/)[1]);
+  const measured = text.slice(text.indexOf('## Measured on Acme'), text.indexOf('**No false safe.**'));
+  const rows = [
+    ...measured.matchAll(
+      /^\| ([^|]+) \| `([^`]+)` \| (\d+) \| (\d+) \| (\d+)(?: of (\d+))? \| (\d+) \| ([\d.]+)% \|$/gm,
+    ),
+  ];
+  if (rows.length !== 11) throw new Error(`${RADIUS_DOC}: expected 11 measured rows, found ${rows.length}`);
+  fact('impact-radius', 'Acme gated suite, scored blocks', total, RADIUS_DOC);
+  for (const r of rows) {
+    fact(
+      'impact-radius',
+      `${r[1]}: blocks sent of ${total}, percent saved`,
+      [Number(r[7]), Number(r[8])],
+      RADIUS_DOC,
+    );
+  }
+  const contained = text.slice(text.indexOf('**No false safe.**'), text.indexOf('The test can fail.'));
+  const faults = [...contained.matchAll(/^\| `([^`]+)` \| `[^`]+` \| (\d+) \| (\d+)\b/gm)];
+  const clean = faults.filter((f) => Number(f[3]) === 0).length;
+  fact(
+    'impact-radius',
+    'scored faults, faults with no red block outside the radius',
+    [faults.length, clean],
+    RADIUS_DOC,
+  );
+}
+
+/** Mixture of judges: the sealed MM-Eval items that the first judge sent to the panel. */
+function impactMoj() {
+  const sent = json(SOURCES.mmEval).fullPanelEscalationsOnly;
+  fact(
+    'impact-moj',
+    'sealed MM-Eval, items sent to the panel, score of the first judge, score after the panel, wins, losses',
+    [sent.n, round(sent.base), round(sent.cascade), sent.wins, sent.losses],
+    SOURCES.mmEval,
+  );
+}
+
+impactBlocks();
+impactRadius();
+impactMoj();
 
 const data = {};
 for (const [name, build] of Object.entries(CHARTS)) {
