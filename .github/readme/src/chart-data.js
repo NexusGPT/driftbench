@@ -525,6 +525,262 @@ window.CHART_DATA = {
   },
   "bench-judgebench": {
     "kind": "ranked",
+    "kicker": "JudgeBench · sealed test · official pair score",
+    "title": "JudgeBench: driftbench 88.9, ahead of DeepEval at 86.3.",
+    "key": [
+      {
+        "label": "driftbench",
+        "style": "ours"
+      },
+      {
+        "label": "competitors, default judge",
+        "style": "other"
+      }
+    ],
+    "axis": "score out of 100: correct, % of items",
+    "panels": [
+      {
+        "name": "Claude Haiku 5.5",
+        "model": "270 pairs",
+        "bars": [
+          {
+            "name": "driftbench",
+            "score": 88.889,
+            "ours": true
+          },
+          {
+            "name": "DeepEval",
+            "score": 86.296
+          },
+          {
+            "name": "LangWatch",
+            "score": 83.704
+          },
+          {
+            "name": "promptfoo",
+            "score": 82.963
+          },
+          {
+            "name": "Inspect",
+            "score": 80
+          },
+          {
+            "name": "Langfuse",
+            "score": 74.815
+          }
+        ]
+      }
+    ],
+    "note": "Claude Haiku 5.5, 270 pairs. Every competitor ran on this model only. A refused item counts as wrong."
+  },
+  "bench-mm-eval": {
+    "kind": "ranked",
+    "kicker": "MM-Eval · sealed test · the benchmark's own score",
+    "title": "MM-Eval: driftbench 88.9, ahead of promptfoo at 86.5.",
+    "key": [
+      {
+        "label": "driftbench",
+        "style": "ours"
+      },
+      {
+        "label": "competitors, default judge",
+        "style": "other"
+      }
+    ],
+    "axis": "score out of 100: correct, % of items",
+    "panels": [
+      {
+        "name": "Claude Haiku 5.5",
+        "model": "591 items",
+        "bars": [
+          {
+            "name": "driftbench",
+            "score": 88.863,
+            "ours": true
+          },
+          {
+            "name": "promptfoo",
+            "score": 86.45
+          },
+          {
+            "name": "DeepEval",
+            "score": 84.095,
+            "refused": 3
+          },
+          {
+            "name": "LangWatch",
+            "score": 83.869,
+            "refused": 7
+          },
+          {
+            "name": "Inspect",
+            "score": 75.356,
+            "refused": 7
+          },
+          {
+            "name": "Langfuse",
+            "score": 73.453,
+            "refused": 6
+          }
+        ]
+      }
+    ],
+    "note": "Claude Haiku 5.5, 591 items. Every competitor ran on this model only. A refused item counts as wrong."
+  },
+  "bench-rubricbench": {
+    "kind": "ranked",
+    "kicker": "RubricBench · test split · both orders of every pair",
+    "title": "RubricBench: driftbench 82.7, ahead of DeepEval at 77.6.",
+    "key": [
+      {
+        "label": "driftbench",
+        "style": "ours"
+      },
+      {
+        "label": "competitors, default judge",
+        "style": "other"
+      }
+    ],
+    "axis": "score out of 100: correct, % of items",
+    "panels": [
+      {
+        "name": "Claude Haiku 5.5",
+        "model": "1,580 games",
+        "bars": [
+          {
+            "name": "driftbench",
+            "score": 82.658,
+            "ours": true
+          },
+          {
+            "name": "DeepEval",
+            "score": 77.595,
+            "refused": 1
+          },
+          {
+            "name": "promptfoo",
+            "score": 75.57
+          },
+          {
+            "name": "LangWatch",
+            "score": 74.937
+          },
+          {
+            "name": "Inspect",
+            "score": 26.582
+          },
+          {
+            "name": "Langfuse",
+            "score": 25.063,
+            "refused": 1
+          }
+        ]
+      }
+    ],
+    "note": "Claude Haiku 5.5, 1,580 games. Every competitor ran on this model only. A refused item counts as wrong."
+  },
+  "bench-verify": {
+    "kind": "ranked",
+    "kicker": "LongJudgeBench verify · test split · is the final answer correct",
+    "title": "Verify: driftbench 74.2, behind Langfuse at 75.1.",
+    "key": [
+      {
+        "label": "driftbench",
+        "style": "ours"
+      },
+      {
+        "label": "competitors, default judge",
+        "style": "other"
+      }
+    ],
+    "axis": "score out of 100: correct, % of items",
+    "panels": [
+      {
+        "name": "Claude Haiku 5.5",
+        "model": "221 items",
+        "bars": [
+          {
+            "name": "Langfuse",
+            "score": 75.113
+          },
+          {
+            "name": "driftbench",
+            "score": 74.208,
+            "ours": true
+          },
+          {
+            "name": "Inspect",
+            "score": 73.303
+          },
+          {
+            "name": "LangWatch",
+            "score": 73.303
+          },
+          {
+            "name": "promptfoo",
+            "score": 71.946
+          },
+          {
+            "name": "DeepEval",
+            "score": 58.824
+          }
+        ]
+      }
+    ],
+    "note": "Claude Haiku 5.5, 221 items. Every competitor ran on this model only. A refused item counts as wrong."
+  },
+  "bench-writing": {
+    "kind": "ranked",
+    "kicker": "LongJudgeBench writing preference · test split · both orders",
+    "title": "Writing: driftbench 67.6 with its reader-first setting.",
+    "key": [
+      {
+        "label": "driftbench",
+        "style": "ours"
+      },
+      {
+        "label": "competitors, default judge",
+        "style": "other"
+      }
+    ],
+    "axis": "score out of 100: correct, % of items",
+    "panels": [
+      {
+        "name": "Claude Haiku 5.5",
+        "model": "346 games",
+        "bars": [
+          {
+            "name": "driftbench",
+            "score": 67.63,
+            "ours": true
+          },
+          {
+            "name": "DeepEval",
+            "score": 58.382
+          },
+          {
+            "name": "promptfoo",
+            "score": 56.936
+          },
+          {
+            "name": "LangWatch",
+            "score": 52.601
+          },
+          {
+            "name": "Langfuse",
+            "score": 14.451
+          },
+          {
+            "name": "Inspect",
+            "score": 11.561
+          }
+        ]
+      }
+    ],
+    "note": "Claude Haiku 5.5, 346 games. Every competitor ran on this model only. A refused item counts as wrong. The driftbench bar uses its opt-in reader-first setting (default 61.3). It scores the same as a rule that always picks the longer reply, 67.6."
+  },
+  "bench-judgebench-models": {
+    "kind": "ranked",
     "kicker": "JudgeBench · sealed test · same items, same model in each panel",
     "title": "JudgeBench: driftbench scores higher with 2, equal with 1 of 3 models.",
     "key": [
@@ -545,12 +801,28 @@ window.CHART_DATA = {
         "bars": [
           {
             "name": "driftbench",
-            "score": 88.89,
+            "score": 88.889,
             "ours": true
           },
           {
             "name": "promptfoo",
-            "score": 82.96
+            "score": 82.963
+          },
+          {
+            "name": "DeepEval",
+            "score": 86.296
+          },
+          {
+            "name": "Inspect",
+            "score": 80
+          },
+          {
+            "name": "Langfuse",
+            "score": 74.815
+          },
+          {
+            "name": "LangWatch",
+            "score": 83.704
           }
         ]
       },
@@ -560,12 +832,28 @@ window.CHART_DATA = {
         "bars": [
           {
             "name": "driftbench",
-            "score": 87.04,
+            "score": 87.037,
             "ours": true
           },
           {
             "name": "promptfoo",
-            "score": 84.81
+            "score": 84.815
+          },
+          {
+            "name": "DeepEval",
+            "score": null
+          },
+          {
+            "name": "Inspect",
+            "score": null
+          },
+          {
+            "name": "Langfuse",
+            "score": null
+          },
+          {
+            "name": "LangWatch",
+            "score": null
           }
         ]
       },
@@ -581,13 +869,29 @@ window.CHART_DATA = {
           {
             "name": "promptfoo",
             "score": 79.63
+          },
+          {
+            "name": "DeepEval",
+            "score": null
+          },
+          {
+            "name": "Inspect",
+            "score": null
+          },
+          {
+            "name": "Langfuse",
+            "score": null
+          },
+          {
+            "name": "LangWatch",
+            "score": null
           }
         ]
       }
     ],
-    "note": "Competitors with a recorded result on this benchmark in this repository: promptfoo. 270 pairs per model."
+    "note": "Competitors with a recorded result on this benchmark in this repository: promptfoo, DeepEval, Inspect, Langfuse, LangWatch. 270 pairs per model."
   },
-  "bench-mm-eval": {
+  "bench-mm-eval-models": {
     "kind": "ranked",
     "kicker": "MM-Eval · sealed test · the benchmark's own score",
     "title": "MM-Eval: driftbench scores higher with 1, lower with 2 of 3 models.",
@@ -609,12 +913,28 @@ window.CHART_DATA = {
         "bars": [
           {
             "name": "driftbench",
-            "score": 88.08,
+            "score": 88.083,
             "ours": true
           },
           {
             "name": "promptfoo",
             "score": 89
+          },
+          {
+            "name": "DeepEval",
+            "score": null
+          },
+          {
+            "name": "Inspect",
+            "score": null
+          },
+          {
+            "name": "Langfuse",
+            "score": null
+          },
+          {
+            "name": "LangWatch",
+            "score": null
           }
         ]
       },
@@ -624,12 +944,32 @@ window.CHART_DATA = {
         "bars": [
           {
             "name": "driftbench",
-            "score": 88.86,
+            "score": 88.863,
             "ours": true
           },
           {
             "name": "promptfoo",
             "score": 86.45
+          },
+          {
+            "name": "DeepEval",
+            "score": 84.095,
+            "refused": 3
+          },
+          {
+            "name": "Inspect",
+            "score": 75.356,
+            "refused": 7
+          },
+          {
+            "name": "Langfuse",
+            "score": 73.453,
+            "refused": 6
+          },
+          {
+            "name": "LangWatch",
+            "score": 83.869,
+            "refused": 7
           }
         ]
       },
@@ -639,19 +979,35 @@ window.CHART_DATA = {
         "bars": [
           {
             "name": "driftbench",
-            "score": 81.42,
+            "score": 81.417,
             "ours": true
           },
           {
             "name": "promptfoo",
             "score": 83.75
+          },
+          {
+            "name": "DeepEval",
+            "score": null
+          },
+          {
+            "name": "Inspect",
+            "score": null
+          },
+          {
+            "name": "Langfuse",
+            "score": null
+          },
+          {
+            "name": "LangWatch",
+            "score": null
           }
         ]
       }
     ],
-    "note": "Competitors with a recorded result on this benchmark in this repository: promptfoo. Up to 600 pairs per model; Claude Haiku 5.5 scores 591, nine safety items missing."
+    "note": "Competitors with a recorded result on this benchmark in this repository: promptfoo, DeepEval, Inspect, Langfuse, LangWatch. Up to 600 pairs per model; Claude Haiku 5.5 scores 591, nine safety items missing."
   },
-  "bench-rubricbench": {
+  "bench-rubricbench-models": {
     "kind": "ranked",
     "kicker": "RubricBench · test split · both orders of every pair",
     "title": "RubricBench: driftbench scores higher with 2, equal with 1 of 3 models.",
@@ -673,12 +1029,30 @@ window.CHART_DATA = {
         "bars": [
           {
             "name": "driftbench",
-            "score": 82.66,
+            "score": 82.658,
             "ours": true
           },
           {
             "name": "promptfoo",
             "score": 75.57
+          },
+          {
+            "name": "DeepEval",
+            "score": 77.595,
+            "refused": 1
+          },
+          {
+            "name": "Inspect",
+            "score": 26.582
+          },
+          {
+            "name": "Langfuse",
+            "score": 25.063,
+            "refused": 1
+          },
+          {
+            "name": "LangWatch",
+            "score": 74.937
           }
         ]
       },
@@ -688,12 +1062,28 @@ window.CHART_DATA = {
         "bars": [
           {
             "name": "driftbench",
-            "score": 82.28,
+            "score": 82.278,
             "ours": true
           },
           {
             "name": "promptfoo",
-            "score": 81.52
+            "score": 81.519
+          },
+          {
+            "name": "DeepEval",
+            "score": null
+          },
+          {
+            "name": "Inspect",
+            "score": null
+          },
+          {
+            "name": "Langfuse",
+            "score": null
+          },
+          {
+            "name": "LangWatch",
+            "score": null
           }
         ]
       },
@@ -703,19 +1093,35 @@ window.CHART_DATA = {
         "bars": [
           {
             "name": "driftbench",
-            "score": 80.76,
+            "score": 80.759,
             "ours": true
           },
           {
             "name": "promptfoo",
-            "score": 80.82
+            "score": 80.823
+          },
+          {
+            "name": "DeepEval",
+            "score": null
+          },
+          {
+            "name": "Inspect",
+            "score": null
+          },
+          {
+            "name": "Langfuse",
+            "score": null
+          },
+          {
+            "name": "LangWatch",
+            "score": null
           }
         ]
       }
     ],
-    "note": "Competitors with a recorded result on this benchmark in this repository: promptfoo. 790 pairs per model."
+    "note": "Competitors with a recorded result on this benchmark in this repository: promptfoo, DeepEval, Inspect, Langfuse, LangWatch. 790 pairs per model."
   },
-  "bench-verify": {
+  "bench-verify-models": {
     "kind": "ranked",
     "kicker": "LongJudgeBench verify · test split · is the final answer correct",
     "title": "Verify: above promptfoo, below a judge that always says fail.",
@@ -737,21 +1143,37 @@ window.CHART_DATA = {
     "panels": [
       {
         "name": "Claude Haiku 5.5",
-        "model": "not run",
+        "model": "221 items",
         "bars": [
           {
             "name": "driftbench",
-            "score": null,
+            "score": 74.208,
             "ours": true
           },
           {
             "name": "promptfoo",
-            "score": null
+            "score": 71.946
           },
           {
             "name": "always fail",
-            "score": 78.73,
+            "score": 78.733,
             "baseline": true
+          },
+          {
+            "name": "DeepEval",
+            "score": 58.824
+          },
+          {
+            "name": "Inspect",
+            "score": 73.303
+          },
+          {
+            "name": "Langfuse",
+            "score": 75.113
+          },
+          {
+            "name": "LangWatch",
+            "score": 73.303
           }
         ]
       },
@@ -761,17 +1183,33 @@ window.CHART_DATA = {
         "bars": [
           {
             "name": "driftbench",
-            "score": 74.66,
+            "score": 74.661,
             "ours": true
           },
           {
             "name": "promptfoo",
-            "score": 72.4
+            "score": 72.398
           },
           {
             "name": "always fail",
-            "score": 78.73,
+            "score": 78.733,
             "baseline": true
+          },
+          {
+            "name": "DeepEval",
+            "score": null
+          },
+          {
+            "name": "Inspect",
+            "score": null
+          },
+          {
+            "name": "Langfuse",
+            "score": null
+          },
+          {
+            "name": "LangWatch",
+            "score": null
           }
         ]
       },
@@ -790,15 +1228,31 @@ window.CHART_DATA = {
           },
           {
             "name": "always fail",
-            "score": 78.73,
+            "score": 78.733,
             "baseline": true
+          },
+          {
+            "name": "DeepEval",
+            "score": null
+          },
+          {
+            "name": "Inspect",
+            "score": null
+          },
+          {
+            "name": "Langfuse",
+            "score": null
+          },
+          {
+            "name": "LangWatch",
+            "score": null
           }
         ]
       }
     ],
-    "note": "Competitors with a recorded result on this benchmark in this repository: promptfoo. Run with GPT-6 Luna only; the other two models are not run."
+    "note": "Competitors with a recorded result on this benchmark in this repository: promptfoo, DeepEval, Inspect, Langfuse, LangWatch. Run with GPT-6 Luna only; the other two models are not run."
   },
-  "bench-writing": {
+  "bench-writing-models": {
     "kind": "ranked",
     "kicker": "LongJudgeBench writing preference · test split · both orders",
     "title": "Writing: driftbench scores higher with 1, lower with 2 of 3 models; picking the longer reply beats both.",
@@ -824,17 +1278,33 @@ window.CHART_DATA = {
         "bars": [
           {
             "name": "driftbench",
-            "score": 61.27,
+            "score": 61.272,
             "ours": true
           },
           {
             "name": "promptfoo",
-            "score": 56.94
+            "score": 56.936
           },
           {
             "name": "longer reply",
             "score": 67.63,
             "baseline": true
+          },
+          {
+            "name": "DeepEval",
+            "score": 58.382
+          },
+          {
+            "name": "Inspect",
+            "score": 11.561
+          },
+          {
+            "name": "Langfuse",
+            "score": 14.451
+          },
+          {
+            "name": "LangWatch",
+            "score": 52.601
           }
         ]
       },
@@ -844,17 +1314,33 @@ window.CHART_DATA = {
         "bars": [
           {
             "name": "driftbench",
-            "score": 53.76,
+            "score": 53.757,
             "ours": true
           },
           {
             "name": "promptfoo",
-            "score": 56.94
+            "score": 56.936
           },
           {
             "name": "longer reply",
             "score": 67.63,
             "baseline": true
+          },
+          {
+            "name": "DeepEval",
+            "score": null
+          },
+          {
+            "name": "Inspect",
+            "score": null
+          },
+          {
+            "name": "Langfuse",
+            "score": null
+          },
+          {
+            "name": "LangWatch",
+            "score": null
           }
         ]
       },
@@ -869,17 +1355,33 @@ window.CHART_DATA = {
           },
           {
             "name": "promptfoo",
-            "score": 60.4
+            "score": 60.405
           },
           {
             "name": "longer reply",
             "score": 67.63,
             "baseline": true
+          },
+          {
+            "name": "DeepEval",
+            "score": null
+          },
+          {
+            "name": "Inspect",
+            "score": null
+          },
+          {
+            "name": "Langfuse",
+            "score": null
+          },
+          {
+            "name": "LangWatch",
+            "score": null
           }
         ]
       }
     ],
-    "note": "Competitors with a recorded result on this benchmark in this repository: promptfoo. 173 pairs per model."
+    "note": "Competitors with a recorded result on this benchmark in this repository: promptfoo, DeepEval, Inspect, Langfuse, LangWatch. 173 pairs per model."
   },
   "hard-deepeval": {
     "kind": "columns",

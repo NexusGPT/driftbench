@@ -743,60 +743,57 @@ A minimal complete adapter is the `functionAdapter` of [Evaluate your own agent]
 
 Every number comes from a result file in this repository. All scores are on one scale, 0 to 100.
 
-### Public benchmarks, against promptfoo
+### Five public benchmarks, against every default judge
 
-Five public benchmarks for judges, one chart each. A chart has one panel per model. In each panel, driftbench stands beside every competitor with a recorded result, from the highest score to the lowest. A competitor is drawn when the repository records a result for it; the note under each chart names who is drawn. Today that is promptfoo. A result that was not run says "not run"; none is estimated.
+One chart per public benchmark for judges, scores out of 100. In each chart driftbench stands beside promptfoo, DeepEval, Inspect, Langfuse and LangWatch, each with its default judge, on the same sealed items and the same model, Claude Haiku 5.5. That is the one model all of them were run on. The scores of every other model, with the charts that carry them, are in the detail of each benchmark: [JudgeBench](docs/comparison/benchmarks/index.md#judgebench), [MM-Eval](docs/comparison/benchmarks/index.md#mm-eval), [RubricBench](docs/comparison/benchmarks/index.md#rubricbench), [verify and writing](docs/comparison/benchmarks/index.md#longjudgebench). driftbench runs the pair ledger, an opt-in judge mode, and on verify its frozen verify cascade; neither is the shipped default. A refused item counts as wrong for every contestant.
 
-The driftbench side is the pair ledger, an opt-in judge mode merged in [PR 168](https://github.com/achammah/driftbench/pull/168), and on verify the frozen verify cascade. Neither is the shipped default. A correction across the whole family of cells is still pending, so no cell is called a win or a loss.
-
-**JudgeBench.** The same 270 sealed pairs and the same model on both sides.
+**JudgeBench**
 
 <a href="docs/assets/bench-judgebench-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-judgebench-dark.png">
-    <img alt="JudgeBench sealed test, 270 pairs per model, percent correct, one panel per model, bars from highest to lowest. Claude Haiku 5.5: driftbench 88.9, promptfoo 83.0. GPT-6 Luna: driftbench 87.0, promptfoo 84.8. Gemini 3.5 Flash-Lite: promptfoo 79.6, driftbench 79.6." src="docs/assets/bench-judgebench-light.png" width="100%">
+    <img alt="JudgeBench: driftbench 88.9, ahead of DeepEval at 86.3. Claude Haiku 5.5, 270 pairs, percent correct, highest to lowest: driftbench 88.9, DeepEval 86.3, LangWatch 83.7, promptfoo 83.0, Inspect 80.0, Langfuse 74.8." src="docs/assets/bench-judgebench-light.png" width="100%">
   </picture>
 </a>
-<p align="center"><sub><a href="docs/comparison/methods.md#public-benchmarks-against-promptfoo">How we measured</a></sub></p>
 
-**MM-Eval.** The benchmark's own score on sealed items. Claude Haiku 5.5 scores 591 of 600 pairs; the nine missing are safety items.
+**MM-Eval**
 
 <a href="docs/assets/bench-mm-eval-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-mm-eval-dark.png">
-    <img alt="MM-Eval sealed test, percent correct, one panel per model, bars from highest to lowest. GPT-6 Luna: promptfoo 89.0, driftbench 88.1. Claude Haiku 5.5: driftbench 88.9, promptfoo 86.5. Gemini 3.5 Flash-Lite: promptfoo 83.8, driftbench 81.4." src="docs/assets/bench-mm-eval-light.png" width="100%">
+    <img alt="MM-Eval: driftbench 88.9, ahead of promptfoo at 86.5. Claude Haiku 5.5, 591 items, percent correct, highest to lowest: driftbench 88.9, promptfoo 86.5, DeepEval 84.1, LangWatch 83.9, Inspect 75.4, Langfuse 73.5." src="docs/assets/bench-mm-eval-light.png" width="100%">
   </picture>
 </a>
-<p align="center"><sub><a href="docs/comparison/methods.md#public-benchmarks-against-promptfoo">How we measured</a></sub></p>
 
-**RubricBench.** The test split, both orders of every pair, 790 pairs per model.
+**RubricBench**
 
 <a href="docs/assets/bench-rubricbench-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-rubricbench-dark.png">
-    <img alt="RubricBench test split, 790 pairs per model, percent correct, one panel per model, bars from highest to lowest. Claude Haiku 5.5: driftbench 82.7, promptfoo 75.6. GPT-6 Luna: driftbench 82.3, promptfoo 81.5. Gemini 3.5 Flash-Lite: promptfoo 80.8, driftbench 80.8." src="docs/assets/bench-rubricbench-light.png" width="100%">
+    <img alt="RubricBench: driftbench 82.7, ahead of DeepEval at 77.6. Claude Haiku 5.5, 1,580 games, percent correct, highest to lowest: driftbench 82.7, DeepEval 77.6, promptfoo 75.6, LangWatch 74.9, Inspect 26.6, Langfuse 25.1." src="docs/assets/bench-rubricbench-light.png" width="100%">
   </picture>
 </a>
-<p align="center"><sub><a href="docs/comparison/methods.md#public-benchmarks-against-promptfoo">How we measured</a></sub></p>
 
-**Verify.** The verify half of LongJudgeBench: is the final answer correct. Only GPT-6 Luna is run; the other two models say "not run". A judge that always says fail scores 78.7, above both.
+**Verify**
 
 <a href="docs/assets/bench-verify-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-verify-dark.png">
-    <img alt="LongJudgeBench verify test split, percent correct, one panel per model. Claude Haiku 5.5: not run for driftbench and promptfoo; a judge that always says fail scores 78.7. GPT-6 Luna, 221 items: a judge that always says fail 78.7, driftbench 74.7, promptfoo 72.4. Gemini 3.5 Flash-Lite: not run; always fail 78.7." src="docs/assets/bench-verify-light.png" width="100%">
+    <img alt="Verify: driftbench 74.2, behind Langfuse at 75.1. Claude Haiku 5.5, 221 items, percent correct, highest to lowest: Langfuse 75.1, driftbench 74.2, Inspect 73.3, LangWatch 73.3, promptfoo 72.0, DeepEval 58.8." src="docs/assets/bench-verify-light.png" width="100%">
   </picture>
 </a>
-<p align="center"><sub><a href="docs/comparison/methods.md#public-benchmarks-against-promptfoo">How we measured</a></sub></p>
 
-**Writing.** The writing preference half of LongJudgeBench, both orders, 173 pairs per model. A rule that picks the longer reply scores 67.6, above every judge.
+**Writing**
+
+Footnote: the driftbench bar uses its opt-in reader-first setting (long-structured). Its 67.6 equals the score of a rule that always picks the longer reply; the default setting scores 61.3.
 
 <a href="docs/assets/bench-writing-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-writing-dark.png">
-    <img alt="LongJudgeBench writing preference test split, 173 pairs per model, percent correct, one panel per model. Claude Haiku 5.5: a rule that picks the longer reply 67.6, driftbench 61.3, promptfoo 56.9. GPT-6 Luna: longer reply 67.6, promptfoo 56.9, driftbench 53.8. Gemini 3.5 Flash-Lite: longer reply 67.6, promptfoo 60.4, driftbench 59.0." src="docs/assets/bench-writing-light.png" width="100%">
+    <img alt="Writing: driftbench 67.6 with its reader-first setting. Claude Haiku 5.5, 346 games, percent correct, highest to lowest: driftbench 67.6, DeepEval 58.4, promptfoo 56.9, LangWatch 52.6, Langfuse 14.4, Inspect 11.6. The driftbench bar uses its opt-in reader-first setting." src="docs/assets/bench-writing-light.png" width="100%">
   </picture>
 </a>
+
 <p align="center"><sub><a href="docs/comparison/methods.md#public-benchmarks-against-promptfoo">How we measured</a></sub></p>
 
 ### A panel, only when unsure
@@ -853,9 +850,9 @@ The shipped judge against each framework's own default judge, on held-out hard c
 
 Every result, test by test and tool by tool, including the tests where another framework is ahead today: [how we measured](docs/comparison/methods.md) and the [per-tool pages](docs/comparison/index.md).
 
-### Every default judge, five public benchmarks
+### The numbers and the tests
 
-The same sealed items and the same model (Claude Haiku 5.5) for every contestant. DeepEval, Inspect, Langfuse and LangWatch run their default judge; driftbench and promptfoo are the recorded cells. Paired exact tests, driftbench against each tool; a win or loss needs a Holm-corrected p below 0.05. Inspect and Langfuse have no pairwise grader, so they score each reply alone and the higher score wins.
+The table holds the numbers of the five charts. DeepEval, Inspect, Langfuse and LangWatch run their default judge; driftbench and promptfoo are the recorded cells. Paired exact tests, driftbench against each tool; a win or loss needs a Holm-corrected p below 0.05. Inspect and Langfuse have no pairwise grader, so they score each reply alone and the higher score wins.
 
 | Benchmark | driftbench | promptfoo | DeepEval | Inspect | Langfuse | LangWatch |
 |---|---:|---:|---:|---:|---:|---:|
