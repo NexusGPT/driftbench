@@ -1,6 +1,7 @@
 /** The stage-graph seeder: one spec per walk of the stage graph, and one per phrased path. */
 
 import type { Pick, SpecDraft } from './assemble';
+import { draftOutput } from './draft-output';
 import { type StageGraph, stageGraph, walkGraph } from './graph';
 import type { PreparedMap } from './map';
 import { rngFor, streamSeed } from './random';
@@ -52,7 +53,8 @@ export function graphSeeder(
     maxLength: MAX_PATH_LENGTH,
     maxPaths: context.max,
   });
-  const drafts = walk.paths.map((path, index): SpecDraft => {
+  const output = draftOutput(context);
+  walk.paths.forEach((path, index) => {
     const id = `gen-graph-${pad(index + 1)}`;
     const rng = rngFor(context.seed, id);
     const blocks = path.edges.map((edge, position) =>
@@ -69,7 +71,7 @@ export function graphSeeder(
     if (prepared.transition !== undefined) {
       for (const edge of path.edges) cell.push([prepared.transition, edge.value]);
     }
-    return {
+    output.push({
       id,
       seeder: 'graph',
       title: `Stage path ${index + 1}: ${[graph.start, ...path.edges.map((edge) => edge.to)].join(' > ')}`,
@@ -77,7 +79,7 @@ export function graphSeeder(
       cell,
       blocks,
       criteria: [],
-    };
+    });
   });
   const summary: GraphSummary = {
     stages: graph.stages.length,
@@ -89,7 +91,7 @@ export function graphSeeder(
     blocked: walk.blocked,
     unparsed: graph.unparsed,
   };
-  return { drafts, summary };
+  return { drafts: output.drafts, summary };
 }
 
 /**
@@ -102,18 +104,19 @@ function pathSeeder(
   context: SeedContext,
   graph: StageGraph,
 ): { drafts: SpecDraft[]; summary: GraphSummary } {
-  const drafts: SpecDraft[] = [];
+  const output = draftOutput(context);
+  const drafts = output.drafts;
   const covered = new Set<string>();
   const unwalked: Array<{ path: string; reasons: string[] }> = [];
   for (const path of prepared.relations.paths) {
-    if (drafts.length >= context.max) break;
-    const id = `gen-graph-${pad(drafts.length + 1)}`;
+    if (output.count >= context.max) break;
+    const id = `gen-graph-${pad(output.count + 1)}`;
     const built = scenarioDraft(
       prepared,
       context,
       id,
       'graph',
-      `Stage path ${drafts.length + 1}`,
+      `Stage path ${output.count + 1}`,
       [],
       { preferred: [path], others: [] },
       { perturbEvery: true },
@@ -122,7 +125,7 @@ function pathSeeder(
       for (let index = 0; index + 1 < path.stages.length; index += 1) {
         covered.add(`${path.stages[index]}-to-${path.stages[index + 1]}`);
       }
-      drafts.push(built.draft);
+      output.push(built.draft);
     } else {
       unwalked.push({ path: path.id, reasons: built.reasons });
     }
@@ -135,7 +138,7 @@ function pathSeeder(
       start: graph.start ?? null,
       edges: graph.edges.length,
       covered: edges.filter((edge) => covered.has(edge)).length,
-      paths: drafts.length,
+      paths: output.count,
       unreachable: [],
       blocked: edges.filter((edge) => !covered.has(edge)),
       unparsed: graph.unparsed,

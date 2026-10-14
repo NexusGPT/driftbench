@@ -447,6 +447,16 @@ The files match the committed `examples/acme/generated`, apart from the relative
 
 `generate-report.json` holds the generator and map identity, the options, the summary (specs, blocks, complete, incomplete), one entry per seeder, the stage graph, the covering array, the boundary values, the deviation probes, the metamorphic families, the constraints applied, the values with no phrase (`no_phrase`), the blocks with no machine Then and why (`no_then`), the coverage, and any invalid spec or lint finding. `generate` exits 0 when every block has an approved phrase and a Then, 1 when the suite is written with incomplete specs, a seeder cut by `--max` or a generator defect, 2 on a usage or input error (nothing written).
 
+## Streaming generation to disk
+
+The package API `generateSuiteToDisk(prepared, { mapPath, outputDir, seed, t })` writes each spec as it is rendered. It returns `reportPath`, `summary` and `fileCount`; read the full report from `reportPath`. It writes the same spec files as `generateSuite` with the same options, and a report with the same fields and diagnostics in compact JSON.
+
+The output directory must be new or empty. The API keeps the input map, its projected coverage grid and one spec or task-family input at a time. It writes output-sized diagnostics and effective-sample-size placements to temporary files and removes them at the end, so the heap does not grow with the number of specs. On the generator validator's map of seed 1 with a hundred times its behaviours (33343 specs), it finishes under a 96 MB heap cap; `generateSuite` runs out of a 96 MB heap at ten times the behaviours (3470 specs).
+
+This API rejects `budget`, `specCap`, `specCapMode` and maps with `numeric_settings` before writing any file. It never falls back to eager generation. A per-seeder `max` keeps its meaning. The CLI and `generateSuite` stay eager: they keep the whole candidate suite, so a small total cap or budget does not make a large map memory-safe.
+
+A failed disk generation removes its temporary files but can leave already-written specs without a final report. Retry in a fresh output directory. It never overwrites an existing suite.
+
 ## Total spec cap
 
 `generate --spec-cap N` limits all written specs, independently of `--budget N`, which still limits only the budget seeder's rows. The cap keeps every graph, boundary, deviation, metamorphic and task spec, plus every incomplete spec. It selects complete t-wise and cover specs by their actual axis-map placements. A limit below the protected spec count is refused.
