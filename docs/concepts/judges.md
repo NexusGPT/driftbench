@@ -44,6 +44,39 @@ criteria:
 
 A reference to a name the spec does not define is an error. A spec with no `criteria` list may name criteria from a shared catalogue; `spec lint` warns that they must come from there.
 
+### Judge settings a criterion carries
+
+A criterion in a spec or a criteria file can carry its own judge settings. A criterion without them sends the same request as before, byte for byte, so recorded answers keep replaying; with them the request changes, and so does its cassette key.
+
+```yaml
+criteria:
+  - name: ship_day
+    rubric: Does the reply give the ship day the order record states?
+    prompt_version: 2
+    decoder_version: 2
+  - name: matches_policy
+    rubric: Does the reply state the refund policy?
+    assessment: fact-ledger
+    reference: Refunds are paid within 14 days to the card used.
+    grounding: strict
+  - name: complete_answer
+    rubric: Does the reply answer the customer fully?
+    items:
+      - { name: day, rubric: Names the ship day., hard: true }
+      - { name: carrier, rubric: Names the carrier., weight: 0.5 }
+    threshold: 0.8
+    repeat: 3
+```
+
+* `prompt_version: 2` adds the exact-identifier, stated-facts and stated-scope rules to the criterion prompt; `decoder_version: 2` drops an ungrounded quote and keeps the verdict; `answer_contract: legacy` replays scores recorded with the earlier prompt and parser.
+* `assessment` replaces the criterion ledger: `response-relevance` (the reply answers the latest ask), `conformance` (to `reference`, which may be empty), `answer-audit` (the submitted answer, against `reference` when given) or `fact-ledger` (every fact of `reference` in the reply; `grounding: strict` refuses text that is not a source quote). The first three read the transcript only, so a run leaves the Given summary out of their request.
+* `items` score a rubric item by item, from 0 to 4, with optional `weight` and `hard`; `threshold` is the weighted fraction a pass needs (default 1). `requirements` instead split the criterion ledger into named requirements.
+* `repeat: <k>` asks the judge the same request k times: the verdict holds only when all k agree, else it is inconclusive. It is not the spec repeats (`repeat_reducer`). `per_turn: true` judges a conversation one customer turn at a time ([turn-by-turn judging](#additional-judge-apis)). They apply to the judge of a run (`--judge`) and to `judge run`.
+
+`spec lint` and `judge check` refuse a setting that cannot work and name the fix, such as `assessment fact-ledger needs a nonempty reference` or `threshold needs items`. The field reference is in [the spec reference](../reference/spec.md).
+
+Two settings apply to a whole run, as flags: `--verify arithmetic` and `--prompt-budget <chars>` (see [the CLI](../reference/cli.md#driftbench-judge)).
+
 ## Criteria folders and fixture pairs
 
 Every field of a criterion file and of a label file is in the [criteria and labels reference](../reference/criteria.md).

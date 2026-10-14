@@ -835,8 +835,8 @@ Wordings: the approved phrase bank gives fewer than 3 wordings to some conversat
 Judges criteria with the council, on recorded answers. The council, its modes and calibration are on the [judges](../concepts/judges.md) page.
 
 ```
-driftbench judge run --criteria <dir> --cassette <file> [--mode system1|hybrid|llm] [--agent-family <family>] [--cascade] [--assignments <file>] [--json]
-driftbench judge calibrate --criteria <dir> --labels <dir> (--cassette <file> | --claude <model>...) --out <file> [--claude-command <path>] [--record <file>] [--spend-cap-usd <usd>] [--cascade] [--only <criterion>...] [--assign council|cheapest] [--repeats <n>] [--mode system1|hybrid|llm] [--agent-family <family>] [--json]
+driftbench judge run --criteria <dir> --cassette <file> [--mode system1|hybrid|llm] [--agent-family <family>] [--cascade] [--assignments <file>] [--verify arithmetic] [--prompt-budget <chars>] [--json]
+driftbench judge calibrate --criteria <dir> --labels <dir> (--cassette <file> | --claude <model>...) --out <file> [--claude-command <path>] [--record <file>] [--spend-cap-usd <usd>] [--cascade] [--only <criterion>...] [--assign council|cheapest] [--repeats <n>] [--mode system1|hybrid|llm] [--agent-family <family>] [--verify arithmetic] [--prompt-budget <chars>] [--json]
 driftbench judge check <criteria> [--json]
 ```
 
@@ -864,6 +864,8 @@ driftbench judge check <criteria> [--json]
 | `--agent-family <family>` | the model family of the agent under test, `none` for no model; default `none` |
 | `--cascade` | `run`: run the cheapest judge first and stop on a sure pass |
 | `--assignments <file>` | `run`: the assignment table `judge calibrate` wrote |
+| `--verify arithmetic` | check the explicit equations of a reply (such as `12 * 3 = 35`) in a bounded arithmetic sandbox before the judge reads it; the results reach the judge as a `judge.arithmetic` tool line. Also on `replay`, `estate run` and `campaign rejudge` |
+| `--prompt-budget <chars>` | drop the oldest transcript entries, replaced by one `[k earlier entries omitted]` line, until the judge prompt fits this many characters; the last block, the artifact and the Given stay. A block that alone is over the budget is inconclusive. Also on `replay`, `estate run` and `campaign rejudge` |
 | `--json` | print one JSON document |
 
 On the Acme criteria and their cassette:

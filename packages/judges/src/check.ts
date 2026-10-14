@@ -11,6 +11,7 @@ import {
 import { taskArtifactText } from './artifacts';
 import type { JudgeRequest, TranscriptEntry } from './contract';
 import type { Council, CouncilResult } from './council';
+import { withCriterionSettings } from './criterion-settings';
 
 /**
  * `judgeCheck`: the council as a check. For every criterion a block names, it builds the request (the
@@ -107,21 +108,24 @@ export function requestFor(
     ...stimulusEntries(ctx.block),
     ...observedEntries(ctx.observed),
   ];
-  return {
-    criterion: {
-      name: def.name,
-      rubric: def.rubric,
-      ...(def.pass === undefined ? {} : { pass: def.pass }),
-      ...(def.fail === undefined ? {} : { fail: def.fail }),
-      scope,
+  return withCriterionSettings(
+    {
+      criterion: {
+        name: def.name,
+        rubric: def.rubric,
+        ...(def.pass === undefined ? {} : { pass: def.pass }),
+        ...(def.fail === undefined ? {} : { fail: def.fail }),
+        scope,
+      },
+      transcript,
+      ...(artifact === undefined ? {} : { artifact }),
+      given: {
+        ...(ctx.expect.stage === undefined ? {} : { stage: ctx.expect.stage }),
+        ledger: ctx.ledger,
+      },
     },
-    transcript,
-    ...(artifact === undefined ? {} : { artifact }),
-    given: {
-      ...(ctx.expect.stage === undefined ? {} : { stage: ctx.expect.stage }),
-      ledger: ctx.ledger,
-    },
-  };
+    def,
+  );
 }
 
 /** The council's result as a judge verdict. */
