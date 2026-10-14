@@ -1,8 +1,7 @@
-import { existsSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, statSync } from 'node:fs';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { functionAdapter, processAdapter } from '@agent-nexus/driftbench-adapters';
 import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
 import { classifyTool, defaultChecks } from '@agent-nexus/driftbench-checks';
@@ -77,6 +76,7 @@ import {
   type UserModelPort,
 } from '@agent-nexus/driftbench-users';
 import type { Command } from 'commander';
+import { ACME_EXAMPLE_ABSENT, acmeExample, acmeExampleInstalled, requireAcmeExample } from '../acme-example';
 import { applyCampaignConfig } from '../campaign-config';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
@@ -219,9 +219,22 @@ function strandedFiles(command: readonly string[], cwd: string): string[] {
   });
 }
 
-/** The targets this build reaches, for the message of a target it does not. */
+/** The targets a checkout reaches, for the message of a target it does not. */
 const KNOWN_TARGETS =
   'The CLI reaches function:acme-sales (or function:acme), the Acme sales assistant, and process:acme-ops, the Acme ops agent.';
+
+/** What an install without the Acme example reaches. */
+const REACHABLE_WITHOUT_EXAMPLE =
+  'This install reaches a process target through --process-command: process:<name> runs the command you give.';
+
+/**
+ * The sentence of a refusal that says which targets this install reaches. With the Acme example installed,
+ * as in a checkout, the example's targets; without it, that the example is absent and where it lives, and
+ * only what really is reachable.
+ */
+export function knownTargets(exampleInstalled: boolean = acmeExampleInstalled()): string {
+  return exampleInstalled ? KNOWN_TARGETS : `${ACME_EXAMPLE_ABSENT} ${REACHABLE_WITHOUT_EXAMPLE}`;
+}
 
 /**
  * What the commands run with. `function:acme-sales`, the target the Acme conversation specs name, and its
@@ -234,7 +247,7 @@ const KNOWN_TARGETS =
 export const defaultDeps: CampaignDeps = {
   adapterFor: async (target, scope) => {
     if (target.adapter === 'function' && (target.agent === 'acme' || target.agent === 'acme-sales')) {
-      return acmeFunctionAdapter();
+      return (await acmeExample()) === undefined ? undefined : acmeFunctionAdapter();
     }
     if (target.adapter === 'process' && target.agent === 'acme-ops') return acmeOpsAdapter(scope);
     const plugged = await pluginAdapter(target, scope);
@@ -1531,27 +1544,50 @@ async function adaptersFor(
   for (const target of runs.flatMap((run) => run.targets)) {
     const key = showTarget(target);
     if (adapters.has(key)) continue;
-    const adapter = await deps.adapterFor(target, scope);
-    if (!adapter) {
-      const owners = runs
-        .filter((run) => run.pinned !== undefined && showTarget(run.pinned) === key)
-        .map((run) => run.spec.id);
-      io.err(`${noAdapter(target, owners)}\n`);
-      return undefined;
-    }
+    const owners = runs
+      .filter((run) => run.pinned !== undefined && showTarget(run.pinned) === key)
+      .map((run) => run.spec.id);
+    const adapter = await resolveAdapter(target, () => deps.adapterFor(target, scope), io, owners);
+    if (!adapter) return undefined;
     adapters.set(key, adapter);
   }
   return adapters;
 }
 
-/** Why a target cannot run: no adapter is set up for it. Names the specs whose own target it is. */
-export function noAdapter(target: TargetRef, specIds: readonly string[] = []): string {
+type RefusalContext = { reference?: boolean; unspent?: boolean; pilot?: boolean; exampleInstalled?: boolean };
+
+/** Resolve a command's target and give every refusal the same install-aware explanation. */
+export async function resolveAdapter(
+  target: TargetRef,
+  factory: () => Promise<AgentAdapter | undefined>,
+  io: Io,
+  specIds: readonly string[] = [],
+  context: RefusalContext = {},
+): Promise<AgentAdapter | undefined> {
+  const adapter = await factory();
+  if (!adapter) io.err(`${noAdapter(target, specIds, context)}\n`);
+  return adapter;
+}
+
+/** Why a target cannot run, including its owning specs and the targets this install reaches. */
+export function noAdapter(
+  target: TargetRef,
+  specIds: readonly string[] = [],
+  context: RefusalContext = {},
+): string {
   const whose = specIds.length === 0 ? '' : `, the target of ${specIds.join(', ')}`;
   const added = pluginAdapterNames();
   const plugins = added.length === 0 ? '' : ` Plugins add the adapters ${added.join(', ')}.`;
   const hint = pluginAdapterNames().includes(target.adapter) ? undefined : builtinTargetHint(target);
   const needs = hint === undefined ? '' : ` ${hint}`;
-  return `No adapter is set up for ${showTarget(target)}${whose}.${needs} ${KNOWN_TARGETS} ${BUILTIN_TARGETS_NOTE}${plugins}`;
+  const installed = context.exampleInstalled ?? acmeExampleInstalled();
+  const reaches = context.pilot
+    ? installed
+      ? 'The pilot reaches function:acme (the Acme sales assistant) and function:acme-random or function:acme-random-<seed> (its seeded random control).'
+      : `${ACME_EXAMPLE_ABSENT} The pilot runs on the example's agents only, so this install has no pilot target.`
+    : knownTargets(installed);
+  const suffix = context.unspent ? ': nothing ran, no query was spent.' : '.';
+  return `No adapter is set up for ${context.reference ? 'the reference ' : ''}${showTarget(target)}${whose}${suffix}${needs} ${reaches} ${BUILTIN_TARGETS_NOTE}${plugins}`;
 }
 
 /** The target of the first route whose tag the spec carries, if any. */
@@ -2097,7 +2133,7 @@ function required<T>(value: T | undefined, what: string): T {
  * payloads never leak between runs, and its payload log as the end-state source.
  */
 export async function acmeFunctionAdapter(): Promise<AgentAdapter> {
-  const acme = await import('../../../../examples/acme/src/index');
+  const acme = await requireAcmeExample();
   type AcmeSession = {
     store: ReturnType<typeof acme.createStore>;
     agent: ReturnType<typeof acme.createAcmeAgent>;
@@ -2121,7 +2157,7 @@ export async function acmeFunctionAdapter(): Promise<AgentAdapter> {
  * Undefined when this install does not hold the example.
  */
 export async function acmeOpsAdapter(scope?: CampaignScope): Promise<AgentAdapter | undefined> {
-  const agent = acmeOpsAgent();
+  const agent = await acmeOpsAgent();
   if (agent === undefined) return undefined;
   return processAdapter({
     command: process.execPath,
@@ -2133,32 +2169,12 @@ export async function acmeOpsAdapter(scope?: CampaignScope): Promise<AgentAdapte
 }
 
 /**
- * The path of examples/acme/ops/agent.mjs, found from the folder of the CLI package, which holds this
- * module in src/ and in dist/ alike; never from the working folder. Undefined when the file is not there.
+ * The path of the Acme ops agent, `ops/agent.mjs` of the example package; never from the working folder.
+ * Undefined when this install does not hold the example, or the file is not there.
  */
-export function acmeOpsAgent(): string | undefined {
-  const root = cliPackageRoot(dirname(fileURLToPath(import.meta.url)));
-  if (root === undefined) return undefined;
-  const agent = join(root, '..', '..', 'examples', 'acme', 'ops', 'agent.mjs');
-  return existsSync(agent) ? agent : undefined;
-}
-
-/** The nearest folder at or above `from` whose package.json names the driftbench CLI. */
-function cliPackageRoot(from: string): string | undefined {
-  for (let dir = from; ; dir = dirname(dir)) {
-    const manifest = join(dir, 'package.json');
-    if (existsSync(manifest) && packageName(manifest) === '@agent-nexus/driftbench') return dir;
-    if (dirname(dir) === dir) return undefined;
-  }
-}
-
-function packageName(manifest: string): unknown {
-  try {
-    return (JSON.parse(readFileSync(manifest, 'utf8')) as { name?: unknown }).name;
-  } catch {
-    // A package.json that does not parse belongs to no package this lookup wants.
-    return undefined;
-  }
+export async function acmeOpsAgent(): Promise<string | undefined> {
+  const agent = (await acmeExample())?.OPS_AGENT;
+  return agent !== undefined && existsSync(agent) ? agent : undefined;
 }
 
 /**

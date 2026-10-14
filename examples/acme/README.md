@@ -56,9 +56,15 @@ examples/acme/
   src/tools.ts                    catalog.search, coverage.check, port.check, order.create, notify_sales
   src/store.ts                    plans, addresses, customers, transfer records, and the payload log
   src/parse.ts                    how the agent reads a message: fixed patterns, no model
+  src/package.ts                  what the command line loads: the two agents, the store, the ops agent's path
+  package.json                    the example as a private workspace package, @agent-nexus/driftbench-example-acme
   ops/agent.mjs                   the Acme ops agent, the code agent of the task spec
   test/                           the tests, and test/support/drive.ts, the light runner they use
 ```
+
+## How the command line finds it
+
+The example is a private workspace package, `@agent-nexus/driftbench-example-acme`. The command line holds no copy of it: it imports the package by name when a run names `function:acme-sales`, `function:acme`, `process:acme-ops` or the pilot's `function:acme-random`. In a checkout of this repository the package is linked at the root, so every command on this page works from source (`pnpm driftbench`) and from the build (`pnpm build`, which also builds the example into `examples/acme/dist`). The published command is installed without the example; there, these targets have no adapter.
 
 ## The agent
 
