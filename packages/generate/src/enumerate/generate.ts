@@ -15,6 +15,7 @@ import {
 import { stringify } from 'yaml';
 import { seedFolderName } from '../families/instances';
 import {
+  generatedSpecText,
   NO_THEN_CRITERION,
   PLACEHOLDER_CRITERION,
   type Rendered,
@@ -23,7 +24,6 @@ import {
   SEEDERS,
   type Seeder,
   type SpecDraft,
-  specText,
 } from '../seed/assemble';
 import { DeviationBalance } from '../seed/deviation-balance';
 import type { PreparedMap } from '../seed/map';
@@ -263,7 +263,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     };
     for (const draft of list) {
       const rendered: Rendered = renderDraft(prepared, draft, run);
-      const renderText = () => specText(rendered, run, prepared.hash);
+      const renderText = () => generatedSpecText(rendered, run, prepared.hash);
       const text = options.specCap === undefined ? renderText() : '';
       const loaded = checkSpec(rendered.spec, rendered.id);
       if (!loaded.ok) {

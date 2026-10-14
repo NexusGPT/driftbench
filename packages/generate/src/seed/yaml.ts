@@ -10,7 +10,7 @@ const scalarDocument = new Document(
   {
     customTags: (tags) =>
       tags.map((tag) =>
-        tag.tag === 'tag:yaml.org,2002:str'
+        typeof tag !== 'string' && !tag.collection && tag.tag === 'tag:yaml.org,2002:str'
           ? {
               ...tag,
               stringify(item, context, onComment, onChompKeep) {
@@ -72,7 +72,7 @@ function keyText(key: string): string {
 }
 
 /** The library's block style for plain objects and arrays, with its scalar spellings. */
-export function stringifyGeneratedYaml(input: unknown): string {
+export function stringifyGeneratedYaml(input: unknown, plain?: ReadonlySet<object>): string {
   let text = '';
   const render = (value: unknown, indent: number, prefix: string, mappingValue = false): void => {
     if (value === null || typeof value !== 'object') {
@@ -83,10 +83,14 @@ export function stringifyGeneratedYaml(input: unknown): string {
     if (indent > 100) throw unsupported;
     {
       const array = Array.isArray(value);
-      const prototype = Object.getPrototypeOf(value);
-      if (array ? prototype !== Array.prototype : prototype !== Object.prototype && prototype !== null)
+      const trusted = plain?.has(value) === true;
+      const prototype = trusted ? undefined : Object.getPrototypeOf(value);
+      if (
+        !trusted &&
+        (array ? prototype !== Array.prototype : prototype !== Object.prototype && prototype !== null)
+      )
         throw unsupported;
-      const toJSON = Object.getOwnPropertyDescriptor(value, 'toJSON');
+      const toJSON = trusted ? undefined : Object.getOwnPropertyDescriptor(value, 'toJSON');
       if (toJSON?.get || toJSON?.set || typeof toJSON?.value === 'function') throw unsupported;
       const names = Object.keys(value);
       // Sparse or decorated arrays retain the YAML library's treatment.
@@ -95,7 +99,7 @@ export function stringifyGeneratedYaml(input: unknown): string {
       for (let index = 0; index < names.length; index += 1) {
         const name = names[index] as string;
         if (array && name !== String(index)) throw unsupported;
-        const descriptor = Object.getOwnPropertyDescriptor(value, name);
+        const descriptor = trusted ? undefined : Object.getOwnPropertyDescriptor(value, name);
         if (descriptor?.get || descriptor?.set) throw unsupported;
         if (array || (value as Record<string, unknown>)[name] !== undefined) names[kept++] = name;
       }

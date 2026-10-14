@@ -72,9 +72,10 @@ export function parseBlockYaml(text: string): { value: unknown } | undefined {
         source = line.slice(indent);
         at += 1;
       }
-      const [key, rest] = pair(source);
+      const entry = pair(source);
+      const { key } = entry;
       if (Object.hasOwn(out, key)) throw unsupported;
-      const parsed = value(rest, indent);
+      const parsed = entry.primitive ? entry.parsed : value(entry.rest, indent);
       if (key === '__proto__')
         Object.defineProperty(out, key, {
           value: parsed,
@@ -169,12 +170,24 @@ function scalar(source: string): unknown {
   }
   return result;
 }
-function pair(source: string): [string, string] {
+type Pair = { key: string; rest: string; primitive: boolean; parsed: unknown };
+const pairs = new Map<string, Pair>();
+function pair(source: string): Pair {
+  const known = pairs.get(source);
+  if (known !== undefined) return known;
   // Complex/quoted keys are uncommon and retain the full parser's handling.
   const colon = source.indexOf(':');
   const key = source.slice(0, colon);
   if (colon < 1 || !plainKey.test(key) || (source[colon + 1] !== undefined && source[colon + 1] !== ' '))
     throw unsupported;
   if (typeof scalar(key) !== 'string') throw unsupported;
-  return [key, source.slice(source[colon + 1] === ' ' ? colon + 2 : colon + 1)];
+  const rest = source.slice(source[colon + 1] === ' ' ? colon + 2 : colon + 1);
+  const primitive = rest !== '' && !rest.startsWith('|') && rest !== '{}' && rest !== '[]';
+  const entry = { key, rest, primitive, parsed: primitive ? scalar(rest) : undefined };
+  // Only immutable scalars are retained. Containers are always parsed afresh.
+  if (source.length <= 256) {
+    if (pairs.size >= 4096) pairs.clear();
+    pairs.set(source, entry);
+  }
+  return entry;
 }

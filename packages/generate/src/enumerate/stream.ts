@@ -4,13 +4,13 @@ import { checkSpec, type Spec } from '@agent-nexus/driftbench-core';
 import { stringify } from 'yaml';
 import { seedFolderName } from '../families/instances';
 import {
+  generatedSpecText,
   NO_THEN_CRITERION,
   PLACEHOLDER_CRITERION,
   renderDraft,
   SEEDERS,
   type Seeder,
   type SpecDraft,
-  specText,
 } from '../seed/assemble';
 import { DeviationBalance } from '../seed/deviation-balance';
 import type { PreparedMap } from '../seed/map';
@@ -176,7 +176,7 @@ function writeSuite(
     coverage.add(loaded.spec, seeder, complete);
     write(
       `${complete ? COMPLETE_DIR : INCOMPLETE_DIR}/${seeder}/${rendered.id}.yaml`,
-      specText(rendered, run, prepared.hash),
+      generatedSpecText(rendered, run, prepared.hash),
     );
     return complete ? loaded.spec : undefined;
   };
@@ -226,18 +226,11 @@ function writeSuite(
     }
   }
 
-  const cellKey = (values: Readonly<Record<string, string>>) =>
-    Object.entries(values)
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([dimension, value]) => `${dimension}=${value}`)
-      .join('&');
   const cells = coverage.cells(t);
   const uncovered = cells.filter((cell) => cell.count === 0);
   const unbuilt: GenerateReport['cover']['unbuilt'] = [];
-  const reached = new Set<string>();
   for (const cell of uncovered) {
-    const key = cellKey(cell.values);
-    if (reached.has(key)) continue;
+    if (coverage.isCovered(cell)) continue;
     if (drafted.cover >= max) {
       unbuilt.push({ cell: cell.values, reasons: ['cut by --max'] });
       continue;
@@ -249,13 +242,13 @@ function writeSuite(
       continue;
     }
     const made = render(built.draft);
-    if (made) for (const values of coverage.reached(made, t)) reached.add(cellKey(values));
-    if (!reached.has(key))
+    if (!coverage.isCovered(cell))
       unbuilt.push({
         cell: cell.values,
         reasons: [`${id} was built but ${made === undefined ? 'is incomplete' : 'does not reach the cell'}`],
       });
   }
+  const covered = uncovered.filter((cell) => coverage.isCovered(cell)).length;
   // Deviation balance, as the eager API runs it: after coverage, on what the suite probes so far.
   const written = Object.values(seeders).reduce((sum, entry) => sum + entry.specs, 0);
   for (const draft of balance.topUps(context, written)) render(draft);
@@ -293,7 +286,7 @@ function writeSuite(
     metamorphic: metamorphic.summary,
     cover: {
       cells: uncovered.length,
-      covered: uncovered.filter((cell) => reached.has(cellKey(cell.values))).length,
+      covered,
       unbuilt,
       unreachable: prepared.axisMap.dimensions.flatMap((dimension) =>
         dimension.values
