@@ -1,5 +1,5 @@
-import type { DeviationClass, DriftClass } from '@agent-nexus/driftbench-core';
-import { type FaultDef, rngFor, type ThenField } from '@agent-nexus/driftbench-generate';
+import type { DeviationClass, DriftClass, Message, WorldState } from '@agent-nexus/driftbench-core';
+import { type FaultDef, type FaultSession, rngFor, type ThenField } from '@agent-nexus/driftbench-generate';
 import {
   compose,
   createFollower,
@@ -872,6 +872,56 @@ export function combinedFault(spec: HiddenSpec, ids: readonly string[]): HiddenF
     needs: classes.map((cls) => cls.needs).join(' / '),
     mutation,
   };
+}
+
+/** A planted fault that fires only for one kind of user: what the minimality items also judge a block on. */
+export type ContextFault = { id: string; phrase: string; create: () => FaultSession };
+
+/** The decision a hook takes when its fault does not fire: the rule's own, which the follower passes in. */
+const ruleDecision = (hook: string, args: unknown[]): unknown =>
+  hook === 'extra' ? [] : ['facts', 'reply', 'report', 'save'].includes(hook) ? args[0] : args[1];
+
+/**
+ * The every-time instance of each planted drift or deviation fault, made to depend on who the user is: it
+ * fires only once the user has said one persona's phrase, the one place a persona reaches the agent (the
+ * runner sends no tag and no `channel`). An agent that fails one kind of user only is a real failure, and
+ * only a block on a conversation where that user speaks can catch it. Until the phrase is said the agent is
+ * the follower.
+ */
+export function contextFaults(spec: HiddenSpec, planted: readonly HiddenFault[]): ContextFault[] {
+  const phrases = spec.phrases.filter((phrase) => phrase.intent.kind === 'persona');
+  const out: ContextFault[] = [];
+  for (const fault of planted) {
+    if (fault.family === 'code' || fault.where !== 'any' || fault.rate !== 1) continue;
+    for (const phrase of phrases) {
+      const persona = phrase.intent.kind === 'persona' ? phrase.intent.persona : '';
+      out.push({
+        id: `${fault.def.id}@${persona}`,
+        phrase: phrase.text,
+        create: () => {
+          let said = false;
+          const gated = Object.fromEntries(
+            Object.entries(fault.mutation).map(([hook, decide]) => [
+              hook,
+              (...args: unknown[]) =>
+                said ? (decide as (...a: unknown[]) => unknown)(...args) : ruleDecision(hook, args),
+            ]),
+          ) as Mutation;
+          const session = createFollower(spec, gated)();
+          return {
+            ...session,
+            respond(messages: Message[], world: WorldState) {
+              said = messages.some(
+                (message) => message.role === 'user' && message.content.includes(phrase.text),
+              );
+              return session.respond(messages, world);
+            },
+          };
+        },
+      });
+    }
+  }
+  return out;
 }
 
 /** The fault classes by id. */
