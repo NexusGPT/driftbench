@@ -127,3 +127,6 @@ c50b2dc3f0c6c3e9bc3b82d848fb9bc1a98451c4:comparisons/reader-first/recordings/hai
 
 # Ledger-hard Flash-Lite probe: "probe_key" is the SHA-256 of the recorded request (request_sha256 in lite-run.py), a content hash, not a credential.
 4169bdf462d070df123a3d1205a6f36de558d464:comparisons/ledger-hard/flash-lite/reasoning-applied.json:generic-api-key:7
+
+# Ledger-hard network circuit log: "key" is the SHA-256 of a recorded request, a content hash, not a credential.
+bf5f7f72e91c3f87fdd56820f40ee8d8f795b6f8:comparisons/ledger-hard/sonnet-5-5/network-circuits.jsonl:generic-api-key:1
