@@ -48,6 +48,7 @@ for (const row of ['qa', 'fact', 'panel'] as Row[]) {
   const seenCase = new Set<string>();
   for (const call of cli) {
     if (call.row !== row || seenCase.has(call.id)) continue;
+    if (process.env.SIDE && call.side !== process.env.SIDE) continue;
     seenCase.add(call.id);
     picked.push(call);
     if (seenCase.size >= perRow) break;
@@ -139,5 +140,8 @@ const summary = {
   cliCostUsd: picked.reduce((s, c) => s + c.costUsd, 0),
   rows,
 };
-writeFileSync(`${here}parity/summary.json`, `${JSON.stringify(summary, null, 2)}\n`);
+writeFileSync(
+  `${here}parity/summary${process.env.SIDE ? `-${process.env.SIDE}` : ''}.json`,
+  `${JSON.stringify(summary, null, 2)}\n`,
+);
 console.log(JSON.stringify({ ...summary, rows: undefined }));
