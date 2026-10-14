@@ -61,7 +61,7 @@ function spec(criterion: string): string {
     'criteria:',
     '  - name: keeps-scope',
     '    rubric: Does the reply stay on the shop build?',
-    '    scope: block',
+    criterion.includes('conformance') ? '' : '    scope: block',
     criterion,
     'blocks:',
     '  - user: Add a discount field to the invoice total in src/invoice.ts, then run the tests.',
@@ -116,6 +116,12 @@ describe('criterion settings from a spec reach the judge of a run', () => {
       '    items:\n      - { name: on-scope, rubric: Edits only the invoice total. }\n    threshold: 0.5',
     );
     expect(JSON.stringify(items.calls[0])).toContain('Edits only the invoice total.');
+
+    const conformance = await recorded(
+      '    assessment: conformance\n    reference: The shop build stays in scope.',
+    );
+    expect(conformance.calls).toHaveLength(1);
+    expect(conformance.calls[0]?.input).toContain('The shop build stays in scope.');
 
     const repeat = await recorded('    repeat: 3');
     expect(repeat.calls).toHaveLength(3);

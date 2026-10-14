@@ -99,7 +99,8 @@ export async function loadCriteria(dir: string): Promise<CriteriaLoad> {
         }
       }
     }
-    if (!loaded.def.fail || !loaded.def.pass) {
+    // Conformance reads the rubric alone: its conditions are in the rubric, never in pictures.
+    if ((!loaded.def.fail || !loaded.def.pass) && loaded.def.assessment !== 'conformance') {
       own.push({ path, message: 'the criterion needs both a FAIL and a PASS picture' });
     }
     issues.push(...own);

@@ -687,6 +687,16 @@ export const CriterionDef = z
   .superRefine((criterion, ctx) => {
     const issue = (path: string, message: string) => ctx.addIssue({ code: 'custom', path: [path], message });
     const kind = criterion.assessment;
+    if (kind === 'conformance' && (criterion.pass !== undefined || criterion.fail !== undefined))
+      issue(
+        'assessment',
+        'assessment conformance reads only the rubric: put the pass and fail conditions in it and drop pass and fail',
+      );
+    if (kind === 'conformance' && criterion.scope === 'block')
+      issue(
+        'scope',
+        'assessment conformance judges the whole supplied transcript: drop scope block, or use scope conversation',
+      );
     if (kind === 'conformance' && criterion.reference === undefined)
       issue('reference', 'assessment conformance needs reference (an empty string is allowed)');
     if (kind === 'fact-ledger' && !criterion.reference?.trim())

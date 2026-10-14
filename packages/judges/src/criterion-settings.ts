@@ -14,7 +14,10 @@ import { judgeTurns } from './turns';
  * - `items` and `threshold`: a rubric scored item by item; `requirements`: the ledger split by requirement.
  *
  * The response-relevance, conformance and answer-audit kinds read the transcript only, so the Given summary a
- * run adds is left out for them.
+ * run adds is left out for them. Conformance also judges the whole supplied slice on its rubric alone, so the
+ * default block scope is left out for it (the spec schema refuses pictures and an explicit block scope there).
+ * Response relevance and conformance take no artifact field either: a task block's produced file text joins the
+ * end of their transcript as a context entry.
  */
 export function withCriterionSettings(request: JudgeRequest, def: CriterionDef): JudgeRequest {
   const assessment = assessmentOf(def);
@@ -30,9 +33,29 @@ export function withCriterionSettings(request: JudgeRequest, def: CriterionDef):
     assessment?.kind === 'response-relevance' ||
     assessment?.kind === 'conformance' ||
     assessment?.kind === 'answer-audit';
-  const { given: _given, ...rest } = request;
+  // Response relevance and conformance take no artifact field: a produced file joins the transcript as data.
+  const foldArtifact =
+    (assessment?.kind === 'response-relevance' || assessment?.kind === 'conformance') &&
+    request.artifact !== undefined;
+  const { given: _given, ...withoutGiven } = request;
+  const { artifact: _artifact, ...withoutArtifact } = withoutGiven;
+  const rest = foldArtifact
+    ? {
+        ...withoutArtifact,
+        transcript: [
+          ...request.transcript,
+          { role: 'context' as const, text: `Produced file text:\n${request.artifact}` },
+        ],
+      }
+    : withoutGiven;
+  // Conformance reads the rubric alone over the whole supplied slice: the default block scope is left out.
+  const criterion =
+    assessment?.kind === 'conformance' && request.criterion.scope === 'block'
+      ? (({ scope: _scope, ...text }) => text)(request.criterion)
+      : request.criterion;
   return {
     ...(transcriptOnly ? rest : request),
+    criterion,
     ...(def.answer_contract === undefined ? {} : { answerContract: def.answer_contract }),
     ...(def.prompt_version === undefined ? {} : { criterionPromptVersion: def.prompt_version }),
     ...(def.decoder_version === undefined ? {} : { criterionDecoderVersion: def.decoder_version }),

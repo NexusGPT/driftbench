@@ -1,6 +1,7 @@
 import { type CheckContext, CriterionDef, type Observed, type Spec } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import {
+  buildPrompt,
   criteriaJudge,
   FakeJudge,
   fixtureRequest,
@@ -9,6 +10,7 @@ import {
   labelRequest,
   parseCriterionFile,
   requestFor,
+  responseSchema,
   singleJudgeCheck,
 } from '../src/index';
 
@@ -69,8 +71,9 @@ const FILE = (criterion: string) =>
     'criterion:',
     '  name: ships',
     '  rubric: Does the reply give a ship day?',
-    '  pass: It names a day.',
-    '  fail: It names no day.',
+    // Conformance reads the rubric alone: its file carries no pictures.
+    criterion.includes('conformance') ? '' : '  pass: It names a day.',
+    criterion.includes('conformance') ? '' : '  fail: It names no day.',
     criterion,
     'fixtures:',
     '  pass:',
@@ -241,6 +244,12 @@ describe('criterion judge settings', () => {
       'reference is read only by assessment conformance, fact-ledger or answer-audit',
     );
     expect(issues({ threshold: 0.5 })).toContain('threshold needs items');
+    expect(issues({ assessment: 'conformance', reference: '', pass: 'p' })).toContain(
+      'assessment conformance reads only the rubric: put the pass and fail conditions in it and drop pass and fail',
+    );
+    expect(issues({ assessment: 'conformance', reference: '', scope: 'block' })).toContain(
+      'assessment conformance judges the whole supplied transcript: drop scope block, or use scope conversation',
+    );
     expect(issues({ items: [{ name: 'a', rubric: 'r' }], assessment: 'answer-audit' })).toContain(
       'items score a rubric: they cannot be combined with assessment answer-audit',
     );
@@ -260,4 +269,81 @@ describe('criterion judge settings', () => {
     );
     expect(issues({ repeat: 0 })).not.toEqual([]);
   });
+});
+
+/** Every new field, as a spec and as a criteria file would set it. */
+const RENDERED: [string, Record<string, unknown>, string][] = [
+  ['prompt_version 2', { prompt_version: 2 }, '  prompt_version: 2'],
+  ['decoder_version 2', { decoder_version: 2 }, '  decoder_version: 2'],
+  ['answer_contract legacy', { answer_contract: 'legacy' }, '  answer_contract: legacy'],
+  ['answer_contract ledger', { answer_contract: 'ledger' }, '  answer_contract: ledger'],
+  ['response-relevance', { assessment: 'response-relevance' }, '  assessment: response-relevance'],
+  [
+    'conformance',
+    { assessment: 'conformance', reference: 'Ships Thursday.' },
+    '  assessment: conformance\n  reference: Ships Thursday.',
+  ],
+  [
+    'conformance, empty reference',
+    { assessment: 'conformance', reference: '' },
+    '  assessment: conformance\n  reference: ""',
+  ],
+  ['answer-audit', { assessment: 'answer-audit' }, '  assessment: answer-audit'],
+  [
+    'answer-audit with reference',
+    { assessment: 'answer-audit', reference: 'Thursday' },
+    '  assessment: answer-audit\n  reference: Thursday',
+  ],
+  [
+    'fact-ledger strict',
+    { assessment: 'fact-ledger', reference: 'Ships Thursday.', grounding: 'strict' },
+    '  assessment: fact-ledger\n  reference: Ships Thursday.\n  grounding: strict',
+  ],
+  [
+    'requirements',
+    { requirements: [{ id: 'day', requirement: 'Names a ship day.' }] },
+    '  requirements:\n    - { id: day, requirement: Names a ship day. }',
+  ],
+  [
+    'items and threshold',
+    { items: [{ name: 'day', rubric: 'Names a ship day.', weight: 2, hard: true }], threshold: 0.5 },
+    '  items:\n    - { name: day, rubric: Names a ship day., weight: 2, hard: true }\n  threshold: 0.5',
+  ],
+  ['repeat', { repeat: 2 }, '  repeat: 2'],
+  ['per_turn', { per_turn: true }, '  per_turn: true'],
+];
+
+describe('every criterion setting renders', () => {
+  it.each(RENDERED)(
+    '%s: a run request, a fixture request and a label request are accepted by buildPrompt',
+    async (_, spec, file) => {
+      const pictures = file.includes('conformance') ? {} : { pass: 'A day.', fail: 'No day.' };
+      const { request } = await sent({ ...spec, ...pictures });
+      expect(() => buildPrompt(request)).not.toThrow();
+      expect(() => responseSchema(request)).not.toThrow();
+      const conversation = (await sent({ ...spec, ...pictures, scope: 'conversation' })).request;
+      expect(() => buildPrompt(conversation)).not.toThrow();
+      // A task block that produced a file: the artifact rides along.
+      const ctx = context({ ...spec, ...pictures });
+      const withFile = requestFor(ctx, ctx.spec.criteria?.[0] as CriterionDef, 'invoice.ts: total = 12 * 3');
+      expect(() => buildPrompt(withFile)).not.toThrow();
+      expect(() => responseSchema(withFile)).not.toThrow();
+      expect(JSON.stringify(withFile)).toContain('total = 12 * 3');
+      const criterion = loaded(file);
+      for (const which of ['pass', 'fail'] as const) {
+        expect(() => buildPrompt(fixtureRequest(criterion, which))).not.toThrow();
+        expect(() => responseSchema(fixtureRequest(criterion, which))).not.toThrow();
+      }
+      const block = {
+        id: 'b',
+        label: 'pass' as const,
+        transcript: [
+          { role: 'user' as const, text: 'When does it ship?' },
+          { role: 'agent' as const, text: 'Thursday.' },
+        ],
+      };
+      expect(() => buildPrompt(labelRequest(criterion, block))).not.toThrow();
+      expect(() => responseSchema(labelRequest(criterion, block))).not.toThrow();
+    },
+  );
 });
