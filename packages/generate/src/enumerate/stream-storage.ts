@@ -1,10 +1,11 @@
 import { appendFileSync, closeSync, openSync, readSync, writeSync } from 'node:fs';
 import { join } from 'node:path';
 
-/** A JSON array whose entries stay on disk, including diagnostics proportional to generated output. */
+/** A disk-backed JSON array, buffering at most 32,768 characters for small appends. */
 export class DiskArray<T> {
   readonly path: string;
   length = 0;
+  private pending = '';
 
   constructor(directory: string, name: string) {
     this.path = join(directory, name);
@@ -13,16 +14,31 @@ export class DiskArray<T> {
   }
 
   push(value: T): void {
-    appendFileSync(this.path, `${JSON.stringify(value)}\n`);
+    const text = `${JSON.stringify(value)}\n`;
+    if (this.pending.length + text.length > 32_768) this.flush();
+    if (text.length > 32_768) appendFileSync(this.path, text);
+    else this.pending += text;
     this.length += 1;
   }
 
+  private flush(): void {
+    if (this.pending === '') return;
+    appendFileSync(this.path, this.pending);
+    this.pending = '';
+  }
+
   *[Symbol.iterator](): Generator<T> {
+    this.flush();
     const fd = openSync(this.path, 'r');
     const buffer = Buffer.alloc(64 * 1024);
     let pending = Buffer.alloc(0);
+    const read = () => {
+      // Appends between yielded rows remain visible to the next read, as with direct appends.
+      this.flush();
+      return readSync(fd, buffer);
+    };
     try {
-      for (let length = readSync(fd, buffer); length > 0; length = readSync(fd, buffer)) {
+      for (let length = read(); length > 0; length = read()) {
         pending = Buffer.concat([pending, buffer.subarray(0, length)]);
         let start = 0;
         for (let end = pending.indexOf(10, start); end >= 0; end = pending.indexOf(10, start)) {

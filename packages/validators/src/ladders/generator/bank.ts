@@ -1933,16 +1933,24 @@ function coverageItems(): BankItem[] {
 
 const vectors = new WeakMap<BlockRun, string>();
 
-function vectorOf(block: BlockRun): string {
+/**
+ * What makes two blocks the same test: the Then, and the outcome on every agent, persona-bound faults
+ * included. A block whose persona the agent never hears is the same test on every persona; one where the
+ * user says who they are is not, when an agent failing that user only fails it alone.
+ */
+export function vectorOf(block: BlockRun): string {
   const known = vectors.get(block);
   if (known !== undefined) return known;
+  const sorted = (outcomes: Record<string, Outcome>) =>
+    Object.entries(outcomes)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([, outcome]) => outcome);
   const vector = JSON.stringify([
     block.signature,
     block.reference[0],
     CHEATERS.map((name) => block.cheaters[name]?.outcome),
-    Object.entries(block.faults)
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([, outcome]) => outcome),
+    sorted(block.faults),
+    sorted(block.contextFaults),
   ]);
   vectors.set(block, vector);
   return vector;

@@ -188,6 +188,7 @@ export {
   CRITERION_PROMPT_VERSION,
   type CriterionPromptVersion,
 } from './criterion-prompt-v2';
+export { criteriaJudge, criterionJudge, withCriterionSettings } from './criterion-settings';
 export { createEscalation, type EscalationConfig } from './escalation';
 export { type Grounding, groundEvidence } from './evidence';
 export { FACT_LEDGER_POINTWISE, FactLedgerAnswer, PointwiseFactLedgerAnswer } from './fact-audit';
@@ -202,6 +203,13 @@ export {
   SYSTEM_PROMPT as LEGACY_SYSTEM_PROMPT,
 } from './legacy-prompt';
 export { type LintIssue, lintCriterion } from './lint';
+export {
+  applyLongStructured,
+  isStructured,
+  PAIR_PREFERENCES,
+  type PairPreference,
+  type PreferenceResult,
+} from './long-structured';
 export {
   canonicalPairOrder,
   judgePairLedger,
