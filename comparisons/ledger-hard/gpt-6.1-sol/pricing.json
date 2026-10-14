@@ -1,0 +1,12 @@
+{
+  "verified_on": "2026-10-13",
+  "model": "gpt-6.1-sol",
+  "source": "https://developers.openai.com/api/docs/pricing",
+  "usd_per_million": {
+    "input": 2,
+    "cached_input": 0.1,
+    "cache_write": 2.5,
+    "output_including_reasoning": 10
+  },
+  "tier": "Standard short context, synchronous Responses; service_tier default"
+}

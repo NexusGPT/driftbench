@@ -1,0 +1,24 @@
+{
+  "verified_at": "2026-10-13T18:51:55.635332+00:00",
+  "items": [
+    {
+      "request_sha256": "8760821a4b15dded2eba8a586b8c71c8a77baeeff4a448b04cb7866e595cd77f",
+      "recorded_answers": 1,
+      "replacement_attempt": 2,
+      "replacement_finished": "2026-10-13T18:51:04.970339+00:00",
+      "replacement_measured_usd": 0.002298,
+      "retained_original_hold_usd": 0.05
+    },
+    {
+      "request_sha256": "e70c18909dadc7037d60cfa6884318e86774581c23eba0119353c92e787b2b2e",
+      "recorded_answers": 1,
+      "replacement_attempt": 2,
+      "replacement_finished": "2026-10-13T18:51:03.674230+00:00",
+      "replacement_measured_usd": 0.001762,
+      "retained_original_hold_usd": 0.05
+    }
+  ],
+  "original_holds_retained_usd": 0.1,
+  "replacement_answers": 2,
+  "duplicates": 0
+}

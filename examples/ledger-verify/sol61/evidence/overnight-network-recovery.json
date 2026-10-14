@@ -1,0 +1,46 @@
+{
+  "at": "2026-10-14T00:35:20.394666+00:00",
+  "status": "complete",
+  "recoveredRequests": 2,
+  "recoveries": [
+    {
+      "originalReceipt": "c785db46-f395-48e8-b9d3-b21c2d139626",
+      "phase": "test",
+      "fingerprint": "4a1d2d1ac1be30ed31611057a7bb6f91de4b9e43137f171ff73e1baaf7eef204",
+      "answerReceiptIds": [
+        "6c76b4f2-f912-4bed-ba6c-d19297da2a42"
+      ],
+      "costUsd": 0.001742,
+      "firstAnswerAt": "2026-10-14T00:34:34.108Z"
+    },
+    {
+      "originalReceipt": "324e13de-c01b-46f7-88ba-c1a4ba2b4f32",
+      "phase": "test",
+      "fingerprint": "0fca544e11467530ed33d2863e9765836cfcec688408bc4845ff011bc1d3da33",
+      "answerReceiptIds": [
+        "1184c21e-e198-4551-8978-0f98214b9a45"
+      ],
+      "costUsd": 0.01527,
+      "firstAnswerAt": "2026-10-14T00:35:03.053Z"
+    }
+  ],
+  "originalAnswerPrefixPreserved": true,
+  "preservedAnsweredReceipts": 1481,
+  "retainedOriginalHoldsUsd": 0.6877525,
+  "providerCallsByThisCheck": 0,
+  "networkAdmission": {
+    "at": "2026-10-14T00:35:01.462982+00:00",
+    "lastProbeEpoch": 1791938101.462989,
+    "pid": 52934,
+    "model": "gpt-6.1-sol",
+    "open": true,
+    "healthyStreak": 11,
+    "connectionFailureStreak": 0,
+    "paidConnectionFailureStreak": 0,
+    "concurrency": 2,
+    "status": "open",
+    "cooldownUntil": 1791937800.867792
+  },
+  "previouslyAnsweredFingerprintResubmissions": [],
+  "newAnswersChecked": 11
+}

@@ -1,0 +1,21 @@
+{
+  "default_reasoning": {
+    "requested": "omitted, provider default",
+    "resolved": "not reported by API",
+    "observed_response_keys": [
+      "id",
+      "object",
+      "created",
+      "model",
+      "choices",
+      "usage",
+      "service_tier",
+      "system_fingerprint"
+    ]
+  },
+  "dialect_reasoning": {
+    "gpt-6-luna": "medium for candidate and peer",
+    "authority": "Owner correction after primary freeze; primary stays unchanged"
+  },
+  "scope": "Primary and dialect results remain separate. No outcome-based prompt changes."
+}

@@ -1,0 +1,35 @@
+[
+  {
+    "experiment": "dialect",
+    "id": "ledger-hard-factuality-g1-033",
+    "row": "factuality",
+    "side": "audit",
+    "request_sha256": "1dd4533ac1f727657b355a86393218660b222d78dbf9bc80f61f50d685110994",
+    "token_limit": true,
+    "success": false,
+    "outcome": "inconclusive",
+    "error": null
+  },
+  {
+    "experiment": "dialect",
+    "id": "ledger-hard-factuality-g2-185",
+    "row": "factuality",
+    "side": "audit",
+    "request_sha256": "ce099033d83d2ceba82ed7a4b7f83ff24d7f5be1928ef73b1bc054c661853e72",
+    "token_limit": true,
+    "success": false,
+    "outcome": "inconclusive",
+    "error": null
+  },
+  {
+    "experiment": "dialect",
+    "id": "ledger-hard-factuality-g2-186",
+    "row": "factuality",
+    "side": "audit",
+    "request_sha256": "860001a02c0a16c74988ea4c1fbc7200a1276d1433754f706907fc589ed174aa",
+    "token_limit": true,
+    "success": false,
+    "outcome": "inconclusive",
+    "error": null
+  }
+]

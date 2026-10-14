@@ -1,0 +1,105 @@
+{
+ "config": {
+  "name": "r9-two-step",
+  "note": "Round 9. Two System-1 steps: step 1 answers (commit) or abstains; step 2, for abstained pairs only, reads the terrain and picks the design (stay with System 1 on writing, reference first on reasoning then the System-2 verdict if still under the stop, System-2 verdict elsewhere). Thresholds fitted on the tuning half: the cheapest setting whose cross-fitted tuning accuracy is within 0.5 point of the best (commit 0.8, reference stop 0.6).",
+  "stage1": [
+   "s1p"
+  ],
+  "two_step": {
+   "commit": 0.8,
+   "routes": [
+    {
+     "name": "writing-stay",
+     "terrain": {
+      "subjective_writing": 0.6
+     },
+     "commit": true
+    },
+    {
+     "name": "reference-first",
+     "terrain": {
+      "needs_reasoning": 0.6
+     },
+     "add": [
+      "ref"
+     ],
+     "stop_at": 0.6,
+     "else_add": [
+      "s2v"
+     ]
+    },
+    {
+     "name": "system2",
+     "terrain": {},
+     "add": [
+      "s2v"
+     ]
+    }
+   ]
+  }
+ },
+ "secondary_config": {
+  "name": "r6-ref-first",
+  "note": "Round 6. Reference first on reasoning terrain: the reference check joins stage 1 there; the System-2 verdict is added only when the mix is still under the boundary.",
+  "stage1": [
+   "s1p"
+  ],
+  "hi": 0.8,
+  "lo": 0.8,
+  "low": [
+   "s2v"
+  ],
+  "always": [
+   {
+    "expert": "ref",
+    "terrain": {
+     "needs_reasoning": 0.6
+    }
+   }
+  ],
+  "no_escalate": [
+   {
+    "terrain": {
+     "subjective_writing": 0.6
+    }
+   }
+  ]
+ },
+ "note": "Sealed signals (s1p, route, ref, s2v, length) were collected under the first freeze (r6, commit 60da2848) and never scored. The primary was changed to r9-two-step before any sealed score was computed or read; both configurations use the same experts and the same frozen weights.",
+ "weights_fitted_on": "all practice pairs (850)",
+ "weights": {
+  "s1p": [
+   2.931433667908929
+  ],
+  "s1p+ref": [
+   2.362495142755022,
+   2.774940401154533
+  ],
+  "s1p+s2v": [
+   2.086970645646511,
+   0.8571589145585415
+  ],
+  "s1p+ref+s2v": [
+   2.0532534970804464,
+   2.509146743490473,
+   0.3342574067474957
+  ]
+ },
+ "models": {
+  "system1": "jev-latest (answered as jev-1.13.0)",
+  "system2": "gpt-6-luna, medium effort, no temperature"
+ },
+ "file_sha256": {
+  "moj/policy.py": "49d59ca917b53c8d4fe25b67674da31823f381003a15dee69da06bc9236798c2",
+  "moj/experts.py": "b77c83b47ceb582b00601adaa73cd97d1abb9d48967a6891631306badab0dc7f",
+  "moj/client.py": "bae1c1f8f7d5b94d750ec22872e2319fdf8bd2fe8a1098c12014a62f54906a35",
+  "moj/benches.py": "7a6e84e039e5c571966e97f4ff21a5cf864e7a082a1b920f643be9fe07e696f3",
+  "configs/r9-two-step.json": "2842866056a2765f525e87b92ca516e3e282770ef808638583d54f859ed7a096",
+  "configs/r6-ref-first.json": "0fb33705307aa442918a1e061812dd61b845ca692542f10a69e11c57fc6f9bd5",
+  "sealed/run.py": "39299c6d95ee624742ac2e87fbc990813b2e9149fb8e6bda87a028da91cdb895",
+  "sealed/build.py": "5d9e7c06ecf3b508e64ad0955e739df00bcac9d8cfcbea58ce29a80f82d296c8",
+  "data/sealed-confirmation.json": "936223ca9d92ade85935d8124933c54f1a30f99228cd158affc7cd80f47d9da5"
+ },
+ "rule_for_a_win": "Per benchmark and baseline: paired bootstrap (20,000 draws, resampling prompt groups) of MoJ minus baseline. Holm over the 6 comparisons (3 benchmarks x promptfoo and our ledger). A win when the Holm-adjusted lower bound is above 0 at no more System-2 calls per pair than that baseline; a loss when the upper bound is below 0; else a tie. Overall better only if every cell is a win or a tie and at least one is a win. On writing a win also needs MoJ above longer wins; else the report says the benchmark does not measure judging there.",
+ "scoring": "JudgeBench: a pair is right only when both games are right (strict); half credit reported beside it. MM-Eval and writing: tie or split counts half."
+}

@@ -4,7 +4,7 @@
 
 ## chart-facts.csv
 
-Written by the script on every run. It lists the title sentence of each chart and every number drawn, with the file the number was read from. `node tools/readme-charts.mjs --check` exits 1 when a chart or this file no longer matches its sources.
+Written by the script on every run. It lists the title sentence of each chart and every number drawn, with the file the number was read from. The rows `impact-blocks`, `impact-radius` and `impact-moj` are the numbers the README quotes in prose for blocks, blast radius and mixture of judges. `node tools/readme-charts.mjs --check` exits 1 when a chart or this file no longer matches its sources.
 
 ## mm-eval-sealed-test.json
 
@@ -29,5 +29,6 @@ Copies of result files from research branches that are not merged into main, wit
 | `sealed/rubricbench-flash-lite.json` | `research/ledger-rb`, `d36a01002409fd23f91a234078d5c95559741e86` | `examples/judge-benchmarks/experiments/ledger-rb/flash-lite/live-summary.json` |
 | `sealed/verify.json` | `research/ledger-verify`, `1f94d87ed373790819fa2565e4f63a65ebff76f1` | `examples/ledger-verify/evidence/cells.json` |
 | `sealed/writing.json` | `research/ledger-wp`, `5db7e7adaae3b2c7d669630e12c0c9eb1548f6d7` | `examples/ledger-wp/results/cells.json` |
+| `sealed/rubricbench-haiku.json` | `research/ledger-rb`, `fe76cd48b9078924d4404e5af94ff5f0cd494ca8` | `examples/judge-benchmarks/experiments/ledger-rb/live-summary.json` |
 
 What they measure and their limits: [how the README numbers were measured](../../comparison/methods.md#public-benchmarks-against-promptfoo).

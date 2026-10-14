@@ -1,9 +1,17 @@
 #!/usr/bin/env node
-// Prints the public API of every package: one row per name exported by packages/*/src/index.ts, with
-// the facts needed to decide whether the name should stay public. It fails nothing and writes no file.
+// Prints the public API of every package export-map entry: one row per built export, with
+// the facts needed to decide whether the name should stay public. It also keeps the frozen list of those
+// names, tools/structure/api-surface.json: a name is added to, or removed from, a package's public API
+// only together with that file, so the change shows in review.
 //
-//   node tools/structure/api-surface.mjs          tab-separated rows, then one summary row per package
-//   node tools/structure/api-surface.mjs --json   the same data as one JSON document
+//   node tools/structure/api-surface.mjs           tab-separated rows, then one summary row per package
+//   node tools/structure/api-surface.mjs --json    the same data as one JSON document
+//   node tools/structure/api-surface.mjs --check   compare the exports with the frozen list; exit 1 and
+//                                                  name every added and removed export when they differ
+//   node tools/structure/api-surface.mjs --build --write   rewrite the frozen list from the exports
+//   --build                                        build if the input/output stamp is missing or stale
+//   --snapshot <file>                              the frozen list to check or write, for the tests
+//   --root <dir>                                   the repository to read, for the tests
 //
 // Columns: package, name, kind (type or value), declaredIn, doc (the declaration has a doc comment),
 // inDocs (the name appears as a word in docs/**, README.md or a package README), srcImporters (other
@@ -14,12 +22,18 @@
 // its declaration, so a name counts as used when it is imported from the package root, from a file
 // inside the package, through a namespace (`import * as ns` then `ns.name`), through `export * as`, or
 // through a dynamic `import()`.
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
+import { declarationNames, packageEntries, requireFreshBuild, runtimeNames } from './built-api.mjs';
 
-const ROOT = fileURLToPath(new URL('../..', import.meta.url)).replace(/[\\/]$/, '');
+const flagValue = (flag) => {
+  const at = process.argv.indexOf(flag);
+  return at < 0 ? undefined : process.argv[at + 1];
+};
+// The repository to read: this one, or the folder --root names (the tests give a small one).
+const ROOT = (flagValue('--root') ?? fileURLToPath(new URL('../..', import.meta.url))).replace(/[\\/]$/, '');
 const asJson = process.argv.includes('--json');
 const posix = (path) => path.split(sep).join('/');
 const rel = (path) => posix(relative(ROOT, path));
@@ -36,14 +50,17 @@ function walk(dir, keep, out = []) {
   return out;
 }
 
-const packages = readdirSync(join(ROOT, 'packages'))
-  .filter((dir) => existsSync(join(ROOT, 'packages', dir, 'src', 'index.ts')))
-  .sort();
-const paths = {};
-for (const dir of packages) {
-  const manifest = JSON.parse(readFileSync(join(ROOT, 'packages', dir, 'package.json'), 'utf8'));
-  paths[manifest.name] = [join(ROOT, 'packages', dir, 'src', 'index.ts')];
+const entries = packageEntries(ROOT);
+const packages = [...new Set(entries.map((entry) => entry.pkg))];
+try {
+  requireFreshBuild(ROOT, entries, process.argv.includes('--build'));
+} catch (error) {
+  process.stderr.write(`${error.message}\n`);
+  process.exit(1);
 }
+const paths = Object.fromEntries(entries.map((entry) => [entry.specifier, [entry.source]]));
+const declarations = declarationNames(entries);
+const runtime = new Map(entries.map((entry) => [entry.key, runtimeNames(entry)]));
 
 const CODE = /\.(ts|mts|tsx|mjs)$/;
 const files = [
@@ -81,26 +98,41 @@ const docWords = new Set(
 // The exports, keyed by the declaration each one resolves to.
 const rows = [];
 const bySymbol = new Map();
-for (const dir of packages) {
-  const index = program.getSourceFile(join(ROOT, 'packages', dir, 'src', 'index.ts'));
+for (const entry of entries) {
+  const index = program.getSourceFile(entry.source);
   const moduleSymbol = index && checker.getSymbolAtLocation(index);
-  for (const exported of moduleSymbol ? checker.getExportsOfModule(moduleSymbol) : []) {
+  if (!moduleSymbol) throw new Error(`${entry.key}: source entry is not a module`);
+  const sourceNames = new Map(checker.getExportsOfModule(moduleSymbol).map((item) => [item.name, item]));
+  const values = runtime.get(entry.key);
+  const types = new Set([...declarations.get(entry.key)].filter((name) => !values.has(name)));
+  const sourceTypes = new Set([...sourceNames.keys()].filter((name) => !values.has(name)));
+  const mismatch = [...new Set([...types, ...sourceTypes])].filter(
+    (name) => types.has(name) !== sourceTypes.has(name),
+  );
+  if (mismatch.length)
+    throw new Error(
+      `${entry.key}: source and built declaration type-only names differ: ${mismatch.join(', ')}`,
+    );
+  for (const name of [...new Set([...values, ...types])].sort()) {
+    const exported = sourceNames.get(name);
     const symbol = resolved(exported);
-    const declaration = symbol.declarations?.[0];
+    const declaration = symbol?.declarations?.[0];
     const row = {
-      package: dir,
-      name: exported.name,
-      kind: symbol.flags & ts.SymbolFlags.Value ? 'value' : 'type',
-      declaredIn: declaration ? rel(declaration.getSourceFile().fileName) : '?',
-      doc: ts.displayPartsToString(symbol.getDocumentationComment(checker)).trim().length > 0,
-      inDocs: docWords.has(exported.name),
+      package: entry.key,
+      name,
+      kind: values.has(name) ? 'value' : 'type',
+      declaredIn: declaration ? rel(declaration.getSourceFile().fileName) : rel(entry.runtime),
+      doc: symbol
+        ? ts.displayPartsToString(symbol.getDocumentationComment(checker)).trim().length > 0
+        : false,
+      inDocs: docWords.has(name),
       srcImporters: new Set(),
       testFiles: new Set(),
       examples: new Set(),
       tools: new Set(),
     };
     rows.push(row);
-    bySymbol.set(symbol, [...(bySymbol.get(symbol) ?? []), row]);
+    if (symbol) bySymbol.set(symbol, [...(bySymbol.get(symbol) ?? []), row]);
   }
 }
 
@@ -222,7 +254,8 @@ function summarise(name, list) {
     usedNowhere: count(list, (row) => row.usedNowhere),
   };
 }
-const summary = packages
+const summary = entries
+  .map((entry) => entry.key)
   .map((dir) =>
     summarise(
       dir,
@@ -232,7 +265,64 @@ const summary = packages
   .sort((a, b) => b.exports - a.exports || a.package.localeCompare(b.package));
 const total = summarise('total', out);
 
-if (asJson) {
+const SNAPSHOT = flagValue('--snapshot') ?? join(ROOT, 'tools/structure/api-surface.json');
+
+/** The frozen list: per package, each exported name with its kind (value or type), sorted by name. */
+function frozen() {
+  const list = {};
+  for (const dir of entries.map((entry) => entry.key).sort()) {
+    const own = out.filter((row) => row.package === dir).sort((a, b) => (a.name < b.name ? -1 : 1));
+    list[dir] = Object.fromEntries(own.map((row) => [row.name, row.kind]));
+  }
+  return {
+    note: 'The public API of every package export-map entry: values loaded from fresh built modules and type-only names cross-checked against built declarations. A test checks the build stamp and compares this list, so adding or removing a public name changes this file in the same pull request. Regenerate: node tools/structure/api-surface.mjs --build --write',
+    packages: list,
+  };
+}
+
+/** The names in `now` and not in `then`, and the reverse, as `package: kind name` lines. */
+function differences(then, now) {
+  const flat = (list) =>
+    new Set(
+      Object.entries(list.packages ?? {}).flatMap(([dir, names]) => [
+        `${dir}: entry`,
+        ...Object.entries(names).map(([name, kind]) => `${dir}: ${kind} ${name}`),
+      ]),
+    );
+  const before = flat(then);
+  const after = flat(now);
+  return {
+    added: [...after].filter((line) => !before.has(line)).sort(),
+    removed: [...before].filter((line) => !after.has(line)).sort(),
+  };
+}
+
+if (process.argv.includes('--write')) {
+  writeFileSync(SNAPSHOT, `${JSON.stringify(frozen(), null, 2)}\n`);
+  process.stdout.write(`Wrote ${rel(SNAPSHOT)}: ${out.length} exports in ${packages.length} packages.\n`);
+} else if (process.argv.includes('--check')) {
+  if (!existsSync(SNAPSHOT)) {
+    process.stderr.write(
+      `${rel(SNAPSHOT)} is missing: run node tools/structure/api-surface.mjs --build --write\n`,
+    );
+    process.exit(1);
+  }
+  const { added, removed } = differences(JSON.parse(readFileSync(SNAPSHOT, 'utf8')), frozen());
+  if (added.length + removed.length === 0) {
+    process.stdout.write(`The public API matches ${rel(SNAPSHOT)}: ${out.length} exports.\n`);
+  } else {
+    const lines = [
+      `The public API differs from ${rel(SNAPSHOT)}.`,
+      ...added.map((line) => `  added    ${line}`),
+      ...removed.map((line) => `  removed  ${line}`),
+      'A public name changes only on purpose. If this change is meant: run',
+      '  node tools/structure/api-surface.mjs --build --write',
+      'commit the file, and name the new or removed exports in CHANGELOG.md.',
+    ];
+    process.stderr.write(`${lines.join('\n')}\n`);
+    process.exit(1);
+  }
+} else if (asJson) {
   process.stdout.write(`${JSON.stringify({ exports: out, packages: summary, total }, null, 2)}\n`);
 } else {
   const yes = (flag) => (flag ? 'yes' : 'no');

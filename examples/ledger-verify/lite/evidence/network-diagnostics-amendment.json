@@ -1,0 +1,8 @@
+{
+  "at": "2026-10-13T12:29:46.824383+00:00",
+  "reason": "PR 168 omits fetch failure causes; record sanitized error names and codes around the same fetch request",
+  "providerCalls": 0,
+  "behavior": "No payload, model, reasoning, retry, pacing, verdict, cap or timeout changes",
+  "priorRuntimeSha256": "db17a6c23b3463a3860c510a3834d25fb07b14d67ca183dbd909b4eb9c5ca494",
+  "runtimeSha256": "d7d6bff442386a4cd36a6a0fb75d7429dddba79bdab7c8e4fb029b877a05ad30"
+}

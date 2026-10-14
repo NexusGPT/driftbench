@@ -1,0 +1,946 @@
+{
+  "competitor": "deepeval",
+  "row": "grounding",
+  "contestant": "default",
+  "model": "haiku",
+  "items": 72,
+  "complete": 72,
+  "results": [
+    {
+      "id": "grounding-wrong-unit-1-b",
+      "kind": "wrong-unit",
+      "pair": "wrong-unit-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "346f292dfeea9a0557e3ee93eb5d47c8729608a40da5d95cafc9dd6207753d58"
+      ],
+      "costUsd": 0.0004948999999999999
+    },
+    {
+      "id": "grounding-reference-0-b",
+      "kind": "reference",
+      "pair": "reference-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "aa2b6b76b5fd70e044c49ecbfa4099ef93ce534ad4beaf7e9c329e477afb58a3"
+      ],
+      "costUsd": 0.000517
+    },
+    {
+      "id": "grounding-paraphrase-0-a",
+      "kind": "paraphrase",
+      "pair": "paraphrase-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "1b1e19d0db1d59ce3117e850365aa039bd3020231777ad6eda6ae22f74ebb3e1"
+      ],
+      "costUsd": 0.0006834
+    },
+    {
+      "id": "grounding-near-price-2-a",
+      "kind": "near-price",
+      "pair": "near-price-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "665deffa168dd59857996a4f389957df37846bc6044f872fa084bc9e5c761935"
+      ],
+      "costUsd": 0.0005568999999999999
+    },
+    {
+      "id": "grounding-near-price-1-a",
+      "kind": "near-price",
+      "pair": "near-price-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "59bf44323e13c40c8c7a86ee2deb65cb8c9059b039e09acb0b558d461377ed7b"
+      ],
+      "costUsd": 0.0005414
+    },
+    {
+      "id": "grounding-paraphrase-2-b",
+      "kind": "paraphrase",
+      "pair": "paraphrase-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "7571988358f6307e6720ce09db11578d2feda3dc74bdd11778c286e4128295bc"
+      ],
+      "costUsd": 0.0005128999999999999
+    },
+    {
+      "id": "grounding-conditional-2-b",
+      "kind": "conditional",
+      "pair": "conditional-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "ba5ec94fcd7d9b1018dc4ed28e8cd1b5e4d1b65fdbddae97e0e51be136c040d6"
+      ],
+      "costUsd": 0.0005963
+    },
+    {
+      "id": "grounding-entity-0-a",
+      "kind": "entity",
+      "pair": "entity-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "1b1e19d0db1d59ce3117e850365aa039bd3020231777ad6eda6ae22f74ebb3e1"
+      ],
+      "costUsd": 0.0006834
+    },
+    {
+      "id": "grounding-near-data-0-b",
+      "kind": "near-data",
+      "pair": "near-data-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "76b841bac197a546ec1507856470a537c8b059e6f15e73d9055a28dbc803cf06"
+      ],
+      "costUsd": 0.0004844
+    },
+    {
+      "id": "grounding-entity-2-a",
+      "kind": "entity",
+      "pair": "entity-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "665deffa168dd59857996a4f389957df37846bc6044f872fa084bc9e5c761935"
+      ],
+      "costUsd": 0.0005568999999999999
+    },
+    {
+      "id": "grounding-negation-0-b",
+      "kind": "negation",
+      "pair": "negation-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "38286de40f97041ebb2a5f949bb985f5434d6d226bf3fb0adcba7f1e2b48ea35"
+      ],
+      "costUsd": 0.0004953000000000001
+    },
+    {
+      "id": "grounding-mixed-language-0-a",
+      "kind": "mixed-language",
+      "pair": "mixed-language-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "d22d8b87d6f5c290cbf565be88c64306fb2733d39ea2be468589856dba99175b"
+      ],
+      "costUsd": 0.0005420000000000001
+    },
+    {
+      "id": "grounding-reference-2-a",
+      "kind": "reference",
+      "pair": "reference-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "665deffa168dd59857996a4f389957df37846bc6044f872fa084bc9e5c761935"
+      ],
+      "costUsd": 0.0005568999999999999
+    },
+    {
+      "id": "grounding-mixed-language-0-b",
+      "kind": "mixed-language",
+      "pair": "mixed-language-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "d2174b5589a6bb2d05c37dfd87f083208913788026e516547e37b07d870493ce"
+      ],
+      "costUsd": 0.00046100000000000004
+    },
+    {
+      "id": "grounding-wrong-unit-2-a",
+      "kind": "wrong-unit",
+      "pair": "wrong-unit-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "665deffa168dd59857996a4f389957df37846bc6044f872fa084bc9e5c761935"
+      ],
+      "costUsd": 0.0005568999999999999
+    },
+    {
+      "id": "grounding-unsupported-2-a",
+      "kind": "unsupported",
+      "pair": "unsupported-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "665deffa168dd59857996a4f389957df37846bc6044f872fa084bc9e5c761935"
+      ],
+      "costUsd": 0.0005568999999999999
+    },
+    {
+      "id": "grounding-paraphrase-2-a",
+      "kind": "paraphrase",
+      "pair": "paraphrase-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "665deffa168dd59857996a4f389957df37846bc6044f872fa084bc9e5c761935"
+      ],
+      "costUsd": 0.0005568999999999999
+    },
+    {
+      "id": "grounding-negation-2-b",
+      "kind": "negation",
+      "pair": "negation-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "3d00145cb85d856abc808c79f5de2802ef3b46b5c7a6164614d2349193bababf"
+      ],
+      "costUsd": 0.0004893
+    },
+    {
+      "id": "grounding-long-blend-1-a",
+      "kind": "long-blend",
+      "pair": "long-blend-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "59bf44323e13c40c8c7a86ee2deb65cb8c9059b039e09acb0b558d461377ed7b"
+      ],
+      "costUsd": 0.0005414
+    },
+    {
+      "id": "grounding-conversion-0-a",
+      "kind": "conversion",
+      "pair": "conversion-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "d6ec515e1e032696438fcf52634709722f07e2de9f7a3ea1fd228e3fb84a53e7"
+      ],
+      "costUsd": 0.0005246000000000001
+    },
+    {
+      "id": "grounding-unsupported-2-b",
+      "kind": "unsupported",
+      "pair": "unsupported-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "ee172282da71177e56070e0fa1be9ced5eae7d069513876127d91758dd0a7972"
+      ],
+      "costUsd": 0.0005289
+    },
+    {
+      "id": "grounding-entity-1-b",
+      "kind": "entity",
+      "pair": "entity-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "e4e229e102ebebb9b6c78490054b4c154f0c5d9427c89198ff3a9c5efa32e555"
+      ],
+      "costUsd": 0.0005269000000000001
+    },
+    {
+      "id": "grounding-wrong-unit-0-b",
+      "kind": "wrong-unit",
+      "pair": "wrong-unit-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "e41805be1f43199af598a42f540fd9f903885db9375230e1d3517a9fd315a4d6"
+      ],
+      "costUsd": 0.0005224
+    },
+    {
+      "id": "grounding-reference-1-a",
+      "kind": "reference",
+      "pair": "reference-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "59bf44323e13c40c8c7a86ee2deb65cb8c9059b039e09acb0b558d461377ed7b"
+      ],
+      "costUsd": 0.0005414
+    },
+    {
+      "id": "grounding-mixed-language-1-a",
+      "kind": "mixed-language",
+      "pair": "mixed-language-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "68186a2c946cbbb972465aa20ac9f8d3776ebcbdbd6cb71507cf56d4df4099c8"
+      ],
+      "costUsd": 0.00058
+    },
+    {
+      "id": "grounding-wrong-unit-1-a",
+      "kind": "wrong-unit",
+      "pair": "wrong-unit-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "59bf44323e13c40c8c7a86ee2deb65cb8c9059b039e09acb0b558d461377ed7b"
+      ],
+      "costUsd": 0.0005414
+    },
+    {
+      "id": "grounding-paraphrase-0-b",
+      "kind": "paraphrase",
+      "pair": "paraphrase-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "a2f38681a07c56d6b68db330bdfd42f6997c972f057c97042cf27aa5531c0083"
+      ],
+      "costUsd": 0.0004839
+    },
+    {
+      "id": "grounding-negation-1-b",
+      "kind": "negation",
+      "pair": "negation-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "361e7b75115bf2749223a71fd4cbe2cb99ee936c7d3ab8db2f9e899cafc0a1ab"
+      ],
+      "costUsd": 0.0005208000000000001
+    },
+    {
+      "id": "grounding-long-blend-1-b",
+      "kind": "long-blend",
+      "pair": "long-blend-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "239cfabeba206b018bad893ca2de834eede2c411d84399a57ee089f4ae069f1e"
+      ],
+      "costUsd": 0.0005685
+    },
+    {
+      "id": "grounding-conversion-1-b",
+      "kind": "conversion",
+      "pair": "conversion-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "734a907ba300a687c9c3bf3ecbb850a42c4b89e5bc2d6861a7ca037ce6487b75"
+      ],
+      "costUsd": 0.0004647
+    },
+    {
+      "id": "grounding-paraphrase-1-b",
+      "kind": "paraphrase",
+      "pair": "paraphrase-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "f11634d6dff5e2c7a8df848d2f817e568789bda2c9265b77fafae5776594cb64"
+      ],
+      "costUsd": 0.0004954
+    },
+    {
+      "id": "grounding-long-blend-2-b",
+      "kind": "long-blend",
+      "pair": "long-blend-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "1761e20ef62a27e0add696d577ef6a9a057616fa01cada6d6d834400c7f3b453"
+      ],
+      "costUsd": 0.00047650000000000004
+    },
+    {
+      "id": "grounding-wrong-unit-2-b",
+      "kind": "wrong-unit",
+      "pair": "wrong-unit-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "1356a58d4bb5784262a33604ea84f7475ce44c57b34660c621bb25846b3bda9e"
+      ],
+      "costUsd": 0.0005099
+    },
+    {
+      "id": "grounding-negation-0-a",
+      "kind": "negation",
+      "pair": "negation-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "85d143383bcd1cffaa50f49edb0070d771ec393b13d49808e655c8706971890a"
+      ],
+      "costUsd": 0.0006072
+    },
+    {
+      "id": "grounding-conditional-0-b",
+      "kind": "conditional",
+      "pair": "conditional-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "34885611a79c9d24720ccf8b9c5a8ff824d3365fccb76cb2454173cd5afdd952"
+      ],
+      "costUsd": 0.0004128
+    },
+    {
+      "id": "grounding-reference-2-b",
+      "kind": "reference",
+      "pair": "reference-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "7853dccb61760ec416c80c6d3d789a780444e0b0b36e528b47649071051fd0b0"
+      ],
+      "costUsd": 0.000557
+    },
+    {
+      "id": "grounding-conversion-2-a",
+      "kind": "conversion",
+      "pair": "conversion-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "57b5554531676df709e243488fe2ee9e2d5c570e54c433526d98568f0974835d"
+      ],
+      "costUsd": 0.0005105999999999999
+    },
+    {
+      "id": "grounding-unsupported-0-b",
+      "kind": "unsupported",
+      "pair": "unsupported-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "01c138c04ef911cdffe0e174519b42177e6c60fcef114fed6a7bec8670f5df69"
+      ],
+      "costUsd": 0.0005739
+    },
+    {
+      "id": "grounding-near-price-0-b",
+      "kind": "near-price",
+      "pair": "near-price-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "a2f38681a07c56d6b68db330bdfd42f6997c972f057c97042cf27aa5531c0083"
+      ],
+      "costUsd": 0.0004839
+    },
+    {
+      "id": "grounding-entity-0-b",
+      "kind": "entity",
+      "pair": "entity-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "57d8460efe65355a5ccf4ce994379b0e41c8f1918ff71cb4ec9c010708419908"
+      ],
+      "costUsd": 0.0004914
+    },
+    {
+      "id": "grounding-near-data-1-a",
+      "kind": "near-data",
+      "pair": "near-data-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "59bf44323e13c40c8c7a86ee2deb65cb8c9059b039e09acb0b558d461377ed7b"
+      ],
+      "costUsd": 0.0005414
+    },
+    {
+      "id": "grounding-conditional-0-a",
+      "kind": "conditional",
+      "pair": "conditional-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "1b1e19d0db1d59ce3117e850365aa039bd3020231777ad6eda6ae22f74ebb3e1"
+      ],
+      "costUsd": 0.0006834
+    },
+    {
+      "id": "grounding-entity-2-b",
+      "kind": "entity",
+      "pair": "entity-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "88ba36b5af8cb8e5d73a70f0c78711abf5828515e0ea23ed80fce09ef9751ca4"
+      ],
+      "costUsd": 0.0005479
+    },
+    {
+      "id": "grounding-conversion-0-b",
+      "kind": "conversion",
+      "pair": "conversion-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "e9da60f6c8bc98c3ef029efa3da7641d09e6d91f52b490a93a515b7a51cf3f96"
+      ],
+      "costUsd": 0.0004732
+    },
+    {
+      "id": "grounding-near-price-2-b",
+      "kind": "near-price",
+      "pair": "near-price-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "7571988358f6307e6720ce09db11578d2feda3dc74bdd11778c286e4128295bc"
+      ],
+      "costUsd": 0.0005128999999999999
+    },
+    {
+      "id": "grounding-conditional-1-a",
+      "kind": "conditional",
+      "pair": "conditional-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "59bf44323e13c40c8c7a86ee2deb65cb8c9059b039e09acb0b558d461377ed7b"
+      ],
+      "costUsd": 0.0005414
+    },
+    {
+      "id": "grounding-near-price-0-a",
+      "kind": "near-price",
+      "pair": "near-price-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "1b1e19d0db1d59ce3117e850365aa039bd3020231777ad6eda6ae22f74ebb3e1"
+      ],
+      "costUsd": 0.0006834
+    },
+    {
+      "id": "grounding-unsupported-1-a",
+      "kind": "unsupported",
+      "pair": "unsupported-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "59bf44323e13c40c8c7a86ee2deb65cb8c9059b039e09acb0b558d461377ed7b"
+      ],
+      "costUsd": 0.0005414
+    },
+    {
+      "id": "grounding-conditional-2-a",
+      "kind": "conditional",
+      "pair": "conditional-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "665deffa168dd59857996a4f389957df37846bc6044f872fa084bc9e5c761935"
+      ],
+      "costUsd": 0.0005568999999999999
+    },
+    {
+      "id": "grounding-paraphrase-1-a",
+      "kind": "paraphrase",
+      "pair": "paraphrase-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "59bf44323e13c40c8c7a86ee2deb65cb8c9059b039e09acb0b558d461377ed7b"
+      ],
+      "costUsd": 0.0005414
+    },
+    {
+      "id": "grounding-mixed-language-1-b",
+      "kind": "mixed-language",
+      "pair": "mixed-language-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "aee8651fdffcc366caf4d462c731ba9c01a652703b3b0e6cb45a70d638047569"
+      ],
+      "costUsd": 0.0004630000000000001
+    },
+    {
+      "id": "grounding-negation-1-a",
+      "kind": "negation",
+      "pair": "negation-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "690dab50c152b65410164f789a71356480e79675b74b54708b08cb2fa944b464"
+      ],
+      "costUsd": 0.0005842
+    },
+    {
+      "id": "grounding-entity-1-a",
+      "kind": "entity",
+      "pair": "entity-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "59bf44323e13c40c8c7a86ee2deb65cb8c9059b039e09acb0b558d461377ed7b"
+      ],
+      "costUsd": 0.0005414
+    },
+    {
+      "id": "grounding-conditional-1-b",
+      "kind": "conditional",
+      "pair": "conditional-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "877e421c2fd063e30ebff227a40f69d179a9795a8c6022adb3564990519759c9"
+      ],
+      "costUsd": 0.0005563
+    },
+    {
+      "id": "grounding-conversion-1-a",
+      "kind": "conversion",
+      "pair": "conversion-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "3ee3c033163e03e3d99d8fe684b6cf11ff972bd041d91a333b332b83791d77f6"
+      ],
+      "costUsd": 0.0005016
+    },
+    {
+      "id": "grounding-long-blend-0-b",
+      "kind": "long-blend",
+      "pair": "long-blend-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "53e2c0996983b2457a72bc0709c7344afc38a8d5d0c7d6c80601c7d6dcab6d18"
+      ],
+      "costUsd": 0.0005995
+    },
+    {
+      "id": "grounding-mixed-language-2-b",
+      "kind": "mixed-language",
+      "pair": "mixed-language-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "4d87853288e70d976c8aaf754c92dbdbcc4579c925165c2aac75e3fc4d807ae2"
+      ],
+      "costUsd": 0.00048350000000000004
+    },
+    {
+      "id": "grounding-mixed-language-2-a",
+      "kind": "mixed-language",
+      "pair": "mixed-language-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "ae15e9999287faece315d8f6e674a8de697b57b118941741b938f9b035eba49f"
+      ],
+      "costUsd": 0.0006430000000000001
+    },
+    {
+      "id": "grounding-reference-0-a",
+      "kind": "reference",
+      "pair": "reference-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "1b1e19d0db1d59ce3117e850365aa039bd3020231777ad6eda6ae22f74ebb3e1"
+      ],
+      "costUsd": 0.0006834
+    },
+    {
+      "id": "grounding-long-blend-0-a",
+      "kind": "long-blend",
+      "pair": "long-blend-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "1b1e19d0db1d59ce3117e850365aa039bd3020231777ad6eda6ae22f74ebb3e1"
+      ],
+      "costUsd": 0.0006834
+    },
+    {
+      "id": "grounding-near-data-2-b",
+      "kind": "near-data",
+      "pair": "near-data-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "a9006e693d92925aac64e8bf83d83d7c62442f48a5bf7e3c37969b66ce1671b7"
+      ],
+      "costUsd": 0.0004604
+    },
+    {
+      "id": "grounding-conversion-2-b",
+      "kind": "conversion",
+      "pair": "conversion-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "e825a5ec45daa323726a761e860d59623af0a9b83daeda54b8893e20dca3a3ec"
+      ],
+      "costUsd": 0.0004287
+    },
+    {
+      "id": "grounding-reference-1-b",
+      "kind": "reference",
+      "pair": "reference-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "d3638a291a659df6e16c77ce8e2fcc22548f201f0c58975c1eece8494fee54ee"
+      ],
+      "costUsd": 0.0005369999999999999
+    },
+    {
+      "id": "grounding-wrong-unit-0-a",
+      "kind": "wrong-unit",
+      "pair": "wrong-unit-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "1b1e19d0db1d59ce3117e850365aa039bd3020231777ad6eda6ae22f74ebb3e1"
+      ],
+      "costUsd": 0.0006834
+    },
+    {
+      "id": "grounding-unsupported-1-b",
+      "kind": "unsupported",
+      "pair": "unsupported-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "26fd43d0295d132e66b180a9fa8570bc807183776a6f816cb3223e95172e933a"
+      ],
+      "costUsd": 0.0005309
+    },
+    {
+      "id": "grounding-near-data-2-a",
+      "kind": "near-data",
+      "pair": "near-data-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "665deffa168dd59857996a4f389957df37846bc6044f872fa084bc9e5c761935"
+      ],
+      "costUsd": 0.0005568999999999999
+    },
+    {
+      "id": "grounding-near-data-0-a",
+      "kind": "near-data",
+      "pair": "near-data-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "1b1e19d0db1d59ce3117e850365aa039bd3020231777ad6eda6ae22f74ebb3e1"
+      ],
+      "costUsd": 0.0006834
+    },
+    {
+      "id": "grounding-negation-2-a",
+      "kind": "negation",
+      "pair": "negation-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "85b555392edf220948ef6d9cc36616dbb95a3d44b16e01a7614b5d7408ad39db"
+      ],
+      "costUsd": 0.0006131999999999999
+    },
+    {
+      "id": "grounding-near-price-1-b",
+      "kind": "near-price",
+      "pair": "near-price-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "f11634d6dff5e2c7a8df848d2f817e568789bda2c9265b77fafae5776594cb64"
+      ],
+      "costUsd": 0.0004954
+    },
+    {
+      "id": "grounding-long-blend-2-a",
+      "kind": "long-blend",
+      "pair": "long-blend-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "665deffa168dd59857996a4f389957df37846bc6044f872fa084bc9e5c761935"
+      ],
+      "costUsd": 0.0005568999999999999
+    },
+    {
+      "id": "grounding-near-data-1-b",
+      "kind": "near-data",
+      "pair": "near-data-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "b0ef36ca5e0008ff57c836ee84803b21045ac020d7e7b2d425815195c3e0697e"
+      ],
+      "costUsd": 0.0005438999999999999
+    },
+    {
+      "id": "grounding-unsupported-0-a",
+      "kind": "unsupported",
+      "pair": "unsupported-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "1b1e19d0db1d59ce3117e850365aa039bd3020231777ad6eda6ae22f74ebb3e1"
+      ],
+      "costUsd": 0.0006834
+    }
+  ]
+}

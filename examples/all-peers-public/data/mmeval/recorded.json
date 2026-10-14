@@ -1,0 +1,8406 @@
+{
+ "promptfoo": {
+  "3406": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3337": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2935": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2986": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3438": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3596": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4022": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3304": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2106": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2535": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2166": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4904": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "10": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4030": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3229": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1054": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3075": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4417": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2942": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3827": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1507": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3875": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3905": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2640": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4823": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3275": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "780": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1216": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "176": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3909": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2338": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3362": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1346": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4414": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4874": {
+   "games": [
+    null,
+    null
+   ],
+   "graderError": true
+  },
+  "4834": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "284": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3429": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1058": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4358": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3446": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2737": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4689": {
+   "games": [
+    null,
+    null
+   ],
+   "graderError": true
+  },
+  "89": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4362": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3313": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4964": {
+   "games": [
+    null,
+    null
+   ],
+   "graderError": true
+  },
+  "2832": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4607": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1667": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2844": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4415": {
+   "games": [
+    null,
+    null
+   ],
+   "graderError": true
+  },
+  "773": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "572": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3679": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2138": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4211": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3780": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3815": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3238": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3776": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3523": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4580": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3277": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4037": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4695": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4088": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "936": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2573": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2698": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4463": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2041": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4052": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2208": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3757": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2800": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4681": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3474": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3383": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4395": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3280": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "621": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4329": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4782": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3204": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4387": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3943": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3718": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3762": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "476": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2811": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3378": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2260": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4529": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3423": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3340": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1771": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2967": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2797": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3548": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4011": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3223": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3084": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1563": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3384": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2685": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3850": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3205": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "855": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3706": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3369": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3738": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1420": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3192": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2365": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3288": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "992": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4730": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3407": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3680": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4104": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3998": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4504": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3178": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1167": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3267": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3271": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3711": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "graderError": false
+  },
+  "775": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4915": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3832": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2104": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3190": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3708": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3821": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3525": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1046": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3651": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3430": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4419": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3285": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3114": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "962": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3542": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4066": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4946": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2687": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2616": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3305": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2957": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1513": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2361": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4642": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3212": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "338": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1670": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3210": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "960": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4969": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3876": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3344": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3512": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3535": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4249": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3976": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2748": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "552": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3467": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4832": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4043": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4566": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3764": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4160": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3321": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3924": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3065": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3492": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "728": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4017": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4398": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3597": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3497": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3763": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2265": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3967": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1468": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2237": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3239": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2009": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "85": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3018": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3515": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4880": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2374": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3411": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "634": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4953": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2490": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4294": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1954": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2976": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2076": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3533": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2244": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4778": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4009": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3997": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3667": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2966": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "690": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3631": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4960": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2642": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4766": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2367": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3443": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4605": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3203": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "932": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4370": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1716": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3254": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "967": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3526": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3761": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3195": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3316": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2750": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1525": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3347": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2977": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "358": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4122": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3843": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4530": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4205": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3319": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3461": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3663": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2085": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3459": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3844": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3361": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4603": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3368": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1677": {
+   "games": [
+    "A",
+    null
+   ],
+   "graderError": true
+  },
+  "3753": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3173": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2847": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3951": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3666": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4466": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2701": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "500": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3410": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "377": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "531": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3961": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4326": {
+   "games": [
+    null,
+    null
+   ],
+   "graderError": true
+  },
+  "4458": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3784": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3038": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4228": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4163": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3914": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "33": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "608": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3481": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2245": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2953": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3494": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4002": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4344": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3621": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1805": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3145": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3896": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2304": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3745": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2618": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1327": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3935": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2156": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2968": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3919": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3683": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4606": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2910": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4067": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3301": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "877": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2608": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4093": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3654": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4557": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3985": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4970": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3988": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2073": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2353": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3004": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1767": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3945": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2723": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1739": {
+   "games": [
+    "A",
+    null
+   ],
+   "graderError": true
+  },
+  "3537": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3747": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4897": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3421": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2179": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3946": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3564": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2261": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3672": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "640": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4892": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2991": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3012": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3848": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4691": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3960": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "880": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2405": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1056": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3513": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3245": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1347": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3060": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4045": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3243": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2322": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4722": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3193": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4746": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2705": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3470": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4499": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3390": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3605": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "783": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3427": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3860": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2882": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3692": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3649": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1909": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2378": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2829": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4714": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3354": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4346": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "439": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4931": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "206": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3694": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4788": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2000": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3417": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2247": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "172": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "501": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1674": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3092": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3647": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3686": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "328": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4314": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "610": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4184": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2438": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3989": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4771": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4506": {
+   "games": [
+    null,
+    null
+   ],
+   "graderError": true
+  },
+  "3150": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3981": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3972": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1565": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4676": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4437": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4365": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3868": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3956": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4865": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3984": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3928": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1658": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2039": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3612": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4650": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4378": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4951": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3648": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3793": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4487": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4279": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3574": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4881": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3085": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2118": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4055": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4898": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4928": {
+   "games": [
+    null,
+    null
+   ],
+   "graderError": true
+  },
+  "3325": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2890": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2703": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3248": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1632": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1733": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "624": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4779": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4475": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4260": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3486": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3719": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1229": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4406": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2955": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3619": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3381": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4671": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3379": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4310": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4020": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4388": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4012": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "569": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3260": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4427": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1857": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "graderError": false
+  },
+  "681": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3861": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2146": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3833": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "364": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3503": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3781": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "620": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2349": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3964": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4610": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2660": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3678": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4878": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1814": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "252": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "963": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4267": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1116": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3970": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2926": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4509": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3819": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4655": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4024": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3742": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3329": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4292": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2641": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1557": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2219": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4062": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3400": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3855": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2437": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2212": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3610": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2243": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4593": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "765": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1203": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2918": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "63": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4194": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3899": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2446": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2625": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1635": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "198": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3353": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3028": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1736": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3158": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3262": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "285": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "335": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4582": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3676": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3936": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3750": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3505": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "873": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4013": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "215": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3527": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2719": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "graderError": false
+  },
+  "934": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2667": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4000": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1973": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "692": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3530": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1687": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2432": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "158": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2586": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1368": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4705": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "144": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3514": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3641": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3828": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3606": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3973": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "70": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1924": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1156": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4436": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3978": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4433": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1440": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4341": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "29": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2220": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3480": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3668": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2291": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3014": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4351": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4379": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3869": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4036": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4840": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1405": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "298": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3468": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3293": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "514": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1510": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2090": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "588": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4497": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3617": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "864": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2148": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4493": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2415": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3825": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3652": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2484": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2726": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2488": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "graderError": false
+  },
+  "691": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "513": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2892": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2062": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1132": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3385": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4719": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4810": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3414": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3191": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3689": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3415": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4701": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3247": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1976": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3809": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3189": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3462": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4876": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "845": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4179": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3578": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4343": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1708": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4438": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4600": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1905": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3219": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "223": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3428": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1266": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2951": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3226": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3840": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2692": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "519": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3630": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3645": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3394": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3442": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "811": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3592": {
+   "games": [
+    "A",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4047": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3399": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3336": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4315": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1577": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2345": {
+   "games": [
+    "B",
+    "A"
+   ],
+   "graderError": false
+  }
+ },
+ "driftbench": {
+  "3406": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2935": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3337": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2986": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3438": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4022": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3304": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3596": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2106": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "10": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2166": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2535": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4030": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3229": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1054": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4904": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3075": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4417": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2942": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3827": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3905": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1507": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3875": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2640": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "780": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3275": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4823": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1216": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "176": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3909": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2338": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3362": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1346": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4414": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4874": {
+   "games": [
+    null,
+    null
+   ],
+   "graderError": true
+  },
+  "284": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4834": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1058": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3429": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4358": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4689": {
+   "games": [
+    null,
+    null
+   ],
+   "graderError": true
+  },
+  "3446": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "89": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2737": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4362": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3313": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4964": {
+   "games": [
+    null,
+    null
+   ],
+   "graderError": true
+  },
+  "2832": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4607": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1667": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4415": {
+   "games": [
+    null,
+    null
+   ],
+   "graderError": true
+  },
+  "773": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "572": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2844": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3679": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2138": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4211": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3780": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3815": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3238": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3776": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4580": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3523": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3277": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4695": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "936": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4037": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4088": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2573": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2698": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4463": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2041": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4052": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2208": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3757": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2800": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4681": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3474": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3383": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3280": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4395": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "621": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4782": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4329": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3204": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4387": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3943": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3762": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "476": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2811": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3718": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "graderError": false
+  },
+  "3378": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2260": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4529": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3423": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1771": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3340": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2967": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2797": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3548": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3223": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1563": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3084": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4011": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3384": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2685": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "855": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3850": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3205": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3369": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3706": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "graderError": false
+  },
+  "1420": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3738": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3192": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2365": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "992": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3288": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3680": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3407": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4730": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "graderError": false
+  },
+  "3998": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "graderError": false
+  },
+  "4504": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "graderError": false
+  },
+  "3178": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4104": {
+   "games": [
+    null,
+    null
+   ],
+   "graderError": true
+  },
+  "1167": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3267": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "775": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3271": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3711": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3832": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4915": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2104": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3708": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3190": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1046": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3525": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3821": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3651": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4419": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3430": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3285": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "962": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3114": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4066": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3542": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4946": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2687": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2616": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1513": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3305": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2957": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2361": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "338": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4642": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1670": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3212": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3210": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "960": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4969": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3876": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3344": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3512": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3535": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3976": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "552": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4249": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2748": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3467": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4043": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4832": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3764": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4566": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4160": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3321": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3924": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "728": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3065": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3492": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4017": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4398": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3597": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3497": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2265": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1468": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3967": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3763": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2237": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "85": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2009": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3239": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3515": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3018": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4880": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2374": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "634": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3411": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2490": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4953": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1954": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4294": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2976": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2076": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3533": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4778": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4009": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3997": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2244": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3667": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "690": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2966": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3631": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2642": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4960": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3443": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2367": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "932": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4766": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4605": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3203": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1716": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "967": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4370": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3761": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3195": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3526": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3316": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1525": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2750": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3347": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3254": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "358": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2977": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4122": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3843": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4530": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4205": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3461": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2085": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3663": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3319": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3459": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3844": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3361": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4603": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1677": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3368": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3753": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3173": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2847": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3951": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3666": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4466": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "500": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2701": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "377": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "531": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3410": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4326": {
+   "games": [
+    null,
+    null
+   ],
+   "graderError": true
+  },
+  "3961": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4458": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3784": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3038": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4228": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4163": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "33": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3914": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3481": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "608": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2245": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2953": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3494": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4344": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1805": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3621": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4002": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "graderError": false
+  },
+  "3145": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3896": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2304": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3745": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1327": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2618": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2156": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3935": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2968": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3683": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3919": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4606": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2910": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "877": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4067": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2608": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4093": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3301": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3654": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3985": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4557": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4970": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3988": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2073": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1767": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2353": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3004": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1739": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2723": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3945": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3747": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3537": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3421": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2179": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4897": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "graderError": false
+  },
+  "3946": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3564": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "640": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3672": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2261": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4892": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2991": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3012": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3848": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4691": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "880": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1056": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3960": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2405": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3513": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3245": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1347": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4045": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3060": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3243": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2322": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3193": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4746": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4722": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2705": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3470": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4499": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3390": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "783": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3605": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3860": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3427": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2882": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3692": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3649": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1909": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2378": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "439": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3354": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2829": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4714": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4346": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4931": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "206": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3694": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4788": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2000": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "172": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "501": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2247": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1674": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3417": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3092": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "328": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3686": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "610": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3647": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4314": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4184": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2438": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3989": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4506": {
+   "games": [
+    null,
+    null
+   ],
+   "graderError": true
+  },
+  "4771": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3150": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3981": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3972": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4676": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1565": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4437": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4365": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3868": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3956": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4865": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1658": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3984": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2039": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3612": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3928": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "graderError": false
+  },
+  "4650": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4378": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4951": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3793": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4487": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3648": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4279": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3574": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4881": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3085": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2118": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4055": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4898": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3325": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4928": {
+   "games": [
+    null,
+    null
+   ],
+   "graderError": true
+  },
+  "2890": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1632": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2703": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3248": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1733": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4779": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "624": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4475": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3486": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1229": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4260": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3719": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4406": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2955": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3619": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3381": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4671": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3379": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4310": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4020": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4388": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "569": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3260": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4012": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "graderError": false
+  },
+  "1857": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "681": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4427": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3861": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3833": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2146": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "364": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "620": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3781": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3503": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2349": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4610": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2660": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3964": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3678": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1814": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "252": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "963": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4878": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1116": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4267": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3970": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2926": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3819": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4509": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4655": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3742": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4024": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1557": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4292": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2641": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2219": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3329": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4062": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3400": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2437": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3855": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2212": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3610": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2243": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4593": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1203": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "765": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2918": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "63": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4194": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3899": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2446": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "198": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2625": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1635": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1736": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3028": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3353": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "285": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3158": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "335": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3262": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3676": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4582": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3750": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "873": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3505": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3936": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "215": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4013": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "934": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3527": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2667": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4000": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "692": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2719": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1973": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "158": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3530": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1687": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2432": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2586": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "144": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1368": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3514": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3828": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3641": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4705": {
+   "games": [
+    null,
+    null
+   ],
+   "graderError": true
+  },
+  "3973": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3606": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1924": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1156": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "70": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3978": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4436": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "29": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1440": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4341": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2220": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4433": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3480": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2291": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3668": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4351": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3014": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4379": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4036": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1405": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "298": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4840": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3869": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3293": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1510": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "588": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3468": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "514": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2090": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "864": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4497": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3617": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4493": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2148": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2415": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3825": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2484": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3652": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "691": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2726": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "513": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2488": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1132": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2892": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2062": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3385": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4719": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3414": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4810": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3689": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3191": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3415": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3247": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4701": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1976": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3809": {
+   "games": [
+    "tie",
+    "tie"
+   ],
+   "graderError": false
+  },
+  "3189": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "845": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3462": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4876": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4179": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1708": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4343": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3578": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1905": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4600": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3219": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4438": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "223": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3428": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "1266": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2951": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3226": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3840": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "519": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "2692": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3394": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3630": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "811": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3645": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3442": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "4047": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  },
+  "3592": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3399": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "3336": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "1577": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "4315": {
+   "games": [
+    "A",
+    "A"
+   ],
+   "graderError": false
+  },
+  "2345": {
+   "games": [
+    "B",
+    "B"
+   ],
+   "graderError": false
+  }
+ }
+}

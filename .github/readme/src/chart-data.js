@@ -375,7 +375,7 @@ window.CHART_DATA = {
   "self-tests": {
     "kind": "single",
     "kicker": "Self-tests · cases built by code with a known answer",
-    "title": "7,453 planted-truth cases test driftbench itself.",
+    "title": "7,454 planted-truth cases test driftbench itself.",
     "key": [
       "holds a floor in CI",
       "no floor yet"
@@ -392,10 +392,10 @@ window.CHART_DATA = {
     "rows": [
       {
         "label": "Whole pipeline",
-        "value": 2383,
-        "text": "2,383",
+        "value": 2384,
+        "text": "2,384",
         "series": 0,
-        "sub": "floor: level 7"
+        "sub": "floor: level 9"
       },
       {
         "label": "Test generator",
@@ -524,335 +524,608 @@ window.CHART_DATA = {
     "note": "Read from each tool's docs and source"
   },
   "bench-judgebench": {
-    "kind": "columns",
-    "kicker": "JudgeBench · sealed test · same items, same model per pair of bars",
+    "kind": "ranked",
+    "kicker": "JudgeBench · sealed test · same items, same model in each panel",
     "title": "JudgeBench: driftbench scores higher with 2, equal with 1 of 3 models.",
     "key": [
-      "driftbench pair ledger",
-      "promptfoo select-best"
+      {
+        "label": "driftbench pair ledger",
+        "style": "ours"
+      },
+      {
+        "label": "promptfoo select-best",
+        "style": "other"
+      }
     ],
-    "min": 0,
-    "max": 100,
-    "ticks": [
-      0,
-      25,
-      50,
-      75,
-      100
-    ],
-    "tick": "%",
     "axis": "score out of 100: correct, % of items",
-    "groups": [
+    "panels": [
       {
-        "label": "Claude Haiku 5.5",
-        "sub": "270 pairs",
+        "name": "Claude Haiku 5.5",
+        "model": "270 pairs",
         "bars": [
           {
-            "series": 0,
-            "value": 88.89,
-            "text": "88.9"
+            "name": "driftbench",
+            "score": 88.89,
+            "ours": true
           },
           {
-            "series": 1,
-            "value": 82.96,
-            "text": "83.0"
+            "name": "promptfoo",
+            "score": 82.96
+          },
+          {
+            "name": "DeepEval",
+            "score": 86.3
+          },
+          {
+            "name": "Inspect",
+            "score": 80
+          },
+          {
+            "name": "Langfuse",
+            "score": 74.81
+          },
+          {
+            "name": "LangWatch",
+            "score": 83.7
           }
         ]
       },
       {
-        "label": "GPT-6 Luna",
-        "sub": "270 pairs",
+        "name": "GPT-6 Luna",
+        "model": "270 pairs",
         "bars": [
           {
-            "series": 0,
-            "value": 87.04,
-            "text": "87.0"
+            "name": "driftbench",
+            "score": 87.04,
+            "ours": true
           },
           {
-            "series": 1,
-            "value": 84.81,
-            "text": "84.8"
+            "name": "promptfoo",
+            "score": 84.81
+          },
+          {
+            "name": "DeepEval",
+            "score": null
+          },
+          {
+            "name": "Inspect",
+            "score": null
+          },
+          {
+            "name": "Langfuse",
+            "score": null
+          },
+          {
+            "name": "LangWatch",
+            "score": null
           }
         ]
       },
       {
-        "label": "Gemini 3.5 Flash-Lite",
-        "sub": "270 pairs",
+        "name": "Gemini 3.5 Flash-Lite",
+        "model": "270 pairs",
         "bars": [
           {
-            "series": 0,
-            "value": 79.63,
-            "text": "79.6"
+            "name": "driftbench",
+            "score": 79.63,
+            "ours": true
           },
           {
-            "series": 1,
-            "value": 79.63,
-            "text": "79.6"
+            "name": "promptfoo",
+            "score": 79.63
+          },
+          {
+            "name": "DeepEval",
+            "score": null
+          },
+          {
+            "name": "Inspect",
+            "score": null
+          },
+          {
+            "name": "Langfuse",
+            "score": null
+          },
+          {
+            "name": "LangWatch",
+            "score": null
           }
         ]
       }
     ],
-    "note": "Gemini 3.8 Flash not run: provider quota"
+    "note": "Competitors with a recorded result on this benchmark in this repository: promptfoo, DeepEval, Inspect, Langfuse, LangWatch. 270 pairs per model."
   },
   "bench-mm-eval": {
-    "kind": "columns",
+    "kind": "ranked",
     "kicker": "MM-Eval · sealed test · the benchmark's own score",
     "title": "MM-Eval: driftbench scores higher with 1, lower with 2 of 3 models.",
     "key": [
-      "driftbench pair ledger",
-      "promptfoo select-best"
+      {
+        "label": "driftbench pair ledger",
+        "style": "ours"
+      },
+      {
+        "label": "promptfoo select-best",
+        "style": "other"
+      }
     ],
-    "min": 0,
-    "max": 100,
-    "ticks": [
-      0,
-      25,
-      50,
-      75,
-      100
-    ],
-    "tick": "%",
     "axis": "score out of 100: correct, % of items",
-    "groups": [
+    "panels": [
       {
-        "label": "Claude Haiku 5.5",
-        "sub": "591 pairs",
+        "name": "GPT-6 Luna",
+        "model": "600 pairs",
         "bars": [
           {
-            "series": 0,
-            "value": 88.86,
-            "text": "88.9"
+            "name": "driftbench",
+            "score": 88.08,
+            "ours": true
           },
           {
-            "series": 1,
-            "value": 86.45,
-            "text": "86.5"
+            "name": "promptfoo",
+            "score": 89
+          },
+          {
+            "name": "DeepEval",
+            "score": null
+          },
+          {
+            "name": "Inspect",
+            "score": null
+          },
+          {
+            "name": "Langfuse",
+            "score": null
+          },
+          {
+            "name": "LangWatch",
+            "score": null
           }
         ]
       },
       {
-        "label": "GPT-6 Luna",
-        "sub": "600 pairs",
+        "name": "Claude Haiku 5.5",
+        "model": "591 pairs",
         "bars": [
           {
-            "series": 0,
-            "value": 88.08,
-            "text": "88.1"
+            "name": "driftbench",
+            "score": 88.86,
+            "ours": true
           },
           {
-            "series": 1,
-            "value": 89,
-            "text": "89.0"
+            "name": "promptfoo",
+            "score": 86.45
+          },
+          {
+            "name": "DeepEval",
+            "score": 84.09,
+            "refused": 3
+          },
+          {
+            "name": "Inspect",
+            "score": 75.36,
+            "refused": 7
+          },
+          {
+            "name": "Langfuse",
+            "score": 73.45,
+            "refused": 6
+          },
+          {
+            "name": "LangWatch",
+            "score": 83.87,
+            "refused": 7
           }
         ]
       },
       {
-        "label": "Gemini 3.5 Flash-Lite",
-        "sub": "600 pairs",
+        "name": "Gemini 3.5 Flash-Lite",
+        "model": "600 pairs",
         "bars": [
           {
-            "series": 0,
-            "value": 81.42,
-            "text": "81.4"
+            "name": "driftbench",
+            "score": 81.42,
+            "ours": true
           },
           {
-            "series": 1,
-            "value": 83.75,
-            "text": "83.8"
+            "name": "promptfoo",
+            "score": 83.75
+          },
+          {
+            "name": "DeepEval",
+            "score": null
+          },
+          {
+            "name": "Inspect",
+            "score": null
+          },
+          {
+            "name": "Langfuse",
+            "score": null
+          },
+          {
+            "name": "LangWatch",
+            "score": null
           }
         ]
       }
     ],
-    "note": "Gemini 3.8 Flash partial (393 of 600 pairs): left out"
+    "note": "Competitors with a recorded result on this benchmark in this repository: promptfoo, DeepEval, Inspect, Langfuse, LangWatch. Up to 600 pairs per model; Claude Haiku 5.5 scores 591, nine safety items missing."
   },
   "bench-rubricbench": {
-    "kind": "columns",
+    "kind": "ranked",
     "kicker": "RubricBench · test split · both orders of every pair",
-    "title": "RubricBench: driftbench scores higher with 1, lower with 1 of 2 models.",
+    "title": "RubricBench: driftbench scores higher with 2, equal with 1 of 3 models.",
     "key": [
-      "driftbench pair ledger",
-      "promptfoo select-best"
-    ],
-    "min": 0,
-    "max": 100,
-    "ticks": [
-      0,
-      25,
-      50,
-      75,
-      100
-    ],
-    "tick": "%",
-    "axis": "score out of 100: correct, % of items",
-    "groups": [
       {
-        "label": "GPT-6 Luna",
-        "sub": "790 pairs",
+        "label": "driftbench pair ledger",
+        "style": "ours"
+      },
+      {
+        "label": "promptfoo select-best",
+        "style": "other"
+      }
+    ],
+    "axis": "score out of 100: correct, % of items",
+    "panels": [
+      {
+        "name": "Claude Haiku 5.5",
+        "model": "790 pairs",
         "bars": [
           {
-            "series": 0,
-            "value": 82.28,
-            "text": "82.3"
+            "name": "driftbench",
+            "score": 82.66,
+            "ours": true
           },
           {
-            "series": 1,
-            "value": 81.52,
-            "text": "81.5"
+            "name": "promptfoo",
+            "score": 75.57
+          },
+          {
+            "name": "DeepEval",
+            "score": 77.59,
+            "refused": 1
+          },
+          {
+            "name": "Inspect",
+            "score": 26.58
+          },
+          {
+            "name": "Langfuse",
+            "score": 25.06,
+            "refused": 1
+          },
+          {
+            "name": "LangWatch",
+            "score": 74.94
           }
         ]
       },
       {
-        "label": "Gemini 3.5 Flash-Lite",
-        "sub": "790 pairs",
+        "name": "GPT-6 Luna",
+        "model": "790 pairs",
         "bars": [
           {
-            "series": 0,
-            "value": 80.76,
-            "text": "80.8"
+            "name": "driftbench",
+            "score": 82.28,
+            "ours": true
           },
           {
-            "series": 1,
-            "value": 80.82,
-            "text": "80.8"
+            "name": "promptfoo",
+            "score": 81.52
+          },
+          {
+            "name": "DeepEval",
+            "score": null
+          },
+          {
+            "name": "Inspect",
+            "score": null
+          },
+          {
+            "name": "Langfuse",
+            "score": null
+          },
+          {
+            "name": "LangWatch",
+            "score": null
+          }
+        ]
+      },
+      {
+        "name": "Gemini 3.5 Flash-Lite",
+        "model": "790 pairs",
+        "bars": [
+          {
+            "name": "driftbench",
+            "score": 80.76,
+            "ours": true
+          },
+          {
+            "name": "promptfoo",
+            "score": 80.82
+          },
+          {
+            "name": "DeepEval",
+            "score": null
+          },
+          {
+            "name": "Inspect",
+            "score": null
+          },
+          {
+            "name": "Langfuse",
+            "score": null
+          },
+          {
+            "name": "LangWatch",
+            "score": null
           }
         ]
       }
     ],
-    "note": "Claude Haiku 5.5 still running · Gemini 3.8 Flash partial: left out"
+    "note": "Competitors with a recorded result on this benchmark in this repository: promptfoo, DeepEval, Inspect, Langfuse, LangWatch. 790 pairs per model."
   },
   "bench-verify": {
-    "kind": "columns",
+    "kind": "ranked",
     "kicker": "LongJudgeBench verify · test split · is the final answer correct",
     "title": "Verify: above promptfoo, below a judge that always says fail.",
     "key": [
-      "driftbench verify cascade",
-      "promptfoo llm-rubric",
-      "no model"
-    ],
-    "min": 0,
-    "max": 100,
-    "ticks": [
-      0,
-      25,
-      50,
-      75,
-      100
-    ],
-    "tick": "%",
-    "axis": "score out of 100: correct, % of items",
-    "groups": [
       {
-        "label": "GPT-6 Luna",
-        "sub": "221 items",
+        "label": "driftbench verify cascade",
+        "style": "ours"
+      },
+      {
+        "label": "promptfoo llm-rubric",
+        "style": "other"
+      },
+      {
+        "label": "no model",
+        "style": "baseline"
+      }
+    ],
+    "axis": "score out of 100: correct, % of items",
+    "panels": [
+      {
+        "name": "Claude Haiku 5.5",
+        "model": "not run",
         "bars": [
           {
-            "series": 0,
-            "value": 74.66,
-            "text": "74.7"
+            "name": "driftbench",
+            "score": null,
+            "ours": true
           },
           {
-            "series": 1,
-            "value": 72.4,
-            "text": "72.4"
+            "name": "promptfoo",
+            "score": null
+          },
+          {
+            "name": "always fail",
+            "score": 78.73,
+            "baseline": true
+          },
+          {
+            "name": "DeepEval",
+            "score": 58.82
+          },
+          {
+            "name": "Inspect",
+            "score": 73.3
+          },
+          {
+            "name": "Langfuse",
+            "score": 75.11
+          },
+          {
+            "name": "LangWatch",
+            "score": 73.3
           }
         ]
       },
       {
-        "label": "No model",
-        "sub": "always says fail",
+        "name": "GPT-6 Luna",
+        "model": "221 items",
         "bars": [
           {
-            "series": 2,
-            "value": 78.73,
-            "text": "78.7"
+            "name": "driftbench",
+            "score": 74.66,
+            "ours": true
+          },
+          {
+            "name": "promptfoo",
+            "score": 72.4
+          },
+          {
+            "name": "always fail",
+            "score": 78.73,
+            "baseline": true
+          },
+          {
+            "name": "DeepEval",
+            "score": null
+          },
+          {
+            "name": "Inspect",
+            "score": null
+          },
+          {
+            "name": "Langfuse",
+            "score": null
+          },
+          {
+            "name": "LangWatch",
+            "score": null
+          }
+        ]
+      },
+      {
+        "name": "Gemini 3.5 Flash-Lite",
+        "model": "not run",
+        "bars": [
+          {
+            "name": "driftbench",
+            "score": null,
+            "ours": true
+          },
+          {
+            "name": "promptfoo",
+            "score": null
+          },
+          {
+            "name": "always fail",
+            "score": 78.73,
+            "baseline": true
+          },
+          {
+            "name": "DeepEval",
+            "score": null
+          },
+          {
+            "name": "Inspect",
+            "score": null
+          },
+          {
+            "name": "Langfuse",
+            "score": null
+          },
+          {
+            "name": "LangWatch",
+            "score": null
           }
         ]
       }
     ],
-    "note": "Claude Haiku 5.5 pending · Gemini models not final: left out"
+    "note": "Competitors with a recorded result on this benchmark in this repository: promptfoo, DeepEval, Inspect, Langfuse, LangWatch. Run with GPT-6 Luna only; the other two models are not run."
   },
   "bench-writing": {
-    "kind": "columns",
+    "kind": "ranked",
     "kicker": "LongJudgeBench writing preference · test split · both orders",
     "title": "Writing: driftbench scores higher with 1, lower with 2 of 3 models; picking the longer reply beats both.",
     "key": [
-      "driftbench pair ledger",
-      "promptfoo select-best",
-      "no model"
+      {
+        "label": "driftbench pair ledger",
+        "style": "ours"
+      },
+      {
+        "label": "promptfoo select-best",
+        "style": "other"
+      },
+      {
+        "label": "no model",
+        "style": "baseline"
+      }
     ],
-    "min": 0,
-    "max": 100,
-    "ticks": [
-      0,
-      25,
-      50,
-      75,
-      100
-    ],
-    "tick": "%",
     "axis": "score out of 100: correct, % of items",
-    "groups": [
+    "panels": [
       {
-        "label": "Claude Haiku 5.5",
-        "sub": "173 pairs",
+        "name": "Claude Haiku 5.5",
+        "model": "173 pairs",
         "bars": [
           {
-            "series": 0,
-            "value": 61.27,
-            "text": "61.3"
+            "name": "driftbench",
+            "score": 61.27,
+            "ours": true
           },
           {
-            "series": 1,
-            "value": 56.94,
-            "text": "56.9"
+            "name": "promptfoo",
+            "score": 56.94
+          },
+          {
+            "name": "longer reply",
+            "score": 67.63,
+            "baseline": true
+          },
+          {
+            "name": "DeepEval",
+            "score": 58.38
+          },
+          {
+            "name": "Inspect",
+            "score": 11.56
+          },
+          {
+            "name": "Langfuse",
+            "score": 14.45
+          },
+          {
+            "name": "LangWatch",
+            "score": 52.6
           }
         ]
       },
       {
-        "label": "GPT-6 Luna",
-        "sub": "173 pairs",
+        "name": "GPT-6 Luna",
+        "model": "173 pairs",
         "bars": [
           {
-            "series": 0,
-            "value": 53.76,
-            "text": "53.8"
+            "name": "driftbench",
+            "score": 53.76,
+            "ours": true
           },
           {
-            "series": 1,
-            "value": 56.94,
-            "text": "56.9"
+            "name": "promptfoo",
+            "score": 56.94
+          },
+          {
+            "name": "longer reply",
+            "score": 67.63,
+            "baseline": true
+          },
+          {
+            "name": "DeepEval",
+            "score": null
+          },
+          {
+            "name": "Inspect",
+            "score": null
+          },
+          {
+            "name": "Langfuse",
+            "score": null
+          },
+          {
+            "name": "LangWatch",
+            "score": null
           }
         ]
       },
       {
-        "label": "Gemini 3.5 Flash-Lite",
-        "sub": "173 pairs",
+        "name": "Gemini 3.5 Flash-Lite",
+        "model": "173 pairs",
         "bars": [
           {
-            "series": 0,
-            "value": 58.96,
-            "text": "59.0"
+            "name": "driftbench",
+            "score": 58.96,
+            "ours": true
           },
           {
-            "series": 1,
-            "value": 60.4,
-            "text": "60.4"
-          }
-        ]
-      },
-      {
-        "label": "No model",
-        "sub": "picks the longer reply",
-        "bars": [
+            "name": "promptfoo",
+            "score": 60.4
+          },
           {
-            "series": 2,
-            "value": 67.63,
-            "text": "67.6"
+            "name": "longer reply",
+            "score": 67.63,
+            "baseline": true
+          },
+          {
+            "name": "DeepEval",
+            "score": null
+          },
+          {
+            "name": "Inspect",
+            "score": null
+          },
+          {
+            "name": "Langfuse",
+            "score": null
+          },
+          {
+            "name": "LangWatch",
+            "score": null
           }
         ]
       }
     ],
-    "note": "Gemini 3.8 Flash not run: provider quota"
+    "note": "Competitors with a recorded result on this benchmark in this repository: promptfoo, DeepEval, Inspect, Langfuse, LangWatch. 173 pairs per model."
   },
   "hard-deepeval": {
     "kind": "columns",

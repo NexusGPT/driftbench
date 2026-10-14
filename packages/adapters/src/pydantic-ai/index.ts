@@ -2,6 +2,7 @@ import {
   type AdapterCapabilities,
   type AgentAdapter,
   AgentFailure,
+  copyHistory,
   isPlainObject,
   type Message,
   type ResolvedGiven,
@@ -101,8 +102,9 @@ export function pydanticAiAdapter(options: PydanticAiAdapterOptions): AgentAdapt
     },
 
     async send(session: Session, turn: Turn) {
+      const sharedHistory = copyHistory(session.history);
       const state = ownState<PydanticState>(session, id, 'pydantic-ai');
-      const { prompt, history } = splitPrompt(session.history);
+      const { prompt, history } = splitPrompt(sharedHistory);
       const started = performance.now();
       const reply = await exec({
         command: options.python ?? 'python3',

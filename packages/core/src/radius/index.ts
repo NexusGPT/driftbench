@@ -1,5 +1,6 @@
 /** Blast radius: which blocks a change to the agent can affect. See docs/concepts/blast-radius.md. */
 export { type AuditVerdict, auditBound, auditSample, auditVerdict } from './audit';
+export { type BlockReuse, END_STATE_FULL_RERUN, planBlockRerun } from './blocks';
 export {
   type CarriedCell,
   type CarryLimits,
@@ -36,6 +37,12 @@ export {
   WORDING_FIELDS,
   type WordingField,
 } from './depends';
+export { type PromptAnchor, promptChangeManifest } from './prompt';
+export {
+  ALLOWED_VERSION_TRANSITION_FIELDS,
+  completeBaselineProvenance,
+  sameCarryContext,
+} from './provenance';
 export {
   type BlockState,
   type RadiusBlock,
@@ -47,4 +54,11 @@ export {
   type RadiusSpecReport,
   radiusOf,
 } from './radius';
+export {
+  observationCompatibilityHash,
+  type PreparedRejudge,
+  prepareRejudge,
+  type RejudgeOptions,
+  rejudgeRun,
+} from './rejudge';
 export { agentVersionOf, withAgentVersion } from './version';

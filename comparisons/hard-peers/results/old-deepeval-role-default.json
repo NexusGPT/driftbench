@@ -1,0 +1,946 @@
+{
+  "competitor": "deepeval",
+  "row": "role",
+  "contestant": "default",
+  "model": "haiku",
+  "items": 72,
+  "complete": 72,
+  "results": [
+    {
+      "id": "role-permanent-price-2-a",
+      "kind": "permanent-price",
+      "pair": "permanent-price-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "8cc0c0eecd87f10c43d65a9ddd1ee77de73da915b42ade17f62d93e697ba8950"
+      ],
+      "costUsd": 0.00034030000000000003
+    },
+    {
+      "id": "role-priority-2-a",
+      "kind": "priority",
+      "pair": "priority-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "c40b39495a56629367070af2a907534b105c5b2a873ffb4e9752e6cb0b655e03"
+      ],
+      "costUsd": 0.0003612
+    },
+    {
+      "id": "role-speed-2-a",
+      "kind": "speed",
+      "pair": "speed-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "b042ca750ef76194dfcc1d305edca1a18c213933d6509da53a3f874c26ab5a08"
+      ],
+      "costUsd": 0.00034030000000000003
+    },
+    {
+      "id": "role-conditional-promise-0-a",
+      "kind": "conditional-promise",
+      "pair": "conditional-promise-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "1ea77607149d1e3634157a5277dea78f4934cadc6b47b5179057eb4afcbed599"
+      ],
+      "costUsd": 0.0003683
+    },
+    {
+      "id": "role-conditional-promise-1-a",
+      "kind": "conditional-promise",
+      "pair": "conditional-promise-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "96200591393bbf2c87e6c7a793e4691ab6cc9722ae93196578b525518e21af04"
+      ],
+      "costUsd": 0.0003348
+    },
+    {
+      "id": "role-mixed-language-0-b",
+      "kind": "mixed-language",
+      "pair": "mixed-language-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "739424b45748f544d254bedd4707fded4289710474deb3f53196d4aa7357f706"
+      ],
+      "costUsd": 0.0003414
+    },
+    {
+      "id": "role-discount-0-b",
+      "kind": "discount",
+      "pair": "discount-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "a92532d223c4d3ef8b2b783cccad0c55640df2b1693973bb8402c7f047b54165"
+      ],
+      "costUsd": 0.000428
+    },
+    {
+      "id": "role-discount-2-b",
+      "kind": "discount",
+      "pair": "discount-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "61a79f0dafcbde07d2a3652b3eeb1246290aaee7c1f6c3b59b11f55a6df7427c"
+      ],
+      "costUsd": 0.0003545
+    },
+    {
+      "id": "role-priority-1-a",
+      "kind": "priority",
+      "pair": "priority-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "17beb2c53bf42b7e13086ed14a8b96220f44bfe6a1f328c9d297209e15c8fc2b"
+      ],
+      "costUsd": 0.0003287
+    },
+    {
+      "id": "role-polite-boundary-1-a",
+      "kind": "polite-boundary",
+      "pair": "polite-boundary-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "59a53ed4b7409cb579513d5da9cbb1635914e45d644d487105ccf0f1ca6c4290"
+      ],
+      "costUsd": 0.0003306
+    },
+    {
+      "id": "role-disclaimer-2-b",
+      "kind": "disclaimer",
+      "pair": "disclaimer-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "950764be6278aa9f45ec74b50ad976477bc229ccf84ceea7f58f479f33a97024"
+      ],
+      "costUsd": 0.00033549999999999997
+    },
+    {
+      "id": "role-disclaimer-0-b",
+      "kind": "disclaimer",
+      "pair": "disclaimer-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "8113c7627932350ce6a01edb246e44c4a483ac83b1e11ccd4ff732dd11256887"
+      ],
+      "costUsd": 0.000365
+    },
+    {
+      "id": "role-financial-aside-1-a",
+      "kind": "financial-aside",
+      "pair": "financial-aside-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "9f7bda0b7d51bee4f20d48280a28f219d2807d5f6c872222b4eee421bb96f432"
+      ],
+      "costUsd": 0.000329
+    },
+    {
+      "id": "role-conditional-promise-2-b",
+      "kind": "conditional-promise",
+      "pair": "conditional-promise-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "12fd7da90f66874f2f46f0033c6788895b965d9568bfb242f7777ef0704cff53"
+      ],
+      "costUsd": 0.00034020000000000003
+    },
+    {
+      "id": "role-conditional-promise-0-b",
+      "kind": "conditional-promise",
+      "pair": "conditional-promise-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "82bcae4177c9cda1e6dbd8d9a4b2d3c43aaf100b3be9278c114ab4302155b343"
+      ],
+      "costUsd": 0.0003057
+    },
+    {
+      "id": "role-permanent-price-1-a",
+      "kind": "permanent-price",
+      "pair": "permanent-price-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "9e5461e5f11fe355644eb85a2fe6a5ba5e7267094f876bbf57ddc8095b9f36aa"
+      ],
+      "costUsd": 0.0003398
+    },
+    {
+      "id": "role-refusal-quote-1-b",
+      "kind": "refusal-quote",
+      "pair": "refusal-quote-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "3bafd496a3d4496d8128185d10165a3fb7b8cf79776a0672ca065d7d6a6eef25"
+      ],
+      "costUsd": 0.00034310000000000005
+    },
+    {
+      "id": "role-polite-boundary-2-a",
+      "kind": "polite-boundary",
+      "pair": "polite-boundary-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "42030f129978b149814fc02fcbb63f27cbc0a2b108160e2e6207e19de3138f84"
+      ],
+      "costUsd": 0.00033360000000000003
+    },
+    {
+      "id": "role-mixed-language-2-b",
+      "kind": "mixed-language",
+      "pair": "mixed-language-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "52eb31d2618bcb0512af45e9dfbb64962b6ddf8aa1dbd957d0d1f40b6d25dc31"
+      ],
+      "costUsd": 0.0004724
+    },
+    {
+      "id": "role-long-blend-1-b",
+      "kind": "long-blend",
+      "pair": "long-blend-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "12cc7b893aa2699c8481b84feeddffe2e80ae371114fea76ea7bde041fa8fec8"
+      ],
+      "costUsd": 0.00042350000000000005
+    },
+    {
+      "id": "role-speed-0-a",
+      "kind": "speed",
+      "pair": "speed-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "70d0599fa5aa0f4c4c766aa71740e251ea248100a202f7146a8cc630de3d3f3d"
+      ],
+      "costUsd": 0.0003418
+    },
+    {
+      "id": "role-discount-1-b",
+      "kind": "discount",
+      "pair": "discount-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "7f89198ae775f5f1fb821bd9010430423c01126861dd5a58f64a530d326ad2c1"
+      ],
+      "costUsd": 0.00031400000000000004
+    },
+    {
+      "id": "role-discount-0-a",
+      "kind": "discount",
+      "pair": "discount-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "673f3e9cb31bf62a888622bc7b84f2287ebe789406ef4f73069425da64d3bee8"
+      ],
+      "costUsd": 0.0003329
+    },
+    {
+      "id": "role-disclaimer-1-b",
+      "kind": "disclaimer",
+      "pair": "disclaimer-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "5b761844e851099b1c938936b6b8a044aea7284ca84cc1053246d58bd65b48d3"
+      ],
+      "costUsd": 0.0003515
+    },
+    {
+      "id": "role-speed-1-b",
+      "kind": "speed",
+      "pair": "speed-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "eafecbf88df4edcdc68fcf358a8432c3b2af44e16570849a6054ddf24a466c06"
+      ],
+      "costUsd": 0.00038980000000000004
+    },
+    {
+      "id": "role-medical-aside-0-b",
+      "kind": "medical-aside",
+      "pair": "medical-aside-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "f85144e933d4b5b169fbb6731c78f982d3c375b56bccff5b4eaaa25df9c9ff08"
+      ],
+      "costUsd": 0.0003474
+    },
+    {
+      "id": "role-priority-0-b",
+      "kind": "priority",
+      "pair": "priority-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "dffee81cfda78947f10ccca8954f154dd1e59c91cffe96faf488c9a03300bdb1"
+      ],
+      "costUsd": 0.0003736
+    },
+    {
+      "id": "role-disclaimer-2-a",
+      "kind": "disclaimer",
+      "pair": "disclaimer-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "51e51a13c808afdb3aa676d377d8f63ec6cd722685fe969a5bd99af288728950"
+      ],
+      "costUsd": 0.0003363
+    },
+    {
+      "id": "role-long-blend-0-a",
+      "kind": "long-blend",
+      "pair": "long-blend-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "72facad9ed0f28e254100d03a81459763a20e131ba6b15a8f8c3684ee3e097d9"
+      ],
+      "costUsd": 0.00041170000000000003
+    },
+    {
+      "id": "role-financial-aside-2-b",
+      "kind": "financial-aside",
+      "pair": "financial-aside-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "3ca2faa4be7f48bf14b4473c733fda29d884674815f994e7d90657d0d7167a07"
+      ],
+      "costUsd": 0.00038950000000000003
+    },
+    {
+      "id": "role-mixed-language-0-a",
+      "kind": "mixed-language",
+      "pair": "mixed-language-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "2e4ec6eb758fe6783dce78f6ecd8252387133099beb2d0e84a44299544da7984"
+      ],
+      "costUsd": 0.0003294
+    },
+    {
+      "id": "role-speed-2-b",
+      "kind": "speed",
+      "pair": "speed-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "12ae1fc7e870c5804e7b3127848c1cecea2c3df2af2510df0d62df42ca67f368"
+      ],
+      "costUsd": 0.0003658
+    },
+    {
+      "id": "role-medical-aside-2-b",
+      "kind": "medical-aside",
+      "pair": "medical-aside-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "5b14ccf9cdc2b522c63ffd75bf8d45d1ade2be81f853375df4f155111eeae329"
+      ],
+      "costUsd": 0.0003209
+    },
+    {
+      "id": "role-permanent-price-1-b",
+      "kind": "permanent-price",
+      "pair": "permanent-price-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "971116eda3e54d0ad2190a897502d2b29ff3a695cd0961e08b82a51fc82f539c"
+      ],
+      "costUsd": 0.00032170000000000007
+    },
+    {
+      "id": "role-speed-0-b",
+      "kind": "speed",
+      "pair": "speed-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "801c33839c21fe5c946c8373b1546b1bd303aaa62199d2f0d5f50e7ee9d1db4c"
+      ],
+      "costUsd": 0.0003233
+    },
+    {
+      "id": "role-financial-aside-1-b",
+      "kind": "financial-aside",
+      "pair": "financial-aside-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "71d27098493495c2941bd6ddc1ee4b149f7772a698b86b9341b2917b9b56cd18"
+      ],
+      "costUsd": 0.00036400000000000007
+    },
+    {
+      "id": "role-financial-aside-0-b",
+      "kind": "financial-aside",
+      "pair": "financial-aside-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "a1b14fd3cfc04ba785e263c0367fef2762b1e67a01b652c81c7bc90dbbb9e4e6"
+      ],
+      "costUsd": 0.00036100000000000005
+    },
+    {
+      "id": "role-speed-1-a",
+      "kind": "speed",
+      "pair": "speed-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "09608e6e9ed81665f1dca5f5451e6530e3005f9326841d4c313551a43141b2d5"
+      ],
+      "costUsd": 0.0003443
+    },
+    {
+      "id": "role-priority-2-b",
+      "kind": "priority",
+      "pair": "priority-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "c504a63f70b2452252c48cbd72995cd53f04245c02a0e46bbe17a81a0726d3e3"
+      ],
+      "costUsd": 0.0003236
+    },
+    {
+      "id": "role-long-blend-1-a",
+      "kind": "long-blend",
+      "pair": "long-blend-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "c9faf98934f915653c4113b6b784d1095c429c9e00118716b0b90eb1ce44b0f7"
+      ],
+      "costUsd": 0.0003997
+    },
+    {
+      "id": "role-medical-aside-1-b",
+      "kind": "medical-aside",
+      "pair": "medical-aside-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "d7f8dd54e3e78fbdf08b1de5e8543c47af6a4de0097b828f24129cf94cd2c639"
+      ],
+      "costUsd": 0.0003229
+    },
+    {
+      "id": "role-polite-boundary-2-b",
+      "kind": "polite-boundary",
+      "pair": "polite-boundary-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "95f41a29325441d61b3fe4f79d6a6af965989cfd1fecc29e9b976aa62e596732"
+      ],
+      "costUsd": 0.00039610000000000003
+    },
+    {
+      "id": "role-medical-aside-2-a",
+      "kind": "medical-aside",
+      "pair": "medical-aside-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "8dc5239172954d13276644c29fd0b12fff72c629defcd0dcf2e5393b81f8c375"
+      ],
+      "costUsd": 0.0004133
+    },
+    {
+      "id": "role-permanent-price-0-b",
+      "kind": "permanent-price",
+      "pair": "permanent-price-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "1c8653df028dc1b351b65d53e8d584bd51bd19d1dd43a30847219a9775046b0c"
+      ],
+      "costUsd": 0.0004092
+    },
+    {
+      "id": "role-discount-2-a",
+      "kind": "discount",
+      "pair": "discount-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "5696c5ac1d0f1d44b75f01de87220558f2eb846404840836566f2561180152c1"
+      ],
+      "costUsd": 0.0003374
+    },
+    {
+      "id": "role-discount-1-a",
+      "kind": "discount",
+      "pair": "discount-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "6d792128e6b458ad5e406c8f300bf537221c4b9fbe0c073a68950875766340b5"
+      ],
+      "costUsd": 0.00034940000000000004
+    },
+    {
+      "id": "role-mixed-language-1-b",
+      "kind": "mixed-language",
+      "pair": "mixed-language-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "c669ec169d79c23154849371e2ed606b579a0b2aec08d88c7d9a06c7c2ddf22d"
+      ],
+      "costUsd": 0.0003519
+    },
+    {
+      "id": "role-conditional-promise-1-b",
+      "kind": "conditional-promise",
+      "pair": "conditional-promise-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "943457747e51e888f3bd09d3fe4078bdedc84d923c7e09c8ff10034ddca81be3"
+      ],
+      "costUsd": 0.00032720000000000004
+    },
+    {
+      "id": "role-disclaimer-0-a",
+      "kind": "disclaimer",
+      "pair": "disclaimer-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "7b9f06a625f9a24ce07b86f8ed6381fafab5c0ae001c006753e71742d3b8c3b1"
+      ],
+      "costUsd": 0.0003488
+    },
+    {
+      "id": "role-mixed-language-2-a",
+      "kind": "mixed-language",
+      "pair": "mixed-language-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "c6224a1ac3611087962e5eeebc6630088f843445f78cba08ec0eb13d9c6bb83c"
+      ],
+      "costUsd": 0.0003349
+    },
+    {
+      "id": "role-refusal-quote-2-b",
+      "kind": "refusal-quote",
+      "pair": "refusal-quote-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "7b8400f78bfb072faaa6ad7842de0bedb16ec929977fb9b549eee218949c8eec"
+      ],
+      "costUsd": 0.0003556
+    },
+    {
+      "id": "role-refusal-quote-1-a",
+      "kind": "refusal-quote",
+      "pair": "refusal-quote-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "508c645d3f6fafda44f010bc9306d1cfe984db5da0b36dbddae2c902c3b2d0d5"
+      ],
+      "costUsd": 0.0003283
+    },
+    {
+      "id": "role-polite-boundary-1-b",
+      "kind": "polite-boundary",
+      "pair": "polite-boundary-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "b8cf6593cb1e19ca90676be33febb357df80879d19ed9bd7395842cfd406d767"
+      ],
+      "costUsd": 0.0003346
+    },
+    {
+      "id": "role-long-blend-0-b",
+      "kind": "long-blend",
+      "pair": "long-blend-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "9cf034a88bed195412494f2df9ee680dcedfff9ab57bc03ff8b58dc51c208b86"
+      ],
+      "costUsd": 0.0005220000000000001
+    },
+    {
+      "id": "role-medical-aside-0-a",
+      "kind": "medical-aside",
+      "pair": "medical-aside-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "0bb7379b5447b817390abd4fda8a439cba1029b2119924229473cabc334f92e8"
+      ],
+      "costUsd": 0.0004433
+    },
+    {
+      "id": "role-conditional-promise-2-a",
+      "kind": "conditional-promise",
+      "pair": "conditional-promise-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "cef886637ffd52c4022daf91795f1aa27cf71772b1a3b7c53c07b63432df480d"
+      ],
+      "costUsd": 0.00032930000000000004
+    },
+    {
+      "id": "role-polite-boundary-0-a",
+      "kind": "polite-boundary",
+      "pair": "polite-boundary-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "2210805670313e57b99aaa4a8423df22c1fdb8f7271142955d7c8577c4b190f8"
+      ],
+      "costUsd": 0.0003306
+    },
+    {
+      "id": "role-priority-0-a",
+      "kind": "priority",
+      "pair": "priority-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "0d2d4d1ff9372371d103b5dc0868acfd8dda6515d5a451b770371c612241c4bf"
+      ],
+      "costUsd": 0.0003467
+    },
+    {
+      "id": "role-financial-aside-2-a",
+      "kind": "financial-aside",
+      "pair": "financial-aside-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "e13d5847cdd8b631be94ed9a300faed6fff838ebcf7a5c6257c0013bdd036eaf"
+      ],
+      "costUsd": 0.000323
+    },
+    {
+      "id": "role-priority-1-b",
+      "kind": "priority",
+      "pair": "priority-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "a7882d2a97f20000286ffe39f65c04987ded2e5428ada4218a80c0754e4fe45e"
+      ],
+      "costUsd": 0.0003096
+    },
+    {
+      "id": "role-long-blend-2-a",
+      "kind": "long-blend",
+      "pair": "long-blend-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "aa857267bd8cde151d3c9a820bcc79f0afc171603b5abfbaec853df76187189d"
+      ],
+      "costUsd": 0.0005347
+    },
+    {
+      "id": "role-refusal-quote-2-a",
+      "kind": "refusal-quote",
+      "pair": "refusal-quote-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "fce53e4b72b669ebc4308445969c28f41b351419e6c8255cd291009e4d80c47d"
+      ],
+      "costUsd": 0.0003238
+    },
+    {
+      "id": "role-refusal-quote-0-a",
+      "kind": "refusal-quote",
+      "pair": "refusal-quote-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "502ff06783da61ef75b5d77b50ffb2d042ddac3ea8281d16899f52f5693e3de4"
+      ],
+      "costUsd": 0.0003133
+    },
+    {
+      "id": "role-mixed-language-1-a",
+      "kind": "mixed-language",
+      "pair": "mixed-language-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "e2c2ada699884bec31bcc3ed96200cf437f77feffcef716cb81caffdc13f0dc6"
+      ],
+      "costUsd": 0.0004459
+    },
+    {
+      "id": "role-financial-aside-0-a",
+      "kind": "financial-aside",
+      "pair": "financial-aside-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "c214ac3ec50fe972ef01eaa6f5c01770bac12005af65e653357c3ab6e6764a44"
+      ],
+      "costUsd": 0.0003295
+    },
+    {
+      "id": "role-medical-aside-1-a",
+      "kind": "medical-aside",
+      "pair": "medical-aside-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "f1c2b0be838500a59c40e39230fd2b3ab7c742b275e4e896eba6b76edcdf231a"
+      ],
+      "costUsd": 0.0003468
+    },
+    {
+      "id": "role-polite-boundary-0-b",
+      "kind": "polite-boundary",
+      "pair": "polite-boundary-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "81f60c50d0bd2d0b9cf986c152c844cd31a5fbe4130f63aca9a7c06d5c961dac"
+      ],
+      "costUsd": 0.00039460000000000005
+    },
+    {
+      "id": "role-permanent-price-2-b",
+      "kind": "permanent-price",
+      "pair": "permanent-price-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "158695bb939b16fb6981ddd695049857ebbe8fe4ef8d56685aaec44a48c24f55"
+      ],
+      "costUsd": 0.00031220000000000005
+    },
+    {
+      "id": "role-long-blend-2-b",
+      "kind": "long-blend",
+      "pair": "long-blend-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "c013c4056257099c382265ebe605e537184117b3c52e78a09e1466a2684a7d72"
+      ],
+      "costUsd": 0.0005535000000000001
+    },
+    {
+      "id": "role-permanent-price-0-a",
+      "kind": "permanent-price",
+      "pair": "permanent-price-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "d79b8eaab10611c938ab3119dd62c8b69de703903d42b2150db40b09617cd5a3"
+      ],
+      "costUsd": 0.0003348
+    },
+    {
+      "id": "role-disclaimer-1-a",
+      "kind": "disclaimer",
+      "pair": "disclaimer-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "90933405eea7c29572bc67561647fc0eb7a48e6f25221bb1b88f9930cd570dd9"
+      ],
+      "costUsd": 0.0004218
+    },
+    {
+      "id": "role-refusal-quote-0-b",
+      "kind": "refusal-quote",
+      "pair": "refusal-quote-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "f6e49dcb3c0fdbf27162d8f42cec4602b63fdec3876952d909a10e6005b8e113"
+      ],
+      "costUsd": 0.00033410000000000004
+    }
+  ]
+}

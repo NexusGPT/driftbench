@@ -1,8 +1,7 @@
-import { existsSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, statSync } from 'node:fs';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { functionAdapter, processAdapter } from '@agent-nexus/driftbench-adapters';
 import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
 import { classifyTool, defaultChecks } from '@agent-nexus/driftbench-checks';
@@ -12,6 +11,7 @@ import {
   auditBound,
   auditSample,
   auditVerdict,
+  type BlockReuse,
   type Campaign,
   type CampaignPlan,
   type CellOutcome,
@@ -22,6 +22,7 @@ import {
   campaignRadius,
   canonicalJson,
   carryRuns,
+  completeBaselineProvenance,
   compoundingIndex,
   contentHash,
   DEFAULT_MAX_AGE_DAYS,
@@ -43,9 +44,11 @@ import {
   type RegistrySource,
   type RetryOptions,
   RunMode,
+  type RunOptions,
   type RunResult,
   radiusOf,
   runCampaign,
+  runProvenance,
   runsByCell,
   type Spec,
   type Store,
@@ -75,6 +78,7 @@ import {
   type UserModelPort,
 } from '@agent-nexus/driftbench-users';
 import type { Command } from 'commander';
+import { ACME_EXAMPLE_ABSENT, acmeExample, acmeExampleInstalled, requireAcmeExample } from '../acme-example';
 import { applyCampaignConfig } from '../campaign-config';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
@@ -82,6 +86,9 @@ import { pluginAdapter, pluginAdapterNames } from '../plugins';
 import { noStoreAt } from '../store-path';
 import { BUILTIN_TARGETS_NOTE, builtinTarget, builtinTargetHint } from '../targets';
 import { pricesFromConfig } from '../token-prices';
+import { carriedBlocksAgree, planCellBlockReruns } from './campaign-blocks';
+import { campaignProvenance } from './campaign-provenance';
+import { registerCampaignRejudge } from './campaign-rejudge';
 import { agentFamilyOf, describeSource, loadPersonas, portFor, userFactory, userSource } from './personas';
 
 /** What lives as long as one campaign: a temporary folder for its sandboxes, made on first use. */
@@ -215,9 +222,22 @@ function strandedFiles(command: readonly string[], cwd: string): string[] {
   });
 }
 
-/** The targets this build reaches, for the message of a target it does not. */
+/** The targets a checkout reaches, for the message of a target it does not. */
 const KNOWN_TARGETS =
   'The CLI reaches function:acme-sales (or function:acme), the Acme sales assistant, and process:acme-ops, the Acme ops agent.';
+
+/** What an install without the Acme example reaches. */
+const REACHABLE_WITHOUT_EXAMPLE =
+  'This install reaches a process target through --process-command: process:<name> runs the command you give.';
+
+/**
+ * The sentence of a refusal that says which targets this install reaches. With the Acme example installed,
+ * as in a checkout, the example's targets; without it, that the example is absent and where it lives, and
+ * only what really is reachable.
+ */
+export function knownTargets(exampleInstalled: boolean = acmeExampleInstalled()): string {
+  return exampleInstalled ? KNOWN_TARGETS : `${ACME_EXAMPLE_ABSENT} ${REACHABLE_WITHOUT_EXAMPLE}`;
+}
 
 /**
  * What the commands run with. `function:acme-sales`, the target the Acme conversation specs name, and its
@@ -230,7 +250,7 @@ const KNOWN_TARGETS =
 export const defaultDeps: CampaignDeps = {
   adapterFor: async (target, scope) => {
     if (target.adapter === 'function' && (target.agent === 'acme' || target.agent === 'acme-sales')) {
-      return acmeFunctionAdapter();
+      return (await acmeExample()) === undefined ? undefined : acmeFunctionAdapter();
     }
     if (target.adapter === 'process' && target.agent === 'acme-ops') return acmeOpsAdapter(scope);
     const plugged = await pluginAdapter(target, scope);
@@ -283,6 +303,8 @@ type RunCommandOptions = {
   auditSeed?: string;
   maxCarry?: string;
   maxAge?: string;
+  blockReruns?: boolean;
+  recordEndStateSnapshots?: boolean;
   store?: string;
   cache: boolean;
   concurrency: string;
@@ -322,6 +344,7 @@ export function registerCampaignCommands(
   const campaign = program
     .command('campaign')
     .description('Plan and run campaigns: specs x targets x modes x repeats.');
+  registerCampaignRejudge(campaign, io, setExit);
 
   campaign
     .command('plan')
@@ -378,6 +401,14 @@ export function registerCampaignCommands(
     .option(
       '--max-age <days>',
       `with --change: the most days since a carried result was measured (default ${DEFAULT_MAX_AGE_DAYS})`,
+    )
+    .option(
+      '--block-reruns',
+      'with --change: in mode T, send only the blocks of a cell the change can affect and keep the other stored blocks',
+    )
+    .option(
+      '--record-end-state-snapshots',
+      'store the raw end-state values each mode T block reads, so a later --block-reruns can recompose them; they may hold sensitive data',
     )
     .option('--campaign <id>', 'the campaign id; one is made from the content and the clock without it')
     .option('--store <file>', 'keep the campaign, its runs and the cache in this store')
@@ -683,6 +714,7 @@ export async function campaignRunCommand(
     ['--audit-seed', options.auditSeed],
     ['--max-carry', options.maxCarry],
     ['--max-age', options.maxAge],
+    ['--block-reruns', options.blockReruns ? 'on' : undefined],
   ] as const) {
     if (value !== undefined && options.change === undefined) {
       io.err(`${flag} sets how a radius run carries: it goes with --change <manifest>.\n`);
@@ -757,6 +789,12 @@ export async function campaignRunCommand(
         return 2;
       }
       for (const entry of loaded) await store.putSpec(entry);
+      // A block rerun keeps the snapshots of its baseline going: a later rerun needs them on every block.
+      const snapshots =
+        options.recordEndStateSnapshots === true ||
+        (options.blockReruns === true &&
+          options.from !== undefined &&
+          (await store.getCampaign(options.from))?.provenance?.endStateSnapshots === true);
       const campaign: Campaign = {
         campaignId,
         specs,
@@ -765,6 +803,11 @@ export async function campaignRunCommand(
         repeats,
         // 0 when no budget was given: the schema has no field for "no budget".
         budgetUsd: pool.budgetUsd ?? 0,
+        provenance: campaignProvenance(
+          runs.flatMap((run) => run.targets),
+          (target) => required(adapters.get(showTarget(target)), 'adapter'),
+          snapshots,
+        ),
         judge: { mode: 'system1', judges: [] },
         createdAt,
         ...(registry.sources.length > 0 ? { sources: registry.sources } : {}),
@@ -773,39 +816,84 @@ export async function campaignRunCommand(
       const radius =
         options.change === undefined
           ? undefined
-          : await radiusPlan(options, campaign, loaded, store, deps, io, async (cells) => {
-              // The audit runs before the campaign is stored, in a store of its own: what it finds
-              // decides what the campaign carries, and a campaign record never changes once written.
-              const memory = await deps.openStore(undefined);
-              try {
-                for (const entry of loaded) await memory.putSpec(entry);
-                await memory.putCampaign(campaign);
-                const specs = new Map(loaded.map((entry) => [`${entry.spec.id}@${entry.hash}`, entry.spec]));
-                const outcomes = await runCampaign({
-                  campaignId,
-                  cells,
-                  recordEvents: true,
-                  specFor: (cell) =>
-                    required(specs.get(`${cell.specId}@${cell.specHash}`), `spec ${cell.specId}`),
-                  adapterFor: (target) =>
-                    required(adapters.get(showTarget(target)), `adapter ${showTarget(target)}`),
-                  driver: (cell, spec) => deps.driver(cell, spec),
-                  ...(deps.consequential ? { consequential: deps.consequential } : {}),
+          : await radiusPlan(
+              options,
+              campaign,
+              loaded,
+              store,
+              deps,
+              io,
+              (cell) => {
+                const spec = required(loaded.find((entry) => entry.hash === cell.specHash)?.spec, 'spec');
+                return runProvenance({
+                  adapter: required(adapters.get(showTarget(cell.target)), 'adapter'),
+                  driver: deps.driver(cell, spec),
                   checks: deps.checks,
-                  ...(deps.artifacts ? { artifacts: deps.artifacts } : {}),
-                  store: memory,
-                  ...(campaign.agentVersion === undefined ? {} : { agentVersion: campaign.agentVersion }),
-                  now: () => deps.now(),
-                  concurrency: pool.concurrency,
-                  ...(pool.budgetUsd === undefined ? {} : { budgetUsd: pool.budgetUsd }),
-                  ...(prices ? { prices } : {}),
-                  ...(pool.retry ? { retry: pool.retry } : {}),
+                  mode: cell.mode,
+                  repeat: cell.repeat,
+                  target: cell.target,
+                  perturbationId: cell.perturbationId,
+                  retry: pool.retry,
+                  agentVersion: campaign.agentVersion,
                 });
-                return outcomes.flatMap((outcome) => (outcome.run ? [outcome.run] : []));
-              } finally {
-                await memory.close();
-              }
-            });
+              },
+              (cell) => {
+                const spec = required(loaded.find((entry) => entry.hash === cell.specHash)?.spec, 'spec');
+                return {
+                  spec,
+                  options: {
+                    adapter: required(adapters.get(showTarget(cell.target)), 'adapter'),
+                    driver: deps.driver(cell, spec),
+                    checks: deps.checks,
+                    mode: cell.mode,
+                    repeat: cell.repeat,
+                    target: cell.target,
+                    perturbationId: cell.perturbationId,
+                    retry: pool.retry,
+                    agentVersion: campaign.agentVersion,
+                    recordProvenance: true,
+                    recordEndStateSnapshots: snapshots,
+                  },
+                };
+              },
+              async (cells) => {
+                // The audit runs before the campaign is stored, in a store of its own: what it finds
+                // decides what the campaign carries, and a campaign record never changes once written.
+                const memory = await deps.openStore(undefined);
+                try {
+                  for (const entry of loaded) await memory.putSpec(entry);
+                  await memory.putCampaign(campaign);
+                  const specs = new Map(
+                    loaded.map((entry) => [`${entry.spec.id}@${entry.hash}`, entry.spec]),
+                  );
+                  const outcomes = await runCampaign({
+                    campaignId,
+                    cells,
+                    recordProvenance: true,
+                    ...(snapshots ? { recordEndStateSnapshots: true } : {}),
+                    recordEvents: true,
+                    specFor: (cell) =>
+                      required(specs.get(`${cell.specId}@${cell.specHash}`), `spec ${cell.specId}`),
+                    adapterFor: (target) =>
+                      required(adapters.get(showTarget(target)), `adapter ${showTarget(target)}`),
+                    driver: (cell, spec) => deps.driver(cell, spec),
+                    ...(deps.consequential ? { consequential: deps.consequential } : {}),
+                    checks: deps.checks,
+                    ...(deps.artifacts ? { artifacts: deps.artifacts } : {}),
+                    store: memory,
+                    ...(campaign.agentVersion === undefined ? {} : { agentVersion: campaign.agentVersion }),
+                    now: () => deps.now(),
+                    concurrency: pool.concurrency,
+                    ...(pool.budgetUsd === undefined ? {} : { budgetUsd: pool.budgetUsd }),
+                    ...(prices ? { prices } : {}),
+                    ...(pool.retry ? { retry: pool.retry } : {}),
+                  });
+                  return outcomes.flatMap((outcome) => (outcome.run ? [outcome.run] : []));
+                } finally {
+                  await memory.close();
+                }
+              },
+            );
       if (radius === null) return 2;
       if (radius) campaign.radius = radius.record;
       try {
@@ -831,6 +919,7 @@ export async function campaignRunCommand(
         ...(options.cacheSuite === undefined ? {} : { cacheSuite: options.cacheSuite }),
         json: options.json === true,
         kept: options.store !== undefined,
+        ...(radius?.blockReuse ? { blockReuse: radius.blockReuse } : {}),
         ...pool,
         ...(prices ? { prices } : {}),
       });
@@ -1048,6 +1137,8 @@ async function executeCampaign(
     retry?: RetryOptions;
     /** The line a radius campaign prints before its cells: what runs and what is carried. */
     radiusNote?: string;
+    /** Mode T: the stored baseline run to rerun only the radius blocks from, by cell. */
+    blockReuse?: (cell: PlannedCell) => BlockReuse | undefined;
   },
 ): Promise<number> {
   const plan = planOf(campaign, loaded);
@@ -1066,6 +1157,9 @@ async function executeCampaign(
   const outcomes = await runCampaign({
     campaignId: campaign.campaignId,
     cells: plan.cells,
+    recordProvenance: campaign.provenance !== undefined,
+    ...(campaign.provenance?.endStateSnapshots ? { recordEndStateSnapshots: true } : {}),
+    ...(flags.blockReuse ? { blockReuse: flags.blockReuse } : {}),
     recordEvents: true,
     specFor: (cell) => required(specs.get(`${cell.specId}@${cell.specHash}`), `spec ${cell.specId}`),
     adapterFor: (target) => required(adapters.get(showTarget(target)), `adapter ${showTarget(target)}`),
@@ -1109,12 +1203,15 @@ async function radiusPlan(
   store: Store,
   deps: CampaignDeps,
   io: Io,
+  currentProvenance: (cell: PlannedCell) => RunResult['provenance'],
+  blockOptions: (cell: PlannedCell) => { spec: Spec; options: RunOptions },
   runAudit: (cells: PlannedCell[]) => Promise<RunResult[]>,
 ): Promise<{
   plan: RadiusPlan;
   record: NonNullable<Campaign['radius']>;
   note: string;
   auditRuns: RunResult[];
+  blockReuse?: (cell: PlannedCell) => BlockReuse | undefined;
 } | null> {
   if (options.change === undefined || options.from === undefined || options.store === undefined) {
     io.err(
@@ -1162,30 +1259,65 @@ async function radiusPlan(
     manifest.manifest,
     { modes: campaign.modes },
   );
+  const baselineRuns = await store.listRuns({ campaignId: baseline.campaignId });
+  if (!completeBaselineProvenance({ provenance: baseline.provenance, runs: baselineRuns }))
+    radius.whole = { change: 'legacy', reason: 'the baseline has no execution provenance' };
   let plan = planRadiusCampaign(
     cells,
     radius,
     manifest.manifest,
-    { campaignId: baseline.campaignId, runs: await store.listRuns({ campaignId: baseline.campaignId }) },
+    { campaignId: baseline.campaignId, runs: baselineRuns, provenance: baseline.provenance },
     {
       now: deps.now(),
+      currentProvenance,
+      currentSpec: (cell) => loaded.find((entry) => entry.hash === cell.specHash)?.spec,
       ...(maxCarry === undefined ? {} : { maxCarry }),
       ...(maxAge === undefined ? {} : { maxAgeDays: maxAge }),
     },
   );
-  const outside = plan.carried.length;
+  if (options.blockReruns && !campaign.modes.includes('T')) {
+    io.err('--block-reruns reruns blocks of independent mode T cells: it goes with --mode T.\n');
+    return null;
+  }
+  // Mode T cells in the radius keep their stored blocks outside it. A refusal runs the whole cell.
+  let blocks =
+    options.blockReruns && plan.nothing === undefined
+      ? planCellBlockReruns({
+          cells: plan.fresh,
+          baselineRuns,
+          baseline,
+          manifest: manifest.manifest,
+          optionsFor: blockOptions,
+          now: deps.now(),
+          ...(maxCarry === undefined ? {} : { maxCarry }),
+          ...(maxAge === undefined ? {} : { maxAgeDays: maxAge }),
+        })
+      : undefined;
+  const outside = plan.carried.length + (blocks?.partial.size ?? 0);
   let audit: NonNullable<NonNullable<Campaign['radius']>['audit']> | undefined;
   const auditRuns: RunResult[] = [];
-  if (auditSize !== undefined && plan.nothing === undefined) {
+  if (auditSize !== undefined && plan.nothing === undefined && outside > 0) {
     const seed = auditSeed ?? 1;
-    const sample = auditSample(plan.carried, auditSize, seed);
+    const pool = [
+      ...plan.carried.map((entry) => ({ cell: entry.cell, source: entry.source, carried: entry })),
+      ...[...(blocks?.partial ?? [])].flatMap(([cellId, partial]) => {
+        const cell = plan.fresh.find((entry) => entry.cellId === cellId);
+        return cell ? [{ cell, source: partial.reuse.source, partial }] : [];
+      }),
+    ];
+    const sample = auditSample(pool, auditSize, seed);
     const fresh = new Map((await runAudit(sample.map((entry) => entry.cell))).map((run) => [run.runId, run]));
     const missed: NonNullable<NonNullable<Campaign['radius']>['audit']>['missed'] = [];
     for (const entry of sample) {
       const run = fresh.get(entry.cell.cellId);
-      const verdict = run
-        ? auditVerdict(run, entry.source)
-        : { agree: false, differing: ['the audit run did not finish'] };
+      const verdict = !run
+        ? { agree: false, differing: ['the audit run did not finish'] }
+        : 'partial' in entry
+          ? (() => {
+              const differing = carriedBlocksAgree(run, entry.partial);
+              return { agree: differing.length === 0, differing };
+            })()
+          : auditVerdict(run, entry.source);
       if (run) auditRuns.push(run);
       if (!verdict.agree) {
         missed.push({ specId: entry.cell.specId, cellId: entry.cell.cellId, differing: verdict.differing });
@@ -1200,17 +1332,21 @@ async function radiusPlan(
         inside: plan.inside,
         nothing: `the audit found ${missed.length} of ${count(sample.length, 'carried result')} the new agent does not reproduce`,
       };
+      blocks = undefined;
     } else {
       const drawn = new Set(sample.map((entry) => entry.cell.cellId));
+      // A drawn partial cell already ran whole: its stored blocks are not carried any more.
+      const wholeDrawn = sample.filter((entry) => !('partial' in entry));
       plan = {
         ...plan,
         carried: plan.carried.filter((entry) => !drawn.has(entry.cell.cellId)),
-        fresh: [...plan.fresh, ...sample.map((entry) => entry.cell)],
+        fresh: [...plan.fresh, ...wholeDrawn.map((entry) => entry.cell)],
         refused: [
           ...plan.refused,
-          ...sample.map((entry) => ({ cell: entry.cell, reason: 'drawn for the audit' })),
+          ...wholeDrawn.map((entry) => ({ cell: entry.cell, reason: 'drawn for the audit' })),
         ],
       };
+      for (const entry of sample) blocks?.partial.delete(entry.cell.cellId);
     }
   }
   const record = {
@@ -1242,8 +1378,27 @@ async function radiusPlan(
     for (const entry of record.refused) {
       lines.push(`  ${count(entry.cells, 'cell')} outside the radius run fresh: ${entry.reason}.`);
     }
+    if (blocks) {
+      const kept = [...blocks.partial.values()].reduce((sum, entry) => sum + entry.carried.size, 0);
+      const sent = [...blocks.partial.values()].reduce((sum, entry) => sum + entry.indices.size, 0);
+      lines.push(
+        `Mode T block reruns: ${count(blocks.partial.size, 'cell')} send ${count(sent, 'block')} and keep ${count(kept, 'stored block')} from ${baseline.campaignId}.`,
+      );
+      const reasons = new Map<string, number>();
+      for (const reason of blocks.whole.values()) reasons.set(reason, (reasons.get(reason) ?? 0) + 1);
+      for (const [reason, cells] of reasons) lines.push(`  ${count(cells, 'cell')} run whole: ${reason}.`);
+    }
   }
-  return { plan, record, note: `${lines.join('\n')}\n`, auditRuns };
+  const partial = blocks?.partial;
+  return {
+    plan,
+    record,
+    note: `${lines.join('\n')}\n`,
+    auditRuns,
+    ...(partial && partial.size > 0
+      ? { blockReuse: (cell: PlannedCell) => partial.get(cell.cellId)?.reuse }
+      : {}),
+  };
 }
 
 /** The name of the check a council of @agent-nexus/driftbench-judges adds to the checks. */
@@ -1490,27 +1645,51 @@ async function adaptersFor(
   for (const target of runs.flatMap((run) => run.targets)) {
     const key = showTarget(target);
     if (adapters.has(key)) continue;
-    const adapter = await deps.adapterFor(target, scope);
-    if (!adapter) {
-      const owners = runs
-        .filter((run) => run.pinned !== undefined && showTarget(run.pinned) === key)
-        .map((run) => run.spec.id);
-      io.err(`${noAdapter(target, owners)}\n`);
-      return undefined;
-    }
+    const owners = runs
+      .filter((run) => run.pinned !== undefined && showTarget(run.pinned) === key)
+      .map((run) => run.spec.id);
+    const adapter = await resolveAdapter(target, () => deps.adapterFor(target, scope), io, owners);
+    if (!adapter) return undefined;
     adapters.set(key, adapter);
   }
   return adapters;
 }
 
-/** Why a target cannot run: no adapter is set up for it. Names the specs whose own target it is. */
-export function noAdapter(target: TargetRef, specIds: readonly string[] = []): string {
+type RefusalContext = { reference?: boolean; unspent?: boolean; pilot?: boolean; exampleInstalled?: boolean };
+
+/** Resolve a command's target and give every refusal the same install-aware explanation. */
+export async function resolveAdapter(
+  target: TargetRef,
+  factory: () => Promise<AgentAdapter | undefined>,
+  io: Io,
+  specIds: readonly string[] = [],
+  context: RefusalContext = {},
+): Promise<AgentAdapter | undefined> {
+  const adapter = await factory();
+  if (!adapter) io.err(`${noAdapter(target, specIds, context)}\n`);
+  return adapter;
+}
+
+/** Why a target cannot run, including its owning specs and the targets this install reaches. */
+export function noAdapter(
+  target: TargetRef,
+  specIds: readonly string[] = [],
+  context: RefusalContext = {},
+): string {
   const whose = specIds.length === 0 ? '' : `, the target of ${specIds.join(', ')}`;
+  const installed = context.exampleInstalled ?? acmeExampleInstalled();
+  const reaches = context.pilot
+    ? installed
+      ? 'The pilot reaches function:acme (the Acme sales assistant) and function:acme-random or function:acme-random-<seed> (its seeded random control).'
+      : `${ACME_EXAMPLE_ABSENT} The pilot runs on the example's agents only, so this install has no pilot target.`
+    : knownTargets(installed);
   const added = pluginAdapterNames();
   const plugins = added.length === 0 ? '' : ` Plugins add the adapters ${added.join(', ')}.`;
-  const hint = pluginAdapterNames().includes(target.adapter) ? undefined : builtinTargetHint(target);
+  const hint = context.pilot || added.includes(target.adapter) ? undefined : builtinTargetHint(target);
   const needs = hint === undefined ? '' : ` ${hint}`;
-  return `No adapter is set up for ${showTarget(target)}${whose}.${needs} ${KNOWN_TARGETS} ${BUILTIN_TARGETS_NOTE}${plugins}`;
+  const suffix = context.unspent ? ': nothing ran, no query was spent.' : '.';
+  const extra = context.pilot ? '' : ` ${BUILTIN_TARGETS_NOTE}${plugins}`;
+  return `No adapter is set up for ${context.reference ? 'the reference ' : ''}${showTarget(target)}${whose}${suffix}${needs} ${reaches}${extra}`;
 }
 
 /** The target of the first route whose tag the spec carries, if any. */
@@ -1733,11 +1912,15 @@ function summaryLine(outcomes: readonly CellOutcome[]): string {
 
 /** Blocks a radius campaign sent to the agent, and blocks it carried without sending them. */
 function radiusBlocks(outcomes: readonly CellOutcome[]): { sent: number; carried: number } {
-  const blocks = (carried: boolean) =>
-    outcomes
-      .filter((outcome) => outcome.run !== undefined && (outcome.run.carried !== undefined) === carried)
-      .reduce((sum, outcome) => sum + (outcome.run?.blocks.length ?? 0), 0);
-  return { sent: blocks(false), carried: blocks(true) };
+  let sent = 0;
+  let carried = 0;
+  for (const run of outcomes.flatMap((outcome) => (outcome.run ? [outcome.run] : []))) {
+    for (const block of run.blocks) {
+      if (run.carried !== undefined || block.carried !== undefined) carried += 1;
+      else sent += 1;
+    }
+  }
+  return { sent, carried };
 }
 
 /** The closing lines of a radius campaign: fresh against carried, in cells and in blocks, and the saving. */
@@ -2056,7 +2239,7 @@ function required<T>(value: T | undefined, what: string): T {
  * payloads never leak between runs, and its payload log as the end-state source.
  */
 export async function acmeFunctionAdapter(): Promise<AgentAdapter> {
-  const acme = await import('../../../../examples/acme/src/index');
+  const acme = await requireAcmeExample();
   type AcmeSession = {
     store: ReturnType<typeof acme.createStore>;
     agent: ReturnType<typeof acme.createAcmeAgent>;
@@ -2080,7 +2263,7 @@ export async function acmeFunctionAdapter(): Promise<AgentAdapter> {
  * Undefined when this install does not hold the example.
  */
 export async function acmeOpsAdapter(scope?: CampaignScope): Promise<AgentAdapter | undefined> {
-  const agent = acmeOpsAgent();
+  const agent = await acmeOpsAgent();
   if (agent === undefined) return undefined;
   return processAdapter({
     command: process.execPath,
@@ -2092,32 +2275,12 @@ export async function acmeOpsAdapter(scope?: CampaignScope): Promise<AgentAdapte
 }
 
 /**
- * The path of examples/acme/ops/agent.mjs, found from the folder of the CLI package, which holds this
- * module in src/ and in dist/ alike; never from the working folder. Undefined when the file is not there.
+ * The path of the Acme ops agent, `ops/agent.mjs` of the example package; never from the working folder.
+ * Undefined when this install does not hold the example, or the file is not there.
  */
-export function acmeOpsAgent(): string | undefined {
-  const root = cliPackageRoot(dirname(fileURLToPath(import.meta.url)));
-  if (root === undefined) return undefined;
-  const agent = join(root, '..', '..', 'examples', 'acme', 'ops', 'agent.mjs');
-  return existsSync(agent) ? agent : undefined;
-}
-
-/** The nearest folder at or above `from` whose package.json names the driftbench CLI. */
-function cliPackageRoot(from: string): string | undefined {
-  for (let dir = from; ; dir = dirname(dir)) {
-    const manifest = join(dir, 'package.json');
-    if (existsSync(manifest) && packageName(manifest) === '@agent-nexus/driftbench') return dir;
-    if (dirname(dir) === dir) return undefined;
-  }
-}
-
-function packageName(manifest: string): unknown {
-  try {
-    return (JSON.parse(readFileSync(manifest, 'utf8')) as { name?: unknown }).name;
-  } catch {
-    // A package.json that does not parse belongs to no package this lookup wants.
-    return undefined;
-  }
+export async function acmeOpsAgent(): Promise<string | undefined> {
+  const agent = (await acmeExample())?.OPS_AGENT;
+  return agent !== undefined && existsSync(agent) ? agent : undefined;
 }
 
 /**
