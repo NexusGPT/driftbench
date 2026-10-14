@@ -206,6 +206,24 @@ describe('mode T block reruns on the Acme gated suite', () => {
     expect(missed.length).toBeGreaterThan(0);
   });
 
+  it('catches the unsent failing blocks of a wrong declaration with the audit', async () => {
+    const result = await campaign(
+      run('t-wrong-audit', 'acme-v2', [
+        '--change',
+        join(ROOT, 'examples/acme/radius/stage-recap.yaml'),
+        '--from',
+        't-base',
+        '--block-reruns',
+        '--audit',
+        '195',
+      ]),
+      'x5-drops-coverage-check',
+    );
+    expect(result.err).toBe('');
+    expect(result.code).toBe(1);
+    expect(result.out).toContain('RADIUS MISS');
+  });
+
   it('catches a planted fault outside the radius with the audit and fails closed', async () => {
     expect(audited.err).toBe('');
     expect(audited.code).toBe(1);
