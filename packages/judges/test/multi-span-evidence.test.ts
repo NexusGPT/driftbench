@@ -74,7 +74,6 @@ describe('criterion evidence spans are grounded in their named sources', () => {
     { source: 'transcript.99', quote: 'Usage is 32 GB.' },
     { source: 'transcript.00', quote: 'Usage is 32 GB.' },
     { source: 'transcript.-1', quote: 'Usage is 32 GB.' },
-    { source: 'criterion', quote: request.criterion.rubric },
     { source: 'input.missing.txt', quote: 'Limit is 50 GB.' },
     { source: 'artifact', quote: 'Invoice total is 4 USD.' },
     { source: 'reference', quote: 'The threshold is at least 32 GB.' },

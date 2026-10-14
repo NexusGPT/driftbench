@@ -171,6 +171,8 @@ export type JudgeResult = {
   readonly checks?: readonly CriterionCheck[];
   /** Number of ungrounded evidence strings nulled without changing their met values. */
   readonly evidenceUnverified?: number;
+  /** Decoder 3 spans dropped because they quote only the criterion, not the supplied data. */
+  readonly criterionQuotesDropped?: number;
   /** Model-invented criterion ids or rubric names, ignored in scoring and retained for diagnostics. */
   readonly ignoredRequirementIds?: readonly string[];
   readonly referenceAgreement?: {

@@ -48,7 +48,9 @@ The router reads the criterion and user requests, without the candidate answers.
 
 Extra inputs, artifacts, references, conversation history and caller-defined contracts remain authoritative. A specialized procedure that cannot preserve that evidence falls back to the ordinary criterion ledger. Explicit assessments, custom system prompts, and version-1 requests retain their selected contract.
 
-The criterion prompt compares named identifiers, numbers and units; honors expected facts stated in the criterion; and gives the record named by the question precedence. Decoder 3 supports source-local symbol quotations and input label spellings such as `input/catalog.csv`. Invalid span lists remain inconclusive. An ungrounded legacy string quote is dropped and counted in `evidenceUnverified`.
+The criterion prompt compares named identifiers, numbers and units; honors expected facts stated in the criterion; and gives the record named by the question precedence. It reads each fact in the context of the whole reply: surrounding units, periods and subjects carry into short clauses; synonyms and exact unit conversions can express the same fact. Decoder 3 supports source-local symbol quotations and input label spellings such as `input/catalog.csv`.
+
+Decoder 3 drops spans that quote only the criterion under a nontranscript label and counts them in `criterionQuotesDropped`. A span that grounds in its named data source is retained. A `met: true` check still needs grounded evidence after the drop; otherwise the result is inconclusive and retains the drop count. Unrelated invalid spans and false transcript-source claims remain invalid. An ungrounded legacy string quote is dropped and counted separately in `evidenceUnverified`.
 
 Automatic pair comparisons evaluate the full caller criterion in their requirement ledgers; arithmetic shortcuts cannot bypass it. Automatic relevance evaluates both the relevance ledger and the original criterion. Both must pass; a failure in either fails, and unresolved evidence remains inconclusive. Explicit response-relevance assessments retain their selected single-read contract.
 
@@ -62,7 +64,7 @@ Routing and verification can require more than one model call. `costUsd` include
 
 Explicit reasoning settings add output room by reasoning level. Native command transports retain their own output limits.
 
-The default policy, transport settings, prompts and schemas participate in recording identity. Old recordings keep their original prompt and decoder versions. They are historical evidence, not measurements of a changed prompt. Prompt version 2 and decoder version 3 are the defaults. Explicit decoder version 2 preserves its historical behavior: ungrounded strings are dropped, but symbol-only spans and input-label aliases remain invalid. Decoder 3 adds those grounded span forms under a new request identity. Use `criterionPromptVersion: 1` and `criterionDecoderVersion: 1` for the earlier criterion contract.
+The default policy, transport settings, prompts and schemas participate in recording identity. Old recordings keep their original prompt and decoder versions. They are historical evidence, not measurements of a changed prompt. Prompt version 2 and decoder version 3 are the defaults. Explicit decoder version 2 preserves its historical behavior: ungrounded strings are dropped, but symbol-only spans, input-label aliases and criterion-only spans remain invalid. Decoder 3 adds the grounded span forms and criterion-only drop rule under a new request identity. The full procedure policy is `default-on-v3`, including pair requests. Use `criterionPromptVersion: 1` and `criterionDecoderVersion: 1` for the earlier criterion contract.
 
 Low-level clients such as `createClaudeCliJudge` remain available for caller-owned procedures. They do not add task routing. Use `createDefaultJudge` for the complete product policy.
 

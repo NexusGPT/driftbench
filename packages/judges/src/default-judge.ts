@@ -18,7 +18,7 @@ import { writingRequirementsV1 } from './writing-requirements';
 
 /** One policy across providers and tasks. Routing sees the criterion and user requests, never answers. */
 export const DEFAULT_JUDGE_POLICY = Object.freeze({
-  version: 'default-on-v2',
+  version: 'default-on-v3',
   criterionPromptVersion: 2,
   criterionDecoderVersion: 3,
   pairOrders: 'both',
@@ -411,6 +411,9 @@ export function createDefaultJudge(options: DefaultJudgeOptions): DefaultJudgeCl
           },
           ...(relevance.responseRelevance ? { responseRelevance: relevance.responseRelevance } : {}),
           ...(criterion.checks ? { checks: criterion.checks } : {}),
+          ...(criterion.criterionQuotesDropped
+            ? { criterionQuotesDropped: criterion.criterionQuotesDropped }
+            : {}),
           ...(outcome === 'inconclusive' && parts.some((part) => part.unparsed) ? { unparsed: true } : {}),
         };
       } else {

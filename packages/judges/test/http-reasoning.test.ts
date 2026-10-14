@@ -55,8 +55,8 @@ describe('HTTP reasoning follows the request capability', () => {
 
   // Captured from the merged client before adding HTTP reasoning settings or rejection paths.
   for (const [request, digest, key] of [
-    // Prompt 2 keeps the body bytes; default decoder 3 has its own request identity.
-    [plain, '5c36c63ad20d0ce5d6a0c77032da2ba13d7df395198776af33dea270a54cd20d', '9ffaed422b2c'],
+    // Prompt 2 includes whole-reply context; default decoder 3 has its own request identity.
+    [plain, '7512b17731c7fd9695a102d4d13e1e179d2368da9036946e48400e8d42d16f98', '2bd6ca70216a'],
     [ledger, 'c9f70fc218bca25ee29988129ad474203e88b8ebf993ea99cdee3952e523623b', '8ef5c47147a3'],
   ] as const) {
     it(`preserves unset ${request.answerContract ?? 'plain'} request bytes and key`, async () => {
@@ -72,10 +72,10 @@ describe('HTTP reasoning follows the request capability', () => {
     });
   }
 
-  it('preserves the explicit decoder 2 identity independently of the new default', () => {
+  it('separates explicit decoder 2 from the default under the revised prompt', () => {
     const { client } = capture();
-    expect(requestKey({ ...plain, criterionDecoderVersion: 2 }, client)).toBe('fd8125992046');
-    expect(requestKey({ ...plain, criterionDecoderVersion: 3 }, client)).toBe('9ffaed422b2c');
+    expect(requestKey({ ...plain, criterionDecoderVersion: 2 }, client)).toBe('2a98b134cd72');
+    expect(requestKey({ ...plain, criterionDecoderVersion: 3 }, client)).toBe('2bd6ca70216a');
   });
 
   it('rejects defaults and overrides on non-ledger requests before transport', async () => {
