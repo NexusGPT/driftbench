@@ -90,18 +90,6 @@ Options of a run (this topic):
 | `--hidden` | off | add the hidden seed of the current commit (see Inputs) |
 | `--json` | off | print the report as JSON instead of the table |
 
-Options covered in other topics, all on the same command:
-
-| Option | Default | Topic |
-|---|---|---|
-| `--items` | off | `validate-reading-items` |
-| `--all-levels` | off | `validate-reading-items` |
-| `--blind` | off | `validate-reading-items` |
-| `--check-floor` | off | `validate-floors` |
-| `--raise <component>`, `--evidence <json>`, `--ladder-version <n>` | none | `validate-floors` |
-| `--brief`, `--fresh`, `--journal <row.json>`, `--check-handover`, `--hardness` | off | `validate-executor-loop` |
-| `--branch <name>`, `--base <ref>` | none | `validate-protect` |
-
 Only one of `--brief`, `--journal`, `--check-handover`, `--check-floor` and `--hardness` may be given.
 `--items`, `--all-levels` and `--blind` go with a run, not with `--brief`, `--journal`,
 `--check-handover` or `--hardness`.
@@ -115,6 +103,32 @@ Environment variables a run reads:
 | `DRIFTBENCH_STATS_IMPL` | stats only: a module path whose exports replace `@agent-nexus/driftbench-stats` in the bank's child processes. Used to plant a mutant (`validate-mutants-and-rulings`) |
 | `DRIFTBENCH_STATS_SWEEP_LOG` | system only: a JSONL file where the statistics sub-runs of a system sweep log their cache key and report hash |
 | `DRIFTBENCH_OTHER_NODE` | estate only: the second Node.js binary the determinism family compares against, default `/usr/local/bin/node` |
+
+Every option of `driftbench validate`, for reference (the topic named in the last column explains it):
+
+| Option | Default | Meaning | Topic |
+|---|---|---|---|
+| `<component>` | required | a registered component, `all`, `floors` or `protect` | `validate-overview` |
+| `[level]` | none | only with `floors --raise`: the new floor | `validate-floors` |
+| `--seed <n>` | seed 1 when no seed option is given | one visible seed | `validate-overview` |
+| `--seeds <a..b>` | none | a range of visible seeds, at most 1000 | `validate-overview` |
+| `--hidden` | off | add the hidden seed of the current commit | `validate-overview` |
+| `--json` | off | print the report, or the hardness, as JSON | `validate-overview` |
+| `--items` | off | compute every level and list the whole bank | `validate-reading-items` |
+| `--all-levels` | off | compute every level and list every failing item | `validate-reading-items` |
+| `--blind` | off | strip causes and `Fix:` hints (the auditor's view) | `validate-reading-items` |
+| `--check-floor` | off | exit 1 when a run is below its floor, else 0 | `validate-floors` |
+| `--raise <component>` | none | with `floors`: the component whose floor rises | `validate-floors` |
+| `--ladder-version <n>` | none | with `floors --raise`: the ladder version of the floor | `validate-floors` |
+| `--evidence <json>` | none | with `floors --raise`: the `--json` run that reaches the level | `validate-floors` |
+| `--brief` | off | print the executor brief with the live state | `validate-executor-loop` |
+| `--fresh` | off | with `--brief`: leave out the hypotheses | `validate-executor-loop` |
+| `--journal <row.json>` | none | append a validated journal row | `validate-executor-loop` |
+| `--check-handover` | off | exit 1 when `HANDOVER.md` disagrees with the journal | `validate-executor-loop` |
+| `--hardness` | off | print the hardness measurement from the journal | `validate-executor-loop` |
+| `--branch <name>` | none | with `protect`: the pull request's branch | `validate-protect` |
+| `--base <ref>` | none | with `protect`: the ref it merges into | `validate-protect` |
+| `-h`, `--help` | off | print the command's usage | |
 
 ## Inputs
 
