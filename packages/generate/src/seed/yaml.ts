@@ -41,45 +41,61 @@ function keyText(key: string): string {
 /** The library's block style for plain objects and arrays, with its scalar spellings. */
 export function stringifyGeneratedYaml(input: unknown): string {
   const seen = new Set<object>();
-  const render = (value: unknown, indent: number): string[] => {
-    const pad = ' '.repeat(indent);
-    if (value === null || typeof value !== 'object') return [`${pad}${scalar(value)}`];
+  const lines: string[] = [];
+  const render = (value: unknown, indent: number, prefix: string, mappingValue = false): void => {
+    if (value === null || typeof value !== 'object') {
+      lines.push(`${prefix}${scalar(value)}`);
+      return;
+    }
     if (seen.has(value) || indent > 100) throw unsupported;
     seen.add(value);
     try {
-      if (!Array.isArray(value) && ![Object.prototype, null].includes(Object.getPrototypeOf(value)))
+      const array = Array.isArray(value);
+      const prototype = Object.getPrototypeOf(value);
+      if (array ? prototype !== Array.prototype : ![Object.prototype, null].includes(prototype))
         throw unsupported;
-      if (typeof Object.getOwnPropertyDescriptor(value, 'toJSON')?.value === 'function') throw unsupported;
-      if (
-        Object.values(Object.getOwnPropertyDescriptors(value)).some(
-          (descriptor) => descriptor.get || descriptor.set,
-        )
-      )
-        throw unsupported;
-      const entries = Array.isArray(value)
-        ? value.map((item) => [undefined, item] as const)
-        : Object.entries(value).filter(([, item]) => item !== undefined);
-      if (entries.length === 0) return [`${pad}${Array.isArray(value) ? '[]' : '{}'}`];
-      const out: string[] = [];
-      for (const [key, item] of entries) {
-        const child = render(item, indent + 2);
-        const first = (child[0] ?? '').slice(indent + 2);
-        if (key === undefined) {
-          out.push(`${pad}- ${first}`, ...child.slice(1));
-        } else if (item !== null && typeof item === 'object' && first !== '{}' && first !== '[]') {
-          out.push(`${pad}${keyText(key)}:`, ...child);
-        } else {
-          out.push(`${pad}${keyText(key)}: ${first}`, ...child.slice(1));
-        }
+      const toJSON = Object.getOwnPropertyDescriptor(value, 'toJSON');
+      if (toJSON?.get || toJSON?.set || typeof toJSON?.value === 'function') throw unsupported;
+      const names = Object.keys(value);
+      for (const name of names) {
+        const descriptor = Object.getOwnPropertyDescriptor(value, name);
+        if (descriptor?.get || descriptor?.set) throw unsupported;
       }
-      return out;
+      // Sparse or decorated arrays retain the YAML library's treatment.
+      if (array && (names.length !== value.length || names.some((name, index) => name !== String(index))))
+        throw unsupported;
+      const entries = array
+        ? names
+        : names.filter((key) => (value as Record<string, unknown>)[key] !== undefined);
+      if (entries.length === 0) {
+        lines.push(`${prefix}${array ? '[]' : '{}'}`);
+        return;
+      }
+      if (mappingValue) {
+        lines.push(prefix.slice(0, -1));
+        prefix = ' '.repeat(indent);
+      }
+      const pad = ' '.repeat(indent);
+      if (array) {
+        for (let index = 0; index < value.length; index += 1)
+          render(value[index], indent + 2, `${index === 0 ? prefix : pad}- `);
+      } else {
+        for (const [index, key] of entries.entries())
+          render(
+            (value as Record<string, unknown>)[key],
+            indent + 2,
+            `${index === 0 ? prefix : pad}${keyText(key)}: `,
+            true,
+          );
+      }
     } finally {
       seen.delete(value);
     }
   };
   try {
     if (input === null || typeof input !== 'object') throw unsupported;
-    return `${render(input, 0).join('\n')}\n`;
+    render(input, 0, '');
+    return `${lines.join('\n')}\n`;
   } catch {
     return stringify(input, options);
   }

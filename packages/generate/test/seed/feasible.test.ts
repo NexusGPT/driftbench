@@ -174,6 +174,34 @@ describe('Feasibility', () => {
     expect(reads).toBeLessThan(width * 8);
   });
 
+  it('keeps missing values, reversed pairs and duplicate dimensions distinct in its cache', () => {
+    const partials: Array<Array<[number, number]>> = [[]];
+    for (const [dimension, entry] of space.dimensions.entries()) {
+      const before = [...partials];
+      for (const partial of before)
+        for (let value = 0; value < entry.values.length; value += 1)
+          partials.push([...partial, [dimension, value]]);
+    }
+    partials.push(
+      [
+        [0, 0],
+        [0, 1],
+      ],
+      [
+        [0, 1],
+        [0, 1],
+      ],
+      [[0, -1]],
+      [[0, 99]],
+    );
+    const cached = new Feasibility(space);
+    for (const partial of partials) {
+      const expected = new Feasibility(space).complete(partial) !== undefined;
+      expect(cached.allowed(partial)).toBe(expected);
+      expect(cached.allowed([...partial].reverse())).toBe(expected);
+    }
+  });
+
   it('keys a tuple by its dimensions and values', () => {
     expect(tupleKey([0, 2], [1, 0])).toBe('0=1,2=0');
   });

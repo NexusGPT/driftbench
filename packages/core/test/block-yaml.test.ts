@@ -55,6 +55,44 @@ describe('block YAML acceleration', () => {
     expect(accelerated).toBeGreaterThan(300);
   });
 
+  it('does not share mutable collections between parses or confuse scalar cache eviction', () => {
+    const text = 'object: {}\narray: []\nflag: true\nzero: -0\n';
+    const first = parseBlockYaml(text)?.value as { object: Record<string, unknown>; array: unknown[] };
+    first.object.changed = true;
+    first.array.push('changed');
+    expect(parseBlockYaml(text)?.value).toEqual(parse(text));
+    for (let index = 0; index < 5000; index += 1) {
+      const source = `value: word-${index}\n`;
+      expect(parseBlockYaml(source)?.value).toEqual({ value: `word-${index}` });
+    }
+    expect(parseBlockYaml(text)?.value).toEqual(parse(text));
+  });
+
+  it('matches reference parsing for deterministic nested documents and whitespace mutations', () => {
+    let state = 1;
+    const random = () => {
+      state = Math.imul(state, 1664525) + 1013904223;
+      return (state >>> 0) / 2 ** 32;
+    };
+    const value = (depth: number): unknown => {
+      if (depth > 3 || random() < 0.55) return values[Math.floor(random() * values.length)];
+      if (random() < 0.4) return Array.from({ length: Math.floor(random() * 4) }, () => value(depth + 1));
+      return { first: value(depth + 1), second: value(depth + 1) };
+    };
+    for (let index = 0; index < 300; index += 1) {
+      const reference = stringify({ root: value(0) }, { lineWidth: 0, aliasDuplicateObjects: false });
+      for (const text of [
+        reference,
+        reference.trimEnd(),
+        reference.replaceAll('  ', ' '),
+        reference.replaceAll(': ', ':  '),
+      ]) {
+        const fast = parseBlockYaml(text);
+        if (fast) expect(fast.value, text).toEqual(parse(text, { uniqueKeys: true }));
+      }
+    }
+  });
+
   it.each([
     'x: true\nx: false\n',
     'x: &a [1, 2]\ny: *a\n',

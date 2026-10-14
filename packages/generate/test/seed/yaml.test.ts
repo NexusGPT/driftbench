@@ -61,6 +61,8 @@ describe('generated YAML serialization', () => {
       { date: new Date('2020-01-01') },
       { custom: { toJSON: () => ({ replaced: true }) } },
       { custom: Object.defineProperty({}, 'toJSON', { value: () => 42 }) },
+      { custom: Object.defineProperty({}, 'toJSON', { get: () => () => 42 }) },
+      { sparse: new Array(2) },
       {
         get accessed() {
           return 'value';

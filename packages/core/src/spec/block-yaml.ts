@@ -6,6 +6,8 @@ const scalarTags = new Document().schema.tags.filter(
   (tag): tag is ScalarTag => !tag.collection && tag.default === true && tag.test !== undefined,
 );
 const unsupported = Symbol('unsupported YAML');
+// Primitive scalar results are immutable; keep at most 4096 short spellings.
+const scalarValues = new Map<string, unknown>();
 const plainKey = /^[a-zA-Z_][a-zA-Z0-9_.-]*$/;
 
 export function parseBlockYaml(text: string): { value: unknown } | undefined {
@@ -18,7 +20,7 @@ export function parseBlockYaml(text: string): { value: unknown } | undefined {
   const skip = () => {
     while (at < lines.length && (/^ *#/.test(lines[at] ?? '') || /^ *$/.test(lines[at] ?? ''))) at += 1;
   };
-  const scalar = (source: string): unknown => {
+  const rawScalar = (source: string): unknown => {
     if (source === '{}') return {};
     if (source === '[]') return [];
     if (source.startsWith('"')) {
@@ -53,6 +55,16 @@ export function parseBlockYaml(text: string): { value: unknown } | undefined {
       }
     }
     return source;
+  };
+  const scalar = (source: string): unknown => {
+    const known = scalarValues.get(source);
+    if (known !== undefined) return known;
+    const result = rawScalar(source);
+    if (source.length <= 256 && (result === null || typeof result !== 'object')) {
+      if (scalarValues.size >= 4096) scalarValues.clear();
+      scalarValues.set(source, result);
+    }
+    return result;
   };
   const pair = (source: string): [string, string] => {
     // Complex/quoted keys are uncommon and retain the full parser's handling.

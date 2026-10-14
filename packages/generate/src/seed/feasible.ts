@@ -24,12 +24,21 @@ export class Feasibility {
   private readonly sizes: number[];
   /** Only constraints naming the chosen value can forbid a cell. */
   private readonly touchingValue: Map<number, number[]>[];
-  private readonly cache = new Map<string, boolean>();
+  private readonly cache = new Map<string | number, boolean>();
+  /** Mixed-radix keys only when every partial cell fits an exact JavaScript integer. */
+  private readonly weights: number[] | undefined;
   /** The visiting order: constrained dimensions first, the most constrained first, then map order. */
   private readonly order: number[];
 
   constructor(private readonly space: CompiledSpace) {
     this.sizes = space.dimensions.map((dimension) => dimension.values.length);
+    let product = 1;
+    const weights = this.sizes.map((size) => {
+      const weight = product;
+      product *= size + 1;
+      return weight;
+    });
+    this.weights = this.sizes.length <= 32 && Number.isSafeInteger(product) ? weights : undefined;
     this.touchingValue = this.sizes.map(() => new Map());
     const touching = this.sizes.map(() => 0);
     space.constraints.forEach((constraint, index) => {
@@ -53,13 +62,36 @@ export class Feasibility {
 
   /** True when an allowed full cell holds every pair given. Answers are cached. */
   allowed(partial: Partial): boolean {
-    const key = keyOf(partial);
+    const key = this.cacheKey(partial);
     const known = this.cache.get(key);
     if (known !== undefined) return known;
     const result = this.complete(partial) !== undefined;
     if (this.cache.size >= MAX_CACHED_CELLS) this.cache.clear();
     this.cache.set(key, result);
     return result;
+  }
+
+  private cacheKey(partial: Partial): string | number {
+    if (!this.weights) return keyOf(partial);
+    let key = 0;
+    let held = 0;
+    for (const [dimension, value] of partial) {
+      const weight = this.weights[dimension];
+      const size = this.sizes[dimension];
+      if (
+        weight === undefined ||
+        size === undefined ||
+        !Number.isInteger(value) ||
+        value < 0 ||
+        value >= size ||
+        (held & (1 << dimension)) !== 0
+      )
+        return keyOf(partial);
+      held |= 1 << dimension;
+      // Zero is an unspecified dimension; values occupy digits 1 through size.
+      key += (value + 1) * weight;
+    }
+    return key;
   }
 
   /**
