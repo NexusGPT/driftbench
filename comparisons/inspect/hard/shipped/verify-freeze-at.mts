@@ -1,5 +1,5 @@
-import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
@@ -13,6 +13,7 @@ const frozen = JSON.parse(readFileSync(new URL(`./${manifest}`, import.meta.url)
 };
 for (const [path, hash] of Object.entries(frozen.sha256)) {
   const bytes = execFileSync('git', ['show', `${commit}:${path}`], { cwd: repo, maxBuffer: 1 << 28 });
-  if (createHash('sha256').update(bytes).digest('hex') !== hash) throw new Error(`Frozen file changed: ${path}`);
+  if (createHash('sha256').update(bytes).digest('hex') !== hash)
+    throw new Error(`Frozen file changed: ${path}`);
 }
 console.log(`verified ${Object.keys(frozen.sha256).length} frozen files at ${commit}`);
