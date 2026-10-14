@@ -114,27 +114,14 @@ tsx relevance.mts
 
 ```text
 $ driftbench judge calibrate --criteria examples/acme/criteria --labels examples/acme/labels --cassette examples/acme/criteria/calibration/claude-haiku.cassette.json --mode llm --assign cheapest --only sheet_matches_catalog --out haiku.yaml
-node:internal/modules/esm/resolve:271
-    throw new ERR_MODULE_NOT_FOUND(
-          ^
+sheet_matches_catalog [gating]: owned by claude-haiku alone (system2), 0.0003 USD per call
+    claude-haiku       system2  separation 3/3  kappa  1.00  agreement 3/3 [0.44, 1.00]  at the bar
+    alpha across judges n/a; bar: 3/3 separation and kappa 0.8
+Kappa over every labelled block: claude-haiku 1.00 (3/3).
 
-Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/Users/assem/Documents/GitHub/driftbench/.worktrees/opus-help-judging/packages/cli/node_modules/@agent-nexus/driftbench-judges/dist/index.js' imported from /Users/assem/Documents/GitHub/driftbench/.worktrees/opus-help-judging/packages/cli/src/commands/judge.ts
-    at finalizeResolution (node:internal/modules/esm/resolve:271:11)
-    at moduleResolve (node:internal/modules/esm/resolve:865:10)
-    at defaultResolve (node:internal/modules/esm/resolve:992:11)
-    at #cachedDefaultResolve (node:internal/modules/esm/loader:701:20)
-    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:721:38)
-    at nextStep (node:internal/modules/customization_hooks:189:26)
-    at resolveBaseSync (file:///Users/assem/Documents/GitHub/driftbench/.worktrees/opus-help-judging/node_modules/.pnpm/tsx@4.23.15/node_modules/tsx/dist/register-nyXW-TH3.mjs:2:11092)
-    at resolveDirectorySync (file:///Users/assem/Documents/GitHub/driftbench/.worktrees/opus-help-judging/node_modules/.pnpm/tsx@4.23.15/node_modules/tsx/dist/register-nyXW-TH3.mjs:2:12398)
-    at resolveTsPathsSync (file:///Users/assem/Documents/GitHub/driftbench/.worktrees/opus-help-judging/node_modules/.pnpm/tsx@4.23.15/node_modules/tsx/dist/register-nyXW-TH3.mjs:2:13605)
-    at resolve (file:///Users/assem/Documents/GitHub/driftbench/.worktrees/opus-help-judging/node_modules/.pnpm/tsx@4.23.15/node_modules/tsx/dist/register-nyXW-TH3.mjs:2:16832) {
-  code: 'ERR_MODULE_NOT_FOUND',
-  url: 'file:///Users/assem/Documents/GitHub/driftbench/.worktrees/opus-help-judging/packages/cli/node_modules/@agent-nexus/driftbench-judges/dist/index.js'
-}
-
-Node.js v24.18.0
-(exit 1)
+1 of 1 criteria assigned in mode llm (3 repeats, kappa at least 0.8). Spent 0.0026 USD.
+Wrote haiku.yaml.
+(exit 0)
 $ tsx relevance.mts
 response-relevance: fail
 lint: subjective, same-pictures
