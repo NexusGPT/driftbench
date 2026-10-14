@@ -28,6 +28,7 @@ Adapters freeze caller-owned messages too: copy before handing one over to keep 
 
 ### Changes
 * The generator gate accepts equal sibling expectations when repeated reference outputs establish equivalence, while still rejecting copied expectations for edits that change the reference output.
+- The local viewer rejects untrusted Host and write-origin headers, and requires a per-start hidden token on label and queue forms. Stale forms need a reload after restart.
 
 * Dataset push and restore preserve generated `.seed-*` task fixtures, including binary and nested files. `generate --spec-cap` retains each kept task spec's seed assets without rewriting their contents. `.git` and `node_modules` stay excluded from registry versions.
 * `expect.pii_judge: true` opts a block into names-and-addresses detection through its configured judge. Default regex PII checks stay unchanged. SDK councils and explicitly supplied `piiJudge` callbacks work; CLI replay and estate runs share the configured judge's budget. Missing or failed judging is gating inconclusive; absent or false opt-in makes no paid call.
