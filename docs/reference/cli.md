@@ -835,8 +835,8 @@ Wordings: the approved phrase bank gives fewer than 3 wordings to some conversat
 Judges criteria with the council, on recorded answers. The council, its modes and calibration are on the [judges](../concepts/judges.md) page.
 
 ```
-driftbench judge run --criteria <dir> --cassette <file> [--mode system1|hybrid|llm] [--agent-family <family>] [--cascade] [--assignments <file>] [--json]
-driftbench judge calibrate --criteria <dir> --labels <dir> (--cassette <file> | --claude <model>...) --out <file> [--claude-command <path>] [--record <file>] [--spend-cap-usd <usd>] [--cascade] [--only <criterion>...] [--assign council|cheapest] [--repeats <n>] [--mode system1|hybrid|llm] [--agent-family <family>] [--json]
+driftbench judge run --criteria <dir> --cassette <file> [--mode system1|hybrid|llm] [--agent-family <family>] [--cascade] [--assignments <file>] [--verify arithmetic] [--prompt-budget <chars>] [--json]
+driftbench judge calibrate --criteria <dir> --labels <dir> (--cassette <file> | --claude <model>...) --out <file> [--claude-command <path>] [--record <file>] [--spend-cap-usd <usd>] [--cascade] [--only <criterion>...] [--assign council|cheapest] [--repeats <n>] [--mode system1|hybrid|llm] [--agent-family <family>] [--verify arithmetic] [--prompt-budget <chars>] [--json]
 driftbench judge check <criteria> [--json]
 ```
 
@@ -864,6 +864,8 @@ driftbench judge check <criteria> [--json]
 | `--agent-family <family>` | the model family of the agent under test, `none` for no model; default `none` |
 | `--cascade` | `run`: run the cheapest judge first and stop on a sure pass |
 | `--assignments <file>` | `run`: the assignment table `judge calibrate` wrote |
+| `--verify arithmetic` | check the explicit equations of a reply (such as `12 * 3 = 35`) in a bounded arithmetic sandbox before the judge reads it; the results reach the judge as a `judge.arithmetic` tool line. Also on `replay`, `estate run` and `campaign rejudge` |
+| `--prompt-budget <chars>` | drop the oldest transcript entries, replaced by one `[k earlier entries omitted]` line, until the judge prompt fits this many characters; the last block, the artifact and the Given stay. A block that alone is over the budget is inconclusive. Also on `replay`, `estate run` and `campaign rejudge` |
 | `--json` | print one JSON document |
 
 On the Acme criteria and their cassette:
@@ -1376,7 +1378,8 @@ Reply checks: 3 of 4 applied, 1 not applicable (tied to another stage).
 
 ```
 driftbench report [campaign] --store <db> --out <file.html> [--junit <file.xml>] [--baseline <campaign>] [--margin <points|auto>] [--min-goldens <n>] [--strict] [--pilot <path>] [--by <dimensions>] [--spread-mode <mode>] [--max-runs <n>] [--withhold-incomplete] [--config <file>] [--aggregate <name:op threshold>]... [--json]
-driftbench compare --baseline <campaign> --candidate <campaign> --store <db> [--margin <points|auto>] [--min-goldens <n>] [--strict] [--mode <modes>] [--q <rate>] [--json] [--pairwise <criterion.yaml>] [--pairwise-judge <openai|anthropic|google>] [--pairwise-reference <file>]
+driftbench compare --baseline <campaign> --candidate <campaign> --store <db> [--margin <points|auto>] [--min-goldens <n>] [--strict] [--mode <modes>] [--q <rate>] [--json] [--pairwise <criterion.yaml>] [--pairwise-judge <openai|anthropic|google>] [--pairwise-reference <file>] [--pairwise-contract winner|ledger] [--pairwise-presentation both-orders|canonical] [--pairwise-items <file>] [--no-pairwise-audit] [--pairwise-config reader-first [--judge-margin <n>] [--feature-margin <n>] [--min-failures <n>]] [--pairwise-preference long-structured]
+driftbench compare --rank <campaigns...> --store <db> [--mode <modes>] [--json]
 ```
 
 `report` writes the scorecard of a stored campaign as one HTML file, with no script and no external asset: every metric with its interval, the compare diff with `--baseline`, the spread view, the pilot report with `--pilot`, and the per-block drilldown. `--junit` also writes JUnit XML. `--aggregate` (repeatable) scores a campaign-level criterion over every run, such as `pass-rate:>=0.8` or `broken-share:<=0.2`, and prints each result; see [campaign-level criteria](../aggregates.md). `--config <file>` names the project config whose `aggregates:` it also scores; default `driftbench.yaml` in the working folder. `--withhold-incomplete` withholds the pass^k and pass@k value of a line with incomplete runs, instead of reporting it with the range of its missing outcomes; see [statistics](../concepts/statistics.md). Exit 0 when written, 2 on bad input. The [example scorecards](../scorecards.md) were written by it.
@@ -1394,6 +1397,21 @@ driftbench compare --baseline <campaign> --candidate <campaign> --store <db> [--
 New flags always gate, and so does an underpowered criterion whose regression Benjamini-Hochberg keeps.
 
 `compare --pairwise <criterion.yaml>` also judges, for every block both campaigns ran, which of the two replies better meets one criterion. The criterion file holds a `name` and a `rubric`, and optionally `pass` and `fail`. `--pairwise-judge` picks the provider judge, `openai` by default; its key is read from the environment. `--pairwise-reference <file>` asks which reply matches the reference answer in the file better, instead of which reply is better; see [judges](../concepts/judges.md#factual-audit-and-ledger-recovery). Each pair is judged twice, in both orders, so a judge that favours a position is caught: the printed line counts the baseline and candidate wins, the ties, the calls whose two orders disagreed, and the calls where the judge chose a position. A judge that gives no answer fails the command with its reason. The pairwise line never changes the exit code.
+
+The pairwise call takes these settings. Each is checked before any call; a contradiction exits 2 and names the flag to drop. With none, the requests and the printed line are as above.
+
+| Option | Effect |
+|---|---|
+| `--pairwise-contract <contract>` | `winner` (default): the judge names the better reply. `ledger`: the judge scores each requirement for both replies in both orders and code decides; a machine stage settles clear pairs without a call. See [pair ledger](../concepts/judges.md#pair-ledger) |
+| `--pairwise-presentation <order>` | `both-orders` (default), or `canonical`: one order fixed by the content of the two replies, half the calls, position bias not measured. Not with `ledger`. See [canonical presentation](../concepts/judges.md#canonical-presentation) |
+| `--pairwise-items <file>` | a YAML list of rubric items, each `{ name, rubric, weight, hard }`, scored for both replies. See [itemized rubrics](../concepts/judges.md#itemized-rubrics) |
+| `--no-pairwise-audit` | with `--pairwise-reference`: no fact audit of the reference and no ledger recovery of an order split |
+| `--pairwise-config reader-first` | the reader-first configuration: prefer the longer complete reply unless the judge finds supported failures in it. `--judge-margin` (default 4), `--feature-margin` (default 5) and `--min-failures` (default 1) set its thresholds. It replaces the other pairwise settings. See [reader-first](../concepts/judges.md#reader-first-configuration-length-aware-opt-in) |
+| `--pairwise-preference long-structured` | a declared preference for the longer structured reply, applied after the ledger verdict; needs `--pairwise-contract ledger`. See [judges](../concepts/judges.md#declared-preference-long-structured-opt-in) |
+
+With a setting, the printed line names it, such as `Pairwise (ledger): ...`, and counts the order splits and position bias only where both orders were judged by the winner contract.
+
+`compare --rank <campaigns...>` ranks three or more campaigns, such as versions of one agent, on the runs they share: the same spec, mode, perturbation and repeat, whatever the target. A campaign wins a shared run when its run passes and the other's fails; a run both pass or both fail is a tie, half a win to each. It prints the Bradley-Terry order with each strength, the wins and ties of every pair, and every three-campaign cycle of majority wins (a beats b, b beats c, c beats a), since a cycle means no order is fully true. `--mode` keeps only those modes; `--json` prints `campaigns`, `wins`, `ties`, `shared`, `order` and `cycles`. Exit 0 ranked, 1 when no order exists (two campaigns share no run, or every shared run between some went one way), 2 on bad input.
 
 ## `driftbench ci`
 

@@ -4,7 +4,7 @@
     "path": "../map/approved.yaml",
     "agent": "acme",
     "version": "1",
-    "hash": "7c05b9cee9cc",
+    "hash": "7a022d4e1380",
     "dimensions": 51,
     "values": 187,
     "constraints": 463,
@@ -16,9 +16,9 @@
     "max": null
   },
   "summary": {
-    "specs": 407,
-    "blocks": 1533,
-    "complete": 332,
+    "specs": 410,
+    "blocks": 1540,
+    "complete": 335,
     "incomplete": 75
   },
   "seeders": {
@@ -107,15 +107,15 @@
       }
     },
     "cover": {
-      "specs": 24,
-      "blocks": 135,
-      "complete": 24,
+      "specs": 27,
+      "blocks": 142,
+      "complete": 27,
       "needs_phrase": 0,
       "needs_then": 0,
       "cut": false,
       "measures": {
-        "hill_q0": 305,
-        "pielou": 0.910345548878,
+        "hill_q0": 307,
+        "pielou": 0.908794265294,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
@@ -4061,7 +4061,7 @@
     "actual": [
       {
         "t": 2,
-        "specs": 332,
+        "specs": 335,
         "allowed": 708,
         "covered": 708,
         "share": 1,
@@ -4069,7 +4069,7 @@
       },
       {
         "t": 3,
-        "specs": 332,
+        "specs": 335,
         "allowed": 4064,
         "covered": 2928,
         "share": 0.7204724409448819,
@@ -9761,30 +9761,30 @@
     "allowed": 708,
     "complete": {
       "t": 2,
-      "specs": 332,
+      "specs": 335,
       "allowed": 708,
       "covered": 708,
       "share": 1
     },
     "all": {
       "t": 2,
-      "specs": 407,
+      "specs": 410,
       "allowed": 708,
       "covered": 708,
       "share": 1
     },
     "measures": {
-      "discovery": 0.012730367848419806,
-      "chao_coverage": 0.987270190928251,
-      "chao1": 998.0177487914714,
+      "discovery": 0.012683430425484846,
+      "chao_coverage": 0.9873171242382525,
+      "chao1": 998.0178279408511,
       "hill_q0": 708,
-      "hill_q1": 301.453359132226,
-      "hill_q2": 188.87304592724098,
-      "pielou": 0.869891648084,
+      "hill_q1": 300.684864459138,
+      "hill_q2": 188.22134190339236,
+      "pielou": 0.869502684199,
       "t3_share": 0.7204724409448819,
       "t3_allowed": 4064,
       "weighted_share": 0.999999999999909,
-      "effective_sample_size": 217.99369087706685,
+      "effective_sample_size": 218.7317337159303,
       "required_covered": 10,
       "required_total": 10,
       "axis_behaviour": 14,

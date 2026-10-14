@@ -1,0 +1,9 @@
+work/*
+!work/responses.jsonl.gz
+!work/checks.jsonl.gz
+!work/run-state.json
+work/sources/*
+!work/sources/
+!work/sources/manifest.json
+cells/*.jsonl
+cells/.*.lock

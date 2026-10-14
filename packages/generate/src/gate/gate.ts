@@ -1,4 +1,10 @@
-import type { AgentAdapter, Observed, RunResult, Spec } from '@agent-nexus/driftbench-core';
+import {
+  type AgentAdapter,
+  canonicalJson,
+  type Observed,
+  type RunResult,
+  type Spec,
+} from '@agent-nexus/driftbench-core';
 import { mulberry32, passK, wilson } from '@agent-nexus/driftbench-stats';
 import { streamSeed } from '../seed/random';
 import {
@@ -375,19 +381,7 @@ function contrastStage(record: BlockRecord, spec: Spec, ctx: ContrastContext): S
         ...ownRuns.map((run) => ({ run, index: record.index })),
         ...otherRuns.map((run) => ({ run, index: index as number })),
       ];
-      const projections = outcomes.map(({ run, index }) => {
-        const block = run.blocks.find((entry) => entry.index === index);
-        return block && run.status === 'completed' && blockOutcome(run, index) === 'pass'
-          ? contrastProjection(block.observed, record.fields)
-          : undefined;
-      });
-      if (
-        ownRuns.length > 0 &&
-        otherRuns.length > 0 &&
-        record.fields.every((field) => CONTRAST_FIELDS.has(field)) &&
-        projections[0] !== undefined &&
-        projections.every((projection) => projection === projections[0])
-      )
+      if (ownRuns.length > 0 && otherRuns.length > 0 && sameReferenceOutcome(outcomes, record.fields))
         continue;
       const changed = Object.entries(record.cell)
         .filter(([slot, value]) => blockCell(other as Spec, index as number)[slot] !== value)
@@ -409,6 +403,28 @@ function contrastStage(record: BlockRecord, spec: Spec, ctx: ContrastContext): S
     status: 'pass',
     detail: checked.length > 0 ? checked.join('; ') : 'no one-slot sibling or twin to compare',
   };
+}
+
+/**
+ * True when every reference run passes the block and they all show the same observed result on what the
+ * Then reads. A Then on the end state compares the end state each run recorded (`endStateValue`); a run
+ * that recorded none, such as one stored before the field existed, keeps the conservative answer: false.
+ */
+export function sameReferenceOutcome(
+  outcomes: ReadonlyArray<{ run: RunResult; index: number }>,
+  fields: readonly ThenField[],
+): boolean {
+  const readsEnd = fields.includes('end_state');
+  const endsRecorded = outcomes.every(({ run }) => run.endStateValue !== undefined);
+  if (!fields.every((field) => CONTRAST_FIELDS.has(field) || (field === 'end_state' && endsRecorded)))
+    return false;
+  const projections = outcomes.map(({ run, index }) => {
+    const block = run.blocks.find((entry) => entry.index === index);
+    if (!block || run.status !== 'completed' || blockOutcome(run, index) !== 'pass') return undefined;
+    const end = readsEnd ? `|${canonicalJson(run.endStateValue)}` : '';
+    return `${contrastProjection(block.observed, fields)}${end}`;
+  });
+  return projections[0] !== undefined && projections.every((projection) => projection === projections[0]);
 }
 
 // These fields have complete reference evidence in the captured block. Final stores, artifact
