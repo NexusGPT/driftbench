@@ -3479,7 +3479,17 @@ add(
         token: 'body' as const,
       })),
     );
-    const cases = [...matrix, ...nearCases];
+    // The token is read only for POST. Every other method keeps the token that the page supplies, plus one
+    // trusted request with the token missing: the method check must answer 405 before any token check.
+    const cases = [
+      ...matrix.filter(
+        (c) =>
+          c.method === 'POST' ||
+          c.token === 'body' ||
+          (c.token === 'missing' && c.host === 'own' && c.origin === 'own' && c.referer === 'absent'),
+      ),
+      ...nearCases,
+    ];
     for (const { form: source, method, host, origin, referer, token } of cases) {
       // docs/viewer.md: "Requests must use the exact `127.0.0.1:<port>` address printed at startup."
       // "Other Host headers are refused to block DNS rebinding."
