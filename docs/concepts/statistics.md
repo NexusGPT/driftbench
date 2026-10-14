@@ -103,10 +103,14 @@ Both run on the same specs.
 |---|---|
 | `mcnemar(b, c, { exact })` | McNemar's test on the discordant counts: exact below 25 discordant pairs by default, else the continuity-corrected chi-square. `compare` (and so `ci`) always passes `exact: true`, at any count, and prints "McNemar exact" |
 | `wilcoxonSignedRank(x, y, { method })` | Wilcoxon's signed-rank test on paired values, such as the drift count per spec; `method` is `auto` (the default, which follows scipy's choice), `exact`, `permutation` or `asymptotic` |
-| `pairedRateDifference(table, alpha)` | the baseline pass rate minus the candidate's, with Newcombe's interval for paired data; `table` counts `bothPass`, `regressed`, `improved` and `bothFail` |
+| `pairedRateDifference(table, alpha)` | the baseline pass rate minus the candidate's, with Newcombe's method 10 interval for paired data: Wilson limits per arm and the corrected phi correlation; `table` counts `bothPass`, `regressed`, `improved` and `bothFail` |
 | `benjaminiHochberg(pvalues, q)` | false discovery rate control at `q` (default 0.05): adjusted p-values, the rejected hypotheses and the threshold |
 
 Many criteria are compared at once, so a report applies Benjamini-Hochberg across criteria before it says that a criterion regressed.
+
+### Carried results are never paired
+
+A campaign that runs the [blast radius](blast-radius.md) of a change carries the stored result of every cell outside it. A carried result is the baseline result copied: paired with the baseline it agrees by construction, in a conversation as in a task. `compare` therefore pairs a candidate unit only when it is fresh, and lists each carried unit under `unpaired` with the campaign and the agent version it comes from. The tests and the parity verdict read the fresh pairs. A rate over the campaign itself counts both and says so.
 
 ## The parity verdict
 

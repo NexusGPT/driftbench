@@ -1,0 +1,1 @@
+V3 is excluded: the receipt value reused a plan identifier, so a correctly answered plan could satisfy the nominally independent receipt condition. V4 uses a disjoint token and asserts literal receipt presence against all labels. Labels and the approved deciding-evidence rule are unchanged.

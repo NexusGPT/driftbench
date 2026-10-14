@@ -6,7 +6,7 @@ import { generateSuite } from '../../src/enumerate/generate';
 import { loadApprovedMap } from '../../src/enumerate/load';
 import type { PreparedMap } from '../../src/seed/map';
 import { buildTaskInputs } from '../../src/seed/tasks';
-import beforeNumeric from './fixtures/budget-before-numeric.json';
+import categorical from './fixtures/budget-categorical.json';
 import { ACME, ACME_MAP } from './support';
 
 /** The budget mode on the approved Acme map: the report field, the determinism, the pair rule. */
@@ -19,7 +19,12 @@ describe('budget mode on the approved Acme map', () => {
     const loaded = await loadApprovedMap(ACME_MAP);
     if (!loaded.ok) throw new Error(`${loaded.code}: ${loaded.message}`);
     prepared = loaded.prepared;
-    const built = await buildTaskInputs(prepared, dirname(ACME_MAP), { n: 8, seed: 1 });
+    const built = await buildTaskInputs(prepared, dirname(ACME_MAP), {
+      n: 8,
+      seed: 1,
+      // As `driftbench generate` names it: the folder beside the spec, relative to the spec file.
+      seedFrom: (id) => `./.seed-${id}`,
+    });
     taskInputs = built.inputs;
     const hand = await loadSpecs([`${ACME}specs`]);
     handWritten = hand.filter((entry): entry is LoadedSpec => entry.ok).map((entry) => entry.spec);
@@ -72,8 +77,8 @@ describe('budget mode on the approved Acme map', () => {
     expect(plain.report.options).not.toHaveProperty('budget');
   }, 120_000);
 
-  it('keeps every Acme output byte-identical to the categorical path of e13e7cb3 on the approved map 6d29ed7a7539 when numeric settings are absent', () => {
-    expect(prepared.hash).toBe(beforeNumeric.mapHash);
+  it('pins the categorical Acme output with optional input, stage and reply assertions', () => {
+    expect(prepared.hash).toBe(categorical.mapHash);
     for (const budget of [undefined, 20, 50, 100, 200]) {
       const result = generateSuite(prepared, {
         t: 2,
@@ -84,7 +89,7 @@ describe('budget mode on the approved Acme map', () => {
         baseline: { label: 'examples/acme/specs', specs: handWritten },
       });
       const key = budget === undefined ? 'pairwise' : `budget-${budget}`;
-      const expected = (beforeNumeric.hashes as Record<string, string>)[key];
+      const expected = (categorical.hashes as Record<string, string>)[key];
       expect(createHash('sha256').update(JSON.stringify(result.files)).digest('hex')).toBe(expected);
       expect(result.report.budget?.numeric).toBeUndefined();
     }

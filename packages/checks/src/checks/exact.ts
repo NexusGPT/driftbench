@@ -1,5 +1,5 @@
 import { type Check, machineVerdict } from '@agent-nexus/driftbench-core';
-import { visibleText } from '../support/text';
+import { quote, visibleText } from '../support/text';
 
 const NAME = 'exact';
 
@@ -25,9 +25,26 @@ function numberOf(text: string): number | undefined {
   return Number.isFinite(value) ? value : undefined;
 }
 
+/** Use Unicode decimal digits for both separator neighbors and strict thousands grouping. */
+function digitSignature(text: string): string {
+  const ungrouped = text.replace(/\p{Nd}+(?:,\p{Nd}+)*/gu, (run) =>
+    /^\p{Nd}{1,3}(?:,\p{Nd}{3})+$/u.test(run) ? run.replace(/,/g, '') : run,
+  );
+  return [...ungrouped]
+    .filter(
+      (char, index, chars) =>
+        /\p{Nd}/u.test(char) ||
+        ((char === '.' || char === ',') &&
+          /\p{Nd}/u.test(chars[index - 1] ?? '') &&
+          /\p{Nd}/u.test(chars[index + 1] ?? '')),
+    )
+    .join('');
+}
+
 /**
- * `expect.exact`: the visible text of the reply equals the reference. Two numbers compare as numbers, so
- * `42.0` equals `42`; anything else compares after normalising. An empty reply never equals a reference,
+ * `expect.exact`: the visible text of the reply equals the reference (`exact_strict: true` compares byte for byte). Two numbers compare as numbers, so
+ * `42.0` equals `42`; other text retains dots and commas between digits in a separate guard before normalising.
+ * An empty reply never equals a reference,
  * because the spec refuses an empty reference.
  */
 export const exact: Check = {
@@ -37,6 +54,17 @@ export const exact: Check = {
     const reference = ctx.expect.exact;
     if (reference === undefined) return [];
     const reply = visibleText(ctx.observed);
+    if (ctx.expect.exact_strict === true) {
+      const same = reply.trim() === reference.trim();
+      return [
+        machineVerdict(
+          NAME,
+          '0',
+          same ? 'pass' : 'fail',
+          `${quote(reply.trim())} ${same ? '==' : '!='} ${quote(reference.trim())} byte for byte`,
+        ),
+      ];
+    }
     const replyNumber = numberOf(reply);
     const referenceNumber = numberOf(reference);
     if (replyNumber !== undefined && referenceNumber !== undefined) {
@@ -49,6 +77,18 @@ export const exact: Check = {
           same
             ? `${reply.trim()} equals ${reference.trim()} as a number`
             : `${reply.trim()} is not ${reference.trim()} as a number`,
+        ),
+      ];
+    }
+    const replyDigits = digitSignature(reply);
+    const referenceDigits = digitSignature(reference);
+    if (replyDigits !== referenceDigits) {
+      return [
+        machineVerdict(
+          NAME,
+          '0',
+          'fail',
+          `digit signatures ${quote(replyDigits)} differ from ${quote(referenceDigits)}`,
         ),
       ];
     }

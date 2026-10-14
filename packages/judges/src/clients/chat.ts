@@ -4,6 +4,7 @@ import { inconclusive, type JudgeRequest, type JudgeResult, MAX_TOKENS } from '.
 import { isRecord, JudgeError, postJson, requireEnv } from '../http';
 import { buildPrompt } from '../prompt';
 import { googleResponseSchema, isPairLedgerRequest, JUDGE_DIALECTS, withJudgeDialect } from './dialects';
+import { declinedBy, quoteAssessmentMaterial } from './provider-block';
 import { buildDialectRequest } from './transport';
 
 /**
@@ -13,6 +14,16 @@ import { buildDialectRequest } from './transport';
  */
 
 const CHAT_COST = 10;
+
+/** The temperature every chat judge asks for. */
+const TEMPERATURE = 0;
+
+/**
+ * A client's settings descriptor: everything beyond the model that shapes its answers, as one stable string.
+ * It is part of every cassette key, so changing a default below changes the descriptor and no old recording replays.
+ */
+const settingsOf = (client: string, extra: Record<string, unknown>): string =>
+  JSON.stringify({ client, temperature: TEMPERATURE, maxTokens: MAX_TOKENS, ...extra });
 
 function modelOf(options: ClientOptions, env: Record<string, string | undefined>, variable: string): string {
   const model = env[variable]?.trim() || options.model;
@@ -45,7 +56,9 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
   const env = options.env ?? process.env;
   const key = requireEnv(env, 'OPENAI_API_KEY');
   const model = modelOf(options, env, 'OPENAI_JUDGE_MODEL');
+  const reasoning = options.reasoning;
   const url = `${baseOf(env, 'OPENAI_BASE_URL', 'https://api.openai.com')}/v1/chat/completions`;
+  let sendTemperature = true;
   return {
     id: options.id ?? 'openai',
     family: 'openai',
@@ -54,22 +67,31 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
     dialect: JUDGE_DIALECTS.openai.id,
     ...(options.reasoning === undefined ? {} : { reasoning: options.reasoning }),
     cost: options.cost ?? CHAT_COST,
+    settings: settingsOf('openai-chat', {
+      temperatureRetry: 'drop on a 400 that names it',
+      responseFormat: 'json_schema',
+      ...(reasoning === undefined ? {} : { reasoning }),
+      ...(options.quotedMaterial ? { quotedMaterial: true } : {}),
+    }),
     async judge(original) {
       const request = withJudgeDialect(original, JUDGE_DIALECTS.openai.id, options.reasoning);
       const reasoning = request.reasoning ?? options.reasoning;
-      const prompt = buildPrompt(request);
+      const prompt = quoteAssessmentMaterial(buildPrompt(request), options.quotedMaterial);
       const ledgerPayload = isPairLedgerRequest(request)
         ? buildDialectRequest('openai', { ...prompt, schema: responseSchema(request), reasoning }).payload
         : undefined;
-      const payload = await postJson(
-        url,
-        { authorization: `Bearer ${key}` },
+      const body = (withTemperature: boolean) =>
         ledgerPayload
-          ? { model, max_completion_tokens: budgetOf(request), temperature: 0, ...ledgerPayload }
+          ? {
+              model,
+              max_completion_tokens: budgetOf(request),
+              ...(withTemperature ? { temperature: TEMPERATURE } : {}),
+              ...ledgerPayload,
+            }
           : {
               model,
               max_completion_tokens: budgetOf(request),
-              temperature: 0,
+              ...(withTemperature ? { temperature: TEMPERATURE } : {}),
               ...(reasoning === undefined ? {} : { reasoning_effort: reasoning }),
               response_format: {
                 type: 'json_schema',
@@ -83,9 +105,21 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
                 { role: 'system', content: prompt.system },
                 { role: 'user', content: prompt.user },
               ],
-            },
-        options,
-      );
+            };
+      const send = (withTemperature: boolean) =>
+        postJson(url, { authorization: `Bearer ${key}` }, body(withTemperature), options);
+      let payload: unknown;
+      const sentTemperature = sendTemperature;
+      try {
+        payload = await send(sentTemperature);
+      } catch (cause) {
+        // Retry a rejected temperature once, then omit it on subsequent calls from this client.
+        const text = cause instanceof Error ? cause.message : '';
+        if (!sentTemperature || !/answered 400/.test(text) || !/temperature/i.test(text)) throw cause;
+        sendTemperature = false;
+        payload = await send(false);
+      }
+
       const choice = isRecord(payload) && Array.isArray(payload.choices) ? payload.choices[0] : undefined;
       const message = isRecord(choice) ? choice.message : undefined;
       const raw = JSON.stringify(payload);
@@ -93,10 +127,18 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
         return { answer: inconclusive(`${model} answered without a choice`), raw, unparsed: true };
       }
       if (typeof message.refusal === 'string' && message.refusal !== '') {
-        return { answer: inconclusive(`${model} declined: ${message.refusal}`), raw };
+        return {
+          answer: inconclusive(`${model} declined: ${message.refusal}`),
+          raw,
+          ...declinedBy('openai', payload),
+        };
       }
       if (choice.finish_reason === 'content_filter') {
-        return { answer: inconclusive(`${model} declined: its content filter stopped the answer`), raw };
+        return {
+          answer: inconclusive(`${model} declined: its content filter stopped the answer`),
+          raw,
+          ...declinedBy('openai', payload),
+        };
       }
       const content = contentText(message.content);
       if (choice.finish_reason === 'length') return truncated(content, model);
@@ -110,6 +152,8 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
  * ANTHROPIC_JUDGE_MODEL and ANTHROPIC_BASE_URL (default https://api.anthropic.com).
  */
 export function createAnthropicJudge(options: ClientOptions = {}): JudgeClient {
+  if (options.reasoning !== undefined)
+    throw new JudgeError('config', 'reasoning is not supported by the Anthropic chat client');
   const env = options.env ?? process.env;
   const key = requireEnv(env, 'ANTHROPIC_API_KEY');
   const model = modelOf(options, env, 'ANTHROPIC_JUDGE_MODEL');
@@ -121,9 +165,13 @@ export function createAnthropicJudge(options: ClientOptions = {}): JudgeClient {
     model,
     dialect: JUDGE_DIALECTS.anthropic.id,
     cost: options.cost ?? CHAT_COST,
+    settings: settingsOf('anthropic-messages', {
+      anthropicVersion: '2023-06-01',
+      ...(options.quotedMaterial ? { quotedMaterial: true } : {}),
+    }),
     async judge(original) {
       const request = withJudgeDialect(original, JUDGE_DIALECTS.anthropic.id);
-      const prompt = buildPrompt(request);
+      const prompt = quoteAssessmentMaterial(buildPrompt(request), options.quotedMaterial);
       const ledgerPayload = isPairLedgerRequest(request)
         ? buildDialectRequest('anthropic', prompt).payload
         : undefined;
@@ -131,11 +179,11 @@ export function createAnthropicJudge(options: ClientOptions = {}): JudgeClient {
         url,
         { 'x-api-key': key, 'anthropic-version': '2023-06-01' },
         ledgerPayload
-          ? { model, max_tokens: budgetOf(request), temperature: 0, ...ledgerPayload }
+          ? { model, max_tokens: budgetOf(request), temperature: TEMPERATURE, ...ledgerPayload }
           : {
               model,
               max_tokens: budgetOf(request),
-              temperature: 0,
+              temperature: TEMPERATURE,
               system: prompt.system,
               messages: [{ role: 'user', content: prompt.user }],
             },
@@ -146,7 +194,11 @@ export function createAnthropicJudge(options: ClientOptions = {}): JudgeClient {
         return { answer: inconclusive(`${model} answered without a content list`), raw, unparsed: true };
       }
       if (payload.stop_reason === 'refusal') {
-        return { answer: inconclusive(`${model} declined the request`), raw };
+        return {
+          answer: inconclusive(`${model} declined the request`),
+          raw,
+          ...declinedBy('anthropic', payload),
+        };
       }
       const text = payload.content
         .filter((block): block is { type: 'text'; text: string } => {
@@ -170,6 +222,7 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
   const key = env.GEMINI_API_KEY?.trim() || env.GOOGLE_API_KEY?.trim();
   if (!key) throw new JudgeError('config', 'GEMINI_API_KEY is not set (nor GOOGLE_API_KEY)');
   const model = modelOf(options, env, 'GOOGLE_JUDGE_MODEL');
+  const reasoning = options.reasoning;
   const base = baseOf(env, 'GOOGLE_BASE_URL', 'https://generativelanguage.googleapis.com');
   const url = `${base}/v1beta/models/${encodeURIComponent(model)}:generateContent`;
   return {
@@ -180,10 +233,15 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
     dialect: JUDGE_DIALECTS.google.id,
     ...(options.reasoning === undefined ? {} : { reasoning: options.reasoning }),
     cost: options.cost ?? CHAT_COST,
+    settings: settingsOf('google-generate-content', {
+      responseMimeType: 'application/json',
+      ...(reasoning === undefined ? {} : { reasoning }),
+      ...(options.quotedMaterial ? { quotedMaterial: true } : {}),
+    }),
     async judge(original) {
       const request = withJudgeDialect(original, JUDGE_DIALECTS.google.id, options.reasoning);
       const reasoning = request.reasoning ?? options.reasoning;
-      const prompt = buildPrompt(request);
+      const prompt = quoteAssessmentMaterial(buildPrompt(request), options.quotedMaterial);
       const ledgerPayload = isPairLedgerRequest(request)
         ? buildDialectRequest('google', { ...prompt, schema: responseSchema(request), reasoning }).payload
         : undefined;
@@ -196,7 +254,7 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
               generationConfig: {
                 ...(isRecord(ledgerPayload.generationConfig) ? ledgerPayload.generationConfig : {}),
                 maxOutputTokens: budgetOf(request),
-                temperature: 0,
+                temperature: TEMPERATURE,
               },
             }
           : {
@@ -208,7 +266,7 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
                   ? googleResponseSchema(responseSchema(request))
                   : googleSchema(responseSchema(request)),
                 maxOutputTokens: budgetOf(request),
-                temperature: 0,
+                temperature: TEMPERATURE,
                 ...(reasoning === undefined ? {} : { thinkingConfig: { thinkingLevel: reasoning } }),
               },
             },
@@ -222,6 +280,7 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
         return {
           answer: inconclusive(`${model} declined: the prompt was blocked (${feedback.blockReason})`),
           raw,
+          ...declinedBy('google', payload),
         };
       }
       if (!isRecord(candidate)) {
@@ -234,7 +293,11 @@ export function createGoogleJudge(options: ClientOptions = {}): JudgeClient {
         .join('');
       if (candidate.finishReason === 'MAX_TOKENS') return truncated(text, model);
       if (candidate.finishReason === 'SAFETY' || candidate.finishReason === 'RECITATION')
-        return { answer: inconclusive(`${model} declined the request`), raw };
+        return {
+          answer: inconclusive(`${model} declined the request`),
+          raw,
+          ...declinedBy('google', payload),
+        };
       return parseJudgeText(text, request);
     },
   };
@@ -249,14 +312,34 @@ function contentText(content: unknown): string {
     .join('');
 }
 
-/** Gemini omits additionalProperties and JSON Schema dialect declarations at every level. */
+/**
+ * Gemini takes the OpenAPI subset: no additionalProperties or dialect declaration, and no null type (a type list or a
+ * null member is a 400): a nullable schema is its non-null form plus `nullable: true`.
+ */
 function googleSchema(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(googleSchema);
-  if (value && typeof value === 'object')
-    return Object.fromEntries(
+  if (value && typeof value === 'object') {
+    const object = Object.fromEntries(
       Object.entries(value)
         .filter(([key]) => key !== 'additionalProperties' && key !== '$schema')
         .map(([key, nested]) => [key, googleSchema(nested)]),
-    );
+    ) as Record<string, unknown>;
+    const { type, anyOf } = object;
+    if (Array.isArray(type)) {
+      const kinds = type.filter((kind) => kind !== 'null');
+      const { type: _list, ...rest } = object;
+      return { ...rest, type: kinds[0], ...(kinds.length < type.length ? { nullable: true } : {}) };
+    }
+    if (Array.isArray(anyOf)) {
+      const kinds = anyOf.filter((member) => (member as { type?: unknown }).type !== 'null');
+      if (kinds.length < anyOf.length) {
+        const { anyOf: _any, ...rest } = object;
+        return kinds.length === 1
+          ? { ...rest, ...(kinds[0] as Record<string, unknown>), nullable: true }
+          : { ...rest, anyOf: kinds, nullable: true };
+      }
+    }
+    return object;
+  }
   return value;
 }

@@ -166,4 +166,62 @@ describe('schema-independent dialect transport', () => {
     const result = await client.complete(prompt);
     expect(result).toMatchObject({ text: '4', costUsd: 0.001, dialect: 'scratchpad-json' });
   });
+
+  it.each([
+    { isError: true, exitCode: 0 },
+    { isError: false, exitCode: 7 },
+  ])(
+    'retains Claude failure receipts with is_error=$isError and exit=$exitCode',
+    async ({ isError, exitCode }) => {
+      const { createDialectTransport } = await import(path);
+      const usage = {
+        input_tokens: 11,
+        output_tokens: 5,
+        cache_creation_input_tokens: 20,
+        cache_read_input_tokens: 30,
+      };
+      const raw = `${JSON.stringify({
+        type: 'result',
+        subtype: 'error_during_execution',
+        is_error: isError,
+        result: 'provider unavailable after partial generation',
+        usage,
+        total_cost_usd: 0.0123,
+      })}\n`;
+      const script = `process.stdin.resume(); process.stdin.on('end', () => { process.stdout.write(${JSON.stringify(raw)}); process.exitCode = ${exitCode}; });`;
+      const client = createDialectTransport({
+        provider: 'claude-cli',
+        model: 'test',
+        env: {},
+        command: process.execPath,
+        commandArgs: ['--eval', script, '--'],
+      });
+      await expect(client.complete(prompt)).rejects.toMatchObject({
+        code: 'http',
+        message: expect.stringContaining('provider unavailable after partial generation'),
+        raw: raw.trim(),
+        category: 'other',
+        retryable: false,
+        exitCode,
+        usage,
+        costUsd: 0.0123,
+      });
+    },
+  );
+
+  it.each(['not JSON\n', JSON.stringify({ type: 'other', usage: { input_tokens: 3 } })])(
+    'retains raw output and exit code when Claude returns no valid result: %s',
+    async (raw) => {
+      const { createDialectTransport } = await import(path);
+      const script = `process.stdin.resume(); process.stdin.on('end', () => { process.stdout.write(${JSON.stringify(raw)}); process.exitCode = 2; });`;
+      const client = createDialectTransport({
+        provider: 'claude-cli',
+        model: 'test',
+        env: {},
+        command: process.execPath,
+        commandArgs: ['--eval', script, '--'],
+      });
+      await expect(client.complete(prompt)).rejects.toMatchObject({ code: 'bad_response', raw, exitCode: 2 });
+    },
+  );
 });

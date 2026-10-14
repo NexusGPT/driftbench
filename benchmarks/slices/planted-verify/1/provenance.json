@@ -1,0 +1,29 @@
+{
+  "sourceCommit": "d88113cb33cef242b068e630b176651b97a7e743",
+  "sourceBranch": "research/astra-planted-truth",
+  "sourcePath": "research/planted/bank-verify.json",
+  "sourceSha256": "06d6dd42d545886f739c653064b2d82348c398f7a13773da836de6881fcb8e59",
+  "sourceRows": 95,
+  "population": 190,
+  "labels": "Construction labels retained outside each model request.",
+  "mapping": "Each clean and defect response becomes a binary case. The criterion is the supplied objective requirement or objective user-request satisfaction. Proofs and the clean counterpart never enter the defect request.",
+  "sourceHead": "492fce432e1d34a62c5f5c5586d23026133b390b",
+  "scope": "Seeded fictional re-instantiations of executable source templates, not the public benchmark dev split. Rubric items project an objective requirement, not full-rubric accuracy.",
+  "duplicates": "All 95 pairs retained, including repeated constructions. The source audit reports 91 distinct pairs.",
+  "construction": {
+    "path": "research/planted/build-bank.py",
+    "commit": "d88113cb33cef242b068e630b176651b97a7e743"
+  },
+  "audit": {
+    "path": "research/planted/audit-bank.py",
+    "commit": "492fce432e1d34a62c5f5c5586d23026133b390b"
+  },
+  "manifest": {
+    "path": "research/planted/manifest.json",
+    "commit": "d88113cb33cef242b068e630b176651b97a7e743"
+  },
+  "metrics": {
+    "path": "research/planted/metrics.json",
+    "commit": "492fce432e1d34a62c5f5c5586d23026133b390b"
+  }
+}

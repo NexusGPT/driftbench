@@ -11,9 +11,9 @@ driftbench ships as sixteen npm packages under the `@agent-nexus` scope and one 
 | `@agent-nexus/driftbench-artifacts`, `@agent-nexus/driftbench-stats`, `@agent-nexus/driftbench-store`, `@agent-nexus/driftbench-report` | file readers, statistics, the result store and scorecards |
 | `@agent-nexus/driftbench-space`, `@agent-nexus/driftbench-generate`, `@agent-nexus/driftbench-estate`, `@agent-nexus/driftbench-validators` | the map of situations, generation, estates and validators |
 | `@agent-nexus/driftbench-vitest` | `describeSpec`, one vitest test per block |
-| `driftbench` on PyPI | the Python runner and pytest plugin in `python/driftbench` |
+| `drift-bench` on PyPI (imported as `driftbench`), not published yet | the Python runner and pytest plugin in `python/driftbench`. The name `driftbench` on PyPI belongs to another project |
 
-`@agent-nexus/driftbench-battery` stays private until it holds code. Each package has its own `README.md`, and its tarball holds only `dist`, the README and `package.json`.
+`@agent-nexus/driftbench-battery` stays private until it holds code. `@agent-nexus/driftbench-example-acme`, the Acme example in `examples/acme`, is private too and is never published: the command loads it by name when it is installed beside it, as in a checkout, and the published `@agent-nexus/driftbench` does not contain it. From an install of the published command alone, `function:acme-sales`, `process:acme-ops` and `function:acme-random` have no adapter, and the refusal says so: the example is not part of the installed CLI, it lives in `examples/acme` of the repository, and how to run it from a checkout; it lists only what that install reaches. All commands use the shared target resolver, including `gate`, `generate --model` and `holdout score`. A refused holdout target spends no query. Each package has its own `README.md`, and its tarball holds only `dist`, the README and `package.json`.
 
 ## The release check
 
@@ -48,14 +48,14 @@ clean
 
 1. `verify`: install, lint, typecheck, test, build, the release check with `--expect` set to the tag, and the Python tests when `python/driftbench` exists.
 2. `npm`: builds, copies `LICENSE` into each package, and runs `pnpm -r publish`, which writes the release version in place of `workspace:*`. It uses the `NPM_TOKEN` secret, with provenance (`id-token: write`), in the `npm` environment.
-3. `pypi`: builds the sdist and the wheel of `python/driftbench` and publishes them through PyPI trusted publishing, in the `pypi` environment. It runs only when the Python package exists and the repository variable `PUBLISH_PYPI` is `true`. With that variable unset, PyPI publishing is skipped. npm publishing does not depend on the PyPI job.
+3. `pypi`: builds the sdist and the wheel of `python/driftbench` and publishes them through PyPI trusted publishing, in the `pypi` environment. It runs only when the Python package exists and the repository variable `PUBLISH_PYPI` is `true`. With that variable unset, PyPI publishing is skipped. npm publishing does not depend on the PyPI job. Keep the variable unset for now: `python/driftbench/pyproject.toml` names the package `driftbench`, a name that belongs to another project on PyPI (checked on 2026-10-13), so this job cannot publish until the package has a name that is free.
 
 ## Cutting a release
 
 1. Set the same version in every `packages/*/package.json`, in `packages/cli/src/version.ts` and in `python/driftbench/pyproject.toml`.
 2. Add its section to `CHANGELOG.md` and replace `Unreleased` with the date.
 3. Run `pnpm build` and `node tools/release/check.mjs --expect v<version>`.
-4. Once the `NPM_TOKEN` secret is configured, push the tag `v<version>`. To publish to PyPI too, configure its trusted publisher and set the repository variable `PUBLISH_PYPI` to `true` first.
+4. Once the `NPM_TOKEN` secret is configured, push the tag `v<version>`. To publish to PyPI too, configure the trusted publisher of `drift-bench`, the name the Python package takes there, and set the repository variable `PUBLISH_PYPI` to `true`.
 
 ## Renaming on a branch
 

@@ -7,7 +7,13 @@ import {
   replayAdapter,
 } from '@agent-nexus/driftbench-adapters';
 import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
-import { CheckRegistry, defaultChecks, defaultRegistry, ESTATE_CHECKS } from '@agent-nexus/driftbench-checks';
+import {
+  CheckRegistry,
+  type DefaultChecksOptions,
+  defaultChecks,
+  defaultRegistry,
+  ESTATE_CHECKS,
+} from '@agent-nexus/driftbench-checks';
 import {
   type Campaign,
   type Check,
@@ -231,7 +237,7 @@ export async function replayCommand(
       createdAt,
     };
     await store.putCampaign(campaign);
-    const checks = replayChecks({ piiOwner: owner, judge: judge.check });
+    const checks = replayChecks({ piiOwner: owner, judge: judge.check, piiJudge: judge.piiJudge });
     const artifacts = defaultReaders();
     for (const alignment of aligned.alignments) {
       const session = await sessionFor(alignment);
@@ -348,12 +354,15 @@ export function replayRegistry(): CheckRegistry {
  * the owner's own values the pii check leaves out; empty by default. `judge` judges the criteria blocks
  * name; without one, each is inconclusive (`noJudgeCheck`), never a pass.
  */
-export function replayChecks(options: { piiOwner?: readonly string[]; judge?: Check } = {}): CheckSet {
+export function replayChecks(
+  options: { piiOwner?: readonly string[]; judge?: Check; piiJudge?: DefaultChecksOptions['piiJudge'] } = {},
+): CheckSet {
   const registry = replayRegistry();
   const judge = options.judge ?? noJudgeCheck();
   return defaultChecks({
     registry,
     judges: { check: () => judge },
+    piiJudge: options.piiJudge,
     ...(options.piiOwner?.length ? { piiOwner: options.piiOwner } : {}),
   });
 }

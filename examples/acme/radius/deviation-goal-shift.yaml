@@ -1,0 +1,7 @@
+# A change manifest for driftbench radius. Fictional data only.
+# The handler of deviation D2 changed: a change of goal.
+from: acme-v1
+to: acme-v2
+changes:
+  - kind: deviation
+    id: D2

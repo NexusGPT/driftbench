@@ -2,8 +2,8 @@
 # instance, answers the questions below, then fills signed_by and signed_on. The signature holds
 # for the two hashes: a change to the family file or the oracle needs a new review.
 family: acme-price-sheet
-family_sha256: 2222640acdfb55641addd960011d87570ed387a613886dc5143f075267b522da
-oracle_sha256: 2d8692b70af5c67ee9b8214b953506fed776b201308675b1cb3c151fda0ec257
+family_sha256: 1e37ebb12716364465b0bcc9b340c3231347e9cf9bcdcbb45b4bb406cc975847
+oracle_sha256: 984c79bca3bd9204456a066b482560aa1d01b052b5e7dc0fff440349d5de667e
 questions:
   - Every knob, value and constraint describes a real variation of the task, and the knob classes are right (difficulty, structure, style).
   - Every phrase is one a real user could send, and no phrase gives away an expected value.
@@ -11,5 +11,5 @@ questions:
   - The reader checks the family emits are the ones that decide the task; nothing that matters is left unchecked.
   - Each corner-case kind keeps the workspace inside the task contract, and the planted variant keeps the same expected outcome.
   - The style knobs change nothing the oracle expects (the generator checks it on every instance).
-signed_by: null
-signed_on: null
+signed_by: owner
+signed_on: 2026-10-13

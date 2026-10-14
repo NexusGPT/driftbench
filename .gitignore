@@ -78,6 +78,8 @@ web_modules/
 # Next.js build output
 .next
 out
+# ...but a task spec's workbook seed folder keeps its out/ files: they are the workspace the spec starts from
+!**/.seed-*/out
 
 # Nuxt.js build / generate output
 .nuxt
@@ -161,3 +163,11 @@ __pycache__/
 
 # Verify execution temporary directories; short path for Unix sockets.
 /.tmp/
+
+# Local benchmark recording checkpoints; complete cassettes and evidence are committed.
+.bench-run/
+benchmarks/**/*.partial.json
+benchmarks/**/*.tmp
+
+# Reader-first local run state
+.reader-first/

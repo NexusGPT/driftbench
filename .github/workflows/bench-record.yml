@@ -1,0 +1,99 @@
+name: bench record (maintainer)
+
+# Manual and billed. Review the artifacts and evidence before committing them on a maintainer branch.
+# The Haiku runner must already have claude installed and signed in. No login or install is attempted.
+# The recorder pins haiku to claude-haiku-5-5 and meters gpt-6-luna at the direct standard rates:
+# input 0.10, cached input 0.01, output 0.50 USD per million tokens.
+# https://developers.openai.com/api/docs/models/gpt-6-luna
+on:
+  workflow_dispatch:
+    inputs:
+      slice:
+        description: Registered slice name, or all
+        required: true
+        type: string
+      model:
+        description: Model to record
+        required: true
+        type: choice
+        options:
+          - haiku
+          - gpt-6-luna
+          - gemini-3.5-flash-lite
+      spend-cap-usd:
+        description: Maximum spend in USD for this run, at most 5
+        required: true
+        type: number
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bench-record
+  cancel-in-progress: false
+
+env:
+  BENCH_SLICE: ${{ inputs.slice }}
+  BENCH_MODEL: ${{ inputs.model }}
+  BENCH_CONCURRENCY: ${{ (inputs.model == 'gpt-6-luna' || inputs.model == 'gemini-3.5-flash-lite') && '8' || '4' }}
+  BENCH_SPEND_CAP_USD: ${{ inputs.spend-cap-usd }}
+
+jobs:
+  api:
+    if: inputs.model != 'haiku'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: node tools/bench-lint.mjs
+      - name: Check spend cap
+        run: node -e 'const cap = Number(process.env.BENCH_SPEND_CAP_USD); if (!(cap > 0 && cap <= 5)) throw new Error("Spend cap must be greater than 0 and at most 5 USD");'
+      - name: Record at medium reasoning through the public provider client
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          pnpm bench record --slice "$BENCH_SLICE" --model "$BENCH_MODEL" --spend-cap-usd "$BENCH_SPEND_CAP_USD" --concurrency "$BENCH_CONCURRENCY" --spend-ledger benchmarks/evidence/workflow-spend-ledger.jsonl --json
+      - name: Keep cassettes and evidence for maintainer review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench-record-api-${{ github.run_id }}
+          path: |
+            benchmarks/cassettes/
+            benchmarks/evidence/
+          if-no-files-found: error
+
+  haiku:
+    if: inputs.model == 'haiku'
+    runs-on: [self-hosted, driftbench-bench, claude-cli]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: node tools/bench-lint.mjs
+      - name: Check spend cap and the preinstalled CLI
+        run: |
+          node -e 'const cap = Number(process.env.BENCH_SPEND_CAP_USD); if (!(cap > 0 && cap <= 5)) throw new Error("Spend cap must be greater than 0 and at most 5 USD");'
+          claude --version
+      - name: Record Haiku with claude -p through the public CLI client
+        run: |
+          pnpm bench record --slice "$BENCH_SLICE" --model "$BENCH_MODEL" --spend-cap-usd "$BENCH_SPEND_CAP_USD" --concurrency "$BENCH_CONCURRENCY" --spend-ledger benchmarks/evidence/workflow-spend-ledger.jsonl --json
+      - name: Keep cassettes and evidence for maintainer review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench-record-haiku-${{ github.run_id }}
+          path: |
+            benchmarks/cassettes/
+            benchmarks/evidence/
+          if-no-files-found: error

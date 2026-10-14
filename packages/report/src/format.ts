@@ -1,3 +1,4 @@
+import type { CarriedSummary } from './data';
 import type { Estimate } from './estimate';
 
 /** Escapes text for HTML element content and attribute values. */
@@ -52,4 +53,29 @@ export function count(n: number, noun: string, plural = `${noun}s`): string {
 export function json(value: unknown, limit = 3000): string {
   const text = JSON.stringify(value, null, 2) ?? 'undefined';
   return text.length > limit ? `${text.slice(0, limit)}\n... (${text.length - limit} more characters)` : text;
+}
+
+/**
+ * The lines that say a campaign merges fresh and carried results, and from which agent version the
+ * carried ones come when it is not the version the campaign runs. Empty when every run is fresh.
+ */
+export function carriedLines(summary: CarriedSummary | undefined): string[] {
+  if (!summary) return [];
+  const runs = (n: number) => `${n} ${n === 1 ? 'run' : 'runs'}`;
+  const lines = [
+    `Fresh and carried results are merged: ${runs(summary.fresh)} fresh, ${runs(summary.carried)} carried. Every rate over this campaign counts both.`,
+  ];
+  for (const source of summary.sources) {
+    const other =
+      source.agentVersion === undefined
+        ? 'an agent version nothing names'
+        : summary.versions.includes(source.agentVersion)
+          ? `the same agent version, ${source.agentVersion}`
+          : `another agent version, ${source.agentVersion}${summary.versions.length > 0 ? ` (this campaign runs ${summary.versions.join(', ')})` : ''}`;
+    const campaigns = `${source.maxCampaigns} ${source.maxCampaigns === 1 ? 'campaign' : 'campaigns'}`;
+    lines.push(
+      `  ${runs(source.runs)} carried from ${source.campaign}, measured on ${other}; oldest: ${campaigns}, ${source.maxDays.toFixed(1)} days.`,
+    );
+  }
+  return lines;
 }

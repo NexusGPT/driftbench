@@ -29,7 +29,11 @@ export type LedgerParseStep = {
 };
 
 export function isPairLedgerRequest(request: JudgeRequest): boolean {
-  return request.answerContract === 'ledger' && request.assessment?.kind === 'pairwise';
+  return (
+    request.answerContract === 'ledger' &&
+    request.assessment?.kind === 'pairwise' &&
+    !request.assessment.tieFollowup
+  );
 }
 
 /** Compilation is blind to candidate replies. Caller-owned names and definitions are authoritative. */

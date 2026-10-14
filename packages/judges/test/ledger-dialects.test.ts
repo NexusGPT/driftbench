@@ -34,6 +34,34 @@ function mock(payload: unknown) {
 }
 
 describe('pair-ledger client dialects', () => {
+  it('keeps strict schema and reasoning when OpenAI retries without temperature', async () => {
+    const bodies: Body[] = [];
+    const client = createOpenAiJudge({
+      model: 'test-model',
+      env: { OPENAI_API_KEY: 'test' },
+      reasoning: 'medium',
+      maxRetries: 0,
+      fetch: async (_url, init) => {
+        const body = JSON.parse(String(init.body));
+        bodies.push(body);
+        return 'temperature' in body
+          ? new Response(JSON.stringify({ error: { message: 'Unsupported temperature' } }), { status: 400 })
+          : new Response(JSON.stringify({ choices: [{ message: { content: LEDGER } }] }), { status: 200 });
+      },
+    });
+    for (let i = 0; i < 2; i++) {
+      const result = await client.judge({ ...REQUEST, reasoning: 'high' });
+      expect(result.pairLedger?.items[0]).toMatchObject({ first: 4, second: 0 });
+    }
+    expect(bodies.map((body) => 'temperature' in body)).toEqual([true, false, false]);
+    for (const body of bodies) {
+      expect(body.reasoning_effort).toBe('high');
+      expect(body.response_format.json_schema.strict).toBe(true);
+      expect(body.response_format).toEqual(bodies[0].response_format);
+      expect(body.messages).toEqual(bodies[0].messages);
+    }
+  });
+
   it('OpenAI uses strict ledger schema, its dialect, and a request reasoning override', async () => {
     const { options, bodies } = mock({ choices: [{ message: { content: LEDGER } }] });
     const client = createOpenAiJudge({ ...options, reasoning: 'medium' });
@@ -193,7 +221,7 @@ describe('the published dialect table', () => {
   });
 
   it('selects the transport dialect without mutating a request or opting in legacy calls', () => {
-    const ledger = { ...REQUEST, dialect: 'wrong', reasoning: 'high' };
+    const ledger: JudgeRequest = { ...REQUEST, dialect: 'wrong', reasoning: 'high' };
     const updated = withJudgeDialect(ledger, 'openai-json-schema', 'medium');
     expect(updated).toMatchObject({ dialect: 'openai-json-schema', reasoning: 'high' });
     expect(ledger.dialect).toBe('wrong');

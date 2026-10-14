@@ -1,0 +1,731 @@
+{
+  "row": "criteria-and-verdict",
+  "variant": "theirs",
+  "model": "haiku",
+  "expected": 120,
+  "complete": true,
+  "freshUsd": 0.11264925999999996,
+  "newCalls": 119,
+  "answers": [
+    {
+      "id": "judge-near_price-01",
+      "predictions": ["pass", "pass"],
+      "request_sha256s": ["4a0d286c4abdd3712acc5ce478cdaac3b972095fd227a32e0771efd104e32a3c"],
+      "costUsd": 0.00110997
+    },
+    {
+      "id": "judge-near_price-02",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["d2106216c0db23a608bb8d21a410a784e7e79ffba5a2969d6e21c5abd8d8124a"],
+      "costUsd": 0.0005383
+    },
+    {
+      "id": "judge-near_price-03",
+      "predictions": ["inconclusive", "pass"],
+      "request_sha256s": ["42716c1e5d61b71f3b6fae6adda47343512c93a931bdc4c44ac9c23ffa26311b"],
+      "costUsd": 0.0006919
+    },
+    {
+      "id": "judge-near_price-04",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": ["37b67e9cd893aab889207411cefce5fc7bf6637187ae5c669d05ca445daad466"],
+      "costUsd": 0.000529
+    },
+    {
+      "id": "judge-near_price-05",
+      "predictions": ["fail", "pass"],
+      "request_sha256s": ["67c47fde4e4ad689b033fff0581944229ac5a436f02507f2c69f8aa091650ca4"],
+      "costUsd": 0.0005363
+    },
+    {
+      "id": "judge-near_price-06",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": ["d49e939ca5d58f70f682b3b79313f5a6e08d890916a0d8afb1cd4c516d0df2fd"],
+      "costUsd": 0.0005327999999999999
+    },
+    {
+      "id": "judge-near_price-07",
+      "predictions": ["fail", "pass"],
+      "request_sha256s": ["2bef65067c716032df907210af051941da412753d1d84a63b29d8403dd9f820d"],
+      "costUsd": 0.0006131
+    },
+    {
+      "id": "judge-near_price-08",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["7222850ba4016386551736c3623a6cbd3b2d5e93e70ce65b770e9ebaeb8ec1b7"],
+      "costUsd": 0.0006708
+    },
+    {
+      "id": "judge-near_price-09",
+      "predictions": ["pass", "pass"],
+      "request_sha256s": ["53e19fdb704df14befaa5d5ab30eb15e016eb32bca4a03d9c6f9d85d4dd1fe5d"],
+      "costUsd": 0.0005851000000000001
+    },
+    {
+      "id": "judge-near_price-10",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["f3d0c71466ba4b711a8c45f46fe099fc8ba1891cfecb1316c9a9fa0b61b34c47"],
+      "costUsd": 0.0005545
+    },
+    {
+      "id": "judge-units-01",
+      "predictions": ["pass", "pass"],
+      "request_sha256s": ["b76ef4e1eb75b381f6f2389616cbff750de1e021dc2d115a53c5e942d9616b07"],
+      "costUsd": 0.00059635
+    },
+    {
+      "id": "judge-units-02",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["bd5404f8c116bf04f5e77c03a79bd45ce6fafce4430daab52f95cd55fab871cd"],
+      "costUsd": 0.0005233500000000001
+    },
+    {
+      "id": "judge-units-03",
+      "predictions": ["inconclusive", "pass"],
+      "request_sha256s": ["6cbe77da73114af273bf3ff97f36a72e1803d2de92f1220875ed34366cf26995"],
+      "costUsd": 0.00064935
+    },
+    {
+      "id": "judge-units-04",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": ["9915ce0a8c0be6d1a7da026614339acac20bd646ef1ef405810d3caf0ca26a40"],
+      "costUsd": 0.00055145
+    },
+    {
+      "id": "judge-units-05",
+      "predictions": ["fail", "pass"],
+      "request_sha256s": ["92deb518fbcdd9d84789abb1c9b6fc539c6771d661b957ae9d76b71b4897d830"],
+      "costUsd": 0.00055945
+    },
+    {
+      "id": "judge-units-06",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": ["9c7937b03492d377268f001a12d71f291292cf9b3afe4ad015491edad834e300"],
+      "costUsd": 0.00057635
+    },
+    {
+      "id": "judge-units-07",
+      "predictions": [null, null],
+      "request_sha256s": ["d46312ca1ca2be249a8af749d0e388f6aff159952924c820b0fc9661ddc82e4a"],
+      "costUsd": 0.0009615700000000001
+    },
+    {
+      "id": "judge-units-08",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["43bca7ae2fa655c4e6cdc23fcfc6799acd070d63994dc04505ce9e2fa32bdd05"],
+      "costUsd": 0.00060765
+    },
+    {
+      "id": "judge-units-09",
+      "predictions": ["pass", "pass"],
+      "request_sha256s": ["9c6d409281c4204ce840366d711aee22ea7c9fa77ffc96b647e97654118efc8b"],
+      "costUsd": 0.0006256500000000001
+    },
+    {
+      "id": "judge-units-10",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["6f58ebed374bc7341f48d5a1a5b9603cf9aba1ff90738d126785ce3a08371a13"],
+      "costUsd": 0.00050585
+    },
+    {
+      "id": "judge-coverage_order-01",
+      "predictions": ["pass", "pass"],
+      "request_sha256s": ["ef1311c2f02937f9ed253bcbba7f0d36d25afc32452afd498b2299784c3e9983"],
+      "costUsd": 0.00059346
+    },
+    {
+      "id": "judge-coverage_order-02",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["ccbc6ce53b86b7184834cad931dcc900ce9242f64566b3425be0c4d796da792f"],
+      "costUsd": 0.00077626
+    },
+    {
+      "id": "judge-coverage_order-03",
+      "predictions": ["inconclusive", "pass"],
+      "request_sha256s": ["c2cd929bb2b848ea584cc9490a1a9889ecc448945378e8830004be26c5786a02"],
+      "costUsd": 0.00061556
+    },
+    {
+      "id": "judge-coverage_order-04",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": ["2b44aeb4eb9a33abcd613736a551796713c6a8db122f3ad41eb19c8d3cfc789b"],
+      "costUsd": 0.0007603600000000001
+    },
+    {
+      "id": "judge-coverage_order-05",
+      "predictions": ["fail", "pass"],
+      "request_sha256s": ["064e9abf039d101121bed7e929a01dc0bb9673ce70eadb046c30453d7f111903"],
+      "costUsd": 0.00105499
+    },
+    {
+      "id": "judge-coverage_order-06",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": ["5add4eb001c629db2affe355b528fa2fa22e35cf22dbcf3b624ad507390bb9e2"],
+      "costUsd": 0.00085496
+    },
+    {
+      "id": "judge-coverage_order-07",
+      "predictions": ["fail", "pass"],
+      "request_sha256s": ["46f4dc013816cc3470f1eb071ba823ec5b07925300ff623514b6fb3c7e225a66"],
+      "costUsd": 0.00103279
+    },
+    {
+      "id": "judge-coverage_order-08",
+      "predictions": ["inconclusive", "fail"],
+      "request_sha256s": ["b6b5c2c6d4960bc4af8c8b2d94160bfba35d74b9d3b459ca9fcb94dee8343f41"],
+      "costUsd": 0.00075676
+    },
+    {
+      "id": "judge-coverage_order-09",
+      "predictions": ["pass", "pass"],
+      "request_sha256s": ["87f3ec147da117b0250aea8c04d44e249cb46e4f37c8dfca974dba6afa960e5c"],
+      "costUsd": 0.00055626
+    },
+    {
+      "id": "judge-coverage_order-10",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["f51dbacd31fb067e078662289d8fe2bc5c4657fdeafc05b4d992177bfb408220"],
+      "costUsd": 0.00071596
+    },
+    {
+      "id": "judge-fail_only-01",
+      "predictions": ["pass", "pass"],
+      "request_sha256s": ["82e314e35c13b72f4759503d41d9722cde8f006cb6557a929224f1248019f9c0"],
+      "costUsd": 0.00055996
+    },
+    {
+      "id": "judge-fail_only-02",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["0935a1fb2b9a0c91efdbb0fdf5c29aca256ac487bd06ea33a6402b00ee7f9daf"],
+      "costUsd": 0.0006536600000000001
+    },
+    {
+      "id": "judge-fail_only-03",
+      "predictions": ["inconclusive", "pass"],
+      "request_sha256s": ["7449faf36f63b71d3a6f8a881c35f04b177212064398ee4a8901bd0b5dec2b8d"],
+      "costUsd": 0.0006284600000000001
+    },
+    {
+      "id": "judge-fail_only-04",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": ["4e80e118dd19ef6f337d0b4f793e4fdcb2afa3a6484d6b9ff7c50c10dcb05df5"],
+      "costUsd": 0.00056966
+    },
+    {
+      "id": "judge-fail_only-05",
+      "predictions": ["fail", "pass"],
+      "request_sha256s": ["1d87db194a7d6f8cf5e261680a0d156cb3a96aa6d06ae7e88f1342d203d4289a"],
+      "costUsd": 0.0005909600000000001
+    },
+    {
+      "id": "judge-fail_only-06",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": ["a46114e7513ecff0589ae8e35dc711fefdd1ade20bde53bd61cf31e2eed406f9"],
+      "costUsd": 0.0006864600000000001
+    },
+    {
+      "id": "judge-fail_only-07",
+      "predictions": ["fail", "pass"],
+      "request_sha256s": ["75c8238fb60ae5cbad97fbdc0130d7c46340f17466004a5a6e99eb4a6e1fff7b"],
+      "costUsd": 0.00055846
+    },
+    {
+      "id": "judge-fail_only-08",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": ["94816b7670cdff1fe995e634b4a815d9142d351d74272abebe491cf270e48b98"],
+      "costUsd": 0.00135045
+    },
+    {
+      "id": "judge-fail_only-09",
+      "predictions": ["pass", "pass"],
+      "request_sha256s": ["6a0f67641cc8c71055a449aae47fcad894c6dfd22f9acb7da8e0959e023a7a2a"],
+      "costUsd": 0.0009232000000000001
+    },
+    {
+      "id": "judge-fail_only-10",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["803bcc2ba5ea3ebcc0c26b2699bfc0255fb675cdfc3ba55702c9347f3b74d931"],
+      "costUsd": 0.0010174000000000001
+    },
+    {
+      "id": "judge-quoted_instruction-01",
+      "predictions": ["pass", "pass"],
+      "request_sha256s": ["09dab7aa7d43200e4c79a2c968b054cd94a120046fdf94c064cd3e9bccf456a0"],
+      "costUsd": 0.0009325
+    },
+    {
+      "id": "judge-quoted_instruction-02",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["9037ff745f4682ad22285edb2070b5a84ff9ea38918a5431350266dbcb78c962"],
+      "costUsd": 0.0009441
+    },
+    {
+      "id": "judge-quoted_instruction-03",
+      "predictions": ["inconclusive", "pass"],
+      "request_sha256s": ["13c66da701145c335e918a8958f68f70dabeb5ae5cdebe28345be601b827cf4d"],
+      "costUsd": 0.0009954
+    },
+    {
+      "id": "judge-quoted_instruction-04",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": ["590a0cbc669773f587a52b75d753f18642d3dbce59fc9a25e7d986653b6745c3"],
+      "costUsd": 0.000918
+    },
+    {
+      "id": "judge-quoted_instruction-05",
+      "predictions": ["fail", "pass"],
+      "request_sha256s": ["8e3625dcd38033013cfd80afae7eb6304acb4889536b2335c6483bc96409899c"],
+      "costUsd": 0.0010408000000000001
+    },
+    {
+      "id": "judge-quoted_instruction-06",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": ["56d993e2466a736bec9ab50134519a639b3193caf699fd52b02f824eab63b3d8"],
+      "costUsd": 0.0011547
+    },
+    {
+      "id": "judge-quoted_instruction-07",
+      "predictions": ["fail", "pass"],
+      "request_sha256s": ["64a327631e0d9e69f90f6a59512c17da81934821bc9953762b61c8e6d8a4c694"],
+      "costUsd": 0.0010572
+    },
+    {
+      "id": "judge-quoted_instruction-08",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["cde2941ac285843dd23cd19bb0acc7965293324ed71396c89f4857803316df66"],
+      "costUsd": 0.0010498
+    },
+    {
+      "id": "judge-quoted_instruction-09",
+      "predictions": ["pass", "pass"],
+      "request_sha256s": ["15fc938fe2d0ab5a6b1aab4c76d050387ce5fea98999f691045246d3931982ea"],
+      "costUsd": 0.001074
+    },
+    {
+      "id": "judge-quoted_instruction-10",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["78e6b1542dc68613c4d90bc6191fad33b4ce23ed0ddd6b8c12dc35f7ba18a4bd"],
+      "costUsd": 0.0009729000000000001
+    },
+    {
+      "id": "judge-tool_error-01",
+      "predictions": ["pass", "pass"],
+      "request_sha256s": ["6edbfdf46684012137e09bf5975ca9abbfd094162e51318c24054a96b1e6d981"],
+      "costUsd": 0.0010951
+    },
+    {
+      "id": "judge-tool_error-02",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["bebf1fa3d0a8b0d7641e53f87b92d343f940993baa0ad285ad86fec3a78e8f10"],
+      "costUsd": 0.0009260000000000001
+    },
+    {
+      "id": "judge-tool_error-03",
+      "predictions": ["pass", "pass"],
+      "request_sha256s": ["ad98b2733e2adff7155ad85eaa801ece8d299bdde60f6157f7a8c4ddc6676ea7"],
+      "costUsd": 0.0009305000000000001
+    },
+    {
+      "id": "judge-tool_error-04",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": ["c6b12750c3dfd4e5596907b6f77618b20ff4c130050da792379d982c11c5a77f"],
+      "costUsd": 0.0009665
+    },
+    {
+      "id": "judge-tool_error-05",
+      "predictions": ["fail", "pass"],
+      "request_sha256s": ["26a3ba6dd962660680b012af889eed264fd16f99b0e32be4e711fd702065d333"],
+      "costUsd": 0.0010056000000000002
+    },
+    {
+      "id": "judge-tool_error-06",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": ["5d87d362bda8ca06cab8ebaed411ffe9ae93f3ca00ff9ae63993b7120eacf80a"],
+      "costUsd": 0.0009658000000000002
+    },
+    {
+      "id": "judge-tool_error-07",
+      "predictions": ["fail", "pass"],
+      "request_sha256s": ["5e2aa74a6c110cedc6a7d8724f9662b873b9f0606b0a2c57117bb7d0687fc8d8"],
+      "costUsd": 0.0010576000000000001
+    },
+    {
+      "id": "judge-tool_error-08",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": ["dddf5ea071e01509c93805044008f9461014f96bc3fe7b2b660482511118c34a"],
+      "costUsd": 0.0009289000000000001
+    },
+    {
+      "id": "judge-tool_error-09",
+      "predictions": ["pass", "pass"],
+      "request_sha256s": ["54c7310e6bd052293060bee5aefe0b1b2f1b022d89769228431fbbb5bfca2f92"],
+      "costUsd": 0.0009760999999999999
+    },
+    {
+      "id": "judge-tool_error-10",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["190614cb74d49080c6d494d71053e36f964bae8d1a6d9cf0a108e8033cc7f239"],
+      "costUsd": 0.000933
+    },
+    {
+      "id": "judge-entity_binding-01",
+      "predictions": ["pass", "pass"],
+      "request_sha256s": ["9a64d644476464bd0e274d0e0f397432bb1e4ac83a14af3b95ae69eb15f39fcd"],
+      "costUsd": 0.00130717
+    },
+    {
+      "id": "judge-entity_binding-02",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["2be2008e1d38758d2f38d17915ba67b12f5173c273c0320361369d1ad11e988d"],
+      "costUsd": 0.0009811
+    },
+    {
+      "id": "judge-entity_binding-03",
+      "predictions": ["inconclusive", "pass"],
+      "request_sha256s": ["0e55abc2e0f4ca0e80a91b5ba2a9f43cf5afd4fb38b7382291843e381cf9832c"],
+      "costUsd": 0.0017906500000000002
+    },
+    {
+      "id": "judge-entity_binding-04",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": ["0f73791a468034d1cbf59572315b2e5e81bc83ea02d5808d75978eb7b2fd1d64"],
+      "costUsd": 0.0009406
+    },
+    {
+      "id": "judge-entity_binding-05",
+      "predictions": ["fail", "pass"],
+      "request_sha256s": ["195493c893c19e7be8fead65f078fdbb8ba081dad23bc75e6452eb7243530710"],
+      "costUsd": 0.0008964000000000001
+    },
+    {
+      "id": "judge-entity_binding-06",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": ["58b2f978a7ed88c40732eba5833c93e6df20310849ee6282a532d85bf97f9bd2"],
+      "costUsd": 0.0009953
+    },
+    {
+      "id": "judge-entity_binding-07",
+      "predictions": ["fail", "pass"],
+      "request_sha256s": ["9d7d6ca8b56da59c234b8dd92d2ec9744518c5476dc4fb6ad0b6b94d676c5a9c"],
+      "costUsd": 0.0009434000000000001
+    },
+    {
+      "id": "judge-entity_binding-08",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["0e6d28d4e04eb6e6bd7aca6a04bde141f3ccb3a952f0e11e9bc91047e59fb785"],
+      "costUsd": 0.0009237000000000002
+    },
+    {
+      "id": "judge-entity_binding-09",
+      "predictions": ["pass", "pass"],
+      "request_sha256s": ["aaf85d2171b4ae05c7d518229c08055472777e63c8142e7a6f4f379b04faa11c"],
+      "costUsd": 0.00130007
+    },
+    {
+      "id": "judge-entity_binding-10",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["9cac8d74e74e7659ff16c1d124a7cae9972c8824ea5797ed1880d9432fc95260"],
+      "costUsd": 0.0009228
+    },
+    {
+      "id": "judge-partial_answer-01",
+      "predictions": ["pass", "pass"],
+      "request_sha256s": ["aeef3a05a8f776f0033a44ea93ac14258f899b994deb5373b4e3871ea260b227"],
+      "costUsd": 0.0013526200000000001
+    },
+    {
+      "id": "judge-partial_answer-02",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["d5abb4373d3efa15f456658d40e568bd86e5bcabf0c95cb87b43bdf692e47630"],
+      "costUsd": 0.0009600000000000001
+    },
+    {
+      "id": "judge-partial_answer-03",
+      "predictions": ["inconclusive", "pass"],
+      "request_sha256s": ["f73eac066510bba204f5e04285eb20347db866fef7c5e073f77ddb1405031010"],
+      "costUsd": 0.001072
+    },
+    {
+      "id": "judge-partial_answer-04",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": ["5391e3f4b6ac1c73441da352375c15cb724a068fc515ae9f9c0e9c6af4f380e5"],
+      "costUsd": 0.0012353
+    },
+    {
+      "id": "judge-partial_answer-05",
+      "predictions": ["fail", "pass"],
+      "request_sha256s": ["94162ae3031e3a49a52f26533a16eae8e1fca7533cd274f956ac90f229ae9f16"],
+      "costUsd": 0.0009943
+    },
+    {
+      "id": "judge-partial_answer-06",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": ["49d4fdf4b9fec07eca4848b376612fc87a207599226532a6609191c1d991e3bd"],
+      "costUsd": 0.0011928
+    },
+    {
+      "id": "judge-partial_answer-07",
+      "predictions": ["fail", "pass"],
+      "request_sha256s": ["d66f5258c9d6e0e17aca1495006e05d1c65e162dbcf013b58d0078c84c1029ab"],
+      "costUsd": 0.0009470000000000001
+    },
+    {
+      "id": "judge-partial_answer-08",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["fcbc10884399cdef2010fd50ee76681f39df2c4ccc6235f3dd493960607407f3"],
+      "costUsd": 0.0010019
+    },
+    {
+      "id": "judge-partial_answer-09",
+      "predictions": ["pass", "pass"],
+      "request_sha256s": ["fd505222f1f1ad5c9c2f5234fadcb2400e431be295df0297f689344955fce3a6"],
+      "costUsd": 0.0010061
+    },
+    {
+      "id": "judge-partial_answer-10",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["231406f1a3fc06b8cf728e46d9dea0b21a7650b2fae0bade530931ad40151569"],
+      "costUsd": 0.000951
+    },
+    {
+      "id": "judge-multilingual-01",
+      "predictions": ["pass", "pass"],
+      "request_sha256s": ["cd5b2d68f0cb36c45cf31ccd0d0aa5088c5dd3b6186fc228bb7007571cde5d1f"],
+      "costUsd": 0.0010812
+    },
+    {
+      "id": "judge-multilingual-02",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["e4c0b0eb39f0c8394f16089b17020f6195367e86723c22e230a0e7b207f92a57"],
+      "costUsd": 0.0009815000000000002
+    },
+    {
+      "id": "judge-multilingual-03",
+      "predictions": [null, null],
+      "request_sha256s": ["d2e634986714971a618a1ce249ce52476a392ce5437ac58efa27598d2e1ecddc"],
+      "costUsd": 0.0014657500000000003
+    },
+    {
+      "id": "judge-multilingual-04",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": ["8b21ed7786993761879b1139cf3f9964c62d2b0e66261eba3a254b59179b4bf3"],
+      "costUsd": 0.0009882
+    },
+    {
+      "id": "judge-multilingual-05",
+      "predictions": ["fail", "pass"],
+      "request_sha256s": ["10bded4f814aff14ca2c0804784550eb7cc4d39ddf683ad01e1efabb0b7c7b95"],
+      "costUsd": 0.0010668000000000001
+    },
+    {
+      "id": "judge-multilingual-06",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": ["527dd5f1c649e7e7195bcbbad8fdb87d03257413558788bb07fc2dc06a536143"],
+      "costUsd": 0.0009892
+    },
+    {
+      "id": "judge-multilingual-07",
+      "predictions": ["fail", "pass"],
+      "request_sha256s": ["c5060027f90a40f9ce493d5e06a04a4ec39636b05e459af8f1f88a2f3b3c5cf8"],
+      "costUsd": 0.0011248
+    },
+    {
+      "id": "judge-multilingual-08",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["6bbe34012050add4173999e39975f7443454b0c939050de35dc9a9e34ed38684"],
+      "costUsd": 0.0009621
+    },
+    {
+      "id": "judge-multilingual-09",
+      "predictions": ["pass", "pass"],
+      "request_sha256s": ["c5b49fb1b9a7c98cf054002e8ab11790abf7cc3033454635bd4c245e2f78f733"],
+      "costUsd": 0.0011465
+    },
+    {
+      "id": "judge-multilingual-10",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["458056fa92e9aa5dd2ffe9dfd1a6c7660e84c1890401ba007bf9bf10b0b51ba9"],
+      "costUsd": 0.0010092
+    },
+    {
+      "id": "judge-last_block-01",
+      "predictions": ["pass", "pass"],
+      "request_sha256s": ["2d3eee244cd161bf8eca8403462d87df0adaac4ce5580c36a34d3527ff41143b"],
+      "costUsd": 0.0012486
+    },
+    {
+      "id": "judge-last_block-02",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["d02b23ccda531ae28dc991bf04a0d22fe9a720b3d3ccbf70136471204ee0d5b9"],
+      "costUsd": 0.0010934
+    },
+    {
+      "id": "judge-last_block-03",
+      "predictions": ["fail", "pass"],
+      "request_sha256s": ["f2c83a240f730acd5d2513bb7477dd79da467455374372274546b7c090822f2c"],
+      "costUsd": 0.0012122
+    },
+    {
+      "id": "judge-last_block-04",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": ["9650c5d483919036a33bb47718c7aa7a862911fe23093bd6ff74a19b71c45e44"],
+      "costUsd": 0.0011556000000000001
+    },
+    {
+      "id": "judge-last_block-05",
+      "predictions": ["fail", "pass"],
+      "request_sha256s": ["3c129894ff01f7bfc1b0f15bb970b5fa78592d4dde0f47f670db167be790aa76"],
+      "costUsd": 0.001141
+    },
+    {
+      "id": "judge-last_block-06",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": ["018255fa8dd666342e89f48dd069c108249afa395ee0cc0686d6bacd2fd8032c"],
+      "costUsd": 0.0011261
+    },
+    {
+      "id": "judge-last_block-07",
+      "predictions": ["fail", "pass"],
+      "request_sha256s": ["682df8315f4e7686003a206f48f365907473fd4ebc48feaf838d20e980ce9bde"],
+      "costUsd": 0.0011997000000000002
+    },
+    {
+      "id": "judge-last_block-08",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["af624a5b67e1aa82d8b8acbab47152d22839d7613e54ae96329f6494a9f122de"],
+      "costUsd": 0.0011696
+    },
+    {
+      "id": "judge-last_block-09",
+      "predictions": ["pass", "pass"],
+      "request_sha256s": ["c00edfda1ac12532aef1b4d7810a6e36e8574effd18b495a32a2cfabe6244f50"],
+      "costUsd": 0.0012251
+    },
+    {
+      "id": "judge-last_block-10",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["19197ac70c375085f3d84b451dd234471d39cf8214ef6ecd941f730a54a55d95"],
+      "costUsd": 0.0010987000000000002
+    },
+    {
+      "id": "judge-threshold-01",
+      "predictions": ["pass", "pass"],
+      "request_sha256s": ["9a9d79767bf0eb5f7a955d00e52068ad1b7f3f1f5b0c64dd87e5011fd34f66f9"],
+      "costUsd": 0.00137092
+    },
+    {
+      "id": "judge-threshold-02",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["42a5e70af4cd275135e9656926466557ebf2d5e2bdaf3583bd77e014564b1e56"],
+      "costUsd": 0.0009632
+    },
+    {
+      "id": "judge-threshold-03",
+      "predictions": ["inconclusive", "pass"],
+      "request_sha256s": ["8f5bf65e28adc7929152f1ee97bbf305670122de9b60f5283e3fe55ff3752564"],
+      "costUsd": 0.0010681
+    },
+    {
+      "id": "judge-threshold-04",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": ["fe189a81837636f09cc263b77df6f6b77b30e44b0cc236ffc1c91c264218623e"],
+      "costUsd": 0.0008666
+    },
+    {
+      "id": "judge-threshold-05",
+      "predictions": [null, null],
+      "request_sha256s": ["8f2fe470aa67ea1c359f535e59e1fd35a36e2eae8af13613eaeccb04b39815ee"],
+      "costUsd": 0.0014346900000000002
+    },
+    {
+      "id": "judge-threshold-06",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": ["21ddc8bd301a2f2140766b54f5f19fb95a0668a5e0106ace6ad17f6a4d39a7e9"],
+      "costUsd": 0.0009538000000000001
+    },
+    {
+      "id": "judge-threshold-07",
+      "predictions": ["fail", "pass"],
+      "request_sha256s": ["02074401ce07c9cd164f4cfbb697ce92707c1bc258b70a50c2957d5e02d1f01a"],
+      "costUsd": 0.0009186999999999999
+    },
+    {
+      "id": "judge-threshold-08",
+      "predictions": ["inconclusive", "fail"],
+      "request_sha256s": ["eae8a1d7c0b7d8ec4f48d03ecaf0522f20ac89201b16e942c97d63f54bddce2d"],
+      "costUsd": 0.0011264
+    },
+    {
+      "id": "judge-threshold-09",
+      "predictions": ["pass", "pass"],
+      "request_sha256s": ["a139333e3fa43e1362b28741d37e3a6e8deae719ae6891ec29e1eab1333e7271"],
+      "costUsd": 0.00135712
+    },
+    {
+      "id": "judge-threshold-10",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["bfd972e6493cbd0e2ea3e0f3711c39fe2bb17f50e3b323a041e446760ca21b96"],
+      "costUsd": 0.0009274999999999999
+    },
+    {
+      "id": "judge-conditional_promise-01",
+      "predictions": ["pass", "pass"],
+      "request_sha256s": ["caf748855a4c52549b03e10dc950d714f539518d74c819c6c3862b91f2682e0f"],
+      "costUsd": 0.0009269
+    },
+    {
+      "id": "judge-conditional_promise-02",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["fe2484107d615f052820c3990945fbed35344da79570848e4b71819825836790"],
+      "costUsd": 0.0010283
+    },
+    {
+      "id": "judge-conditional_promise-03",
+      "predictions": ["inconclusive", "pass"],
+      "request_sha256s": ["08f800e83b7b0590ca00cb8d4287ce5ba5b52ff06ba74d2ddc91baef65cc6152"],
+      "costUsd": 0.0012107
+    },
+    {
+      "id": "judge-conditional_promise-04",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": ["1efa5f9d4969d60cb199a322600a1214a2b3ef88c7238b78840dca76a2ccad52"],
+      "costUsd": 0.0009197000000000001
+    },
+    {
+      "id": "judge-conditional_promise-05",
+      "predictions": ["fail", "pass"],
+      "request_sha256s": ["6a5ce14b7677ee1062cea299216a3c50ac7aa7a678d0aecd418ca1315c381af3"],
+      "costUsd": 0.00144115
+    },
+    {
+      "id": "judge-conditional_promise-06",
+      "predictions": ["pass", "fail"],
+      "request_sha256s": ["c9b26ee936fa34cf33d0304171575ad4cc9c69c884e1a8ee623f6f1ba6d9e290"],
+      "costUsd": 0.0009237000000000001
+    },
+    {
+      "id": "judge-conditional_promise-07",
+      "predictions": ["fail", "pass"],
+      "request_sha256s": ["a48d91c198b159ad54231ae460d97694823a4147b9b5f72c628eed280bb634dd"],
+      "costUsd": 0.0009216000000000001
+    },
+    {
+      "id": "judge-conditional_promise-08",
+      "predictions": ["inconclusive", "fail"],
+      "request_sha256s": ["5884e068c4c4fa0c0c46e3de7fab53274038b1c5167b891e5e360cdfbf343f89"],
+      "costUsd": 0.0010321
+    },
+    {
+      "id": "judge-conditional_promise-09",
+      "predictions": ["pass", "pass"],
+      "request_sha256s": ["a8f584f58e25f033df8a7d0e2bea4073e4da99e97a4c812a6e172f592c62aca7"],
+      "costUsd": 0.0009507000000000001
+    },
+    {
+      "id": "judge-conditional_promise-10",
+      "predictions": ["fail", "fail"],
+      "request_sha256s": ["464710209ed4d050780b1f839ef2a1e321c698cd454f5ac42bbf101c673fa862"],
+      "costUsd": 0.00151857
+    }
+  ]
+}

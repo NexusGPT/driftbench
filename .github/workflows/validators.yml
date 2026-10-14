@@ -9,6 +9,7 @@ on:
   push:
     branches: [main]
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
 
 permissions:
   contents: read
@@ -19,6 +20,8 @@ concurrency:
 
 jobs:
   ladders:
+    # Draft pull requests do not use runners; marking one ready starts its checks.
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     name: ladders and floors
     runs-on: ubuntu-latest
     steps:

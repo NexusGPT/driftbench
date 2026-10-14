@@ -11348,7 +11348,7 @@
       "level": 7,
       "source": "research",
       "component": "packages/stats/src/variance.ts",
-      "cause": "the true design effect 1.75 lies in the 0.999 bootstrap interval of the mean estimate over 100 clustered campaigns"
+      "cause": "on each of 100 clustered campaigns the design effect estimated on the stored runs equals one-way ANOVA on those runs, and their mean (m 4, rho 0.25) lies in the 0.999 interval of its exact finite-sample law, and the bootstrap interval of that mean has the width and centre of its level"
     },
     {
       "id": "variance/parity-power",
@@ -12671,7 +12671,7 @@
       "level": 8,
       "source": "contract",
       "component": "examples/acme/reports/README.md",
-      "cause": "examples/acme/reports holds an acme-junit.xml written from a campaign whose 75 runs all pass."
+      "cause": "examples/acme/reports holds an acme-junit.xml written from a campaign whose runs, as many as the README states, all pass."
     },
     {
       "id": "claim/report/acme-faults-regressed",
@@ -12680,7 +12680,7 @@
       "level": 8,
       "source": "differential",
       "component": "examples/acme/reports/README.md",
-      "cause": "examples/acme/reports holds an acme-faults.html whose compare section shows 15 regressed, 0 improved over 25 goldens and p < 0.0001."
+      "cause": "examples/acme/reports holds an acme-faults.html whose compare section shows the regressed and paired goldens and the exact p the README states."
     },
     {
       "id": "claim/report/acme-faults-flags",
@@ -12689,7 +12689,7 @@
       "level": 8,
       "source": "contract",
       "component": "examples/acme/reports/README.md",
-      "cause": "examples/acme/reports holds an acme-faults.html whose new gating flag table names 15 goldens with forbidden or safety."
+      "cause": "examples/acme/reports holds an acme-faults.html whose new gating flag table names the goldens with forbidden or safety the README counts."
     },
     {
       "id": "claim/report/scorecards-links",
@@ -15929,7 +15929,7 @@
       "level": 10,
       "source": "contract",
       "component": "docs/scorecards.md",
-      "cause": "docs/scorecards.md: the committed Acme JUnit holds 75 testcases and no failure, the faults one 75 testcases and 45 failures, each total equal to its suites"
+      "cause": "docs/scorecards.md: the committed Acme JUnit holds the testcases the README states and no failure, the faults one the testcases and failures the README states, each total equal to its suites"
     },
     {
       "id": "breaker2/report/committed-html-no-script",

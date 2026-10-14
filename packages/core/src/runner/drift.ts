@@ -5,7 +5,7 @@ import type { Verdict } from '../schema/run';
  * The drift class of a failing verdict, by its family: the text of its id before the first dot (check
  * names hold no dot; tool labels and paths after it may).
  *
- * - X1_local, a fault the block shows on its own: what the reply says (`must`, `must_not`, `similarity`,
+ * - X1_local, a fault the block shows on its own: what the reply says (`must`, `must_not`, `length`, `similarity`,
  *   `relevancy`), what it ran
  *   and produced (`execution`, `workspace`, `artifacts`, `schema_strict`), its budget, the end state, and
  *   the judged criteria (`judge`).
@@ -23,6 +23,14 @@ import type { Verdict } from '../schema/run';
 export const DRIFT_BY_FAMILY: Readonly<Record<string, DriftClass>> = {
   must: 'X1_local',
   must_not: 'X1_local',
+  regex: 'X1_local',
+  length: 'X1_local',
+  markup: 'X4_format',
+  starts_with: 'X1_local',
+  finish_reason: 'X1_local',
+  json: 'X1_local',
+  refusal: 'X1_local',
+  tool_f1: 'X5_tool',
   similarity: 'X1_local',
   relevancy: 'X1_local',
   execution: 'X1_local',

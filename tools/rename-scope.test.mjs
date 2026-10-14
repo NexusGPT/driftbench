@@ -114,6 +114,22 @@ function runCodemod(root) {
 }
 
 describe('rename-scope codemod', () => {
+  it('preserves hashed benchmark data and recordings while renaming the harness imports', () => {
+    const root = fixture();
+    const files = [
+      'benchmarks/slices/fictional/1/source.json',
+      'benchmarks/cassettes/fictional@1/haiku.json',
+      'benchmarks/evidence/fictional@1/haiku.json',
+      '.bench-run/previous.json',
+    ];
+    for (const file of files) write(root, file, '{"quote":"@driftbench/core"}\n');
+    write(root, 'benchmarks/run.ts', "import { playerClient } from '@driftbench/judges';\n");
+    const before = tree(root);
+    runCodemod(root);
+    const after = tree(root);
+    for (const file of files) expect(after[file]).toBe(before[file]);
+    expect(after['benchmarks/run.ts']).toContain('@agent-nexus/driftbench-judges');
+  });
   it('preserves pinned comparison snapshots and their legacy cache wrapper', () => {
     const root = fixture();
     const files = [
@@ -121,12 +137,14 @@ describe('rename-scope codemod', () => {
       'comparisons/inspect/hard/arch-deciding-snapshot.json',
       'comparisons/inspect/hard/arch-snapshot.json',
       'comparisons/inspect/hard/deciding/main-snapshot.json',
+      'comparisons/langwatch/hard/pr115.mts',
+      'comparisons/langwatch/hard/pr115-verification.md',
     ];
     for (const rel of files)
       write(
         root,
         rel,
-        rel.endsWith('.ts')
+        rel.endsWith('.ts') || rel.endsWith('.mts')
           ? 'const folder = `node_modules/@driftbench/${name}/`;\n'
           : JSON.stringify({ pinnedSource: "import core from '@driftbench/core'" }),
       );

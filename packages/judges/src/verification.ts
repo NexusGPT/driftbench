@@ -1,5 +1,5 @@
 import type { JudgeClient } from './client';
-import { inconclusive, type JudgeRequest } from './contract';
+import { inconclusive, type JudgeRequest, type JudgeResult } from './contract';
 
 /** Provider-neutral sandbox port. Implementations must isolate any general-purpose code they run. */
 export interface JudgeSandbox {
@@ -22,41 +22,75 @@ export function withVerification(client: JudgeClient, options: VerificationOptio
   const timeoutMs = options.timeoutMs ?? 5000;
   if (!Number.isFinite(timeoutMs) || timeoutMs <= 0)
     throw new RangeError('verification timeout must be positive and finite');
-  return {
-    ...client,
-    async judge(request) {
-      if (options.enabled !== true) return client.judge(request);
-      const controller = new AbortController();
-      let timer: ReturnType<typeof setTimeout> | undefined;
-      try {
-        const evidence = await Promise.race([
-          options.sandbox.verify(request, controller.signal),
-          new Promise<never>((_, reject) => {
-            timer = setTimeout(() => {
-              controller.abort();
-              reject(new Error('verification timeout'));
-            }, timeoutMs);
-          }),
-        ]);
-        if (evidence.length === 0) return client.judge(request);
-        return client.judge({
-          ...request,
-          transcript: [
-            ...request.transcript,
-            { role: 'tool_result', tool: 'judge.arithmetic', text: JSON.stringify(evidence) },
-          ],
-        });
-      } catch (cause) {
-        return {
+  const prepare = async (
+    request: JudgeRequest,
+  ): Promise<{ request: JudgeRequest } | { failure: JudgeResult }> => {
+    if (options.enabled !== true) return { request };
+    const controller = new AbortController();
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      const evidence = await Promise.race([
+        options.sandbox.verify(request, controller.signal),
+        new Promise<never>((_, reject) => {
+          timer = setTimeout(() => {
+            controller.abort();
+            reject(new Error('verification timeout'));
+          }, timeoutMs);
+        }),
+      ]);
+      return {
+        request:
+          evidence.length === 0
+            ? request
+            : {
+                ...request,
+                transcript: [
+                  ...request.transcript,
+                  { role: 'tool_result', tool: 'judge.arithmetic', text: JSON.stringify(evidence) },
+                ],
+              },
+      };
+    } catch (cause) {
+      return {
+        failure: {
           raw: '',
           answer: inconclusive(
             `verification failed: ${cause instanceof Error ? cause.message : String(cause)}`,
           ),
-        };
-      } finally {
-        if (timer !== undefined) clearTimeout(timer);
-      }
+        },
+      };
+    } finally {
+      if (timer !== undefined) clearTimeout(timer);
+    }
+  };
+  const compare = client.judgeComparison?.bind(client);
+  return {
+    ...client,
+    async judge(request) {
+      const prepared = await prepare(request);
+      return 'failure' in prepared ? prepared.failure : client.judge(prepared.request);
     },
+    ...(compare
+      ? {
+          async judgeComparison(ordered: JudgeRequest, swapped: JudgeRequest) {
+            const failedComparison = (failure: JudgeResult): JudgeResult => ({
+              ...failure,
+              comparison: {
+                ordered: 'inconclusive',
+                swapped: 'inconclusive',
+                consistent: true,
+                positionBias: false,
+              },
+            });
+            const a = await prepare(ordered);
+            if ('failure' in a) return failedComparison(a.failure);
+            const b = await prepare(swapped);
+            if ('failure' in b) return failedComparison(b.failure);
+            // Both orders must be verified before any judge can run.
+            return compare(a.request, b.request);
+          },
+        }
+      : {}),
   };
 }
 

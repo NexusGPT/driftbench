@@ -1,8 +1,13 @@
 import { z } from 'zod';
+import type { AnswerAudit } from './answer-audit';
 import type { Assessment, RubricScores } from './assessment';
-import type { CriterionLedger, CriterionRequirement } from './criterion-ledger';
-import type { FactLedgerAnswer } from './fact-audit';
+import type { ClaudeThinkingRecovery } from './clients/claude-cli';
+import type { ConformanceAudit } from './conformance';
+import type { CriterionCheck, CriterionDecoderVersion, CriterionRequirement } from './criterion-ledger';
+import type { CriterionPromptVersion } from './criterion-prompt-v2';
+import type { FactLedgerAnswer, PointwiseFactLedgerAnswer } from './fact-audit';
 import type { LedgerParseStep, PairLedger } from './pair-ledger-contract';
+import type { ResponseRelevanceAnswer } from './response-relevance';
 
 /**
  * The answer contract every judge returns, and the request every judge reads.
@@ -38,9 +43,11 @@ export const MAX_TOKENS: Readonly<Record<Budget, number>> = { normal: 1024, larg
 
 /** One line of a transcript slice. Tool entries carry the tool name. */
 export const TranscriptEntry = z.strictObject({
-  role: z.enum(['user', 'agent', 'tool_call', 'tool_result', 'card', 'context']),
-  text: z.string(),
-  tool: z.string().optional(),
+  role: z
+    .enum(['user', 'agent', 'tool_call', 'tool_result', 'card', 'context'])
+    .describe('Who or what the line comes from: user, agent, tool_call, tool_result, card or context.'),
+  text: z.string().describe('The text of the line.'),
+  tool: z.string().optional().describe('The tool name, on a tool_call or tool_result line.'),
 });
 export type TranscriptEntry = z.infer<typeof TranscriptEntry>;
 
@@ -56,17 +63,25 @@ export type CriterionText = z.infer<typeof CriterionText>;
 
 /** Everything one judge call reads. */
 export type JudgeRequest = {
+  /** A reference procedure observed disagreement before this judge call. Never a truth label. */
+  readonly referenceDisagreement?: boolean;
   /** Previous model-facing prompt and parser, for exact replay of existing scores. Default ledger. */
   readonly answerContract?: 'ledger' | 'legacy';
+  /** Default-ledger decoder. Default 1: strict quote rejection. Opt-in 2 nulls an ungrounded string quote. */
+  readonly criterionDecoderVersion?: CriterionDecoderVersion;
+  /** Default-ledger system prompt. Default 1. Opt-in 2 adds exact-identifier, stated-facts and stated-scope rules. */
+  readonly criterionPromptVersion?: CriterionPromptVersion;
   /** Provider output dialect and explicit reasoning setting for pair ledgers. */
   readonly dialect?: string;
-  readonly reasoning?: string;
+  readonly reasoning?: 'low' | 'medium' | 'high';
   /** Exact requirement ids and definitions to check. Absent: the criterion name and full rubric. */
   readonly requirements?: readonly CriterionRequirement[];
   /** Opt-in answer contract. Pairwise calls name the winner; rubric calls score each supplied item. */
   readonly assessment?: Assessment;
   /** Candidate texts for validating content-anchored winners. */
   readonly candidates?: { readonly A: string; readonly B: string };
+  /** Pairwise presentation policy, included in cassette identity. Absent means both orders. */
+  readonly presentation?: 'both-orders' | 'canonical';
   readonly factAudit?: { readonly reference: string };
   readonly criterion: CriterionText;
   /** The system prompt of this request. Absent: the criterion prompt of the prompt kit. */
@@ -84,24 +99,67 @@ export type JudgeRequest = {
   readonly budget?: Budget;
 };
 
+/** Observable uncertainty signals. Labels never enter this routing contract. */
+export type EscalationTrigger = 'order-split' | 'inconclusive' | 'reference-disagreement' | 'low-confidence';
+export type EscalationRecord = {
+  readonly triggers: readonly EscalationTrigger[];
+  readonly escalated: boolean;
+  readonly first: readonly JudgeResult[];
+  readonly then: readonly { readonly judge: string; readonly result: JudgeResult; readonly error?: string }[];
+  readonly decision: 'first' | 'majority' | 'first-stands' | 'inconclusive';
+  readonly calls: number;
+};
+export type ComparisonResult = {
+  /** Final outcomes in their original presentation orders, including first-stands fallback. */
+  readonly ordered: JudgeOutcome;
+  readonly swapped: JudgeOutcome;
+  /** Diagnostics from the first judge's two orders, before escalation. */
+  readonly consistent: boolean;
+  readonly positionBias: boolean;
+};
+
 /** What a client returns: the answer, the raw text it came from, and whether that text parsed. */
 export type JudgeResult = {
+  readonly thinkingRecovery?: ClaudeThinkingRecovery;
+  readonly retryReceipts?: readonly import('./clients/claude-errors').ClaudeRetryReceipt[];
+  /** Every Claude CLI process started for this answer, recovery and retries included. */
+  readonly requestCount?: number;
+  /** A process of the call reported no cost: costUsd is absent and a total that adds it is partial. */
+  readonly costIncomplete?: true;
+  /** The provider declined to answer: an inconclusive answer, never an error, with its short signal. */
+  readonly declineReason?: import('./clients/provider-block').ProviderDecline['declineReason'];
+  readonly providerBlock?: import('./clients/provider-block').ProviderBlock;
   readonly pairLedger?: PairLedger;
   readonly parseSteps?: readonly LedgerParseStep[];
   readonly metadata?: { readonly graderError?: boolean };
+
+  readonly escalation?: EscalationRecord;
+  readonly comparison?: ComparisonResult;
+  /** Explicit disagreement observed by a reference verification procedure. */
+  readonly referenceDisagreement?: boolean;
   /** Explicit pairwise winner before mapping it to the legacy binary outcome. */
   readonly winner?: 'A' | 'B' | 'tie' | 'inconclusive';
   /** Validated item scores and the deterministic aggregate. */
   readonly rubric?: RubricScores;
-  readonly factLedger?: FactLedgerAnswer;
+  readonly factLedger?: FactLedgerAnswer | PointwiseFactLedgerAnswer;
+  /** Opt-in latest-ask obligations with quotes grounded in the selected request and reply. */
+  readonly responseRelevance?: ResponseRelevanceAnswer;
+  /** Opt-in criterion-local conformance audit, with its outcome computed in code. */
+  readonly conformance?: ConformanceAudit;
+  /** Opt-in answer audit: the conditions the model listed and settled, with the outcome computed in code. */
+  readonly answerAudit?: AnswerAudit;
   /** Default chat-model requirement ledger, with the public outcome computed in code. */
-  readonly checks?: CriterionLedger['checks'];
-  /** Model-invented requirement ids, ignored during scoring and retained for diagnostics. */
+  readonly checks?: readonly CriterionCheck[];
+  /** Number of ungrounded evidence strings nulled without changing their met values. */
+  readonly evidenceUnverified?: number;
+  /** Model-invented criterion ids or rubric names, ignored in scoring and retained for diagnostics. */
   readonly ignoredRequirementIds?: readonly string[];
   readonly referenceAgreement?: {
     readonly attempts: number;
     readonly agreement: number;
     readonly used: boolean;
+    /** Auto route selected solving (true) or skipped it (false). Absent when routing was not requested. */
+    readonly routed?: boolean;
   };
   readonly answer: JudgeAnswer;
   /** The provider's answer as received: the model text, or the JSON body of a system 1 answer. */

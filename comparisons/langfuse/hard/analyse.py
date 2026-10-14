@@ -31,7 +31,11 @@ for side in ['ours', 'theirs', 'ours-audit']:
     correct = sum(r['prediction'] == r['label'] for r in rows)
     results[side] = {'correct': correct, 'total': len(rows), 'ci95': wilson(correct, len(rows)), 'at_half_correct': sum(r['at_half'] == r['label'] for r in rows), 'unparsed': sum(r['prediction'] == 'unparsed' for r in rows), 'without_repair_correct': sum(r['without_repair'] == r['label'] for r in rows), 'half_without_repair_correct': sum(r['half_without_repair'] == r['label'] for r in rows), 'quote_repaired': sum(r['quote_repaired'] for r in rows), 'evaluation_cost_usd': sum(r['cost_usd'] for r in rows), 'rows': rows}
 summary = {'set_sha256': hashlib.sha256((ROOT / args.set).read_bytes()).hexdigest(), 'source_commit': (ROOT / 'vendor/commit.txt').read_text().strip(), 'unique_calls': len(cache), 'recorded_calls': len(calls), 'cumulative_cost_usd': sum(c['cost_usd'] for c in calls), 'variants': results}
-(ROOT / f'{prefix}scores.json').write_text(json.dumps(summary, indent=2) + '\n')
+scores_text = json.dumps(summary, indent=2) + '\n'
+scores_path = ROOT / f'{prefix}scores.json'
+# A replay that reproduces the committed numbers keeps the committed bytes.
+if not scores_path.exists() or json.loads(scores_path.read_text()) != json.loads(scores_text):
+    scores_path.write_text(scores_text)
 lines = ['# Recorded scores', '', 'Exact correctness requires every requested fact and no unsupported factual assertion.', 'The continuous template is interpreted at score 1; the 0.5 interpretation is disclosed separately.', 'The hard set is the tuning set. The heldout set uses fresh profiles from the same construction families. Neither set establishes platform-wide scores.', '', '| Procedure | Correct | Wilson 95 percent | Correct at 0.5 | Recorded evaluation USD |', '|---|---|---|---|---|']
 for side, result in results.items():
     lo, hi = result['ci95']

@@ -1,0 +1,9 @@
+plan_id,category,allowance,monthly_usd,name
+home-1,home,500 Mbps,73,Acme Home 1
+home-2,home,1000 Mbps,71,Acme Home 2
+mobile-1,mobile,unlimited,83,Acme Mobile 1
+mobile-2,mobile,10 GB,34,Acme Mobile 2
+mobile-3,mobile,5 GB,74,Acme Mobile 3
+mobile-4,mobile,5 GB,10,Acme Mobile 4
+mobile-5,mobile,5 GB,14,Acme Mobile 5
+home-3,home,1000 Mbps,67,Acme Home 3

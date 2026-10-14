@@ -35,6 +35,12 @@ export const Phrasing = z
       .describe('An id, unique in the pack: lower case letters, digits and hyphens.'),
     approved: z.boolean().describe('True once a person has read the phrasing and accepts it.'),
     note: z.string().optional().describe('Why the phrasing exists, for the reviewer.'),
+    ends_conversation: z
+      .boolean()
+      .optional()
+      .describe(
+        'In attack, stop only after this conversation phrasing has checked, passing reply expectations.',
+      ),
     user: z.string().optional().describe('The message the user sends. Empty is silence (D7 only).'),
     burst: z.array(z.string().min(1)).min(2).optional().describe('Messages that arrive together (D7 only).'),
     world: WorldState.optional().describe('A change of the world (D6 on a conversation).'),
@@ -43,6 +49,16 @@ export const Phrasing = z
     tool: z.string().min(1).optional().describe('The tool that fails (D8 on a conversation).'),
     file: z.string().min(1).optional().describe('The planted file (D6 on a task).'),
     content: z.string().min(1).optional().describe('The text of the planted file or obstacle (task).'),
+    must: z
+      .array(z.string().min(1))
+      .optional()
+      .describe(
+        'Patterns the reply to this phrasing must match (conversation only). Merged into the injected block.',
+      ),
+    must_not: z
+      .array(z.string().min(1))
+      .optional()
+      .describe('Patterns the reply to this phrasing must not match (conversation only).'),
   })
   .describe('One phrasing of a deviation.');
 export type Phrasing = z.infer<typeof Phrasing>;
@@ -50,7 +66,7 @@ export type Phrasing = z.infer<typeof Phrasing>;
 export const PackFile = z
   .strictObject({
     class: DeviationClass.describe('The class every phrasing of the file belongs to.'),
-    title: z.string().min(1).optional(),
+    title: z.string().min(1).optional().describe('A title for a reader; no command reads it.'),
     conversation: z.array(Phrasing).min(1).describe('Phrasings for conversation specs.'),
     task: z.array(Phrasing).min(1).optional().describe('Phrasings for task specs.'),
   })
@@ -67,7 +83,7 @@ export class RedteamPackError extends Error {
 }
 
 /** The fields a phrasing must hold, and the fields it may hold, by class and kind. */
-function shapeProblems(cls: DeviationClass, kind: PhrasingKind, phrasing: Phrasing): string[] {
+export function shapeProblems(cls: DeviationClass, kind: PhrasingKind, phrasing: Phrasing): string[] {
   const has = (field: keyof Phrasing) => phrasing[field] !== undefined;
   const carrier = DEVIATIONS[cls].carrier;
   let required: (keyof Phrasing)[];
@@ -85,7 +101,7 @@ function shapeProblems(cls: DeviationClass, kind: PhrasingKind, phrasing: Phrasi
     required = ['user'];
     allowed = ['user'];
   }
-  const problems: string[] = [];
+  const problems = phrasingKindProblems(kind, phrasing);
   for (const field of required) if (!has(field)) problems.push(`needs ${field}`);
   const carriers: (keyof Phrasing)[] = [
     'user',
@@ -110,6 +126,18 @@ function shapeProblems(cls: DeviationClass, kind: PhrasingKind, phrasing: Phrasi
     if (!JSON.stringify(phrasing.world).includes(JSON.stringify(phrasing.instruction).slice(1, -1))) {
       problems.push('its world does not carry its instruction');
     }
+  }
+  return problems;
+}
+
+/** Shared by pack validation and replay, including spec-authored recordings whose carrier is in the spec. */
+export function phrasingKindProblems(kind: PhrasingKind, phrasing: Phrasing): string[] {
+  const problems: string[] = [];
+  if (kind === 'task' && (phrasing.must !== undefined || phrasing.must_not !== undefined)) {
+    problems.push('must and must_not are for conversation phrasings; a task phrasing does not take them');
+  }
+  if (kind === 'task' && phrasing.ends_conversation !== undefined) {
+    problems.push('ends_conversation is for conversation phrasings');
   }
   return problems;
 }
@@ -205,6 +233,19 @@ export type DrawOptions = {
  * Throws a RedteamPackError when the pack has no file for the class, no phrasing for the kind, or no
  * approved one (without drafts).
  */
+/** How many phrasings a class can draw in this mode: approved only, or drafts too. Zero means the class is not drawable. */
+export function phrasingPool(
+  pack: RedteamPack,
+  cls: DeviationClass,
+  kind: PhrasingKind,
+  drafts: boolean,
+): number {
+  const file = pack.files.get(cls);
+  if (!file) return 0;
+  const all = file[kind] ?? [];
+  return (drafts ? all : all.filter((phrasing) => phrasing.approved)).length;
+}
+
 export function drawPhrasing(pack: RedteamPack, options: DrawOptions): Phrasing & { packPath: string } {
   const file = pack.files.get(options.cls);
   if (!file) throw new RedteamPackError(`the red-team pack has no file for ${options.cls}`);

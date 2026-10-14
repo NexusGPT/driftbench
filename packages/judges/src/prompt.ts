@@ -1,10 +1,14 @@
 import { contentHash } from '@agent-nexus/driftbench-core';
+import { ANSWER_AUDIT_SYSTEM_PROMPT, answerAuditUser } from './answer-audit';
 import { validateAssessment } from './assessment';
+import { CONFORMANCE_SYSTEM_PROMPT, conformanceUser } from './conformance';
 import type { JudgeRequest, TranscriptEntry } from './contract';
 import { requirementsFor } from './criterion-ledger';
-import { auditData, FACT_LEDGER_SYSTEM } from './fact-audit';
+import { checkCriterionPromptVersion, criterionSystemPromptV2 } from './criterion-prompt-v2';
+import { auditData, FACT_LEDGER_POINTWISE, FACT_LEDGER_SYSTEM, pointwiseAuditData } from './fact-audit';
 import { buildPrompt as buildLegacyPrompt, LEGACY_COMPARE_SYSTEM_PROMPT } from './legacy-prompt';
 import { isPairLedgerRequest, pairRequirements } from './pair-ledger-contract';
+import { RESPONSE_RELEVANCE_SYSTEM_PROMPT, renderResponseRelevance } from './response-relevance';
 import { FRAME_RULE, renderTranscriptFrame } from './transcript';
 
 export { renderEntry } from './transcript';
@@ -27,7 +31,9 @@ export type DataTag = (typeof DATA_TAGS)[number];
 /** The answer contract, as the judge is told to return it. */
 export const ANSWER_CONTRACT = [
   'Answer with one JSON object and nothing else, with exactly this structure:',
-  '{"checks":[{"id":"exact requested requirement id","reasoning":"what the supplied data shows","evidence":"a short exact quote from the data, or null when absent","met":true or false or null}]}',
+  '{"checks":[{"id":"exact requested requirement id","reasoning":"what the supplied data shows","evidence":[{"source":"transcript.0","quote":"a short exact quote from that entry text"}],"met":true or false or null}]}',
+  'Evidence is a nonempty list of spans, or null when absent. Keep separate quotations in separate spans; do not join them with a pipe or merge different entries. Each span must quote its named source exactly.',
+  'Source ids are transcript.<entry index> (the entry field), artifact, given, input.<file path>, or reference. Copy text from the source body, never a role, entry index, file label or renderer decoration.',
   'Check every requested id exactly once. Do not invent or omit ids. A requirement covers its entire supplied definition. Put reasoning and evidence before met. No overall verdict, outcome, score or other key is allowed.',
 ].join('\n');
 
@@ -92,6 +98,27 @@ export function promptFingerprint(parts: { readonly [key: string]: unknown } = P
 
 /** The fingerprint of the prompt this build sends. */
 export const PROMPT_FINGERPRINT = promptFingerprint();
+
+/** The opt-in version 2 system prompt of an ordinary criterion check. */
+export const SYSTEM_PROMPT_V2 = criterionSystemPromptV2(SYSTEM_PROMPT);
+
+/** Its own fingerprint: a version 2 recording never replays under version 1, nor the reverse. */
+export const CRITERION_PROMPT_V2_FINGERPRINT = promptFingerprint({
+  ...PROMPT_PARTS,
+  system: SYSTEM_PROMPT_V2,
+  criterionPromptVersion: 2,
+});
+
+/** Version 2 applies to an ordinary criterion check that brings no system text of its own. */
+export function usesCriterionPromptV2(request: JudgeRequest): boolean {
+  checkCriterionPromptVersion(request.criterionPromptVersion);
+  return (
+    request.criterionPromptVersion === 2 &&
+    request.answerContract !== 'legacy' &&
+    !request.assessment &&
+    request.system === undefined
+  );
+}
 
 /** The rubric block of a request: the question with its FAIL and PASS pictures. */
 export function renderRubric(criterion: JudgeRequest['criterion']): string {
@@ -158,7 +185,11 @@ export function renderTranscript(entries: readonly TranscriptEntry[]): string {
 
 /** The user prompt: the rubric, then every data section, then the closing instruction. */
 export function renderUser(request: JudgeRequest): string {
+  if (request.assessment?.kind === 'response-relevance') return renderResponseRelevance(request);
   if (isPairLedgerRequest(request)) return renderPairLedgerUser(request);
+  if (request.assessment?.kind === 'fact-ledger' && !request.candidates) return pointwiseAuditData(request);
+  if (request.assessment?.kind === 'conformance') return conformanceUser(request);
+  if (request.assessment?.kind === 'answer-audit') return answerAuditUser(request);
   if (request.factAudit && request.assessment?.kind !== 'rubric') return auditData(request);
   const parts = [
     request.assessment
@@ -200,6 +231,12 @@ export function renderUser(request: JudgeRequest): string {
 
 /** The full prompt of one request. */
 export function buildPrompt(request: JudgeRequest): { system: string; user: string } {
+  if (request.assessment?.kind === 'response-relevance')
+    return { system: RESPONSE_RELEVANCE_SYSTEM_PROMPT, user: renderResponseRelevance(request) };
+  if (request.assessment?.kind === 'conformance')
+    return { system: CONFORMANCE_SYSTEM_PROMPT, user: conformanceUser(request) };
+  if (request.assessment?.kind === 'answer-audit')
+    return { system: ANSWER_AUDIT_SYSTEM_PROMPT, user: answerAuditUser(request) };
   if (request.answerContract === 'legacy')
     return buildLegacyPrompt({
       ...request,
@@ -221,12 +258,14 @@ export function buildPrompt(request: JudgeRequest): { system: string; user: stri
     };
   }
   if (request.assessment) validateAssessment(request.assessment);
+  if (request.assessment?.kind === 'fact-ledger' && !request.candidates)
+    return { system: FACT_LEDGER_POINTWISE, user: pointwiseAuditData(request) };
   const base =
     request.assessment?.kind === 'fact-ledger'
       ? FACT_LEDGER_SYSTEM
       : request.assessment?.kind === 'rubric'
         ? RUBRIC_SYSTEM_PROMPT(request.assessment.pairwise === true)
-        : (request.system ?? SYSTEM_PROMPT);
+        : (request.system ?? (usesCriterionPromptV2(request) ? SYSTEM_PROMPT_V2 : SYSTEM_PROMPT));
   const system =
     request.reference === undefined
       ? base

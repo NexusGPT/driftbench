@@ -40,14 +40,16 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format esm --dts --clean --target node22"
+    "build": "tsup src/index.ts --format esm --dts --clean --target node22 --external exceljs --external mammoth"
   },
   "dependencies": {
     "@agent-nexus/driftbench-core": "workspace:*",
-    "exceljs": "^4.4.0",
     "jszip": "^3.10.2",
-    "mammoth": "^1.13.0",
     "pdf-parse": "^2.4.5"
+  },
+  "optionalDependencies": {
+    "exceljs": "^4.4.0",
+    "mammoth": "^1.13.0"
   },
   "publishConfig": {
     "access": "public",

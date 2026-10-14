@@ -26,7 +26,7 @@ export type JudgeDialect = (typeof JUDGE_DIALECTS)[keyof typeof JUDGE_DIALECTS][
 export function withJudgeDialect(
   request: JudgeRequest,
   dialect: JudgeDialect,
-  reasoning?: string,
+  reasoning?: JudgeRequest['reasoning'],
 ): JudgeRequest {
   if (!isPairLedgerRequest(request)) return request;
   const effort = request.reasoning ?? reasoning;

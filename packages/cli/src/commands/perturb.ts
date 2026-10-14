@@ -16,17 +16,19 @@ import {
   type CampaignDeps,
   defaultDeps,
   loadValidSpecs,
-  noAdapter,
   parseTarget,
+  resolveAdapter,
   showTarget,
   specRuns,
 } from './campaign';
+import { faultDeps } from './ci';
 
 type PerturbOptions = {
   class?: string;
   at?: string;
   perturbation?: string;
   target?: string;
+  faults?: string;
   seed: string;
   pack?: string;
   drafts?: boolean;
@@ -59,12 +61,16 @@ export function registerPerturbCommand(
     .command('perturb')
     .description('Run one spec in mode P with one deviation injected, and print the recovery')
     .argument('<spec>', 'one spec file')
-    .option('--class <D>', 'the deviation class: D1 to D10, or its full name such as D2_goal_shift')
+    .option('--class <D>', 'the deviation class: D1 to D12, or its full name such as D2_goal_shift')
     .option('--at <n>', 'the block the deviation goes in before, counting from 0')
     .option('--perturbation <id>', 'a perturbation the spec declares, instead of --class and --at')
     .option(
       '--target <adapter[:agent]>',
       "the agent, such as function:acme-sales; without it, the spec's own",
+    )
+    .option(
+      '--faults <path>',
+      'a fault set (module or folder) whose faults the target can name as fault:<id>',
     )
     .option('--seed <n>', 'the seed of the draw from the red-team pack', '0')
     .option('--pack <dir>', 'the red-team pack; default the nearest redteam/ folder at or above the spec')
@@ -110,9 +116,19 @@ export async function perturbCommand(
   const [planned] = specRuns([entry], given, io) ?? [];
   const target = planned?.targets[0];
   if (planned === undefined || target === undefined) return 2;
-  const adapter = await deps.adapterFor(target);
+  let runDeps = deps;
+  if (target.adapter === 'fault') {
+    const withFaults = await faultDeps(deps, options.faults, io);
+    if (!withFaults) return 2;
+    runDeps = withFaults;
+  }
+  const adapter = await resolveAdapter(
+    target,
+    () => runDeps.adapterFor(target),
+    io,
+    planned.pinned === undefined ? [] : [spec.id],
+  );
   if (!adapter) {
-    io.err(`${noAdapter(target, planned.pinned === undefined ? [] : [spec.id])}\n`);
     return 2;
   }
 
@@ -120,20 +136,20 @@ export async function perturbCommand(
   // as a campaign does for its perturbed cells.
   const common = {
     adapter,
-    checks: deps.checks,
-    ...(deps.artifacts ? { artifacts: deps.artifacts } : {}),
+    checks: runDeps.checks,
+    ...(runDeps.artifacts ? { artifacts: runDeps.artifacts } : {}),
     repeat: 0,
     target,
-    now: () => deps.now(),
+    now: () => runDeps.now(),
   };
-  const reference = await runSpec(spec, { ...common, driver: deps.driver(), mode: 'F' });
+  const reference = await runSpec(spec, { ...common, driver: runDeps.driver(), mode: 'F' });
   const result = await runSpec(driver.spec, {
     ...common,
     driver,
     mode: 'P',
     perturbationId: driver.perturbation.id,
     ...(reference.status === 'completed' ? { reference } : {}),
-    ...(deps.consequential ? { consequential: deps.consequential } : {}),
+    ...(runDeps.consequential ? { consequential: runDeps.consequential } : {}),
   });
   const recovery = result.recovery;
   const within = driver.perturbation.recovery?.within_blocks;
@@ -210,10 +226,10 @@ function usageProblem(options: PerturbOptions): string | undefined {
     return undefined;
   }
   if (options.class === undefined || options.at === undefined) {
-    return 'Name the deviation: --class <D1 to D10> and --at <block>, or --perturbation <id>.';
+    return 'Name the deviation: --class <D1 to D12> and --at <block>, or --perturbation <id>.';
   }
   if (deviationClassOf(options.class) === undefined) {
-    return `--class takes D1 to D10, or a full name such as D2_goal_shift, not "${options.class}".`;
+    return `--class takes D1 to D12, or a full name such as D2_goal_shift, not "${options.class}".`;
   }
   if (!/^\d+$/.test(options.at)) return `--at takes a block number from 0, not "${options.at}".`;
   if (!/^\d+$/.test(options.seed)) return `--seed takes a whole number from 0, not "${options.seed}".`;

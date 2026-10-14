@@ -113,7 +113,9 @@ export const ValueFields = {
     .optional()
     .describe('The most times the action may happen in a conversation.'),
   within: z
-    .strictObject({ minutes: z.number().positive() })
+    .strictObject({
+      minutes: z.number().positive().describe('The number of minutes the action has to happen in.'),
+    })
     .optional()
     .describe('The time within which the action happens.'),
   priority: z.literal('first').optional().describe('The rule comes first when rules collide.'),
@@ -123,7 +125,7 @@ export const ValueFields = {
 
 export const ProposalValue = z
   .strictObject({
-    id: ValueId,
+    id: ValueId.describe('A short id, unique among the values of its dimension.'),
     title: z.string().min(1).describe('What the value means, in a few words.'),
     evidence: Evidence,
     ...ValueFields,
@@ -137,7 +139,9 @@ export type ProposalValue = z.infer<typeof ProposalValue>;
 
 export const ProposalDimension = z
   .strictObject({
-    id: DimensionId,
+    id: DimensionId.describe(
+      'A short id, unique among the dimensions, such as stage or coverage.check.in.address.',
+    ),
     title: z.string().min(1).describe('What the dimension varies.'),
     kind: DimensionKind,
     role: Role,
@@ -216,14 +220,14 @@ export type Slots = z.infer<typeof Slots>;
 
 export const ProposalPhrase = z
   .strictObject({
-    dimension: DimensionId,
-    value: ValueId,
+    dimension: DimensionId.describe('The dimension of the value the phrase expresses.'),
+    value: ValueId.describe('The value the phrase expresses: a value of that dimension.'),
     text: z
       .string()
       .min(1)
       .max(500)
       .describe('One user message that expresses the value. `{slot}` takes a value the cell binds.'),
-    lang: Lang,
+    lang: Lang.describe('The language the phrase is written in, such as en or pt-BR.'),
     when: When.optional().describe('The cell values the phrase fits; absent: every cell of its value.'),
     binds: Slots.optional().describe('Slot values the phrase itself states, such as the plan it names.'),
     evidence: Evidence.optional().describe('The source example the phrase copies, when there is one.'),
@@ -237,7 +241,10 @@ export type ProposalPhrase = z.infer<typeof ProposalPhrase>;
 
 /** A value of a dimension. */
 export const ValueRef = z
-  .strictObject({ dimension: DimensionId, value: ValueId })
+  .strictObject({
+    dimension: DimensionId.describe('The id of the dimension.'),
+    value: ValueId.describe('The id of a value of that dimension.'),
+  })
   .describe('One value of one dimension.');
 export type ValueRef = z.infer<typeof ValueRef>;
 
@@ -272,7 +279,7 @@ export type EndStateTemplate = z.infer<typeof EndStateTemplate>;
 
 export const PathRelation = z
   .strictObject({
-    kind: z.literal('path'),
+    kind: z.literal('path').describe("Marks the relation as a path: a flow's stage order on one branch."),
     id: ValueId.describe('A short id, unique among the paths.'),
     flow: ValueId.describe('The flow the path belongs to: a value of the flow dimension.'),
     when: When.optional(),
@@ -289,7 +296,7 @@ export type PathRelation = z.infer<typeof PathRelation>;
 
 export const UsesToolRelation = z
   .strictObject({
-    kind: z.literal('uses_tool'),
+    kind: z.literal('uses_tool').describe('Marks the relation as a tool call a flow or a behaviour makes.'),
     subject: ValueRef.describe('The flow or behaviour value that calls the tool.'),
     tool: z.string().min(1).describe('The tool label.'),
     stage: ValueId.describe('The stage the call is made at: the turn that leaves this stage.'),
@@ -307,7 +314,9 @@ export type UsesToolRelation = z.infer<typeof UsesToolRelation>;
 
 export const StatesRelation = z
   .strictObject({
-    kind: z.literal('states'),
+    kind: z
+      .literal('states')
+      .describe('Marks the relation as what the reply of one turn must and must not state.'),
     subject: ValueRef.describe('The flow or behaviour value whose reply states it.'),
     stage: ValueId.describe('The turn that leaves this stage.'),
     to: ValueId.optional().describe('Only on the turn that reaches this stage.'),
@@ -315,19 +324,28 @@ export const StatesRelation = z
     must: z
       .array(z.string().min(1))
       .min(1)
+      .optional()
       .describe(
         'Patterns the reply of that turn holds, such as a quoted price; `{slot}` reads a bound value.',
       ),
+    must_not: z
+      .array(z.string().min(1))
+      .min(1)
+      .optional()
+      .describe('Patterns the reply must not hold; `{slot}` reads a bound value.'),
     ...relationCommon,
   })
-  .describe(
-    'What the reply of one turn must state, read from the values the cell binds (a price from a tool).',
-  );
+  .refine((entry) => entry.must !== undefined || entry.must_not !== undefined, {
+    message: 'a states relation needs must or must_not patterns',
+  })
+  .describe('What the reply of one turn must and must not state, read from the values the cell binds.');
 export type StatesRelation = z.infer<typeof StatesRelation>;
 
 export const TaskFamilyRelation = z
   .strictObject({
-    kind: z.literal('task_family'),
+    kind: z
+      .literal('task_family')
+      .describe('Marks the relation as a code-agent task family that writes the specs of a flow.'),
     flow: ValueId.describe('The flow whose specs the family writes: a value of the flow dimension.'),
     family: z
       .string()
@@ -338,6 +356,15 @@ export const TaskFamilyRelation = z
       .min(1)
       .describe("The stages of the family's blocks, in order, as its specs declare them."),
     holds: When.optional().describe('The cell values every instance of the family holds, per dimension.'),
+    instances: z
+      .record(
+        z.string().regex(/^[A-Za-z][A-Za-z0-9_]*$/),
+        z.union([z.string().min(1), z.array(z.string().min(1)).min(1)]),
+      )
+      .optional()
+      .describe(
+        'The family knob values of the instances this relation places, when the family writes several branches of the flow; without it, every instance.',
+      ),
     deviations: z
       .array(DeviationClass)
       .optional()
@@ -353,7 +380,9 @@ export type TaskFamilyRelation = z.infer<typeof TaskFamilyRelation>;
 
 export const BindsRelation = z
   .strictObject({
-    kind: z.literal('binds'),
+    kind: z
+      .literal('binds')
+      .describe('Marks the relation as the concrete slot values a data or persona value stands for.'),
     subject: ValueRef.describe('The data or persona value the slots stand for.'),
     slots: Slots,
     ...relationCommon,
@@ -363,16 +392,21 @@ export type BindsRelation = z.infer<typeof BindsRelation>;
 
 export const RecoveryTool = z
   .strictObject({
-    tool: z.string().min(1),
+    tool: z.string().min(1).describe('The tool label.'),
     count: Count.optional(),
-    input: z.record(z.string(), TemplateAssertion).optional(),
+    input: z
+      .record(z.string(), TemplateAssertion)
+      .optional()
+      .describe('The arguments, by name; `{slot}` reads the value a data value of the cell binds.'),
   })
   .describe('A tool call the recovery turn makes, or must not make (count 0).');
 export type RecoveryTool = z.infer<typeof RecoveryTool>;
 
 export const RecoveryRelation = z
   .strictObject({
-    kind: z.literal('recovery'),
+    kind: z
+      .literal('recovery')
+      .describe('Marks the relation as how a flow recovers from one deviation class.'),
     class: DeviationClass,
     flows: z.array(ValueId).min(1).describe('The flows the recovery holds in.'),
     at: z
@@ -397,9 +431,9 @@ export type RecoveryRelation = z.infer<typeof RecoveryRelation>;
 
 export const ReplyLanguageRelation = z
   .strictObject({
-    kind: z.literal('reply_language'),
+    kind: z.literal('reply_language').describe('Marks the relation as the language every reply is in.'),
     subject: ValueRef.describe('The rule value that fixes the language of every reply.'),
-    lang: Lang,
+    lang: Lang.describe('The language tag of every reply, such as en or nl.'),
     ...relationCommon,
   })
   .describe('The language every reply is in, whatever the user writes.');
@@ -407,7 +441,7 @@ export type ReplyLanguageRelation = z.infer<typeof ReplyLanguageRelation>;
 
 export const ToolOrderRelation = z
   .strictObject({
-    kind: z.literal('tool_order'),
+    kind: z.literal('tool_order').describe('Marks the relation as two tools called in a stated order.'),
     before: z.string().min(1).describe('The tool called first.'),
     after: z.string().min(1).describe('The tool called after it.'),
     ...relationCommon,
@@ -417,7 +451,7 @@ export type ToolOrderRelation = z.infer<typeof ToolOrderRelation>;
 
 export const RouteRelation = z
   .strictObject({
-    kind: z.literal('route'),
+    kind: z.literal('route').describe('Marks the relation as a rule that sends a topic to a team.'),
     subject: ValueRef.describe('The rule value that sends a topic to a team.'),
     to: z.string().min(1).describe('The team the topic goes to.'),
     ...relationCommon,
@@ -427,7 +461,9 @@ export type RouteRelation = z.infer<typeof RouteRelation>;
 
 export const ReplyTextRelation = z
   .strictObject({
-    kind: z.literal('reply_text'),
+    kind: z
+      .literal('reply_text')
+      .describe('Marks the relation as a rule that fixes the exact words of a reply.'),
     subject: ValueRef.describe('The rule value that fixes the exact words of a reply.'),
     text: z.string().min(1).describe('The exact words of the reply.'),
     ...relationCommon,
@@ -468,7 +504,9 @@ export type RelationKind = (typeof RELATION_KINDS)[number];
 
 export const ProposalSource = z
   .strictObject({
-    kind: SourceKind,
+    kind: SourceKind.describe(
+      'What the file is: the prompt or policy, the behaviour inventory, or the tool schemas.',
+    ),
     path: z.string().min(1).describe('The path of the file, relative to the folder of the proposal.'),
   })
   .describe('A file the entries quote.');
@@ -485,7 +523,7 @@ export type ProducedBy = z.infer<typeof ProducedBy>;
 
 export const Proposal = z
   .strictObject({
-    version: z.literal(PROPOSAL_VERSION),
+    version: z.literal(PROPOSAL_VERSION).describe('The version of the proposal format, 1.'),
     agent: z.string().min(1).describe('The agent the map describes.'),
     produced_by: ProducedBy,
     sources: z.array(ProposalSource).min(1, { error: 'a proposal quotes at least one source' }),
@@ -653,7 +691,7 @@ export function relationLabel(relation: ProposalRelation): string {
     case 'uses_tool':
       return `${relation.subject.dimension}=${relation.subject.value} uses ${relation.tool} at ${relation.stage}${relation.to ? ` to ${relation.to}` : ''}`;
     case 'states':
-      return `${relation.subject.dimension}=${relation.subject.value} states ${relation.must.join(', ')} at ${relation.stage}${relation.to ? ` to ${relation.to}` : ''}`;
+      return `${relation.subject.dimension}=${relation.subject.value} states ${(relation.must ?? []).join(', ')}${relation.must_not ? `; forbids ${relation.must_not.join(', ')}` : ''} at ${relation.stage}${relation.to ? ` to ${relation.to}` : ''}`;
     case 'task_family':
       return `task family ${relation.family} writes ${relation.flow} (${relation.stages.join(' > ')})`;
     case 'binds':
