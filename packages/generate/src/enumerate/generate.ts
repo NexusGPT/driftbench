@@ -27,6 +27,7 @@ import {
 } from '../seed/assemble';
 import { DeviationBalance } from '../seed/deviation-balance';
 import type { PreparedMap } from '../seed/map';
+import { prefixRepeated } from '../seed/prefix';
 import {
   type BoundarySummary,
   type BudgetSummary,
@@ -237,6 +238,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
   };
   const cappedText = new Map<string, () => string>();
   const complete: Spec[] = [];
+  const measuredSignatures = new Set<string>();
   const all: Spec[] = [];
   const invalid: GenerateReport['invalid'] = [];
   const lint: GenerateReport['lint'] = [];
@@ -263,6 +265,11 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     };
     for (const draft of list) {
       const rendered: Rendered = renderDraft(prepared, draft, run);
+      // A complete spec's leading blocks that another complete spec already measures become its prefix. A
+      // moved block's stage no longer places the spec; the cover seeder, whose specs keep every block, builds
+      // a scenario for each allowed cell that leaves uncovered.
+      if (seeder !== 'cover' && rendered.placeholders.length === 0 && rendered.noThen.length === 0)
+        rendered.blocks -= prefixRepeated(rendered.spec, measuredSignatures);
       const renderText = () => specText(rendered, run, prepared.hash);
       const text = options.specCap === undefined ? renderText() : '';
       const loaded = validateSpec(rendered.spec, rendered.id);
