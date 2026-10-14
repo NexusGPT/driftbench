@@ -251,7 +251,7 @@ Not built yet, in order:
 
 ## Prompt quotes
 
-`radius auto` compares two prompt files against the approved map's `evidence.quote` anchors. It writes a normal change manifest, so campaign carry, age limits and audits keep their existing checks. The source path selects exactly one of the map's declared sources. Every other source is assumed unchanged; include its change separately if it changed too.
+`radius auto` compares two prompt files against the approved map's `evidence.quote` anchors. It writes a normal change manifest, so campaign carry, age limits and audits keep their existing checks. Successful manifest creation exits 0, including when the manifest selects the whole suite; invalid input exits 2. Run `radius <specs> --change <manifest>` to compute the radius and get exit 1 for a whole-suite result. The source path selects exactly one of the map's declared sources. Every other source is assumed unchanged; include its change separately if it changed too.
 
 For Acme, use a quote map declaring just the approved offer anchor, then change its price expression.
 The full Acme map contains repeated and overlapping evidence; it conservatively selects the whole suite.

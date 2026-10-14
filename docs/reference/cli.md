@@ -42,9 +42,9 @@ $ pnpm -s driftbench spec validate examples/acme/specs
 ✓ examples/acme/specs/conversations/number-porting.yaml  acme-number-porting · 5 blocks · 2 perturbations · hash 134c8e993f95
 ✓ examples/acme/specs/conversations/off-topic-return.yaml  acme-off-topic-return · 5 blocks · 1 perturbation · hash cca285407040
 ✓ examples/acme/specs/conversations/order-loose-confirmation.yaml  acme-order-loose-confirmation · 4 blocks · 2 perturbations · hash ae116e6312eb
-✓ examples/acme/specs/conversations/plan-upgrade.yaml  acme-plan-upgrade · 5 blocks · 2 perturbations · hash a30a04fd1f49
+✓ examples/acme/specs/conversations/plan-upgrade.yaml  acme-plan-upgrade · 5 blocks · 3 perturbations · hash 5ae085d0b267
 ✓ examples/acme/specs/conversations/tool-failure.yaml  acme-tool-failure · 3 blocks · 1 perturbation · hash e5bc5c9ba9d2
-✓ examples/acme/specs/tasks/price-sheet.yaml  acme-price-sheet · 2 blocks · 1 perturbation · hash 8a0809a2e24f
+✓ examples/acme/specs/tasks/price-sheet.yaml  acme-price-sheet · 2 blocks · 1 perturbation · hash d96437659138
 Checked 7 specs: 7 valid, 0 invalid, 0 warnings.
 ```
 
@@ -1178,7 +1178,7 @@ Runs a validator ladder: the levels in order, stopping at the first failing leve
 | `--hidden` | add the hidden seed derived from `git rev-parse HEAD` |
 | `--json` | print the report as JSON |
 | `--check-floor` | compute through each positive applicable floor in `validators/floors.json`; floor 0 keeps the ordinary walk; exit 1 below a floor, else 0 |
-| `--raise <component>` | with `floors`: raise the floor of this component to `<level>` |
+| `--raise <component>` | with `floors`: raise the floor of this component to `<level>`; create `validators/` if absent, after the evidence is accepted |
 | `--evidence <json>` | with `floors --raise`: the `--json` run that reaches the level |
 | `--ladder-version <n>` | with `floors --raise`: the ladder version the floor is for |
 | `--items` | also list the whole bank per family and tier, pass or fail per seed, from the same run |
@@ -1315,10 +1315,12 @@ Exit 0 when every test passes (an inert test passes), 1 when one fails, 2 on a u
 ## `driftbench perturb`
 
 ```
-driftbench perturb <spec> (--class <D> --at <n> | --perturbation <id>) [--target <adapter[:agent]>] [--seed <n>] [--pack <dir>] [--drafts] [--json]
+driftbench perturb <spec> (--class <D> --at <n> | --perturbation <id>) [--target <adapter[:agent]>] [--faults <path>] [--seed <n>] [--pack <dir>] [--drafts] [--json]
 ```
 
 Runs one spec in mode P with one deviation injected, through the perturbing driver, and prints the recovery. `--class` and `--at` draw a phrasing of the class from the red-team pack (`--pack`, default the nearest `redteam/` folder), seeded by `--seed`; `--perturbation` runs one the spec declares. The free-running run of the same spec is the reference collateral counts against. Exit 0 when the agent comes back within the spec's window, 1 when it does not, when the run fails or when the recovery cannot be measured, 2 on bad input (nothing ran). See [recovery](../concepts/recovery.md).
+
+`--faults <path>` loads a fault set module, or a folder whose index module exports `faults`, so `--target fault:<id>` can run a planted faulty agent. A `fault:<id>` target requires this option.
 
 ```
 $ pnpm driftbench perturb examples/acme/specs/conversations/plan-upgrade.yaml --class D2_goal_shift --at 2
@@ -1596,7 +1598,7 @@ Every command `driftbench --help` lists is built. These do not exist as commands
 
 ### Prompt change manifests
 
-`driftbench radius auto --prompt <old> <new> --map <approved.yaml> [--source <path>] [--from-version <version>] [--to-version <version>] [--out <manifest.yaml>]` writes a manifest from approved evidence quotes. `driftbench radius <specs> --change <manifest.yaml> --explain` traces anchors to block reasons. See [prompt quotes](../concepts/blast-radius.md#prompt-quotes).
+`driftbench radius auto --prompt <old> <new> --map <approved.yaml> [--source <path>] [--from-version <version>] [--to-version <version>] [--out <manifest.yaml>]` writes a manifest from approved evidence quotes. It exits 0 when the manifest is written or printed, including a conservative whole-suite manifest, and 2 on invalid input. The separate `radius <specs> --change ...` command exits 1 when its computed radius is the whole suite. `driftbench radius <specs> --change <manifest.yaml> --explain` traces anchors to block reasons. See [prompt quotes](../concepts/blast-radius.md#prompt-quotes).
 
 ### `campaign rejudge`
 
