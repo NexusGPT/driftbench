@@ -87,9 +87,15 @@ try {
     await page.goto(`${viewer.url}/`);
     await check('campaigns');
     await page.click('a[href="/campaign/c-acme-x3"]');
-    await page.waitForSelector('#spread');
+    // The scorecard opens on its three zones; the detailed tables, the spread view among them, are folded below.
+    await page.waitForSelector('#tests');
+    await page.waitForSelector('#spread', { state: 'attached' });
     await check('scorecard');
-    await page.locator('details.run-fail a.open').first().click();
+    // A failing run's row opens its panel, which links to the run's own page.
+    await page.locator('.run-row.r-fail a.rowlink').first().click();
+    await page.waitForSelector('.drawer:target');
+    await check('run-panel');
+    await page.locator('.drawer:target a.open').click();
     await page.waitForSelector('#labelling');
     await check('run');
 

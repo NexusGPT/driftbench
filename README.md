@@ -130,10 +130,10 @@ npx driftbench report --store runs.db --out scorecard.html
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/scorecard-dark.png">
-    <img src="docs/assets/scorecard-light.png" alt="A driftbench scorecard, one HTML file. Summary: Regressed, candidate against baseline, margin 28.0 points, 10 paired conversations. Six tiles: runs passing 50.0% with interval 19.9% to 80.1%, block accuracy 73.3%, end state match 85.7%, tool F1 77.6%, cost per block, latency per block. Below, the baseline passes 10 of 10 and the candidate 5 of 10, with the five conversations that regressed and the reason for each." width="820" />
+    <img src="docs/assets/scorecard-light.png" alt="A driftbench scorecard, one HTML file, dark by default with a light theme. At the top, the candidate campaign against its baseline: 12 of 26 cases passing against 26 of 26 for the baseline, 36 of 78 runs passing, 14 of 26 cases regressed and none improved, McNemar p = 0.0001. Below, the two versions side by side, then three charts: cases passing by test, runs passing by mode (teacher-forced 57.1%, free-running 57.1%, perturbed 33.3%, each with its interval) and failed checks by type, led by tools (192) and must (162). Then the tests list: each test with its status, its score and one pass or fail pill per check family, the first one failing 0 of 4 cases." width="820" />
   </picture>
 </p>
-<p align="center"><sub>The scorecard of the example agent with one bug planted on purpose. Every rate has its interval, and the verdict says why.</sub></p>
+<p align="center"><sub>The scorecard of the example agents with a bug planted on purpose in each. Numbers and charts first, then every test, then every run: a click opens its conversation and its checks.</sub></p>
 
 Next: [evaluate your own agent](#evaluate-your-own-agent), [add a judge](#add-a-judge), or [gate a pull request](#gate-a-pull-request). The full spec format is in the [spec reference](docs/reference/spec.md).
 
