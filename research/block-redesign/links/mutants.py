@@ -23,7 +23,7 @@ OUT = HERE / "mutants"
 GEN_MODEL = "gpt-6-luna"
 SEED = 1234
 # USD per million tokens for the generator, filled from the provider's published price at run time.
-GEN_PRICE = {"in": None, "out": None}
+GEN_PRICE = {"in": 0.10, "out": 0.50}  # gpt-6-luna standard, read 2026-10-14
 
 PROMPTS = {
     "negate": (
@@ -89,7 +89,11 @@ def llm(client, op: str, title: str, body: str, seed: int) -> tuple[str, dict]:
                   {"role": "user", "content": f"Section title: {title}\nSection body:\n{body}"}],
     )
     u = r.usage
-    return r.choices[0].message.content.strip(), {"in": u.prompt_tokens, "out": u.completion_tokens}
+    text = r.choices[0].message.content.strip()
+    # The generator sometimes echoes the input labels; keep only the body (attempt 1 failed on this).
+    text = re.sub(r"^Section title:.*\n", "", text)
+    text = re.sub(r"^Section body:\s*\n?", "", text).strip()
+    return text, {"in": u.prompt_tokens, "out": u.completion_tokens}
 
 
 def variant_text(src: dict, changes: dict[str, str | None]) -> str:
@@ -129,7 +133,7 @@ def generate():
                     cand, u = llm(client, op, s["title"], body, SEED + t)
                     usage["in"] += u["in"]; usage["out"] += u["out"]; usage["calls"] += 1
                     why = gate(op, body, cand)
-                    tries.append({"seed": SEED + t, "gate": why, "text": cand})
+                    tries.append({"seed": SEED + t, "gate": why, "text": cand, "usage": u})
                     if why is None:
                         new = cand
                         break
@@ -156,6 +160,7 @@ def generate():
         vid = f"pair__{a}__{b}"
         (OUT / f"{vid}.md").write_text(variant_text(src, {a: bodies[f"{a}__negate"], b: bodies[f"{b}__negate"]}))
         manifest["variants"].append({"id": vid, "sections": [a, b], "op": "pair_negate", "control": False, "status": "ok"})
+    usage["usd"] = (usage["in"] * GEN_PRICE["in"] + usage["out"] * GEN_PRICE["out"]) / 1e6
     manifest["usage"] = usage
     (OUT / "manifest.json").write_text(json.dumps(manifest, indent=1))
     ok = sum(v["status"] == "ok" for v in manifest["variants"])
