@@ -372,7 +372,7 @@ export function registerCampaignCommands(
     .option('--dataset <name[@version]>', 'run the specs of this dataset version of the store, and record it')
     .option(
       '--prompt <name[@version]>',
-      'record this prompt version of the store; repeat for several',
+      'run with and record one prompt version of the store; give it once',
       collect,
       [],
     )
@@ -449,7 +449,7 @@ export function registerCampaignCommands(
     .option('--judge-family <family>', 'a model family of the judges; repeat it', collect, [])
     .option(
       '--retry-attempts <n>',
-      'attempts per model call, the first included; over the spec target retry (default 4)',
+      'attempts per model call, from 1 to 20, the first included; over the spec target retry (default 4)',
     )
     .option(
       '--retry-base-ms <ms>',
@@ -475,13 +475,14 @@ export function registerCampaignCommands(
     .argument('[campaignId]', 'the campaign id; the latest campaign of the store without it')
     .requiredOption('--store <file>', 'the store that holds the campaign')
     .option('--no-cache', 'neither replay runs from the cache nor write to it')
+    .option('--cache-suite <name>', 'the cache suite to use for the unfinished cells')
     .option('--concurrency <n>', 'cells run at the same time', '4')
     .option('--budget-usd <usd>', "a hard stop on the campaign's spend; default: the budget it was run with")
     .option('--prices <file>', 'dated USD token prices; default prices in driftbench.yaml')
     .option('--process-command <command>', PROCESS_COMMAND_HELP)
     .option(
       '--retry-attempts <n>',
-      'attempts per model call, the first included; over the spec target retry (default 4)',
+      'attempts per model call, from 1 to 20, the first included; over the spec target retry (default 4)',
     )
     .option(
       '--retry-base-ms <ms>',
@@ -1523,6 +1524,10 @@ function parseRetry(flags: RetryFlags, io: Io): RetryOptions | undefined | null 
     return null;
   };
   const maxAttempts = read(flags.retryAttempts, '--retry-attempts', 1);
+  if (maxAttempts !== null && maxAttempts !== undefined && maxAttempts > 20) {
+    io.err(`--retry-attempts takes a whole number from 1 to 20, not "${flags.retryAttempts}".\n`);
+    return null;
+  }
   const baseDelayMs = read(flags.retryBaseMs, '--retry-base-ms', 0);
   const maxDelayMs = read(flags.retryMaxMs, '--retry-max-ms', 0);
   if (maxAttempts === null || baseDelayMs === null || maxDelayMs === null) return null;
