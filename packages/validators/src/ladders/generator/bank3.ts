@@ -248,9 +248,14 @@ function phraseItems(): BankItem[] {
   items.push(
     item('phrases.slot-values', 3, 'packages/generate/src/seed/relations.ts#fillText', (generated) => {
       const said = turns(generated).join('\n');
+      // The value as a word of a turn: not inside a longer word, and at the end of a sentence too ("set to east.").
+      const says = (value: unknown) =>
+        new RegExp(
+          `(?<![A-Za-z0-9_-])${String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![A-Za-z0-9_-])`,
+        ).test(said);
       const missing = generated.hidden.data
         .filter((value) => value.binds !== undefined)
-        .filter((value) => !said.includes(` ${String(value.value)} `))
+        .filter((value) => !says(value.value))
         .map((value) => value.id);
       return verdict(
         missing.length === 0,
