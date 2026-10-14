@@ -116,8 +116,14 @@ export function boundarySeeder(
               cell.push([other, otherValue]);
             }
           }
-          // Asked to run the tool and report a returned value: one run, as a map's call is made once.
-          tools.push({ label: found.tool.name, count: 1 });
+          // Asked to run the tool and report a returned value: one run, as a map's call is made once, with
+          // each argument the user does not name at its schema default; closed when that names every one.
+          const defaults = schemaDefaults(found.tool);
+          tools.push({
+            label: found.tool.name,
+            count: 1,
+            ...(Object.keys(defaults).length > 0 ? { input: defaults, input_closed: true } : {}),
+          });
         } else if (INVALID_PARTITIONS.has(partition)) {
           tools.push({ label: found.tool.name, count: 0 });
         } else {
@@ -151,7 +157,9 @@ export function boundarySeeder(
       const forbidsOnly = found !== undefined && tools.length > 0 && tools.every((tool) => tool.count === 0);
       const asked = tools.find((tool) => tool.label === found?.tool.name && tool.count !== 0);
       const field = found?.path[0];
-      if (found && asked?.input && field !== undefined && hasPaths(prepared)) {
+      // Only an argument value is said after the move that calls the tool; a returned-value request carries
+      // the schema defaults, which name no value of its own.
+      if (found?.direction === 'in' && asked?.input && field !== undefined && hasPaths(prepared)) {
         // A request that makes a call is said right after the walk's move that calls the tool: the call
         // carries the arguments that move gives it, with this value in its field, and is made once.
         const calling = new Set(

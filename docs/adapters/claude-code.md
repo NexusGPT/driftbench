@@ -98,7 +98,7 @@ Its options are one pair, or `{ pairs: [...] }`. It gives one verdict per pair, 
 
 ## `driftbench replay`
 
-`driftbench replay` runs a suite of specs over recorded sessions, with the replay adapter, `defaultChecks()` plus the ordered-pair check, in free-running mode. It makes no model call and runs no judged criterion. Flags and exit codes are on the [CLI page](../reference/cli.md).
+`driftbench replay` runs a suite of specs over recorded sessions, with the replay adapter, `defaultChecks()` plus the ordered-pair check, in free-running mode. It makes no model call unless `--judge claude:<model>` is given: that judge judges the judged criteria, and without it each judged criterion is inconclusive and a note says so. Flags and exit codes are on the [CLI page](../reference/cli.md).
 
 A spec names its session with `metadata.replay`:
 

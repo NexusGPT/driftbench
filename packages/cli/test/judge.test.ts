@@ -618,6 +618,38 @@ process.stdin.on('end', () => {
     expect(report.criteria[0].escalated).toEqual([{ item: 'explicit_confirmation.3', why: 'unsure' }]);
   }, 60_000);
 
+  it('refuses a cascade judge of the agent family, and --assign or --mode with --cascade', async () => {
+    const command = await fakeClaude();
+    const base = [
+      'judge',
+      'calibrate',
+      '--criteria',
+      CRITERIA,
+      '--labels',
+      LABELS,
+      '--cassette',
+      'examples/acme/criteria/calibration/claude-haiku.cassette.json',
+      '--claude',
+      'sonnet',
+      '--claude-command',
+      command,
+      '--cascade',
+      '--only',
+      'explicit_confirmation',
+      '--out',
+      join(scratch, 'refused-cascade.json'),
+    ];
+    const family = await run([...base, '--agent-family', 'anthropic']);
+    expect(family.code).toBe(2);
+    expect(family.err).toMatch(/the family of the agent under test: refused/);
+    const assign = await run([...base, '--assign', 'cheapest']);
+    expect(assign.code).toBe(2);
+    expect(assign.err).toContain('--assign');
+    const mode = await run([...base, '--mode', 'llm']);
+    expect(mode.code).toBe(2);
+    expect(mode.err).toContain('--mode');
+  }, 60_000);
+
   it('assigns the one cheapest judge at the bar with --assign cheapest, and prints its cost per call', async () => {
     const out = join(scratch, 'cheapest.yaml');
     const { code, out: text } = await run([

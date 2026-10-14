@@ -317,3 +317,4 @@ export {
   type VerificationOptions,
   withVerification,
 } from './verification';
+export { type PanelOutcome, type PanelVote, weightedPanel } from './weighted-panel';
