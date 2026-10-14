@@ -32,6 +32,41 @@ Results: `heldout/results.md`. Pooled over the four rows and paired by case: ans
 
 A session limit of the model provider stopped the Inspect panel and borderline rows partway. Those calls returned no answer; the runner never caches a no-answer, so the rerun asked only the missing requests. No answer was discarded and no completed case was asked again.
 
+## Fresh held-out run, 480 cases per row
+
+`heldout-480/freeze.json` holds the pre-registration, the seed ranges and the SHA-256 of 74 frozen files. It was committed before the first call on these sets (commit `d6c6e6bec`). `verify-freeze.mts` printed `verified 74 frozen files` before each row and again after the run. `verify-freeze.mts` passes at the run commit `e3299c2c6`; later changes to the judge package on main make it fail by design, so reproduce from that commit. Each procedure ran once. The replay of all twelve result files from the recordings made no call and reproduced every file byte for byte. Full tables: `heldout-480/results.md`.
+
+Primary test, as registered: all four rows pooled, paired by case, driftbench answer-audit against Inspect default, exact two-sided McNemar test, unscored counts as wrong.
+
+| Procedure | Correct | Only this procedure | Only Inspect | p |
+|---|---|---|---|---|
+| driftbench answer-audit | 1918 of 1920 | 34 | 2 | 1.9e-8 |
+| Inspect default | 1886 of 1920 | | | |
+
+Registered secondary test, same pooling: driftbench default against Inspect default.
+
+| Procedure | Correct | Only this procedure | Only Inspect | p |
+|---|---|---|---|---|
+| driftbench default | 1855 of 1920 | 22 | 53 | 0.00045 |
+| Inspect default | 1886 of 1920 | | | |
+
+The driftbench default judge is worse than Inspect default on this pooled set. The loss sits on the grader panel row: 436 of 480 against 475 of 480, with 26 cases the default panel left unscored (each counted as wrong).
+
+Per-row counts (descriptive, as registered):
+
+| Row | Answer-audit | Driftbench default | Inspect default |
+|---|---|---|---|
+| Model-graded QA | 480 of 480 | 470 of 480 | 461 of 480 |
+| Model-graded fact | 478 of 480 | 469 of 480 | 470 of 480 |
+| Grader panel | 480 of 480 | 436 of 480 | 475 of 480 |
+| Panel, borderline | 480 of 480 | 480 of 480 | 480 of 480 |
+
+The per-row McNemar tests in `heldout-480/results.md` were not registered. They are exploratory.
+
+Cost and calls over the four rows, from the recorded calls: answer-audit 2.48 USD and 3881 calls, driftbench default 1.77 USD and 3899 calls, Inspect default 1.77 USD and 3840 calls. The answer-audit costs about 40 percent more than either other procedure per case.
+
+All cases in this run still come from the same twelve transformation families, so the limits below hold for this run too. The answer-audit prompt was written while reading the earlier development sets, not these.
+
 ## Limits
 
 * The generator builds every case from the same twelve transformation families. A fresh seed gives new names, numbers and template choices, not new kinds of difficulty. Finding 60 requests that were never recorded took a scan of many thousand seeds on the factual rows. These results do not establish accuracy on other material.
@@ -53,5 +88,7 @@ done
 node --import tsx comparisons/inspect/hard/shipped/report.mts shipped/heldout
 pnpm exec vitest run --config comparisons/inspect/hard/vitest.config.ts comparisons/inspect/hard/shipped.test.ts
 ```
+
+The 480 run replays the same way with `--set shipped/heldout-480/$row.json --out shipped/heldout-480`, and `report.mts shipped/heldout-480`.
 
 Without `--replay` the runner calls the model for missing requests only, up to `CAP_USD`, with a 0.02 USD cap per call. A call that returns no answer is retried twice and is never cached.
