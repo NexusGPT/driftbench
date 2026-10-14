@@ -72,7 +72,7 @@ describe('driftbench view', () => {
   it('tells the browser to load nothing from anywhere', async () => {
     const response = await fetch(`${viewer.url}/`);
     expect(response.headers.get('content-security-policy')).toBe(
-      "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'",
+      "default-src 'none'; style-src 'unsafe-inline'; font-src data:; form-action 'self'; base-uri 'none'",
     );
   });
 
@@ -91,7 +91,8 @@ describe('driftbench view', () => {
     expect(page.status).toBe(200);
     expect(page.text).toContain('<section id="spread">');
     expect(page.text).toContain('<section id="drilldown">');
-    expect([...page.text.matchAll(/href="\/campaign\/c-x3\/run\//g)].length).toBe(6);
+    // Each run links to its own page twice: from its panel and from the drilldown list.
+    expect([...page.text.matchAll(/href="\/campaign\/c-x3\/run\//g)].length).toBe(12);
   });
 
   it('shows a run block by block, with evidence and a label form per block and criterion', async () => {

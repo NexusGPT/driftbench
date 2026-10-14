@@ -2,7 +2,7 @@
 
 `driftbench view` serves a store as a local website: the campaigns, each campaign's scorecard, every run block by block, and the comparison of two campaigns. Under every block, a person can mark the block pass or fail on a criterion, with a note. The label goes to the folder that [`driftbench judge calibrate --labels`](concepts/judges.md) reads. The judges are calibrated against those labels.
 
-The viewer listens on `127.0.0.1` only. Its pages use the scorecard's renderer and style, in light and dark, at phone width. They load no script and no external asset; a content security policy says so to the browser.
+The viewer listens on `127.0.0.1` only. Its pages use the scorecard's renderer and style, in light and dark, at phone width. They load no script and no external asset; a content security policy says so to the browser, and lets in only the font faces the scorecard embeds as data.
 
 ## Start it
 
