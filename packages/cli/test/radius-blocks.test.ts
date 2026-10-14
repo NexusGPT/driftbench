@@ -24,7 +24,7 @@ it('opts into T block reruns, records snapshot privacy choice, and audits carrie
         } }),
       });
       await program.parseAsync(['campaign', 'run', 'spec.yaml', '--target', 'function:acme', '--mode', 'T', '--campaign', id, '--store', 'runs.db', '--agent-version', id === 'base' ? 'v1' : 'v2', '--no-cache', ...extra], { from: 'user' });
-      expect(err).toBe(''); return { code, out };
+      if (process.env.DBG) console.log(out); expect(err).toBe(''); return { code, out };
     };
     expect((await cli('base', ['--record-end-state-snapshots'])).code).toBe(0);
     sends = 0;

@@ -5,6 +5,7 @@ import type { CheckSet } from '../contracts/check';
 import type { UserDriver } from '../contracts/driver';
 import type { CostUnit, Store } from '../contracts/store';
 import type { TargetRef } from '../schema/common';
+import type { BlockReuse } from '../radius/blocks';
 import type { RunMode, RunResult } from '../schema/run';
 import type { Spec } from '../schema/spec';
 import type { ObservedCache } from './cache';
@@ -291,6 +292,10 @@ export type CampaignRunOptions = {
   /** Each run keeps its events on its record, for the viewer's timeline. */
   recordEvents?: boolean;
   recordProvenance?: boolean;
+  /** Opt in: store the raw end-state values each T block reads. They may hold sensitive data. */
+  recordEndStateSnapshots?: boolean;
+  /** Mode T: the stored baseline run to rerun only the radius blocks from; a refused plan reruns the whole cell. */
+  blockReuse?(cell: PlannedCell): BlockReuse | undefined;
   retry?: RetryOptions;
   now?: () => Date;
   /** Cells that run at the same time. Default 4. */
@@ -398,6 +403,7 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
     }
     const reference = cell.mode === 'P' ? await referenceFor(cell) : undefined;
     const spec = options.specFor(cell);
+    const blockReuse = options.blockReuse?.(cell);
     const run = await runSpec(spec, {
       adapter: options.adapterFor(cell.target),
       driver: options.driver(cell, spec),
@@ -409,6 +415,8 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
       ...(cell.perturbationId === undefined ? {} : { perturbationId: cell.perturbationId }),
       store: options.store,
       recordProvenance: options.recordProvenance,
+      ...(options.recordEndStateSnapshots ? { recordEndStateSnapshots: true } : {}),
+      ...(blockReuse ? { blockReuse } : {}),
       campaignId: options.campaignId,
       ...(options.cache ? { cache: options.cache } : {}),
       ...(options.cacheSuite === undefined ? {} : { suite: options.cacheSuite }),
