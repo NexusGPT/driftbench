@@ -20,7 +20,7 @@ import { writingRequirementsV1 } from './writing-requirements';
 export const DEFAULT_JUDGE_POLICY = Object.freeze({
   version: 'default-on-v2',
   criterionPromptVersion: 2,
-  criterionDecoderVersion: 2,
+  criterionDecoderVersion: 3,
   pairOrders: 'both',
   pairTiePolicy: 'canonical',
   answerSolves: 3,

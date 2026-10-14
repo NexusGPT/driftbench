@@ -4,14 +4,14 @@ import { groundEvidence, groundEvidenceSpan } from './evidence';
 
 export type CriterionRequirement = { readonly id: string; readonly requirement: string };
 /**
- * Decoder identity is separate from the model-facing prompt. Version 2 is the default: an ungrounded
- * string quote is dropped and the check keeps its met value. Version 1 is the strict decoder, selectable
+ * Decoder identity is separate from the model-facing prompt. Versions 2 and 3 drop an ungrounded
+ * string quote while preserving the check's met value. Version 1 is the strict decoder, selectable
  * by name: any ungrounded quote voids the ledger. A version 1 recording keeps its key under version 1.
- * Version 2 also grounds a span quote of symbols alone in the exact source it names, and reads an input
- * source label spelled another way, such as `input/<path>` (see groundEvidenceSpan).
+ * Version 3 is the default. It also grounds symbol-only span quotes in their exact named sources,
+ * and reads input source labels such as `input/<path>` (see groundEvidenceSpan).
  */
-export const CRITERION_DECODER_VERSION = 2;
-export type CriterionDecoderVersion = 1 | 2;
+export const CRITERION_DECODER_VERSION = 3;
+export type CriterionDecoderVersion = 1 | 2 | 3;
 
 /** The caller owns the requirement set; an unsplit criterion is one complete requirement. */
 export function requirementsFor(request: JudgeRequest): readonly CriterionRequirement[] {
@@ -92,7 +92,7 @@ export function parseCriterionLedger(value: unknown, request: JudgeRequest, raw:
   if (missing.length) return invalid(`missing requirement ids: ${missing.join(', ')}`);
   let evidenceUnverified = 0;
   const decoder = request.criterionDecoderVersion ?? CRITERION_DECODER_VERSION;
-  const spanOptions = { symbolQuotes: decoder === 2, inputSpellings: decoder === 2 };
+  const spanOptions = { symbolQuotes: decoder === 3, inputSpellings: decoder === 3 };
   for (const check of checks) {
     if (check.met === true && check.evidence === null)
       return invalid('a met requirement needs grounded evidence');
@@ -103,7 +103,7 @@ export function parseCriterionLedger(value: unknown, request: JudgeRequest, raw:
             .grounded
         : check.evidence.every((span) => groundEvidenceSpan(request, span, spanOptions).grounded))
     ) {
-      if (decoder !== 2 || typeof check.evidence !== 'string')
+      if (decoder === 1 || typeof check.evidence !== 'string')
         return invalid('the evidence quote is not in the supplied data');
       // Preserve the model's met value, but never present an unverified string as a quote.
       check.evidence = null;

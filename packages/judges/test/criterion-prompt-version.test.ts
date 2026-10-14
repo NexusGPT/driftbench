@@ -24,13 +24,13 @@ const ledger = (evidence: unknown, met: boolean) =>
   JSON.stringify({ checks: [{ id: 'goal', reasoning: 'The plan id carries a suffix.', evidence, met }] });
 
 describe('criterion prompt and decoder versions', () => {
-  it('ships prompt version 2 and decoder version 2 by default', () => {
+  it('ships prompt version 2 and decoder version 3 by default', () => {
     expect(CRITERION_PROMPT_VERSION).toBe(2);
-    expect(CRITERION_DECODER_VERSION).toBe(2);
+    expect(CRITERION_DECODER_VERSION).toBe(3);
     expect(buildPrompt(request).system).toBe(SYSTEM_PROMPT);
     expect(buildPrompt({ ...request, criterionPromptVersion: 2 })).toEqual(buildPrompt(request));
     for (const rule of CRITERION_PROMPT_V2_RULES) expect(SYSTEM_PROMPT).toContain(rule);
-    expect(requestKey({ ...request, criterionPromptVersion: 2, criterionDecoderVersion: 2 }, client)).toBe(
+    expect(requestKey({ ...request, criterionPromptVersion: 2, criterionDecoderVersion: 3 }, client)).toBe(
       requestKey(request, client),
     );
   });
@@ -51,7 +51,9 @@ describe('criterion prompt and decoder versions', () => {
     expect(CRITERION_PROMPT_V1_FINGERPRINT).toBe('398673b792c1');
     expect(PROMPT_FINGERPRINT).not.toBe(CRITERION_PROMPT_V1_FINGERPRINT);
     expect(requestKey({ ...request, ...v1 }, client)).toBe('6fd4fc2022c7');
-    expect(requestKey({ ...request, criterionPromptVersion: 1 }, client)).toBe('b17ae4fe4c4a');
+    expect(requestKey({ ...request, criterionPromptVersion: 1, criterionDecoderVersion: 2 }, client)).toBe(
+      'b17ae4fe4c4a',
+    );
     expect(new Set([requestKey(request, client), '6fd4fc2022c7', 'b17ae4fe4c4a']).size).toBe(3);
   });
   it('decodes an ungrounded string quote by version: 2 keeps met, 1 voids the ledger', () => {
@@ -69,7 +71,7 @@ describe('criterion prompt and decoder versions', () => {
     for (const other of [{ answerContract: 'legacy' as const }, { system: 'Caller system text.' }]) {
       const base = { ...request, ...other } as JudgeRequest;
       expect(buildPrompt({ ...base, criterionPromptVersion: 1 })).toEqual(buildPrompt(base));
-      expect(requestKey({ ...base, criterionPromptVersion: 1, criterionDecoderVersion: 2 }, client)).toBe(
+      expect(requestKey({ ...base, criterionPromptVersion: 1, criterionDecoderVersion: 3 }, client)).toBe(
         requestKey(base, client),
       );
     }
@@ -95,7 +97,7 @@ describe('criterion prompt and decoder versions', () => {
     };
     const fresh: Cassette = { version: 1, judges: [], entries: [] };
     await recordingClient(model, fresh).judge(request);
-    expect(fresh.entries[0]).toMatchObject({ criterionPromptVersion: 2, criterionDecoderVersion: 2 });
+    expect(fresh.entries[0]).toMatchObject({ criterionPromptVersion: 2, criterionDecoderVersion: 3 });
     expect((await playerClient(fresh, 'm').judge(request)).answer.outcome).toBe('fail');
 
     const old: Cassette = { version: 1, judges: [], entries: [] };

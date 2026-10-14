@@ -10,9 +10,9 @@ import emptySourceFixes from './fixtures/whole-empty-source-fixes.json';
 // inconclusive; grounding the whole empty source decodes each to its true verdict, fail.
 const movedBy = emptySourceFixes as Record<string, string[]>;
 
-// Recorded span lists that version 2 now reads: a quote of symbols alone found in the source it names, an
+// Recorded span lists that version 3 now reads: a quote of symbols alone found in the source it names, an
 // input source label spelled another way (`input/<path>`), or a span quoting the criterion, which is dropped.
-// The frozen candidate column holds these rows as inconclusive; version 2 keeps the recorded met.
+// The frozen candidate column holds these rows as inconclusive; version 3 keeps the recorded met.
 const symbolMoved = decoderTwoMoves as Record<string, Record<string, string>>;
 
 const fixture = JSON.parse(
@@ -69,7 +69,7 @@ describe('zero-cost recorded criterion decoder replay', () => {
       let symbolAfter = 0;
       let symbolFixes = 0;
       for (const row of rows) {
-        const read = (version: 1 | 2) => {
+        const read = (version: 1 | 2 | 3) => {
           if (row.transportError) return 'inconclusive';
           const result = parseJudgeText(row.raw, { ...row.request, criterionDecoderVersion: version });
           return result.unparsed
@@ -79,7 +79,7 @@ describe('zero-cost recorded criterion decoder replay', () => {
             : result.answer.outcome;
         };
         const old = read(1);
-        const current = read(2);
+        const current = read(3);
         const moved = movedBy[row.set]?.includes(row.id) ?? false;
         if (moved) {
           // Version 2 already kept the verdict where the archived evidence was one string.
@@ -88,6 +88,7 @@ describe('zero-cost recorded criterion decoder replay', () => {
           movedAfter += Number(row.candidate !== row.truth);
         }
         expect(old, row.id).toBe(moved ? row.truth : row.baseline);
+        expect(read(2), `historical decoder 2: ${row.id}`).toBe(moved ? row.truth : row.candidate);
         const symbol = symbolMoved[row.set]?.[row.id];
         expect(current, row.id).toBe(moved ? row.truth : (symbol ?? row.candidate));
         if (symbol !== undefined) {

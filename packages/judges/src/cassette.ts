@@ -97,7 +97,7 @@ export const CassetteEntry = z.strictObject({
   /** Model-facing contract recorded with this entry. Missing on pre-ledger cassettes means legacy. */
   answerContract: z.enum(['ledger', 'legacy']).optional(),
   /** Missing means strict v1 for a historical default-ledger entry. */
-  criterionDecoderVersion: z.union([z.literal(1), z.literal(2)]).optional(),
+  criterionDecoderVersion: z.union([z.literal(1), z.literal(2), z.literal(3)]).optional(),
   /** Missing means prompt version 1 for a historical default-ledger entry. */
   criterionPromptVersion: z.literal(2).optional(),
   /** Separates the new pair contract from older explicit-winner recordings. */
@@ -214,7 +214,9 @@ export function requestKey(
     ...(effective.answerContract !== 'legacy' && !effective.assessment && decoder !== 1
       ? { criterionDecoderVersion: decoder }
       : {}),
-    ...(request.reasoning === undefined ? {} : { reasoning: request.reasoning }),
+    ...(effective.answerContract === 'legacy' || request.reasoning === undefined
+      ? {}
+      : { reasoning: request.reasoning }),
     data: procedure ? fullKey(effective) : dataKey(effective),
     ...(swapped ? { comparison: fullKey(swapped) } : {}),
     prompt:
@@ -274,8 +276,11 @@ export function recordingClient(client: JudgeClient, cassette: Cassette): JudgeC
       ...(request.answerContract !== 'legacy' &&
       !request.assessment &&
       (client.cls !== 'system1' || client.families || client.judgeComparison) &&
-      (request.criterionDecoderVersion ?? client.criterionDecoderVersion ?? CRITERION_DECODER_VERSION) === 2
-        ? { criterionDecoderVersion: 2 as const }
+      (request.criterionDecoderVersion ?? client.criterionDecoderVersion ?? CRITERION_DECODER_VERSION) !== 1
+        ? {
+            criterionDecoderVersion:
+              request.criterionDecoderVersion ?? client.criterionDecoderVersion ?? CRITERION_DECODER_VERSION,
+          }
         : {}),
       // An ordinary criterion check names the prompt version it was asked under; version 1 omits the field.
       ...(!isPairLedgerRequest(request) &&
@@ -368,7 +373,11 @@ export function playerClient(
       : 'legacy');
   const recordedDecoder =
     options.criterionDecoderVersion ??
-    ([...byKey.values()].some((list) => list.some((entry) => entry.criterionDecoderVersion === 2)) ? 2 : 1);
+    ([...byKey.values()].some((list) => list.some((entry) => entry.criterionDecoderVersion === 3))
+      ? 3
+      : [...byKey.values()].some((list) => list.some((entry) => entry.criterionDecoderVersion === 2))
+        ? 2
+        : 1);
   const recordedPrompt =
     options.criterionPromptVersion ??
     ([...byKey.values()].some((list) => list.some((entry) => entry.criterionPromptVersion === 2)) ? 2 : 1);

@@ -14,7 +14,7 @@ const strict: JudgeRequest = { ...request, criterionDecoderVersion: 1 };
 const raw = (met: boolean | null, evidence: unknown = 'Invented quote') =>
   JSON.stringify({ checks: [{ id: 'c', reasoning: 'Observed action.', evidence, met }] });
 
-describe('criterion decoder v2, the default', () => {
+describe('criterion decoder v2 historical compatibility', () => {
   it.each([
     [true, 'pass'],
     [false, 'fail'],
@@ -63,7 +63,7 @@ describe('criterion decoder v2, the default', () => {
     expect(JSON.stringify(responseSchema(v2))).not.toContain('grounded');
   });
   it('keys the versions apart; version 1 keys stay unversioned', () => {
-    expect(requestKey(request)).toBe(requestKey(v2));
+    expect(requestKey(request)).not.toBe(requestKey(v2));
     expect(requestKey(strict)).not.toBe(requestKey(request));
     for (const other of [
       { ...request, answerContract: 'legacy' as const },
@@ -74,7 +74,7 @@ describe('criterion decoder v2, the default', () => {
     }
     expect(requestKey(v2, { cls: 'system1' })).toBe(requestKey(request, { cls: 'system1' }));
   });
-  it('records v2 identity unless version 1 is named and replays the same nulled evidence', async () => {
+  it('records explicit v2 identity and replays the same nulled evidence', async () => {
     const strictCassette = emptyCassette();
     const client: JudgeClient = {
       id: 'test',
@@ -89,7 +89,7 @@ describe('criterion decoder v2, the default', () => {
     expect(strictCassette.entries[0]).not.toHaveProperty('criterionDecoderVersion');
     expect(strictCassette.entries[0]?.key).toBe(requestKey(strict, client));
     const cassette = emptyCassette();
-    const result = await recordingClient(client, cassette).judge(request);
+    const result = await recordingClient(client, cassette).judge(v2);
     expect(result.evidenceUnverified).toBe(1);
     expect(cassette.entries[0]?.criterionDecoderVersion).toBe(2);
     expect(await playerClient(cassette, 'test').judge(request)).toEqual(result);
