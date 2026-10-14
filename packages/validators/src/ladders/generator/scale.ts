@@ -86,7 +86,7 @@ function failed(factor: number, budgetMs: number, error: string): ScaleReport {
 
 /**
  * Runs the child for one factor and seed, kills it at the budget, and returns what it reported. A test may
- * lower the heap and name a module whose `generateSuiteToDisk` the child uses in place of the package's.
+ * lower the heap and name a module overriding the package's `generateSuiteToDisk` or `loadApprovedMap`.
  */
 export function scaleReport(
   factor: number,

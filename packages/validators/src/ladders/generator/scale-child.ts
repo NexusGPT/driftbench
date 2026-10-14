@@ -2,15 +2,15 @@
  * The child process of one scale run: `node --import tsx scale-child.ts <factor> <seed> <budgetMs> [generator]`.
  * It generates the scaled hidden specification twice, measures the time, reads the report, runs the rule
  * follower on every complete spec, and prints one JSON line (a ScaleReport). The time it reports is the CPU
- * time of the two generations with their writes, the byte comparison and the reload, as before; the
- * parent kills the child only at a wall-clock cap well above the budget.
+ * time of rendering, setup, all map loads, both generations and writes, the byte comparison, reload and
+ * cleanup, as before. Follower execution is excluded; the parent enforces a separate wall-clock cap.
  *
  * The child holds one suite at a time, never two: each generation is written to its own folder and dropped,
  * the folders are compared file by file, and every spec is loaded, checked and dropped one at a time. When
  * the generator package exports `generateSuiteToDisk`, the documented disk API that writes one spec at a time
  * (docs/generating.md, "Streaming generation to disk"), the child generates through it, so the memory budget
  * measures the generator's bounded path and not a whole suite the harness itself keeps. The optional fourth
- * argument names a module whose `generateSuiteToDisk` replaces the package's: a test plants a mutant with it.
+ * argument names a module overriding `generateSuiteToDisk` or `loadApprovedMap`: tests plant mutants with it.
  */
 import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -44,10 +44,16 @@ const factor = Number(factorText);
 const seed = Number(seedText);
 const budgetMs = Number(budgetText);
 const spec = scaledSpec(seed, factor);
-const toDisk = generatorModule
-  ? ((await import(pathToFileURL(generatorModule).href)) as { generateSuiteToDisk: ToDisk })
-      .generateSuiteToDisk
-  : ((generator as Record<string, unknown>).generateSuiteToDisk as ToDisk | undefined);
+const overrides = generatorModule
+  ? ((await import(pathToFileURL(generatorModule).href)) as {
+      generateSuiteToDisk?: ToDisk;
+      loadApprovedMap?: typeof loadApprovedMap;
+    })
+  : {};
+const toDisk =
+  overrides.generateSuiteToDisk ??
+  ((generator as Record<string, unknown>).generateSuiteToDisk as ToDisk | undefined);
+const loadMap = overrides.loadApprovedMap ?? loadApprovedMap;
 
 /** Every file under a folder, as sorted paths relative to it with forward slashes. */
 async function filesUnder(root: string): Promise<string[]> {
@@ -87,25 +93,23 @@ function isSpec(path: string): boolean {
   );
 }
 
+// Match the old generateFrom(spec, renderMap(spec), seed) window, including setup and the first load.
+// CPU time (user and system) excludes time spent waiting for a busy machine.
+const started = process.cpuUsage();
 const root = await mkdtemp(join(tmpdir(), 'driftbench-vscale-'));
+let measuredMicros = 0;
+let out: ScaleReport;
 try {
   const mapDir = join(root, 'map');
   await mkdir(mapDir);
   const rendered = renderMap(spec);
   for (const [key, name] of Object.entries(MAP_FILES))
     await writeFile(join(mapDir, name), rendered[key as keyof typeof rendered]);
-  const loaded = await loadApprovedMap(join(mapDir, MAP_FILES.map));
-  if (!loaded.ok) {
-    process.stdout.write(
-      `${JSON.stringify({ factor, budgetMs, error: `refused: ${loaded.message}`, ms: 0 })}\n`,
-    );
-    process.exit(0);
-  }
-  // The time is CPU time (user and system), so a busy machine does not fail a generator that is fast enough.
-  const started = process.cpuUsage();
+  const loaded = await loadMap(join(mapDir, MAP_FILES.map));
+  if (!loaded.ok) throw new Error(`refused: ${loaded.message}`);
   let report: GenerateResult['report'] | undefined;
   for (const folder of ['first', 'second']) {
-    const again = await loadApprovedMap(join(mapDir, MAP_FILES.map));
+    const again = await loadMap(join(mapDir, MAP_FILES.map));
     if (!again.ok) throw new Error(`the map loaded once and was refused the second time: ${again.message}`);
     const outputDir = join(root, folder);
     if (toDisk) {
@@ -127,7 +131,7 @@ try {
     else if (path.startsWith(`${COMPLETE_DIR}/`)) complete.push(path);
   }
   const used = process.cpuUsage(started);
-  const ms = Math.round((used.user + used.system) / 1000);
+  measuredMicros = used.user + used.system;
   const adapter = followerAdapter(createFollower(spec));
   let followerPass = 0;
   let followerTotal = 0;
@@ -142,10 +146,10 @@ try {
   }
   const graph = report?.graph;
   const boundaryValues = spec.data.length;
-  const out: ScaleReport = {
+  out = {
     factor,
     budgetMs,
-    ms,
+    ms: 0,
     invalid: (report?.invalid.length ?? 0) + loadFailures,
     lint: report?.lint.length ?? 0,
     bytesSame: differ.length === 0,
@@ -166,7 +170,13 @@ try {
     followerPass,
     followerTotal,
   };
-  process.stdout.write(`${JSON.stringify(out)}\n`);
 } finally {
+  // Files must survive for the follower's one-spec-at-a-time reads. Count their cleanup separately,
+  // keeping follower execution and its extra reads outside the original generation-time window.
+  const cleanupStarted = process.cpuUsage();
   await rm(root, { recursive: true, force: true });
+  const cleanupUsed = process.cpuUsage(cleanupStarted);
+  measuredMicros += cleanupUsed.user + cleanupUsed.system;
 }
+out.ms = Math.round(measuredMicros / 1000);
+process.stdout.write(`${JSON.stringify(out)}\n`);
