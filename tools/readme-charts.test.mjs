@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -175,6 +175,45 @@ describe('readme summary chart', () => {
     const c = JSON.parse(run.stdout);
     expect(c.alt).toContain('JudgeBench, 270 pairs: driftbench 88.9');
     expect(c.svg.light).toContain('88.9');
+  });
+});
+
+describe('readme charts, rows measured with an opt-in setting', () => {
+  it('labels retention by the paired test and shows its exact p value', () => {
+    const c = chart('hard-deepeval');
+    const source = JSON.parse(
+      readFileSync(new URL('../comparisons/deepeval/lead/fresh-scores.json', import.meta.url), 'utf8'),
+    );
+    const retention = source.find((r) => r.row === 'knowledge retention');
+    const group = c.groups.find((r) => r.label.replaceAll('|', '') === 'Knowledge retention');
+    const verdict =
+      retention.paired_p_holm > 0.05 || retention.ours === retention.theirs
+        ? 'level'
+        : retention.ours > retention.theirs
+          ? 'ahead'
+          : 'behind';
+    expect(group.sub).toBe(`of ${retention.n}; ${verdict}`);
+    expect(c.note).toContain(`Retention exact p = ${retention.paired_p.toPrecision(3)}`);
+    if (retention.excluded_missing) {
+      expect(c.note).toContain(
+        `Knowledge retention: ${retention.excluded_missing} incomplete pairs excluded`,
+      );
+    }
+    expect(c.note).toContain('Holm p <= 0.05');
+  });
+
+  it('draw the bar as plain driftbench, with a footnote that names the setting', () => {
+    const c = chart('hard-deepeval');
+    const marked = c.groups.filter((g) => g.label.endsWith(' *'));
+    expect(marked.length).toBeGreaterThan(0);
+    expect(c.key[0]).toBe('driftbench');
+    expect(c.note).toContain('* opt-in setting response-relevance');
+  });
+
+  it('stay out of the shipped-judge leads chart', () => {
+    const c = chart('judge-leads');
+    const labels = c.groups.flatMap((g) => g.rows.map((r) => r.label));
+    expect(labels).not.toContain('G-Eval, strict');
   });
 });
 

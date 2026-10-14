@@ -1,0 +1,22 @@
+{
+  "operation": "Lossless byte-preserving JSONL chunking after completion",
+  "original_stream_digest": "64fc133ae055b416529219d9f3a2ac3439c4eba30cc61359758dd3baeb2214eb",
+  "records": 2585,
+  "parts": [
+    {
+      "path": "calls-000.jsonl",
+      "bytes": 8388015,
+      "digest": "56b21cc0d8b9c6c4dc8bbfaa48e86649a8845ca84b3b4708f7f503888859fa5f"
+    },
+    {
+      "path": "calls-001.jsonl",
+      "bytes": 8387914,
+      "digest": "eb75e34d78c649cb8a402cc33d9d22498e5f28c0a595f942a94be46cb5b4d5f2"
+    },
+    {
+      "path": "calls.jsonl",
+      "bytes": 4352032,
+      "digest": "0825f26dda358dc146579d1bcf4c177caf02402bd2f5078118925dd88c10b152"
+    }
+  ]
+}

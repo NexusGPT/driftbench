@@ -33,7 +33,7 @@ The matrix counts what each tool's public docs or source show, one cited page pe
 * "Ahead" and "behind" mean the two 95 percent Wilson intervals do not overlap. "Level" means they overlap.
 * Goal success (promptfoo) and task completion (DeepEval) give both judges the same evidence. With each tool's default inputs the other tools score 36 and 44 of 72.
 * The Langfuse set was already known when this judge version was measured. The Langfuse side uses the best of the template's two reported settings.
-* On DeepEval the shipped judge trails by one case on knowledge retention and by five on strict G-Eval; both are inside the intervals.
+* On DeepEval, strict G-Eval and knowledge retention are charted from a fresh set of 480 cases each (seed 20261114, frozen before any call). Strict G-Eval: 474 against 451 with the opt-in setting `response-relevance`, exact paired p 0.00012 (Holm over the two rows 0.00023). Knowledge retention, shipped judge: 480 against 477, p 0.25, after the 9 calls that had timed out were called again with the same frozen settings; the intervals overlap. The earlier 72-case rows (65 against 70, 68 against 69) used the judge frozen at 12801e1. See [comparisons/deepeval/lead](../../comparisons/deepeval/lead/README.md).
 * The fact ledger of PR 163 has not been measured on the Inspect set. Its strict mode, which also demands a matching quote, abstains on more than half of its replay cases.
 * The candidate judge that scores 60 of 60 on three Inspect rows is not the default.
 * The README charts the DeepEval, promptfoo and Langfuse sets. On the Inspect set the shipped judge scores 59 against 59, 48 against 57, 48 against 59 and 49 against 60, of 60: behind on two of four tests. The rows are on the [Inspect page](inspect.md).

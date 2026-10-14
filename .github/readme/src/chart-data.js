@@ -21,7 +21,7 @@ window.CHART_DATA = {
     "axis": "score out of 100: correct verdicts, % of cases",
     "groups": [
       {
-        "header": "DeepEval 4.2.8, default metrics, 72 cases each",
+        "header": "DeepEval 4.2.8, default metrics",
         "rows": [
           {
             "label": "Hallucination",
@@ -1696,9 +1696,9 @@ window.CHART_DATA = {
   "hard-deepeval": {
     "kind": "columns",
     "kicker": "DeepEval hard cases · held-out · Claude Haiku 5.5 on both sides · bars labelled with cases correct",
-    "title": "DeepEval: cases correct of 72.",
+    "title": "DeepEval: cases correct of 72 or 480 or 1272.",
     "key": [
-      "driftbench, shipped judge",
+      "driftbench",
       "DeepEval default"
     ],
     "min": 0,
@@ -1794,6 +1794,22 @@ window.CHART_DATA = {
         ]
       },
       {
+        "label": "G-Eval, strict *",
+        "sub": "of 480; ahead",
+        "bars": [
+          {
+            "series": 0,
+            "value": 98.75,
+            "text": "474"
+          },
+          {
+            "series": 1,
+            "value": 93.96,
+            "text": "451"
+          }
+        ]
+      },
+      {
         "label": "DAG, one node",
         "sub": "of 72",
         "bars": [
@@ -1827,38 +1843,22 @@ window.CHART_DATA = {
       },
       {
         "label": "Knowl|edge re|ten|tion",
-        "sub": "of 72",
+        "sub": "of 1272; level",
         "bars": [
           {
             "series": 0,
-            "value": 94.44,
-            "text": "68"
+            "value": 99.84,
+            "text": "1270"
           },
           {
             "series": 1,
-            "value": 95.83,
-            "text": "69"
-          }
-        ]
-      },
-      {
-        "label": "G-Eval, strict",
-        "sub": "of 72",
-        "bars": [
-          {
-            "series": 0,
-            "value": 90.28,
-            "text": "65"
-          },
-          {
-            "series": 1,
-            "value": 97.22,
-            "text": "70"
+            "value": 100,
+            "text": "1272"
           }
         ]
       }
     ],
-    "note": "Ahead or behind: the 95% intervals do not overlap"
+    "note": "Fresh rows: exact paired test, Holm p <= 0.05; other rows: separate 95% intervals · Retention exact p = 1.00 · Knowledge retention: 2 incomplete pairs excluded · cases per test: 72 or 480 or 1272 · * opt-in setting response-relevance; every other bar is the shipped judge"
   },
   "hard-promptfoo": {
     "kind": "columns",

@@ -27,6 +27,8 @@ const SOURCES = {
   promptfoo: 'comparisons/promptfoo/hard/recorded/summary.json',
   deepeval: 'comparisons/deepeval/hard/baseline-heldout-scores.json',
   deepevalReceipts: 'comparisons/deepeval/hard/baseline-task-receipts-heldout-scores.json',
+  // Fresh held-out rows that replace the 72-case rows of the same name; a row may name an opt-in setting.
+  deepevalFresh: 'comparisons/deepeval/lead/fresh-scores.json',
   langfuseOurs: 'comparisons/langfuse/hard/pr115-scores.json',
   langfuseTheirs: 'comparisons/langfuse/hard/heldout-scores.json',
   inspect: 'comparisons/inspect/hard/summary.json',
@@ -79,23 +81,44 @@ function sameInterval(computed, stored, where) {
 
 function judgeRows(chart = 'judge-heldout') {
   const groups = [];
-  const row = (label, n, ours, theirs, source, stored) => {
+  const row = (label, n, ours, theirs, source, stored, setting, paired) => {
     const oursCi = wilson(ours, n);
     const theirsCi = wilson(theirs, n);
     if (stored?.ours) sameInterval(oursCi, stored.ours, `${source} ${label} ours`);
     if (stored?.theirs) sameInterval(theirsCi, stored.theirs, `${source} ${label} theirs`);
-    const standing = oursCi[0] > theirsCi[1] ? 'lead' : oursCi[1] < theirsCi[0] ? 'deficit' : 'close';
+    const standing = paired
+      ? paired.adjusted <= 0.05 && ours !== theirs
+        ? ours > theirs
+          ? 'lead'
+          : 'deficit'
+        : 'close'
+      : oursCi[0] > theirsCi[1]
+        ? 'lead'
+        : oursCi[1] < theirsCi[0]
+          ? 'deficit'
+          : 'close';
     fact(
       chart,
       `${label}: driftbench ${ours} of ${n}, other ${theirs} of ${n}, ${standing}`,
       [ours, theirs, n],
       source,
     );
-    return { label, n, ours, theirs, oursCi, theirsCi, standing };
+    return {
+      label,
+      n,
+      ours,
+      theirs,
+      oursCi,
+      theirsCi,
+      standing,
+      ...(setting ? { setting } : {}),
+      ...(paired ? { paired } : {}),
+    };
   };
 
   const deepeval = json(SOURCES.deepeval);
   const receipts = json(SOURCES.deepevalReceipts);
+  const fresh = json(SOURCES.deepevalFresh);
   const names = {
     'turn relevancy': 'Turn relevancy',
     'G-Eval strict': 'G-Eval, strict',
@@ -108,14 +131,30 @@ function judgeRows(chart = 'judge-heldout') {
     'knowledge retention': 'Knowledge retention',
   };
   groups.push({
-    header: 'DeepEval 4.2.8, default metrics, 72 cases each',
+    // Row sizes differ (72, or the fresh set for a renewed row): each chart states them in its note.
+    header: 'DeepEval 4.2.8, default metrics',
     rows: deepeval.map((entry) => {
-      const used = entry.row === 'task completion' ? receipts.find((r) => r.row === entry.row) : entry;
-      const source = entry.row === 'task completion' ? SOURCES.deepevalReceipts : SOURCES.deepeval;
-      return row(names[entry.row], used.n, used.ours, used.theirs, source, {
-        ours: used.ours_ci,
-        theirs: used.theirs_ci,
-      });
+      const renewed = fresh.find((r) => r.row === entry.row);
+      const used =
+        renewed ?? (entry.row === 'task completion' ? receipts.find((r) => r.row === entry.row) : entry);
+      const source = renewed
+        ? SOURCES.deepevalFresh
+        : entry.row === 'task completion'
+          ? SOURCES.deepevalReceipts
+          : SOURCES.deepeval;
+      const setting = renewed && renewed.setting !== 'default' ? renewed.setting : undefined;
+      return row(
+        names[entry.row],
+        used.n,
+        used.ours,
+        used.theirs,
+        source,
+        { ours: used.ours_ci, theirs: used.theirs_ci },
+        setting,
+        renewed
+          ? { raw: renewed.paired_p, adjusted: renewed.paired_p_holm, missing: renewed.excluded_missing ?? 0 }
+          : undefined,
+      );
     }),
   });
 
@@ -346,11 +385,10 @@ function judgeData(leadsOnly) {
   const total = every.flatMap((g) => g.rows).length;
   const groups = leadsOnly
     ? every
-        .map((g) => ({ ...g, rows: g.rows.filter((r) => r.standing === 'lead') }))
+        .map((g) => ({ ...g, rows: g.rows.filter((r) => r.standing === 'lead' && !r.setting) }))
         .filter((g) => g.rows.length)
     : every;
   const all = groups.flatMap((g) => g.rows);
-  const count = (standing) => all.filter((r) => r.standing === standing).length;
   return {
     kind: 'pairs',
     kicker: 'Judge accuracy · held-out cases · Claude Haiku 5.5 on both sides',
@@ -365,8 +403,8 @@ function judgeData(leadsOnly) {
     axis: 'score out of 100: correct verdicts, % of cases',
     groups: groups.map((g) => ({ header: g.header, rows: g.rows.map(pair) })),
     note: leadsOnly
-      ? '72 cases per row · lines: 95% interval'
-      : '60 to 120 cases per row · lines: 95% interval',
+      ? `${[...new Set(all.map((r) => r.n))].sort((a, b) => a - b).join(' or ')} cases per row · lines: 95% interval${all.some((r) => r.paired) ? ' · fresh rows: paired Holm test' : ''}`
+      : `${Math.min(...all.map((r) => r.n))} to ${Math.max(...all.map((r) => r.n))} cases per row · lines: 95% interval · fresh rows: paired Holm test`,
   };
 }
 
@@ -865,8 +903,8 @@ function hardPerTool(tool) {
     'Knowledge retention': 'Knowl|edge re|ten|tion',
   };
   const groups = group.rows.map((r) => ({
-    label: breaks[r.label] ?? r.label,
-    sub: `of ${r.n}`,
+    label: `${breaks[r.label] ?? r.label}${r.setting ? ' *' : ''}`,
+    sub: `of ${r.n}${r.paired ? `; ${r.standing === 'lead' ? 'ahead' : r.standing === 'deficit' ? 'behind' : 'level'}` : ''}`,
     bars: [
       { series: 0, value: round(pct(r.ours, r.n)), text: String(r.ours) },
       { series: 1, value: round(pct(r.theirs, r.n)), text: String(r.theirs) },
@@ -875,14 +913,6 @@ function hardPerTool(tool) {
   const name = { deepeval: 'DeepEval', promptfoo: 'promptfoo', langfuse: 'Langfuse', inspect: 'Inspect' }[
     tool
   ];
-  const ahead = group.rows.filter((r) => r.standing === 'lead').length;
-  const behind = group.rows.filter((r) => r.standing === 'deficit').length;
-  const level = group.rows.length - ahead - behind;
-  const parts = [
-    ahead && `ahead on ${ahead}`,
-    behind && `behind on ${behind}`,
-    level && `level on ${level}`,
-  ].filter(Boolean);
   const kicker = `${name} hard cases · held-out · Claude Haiku 5.5 on both sides`;
   if (group.rows.length === 1) {
     const [r] = group.rows;
@@ -915,14 +945,33 @@ function hardPerTool(tool) {
       note: `${r.label} · ${r.n} cases`,
     };
   }
-  const atLeast = group.rows.filter((r) => r.ours >= r.theirs).length;
-  const title = `${name}: cases correct of ${group.rows[0].n}.`;
+  // Owner rule: no win, tie or loss tally in a chart title.
+  const title = `${name}: cases correct of ${[...new Set(group.rows.map((r) => r.n))]
+    .sort((a, b) => a - b)
+    .join(' or ')}.`;
+  const settings = [...new Set(group.rows.filter((r) => r.setting).map((r) => r.setting))];
+  const sizes = [...new Set(group.rows.map((r) => r.n))];
   return columns(`hard-${tool}`, {
     kicker: `${kicker} · bars labelled with cases correct`,
     title,
-    key: ['driftbench, shipped judge', `${name} default`],
+    key: [settings.length ? 'driftbench' : 'driftbench, shipped judge', `${name} default`],
     groups,
-    note: 'Ahead or behind: the 95% intervals do not overlap',
+    note: [
+      group.rows.some((r) => r.paired)
+        ? 'Fresh rows: exact paired test, Holm p <= 0.05; other rows: separate 95% intervals'
+        : 'Ahead or behind: the 95% intervals do not overlap',
+      group.rows.find((r) => r.label === 'Knowledge retention' && r.paired) &&
+        `Retention exact p = ${group.rows.find((r) => r.label === 'Knowledge retention').paired.raw.toPrecision(3)}`,
+      group.rows.some((r) => r.paired?.missing) &&
+        group.rows
+          .filter((r) => r.paired?.missing)
+          .map((r) => `${r.label}: ${r.paired.missing} incomplete pairs excluded`)
+          .join('; '),
+      sizes.length > 1 && `cases per test: ${sizes.sort((a, b) => a - b).join(' or ')}`,
+      settings.length && `* opt-in setting ${settings.join(', ')}; every other bar is the shipped judge`,
+    ]
+      .filter(Boolean)
+      .join(' · '),
   });
 }
 
