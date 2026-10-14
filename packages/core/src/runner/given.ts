@@ -193,7 +193,8 @@ export function assistantMessage(observed: Observed): Message {
     if (call.id !== undefined) recorded.id = call.id;
     if (call.input !== undefined) recorded.input = call.input as Json;
     if (call.error !== undefined) recorded.error = call.error;
-    else recorded.output = call.output as Json;
+    // An absent output stays absent: history holds plain JSON data, never an undefined value.
+    else if (call.output !== undefined) recorded.output = call.output as Json;
     return recorded;
   });
   return calls.length > 0

@@ -112,6 +112,31 @@ describe('function adapter', () => {
     expect(text).toBe('before');
   });
 
+  it.each(['F', 'T', 'P'] as const)(
+    'records a tool call without output and completes in mode %s',
+    async (mode) => {
+      const spec = specOf({ id: 'no-output-call', blocks: [{ user: 'one' }, { user: 'two' }] });
+      const histories: Message[][] = [];
+      const result = await runSpec(spec, {
+        adapter: functionAdapter({
+          respond: (messages) => {
+            histories.push(messages);
+            return { ...reply('ok'), toolCalls: [{ label: 'lookup', input: { q: 1 } }] };
+          },
+        }),
+        driver: createScriptedDriver(),
+        checks: [],
+        mode,
+        repeat: 0,
+      });
+      expect(result.error).toBeUndefined();
+      expect(result.status).toBe('completed');
+      const recorded = histories.at(-1)?.find((message) => message.tool_calls)?.tool_calls?.[0];
+      if (mode !== 'T') expect(recorded).toEqual({ label: 'lookup', input: { q: 1 } });
+      if (recorded) expect(Object.hasOwn(recorded, 'output')).toBe(false);
+    },
+  );
+
   it('rejects a Proxy message at open before creating the agent', async () => {
     let created = false;
     const live = [{ label: 'lookup', input: { q: 'before' } }];
