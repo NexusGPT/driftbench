@@ -15,6 +15,20 @@ export function codeTask(spec: HiddenSpec) {
   );
   if (!opening) throw new Error('the export task needs its opening phrase');
   const instruction = `Save the record as ${spec.saveFile}.`;
+  // The checks every block of the task holds whatever the oracle answers, read from the prompt's reply
+  // requirements: English, the stage reported, no tool called, no fact of an uncalled tool, no narrated
+  // steps; the opening turn asks the question of the stage it reaches.
+  const escapePattern = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const fixed = () => ({
+    lang: 'EN',
+    stage_reported: true,
+    tools: spec.tools.map((tool) => ({ label: tool.name, count: 0 })),
+    must_not: [
+      'Step [0-9]+:',
+      ...spec.tools.map((tool) => `${escapePattern(tool.name.replace(/_/g, ' '))} says `),
+    ],
+  });
+  const question = escapePattern(spec.stages.find((stage) => stage.id === spec.goal)?.question ?? '');
   const quote = `The ${flow.id} flow also offers a code task: open the request, then save the record from input.json as ${spec.saveFile}, state its path, and leave every other file untouched.`;
   const family = {
     version: 1,
@@ -41,8 +55,13 @@ export function codeTask(spec: HiddenSpec) {
       { id: 'save', approved: true, text: instruction },
     ],
     blocks: [
-      { id: 'open', stage: spec.goal, parts: [{ phrases: ['open'] }] },
-      { id: 'save', stage: spec.goal, parts: [{ phrases: ['save'] }] },
+      {
+        id: 'open',
+        stage: spec.goal,
+        parts: [{ phrases: ['open'] }],
+        expect: { ...fixed(), must: [question] },
+      },
+      { id: 'save', stage: spec.goal, parts: [{ phrases: ['save'] }], expect: fixed() },
     ],
     checks: { json: ['subset'] },
     others_untouched: true,
@@ -58,20 +77,6 @@ export function codeTask(spec: HiddenSpec) {
         must: [path.replace(/[.*+?^$\x7b\x7d()|[\\]\\\\]/g, '\\\\$&')]}
     }};
   }\n`;
-  // The Then of every block as the task seeder must place it: the stage catalogue, then the oracle's
-  // expectation (the reply's `must`, the files with the declared checks, the workspace diff), no more.
-  const untouched = { others_untouched: true };
-  const thens: Record<string, Record<string, unknown>> = {
-    open: { stage: spec.goal, workspace: { created: [], changed: [], deleted: [], ...untouched } },
-    save: {
-      stage: spec.goal,
-      must: [spec.saveFile.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')],
-      artifacts: [
-        { path: spec.saveFile, kind: 'json', checks: [{ subset: { agent: spec.agent, saved: true } }] },
-      ],
-      workspace: { created: [spec.saveFile], changed: [], deleted: [], ...untouched },
-    },
-  };
   return {
     flow: flow.id,
     quote,
@@ -79,7 +84,6 @@ export function codeTask(spec: HiddenSpec) {
     family: stringify(family),
     oracle,
     phrases: family.phrases.filter((phrase) => phrase.approved).map((phrase) => phrase.text),
-    thens,
   };
 }
 
@@ -92,24 +96,4 @@ export function isCodeTaskSpec(spec: Spec): boolean {
 /** True when a user turn of a task spec is one of the family's approved phrases. */
 export function familyPhrase(spec: HiddenSpec, text: string): boolean {
   return codeTask(spec).phrases.some((phrase) => phrasePattern(phrase).test(text));
-}
-
-const canonical = (value: unknown): string =>
-  Array.isArray(value)
-    ? `[${value.map(canonical).join(',')}]`
-    : value !== null && typeof value === 'object'
-      ? `{${Object.keys(value)
-          .sort()
-          .map((key) => `${JSON.stringify(key)}:${canonical((value as Record<string, unknown>)[key])}`)
-          .join(',')}}`
-      : JSON.stringify(value);
-
-/**
- * True when a block of a task spec expects exactly what the family's stage catalogue and oracle give it. Such
- * a Then is the oracle's by the documented task-seeder contract: the seeder may not add a check to it.
- */
-export function oracleThen(spec: HiddenSpec, task: Spec, index: number): boolean {
-  const block = task.blocks[index];
-  const expected = block?.id === undefined ? undefined : codeTask(spec).thens[block.id];
-  return expected !== undefined && canonical(block?.expect ?? {}) === canonical(expected);
 }
