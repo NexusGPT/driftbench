@@ -97,27 +97,7 @@ separated  sheet_matches_catalog [system1, gating]: pass fixture pass, fail fixt
 (exit 0)
 ```
 
-The validator ladder of the judges package on seed 1. It takes minutes and its last level measures speed, so its exit code depends on the machine; it is not run by the help test:
-
-```text
-$ driftbench validate judges --seed 1
-Validator judges (ladder version 2)
-Level  Name                                                          Metric                                   Threshold  seed 1
-1      the seven levels of version 1                                 items of v1 passing / 37 items           >= 1       1 pass
-2      the answer contract under hostile output                      items of contract passing / 48 items     >= 1       1 pass
-(16 more lines)
-19     calibration coverage and skewed prevalence                    items of calibration passing / 42 items  >= 1       1 pass
-20     the same operations at 10 and 100 times the input             items of scale passing / 26 items        >= 1       0.961538 FAIL (1)
-Level per seed: 1 = 19
-Level of the run: 19 of 20, the minimum over 1 seed.
-Floor: 0. At or above the floor.
-The floor 7 belongs to ladder version 1; version 2 has no floor yet.
-Items of the first failing level:
-  Seed 1, level 20 scale (the same operations at 10 and 100 times the input), 1 item:
-    family scale (1):
-      scale/prompt-100000-entries  [tier 3]  [packages/judges/src/prompt.ts]  the fastest of three runs took 6249 ms, budget 6000 ms. Fix: Keep the operation linear in its input.
-(exit 19)
-```
+The validator ladder runs with `driftbench validate judges --seed 1`. It reads the repository's `validators/` folder and takes minutes, and its last level measures speed, so its exit code depends on the machine; its output and options are in the validators area of this help.
 
 Levels 1 to 19 pass. Level 20 measures speed on a 100000-entry prompt against a 6000 ms budget, so its result depends on the machine; here it took 6249 ms. The run took about five minutes.
 
