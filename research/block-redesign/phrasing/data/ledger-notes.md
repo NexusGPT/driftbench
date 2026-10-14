@@ -1,0 +1,4 @@
+## Notes
+- Before the pre-registration, one capability probe of `gpt-6-luna` (13 tokens, under 0.0001 USD) checked which parameters it accepts. It produced no data and is not in the log.
+- Tiny samples (protocol rule 3). Generation: `tiny-gen` (6 rows, 33 candidates, 0.0099 USD), `tiny-gen-v2` (6 rows, 0.0052 USD), `tiny-gen-v3` (12 rows, 26 candidates, 0.0080 USD, about 0.0007 USD per planned row). Agent: 4 seed runs and 6 class runs on B2 and B5, 0.0073 USD, about 0.0007 USD per run (5,000 to 6,700 input and 280 to 460 output tokens per run).
+- Projection written before scaling: generation of 300 (H1) plus 610 (H2) planned rows at 0.0007 to 0.0015 USD per row, under 1.5 USD; H1 600 agent runs and H2 about 1,300 runs at about 0.0007 USD each, about 1.4 USD; the H4 audit labeller, 50 calls of `gpt-6.1-sol`, under 0.5 USD. Total projection about 3.5 USD, far under the 40 USD cap.

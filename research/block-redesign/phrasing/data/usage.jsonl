@@ -167,3 +167,13 @@
 {"batch":"tiny-gen-v3","model":"gpt-6-luna","input":464,"cachedInput":0,"output":240,"usd":0.0001664}
 {"batch":"tiny-gen-v3","model":"gpt-6-luna","input":512,"cachedInput":0,"output":159,"usd":0.00013069999999999998}
 {"batch":"tiny-gen-v3","model":"gpt-6-luna","input":275,"cachedInput":0,"output":111,"usd":0.000083}
+{"batch":"agent-tiny-v3-seed","model":"claude-haiku-5-5","input":5103,"cachedInput":0,"output":292,"usd":0.0006563}
+{"batch":"agent-tiny-v3-seed","model":"claude-haiku-5-5","input":5121,"cachedInput":0,"output":296,"usd":0.0006601}
+{"batch":"agent-tiny-v3-seed","model":"claude-haiku-5-5","input":6518,"cachedInput":0,"output":305,"usd":0.0008043000000000001}
+{"batch":"agent-tiny-v3-seed","model":"claude-haiku-5-5","input":6516,"cachedInput":0,"output":332,"usd":0.0008176}
+{"batch":"agent-tiny-v3-class","model":"claude-haiku-5-5","input":5236,"cachedInput":0,"output":375,"usd":0.0007111}
+{"batch":"agent-tiny-v3-class","model":"claude-haiku-5-5","input":6471,"cachedInput":0,"output":278,"usd":0.0007861}
+{"batch":"agent-tiny-v3-class","model":"claude-haiku-5-5","input":5134,"cachedInput":0,"output":302,"usd":0.0006644}
+{"batch":"agent-tiny-v3-class","model":"claude-haiku-5-5","input":5352,"cachedInput":0,"output":460,"usd":0.0007652000000000001}
+{"batch":"agent-tiny-v3-class","model":"claude-haiku-5-5","input":4134,"cachedInput":0,"output":406,"usd":0.0006164000000000001}
+{"batch":"agent-tiny-v3-class","model":"claude-haiku-5-5","input":6678,"cachedInput":0,"output":392,"usd":0.0008638000000000001}
