@@ -1,4 +1,3 @@
-import { readFile } from 'node:fs/promises';
 import { basename, dirname, resolve } from 'node:path';
 import {
   orderedCheck,
@@ -19,19 +18,28 @@ import {
   type Check,
   type CheckSet,
   contentHash,
+  type Embedder,
   type LoadedSpec,
   type RunResult,
   runSpec,
   type Store,
   type TargetRef,
+  type ToolRule,
 } from '@agent-nexus/driftbench-core';
 import { noJudgeCheck } from '@agent-nexus/driftbench-judges';
 import { openMemoryStore, openStore } from '@agent-nexus/driftbench-store';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import {
+  addJudgeOptions,
+  addRunCheckOptions,
+  type RunCheckFlags,
+  type RunJudgeOptions,
+  runCheckSettingsFrom,
+  runJudgeFrom,
+} from '../judge-options';
 import { loadValidSpecs } from './campaign';
-import { addJudgeOptions, type RunJudgeOptions, runJudgeFrom } from './run-judge';
 
 /**
  * `driftbench replay`: runs a suite of specs over recorded sessions, offline, with no model call.
@@ -72,7 +80,8 @@ export type ReplayOptions = {
   owner?: string[];
   /** A file of owner values, one per line; blank lines and lines starting with # are skipped. */
   ownerFile?: string;
-} & RunJudgeOptions;
+} & RunJudgeOptions &
+  RunCheckFlags;
 
 /** Registers `driftbench replay`. */
 export function registerReplayCommand(
@@ -102,9 +111,11 @@ export function registerReplayCommand(
     )
     .option('--owner-file <file>', 'owner values, one per line, for the pii check; # starts a comment line')
     .option('--json', 'print one JSON document');
-  addJudgeOptions(replay).action(async (sessions: string[], options: ReplayOptions) => {
-    setExit(await replayCommand(sessions, options, io, deps));
-  });
+  addRunCheckOptions(addJudgeOptions(replay), { owner: false }).action(
+    async (sessions: string[], options: ReplayOptions) => {
+      setExit(await replayCommand(sessions, options, io, deps));
+    },
+  );
 }
 
 type SessionEntry = {
@@ -160,10 +171,11 @@ export async function replayCommand(
     io.err(`Two sessions share the name ${duplicate}; give each transcript its own file name.\n`);
     return 2;
   }
-  const owner = await ownerValues(options, io);
+  const settings = await runCheckSettingsFrom(options, io);
   const judge = await runJudgeFrom(options, io);
   if (!judge) return 2;
-  if (!owner) return 2;
+  if (!settings) return 2;
+  const owner = settings.piiOwner;
   const decisions = assign(options.decisions, names, '--decisions', io);
   const steps = assign(options.steps, names, '--steps', io);
   if (!decisions || !steps) return 2;
@@ -230,14 +242,17 @@ export async function replayCommand(
       modes: ['F'],
       repeats: { T: 0, F: 1, P: 0 },
       budgetUsd: 0,
-      judge: {
-        mode: judge.label === 'none' ? 'system1' : 'llm',
-        judges: judge.label === 'none' ? [] : [judge.label],
-      },
+      judge: { mode: judge.mode, judges: judge.judges },
       createdAt,
     };
     await store.putCampaign(campaign);
-    const checks = replayChecks({ piiOwner: owner, judge: judge.check, piiJudge: judge.piiJudge });
+    const checks = replayChecks({
+      piiOwner: owner,
+      judge: judge.check,
+      piiJudge: judge.piiJudge,
+      ...(settings.toolPolicy ? { toolPolicy: settings.toolPolicy } : {}),
+      ...(settings.embedder ? { embedder: settings.embedder } : {}),
+    });
     const artifacts = defaultReaders();
     for (const alignment of aligned.alignments) {
       const session = await sessionFor(alignment);
@@ -266,6 +281,7 @@ export async function replayCommand(
   }
   const closed = await closeStore(store, io);
   if (!closed) return 2;
+  await judge.save();
 
   const passed = lines.filter((line) => line.pass).length;
   if (options.json) {
@@ -355,7 +371,13 @@ export function replayRegistry(): CheckRegistry {
  * name; without one, each is inconclusive (`noJudgeCheck`), never a pass.
  */
 export function replayChecks(
-  options: { piiOwner?: readonly string[]; judge?: Check; piiJudge?: DefaultChecksOptions['piiJudge'] } = {},
+  options: {
+    piiOwner?: readonly string[];
+    judge?: Check;
+    piiJudge?: DefaultChecksOptions['piiJudge'];
+    toolPolicy?: readonly ToolRule[];
+    embedder?: Embedder;
+  } = {},
 ): CheckSet {
   const registry = replayRegistry();
   const judge = options.judge ?? noJudgeCheck();
@@ -364,6 +386,8 @@ export function replayChecks(
     judges: { check: () => judge },
     piiJudge: options.piiJudge,
     ...(options.piiOwner?.length ? { piiOwner: options.piiOwner } : {}),
+    ...(options.toolPolicy?.length ? { toolPolicy: options.toolPolicy } : {}),
+    ...(options.embedder ? { embedder: options.embedder } : {}),
   });
 }
 
@@ -557,21 +581,3 @@ function describe(cause: unknown): string {
 }
 
 /** The owner values from --owner and --owner-file. Undefined, with the reason printed, when the file cannot be read. */
-async function ownerValues(options: ReplayOptions, io: Io): Promise<string[] | undefined> {
-  const values = [...(options.owner ?? [])];
-  if (options.ownerFile !== undefined) {
-    const path = resolve(io.cwd, options.ownerFile);
-    let text: string;
-    try {
-      text = await readFile(path, 'utf8');
-    } catch (cause) {
-      io.err(`Cannot read the owner file ${path}: ${describe(cause)}\n`);
-      return undefined;
-    }
-    for (const line of text.split(/\r?\n/)) {
-      const value = line.trim();
-      if (value !== '' && !value.startsWith('#')) values.push(value);
-    }
-  }
-  return values.map((value) => value.trim()).filter((value) => value !== '');
-}

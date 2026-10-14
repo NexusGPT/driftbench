@@ -23,6 +23,7 @@ import {
 import { openStore } from '@agent-nexus/driftbench-store';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import { addJudgeOptions, clientJudgeFrom, type JudgeFlags, judgeAsked } from '../judge-options';
 import { optionNumber } from '../number';
 import { pluginPairwiseJudge } from '../plugins';
 import { noStoreAt } from '../store-path';
@@ -62,7 +63,7 @@ type CompareCommandOptions = {
   pairwise?: string;
   pairwiseJudge?: string;
   pairwiseReference?: string;
-};
+} & JudgeFlags;
 
 /** Registers `driftbench compare`. */
 export function registerCompareCommand(
@@ -71,7 +72,7 @@ export function registerCompareCommand(
   setExit: (code: number) => void,
   deps: ReportDeps = defaultReportDeps,
 ): void {
-  program
+  const compare = program
     .command('compare')
     .description(
       'Compare a candidate campaign with a baseline on the goldens both ran. Exit 0 non-inferior, 1 regressed or not shown non-inferior, 2 on bad input.',
@@ -105,10 +106,10 @@ export function registerCompareCommand(
     .option(
       '--pairwise-reference <file>',
       'judge which reply matches this reference answer better, instead of which reply is better; the file holds the text',
-    )
-    .action(async (options: CompareCommandOptions) => {
-      setExit(await compareCommand(options, io, deps));
-    });
+    );
+  addJudgeOptions(compare, { council: false }).action(async (options: CompareCommandOptions) => {
+    setExit(await compareCommand(options, io, deps));
+  });
 }
 
 /** `driftbench compare`: 0 non-inferior, 1 regressed or not shown non-inferior, 2 on bad input. */
@@ -121,6 +122,12 @@ export async function compareCommand(
   const q = parseRate(options.q, '--q', io);
   const modes = options.mode === undefined ? undefined : parseModes(options.mode, io);
   if (gate === undefined || q === undefined || modes === null) return 2;
+  if (judgeAsked(options) && options.pairwise === undefined) {
+    io.err(
+      '--judge, --judges and --judge-route choose the pairwise judge: they go with --pairwise <criterion.yaml>.\n',
+    );
+    return 2;
+  }
   if (noStoreAt(resolve(io.cwd, options.store), options.store, io)) return 2;
   const store = await openReported(deps, resolve(io.cwd, options.store), io);
   if (!store) return 2;
@@ -184,13 +191,21 @@ async function runPairwise(
 ): Promise<PairwiseLine | undefined> {
   let criterion: Awaited<ReturnType<typeof readPairwiseCriterion>>;
   let judge: JudgeClient;
+  let configured: Awaited<ReturnType<typeof clientJudgeFrom>>;
   let reference: string | undefined;
   try {
     criterion = await readPairwiseCriterion(resolve(io.cwd, options.pairwise ?? ''));
     if (options.pairwiseReference !== undefined) {
       reference = (await readFile(resolve(io.cwd, options.pairwiseReference), 'utf8')).trim();
     }
-    judge = (deps.pairwiseClient ?? defaultPairwiseClient)(options.pairwiseJudge ?? 'openai');
+    if (!judgeAsked(options)) {
+      judge = (deps.pairwiseClient ?? defaultPairwiseClient)(options.pairwiseJudge ?? 'openai');
+    } else {
+      const chosen = await clientJudgeFrom(options, io);
+      if (!chosen?.client) return undefined;
+      judge = chosen.client;
+      configured = chosen;
+    }
   } catch (cause) {
     io.err(`${cause instanceof Error ? cause.message : String(cause)}\n`);
     return undefined;
@@ -212,7 +227,8 @@ async function runPairwise(
       ),
     );
     const { tally } = report;
-    const line = `Pairwise: ${pairs.length} pairs, baseline ${tally.baseline}, candidate ${tally.candidate}, tie ${tally.tie}, inconsistent ${tally.inconsistent}, position bias ${tally.positionBias}.`;
+    await configured?.save();
+    const line = `Pairwise: ${pairs.length} pairs, baseline ${tally.baseline}, candidate ${tally.candidate}, tie ${tally.tie}, inconsistent ${tally.inconsistent}, position bias ${tally.positionBias}.${configured ? ` Judge ${configured.label}, ${configured.spend.usd.toFixed(4)} USD.` : ''}`;
     return { line, json: { ...tally, pairs: pairs.length } };
   } catch (cause) {
     io.err(`pairwise judge gave no answer: ${cause instanceof Error ? cause.message : String(cause)}\n`);
