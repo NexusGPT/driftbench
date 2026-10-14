@@ -38,7 +38,7 @@ Write and grow the tests
 Run the agent
   driftbench campaign    plan, run, resume, inspect and export campaigns
   driftbench smoke       run one spec several times: is the agent deterministic?
-  driftbench replay      run a suite over recorded sessions, offline, no model call
+  driftbench replay      re-run checks on recorded sessions; no agent call, a judge only with --judge
   driftbench perturb     run one spec with one deviation injected, and print the recovery
   driftbench simulate    run one spec with a simulated user playing a persona
   driftbench attack      attack one spec adaptively, deviation by deviation

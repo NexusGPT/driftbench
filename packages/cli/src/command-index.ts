@@ -70,7 +70,10 @@ export const COMMAND_HELP: readonly (readonly [term: string, description: string
   ],
   ['intake', 'Build the reference set of user turns: from past conversations, or from an interview'],
   ['estate', 'Read an agent estate into atoms, lint it, approve its prose atoms, export its space map'],
-  ['replay [options] <sessions...>', 'Run a spec suite over recorded sessions, offline, with no model call.'],
+  [
+    'replay [options] <sessions...>',
+    'Re-run the checks of a spec suite on recorded sessions: no agent call; a judge model only with --judge.',
+  ],
   [
     'gate [options] <specs>',
     'Pass candidate blocks through the nine-stage validity gate and write the gated suite',
