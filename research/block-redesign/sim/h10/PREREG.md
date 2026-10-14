@@ -113,3 +113,7 @@ between planned acts and acts detected on the realised text.
 1. 2026-10-14, before any H10 data: the act-recovery check uses an exact string match of fact values in
    place of a second LLM classifier call. Reason: the planned acts that carry facts are checkable exactly,
    which is stricter and costs nothing; acts with no fact value (acknowledge, goodbye) are not scored.
+2. 2026-10-14, after the H10 tiny sample (2 scenarios x 3 arms, not used as data), before the full run: the
+   engine kept an unanswered alternative on its agenda ("full name or account ID" left an account ID act
+   that surfaced at goodbye). A clean-up step now drops responses to an earlier agent turn when the agent
+   takes a new turn (Schatzmann 2007 Sec. 2.5 clean-up). No parameter changed.

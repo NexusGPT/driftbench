@@ -103,6 +103,9 @@ def classify_agent(text, tag):
     return out
 
 
+TURN_SCOPED = {"answer", "dont_know", "answer_other", "confirm", "report_try", "acknowledge", "ask_status"}
+
+
 class Engine:
     """Deterministic given (seed, classifier outputs). Holds goal, ledger, agenda, engagement, stop rules."""
 
@@ -128,6 +131,9 @@ class Engine:
 
     def observe(self, c):
         """Push rules on the agent's classified turn (Schatzmann 2007 Sec. 2.5)."""
+        # clean-up (Schatzmann 2007 Sec. 2.5): responses to an earlier agent turn are stale once the agent
+        # has moved on (an "A or B" request leaves the unanswered alternative behind)
+        self.agenda = [a for a in self.agenda if a["act"] not in TURN_SCOPED]
         pushes = []
         unhelpful = False
         req = tuple(sorted(c["requested_slots"]))
