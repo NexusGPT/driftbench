@@ -13,7 +13,8 @@ files, then check the replies and actions the adapter reports.
 - Adaptive attacker: `attack` injects one deviation per round into an existing spec.
 - Crescendo: `redteam run --strategy crescendo` escalates one objective over a conversation.
 - GOAT: `redteam run --strategy goat` chooses techniques after each target reply.
-- Red-team plugins: `redteam plugins` lists 40 templates with category-specific grading rubrics.
+- Red-team plugins: `redteam plugins` lists 40 templates with category-specific grading rubrics;
+  `redteam generate` writes a spec from one and `redteam grade` judges a reply with its rubric.
 - Indirect prompt injection: D6 in `attack` or `perturb` puts instructions in data
   the agent reads, such as a tool result or a file.
 
@@ -54,6 +55,8 @@ separate input from the attacker. Each detailed topic includes a complete exampl
 `attack` prints a findings table or JSON, and can save a decision recording.
 `redteam run` prints a turn table or a full JSON run plus its recording.
 `redteam generate` writes a spec; it does not run a target or a judge.
+`redteam grade` runs that spec on an agent and prints each criterion's verdict:
+pass, fail or inconclusive. Inconclusive is missing evidence, never a pass.
 
 - `finding`: an adaptive round broke a gating expectation, acted unsafely,
   failed to recover, caused later damage, or failed to run.
