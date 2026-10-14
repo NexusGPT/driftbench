@@ -47,6 +47,11 @@ Protocol: `scratchpad/codex/block-experiments/PROTOCOL.md`. Source: section 5 of
 ## Sample size, seeds, models, stop rule
 - 20 clean specs, 80 defect copies; PRNG seeds 1000 + i and 9. No model, no paid call. Stop rule: none (offline, run once). A re-run only after a crash, with both results kept.
 
+## Amendment 1 (2026-10-14, before any data, before the clean set was built)
+- Change: a spec is eligible for Part A only if the forced `world.tools` and `world.store` in force at block k equal those in force at every earlier block (the running Given does not change them between blocks).
+- Reason: a prefix records each call without the world it ran under. When a spec's world changes between blocks (a service that recovers), a correct recorded call can disagree with block k's world, and `history_matches_world` cannot tell that from a planted contradiction. That needs a per-call world in the schema, which is a design finding, not a defect of the clean spec. The limitation is reported in RESULTS.md.
+- `history_matches_world` rule, stated exactly: for each recorded call, if block k's `world.tools` forces the label, the recorded `error` or `output` must equal the forced one; otherwise replaying the call with the target's own tool on block k's `world.store` (no commit) must give the recorded outcome (deep equality).
+
 ## Verdict rule
 - FALSIFIED if detection is below 80 of 80 with the right layer, or any clean original is flagged.
 - SUPPORTED if detection is 80 of 80, no clean spec is flagged, and Part B finds at least one class read as a hidden Given error.
