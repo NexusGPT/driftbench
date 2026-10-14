@@ -645,52 +645,60 @@ describe('driftbench campaign run on a pool, with a budget', () => {
     ];
     const radius = (from: string) => ['--change', CHANGE, '--from', from, '--audit', '4'];
 
-    it('stops the audit when the budget is spent, as it stops the other cells', async () => {
-      const path = await storePath();
-      const deps = { adapterFor: async () => priced(), checks: minimalChecks };
-      expect((await cli(audited(path, 'acme-v1', 'c-base', []), deps)).code).toBe(0);
-      const free = await cli(audited(path, 'acme-v2', 'c-free', radius('c-base')), deps);
-      expect(free.err).toBe('');
-      expect(free.out).toContain('run fresh: 0 misses.');
+    it(
+      'stops the audit when the budget is spent, as it stops the other cells',
+      async () => {
+        const path = await storePath();
+        const deps = { adapterFor: async () => priced(), checks: minimalChecks };
+        expect((await cli(audited(path, 'acme-v1', 'c-base', []), deps)).code).toBe(0);
+        const free = await cli(audited(path, 'acme-v2', 'c-free', radius('c-base')), deps);
+        expect(free.err).toBe('');
+        expect(free.out).toContain('run fresh: 0 misses.');
 
-      // At one cent a block, a budget of one cent is spent by the first audited cell.
-      const capped = await cli(
-        audited(path, 'acme-v2', 'c-capped', [...radius('c-base'), '--budget-usd', '0.01']),
-        deps,
-      );
-      expect(capped.out).toContain('run fresh: 3 misses.');
-      expect(capped.out).toContain('gen-twise-046: the audit run did not finish');
-    });
+        // At one cent a block, a budget of one cent is spent by the first audited cell.
+        const capped = await cli(
+          audited(path, 'acme-v2', 'c-capped', [...radius('c-base'), '--budget-usd', '0.01']),
+          deps,
+        );
+        expect(capped.out).toContain('run fresh: 3 misses.');
+        expect(capped.out).toContain('gen-twise-046: the audit run did not finish');
+      },
+      SLOW,
+    );
 
-    it('prices the audit from the token table, so the budget also stops token-only usage', async () => {
-      const path = await storePath();
-      const table = join(await tempFolder(), 'prices.yaml');
-      await writeFile(
-        table,
-        'as_of: 2026-10-13\nmodels:\n  fictional-model:\n    input: 2\n    output: 4\n    cached_input: 0.5\n',
-      );
-      const tokens = () =>
-        acmeAdapter({
-          wrap: broken((observed) => {
-            observed.cost = { inputTokens: 1000, outputTokens: 500, model: 'fictional-model' };
-          }),
-        });
-      const deps = { adapterFor: async () => tokens(), checks: minimalChecks };
-      expect((await cli(audited(path, 'acme-v1', 'c-base', []), deps)).code).toBe(0);
-      const capped = await cli(
-        audited(path, 'acme-v2', 'c-capped', [
-          ...radius('c-base'),
-          '--prices',
+    it(
+      'prices the audit from the token table, so the budget also stops token-only usage',
+      async () => {
+        const path = await storePath();
+        const table = join(await tempFolder(), 'prices.yaml');
+        await writeFile(
           table,
-          '--budget-usd',
-          '0.003',
-        ]),
-        deps,
-      );
-      expect(capped.err).toBe('');
-      expect(capped.out).toContain('run fresh: 3 misses.');
-      expect(capped.out).toContain('gen-twise-046: the audit run did not finish');
-    });
+          'as_of: 2026-10-13\nmodels:\n  fictional-model:\n    input: 2\n    output: 4\n    cached_input: 0.5\n',
+        );
+        const tokens = () =>
+          acmeAdapter({
+            wrap: broken((observed) => {
+              observed.cost = { inputTokens: 1000, outputTokens: 500, model: 'fictional-model' };
+            }),
+          });
+        const deps = { adapterFor: async () => tokens(), checks: minimalChecks };
+        expect((await cli(audited(path, 'acme-v1', 'c-base', []), deps)).code).toBe(0);
+        const capped = await cli(
+          audited(path, 'acme-v2', 'c-capped', [
+            ...radius('c-base'),
+            '--prices',
+            table,
+            '--budget-usd',
+            '0.003',
+          ]),
+          deps,
+        );
+        expect(capped.err).toBe('');
+        expect(capped.out).toContain('run fresh: 3 misses.');
+        expect(capped.out).toContain('gen-twise-046: the audit run did not finish');
+      },
+      SLOW,
+    );
   });
 });
 
