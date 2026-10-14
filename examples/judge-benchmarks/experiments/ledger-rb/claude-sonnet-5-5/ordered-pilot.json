@@ -1,0 +1,42 @@
+[
+  {
+    "model": "claude-sonnet-5-5",
+    "phase": "pilot",
+    "id": "rubric_eval_1055",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 0
+  },
+  {
+    "model": "claude-sonnet-5-5",
+    "phase": "pilot",
+    "id": "rubric_eval_1055",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 1
+  },
+  {
+    "model": "claude-sonnet-5-5",
+    "phase": "pilot",
+    "id": "rubric_eval_12",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 2
+  },
+  {
+    "model": "claude-sonnet-5-5",
+    "phase": "pilot",
+    "id": "rubric_eval_12",
+    "contestant": "promptfoo",
+    "sample": 0,
+    "recordIndex": 3
+  },
+  {
+    "model": "claude-sonnet-5-5",
+    "phase": "pilot",
+    "id": "rubric_eval_129",
+    "contestant": "pair-ledger",
+    "sample": 0,
+    "recordIndex": 4
+  }
+]
