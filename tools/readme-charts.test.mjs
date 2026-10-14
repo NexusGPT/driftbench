@@ -110,6 +110,11 @@ describe('readme charts, rows measured with an opt-in setting', () => {
           : 'behind';
     expect(group.sub).toBe(`of ${retention.n}; ${verdict}`);
     expect(c.note).toContain(`Retention exact p = ${retention.paired_p.toPrecision(3)}`);
+    if (retention.excluded_missing) {
+      expect(c.note).toContain(
+        `Knowledge retention: ${retention.excluded_missing} incomplete pairs excluded`,
+      );
+    }
     expect(c.note).toContain('Holm p <= 0.05');
   });
 

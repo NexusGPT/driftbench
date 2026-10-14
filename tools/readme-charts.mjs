@@ -150,7 +150,9 @@ function judgeRows(chart = 'judge-heldout') {
         source,
         { ours: used.ours_ci, theirs: used.theirs_ci },
         setting,
-        renewed ? { raw: renewed.paired_p, adjusted: renewed.paired_p_holm } : undefined,
+        renewed
+          ? { raw: renewed.paired_p, adjusted: renewed.paired_p_holm, missing: renewed.excluded_missing ?? 0 }
+          : undefined,
       );
     }),
   });
@@ -911,6 +913,11 @@ function hardPerTool(tool) {
         : 'Ahead or behind: the 95% intervals do not overlap',
       group.rows.find((r) => r.label === 'Knowledge retention' && r.paired) &&
         `Retention exact p = ${group.rows.find((r) => r.label === 'Knowledge retention').paired.raw.toPrecision(3)}`,
+      group.rows.some((r) => r.paired?.missing) &&
+        group.rows
+          .filter((r) => r.paired?.missing)
+          .map((r) => `${r.label}: ${r.paired.missing} incomplete pairs excluded`)
+          .join('; '),
       sizes.length > 1 && `cases per test: ${sizes.sort((a, b) => a - b).join(' or ')}`,
       settings.length && `* opt-in setting ${settings.join(', ')}; every other bar is the shipped judge`,
     ]

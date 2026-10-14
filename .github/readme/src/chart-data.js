@@ -1130,7 +1130,7 @@ window.CHART_DATA = {
   "hard-deepeval": {
     "kind": "columns",
     "kicker": "DeepEval hard cases · held-out · Claude Haiku 5.5 on both sides · bars labelled with cases correct",
-    "title": "DeepEval: cases correct of 72 or 480.",
+    "title": "DeepEval: cases correct of 72 or 480 or 1272.",
     "key": [
       "driftbench",
       "DeepEval default"
@@ -1244,22 +1244,6 @@ window.CHART_DATA = {
         ]
       },
       {
-        "label": "Knowl|edge re|ten|tion",
-        "sub": "of 480; level",
-        "bars": [
-          {
-            "series": 0,
-            "value": 100,
-            "text": "480"
-          },
-          {
-            "series": 1,
-            "value": 99.38,
-            "text": "477"
-          }
-        ]
-      },
-      {
         "label": "DAG, one node",
         "sub": "of 72",
         "bars": [
@@ -1290,9 +1274,25 @@ window.CHART_DATA = {
             "text": "72"
           }
         ]
+      },
+      {
+        "label": "Knowl|edge re|ten|tion",
+        "sub": "of 1272; level",
+        "bars": [
+          {
+            "series": 0,
+            "value": 99.84,
+            "text": "1270"
+          },
+          {
+            "series": 1,
+            "value": 100,
+            "text": "1272"
+          }
+        ]
       }
     ],
-    "note": "Fresh rows: exact paired test, Holm p <= 0.05; other rows: separate 95% intervals · Retention exact p = 0.250 · cases per test: 72 or 480 · * opt-in setting response-relevance; every other bar is the shipped judge"
+    "note": "Fresh rows: exact paired test, Holm p <= 0.05; other rows: separate 95% intervals · Retention exact p = 1.00 · Knowledge retention: 2 incomplete pairs excluded · cases per test: 72 or 480 or 1272 · * opt-in setting response-relevance; every other bar is the shipped judge"
   },
   "hard-promptfoo": {
     "kind": "columns",

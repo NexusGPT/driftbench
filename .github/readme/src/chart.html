@@ -299,10 +299,12 @@
     const names = el('div', 'cols names');
     names.style.gap = wrap.style.gap;
     for (const g of c.groups) {
+      const wide = g.bars.some(b => String(b.text).length > 3);
       const box = el('div', 'cgrp');
+      box.style.flex = wide ? '1.5' : '1';
       const col = el('div', 'cbars');
       col.style.height = H + 'px';
-      col.style.gap = '4px';
+      col.style.gap = wide ? '12px' : '4px';
       for (const b of g.bars) {
         const bar = el('div', 'cbar' + (b.series ? ' other' : ''), `<b>${esc(b.text)}</b>`);
         bar.style.width = bw + 'px';
@@ -314,7 +316,9 @@
       }
       box.append(col);
       wrap.append(box);
-      names.append(el('div', 'cgrp' + (c.groups.length > 6 ? ' tight' : ''), `<div class="cname">${esc(g.label)}${g.sub ? `<small>${esc(g.sub)}</small>` : ''}</div>`));
+      const name = el('div', 'cgrp' + (c.groups.length > 6 ? ' tight' : ''), `<div class="cname">${esc(g.label)}${g.sub ? `<small>${esc(g.sub)}</small>` : ''}</div>`);
+      name.style.flex = wide ? '1.5' : '1';
+      names.append(name);
     }
     plot.append(names);
     plot.append(el('div', 'yname', esc(c.axis)));
