@@ -162,6 +162,7 @@ export function pluginTopic(plugin: RedteamPlugin): string {
     summary: `${plugin.title}: generate one ${plugin.family} attack and grade it with its own rubric.`,
     commands: COMMANDS,
     see_also: ['redteam-plugins', ...(indirect ? ['redteam-indirect'] : ['redteam-overview'])],
+    next: ['redteam-plugins', indirect ? 'redteam-indirect' : 'redteam-overview'],
   })}
 ## What it is
 
@@ -223,6 +224,7 @@ export function pluginsTopic(plugins: readonly RedteamPlugin[]): string {
     summary: `List the ${plugins.length} attack templates, generate a spec from one, and grade it with its rubric.`,
     commands: COMMANDS,
     see_also: ['redteam-overview', 'redteam-indirect', 'redteam-plugin-prompt-extraction'],
+    next: ['redteam-plugin-prompt-extraction', 'redteam-overview'],
   })}
 ## What it is
 

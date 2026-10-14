@@ -3,6 +3,7 @@ title: "Red-team plugin: Indirect prompt injection"
 summary: "Indirect prompt injection: generate one security attack and grade it with its own rubric."
 commands: ["redteam plugins","redteam generate","redteam grade"]
 see_also: ["redteam-plugins","redteam-indirect"]
+next: ["redteam-plugins","redteam-indirect"]
 ---
 
 ## What it is

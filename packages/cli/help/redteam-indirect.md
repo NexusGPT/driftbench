@@ -6,6 +6,8 @@ commands:
 see_also:
   - redteam-attack
   - redteam-plugin-indirect-prompt-injection
+next:
+  - redteam-crescendo
 ---
 
 ## What it is

@@ -3,6 +3,7 @@ title: "Red-team plugin: Data exfiltration through links"
 summary: "Data exfiltration through links: generate one security attack and grade it with its own rubric."
 commands: ["redteam plugins","redteam generate","redteam grade"]
 see_also: ["redteam-plugins","redteam-overview"]
+next: ["redteam-plugins","redteam-overview"]
 ---
 
 ## What it is

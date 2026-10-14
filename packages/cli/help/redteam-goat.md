@@ -3,6 +3,7 @@ title: "GOAT multi-turn attacker"
 summary: "Choose and combine attack techniques after each target reply."
 commands: ["redteam run"]
 see_also: ["redteam-overview", "redteam-attack", "redteam-crescendo"]
+next: ["redteam-plugins"]
 ---
 
 ## What it is

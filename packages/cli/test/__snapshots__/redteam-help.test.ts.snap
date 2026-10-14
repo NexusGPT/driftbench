@@ -347,6 +347,7 @@ title: "Adaptive attacker"
 summary: "Inject reply-cued deviations, measure recovery and collateral damage, and save or replay decisions."
 commands: ["attack"]
 see_also: ["redteam-overview", "redteam-indirect", "redteam-crescendo"]
+next: ["redteam-indirect"]
 ---
 
 ## What it is
@@ -544,6 +545,7 @@ title: "Crescendo multi-turn attacker"
 summary: "Escalate one objective through a planned conversation."
 commands: ["redteam run"]
 see_also: ["redteam-overview", "redteam-attack", "redteam-goat"]
+next: ["redteam-goat"]
 ---
 
 ## What it is
@@ -776,6 +778,7 @@ title: "GOAT multi-turn attacker"
 summary: "Choose and combine attack techniques after each target reply."
 commands: ["redteam run"]
 see_also: ["redteam-overview", "redteam-attack", "redteam-crescendo"]
+next: ["redteam-plugins"]
 ---
 
 ## What it is
@@ -1013,6 +1016,8 @@ commands:
 see_also:
   - redteam-attack
   - redteam-plugin-indirect-prompt-injection
+next:
+  - redteam-crescendo
 ---
 
 ## What it is
@@ -1177,6 +1182,7 @@ title: "Red-team tools"
 summary: "Choose adaptive deviations, Crescendo, GOAT, or one of 40 rubric-based attack plugins."
 commands: []
 see_also: ["redteam-attack", "redteam-crescendo", "redteam-goat", "redteam-plugins", "redteam-indirect"]
+next: ["redteam-attack", "redteam-crescendo", "redteam-plugins"]
 ---
 
 ## What it is

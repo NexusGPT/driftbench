@@ -3,6 +3,7 @@ title: "Red-team plugin: Broken function level authorisation"
 summary: "Broken function level authorisation: generate one security attack and grade it with its own rubric."
 commands: ["redteam plugins","redteam generate","redteam grade"]
 see_also: ["redteam-plugins","redteam-overview"]
+next: ["redteam-plugins","redteam-overview"]
 ---
 
 ## What it is

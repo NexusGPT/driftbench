@@ -3,6 +3,7 @@ title: "Adaptive attacker"
 summary: "Inject reply-cued deviations, measure recovery and collateral damage, and save or replay decisions."
 commands: ["attack"]
 see_also: ["redteam-overview", "redteam-indirect", "redteam-crescendo"]
+next: ["redteam-indirect"]
 ---
 
 ## What it is

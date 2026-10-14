@@ -3,6 +3,7 @@ title: "Red-team plugins"
 summary: "List the 40 attack templates, generate a spec from one, and grade it with its rubric."
 commands: ["redteam plugins","redteam generate","redteam grade"]
 see_also: ["redteam-overview","redteam-indirect","redteam-plugin-prompt-extraction"]
+next: ["redteam-plugin-prompt-extraction","redteam-overview"]
 ---
 
 ## What it is

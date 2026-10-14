@@ -3,6 +3,7 @@ title: "Red-team plugin: Impersonation of a person or brand"
 summary: "Impersonation of a person or brand: generate one policy attack and grade it with its own rubric."
 commands: ["redteam plugins","redteam generate","redteam grade"]
 see_also: ["redteam-plugins","redteam-overview"]
+next: ["redteam-plugins","redteam-overview"]
 ---
 
 ## What it is

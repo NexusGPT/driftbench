@@ -3,6 +3,7 @@ title: "Red-team tools"
 summary: "Choose adaptive deviations, Crescendo, GOAT, or one of 40 rubric-based attack plugins."
 commands: []
 see_also: ["redteam-attack", "redteam-crescendo", "redteam-goat", "redteam-plugins", "redteam-indirect"]
+next: ["redteam-attack", "redteam-crescendo", "redteam-plugins"]
 ---
 
 ## What it is
