@@ -15,1203 +15,1203 @@
   "entries": [
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "35af435e15ba",
+      "key": "3005c3ce70bc",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The input file persisted-final-order.json shows a confirmed order for exactly two Lumen-116 plans, currency tokens (credits), monthly price 46, and status confirmed.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-116\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"tokens\\\",\\\"monthly_price\\\":46}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0006700999999999999
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order specifies currency as tokens instead of credits.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-116\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"tokens\\\",\\\"monthly_price\\\":46}\"}], \"met\":false}]}",
+      "cost_usd": 0.0033264
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "57e58d608ce5",
+      "key": "23c7f8375a23",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order matches all criteria: plan_id is Lumen-140, quantity is 2, status is confirmed, currency is credits, and monthly_price is 70.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-140\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":70}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0006725999999999999
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order in input.persisted-final-order.json confirms an order for exactly two Lumen-140 plans, with currency credits, and monthly price 70.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-140\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":70}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0006839
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "8d1451ac31c7",
+      "key": "271f9495def1",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order file shows a confirmed order for exactly two Lumen-114 plans with credits currency and a monthly price of 44.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-114\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":44}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0015050999999999999
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order in persisted-final-order.json confirms an order for exactly two Lumen-114 plans, currency credits, and monthly price 44 with status confirmed.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-114\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":44}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0014114000000000002
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "9324babf4d61",
+      "key": "a19ccaddbbb6",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The input file persisted-final-order.json is empty ({}), so no confirmed order was actually persisted.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{}\"}],\"met\":false}]}",
-      "cost_usd": 0.0009036
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The input data shows a persisted final order with plan_id 'Lumen-155', quantity 2, status 'confirmed', currency 'credits', and monthly_price 85, which satisfies all parts of the requirement.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-155\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":85,\\\"previous_order\\\":{\\\"plan_id\\\":\\\"Lumen-155-Old\\\"}}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.000759
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "44a624e74376",
+      "key": "15d06dcffd11",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order in the input file shows a confirmed order for exactly two Lumen-155 plans, with credits currency and a monthly price of 85.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-155\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":85,\\\"previous_order\\\":{\\\"plan_id\\\":\\\"Lumen-155-Old\\\"}}\"}],\"met\":true}]}",
-      "cost_usd": 0.0019077
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order in persisted-final-order.json specifies a quantity of 3 instead of exactly two Lumen-112 plans.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-112\\\",\\\"quantity\\\":3,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":42}\"}],\"met\":false}]}",
+      "cost_usd": 0.0011367999999999999
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "acfd1ee3f995",
+      "key": "7031b7445112",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order in input.persisted-final-order.json indicates a quantity of 3 rather than the required exactly two Lumen-112 plans.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-112\\\",\\\"quantity\\\":3,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":42}\"}],\"met\":false}]}",
-      "cost_usd": 0.001673
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order file is empty, meaning no confirmed order was persisted, although the agent claimed success.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{}\"}],\"met\":false}]}",
+      "cost_usd": 0.0019374000000000001
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "720d86b6b588",
+      "key": "14189d65a3b1",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order has a status of draft, so it is a draft and does not count as a confirmed order.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-151\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"draft\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":81}\"}],\"met\":false}]}",
-      "cost_usd": 0.0029351
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order has status 'draft' instead of a confirmed status, failing the requirement that the order must be confirmed.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-151\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"draft\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":81}\"}],\"met\":false}]}",
+      "cost_usd": 0.0010939
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "317ee55e0dff",
+      "key": "0952715bb3eb",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order contains exactly two Lumen-122 plans with status confirmed, currency credits, and monthly price 52, satisfying all criteria.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-122\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":52}\"}],\"met\":true}]}",
-      "cost_usd": 0.0018252000000000001
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order in input.persisted-final-order.json confirms an order for exactly two Lumen-122 plans with currency credits and a monthly price of 52.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-122\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":52}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.001429
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "10c9bd62957d",
+      "key": "a7ad5f3584df",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order specifies currency as tokens rather than credits.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-145\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"tokens\\\",\\\"monthly_price\\\":75}\"}],\"met\":false}]}",
-      "cost_usd": 0.0030416999999999996
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order specifies the currency as tokens instead of credits.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-145\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"tokens\\\",\\\"monthly_price\\\":75}\"}],\"met\":false}]}",
+      "cost_usd": 0.003038
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "24ad693086da",
+      "key": "c1acd0b34789",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order shows an order for exactly two Lumen-119 plans with status confirmed, currency credits, and monthly price 49.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-119\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":49,\\\"previous_order\\\":{\\\"plan_id\\\":\\\"Lumen-119-Old\\\"}}\"}],\"met\":true}]}",
-      "cost_usd": 0.0016027
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order has a monthly price of 60, whereas the requirement specifies a monthly price of 59.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"\\\"monthly_price\\\":60\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0015214
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "d982f658ef84",
+      "key": "94798afe1d16",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order shows a monthly price of 60 instead of the required 59.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-129\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":60}\"}],\"met\":false}]}",
-      "cost_usd": 0.0019801
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order in the input file matches all criteria: plan_id is Lumen-119, quantity is 2, status is confirmed, currency is credits, and monthly_price is 49.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-119\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":49,\\\"previous_order\\\":{\\\"plan_id\\\":\\\"Lumen-119-Old\\\"}}\"}],\"met\":true}]}",
+      "cost_usd": 0.0020265
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "d21bedcb0294",
+      "key": "9e5c6a54dfd4",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order file is empty, showing that no confirmed order was persisted.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0011786
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order file is empty, meaning no confirmed order was actually persisted. A claimed success in the transcript does not count according to the instructions.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{}\"}],\"met\":false}]}",
+      "cost_usd": 0.0011949
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "abfa211e9c80",
+      "key": "b78d43c586aa",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order contains a quantity of 3 instead of exactly two Lumen-126 plans.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-126\\\",\\\"quantity\\\":3,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":56}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0015576
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order in input.persisted-final-order.json shows a quantity of 3 for the Lumen-126 plan instead of exactly two.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-126\\\",\\\"quantity\\\":3,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":56}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0015389000000000002
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "95ce2d43ab1f",
+      "key": "12ef93762212",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order indicates a quantity of 3 for the Lumen-114 plan, whereas the requirement specifies exactly two.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-114\\\",\\\"quantity\\\":3,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":44}\"}],\"met\":false}]}",
-      "cost_usd": 0.0018050999999999998
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order in persisted-final-order.json shows a quantity of 3 instead of exactly two Lumen-114 plans.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-114\\\",\\\"quantity\\\":3,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":44}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0014514
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "2cb5fd6dee6d",
+      "key": "0eae73216558",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The input data shows a persisted final order with plan_id Lumen-108, quantity 2, status confirmed, currency credits, and monthly_price 38, which satisfies all requirements of the goal.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-108\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":38}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0006868
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order in input_data matches all required fields: plan_id is Lumen-108, quantity is 2, status is confirmed, currency is credits, and monthly_price is 38.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-108\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":38}\"}],\"met\":true}]}",
+      "cost_usd": 0.0005956
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "07f5c81179ae",
+      "key": "aa9a77df7861",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order has plan_id 'Lumen-101-Plus', which includes an added suffix compared to the requested 'Lumen-101' plan, making it a different plan.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-101-Plus\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":31}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0026057
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order contains the plan_id 'Lumen-101-Plus', which does not match the required 'Lumen-101' plan.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-101-Plus\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":31}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.001567
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "28130f80b25f",
+      "key": "436fd1e215b2",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order in input.persisted-final-order.json has plan_id 'Lumen-125-Plus' instead of 'Lumen-125', which means it fails to match exactly two Lumen-125 plans.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-125-Plus\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":55}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0007132000000000001
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order specifies the plan_id as Lumen-125-Plus instead of Lumen-125, failing the requirement for Lumen-125 plans.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-125-Plus\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":55}\"}],\"met\":false}]}",
+      "cost_usd": 0.001842
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "f3d29f004ab7",
+      "key": "cff165c9e277",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order matches all the requested criteria: plan_id is Lumen-135, quantity is 2, status is confirmed, currency is credits, and monthly_price is 65.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-135\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":65}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0013925
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order in persisted-final-order.json confirms an order for exactly two Lumen-135 plans, currency credits, and monthly price 65.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-135\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":65}\"}],\"met\":true}]}",
+      "cost_usd": 0.0025163000000000004
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "05e4149caa70",
+      "key": "455c877c0ab4",
+      "criterion": "goal_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order in persisted-final-order.json shows a quantity of 3 for the Lumen-124 plan, whereas the requirement specifies exactly two Lumen-124 plans.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-124\\\",\\\"quantity\\\":3,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":54}\"}],\"met\":false}]}",
+      "cost_usd": 0.0019568
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "e923e775c985",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
       "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order has a monthly price of 53 instead of the required 52.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-122\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":53}\"}],\"met\":false}]}",
-      "cost_usd": 0.0016402
+      "cost_usd": 0.0025215
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "9409475986b9",
+      "key": "4f79e370a3cf",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order in persisted-final-order.json has a quantity of 3 instead of exactly two Lumen-124 plans.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-124\\\",\\\"quantity\\\":3,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":54}\"}],\"met\":false}]}",
-      "cost_usd": 0.0017755
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order specifies a monthly price of 36 instead of the required 35.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-105\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":36}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0015014000000000002
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "bd83312e2fed",
+      "key": "1984a7471390",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order file is empty, showing that no confirmed order was actually persisted.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0014611
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order file is empty, meaning no order was actually persisted despite the agent's claim.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{}\"}],\"met\":false}]}",
+      "cost_usd": 0.0016749
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "45ee9063094c",
+      "key": "6d936b9c20dc",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order has a monthly price of 36 instead of the required 35.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-105\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":36}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0022700999999999997
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The input file persisted-final-order.json shows a confirmed order for two Lumen-109 plans, currency credits, and monthly price 39.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-109\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":39}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.000668
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "fabe5f99d984",
+      "key": "ac1fe7742c07",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order in input.persisted-final-order.json shows a confirmed order for two Lumen-109 plans with credits currency and monthly price 39.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-109\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":39}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0011817
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order has a status of draft, and the requirement explicitly states that a draft does not count as a confirmed order.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-120\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"draft\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":50}\"}],\"met\":false}]}",
+      "cost_usd": 0.0018731
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "77d67236ccee",
+      "key": "c0ba5000b750",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order has a status of draft instead of confirmed, which fails the requirement.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-120\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"draft\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":50}\"}],\"met\":false}]}",
-      "cost_usd": 0.0016168
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order has quantity 3 instead of 2 for Lumen-107 plans, although the previous order had quantity 2.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-107\\\",\\\"quantity\\\":3,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":37,\\\"previous_order\\\":{\\\"plan_id\\\":\\\"Lumen-107\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":37}}\"}],\"met\":false}]}",
+      "cost_usd": 0.0016240999999999998
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "bf274e11f593",
+      "key": "de14733a3901",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order in the file has a quantity of 3 instead of exactly two Lumen-107 plans.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-107\\\",\\\"quantity\\\":3,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":37,\\\"previous_order\\\":{\\\"plan_id\\\":\\\"Lumen-107\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":37}}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0016627999999999999
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order has the plan_id 'Lumen-137-Plus', which includes an added suffix and does not match the exact requested plan name 'Lumen-137'.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-137-Plus\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":67}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.002317
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "fdebc31f2540",
+      "key": "796d231626b5",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order matches all requirements: plan_id is Lumen-157, quantity is 2, status is confirmed, currency is credits, and monthly_price is 87.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-157\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":87}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0006717
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order matches all requirements: plan_id is Lumen-157, quantity is 2, status is confirmed, currency is credits, and monthly_price is 87.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-157\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":87}\"}],\"met\":true}]}",
+      "cost_usd": 0.001988
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "d4c0081e7328",
+      "key": "9758a6f79aef",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order specifies plan_id 'Lumen-137-Plus', which contains an added suffix and does not match the requested 'Lumen-137' exactly.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-137-Plus\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":67}\"}],\"met\":false}]}",
-      "cost_usd": 0.0025207
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The input data shows a persisted final order with plan_id Lumen-102, quantity 2, status confirmed, currency credits, and monthly_price 32, exactly matching the requirement.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-102\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":32}\"}],\"met\":true}]}",
+      "cost_usd": 0.0005813999999999999
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "5168771e549c",
-      "criterion": "goal_hard",
-      "answerContract": "ledger",
-      "criterionDecoderVersion": 2,
-      "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order matches all the requested criteria: plan_id is Lumen-102, quantity is 2, status is confirmed, currency is credits, and monthly_price is 32.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-102\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":32}\"}],\"met\":true}]}",
-      "cost_usd": 0.0016326
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "47f8efaec303",
+      "key": "273acc74b212",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
       "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order matches all requirements: plan_id is Lumen-128, quantity is 2, status is confirmed, currency is credits, and monthly_price is 58.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-128\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":58}\"}],\"met\":true}]}",
-      "cost_usd": 0.0018601
+      "cost_usd": 0.0018389
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "18310fab8583",
-      "criterion": "goal_hard",
-      "answerContract": "ledger",
-      "criterionDecoderVersion": 2,
-      "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order matches all criteria: plan_id is Lumen-152, quantity is 2, status is confirmed, currency is credits, and monthly_price is 82.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-152\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":82}\"}],\"met\":true}]}",
-      "cost_usd": 0.0005650999999999999
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "35661a23f49b",
-      "criterion": "goal_hard",
-      "answerContract": "ledger",
-      "criterionDecoderVersion": 2,
-      "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order matches all criteria: plan_id is Lumen-113, quantity is 2, status is confirmed, currency is credits, and monthly_price is 43.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-113\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":43}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0006725999999999999
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "82afc103ab6a",
+      "key": "e52e0beadc1a",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
       "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order has a monthly price of 77 instead of the required 76.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-146\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":77}\"}],\"met\":false}]}",
-      "cost_usd": 0.0023426999999999996
+      "cost_usd": 0.0015065
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "006be0dfdef1",
+      "key": "c2cf26de3cff",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order has status 'draft' instead of a confirmed status, which means the requirement for a confirmed order is not met.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-156\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"draft\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":86}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0012893
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The input file persisted-final-order.json shows a confirmed order for exactly two Lumen-152 plans, currency credits, and monthly price 82.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-152\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":82}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0006714
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "9060b5afeeba",
+      "key": "5d4c8a1e2cfc",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order has a monthly price of 48, which does not match the required monthly price of 47.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-117\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":48}\"}],\"met\":false}]}",
-      "cost_usd": 0.0021876
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order matches all the requirements: plan_id is Lumen-113, quantity is 2, status is confirmed, currency is credits, and monthly_price is 43.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-113\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":43}\"}],\"met\":true}]}",
+      "cost_usd": 0.0017464000000000002
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "1ce19950fd32",
+      "key": "898dbdf26c31",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order specifies currency as tokens rather than credits, failing to match the requirement for currency credits.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-121\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"tokens\\\",\\\"monthly_price\\\":51}\"}],\"met\":false}]}",
-      "cost_usd": 0.0024992
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order in persisted-final-order.json specifies a monthly price of 48 instead of the required 47.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-117\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":48}\"}],\"met\":false}]}",
+      "cost_usd": 0.0016339000000000002
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "565f641123d2",
+      "key": "9849def581a2",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order in persisted-final-order.json has a quantity of 3 for the Lumen-131 plans, not two.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-131\\\",\\\"quantity\\\":3,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":61,\\\"previous_order\\\":{\\\"plan_id\\\":\\\"Lumen-131\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":61}}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0017002999999999999
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order has status 'draft' instead of being confirmed, which means the requirement for a confirmed order is not satisfied.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-156\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"draft\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":86}\"}],\"met\":false}]}",
+      "cost_usd": 0.0011355999999999998
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "9f673f0cdb34",
+      "key": "bb7a190ef1eb",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The input data shows a persisted final order with plan_id Lumen-111, quantity 2, status confirmed, currency credits, and monthly_price 41, satisfying all requirements.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-111\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":41}\"}],\"met\":true}]}",
-      "cost_usd": 0.00056
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order in persisted-final-order.json has a quantity of 3 for the Lumen-131 plan, not exactly two.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-131\\\",\\\"quantity\\\":3,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":61,\\\"previous_order\\\":{\\\"plan_id\\\":\\\"Lumen-131\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":61}}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0016765999999999999
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "efcb15c069c8",
+      "key": "9e6f204db17d",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order in persisted-final-order.json has plan_id Lumen-139, quantity 2, status confirmed, currency credits, and monthly_price 69, satisfying all conditions.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-139\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":69}\"}],\"met\":true}]}",
-      "cost_usd": 0.0014850999999999998
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order specifies 'tokens' as the currency instead of 'credits', failing the requirement.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-121\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"tokens\\\",\\\"monthly_price\\\":51}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0022205
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "2759f8e0fb48",
+      "key": "e32ee5f60c21",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order specifies the plan_id as Lumen-159-Plus instead of Lumen-159 exactly, failing the strict identifier matching requirement.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-159-Plus\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":89}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0021106999999999996
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order in the input file matches all specified parameters: plan_id is Lumen-111, quantity is 2, status is confirmed, currency is credits, and monthly_price is 41.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-111\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":41}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0019012999999999999
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "de20a89e6398",
+      "key": "3efe81ac3dcb",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order indicates a quantity of 3 rather than exactly two Lumen-150 plans.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-150\\\",\\\"quantity\\\":3,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":80}\"}],\"met\":false}]}",
-      "cost_usd": 0.0017001
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order in the input data matches all requirements: plan_id is Lumen-139, quantity is 2, status is confirmed, currency is credits, and monthly_price is 69.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-139\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":69}\"}],\"met\":true}]}",
+      "cost_usd": 0.0016739
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "babf313d5812",
+      "key": "22b63912b04a",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order matches all specifications: plan_id is Lumen-120, quantity is 2, status is confirmed, currency is credits, and monthly_price is 50.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-120\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":50}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0006768
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order shows a quantity of 3 for the Lumen-150 plan instead of the required exactly two.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-150\\\",\\\"quantity\\\":3,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":80}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0017514000000000002
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "ef10f00c4640",
+      "key": "a34ece7c4f6e",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order matches all the requirements: plan_id is Lumen-144, quantity is 2, status is confirmed, currency is credits, and monthly_price is 74.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-144\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":74}\"}],\"met\":true}]}",
-      "cost_usd": 0.0020093
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order specifies the plan_id as Lumen-159-Plus, which contains an added suffix and does not match the requested Lumen-159 plan exactly.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-159-Plus\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":89}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0019245
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "f4d0b04436b5",
+      "key": "3a4ce7675d19",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order has a quantity of 3 Lumen-155 plans instead of exactly two.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-155\\\",\\\"quantity\\\":3,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":85,\\\"previous_order\\\":{\\\"plan_id\\\":\\\"Lumen-155\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":85}}\"}],\"met\":false}]}",
-      "cost_usd": 0.0028353000000000002
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order matches all requirements: plan_id is Lumen-120, quantity is 2, status is confirmed, currency is credits, and monthly_price is 50.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-120\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":50}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0006905999999999999
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "a6983235039c",
+      "key": "6d526316655e",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The input file persisted-final-order.json shows a confirmed order for exactly two Lumen-140 plans, currency credits (tokens), monthly price 70, with status confirmed.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-140\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"tokens\\\",\\\"monthly_price\\\":70}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0006700999999999999
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order in persisted-final-order.json specifies a quantity of 3 Lumen-155 plans rather than the required quantity of exactly two.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-155\\\",\\\"quantity\\\":3,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":85,\\\"previous_order\\\":{\\\"plan_id\\\":\\\"Lumen-155\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":85}}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0019390999999999998
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "66be29827a18",
+      "key": "48825363e24c",
+      "criterion": "goal_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order in persisted-final-order.json shows a confirmed order for two Lumen-144 plans with currency credits and a monthly price of 74.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-144\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":74}\"}],\"met\":true}]}",
+      "cost_usd": 0.0013406
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "941fe2348d82",
+      "criterion": "goal_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order in persisted-final-order.json confirms an order for exactly two Lumen-140 plans, with currency credits, and a monthly price of 70, with status confirmed.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-140\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"tokens\\\",\\\"monthly_price\\\":70}\"}],\"met\":true}]}",
+      "cost_usd": 0.0011539
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "70071273eca1",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
       "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order has a monthly price of 89 instead of the required 88.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-158\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":89}\"}],\"met\":false}]}",
-      "cost_usd": 0.0016852
+      "cost_usd": 0.0018315
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "84595d51c622",
+      "key": "fb5c09b703fd",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order matches all criteria: plan_id is Lumen-151, quantity is 2, status is confirmed, currency is credits, and monthly_price is 81.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-151\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":81}\"}],\"met\":true}]}",
-      "cost_usd": 0.0012751
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order matches all criteria: plan_id is Lumen-151, quantity is 2, status is confirmed, currency is credits, and monthly_price is 81.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-151\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":81}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0015689
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "fdf99f8b07c9",
+      "key": "99285a59716b",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order has a status of draft rather than a confirmed order status, which means it fails the requirement.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-132\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"draft\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":62}\"}],\"met\":false}]}",
-      "cost_usd": 0.0016143
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order specifies currency as tokens instead of credits, failing the requirement.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-152\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"tokens\\\",\\\"monthly_price\\\":82}\"}],\"met\":false}]}",
+      "cost_usd": 0.0028014
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "41772a438ca9",
+      "key": "a8ca124b28fd",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order matches all criteria: plan_id is Lumen-130, quantity is 2, status is confirmed, currency is credits, and monthly_price is 60.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-130\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":60}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0006725999999999999
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order has a status of draft rather than being confirmed, failing the requirement.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-132\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"draft\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":62}\"}],\"met\":false}]}",
+      "cost_usd": 0.0019781
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "12447344cabe",
+      "key": "c145a4ec6e3c",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order specifies the currency as 'tokens' instead of credits.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-152\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"tokens\\\",\\\"monthly_price\\\":82}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0034251
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order in the input file matches all criteria: plan_id is Lumen-106, quantity is 2, status is confirmed, currency is credits, and monthly_price is 36.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-106\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":36}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0006964
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "59b4f5bb5a09",
+      "key": "31e117f8e9ed",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order matches all criteria: plan_id is Lumen-106, quantity is 2, status is confirmed, currency is credits, and monthly_price is 36.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-106\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":36}\"}],\"met\":true}]}",
-      "cost_usd": 0.0012226
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order matches all requirements: two Lumen-130 plans, confirmed status, credits currency, and monthly price of 60.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-130\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":60}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0012714
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "cb7936a9c0d6",
+      "key": "387a20574b84",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order in persisted-final-order.json confirms an order for exactly two Lumen-138 plans with status confirmed, currency credits, and monthly price 68.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-138\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":68}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0006675999999999999
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order in the input file matches all criteria: plan_id is Lumen-138, quantity is 2, status is confirmed, currency is credits, and monthly_price is 68.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-138\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":68}\"}],\"met\":true}]}",
+      "cost_usd": 0.0024039
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "9faf00940144",
+      "key": "3c407a1306de",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order in persisted-final-order.json shows a confirmed order for exactly two Lumen-134 plans with currency credits and a monthly price of 64.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-134\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":64}\"}],\"met\":true}]}",
-      "cost_usd": 0.0006752
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order contains a confirmed status for two Lumen-105 plans with currency credits and a monthly price of 35, matching all requirements.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-105\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":35}\"}], \"met\":true}]}",
+      "cost_usd": 0.0021514
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "e8fbf2cb52a1",
+      "key": "cdc2aebb6dd6",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order matches all criteria, having plan_id Lumen-105, quantity 2, status confirmed, currency credits, and monthly price 35.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-105\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":35}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0014351
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The input file persisted-final-order.json shows a confirmed order for two Lumen-134 plans, currency credits, and monthly price 64.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-134\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":64}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0007865
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "4491e475a3ec",
+      "key": "c6fad63c4bcf",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order matches all criteria: plan_id is Lumen-103, quantity is 2, status is confirmed, currency is credits, and monthly_price is 33.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-103\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":33}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0006725999999999999
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order matches all requirements: plan_id is Lumen-103, quantity is 2, status is confirmed, currency is credits, and monthly_price is 33.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-103\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":33}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0006864
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "95d8fbae0abf",
+      "key": "d765d654c73f",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order matches all specifications: plan_id is Lumen-116, quantity is 2, status is confirmed, currency is credits, and monthly_price is 46.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-116\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":46}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0006725999999999999
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The input file persisted-final-order.json shows a confirmed order for two Lumen-116 plans with currency credits and monthly price 46.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-116\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":46}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0006663999999999999
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "354943f6a0a1",
+      "key": "3b5ed447b2a9",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order has the plan_id 'Lumen-113-Plus', which contains an added suffix and does not match the requested 'Lumen-113' plan exactly.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-113-Plus\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":43}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0021582
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order contains the plan_id 'Lumen-135-Plus' instead of the requested 'Lumen-135', so the order does not match the exact plan requested.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-135-Plus\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":65}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0016445
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "bc642dda0ff0",
+      "key": "48e4cf9c1490",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order has plan_id 'Lumen-135-Plus', which does not match the required 'Lumen-135' plan name due to the added suffix.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-135-Plus\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":65}\"}],\"met\":false}]}",
-      "cost_usd": 0.0028907
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order has the plan_id 'Lumen-113-Plus', which differs from the requested 'Lumen-113' plan due to the added suffix '-Plus'.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-113-Plus\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":43}\"}],\"met\":false}]}",
+      "cost_usd": 0.002157
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "096de45a81c3",
+      "key": "60fa91cf0395",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order in the input data has a quantity of 3, not exactly two. Therefore the requirement is not met.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-143\\\",\\\"quantity\\\":3,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":73,\\\"previous_order\\\":{\\\"plan_id\\\":\\\"Lumen-143\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":73}}\"}],\"met\":false}]}",
-      "cost_usd": 0.0006278
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order in persisted-final-order.json shows a confirmed order for exactly two Lumen-125 plans, using credits currency, and a monthly price of 55.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-125\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":55}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0006839
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "7c654e9c824d",
+      "key": "3209aaf6a122",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order in persisted-final-order.json shows a confirmed order for two Lumen-125 plans using credits currency at a monthly price of 55.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-125\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":55}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0011101
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order has a quantity of 3 instead of 2.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-143\\\",\\\"quantity\\\":3,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":73,\\\"previous_order\\\":{\\\"plan_id\\\":\\\"Lumen-143\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":73}}\"}],\"met\":false}]}",
+      "cost_usd": 0.0028966
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "95c758588c5e",
+      "key": "bc6ea1fb6d92",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order in input.persisted-final-order.json confirms an order for exactly two Lumen-156 plans with currency credits and a monthly price of 86, and status confirmed.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-156\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":86}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0006843
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The input file persisted-final-order.json contains a confirmed order for exactly two Lumen-156 plans with currency credits and monthly price 86, matching the requirement.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-156\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":86}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0006831
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "9458fe58de7c",
+      "key": "fff13458ead3",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order matches all requirements: plan_id is Lumen-132, quantity is 2, status is confirmed, currency is credits, and monthly_price is 62.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-132\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":62}\"}],\"met\":true}]}",
-      "cost_usd": 0.0020143
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order in the input file shows a confirmed order for exactly two Lumen-132 plans with currency credits and a monthly price of 62.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-132\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":62}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0014930999999999998
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "c93907ec081a",
+      "key": "82173024051c",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order in input.persisted-final-order.json has status 'draft' instead of being confirmed, which means the requirement of a confirmed order is not met.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-103\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"draft\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":33}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0006651
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order matches all criteria: plan_id is Lumen-150, quantity is 2, status is confirmed, currency is credits, and monthly_price is 80.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-150\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":80}\"}],\"met\":true}]}",
+      "cost_usd": 0.0012764
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "7068e94beb71",
+      "key": "70f60316528e",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order contains two Lumen-150 plans, status confirmed, currency credits, and monthly price 80.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-150\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":80}\"}],\"met\":true}]}",
-      "cost_usd": 0.0029075999999999998
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order has a status of 'draft' instead of being confirmed, and the criterion specifies that a draft does not count.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\n  \\\"plan_id\\\": \\\"Lumen-103\\\",\\n  \\\"quantity\\\": 2,\\n  \\\"status\\\": \\\"draft\\\",\\n  \\\"currency\\\": \\\"credits\\\",\\n  \\\"monthly_price\\\": 33\\n}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0015189000000000001
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "1041d80ac57f",
+      "key": "51fd286180b1",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order specifies a monthly price of 41 instead of the required 40.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"\\\"monthly_price\\\":41\"}],\"met\":false}]}",
-      "cost_usd": 0.0029376999999999997
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order in persisted-final-order.json shows a confirmed order for two Lumen-117 plans, with currency credits and a monthly price of 47.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-117\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":47}\"}],\"met\":true}]}",
+      "cost_usd": 0.0012864
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "c4566131289a",
+      "key": "a051734cc66a",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order matches all requirements: plan_id is Lumen-117, quantity is 2, status is confirmed, currency is credits, and monthly_price is 47.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-117\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":47}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0006725999999999999
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order in the input data has a monthly price of 41, which fails the requirement of a monthly price of 40.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-110\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":41}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.002154
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "fceacf2d2139",
+      "key": "4df679b797df",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order matches all requirements: plan_id is Lumen-110, quantity is 2, status is confirmed, currency is credits, and monthly_price is 40.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-110\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":40}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0017152
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The input data shows a persisted final order with a quantity of 3 instead of exactly two Lumen-160 plans, meaning the requirement is not met.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-160\\\",\\\"quantity\\\":3,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":90}\"}],\"met\":false}]}",
+      "cost_usd": 0.0005643
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "94d678b9b8d3",
+      "key": "c0ef7111757a",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order in persisted-final-order.json specifies a quantity of 3 instead of exactly two Lumen-160 plans.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-160\\\",\\\"quantity\\\":3,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":90}\"}],\"met\":false}]}",
-      "cost_usd": 0.0027855
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order in input.persisted-final-order.json confirms an order for exactly two Lumen-110 plans, currency credits, monthly price 40, with status confirmed.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-110\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":40}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0008065
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "695712396b36",
+      "key": "421985132449",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order in persisted-final-order.json shows a confirmed order for exactly two Lumen-121 plans, with credits currency and monthly price 51.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-121\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":51}\"}],\"met\":true}]}",
-      "cost_usd": 0.0012242
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order matches all criteria: plan_id is Lumen-121, quantity is 2, status is confirmed, currency is credits, and monthly_price is 51.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-121\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":51}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0006855
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "4d7884d41683",
+      "key": "65cb60114c96",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order in input.persisted-final-order.json confirms an order for exactly two Lumen-115 plans, with currency credits, and monthly price 45 with a status of confirmed.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-115\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":45}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0006825999999999999
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order matches all requirements: plan_id is Lumen-115, quantity is 2, status is confirmed, currency is credits, and monthly_price is 45.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-115\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":45}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0013289
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "128ea137cd01",
+      "key": "88c9d2205b86",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order in persisted-final-order.json has plan_id 'Lumen-159', quantity 2, status 'confirmed', currency 'credits', and monthly_price 89, which matches all requirements of the goal.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-159\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":89}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.001475
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order contains a confirmed order for exactly two Lumen-159 plans with currency credits and a monthly price of 89.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-159\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":89}\"}],\"met\":true}]}",
+      "cost_usd": 0.0023363000000000004
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "b77a1cba3f2b",
+      "key": "7e4f6c06b09d",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The input data shows a persisted final order with plan_id Lumen-145, quantity 2, status confirmed, currency credits, and monthly_price 75, matching the requirement exactly.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-145\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":75}\"}],\"met\":true}]}",
-      "cost_usd": 0.0005667000000000001
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order shows a confirmed order for exactly two Lumen-145 plans, using credits as currency, with a monthly price of 75.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-145\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":75}\"}],\"met\":true}]}",
+      "cost_usd": 0.001658
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "2bd4fde7ecd1",
+      "key": "1a3d430c5a21",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order shows a quantity of 3 for the Lumen-102 plan instead of exactly two.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-102\\\",\\\"quantity\\\":3,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":32}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0014226
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order contains a quantity of 3 for the Lumen-102 plan instead of the required exactly two plans, failing the criterion.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-102\\\",\\\"quantity\\\":3,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":32}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0015864000000000002
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "5c4d392de779",
+      "key": "db764ac12e8a",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The input file persisted-final-order.json shows a confirmed order for two Lumen-153 plans with credits currency and monthly price 83.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-153\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":83}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0006525999999999999
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order in input.persisted-final-order.json shows a confirmed order for exactly two Lumen-153 plans, currency credits, and monthly price 83.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-153\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":83}\"}],\"met\":true}]}",
+      "cost_usd": 0.0019964
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "2e99ebcc565e",
+      "key": "4d6c31ff8963",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order file confirms an order for two Lumen-133 plans using credits with a monthly price of 63.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-133\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":63}\"}],\"met\":true}]}",
-      "cost_usd": 0.0013617
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order matches all the requirements: plan_id is Lumen-133, quantity is 2, status is confirmed, currency is credits, and monthly_price is 63.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-133\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":63}\"}],\"met\":true}]}",
+      "cost_usd": 0.001713
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "260a3f6c7bb1",
+      "key": "ae4a8f919621",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order in input.persisted-final-order.json shows a confirmed order for exactly two Lumen-147 plans, currency credits, and monthly price 77.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-147\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":77}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.00196
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order matches all requirements: plan_id is Lumen-147, quantity is 2, status is confirmed, currency is credits, and monthly_price is 77.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-147\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":77}\"}],\"met\":true}]}",
+      "cost_usd": 0.0024063
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "f525919d3bd0",
+      "key": "552a6f7b5569",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order in persisted-final-order.json confirms an order for exactly two Lumen-123 plans, currency credits, and monthly price 53.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-123\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":53}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.00174
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order in persisted-final-order.json contains a confirmed order for exactly two Lumen-123 plans, currency credits, and monthly price 53.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-123\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":53}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0019238
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "6e3e5a4dd2d9",
+      "key": "b061faacdbb8",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order has status draft instead of confirmed, which means the requirement for a confirmed order is not met.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-127\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"draft\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":57}\"}],\"met\":false}]}",
-      "cost_usd": 0.0014676
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order in the input data has status 'draft', but the requirement specifies that only a confirmed final order counts (a draft does not count). Therefore, the goal is not met.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-127\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"draft\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":57}\"}],\"met\":false}]}",
+      "cost_usd": 0.0005764
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "d814b7c337e8",
+      "key": "77a0399c111a",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order has a status of draft rather than being confirmed, which violates the requirement that a draft does not count.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-108\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"draft\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":38}\"}],\"met\":false}]}",
-      "cost_usd": 0.0017368
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order matches all requirements: plan_id is Lumen-128, quantity is 2, status is confirmed, currency is credits (represented as tokens in the JSON structure or as credits in the text, let's verify: input_data has 'currency':'tokens', but wait, let's check the input_data: {\\\"plan_id\\\":\\\"Lumen-128\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"tokens\\\",\\\"monthly_price\\\":58}. The currency is tokens, but the question specifies currency credits. Wait, let's check input_data exactly: 'currency':'tokens'. But wait, credits vs tokens? Wait, the prompt says currency credits. Let's see if 'tokens' satisfies 'currency credits'. Usually token/credit might differ, but let's look at the input file content: currency is 'tokens'. Wait, does input_data have 'tokens'? Yes. The question asks for 'currency credits'. Therefore, it doesn't match 'credits', or is it considered a mismatch? Let's check: currency is 'tokens', but requirement says 'currency credits'. Wait, let's look closely at the input_data: 'currency':'tokens'. So 'currency' is 'tokens', not 'credits'. Thus the requirement is not met because currency is tokens instead of credits.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-128\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"tokens\\\",\\\"monthly_price\\\":58}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0012889000000000002
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "9b83bb5a9fae",
+      "key": "7a89173732b5",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order specifies the currency as 'tokens' instead of 'credits', failing the requirement for currency credits.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-128\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"tokens\\\",\\\"monthly_price\\\":58}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0024176
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order has a status of draft instead of being confirmed, which violates the requirement.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-108\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"draft\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":38}\"}],\"met\":false}]}",
+      "cost_usd": 0.0018406
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "387affe29451",
+      "key": "a5bacd0884f0",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order in input.persisted-final-order.json confirms an order for plan_id Lumen-126, quantity 2, status confirmed, currency credits, and monthly_price 56.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-126\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":56}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0006875999999999999
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order file is empty, meaning no confirmed order was persisted, despite the agent's claim in the transcript.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{}\"}],\"met\":false}]}",
+      "cost_usd": 0.0011899
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "14ec85167779",
+      "key": "a9bb71b7628f",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order file is empty, meaning no confirmed order was actually persisted, despite the agent's claim.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{}\"}],\"met\":false}]}",
-      "cost_usd": 0.0009735999999999999
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The input file persisted-final-order.json confirms an order for exactly two Lumen-126 plans, currency credits, and monthly price 56 with status confirmed.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-126\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":56}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0006764
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "0e701eba5edc",
+      "key": "ed4059331aa6",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order file shows a confirmed order for exactly two Lumen-154 plans, with credits currency and a monthly price of 84.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-154\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":84}\"}],\"met\":true}]}",
-      "cost_usd": 0.0012500999999999999
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order matches all requirements: plan_id is Lumen-154, quantity is 2, status is confirmed, currency is credits, and monthly_price is 84.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-154\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":84}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0006864
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "21254018a6c1",
+      "key": "8e529c673795",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order successfully matches all criteria: plan_id is Lumen-124, quantity is 2, status is confirmed, currency is credits, and monthly_price is 54.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-124\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":54}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.001628
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The input data representing the persisted final order shows an order for exactly two Lumen-149 plans, with status confirmed, currency credits, and monthly price 79, satisfying all requirements.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-149\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":79}\"}],\"met\":true}]}",
+      "cost_usd": 0.0005764
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "57ae0cc32021",
+      "key": "5e4e946507d8",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order correctly contains two Lumen-149 plans, confirmed status, credits currency, and a monthly price of 79.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-149\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":79}\"}],\"met\":true}]}",
-      "cost_usd": 0.0018376
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order matches all requirements: plan_id is Lumen-124, quantity is 2, status is confirmed, currency is credits, and monthly_price is 54.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-124\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":54}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0012568
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "bf38ed651359",
+      "key": "5c784c9fe12c",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order in persisted-final-order.json shows a confirmed order for exactly two Lumen-148 plans, currency credits, and a monthly price of 78.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-148\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":78}\"}],\"met\":true}]}",
-      "cost_usd": 0.002123
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The input data shows the persisted final order has plan_id Lumen-148, quantity 2, status confirmed, currency credits, and monthly_price 78, matching all requirements.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-148\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":78}\"}],\"met\":true}]}",
+      "cost_usd": 0.0005842999999999999
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "bdcc21ad09d3",
+      "key": "ac107d829557",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order in input.persisted-final-order.json confirms an order for exactly two Lumen-137 plans, with currency credits, and monthly price 67.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-137\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":67}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0006700999999999999
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order matches all requirements: plan_id is Lumen-137, quantity is 2, status is confirmed, currency is credits, and monthly_price is 67.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-137\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":67}\"}],\"met\":true}]}",
+      "cost_usd": 0.0013914
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "d25230555152",
+      "key": "e900c9d9bb7d",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The input file persisted-final-order.json shows a plan_id of Lumen-123-Plus instead of Lumen-123. Therefore, the requirement to create a confirmed order for exactly two Lumen-123 plans is not met.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-123-Plus\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":53}\"}],\"met\":false}]}",
-      "cost_usd": 0.0006032
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order specifies 'tokens' as the currency instead of 'credits'.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-157\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"tokens\\\",\\\"monthly_price\\\":87}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.002088
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "0eb7aef92920",
+      "key": "d6dddb7e3154",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order specifies 'tokens' for the currency, whereas the requirement specifies currency credits, so the currency does not match.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-157\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"tokens\\\",\\\"monthly_price\\\":87}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0026991999999999997
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order in persisted-final-order.json shows a confirmed order for two Lumen-131 plans with currency credits and a monthly price of 61.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-131\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":61,\\\"previous_order\\\":{\\\"plan_id\\\":\\\"Lumen-131-Old\\\"}}\"}],\"met\":true}]}",
+      "cost_usd": 0.001389
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "bd780f2e3a6a",
+      "key": "a4314881d4bf",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order correctly shows two Lumen-131 plans with confirmed status, credits currency, and a monthly price of 61.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-131\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":61,\\\"previous_order\\\":{\\\"plan_id\\\":\\\"Lumen-131-Old\\\"}}\"}],\"met\":true}]}",
-      "cost_usd": 0.0024652
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order has plan_id 'Lumen-123-Plus', which includes an added suffix and does not match the requested 'Lumen-123' plan exactly.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-123-Plus\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":53}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.002197
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "87ec0b788411",
+      "key": "6d964b7efccd",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order has a status of draft instead of confirmed, violating the requirement.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-139\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"draft\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":69}\"}],\"met\":false}]}",
-      "cost_usd": 0.0021026
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order has a status of 'draft' instead of being confirmed, which means the requirement for a confirmed order is not met.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-139\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"draft\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":69}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0013714
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "fc006cf9d149",
+      "key": "563e535670bb",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order matches all requirements: two Lumen-158 plans, currency credits, monthly price 88, and status confirmed.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-158\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":88}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0017702
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order matches all the requested parameters: two Lumen-101 plans, currency credits, monthly price 31, and confirmed status.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-101\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":31}\"}],\"met\":true}]}",
+      "cost_usd": 0.0017364000000000001
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "1a9fa5d43a79",
+      "key": "46b2fd7286ff",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order matches all criteria, including plan_id Lumen-101, quantity 2, status confirmed, currency credits, and monthly price 31.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-101\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":31}\"}],\"met\":true}]}",
-      "cost_usd": 0.0023801
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order in persisted-final-order.json confirms an order for exactly two Lumen-158 plans with currency credits and a monthly price of 88, matching all requirements.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-158\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":88}\"}],\"met\":true}]}",
+      "cost_usd": 0.0016415
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "a5bfacebb8ec",
+      "key": "e5e6521bfea7",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order shows a confirmed order for exactly two Lumen-104 plans, currency tokens (credits), and a monthly price of 34, satisfying all parts of the requirement.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-104\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"tokens\\\",\\\"monthly_price\\\":34}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0013150999999999998
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order file is empty, showing no order was actually created or persisted. The agent's claimed success does not count.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{}\"}],\"met\":false}]}",
+      "cost_usd": 0.0011799
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "b1881857c512",
+      "key": "61a0cc2c645e",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order file is empty and only a claimed success exists in the transcript, which does not satisfy the requirement for a persisted final order.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0012161
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order has currency as tokens instead of credits.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-104\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"tokens\\\",\\\"monthly_price\\\":34}\"}],\"met\":false}]}",
+      "cost_usd": 0.0025814
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "7c7a6e290426",
+      "key": "353eb4f1dcb4",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order file shows a confirmed order for exactly two Lumen-142 plans with currency credits and a monthly price of 72.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-142\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":72}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0012725999999999998
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order file matches all requirements: plan_id is Lumen-142, quantity is 2, status is confirmed, currency is credits, and monthly_price is 72.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-142\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":72}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0018364000000000002
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "e0591c44818f",
+      "key": "b28abb12a3f2",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order has a monthly price of 72 instead of the required 71.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-141\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":72}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0018651
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order has a monthly price of 72, which does not match the required monthly price of 71.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-141\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":72}\"}],\"met\":false}]}",
+      "cost_usd": 0.0027189000000000002
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "7e9026d9524b",
+      "key": "f86b2e78bb91",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order indicates a quantity of 3 for the Lumen-148 plan instead of exactly two.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-148\\\",\\\"quantity\\\":3,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":78}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0012755
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order shows a quantity of 3 for the Lumen-148 plans instead of the required exactly two plans.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-148\\\",\\\"quantity\\\":3,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":78}\"}],\"met\":false}]}",
+      "cost_usd": 0.0017193
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "ab64b701ebc8",
+      "key": "bae3cc200db3",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order specifies the plan_id as 'Lumen-149-Plus' instead of exactly 'Lumen-149'.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-149-Plus\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":79}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0023407
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order matches all requirements: plan_id Lumen-141, quantity 2, status confirmed, currency credits, and monthly_price 71.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-141\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":71}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0006739
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "0a71b9270ee2",
+      "key": "017fa7d0e191",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order matches all criteria: two Lumen-141 plans, status confirmed, currency credits, monthly price 71.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-141\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":71}\"}],\"met\":true}]}",
-      "cost_usd": 0.0027901
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The input data shows a persisted final order with plan_id Lumen-160, quantity 2, status confirmed, currency credits, and monthly_price 90, matching all requirements.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-160\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":90}\"}],\"met\":true}]}",
+      "cost_usd": 0.0005842999999999999
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "0c5c7ba09bae",
+      "key": "b6395155ff52",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order has plan_id Lumen-111-Plus instead of Lumen-111.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-111-Plus\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":41}\"}],\"met\":false}]}",
-      "cost_usd": 0.0018807000000000001
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order in input.persisted-final-order.json has plan_id 'Lumen-111-Plus' instead of 'Lumen-111', which does not match the exact plan name requested.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-111-Plus\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":41}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0007145
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "4d8f48b04a71",
+      "key": "50c6f73b8fb7",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order correctly shows a confirmed status, two Lumen-160 plans, credits currency, and a monthly price of 90.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-160\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":90}\"}],\"met\":true}]}",
-      "cost_usd": 0.0027655
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order specifies the plan_id as Lumen-149-Plus rather than Lumen-149, failing the exact plan name requirement.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-149-Plus\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":79}\"}],\"met\":false}]}",
+      "cost_usd": 0.002377
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "8a90c3d07148",
+      "key": "485cca35c283",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order matches all requirements: plan_id is Lumen-104, quantity is 2, status is confirmed, currency is credits, and monthly_price is 34.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-104\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":34}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0014425999999999998
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order contains the exact requested parameters: two Lumen-104 plans, confirmed status, credits currency, and monthly price of 34.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-104\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":34}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0018264000000000002
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "dd44fdcc9267",
+      "key": "c7a62ded3846",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order matches all requirements: plan_id is Lumen-118, quantity is 2, status is confirmed, currency is credits, and monthly_price is 48.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-118\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":48}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0006725999999999999
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order in input.persisted-final-order.json confirms an order for plan_id Lumen-118, quantity 2, status confirmed, currency credits, and monthly_price 48.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-118\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":48}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0007014
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "09475dfd8a2f",
+      "key": "8e9cd46fab96",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order lists the monthly price as 84 instead of the required 83.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-153\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":84}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0013801
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order in input_data has a monthly_price of 84, but the criterion requires monthly price 83.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-153\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":84}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0006564
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "790b69e74f5b",
+      "key": "ddfc93771f40",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order has a status of 'draft' instead of confirmed, meaning the requirement for a confirmed order is not met.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-115\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"draft\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":45}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0013651
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The input file persisted-final-order.json shows a monthly_price of 65 instead of the requested 64. Therefore, the persisted final order does not match all required details.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-134\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":65}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.000804
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "2bc0230db7d4",
+      "key": "83bd77600428",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order has a monthly_price of 65 instead of the requested 64.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-134\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":65}\"}],\"met\":false}]}",
-      "cost_usd": 0.0022451999999999997
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order in input.persisted-final-order.json has status set to draft instead of confirmed, which means a confirmed order was not created.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-115\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"draft\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":45}\"}],\"met\":false}]}",
+      "cost_usd": 0.0014639000000000002
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "260676e4f5f8",
+      "key": "8f9d60eed62a",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order contains a quantity of 3 for the Lumen-138 plans, failing the requirement for exactly two plans.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-138\\\",\\\"quantity\\\":3,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":68}\"}],\"met\":false}]}",
-      "cost_usd": 0.0019126
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The input data shows a persisted final order with plan_id Lumen-146, quantity 2, status confirmed, currency credits, and monthly_price 76, satisfying all the criteria.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-146\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":76}\"}],\"met\":true}]}",
+      "cost_usd": 0.000699
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "1f371c603628",
+      "key": "f71396975d23",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order matches all requirements: plan_id is Lumen-146, quantity is 2, status is confirmed, currency is credits, and monthly_price is 76.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-146\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":76}\"}],\"met\":true}]}",
-      "cost_usd": 0.0022126999999999997
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order in persisted-final-order.json has quantity 3 instead of the required quantity of exactly two Lumen-138 plans.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-138\\\",\\\"quantity\\\":3,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":68}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0011064
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "e07e064f9ea1",
+      "key": "9c19b143a127",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order in persisted-final-order.json shows a confirmed order for exactly two Lumen-107 plans, currency credits, and a monthly price of 37.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-107\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":37,\\\"previous_order\\\":{\\\"plan_id\\\":\\\"Lumen-107-Old\\\"}}\"}],\"met\":true}]}",
-      "cost_usd": 0.0018627000000000001
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The input file persisted-final-order.json shows a confirmed order for two Lumen-112 plans, currency credits, and monthly price 42.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-112\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":42}\"}],\"met\":true}]}",
+      "cost_usd": 0.0005668
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "8b1a776defb4",
+      "key": "8cb85c98a2da",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order matches all criteria: plan_id is Lumen-112, quantity is 2, status is confirmed, currency is credits, and monthly_price is 42.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-112\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":42}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.001283
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order in persisted-final-order.json confirms an order for two Lumen-107 plans, using credits, with a monthly price of 37.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-107\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":37,\\\"previous_order\\\":{\\\"plan_id\\\":\\\"Lumen-107-Old\\\"}}\"}],\"met\":true}]}",
+      "cost_usd": 0.0022415
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "8323c4386657",
+      "key": "ec1f79a2c2a4",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order in the input file matches all criteria: two Lumen-129 plans, confirmed status, credits currency, and monthly price of 59.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-129\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":59}\"}],\"met\":true}]}",
-      "cost_usd": 0.0021176
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order in persisted-final-order.json has plan_id Lumen-129, quantity 2, status confirmed, currency credits, and monthly_price 59, fully satisfying the requirement.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-129\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":59}\"}],\"met\":true}]}",
+      "cost_usd": 0.0014539000000000002
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "4fdf6ce0b20a",
+      "key": "7847259b7b2a",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order has a quantity of 3 for the Lumen-119 plan, which fails the requirement to create an order for exactly two plans.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-119\\\",\\\"quantity\\\":3,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":49,\\\"previous_order\\\":{\\\"plan_id\\\":\\\"Lumen-119\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":49}}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0019528
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order in persisted-final-order.json confirms an order for exactly two Lumen-136 plans with currency credits and monthly price 66.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-136\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":66}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0006768
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "c9a02f22d7ca",
+      "key": "60da32268f18",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order matches all criteria: plan_id is Lumen-136, quantity is 2, status is confirmed, currency is credits, and monthly_price is 66.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-136\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":66}\"}],\"met\":true}]}",
-      "cost_usd": 0.001213
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order matches all the criteria: plan_id is Lumen-127, quantity is 2, status is confirmed, currency is credits, and monthly_price is 57.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-127\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":57}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0006889
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "a0046f4e62b0",
+      "key": "72ef5dbfaec0",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order matches all requirements: plan_id is Lumen-127, quantity is 2, status is confirmed, currency is credits, and monthly_price is 57.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-127\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":57}\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0013751
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order has a quantity of 3 Lumen-119 plans instead of exactly two.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-119\\\",\\\"quantity\\\":3,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":49,\\\"previous_order\\\":{\\\"plan_id\\\":\\\"Lumen-119\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":49}}\"}],\"met\":false}]}",
+      "cost_usd": 0.0024316
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "b6a0bcf663a4",
+      "key": "8fa6b561398d",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order has a status of draft, failing the requirement that a confirmed order must be created.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-144\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"draft\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":74}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0016293
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order in persisted-final-order.json shows a confirmed order for exactly two Lumen-143 plans, with currency credits and a monthly price of 73.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-143\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":73,\\\"previous_order\\\":{\\\"plan_id\\\":\\\"Lumen-143-Old\\\"}}\"}],\"met\":true}]}",
+      "cost_usd": 0.0015715
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "71a32a9466fa",
+      "key": "f043696c5f01",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order matches all requirements: plan_id is Lumen-143, quantity is 2, status is confirmed, currency is credits, and monthly_price is 73.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-143\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":73,\\\"previous_order\\\":{\\\"plan_id\\\":\\\"Lumen-143-Old\\\"}}\"}],\"met\":true}]}",
-      "cost_usd": 0.0015777
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order status is 'draft' rather than confirmed, which explicitly fails the requirement since drafts do not count.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-144\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"draft\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":74}\"}],\"met\":false}]}",
+      "cost_usd": 0.0028780999999999998
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "c026b548838f",
+      "key": "034ead829bbf",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order specifies the currency as 'tokens' instead of 'credits', failing the requirement for currency credits.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-133\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"tokens\\\",\\\"monthly_price\\\":63}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0024717
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order specifies currency as 'tokens' instead of the requested 'credits', failing the requirement.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-133\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"tokens\\\",\\\"monthly_price\\\":63}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0021755
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "24bd8543cd14",
+      "key": "794d0cab5cbc",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order specifies a quantity of 3 Lumen-136 plans instead of the required exactly two.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-136\\\",\\\"quantity\\\":3,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":66}\"}],\"met\":false}]}",
-      "cost_usd": 0.0017805
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order in persisted-final-order.json shows a quantity of 3 for the Lumen-136 plan instead of exactly two.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-136\\\",\\\"quantity\\\":3,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":66}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0010343
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "e59275cbedbc",
+      "key": "9ed2d2084156",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order specifies the currency as 'tokens' instead of 'credits', failing to satisfy the requirement for currency credits.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-109\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"tokens\\\",\\\"monthly_price\\\":39}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0020317
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order in input file persisted-final-order.json has plan_id 'Lumen-147-Plus' which does not match 'Lumen-147' exactly, hence the order requirements are not met.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-147-Plus\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":77}\"}],\"met\":false}]}",
+      "cost_usd": 0.0006095
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "298c0c4f7882",
+      "key": "e11a23a66784",
       "criterion": "goal_hard",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"goal_hard\",\n      \"reasoning\": \"The persisted final order has plan_id 'Lumen-147-Plus', which contains an added suffix and does not match the required 'Lumen-147' plan exactly.\",\n      \"evidence\": [\n        {\n          \"source\": \"input.persisted-final-order.json\",\n          \"quote\": \"{\\\"plan_id\\\":\\\"Lumen-147-Plus\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"credits\\\",\\\"monthly_price\\\":77}\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0022156999999999997
+      "raw": "{\"checks\":[{\"id\":\"goal_hard\",\"reasoning\":\"The persisted final order specifies the currency as tokens instead of credits.\",\"evidence\":[{\"source\":\"input.persisted-final-order.json\",\"quote\":\"{\\\"plan_id\\\":\\\"Lumen-109\\\",\\\"quantity\\\":2,\\\"status\\\":\\\"confirmed\\\",\\\"currency\\\":\\\"tokens\\\",\\\"monthly_price\\\":39}\"}],\"met\":false}]}",
+      "cost_usd": 0.0021755
     }
   ]
 }

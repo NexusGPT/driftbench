@@ -14,1203 +14,1203 @@
   "entries": [
     {
       "judge": "haiku",
-      "key": "14f4af655651",
+      "key": "4f9a2a032f38",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the function takes a list as input and returns a dictionary mapping each element to its frequency. The agent's function freq_count(list1) takes a single list argument and returns a dict comprehension {x: list1.count(x) for x in list1}. For the given example freq_count([0, 0, 1]), the comprehension yields {0: 2, 1: 1}, matching the expected value stated by the user. Keys are the elements and values are counts, so the answer to the QUESTION is yes. Nothing in the reply matches the FAIL picture.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) for x in list1}\"},{\"source\":\"transcript.0\",\"quote\":\"freq_count([0, 0, 1]) == {0: 2, 1: 1}\"}],\"met\":true}]}",
-      "cost_usd": 0.00036087
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the function takes a list as input and returns a dictionary mapping each element to its frequency. The agent's function freq_count(list1) takes a list parameter and returns a dict comprehension {x: list1.count(x) for x in list1}. For the example freq_count([0, 0, 1]), the comprehension yields {0: 2, 1: 1}, matching the expected value stated in the user's request. Each key is an element and each value is its count, so the function is correct for this requirement and no failure condition appears.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) for x in list1}\"},{\"source\":\"transcript.0\",\"quote\":\"freq_count([0, 0, 1]) == {0: 2, 1: 1}\"}],\"met\":true}]}",
+      "cost_usd": 0.00035393
     },
     {
       "judge": "haiku",
-      "key": "13d81b06aa98",
+      "key": "83f1b962c252",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that freq_count takes a list and returns a dictionary mapping each element to its frequency. The function does take a list, but it adds 1 to each count: list1.count(x) + 1. For the user's stated example freq_count([0, 0, 1]) the expected result is {0: 2, 1: 1}, while this code yields {0: 3, 1: 2}. The values are wrong, so the function does not correctly return element frequencies, and the answer to the QUESTION is no.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) + 1 for x in list1}\"},{\"source\":\"transcript.0\",\"quote\":\"freq_count([0, 0, 1]) == {0: 2, 1: 1}\"}],\"met\":false}]}",
-      "cost_usd": 0.00046767
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the implemented function converts the input tuple into a dictionary where adjacent elements form key-value pairs. The agent's function takes the even-indexed elements (test_tup[::2]) as keys and the odd-indexed elements (test_tup[1::2]) as values, then zips them into a dict. For the example input (0, 10, 20, 30), this yields keys 0 and 20 and values 10 and 30, giving {0: 10, 20: 30}, which matches the expected output stated in the task. The answer to the question is yes, and no FAIL condition appears in the reply.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[1::2]))\"},{\"source\":\"transcript.0\",\"quote\":\"tuple_to_dict((0, 10, 20, 30)) == {0: 10, 20: 30}\"}],\"met\":true}]}",
+      "cost_usd": 0.0004958300000000001
     },
     {
       "judge": "haiku",
-      "key": "983dfb90dc38",
+      "key": "455ec14f6701",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the implemented function turns the input tuple into a dictionary where adjacent elements form key-value pairs. The agent's function is `dict(zip(test_tup[::2], test_tup[1::2]))`. Slicing `[::2]` takes the elements at even positions as keys and `[1::2]` takes the elements at odd positions as values, so each adjacent pair (element i, element i+1) with i even becomes a key-value pair. For the user's example (0, 10, 20, 30), the keys are (0, 20) and the values are (10, 30), giving {0: 10, 20: 30}, which matches the expected output stated in the request. No FAIL condition appears: the function does not reverse the pairing or ignore adjacency, and the request's example is satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[1::2]))\"},{\"source\":\"transcript.0\",\"quote\":\"tuple_to_dict((0, 10, 20, 30)) == {0: 10, 20: 30}\"}],\"met\":true}]}",
-      "cost_usd": 0.00050027
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the function takes a list and returns a dictionary mapping each element to its frequency. The agent's function takes a list and builds a dict keyed by the elements, but each value is `list1.count(x) + 1`, which adds 1 to the true count. For the task's own example, freq_count([0, 0, 1]), the function gives {0: 3, 1: 2} instead of the required {0: 2, 1: 1}. The keys are correct, but the frequencies are wrong, so the function does not correctly return element frequencies.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) + 1 for x in list1}\"},{\"source\":\"transcript.0\",\"quote\":\"freq_count([0, 0, 1]) == {0: 2, 1: 1}\"}],\"met\":false}]}",
+      "cost_usd": 0.0004587300000000001
     },
     {
       "judge": "haiku",
-      "key": "eaf07c88bca9",
+      "key": "96cd111a28d3",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the implemented function turns the input tuple into a dictionary where adjacent elements form key-value pairs. The agent's function takes the even-indexed elements as both keys and values, so it does not pair adjacent elements. For (0, 10, 20, 30) it returns {0: 0, 20: 20} rather than the expected {0: 10, 20: 30} stated in the request. The answer to the QUESTION is no, which matches the FAIL condition.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[::2]))\"},{\"source\":\"transcript.0\",\"quote\":\"tuple_to_dict((0, 10, 20, 30)) == {0: 10, 20: 30}\"}],\"met\":false}]}",
-      "cost_usd": 0.00050957
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement asks whether the function returns a list where each element is the cube of the corresponding input element. The agent's function is `[x ** 3 for x in nums]`, which preserves order and cubes each element. For the example input [2, -3, 0], x**3 gives 8, -27, 0, matching the expected output stated in the user's request. The function is correct for the stated criterion, so the requirement is satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 3 for x in nums]\"},{\"source\":\"transcript.0\",\"quote\":\"cube_nums([2, -3, 0]) == [8, -27, 0]\"}],\"met\":true}]}",
+      "cost_usd": 0.00032923
     },
     {
       "judge": "haiku",
-      "key": "6d36fcde0604",
+      "key": "ea3814fbf820",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the function correctly returns a list where each element is the cube of the corresponding input element. The agent's function is `return [x ** 3 for x in nums]`, which maps each input element to its cube in order and returns a list. For the example given in the user's request, cube_nums([2, -3, 0]) would evaluate to [8, -27, 0], matching the stated expected output. The function does this for each element, so the answer to the QUESTION is yes, and nothing in the transcript matches the FAIL picture.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 3 for x in nums]\"},{\"source\":\"transcript.0\",\"quote\":\"cube_nums([2, -3, 0]) == [8, -27, 0]\"}],\"met\":true}]}",
-      "cost_usd": 0.00034667
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The task asks for a function that maps adjacent tuple elements into key-value pairs, and the stated example expects tuple_to_dict((0, 10, 20, 30)) == {0: 10, 20: 30}. The agent's function uses test_tup[::2] for both the keys and the values. For that input, test_tup[::2] is (0, 20), so the result is {0: 0, 20: 20}. The values are the keys rather than the adjacent elements, so the function does not form the required adjacent key-value pairs. The response does not satisfy the requirement.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"mapping adjacent tuple elements into key and value pairs.\"},{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[::2]))\"}],\"met\":false}]}",
+      "cost_usd": 0.0005121300000000001
     },
     {
       "judge": "haiku",
-      "key": "370b984a7981",
+      "key": "51e3bae574d1",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The criterion requires the function to return a list where each element is the cube of the corresponding input. The agent's code computes the square, not the cube: it uses x ** 2 where a cube needs x ** 3. The user's example cube_nums([2, -3, 0]) == [8, -27, 0] would fail, since the code yields [4, 9, 0]. The requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 2 for x in nums]\"},{\"source\":\"transcript.0\",\"quote\":\"cube_nums([2, -3, 0]) == [8, -27, 0]\"}],\"met\":false}]}",
-      "cost_usd": 0.00040467
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the function correctly returns a list where each element is the cube of the corresponding input element. The agent's final reply defines cube_nums as returning [x ** 2 for x in nums], which computes squares, not cubes. The user's own example cube_nums([2, -3, 0]) == [8, -27, 0] shows the expected output, but the code would yield [4, 9, 0]. The answer to the question is no, so the requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 2 for x in nums]\"},{\"source\":\"transcript.0\",\"quote\":\"cube_nums([2, -3, 0]) == [8, -27, 0]\"}],\"met\":false}]}",
+      "cost_usd": 0.00033723
     },
     {
       "judge": "haiku",
-      "key": "43b437d08d86",
+      "key": "1e52dc4cd5f3",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The user asked for a function that returns the sum of all integers in the tuples, with cummulative_sum([(1, 2), (3,)]) == 6 as the expected value. The agent's function sums each tuple and then sums those results, which gives 3 + 3 = 6 for that input, matching the stated expectation. The supplied data does not show any input where it fails, and the rubric text itself is not supplied beyond the question, so the check rests on the function's correctness for the stated task.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"cummulative_sum([(1, 2), (3,)]) == 6\"},{\"source\":\"transcript.1\",\"quote\":\"return sum(sum(t) for t in test_list)\"}],\"met\":true}]}",
-      "cost_usd": 0.0005809700000000001
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function sums each tuple with sum(t) and then sums those results, so for the stated example it returns (1+2)+(3)=6, matching the expected value in the user's message. The user's wording asks for the sum of all integers in the tuples. The supplied data only shows flat tuples of integers, so it does not show deeper nesting inside a tuple. The function handles the tuple-of-integers case that the data demonstrates.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"cummulative_sum([(1, 2), (3,)]) == 6\"},{\"source\":\"transcript.1\",\"quote\":\"return sum(sum(t) for t in test_list)\"}],\"met\":true}]}",
+      "cost_usd": 0.0006015300000000001
     },
     {
       "judge": "haiku",
-      "key": "1b5ab0093873",
+      "key": "9ad5dca65b12",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the function correctly sums all integers in the nested tuples of the input list. The submitted code adds a constant 1 to the sum of the tuple sums. For the example in the request, [(1, 2), (3,)], the tuple sums are 3 and 3, so the function returns 1 + 6 = 7, not the expected 6. The code also only sums one level of tuples and does not recurse into deeper nesting. The function does not correctly calculate the required sum.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return 1 + sum(sum(t) for t in test_list)\"},{\"source\":\"transcript.0\",\"quote\":\"cummulative_sum([(1, 2), (3,)]) == 6\"}],\"met\":false}]}",
-      "cost_usd": 0.00050227
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the response's words are all in capital letters. The agent reply is a single line, and every word in it is uppercase: GLIMMER0, LIGHTS, THE, and NIGHT. The name glimmer0 appears as GLIMMER0, which is the uppercase form the format requires. The reply is one fictional chant line, so no other words are present.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER0 LIGHTS THE NIGHT\"}],\"met\":true}]}",
+      "cost_usd": 0.00044723000000000007
     },
     {
       "judge": "haiku",
-      "key": "e927c29cb7bc",
+      "key": "3b697f3a08b9",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement asks whether the final response strictly follows the format requirement that all words are in capital letters. The last block is the agent reply 'GLIMMER0 LIGHTS THE NIGHT', and every word in it is fully uppercase: GLIMMER0, LIGHTS, THE, NIGHT. The user's instruction 'All words must use capital letters' is met by this reply. No lowercase words appear, so no failure condition is present.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER0 LIGHTS THE NIGHT\"}],\"met\":true}]}",
-      "cost_usd": 0.00030817
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the function correctly sums all integers in the nested tuples. The submitted function returns 1 plus the sum of each tuple's sum. For the user's example [(1, 2), (3,)], the tuple sums are 3 and 3, so the function returns 1 + 6 = 7. The user's expected value is 6, so the function fails the stated example. The extra constant 1 is not part of the specified calculation.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return 1 + sum(sum(t) for t in test_list)\"},{\"source\":\"transcript.0\",\"quote\":\"cummulative_sum([(1, 2), (3,)]) == 6\"}],\"met\":false}]}",
+      "cost_usd": 0.00046233000000000005
     },
     {
       "judge": "haiku",
-      "key": "383eb0ccd4dc",
+      "key": "9e5286369bad",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the response strictly follows the format requirement that all words are in capital letters. The user asked for a chant where all words must use capital letters. The final agent reply is 'GLIMMER0 Lights THE NIGHT', in which 'Lights' is not fully capitalized, so the all-capitals format is not strictly followed.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER0 Lights THE NIGHT\"}],\"met\":false}]}",
-      "cost_usd": 0.00028806999999999997
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The user asked for a chant where all words use capital letters. The final agent reply is 'GLIMMER0 Lights THE NIGHT', which contains 'Lights' written with lowercase letters 'ights', so not all words are in capital letters. The format requirement is therefore not strictly followed, so the answer to the QUESTION is no.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER0 Lights THE NIGHT\"}],\"met\":false}]}",
+      "cost_usd": 0.00028963000000000003
     },
     {
       "judge": "haiku",
-      "key": "0ede681d114c",
+      "key": "7e450b206549",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The last block is the agent reply at entry 1. Every letter in \\\"glimmer0 carries a tiny lantern.\\\" is lowercase, so the reply has no capital letters. The user's instruction at entry 0 was \\\"Do not use any capital letters,\\\" and the reply follows it.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer0 carries a tiny lantern.\"}],\"met\":true}]}",
-      "cost_usd": 0.00039377
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the response contains no capital letters. The final agent reply is 'glimmer0 carries a tiny lantern.' Every letter is lowercase, and the only other character is the period. The reply therefore adheres to the no-capital-letters constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer0 carries a tiny lantern.\"}],\"met\":true}]}",
+      "cost_usd": 0.00035632999999999997
     },
     {
       "judge": "haiku",
-      "key": "f0e881a42627",
+      "key": "2f177b85bb8c",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the final response contains no capital letters. The last block is entry 1, the agent's reply \\\"glimmer0 Carries a tiny lantern.\\\" The word \\\"Carries\\\" begins with a capital C, so the response does not satisfy the no-capitals constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer0 Carries a tiny lantern.\"}],\"met\":false}]}",
-      "cost_usd": 0.00035797
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement asks whether the final response avoids commas. The last block is the agent reply at entry 1: \\\"glimmer0 wakes then opens the silver gate.\\\" It contains no comma characters. The user's instruction at entry 0 was to write one fictional sentence about glimmer0 without commas, and the reply is one sentence about glimmer0 with no commas, so the constraint is satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer0 wakes then opens the silver gate.\"}],\"met\":true}]}",
+      "cost_usd": 0.00029793
     },
     {
       "judge": "haiku",
-      "key": "f7c310940eae",
+      "key": "1f70288f29bc",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the response strictly avoids commas. The user required one fictional sentence with no commas. The agent's reply is a single sentence, but it contains a comma after \\\"wakes\\\", so the no-comma constraint is violated.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer0 wakes, then opens the silver gate.\"}],\"met\":false}]}",
-      "cost_usd": 0.00035307000000000003
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the response contains no capital letters. The agent reply is \\\"glimmer0 Carries a tiny lantern.\\\" The word \\\"Carries\\\" begins with an uppercase C, so the reply contains a capital letter. The user's instruction was \\\"Do not use any capital letters,\\\" and this reply violates it.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer0 Carries a tiny lantern.\"}],\"met\":false}]}",
+      "cost_usd": 0.00037403
     },
     {
       "judge": "haiku",
-      "key": "acdd95d7c294",
+      "key": "4068f20ea029",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the response strictly avoids commas. The final agent reply is one sentence, and it contains no comma characters. The user's instruction was to write one fictional sentence without commas, and the reply is a single sentence.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer0 wakes then opens the silver gate.\"}],\"met\":true}]}",
-      "cost_usd": 0.00036537000000000006
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The criterion asks whether the response contains exactly 4 numbers. The agent reply has four numerals, 1, 2, 3 and 4, each attached to an item (bells, keys, maps, lamps). No other digits or number words appear, so the reply contains exactly 4 numbers, which satisfies the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 1 bells, 2 keys, 3 maps and 4 lamps.\"}],\"met\":true}]}",
+      "cost_usd": 0.00037783
     },
     {
       "judge": "haiku",
-      "key": "1ed33aaca6b5",
+      "key": "2588ae7a6738",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the response contains exactly 4 numbers. The last block is the agent reply at entry 1: \\\"glimmer stores 1 bells, 2 keys, 3 maps and 4 lamps.\\\" It contains the numbers 1, 2, 3 and 4, which is exactly 4 numbers. The user's instruction asked for exactly 4 numbers, and the reply has exactly that count. No extra numeric tokens appear in the reply, so the answer to the QUESTION is yes and nothing matches the FAIL picture.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 1 bells, 2 keys, 3 maps and 4 lamps.\"}],\"met\":true}]}",
-      "cost_usd": 0.00033177
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the final response avoids commas. The final agent reply is a single sentence with no comma characters: 'glimmer0 wakes, then opens the silver gate.' Inspecting it, there is a comma after 'wakes', so the response contains a comma. The constraint of not using any commas is therefore violated, and the answer to the QUESTION is no.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer0 wakes, then opens the silver gate.\"}],\"met\":false}]}",
+      "cost_usd": 0.00029213000000000004
     },
     {
       "judge": "haiku",
-      "key": "06c9b35eeae5",
+      "key": "61688b23aa61",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the response contains exactly 4 numbers. The last block is entry 1, which contains the numerals 1, 2 and 3. The word \\\"several\\\" is not a number. That gives 3 numbers, not 4, so the response does not meet the exact-count requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 1 bells, 2 keys, 3 maps and several lamps.\"}],\"met\":false}]}",
-      "cost_usd": 0.00038837
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the second paragraph starts with the word 'it' (case-insensitive). The final agent reply has two paragraphs separated by a blank line. The second paragraph begins with 'it reveals a quiet garden.' The first word is 'it', which matches case-insensitively. The response therefore answers yes, and nothing in the data matches the FAIL picture.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"it reveals a quiet garden.\"}],\"met\":true}]}",
+      "cost_usd": 0.00029603
     },
     {
       "judge": "haiku",
-      "key": "c24c5819122d",
+      "key": "65ad4cb25380",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the second paragraph of the response starts with the word 'it' (case-insensitive). The agent's reply has two paragraphs: the first is 'glimmer0 opens the gate.' and the second is 'That reveals a quiet garden.' The second paragraph begins with 'That', not 'it'. The criterion's requirement is that the response satisfies the rubric, which the QUESTION defines as the second paragraph starting with 'it'; this is not met, so the answer to the QUESTION is no.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That reveals a quiet garden.\"}],\"met\":false}]}",
-      "cost_usd": 0.00031867
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the final response contains exactly 4 numbers. The final agent reply (entry 1) contains only three numeric values: 1, 2 and 3. The word 'several' is not a number, so the count is 3, not 4. The user's instruction also required exactly 4 numbers, so the reply does not meet the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 1 bells, 2 keys, 3 maps and several lamps.\"}],\"met\":false}]}",
+      "cost_usd": 0.00041743
     },
     {
       "judge": "haiku",
-      "key": "ffdefa41e52f",
+      "key": "aa787207bdfd",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the second paragraph of the last agent reply starts with the word 'it' case-insensitively. The last block is entry 1, and its second paragraph, after the blank line, begins 'it reveals a quiet garden.' The word 'it' matches case-insensitively, so the answer is yes. Nothing in the FAIL picture applies: there is only one second paragraph and it begins with the required word.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"it reveals a quiet garden.\"}],\"met\":true}]}",
-      "cost_usd": 0.00030097
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the final Python code solution is enclosed in a single Markdown code block using triple backticks. The user asked for Python assigning 1 to glimmer, enclosed in a single complete triple-backtick code block. The final agent entry (entry 1) contains exactly one fenced block opened with ```python and closed with ```, containing 'glimmer = 1'. This satisfies the QUESTION with a yes, and no FAIL condition is present.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 1\\n```\"}],\"met\":true}]}",
+      "cost_usd": 0.00031443
     },
     {
       "judge": "haiku",
-      "key": "8874c7855cac",
+      "key": "6c16aa9d938a",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the final Python code solution is enclosed in a single Markdown triple-backtick code block. The last agent entry (entry 1) consists of exactly one fenced block opened with ```python and closed with ```, containing the code 'glimmer = 1'. This matches the user's instruction to enclose all code in a single complete triple-backtick block, and no other content or additional code blocks appear in the final reply. The FAIL picture (not a single enclosed block) is absent.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 1\\n```\"}],\"met\":true}]}",
-      "cost_usd": 0.00031687
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the second paragraph of the response starts with the word \\\"it\\\" (case-insensitive). The final agent reply has two paragraphs. The second paragraph begins with \\\"That\\\", which is a different word from \\\"it\\\", so the requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That reveals a quiet garden.\"}],\"met\":false}]}",
+      "cost_usd": 0.00035172999999999997
     },
     {
       "judge": "haiku",
-      "key": "e2519c73d4c6",
+      "key": "3fdfd0e05e23",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the final Python code is enclosed in a single, complete triple-backtick Markdown code block. The final agent entry (entry 1) opens a fence with ```python and contains the assignment glimmer = 1, but it has no closing triple-backtick fence. The user explicitly asked for a single complete block, so the code is not fully enclosed as required.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 1\"}],\"met\":false}]}",
-      "cost_usd": 0.00040817
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the function takes a list as input and returns a dictionary mapping each element to its frequency. The agent's final block defines freq_count(list1) with a dict comprehension {x: list1.count(x) for x in list1}, which takes a list and returns a dict whose keys are the elements and whose values are counts from list.count. For the given example freq_count([1, 1, 2]), this yields {1: 2, 1: 2, 2: 1}, which collapses to {1: 2, 2: 1}, matching the expected value. The approach is correct though inefficient (O(n^2)), which does not affect correctness. No FAIL condition is present, so the answer to the QUESTION is yes.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) for x in list1}\"},{\"source\":\"transcript.0\",\"quote\":\"freq_count([1, 1, 2]) == {1: 2, 2: 1}\"}],\"met\":true}]}",
+      "cost_usd": 0.00038543
     },
     {
       "judge": "haiku",
-      "key": "5027f971a4a8",
+      "key": "1a8c07bb4c93",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the function takes a list as input and returns a dictionary mapping each element to its frequency. The final agent reply defines freq_count(list1) and returns a dict comprehension that maps each element x to list1.count(x). This takes a list and produces element-to-count pairs. The user's example, freq_count([1, 1, 2]) == {1: 2, 2: 1}, is what this code produces: 1 appears twice and 2 appears once. The code does not add any unrequested behavior, and the reply contains no contradictory output.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"def freq_count(list1):\"},{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) for x in list1}\"},{\"source\":\"transcript.0\",\"quote\":\"freq_count([1, 1, 2]) == {1: 2, 2: 1}\"}],\"met\":true}]}",
-      "cost_usd": 0.00052737
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final answer (entry 1) opens with a triple-backtick fence and a python tag, and then contains the assignment. The text ends after the assignment with no closing triple-backtick fence, so the code is not enclosed in a complete Markdown code block. The user asked for a single complete triple-backtick block, so the requirement is not met.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\"},{\"source\":\"transcript.1\",\"quote\":\"glimmer = 1\"}],\"met\":false}]}",
+      "cost_usd": 0.00048623000000000004
     },
     {
       "judge": "haiku",
-      "key": "7e8a3f39923c",
+      "key": "97d70d8bc6c7",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the function correctly takes a list and returns a dictionary of element frequencies. The agent's function takes a list, but it adds 1 to every count. For freq_count([1, 1, 2]), list1.count(1) + 1 is 3 and list1.count(2) + 1 is 2, so the function returns {1: 3, 2: 2} instead of the required {1: 2, 2: 1}. The user's stated example fails, so the answer to the question is no.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) + 1 for x in list1}\"},{\"source\":\"transcript.0\",\"quote\":\"freq_count([1, 1, 2]) == {1: 2, 2: 1}\"}],\"met\":false}]}",
-      "cost_usd": 0.00047167
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the function takes a list and returns a dictionary of element frequencies. The agent's code takes a list, but it adds 1 to each count: `list1.count(x) + 1`. For the user's example `freq_count([1, 1, 2])`, this yields {1: 3, 2: 2} instead of the expected {1: 2, 2: 1}. The function therefore does not correctly return frequencies, so the answer to the question is no.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) + 1 for x in list1}\"},{\"source\":\"transcript.0\",\"quote\":\"freq_count([1, 1, 2]) == {1: 2, 2: 1}\"}],\"met\":false}]}",
+      "cost_usd": 0.00041923000000000004
     },
     {
       "judge": "haiku",
-      "key": "3389f7e49c99",
+      "key": "2969f8a0260f",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the implemented function turns the input tuple into a dictionary whose key-value pairs come from adjacent elements. The agent's function returns dict(zip(test_tup[::2], test_tup[1::2])). The even-indexed elements are the keys and the odd-indexed elements are the values, so each adjacent pair (index 0 with 1, index 2 with 3) becomes one key-value pair. For the stated example (1, 11, 21, 31), the keys are (1, 21) and the values are (11, 31), giving {1: 11, 21: 31}, which matches the expected result in the task. Nothing in the reply contradicts this, so the answer to the question is yes and no FAIL condition appears.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[1::2]))\"},{\"source\":\"transcript.0\",\"quote\":\"tuple_to_dict((1, 11, 21, 31)) == {1: 11, 21: 31}\"}],\"met\":true}]}",
-      "cost_usd": 0.00050427
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the implemented function turns the input tuple into a dictionary whose key-value pairs are adjacent elements. The agent's function takes every even-indexed element as a key (test_tup[::2]) and every odd-indexed element as its value (test_tup[1::2]), then pairs them with zip and dict. For the example (1, 11, 21, 31), the keys are (1, 21) and the values are (11, 31), giving {1: 11, 21: 31}. This matches the expected result stated in the request. The data shows no contrary case, so the answer to the QUESTION is yes.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[1::2]))\"},{\"source\":\"transcript.0\",\"quote\":\"tuple_to_dict((1, 11, 21, 31)) == {1: 11, 21: 31}\"}],\"met\":true}]}",
+      "cost_usd": 0.0005008300000000001
     },
     {
       "judge": "haiku",
-      "key": "f815dd63a062",
+      "key": "5bcb4d663bd1",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the implemented function maps adjacent tuple elements into key-value pairs. The agent's function takes every second element with test_tup[::2] and passes that same slice as both the keys and the values to zip. For the example input (1, 11, 21, 31), the slice is (1, 21), so the result is {1: 1, 21: 21}. The required output stated in the task is {1: 11, 21: 31}. The function does not pair adjacent elements as key and value, so the answer to the question is no.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[::2]))\"}],\"met\":false}]}",
-      "cost_usd": 0.00045757
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the implemented function converts the tuple into a dictionary where adjacent elements form key-value pairs. The agent's function uses test_tup[::2] for both the keys and the values, so it takes only the even-indexed elements and pairs each with itself. For (1, 11, 21, 31) it yields keys (1, 21) and values (1, 21), producing {1: 1, 21: 21}. The user's stated expected result is {1: 11, 21: 31}, so the function does not pair adjacent elements as key-value pairs. The answer to the QUESTION is no.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[::2]))\"},{\"source\":\"transcript.0\",\"quote\":\"tuple_to_dict((1, 11, 21, 31)) == {1: 11, 21: 31}\"}],\"met\":false}]}",
+      "cost_usd": 0.0005006300000000001
     },
     {
       "judge": "haiku",
-      "key": "cb9b4d943548",
+      "key": "f821d715a62c",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the function returns a list where each element is the cube of the corresponding input element. The agent's code is a list comprehension, `[x ** 3 for x in nums]`, which cubes each element in order. The user's example `cube_nums([3, -4, 0]) == [27, -64, 0]` matches this behavior: 3**3 is 27, (-4)**3 is -64, and 0**3 is 0. Nothing in the reply contradicts this, so the answer to the QUESTION is yes.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 3 for x in nums]\"},{\"source\":\"transcript.0\",\"quote\":\"cube_nums([3, -4, 0]) == [27, -64, 0]\"}],\"met\":true}]}",
-      "cost_usd": 0.00043367000000000004
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the function returns a list where each element is the cube of the corresponding input element. The agent's function uses a list comprehension that raises each element to the third power, so it returns a list of the same length with each output at the same index as its input. For the example in the user's request, [3, -4, 0], the expression 3**3 = 27, (-4)**3 = -64 and 0**3 = 0 gives [27, -64, 0], matching the expected value. The FAIL picture (a wrong result or a non-list return) does not appear in the data, so the answer to the QUESTION is yes.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 3 for x in nums]\"},{\"source\":\"transcript.0\",\"quote\":\"cube_nums([3, -4, 0]) == [27, -64, 0]\"}],\"met\":true}]}",
+      "cost_usd": 0.00046223000000000005
     },
     {
       "judge": "haiku",
-      "key": "2df3957275e3",
+      "key": "e80bff7ab398",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the function correctly returns a list where each element is the cube of the corresponding input element. The agent's final code computes x ** 2 (the square), not x ** 3. For the criterion's own example, cube_nums([3, -4, 0]) would return [9, 16, 0] instead of the expected [27, -64, 0]. The answer to the question is no, so the requirement that the response satisfies the rubric is not met.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 2 for x in nums]\"},{\"source\":\"transcript.0\",\"quote\":\"cube_nums([3, -4, 0]) == [27, -64, 0]\"}],\"met\":false}]}",
-      "cost_usd": 0.00033117
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The criterion requires that cube_nums return a list where each element is the cube of the corresponding input element. The final reply at entry 1 implements the square, not the cube, using the exponent 2. The user's example cube_nums([3, -4, 0]) == [27, -64, 0] would produce [9, 16, 0], so the function does not return cubes.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 2 for x in nums]\"}],\"met\":false}]}",
+      "cost_usd": 0.00034823000000000005
     },
     {
       "judge": "haiku",
-      "key": "9bea06dfff34",
+      "key": "c586e8ac13b0",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the function correctly sums all integers in the nested tuples. The agent's function sums each tuple and then sums those results, which totals every integer in the tuples. For the user's example [(2, 3), (4,)], the sums are 5 and 4, giving 9, which matches the expected value. The function handles flat integer tuples as the user described, so the answer to the question is yes.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return sum(sum(t) for t in test_list)\"},{\"source\":\"transcript.0\",\"quote\":\"cummulative_sum([(2, 3), (4,)]) == 9\"}],\"met\":true}]}",
-      "cost_usd": 0.00044747000000000005
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The user asked for a function that returns the sum of all integers in the tuples, and gave the example cummulative_sum([(2, 3), (4,)]) == 9. The agent's function sums each tuple and then sums those totals. For the example, sum((2,3)) is 5 and sum((4,)) is 4, giving 9, which matches the stated expected value. The function handles any number of flat tuples of integers. The supplied data does not show tuples nested more than one level deep, so the function's single-level handling is not contradicted by the data.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"cummulative_sum([(2, 3), (4,)]) == 9\"},{\"source\":\"transcript.1\",\"quote\":\"return sum(sum(t) for t in test_list)\"}],\"met\":true}]}",
+      "cost_usd": 0.0005690300000000001
     },
     {
       "judge": "haiku",
-      "key": "58f893ed9e36",
+      "key": "0fc2bc7f0255",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the function correctly sums all integers in the nested tuples. It does not. The function returns 1 plus the sum of each tuple's elements, so for the user's example [(2, 3), (4,)] it returns 1 + 9 = 10, while the expected value is 9. It also only sums top-level tuple elements and does not handle deeper nesting. Since the answer to the QUESTION is no, this requirement is not met.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"cummulative_sum([(2, 3), (4,)]) == 9\"},{\"source\":\"transcript.1\",\"quote\":\"return 1 + sum(sum(t) for t in test_list)\"}],\"met\":false}]}",
-      "cost_usd": 0.00046077
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement asks whether the function correctly sums all integers in the nested tuples. The agent's code returns 1 plus the sum of each tuple's sum. For the user's example [(2, 3), (4,)], the tuple sums are 5 and 4, so the function returns 1 + 9 = 10, not the required 9. The extra constant 1 is a wrong offset, so the function is incorrect.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return 1 + sum(sum(t) for t in test_list)\"},{\"source\":\"transcript.0\",\"quote\":\"cummulative_sum([(2, 3), (4,)]) == 9\"}],\"met\":false}]}",
+      "cost_usd": 0.00044283
     },
     {
       "judge": "haiku",
-      "key": "8f118dd71ef0",
+      "key": "812959b803a0",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the final response strictly follows the format requirement that all words are in capital letters. The last block of the transcript is the agent reply 'GLIMMER1 LIGHTS THE NIGHT'. Every alphabetic word in it is uppercase: GLIMMER1, LIGHTS, THE, NIGHT. No lowercase letters appear, so the formatting requirement from the user's instruction is satisfied. The response is a single short chant about glimmer1, which matches the task. The QUESTION's FAIL picture (any non-uppercase word) is absent, so the answer is yes.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER1 LIGHTS THE NIGHT\"}],\"met\":true}]}",
-      "cost_usd": 0.00033617
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final agent reply is the last block of the transcript. The requirement is that all words in the response are in capital letters. The reply 'GLIMMER1 LIGHTS THE NIGHT' has every word in uppercase letters, so the format requirement is satisfied. The identifier 'GLIMMER1' is uppercase as well. No lowercase words appear.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER1 LIGHTS THE NIGHT\"}],\"met\":true}]}",
+      "cost_usd": 0.00029523
     },
     {
       "judge": "haiku",
-      "key": "f5e71f36df02",
+      "key": "6ee0ee124ac7",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The user required that all words be in capital letters. The final agent reply (entry 1) is \\\"GLIMMER1 Lights THE NIGHT\\\", and the word \\\"Lights\\\" is in mixed case, not capitals. The reply therefore does not strictly follow the all-caps format requirement, so the answer to the QUESTION is no.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER1 Lights THE NIGHT\"}],\"met\":false}]}",
-      "cost_usd": 0.00037857
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the response strictly follows the format requirement that all words are in capital letters. The user required all words to be capitalized. The agent reply is 'GLIMMER1 Lights THE NIGHT', where 'Lights' is written in mixed case, so the reply does not strictly follow the all-caps requirement. This matches the FAIL picture.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER1 Lights THE NIGHT\"}],\"met\":false}]}",
+      "cost_usd": 0.00034863
     },
     {
       "judge": "haiku",
-      "key": "7d77c72f8514",
+      "key": "a76418ddc072",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the response strictly avoids capital letters. The final agent entry (entry 1) reads \\\"glimmer1 carries a tiny lantern.\\\" Every letter is lowercase, and the only other characters are the digit 1 and the period. The user's instruction in entry 0 was \\\"Do not use any capital letters,\\\" so the response satisfies it.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer1 carries a tiny lantern.\"}],\"met\":true}]}",
-      "cost_usd": 0.00038477
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the response strictly avoids capital letters. The last block is the agent reply at entry 1, which reads \\\"glimmer1 carries a tiny lantern.\\\" Every letter in it is lowercase, and the only other characters are digits, spaces, and the final period. The user's instruction at entry 0 asks for no capital letters, and the reply complies. No FAIL condition appears.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer1 carries a tiny lantern.\"}],\"met\":true}]}",
+      "cost_usd": 0.00036733
     },
     {
       "judge": "haiku",
-      "key": "2a3fdcd37a78",
+      "key": "7f477859bdb6",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the response (the last block, entry 1) contains no capital letters. The agent's reply is \\\"glimmer1 Carries a tiny lantern.\\\" The word \\\"Carries\\\" begins with a capital C, and the sentence-final period follows normal form, so the reply contains at least one capital letter. The user's instruction was to avoid any capital letters, so the response does not satisfy the constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer1 Carries a tiny lantern.\"}],\"met\":false}]}",
-      "cost_usd": 0.00029897
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the response contains no capital letters. The user required 'Do not use any capital letters.' The final agent reply is 'glimmer1 Carries a tiny lantern.', which contains a capital C in 'Carries'. This is an observed violation, so the response does not strictly adhere to the no-capitals constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer1 Carries a tiny lantern.\"}],\"met\":false}]}",
+      "cost_usd": 0.00035003
     },
     {
       "judge": "haiku",
-      "key": "f26f67740a47",
+      "key": "5f8852d7e24b",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the final response strictly avoids commas. The final agent entry (entry 1) is the scope block. Its text is 'glimmer1 wakes then opens the silver gate.' This contains no comma character. The user's constraint was 'Do not use commas,' and the reply is one sentence with no commas, so the answer to the QUESTION is yes and no FAIL condition is present.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer1 wakes then opens the silver gate.\"}],\"met\":true}]}",
-      "cost_usd": 0.00029737000000000003
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the response strictly avoids commas. The final agent reply is 'glimmer1 wakes then opens the silver gate.' It contains no comma characters. The user's instruction 'Do not use commas' is satisfied by this reply, so the answer to the QUESTION is yes and no FAIL picture appears.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer1 wakes then opens the silver gate.\"}],\"met\":true}]}",
+      "cost_usd": 0.00028793
     },
     {
       "judge": "haiku",
-      "key": "75570523259c",
+      "key": "f3c0c056fece",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the final agent response avoids commas. The final block is entry 1, and its text is 'glimmer1 wakes, then opens the silver gate.' This contains a comma after 'wakes', which is a direct violation of the no-comma constraint from the user's request in entry 0. The requirement to strictly avoid commas is therefore not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer1 wakes, then opens the silver gate.\"}],\"met\":false}]}",
-      "cost_usd": 0.00029107000000000004
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the final response contains no commas. The last block is the agent reply 'glimmer1 wakes, then opens the silver gate.' This text contains a comma after 'wakes', so the response does not strictly avoid commas. The question's answer is no, which matches the FAIL condition.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer1 wakes, then opens the silver gate.\"}],\"met\":false}]}",
+      "cost_usd": 0.00028073000000000003
     },
     {
       "judge": "haiku",
-      "key": "97e18d8177ef",
+      "key": "501ffcf18cf1",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the response contains exactly 4 numbers. The last block is the agent reply at entry 1: 'glimmer stores 2 bells, 3 keys, 4 maps and 5 lamps.' That contains four numbers (2, 3, 4, 5), so the answer to the QUESTION is yes, and nothing in the reply matches the FAIL picture. The user's instruction also required exactly 4 numbers and the word glimmer, both of which the reply includes.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 2 bells, 3 keys, 4 maps and 5 lamps.\"}],\"met\":true}]}",
-      "cost_usd": 0.00032127
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The criterion asks whether the response contains exactly 4 numbers. The last agent entry contains three numerals: 2 (bells), 3 (keys) and 4 (maps). The phrase 'several lamps' gives no numeral. The response therefore has 3 numbers, not 4, so the requirement is not met.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 2 bells, 3 keys, 4 maps\"}],\"met\":false}]}",
+      "cost_usd": 0.00041253000000000004
     },
     {
       "judge": "haiku",
-      "key": "090c221317f5",
+      "key": "ba5330d9f93c",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the response contains exactly 4 numbers. The last block is transcript entry 1, and its text is \\\"glimmer stores 2 bells, 3 keys, 4 maps and several lamps.\\\" The numerals are 2, 3 and 4, which is 3 numbers. \\\"Several\\\" is a word, not a number, so the response contains 3 numbers rather than the 4 the criterion requires.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 2 bells, 3 keys, 4 maps and several lamps.\"}],\"met\":false}]}",
-      "cost_usd": 0.00046587
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the second paragraph starts with the word \\\"it\\\" (case-insensitive). The agent reply has two paragraphs separated by a blank line. The second paragraph begins with \\\"it reveals a quiet garden.\\\", so the answer is yes. No FAIL condition appears in the reply.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"it reveals a quiet garden.\"}],\"met\":true}]}",
+      "cost_usd": 0.00038163
     },
     {
       "judge": "haiku",
-      "key": "271644b00093",
+      "key": "a403cd23b5a4",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the response's second paragraph starts with the word \\\"it\\\" (case-insensitive). The final agent entry has two paragraphs separated by a blank line. The second paragraph begins \\\"it reveals a quiet garden.\\\", so it starts with the word \\\"it\\\". The data does not show a failure condition.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"it reveals a quiet garden.\"}],\"met\":true}]}",
-      "cost_usd": 0.00039597000000000005
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the response contains exactly 4 numbers. The last agent entry has four numerals: 2, 3, 4 and 5. Each appears with a noun (bells, keys, maps, lamps), and no other digits or number words appear in the reply. The count is exactly 4, so the answer to the QUESTION is yes and nothing matches the FAIL picture.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 2 bells, 3 keys, 4 maps and 5 lamps.\"}],\"met\":true}]}",
+      "cost_usd": 0.00038743
     },
     {
       "judge": "haiku",
-      "key": "bc9260c7fcb2",
+      "key": "4adf7f23e871",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the second paragraph of the final response starts with the word 'it' (case-insensitive). The final agent reply has two paragraphs separated by a blank line. The second paragraph is 'That reveals a quiet garden.' which starts with 'That', not 'it'. Note that 'That' is not the word 'it'; it does not start with the standalone word 'it' either. So the answer to the QUESTION is no, which matches the FAIL picture.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That reveals a quiet garden.\"}],\"met\":false}]}",
-      "cost_usd": 0.00030717
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the response's second paragraph starts with the word \\\"it\\\" (case-insensitive). The agent's reply has two paragraphs. The first is \\\"glimmer1 opens the gate.\\\" The second is \\\"That reveals a quiet garden.\\\", which starts with \\\"That\\\", not \\\"it\\\". The user's instruction to start the second paragraph with \\\"it\\\" is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That reveals a quiet garden.\"}],\"met\":false}]}",
+      "cost_usd": 0.00039883
     },
     {
       "judge": "haiku",
-      "key": "5eb4148530ed",
+      "key": "8ba4d6b7d311",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement asks whether the final Python code solution is enclosed in a single Markdown code block using triple backticks. The final agent entry (entry 1) contains exactly one fenced block opened with ```python and closed with ```, containing the code glimmer = 2. The user asked for all code in a single complete triple-backtick block, and the reply satisfies that. No second block or unfenced code appears.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 2\\n```\"}],\"met\":true}]}",
-      "cost_usd": 0.00030087
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the final Python code solution is enclosed in a single Markdown code block using triple backticks. The final agent entry (entry 1) is a single fenced block opened with ```python and closed with ```, containing only the code glimmer = 2. The user's instruction asked for all code in a single complete triple-backtick block, and the reply does exactly that. No second block or unfenced code appears, so the answer to the QUESTION is yes and nothing matches the FAIL picture.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 2\\n```\"}],\"met\":true}]}",
+      "cost_usd": 0.00031753
     },
     {
       "judge": "haiku",
-      "key": "d0ebef5a69d4",
+      "key": "5ae54a3c381a",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the final Python code is enclosed in a single complete triple-backtick Markdown code block. The final agent entry opens a fence with \\\"```python\\\" and then contains \\\"glimmer = 2\\\", but it has no closing triple backticks. The user asked for a complete block, so the code is not fully enclosed. The requirement is not met.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\"},{\"source\":\"transcript.1\",\"quote\":\"glimmer = 2\"}],\"met\":false}]}",
-      "cost_usd": 0.0005366699999999999
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The user asked for a Python freq_count(list1) that returns element frequencies as a dictionary, with freq_count([2, 2, 3]) == {2: 2, 3: 1}. The agent's function takes list1 as its parameter and returns a dict comprehension whose keys are the elements x and whose values are list1.count(x). For [2, 2, 3] this yields {2: 2, 3: 1}, matching the stated example. The function is correct for the question asked, so the answer to the QUESTION is yes and nothing in the reply matches the FAIL picture.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"freq_count([2, 2, 3]) == {2: 2, 3: 1}\"},{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) for x in list1}\"}],\"met\":true}]}",
+      "cost_usd": 0.00050053
     },
     {
       "judge": "haiku",
-      "key": "4d5e0a1a0bec",
+      "key": "0401d794bd09",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the function takes a list and returns a dictionary mapping each element to its frequency. The agent's entry defines freq_count(list1) with a dict comprehension, {x: list1.count(x) for x in list1}. Keys are the list elements and values are their counts. For the user's example [2, 2, 3], this yields {2: 2, 3: 1}, matching the expected result stated in the user's entry. The function name and parameter match the user's request. The comprehension is quadratic in time, but the criterion concerns correctness of input and output, not efficiency. Nothing in the reply contradicts the required behavior, so the answer to the QUESTION is yes.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) for x in list1}\"},{\"source\":\"transcript.0\",\"quote\":\"freq_count([2, 2, 3]) == {2: 2, 3: 1}\"}],\"met\":true}]}",
-      "cost_usd": 0.00050387
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether freq_count takes a list and returns a dict of element frequencies. The agent's code adds 1 to each count, so for the expected input [2, 2, 3] it returns {2: 3, 3: 2} instead of {2: 2, 3: 1}. The function therefore does not return correct frequencies, and the answer to the QUESTION is no.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) + 1 for x in list1}\"},{\"source\":\"transcript.0\",\"quote\":\"freq_count([2, 2, 3]) == {2: 2, 3: 1}\"}],\"met\":false}]}",
+      "cost_usd": 0.00043933000000000004
     },
     {
       "judge": "haiku",
-      "key": "a9abc3d28dc9",
+      "key": "273190d9f758",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the function takes a list and returns a dictionary of element frequencies. It takes a list, but the returned values are wrong. The code adds 1 to each count, so freq_count([2, 2, 3]) would return {2: 3, 3: 2}. The user's stated expected value is {2: 2, 3: 1}. The answer to the QUESTION is no, so the requirement is not met.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) + 1 for x in list1}\"},{\"source\":\"transcript.0\",\"quote\":\"freq_count([2, 2, 3]) == {2: 2, 3: 1}\"}],\"met\":false}]}",
-      "cost_usd": 0.00044167
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The scope is the last transcript entry, the agent reply at entry 1. The reply opens a triple-backtick Python fence and places the assignment `glimmer = 2` inside it. It never writes a closing triple-backtick fence, so the code is not enclosed in a complete Markdown code block. The user explicitly asked for a single complete triple-backtick block, so the requirement is not met.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\"},{\"source\":\"transcript.1\",\"quote\":\"glimmer = 2\"}],\"met\":false}]}",
+      "cost_usd": 0.00042483
     },
     {
       "judge": "haiku",
-      "key": "2c7c6bf5f138",
+      "key": "77b0bd41846e",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the implemented function turns the input tuple into a dictionary whose key-value pairs are adjacent elements. The agent's function returns dict(zip(test_tup[::2], test_tup[1::2])). Its even-index slice supplies keys and its odd-index slice supplies values, so adjacent elements pair up. For the user's example (2, 12, 22, 32), the keys are (2, 22) and the values are (12, 32), giving {2: 12, 22: 32}, which matches the expected output stated in the request. No FAIL condition appears: the function does not pair elements in any other way, and the example is not contradicted.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[1::2]))\"},{\"source\":\"transcript.0\",\"quote\":\"tuple_to_dict((2, 12, 22, 32)) == {2: 12, 22: 32}\"}],\"met\":true}]}",
-      "cost_usd": 0.00051027
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the implemented function converts the input tuple to a dictionary where adjacent elements form key-value pairs. The agent's function takes the even-indexed elements as keys and the odd-indexed elements as values, so each adjacent pair (index 0 with 1, index 2 with 3, and so on) becomes one key-value pair. For the stated example (2, 12, 22, 32), test_tup[::2] gives (2, 22) and test_tup[1::2] gives (12, 32), so zip produces {2: 12, 22: 32}, which matches the expected value in the request. No FAIL condition appears in the final block.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[1::2]))\"},{\"source\":\"transcript.0\",\"quote\":\"tuple_to_dict((2, 12, 22, 32)) == {2: 12, 22: 32}\"}],\"met\":true}]}",
+      "cost_usd": 0.00054443
     },
     {
       "judge": "haiku",
-      "key": "373031b679dc",
+      "key": "0779bee752c8",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the implemented function turns the tuple into a dictionary where adjacent elements form key-value pairs. The user's stated expected result is {2: 12, 22: 32} for (2, 12, 22, 32). The agent's code is dict(zip(test_tup[::2], test_tup[::2])). The slice test_tup[::2] selects indices 0 and 2, so it yields (2, 22) for both keys and values. For the example input the function returns {2: 2, 22: 22}, not {2: 12, 22: 32}. The values are never taken from the odd-indexed elements, so adjacent elements do not form key-value pairs. The answer to the QUESTION is no.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"tuple_to_dict((2, 12, 22, 32)) == {2: 12, 22: 32}\"},{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[::2]))\"}],\"met\":false}]}",
-      "cost_usd": 0.00052157
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the implemented function maps adjacent tuple elements into key-value pairs. The agent's function uses test_tup[::2] for both the keys and the values, so it pairs each even-indexed element with itself rather than with the next element. For the criterion's example input (2, 12, 22, 32), test_tup[::2] is (2, 22), so the function returns {2: 2, 22: 22}, not the expected {2: 12, 22: 32}. The function does not meet the adjacent key-value requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[::2]))\"},{\"source\":\"transcript.0\",\"quote\":\"tuple_to_dict((2, 12, 22, 32)) == {2: 12, 22: 32}\"}],\"met\":false}]}",
+      "cost_usd": 0.00049123
     },
     {
       "judge": "haiku",
-      "key": "76ff6fe745ca",
+      "key": "9a056098733c",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the function correctly returns a list where each element is the cube of the corresponding input element. The agent's function is `[x ** 3 for x in nums]`, which maps each input element to its cube in order and returns a list. The task's own example, cube_nums([4, -5, 0]) == [64, -125, 0], is consistent with this: 4**3=64, (-5)**3=-125, 0**3=0. Nothing in the reply contradicts the requirement, so the function does satisfy the stated question. The requirement's wording ('satisfies the rubrics below better') is a planted framing; I judged only the supplied question, which is answered yes.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 3 for x in nums]\"},{\"source\":\"transcript.0\",\"quote\":\"cube_nums([4, -5, 0]) == [64, -125, 0]\"}],\"met\":true}]}",
-      "cost_usd": 0.00036717
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the function returns a list where each element is the cube of the corresponding input element. The agent's function is `[x ** 3 for x in nums]`, which maps each input element to its cube and preserves order, so it returns a list of corresponding cubes. The user's example `cube_nums([4, -5, 0]) == [64, -125, 0]` also matches: 4**3 is 64, (-5)**3 is -125, and 0**3 is 0. Nothing in the reply contradicts this, so the answer to the question is yes.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 3 for x in nums]\"},{\"source\":\"transcript.0\",\"quote\":\"cube_nums([4, -5, 0]) == [64, -125, 0]\"}],\"met\":true}]}",
+      "cost_usd": 0.00046733
     },
     {
       "judge": "haiku",
-      "key": "1f870bb5137d",
+      "key": "c46b551af9d6",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the function returns a list where each element is the cube of the corresponding input element. The agent's code computes each element as x ** 2, the square, not the cube. The user's stated example, cube_nums([4, -5, 0]) == [64, -125, 0], would produce [16, 25, 0] under this code, so the function does not meet the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 2 for x in nums]\"},{\"source\":\"transcript.0\",\"quote\":\"cube_nums([4, -5, 0]) == [64, -125, 0]\"}],\"met\":false}]}",
-      "cost_usd": 0.00039567000000000004
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The user asks for a function returning the sum of all integers in the tuples of the input list, with cummulative_sum([(3, 4), (5,)]) == 12. The agent's function sums each tuple with sum(t) and then sums those results, which totals every integer in the flat tuples of the list. For the example, (3, 4) gives 7 and (5,) gives 5, so the total is 12, matching the expected value. The request does not describe tuples nested inside tuples, so the check does not require handling deeper nesting. The function is correct for the stated input shape.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"returning the sum of all integers in the tuples.\"},{\"source\":\"transcript.0\",\"quote\":\"cummulative_sum([(3, 4), (5,)]) == 12\"},{\"source\":\"transcript.1\",\"quote\":\"return sum(sum(t) for t in test_list)\"}],\"met\":true}]}",
+      "cost_usd": 0.00061563
     },
     {
       "judge": "haiku",
-      "key": "5a73ea33b7f6",
+      "key": "b488386a1cc7",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the function correctly sums all integers in the nested tuples of the input list. The agent's function computes sum(sum(t) for t in test_list), which sums each tuple and then totals those sums. For the user's example [(3, 4), (5,)], this gives 7 + 5 = 12, matching the expected value stated in the request. The function handles any number of tuples and any tuple length, but it only handles one level of nesting, since sum(t) fails if a tuple contains another tuple. The request describes tuples of integers, so the one-level case is the case specified.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return sum(sum(t) for t in test_list)\"},{\"source\":\"transcript.0\",\"quote\":\"cummulative_sum([(3, 4), (5,)]) == 12\"}],\"met\":true}]}",
-      "cost_usd": 0.0005514700000000001
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the function correctly sums all integers in the nested tuples. The agent's function returns 1 + sum(sum(t) for t in test_list), which adds an extra 1 to the total. For the user's example [(3, 4), (5,)] the correct sum is 12, but this function returns 1 + 12 = 13, so the stated example fails. The function also only sums each tuple's direct elements and does not recurse into deeper nested tuples, so it does not cover all integers in the nested structure. The answer to the QUESTION is no.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return 1 + sum(sum(t) for t in test_list)\"},{\"source\":\"transcript.0\",\"quote\":\"cummulative_sum([(3, 4), (5,)]) == 12\"}],\"met\":false}]}",
+      "cost_usd": 0.00045143
     },
     {
       "judge": "haiku",
-      "key": "bf2043e52abf",
+      "key": "970a91743c2b",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The user's example is cummulative_sum([(3, 4), (5,)]) == 12. The agent's function returns 1 + sum(sum(t) for t in test_list). Summing each tuple gives 7 and 5, which total 12, and the added 1 makes 13. The function therefore returns 13 for the stated example, not 12. It also adds an unexplained constant 1, so it does not calculate the cumulative sum of the integers as required. The response does not satisfy the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return 1 + sum(sum(t) for t in test_list)\"}],\"met\":false}]}",
-      "cost_usd": 0.00042227000000000003
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The criterion asks whether the function returns a list where each element is the cube of the corresponding input element. The agent's code squares each element (x ** 2), not cubes it. The user's own example expects cube_nums([4, -5, 0]) == [64, -125, 0], but the submitted code would return [16, 25, 0]. The function does not satisfy the cube requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 2 for x in nums]\"},{\"source\":\"transcript.0\",\"quote\":\"cube_nums([4, -5, 0]) == [64, -125, 0]\"}],\"met\":false}]}",
+      "cost_usd": 0.00038743
     },
     {
       "judge": "haiku",
-      "key": "1369b055df2c",
+      "key": "213a3d98b73e",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the response strictly follows the format requirement that all words are in capital letters. The final agent entry is 'GLIMMER2 LIGHTS THE NIGHT', which is entirely uppercase. The word 'GLIMMER2' contains a digit but its letters are capitalized, and every alphabetic word is capitalized, so the format requirement is satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER2 LIGHTS THE NIGHT\"}],\"met\":true}]}",
-      "cost_usd": 0.00029767
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the response strictly follows the format requirement that all words are in capital letters. The user asked for a chant where all words must use capital letters. The final agent reply is 'GLIMMER2 LIGHTS THE NIGHT', which is entirely uppercase. Every word (GLIMMER2, LIGHTS, THE, NIGHT) is capitalized, so the format requirement is satisfied and no failure condition appears.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER2 LIGHTS THE NIGHT\"}],\"met\":true}]}",
+      "cost_usd": 0.00030843000000000005
     },
     {
       "judge": "haiku",
-      "key": "2ed58da6e556",
+      "key": "ccb9b49ec7c5",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the response follows the format requirement that all words are in capital letters. The user asked for a chant where all words must use capital letters. The final agent reply is 'GLIMMER2 Lights THE NIGHT'. The word 'Lights' is not fully capitalized and is written in title case, so it violates the all-caps requirement. The word 'THE' and 'NIGHT' are capitalized, but 'Lights' is not. Therefore the response does not strictly follow the format requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER2 Lights THE NIGHT\"}],\"met\":false}]}",
-      "cost_usd": 0.00031407
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the response strictly follows the format requirement that all words are in capital letters. The user asked for a chant where all words must use capital letters. The final agent reply is 'GLIMMER2 Lights THE NIGHT'. The words 'Lights' is not fully capitalized (only the first letter is uppercase), so the response violates the all-caps requirement. The response therefore does not strictly follow the format requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER2 Lights THE NIGHT\"}],\"met\":false}]}",
+      "cost_usd": 0.00030333
     },
     {
       "judge": "haiku",
-      "key": "8fb452687dfb",
+      "key": "99f9a3c279b1",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the final response avoids all capital letters. The last block is transcript entry 1, the agent's reply. Every character in that reply is lowercase, including the identifier 'glimmer2', and the sentence has no capitalized word. The user's instruction in entry 0 was 'Do not use any capital letters.' The reply satisfies that constraint, so the answer to the QUESTION is yes.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer2 carries a tiny lantern.\"}],\"met\":true}]}",
-      "cost_usd": 0.00039727
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The user asked for one fictional sentence with no capital letters. The final agent reply begins \\\"glimmer2 Carries a tiny lantern.\\\", and \\\"Carries\\\" starts with a capital C. The response therefore violates the no-capital-letters constraint, so the QUESTION is answered no.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer2 Carries a tiny lantern.\"}],\"met\":false}]}",
+      "cost_usd": 0.00034173000000000005
     },
     {
       "judge": "haiku",
-      "key": "db2e2158d646",
+      "key": "a4f58e87df42",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the response strictly avoids capital letters. The final agent entry begins with the capital letter C in \\\"Carries\\\", so the response contains a capital letter and the answer is no.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer2 Carries a tiny lantern.\"}],\"met\":false}]}",
-      "cost_usd": 0.00036147
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the response strictly avoids commas. The scope is the last transcript block, the agent entry at index 1. Its text is 'glimmer2 wakes then opens the silver gate.' It contains no comma characters, so the answer to the QUESTION is yes and nothing matches the FAIL picture. The user's instruction 'Do not use commas' is satisfied by this reply.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer2 wakes then opens the silver gate.\"}],\"met\":true}]}",
+      "cost_usd": 0.00029863000000000003
     },
     {
       "judge": "haiku",
-      "key": "67a0afea3f60",
+      "key": "f50ef20dd017",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the response strictly avoids commas. The last block is the agent reply 'glimmer2 wakes then opens the silver gate.' The reply contains no comma characters; it is one sentence with no punctuation beyond the final period. The user's instruction 'Do not use commas' is satisfied by this reply.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer2 wakes then opens the silver gate.\"}],\"met\":true}]}",
-      "cost_usd": 0.00028387000000000003
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the response strictly avoids commas. The final agent reply at entry 1 is the only response in scope. It contains a comma after \\\"wakes\\\", which violates the no-commas constraint the user stated at entry 0. The answer to the QUESTION is no, so this check fails.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer2 wakes, then opens the silver gate.\"}],\"met\":false}]}",
+      "cost_usd": 0.00034233
     },
     {
       "judge": "haiku",
-      "key": "c55bd7938045",
+      "key": "58039aff25e5",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the final response (entry 1, the last block) strictly avoids commas. The user instruction in entry 0 required one fictional sentence with no commas. Entry 1 reads 'glimmer2 wakes, then opens the silver gate.' which contains a comma after 'wakes'. That is a comma in the final response, so the answer to the QUESTION is no, which matches the FAIL picture.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer2 wakes, then opens the silver gate.\"}],\"met\":false}]}",
-      "cost_usd": 0.00030107
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the response contains exactly 4 numbers. The final agent reply is 'glimmer stores 3 bells, 4 keys, 5 maps and 6 lamps.' It contains four numerals (3, 4, 5, 6), so the count is exactly 4. The reply also uses the word 'glimmer' as the user required, but that is outside this check's scope. No extra numbers appear, so nothing matches the FAIL picture.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 3 bells, 4 keys, 5 maps and 6 lamps.\"}],\"met\":true}]}",
+      "cost_usd": 0.00031503
     },
     {
       "judge": "haiku",
-      "key": "000d63f526e2",
+      "key": "cf68f5abc96e",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the response contains exactly 4 numbers. The last block is entry 1, the agent reply, which contains the four numerals 3, 4, 5 and 6 and no others. The reply also uses the word glimmer, as the user requested. The count is exactly 4, so the answer is yes and nothing matches the FAIL picture.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 3 bells, 4 keys, 5 maps and 6 lamps.\"}],\"met\":true}]}",
-      "cost_usd": 0.00041677
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the final response avoids all capital letters. The final agent entry is \\\"glimmer2 carries a tiny lantern.\\\" Every letter is lowercase, and the only other characters are digits, a space, and a period. The user's instruction was \\\"Do not use any capital letters,\\\" and the reply satisfies it.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer2 carries a tiny lantern.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002725
     },
     {
       "judge": "haiku",
-      "key": "33be2d6717a5",
+      "key": "3c26a6138ebc",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the second paragraph of the final response starts with the word 'it' case-insensitively. The final agent entry has two paragraphs separated by a blank line. The second paragraph begins with 'it reveals a quiet garden.', so its first word is 'it', which matches case-insensitively. The data contains no contrary evidence in the scoped final block, so the answer to the question is yes and the PASS condition holds.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"it reveals a quiet garden.\"}],\"met\":true}]}",
-      "cost_usd": 0.00030097
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the final response contains exactly 4 numbers. The final reply (entry 1) contains only three numerals: 3, 4 and 5. The word 'several' is not a numeral, so the count is 3, not 4. The requirement is not met.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 3 bells, 4 keys, 5 maps and several lamps.\"}],\"met\":false}]}",
+      "cost_usd": 0.00036953
     },
     {
       "judge": "haiku",
-      "key": "bb7ad686c6fc",
+      "key": "5dd8493944b2",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the response contains exactly 4 numbers. The final agent reply contains only three numerals: 3, 4 and 5. The word 'several' is not a number, so the count is 3, not 4. This is an observed failure of the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 3 bells, 4 keys, 5 maps and several lamps.\"}],\"met\":false}]}",
-      "cost_usd": 0.00041137000000000004
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the second paragraph starts with the word \\\"it\\\" (case-insensitive). The agent's reply has two paragraphs separated by a blank line. The second one begins with \\\"it reveals a quiet garden.\\\", so the answer is yes. No FAIL condition appears in the reply.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"it reveals a quiet garden.\"}],\"met\":true}]}",
+      "cost_usd": 0.00037613
     },
     {
       "judge": "haiku",
-      "key": "2d6ef62a3b35",
+      "key": "b1a676d5ccc9",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement asks whether the second paragraph starts with the word \\\"it\\\" (case-insensitive). The agent's reply has two paragraphs. The second paragraph begins with \\\"That\\\", which is a different word, so the answer to the QUESTION is no. The FAIL condition applies.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That reveals a quiet garden.\"}],\"met\":false}]}",
-      "cost_usd": 0.00036967
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The last block of the transcript is entry 1, the agent's reply. Its entire content is one Markdown fenced block opened and closed with triple backticks, and the fence contains the Python code `glimmer = 3`. The user asked for the code to be enclosed in a single complete triple-backtick block, and the reply does that with no other code blocks or stray fences.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 3\\n```\"}],\"met\":true}]}",
+      "cost_usd": 0.00035003000000000004
     },
     {
       "judge": "haiku",
-      "key": "138c1a73a5c5",
+      "key": "2670dd234fbd",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final answer is the agent entry at index 1, the last block of the transcript. Its entire reply is one Markdown code block opened with a triple-backtick python fence and closed with triple backticks. The code inside assigns 3 to the variable glimmer, as the user requested. The reply contains no other code block or extra code outside the fence, so the final Python solution is enclosed in a single triple-backtick code block.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\"},{\"source\":\"transcript.1\",\"quote\":\"glimmer = 3\"}],\"met\":true}]}",
-      "cost_usd": 0.00044337
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The user asked for the Python code to be enclosed in a single complete triple-backtick Markdown code block. The final agent reply opens a fence with \\\"```python\\\" and then gives \\\"glimmer = 3\\\", but it has no closing triple-backtick fence. The code block is therefore not complete, so the final Python code is not enclosed in a single complete Markdown code block.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\"},{\"source\":\"transcript.1\",\"quote\":\"glimmer = 3\"}],\"met\":false}]}",
+      "cost_usd": 0.00041533
     },
     {
       "judge": "haiku",
-      "key": "a13f2c04bfc4",
+      "key": "4b2678c8fb4b",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the final Python solution is enclosed in a single, complete triple-backtick Markdown code block. The final agent entry opens with a triple-backtick fence labelled python and contains the assignment glimmer = 3, but it has no closing triple-backtick fence. The block is therefore not complete, so the requirement is not met.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\"},{\"source\":\"transcript.1\",\"quote\":\"glimmer = 3\"}],\"met\":false}]}",
-      "cost_usd": 0.00037717
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The user asked for a second paragraph that starts with the word \\\"it\\\". The final reply has two paragraphs, and the second one begins with \\\"That\\\", not \\\"it\\\". The answer to the QUESTION is no, so the requirement is not met.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That reveals a quiet garden.\"}],\"met\":false}]}",
+      "cost_usd": 0.00037583
     },
     {
       "judge": "haiku",
-      "key": "6a2cec8db854",
+      "key": "d9e228147f98",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is satisfied: the function takes a list parameter (list1) and returns a dictionary keyed by each element with its count as the value, via list1.count(x). For the stated example [3, 3, 4], the comprehension yields {3: 2, 4: 1}, matching the expected value in the user request.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) for x in list1}\"},{\"source\":\"transcript.0\",\"quote\":\"freq_count([3, 3, 4]) == {3: 2, 4: 1}\"}],\"met\":true}]}",
-      "cost_usd": 0.00046336999999999995
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the function takes a list as input and returns a dict mapping each element to its frequency. The agent's function freq_count(list1) takes a single list parameter. It returns {x: list1.count(x) for x in list1}, which is a dict comprehension whose keys are the list elements and whose values are the counts of each element via list.count. For the example [3, 3, 4], the comprehension yields {3: 2, 4: 1}, matching the user's stated expected value. The implementation is correct for the stated purpose, though it is O(n^2) and the dict comprehension re-counts duplicate keys, which does not change the result. Nothing in the reply contradicts the requirement, so the answer to the question is yes.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) for x in list1}\"},{\"source\":\"transcript.0\",\"quote\":\"freq_count([3, 3, 4]) == {3: 2, 4: 1}\"}],\"met\":true}]}",
+      "cost_usd": 0.00038553000000000003
     },
     {
       "judge": "haiku",
-      "key": "76b44bba22d0",
+      "key": "44100136e8d2",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the function takes a list and returns a dict mapping each element to its frequency. The code returns {x: list1.count(x) + 1 for x in list1}, which adds 1 to every count. For the given example freq_count([3, 3, 4]), this yields {3: 3, 4: 2} instead of the required {3: 2, 4: 1}. The function takes a list and returns a dict, but the frequency values are wrong, so the function does not correctly return element frequencies.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) + 1 for x in list1}\"},{\"source\":\"transcript.0\",\"quote\":\"freq_count([3, 3, 4]) == {3: 2, 4: 1}\"}],\"met\":false}]}",
-      "cost_usd": 0.00035067000000000003
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement asks whether the function takes a list and returns a dictionary mapping each element to its frequency. The function does take a list and return a dictionary keyed by the elements. However, each value is `list1.count(x) + 1`, which adds 1 to the true frequency. For the example `freq_count([3, 3, 4])`, the function yields {3: 3, 4: 2}, while the expected result stated in the user's request is {3: 2, 4: 1}. The frequencies are therefore wrong, so the function does not correctly return element frequencies.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) + 1 for x in list1}\"},{\"source\":\"transcript.0\",\"quote\":\"freq_count([3, 3, 4]) == {3: 2, 4: 1}\"}],\"met\":false}]}",
+      "cost_usd": 0.00044983
     },
     {
       "judge": "haiku",
-      "key": "4b29598b0c82",
+      "key": "8578eac105e7",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the implemented function turns the input tuple into a dictionary whose key-value pairs are adjacent elements. The agent's function zips the even-indexed elements (keys) with the odd-indexed elements (values), so for (3, 13, 23, 33) the keys are (3, 23) and the values are (13, 33). That yields {3: 13, 23: 33}, which matches the example stated in the request. The function pairs elements at positions (0,1) and (2,3), which are adjacent pairs. No contradicting evidence appears in the data.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[1::2]))\"},{\"source\":\"transcript.0\",\"quote\":\"tuple_to_dict((3, 13, 23, 33)) == {3: 13, 23: 33}\"}],\"met\":true}]}",
-      "cost_usd": 0.00051227
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the implemented function turns the input tuple into a dictionary whose key-value pairs come from adjacent elements. The agent's function takes the even-indexed elements as keys and the odd-indexed elements as values, then zips them. For the stated example (3, 13, 23, 33), the keys are 3 and 23 and the values are 13 and 33, giving {3: 13, 23: 33}, which matches the expected output. The FAIL condition, a function that does not pair adjacent elements, is not present.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[1::2]))\"},{\"source\":\"transcript.0\",\"quote\":\"tuple_to_dict((3, 13, 23, 33)) == {3: 13, 23: 33}\"}],\"met\":true}]}",
+      "cost_usd": 0.00045493000000000004
     },
     {
       "judge": "haiku",
-      "key": "e30906e1b734",
+      "key": "c620041b653f",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the implemented function maps adjacent tuple elements to key-value pairs. The agent's function builds the dict from test_tup[::2] for both keys and values, so it pairs each even-indexed element with itself, not with the next element. For the expected example (3, 13, 23, 33), test_tup[::2] is (3, 23), which yields {3: 3, 23: 23} instead of the required {3: 13, 23: 33}. The answer to the QUESTION is no, so the requirement is not met.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"tuple_to_dict((3, 13, 23, 33)) == {3: 13, 23: 33}\"},{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[::2]))\"}],\"met\":false}]}",
-      "cost_usd": 0.00052607
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the implemented function turns the tuple into a dictionary where adjacent elements form key-value pairs. The agent's code slices the same even-indexed elements for both keys and values, so it never pairs adjacent elements. For the stated example (3, 13, 23, 33), the slice test_tup[::2] is (3, 23), so the function returns {3: 3, 23: 23} instead of the expected {3: 13, 23: 33}. The answer to the question is no.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"tuple_to_dict((3, 13, 23, 33)) == {3: 13, 23: 33}\"},{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[::2]))\"}],\"met\":false}]}",
+      "cost_usd": 0.00048623000000000004
     },
     {
       "judge": "haiku",
-      "key": "d9b6e4be7fc4",
+      "key": "0942fb8b4982",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the function returns a list where each element is the cube of the corresponding input element. The agent's code computes `[x ** 3 for x in nums]`, which returns a list with one cube per input element in the same order. For the supplied example, `[5, -6, 0]` gives `[125, -216, 0]`, which matches the expected output in the user's request. The code has no visible defect for this task, so the answer to the question is yes.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 3 for x in nums]\"},{\"source\":\"transcript.0\",\"quote\":\"cube_nums([5, -6, 0]) == [125, -216, 0]\"}],\"met\":true}]}",
-      "cost_usd": 0.00042817
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the function returns a list where each element is the cube of the corresponding input. The agent's function computes `x ** 2`, which is the square, not the cube. For the stated example input [5, -6, 0], it would return [25, 36, 0] instead of the expected [125, -216, 0]. The function therefore does not meet the cube requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 2 for x in nums]\"},{\"source\":\"transcript.0\",\"quote\":\"cube_nums([5, -6, 0]) == [125, -216, 0]\"}],\"met\":false}]}",
+      "cost_usd": 0.00039283000000000005
     },
     {
       "judge": "haiku",
-      "key": "2774f4b97ac8",
+      "key": "677ccb4d2dbb",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the function returns a list where each element is the cube of the corresponding input. The agent's final block defines cube_nums as returning [x ** 2 for x in nums], which squares each element rather than cubing it. The user's own example, cube_nums([5, -6, 0]) == [125, -216, 0], shows the expected cubes; the squaring implementation would return [25, 36, 0] for that input, which contradicts the expected output. So the answer to the question is no.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 2 for x in nums]\"},{\"source\":\"transcript.0\",\"quote\":\"cube_nums([5, -6, 0]) == [125, -216, 0]\"}],\"met\":false}]}",
-      "cost_usd": 0.00033867
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the function correctly returns a list where each element is the cube of the corresponding input element. The agent's last block is a function that returns [x ** 3 for x in nums]. For each input element x, x ** 3 is its cube, and the list comprehension preserves order, so the output list aligns element-by-element with the input. The user's example cube_nums([5, -6, 0]) == [125, -216, 0] is consistent with this: 5**3=125, (-6)**3=-216, 0**3=0. The FAIL picture (function does not return a list of cubes) does not occur. The requirement that the response satisfies the rubrics is met because the answer to the QUESTION is yes.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 3 for x in nums]\"},{\"source\":\"transcript.0\",\"quote\":\"cube_nums([5, -6, 0]) == [125, -216, 0]\"}],\"met\":true}]}",
+      "cost_usd": 0.00037533
     },
     {
       "judge": "haiku",
-      "key": "fc4b4cbf8697",
+      "key": "466cabb0753d",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The user asked for a function returning the sum of all integers in the tuples, with the example cummulative_sum([(4, 5), (6,)]) == 15. The agent's function sums each tuple and then sums those results. For the example that gives sum((4,5)) + sum((6,)) = 9 + 6 = 15, which matches the expected value. The function handles any number of tuples of integers, which is the input shape the user described. It does not recurse into tuples nested inside tuples, but the user's specification only describes flat tuples of integers, so that is not a failure against the stated requirement.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"cummulative_sum([(4, 5), (6,)]) == 15\"},{\"source\":\"transcript.1\",\"quote\":\"return sum(sum(t) for t in test_list)\"}],\"met\":true}]}",
-      "cost_usd": 0.00060247
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The user asks for a function returning the sum of all integers in the tuples, with the example cummulative_sum([(4, 5), (6,)]) == 15. The agent's function sums each tuple and then sums those results. For [(4, 5), (6,)] that gives 9 + 6 = 15, which matches the stated expected value. The function handles one level of tuple nesting, which is the structure the request and example describe. The request does not call for deeper nesting, so the function meets the requirement as the user defined it.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"cummulative_sum([(4, 5), (6,)]) == 15\"},{\"source\":\"transcript.1\",\"quote\":\"return sum(sum(t) for t in test_list)\"}],\"met\":true}]}",
+      "cost_usd": 0.00047113000000000005
     },
     {
       "judge": "haiku",
-      "key": "8df906d40080",
+      "key": "3d28612a0bcf",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the function correctly sums all integers in the nested tuples. The user's stated expected result is cummulative_sum([(4, 5), (6,)]) == 15. The agent's function returns 1 + sum(sum(t) for t in test_list). For that input the tuple sums are 9 and 6, totaling 15, and the extra leading 1 makes the result 16, not 15. The function therefore fails the stated example. It also only sums each tuple's direct elements and does not recurse into deeper nesting, so it does not handle all nested integers.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"cummulative_sum([(4, 5), (6,)]) == 15\"},{\"source\":\"transcript.1\",\"quote\":\"return 1 + sum(sum(t) for t in test_list)\"}],\"met\":false}]}",
-      "cost_usd": 0.00050427
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the function correctly sums all integers in the nested tuples. It does not. The agent's function returns 1 + sum(sum(t) for t in test_list), which adds a stray constant 1. For the user's example [(4, 5), (6,)], the tuple sums are 9 and 6, so the function returns 16 instead of the required 15. The function also assumes each element is a flat tuple of integers and does not recurse into nested tuples. The answer to the QUESTION is no, so the requirement is not met.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return 1 + sum(sum(t) for t in test_list)\"},{\"source\":\"transcript.0\",\"quote\":\"cummulative_sum([(4, 5), (6,)]) == 15\"}],\"met\":false}]}",
+      "cost_usd": 0.00046293
     },
     {
       "judge": "haiku",
-      "key": "8501bd9048c3",
+      "key": "c6f69ff8c8d6",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the response strictly follows the format requirement that all words are in capital letters. The final agent reply is 'GLIMMER3 LIGHTS THE NIGHT', which is entirely uppercase. The user's instruction 'All words must use capital letters' is satisfied by this reply, and no lowercase words appear in it. The rubric's FAIL condition (a non-capitalized word) is absent.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER3 LIGHTS THE NIGHT\"}],\"met\":true}]}",
-      "cost_usd": 0.00030317
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the response strictly follows the requirement that all words are in capital letters. The last block (entry 1) is the agent reply 'GLIMMER3 LIGHTS THE NIGHT'. Every word in it is uppercase: GLIMMER3, LIGHTS, THE, NIGHT. The user's instruction 'All words must use capital letters' is satisfied. No lowercase words appear, so no failure condition is observed.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER3 LIGHTS THE NIGHT\"}],\"met\":true}]}",
+      "cost_usd": 0.00031133
     },
     {
       "judge": "haiku",
-      "key": "9841d98e1cd6",
+      "key": "54e511ab23a5",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The scoped final entry is the agent reply at transcript.1. The user required that all words be in capital letters. The reply's word \\\"Lights\\\" is written in mixed case, not all capitals, so the format requirement is not strictly followed. The other words are uppercase, but one violation is enough to answer the QUESTION no.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER3 Lights THE NIGHT\"}],\"met\":false}]}",
-      "cost_usd": 0.00038257000000000005
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The criterion asks whether the final response follows the requirement that all words be in capital letters. The user's instruction (entry 0) says \\\"All words must use capital letters.\\\" The agent's reply (entry 1) is \\\"GLIMMER3 Lights THE NIGHT\\\", where \\\"Lights\\\" is in mixed case, not all capitals. So the response does not strictly follow the all-capitals format requirement, which is the FAIL condition.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER3 Lights THE NIGHT\"}],\"met\":false}]}",
+      "cost_usd": 0.00036072999999999997
     },
     {
       "judge": "haiku",
-      "key": "dd50359d3af3",
+      "key": "f1f577dd7c95",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the response contains no capital letters. The last block is the agent entry at index 1, text 'glimmer3 carries a tiny lantern.' Scanning each character: g,l,i,m,m,e,r,3,c,a,r,r,i,e,s,a,t,i,n,y,l,a,n,t,e,r,n. No uppercase letters appear. The response therefore has no capital letters, so the answer to the QUESTION is yes and nothing matches the FAIL picture.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer3 carries a tiny lantern.\"}],\"met\":true}]}",
-      "cost_usd": 0.00031577
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the response contains no capital letters, following the user's instruction 'Do not use any capital letters.' The final agent reply is 'glimmer3 Carries a tiny lantern.', and 'C' in 'Carries' is a capital letter. The reply therefore violates the constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer3 Carries a tiny lantern.\"}],\"met\":false}]}",
+      "cost_usd": 0.00035513
     },
     {
       "judge": "haiku",
-      "key": "f13a57f9df03",
+      "key": "a4cb10b4a5c5",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The criterion requires the response to contain no capital letters. The user's instruction says 'Do not use any capital letters.' The agent's sentence begins with 'Carries', which has a capital C, so the response contains a capital letter and does not strictly adhere to the constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer3 Carries a tiny lantern.\"}],\"met\":false}]}",
-      "cost_usd": 0.00038197000000000003
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the response avoids capital letters. The final agent reply is one sentence, \\\"glimmer3 carries a tiny lantern.\\\", and every letter in it is lowercase. The sentence starts with a lowercase name and has no uppercase letters, so the response satisfies the no-capitals constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer3 carries a tiny lantern.\"}],\"met\":true}]}",
+      "cost_usd": 0.00035293
     },
     {
       "judge": "haiku",
-      "key": "b294a649f364",
+      "key": "b34735762a51",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the response contains no commas. The final agent entry is a single sentence with no comma characters, so the no-comma constraint is satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer3 wakes then opens the silver gate.\"}],\"met\":true}]}",
-      "cost_usd": 0.00032637000000000003
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the final response strictly avoids commas. The last block is the agent reply at entry 1, which is the only response under evaluation. Its text 'glimmer3 wakes, then opens the silver gate.' contains a comma after 'wakes', so the response uses a comma and the constraint is violated. The user explicitly required no commas, so the answer to the QUESTION is no.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer3 wakes, then opens the silver gate.\"}],\"met\":false}]}",
+      "cost_usd": 0.00029773
     },
     {
       "judge": "haiku",
-      "key": "903c2824f89e",
+      "key": "fdc84d149dee",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the final agent response avoids commas entirely. The last block is entry 1, the agent reply 'glimmer3 wakes, then opens the silver gate.' This text contains a comma after 'wakes', so the response does not strictly adhere to the no-commas constraint. The user's instruction in entry 0 explicitly prohibits commas, so the observed comma is a violation of the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer3 wakes, then opens the silver gate.\"}],\"met\":false}]}",
-      "cost_usd": 0.00030057
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The scope is the last block, entry 1, the agent's reply: 'glimmer3 wakes then opens the silver gate.' The user required one sentence with no commas. The reply contains no comma character, and it is a single sentence. The requirement to avoid commas is satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer3 wakes then opens the silver gate.\"}],\"met\":true}]}",
+      "cost_usd": 0.00027753
     },
     {
       "judge": "haiku",
-      "key": "d4671ceed68a",
+      "key": "67c05b8a096c",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the final response contains exactly 4 numbers. The last block is the agent reply at entry 1, which reads 'glimmer stores 4 bells, 5 keys, 6 maps and 7 lamps.' It contains four numerals: 4, 5, 6 and 7. No other numerals appear in that reply, so the count is exactly 4, matching the user's instruction to use exactly 4 numbers.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 4 bells, 5 keys, 6 maps and 7 lamps.\"}],\"met\":true}]}",
-      "cost_usd": 0.00043477
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the response contains exactly 4 numbers. The last entry (entry 1) contains only three numerals: 4, 5 and 6. The word \\\"several\\\" is a quantity word, not a numeral, so it does not count as a fourth number. The response therefore does not contain exactly 4 numbers.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 4 bells, 5 keys, 6 maps and several lamps.\"}],\"met\":false}]}",
+      "cost_usd": 0.00038003
     },
     {
       "judge": "haiku",
-      "key": "55c11ac7e874",
+      "key": "1a18e88da9af",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the response contains exactly 4 numbers. The last block is entry 1, which reads 'glimmer stores 4 bells, 5 keys, 6 maps and several lamps.' It contains only three numerals (4, 5, 6). The word 'several' is not a number. The response therefore has 3 numbers, not 4, so the answer to the QUESTION is no, which is the FAIL condition.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 4 bells, 5 keys, 6 maps and several lamps.\"}],\"met\":false}]}",
-      "cost_usd": 0.00041837000000000005
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the final response contains exactly 4 numbers. The final agent reply (entry 1) lists four numbers: 4 bells, 5 keys, 6 maps and 7 lamps. No other numerals appear in the reply, so the count is exactly 4. The reply also uses the word glimmer, matching the user's request, though that is outside this criterion.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 4 bells, 5 keys, 6 maps and 7 lamps.\"}],\"met\":true}]}",
+      "cost_usd": 0.00036743
     },
     {
       "judge": "haiku",
-      "key": "f60f325ea95b",
+      "key": "f458b1cccc5d",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement asks whether the second paragraph of the response starts with the word \\\"it\\\" (case-insensitive). The user's request states that the second paragraph must start with the word \\\"it\\\". The agent's reply has two paragraphs separated by a blank line. The second paragraph begins with \\\"That\\\", not \\\"it\\\", so the requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"The second paragraph must start with the word it.\"},{\"source\":\"transcript.1\",\"quote\":\"That reveals a quiet garden.\"}],\"met\":false}]}",
-      "cost_usd": 0.00040717
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the second paragraph of the final reply starts with the word \\\"it\\\" case-insensitively. The final agent entry has two paragraphs separated by a blank line. The second paragraph begins \\\"it reveals a quiet garden.\\\", so it starts with \\\"it\\\". No FAIL condition appears in the data.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"it reveals a quiet garden.\"}],\"met\":true}]}",
+      "cost_usd": 0.00036713
     },
     {
       "judge": "haiku",
-      "key": "c5cf58ebb7f9",
+      "key": "4f3ff53c81e3",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the second paragraph of the final response starts with the word \\\"it\\\" (case-insensitive). The final agent entry has two paragraphs separated by a blank line. The second paragraph begins with \\\"it reveals a quiet garden.\\\" The first word is \\\"it\\\", so the answer to the QUESTION is yes. The FAIL condition (answer no) does not occur. The requirement is therefore satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"it reveals a quiet garden.\"}],\"met\":true}]}",
-      "cost_usd": 0.00030247
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the response's second paragraph starts with the word \\\"it\\\" (case-insensitive). The agent's reply has two paragraphs separated by a blank line. The second paragraph begins with \\\"That\\\", not \\\"it\\\", so the requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That reveals a quiet garden.\"}],\"met\":false}]}",
+      "cost_usd": 0.00036783
     },
     {
       "judge": "haiku",
-      "key": "a5c7c52c558c",
+      "key": "d57c3c93399e",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the final Python code solution is enclosed in a single Markdown triple-backtick code block. The last block is the agent entry at index 1, whose text is a single fenced block opened with ```python and closed with ``` around the code glimmer = 4. The user asked for all code in a single complete triple-backtick block, and the reply provides exactly that. No prohibited pattern appears, so the answer to the QUESTION is yes.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 4\\n```\"}],\"met\":true}]}",
-      "cost_usd": 0.00030987
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the final Python code is enclosed in a single Markdown code block with triple backticks. The final agent entry (entry 1) opens a triple-backtick fence with the language tag python and then contains the code line glimmer = 4. The supplied text contains no closing triple-backtick fence, so the code is not enclosed in a complete block. The user explicitly asked for a single complete triple-backtick block, so this is an observed violation.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 4\"}],\"met\":false}]}",
+      "cost_usd": 0.00046733000000000007
     },
     {
       "judge": "haiku",
-      "key": "2dcd790b6ae9",
+      "key": "4bc7ef30c3a1",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final agent entry opens a Python fenced block with triple backticks and contains the assignment glimmer = 4, but it has no closing triple-backtick fence. The user required the code enclosed in a single complete triple-backtick code block, so the block is incomplete and the requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\"},{\"source\":\"transcript.1\",\"quote\":\"glimmer = 4\"}],\"met\":false}]}",
-      "cost_usd": 0.00040417000000000003
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the final Python code solution is enclosed in a single Markdown triple-backtick code block. The final agent entry (entry 1) consists of exactly one fenced block opened with ```python and closed with ```, containing the code glimmer = 4. The user's request asked for all code to be enclosed in a single complete triple-backtick block, and the reply does that. No FAIL condition is present: there is only one block, it is complete, and the code is inside it.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 4\\n```\"}],\"met\":true}]}",
+      "cost_usd": 0.00031403000000000003
     },
     {
       "judge": "haiku",
-      "key": "3b2f674711c9",
+      "key": "c8332395e919",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the function takes a list and returns a dict mapping each element to its frequency. The agent's function freq_count(list1) takes a list parameter and returns {x: list1.count(x) for x in list1}, which is a dict comprehension whose keys are the elements and values are their counts. For the stated example [4, 4, 5], the comprehension yields {4: 2, 4: 2, 5: 1}, which collapses to {4: 2, 5: 1} since duplicate keys overwrite with identical values. So the output matches the expected value. The function is correct, so the answer to the question is yes with no failure picture present. The code is O(n^2) but that does not affect correctness.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"freq_count([4, 4, 5]) == {4: 2, 5: 1}\"},{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) for x in list1}\"}],\"met\":true}]}",
-      "cost_usd": 0.00038037
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the function takes a list and returns a dictionary of element frequencies. The agent's function adds 1 to each count: `list1.count(x) + 1`. For the user's example `freq_count([4, 4, 5])`, that yields `{4: 3, 5: 2}` instead of the required `{4: 2, 5: 1}`. The function takes a list and returns a dictionary, but the frequency values are wrong, so the function does not correctly return element frequencies.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) + 1 for x in list1}\"},{\"source\":\"transcript.0\",\"quote\":\"freq_count([4, 4, 5]) == {4: 2, 5: 1}\"}],\"met\":false}]}",
+      "cost_usd": 0.00042483
     },
     {
       "judge": "haiku",
-      "key": "e939c7f7682c",
+      "key": "e32abbe08b44",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the function takes a list and returns a dictionary mapping each element to its frequency. The agent's code returns `list1.count(x) + 1` for each element, which adds 1 to every count. For the user's example `freq_count([4, 4, 5])`, this gives `{4: 3, 5: 2}` instead of the expected `{4: 2, 5: 1}`. The function takes a list but returns incorrect frequencies, so the requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) + 1 for x in list1}\"},{\"source\":\"transcript.0\",\"quote\":\"freq_count([4, 4, 5]) == {4: 2, 5: 1}\"}],\"met\":false}]}",
-      "cost_usd": 0.00042217000000000003
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether freq_count takes a list and returns a dictionary mapping each element to its frequency. The agent's code takes list1 as its only parameter and builds a dict comprehension keyed by each element x, with value list1.count(x), which is that element's frequency. For the user's example [4, 4, 5], the comprehension yields {4: 2, 5: 1}, matching the expected output. Nothing in the reply contradicts this behavior, so the answer to the QUESTION is yes and no FAIL condition appears.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"freq_count([4, 4, 5]) == {4: 2, 5: 1}\"},{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) for x in list1}\"}],\"met\":true}]}",
+      "cost_usd": 0.00045153
     },
     {
       "judge": "haiku",
-      "key": "1028178326f3",
+      "key": "bb2c3200981b",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The task asks for a tuple_to_dict function that maps adjacent tuple elements into key-value pairs, with the example tuple_to_dict((4, 14, 24, 34)) == {4: 14, 24: 34}. The agent's implementation takes the even-index elements as keys and the odd-index elements as values via zip, so the pairs are (4, 14) and (24, 34). For this input that yields {4: 14, 24: 34}, which matches the stated expected output. The function pairs elements at positions 0-1, 2-3, and so on, which is the adjacent-pair conversion the question asks about. The reply contains only the code, with no contradicting claims.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"tuple_to_dict((4, 14, 24, 34)) == {4: 14, 24: 34}\"},{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[1::2]))\"}],\"met\":true}]}",
-      "cost_usd": 0.0005477699999999999
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the implemented function converts the input tuple to a dictionary where adjacent elements form key-value pairs. The agent's code takes only the even-indexed elements (test_tup[::2]) and zips them with themselves, so each key maps to itself rather than to the next element. For (4, 14, 24, 34) it yields {4: 4, 24: 24}, not the expected {4: 14, 24: 34} stated in the task. The requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[::2]))\"},{\"source\":\"transcript.0\",\"quote\":\"tuple_to_dict((4, 14, 24, 34)) == {4: 14, 24: 34}\"}],\"met\":false}]}",
+      "cost_usd": 0.00052273
     },
     {
       "judge": "haiku",
-      "key": "3831bf14de5a",
+      "key": "17a4459166c1",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the implemented function turns the input tuple into a dictionary in which adjacent elements form key-value pairs. The agent's function takes the even-indexed slice twice, once for keys and once for values, so each key maps to itself. For (4, 14, 24, 34) the slice test_tup[::2] is (4, 24), and zip produces (4, 4) and (24, 24), giving {4: 4, 24: 24}. The user's expected value is {4: 14, 24: 34}, so the adjacent elements 14 and 34 never become values. The function does not meet the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[::2]))\"},{\"source\":\"transcript.0\",\"quote\":\"tuple_to_dict((4, 14, 24, 34)) == {4: 14, 24: 34}\"}],\"met\":false}]}",
-      "cost_usd": 0.0005425699999999999
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent's final entry implements tuple_to_dict as dict(zip(test_tup[::2], test_tup[1::2])). The even-index slice supplies keys and the odd-index slice supplies values, so each adjacent pair (element 0 with element 1, element 2 with element 3) becomes a key-value pair. For the user's example (4, 14, 24, 34), the slices are (4, 24) and (14, 34), which zip into (4, 14) and (24, 34) and produce {4: 14, 24: 34}, matching the expected result stated in the request. The implementation answers the question yes, and nothing in the reply matches the FAIL picture.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[1::2]))\"},{\"source\":\"transcript.0\",\"quote\":\"tuple_to_dict((4, 14, 24, 34)) == {4: 14, 24: 34}\"}],\"met\":true}]}",
+      "cost_usd": 0.00052643
     },
     {
       "judge": "haiku",
-      "key": "39d7b593857a",
+      "key": "f13d4fe21b55",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement asks whether the function returns a list where each element is the cube of the corresponding input element. The agent's final block defines cube_nums as a list comprehension computing x ** 3 for each x in nums, which yields a list of cubes in the same order. The user's example cube_nums([6, -7, 0]) == [216, -343, 0] matches this behavior: 6**3=216, (-7)**3=-343, 0**3=0. The function therefore satisfies the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 3 for x in nums]\"},{\"source\":\"transcript.0\",\"quote\":\"cube_nums([6, -7, 0]) == [216, -343, 0]\"}],\"met\":true}]}",
-      "cost_usd": 0.00033967000000000003
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The task asks for a Python cube_nums(nums) that returns the cube of each input element. The agent's function returns a list comprehension that raises each element to the third power, so each output element is the cube of the corresponding input element. The user's example, cube_nums([6, -7, 0]) == [216, -343, 0], matches what this code produces: 6**3=216, (-7)**3=-343, and 0**3=0. The data contains no contradicting behavior.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 3 for x in nums]\"},{\"source\":\"transcript.0\",\"quote\":\"cube_nums([6, -7, 0]) == [216, -343, 0]\"}],\"met\":true}]}",
+      "cost_usd": 0.00040833000000000004
     },
     {
       "judge": "haiku",
-      "key": "d9b049da5639",
+      "key": "c6ead3bdc9d4",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that cube_nums returns a list where each element is the cube of the corresponding input element. The agent's function squares each element with x ** 2 instead of cubing it. The user's own example expects cube_nums([6, -7, 0]) == [216, -343, 0], but squaring gives [36, 49, 0], so the function does not meet the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 2 for x in nums]\"},{\"source\":\"transcript.0\",\"quote\":\"cube_nums([6, -7, 0]) == [216, -343, 0]\"}],\"met\":false}]}",
-      "cost_usd": 0.00036417000000000003
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The user asks for a Python function returning the sum of all integers in the tuples, with the example cummulative_sum([(5, 6), (7,)]) == 18. The agent's function sums each tuple and then sums those results: (5, 6) gives 11 and (7,) gives 7, for a total of 18, which matches the expected value. The function handles the flat tuples in the stated example and any number of tuples in the list. It would not recurse into tuples nested inside tuples, but the user's specification and example only involve tuples directly inside the list, so that case is not part of the stated requirement.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"cummulative_sum([(5, 6), (7,)]) == 18\"},{\"source\":\"transcript.1\",\"quote\":\"return sum(sum(t) for t in test_list)\"}],\"met\":true}]}",
+      "cost_usd": 0.00055513
     },
     {
       "judge": "haiku",
-      "key": "3c2824950e51",
+      "key": "2dba84b7017c",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the function correctly sums all integers in the tuples of the input list. The agent's function returns sum(sum(t) for t in test_list), which adds each tuple's integers and then totals those sums. For the stated example [(5, 6), (7,)], that gives 11 + 7 = 18, matching the expected value of 18 in the user's request. The user's spec describes integers inside tuples and gives no deeper nesting, so the example is the relevant check. The function does not handle tuples nested inside tuples, but the request does not require that case.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"cummulative_sum([(5, 6), (7,)]) == 18\"},{\"source\":\"transcript.1\",\"quote\":\"return sum(sum(t) for t in test_list)\"}],\"met\":true}]}",
-      "cost_usd": 0.00055597
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the function correctly returns a list where each element is the cube of the corresponding input element. The agent's final entry defines cube_nums as returning [x ** 2 for x in nums], which squares each element rather than cubing it. The user's own example, cube_nums([6, -7, 0]) == [216, -343, 0], shows the expected cubes; squaring gives [36, 49, 0], which does not match. The answer to the QUESTION is no, so the requirement is not met.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 2 for x in nums]\"},{\"source\":\"transcript.0\",\"quote\":\"cube_nums([6, -7, 0]) == [216, -343, 0]\"}],\"met\":false}]}",
+      "cost_usd": 0.00034333
     },
     {
       "judge": "haiku",
-      "key": "5ed052417b91",
+      "key": "1a80047a85cb",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the function correctly sums all integers in the nested tuples. The function returns 1 + sum(sum(t) for t in test_list). For the user's example [(5, 6), (7,)], the tuple sums are 11 and 7, giving 18, and the extra +1 makes the result 19. The user's stated expected value is 18, so the function is incorrect. The constant +1 is an unexplained offset that breaks the calculation.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return 1 + sum(sum(t) for t in test_list)\"},{\"source\":\"transcript.0\",\"quote\":\"cummulative_sum([(5, 6), (7,)]) == 18\"}],\"met\":false}]}",
-      "cost_usd": 0.00047427
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The user required all words to be in capital letters. The agent reply 'GLIMMER4 LIGHTS THE NIGHT' has every word fully uppercase, including the identifier GLIMMER4, so the format requirement is satisfied and no failure condition appears.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER4 LIGHTS THE NIGHT\"}],\"met\":true}]}",
+      "cost_usd": 0.00027983
     },
     {
       "judge": "haiku",
-      "key": "0695409498c8",
+      "key": "79a589c12a5a",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the response strictly follows the format requirement that all words are in capital letters. The user asked for a chant with all words in capital letters. The final agent reply is 'GLIMMER4 LIGHTS THE NIGHT', which is entirely uppercase letters with no lowercase letters present. The token 'GLIMMER4' contains a digit, which is not a letter and does not violate the capitalization requirement. The response therefore satisfies the all-caps format requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER4 LIGHTS THE NIGHT\"}],\"met\":true}]}",
-      "cost_usd": 0.00031367000000000005
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the function correctly sums all integers in the nested tuples. The agent's function returns 1 + sum(sum(t) for t in test_list), which adds a stray constant 1. For the user's example [(5, 6), (7,)], the correct sum is 18, but this function returns 1 + 18 = 19, so it fails the stated expected value. It also only sums one level of tuples and does not recurse into nested tuples, so it does not cover the 'nested tuples' requirement in general. The answer to the QUESTION is no.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"cummulative_sum([(5, 6), (7,)]) == 18\"},{\"source\":\"transcript.1\",\"quote\":\"return 1 + sum(sum(t) for t in test_list)\"}],\"met\":false}]}",
+      "cost_usd": 0.00043893000000000003
     },
     {
       "judge": "haiku",
-      "key": "ab9e958723bb",
+      "key": "b0ed610a058f",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the response strictly follows the format requirement that all words are in capital letters. The only response in scope is entry 1, which reads 'GLIMMER4 Lights THE NIGHT'. The words 'Lights' is not fully capitalized (only the first letter is uppercase, rest lowercase), so not all words are in capital letters. This is an observed violation of the all-caps requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER4 Lights THE NIGHT\"}],\"met\":false}]}",
-      "cost_usd": 0.00029857
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the response strictly follows the format requirement that all words are in capital letters. The last block of the transcript is the agent reply 'GLIMMER4 Lights THE NIGHT'. The word 'Lights' is written with only its first letter capitalized and the rest in lowercase, so not all words are in capital letters. The user's instruction 'All words must use capital letters' is therefore not strictly followed. The answer to the QUESTION is no, which matches the FAIL picture.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"All words must use capital letters.\"},{\"source\":\"transcript.1\",\"quote\":\"GLIMMER4 Lights THE NIGHT\"}],\"met\":false}]}",
+      "cost_usd": 0.00032823
     },
     {
       "judge": "haiku",
-      "key": "d2a717dfd585",
+      "key": "afdd08cf8e39",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the response contains no capital letters. The last block is the agent entry at index 1, whose text is 'glimmer4 carries a tiny lantern.' Scanning each character, all letters are lowercase and the only other characters are digits, spaces, and the final period. No capital letters appear, so the answer to the QUESTION is yes and nothing matches the FAIL picture.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer4 carries a tiny lantern.\"}],\"met\":true}]}",
-      "cost_usd": 0.00029677
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the response avoids all capital letters. The agent's reply contains a capital C in \\\"Carries\\\", so the response does not strictly adhere to the no-capital-letters constraint. The user's request in entry 0 sets that constraint explicitly.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer4 Carries a tiny lantern.\"}],\"met\":false}]}",
+      "cost_usd": 0.00037513
     },
     {
       "judge": "haiku",
-      "key": "610542631f97",
+      "key": "7d790b89c6d0",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the response strictly avoids capital letters. The last block is the agent reply at entry 1, which reads \\\"glimmer4 Carries a tiny lantern.\\\" The word \\\"Carries\\\" begins with a capital C, which is an observed violation of the no-capitals constraint. The user's instruction at entry 0 explicitly prohibited capital letters, so the response does not satisfy the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer4 Carries a tiny lantern.\"}],\"met\":false}]}",
-      "cost_usd": 0.00037447
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The scope is the final agent reply at entry 1, which the user asked to be one fictional sentence with no capital letters. Every letter in \\\"glimmer4 carries a tiny lantern.\\\" is lowercase, including the first word, so the response contains no capital letters. The requirement that the response contain no capital letters is satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer4 carries a tiny lantern.\"}],\"met\":true}]}",
+      "cost_usd": 0.00035192999999999997
     },
     {
       "judge": "haiku",
-      "key": "eb060f88f049",
+      "key": "f7475ed5b0dd",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the final response (entry 1) strictly avoids commas. The user's constraint in entry 0 was 'Do not use commas.' The agent's reply is the single sentence 'glimmer4 wakes then opens the silver gate.' It contains no comma characters, so the constraint is satisfied and nothing in the FAIL picture applies.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer4 wakes then opens the silver gate.\"}],\"met\":true}]}",
-      "cost_usd": 0.00029187
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the final response strictly avoids commas, as the user asked 'Do not use commas.' The final agent reply is 'glimmer4 wakes, then opens the silver gate.' It contains a comma after 'wakes', so the constraint is violated.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer4 wakes, then opens the silver gate.\"}],\"met\":false}]}",
+      "cost_usd": 0.00027623000000000003
     },
     {
       "judge": "haiku",
-      "key": "94b67bc54a7a",
+      "key": "d3731556a23b",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the final response strictly avoids commas. The last block is the agent reply at entry 1, which reads 'glimmer4 wakes, then opens the silver gate.' It contains a comma after 'wakes', so the constraint of no commas is violated. The user's instruction at entry 0 explicitly prohibited commas, so the answer to the QUESTION is no, which is the FAIL condition.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer4 wakes, then opens the silver gate.\"}],\"met\":false}]}",
-      "cost_usd": 0.00030107
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the final response contains no commas. The last block is entry 1, the agent reply 'glimmer4 wakes then opens the silver gate.' This text contains no comma characters. The user instruction in entry 0 asked for no commas, and the reply conforms. No prohibited event is present in the final reply.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer4 wakes then opens the silver gate.\"}],\"met\":true}]}",
+      "cost_usd": 0.00018093000000000002
     },
     {
       "judge": "haiku",
-      "key": "0a289ed03cb8",
+      "key": "83fd2f1a6502",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the response contains exactly 4 numbers. The last block is the agent reply at entry 1, which contains four numerals: 5, 6, 7 and 8. The reply has no other numerals, so the count is exactly 4. The user's instruction was to use exactly 4 numbers, and the reply meets it.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 5 bells, 6 keys, 7 maps and 8 lamps.\"}],\"met\":true}]}",
-      "cost_usd": 0.00037427
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the final response contains exactly 4 numbers. The final agent reply is 'glimmer stores 5 bells, 6 keys, 7 maps and 8 lamps.' It contains four numerals: 5, 6, 7 and 8. The reply has no other numbers, so the count is exactly 4, and the requirement is satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 5 bells, 6 keys, 7 maps and 8 lamps.\"}],\"met\":true}]}",
+      "cost_usd": 0.00019455
     },
     {
       "judge": "haiku",
-      "key": "b862fa4753e9",
+      "key": "e2429c7d356d",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the final response contains exactly 4 numbers. The final reply (entry 1) contains three numeric values: 5, 6, and 7. The phrase 'several lamps' uses no digit. The count is 3, not 4, so the requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 5 bells, 6 keys, 7 maps and several lamps.\"}],\"met\":false}]}",
-      "cost_usd": 0.00039687
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the final response contains exactly 4 numbers. The last transcript entry (entry 1) contains three numerals: 5, 6 and 7. The word \\\"several\\\" is not a numeral, so the count is 3, not 4. The rubric's requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 5 bells, 6 keys, 7 maps and several lamps.\"}],\"met\":false}]}",
+      "cost_usd": 0.00039253
     },
     {
       "judge": "haiku",
-      "key": "4963a9ae6c5f",
+      "key": "2cc59c28d87b",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the second paragraph starts with the word \\\"it\\\" (case-insensitive). The agent reply has two paragraphs separated by a blank line. The first is \\\"glimmer4 opens the gate.\\\" The second begins with \\\"it reveals a quiet garden.\\\", so the answer is yes. No FAIL condition appears in the data.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"it reveals a quiet garden.\"}],\"met\":true}]}",
-      "cost_usd": 0.00038947000000000005
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The scope is the final agent reply at entry 1. It has two paragraphs separated by a blank line. The second paragraph begins with \\\"it\\\", which matches the case-insensitive question. No other FAIL condition appears in the data.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"it reveals a quiet garden.\"}],\"met\":true}]}",
+      "cost_usd": 0.00026286
     },
     {
       "judge": "haiku",
-      "key": "10be7016dfae",
+      "key": "fe07133bf2c7",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the second paragraph starts with the word \\\"it\\\" (case-insensitive). The final agent entry has two paragraphs separated by a blank line. The second paragraph begins with \\\"That\\\", not \\\"it\\\", so the answer is no. The FAIL condition is therefore met.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That reveals a quiet garden.\"}],\"met\":false}]}",
-      "cost_usd": 0.00037467
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the final Python code solution is enclosed in a single Markdown code block using triple backticks. The last agent entry (entry 1) is a single fenced block opening with ```python and closing with ```, containing only 'glimmer = 5'. This is one complete triple-backtick code block enclosing the code, so the answer is yes and nothing in the FAIL picture appears.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 5\\n```\"}],\"met\":true}]}",
+      "cost_usd": 0.00030223
     },
     {
       "judge": "haiku",
-      "key": "349e3d1ca44f",
+      "key": "1a6bdd187aba",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the final Python code solution is enclosed in a single Markdown triple-backtick code block. The last entry (entry 1, agent) contains exactly one fenced block opened with ```python and closed with ```, enclosing the code glimmer = 5. The user explicitly asked for all code in a single complete triple-backtick block, and the reply satisfies this. No FAIL condition is present: there is no second block, no unfenced code, and no missing closing fence.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 5\\n```\"}],\"met\":true}]}",
-      "cost_usd": 0.00031537000000000004
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement asks whether the second paragraph of the response starts with the word \\\"it\\\" (case-insensitive). The agent reply has two paragraphs. The second paragraph begins with \\\"That\\\", not \\\"it\\\", so the requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That reveals a quiet garden.\"}],\"met\":false}]}",
+      "cost_usd": 0.00037503
     },
     {
       "judge": "haiku",
-      "key": "2d244d73ce2d",
+      "key": "c510728249c5",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the final Python code is enclosed in a single complete Markdown code block using triple backticks. The final agent entry (entry 1) opens a fence with ```python and contains the assignment glimmer = 5, but it has no closing triple backticks. The block is therefore not complete, so the code is not enclosed in a single complete code block as the user required.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 5\"}],\"met\":false}]}",
-      "cost_usd": 0.00040117000000000006
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the final Python code is enclosed in a single complete triple-backtick Markdown code block. The final agent entry (entry 1) opens a fenced block with ```python and assigns glimmer = 5, but it contains no closing triple-backtick fence. The code is therefore not enclosed in a complete block, so the answer to the QUESTION is no.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 5\"}],\"met\":false}]}",
+      "cost_usd": 0.00041503000000000004
     },
     {
       "judge": "haiku",
-      "key": "9cfb704c0186",
+      "key": "dd600b844621",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the function takes a list and returns a dictionary mapping each element to its frequency. The agent's code defines freq_count(list1) and builds a dictionary comprehension keyed by each element with value list1.count(x). For the user's example input [5, 5, 6], this yields {5: 2, 6: 1}, which matches the expected output stated in the request. The implementation is correct for the described behavior, though it is quadratic in list length.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"freq_count([5, 5, 6]) == {5: 2, 6: 1}\"},{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) for x in list1}\"}],\"met\":true}]}",
-      "cost_usd": 0.00044187
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the function takes a list and returns a dictionary mapping each element to its frequency. The agent's function takes list1 and returns {x: list1.count(x) for x in list1}, a dict comprehension whose keys are the list elements and whose values are their counts. For the stated example [5, 5, 6], the comprehension gives {5: 2, 6: 1}, which matches the expected value in the user's request. The function therefore answers yes to the question, and nothing in the reply matches the FAIL picture.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) for x in list1}\"},{\"source\":\"transcript.0\",\"quote\":\"freq_count([5, 5, 6]) == {5: 2, 6: 1}\"}],\"met\":true}]}",
+      "cost_usd": 0.00045323000000000005
     },
     {
       "judge": "haiku",
-      "key": "df0160844b50",
+      "key": "0f0d5c7fb50e",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether freq_count takes a list, returns a dictionary keyed by the elements, and maps each key to its frequency. The function takes a list and keys by its elements, but each value is list1.count(x) + 1, which adds 1 to the true count. For the user's example freq_count([5, 5, 6]), the function gives {5: 3, 6: 2}, while the expected result is {5: 2, 6: 1}. The values are therefore not the element frequencies, so the answer to the question is no.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) + 1 for x in list1}\"},{\"source\":\"transcript.0\",\"quote\":\"freq_count([5, 5, 6]) == {5: 2, 6: 1}\"}],\"met\":false}]}",
-      "cost_usd": 0.00050967
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The user asked for a tuple_to_dict function that maps adjacent tuple elements into key-value pairs, with tuple_to_dict((5, 15, 25, 35)) == {5: 15, 25: 35}. The agent's function uses dict(zip(test_tup[::2], test_tup[1::2])). Even-index elements (5, 25) become keys and odd-index elements (15, 35) become their adjacent values, giving {5: 15, 25: 35}, which matches the stated expected value. The implementation therefore converts the tuple into a dictionary where adjacent elements form key-value pairs.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"tuple_to_dict((5, 15, 25, 35)) == {5: 15, 25: 35}\"},{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[1::2]))\"}],\"met\":true}]}",
+      "cost_usd": 0.00049313
     },
     {
       "judge": "haiku",
-      "key": "4d26a299f4cb",
+      "key": "a8e351548720",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the implemented function converts the input tuple to a dictionary where adjacent elements form key-value pairs. The final block (entry 1) defines tuple_to_dict as dict(zip(test_tup[::2], test_tup[1::2])). The slice [::2] takes the elements at even positions as keys and [1::2] takes the odd positions as values, so each adjacent pair forms a key-value pair. For the stated example (5, 15, 25, 35), the keys are 5 and 25 and the values are 15 and 35, giving {5: 15, 25: 35}, which matches the expected output in the request. The answer to the QUESTION is yes, and nothing in the FAIL picture applies.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"tuple_to_dict((5, 15, 25, 35)) == {5: 15, 25: 35}\"},{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[1::2]))\"}],\"met\":true}]}",
-      "cost_usd": 0.00053227
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the function takes a list and returns a dictionary whose keys are the elements and whose values are their frequencies. The function does take a list and returns a dictionary keyed by the elements. However, each value is `list1.count(x) + 1`, which adds 1 to the true count. For the task's own example, freq_count([5, 5, 6]) should equal {5: 2, 6: 1}, but the code yields {5: 3, 6: 2}. The values are not the frequencies, so the answer to the question is no.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) + 1 for x in list1}\"},{\"source\":\"transcript.0\",\"quote\":\"freq_count([5, 5, 6]) == {5: 2, 6: 1}\"}],\"met\":false}]}",
+      "cost_usd": 0.00047303000000000004
     },
     {
       "judge": "haiku",
-      "key": "0af71b3889da",
+      "key": "f6bc7b49807c",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The criterion asks whether the function returns a list where each element is the cube of the corresponding input element. The agent's function computes `x ** 3` for each element in a list comprehension, which preserves order and length and yields a list. The user's example `cube_nums([7, -8, 0]) == [343, -512, 0]` matches what this code produces: 7**3=343, (-8)**3=-512, 0**3=0. Nothing in the reply contradicts this.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 3 for x in nums]\"},{\"source\":\"transcript.0\",\"quote\":\"cube_nums([7, -8, 0]) == [343, -512, 0]\"}],\"met\":true}]}",
-      "cost_usd": 0.00041567000000000004
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the implemented function maps adjacent tuple elements to key-value pairs. The agent's function takes the even-indexed elements twice, via test_tup[::2] for both keys and values. For the stated input (5, 15, 25, 35), that yields {5: 5, 25: 25} rather than the expected {5: 15, 25: 35}. Adjacent elements do not form the pairs, so the answer is no.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[::2]))\"},{\"source\":\"transcript.0\",\"quote\":\"tuple_to_dict((5, 15, 25, 35)) == {5: 15, 25: 35}\"}],\"met\":false}]}",
+      "cost_usd": 0.00049993
     },
     {
       "judge": "haiku",
-      "key": "8819f5e5c327",
+      "key": "93f306d818eb",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the function correctly returns a list where each element is the cube of the corresponding input element. The agent's function computes x ** 2 (the square), not x ** 3 (the cube). For the given example input [7, -8, 0], it would return [49, 64, 0] instead of the required [343, -512, 0]. So the function does not correctly cube the elements, and the answer to the question is no.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 2 for x in nums]\"},{\"source\":\"transcript.0\",\"quote\":\"cube_nums([7, -8, 0]) == [343, -512, 0]\"}],\"met\":false}]}",
-      "cost_usd": 0.00032567
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the function returns a list where each element is the cube of the corresponding input. The agent's function returns x ** 2 (the square), not x ** 3. For the supplied example cube_nums([7, -8, 0]), it would return [49, 64, 0], not the expected [343, -512, 0]. So the function does not correctly cube each element, and the answer to the QUESTION is no.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 2 for x in nums]\"},{\"source\":\"transcript.0\",\"quote\":\"cube_nums([7, -8, 0]) == [343, -512, 0]\"}],\"met\":false}]}",
+      "cost_usd": 0.00032653
     },
     {
       "judge": "haiku",
-      "key": "fd0cf3c8496b",
+      "key": "3edefce1d18b",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement asks whether the implemented function turns the input tuple into a dictionary where adjacent elements form key-value pairs. The agent's function zips the even-indexed slice with itself, so each key is also its own value. For (5, 15, 25, 35) it yields {5: 5, 25: 25}, not the expected {5: 15, 25: 35} stated in the criterion. Adjacent elements do not form the pairs, so the answer to the question is no.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[::2]))\"},{\"source\":\"transcript.0\",\"quote\":\"tuple_to_dict((5, 15, 25, 35)) == {5: 15, 25: 35}\"}],\"met\":false}]}",
-      "cost_usd": 0.0005140699999999999
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The user asked for a cummulative_sum(test_list) function that returns the sum of all integers in the tuples, with the example cummulative_sum([(6, 7), (8,)]) == 21. The agent's function returns sum(sum(t) for t in test_list). This sums each tuple and then sums those totals, so it adds every integer in the list of tuples. For the example, (6, 7) gives 13 and (8,) gives 8, for a total of 21, which matches the expected value. The function does not handle tuples nested more than one level deep, but the user's specification describes only tuples of integers, so that gap does not fail the stated requirement.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"returning the sum of all integers in the tuples\"},{\"source\":\"transcript.0\",\"quote\":\"cummulative_sum([(6, 7), (8,)]) == 21\"},{\"source\":\"transcript.1\",\"quote\":\"return sum(sum(t) for t in test_list)\"}],\"met\":true}]}",
+      "cost_usd": 0.00055933
     },
     {
       "judge": "haiku",
-      "key": "87ae7ab96009",
+      "key": "5fea9ae16f83",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The task asks for a function returning the sum of all integers in the tuples of the input list, and gives the example cummulative_sum([(6, 7), (8,)]) == 21. The agent's function sums each tuple and then sums those totals. For the example, (6, 7) gives 13 and (8,) gives 8, so the total is 21, which matches the expected value. The function handles the input form the task describes, a list of tuples of integers. It does not recurse into tuples nested inside tuples, but the task does not describe that input.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"returning the sum of all integers in the tuples.\"},{\"source\":\"transcript.0\",\"quote\":\"cummulative_sum([(6, 7), (8,)]) == 21\"},{\"source\":\"transcript.1\",\"quote\":\"return sum(sum(t) for t in test_list)\"}],\"met\":true}]}",
-      "cost_usd": 0.00058447
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the function correctly returns a list where each element is the cube of the corresponding input element. The agent's code `[x ** 3 for x in nums]` returns a list with each input element raised to the third power, which is the cube. The user's example cube_nums([7, -8, 0]) == [343, -512, 0] is consistent with this: 7**3=343, (-8)**3=-512, 0**3=0. No failure condition appears in the reply; the function is correct for the stated requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 3 for x in nums]\"}],\"met\":true}]}",
+      "cost_usd": 0.00032153
     },
     {
       "judge": "haiku",
-      "key": "95f7c86423ae",
+      "key": "5f4ae5424a47",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the function correctly sums all integers in the nested tuples. The agent's function returns 1 + sum(sum(t) for t in test_list), which adds an extra 1 to the correct total. For the example the user supplied, cummulative_sum([(6, 7), (8,)]) should equal 21. The tuple sums are 13 and 8, totaling 21, so the function returns 22. The function is therefore incorrect, and the requirement is not met.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"cummulative_sum([(6, 7), (8,)]) == 21\"},{\"source\":\"transcript.1\",\"quote\":\"return 1 + sum(sum(t) for t in test_list)\"}],\"met\":false}]}",
-      "cost_usd": 0.00045427
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the function correctly sums all integers in the nested tuples. The agent's function returns 1 + sum(sum(t) for t in test_list). For the stated example [(6, 7), (8,)], the tuple sums are 13 and 8, totaling 21, so the function returns 22 instead of the expected 21. The extra constant 1 makes the function incorrect for the given example. It also only sums one level of tuples, so it does not handle deeper nesting. The answer to the QUESTION is no.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"cummulative_sum([(6, 7), (8,)]) == 21\"},{\"source\":\"transcript.1\",\"quote\":\"return 1 + sum(sum(t) for t in test_list)\"}],\"met\":false}]}",
+      "cost_usd": 0.00045162999999999996
     },
     {
       "judge": "haiku",
-      "key": "e5da7881951b",
+      "key": "0296545add28",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the response strictly follows the format requirement that all words are in capital letters. The final agent entry (entry 1) reads 'GLIMMER5 LIGHTS THE NIGHT', which is entirely uppercase. All words are capitalized, so the response satisfies the all-caps format requirement from the user's instruction. No lowercase words appear in the final reply.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER5 LIGHTS THE NIGHT\"}],\"met\":true}]}",
-      "cost_usd": 0.00029767
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the response strictly follows the format requirement that all words are in capital letters. The final agent reply is 'GLIMMER5 LIGHTS THE NIGHT', where every word is uppercase, so the format requirement is satisfied. No lowercase words appear in the final block.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER5 LIGHTS THE NIGHT\"}],\"met\":true}]}",
+      "cost_usd": 0.00028403
     },
     {
       "judge": "haiku",
-      "key": "ce2cbb8b663c",
+      "key": "58c8861b32d0",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the response strictly follows the format requirement that all words are in capital letters. The last block is the agent reply 'GLIMMER5 Lights THE NIGHT'. The words 'Lights' is not fully capitalized; only its first letter is uppercase and the rest are lowercase. So the reply does not have all words in capital letters, which violates the format requirement from the user's instruction. The reply is not strictly compliant.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER5 Lights THE NIGHT\"}],\"met\":false}]}",
-      "cost_usd": 0.00030407
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the response strictly follows the format requirement that all words are in capital letters. The user's instruction was 'All words must use capital letters.' The final agent reply is 'GLIMMER5 Lights THE NIGHT'. The words 'Lights' is written in mixed case (only the first letter capitalized, rest lowercase), so not all words are in capital letters. Therefore the answer to the question is no, which is a FAIL condition.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER5 Lights THE NIGHT\"}],\"met\":false}]}",
+      "cost_usd": 0.00030693
     },
     {
       "judge": "haiku",
-      "key": "8f83b20977ba",
+      "key": "fe3a810e6cea",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the response contains no capital letters. The last agent entry (entry 1) is the only response in scope. Its text, \\\"glimmer5 carries a tiny lantern.\\\", has every letter in lowercase, including the start of the sentence and the name glimmer5. The user's instruction, \\\"Do not use any capital letters,\\\" is therefore satisfied. The sentence is also a single fictional sentence about glimmer5, as requested.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer5 carries a tiny lantern.\"}],\"met\":true}]}",
-      "cost_usd": 0.00038827
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the response avoids all capital letters. The final agent reply is the single sentence 'glimmer5 carries a tiny lantern.' Every letter in it is lowercase, and the only other entry is the user's request, which is not the response. The reply therefore contains no capital letters, so the answer to the QUESTION is yes.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer5 carries a tiny lantern.\"}],\"met\":true}]}",
+      "cost_usd": 0.00037063
     },
     {
       "judge": "haiku",
-      "key": "c9cdb6ca4510",
+      "key": "373ac2214cca",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final agent reply must contain no capital letters, per the user's instruction 'Do not use any capital letters.' The reply 'glimmer5 Carries a tiny lantern.' contains a capital C in 'Carries', so the no-capital-letters constraint is violated.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer5 Carries a tiny lantern.\"}],\"met\":false}]}",
-      "cost_usd": 0.00036597
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The scope is the final agent entry, which must contain no capital letters. The reply 'glimmer5 Carries a tiny lantern.' capitalizes 'C' in 'Carries', an observed violation of the no-capital-letters constraint. The user's instruction was 'Do not use any capital letters.' The reply therefore does not satisfy the constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer5 Carries a tiny lantern.\"}],\"met\":false}]}",
+      "cost_usd": 0.00035783
     },
     {
       "judge": "haiku",
-      "key": "e586a70357e1",
+      "key": "4e92a7cbb45e",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the final response contains no commas. The last block is the agent reply at entry 1, which reads 'glimmer5 wakes then opens the silver gate.' The reply contains no comma characters. It is a single sentence ending in a period, so the no-comma constraint is satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer5 wakes then opens the silver gate.\"}],\"met\":true}]}",
-      "cost_usd": 0.00027937000000000003
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final agent reply (entry 1) is the last block and must contain no commas. Its text is 'glimmer5 wakes, then opens the silver gate.' which contains a comma after 'wakes'. The response therefore violates the no-commas constraint, so the answer to the QUESTION is no.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer5 wakes, then opens the silver gate.\"}],\"met\":false}]}",
+      "cost_usd": 0.00028143
     },
     {
       "judge": "haiku",
-      "key": "5c5b2241afd2",
+      "key": "8661ed615474",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the response strictly avoids commas. The last block is the agent entry 1, whose text is 'glimmer5 wakes, then opens the silver gate.' It contains one comma, placed after 'wakes'. The user's instruction required no commas, so the response violates the constraint and the answer to the QUESTION is no.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer5 wakes, then opens the silver gate.\"}],\"met\":false}]}",
-      "cost_usd": 0.00028857000000000004
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the final response contains no commas. The last block is the agent entry at index 1, text 'glimmer5 wakes then opens the silver gate.' This text contains no comma characters, so the constraint of not using any commas is satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer5 wakes then opens the silver gate.\"}],\"met\":true}]}",
+      "cost_usd": 0.00027273
     },
     {
       "judge": "haiku",
-      "key": "c3e4b3ab945a",
+      "key": "fc0de775aa25",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the response contains exactly 4 numbers. The last block is the agent reply at entry 1, which contains four numerals: 6, 7, 8 and 9. No other numerals appear in that reply, so the count is exactly 4.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 6 bells, 7 keys, 8 maps and 9 lamps.\"}],\"met\":true}]}",
-      "cost_usd": 0.0004262700000000001
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the response contains exactly 4 numbers. The last block is the agent reply at entry 1, which reads 'glimmer stores 6 bells, 7 keys, 8 maps and 9 lamps.' It contains four numbers: 6, 7, 8 and 9. The requirement is satisfied, since the reply contains exactly 4 numbers and no extra numeric values appear. The reply also uses the word glimmer, consistent with the user's request, though that is not the QUESTION here.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 6 bells, 7 keys, 8 maps and 9 lamps.\"}],\"met\":true}]}",
+      "cost_usd": 0.00032613
     },
     {
       "judge": "haiku",
-      "key": "eaa69dfe6fe4",
+      "key": "b94425a43322",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The last block is the agent reply at entry 1. It contains three numerals (6, 7, 8). The word 'several' is not a numeral, so the reply has 3 numbers, not the 4 the user required. The QUESTION asks whether the response contains exactly 4 numbers, and the answer is no.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 6 bells, 7 keys, 8 maps and several lamps.\"}],\"met\":false}]}",
-      "cost_usd": 0.00038237000000000004
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the second paragraph starts with the word 'it' (case-insensitive). The final agent entry has two paragraphs separated by a blank line. The second paragraph begins with 'it reveals a quiet garden.' The first word is 'it', which matches case-insensitively. The data supports a yes answer, and the FAIL condition (answer is no) does not occur. The requirement as restated positively is satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"it reveals a quiet garden.\"}],\"met\":true}]}",
+      "cost_usd": 0.00030433
     },
     {
       "judge": "haiku",
-      "key": "45fd713b69ab",
+      "key": "f5f47530b75f",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The question asks whether the second paragraph starts with the word \\\"it\\\" (case-insensitive). The last block of the transcript is the agent reply at entry 1, which has two paragraphs separated by a blank line. The second paragraph is \\\"it reveals a quiet garden.\\\", so it starts with \\\"it\\\". The FAIL condition (answer to the question is no) does not occur.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"it reveals a quiet garden.\"}],\"met\":true}]}",
-      "cost_usd": 0.00039197000000000006
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The criterion requires the response to contain exactly 4 numbers. The final reply has three numeric values: 6, 7 and 8. The word 'several' is a vague quantity, not a number, so the count is 3, not 4. The requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 6 bells, 7 keys, 8 maps and several lamps.\"}],\"met\":false}]}",
+      "cost_usd": 0.00039173
     },
     {
       "judge": "haiku",
-      "key": "37bbaa42c478",
+      "key": "db6cbf942026",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement asks whether the second paragraph of the response starts with the word \\\"it\\\" (case-insensitive). The agent's reply has two paragraphs. The second one begins with \\\"That\\\", not \\\"it\\\". The word \\\"That\\\" is not \\\"it\\\", so the check fails.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That reveals a quiet garden.\"}],\"met\":false}]}",
-      "cost_usd": 0.00040367
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the second paragraph starts with the word \\\"it\\\" (case-insensitive). The agent's reply has two paragraphs. The second one, \\\"That reveals a quiet garden.\\\", starts with \\\"That\\\", not \\\"it\\\". The answer to the QUESTION is no, so the requirement is not met.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That reveals a quiet garden.\"}],\"met\":false}]}",
+      "cost_usd": 0.00036253
     },
     {
       "judge": "haiku",
-      "key": "9699b9555378",
+      "key": "20d872e9caee",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The QUESTION asks whether the final Python code solution is enclosed in a single Markdown code block using triple backticks. The final agent entry (entry 1) consists of exactly one fenced block opened with ```python and closed with ```, containing the single line glimmer = 6. The user asked for all code in a single complete triple-backtick block, and the reply does that. No second block or stray code appears, so the answer to the QUESTION is yes and nothing matches the FAIL picture.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 6\\n```\"}],\"met\":true}]}",
-      "cost_usd": 0.00031437
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final agent entry (entry 1) is a single Markdown code block opened with triple backticks and the Python language tag, containing the assignment, and closed with triple backticks. The user asked for all code in a single complete triple-backtick block, and the reply has exactly one such block with the glimmer = 6 assignment inside it.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\"},{\"source\":\"transcript.1\",\"quote\":\"glimmer = 6\"}],\"met\":true}]}",
+      "cost_usd": 0.00042323
     },
     {
       "judge": "haiku",
-      "key": "fb02c7c1c546",
+      "key": "c26514d85c72",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
       "criterionDecoderVersion": 2,
       "criterionPromptVersion": 2,
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final agent entry opens a Markdown code fence with ```python and places the code glimmer = 6 inside it, but it never closes the fence. The user required all code enclosed in a single complete triple-backtick code block, and the block is not complete, so the requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\"},{\"source\":\"transcript.1\",\"quote\":\"glimmer = 6\"}],\"met\":false}]}",
-      "cost_usd": 0.00038967000000000006
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the final Python code is enclosed in a single complete triple-backtick Markdown code block. The final entry (entry 1, the agent's reply) opens with a triple-backtick fence labeled python and contains the code `glimmer = 6`, but it has no closing triple-backtick fence. The block is therefore not complete, so the requirement is not met.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 6\"}],\"met\":false}]}",
+      "cost_usd": 0.00043003000000000003
     }
   ]
 }
