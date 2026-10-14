@@ -11,7 +11,7 @@ import {
   RunResult,
   type Store,
   validateSpec,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { type BundleSource, type CampaignBundle, readCampaignBundle, writeCampaignBundle } from './bundle';
 import { describeCause, describeIssues, StoreError } from './errors';
 import {
@@ -46,6 +46,7 @@ export function openStore(path: string): SqliteStore {
     if (path !== ':memory:' && !path.startsWith('file:')) mkdirSync(dirname(path), { recursive: true });
     db = new DatabaseSync(path);
     setUp(db, path);
+    return new SqliteStore(db, path);
   } catch (cause) {
     closeQuietly(db);
     if (cause instanceof StoreError) throw cause;
@@ -53,7 +54,6 @@ export function openStore(path: string): SqliteStore {
       cause,
     });
   }
-  return new SqliteStore(db, path);
 }
 
 /** A store held in memory, with the same tables and the same behaviour. Its content goes with `close`. */
@@ -514,7 +514,10 @@ export class SqliteStore implements Store {
   async getVersion(kind: RegistryKind, name: string, ref?: string): Promise<RegistryVersion | undefined> {
     const versions = await this.listVersions(kind, name);
     if (ref === undefined || ref === 'latest') return versions.at(-1);
-    if (/^\d+$/.test(ref)) return versions.find((each) => each.version === Number(ref));
+    if (/^\d+$/.test(ref)) {
+      const numbered = versions.find((each) => each.version === Number(ref));
+      if (numbered || ref.length < 6 || ref.length > 64) return numbered;
+    }
     if (/^[0-9a-f]{6,64}$/.test(ref)) {
       const found = versions.filter((each) => each.hash.startsWith(ref));
       if (found.length > 1) {

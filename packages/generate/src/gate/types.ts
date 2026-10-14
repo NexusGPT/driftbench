@@ -1,4 +1,12 @@
-import type { DeviationClass, DriftClass, Message, Observed, Spec, WorldState } from '@driftbench/core';
+import type {
+  DeviationClass,
+  DriftClass,
+  Message,
+  Observed,
+  Spec,
+  ThenField,
+  WorldState,
+} from '@agent-nexus/driftbench-core';
 
 /**
  * The contracts of the validity gate: its nine stages, the fields a Then reads, the fault set it plants,
@@ -23,27 +31,14 @@ export type GateStage = (typeof GATE_STAGES)[number];
 /** Stages 7 to 9 mark or split a block; they never reject it. */
 export const MARKING_STAGES: ReadonlySet<GateStage> = new Set(['difficulty', 'label_audit', 'freshness']);
 
-/**
- * What a Then reads. The first group is observed state: what the agent called, the stage its runtime
- * reached, what it left in the world or the workspace. The second group reads the agent's own words.
- */
-export const OBSERVED_FIELDS = [
-  'tools',
-  'stage',
-  'end_state',
-  'workspace',
-  'artifacts',
-  'skills',
-  'guards',
-  'execution',
-  'safety',
-  'cards',
-  'custom',
-] as const;
-export const WORDING_FIELDS = ['text', 'lang', 'format'] as const;
-export type ObservedField = (typeof OBSERVED_FIELDS)[number];
-export type WordingField = (typeof WORDING_FIELDS)[number];
-export type ThenField = ObservedField | WordingField;
+// What a Then reads lives in core, where the blast radius reads it too; the gate keeps exporting it.
+export {
+  OBSERVED_FIELDS,
+  type ObservedField,
+  type ThenField,
+  WORDING_FIELDS,
+  type WordingField,
+} from '@agent-nexus/driftbench-core';
 
 /** Every named reason a stage gives. Rejects carry one; a mark carries one too. */
 export const GATE_REASONS = {

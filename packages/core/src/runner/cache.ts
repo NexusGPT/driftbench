@@ -21,8 +21,12 @@ export type BlockKeyParts = {
   target: TargetRef;
   adapter: string;
   adapterVersion: string;
+  /** Adapter configuration fingerprint. Absent preserves every earlier cache key. */
+  adapterCacheIdentity?: string;
   /** The suite the run belongs to, when it names one. Absent keeps the key every earlier cache used. */
   suite?: string;
+  /** The agent version, when supplied. Absent preserves every earlier cache key. */
+  agentVersion?: string;
 };
 
 /**

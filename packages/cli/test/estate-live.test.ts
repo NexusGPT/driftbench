@@ -3,7 +3,7 @@ import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { loadEstateMap } from '@driftbench/estate';
+import { loadEstateMap } from '@agent-nexus/driftbench-estate';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { lineOf } from '../src/commands/estate-live';
 import { type Io, main } from '../src/index';
@@ -219,7 +219,7 @@ function outcomes(json: RunJson | undefined): Record<string, string> {
 
 /** The ids of the proof specs whose metadata names the atom. */
 async function specsOfAtom(atom: string): Promise<string[]> {
-  const { loadSpecFile } = await import('@driftbench/core');
+  const { loadSpecFile } = await import('@agent-nexus/driftbench-core');
   const out: string[] = [];
   for (const path of proofSpecs()) {
     const loaded = await loadSpecFile(path);
@@ -269,7 +269,7 @@ describe('driftbench estate run', () => {
       [true, [], 0],
       [false, ['block 0: forbidden.WebFetch'], 0],
     ]);
-    const { openStore } = await import('@driftbench/store');
+    const { openStore } = await import('@agent-nexus/driftbench-store');
     const store = await openStore(result.store);
     const runs = await store.listRuns({ campaignId: result.json?.campaignId ?? '' });
     await store.close();
@@ -312,6 +312,58 @@ describe('driftbench estate run', () => {
     expect(bad.err).toContain('--set-env');
   });
 
+  it('passes --model, --max-turns, --max-budget-usd and --permission-mode to the runtime, picks the config folder with --config, and refuses bad values', async () => {
+    const dir = await folder();
+    const spec = join(LIVE, PROOF.route_positive ?? '');
+    const seen = async (name: string, ...extra: string[]) => {
+      const calls = join(dir, `${name}.jsonl`);
+      const result = await estateRun(FIXTURE, [spec], '--set-env', `FAKE_CALLS=${calls}`, ...extra);
+      expect(result.err).toBe('');
+      expect(result.code).toBe(0);
+      const [call] = (await readFile(calls, 'utf8'))
+        .trim()
+        .split('\n')
+        .map((text) => JSON.parse(text));
+      return call as { argv: string[]; configDir: string | null };
+    };
+    const passed = await seen(
+      'passed',
+      '--model',
+      'stand-in-model',
+      '--max-turns',
+      '3',
+      '--max-budget-usd',
+      '0.5',
+      '--permission-mode',
+      'plan',
+      '--timeout',
+      '60000',
+    );
+    const after = (flag: string) => passed.argv[passed.argv.indexOf(flag) + 1];
+    expect(after('--model')).toBe('stand-in-model');
+    expect(after('--max-turns')).toBe('3');
+    expect(after('--max-budget-usd')).toBe('0.5');
+    expect(after('--permission-mode')).toBe('plan');
+
+    // A stand-in gets its own config folder by default; --config host leaves the runtime on HOME's, here a
+    // scratch folder so no run touches the evaluator's own config.
+    const isolated = await seen('isolated');
+    expect(String(isolated.configDir).endsWith('/config')).toBe(true);
+    const host = await seen('host', '--config', 'host', '--set-env', `HOME=${dir}`);
+    expect(host.configDir).toBeNull();
+
+    for (const [flags, message] of [
+      [['--timeout', 'soon'], '--timeout is a whole number of milliseconds'],
+      [['--max-turns', '0'], '--max-turns is a whole number of at least 1'],
+      [['--max-budget-usd', '0'], '--max-budget-usd is a positive amount'],
+      [['--config', 'shared'], '--config is host or isolated'],
+    ] as const) {
+      const bad = await estateRun(FIXTURE, [spec], ...flags);
+      expect(bad.code).toBe(2);
+      expect(bad.err).toContain(message);
+    }
+  });
+
   it.runIf(process.platform === 'darwin')(
     'runs the command under the lock, with the paths --lock-deny names refused',
     async () => {
@@ -319,7 +371,7 @@ describe('driftbench estate run', () => {
       const secret = join(await folder(), 'secrets');
       const result = await estateRun(FIXTURE, [spec], '--lock-deny', secret);
       expect(result.code).toBe(0);
-      const { openStore } = await import('@driftbench/store');
+      const { openStore } = await import('@agent-nexus/driftbench-store');
       const store = await openStore(result.store);
       const [stored] = await store.listRuns({ campaignId: result.json?.campaignId ?? '' });
       await store.close();

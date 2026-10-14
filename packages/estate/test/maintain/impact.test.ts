@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { loadSpecFile } from '@driftbench/core';
+import { loadSpecFile } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import {
   diffEstateMaps,
@@ -74,10 +74,32 @@ describe('estateImpact', () => {
 
   it('lists every test to regenerate with the reason per atom', () => {
     expect(report.regenerate).toEqual([
-      { test: 't-wrap', file: 't-wrap.yaml', atoms: [{ atom: 'a.wrap', why: 'whitespace' }] },
       { test: 't-late', file: 't-late.yaml', atoms: [{ atom: 'a.late', why: 'semantic' }] },
       { test: 't-part', file: 't-part.yaml', atoms: [{ atom: 'a.gone', why: 'removed' }] },
       { test: 't-restate', file: 't-restate.yaml', atoms: [{ atom: 'a.restate', why: 'restated' }] },
+    ]);
+  });
+
+  it('touches no test of an atom whose quote changed in white space only', () => {
+    expect(report.regenerate.some((entry) => entry.test === 't-wrap')).toBe(false);
+    expect(report.retire.some((entry) => entry.test === 't-wrap')).toBe(false);
+    expect(report.reapprove.some((entry) => entry.atom === 'a.wrap')).toBe(false);
+  });
+
+  it('still regenerates the tests of an atom respaced and restated at once', () => {
+    const restated = estateMap([
+      atom('a.wrap', 'Never send a draft\n  without a yes.', {
+        line: 4,
+        endLine: 5,
+        evidence: [{ type: 'text', must: ['yes'] }],
+      }),
+    ]);
+    const once = estateImpact(
+      diffEstateMaps(estateMap([atom('a.wrap', 'Never send a draft without a yes.', { line: 4 })]), restated),
+      [test('t-wrap', ['a.wrap'])],
+    );
+    expect(once.regenerate).toEqual([
+      { test: 't-wrap', file: 't-wrap.yaml', atoms: [{ atom: 'a.wrap', why: 'restated' }] },
     ]);
   });
 
@@ -120,7 +142,8 @@ describe('estateImpact', () => {
   });
 
   it('leaves a moved atom and an unchanged one alone', () => {
-    expect(report.unaffected).toEqual({ moved: 1, tests: 3 });
+    // t-keep, t-moved, t-added2 and the respaced t-wrap.
+    expect(report.unaffected).toEqual({ moved: 1, tests: 4 });
     expect(report.tests).toEqual({ live: 8, retired: 1, other: 2 });
     const touched = [
       ...report.regenerate.map((entry) => entry.test),
@@ -128,6 +151,7 @@ describe('estateImpact', () => {
     ];
     expect(touched).not.toContain('t-moved');
     expect(touched).not.toContain('t-keep');
+    expect(touched).not.toContain('t-wrap');
   });
 
   it('asks a person for the re-approval and the new atom, and for nothing else', () => {
@@ -143,13 +167,13 @@ describe('estateImpact', () => {
       [test('t-wrap', ['a.wrap'])],
     );
     expect(quiet.needsPerson).toEqual([]);
-    expect(quiet.regenerate).toHaveLength(1);
+    expect(quiet.regenerate).toHaveLength(0);
     expect(renderImpact(quiet)).toContain('Nothing needs a person.');
   });
 
   it('prints each list for a person', () => {
     const text = renderImpact(report);
-    expect(text).toContain('Regenerate 4, re-approve 1, retire 2, new 1; 3 tests untouched, 1 atom moved');
+    expect(text).toContain('Regenerate 3, re-approve 1, retire 2, new 1; 4 tests untouched, 1 atom moved');
     expect(text).toContain('  t-late (t-late.yaml): a.late semantic');
     expect(text).toContain('  a.late (instruction): A shipment is late after one day.\n      tests: t-late');
     expect(text).toContain(

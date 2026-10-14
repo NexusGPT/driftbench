@@ -1,4 +1,4 @@
-import type { Expect } from '@driftbench/core';
+import type { Expect } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { createLangCheck, lang } from '../src/checks/lang';
 import { detect, toDetectorCode } from '../src/support/language';
@@ -155,5 +155,25 @@ describe('detect, memoised', () => {
     const again = detect(text);
     expect(again).not.toBe(cold);
     expect(again).toEqual(cold);
+  });
+});
+
+describe('lang: short English fallbacks', () => {
+  const English = [
+    'Sorry, I did not get that. Would you like Acme Air 5G?',
+    'I can only help with Acme plans and orders. Would you like Acme Air 5G?',
+    'Sorry, I did not understand that. Could you say it again?',
+    'Sorry, I did not get that. Which one would you like: Acme Mobile M or Acme Mobile L?',
+  ];
+  it.each(English)('reads %j as English', async (text) => {
+    const ctx = context(upgrade, 1, observed(text), { expect: withLang(1) });
+    expect(outcomes(await run(lang, ctx))['lang.expected']).toBe('pass');
+  });
+
+  it('still flags a short French reply as not English: the fix does not give up on short texts', async () => {
+    const french =
+      "Désolé, je n'ai pas bien compris votre demande, pouvez-vous la répéter, s'il vous plaît ?";
+    const ctx = context(upgrade, 1, observed(french), { expect: withLang(1) });
+    expect(outcomes(await run(lang, ctx))['lang.expected']).toBe('fail');
   });
 });

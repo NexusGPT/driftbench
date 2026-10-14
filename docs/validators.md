@@ -1,6 +1,6 @@
 # Validators: code that proves driftbench works
 
-Status: designed on 2026-10-11, owner approved. The frame (V0) is built: `driftbench validate`, the floors, the loop files, the brief and the CI job (section 8), with two ladders registered: the judge ladder at levels 1 to 7 (section 4), floor 7, and the statistics ladder at levels 1 and 2 (section 7), floor 1. A validator is code. It contains no model. It plants a truth it knows, runs one part of driftbench, and measures what came back against the plant. It prints a ladder of levels. Each level has one metric, one threshold, the observed value, pass or fail, and the named items that failed. The exit code is the level reached. A builder with less judgement than the author climbs the ladder by fixing the named items of the first failing level and running the validator again.
+Status: designed on 2026-10-11, owner approved. The frame (V0) is built: `driftbench validate`, the floors, the loop files, the brief and the CI job (section 8), with six ladders registered: estate (section 6), generator (section 3), judges (section 4), map (section 2), statistics (section 7) and system (section 5). Floors in `validators/floors.json`: judges 7, map 8, stats 7, system 9; estate and generator have none yet. A validator is code. It contains no model. It plants a truth it knows, runs one part of driftbench, and measures what came back against the plant. It prints a ladder of levels. Each level has one metric, one threshold, the observed value, pass or fail, and the named items that failed. The exit code is the level reached. A builder with less judgement than the author climbs the ladder by fixing the named items of the first failing level and running the validator again.
 
 ## 1. The common frame
 
@@ -52,7 +52,7 @@ How it works. A campaign runs on an agent with planted defects at known blocks: 
 
 The non-obvious parts. The plant includes recoveries: an agent that deviates at block k and recovers at block k plus m, so the recovery metrics have an exact oracle. It includes a planted effect: two agent versions whose true pass rates differ by a chosen number of points, run as baseline and candidate 100 times with different seeds, so the parity verdict's power and false-alarm rate are measured, and the intervals' coverage probability is measured against the true rates. It includes replay: every live run is recorded and replayed, and the two verdict sets must be identical.
 
-Score. Level 1: every run stored and loadable, the campaign resumable. Level 2: defect recall 1.0 (every planted defect produces a failing block at the planted index). Level 3: precision 1.0 (no failing block without a planted defect). Level 4: drift class right on every failing block. Level 5: recovery metrics equal the plant (turns to recover, collateral, safe action). Level 6: calibration, at least 93 of 100 Wilson intervals contain the true rate, and the design effect is within the bootstrap interval. Level 7: the parity verdict detects the planted drop in at least 95 of 100 campaigns and false-alarms in at most 5 of 100 with no drop. Level 8: replay equals live on every run.
+Score. Level 1: every run stored and loadable, the campaign resumable. Level 2: defect recall 1.0 (every planted defect produces a failing block at the planted index). Level 3: precision 1.0 (no failing block without a planted defect). Level 4: drift class right on every failing block. Level 5: recovery metrics equal the plant (turns to recover, collateral, safe action). Level 6: calibration, at least 93 of 100 Wilson intervals contain the true rate, and, reported separately, the design effect estimated on each clustered campaign equals one-way ANOVA on its stored runs and the mean over the campaigns is within the 0.999 interval of its exact finite-sample law (its expected value under the truncated estimator, 1.7408, not the population value 1.75), with a bootstrap interval of that mean that has the width and centre of its level. Level 7: the parity verdict detects the planted drop in at least 95 of 100 campaigns and false-alarms in at most 5 of 100 with no drop. Level 8: replay equals live on every run.
 
 Feedback. A missed defect prints the block, the planted fault, the checks that ran and their verdicts. A wrong class prints the verdict id and the mapping line that chose the class. A calibration miss prints the seeds whose intervals missed and the rates involved. A power miss prints the pass-rate pairs and the test statistic.
 
@@ -70,9 +70,11 @@ Feedback. A missed atom prints its hidden id and the rendered sentence. An unkil
 
 How it works. Two halves. Reference values from scipy and numpy for every function (exists). Simulation: for each estimator, draw from a population whose truth is known and count how often the estimate's interval contains it, over 1000 draws per seed.
 
-The non-obvious parts. Clustered truth: conversations with blocks that share a random effect, so the design effect and the clustered bootstrap are tested on data that actually clusters. Unseen mass: a synthetic population with a known number of classes and a known tail, so Good-Turing and Chao are scored on their error against the true count, and the warning fires when conversations are fewer than classes. Variance shares: planted shares recovered within the bootstrap interval (exists in the pilot control, becomes a level here).
+The non-obvious parts. Clustered truth: conversations with blocks that share a random effect, so the design effect and the clustered bootstrap are tested on data that actually clusters. Unseen mass: a synthetic population with a known number of classes and a known tail, so Good-Turing and Chao sample coverage are scored against the true covered probability. Classic Chao1 is checked against its reference formula; the warning fires when conversations are fewer than classes. Variance shares: planted shares recovered within the bootstrap interval (exists in the pilot control, becomes a level here).
 
-Score. Level 1: every reference value matches to 1e-6. Level 2: Wilson coverage at least 0.93 at n of 20, 50, 200. Level 3: clustered bootstrap coverage at least 0.93 when blocks cluster, and the naive interval fails that bar on the same data (the validator proves the clustering matters). Level 4: variance shares recovered on 8 seeds. Level 5: Chao error below 10 percent when conversations exceed classes, and the warning on every seed below that. Level 6: the minimum detectable effect's predicted power is within 5 points of the simulated power.
+Score. Level 1: every reference value matches to 1e-6. Level 2: Wilson coverage at least 0.93 at n of 20, 50, 200. Level 3: clustered bootstrap coverage at least 0.93 when blocks cluster, and the naive interval fails that bar on the same data (the validator proves the clustering matters). Level 4: variance shares recovered on 8 seeds. Level 5: sample-coverage error below 10 percent on the committed population designs, and the warning on every seed below the class count. Chao1 matches its classic reference formula; low-sample richness accuracy below 10 percent is not promised. Level 6: the minimum detectable effect's predicted power is within 5 points of the simulated power.
+
+[Chao (1984), equation 6](https://drive.google.com/file/d/1ZlMyjhFGLXoPnlXF4HbsP-vbwluXIqs5/view) derives the classic richness estimator as a lower bound, not a general low-sample accuracy guarantee. The reference fixtures pin its finite-sample form: `S_obs + (n - 1) / n * f1² / (2 f2)` for `f2 > 0`, and `S_obs + (n - 1) / n * f1 (f1 - 1) / 2` when `f2 = 0`. The three analytic items at 1.5 draws per class for `s20-even`, `s40-tail5` and `s80-tail10`, plus `s20-even` at 3 draws per class, check that formula on their seeded inputs. Other empirical accuracy checks apply only to their specified population designs.
 
 Feedback. Each miss prints the seed, the truth, the estimate and its interval, and the estimator's name.
 
@@ -92,6 +94,8 @@ What the owner reads: one table per validator per merge, seven rows at most, wit
 
 1. Ladders and floors. `pnpm driftbench validate all --seeds 1..3 --hidden --check-floor` runs every registered validator on seeds 1, 2 and 3 and on the hidden seed of the commit, prints each ladder table, and fails when a validator's level (the minimum over the four seeds) is below the floor of its registered ladder version in `validators/floors.json`, or when that file holds a floor for a component with no registered validator, for a ladder version above the registered one, or above the top of its ladder. A floor of an earlier ladder version is history and is not enforced (section 12.5). `pnpm driftbench validate all --check-handover` then fails when a validator's `HANDOVER.md` is missing, lacks a required section, or shows a level table that differs from the last row of its journal.
 2. Protection. On a pull request, `pnpm driftbench validate protect --branch <head> --base origin/<base>` lists the files the branch changes (`git diff --name-only base...HEAD`, full history checked out) and fails when the branch name starts with `exec/` and any of them is protected. Protected: `packages/validators/src/**` (the ladders and banks under `ladders/`, their thresholds, the hidden seed derivation, the bank, hardness and floor logic, and the frame that scores them), the bank fixtures under `packages/validators/fixtures/**` and the validator's own tests under `packages/validators/test/**`, `validators/floors.json`, `validators/EXECUTOR.md`, the fault families under `examples/acme/faults/**`, the statistics reference fixtures under `packages/stats/test/reference/**`, and the workflow file itself. Executors push from `exec/` branches; the maintainer changes these files from any other branch.
+
+With `--check-floor`, each ladder with a positive floor for its registered version computes only through that floor. A floor of zero, or an earlier version with no applicable floor, keeps the ordinary walk to the first failure. Levels above a positive floor stay unmeasured, including with `--items` or `--all-levels`. Plain measurements continue to explore the ladder.
 
 ### 8.2 The command
 
@@ -126,13 +130,13 @@ Option errors that the argument parser itself reports (an unknown flag) exit 2, 
 
 ### 8.3 The registered validators
 
-`registeredLadders()` in `packages/validators/src/ladders/index.ts` returns two validators today: `judges` and `stats`. `validate floors` prints their floors:
+`registeredLadders()` in `packages/validators/src/ladders/index.ts` returns six validators: `estate`, `generator`, `judges`, `map`, `stats` and `system`. `validators/floors.json` holds a floor for four of them; `estate` and `generator` have none yet. `validate floors` prints the floors:
 
 ```
-Floors (validators/floors.json): judges = 7 (ladder version 1), stats = 1 (ladder version 1).
+Floors (validators/floors.json): judges = 7 (ladder version 1), map = 8 (ladder version 2), stats = 7 (ladder version 2), system = 9 (ladder version 5).
 ```
 
-The CI command, run from the repository root at the commit that merged main into this docs branch, printed this and exited 0. The hidden seed changes with every commit.
+The run below is an earlier capture of the CI command, from when only `judges` and `stats` were registered. It printed this and exited 0. The hidden seed changes with every commit.
 
 ```
 Validator judges (hidden seed 690409099)
@@ -294,3 +298,11 @@ The gate. No validator merges without the audit: `--hardness` fails its gate whe
 ### 12.8 The frozen contract
 
 Owner review, 2026-10-12: the rules of sections 12.1 to 12.7 changed four times while validators were being built, and every change cost rework across six lanes. From this point the contract is frozen as written: the bank (12.1, 12.2, 12.6), the forecast and the distinct-cause count (12.4), floors per ladder version (12.5) and the independent audit with its blind view (12.7, `--blind`, `--all-levels`). A rule changes only when an audit report names a hole the current rules let through, and the change is written here, with that report as its reason, before any lane acts on it.
+
+## Measurement cache during system sweeps
+
+A system sweep can invoke the statistics validator repeatedly with the same code and seed. Within that system command, these statistics sub-runs use a measurement cache keyed by the latest commit touching `packages/stats`, the statistics validator's source tree, the seed, the repository root and the full-run mode. Every system item still runs on every requested seed. Only an identical statistics sub-run can reuse its measured result.
+
+The cache ends with the system command. A standalone statistics command runs fresh. Uncommitted changes to the statistics package or its validator disable reuse. Cached reports are copied before returning them, so a consumer cannot change another item's result.
+
+To record cache evidence, set `DRIFTBENCH_STATS_SWEEP_LOG` to a local JSONL file path. Each fresh or cached result records its key and the SHA-256 of its report. Equal fresh and cached hashes prove the reports match. This log does not change command output or bank items. State the cache use and the completed seeds in the measurement report; a partial sweep does not prove unmeasured seeds.

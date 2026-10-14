@@ -1,8 +1,19 @@
 import { readFile } from 'node:fs/promises';
 import { basename, dirname, resolve } from 'node:path';
-import { orderedCheck, type ReplaySession, readSession, replayAdapter } from '@driftbench/adapters';
-import { defaultReaders } from '@driftbench/artifacts';
-import { CheckRegistry, defaultChecks, defaultRegistry, ESTATE_CHECKS } from '@driftbench/checks';
+import {
+  orderedCheck,
+  type ReplaySession,
+  readSession,
+  replayAdapter,
+} from '@agent-nexus/driftbench-adapters';
+import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
+import {
+  CheckRegistry,
+  type DefaultChecksOptions,
+  defaultChecks,
+  defaultRegistry,
+  ESTATE_CHECKS,
+} from '@agent-nexus/driftbench-checks';
 import {
   type Campaign,
   type Check,
@@ -13,10 +24,10 @@ import {
   runSpec,
   type Store,
   type TargetRef,
-} from '@driftbench/core';
-import { noJudgeCheck } from '@driftbench/judges';
-import { openMemoryStore, openStore } from '@driftbench/store';
-import { createScriptedDriver } from '@driftbench/users';
+} from '@agent-nexus/driftbench-core';
+import { noJudgeCheck } from '@agent-nexus/driftbench-judges';
+import { openMemoryStore, openStore } from '@agent-nexus/driftbench-store';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { loadValidSpecs } from './campaign';
@@ -103,6 +114,11 @@ type SessionEntry = {
   decisions?: string;
   steps?: string;
 };
+
+// Estate statistics use the same session alignment and reference/tree reads as replay.
+export type { SessionEntry };
+export { align as alignReplaySpecs, sessionFor as replaySessionFor };
+
 /** The before and after trees of a spec's session: the seed folder, and the folder the session left. */
 type Trees = { before: string; after: string };
 type Alignment = {
@@ -221,7 +237,7 @@ export async function replayCommand(
       createdAt,
     };
     await store.putCampaign(campaign);
-    const checks = replayChecks({ piiOwner: owner, judge: judge.check });
+    const checks = replayChecks({ piiOwner: owner, judge: judge.check, piiJudge: judge.piiJudge });
     const artifacts = defaultReaders();
     for (const alignment of aligned.alignments) {
       const session = await sessionFor(alignment);
@@ -338,12 +354,15 @@ export function replayRegistry(): CheckRegistry {
  * the owner's own values the pii check leaves out; empty by default. `judge` judges the criteria blocks
  * name; without one, each is inconclusive (`noJudgeCheck`), never a pass.
  */
-export function replayChecks(options: { piiOwner?: readonly string[]; judge?: Check } = {}): CheckSet {
+export function replayChecks(
+  options: { piiOwner?: readonly string[]; judge?: Check; piiJudge?: DefaultChecksOptions['piiJudge'] } = {},
+): CheckSet {
   const registry = replayRegistry();
   const judge = options.judge ?? noJudgeCheck();
   return defaultChecks({
     registry,
     judges: { check: () => judge },
+    piiJudge: options.piiJudge,
     ...(options.piiOwner?.length ? { piiOwner: options.piiOwner } : {}),
   });
 }

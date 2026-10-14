@@ -6,7 +6,7 @@ One spec runs three ways, whether it describes a conversation or a task. Each mo
 |---|---|---|---|
 | T, teacher-forced | its canonical Given: the spec's own earlier blocks, as written | local competence: each block alone, with no earlier error carried in | built, phase 3 |
 | F, free-running | the agent's own earlier output, with the user turns scripted | compounding: one wrong block can poison the blocks after it | built, phase 1 |
-| P, perturbed | a free-running run with a deviation injected at a chosen block | recovery: whether the agent comes back, how fast, and at what cost | built, phase 3, with the perturbing driver; the simulated user is built as a library |
+| P, perturbed | a free-running run with a deviation injected at a chosen block | recovery: whether the agent comes back, how fast, and at what cost | built, phase 3, with the perturbing driver and simulated user |
 
 Run records carry the mode as `T`, `F` or `P`. `runSpec` runs all three, and a campaign plans and runs cells in any of them: `--mode T,F,P`. See [running](../running.md).
 
@@ -34,12 +34,12 @@ One session runs the whole conversation. The user turns come from the spec; the 
 
 A free-running run with one deviation injected before a chosen block. Recovery metrics are on. See [recovery](recovery.md).
 
-The driver that injects the deviation is the perturbing driver of `@driftbench/users` (`createPerturbingDriver`). It wraps another driver (the scripted driver by default) and injects one deviation once, before block `inject_at`: a perturbation the spec declares, one written out, or one of the ten classes drawn from a red-team pack by class, position and seed (`driftbench perturb`). `campaign run` uses it for every P cell. `injectingDriver` of `@driftbench/core` keeps the same rule for a spec's own perturbations, from code:
+The driver that injects the deviation is the perturbing driver of `@agent-nexus/driftbench-users` (`createPerturbingDriver`). It wraps another driver (the scripted driver by default) and injects one deviation once, before block `inject_at`: a perturbation the spec declares, one written out, or one of the ten classes drawn from a red-team pack by class, position and seed (`driftbench perturb`). `campaign run` uses it for every P cell. `injectingDriver` of `@agent-nexus/driftbench-core` keeps the same rule for a spec's own perturbations, from code:
 
 * A perturbation that writes `user` or `burst` is a block of its own, sent before block `inject_at`. The run has one block more than the spec.
 * A perturbation that writes only a `world`, such as a tool forced to fail, runs under its own block: the injected block sends block `inject_at`'s own stimulus with the perturbation's world and expectations, and stands in for that block. The base driver resumes at the block after it, so the run has as many blocks as the spec.
 
-The simulated user of `@driftbench/users` (`createSimulatedUser`) writes the user turns with a model, from a persona and a goal; it is used from code, and no command drives it yet.
+The simulated user of `@agent-nexus/driftbench-users` (`createSimulatedUser`) writes the user turns with a model, from a persona and a goal. `driftbench simulate` runs one spec with a persona, and `campaign run --driver simulated` uses it across campaign cells.
 
 In mode P the spec's end state describes the unperturbed run, so it is neither read nor compared.
 
@@ -47,11 +47,11 @@ In mode P the spec's end state describes the unperturbed run, so it is neither r
 
 Run the same spec in T and in F mode. The compounding index is the T pass rate minus the F pass rate, over the spec blocks both modes ran. High T with low F means the agent is right block by block and fragile across the succession. Only F shows it.
 
-`compoundingIndex(runs, { interval })` of `@driftbench/core` computes it per spec and target:
+`compoundingIndex(runs, { interval })` of `@agent-nexus/driftbench-core` computes it per spec and target:
 
 * A block's pass rate in a mode is the share of the mode's runs, among those that reached the block, where the block passed. Blocks a driver injected are left out; runs in mode P are ignored.
 * The index of a spec is the mean, over the shared blocks, of the T rate minus the F rate.
-* The interval function is passed in. `campaign status --detail` passes the clustered bootstrap of `@driftbench/stats`: the block is the resampling unit within a spec, and the spec is the unit across the campaign. A campaign with one spec gets no interval on its overall index: one spec is one cluster.
+* The interval function is passed in. `campaign status --detail` passes the clustered bootstrap of `@agent-nexus/driftbench-stats`: the block is the resampling unit within a spec, and the spec is the unit across the campaign. A campaign with one spec gets no interval on its overall index: one spec is one cluster.
 
 The Acme agent is deterministic and right in every block, so its index is 0 on every spec (see the output under [running](../running.md#campaign-status---detail)). The same command on a copy of the Acme agent that loses the thread once it has written three replies of its own, the agent of the CLI's own `--detail` test, prints this table for `acme-plan-upgrade` in T, F and P:
 
@@ -71,6 +71,7 @@ T passes all five blocks: each starts from the canonical prefix, whose assistant
   ```
   $ pnpm -s driftbench campaign run examples/acme/specs/tasks/price-sheet.yaml --mode T,F,P
   Campaign c-2764042aa240: 3 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+  Not judged: 2 criteria in 3 blocks of 1 spec (sheet_matches_catalog, reports_what_it_did), 1 of them gating. This campaign loads no judge, so these criteria have no verdict and count in no pass or fail. See docs/concepts/judges.md.
   ✓ acme-price-sheet · process:acme-ops · T · repeat 0  pass  2 blocks
   ✓ acme-price-sheet · process:acme-ops · F · repeat 0  pass  2 blocks
   ✓ acme-price-sheet · process:acme-ops · P · repeat 0 · instruction-in-notes  pass  2 blocks

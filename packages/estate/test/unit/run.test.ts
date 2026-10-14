@@ -1,10 +1,10 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { chmod, cp, readdir, readFile, writeFile } from 'node:fs/promises';
+import { chmod, cp, mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { type UnitTest, unitTestOf } from '@driftbench/generate';
+import { type UnitTest, unitTestOf } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import {
   ClaudeCodeReader,
@@ -516,7 +516,46 @@ describe('a script with declared fixtures', () => {
 });
 
 describe('a TypeScript script', () => {
-  it('runs offline in the sandbox, with no package fetched, in well under its timeout', async () => {
+  it('runs when the temporary path is longer than a Unix socket path allows', async () => {
+    const root = await estate({
+      'CLAUDE.md': RULES,
+      '.claude/skills/sum/scripts/sum.ts':
+        'const total: number = Number(process.argv[2]) + Number(process.argv[3]);\nconsole.log(total);\n',
+      'driftbench.estate.yaml':
+        'scripts:\n  .claude/skills/sum/scripts/sum.ts:\n    - { args: ["2", "3"], expect: { stdout: "5" } }\n',
+    });
+    const temporary = join(root, 'long-socket-path-'.repeat(12));
+    await mkdir(temporary);
+    const previous = process.env.TMPDIR;
+    process.env.TMPDIR = temporary;
+    try {
+      const run = await runUnitTests(
+        [
+          {
+            id: 'unit.script_fixture.sum-ts-long-path',
+            planRow: 'row',
+            testType: 'script_fixture',
+            atom: 'script.sum.sum-ts',
+            title: 'sum',
+            mapHash: 'x',
+            target: { kind: 'script', path: '.claude/skills/sum/scripts/sum.ts' },
+            cases: [],
+          },
+        ],
+        { root, reader: new ClaudeCodeReader() },
+      );
+      expect([run.results[0]?.status, run.results[0]?.detail]).toEqual([
+        'pass',
+        '1 of 1 fixtures as declared',
+      ]);
+      expect(run.results[0]?.cases[0]?.outcome.output).toBe('5');
+    } finally {
+      if (previous === undefined) delete process.env.TMPDIR;
+      else process.env.TMPDIR = previous;
+    }
+  }, 60_000);
+
+  it('runs offline in the sandbox, with no package fetched and no call to npx', async () => {
     const root = await estate({
       'CLAUDE.md': RULES,
       '.claude/skills/sum/scripts/sum.ts':
@@ -538,10 +577,24 @@ describe('a TypeScript script', () => {
       target: { kind: 'script', path: '.claude/skills/sum/scripts/sum.ts' },
       cases: [],
     };
-    const started = performance.now();
-    const run = await runUnitTests([test], { root, reader: new ClaudeCodeReader() });
-    expect([run.results[0]?.status, run.results[0]?.detail]).toEqual(['pass', '1 of 1 fixtures as declared']);
-    expect(performance.now() - started).toBeLessThan(20_000);
+    // The slow path is `npx tsx`: it reaches for the network, which the sandbox closes, and waits out the
+    // timeout. A stand-in npx, first on the path, fails at once, so a pass proves npx was never called.
+    const bin = join(root, 'stand-in-bin');
+    await mkdir(bin);
+    await writeFile(join(bin, 'npx'), '#!/bin/sh\necho "npx was called" >&2\nexit 3\n');
+    await chmod(join(bin, 'npx'), 0o755);
+    const previous = process.env.PATH;
+    process.env.PATH = `${bin}:${previous ?? '/usr/bin:/bin'}`;
+    try {
+      const run = await runUnitTests([test], { root, reader: new ClaudeCodeReader() });
+      expect([run.results[0]?.status, run.results[0]?.detail]).toEqual([
+        'pass',
+        '1 of 1 fixtures as declared',
+      ]);
+    } finally {
+      if (previous === undefined) delete process.env.PATH;
+      else process.env.PATH = previous;
+    }
   }, 60_000);
 });
 

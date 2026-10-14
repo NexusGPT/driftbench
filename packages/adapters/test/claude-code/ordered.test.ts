@@ -1,4 +1,9 @@
-import { AgentFailure, type BlockResult, type CheckContext, type Observed } from '@driftbench/core';
+import {
+  AgentFailure,
+  type BlockResult,
+  type CheckContext,
+  type Observed,
+} from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { mapSession, orderedCheck, parseJsonl, replayAdapter } from '../../src/claude-code';
 
@@ -160,7 +165,7 @@ describe('replayAdapter', () => {
       hash: 'h',
     };
     const open = await adapter.open(given);
-    const turn = (index: number) => ({ index, stimulus: { user: 'x' }, given });
+    const turn = (index: number) => ({ index, stimulus: { user: 'two' }, given });
     expect((await adapter.send(open, turn(0))).text).toBe('second');
     await expect(adapter.send(open, turn(1))).rejects.toBeInstanceOf(AgentFailure);
     await expect(adapter.send(open, turn(1))).rejects.toThrow('the session has 2 blocks');

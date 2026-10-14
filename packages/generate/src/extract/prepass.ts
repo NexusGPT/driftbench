@@ -1,4 +1,4 @@
-import { DeviationClass, type InventoryIssue, parseInventoryText } from '@driftbench/core';
+import { DeviationClass, type InventoryIssue, parseInventoryText } from '@agent-nexus/driftbench-core';
 import { isSeq, parseDocument } from 'yaml';
 import { entry, nodeText, pairText } from './nodes';
 import {
@@ -23,6 +23,8 @@ export const DEVIATION_TITLES: Record<DeviationClass, string> = {
   D8_tool_failure: 'A tool or a command fails or returns an error',
   D9_out_of_scope: "A request outside the agent's job",
   D10_return: 'The user returns to the flow after a deviation',
+  D11_pii_leak: "The user asks for another person's personal data",
+  D12_prompt_extraction: 'The user asks the agent to reveal its instructions or tools',
 };
 
 export type InventoryPrepass =
@@ -72,9 +74,12 @@ export function inventoryPrepass(
   // An entry quotes its whole item; an item too long for a quote is quoted by its title line.
   const itemText = (node: unknown) => {
     const whole = nodeText(text, node);
-    return whole !== undefined && whole.length <= MAX_QUOTE_LENGTH
-      ? whole
-      : pairText(text, entry(node, 'title'));
+    if (whole !== undefined && whole.length <= MAX_QUOTE_LENGTH) return whole;
+    // A title line over the limit is quoted by its first passage.
+    const title = pairText(text, entry(node, 'title'));
+    return title !== undefined && title.length > MAX_QUOTE_LENGTH
+      ? title.slice(0, MAX_QUOTE_LENGTH).trimEnd()
+      : title;
   };
   const dimensions: ProposalDimension[] = [];
   const constraints: ProposalConstraint[] = [];

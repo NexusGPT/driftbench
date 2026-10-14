@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { isPlainObject } from '../spec/normalize';
 import {
   Assertion,
   Budget,
@@ -10,6 +11,7 @@ import {
   TargetRef,
   WorldState,
 } from './common';
+import { parameterSchema, unsupportedSchemaKeywords } from './json-schema';
 
 /**
  * The spec format. A spec is one golden conversation (or one task for a code agent) written as a
@@ -83,6 +85,12 @@ export const ToolExpect = z
       .record(z.string(), Assertion)
       .optional()
       .describe('Assertions on the arguments, by argument name.'),
+    input_closed: z
+      .boolean()
+      .optional()
+      .describe(
+        'True requires every call input to be an object with only the top-level keys named in input. An absent input allows no keys. False or absent leaves other keys allowed.',
+      ),
   })
   .describe('One expected tool call.');
 export type ToolExpect = z.infer<typeof ToolExpect>;
@@ -118,6 +126,53 @@ export const GuardExpect = z
     'One runtime check that fired during the block, with its verdict. The adapter maps the runtime names.',
   );
 export type GuardExpect = z.infer<typeof GuardExpect>;
+
+/** The reply is JSON: an optional JSON Schema (strict) and paths with an assertion each. */
+export const JsonExpect = z
+  .strictObject({
+    embedded: z
+      .boolean()
+      .optional()
+      .describe(
+        'When true, the reply may hold JSON among its prose: the first JSON value found is read. Off by default.',
+      ),
+    schema: z
+      .record(z.string(), z.json())
+      .superRefine((schema, ctx) => {
+        for (const issue of unsupportedSchemaKeywords(schema)) {
+          ctx.addIssue({ code: 'custom', ...issue });
+        }
+      })
+      .optional()
+      .describe('A JSON Schema the reply must match; an undeclared key fails.'),
+    paths: z
+      .array(
+        z.strictObject({
+          path: z.string().min(1).describe('A dotted path; a number indexes an array.'),
+          assert: Assertion.describe('What the value at the path must be, in the spec assertion vocabulary.'),
+        }),
+      )
+      .optional()
+      .describe('Paths of the reply, each with its assertion.'),
+  })
+  .describe('The reply is JSON, optionally with a schema and paths.');
+export type JsonExpect = z.infer<typeof JsonExpect>;
+
+/** A minimum and a maximum for a count of the reply: at least one of the two, and min not above max. */
+export const LengthBound = z
+  .strictObject({
+    min: z.number().int().min(0).optional().describe('The least the count may be.'),
+    max: z.number().int().min(0).optional().describe('The most the count may be.'),
+  })
+  .refine(
+    (bound) => bound.min !== undefined || bound.max !== undefined,
+    'a length bound needs a min or a max',
+  )
+  .refine(
+    (bound) => bound.min === undefined || bound.max === undefined || bound.min <= bound.max,
+    'min is above max',
+  );
+export type LengthBound = z.infer<typeof LengthBound>;
 
 /** Which tools the runtime must offer the agent, and which it must not: a denied tool is not offered. */
 export const ToolsOfferedExpect = z
@@ -262,6 +317,12 @@ export const Expect = z
       .min(1)
       .optional()
       .describe('The stage the agent must reach after the block, one of the spec stages.'),
+    stage_reported: z
+      .boolean()
+      .optional()
+      .describe(
+        'True requires the runtime to report a non-empty stage in this block. A carried or inferred stage does not count. False or absent leaves reporting optional.',
+      ),
     ledger_add: z
       .record(z.string(), z.unknown())
       .optional()
@@ -310,6 +371,12 @@ export const Expect = z
       })
       .optional()
       .describe('The SQL the agent ran must return the same rows as the golden query on the database.'),
+    regex: z
+      .array(Pattern)
+      .optional()
+      .describe(
+        'Regular expressions the visible text must match, case-sensitive; must ignores case instead.',
+      ),
     injection: z
       .boolean()
       .optional()
@@ -321,8 +388,46 @@ export const Expect = z
       .min(1)
       .optional()
       .describe(
-        'The reply must equal this text after normalising: case, surrounding space and punctuation ignored; two numbers compare as numbers.',
+        'The reply must equal this text after normalising: case, surrounding space and punctuation ignored; two numbers compare as numbers. A dot or comma between two digits counts, except a strictly grouped thousands comma.',
       ),
+    exact_strict: z
+      .boolean()
+      .optional()
+      .describe(
+        'Compare exact byte for byte after trimming the ends, instead of ignoring case, punctuation and spacing.',
+      ),
+    json: JsonExpect.optional().describe('The reply is valid JSON, optionally with a schema and paths.'),
+    tool_f1: z
+      .strictObject({
+        min: z.number().min(0).max(1).describe('The least F1 that passes, from 0 to 1.'),
+      })
+      .optional()
+      .describe('Precision, recall and F1 of the tool calls against the expected ones.'),
+    refusal: z
+      .enum(['refuses', 'answers'])
+      .optional()
+      .describe('Whether the reply must be a refusal, read from refusal phrases in seven languages.'),
+    markup: z
+      .enum(['xml', 'html', 'sql'])
+      .optional()
+      .describe('The reply is well-formed XML, HTML or SQL (syntax only).'),
+    starts_with: z
+      .string()
+      .min(1)
+      .optional()
+      .describe('The reply, without leading space, starts with this text.'),
+    finish_reason: z
+      .string()
+      .min(1)
+      .optional()
+      .describe('The reason the model stopped, as the runtime reports it.'),
+    length: z
+      .strictObject({
+        words: LengthBound.optional().describe('Bounds on the words of the visible text.'),
+        chars: LengthBound.optional().describe('Bounds on the characters (code points) of the visible text.'),
+      })
+      .optional()
+      .describe('Word and character bounds on the customer-visible text of the block.'),
     similarity: z
       .array(SimilarityExpect)
       .optional()
@@ -333,6 +438,12 @@ export const Expect = z
       .optional()
       .describe('Facts given earlier that the block must not ask for again, and may have to use.'),
     lang: Lang.optional().describe('The language of the reply.'),
+    pii_judge: z
+      .boolean()
+      .optional()
+      .describe(
+        'Opt in to judged detection of personal names and addresses in the visible reply. Requires a configured personal-data judge; absent or false makes no model calls. Missing or failed judging is gating inconclusive.',
+      ),
     cards: z.array(CardExpect).optional().describe('The cards expected in the block.'),
     criteria: z
       .array(z.string().min(1))
@@ -539,13 +650,34 @@ export const Spec = z
           .enum(['success', 'failure'])
           .describe('success when the script ends the conversation well, failure when it ends it badly.'),
         reason: z.string().min(1).optional().describe('Why the script ends here.'),
+        atBlock: z
+          .number()
+          .int()
+          .min(-1)
+          .optional()
+          .describe(
+            'The index of the last block that runs, -1 for none. The blocks after it are skipped by the verdict. Absent means the last block.',
+          ),
       })
       .optional()
-      .describe('An end verdict, given after the last block: the run stops there with this verdict.'),
+      .describe(
+        'An end verdict: the run stops after block atBlock (the last block when absent) with this verdict.',
+      ),
     rules: Rules.optional().describe('Rules for the whole conversation.'),
     end_state: EndState.optional().describe('The expected end state of the world after the run.'),
     perturbations: z.array(PerturbationSpec).optional().describe('Deviations to inject in perturbed mode.'),
-    metadata: z.record(z.string(), z.unknown()).optional().describe('Free metadata.'),
+    metadata: z
+      .record(z.string(), z.unknown())
+      .superRefine((metadata, ctx) => {
+        if (!isPlainObject(metadata.tool_schemas)) return;
+        for (const [label, definition] of Object.entries(metadata.tool_schemas)) {
+          for (const issue of unsupportedSchemaKeywords(parameterSchema(definition))) {
+            ctx.addIssue({ code: 'custom', ...issue, path: ['tool_schemas', label, ...issue.path] });
+          }
+        }
+      })
+      .optional()
+      .describe('Free metadata.'),
   })
   .describe('One golden conversation, or one task for a code agent, written as a succession of blocks.');
 export type Spec = z.infer<typeof Spec>;

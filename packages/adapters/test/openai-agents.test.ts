@@ -1,4 +1,9 @@
-import { AdapterTransportError, AgentFailure, type Message, type Session } from '@driftbench/core';
+import {
+  AdapterTransportError,
+  AgentFailure,
+  type Message,
+  type Session,
+} from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { ToolLabels } from '../src/anthropic/common';
 import { openaiAgentsAdapter } from '../src/openai-agents/index';
@@ -212,7 +217,7 @@ describe('openai-agents adapter', () => {
       labels,
     );
     expect(segments).toEqual([
-      { type: 'tool_call', id: 'ws_1', label: 'web_search_call', input: {} },
+      { type: 'tool_call', id: 'ws_1', label: 'web_search_call', input: null },
       { type: 'tool_result', id: 'ws_1', label: 'web_search_call', output: { hits: 2 } },
       { type: 'tool_call', id: 'c1', label: 'coverage.check', input: 'not json' },
       { type: 'tool_result', id: 'c1', label: 'coverage.check', output: null, error: 'address unknown' },

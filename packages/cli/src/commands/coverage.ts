@@ -8,7 +8,8 @@ import {
   type InventoryIssue,
   loadInventory,
   loadSpecs,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
+import { textTable as table } from '@agent-nexus/driftbench-report';
 import type { Io } from '../io';
 
 export type CoverageOptions = {
@@ -141,19 +142,6 @@ function render(result: CoverageResult, io: Io): string {
     `Coverage: ${behaviours.covered} of ${behaviours.total} behaviours covered, ${deviations.covered} of ${deviations.total} flow deviations covered.`,
   );
   return `${out.join('\n')}\n`;
-}
-
-/** Pads every column but the last to its widest cell, two spaces apart, indented by two. */
-function table(rows: string[][]): string[] {
-  const widths: number[] = [];
-  for (const row of rows) {
-    row.forEach((cell, index) => {
-      widths[index] = Math.max(widths[index] ?? 0, cell.length);
-    });
-  }
-  return rows.map((row) =>
-    `  ${row.map((cell, index) => (index === row.length - 1 ? cell : cell.padEnd(widths[index] ?? 0))).join('  ')}`.trimEnd(),
-  );
 }
 
 function line(issue: InventoryIssue): string {

@@ -8,8 +8,8 @@ import type {
   ToolCall,
   WorkspaceDiff,
   WorldState,
-} from '@driftbench/core';
-import type { FaultSession } from '@driftbench/generate';
+} from '@agent-nexus/driftbench-core';
+import type { FaultSession } from '@agent-nexus/driftbench-generate';
 import { DETOUR_TEXT, type HiddenProperty, type HiddenSpec, type HiddenTool, readTurn } from './hidden';
 
 /**
@@ -104,7 +104,8 @@ export function compose(...mutations: Mutation[]): Mutation {
       ),
     report: (stage, ctx) =>
       chain('report').reduce<string | null>(
-        (current, mutation) => (current === null ? null : (mutation.report?.(current, ctx) ?? current)),
+        (current, mutation) =>
+          current === null || mutation.report === undefined ? current : mutation.report(current, ctx),
         stage,
       ),
     slot: (name, given, held, ctx) =>

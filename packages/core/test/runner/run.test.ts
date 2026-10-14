@@ -1,5 +1,5 @@
-import { defaultChecks } from '@driftbench/checks';
-import * as core from '@driftbench/core';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
+import * as core from '@agent-nexus/driftbench-core';
 import {
   AdapterTransportError,
   AgentFailure,
@@ -12,9 +12,9 @@ import {
   RunResult,
   type Spec,
   type UserDriver,
-} from '@driftbench/core';
-import { openMemoryStore, cellId as storeCellId } from '@driftbench/store';
-import { createScriptedDriver } from '@driftbench/users';
+} from '@agent-nexus/driftbench-core';
+import { openMemoryStore, cellId as storeCellId } from '@agent-nexus/driftbench-store';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { describe, expect, it } from 'vitest';
 import * as runner from '../../src/runner';
 import { blockCacheKey, cellId, runSpec } from '../../src/runner';
@@ -125,7 +125,7 @@ describe('runSpec on the Acme conversations, free-running, with the real Acme ag
   });
 });
 
-describe('the real stack: the function adapter of @driftbench/adapters, defaultChecks of @driftbench/checks', () => {
+describe('the real stack: the function adapter of @agent-nexus/driftbench-adapters, defaultChecks of @agent-nexus/driftbench-checks', () => {
   it.each(loaded.map((entry) => ({ id: entry.spec.id, spec: entry.spec })))(
     '$id passes every machine check',
     async ({ spec }) => {
@@ -1186,6 +1186,39 @@ describe('the cache', () => {
     expectValid(result);
     expect(result.endVerdict).toBe('failure');
     expect(result.status).toBe('completed');
+  });
+
+  it('a script that ends mid-spec runs only the blocks before its stop, and the run keeps its verdict', async () => {
+    const full = spec();
+    expect(full.blocks.length).toBeGreaterThan(1);
+    const stopped = { ...full, end: { verdict: 'success' as const, reason: 'served', atBlock: 0 } };
+    const result = await runSpec(stopped, {
+      adapter: acmeAdapter(),
+      driver,
+      checks: minimalChecks,
+      mode: 'F',
+      repeat: 0,
+    });
+    expectValid(result);
+    expect(result.blocks).toHaveLength(1);
+    expect(result.endVerdict).toBe('success');
+    expect(result.status).toBe('completed');
+  });
+
+  it('each block of a cached run records the key it was stored under', async () => {
+    const cache = memoryCache();
+    const first = await runSpec(spec(), {
+      adapter: acmeAdapter(),
+      driver,
+      checks: minimalChecks,
+      mode: 'F',
+      repeat: 0,
+      cache,
+    });
+    for (const block of first.blocks) {
+      expect(block.cacheKey).toMatch(/^block:[0-9a-f]{64}$/);
+      expect(await cache.cacheGet(block.cacheKey as string)).toEqual(block.observed);
+    }
   });
 
   it('a run in another suite does not replay the cache of the first suite', async () => {

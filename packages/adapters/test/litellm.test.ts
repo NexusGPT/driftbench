@@ -1,4 +1,9 @@
-import { AdapterTransportError, AgentFailure, collectRetries, type Session } from '@driftbench/core';
+import {
+  AdapterTransportError,
+  AgentFailure,
+  collectRetries,
+  type Session,
+} from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { litellmAdapter } from '../src/litellm/index';
 import { acmeGiven, adapterContract, COVERAGE_QUESTION, expectWholeObserved, sendUser } from './contract';

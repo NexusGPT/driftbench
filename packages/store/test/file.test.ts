@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { rm, stat, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
-import { parseSpecText, type RunFilter } from '@driftbench/core';
+import { parseSpecText, type RunFilter } from '@agent-nexus/driftbench-core';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   assertNodeVersion,
@@ -119,7 +119,7 @@ describe('a run and its blocks are read in one transaction', () => {
     sql.selectBlocks.all = (...args: unknown[]) => {
       try {
         writer.prepare('UPDATE runs SET cost = cost + 1 WHERE run_id = ?').run(stored.runId);
-      } catch (error) {
+      } catch {
         writerRefused = true;
       }
       return original(...args);

@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { posix } from 'node:path';
 import {
   type AdapterCapabilities,
@@ -17,7 +17,7 @@ import {
   type Turn,
   type WorkspaceSnapshot,
   type WorldState,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { parseCommands, parseRuntime } from './protocol';
 import { shellLine, shellQuote } from './shell';
 
@@ -56,7 +56,7 @@ export type ProcessAdapterOptions = {
   command: string;
   /** Its arguments. In file mode `{stimulus_file}` is replaced by the stimulus file path, else that path is appended. */
   args?: string[];
-  /** Where sandboxes come from: localProvider() or dockerProvider({ image }) from @driftbench/sandbox. */
+  /** Where sandboxes come from: localProvider() or dockerProvider({ image }) from @agent-nexus/driftbench-sandbox. */
   provider: SandboxProvider;
   /** Leaves each sandbox on disk after close, for inspection. */
   keep?: boolean;
@@ -107,7 +107,11 @@ export function processAdapter(options: ProcessAdapterOptions): ProcessAdapter {
 
   return {
     id: 'process',
+    // The command is configuration, not the target name. Preserve argument boundaries in its identity.
     version: '0.1.0',
+    cacheIdentity: createHash('sha256')
+      .update(canonicalJson({ command: options.command, args: options.args ?? [] }))
+      .digest('hex'),
     capabilities: () => ({ ...capabilities }),
 
     async open(given: ResolvedGiven): Promise<Session> {
@@ -372,7 +376,7 @@ async function readProtocol<T>(
   return parsed.value;
 }
 
-/** The folder on this machine, for a kept sandbox: a sandbox from @driftbench/sandbox names it. */
+/** The folder on this machine, for a kept sandbox: a sandbox from @agent-nexus/driftbench-sandbox names it. */
 function folderOf(sandbox: Sandbox): string {
   const folder = (sandbox as { folder?: unknown }).folder;
   return typeof folder === 'string' ? folder : sandbox.root;

@@ -1,0 +1,46 @@
+{
+  "units": 6,
+  "root_files": ["CONTRACT.md", "measure.mts", "runner.mts", "sets.mts", "score.py", "README.md"],
+  "workers": [
+    {
+      "id": "pii",
+      "owns": ["pii/**"],
+      "depends_on": []
+    },
+    {
+      "id": "injection",
+      "owns": ["injection/**"],
+      "depends_on": []
+    },
+    {
+      "id": "longtrace",
+      "worker": "hard_injection",
+      "owns": ["longtrace/**"],
+      "depends_on": [],
+      "modelCalls": false
+    }
+  ],
+  "root_owned": [
+    "criteria",
+    "verdict",
+    "simulator",
+    "model_calls",
+    "docs",
+    "report",
+    "git",
+    "longtrace_call_runner_and_review"
+  ],
+  "reportHelper": {
+    "owner": "hard_pii",
+    "files": ["update-page.py", "write-report.py"],
+    "contract": "REPORT-HELPER-CONTRACT.md"
+  },
+  "adapterV2": {
+    "root": ["generate-judges-entries-v2.py", "criteria-v2.mts", "scoring/report integration"],
+    "worker": {
+      "owner": "hard_injection",
+      "files": ["longtrace-v2/**"],
+      "contract": "ADAPTER-V2-CONTRACT.md"
+    }
+  }
+}

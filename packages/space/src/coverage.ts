@@ -6,7 +6,7 @@ import {
   type LoadedSpec,
   type LoadResult,
   error as specError,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { effectiveSampleSize } from './estimators';
 import {
   assertGridSize,
@@ -310,14 +310,29 @@ export function cover(projection: Projection, placements: readonly SpecPlacement
 
 /** Adds the codes of every tuple an event places on: the product of its values on the projection's dimensions. */
 export function addEventCodes(projection: Projection, event: PlacementEvent, out: Set<number>): void {
-  let codes = [0];
-  for (let position = 0; position < projection.dimensions.length; position += 1) {
+  addCodes(projection, event, out, 0, 0);
+}
+
+/** Walk the product in the same order, without allocating intermediate arrays for each dimension. */
+function addCodes(
+  projection: Projection,
+  event: PlacementEvent,
+  out: Set<number>,
+  position: number,
+  code: number,
+): void {
+  for (; position < projection.dimensions.length; position += 1) {
     const values = event.values[projection.dimensions[position] ?? -1] ?? [];
     if (values.length === 0) return;
     const stride = projection.stride[position] ?? 0;
-    codes = codes.flatMap((code) => values.map((value) => code + value * stride));
+    if (values.length === 1) {
+      code += (values[0] as number) * stride;
+      continue;
+    }
+    for (const value of values) addCodes(projection, event, out, position + 1, code + value * stride);
+    return;
   }
-  for (const code of codes) out.add(code);
+  out.add(code);
 }
 
 function tally(level: readonly Covered[], t: number): TwiseCoverage {

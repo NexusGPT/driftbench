@@ -1,13 +1,13 @@
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { basename, extname, join } from 'node:path';
-import { cohenKappa, type Interval, krippendorffAlpha, wilson } from '@driftbench/stats';
+import { cohenKappa, type Interval, krippendorffAlpha, wilson } from '@agent-nexus/driftbench-stats';
 import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
 import { z } from 'zod';
 import type { JudgeClient } from './client';
 import { JudgeClass, type JudgeOutcome, type JudgeRequest } from './contract';
 import type { AssignmentRow, CouncilMode, UnassignedCriterion } from './council';
 import { CriterionFixture, fixtureInputs, fixtureRequest, type LoadedCriterion } from './criteria';
-import { normalizeFamily, sameFamily } from './family';
+import { familyOfModel, normalizeFamily } from './family';
 
 /**
  * Calibration (P2.3): a judge earns a criterion, it is never assumed to own one.
@@ -41,21 +41,37 @@ const COUNCIL_SIZE = 3;
  * a span is a trace span id, which the transcript cannot show.
  */
 export const AnnotationAnchor = z.discriminatedUnion('kind', [
-  z.strictObject({ kind: z.literal('message'), index: z.number().int().min(0) }),
   z.strictObject({
-    kind: z.literal('tool_call'),
-    tool: z.string().min(1),
-    occurrence: z.number().int().min(1).optional(),
+    kind: z.literal('message').describe('A transcript line.'),
+    index: z.number().int().min(0).describe('The index of the line in the transcript, from 0.'),
   }),
-  z.strictObject({ kind: z.literal('field'), path: z.string().min(1) }),
-  z.strictObject({ kind: z.literal('span'), span_id: z.string().min(1) }),
+  z.strictObject({
+    kind: z.literal('tool_call').describe('A tool the transcript calls.'),
+    tool: z.string().min(1).describe('The tool name.'),
+    occurrence: z
+      .number()
+      .int()
+      .min(1)
+      .optional()
+      .describe('Which call of that tool, from 1; 1 when absent.'),
+  }),
+  z.strictObject({
+    kind: z.literal('field').describe('A field of the ledger or of a tool output.'),
+    path: z.string().min(1).describe('The dot path of the field.'),
+  }),
+  z.strictObject({
+    kind: z.literal('span').describe('A trace span, which the transcript cannot show.'),
+    span_id: z.string().min(1).describe('The span id the run recorded.'),
+  }),
 ]);
 export type AnnotationAnchor = z.infer<typeof AnnotationAnchor>;
 
 export const LabelledBlock = CriterionFixture.extend({
-  id: z.string().min(1),
-  label: z.enum(['pass', 'fail']),
-  anchor: AnnotationAnchor.optional(),
+  id: z.string().min(1).describe('The id of the block; a new label for the same id replaces the old one.'),
+  label: z.enum(['pass', 'fail']).describe("The human's verdict on the criterion: pass or fail."),
+  anchor: AnnotationAnchor.optional().describe(
+    'The element of the block the label is about; absent: the whole block.',
+  ),
 });
 export type LabelledBlock = z.infer<typeof LabelledBlock>;
 
@@ -122,10 +138,10 @@ function fieldAt(root: unknown, path: string): boolean {
 
 /** One labels file: the hand-labelled blocks of one criterion. */
 export const LabelFile = z.strictObject({
-  criterion: z.string().min(1),
+  criterion: z.string().min(1).describe('The name of the criterion the labels are for.'),
   /** Who labelled, for a reader. */
-  labelled_by: z.string().optional(),
-  blocks: z.array(LabelledBlock).min(1),
+  labelled_by: z.string().optional().describe('Who labelled, for a reader.'),
+  blocks: z.array(LabelledBlock).min(1).describe('The labelled blocks.'),
 });
 export type LabelFile = z.infer<typeof LabelFile>;
 
@@ -247,6 +263,22 @@ export type LabelAgreement = {
   readonly kappa?: number;
   /** The Wilson 95% interval on agree / n. */
   readonly agreement: Interval;
+  /** PABAK: 2 * agree / n - 1, the raw agreement rescaled to a chance-free kappa. Undefined with no blocks. */
+  readonly pabak?: number;
+  /** Gwet's AC1 for two categories, pass and not pass. Undefined with no blocks, or when chance agreement is 1. */
+  readonly ac1?: number;
+  /** The confusion counts and the rates drawn from them; fail is the positive class and inconclusive counts as wrong. A rate with an empty denominator is left out. */
+  readonly metrics: {
+    readonly tp: number;
+    readonly fp: number;
+    readonly tn: number;
+    readonly fn: number;
+    readonly sensitivity?: number;
+    readonly specificity?: number;
+    readonly balancedAccuracy?: number;
+    readonly falsePositiveRate?: number;
+    readonly falseNegativeRate?: number;
+  };
   /** Per block: the human label and the judge's answer. */
   readonly blocks: readonly {
     readonly id: string;
@@ -268,6 +300,8 @@ export type JudgeCalibration = {
   /** Calls made, re-asks included, and what they cost in US dollars as the clients reported it. */
   readonly calls: number;
   readonly spentUsd: number;
+  /** Calls whose cost is unknown. Present only when above 0: spentUsd is then a lower bound. */
+  readonly costIncompleteCalls?: number;
   readonly meetsBar: boolean;
   /** Why the judge misses the bar, when it does. */
   readonly misses: readonly string[];
@@ -294,6 +328,12 @@ export type CriterionCalibration = {
   readonly judges: readonly JudgeCalibration[];
   /** Krippendorff's alpha across every judge, over the fixtures and the labelled blocks. */
   readonly alpha?: number;
+  /** Groups of labelled blocks that hold the same slice under both labels; absent when there are none. */
+  readonly labelConflicts?: readonly (readonly string[])[];
+  /** Ids of labelled blocks equal to a fixture of the criterion, which inflates agreement; absent when none. */
+  readonly fixtureLeaks?: readonly string[];
+  /** `few-labels` when a class has fewer than 5 labelled blocks; absent when there is nothing to warn of. */
+  readonly warnings?: readonly string[];
   readonly assignment: CriterionAssignment;
 };
 
@@ -317,6 +357,8 @@ export type CalibrationReport = {
   readonly errors: number;
   /** What every call cost in US dollars, summed from the clients that report a cost; 0 for a replay without one. */
   readonly spentUsd: number;
+  /** Calls whose cost is unknown. Present only when above 0: spentUsd is then a lower bound. */
+  readonly costIncompleteCalls?: number;
 };
 
 /** Runs calibration. Never throws on a judge failure: the failure is an inconclusive answer, counted. */
@@ -327,13 +369,16 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
   const mode = config.mode ?? 'hybrid';
   const kappaMin = config.kappaMin ?? KAPPA_MIN;
   const agentFamily = config.agentFamily ?? 'none';
-  const excluded = config.judges.filter((judge) => sameFamily(judge.family, agentFamily)).map((j) => j.id);
+  const excluded = config.judges
+    .filter((judge) => familiesOf(judge).includes(familyOfModel(agentFamily) ?? normalizeFamily(agentFamily)))
+    .map((j) => j.id);
   const judges = config.judges.filter((judge) => !excluded.includes(judge.id));
 
   const criteria: CriterionCalibration[] = [];
   const pooled = new Map<string, { judged: JudgeOutcome[]; human: ('pass' | 'fail')[] }>();
   let errors = 0;
   let spentUsd = 0;
+  let costIncompleteCalls = 0;
 
   for (const criterion of config.criteria) {
     const blocks = config.labels.get(criterion.def.name) ?? [];
@@ -341,7 +386,7 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
     // Units for alpha: the pass fixture, the fail fixture, then each labelled block; one row per judge.
     const matrix: (JudgeOutcome | null)[][] = [];
     for (const judge of judges) {
-      const counter = { errors: 0, spentUsd: 0, calls: 0 };
+      const counter = { errors: 0, spentUsd: 0, calls: 0, costIncomplete: 0 };
       const pass: JudgeOutcome[] = [];
       const fail: JudgeOutcome[] = [];
       for (let r = 0; r < repeats; r += 1) {
@@ -352,6 +397,7 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
       for (const block of blocks) judged.push(await answer(judge, labelRequest(criterion, block), counter));
       errors += counter.errors;
       spentUsd += counter.spentUsd;
+      costIncompleteCalls += counter.costIncomplete;
 
       const separated = pass.filter((outcome, r) => outcome === 'pass' && fail[r] === 'fail').length;
       const labels = agreement(
@@ -362,7 +408,7 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
       );
       const misses: string[] = [];
       if (separated < repeats) misses.push(`separates the fixture pair ${separated} of ${repeats} times`);
-      if (labels.kappa === undefined) misses.push('has no kappa: the criterion has no labelled blocks');
+      if (labels.kappa === undefined) misses.push('has no kappa: the labels hold fewer than two classes');
       else if (labels.kappa < kappaMin) misses.push(`kappa ${fixed(labels.kappa)} is under ${kappaMin}`);
       if (counter.errors > 0) misses.push(`${counter.errors} call(s) gave no answer`);
       rows.push({
@@ -374,6 +420,7 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
         errors: counter.errors,
         calls: counter.calls,
         spentUsd: counter.spentUsd,
+        ...(counter.costIncomplete > 0 ? { costIncompleteCalls: counter.costIncomplete } : {}),
         meetsBar: misses.length === 0,
         misses,
       });
@@ -385,11 +432,16 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
       pooled.set(judge.id, own);
     }
     const alpha = alphaOf(matrix);
+    const conflicts = labelConflicts(blocks);
+    const leaks = fixtureLeaks(criterion, blocks);
     criteria.push({
       criterion: criterion.def.name,
       gating: criterion.def.gating === true,
       judges: rows,
       ...(alpha === undefined ? {} : { alpha }),
+      ...(conflicts.length === 0 ? {} : { labelConflicts: conflicts }),
+      ...(leaks.length === 0 ? {} : { fixtureLeaks: leaks }),
+      ...(labelWarnings(blocks).length === 0 ? {} : { warnings: labelWarnings(blocks) }),
       assignment:
         config.rule === 'cheapest' ? assignCheapest(rows, judges, mode) : assign(rows, judges, mode),
     });
@@ -409,29 +461,74 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
     excluded,
     errors,
     spentUsd,
+    ...(costIncompleteCalls > 0 ? { costIncompleteCalls } : {}),
   };
 }
+
+/** The blocks that hold one slice (transcript, artifact, given) under both labels, one group of ids per slice. */
+export function labelConflicts(blocks: readonly LabelledBlock[]): string[][] {
+  const bySlice = new Map<string, LabelledBlock[]>();
+  for (const block of blocks) {
+    const key = JSON.stringify([block.transcript, block.artifact ?? null, block.given ?? null]);
+    bySlice.set(key, [...(bySlice.get(key) ?? []), block]);
+  }
+  return [...bySlice.values()]
+    .filter((group) => new Set(group.map((block) => block.label)).size > 1)
+    .map((group) => group.map((block) => block.id));
+}
+
+/** The warnings a labels set earns: `few-labels` when a class holds fewer than 5 labelled blocks (any labels given). */
+export function labelWarnings(blocks: readonly LabelledBlock[]): string[] {
+  if (blocks.length === 0) return [];
+  const few = (['pass', 'fail'] as const).some((label) => blocks.filter((b) => b.label === label).length < 5);
+  return few ? ['few-labels'] : [];
+}
+
+/** The ids of the labelled blocks whose transcript, artifact and given equal those of a fixture of the criterion. */
+export function fixtureLeaks(criterion: LoadedCriterion, blocks: readonly LabelledBlock[]): string[] {
+  const slice = (x: { transcript: unknown; artifact?: unknown; given?: unknown }) =>
+    JSON.stringify([x.transcript, x.artifact ?? null, x.given ?? null]);
+  const fixtures = new Set([slice(criterion.fixtures.pass), slice(criterion.fixtures.fail)]);
+  return blocks.filter((block) => fixtures.has(slice(block))).map((block) => block.id);
+}
+
+/** True for a judge result or a thrown judge failure whose cost is unknown in part or in whole. */
+const unpriced = (value: unknown): boolean =>
+  typeof value === 'object' && value !== null && 'costIncomplete' in value && value.costIncomplete === true;
 
 /** One answer as a council vote would get it: an unparsed answer is asked again with the large budget. */
 async function answer(
   judge: JudgeClient,
   request: JudgeRequest,
-  counter: { errors: number; spentUsd: number; calls: number },
+  counter: { errors: number; spentUsd: number; calls: number; costIncomplete: number },
 ): Promise<JudgeOutcome> {
   try {
     counter.calls += 1;
     let result = await judge.judge({ ...request, budget: 'normal' });
     counter.spentUsd += result.costUsd ?? 0;
+    if (unpriced(result)) counter.costIncomplete += 1;
     if (result.unparsed) {
       counter.calls += 1;
       result = await judge.judge({ ...request, budget: 'large' });
       counter.spentUsd += result.costUsd ?? 0;
+      if (unpriced(result)) counter.costIncomplete += 1;
     }
     return result.unparsed ? 'inconclusive' : result.answer.outcome;
-  } catch {
+  } catch (cause) {
+    if (unpriced(cause)) counter.costIncomplete += 1;
     counter.errors += 1;
     return 'inconclusive';
   }
+}
+
+/** Gwet's AC1 for pass against the rest: the observed agreement less the chance agreement of the pass category. */
+function ac1Of(human: readonly string[], judged: readonly string[]): number | undefined {
+  const n = human.length;
+  if (n === 0) return undefined;
+  const po = human.filter((label, i) => judged[i] === label).length / n;
+  const pi = (human.filter((l) => l === 'pass').length + judged.filter((l) => l === 'pass').length) / (2 * n);
+  const pe = 2 * pi * (1 - pi);
+  return pe === 1 ? undefined : (po - pe) / (1 - pe);
 }
 
 export function agreement(
@@ -444,13 +541,40 @@ export function agreement(
   const agree = human.filter((label, i) => judged[i] === label).length;
   const interval = n === 0 ? { estimate: 0, lower: 0, upper: 1 } : wilson(agree, n);
   let kappa: number | undefined;
-  if (n > 0) {
+  if (n > 0 && new Set(human).size > 1) {
     kappa = cohenKappa([...judged], [...human], { categories: ['pass', 'fail', 'inconclusive'] }).kappa;
   }
+  let tp = 0;
+  let fp = 0;
+  let tn = 0;
+  let fn = 0;
+  human.forEach((label, i) => {
+    const hit = judged[i] === (label === 'fail' ? 'fail' : 'pass');
+    if (label === 'fail') {
+      if (hit) tp += 1;
+      else fn += 1;
+    } else if (hit) tn += 1;
+    else fp += 1;
+  });
+  const sensitivity = tp + fn === 0 ? undefined : tp / (tp + fn);
+  const specificity = tn + fp === 0 ? undefined : tn / (tn + fp);
   return {
     n,
     agree,
+    metrics: {
+      tp,
+      fp,
+      tn,
+      fn,
+      ...(sensitivity === undefined ? {} : { sensitivity, falseNegativeRate: 1 - sensitivity }),
+      ...(specificity === undefined ? {} : { specificity, falsePositiveRate: 1 - specificity }),
+      ...(sensitivity === undefined || specificity === undefined
+        ? {}
+        : { balancedAccuracy: (sensitivity + specificity) / 2 }),
+    },
     ...(kappa === undefined ? {} : { kappa }),
+    ...(n === 0 ? {} : { pabak: (2 * agree) / n - 1 }),
+    ...(ac1Of(human, judged) === undefined ? {} : { ac1: ac1Of(human, judged) }),
     agreement: interval,
     blocks: ids.map((id, i) => {
       const anchor = anchors[i];
@@ -488,6 +612,16 @@ function byCost<T extends { cost: number; id: string }>(a: T, b: T): number {
   return a.cost - b.cost || a.id.localeCompare(b.id);
 }
 
+function familiesOf(judge: JudgeClient): string[] {
+  return [
+    ...new Set(
+      [judge.family, ...(judge.families ?? [])].map(
+        (family) => familyOfModel(family) ?? normalizeFamily(family),
+      ),
+    ),
+  ];
+}
+
 /** The cheapest-judge rule: the one cheapest judge at the bar, in a class the mode uses, judges alone. */
 function assignCheapest(
   rows: readonly JudgeCalibration[],
@@ -503,14 +637,16 @@ function assignCheapest(
     const missing = rows.map((row) => `${row.judge} ${row.misses.join(' and ')}`).join('; ');
     return { status: 'unassigned', reason: `no judge meets the bar${missing ? `: ${missing}` : ''}` };
   }
-  const family = judges.find((j) => j.id === owner.id)?.family;
+  const client = judges.find((j) => j.id === owner.id);
+  const families = client ? familiesOf(client) : [];
+  const [only] = families;
   return {
     status: 'assigned',
     owner: owner.id,
     cls: owner.cls,
     judges: [owner.id],
     rejudge: [],
-    ...(family === undefined ? {} : { singleFamily: normalizeFamily(family) }),
+    ...(families.length === 1 && only !== undefined ? { singleFamily: only } : {}),
   };
 }
 
@@ -550,7 +686,10 @@ function assign(
     }
     const seatedIds = seated.slice(0, COUNCIL_SIZE).map((judge) => judge.id);
     const families = new Set(
-      [...seatedIds, ...rejudge].map((id) => normalizeFamily(judges.find((j) => j.id === id)?.family ?? id)),
+      [...seatedIds, ...rejudge].flatMap((id) => {
+        const judge = judges.find((j) => j.id === id);
+        return judge ? familiesOf(judge) : [id];
+      }),
     );
     const [only] = families;
     return {
@@ -704,4 +843,36 @@ export async function loadAssignmentTable(path: string): Promise<AssignmentTable
     throw new Error(`${path}: ${issue?.path.join('.') || '(root)'} ${issue?.message ?? ''}`.trim());
   }
   return parsed.data;
+}
+
+/** The probability that a binomial(n, p) count is at most k. */
+function binomialAtMost(k: number, n: number, p: number): number {
+  let total = 0;
+  let logTerm = n * Math.log(1 - p);
+  for (let i = 0; i <= k; i += 1) {
+    if (i > 0) logTerm += Math.log(n - i + 1) - Math.log(i) + Math.log(p) - Math.log(1 - p);
+    total += Math.exp(logTerm);
+  }
+  return total;
+}
+
+/**
+ * An exact 95% interval on the share of blocks judges agree on, from k agreeing blocks of n (Clopper-Pearson).
+ * Exact, so its coverage never falls below 95% near agreement 1 at small n, where Wilson's falls short.
+ */
+export function agreementInterval(agree: number, n: number): { lower: number; upper: number } {
+  const alpha = 0.025;
+  const solve = (target: (p: number) => number) => {
+    let lo = 0;
+    let hi = 1;
+    for (let step = 0; step < 100; step += 1) {
+      const mid = (lo + hi) / 2;
+      if (target(mid) > 0) lo = mid;
+      else hi = mid;
+    }
+    return (lo + hi) / 2;
+  };
+  const lower = agree === 0 ? 0 : solve((p) => alpha - (1 - binomialAtMost(agree - 1, n, p)));
+  const upper = agree === n ? 1 : solve((p) => binomialAtMost(agree, n, p) - alpha);
+  return { lower, upper };
 }

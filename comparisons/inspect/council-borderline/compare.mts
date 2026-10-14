@@ -1,3 +1,4 @@
+/* biome-ignore-all lint/style/noNonNullAssertion: research script; each lookup uses a key the same script just built */
 // Wrong verdicts on the borderline blocks: plain majority of the three recorded models against the kappa-weighted
 // abstaining panel. Weights are kappa from the clean twelve-criterion council (not from these labels), so the
 // borderline set is a fresh test. Reads recorded-haiku.json, recorded-sonnet.json and recorded-opus.json.
@@ -18,7 +19,7 @@ const recorded = Object.fromEntries(
 );
 const kappa = { 'claude-haiku': 0.9475100942126514, 'claude-sonnet': 1, 'claude-opus': 1 };
 const idMap = new Map(models.map((m) => [m, `claude-${m}`]));
-const ids = recorded.haiku!.rows.map((r) => r.id);
+const ids = recorded.haiku?.rows.map((r) => r.id);
 
 type Tally = { right: number; wrong: number; split: number };
 const tally = (): Tally => ({ right: 0, wrong: 0, split: 0 });
@@ -28,10 +29,10 @@ const single: Record<string, Tally> = Object.fromEntries(models.map((m) => [m, t
 const wrongIds: Record<string, string[]> = { plain: [], weighted: [] };
 
 for (const id of ids) {
-  const label = recorded.haiku!.rows.find((r) => r.id === id)!.label;
+  const label = recorded.haiku?.rows.find((r) => r.id === id)?.label;
   const votes: PanelVote[] = models.map((m) => ({
-    judge: idMap.get(m)!,
-    outcome: (recorded[m]!.rows.find((r) => r.id === id)?.outcome ?? 'inconclusive') as PanelVote['outcome'],
+    judge: idMap.get(m) ?? m,
+    outcome: (recorded[m]?.rows.find((r) => r.id === id)?.outcome ?? 'inconclusive') as PanelVote['outcome'],
   }));
   const p = majority(votes as never);
   const pv = p === 'pass' || p === 'fail' ? p : 'split';
@@ -48,8 +49,9 @@ for (const id of ids) {
     }
   }
   for (const m of models) {
-    const o = votes.find((x) => x.judge === idMap.get(m))!.outcome;
-    const t = single[m]!;
+    const o = votes.find((x) => x.judge === idMap.get(m))?.outcome;
+    const t = single[m];
+    if (!t) throw new Error(`no tally for ${m}`);
     if (o === 'inconclusive') t.split += 1;
     else if (o === label) t.right += 1;
     else t.wrong += 1;

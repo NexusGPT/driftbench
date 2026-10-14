@@ -7,12 +7,16 @@
       "!**/dist",
       "!**/node_modules",
       "!coverage",
+      "!benchmarks/slices",
+      "!benchmarks/cassettes",
+      "!benchmarks/evidence",
       "!packages/*/coverage",
       "!.worktrees",
       "!.lane-inputs",
       "!docs/lanes",
       "!docs/lane-dag.json",
-      "!.github/readme"
+      "!.github/readme",
+      "!comparisons/deepeval/judge/ours-prompts.json"
     ]
   },
   "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2, "lineWidth": 110 },

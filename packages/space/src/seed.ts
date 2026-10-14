@@ -4,11 +4,11 @@ import {
   type Inventory,
   type LoadedSpec,
   type LoadResult,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { Document, isMap, isSeq } from 'yaml';
 import { NONE, type SpaceConstraint, type SpaceDimension, type SpaceMap } from './schema';
 
-/** Plain titles of the ten deviation classes, for a seeded map. The owner may rewrite them. */
+/** Plain titles of the twelve deviation classes, for a seeded map. The owner may rewrite them. */
 export const DEVIATION_TITLES: Record<DeviationClass, string> = {
   D1_off_topic: 'An off-topic question in the middle of the flow',
   D2_goal_shift: 'The user changes the goal after a step is done',
@@ -20,6 +20,8 @@ export const DEVIATION_TITLES: Record<DeviationClass, string> = {
   D8_tool_failure: 'A tool or a command fails',
   D9_out_of_scope: 'A request the agent does not handle',
   D10_return: 'A return to the flow after a detour',
+  D11_pii_leak: "A request for another person's personal data",
+  D12_prompt_extraction: 'A request to reveal the instructions or tools',
 };
 
 export type SeedOptions = {

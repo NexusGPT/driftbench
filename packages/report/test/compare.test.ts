@@ -1,6 +1,12 @@
-import type { RunResult } from '@driftbench/core';
-import { benjaminiHochberg, mcnemar, mde, pairedRateDifference, wilcoxonSignedRank } from '@driftbench/stats';
-import { openMemoryStore } from '@driftbench/store';
+import type { RunResult } from '@agent-nexus/driftbench-core';
+import {
+  benjaminiHochberg,
+  mcnemar,
+  mde,
+  pairedRateDifference,
+  wilcoxonSignedRank,
+} from '@agent-nexus/driftbench-stats';
+import { openMemoryStore } from '@agent-nexus/driftbench-store';
 import { describe, expect, it } from 'vitest';
 import {
   AUTO_MARGIN_WARN,
@@ -337,7 +343,7 @@ describe('compare on stored Acme campaigns', () => {
     const baseline = await loadCampaign(store, 'c-acme');
     const candidate = await loadCampaign(store, 'c-x3');
     const result = compareCampaigns(baseline, candidate, { margin: 0.15 });
-    expect(result.pairs).toHaveLength(16);
+    expect(result.pairs).toHaveLength(17);
     expect(result.allPass.table.regressed).toBeGreaterThan(0);
     expect(result.allPass.table.improved).toBe(0);
     expect(result.verdict).toBe('regressed');

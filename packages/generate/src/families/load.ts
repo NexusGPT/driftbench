@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { readFile, stat, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { READERS } from '@driftbench/artifacts';
+import { READERS } from '@agent-nexus/driftbench-artifacts';
 import { parse as parseYaml, stringify } from 'yaml';
 import {
   type Condition,
@@ -321,12 +321,6 @@ export function checkNames(family: FamilyFile): FamilyIssue[] {
       for (const id of entry.phrases) phrase(id, `${at}.parts.${part}.phrases`);
     }
   }
-  if (family.blocks[0]?.when !== undefined) {
-    issues.push({
-      path: 'blocks.0.when',
-      message: 'the first block holds in every instance; it takes no condition',
-    });
-  }
 
   if (family.planted) {
     listKnob(family.planted.knob, 'planted.knob', ['with']);
@@ -370,6 +364,11 @@ function seedFileNames(
   } else if ('json' in file) {
     for (const column of file.json.columns) tableColumn(file.json.table, column, `${at}.json.columns`);
     if (file.json.column_order_knob) listKnob(file.json.column_order_knob, `${at}.json.column_order_knob`);
+  } else if ('xlsx' in file) {
+    tableColumn(file.xlsx.table, file.xlsx.sheet_by, `${at}.xlsx.sheet_by`);
+    file.xlsx.columns.forEach((column, index) => {
+      tableColumn(file.xlsx.table, column.column, `${at}.xlsx.columns.${index}.column`);
+    });
   } else if ('text' in file) {
     phrase(file.text.phrase, `${at}.text.phrase`);
   }

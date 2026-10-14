@@ -1,13 +1,13 @@
 /** Repeat-based reliability: pass^k, pass@k and the unreliability spread. */
 
-import { assertCount, quantileSorted } from './basics';
+import { assertCount, assertFiniteValues, quantileSorted } from './basics';
 
-function checkCounts(c: number, n: number, k: number): void {
-  assertCount('c', c);
-  assertCount('n', n);
-  assertCount('k', k);
-  if (c > n) throw new RangeError(`c (${c}) exceeds n (${n})`);
-  if (k < 1 || k > n) throw new RangeError(`k must lie in [1, n], got k = ${k}, n = ${n}`);
+function checkCounts(fn: string, c: number, n: number, k: number): void {
+  assertCount(fn, 'c', c);
+  assertCount(fn, 'n', n);
+  assertCount(fn, 'k', k);
+  if (c > n) throw new RangeError(`${fn}: c (${c}) exceeds n (${n})`);
+  if (k < 1 || k > n) throw new RangeError(`${fn}: k must lie in [1, n], got k = ${k}, n = ${n}`);
 }
 
 /**
@@ -15,7 +15,7 @@ function checkCounts(c: number, n: number, k: number): void {
  * all pass. C(c, k) / C(n, k), computed as a product so it never overflows (arXiv 2406.12045).
  */
 export function passK(c: number, n: number, k: number): number {
-  checkCounts(c, n, k);
+  checkCounts('passK', c, n, k);
   if (k > c) return 0;
   let p = 1;
   for (let i = 0; i < k; i += 1) p *= (c - i) / (n - i);
@@ -27,7 +27,7 @@ export function passK(c: number, n: number, k: number): number {
  * 1 - C(n - c, k) / C(n, k), in the numerically stable product form of arXiv 2107.03374.
  */
 export function passAtK(c: number, n: number, k: number): number {
-  checkCounts(c, n, k);
+  checkCounts('passAtK', c, n, k);
   if (n - c < k) return 1;
   let q = 1;
   for (let i = n - c + 1; i <= n; i += 1) q *= 1 - k / i;
@@ -36,7 +36,8 @@ export function passAtK(c: number, n: number, k: number): number {
 
 /** Unreliability: the 90th percentile minus the 10th percentile of the scores across repeats (type 7 quantiles). */
 export function unreliability(samples: readonly number[]): number {
-  if (samples.length === 0) throw new RangeError('unreliability: no samples');
+  if (samples.length === 0) throw new RangeError('unreliability: samples must not be empty');
+  assertFiniteValues('unreliability', 'samples', samples);
   const sorted = [...samples].sort((a, b) => a - b);
   return quantileSorted(sorted, 0.9) - quantileSorted(sorted, 0.1);
 }

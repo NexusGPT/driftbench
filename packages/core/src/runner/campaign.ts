@@ -1,4 +1,4 @@
-import { mde } from '@driftbench/stats';
+import { mde } from '@agent-nexus/driftbench-stats';
 import type { AgentAdapter } from '../contracts/adapter';
 import type { ArtifactReaderRegistry } from '../contracts/artifacts';
 import type { CheckSet } from '../contracts/check';
@@ -10,6 +10,7 @@ import type { Spec } from '../schema/spec';
 import type { ObservedCache } from './cache';
 import { cellId } from './cell';
 import { replacesBlock } from './inject';
+import { preflightTargetPrices, priceObserved, TokenPrices } from './pricing';
 import type { RetryOptions } from './retry';
 import { runSpec } from './run';
 
@@ -43,7 +44,7 @@ export type CostLine = {
 
 /**
  * The minimum detectable effect of a comparison between two arms (a baseline target and a candidate),
- * as `mde` of @driftbench/stats solves it: the specs are the independent units, the repeats of one spec
+ * as `mde` of @agent-nexus/driftbench-stats solves it: the specs are the independent units, the repeats of one spec
  * count through the design effect 1 + (repeats - 1) rho, and the two arms are independent samples.
  */
 export type MinimumDetectableEffect = {
@@ -66,7 +67,7 @@ export type CampaignPlan = {
   cells: PlannedCell[];
   /** Blocks sent over every cell. */
   blocks: number;
-  /** As `projectCost` of @driftbench/store computes it, with a line per adapter. */
+  /** As `projectCost` of @agent-nexus/driftbench-store computes it, with a line per adapter. */
   cost: { usd: number; unmeasured: string[]; byAdapter: CostLine[] };
   budgetUsd?: number;
   /** True when the projected cost fits the budget; absent without a budget. */
@@ -93,7 +94,7 @@ const Z_POWER = 0.8416212335729144;
 
 /**
  * The effect of the two-proportion normal approximation with every run counted as independent. The plan no
- * longer uses it: `planCampaign` prints `mde` of @driftbench/stats, which counts specs as the units.
+ * longer uses it: `planCampaign` prints `mde` of @agent-nexus/driftbench-stats, which counts specs as the units.
  */
 export function minimumDetectableEffect(runsPerArm: number, baselineRate = 0.5): number | undefined {
   if (runsPerArm <= 0) return undefined;
@@ -102,7 +103,7 @@ export function minimumDetectableEffect(runsPerArm: number, baselineRate = 0.5):
 
 /**
  * The MDE line of one mode: `specs` independent specs sharing `runsPerArm` runs, so `runsPerArm / specs`
- * repeats each, through `mde` of @driftbench/stats. Throws a RangeError naming rho outside [0, 1].
+ * repeats each, through `mde` of @agent-nexus/driftbench-stats. Throws a RangeError naming rho outside [0, 1].
  */
 export function mdeLine(
   mode: RunMode,
@@ -272,6 +273,8 @@ function byCell(runs: readonly RunResult[]): Map<string, RunResult> {
 }
 
 export type CampaignRunOptions = {
+  /** Dated USD prices for adapters that report tokens without dollar cost. */
+  prices?: TokenPrices;
   campaignId: string;
   cells: readonly PlannedCell[];
   /** The spec of a cell, by id and hash. */
@@ -286,6 +289,8 @@ export type CampaignRunOptions = {
   cache?: ObservedCache;
   /** The cache suite every run of the campaign belongs to. A new name starts from an empty cache. */
   cacheSuite?: string;
+  /** The agent version included in every block cache key of this campaign. */
+  agentVersion?: string;
   /** Each run keeps its events on its record, for the viewer's timeline. */
   recordEvents?: boolean;
   retry?: RetryOptions;
@@ -324,7 +329,34 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
   const stored = await options.store.listRuns({ campaignId: options.campaignId });
   const done = byCell(stored);
   const { cells, budgetUsd } = options;
-  let spentUsd = stored.filter((run) => !run.cacheHit).reduce((sum, run) => sum + run.cost, 0);
+  const prices = options.prices === undefined ? undefined : TokenPrices.parse(options.prices);
+  if (budgetUsd !== undefined)
+    preflightTargetPrices(
+      cells.map((cell) => cell.target),
+      prices,
+    );
+  // A carried run was paid for by the campaign that ran it: it spends nothing of this budget.
+  let spentUsd = stored
+    .filter((run) => !run.cacheHit && run.carried === undefined)
+    .reduce(
+      (sum, run) =>
+        sum +
+        (budgetUsd === undefined
+          ? run.cost
+          : Math.max(
+              run.cost,
+              run.blocks.reduce((total, block) => {
+                // Old unpriced records can have cost=0 despite token usage. Reprice their raw observations before resuming.
+                const observed = priceObserved(block.observed, run.target, prices, true);
+                return (
+                  total +
+                  (observed.cost.usd ??
+                    observed.segments.reduce((usd, segment) => usd + (segment.cost?.usd ?? 0), 0))
+                );
+              }, 0),
+            )),
+      0,
+    );
   const outcomes: Array<CellOutcome | undefined> = cells.map(() => undefined);
   let next = 0;
   let heard = 0;
@@ -393,6 +425,8 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
     const reference = cell.mode === 'P' ? await referenceFor(cell) : undefined;
     const spec = options.specFor(cell);
     const run = await runSpec(spec, {
+      ...(prices ? { prices } : {}),
+      requireTokenPrices: budgetUsd !== undefined,
       adapter: options.adapterFor(cell.target),
       driver: options.driver(cell, spec),
       checks: options.checks,
@@ -405,6 +439,7 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
       campaignId: options.campaignId,
       ...(options.cache ? { cache: options.cache } : {}),
       ...(options.cacheSuite === undefined ? {} : { suite: options.cacheSuite }),
+      ...(options.agentVersion === undefined ? {} : { agentVersion: options.agentVersion }),
       ...(options.recordEvents ? { recordEvents: true } : {}),
       ...(options.retry ? { retry: options.retry } : {}),
       ...(options.now ? { now: options.now } : {}),

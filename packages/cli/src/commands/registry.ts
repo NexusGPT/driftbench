@@ -1,5 +1,5 @@
 import { relative, resolve } from 'node:path';
-import { loadSpecs } from '@driftbench/core';
+import { loadSpecs } from '@agent-nexus/driftbench-core';
 import {
   diffFiles,
   openStore,
@@ -10,8 +10,9 @@ import {
   readTree,
   restoreFiles,
   type SqliteStore,
-} from '@driftbench/store';
+} from '@agent-nexus/driftbench-store';
 import type { Command } from 'commander';
+import { reason as describe } from '../files';
 import type { Io } from '../io';
 
 type StoreOption = { store: string; json?: boolean };
@@ -321,8 +322,4 @@ function label(version: RegistryVersion): string {
 function show(io: Io, path: string): string {
   const rel = relative(io.cwd, path);
   return rel === '' || rel.startsWith('..') ? path : rel;
-}
-
-function describe(cause: unknown): string {
-  return cause instanceof Error ? (cause.message.split('\n')[0] ?? '') : String(cause);
 }

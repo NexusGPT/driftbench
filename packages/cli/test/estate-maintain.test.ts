@@ -2,7 +2,7 @@ import { cp, mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parseEstateDiff } from '@driftbench/estate';
+import { parseEstateDiff } from '@agent-nexus/driftbench-estate';
 import { describe, expect, it } from 'vitest';
 import { type Io, main } from '../src/index';
 
@@ -437,6 +437,23 @@ describe('driftbench estate diff with guard state', () => {
     expect(impact.out).toContain(
       `  - the guard ${GUARDS[2]} went from observe to enforce with no decision evidence`,
     );
+  });
+
+  it('takes the new state from --new-guards in place of the file beside the new map', async () => {
+    const root = await versions();
+    await writeFile(join(root, 'v1', 'guard-state.yaml'), guardState('mode: warn'));
+    await writeFile(join(root, 'v2', 'guard-state.yaml'), guardState('mode: warn'));
+    await writeFile(join(root, 'new-state.yaml'), guardState('mode: enforce'));
+    const beside = await cli(['estate', 'diff', 'v1/map.yaml', 'v2/map.yaml'], root);
+    expect(beside.code).toBe(0);
+    expect(beside.out).not.toContain('promoted');
+    const named = await cli(
+      ['estate', 'diff', 'v1/map.yaml', 'v2/map.yaml', '--new-guards', 'new-state.yaml'],
+      root,
+    );
+    expect(named.err).toBe('');
+    expect(named.code).toBe(0);
+    expect(named.out).toContain(`promoted ${GUARDS[2]}: warn to enforce`);
   });
 
   it('has no guards without a state file, and exits 2 on a state that does not fit its map', async () => {

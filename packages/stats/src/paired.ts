@@ -3,7 +3,7 @@
  * test, the paired difference of two pass rates with its interval, and the parity verdict.
  */
 
-import { assertCount, assertProbability, assertSameLength } from './basics';
+import { assertCount, assertFiniteValues, assertProbability, assertSameLength } from './basics';
 import { wilson } from './intervals';
 import { binomialCdf, chiSquareSf, incompleteBeta, normalQuantile, normalSf } from './special';
 
@@ -27,8 +27,8 @@ export interface McNemarOptions {
  * freedom otherwise.
  */
 export function mcnemar(b: number, c: number, options: McNemarOptions = {}): McNemarResult {
-  assertCount('b', b);
-  assertCount('c', c);
+  assertCount('mcnemar', 'b', b);
+  assertCount('mcnemar', 'c', c);
   const n = b + c;
   const exact = options.exact ?? n < 25;
   if (n === 0) return { statistic: 0, pValue: 1, method: exact ? 'exact' : 'chi-square', b, c };
@@ -125,9 +125,11 @@ export function wilcoxonSignedRank(
   y: readonly number[],
   options: WilcoxonOptions = {},
 ): WilcoxonResult {
-  assertSameLength(x, y, 'wilcoxonSignedRank');
+  assertSameLength(x, y, 'wilcoxonSignedRank', ['x', 'y']);
+  assertFiniteValues('wilcoxonSignedRank', 'x', x);
+  assertFiniteValues('wilcoxonSignedRank', 'y', y);
   const total = x.length;
-  if (total === 0) throw new RangeError('wilcoxonSignedRank: no pairs');
+  if (total === 0) throw new RangeError('wilcoxonSignedRank: x must not be empty');
   const diffs = x.map((v, i) => v - (y[i] as number));
   const nonzero = diffs.filter((d) => d !== 0);
   const zeros = total - nonzero.length;
@@ -207,24 +209,28 @@ export interface PairedDifference {
 /**
  * The difference between two paired pass rates (baseline minus candidate), with Newcombe's hybrid
  * score interval for paired data (Newcombe 1998, method 10: Wilson limits for each rate combined
- * with the phi correlation of the 2 x 2 table, no continuity correction).
+ * with Newcombe's corrected phi correlation of the 2 x 2 table). The Wilson limits themselves
+ * have no continuity correction. Positive covariance is reduced by n / 2, stopping at zero;
+ * negative covariance is unchanged, and a zero marginal count gives phi = 0.
  */
 export function pairedRateDifference(table: PairedTable, alpha = 0.05): PairedDifference {
   const { bothPass: a, regressed: b, improved: c, bothFail: d } = table;
-  assertCount('bothPass', a);
-  assertCount('regressed', b);
-  assertCount('improved', c);
-  assertCount('bothFail', d);
-  assertProbability('alpha', alpha, true);
+  assertCount('pairedRateDifference', 'bothPass', a);
+  assertCount('pairedRateDifference', 'regressed', b);
+  assertCount('pairedRateDifference', 'improved', c);
+  assertCount('pairedRateDifference', 'bothFail', d);
+  assertProbability('pairedRateDifference', 'alpha', alpha, true);
   const n = a + b + c + d;
-  if (n === 0) throw new RangeError('pairedRateDifference: no pairs');
+  if (n === 0) throw new RangeError('pairedRateDifference: table has no pairs');
   const z = normalQuantile(1 - alpha / 2);
   const p1 = (a + b) / n;
   const p2 = (a + c) / n;
   const w1 = wilson(a + b, n, z);
   const w2 = wilson(a + c, n, z);
   const product = (a + b) * (c + d) * (a + c) * (b + d);
-  const phi = product === 0 ? 0 : (a * d - b * c) / Math.sqrt(product);
+  const covariance = a * d - b * c;
+  const corrected = covariance > 0 ? Math.max(0, covariance - n / 2) : covariance;
+  const phi = product === 0 ? 0 : corrected / Math.sqrt(product);
   const dl1 = p1 - w1.lower;
   const du1 = w1.upper - p1;
   const dl2 = p2 - w2.lower;
@@ -270,7 +276,8 @@ export interface NonInferiorityResult {
  */
 export function nonInferiority(input: NonInferiorityInput): NonInferiorityResult {
   const { baseline, candidate, margin } = input;
-  assertSameLength(baseline, candidate, 'nonInferiority');
+  assertSameLength(baseline, candidate, 'nonInferiority', ['baseline', 'candidate']);
+  if (baseline.length === 0) throw new RangeError('nonInferiority: baseline and candidate must not be empty');
   if (!(margin > 0 && margin < 1))
     throw new RangeError(`nonInferiority: margin must lie in (0, 1), got ${margin}`);
   const names = input.pairs ?? baseline.map((_, i) => String(i));

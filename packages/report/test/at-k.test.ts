@@ -1,4 +1,4 @@
-import { mulberry32, passAtK, passK, wilson } from '@driftbench/stats';
+import { mulberry32, passAtK, passK, wilson } from '@agent-nexus/driftbench-stats';
 import { describe, expect, it } from 'vitest';
 import { atKRows } from '../src/reliability';
 

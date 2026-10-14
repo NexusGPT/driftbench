@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest';
+import * as product from '@agent-nexus/driftbench-estate';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   agentMutantLevel,
   agentMutants,
@@ -12,44 +13,103 @@ import {
   matchAtoms,
   renderEstate,
 } from '../../src/ladders/estate/index';
+import { estateMeta } from '../../src/ladders/estate/levels';
+
+vi.mock('@agent-nexus/driftbench-estate', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@agent-nexus/driftbench-estate')>();
+  return { ...actual, estateImpact: vi.fn(actual.estateImpact) };
+});
+
+const GATE = 'gate.standing.read-a-file-before-you-edit';
+
+/** The run with the ordered pair taken out of every complete spec that names the gate: still complete. */
+function withoutOrderedPair(run: EstateRun): EstateRun {
+  return {
+    ...run,
+    specs: run.specs.map((spec) => {
+      if (!spec.loaded || !(estateMeta(spec).atoms ?? []).includes(GATE)) return spec;
+      const body = structuredClone(spec.loaded.spec) as { rules?: { custom?: Record<string, unknown> } };
+      if (body.rules?.custom) delete body.rules.custom.ordered;
+      return { ...spec, loaded: { ...spec.loaded, spec: body } } as typeof spec;
+    }),
+  };
+}
 
 describe('agent mutants (level 5)', { timeout: 120_000 }, () => {
-  it('kills every skill and the deleted WebFetch prohibition, and keeps the mutants no complete test can see', async () => {
+  it('kills skills, scripts and the deleted WebFetch prohibition, and says why a living mutant lives', async () => {
     const run = await estateRun(1);
     const mutants = await agentMutants(run);
     const of = (kind: string) => mutants.filter((mutant) => mutant.kind === kind);
     expect(of('skill').length).toBeGreaterThan(0);
     expect(of('skill').every((mutant) => mutant.killed)).toBe(true);
-    // The deny rule's test expects WebFetch not offered; a replayed session reports no offered tools, so the
-    // test waits for its expectation and the mutant lives (an item of the bank: mutant.agent.tool-deny-bare).
+    // The deny rule and the keyless gate are product gaps the bank names (mutant.agent.tool-deny-bare and
+    // mutant.agent.gate-read-before-edit). This test does not ask the product to keep them: a mutant is killed,
+    // or it lives and carries one of the two reasons a living mutant can have.
     const deny = mutants.find((mutant) => mutant.atom === 'tool.settings.deny-webfetch');
-    expect(deny?.killed).toBe(false);
-    expect(deny?.reason).toMatch(/wait for a fix of their expectation/);
+    expect(deny).toBeDefined();
+    if (!deny?.killed) expect(deny?.reason).toMatch(/wait for |complete tests ran on the follower/);
     expect(mutants.find((mutant) => mutant.atom === 'instruction.standing.never-call-webfetch')?.killed).toBe(
       true,
     );
-    // A keyless ordered pair: any Read before the Edit satisfies it, so moving the target read late lives.
     const gate = mutants.find((mutant) => mutant.atom === 'gate.standing.read-a-file-before-you-edit');
-    expect(gate?.killed).toBe(false);
-    expect(gate?.reason).toMatch(
-      /complete tests ran on the follower with the atom deleted and all passed; the evidence ordered did not fire/,
-    );
-    const script = of('script')[0];
-    expect(script?.killed).toBe(false);
-    expect(script?.reason).toMatch(
-      /^no complete test passes on the rule follower to run it on; its \d+ tests? wait for a fix of their expectation/,
-    );
+    expect(gate).toBeDefined();
+    if (!gate?.killed) expect(gate?.reason).toMatch(/wait for |complete tests ran on the follower/);
+    for (const mutant of mutants) {
+      if (mutant.killed) expect(mutant.reason, mutant.atom).toBeUndefined();
+      else
+        expect(mutant.reason, mutant.atom).toMatch(
+          /no generated test names the atom|wait for |complete tests ran on the follower|records the same session/,
+        );
+    }
+    expect(of('script').length).toBeGreaterThan(0);
+    expect(of('script').every((mutant) => mutant.killed && mutant.tests.length > 0)).toBe(true);
   });
 
   it('scores each kind and names the living mutants of a kind below the bar', async () => {
     const run = await estateRun(1);
     const measure = await agentMutantLevel(run);
-    expect(measure.value).toBeLessThan(MUTATION_SCORE);
+    const mutants = await agentMutants(run);
     const alive = measure.items.map((item) => item.id);
-    expect(alive).toContain('mutant-alive:gate.standing.read-a-file-before-you-edit');
+    // The value is the lowest kill share over the kinds, and every item is a living mutant of a kind below the bar.
+    const kinds = [...new Set(mutants.map((mutant) => mutant.kind))];
+    const share = (kind: string) => {
+      const own = mutants.filter(
+        (mutant) => mutant.kind === kind && !('equivalent' in mutant && mutant.equivalent),
+      );
+      return own.length === 0 ? 1 : own.filter((mutant) => mutant.killed).length / own.length;
+    };
+    expect(measure.value).toBeCloseTo(Math.min(...kinds.map(share)), 12);
+    for (const id of alive) {
+      const atom = id.replace('mutant-alive:', '');
+      const mutant = mutants.find((each) => each.atom === atom);
+      expect(mutant?.killed, id).toBe(false);
+      expect(share(mutant?.kind as string), id).toBeLessThan(MUTATION_SCORE);
+    }
+    const gate = mutants.find((mutant) => mutant.atom === 'gate.standing.read-a-file-before-you-edit');
+    if (gate && !gate.killed && share('gate') < MUTATION_SCORE)
+      expect(alive).toContain(`mutant-alive:${gate.atom}`);
     expect(alive.some((id) => id.startsWith('mutant-alive:skill.'))).toBe(false);
+    expect(alive.some((id) => id.startsWith('mutant-alive:script.'))).toBe(false);
+  });
+
+  it('names the generator when script specs are deliberately made incomplete', async () => {
+    const run = await estateRun(1);
+    const scripts = new Set(
+      run.scanned.map.atoms.filter((atom) => atom.kind === 'script').map((atom) => atom.id),
+    );
+    expect(scripts.size).toBeGreaterThan(0);
+    const wrong: EstateRun = {
+      ...run,
+      specs: run.specs.map((spec) =>
+        estateMeta(spec).atoms?.some((id) => scripts.has(id))
+          ? { ...spec, record: { ...spec.record, complete: false } }
+          : spec,
+      ),
+    };
+    const measure = await agentMutantLevel(wrong);
     const script = measure.items.find((item) => item.id.startsWith('mutant-alive:script.'));
     expect(script?.component).toBe('packages/generate/src/estate/generate.ts');
+    expect(script?.detail).toContain('no complete test passes on the rule follower');
   });
 
   it('kills nothing when no test is complete', async () => {
@@ -60,6 +120,66 @@ describe('agent mutants (level 5)', { timeout: 120_000 }, () => {
     };
     const measure = await agentMutantLevel(none);
     expect(measure.value).toBe(0);
+  });
+});
+
+describe('a living agent mutant run on the follower (level 5, planted)', { timeout: 300_000 }, () => {
+  it('keeps the gate mutant alive, with its reason, when its complete tests check no order', async () => {
+    const run = withoutOrderedPair(await estateRun(1));
+    const gate = (await agentMutants(run)).find((mutant) => mutant.atom === GATE);
+    expect(gate?.tests.length).toBeGreaterThan(0);
+    expect(gate?.killed).toBe(false);
+    expect(gate?.reason).toMatch(
+      /complete tests ran on the follower with the atom deleted and all passed; the evidence .*did not fire/,
+    );
+    const mutants = await agentMutants(run);
+    const gates = mutants.filter((mutant) => mutant.kind === 'gate');
+    const share = gates.filter((mutant) => mutant.killed).length / gates.length;
+    const measure = await agentMutantLevel(run);
+    if (share < MUTATION_SCORE)
+      expect(measure.items.map((item) => item.id)).toContain(`mutant-alive:${GATE}`);
+    expect(measure.value).toBeLessThanOrEqual(share);
+  });
+});
+
+describe('wrong maintenance decisions (level 6, planted products)', { timeout: 300_000 }, () => {
+  afterEach(() => vi.mocked(product.estateImpact).mockReset());
+
+  it('names the tests a product that retires nothing should have retired', async () => {
+    const actual = await vi.importActual<typeof product>('@agent-nexus/driftbench-estate');
+    vi.mocked(product.estateImpact).mockImplementation((diff, tests) => ({
+      ...actual.estateImpact(diff, tests),
+      retire: [],
+    }));
+    const { wrong } = await estateMutantDecisions(await estateRun(1));
+    const missed = wrong.filter((verdict) => verdict.expected === 'retired');
+    expect(missed.length).toBeGreaterThan(0);
+    expect(missed.every((verdict) => verdict.got === 'regenerated' || verdict.got === 'untouched')).toBe(
+      true,
+    );
+  });
+
+  it('names the tests a product that retires every test of a renamed folder should have kept', async () => {
+    const actual = await vi.importActual<typeof product>('@agent-nexus/driftbench-estate');
+    vi.mocked(product.estateImpact).mockImplementation((diff, tests) => {
+      const impact = actual.estateImpact(diff, tests);
+      const gone = new Set(diff.atoms.removed.map((atom) => atom.id));
+      const extra = tests
+        .filter((test) => test.atoms.some((atom) => gone.has(atom)))
+        .filter((test) => !impact.retire.some((entry) => entry.test === test.id))
+        .map((test) => ({
+          test: test.id,
+          file: test.file,
+          atoms: test.atoms,
+          reason: 'planted: every test of a removed atom',
+          state: 'to_write' as const,
+        }));
+      return { ...impact, retire: [...impact.retire, ...extra] };
+    });
+    const { wrong } = await estateMutantDecisions(await estateRun(1));
+    const renamed = wrong.filter((verdict) => verdict.mutant.startsWith('rename:'));
+    expect(renamed.length).toBeGreaterThan(0);
+    expect(renamed.every((verdict) => verdict.expected === 'kept' && verdict.got === 'retired')).toBe(true);
   });
 });
 
@@ -96,33 +216,40 @@ describe('estate mutants (level 6)', { timeout: 120_000 }, () => {
     }
   });
 
-  it('names the tests maintenance regenerates instead of retiring, and leaves a re-wrap alone', async () => {
+  it('names each wrong maintenance decision with what was expected, and leaves a re-wrap alone', async () => {
     const run = await estateRun(1);
     const { judged, wrong } = await estateMutantDecisions(run);
     expect(judged).toBeGreaterThan(run.specs.length);
-    expect(wrong.length).toBeGreaterThan(0);
-    const deletions = wrong.filter((verdict) => !verdict.mutant.startsWith('rename:'));
-    expect(
-      deletions.every((verdict) => verdict.expected === 'retired' && verdict.got === 'regenerated'),
-    ).toBe(true);
-    // A renamed folder changes the atom ids of the skill: maintenance retires tests whose atoms all stayed.
-    const renamed = wrong.filter((verdict) => verdict.mutant.startsWith('rename:'));
-    expect(renamed.length).toBeGreaterThan(0);
-    expect(renamed.every((verdict) => verdict.expected === 'kept' && verdict.got === 'retired')).toBe(true);
-    expect(wrong.some((verdict) => verdict.mutant.startsWith('instruction:'))).toBe(true);
+    // What the validator expects does not depend on the product: a test whose atoms all left is retired, and a
+    // renamed folder keeps its tests (the bank's maintain.impact.rename-* items). A product that does both has no
+    // wrong decision here; this test asks only that a wrong one, when there is one, is named as such.
+    for (const verdict of wrong) {
+      expect(verdict.expected, verdict.mutant).not.toBe(verdict.got);
+      expect(verdict.why.length, verdict.mutant).toBeGreaterThan(0);
+      if (verdict.mutant.startsWith('rename:')) expect(verdict.expected, verdict.mutant).toBe('kept');
+      else expect(verdict.expected, verdict.mutant).toBe('retired');
+    }
     expect(wrong.some((verdict) => verdict.mutant.startsWith('wording:'))).toBe(false);
     const sample = wrong.find((verdict) => verdict.mutant.startsWith('instruction:'));
-    expect(sample?.why).toMatch(/left the estate .*; the test also names skill\./);
+    if (sample) expect(sample.why).toMatch(/left the estate/);
   });
 });
 
 describe('the holdout estate (level 7)', { timeout: 120_000 }, () => {
   it('runs levels 1 to 6 on the holdout estate and stops at the first that fails', async () => {
     const measure = await holdoutLevel(await estateRun(1, 'holdout'));
-    expect(measure.value).toBe(3 / 6);
-    expect(measure.items.length).toBeGreaterThan(0);
-    expect(measure.items.every((item) => item.id.startsWith('holdout:specs:'))).toBe(true);
-    expect(measure.items.map((item) => item.id)).toContain('holdout:specs:gap:needs-ordered-anchor');
+    // The value is the count of lower levels passed over six. Below one, the items are those of the first level
+    // that failed, each named with the holdout prefix; at one there is none. Which level stops the product today
+    // is the product's affair, not this test's.
+    const passed = Math.round(measure.value * 6);
+    expect(measure.value).toBeCloseTo(passed / 6, 12);
+    expect(passed).toBeGreaterThanOrEqual(0);
+    expect(passed).toBeLessThanOrEqual(6);
+    if (passed < 6) {
+      expect(measure.items.length).toBeGreaterThan(0);
+      const stage = measure.items[0]?.id.split(':')[1];
+      expect(measure.items.every((item) => item.id.startsWith(`holdout:${stage}:`))).toBe(true);
+    } else expect(measure.items).toEqual([]);
   });
 
   it('fails at level 1 of the holdout when a holdout-only form is lost by the scan', async () => {

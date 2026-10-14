@@ -2,9 +2,9 @@ import { cp, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { findSpecFiles, loadSpecs } from '@driftbench/core';
-import { faultAdapter, importFaultSet } from '@driftbench/generate';
-import { localProvider } from '@driftbench/sandbox';
+import { findSpecFiles, loadSpecs } from '@agent-nexus/driftbench-core';
+import { faultAdapter, importFaultSet } from '@agent-nexus/driftbench-generate';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
 import { afterAll, describe, expect, it } from 'vitest';
 import {
   defaultHoldoutDeps,
@@ -103,7 +103,7 @@ describe('driftbench holdout seal', () => {
       expect(result.err).toBe('');
       expect(result.code).toBe(0);
       expect(result.out).toContain('the gate sealed its split at seed 1, share 0.2; that split is kept');
-      expect(result.out).toContain("Sealed 60 of 258 gated specs: the gate's split (seed 1, share 0.2)");
+      expect(result.out).toContain("Sealed 58 of 258 gated specs: the gate's split (seed 1, share 0.2)");
 
       const bundle = await json<Bundle>(join(out, 'sealed.json'));
       expect(bundle).toMatchObject({ split: 'gate', seed: 1, share: 0.2 });
@@ -190,6 +190,19 @@ describe('driftbench holdout seal', () => {
     const missing = await run(['holdout', 'seal', '--specs', join(out, 'none'), '--out', out]);
     expect(missing.code).toBe(2);
     expect(missing.err).toContain('Cannot find');
+  });
+
+  it('names the gate output folder when --specs is the specs folder inside it', async () => {
+    const out = join(await temp(), 'sealed');
+    const result = await run(['holdout', 'seal', '--specs', join(GATED, 'specs'), '--out', out]);
+    expect(result.code).toBe(2);
+    expect(result.err).toBe(
+      "--specs examples/acme/gated/specs is the specs folder inside a gate output. The specs the gate sealed are beside it, in examples/acme/gated/holdout. Pass the gate's output folder: --specs examples/acme/gated\n",
+    );
+    // The folder the message names seals as it is.
+    const fixed = await run(['holdout', 'seal', '--specs', GATED, '--out', out]);
+    expect(fixed.err).toBe('');
+    expect(fixed.code).toBe(0);
   });
 });
 
@@ -281,7 +294,7 @@ describe('driftbench holdout score', () => {
       expect(scored.output.err).toBe('');
       expect(code).toBe(0);
       // Every gated block reads the reply language, so the fault that answers in French fails all 35.
-      expect(scored.output.out).toMatch(/\n\s+49\s+0\s+0\.0%\s+0\.0% to 7\.3%/);
+      expect(scored.output.out).toMatch(/\n\s+47\s+0\s+0\.0%\s+0\.0% to 7\.6%/);
     },
     SLOW,
   );

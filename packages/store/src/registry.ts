@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { mkdir, readdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { basename, dirname, join, relative, sep } from 'node:path';
-import { canonicalJson } from '@driftbench/core';
+import { canonicalJson } from '@agent-nexus/driftbench-core';
 import { StoreError } from './errors';
 
 /**
@@ -95,8 +95,8 @@ export function parseVersionRef(text: string): { name: string; ref?: string } {
 }
 
 /**
- * Reads a file, or every file under a folder in path order. Entries whose name starts with a dot and
- * `node_modules` are skipped, like the spec loader skips them.
+ * Reads a file, or every file under a folder in path order. Generated `.seed-*` folders retain their
+ * contents, including hidden fixtures. Other dot entries, `.git` and `node_modules` are skipped.
  */
 export async function readTree(path: string): Promise<{ files: RegistryFile[]; single: boolean }> {
   const info = await stat(path);
@@ -104,12 +104,14 @@ export async function readTree(path: string): Promise<{ files: RegistryFile[]; s
     return { files: [{ path: basename(path), bytes: new Uint8Array(await readFile(path)) }], single: true };
   }
   const files: RegistryFile[] = [];
-  const walk = async (folder: string): Promise<void> => {
+  const walk = async (folder: string, inSeed = false): Promise<void> => {
     const entries = await readdir(folder, { withFileTypes: true });
     for (const entry of entries.sort((a, b) => (a.name < b.name ? -1 : 1))) {
-      if (entry.name.startsWith('.') || entry.name === 'node_modules') continue;
+      if (entry.name === '.git' || entry.name === 'node_modules') continue;
+      const seed = inSeed || (entry.isDirectory() && entry.name.startsWith('.seed-'));
+      if (entry.name.startsWith('.') && !seed) continue;
       const full = join(folder, entry.name);
-      if (entry.isDirectory()) await walk(full);
+      if (entry.isDirectory()) await walk(full, seed);
       else if (entry.isFile()) {
         files.push({
           path: relative(path, full).split(sep).join('/'),

@@ -2,7 +2,7 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { openStore } from '@driftbench/store';
+import { openStore } from '@agent-nexus/driftbench-store';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PILOT_REPORT_FILE } from '../src/commands/pilot';
 import { type Io, main } from '../src/index';
@@ -74,6 +74,37 @@ describe('driftbench pilot plan', () => {
     expect(plan.total.runs).toBe(plan.cells.reduce((sum, line) => sum + line.runs, 0));
   });
 
+  it('caps the approved wordings per conversation with --wordings, and names cells by the --by dimensions', async () => {
+    type Plan = { plan: { cells: Array<{ cell: string; conversations: number; wordings: number }> } };
+    const plan = async (flags: string[]) => {
+      const { code, out, err } = await cli([
+        'pilot',
+        'plan',
+        '--map',
+        MAP,
+        '--suite',
+        SUITE,
+        ...flags,
+        '--json',
+      ]);
+      expect(err).toBe('');
+      expect(code).toBe(0);
+      return (JSON.parse(out) as Plan).plan.cells;
+    };
+    const one = await plan(['--wordings', '1']);
+    for (const line of one) expect(line.wordings).toBe(line.conversations);
+    const three = await plan([]);
+    expect(three.some((line) => line.wordings > line.conversations)).toBe(true);
+
+    const byDeviation = await plan(['--by', 'deviation']);
+    for (const line of byDeviation) expect(line.cell).toMatch(/^deviation=[^,]+$/);
+    const byTwo = await plan(['--by', 'behaviour,deviation']);
+    for (const line of byTwo) expect(line.cell).toMatch(/^behaviour=[^,]+,deviation=[^,]+$/);
+    const empty = await cli(['pilot', 'plan', '--map', MAP, '--suite', SUITE, '--by', ' , ']);
+    expect(empty.code).toBe(2);
+    expect(empty.err).toBe('--by names at least one dimension.\n');
+  }, 60_000);
+
   it('refuses a bad number with exit 2', async () => {
     const { code, err } = await cli(['pilot', 'plan', '--map', MAP, '--suite', SUITE, '--repeats', '0']);
     expect(code).toBe(2);
@@ -133,6 +164,70 @@ describe('driftbench pilot run and analyse', () => {
     const reread = JSON.parse(await readFile(join(dir, 'again', PILOT_REPORT_FILE), 'utf8'));
     expect(reread.campaignId).toBe(report.campaignId);
     expect(reread.analysis).toEqual(report.analysis);
+  }, 60_000);
+
+  it('reads --floor, --pool and --sensitivity into the analysis, and refuses an unknown --resample unit', async () => {
+    const store = join(dir, 'options.db');
+    const run = await cli([
+      'pilot',
+      'run',
+      '--map',
+      MAP,
+      '--suite',
+      SUITE,
+      '--target',
+      'function:acme',
+      '--store',
+      store,
+      '--out',
+      join(dir, 'options-run'),
+      '--conversations',
+      '1',
+      '--repeats',
+      '2',
+      '--wordings',
+      '1',
+      '--iterations',
+      '20',
+    ]);
+    expect(run.err).toBe('');
+    expect(run.code).toBe(0);
+    const out = join(dir, 'options');
+    const analysed = await cli([
+      'pilot',
+      'analyse',
+      '--store',
+      store,
+      '--out',
+      out,
+      '--iterations',
+      '20',
+      '--floor',
+      '0.07',
+      '--pool',
+      '40',
+      '--sensitivity',
+      '0.3',
+      '--resample',
+      'cells',
+    ]);
+    expect(analysed.err).toBe('');
+    expect(analysed.code).toBe(0);
+    const { analysis } = JSON.parse(await readFile(join(out, PILOT_REPORT_FILE), 'utf8')) as {
+      analysis: {
+        noiseFloor: { floor: number };
+        wording: { threshold: number };
+        allocation: { pool: number; strata: Array<{ allocated: number }> };
+      };
+    };
+    expect(analysis.noiseFloor.floor).toBe(0.07);
+    expect(analysis.wording.threshold).toBe(0.3);
+    expect(analysis.allocation.pool).toBe(40);
+    expect(analysis.allocation.strata.reduce((sum, stratum) => sum + stratum.allocated, 0)).toBe(40);
+
+    const bad = await cli(['pilot', 'analyse', '--store', store, '--out', out, '--resample', 'blocks']);
+    expect(bad.code).toBe(2);
+    expect(bad.err).toContain('--resample takes cells, conversations or both, not "blocks".');
   }, 60_000);
 
   it('refuses to run on an agent that is not in process: that pilot is billed', async () => {

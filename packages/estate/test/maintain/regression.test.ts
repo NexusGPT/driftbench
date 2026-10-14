@@ -1,4 +1,4 @@
-import type { Campaign, RunResult, Store } from '@driftbench/core';
+import type { Campaign, RunResult, Store } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import {
   compareReplays,

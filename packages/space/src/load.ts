@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { extname } from 'node:path';
-import { DeviationClass, isPlainObject } from '@driftbench/core';
+import { DeviationClass, isPlainObject } from '@agent-nexus/driftbench-core';
 import { parse as parseYaml } from 'yaml';
 import type { z } from 'zod';
 import { compileSpace, findAllowedCell } from './grid';
@@ -123,7 +123,7 @@ function checkReferences(map: SpaceMap): SpaceMapIssue[] {
           issue(
             'SPACE_UNKNOWN_DEVIATION',
             at,
-            `"${value.id}" is not a deviation class: use D1_off_topic to D10_return, or ${NONE}`,
+            `"${value.id}" is not a deviation class: use D1_off_topic to D12_prompt_extraction, or ${NONE}`,
           ),
         );
       }

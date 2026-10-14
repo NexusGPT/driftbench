@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
 
 permissions:
   contents: read
@@ -13,7 +14,23 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  bench:
+    name: benchmark replay and floors
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: node tools/bench-lint.mjs
+      - run: node --import tsx benchmarks/cli.ts replay --slice all --check-floor
+
   build:
+    # Draft pull requests do not use runners; marking one ready starts its checks.
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     name: build (node ${{ matrix.node }})
     runs-on: ubuntu-latest
     strategy:
@@ -30,7 +47,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm typecheck
-      - run: pnpm test
+      - run: pnpm test --maxWorkers=2
       - run: pnpm build
       - run: pnpm docs:reference --check
       - run: pnpm docs:links
@@ -39,6 +56,8 @@ jobs:
         run: node packages/cli/dist/bin.js --version
 
   python:
+    # Draft pull requests do not use runners; marking one ready starts its checks.
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     name: python (${{ matrix.python }})
     runs-on: ubuntu-latest
     strategy:
@@ -61,7 +80,26 @@ jobs:
       - run: python -m pytest
         working-directory: python/driftbench
 
+  comparison-replay:
+    name: offline comparison replay
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Reproduce published results without model calls or file rewrites
+        run: python -m unittest discover -s comparisons -p test_reproducibility.py -v
+
   viewer-journey:
+    # Draft pull requests do not use runners; marking one ready starts its checks.
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     name: viewer journey (chromium)
     runs-on: ubuntu-latest
     steps:
@@ -93,6 +131,8 @@ jobs:
           if-no-files-found: ignore
 
   guard:
+    # Draft pull requests do not use runners; marking one ready starts its checks.
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     name: leak guard
     runs-on: ubuntu-latest
     steps:

@@ -1,4 +1,4 @@
-import { type Check, type CheckContext, machineVerdict, type Verdict } from '@driftbench/core';
+import { type Check, type CheckContext, machineVerdict, type Verdict } from '@agent-nexus/driftbench-core';
 import { parameterSchema, validateStrict } from '../support/schema';
 import { isRecord } from '../support/values';
 
@@ -40,7 +40,12 @@ export const schemaStrict: Check = {
       const lines = issues.map((issue) => `${issue.path} ${issue.message}`);
       const head =
         invented > 0 ? `${invented} invented ${invented === 1 ? 'parameter' : 'parameters'}; ` : '';
-      return machineVerdict(NAME, id, 'fail', `${which}: ${head}${lines.join('; ')}`);
+      return machineVerdict(
+        NAME,
+        id,
+        issues.some((issue) => issue.schemaError) ? 'inconclusive' : 'fail',
+        `${which}: ${head}${lines.join('; ')}`,
+      );
     });
   },
 };

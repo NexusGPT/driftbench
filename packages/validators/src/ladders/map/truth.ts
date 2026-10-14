@@ -1,4 +1,4 @@
-import type { Section } from '@driftbench/generate';
+import type { Section } from '@agent-nexus/driftbench-generate';
 import type { Span } from './render';
 import { type ArgSchema, type HiddenArg, type HiddenSpec, MAP_DEVIATIONS, type Role } from './spec';
 

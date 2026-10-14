@@ -1,4 +1,4 @@
-import { charGrams, denseEmbedder, gramCosine, gramTfidf, localEmbedder } from '@driftbench/core';
+import { charGrams, denseEmbedder, gramCosine, gramTfidf, localEmbedder } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 
 describe('the local embedder: character n-gram TF-IDF cosine, no network', () => {

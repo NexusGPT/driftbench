@@ -1,7 +1,7 @@
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import type { Verdict } from '@driftbench/core';
+import type { Verdict } from '@agent-nexus/driftbench-core';
 import type {
   Cassette,
   ClientOptions,
@@ -9,7 +9,7 @@ import type {
   CriteriaLoad,
   JudgeClient,
   JudgeRequest,
-} from '@driftbench/judges';
+} from '@agent-nexus/driftbench-judges';
 import { type BankItem, fn, type JudgesApi, MissingCapability, type Tier } from '../bank';
 
 /**
@@ -116,6 +116,57 @@ const entry = (key: string, outcome: 'pass' | 'fail' = 'pass') => ({
   answer: { outcome, reasoning: 'r' },
 });
 
+/** A provider-neutral ledger schema check derived from the documented row contract, not product output. */
+/**
+ * The ledger response schema. OpenAI takes null as a type list or an anyOf; Gemini rejects both with a 400 ("Proto
+ * field is not repeating") and takes one type plus `nullable: true`, so `openApi` asks for that form.
+ */
+function ledgerSchema(schema: Record<string, unknown> | undefined, openApi = false): boolean {
+  const props = schema?.properties as Record<string, Record<string, unknown>> | undefined;
+  const checks = props?.checks;
+  const row = checks?.items as Record<string, unknown> | undefined;
+  const fields = row?.properties as Record<string, Record<string, unknown>> | undefined;
+  const required = row?.required as string[] | undefined;
+  const alternatives = (field: Record<string, unknown> | undefined, type: string) => {
+    if (openApi) {
+      // Evidence may be a string or a list of source spans (PR 146): either way the field is nullable, not typed null.
+      const members = field?.anyOf as Record<string, unknown>[] | undefined;
+      return (
+        field?.nullable === true && (field.type === type || members?.some((m) => m.type === type) === true)
+      );
+    }
+    const types = field?.type;
+    if (Array.isArray(types)) return types.includes(type) && types.includes('null');
+    const variants = field?.anyOf as Record<string, unknown>[] | undefined;
+    return variants?.some((v) => v.type === type) && variants.some((v) => v.type === 'null');
+  };
+  // Gemini form only: no null type anywhere under the row, no type list. A null member beside nullable: true is still a 400.
+  const rejectedByGemini = openApi && /"type":\s*(\[|"null")/.test(JSON.stringify(row ?? {}));
+  return (
+    !rejectedByGemini &&
+    schema?.type === 'object' &&
+    !props?.outcome &&
+    checks?.type === 'array' &&
+    row?.type === 'object' &&
+    fields?.id?.type === 'string' &&
+    fields.reasoning?.type === 'string' &&
+    alternatives(fields.evidence, 'string') === true &&
+    alternatives(fields.met, 'boolean') === true &&
+    ['id', 'reasoning', 'evidence', 'met'].every((key) => required?.includes(key))
+  );
+}
+
+const LEDGER = {
+  checks: [
+    {
+      id: 'care_redirect',
+      reasoning: 'routed to Acme Care',
+      evidence: 'Acme Care can help: call +1 202 555 0100.',
+      met: true,
+    },
+  ],
+};
+
 export function extraItems(): BankItem[] {
   return [
     check(
@@ -151,17 +202,16 @@ export function extraItems(): BankItem[] {
           'createOpenAiJudge',
           OPENAI,
           JSON.stringify({
-            choices: [{ message: { content: JSON.stringify(ANSWER) }, finish_reason: 'stop' }],
+            choices: [{ message: { content: JSON.stringify(LEDGER) }, finish_reason: 'stop' }],
           }),
         );
         const format = s.body?.response_format as Record<string, unknown> | undefined;
         const schema = (format?.json_schema as Record<string, unknown> | undefined)?.schema as
           | Record<string, unknown>
           | undefined;
-        const props = Object.keys((schema?.properties as Record<string, unknown> | undefined) ?? {});
-        return format?.type === 'json_schema' && props.includes('outcome') && props.includes('reasoning')
+        return format?.type === 'json_schema' && ledgerSchema(schema)
           ? undefined
-          : `response_format is ${JSON.stringify(format)}: ask for json_schema with the contract's outcome and reasoning`;
+          : `response_format is ${JSON.stringify(format)}: ask for json_schema with checks of id, reasoning, nullable evidence and nullable met`;
       },
     ),
     check(
@@ -175,17 +225,15 @@ export function extraItems(): BankItem[] {
           'createGoogleJudge',
           GOOGLE,
           JSON.stringify({
-            candidates: [{ content: { parts: [{ text: JSON.stringify(ANSWER) }] }, finishReason: 'STOP' }],
+            candidates: [{ content: { parts: [{ text: JSON.stringify(LEDGER) }] }, finishReason: 'STOP' }],
           }),
         );
         const schema = (s.body?.generationConfig as Record<string, unknown> | undefined)?.responseSchema as
           | Record<string, unknown>
           | undefined;
-        return Object.keys((schema?.properties as Record<string, unknown> | undefined) ?? {}).includes(
-          'outcome',
-        )
+        return ledgerSchema(schema, true)
           ? undefined
-          : 'generationConfig.responseSchema is missing or lacks outcome';
+          : 'generationConfig.responseSchema lacks the per-requirement ledger, with one type and nullable: true for the nullable fields';
       },
     ),
     check(

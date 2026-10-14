@@ -4,11 +4,21 @@ Status: shipped, phase 1. It passes the [contract suite](index.md#the-contract-s
 
 The nexus adapter reaches an agent on the Nexus platform through its public API. It is one adapter among others; the core never imports it.
 
+From the command line, a spec whose target is `nexus:<agent id>` with `target.deployment` reaches this adapter with no code, when `NEXUS_API_KEY` is set: see [targets from settings](../running.md#targets-from-settings).
+
+## CLI target credential handling
+
+::: warning Successful replies and sensitive stores
+A successful reply is stored as the agent sent it, except for the redactions described here. The CLI scans for literal keys, percent, base64, base64url and hex encodings, and all 16 ordered two-level compositions of those encodings, including `base64(percent(key))`. It also scans the encoded `Bearer <key>` forms. A key echoed in another form can remain in results. Keys split across fields are not detected; deeper or unlisted encodings are outside this protection. Use a test-scoped key and treat the results store and cache as sensitive.
+:::
+
+**CLI error-path guarantee:** with `target.options.debug_error_body` absent or false, upstream error bodies, headers and thrown transport details never enter output or storage. Diagnostics contain only fixed messages, status, request host and body length when known. `debug_error_body: true` is an explicitly unsafe opt-in to error-body disclosure. This guarantee belongs to the CLI target wrapper; directly constructing the library adapter does not install that wrapper.
+
 ## Settings
 
 | Setting | Meaning |
 |---|---|
-| `NEXUS_API_KEY` | the API key, read from the environment. It travels only in the `api-key` header and never reaches a message, a log or an Observed. Without it, `open` fails before any request. |
+| `NEXUS_API_KEY` | the API key, read from the environment. Requests send it in the `api-key` header. An endpoint can echo it; the CLI protection and its limits are described above. Without it, `open` fails before any request. |
 | `NEXUS_BASE_URL` | the server, read from the environment. Default `https://api.nexusgpt.io`. Every path sits under `/api/public/v1`. |
 | `target.agent` | the agent id. Required. |
 | `target.deployment` | a deployment id of that agent. Required. |
@@ -16,7 +26,7 @@ The nexus adapter reaches an agent on the Nexus platform through its public API.
 | `target.options.stubs` | a mapping from tool label to the id of the workflow that records that tool's payloads |
 
 ```ts
-import { nexusAdapter } from '@driftbench/adapters';
+import { nexusAdapter } from '@agent-nexus/driftbench-adapters';
 
 const adapter = nexusAdapter({ keepConversations: false });
 ```
@@ -97,7 +107,7 @@ Two sessions that send the identical payload to one stub at the same time cannot
 
 ## Judge
 
-The Nexus platform also offers a system 1 judge, Jev. Its client is `createJevJudge` in `@driftbench/judges`: id `jev`, class system 1. It asks one yes or no question per criterion and reads the probability of yes: 0.6 or more is a pass, 0.4 or less a fail, anything between inconclusive. It reads `JEV_URL`, `JEV_API_KEY` (sent as a bearer token) and `JEV_MODEL` (default `jev-latest`) from the environment. Its request and answer shapes follow the provider's published format and have not been confirmed by a live call. See [judges](../concepts/judges.md).
+The Nexus platform also offers a system 1 judge, Jev. Its client is `createJevJudge` in `@agent-nexus/driftbench-judges`: id `jev`, class system 1. It asks one yes or no question per criterion and reads the probability of yes: 0.6 or more is a pass, 0.4 or less a fail, anything between inconclusive. It reads `JEV_URL`, `JEV_API_KEY` (sent as a bearer token) and `JEV_MODEL` (default `jev-latest`) from the environment. Its request and answer shapes follow the provider's published format and have not been confirmed by a live call. See [judges](../concepts/judges.md).
 
 ## Target
 

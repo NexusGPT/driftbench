@@ -1,6 +1,6 @@
 import { mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
-import { loadEstateMap, Plan, readerFor } from '@driftbench/estate';
+import { loadEstateMap, Plan, readerFor } from '@agent-nexus/driftbench-estate';
 import {
   ESTATE_COMPLETE_DIR,
   ESTATE_INCOMPLETE_DIR,
@@ -17,8 +17,9 @@ import {
   STATIC_DIR,
   UNIT_DIR,
   type YamlSchema,
-} from '@driftbench/generate';
+} from '@agent-nexus/driftbench-generate';
 import type { Command } from 'commander';
+import { exists } from '../files';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
 import { mapCacheOptions } from './map-cache';
@@ -246,15 +247,6 @@ async function readYaml<T>(
   io.err(`✗ ${display(path, io)}  the ${what} cannot be read or is invalid\n`);
   for (const issue of read.issues) io.err(`  ${issue.path || '(file)'}  ${issue.message}\n`);
   return undefined;
-}
-
-async function exists(path: string): Promise<boolean> {
-  try {
-    await stat(path);
-    return true;
-  } catch {
-    return false;
-  }
 }
 
 function display(path: string, io: Io): string {

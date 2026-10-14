@@ -1,6 +1,6 @@
-import type { Spec } from '@driftbench/core';
-import { type Proposal, renderProposal, rngFor } from '@driftbench/generate';
-import { coverage, type SpaceCoverage } from '@driftbench/space';
+import type { Spec } from '@agent-nexus/driftbench-core';
+import { type Proposal, renderProposal, rngFor } from '@agent-nexus/driftbench-generate';
+import { coverage, type SpaceCoverage } from '@agent-nexus/driftbench-space';
 import { acmeItems } from './acme';
 import { researchItems } from './bank2';
 import { moreItems } from './bank3';
@@ -12,6 +12,7 @@ import {
   type BlockRun,
   type Generation,
   type GeneratorParts,
+  generatedCells,
   generateFrom,
   generation,
   killsUnder,
@@ -536,8 +537,7 @@ function differentialItems(): BankItem[] {
       component: C.feasible,
       async check(data) {
         const generated = await data.generated();
-        const runs = await data.runs();
-        const bad = runs.blocks
+        const bad = generatedCells(generated)
           .filter((block) => block.seeder === seeder)
           .flatMap((block) => {
             const why = forbidden(generated.hidden, block.cell);

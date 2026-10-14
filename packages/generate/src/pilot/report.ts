@@ -1,4 +1,4 @@
-import type { TargetRef } from '@driftbench/core';
+import type { TargetRef } from '@agent-nexus/driftbench-core';
 import type { LevelSummary, PilotAnalysis } from './analyse';
 import type { PilotDesign } from './design';
 import type { PilotPlan } from './run';

@@ -1,4 +1,11 @@
-import type { EndStateSpec, Expect, PerturbationSpec, Rules, ToolExpect } from '@driftbench/core';
+import type {
+  Count,
+  EndStateSpec,
+  Expect,
+  PerturbationSpec,
+  Rules,
+  ToolExpect,
+} from '@agent-nexus/driftbench-core';
 import type { PathRelation, ProposalPhrase, Slots } from '../extract/proposal';
 import type { BlockDraft, Pick, Stimulus } from './assemble';
 import { OPENING_CLASSES, TOOL_FAILURE, TOOL_FAILURE_ERROR } from './deviation';
@@ -45,6 +52,12 @@ export type ScenarioRequest = {
   probe?: ProbeRequest;
   /** A phrase used wherever its value is said: one variant of a metamorphic family. */
   force?: ProposalPhrase;
+  /**
+   * A turn said after the walk's first move that must not move the conversation: a request the agent
+   * refuses or defers (a value outside what a tool accepts, a write asked for before the confirmation).
+   * Its Then is the stage the walk had reached, with the tool counts given; the walk ends there.
+   */
+  turn?: { stimulus: Stimulus; carries: Pick[]; tools: ToolExpect[] };
 };
 
 export type Scenario =
@@ -52,6 +65,8 @@ export type Scenario =
       ok: true;
       cell: Pick[];
       blocks: BlockDraft[];
+      /** Tool output partitions whose bound values the reply assertions read. */
+      replyData: Pick[];
       endState?: EndStateSpec;
       rules?: Rules;
       /** The probe as placed: its class, the stage it is said at, the tool that fails. */
@@ -149,8 +164,13 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     value: string,
     context: Context,
     at: Slots,
+    opening = false,
   ): ProposalPhrase | undefined => {
     if (request.force && isOf(request.force, dimension, value)) {
+      return phraseFits(request.force, context, at) ? request.force : undefined;
+    }
+    // A phrase of the flow, said on the first turn of a path of that flow, stands in for the opening move.
+    if (opening && request.force && isOf(request.force, 'flow', path.flow)) {
       return phraseFits(request.force, context, at) ? request.force : undefined;
     }
     const phrases = (prepared.phrasesOf.get(phraseKey(dimension, value)) ?? []).filter((phrase) =>
@@ -189,6 +209,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
         return after === undefined || after === stage;
       })
       .filter(({ index }) => index >= 1 || OPENING_CLASSES.has(probe.classId))
+      .filter(({ stage, index }) => index >= 1 || discriminates(recovery as Recovery, stage, path.stages[0]))
       .filter(({ stage }) => (recovery?.at ? recovery.at.includes(stage) : true))
       .filter(({ stage }) => (probe.stage === undefined ? true : stage === probe.stage))
       // The map's constraints hold for the probe too: a class the map forbids at a stage is never said there.
@@ -208,6 +229,16 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       );
     const chosen = pick(rng, allowed);
     if (!chosen) {
+      if (
+        probe.stage === path.stages[0] &&
+        OPENING_CLASSES.has(probe.classId) &&
+        probe.stage !== undefined &&
+        !discriminates(recovery, probe.stage, path.stages[0]) &&
+        choosePhraseExists(prepared, deviationKey, probe.classId, contextOf(probe.stage), slots, request)
+      )
+        return fail(
+          `the first-turn recovery of ${probe.classId} stays at ${probe.stage} without a required tool call; it cannot distinguish an idle or echo reply`,
+        );
       return fail(
         `no stage of the path takes ${probe.classId}: none its recovery allows has an approved phrase`,
       );
@@ -217,9 +248,23 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
 
   const toolNames = new Set(prepared.tools.map((tool) => tool.name));
   const blocks: BlockDraft[] = [];
+  const replyData: Pick[] = [];
   const lang = relations.replyLanguage;
   let movedAway = false;
+  let turnPlaced = false;
   for (let index = 0; index < path.stages.length; index += 1) {
+    if (request.turn && index === 1) {
+      blocks.push({
+        id: `b${blocks.length + 1}-value`,
+        stimulus: request.turn.stimulus,
+        stage: path.stages[index] as string,
+        carries: request.turn.carries,
+        tools: request.turn.tools,
+        ...(lang === undefined ? {} : { lang }),
+      });
+      turnPlaced = true;
+      break;
+    }
     if (probeAt === index && probe && deviationKey !== undefined && recovery) {
       const stage = path.stages[index] as string;
       const deviation = dimensions[prepared.deviation ?? -1]?.index.get(probe.classId);
@@ -280,7 +325,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       return fail(`the map has no stage transition ${transitionId}`);
     }
     const context = contextOf(from);
-    const phrase = choosePhrase(transitionKey, transitionId, context, slots);
+    const phrase = choosePhrase(transitionKey, transitionId, context, slots, index === 0);
     for (const [slot, value] of Object.entries(phrase?.binds ?? {})) slots[slot] = value;
     const tools: ToolExpect[] = [];
     const ruled: Pick[] = [];
@@ -306,6 +351,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     }
     // What the reply of this turn must state (a quoted price read from the tool's answer), from the map.
     const stated: string[] = [];
+    const unstated: string[] = [];
     for (const entry of relations.states) {
       const subject =
         entry.subject.dimension === 'flow'
@@ -313,36 +359,49 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
           : context[entry.subject.dimension] === entry.subject.value;
       if (!subject || entry.stage !== from || (entry.to !== undefined && entry.to !== to)) continue;
       if (!matches(entry.when, context)) continue;
-      for (const pattern of entry.must) {
-        const filled = fillText(pattern, slots, true);
-        if (!filled.ok)
-          return fail(`what the reply states at ${from} reads unbound slots ${filled.missing.join(', ')}`);
-        stated.push(filled.value);
+      for (const slot of slotsOf([entry.must, entry.must_not])) {
+        const source = boundBy.get(slot);
+        if (!source || prepared.toolDimensions.get(source[0])?.direction !== 'out') continue;
+        const original = relations.binds.get(
+          `${dimensionId(prepared, source[0])}=${valueId(prepared, source[0], source[1])}`,
+        )?.[slot];
+        if (slots[slot] !== original) return fail(`the phrase overrides tool output slot ${slot}`);
+      }
+      for (const [patterns, target] of [
+        [entry.must ?? [], stated],
+        [entry.must_not ?? [], unstated],
+      ] as const) {
+        for (const pattern of patterns) {
+          const filled = fillText(pattern, slots, true);
+          if (!filled.ok)
+            return fail(`what the reply states at ${from} reads unbound slots ${filled.missing.join(', ')}`);
+          target.push(filled.value);
+        }
       }
       for (const dimension of Object.keys(entry.when ?? {})) {
         const value = held(indexOf(dimension));
         if (value) ruled.push(value);
       }
-      ruled.push(...sourcesOf(entry.must));
+      const sources = sourcesOf(entry.must, entry.must_not);
+      ruled.push(...sources);
+      replyData.push(...sources.filter(([at]) => prepared.toolDimensions.get(at)?.direction === 'out'));
     }
-    const carries = unique([
-      [prepared.transition as number, transition],
-      ...sourcesOf(phrase?.text ?? ''),
-      ...ruled,
-    ]);
+    const carries = unique([[prepared.transition as number, transition], ...ruled]);
     blocks.push({
       id: `b${blocks.length + 1}-${transitionId}`,
       stimulus: stimulusOf(phrase, transitionKey, transitionId),
       stage: to,
+      saidAt: from,
       carries,
       ...(tools.length > 0 ? { tools } : {}),
       ...(stated.length > 0 ? { must: stated } : {}),
+      ...(unstated.length > 0 ? { must_not: unstated } : {}),
       ...(lang === undefined ? {} : { lang }),
     });
   }
 
   let placed: Built['probe'];
-  let truncated = false;
+  let truncated = turnPlaced;
   if (probe && probe.classId === TOOL_FAILURE) {
     const failed = toolFailure(prepared, rng, path, blocks, cell, probe);
     if (!failed.ok) return fail(failed.reason);
@@ -372,7 +431,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
   // conversation on the stage it reached, said before the turn that leaves that stage, with the recovery as
   // its Then. The rest of the walk stays valid after it, so the perturbed run checks every later block too.
   const perturbations: PerturbationSpec[] = [];
-  if (!probe && deviationKey !== undefined && prepared.deviation !== undefined) {
+  if (!probe && !request.turn && deviationKey !== undefined && prepared.deviation !== undefined) {
     const options: Array<{ classId: string; index: number; expect: Expect; user: string }> = [];
     for (const value of dimensions[prepared.deviation]?.values ?? []) {
       const classId = value.id;
@@ -422,12 +481,33 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     ok: true,
     cell,
     blocks,
+    replyData: unique(replyData),
     ...(end ? { endState: end } : {}),
     ...(Object.keys(rules).length > 0 ? { rules } : {}),
     ...(placed ? { probe: placed } : {}),
     ...(perturbations.length > 0 ? { perturbations } : {}),
     title,
   };
+}
+
+/**
+ * True when a recovery said on the first turn can fail a reply that does nothing: it leaves the start stage,
+ * or requires a tool call or a runtime guard firing. A word it states does not help: the echo agent repeats
+ * every literal word of the spec's patterns, so a `must` alone is passed by it. A recovery that stays on the
+ * start stage without a required event cannot distinguish an idle reply reporting that stage.
+ */
+function discriminates(recovery: Recovery, stage: string, start: string | undefined): boolean {
+  const after = stageAfter(recovery, stage);
+  if (after !== undefined && after !== start) return true;
+  return (
+    recovery.tools.some((call) => requiresEvent(call.count)) ||
+    recovery.guards.some((guard) => requiresEvent(guard.count))
+  );
+}
+
+/** An absent count requires a firing; a range with no positive minimum permits an idle reply. */
+function requiresEvent(count: Count | undefined): boolean {
+  return count === undefined || (typeof count === 'number' ? count > 0 : (count.min ?? 0) > 0);
 }
 
 /**
@@ -463,6 +543,7 @@ function recoveryExpect(
   if (!must || !mustNot) return undefined;
   return {
     stage: stageAfter(recovery, stage) ?? stage,
+    stage_reported: true,
     ...(tools.length > 0 ? { tools } : {}),
     ...(recovery.guards.length > 0 ? { guards: recovery.guards } : {}),
     ...(must.length > 0 ? { must } : {}),
@@ -574,6 +655,7 @@ function toolFailure(
   if (must.length > 0) block.must = must;
   else delete block.must;
   if (mustNot.length > 0) block.must_not = mustNot;
+  else delete block.must_not;
   const deviation = prepared.space.dimensions[prepared.deviation ?? -1]?.index.get(TOOL_FAILURE);
   if (deviation !== undefined) block.carries = [[prepared.deviation as number, deviation], ...block.carries];
   blocks.splice(chosen.index + 1);

@@ -2,8 +2,8 @@ import { copyFile, mkdir, mkdtemp, readdir, readFile, writeFile } from 'node:fs/
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parseSpecText } from '@driftbench/core';
-import { REPLAY_CUSTOM_CHECKS } from '@driftbench/generate';
+import { parseSpecText } from '@agent-nexus/driftbench-core';
+import { REPLAY_CUSTOM_CHECKS } from '@agent-nexus/driftbench-generate';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { replayRegistry } from '../src/commands/replay';
 import { type Io, main } from '../src/index';
@@ -228,6 +228,31 @@ describe('driftbench estate generate', () => {
     expect(waiting.sources.asks.code).toBe(0);
     expect(waiting.gaps.map((entry: { marker: string }) => entry.marker)).toContain('needs-approved-phrase');
   });
+
+  it('judges no domain predicate with --no-judge: one no code checks waits for a registered check', async () => {
+    const plan = join(ROOT, 'packages/generate/test/estate/fixtures/planner-plan.approved.yaml');
+    const waiting = async (...extra: string[]) => {
+      const dir = await mkdtemp(join(tmpdir(), 'estate-generate-judge-'));
+      const result = await run([
+        'estate',
+        'generate',
+        '--map',
+        MAP,
+        '--plan',
+        plan,
+        '--out',
+        join(dir, 'out'),
+        '--json',
+        ...extra,
+      ]);
+      expect(result.err).toBe('');
+      const report = JSON.parse(result.out) as { gaps: Array<{ marker: string; specs: number }> };
+      return report.gaps.find((entry) => entry.marker === 'needs-registered-check')?.specs ?? 0;
+    };
+    const judged = await waiting();
+    const unjudged = await waiting('--no-judge');
+    expect(unjudged).toBeGreaterThan(judged);
+  }, 120_000);
 
   it('puts the specs of the focus atoms first in the run order, then guards, gates and invariants', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'estate-generate-'));

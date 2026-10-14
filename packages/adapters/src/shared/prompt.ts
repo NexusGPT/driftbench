@@ -1,4 +1,4 @@
-import type { Message, TargetRef } from '@driftbench/core';
+import type { Message, TargetRef } from '@agent-nexus/driftbench-core';
 
 /**
  * `target.prompt`, set by `campaign run --prompt`, is the prompt version the agent runs with. Adapters

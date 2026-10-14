@@ -1,8 +1,14 @@
 import { readFile } from 'node:fs/promises';
 import { relative, resolve } from 'node:path';
-import { type PriceTable, readTraces, TRACE_SOURCES, type TraceSource } from '@driftbench/adapters';
-import { type Campaign, type RunResult, runsByCell, type Store } from '@driftbench/core';
-import { cusum, ksTest, mean, pageHinkley, sampleVariance } from '@driftbench/stats';
+import {
+  type PriceTable,
+  readTraces,
+  TRACE_SOURCES,
+  type TraceSource,
+} from '@agent-nexus/driftbench-adapters';
+import { type Campaign, type RunResult, runsByCell, type Store } from '@agent-nexus/driftbench-core';
+import { textTable as table } from '@agent-nexus/driftbench-report';
+import { cusum, ksTest, mean, pageHinkley, sampleVariance } from '@agent-nexus/driftbench-stats';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
@@ -227,7 +233,7 @@ export async function monitorTracesCommand(
   const series = traceSeries(traces, metric, every);
   if (series.points.length < 2 * window) {
     io.err(
-      `The traces fill ${count(series.points.length, 'window')} of ${options.every ?? '1h'} with ${metric}; --window ${window} needs at least ${2 * window}.\n`,
+      `The traces fill ${count(series.points.length, 'window')} of ${options.every ?? '1h'} with ${metric}; --window ${window} needs at least ${2 * window}. ${tooFewPoints(series.points.length, 'traces', 'Read more traces, or pass a shorter --every')}\n`,
     );
     return 2;
   }
@@ -293,7 +299,7 @@ export async function monitorCommand(
   }
   if (points.length < 2 * window) {
     io.err(
-      `The store holds ${count(points.length, 'campaign')} with runs; --window ${window} needs at least ${2 * window}.\n`,
+      `The store holds ${count(points.length, 'campaign')} with runs; --window ${window} needs at least ${2 * window}. ${tooFewPoints(points.length, 'store', 'Run more campaigns into it')}\n`,
     );
     return 2;
   }
@@ -581,15 +587,18 @@ function count(n: number, noun: string): string {
   return `${n} ${noun}${n === 1 ? '' : 's'}`;
 }
 
-/** Pads every column but the last to its widest cell, two spaces apart, indented by two. */
-function table(rows: string[][]): string[] {
-  const widths: number[] = [];
-  for (const row of rows) {
-    row.forEach((cell, index) => {
-      widths[index] = Math.max(widths[index] ?? 0, cell.length);
-    });
-  }
-  return rows.map((row) =>
-    `  ${row.map((cell, index) => (index === row.length - 1 ? cell : cell.padEnd(widths[index] ?? 0))).join('  ')}`.trimEnd(),
-  );
+/** The smallest `--window`: the series needs twice as many points. */
+const MIN_WINDOW = 2;
+
+/**
+ * What to do about a series shorter than two windows. It is refused as bad input (exit 2), yet the usual
+ * cause is a young store, so the message says that nothing is broken and names a window that fits.
+ */
+function tooFewPoints(points: number, source: string, more: string): string {
+  const fits = Math.floor(points / 2);
+  const next =
+    fits >= MIN_WINDOW
+      ? `${more}, or pass a window that fits: --window ${fits} at most.`
+      : `${more}: the smallest window, --window ${MIN_WINDOW}, needs ${2 * MIN_WINDOW}.`;
+  return `Nothing is wrong with the ${source}: the monitor cannot decide on so few points. ${next}`;
 }

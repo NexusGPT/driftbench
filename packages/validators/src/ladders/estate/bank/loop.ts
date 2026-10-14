@@ -4,8 +4,8 @@ import {
   type EstateTest,
   estateImpact,
   type ImpactReport,
-} from '@driftbench/estate';
-import { generateEstateSuite } from '@driftbench/generate';
+} from '@agent-nexus/driftbench-estate';
+import { generateEstateSuite, StaticTest } from '@agent-nexus/driftbench-generate';
 import { agentMutants, estateMeta, type MutantVerdict, type SpecVerdict, specVerdicts } from '../levels';
 import { type EstateMutant, estateMutants } from '../mutants';
 import { type EstateRun, estateRun, scanRendered } from '../pipeline';
@@ -373,6 +373,15 @@ const ASKS: AskCheck[] = [
     title: 'every spec records its atoms, plan row, cell, seeder, seed and map hash',
     check: (run, all) => {
       const bad = all.filter((v) => {
+        // A static test (docs/estate.md section 5) records its atom, plan row and map hash in its own JSON.
+        const fixed = staticRecord(v);
+        if (fixed !== undefined)
+          return (
+            fixed === null ||
+            typeof fixed.atom !== 'string' ||
+            typeof fixed.planRow !== 'string' ||
+            fixed.mapHash !== run.scanned.map.hash
+          );
         const meta = estateMeta(v.spec) as Record<string, unknown>;
         return (
           !Array.isArray(meta.atoms) ||
@@ -527,14 +536,41 @@ const ASKS: AskCheck[] = [
   {
     key: 'judged-only-registers',
     tier: 2,
-    title: 'judged criteria appear only for output rules',
+    title:
+      'judged criteria appear only for output rules (not gating) and for domain rules and judged controls (gating, listed)',
+    // docs/estate.md section 5, the Then table: `custom` on a register atom is a judged criterion, not gating;
+    // `custom` with a name no code checks (a domain rule) is a gating judged criterion, the spec is tagged
+    // `judged` and lists the atom in `metadata.estate.judged`; a control whose predicate has no machine inverse
+    // is a judged control, named `<atom>.control`.
     check: (run, all) => {
       const atoms = new Map(run.scanned.map.atoms.map((atom) => [atom.id, atom]));
       const bad = all.filter((v) => {
-        const criteria = v.spec.loaded?.spec.criteria ?? [];
-        return criteria.some((c) => atoms.get((c as { name: string }).name)?.kind !== 'register');
+        const spec = v.spec.loaded?.spec as { criteria?: unknown[]; tags?: unknown } | undefined;
+        const judged = (estateMeta(v.spec) as { judged?: unknown }).judged;
+        const listed = new Set(Array.isArray(judged) ? (judged as string[]) : []);
+        const tagged = Array.isArray(spec?.tags) && spec.tags.includes('judged');
+        return (spec?.criteria ?? []).some((entry) => {
+          const criterion = entry as { name: string; gating?: boolean };
+          const id = criterion.name.replace(/\.control$/, '');
+          const atom = atoms.get(id);
+          if (!atom) return true;
+          if (atom.kind === 'register') return criterion.gating === true || id !== criterion.name;
+          if (!(criterion.gating === true && listed.has(id) && tagged)) return true;
+          // A judged control: only in a negative control, for an atom with a predicate that has no machine
+          // inverse. A rule's own judged criterion: only for a custom predicate no code checks.
+          if (id !== criterion.name)
+            return !(
+              NEGATIVE_CONTROLS.has(v.spec.record.testType) &&
+              atom.evidence.some((evidence) => !hasMachineInverse(evidence))
+            );
+          return !atom.evidence.some(
+            (evidence) => evidence.type === 'custom' && !DOC_CODE_CHECKED.has(evidence.name),
+          );
+        });
       });
-      return bad.length === 0 ? undefined : `${bad.length} specs judge a non-register atom`;
+      return bad.length === 0
+        ? undefined
+        : `${bad.length} specs judge an atom that is neither an output rule (not gating) nor a listed domain rule or control (gating)`;
     },
   },
   {
@@ -593,11 +629,83 @@ const ASKS: AskCheck[] = [
     tier: 1,
     title: 'every spec loads',
     check: (_r, all) => {
-      const bad = all.filter((v) => !v.spec.loaded);
+      // A static test is JSON for `estate static`, not a task spec: it loads when the runner's own schema
+      // (StaticTest, the one `driftbench estate static` parses with) accepts it. Every other file loads as a task spec.
+      const bad = all.filter((v) => {
+        const fixed = staticRecord(v);
+        if (fixed === undefined) return !v.spec.loaded;
+        return fixed === null || !StaticTest.safeParse(fixed).success;
+      });
       return bad.length === 0 ? undefined : `${bad.length} specs do not load`;
     },
   },
 ];
+
+/**
+ * The custom predicates code checks, as docs/estate.md section 5 lists them, held here and not read from the
+ * product: the registered checks of the runners, then the predicates the generator compiles. A judged criterion
+ * on a rule is right only for a custom predicate outside this list.
+ */
+const DOC_CODE_CHECKED: ReadonlySet<string> = new Set([
+  // Registered checks.
+  'ordered',
+  'some_call',
+  'hazard_recovery',
+  'permission',
+  'grounded_values',
+  'max_words',
+  'no_delete_under',
+  'stage_seen',
+  // Compiled predicates.
+  'command_not_run',
+  'max_characters',
+  'max_questions',
+  'no_secret_in_reply',
+  'currency_after_amount',
+  'stopped_and_confirmed',
+  'json_only',
+  'asks_for',
+  'route_table',
+  'same_language_as_user',
+  'confirmed_before_send',
+  'asks_again_on_loose_yes',
+]);
+/** The test types that are negative controls (docs/estate.md section 4: the control rows). */
+const NEGATIVE_CONTROLS: ReadonlySet<string> = new Set([
+  'outside_trigger',
+  'route_near_miss',
+  'guard_negative',
+]);
+
+/**
+ * Whether code can write the negative of a predicate (docs/estate.md section 5, the Then table): a skill not
+ * loaded, a guard that does not fire, a tool not called, a reply without the required words. Every other
+ * predicate (ordered, custom, a text with no required words) has no machine inverse.
+ */
+function hasMachineInverse(evidence: { type: string; must?: readonly string[] }): boolean {
+  if (evidence.type === 'text') return (evidence.must ?? []).length > 0;
+  return ['skill_loaded', 'guard', 'tool_called'].includes(evidence.type);
+}
+
+/**
+ * The JSON of a static test (a file under `static/` ending in `.json`, docs/estate.md section 5: "Invariant and
+ * setting rows are static tests: JSON under `static/<test type>/`"): the object, null when the text is not a
+ * JSON object, undefined for every other file.
+ */
+export function staticRecord(v: {
+  spec: { record: { path: string }; text: string };
+}): Record<string, unknown> | null | undefined {
+  const path = v.spec.record.path;
+  if (!path.startsWith('static/') || !path.endsWith('.json')) return undefined;
+  try {
+    const parsed: unknown = JSON.parse(v.spec.text);
+    return typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)
+      ? (parsed as Record<string, unknown>)
+      : null;
+  } catch {
+    return null;
+  }
+}
 
 export function genAsksFamily(): Family {
   const family = 'gen.asks';
@@ -733,15 +841,24 @@ export function mutantFamily(): Family {
       }
       const out = new Map<string, ItemResult>();
       for (const cls of MUTANT_CLASSES) {
-        const list = byClass.get(cls) ?? [];
+        const every = byClass.get(cls) ?? [];
+        // A mutant the follower's session cannot show is no kill target: it is named, not counted alive.
+        const same = every.filter((mutant) => mutant.equivalent);
+        const list = every.filter((mutant) => !mutant.equivalent);
         const alive = list.filter((mutant) => !mutant.killed);
+        const noted =
+          same.length === 0
+            ? ''
+            : ` (${same.length} of ${every.length} not judged, the follower's session is the same without it: ${same[0]?.atom})`;
         out.set(`${family}.${keyOf(cls)}`, {
           pass: alive.length === 0,
           detail:
             alive.length === 0
-              ? list.length === 0
+              ? every.length === 0
                 ? 'no atom of the class on this seed'
-                : 'holds'
+                : list.length === 0
+                  ? `no atom of the class changes the follower's session on this seed${noted}`
+                  : `holds${noted}`
               : `${alive.length} of ${list.length} live: ${alive[0]?.atom} ${alive[0]?.reason ?? ''}`,
         });
       }
@@ -771,27 +888,61 @@ type ImpactContext = {
   testsOf(hid: string): string[];
 };
 
+/** docs/estate.md section 8: the complete metadata atom set decides retirement. */
+function deletionTests(c: ImpactContext) {
+  const live = c.tests.filter((test) => test.retired === undefined);
+  const retire = live.filter(
+    (test) => test.atoms.length > 0 && test.atoms.every((atom) => c.removed.has(atom)),
+  );
+  const regenerate = live.filter(
+    (test) =>
+      test.atoms.some((atom) => c.removed.has(atom)) && test.atoms.some((atom) => !c.removed.has(atom)),
+  );
+  return { retire, regenerate };
+}
+
+/** An already-written retirement of a non-live spec is not a new retirement. */
+function liveRetirements(c: ImpactContext) {
+  return c.impact.retire.filter(
+    (entry) =>
+      !(
+        entry.state === 'already' &&
+        c.tests.some((test) => test.id === entry.test && test.retired !== undefined)
+      ),
+  );
+}
+
 function retiresExactly(c: ImpactContext): string | undefined {
-  const retired = new Set(c.impact.retire.map((entry) => entry.test));
-  const should = c.tests
-    .filter((t) => !t.id.startsWith('estate.journey.') && c.removed.has(t.atoms[0] ?? ''))
-    .map((t) => t.id);
-  const missed = should.filter((id) => !retired.has(id));
-  return missed.length === 0
-    ? undefined
-    : `${missed.length} of ${should.length} tests of the atoms that left are not retired, such as ${missed[0]}`;
+  const expected = deletionTests(c);
+  const reported = liveRetirements(c);
+  const retired = new Set(reported.map((entry) => entry.test));
+  const missed = expected.retire.filter((test) => !retired.has(test.id));
+  if (missed.length > 0)
+    return `${missed.length} all-removed tests are not retired, such as ${missed[0]?.id}`;
+  const extra = retiresNothingElse(c);
+  if (extra) return extra;
+  if (reported.length !== retired.size) return 'a test is retired more than once';
+  const both = expected.retire.filter((test) => c.impact.regenerate.some((entry) => entry.test === test.id));
+  if (both.length > 0) return `all-removed test also regenerated: ${both[0]?.id}`;
+  for (const test of expected.regenerate) {
+    const entry = c.impact.regenerate.find((candidate) => candidate.test === test.id);
+    if (!entry) return `test with remaining atoms not regenerated: ${test.id}`;
+    const gone = test.atoms.filter((atom) => c.removed.has(atom));
+    const missing = gone.filter(
+      (atom) => !entry.atoms.some((reason) => reason.atom === atom && reason.why === 'removed'),
+    );
+    if (missing.length > 0)
+      return `removed-atom regeneration reason missing for ${test.id}: ${missing.join(', ')}`;
+  }
+  return undefined;
 }
 
 function retiresNothingElse(c: ImpactContext): string | undefined {
-  const should = new Set(
-    c.tests
-      .filter((t) => !t.id.startsWith('estate.journey.') && c.removed.has(t.atoms[0] ?? ''))
-      .map((t) => t.id),
-  );
-  const wrong = c.impact.retire.filter((entry) => !should.has(entry.test));
+  const should = new Set(deletionTests(c).retire.map((test) => test.id));
+  const wrong = liveRetirements(c).filter((entry) => !should.has(entry.test));
   return wrong.length === 0
     ? undefined
-    : `${wrong.length} tests retired whose atom under test stayed, such as ${wrong[0]?.test}`;
+    : `${wrong.length} tests retired before all their atoms left, or unrelated tests retired, such as ${wrong[0]?.test}`;
 }
 
 const DELETION_KINDS = [
@@ -812,7 +963,7 @@ const IMPACT_ITEMS: ImpactItem[] = [
     {
       key: `${kind}-retires-its-tests`,
       tier: kind === 'subagent' || kind === 'guard' ? 4 : 3,
-      title: `a deleted ${kind} retires the tests of the atoms that left`,
+      title: `a deleted ${kind} retires all-removed tests and regenerates tests with remaining atoms`,
       kind,
       judge: retiresExactly,
     },
@@ -992,12 +1143,16 @@ export function impactFamily(): Family {
     items,
     async evaluate(seed) {
       const run = await estateRun(seed);
-      const tests: EstateTest[] = run.specs.map((spec) => ({
-        id: spec.record.id,
-        path: spec.record.path,
-        file: spec.record.path,
-        atoms: estateMeta(spec).atoms ?? [],
-      }));
+      const tests: EstateTest[] = run.specs.map((spec) => {
+        const retired = spec.loaded?.spec.metadata?.retired;
+        return {
+          id: spec.record.id,
+          path: spec.record.path,
+          file: spec.record.path,
+          atoms: estateMeta(spec).atoms ?? [],
+          ...(typeof retired === 'string' ? { retired } : {}),
+        };
+      });
       const before = new Set(run.rendered.atoms.map((atom) => atom.hid));
       const out = new Map<string, ItemResult>();
       const mutants = estateMutants(run.estate);

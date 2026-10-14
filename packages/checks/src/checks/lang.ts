@@ -1,4 +1,10 @@
-import { type Check, type CheckContext, machineVerdict, type Observed, type Verdict } from '@driftbench/core';
+import {
+  type Check,
+  type CheckContext,
+  machineVerdict,
+  type Observed,
+  type Verdict,
+} from '@agent-nexus/driftbench-core';
 import {
   bestScore,
   confidentLanguage,
@@ -6,7 +12,10 @@ import {
   type Detection,
   type DetectOptions,
   detect,
+  detectorLoaded,
+  functionWordVote,
   isConsistent,
+  loadDetector,
   toDetectorCode,
   topLanguage,
 } from '../support/language';
@@ -33,13 +42,20 @@ export function createLangCheck(options: Partial<DetectOptions> = {}): Check {
     name: NAME,
     applies: (ctx) => ctx.expect.lang !== undefined || ctx.spec.rules?.lang_stable === true,
     evaluate(ctx) {
-      const verdicts: Verdict[] = [];
-      const segments = judge(ctx.observed, settings);
-      if (ctx.expect.lang !== undefined) verdicts.push(expected(ctx.expect.lang, segments, settings));
-      if (ctx.spec.rules?.lang_stable === true) verdicts.push(stable(ctx, segments, settings));
-      return verdicts;
+      // The first lang check loads the detector; every later one runs synchronously, as before.
+      return detectorLoaded()
+        ? judgeBlock(ctx, settings)
+        : loadDetector().then(() => judgeBlock(ctx, settings));
     },
   };
+}
+
+function judgeBlock(ctx: CheckContext, settings: DetectOptions): Verdict[] {
+  const verdicts: Verdict[] = [];
+  const segments = judge(ctx.observed, settings);
+  if (ctx.expect.lang !== undefined) verdicts.push(expected(ctx.expect.lang, segments, settings));
+  if (ctx.spec.rules?.lang_stable === true) verdicts.push(stable(ctx, segments, settings));
+  return verdicts;
 }
 
 export const lang: Check = createLangCheck();
@@ -55,7 +71,7 @@ function expected(code: string, all: Judged[], settings: DetectOptions): Verdict
   }
   const judged = all.filter((segment) => segment.detection.readings.length > 0);
   if (judged.length === 0) return inconclusive('expected', tooShort(all, settings));
-  const off = judged.filter((segment) => !isConsistent(segment.detection, target, settings));
+  const off = judged.filter((segment) => !consistent(segment, target, settings));
   if (off.length > 0) {
     const lines = off.map(
       (segment) =>
@@ -81,7 +97,7 @@ function stable(ctx: CheckContext, all: Judged[], settings: DetectOptions): Verd
     );
   }
   if (judged.length === 0) return inconclusive('stable', tooShort(all, settings));
-  const off = judged.filter((segment) => !isConsistent(segment.detection, reference.code, settings));
+  const off = judged.filter((segment) => !consistent(segment, reference.code, settings));
   const since = `the run speaks ${reference.code} since block ${reference.block} (${reference.quote})`;
   if (off.length > 0) {
     const lines = off.map(
@@ -115,6 +131,11 @@ function referenceLanguage(
     if (code) return { code, block: ctx.blockIndex, quote: quote(segment.text, 40) };
   }
   return undefined;
+}
+
+/** A segment is consistent with `code` when the detector puts it within the margin, or its function words say so. */
+function consistent(segment: Judged, code: string, settings: DetectOptions): boolean {
+  return isConsistent(segment.detection, code, settings) || functionWordVote(segment.text, code);
 }
 
 function tooShort(all: Judged[], settings: DetectOptions): string {

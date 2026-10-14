@@ -1,4 +1,10 @@
-import { DEFAULT_MAX_CELLS, gridSize, NONE, type SpaceMap, validateSpaceMap } from '@driftbench/space';
+import {
+  DEFAULT_MAX_CELLS,
+  gridSize,
+  NONE,
+  type SpaceMap,
+  validateSpaceMap,
+} from '@agent-nexus/driftbench-space';
 import { derivedConstraints } from './derive';
 import {
   type DimensionKind,

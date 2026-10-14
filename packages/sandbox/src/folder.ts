@@ -22,7 +22,7 @@ import type {
   WorkspaceDiff,
   WorkspaceSnapshot,
   WorldState,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { trackFolder, untrackFolder } from './cleanup';
 import { DEFAULT_MAX_READ_BYTES, SandboxLimitError, SandboxPathError, type SnapshotLimits } from './limits';
 import { makeFoldersInside, relativeInside, resolveExisting } from './paths';

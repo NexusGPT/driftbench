@@ -1,5 +1,5 @@
-import type { DeviationClass, Message, Observed, WorldState } from '@driftbench/core';
-import { blockOutcome, type FaultSession, runOnce } from '@driftbench/generate';
+import type { DeviationClass, Message, Observed, WorldState } from '@agent-nexus/driftbench-core';
+import { blockOutcome, type FaultSession, runOnce } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import { baselineSuite } from '../../src/ladders/generator/baseline';
 import { combinedFault, FAULT_CLASSES, faultFamily } from '../../src/ladders/generator/faults';
@@ -194,5 +194,23 @@ describe('the fault family', () => {
     const [seen] = await play(pair.def.agent.create, [{ text: move(spec, `${spec.start}-to-${spec.goal}`) }]);
     expect(seen?.text).toBe(FOREIGN_REPLY);
     expect(stageOf(seen)).toBe(spec.start);
+  });
+});
+
+describe('composed missing-stage reports', () => {
+  it('keeps the null report of X3.no-report in either composition order', async () => {
+    const spec = hiddenSpec(1);
+    const text = move(spec, `${spec.start}-to-${spec.goal}`);
+    const [reference] = await play(createFollower(spec), [{ text }]);
+    expect(stageOf(reference)).toBe(spec.goal);
+    for (const ids of [
+      ['X3.no-report', 'X4.narrate'],
+      ['X4.narrate', 'X3.no-report'],
+    ]) {
+      const fault = combinedFault(spec, ids);
+      const [observed] = await play(createFollower(spec, fault.mutation), [{ text }]);
+      expect(observed?.text).toContain('Step 1:');
+      expect(observed?.runtime?.stages, ids.join('+')).toBeUndefined();
+    }
   });
 });

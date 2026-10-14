@@ -7,8 +7,8 @@ The process adapter runs a code-interpreter agent as a command in a sandbox, one
 ## Options
 
 ```ts
-import { processAdapter } from '@driftbench/adapters';
-import { localProvider } from '@driftbench/sandbox';
+import { processAdapter } from '@agent-nexus/driftbench-adapters';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
 
 const adapter = processAdapter({
   command: process.execPath,
@@ -21,7 +21,7 @@ const adapter = processAdapter({
 |---|---|
 | `command` | the agent command: a binary on the sandbox's `PATH`, or a path to one |
 | `args` | its arguments |
-| `provider` | where sandboxes come from: `localProvider()` or `dockerProvider({ image })` of `@driftbench/sandbox` |
+| `provider` | where sandboxes come from: `localProvider()` or `dockerProvider({ image })` of `@agent-nexus/driftbench-sandbox` |
 | `keep` | leave each sandbox on disk after `close`, for inspection |
 | `image` | the docker image, when it differs from the provider's |
 | `stimulus` | how the instruction reaches the agent: `stdin` (the default) or `file` |
@@ -109,6 +109,23 @@ This is how a code-agent harness reports its runtime: its hooks as guards, its s
 |---|---|---|
 | `localProvider()` | weak | a fresh temporary folder on this machine. Commands run there through `/bin/sh` as the current user: the folder bounds what the run records, not what the agent can reach. |
 | `dockerProvider({ image })` | strong | one container per sandbox, from the image, with the workspace folder mounted at `/workspace`. The image needs a shell. The container runs as the current user, so every file the agent writes stays removable. The container has no network unless `network: 'bridge'` is given. |
+
+Docker resource and privilege defaults are configured on `dockerProvider`:
+
+| Option | Default | Docker flag | Override |
+|---|---|---|---|
+| `memory` | `'1g'` (1 GiB) | `--memory` | another Docker size string; `'0'` removes the limit |
+| `cpus` | `1` core | `--cpus` | a fractional or whole core count; `0` removes the quota |
+| `pidsLimit` | `256` processes | `--pids-limit` | another count; `-1` removes the limit |
+| `capDrop` | `['ALL']` | one `--cap-drop` per entry | another capability list; `[]` keeps Docker's default capabilities |
+| `noNewPrivileges` | `true` | `--security-opt no-new-privileges` | `false` omits this restriction |
+| `network` | `'none'` | `--network none` | `'bridge'` allows network access |
+
+For example, `dockerProvider({ image: 'node:22-alpine', memory: '2g', cpus: 2, pidsLimit: 512 })` raises the resource limits while keeping the default privilege restrictions and network denial. Workloads that exceed a resource limit can fail; raise only the limits they need.
+
+Exec environment values travel through `--env-file`, stored outside the mounted workspace in a private temporary folder (mode `0700`). The file is created with mode `0600`; the file and folder are removed after success, failure or timeout. Values appear in neither argv nor the Docker client's environment. Container variables such as `PATH`, `DOCKER_HOST`, `DOCKER_CONFIG`, `DOCKER_CONTEXT` and `HTTP_PROXY` cannot steer the client.
+
+Docker's [env-file parser](https://github.com/docker/cli/blob/master/pkg/kvfile/kvfile.go) reads literal `NAME=value` lines: spaces (including leading and trailing spaces), quotes, `=` and `#` inside values are preserved, with no quoting or escaping added. Empty values and stdin are preserved. Values containing LF or CR line breaks are rejected before Docker runs, with an error naming the variable; multiline values cannot be represented by this format. NUL values and names containing whitespace, `=` or NUL, or starting with `#`, are also rejected. Only explicitly named variables are forwarded to the container; the parent process environment is not changed.
 
 A sandbox folder that a run leaves open is removed when the process exits, including on SIGINT and SIGTERM, so an interrupted run leaves no workspace behind. A kept sandbox is not removed. A command still running at that point is killed with its process group. Only SIGKILL, which no process can catch, leaves them behind.
 

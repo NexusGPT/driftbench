@@ -28,6 +28,10 @@ args=(
 if [ -n "${INPUT_BUDGET_USD:-}" ]; then args+=(--budget-usd "$INPUT_BUDGET_USD"); fi
 if [ -n "${INPUT_FAULTS:-}" ]; then args+=(--faults "$INPUT_FAULTS"); fi
 if [ "${INPUT_STRICT:-false}" = "true" ]; then args+=(--strict); fi
+if [ -n "${INPUT_PROCESS_COMMAND:-}" ]; then args+=(--process-command "$INPUT_PROCESS_COMMAND"); fi
+if [ -n "${INPUT_CHANGE:-}" ]; then args+=(--change "$INPUT_CHANGE"); fi
+if [ -n "${INPUT_AGENT_VERSION:-}" ]; then args+=(--agent-version "$INPUT_AGENT_VERSION"); fi
+if [ -n "${INPUT_AUDIT:-}" ]; then args+=(--audit "$INPUT_AUDIT"); fi
 while IFS= read -r line; do
   if [ -n "$line" ]; then args+=(--aggregate "$line"); fi
 done <<< "${INPUT_AGGREGATE:-}"
@@ -61,6 +65,11 @@ if [ "$code" -ne 2 ] && [ -f "$report" ]; then
     const lines = [`Margin ${s.marginPoints} points (${margin}).`];
     for (const u of s.underpowered ?? []) {
       lines.push(`Underpowered: ${u.criterion} is decided on ${u.goldens} goldens and is left out of the parity test.`);
+    }
+    if (s.radius) {
+      const total = s.radius.blocks.sent + s.radius.blocks.carried;
+      lines.push(`Blast radius: ${s.radius.fresh} cells fresh, ${s.radius.carried} carried from ${s.radius.from}; ${s.radius.blocks.sent} of ${total} blocks sent.`);
+      if (s.radius.audit) lines.push(`Audit: ${s.radius.audit.sampled} cells, ${s.radius.audit.misses} misses.`);
     }
     for (const a of s.aggregates ?? []) {
       const state = a.passed === undefined ? "no runs" : a.passed ? "passes" : "fails";

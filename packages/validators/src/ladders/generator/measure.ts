@@ -1,8 +1,8 @@
 import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, sep } from 'node:path';
-import { functionAdapter } from '@driftbench/adapters';
-import { defaultChecks } from '@driftbench/checks';
+import { functionAdapter } from '@agent-nexus/driftbench-adapters';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
 import {
   type AgentAdapter,
   type Check,
@@ -17,7 +17,7 @@ import {
   type Spec,
   stimulusMessages,
   type Verdict,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import {
   blockCell,
   blockOutcome,
@@ -38,8 +38,8 @@ import {
   stimulusText,
   type ThenField,
   thenFields,
-} from '@driftbench/generate';
-import { createPerturbingDriver, createScriptedDriver } from '@driftbench/users';
+} from '@agent-nexus/driftbench-generate';
+import { createPerturbingDriver, createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { baselineSuite } from './baseline';
 import { CHEATERS, type Cheater, cheaterAdapter, replayCalls } from './cheaters';
 import { combinedFault, FAULT_CLASSES, faultFamily, type HiddenFault } from './faults';
@@ -171,11 +171,14 @@ export function followerAdapter(session: () => FaultSession, version = 'rule-fol
   });
 }
 
-async function writeAll(root: string, files: readonly { path: string; text: string }[]): Promise<void> {
+async function writeAll(
+  root: string,
+  files: readonly { path: string; text: string; bytes?: Uint8Array }[],
+): Promise<void> {
   for (const file of files) {
     const target = join(root, file.path);
     await mkdir(dirname(target), { recursive: true });
-    await writeFile(target, file.text);
+    await writeFile(target, file.bytes ?? file.text);
   }
 }
 
@@ -277,6 +280,23 @@ export async function generation(
 export function seederOf(spec: Spec): string {
   const generated = spec.metadata?.generated as { seeder?: unknown } | undefined;
   return typeof generated?.seeder === 'string' ? generated.seeder : 'hand-written';
+}
+
+/** A block's placement is recorded by the generator, independently of what any agent does. */
+function blockPlacement(spec: Spec, index: number): Pick<BlockRun, 'key' | 'seeder' | 'cell'> {
+  return {
+    key: `${spec.id}#${spec.blocks[index]?.id ?? index}`,
+    seeder: seederOf(spec),
+    cell: {
+      ...((spec.metadata?.generated as { cell?: Record<string, string> } | undefined)?.cell ?? {}),
+      ...blockCell(spec, index),
+    },
+  };
+}
+
+/** Every complete block's cell, including blocks without a machine Then, in runAll order. */
+export function generatedCells(generated: Generation): Array<Pick<BlockRun, 'key' | 'seeder' | 'cell'>> {
+  return generated.complete.flatMap(({ spec }) => spec.blocks.map((_, index) => blockPlacement(spec, index)));
 }
 
 function traceOf(run: RunResult, index: number): string {
@@ -423,19 +443,14 @@ export async function runAll(generated: Generation, parts: GeneratorParts = {}):
     spec.blocks.forEach((block, index) => {
       const deviation = deviationOf(spec, index);
       const run: BlockRun = {
-        key: `${spec.id}#${block.id ?? index}`,
+        ...blockPlacement(spec, index),
         spec: spec.id,
         index,
-        seeder: seederOf(spec),
         fields: thenFields(spec, index),
         ...(deviation === undefined ? {} : { deviation }),
         injected: 'injection' in (block.when ?? {}),
         signature: machineSignature(spec, index),
         when: block.when ? stimulusText(block.when) : '',
-        cell: {
-          ...((spec.metadata?.generated as { cell?: Record<string, string> } | undefined)?.cell ?? {}),
-          ...blockCell(spec, index),
-        },
         tags: [...(spec.tags ?? [])],
         reference: references.map((result) => blockOutcome(result, index)),
         referenceFailing: failingDetails(first, index),

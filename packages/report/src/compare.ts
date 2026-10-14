@@ -1,4 +1,4 @@
-import { canonicalJson, type RunMode, type RunResult, type Verdict } from '@driftbench/core';
+import { canonicalJson, type RunMode, type RunResult, type Verdict } from '@agent-nexus/driftbench-core';
 import {
   benjaminiHochberg,
   type McNemarResult,
@@ -10,8 +10,15 @@ import {
   pairedRateDifference,
   type WilcoxonResult,
   wilcoxonSignedRank,
-} from '@driftbench/stats';
-import { type CampaignData, groupBy, runPassed, showTarget } from './data';
+} from '@agent-nexus/driftbench-stats';
+import {
+  type CampaignData,
+  type CarriedSummary,
+  carriedSummary,
+  groupBy,
+  runPassed,
+  showTarget,
+} from './data';
 import type { Estimate, Rate } from './estimate';
 import { rate } from './estimate';
 import { count } from './format';
@@ -117,8 +124,13 @@ export type CompareResult = {
   flagFamilies: string[];
   modes: RunMode[];
   pairs: UnitPair[];
-  /** Units only one campaign ran, or ran on another spec version. */
+  /** Units only one campaign ran, or ran on another spec version, or that the candidate carried. */
   unpaired: Array<{ unit: string; reason: string }>;
+  /**
+   * Set when the candidate carried results from an earlier campaign: a carried unit is the baseline result
+   * copied, so it never forms a pair. Absent when every candidate run is fresh.
+   */
+  carried?: CarriedSummary;
   allPass: {
     baseline: Rate;
     candidate: Rate;
@@ -190,10 +202,23 @@ export function compareCampaigns(
 
   const keep = (run: RunResult) => modes.includes(run.mode);
   const left = unitsOf(baseline.runs.filter(keep), flagFamilies);
-  const right = unitsOf(candidate.runs.filter(keep), flagFamilies);
+  // A carried run is the baseline result copied: pairing it would add an agreeing pair by construction
+  // and narrow the interval with no evidence. Only the fresh runs of the candidate are paired.
+  const kept = unitRuns(candidate.runs.filter(keep));
+  const carriedUnits = new Map<string, RunResult>();
+  for (const [unit, runs] of kept) {
+    const copy = runs.find((run) => run.carried !== undefined);
+    if (copy) carriedUnits.set(unit, copy);
+  }
+  const right = unitEntries(new Map([...kept].filter(([unit]) => !carriedUnits.has(unit))), flagFamilies);
   const pairs: UnitPair[] = [];
   const unpaired: CompareResult['unpaired'] = [];
   for (const [unit, b] of left) {
+    const copy = carriedUnits.get(unit);
+    if (copy?.carried) {
+      unpaired.push({ unit, reason: carriedReason(copy.carried) });
+      continue;
+    }
     const c = right.get(unit);
     if (!c) {
       unpaired.push({ unit, reason: 'baseline only' });
@@ -216,6 +241,9 @@ export function compareCampaigns(
     });
   }
   for (const unit of right.keys()) if (!left.has(unit)) unpaired.push({ unit, reason: 'candidate only' });
+  for (const [unit, copy] of carriedUnits) {
+    if (!left.has(unit) && copy.carried) unpaired.push({ unit, reason: carriedReason(copy.carried) });
+  }
   if (pairs.length === 0) throw new RangeError('compare: the two campaigns share no golden in a shared mode');
 
   const flagsB = pairs.map((pair) => pair.baseline.allPass);
@@ -317,6 +345,7 @@ export function compareCampaigns(
     modes,
     pairs,
     unpaired,
+    ...optional('carried', carriedUnits.size === 0 ? undefined : carriedSummary(candidate.runs)),
     allPass,
     drift,
     criteria,
@@ -359,6 +388,13 @@ function newcombe(effect: { estimate: number; lower: number; upper: number; n: n
   };
 }
 
+/** Why a carried unit is not paired, with where its result comes from. */
+function carriedReason(carried: NonNullable<RunResult['carried']>): string {
+  const version = carried.agentVersion === undefined ? '' : `, agent version ${carried.agentVersion}`;
+  const campaigns = `${carried.age.campaigns} ${carried.age.campaigns === 1 ? 'campaign' : 'campaigns'}`;
+  return `carried from ${carried.fromCampaign}${version}, age ${campaigns}: not a new measurement`;
+}
+
 type UnitEntry = {
   specId: string;
   specHash: string;
@@ -372,22 +408,38 @@ type UnitEntry = {
  * campaign runs that golden on more than one target.
  */
 export function unitsOf(runs: readonly RunResult[], flagFamilies: readonly string[]): Map<string, UnitEntry> {
+  return unitEntries(unitRuns(runs), flagFamilies);
+}
+
+/** The runs of each unit, by the unit's name. */
+function unitRuns(runs: readonly RunResult[]): Map<string, RunResult[]> {
   const base = (run: RunResult) =>
     `${run.specId} · ${run.mode}${run.perturbationId === undefined ? '' : ` · ${run.perturbationId}`}`;
-  const out = new Map<string, UnitEntry>();
+  const out = new Map<string, RunResult[]>();
   for (const [name, group] of groupBy(runs, base)) {
     const byTarget = groupBy(group, (run) => canonicalJson(run.target));
     for (const targetRuns of byTarget.values()) {
       const first = targetRuns[0] as RunResult;
-      const unit = byTarget.size > 1 ? `${name} · ${showTarget(first.target)}` : name;
-      out.set(unit, {
-        specId: first.specId,
-        specHash: first.specHash,
-        mode: first.mode,
-        ...optional('perturbationId', first.perturbationId),
-        side: sideOf(targetRuns, flagFamilies),
-      });
+      out.set(byTarget.size > 1 ? `${name} · ${showTarget(first.target)}` : name, targetRuns);
     }
+  }
+  return out;
+}
+
+function unitEntries(
+  units: ReadonlyMap<string, readonly RunResult[]>,
+  flagFamilies: readonly string[],
+): Map<string, UnitEntry> {
+  const out = new Map<string, UnitEntry>();
+  for (const [unit, targetRuns] of units) {
+    const first = targetRuns[0] as RunResult;
+    out.set(unit, {
+      specId: first.specId,
+      specHash: first.specHash,
+      mode: first.mode,
+      ...optional('perturbationId', first.perturbationId),
+      side: sideOf(targetRuns, flagFamilies),
+    });
   }
   return out;
 }

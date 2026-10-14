@@ -1,0 +1,605 @@
+{
+  "set": "dev",
+  "answers": [
+    {
+      "found": [],
+      "raw": ["ORGANIZATION"],
+      "hash": "b9ff61185f06e200696e9f132031ee6f21578553d86d9111e900b4548ff7c35e"
+    },
+    {
+      "found": [],
+      "raw": ["LOCATION"],
+      "hash": "75baa5e6b9362b1bf4f45c36e6cf0a2616e3ec8fd7b01a9a9bc62c95e1d8b4c6"
+    },
+    {
+      "found": [],
+      "raw": ["ORGANIZATION", "US_DRIVER_LICENSE"],
+      "hash": "b69ec7c6e1e4ccd2c0c63478c175bf152eeca14dabd7fd134c6a1a6b0b4fedc2"
+    },
+    {
+      "found": [],
+      "raw": ["LOCATION"],
+      "hash": "75baa5e6b9362b1bf4f45c36e6cf0a2616e3ec8fd7b01a9a9bc62c95e1d8b4c6-1"
+    },
+    {
+      "found": [],
+      "raw": [],
+      "hash": "656bb1e6da8a769be85b77cc8198847b627567ae75e18d0d184ad2ed2ecc685c"
+    },
+    {
+      "found": ["person"],
+      "raw": ["PERSON"],
+      "hash": "f3e5589fcd82be1d544abb40f61c98be25ef8a0d3c8d7b0f6bd5b9cc5b4c526b"
+    },
+    {
+      "found": ["person", "phone"],
+      "raw": ["DATE_TIME", "PERSON", "PHONE_NUMBER"],
+      "hash": "25760380a2337afdcbd9863b00ccb637dc7c9f8c8720c58f066862dd8baef893"
+    },
+    {
+      "found": ["phone"],
+      "raw": ["DATE_TIME", "PHONE_NUMBER"],
+      "hash": "9ff5ff7265945e632c9fdf7a6476ec822dbf35da909c2912a05f1f428573eb3a"
+    },
+    {
+      "found": ["person", "phone"],
+      "raw": ["DATE_TIME", "PERSON", "PHONE_NUMBER"],
+      "hash": "364e23baa84cec563e715a6982e71b593180dbc57791f8cc266dd6cb7d0b5bd0"
+    },
+    {
+      "found": ["phone"],
+      "raw": ["DATE_TIME", "PHONE_NUMBER"],
+      "hash": "858f6f7b8d8bb889b5d6d3fad3f6ed46cb7451929f00d46d3dc02c9d433b9734"
+    },
+    {
+      "found": ["person"],
+      "raw": ["PERSON", "US_DRIVER_LICENSE"],
+      "hash": "653b94b10105aaf3d1db4fcb9a5da1669a9c6610e7be84ce29b76d2d2cdc8e75"
+    },
+    {
+      "found": [],
+      "raw": [],
+      "hash": "4ede28aca81c67385a15dda99697ea6e8da3bd42652875a0ebede1e4575d26d1"
+    },
+    {
+      "found": ["person"],
+      "raw": ["DATE_TIME", "PERSON"],
+      "hash": "1826fcd6d15fbef574f26d820c3924d7fea2c7c26b9c5ffc4c1360f5333e5024"
+    },
+    {
+      "found": [],
+      "raw": [],
+      "hash": "aa33b54b5fb87328828ee076c89e19ce640b3840d102301a2d109ed695c9e8d1"
+    },
+    {
+      "found": ["iban", "person"],
+      "raw": ["IBAN_CODE", "PERSON"],
+      "hash": "d863fb367ac9a35773231b385edfaa293124ee5475859801d5e493484b6603f0"
+    },
+    {
+      "found": ["email"],
+      "raw": ["EMAIL_ADDRESS", "URL"],
+      "hash": "02640e38f877b646ec4b1380cf3413c32f800fa6c71a01c6fd2cb6ff90419e8b"
+    },
+    {
+      "found": ["iban", "person"],
+      "raw": ["IBAN_CODE", "MEDICAL_LICENSE", "PERSON"],
+      "hash": "2feb3a8e965f1dc22c2e1e525a09616c6335a59650554cbd0d47546e53d00f87"
+    },
+    {
+      "found": [],
+      "raw": [],
+      "hash": "676d91571dd1151db959c671d1165514a13b5a047f8f5df434f7bae05c538bca"
+    },
+    {
+      "found": ["person"],
+      "raw": ["ORGANIZATION", "PERSON", "US_DRIVER_LICENSE"],
+      "hash": "8545c11d5301a643ce2dcb3a1054bdd3698520b052c5b5ab60481d48b683f2b4"
+    },
+    {
+      "found": [],
+      "raw": [],
+      "hash": "0a280a85023c7885b4b31496f7336ecaad14280d00b76cb43ab23e60bdd9ab26"
+    },
+    {
+      "found": [],
+      "raw": [],
+      "hash": "44035e3f14a4758daf6517915efe775216fc0f59f813bcc552ef9faf049991a5"
+    },
+    {
+      "found": ["person"],
+      "raw": ["PERSON"],
+      "hash": "f3e5589fcd82be1d544abb40f61c98be25ef8a0d3c8d7b0f6bd5b9cc5b4c526b-1"
+    },
+    {
+      "found": ["email"],
+      "raw": ["EMAIL_ADDRESS", "ORGANIZATION", "URL"],
+      "hash": "100b28512990c8d23cd0fd68c87f264897287772d0a710e2026358f406ec45c6"
+    },
+    {
+      "found": [],
+      "raw": ["LOCATION"],
+      "hash": "19f09ef8f2bc8e938b896868e4dfc905e885d12acbf580ed051a91182e2b88ea"
+    },
+    {
+      "found": ["person"],
+      "raw": ["PERSON", "US_DRIVER_LICENSE"],
+      "hash": "3fb12a6afee468a6afa5ccd473bdbbad75724da4b2863cdf8633a4bf4cdb0efb"
+    },
+    {
+      "found": [],
+      "raw": ["LOCATION"],
+      "hash": "75baa5e6b9362b1bf4f45c36e6cf0a2616e3ec8fd7b01a9a9bc62c95e1d8b4c6-2"
+    },
+    {
+      "found": ["person"],
+      "raw": ["PERSON"],
+      "hash": "9abb403bd1ee8fca7fcc2031d4698c4b2c4006aca237b1d751e51b2585a9e3e5"
+    },
+    {
+      "found": ["person"],
+      "raw": ["PERSON"],
+      "hash": "f3e5589fcd82be1d544abb40f61c98be25ef8a0d3c8d7b0f6bd5b9cc5b4c526b-2"
+    },
+    {
+      "found": [],
+      "raw": ["ORGANIZATION"],
+      "hash": "a4f82c44e98decd7db52361cfd899d0e98a3ac8164ab30876a356f9221f56934"
+    },
+    {
+      "found": ["email"],
+      "raw": ["EMAIL_ADDRESS", "URL"],
+      "hash": "862db828fb9452020555f6d6784be22f1528f4071146930c8f35448370fcd135"
+    },
+    {
+      "found": ["person"],
+      "raw": ["PERSON"],
+      "hash": "0ced89d898dfbb2336080643a0cc8f0e6e17d11286148a8cd3dd96dcaf792d04"
+    },
+    {
+      "found": [],
+      "raw": ["US_DRIVER_LICENSE"],
+      "hash": "c6585fca5b2cee6d223cfe0039eebfdc1c590c4e06d44b40b08022a2959537f4"
+    },
+    {
+      "found": [],
+      "raw": ["LOCATION"],
+      "hash": "0e84fd74c6012580cda00118cfc2a731cd6da4c2891cf61dca6c6d0b5919c317"
+    },
+    {
+      "found": ["person"],
+      "raw": ["PERSON"],
+      "hash": "f3e5589fcd82be1d544abb40f61c98be25ef8a0d3c8d7b0f6bd5b9cc5b4c526b-3"
+    },
+    {
+      "found": ["person"],
+      "raw": ["PERSON"],
+      "hash": "c18c59dc3bf3a9025905f7d5c61da6633a0b38db3f7a9a5974b47bc8685e96db"
+    },
+    {
+      "found": [],
+      "raw": [],
+      "hash": "b8c3f29562070495ca2b1cd211806d233aade41addb4391fa44b35c2bce1448d"
+    },
+    {
+      "found": ["person"],
+      "raw": ["LOCATION", "PERSON", "US_DRIVER_LICENSE"],
+      "hash": "7aa78ddd540857dbc467bfa8ed00f6c3152ecb2945419270de4eb7d372ed2bb9"
+    },
+    {
+      "found": [],
+      "raw": [],
+      "hash": "676d91571dd1151db959c671d1165514a13b5a047f8f5df434f7bae05c538bca-1"
+    },
+    {
+      "found": ["phone"],
+      "raw": ["DATE_TIME", "PHONE_NUMBER"],
+      "hash": "c0ba0b62b5045525ff08bae80c1f16c51da2bf8cce52df0e1b6992eb7f063853"
+    },
+    {
+      "found": [],
+      "raw": ["LOCATION", "US_DRIVER_LICENSE"],
+      "hash": "8fa6b90af9ebbabbcbbb95bf0e2bb0f37ec3e020461bfa7d3e7f04490d71a6d1"
+    },
+    {
+      "found": ["person"],
+      "raw": ["PERSON", "US_DRIVER_LICENSE"],
+      "hash": "c85baa039064c367d119a5bbd3df418e21b47b948fea7e96f95a61d401ad570f"
+    },
+    {
+      "found": [],
+      "raw": [],
+      "hash": "b8c3f29562070495ca2b1cd211806d233aade41addb4391fa44b35c2bce1448d-1"
+    },
+    {
+      "found": [],
+      "raw": ["DATE_TIME", "ORGANIZATION"],
+      "hash": "885b05f050d7031c106f3e58ae8b0f303f5e319607f1b47038e38e4779f9bb2a"
+    },
+    {
+      "found": ["person"],
+      "raw": ["PERSON"],
+      "hash": "f3e5589fcd82be1d544abb40f61c98be25ef8a0d3c8d7b0f6bd5b9cc5b4c526b-4"
+    },
+    {
+      "found": ["person"],
+      "raw": ["PERSON"],
+      "hash": "3ddced738699baf33e8cfaabf1d6ce15bd1a95f961d3dcd0cc224fe3f4f05f40"
+    },
+    {
+      "found": [],
+      "raw": ["DATE_TIME"],
+      "hash": "0846b0adcd0128edcdfbfe149de2688e27c53cd894d1fd44f402a094f50f9b03"
+    },
+    {
+      "found": ["person"],
+      "raw": ["PERSON"],
+      "hash": "b34f19ed10abd9652dd868d3dc2dadc07fa575bb11ee1ff58f06adf80ea39208"
+    },
+    {
+      "found": ["phone"],
+      "raw": ["DATE_TIME", "PHONE_NUMBER"],
+      "hash": "58f93521ff4fe10b760fa539d975b8a3f5c3c60df7f2c08af0ecb278f4f7dedb"
+    },
+    {
+      "found": ["person"],
+      "raw": ["PERSON"],
+      "hash": "78f28d764353e7be2c9fcf4a6220b6eac14979d64fad8b144980df84e23cb0f8"
+    },
+    {
+      "found": [],
+      "raw": ["MEDICAL_LICENSE"],
+      "hash": "e1246cefc2f0ac2d3b7727edd4274928a74db6f4bdb54f72281e8c2880f47295"
+    },
+    {
+      "found": ["email", "person"],
+      "raw": ["EMAIL_ADDRESS", "PERSON", "URL"],
+      "hash": "4806be06f6db6e7b0ed2390e97bc75e1af3ea89ec427fb124b1b193285413077"
+    },
+    {
+      "found": ["person"],
+      "raw": ["PERSON"],
+      "hash": "f3e5589fcd82be1d544abb40f61c98be25ef8a0d3c8d7b0f6bd5b9cc5b4c526b-5"
+    },
+    {
+      "found": [],
+      "raw": ["ORGANIZATION"],
+      "hash": "b8b0a639b1bcd31ca932eb94f2fa0e9449538939a7444f9b809636871cca20a7"
+    },
+    {
+      "found": ["person"],
+      "raw": ["PERSON"],
+      "hash": "f3e5589fcd82be1d544abb40f61c98be25ef8a0d3c8d7b0f6bd5b9cc5b4c526b-6"
+    },
+    {
+      "found": [],
+      "raw": ["ORGANIZATION"],
+      "hash": "01d9c7b750daf8ca7e53908d6f8c2e7571a5b23a793b08ced2561cc3354628c4"
+    },
+    {
+      "found": [],
+      "raw": ["DATE_TIME"],
+      "hash": "419dd98152243d98d9453f042e914093aa6b10c02c7e2f31b1be6ef9f2e9b815"
+    },
+    {
+      "found": ["person"],
+      "raw": ["PERSON", "US_DRIVER_LICENSE"],
+      "hash": "6a75ae6bb8f3e0df980346c70027970c7bce99d4ee8c12af55e7889573101e39"
+    },
+    {
+      "found": [],
+      "raw": ["ORGANIZATION"],
+      "hash": "d96fb1493fba8893cd88b96af3fe187aeda41cf4b0f700f22e9d663b3f4b0c1d"
+    },
+    {
+      "found": ["person"],
+      "raw": ["DATE_TIME", "PERSON"],
+      "hash": "88f2955ae221b2d5ebded9bcee3593b0da8b165dca807ccd0e5218f657ff10c4"
+    },
+    {
+      "found": [],
+      "raw": [],
+      "hash": "23ffd49626c1a530f0dab4a245639bc7e5f29f8917e6d6788991cc6af3a58928"
+    },
+    {
+      "found": ["iban", "person"],
+      "raw": ["IBAN_CODE", "PERSON"],
+      "hash": "c100451437bfd2114f604174094a977ab0c039dace83bca1fc80cf9b2968c8c7"
+    },
+    {
+      "found": [],
+      "raw": ["DATE_TIME"],
+      "hash": "0846b0adcd0128edcdfbfe149de2688e27c53cd894d1fd44f402a094f50f9b03-1"
+    },
+    {
+      "found": ["person"],
+      "raw": ["PERSON"],
+      "hash": "aa58e0b61e81f84b06dda21809482636f4ea6d3a70b06d65aa211c2358616660"
+    },
+    {
+      "found": [],
+      "raw": [],
+      "hash": "51f8aaa17aad4e1c4ba1ff30d9b0b182d1151ea0fe9472597bfdb0760d74b291"
+    },
+    {
+      "found": [],
+      "raw": ["ORGANIZATION"],
+      "hash": "c5d543b67de31a70b693c840782d8c877cef43907333d8f7130bf569cddeabae"
+    },
+    {
+      "found": [],
+      "raw": ["US_DRIVER_LICENSE"],
+      "hash": "72cd2912356cff9c29c422d6db1777ee25fa45f7bcbbd4e233e3f8fcc6318e61"
+    },
+    {
+      "found": ["iban"],
+      "raw": ["IBAN_CODE"],
+      "hash": "34fabd48bc1a5c85ad572ae20f00ce874587cbd765a3c04d432c8e594c5c592f"
+    },
+    {
+      "found": ["person"],
+      "raw": ["PERSON"],
+      "hash": "f3e5589fcd82be1d544abb40f61c98be25ef8a0d3c8d7b0f6bd5b9cc5b4c526b-7"
+    },
+    {
+      "found": ["email"],
+      "raw": ["EMAIL_ADDRESS", "ORGANIZATION", "URL"],
+      "hash": "a313cfc5a65c4add11729df705d2e879d6a270dec999157c93cc44401f45f49a"
+    },
+    {
+      "found": ["person"],
+      "raw": ["PERSON"],
+      "hash": "f3e5589fcd82be1d544abb40f61c98be25ef8a0d3c8d7b0f6bd5b9cc5b4c526b-8"
+    },
+    {
+      "found": [],
+      "raw": ["LOCATION", "ORGANIZATION"],
+      "hash": "f0b36eaad41f44cd875b382ec4c3d973e2cddafee2d0c66e00f6bd90c5dfb0a6"
+    },
+    {
+      "found": [],
+      "raw": ["DATE_TIME"],
+      "hash": "e9b054c143a0ae3006e22b7b2e51ed4a5a54ef306dfa4052de2365837074cd23"
+    },
+    {
+      "found": ["person", "phone"],
+      "raw": ["DATE_TIME", "PERSON", "PHONE_NUMBER"],
+      "hash": "b350a7e32ed40bc9122222844e2fe67ec4d07467905b4909717c6b684acf54c1"
+    },
+    {
+      "found": ["phone"],
+      "raw": ["DATE_TIME", "PHONE_NUMBER"],
+      "hash": "cec9aa1116a717992fcec9c93b7b2640275d6cde3f7f5f531b55ea736226c49d"
+    },
+    {
+      "found": ["person", "phone"],
+      "raw": ["DATE_TIME", "LOCATION", "PERSON", "PHONE_NUMBER"],
+      "hash": "bcb6ab1d7ddd7b67da3453c7a040a0377dd4e61467ad1087cc14dfb3b75fb738"
+    },
+    {
+      "found": [],
+      "raw": [],
+      "hash": "b8c3f29562070495ca2b1cd211806d233aade41addb4391fa44b35c2bce1448d-2"
+    },
+    {
+      "found": [],
+      "raw": ["DATE_TIME", "ORGANIZATION"],
+      "hash": "850084f092a98e2a74531fd37af4ae60997501c1ebe5b658f61f1a08f3be598c"
+    },
+    {
+      "found": [],
+      "raw": ["DATE_TIME"],
+      "hash": "419dd98152243d98d9453f042e914093aa6b10c02c7e2f31b1be6ef9f2e9b815-1"
+    },
+    {
+      "found": ["person"],
+      "raw": ["PERSON"],
+      "hash": "449c4a83ad99d3928c7fdb172a02824efdce51adb1ffdb5b3ce8bb3a7fd48d4d"
+    },
+    {
+      "found": ["email"],
+      "raw": ["EMAIL_ADDRESS", "URL"],
+      "hash": "6538a6b33b7bf43000252947bd15d4a5729cb77f293c7e35f00cca60cec2f6c9"
+    },
+    {
+      "found": ["person"],
+      "raw": ["PERSON"],
+      "hash": "b6f04db918c423372df2d550c4d0bbe2f14e25189f46a4b572ddcd10bb8ed510"
+    },
+    {
+      "found": ["phone"],
+      "raw": ["DATE_TIME", "PHONE_NUMBER"],
+      "hash": "ee2970b9fa67cabef185646972791a7f3122657e728ea534210dee4b57ad9228"
+    },
+    {
+      "found": ["person", "phone"],
+      "raw": ["DATE_TIME", "PERSON", "PHONE_NUMBER"],
+      "hash": "5574dea7624f20b815ec390209c77dc3447e8ae1cb7973ec707bfcf93f280842"
+    },
+    {
+      "found": [],
+      "raw": [],
+      "hash": "53105b7216704c1468acc40975c27c020f8b2cb2a805b5d9d2127a026c0e5262"
+    },
+    {
+      "found": ["person"],
+      "raw": ["PERSON", "US_DRIVER_LICENSE"],
+      "hash": "935a25017625c1a90531c9a45587319014dc2ad61d556070fc034cc9b9b77dc3"
+    },
+    {
+      "found": ["email"],
+      "raw": ["EMAIL_ADDRESS", "ORGANIZATION", "URL"],
+      "hash": "37bab415bac80b292257c9071d129700b366bf885bb9e6e8d9653a85d3372935"
+    },
+    {
+      "found": ["iban", "person"],
+      "raw": ["IBAN_CODE", "PERSON"],
+      "hash": "3dfd5fd5d2e615824d3490b2f183fdc6ed304e26b3b32cc8a294f776f37e8213"
+    },
+    {
+      "found": [],
+      "raw": [],
+      "hash": "b8c3f29562070495ca2b1cd211806d233aade41addb4391fa44b35c2bce1448d-3"
+    },
+    {
+      "found": ["person"],
+      "raw": ["DATE_TIME", "PERSON"],
+      "hash": "84552af834af57cb18e564cd59ec5a1e855afa35df01474e36a20bfc703b6ba7"
+    },
+    {
+      "found": [],
+      "raw": ["LOCATION"],
+      "hash": "75baa5e6b9362b1bf4f45c36e6cf0a2616e3ec8fd7b01a9a9bc62c95e1d8b4c6-3"
+    },
+    {
+      "found": ["person"],
+      "raw": ["PERSON"],
+      "hash": "217a7ac70955b031b7123e61ec1f68f382d0799d1ae27379f18fcf2478c9bf8a"
+    },
+    {
+      "found": [],
+      "raw": ["LOCATION"],
+      "hash": "75baa5e6b9362b1bf4f45c36e6cf0a2616e3ec8fd7b01a9a9bc62c95e1d8b4c6-4"
+    },
+    {
+      "found": ["iban", "person"],
+      "raw": ["IBAN_CODE", "MEDICAL_LICENSE", "PERSON"],
+      "hash": "8fa8e3a2f7ff4c32400a80d76d14182599ef23de6c20bbbc9ac7b2f005e285d0"
+    },
+    {
+      "found": [],
+      "raw": [],
+      "hash": "ecfce532ccae7215c76ddcf7faadbf33bb4c0760dbcc5107a87af99bdad599b3"
+    },
+    {
+      "found": [],
+      "raw": ["DATE_TIME"],
+      "hash": "7f863503479a05242c39c1c46caf84c16650fe5939401d7368f8de2629535f6b"
+    },
+    {
+      "found": ["phone"],
+      "raw": ["DATE_TIME", "PHONE_NUMBER"],
+      "hash": "0eb4ab3aac96aa7c8215d31d7e130f26384d5e51643011abd0d0c012f4a09351"
+    },
+    {
+      "found": ["person", "phone"],
+      "raw": ["DATE_TIME", "PERSON", "PHONE_NUMBER"],
+      "hash": "eb18cc218cccacf6d4a8a0b86b7ccefb781482eba111ce96bed1d4f3f9d4171c"
+    },
+    {
+      "found": [],
+      "raw": [],
+      "hash": "b8c3f29562070495ca2b1cd211806d233aade41addb4391fa44b35c2bce1448d-4"
+    },
+    {
+      "found": ["person", "phone"],
+      "raw": ["DATE_TIME", "PERSON", "PHONE_NUMBER"],
+      "hash": "1bcb7173b34a68026821f3ad8caeaa8614b76a2373cb9666087f4055da8ec5a4"
+    },
+    {
+      "found": ["email"],
+      "raw": ["EMAIL_ADDRESS", "URL"],
+      "hash": "99f60b5b7b38c6d54553a2f421dd88cb6426f962468ed1ab63ebb67e7f75803c"
+    },
+    {
+      "found": ["person"],
+      "raw": ["PERSON"],
+      "hash": "9b157c4feee0e5ec34e9b617b7d664f0d5d699dcfc44ebedf1b23fb2a82d1518"
+    },
+    {
+      "found": [],
+      "raw": ["ORGANIZATION"],
+      "hash": "d96fb1493fba8893cd88b96af3fe187aeda41cf4b0f700f22e9d663b3f4b0c1d-1"
+    },
+    {
+      "found": ["person"],
+      "raw": ["PERSON"],
+      "hash": "703a99d8f4f4e83c539184747d4bb79addc7550007aabc0a415d7030ef09dfb6"
+    },
+    {
+      "found": [],
+      "raw": [],
+      "hash": "a515ed44c21e02a133309b5e30d52ab1418b456f87d47d23b4770dcb37c27ae9"
+    },
+    {
+      "found": ["iban", "person"],
+      "raw": ["IBAN_CODE", "PERSON"],
+      "hash": "044cb5e68a7eea986f5aac7e92083d494a815b8c92271b1484aae675ad5ca196"
+    },
+    {
+      "found": ["phone"],
+      "raw": ["DATE_TIME", "PHONE_NUMBER"],
+      "hash": "a69f084ff2f6253593dc4b8a0efdc893c106f820ef67b1c753d46ea769e89f4d"
+    },
+    {
+      "found": ["email"],
+      "raw": ["EMAIL_ADDRESS", "ORGANIZATION", "URL"],
+      "hash": "12244eeb46e7c85ad22caca8804705f50252baf70a1b6d3dc9a811323f8ee62a"
+    },
+    {
+      "found": [],
+      "raw": ["DATE_TIME"],
+      "hash": "419dd98152243d98d9453f042e914093aa6b10c02c7e2f31b1be6ef9f2e9b815-2"
+    },
+    {
+      "found": ["email", "person"],
+      "raw": ["EMAIL_ADDRESS", "PERSON", "URL"],
+      "hash": "6d2f7a0601d38bc313a5415c7e968fa8b352279ab6e5b3ff1d2d467b274cb3c1"
+    },
+    {
+      "found": [],
+      "raw": [],
+      "hash": "676d91571dd1151db959c671d1165514a13b5a047f8f5df434f7bae05c538bca-2"
+    },
+    {
+      "found": ["person"],
+      "raw": ["PERSON"],
+      "hash": "962eba906a22996b1aaf3effe224d8694a52d6419a631cc4e52e33d7e60347d4"
+    },
+    {
+      "found": [],
+      "raw": ["US_DRIVER_LICENSE"],
+      "hash": "fb89236fb2e1809e33f46402bbca397c08a0747f5a43dd3829d9111191eeac23"
+    },
+    {
+      "found": ["person"],
+      "raw": ["PERSON"],
+      "hash": "6af15d6deff6288fd0b3054cb37d148dca663fe2d5dbae8f53a0888f82bbebc0"
+    },
+    {
+      "found": [],
+      "raw": ["ORGANIZATION"],
+      "hash": "d96fb1493fba8893cd88b96af3fe187aeda41cf4b0f700f22e9d663b3f4b0c1d-2"
+    },
+    {
+      "found": ["person"],
+      "raw": ["PERSON"],
+      "hash": "2de717bc4b3a4df9c2defdacaac5172b9834e68c9683156054fb02ae4ae1fa9e"
+    },
+    {
+      "found": [],
+      "raw": ["LOCATION"],
+      "hash": "75baa5e6b9362b1bf4f45c36e6cf0a2616e3ec8fd7b01a9a9bc62c95e1d8b4c6-5"
+    },
+    {
+      "found": ["email", "person"],
+      "raw": ["EMAIL_ADDRESS", "PERSON", "URL"],
+      "hash": "20caa64fa389e6b4b50ee7fb6acbc6a6ec555a3ef47af336df7dc99d5468faa0"
+    },
+    {
+      "found": [],
+      "raw": [],
+      "hash": "676d91571dd1151db959c671d1165514a13b5a047f8f5df434f7bae05c538bca-3"
+    },
+    {
+      "found": ["email"],
+      "raw": ["EMAIL_ADDRESS", "URL"],
+      "hash": "ddf1e41c120b5eaf1816b68336ffa7e0c9fa0b01f77ff24a4053af4ee1a5e3e9"
+    },
+    {
+      "found": [],
+      "raw": [],
+      "hash": "ff759c0863e4918a71cb7f52f7464a49388b8c5107e8e95667533a66c2c4374b"
+    }
+  ]
+}

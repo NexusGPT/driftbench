@@ -2,7 +2,7 @@ import { mkdtemp, readdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { loadSpecFile } from '@driftbench/core';
+import { loadSpecFile } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { importTracesCommand } from '../src/commands/import-traces';
 import { type Io, main } from '../src/index';
@@ -120,6 +120,24 @@ describe('driftbench import traces', () => {
 });
 
 describe('driftbench import approve', () => {
+  it('redacts personal data by default, and keeps it with --no-redact', async () => {
+    const dir = await scratch();
+    const redacted = await run(['import', 'traces', TRACES, '--from', 'otel', '--out', 'r'], dir);
+    expect(redacted.code).toBe(0);
+    expect(redacted.out).toContain('Personal data redacted:');
+    const kept = await run(['import', 'traces', TRACES, '--from', 'otel', '--out', 'k', '--no-redact'], dir);
+    expect(kept.err).toBe('');
+    expect(kept.code).toBe(0);
+    expect(kept.out).not.toContain('Personal data redacted:');
+    const name = 'draft-otel-conv-acme-0001.yaml';
+    const before = await readFile(join(dir, 'r', name), 'utf8');
+    const after = await readFile(join(dir, 'k', name), 'utf8');
+    expect(before).toContain('[ADDRESS_1]');
+    expect(before).not.toContain('3 Orchard Way');
+    expect(after).toContain('3 Orchard Way');
+    expect(after).not.toContain('[ADDRESS_1]');
+  });
+
   it('lists the drafts not approved, then approves them all', async () => {
     const dir = await scratch();
     await run(['import', 'traces', TRACES, '--from', 'otel', '--out', 'd'], dir);

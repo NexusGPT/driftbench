@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import type { RunMode, RunResult, Stimulus, Store } from '@driftbench/core';
+import type { RunMode, RunResult, Stimulus, Store } from '@agent-nexus/driftbench-core';
 import {
   createAnthropicJudge,
   createGoogleJudge,
@@ -8,7 +8,7 @@ import {
   type JudgeClient,
   judgePairwise,
   readPairwiseCriterion,
-} from '@driftbench/judges';
+} from '@agent-nexus/driftbench-judges';
 import {
   autoMargin,
   type CampaignData,
@@ -19,11 +19,12 @@ import {
   MIN_GOLDENS,
   ReportInputError,
   replyPairs,
-} from '@driftbench/report';
-import { openStore } from '@driftbench/store';
+} from '@agent-nexus/driftbench-report';
+import { openStore } from '@agent-nexus/driftbench-store';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
+import { pluginPairwiseJudge } from '../plugins';
 import { noStoreAt } from '../store-path';
 
 /** What compare and report open stores with. Tests pass their own. */
@@ -38,6 +39,8 @@ export function defaultPairwiseClient(kind: string): JudgeClient {
   if (kind === 'openai') return createOpenAiJudge({ id: 'pairwise-openai' });
   if (kind === 'anthropic') return createAnthropicJudge({ id: 'pairwise-anthropic' });
   if (kind === 'google') return createGoogleJudge({ id: 'pairwise-google' });
+  const registered = pluginPairwiseJudge(kind);
+  if (registered !== undefined) return registered;
   throw new Error(`unknown pairwise judge ${kind}: use openai, anthropic or google`);
 }
 

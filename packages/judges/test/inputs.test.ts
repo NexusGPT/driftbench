@@ -1,7 +1,7 @@
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import type { CheckContext, Spec } from '@driftbench/core';
+import type { CheckContext, Spec } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import {
   createCouncil,

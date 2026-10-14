@@ -1,4 +1,4 @@
-import { type Recording, SYSTEM_PROMPT } from '@driftbench/generate';
+import { type Recording, SYSTEM_PROMPT } from '@agent-nexus/driftbench-generate';
 import { PROMPT_PATH, type Rendered, type Span } from './render';
 import { DEVIATION_SENTENCES, type HiddenSpec } from './spec';
 

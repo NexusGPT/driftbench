@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>driftbench: the Mixture of Judges</title>
+<link rel="stylesheet" href="brand.css">
+<style>
+  /* Mixture of Judges, from research/moj/DESIGN.md on branch research/system1-judge: a System-1 first pass
+     judges every item in both orders and reads its terrain; a router sends the unsure items to the judge built
+     for that terrain. The blue path is the one most items take: high confidence stops at stage 1. */
+  #frame { width: 640px; height: 426px; }
+  .s1 { left: 14px; top: 14px; width: 180px; height: 264px; padding: 12px; }
+  .s1 .nx-kind { position: static; display: block; }
+  .s1 .t { margin-top: 7px; font: 600 12.5px/1.25 var(--nx-sans); color: var(--nx-ink); }
+  .s1 .sub { margin-top: 12px; font: 500 10px/1 var(--nx-mono); letter-spacing: .5px; color: var(--kind); text-transform: uppercase; }
+  .s1 .chips { margin-top: 7px; display: flex; flex-wrap: wrap; gap: 5px; }
+  .s1 .chip { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 999px;
+    border: 1px solid var(--pill-border); font: 500 10.5px/1 var(--nx-sans); color: var(--pill-ink); background: var(--nx-card); }
+  .s1 .foot { position: absolute; left: 12px; right: 12px; bottom: 12px; font: 400 11px/1.4 var(--nx-sans); color: var(--detail); }
+  .router { left: 222px; top: 58px; width: 156px; height: 126px; align-content: start; padding: 10px 11px; }
+  .router .nx-node__detail { line-height: 1.4; }
+  .x { left: 410px; width: 196px; height: 56px; align-content: start; padding: 8px 11px; row-gap: 3px; }
+  .verdict { left: 410px; top: 214px; width: 196px; height: 66px; align-content: start; padding: 8px 11px; row-gap: 3px; }
+  .op { left: 14px; top: 296px; width: 592px; height: 96px; padding: 0 14px; display: flex; flex-wrap: wrap; align-content: center; align-items: center; gap: 8px; }
+  .op .nx-kind { position: static; margin-right: 4px; }
+  .op .nx-ipill { position: static; }
+  .op .nums { width: 100%; font: 400 10.5px/1.5 var(--nx-sans); white-space: nowrap; color: var(--detail); }
+  .op .nums b { color: var(--nx-ink); font-weight: 600; }
+  .stop { left: 222px; top: 206px; }
+</style>
+</head>
+<body>
+<div id="frame" class="nx-ill scene">
+  <div class="nx-ill__glass">
+    <svg class="nx-edges" viewBox="0 0 620 406">
+      <path class="nx-edge" d="M194 121 L222 121"/>
+      <path class="nx-edge" d="M378 106 C394 106, 394 42, 410 42"/>
+      <path class="nx-edge" d="M378 121 C394 121, 394 104, 410 104"/>
+      <path class="nx-edge" d="M378 136 C394 136, 394 166, 410 166"/>
+      <path class="nx-edge" d="M508 194 L508 214"/>
+      <path class="nx-edge--new" d="M300 184 C300 248, 360 248, 410 248"/>
+    </svg>
+
+    <div class="nx-ill-panel s1">
+      <span class="nx-kind">Stage 1 · System 1</span>
+      <div class="t">Judges every item, in both orders</div>
+      <div class="sub">Reads its terrain</div>
+      <div class="chips">
+        <span class="chip">needs reasoning</span>
+        <span class="chip">has a reference</span>
+        <span class="chip">safety</span>
+        <span class="chip">writing</span>
+      </div>
+      <div class="foot">A fast decision model: a calibrated probability, no prose.</div>
+    </div>
+
+    <div class="nx-node router nx-node--noico">
+      <span class="nx-node__kind">Router</span>
+      <span class="nx-node__title">By terrain and confidence</span>
+      <span class="nx-node__detail">High confidence stops. Unsure items go to the judge built for their terrain.</span>
+    </div>
+
+    <div class="nx-node x" style="top:14px">
+      <span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4 4L19 7"/></svg></span>
+      <span class="nx-node__kind">Reasoning terrain</span>
+      <span class="nx-node__title">Reference check</span>
+    </div>
+    <div class="nx-node x" style="top:76px">
+      <span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h10M4 18h13"/></svg></span>
+      <span class="nx-node__kind">Unsure elsewhere</span>
+      <span class="nx-node__title">System-2 verdict</span>
+    </div>
+    <div class="nx-node x" style="top:138px">
+      <span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="9" r="2.5"/><circle cx="17" cy="9" r="2.5"/><circle cx="12" cy="16" r="2.5"/></svg></span>
+      <span class="nx-node__kind">Lowest confidence</span>
+      <span class="nx-node__title">Panel of model families</span>
+    </div>
+
+    <span class="nx-ipill stop"><span class="nx-done">High</span>stop at stage 1</span>
+
+    <div class="nx-node verdict nx-ring">
+      <span class="nx-node__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg></span>
+      <span class="nx-node__kind">Verdict</span>
+      <span class="nx-node__title">A trusted expert's verdict is final</span>
+    </div>
+
+    <div class="nx-ill-panel op">
+      <span class="nx-kind nx-kind--ink">You pick</span>
+      <span class="nx-ipill nx-ipill--flat">Cheapest</span>
+      <span class="nx-ipill nx-ipill--flat nx-ring">Balanced</span>
+      <span class="nx-ipill nx-ipill--flat">Most accurate</span>
+      <span class="nums">Practice data, MoJ v promptfoo: JudgeBench <b>91.6</b> v 90.4 · MM-Eval <b>95.7</b> v 92.8 · writing <b>64.8</b> v 54.8<br>0.43 to 1.49 reasoning calls per pair, against 2</span>
+    </div>
+  </div>
+</div>
+<script>
+  window.__fonts = ['400 11px Geist', '500 11px Geist', '600 12px Geist', '500 10px "Geist Mono"'];
+  Promise.all(window.__fonts.map((f) => document.fonts.load(f))).then(() => document.fonts.ready).then(() => { window.__ready = true; });
+</script>
+</body>
+</html>

@@ -2,7 +2,7 @@ import { copyFile, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { openStore } from '@driftbench/store';
+import { openStore } from '@agent-nexus/driftbench-store';
 import { afterEach, describe, expect, it } from 'vitest';
 import { type Io, main } from '../src/index';
 
@@ -174,7 +174,7 @@ describe('driftbench replay: alignment', () => {
     const dir = await tempDir();
     await writeFile(
       join(dir, 'a-positional.yaml'),
-      'id: positional\nkind: task\nblocks:\n  - user: anything\n    expect:\n      skills:\n        - { name: shop-build, count: 0 }\n',
+      'id: positional\nkind: task\nblocks:\n  - user: Add a discount field to the invoice total in src/invoice.ts, then run the tests.\n    expect:\n      skills:\n        - { name: shop-build, count: 0 }\n',
     );
     await copyFile(join(ROOT, DIR, 'specs', 'clean-build.yaml'), join(dir, 'b-clean.yaml'));
     const { code, json } = await replayJson(['replay', `${DIR}/skill-skipped.jsonl`, '--suite', dir]);
@@ -213,7 +213,7 @@ describe('driftbench replay: alignment', () => {
     const dir = await tempDir();
     await writeFile(
       join(dir, 'long.yaml'),
-      'id: too-long\nkind: task\nmetadata:\n  replay: { session: subagent-dispatch }\nblocks:\n  - user: one\n  - user: two\n',
+      'id: too-long\nkind: task\nmetadata:\n  replay: { session: subagent-dispatch }\nblocks:\n  - user: Ask the reviewer to check src/invoice.ts and tell me what it finds.\n  - user: two\n',
     );
     const { code, out } = await cli(['replay', `${DIR}/subagent-dispatch.jsonl`, '--suite', dir]);
     expect(code).toBe(1);
@@ -360,7 +360,7 @@ describe('driftbench replay: judged criteria', () => {
     'criteria:',
     '  - { name: keeps-scope, rubric: "Does the reply stay on the shop build?", gating: true, scope: block }',
     'blocks:',
-    '  - user: anything',
+    '  - user: Add a discount field to the invoice total in src/invoice.ts, then run the tests.',
     '    expect:',
     '      criteria: [keeps-scope]',
     '',

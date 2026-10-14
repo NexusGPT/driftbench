@@ -1,5 +1,5 @@
 // Every fixture is generated at runtime or split in the source, so this file passes the guard itself.
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -88,6 +88,21 @@ describe('Belgian national register number', () => {
     expect(isValidNationalNumber(`85${'13'}${digits.slice(4)}`)).toBe(false);
     expect(kinds(`ts ${digits}123`)).toEqual([]);
   });
+
+  it('ignores valid checksummed digits embedded in hexadecimal runs', () => {
+    const digits = nineties.replace(/\D/g, '');
+    for (const hex of '0123456789abcdefABCDEF') {
+      expect(kinds(`${hex}${digits}`)).toEqual([]);
+      expect(kinds(`${digits}${hex}`)).toEqual([]);
+    }
+  });
+
+  it('still finds national numbers next to punctuation, quotes and non-hex letters', () => {
+    for (const number of [nineties, nineties.replace(/\D/g, '')]) {
+      expect(kinds(`("${number}");`)).toEqual(['national-number']);
+      expect(kinds(`g${number}z`)).toEqual(['national-number']);
+    }
+  });
 });
 
 describe('phones', () => {
@@ -96,6 +111,44 @@ describe('phones', () => {
     expect(kinds(['call', join2('+', '33'), '6 12 34 56 78'].join(' '))).toEqual(['phone']);
     expect(kinds(['call', join2('04', '70'), '12 34 56'].join(' '))).toEqual(['phone']);
     expect(kinds(['call', join2('0032', ' 470'), '12 34 56'].join(' '))).toEqual(['phone']);
+  });
+
+  it('ignores the request digest without changing its data', () => {
+    const digest = '278fe0bdcd32343034f35dd9484c0487253533e0cf92bf0b20485aed28baf54f';
+    expect(kinds(digest)).toEqual([]);
+    expect(kinds(JSON.stringify({ requestSha256: digest }))).toEqual([]);
+  });
+
+  it('ignores numeric phone candidates next to hexadecimal letters or digits', () => {
+    const mobile = join2('04', '70', '12', '34', '56');
+    // Use the maximum valid international length so an extra digit is not another valid phone.
+    const international = join2('+', '32', mobile.slice(1), '1234');
+    const abroad = join2('0032', mobile.slice(1));
+    for (const phone of [mobile, international, abroad]) {
+      for (const hex of '0123456789abcdefABCDEF') {
+        expect(kinds(`${hex}${phone}`)).toEqual([]);
+        expect(kinds(`${phone}${hex}`)).toEqual([]);
+      }
+    }
+  });
+
+  it('keeps supported phone formats detectable, including punctuation and quotes', () => {
+    for (const separator of ['', ' ', '.', '/', '-']) {
+      const mobile = [join2('04', '70'), '12', '34', '56'].join(separator);
+      const abroad = [join2('0032', '470'), '12', '34', '56'].join(separator);
+      for (const phone of [mobile, abroad]) {
+        expect(kinds(phone)).toEqual(['phone']);
+        expect(kinds(`("${phone}");`)).toEqual(['phone']);
+      }
+    }
+    for (const separator of ['', ' ', '.', '-']) {
+      const phone = [join2('+', '32'), '470', '12', '34', '56'].join(separator);
+      expect(kinds(phone)).toEqual(['phone']);
+      expect(kinds(`("${phone}");`)).toEqual(['phone']);
+    }
+    expect(kinds([join2('00', '32'), '470', '12', '34', '56'].join(' '))).toEqual(['phone']);
+    expect(kinds(join2('+', '33 (6) ', '12-34-56-78'))).toEqual(['phone']);
+    expect(kinds(`g${join2('04', '70123456')}z`)).toEqual(['phone']);
   });
 
   it('lets the reserved fictional NANP range through', () => {
@@ -118,7 +171,7 @@ describe('emails', () => {
         'jane@example.com bob@shop.test x@y.invalid dev@localhost 1+bot@users.noreply.github.com git@github.com',
       ),
     ).toEqual([]);
-    expect(kinds('pnpm@10.30.2 @driftbench/core user@host')).toEqual([]);
+    expect(kinds('pnpm@10.30.2 @agent-nexus/driftbench-core user@host')).toEqual([]);
   });
 });
 
@@ -207,6 +260,60 @@ describe('command line', () => {
     const redacted = `ja${'•'.repeat(email.length - 4)}io`;
     expect(parsed.findings).toEqual([{ file: 'a.md', line: 1, kind: 'email', redacted }]);
     expect(out).not.toContain(email);
+  });
+
+  it.each([false, true])('fails loudly on an oversized recording (JSON: %s)', (json) => {
+    const limit = 10 * 1024 * 1024;
+    const padding = `${JSON.stringify({ message: 'padding' })}\n`;
+    const email = ['canary.person', 'driftbench-canary.dev'].join('@');
+    const content =
+      padding.repeat(Math.ceil((30 * 1024 * 1024) / padding.length)) +
+      `${JSON.stringify({ message: email })}\n`;
+    expect(content.indexOf(email)).toBeGreaterThan(limit);
+    const dir = folder({ 'recordings.jsonl': content });
+    try {
+      const { code, out, err } = run(json ? ['--json', dir] : [dir], dir);
+      expect(code).toBe(1);
+      expect(out + err).toContain('recordings.jsonl');
+      expect(out + err).toContain('exceeds scan limit');
+      expect(out + err).not.toContain(email);
+      if (json) {
+        const parsed = JSON.parse(out);
+        expect(parsed.clean).toBe(false);
+        expect(parsed.skipped).toBe(0);
+        expect(parsed.errors).toEqual([
+          {
+            file: 'recordings.jsonl',
+            reason: `size ${content.length} bytes exceeds scan limit ${limit} bytes`,
+          },
+        ]);
+      } else {
+        expect(err).toContain('recordings.jsonl');
+        expect(out).not.toContain('guard: clean');
+      }
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('still scans files exactly at the byte limit', () => {
+    const iban = makeIban('BE', '539007547034');
+    const content = Buffer.alloc(10 * 1024 * 1024, ' ');
+    content.write(iban, content.length - iban.length);
+    const dir = folder({ 'at-limit.jsonl': content });
+    try {
+      const { code, out } = run(['--json', dir], dir);
+      expect(code).toBe(1);
+      const parsed = JSON.parse(out);
+      expect(parsed.scanned).toBe(1);
+      expect(parsed.skipped).toBe(0);
+      expect(parsed.errors).toEqual([]);
+      expect(parsed.findings).toEqual([
+        { file: 'at-limit.jsonl', line: 1, kind: 'iban', redacted: redact(iban, 'iban') },
+      ]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   it('exits 2 on a usage error', () => {

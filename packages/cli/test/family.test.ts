@@ -35,13 +35,21 @@ async function tree(dir: string): Promise<Record<string, string>> {
   return out;
 }
 
-/** A copy of the Acme family in a temporary folder, which a test may change. */
+/**
+ * A copy of the Acme family in a temporary folder, which a test may change. The copy's review is pending:
+ * the committed one is signed for the committed family and oracle, and nobody reviewed what a test changes.
+ */
 async function acmeCopy(): Promise<string> {
   const dir = await mkdtemp(join(tmpdir(), 'driftbench-family-cli-'));
   await cp(ACME_FAMILY, join(dir, 'price-sheet'), {
     recursive: true,
     filter: (source) => !source.includes('/instances'),
   });
+  const review = join(dir, 'price-sheet', 'review.yaml');
+  const signed = await readFile(review, 'utf8');
+  const pending = signed.replace(/signed_by: .*\nsigned_on: .*\n$/, 'signed_by: null\nsigned_on: null\n');
+  if (pending === signed) throw new Error('the committed Acme review has no signature lines to clear');
+  await writeFile(review, pending);
   return join(dir, 'price-sheet');
 }
 
@@ -58,7 +66,7 @@ describe('driftbench family instances', () => {
     expect(first.out).toMatch(
       /Style invariant: \d+ style alternatives rebuilt; none changed the expected outcome\./,
     );
-    expect(first.out).toContain('Review: pending.');
+    expect(first.out).toContain('Review: signed by owner on 2026-10-13.');
     const written = await tree(join(cwd, 'out'));
     expect(Object.keys(written).filter((path) => path.endsWith('base.yaml'))).toEqual([
       'i01/base.yaml',
@@ -70,7 +78,7 @@ describe('driftbench family instances', () => {
       n: number;
       specs: number;
     };
-    expect(report).toMatchObject({ review: 'pending', n: 3 });
+    expect(report).toMatchObject({ review: 'signed', n: 3 });
     expect(Object.keys(written).filter((path) => path.endsWith('.yaml'))).toHaveLength(report.specs);
 
     const again = await run(
@@ -169,7 +177,7 @@ describe('driftbench family instances', () => {
     const result = await run(['family', 'instances', family, '--n', '2', '--seed', '1', '--out', 'out'], cwd);
     expect(result.code).toBe(1);
     expect(result.err).toMatch(
-      /A style knob changes the expected outcome[^\n]*nothing is written:\n {2}i01 base: wording = [bc]: the block build expects another must/,
+      /A style knob changes the expected outcome[^\n]*nothing is written:\n {2}i01 base: wording = [abc]: the block build expects another must/,
     );
     expect(await readdir(cwd)).toEqual([]);
   });
@@ -186,16 +194,23 @@ describe('the committed Acme instances', () => {
     expect(result.code).toBe(0);
     const committed = await tree(join(ACME_FAMILY, 'instances'));
     delete committed['verify-report.json'];
+    // A spec whose workspace holds a workbook names its seed folder relative to itself, so the output folder
+    // never shows in the files.
     expect(await tree(out)).toEqual(committed);
   }, 60_000);
 });
 
 describe('driftbench family review', () => {
-  it('says pending for the Acme family, and writes a pending review for a family with none', async () => {
+  it('says signed for the Acme family, pending for an unsigned one, and writes a pending review for a family with none', async () => {
     const cwd = await mkdtemp(join(tmpdir(), 'driftbench-family-cli-'));
     const acme = await run(['family', 'review', ACME_FAMILY], cwd);
-    expect(acme.code).toBe(1);
-    expect(acme.out).toMatch(/^Review: pending\. .*review\.yaml is not signed yet/);
+    expect(acme.code).toBe(0);
+    expect(acme.out).toBe('Review: signed by owner on 2026-10-13.\n');
+
+    // The same family with the signature taken out is pending, and exits 1.
+    const pending = await run(['family', 'review', await acmeCopy()], cwd);
+    expect(pending.code).toBe(1);
+    expect(pending.out).toMatch(/^Review: pending\. .*review\.yaml is not signed yet/);
 
     const family = await acmeCopy();
     await writeFile(join(family, 'review.yaml'), 'family: acme-price-sheet\n');
@@ -211,8 +226,9 @@ describe('driftbench family review', () => {
 describe('driftbench family verify', () => {
   it('ships every instance of both seed formats the reference passes, and rejects one whose expectation is wrong', async () => {
     const cwd = await mkdtemp(join(tmpdir(), 'driftbench-family-cli-'));
+    // Built from the copy, whose review is pending: verify then says release waits for the signature.
     const built = await run(
-      ['family', 'instances', ACME_FAMILY, '--n', '3', '--seed', '7', '--out', 'out'],
+      ['family', 'instances', await acmeCopy(), '--n', '3', '--seed', '8', '--out', 'out'],
       cwd,
     );
     expect(built.code).toBe(0);

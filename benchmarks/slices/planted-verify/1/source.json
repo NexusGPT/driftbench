@@ -1,0 +1,3130 @@
+[
+  {
+    "id": "verify-bank-000",
+    "family": 0,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "514cb7d27518d395ec9a46c2ae62c9bf_6a8c772c3cbf9a7e26dae82deafbc213",
+      "questionSha256": "25931bd2bac7e70e08745427bdb4ed1378ef3be330ddcb94446a0a60caab062a",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: ( [ { (",
+    "clean": "Final answer: ) } ] )",
+    "defect": "Final answer: ) } ] ]",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": ") } ] )",
+      "to": ") } ] ]",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "LIFO bracket completion",
+      "stack": [
+        "(",
+        "[",
+        "{",
+        "("
+      ],
+      "suffix": ") } ] )"
+    }
+  },
+  {
+    "id": "verify-bank-001",
+    "family": 1,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "987731fefdee670139b52a3c2cd13b54_63abd6b1489e90a7836c25efd043d174",
+      "questionSha256": "75c5444c00fa50b94179890a0965b9f05ac87049522da4d56148131357c30189",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "I have 10 marbles numbered 10 through 19 in a bag. I take two different marbles uniformly at random. What is the expected sum of their numbers?",
+    "clean": "Final answer: 29",
+    "defect": "Final answer: 30",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "29",
+      "to": "30",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "exhaust all unordered pairs",
+      "pairCount": 45,
+      "sum": 1305,
+      "exact": "29"
+    }
+  },
+  {
+    "id": "verify-bank-002",
+    "family": 2,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "2fabe7c11c7747a8d772a0ef0448e9a8_ce122c4fd3633a58d1e4ead1e46a9a01",
+      "questionSha256": "936b5e36be04e6eaede86313de81e1520cb5954f75e2c00578a0254501195322",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "List all prime factors of 13013, including repetitions, in ascending order.",
+    "clean": "Final answer: 7, 11, 13, 13",
+    "defect": "Final answer: 7, 11, 13, 15",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "7, 11, 13, 13",
+      "to": "7, 11, 13, 15",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "integer trial division",
+      "n": 13013,
+      "factors": [
+        7,
+        11,
+        13,
+        13
+      ],
+      "product": 13013
+    }
+  },
+  {
+    "id": "verify-bank-003",
+    "family": 3,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "8dce745bcd66e7dc916e9f3549d8ebc1_4495bceb02b2986125965eb7cb6c2b98",
+      "questionSha256": "410c2683485e5c31f9552661c1e5f935bd41511ee439b946d4a647f8af857ff7",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "Suppose 2 different integers are chosen uniformly from 10 through 39, inclusive. What is the probability that they each have a different tens digit?",
+    "clean": "Final answer: 20/29",
+    "defect": "Final answer: 2029/2900",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "20/29",
+      "to": "2029/2900",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "count subsets by distinct tens groups",
+      "groups": 3,
+      "chosen": 2,
+      "favorable": 300,
+      "total": 435
+    }
+  },
+  {
+    "id": "verify-bank-004",
+    "family": 4,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "74455975cc7822e30f33648e197a1775_ccbe576fccccc23b0bdad67d79075fb2",
+      "questionSha256": "2b70d93b180f584ffd26c95e61d79751647a7fe6ec92b2b3f174f62548be218e",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "A fictional shop sells a shirt at 70% of its original price. It then reduces the sale price by 10%, then reduces that price by 15%. What is the final price as a percentage of the original price?",
+    "clean": "Final answer: 1071/20%",
+    "defect": "Final answer: 1091/20%",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "1071/20%",
+      "to": "1091/20%",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "multiply successive retained fractions",
+      "retainedPercent": [
+        70,
+        90,
+        85
+      ],
+      "exactPercent": "1071/20"
+    }
+  },
+  {
+    "id": "verify-bank-005",
+    "family": 5,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "a11d83cb0b8f07278223b4d659d85643_5518ab7ab0dd13c3c4a7e58909335b50",
+      "questionSha256": "438b751f5eaec795c1386dade31286883641d4fa16e55af0cf152e65fd6e8cf2",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "If 3^(x+y) = 9 and 9^(x-y) = 3, what is xy? Express the answer as a fraction.",
+    "clean": "Final answer: 15/16",
+    "defect": "Final answer: 19/16",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "15/16",
+      "to": "19/16",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "logarithm identities then difference of squares",
+      "xPlusY": "2",
+      "xMinusY": "1/2",
+      "xy": "15/16"
+    }
+  },
+  {
+    "id": "verify-bank-006",
+    "family": 6,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "d39f096bb2596eb7d8955356ef44a14e_cc7a467fa14f91c15dd31328e13f485e",
+      "questionSha256": "12596e35cb3d40645695d459ee3e92e648efdeb8dee66d99f5880a6ca0ee692f",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "A moving point (x,y) is equally distant from the point (2,0) and the line x=-2. Find its locus equation.",
+    "clean": "Final answer: y^2 = 8x",
+    "defect": "Final answer: y^2 = 12x",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "y^2 = 8x",
+      "to": "y^2 = 12x",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "square nonnegative distances and cancel x squared",
+      "focus": [
+        2,
+        0
+      ],
+      "directrix": -2,
+      "coefficient": 8,
+      "converse": "y squared nonnegative implies x nonnegative, so both distance sides are nonnegative"
+    }
+  },
+  {
+    "id": "verify-bank-007",
+    "family": 7,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "799919e29bafa202e0028952ff76d912_deee86a59cea577b40827ba2735e51f2",
+      "questionSha256": "1daf41d93e136c949b085e2aca173452c0ceec6a18b0e5a5f4838e73a46db981",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "A^(-1) is the diagonal matrix diag(2,3). Find the inverse of (A+I)^2.",
+    "clean": "Final answer: diag(4/9,9/16)",
+    "defect": "Final answer: diag(13/9,9/16)",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "diag(4/9,9/16)",
+      "to": "diag(13/9,9/16)",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "exact diagonal matrix inversion and multiplication",
+      "inverseA": [
+        2,
+        3
+      ],
+      "result": [
+        "4/9",
+        "9/16"
+      ],
+      "productDiagonal": [
+        "1",
+        "1"
+      ]
+    }
+  },
+  {
+    "id": "verify-bank-008",
+    "family": 8,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "d29e283a52241c0a9a32224b711237bd_cab7eb980622deaad71cf6fe7e803264",
+      "questionSha256": "b922fe7ddf8f7d0186b8083d3e015c81f27aba91ce505cf47169a02745f6c3de",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "In a fictional world, Luma0 is a yellow swan. Nori0 is a rhino. No color rule is stated. What color is Nori0?",
+    "clean": "Final answer: The color is not specified.",
+    "defect": "Final answer: The color is yellow.",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "The color is not specified.",
+      "to": "The color is yellow.",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "two models satisfy all premises and disagree on queried color",
+      "witnesses": [
+        {
+          "Luma0": "yellow",
+          "Nori0": "green"
+        },
+        {
+          "Luma0": "yellow",
+          "Nori0": "blue"
+        }
+      ]
+    }
+  },
+  {
+    "id": "verify-bank-009",
+    "family": 9,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "9cf12f34adac95169b15ddc25480ec2c_a7f2414568e73815e19f8370f3aeec89",
+      "questionSha256": "84a31b967a88cfc4773ed9d2fd5d7dac5c79678aab9fb8ff922b190f897ef569",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "Suppose 3*n + 24 = 5*n. Suppose 0 = -4*f + 2*q + 20, and f + 2*q = 0. Let b be (f/n)/(1/4). Give the value of b as a fraction.",
+    "clean": "Final answer: 4/3",
+    "defect": "Final answer: 7/3",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "4/3",
+      "to": "7/3",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "exact simultaneous linear equations",
+      "n": 12,
+      "f": 4,
+      "q": "-2",
+      "b": "4/3"
+    }
+  },
+  {
+    "id": "verify-bank-010",
+    "family": 0,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "514cb7d27518d395ec9a46c2ae62c9bf_6a8c772c3cbf9a7e26dae82deafbc213",
+      "questionSha256": "25931bd2bac7e70e08745427bdb4ed1378ef3be330ddcb94446a0a60caab062a",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: ( [ { < <",
+    "clean": "Final answer: > > } ] )",
+    "defect": "Final answer: > > } ] ]",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "> > } ] )",
+      "to": "> > } ] ]",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "LIFO bracket completion",
+      "stack": [
+        "(",
+        "[",
+        "{",
+        "<",
+        "<"
+      ],
+      "suffix": "> > } ] )"
+    }
+  },
+  {
+    "id": "verify-bank-011",
+    "family": 1,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "987731fefdee670139b52a3c2cd13b54_63abd6b1489e90a7836c25efd043d174",
+      "questionSha256": "75c5444c00fa50b94179890a0965b9f05ac87049522da4d56148131357c30189",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "I have 10 marbles numbered 3 through 12 in a bag. I take two different marbles uniformly at random. What is the expected sum of their numbers?",
+    "clean": "Final answer: 15",
+    "defect": "Final answer: 16",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "15",
+      "to": "16",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "exhaust all unordered pairs",
+      "pairCount": 45,
+      "sum": 675,
+      "exact": "15"
+    }
+  },
+  {
+    "id": "verify-bank-012",
+    "family": 2,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "2fabe7c11c7747a8d772a0ef0448e9a8_ce122c4fd3633a58d1e4ead1e46a9a01",
+      "questionSha256": "936b5e36be04e6eaede86313de81e1520cb5954f75e2c00578a0254501195322",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "List all prime factors of 3465, including repetitions, in ascending order.",
+    "clean": "Final answer: 3, 3, 5, 7, 11",
+    "defect": "Final answer: 3, 3, 5, 7, 13",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "3, 3, 5, 7, 11",
+      "to": "3, 3, 5, 7, 13",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "integer trial division",
+      "n": 3465,
+      "factors": [
+        3,
+        3,
+        5,
+        7,
+        11
+      ],
+      "product": 3465
+    }
+  },
+  {
+    "id": "verify-bank-013",
+    "family": 3,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "8dce745bcd66e7dc916e9f3549d8ebc1_4495bceb02b2986125965eb7cb6c2b98",
+      "questionSha256": "410c2683485e5c31f9552661c1e5f935bd41511ee439b946d4a647f8af857ff7",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "Suppose 3 different integers are chosen uniformly from 10 through 49, inclusive. What is the probability that they each have a different tens digit?",
+    "clean": "Final answer: 100/247",
+    "defect": "Final answer: 10247/24700",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "100/247",
+      "to": "10247/24700",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "count subsets by distinct tens groups",
+      "groups": 4,
+      "chosen": 3,
+      "favorable": 4000,
+      "total": 9880
+    }
+  },
+  {
+    "id": "verify-bank-014",
+    "family": 4,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "74455975cc7822e30f33648e197a1775_ccbe576fccccc23b0bdad67d79075fb2",
+      "questionSha256": "2b70d93b180f584ffd26c95e61d79751647a7fe6ec92b2b3f174f62548be218e",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "A fictional shop sells a shirt at 71% of its original price. It then reduces the sale price by 11%, then reduces that price by 16%. What is the final price as a percentage of the original price?",
+    "clean": "Final answer: 132699/2500%",
+    "defect": "Final answer: 135199/2500%",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "132699/2500%",
+      "to": "135199/2500%",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "multiply successive retained fractions",
+      "retainedPercent": [
+        71,
+        89,
+        84
+      ],
+      "exactPercent": "132699/2500"
+    }
+  },
+  {
+    "id": "verify-bank-015",
+    "family": 5,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "a11d83cb0b8f07278223b4d659d85643_5518ab7ab0dd13c3c4a7e58909335b50",
+      "questionSha256": "438b751f5eaec795c1386dade31286883641d4fa16e55af0cf152e65fd6e8cf2",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "If 3^(x+y) = 27 and 27^(x-y) = 3, what is xy? Express the answer as a fraction.",
+    "clean": "Final answer: 20/9",
+    "defect": "Final answer: 89/36",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "20/9",
+      "to": "89/36",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "logarithm identities then difference of squares",
+      "xPlusY": "3",
+      "xMinusY": "1/3",
+      "xy": "20/9"
+    }
+  },
+  {
+    "id": "verify-bank-016",
+    "family": 6,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "d39f096bb2596eb7d8955356ef44a14e_cc7a467fa14f91c15dd31328e13f485e",
+      "questionSha256": "12596e35cb3d40645695d459ee3e92e648efdeb8dee66d99f5880a6ca0ee692f",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "A moving point (x,y) is equally distant from the point (3,0) and the line x=-3. Find its locus equation.",
+    "clean": "Final answer: y^2 = 12x",
+    "defect": "Final answer: y^2 = 16x",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "y^2 = 12x",
+      "to": "y^2 = 16x",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "square nonnegative distances and cancel x squared",
+      "focus": [
+        3,
+        0
+      ],
+      "directrix": -3,
+      "coefficient": 12,
+      "converse": "y squared nonnegative implies x nonnegative, so both distance sides are nonnegative"
+    }
+  },
+  {
+    "id": "verify-bank-017",
+    "family": 7,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "799919e29bafa202e0028952ff76d912_deee86a59cea577b40827ba2735e51f2",
+      "questionSha256": "1daf41d93e136c949b085e2aca173452c0ceec6a18b0e5a5f4838e73a46db981",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "A^(-1) is the diagonal matrix diag(3,4). Find the inverse of (A+I)^2.",
+    "clean": "Final answer: diag(9/16,16/25)",
+    "defect": "Final answer: diag(25/16,16/25)",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "diag(9/16,16/25)",
+      "to": "diag(25/16,16/25)",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "exact diagonal matrix inversion and multiplication",
+      "inverseA": [
+        3,
+        4
+      ],
+      "result": [
+        "9/16",
+        "16/25"
+      ],
+      "productDiagonal": [
+        "1",
+        "1"
+      ]
+    }
+  },
+  {
+    "id": "verify-bank-018",
+    "family": 8,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "d29e283a52241c0a9a32224b711237bd_cab7eb980622deaad71cf6fe7e803264",
+      "questionSha256": "b922fe7ddf8f7d0186b8083d3e015c81f27aba91ce505cf47169a02745f6c3de",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "In a fictional world, Luma1 is a yellow swan. Nori1 is a rhino. No color rule is stated. What color is Nori1?",
+    "clean": "Final answer: The color is not specified.",
+    "defect": "Final answer: The color is yellow.",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "The color is not specified.",
+      "to": "The color is yellow.",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "two models satisfy all premises and disagree on queried color",
+      "witnesses": [
+        {
+          "Luma1": "yellow",
+          "Nori1": "green"
+        },
+        {
+          "Luma1": "yellow",
+          "Nori1": "blue"
+        }
+      ]
+    }
+  },
+  {
+    "id": "verify-bank-019",
+    "family": 9,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "9cf12f34adac95169b15ddc25480ec2c_a7f2414568e73815e19f8370f3aeec89",
+      "questionSha256": "84a31b967a88cfc4773ed9d2fd5d7dac5c79678aab9fb8ff922b190f897ef569",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "Suppose 3*n + 32 = 5*n. Suppose 0 = -4*f + 2*q + 30, and f + 2*q = 0. Let b be (f/n)/(1/14). Give the value of b as a fraction.",
+    "clean": "Final answer: 21/4",
+    "defect": "Final answer: 25/4",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "21/4",
+      "to": "25/4",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "exact simultaneous linear equations",
+      "n": 16,
+      "f": 6,
+      "q": "-3",
+      "b": "21/4"
+    }
+  },
+  {
+    "id": "verify-bank-020",
+    "family": 0,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "514cb7d27518d395ec9a46c2ae62c9bf_6a8c772c3cbf9a7e26dae82deafbc213",
+      "questionSha256": "25931bd2bac7e70e08745427bdb4ed1378ef3be330ddcb94446a0a60caab062a",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: { { [ { < [",
+    "clean": "Final answer: ] > } ] } }",
+    "defect": "Final answer: ] > } ] } )",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "] > } ] } }",
+      "to": "] > } ] } )",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "LIFO bracket completion",
+      "stack": [
+        "{",
+        "{",
+        "[",
+        "{",
+        "<",
+        "["
+      ],
+      "suffix": "] > } ] } }"
+    }
+  },
+  {
+    "id": "verify-bank-021",
+    "family": 1,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "987731fefdee670139b52a3c2cd13b54_63abd6b1489e90a7836c25efd043d174",
+      "questionSha256": "75c5444c00fa50b94179890a0965b9f05ac87049522da4d56148131357c30189",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "I have 5 marbles numbered 15 through 19 in a bag. I take two different marbles uniformly at random. What is the expected sum of their numbers?",
+    "clean": "Final answer: 34",
+    "defect": "Final answer: 35",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "34",
+      "to": "35",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "exhaust all unordered pairs",
+      "pairCount": 10,
+      "sum": 340,
+      "exact": "34"
+    }
+  },
+  {
+    "id": "verify-bank-022",
+    "family": 2,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "2fabe7c11c7747a8d772a0ef0448e9a8_ce122c4fd3633a58d1e4ead1e46a9a01",
+      "questionSha256": "936b5e36be04e6eaede86313de81e1520cb5954f75e2c00578a0254501195322",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "List all prime factors of 55770, including repetitions, in ascending order.",
+    "clean": "Final answer: 2, 3, 5, 11, 13, 13",
+    "defect": "Final answer: 2, 3, 5, 11, 13, 15",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "2, 3, 5, 11, 13, 13",
+      "to": "2, 3, 5, 11, 13, 15",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "integer trial division",
+      "n": 55770,
+      "factors": [
+        2,
+        3,
+        5,
+        11,
+        13,
+        13
+      ],
+      "product": 55770
+    }
+  },
+  {
+    "id": "verify-bank-023",
+    "family": 3,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "8dce745bcd66e7dc916e9f3549d8ebc1_4495bceb02b2986125965eb7cb6c2b98",
+      "questionSha256": "410c2683485e5c31f9552661c1e5f935bd41511ee439b946d4a647f8af857ff7",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "Suppose 2 different integers are chosen uniformly from 10 through 59, inclusive. What is the probability that they each have a different tens digit?",
+    "clean": "Final answer: 40/49",
+    "defect": "Final answer: 4049/4900",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "40/49",
+      "to": "4049/4900",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "count subsets by distinct tens groups",
+      "groups": 5,
+      "chosen": 2,
+      "favorable": 1000,
+      "total": 1225
+    }
+  },
+  {
+    "id": "verify-bank-024",
+    "family": 4,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "74455975cc7822e30f33648e197a1775_ccbe576fccccc23b0bdad67d79075fb2",
+      "questionSha256": "2b70d93b180f584ffd26c95e61d79751647a7fe6ec92b2b3f174f62548be218e",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "A fictional shop sells a shirt at 72% of its original price. It then reduces the sale price by 12%, then reduces that price by 17%. What is the final price as a percentage of the original price?",
+    "clean": "Final answer: 32868/625%",
+    "defect": "Final answer: 33493/625%",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "32868/625%",
+      "to": "33493/625%",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "multiply successive retained fractions",
+      "retainedPercent": [
+        72,
+        88,
+        83
+      ],
+      "exactPercent": "32868/625"
+    }
+  },
+  {
+    "id": "verify-bank-025",
+    "family": 5,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "a11d83cb0b8f07278223b4d659d85643_5518ab7ab0dd13c3c4a7e58909335b50",
+      "questionSha256": "438b751f5eaec795c1386dade31286883641d4fa16e55af0cf152e65fd6e8cf2",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "If 3^(x+y) = 81 and 81^(x-y) = 3, what is xy? Express the answer as a fraction.",
+    "clean": "Final answer: 255/64",
+    "defect": "Final answer: 271/64",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "255/64",
+      "to": "271/64",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "logarithm identities then difference of squares",
+      "xPlusY": "4",
+      "xMinusY": "1/4",
+      "xy": "255/64"
+    }
+  },
+  {
+    "id": "verify-bank-026",
+    "family": 6,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "d39f096bb2596eb7d8955356ef44a14e_cc7a467fa14f91c15dd31328e13f485e",
+      "questionSha256": "12596e35cb3d40645695d459ee3e92e648efdeb8dee66d99f5880a6ca0ee692f",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "A moving point (x,y) is equally distant from the point (4,0) and the line x=-4. Find its locus equation.",
+    "clean": "Final answer: y^2 = 16x",
+    "defect": "Final answer: y^2 = 20x",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "y^2 = 16x",
+      "to": "y^2 = 20x",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "square nonnegative distances and cancel x squared",
+      "focus": [
+        4,
+        0
+      ],
+      "directrix": -4,
+      "coefficient": 16,
+      "converse": "y squared nonnegative implies x nonnegative, so both distance sides are nonnegative"
+    }
+  },
+  {
+    "id": "verify-bank-027",
+    "family": 7,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "799919e29bafa202e0028952ff76d912_deee86a59cea577b40827ba2735e51f2",
+      "questionSha256": "1daf41d93e136c949b085e2aca173452c0ceec6a18b0e5a5f4838e73a46db981",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "A^(-1) is the diagonal matrix diag(4,5). Find the inverse of (A+I)^2.",
+    "clean": "Final answer: diag(16/25,25/36)",
+    "defect": "Final answer: diag(41/25,25/36)",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "diag(16/25,25/36)",
+      "to": "diag(41/25,25/36)",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "exact diagonal matrix inversion and multiplication",
+      "inverseA": [
+        4,
+        5
+      ],
+      "result": [
+        "16/25",
+        "25/36"
+      ],
+      "productDiagonal": [
+        "1",
+        "1"
+      ]
+    }
+  },
+  {
+    "id": "verify-bank-028",
+    "family": 8,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "d29e283a52241c0a9a32224b711237bd_cab7eb980622deaad71cf6fe7e803264",
+      "questionSha256": "b922fe7ddf8f7d0186b8083d3e015c81f27aba91ce505cf47169a02745f6c3de",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "In a fictional world, Luma2 is a yellow swan. Nori2 is a rhino. No color rule is stated. What color is Nori2?",
+    "clean": "Final answer: The color is not specified.",
+    "defect": "Final answer: The color is yellow.",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "The color is not specified.",
+      "to": "The color is yellow.",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "two models satisfy all premises and disagree on queried color",
+      "witnesses": [
+        {
+          "Luma2": "yellow",
+          "Nori2": "green"
+        },
+        {
+          "Luma2": "yellow",
+          "Nori2": "blue"
+        }
+      ]
+    }
+  },
+  {
+    "id": "verify-bank-029",
+    "family": 9,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "9cf12f34adac95169b15ddc25480ec2c_a7f2414568e73815e19f8370f3aeec89",
+      "questionSha256": "84a31b967a88cfc4773ed9d2fd5d7dac5c79678aab9fb8ff922b190f897ef569",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "Suppose 3*n + 28 = 5*n. Suppose 0 = -4*f + 2*q + 25, and f + 2*q = 0. Let b be (f/n)/(1/13). Give the value of b as a fraction.",
+    "clean": "Final answer: 65/14",
+    "defect": "Final answer: 79/14",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "65/14",
+      "to": "79/14",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "exact simultaneous linear equations",
+      "n": 14,
+      "f": 5,
+      "q": "-5/2",
+      "b": "65/14"
+    }
+  },
+  {
+    "id": "verify-bank-030",
+    "family": 0,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "514cb7d27518d395ec9a46c2ae62c9bf_6a8c772c3cbf9a7e26dae82deafbc213",
+      "questionSha256": "25931bd2bac7e70e08745427bdb4ed1378ef3be330ddcb94446a0a60caab062a",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: [ [ ( [ < ( (",
+    "clean": "Final answer: ) ) > ] ) ] ]",
+    "defect": "Final answer: ) ) > ] ) ] )",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": ") ) > ] ) ] ]",
+      "to": ") ) > ] ) ] )",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "LIFO bracket completion",
+      "stack": [
+        "[",
+        "[",
+        "(",
+        "[",
+        "<",
+        "(",
+        "("
+      ],
+      "suffix": ") ) > ] ) ] ]"
+    }
+  },
+  {
+    "id": "verify-bank-031",
+    "family": 1,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "987731fefdee670139b52a3c2cd13b54_63abd6b1489e90a7836c25efd043d174",
+      "questionSha256": "75c5444c00fa50b94179890a0965b9f05ac87049522da4d56148131357c30189",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "I have 9 marbles numbered 5 through 13 in a bag. I take two different marbles uniformly at random. What is the expected sum of their numbers?",
+    "clean": "Final answer: 18",
+    "defect": "Final answer: 19",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "18",
+      "to": "19",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "exhaust all unordered pairs",
+      "pairCount": 36,
+      "sum": 648,
+      "exact": "18"
+    }
+  },
+  {
+    "id": "verify-bank-032",
+    "family": 2,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "2fabe7c11c7747a8d772a0ef0448e9a8_ce122c4fd3633a58d1e4ead1e46a9a01",
+      "questionSha256": "936b5e36be04e6eaede86313de81e1520cb5954f75e2c00578a0254501195322",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "List all prime factors of 858, including repetitions, in ascending order.",
+    "clean": "Final answer: 2, 3, 11, 13",
+    "defect": "Final answer: 2, 3, 11, 15",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "2, 3, 11, 13",
+      "to": "2, 3, 11, 15",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "integer trial division",
+      "n": 858,
+      "factors": [
+        2,
+        3,
+        11,
+        13
+      ],
+      "product": 858
+    }
+  },
+  {
+    "id": "verify-bank-033",
+    "family": 3,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "8dce745bcd66e7dc916e9f3549d8ebc1_4495bceb02b2986125965eb7cb6c2b98",
+      "questionSha256": "410c2683485e5c31f9552661c1e5f935bd41511ee439b946d4a647f8af857ff7",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "Suppose 3 different integers are chosen uniformly from 10 through 69, inclusive. What is the probability that they each have a different tens digit?",
+    "clean": "Final answer: 1000/1711",
+    "defect": "Final answer: 101711/171100",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "1000/1711",
+      "to": "101711/171100",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "count subsets by distinct tens groups",
+      "groups": 6,
+      "chosen": 3,
+      "favorable": 20000,
+      "total": 34220
+    }
+  },
+  {
+    "id": "verify-bank-034",
+    "family": 4,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "74455975cc7822e30f33648e197a1775_ccbe576fccccc23b0bdad67d79075fb2",
+      "questionSha256": "2b70d93b180f584ffd26c95e61d79751647a7fe6ec92b2b3f174f62548be218e",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "A fictional shop sells a shirt at 73% of its original price. It then reduces the sale price by 13%, then reduces that price by 18%. What is the final price as a percentage of the original price?",
+    "clean": "Final answer: 260391/5000%",
+    "defect": "Final answer: 265391/5000%",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "260391/5000%",
+      "to": "265391/5000%",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "multiply successive retained fractions",
+      "retainedPercent": [
+        73,
+        87,
+        82
+      ],
+      "exactPercent": "260391/5000"
+    }
+  },
+  {
+    "id": "verify-bank-035",
+    "family": 5,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "a11d83cb0b8f07278223b4d659d85643_5518ab7ab0dd13c3c4a7e58909335b50",
+      "questionSha256": "438b751f5eaec795c1386dade31286883641d4fa16e55af0cf152e65fd6e8cf2",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "If 3^(x+y) = 243 and 243^(x-y) = 3, what is xy? Express the answer as a fraction.",
+    "clean": "Final answer: 156/25",
+    "defect": "Final answer: 649/100",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "156/25",
+      "to": "649/100",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "logarithm identities then difference of squares",
+      "xPlusY": "5",
+      "xMinusY": "1/5",
+      "xy": "156/25"
+    }
+  },
+  {
+    "id": "verify-bank-036",
+    "family": 6,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "d39f096bb2596eb7d8955356ef44a14e_cc7a467fa14f91c15dd31328e13f485e",
+      "questionSha256": "12596e35cb3d40645695d459ee3e92e648efdeb8dee66d99f5880a6ca0ee692f",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "A moving point (x,y) is equally distant from the point (5,0) and the line x=-5. Find its locus equation.",
+    "clean": "Final answer: y^2 = 20x",
+    "defect": "Final answer: y^2 = 24x",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "y^2 = 20x",
+      "to": "y^2 = 24x",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "square nonnegative distances and cancel x squared",
+      "focus": [
+        5,
+        0
+      ],
+      "directrix": -5,
+      "coefficient": 20,
+      "converse": "y squared nonnegative implies x nonnegative, so both distance sides are nonnegative"
+    }
+  },
+  {
+    "id": "verify-bank-037",
+    "family": 7,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "799919e29bafa202e0028952ff76d912_deee86a59cea577b40827ba2735e51f2",
+      "questionSha256": "1daf41d93e136c949b085e2aca173452c0ceec6a18b0e5a5f4838e73a46db981",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "A^(-1) is the diagonal matrix diag(5,6). Find the inverse of (A+I)^2.",
+    "clean": "Final answer: diag(25/36,36/49)",
+    "defect": "Final answer: diag(61/36,36/49)",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "diag(25/36,36/49)",
+      "to": "diag(61/36,36/49)",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "exact diagonal matrix inversion and multiplication",
+      "inverseA": [
+        5,
+        6
+      ],
+      "result": [
+        "25/36",
+        "36/49"
+      ],
+      "productDiagonal": [
+        "1",
+        "1"
+      ]
+    }
+  },
+  {
+    "id": "verify-bank-038",
+    "family": 8,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "d29e283a52241c0a9a32224b711237bd_cab7eb980622deaad71cf6fe7e803264",
+      "questionSha256": "b922fe7ddf8f7d0186b8083d3e015c81f27aba91ce505cf47169a02745f6c3de",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "In a fictional world, Luma3 is a yellow swan. Nori3 is a rhino. No color rule is stated. What color is Nori3?",
+    "clean": "Final answer: The color is not specified.",
+    "defect": "Final answer: The color is yellow.",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "The color is not specified.",
+      "to": "The color is yellow.",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "two models satisfy all premises and disagree on queried color",
+      "witnesses": [
+        {
+          "Luma3": "yellow",
+          "Nori3": "green"
+        },
+        {
+          "Luma3": "yellow",
+          "Nori3": "blue"
+        }
+      ]
+    }
+  },
+  {
+    "id": "verify-bank-039",
+    "family": 9,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "9cf12f34adac95169b15ddc25480ec2c_a7f2414568e73815e19f8370f3aeec89",
+      "questionSha256": "84a31b967a88cfc4773ed9d2fd5d7dac5c79678aab9fb8ff922b190f897ef569",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "Suppose 3*n + 32 = 5*n. Suppose 0 = -4*f + 2*q + 40, and f + 2*q = 0. Let b be (f/n)/(1/2). Give the value of b as a fraction.",
+    "clean": "Final answer: 1",
+    "defect": "Final answer: 2",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "1",
+      "to": "2",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "exact simultaneous linear equations",
+      "n": 16,
+      "f": 8,
+      "q": "-4",
+      "b": "1"
+    }
+  },
+  {
+    "id": "verify-bank-040",
+    "family": 0,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "514cb7d27518d395ec9a46c2ae62c9bf_6a8c772c3cbf9a7e26dae82deafbc213",
+      "questionSha256": "25931bd2bac7e70e08745427bdb4ed1378ef3be330ddcb94446a0a60caab062a",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: { ( ( < < < ( {",
+    "clean": "Final answer: } ) > > > ) ) }",
+    "defect": "Final answer: } ) > > > ) ) )",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "} ) > > > ) ) }",
+      "to": "} ) > > > ) ) )",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "LIFO bracket completion",
+      "stack": [
+        "{",
+        "(",
+        "(",
+        "<",
+        "<",
+        "<",
+        "(",
+        "{"
+      ],
+      "suffix": "} ) > > > ) ) }"
+    }
+  },
+  {
+    "id": "verify-bank-041",
+    "family": 1,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "987731fefdee670139b52a3c2cd13b54_63abd6b1489e90a7836c25efd043d174",
+      "questionSha256": "75c5444c00fa50b94179890a0965b9f05ac87049522da4d56148131357c30189",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "I have 11 marbles numbered 7 through 17 in a bag. I take two different marbles uniformly at random. What is the expected sum of their numbers?",
+    "clean": "Final answer: 24",
+    "defect": "Final answer: 25",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "24",
+      "to": "25",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "exhaust all unordered pairs",
+      "pairCount": 55,
+      "sum": 1320,
+      "exact": "24"
+    }
+  },
+  {
+    "id": "verify-bank-042",
+    "family": 2,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "2fabe7c11c7747a8d772a0ef0448e9a8_ce122c4fd3633a58d1e4ead1e46a9a01",
+      "questionSha256": "936b5e36be04e6eaede86313de81e1520cb5954f75e2c00578a0254501195322",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "List all prime factors of 10725, including repetitions, in ascending order.",
+    "clean": "Final answer: 3, 5, 5, 11, 13",
+    "defect": "Final answer: 3, 5, 5, 11, 15",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "3, 5, 5, 11, 13",
+      "to": "3, 5, 5, 11, 15",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "integer trial division",
+      "n": 10725,
+      "factors": [
+        3,
+        5,
+        5,
+        11,
+        13
+      ],
+      "product": 10725
+    }
+  },
+  {
+    "id": "verify-bank-043",
+    "family": 3,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "8dce745bcd66e7dc916e9f3549d8ebc1_4495bceb02b2986125965eb7cb6c2b98",
+      "questionSha256": "410c2683485e5c31f9552661c1e5f935bd41511ee439b946d4a647f8af857ff7",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "Suppose 2 different integers are chosen uniformly from 10 through 79, inclusive. What is the probability that they each have a different tens digit?",
+    "clean": "Final answer: 20/23",
+    "defect": "Final answer: 2023/2300",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "20/23",
+      "to": "2023/2300",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "count subsets by distinct tens groups",
+      "groups": 7,
+      "chosen": 2,
+      "favorable": 2100,
+      "total": 2415
+    }
+  },
+  {
+    "id": "verify-bank-044",
+    "family": 4,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "74455975cc7822e30f33648e197a1775_ccbe576fccccc23b0bdad67d79075fb2",
+      "questionSha256": "2b70d93b180f584ffd26c95e61d79751647a7fe6ec92b2b3f174f62548be218e",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "A fictional shop sells a shirt at 74% of its original price. It then reduces the sale price by 14%, then reduces that price by 19%. What is the final price as a percentage of the original price?",
+    "clean": "Final answer: 128871/2500%",
+    "defect": "Final answer: 131371/2500%",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "128871/2500%",
+      "to": "131371/2500%",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "multiply successive retained fractions",
+      "retainedPercent": [
+        74,
+        86,
+        81
+      ],
+      "exactPercent": "128871/2500"
+    }
+  },
+  {
+    "id": "verify-bank-045",
+    "family": 5,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "a11d83cb0b8f07278223b4d659d85643_5518ab7ab0dd13c3c4a7e58909335b50",
+      "questionSha256": "438b751f5eaec795c1386dade31286883641d4fa16e55af0cf152e65fd6e8cf2",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "If 3^(x+y) = 729 and 729^(x-y) = 3, what is xy? Express the answer as a fraction.",
+    "clean": "Final answer: 1295/144",
+    "defect": "Final answer: 1331/144",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "1295/144",
+      "to": "1331/144",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "logarithm identities then difference of squares",
+      "xPlusY": "6",
+      "xMinusY": "1/6",
+      "xy": "1295/144"
+    }
+  },
+  {
+    "id": "verify-bank-046",
+    "family": 6,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "d39f096bb2596eb7d8955356ef44a14e_cc7a467fa14f91c15dd31328e13f485e",
+      "questionSha256": "12596e35cb3d40645695d459ee3e92e648efdeb8dee66d99f5880a6ca0ee692f",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "A moving point (x,y) is equally distant from the point (6,0) and the line x=-6. Find its locus equation.",
+    "clean": "Final answer: y^2 = 24x",
+    "defect": "Final answer: y^2 = 28x",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "y^2 = 24x",
+      "to": "y^2 = 28x",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "square nonnegative distances and cancel x squared",
+      "focus": [
+        6,
+        0
+      ],
+      "directrix": -6,
+      "coefficient": 24,
+      "converse": "y squared nonnegative implies x nonnegative, so both distance sides are nonnegative"
+    }
+  },
+  {
+    "id": "verify-bank-047",
+    "family": 7,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "799919e29bafa202e0028952ff76d912_deee86a59cea577b40827ba2735e51f2",
+      "questionSha256": "1daf41d93e136c949b085e2aca173452c0ceec6a18b0e5a5f4838e73a46db981",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "A^(-1) is the diagonal matrix diag(6,7). Find the inverse of (A+I)^2.",
+    "clean": "Final answer: diag(36/49,49/64)",
+    "defect": "Final answer: diag(85/49,49/64)",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "diag(36/49,49/64)",
+      "to": "diag(85/49,49/64)",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "exact diagonal matrix inversion and multiplication",
+      "inverseA": [
+        6,
+        7
+      ],
+      "result": [
+        "36/49",
+        "49/64"
+      ],
+      "productDiagonal": [
+        "1",
+        "1"
+      ]
+    }
+  },
+  {
+    "id": "verify-bank-048",
+    "family": 8,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "d29e283a52241c0a9a32224b711237bd_cab7eb980622deaad71cf6fe7e803264",
+      "questionSha256": "b922fe7ddf8f7d0186b8083d3e015c81f27aba91ce505cf47169a02745f6c3de",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "In a fictional world, Luma4 is a yellow swan. Nori4 is a rhino. No color rule is stated. What color is Nori4?",
+    "clean": "Final answer: The color is not specified.",
+    "defect": "Final answer: The color is yellow.",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "The color is not specified.",
+      "to": "The color is yellow.",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "two models satisfy all premises and disagree on queried color",
+      "witnesses": [
+        {
+          "Luma4": "yellow",
+          "Nori4": "green"
+        },
+        {
+          "Luma4": "yellow",
+          "Nori4": "blue"
+        }
+      ]
+    }
+  },
+  {
+    "id": "verify-bank-049",
+    "family": 9,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "9cf12f34adac95169b15ddc25480ec2c_a7f2414568e73815e19f8370f3aeec89",
+      "questionSha256": "84a31b967a88cfc4773ed9d2fd5d7dac5c79678aab9fb8ff922b190f897ef569",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "Suppose 3*n + 36 = 5*n. Suppose 0 = -4*f + 2*q + 20, and f + 2*q = 0. Let b be (f/n)/(1/6). Give the value of b as a fraction.",
+    "clean": "Final answer: 4/3",
+    "defect": "Final answer: 7/3",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "4/3",
+      "to": "7/3",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "exact simultaneous linear equations",
+      "n": 18,
+      "f": 4,
+      "q": "-2",
+      "b": "4/3"
+    }
+  },
+  {
+    "id": "verify-bank-050",
+    "family": 0,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "514cb7d27518d395ec9a46c2ae62c9bf_6a8c772c3cbf9a7e26dae82deafbc213",
+      "questionSha256": "25931bd2bac7e70e08745427bdb4ed1378ef3be330ddcb94446a0a60caab062a",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: { ( < ( < < { { [",
+    "clean": "Final answer: ] } } > > ) > ) }",
+    "defect": "Final answer: ] } } > > ) > ) )",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "] } } > > ) > ) }",
+      "to": "] } } > > ) > ) )",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "LIFO bracket completion",
+      "stack": [
+        "{",
+        "(",
+        "<",
+        "(",
+        "<",
+        "<",
+        "{",
+        "{",
+        "["
+      ],
+      "suffix": "] } } > > ) > ) }"
+    }
+  },
+  {
+    "id": "verify-bank-051",
+    "family": 1,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "987731fefdee670139b52a3c2cd13b54_63abd6b1489e90a7836c25efd043d174",
+      "questionSha256": "75c5444c00fa50b94179890a0965b9f05ac87049522da4d56148131357c30189",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "I have 8 marbles numbered 11 through 18 in a bag. I take two different marbles uniformly at random. What is the expected sum of their numbers?",
+    "clean": "Final answer: 29",
+    "defect": "Final answer: 30",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "29",
+      "to": "30",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "exhaust all unordered pairs",
+      "pairCount": 28,
+      "sum": 812,
+      "exact": "29"
+    }
+  },
+  {
+    "id": "verify-bank-052",
+    "family": 2,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "2fabe7c11c7747a8d772a0ef0448e9a8_ce122c4fd3633a58d1e4ead1e46a9a01",
+      "questionSha256": "936b5e36be04e6eaede86313de81e1520cb5954f75e2c00578a0254501195322",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "List all prime factors of 38025, including repetitions, in ascending order.",
+    "clean": "Final answer: 3, 3, 5, 5, 13, 13",
+    "defect": "Final answer: 3, 3, 5, 5, 13, 15",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "3, 3, 5, 5, 13, 13",
+      "to": "3, 3, 5, 5, 13, 15",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "integer trial division",
+      "n": 38025,
+      "factors": [
+        3,
+        3,
+        5,
+        5,
+        13,
+        13
+      ],
+      "product": 38025
+    }
+  },
+  {
+    "id": "verify-bank-053",
+    "family": 3,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "8dce745bcd66e7dc916e9f3549d8ebc1_4495bceb02b2986125965eb7cb6c2b98",
+      "questionSha256": "410c2683485e5c31f9552661c1e5f935bd41511ee439b946d4a647f8af857ff7",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "Suppose 3 different integers are chosen uniformly from 10 through 89, inclusive. What is the probability that they each have a different tens digit?",
+    "clean": "Final answer: 700/1027",
+    "defect": "Final answer: 71027/102700",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "700/1027",
+      "to": "71027/102700",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "count subsets by distinct tens groups",
+      "groups": 8,
+      "chosen": 3,
+      "favorable": 56000,
+      "total": 82160
+    }
+  },
+  {
+    "id": "verify-bank-054",
+    "family": 4,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "74455975cc7822e30f33648e197a1775_ccbe576fccccc23b0bdad67d79075fb2",
+      "questionSha256": "2b70d93b180f584ffd26c95e61d79751647a7fe6ec92b2b3f174f62548be218e",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "A fictional shop sells a shirt at 75% of its original price. It then reduces the sale price by 15%, then reduces that price by 20%. What is the final price as a percentage of the original price?",
+    "clean": "Final answer: 51%",
+    "defect": "Final answer: 52%",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "51%",
+      "to": "52%",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "multiply successive retained fractions",
+      "retainedPercent": [
+        75,
+        85,
+        80
+      ],
+      "exactPercent": "51"
+    }
+  },
+  {
+    "id": "verify-bank-055",
+    "family": 5,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "a11d83cb0b8f07278223b4d659d85643_5518ab7ab0dd13c3c4a7e58909335b50",
+      "questionSha256": "438b751f5eaec795c1386dade31286883641d4fa16e55af0cf152e65fd6e8cf2",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "If 3^(x+y) = 2187 and 2187^(x-y) = 3, what is xy? Express the answer as a fraction.",
+    "clean": "Final answer: 600/49",
+    "defect": "Final answer: 2449/196",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "600/49",
+      "to": "2449/196",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "logarithm identities then difference of squares",
+      "xPlusY": "7",
+      "xMinusY": "1/7",
+      "xy": "600/49"
+    }
+  },
+  {
+    "id": "verify-bank-056",
+    "family": 6,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "d39f096bb2596eb7d8955356ef44a14e_cc7a467fa14f91c15dd31328e13f485e",
+      "questionSha256": "12596e35cb3d40645695d459ee3e92e648efdeb8dee66d99f5880a6ca0ee692f",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "A moving point (x,y) is equally distant from the point (7,0) and the line x=-7. Find its locus equation.",
+    "clean": "Final answer: y^2 = 28x",
+    "defect": "Final answer: y^2 = 32x",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "y^2 = 28x",
+      "to": "y^2 = 32x",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "square nonnegative distances and cancel x squared",
+      "focus": [
+        7,
+        0
+      ],
+      "directrix": -7,
+      "coefficient": 28,
+      "converse": "y squared nonnegative implies x nonnegative, so both distance sides are nonnegative"
+    }
+  },
+  {
+    "id": "verify-bank-057",
+    "family": 7,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "799919e29bafa202e0028952ff76d912_deee86a59cea577b40827ba2735e51f2",
+      "questionSha256": "1daf41d93e136c949b085e2aca173452c0ceec6a18b0e5a5f4838e73a46db981",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "A^(-1) is the diagonal matrix diag(7,8). Find the inverse of (A+I)^2.",
+    "clean": "Final answer: diag(49/64,64/81)",
+    "defect": "Final answer: diag(113/64,64/81)",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "diag(49/64,64/81)",
+      "to": "diag(113/64,64/81)",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "exact diagonal matrix inversion and multiplication",
+      "inverseA": [
+        7,
+        8
+      ],
+      "result": [
+        "49/64",
+        "64/81"
+      ],
+      "productDiagonal": [
+        "1",
+        "1"
+      ]
+    }
+  },
+  {
+    "id": "verify-bank-058",
+    "family": 8,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "d29e283a52241c0a9a32224b711237bd_cab7eb980622deaad71cf6fe7e803264",
+      "questionSha256": "b922fe7ddf8f7d0186b8083d3e015c81f27aba91ce505cf47169a02745f6c3de",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "In a fictional world, Luma5 is a yellow swan. Nori5 is a rhino. No color rule is stated. What color is Nori5?",
+    "clean": "Final answer: The color is not specified.",
+    "defect": "Final answer: The color is yellow.",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "The color is not specified.",
+      "to": "The color is yellow.",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "two models satisfy all premises and disagree on queried color",
+      "witnesses": [
+        {
+          "Luma5": "yellow",
+          "Nori5": "green"
+        },
+        {
+          "Luma5": "yellow",
+          "Nori5": "blue"
+        }
+      ]
+    }
+  },
+  {
+    "id": "verify-bank-059",
+    "family": 9,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "9cf12f34adac95169b15ddc25480ec2c_a7f2414568e73815e19f8370f3aeec89",
+      "questionSha256": "84a31b967a88cfc4773ed9d2fd5d7dac5c79678aab9fb8ff922b190f897ef569",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "Suppose 3*n + 44 = 5*n. Suppose 0 = -4*f + 2*q + 60, and f + 2*q = 0. Let b be (f/n)/(1/5). Give the value of b as a fraction.",
+    "clean": "Final answer: 30/11",
+    "defect": "Final answer: 41/11",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "30/11",
+      "to": "41/11",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "exact simultaneous linear equations",
+      "n": 22,
+      "f": 12,
+      "q": "-6",
+      "b": "30/11"
+    }
+  },
+  {
+    "id": "verify-bank-060",
+    "family": 0,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "514cb7d27518d395ec9a46c2ae62c9bf_6a8c772c3cbf9a7e26dae82deafbc213",
+      "questionSha256": "25931bd2bac7e70e08745427bdb4ed1378ef3be330ddcb94446a0a60caab062a",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: { [ { ( < ( [ { ( {",
+    "clean": "Final answer: } ) } ] ) > ) } ] }",
+    "defect": "Final answer: } ) } ] ) > ) } ] )",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "} ) } ] ) > ) } ] }",
+      "to": "} ) } ] ) > ) } ] )",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "LIFO bracket completion",
+      "stack": [
+        "{",
+        "[",
+        "{",
+        "(",
+        "<",
+        "(",
+        "[",
+        "{",
+        "(",
+        "{"
+      ],
+      "suffix": "} ) } ] ) > ) } ] }"
+    }
+  },
+  {
+    "id": "verify-bank-061",
+    "family": 1,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "987731fefdee670139b52a3c2cd13b54_63abd6b1489e90a7836c25efd043d174",
+      "questionSha256": "75c5444c00fa50b94179890a0965b9f05ac87049522da4d56148131357c30189",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "I have 14 marbles numbered 12 through 25 in a bag. I take two different marbles uniformly at random. What is the expected sum of their numbers?",
+    "clean": "Final answer: 37",
+    "defect": "Final answer: 38",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "37",
+      "to": "38",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "exhaust all unordered pairs",
+      "pairCount": 91,
+      "sum": 3367,
+      "exact": "37"
+    }
+  },
+  {
+    "id": "verify-bank-062",
+    "family": 2,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "2fabe7c11c7747a8d772a0ef0448e9a8_ce122c4fd3633a58d1e4ead1e46a9a01",
+      "questionSha256": "936b5e36be04e6eaede86313de81e1520cb5954f75e2c00578a0254501195322",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "List all prime factors of 770, including repetitions, in ascending order.",
+    "clean": "Final answer: 2, 5, 7, 11",
+    "defect": "Final answer: 2, 5, 7, 13",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "2, 5, 7, 11",
+      "to": "2, 5, 7, 13",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "integer trial division",
+      "n": 770,
+      "factors": [
+        2,
+        5,
+        7,
+        11
+      ],
+      "product": 770
+    }
+  },
+  {
+    "id": "verify-bank-063",
+    "family": 3,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "8dce745bcd66e7dc916e9f3549d8ebc1_4495bceb02b2986125965eb7cb6c2b98",
+      "questionSha256": "410c2683485e5c31f9552661c1e5f935bd41511ee439b946d4a647f8af857ff7",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "Suppose 2 different integers are chosen uniformly from 10 through 39, inclusive. What is the probability that they each have a different tens digit?",
+    "clean": "Final answer: 20/29",
+    "defect": "Final answer: 2029/2900",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "20/29",
+      "to": "2029/2900",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "count subsets by distinct tens groups",
+      "groups": 3,
+      "chosen": 2,
+      "favorable": 300,
+      "total": 435
+    }
+  },
+  {
+    "id": "verify-bank-064",
+    "family": 4,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "74455975cc7822e30f33648e197a1775_ccbe576fccccc23b0bdad67d79075fb2",
+      "questionSha256": "2b70d93b180f584ffd26c95e61d79751647a7fe6ec92b2b3f174f62548be218e",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "A fictional shop sells a shirt at 76% of its original price. It then reduces the sale price by 16%, then reduces that price by 21%. What is the final price as a percentage of the original price?",
+    "clean": "Final answer: 31521/625%",
+    "defect": "Final answer: 32146/625%",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "31521/625%",
+      "to": "32146/625%",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "multiply successive retained fractions",
+      "retainedPercent": [
+        76,
+        84,
+        79
+      ],
+      "exactPercent": "31521/625"
+    }
+  },
+  {
+    "id": "verify-bank-065",
+    "family": 5,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "a11d83cb0b8f07278223b4d659d85643_5518ab7ab0dd13c3c4a7e58909335b50",
+      "questionSha256": "438b751f5eaec795c1386dade31286883641d4fa16e55af0cf152e65fd6e8cf2",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "If 3^(x+y) = 6561 and 6561^(x-y) = 3, what is xy? Express the answer as a fraction.",
+    "clean": "Final answer: 4095/256",
+    "defect": "Final answer: 4159/256",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "4095/256",
+      "to": "4159/256",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "logarithm identities then difference of squares",
+      "xPlusY": "8",
+      "xMinusY": "1/8",
+      "xy": "4095/256"
+    }
+  },
+  {
+    "id": "verify-bank-066",
+    "family": 6,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "d39f096bb2596eb7d8955356ef44a14e_cc7a467fa14f91c15dd31328e13f485e",
+      "questionSha256": "12596e35cb3d40645695d459ee3e92e648efdeb8dee66d99f5880a6ca0ee692f",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "A moving point (x,y) is equally distant from the point (8,0) and the line x=-8. Find its locus equation.",
+    "clean": "Final answer: y^2 = 32x",
+    "defect": "Final answer: y^2 = 36x",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "y^2 = 32x",
+      "to": "y^2 = 36x",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "square nonnegative distances and cancel x squared",
+      "focus": [
+        8,
+        0
+      ],
+      "directrix": -8,
+      "coefficient": 32,
+      "converse": "y squared nonnegative implies x nonnegative, so both distance sides are nonnegative"
+    }
+  },
+  {
+    "id": "verify-bank-067",
+    "family": 7,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "799919e29bafa202e0028952ff76d912_deee86a59cea577b40827ba2735e51f2",
+      "questionSha256": "1daf41d93e136c949b085e2aca173452c0ceec6a18b0e5a5f4838e73a46db981",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "A^(-1) is the diagonal matrix diag(8,9). Find the inverse of (A+I)^2.",
+    "clean": "Final answer: diag(64/81,81/100)",
+    "defect": "Final answer: diag(145/81,81/100)",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "diag(64/81,81/100)",
+      "to": "diag(145/81,81/100)",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "exact diagonal matrix inversion and multiplication",
+      "inverseA": [
+        8,
+        9
+      ],
+      "result": [
+        "64/81",
+        "81/100"
+      ],
+      "productDiagonal": [
+        "1",
+        "1"
+      ]
+    }
+  },
+  {
+    "id": "verify-bank-068",
+    "family": 8,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "d29e283a52241c0a9a32224b711237bd_cab7eb980622deaad71cf6fe7e803264",
+      "questionSha256": "b922fe7ddf8f7d0186b8083d3e015c81f27aba91ce505cf47169a02745f6c3de",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "In a fictional world, Luma6 is a yellow swan. Nori6 is a rhino. No color rule is stated. What color is Nori6?",
+    "clean": "Final answer: The color is not specified.",
+    "defect": "Final answer: The color is yellow.",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "The color is not specified.",
+      "to": "The color is yellow.",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "two models satisfy all premises and disagree on queried color",
+      "witnesses": [
+        {
+          "Luma6": "yellow",
+          "Nori6": "green"
+        },
+        {
+          "Luma6": "yellow",
+          "Nori6": "blue"
+        }
+      ]
+    }
+  },
+  {
+    "id": "verify-bank-069",
+    "family": 9,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "9cf12f34adac95169b15ddc25480ec2c_a7f2414568e73815e19f8370f3aeec89",
+      "questionSha256": "84a31b967a88cfc4773ed9d2fd5d7dac5c79678aab9fb8ff922b190f897ef569",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "Suppose 3*n + 34 = 5*n. Suppose 0 = -4*f + 2*q + 40, and f + 2*q = 0. Let b be (f/n)/(1/7). Give the value of b as a fraction.",
+    "clean": "Final answer: 56/17",
+    "defect": "Final answer: 73/17",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "56/17",
+      "to": "73/17",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "exact simultaneous linear equations",
+      "n": 17,
+      "f": 8,
+      "q": "-4",
+      "b": "56/17"
+    }
+  },
+  {
+    "id": "verify-bank-070",
+    "family": 0,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "514cb7d27518d395ec9a46c2ae62c9bf_6a8c772c3cbf9a7e26dae82deafbc213",
+      "questionSha256": "25931bd2bac7e70e08745427bdb4ed1378ef3be330ddcb94446a0a60caab062a",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: [ [ < [ ( { { [ ( ( [",
+    "clean": "Final answer: ] ) ) ] } } ) ] > ] ]",
+    "defect": "Final answer: ] ) ) ] } } ) ] > ] )",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "] ) ) ] } } ) ] > ] ]",
+      "to": "] ) ) ] } } ) ] > ] )",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "LIFO bracket completion",
+      "stack": [
+        "[",
+        "[",
+        "<",
+        "[",
+        "(",
+        "{",
+        "{",
+        "[",
+        "(",
+        "(",
+        "["
+      ],
+      "suffix": "] ) ) ] } } ) ] > ] ]"
+    }
+  },
+  {
+    "id": "verify-bank-071",
+    "family": 1,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "987731fefdee670139b52a3c2cd13b54_63abd6b1489e90a7836c25efd043d174",
+      "questionSha256": "75c5444c00fa50b94179890a0965b9f05ac87049522da4d56148131357c30189",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "I have 12 marbles numbered 9 through 20 in a bag. I take two different marbles uniformly at random. What is the expected sum of their numbers?",
+    "clean": "Final answer: 29",
+    "defect": "Final answer: 30",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "29",
+      "to": "30",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "exhaust all unordered pairs",
+      "pairCount": 66,
+      "sum": 1914,
+      "exact": "29"
+    }
+  },
+  {
+    "id": "verify-bank-072",
+    "family": 2,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "2fabe7c11c7747a8d772a0ef0448e9a8_ce122c4fd3633a58d1e4ead1e46a9a01",
+      "questionSha256": "936b5e36be04e6eaede86313de81e1520cb5954f75e2c00578a0254501195322",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "List all prime factors of 7623, including repetitions, in ascending order.",
+    "clean": "Final answer: 3, 3, 7, 11, 11",
+    "defect": "Final answer: 3, 3, 7, 11, 13",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "3, 3, 7, 11, 11",
+      "to": "3, 3, 7, 11, 13",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "integer trial division",
+      "n": 7623,
+      "factors": [
+        3,
+        3,
+        7,
+        11,
+        11
+      ],
+      "product": 7623
+    }
+  },
+  {
+    "id": "verify-bank-073",
+    "family": 3,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "8dce745bcd66e7dc916e9f3549d8ebc1_4495bceb02b2986125965eb7cb6c2b98",
+      "questionSha256": "410c2683485e5c31f9552661c1e5f935bd41511ee439b946d4a647f8af857ff7",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "Suppose 3 different integers are chosen uniformly from 10 through 49, inclusive. What is the probability that they each have a different tens digit?",
+    "clean": "Final answer: 100/247",
+    "defect": "Final answer: 10247/24700",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "100/247",
+      "to": "10247/24700",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "count subsets by distinct tens groups",
+      "groups": 4,
+      "chosen": 3,
+      "favorable": 4000,
+      "total": 9880
+    }
+  },
+  {
+    "id": "verify-bank-074",
+    "family": 4,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "74455975cc7822e30f33648e197a1775_ccbe576fccccc23b0bdad67d79075fb2",
+      "questionSha256": "2b70d93b180f584ffd26c95e61d79751647a7fe6ec92b2b3f174f62548be218e",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "A fictional shop sells a shirt at 77% of its original price. It then reduces the sale price by 17%, then reduces that price by 22%. What is the final price as a percentage of the original price?",
+    "clean": "Final answer: 249249/5000%",
+    "defect": "Final answer: 254249/5000%",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "249249/5000%",
+      "to": "254249/5000%",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "multiply successive retained fractions",
+      "retainedPercent": [
+        77,
+        83,
+        78
+      ],
+      "exactPercent": "249249/5000"
+    }
+  },
+  {
+    "id": "verify-bank-075",
+    "family": 5,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "a11d83cb0b8f07278223b4d659d85643_5518ab7ab0dd13c3c4a7e58909335b50",
+      "questionSha256": "438b751f5eaec795c1386dade31286883641d4fa16e55af0cf152e65fd6e8cf2",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "If 3^(x+y) = 19683 and 19683^(x-y) = 3, what is xy? Express the answer as a fraction.",
+    "clean": "Final answer: 1640/81",
+    "defect": "Final answer: 6641/324",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "1640/81",
+      "to": "6641/324",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "logarithm identities then difference of squares",
+      "xPlusY": "9",
+      "xMinusY": "1/9",
+      "xy": "1640/81"
+    }
+  },
+  {
+    "id": "verify-bank-076",
+    "family": 6,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "d39f096bb2596eb7d8955356ef44a14e_cc7a467fa14f91c15dd31328e13f485e",
+      "questionSha256": "12596e35cb3d40645695d459ee3e92e648efdeb8dee66d99f5880a6ca0ee692f",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "A moving point (x,y) is equally distant from the point (9,0) and the line x=-9. Find its locus equation.",
+    "clean": "Final answer: y^2 = 36x",
+    "defect": "Final answer: y^2 = 40x",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "y^2 = 36x",
+      "to": "y^2 = 40x",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "square nonnegative distances and cancel x squared",
+      "focus": [
+        9,
+        0
+      ],
+      "directrix": -9,
+      "coefficient": 36,
+      "converse": "y squared nonnegative implies x nonnegative, so both distance sides are nonnegative"
+    }
+  },
+  {
+    "id": "verify-bank-077",
+    "family": 7,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "799919e29bafa202e0028952ff76d912_deee86a59cea577b40827ba2735e51f2",
+      "questionSha256": "1daf41d93e136c949b085e2aca173452c0ceec6a18b0e5a5f4838e73a46db981",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "A^(-1) is the diagonal matrix diag(9,10). Find the inverse of (A+I)^2.",
+    "clean": "Final answer: diag(81/100,100/121)",
+    "defect": "Final answer: diag(181/100,100/121)",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "diag(81/100,100/121)",
+      "to": "diag(181/100,100/121)",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "exact diagonal matrix inversion and multiplication",
+      "inverseA": [
+        9,
+        10
+      ],
+      "result": [
+        "81/100",
+        "100/121"
+      ],
+      "productDiagonal": [
+        "1",
+        "1"
+      ]
+    }
+  },
+  {
+    "id": "verify-bank-078",
+    "family": 8,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "d29e283a52241c0a9a32224b711237bd_cab7eb980622deaad71cf6fe7e803264",
+      "questionSha256": "b922fe7ddf8f7d0186b8083d3e015c81f27aba91ce505cf47169a02745f6c3de",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "In a fictional world, Luma7 is a yellow swan. Nori7 is a rhino. No color rule is stated. What color is Nori7?",
+    "clean": "Final answer: The color is not specified.",
+    "defect": "Final answer: The color is yellow.",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "The color is not specified.",
+      "to": "The color is yellow.",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "two models satisfy all premises and disagree on queried color",
+      "witnesses": [
+        {
+          "Luma7": "yellow",
+          "Nori7": "green"
+        },
+        {
+          "Luma7": "yellow",
+          "Nori7": "blue"
+        }
+      ]
+    }
+  },
+  {
+    "id": "verify-bank-079",
+    "family": 9,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "9cf12f34adac95169b15ddc25480ec2c_a7f2414568e73815e19f8370f3aeec89",
+      "questionSha256": "84a31b967a88cfc4773ed9d2fd5d7dac5c79678aab9fb8ff922b190f897ef569",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "Suppose 3*n + 46 = 5*n. Suppose 0 = -4*f + 2*q + 50, and f + 2*q = 0. Let b be (f/n)/(1/2). Give the value of b as a fraction.",
+    "clean": "Final answer: 20/23",
+    "defect": "Final answer: 43/23",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "20/23",
+      "to": "43/23",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "exact simultaneous linear equations",
+      "n": 23,
+      "f": 10,
+      "q": "-5",
+      "b": "20/23"
+    }
+  },
+  {
+    "id": "verify-bank-080",
+    "family": 0,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "514cb7d27518d395ec9a46c2ae62c9bf_6a8c772c3cbf9a7e26dae82deafbc213",
+      "questionSha256": "25931bd2bac7e70e08745427bdb4ed1378ef3be330ddcb94446a0a60caab062a",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: [ < ( [ ( { < ( ( [ < <",
+    "clean": "Final answer: > > ] ) ) > } ) ] ) > ]",
+    "defect": "Final answer: > > ] ) ) > } ) ] ) > )",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "> > ] ) ) > } ) ] ) > ]",
+      "to": "> > ] ) ) > } ) ] ) > )",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "LIFO bracket completion",
+      "stack": [
+        "[",
+        "<",
+        "(",
+        "[",
+        "(",
+        "{",
+        "<",
+        "(",
+        "(",
+        "[",
+        "<",
+        "<"
+      ],
+      "suffix": "> > ] ) ) > } ) ] ) > ]"
+    }
+  },
+  {
+    "id": "verify-bank-081",
+    "family": 1,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "987731fefdee670139b52a3c2cd13b54_63abd6b1489e90a7836c25efd043d174",
+      "questionSha256": "75c5444c00fa50b94179890a0965b9f05ac87049522da4d56148131357c30189",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "I have 13 marbles numbered 17 through 29 in a bag. I take two different marbles uniformly at random. What is the expected sum of their numbers?",
+    "clean": "Final answer: 46",
+    "defect": "Final answer: 47",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "46",
+      "to": "47",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "exhaust all unordered pairs",
+      "pairCount": 78,
+      "sum": 3588,
+      "exact": "46"
+    }
+  },
+  {
+    "id": "verify-bank-082",
+    "family": 2,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "2fabe7c11c7747a8d772a0ef0448e9a8_ce122c4fd3633a58d1e4ead1e46a9a01",
+      "questionSha256": "936b5e36be04e6eaede86313de81e1520cb5954f75e2c00578a0254501195322",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "List all prime factors of 53235, including repetitions, in ascending order.",
+    "clean": "Final answer: 3, 3, 5, 7, 13, 13",
+    "defect": "Final answer: 3, 3, 5, 7, 13, 15",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "3, 3, 5, 7, 13, 13",
+      "to": "3, 3, 5, 7, 13, 15",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "integer trial division",
+      "n": 53235,
+      "factors": [
+        3,
+        3,
+        5,
+        7,
+        13,
+        13
+      ],
+      "product": 53235
+    }
+  },
+  {
+    "id": "verify-bank-083",
+    "family": 3,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "8dce745bcd66e7dc916e9f3549d8ebc1_4495bceb02b2986125965eb7cb6c2b98",
+      "questionSha256": "410c2683485e5c31f9552661c1e5f935bd41511ee439b946d4a647f8af857ff7",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "Suppose 2 different integers are chosen uniformly from 10 through 59, inclusive. What is the probability that they each have a different tens digit?",
+    "clean": "Final answer: 40/49",
+    "defect": "Final answer: 4049/4900",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "40/49",
+      "to": "4049/4900",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "count subsets by distinct tens groups",
+      "groups": 5,
+      "chosen": 2,
+      "favorable": 1000,
+      "total": 1225
+    }
+  },
+  {
+    "id": "verify-bank-084",
+    "family": 4,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "74455975cc7822e30f33648e197a1775_ccbe576fccccc23b0bdad67d79075fb2",
+      "questionSha256": "2b70d93b180f584ffd26c95e61d79751647a7fe6ec92b2b3f174f62548be218e",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "A fictional shop sells a shirt at 78% of its original price. It then reduces the sale price by 18%, then reduces that price by 23%. What is the final price as a percentage of the original price?",
+    "clean": "Final answer: 123123/2500%",
+    "defect": "Final answer: 125623/2500%",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "123123/2500%",
+      "to": "125623/2500%",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "multiply successive retained fractions",
+      "retainedPercent": [
+        78,
+        82,
+        77
+      ],
+      "exactPercent": "123123/2500"
+    }
+  },
+  {
+    "id": "verify-bank-085",
+    "family": 5,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "a11d83cb0b8f07278223b4d659d85643_5518ab7ab0dd13c3c4a7e58909335b50",
+      "questionSha256": "438b751f5eaec795c1386dade31286883641d4fa16e55af0cf152e65fd6e8cf2",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "If 3^(x+y) = 59049 and 59049^(x-y) = 3, what is xy? Express the answer as a fraction.",
+    "clean": "Final answer: 9999/400",
+    "defect": "Final answer: 10099/400",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "9999/400",
+      "to": "10099/400",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "logarithm identities then difference of squares",
+      "xPlusY": "10",
+      "xMinusY": "1/10",
+      "xy": "9999/400"
+    }
+  },
+  {
+    "id": "verify-bank-086",
+    "family": 6,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "d39f096bb2596eb7d8955356ef44a14e_cc7a467fa14f91c15dd31328e13f485e",
+      "questionSha256": "12596e35cb3d40645695d459ee3e92e648efdeb8dee66d99f5880a6ca0ee692f",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "A moving point (x,y) is equally distant from the point (10,0) and the line x=-10. Find its locus equation.",
+    "clean": "Final answer: y^2 = 40x",
+    "defect": "Final answer: y^2 = 44x",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "y^2 = 40x",
+      "to": "y^2 = 44x",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "square nonnegative distances and cancel x squared",
+      "focus": [
+        10,
+        0
+      ],
+      "directrix": -10,
+      "coefficient": 40,
+      "converse": "y squared nonnegative implies x nonnegative, so both distance sides are nonnegative"
+    }
+  },
+  {
+    "id": "verify-bank-087",
+    "family": 7,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "799919e29bafa202e0028952ff76d912_deee86a59cea577b40827ba2735e51f2",
+      "questionSha256": "1daf41d93e136c949b085e2aca173452c0ceec6a18b0e5a5f4838e73a46db981",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "A^(-1) is the diagonal matrix diag(10,11). Find the inverse of (A+I)^2.",
+    "clean": "Final answer: diag(100/121,121/144)",
+    "defect": "Final answer: diag(221/121,121/144)",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "diag(100/121,121/144)",
+      "to": "diag(221/121,121/144)",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "exact diagonal matrix inversion and multiplication",
+      "inverseA": [
+        10,
+        11
+      ],
+      "result": [
+        "100/121",
+        "121/144"
+      ],
+      "productDiagonal": [
+        "1",
+        "1"
+      ]
+    }
+  },
+  {
+    "id": "verify-bank-088",
+    "family": 8,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "d29e283a52241c0a9a32224b711237bd_cab7eb980622deaad71cf6fe7e803264",
+      "questionSha256": "b922fe7ddf8f7d0186b8083d3e015c81f27aba91ce505cf47169a02745f6c3de",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "In a fictional world, Luma8 is a yellow swan. Nori8 is a rhino. No color rule is stated. What color is Nori8?",
+    "clean": "Final answer: The color is not specified.",
+    "defect": "Final answer: The color is yellow.",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "The color is not specified.",
+      "to": "The color is yellow.",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "two models satisfy all premises and disagree on queried color",
+      "witnesses": [
+        {
+          "Luma8": "yellow",
+          "Nori8": "green"
+        },
+        {
+          "Luma8": "yellow",
+          "Nori8": "blue"
+        }
+      ]
+    }
+  },
+  {
+    "id": "verify-bank-089",
+    "family": 9,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "9cf12f34adac95169b15ddc25480ec2c_a7f2414568e73815e19f8370f3aeec89",
+      "questionSha256": "84a31b967a88cfc4773ed9d2fd5d7dac5c79678aab9fb8ff922b190f897ef569",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "Suppose 3*n + 26 = 5*n. Suppose 0 = -4*f + 2*q + 20, and f + 2*q = 0. Let b be (f/n)/(1/3). Give the value of b as a fraction.",
+    "clean": "Final answer: 12/13",
+    "defect": "Final answer: 25/13",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "12/13",
+      "to": "25/13",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "exact simultaneous linear equations",
+      "n": 13,
+      "f": 4,
+      "q": "-2",
+      "b": "12/13"
+    }
+  },
+  {
+    "id": "verify-bank-090",
+    "family": 0,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "514cb7d27518d395ec9a46c2ae62c9bf_6a8c772c3cbf9a7e26dae82deafbc213",
+      "questionSha256": "25931bd2bac7e70e08745427bdb4ed1378ef3be330ddcb94446a0a60caab062a",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "Complete the rest of the sequence, making sure that the parentheses are closed properly. Input: ( ( < < < [ < [ ( [ < [ {",
+    "clean": "Final answer: } ] > ] ) ] > ] > > > ) )",
+    "defect": "Final answer: } ] > ] ) ] > ] > > > ) ]",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "} ] > ] ) ] > ] > > > ) )",
+      "to": "} ] > ] ) ] > ] > > > ) ]",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "LIFO bracket completion",
+      "stack": [
+        "(",
+        "(",
+        "<",
+        "<",
+        "<",
+        "[",
+        "<",
+        "[",
+        "(",
+        "[",
+        "<",
+        "[",
+        "{"
+      ],
+      "suffix": "} ] > ] ) ] > ] > > > ) )"
+    }
+  },
+  {
+    "id": "verify-bank-091",
+    "family": 1,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "987731fefdee670139b52a3c2cd13b54_63abd6b1489e90a7836c25efd043d174",
+      "questionSha256": "75c5444c00fa50b94179890a0965b9f05ac87049522da4d56148131357c30189",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "I have 8 marbles numbered 20 through 27 in a bag. I take two different marbles uniformly at random. What is the expected sum of their numbers?",
+    "clean": "Final answer: 47",
+    "defect": "Final answer: 48",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "47",
+      "to": "48",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "exhaust all unordered pairs",
+      "pairCount": 28,
+      "sum": 1316,
+      "exact": "47"
+    }
+  },
+  {
+    "id": "verify-bank-092",
+    "family": 2,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "2fabe7c11c7747a8d772a0ef0448e9a8_ce122c4fd3633a58d1e4ead1e46a9a01",
+      "questionSha256": "936b5e36be04e6eaede86313de81e1520cb5954f75e2c00578a0254501195322",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "List all prime factors of 2002, including repetitions, in ascending order.",
+    "clean": "Final answer: 2, 7, 11, 13",
+    "defect": "Final answer: 2, 7, 11, 15",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "2, 7, 11, 13",
+      "to": "2, 7, 11, 15",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "integer trial division",
+      "n": 2002,
+      "factors": [
+        2,
+        7,
+        11,
+        13
+      ],
+      "product": 2002
+    }
+  },
+  {
+    "id": "verify-bank-093",
+    "family": 3,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "8dce745bcd66e7dc916e9f3549d8ebc1_4495bceb02b2986125965eb7cb6c2b98",
+      "questionSha256": "410c2683485e5c31f9552661c1e5f935bd41511ee439b946d4a647f8af857ff7",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "Suppose 3 different integers are chosen uniformly from 10 through 69, inclusive. What is the probability that they each have a different tens digit?",
+    "clean": "Final answer: 1000/1711",
+    "defect": "Final answer: 101711/171100",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "1000/1711",
+      "to": "101711/171100",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "count subsets by distinct tens groups",
+      "groups": 6,
+      "chosen": 3,
+      "favorable": 20000,
+      "total": 34220
+    }
+  },
+  {
+    "id": "verify-bank-094",
+    "family": 4,
+    "source": {
+      "benchmark": "longjudge-verify",
+      "split": "dev",
+      "id": "74455975cc7822e30f33648e197a1775_ccbe576fccccc23b0bdad67d79075fb2",
+      "questionSha256": "2b70d93b180f584ffd26c95e61d79751647a7fe6ec92b2b3f174f62548be218e",
+      "criterionSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "question": "A fictional shop sells a shirt at 79% of its original price. It then reduces the sale price by 19%, then reduces that price by 24%. What is the final price as a percentage of the original price?",
+    "clean": "Final answer: 121581/2500%",
+    "defect": "Final answer: 124081/2500%",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "mutation": {
+      "from": "121581/2500%",
+      "to": "124081/2500%",
+      "scope": "one final answer component"
+    },
+    "proof": {
+      "algorithm": "multiply successive retained fractions",
+      "retainedPercent": [
+        79,
+        81,
+        76
+      ],
+      "exactPercent": "121581/2500"
+    }
+  }
+]

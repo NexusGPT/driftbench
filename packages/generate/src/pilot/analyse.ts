@@ -14,7 +14,7 @@ import {
   varianceComponents,
   wilson,
   Z95,
-} from '@driftbench/stats';
+} from '@agent-nexus/driftbench-stats';
 import type { PilotObservation } from './run';
 
 /**

@@ -1,7 +1,7 @@
-import { defaultChecks } from '@driftbench/checks';
-import { type AgentAdapter, runSpec } from '@driftbench/core';
-import { FakeModelPort, faultAdapter } from '@driftbench/generate';
-import { localProvider } from '@driftbench/sandbox';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
+import { type AgentAdapter, runSpec } from '@agent-nexus/driftbench-core';
+import { FakeModelPort, faultAdapter } from '@agent-nexus/driftbench-generate';
+import { localProvider } from '@agent-nexus/driftbench-sandbox';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { salesFaults } from '../../../examples/acme/faults/sales';
 import {
@@ -11,6 +11,7 @@ import {
   cuesOf,
   loadRedteamPack,
   type RedteamPack,
+  RedteamPackError,
   runAttack,
 } from '../src/index';
 import { acmeSales, acmeSpec, PACK_DIR } from './support';
@@ -106,6 +107,51 @@ describe('the adaptive attacker', { timeout: 60_000 }, () => {
     expect(broken.findings).toBeGreaterThan(real.findings);
   });
 
+  it('never draws a class the pack has no approved phrasing for: D11 and D12 are not attacks until approved', async () => {
+    const spec = await acmeSpec('conversations/plan-upgrade.yaml');
+    for (const seed of [0, 1, 2]) {
+      const result = await runAttack({
+        spec,
+        adapter: acmeSales(),
+        checks: defaultChecks(),
+        pack,
+        rounds: 10,
+        seed,
+      });
+      const classes = result.rounds.map((round) => round.class);
+      expect(classes.filter((cls) => cls === 'D11_pii_leak' || cls === 'D12_prompt_extraction')).toEqual([]);
+    }
+  });
+
+  it('refuses a pack with no approved phrasing at all, and draws from it when the run asks for drafts', async () => {
+    const spec = await acmeSpec('conversations/order-loose-confirmation.yaml');
+    const unapproved: RedteamPack = {
+      files: new Map(
+        [...pack.files].map(([cls, file]) => [
+          cls,
+          {
+            ...file,
+            conversation: file.conversation.map((phrasing) => ({ ...phrasing, approved: false })),
+            ...(file.task ? { task: file.task.map((phrasing) => ({ ...phrasing, approved: false })) } : {}),
+          },
+        ]),
+      ),
+    };
+    const base = {
+      spec,
+      adapter: acmeSales(),
+      checks: defaultChecks(),
+      pack: unapproved,
+      rounds: 3,
+      seed: 0,
+    };
+    // Nothing to draw is not a clean run of zero attacks: the pack is refused, as a pack with no file is.
+    await expect(runAttack(base)).rejects.toBeInstanceOf(RedteamPackError);
+    await expect(runAttack(base)).rejects.toThrow(/no approved conversation phrasing/);
+    const drafts = await runAttack({ ...base, drafts: true });
+    expect(drafts.rounds).toHaveLength(3);
+  });
+
   it('finds the fault that hides a tool failure, on the attack the spec author wrote for that block', async () => {
     // The order block calls order.create; the spec declares a D8 there, so the attacker uses its expectations.
     const spec = await acmeSpec('conversations/order-loose-confirmation.yaml');
@@ -121,12 +167,19 @@ describe('the adaptive attacker', { timeout: 60_000 }, () => {
     expect([broken?.injectAt, broken?.recovery?.label, broken?.finding]).toEqual([
       3,
       'never',
-      'not back in time',
+      'injected block failed',
     ]);
+    expect(broken?.detail).toBe(
+      'the injected block violated; the agent did not recover by the end of the run',
+    );
   });
 
   it('fails the tool the cueing block called when the spec declares no D8 there', async () => {
-    const spec = await acmeSpec('conversations/plan-upgrade.yaml');
+    const declared = await acmeSpec('conversations/plan-upgrade.yaml');
+    const spec = {
+      ...declared,
+      perturbations: declared.perturbations?.filter((p) => p.class !== 'D8_tool_failure'),
+    };
     const result = await runAttack({
       spec,
       adapter: acmeSales(),

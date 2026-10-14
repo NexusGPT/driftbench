@@ -262,7 +262,7 @@ const RULES: ReadonlyArray<readonly [RegExp, string]> = [
   [/^scan\.decoys\.guard-message-overlap$/, 'tie a guard to a rule by its row or label, not by quoted words'],
   [/^scan\.decoys\.script-name-in-prose$/, 'anchor a script only where it is run'],
   // Plan.
-  [/^plan\.contract\.journey-route$/, 'walk every route edge in a journey'],
+  [/^plan\.contract\.journey-route$/, 'walk every route the standing instructions state in a journey'],
   [/^plan\.relevance\./, 'cross each situation only with the atom kinds it acts on'],
   // Generation and agent mutants: the gap marker the generated specs carry.
   [/^(gen\.asks\.|gen\.complete\.route_positive-)/, 'ask k distinct positive phrases per route'],
@@ -303,8 +303,14 @@ const RULES: ReadonlyArray<readonly [RegExp, string]> = [
   [/^mutant\.agent\.register-reply-length$/, 'check the reply length register so deleting it fails a test'],
   [/^mutant\.agent\.subagent$/, 'test the dispatch so deleting the helper fails it'],
   // Maintenance.
-  [/^maintain\.impact\.[a-z]+-retires-its-tests$/, 'retire a test when its atom under test leaves'],
-  [/^maintain\.impact\.subagent-retires-nothing-else$/, 'keep the tests whose atom under test stayed'],
+  [
+    /^maintain\.impact\.[a-z]+-retires-its-tests$/,
+    'retire a test only when all its metadata atoms leave; regenerate it when other atoms remain',
+  ],
+  [
+    /^maintain\.impact\.subagent-retires-nothing-else$/,
+    'keep tests with remaining metadata atoms and unrelated tests',
+  ],
   [/^maintain\.impact\.addition-touches-nothing$/, 'regenerate nothing for an added rule'],
   [/^maintain\.impact\.spacing-touches-nothing$/, 'compare rules without their spacing'],
   [/^maintain\.impact\.rename-/, 'follow a renamed skill folder by its name'],

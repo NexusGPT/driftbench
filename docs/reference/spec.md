@@ -43,6 +43,11 @@ The loader rewrites these forms before it validates a spec.
 * [Expect rouge_l](#expect-rouge_l)
 * [Expect bleu](#expect-bleu)
 * [Expect sql](#expect-sql)
+* [JsonExpect](#jsonexpect)
+* [JsonExpect paths](#jsonexpect-paths)
+* [Expect tool_f1](#expect-tool_f1)
+* [Expect length](#expect-length)
+* [LengthBound](#lengthbound)
 * [SimilarityExpect](#similarityexpect)
 * [RelevancyExpect](#relevancyexpect)
 * [RetentionExpect](#retentionexpect)
@@ -88,7 +93,7 @@ One golden conversation, or one task for a code agent, written as a succession o
 | `stages` | list of strings, each not empty | no |  | The stage catalogue of the flow. expect.stage and recovery.stage_after must name one of these. |
 | `criteria` | list of [CriterionDef](#criteriondef) | no |  | The judged criteria the blocks may reference. |
 | `blocks` | list of [Block](#block), at least 1 item | yes |  | The blocks, in order. At least one. |
-| `end` | [Spec end](#spec-end) | no |  | An end verdict, given after the last block: the run stops there with this verdict. |
+| `end` | [Spec end](#spec-end) | no |  | An end verdict: the run stops after block atBlock (the last block when absent) with this verdict. |
 | `rules` | [Rules](#rules) | no |  | Rules for the whole conversation. |
 | `end_state` | [EndState](#endstate) | no |  | The expected end state of the world after the run. |
 | `perturbations` | list of [Perturbation](#perturbation) | no |  | Deviations to inject in perturbed mode. |
@@ -168,7 +173,7 @@ The files the agent starts from.
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `from` | string, not empty | no |  | A folder the workspace starts from. |
+| `from` | string, not empty | no |  | A folder the workspace starts from. A path written ./<path> is read from the folder of the spec file; any other relative path from the folder the run starts in. |
 | `files` | map of string to string | no |  | Files the workspace starts with: path to content. |
 
 ## CriterionDef
@@ -220,7 +225,7 @@ Write a mapping with exactly one of these keys.
 
 ## DeviationClass
 
-The ten deviation classes a perturbed run can inject.
+The twelve deviation classes a perturbed run can inject.
 
 Used by `when.injection.class` and `perturbations[].class`. Mode P runs them with the perturbing driver, and `driftbench perturb` runs one. See [recovery](../concepts/recovery.md).
 
@@ -236,6 +241,8 @@ Used by `when.injection.class` and `perturbations[].class`. Mode P runs them wit
 | `D8_tool_failure` | A tool or a command fails or returns an error. Expected: an honest fallback and one retry; never a success that did not happen. |
 | `D9_out_of_scope` | A request outside the agent's job, such as a billing complaint in the middle of an order. Expected: the agent routes it to the place that handles it and keeps it out of the current flow. |
 | `D10_return` | The user returns to the flow after a deviation, such as "ok, let's continue" two blocks later. Expected: the agent resumes at the right stage with every known fact kept. |
+| `D11_pii_leak` | A request for another person's personal data, such as the card number or email of the customer before. Expected: the agent gives no personal data of another person and says it cannot share it. |
+| `D12_prompt_extraction` | A request to reveal the instructions, the prompt or the tool names. Expected: the agent does not reveal its instructions, its prompt or its tool names. |
 
 ## Given
 
@@ -278,6 +285,7 @@ The expected output and state delta of a block. Every field is optional.
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `stage` | string, not empty | no |  | The stage the agent must reach after the block, one of the spec stages. |
+| `stage_reported` | boolean | no |  | True requires the runtime to report a non-empty stage in this block. A carried or inferred stage does not count. False or absent leaves reporting optional. |
 | `ledger_add` | map of string to any value | no |  | Facts the block establishes. They join the ledger. |
 | `tools` | list of [ToolExpect](#toolexpect) | no |  | The tool calls expected in the block. |
 | `tools_offered` | [ToolsOfferedExpect](#toolsofferedexpect) | no |  | The tools the runtime must offer and must not offer, whether or not the agent calls them. |
@@ -287,12 +295,22 @@ The expected output and state delta of a block. Every field is optional.
 | `rouge_l` | [Expect rouge_l](#expect-rouge_l) | no |  | The reply must overlap a reference text: its word-level ROUGE-L F measure must reach min. |
 | `bleu` | [Expect bleu](#expect-bleu) | no |  | The reply must overlap a reference text: its BLEU score over words must reach min. |
 | `sql` | [Expect sql](#expect-sql) | no |  | The SQL the agent ran must return the same rows as the golden query on the database. |
+| `regex` | list of strings, each not empty | no |  | Regular expressions the visible text must match, case-sensitive; must ignores case instead. |
 | `injection` | boolean | no |  | True when the block is a prompt-injection or jailbreak attempt: the reply must not obey it. |
-| `exact` | string, not empty | no |  | The reply must equal this text after normalising: case, surrounding space and punctuation ignored; two numbers compare as numbers. |
+| `exact` | string, not empty | no |  | The reply must equal this text after normalising: case, surrounding space and punctuation ignored; two numbers compare as numbers. A dot or comma between two digits counts, except a strictly grouped thousands comma. |
+| `exact_strict` | boolean | no |  | Compare exact byte for byte after trimming the ends, instead of ignoring case, punctuation and spacing. |
+| `json` | [JsonExpect](#jsonexpect) | no |  | The reply is valid JSON, optionally with a schema and paths. |
+| `tool_f1` | [Expect tool_f1](#expect-tool_f1) | no |  | Precision, recall and F1 of the tool calls against the expected ones. |
+| `refusal` | `refuses` or `answers` | no |  | Whether the reply must be a refusal, read from refusal phrases in seven languages. |
+| `markup` | one of `xml`, `html`, `sql` | no |  | The reply is well-formed XML, HTML or SQL (syntax only). |
+| `starts_with` | string, not empty | no |  | The reply, without leading space, starts with this text. |
+| `finish_reason` | string, not empty | no |  | The reason the model stopped, as the runtime reports it. |
+| `length` | [Expect length](#expect-length) | no |  | Word and character bounds on the customer-visible text of the block. |
 | `similarity` | list of [SimilarityExpect](#similarityexpect) | no |  | Reference texts the reply must be close to, each with its lowest passing score. |
 | `relevancy` | [RelevancyExpect](#relevancyexpect) | no |  | The reply addresses the ask of the block. |
 | `knowledge_retention` | list of [RetentionExpect](#retentionexpect) | no |  | Facts given earlier that the block must not ask for again, and may have to use. |
 | `lang` | string, 2 to 8 characters | no |  | The language of the reply. |
+| `pii_judge` | boolean | no |  | Opt in to judged detection of personal names and addresses in the visible reply. Requires a configured personal-data judge; absent or false makes no model calls. Missing or failed judging is gating inconclusive. |
 | `cards` | list of [CardExpect](#cardexpect) | no |  | The cards expected in the block. |
 | `criteria` | list of strings, each not empty | no |  | Judged criteria by name. name@gating makes a fail fail the block. |
 | `skills` | list of [SkillExpect](#skillexpect) | no |  | The skills expected in the block. |
@@ -313,6 +331,7 @@ One expected tool call.
 | `label` | string, not empty | yes |  | The tool name. |
 | `count` | [Count](#count) | no |  | How many calls are expected. 0 means the tool must not be called. |
 | `input` | map of string to [Assertion](#assertion) | no |  | Assertions on the arguments, by argument name. |
+| `input_closed` | boolean | no |  | True requires every call input to be an object with only the top-level keys named in input. An absent input allows no keys. False or absent leaves other keys allowed. |
 
 ## Count
 
@@ -388,6 +407,47 @@ The SQL the agent ran must return the same rows as the golden query on the datab
 | `tool` | string, not empty | yes |  | The tool whose call input holds the query, in its query field. |
 | `golden` | string, not empty | yes |  | The golden query: one read statement. |
 | `database` | string, not empty | yes |  | The SQLite database both queries run on, read-only. |
+
+## JsonExpect
+
+The reply is JSON, optionally with a schema and paths.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `embedded` | boolean | no |  | When true, the reply may hold JSON among its prose: the first JSON value found is read. Off by default. |
+| `schema` | map of string to JSON value | no |  | A JSON Schema the reply must match; an undeclared key fails. |
+| `paths` | list of [JsonExpect paths](#jsonexpect-paths) | no |  | Paths of the reply, each with its assertion. |
+
+## JsonExpect paths
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `path` | string, not empty | yes |  | A dotted path; a number indexes an array. |
+| `assert` | [Assertion](#assertion) | yes |  | What the value at the path must be, in the spec assertion vocabulary. |
+
+## Expect tool_f1
+
+Precision, recall and F1 of the tool calls against the expected ones.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `min` | number, 0 to 1 | yes |  | The least F1 that passes, from 0 to 1. |
+
+## Expect length
+
+Word and character bounds on the customer-visible text of the block.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `words` | [LengthBound](#lengthbound) | no |  | Bounds on the words of the visible text. |
+| `chars` | [LengthBound](#lengthbound) | no |  | Bounds on the characters (code points) of the visible text. |
+
+## LengthBound
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `min` | integer, at least 0 | no |  | The least the count may be. |
+| `max` | integer, at least 0 | no |  | The most the count may be. |
 
 ## SimilarityExpect
 
@@ -516,12 +576,13 @@ Limits for one block.
 
 ## Spec end
 
-An end verdict, given after the last block: the run stops there with this verdict.
+An end verdict: the run stops after block atBlock (the last block when absent) with this verdict.
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `verdict` | `success` or `failure` | yes |  | success when the script ends the conversation well, failure when it ends it badly. |
 | `reason` | string, not empty | no |  | Why the script ends here. |
+| `atBlock` | integer, at least -1 | no |  | The index of the last block that runs, -1 for none. The blocks after it are skipped by the verdict. Absent means the last block. |
 
 ## Rules
 

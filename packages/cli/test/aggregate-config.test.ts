@@ -85,3 +85,22 @@ describe('criteriaFromConfig', () => {
     if (!loaded.ok) expect(loaded.message).toContain('Cannot read the config');
   });
 });
+
+describe('driftbench.yaml scales: a score scale per criterion', () => {
+  it('reads each criterion scale, and leaves the aggregates reader unchanged', async () => {
+    const { readScaleConfig } = await import('../src/aggregate-config');
+    const path = await fileWith(
+      'aggregates:\n  - pass-rate:>=0.8\nscales:\n  tone:\n    min: 1\n    max: 5\n',
+    );
+    expect(await readScaleConfig(path)).toEqual({ ok: true, scales: { tone: { min: 1, max: 5 } } });
+    expect(await readAggregateConfig(path)).toEqual({ ok: true, specs: ['pass-rate:>=0.8'] });
+  });
+
+  it('refuses a scale whose minimum is not below its maximum, and names the line', async () => {
+    const { readScaleConfig } = await import('../src/aggregate-config');
+    const path = await fileWith('scales:\n  tone:\n    min: 5\n    max: 1\n');
+    const loaded = await readScaleConfig(path);
+    expect(loaded.ok).toBe(false);
+    expect(loaded.ok ? '' : loaded.message).toMatch(/:2: tone: min must be below max/);
+  });
+});

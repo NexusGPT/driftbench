@@ -15,10 +15,6 @@
       "file": "draft-pair.yaml",
       "atoms": [
         {
-          "atom": "instruction.standing.never-send-a-supplier-email-without",
-          "why": "whitespace"
-        },
-        {
           "atom": "instruction.standing.keep-an-unconfirmed-draft-unsent",
           "why": "removed"
         }
@@ -51,16 +47,6 @@
         {
           "atom": "route.standing.an-ask-to-plan-the-delivery",
           "why": "semantic"
-        }
-      ]
-    },
-    {
-      "test": "northwind-supplier-yes",
-      "file": "supplier-yes.yaml",
-      "atoms": [
-        {
-          "atom": "instruction.standing.never-send-a-supplier-email-without",
-          "why": "whitespace"
         }
       ]
     }
@@ -118,7 +104,7 @@
   ],
   "unaffected": {
     "moved": 24,
-    "tests": 2
+    "tests": 3
   },
   "needsPerson": [
     "re-approve route.standing.an-ask-to-plan-the-delivery: its meaning changed; 1 test waits",

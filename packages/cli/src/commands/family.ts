@@ -1,6 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { isAbsolute, join, relative, resolve, sep } from 'node:path';
-import { defaultReaders } from '@driftbench/artifacts';
+import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
 import {
   buildInstances,
   earlierOutput,
@@ -20,7 +20,7 @@ import {
   verifyInstances,
   writeInstances,
   writePendingReview,
-} from '@driftbench/generate';
+} from '@agent-nexus/driftbench-generate';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
@@ -139,8 +139,8 @@ export async function familyInstancesCommand(
     n: n as number,
     seed: seed as number,
     review: review.state,
-    seedFrom: (instance: string, variant: string) =>
-      portable(relative(io.cwd, join(outDir, instance, seedFolderName(variant)))),
+    // The seed folder sits beside the variant's spec, in its instance folder; the spec names it relative to itself.
+    seedFrom: (_instance: string, variant: string) => `./${seedFolderName(variant)}`,
   };
   let instances: Instance[];
   try {

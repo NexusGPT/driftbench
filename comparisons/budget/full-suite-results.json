@@ -1,0 +1,5129 @@
+[
+  {
+    "provenance": {
+      "sourceCommit": "68e7a455a70fa4414c4b879906d3a4fe0b110222",
+      "measuredAt": "2026-10-13T03:37:27.227Z",
+      "node": "v24.18.0",
+      "mapHash": "6d29ed7a7539"
+    },
+    "timing": {
+      "generationMs": 12582.069292,
+      "wallMs": 85490.982834,
+      "scope": "CLI generation plus suite loading, rendering audits, reference/equivalence/fault execution and coverage audit; includes output I/O, excludes final result-file write"
+    },
+    "cost": {
+      "modelCalls": 0,
+      "usd": 0,
+      "executedRuns": 588,
+      "executedBlocks": 2648
+    },
+    "wholeBalanceCountingRule": "t=1 coverage spec/value incidences on all axis-map dimensions among complete specs; fair=sum(spec/value incidences)/feasible values per dimension; a spec can expose multiple values",
+    "wholeBalance": [
+      {
+        "dimension": "behaviour",
+        "incidences": 196,
+        "allowedValues": 14,
+        "values": [
+          {
+            "value": "B-001",
+            "count": 10,
+            "fair": 14,
+            "deviation": -4
+          },
+          {
+            "value": "B-002",
+            "count": 10,
+            "fair": 14,
+            "deviation": -4
+          },
+          {
+            "value": "B-003",
+            "count": 11,
+            "fair": 14,
+            "deviation": -3
+          },
+          {
+            "value": "B-004",
+            "count": 11,
+            "fair": 14,
+            "deviation": -3
+          },
+          {
+            "value": "B-005",
+            "count": 10,
+            "fair": 14,
+            "deviation": -4
+          },
+          {
+            "value": "B-006",
+            "count": 11,
+            "fair": 14,
+            "deviation": -3
+          },
+          {
+            "value": "B-007",
+            "count": 11,
+            "fair": 14,
+            "deviation": -3
+          },
+          {
+            "value": "B-008",
+            "count": 10,
+            "fair": 14,
+            "deviation": -4
+          },
+          {
+            "value": "B-009",
+            "count": 10,
+            "fair": 14,
+            "deviation": -4
+          },
+          {
+            "value": "B-010",
+            "count": 12,
+            "fair": 14,
+            "deviation": -2
+          },
+          {
+            "value": "B-011",
+            "count": 11,
+            "fair": 14,
+            "deviation": -3
+          },
+          {
+            "value": "B-012",
+            "count": 11,
+            "fair": 14,
+            "deviation": -3
+          },
+          {
+            "value": "B-013",
+            "count": 34,
+            "fair": 14,
+            "deviation": 20
+          },
+          {
+            "value": "B-014",
+            "count": 34,
+            "fair": 14,
+            "deviation": 20
+          }
+        ]
+      },
+      {
+        "dimension": "deviation",
+        "incidences": 470,
+        "allowedValues": 11,
+        "values": [
+          {
+            "value": "none",
+            "count": 251,
+            "fair": 42.72727272727273,
+            "deviation": 208.27272727272728
+          },
+          {
+            "value": "D1_off_topic",
+            "count": 38,
+            "fair": 42.72727272727273,
+            "deviation": -4.727272727272727
+          },
+          {
+            "value": "D2_goal_shift",
+            "count": 13,
+            "fair": 42.72727272727273,
+            "deviation": -29.727272727272727
+          },
+          {
+            "value": "D3_contradiction",
+            "count": 18,
+            "fair": 42.72727272727273,
+            "deviation": -24.727272727272727
+          },
+          {
+            "value": "D4_loose_confirmation",
+            "count": 15,
+            "fair": 42.72727272727273,
+            "deviation": -27.727272727272727
+          },
+          {
+            "value": "D5_language_switch",
+            "count": 24,
+            "fair": 42.72727272727273,
+            "deviation": -18.727272727272727
+          },
+          {
+            "value": "D6_instruction_in_data",
+            "count": 32,
+            "fair": 42.72727272727273,
+            "deviation": -10.727272727272727
+          },
+          {
+            "value": "D8_tool_failure",
+            "count": 19,
+            "fair": 42.72727272727273,
+            "deviation": -23.727272727272727
+          },
+          {
+            "value": "D10_return",
+            "count": 17,
+            "fair": 42.72727272727273,
+            "deviation": -25.727272727272727
+          },
+          {
+            "value": "D7_silence_or_burst",
+            "count": 20,
+            "fair": 42.72727272727273,
+            "deviation": -22.727272727272727
+          },
+          {
+            "value": "D9_out_of_scope",
+            "count": 23,
+            "fair": 42.72727272727273,
+            "deviation": -19.727272727272727
+          }
+        ]
+      },
+      {
+        "dimension": "channel",
+        "incidences": 229,
+        "allowedValues": 2,
+        "values": [
+          {
+            "value": "chat",
+            "count": 134,
+            "fair": 114.5,
+            "deviation": 19.5
+          },
+          {
+            "value": "whatsapp",
+            "count": 95,
+            "fair": 114.5,
+            "deviation": -19.5
+          }
+        ]
+      },
+      {
+        "dimension": "stage",
+        "incidences": 953,
+        "allowedValues": 13,
+        "values": [
+          {
+            "value": "needs",
+            "count": 25,
+            "fair": 73.3076923076923,
+            "deviation": -48.30769230769231
+          },
+          {
+            "value": "identify",
+            "count": 60,
+            "fair": 73.3076923076923,
+            "deviation": -13.307692307692307
+          },
+          {
+            "value": "address",
+            "count": 114,
+            "fair": 73.3076923076923,
+            "deviation": 40.69230769230769
+          },
+          {
+            "value": "port_number",
+            "count": 43,
+            "fair": 73.3076923076923,
+            "deviation": -30.307692307692307
+          },
+          {
+            "value": "offer",
+            "count": 160,
+            "fair": 73.3076923076923,
+            "deviation": 86.6923076923077
+          },
+          {
+            "value": "details",
+            "count": 95,
+            "fair": 73.3076923076923,
+            "deviation": 21.692307692307693
+          },
+          {
+            "value": "recap",
+            "count": 123,
+            "fair": 73.3076923076923,
+            "deviation": 49.69230769230769
+          },
+          {
+            "value": "order_placed",
+            "count": 117,
+            "fair": 73.3076923076923,
+            "deviation": 43.69230769230769
+          },
+          {
+            "value": "callback",
+            "count": 42,
+            "fair": 73.3076923076923,
+            "deviation": -31.307692307692307
+          },
+          {
+            "value": "handover",
+            "count": 39,
+            "fair": 73.3076923076923,
+            "deviation": -34.30769230769231
+          },
+          {
+            "value": "closing",
+            "count": 88,
+            "fair": 73.3076923076923,
+            "deviation": 14.692307692307693
+          },
+          {
+            "value": "build_sheet",
+            "count": 34,
+            "fair": 73.3076923076923,
+            "deviation": -39.30769230769231
+          },
+          {
+            "value": "add_summary",
+            "count": 13,
+            "fair": 73.3076923076923,
+            "deviation": -60.30769230769231
+          }
+        ]
+      },
+      {
+        "dimension": "user_type",
+        "incidences": 250,
+        "allowedValues": 3,
+        "values": [
+          {
+            "value": "existing-customer",
+            "count": 77,
+            "fair": 83.33333333333333,
+            "deviation": -6.333333333333329
+          },
+          {
+            "value": "new-customer",
+            "count": 139,
+            "fair": 83.33333333333333,
+            "deviation": 55.66666666666667
+          },
+          {
+            "value": "sales-operations",
+            "count": 34,
+            "fair": 83.33333333333333,
+            "deviation": -49.33333333333333
+          }
+        ]
+      },
+      {
+        "dimension": "coverage_result",
+        "incidences": 251,
+        "allowedValues": 5,
+        "values": [
+          {
+            "value": "none",
+            "count": 137,
+            "fair": 50.2,
+            "deviation": 86.8
+          },
+          {
+            "value": "fiber",
+            "count": 59,
+            "fair": 50.2,
+            "deviation": 8.799999999999997
+          },
+          {
+            "value": "5g-only",
+            "count": 23,
+            "fair": 50.2,
+            "deviation": -27.200000000000003
+          },
+          {
+            "value": "no-service",
+            "count": 18,
+            "fair": 50.2,
+            "deviation": -32.2
+          },
+          {
+            "value": "not-in-map",
+            "count": 14,
+            "fair": 50.2,
+            "deviation": -36.2
+          }
+        ]
+      },
+      {
+        "dimension": "workspace_start",
+        "incidences": 251,
+        "allowedValues": 2,
+        "values": [
+          {
+            "value": "none",
+            "count": 217,
+            "fair": 125.5,
+            "deviation": 91.5
+          },
+          {
+            "value": "catalog-only",
+            "count": 34,
+            "fair": 125.5,
+            "deviation": -91.5
+          }
+        ]
+      }
+    ],
+    "wholeMaxDeviation": 208.27272727272728,
+    "mode": "budget",
+    "budget": 20,
+    "seed": 1,
+    "command": "pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/budget/full-suite/budget-20 --t 2 --seed 1 --budget 20 --force",
+    "exitCode": 1,
+    "selected": 20,
+    "complete": 251,
+    "incomplete": 74,
+    "selectedComplete": 20,
+    "selectedIncomplete": 0,
+    "pairs": {
+      "covered": 154,
+      "allowed": 314
+    },
+    "wholePairs": {
+      "covered": 637,
+      "allowed": 637
+    },
+    "maxDeviation": 2,
+    "balance": [
+      {
+        "dimension": "behaviour",
+        "values": [
+          {
+            "value": "B-001",
+            "count": 1,
+            "fair": 1.6666666666666667,
+            "deviation": -0.6666666666666667
+          },
+          {
+            "value": "B-002",
+            "count": 1,
+            "fair": 1.6666666666666667,
+            "deviation": -0.6666666666666667
+          },
+          {
+            "value": "B-003",
+            "count": 2,
+            "fair": 1.6666666666666667,
+            "deviation": 0.33333333333333326
+          },
+          {
+            "value": "B-004",
+            "count": 2,
+            "fair": 1.6666666666666667,
+            "deviation": 0.33333333333333326
+          },
+          {
+            "value": "B-005",
+            "count": 2,
+            "fair": 1.6666666666666667,
+            "deviation": 0.33333333333333326
+          },
+          {
+            "value": "B-006",
+            "count": 1,
+            "fair": 1.6666666666666667,
+            "deviation": -0.6666666666666667
+          },
+          {
+            "value": "B-007",
+            "count": 1,
+            "fair": 1.6666666666666667,
+            "deviation": -0.6666666666666667
+          },
+          {
+            "value": "B-008",
+            "count": 3,
+            "fair": 1.6666666666666667,
+            "deviation": 1.3333333333333333
+          },
+          {
+            "value": "B-009",
+            "count": 2,
+            "fair": 1.6666666666666667,
+            "deviation": 0.33333333333333326
+          },
+          {
+            "value": "B-010",
+            "count": 2,
+            "fair": 1.6666666666666667,
+            "deviation": 0.33333333333333326
+          },
+          {
+            "value": "B-011",
+            "count": 2,
+            "fair": 1.6666666666666667,
+            "deviation": 0.33333333333333326
+          },
+          {
+            "value": "B-012",
+            "count": 1,
+            "fair": 1.6666666666666667,
+            "deviation": -0.6666666666666667
+          }
+        ]
+      },
+      {
+        "dimension": "deviation",
+        "values": [
+          {
+            "value": "none",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D1_off_topic",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D2_goal_shift",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D3_contradiction",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D4_loose_confirmation",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D5_language_switch",
+            "count": 1,
+            "fair": 1.8181818181818181,
+            "deviation": -0.8181818181818181
+          },
+          {
+            "value": "D6_instruction_in_data",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D8_tool_failure",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D10_return",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D7_silence_or_burst",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D9_out_of_scope",
+            "count": 1,
+            "fair": 1.8181818181818181,
+            "deviation": -0.8181818181818181
+          }
+        ]
+      },
+      {
+        "dimension": "channel",
+        "values": [
+          {
+            "value": "chat",
+            "count": 10,
+            "fair": 10,
+            "deviation": 0
+          },
+          {
+            "value": "whatsapp",
+            "count": 10,
+            "fair": 10,
+            "deviation": 0
+          }
+        ]
+      },
+      {
+        "dimension": "user_type",
+        "values": [
+          {
+            "value": "existing-customer",
+            "count": 8,
+            "fair": 10,
+            "deviation": -2
+          },
+          {
+            "value": "new-customer",
+            "count": 12,
+            "fair": 10,
+            "deviation": 2
+          }
+        ]
+      },
+      {
+        "dimension": "coverage_result",
+        "values": [
+          {
+            "value": "none",
+            "count": 6,
+            "fair": 4,
+            "deviation": 2
+          },
+          {
+            "value": "fiber",
+            "count": 5,
+            "fair": 4,
+            "deviation": 1
+          },
+          {
+            "value": "5g-only",
+            "count": 4,
+            "fair": 4,
+            "deviation": 0
+          },
+          {
+            "value": "no-service",
+            "count": 2,
+            "fair": 4,
+            "deviation": -2
+          },
+          {
+            "value": "not-in-map",
+            "count": 3,
+            "fair": 4,
+            "deviation": -1
+          }
+        ]
+      }
+    ],
+    "faultsCaught": 13,
+    "faultsScored": 13,
+    "witnesses": {
+      "x1-invents-price": "gen-boundary-063#b2-identify-to-offer",
+      "x3-skips-recap": "gen-boundary-063#b3-offer-to-recap",
+      "x4-wrong-language": "gen-boundary-063#b1-needs-to-identify",
+      "x5-drops-coverage-check": "gen-boundary-072#b2-D8_tool_failure",
+      "d8-hides-tool-failure": "gen-boundary-072#b2-D8_tool_failure",
+      "d2-ignores-goal-shift": "gen-cover-002#b4-D2_goal_shift",
+      "d4-order-on-loose-yes": "gen-cover-002#b4-D2_goal_shift",
+      "d6-obeys-instruction": "gen-cover-005#b5-D6_instruction_in_data",
+      "d9-answers-out-of-scope": "gen-cover-009#b3-D9_out_of_scope",
+      "ops-x1-wrong-price": "acme-price-sheet-i01-base#build",
+      "ops-x4-narrates": "acme-price-sheet-i01-base#build",
+      "ops-x5-skips-check": "acme-price-sheet-i01-base#build",
+      "ops-d6-deletes-readme": "acme-price-sheet-i01-base#build"
+    },
+    "missed": [],
+    "selectedFaultsCaught": 9,
+    "selectedCaught": [
+      "d2-ignores-goal-shift",
+      "d4-order-on-loose-yes",
+      "d6-obeys-instruction",
+      "d8-hides-tool-failure",
+      "d9-answers-out-of-scope",
+      "x1-invents-price",
+      "x3-skips-recap",
+      "x4-wrong-language",
+      "x5-drops-coverage-check"
+    ],
+    "referenceFailures": []
+  },
+  {
+    "provenance": {
+      "sourceCommit": "68e7a455a70fa4414c4b879906d3a4fe0b110222",
+      "measuredAt": "2026-10-13T03:38:42.709Z",
+      "node": "v24.18.0",
+      "mapHash": "6d29ed7a7539"
+    },
+    "timing": {
+      "generationMs": 3878.3913750000065,
+      "wallMs": 75453.12075000002,
+      "scope": "CLI generation plus suite loading, rendering audits, reference/equivalence/fault execution and coverage audit; includes output I/O, excludes final result-file write"
+    },
+    "cost": {
+      "modelCalls": 0,
+      "usd": 0,
+      "executedRuns": 296,
+      "executedBlocks": 1178
+    },
+    "wholeBalanceCountingRule": "t=1 coverage spec/value incidences on all axis-map dimensions among complete specs; fair=sum(spec/value incidences)/feasible values per dimension; a spec can expose multiple values",
+    "wholeBalance": [
+      {
+        "dimension": "behaviour",
+        "incidences": 108,
+        "allowedValues": 14,
+        "values": [
+          {
+            "value": "B-001",
+            "count": 11,
+            "fair": 7.714285714285714,
+            "deviation": 3.2857142857142856
+          },
+          {
+            "value": "B-002",
+            "count": 10,
+            "fair": 7.714285714285714,
+            "deviation": 2.2857142857142856
+          },
+          {
+            "value": "B-003",
+            "count": 10,
+            "fair": 7.714285714285714,
+            "deviation": 2.2857142857142856
+          },
+          {
+            "value": "B-004",
+            "count": 9,
+            "fair": 7.714285714285714,
+            "deviation": 1.2857142857142856
+          },
+          {
+            "value": "B-005",
+            "count": 0,
+            "fair": 7.714285714285714,
+            "deviation": -7.714285714285714
+          },
+          {
+            "value": "B-006",
+            "count": 0,
+            "fair": 7.714285714285714,
+            "deviation": -7.714285714285714
+          },
+          {
+            "value": "B-007",
+            "count": 0,
+            "fair": 7.714285714285714,
+            "deviation": -7.714285714285714
+          },
+          {
+            "value": "B-008",
+            "count": 0,
+            "fair": 7.714285714285714,
+            "deviation": -7.714285714285714
+          },
+          {
+            "value": "B-009",
+            "count": 0,
+            "fair": 7.714285714285714,
+            "deviation": -7.714285714285714
+          },
+          {
+            "value": "B-010",
+            "count": 0,
+            "fair": 7.714285714285714,
+            "deviation": -7.714285714285714
+          },
+          {
+            "value": "B-011",
+            "count": 0,
+            "fair": 7.714285714285714,
+            "deviation": -7.714285714285714
+          },
+          {
+            "value": "B-012",
+            "count": 0,
+            "fair": 7.714285714285714,
+            "deviation": -7.714285714285714
+          },
+          {
+            "value": "B-013",
+            "count": 34,
+            "fair": 7.714285714285714,
+            "deviation": 26.285714285714285
+          },
+          {
+            "value": "B-014",
+            "count": 34,
+            "fair": 7.714285714285714,
+            "deviation": 26.285714285714285
+          }
+        ]
+      },
+      {
+        "dimension": "deviation",
+        "incidences": 196,
+        "allowedValues": 11,
+        "values": [
+          {
+            "value": "none",
+            "count": 114,
+            "fair": 17.818181818181817,
+            "deviation": 96.18181818181819
+          },
+          {
+            "value": "D1_off_topic",
+            "count": 16,
+            "fair": 17.818181818181817,
+            "deviation": -1.8181818181818166
+          },
+          {
+            "value": "D2_goal_shift",
+            "count": 5,
+            "fair": 17.818181818181817,
+            "deviation": -12.818181818181817
+          },
+          {
+            "value": "D3_contradiction",
+            "count": 5,
+            "fair": 17.818181818181817,
+            "deviation": -12.818181818181817
+          },
+          {
+            "value": "D4_loose_confirmation",
+            "count": 7,
+            "fair": 17.818181818181817,
+            "deviation": -10.818181818181817
+          },
+          {
+            "value": "D5_language_switch",
+            "count": 9,
+            "fair": 17.818181818181817,
+            "deviation": -8.818181818181817
+          },
+          {
+            "value": "D6_instruction_in_data",
+            "count": 17,
+            "fair": 17.818181818181817,
+            "deviation": -0.8181818181818166
+          },
+          {
+            "value": "D8_tool_failure",
+            "count": 5,
+            "fair": 17.818181818181817,
+            "deviation": -12.818181818181817
+          },
+          {
+            "value": "D10_return",
+            "count": 7,
+            "fair": 17.818181818181817,
+            "deviation": -10.818181818181817
+          },
+          {
+            "value": "D7_silence_or_burst",
+            "count": 7,
+            "fair": 17.818181818181817,
+            "deviation": -10.818181818181817
+          },
+          {
+            "value": "D9_out_of_scope",
+            "count": 4,
+            "fair": 17.818181818181817,
+            "deviation": -13.818181818181817
+          }
+        ]
+      },
+      {
+        "dimension": "channel",
+        "incidences": 112,
+        "allowedValues": 2,
+        "values": [
+          {
+            "value": "chat",
+            "count": 79,
+            "fair": 56,
+            "deviation": 23
+          },
+          {
+            "value": "whatsapp",
+            "count": 33,
+            "fair": 56,
+            "deviation": -23
+          }
+        ]
+      },
+      {
+        "dimension": "stage",
+        "incidences": 346,
+        "allowedValues": 13,
+        "values": [
+          {
+            "value": "needs",
+            "count": 8,
+            "fair": 26.615384615384617,
+            "deviation": -18.615384615384617
+          },
+          {
+            "value": "identify",
+            "count": 39,
+            "fair": 26.615384615384617,
+            "deviation": 12.384615384615383
+          },
+          {
+            "value": "address",
+            "count": 35,
+            "fair": 26.615384615384617,
+            "deviation": 8.384615384615383
+          },
+          {
+            "value": "port_number",
+            "count": 6,
+            "fair": 26.615384615384617,
+            "deviation": -20.615384615384617
+          },
+          {
+            "value": "offer",
+            "count": 53,
+            "fair": 26.615384615384617,
+            "deviation": 26.384615384615383
+          },
+          {
+            "value": "details",
+            "count": 19,
+            "fair": 26.615384615384617,
+            "deviation": -7.615384615384617
+          },
+          {
+            "value": "recap",
+            "count": 39,
+            "fair": 26.615384615384617,
+            "deviation": 12.384615384615383
+          },
+          {
+            "value": "order_placed",
+            "count": 38,
+            "fair": 26.615384615384617,
+            "deviation": 11.384615384615383
+          },
+          {
+            "value": "callback",
+            "count": 14,
+            "fair": 26.615384615384617,
+            "deviation": -12.615384615384617
+          },
+          {
+            "value": "handover",
+            "count": 14,
+            "fair": 26.615384615384617,
+            "deviation": -12.615384615384617
+          },
+          {
+            "value": "closing",
+            "count": 34,
+            "fair": 26.615384615384617,
+            "deviation": 7.384615384615383
+          },
+          {
+            "value": "build_sheet",
+            "count": 34,
+            "fair": 26.615384615384617,
+            "deviation": 7.384615384615383
+          },
+          {
+            "value": "add_summary",
+            "count": 13,
+            "fair": 26.615384615384617,
+            "deviation": -13.615384615384617
+          }
+        ]
+      },
+      {
+        "dimension": "user_type",
+        "incidences": 114,
+        "allowedValues": 3,
+        "values": [
+          {
+            "value": "existing-customer",
+            "count": 42,
+            "fair": 38,
+            "deviation": 4
+          },
+          {
+            "value": "new-customer",
+            "count": 38,
+            "fair": 38,
+            "deviation": 0
+          },
+          {
+            "value": "sales-operations",
+            "count": 34,
+            "fair": 38,
+            "deviation": -4
+          }
+        ]
+      },
+      {
+        "dimension": "coverage_result",
+        "incidences": 114,
+        "allowedValues": 5,
+        "values": [
+          {
+            "value": "none",
+            "count": 79,
+            "fair": 22.8,
+            "deviation": 56.2
+          },
+          {
+            "value": "fiber",
+            "count": 18,
+            "fair": 22.8,
+            "deviation": -4.800000000000001
+          },
+          {
+            "value": "5g-only",
+            "count": 6,
+            "fair": 22.8,
+            "deviation": -16.8
+          },
+          {
+            "value": "no-service",
+            "count": 5,
+            "fair": 22.8,
+            "deviation": -17.8
+          },
+          {
+            "value": "not-in-map",
+            "count": 6,
+            "fair": 22.8,
+            "deviation": -16.8
+          }
+        ]
+      },
+      {
+        "dimension": "workspace_start",
+        "incidences": 114,
+        "allowedValues": 2,
+        "values": [
+          {
+            "value": "none",
+            "count": 80,
+            "fair": 57,
+            "deviation": 23
+          },
+          {
+            "value": "catalog-only",
+            "count": 34,
+            "fair": 57,
+            "deviation": -23
+          }
+        ]
+      }
+    ],
+    "wholeMaxDeviation": 96.18181818181819,
+    "mode": "pairwise",
+    "budget": 20,
+    "seed": 1,
+    "command": "pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/budget/full-suite/pairwise-20 --t 2 --seed 1 --max 20 --force",
+    "exitCode": 1,
+    "selected": 20,
+    "complete": 114,
+    "incomplete": 22,
+    "selectedComplete": 20,
+    "selectedIncomplete": 0,
+    "pairs": {
+      "covered": 73,
+      "allowed": 314
+    },
+    "wholePairs": {
+      "covered": 379,
+      "allowed": 637
+    },
+    "maxDeviation": 16,
+    "balance": [
+      {
+        "dimension": "behaviour",
+        "values": [
+          {
+            "value": "B-001",
+            "count": 11,
+            "fair": 1.6666666666666667,
+            "deviation": 9.333333333333334
+          },
+          {
+            "value": "B-002",
+            "count": 9,
+            "fair": 1.6666666666666667,
+            "deviation": 7.333333333333333
+          },
+          {
+            "value": "B-003",
+            "count": 0,
+            "fair": 1.6666666666666667,
+            "deviation": -1.6666666666666667
+          },
+          {
+            "value": "B-004",
+            "count": 0,
+            "fair": 1.6666666666666667,
+            "deviation": -1.6666666666666667
+          },
+          {
+            "value": "B-005",
+            "count": 0,
+            "fair": 1.6666666666666667,
+            "deviation": -1.6666666666666667
+          },
+          {
+            "value": "B-006",
+            "count": 0,
+            "fair": 1.6666666666666667,
+            "deviation": -1.6666666666666667
+          },
+          {
+            "value": "B-007",
+            "count": 0,
+            "fair": 1.6666666666666667,
+            "deviation": -1.6666666666666667
+          },
+          {
+            "value": "B-008",
+            "count": 0,
+            "fair": 1.6666666666666667,
+            "deviation": -1.6666666666666667
+          },
+          {
+            "value": "B-009",
+            "count": 0,
+            "fair": 1.6666666666666667,
+            "deviation": -1.6666666666666667
+          },
+          {
+            "value": "B-010",
+            "count": 0,
+            "fair": 1.6666666666666667,
+            "deviation": -1.6666666666666667
+          },
+          {
+            "value": "B-011",
+            "count": 0,
+            "fair": 1.6666666666666667,
+            "deviation": -1.6666666666666667
+          },
+          {
+            "value": "B-012",
+            "count": 0,
+            "fair": 1.6666666666666667,
+            "deviation": -1.6666666666666667
+          }
+        ]
+      },
+      {
+        "dimension": "deviation",
+        "values": [
+          {
+            "value": "none",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D1_off_topic",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D2_goal_shift",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D3_contradiction",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D4_loose_confirmation",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D5_language_switch",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D6_instruction_in_data",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D8_tool_failure",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D10_return",
+            "count": 2,
+            "fair": 1.8181818181818181,
+            "deviation": 0.18181818181818188
+          },
+          {
+            "value": "D7_silence_or_burst",
+            "count": 1,
+            "fair": 1.8181818181818181,
+            "deviation": -0.8181818181818181
+          },
+          {
+            "value": "D9_out_of_scope",
+            "count": 1,
+            "fair": 1.8181818181818181,
+            "deviation": -0.8181818181818181
+          }
+        ]
+      },
+      {
+        "dimension": "channel",
+        "values": [
+          {
+            "value": "chat",
+            "count": 12,
+            "fair": 10,
+            "deviation": 2
+          },
+          {
+            "value": "whatsapp",
+            "count": 8,
+            "fair": 10,
+            "deviation": -2
+          }
+        ]
+      },
+      {
+        "dimension": "user_type",
+        "values": [
+          {
+            "value": "existing-customer",
+            "count": 20,
+            "fair": 10,
+            "deviation": 10
+          },
+          {
+            "value": "new-customer",
+            "count": 0,
+            "fair": 10,
+            "deviation": -10
+          }
+        ]
+      },
+      {
+        "dimension": "coverage_result",
+        "values": [
+          {
+            "value": "none",
+            "count": 20,
+            "fair": 4,
+            "deviation": 16
+          },
+          {
+            "value": "fiber",
+            "count": 0,
+            "fair": 4,
+            "deviation": -4
+          },
+          {
+            "value": "5g-only",
+            "count": 0,
+            "fair": 4,
+            "deviation": -4
+          },
+          {
+            "value": "no-service",
+            "count": 0,
+            "fair": 4,
+            "deviation": -4
+          },
+          {
+            "value": "not-in-map",
+            "count": 0,
+            "fair": 4,
+            "deviation": -4
+          }
+        ]
+      }
+    ],
+    "faultsCaught": 13,
+    "faultsScored": 13,
+    "witnesses": {
+      "x4-wrong-language": "gen-cover-001#b1-needs-to-identify",
+      "x5-drops-coverage-check": "gen-cover-002#b2-address-to-address",
+      "x1-invents-price": "gen-cover-003#b2-address-to-offer",
+      "x3-skips-recap": "gen-cover-003#b4-details-to-recap",
+      "d2-ignores-goal-shift": "gen-cover-003#b5-D2_goal_shift",
+      "d4-order-on-loose-yes": "gen-cover-005#b5-D4_loose_confirmation",
+      "d6-obeys-instruction": "gen-cover-007#b3-D6_instruction_in_data",
+      "d8-hides-tool-failure": "gen-cover-008#b2-D8_tool_failure",
+      "d9-answers-out-of-scope": "gen-cover-011#b3-D9_out_of_scope",
+      "ops-x1-wrong-price": "acme-price-sheet-i01-base#build",
+      "ops-x4-narrates": "acme-price-sheet-i01-base#build",
+      "ops-x5-skips-check": "acme-price-sheet-i01-base#build",
+      "ops-d6-deletes-readme": "acme-price-sheet-i01-base#build"
+    },
+    "missed": [],
+    "selectedFaultsCaught": 8,
+    "selectedCaught": [
+      "d2-ignores-goal-shift",
+      "d4-order-on-loose-yes",
+      "d6-obeys-instruction",
+      "d8-hides-tool-failure",
+      "d9-answers-out-of-scope",
+      "x1-invents-price",
+      "x3-skips-recap",
+      "x4-wrong-language"
+    ],
+    "referenceFailures": []
+  },
+  {
+    "provenance": {
+      "sourceCommit": "68e7a455a70fa4414c4b879906d3a4fe0b110222",
+      "measuredAt": "2026-10-13T03:39:51.402Z",
+      "node": "v24.18.0",
+      "mapHash": "6d29ed7a7539"
+    },
+    "timing": {
+      "generationMs": 7492.732667000004,
+      "wallMs": 68680.520667,
+      "scope": "CLI generation plus suite loading, rendering audits, reference/equivalence/fault execution and coverage audit; includes output I/O, excludes final result-file write"
+    },
+    "cost": {
+      "modelCalls": 0,
+      "usd": 0,
+      "executedRuns": 585,
+      "executedBlocks": 2632
+    },
+    "wholeBalanceCountingRule": "t=1 coverage spec/value incidences on all axis-map dimensions among complete specs; fair=sum(spec/value incidences)/feasible values per dimension; a spec can expose multiple values",
+    "wholeBalance": [
+      {
+        "dimension": "behaviour",
+        "incidences": 193,
+        "allowedValues": 14,
+        "values": [
+          {
+            "value": "B-001",
+            "count": 10,
+            "fair": 13.785714285714286,
+            "deviation": -3.7857142857142865
+          },
+          {
+            "value": "B-002",
+            "count": 10,
+            "fair": 13.785714285714286,
+            "deviation": -3.7857142857142865
+          },
+          {
+            "value": "B-003",
+            "count": 10,
+            "fair": 13.785714285714286,
+            "deviation": -3.7857142857142865
+          },
+          {
+            "value": "B-004",
+            "count": 11,
+            "fair": 13.785714285714286,
+            "deviation": -2.7857142857142865
+          },
+          {
+            "value": "B-005",
+            "count": 10,
+            "fair": 13.785714285714286,
+            "deviation": -3.7857142857142865
+          },
+          {
+            "value": "B-006",
+            "count": 10,
+            "fair": 13.785714285714286,
+            "deviation": -3.7857142857142865
+          },
+          {
+            "value": "B-007",
+            "count": 11,
+            "fair": 13.785714285714286,
+            "deviation": -2.7857142857142865
+          },
+          {
+            "value": "B-008",
+            "count": 10,
+            "fair": 13.785714285714286,
+            "deviation": -3.7857142857142865
+          },
+          {
+            "value": "B-009",
+            "count": 10,
+            "fair": 13.785714285714286,
+            "deviation": -3.7857142857142865
+          },
+          {
+            "value": "B-010",
+            "count": 12,
+            "fair": 13.785714285714286,
+            "deviation": -1.7857142857142865
+          },
+          {
+            "value": "B-011",
+            "count": 11,
+            "fair": 13.785714285714286,
+            "deviation": -2.7857142857142865
+          },
+          {
+            "value": "B-012",
+            "count": 10,
+            "fair": 13.785714285714286,
+            "deviation": -3.7857142857142865
+          },
+          {
+            "value": "B-013",
+            "count": 34,
+            "fair": 13.785714285714286,
+            "deviation": 20.214285714285715
+          },
+          {
+            "value": "B-014",
+            "count": 34,
+            "fair": 13.785714285714286,
+            "deviation": 20.214285714285715
+          }
+        ]
+      },
+      {
+        "dimension": "deviation",
+        "incidences": 462,
+        "allowedValues": 11,
+        "values": [
+          {
+            "value": "none",
+            "count": 247,
+            "fair": 42,
+            "deviation": 205
+          },
+          {
+            "value": "D1_off_topic",
+            "count": 37,
+            "fair": 42,
+            "deviation": -5
+          },
+          {
+            "value": "D2_goal_shift",
+            "count": 13,
+            "fair": 42,
+            "deviation": -29
+          },
+          {
+            "value": "D3_contradiction",
+            "count": 18,
+            "fair": 42,
+            "deviation": -24
+          },
+          {
+            "value": "D4_loose_confirmation",
+            "count": 15,
+            "fair": 42,
+            "deviation": -27
+          },
+          {
+            "value": "D5_language_switch",
+            "count": 22,
+            "fair": 42,
+            "deviation": -20
+          },
+          {
+            "value": "D6_instruction_in_data",
+            "count": 33,
+            "fair": 42,
+            "deviation": -9
+          },
+          {
+            "value": "D8_tool_failure",
+            "count": 18,
+            "fair": 42,
+            "deviation": -24
+          },
+          {
+            "value": "D10_return",
+            "count": 16,
+            "fair": 42,
+            "deviation": -26
+          },
+          {
+            "value": "D7_silence_or_burst",
+            "count": 20,
+            "fair": 42,
+            "deviation": -22
+          },
+          {
+            "value": "D9_out_of_scope",
+            "count": 23,
+            "fair": 42,
+            "deviation": -19
+          }
+        ]
+      },
+      {
+        "dimension": "channel",
+        "incidences": 228,
+        "allowedValues": 2,
+        "values": [
+          {
+            "value": "chat",
+            "count": 137,
+            "fair": 114,
+            "deviation": 23
+          },
+          {
+            "value": "whatsapp",
+            "count": 91,
+            "fair": 114,
+            "deviation": -23
+          }
+        ]
+      },
+      {
+        "dimension": "stage",
+        "incidences": 948,
+        "allowedValues": 13,
+        "values": [
+          {
+            "value": "needs",
+            "count": 27,
+            "fair": 72.92307692307692,
+            "deviation": -45.92307692307692
+          },
+          {
+            "value": "identify",
+            "count": 57,
+            "fair": 72.92307692307692,
+            "deviation": -15.92307692307692
+          },
+          {
+            "value": "address",
+            "count": 112,
+            "fair": 72.92307692307692,
+            "deviation": 39.07692307692308
+          },
+          {
+            "value": "port_number",
+            "count": 44,
+            "fair": 72.92307692307692,
+            "deviation": -28.92307692307692
+          },
+          {
+            "value": "offer",
+            "count": 156,
+            "fair": 72.92307692307692,
+            "deviation": 83.07692307692308
+          },
+          {
+            "value": "details",
+            "count": 100,
+            "fair": 72.92307692307692,
+            "deviation": 27.07692307692308
+          },
+          {
+            "value": "recap",
+            "count": 126,
+            "fair": 72.92307692307692,
+            "deviation": 53.07692307692308
+          },
+          {
+            "value": "order_placed",
+            "count": 121,
+            "fair": 72.92307692307692,
+            "deviation": 48.07692307692308
+          },
+          {
+            "value": "callback",
+            "count": 36,
+            "fair": 72.92307692307692,
+            "deviation": -36.92307692307692
+          },
+          {
+            "value": "handover",
+            "count": 33,
+            "fair": 72.92307692307692,
+            "deviation": -39.92307692307692
+          },
+          {
+            "value": "closing",
+            "count": 89,
+            "fair": 72.92307692307692,
+            "deviation": 16.07692307692308
+          },
+          {
+            "value": "build_sheet",
+            "count": 34,
+            "fair": 72.92307692307692,
+            "deviation": -38.92307692307692
+          },
+          {
+            "value": "add_summary",
+            "count": 13,
+            "fair": 72.92307692307692,
+            "deviation": -59.92307692307692
+          }
+        ]
+      },
+      {
+        "dimension": "user_type",
+        "incidences": 245,
+        "allowedValues": 3,
+        "values": [
+          {
+            "value": "existing-customer",
+            "count": 81,
+            "fair": 81.66666666666667,
+            "deviation": -0.6666666666666714
+          },
+          {
+            "value": "new-customer",
+            "count": 130,
+            "fair": 81.66666666666667,
+            "deviation": 48.33333333333333
+          },
+          {
+            "value": "sales-operations",
+            "count": 34,
+            "fair": 81.66666666666667,
+            "deviation": -47.66666666666667
+          }
+        ]
+      },
+      {
+        "dimension": "coverage_result",
+        "incidences": 247,
+        "allowedValues": 5,
+        "values": [
+          {
+            "value": "none",
+            "count": 135,
+            "fair": 49.4,
+            "deviation": 85.6
+          },
+          {
+            "value": "fiber",
+            "count": 54,
+            "fair": 49.4,
+            "deviation": 4.600000000000001
+          },
+          {
+            "value": "5g-only",
+            "count": 26,
+            "fair": 49.4,
+            "deviation": -23.4
+          },
+          {
+            "value": "no-service",
+            "count": 19,
+            "fair": 49.4,
+            "deviation": -30.4
+          },
+          {
+            "value": "not-in-map",
+            "count": 13,
+            "fair": 49.4,
+            "deviation": -36.4
+          }
+        ]
+      },
+      {
+        "dimension": "workspace_start",
+        "incidences": 247,
+        "allowedValues": 2,
+        "values": [
+          {
+            "value": "none",
+            "count": 213,
+            "fair": 123.5,
+            "deviation": 89.5
+          },
+          {
+            "value": "catalog-only",
+            "count": 34,
+            "fair": 123.5,
+            "deviation": -89.5
+          }
+        ]
+      }
+    ],
+    "wholeMaxDeviation": 205,
+    "mode": "budget",
+    "budget": 50,
+    "seed": 1,
+    "command": "pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/budget/full-suite/budget-50 --t 2 --seed 1 --budget 50 --force",
+    "exitCode": 1,
+    "selected": 50,
+    "complete": 247,
+    "incomplete": 75,
+    "selectedComplete": 49,
+    "selectedIncomplete": 1,
+    "pairs": {
+      "covered": 232,
+      "allowed": 314
+    },
+    "wholePairs": {
+      "covered": 637,
+      "allowed": 637
+    },
+    "maxDeviation": 5,
+    "balance": [
+      {
+        "dimension": "behaviour",
+        "values": [
+          {
+            "value": "B-001",
+            "count": 2,
+            "fair": 4.166666666666667,
+            "deviation": -2.166666666666667
+          },
+          {
+            "value": "B-002",
+            "count": 3,
+            "fair": 4.166666666666667,
+            "deviation": -1.166666666666667
+          },
+          {
+            "value": "B-003",
+            "count": 5,
+            "fair": 4.166666666666667,
+            "deviation": 0.833333333333333
+          },
+          {
+            "value": "B-004",
+            "count": 6,
+            "fair": 4.166666666666667,
+            "deviation": 1.833333333333333
+          },
+          {
+            "value": "B-005",
+            "count": 6,
+            "fair": 4.166666666666667,
+            "deviation": 1.833333333333333
+          },
+          {
+            "value": "B-006",
+            "count": 2,
+            "fair": 4.166666666666667,
+            "deviation": -2.166666666666667
+          },
+          {
+            "value": "B-007",
+            "count": 2,
+            "fair": 4.166666666666667,
+            "deviation": -2.166666666666667
+          },
+          {
+            "value": "B-008",
+            "count": 6,
+            "fair": 4.166666666666667,
+            "deviation": 1.833333333333333
+          },
+          {
+            "value": "B-009",
+            "count": 5,
+            "fair": 4.166666666666667,
+            "deviation": 0.833333333333333
+          },
+          {
+            "value": "B-010",
+            "count": 6,
+            "fair": 4.166666666666667,
+            "deviation": 1.833333333333333
+          },
+          {
+            "value": "B-011",
+            "count": 5,
+            "fair": 4.166666666666667,
+            "deviation": 0.833333333333333
+          },
+          {
+            "value": "B-012",
+            "count": 2,
+            "fair": 4.166666666666667,
+            "deviation": -2.166666666666667
+          }
+        ]
+      },
+      {
+        "dimension": "deviation",
+        "values": [
+          {
+            "value": "none",
+            "count": 5,
+            "fair": 4.545454545454546,
+            "deviation": 0.45454545454545414
+          },
+          {
+            "value": "D1_off_topic",
+            "count": 5,
+            "fair": 4.545454545454546,
+            "deviation": 0.45454545454545414
+          },
+          {
+            "value": "D2_goal_shift",
+            "count": 3,
+            "fair": 4.545454545454546,
+            "deviation": -1.5454545454545459
+          },
+          {
+            "value": "D3_contradiction",
+            "count": 3,
+            "fair": 4.545454545454546,
+            "deviation": -1.5454545454545459
+          },
+          {
+            "value": "D4_loose_confirmation",
+            "count": 4,
+            "fair": 4.545454545454546,
+            "deviation": -0.5454545454545459
+          },
+          {
+            "value": "D5_language_switch",
+            "count": 5,
+            "fair": 4.545454545454546,
+            "deviation": 0.45454545454545414
+          },
+          {
+            "value": "D6_instruction_in_data",
+            "count": 5,
+            "fair": 4.545454545454546,
+            "deviation": 0.45454545454545414
+          },
+          {
+            "value": "D8_tool_failure",
+            "count": 5,
+            "fair": 4.545454545454546,
+            "deviation": 0.45454545454545414
+          },
+          {
+            "value": "D10_return",
+            "count": 5,
+            "fair": 4.545454545454546,
+            "deviation": 0.45454545454545414
+          },
+          {
+            "value": "D7_silence_or_burst",
+            "count": 5,
+            "fair": 4.545454545454546,
+            "deviation": 0.45454545454545414
+          },
+          {
+            "value": "D9_out_of_scope",
+            "count": 5,
+            "fair": 4.545454545454546,
+            "deviation": 0.45454545454545414
+          }
+        ]
+      },
+      {
+        "dimension": "channel",
+        "values": [
+          {
+            "value": "chat",
+            "count": 25,
+            "fair": 25,
+            "deviation": 0
+          },
+          {
+            "value": "whatsapp",
+            "count": 25,
+            "fair": 25,
+            "deviation": 0
+          }
+        ]
+      },
+      {
+        "dimension": "user_type",
+        "values": [
+          {
+            "value": "existing-customer",
+            "count": 20,
+            "fair": 25,
+            "deviation": -5
+          },
+          {
+            "value": "new-customer",
+            "count": 30,
+            "fair": 25,
+            "deviation": 5
+          }
+        ]
+      },
+      {
+        "dimension": "coverage_result",
+        "values": [
+          {
+            "value": "none",
+            "count": 13,
+            "fair": 10,
+            "deviation": 3
+          },
+          {
+            "value": "fiber",
+            "count": 11,
+            "fair": 10,
+            "deviation": 1
+          },
+          {
+            "value": "5g-only",
+            "count": 10,
+            "fair": 10,
+            "deviation": 0
+          },
+          {
+            "value": "no-service",
+            "count": 8,
+            "fair": 10,
+            "deviation": -2
+          },
+          {
+            "value": "not-in-map",
+            "count": 8,
+            "fair": 10,
+            "deviation": -2
+          }
+        ]
+      }
+    ],
+    "faultsCaught": 13,
+    "faultsScored": 13,
+    "witnesses": {
+      "x1-invents-price": "gen-boundary-063#b2-identify-to-offer",
+      "x3-skips-recap": "gen-boundary-063#b3-offer-to-recap",
+      "x4-wrong-language": "gen-boundary-063#b1-needs-to-identify",
+      "x5-drops-coverage-check": "gen-boundary-072#b2-D8_tool_failure",
+      "d8-hides-tool-failure": "gen-boundary-072#b2-D8_tool_failure",
+      "d4-order-on-loose-yes": "gen-cover-002#b4-D4_loose_confirmation",
+      "d6-obeys-instruction": "gen-cover-004#b1-D6_instruction_in_data",
+      "d9-answers-out-of-scope": "gen-cover-008#b6-D9_out_of_scope",
+      "d2-ignores-goal-shift": "gen-cover-009#b4-D2_goal_shift",
+      "ops-x1-wrong-price": "acme-price-sheet-i01-base#build",
+      "ops-x4-narrates": "acme-price-sheet-i01-base#build",
+      "ops-x5-skips-check": "acme-price-sheet-i01-base#build",
+      "ops-d6-deletes-readme": "acme-price-sheet-i01-base#build"
+    },
+    "missed": [],
+    "selectedFaultsCaught": 9,
+    "selectedCaught": [
+      "d2-ignores-goal-shift",
+      "d4-order-on-loose-yes",
+      "d6-obeys-instruction",
+      "d8-hides-tool-failure",
+      "d9-answers-out-of-scope",
+      "x1-invents-price",
+      "x3-skips-recap",
+      "x4-wrong-language",
+      "x5-drops-coverage-check"
+    ],
+    "referenceFailures": []
+  },
+  {
+    "provenance": {
+      "sourceCommit": "68e7a455a70fa4414c4b879906d3a4fe0b110222",
+      "measuredAt": "2026-10-13T03:40:55.347Z",
+      "node": "v24.18.0",
+      "mapHash": "6d29ed7a7539"
+    },
+    "timing": {
+      "generationMs": 4199.24091600001,
+      "wallMs": 63940.91487500002,
+      "scope": "CLI generation plus suite loading, rendering audits, reference/equivalence/fault execution and coverage audit; includes output I/O, excludes final result-file write"
+    },
+    "cost": {
+      "modelCalls": 0,
+      "usd": 0,
+      "executedRuns": 449,
+      "executedBlocks": 2037
+    },
+    "wholeBalanceCountingRule": "t=1 coverage spec/value incidences on all axis-map dimensions among complete specs; fair=sum(spec/value incidences)/feasible values per dimension; a spec can expose multiple values",
+    "wholeBalance": [
+      {
+        "dimension": "behaviour",
+        "incidences": 168,
+        "allowedValues": 14,
+        "values": [
+          {
+            "value": "B-001",
+            "count": 11,
+            "fair": 12,
+            "deviation": -1
+          },
+          {
+            "value": "B-002",
+            "count": 11,
+            "fair": 12,
+            "deviation": -1
+          },
+          {
+            "value": "B-003",
+            "count": 11,
+            "fair": 12,
+            "deviation": -1
+          },
+          {
+            "value": "B-004",
+            "count": 11,
+            "fair": 12,
+            "deviation": -1
+          },
+          {
+            "value": "B-005",
+            "count": 11,
+            "fair": 12,
+            "deviation": -1
+          },
+          {
+            "value": "B-006",
+            "count": 10,
+            "fair": 12,
+            "deviation": -2
+          },
+          {
+            "value": "B-007",
+            "count": 10,
+            "fair": 12,
+            "deviation": -2
+          },
+          {
+            "value": "B-008",
+            "count": 10,
+            "fair": 12,
+            "deviation": -2
+          },
+          {
+            "value": "B-009",
+            "count": 10,
+            "fair": 12,
+            "deviation": -2
+          },
+          {
+            "value": "B-010",
+            "count": 5,
+            "fair": 12,
+            "deviation": -7
+          },
+          {
+            "value": "B-011",
+            "count": 0,
+            "fair": 12,
+            "deviation": -12
+          },
+          {
+            "value": "B-012",
+            "count": 0,
+            "fair": 12,
+            "deviation": -12
+          },
+          {
+            "value": "B-013",
+            "count": 34,
+            "fair": 12,
+            "deviation": 22
+          },
+          {
+            "value": "B-014",
+            "count": 34,
+            "fair": 12,
+            "deviation": 22
+          }
+        ]
+      },
+      {
+        "dimension": "deviation",
+        "incidences": 356,
+        "allowedValues": 11,
+        "values": [
+          {
+            "value": "none",
+            "count": 194,
+            "fair": 32.36363636363637,
+            "deviation": 161.63636363636363
+          },
+          {
+            "value": "D1_off_topic",
+            "count": 24,
+            "fair": 32.36363636363637,
+            "deviation": -8.363636363636367
+          },
+          {
+            "value": "D2_goal_shift",
+            "count": 11,
+            "fair": 32.36363636363637,
+            "deviation": -21.363636363636367
+          },
+          {
+            "value": "D3_contradiction",
+            "count": 15,
+            "fair": 32.36363636363637,
+            "deviation": -17.363636363636367
+          },
+          {
+            "value": "D4_loose_confirmation",
+            "count": 13,
+            "fair": 32.36363636363637,
+            "deviation": -19.363636363636367
+          },
+          {
+            "value": "D5_language_switch",
+            "count": 19,
+            "fair": 32.36363636363637,
+            "deviation": -13.363636363636367
+          },
+          {
+            "value": "D6_instruction_in_data",
+            "count": 28,
+            "fair": 32.36363636363637,
+            "deviation": -4.363636363636367
+          },
+          {
+            "value": "D8_tool_failure",
+            "count": 10,
+            "fair": 32.36363636363637,
+            "deviation": -22.363636363636367
+          },
+          {
+            "value": "D10_return",
+            "count": 13,
+            "fair": 32.36363636363637,
+            "deviation": -19.363636363636367
+          },
+          {
+            "value": "D7_silence_or_burst",
+            "count": 12,
+            "fair": 32.36363636363637,
+            "deviation": -20.363636363636367
+          },
+          {
+            "value": "D9_out_of_scope",
+            "count": 17,
+            "fair": 32.36363636363637,
+            "deviation": -15.363636363636367
+          }
+        ]
+      },
+      {
+        "dimension": "channel",
+        "incidences": 185,
+        "allowedValues": 2,
+        "values": [
+          {
+            "value": "chat",
+            "count": 111,
+            "fair": 92.5,
+            "deviation": 18.5
+          },
+          {
+            "value": "whatsapp",
+            "count": 74,
+            "fair": 92.5,
+            "deviation": -18.5
+          }
+        ]
+      },
+      {
+        "dimension": "stage",
+        "incidences": 723,
+        "allowedValues": 13,
+        "values": [
+          {
+            "value": "needs",
+            "count": 17,
+            "fair": 55.61538461538461,
+            "deviation": -38.61538461538461
+          },
+          {
+            "value": "identify",
+            "count": 46,
+            "fair": 55.61538461538461,
+            "deviation": -9.615384615384613
+          },
+          {
+            "value": "address",
+            "count": 79,
+            "fair": 55.61538461538461,
+            "deviation": 23.384615384615387
+          },
+          {
+            "value": "port_number",
+            "count": 35,
+            "fair": 55.61538461538461,
+            "deviation": -20.615384615384613
+          },
+          {
+            "value": "offer",
+            "count": 114,
+            "fair": 55.61538461538461,
+            "deviation": 58.38461538461539
+          },
+          {
+            "value": "details",
+            "count": 73,
+            "fair": 55.61538461538461,
+            "deviation": 17.384615384615387
+          },
+          {
+            "value": "recap",
+            "count": 94,
+            "fair": 55.61538461538461,
+            "deviation": 38.38461538461539
+          },
+          {
+            "value": "order_placed",
+            "count": 93,
+            "fair": 55.61538461538461,
+            "deviation": 37.38461538461539
+          },
+          {
+            "value": "callback",
+            "count": 27,
+            "fair": 55.61538461538461,
+            "deviation": -28.615384615384613
+          },
+          {
+            "value": "handover",
+            "count": 27,
+            "fair": 55.61538461538461,
+            "deviation": -28.615384615384613
+          },
+          {
+            "value": "closing",
+            "count": 71,
+            "fair": 55.61538461538461,
+            "deviation": 15.384615384615387
+          },
+          {
+            "value": "build_sheet",
+            "count": 34,
+            "fair": 55.61538461538461,
+            "deviation": -21.615384615384613
+          },
+          {
+            "value": "add_summary",
+            "count": 13,
+            "fair": 55.61538461538461,
+            "deviation": -42.61538461538461
+          }
+        ]
+      },
+      {
+        "dimension": "user_type",
+        "incidences": 193,
+        "allowedValues": 3,
+        "values": [
+          {
+            "value": "existing-customer",
+            "count": 60,
+            "fair": 64.33333333333333,
+            "deviation": -4.333333333333329
+          },
+          {
+            "value": "new-customer",
+            "count": 99,
+            "fair": 64.33333333333333,
+            "deviation": 34.66666666666667
+          },
+          {
+            "value": "sales-operations",
+            "count": 34,
+            "fair": 64.33333333333333,
+            "deviation": -30.33333333333333
+          }
+        ]
+      },
+      {
+        "dimension": "coverage_result",
+        "incidences": 194,
+        "allowedValues": 5,
+        "values": [
+          {
+            "value": "none",
+            "count": 115,
+            "fair": 38.8,
+            "deviation": 76.2
+          },
+          {
+            "value": "fiber",
+            "count": 37,
+            "fair": 38.8,
+            "deviation": -1.7999999999999972
+          },
+          {
+            "value": "5g-only",
+            "count": 18,
+            "fair": 38.8,
+            "deviation": -20.799999999999997
+          },
+          {
+            "value": "no-service",
+            "count": 15,
+            "fair": 38.8,
+            "deviation": -23.799999999999997
+          },
+          {
+            "value": "not-in-map",
+            "count": 9,
+            "fair": 38.8,
+            "deviation": -29.799999999999997
+          }
+        ]
+      },
+      {
+        "dimension": "workspace_start",
+        "incidences": 194,
+        "allowedValues": 2,
+        "values": [
+          {
+            "value": "none",
+            "count": 160,
+            "fair": 97,
+            "deviation": 63
+          },
+          {
+            "value": "catalog-only",
+            "count": 34,
+            "fair": 97,
+            "deviation": -63
+          }
+        ]
+      }
+    ],
+    "wholeMaxDeviation": 161.63636363636363,
+    "mode": "pairwise",
+    "budget": 50,
+    "seed": 1,
+    "command": "pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/budget/full-suite/pairwise-50 --t 2 --seed 1 --max 50 --force",
+    "exitCode": 1,
+    "selected": 50,
+    "complete": 194,
+    "incomplete": 52,
+    "selectedComplete": 50,
+    "selectedIncomplete": 0,
+    "pairs": {
+      "covered": 174,
+      "allowed": 314
+    },
+    "wholePairs": {
+      "covered": 549,
+      "allowed": 637
+    },
+    "maxDeviation": 12,
+    "balance": [
+      {
+        "dimension": "behaviour",
+        "values": [
+          {
+            "value": "B-001",
+            "count": 11,
+            "fair": 4.166666666666667,
+            "deviation": 6.833333333333333
+          },
+          {
+            "value": "B-002",
+            "count": 11,
+            "fair": 4.166666666666667,
+            "deviation": 6.833333333333333
+          },
+          {
+            "value": "B-003",
+            "count": 11,
+            "fair": 4.166666666666667,
+            "deviation": 6.833333333333333
+          },
+          {
+            "value": "B-004",
+            "count": 11,
+            "fair": 4.166666666666667,
+            "deviation": 6.833333333333333
+          },
+          {
+            "value": "B-005",
+            "count": 6,
+            "fair": 4.166666666666667,
+            "deviation": 1.833333333333333
+          },
+          {
+            "value": "B-006",
+            "count": 0,
+            "fair": 4.166666666666667,
+            "deviation": -4.166666666666667
+          },
+          {
+            "value": "B-007",
+            "count": 0,
+            "fair": 4.166666666666667,
+            "deviation": -4.166666666666667
+          },
+          {
+            "value": "B-008",
+            "count": 0,
+            "fair": 4.166666666666667,
+            "deviation": -4.166666666666667
+          },
+          {
+            "value": "B-009",
+            "count": 0,
+            "fair": 4.166666666666667,
+            "deviation": -4.166666666666667
+          },
+          {
+            "value": "B-010",
+            "count": 0,
+            "fair": 4.166666666666667,
+            "deviation": -4.166666666666667
+          },
+          {
+            "value": "B-011",
+            "count": 0,
+            "fair": 4.166666666666667,
+            "deviation": -4.166666666666667
+          },
+          {
+            "value": "B-012",
+            "count": 0,
+            "fair": 4.166666666666667,
+            "deviation": -4.166666666666667
+          }
+        ]
+      },
+      {
+        "dimension": "deviation",
+        "values": [
+          {
+            "value": "none",
+            "count": 5,
+            "fair": 4.545454545454546,
+            "deviation": 0.45454545454545414
+          },
+          {
+            "value": "D1_off_topic",
+            "count": 5,
+            "fair": 4.545454545454546,
+            "deviation": 0.45454545454545414
+          },
+          {
+            "value": "D2_goal_shift",
+            "count": 5,
+            "fair": 4.545454545454546,
+            "deviation": 0.45454545454545414
+          },
+          {
+            "value": "D3_contradiction",
+            "count": 5,
+            "fair": 4.545454545454546,
+            "deviation": 0.45454545454545414
+          },
+          {
+            "value": "D4_loose_confirmation",
+            "count": 5,
+            "fair": 4.545454545454546,
+            "deviation": 0.45454545454545414
+          },
+          {
+            "value": "D5_language_switch",
+            "count": 5,
+            "fair": 4.545454545454546,
+            "deviation": 0.45454545454545414
+          },
+          {
+            "value": "D6_instruction_in_data",
+            "count": 4,
+            "fair": 4.545454545454546,
+            "deviation": -0.5454545454545459
+          },
+          {
+            "value": "D8_tool_failure",
+            "count": 4,
+            "fair": 4.545454545454546,
+            "deviation": -0.5454545454545459
+          },
+          {
+            "value": "D10_return",
+            "count": 4,
+            "fair": 4.545454545454546,
+            "deviation": -0.5454545454545459
+          },
+          {
+            "value": "D7_silence_or_burst",
+            "count": 4,
+            "fair": 4.545454545454546,
+            "deviation": -0.5454545454545459
+          },
+          {
+            "value": "D9_out_of_scope",
+            "count": 4,
+            "fair": 4.545454545454546,
+            "deviation": -0.5454545454545459
+          }
+        ]
+      },
+      {
+        "dimension": "channel",
+        "values": [
+          {
+            "value": "chat",
+            "count": 25,
+            "fair": 25,
+            "deviation": 0
+          },
+          {
+            "value": "whatsapp",
+            "count": 25,
+            "fair": 25,
+            "deviation": 0
+          }
+        ]
+      },
+      {
+        "dimension": "user_type",
+        "values": [
+          {
+            "value": "existing-customer",
+            "count": 22,
+            "fair": 25,
+            "deviation": -3
+          },
+          {
+            "value": "new-customer",
+            "count": 28,
+            "fair": 25,
+            "deviation": 3
+          }
+        ]
+      },
+      {
+        "dimension": "coverage_result",
+        "values": [
+          {
+            "value": "none",
+            "count": 22,
+            "fair": 10,
+            "deviation": 12
+          },
+          {
+            "value": "fiber",
+            "count": 9,
+            "fair": 10,
+            "deviation": -1
+          },
+          {
+            "value": "5g-only",
+            "count": 6,
+            "fair": 10,
+            "deviation": -4
+          },
+          {
+            "value": "no-service",
+            "count": 7,
+            "fair": 10,
+            "deviation": -3
+          },
+          {
+            "value": "not-in-map",
+            "count": 6,
+            "fair": 10,
+            "deviation": -4
+          }
+        ]
+      }
+    ],
+    "faultsCaught": 13,
+    "faultsScored": 13,
+    "witnesses": {
+      "x1-invents-price": "gen-cover-001#b2-address-to-offer",
+      "x4-wrong-language": "gen-cover-001#b1-needs-to-address",
+      "x5-drops-coverage-check": "gen-cover-001#b2-address-to-offer",
+      "d6-obeys-instruction": "gen-cover-001#b5-D6_instruction_in_data",
+      "d8-hides-tool-failure": "gen-cover-002#b2-D8_tool_failure",
+      "d9-answers-out-of-scope": "gen-cover-005#b4-D9_out_of_scope",
+      "x3-skips-recap": "gen-cover-006#b4-details-to-recap",
+      "d2-ignores-goal-shift": "gen-cover-008#b5-D2_goal_shift",
+      "d4-order-on-loose-yes": "gen-cover-008#b5-D2_goal_shift",
+      "ops-x1-wrong-price": "acme-price-sheet-i01-base#build",
+      "ops-x4-narrates": "acme-price-sheet-i01-base#build",
+      "ops-x5-skips-check": "acme-price-sheet-i01-base#build",
+      "ops-d6-deletes-readme": "acme-price-sheet-i01-base#build"
+    },
+    "missed": [],
+    "selectedFaultsCaught": 9,
+    "selectedCaught": [
+      "d2-ignores-goal-shift",
+      "d4-order-on-loose-yes",
+      "d6-obeys-instruction",
+      "d8-hides-tool-failure",
+      "d9-answers-out-of-scope",
+      "x1-invents-price",
+      "x3-skips-recap",
+      "x4-wrong-language",
+      "x5-drops-coverage-check"
+    ],
+    "referenceFailures": []
+  },
+  {
+    "provenance": {
+      "sourceCommit": "68e7a455a70fa4414c4b879906d3a4fe0b110222",
+      "measuredAt": "2026-10-13T03:41:56.074Z",
+      "node": "v24.18.0",
+      "mapHash": "6d29ed7a7539"
+    },
+    "timing": {
+      "generationMs": 4040.679125000024,
+      "wallMs": 60723.56016600004,
+      "scope": "CLI generation plus suite loading, rendering audits, reference/equivalence/fault execution and coverage audit; includes output I/O, excludes final result-file write"
+    },
+    "cost": {
+      "modelCalls": 0,
+      "usd": 0,
+      "executedRuns": 591,
+      "executedBlocks": 2631
+    },
+    "wholeBalanceCountingRule": "t=1 coverage spec/value incidences on all axis-map dimensions among complete specs; fair=sum(spec/value incidences)/feasible values per dimension; a spec can expose multiple values",
+    "wholeBalance": [
+      {
+        "dimension": "behaviour",
+        "incidences": 203,
+        "allowedValues": 14,
+        "values": [
+          {
+            "value": "B-001",
+            "count": 10,
+            "fair": 14.5,
+            "deviation": -4.5
+          },
+          {
+            "value": "B-002",
+            "count": 11,
+            "fair": 14.5,
+            "deviation": -3.5
+          },
+          {
+            "value": "B-003",
+            "count": 12,
+            "fair": 14.5,
+            "deviation": -2.5
+          },
+          {
+            "value": "B-004",
+            "count": 11,
+            "fair": 14.5,
+            "deviation": -3.5
+          },
+          {
+            "value": "B-005",
+            "count": 11,
+            "fair": 14.5,
+            "deviation": -3.5
+          },
+          {
+            "value": "B-006",
+            "count": 11,
+            "fair": 14.5,
+            "deviation": -3.5
+          },
+          {
+            "value": "B-007",
+            "count": 11,
+            "fair": 14.5,
+            "deviation": -3.5
+          },
+          {
+            "value": "B-008",
+            "count": 12,
+            "fair": 14.5,
+            "deviation": -2.5
+          },
+          {
+            "value": "B-009",
+            "count": 12,
+            "fair": 14.5,
+            "deviation": -2.5
+          },
+          {
+            "value": "B-010",
+            "count": 12,
+            "fair": 14.5,
+            "deviation": -2.5
+          },
+          {
+            "value": "B-011",
+            "count": 11,
+            "fair": 14.5,
+            "deviation": -3.5
+          },
+          {
+            "value": "B-012",
+            "count": 11,
+            "fair": 14.5,
+            "deviation": -3.5
+          },
+          {
+            "value": "B-013",
+            "count": 34,
+            "fair": 14.5,
+            "deviation": 19.5
+          },
+          {
+            "value": "B-014",
+            "count": 34,
+            "fair": 14.5,
+            "deviation": 19.5
+          }
+        ]
+      },
+      {
+        "dimension": "deviation",
+        "incidences": 472,
+        "allowedValues": 11,
+        "values": [
+          {
+            "value": "none",
+            "count": 252,
+            "fair": 42.90909090909091,
+            "deviation": 209.0909090909091
+          },
+          {
+            "value": "D1_off_topic",
+            "count": 39,
+            "fair": 42.90909090909091,
+            "deviation": -3.9090909090909065
+          },
+          {
+            "value": "D2_goal_shift",
+            "count": 13,
+            "fair": 42.90909090909091,
+            "deviation": -29.909090909090907
+          },
+          {
+            "value": "D3_contradiction",
+            "count": 18,
+            "fair": 42.90909090909091,
+            "deviation": -24.909090909090907
+          },
+          {
+            "value": "D4_loose_confirmation",
+            "count": 15,
+            "fair": 42.90909090909091,
+            "deviation": -27.909090909090907
+          },
+          {
+            "value": "D5_language_switch",
+            "count": 21,
+            "fair": 42.90909090909091,
+            "deviation": -21.909090909090907
+          },
+          {
+            "value": "D6_instruction_in_data",
+            "count": 36,
+            "fair": 42.90909090909091,
+            "deviation": -6.9090909090909065
+          },
+          {
+            "value": "D8_tool_failure",
+            "count": 18,
+            "fair": 42.90909090909091,
+            "deviation": -24.909090909090907
+          },
+          {
+            "value": "D10_return",
+            "count": 17,
+            "fair": 42.90909090909091,
+            "deviation": -25.909090909090907
+          },
+          {
+            "value": "D7_silence_or_burst",
+            "count": 20,
+            "fair": 42.90909090909091,
+            "deviation": -22.909090909090907
+          },
+          {
+            "value": "D9_out_of_scope",
+            "count": 23,
+            "fair": 42.90909090909091,
+            "deviation": -19.909090909090907
+          }
+        ]
+      },
+      {
+        "dimension": "channel",
+        "incidences": 238,
+        "allowedValues": 2,
+        "values": [
+          {
+            "value": "chat",
+            "count": 145,
+            "fair": 119,
+            "deviation": 26
+          },
+          {
+            "value": "whatsapp",
+            "count": 93,
+            "fair": 119,
+            "deviation": -26
+          }
+        ]
+      },
+      {
+        "dimension": "stage",
+        "incidences": 951,
+        "allowedValues": 13,
+        "values": [
+          {
+            "value": "needs",
+            "count": 25,
+            "fair": 73.15384615384616,
+            "deviation": -48.15384615384616
+          },
+          {
+            "value": "identify",
+            "count": 56,
+            "fair": 73.15384615384616,
+            "deviation": -17.15384615384616
+          },
+          {
+            "value": "address",
+            "count": 121,
+            "fair": 73.15384615384616,
+            "deviation": 47.84615384615384
+          },
+          {
+            "value": "port_number",
+            "count": 41,
+            "fair": 73.15384615384616,
+            "deviation": -32.15384615384616
+          },
+          {
+            "value": "offer",
+            "count": 150,
+            "fair": 73.15384615384616,
+            "deviation": 76.84615384615384
+          },
+          {
+            "value": "details",
+            "count": 103,
+            "fair": 73.15384615384616,
+            "deviation": 29.84615384615384
+          },
+          {
+            "value": "recap",
+            "count": 127,
+            "fair": 73.15384615384616,
+            "deviation": 53.84615384615384
+          },
+          {
+            "value": "order_placed",
+            "count": 122,
+            "fair": 73.15384615384616,
+            "deviation": 48.84615384615384
+          },
+          {
+            "value": "callback",
+            "count": 34,
+            "fair": 73.15384615384616,
+            "deviation": -39.15384615384616
+          },
+          {
+            "value": "handover",
+            "count": 32,
+            "fair": 73.15384615384616,
+            "deviation": -41.15384615384616
+          },
+          {
+            "value": "closing",
+            "count": 93,
+            "fair": 73.15384615384616,
+            "deviation": 19.84615384615384
+          },
+          {
+            "value": "build_sheet",
+            "count": 34,
+            "fair": 73.15384615384616,
+            "deviation": -39.15384615384616
+          },
+          {
+            "value": "add_summary",
+            "count": 13,
+            "fair": 73.15384615384616,
+            "deviation": -60.15384615384616
+          }
+        ]
+      },
+      {
+        "dimension": "user_type",
+        "incidences": 250,
+        "allowedValues": 3,
+        "values": [
+          {
+            "value": "existing-customer",
+            "count": 92,
+            "fair": 83.33333333333333,
+            "deviation": 8.666666666666671
+          },
+          {
+            "value": "new-customer",
+            "count": 124,
+            "fair": 83.33333333333333,
+            "deviation": 40.66666666666667
+          },
+          {
+            "value": "sales-operations",
+            "count": 34,
+            "fair": 83.33333333333333,
+            "deviation": -49.33333333333333
+          }
+        ]
+      },
+      {
+        "dimension": "coverage_result",
+        "incidences": 252,
+        "allowedValues": 5,
+        "values": [
+          {
+            "value": "none",
+            "count": 131,
+            "fair": 50.4,
+            "deviation": 80.6
+          },
+          {
+            "value": "fiber",
+            "count": 49,
+            "fair": 50.4,
+            "deviation": -1.3999999999999986
+          },
+          {
+            "value": "5g-only",
+            "count": 31,
+            "fair": 50.4,
+            "deviation": -19.4
+          },
+          {
+            "value": "no-service",
+            "count": 23,
+            "fair": 50.4,
+            "deviation": -27.4
+          },
+          {
+            "value": "not-in-map",
+            "count": 18,
+            "fair": 50.4,
+            "deviation": -32.4
+          }
+        ]
+      },
+      {
+        "dimension": "workspace_start",
+        "incidences": 252,
+        "allowedValues": 2,
+        "values": [
+          {
+            "value": "none",
+            "count": 218,
+            "fair": 126,
+            "deviation": 92
+          },
+          {
+            "value": "catalog-only",
+            "count": 34,
+            "fair": 126,
+            "deviation": -92
+          }
+        ]
+      }
+    ],
+    "wholeMaxDeviation": 209.0909090909091,
+    "mode": "budget",
+    "budget": 100,
+    "seed": 1,
+    "command": "pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/budget/full-suite/budget-100 --t 2 --seed 1 --budget 100 --force",
+    "exitCode": 1,
+    "selected": 100,
+    "complete": 252,
+    "incomplete": 75,
+    "selectedComplete": 99,
+    "selectedIncomplete": 1,
+    "pairs": {
+      "covered": 282,
+      "allowed": 314
+    },
+    "wholePairs": {
+      "covered": 637,
+      "allowed": 637
+    },
+    "maxDeviation": 9,
+    "balance": [
+      {
+        "dimension": "behaviour",
+        "values": [
+          {
+            "value": "B-001",
+            "count": 6,
+            "fair": 8.333333333333334,
+            "deviation": -2.333333333333334
+          },
+          {
+            "value": "B-002",
+            "count": 7,
+            "fair": 8.333333333333334,
+            "deviation": -1.333333333333334
+          },
+          {
+            "value": "B-003",
+            "count": 10,
+            "fair": 8.333333333333334,
+            "deviation": 1.666666666666666
+          },
+          {
+            "value": "B-004",
+            "count": 10,
+            "fair": 8.333333333333334,
+            "deviation": 1.666666666666666
+          },
+          {
+            "value": "B-005",
+            "count": 10,
+            "fair": 8.333333333333334,
+            "deviation": 1.666666666666666
+          },
+          {
+            "value": "B-006",
+            "count": 4,
+            "fair": 8.333333333333334,
+            "deviation": -4.333333333333334
+          },
+          {
+            "value": "B-007",
+            "count": 4,
+            "fair": 8.333333333333334,
+            "deviation": -4.333333333333334
+          },
+          {
+            "value": "B-008",
+            "count": 11,
+            "fair": 8.333333333333334,
+            "deviation": 2.666666666666666
+          },
+          {
+            "value": "B-009",
+            "count": 11,
+            "fair": 8.333333333333334,
+            "deviation": 2.666666666666666
+          },
+          {
+            "value": "B-010",
+            "count": 11,
+            "fair": 8.333333333333334,
+            "deviation": 2.666666666666666
+          },
+          {
+            "value": "B-011",
+            "count": 10,
+            "fair": 8.333333333333334,
+            "deviation": 1.666666666666666
+          },
+          {
+            "value": "B-012",
+            "count": 6,
+            "fair": 8.333333333333334,
+            "deviation": -2.333333333333334
+          }
+        ]
+      },
+      {
+        "dimension": "deviation",
+        "values": [
+          {
+            "value": "none",
+            "count": 8,
+            "fair": 9.090909090909092,
+            "deviation": -1.0909090909090917
+          },
+          {
+            "value": "D1_off_topic",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          },
+          {
+            "value": "D2_goal_shift",
+            "count": 10,
+            "fair": 9.090909090909092,
+            "deviation": 0.9090909090909083
+          },
+          {
+            "value": "D3_contradiction",
+            "count": 10,
+            "fair": 9.090909090909092,
+            "deviation": 0.9090909090909083
+          },
+          {
+            "value": "D4_loose_confirmation",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          },
+          {
+            "value": "D5_language_switch",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          },
+          {
+            "value": "D6_instruction_in_data",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          },
+          {
+            "value": "D8_tool_failure",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          },
+          {
+            "value": "D10_return",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          },
+          {
+            "value": "D7_silence_or_burst",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          },
+          {
+            "value": "D9_out_of_scope",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          }
+        ]
+      },
+      {
+        "dimension": "channel",
+        "values": [
+          {
+            "value": "chat",
+            "count": 50,
+            "fair": 50,
+            "deviation": 0
+          },
+          {
+            "value": "whatsapp",
+            "count": 50,
+            "fair": 50,
+            "deviation": 0
+          }
+        ]
+      },
+      {
+        "dimension": "user_type",
+        "values": [
+          {
+            "value": "existing-customer",
+            "count": 48,
+            "fair": 50,
+            "deviation": -2
+          },
+          {
+            "value": "new-customer",
+            "count": 52,
+            "fair": 50,
+            "deviation": 2
+          }
+        ]
+      },
+      {
+        "dimension": "coverage_result",
+        "values": [
+          {
+            "value": "none",
+            "count": 29,
+            "fair": 20,
+            "deviation": 9
+          },
+          {
+            "value": "fiber",
+            "count": 22,
+            "fair": 20,
+            "deviation": 2
+          },
+          {
+            "value": "5g-only",
+            "count": 19,
+            "fair": 20,
+            "deviation": -1
+          },
+          {
+            "value": "no-service",
+            "count": 15,
+            "fair": 20,
+            "deviation": -5
+          },
+          {
+            "value": "not-in-map",
+            "count": 15,
+            "fair": 20,
+            "deviation": -5
+          }
+        ]
+      }
+    ],
+    "faultsCaught": 13,
+    "faultsScored": 13,
+    "witnesses": {
+      "x1-invents-price": "gen-boundary-063#b2-identify-to-offer",
+      "x3-skips-recap": "gen-boundary-063#b3-offer-to-recap",
+      "x4-wrong-language": "gen-boundary-063#b1-needs-to-identify",
+      "x5-drops-coverage-check": "gen-boundary-072#b2-D8_tool_failure",
+      "d8-hides-tool-failure": "gen-boundary-072#b2-D8_tool_failure",
+      "d6-obeys-instruction": "gen-cover-002#b3-D6_instruction_in_data",
+      "d9-answers-out-of-scope": "gen-cover-004#b1-D9_out_of_scope",
+      "d4-order-on-loose-yes": "gen-cover-005#b4-D4_loose_confirmation",
+      "d2-ignores-goal-shift": "gen-cover-008#b5-D2_goal_shift",
+      "ops-x1-wrong-price": "acme-price-sheet-i01-base#build",
+      "ops-x4-narrates": "acme-price-sheet-i01-base#build",
+      "ops-x5-skips-check": "acme-price-sheet-i01-base#build",
+      "ops-d6-deletes-readme": "acme-price-sheet-i01-base#build"
+    },
+    "missed": [],
+    "selectedFaultsCaught": 9,
+    "selectedCaught": [
+      "d2-ignores-goal-shift",
+      "d4-order-on-loose-yes",
+      "d6-obeys-instruction",
+      "d8-hides-tool-failure",
+      "d9-answers-out-of-scope",
+      "x1-invents-price",
+      "x3-skips-recap",
+      "x4-wrong-language",
+      "x5-drops-coverage-check"
+    ],
+    "referenceFailures": []
+  },
+  {
+    "provenance": {
+      "sourceCommit": "68e7a455a70fa4414c4b879906d3a4fe0b110222",
+      "measuredAt": "2026-10-13T03:43:12.605Z",
+      "node": "v24.18.0",
+      "mapHash": "6d29ed7a7539"
+    },
+    "timing": {
+      "generationMs": 5976.911458999966,
+      "wallMs": 76508.39854199998,
+      "scope": "CLI generation plus suite loading, rendering audits, reference/equivalence/fault execution and coverage audit; includes output I/O, excludes final result-file write"
+    },
+    "cost": {
+      "modelCalls": 0,
+      "usd": 0,
+      "executedRuns": 641,
+      "executedBlocks": 2889
+    },
+    "wholeBalanceCountingRule": "t=1 coverage spec/value incidences on all axis-map dimensions among complete specs; fair=sum(spec/value incidences)/feasible values per dimension; a spec can expose multiple values",
+    "wholeBalance": [
+      {
+        "dimension": "behaviour",
+        "incidences": 205,
+        "allowedValues": 14,
+        "values": [
+          {
+            "value": "B-001",
+            "count": 12,
+            "fair": 14.642857142857142,
+            "deviation": -2.6428571428571423
+          },
+          {
+            "value": "B-002",
+            "count": 11,
+            "fair": 14.642857142857142,
+            "deviation": -3.6428571428571423
+          },
+          {
+            "value": "B-003",
+            "count": 11,
+            "fair": 14.642857142857142,
+            "deviation": -3.6428571428571423
+          },
+          {
+            "value": "B-004",
+            "count": 11,
+            "fair": 14.642857142857142,
+            "deviation": -3.6428571428571423
+          },
+          {
+            "value": "B-005",
+            "count": 11,
+            "fair": 14.642857142857142,
+            "deviation": -3.6428571428571423
+          },
+          {
+            "value": "B-006",
+            "count": 12,
+            "fair": 14.642857142857142,
+            "deviation": -2.6428571428571423
+          },
+          {
+            "value": "B-007",
+            "count": 11,
+            "fair": 14.642857142857142,
+            "deviation": -3.6428571428571423
+          },
+          {
+            "value": "B-008",
+            "count": 12,
+            "fair": 14.642857142857142,
+            "deviation": -2.6428571428571423
+          },
+          {
+            "value": "B-009",
+            "count": 10,
+            "fair": 14.642857142857142,
+            "deviation": -4.642857142857142
+          },
+          {
+            "value": "B-010",
+            "count": 15,
+            "fair": 14.642857142857142,
+            "deviation": 0.35714285714285765
+          },
+          {
+            "value": "B-011",
+            "count": 11,
+            "fair": 14.642857142857142,
+            "deviation": -3.6428571428571423
+          },
+          {
+            "value": "B-012",
+            "count": 10,
+            "fair": 14.642857142857142,
+            "deviation": -4.642857142857142
+          },
+          {
+            "value": "B-013",
+            "count": 34,
+            "fair": 14.642857142857142,
+            "deviation": 19.357142857142858
+          },
+          {
+            "value": "B-014",
+            "count": 34,
+            "fair": 14.642857142857142,
+            "deviation": 19.357142857142858
+          }
+        ]
+      },
+      {
+        "dimension": "deviation",
+        "incidences": 474,
+        "allowedValues": 11,
+        "values": [
+          {
+            "value": "none",
+            "count": 253,
+            "fair": 43.09090909090909,
+            "deviation": 209.9090909090909
+          },
+          {
+            "value": "D1_off_topic",
+            "count": 36,
+            "fair": 43.09090909090909,
+            "deviation": -7.0909090909090935
+          },
+          {
+            "value": "D2_goal_shift",
+            "count": 13,
+            "fair": 43.09090909090909,
+            "deviation": -30.090909090909093
+          },
+          {
+            "value": "D3_contradiction",
+            "count": 19,
+            "fair": 43.09090909090909,
+            "deviation": -24.090909090909093
+          },
+          {
+            "value": "D4_loose_confirmation",
+            "count": 15,
+            "fair": 43.09090909090909,
+            "deviation": -28.090909090909093
+          },
+          {
+            "value": "D5_language_switch",
+            "count": 23,
+            "fair": 43.09090909090909,
+            "deviation": -20.090909090909093
+          },
+          {
+            "value": "D6_instruction_in_data",
+            "count": 34,
+            "fair": 43.09090909090909,
+            "deviation": -9.090909090909093
+          },
+          {
+            "value": "D8_tool_failure",
+            "count": 18,
+            "fair": 43.09090909090909,
+            "deviation": -25.090909090909093
+          },
+          {
+            "value": "D10_return",
+            "count": 16,
+            "fair": 43.09090909090909,
+            "deviation": -27.090909090909093
+          },
+          {
+            "value": "D7_silence_or_burst",
+            "count": 19,
+            "fair": 43.09090909090909,
+            "deviation": -24.090909090909093
+          },
+          {
+            "value": "D9_out_of_scope",
+            "count": 28,
+            "fair": 43.09090909090909,
+            "deviation": -15.090909090909093
+          }
+        ]
+      },
+      {
+        "dimension": "channel",
+        "incidences": 246,
+        "allowedValues": 2,
+        "values": [
+          {
+            "value": "chat",
+            "count": 145,
+            "fair": 123,
+            "deviation": 22
+          },
+          {
+            "value": "whatsapp",
+            "count": 101,
+            "fair": 123,
+            "deviation": -22
+          }
+        ]
+      },
+      {
+        "dimension": "stage",
+        "incidences": 970,
+        "allowedValues": 13,
+        "values": [
+          {
+            "value": "needs",
+            "count": 28,
+            "fair": 74.61538461538461,
+            "deviation": -46.61538461538461
+          },
+          {
+            "value": "identify",
+            "count": 57,
+            "fair": 74.61538461538461,
+            "deviation": -17.615384615384613
+          },
+          {
+            "value": "address",
+            "count": 120,
+            "fair": 74.61538461538461,
+            "deviation": 45.38461538461539
+          },
+          {
+            "value": "port_number",
+            "count": 42,
+            "fair": 74.61538461538461,
+            "deviation": -32.61538461538461
+          },
+          {
+            "value": "offer",
+            "count": 157,
+            "fair": 74.61538461538461,
+            "deviation": 82.38461538461539
+          },
+          {
+            "value": "details",
+            "count": 103,
+            "fair": 74.61538461538461,
+            "deviation": 28.384615384615387
+          },
+          {
+            "value": "recap",
+            "count": 128,
+            "fair": 74.61538461538461,
+            "deviation": 53.38461538461539
+          },
+          {
+            "value": "order_placed",
+            "count": 125,
+            "fair": 74.61538461538461,
+            "deviation": 50.38461538461539
+          },
+          {
+            "value": "callback",
+            "count": 37,
+            "fair": 74.61538461538461,
+            "deviation": -37.61538461538461
+          },
+          {
+            "value": "handover",
+            "count": 35,
+            "fair": 74.61538461538461,
+            "deviation": -39.61538461538461
+          },
+          {
+            "value": "closing",
+            "count": 91,
+            "fair": 74.61538461538461,
+            "deviation": 16.384615384615387
+          },
+          {
+            "value": "build_sheet",
+            "count": 34,
+            "fair": 74.61538461538461,
+            "deviation": -40.61538461538461
+          },
+          {
+            "value": "add_summary",
+            "count": 13,
+            "fair": 74.61538461538461,
+            "deviation": -61.61538461538461
+          }
+        ]
+      },
+      {
+        "dimension": "user_type",
+        "incidences": 252,
+        "allowedValues": 3,
+        "values": [
+          {
+            "value": "existing-customer",
+            "count": 80,
+            "fair": 84,
+            "deviation": -4
+          },
+          {
+            "value": "new-customer",
+            "count": 138,
+            "fair": 84,
+            "deviation": 54
+          },
+          {
+            "value": "sales-operations",
+            "count": 34,
+            "fair": 84,
+            "deviation": -50
+          }
+        ]
+      },
+      {
+        "dimension": "coverage_result",
+        "incidences": 253,
+        "allowedValues": 5,
+        "values": [
+          {
+            "value": "none",
+            "count": 133,
+            "fair": 50.6,
+            "deviation": 82.4
+          },
+          {
+            "value": "fiber",
+            "count": 59,
+            "fair": 50.6,
+            "deviation": 8.399999999999999
+          },
+          {
+            "value": "5g-only",
+            "count": 30,
+            "fair": 50.6,
+            "deviation": -20.6
+          },
+          {
+            "value": "no-service",
+            "count": 17,
+            "fair": 50.6,
+            "deviation": -33.6
+          },
+          {
+            "value": "not-in-map",
+            "count": 14,
+            "fair": 50.6,
+            "deviation": -36.6
+          }
+        ]
+      },
+      {
+        "dimension": "workspace_start",
+        "incidences": 253,
+        "allowedValues": 2,
+        "values": [
+          {
+            "value": "none",
+            "count": 219,
+            "fair": 126.5,
+            "deviation": 92.5
+          },
+          {
+            "value": "catalog-only",
+            "count": 34,
+            "fair": 126.5,
+            "deviation": -92.5
+          }
+        ]
+      }
+    ],
+    "wholeMaxDeviation": 209.9090909090909,
+    "mode": "pairwise",
+    "budget": 100,
+    "seed": 1,
+    "command": "pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/budget/full-suite/pairwise-100 --t 2 --seed 1 --max 100 --force",
+    "exitCode": 1,
+    "selected": 100,
+    "complete": 253,
+    "incomplete": 75,
+    "selectedComplete": 99,
+    "selectedIncomplete": 1,
+    "pairs": {
+      "covered": 264,
+      "allowed": 314
+    },
+    "wholePairs": {
+      "covered": 637,
+      "allowed": 637
+    },
+    "maxDeviation": 27,
+    "balance": [
+      {
+        "dimension": "behaviour",
+        "values": [
+          {
+            "value": "B-001",
+            "count": 11,
+            "fair": 8.333333333333334,
+            "deviation": 2.666666666666666
+          },
+          {
+            "value": "B-002",
+            "count": 11,
+            "fair": 8.333333333333334,
+            "deviation": 2.666666666666666
+          },
+          {
+            "value": "B-003",
+            "count": 11,
+            "fair": 8.333333333333334,
+            "deviation": 2.666666666666666
+          },
+          {
+            "value": "B-004",
+            "count": 11,
+            "fair": 8.333333333333334,
+            "deviation": 2.666666666666666
+          },
+          {
+            "value": "B-005",
+            "count": 11,
+            "fair": 8.333333333333334,
+            "deviation": 2.666666666666666
+          },
+          {
+            "value": "B-006",
+            "count": 11,
+            "fair": 8.333333333333334,
+            "deviation": 2.666666666666666
+          },
+          {
+            "value": "B-007",
+            "count": 11,
+            "fair": 8.333333333333334,
+            "deviation": 2.666666666666666
+          },
+          {
+            "value": "B-008",
+            "count": 11,
+            "fair": 8.333333333333334,
+            "deviation": 2.666666666666666
+          },
+          {
+            "value": "B-009",
+            "count": 11,
+            "fair": 8.333333333333334,
+            "deviation": 2.666666666666666
+          },
+          {
+            "value": "B-010",
+            "count": 1,
+            "fair": 8.333333333333334,
+            "deviation": -7.333333333333334
+          },
+          {
+            "value": "B-011",
+            "count": 0,
+            "fair": 8.333333333333334,
+            "deviation": -8.333333333333334
+          },
+          {
+            "value": "B-012",
+            "count": 0,
+            "fair": 8.333333333333334,
+            "deviation": -8.333333333333334
+          }
+        ]
+      },
+      {
+        "dimension": "deviation",
+        "values": [
+          {
+            "value": "none",
+            "count": 10,
+            "fair": 9.090909090909092,
+            "deviation": 0.9090909090909083
+          },
+          {
+            "value": "D1_off_topic",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          },
+          {
+            "value": "D2_goal_shift",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          },
+          {
+            "value": "D3_contradiction",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          },
+          {
+            "value": "D4_loose_confirmation",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          },
+          {
+            "value": "D5_language_switch",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          },
+          {
+            "value": "D6_instruction_in_data",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          },
+          {
+            "value": "D8_tool_failure",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          },
+          {
+            "value": "D10_return",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          },
+          {
+            "value": "D7_silence_or_burst",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          },
+          {
+            "value": "D9_out_of_scope",
+            "count": 9,
+            "fair": 9.090909090909092,
+            "deviation": -0.09090909090909172
+          }
+        ]
+      },
+      {
+        "dimension": "channel",
+        "values": [
+          {
+            "value": "chat",
+            "count": 50,
+            "fair": 50,
+            "deviation": 0
+          },
+          {
+            "value": "whatsapp",
+            "count": 50,
+            "fair": 50,
+            "deviation": 0
+          }
+        ]
+      },
+      {
+        "dimension": "user_type",
+        "values": [
+          {
+            "value": "existing-customer",
+            "count": 34,
+            "fair": 50,
+            "deviation": -16
+          },
+          {
+            "value": "new-customer",
+            "count": 66,
+            "fair": 50,
+            "deviation": 16
+          }
+        ]
+      },
+      {
+        "dimension": "coverage_result",
+        "values": [
+          {
+            "value": "none",
+            "count": 47,
+            "fair": 20,
+            "deviation": 27
+          },
+          {
+            "value": "fiber",
+            "count": 22,
+            "fair": 20,
+            "deviation": 2
+          },
+          {
+            "value": "5g-only",
+            "count": 16,
+            "fair": 20,
+            "deviation": -4
+          },
+          {
+            "value": "no-service",
+            "count": 8,
+            "fair": 20,
+            "deviation": -12
+          },
+          {
+            "value": "not-in-map",
+            "count": 7,
+            "fair": 20,
+            "deviation": -13
+          }
+        ]
+      }
+    ],
+    "faultsCaught": 13,
+    "faultsScored": 13,
+    "witnesses": {
+      "x1-invents-price": "gen-boundary-063#b2-identify-to-offer",
+      "x3-skips-recap": "gen-boundary-063#b3-offer-to-recap",
+      "x4-wrong-language": "gen-boundary-063#b1-needs-to-identify",
+      "x5-drops-coverage-check": "gen-boundary-072#b2-D8_tool_failure",
+      "d8-hides-tool-failure": "gen-boundary-072#b2-D8_tool_failure",
+      "d4-order-on-loose-yes": "gen-cover-001#b5-D1_off_topic",
+      "d2-ignores-goal-shift": "gen-cover-002#b5-D2_goal_shift",
+      "d6-obeys-instruction": "gen-cover-006#b6-D6_instruction_in_data",
+      "d9-answers-out-of-scope": "gen-cover-029#b2-D9_out_of_scope",
+      "ops-x1-wrong-price": "acme-price-sheet-i01-base#build",
+      "ops-x4-narrates": "acme-price-sheet-i01-base#build",
+      "ops-x5-skips-check": "acme-price-sheet-i01-base#build",
+      "ops-d6-deletes-readme": "acme-price-sheet-i01-base#build"
+    },
+    "missed": [],
+    "selectedFaultsCaught": 9,
+    "selectedCaught": [
+      "d2-ignores-goal-shift",
+      "d4-order-on-loose-yes",
+      "d6-obeys-instruction",
+      "d8-hides-tool-failure",
+      "d9-answers-out-of-scope",
+      "x1-invents-price",
+      "x3-skips-recap",
+      "x4-wrong-language",
+      "x5-drops-coverage-check"
+    ],
+    "referenceFailures": []
+  },
+  {
+    "provenance": {
+      "sourceCommit": "68e7a455a70fa4414c4b879906d3a4fe0b110222",
+      "measuredAt": "2026-10-13T03:44:34.115Z",
+      "node": "v24.18.0",
+      "mapHash": "6d29ed7a7539"
+    },
+    "timing": {
+      "generationMs": 3525.887334000028,
+      "wallMs": 81505.953584,
+      "scope": "CLI generation plus suite loading, rendering audits, reference/equivalence/fault execution and coverage audit; includes output I/O, excludes final result-file write"
+    },
+    "cost": {
+      "modelCalls": 0,
+      "usd": 0,
+      "executedRuns": 754,
+      "executedBlocks": 3519
+    },
+    "wholeBalanceCountingRule": "t=1 coverage spec/value incidences on all axis-map dimensions among complete specs; fair=sum(spec/value incidences)/feasible values per dimension; a spec can expose multiple values",
+    "wholeBalance": [
+      {
+        "dimension": "behaviour",
+        "incidences": 273,
+        "allowedValues": 14,
+        "values": [
+          {
+            "value": "B-001",
+            "count": 11,
+            "fair": 19.5,
+            "deviation": -8.5
+          },
+          {
+            "value": "B-002",
+            "count": 12,
+            "fair": 19.5,
+            "deviation": -7.5
+          },
+          {
+            "value": "B-003",
+            "count": 20,
+            "fair": 19.5,
+            "deviation": 0.5
+          },
+          {
+            "value": "B-004",
+            "count": 20,
+            "fair": 19.5,
+            "deviation": 0.5
+          },
+          {
+            "value": "B-005",
+            "count": 19,
+            "fair": 19.5,
+            "deviation": -0.5
+          },
+          {
+            "value": "B-006",
+            "count": 12,
+            "fair": 19.5,
+            "deviation": -7.5
+          },
+          {
+            "value": "B-007",
+            "count": 12,
+            "fair": 19.5,
+            "deviation": -7.5
+          },
+          {
+            "value": "B-008",
+            "count": 23,
+            "fair": 19.5,
+            "deviation": 3.5
+          },
+          {
+            "value": "B-009",
+            "count": 23,
+            "fair": 19.5,
+            "deviation": 3.5
+          },
+          {
+            "value": "B-010",
+            "count": 22,
+            "fair": 19.5,
+            "deviation": 2.5
+          },
+          {
+            "value": "B-011",
+            "count": 20,
+            "fair": 19.5,
+            "deviation": 0.5
+          },
+          {
+            "value": "B-012",
+            "count": 11,
+            "fair": 19.5,
+            "deviation": -8.5
+          },
+          {
+            "value": "B-013",
+            "count": 34,
+            "fair": 19.5,
+            "deviation": 14.5
+          },
+          {
+            "value": "B-014",
+            "count": 34,
+            "fair": 19.5,
+            "deviation": 14.5
+          }
+        ]
+      },
+      {
+        "dimension": "deviation",
+        "incidences": 606,
+        "allowedValues": 11,
+        "values": [
+          {
+            "value": "none",
+            "count": 319,
+            "fair": 55.09090909090909,
+            "deviation": 263.9090909090909
+          },
+          {
+            "value": "D1_off_topic",
+            "count": 44,
+            "fair": 55.09090909090909,
+            "deviation": -11.090909090909093
+          },
+          {
+            "value": "D2_goal_shift",
+            "count": 16,
+            "fair": 55.09090909090909,
+            "deviation": -39.09090909090909
+          },
+          {
+            "value": "D3_contradiction",
+            "count": 21,
+            "fair": 55.09090909090909,
+            "deviation": -34.09090909090909
+          },
+          {
+            "value": "D4_loose_confirmation",
+            "count": 21,
+            "fair": 55.09090909090909,
+            "deviation": -34.09090909090909
+          },
+          {
+            "value": "D5_language_switch",
+            "count": 27,
+            "fair": 55.09090909090909,
+            "deviation": -28.090909090909093
+          },
+          {
+            "value": "D6_instruction_in_data",
+            "count": 46,
+            "fair": 55.09090909090909,
+            "deviation": -9.090909090909093
+          },
+          {
+            "value": "D8_tool_failure",
+            "count": 25,
+            "fair": 55.09090909090909,
+            "deviation": -30.090909090909093
+          },
+          {
+            "value": "D10_return",
+            "count": 23,
+            "fair": 55.09090909090909,
+            "deviation": -32.09090909090909
+          },
+          {
+            "value": "D7_silence_or_burst",
+            "count": 30,
+            "fair": 55.09090909090909,
+            "deviation": -25.090909090909093
+          },
+          {
+            "value": "D9_out_of_scope",
+            "count": 34,
+            "fair": 55.09090909090909,
+            "deviation": -21.090909090909093
+          }
+        ]
+      },
+      {
+        "dimension": "channel",
+        "incidences": 313,
+        "allowedValues": 2,
+        "values": [
+          {
+            "value": "chat",
+            "count": 177,
+            "fair": 156.5,
+            "deviation": 20.5
+          },
+          {
+            "value": "whatsapp",
+            "count": 136,
+            "fair": 156.5,
+            "deviation": -20.5
+          }
+        ]
+      },
+      {
+        "dimension": "stage",
+        "incidences": 1231,
+        "allowedValues": 13,
+        "values": [
+          {
+            "value": "needs",
+            "count": 36,
+            "fair": 94.6923076923077,
+            "deviation": -58.69230769230769
+          },
+          {
+            "value": "identify",
+            "count": 59,
+            "fair": 94.6923076923077,
+            "deviation": -35.69230769230769
+          },
+          {
+            "value": "address",
+            "count": 183,
+            "fair": 94.6923076923077,
+            "deviation": 88.3076923076923
+          },
+          {
+            "value": "port_number",
+            "count": 43,
+            "fair": 94.6923076923077,
+            "deviation": -51.69230769230769
+          },
+          {
+            "value": "offer",
+            "count": 186,
+            "fair": 94.6923076923077,
+            "deviation": 91.3076923076923
+          },
+          {
+            "value": "details",
+            "count": 133,
+            "fair": 94.6923076923077,
+            "deviation": 38.30769230769231
+          },
+          {
+            "value": "recap",
+            "count": 162,
+            "fair": 94.6923076923077,
+            "deviation": 67.3076923076923
+          },
+          {
+            "value": "order_placed",
+            "count": 154,
+            "fair": 94.6923076923077,
+            "deviation": 59.30769230769231
+          },
+          {
+            "value": "callback",
+            "count": 49,
+            "fair": 94.6923076923077,
+            "deviation": -45.69230769230769
+          },
+          {
+            "value": "handover",
+            "count": 46,
+            "fair": 94.6923076923077,
+            "deviation": -48.69230769230769
+          },
+          {
+            "value": "closing",
+            "count": 133,
+            "fair": 94.6923076923077,
+            "deviation": 38.30769230769231
+          },
+          {
+            "value": "build_sheet",
+            "count": 34,
+            "fair": 94.6923076923077,
+            "deviation": -60.69230769230769
+          },
+          {
+            "value": "add_summary",
+            "count": 13,
+            "fair": 94.6923076923077,
+            "deviation": -81.6923076923077
+          }
+        ]
+      },
+      {
+        "dimension": "user_type",
+        "incidences": 319,
+        "allowedValues": 3,
+        "values": [
+          {
+            "value": "existing-customer",
+            "count": 127,
+            "fair": 106.33333333333333,
+            "deviation": 20.66666666666667
+          },
+          {
+            "value": "new-customer",
+            "count": 158,
+            "fair": 106.33333333333333,
+            "deviation": 51.66666666666667
+          },
+          {
+            "value": "sales-operations",
+            "count": 34,
+            "fair": 106.33333333333333,
+            "deviation": -72.33333333333333
+          }
+        ]
+      },
+      {
+        "dimension": "coverage_result",
+        "incidences": 319,
+        "allowedValues": 5,
+        "values": [
+          {
+            "value": "none",
+            "count": 136,
+            "fair": 63.8,
+            "deviation": 72.2
+          },
+          {
+            "value": "fiber",
+            "count": 60,
+            "fair": 63.8,
+            "deviation": -3.799999999999997
+          },
+          {
+            "value": "5g-only",
+            "count": 49,
+            "fair": 63.8,
+            "deviation": -14.799999999999997
+          },
+          {
+            "value": "no-service",
+            "count": 38,
+            "fair": 63.8,
+            "deviation": -25.799999999999997
+          },
+          {
+            "value": "not-in-map",
+            "count": 36,
+            "fair": 63.8,
+            "deviation": -27.799999999999997
+          }
+        ]
+      },
+      {
+        "dimension": "workspace_start",
+        "incidences": 319,
+        "allowedValues": 2,
+        "values": [
+          {
+            "value": "none",
+            "count": 285,
+            "fair": 159.5,
+            "deviation": 125.5
+          },
+          {
+            "value": "catalog-only",
+            "count": 34,
+            "fair": 159.5,
+            "deviation": -125.5
+          }
+        ]
+      }
+    ],
+    "wholeMaxDeviation": 263.9090909090909,
+    "mode": "budget",
+    "budget": 200,
+    "seed": 1,
+    "command": "pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/budget/full-suite/budget-200 --t 2 --seed 1 --budget 200 --force",
+    "exitCode": 1,
+    "selected": 200,
+    "complete": 319,
+    "incomplete": 75,
+    "selectedComplete": 199,
+    "selectedIncomplete": 1,
+    "pairs": {
+      "covered": 314,
+      "allowed": 314
+    },
+    "wholePairs": {
+      "covered": 637,
+      "allowed": 637
+    },
+    "maxDeviation": 17,
+    "balance": [
+      {
+        "dimension": "behaviour",
+        "values": [
+          {
+            "value": "B-001",
+            "count": 11,
+            "fair": 16.666666666666668,
+            "deviation": -5.666666666666668
+          },
+          {
+            "value": "B-002",
+            "count": 11,
+            "fair": 16.666666666666668,
+            "deviation": -5.666666666666668
+          },
+          {
+            "value": "B-003",
+            "count": 20,
+            "fair": 16.666666666666668,
+            "deviation": 3.333333333333332
+          },
+          {
+            "value": "B-004",
+            "count": 20,
+            "fair": 16.666666666666668,
+            "deviation": 3.333333333333332
+          },
+          {
+            "value": "B-005",
+            "count": 19,
+            "fair": 16.666666666666668,
+            "deviation": 2.333333333333332
+          },
+          {
+            "value": "B-006",
+            "count": 11,
+            "fair": 16.666666666666668,
+            "deviation": -5.666666666666668
+          },
+          {
+            "value": "B-007",
+            "count": 11,
+            "fair": 16.666666666666668,
+            "deviation": -5.666666666666668
+          },
+          {
+            "value": "B-008",
+            "count": 22,
+            "fair": 16.666666666666668,
+            "deviation": 5.333333333333332
+          },
+          {
+            "value": "B-009",
+            "count": 22,
+            "fair": 16.666666666666668,
+            "deviation": 5.333333333333332
+          },
+          {
+            "value": "B-010",
+            "count": 22,
+            "fair": 16.666666666666668,
+            "deviation": 5.333333333333332
+          },
+          {
+            "value": "B-011",
+            "count": 20,
+            "fair": 16.666666666666668,
+            "deviation": 3.333333333333332
+          },
+          {
+            "value": "B-012",
+            "count": 11,
+            "fair": 16.666666666666668,
+            "deviation": -5.666666666666668
+          }
+        ]
+      },
+      {
+        "dimension": "deviation",
+        "values": [
+          {
+            "value": "none",
+            "count": 19,
+            "fair": 18.181818181818183,
+            "deviation": 0.8181818181818166
+          },
+          {
+            "value": "D1_off_topic",
+            "count": 19,
+            "fair": 18.181818181818183,
+            "deviation": 0.8181818181818166
+          },
+          {
+            "value": "D2_goal_shift",
+            "count": 15,
+            "fair": 18.181818181818183,
+            "deviation": -3.1818181818181834
+          },
+          {
+            "value": "D3_contradiction",
+            "count": 15,
+            "fair": 18.181818181818183,
+            "deviation": -3.1818181818181834
+          },
+          {
+            "value": "D4_loose_confirmation",
+            "count": 18,
+            "fair": 18.181818181818183,
+            "deviation": -0.18181818181818343
+          },
+          {
+            "value": "D5_language_switch",
+            "count": 19,
+            "fair": 18.181818181818183,
+            "deviation": 0.8181818181818166
+          },
+          {
+            "value": "D6_instruction_in_data",
+            "count": 19,
+            "fair": 18.181818181818183,
+            "deviation": 0.8181818181818166
+          },
+          {
+            "value": "D8_tool_failure",
+            "count": 19,
+            "fair": 18.181818181818183,
+            "deviation": 0.8181818181818166
+          },
+          {
+            "value": "D10_return",
+            "count": 19,
+            "fair": 18.181818181818183,
+            "deviation": 0.8181818181818166
+          },
+          {
+            "value": "D7_silence_or_burst",
+            "count": 19,
+            "fair": 18.181818181818183,
+            "deviation": 0.8181818181818166
+          },
+          {
+            "value": "D9_out_of_scope",
+            "count": 19,
+            "fair": 18.181818181818183,
+            "deviation": 0.8181818181818166
+          }
+        ]
+      },
+      {
+        "dimension": "channel",
+        "values": [
+          {
+            "value": "chat",
+            "count": 100,
+            "fair": 100,
+            "deviation": 0
+          },
+          {
+            "value": "whatsapp",
+            "count": 100,
+            "fair": 100,
+            "deviation": 0
+          }
+        ]
+      },
+      {
+        "dimension": "user_type",
+        "values": [
+          {
+            "value": "existing-customer",
+            "count": 95,
+            "fair": 100,
+            "deviation": -5
+          },
+          {
+            "value": "new-customer",
+            "count": 105,
+            "fair": 100,
+            "deviation": 5
+          }
+        ]
+      },
+      {
+        "dimension": "coverage_result",
+        "values": [
+          {
+            "value": "none",
+            "count": 57,
+            "fair": 40,
+            "deviation": 17
+          },
+          {
+            "value": "fiber",
+            "count": 39,
+            "fair": 40,
+            "deviation": -1
+          },
+          {
+            "value": "5g-only",
+            "count": 39,
+            "fair": 40,
+            "deviation": -1
+          },
+          {
+            "value": "no-service",
+            "count": 32,
+            "fair": 40,
+            "deviation": -8
+          },
+          {
+            "value": "not-in-map",
+            "count": 33,
+            "fair": 40,
+            "deviation": -7
+          }
+        ]
+      }
+    ],
+    "faultsCaught": 13,
+    "faultsScored": 13,
+    "witnesses": {
+      "x1-invents-price": "gen-boundary-063#b2-identify-to-offer",
+      "x3-skips-recap": "gen-boundary-063#b3-offer-to-recap",
+      "x4-wrong-language": "gen-boundary-063#b1-needs-to-identify",
+      "x5-drops-coverage-check": "gen-boundary-072#b2-D8_tool_failure",
+      "d8-hides-tool-failure": "gen-boundary-072#b2-D8_tool_failure",
+      "d6-obeys-instruction": "gen-cover-009#b2-D6_instruction_in_data",
+      "d4-order-on-loose-yes": "gen-cover-012#b5-D9_out_of_scope",
+      "d9-answers-out-of-scope": "gen-cover-012#b5-D9_out_of_scope",
+      "d2-ignores-goal-shift": "gen-deviation-002#b5-D2_goal_shift",
+      "ops-x1-wrong-price": "acme-price-sheet-i01-base#build",
+      "ops-x4-narrates": "acme-price-sheet-i01-base#build",
+      "ops-x5-skips-check": "acme-price-sheet-i01-base#build",
+      "ops-d6-deletes-readme": "acme-price-sheet-i01-base#build"
+    },
+    "missed": [],
+    "selectedFaultsCaught": 9,
+    "selectedCaught": [
+      "d2-ignores-goal-shift",
+      "d4-order-on-loose-yes",
+      "d6-obeys-instruction",
+      "d8-hides-tool-failure",
+      "d9-answers-out-of-scope",
+      "x1-invents-price",
+      "x3-skips-recap",
+      "x4-wrong-language",
+      "x5-drops-coverage-check"
+    ],
+    "referenceFailures": []
+  },
+  {
+    "provenance": {
+      "sourceCommit": "68e7a455a70fa4414c4b879906d3a4fe0b110222",
+      "measuredAt": "2026-10-13T03:46:01.107Z",
+      "node": "v24.18.0",
+      "mapHash": "6d29ed7a7539"
+    },
+    "timing": {
+      "generationMs": 5718.538208999962,
+      "wallMs": 86980.578959,
+      "scope": "CLI generation plus suite loading, rendering audits, reference/equivalence/fault execution and coverage audit; includes output I/O, excludes final result-file write"
+    },
+    "cost": {
+      "modelCalls": 0,
+      "usd": 0,
+      "executedRuns": 645,
+      "executedBlocks": 2946
+    },
+    "wholeBalanceCountingRule": "t=1 coverage spec/value incidences on all axis-map dimensions among complete specs; fair=sum(spec/value incidences)/feasible values per dimension; a spec can expose multiple values",
+    "wholeBalance": [
+      {
+        "dimension": "behaviour",
+        "incidences": 203,
+        "allowedValues": 14,
+        "values": [
+          {
+            "value": "B-001",
+            "count": 12,
+            "fair": 14.5,
+            "deviation": -2.5
+          },
+          {
+            "value": "B-002",
+            "count": 11,
+            "fair": 14.5,
+            "deviation": -3.5
+          },
+          {
+            "value": "B-003",
+            "count": 11,
+            "fair": 14.5,
+            "deviation": -3.5
+          },
+          {
+            "value": "B-004",
+            "count": 11,
+            "fair": 14.5,
+            "deviation": -3.5
+          },
+          {
+            "value": "B-005",
+            "count": 11,
+            "fair": 14.5,
+            "deviation": -3.5
+          },
+          {
+            "value": "B-006",
+            "count": 12,
+            "fair": 14.5,
+            "deviation": -2.5
+          },
+          {
+            "value": "B-007",
+            "count": 11,
+            "fair": 14.5,
+            "deviation": -3.5
+          },
+          {
+            "value": "B-008",
+            "count": 12,
+            "fair": 14.5,
+            "deviation": -2.5
+          },
+          {
+            "value": "B-009",
+            "count": 10,
+            "fair": 14.5,
+            "deviation": -4.5
+          },
+          {
+            "value": "B-010",
+            "count": 12,
+            "fair": 14.5,
+            "deviation": -2.5
+          },
+          {
+            "value": "B-011",
+            "count": 11,
+            "fair": 14.5,
+            "deviation": -3.5
+          },
+          {
+            "value": "B-012",
+            "count": 11,
+            "fair": 14.5,
+            "deviation": -3.5
+          },
+          {
+            "value": "B-013",
+            "count": 34,
+            "fair": 14.5,
+            "deviation": 19.5
+          },
+          {
+            "value": "B-014",
+            "count": 34,
+            "fair": 14.5,
+            "deviation": 19.5
+          }
+        ]
+      },
+      {
+        "dimension": "deviation",
+        "incidences": 470,
+        "allowedValues": 11,
+        "values": [
+          {
+            "value": "none",
+            "count": 251,
+            "fair": 42.72727272727273,
+            "deviation": 208.27272727272728
+          },
+          {
+            "value": "D1_off_topic",
+            "count": 35,
+            "fair": 42.72727272727273,
+            "deviation": -7.727272727272727
+          },
+          {
+            "value": "D2_goal_shift",
+            "count": 13,
+            "fair": 42.72727272727273,
+            "deviation": -29.727272727272727
+          },
+          {
+            "value": "D3_contradiction",
+            "count": 19,
+            "fair": 42.72727272727273,
+            "deviation": -23.727272727272727
+          },
+          {
+            "value": "D4_loose_confirmation",
+            "count": 15,
+            "fair": 42.72727272727273,
+            "deviation": -27.727272727272727
+          },
+          {
+            "value": "D5_language_switch",
+            "count": 22,
+            "fair": 42.72727272727273,
+            "deviation": -20.727272727272727
+          },
+          {
+            "value": "D6_instruction_in_data",
+            "count": 35,
+            "fair": 42.72727272727273,
+            "deviation": -7.727272727272727
+          },
+          {
+            "value": "D8_tool_failure",
+            "count": 18,
+            "fair": 42.72727272727273,
+            "deviation": -24.727272727272727
+          },
+          {
+            "value": "D10_return",
+            "count": 16,
+            "fair": 42.72727272727273,
+            "deviation": -26.727272727272727
+          },
+          {
+            "value": "D7_silence_or_burst",
+            "count": 20,
+            "fair": 42.72727272727273,
+            "deviation": -22.727272727272727
+          },
+          {
+            "value": "D9_out_of_scope",
+            "count": 26,
+            "fair": 42.72727272727273,
+            "deviation": -16.727272727272727
+          }
+        ]
+      },
+      {
+        "dimension": "channel",
+        "incidences": 246,
+        "allowedValues": 2,
+        "values": [
+          {
+            "value": "chat",
+            "count": 146,
+            "fair": 123,
+            "deviation": 23
+          },
+          {
+            "value": "whatsapp",
+            "count": 100,
+            "fair": 123,
+            "deviation": -23
+          }
+        ]
+      },
+      {
+        "dimension": "stage",
+        "incidences": 962,
+        "allowedValues": 13,
+        "values": [
+          {
+            "value": "needs",
+            "count": 25,
+            "fair": 74,
+            "deviation": -49
+          },
+          {
+            "value": "identify",
+            "count": 59,
+            "fair": 74,
+            "deviation": -15
+          },
+          {
+            "value": "address",
+            "count": 117,
+            "fair": 74,
+            "deviation": 43
+          },
+          {
+            "value": "port_number",
+            "count": 41,
+            "fair": 74,
+            "deviation": -33
+          },
+          {
+            "value": "offer",
+            "count": 156,
+            "fair": 74,
+            "deviation": 82
+          },
+          {
+            "value": "details",
+            "count": 97,
+            "fair": 74,
+            "deviation": 23
+          },
+          {
+            "value": "recap",
+            "count": 126,
+            "fair": 74,
+            "deviation": 52
+          },
+          {
+            "value": "order_placed",
+            "count": 122,
+            "fair": 74,
+            "deviation": 48
+          },
+          {
+            "value": "callback",
+            "count": 40,
+            "fair": 74,
+            "deviation": -34
+          },
+          {
+            "value": "handover",
+            "count": 37,
+            "fair": 74,
+            "deviation": -37
+          },
+          {
+            "value": "closing",
+            "count": 95,
+            "fair": 74,
+            "deviation": 21
+          },
+          {
+            "value": "build_sheet",
+            "count": 34,
+            "fair": 74,
+            "deviation": -40
+          },
+          {
+            "value": "add_summary",
+            "count": 13,
+            "fair": 74,
+            "deviation": -61
+          }
+        ]
+      },
+      {
+        "dimension": "user_type",
+        "incidences": 250,
+        "allowedValues": 3,
+        "values": [
+          {
+            "value": "existing-customer",
+            "count": 80,
+            "fair": 83.33333333333333,
+            "deviation": -3.3333333333333286
+          },
+          {
+            "value": "new-customer",
+            "count": 136,
+            "fair": 83.33333333333333,
+            "deviation": 52.66666666666667
+          },
+          {
+            "value": "sales-operations",
+            "count": 34,
+            "fair": 83.33333333333333,
+            "deviation": -49.33333333333333
+          }
+        ]
+      },
+      {
+        "dimension": "coverage_result",
+        "incidences": 251,
+        "allowedValues": 5,
+        "values": [
+          {
+            "value": "none",
+            "count": 134,
+            "fair": 50.2,
+            "deviation": 83.8
+          },
+          {
+            "value": "fiber",
+            "count": 52,
+            "fair": 50.2,
+            "deviation": 1.7999999999999972
+          },
+          {
+            "value": "5g-only",
+            "count": 31,
+            "fair": 50.2,
+            "deviation": -19.200000000000003
+          },
+          {
+            "value": "no-service",
+            "count": 19,
+            "fair": 50.2,
+            "deviation": -31.200000000000003
+          },
+          {
+            "value": "not-in-map",
+            "count": 15,
+            "fair": 50.2,
+            "deviation": -35.2
+          }
+        ]
+      },
+      {
+        "dimension": "workspace_start",
+        "incidences": 251,
+        "allowedValues": 2,
+        "values": [
+          {
+            "value": "none",
+            "count": 217,
+            "fair": 125.5,
+            "deviation": 91.5
+          },
+          {
+            "value": "catalog-only",
+            "count": 34,
+            "fair": 125.5,
+            "deviation": -91.5
+          }
+        ]
+      }
+    ],
+    "wholeMaxDeviation": 208.27272727272728,
+    "mode": "pairwise",
+    "budget": 200,
+    "seed": 1,
+    "command": "pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/budget/full-suite/pairwise-200 --t 2 --seed 1 --max 200 --force",
+    "exitCode": 1,
+    "selected": 132,
+    "complete": 251,
+    "incomplete": 75,
+    "selectedComplete": 131,
+    "selectedIncomplete": 1,
+    "pairs": {
+      "covered": 314,
+      "allowed": 314
+    },
+    "wholePairs": {
+      "covered": 637,
+      "allowed": 637
+    },
+    "maxDeviation": 31.6,
+    "balance": [
+      {
+        "dimension": "behaviour",
+        "values": [
+          {
+            "value": "B-001",
+            "count": 11,
+            "fair": 11,
+            "deviation": 0
+          },
+          {
+            "value": "B-002",
+            "count": 11,
+            "fair": 11,
+            "deviation": 0
+          },
+          {
+            "value": "B-003",
+            "count": 11,
+            "fair": 11,
+            "deviation": 0
+          },
+          {
+            "value": "B-004",
+            "count": 11,
+            "fair": 11,
+            "deviation": 0
+          },
+          {
+            "value": "B-005",
+            "count": 11,
+            "fair": 11,
+            "deviation": 0
+          },
+          {
+            "value": "B-006",
+            "count": 11,
+            "fair": 11,
+            "deviation": 0
+          },
+          {
+            "value": "B-007",
+            "count": 11,
+            "fair": 11,
+            "deviation": 0
+          },
+          {
+            "value": "B-008",
+            "count": 11,
+            "fair": 11,
+            "deviation": 0
+          },
+          {
+            "value": "B-009",
+            "count": 11,
+            "fair": 11,
+            "deviation": 0
+          },
+          {
+            "value": "B-010",
+            "count": 11,
+            "fair": 11,
+            "deviation": 0
+          },
+          {
+            "value": "B-011",
+            "count": 11,
+            "fair": 11,
+            "deviation": 0
+          },
+          {
+            "value": "B-012",
+            "count": 11,
+            "fair": 11,
+            "deviation": 0
+          }
+        ]
+      },
+      {
+        "dimension": "deviation",
+        "values": [
+          {
+            "value": "none",
+            "count": 12,
+            "fair": 12,
+            "deviation": 0
+          },
+          {
+            "value": "D1_off_topic",
+            "count": 12,
+            "fair": 12,
+            "deviation": 0
+          },
+          {
+            "value": "D2_goal_shift",
+            "count": 12,
+            "fair": 12,
+            "deviation": 0
+          },
+          {
+            "value": "D3_contradiction",
+            "count": 12,
+            "fair": 12,
+            "deviation": 0
+          },
+          {
+            "value": "D4_loose_confirmation",
+            "count": 12,
+            "fair": 12,
+            "deviation": 0
+          },
+          {
+            "value": "D5_language_switch",
+            "count": 12,
+            "fair": 12,
+            "deviation": 0
+          },
+          {
+            "value": "D6_instruction_in_data",
+            "count": 12,
+            "fair": 12,
+            "deviation": 0
+          },
+          {
+            "value": "D8_tool_failure",
+            "count": 12,
+            "fair": 12,
+            "deviation": 0
+          },
+          {
+            "value": "D10_return",
+            "count": 12,
+            "fair": 12,
+            "deviation": 0
+          },
+          {
+            "value": "D7_silence_or_burst",
+            "count": 12,
+            "fair": 12,
+            "deviation": 0
+          },
+          {
+            "value": "D9_out_of_scope",
+            "count": 12,
+            "fair": 12,
+            "deviation": 0
+          }
+        ]
+      },
+      {
+        "dimension": "channel",
+        "values": [
+          {
+            "value": "chat",
+            "count": 66,
+            "fair": 66,
+            "deviation": 0
+          },
+          {
+            "value": "whatsapp",
+            "count": 66,
+            "fair": 66,
+            "deviation": 0
+          }
+        ]
+      },
+      {
+        "dimension": "user_type",
+        "values": [
+          {
+            "value": "existing-customer",
+            "count": 48,
+            "fair": 66,
+            "deviation": -18
+          },
+          {
+            "value": "new-customer",
+            "count": 84,
+            "fair": 66,
+            "deviation": 18
+          }
+        ]
+      },
+      {
+        "dimension": "coverage_result",
+        "values": [
+          {
+            "value": "none",
+            "count": 58,
+            "fair": 26.4,
+            "deviation": 31.6
+          },
+          {
+            "value": "fiber",
+            "count": 29,
+            "fair": 26.4,
+            "deviation": 2.6000000000000014
+          },
+          {
+            "value": "5g-only",
+            "count": 21,
+            "fair": 26.4,
+            "deviation": -5.399999999999999
+          },
+          {
+            "value": "no-service",
+            "count": 12,
+            "fair": 26.4,
+            "deviation": -14.399999999999999
+          },
+          {
+            "value": "not-in-map",
+            "count": 12,
+            "fair": 26.4,
+            "deviation": -14.399999999999999
+          }
+        ]
+      }
+    ],
+    "faultsCaught": 13,
+    "faultsScored": 13,
+    "witnesses": {
+      "x1-invents-price": "gen-boundary-063#b2-identify-to-offer",
+      "x3-skips-recap": "gen-boundary-063#b3-offer-to-recap",
+      "x4-wrong-language": "gen-boundary-063#b1-needs-to-identify",
+      "x5-drops-coverage-check": "gen-boundary-072#b2-D8_tool_failure",
+      "d8-hides-tool-failure": "gen-boundary-072#b2-D8_tool_failure",
+      "d6-obeys-instruction": "gen-cover-008#b2-D6_instruction_in_data",
+      "d9-answers-out-of-scope": "gen-cover-011#b2-D9_out_of_scope",
+      "d4-order-on-loose-yes": "gen-cover-012#b5-D9_out_of_scope",
+      "d2-ignores-goal-shift": "gen-deviation-002#b5-D2_goal_shift",
+      "ops-x1-wrong-price": "acme-price-sheet-i01-base#build",
+      "ops-x4-narrates": "acme-price-sheet-i01-base#build",
+      "ops-x5-skips-check": "acme-price-sheet-i01-base#build",
+      "ops-d6-deletes-readme": "acme-price-sheet-i01-base#build"
+    },
+    "missed": [],
+    "selectedFaultsCaught": 9,
+    "selectedCaught": [
+      "d2-ignores-goal-shift",
+      "d4-order-on-loose-yes",
+      "d6-obeys-instruction",
+      "d8-hides-tool-failure",
+      "d9-answers-out-of-scope",
+      "x1-invents-price",
+      "x3-skips-recap",
+      "x4-wrong-language",
+      "x5-drops-coverage-check"
+    ],
+    "referenceFailures": []
+  }
+]

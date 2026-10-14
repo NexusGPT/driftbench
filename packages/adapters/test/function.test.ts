@@ -5,7 +5,7 @@ import {
   type Observed,
   type Session,
   type WorldState,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { type AcmeStore, createAcmeAgent, createStore } from '../../../examples/acme/src/index';
 import { functionAdapter } from '../src/function/index';

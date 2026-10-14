@@ -1,8 +1,9 @@
-import { readdir, readFile, stat } from 'node:fs/promises';
-import { join, relative, resolve } from 'node:path';
-import { RUNTIMES, readerFor, runStaticTests, type StaticResult } from '@driftbench/estate';
-import { formatJson, StaticTest } from '@driftbench/generate';
+import { readFile, stat } from 'node:fs/promises';
+import { relative, resolve } from 'node:path';
+import { RUNTIMES, readerFor, runStaticTests, type StaticResult } from '@agent-nexus/driftbench-estate';
+import { formatJson, StaticTest } from '@agent-nexus/driftbench-generate';
 import type { Command } from 'commander';
+import { jsonFiles } from '../files';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
 
@@ -101,14 +102,4 @@ function report(results: readonly StaticResult[]): string {
   const failed = results.filter((result) => !result.pass).length;
   lines.push(`${results.length - failed} of ${results.length} static tests pass.`, '');
   return lines.join('\n');
-}
-
-async function jsonFiles(dir: string): Promise<string[]> {
-  const out: string[] = [];
-  for (const entry of await readdir(dir, { withFileTypes: true })) {
-    const full = join(dir, entry.name);
-    if (entry.isDirectory()) out.push(...(await jsonFiles(full)));
-    else if (entry.name.endsWith('.json')) out.push(full);
-  }
-  return out;
 }

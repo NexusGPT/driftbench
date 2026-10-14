@@ -2,8 +2,9 @@ import { cp, mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { functionAdapter } from '@driftbench/adapters';
-import { openStore } from '@driftbench/store';
+import { functionAdapter } from '@agent-nexus/driftbench-adapters';
+import { agentVersionOf } from '@agent-nexus/driftbench-core';
+import { openStore } from '@agent-nexus/driftbench-store';
 import { Command, CommanderError } from 'commander';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createAcmeAgent } from '../../../examples/acme/src/index';
@@ -214,4 +215,52 @@ describe('a campaign bundle runs again on another machine', () => {
       await rm(elsewhere, { recursive: true, force: true });
     }
   }, 120_000);
+});
+
+describe('--agent-version names the agent under test', () => {
+  const run = (campaign: string, extra: string[]) =>
+    campaignSeeing(
+      [
+        'campaign',
+        'run',
+        'specs',
+        '--target',
+        'function:acme',
+        '--campaign',
+        campaign,
+        '--store',
+        'store.db',
+        ...extra,
+      ],
+      [],
+    );
+
+  it('writes the label as the variant of every run, and leaves a run without the flag as it was', async () => {
+    expect((await run('c-plain', [])).err).toBe('');
+    expect((await run('c-v1', ['--agent-version', 'v1'])).err).toBe('');
+    expect((await run('c-v2', ['--agent-version', 'v2'])).err).toBe('');
+    const store = openStore(join(dir, 'store.db'));
+    try {
+      const plain = await store.listRuns({ campaignId: 'c-plain' });
+      const v1 = await store.listRuns({ campaignId: 'c-v1' });
+      const v2 = await store.listRuns({ campaignId: 'c-v2' });
+      expect(plain.length).toBeGreaterThan(0);
+      expect(plain.map((each) => each.target)).toEqual(
+        plain.map(() => ({ adapter: 'function', agent: 'acme' })),
+      );
+      expect(new Set(v1.map((each) => agentVersionOf(each)))).toEqual(new Set(['v1']));
+      expect(new Set(v2.map((each) => agentVersionOf(each)))).toEqual(new Set(['v2']));
+      expect(plain.map((each) => agentVersionOf(each))).toEqual(plain.map(() => undefined));
+      // The version is part of the cell id: no run of v2 has the id of a run of v1 or of the plain campaign.
+      const ids = (runs: typeof v1) => new Set(runs.map((each) => each.runId));
+      for (const id of ids(v2)) {
+        expect(ids(v1).has(id)).toBe(false);
+        expect(ids(plain).has(id)).toBe(false);
+      }
+      // A cold cache for the new version: nothing of v2 is a replay of v1.
+      expect(v2.every((each) => each.cacheHit !== true)).toBe(true);
+    } finally {
+      store.close();
+    }
+  });
 });

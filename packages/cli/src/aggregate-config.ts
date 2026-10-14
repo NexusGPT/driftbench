@@ -1,18 +1,57 @@
 import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { type AggregateCriterion, aggregateFromFlag } from '@driftbench/report';
+import { type AggregateCriterion, aggregateFromFlag } from '@agent-nexus/driftbench-report';
 import { isMap, isScalar, isSeq, parseDocument } from 'yaml';
 
 /**
  * The project config file: `driftbench.yaml` at the root, or --config. It declares campaign-level criteria
- * under `aggregates:`, one `name:op threshold` string each, the same syntax as --aggregate. Nothing else is
- * defined, so any other key is refused. A bad entry is refused with its file and line.
+ * under `aggregates:`, one `name:op threshold` string each, the same syntax as --aggregate. Other recognized
+ * sections have their own loaders; unknown keys and bad entries are refused with their file and line.
  */
 
 export type ConfigLoad = { ok: true; specs: string[] } | { ok: false; message: string };
 
-const KEYS = new Set(['aggregates']);
+/** A score scale: the lowest and highest score a reviewer may give a criterion's queue item. */
+export type ScoreScale = { min: number; max: number };
+export type ScaleLoad = { ok: true; scales: Record<string, ScoreScale> } | { ok: false; message: string };
+
+/**
+ * Reads the score scales of a config file: under `scales:`, a map from criterion name to `min` and `max`, with
+ * min below max. A criterion without a scale keeps the default scale, 0 to 1.
+ */
+export async function readScaleConfig(path: string): Promise<ScaleLoad> {
+  const text = await readFile(path, 'utf8');
+  const doc = parseDocument(text);
+  if (doc.errors.length > 0) {
+    return { ok: false, message: `${path}:1: not YAML: ${doc.errors[0]?.message ?? ''}` };
+  }
+  const root = doc.contents;
+  if (root === null || root === undefined || !isMap(root)) return { ok: true, scales: {} };
+  const block = root.get('scales');
+  if (block === undefined || block === null) return { ok: true, scales: {} };
+  if (!isMap(block))
+    return { ok: false, message: `${path}:${lineOf(text, block.range?.[0] ?? 0)}: scales must be a map` };
+  const scales: Record<string, ScoreScale> = {};
+  for (const pair of block.items) {
+    const name = isScalar(pair.key) ? String(pair.key.value) : '';
+    const at = lineOf(text, pair.key && 'range' in pair.key && pair.key.range ? pair.key.range[0] : 0);
+    const value = pair.value;
+    if (!isMap(value))
+      return { ok: false, message: `${path}:${at}: ${name}: the scale must be a map with min and max` };
+    const min = value.get('min', true);
+    const max = value.get('max', true);
+    if (!isScalar(min) || !isScalar(max) || typeof min.value !== 'number' || typeof max.value !== 'number') {
+      return { ok: false, message: `${path}:${at}: ${name}: min and max must be numbers` };
+    }
+    if (!(min.value < max.value))
+      return { ok: false, message: `${path}:${at}: ${name}: min must be below max` };
+    scales[name] = { min: min.value, max: max.value };
+  }
+  return { ok: true, scales };
+}
+
+const KEYS = new Set(['aggregates', 'scales', 'campaign', 'plugins']);
 
 function lineOf(text: string, offset: number): number {
   return text.slice(0, offset).split('\n').length;
@@ -39,7 +78,7 @@ export async function readAggregateConfig(path: string): Promise<ConfigLoad> {
       const at = pair.key && 'range' in pair.key && pair.key.range ? pair.key.range[0] : 0;
       return {
         ok: false,
-        message: `${path}:${lineOf(text, at)}: unknown key ${key}; the config defines aggregates only`,
+        message: `${path}:${lineOf(text, at)}: unknown key ${key}; the config defines ${[...KEYS].sort().join(', ')} only`,
       };
     }
   }
@@ -124,3 +163,6 @@ export async function criteriaFromConfig(
 }
 
 export const DEFAULT_CONFIG = 'driftbench.yaml';
+
+// Extend the shared allowlist without replacing other independently loaded project sections.
+KEYS.add('prices');

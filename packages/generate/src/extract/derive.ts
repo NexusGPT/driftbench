@@ -1,4 +1,4 @@
-import { NONE } from '@driftbench/space';
+import { NONE } from '@agent-nexus/driftbench-space';
 import { OPENING_CLASSES, TOOL_FAILURE } from '../seed/deviation';
 import { type Relations, readRelations, recoveryFor, stageAfter } from '../seed/relations';
 import {

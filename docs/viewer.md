@@ -81,7 +81,7 @@ blocks:
 
 `judge calibrate` needs at least one pass and one fail label per criterion, or kappa has nothing to measure. The labelling section says when a criterion still lacks one of the two.
 
-From code, `saveLabel(dir, criterion, block, labelledBy)` and `readLabelFile(dir, criterion)` of `@driftbench/judges` write and read the same files.
+From code, `saveLabel(dir, criterion, block, labelledBy)` and `readLabelFile(dir, criterion)` of `@agent-nexus/driftbench-judges` write and read the same files.
 
 ## Anchors on a label
 
@@ -89,5 +89,5 @@ The label form has an anchor select. Its options are each line of the block's tr
 
 ## Field, span and score
 
-The anchor select also offers a field of a tool output (`field:<tool>:<path>`, the dot path of a leaf of its JSON output) and a runtime event of the block (`span:<guard|skill>:<name>`). A span cannot be checked against the transcript, so its label stands as written. The label form has a score box, from 0 to 1, which is kept on the reviewer's vote when the label completes a queue item.
+The anchor select also offers a field of a tool output (`field:<tool>:<path>`, the dot path of a leaf of its JSON output) and a runtime event of the block (`span:<guard|skill>:<name>`). A call that the run recorded with its trace span id (an OpenTelemetry span, when the adapter has one) is offered as `span:<span id>`, so the label names that span. A timeline call without a span id is offered as `span:event:<position>`. A span cannot be checked against the transcript, so its label stands as written. The label form has a score box, which is kept on the reviewer's vote when the label completes a queue item. Its range is the criterion's scale in the config file (`--config`, default `driftbench.yaml` when it exists, set with `scales:` per criterion, `min` below `max`), and 0 to 1 when the criterion has none. A score outside that range is refused with a 400 and nothing is saved.
 

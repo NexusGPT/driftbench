@@ -4,7 +4,7 @@ import {
   type Message,
   retryDecision,
   type Session,
-} from '@driftbench/core';
+} from '@agent-nexus/driftbench-core';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { toChatMessages } from '../src/http/chat';
 import { httpAdapter } from '../src/http/index';
@@ -126,6 +126,31 @@ describe('http adapter', () => {
     expect(observed.latencyMs).toBeGreaterThanOrEqual(0);
   });
 
+  it('reports the finish reason of the last chat completion on the observed runtime', async () => {
+    const fetchFn = async () =>
+      new Response(
+        JSON.stringify({
+          choices: [
+            { finish_reason: 'length', message: { role: 'assistant', content: 'The plan includes' } },
+          ],
+        }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      );
+    const adapter = httpAdapter({ url: 'http://agent.test/chat', fetch: fetchFn });
+    const observed = await adapter.send(await adapter.open(given), userTurn(0, 'hi', given));
+    expect(observed.runtime?.finishReason).toBe('length');
+  });
+
+  it('leaves the finish reason out when the endpoint reports none', async () => {
+    const fetchFn = async () =>
+      new Response(JSON.stringify({ choices: [{ message: { role: 'assistant', content: 'ok' } }] }), {
+        status: 200,
+      });
+    const adapter = httpAdapter({ url: 'http://agent.test/chat', fetch: fetchFn });
+    const observed = await adapter.send(await adapter.open(given), userTurn(0, 'hi', given));
+    expect(observed.runtime?.finishReason).toBeUndefined();
+  });
+
   it('maps a chat completion with no tool call to one text segment, with its tokens', async () => {
     server.queueCompletion({
       choices: [{ index: 0, message: { role: 'assistant', content: 'Hello from a chat endpoint.' } }],
@@ -203,7 +228,7 @@ describe('http adapter', () => {
     ]);
     expect(observed.toolCalls).toEqual([
       { id: 'a', label: 'coverage.check', input: { address: 'x' }, output: { found: false }, latencyMs: 40 },
-      { id: 'b', label: 'catalog.search', input: {}, error: 'catalog offline' },
+      { id: 'b', label: 'catalog.search', input: '', error: 'catalog offline' },
     ]);
     expect(observed.text).toBe('Let me check.\nNo coverage there.');
     expect(observed.cost).toEqual({ inputTokens: 10, outputTokens: 3 });

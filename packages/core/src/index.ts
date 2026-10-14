@@ -10,9 +10,12 @@ export {
   type TableInput,
   type TableMapping,
 } from './import/table';
+export * from './radius';
 export * from './retry';
 export * from './runner';
 export * from './schema/common';
+export * from './schema/config';
+export { parameterSchema, unsupportedSchemaKeywords } from './schema/json-schema';
 export * from './schema/run';
 export * from './schema/spec';
 export * as script from './script';
@@ -41,3 +44,4 @@ export {
   normaliseText,
   wordsOf,
 } from './text/grams';
+export * from './text/openai-embedder';

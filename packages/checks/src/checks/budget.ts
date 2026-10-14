@@ -1,4 +1,4 @@
-import { type Check, machineVerdict, type Observed, type Verdict } from '@driftbench/core';
+import { type Check, machineVerdict, type Observed, type Verdict } from '@agent-nexus/driftbench-core';
 import { commandsOf } from '../support/executions';
 
 const NAME = 'budget';
@@ -47,7 +47,7 @@ export const budget: Check = {
               NAME,
               'cost_usd',
               cost <= limits.cost_usd ? 'pass' : 'fail',
-              `cost ${cost} USD, at most ${limits.cost_usd}`,
+              `cost ${cost} USD, at most ${limits.cost_usd}${overBy(cost - limits.cost_usd, limits.cost_usd, 'USD', cost <= limits.cost_usd)}`,
             ),
       );
     }
@@ -58,7 +58,7 @@ export const budget: Check = {
           NAME,
           'latency_ms',
           observed.latencyMs <= limits.latency_ms ? 'pass' : 'fail',
-          `latency ${observed.latencyMs} ms, at most ${limits.latency_ms}`,
+          `latency ${observed.latencyMs} ms, at most ${limits.latency_ms}${overBy(observed.latencyMs - limits.latency_ms, limits.latency_ms, 'ms', observed.latencyMs <= limits.latency_ms)}`,
         ),
       );
     }
@@ -72,4 +72,11 @@ function costOf(observed: Observed): number | undefined {
     segment.cost?.usd === undefined ? [] : [segment.cost.usd],
   );
   return parts.length === 0 ? undefined : parts.reduce((sum, part) => sum + part, 0);
+}
+
+/** How far over a limit a fail is: the excess and its share of the limit. Empty when the value passes. */
+function overBy(excess: number, limit: number, unit: string, passes: boolean): string {
+  if (passes || limit === 0) return '';
+  const share = Math.round((excess / limit) * 100);
+  return `, over by ${Number(excess.toFixed(4))} ${unit} (${share}% above the limit)`;
 }

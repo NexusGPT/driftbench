@@ -2,7 +2,7 @@ import { mkdir, mkdtemp, readdir, readFile, rm, stat, writeFile } from 'node:fs/
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { FakeModelPort } from '@driftbench/generate';
+import { FakeModelPort } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import { fromInterviewCommand, logsCommand } from '../src/commands/intake';
 import { type Io, main } from '../src/index';
@@ -106,6 +106,65 @@ describe('driftbench intake logs', () => {
     }
     const turns = (await readFile(join(dir, 'private/set/reference-turns.jsonl'), 'utf8')).trim().split('\n');
     expect(JSON.parse(turns[0] as string).cell).toEqual({ flow: 'upgrade' });
+  });
+
+  it('reads --dedup, --intent-threshold, --cluster-threshold and --intent-dimension', async () => {
+    const dir = await setup();
+    const logs = async (out: string, ...flags: string[]) => {
+      const result = await run(
+        [
+          'intake',
+          'logs',
+          'logs.jsonl',
+          '--out',
+          out,
+          '--map',
+          `${ACME}map/approved.yaml`,
+          '--spot-check',
+          '1',
+          ...flags,
+        ],
+        dir,
+      );
+      expect(result.err).toBe('');
+      expect(result.code).toBe(0);
+      return result.out;
+    };
+    expect(await logs('d0', '--dedup', '0')).toContain('3 near-duplicates dropped, 2 kept');
+    expect(await logs('i1', '--intent-threshold', '1')).toContain('0 from the map');
+    expect(await logs('c0', '--intent-threshold', '1', '--cluster-threshold', '0')).toContain(
+      'Intents on flow: 1 seen, 0 from the map and 1 new.',
+    );
+    expect(await logs('c1', '--intent-threshold', '1', '--cluster-threshold', '1')).toContain(
+      'Intents on flow: 5 seen, 0 from the map and 5 new.',
+    );
+    expect(await logs('dev', '--intent-dimension', 'deviation')).toContain('Intents on deviation:');
+
+    const unknown = await run(
+      [
+        'intake',
+        'logs',
+        'logs.jsonl',
+        '--out',
+        'x',
+        '--map',
+        `${ACME}map/approved.yaml`,
+        '--intent-dimension',
+        'nope',
+      ],
+      dir,
+    );
+    expect(unknown.code).toBe(2);
+    expect(unknown.err).toContain('The map has no approved dimension "nope".');
+    const range = await run(['intake', 'logs', 'logs.jsonl', '--out', 'y', '--dedup', '2'], dir);
+    expect(range.code).toBe(2);
+    expect(range.err).toContain('--dedup and the thresholds a number from 0 to 1');
+    const provider = await run(
+      ['intake', 'logs', 'logs.jsonl', '--out', 'z', '--second-pass', 'model', '--provider', 'bogus'],
+      dir,
+    );
+    expect(provider.code).toBe(2);
+    expect(provider.err).toContain('unknown provider "bogus": use anthropic or openai.');
   });
 
   it('refuses an output folder inside a git work tree with exit 2 and writes nothing', async () => {
@@ -307,6 +366,16 @@ describe('driftbench intake from-interview', () => {
     expect(await stat(join(dir, 'set')).catch(() => undefined)).toBeUndefined();
   });
 
+  it('refuses an unknown --provider before any model call', async () => {
+    const dir = await zed();
+    const result = await run(
+      ['intake', 'from-interview', 'answers.yaml', '--out', 'set', '--provider', 'bogus'],
+      dir,
+    );
+    expect(result.code).toBe(2);
+    expect(result.err).toContain('unknown provider "bogus": use anthropic or openai.');
+  });
+
   it('prints the plan on a dry run and calls no model', async () => {
     const dir = await zed();
     const result = await run(['intake', 'from-interview', 'answers.yaml', '--dry-run', '--turns', '8'], dir);
@@ -315,6 +384,22 @@ describe('driftbench intake from-interview', () => {
     expect(result.out).toContain(
       'dropped stage=greet flow=balance persona=saver channel=email lang=en: balance is on chat only',
     );
+  });
+
+  it('refuses a plan over --max-cells, and gives every cell --min-per-cell turns', async () => {
+    const dir = await zed();
+    const over = await run(
+      ['intake', 'from-interview', 'answers.yaml', '--dry-run', '--max-cells', '2'],
+      dir,
+    );
+    expect(over.code).toBe(2);
+    expect(over.err).toContain('The answers give 3 cells, more than --max-cells 2.');
+    const floor = await run(
+      ['intake', 'from-interview', 'answers.yaml', '--dry-run', '--turns', '3', '--min-per-cell', '4'],
+      dir,
+    );
+    expect(floor.code).toBe(0);
+    expect(floor.out).toContain('Cells: 3, 12 model turns to request');
   });
 
   it('writes the set and its approval file, every turn unapproved, and exits 0', async () => {
@@ -470,6 +555,40 @@ describe('driftbench intake fidelity', () => {
       dir,
     );
     expect(JSON.parse(json.out)).toMatchObject({ n: { reference: 6, candidate: 3 }, dimensions: ['flow'] });
+  });
+
+  it('counts a candidate turn as a copy against the --threshold it is given', async () => {
+    const dir = await withSet();
+    await run(['intake', 'approve', 'set/approval.yaml', '--all'], dir);
+    const copyRate = async (threshold: string) => {
+      const result = await run(
+        [
+          'intake',
+          'fidelity',
+          '--reference',
+          'set',
+          '--candidate',
+          'candidate.jsonl',
+          '--json',
+          '--threshold',
+          threshold,
+        ],
+        dir,
+      );
+      expect(result.code).toBe(0);
+      const json = JSON.parse(result.out) as { duplicates: { threshold: number; copyRate: number } };
+      return json.duplicates;
+    };
+    expect(await copyRate('0')).toMatchObject({ threshold: 0, copyRate: 1 });
+    const strict = await copyRate('1');
+    expect(strict.threshold).toBe(1);
+    expect(strict.copyRate).toBeLessThan(1);
+    const bad = await run(
+      ['intake', 'fidelity', '--reference', 'set', '--candidate', 'candidate.jsonl', '--threshold', '2'],
+      dir,
+    );
+    expect(bad.code).toBe(2);
+    expect(bad.err).toContain('--threshold takes a number from 0 to 1');
   });
 
   it('counts unapproved turns only when asked, and says so', async () => {

@@ -1,4 +1,10 @@
-import type { BlockResult, DriverStep, PerturbationSpec, Spec, UserDriver } from '@driftbench/core';
+import type {
+  BlockResult,
+  DriverStep,
+  PerturbationSpec,
+  Spec,
+  UserDriver,
+} from '@agent-nexus/driftbench-core';
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
   createPerturbingDriver,
@@ -75,8 +81,8 @@ beforeAll(async () => {
 });
 
 describe('the deviation classes', () => {
-  it('defines all ten, D6 and D8 carried by the world alone', () => {
-    expect(Object.keys(DEVIATIONS)).toHaveLength(10);
+  it('defines all twelve, D6 and D8 carried by the world alone', () => {
+    expect(Object.keys(DEVIATIONS)).toHaveLength(12);
     expect(
       Object.values(DEVIATIONS)
         .filter((def) => def.carrier === 'world')
@@ -90,7 +96,9 @@ describe('the deviation classes', () => {
     expect(deviationClassOf('D2')).toBe('D2_goal_shift');
     expect(deviationClassOf('d10')).toBe('D10_return');
     expect(deviationClassOf('D9_out_of_scope')).toBe('D9_out_of_scope');
-    expect(deviationClassOf('D11')).toBeUndefined();
+    expect(deviationClassOf('D11')).toBe('D11_pii_leak');
+    expect(deviationClassOf('d12')).toBe('D12_prompt_extraction');
+    expect(deviationClassOf('D13')).toBeUndefined();
     expect(deviationClassOf('off-topic')).toBeUndefined();
   });
 });
@@ -392,6 +400,7 @@ describe('every perturbation the Acme conversation specs declare, through the re
       'acme-order-loose-confirmation second-loose-yes immediate 0',
       'acme-order-loose-confirmation order-service-down immediate 0',
       'acme-plan-upgrade billing-aside immediate 0',
+      'acme-plan-upgrade order-service-down immediate 0',
       'acme-plan-upgrade loose-ok immediate 0',
       'acme-tool-failure sales-queue-down immediate 0',
     ]);

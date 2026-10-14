@@ -1,4 +1,4 @@
-import type * as stats from '@driftbench/stats';
+import type * as stats from '@agent-nexus/driftbench-stats';
 import type { Item, Measure } from '../../ladder';
 
 /** Level 1 of the statistics validator: every Python reference value matches the implementation. */

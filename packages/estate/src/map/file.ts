@@ -1,8 +1,8 @@
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
-import { isPlainObject } from '@driftbench/core';
+import { isPlainObject } from '@agent-nexus/driftbench-core';
 import { Document, isMap, isSeq, parseDocument, parse as parseYaml } from 'yaml';
-import type { z } from 'zod';
+import { describe, fromZod } from '../file-issues';
 import { EVENT_PREFIX } from '../graph/edges';
 import { provenanceHash, quoteAtSpan, sha256 } from '../scan/text';
 import { type Atom, AtomKind, EstateMap } from '../schema';
@@ -227,17 +227,4 @@ export function approveAtoms(text: string, selection: ApproveSelection): Approve
 
 function issue(code: MapIssueCode, path: string, message: string): MapIssue {
   return { code, path, message };
-}
-
-function fromZod(zodIssue: z.core.$ZodIssue): MapIssue {
-  let message = zodIssue.message;
-  if (zodIssue.code === 'unrecognized_keys')
-    message = `unknown key${zodIssue.keys.length > 1 ? 's' : ''}: ${zodIssue.keys.join(', ')}`;
-  else if (zodIssue.code === 'invalid_type') message = message.replace(/received undefined$/, 'missing');
-  return issue(`SCHEMA_${zodIssue.code.toUpperCase()}`, zodIssue.path.map(String).join('.'), message);
-}
-
-function describe(cause: unknown): string {
-  if (cause instanceof Error) return cause.message.split('\n').slice(0, 3).join(' ').trim();
-  return String(cause);
 }
