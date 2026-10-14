@@ -124,3 +124,6 @@ c50b2dc3f0c6c3e9bc3b82d848fb9bc1a98451c4:comparisons/reader-first/recordings/hai
 # Pinned prompt code 0278595c and recordings 140f406a produce identical hashes; no credentials.
 714af9eacb10f6fe268dd829c254505d40f6d39b:examples/escalation/fixtures/mm-dev400.jsonl:generic-api-key:31
 714af9eacb10f6fe268dd829c254505d40f6d39b:examples/escalation/fixtures/mm-dev400.jsonl:generic-api-key:86
+
+# Ledger-hard Flash-Lite probe: "probe_key" is the SHA-256 of the recorded request (request_sha256 in lite-run.py), a content hash, not a credential.
+4169bdf462d070df123a3d1205a6f36de558d464:comparisons/ledger-hard/flash-lite/reasoning-applied.json:generic-api-key:7
