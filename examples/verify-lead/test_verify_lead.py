@@ -74,8 +74,8 @@ def test_exact_p_and_holm():
 
 def test_split_is_seeded_and_disjoint():
     hard = [{'question_id': f'q{i}', 'completion_id': f'c{i}', 'gold_correct': i % 3 == 0,
-             'source': 'math_reasoning/x', 'question': 'Q', 'completion': 'R'} for i in range(200)]
-    used = [{'id': 'q0_c0'}, {'id': 'q1_zz'}]  # q1 shares a question with a used item
+             'source': 'math_reasoning/x', 'question': f'Q{i}', 'completion': 'R'} for i in range(200)]
+    used = [{'id': 'q0_c0', 'instruction': 'Q0'}, {'id': 'q1_zz', 'instruction': 'Q1'}]  # q1 shares a question with a used item
     practice, confirm = pool.build(hard, used)
     ids = [x['id'] for x in practice + confirm]
     assert len(practice) == pool.PRACTICE and len(ids) == len(set(ids)) == 198
@@ -212,3 +212,57 @@ def test_api_rejected_request_costs_nothing_and_is_not_a_connection_failure():
     error = anthropic.BadRequestError('bad', response=httpx2.Response(400, request=request), body=None)
     out = _api_with(error).api_run_claude(None, 'S', 'U')
     assert out['answered'] is False and out['connection'] is False and out['measuredCostUsd'] == 0.0
+
+
+# ---------------------------------------------------------------- question leakage and committed reanalysis
+
+def test_split_keeps_normalized_question_groups_together(monkeypatch):
+    monkeypatch.setattr(pool, 'PRACTICE', 1)
+    hard = [{'question_id': f'q{i}', 'completion_id': 'c', 'gold_correct': bool(i % 2),
+             'source': 'math/x', 'question': q, 'completion': 'R'}
+            for i, q in enumerate(['Cafe\u0301  question?', '  Caf\u00e9\nquestion? ', 'Other question?'])]
+    # The old item-ID split must cut a duplicate-text group, regardless of hash order.
+    duplicate_first = min(hard[:2], key=lambda r: pool.rank(f"{r['question_id']}_c"))
+    hard = [duplicate_first, next(r for r in hard[:2] if r is not duplicate_first)]
+    practice, confirm = pool.build(hard, [])
+    assert len(practice) == 2 and confirm == []  # whole group may exceed the target
+    assert not {pool.question_key(x['question']) for x in practice} & {
+        pool.question_key(x['question']) for x in confirm}
+
+
+def test_split_excludes_used_text_even_under_another_id():
+    hard = [{'question_id': 'new', 'completion_id': 'c', 'gold_correct': True,
+             'source': 'math/x', 'question': '  Same\n question ', 'completion': 'R'}]
+    assert pool.build(hard, [{'id': 'old_c', 'instruction': 'Same question'}]) == ([], [])
+    assert pool.question_key('A') != pool.question_key('a')  # case can change math semantics
+
+
+def test_committed_reanalysis_is_exact_and_overlap_free():
+    import reanalyze
+    index = json.loads((ROOT / 'data/confirmation-index.json').read_text())
+    outputs = reanalyze.artifacts(index)
+    for name, value in outputs.items():
+        assert json.loads((ROOT / name).read_text()) == value
+    excluded = outputs['confirmation-exclusions.json']
+    assert excluded['frozenN'] == 544 and excluded['retainedN'] == 536
+    assert len(excluded['excludedIds']) == 8
+    assert sum(len(r['reusedPracticeCallKeys']) for r in excluded['items']) == 32
+    seen = {i['questionSha256'] for s in ('practice', 'dev') for i in index['splits'][s]}
+    retained = [i for i in index['splits']['confirm'] if i['id'] not in excluded['excludedIds']]
+    assert not seen & {i['questionSha256'] for i in retained}
+    result = outputs['results-confirm-clean.json']
+    assert set(result['primary']) == set(reanalyze.CONTESTANTS)
+    for group, n in [('primary', 536), ('sensitivity', 544)]:
+        for table in result[group].values():
+            assert table['own']['n'] == n and len(table['peers']) == 5
+
+
+def test_overlap_selection_does_not_depend_on_labels_or_verdicts():
+    import copy
+    import reanalyze
+    index = json.loads((ROOT / 'data/confirmation-index.json').read_text())
+    changed = copy.deepcopy(index)
+    for split in changed['splits'].values():
+        for item in split:
+            item['label'] = not item['label']
+    assert reanalyze.exclusions(changed) == reanalyze.exclusions(index)

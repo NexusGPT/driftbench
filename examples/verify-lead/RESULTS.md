@@ -5,7 +5,29 @@ Choice record: `candidate.json`. Every contestant ran on Claude Haiku 5.5 with t
 Analysis (pre-registered in `freeze.json`): the item is the unit, a missing or unparsed verdict counts as wrong, an
 exact two-sided binomial test on discordant items per peer, Holm over the five peers, alpha 0.05.
 
-## Fresh VerifyBench-Hard confirmation, 544 items
+## Primary: confirmation without practice/DEV question overlap, 536 items
+
+The original split ranked completion IDs, so 8 confirmation items share question text with practice.
+Those 8 v5 decisions reuse 32 practice call-key references, including blind solver answers. The original
+544-item run is therefore not wholly fresh held-out confirmation. No confirmation question overlaps DEV.
+
+The primary analysis excludes every confirmation item whose normalized question text occurs in practice
+or DEV, leaving 536 items for every contestant. Normalization uses Unicode NFC and collapsed whitespace,
+while preserving case and mathematical symbols. This is a post-review exclusion based only on question
+identity, not labels or outcomes; it is not a new preregistered experiment. No model calls were made.
+
+| Contestant | Score | driftbench minus this | driftbench wins / losses | Exact p | Holm p | Verdict | Missing |
+|---|---:|---:|---:|---:|---:|---|---:|
+| driftbench-v5 | 78.73% (422/536) |  |  |  |  |  | 0 |
+| promptfoo | 76.87% (412/536) | +1.87 pts | 40 / 30 | 0.282 | 0.282 | tie | 1 |
+| deepeval | 60.26% (323/536) | +18.47 pts | 113 / 14 | 2.07e-20 | 1.04e-19 | win | 40 |
+| inspect | 76.49% (410/536) | +2.24 pts | 32 / 20 | 0.126 | 0.253 | tie | 0 |
+| langfuse | 75.75% (406/536) | +2.99 pts | 39 / 23 | 0.0559 | 0.168 | tie | 0 |
+| langwatch | 75.19% (403/536) | +3.54 pts | 41 / 22 | 0.0226 | 0.0903 | tie | 1 |
+
+One win over DeepEval, four ties, no loss. The highest observed score does not establish a lead over all peers.
+
+## Sensitivity: original frozen confirmation, 544 items (includes overlap)
 
 | Contestant | Score | driftbench minus this | driftbench wins / losses | Exact p | Holm p | Verdict | Missing |
 |---|---:|---:|---:|---:|---:|---|---:|
@@ -17,7 +39,7 @@ exact two-sided binomial test on discordant items per peer, Holm over the five p
 | langwatch | 75.18% (409/544) | +3.68 pts | 42 / 22 | 0.0169 | 0.0674 | tie | 1 |
 
 One win, four ties, no loss. driftbench has the highest score, but only the deepeval gap holds after Holm.
-All calls went through `claude -p`.
+All original confirmation calls went through `claude -p`. This sensitivity table retains the 8 overlapping items.
 
 ## LongJudgeBench verify TEST, 221 items
 
@@ -52,8 +74,9 @@ API runs A and B against the recorded CLI verdicts:
 | API B vs CLI | 163 / 180 |
 | API A vs API B (run-to-run noise) | 157 / 180 |
 
-API against CLI agrees at least as often as the API agrees with itself, so the switch stays within run-to-run
-noise. For driftbench-v5 alone: 28 and 29 of 30 against the CLI, 27 between A and B. Median output tokens per
+The API A vs CLI count includes one shared DeepEval null/parser failure: 163 agreements are boolean
+verdicts, plus one null/null agreement. These are descriptive agreement counts, not a formal equivalence test.
+For driftbench-v5 alone: 28 and 29 of 30 against the CLI, 27 between A and B. Median output tokens per
 call: 443 on the CLI (practice), 563 on the API (run A). Four API replies stopped at 16000 tokens with no text and
 stayed missing: three TEST items, answered on the next pass, and one item in parity run B, counted as a
 disagreement above.
@@ -62,3 +85,21 @@ disagreement above.
 
 Measured from the journals: confirmation calls 7.44 USD of known cost in the claude-top-verify journal for every
 split; TEST new calls 1.86 USD (CLI 1.15, API 0.70); parity runs 0.29 USD.
+
+## Reproduce and preserve the historical run
+
+- `data/manifest.json`, `freeze.json`, `contestants.py`, the original decision files and analysis code
+  remain unchanged. The freeze hashes describe that historical snapshot; only `pool.py` changes for future splits.
+- `confirmation-exclusions.json` lists every excluded item, the matching practice/DEV items, normalized
+  question hashes and reused practice call keys. `data/confirmation-index.json` records labels and normalized
+  question hashes for all practice, DEV and confirmation items, without publishing question or response text.
+- `results-confirm-clean.json` contains both analyses for all six contestants. Each contestant gets its own
+  exact paired tests against the other five and its own five-test Holm family. The displayed family is v5's.
+  Original `results-confirm.json` remains the 544-item sensitivity result (formatting only).
+  Biome retains JSON validation but skips formatting only `data/manifest.json` and `freeze.json` to preserve their bytes.
+- Run `python3 examples/verify-lead/reanalyze.py --check` entirely offline from committed files.
+  To rebuild the audit index from pinned source items, run `pool.py --check`, then `dev.py`, then
+  `reanalyze.py --prepare --check` from this folder. Source downloads are hash-checked; no models run.
+- Future `pool.py` builds group by normalized question text, exclude LongJudgeBench question IDs and text,
+  and write to `data/grouped/`. Practice takes whole groups until its 120-item target is met, so its size can
+  exceed 120. The frozen directory is refused as an output destination. These new pools are not used here.

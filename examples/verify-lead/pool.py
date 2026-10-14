@@ -1,19 +1,19 @@
-"""The fresh verify pool: VerifyBench-Hard items that LongJudgeBench verify_bench_hard does not use.
+"""Build future VerifyBench-Hard pools with whole normalized-question groups.
 
-LongJudgeBench verify_bench_hard is a 316-item subset of the public VerifyBench-Hard set (1,000 items,
-MIT). Every one of the 316 is already in a split we used (95 DEV, 221 TEST). The other 684 items were
-never sent to any judge in this repository. Items whose question also appears among the 316 are left
-out, so no question we have judged returns. The remaining items are split once by a seeded hash: a
-practice split for design work and a confirmation split that is judged once, after the change is frozen.
+Exclude all LongJudgeBench question IDs and normalized question texts. Seeded hashes order question
+groups, with whole groups assigned to practice until its item target is met (it may exceed 120).
+Normalization is Unicode NFC plus collapsed whitespace; case and mathematical symbols are preserved.
 
-Items are not committed. `python examples/verify-lead/pool.py` downloads the pinned files, checks their
-sha256 and writes data/practice.json and data/confirm.json; `--check` verifies the committed id lists.
+The historical data/manifest.json is frozen, including its defective item-ID split. --check restores
+its pinned item files and checks their hashes, without changing membership or claiming disjointness.
+New grouped pools go to data/grouped/ by default, never over the frozen data files or manifest.
 """
 import argparse
 import hashlib
 import json
 import sys
 import urllib.request
+import unicodedata
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -42,19 +42,51 @@ def rank(item_id):
     return hashlib.sha256(f'{SEED}:{item_id}'.encode()).hexdigest()
 
 
-def build(hard, used):
+def question_key(text):
+    return ' '.join(unicodedata.normalize('NFC', text).split())
+
+
+def eligible(hard, used):
     used_ids = {r['id'] for r in used}
     used_questions = {r['id'].split('_')[0] for r in used}
+    used_text = {question_key(r['instruction']) for r in used}
     items = []
     for r in hard:
         item_id = f"{r['question_id']}_{r['completion_id']}"
-        if item_id in used_ids or r['question_id'] in used_questions:
+        if (item_id in used_ids or r['question_id'] in used_questions or
+                question_key(r['question']) in used_text):
             continue
         assert isinstance(r['gold_correct'], bool)
         items.append({'id': item_id, 'group': r['source'].split('/')[0], 'label': r['gold_correct'],
                       'question': r['question'], 'response': r['completion'], 'criterion': CRITERION})
-    items.sort(key=lambda x: rank(x['id']))
-    return items[:PRACTICE], items[PRACTICE:]
+    return items
+
+
+def build(hard, used):
+    groups = {}
+    for item in eligible(hard, used):
+        groups.setdefault(question_key(item['question']), []).append(item)
+    practice, confirm = [], []
+    for key in sorted(groups, key=rank):
+        target = practice if len(practice) < PRACTICE else confirm
+        target.extend(sorted(groups[key], key=lambda x: x['id']))
+    return practice, confirm
+
+
+def frozen_items(hard, manifest):
+    """Restore the historical membership verbatim, independently of the corrected split algorithm."""
+    by_id = {f"{r['question_id']}_{r['completion_id']}": r for r in hard}
+    splits = {}
+    for name, spec in manifest['splits'].items():
+        items = []
+        for item_id in spec['ids']:
+            r = by_id[item_id]
+            items.append({'id': item_id, 'group': r['source'].split('/')[0], 'label': r['gold_correct'],
+                          'question': r['question'], 'response': r['completion'], 'criterion': CRITERION})
+        assert len(items) == spec['n']
+        assert hashlib.sha256(dump(items).encode()).hexdigest() == spec['itemsSha256']
+        splits[name] = items
+    return splits
 
 
 def dump(items):
@@ -63,24 +95,32 @@ def dump(items):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument('--check', action='store_true', help='rebuild and compare with the committed id lists only')
+    ap.add_argument('--check', action='store_true', help='restore and hash-check the frozen historical items')
+    ap.add_argument('--output-dir', type=Path, default=DATA / 'grouped', help='destination for a new grouped pool')
     args = ap.parse_args()
-    practice, confirm = build(fetch('verifybench-hard'), fetch('longjudge-verify'))
-    splits = {'practice': practice, 'confirm': confirm}
-    manifest = {'seed': SEED, 'sources': {k: {'url': u, 'sha256': d} for k, (u, d) in SOURCES.items()},
-                'excluded': 'the 316 LongJudgeBench ids and every item sharing a question with them',
-                'splits': {k: {'n': len(v), 'ids': [x['id'] for x in v],
-                               'itemsSha256': hashlib.sha256(dump(v).encode()).hexdigest()}
-                           for k, v in splits.items()}}
     if args.check:
-        committed = json.loads((DATA / 'manifest.json').read_text())
-        assert committed == manifest, 'rebuilt pool differs from data/manifest.json'
+        manifest = json.loads((DATA / 'manifest.json').read_text())
+        splits = frozen_items(fetch('verifybench-hard'), manifest)
+        for name, items in splits.items():
+            (DATA / f'{name}.json').write_text(dump(items))
+        print('Historical membership restored; see confirmation-exclusions.json for overlap exclusions.')
     else:
-        DATA.mkdir(exist_ok=True)
-        (DATA / 'manifest.json').write_text(json.dumps(manifest, indent=1) + '\n')
-    for name, items in splits.items():
-        (DATA / f'{name}.json').write_text(dump(items))
-    print({k: v['n'] for k, v in manifest['splits'].items()})
+        destination = args.output_dir.resolve()
+        if destination == DATA.resolve():
+            ap.error('the historical data directory is frozen; choose a separate output directory')
+        practice, confirm = build(fetch('verifybench-hard'), fetch('longjudge-verify'))
+        splits = {'practice': practice, 'confirm': confirm}
+        manifest = {'seed': SEED, 'sources': {k: {'url': u, 'sha256': d} for k, (u, d) in SOURCES.items()},
+                    'splitRule': 'whole NFC/whitespace-normalized question groups, seeded hash order',
+                    'excluded': 'LongJudgeBench item IDs, question IDs and normalized question texts',
+                    'splits': {k: {'n': len(v), 'ids': [x['id'] for x in v],
+                                   'itemsSha256': hashlib.sha256(dump(v).encode()).hexdigest()}
+                               for k, v in splits.items()}}
+        destination.mkdir(parents=True, exist_ok=True)
+        (destination / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
+        for name, items in splits.items():
+            (destination / f'{name}.json').write_text(dump(items))
+    print({k: len(v) for k, v in splits.items()})
     return 0
 
 
