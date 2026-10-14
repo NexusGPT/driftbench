@@ -47,7 +47,7 @@ const BANKS = [
   { id: 'map', file: 'validators/map/GATE.md', pattern: /Measured on that bank \((\d+) items/ },
 ];
 
-const read = (path) => readFileSync(join(ROOT, path), 'utf8');
+const read = (path) => readFileSync(resolve(ROOT, path), 'utf8');
 const json = (path) => JSON.parse(read(path));
 const facts = [];
 const fact = (chart, what, value, source) => facts.push({ chart, what, value, source });
@@ -516,6 +516,32 @@ function matrixData() {
 // ---------------------------------------------------------------------------------------------
 
 const SEALED = 'docs/assets/data/sealed';
+// A published frozen-default set replaces all five primary sources together. Tests can use
+// an isolated directory, including a missing directory to exercise the historical branch.
+const DEFAULT_RESULTS = process.env.DRIFTBENCH_DEFAULT_RESULTS_DIR ?? 'docs/assets/data/default-on-v6';
+const DEFAULT_FILES = [
+  'judgebench.json',
+  'mm-eval.json',
+  'rubricbench-haiku.json',
+  'verify.json',
+  'writing.json',
+];
+const HAS_DEFAULT = existsSync(resolve(ROOT, DEFAULT_RESULTS));
+if (HAS_DEFAULT) {
+  for (const name of DEFAULT_FILES) {
+    const file = join(DEFAULT_RESULTS, name);
+    if (!existsSync(resolve(ROOT, file))) {
+      throw new Error(`incomplete default result set: missing ${name}`);
+    }
+    const { metadata } = json(file);
+    if (metadata?.policy !== 'default-on-v6' || metadata?.model !== 'claude-haiku-5-5') {
+      throw new Error(`${file}: expected default-on-v6 on claude-haiku-5-5`);
+    }
+  }
+}
+const primaryFile = (name) => join(HAS_DEFAULT ? DEFAULT_RESULTS : SEALED, name);
+const measuredModel = (model) => !HAS_DEFAULT || model === 'claude-haiku-5-5';
+
 // The models of the benchmark runs, in the order of the README. Gemini 3.8 Flash is not charted.
 const MODELS = ['claude-haiku-5-5', 'gpt-6-luna', 'gemini-3.5-flash-lite'];
 const MODEL = {
@@ -601,23 +627,28 @@ function addPeers(chart, bench, panels) {
 const ranked = ({ chart, bench, kicker, title, key, panels, note }) => {
   const peers = addPeers(chart, bench, panels);
   const drawn = [PROMPTFOO, ...peers].join(', ');
+  const defaultSize = panels.find((panel) => panel.name === 'Claude Haiku 5.5')?.model;
   return {
     kind: 'ranked',
     kicker,
     title,
-    key,
+    key: HAS_DEFAULT
+      ? key.map((entry) => (entry.style === 'ours' ? { ...entry, label: 'driftbench default-on-v6' } : entry))
+      : key,
     axis: 'score out of 100: correct, % of items',
     panels: orderPanels(panels),
-    note: `Competitors with a recorded result on this benchmark in this repository: ${drawn}. ${note}`,
+    note: HAS_DEFAULT
+      ? `Frozen default-on-v6 on Claude Haiku 5.5: ${defaultSize}. Other default models: not run. Recorded peers (${drawn}): unverified historical (lane report).`
+      : `Competitors with a recorded result on this benchmark in this repository: ${drawn}. ${note}`,
   };
 };
 const notRun = (ours, competitor) => [bar(ours, null, { ours: true }), bar(competitor, null)];
 
 function sealedJudgeBench() {
-  const file = `${SEALED}/judgebench.json`;
+  const file = primaryFile('judgebench.json');
   const cells = json(file).cells.filter((c) => c.status === 'MEASURED');
   const panels = MODELS.map((model) => {
-    const c = cells.find((x) => x.model === model);
+    const c = measuredModel(model) && cells.find((x) => x.model === model);
     return c
       ? modelPanel(
           'bench-judgebench',
@@ -646,10 +677,10 @@ function sealedJudgeBench() {
 }
 
 function sealedMmEval() {
-  const file = `${SEALED}/mm-eval.json`;
+  const file = primaryFile('mm-eval.json');
   const data = json(file);
   const panels = MODELS.map((model) => {
-    const c = data.models[inFile(model)]?.primary;
+    const c = measuredModel(model) && data.models[inFile(model)]?.primary;
     // a model whose run covers under 98 percent of the planned items is not charted as a result
     if (!c || c.matched < data.planned * 0.98)
       return modelPanel('bench-mm-eval', model, null, notRun('driftbench', PROMPTFOO), file);
@@ -676,20 +707,29 @@ function sealedMmEval() {
 }
 
 function sealedRubricBench() {
-  const cells = {
-    'claude-haiku-5-5': [
-      json(`${SEALED}/rubricbench-haiku.json`).cells.find((c) => c.model === 'claude-haiku-5-5'),
-      `${SEALED}/rubricbench-haiku.json`,
-    ],
-    'gpt-6-luna': [
-      { model: 'gpt-6-luna', ...json(`${SEALED}/rubricbench-luna.json`), coverage: { complete: true } },
-      `${SEALED}/rubricbench-luna.json`,
-    ],
-    'gemini-3.5-flash-lite': [
-      json(`${SEALED}/rubricbench-flash-lite.json`).cells.find((c) => c.model === 'gemini-3.5-flash-lite'),
-      `${SEALED}/rubricbench-flash-lite.json`,
-    ],
-  };
+  const haikuFile = primaryFile('rubricbench-haiku.json');
+  const cells = HAS_DEFAULT
+    ? {
+        'claude-haiku-5-5': [json(haikuFile).cells.find((c) => c.model === 'claude-haiku-5-5'), haikuFile],
+        'gpt-6-luna': [null, haikuFile],
+        'gemini-3.5-flash-lite': [null, haikuFile],
+      }
+    : {
+        'claude-haiku-5-5': [
+          json(`${SEALED}/rubricbench-haiku.json`).cells.find((c) => c.model === 'claude-haiku-5-5'),
+          `${SEALED}/rubricbench-haiku.json`,
+        ],
+        'gpt-6-luna': [
+          { model: 'gpt-6-luna', ...json(`${SEALED}/rubricbench-luna.json`), coverage: { complete: true } },
+          `${SEALED}/rubricbench-luna.json`,
+        ],
+        'gemini-3.5-flash-lite': [
+          json(`${SEALED}/rubricbench-flash-lite.json`).cells.find(
+            (c) => c.model === 'gemini-3.5-flash-lite',
+          ),
+          `${SEALED}/rubricbench-flash-lite.json`,
+        ],
+      };
   const panels = MODELS.map((model) => {
     const [c, file] = cells[model];
     if (!c?.coverage?.complete)
@@ -720,11 +760,11 @@ function sealedRubricBench() {
 }
 
 function sealedVerify() {
-  const file = `${SEALED}/verify.json`;
+  const file = primaryFile('verify.json');
   const data = json(file);
   const fail = data.cheaters.alwaysFailOfficial * 100;
   const panels = MODELS.map((model) => {
-    const c = data.cells.find((x) => x.model === inFile(model) && x.official);
+    const c = measuredModel(model) && data.cells.find((x) => x.model === inFile(model) && x.official);
     const baseline = bar('always fail', fail, { baseline: true });
     if (!c)
       return modelPanel('bench-verify', model, null, [...notRun('driftbench', PROMPTFOO), baseline], file);
@@ -742,7 +782,9 @@ function sealedVerify() {
     chart: 'bench-verify',
     bench: 'verify',
     kicker: 'LongJudgeBench verify · test split · is the final answer correct',
-    title: 'Verify: above promptfoo, below a judge that always says fail.',
+    title: HAS_DEFAULT
+      ? `Verify: driftbench scores ${versus(panels, PROMPTFOO)}.`
+      : 'Verify: above promptfoo, below a judge that always says fail.',
     key: [
       { label: 'driftbench verify cascade', style: 'ours' },
       { label: 'promptfoo llm-rubric', style: 'other' },
@@ -754,12 +796,12 @@ function sealedVerify() {
 }
 
 function sealedWriting() {
-  const file = `${SEALED}/writing.json`;
+  const file = primaryFile('writing.json');
   const cells = json(file).cells;
   const longer = cells.find((c) => c.contestant === 'longer-wins');
   const panels = MODELS.map((model) => {
     const key = inFile(model);
-    const ours = cells.find((c) => c.model === key && c.contestant === 'pair-ledger');
+    const ours = measuredModel(model) && cells.find((c) => c.model === key && c.contestant === 'pair-ledger');
     const peer = cells.find((c) => c.model === key && c.contestant === 'promptfoo');
     const baseline = bar('longer reply', longer.accuracy, { baseline: true });
     if (ours?.status !== 'complete' || peer?.status !== 'complete') {
@@ -777,7 +819,9 @@ function sealedWriting() {
     chart: 'bench-writing',
     bench: 'writing',
     kicker: 'LongJudgeBench writing preference · test split · both orders',
-    title: `Writing: driftbench scores ${versus(panels, PROMPTFOO)}; picking the longer reply beats both.`,
+    title: HAS_DEFAULT
+      ? `Writing: driftbench scores ${versus(panels, PROMPTFOO)}.`
+      : `Writing: driftbench scores ${versus(panels, PROMPTFOO)}; picking the longer reply beats both.`,
     key: [
       { label: 'driftbench pair ledger', style: 'ours' },
       { label: 'promptfoo select-best', style: 'other' },
