@@ -1,10 +1,14 @@
+import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { mkdtempSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import {
   buildPrompt,
   createDialectTransport,
   type JudgeRequest,
   MAX_TOKENS,
   parseJudgeText,
+  requestKey,
 } from '@agent-nexus/driftbench-judges';
 import { afterEach, expect, it, vi } from 'vitest';
 import { withJudgeDialect } from '../../packages/judges/src/clients/dialects';
@@ -296,4 +300,147 @@ it.each([429, 503])('bounds Haiku HTTP %i to four separately reserved attempts',
     accounting: 'reserved-on-error',
     chargedUsd: budget.spent,
   });
+});
+
+it('keeps the recorder inside the unchanged benchmark public API boundary', () => {
+  const root = fileURLToPath(new URL('../../', import.meta.url));
+  expect(
+    execFileSync(process.execPath, ['tools/bench-lint.mjs', root], { cwd: root, encoding: 'utf8' }),
+  ).toContain('Benchmark harness uses the public API only.');
+});
+
+it.each(['normal', 'large'] as const)(
+  'preserves every frozen %s wire body, settings digest and request key',
+  async (budgetName) => {
+    for (const variant of [
+      { ...request, criterionPromptVersion: 1, criterionDecoderVersion: 1 },
+      { ...request, criterionPromptVersion: 2, criterionDecoderVersion: 2 },
+      { ...request, criterionPromptVersion: 2, criterionDecoderVersion: 3 },
+      { ...request, answerContract: 'legacy' },
+      {
+        ...request,
+        answerContract: 'ledger',
+        assessment: { kind: 'pairwise' },
+        candidates: { A: 'Hello.', B: 'Go away.' },
+        dialect: 'openai-json-schema',
+      },
+    ] as JudgeRequest[]) {
+      const given = { ...variant, budget: budgetName };
+      let oracleBody: string | undefined;
+      const oracle = createDialectTransport({
+        provider: 'anthropic',
+        model: 'claude-haiku-5-5',
+        env: { ANTHROPIC_API_KEY: 'fictional' },
+        maxTokens: MAX_TOKENS[budgetName],
+        maxRetries: 0,
+        timeoutMs: 300_000,
+        fetch: async (_url, init) => {
+          oracleBody = String(init.body);
+          return receipt();
+        },
+      });
+      const prepared = withJudgeDialect(given, oracle.dialect);
+      const expected = await oracle.complete(buildPrompt(prepared));
+      let actualBody: string | undefined;
+      const client = makeRecordingClient(
+        'haiku',
+        new SpendBudget(1),
+        { ANTHROPIC_API_KEY: 'fictional' },
+        () => {},
+        {
+          fetch: async (_url, init) => {
+            actualBody = String(init?.body);
+            return receipt();
+          },
+        },
+      );
+      const actual = await client.judge(given);
+      expect(actualBody).toBe(oracleBody);
+      expect(actual).toEqual({ ...parseJudgeText(expected.text, prepared), costUsd: cost, requestCount: 1 });
+      const transports = Object.fromEntries(
+        Object.entries(MAX_TOKENS).map(([name, maxTokens]) => [
+          name,
+          createDialectTransport({
+            provider: 'anthropic',
+            model: 'claude-haiku-5-5',
+            env: { ANTHROPIC_API_KEY: 'offline' },
+            maxTokens,
+            maxRetries: 0,
+            timeoutMs: 300_000,
+          }),
+        ]),
+      );
+      const settings = JSON.stringify({
+        client: 'criterion-messages-api-v1',
+        model: 'claude-haiku-5-5',
+        anthropicVersion: '2023-06-01',
+        temperature: 'omitted',
+        maxTokens: MAX_TOKENS,
+        schema: 'none',
+        transportFingerprints: Object.fromEntries(
+          Object.entries(transports).map(([name, t]) => [name, t.fingerprint]),
+        ),
+      });
+      expect(client.settings).toBe(settings);
+      expect(
+        createHash('sha256')
+          .update(client.settings ?? '')
+          .digest('hex'),
+      ).toBe(createHash('sha256').update(settings).digest('hex'));
+      expect(requestKey(given, client)).toBe(
+        requestKey(given, { ...client, settings, dialect: oracle.dialect }),
+      );
+    }
+  },
+);
+
+it.each(['refusal', 'max_tokens'] as const)('preserves full frozen %s result metadata', async (stop) => {
+  const oracle = createDialectTransport({
+    provider: 'anthropic',
+    model: 'claude-haiku-5-5',
+    env: { ANTHROPIC_API_KEY: 'fictional' },
+    maxTokens: MAX_TOKENS.normal,
+    maxRetries: 0,
+    timeoutMs: 300_000,
+    fetch: async () => receipt(stop),
+  });
+  const reply = await oracle.complete(buildPrompt(request));
+  const client = makeRecordingClient(
+    'haiku',
+    new SpendBudget(1),
+    { ANTHROPIC_API_KEY: 'fictional' },
+    () => {},
+    { fetch: async () => receipt(stop) },
+  );
+  const expected =
+    stop === 'refusal'
+      ? { ...reply, answer: { outcome: 'inconclusive', reasoning: 'Provider declined' } }
+      : {
+          raw: reply.text,
+          answer: { outcome: 'inconclusive', reasoning: 'Answer truncated' },
+          unparsed: true,
+        };
+  expect(await client.judge(request)).toEqual({ ...expected, costUsd: cost, requestCount: 1 });
+});
+
+it('preserves Retry-After milliseconds and seconds without changing retry accounting', async () => {
+  const sleep = vi.fn(async () => {});
+  const fetch = vi
+    .fn()
+    .mockResolvedValueOnce(
+      new Response('Temporary failure', { status: 429, headers: { 'retry-after-ms': '125001' } }),
+    )
+    .mockResolvedValueOnce(
+      new Response('Temporary failure', { status: 503, headers: { 'retry-after': '240' } }),
+    )
+    .mockResolvedValueOnce(receipt());
+  const client = makeRecordingClient(
+    'haiku',
+    new SpendBudget(1),
+    { ANTHROPIC_API_KEY: 'fictional' },
+    () => {},
+    { fetch, sleep },
+  );
+  expect(await client.judge(request)).toMatchObject({ costIncomplete: true, requestCount: 3 });
+  expect(sleep.mock.calls).toEqual([[125001], [240000]]);
 });

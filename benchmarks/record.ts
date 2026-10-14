@@ -1,14 +1,12 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
+import { createHash } from 'node:crypto';
 import {
   buildPrompt,
-  createDialectTransport,
   createGoogleJudge,
   createOpenAiJudge,
   type JudgeClient,
-  MAX_TOKENS,
   parseJudgeText,
 } from '@agent-nexus/driftbench-judges';
-import { withJudgeDialect } from '../packages/judges/src/clients/dialects';
 
 export type SpendRow = {
   at: string;
@@ -131,67 +129,202 @@ function anthropicCost(usage: AnthropicUsage): number {
   );
 }
 
-/** Matches the frozen public Messages API criterion client, including descriptor byte order. */
+// Frozen wire allowances, checked against the public client's oracle in the recorder tests.
+// These are transport settings, not criterion, prompt or decoder policy.
+const MESSAGES_OUTPUT_LIMITS = { normal: 1024, large: 4096 } as const;
+const MESSAGES_URL = 'https://api.anthropic.com/v1/messages';
+const MESSAGES_DIALECT = 'scratchpad-json';
+
+/** Preserve the existing cassette transport identity: SHA-256 of canonical JSON, first 12 hex digits. */
+function transportFingerprint(value: unknown): string {
+  const sorted = (part: unknown): unknown => {
+    if (Array.isArray(part)) return part.map(sorted);
+    if (part !== null && typeof part === 'object')
+      return Object.fromEntries(
+        Object.entries(part)
+          .filter(([, child]) => child !== undefined)
+          .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+          .map(([key, child]) => [key, sorted(child)]),
+      );
+    return part;
+  };
+  return createHash('sha256')
+    .update(JSON.stringify(sorted(value)))
+    .digest('hex')
+    .slice(0, 12);
+}
+
+function retryAfterMs(headers: Headers): number | undefined {
+  const ms = headers.get('retry-after-ms')?.trim();
+  if (ms && /^\d+(\.\d+)?$/.test(ms)) return Math.round(Number(ms));
+  const value = headers.get('retry-after')?.trim();
+  if (value === undefined) return undefined;
+  if (/^\d+(\.\d+)?$/.test(value)) return Math.round(Number(value) * 1000);
+  if (!/[a-z]/i.test(value)) return undefined;
+  const when = Date.parse(value);
+  return Number.isNaN(when) ? undefined : Math.max(0, when - Date.now());
+}
+
+/** HTTP plumbing only. Prompt construction and answer interpretation stay in the allowed public API. */
 function messagesApiJudge(
   model: string,
   env: Record<string, string | undefined>,
   fetch: typeof globalThis.fetch,
 ): JudgeClient {
-  // Construction is also used by free cassette replay. The placeholder is never allowed onto the wire.
+  // Construction is also used by free cassette replay. No placeholder credential goes onto the wire.
   const key = env.ANTHROPIC_API_KEY?.trim();
-  const transports = Object.fromEntries(
-    Object.entries(MAX_TOKENS).map(([budget, maxTokens]) => [
+  const fingerprints = Object.fromEntries(
+    Object.entries(MESSAGES_OUTPUT_LIMITS).map(([budget, maxTokens]) => [
       budget,
-      createDialectTransport({
-        id: 'haiku',
-        model,
-        env: { ...env, ANTHROPIC_API_KEY: key || 'offline' },
+      transportFingerprint({
+        version: 1,
         provider: 'anthropic',
+        dialect: MESSAGES_DIALECT,
+        model,
         maxTokens,
-        maxRetries: 0,
-        timeoutMs: 300_000,
-        fetch,
+        base: 'https://api.anthropic.com',
       }),
     ]),
   );
-  const transport = transports.normal;
-  if (!transport) throw new Error('Missing normal output budget');
   return {
     id: 'haiku',
     family: 'anthropic',
     cls: 'system2',
     model,
-    dialect: transport.dialect,
+    dialect: MESSAGES_DIALECT,
     cost: 10,
     settings: JSON.stringify({
       client: 'criterion-messages-api-v1',
       model,
       anthropicVersion: '2023-06-01',
       temperature: 'omitted',
-      maxTokens: MAX_TOKENS,
+      maxTokens: MESSAGES_OUTPUT_LIMITS,
       schema: 'none',
-      transportFingerprints: Object.fromEntries(
-        Object.entries(transports).map(([k, t]) => [k, t.fingerprint]),
-      ),
+      transportFingerprints: fingerprints,
     }),
     async judge(original) {
       if (!key) throw new Error('ANTHROPIC_API_KEY is not set');
-      // Other model identities can be inspected offline, but cannot borrow Haiku 5.5 pricing.
+      // Other identities can be inspected offline, but cannot borrow Haiku 5.5 pricing.
       if (model !== 'claude-haiku-5-5')
         throw new Error('Messages API recorder has no metered rates for this model');
-      const request = withJudgeDialect(original, transport.dialect);
-      const selected = transports[request.budget ?? 'normal'];
-      if (!selected) throw new Error('Unsupported output budget');
-      const reply = await selected.complete(buildPrompt(request));
-      if (reply.refusal || reply.providerBlock || reply.declineReason)
-        return { ...reply, answer: { outcome: 'inconclusive', reasoning: 'Provider declined' } };
-      if (reply.truncated)
+      // A caller cannot select a schema-only output dialect for this text transport.
+      const request =
+        original.answerContract === 'ledger' &&
+        original.assessment?.kind === 'pairwise' &&
+        !original.assessment.tieFollowup
+          ? { ...original, dialect: MESSAGES_DIALECT }
+          : original;
+      const budget = request.budget ?? 'normal';
+      const maxTokens = MESSAGES_OUTPUT_LIMITS[budget];
+      if (!maxTokens) throw new Error('Unsupported output budget');
+      const prompt = buildPrompt(request);
+      const payload = { system: prompt.system, messages: [{ role: 'user', content: prompt.user }] };
+      const body = JSON.stringify({ model, ...payload, max_tokens: maxTokens });
+      let response: Response;
+      let raw: string;
+      try {
+        response = await fetch(MESSAGES_URL, {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+            'x-api-key': key,
+            'anthropic-version': '2023-06-01',
+          },
+          body,
+          redirect: 'error',
+          signal: AbortSignal.timeout(300_000),
+        });
+        raw = await response.text();
+      } catch (cause) {
+        throw Object.assign(
+          new Error(
+            `${MESSAGES_URL} could not be reached (${cause instanceof Error ? cause.name : 'error'})`,
+          ),
+          { name: 'JudgeError', code: 'network', retryable: true },
+        );
+      }
+      let value: Record<string, unknown> | undefined;
+      try {
+        value = JSON.parse(raw);
+      } catch {
+        /* HTTP errors need not have JSON bodies. */
+      }
+      if (!response.ok) {
+        const error = value?.error;
+        let said =
+          error && typeof error === 'object' && 'message' in error && typeof error.message === 'string'
+            ? error.message
+            : typeof error === 'string'
+              ? error
+              : typeof value?.message === 'string'
+                ? value.message
+                : raw.trim()
+                  ? raw
+                  : 'no body';
+        for (const secret of [key, '2023-06-01']) said = said.split(secret).join('[redacted]');
+        if (said.length > 200) said = `${said.slice(0, 200)}...`;
+        throw Object.assign(new Error(`${MESSAGES_URL} answered ${response.status}: ${said}`), {
+          name: 'JudgeError',
+          code: 'http',
+          status: response.status,
+          retryable: response.status === 408 || response.status === 429 || response.status >= 500,
+          retryAfterMs: retryAfterMs(response.headers),
+        });
+      }
+      if (value === undefined)
+        throw Object.assign(
+          new Error(`${MESSAGES_URL} answered ${response.status} with a body that is not JSON`),
+          { name: 'JudgeError', code: 'bad_response', retryable: false },
+        );
+      const text = Array.isArray(value?.content)
+        ? value.content
+            .filter(
+              (part): part is { text: string } =>
+                part !== null &&
+                typeof part === 'object' &&
+                part.thought !== true &&
+                typeof part.text === 'string',
+            )
+            .map((part) => part.text)
+            .join('')
+        : '';
+      const finish = value?.stop_reason;
+      if (finish === 'refusal') {
+        const usage = value?.usage as AnthropicUsage | undefined;
+        const input = usage?.input_tokens,
+          output = usage?.output_tokens;
+        const tokens = {
+          ...(typeof input === 'number' && Number.isFinite(input) && input >= 0 ? { input } : {}),
+          ...(typeof output === 'number' && Number.isFinite(output) && output >= 0 ? { output } : {}),
+        };
         return {
-          raw: reply.text,
+          dialect: MESSAGES_DIALECT,
+          fingerprint: transportFingerprint({
+            transport: fingerprints[budget],
+            request: transportFingerprint({
+              version: 1,
+              provider: 'anthropic',
+              dialect: MESSAGES_DIALECT,
+              payload,
+            }),
+          }),
+          text,
+          raw: JSON.stringify(value),
+          ...(Object.keys(tokens).length ? { usage: tokens } : {}),
+          finishReason: finish,
+          refusal: finish,
+          declineReason: 'provider-blocked',
+          providerBlock: { provider: 'anthropic', reason: 'refusal' },
+          answer: { outcome: 'inconclusive', reasoning: 'Provider declined' },
+        };
+      }
+      if (['length', 'MAX_TOKENS', 'max_tokens'].includes(String(finish)))
+        return {
+          raw: text,
           answer: { outcome: 'inconclusive', reasoning: 'Answer truncated' },
           unparsed: true,
         };
-      return parseJudgeText(reply.text, request);
+      return parseJudgeText(text, request);
     },
   };
 }
