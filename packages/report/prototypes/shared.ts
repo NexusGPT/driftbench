@@ -614,3 +614,198 @@ ${body}
 </html>
 `;
 }
+
+/* ---------- plain words: the opener, the terms, counts before percentages ---------- */
+
+/** Every term the page uses, explained the first time it appears and listed at the end. */
+export const TERMS: Record<string, string> = {
+  spec: 'A scripted conversation written as a test: what the user says at each step, and what the agent must do.',
+  golden:
+    'One scripted conversation in one way of running it. It passes only when every one of its repeats passes.',
+  block:
+    'One step of a conversation: one user message, and everything the agent says and does before the next one.',
+  run: 'One replay of a scripted conversation from start to finish.',
+  repeat: 'The same conversation replayed again, to see whether the result holds.',
+  mode: 'How a conversation is replayed. Teacher-forced: each step starts from the script. Free-running: each step starts from what the agent itself said before. Perturbed: free-running with one planted disruption.',
+  baseline: 'The old version of the agent, the one the new version is measured against.',
+  candidate: 'The new version of the agent, the one under test.',
+  regressed: 'Passed on the old version and fails on the new one.',
+  improved: 'Failed on the old version and passes on the new one.',
+  interval:
+    'The range the true rate is likely to be in (95 times out of 100), given how few runs there are. A narrow range means the number can be trusted; a wide one means more runs are needed.',
+  margin: 'How much worse the new version may be and still count as no worse. Here: 15 points of pass rate.',
+  criterion: 'One family of checks, for example "must say" or "forbidden tool", scored across every golden.',
+  check: 'One rule a step is tested against, with the evidence. A gating check fails the whole step.',
+  stage:
+    'The named point of its own process the agent has reached, for example identify, offer, recap, order placed.',
+  drift:
+    'A step that goes wrong, by kind. X1: a wrong fact. X2: contradicts an earlier fact. X3: the wrong stage. X4: the wrong format or language. X5: the wrong tool use.',
+  'tool F1':
+    'How well the agent’s tool calls match the expected ones. 100% means every expected call was made and none extra.',
+  'block accuracy': 'The share of steps that passed all their checks.',
+  'end state':
+    'What the system holds when the conversation ends (for example the order placed), compared with what was expected.',
+  'compounding index':
+    'Steps passed when each starts from the script, minus steps passed when each starts from the agent’s own earlier replies. A positive number means errors pile up along the conversation.',
+  recovery:
+    'After a planted disruption (an off topic question, a tool outage), whether the agent gets back on track, and how fast.',
+  'p value':
+    'The chance of seeing this many flips between pass and fail if nothing had really changed. Under 0.05 counts as a real change.',
+  'new flag':
+    'A safety check (forbidden tool, safety, personal data) that fails on the new version and never failed on the old one.',
+  underpowered:
+    'Decided on too few goldens to show parity at this margin, so it is reported but does not decide the verdict.',
+};
+
+/** A term helper for one page: the first use carries its explanation, later uses are plain text. */
+export function terms(): { t: (key: string, text?: string) => string; used: Set<string> } {
+  const used = new Set<string>();
+  return {
+    used,
+    t(key, text) {
+      const def = TERMS[key];
+      const word = text ?? key;
+      if (!def) return esc(word);
+      if (used.has(key)) return esc(word);
+      used.add(key);
+      return `<dfn class="term" title="${esc(def)}">${esc(word)}</dfn>`;
+    },
+  };
+}
+
+/** The folded list of every term, for the end of a page. */
+export function glossary(): string {
+  return `<details class="glossary" id="words"><summary><span class="kicker">The words on this page</span> <span class="small soft">open</span></summary><dl>${Object.entries(
+    TERMS,
+  )
+    .map(([key, def]) => `<dt>${esc(key)}</dt><dd>${esc(def)}</dd>`)
+    .join('')}</dl></details>`;
+}
+
+export const PLAIN_CSS = `
+dfn.term{font-style:normal;text-decoration:underline 1px dotted var(--nx-ink-3);text-underline-offset:3px;cursor:help}
+.opener{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 20px;align-items:start;padding:20px 24px;border-radius:20px;background:var(--nx-card);border:1px solid var(--nx-line)}
+.opener .k{font:500 12.5px/1.6 var(--nx-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--nx-ink-2);padding-top:2px}
+.opener .v{font-size:17px;line-height:1.5}
+.opener .v b{font-weight:500}
+.opener .v .worse{color:var(--nx-fail-ink);font-weight:500}
+.opener .v .better{color:var(--nx-ok-ink);font-weight:500}
+.opener .v .same{color:var(--nx-wait-ink);font-weight:500}
+.opener .v .where{display:block;font-size:14px;color:var(--nx-ink-2);margin-top:4px}
+.glossary{margin:32px 0 0;padding:16px 20px;border-radius:12px;background:var(--nx-card-2)}
+.glossary dl{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:6px 16px;margin:12px 0 0;font-size:14px}
+.glossary dt{font-family:var(--nx-mono);font-size:13px;color:var(--nx-ink)}
+.glossary dd{margin:0;color:var(--nx-ink-2)}
+details.expert{margin:0}
+details.expert>summary{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--nx-line);font-size:15px}
+details.expert>summary .chip{margin-left:auto}
+.count-big{white-space:nowrap}
+.count-big small{font-size:.55em;color:var(--nx-ink-2);font-family:var(--nx-sans);letter-spacing:0}
+@media (max-width:640px){.opener{grid-template-columns:1fr;gap:4px 0}.opener .k{padding-top:10px}.glossary dl{grid-template-columns:1fr}}
+`;
+
+/** What to fix first: the failing check family with the most regressed goldens, where it fails and what it says. */
+export function fixFirst(p: Prepared):
+  | {
+      family: string;
+      stage?: string;
+      id: string;
+      evidence?: string;
+      blocks: number;
+      runs: number;
+      href?: string;
+    }
+  | undefined {
+  const top =
+    p.compare.criteria.find((r) => r.significantRegression) ??
+    p.compare.criteria.find((r) => r.regressed > r.improved);
+  const fam = top ? p.families.find((f) => f.family === top.criterion) : p.families[0];
+  if (!fam) return undefined;
+  const ids = new Map<string, { n: number; stage?: string; evidence?: string; href: string }>();
+  for (const run of p.card.drilldown) {
+    for (const block of run.blocks) {
+      for (const v of block.verdicts) {
+        if (v.outcome !== 'fail' || !v.gating || criterionOf(v) !== fam.family) continue;
+        const held = ids.get(v.id) ?? { n: 0, href: `#${blockId(run, block)}` };
+        held.n += 1;
+        if (held.stage === undefined && block.expectedStage) held.stage = block.expectedStage;
+        if (held.evidence === undefined && v.evidence) held.evidence = v.evidence;
+        ids.set(v.id, held);
+      }
+    }
+  }
+  const [id, best] = [...ids.entries()].sort((a, b) => b[1].n - a[1].n)[0] ?? ['', undefined];
+  return {
+    family: fam.family,
+    ...(best?.stage ? { stage: best.stage } : {}),
+    id,
+    ...(best?.evidence ? { evidence: best.evidence } : {}),
+    blocks: fam.blocks.length,
+    runs: fam.runs.size,
+    ...(best ? { href: best.href } : {}),
+  };
+}
+
+/** The opener a newcomer reads in five seconds: what was tested, did it get better or worse, what to fix first. */
+export function plainOpener(p: Prepared, t: (key: string, text?: string) => string): string {
+  const c = p.card;
+  const cp = p.compare;
+  const tb = cp.allPass.table;
+  const n = cp.pairs.length;
+  const modes = c.campaign.modes.map((m) => MODE_NAMES[m]).join(', ');
+  const tested = `<b>${c.campaign.specs} ${t('spec', 'scripted conversations')}</b> with the agent, each replayed <b>${p.totals.repeats} times</b> in ${c.campaign.modes.length} ways (${modes}): <b>${c.campaign.runs} ${t('run', 'runs')}</b>, <b>${p.totals.blocks} ${t('block', 'steps')}</b>, <b>${p.totals.verdicts} ${t('check', 'checks')}</b>. The new version (${esc(cp.candidate.campaignId)}) is measured against the old one (${esc(cp.baseline.campaignId)}) on the same <b>${n} ${t('golden', 'goldens')}</b>.`;
+  let result: string;
+  if (cp.verdict === 'regressed') {
+    result = `<span class="worse">Worse.</span> <b>${tb.regressed} of ${n}</b> goldens that passed on the old version now fail. ${tb.improved === 0 ? 'None got better.' : `${tb.improved} got better.`} ${tb.bothFail > 0 ? `${tb.bothFail} fail on both.` : ''} Pass rate ${cp.allPass.baseline.k} of ${cp.allPass.baseline.n} before, ${cp.allPass.candidate.k} of ${cp.allPass.candidate.n} now.`;
+  } else if (cp.verdict === 'non-inferior') {
+    result = `<span class="better">No worse.</span> <b>${tb.bothPass} of ${n}</b> goldens pass on both versions, ${tb.regressed} regressed, ${tb.improved} improved, within the ${t('margin')} of ${fixed(cp.margin * 100, 1)} points.`;
+  } else {
+    result = `<span class="same">Not decided.</span> ${tb.regressed} of ${n} goldens regressed and ${tb.improved} improved; too few goldens to say whether the new version is within the ${t('margin')} of ${fixed(cp.margin * 100, 1)} points.`;
+  }
+  const fix = fixFirst(p);
+  const fixText =
+    cp.verdict !== 'regressed' || !fix
+      ? 'Nothing to fix first: no check regressed.'
+      : `<b>${esc(fix.family)}</b>${fix.stage ? ` at the <b>${esc(fix.stage)}</b> ${t('stage')}` : ''}: the check <span class="mono">${esc(fix.id)}</span> fails in ${fix.blocks} steps of ${fix.runs} runs.${fix.evidence ? `<span class="where">For example: ${esc(fix.evidence.length > 160 ? `${fix.evidence.slice(0, 160)}...` : fix.evidence)}${fix.href ? ` <a href="${fix.href}">open that step</a>` : ''}</span>` : ''}`;
+  return `<div class="opener" id="opener">
+<div class="k">Tested</div><div class="v">${tested}</div>
+<div class="k">Result</div><div class="v">${result}</div>
+<div class="k">Fix first</div><div class="v">${fixText}</div>
+</div>`;
+}
+
+/** The noun a count-first headline uses, read from the tile's label. */
+export function nounFor(label: string): string | undefined {
+  const l = label.toLowerCase();
+  if (l.startsWith('runs passing')) return 'runs passed';
+  if (l.startsWith('block accuracy')) return 'steps passed';
+  if (l.startsWith('end state')) return 'runs matched';
+  if (l.startsWith('goldens passing')) return 'goldens passed';
+  if (l.startsWith('immediate recovery')) return 'came back at once';
+  if (l.startsWith('came back')) return 'came back';
+  if (l.startsWith('asked before')) return 'asked first';
+  if (l.startsWith('tool precision')) return undefined;
+  return undefined;
+}
+
+/**
+ * The headline of a rate tile: "12 of 21 runs passed" when the estimate is a count over units, else the
+ * value itself. The percentage and the interval follow as the second line.
+ */
+export function countFirst(
+  label: string,
+  e: Estimate,
+  show: (v: number) => string,
+): { big: string; second: string } {
+  const noun = nounFor(label);
+  const k =
+    (e as { k?: number }).k ??
+    (e.method.startsWith('wilson') && show === pct ? Math.round(e.estimate * e.n) : undefined);
+  if (noun && k !== undefined && e.n > 0) {
+    return {
+      big: `<span class="count-big">${k} <small>of ${e.n}</small></span>`,
+      second: `${noun}: ${show(e.estimate)}, likely ${intervalText(e, show)}`,
+    };
+  }
+  return { big: esc(show(e.estimate)), second: `likely ${intervalText(e, show)}` };
+}

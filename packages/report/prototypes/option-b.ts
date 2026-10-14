@@ -11,23 +11,28 @@ import {
   blockId,
   blockStrip,
   checksOf,
+  countFirst,
   DRIFT_NAMES,
   esc,
   fixed,
+  glossary,
   intervalBar,
   intervalText,
   MODE_NAMES,
   methodWord,
   ms,
+  PLAIN_CSS,
   type Prepared,
   page,
   pct,
+  plainOpener,
   pointsText,
   reasonGroups,
   runId,
   runName,
   stageText,
   structureDiagram,
+  terms,
   toolChips,
   usd,
   VERDICT_WORD,
@@ -35,7 +40,9 @@ import {
 } from './shared';
 
 const CSS = `
+${PLAIN_CSS}
 body{font-size:15px}
+.panel .opener{border:0;padding:0;background:none}
 .band{background:var(--nx-silk-card);padding:40px 24px 32px}
 .band .in{max-width:1240px;margin:0 auto}
 .glass{position:relative;border-radius:20px;background:var(--nx-glass-bg);border:1px solid var(--nx-glass-line);box-shadow:var(--nx-shadow-glass);-webkit-backdrop-filter:blur(14px) saturate(1.2);backdrop-filter:blur(14px) saturate(1.2);padding:28px 32px;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px 40px}
@@ -124,6 +131,7 @@ body{font-size:15px}
 `;
 
 export function renderOptionB(p: Prepared): string {
+  const { t: term } = terms();
   const c = p.card;
   const cp = p.compare;
   const g = reasonGroups(p);
@@ -295,6 +303,7 @@ export function renderOptionB(p: Prepared): string {
 
 <div class="wrap">
 <nav class="nav"><ol>
+<li><a href="#plain">In five seconds</a></li>
 <li class="red"><a href="#why">Why<span class="count">${why.length} reasons</span></a></li>
 <li><a href="#rates">Rates<span class="count">${tiles.length} with intervals</span></a></li>
 <li class="${t.regressed > 0 ? 'red' : ''}"><a href="#goldens">Golden matrix<span class="count">${cp.pairs.length} paired</span></a></li>
@@ -306,18 +315,19 @@ export function renderOptionB(p: Prepared): string {
 </ol></nav>
 
 <div class="grid">
-<section class="panel w7" id="why"><h2>Why</h2><p class="lead">Each line is one test against the baseline, with its number and where to look.</p><ol class="why">${why.join('')}</ol></section>
+<section class="panel" id="plain"><h2>In five seconds</h2>${plainOpener(p, term)}</section>
+<section class="panel w7" id="why"><h2>Why</h2><p class="lead">Each line is one test against the ${term('baseline')}, with its number and where to look. A ${term('golden')} is ${term('regressed')} when it passed before and fails now; a ${term('criterion')} is one family of ${term('check', 'checks')}.</p><ol class="why">${why.join('')}</ol></section>
 <section class="panel w5" id="pairing"><h2>Paired goldens</h2><p class="lead">A golden passes when every repeat passes. ${cp.pairs.length} paired, ${cp.unpaired.length} left out.</p>
 <div class="matrix2"><div class="${t.bothPass > 0 ? 'ok' : ''}"><div class="n">${t.bothPass}</div><div class="l">pass both</div></div><div class="${t.regressed > 0 ? 'fail' : ''}"><div class="n">${t.regressed}</div><div class="l">regressed</div></div><div class="${t.improved > 0 ? 'ok' : ''}"><div class="n">${t.improved}</div><div class="l">improved</div></div><div class="${t.bothFail > 0 ? 'fail' : ''}"><div class="n">${t.bothFail}</div><div class="l">fail both</div></div></div>
 <p class="note" style="margin-top:12px">Drift per golden: baseline ${fixed(cp.drift.baselineMean, 2)}, candidate ${fixed(cp.drift.candidateMean, 2)} drifting blocks per run; Wilcoxon p = ${cp.drift.wilcoxon.pValue < 0.0001 ? '< 0.0001' : fixed(cp.drift.wilcoxon.pValue, 4)} over ${cp.drift.wilcoxon.n} goldens that differ.</p></section>
 
-<section class="panel" id="rates"><h2>Every rate, with its interval</h2><p class="lead">Two-sided 95% intervals; the band is the interval, the tick the estimate, the method under each.</p><div class="tiles">${tiles.join('')}</div></section>
+<section class="panel" id="rates"><h2>Every rate, with its interval</h2><p class="lead">Counts first, then the rate and its ${term('interval')}, the range the true rate is likely in; the band draws it, the tick is the measured rate.</p><div class="tiles">${tiles.join('')}</div></section>
 
 <section class="panel w7" id="goldens"><h2>Golden matrix</h2><p class="lead">One square per golden: a spec in a mode, with one square per perturbation in P. Red: the baseline passes and the candidate fails. Each square opens its failing run.</p>
 <table class="mx"><colgroup><col class="spec">${modes.map((m) => (m === 'P' ? '<col style="width:34%">' : '<col style="width:13%">')).join('')}</colgroup><thead><tr><th>spec</th>${modes.map((m) => `<th title="${MODE_NAMES[m]}">${m}</th>`).join('')}</tr></thead><tbody>${matrixRows}</tbody></table>
 <div class="legend"><span><i style="background:var(--nx-ok-soft)"></i>pass both</span><span><i style="background:var(--nx-fail)"></i>regressed</span><span><i style="background:var(--nx-ok)"></i>improved</span><span><i style="background:var(--nx-fail-soft);outline:1.5px solid var(--nx-fail);outline-offset:-1.5px"></i>fail both</span></div></section>
 
-<section class="panel w5" id="criteria"><h2>Criteria</h2><p class="lead">Effect in points, baseline minus candidate; the dashed line is the margin (${fixed(cp.margin * 100, 1)}). Counts: regressed/improved goldens. Benjamini-Hochberg at q ${cp.q}.</p><div class="ladder"><div class="row head"><span>criterion</span><span>effect and interval</span><span class="cnt">reg/imp</span><span>verdict</span></div>${ladder}</div></section>
+<section class="panel w5" id="criteria"><h2>Criteria</h2><details class="expert"><summary><span class="small">Expert detail: the ${cp.criteria.length} check families, effect and interval</span></summary><p class="lead" style="margin-top:8px">Effect in points, baseline minus candidate; the dashed line is the margin (${fixed(cp.margin * 100, 1)}). Counts: regressed/improved goldens. Benjamini-Hochberg at q ${cp.q}.</p><div class="ladder"><div class="row head"><span>criterion</span><span>effect and interval</span><span class="cnt">reg/imp</span><span>verdict</span></div>${ladder}</div></details></section>
 
 <section class="panel" id="structure"><h2>How this run is put together</h2><p class="lead">Specs become goldens (one per mode and perturbation), each run ${p.totals.repeats} times; a run is one conversation of blocks; every block is read by its checks. Baseline and candidate pair on the same goldens.</p>${structureDiagram(p)}</section>
 
@@ -332,7 +342,7 @@ ${failing.map((run) => runCard(run, true)).join('')}
 ${passing.map((run) => runCard(run, false)).join('')}
 </section>
 
-<section class="panel" id="method"><h2>How the numbers are made</h2><ul class="note" style="margin:8px 0 0;padding-left:18px"><li>Every interval is two-sided at 95%.</li><li>Wilson: the score interval on k of n. Wilson, design effect: a pass rate over the repeats of several goldens, on the effective number of runs, with the Student t quantile.</li><li>Cluster bootstrap: 2000 percentile resamples of whole conversations, seed 1.</li><li>Newcombe: the paired difference of two rates, baseline against candidate; McNemar exact on the goldens that disagree.</li><li>A run passes when it completes, every block passes and the end state matches. A golden passes when every repeat passes.</li></ul></section>
+<section class="panel" id="method"><h2>How the numbers are made</h2><ul class="note" style="margin:8px 0 0;padding-left:18px"><li>Every interval is two-sided at 95%.</li><li>Wilson: the score interval on k of n. Wilson, design effect: a pass rate over the repeats of several goldens, on the effective number of runs, with the Student t quantile.</li><li>Cluster bootstrap: 2000 percentile resamples of whole conversations, seed 1.</li><li>Newcombe: the paired difference of two rates, baseline against candidate; McNemar exact on the goldens that disagree.</li><li>A run passes when it completes, every block passes and the end state matches. A golden passes when every repeat passes.</li></ul>${glossary()}</section>
 </div>
 </div>`;
   return page(`Scorecard ${c.campaign.campaignId}`, CSS, body, 'driftbench scorecard, option B: the board');
@@ -345,7 +355,8 @@ function key(
   note: string,
   scale: { lo?: number; hi?: number; margin?: number } = {},
 ): string {
-  return `<div class="key"><div class="n num">${esc(show(e.estimate))}</div>${intervalBar(e, scale)}<div class="ci">${esc(intervalText(e, show))} · ${esc(methodWord(e))}</div><div class="l">${esc(label)}, ${esc(note)}</div></div>`;
+  const head = countFirst(label, e, show);
+  return `<div class="key"><div class="n num">${head.big}</div>${intervalBar(e, scale)}<div class="ci">${esc(head.second)} · ${esc(methodWord(e))}</div><div class="l">${esc(label)}, ${esc(note)}</div></div>`;
 }
 
 function tile(
@@ -355,7 +366,8 @@ function tile(
   note: string,
   scale: { lo?: number; hi?: number } = {},
 ): string {
-  return `<div class="tile"><div class="l">${esc(label)}</div><div class="n num">${esc(show(e.estimate))}</div>${intervalBar(e, { ...scale, height: 8 })}<div class="ci">${esc(intervalText(e, show))}</div><div class="s">${esc(note)} · ${esc(methodWord(e))}</div></div>`;
+  const head = countFirst(label, e, show);
+  return `<div class="tile"><div class="l">${esc(label)}</div><div class="n num">${head.big}</div>${intervalBar(e, { ...scale, height: 8 })}<div class="ci">${esc(head.second)}</div><div class="s">${esc(note)} · ${esc(methodWord(e))}</div></div>`;
 }
 
 function ledgerRow(run: RunDetail): string {

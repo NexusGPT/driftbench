@@ -10,23 +10,28 @@ import {
   blockId,
   blockStrip,
   checksOf,
+  countFirst,
   DRIFT_NAMES,
   esc,
   fixed,
+  glossary,
   intervalBar,
   intervalText,
   MODE_NAMES,
   methodWord,
   ms,
+  PLAIN_CSS,
   type Prepared,
   page,
   pct,
+  plainOpener,
   pointsText,
   reasonGroups,
   runId,
   runName,
   stageText,
   structureDiagram,
+  terms,
   toolChips,
   usd,
   VERDICT_WORD,
@@ -34,6 +39,7 @@ import {
 } from './shared';
 
 const CSS = `
+${PLAIN_CSS}
 main{max-width:860px;margin:0 auto;padding:48px 24px 96px}
 .mast{padding-bottom:32px;border-bottom:1px solid var(--nx-line);margin-bottom:40px}
 .mast h1{font-size:clamp(34px,5vw,54px);line-height:1.04;margin:16px 0 20px}
@@ -87,6 +93,7 @@ h2{font-family:var(--nx-serif);font-weight:400;letter-spacing:-.012em;font-size:
 `;
 
 export function renderOptionA(p: Prepared): string {
+  const { t } = terms();
   const c = p.card;
   const cp = p.compare;
   const g = reasonGroups(p);
@@ -216,15 +223,17 @@ export function renderOptionA(p: Prepared): string {
 <p class="meta"><span><b>${c.campaign.runs}</b> runs</span><span><b>${c.campaign.specs}</b> specs</span><span>modes <b>${c.campaign.modes.join(', ')}</b></span><span><b>${Math.max(...Object.values(c.campaign.repeats))}</b> repeats</span><span>margin <b>${fixed(cp.margin * 100, 1)} points</b></span><span>spent <b>${usd(c.cost.totalUsd)}</b></span><span>created <b>${esc(c.campaign.createdAt.slice(0, 16).replace('T', ' '))}</b></span><span>targets <b>${esc(c.campaign.targets.join(', '))}</b></span></p>
 </header>
 
-<section id="why">
+${plainOpener(p, t)}
+
+<section id="why" style="margin-top:40px">
 <h2>Why</h2>
-<p class="lead">Each reason below is one test the candidate failed against the baseline, with its number and a link to the goldens and blocks behind it.</p>
+<p class="lead">Each reason below is one test the ${t('candidate')} failed against the ${t('baseline')}, with its number and a link to the ${t('golden', 'goldens')} and ${t('block', 'blocks')} behind it. A golden counts as ${t('regressed')} when it passed before and fails now.</p>
 <ol class="why">${reasons.join('')}</ol>
 </section>
 
 <section id="rates">
 <h2>Every rate, with its interval</h2>
-<p class="lead">Two-sided 95% intervals. The grey band is the interval, the dark tick the estimate. The method is named under each number.</p>
+<p class="lead">Counts first, then the rate and its ${t('interval')}: the range the true rate is likely in. The band under each number draws that range; the dark tick is the measured rate. The method is named under each number.</p>
 <div class="nums">${tiles.join('')}</div>
 </section>
 
@@ -254,7 +263,8 @@ ${goldenList('Fail in both', bothFail, p)}
   )}</details>
 </section>
 
-<section id="criteria">
+<details class="expert" id="expert"><summary><span class="kicker">Expert detail</span> <span class="small soft">criteria, per mode, recovery, method: open</span></summary>
+<section id="criteria" style="margin-top:16px">
 <h2>Criteria</h2>
 <p class="lead">A criterion is one machine check family or one judged criterion. The effect is the baseline pass rate minus the candidate's, in points; the dashed line is the margin of ${fixed(cp.margin * 100, 1)} points. Benjamini-Hochberg across ${cp.criteria.length} criteria at a false discovery rate of ${cp.q}.</p>
 <div style="overflow-x:auto"><table class="table table--tight"><thead><tr><th>criterion</th><th class="r">goldens</th><th class="r">regressed</th><th class="r">improved</th><th class="r">effect</th><th>interval, points</th><th class="r">q</th><th>verdict</th></tr></thead><tbody>${criteriaRows.join('')}</tbody></table></div>
@@ -276,6 +286,7 @@ ${goldenList('Fail in both', bothFail, p)}
 ${c.recovery ? recoveryTable(p) : ''}
 </section>
 
+</details>
 <section id="conversations">
 <h2>The conversations</h2>
 <p class="lead">Failing runs first and open: every block with what was sent, what the agent said and called, which checks failed and why. Passing runs follow, closed. The strip shows one square per block; the ringed square is the first drifting block.</p>
@@ -284,7 +295,8 @@ ${failingRuns.map((run) => runCard(run, true)).join('')}
 ${passingRuns.map((run) => runCard(run, false)).join('')}
 </section>
 
-<section id="method">
+<details class="expert"><summary><span class="kicker">How the numbers are made</span> <span class="small soft">open</span></summary>
+<section id="method" style="margin-top:16px">
 <h2>How the numbers are made</h2>
 <ul class="method small soft">
 <li>Every interval is two-sided at 95%.</li>
@@ -295,6 +307,8 @@ ${passingRuns.map((run) => runCard(run, false)).join('')}
 <li>A run passes when it completes, every block passes and the end state matches. A golden passes when every repeat passes.</li>
 </ul>
 </section>
+</details>
+${glossary()}
 </main>`;
   return page(`Scorecard ${c.campaign.campaignId}`, CSS, body, 'driftbench scorecard, option A: the brief');
 }
@@ -314,7 +328,8 @@ function num(
   note: string,
   scale: { lo?: number; hi?: number } = {},
 ): string {
-  return `<div class="nx-num"><span class="n num">${esc(show(e.estimate))}</span>${intervalBar(e, scale)}<span class="ci">${esc(intervalText(e, show))}</span><span class="l">${esc(label)}</span><span class="s">${esc(note)} · ${esc(methodWord(e))}</span></div>`;
+  const head = countFirst(label, e, show);
+  return `<div class="nx-num"><span class="n num">${head.big}</span>${intervalBar(e, scale)}<span class="ci">${esc(head.second)}</span><span class="l">${esc(label)}</span><span class="s">${esc(note)} · ${esc(methodWord(e))}</span></div>`;
 }
 
 function rateCell(e: Estimate): string {

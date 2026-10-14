@@ -12,23 +12,27 @@ import {
   blockId,
   blockStrip,
   checksOf,
+  countFirst,
   DRIFT_NAMES,
   esc,
   fixed,
+  glossary,
   intervalBar,
-  intervalText,
   MODE_NAMES,
   methodWord,
   ms,
   type PairView,
+  PLAIN_CSS,
   type Prepared,
   page,
   pct,
+  plainOpener,
   pointsText,
   reasonGroups,
   runId,
   runName,
   structureDiagram,
+  terms,
   toolChips,
   usd,
   VERDICT_WORD,
@@ -36,6 +40,7 @@ import {
 } from './shared';
 
 const CSS = `
+${PLAIN_CSS}
 main{max-width:1100px;margin:0 auto;padding:40px 24px 96px}
 .top{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;padding-bottom:24px;border-bottom:1px solid var(--nx-line);margin-bottom:32px}
 .top h1{font-size:clamp(28px,3.4vw,40px);line-height:1.08;margin:10px 0 0}
@@ -107,6 +112,7 @@ section{margin:0 0 44px}
 `;
 
 export function renderOptionC(p: Prepared): string {
+  const { t: term } = terms();
   const c = p.card;
   const cp = p.compare;
   const g = reasonGroups(p);
@@ -231,20 +237,21 @@ export function renderOptionC(p: Prepared): string {
 <h1 class="serif">${esc(VERDICT_WORD[cp.verdict])}. <span class="soft">${esc(verdictSentence(p))}</span></h1>
 <p class="note" style="margin-top:8px">${c.campaign.runs} runs of ${c.campaign.specs} specs, modes ${c.campaign.modes.join(', ')}, ${Math.max(...Object.values(c.campaign.repeats))} repeats, margin ${fixed(cp.margin * 100, 1)} points, spent ${usd(c.cost.totalUsd)}, created ${esc(c.campaign.createdAt.slice(0, 16).replace('T', ' '))}. Targets: ${esc(c.campaign.targets.join(', '))}.</p>
 </div>
+${plainOpener(p, term)}
 <div class="rail-nums">${nums.join('')}</div>
 </header>
 
-<section id="why"><h2>Why</h2><ol class="why">${why.join('')}</ol>
+<section id="why"><h2>Why</h2><p class="lead">Each line is one test against the ${term('baseline')}. A ${term('golden')} is ${term('regressed')} when it passed before and fails now; a ${term('criterion')} is one family of ${term('check', 'checks')}; the ${term('p value')} says how sure the change is.</p><ol class="why">${why.join('')}</ol>
 <p class="note" style="margin-top:10px">Paired goldens: ${t.bothPass} pass both, ${t.regressed} regressed, ${t.improved} improved, ${t.bothFail} fail both. McNemar exact p = ${cp.allPass.mcnemar.pValue < 0.0001 ? '< 0.0001' : fixed(cp.allPass.mcnemar.pValue, 4)}.</p></section>
 
-<section id="breaks"><h2>Where it breaks</h2><p class="lead">Each spec declares its stages. The rail shows them in order; a red stage is where a candidate run first drifted, with the count of runs that did.</p>${rails}</section>
+<section id="breaks"><h2>Where it breaks</h2><p class="lead">Each ${term('spec')} declares its ${term('stage', 'stages')}. The rail shows them in order; a red stage is where a new version run first went wrong (${term('drift', 'drifted')}), with the count of runs that did.</p>${rails}</section>
 
-<section id="goldens"><h2>Golden by golden</h2><p class="lead">A golden is one spec in one mode, with one perturbation in P. Its dots are the repeats of the baseline (top) and of the candidate (bottom). Open one: the stage rail of the failing run, the block where the two agents part ways, side by side, then the whole conversation with its checks.</p>${dossiers}</section>
+<section id="goldens"><h2>Golden by golden</h2><p class="lead">A golden is one spec in one ${term('mode')}, with one perturbation in P. Its dots are the ${term('repeat', 'repeats')} of the baseline (top) and of the candidate (bottom). Open one: the stage rail of the failing run, the block where the two agents part ways, side by side, then the whole conversation with its checks.</p>${dossiers}</section>
 
-<section id="criteria"><h2>Criteria</h2><p class="lead">Effect in points, baseline pass rate minus the candidate's, with its Newcombe interval; q is the Benjamini-Hochberg adjusted p across ${cp.criteria.length} criteria at a false discovery rate of ${cp.q}.</p><div style="overflow-x:auto"><table class="crit"><thead><tr><th>criterion</th><th class="r">goldens</th><th class="r">regressed</th><th class="r">improved</th><th class="r">effect</th><th class="r">interval, pts</th><th class="r">q</th><th>verdict</th></tr></thead><tbody>${critRows}</tbody></table></div></section>
+<details class="expert" id="criteria"><summary><span class="kicker">Expert detail: criteria</span> <span class="small soft">the ${cp.criteria.length} check families with effect, interval and q: open</span></summary><section style="margin-top:16px"><h2>Criteria</h2><p class="lead">Effect in points, baseline pass rate minus the candidate's, with its Newcombe interval; q is the Benjamini-Hochberg adjusted p across ${cp.criteria.length} criteria at a false discovery rate of ${cp.q}.</p><div style="overflow-x:auto"><table class="crit"><thead><tr><th>criterion</th><th class="r">goldens</th><th class="r">regressed</th><th class="r">improved</th><th class="r">effect</th><th class="r">interval, pts</th><th class="r">q</th><th>verdict</th></tr></thead><tbody>${critRows}</tbody></table></div></section></details>
 
 <section id="structure"><h2>How to read this page</h2><p class="lead">The run's structure: ${p.totals.specs} specs become ${p.totals.lines} goldens, each run ${p.totals.repeats} times, ${p.totals.runs} conversations of ${p.totals.blocks} blocks read by ${p.totals.verdicts} checks; the baseline and the candidate pair on the same goldens.</p><div class="card">${structureDiagram(p)}</div>
-<ul class="note" style="margin:16px 0 0;padding-left:18px"><li>Every interval is two-sided at 95%: Wilson on k of n; Wilson with a design effect over the repeats of several goldens; a cluster bootstrap of 2000 resamples of whole conversations, seed 1; Newcombe for the paired difference.</li><li>A run passes when it completes, every block passes and the end state matches. A golden passes when every repeat passes.</li></ul></section>
+<ul class="note" style="margin:16px 0 0;padding-left:18px"><li>Every interval is two-sided at 95%: Wilson on k of n; Wilson with a design effect over the repeats of several goldens; a cluster bootstrap of 2000 resamples of whole conversations, seed 1; Newcombe for the paired difference.</li><li>A run passes when it completes, every block passes and the end state matches. A golden passes when every repeat passes.</li></ul>${glossary()}</section>
 </main>`;
   return page(`Scorecard ${c.campaign.campaignId}`, CSS, body, 'driftbench scorecard, option C: the trace');
 }
@@ -260,7 +267,8 @@ function rn(
   note: string,
   scale: { lo?: number; hi?: number; margin?: number } = {},
 ): string {
-  return `<div class="rn"><div class="n num">${esc(show(e.estimate))}</div>${intervalBar(e, { ...scale, height: 8 })}<div class="ci">${esc(intervalText(e, show))}</div><div class="l">${esc(label)}, ${esc(note)} <span class="soft">· ${esc(methodWord(e))}</span></div></div>`;
+  const head = countFirst(label, e, show);
+  return `<div class="rn"><div class="n num">${head.big}</div>${intervalBar(e, { ...scale, height: 8 })}<div class="ci">${esc(head.second)}</div><div class="l">${esc(label)}, ${esc(note)} <span class="soft">· ${esc(methodWord(e))}</span></div></div>`;
 }
 
 function dots(runs: RunDetail[]): string {
