@@ -144,6 +144,7 @@ export {
   outcomeFromProbability,
   parseAnswerText,
   parseAnswerValue,
+  REASONING_TOKENS,
   repairAnswerText,
   TranscriptEntry,
 } from './contract';
@@ -257,6 +258,7 @@ export {
   ANSWER_CONTRACT,
   buildPrompt,
   CRITERION_PROMPT_V1_FINGERPRINT,
+  CRITERION_PROMPT_V2_FINGERPRINT,
   DATA_RULE,
   DATA_TAGS,
   type DataTag,
@@ -273,6 +275,7 @@ export {
   renderUser,
   SYSTEM_PROMPT,
   SYSTEM_PROMPT_V1,
+  SYSTEM_PROMPT_V2,
   SYSTEM1_QUESTION,
 } from './prompt';
 export {

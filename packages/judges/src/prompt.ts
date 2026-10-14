@@ -102,6 +102,12 @@ export function promptFingerprint(parts: { readonly [key: string]: unknown } = P
 /** The fingerprint of the prompt this build sends. */
 export const PROMPT_FINGERPRINT = promptFingerprint();
 
+/** The version 2 system prompt, which is the default. The name stays from when version 2 was opt-in. */
+export const SYSTEM_PROMPT_V2 = SYSTEM_PROMPT;
+
+/** The version 2 fingerprint, which is the default fingerprint. The name stays from when version 2 was opt-in. */
+export const CRITERION_PROMPT_V2_FINGERPRINT = PROMPT_FINGERPRINT;
+
 /** The version 1 fingerprint, unchanged: a version 1 recording replays under version 1 and no other. */
 export const CRITERION_PROMPT_V1_FINGERPRINT = promptFingerprint({
   ...PROMPT_PARTS,

@@ -7,6 +7,7 @@ export type CriterionRequirement = { readonly id: string; readonly requirement: 
  * Decoder identity is separate from the model-facing prompt. Version 2 is the default: an ungrounded
  * string quote is dropped and the check keeps its met value. Version 1 is the strict decoder, selectable
  * by name: any ungrounded quote voids the ledger. A version 1 recording keeps its key under version 1.
+ * Version 2 also grounds a span quote of symbols alone in the exact source it names (see groundEvidenceSpan).
  */
 export const CRITERION_DECODER_VERSION = 2;
 export type CriterionDecoderVersion = 1 | 2;
@@ -89,6 +90,7 @@ export function parseCriterionLedger(value: unknown, request: JudgeRequest, raw:
   const missing = expected.filter((r) => !checks.some((check) => check.id === r.id)).map((r) => r.id);
   if (missing.length) return invalid(`missing requirement ids: ${missing.join(', ')}`);
   let evidenceUnverified = 0;
+  const decoder = request.criterionDecoderVersion ?? CRITERION_DECODER_VERSION;
   for (const check of checks) {
     if (check.met === true && check.evidence === null)
       return invalid('a met requirement needs grounded evidence');
@@ -97,12 +99,11 @@ export function parseCriterionLedger(value: unknown, request: JudgeRequest, raw:
       !(typeof check.evidence === 'string'
         ? groundEvidence(request, { outcome: 'inconclusive', reasoning: '', evidence: check.evidence })
             .grounded
-        : check.evidence.every((span) => groundEvidenceSpan(request, span).grounded))
+        : check.evidence.every(
+            (span) => groundEvidenceSpan(request, span, { symbolQuotes: decoder === 2 }).grounded,
+          ))
     ) {
-      if (
-        (request.criterionDecoderVersion ?? CRITERION_DECODER_VERSION) !== 2 ||
-        typeof check.evidence !== 'string'
-      )
+      if (decoder !== 2 || typeof check.evidence !== 'string')
         return invalid('the evidence quote is not in the supplied data');
       // Preserve the model's met value, but never present an unverified string as a quote.
       check.evidence = null;

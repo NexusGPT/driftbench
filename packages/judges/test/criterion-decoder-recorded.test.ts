@@ -3,11 +3,16 @@ import { gunzipSync } from 'node:zlib';
 import { describe, expect, it } from 'vitest';
 import { parseJudgeText } from '../src/assessment';
 import type { JudgeRequest } from '../src/contract';
+import symbolQuoteMoves from './fixtures/symbol-quote-moves.json';
 import emptySourceFixes from './fixtures/whole-empty-source-fixes.json';
 
 // Recorded met false ledgers that quote an empty `{}` file exactly. The frozen fixture holds them as
 // inconclusive; grounding the whole empty source decodes each to its true verdict, fail.
 const movedBy = emptySourceFixes as Record<string, string[]>;
+
+// Recorded span lists whose quote is symbols alone, a run of brackets, found in the source they name. The
+// frozen candidate column holds them as inconclusive; version 2 now grounds them and keeps the recorded met.
+const symbolMoved = symbolQuoteMoves as Record<string, Record<string, string>>;
 
 const fixture = JSON.parse(
   gunzipSync(
@@ -60,6 +65,8 @@ describe('zero-cost recorded criterion decoder replay', () => {
       let breaks = 0;
       let movedBefore = 0;
       let movedAfter = 0;
+      let symbolAfter = 0;
+      let symbolFixes = 0;
       for (const row of rows) {
         const read = (version: 1 | 2) => {
           if (row.transportError) return 'inconclusive';
@@ -80,7 +87,15 @@ describe('zero-cost recorded criterion decoder replay', () => {
           movedAfter += Number(row.candidate !== row.truth);
         }
         expect(old, row.id).toBe(moved ? row.truth : row.baseline);
-        expect(current, row.id).toBe(moved ? row.truth : row.candidate);
+        const symbol = symbolMoved[row.set]?.[row.id];
+        expect(current, row.id).toBe(moved ? row.truth : (symbol ?? row.candidate));
+        if (symbol !== undefined) {
+          expect(row.candidate, row.id).toBe('inconclusive');
+          symbolAfter += Number(current === row.truth) - Number(row.candidate === row.truth);
+          symbolFixes +=
+            Number(old !== row.truth && current === row.truth) -
+            Number(old !== row.truth && row.candidate === row.truth);
+        }
         before += Number(old === row.truth);
         after += Number(current === row.truth);
         fixes += Number(old !== row.truth && current === row.truth);
@@ -88,13 +103,21 @@ describe('zero-cost recorded criterion decoder replay', () => {
       }
       expect({ before, after, fixes, breaks }).toEqual({
         before: (summary.baselineCorrect ?? 0) + movedBefore,
-        after: (summary.candidateCorrect ?? 0) + movedAfter,
-        fixes: (summary.fixes ?? 0) - (movedBefore - movedAfter),
+        after: (summary.candidateCorrect ?? 0) + movedAfter + symbolAfter,
+        fixes: (summary.fixes ?? 0) - (movedBefore - movedAfter) + symbolFixes,
         breaks: summary.breaks,
       });
       expect(breaks).toBe(0);
     });
   }
+  it('lists only recorded rows for the symbol quote moves', () => {
+    for (const [set, ids] of Object.entries(symbolMoved))
+      for (const id of Object.keys(ids))
+        expect(
+          fixture.rows.some((r) => r.set === set && r.id === id),
+          `${set} ${id}`,
+        ).toBe(true);
+  });
   it('confirms the pre-registered scores without treating absent recordings as passes', () => {
     expect(fixture.summaries.find((s) => s.set === 'long')).toMatchObject({
       total: 240,

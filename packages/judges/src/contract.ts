@@ -41,6 +41,17 @@ export type Budget = 'normal' | 'large';
 /** The token budgets behind the two budget names, for clients that take a token limit. */
 export const MAX_TOKENS: Readonly<Record<Budget, number>> = { normal: 1024, large: 4096 };
 
+/**
+ * Room a reasoning judge gets on top of its budget, by reasoning level. A reasoning model spends its thinking
+ * from the same output limit as its answer, so without this room the thinking can use up the answer's budget
+ * and the answer is cut. Clients that send a reasoning level add this room to the token limit.
+ */
+export const REASONING_TOKENS: Readonly<Record<'low' | 'medium' | 'high', number>> = {
+  low: 512,
+  medium: 1024,
+  high: 2048,
+};
+
 /** One line of a transcript slice. Tool entries carry the tool name. */
 export const TranscriptEntry = z.strictObject({
   role: z

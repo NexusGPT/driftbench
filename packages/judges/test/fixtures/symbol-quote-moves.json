@@ -1,0 +1,8 @@
+{
+  "bench-current/planted-verify/haiku": { "verify-bank-070/clean": "pass" },
+  "bench-current/planted-verify/gpt-6-luna": {
+    "verify-bank-040/clean": "pass",
+    "verify-bank-050/defect": "pass",
+    "verify-bank-060/clean": "pass"
+  }
+}
