@@ -1718,6 +1718,7 @@ relations:
     class: D7_silence_or_burst
     flows: [ new-request ]
     stage_after: pending
+    must: [ "(?:What can I help you with today\\?|Which item is the request about\\?|Shall I go on with the record I found\\?|Which of the listed options do you want\\?|Which plan and what name should the request carry\\?|Reply CONFIRM to submit the request, or tell me what to change\\.|Is there anything else I can help with\\?)" ]
     evidence:
       source: ./prompt.md
       quote: An empty message or a nudge gets one reply with the pending question.

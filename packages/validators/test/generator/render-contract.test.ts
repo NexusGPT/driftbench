@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { defaultInput } from '../../src/ladders/generator/follower';
-import { hiddenSpec } from '../../src/ladders/generator/hidden';
+import { DETOUR_TEXT, hiddenSpec } from '../../src/ladders/generator/hidden';
 import { hiddenProposal, renderPrompt } from '../../src/ladders/generator/render';
 
 describe('the stronger rendered reply contract', () => {
@@ -92,6 +92,27 @@ describe('the stronger rendered reply contract', () => {
       );
       if (relation?.kind !== 'binds') throw new Error('missing output binding');
       expect(relation.slots).toMatchObject({ [`${value.tool}_out_${value.field}`]: String(value.value) });
+    }
+  });
+
+  it('makes a nudge recovery hold the pending question, which a reply without it misses', () => {
+    for (const seed of [1, 3, 7]) {
+      const hidden = hiddenSpec(seed);
+      const recovery = hiddenProposal(hidden).relations?.find(
+        (entry) => entry.kind === 'recovery' && entry.class === 'D7_silence_or_burst',
+      );
+      if (!hidden.deviations.includes('D7_silence_or_burst')) continue;
+      if (recovery?.kind !== 'recovery') throw new Error(`seed ${seed}: no nudge recovery`);
+      const patterns = (recovery.must ?? []).map((pattern) => new RegExp(pattern));
+      expect(patterns.length, `seed ${seed}`).toBeGreaterThan(0);
+      for (const stage of hidden.stages) {
+        const reply = `${DETOUR_TEXT.D7_silence_or_burst} ${stage.question}`;
+        expect(
+          patterns.every((pattern) => pattern.test(reply)),
+          `${seed} ${stage.id}`,
+        ).toBe(true);
+      }
+      expect(patterns.some((pattern) => pattern.test(DETOUR_TEXT.D7_silence_or_burst))).toBe(false);
     }
   });
 });
