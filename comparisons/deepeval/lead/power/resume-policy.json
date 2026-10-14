@@ -1,0 +1,27 @@
+{
+  "timestamp": "2026-10-14T10:45:21.471442+00:00",
+  "owner_instruction": "Pause the main pass now, keeping it resumable with completed cases kept. Resume only on owner signal. Do not count the pause as a timeout and do not re-ask completed cases.",
+  "pause_timestamp": "2026-10-14T10:36:59.208010+00:00",
+  "completed_case_ids": [
+    "knowledge-fluent-reask-12-b",
+    "knowledge-fluent-reask-48-a",
+    "knowledge-known-vs-new-21-b",
+    "knowledge-long-distractors-27-a",
+    "knowledge-long-distractors-34-a",
+    "knowledge-mixed-language-49-a",
+    "knowledge-reask-address-2-a"
+  ],
+  "recorded_requests": 21,
+  "interrupted_request_keys": [
+    "0004c470b8fb42a13e7cfe43377470d88e75149b7ab7da4a786bfec2e2551cd5",
+    "b14c35069526a207831838d6767a8a8bc4e2c1122ed346a6faea9711a6cc9d22",
+    "d79d1aef3ebaa1f9539338f1544f96acc930933aeba80ba7e4c29045deb36f37"
+  ],
+  "interrupted_cost_reservation_usd": 0.15,
+  "pause_is_timeout": false,
+  "resume_requires_owner_signal": true,
+  "concurrency": 3,
+  "total_cap_usd_including_interruption_and_timeout_retries": 10,
+  "resume_runner_sha256": "50a1b5e111f38cc08a8fe381b3422a0bf5ce8698a20d094c30dc03a359c5e87f",
+  "recorded_requests_digest": "71e1d1c4c9cdd52d43f48226b4ab10d414d1318e11cff693a4ff887bb3f5ba63"
+}
