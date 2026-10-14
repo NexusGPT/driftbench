@@ -112,7 +112,7 @@ driftbench dataset restore <ref> --store <file> [--out <path>] [--force] [--json
 * **Content addressed.** Each file is kept once, by its SHA-256. A version is the sorted list of its paths and file hashes; its hash is the SHA-256 of that list.
 * **Immutable.** A version never changes. Pushing content a name already holds gives back that version and adds nothing.
 * **Numbered.** Versions of one name count up from 1.
-* **Checked.** `dataset push` loads every spec of the folder first and refuses the push when one is invalid. Entries whose name starts with a dot and `node_modules` are skipped, as the spec loader skips them.
+* **Checked.** `dataset push` loads every spec of the folder first and refuses the push when one is invalid. Generated `.seed-*` folders and their contents are included, so binary task fixtures survive push and restore. Other dot entries are skipped; `.git` and `node_modules` are always skipped, including inside seed folders.
 * **Exact.** `restore` writes the bytes of every file as they were pushed, checked against their hashes, to the path they were pushed from or to `--out`. A file already there with other bytes stops the restore, and nothing is written, unless `--force` is given. Files the version does not hold are listed and left alone.
 
 ```

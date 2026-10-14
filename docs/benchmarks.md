@@ -81,7 +81,6 @@ The repository entry `benchmarks/cli.ts` also permits named public APIs for load
 | `haiku` | `claude-haiku-5-5` | Active, through the public CLI judge |
 | `gpt-6-luna` | `gpt-6-luna` | Active, public OpenAI judge, medium reasoning |
 | `gemini-3.5-flash-lite` | `gemini-3.5-flash-lite` | Active, public Google judge, medium thinking, 300 second timeout |
-| `gemini-3.8-flash` | `gemini-3.8-flash` | Skipped, floors await a later recording slot |
 
 All active models use the same shipped prompt fingerprint. Explicit reasoning settings participate in each client's cassette key.
 
@@ -110,7 +109,7 @@ The command writes:
 
 The report records the dataset identity, prompt fingerprint, client settings, commit and timestamps. The command checks that recording and replay produce identical case results before accepting the completed cassette. A transport-truncated response remains inconclusive during replay even if its raw JSON is parseable. A regression retains its evidence for diagnosis and returns a failure.
 
-Gemini retries HTTP 429 responses after 60, 120 and 240 seconds, honoring a longer provider retry delay. Each retry gets a fresh 300 second timeout. The manual workflow uses eight concurrent Flash-Lite or Luna calls, two Flash 3.8 calls and four Haiku calls.
+Gemini retries HTTP 429 responses after 60, 120 and 240 seconds, honoring a longer provider retry delay. Each retry gets a fresh 300 second timeout. The manual workflow uses eight concurrent Flash-Lite or Luna calls and four Haiku calls.
 
 The manual [bench record workflow](../.github/workflows/bench-record.yml) accepts a slice, model and cap. Its cap must be positive and at most 5 USD. OpenAI and Gemini use their repository secrets on a hosted runner. Haiku uses a preconfigured self-hosted runner labelled `driftbench-bench` and `claude-cli`. The workflow uploads cassettes and evidence for review; it does not commit them or raise floors.
 
@@ -145,7 +144,7 @@ The [CI workflow](../.github/workflows/ci.yml) runs the public API check and `be
 
 The published `driftbench` CLI does not contain this repository harness. The flags and exit codes are listed below.
 
-Gemini metering counts candidate and thinking tokens, and discounts cached input. Flash-Lite uses the standard rates of $0.30 input, $0.03 cached input and $2.50 output per million tokens. Reservations allow its [full 65,536-token output ceiling](https://ai.google.dev/gemini-api/docs/models/gemini-3.5-flash-lite), so each in-flight call requires that budget headroom even though only measured usage is charged. The separate Flash 3.8 introductory rates expire after December 31, 2026; recording that model then refuses until its rates are updated. Rates were verified on October 13, 2026 against [Google pricing](https://ai.google.dev/gemini-api/docs/pricing).
+Gemini metering counts candidate and thinking tokens, and discounts cached input. Flash-Lite uses the standard rates of $0.30 input, $0.03 cached input and $2.50 output per million tokens. Reservations allow its [full 65,536-token output ceiling](https://ai.google.dev/gemini-api/docs/models/gemini-3.5-flash-lite), so each in-flight call requires that budget headroom even though only measured usage is charged. Rates were verified on October 13, 2026 against [Google pricing](https://ai.google.dev/gemini-api/docs/pricing).
 
 ## Command reference
 
@@ -177,7 +176,7 @@ Replay and floor checks make no model calls. Replay reports the correct count, W
 
 Recording uses the public client and retains raw responses. It checkpoints partial runs, checks recorded results against replay, and writes cassettes with measured spending evidence. `--resume` refuses stale data. Omit it for an intentional re-record; the previous completed cassette is archived by hash. A spend cap is per invocation, including after resume.
 
-The active model ids are `haiku`, `gpt-6-luna` and `gemini-3.5-flash-lite`. Haiku is pinned to `claude-haiku-5-5` and needs an authenticated `claude` executable. OpenAI needs `OPENAI_API_KEY`; Gemini needs `GEMINI_API_KEY`. Luna and Flash-Lite use medium reasoning. `gemini-3.8-flash` awaits a later recording slot and cannot be selected until its manifest entry is activated.
+The active model ids are `haiku`, `gpt-6-luna` and `gemini-3.5-flash-lite`. Haiku is pinned to `claude-haiku-5-5` and needs an authenticated `claude` executable. OpenAI needs `OPENAI_API_KEY`; Gemini needs `GEMINI_API_KEY`. Luna and Flash-Lite use medium reasoning.
 
 Floors validate evidence against the current cassette. The correct count cannot decrease within a dataset version. The same count can update evidence at a new fingerprint; unchanged count and fingerprint are refused. Earlier floor records remain in history.
 

@@ -326,6 +326,7 @@ export async function ciCommand(options: CiCommandOptions, io: Io, deps: Campaig
   const code = await campaignRunCommand(
     [options.specs],
     {
+      ...(options.config === undefined ? {} : { config: options.config }),
       target: [options.target],
       route: options.route ?? [],
       mode: options.mode,

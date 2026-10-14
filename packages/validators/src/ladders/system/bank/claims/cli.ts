@@ -6,6 +6,7 @@ import { mde as powerMde } from '@agent-nexus/driftbench-stats';
 import { openStore } from '@agent-nexus/driftbench-store';
 import { parse, stringify } from 'yaml';
 import { docBlock, docCellId } from '../doc-blocks';
+import { reviewFamily } from '../review-family';
 import { type BankItem, expectAll, fail, type ItemResult, PASS, type Tier } from '../types';
 
 /**
@@ -2495,14 +2496,25 @@ add({
   tier: 1,
   component: FAMILY_CMD,
   title:
-    'family review on the unsigned Acme price-sheet family prints "Review: pending." and exits 1 (cli.md family)',
+    'family review prints "Review: pending." and exits 1 for an unsigned family; a signed family is not pending and exits 0 (cli.md family)',
   cause: 'family review exits 1 while a person still has to sign.',
   async run(ctx) {
-    const result = await cli(
-      ['family', 'review', join(ctx.root, 'examples/acme/families/price-sheet')],
-      ctx.dir,
-    );
-    return expectAll([[result.code === 1 && result.out.startsWith('Review: pending.'), `${shown(result)}`]]);
+    const family = reviewFamily(ctx.dir);
+    const pending = await cli(['family', 'review', family.path], ctx.dir);
+    family.sign();
+    const signed = await cli(['family', 'review', family.path], ctx.dir);
+    return expectAll([
+      [
+        pending.code === 1 && pending.out.startsWith('Review: pending.'),
+        `pending family: expected exit 1 and "Review: pending."; ${shown(pending)}`,
+      ],
+      [
+        signed.code === 0 &&
+          signed.out.startsWith('Review: signed by ') &&
+          !signed.out.includes('Review: pending.'),
+        `signed family: expected exit 0 and a signed review, not pending; ${shown(signed)}`,
+      ],
+    ]);
   },
 });
 

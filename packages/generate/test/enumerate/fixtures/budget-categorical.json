@@ -1,11 +1,11 @@
 {
-  "source": "Generator executor changes of exec/generator-v3 on main 0531bb75: boundary values on walks, perturbations per class, start-stage cells; map 7c05b9cee9cc",
+  "source": "Generator v3 merged with main 5a196790: signed price-sheet family review and executor generation fixes",
   "mapHash": "7c05b9cee9cc",
   "hashes": {
-    "pairwise": "66244bb41bf2cd4e62e93ebf4234c9e376a630ef8dbb2607d0273799de29aec2",
-    "budget-20": "554c8ec4fcbf89fd9f59bfae38047ab2937bef2d0f166e2e6b0fbb6f0b69aa2a",
-    "budget-50": "a477cde868138be8c9e7d2e6d445ccd2f18e686df22c362c9505f0f671cfec14",
-    "budget-100": "5bfd4996415465a0f760dbffe1131d1c51c471c077964f6ecce03c48fb7cdf6e",
-    "budget-200": "9f4f97f1d99ef0715655fd0376dd92e4fef70c5d26aebd090f107f685da53faf"
+    "pairwise": "8717d1003e1ae2b4122ce13538e5992a920e4d01b184a4b1c2fc80c1e6b82049",
+    "budget-20": "6171e3d739888803b0462cc6d5183351221a8dfd9b0271b2f9de4fe606c6abb7",
+    "budget-50": "ab58972705708f38303ad0cf0732c19ece7d0c63d63c4c2115a3bddfc38b73c1",
+    "budget-100": "b0e5ccc7b88c2dc24d52de07f36cdbe09ad3d586d7bb6bd76ed63c8032db3831",
+    "budget-200": "0807d700783bd792b9a1c347d091ef069469737fd7aed50979762d41fe76838b"
   }
 }
