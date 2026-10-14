@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>driftbench: a failure you can diagnose</title>
+<link rel="stylesheet" href="brand.css">
+<style>
+  /* Left: a score for the whole conversation, the unit other tools score (docs/comparison.md, row 1).
+     Right: the same conversation step by step. The example is a recorded run: a sales agent with a bug that
+     skips the order recap; the failing step's checks report "reached order_placed, expected recap" and
+     "order.create called 1 time (call-1); the block expects it 0 times", said here in plain words. */
+  #frame { width: 640px; height: 278px; }
+  .p { top: 40px; height: 214px; padding: 12px; }
+  .p .nx-kind { position: static; display: block; }
+  .p .t { margin-top: 7px; font: 600 13.5px/1.25 var(--nx-sans); color: var(--nx-ink); }
+  .run { left: 16px; width: 200px; }
+  .blk { left: 232px; width: 374px; }
+  .bar { position: absolute; left: 12px; right: 12px; top: 84px; height: 46px; border-radius: 10px; background: var(--miss-bg);
+    display: flex; align-items: center; justify-content: space-between; padding: 0 12px; font: 500 11.5px/1.2 var(--nx-sans); color: var(--miss-ink); }
+  .bad { display: inline-flex; align-items: center; height: 22px; padding: 0 9px; border-radius: 999px; background: var(--nx-ink); color: var(--nx-card); font: 600 11px/1 var(--nx-sans); }
+  .p .foot { position: absolute; left: 12px; right: 12px; bottom: 12px; font: 400 11.5px/1.4 var(--nx-sans); color: var(--detail); }
+  .row { position: absolute; left: 12px; right: 12px; top: 70px; display: flex; gap: 6px; }
+  .b { flex: 1; height: 60px; border-radius: 10px; border: 1px solid var(--nx-ill-panel-border); background: var(--nx-card);
+    display: grid; align-content: center; justify-items: center; row-gap: 6px; font: 500 10.5px/1 var(--nx-sans); color: var(--kind); }
+  .b.fail { box-shadow: 0 0 0 2px var(--nx-blue); color: var(--nx-ink); font-weight: 600; }
+  .b .nx-done { height: 18px; }
+  .x { display: inline-flex; align-items: center; height: 18px; padding: 0 7px; border-radius: 999px; background: var(--nx-ink); color: var(--nx-card); font: 600 10px/1 var(--nx-sans); }
+  .why { position: absolute; left: 12px; right: 12px; top: 146px; display: grid; gap: 4px; font: 400 11.5px/1.35 var(--nx-sans); color: var(--nx-ink); }
+  .why span { color: var(--kind); font: 500 10px/1 var(--nx-mono); letter-spacing: .6px; text-transform: uppercase; margin-right: 6px; }
+</style>
+</head>
+<body>
+<div id="frame" class="nx-ill scene">
+  <div class="nx-ill__glass">
+    <span class="nx-kind" style="left:16px;top:16px">A sales conversation with a bug</span>
+    <div class="nx-ill-panel p run">
+      <span class="nx-kind">Other tools</span>
+      <div class="t">One score for the whole conversation</div>
+      <div class="bar">Seven steps <span class="bad">Fail</span></div>
+      <div class="foot">Which step broke, and why? You read the transcript to find out.</div>
+    </div>
+    <div class="nx-ill-panel p blk">
+      <span class="nx-kind nx-kind--ink">driftbench</span>
+      <div class="t">A verdict for every step</div>
+      <div class="row">
+        <div class="b">number<span class="nx-done">pass</span></div>
+        <div class="b">offer<span class="nx-done">pass</span></div>
+        <div class="b">details<span class="nx-done">pass</span></div>
+        <div class="b fail">recap<span class="x">fail</span></div>
+        <div class="b fail">order<span class="x">fail</span></div>
+        <div class="b">close<span class="nx-done">pass</span></div>
+        <div class="b">close<span class="nx-done">pass</span></div>
+      </div>
+      <div class="why"><div><span>Expected</span>read the order back to the customer</div><div><span>Got</span>placed the order without a recap</div></div>
+    </div>
+  </div>
+</div>
+<script>
+  window.__fonts = ['400 11px Geist', '600 13px Geist', '500 10px "Geist Mono"'];
+  Promise.all(window.__fonts.map((f) => document.fonts.load(f))).then(() => document.fonts.ready).then(() => { window.__ready = true; });
+</script>
+</body>
+</html>

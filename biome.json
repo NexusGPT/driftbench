@@ -20,6 +20,8 @@
       "!comparisons/ledger-hard/**/*.json",
       "!comparisons/ledger-hard/**/*.jsonl",
       "!comparisons/ledger-hard/*.mts",
+      "!research/moj/results/sealed/report.json",
+      "!research/moj/sealed/freeze.json",
       "!comparisons/inspect/hard/shipped/heldout-480/*-audit.json",
       "!comparisons/inspect/hard/shipped/heldout-480/*-default.json",
       "!comparisons/inspect/hard/shipped/heldout-480/*-theirs.json"
