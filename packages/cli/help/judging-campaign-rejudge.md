@@ -77,37 +77,41 @@ changes:
 
 ## Worked example
 
-A baseline stored offline, then a re-judge refused because the manifest is a model change, not a criterion-only change:
+A baseline stored offline; a re-judge refused because the manifest is a model change; then a real re-judge after one sentence is added to the rubric of `no_invented_data`. The stand-in judge fails any prompt that mentions a public holiday, so the re-judged gating criterion fails, and no model is called:
+
+```sh setup
+mkdir -p rejudge
+sed 's/customer. Nothing is guessed./customer. Nothing is guessed. Never invent a public holiday./' examples/acme/specs/conversations/plan-upgrade.yaml > rejudge/plan-upgrade.yaml
+```
+
+```yaml file=rejudge/criterion.yaml
+from: acme-v1
+to: acme-v1
+changes:
+  - { kind: criterion, id: no_invented_data }
+```
 
 ```sh
-driftbench campaign run examples/acme/specs/conversations/plan-upgrade.yaml --target function:acme-sales --agent-version acme-v1 --campaign acme-before --store runs.db
-driftbench campaign rejudge examples/acme/specs/conversations/plan-upgrade.yaml --from acme-before --campaign acme-rejudged --store runs.db --change examples/acme/radius/model.yaml --judge claude:haiku --judge-command examples/estates/fixture/live/fake/judge.cjs  # exit 2
+driftbench campaign run examples/acme/specs/conversations/plan-upgrade.yaml --target function:acme-sales --agent-version acme-v1 --campaign acme-before --store rejudge/runs.db
+driftbench campaign rejudge rejudge/plan-upgrade.yaml --from acme-before --campaign acme-refused --store rejudge/runs.db --change examples/acme/radius/model.yaml --judge claude:haiku --judge-command examples/estates/fixture/live/fake/judge.cjs  # exit 2
+driftbench campaign rejudge rejudge/plan-upgrade.yaml --from acme-before --campaign acme-rejudged --store rejudge/runs.db --change rejudge/criterion.yaml --judge claude:haiku --judge-command examples/estates/fixture/live/fake/judge.cjs  # exit 1
+driftbench campaign rejudge rejudge/plan-upgrade.yaml --from acme-before --campaign acme-r2 --store rejudge/runs.db --change rejudge/criterion.yaml --judge claude:haiku --judge-command examples/estates/fixture/live/fake/judge.cjs --json  # exit 1
 ```
 
 ```text
-$ driftbench campaign run examples/acme/specs/conversations/plan-upgrade.yaml --target function:acme-sales --agent-version acme-v1 --campaign acme-before --store runs.db
+$ driftbench campaign run examples/acme/specs/conversations/plan-upgrade.yaml --target function:acme-sales --agent-version acme-v1 --campaign acme-before --store rejudge/runs.db
 Campaign acme-before: 1 cell, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, regex, exact, injection, length, markup, starts_with, finish_reason, json, tool_f1, refusal, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
 Not judged: 2 criteria in 3 blocks of 1 spec (one_question_per_turn, no_invented_data), 1 of them gating. This campaign loads no judge, so these criteria have no verdict and count in no pass or fail. See docs/concepts/judges.md.
 ✓ acme-plan-upgrade · function:acme-sales · F · repeat 0  pass  5 blocks
 1 cell: 1 pass, 0 fail, 0 failed. Spent $0.00.
 (exit 0)
-$ driftbench campaign rejudge examples/acme/specs/conversations/plan-upgrade.yaml --from acme-before --campaign acme-rejudged --store runs.db --change examples/acme/radius/model.yaml --judge claude:haiku --judge-command examples/estates/fixture/live/fake/judge.cjs
+$ driftbench campaign rejudge rejudge/plan-upgrade.yaml --from acme-before --campaign acme-refused --store rejudge/runs.db --change examples/acme/radius/model.yaml --judge claude:haiku --judge-command examples/estates/fixture/live/fake/judge.cjs
 Re-judge needs a criterion-only manifest with identical from/to agent versions; otherwise rerun the agent.
 (exit 2)
-```
-
-A real re-judge, from a repository checkout, not run by the help test. The new spec adds one sentence to the rubric of `no_invented_data`; the stand-in judge fails any prompt that mentions a public holiday, so the re-judged gating criterion fails:
-
-```text
-$ mkdir -p out/rejudge
-$ sed 's/customer. Nothing is guessed./customer. Nothing is guessed. Never invent a public holiday./' examples/acme/specs/conversations/plan-upgrade.yaml > out/rejudge/plan-upgrade.yaml
-$ printf 'from: acme-v1\nto: acme-v1\nchanges:\n  - { kind: criterion, id: no_invented_data }\n' > out/rejudge/criterion.yaml
-$ driftbench campaign run examples/acme/specs/conversations/plan-upgrade.yaml --target function:acme-sales --agent-version acme-v1 --campaign acme-before --store out/rejudge/runs.db
-(the same output as above)
-$ driftbench campaign rejudge out/rejudge/plan-upgrade.yaml --from acme-before --campaign acme-rejudged --store out/rejudge/runs.db --change out/rejudge/criterion.yaml --judge claude:haiku --judge-command examples/estates/fixture/live/fake/judge.cjs
+$ driftbench campaign rejudge rejudge/plan-upgrade.yaml --from acme-before --campaign acme-rejudged --store rejudge/runs.db --change rejudge/criterion.yaml --judge claude:haiku --judge-command examples/estates/fixture/live/fake/judge.cjs
 Campaign acme-rejudged: 2 blocks re-judged, 3 carried; 0 agent calls. Judge cost 0.0030 USD.
 (exit 1)
-$ driftbench campaign rejudge out/rejudge/plan-upgrade.yaml --from acme-before --campaign acme-r2 --store out/rejudge/runs.db --change out/rejudge/criterion.yaml --judge claude:haiku --judge-command examples/estates/fixture/live/fake/judge.cjs --json
+$ driftbench campaign rejudge rejudge/plan-upgrade.yaml --from acme-before --campaign acme-r2 --store rejudge/runs.db --change rejudge/criterion.yaml --judge claude:haiku --judge-command examples/estates/fixture/live/fake/judge.cjs --json
 {
   "campaign": "acme-r2",
   "from": "acme-before",
