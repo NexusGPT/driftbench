@@ -585,7 +585,7 @@ window.CHART_DATA = {
         ]
       }
     ],
-    "note": "promptfoo is the only competitor with a recorded result on this benchmark in this repository. 270 pairs per model."
+    "note": "Competitors with a recorded result on this benchmark in this repository: promptfoo. 270 pairs per model."
   },
   "bench-mm-eval": {
     "kind": "ranked",
@@ -649,7 +649,7 @@ window.CHART_DATA = {
         ]
       }
     ],
-    "note": "promptfoo is the only competitor with a recorded result on this benchmark in this repository. Up to 600 pairs per model; Claude Haiku 5.5 scores 591, nine safety items missing."
+    "note": "Competitors with a recorded result on this benchmark in this repository: promptfoo. Up to 600 pairs per model; Claude Haiku 5.5 scores 591, nine safety items missing."
   },
   "bench-rubricbench": {
     "kind": "ranked",
@@ -713,7 +713,7 @@ window.CHART_DATA = {
         ]
       }
     ],
-    "note": "promptfoo is the only competitor with a recorded result on this benchmark in this repository. 790 pairs per model."
+    "note": "Competitors with a recorded result on this benchmark in this repository: promptfoo. 790 pairs per model."
   },
   "bench-verify": {
     "kind": "ranked",
@@ -796,7 +796,7 @@ window.CHART_DATA = {
         ]
       }
     ],
-    "note": "promptfoo is the only competitor with a recorded result on this benchmark in this repository. Run with GPT-6 Luna only; the other two models are not run."
+    "note": "Competitors with a recorded result on this benchmark in this repository: promptfoo. Run with GPT-6 Luna only; the other two models are not run."
   },
   "bench-writing": {
     "kind": "ranked",
@@ -879,7 +879,7 @@ window.CHART_DATA = {
         ]
       }
     ],
-    "note": "promptfoo is the only competitor with a recorded result on this benchmark in this repository. 173 pairs per model."
+    "note": "Competitors with a recorded result on this benchmark in this repository: promptfoo. 173 pairs per model."
   },
   "hard-deepeval": {
     "kind": "columns",

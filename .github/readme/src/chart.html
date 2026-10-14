@@ -204,9 +204,12 @@
     }
   } else if (c.kind === 'ranked') {
     // one panel per model, bars highest to lowest; a null score is an empty bar, "not run"
-    const H = c.panels.length > 1 ? 170 : 210;
+    // with more than three bars in a panel (competitors recorded beyond promptfoo), the panels stack
+    const stacked = Math.max(...c.panels.map((p) => p.bars.length)) > 3;
+    const H = stacked ? 110 : c.panels.length > 1 ? 170 : 210;
     const grid = el('div', 'rgrid');
-    grid.style.gridTemplateColumns = `repeat(${c.panels.length}, 1fr)`;
+    grid.style.gridTemplateColumns = stacked ? '1fr' : `repeat(${c.panels.length}, 1fr)`;
+    if (stacked) grid.style.rowGap = '22px';
     for (const panel of c.panels) {
       const box = el('div', 'rpanel');
       box.append(el('div', 'rname', `${esc(panel.name)}<small>${esc(panel.model)}</small>`));

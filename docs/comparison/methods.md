@@ -45,7 +45,7 @@ The result files are copies from the research branches, listed with their commit
 
 * One chart per benchmark: `docs/assets/bench-<name>-light.png` and `-dark.png`, drawn by `.github/readme/render.mjs` from `.github/readme/src/chart-data.js`. `tools/readme-charts.mjs` writes that file from the result files in `docs/assets/data/sealed/` and lists every drawn number, with its file, in [chart-facts.csv](../assets/data/chart-facts.csv).
 * Each chart has one panel per model: Claude Haiku 5.5, GPT-6 Luna and Gemini 3.5 Flash-Lite. Bars run from the highest score to the lowest, on one scale of 0 to 100. Gemini 3.8 Flash is not charted.
-* A competitor is drawn when a result file records it. promptfoo is the only competitor recorded on these benchmarks. A model with no recorded cell is drawn as "not run", and no value is estimated.
+* A competitor is drawn when a result file records it. `tools/readme-charts.mjs` reads every contestant of `docs/comparison/benchmarks/<bench>-all-peers.json`, the file the all-competitors run writes, and draws each beside driftbench and promptfoo; a contestant whose cell is incomplete, or run on another model, is drawn as "not run". Today only promptfoo is recorded. A model with no recorded cell is drawn as "not run", and no value is estimated.
 * The driftbench side is the pair ledger, an opt-in judge mode merged in PR 168, and on the verify benchmark the frozen verify cascade. Neither is the shipped default.
 * promptfoo runs its select-best template (llm-rubric on verify) at its pinned commit `8014282`.
 * Each set was frozen before the first model call. JudgeBench: 159 of the 270 pairs share a source question with earlier evaluations. Verify and RubricBench are previously evaluated splits. MM-Eval items were never scored before.
@@ -90,9 +90,9 @@ Each row of a per-tool page is measured head to head, measured against our own e
 
 ## Mixture of Judges
 
-* The README's line, at least as accurate with 3.5 to 20 times fewer costly calls: on the sealed sets MoJ scores 85.0, 94.9 and 65.2 against promptfoo's 84.0, 94.7 and 57.0, with ties on the first two after a Holm correction and a win on the third; promptfoo uses 200 reasoning calls per 100 pairs, MoJ 57, 21 and 10 (200 / 57 = 3.5, 200 / 10 = 20).
+* The README's line, at least as accurate with 3.5 to 20 times fewer costly calls: on the sealed sets MoJ scores 85.0, 94.9 and 65.2 against promptfoo's 84.0, 94.7 and 57.0, with ties on the first two after a Holm correction and a win on the third; promptfoo uses 200 reasoning calls per 100 pairs, MoJ 57, 21 and 10 (200 / 57 = 3.5, 200 / 10.3 = 19.4).
 
-* Design and results: `research/moj/RESULTS.md` on `research/system1-judge` at `06fd0edb`, section "Sealed confirmation (run once)". MoJ runs from that research harness; the package's opt-in escalation API (`createEscalation`) is on main.
+* Design and results: [research/moj/RESULTS.md](../../research/moj/RESULTS.md), section "Sealed confirmation (run once)", with [report.json](../../research/moj/results/sealed/report.json); copies from `research/system1-judge` at `06fd0edb`, listed in [research/moj](../../research/moj/README.md). MoJ runs from that research harness; the package's opt-in escalation API (`createEscalation`) is on main.
 * The sealed ids were drawn before any call and the primary configuration (`r9-two-step`) was frozen before any sealed score existed. All contestants run GPT-6 Luna at medium effort. Sealed pairs: JudgeBench 100, MM-Eval 294, writing 300.
 * Results: JudgeBench (strict both-order rule) MoJ 85.0 [77, 91], promptfoo 84.0 [76, 90]; MM-Eval 94.9 [92, 97] against 94.7 [92, 97]; writing 65.2 [60, 70] against 57.0 [51, 62]. Paired tests with a Holm correction over six comparisons: ties on JudgeBench and MM-Eval, a win on writing against promptfoo (+8.2 points, Holm p 0.047). On writing a rule that picks the longer reply scores 69.7, above MoJ.
 * Reasoning (System-2) calls per 100 pairs: MoJ 57, 21 and 10 on JudgeBench, MM-Eval and writing; promptfoo 200 on each. MoJ also makes 246 to 347 System-1 calls per 100 pairs, whose price is not published.

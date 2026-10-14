@@ -12,12 +12,15 @@
  * Plain Node, no dependency.
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, 'docs', 'assets');
 const CHECK = process.argv.includes('--check');
+const PRINT = process.argv.includes('--print')
+  ? process.argv[process.argv.indexOf('--print') + 1]
+  : undefined;
 
 const SOURCES = {
   promptfoo: 'comparisons/promptfoo/hard/recorded/summary.json',
@@ -525,8 +528,6 @@ const MODEL = {
 const FILE_MODEL = { 'claude-haiku-5-5': 'haiku' };
 const inFile = (model) => FILE_MODEL[model] ?? model;
 const PROMPTFOO = 'promptfoo';
-const NOT_ONLY =
-  'promptfoo is the only competitor with a recorded result on this benchmark in this repository.';
 const bar = (name, score, extra = {}) => ({ name, score: score === null ? null : round(score), ...extra });
 
 /** One panel of a ranked chart: a model, the size of its set, and its bars. `sizes` is "n pairs" or null. */
@@ -557,15 +558,50 @@ function versus(panels, competitor) {
   return `${parts.map(([count, word]) => `${word} with ${count}`).join(', ')} of ${pairs.length} ${pairs.length === 1 ? 'model' : 'models'}`;
 }
 
-const ranked = ({ kicker, title, key, panels, note }) => ({
-  kind: 'ranked',
-  kicker,
-  title,
-  key,
-  axis: 'score out of 100: correct, % of items',
-  panels: orderPanels(panels),
-  note,
-});
+// The all-competitors run writes docs/comparison/benchmarks/<bench>-all-peers.json for each benchmark it ran.
+// Every contestant in such a file, other than driftbench and promptfoo, is drawn as a competitor. The
+// folder can be moved with DRIFTBENCH_PEERS_DIR (the test of this script uses a fixture folder).
+const PEERS_DIR = resolve(ROOT, process.env.DRIFTBENCH_PEERS_DIR ?? 'docs/comparison/benchmarks');
+const OWN = new Set(['driftbench', PROMPTFOO, 'driftbench-reader-first']);
+const PEER_NAME = { deepeval: 'DeepEval', inspect: 'Inspect', langfuse: 'Langfuse', langwatch: 'LangWatch' };
+const MODEL_IN_PEERS_FILE = { 'claude-haiku-5-5': 'Claude Haiku 5.5' };
+
+/** Adds one bar per recorded competitor to every panel; returns the names drawn. A contestant that is
+ *  incomplete in the file, or run on another model, is drawn as "not run" in that panel. */
+function addPeers(chart, bench, panels) {
+  const path = join(PEERS_DIR, `${bench}-all-peers.json`);
+  if (!existsSync(path)) return [];
+  const file = JSON.parse(readFileSync(path, 'utf8'));
+  const model = MODEL_IN_PEERS_FILE[file.model] ?? file.model;
+  const cohort = bench === 'mmeval' ? 'primary' : 'all';
+  const shown = path.startsWith(ROOT) ? path.slice(ROOT.length + 1) : path;
+  const names = [];
+  for (const row of file.contestants.filter((c) => !OWN.has(c.contestant))) {
+    const name = PEER_NAME[row.contestant] ?? row.contestant;
+    const complete = row.transportMissing === 0 && row[cohort] !== undefined;
+    names.push(name);
+    for (const panel of panels) {
+      const score = complete && panel.name === model ? row[cohort].score * 100 : null;
+      panel.bars.push(bar(name, score));
+      fact(chart, `${panel.name}: ${name}, percent`, score === null ? 'not run' : round(score), shown);
+    }
+  }
+  return names;
+}
+
+const ranked = ({ chart, bench, kicker, title, key, panels, note }) => {
+  const peers = addPeers(chart, bench, panels);
+  const drawn = [PROMPTFOO, ...peers].join(', ');
+  return {
+    kind: 'ranked',
+    kicker,
+    title,
+    key,
+    axis: 'score out of 100: correct, % of items',
+    panels: orderPanels(panels),
+    note: `Competitors with a recorded result on this benchmark in this repository: ${drawn}. ${note}`,
+  };
+};
 const notRun = (ours, competitor) => [bar(ours, null, { ours: true }), bar(competitor, null)];
 
 function sealedJudgeBench() {
@@ -587,6 +623,8 @@ function sealedJudgeBench() {
       : modelPanel('bench-judgebench', model, null, notRun('driftbench', PROMPTFOO), file);
   });
   return ranked({
+    chart: 'bench-judgebench',
+    bench: 'judgebench',
     kicker: 'JudgeBench · sealed test · same items, same model in each panel',
     title: `JudgeBench: driftbench scores ${versus(panels, PROMPTFOO)}.`,
     key: [
@@ -594,7 +632,7 @@ function sealedJudgeBench() {
       { label: 'promptfoo select-best', style: 'other' },
     ],
     panels,
-    note: `${NOT_ONLY} 270 pairs per model.`,
+    note: `270 pairs per model.`,
   });
 }
 
@@ -615,6 +653,8 @@ function sealedMmEval() {
     );
   });
   return ranked({
+    chart: 'bench-mm-eval',
+    bench: 'mmeval',
     kicker: "MM-Eval · sealed test · the benchmark's own score",
     title: `MM-Eval: driftbench scores ${versus(panels, PROMPTFOO)}.`,
     key: [
@@ -622,7 +662,7 @@ function sealedMmEval() {
       { label: 'promptfoo select-best', style: 'other' },
     ],
     panels,
-    note: `${NOT_ONLY} Up to 600 pairs per model; Claude Haiku 5.5 scores 591, nine safety items missing.`,
+    note: `Up to 600 pairs per model; Claude Haiku 5.5 scores 591, nine safety items missing.`,
   });
 }
 
@@ -657,6 +697,8 @@ function sealedRubricBench() {
     );
   });
   return ranked({
+    chart: 'bench-rubricbench',
+    bench: 'rubricbench',
     kicker: 'RubricBench · test split · both orders of every pair',
     title: `RubricBench: driftbench scores ${versus(panels, PROMPTFOO)}.`,
     key: [
@@ -664,7 +706,7 @@ function sealedRubricBench() {
       { label: 'promptfoo select-best', style: 'other' },
     ],
     panels,
-    note: `${NOT_ONLY} 790 pairs per model.`,
+    note: `790 pairs per model.`,
   });
 }
 
@@ -688,6 +730,8 @@ function sealedVerify() {
     );
   });
   return ranked({
+    chart: 'bench-verify',
+    bench: 'verify',
     kicker: 'LongJudgeBench verify · test split · is the final answer correct',
     title: 'Verify: above promptfoo, below a judge that always says fail.',
     key: [
@@ -696,7 +740,7 @@ function sealedVerify() {
       { label: 'no model', style: 'baseline' },
     ],
     panels,
-    note: `${NOT_ONLY} Run with GPT-6 Luna only; the other two models are not run.`,
+    note: `Run with GPT-6 Luna only; the other two models are not run.`,
   });
 }
 
@@ -721,6 +765,8 @@ function sealedWriting() {
     );
   });
   return ranked({
+    chart: 'bench-writing',
+    bench: 'writing',
     kicker: 'LongJudgeBench writing preference · test split · both orders',
     title: `Writing: driftbench scores ${versus(panels, PROMPTFOO)}; picking the longer reply beats both.`,
     key: [
@@ -729,7 +775,7 @@ function sealedWriting() {
       { label: 'no model', style: 'baseline' },
     ],
     panels,
-    note: `${NOT_ONLY} 173 pairs per model.`,
+    note: `173 pairs per model.`,
   });
 }
 
@@ -916,7 +962,10 @@ function impactRadius() {
   );
 }
 
-/** Mixture of judges: the sealed MM-Eval items that the first judge sent to the panel. */
+const MOJ_REPORT = 'research/moj/results/sealed/report.json';
+const MOJ_RESULTS = 'research/moj/RESULTS.md';
+
+/** Mixture of judges: the sealed MM-Eval panel, and the sealed MoJ run against promptfoo. */
 function impactMoj() {
   const sent = json(SOURCES.mmEval).fullPanelEscalationsOnly;
   fact(
@@ -924,6 +973,48 @@ function impactMoj() {
     'sealed MM-Eval, items sent to the panel, score of the first judge, score after the panel, wins, losses',
     [sent.n, round(sent.base), round(sent.cascade), sent.wins, sent.losses],
     SOURCES.mmEval,
+  );
+  // The sealed run: JudgeBench is scored with the strict both-order rule, the other two as the benchmark does.
+  const report = json(MOJ_REPORT);
+  const results = read(MOJ_RESULTS);
+  const sealed = results.slice(
+    results.indexOf('## Sealed confirmation'),
+    results.indexOf('## Pointwise final freeze'),
+  );
+  const rows = [
+    ['judgebench', 'JudgeBench, strict both-order rule', 'moj_strict', 'pf_strict'],
+    ['mmeval', 'MM-Eval', 'moj', 'pf'],
+    ['writing', 'Writing', 'moj', 'pf'],
+  ];
+  for (const [key, label, ours, theirs] of rows) {
+    const r = report[key];
+    const [moj, promptfoo] = [r[ours].acc * 100, r[theirs].acc * 100].map((v) => Number(v.toFixed(1)));
+    // the table of RESULTS.md must say what the report says
+    const line = sealed.split('\n').find((l) => l.startsWith(`| ${label} (${r.pairs}) |`));
+    const cells = line?.split('|').map((c) => c.trim());
+    if (!cells || Number.parseFloat(cells[2]) !== moj || Number.parseFloat(cells[3]) !== promptfoo) {
+      throw new Error(`${MOJ_RESULTS}: the ${label} row does not match ${MOJ_REPORT}`);
+    }
+    const calls = Number(r.cost_per_100.moj_s2_calls.toFixed(0));
+    fact(
+      'impact-moj',
+      `sealed ${label}: pairs, MoJ percent, promptfoo percent, MoJ reasoning calls per 100 pairs, promptfoo calls, ratio`,
+      [
+        r.pairs,
+        moj,
+        promptfoo,
+        calls,
+        r.cost_per_100.pf_s2_calls,
+        Number((r.cost_per_100.pf_s2_calls / r.cost_per_100.moj_s2_calls).toFixed(1)),
+      ],
+      MOJ_REPORT,
+    );
+  }
+  fact(
+    'impact-moj',
+    'sealed writing: rule that picks the longer reply, percent',
+    Number((report.writing.length.acc * 100).toFixed(1)),
+    MOJ_REPORT,
   );
 }
 
@@ -934,6 +1025,11 @@ impactMoj();
 const data = {};
 for (const [name, build] of Object.entries(CHARTS)) {
   data[name] = build();
+}
+if (PRINT) {
+  if (!data[PRINT]) throw new Error(`no chart named ${PRINT}`);
+  console.log(JSON.stringify(data[PRINT]));
+  process.exit(0);
 }
 const files = new Map();
 files.set(
