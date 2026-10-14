@@ -42,8 +42,9 @@ Both pool and runtime are committed before the pilot. Pilot measurements cannot 
 ```sh
 node_modules/.bin/tsx --tsconfig examples/ledger-verify/tsconfig.json examples/ledger-verify/offline.ts 2>&1
 python3 -m unittest discover -s examples/ledger-verify -p test_stats.py -v 2>&1
-python3 examples/ledger-verify/stats.py 2>&1
 ```
+
+`stats.py` holds the frozen scoring functions. Do not run it as a script: its `main` rewrites `evidence/cells.json` in the older three-model format. The current `evidence/cells.json` comes from the finalizer chain (`summarize.py`, then the per-cell finalizers and `merge-new-cell-reports.py`), which also needs the paid-run receipts. The two commands above never write to the committed evidence.
 
 `run.ts` fails closed when the runtime freeze or pushed core PR is absent.
 Its exclusive start marker prevents accidentally repeating a paid cell.

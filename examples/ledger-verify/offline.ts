@@ -68,5 +68,8 @@ const result = {
   pointwiseSchemasAndPlainSolves: 'PASS',
   newModelCalls: 0, at: new Date().toISOString(),
 };
+// A rerun with identical results keeps the committed timestamp, so the tree stays clean.
+const previous = await readFile(`${base}/evidence/offline-checks.json`, 'utf8').then(JSON.parse, () => undefined);
+if (previous && JSON.stringify({ ...previous, at: '' }) === JSON.stringify({ ...result, at: '' })) result.at = previous.at;
 await writeFile(`${base}/evidence/offline-checks.json`, JSON.stringify(result, null, 2) + '\n');
 console.log(JSON.stringify(result));
