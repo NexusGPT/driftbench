@@ -7452,8 +7452,8 @@
     },
     {
       "model": "gemini-3.8-flash",
-      "status": "not run: daily quota",
-      "registration": "Original preregistered model cell",
+      "status": "dropped by the owner",
+      "registration": "Original preregistered model cell; dropped by the owner",
       "n": 0,
       "planned": 270,
       "coverage": 0,
@@ -7478,9 +7478,9 @@
       },
       "p": 1,
       "holmP": null,
-      "holmStatus": "Pending the complete pre-registered 18-cell family; never correct over completed cells only.",
+      "holmStatus": "Not applicable: model dropped by the owner",
       "conservative18CellBound": 1,
-      "verdict": "PARTIAL",
+      "verdict": "DROPPED BY THE OWNER",
       "decisions": [],
       "cost": {
         "ledger": {

@@ -1,0 +1,1087 @@
+{
+  "fingerprint": "19cf28d04b13",
+  "datasetHash": "5dd1569d2fbcb1f2830c5be7e33262f13f3aaaff0dbee6f6787c231c5146af5e",
+  "model": "claude-haiku-5-5",
+  "spend": [
+    {
+      "at": "2026-10-13T07:22:02.706Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003057,
+      "chargedUsd": 0.0003057,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:02.745Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0002809,
+      "chargedUsd": 0.0002809,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:02.747Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00035400000000000004,
+      "chargedUsd": 0.00035400000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:02.752Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0002766,
+      "chargedUsd": 0.0002766,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:02.817Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003076,
+      "chargedUsd": 0.0003076,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:02.895Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0002796,
+      "chargedUsd": 0.0002796,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:02.926Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003397,
+      "chargedUsd": 0.0003397,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:03.304Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005729000000000001,
+      "chargedUsd": 0.0005729000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:03.468Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005994,
+      "chargedUsd": 0.0005994,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:03.519Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003417,
+      "chargedUsd": 0.0003417,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:03.537Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00034040000000000003,
+      "chargedUsd": 0.00034040000000000003,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:03.604Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00041550000000000007,
+      "chargedUsd": 0.00041550000000000007,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:03.646Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00034640000000000007,
+      "chargedUsd": 0.00034640000000000007,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:03.866Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00039670000000000005,
+      "chargedUsd": 0.00039670000000000005,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:04.158Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005588,
+      "chargedUsd": 0.0005588,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:10.367Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.000384,
+      "chargedUsd": 0.000384,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:11.186Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00034030000000000003,
+      "chargedUsd": 0.00034030000000000003,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:11.450Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.000427,
+      "chargedUsd": 0.000427,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:11.478Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0002857,
+      "chargedUsd": 0.0002857,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:12.067Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00040840000000000006,
+      "chargedUsd": 0.00040840000000000006,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:12.671Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005159,
+      "chargedUsd": 0.0005159,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:12.676Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003363,
+      "chargedUsd": 0.0003363,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:12.811Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003238,
+      "chargedUsd": 0.0003238,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:12.862Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00041490000000000006,
+      "chargedUsd": 0.00041490000000000006,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:12.942Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00041050000000000006,
+      "chargedUsd": 0.00041050000000000006,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:12.948Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003887,
+      "chargedUsd": 0.0003887,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:13.260Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00031580000000000003,
+      "chargedUsd": 0.00031580000000000003,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:13.553Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005838,
+      "chargedUsd": 0.0005838,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:13.584Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0006704,
+      "chargedUsd": 0.0006704,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:13.698Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0006067,
+      "chargedUsd": 0.0006067,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:14.006Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00033620000000000004,
+      "chargedUsd": 0.00033620000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:17.996Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0002839,
+      "chargedUsd": 0.0002839,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:18.316Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003865,
+      "chargedUsd": 0.0003865,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:19.105Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00032030000000000003,
+      "chargedUsd": 0.00032030000000000003,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:20.018Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00036050000000000003,
+      "chargedUsd": 0.00036050000000000003,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:20.200Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00040300000000000004,
+      "chargedUsd": 0.00040300000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:20.217Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0002791,
+      "chargedUsd": 0.0002791,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:20.792Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00029330000000000003,
+      "chargedUsd": 0.00029330000000000003,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:20.794Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005189000000000001,
+      "chargedUsd": 0.0005189000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:20.989Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003336,
+      "chargedUsd": 0.0003336,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:21.121Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00035470000000000006,
+      "chargedUsd": 0.00035470000000000006,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:21.169Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00038370000000000006,
+      "chargedUsd": 0.00038370000000000006,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:21.301Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00029340000000000003,
+      "chargedUsd": 0.00029340000000000003,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:21.439Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003053,
+      "chargedUsd": 0.0003053,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:21.614Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00034490000000000004,
+      "chargedUsd": 0.00034490000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:21.973Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00035180000000000004,
+      "chargedUsd": 0.00035180000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:22.451Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0006693000000000001,
+      "chargedUsd": 0.0006693000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:24.954Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003058,
+      "chargedUsd": 0.0003058,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:25.313Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00040540000000000004,
+      "chargedUsd": 0.00040540000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:26.622Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003129,
+      "chargedUsd": 0.0003129,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:27.071Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004024,
+      "chargedUsd": 0.0004024,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:27.622Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003027,
+      "chargedUsd": 0.0003027,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:27.627Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004628000000000001,
+      "chargedUsd": 0.0004628000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:27.952Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00028740000000000005,
+      "chargedUsd": 0.00028740000000000005,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:28.013Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003507,
+      "chargedUsd": 0.0003507,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:28.248Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003394,
+      "chargedUsd": 0.0003394,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:28.296Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003369,
+      "chargedUsd": 0.0003369,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:28.423Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0002881,
+      "chargedUsd": 0.0002881,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:28.555Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00032680000000000003,
+      "chargedUsd": 0.00032680000000000003,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:28.826Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003487,
+      "chargedUsd": 0.0003487,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:29.218Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00039180000000000004,
+      "chargedUsd": 0.00039180000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:30.450Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00039690000000000005,
+      "chargedUsd": 0.00039690000000000005,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:31.914Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003606,
+      "chargedUsd": 0.0003606,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:33.004Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00041050000000000006,
+      "chargedUsd": 0.00041050000000000006,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:34.547Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00040190000000000007,
+      "chargedUsd": 0.00040190000000000007,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:34.810Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003728,
+      "chargedUsd": 0.0003728,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:34.862Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00040090000000000004,
+      "chargedUsd": 0.00040090000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:34.914Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00042580000000000005,
+      "chargedUsd": 0.00042580000000000005,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:34.953Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003233,
+      "chargedUsd": 0.0003233,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:35.101Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003411,
+      "chargedUsd": 0.0003411,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:35.195Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003512000000000001,
+      "chargedUsd": 0.0003512000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:35.428Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003147,
+      "chargedUsd": 0.0003147,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:36.094Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003846,
+      "chargedUsd": 0.0003846,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:36.105Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0002781,
+      "chargedUsd": 0.0002781,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:36.669Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003218,
+      "chargedUsd": 0.0003218,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:36.680Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0006419,
+      "chargedUsd": 0.0006419,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:37.277Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00041780000000000007,
+      "chargedUsd": 0.00041780000000000007,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:38.306Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005144,
+      "chargedUsd": 0.0005144,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:39.409Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003068,
+      "chargedUsd": 0.0003068,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:41.035Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0004023,
+      "chargedUsd": 0.0004023,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:41.830Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003191,
+      "chargedUsd": 0.0003191,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:41.854Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00028070000000000005,
+      "chargedUsd": 0.00028070000000000005,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:42.587Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003445,
+      "chargedUsd": 0.0003445,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:42.693Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00028930000000000004,
+      "chargedUsd": 0.00028930000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:42.844Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00038920000000000003,
+      "chargedUsd": 0.00038920000000000003,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:42.988Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00027990000000000003,
+      "chargedUsd": 0.00027990000000000003,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:43.158Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00045870000000000004,
+      "chargedUsd": 0.00045870000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:43.161Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003481,
+      "chargedUsd": 0.0003481,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:43.423Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00033280000000000007,
+      "chargedUsd": 0.00033280000000000007,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:43.750Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00027130000000000004,
+      "chargedUsd": 0.00027130000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:44.461Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003639,
+      "chargedUsd": 0.0003639,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:44.514Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005538,
+      "chargedUsd": 0.0005538,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:44.968Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00037890000000000005,
+      "chargedUsd": 0.00037890000000000005,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:45.552Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00034390000000000007,
+      "chargedUsd": 0.00034390000000000007,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:46.237Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00039500000000000006,
+      "chargedUsd": 0.00039500000000000006,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:48.133Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00029190000000000005,
+      "chargedUsd": 0.00029190000000000005,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:48.435Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.000357,
+      "chargedUsd": 0.000357,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:49.180Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00032930000000000004,
+      "chargedUsd": 0.00032930000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:49.540Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003734000000000001,
+      "chargedUsd": 0.0003734000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:49.717Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0002864,
+      "chargedUsd": 0.0002864,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:49.803Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00038750000000000004,
+      "chargedUsd": 0.00038750000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:49.873Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00034640000000000007,
+      "chargedUsd": 0.00034640000000000007,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:50.080Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0005109000000000001,
+      "chargedUsd": 0.0005109000000000001,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:50.695Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00035240000000000005,
+      "chargedUsd": 0.00035240000000000005,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:50.874Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003047,
+      "chargedUsd": 0.0003047,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:50.916Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00032730000000000004,
+      "chargedUsd": 0.00032730000000000004,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:51.177Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00035290000000000007,
+      "chargedUsd": 0.00035290000000000007,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:51.737Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003451,
+      "chargedUsd": 0.0003451,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:52.078Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003949,
+      "chargedUsd": 0.0003949,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:52.505Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00040140000000000005,
+      "chargedUsd": 0.00040140000000000005,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:53.303Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00035559999999999997,
+      "chargedUsd": 0.00035559999999999997,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:55.653Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003321,
+      "chargedUsd": 0.0003321,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:55.932Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.000312,
+      "chargedUsd": 0.000312,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:56.080Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.000503,
+      "chargedUsd": 0.000503,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:56.173Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003078,
+      "chargedUsd": 0.0003078,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:56.186Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0002764,
+      "chargedUsd": 0.0002764,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:57.057Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003627,
+      "chargedUsd": 0.0003627,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:57.186Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00039490000000000006,
+      "chargedUsd": 0.00039490000000000006,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:57.334Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.00036380000000000006,
+      "chargedUsd": 0.00036380000000000006,
+      "accounting": "provider",
+      "status": "ok"
+    },
+    {
+      "at": "2026-10-13T07:22:57.752Z",
+      "model": "haiku",
+      "resolvedModel": "claude-haiku-5-5",
+      "costUsd": 0.0003884,
+      "chargedUsd": 0.0003884,
+      "accounting": "provider",
+      "status": "ok"
+    }
+  ]
+}

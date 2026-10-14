@@ -8,8 +8,22 @@ const AdapterIdentity = z.strictObject({
   requiresCacheIdentity: z.boolean(),
 });
 
+export const EndStateSnapshot = z.discriminatedUnion('kind', [
+  z.strictObject({ kind: z.literal('unavailable') }),
+  z.strictObject({
+    kind: z.literal('read'),
+    values: z.array(
+      z.discriminatedUnion('kind', [
+        z.strictObject({ source: z.string(), kind: z.literal('undefined') }),
+        z.strictObject({ source: z.string(), kind: z.literal('value'), value: z.unknown() }),
+      ]),
+    ),
+  }),
+]);
+
 /** Optional stamps: old records remain readable, but cannot prove observation compatibility. */
 export const BlockProvenance = z.strictObject({
+  endState: EndStateSnapshot.optional(),
   specIndex: z.number().int().min(0),
   stimulusHash: Digest,
   ledgerHash: Digest,
@@ -26,6 +40,7 @@ export const RunProvenance = z.strictObject({
 });
 export const CampaignProvenance = z.strictObject({
   version: z.literal(2),
+  endStateSnapshots: z.literal(true).optional(),
   adapters: z.array(AdapterIdentity.extend({ targetHash: Digest, agentVersionHash: Digest.nullable() })),
 });
 

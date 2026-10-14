@@ -1,0 +1,47 @@
+{
+  "created": "2026-10-13T12:10:33.667665+00:00",
+  "model": "gemini-3.5-flash-lite",
+  "authority": "Owner: NEW gemini-3.5-flash-lite model cell, both experiments, same sealed cohort, cap USD 4 and overall cap USD 16. Eight simultaneous calls, 429 waits 20/60/180, 402 stops immediately. Gemini 3.8 remains parked until owner word.",
+  "same_cohort_seal_sha256": "5845e97e2651d2942134209e4abfa8f932409744930bd0d143ebbe03877b07a4",
+  "dialect_seal_sha256": "ebbc5876d5a9d482203382d33c7fa3c0ee640b6e1254bf821784004493cd85d9",
+  "reasoning_policy": "Try medium on the first sealed primary request. Only an explicit unsupported-thinking HTTP 400 before any recorded answer permits provider default. Apply the selected setting to both contestants in both experiments. No content retry.",
+  "reasoning_default_request_derivation": "Remove thinkingConfig from generationConfig only; complete payload is covered by the frozen requests() function and resulting fingerprint.",
+  "temperature": "omitted",
+  "max_output_tokens": 4096,
+  "request_timeout_seconds": 180,
+  "concurrency": 8,
+  "http_429_wait_seconds": [
+    20,
+    60,
+    180
+  ],
+  "transport_attempts": 3,
+  "transport_wait_seconds": [
+    10,
+    30
+  ],
+  "cell_cap_usd": 4,
+  "overall_cap_usd": 16,
+  "prior_measured_usd": 8.9976403,
+  "lost_attempt_reserve_usd": 0.4,
+  "per_active_call_reserve_usd": 0.02,
+  "last_call_cutoff": "2026-10-14T12:00:00+00:00",
+  "cases_per_row": 384,
+  "cases_per_experiment": 1536,
+  "planned_unique_calls_per_experiment": 3280,
+  "statistics": "Reuse unchanged score.summary: exact two-sided McNemar, one-sided paired tail, Wilson intervals, 20000 family-cluster bootstrap draws. Nominal lead requires W>L and two-sided p<.05; LOSS requires L>W and p<.05; global multiplicity decisions belong to collator.",
+  "independence": "Separate model and request keys. Same case cohort is not independent replication. Never pool with Gemini 3.8 results.",
+  "parked_journal_sha256": {
+    "comparisons/ledger-hard/calls.jsonl": "efbc92b5754f7626d51f99788ea5d818a636f122a9fb5e81927480e9e332a10a",
+    "comparisons/ledger-hard/dialect/calls.jsonl": "13f1b355359ebc50964415c861f6cb3958281aaec947fc12ed975723abf64948"
+  },
+  "sha256": {
+    "comparisons/ledger-hard/lite-run.py": "22fcb068626d0dd4d26f08d5213010b9ab93f43a5f5163bd4efc28ce13142809",
+    "comparisons/ledger-hard/lite-score.py": "adaf923052d6b45b5ac356528a1e1fdf3df73f3d4120a6e80c7373e8aa082ad0",
+    "comparisons/ledger-hard/lite-peer-parity.mts": "9b9a31bb429a7201d4ebe8e08051560bf16b35b0cf36e2bf23568ac728ab6ddc",
+    "comparisons/ledger-hard/flash-lite/requests.json": "ed00808762760f309b27c6a30504b259a4a962a8203aa2b222d3e0c57c5688ad",
+    "comparisons/ledger-hard/flash-lite/pricing.json": "ac8269b65b41e8db47c60349987c796741118df14390a0ad1da364262bff34fa",
+    "comparisons/ledger-hard/score.py": "f5f91044dcb166d04b8bff098e8cc31d7431fae30a3983894e7dc1617c4a6831",
+    "comparisons/ledger-hard/common.py": "5b58400c66eccd45a52b7ee0201bade2f43a5f9dc1d1a115db9a55aeb4511f1b"
+  }
+}

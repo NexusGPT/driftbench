@@ -37,9 +37,7 @@ const UNDECLARED_ALLOWLIST = {
 };
 
 // Workspace packages a manifest declares that src never imports. Key: "<package> -> <package>".
-const UNUSED_ALLOWLIST = {
-  'validators -> artifacts': 'listed in the manifest, not imported from src',
-};
+const UNUSED_ALLOWLIST = {};
 
 const IMPORT =
   /(?:import|export)\s+(?:type\s+)?(?:[^'"`;]*?\sfrom\s+)?['"]([^'"\n]+)['"]|import\(\s*['"]([^'"\n]+)['"]\s*\)/g;

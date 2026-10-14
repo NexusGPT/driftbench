@@ -1,0 +1,1570 @@
+{
+  "competitor": "langfuse",
+  "row": "correctness",
+  "contestant": "audit",
+  "model": "haiku",
+  "items": 120,
+  "complete": 120,
+  "results": [
+    {
+      "id": "v003",
+      "kind": "units",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "6d8fb8d26f622ecab374adcc2ca3bf58f246f3e2645f3973419575018777d3fc"
+      ],
+      "costUsd": 0.0005674
+    },
+    {
+      "id": "v017",
+      "kind": "fluent-extra",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "aac43a11a6b56fd4acd6068b88c0934e5e79cea3cb67b0734f988be9c05bcfde"
+      ],
+      "costUsd": 0.0006292000000000001
+    },
+    {
+      "id": "v022",
+      "kind": "long-distractors",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "bc039afbedbf3bf228184d29cfc9da38aa50249627b05976790d538f579366eb"
+      ],
+      "costUsd": 0.0006551
+    },
+    {
+      "id": "v046",
+      "kind": "long-distractors",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "74210303b7d4d56b51e4f90a992bb692300086fa25789f39c9377339637734ba"
+      ],
+      "costUsd": 0.0006891
+    },
+    {
+      "id": "v064",
+      "kind": "multilingual",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "fc5c2b3380cd79c30140c43b748ba74e4de0b9f4a82ed87f05c9deb9fb52f81c"
+      ],
+      "costUsd": 0.0005802
+    },
+    {
+      "id": "v048",
+      "kind": "instruction-data",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "1b1f8c5b9c41be4e007d6172c8bec6ad8efd8169fb63d72192cf27b2ba66a381"
+      ],
+      "costUsd": 0.0007419
+    },
+    {
+      "id": "v110",
+      "kind": "revision",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "3780ac5d2e468a0af027f06a97dc30b6417278d14f7bda019e0c153b524f984b"
+      ],
+      "costUsd": 0.0005621000000000001
+    },
+    {
+      "id": "v068",
+      "kind": "omission",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "7922a291230708b9dce10cd53234e265dc6ed09cc516ba5f189b46997de561e1"
+      ],
+      "costUsd": 0.0005695
+    },
+    {
+      "id": "v037",
+      "kind": "revision",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "cff032b6aa27e469bbc03eac571dc9121cb1c9db3fd8a1cf6c47f63896c1dabb"
+      ],
+      "costUsd": 0.0006976
+    },
+    {
+      "id": "v092",
+      "kind": "omission",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "3c613638daab04f9db4db2a52e19ab3d6b0f4cb1025b85b036e4f5bc24f2545d"
+      ],
+      "costUsd": 0.000645
+    },
+    {
+      "id": "v099",
+      "kind": "units",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "3b38b27f9451d709992bcc40221887b2897ad78594a1ebb627ef8f1e6f8e8c55"
+      ],
+      "costUsd": 0.0005624
+    },
+    {
+      "id": "v027",
+      "kind": "units",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "641847aab46d1bcda16b9cb29d282936170a4f62e6d115cb90b27be1fa149f46"
+      ],
+      "costUsd": 0.0005424
+    },
+    {
+      "id": "v026",
+      "kind": "near-number",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "b4eca6d1068c1e0ad0c76ef1f6307390b6bf9defcbd5cd9db584dc4fee162e09"
+      ],
+      "costUsd": 0.0005174
+    },
+    {
+      "id": "v100",
+      "kind": "units",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "29545bc7c2f6b2663f27f745d4eff725181f8865db1e1eae1a9f6580cff71ed8"
+      ],
+      "costUsd": 0.0005503
+    },
+    {
+      "id": "v058",
+      "kind": "conditions",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "a146da73842b3a1432e775655bacdd7b565570915e0a507c4f0e4e176a587ac4"
+      ],
+      "costUsd": 0.0007214999999999999
+    },
+    {
+      "id": "v107",
+      "kind": "quantifiers",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "2f97d82b078968cae6bb1496b1df98dd055a33a46590b825c60a034f9d710586"
+      ],
+      "costUsd": 0.0005064
+    },
+    {
+      "id": "v103",
+      "kind": "entity-binding",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "2557fec46988b9dce84b6551c0068f8cc731bb0942127bcf923af8d2d633aa17"
+      ],
+      "costUsd": 0.0004775
+    },
+    {
+      "id": "v062",
+      "kind": "revision",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "6ecfda72fcfb140fb56267b124de3333200ab2cc26987eafb0047e8efe5abf1f"
+      ],
+      "costUsd": 0.0006556
+    },
+    {
+      "id": "v051",
+      "kind": "units",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "0b8fa8e1f489e22e48fc922b47280ff1669a8cf82f24e4a005c771867380e134"
+      ],
+      "costUsd": 0.0006084
+    },
+    {
+      "id": "v119",
+      "kind": "instruction-data",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "62dd81e9d2797497a151360d3d2850342707c1bda76189cae084aded26195a8a"
+      ],
+      "costUsd": 0.0007083
+    },
+    {
+      "id": "v083",
+      "kind": "quantifiers",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "95d07de5c70dad38b84622dfd727cdc228ef6a6a6d323bc5ff418d57e6ada9db"
+      ],
+      "costUsd": 0.0005419
+    },
+    {
+      "id": "v033",
+      "kind": "conditions",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "dccb0488f9615afa8764463d4b5a01cf30810f89c308eb3e355bf21c3d5060f0"
+      ],
+      "costUsd": 0.0009006
+    },
+    {
+      "id": "v115",
+      "kind": "omission",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "7b042704ff1c42846ad546c355a45489f0d7e256b7cb2615978d1b21e7758f05"
+      ],
+      "costUsd": 0.0005583000000000001
+    },
+    {
+      "id": "v036",
+      "kind": "quantifiers",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "d5deb4237aafb9441ca929adb77952f75bc1358b9ceb178ba53a04767bc24986"
+      ],
+      "costUsd": 0.0004996
+    },
+    {
+      "id": "v077",
+      "kind": "negation",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "6805dd9be44e2aec2aa7fd55e9675902ff63cfcb0bce1a4af3259c908c58db09"
+      ],
+      "costUsd": 0.000788
+    },
+    {
+      "id": "v091",
+      "kind": "omission",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "4bfc71c07f140225b758d3a6ff6d15acc044ce909f5f67e65d5dbde3dadf67c9"
+      ],
+      "costUsd": 0.0005993000000000001
+    },
+    {
+      "id": "v011",
+      "kind": "quantifiers",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "45503a4b6d30d245eecfc32afcf9bb20c4a6dc227b37d365600e2570931039e2"
+      ],
+      "costUsd": 0.0005414
+    },
+    {
+      "id": "v007",
+      "kind": "entity-binding",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "81a42537daf83089fc652bf366e221be699412cc3ba86ad889df67f8d6385fbd"
+      ],
+      "costUsd": 0.0005605
+    },
+    {
+      "id": "v018",
+      "kind": "fluent-extra",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "f9f82ce1aab3e21b7cb9dd5be1c8bd32d1a767ebc3d456e258c8e4f5e1441b23"
+      ],
+      "costUsd": 0.0006267
+    },
+    {
+      "id": "v044",
+      "kind": "omission",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "da20bff85a1fe0f1515cb7b936c0bc679d0a5f1503c92abb2ad29658bc66e7e9"
+      ],
+      "costUsd": 0.000588
+    },
+    {
+      "id": "v074",
+      "kind": "near-number",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "7f423d6b973ab825c6ba509a11f24988fe39716f9f1ef9792073888fd5baae89"
+      ],
+      "costUsd": 0.0005078999999999999
+    },
+    {
+      "id": "v097",
+      "kind": "near-number",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "1127f50e4b53f95223e931f868b9cebf662bdb900569f7e0ca000bdbda238b4f"
+      ],
+      "costUsd": 0.0005719
+    },
+    {
+      "id": "v038",
+      "kind": "revision",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "5d198d3af796b3dffa8140bcc7c8d1e5043e244d1ed4f9868e4cfc0ded58b249"
+      ],
+      "costUsd": 0.0006806
+    },
+    {
+      "id": "v116",
+      "kind": "omission",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "8c725ad5420036a1e2fca920dc38cfff968120b9a79ff23fc8b06df421c6675c"
+      ],
+      "costUsd": 0.000559
+    },
+    {
+      "id": "v096",
+      "kind": "instruction-data",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "6e7d53162a78ec48c1c97af9ce455ecb288d4b8cdb80fd5e6cf15cb9f91a61fd"
+      ],
+      "costUsd": 0.0005544
+    },
+    {
+      "id": "v014",
+      "kind": "revision",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "d27a383256eb4365410a8e86605074bbfea6ae867f476adc34553eb1ee24f8c1"
+      ],
+      "costUsd": 0.0006156
+    },
+    {
+      "id": "v020",
+      "kind": "omission",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "e31707fbb742d10a399cd6fcf545e023b148d2d781b79fb0946ce268ceaf765b"
+      ],
+      "costUsd": 0.00054
+    },
+    {
+      "id": "v094",
+      "kind": "long-distractors",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "0c27c98c57308d293ba956b691647c0c61a8d26a79e7d896e7b1702bbbaf5051"
+      ],
+      "costUsd": 0.0008131
+    },
+    {
+      "id": "v060",
+      "kind": "quantifiers",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "31f9852231cd2aa82e68d9b317f239f242097793040042f1f3302e74f320712f"
+      ],
+      "costUsd": 0.0005206
+    },
+    {
+      "id": "v120",
+      "kind": "instruction-data",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "e3afe4a22faa3ce8545506ec4c0a58b07da62db3558447418fdab3096c736e60"
+      ],
+      "costUsd": 0.0006973999999999999
+    },
+    {
+      "id": "v050",
+      "kind": "near-number",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "621ea484d11c5961e9e1c14a94ebdd579a6fa6c675956e6d8b02f6a0e007cffc"
+      ],
+      "costUsd": 0.0006319
+    },
+    {
+      "id": "v024",
+      "kind": "instruction-data",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "90964fb9d720090ad91432c684b690832c4c6c77af8d60511e510c26f1b6e67a"
+      ],
+      "costUsd": 0.0005084
+    },
+    {
+      "id": "v004",
+      "kind": "units",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "5d9c1e0e99c4b9075fe85a6ca6f63b6377b168286b1ca92d4f223e0729da8f24"
+      ],
+      "costUsd": 0.0005608
+    },
+    {
+      "id": "v090",
+      "kind": "fluent-extra",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "8ca4e21bb2b1cede7663de3419e375935fa2e6363dcc9248b90b23cb38a31e24"
+      ],
+      "costUsd": 0.0005522
+    },
+    {
+      "id": "v095",
+      "kind": "instruction-data",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "08f2f7828f19feca4a9125d81e76cc30d7d18a8a30116bebc7231cc5b48097af"
+      ],
+      "costUsd": 0.0008413000000000001
+    },
+    {
+      "id": "v075",
+      "kind": "units",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "5aabe68b856d433880b91e46bcba852969aa1d1b4f6a5c5ea9a10c78db7075a6"
+      ],
+      "costUsd": 0.0006114
+    },
+    {
+      "id": "v013",
+      "kind": "revision",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "32a4af341334c4fd6d3d676d90e4395a5cffb2ec50988c7a42af595b417914ee"
+      ],
+      "costUsd": 0.0006766000000000001
+    },
+    {
+      "id": "v010",
+      "kind": "conditions",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "fcc155c5002f2bb023f4d91867216bfc7328eef4bf9c66fdadff42ec7297f84a"
+      ],
+      "costUsd": 0.0006445
+    },
+    {
+      "id": "v070",
+      "kind": "long-distractors",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "6e66f5f54645cd3ec81496c3d7fd4dcf48ac0a9bd15d5dd959221047acc38f50"
+      ],
+      "costUsd": 0.0007046
+    },
+    {
+      "id": "v098",
+      "kind": "near-number",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "0c4fbfab18deb78dff7e1954b8adbf4f5df6b8802bcf487ca0d500d9605601f8"
+      ],
+      "costUsd": 0.0005069
+    },
+    {
+      "id": "v029",
+      "kind": "negation",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "60e4765ce016729dc1bfaf9c1063ec98cfb2a2f54e4d25214a0486e38afb535b"
+      ],
+      "costUsd": 0.00084
+    },
+    {
+      "id": "v052",
+      "kind": "units",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "7297f15a7a4e34b9f8a27f5a4bbb92d40b29aab63fdd9cf203e17985fc879dbe"
+      ],
+      "costUsd": 0.0006663
+    },
+    {
+      "id": "v102",
+      "kind": "negation",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "e562a8ff3b6dee9b08e21afe6da26d910dd13bcf27796b7734d4c06599ea2b55"
+      ],
+      "costUsd": 0.0005968
+    },
+    {
+      "id": "v087",
+      "kind": "multilingual",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "72218498b0c75614ec2bc33d1cce41db76717544ba73f89b4f65ab80b18a0102"
+      ],
+      "costUsd": 0.0006697000000000001
+    },
+    {
+      "id": "v104",
+      "kind": "entity-binding",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "fa3fdd48d45aa290b4ec3472828b4dfd86616c0ef11f9a184f1f03b7bb203c02"
+      ],
+      "costUsd": 0.000588
+    },
+    {
+      "id": "v034",
+      "kind": "conditions",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "2fa3047a194e34fc4a53422c3f8acadf735e5fdd09552d3b7332820df1108e80"
+      ],
+      "costUsd": 0.000614
+    },
+    {
+      "id": "v081",
+      "kind": "conditions",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "0406cf780e93f8ea315f006612b65733b5cb22f6c1fa3e88f78209dc7fe25ee4"
+      ],
+      "costUsd": 0.0008521
+    },
+    {
+      "id": "v076",
+      "kind": "units",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "ac9f25133ce19c3a33ef0784cf6c620809e774c834fecb0ed0fca16e41c3e36b"
+      ],
+      "costUsd": 0.0005572999999999999
+    },
+    {
+      "id": "v082",
+      "kind": "conditions",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "63ca57650c71a7977685012548556dc1a0e704b13837cf1fd7d152131fa9a3ea"
+      ],
+      "costUsd": 0.000729
+    },
+    {
+      "id": "v049",
+      "kind": "near-number",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "27981656a6a41fc658d37a11a284a2ffe5b1fccc9b55f894f420454ce908c41a"
+      ],
+      "costUsd": 0.0006389
+    },
+    {
+      "id": "v032",
+      "kind": "entity-binding",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "e0cc448e30c357b9bf2b5c75d7169db1db872469649e4338c9283918dddd54a4"
+      ],
+      "costUsd": 0.0005965
+    },
+    {
+      "id": "v067",
+      "kind": "omission",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "1295b4787832121173a295fadae704a9fd8bbe898da91bc1b25d81ffee974a24"
+      ],
+      "costUsd": 0.0006153
+    },
+    {
+      "id": "v113",
+      "kind": "fluent-extra",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "528adf4fbe29fea257759ddd09729b9fe3b1106744bf5ca0c2d4ff17d952f300"
+      ],
+      "costUsd": 0.0005922
+    },
+    {
+      "id": "v108",
+      "kind": "quantifiers",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "90afab0e9ea5e147d6a18c7d8390df2fa2827861424f27850a5340376cd5f9ee"
+      ],
+      "costUsd": 0.00048560000000000004
+    },
+    {
+      "id": "v066",
+      "kind": "fluent-extra",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "2d8c361cc55b6f14bed1e2b4be2ff37cbe3fc197738d0f2613c1ab59f998e0c0"
+      ],
+      "costUsd": 0.0005977
+    },
+    {
+      "id": "v053",
+      "kind": "negation",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "c5ec7fafa1f6cd47aef4fa15889237897ccec2b82f6cfb81eb214f81f0a0264e"
+      ],
+      "costUsd": 0.001018
+    },
+    {
+      "id": "v057",
+      "kind": "conditions",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "069c5c1769f4f58dd41a57b766dcd79e1ddb90d0e12536d74962155ee3cfca29"
+      ],
+      "costUsd": 0.0009286
+    },
+    {
+      "id": "v069",
+      "kind": "long-distractors",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "b81010acd302587d2a609c47766604d82b7fc3af3469e07dc3fb4f1dc528ccfe"
+      ],
+      "costUsd": 0.0007156
+    },
+    {
+      "id": "v118",
+      "kind": "long-distractors",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "c440f53249cd8163d9c9f916161b720ff8e3bed11f500d55f46f52935e12d2ef"
+      ],
+      "costUsd": 0.0006395999999999999
+    },
+    {
+      "id": "v117",
+      "kind": "long-distractors",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "e65483c3fb4a448857ced389d95313d07087278fe9036f7849a61f827b202686"
+      ],
+      "costUsd": 0.0007581
+    },
+    {
+      "id": "v035",
+      "kind": "quantifiers",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "87d71b9d0e2066ffd003afac2314fe83b1378d929fa08febf1e844fcef828e17"
+      ],
+      "costUsd": 0.0005549
+    },
+    {
+      "id": "v041",
+      "kind": "fluent-extra",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "0b3674d8b697dc1fd90b7da7db5edd311101936661b2e164a603286ef67e829c"
+      ],
+      "costUsd": 0.0005797
+    },
+    {
+      "id": "v040",
+      "kind": "multilingual",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "b59b20c5fee426a555bf0ccb3dfa1e03480aa294cd0f0cdbc233cc2b48b63350"
+      ],
+      "costUsd": 0.0005987
+    },
+    {
+      "id": "v055",
+      "kind": "entity-binding",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "d680e18a470dfd6a1cf50936e9efb9083479e4e086910950a98e174d04607e0c"
+      ],
+      "costUsd": 0.0005515
+    },
+    {
+      "id": "v106",
+      "kind": "conditions",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "f96e9431ec850096d02e9f4b4f3be7f50c379fc43e5f5af807db2f0a33a28e88"
+      ],
+      "costUsd": 0.0007015
+    },
+    {
+      "id": "v054",
+      "kind": "negation",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "a23c400e47e427a632b3e16cc5fd327b5447bece093c57799c91d2c5b5469c9a"
+      ],
+      "costUsd": 0.0005457999999999999
+    },
+    {
+      "id": "v021",
+      "kind": "long-distractors",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "927463f0cc9542bd29d5ddfac673f1ae96b25b2dbff3c161150d90f2787ec383"
+      ],
+      "costUsd": 0.0006901
+    },
+    {
+      "id": "v085",
+      "kind": "revision",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "3162042d80792d4a9efea6a7e33b507ad55aad6d456e9715c069720a385e0ae9"
+      ],
+      "costUsd": 0.0008626
+    },
+    {
+      "id": "v093",
+      "kind": "long-distractors",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "5117c3ad8012ea5b04271a1bbe575f16457617789314ca20cb4c2d7aba54bd2e"
+      ],
+      "costUsd": 0.0007180999999999999
+    },
+    {
+      "id": "v059",
+      "kind": "quantifiers",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "7cf91dcc7ce1834412316b73c34140d03d8250be6ed4ff1b4b94a9c3ef0aa534"
+      ],
+      "costUsd": 0.00043289999999999995
+    },
+    {
+      "id": "v105",
+      "kind": "conditions",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "9a5e024906024696b59742b90ae33475eadd6a973d1721603619aeccedf1cf3b"
+      ],
+      "costUsd": 0.0009216
+    },
+    {
+      "id": "v043",
+      "kind": "omission",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "3aa3818e27cac592186c1bdbf72f917b3b42045214fea576b45e24247861c636"
+      ],
+      "costUsd": 0.0005478
+    },
+    {
+      "id": "v063",
+      "kind": "multilingual",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "abe0903cf9e80e710634c85975304b22bfdf65ce73d5c014c8e4930dbe71392b"
+      ],
+      "costUsd": 0.0006312000000000001
+    },
+    {
+      "id": "v045",
+      "kind": "long-distractors",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "7fe7b57752ea37abf364df54a374a76e06b2e7c1be345cbadef2f2f5e9d85abe"
+      ],
+      "costUsd": 0.0006616
+    },
+    {
+      "id": "v001",
+      "kind": "near-number",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "4fe845c7aa8ef5b49749d1d8fc763b41b99edfbc654413de409b3773df484835"
+      ],
+      "costUsd": 0.0005323999999999999
+    },
+    {
+      "id": "v030",
+      "kind": "negation",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "2ff23f646597b113d984022932edf057d27355c5d97273e3fc24851f1225a5d1"
+      ],
+      "costUsd": 0.0005888
+    },
+    {
+      "id": "v009",
+      "kind": "conditions",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "c5ec8f6368b60f9d652df90d480e851c5ecd078f7e9b8f6f8a8f6a8b8858ee6e"
+      ],
+      "costUsd": 0.0010316000000000001
+    },
+    {
+      "id": "v015",
+      "kind": "multilingual",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "3f733601f24b584af8451b0315fc8fdfa3c6cbb8d49cce6633abadfceaaa161e"
+      ],
+      "costUsd": 0.0006127000000000001
+    },
+    {
+      "id": "v005",
+      "kind": "negation",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "c256bfac4cca63462befdcc5b0dfdb23839ad9d08cacb8f18777e3a5afe77783"
+      ],
+      "costUsd": 0.000827
+    },
+    {
+      "id": "v071",
+      "kind": "instruction-data",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "85e3afee69405b20e06a1c15fdac0df40d966de70def3088a0636bf521dc2c80"
+      ],
+      "costUsd": 0.0006763000000000001
+    },
+    {
+      "id": "v006",
+      "kind": "negation",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "08ce1811736350106b6479466d5cbf2b909201de485e7b6f213ed4437b319e96"
+      ],
+      "costUsd": 0.0008223
+    },
+    {
+      "id": "v012",
+      "kind": "quantifiers",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "5488c96d1f8ca5f6cd9167397a18d666f858057c4aa06ccfc5449aeaf6b1bd21"
+      ],
+      "costUsd": 0.0005856
+    },
+    {
+      "id": "v089",
+      "kind": "fluent-extra",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "615da289203ab0e82c3cc3fcc91f0b64d35bf411b35802be22af5831f78f41e8"
+      ],
+      "costUsd": 0.0005502
+    },
+    {
+      "id": "v002",
+      "kind": "near-number",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "2c7e35113cd15960aa3e4af3c732c598a5c7f2edde4343f51d56be4196047317"
+      ],
+      "costUsd": 0.0004804
+    },
+    {
+      "id": "v019",
+      "kind": "omission",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "6a1b968052a299e26a5e8cacf9d0ad6053d1753f9eb6cf2222b1f3d5ca2735d5"
+      ],
+      "costUsd": 0.0005598000000000001
+    },
+    {
+      "id": "v088",
+      "kind": "multilingual",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "332935721aa795c10ce0fc1aa8cad98a2c0d04a49c134c3f8b54f26db119a7c2"
+      ],
+      "costUsd": 0.0006202
+    },
+    {
+      "id": "v079",
+      "kind": "entity-binding",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "da41ea05664682c46c8caf6305eb42fb9df75d8c4e9a3bca1bbb1fba6fb30534"
+      ],
+      "costUsd": 0.0006585
+    },
+    {
+      "id": "v101",
+      "kind": "negation",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "88f62da7b5f97d67015cd76ede8352b78e0039fd2534355d4267c7b65df1e651"
+      ],
+      "costUsd": 0.0008515
+    },
+    {
+      "id": "v031",
+      "kind": "entity-binding",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "d3f7844ba2c462e8a4a8a47a8a9138383b8665cd581c9f03997ec4e4ce9d9e03"
+      ],
+      "costUsd": 0.000509
+    },
+    {
+      "id": "v084",
+      "kind": "quantifiers",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "e8e204a375cbe00983fb30e9c5a26f9fc07a0d51ffe3b63cc6aa8a289fbb1189"
+      ],
+      "costUsd": 0.00046810000000000005
+    },
+    {
+      "id": "v086",
+      "kind": "revision",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "93d833f23b3e443a92ed807a31abb7eef6c856c820d2d78645b031c9fe019a73"
+      ],
+      "costUsd": 0.0005781
+    },
+    {
+      "id": "v111",
+      "kind": "multilingual",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "04a36bbdb635cba1f7dea98db491e749b505863165e16e7a32060c9f5947df80"
+      ],
+      "costUsd": 0.0005612
+    },
+    {
+      "id": "v114",
+      "kind": "fluent-extra",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "b8e88a90f11c5b259aded9dfe3d567853d6cbc8b13cc86fa25359fc50ebb9ee0"
+      ],
+      "costUsd": 0.0005572
+    },
+    {
+      "id": "v078",
+      "kind": "negation",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "3aa345ce5dd4fa7577897cbbcd9342a6b08417328f24a2d87f7ecb22db2ac5a3"
+      ],
+      "costUsd": 0.0006338
+    },
+    {
+      "id": "v047",
+      "kind": "instruction-data",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "540ee8d6965e5cb881efcae40b0cd72e90bac7097b5ab2c020cd57651f094a3e"
+      ],
+      "costUsd": 0.0007173
+    },
+    {
+      "id": "v080",
+      "kind": "entity-binding",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "f8e9919fc14dc56404e52714b84aa701a2095ddc8729bf5fa7ef41dd3fb6e16d"
+      ],
+      "costUsd": 0.000514
+    },
+    {
+      "id": "v061",
+      "kind": "revision",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "f251d6e0d564d9fffce4dbd806a7858e805925a170b0dfd951c7db53af1b7554"
+      ],
+      "costUsd": 0.0008116
+    },
+    {
+      "id": "v028",
+      "kind": "units",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "6ee58d3edb8a49ed8f15e0ad0f142c72426d4ee4a5581d008bacf9845c0af317"
+      ],
+      "costUsd": 0.0005868
+    },
+    {
+      "id": "v008",
+      "kind": "entity-binding",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "54236df48d24355e4f0466f413ed8ec6f6774f1ca238c1d6e44bd96a2159b450"
+      ],
+      "costUsd": 0.0004645
+    },
+    {
+      "id": "v109",
+      "kind": "revision",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "389211a18b56497adec1f1abd27edccd410a4b24eae827e36d48d27c51a0f666"
+      ],
+      "costUsd": 0.0006881000000000001
+    },
+    {
+      "id": "v039",
+      "kind": "multilingual",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "3f8d0a6d4916b5eaf417104653b832ffb3e86bfbd7462ab37087d2b9349e110b"
+      ],
+      "costUsd": 0.0005722
+    },
+    {
+      "id": "v112",
+      "kind": "multilingual",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "5537ba0f65cb31948318f66ffbf21e8c06716cb5238023ae38c23072871c41fe"
+      ],
+      "costUsd": 0.0005882000000000001
+    },
+    {
+      "id": "v073",
+      "kind": "near-number",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "886ab39c5d44ae08595dc765bc60a9aaabf6e1adbfe1976e040edb5f68d0a786"
+      ],
+      "costUsd": 0.0005993999999999999
+    },
+    {
+      "id": "v042",
+      "kind": "fluent-extra",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "20b780f0b43346070555a4011ce99b7042ab462bc321b346380d64fe825749d7"
+      ],
+      "costUsd": 0.0007007000000000001
+    },
+    {
+      "id": "v016",
+      "kind": "multilingual",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "6d4d4c3034c92be399d0faddd0fd361aff8f5afb790d245765af2b09143e1ec0"
+      ],
+      "costUsd": 0.0006062000000000001
+    },
+    {
+      "id": "v065",
+      "kind": "fluent-extra",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "a01c997b744c868de731b51b739ab1f47d2cbf4d576e5b01cf472ea77043da5c"
+      ],
+      "costUsd": 0.0006192000000000001
+    },
+    {
+      "id": "v056",
+      "kind": "entity-binding",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "dc4b9505d8fd39f57dc4cb359b055bf44b55940e8a0120f0d0cbd55ea25fc373"
+      ],
+      "costUsd": 0.0004715
+    },
+    {
+      "id": "v025",
+      "kind": "near-number",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "7c6f4d0def92c7035d675cea6bb5e0c94c1989ed01717609ba72ddb4dff95f3a"
+      ],
+      "costUsd": 0.0006464
+    },
+    {
+      "id": "v023",
+      "kind": "instruction-data",
+      "pair": "",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "8330ffbee0ab029f0022a31fd6b4d6f4a8715940c638aa03bc782686ac5fe340"
+      ],
+      "costUsd": 0.0007053000000000001
+    },
+    {
+      "id": "v072",
+      "kind": "instruction-data",
+      "pair": "",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "0186735fa182d19576dc2c65367ae2721ac949c9eff2099dc3a5e8b869823fe1"
+      ],
+      "costUsd": 0.0007023999999999999
+    }
+  ]
+}

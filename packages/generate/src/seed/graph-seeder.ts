@@ -108,10 +108,16 @@ function pathSeeder(
   for (const path of prepared.relations.paths) {
     if (drafts.length >= context.max) break;
     const id = `gen-graph-${pad(drafts.length + 1)}`;
-    const built = scenarioDraft(prepared, context, id, 'graph', `Stage path ${drafts.length + 1}`, [], {
-      preferred: [path],
-      others: [],
-    });
+    const built = scenarioDraft(
+      prepared,
+      context,
+      id,
+      'graph',
+      `Stage path ${drafts.length + 1}`,
+      [],
+      { preferred: [path], others: [] },
+      { perturbEvery: true },
+    );
     if ('draft' in built) {
       for (let index = 0; index + 1 < path.stages.length; index += 1) {
         covered.add(`${path.stages[index]}-to-${path.stages[index + 1]}`);

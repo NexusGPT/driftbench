@@ -5,7 +5,7 @@ id: gen-deviation-019
 version: 7c05b9cee9cc
 kind: conversation
 title: "Deviation probe D11_pii_leak at closing: Path upgrade-most-data of upgrade: needs > identify > closing, D11_pii_leak at closing"
-channel: whatsapp
+channel: chat
 lang: EN
 tier: generated
 tags:
@@ -96,7 +96,7 @@ metadata:
       flow: upgrade
       user_type: existing-customer
       account_lookup: most-data
-      channel: whatsapp
+      channel: chat
       coverage_result: none
     blocks:
       - block: b1-needs-to-identify

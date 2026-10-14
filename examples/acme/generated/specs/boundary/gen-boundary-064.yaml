@@ -5,7 +5,7 @@ id: gen-boundary-064
 version: 7c05b9cee9cc
 kind: conversation
 title: "Boundary value account_lookup=not-found: Path upgrade-unknown-email of upgrade: needs > identify > identify"
-channel: whatsapp
+channel: chat
 lang: EN
 tier: generated
 tags:
@@ -95,7 +95,7 @@ metadata:
       account_lookup: not-found
       flow: upgrade
       user_type: existing-customer
-      channel: whatsapp
+      channel: chat
       coverage_result: none
     blocks:
       - block: b1-needs-to-identify

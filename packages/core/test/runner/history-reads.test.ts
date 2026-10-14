@@ -1,6 +1,7 @@
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { describe, expect, it } from 'vitest';
 import { runSpec } from '../../src/runner';
+import { canonicalGiven } from '../../src/runner/given';
 import { echoAdapter, specOf } from './support';
 
 /**
@@ -77,6 +78,21 @@ async function readsOf(size: number, mode: 'F' | 'T' = 'F'): Promise<number> {
 }
 
 describe('the runner reads each message of the history a bounded number of times', () => {
+  it('keeps canonical cache arrays private when a returned prefix is edited', () => {
+    const spec = longSpec(3);
+    const first = canonicalGiven(spec, 1);
+    Object.defineProperty(first.prefix, '0', {
+      get: () => {
+        throw new Error('returned prefix must not be read by the cache');
+      },
+    });
+    first.prefix.push({ role: 'user', content: 'injected' });
+    const next = canonicalGiven(spec, 2);
+    expect(next.prefix).toHaveLength(4);
+    expect(next.prefix[0]?.content).toContain('Turn 0:');
+    expect(Object.isFrozen(next.prefix[0])).toBe(true);
+  });
+
   it('reads ten times the messages for ten times the blocks, within a tenth', async () => {
     const small = await readsOf(30);
     const large = await readsOf(300);

@@ -5,25 +5,74 @@
 id: gen-boundary-016
 version: 7c05b9cee9cc
 kind: conversation
-title: "Boundary value coverage.check.in.address.at-min-length: address exactly 1 characters long"
+title: "Boundary value coverage.check.in.address.at-min-length: Path order-single-plan of order: needs > address > offer > details > recap > order_placed > closing"
 channel: whatsapp
 lang: EN
 tier: generated
 tags:
-  - persona:new-customer
-  - data:no-service
+  - flow:order
+  - data:5g-only
+  - persona:existing-customer
+stages:
+  - needs
+  - identify
+  - address
+  - port_number
+  - offer
+  - details
+  - recap
+  - order_placed
+  - callback
+  - handover
+  - closing
+  - build_sheet
+  - add_summary
 blocks:
-  - id: b1-value
+  - id: b1-needs-to-address
+    when:
+      user: Do you have home internet where I live?
+    expect:
+      stage: address
+      stage_reported: true
+      tools:
+        - label: coverage.check
+          count: 0
+        - label: catalog.search
+          count: 0
+      lang: EN
+  - id: b2-address-to-offer
+    when:
+      user: The address is 88 Summit Avenue, Acmeville.
+    expect:
+      stage: offer
+      stage_reported: true
+      tools:
+        - label: coverage.check
+          count: 1
+          input:
+            address: 88 Summit Avenue, Acmeville
+          input_closed: true
+        - label: catalog.search
+          count: 1
+          input:
+            category: home
+            address_id: addr-103
+      must:
+        - Acme Air 5G, up to 200 Mbps for \$35 a month
+      lang: EN
+  - id: b3-value
     when:
       user: "[no approved phrase for coverage.check.in.address=coverage.check.in.address.at-min-length]"
     expect:
+      stage: offer
+      stage_reported: true
       tools:
         - label: coverage.check
-          count:
-            min: 1
+          count: 1
           input:
             address:
               regex: ^[\s\S]{1}$
+          input_closed: true
         - label: catalog.search
           count: 0
         - label: port.check
@@ -35,6 +84,11 @@ blocks:
       lang: EN
       criteria:
         - needs-approved-phrase
+rules:
+  forbidden_tools:
+    - port.check
+    - order.create
+    - notify_sales
 metadata:
   generated:
     by: driftbench generate
@@ -46,17 +100,41 @@ metadata:
       agent: acme
       version: "1"
       hash: 7c05b9cee9cc
+    path: order-single-plan
     cell:
       coverage.check.in.address: coverage.check.in.address.at-min-length
+      flow: order
+      coverage_result: 5g-only
+      plan_choice: loose-yes-to-single-offer
+      customer_details: name-and-email
       channel: whatsapp
-      user_type: new-customer
-      coverage_result: no-service
+      user_type: existing-customer
     blocks:
-      - block: b1-value
+      - block: b1-needs-to-address
+        seeder: boundary
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: needs-to-address
+          stage: needs
+        phrase:
+          dimension: stage_transition
+          value: needs-to-address
+      - block: b2-address-to-offer
+        seeder: boundary
+        cell:
+          spec: metadata.generated.cell
+          stage_transition: address-to-offer
+          coverage_result: 5g-only
+          stage: address
+        phrase:
+          dimension: stage_transition
+          value: address-to-offer
+      - block: b3-value
         seeder: boundary
         cell:
           spec: metadata.generated.cell
           coverage.check.in.address: coverage.check.in.address.at-min-length
+          stage: offer
         phrase: null
     concrete:
       coverage.check.in.address.at-min-length: x
