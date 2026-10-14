@@ -70,7 +70,11 @@ type Call = {
   error: string | null;
   modelUsage: unknown;
   timestamp: string;
+  /** Absent on a call made through the claude command; 'api' on a Messages API call. */
+  transport?: 'api';
+  model?: string;
 };
+const transport = process.env.TRANSPORT === 'api' ? 'api' : 'cli';
 // Every earlier recording replays for free: the request digest binds model, both prompt texts and repeat.
 const own: Call[] = recordingLines(new URL('./', import.meta.url)).map((line) => JSON.parse(line));
 const cache = new Map<string, Call>();
@@ -106,6 +110,7 @@ async function attempt(
 ): Promise<Call | undefined> {
   if (replay || !canCall(spent, perCall, cap)) return undefined;
   spent += perCall;
+  if (transport === 'api') return apiAttempt(c, prompt, repeat, request_sha256);
   // The flags of packages/judges/src/clients/claude-cli.ts, on both sides.
   const args = [
     '-p',
@@ -187,6 +192,117 @@ async function attempt(
     timestamp: new Date().toISOString(),
   };
   // A failed call is never cached: it is reported and the case stays incomplete.
+  if (error) {
+    appendFileSync(`${here}.cache/errors.jsonl`, `${JSON.stringify(answer)}\n`);
+    return undefined;
+  }
+  appendFileSync(recording, `${JSON.stringify(answer)}\n`);
+  cache.set(request_sha256, answer);
+  fresh++;
+  return answer;
+}
+
+/**
+ * The Messages API transport (TRANSPORT=api): POST /v1/messages for claude-haiku-5-5 with the same system and
+ * user texts the CLI sends. No temperature, thinking or effort field: the API defaults, which are what the
+ * CLI runs (its recorded usage shows thinking tokens). 429 and 5xx answers are retried with backoff. The
+ * cost is computed from usage at the list price of the model (input 0.10, output 0.50 USD per million).
+ * The key is read from a file inside this process and never printed.
+ */
+const API_MODEL = 'claude-haiku-5-5';
+const API_PRICE = { input: 0.1 / 1e6, output: 0.5 / 1e6 };
+const keyFile =
+  process.env.ANTHROPIC_KEY_FILE ?? `${process.env.HOME}/.nexus-secrets/anthropic-driftbench.key`;
+const apiKey = transport === 'api' ? readFileSync(keyFile, 'utf8').trim() : '';
+async function apiAttempt(
+  c: Case,
+  prompt: { system: string; user: string },
+  repeat: number,
+  request_sha256: string,
+): Promise<Call | undefined> {
+  let error: string | null = null;
+  let text = '';
+  let costUsd = 0;
+  let known = false;
+  let modelUsage: unknown = null;
+  for (let wait = 2000, round = 0; round < 6; round++) {
+    let status = 0;
+    let body = '';
+    try {
+      const response = await fetch(
+        `${process.env.ANTHROPIC_BASE_URL ?? 'https://api.anthropic.com'}/v1/messages`,
+        {
+          method: 'POST',
+          headers: {
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01',
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: API_MODEL,
+            max_tokens: 4096,
+            system: prompt.system,
+            messages: [{ role: 'user', content: prompt.user }],
+          }),
+          signal: AbortSignal.timeout(Number(process.env.CALL_TIMEOUT_MS ?? '120000')),
+        },
+      );
+      status = response.status;
+      body = await response.text();
+    } catch (cause) {
+      error = JSON.stringify({ transport: cause instanceof Error ? cause.message : String(cause) });
+      await new Promise((r) => setTimeout(r, wait));
+      wait = Math.min(wait * 2, 60000);
+      continue;
+    }
+    if (status === 429 || status >= 500) {
+      error = JSON.stringify({ status, body: body.slice(0, 300) });
+      await new Promise((r) => setTimeout(r, wait));
+      wait = Math.min(wait * 2, 60000);
+      continue;
+    }
+    try {
+      const parsed = JSON.parse(body);
+      if (status !== 200 || !Array.isArray(parsed.content)) {
+        error = JSON.stringify({ status, body: body.slice(0, 500) });
+        break;
+      }
+      text = parsed.content
+        .filter(
+          (block: { type: string; text?: string }) => block.type === 'text' && typeof block.text === 'string',
+        )
+        .map((block: { text: string }) => block.text)
+        .join('');
+      modelUsage = { [API_MODEL]: parsed.usage, stop_reason: parsed.stop_reason };
+      const usage = parsed.usage ?? {};
+      known = typeof usage.input_tokens === 'number' && typeof usage.output_tokens === 'number';
+      costUsd = known ? usage.input_tokens * API_PRICE.input + usage.output_tokens * API_PRICE.output : 0;
+      if (!text || parsed.stop_reason === 'max_tokens' || parsed.stop_reason === 'refusal')
+        error = JSON.stringify({ status, stop_reason: parsed.stop_reason, text: text.slice(0, 300) });
+      else error = null;
+    } catch {
+      error = JSON.stringify({ status, body: body.slice(0, 500) });
+    }
+    break;
+  }
+  const reservedUsd = known ? costUsd : perCall;
+  spent += reservedUsd - perCall;
+  const answer: Call = {
+    request_sha256,
+    row,
+    side,
+    id: c.id,
+    repeat,
+    prompt,
+    text,
+    costUsd,
+    reservedUsd,
+    error,
+    modelUsage,
+    timestamp: new Date().toISOString(),
+    transport: 'api',
+    model: API_MODEL,
+  };
   if (error) {
     appendFileSync(`${here}.cache/errors.jsonl`, `${JSON.stringify(answer)}\n`);
     return undefined;
