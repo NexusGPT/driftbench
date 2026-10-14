@@ -77,6 +77,11 @@ export type ScenarioRequest = {
     free?: boolean;
     /** How many moves of the walk come before the turn; 1, the first move, when absent. */
     at?: number;
+    /**
+     * The turn runs this tool and the reply reports its returned fields: the Then adds the patterns of the
+     * flow's `states` relations that state a returned field of the tool, filled from the cell.
+     */
+    report?: string;
   };
   /**
    * A turn said after the walk's first move that names a context value (who the user is) and asks for nothing:
@@ -296,7 +301,26 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
   for (let index = 0; index < path.stages.length; index += 1) {
     if (request.turn && !request.turn.call && index === (request.turn.at ?? 1)) {
       freeBlock = request.turn.free ? blocks.length : undefined;
+      const reports: string[] = [];
+      for (const entry of request.turn.report ? relations.states : []) {
+        if (entry.subject.dimension === 'flow' && entry.subject.value !== path.flow) continue;
+        for (const pattern of entry.must ?? []) {
+          const out = slotsOf(pattern).some((slot) => {
+            const source = boundBy.get(slot);
+            const found = source ? prepared.toolDimensions.get(source[0]) : undefined;
+            return found?.direction === 'out' && found.tool.name === request.turn?.report;
+          });
+          if (!out) continue;
+          const filled = fillText(pattern, slots, true);
+          if (!filled.ok)
+            return fail(
+              `the report of ${request.turn.report} reads unbound slots ${filled.missing.join(', ')}`,
+            );
+          if (!reports.includes(filled.value)) reports.push(filled.value);
+        }
+      }
       blocks.push({
+        ...(reports.length > 0 ? { must: reports } : {}),
         id: `b${blocks.length + 1}-value`,
         stimulus: request.turn.stimulus,
         stage: path.stages[index] as string,

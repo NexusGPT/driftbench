@@ -55,15 +55,39 @@ export function phraseDrafts(
       const deepest = Math.max(0, ...prepared.relations.paths.map((path) => path.stages.length - 1));
       const id = `gen-phrase-${String(first + drafts.length + 1).padStart(3, '0')}`;
       let built: ReturnType<typeof scenarioDraft> | undefined;
-      // A stage none of its siblings holds first; when every stage holds one, any stage, after the first move.
-      const tries = [
-        ...Array.from({ length: used ? deepest : 1 }, (_, index) => ({ at: index + 1, fresh: true })),
-        ...(used && used.size > 0 ? [{ at: 1, fresh: false }] : []),
-      ];
-      for (const { at, fresh } of tries) {
+      // A tool's value is asked for after a move that already ran the tool, whose Then checks the call and
+      // the reply: a fault on the tool's arguments or its reported fields shows there first. Else, after the
+      // first move. A phrase asking for something takes a stage none of its siblings holds first; when every
+      // stage holds one, any stage after the first move.
+      const ran = (path: PathRelation, at: number) =>
+        prepared.relations.usesTools.some(
+          (use) =>
+            use.tool === found?.tool.name &&
+            use.subject.dimension === FLOW_DIMENSION &&
+            use.subject.value === path.flow &&
+            path.stages.some(
+              (stage, index) => index < at && stage === use.stage && path.stages[index + 1] === use.to,
+            ),
+        );
+      const tries = found
+        ? [
+            ...Array.from({ length: Math.max(0, deepest - 1) }, (_, index) => ({
+              at: index + 2,
+              fresh: false,
+              after: true,
+            })),
+            { at: 1, fresh: false, after: false },
+          ]
+        : [
+            ...Array.from({ length: deepest }, (_, index) => ({ at: index + 1, fresh: true, after: false })),
+            ...((used?.size ?? 0) > 0 ? [{ at: 1, fresh: false, after: false }] : []),
+          ];
+      for (const { at, fresh, after } of tries) {
         // Never at the last stage: a walk that reaches its end checks its end state, which the turn cuts.
         const fits = (path: PathRelation) =>
-          path.stages.length > at + 1 && !(fresh && used?.has(path.stages[at] as string));
+          path.stages.length > at + 1 &&
+          !(fresh && used?.has(path.stages[at] as string)) &&
+          (!after || ran(path, at));
         const own = prepared.relations.paths.filter(
           (path) => fits(path) && (dimension !== FLOW_DIMENSION || path.flow === phrase.value),
         );
@@ -77,7 +101,18 @@ export function phraseDrafts(
           `Phrase of ${dimension}=${phrase.value}`,
           [target],
           { preferred: own, others },
-          { turn: { stimulus: { kind: 'phrase', phrase }, carries: [target], tools, free: !found, at } },
+          {
+            turn: {
+              stimulus: { kind: 'phrase', phrase },
+              carries: [target],
+              tools,
+              free: !found,
+              at,
+              ...(found?.direction === 'out' && !sideEffecting.has(found.tool.name)
+                ? { report: found.tool.name }
+                : {}),
+            },
+          },
         );
         if ('draft' in attempt) {
           built = attempt;
