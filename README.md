@@ -913,6 +913,23 @@ Per benchmark tables with paired counts, p values and spend: [JudgeBench](docs/c
 2. Run `python examples/all-peers-public/export.py --items-only --rubricbench-items <out.json>`. It rebuilds all five item files and checks each against the committed sha256.
 3. Re-score offline with `python examples/all-peers-public/stats.py`.
 
+### Verify v5: corrected confirmation
+
+The verify candidate's primary result uses the 536 confirmation items whose normalized question text appears
+in neither practice nor DEV. The original 544-item split leaked 8 practice questions and reused 32 practice
+call references. The frozen manifest and decisions are preserved; the full result is a sensitivity analysis.
+Scores are percent correct.
+
+| Verify v5 analysis | driftbench-v5 | promptfoo | DeepEval | Inspect | Langfuse | LangWatch |
+|---|---:|---:|---:|---:|---:|---:|
+| Primary, 536 items without practice/DEV question overlap | 78.73 | 76.87 | 60.26 | 76.49 | 75.75 | 75.19 |
+| Sensitivity, original 544 items including overlap | 78.86 | 77.21 | 60.85 | 76.84 | 75.92 | 75.18 |
+| LJB TEST, 221 items | 76.02 | 75.57 | 58.82 | 73.30 | 75.11 | 73.30 |
+
+Each row gives v5 one significant win over DeepEval and four ties after exact paired tests with Holm over
+five peers. These are separate analyses from the historical 25-comparison table above. The exclusion is a
+post-review correction using recorded decisions, with no new model calls. [Full results and exclusions](examples/verify-lead/RESULTS.md).
+
 ### What a judgement costs
 
 <a href=".github/readme/judge-cost-light.png">
