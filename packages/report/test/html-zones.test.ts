@@ -146,6 +146,50 @@ describe('the three zones of the scorecard page', () => {
     expect(page).toContain('left out by the run limit');
   });
 
+  it('reads the baseline of each target when one spec runs on two targets', () => {
+    const targets = [
+      { adapter: 'function', agent: 'alpha' },
+      { adapter: 'function', agent: 'beta' },
+    ];
+    const baseline = dataOf(
+      targets.map((target) => run({ target })),
+      {},
+      'c-base',
+    );
+    const candidate = dataOf(
+      targets.map((target, i) =>
+        run({
+          target,
+          blocks: [{ pass: i === 1, verdicts: [{ id: 'must.0', outcome: i === 1 ? 'pass' : 'fail' }] }],
+        }),
+      ),
+      {},
+      'c-cand',
+    );
+    const two = buildScorecard(candidate, { baseline, margin: 0.15 });
+    expect(two.compare?.allPass.table.regressed).toBe(1);
+    const m = pageModel(two);
+    expect(m.tests).toHaveLength(2);
+    expect(m.tests.map((t) => t.casesBaseline)).toEqual([1, 1]);
+    expect(m.tests.map((t) => t.regressed).sort()).toEqual([0, 1]);
+    const page = renderHtml(two);
+    expect(page).toContain('<label for="tf-reg">Regressed<span class="c">1</span></label>');
+    expect(page).toContain('<span class="move down">1 regressed</span>');
+    expect(page).toContain('<span class="move down">pass → fail</span>');
+    expect(page).not.toContain('no baseline');
+  });
+
+  it('filters by target for every target, however many', () => {
+    const nine = dataOf(
+      Array.from({ length: 9 }, (_, i) => run({ target: { adapter: 'function', agent: `t-${i}` } })),
+    );
+    const page = renderHtml(buildScorecard(nine));
+    for (let i = 0; i < 9; i++) {
+      expect(page).toContain(`<input type="radio" name="tt" id="tt-${i}">`);
+      expect(page).toContain(`:root:has(#tt-${i}:checked) .test:not(.tt-${i}){display:none}`);
+    }
+  });
+
   it('escapes what the agent wrote in the panel', () => {
     const tricky = dataOf([
       run({ blocks: [{ pass: false, verdicts: [{ id: 'must.0', outcome: 'fail', evidence: '<i>x</i>' }] }] }),

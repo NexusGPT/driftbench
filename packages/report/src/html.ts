@@ -917,7 +917,6 @@ td .move{display:inline}
 .cp{display:inline-flex;justify-content:center;padding:2px 6px;border-radius:999px;font:500 12.5px/1.4 var(--sans);white-space:nowrap}
 .cp.ok{background:var(--ok-bg);color:var(--ok-ink)}.cp.none{background:var(--card-2);color:var(--ink-3);font-size:11.5px}.cp.fail{background:var(--fail-bg);color:var(--fail-ink)}
 :root:has(#tf-fail:checked) .test:not(.t-fail),:root:has(#tf-pass:checked) .test:not(.t-pass),:root:has(#tf-reg:checked) .test:not(.t-reg),:root:has(#rf-fail:checked) .run-row:not(.r-fail),:root:has(#rf-pass:checked) .run-row:not(.r-pass){display:none}
-${Array.from({ length: 8 }, (_, i) => `:root:has(#tt-${i}:checked) .test:not(.tt-${i}){display:none}`).join('')}
 .cases{padding:4px 8px 20px 92px}
 .grid-table{width:100%;border-collapse:collapse;font:400 14px/1.4 var(--sans);font-variant-numeric:tabular-nums}
 .grid-table th{text-align:left;padding:12px 10px 10px;border-bottom:1px solid var(--ink);white-space:nowrap}

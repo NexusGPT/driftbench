@@ -93,7 +93,8 @@ export function pageModel(card: Scorecard): PageModel {
     for (const run of runs)
       for (const block of run.blocks)
         for (const v of block.verdicts) if (v.outcome === 'fail') add(failedChecks, criterionOf(v));
-    const baseline = pairs.get(unit)?.baseline.allPass;
+    // compare names a unit by its target too when the campaign runs the golden on more than one target.
+    const baseline = (pairs.get(`${unit} · ${target}`) ?? pairs.get(unit))?.baseline.allPass;
     return {
       index,
       unit,
@@ -414,6 +415,10 @@ export function testsZone(m: PageModel): string {
           )
           .join('')}</div>`
       : '';
+  const targetCss =
+    targets.length > 1
+      ? `<style>${targets.map((_, i) => `:root:has(#tt-${i}:checked) .test:not(.tt-${i}){display:none}`).join('')}</style>`
+      : '';
   const head = `<div class="thead" aria-hidden="true"><span>Status</span><span>Test</span><span class="hide-s">Score</span><span class="ckrow hide-s">${cols
     .map((n) =>
       n === OTHER
@@ -474,7 +479,7 @@ ${caseRows}
   return `<section class="zone wrap" id="tests" aria-labelledby="h-tests" style="--nck:${n};--cks:${n * 64 + Math.max(0, n - 1) * 4}px">
 <div class="zone-h"><h2 id="h-tests">Tests</h2><span class="kicker">${failing.length} of ${m.tests.length} failing</span></div>
 <div class="card">
-<div class="toolbar">${seg}${targetSeg}</div>
+${targetCss}<div class="toolbar">${seg}${targetSeg}</div>
 ${head}
 <div class="tests">
 ${rows}
