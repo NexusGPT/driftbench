@@ -63,7 +63,7 @@
     "comparisons/inspect/hard/shipped/stats.ts": "823e5f02a11075e1b1a9552fad470468db7f0dfe1cc27cb51aa7b6cfaa4c789d",
     "comparisons/inspect/hard/fable/record.ts": "8a68584e47fcdc534913f3dccef875371d352a5a236d97de4f0bca2d6499a924",
     "comparisons/inspect/hard/fable/request.ts": "04fa47b3a6fb4e10679222319d951cc0122e72078e4708efd0a2835ec3bd5cf9",
-    "comparisons/inspect/hard/fable/run.mts": "30f3c1cb69112170a1d11f221380410abd837b8a6d901b75558f01f972dbf82a",
+    "comparisons/inspect/hard/fable/run.mts": "9221187de39b4110d2d0450f3605ac54528b37a4035454ba4bba6d328ae7d5f0",
     "comparisons/inspect/hard/fable/report.mts": "2a2c74e5ade51de2fc5c4bcfddef4129109fb01d240590d351e1959bda2886d7",
     "comparisons/inspect/hard/fable/freeze.mts": "8a7cb45a7505060b7dae7bacdfd24234ecba79e4b924dd1f3ab28500395caef4"
   },
@@ -74,6 +74,13 @@
       "from": "510c4a52302a2a859b2452d32dc1ccf938bf83c79d0e05f1815ac46b40986169",
       "to": "30f3c1cb69112170a1d11f221380410abd837b8a6d901b75558f01f972dbf82a",
       "reason": "Transport switch, owner instruction: calls go through the Messages API for claude-haiku-5-5 (TRANSPORT=api) with the same prompt texts; the claude command transport stays in the file. Completed claude-command calls are kept and replayed from the cache; a 30-item parity check precedes the switch (parity/summary.json). No set, request or prompt changed."
+    },
+    {
+      "at": "2026-10-14T10:53:26.972Z",
+      "file": "comparisons/inspect/hard/fable/run.mts",
+      "from": "30f3c1cb69112170a1d11f221380410abd837b8a6d901b75558f01f972dbf82a",
+      "to": "9221187de39b4110d2d0450f3605ac54528b37a4035454ba4bba6d328ae7d5f0",
+      "reason": "The API transport sends the anthropic-workspace-id header read from a secrets file when that file exists. No set, request or prompt changed."
     }
   ]
 }

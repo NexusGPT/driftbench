@@ -1,4 +1,4 @@
-import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { parseJudgeText } from '../../../../packages/judges/src/assessment';
 import type { Case, Row } from '../generate.mts';
@@ -14,6 +14,12 @@ const apiKey = readFileSync(
   process.env.ANTHROPIC_KEY_FILE ?? `${process.env.HOME}/.nexus-secrets/anthropic-driftbench.key`,
   'utf8',
 ).trim();
+// A key not scoped to a workspace needs the workspace id header; the id is read from a file, never printed.
+const workspaceFile =
+  process.env.ANTHROPIC_WORKSPACE_FILE ?? `${process.env.HOME}/.nexus-secrets/anthropic-driftbench.workspace`;
+const workspaceHeader: Record<string, string> = existsSync(workspaceFile)
+  ? { 'anthropic-workspace-id': readFileSync(workspaceFile, 'utf8').trim() }
+  : {};
 type Call = {
   request_sha256: string;
   row: Row;
@@ -52,7 +58,12 @@ async function ask(prompt: { system: string; user: string }) {
   for (let wait = 2000, round = 0; round < 6; round++) {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        ...workspaceHeader,
+        'content-type': 'application/json',
+      },
       body: JSON.stringify({
         model: 'claude-haiku-5-5',
         max_tokens: 4096,
@@ -66,6 +77,7 @@ async function ask(prompt: { system: string; user: string }) {
       wait = Math.min(wait * 2, 60000);
       continue;
     }
+    if (response.status !== 200) throw new Error(`API ${response.status}: ${body.slice(0, 300)}`);
     const parsed = JSON.parse(body);
     const text = (parsed.content ?? [])
       .filter((b: { type: string }) => b.type === 'text')

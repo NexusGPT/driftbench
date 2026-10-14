@@ -214,6 +214,13 @@ const API_PRICE = { input: 0.1 / 1e6, output: 0.5 / 1e6 };
 const keyFile =
   process.env.ANTHROPIC_KEY_FILE ?? `${process.env.HOME}/.nexus-secrets/anthropic-driftbench.key`;
 const apiKey = transport === 'api' ? readFileSync(keyFile, 'utf8').trim() : '';
+// A key not scoped to a workspace needs the workspace id header; the id is read from a file, never printed.
+const workspaceFile =
+  process.env.ANTHROPIC_WORKSPACE_FILE ?? `${process.env.HOME}/.nexus-secrets/anthropic-driftbench.workspace`;
+const workspaceHeader: Record<string, string> = existsSync(workspaceFile)
+  ? { 'anthropic-workspace-id': readFileSync(workspaceFile, 'utf8').trim() }
+  : {};
+
 async function apiAttempt(
   c: Case,
   prompt: { system: string; user: string },
@@ -236,6 +243,7 @@ async function apiAttempt(
           headers: {
             'x-api-key': apiKey,
             'anthropic-version': '2023-06-01',
+            ...workspaceHeader,
             'content-type': 'application/json',
           },
           body: JSON.stringify({
