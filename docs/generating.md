@@ -283,7 +283,7 @@ That is the last line of `pnpm -s driftbench space coverage examples/acme/gated/
 
 | Seeder | What it writes |
 |---|---|
-| `graph` | one spec per approved path: the stage graph walked along the paths, so every edge a path takes is covered by a conversation the agent can have |
+| `graph` | one spec per approved path: the stage graph walked along the paths, so every edge a path takes is covered by a conversation the agent can have. Each walk declares, for perturbed mode, every class whose recovery keeps the conversation where it is. After the `cover` seeder, a class whose recovery moves the conversation elsewhere (a goal shift goes back to the stage that owns the goal) and that no complete spec declares that way gets one walk of its flow cut at the first stage before the last that can take it (`gen-graph-cut-NNN`): the perturbation is said after the walk's last turn, its recovery is the Then, and the walk has no end state |
 | `twise` | a covering array at strength `--t` (default 3) over the axes; each row walks an approved path of a flow its behaviour belongs to |
 | `boundary` | one spec per value of every detail data dimension, on a path that needs it; a tool output value becomes the tool's answer, a tool input value an expected or a forbidden call |
 | `deviation` | one probe per deviation class, injected at a stage of a path whose flow has a recovery for the class; a class a first message can carry may arrive on the first turn, and a class whose recovery stays may arrive after the last stage. After the `cover` seeder, a class probed by fewer than a third as many blocks as the most probed class gets more probes (`gen-deviation-balance-NNN`), until it reaches that third or no approved path can carry it |

@@ -44,6 +44,7 @@ import {
   twiseSeeder,
 } from '../seed/seeders';
 import { type TaskInput, taskSpecs } from '../seed/tasks';
+import { TerminalPerturbations } from '../seed/terminal-perturbation';
 import { formatJson } from './json';
 import { capSpecPool, type SpecCapMode, type SpecCapReport, seederOf } from './spec-cap';
 
@@ -384,6 +385,12 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
   for (const spec of complete) balance.observe(spec);
   for (const draft of balance.topUps(context, all.length)) {
     for (const spec of renderSeeder('deviation', [draft])) balance.observe(spec);
+  }
+  // A class whose recovery moves the conversation elsewhere no clean walk declares: one walk cut for it.
+  const terminal = new TerminalPerturbations(prepared);
+  for (const spec of complete) terminal.observe(spec);
+  for (const draft of terminal.drafts(context)) {
+    for (const spec of renderSeeder('graph', [draft])) terminal.observe(spec);
   }
   const held = new Set(
     cellsOf(prepared, [], t).flatMap((cell) =>
