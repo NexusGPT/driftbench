@@ -2,7 +2,7 @@
   "generated": "2026-10-13T12:52:46.172668+00:00",
   "model": "gemini-3.5-flash-lite",
   "reasoning_applied": "medium",
-  "seal_sha256": "5ea0a0a7ca782c6b57775cc516f895d6d721126132322b1c3144a1b90b8b407d",
+  "seal_sha256": "3809543815d845f6f977baca9272b6b88ab1c168dfba58974fb4291f5985e10b",
   "experiments": {
     "primary": {
       "tables": [

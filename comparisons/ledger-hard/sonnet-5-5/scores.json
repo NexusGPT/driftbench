@@ -9,7 +9,7 @@
   "measured_usd": 33.726765,
   "unknown_attempt_reserve_usd": 1.0,
   "max_concurrent_calls": 2,
-  "seal_sha256": "0f9a30095c9eb53a201d28bf440462862f3ae043b430ae08249017d3a76595c5",
+  "seal_sha256": "c2244b257d0f3dba03f828226b5d8e25b518749564db67111f75e26acd9e60e2",
   "experiments": {
     "primary": {
       "tables": [

@@ -152,38 +152,38 @@ Focused protocol/recovery tests pass; `test-output.txt` retains the test result.
 | `dialect/prompts.json` | `2fe5c23508da1f5ee542d9c6ceb10313a96336e64f45182df74ae3d72a756bef` |
 | `score.py` | `f5f91044dcb166d04b8bff098e8cc31d7431fae30a3983894e7dc1617c4a6831` |
 | `dialect-score.py` | `98092ff0d7d5876a829eaaa08af5eca68d078afda5926bfdbeadb0c0aa31e917` |
-| `verification-final.json` | `b3a45b0e5360fdd01988e5ffffce7b7fdb3393b2a90a4b3fec2ca45fbfe54d51` |
-| `flash-lite/seal.json` | `5ea0a0a7ca782c6b57775cc516f895d6d721126132322b1c3144a1b90b8b407d` |
+| `verification-final.json` | `12fcb081229caf60a2807ae5d00226862464886fb490de4f135aed31d8d0ea87` |
+| `flash-lite/seal.json` | `3809543815d845f6f977baca9272b6b88ab1c168dfba58974fb4291f5985e10b` |
 | `flash-lite/budget-amendment.json` | `e7b37ecc70ea0528a2f70132f3ecd6e90c7cb9eb4987cf7d0e712ab77ec6a2e6` |
 | `flash-lite/pricing.json` | `ac8269b65b41e8db47c60349987c796741118df14390a0ad1da364262bff34fa` |
 | `flash-lite/reasoning-applied.json` | `d37718bb39d54c5a81cd64e4b8b6cac9c47d812ab45adb43301dfa7613b9d881` |
-| `flash-lite/scores.json` | `b8d9321b82a82ff6f9d204e76dce489be6de633e870ea5c27a2e7454e7c21874` |
-| `extended-runtime-amendment.json` | `21f0312c0a8dafd4f43fe628df635d03576f774aeb5d41a6149867c2b2145028` |
+| `flash-lite/scores.json` | `b1a077a6e22984d11e7140d3a66ced9cca7549b3c81a2b7eefcb6a2503404eb4` |
+| `extended-runtime-amendment.json` | `5258abc415390115d72df5f708c5c44d8a417763f058fcbbd27ef0ebce8fd88c` |
 | `network-amendment.json` | `4b5b416c60a04c7f0c254886d56c3d8e90eaab86e8c3b4e901ddb49a287c1501` |
-| `api-error-envelope-audit.json` | `761d82e1713b7f9ef1e28aa7fe91103ed3097a065309f520d2860f1934368731` |
-| `luna-cache-write-fees.json` | `8dc8e999c36c56e6047d118dc3691470c45d84864fe9ed78600fd0df2428fd8d` |
-| `closed-cell-reporting-amendment.json` | `2f9874ba863902e0ab19c3bb5f9d933c649bf3fdffd1009f99f5b00840fc2538` |
-| `luna-transport-census.json` | `09bd39b39de9d713bf594132ef53f7d5f874354537c5d9fc59cdddecd92fe640` |
+| `api-error-envelope-audit.json` | `81a065964e7f2d3d6b673f6fe09292bb0163e146f6a6bf1c3e70aa2d0ff3c862` |
+| `luna-cache-write-fees.json` | `4526217a47a3b65bdfe8f6778c01293476001512d72f2bed598811219e608f2f` |
+| `closed-cell-reporting-amendment.json` | `109b5e71886ab3b65a7395aaadfb022d281cc6bfa8483592fdadd7a6dceed33a` |
+| `luna-transport-census.json` | `fcca3181f82d613f704e0d56ae2b9ecf9fa73b91a18f3d15a1337ebcb6451482` |
 | `audit-network-runtime.py` | `c7c79a4d485b8132e5604f08c02018861daee09f4ef150d08413628600d1c6be` |
 | `network-verification.json` | `e64f89de51c072485a009165315087ad13c5b0cd4010d87589e43448a6b5f05f` |
 | `network-finish.py` | `af1807aa4dbae06eee44d9d1e6280847b72fbe9eaace9ef0d3c05ab94a8e5e50` |
 | `gemini-3.8-owner-drop.json` | `56061b82b578dfd3814c6ccb7b1ccb3f510168fc96b26458ad2106f1ebf0903f` |
 | `supervisor-amendment.json` | `3ad71b77206c9ce5c2d1aba6925be22f06b29372a115263756a96c0cf73422b8` |
 | `gpt-6.1-sol/host-crash-recovery.json` | `503a6cc6738d1b39bfb4ef3a041c29541aa2d25f1f12ba52cf220eb3eac76ac1` |
-| `sonnet-5-5/seal.json` | `0f9a30095c9eb53a201d28bf440462862f3ae043b430ae08249017d3a76595c5` |
+| `sonnet-5-5/seal.json` | `c2244b257d0f3dba03f828226b5d8e25b518749564db67111f75e26acd9e60e2` |
 | `sonnet-5-5/pricing.json` | `00cfb936f27a78787e18a6de3d73f9cb3a34369f1fbb6685f5217fe56a409fd8` |
 | `sonnet-5-5/pilot.json` | `787fabc4c202494523c00f3bc901cf68ac70f7207068bc778a158fdb8ee49490` |
 | `sonnet-5-5/cache-pilot.json` | `aabb84a1a730cd069952093c835f83401bc1246773d37ccf87638c2dbcf03b0c` |
 | `sonnet-5-5/cache-choice.json` | `5ee1e9ecd123dc231989356c8716efd82aa4b359124d2969b7ec41578812280a` |
-| `sonnet-5-5/scores.json` | `cd59f4ceb2b71c0d97f85344ba7a9a5803bd3e04ed7928a9adeb40dfc3d8e692` |
-| `sonnet-5-5/verification.json` | `72460edf44447f33fbae8b1c3279cd8a92a6b725e6edcf65f92aa18e83ccc153` |
+| `sonnet-5-5/scores.json` | `1418600b5ba8873945b2e207fbe42e3b1f5c00997b0141ab94dc3b19ed70362c` |
+| `sonnet-5-5/verification.json` | `73b2237ccb8c8a06b05ac18d5f3398e8093fb3d75b57c7be4f095379cca330a2` |
 | `sonnet-5-5/budget-amendment.json` | `25be91c20ee2ab813e3163e41b856a6feb2950caf6981255fd8ca4075af28a3e` |
 | `sonnet-5-5/transport-reconciliation.json` | `7881758f88d38dade69aa27e1d640f7d6f8431e0c71cd44ddf789d6410c0ae81` |
-| `gpt-6.1-sol/seal.json` | `d71218174c21f9ca4146e55ea1f5ff22ff88a01fa6eb3cfaa0be48609fa3318d` |
+| `gpt-6.1-sol/seal.json` | `5d15738876e4eb1d1d8f81875bf38394352ff31befa8337e895c51fe1268a623` |
 | `gpt-6.1-sol/pricing.json` | `9e34faa1a5e372521d5789d0962ce059eb502889daab0abcd51cab466d874d97` |
 | `gpt-6.1-sol/pilot.json` | `cc0331aab66dc66b6be33c2e1513839fda11cfe4dd96fa43bd7b935c6ab62c1f` |
-| `gpt-6.1-sol/scores.json` | `0dbeb215b807b1613bd33ea0615d56ba20799dc007f23b0a62bae86521b400a5` |
-| `gpt-6.1-sol/verification.json` | `775db0b82bb3866b508f56b535c78d620ba645544d43df360aa28ac6faff46a9` |
+| `gpt-6.1-sol/scores.json` | `a1c04b3495ef5c22175b993c66018e02af85725a7d257a3b62f7c33796381cf4` |
+| `gpt-6.1-sol/verification.json` | `d264c3bf13991a0e1dae690cb3f0995110253df5105fb288306fb0f6f34c8736` |
 
 Candidate procedure: `d7f5e226bf5afe7b955ee0f2247835cd19953001c196dcc7260d1f0c37922587`. Original seal commit: `eeb7875e`. Core dialect source: `2bb0a7a787ca4466ff69d204f2380a7ad19cc056`; dialect seal commit: `a7954b1b`. The per-file source hash maps remain inside the seals and operational amendments.
 
@@ -404,7 +404,7 @@ The nominal win rule is unchanged: higher accuracy and exact two-sided McNemar p
 
 Default goal inputs remain information-asymmetric. The pooled equal-evidence comparison replaces that goal row with final state supplied to both. No pool counts goal twice. This is a new model measurement on the same cohort, not an independent replication. No content is retried. Transport failures and provider limits remain separate from judge outcomes.
 
-Seal SHA-256: `5ea0a0a7ca782c6b57775cc516f895d6d721126132322b1c3144a1b90b8b407d`. Original case seal: `5845e97e2651d2942134209e4abfa8f932409744930bd0d143ebbe03877b07a4`. Reasoning application: `d37718bb39d54c5a81cd64e4b8b6cac9c47d812ab45adb43301dfa7613b9d881`. Statistics source: `f5f91044dcb166d04b8bff098e8cc31d7431fae30a3983894e7dc1617c4a6831`. Per-file hashes are retained inside the committed seal.
+Seal SHA-256: `3809543815d845f6f977baca9272b6b88ab1c168dfba58974fb4291f5985e10b`. Original case seal: `5845e97e2651d2942134209e4abfa8f932409744930bd0d143ebbe03877b07a4`. Reasoning application: `d37718bb39d54c5a81cd64e4b8b6cac9c47d812ab45adb43301dfa7613b9d881`. Statistics source: `f5f91044dcb166d04b8bff098e8cc31d7431fae30a3983894e7dc1617c4a6831`. Per-file hashes are retained inside the committed seal.
 
 
 ## Added sonnet-5-5 measurements
@@ -471,7 +471,7 @@ Sonnet uses the Claude print-mode route, alias `sonnet`, an empty folder, explic
 
 Nominal tests use the unchanged exact two-sided McNemar calculation and 20000 family-bootstrap draws. Global multiplicity correction belongs to the collator. The same synthetic cohort is not independent replication. Default goal is information-asymmetric; pooled equal-evidence replaces it with final state supplied to both. Costs shown for overlapping rows and pools must not be summed as additional spend.
 
-Seal SHA-256: `0f9a30095c9eb53a201d28bf440462862f3ae043b430ae08249017d3a76595c5`. Original case seal: `5845e97e2651d2942134209e4abfa8f932409744930bd0d143ebbe03877b07a4`. Per-file hashes remain in the seal. Gemini 3.8 is dropped and its journals remain unchanged.
+Seal SHA-256: `c2244b257d0f3dba03f828226b5d8e25b518749564db67111f75e26acd9e60e2`. Original case seal: `5845e97e2651d2942134209e4abfa8f932409744930bd0d143ebbe03877b07a4`. Per-file hashes remain in the seal. Gemini 3.8 is dropped and its journals remain unchanged.
 
 
 ## Added gpt-6.1-sol measurements
@@ -538,7 +538,7 @@ Standard short-context prices per million tokens, verified 2026-10-13: input USD
 
 Nominal tests use the unchanged exact two-sided McNemar calculation and 20000 family-bootstrap draws. Global multiplicity correction belongs to the collator. The same synthetic cohort is not independent replication. Default goal is information-asymmetric; pooled equal-evidence replaces it with final state supplied to both. Costs shown for overlapping rows and pools must not be summed as additional spend.
 
-Seal SHA-256: `d71218174c21f9ca4146e55ea1f5ff22ff88a01fa6eb3cfaa0be48609fa3318d`. Original case seal: `5845e97e2651d2942134209e4abfa8f932409744930bd0d143ebbe03877b07a4`. Per-file hashes remain in the seal. Gemini 3.8 is dropped and its journals remain unchanged.
+Seal SHA-256: `5d15738876e4eb1d1d8f81875bf38394352ff31befa8337e895c51fe1268a623`. Original case seal: `5845e97e2651d2942134209e4abfa8f932409744930bd0d143ebbe03877b07a4`. Per-file hashes remain in the seal. Gemini 3.8 is dropped and its journals remain unchanged.
 
 
 ## Authorized host-crash recovery

@@ -53,6 +53,6 @@
   "transport_amendments": {
     "sonnet-5-5/transport-reconciliation.json": "7881758f88d38dade69aa27e1d640f7d6f8431e0c71cd44ddf789d6410c0ae81",
     "gpt-6.1-sol/transport-amendment.json": "fb0d3616622473b04e2e8702b3281fcf2095fdb9855d0c005e6c1420a6722b55",
-    "api-error-envelope-audit.json": "761d82e1713b7f9ef1e28aa7fe91103ed3097a065309f520d2860f1934368731"
+    "api-error-envelope-audit.json": "81a065964e7f2d3d6b673f6fe09292bb0163e146f6a6bf1c3e70aa2d0ff3c862"
   }
 }

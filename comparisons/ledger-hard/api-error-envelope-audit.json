@@ -3,7 +3,7 @@
   "rule": "terminal_reason=api_error and zero input/output/cache tokens in a nested provider envelope",
   "sources": {
     "calls.jsonl": {
-      "sha256": "e2752807484f32b10b53d301d8f8f8ffc0e32b96f0f36016c8fd7971cc609ddf",
+      "sha256": "efbc92b5754f7626d51f99788ea5d818a636f122a9fb5e81927480e9e332a10a",
       "records": 6560
     },
     "dialect/calls.jsonl": {
