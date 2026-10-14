@@ -7,8 +7,6 @@ see_also:
   - validate-overview
   - validate-executor-loop
   - validate-protect
-next:
-  - validate-executor-loop
 ---
 
 ## What it is

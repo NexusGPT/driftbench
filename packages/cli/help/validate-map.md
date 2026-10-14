@@ -8,8 +8,6 @@ see_also:
   - validate-reading-items
   - validate-generator
   - validate-mutants-and-rulings
-next:
-  - validate-generator
 ---
 
 ## What it is

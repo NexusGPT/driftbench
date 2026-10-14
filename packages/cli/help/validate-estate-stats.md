@@ -7,8 +7,6 @@ see_also:
   - validate-estate-generate
   - validate-estate-replay
   - validate-estate-maintain
-next:
-  - validate-estate-maintain
 ---
 
 ## What it is

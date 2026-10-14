@@ -7,8 +7,6 @@ see_also:
   - validate-self-checks
   - validate-judges
   - validate-overview
-next:
-  - validate-estate-loop
 ---
 
 ## What it is

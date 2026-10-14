@@ -8,8 +8,6 @@ see_also:
   - validate-estate-maintain
   - validate-estate-stats
   - validate-estate-live
-next:
-  - validate-estate-live
 ---
 
 ## What it is

@@ -8,8 +8,6 @@ see_also:
   - validate-estate-loop
   - validate-estate-scan
   - validate-estate-generate
-next:
-  - validate-estate-generate
 ---
 
 ## What it is

@@ -10,8 +10,6 @@ see_also:
   - validate-estate-replay
   - validate-estate-live
   - validate-estate-stats
-next:
-  - validate-estate-unit
 ---
 
 ## What it is
