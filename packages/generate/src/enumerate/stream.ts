@@ -1,19 +1,22 @@
 import { mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
-import { type Spec, validateSpec } from '@agent-nexus/driftbench-core';
+import { checkSpec, type Spec } from '@agent-nexus/driftbench-core';
 import { stringify } from 'yaml';
 import { seedFolderName } from '../families/instances';
 import {
+  generatedSpecText,
   NO_THEN_CRITERION,
   PLACEHOLDER_CRITERION,
   renderDraft,
   SEEDERS,
   type Seeder,
   type SpecDraft,
-  specText,
 } from '../seed/assemble';
 import { DeviationBalance } from '../seed/deviation-balance';
 import type { PreparedMap } from '../seed/map';
+import { phraseDrafts } from '../seed/phrase-seeder';
+import { restatedDrafts } from '../seed/restated-seeder';
+import { indexDimensions, indexPathValues } from '../seed/scenario';
 import {
   boundarySeeder,
   coverDraft,
@@ -88,6 +91,8 @@ function writeSuite(
   context: SeedContext,
 ): GenerateDiskResult {
   const { t, seed, max } = context;
+  context.pathValues = indexPathValues(prepared);
+  context.dimensionIndex = indexDimensions(prepared);
   const run = { seed, mapPath: options.mapPath };
   const coverage = new StreamCoverage(prepared, t, scratch);
   const invalid = new DiskArray<GenerateReport['invalid'][number]>(scratch, 'invalid.jsonl');
@@ -112,21 +117,28 @@ function writeSuite(
   ) as Record<Seeder, SeederTotals>;
   const drafted = Object.fromEntries(SEEDERS.map((seeder) => [seeder, 0])) as Record<Seeder, number>;
   let fileCount = 0;
+  let lastDirectory: string | undefined;
   const write = (path: string, text: string | Uint8Array): void => {
     const target = resolve(directory, path);
     const inside = relative(directory, target);
     if (inside === '..' || inside.startsWith(`..${sep}`) || resolve(target) === directory)
       throw new RangeError(`Generated path escapes outputDir: ${path}`);
-    mkdirSync(dirname(target), { recursive: true });
+    const parent = dirname(target);
+    if (parent !== lastDirectory) {
+      mkdirSync(parent, { recursive: true });
+      lastDirectory = parent;
+    }
     writeFileSync(target, text, { flag: 'wx' });
     fileCount += 1;
   };
   const balance = new DeviationBalance(prepared);
+  // The phrases the complete specs say so far: the phrase seeder adds only those no complete spec says yet.
+  const saidPhrases = new Set<string>();
   const render = (draft: SpecDraft): Spec | undefined => {
     const seeder = draft.seeder;
     drafted[seeder] += 1;
     const rendered = renderDraft(prepared, draft, run);
-    const loaded = validateSpec(rendered.spec, rendered.id);
+    const loaded = checkSpec(rendered.spec, rendered.id);
     if (!loaded.ok) {
       invalid.push({ id: rendered.id, errors: loaded.errors });
       return;
@@ -167,11 +179,18 @@ function writeSuite(
     }
     const complete = !needsPhrase && !needsThen;
     if (complete) totals.complete += 1;
-    if (complete) balance.observe(loaded.spec);
+    if (complete) {
+      balance.observe(loaded.spec);
+      for (const block of loaded.spec.blocks) {
+        if ('user' in block.when) saidPhrases.add(block.when.user);
+        else if ('injection' in block.when && block.when.injection.user !== undefined)
+          saidPhrases.add(block.when.injection.user);
+      }
+    }
     coverage.add(loaded.spec, seeder, complete);
     write(
       `${complete ? COMPLETE_DIR : INCOMPLETE_DIR}/${seeder}/${rendered.id}.yaml`,
-      specText(rendered, run, prepared.hash),
+      generatedSpecText(rendered, run, prepared.hash),
     );
     return complete ? loaded.spec : undefined;
   };
@@ -198,7 +217,7 @@ function writeSuite(
     '# Do not edit it by hand: change the family or the map and generate again. Fictional data only.',
   ].join('\n');
   for (const { id, spec, seed: workspace } of streamTaskSpecs(prepared, options.tasks ?? [], run)) {
-    const loaded = validateSpec(spec, id);
+    const loaded = checkSpec(spec, id);
     if (!loaded.ok) {
       invalid.push({ id, errors: loaded.errors });
       continue;
@@ -221,18 +240,11 @@ function writeSuite(
     }
   }
 
-  const cellKey = (values: Readonly<Record<string, string>>) =>
-    Object.entries(values)
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([dimension, value]) => `${dimension}=${value}`)
-      .join('&');
   const cells = coverage.cells(t);
   const uncovered = cells.filter((cell) => cell.count === 0);
   const unbuilt: GenerateReport['cover']['unbuilt'] = [];
-  const reached = new Set<string>();
   for (const cell of uncovered) {
-    const key = cellKey(cell.values);
-    if (reached.has(key)) continue;
+    if (coverage.isCovered(cell)) continue;
     if (drafted.cover >= max) {
       unbuilt.push({ cell: cell.values, reasons: ['cut by --max'] });
       continue;
@@ -244,13 +256,16 @@ function writeSuite(
       continue;
     }
     const made = render(built.draft);
-    if (made) for (const values of coverage.reached(made, t)) reached.add(cellKey(values));
-    if (!reached.has(key))
+    if (!coverage.isCovered(cell))
       unbuilt.push({
         cell: cell.values,
         reasons: [`${id} was built but ${made === undefined ? 'is incomplete' : 'does not reach the cell'}`],
       });
   }
+  const covered = uncovered.filter((cell) => coverage.isCovered(cell)).length;
+  // Restated slots, then phrases no complete spec says yet, in the order the eager API runs them.
+  for (const draft of restatedDrafts(prepared, context, 0)) render(draft);
+  for (const draft of phraseDrafts(prepared, context, saidPhrases, 0)) render(draft);
   // Deviation balance, as the eager API runs it: after coverage, on what the suite probes so far.
   const written = Object.values(seeders).reduce((sum, entry) => sum + entry.specs, 0);
   for (const draft of balance.topUps(context, written)) render(draft);
@@ -288,7 +303,7 @@ function writeSuite(
     metamorphic: metamorphic.summary,
     cover: {
       cells: uncovered.length,
-      covered: uncovered.filter((cell) => reached.has(cellKey(cell.values))).length,
+      covered,
       unbuilt,
       unreachable: prepared.axisMap.dimensions.flatMap((dimension) =>
         dimension.values

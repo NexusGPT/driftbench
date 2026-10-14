@@ -209,7 +209,7 @@ One phrasing of a value, for the phrase bank.
 
 ## Proposal relations
 
-A relation between values: a path, a tool call, what a reply states, concrete values, a recovery, a reply language.
+A relation between values: a path, a tool call, what a reply states, concrete values, a recovery, a reply language, the replies per turn.
 
 Write one of these forms.
 
@@ -223,6 +223,7 @@ Write one of these forms.
 * a mapping with `kind: tool_order`, with the fields below
 * a mapping with `kind: route`, with the fields below
 * a mapping with `kind: reply_text`, with the fields below
+* a mapping with `kind: reply_count`, with the fields below
 
 With `kind: path`:
 
@@ -374,6 +375,18 @@ A rule that fixes the exact words of a reply.
 | `kind` | `reply_text` | yes |  | Marks the relation as a rule that fixes the exact words of a reply. |
 | `subject` | [Proposal relations reply_text subject](#proposal-relations-reply_text-subject) | yes |  | The rule value that fixes the exact words of a reply. |
 | `text` | string, not empty | yes |  | The exact words of the reply. |
+| `evidence` | [Evidence](#evidence) | yes |  | Where the entry comes from: a source path and a quote from it. |
+| `produced_by` | [Origin](#origin) | yes |  | Who proposed the entry: code (the pre-pass) or a model (a section answer). |
+| `approved` | boolean | yes |  | False until a person approves the entry. |
+
+With `kind: reply_count`:
+
+How many replies the agent sends to one user turn. A map without it means one reply per user turn.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `kind` | `reply_count` | yes |  | Marks the relation as how many replies the agent sends to one user turn. |
+| `per_turn` | `one` or `any` | yes |  | one: a single reply to every user turn. any: the agent may send several replies to one turn. Without this relation a map means one. |
 | `evidence` | [Evidence](#evidence) | yes |  | Where the entry comes from: a source path and a quote from it. |
 | `produced_by` | [Origin](#origin) | yes |  | Who proposed the entry: code (the pre-pass) or a model (a section answer). |
 | `approved` | boolean | yes |  | False until a person approves the entry. |

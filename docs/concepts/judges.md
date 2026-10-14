@@ -44,6 +44,39 @@ criteria:
 
 A reference to a name the spec does not define is an error. A spec with no `criteria` list may name criteria from a shared catalogue; `spec lint` warns that they must come from there.
 
+### Judge settings a criterion carries
+
+A criterion in a spec or a criteria file can carry its own judge settings. A criterion without them sends the same request as before, byte for byte, so recorded answers keep replaying; with them the request changes, and so does its cassette key.
+
+```yaml
+criteria:
+  - name: ship_day
+    rubric: Does the reply give the ship day the order record states?
+    prompt_version: 2
+    decoder_version: 2
+  - name: matches_policy
+    rubric: Does the reply state the refund policy?
+    assessment: fact-ledger
+    reference: Refunds are paid within 14 days to the card used.
+    grounding: strict
+  - name: complete_answer
+    rubric: Does the reply answer the customer fully?
+    items:
+      - { name: day, rubric: Names the ship day., hard: true }
+      - { name: carrier, rubric: Names the carrier., weight: 0.5 }
+    threshold: 0.8
+    repeat: 3
+```
+
+* `prompt_version: 2` adds the exact-identifier, stated-facts and stated-scope rules to the criterion prompt; `decoder_version: 2` drops an ungrounded quote and keeps the verdict; `answer_contract: legacy` replays scores recorded with the earlier prompt and parser.
+* `assessment` replaces the criterion ledger: `response-relevance` (the reply answers the latest ask), `conformance` (to `reference`, which may be empty), `answer-audit` (the submitted answer, against `reference` when given) or `fact-ledger` (every fact of `reference` in the reply; `grounding: strict` refuses text that is not a source quote). The first three read the transcript only, so a run leaves the Given summary out of their request. Conformance reads the rubric alone over the whole supplied slice: it takes no `pass` or `fail` picture (a criteria file of it needs none) and no `scope: block`. Response relevance and conformance take no separate artifact: on a task block the produced file text joins the end of their transcript as a context line.
+* `items` score a rubric item by item, from 0 to 4, with optional `weight` and `hard`; `threshold` is the weighted fraction a pass needs (default 1). `requirements` instead split the criterion ledger into named requirements.
+* `repeat: <k>` asks the judge the same request k times: the verdict holds only when all k agree, else it is inconclusive. It is not the spec repeats (`repeat_reducer`). `per_turn: true` judges a conversation one customer turn at a time ([turn-by-turn judging](#additional-judge-apis)). They apply to the judge of a run (`--judge`) and to `judge run`.
+
+`spec lint` and `judge check` refuse a setting that cannot work and name the fix, such as `assessment fact-ledger needs a nonempty reference` or `threshold needs items`. The field reference is in [the spec reference](../reference/spec.md).
+
+Two settings apply to a whole run, as flags: `--verify arithmetic` and `--prompt-budget <chars>` (see [the CLI](../reference/cli.md#driftbench-judge)).
+
 ## Criteria folders and fixture pairs
 
 Every field of a criterion file and of a label file is in the [criteria and labels reference](../reference/criteria.md).
@@ -177,7 +210,8 @@ Every judge is a `JudgeClient`: an `id`, a model `family`, a class `cls`, an opt
 * A judge that a platform offers is listed on the page of that platform's adapter, such as the [Nexus adapter](../adapters/nexus.md).
 * No model is hardcoded for the provider clients: the model comes from its variable or the `model` option. A missing key or model is a `config` error that names the variable, never a value.
 * Keys come from the environment only (the `env` option, `process.env` by default). A key lives inside the client and is never a field of it, so printing a client never shows it.
-* A call is retried twice, with a growing wait, on 408, 409, 429, 500, 502, 503, 504, 529, a network failure or a timeout (120 seconds per attempt by default). A 4xx the request caused is never retried. Redirects are refused.
+* A call is retried under the [shared retry policy](../retries.md): up to 4 attempts in all, the first included, with a growing wait, on a 408, a 429, any 5xx (529 included), a network failure or a timeout (120 seconds per attempt by default). Any other 4xx, 409 included, is never retried. Redirects are refused.
+* A chat judge sends temperature 0. When a model answers a 400 that names the temperature, the OpenAI and Anthropic clients ask once more without it and stop sending it for that client.
 * An error names the URL and the status and quotes at most 200 characters of the provider's error body. Any header value the provider echoes back is replaced by `[redacted]`.
 * A client throws only when it got no answer at all. In a council, that judge votes inconclusive and the error is counted.
 
@@ -444,7 +478,7 @@ On the Claude council recording, every criterion goes to haiku, at 0.0002 to 0.0
 
 ### A cascade: the costly judges only where the cheap one is unsure
 
-`judge calibrate --cascade` takes the judges in order: the first answers every fixture (each repeat) and every labelled block; the others answer only the items where the first is unsure (inconclusive, or a score between 0.2 and 0.8) or disagrees with the truth (the fixture's side or the label). An escalated item takes the majority of every judge that answered it, two agreeing votes needed. `--only <criterion>` limits the run; the report, written as JSON to `--out`, gives per criterion the separation, the kappa, the escalated items with the reason, and the cost.
+`judge calibrate --cascade` takes the judges in order: the first answers every fixture (each repeat) and every labelled block; the others answer only the items where the first is unsure (inconclusive, or a score between 0.2 and 0.8) or disagrees with the truth (the fixture's side or the label). An escalated item takes the majority of every judge that answered it, two agreeing votes needed. `--only <criterion>` limits the run; the report, written as JSON to `--out`, gives per criterion the separation, the kappa, the escalated items with the reason, and the cost. `--agent-family` applies as it does to the council: a judge of the agent's family, first or escalated, is refused before any call. The cascade writes no assignment table, so an `--assign` or a `--mode` other than the default is refused with it.
 
 Escalating on disagreement uses the label, which a run does not have: it measures whether the costly judges fix the cheap judge's errors. The report also gives `unsureOnly`, from the same answers, which escalates only the unsure items, as a deployed cascade could.
 
@@ -597,10 +631,10 @@ These APIs are available in the package. The judge validator checks their behavi
 * Structured output. The OpenAI chat client asks for a JSON schema of the answer contract (`response_format: json_schema`), and the Google client gives it as `responseSchema`.
 * Token usage. `usageFromResponse(provider, body)` reads input and output token counts from OpenAI, Anthropic and Google response bodies.
 * Retry-After. On a 429 or a 503 carrying a `Retry-After` header, a client uses its seconds or HTTP date, capped by its configured maximum delay.
+* Label hygiene. Each criterion of the calibration report names labelled blocks with the same slice and opposite labels in `labelConflicts`, labelled blocks equal to a fixture in `fixtureLeaks`, and carries `few-labels` in its `warnings` when a label class has fewer than 5 blocks.
 
 ## Remaining planned capabilities
 
-* Label hygiene. Calibration names labelled blocks with the same slice and opposite labels, labelled blocks equal to a fixture, and warns when a label class has fewer than 5 blocks.
 * The repair mark on the verdict. The judge verdict built from repaired votes says so, as the votes and cassette entries do today.
 
 ## The judge check in a run
@@ -725,6 +759,27 @@ const result = await judgePairwise(client, criterion, transcript, first, second,
 Item names are stable caller-owned requirement ids, not model-assigned row positions. Code ignores unknown names before validating scores and retains them in `ignoredRequirementIds`. Every requested name must still appear exactly once; missing, duplicate or malformed requested rows are unparseable. Code then computes the weighted fulfillment fraction from only the requested items. A candidate that fully meets every hard item outranks one that fails a hard item. Otherwise the fractions decide. A null score leaves the assessment inconclusive. The swapped pass reverses the rubric presentation order as well as the candidates; names preserve aggregation identity. Reasoning prose cannot replace a structured score, even when they conflict.
 
 `judgeRubric(client, request, items, { threshold })` performs the pointwise version in one batched call. An invalid ledger gets one re-ask with the same caller requirements and the large budget, then remains inconclusive if still invalid. Reported `costUsd` includes both calls. Valid scores, including null, do not trigger a re-ask. Explicit legacy requests retain their previous one-call behavior. Its default threshold is full fulfillment. The result carries the individual scores and aggregate in `rubric`; a hard failure cannot be offset by soft points. No rubric is generated or applied to creative writing automatically. These APIs are code options; they do not add fields to the spec YAML schema.
+
+### Declared preference: long-structured (opt-in)
+
+`judgePairLedger(client, request, { preference: 'long-structured' })` declares that the caller prefers longer, well-structured replies. It is off by default; without it the ledger verdict is unchanged. It is a stated preference of the user, not a measure of quality.
+
+After the ledger verdict, code decides in this order:
+
+* An explicit request row (a hard requirement that decided a reading, such as a stated word limit or form) wins: `preference.hard-row`.
+* Otherwise the longer reply wins when it is structured, or when the shorter reply is not structured either: `preference.long-structured`. Length is words for English and Han characters for Chinese, from the reader-first features.
+* Otherwise the ledger choice stands: `preference.ledger`. Equal lengths also keep the ledger choice.
+
+A reply is structured (`isStructured`) when it has paragraphs, headings or lists rather than one long block (the reader-first structure flag), and does not repeat itself (repeated sentences at most 8 percent, repeated four-grams at most 15 percent). The result keeps the ledger `verdict` and adds `preference` with the rule id, both lengths and both structure readings. The setting makes no extra model call.
+
+The setting prefers the longer reply. Use it only when longer, structured answers are what you want. Measured with Claude Haiku 5.5 on WritingPreferenceBench pairs ([results](../../examples/writing-heldout/results/RESULTS.md)):
+
+| Pool | Accuracy | Picks the longer reply | Right when the human chose the longer reply | Right when the human chose the shorter reply |
+|---|---:|---:|---:|---:|
+| Recorded TEST, 173 pairs (346 games) | 65.3 | 96.5 | 95.7 | 1.8 |
+| Fresh pool, 144 pairs (288 games) | 66.0 | 93.8 | 96.7 | 11.5 |
+
+It scores well where the human labels favour longer replies, and it is almost always wrong where they favour the shorter one. A rule that always picks the longer reply scores 67.6 on the TEST and 63.9 on the fresh pool. The default judge scores 61.3 on the same TEST and picks the longer reply in 58.4 percent of games. Results with the setting are labelled "driftbench, long-structured setting" and never reported as the default judge.
 
 ### Reader-first configuration (length-aware, opt-in)
 
