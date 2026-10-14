@@ -1,6 +1,6 @@
 ---
 title: Reading an estate into a map
-summary: Scan a Claude Code estate into atoms, lint it, approve the prose atoms and export its situation axes, with every option and the lint codes.
+summary: Scan an agent estate into atoms, lint it, approve the prose atoms and export its situation axes, with every option and every lint finding.
 commands:
   - estate scan
   - estate lint

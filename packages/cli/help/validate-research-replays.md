@@ -1,6 +1,6 @@
 ---
 title: Research replays
-summary: Re-run the two frozen judge-decoder research replays offline, with no model call, and read their zero-breaks gate.
+summary: Re-run the two frozen research replays of the judge answer parser offline, with no model call, and read their zero-breaks gate.
 commands:
   - validate
 see_also:

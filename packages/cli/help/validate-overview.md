@@ -1,6 +1,6 @@
 ---
 title: Validators and their ladders
-summary: Run a validator ladder that proves one part of driftbench works, and read its table, seeds and exit code.
+summary: Run a validator ladder that proves one part of driftbench works, and read its table, its seeds and the level it reaches.
 commands:
   - validate
 see_also:
