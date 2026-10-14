@@ -1,11 +1,11 @@
 /** The boundary seeder: specs at the edges of each tool value. */
 
-import type { Assertion, ToolExpect } from '@agent-nexus/driftbench-core';
+import { type Assertion, isPlainObject, type ToolExpect } from '@agent-nexus/driftbench-core';
 import { NONE } from '@agent-nexus/driftbench-space';
 import type { PathRelation } from '../extract/proposal';
 import { choosePhrase, draftCriterion, type Pick, type SpecDraft } from './assemble';
 import { TOOL_FAILURE } from './deviation';
-import { type PreparedMap, partitionOf, valueId } from './map';
+import { type PreparedMap, partitionOf, type ToolSchema, valueId } from './map';
 import { type Rng, rngFor, streamSeed } from './random';
 import { slotsOf } from './relations';
 import {
@@ -114,16 +114,22 @@ export function boundarySeeder(
               cell.push([other, otherValue]);
             }
           }
-          tools.push({ label: found.tool.name, count: { min: 1 } });
+          // Asked to run the tool and report a returned value: one run, as a map's call is made once.
+          tools.push({ label: found.tool.name, count: 1 });
         } else if (INVALID_PARTITIONS.has(partition)) {
           tools.push({ label: found.tool.name, count: 0 });
         } else {
+          // A request for one run of a tool calls it once, as a map's call is made once unless it says
+          // otherwise. Its other arguments take their schema default; the input is closed when that names
+          // every argument of the schema (assemble.ts closeKnownInputs).
           const assertion = inputAssertion(found.path, found.schema, partition);
           const name = found.path[0];
           tools.push({
             label: found.tool.name,
-            count: { min: 1 },
-            ...(assertion !== undefined && name !== undefined ? { input: { [name]: assertion } } : {}),
+            count: 1,
+            ...(assertion !== undefined && name !== undefined
+              ? { input: { ...schemaDefaults(found.tool), [name]: assertion }, input_closed: true }
+              : {}),
           });
         }
       }
@@ -345,4 +351,18 @@ function oldBoundary(
     ],
     criteria: [criterion],
   };
+}
+
+/** The top-level input arguments whose schema gives a `default`, at that default. */
+function schemaDefaults(tool: ToolSchema): Record<string, Assertion> {
+  const properties = tool.input?.properties;
+  if (!isPlainObject(properties)) return {};
+  const out: Record<string, Assertion> = {};
+  for (const [key, schema] of Object.entries(properties)) {
+    if (!isPlainObject(schema) || !Object.hasOwn(schema, 'default')) continue;
+    const value = schema.default;
+    if (value === null || ['string', 'number', 'boolean'].includes(typeof value))
+      out[key] = value as Assertion;
+  }
+  return out;
 }
