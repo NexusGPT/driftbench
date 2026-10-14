@@ -143,7 +143,8 @@ export type KeyClient = {
  */
 export function dataKey(request: JudgeRequest): string {
   return contentHash({
-    ...(isPairLedgerRequest(request)
+    ...(isPairLedgerRequest(request) ||
+    (request.assessment?.kind === 'pairwise' && request.assessment.tieFollowup)
       ? { dialect: request.dialect ?? 'scratchpad-json', reasoning: request.reasoning }
       : {}),
     ...(request.referenceDisagreement === undefined

@@ -48,7 +48,12 @@ export type RubricItem = {
   readonly hard?: boolean;
 };
 export type Assessment =
-  | { readonly kind: 'pairwise'; readonly items?: readonly RubricItem[] }
+  | {
+      readonly kind: 'pairwise';
+      readonly items?: readonly RubricItem[];
+      /** Internal contract of the opt-in final ledger tie follow-up. */
+      readonly tieFollowup?: 'direct' | 'reasoning';
+    }
   | {
       readonly kind: 'fact-ledger';
       /** Pointwise only: reject reference/reply text that is not a source quote. Default semantic. */
@@ -73,6 +78,8 @@ export const PairwiseAnswer = z.strictObject({
   winnerQuote: z.string().trim().min(1).nullable(),
 });
 export type PairwiseAnswer = z.infer<typeof PairwiseAnswer>;
+
+const PairLedgerFollowupAnswer = z.strictObject({ winner: z.enum(['A', 'B']) });
 
 const score = z.number().int().min(0).max(4).nullable();
 const pointItem = z.strictObject({
@@ -146,7 +153,9 @@ export function responseSchema(request: JudgeRequest): Record<string, unknown> &
               ? FactLedgerAnswer
               : PointwiseFactLedgerAnswer
             : a?.kind === 'pairwise'
-              ? PairwiseAnswer
+              ? a.tieFollowup
+                ? PairLedgerFollowupAnswer
+                : PairwiseAnswer
               : a?.kind === 'rubric'
                 ? a.pairwise
                   ? pairLedger
@@ -247,6 +256,18 @@ export function parseJudgeValue(
       ? parseFactLedger(value, request, raw)
       : parsePointwiseFactLedger(value, request, raw);
   if (assessment.kind === 'pairwise') {
+    if (assessment.tieFollowup) {
+      const parsed = PairLedgerFollowupAnswer.safeParse(value);
+      if (!parsed.success) return invalid(raw, 'tie follow-up requires exactly one winner, A or B');
+      return {
+        raw,
+        winner: parsed.data.winner,
+        answer: {
+          outcome: parsed.data.winner === 'A' ? 'pass' : 'fail',
+          reasoning: 'forced-choice ledger tie follow-up',
+        },
+      };
+    }
     const parsed = PairwiseAnswer.safeParse(value);
     if (!parsed.success) return invalid(raw, parsed.error.issues[0]?.message ?? 'invalid winner');
     const { winner, winnerQuote, ...answer } = parsed.data;
