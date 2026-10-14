@@ -8,6 +8,7 @@ see_also:
   - judging-evidence
   - judging-mixture-of-judges
   - judging-criteria
+  - judging-long-structured
 ---
 
 ## What it is
@@ -28,6 +29,7 @@ On main, none of these settings has a command line option or a spec field, excep
 |---|---|---|
 | Response relevance | `assessment: { kind: 'response-relevance' }` on a request | The model lists each distinct requested part of the latest user entry, with a quote from it, and whether the final agent reply addresses it, with a quote from the reply. Code: any part `met: false` fails, else any `null` is inconclusive, else pass. System 2 judges only. The request may not carry `system`, `requirements`, `factAudit`, `candidates`, `artifact`, `inputs`, `given` or `reference`, nor `answerContract: 'legacy'`; it needs a user entry and an agent reply after it. |
 | Reader-first pair judge | `createReaderFirstJudge(client, { configuration: 'reader-first' })`, then `judgePair(request, first, second)` | A length-aware preference: it favours the longer complete reply unless machine measurements (length, structure, filler, hedges, repetition, jargon, readability and more) and both model presentations agree on a substantial reader-facing failure. Two model calls per pair. Thresholds `judgeMargin` 4, `featureMargin` 5, `minFailures` 1. It never replaces the default judge. It prefers longer replies by design: use it only when that matches your goal. |
+| Long-structured preference | `judgePairLedger(client, request, { preference: 'long-structured' })`. Available from the next release (PR 378), see `judging-long-structured`. | After the pair ledger verdict, the longer reply wins when it is structured; an explicit request row wins first. It prefers longer replies by design. |
 | Conformance audit | `assessment: { kind: 'conformance', reference }` | A frozen compliance audit prompt. The model returns `evidenceAvailable`, `satisfied` and `violations`; code: no evidence is inconclusive, satisfied with no violation is pass, else fail. |
 | Answer audit | `assessment: { kind: 'answer-audit' }`, optional `reference` | The model lists the conditions the criterion sets and settles each with a quote (`satisfied`, `violated`, `missing`, `unknown`); code checks the quotes: any violated or missing fails, else any unknown is inconclusive, else pass. |
 | Pointwise fact ledger | `assessment: { kind: 'fact-ledger' }` with a nonempty `reference` and no `candidates` | Each requested fact is `match`, `wrong` or `missing` in the reply, plus unsupported extra claims. Code passes only when every fact matches and nothing unsupported is claimed. `grounding: 'strict'` also requires quotes of the reference and of an agent entry; a failed grounding is inconclusive. |
