@@ -7,8 +7,14 @@ it('evicts old feasibility answers after a bounded query history without changin
     version: '1',
     agent: 'cache-test',
     prior: { kind: 'declared' },
-    constraints: [],
-    dimensions: ['a', 'b'].map((id) => ({
+    // Distinct forbidden extensions prevent equivalent-value memoisation from collapsing this history.
+    constraints: Array.from({ length: 257 }, (_, index) =>
+      ['a', 'b'].map((dimension) => ({
+        forbid: { [dimension]: `v${index}`, c: `v${index}` },
+        reason: 'distinct extension',
+      })),
+    ).flat(),
+    dimensions: ['a', 'b', 'c'].map((id) => ({
       id,
       title: id,
       kind: 'data',

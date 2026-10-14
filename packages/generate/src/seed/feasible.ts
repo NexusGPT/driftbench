@@ -22,6 +22,7 @@ const MAX_CACHED_CELLS = 65_536;
 
 export class Feasibility {
   private readonly sizes: number[];
+  private readonly representatives: number[][];
   /** Only constraints naming the chosen value can forbid a cell. */
   private readonly touchingValue: Map<number, number[]>[];
   private readonly cache = new Map<string | number, boolean>();
@@ -32,6 +33,7 @@ export class Feasibility {
 
   constructor(private readonly space: CompiledSpace) {
     this.sizes = space.dimensions.map((dimension) => dimension.values.length);
+    this.representatives = equivalentValues(space, this.sizes);
     let product = 1;
     const weights = this.sizes.map((size) => {
       const weight = product;
@@ -89,7 +91,7 @@ export class Feasibility {
         return keyOf(partial);
       held |= 1 << dimension;
       // Zero is an unspecified dimension; values occupy digits 1 through size.
-      key += (value + 1) * weight;
+      key += ((this.representatives[dimension]?.[value] ?? value) + 1) * weight;
     }
     return key;
   }
@@ -99,6 +101,32 @@ export class Feasibility {
    * in map order (the first allowed cell); with one, in a shuffled order per dimension (a seeded cell).
    */
   complete(partial: Partial, rng?: Rng, order?: readonly number[]): number[] | undefined {
+    if (
+      !rng &&
+      order === undefined &&
+      this.sizes.length <= 32 &&
+      partial.every(
+        ([dimension, value]) =>
+          Number.isInteger(dimension) &&
+          dimension >= 0 &&
+          dimension < this.sizes.length &&
+          Number.isInteger(value) &&
+          value >= 0 &&
+          value < (this.sizes[dimension] ?? 0),
+      )
+    ) {
+      const cell = new Array<number>(this.sizes.length).fill(-1);
+      let held = 0;
+      for (const [dimension, value] of partial) {
+        if ((cell[dimension] ?? -1) >= 0 && cell[dimension] !== value) return undefined;
+        cell[dimension] = value;
+        held |= 1 << dimension;
+      }
+      // Refute fixed conflicts before allocating a traversal of the free dimensions.
+      for (const [dimension] of partial) if (!this.consistent(cell, dimension)) return undefined;
+      const visit = this.order.filter((dimension) => (held & (1 << dimension)) === 0);
+      return this.search(cell, visit, 0, undefined) ? cell : undefined;
+    }
     const cell = this.sizes.map(() => -1);
     for (const [dimension, value] of partial) {
       const current = cell[dimension];
@@ -139,6 +167,56 @@ export class Feasibility {
     }
     return true;
   }
+}
+
+/**
+ * Values with the same forbidden extensions are interchangeable for existence queries. Replacing one
+ * by another preserves every constraint for every assignment of the other dimensions. This never
+ * rewrites a requested completion or the seeded search order, only a boolean memoisation key.
+ */
+function equivalentValues(space: CompiledSpace, sizes: readonly number[]): number[][] {
+  const identity = sizes.map((size) => range(size));
+  // Keep the generic behavior for noncanonical constraint inputs (including repeated dimensions).
+  if (
+    space.constraints.some((constraint) => {
+      const dimensions = new Set<number>();
+      return constraint.some(([dimension, value]) => {
+        if (
+          !Number.isInteger(dimension) ||
+          dimension < 0 ||
+          dimension >= sizes.length ||
+          !Number.isInteger(value) ||
+          value < 0 ||
+          value >= (sizes[dimension] ?? 0) ||
+          dimensions.has(dimension)
+        )
+          return true;
+        dimensions.add(dimension);
+        return false;
+      });
+    })
+  )
+    return identity;
+  const tails = sizes.map((size) => new Array<Set<string> | undefined>(size));
+  for (const constraint of space.constraints) {
+    for (const [dimension, value] of constraint) {
+      const byValue = tails[dimension];
+      if (!byValue) continue;
+      const clauses = byValue[value] ?? new Set<string>();
+      clauses.add(keyOf(constraint.filter(([at]) => at !== dimension)));
+      byValue[value] = clauses;
+    }
+  }
+  return identity.map((values, dimension) => {
+    const classes = new Map<string, number>();
+    return values.map((value) => {
+      const signature = JSON.stringify([...(tails[dimension]?.[value] ?? [])].sort());
+      const first = classes.get(signature);
+      if (first !== undefined) return first;
+      classes.set(signature, value);
+      return value;
+    });
+  });
 }
 
 /** A cache key for a partial cell, independent of the order of its pairs. */

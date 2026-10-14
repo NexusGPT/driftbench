@@ -1,4 +1,8 @@
-import { stringify } from 'yaml';
+import { Document, Scalar, stringify } from 'yaml';
+
+// Reuse the public YAML node/document API for scalar spellings without rebuilding its schema.
+const scalarNode = new Scalar<unknown>('');
+const scalarDocument = new Document({ v: scalarNode });
 
 const options = { lineWidth: 0, aliasDuplicateObjects: false };
 const unsupported = Symbol('unsupported YAML value');
@@ -9,11 +13,13 @@ let cachedCharacters = 0;
 
 /** Bounded scalar text reuse, independent of the number of specs emitted. */
 function scalar(value: unknown): string {
-  if (value !== null && !['string', 'number', 'boolean'].includes(typeof value)) throw unsupported;
+  const type = typeof value;
+  if (value !== null && type !== 'string' && type !== 'number' && type !== 'boolean') throw unsupported;
   const key = Object.is(value, -0) ? negativeZero : value;
   const known = scalars.get(key);
   if (known !== undefined) return known;
-  const text = stringify({ v: value }, options).slice(3, -1);
+  scalarNode.value = value;
+  const text = scalarDocument.toString(options).slice(3, -1);
   // Chomping and blank lines between following nodes remain the library's job.
   if (text.includes('\n')) throw unsupported;
   if (text.length > 16_384) return text;
@@ -52,21 +58,23 @@ export function stringifyGeneratedYaml(input: unknown): string {
     try {
       const array = Array.isArray(value);
       const prototype = Object.getPrototypeOf(value);
-      if (array ? prototype !== Array.prototype : ![Object.prototype, null].includes(prototype))
+      if (array ? prototype !== Array.prototype : prototype !== Object.prototype && prototype !== null)
         throw unsupported;
       const toJSON = Object.getOwnPropertyDescriptor(value, 'toJSON');
       if (toJSON?.get || toJSON?.set || typeof toJSON?.value === 'function') throw unsupported;
       const names = Object.keys(value);
-      for (const name of names) {
+      // Sparse or decorated arrays retain the YAML library's treatment.
+      if (array && names.length !== value.length) throw unsupported;
+      let kept = 0;
+      for (let index = 0; index < names.length; index += 1) {
+        const name = names[index] as string;
+        if (array && name !== String(index)) throw unsupported;
         const descriptor = Object.getOwnPropertyDescriptor(value, name);
         if (descriptor?.get || descriptor?.set) throw unsupported;
+        if (array || (value as Record<string, unknown>)[name] !== undefined) names[kept++] = name;
       }
-      // Sparse or decorated arrays retain the YAML library's treatment.
-      if (array && (names.length !== value.length || names.some((name, index) => name !== String(index))))
-        throw unsupported;
-      const entries = array
-        ? names
-        : names.filter((key) => (value as Record<string, unknown>)[key] !== undefined);
+      names.length = kept;
+      const entries = names;
       if (entries.length === 0) {
         lines.push(`${prefix}${array ? '[]' : '{}'}`);
         return;
@@ -80,13 +88,15 @@ export function stringifyGeneratedYaml(input: unknown): string {
         for (let index = 0; index < value.length; index += 1)
           render(value[index], indent + 2, `${index === 0 ? prefix : pad}- `);
       } else {
-        for (const [index, key] of entries.entries())
+        for (let index = 0; index < entries.length; index += 1) {
+          const key = entries[index] as string;
           render(
             (value as Record<string, unknown>)[key],
             indent + 2,
             `${index === 0 ? prefix : pad}${keyText(key)}: `,
             true,
           );
+        }
       }
     } finally {
       seen.delete(value);

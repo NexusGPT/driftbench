@@ -1,4 +1,4 @@
-import { type Issue, type LoadResult, type Spec, validateSpec } from '@agent-nexus/driftbench-core';
+import { checkSpec, type Issue, type LoadResult, type Spec } from '@agent-nexus/driftbench-core';
 import {
   assertGridSize,
   type CompiledSpace,
@@ -265,7 +265,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
       const rendered: Rendered = renderDraft(prepared, draft, run);
       const renderText = () => specText(rendered, run, prepared.hash);
       const text = options.specCap === undefined ? renderText() : '';
-      const loaded = validateSpec(rendered.spec, rendered.id);
+      const loaded = checkSpec(rendered.spec, rendered.id);
       if (!loaded.ok) {
         invalid.push({ id: rendered.id, errors: loaded.errors });
         continue;
@@ -324,7 +324,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
   for (const { id, spec, seed: workspace } of taskSpecs(prepared, options.tasks ?? [], run)) {
     const renderText = () => `${header}\n${stringify(spec, { lineWidth: 0, aliasDuplicateObjects: false })}`;
     const text = options.specCap === undefined ? renderText() : '';
-    const loaded = validateSpec(spec, id);
+    const loaded = checkSpec(spec, id);
     const totals = seeders.task;
     if (!loaded.ok) {
       invalid.push({ id, errors: loaded.errors });

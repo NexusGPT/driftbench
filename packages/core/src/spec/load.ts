@@ -30,8 +30,24 @@ export function parseSpecText(text: string, format: 'yaml' | 'json', path = '<in
   return validateSpec(raw, path);
 }
 
-/** Normalises and validates an already parsed value. */
+/** The full schema, semantic and lint result, for callers that do not consume a content hash. */
+export type SpecValidationResult = Omit<LoadedSpec, 'hash'> | Extract<LoadResult, { ok: false }>;
+
+/** Normalises, validates and hashes an already parsed value. */
 export function validateSpec(raw: unknown, path = '<inline>'): LoadResult {
+  const checked = checkSpec(raw, path);
+  if (!checked.ok) return checked;
+  return {
+    ok: true,
+    path: checked.path,
+    spec: checked.spec,
+    hash: contentHash(checked.spec),
+    warnings: checked.warnings,
+  };
+}
+
+/** Runs the same checks as validateSpec without computing an unused content digest. */
+export function checkSpec(raw: unknown, path = '<inline>'): SpecValidationResult {
   const normalized = normalizeSpec(raw);
   const errors = normalized.issues.filter((issue) => issue.level === 'error');
   const parsed = Spec.safeParse(normalized.value);
@@ -55,7 +71,6 @@ export function validateSpec(raw: unknown, path = '<inline>'): LoadResult {
     ok: true,
     path,
     spec: parsed.data,
-    hash: contentHash(parsed.data),
     warnings: lintSpec(parsed.data),
   };
 }

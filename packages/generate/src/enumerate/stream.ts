@@ -1,6 +1,6 @@
 import { mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
-import { type Spec, validateSpec } from '@agent-nexus/driftbench-core';
+import { checkSpec, type Spec } from '@agent-nexus/driftbench-core';
 import { stringify } from 'yaml';
 import { seedFolderName } from '../families/instances';
 import {
@@ -126,7 +126,7 @@ function writeSuite(
     const seeder = draft.seeder;
     drafted[seeder] += 1;
     const rendered = renderDraft(prepared, draft, run);
-    const loaded = validateSpec(rendered.spec, rendered.id);
+    const loaded = checkSpec(rendered.spec, rendered.id);
     if (!loaded.ok) {
       invalid.push({ id: rendered.id, errors: loaded.errors });
       return;
@@ -198,7 +198,7 @@ function writeSuite(
     '# Do not edit it by hand: change the family or the map and generate again. Fictional data only.',
   ].join('\n');
   for (const { id, spec, seed: workspace } of streamTaskSpecs(prepared, options.tasks ?? [], run)) {
-    const loaded = validateSpec(spec, id);
+    const loaded = checkSpec(spec, id);
     if (!loaded.ok) {
       invalid.push({ id, errors: loaded.errors });
       continue;

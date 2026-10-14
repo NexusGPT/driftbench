@@ -181,10 +181,23 @@ export function stageAfter(recovery: Recovery, pending: string): string | undefi
 // Slots -------------------------------------------------------------------------------------------------
 
 const SLOT = /\{([a-z][a-z0-9_]*)\}/g;
+const slotCache = new Map<string, readonly string[]>();
+
+function slotNames(text: string): readonly string[] {
+  const known = slotCache.get(text);
+  if (known) return known;
+  const names = [...text.matchAll(SLOT)].map((match) => match[1] as string);
+  // Bound both entry count and retained text independently of generated suite size.
+  if (text.length <= 1024) {
+    if (slotCache.size >= 2048) slotCache.clear();
+    slotCache.set(text, names);
+  }
+  return names;
+}
 
 /** The slots a text reads. */
 export function slotsIn(text: string): string[] {
-  return [...text.matchAll(SLOT)].map((match) => match[1] as string);
+  return [...slotNames(text)];
 }
 
 /** The slots every string of a value reads, nested values included. */
@@ -199,7 +212,9 @@ export type Filled<T> = { ok: true; value: T } | { ok: false; missing: string[] 
 
 /** A text with each `{slot}` replaced; `literal` writes a value as a literal regular expression. */
 export function fillText(text: string, slots: Slots, literal = false): Filled<string> {
-  const missing = slotsIn(text).filter((name) => slots[name] === undefined);
+  const names = slotNames(text);
+  if (names.length === 0) return { ok: true, value: text };
+  const missing = names.filter((name) => slots[name] === undefined);
   if (missing.length > 0) return { ok: false, missing: [...new Set(missing)] };
   return {
     ok: true,

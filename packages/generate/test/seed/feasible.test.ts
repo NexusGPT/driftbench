@@ -174,6 +174,73 @@ describe('Feasibility', () => {
     expect(reads).toBeLessThan(width * 8);
   });
 
+  it('reuses feasibility answers for values with identical forbidden extensions', () => {
+    const map: SpaceMap = {
+      ...MAP,
+      dimensions: [
+        {
+          id: 'A',
+          title: 'A',
+          kind: 'behaviour',
+          values: Array.from({ length: 256 }, (_, index) => ({ id: `a${index}`, title: 'a' })),
+        },
+        {
+          id: 'B',
+          title: 'B',
+          kind: 'channel',
+          values: [
+            { id: 'blocked', title: 'blocked' },
+            { id: 'open', title: 'open' },
+          ],
+        },
+      ],
+      constraints: Array.from({ length: 256 }, (_, index) => ({
+        forbid: { A: `a${index}`, B: 'blocked' },
+        reason: 'same forbidden extension',
+      })),
+    };
+    const feasibility = new Feasibility(compileSpace(map));
+    const complete = feasibility.complete.bind(feasibility);
+    let searches = 0;
+    feasibility.complete = (...args) => {
+      searches += 1;
+      return complete(...args);
+    };
+    for (let value = 0; value < 256; value += 1) {
+      expect(
+        feasibility.allowed([
+          [0, value],
+          [1, 0],
+        ]),
+      ).toBe(false);
+      expect(
+        feasibility.allowed([
+          [0, value],
+          [1, 1],
+        ]),
+      ).toBe(true);
+    }
+    expect(searches).toBe(2);
+    // Representatives affect only boolean memoisation, never the requested completion.
+    expect(
+      feasibility.complete([
+        [0, 255],
+        [1, 1],
+      ]),
+    ).toEqual([255, 1]);
+  });
+
+  it('does not merge an unconditional exclusion with an unconstrained value', () => {
+    const feasibility = new Feasibility(
+      compileSpace({
+        ...MAP,
+        constraints: [{ forbid: { A: 'a1' }, reason: 'never a1' }],
+      }),
+    );
+    expect(feasibility.allowed([[0, 0]])).toBe(false);
+    expect(feasibility.allowed([[0, 1]])).toBe(true);
+  });
+
   it('keeps missing values, reversed pairs and duplicate dimensions distinct in its cache', () => {
     const partials: Array<Array<[number, number]>> = [[]];
     for (const [dimension, entry] of space.dimensions.entries()) {
@@ -199,6 +266,57 @@ describe('Feasibility', () => {
       const expected = new Feasibility(space).complete(partial) !== undefined;
       expect(cached.allowed(partial)).toBe(expected);
       expect(cached.allowed([...partial].reverse())).toBe(expected);
+    }
+  });
+
+  it('matches exhaustive full-grid existence across mixed unary and higher-order constraints', () => {
+    const sizes = MAP.dimensions.map((dimension) => dimension.values.length);
+    const full = sizes.reduce<number[][]>(
+      (rows, size) => rows.flatMap((row) => Array.from({ length: size }, (_, value) => [...row, value])),
+      [[]],
+    );
+    const partials = sizes.reduce<Array<Array<[number, number]>>>(
+      (rows, size, dimension) =>
+        rows.flatMap((row) => [
+          row,
+          ...Array.from(
+            { length: size },
+            (_, value): Array<[number, number]> => [...row, [dimension, value]],
+          ),
+        ]),
+      [[]],
+    );
+    for (let seed = 0; seed < 20; seed += 1) {
+      const random = rngFor(seed, 'equivalent-values');
+      const map: SpaceMap = {
+        ...MAP,
+        constraints: Array.from({ length: 8 }, () => {
+          const entries = MAP.dimensions.flatMap((dimension) =>
+            random() < 0.5
+              ? [
+                  [
+                    dimension.id,
+                    dimension.values[Math.floor(random() * dimension.values.length)]?.id as string,
+                  ],
+                ]
+              : [],
+          );
+          return {
+            forbid: Object.fromEntries(entries.length > 0 ? entries : [['A', 'a1']]),
+            reason: 'mixed fixture',
+          };
+        }),
+      };
+      const compiled = compileSpace(map);
+      const possible = full.filter((cell) => !isForbidden(compiled, cell));
+      const feasibility = new Feasibility(compiled);
+      for (const partial of partials) {
+        const expected = possible.some((cell) =>
+          partial.every(([dimension, value]) => cell[dimension] === value),
+        );
+        expect(feasibility.allowed(partial)).toBe(expected);
+        expect(feasibility.allowed([...partial].reverse())).toBe(expected);
+      }
     }
   });
 

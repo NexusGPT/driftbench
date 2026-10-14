@@ -16,9 +16,24 @@ export function parseBlockYaml(text: string): { value: unknown } | undefined {
   const lines = text.split('\n');
   if (lines.at(-1) === '') lines.pop();
   let at = 0;
-  const indentation = (line: string) => line.match(/^ */)?.[0].length ?? 0;
+  let indentAt = -1;
+  let indent = 0;
+  const indentation = (): number => {
+    if (indentAt !== at) {
+      const line = lines[at] ?? '';
+      indent = 0;
+      while (line.charCodeAt(indent) === 32) indent += 1;
+      indentAt = at;
+    }
+    return indent;
+  };
   const skip = () => {
-    while (at < lines.length && (/^ *#/.test(lines[at] ?? '') || /^ *$/.test(lines[at] ?? ''))) at += 1;
+    while (at < lines.length) {
+      const line = lines[at] ?? '';
+      const leading = indentation();
+      if (leading !== line.length && line[leading] !== '#') break;
+      at += 1;
+    }
   };
   const rawScalar = (source: string): unknown => {
     if (source === '{}') return {};
@@ -73,7 +88,7 @@ export function parseBlockYaml(text: string): { value: unknown } | undefined {
     if (colon < 1 || !plainKey.test(key) || (source[colon + 1] !== undefined && source[colon + 1] !== ' '))
       throw unsupported;
     if (typeof scalar(key) !== 'string') throw unsupported;
-    return [key, source.slice(colon + 1).replace(/^ /, '')];
+    return [key, source.slice(source[colon + 1] === ' ' ? colon + 2 : colon + 1)];
   };
   const literal = (source: string, indent: number): string => {
     if ((source !== '|-' && source !== '|') || !text.endsWith('\n')) throw unsupported;
@@ -81,10 +96,9 @@ export function parseBlockYaml(text: string): { value: unknown } | undefined {
     let first = true;
     while (at < lines.length) {
       const line = lines[at] ?? '';
-      if (line !== '' && indentation(line) <= indent) break;
-      if (line !== '' && indentation(line) < indent + 2) throw unsupported;
-      if (line !== '' && (line.trim() === '' || (first && indentation(line) !== indent + 2)))
-        throw unsupported;
+      if (line !== '' && indentation() <= indent) break;
+      if (line !== '' && indentation() < indent + 2) throw unsupported;
+      if (line !== '' && (line.trim() === '' || (first && indentation() !== indent + 2))) throw unsupported;
       if (line !== '') first = false;
       content.push(line.slice(indent + 2));
       at += 1;
@@ -98,7 +112,7 @@ export function parseBlockYaml(text: string): { value: unknown } | undefined {
     if (source !== '') return scalar(source);
     skip();
     const line = lines[at];
-    if (line === undefined || indentation(line) !== indent + 2) throw unsupported;
+    if (line === undefined || indentation() !== indent + 2) throw unsupported;
     return block(indent + 2);
   };
   const map = (indent: number, first?: string): Record<string, unknown> => {
@@ -108,8 +122,8 @@ export function parseBlockYaml(text: string): { value: unknown } | undefined {
       if (source === undefined) {
         skip();
         const line = lines[at];
-        if (line === undefined || indentation(line) < indent) break;
-        if (indentation(line) !== indent || line.slice(indent).startsWith('- ')) throw unsupported;
+        if (line === undefined || indentation() < indent) break;
+        if (indentation() !== indent || line.slice(indent).startsWith('- ')) throw unsupported;
         source = line.slice(indent);
         at += 1;
       }
@@ -135,8 +149,8 @@ export function parseBlockYaml(text: string): { value: unknown } | undefined {
       if (source === undefined) {
         skip();
         const line = lines[at];
-        if (line === undefined || indentation(line) < indent) break;
-        if (indentation(line) !== indent || !line.slice(indent).startsWith('- ')) throw unsupported;
+        if (line === undefined || indentation() < indent) break;
+        if (indentation() !== indent || !line.slice(indent).startsWith('- ')) throw unsupported;
         source = line.slice(indent);
         at += 1;
       }
@@ -154,7 +168,7 @@ export function parseBlockYaml(text: string): { value: unknown } | undefined {
   };
   try {
     skip();
-    if (at === lines.length || indentation(lines[at] ?? '') !== 0) return;
+    if (at === lines.length || indentation() !== 0) return;
     const result = block(0);
     skip();
     if (at !== lines.length) return;
