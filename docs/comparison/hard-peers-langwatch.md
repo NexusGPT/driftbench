@@ -63,7 +63,7 @@ Pooled over the three rows, paired by case, driftbench answer audit against the 
 
 ## What the result says
 
-- The pre-registered test is significant: the answer audit is right on every case and LangWatch on 358 of 378. All 20 LangWatch misses are on task completion, and all are "inconclusive" answers on two classes: an instruction to the grader inside the reply (9 of 18 right) and a long reply hiding one wrong value (10 of 18 right).
+- The pre-registered test is significant: the answer audit is right on every case and LangWatch on 358 of 378. All 20 LangWatch misses are on task completion, and all are "inconclusive" answers on cases labelled pass. They fall in five classes: an instruction to the grader inside the reply (9 misses, 9 of 18 right), a long reply hiding one wrong value (8 misses, 10 of 18 right), and one miss each in double-negation, near-miss and partial-credit (17 of 18 right each). Two classes account for 17 of the 20.
 - Knowledge retention and conversation completeness tie at or near the ceiling.
 - Cost: 0.66 USD for 1,135 answered calls; every case completed.
 
