@@ -1,5 +1,7 @@
 # Separate core-dialect variant
 
+Gemini 3.8 Flash was dropped by the owner. Its recorded results below remain archival data, with no pending or parked continuation.
+
 Generated 2026-10-13T11:20:33.488019+00:00. Source: `comparisons/ledger-hard/dialect/scores.json`, `decisions.json`, `attempts.jsonl` and `calls.jsonl`.
 
 Core `2bb0a7a787ca4466ff69d204f2380a7ad19cc056`; variant seal SHA-256 `ebbc5876d5a9d482203382d33c7fa3c0ee640b6e1254bf821784004493cd85d9`. This is the same sealed case cohort under a separately frozen transport and reasoning setting, not new data. No primary request key or answer is reused.
@@ -25,10 +27,10 @@ Luna and Gemini use medium for both contestants. Candidate output uses the nativ
 | gemini-3.8-flash | rubric/peer | 384/384 | 384 | 384 | 0 | 0 | 1 = 1 | 1 = 1 | TIE (not equivalence) |
 | gemini-3.8-flash | factuality/peer | 384/384 | 384 | 384 | 0 | 0 | 1 = 1 | 1 = 1 | TIE (not equivalence) |
 | gemini-3.8-flash | pii/peer | 384/384 | 384 | 384 | 0 | 0 | 1 = 1 | 1 = 1 | TIE (not equivalence) |
-| gemini-3.8-flash | goal/peer | 274/384 | 274 | 138 | 136 | 0 | 1/43556142965880123323311949751266331066368 = 2.2958874e-41 | 1/87112285931760246646623899502532662132736 = 1.1479437e-41 | PENDING |
-| gemini-3.8-flash | goal/peer-full-state | 272/384 | 272 | 261 | 11 | 0 | 1/1024 = 0.0009765625 | 1/2048 = 0.00048828125 | PENDING |
-| gemini-3.8-flash | pooled-default/mixed | 1426/1536 | 1426 | 1290 | 136 | 0 | 1/43556142965880123323311949751266331066368 = 2.2958874e-41 | 1/87112285931760246646623899502532662132736 = 1.1479437e-41 | PENDING |
-| gemini-3.8-flash | pooled-equal-evidence/mixed | 1424/1536 | 1424 | 1413 | 11 | 0 | 1/1024 = 0.0009765625 | 1/2048 = 0.00048828125 | PENDING |
+| gemini-3.8-flash | goal/peer | 274/384 | 274 | 138 | 136 | 0 | 1/43556142965880123323311949751266331066368 = 2.2958874e-41 | 1/87112285931760246646623899502532662132736 = 1.1479437e-41 | dropped by the owner |
+| gemini-3.8-flash | goal/peer-full-state | 272/384 | 272 | 261 | 11 | 0 | 1/1024 = 0.0009765625 | 1/2048 = 0.00048828125 | dropped by the owner |
+| gemini-3.8-flash | pooled-default/mixed | 1426/1536 | 1426 | 1290 | 136 | 0 | 1/43556142965880123323311949751266331066368 = 2.2958874e-41 | 1/87112285931760246646623899502532662132736 = 1.1479437e-41 | dropped by the owner |
+| gemini-3.8-flash | pooled-equal-evidence/mixed | 1424/1536 | 1424 | 1413 | 11 | 0 | 1/1024 = 0.0009765625 | 1/2048 = 0.00048828125 | dropped by the owner |
 
 | Model | Row | Wilson ours | Wilson peer | Family bootstrap difference | Inconclusive ours/peer | USD/100 ours/peer |
 |---|---|---|---|---|---|---|
