@@ -787,6 +787,26 @@ A public benchmark for judges: the same 270 sealed pairs and the same model for 
 </a>
 <p align="center"><sub><a href="docs/comparison/methods.md#public-benchmarks-against-promptfoo">How we measured</a></sub></p>
 
+### Every default judge, five public benchmarks
+
+The same sealed items and the same model (Claude Haiku 5.5) for every contestant. DeepEval, Inspect, Langfuse and LangWatch run their default judge; driftbench and promptfoo are the recorded cells. Paired exact tests, driftbench against each tool, p below 0.05 counts as a decision. Inspect and Langfuse have no pairwise grader, so they score each reply alone and the higher score wins.
+
+| Benchmark | driftbench | promptfoo | DeepEval | Inspect | Langfuse | LangWatch |
+|---|---:|---:|---:|---:|---:|---:|
+| JudgeBench, 270 pairs | 88.9 | 83.0 | 86.3 | 80.0 | 74.8 | 83.7 |
+| MM-Eval, 591 items | 88.9 | 86.5 | 84.1 | 75.4 | 73.5 | 83.9 |
+| RubricBench, 1,580 games | 82.7 | 75.6 | 77.6 | 26.6 | 25.1 | 74.9 |
+| LongJudgeBench verify, 221 items | 74.2 | 72.0 | 58.8 | 73.3 | 75.1 | 73.3 |
+| LongJudgeBench writing, 346 games | 61.3 | 56.9 | 58.4 | 11.6 | 14.5 | 52.6 |
+
+- Wins: 18 of 25 comparisons, each with p below 0.05.
+- Ties: 7 of 25 (JudgeBench vs DeepEval; verify vs promptfoo, Inspect, Langfuse and LangWatch; writing vs promptfoo and DeepEval).
+- Losses: none are significant. Langfuse scores 0.9 points higher on verify (13 wins against 15 losses, p 0.85), which is a tie. On writing, the reader-first variant of driftbench scores 67.6 against 61.3 (p 0.078).
+- A few items stay undecided after three passes because the model refused them. They count as wrong for the contestant. Undecided items: MM-Eval 3 to 7 per peer, RubricBench 1 each for DeepEval and Langfuse.
+- Inspect and Langfuse scores on RubricBench and writing are low because a pointwise grader returns equal scores for many pairs, and a tie counts as wrong.
+
+Per benchmark tables with wins, losses, p values and spend: [JudgeBench](docs/comparison/benchmarks/judgebench-all-peers.md), [MM-Eval](docs/comparison/benchmarks/mmeval-all-peers.md), [RubricBench](docs/comparison/benchmarks/rubricbench-all-peers.md), [verify](docs/comparison/benchmarks/verify-all-peers.md), [writing](docs/comparison/benchmarks/writing-all-peers.md). The sealed items are not committed. Rebuild them with `python examples/all-peers-public/export.py --items-only --rubricbench-items <loader output>`, which checks each file against the committed sha256, then re-score offline with `python examples/all-peers-public/stats.py`.
+
 ### What a judgement costs
 
 <a href=".github/readme/judge-cost-light.png">

@@ -1,0 +1,20 @@
+{
+ "branch": "origin/research/ledger-verify",
+ "commit": "99365e29790009d7087e71d51741379a26453cba",
+ "files": {
+  "pool": [
+   "examples/ledger-verify/evidence/pool.json",
+   "f569c72a5e701366d232b619a623c09abddcf69cfc4379e849dbdef76b9559c5"
+  ],
+  "recorded": [
+   "examples/ledger-verify/results/haiku.strict.json",
+   "f9f614fe4b9d5a2fb592261ce07d05721a5eeaaa9f7e07c073ff7ab176c64ac4"
+  ]
+ },
+ "recordedCheck": {
+  "driftbench": 164,
+  "promptfoo": 159
+ },
+ "items": 221,
+ "itemsSha256": "bc3331f5b8c3e4e69315f5b07fbc23db36ff97a0c458ad73132848ed4cb8ec71"
+}

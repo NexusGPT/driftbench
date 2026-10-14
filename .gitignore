@@ -168,3 +168,4 @@ benchmarks/**/*.tmp
 
 # Reader-first local run state
 .reader-first/
+examples/all-peers-public/data/*/items.json

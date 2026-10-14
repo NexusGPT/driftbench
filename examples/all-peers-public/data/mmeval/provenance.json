@@ -1,0 +1,41 @@
+{
+ "branch": "origin/research/ledger-mm",
+ "commit": "2cf712ff178129413e866ab8a13426042717b881",
+ "files": {
+  "pool": [
+   "research/ledger-mm/artifacts/pool.json",
+   "c5d9b880f98a3cefcacdd5ac1417d0ce70fe526e358edecd890dcfa792f65aeb"
+  ],
+  "recorded": [
+   "research/ledger-mm/recordings/decisions.jsonl",
+   "9e859d82c71ac89b4e115c4cf982e9e4ab8a78937b1582062376ea502b88f147"
+  ],
+  "results": [
+   "research/ledger-mm/test-results.json",
+   "6928d085d1df37c2d955560014f518f86b3edd57af756d81c7411d279db1d174"
+  ]
+ },
+ "recordedCheck": {
+  "primaryMissingIds": [
+   "4104",
+   "4326",
+   "4415",
+   "4506",
+   "4689",
+   "4705",
+   "4874",
+   "4928",
+   "4964"
+  ],
+  "primary": {
+   "ledger": 0.8886261261261261,
+   "promptfoo": 0.8645045045045044
+  },
+  "registeredAllIn": {
+   "ledger": 0.8766666666666667,
+   "promptfoo": 0.8550000000000001
+  }
+ },
+ "items": 600,
+ "itemsSha256": "4b506c680d7eeab660cf1d143b4f3517918fb07cc7c07d067b9006297f41a434"
+}
