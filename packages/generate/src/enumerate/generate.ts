@@ -26,6 +26,7 @@ import {
   specText,
 } from '../seed/assemble';
 import type { PreparedMap } from '../seed/map';
+import { restatedDrafts } from '../seed/restated-seeder';
 import {
   type BoundarySummary,
   type BudgetSummary,
@@ -377,6 +378,8 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
         reasons: [`${id} was built but ${made.length === 0 ? 'is incomplete' : 'does not reach the cell'}`],
       });
   }
+  // Restated slots: a value asked for first, another stated in the move; the move holds the latest.
+  renderSeeder('boundary', restatedDrafts(prepared, context, 0));
   const held = new Set(
     cellsOf(prepared, [], t).flatMap((cell) =>
       Object.entries(cell.values).map(([dimension, value]) => `${dimension}=${value}`),
