@@ -2,9 +2,12 @@
 
 The files in this folder are the topics `driftbench help` prints. The loader reads every file named
 `<area>-<slug>.md` here when the command runs, so a topic added later shows up in the index with no code
-change. This file is not a topic and is never printed.
+change. This file is not a topic and is never printed. `OVERVIEW.md` is not a topic either: `driftbench help`
+prints it first, then the topic list. It names every top-level command, grouped by task; a test fails when
+a command is missing from it.
 
-This contract is frozen. Every lane that writes topics follows it as written.
+This contract is frozen. Every lane that writes topics follows it as written. Changes after the first
+commit are additive only, and listed under "Changes" at the end.
 
 ## File name
 
@@ -16,6 +19,7 @@ The areas, in the order the index lists them:
 | Area | Covers |
 |---|---|
 | `core` | getting started, global options, configuration and environment, project layout, exit codes, reading help |
+| `recipes` | goal-first walkthroughs that chain real commands end to end, each on Acme; their own sections, below |
 | `authoring` | writing specs, maps, inventories, generation, import |
 | `running` | campaigns, smoke, replay, perturb, simulate, families, pilot |
 | `judging` | judges, criteria, the council, labels, the review queue |
@@ -36,6 +40,8 @@ commands:
   - campaign run
 see_also:
   - core-project-layout
+next:
+  - core-reading-help
 ---
 ```
 
@@ -45,6 +51,7 @@ see_also:
 | `summary` | one line; the index prints it beside the topic id |
 | `commands` | the driftbench commands the topic covers, each as its path without `driftbench`, such as `campaign run` or `estate unit`. Every runnable command must appear in at least one topic. A test fails on a path that names no command |
 | `see_also` | topic ids, such as `core-exit-codes`. A test fails on an id with no file |
+| `next` | optional: the topic ids to read after this one. The printer ends every topic with a `Next:` line; without the key it names the topic that follows in the index. A test fails on an id with no file |
 
 ## Body
 
@@ -61,7 +68,13 @@ heading spelled exactly as here, in this order, all present:
 
 Subsections (`###`) are free inside a section.
 
+A recipe, area `recipes`, has these sections instead, in this order: `## Goal`, `## Before you start`,
+`## Steps`, `## What you have at the end`, `## When a step fails`. Its `## Steps` holds the commands, run as
+a worked example is run (below). Its `commands` list every command it runs.
+
 ## Worked example
+
+A recipe's `## Steps` runs the same way as a topic's `## Worked example`.
 
 The worked example runs on the Acme example with no model call, or names the recording it replays. A test
 runs it:
@@ -79,3 +92,11 @@ runs it:
 
 Plain text for an agent with no other context: say that each capability exists and exactly how to use it.
 No em or en dashes. No slogans. Fictional data only: emails at example.com, no real names of clients.
+
+## Changes
+
+* Area `recipes`, with its own sections.
+* Front matter key `next`, optional.
+* `OVERVIEW.md`, printed at the top of `driftbench help`.
+* Reader commands: `driftbench help <area>` lists one area, `driftbench help search <words>` finds topics,
+  `driftbench help --list` prints every command with its one line description and its topic.
