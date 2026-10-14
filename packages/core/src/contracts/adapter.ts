@@ -73,6 +73,8 @@ export interface AgentAdapter {
   readonly id: string;
   /** The adapter version, part of the cache key. */
   readonly version: string;
+  /** Optional configuration fingerprint used only in cache keys, separate from the reported version. */
+  readonly cacheIdentity?: string;
   capabilities(): AdapterCapabilities;
   /** Opens a session from a resolved Given. The prefix is seeded when `seedPrefix` is true, replayed otherwise. */
   open(given: ResolvedGiven): Promise<Session>;

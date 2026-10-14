@@ -228,7 +228,11 @@ export function fromPhrasing(
       class: cls,
       inject_at: injectAt,
       world: { tools: { [tool]: { error: phrasing.error ?? 'the service is unavailable' } } },
-      expect: { tools: [{ label: tool, count: { max: 2 } }] },
+      expect: {
+        tools: [{ label: tool, count: { max: 2 } }],
+        ...(phrasing.must ? { must: phrasing.must } : {}),
+        ...(phrasing.must_not ? { must_not: phrasing.must_not } : {}),
+      },
       recovery: { within_blocks: within },
     };
   }

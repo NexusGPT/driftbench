@@ -123,7 +123,7 @@ export type RunDetail = {
 };
 
 export type StoppedRun = {
-  verdict: 'success' | 'failure';
+  verdict: NonNullable<RunResult['endVerdict']>;
   reason?: string;
   /** The index of the last block that ran. */
   after: number;

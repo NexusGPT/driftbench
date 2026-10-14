@@ -78,3 +78,13 @@ Measured on 200 synthetic series of 60 campaigns of 20 runs each, pass rate 90% 
 | Drop to 60% at campaign 30: exit 1, and two detectors place it within 3 campaigns | 193 |
 
 These rates hold for that series shape only. A cost or latency series with heavier tails, or fewer runs per campaign, needs its own measurement.
+
+## A campaign declared in a file
+
+[`campaign.yaml`](campaign.yaml) is a project config: its `campaign:` key holds the settings of `driftbench campaign run`, each the flag it names, and a flag on the command line wins. From the repository root:
+
+```
+pnpm driftbench campaign run --config examples/acme/ci/campaign.yaml --store acme.db
+```
+
+It runs the six conversation specs on `function:acme-sales` in modes T and F, two repeats: 24 cells. `driftbench ci --config examples/acme/ci/campaign.yaml` takes the modes and repeats from the same file, and scores its `aggregates`. The key is described on the [running](../../../docs/running.md#the-campaign-key) page.

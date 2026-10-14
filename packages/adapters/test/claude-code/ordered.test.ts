@@ -227,7 +227,7 @@ describe('replayAdapter', () => {
     }).toThrow(TypeError);
     const added: Message = { role: 'user', content: 'new' };
     open.history.push(added);
-    const turn = (index: number) => ({ index, stimulus: { user: 'x' }, given });
+    const turn = (index: number) => ({ index, stimulus: { user: 'two' }, given });
     expect((await adapter.send(open, turn(0))).text).toBe('second');
     expect(Object.isFrozen(added)).toBe(true);
     await expect(adapter.send(open, turn(1))).rejects.toBeInstanceOf(AgentFailure);

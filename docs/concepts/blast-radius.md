@@ -6,6 +6,8 @@ What is built today: the agent version of a run, the dependencies of a block, th
 
 ## A change
 
+Every field of a change manifest is in the [change manifest reference](../reference/change.md).
+
 A change manifest names the agent version before and after, and every change made between the two.
 
 ```
@@ -152,7 +154,7 @@ The 867 blocks are every block the 195 conversations and tasks send, the 6 a gat
 
 ### The audit sample
 
-The radius is sound when the manifest lists every change. The audit checks that claim on the run itself. `--audit <n>` draws n of the cells about to be carried, with a seed, runs them fresh before anything is carried, and compares each fresh run with the stored run it would have copied: the status, every gating verdict of every block, each block's pass, the end state. Wording, latency and cost are not compared.
+The radius is sound when the manifest lists every change. The audit checks that claim on the run itself. `--audit <n>` draws n of the cells about to be carried, with a seed (`--audit-seed <n>`, default 1: the same seed draws the same cells), runs them fresh before anything is carried, and compares each fresh run with the stored run it would have copied: the status, every gating verdict of every block, each block's pass, the end state. Wording, latency and cost are not compared.
 
 * One cell that differs is a radius miss: the change reaches a block the manifest left out. The gate fails closed. Nothing is carried, every cell runs, the output names the cell and what differed, and the command exits 1. `ci` gives the verdict `radius-miss`.
 * No miss in n audits bounds the share of carried cells the new agent would not reproduce, at 95% confidence, by `1 - 0.05^(1/n)`: under 13.9% for 20 audits, under 5% for 59.
