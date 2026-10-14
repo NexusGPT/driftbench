@@ -14,6 +14,7 @@ import { Command, CommanderError } from 'commander';
 import { afterAll, describe, expect, it } from 'vitest';
 import {
   acmeAdapter,
+  broken,
   dropsFirstToolCall,
   minimalChecks,
   pricedAcmeAdapter,
@@ -620,6 +621,76 @@ describe('driftbench campaign run on a pool, with a budget', () => {
     const { code, err } = await cli(['campaign', 'run', SPECS, '--target', 'function:acme', ...options]);
     expect(code).toBe(2);
     expect(err).toContain(message);
+  });
+
+  describe('on the audit runs of a blast-radius campaign', () => {
+    const TWISE = 'examples/acme/gated/specs/twise';
+    const CHANGE = 'examples/acme/radius/deviation-goal-shift.yaml';
+    const audited = (path: string, version: string, id: string, extra: string[]) => [
+      'campaign',
+      'run',
+      TWISE,
+      '--target',
+      'function:acme',
+      '--store',
+      path,
+      '--no-cache',
+      '--concurrency',
+      '1',
+      '--campaign',
+      id,
+      '--agent-version',
+      version,
+      ...extra,
+    ];
+    const radius = (from: string) => ['--change', CHANGE, '--from', from, '--audit', '4'];
+
+    it('stops the audit when the budget is spent, as it stops the other cells', async () => {
+      const path = await storePath();
+      const deps = { adapterFor: async () => priced(), checks: minimalChecks };
+      expect((await cli(audited(path, 'acme-v1', 'c-base', []), deps)).code).toBe(0);
+      const free = await cli(audited(path, 'acme-v2', 'c-free', radius('c-base')), deps);
+      expect(free.err).toBe('');
+      expect(free.out).toContain('run fresh: 0 misses.');
+
+      // At one cent a block, a budget of one cent is spent by the first audited cell.
+      const capped = await cli(
+        audited(path, 'acme-v2', 'c-capped', [...radius('c-base'), '--budget-usd', '0.01']),
+        deps,
+      );
+      expect(capped.out).toContain('run fresh: 3 misses.');
+      expect(capped.out).toContain('gen-twise-046: the audit run did not finish');
+    });
+
+    it('prices the audit from the token table, so the budget also stops token-only usage', async () => {
+      const path = await storePath();
+      const table = join(await tempFolder(), 'prices.yaml');
+      await writeFile(
+        table,
+        'as_of: 2026-10-13\nmodels:\n  fictional-model:\n    input: 2\n    output: 4\n    cached_input: 0.5\n',
+      );
+      const tokens = () =>
+        acmeAdapter({
+          wrap: broken((observed) => {
+            observed.cost = { inputTokens: 1000, outputTokens: 500, model: 'fictional-model' };
+          }),
+        });
+      const deps = { adapterFor: async () => tokens(), checks: minimalChecks };
+      expect((await cli(audited(path, 'acme-v1', 'c-base', []), deps)).code).toBe(0);
+      const capped = await cli(
+        audited(path, 'acme-v2', 'c-capped', [
+          ...radius('c-base'),
+          '--prices',
+          table,
+          '--budget-usd',
+          '0.003',
+        ]),
+        deps,
+      );
+      expect(capped.err).toBe('');
+      expect(capped.out).toContain('run fresh: 3 misses.');
+      expect(capped.out).toContain('gen-twise-046: the audit run did not finish');
+    });
   });
 });
 

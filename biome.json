@@ -17,7 +17,8 @@
       "!docs/lane-dag.json",
       "!.github/readme",
       "!comparisons/deepeval/judge/ours-prompts.json",
-      "!comparisons/hard-peers",
+      "!comparisons/hard-peers/**/*.json",
+      "!comparisons/hard-peers/**/*.jsonl",
       "!packages/validators/fixtures/generator/seed-1/oracle.mjs"
     ]
   },
