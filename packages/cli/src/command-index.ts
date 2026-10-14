@@ -87,7 +87,7 @@ export const COMMAND_HELP: readonly (readonly [term: string, description: string
     'attack [options] <spec>',
     'Attack one spec adaptively: each deviation is picked from the agent’s last replies',
   ],
-  ['redteam', 'Run Crescendo or GOAT, and inspect or generate red-team plugins.'],
+  ['redteam', 'Run Crescendo or GOAT; list red-team plugins, generate a spec from one and grade it.'],
   ['judge', 'Judge criteria with the council: replay recorded answers, or validate criteria and fixtures'],
   [
     'validate [options] <component> [level]',

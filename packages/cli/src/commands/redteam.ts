@@ -2,11 +2,24 @@ import { access, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { runSpec } from '@agent-nexus/driftbench-core';
 import { FakeModelPort, portFromEnv } from '@agent-nexus/driftbench-generate';
-import { noJudgeCheck } from '@agent-nexus/driftbench-judges';
+import {
+  createAnthropicJudge,
+  createGoogleJudge,
+  createOpenAiJudge,
+  emptyCassette,
+  type JudgeClient,
+  loadCassette,
+  noJudgeCheck,
+  playerClient,
+  recordingClient,
+  sameFamily,
+  singleJudgeCheck,
+} from '@agent-nexus/driftbench-judges';
 import { textTable } from '@agent-nexus/driftbench-report';
 import {
   checkUserFamilies,
   createRedTeamUser,
+  createScriptedDriver,
   loadRedteamPlugins,
   pluginToSpec,
   type RedTeamRecording,
@@ -42,6 +55,15 @@ type RunOptions = SourceOptions & {
   maxTokens?: string;
   json?: boolean;
 };
+type GradeOptions = {
+  target?: string;
+  judge?: string;
+  cassette?: string;
+  judgeId?: string;
+  record?: string;
+  agentFamily?: string;
+  json?: boolean;
+};
 type GenerateOptions = SourceOptions & {
   purpose: string;
   seed: string;
@@ -50,15 +72,31 @@ type GenerateOptions = SourceOptions & {
   json?: boolean;
 };
 
+/** The live judge of one provider; tests pass a fake. */
+export type JudgeFactory = (provider: string) => JudgeClient;
+
+const JUDGE_PROVIDERS: Record<string, () => JudgeClient> = {
+  anthropic: () => createAnthropicJudge(),
+  openai: () => createOpenAiJudge(),
+  google: () => createGoogleJudge(),
+};
+
+function providerJudge(provider: string): JudgeClient {
+  const make = JUDGE_PROVIDERS[provider];
+  if (!make) throw new Error(`--judge takes ${Object.keys(JUDGE_PROVIDERS).join(', ')}, not "${provider}".`);
+  return make();
+}
+
 export function registerRedteamCommand(
   program: Command,
   io: Io,
   setExit: (code: number) => void,
   deps: CampaignDeps = defaultDeps,
+  judgeFor: JudgeFactory = providerJudge,
 ): void {
   const redteam = program
     .command('redteam')
-    .description('Run Crescendo or GOAT, and inspect or generate red-team plugins.');
+    .description('Run Crescendo or GOAT; list red-team plugins, generate a spec from one and grade it.');
   const run = redteam
     .command('run')
     .description('Run a multi-turn attacker, or replay its messages and scores')
@@ -124,6 +162,107 @@ export function registerRedteamCommand(
   generate.action(async (id: string, options: GenerateOptions) => {
     setExit(await inputErrors(io, () => generateRedteam(id, options, io, deps)));
   });
+  redteam
+    .command('grade')
+    .description(
+      "Run one spec on its target and judge its criteria, such as a plugin's rubric, with one judge",
+    )
+    .argument('<spec>', 'one spec file, such as the output of redteam generate')
+    .option('--target <adapter[:agent]>', 'the target adapter; default the spec target')
+    .option('--judge <provider>', 'judge live through anthropic, openai or google (paid)')
+    .option('--cassette <file>', 'replay the recorded answers of a judge cassette, with no judge call')
+    .option('--judge-id <id>', 'the judge of the cassette to replay; default its only judge')
+    .option('--record <file>', 'with --judge, save the answers as a cassette; refuses an existing file')
+    .option('--agent-family <family>', 'target model family the judge must differ from; none for code')
+    .option('--json', 'print the run as one JSON document')
+    .action(async (path: string, options: GradeOptions) => {
+      setExit(await inputErrors(io, () => gradeRedteam(path, options, io, deps, judgeFor)));
+    });
+}
+
+async function gradeRedteam(
+  path: string,
+  o: GradeOptions,
+  io: Io,
+  deps: CampaignDeps,
+  judgeFor: JudgeFactory,
+): Promise<number> {
+  oneSource(o.judge !== undefined, o.cassette, '--cassette', '--judge <provider>');
+  if (o.record !== undefined && o.judge === undefined) throw new Error('--record needs --judge.');
+  if (o.judgeId !== undefined && o.cassette === undefined) throw new Error('--judge-id needs --cassette.');
+  if (o.record) await newOutput(resolve(io.cwd, o.record));
+  const loaded = await loadValidSpecs([path], io);
+  if (!loaded) return 2;
+  const entry = loaded[0];
+  if (!entry || loaded.length !== 1) throw new Error('redteam grade takes one spec.');
+  if (!entry.spec.blocks.some((block) => (block.expect?.criteria?.length ?? 0) > 0))
+    throw new Error(`${entry.spec.id} names no criterion: there is nothing to judge.`);
+  const [planned] = specRuns(loaded, o.target === undefined ? [] : [parseTarget(o.target)], io) ?? [];
+  const target = planned?.targets[0];
+  if (!planned || !target) return 2;
+  const cassette =
+    o.cassette === undefined ? emptyCassette() : await loadCassette(resolve(io.cwd, o.cassette));
+  let judge: JudgeClient;
+  if (o.judge !== undefined) {
+    const agentFamily = agentFamilyOf(target, o.agentFamily);
+    if (!agentFamily?.trim())
+      throw new Error('Name the target model family with --agent-family (none for code).');
+    judge = judgeFor(o.judge);
+    if (sameFamily(judge.family, agentFamily))
+      throw new Error(
+        `The judge is of the ${judge.family} family, the same as the target: pick another --judge.`,
+      );
+    judge = recordingClient(judge, cassette);
+  } else {
+    const ids = cassette.judges.map((j) => j.id);
+    const id = o.judgeId ?? (ids.length === 1 ? ids[0] : undefined);
+    if (id === undefined)
+      throw new Error(`The cassette lists ${ids.length} judges (${ids.join(', ')}): give --judge-id.`);
+    judge = playerClient(cassette, id);
+  }
+  const adapter = await resolveAdapter(
+    target,
+    () => deps.adapterFor(target),
+    io,
+    planned.pinned === undefined ? [] : [entry.spec.id],
+  );
+  if (!adapter) return 2;
+  const run = await runSpec(entry.spec, {
+    adapter,
+    driver: createScriptedDriver(),
+    checks: [...deps.checks.filter((check) => check.name !== 'judge'), singleJudgeCheck(judge)],
+    mode: 'F',
+    repeat: 0,
+    target,
+    ...(deps.artifacts ? { artifacts: deps.artifacts } : {}),
+    now: () => deps.now(),
+  });
+  if (o.record)
+    await writeFile(resolve(io.cwd, o.record), `${JSON.stringify(cassette, null, 2)}\n`, { flag: 'wx' });
+  const judged = run.blocks.flatMap((block) => block.verdicts.filter((v) => v.kind === 'judge'));
+  const passed =
+    run.status === 'completed' && run.blocks.length > 0 && run.blocks.every((block) => block.pass);
+  if (o.json) io.out(`${JSON.stringify({ specId: entry.spec.id, target, passed, run }, null, 2)}\n`);
+  else {
+    io.out(
+      `Graded ${entry.spec.id} with judge ${judge.id}: ${run.status}; ${passed ? 'pass' : 'not passed'}.\n`,
+    );
+    for (const line of textTable([
+      ['criterion', 'gating', 'outcome', 'reasoning'],
+      ...judged.map((v) => [
+        v.name ?? v.id,
+        v.gating ? 'yes' : 'no',
+        v.outcome,
+        String(v.reasoning ?? v.evidence ?? '')
+          .replace(/\s+/g, ' ')
+          .slice(0, 120),
+      ]),
+    ]))
+      io.out(`${line}\n`);
+    if (run.error) io.out(`${run.error}\n`);
+    if (o.record) io.out(`Cassette written to ${resolve(io.cwd, o.record)}.\n`);
+  }
+  return passed ? 0 : 1;
 }
 
 function families(command: Command): void {
@@ -268,9 +407,13 @@ async function generateRedteam(id: string, o: GenerateOptions, io: Io, deps: Cam
   return 0;
 }
 
-function oneSource(model: boolean | undefined, file: string | undefined, name: string): void {
-  if (Boolean(model) === (file !== undefined))
-    throw new Error(`Give --model or ${name} <file>, exactly one.`);
+function oneSource(
+  live: boolean | undefined,
+  file: string | undefined,
+  name: string,
+  flag = '--model',
+): void {
+  if (Boolean(live) === (file !== undefined)) throw new Error(`Give ${flag} or ${name} <file>, exactly one.`);
 }
 function integer(text: string, name: string, min = Number.MIN_SAFE_INTEGER): number {
   const n = Number(text);
