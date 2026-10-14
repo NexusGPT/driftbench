@@ -4,6 +4,8 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* License changed from Apache-2.0 to MIT for driftbench's own code
+
 * Public API addition from the history-freezing work, now in the frozen API list: `copyHistory` in core. Adapters copy and validate a session's history through it; the contract suite checks that a sparse or accessor history is refused.
 - Add opt-in mode T block reruns: `campaign run --change <manifest> --from <campaign> --block-reruns` sends only the blocks a change can affect and keeps the other stored blocks of the cell, behind the same proofs as a whole-cell carry. `--record-end-state-snapshots` stores the raw per block end-state values that let a spec with `end_state` rerun in part; without them such cells rerun whole. `--audit` also draws partly rerun cells. Snapshots may hold sensitive data and are off by default.
 * Red-team pack reply patterns can be bound to stages: a `must` or `must_not` entry may be `{ pattern, at_stage: [...] }`, the file lists its `stages`, and a stage name outside that list makes the pack invalid. The Acme D2 goal-shift check uses it: the CONFIRM line is demanded only at the recap and the plan choice only at the offer stage, so `perturb plan-upgrade.yaml --class D2_goal_shift --at 2` passes the correct agent while `d2-ignores-goal-shift` and a recap reply that gives the offer question still fail. `perturb` and `attack` print how many reply checks applied and how many did not, in text and JSON; checks dropped because the spec states no stage raise a warning, a `⚠` mark and `complete: false`, so that run does not read as a full pass.
