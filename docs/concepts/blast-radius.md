@@ -436,7 +436,7 @@ A cell runs in part only when every check below passes. Otherwise the whole cell
 * The stored run passes the same proof as a whole-cell carry: complete stamps, an intact digest, an equal execution context, reconstructed block inputs, the full spec hash, and the `--max-carry` and `--max-age` limits. Each kept block counts one more campaign of age.
 * The radius is a strict part of the cell. A cell with every block in the radius runs whole, as it did before.
 
-The result is a normal run. Kept blocks carry the stamp of the campaign that measured them. The run records `blockRerun`: the blocks sent, the later blocks not rerun, and why the later blocks do not depend on the sent ones. Statistics that compare agent versions read only the blocks that were sent.
+The result is a normal run. Kept blocks carry the stamp of the campaign that measured them. The run records `blockRerun`: the blocks sent, the later blocks not rerun, and why the later blocks do not depend on the sent ones. The compounding rates read only the blocks that were sent. `compare` treats a partly rerun cell as a fresh run, so its pairs include the kept blocks of that cell.
 
 ### End state
 

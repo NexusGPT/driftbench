@@ -332,7 +332,7 @@ Every block says what it reads: its stage, its tools, its rules. So a change map
 Measured on the Acme example, 195 conversations and 861 blocks:
 
 - A change to the recap stage reruns 298 blocks. A planted fault that skips the recap turns 237 blocks red, and all 237 are inside the radius.
-- A change to the inputs of the coverage check reruns exactly 86 blocks. In mode T, with `--block-reruns`, only those 86 reach the agent: 781 of 867 blocks are kept, and a planted fault in them is still found. See [mode T block reruns](docs/concepts/blast-radius.md#mode-t-block-reruns).
+- A change to the inputs of the coverage check reruns exactly 86 blocks. In mode T, with `--block-reruns`, only those 86 reach the agent: 781 of 867 blocks are kept, and a planted fault inside the declared change is still found (a fault the manifest does not name is found only by `--audit`). See [mode T block reruns](docs/concepts/blast-radius.md#mode-t-block-reruns).
 - By change, a pull request saves 30 to 96 percent of the suite.
 - The safety rule is "unknown means everything": a change to the reply-language rule touches 826 of 861 blocks, so the whole suite runs.
 
