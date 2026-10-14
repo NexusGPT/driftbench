@@ -61,8 +61,9 @@ export function phraseDrafts(
         ...(used && used.size > 0 ? [{ at: 1, fresh: false }] : []),
       ];
       for (const { at, fresh } of tries) {
+        // Never at the last stage: a walk that reaches its end checks its end state, which the turn cuts.
         const fits = (path: PathRelation) =>
-          path.stages.length > at && !(fresh && used?.has(path.stages[at] as string));
+          path.stages.length > at + 1 && !(fresh && used?.has(path.stages[at] as string));
         const own = prepared.relations.paths.filter(
           (path) => fits(path) && (dimension !== FLOW_DIMENSION || path.flow === phrase.value),
         );

@@ -115,7 +115,7 @@
       "cut": false,
       "measures": {
         "hill_q0": 307,
-        "pielou": 0.909597009851,
+        "pielou": 0.908794265294,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
@@ -9778,13 +9778,13 @@
       "chao_coverage": 0.9873171242382525,
       "chao1": 998.0178279408511,
       "hill_q0": 708,
-      "hill_q1": 300.725437151496,
-      "hill_q2": 188.3015157239853,
-      "pielou": 0.869523244399,
+      "hill_q1": 300.684864459138,
+      "hill_q2": 188.22134190339236,
+      "pielou": 0.869502684199,
       "t3_share": 0.7204724409448819,
       "t3_allowed": 4064,
       "weighted_share": 0.999999999999909,
-      "effective_sample_size": 218.72804251604865,
+      "effective_sample_size": 218.7317337159303,
       "required_covered": 10,
       "required_total": 10,
       "axis_behaviour": 14,

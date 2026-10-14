@@ -37,6 +37,17 @@ blocks:
     expect:
       stage: port_number
       stage_reported: true
+      tools:
+        - label: catalog.search
+          count: 0
+        - label: coverage.check
+          count: 0
+        - label: port.check
+          count: 0
+        - label: order.create
+          count: 0
+        - label: notify_sales
+          count: 0
       lang: EN
       criteria:
         - flow.porting
@@ -46,6 +57,11 @@ blocks:
     expect:
       stage: port_number
       stage_reported: true
+      tools:
+        - label: order.create
+          count: 0
+        - label: notify_sales
+          count: 0
       lang: EN
 metadata:
   generated:

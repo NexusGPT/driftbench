@@ -32,11 +32,12 @@ describe('phrases no other spec says', () => {
         ['behaviour', 'flow', 'data'].includes(phrase.intent.kind),
       );
       expect(asking.filter((phrase) => !said.has(phrase.text)).map((phrase) => phrase.text)).toEqual([]);
-      // Behaviour phrases said by the phrase specs: at distinct stages while the walk has stages left.
+      // Behaviour phrases said by the phrase specs: at distinct stages while the walks have stages left.
       const stages = suite.complete
         .filter((spec) => spec.id.startsWith('gen-phrase-') && (spec.title ?? '').includes('behaviour='))
         .map((spec) => spec.blocks.at(-1)?.expect?.stage);
-      const distinct = Math.min(stages.length, hidden.stages.length - 1);
+      // A phrase is said neither at the start (the walk moves first) nor at the last stage (its end state).
+      const distinct = Math.min(stages.length, hidden.stages.length - 2);
       expect(new Set(stages).size).toBeGreaterThanOrEqual(distinct);
     },
     300_000,

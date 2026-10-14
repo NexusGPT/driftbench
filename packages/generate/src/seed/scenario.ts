@@ -501,15 +501,28 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
   // is forbidden in every turn.
   const inPlay = new Set<string>();
   for (const block of blocks) for (const tool of block.tools ?? []) if (calls(tool)) inPlay.add(tool.label);
+  // A free turn forbids no tool for the whole walk: every other block closes every tool it does not list,
+  // and the free block itself closes the side-effecting tools, which run after their own move only.
+  const sideEffecting = new Set(
+    relations.paths.flatMap((entry) =>
+      entry.end_state ? [entry.end_state.source.replace(/^tool:/, '')] : [],
+    ),
+  );
   for (const [position, block] of blocks.entries()) {
-    if (position === freeBlock) continue;
     const listed = new Set((block.tools ?? []).map((tool) => tool.label));
-    const closed = [...inPlay].filter((label) => !listed.has(label)).map((label) => ({ label, count: 0 }));
+    const closing =
+      position === freeBlock
+        ? [...sideEffecting]
+        : freeBlock !== undefined
+          ? prepared.tools.map((tool) => tool.name)
+          : [...inPlay];
+    const closed = closing.filter((label) => !listed.has(label)).map((label) => ({ label, count: 0 }));
     if (closed.length > 0) block.tools = [...(block.tools ?? []), ...closed];
   }
-  const forbidden = request.turn?.free
-    ? []
-    : prepared.tools.map((tool) => tool.name).filter((name) => !inPlay.has(name));
+  const forbidden =
+    freeBlock !== undefined
+      ? []
+      : prepared.tools.map((tool) => tool.name).filter((name) => !inPlay.has(name));
   const rules: Rules = {
     ...(forbidden.length > 0 ? { forbidden_tools: forbidden } : {}),
     ...(probe?.classId === 'D7_silence_or_burst' ? { one_message_per_turn: true } : {}),

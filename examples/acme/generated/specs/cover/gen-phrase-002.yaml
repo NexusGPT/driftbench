@@ -4,7 +4,7 @@
 id: gen-phrase-002
 version: 7a022d4e1380
 kind: conversation
-title: "Phrase of flow=upgrade: Path upgrade-most-data of upgrade: needs > identify > closing"
+title: "Phrase of flow=upgrade: Path upgrade-order of upgrade: needs > identify > offer > recap > order_placed > closing"
 channel: whatsapp
 lang: EN
 tier: generated
@@ -40,28 +40,53 @@ blocks:
       tools:
         - label: catalog.search
           count: 0
+        - label: coverage.check
+          count: 0
+        - label: port.check
+          count: 0
+        - label: order.create
+          count: 0
+        - label: notify_sales
+          count: 0
       lang: EN
       criteria:
         - flow.upgrade
-  - id: b2-identify-to-closing
+  - id: b2-identify-to-offer
     when:
-      user: It's morgan.diaz@example.com.
+      user: It's sam.rivera@example.com.
     expect:
-      stage: closing
+      stage: offer
       stage_reported: true
       tools:
         - label: catalog.search
           count: 1
           input:
             category: mobile
-            customer_email: morgan.diaz@example.com
+            customer_email: sam.rivera@example.com
+        - label: coverage.check
+          count: 0
+        - label: port.check
+          count: 0
+        - label: order.create
+          count: 0
+        - label: notify_sales
+          count: 0
+      must:
+        - Acme Mobile S, 10 GB for \$15 a month
+        - Acme Mobile M, 40 GB for \$25 a month
+        - Acme Mobile L, unlimited data for \$35 a month
       lang: EN
   - id: b3-value
     when:
       user: Can I get more data? My account email is sam.lee@example.com
     expect:
-      stage: closing
+      stage: offer
       stage_reported: true
+      tools:
+        - label: order.create
+          count: 0
+        - label: notify_sales
+          count: 0
       lang: EN
 metadata:
   generated:
@@ -74,11 +99,12 @@ metadata:
       agent: acme
       version: "1"
       hash: 7a022d4e1380
-    path: upgrade-most-data
+    path: upgrade-order
     cell:
       flow: upgrade
       user_type: existing-customer
-      account_lookup: most-data
+      account_lookup: found
+      plan_choice: names-one
       channel: whatsapp
       coverage_result: none
     blocks:
@@ -91,22 +117,22 @@ metadata:
         phrase:
           dimension: stage_transition
           value: needs-to-identify
-      - block: b2-identify-to-closing
+      - block: b2-identify-to-offer
         seeder: cover
         cell:
           spec: metadata.generated.cell
-          stage_transition: identify-to-closing
-          account_lookup: most-data
+          stage_transition: identify-to-offer
+          account_lookup: found
           stage: identify
         phrase:
           dimension: stage_transition
-          value: identify-to-closing
+          value: identify-to-offer
       - block: b3-value
         seeder: cover
         cell:
           spec: metadata.generated.cell
           flow: upgrade
-          stage: closing
+          stage: offer
         phrase:
           dimension: flow
           value: upgrade
