@@ -51,7 +51,7 @@ No option turns individual checks on or off: the spec decides. The commands that
 * The spec's `metadata.tool_schemas` (for `schema_strict`) and `end_state`.
 * What the adapter observed: the visible text, tool calls, the runtime trace (stages, skills, guards, files read, helpers dispatched, offered tools), executions, the workspace diff, cost and latency.
 
-Custom checks: a TypeScript function registered by name with `registerCheck(name, fn)` and named under `rules.custom: { <name>: <options> }`. Its verdicts are filed as `custom.<name>.<id>`. A name nobody registered, a check that throws, or a value that is not a verdict gives a failed verdict that says so. `replay` registers `ordered` (a "before X, do Y" pair rule: `rules.custom.ordered.pairs: [{ before, after, key, reset }]`). `stated_length` is an opt-in custom check for writing tasks (fails a reply far under a length the request states).
+Custom checks: a function registered by name and named under `rules.custom: { <name>: <options> }`. From the command line, a plugin registers it: a module whose default export receives an `api` and calls `api.check(name, fn)`, loaded with the global option `--plugin <module>` (repeatable) or the `plugins` list of `driftbench.yaml`. In code, `registerCheck(name, fn)` does the same. Its verdicts are filed as `custom.<name>.<id>`. A name nobody registered, a check that throws, or a value that is not a verdict gives a failed verdict that says so. `replay` registers `ordered` (a "before X, do Y" pair rule: `rules.custom.ordered.pairs: [{ before, after, key, reset }]`). `stated_length` is an opt-in custom check for writing tasks (fails a reply far under a length the request states).
 
 Tool policy: rules `{ pattern, action }` (`allow`, `deny` or `ask`, a glob over the tool name, first match wins, no match allows, `ask` counts as deny). Given to `defaultChecks({ toolPolicy })` it adds `tool_policy.<label>` verdicts; given to the runner or an adapter it refuses or marks calls (see `judging-check-tools`).
 
@@ -91,6 +91,6 @@ The campaign id changes on every run. The ids of the verdicts that decided it, b
 ## Common errors
 
 * `<check>.error` inconclusive and gating: a check threw, often a custom check. Its evidence quotes the error.
-* `custom.<name>` failed with an evidence that nobody registered the name. Register it with `registerCheck` before the run, or remove it from `rules.custom`. On the command line only `replay` registers a custom check (`ordered`).
+* `custom.<name>` failed with an evidence that nobody registered the name. Load the plugin that registers it (`--plugin <module>`, or `plugins` in `driftbench.yaml`), or remove it from `rules.custom`. `replay` registers `ordered` on its own.
 * A gating inconclusive `skills.<name>`, `guards.<name>...`, `execution...` or `workspace...`: the adapter reported no trace, no executions or no diff. Use an adapter that reports them, or remove the expectation.
 * A criterion that never fails a campaign: `campaign run` loads no judge (see the `Not judged:` line). Use `replay --judge` or `estate run --judge`, or a council in code.
