@@ -1,10 +1,14 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 import {
-  createClaudeCliJudge,
+  buildPrompt,
+  createDialectTransport,
   createGoogleJudge,
   createOpenAiJudge,
   type JudgeClient,
+  MAX_TOKENS,
+  parseJudgeText,
 } from '@agent-nexus/driftbench-judges';
+import { withJudgeDialect } from '../packages/judges/src/clients/dialects';
 
 export type SpendRow = {
   at: string;
@@ -98,6 +102,100 @@ export function geminiCost(usage: GeminiUsage, rates = GEMINI_RATES): number {
     ((input - cached) * rates.input + cached * rates.cached + (output + thinking) * rates.output) / 1_000_000
   );
 }
+// Direct API text rates: https://platform.claude.com/docs/en/models/haiku-5-5/overview
+// Input counters are disjoint; long context (>100k total input) multiplies all rates by five.
+interface AnthropicUsage {
+  input_tokens?: number;
+  output_tokens?: number;
+  cache_read_input_tokens?: number;
+  cache_creation_input_tokens?: number;
+  cache_creation?: { ephemeral_1h_input_tokens?: number; ephemeral_5m_input_tokens?: number };
+}
+function anthropicCost(usage: AnthropicUsage): number {
+  const input = usage.input_tokens;
+  const output = usage.output_tokens;
+  const read = usage.cache_read_input_tokens ?? 0;
+  const creation = usage.cache_creation_input_tokens ?? 0;
+  const oneHour = usage.cache_creation?.ephemeral_1h_input_tokens ?? 0;
+  const fiveMinutes = usage.cache_creation?.ephemeral_5m_input_tokens ?? creation - oneHour;
+  if (
+    input === undefined ||
+    output === undefined ||
+    ![input, output, read, creation, oneHour, fiveMinutes].every((n) => Number.isSafeInteger(n) && n >= 0) ||
+    oneHour + fiveMinutes !== creation
+  )
+    throw new Error('Missing or invalid Anthropic token usage');
+  const scale = input + read + creation > 100_000 ? 5 : 1;
+  return (
+    (scale * (input * 0.1 + output * 0.5 + read * 0.01 + fiveMinutes * 0.125 + oneHour * 0.2)) / 1_000_000
+  );
+}
+
+/** Matches the frozen public Messages API criterion client, including descriptor byte order. */
+function messagesApiJudge(
+  model: string,
+  env: Record<string, string | undefined>,
+  fetch: typeof globalThis.fetch,
+): JudgeClient {
+  // Construction is also used by free cassette replay. The placeholder is never allowed onto the wire.
+  const key = env.ANTHROPIC_API_KEY?.trim();
+  const transports = Object.fromEntries(
+    Object.entries(MAX_TOKENS).map(([budget, maxTokens]) => [
+      budget,
+      createDialectTransport({
+        id: 'haiku',
+        model,
+        env: { ...env, ANTHROPIC_API_KEY: key || 'offline' },
+        provider: 'anthropic',
+        maxTokens,
+        maxRetries: 0,
+        timeoutMs: 300_000,
+        fetch,
+      }),
+    ]),
+  );
+  const transport = transports.normal;
+  if (!transport) throw new Error('Missing normal output budget');
+  return {
+    id: 'haiku',
+    family: 'anthropic',
+    cls: 'system2',
+    model,
+    dialect: transport.dialect,
+    cost: 10,
+    settings: JSON.stringify({
+      client: 'criterion-messages-api-v1',
+      model,
+      anthropicVersion: '2023-06-01',
+      temperature: 'omitted',
+      maxTokens: MAX_TOKENS,
+      schema: 'none',
+      transportFingerprints: Object.fromEntries(
+        Object.entries(transports).map(([k, t]) => [k, t.fingerprint]),
+      ),
+    }),
+    async judge(original) {
+      if (!key) throw new Error('ANTHROPIC_API_KEY is not set');
+      // Other model identities can be inspected offline, but cannot borrow Haiku 5.5 pricing.
+      if (model !== 'claude-haiku-5-5')
+        throw new Error('Messages API recorder has no metered rates for this model');
+      const request = withJudgeDialect(original, transport.dialect);
+      const selected = transports[request.budget ?? 'normal'];
+      if (!selected) throw new Error('Unsupported output budget');
+      const reply = await selected.complete(buildPrompt(request));
+      if (reply.refusal || reply.providerBlock || reply.declineReason)
+        return { ...reply, answer: { outcome: 'inconclusive', reasoning: 'Provider declined' } };
+      if (reply.truncated)
+        return {
+          raw: reply.text,
+          answer: { outcome: 'inconclusive', reasoning: 'Answer truncated' },
+          unparsed: true,
+        };
+      return parseJudgeText(reply.text, request);
+    },
+  };
+}
+
 export function makeRecordingClient(
   model: string,
   budget: SpendBudget,
@@ -111,6 +209,8 @@ export function makeRecordingClient(
     'OPENAI_BASE_URL',
     'OPENAI_JUDGE_MODEL',
     'CLAUDE_JUDGE_MODEL',
+    'ANTHROPIC_BASE_URL',
+    'ANTHROPIC_JUDGE_MODEL',
     'GOOGLE_BASE_URL',
     'GOOGLE_JUDGE_MODEL',
   ]) {
@@ -129,6 +229,7 @@ export function makeRecordingClient(
     pending?: { token: symbol; amount: number; rejected?: boolean };
   };
   const meter = new AsyncLocalStorage<Meter>();
+  const isAnthropic = model === 'haiku';
   const isGemini = model === 'gemini-3.8-flash' || model === 'gemini-3.5-flash-lite';
   const rates = model === 'gemini-3.5-flash-lite' ? GEMINI_LITE_RATES : isGemini ? GEMINI_RATES : LUNA_RATES;
   const settle = (current: Meter, actual: number | undefined) => {
@@ -150,15 +251,18 @@ export function makeRecordingClient(
     if (!current) throw new Error('Missing cost scope');
     try {
       if (typeof init.body !== 'string') throw new Error('Recorder requires a JSON request body');
-      const body = JSON.parse(init.body) as { max_completion_tokens?: number };
+      const body = JSON.parse(init.body) as { max_completion_tokens?: number; max_tokens?: number };
       // Reserve each wire request, including a recovery with a larger output allowance.
       // Gemini thinking may overshoot the requested cap, so reserve its full model ceiling.
       // https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash
-      const outputLimit = isGemini ? 65_536 : body.max_completion_tokens;
+      const outputLimit = isGemini ? 65_536 : isAnthropic ? body.max_tokens : body.max_completion_tokens;
       if (outputLimit === undefined || !Number.isSafeInteger(outputLimit) || outputLimit <= 0)
         throw new Error('Recorder requires a bounded output allowance');
       const amount =
-        ((Buffer.byteLength(init.body) + 8192) * rates.input + outputLimit * rates.output) / 1_000_000;
+        // Haiku reserves the long-context ceiling, including one-hour cache creation.
+        ((Buffer.byteLength(init.body) + 8192) * (isAnthropic ? 1 : rates.input) +
+          outputLimit * (isAnthropic ? 2.5 : rates.output)) /
+        1_000_000;
       // Rejected HTTP attempts can reuse their held allowance. A terminal error retains it.
       if (current.pending && (!current.pending.rejected || current.pending.amount < amount))
         settle(current, current.pending.rejected ? 0 : undefined);
@@ -171,7 +275,33 @@ export function makeRecordingClient(
     current.attempted = true;
     // Observe the response; do not rewrite the public client's request or answer.
     const response = await (options.fetch ?? fetch)(url, init);
-    if (response.ok) {
+    if (isAnthropic) {
+      // Every physical attempt owns a reservation. Unknown rejected charges are retained, not reused.
+      let usage: AnthropicUsage | undefined;
+      let resolvedModel: string | undefined;
+      try {
+        const payload = (await response.clone().json()) as { usage?: AnthropicUsage; model?: string };
+        usage = payload.usage;
+        resolvedModel = payload.model;
+      } catch {
+        /* Non-JSON HTTP errors have unknown usage. */
+      }
+      if (usage) {
+        const cost = anthropicCost(usage);
+        current.cost = (current.cost ?? 0) + cost;
+        current.model = resolvedModel ?? current.model;
+        current.input =
+          (current.input ?? 0) +
+          (usage.input_tokens ?? 0) +
+          (usage.cache_read_input_tokens ?? 0) +
+          (usage.cache_creation_input_tokens ?? 0);
+        current.output = (current.output ?? 0) + (usage.output_tokens ?? 0);
+        settle(current, cost);
+      } else {
+        settle(current, undefined);
+        if (response.ok) throw new Error('Anthropic response has no usage');
+      }
+    } else if (response.ok) {
       const payload = (await response.clone().json()) as {
         usage?: Usage;
         model?: string;
@@ -204,7 +334,7 @@ export function makeRecordingClient(
   };
   const base =
     model === 'haiku'
-      ? createClaudeCliJudge({ id: model, model: actualModel, env, maxBudgetUsd: 0.02 })
+      ? messagesApiJudge(actualModel, env, observedFetch as typeof fetch)
       : isGemini
         ? createGoogleJudge({
             id: model,
@@ -229,10 +359,6 @@ export function makeRecordingClient(
       if (model === 'gemini-3.8-flash' && Date.now() >= Date.parse('2027-01-01T00:00:00Z'))
         throw new Error('Gemini introductory pricing expired; update the metered rates before recording');
       const data: Meter = { charged: 0, unmetered: false };
-      if (model === 'haiku') {
-        data.pending = { token: budget.reserve(0.02), amount: 0.02 };
-        data.attempted = true;
-      }
       let status: 'ok' | 'error' = 'error';
       try {
         return await meter.run(data, async () => {
@@ -246,14 +372,17 @@ export function makeRecordingClient(
             } catch (cause) {
               if (data.failure) throw data.failure;
               if (
-                !isGemini ||
+                !(isGemini || isAnthropic) ||
                 !(cause instanceof Error) ||
                 !('status' in cause) ||
-                cause.status !== 429 ||
+                !(
+                  cause.status === 429 ||
+                  (isAnthropic && typeof cause.status === 'number' && cause.status >= 500)
+                ) ||
                 attempt >= 3
               )
                 throw cause;
-              // Shared Gemini quota: retry only explicit rate limits, with a fresh request timeout.
+              // Retry explicit transient HTTP responses only; network/usage failures retain their allowance and stop.
               const retryAfter =
                 'retryAfterMs' in cause &&
                 typeof cause.retryAfterMs === 'number' &&
@@ -271,7 +400,7 @@ export function makeRecordingClient(
       } finally {
         // Even an overrun must reach the append-only spend ledger before it stops the run.
         try {
-          settle(data, model === 'haiku' ? data.cost : undefined);
+          settle(data, undefined);
         } finally {
           if (data.attempted)
             log({
@@ -280,7 +409,7 @@ export function makeRecordingClient(
               resolvedModel: data.model ?? actualModel,
               costUsd: data.cost ?? 0,
               chargedUsd: data.charged,
-              accounting: data.unmetered ? 'reserved-on-error' : model === 'haiku' ? 'provider' : 'tokens',
+              accounting: data.unmetered ? 'reserved-on-error' : 'tokens',
               status,
               ...(data.input === undefined ? {} : { inputTokens: data.input, outputTokens: data.output }),
             });
