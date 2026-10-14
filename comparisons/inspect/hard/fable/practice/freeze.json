@@ -64,7 +64,7 @@
     "comparisons/inspect/hard/fable/record.ts": "8a68584e47fcdc534913f3dccef875371d352a5a236d97de4f0bca2d6499a924",
     "comparisons/inspect/hard/fable/request.ts": "6d5a8c1eb30892a6c382b577c1e9e4297f6d4b5e8a7ff5cbbddee1efafc76bc7",
     "comparisons/inspect/hard/fable/run.mts": "c25d0eb1bba16af7217a71c6989ec05bf79017f3aef297bf3070a0c9c0b0747e",
-    "comparisons/inspect/hard/fable/report.mts": "2a2c74e5ade51de2fc5c4bcfddef4129109fb01d240590d351e1959bda2886d7",
+    "comparisons/inspect/hard/fable/report.mts": "0b50f548295380fcad407b17297e1042da85a20e249205b0c5afc1143794fea2",
     "comparisons/inspect/hard/fable/freeze.mts": "42bf1ea311d35f1e606db8dbde558ebabcac94b23877acfedd136829d921fcbf"
   },
   "amendments": [
@@ -109,6 +109,13 @@
       "from": "9221187de39b4110d2d0450f3605ac54528b37a4035454ba4bba6d328ae7d5f0",
       "to": "c25d0eb1bba16af7217a71c6989ec05bf79017f3aef297bf3070a0c9c0b0747e",
       "reason": "Second panel round: a new procedure split-r2 (role-separated record plus the candidate data rule) is added beside the existing ones. No existing procedure, request or set changed; this set and its recorded results are unchanged."
+    },
+    {
+      "at": "2026-10-14T11:50:12.073Z",
+      "file": "comparisons/inspect/hard/fable/report.mts",
+      "from": "2a2c74e5ade51de2fc5c4bcfddef4129109fb01d240590d351e1959bda2886d7",
+      "to": "0b50f548295380fcad407b17297e1042da85a20e249205b0c5afc1143794fea2",
+      "reason": "report.mts lists the split-r2 procedure and names both transports in its header, after every run on this set was complete. The report reads result files; it decides no verdict."
     }
   ]
 }
