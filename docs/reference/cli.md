@@ -253,7 +253,8 @@ Every problem has a stable code, so tools and tests can branch on it. An error m
 | Option | Effect |
 |---|---|
 | `-V`, `--version` | print the version |
-| `-h`, `--help` | print the usage of the program or of a command; `driftbench help <command>` does the same |
+| `-h`, `--help` | print the usage of the program or of a command, ending with the help topics about it; `driftbench help <command>` does the same |
+| `driftbench help [topic]` | without a topic, print the index of every help topic, grouped by area; with one, such as `core-exit-codes`, print that topic: what a capability is, when to use it, every option, inputs, outputs, a worked example and common errors |
 | `--plugin <module>` | load a [plugin](../plugins.md) before the command runs: a module path, relative to the working folder, or a package name. Repeat it for several. It may stand anywhere on the command line. |
 
 ## Campaigns and smoke

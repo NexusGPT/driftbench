@@ -1,6 +1,7 @@
 import { Command, CommanderError, Help } from 'commander';
 import { COMMAND_HELP, COMMAND_MODULES, type Register } from './command-index';
 import type { CampaignDeps } from './commands/campaign';
+import { commandHelpFooter, loadHelpTopics, runHelpTopics } from './help-topics';
 import { type Io, processIo } from './io';
 import { applyPlugins, beginPluginRun, type DriftbenchPlugin, pluginsFromRun } from './plugins';
 import { VERSION } from './version';
@@ -35,6 +36,9 @@ export async function main(argv: string[], io: Io = processIo, options: MainOpti
       io.err(`driftbench: ${run.message}\n`);
       return 2;
     }
+    // `help` alone and `help <topic>` print the help topics; `help <command>` stays the command's usage.
+    const topics = runHelpTopics(run.argv, io, COMMAND_NAMES);
+    if (topics !== undefined) return topics;
     const program = await createProgram(run.argv, io, setExit, options.deps);
 
     try {
@@ -55,6 +59,9 @@ export async function main(argv: string[], io: Io = processIo, options: MainOpti
     restorePlugins();
   }
 }
+
+/** Every top-level command name. */
+const COMMAND_NAMES: ReadonlySet<string> = new Set(COMMAND_MODULES.flatMap((module) => module.names));
 
 /** The arguments that only print the top-level help or the version: no command module is needed. */
 const INDEX_ONLY = new Set(['--help', '-h', '--version', '-V', 'help']);
@@ -115,7 +122,17 @@ export function fullProgram(
 ): Command {
   const program = rootProgram(io);
   for (const register of registers) register(program, io, setExit);
+  pointToTopics(program, []);
   return program;
+}
+
+/** Ends the usage of every command with the help topics about it, read only when the usage prints. */
+function pointToTopics(command: Command, path: readonly string[]): void {
+  for (const sub of command.commands) {
+    const own = [...path, sub.name()];
+    sub.addHelpText('after', () => commandHelpFooter(loadHelpTopics(), own.join(' ')));
+    pointToTopics(sub, own);
+  }
 }
 
 /**
@@ -143,6 +160,7 @@ function rootProgram(io: Io): Command {
         '--plugin <module>',
         'load a plugin before the command runs: a module path or a package name; repeat for several',
       )
+      .addHelpText('after', '\nHelp topics, each capability and how to use it: driftbench help')
       .exitOverride()
       .configureOutput({ writeOut: (text) => io.out(text), writeErr: (text) => io.err(text) })
   );
