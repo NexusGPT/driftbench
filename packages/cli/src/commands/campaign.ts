@@ -22,6 +22,7 @@ import {
   campaignRadius,
   canonicalJson,
   carryRuns,
+  completeBaselineProvenance,
   compoundingIndex,
   contentHash,
   DEFAULT_MAX_AGE_DAYS,
@@ -46,6 +47,7 @@ import {
   type RunResult,
   radiusOf,
   runCampaign,
+  runProvenance,
   runsByCell,
   type Spec,
   type Store,
@@ -82,6 +84,7 @@ import { pluginAdapter, pluginAdapterNames } from '../plugins';
 import { noStoreAt } from '../store-path';
 import { BUILTIN_TARGETS_NOTE, builtinTarget, builtinTargetHint } from '../targets';
 import { pricesFromConfig } from '../token-prices';
+import { campaignProvenance } from './campaign-provenance';
 import { agentFamilyOf, describeSource, loadPersonas, portFor, userFactory, userSource } from './personas';
 
 /** What lives as long as one campaign: a temporary folder for its sandboxes, made on first use. */
@@ -765,6 +768,10 @@ export async function campaignRunCommand(
         repeats,
         // 0 when no budget was given: the schema has no field for "no budget".
         budgetUsd: pool.budgetUsd ?? 0,
+        provenance: campaignProvenance(
+          runs.flatMap((run) => run.targets),
+          (target) => required(adapters.get(showTarget(target)), 'adapter'),
+        ),
         judge: { mode: 'system1', judges: [] },
         createdAt,
         ...(registry.sources.length > 0 ? { sources: registry.sources } : {}),
@@ -773,39 +780,64 @@ export async function campaignRunCommand(
       const radius =
         options.change === undefined
           ? undefined
-          : await radiusPlan(options, campaign, loaded, store, deps, io, async (cells) => {
-              // The audit runs before the campaign is stored, in a store of its own: what it finds
-              // decides what the campaign carries, and a campaign record never changes once written.
-              const memory = await deps.openStore(undefined);
-              try {
-                for (const entry of loaded) await memory.putSpec(entry);
-                await memory.putCampaign(campaign);
-                const specs = new Map(loaded.map((entry) => [`${entry.spec.id}@${entry.hash}`, entry.spec]));
-                const outcomes = await runCampaign({
-                  campaignId,
-                  cells,
-                  recordEvents: true,
-                  specFor: (cell) =>
-                    required(specs.get(`${cell.specId}@${cell.specHash}`), `spec ${cell.specId}`),
-                  adapterFor: (target) =>
-                    required(adapters.get(showTarget(target)), `adapter ${showTarget(target)}`),
-                  driver: (cell, spec) => deps.driver(cell, spec),
-                  ...(deps.consequential ? { consequential: deps.consequential } : {}),
+          : await radiusPlan(
+              options,
+              campaign,
+              loaded,
+              store,
+              deps,
+              io,
+              (cell) => {
+                const spec = required(loaded.find((entry) => entry.hash === cell.specHash)?.spec, 'spec');
+                return runProvenance({
+                  adapter: required(adapters.get(showTarget(cell.target)), 'adapter'),
+                  driver: deps.driver(cell, spec),
                   checks: deps.checks,
-                  ...(deps.artifacts ? { artifacts: deps.artifacts } : {}),
-                  store: memory,
-                  ...(campaign.agentVersion === undefined ? {} : { agentVersion: campaign.agentVersion }),
-                  now: () => deps.now(),
-                  concurrency: pool.concurrency,
-                  ...(pool.budgetUsd === undefined ? {} : { budgetUsd: pool.budgetUsd }),
-                  ...(prices ? { prices } : {}),
-                  ...(pool.retry ? { retry: pool.retry } : {}),
+                  mode: cell.mode,
+                  repeat: cell.repeat,
+                  target: cell.target,
+                  perturbationId: cell.perturbationId,
+                  retry: pool.retry,
+                  agentVersion: campaign.agentVersion,
                 });
-                return outcomes.flatMap((outcome) => (outcome.run ? [outcome.run] : []));
-              } finally {
-                await memory.close();
-              }
-            });
+              },
+              async (cells) => {
+                // The audit runs before the campaign is stored, in a store of its own: what it finds
+                // decides what the campaign carries, and a campaign record never changes once written.
+                const memory = await deps.openStore(undefined);
+                try {
+                  for (const entry of loaded) await memory.putSpec(entry);
+                  await memory.putCampaign(campaign);
+                  const specs = new Map(
+                    loaded.map((entry) => [`${entry.spec.id}@${entry.hash}`, entry.spec]),
+                  );
+                  const outcomes = await runCampaign({
+                    campaignId,
+                    cells,
+                    recordProvenance: true,
+                    recordEvents: true,
+                    specFor: (cell) =>
+                      required(specs.get(`${cell.specId}@${cell.specHash}`), `spec ${cell.specId}`),
+                    adapterFor: (target) =>
+                      required(adapters.get(showTarget(target)), `adapter ${showTarget(target)}`),
+                    driver: (cell, spec) => deps.driver(cell, spec),
+                    ...(deps.consequential ? { consequential: deps.consequential } : {}),
+                    checks: deps.checks,
+                    ...(deps.artifacts ? { artifacts: deps.artifacts } : {}),
+                    store: memory,
+                    ...(campaign.agentVersion === undefined ? {} : { agentVersion: campaign.agentVersion }),
+                    now: () => deps.now(),
+                    concurrency: pool.concurrency,
+                    ...(pool.budgetUsd === undefined ? {} : { budgetUsd: pool.budgetUsd }),
+                    ...(prices ? { prices } : {}),
+                    ...(pool.retry ? { retry: pool.retry } : {}),
+                  });
+                  return outcomes.flatMap((outcome) => (outcome.run ? [outcome.run] : []));
+                } finally {
+                  await memory.close();
+                }
+              },
+            );
       if (radius === null) return 2;
       if (radius) campaign.radius = radius.record;
       try {
@@ -1066,6 +1098,7 @@ async function executeCampaign(
   const outcomes = await runCampaign({
     campaignId: campaign.campaignId,
     cells: plan.cells,
+    recordProvenance: campaign.provenance !== undefined,
     recordEvents: true,
     specFor: (cell) => required(specs.get(`${cell.specId}@${cell.specHash}`), `spec ${cell.specId}`),
     adapterFor: (target) => required(adapters.get(showTarget(target)), `adapter ${showTarget(target)}`),
@@ -1109,6 +1142,7 @@ async function radiusPlan(
   store: Store,
   deps: CampaignDeps,
   io: Io,
+  currentProvenance: (cell: PlannedCell) => RunResult['provenance'],
   runAudit: (cells: PlannedCell[]) => Promise<RunResult[]>,
 ): Promise<{
   plan: RadiusPlan;
@@ -1162,13 +1196,18 @@ async function radiusPlan(
     manifest.manifest,
     { modes: campaign.modes },
   );
+  const baselineRuns = await store.listRuns({ campaignId: baseline.campaignId });
+  if (!completeBaselineProvenance({ provenance: baseline.provenance, runs: baselineRuns }))
+    radius.whole = { change: 'legacy', reason: 'the baseline has no execution provenance' };
   let plan = planRadiusCampaign(
     cells,
     radius,
     manifest.manifest,
-    { campaignId: baseline.campaignId, runs: await store.listRuns({ campaignId: baseline.campaignId }) },
+    { campaignId: baseline.campaignId, runs: baselineRuns, provenance: baseline.provenance },
     {
       now: deps.now(),
+      currentProvenance,
+      currentSpec: (cell) => loaded.find((entry) => entry.hash === cell.specHash)?.spec,
       ...(maxCarry === undefined ? {} : { maxCarry }),
       ...(maxAge === undefined ? {} : { maxAgeDays: maxAge }),
     },
