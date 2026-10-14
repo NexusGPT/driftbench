@@ -224,7 +224,7 @@ export function makeRecordingClient(
     output?: number;
     charged: number;
     unmetered: boolean;
-    attempted?: boolean;
+    requestCount: number;
     failure?: unknown;
     pending?: { token: symbol; amount: number; rejected?: boolean };
   };
@@ -272,7 +272,7 @@ export function makeRecordingClient(
       current.failure = cause;
       throw cause;
     }
-    current.attempted = true;
+    current.requestCount += 1;
     // Observe the response; do not rewrite the public client's request or answer.
     const response = await (options.fetch ?? fetch)(url, init);
     if (isAnthropic) {
@@ -358,7 +358,7 @@ export function makeRecordingClient(
     async judge(request) {
       if (model === 'gemini-3.8-flash' && Date.now() >= Date.parse('2027-01-01T00:00:00Z'))
         throw new Error('Gemini introductory pricing expired; update the metered rates before recording');
-      const data: Meter = { charged: 0, unmetered: false };
+      const data: Meter = { charged: 0, unmetered: false, requestCount: 0 };
       let status: 'ok' | 'error' = 'error';
       try {
         return await meter.run(data, async () => {
@@ -395,14 +395,20 @@ export function makeRecordingClient(
           data.cost ??= result.costUsd;
           if (data.cost === undefined) throw new Error('Recorder refuses an unmetered answer');
           status = 'ok';
-          return { ...result, costUsd: data.cost };
+          return {
+            ...result,
+            requestCount: data.requestCount,
+            ...(data.unmetered
+              ? { costUsd: undefined, costIncomplete: true as const }
+              : { costUsd: data.cost }),
+          };
         });
       } finally {
         // Even an overrun must reach the append-only spend ledger before it stops the run.
         try {
           settle(data, undefined);
         } finally {
-          if (data.attempted)
+          if (data.requestCount > 0)
             log({
               at: new Date().toISOString(),
               model,

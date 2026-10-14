@@ -111,7 +111,11 @@ it.each(['normal', 'large'] as const)(
       { fetch },
     );
     const result = await client.judge({ ...request, budget: budgetName });
-    expect(result).toEqual({ ...parseJudgeText(text, { ...request, budget: budgetName }), costUsd: cost });
+    expect(result).toEqual({
+      ...parseJudgeText(text, { ...request, budget: budgetName }),
+      costUsd: cost,
+      requestCount: 1,
+    });
     expect(budget.spent).toBeCloseTo(cost, 12);
     expect(rows[0]).toMatchObject({
       accounting: 'tokens',
@@ -157,7 +161,9 @@ it.each([429, 503])(
       (row) => rows.push(row),
       { fetch, sleep },
     );
-    await client.judge(request);
+    const result = await client.judge(request);
+    expect(result).toMatchObject({ costIncomplete: true, requestCount: 2 });
+    expect(result.costUsd).toBeUndefined();
     expect(fetch).toHaveBeenCalledTimes(2);
     expect(reserve).toHaveBeenCalledTimes(2);
     expect(sleep).toHaveBeenCalledTimes(1);
@@ -193,7 +199,12 @@ it('charges known error usage separately and uses long-context pricing', async (
     { fetch, sleep: async () => {} },
   );
   // The input allowance must cover the simulated long context.
-  await client.judge({ ...request, transcript: [{ role: 'agent', text: 'x'.repeat(110000) }] });
+  const result = await client.judge({
+    ...request,
+    transcript: [{ role: 'agent', text: 'x'.repeat(110000) }],
+  });
+  expect(result).toMatchObject({ costUsd: cost + largeCost, requestCount: 2 });
+  expect(result.costIncomplete).toBeUndefined();
   expect(budget.spent).toBeCloseTo(cost + largeCost, 12);
   expect(rows[0]).toMatchObject({ accounting: 'tokens', costUsd: cost + largeCost });
 });
