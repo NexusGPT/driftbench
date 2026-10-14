@@ -24,7 +24,7 @@ Every block of a spec gets verdicts of two kinds, reported side by side:
 * Machine checks: deterministic code on what the agent said and did. A machine fail is final.
 * Judged criteria: a model reads the block against a rubric and answers pass, fail or inconclusive. An inconclusive verdict is never counted as a pass.
 
-A block passes only when every gating verdict passes, so a judge can never turn a machine fail into a pass. Judges themselves are tested before they count: each criterion has a fixture pair to separate and hand labels to agree with, and calibration assigns a criterion only to judges that meet the bar.
+A block passes only when every gating verdict passes, so a judge can never turn a machine fail into a pass. Judges themselves are tested: each criterion has a fixture pair to separate and hand labels to agree with. Calibration seats a class on a criterion only when three of its judges meet the bar, and leaves the criterion unassigned (judged, never gating) otherwise. In hybrid mode the re-judge row of the other class takes its judges at the bar first, then its cheapest others, so a re-judge may be below the bar. Without an assignment table, the council seats the cheapest judges of the class, calibrated or not.
 
 ## When to use it
 

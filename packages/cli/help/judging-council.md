@@ -104,7 +104,7 @@ The council is checked when it is built, before any call. Its errors (`CouncilCo
 
 ## Worked example
 
-The cascade on the Acme council cassette: every pass fixture stops at the cheapest judge, whose scripted answers carry a score:
+The cascade on the Acme council cassette. The pass fixtures stop at the cheapest judge, whose scripted answers carry a score, except `holds_instructions`: its data holds an instruction aimed at the judge, so the screen never lets it stop early, and every seated judge votes:
 
 ```sh
 driftbench judge run --criteria examples/acme/criteria --cassette examples/acme/criteria/council.cassette.json --cascade
