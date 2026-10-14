@@ -26,6 +26,7 @@ export const COMMAND_MODULES: readonly { names: readonly string[]; load: () => P
   { names: ['simulate'], load: async () => (await import('./commands/simulate')).registerSimulateCommand },
   { names: ['attack'], load: async () => (await import('./commands/attack')).registerAttackCommand },
   { names: ['judge'], load: async () => (await import('./commands/judge')).registerJudgeCommand },
+  { names: ['bench'], load: async () => (await import('./commands/bench')).registerBenchCommand },
   { names: ['validate'], load: async () => (await import('./commands/validate')).registerValidateCommand },
   { names: ['report'], load: async () => (await import('./commands/report')).registerReportCommand },
   { names: ['compare'], load: async () => (await import('./commands/compare')).registerCompareCommand },
@@ -87,6 +88,10 @@ export const COMMAND_HELP: readonly (readonly [term: string, description: string
     'Attack one spec adaptively: each deviation is picked from the agent’s last replies',
   ],
   ['judge', 'Judge criteria with the council: replay recorded answers, or validate criteria and fixtures'],
+  [
+    'bench',
+    'The judge benchmark: replay the committed cassettes, record a model, show or raise the floors. Reads benchmarks/ of a checkout (--root).',
+  ],
   [
     'validate [options] <component> [level]',
     'Run a validator ladder: levels in order, stop at the first failing level, exit with the level',
