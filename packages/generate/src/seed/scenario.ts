@@ -284,6 +284,9 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
   const lang = relations.replyLanguage;
   let movedAway = false;
   let turnPlaced = false;
+  // What the reply that reached the pending stage must never hold, whatever the data: the states `must_not`
+  // patterns with no slot, such as narrated internal steps. A recovery that stays there is held to them too.
+  let pending: { stage: string; mustNot: string[] } | undefined;
   for (let index = 0; index < path.stages.length; index += 1) {
     if (request.turn && !request.turn.call && index === 1) {
       blocks.push({
@@ -338,6 +341,8 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       if (!must || !mustNot)
         return fail(`the recovery of ${probe.classId} reads a slot the cell does not bind`);
       const after = stageAfter(recovery, stage);
+      if (after === stage && pending?.stage === stage)
+        for (const pattern of pending.mustNot) if (!mustNot.includes(pattern)) mustNot.push(pattern);
       blocks.push({
         id: `b${blocks.length + 1}-${probe.classId}`,
         stimulus: stimulusOf(phrase, deviationKey, probe.classId),
@@ -433,6 +438,16 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       const sources = sourcesOf(entry.must, entry.must_not);
       ruled.push(...sources);
       replyData.push(...sources.filter(([at]) => prepared.toolDimensions.get(at)?.direction === 'out'));
+    }
+    pending = { stage: to, mustNot: [] };
+    for (const entry of relations.states) {
+      const subject =
+        entry.subject.dimension === 'flow'
+          ? entry.subject.value === path.flow
+          : context[entry.subject.dimension] === entry.subject.value;
+      if (!subject || entry.stage !== from || (entry.to !== undefined && entry.to !== to)) continue;
+      if (!matches(entry.when, context)) continue;
+      pending.mustNot.push(...(entry.must_not ?? []).filter((pattern) => slotsOf(pattern).length === 0));
     }
     const carries = unique([[prepared.transition as number, transition], ...ruled]);
     blocks.push({
