@@ -26,6 +26,9 @@ if (existsSync(ARMS)) {
     spent += a.usd;
   }
 }
+// Pilot arms (discarded from the sample, see PREREG Deviations) still count against the budget.
+const PILOT = `${HERE}results/pilot-arms.jsonl`;
+if (existsSync(PILOT)) for (const line of readFileSync(PILOT, 'utf8').split('\n').filter(Boolean)) spent += JSON.parse(line).usd;
 const plan = JSON.parse(readFileSync(`${HERE}plan.json`, 'utf8'));
 const usd = (u: { input: number; output: number; cache_write: number; cache_read: number }) =>
   ((u.input + u.cache_write * 1.25 + u.cache_read * 0.1) * PRICE_IN + u.output * PRICE_OUT) / 1e6;

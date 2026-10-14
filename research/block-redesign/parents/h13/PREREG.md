@@ -78,4 +78,11 @@ Source: section 5 of `reports/Driftbench block redesign deep.md` (row H13), mech
 
 ## Deviations
 
-None yet. Any deviation is appended with its reason before the data it touches is read.
+1. The API refuses the `temperature` parameter for `claude-haiku-5-5` (`400: temperature is deprecated for this model`, seen on the first pilot call, no completion returned, no cost). The runs use the model's default sampling instead of temperature 0. The agent is therefore not deterministic, and the FULL2 repeat is what measures that. Every other part of the design is unchanged. The sentences above that say temperature 0 are superseded by this one.
+
+2. Pilot (5 items: pp-gen-twise-029, pp-gen-metamorphic-018-2, pn-1-hours, n-630-631, n-397-398; 0.237 USD at the stand-in price, 46 turns, measured 4,481 input and 134 output tokens per turn, projecting about 5.9 USD for the 1,140 planned turns). Two defects of the stand-in, found by reading the failed pilot blocks, fixed once as the pilot rule allows:
+   - Scorer: a spec input matcher `port_number: {absent: true}` (26 uses in the population) was compared as data. It now means the key is absent.
+   - Prompt: the policy states the current plan with its full description ("You are on Acme Mobile S, 10 GB for $15 a month"), and the prompt said only "name the current plan". The prompt now says to describe it like any other plan.
+   The pilot arms are kept in `results/pilot-arms.jsonl`, discarded from the sample, and still counted in the ledger. The two defects were the only changes; every pilot block that failed for another reason (none) would have stayed.
+
+None other yet. Any deviation is appended with its reason before the data it touches is read.

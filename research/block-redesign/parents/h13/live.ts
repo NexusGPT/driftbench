@@ -62,7 +62,7 @@ export async function converse(turns: Turn[], key: string): Promise<{ results: T
         capped = true;
         break;
       }
-      const res = await post({ model: MODEL, max_tokens: 700, temperature: 0, system: SYSTEM, tools: TOOLS, messages }, key);
+      const res = await post({ model: MODEL, max_tokens: 700, system: SYSTEM, tools: TOOLS, messages }, key);
       usage.calls++;
       usage.input += res.usage?.input_tokens ?? 0;
       usage.output += res.usage?.output_tokens ?? 0;
@@ -98,6 +98,7 @@ const norm = (s: string) =>
 
 function deepMatch(expected: any, actual: any, closed = false): boolean {
   if (expected && typeof expected === 'object' && !Array.isArray(expected)) {
+    if ('absent' in expected && Object.keys(expected).length === 1) return actual === undefined;
     if ('subset' in expected && Object.keys(expected).length === 1) return deepMatch(expected.subset, actual, false);
     if (!actual || typeof actual !== 'object' || Array.isArray(actual)) return false;
     if (closed && Object.keys(actual).sort().join() !== Object.keys(expected).sort().join()) return false;
