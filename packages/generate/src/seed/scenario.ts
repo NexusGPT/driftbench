@@ -1,10 +1,12 @@
 import type {
+  Assertion,
   Count,
   EndStateSpec,
   Expect,
   PerturbationSpec,
   Rules,
   ToolExpect,
+  WorldState,
 } from '@agent-nexus/driftbench-core';
 import type { PathRelation, ProposalPhrase, Slots } from '../extract/proposal';
 import type { BlockDraft, Pick, Stimulus } from './assemble';
@@ -24,6 +26,8 @@ import {
   stageAfter,
   toolExpect,
 } from './relations';
+import { toolAnswer } from './values';
+import { worldFor } from './world';
 
 /**
  * A scenario: one approved path of a flow, walked in a cell, with every Then derived by code from the map.
@@ -57,7 +61,32 @@ export type ScenarioRequest = {
    * refuses or defers (a value outside what a tool accepts, a write asked for before the confirmation).
    * Its Then is the stage the walk had reached, with the tool counts given; the walk ends there.
    */
-  turn?: { stimulus: Stimulus; carries: Pick[]; tools: ToolExpect[] };
+  turn?: {
+    stimulus: Stimulus;
+    carries: Pick[];
+    tools: ToolExpect[];
+    /**
+     * A request that makes a call: the turn is said right after the walk's move that calls the tool, and the
+     * call carries that move's arguments with `field` set to `value`, so every argument and the count hold.
+     */
+    call?: { tool: string; field: string; value: Assertion };
+  };
+  /**
+   * A turn said after the walk's first move that names a context value (who the user is) and asks for nothing:
+   * the conversation stays on the stage it reached, no tool runs, and the walk goes on after it.
+   */
+  aside?: { phrase: ProposalPhrase; carries: Pick[] };
+  /**
+   * A clean walk declares one perturbation, drawn among the classes it can take. With this, it declares one
+   * for every class it can take: the stage graph's walks do, so no class depends on a draw to be declared.
+   */
+  perturbEvery?: boolean;
+  /**
+   * The perturbation a clean walk must declare: this class said at this stage of the path. A first-turn
+   * class whose recovery stays on the start stage has no Then an idle reply fails, so it is no block of the
+   * walk; declared here, a perturbed run says it and checks its recovery. The walk fails without it.
+   */
+  perturb?: { classId: string; stage: string };
 };
 
 export type Scenario =
@@ -78,6 +107,9 @@ export type Scenario =
   | { ok: false; reason: string };
 
 type Built = Extract<Scenario, { ok: true }>;
+
+/** One tool's forced answer in a Given world. */
+type ToolAnswer = NonNullable<WorldState['tools']>[string];
 
 /** True when a phrase belongs to `dimension=value`. */
 function isOf(phrase: ProposalPhrase, dimension: string, value: string): boolean {
@@ -253,7 +285,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
   let movedAway = false;
   let turnPlaced = false;
   for (let index = 0; index < path.stages.length; index += 1) {
-    if (request.turn && index === 1) {
+    if (request.turn && !request.turn.call && index === 1) {
       blocks.push({
         id: `b${blocks.length + 1}-value`,
         stimulus: request.turn.stimulus,
@@ -264,6 +296,20 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       });
       turnPlaced = true;
       break;
+    }
+    if (request.aside && !request.turn && index === 1) {
+      const [dimension, value] = request.aside.carries[0] ?? [-1, -1];
+      blocks.push({
+        id: `b${blocks.length + 1}-aside`,
+        stimulus: stimulusOf(
+          request.aside.phrase,
+          dimensionId(prepared, dimension),
+          valueId(prepared, dimension, value),
+        ),
+        stage: path.stages[index] as string,
+        carries: request.aside.carries,
+        ...(lang === undefined ? {} : { lang }),
+      });
     }
     if (probeAt === index && probe && deviationKey !== undefined && recovery) {
       const stage = path.stages[index] as string;
@@ -297,6 +343,8 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
         stimulus: stimulusOf(phrase, deviationKey, probe.classId),
         injection: probe.classId,
         ...(after === undefined ? {} : { stage: after }),
+        // The cell records where the class is said, as a coverage cell of deviation and stage reads it.
+        saidAt: stage,
         carries: [[prepared.deviation as number, deviation]],
         ...(tools.length > 0 ? { tools } : {}),
         ...(recovery.guards.length > 0 ? { guards: recovery.guards } : {}),
@@ -398,12 +446,37 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       ...(unstated.length > 0 ? { must_not: unstated } : {}),
       ...(lang === undefined ? {} : { lang }),
     });
+    const asked = request.turn?.call;
+    const made = asked ? tools.find((tool) => tool.label === asked.tool && calls(tool)) : undefined;
+    if (request.turn && asked && made) {
+      blocks.push({
+        id: `b${blocks.length + 1}-value`,
+        stimulus: request.turn.stimulus,
+        stage: to,
+        carries: request.turn.carries,
+        tools: [
+          { ...made, input: { ...made.input, [asked.field]: asked.value } },
+          ...request.turn.tools.filter((tool) => tool.label !== asked.tool),
+        ],
+        ...(lang === undefined ? {} : { lang }),
+      });
+      turnPlaced = true;
+      break;
+    }
   }
+  if (request.turn?.call && !turnPlaced) return fail(`no move of the path calls ${request.turn.call.tool}`);
 
   let placed: Built['probe'];
   let truncated = turnPlaced;
+  // The answer a tool gives once it works again: the bound values the replies state, else its defaults.
+  const answering = (tool: string): ToolAnswer => {
+    const bound = worldFor(prepared, unique(replyData), { useBindings: true }).world?.tools?.[tool];
+    if (bound) return bound;
+    const schema = prepared.tools.find((entry) => entry.name === tool);
+    return { result: (schema ? toolAnswer(schema, []).answer : {}) as never };
+  };
   if (probe && probe.classId === TOOL_FAILURE) {
-    const failed = toolFailure(prepared, rng, path, blocks, cell, probe);
+    const failed = toolFailure(prepared, rng, path, blocks, cell, probe, answering);
     if (!failed.ok) return fail(failed.reason);
     placed = failed.placed;
     truncated = true;
@@ -431,7 +504,14 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
   // conversation on the stage it reached, said before the turn that leaves that stage, with the recovery as
   // its Then. The rest of the walk stays valid after it, so the perturbed run checks every later block too.
   const perturbations: PerturbationSpec[] = [];
-  if (!probe && !request.turn && deviationKey !== undefined && prepared.deviation !== undefined) {
+  // A walk with an aside keeps its turns where they are: a perturbation's position counts the path's moves.
+  if (
+    !probe &&
+    !request.turn &&
+    !request.aside &&
+    deviationKey !== undefined &&
+    prepared.deviation !== undefined
+  ) {
     const options: Array<{ classId: string; index: number; expect: Expect; user: string }> = [];
     for (const value of dimensions[prepared.deviation]?.values ?? []) {
       const classId = value.id;
@@ -454,16 +534,52 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
         options.push({ classId, index, expect, user: text.value });
       }
     }
-    const chosen = pick(rng, options);
-    if (chosen) {
+    // One class is drawn, as before; a walk that declares every class adds the others at the first stage
+    // each can take, with no further draw, so the rest of the walk is the same either way.
+    const wanted = request.perturb;
+    const drawn = wanted
+      ? options.find(
+          (option) => option.classId === wanted.classId && path.stages[option.index] === wanted.stage,
+        )
+      : pick(rng, options);
+    if (wanted && !drawn)
+      return fail(`a clean walk cannot take ${wanted.classId} at ${wanted.stage} as its perturbation`);
+    const picked = drawn ? [drawn] : [];
+    if (request.perturbEvery) {
+      for (const option of options) {
+        if (!picked.some((entry) => entry.classId === option.classId)) picked.push(option);
+      }
+    }
+    for (const chosen of picked) {
       perturbations.push({
-        id: `p1-${chosen.classId}`,
+        id: `p${perturbations.length + 1}-${chosen.classId}`,
         class: chosen.classId as PerturbationSpec['class'],
         inject_at: chosen.index,
         user: chosen.user,
         expect: chosen.expect,
         // The map's recovery keeps the conversation where it was: the injected block itself recovers.
         recovery: { within_blocks: 0, stage_after: chosen.expect.stage as string },
+      });
+    }
+    // A nudge gets one reply: the walk that declares one holds the rule a nudge probe holds.
+    if (picked.some((chosen) => chosen.classId === 'D7_silence_or_burst')) rules.one_message_per_turn = true;
+    // A tool failure the recovery stays from: before the first turn that calls a recovered tool first, the
+    // user says that turn with the tool failing. The recovery is the injected block's Then, and the turn
+    // itself then runs with the tool answering again. It takes no seeded draw, so the rest is unchanged.
+    const failure = toolFailurePerturbation(relations, path, blocks, slots, inPlay, lang);
+    if (failure) {
+      const block = blocks[failure.index] as BlockDraft;
+      block.given = {
+        world: { tools: { ...block.given?.world?.tools, [failure.tool]: answering(failure.tool) } },
+      };
+      perturbations.push({
+        id: `p${perturbations.length + 1}-${TOOL_FAILURE}`,
+        class: TOOL_FAILURE as PerturbationSpec['class'],
+        inject_at: failure.index,
+        user: failure.user,
+        world: { tools: { [failure.tool]: { error: TOOL_FAILURE_ERROR } } },
+        expect: failure.expect,
+        recovery: { within_blocks: 0, stage_after: failure.expect.stage as string },
       });
     }
   }
@@ -552,6 +668,37 @@ function recoveryExpect(
   };
 }
 
+/**
+ * The first turn of a clean walk whose first call is a tool the map recovers from without leaving the stage:
+ * where a tool failure goes in perturbed mode, said with that turn's words, and what the recovery expects.
+ */
+function toolFailurePerturbation(
+  relations: PreparedMap['relations'],
+  path: PathRelation,
+  blocks: readonly BlockDraft[],
+  slots: Record<string, string>,
+  inPlay: ReadonlySet<string>,
+  lang: string | undefined,
+): { index: number; tool: string; user: string; expect: Expect } | undefined {
+  for (const [index, block] of blocks.entries()) {
+    const stage = path.stages[index];
+    const first = (block.tools ?? []).find(calls);
+    if (stage === undefined || !first || block.stimulus.kind !== 'phrase') continue;
+    const recovery = recoveryFor(relations, TOOL_FAILURE, path.flow, first.label);
+    if (!recovery || stageAfter(recovery, stage) !== stage) continue;
+    const expect = recoveryExpect(recovery, stage, slots, inPlay, lang);
+    if (!expect) continue;
+    // The agent sends the failing tool the arguments the turn names.
+    expect.tools = (expect.tools ?? []).map((tool) =>
+      tool.label === first.label && tool.input === undefined && first.input !== undefined
+        ? { ...tool, input: first.input, ...(first.input_closed ? { input_closed: true } : {}) }
+        : tool,
+    );
+    return { index, tool: first.label, user: block.stimulus.phrase.text, expect };
+  }
+  return undefined;
+}
+
 function choosePhraseExists(
   prepared: PreparedMap,
   dimension: string,
@@ -594,6 +741,7 @@ function toolFailure(
   blocks: BlockDraft[],
   cell: Pick[],
   probe: ProbeRequest,
+  answering: (tool: string) => ToolAnswer,
 ): { ok: true; placed: { classId: string; stage: string; tool: string } } | { ok: false; reason: string } {
   const recoverable = failureTools(prepared.relations, TOOL_FAILURE, path.flow);
   const named = cell
@@ -616,6 +764,8 @@ function toolFailure(
   }
   const recovery = recoveryFor(prepared.relations, TOOL_FAILURE, path.flow, chosen.tool) as Recovery;
   const block = blocks[chosen.index] as BlockDraft;
+  // The turn as the walk says it, before it becomes the probe: the user says it again once the tool works.
+  const again = structuredClone(block);
   const at = path.stages[chosen.index] as string;
   const after = stageAfter(recovery, at);
   // The turn calls its tools in the order the map lists them: the ones before the failing tool still run,
@@ -633,8 +783,16 @@ function toolFailure(
     const expected = toolExpect(call.tool, call.count, call.input, {});
     if (!expected.ok) return { ok: false, reason: `the recovery of ${chosen.tool} reads slots` };
     const before = tools.get(call.tool);
-    const input = expected.value.input ?? (before && calls(before) ? before.input : undefined);
-    tools.set(call.tool, { label: call.tool, count: expected.value.count ?? 1, ...(input ? { input } : {}) });
+    const kept = expected.value.input === undefined && before !== undefined && calls(before);
+    const input = expected.value.input ?? (kept ? before.input : undefined);
+    const closed =
+      expected.value.input === undefined ? kept && before.input_closed : expected.value.input_closed;
+    tools.set(call.tool, {
+      label: call.tool,
+      count: expected.value.count ?? 1,
+      ...(input ? { input } : {}),
+      ...(input && closed ? { input_closed: true } : {}),
+    });
   }
   block.tools = [...tools.values()];
   if (after === undefined) delete block.stage;
@@ -658,7 +816,16 @@ function toolFailure(
   else delete block.must_not;
   const deviation = prepared.space.dimensions[prepared.deviation ?? -1]?.index.get(TOOL_FAILURE);
   if (deviation !== undefined) block.carries = [[prepared.deviation as number, deviation], ...block.carries];
-  blocks.splice(chosen.index + 1);
+  // A recovery that keeps the conversation on the stage the turn left: the user asks again, the tool answers,
+  // and the walk goes on from there with every later turn as it was. One that moves it elsewhere stops it.
+  const rest = blocks.splice(chosen.index + 1);
+  if (after === at) {
+    again.given = { world: { tools: { [chosen.tool]: answering(chosen.tool) } } };
+    blocks.push(again, ...rest);
+    blocks.forEach((entry, index) => {
+      entry.id = entry.id.replace(/^b\d+-/, `b${index + 1}-`);
+    });
+  }
   // The failing tool as a data value of the cell, when the map names tools as data (Acme's failing_tool).
   if (named === undefined) {
     prepared.space.dimensions.forEach((dimension, index) => {

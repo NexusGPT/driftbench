@@ -5,7 +5,7 @@ id: gen-deviation-006
 version: 7c05b9cee9cc
 kind: conversation
 title: "Deviation probe D5_language_switch: Path home-callback of new-home: needs > address > offer > callback > handover, D5_language_switch at callback"
-channel: chat
+channel: whatsapp
 lang: EN
 tier: generated
 tags:
@@ -159,7 +159,7 @@ metadata:
       coverage_result: fiber
       plan_choice: asks-for-callback
       callback_phone: given
-      channel: chat
+      channel: whatsapp
     blocks:
       - block: b1-needs-to-address
         seeder: deviation

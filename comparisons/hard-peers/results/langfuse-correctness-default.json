@@ -1,0 +1,1648 @@
+{
+  "competitor": "langfuse",
+  "row": "correctness",
+  "contestant": "default",
+  "model": "haiku",
+  "items": 126,
+  "complete": 126,
+  "results": [
+    {
+      "id": "langfuse.correctness.001",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "932f46cc61f8aad3843aa8a2f31fddaddabb7e95c28574c2b667c037e76ac9bb"
+      ],
+      "costUsd": 0.0004994999999999999
+    },
+    {
+      "id": "langfuse.correctness.002",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-3",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "86b7d1d62ce16332a6c2404acc230666344fd4d339469abb7c245f3c656e53a0"
+      ],
+      "costUsd": 0.000522
+    },
+    {
+      "id": "langfuse.correctness.003",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "4e4ad4aba72c69b147d90629a43fc3ecc6968c4647a7dd5027dc9912d1481e02"
+      ],
+      "costUsd": 0.0004035
+    },
+    {
+      "id": "langfuse.correctness.004",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "98ba5611abf389c4bdffa0d1c274d4da2e52989b61de842584094fca21e69ba0"
+      ],
+      "costUsd": 0.00053
+    },
+    {
+      "id": "langfuse.correctness.005",
+      "kind": "partial-credit",
+      "pair": "partial-credit-3",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "c8c23fc3d07f3eac5ceb68f16f51af098d14e4744371e783ee1565e1dfb67c17"
+      ],
+      "costUsd": 0.00038140000000000005
+    },
+    {
+      "id": "langfuse.correctness.006",
+      "kind": "unusual-format",
+      "pair": "unusual-format-6",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "27732172b70c8f270d7296f0e025f8cdf559ad2aeb5b822a539ef676c4dbe448"
+      ],
+      "costUsd": 0.0006027000000000001
+    },
+    {
+      "id": "langfuse.correctness.007",
+      "kind": "double-negation",
+      "pair": "double-negation-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "0e5c9f774176e682b36a13240e347f222d007aeaeff4a989a9702e6b182ddcaa"
+      ],
+      "costUsd": 0.0005758
+    },
+    {
+      "id": "langfuse.correctness.008",
+      "kind": "partial-credit",
+      "pair": "partial-credit-8",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "ce8c75699c85333c12ddd3d76f0d00a8a0980bc30174a23b381f2cdfe3eb7baf"
+      ],
+      "costUsd": 0.000467
+    },
+    {
+      "id": "langfuse.correctness.009",
+      "kind": "double-negation",
+      "pair": "double-negation-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "1079c4513745bb9a0d70d8bfe2bf576571e59dae85880741550c1702d423c5eb"
+      ],
+      "costUsd": 0.0006076
+    },
+    {
+      "id": "langfuse.correctness.010",
+      "kind": "near-miss",
+      "pair": "near-miss-8",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "c38cdf81c707b7016680c0b01349df61b1cfff423d43d489fcca05961320b525"
+      ],
+      "costUsd": 0.0003803
+    },
+    {
+      "id": "langfuse.correctness.011",
+      "kind": "double-negation",
+      "pair": "double-negation-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "99b71cadd669414113fe52a60aef7e2fe5a3fd994ee3de220102b79df1443726"
+      ],
+      "costUsd": 0.0006039
+    },
+    {
+      "id": "langfuse.correctness.012",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-5",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "575d9b3172c7579ae607ecd10358e13ad6cf9600e76d60011d4230dbb13161c3"
+      ],
+      "costUsd": 0.0008112
+    },
+    {
+      "id": "langfuse.correctness.013",
+      "kind": "near-miss",
+      "pair": "near-miss-8",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "d10bfd4d6859f5865279ee4691b55c575b77350d077fbce1746902f8727a3ca8"
+      ],
+      "costUsd": 0.0005212999999999999
+    },
+    {
+      "id": "langfuse.correctness.014",
+      "kind": "partial-credit",
+      "pair": "partial-credit-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "c104adcb76bf08f44c5672dd4309d6a47a0e88867e83d9238a55c6a2fce66604"
+      ],
+      "costUsd": 0.00038990000000000004
+    },
+    {
+      "id": "langfuse.correctness.015",
+      "kind": "double-negation",
+      "pair": "double-negation-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "a053adc1b88b14a970b9978f5010088b3acea304824d75b46d0a6af0ff39b3ce"
+      ],
+      "costUsd": 0.0005623
+    },
+    {
+      "id": "langfuse.correctness.016",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "ec86e6a8ac7b680aef6573d373ac6ed1de411d99d6d95a5b916048a8c5117c09"
+      ],
+      "costUsd": 0.0005826
+    },
+    {
+      "id": "langfuse.correctness.017",
+      "kind": "double-negation",
+      "pair": "double-negation-3",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "a1438049129e0daea7680dab4235ce00b3c5a9d5e0f0d0f7a3aca20733a47307"
+      ],
+      "costUsd": 0.0005597
+    },
+    {
+      "id": "langfuse.correctness.018",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-7",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "a1475027063ea862df140362de5a475773b24f212abe8aec7c3da75932b3b95b"
+      ],
+      "costUsd": 0.00037240000000000005
+    },
+    {
+      "id": "langfuse.correctness.019",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-7",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "f453289566431939980df7cba252d7bc9fc2e4fb0082c6c8799843ec6071e812"
+      ],
+      "costUsd": 0.0006916
+    },
+    {
+      "id": "langfuse.correctness.020",
+      "kind": "unusual-format",
+      "pair": "unusual-format-8",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "1f6ce0cfea52e25b848e2d70d4eac703f7f7bf2204b985eeb0e0c9f36933f210"
+      ],
+      "costUsd": 0.0007683
+    },
+    {
+      "id": "langfuse.correctness.021",
+      "kind": "double-negation",
+      "pair": "double-negation-4",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "20444a4b68dbdb02e2ba8ace2e4195178b3fc370ed49864c39fed5999e301a10"
+      ],
+      "costUsd": 0.0005431
+    },
+    {
+      "id": "langfuse.correctness.022",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-6",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "6218ffb7026ec7c0b6a8af9ffcee001edfbef687c719bff792307ea6e647f14c"
+      ],
+      "costUsd": 0.0007925
+    },
+    {
+      "id": "langfuse.correctness.023",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-4",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "a45a757278cfdafe333ffbb051f5baa0437adc33c4b09e0b33bfeb3e1b859135"
+      ],
+      "costUsd": 0.000606
+    },
+    {
+      "id": "langfuse.correctness.024",
+      "kind": "near-miss",
+      "pair": "near-miss-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "d847a9738a2e1154d26388d99bca85794411dfb7c987c4f766b0a510cad5b792"
+      ],
+      "costUsd": 0.0005042
+    },
+    {
+      "id": "langfuse.correctness.025",
+      "kind": "near-miss",
+      "pair": "near-miss-7",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "ae67ae8f594c7be35931effe429732084249ffe007059a958acfcf7469ba5e97"
+      ],
+      "costUsd": 0.000513
+    },
+    {
+      "id": "langfuse.correctness.026",
+      "kind": "partial-credit",
+      "pair": "partial-credit-5",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "053c88f5b0c055dc2ea4577ce310547aed89d7dacb1eea7dabd653a6012b96a0"
+      ],
+      "costUsd": 0.0003745
+    },
+    {
+      "id": "langfuse.correctness.027",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-3",
+      "truth": true,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "0a5fc539ea5ec3c64c0f994327d60659b82ade9bc667331cb2aeeba98e0c43e2"
+      ],
+      "costUsd": 0.0006349
+    },
+    {
+      "id": "langfuse.correctness.028",
+      "kind": "unusual-format",
+      "pair": "unusual-format-8",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "3e383f7289c342e0fe979f6323acce2433094e466b4059bc7684c22a400924fa"
+      ],
+      "costUsd": 0.0004448
+    },
+    {
+      "id": "langfuse.correctness.029",
+      "kind": "near-miss",
+      "pair": "near-miss-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "720333bc5980eccfe1a8d582708e9bc52e99f364e2d19bd86a5f758ab10b6746"
+      ],
+      "costUsd": 0.00037450000000000005
+    },
+    {
+      "id": "langfuse.correctness.030",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-3",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "20d3a72d09e382fb52bb98751ae6144a46f3d5f81fa4f7e9d34adf1a5ecefcd3"
+      ],
+      "costUsd": 0.00045549999999999996
+    },
+    {
+      "id": "langfuse.correctness.031",
+      "kind": "double-negation",
+      "pair": "double-negation-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "98ea2e61460f1d9a6161f2c044c250fd32c1f074df8864efca1770f247a38139"
+      ],
+      "costUsd": 0.0004362
+    },
+    {
+      "id": "langfuse.correctness.032",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "26143ca217b1f6bd9422af5f157d146f2204d890dea00f579185462264bcc328"
+      ],
+      "costUsd": 0.0004663
+    },
+    {
+      "id": "langfuse.correctness.033",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "800a3b4ba261855432d41445d539d69647cdffe7c08c659d7aea4b5e486e1931"
+      ],
+      "costUsd": 0.0005919
+    },
+    {
+      "id": "langfuse.correctness.034",
+      "kind": "partial-credit",
+      "pair": "partial-credit-3",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "168e7100c038b8b46512c453f7abd51ab398d7be0019893ab6d458fe2c2ef156"
+      ],
+      "costUsd": 0.0003735
+    },
+    {
+      "id": "langfuse.correctness.035",
+      "kind": "near-miss",
+      "pair": "near-miss-6",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "f7ee92cf6491d60a9416a20f2becf36d1276493d6aa79a04ef628fa97eaa39dc"
+      ],
+      "costUsd": 0.0004864
+    },
+    {
+      "id": "langfuse.correctness.036",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-8",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "11d55cb545d1eca2207484a5ff340a579ed73fcaf328e6ef6eb5bfe4e5999fd1"
+      ],
+      "costUsd": 0.0003655
+    },
+    {
+      "id": "langfuse.correctness.037",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "c2f0ad8832adac2d371190eedaf3d5facc0eb5c0a5c05ffa25408b77227ed820"
+      ],
+      "costUsd": 0.000402
+    },
+    {
+      "id": "langfuse.correctness.038",
+      "kind": "unusual-format",
+      "pair": "unusual-format-4",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "0d4882182d940e3b8c3deb27cd2ecb8d8814c35ebe6a982f9dfdb87ce54594c7"
+      ],
+      "costUsd": 0.00042640000000000006
+    },
+    {
+      "id": "langfuse.correctness.039",
+      "kind": "double-negation",
+      "pair": "double-negation-7",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "c86f5dc0a955302a56c24a2bf193394990904d8ba00c4ef942976e477dc7f038"
+      ],
+      "costUsd": 0.0006052
+    },
+    {
+      "id": "langfuse.correctness.040",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "4b6dbbaddb5956c2fdd776beaaaf05478cea2e89abe91dcb06aec82ca3c171b6"
+      ],
+      "costUsd": 0.0003592
+    },
+    {
+      "id": "langfuse.correctness.041",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "867d229347f58c95d6fa4aaf1231fd49800a4b347a093f40dcda018ec00a301c"
+      ],
+      "costUsd": 0.0005882
+    },
+    {
+      "id": "langfuse.correctness.042",
+      "kind": "partial-credit",
+      "pair": "partial-credit-4",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "2bf4c19f404660082dbd66b2c62a35e887e403a119e8e72852f9a9013c7f36b9"
+      ],
+      "costUsd": 0.0003775
+    },
+    {
+      "id": "langfuse.correctness.043",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-8",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "436cec4ee72b97b97815ab68b2ceddda268560a24445eb2a7e4aaed80b093025"
+      ],
+      "costUsd": 0.0005095
+    },
+    {
+      "id": "langfuse.correctness.044",
+      "kind": "partial-credit",
+      "pair": "partial-credit-5",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "ebd20fd3af74214b0ddaf42ba8b75f37939ef28e8cd9bca2c20c7ed1f92de5a3"
+      ],
+      "costUsd": 0.0003704
+    },
+    {
+      "id": "langfuse.correctness.045",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-6",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "4ef6eb6b17f43ae4e5e9fcd0bab0b715c58e6cf289baca9d0c1861917692e090"
+      ],
+      "costUsd": 0.0005415000000000001
+    },
+    {
+      "id": "langfuse.correctness.046",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-6",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "c5334cd055a358b689c73082ae56538c86ae2be47cfcae708155c0834c7abbe9"
+      ],
+      "costUsd": 0.000535
+    },
+    {
+      "id": "langfuse.correctness.047",
+      "kind": "double-negation",
+      "pair": "double-negation-3",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "c5f433514de1d36138954b11b84538a81f1f318baf35d2fef09f28af9c87e55a"
+      ],
+      "costUsd": 0.0006806
+    },
+    {
+      "id": "langfuse.correctness.048",
+      "kind": "near-miss",
+      "pair": "near-miss-3",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "936ca282616ccdfc45bc1872c785f54eb144a9cfacf932e307b85c79bb18ef5d"
+      ],
+      "costUsd": 0.0004107
+    },
+    {
+      "id": "langfuse.correctness.049",
+      "kind": "unusual-format",
+      "pair": "unusual-format-3",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "ea55f0113c199422955c80c0e10a0ae43af29763b0526dd42a67d48a07bc57f5"
+      ],
+      "costUsd": 0.0008183000000000001
+    },
+    {
+      "id": "langfuse.correctness.050",
+      "kind": "unusual-format",
+      "pair": "unusual-format-5",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "1eeec0f38aaf0cb2952f0695c43e0e16afdf6530bed4431ab9617101d5db762b"
+      ],
+      "costUsd": 0.0005480999999999999
+    },
+    {
+      "id": "langfuse.correctness.051",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-4",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "86c5d7864da0e318a5b85f5efc24a3800b9b86d51a4fae8462cbecaf1b4d5a78"
+      ],
+      "costUsd": 0.000665
+    },
+    {
+      "id": "langfuse.correctness.052",
+      "kind": "unusual-format",
+      "pair": "unusual-format-3",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "1623e8926bfd60462e48b72df4b5435331ee4ddc6cfd8307471b822f7ddd4d3a"
+      ],
+      "costUsd": 0.0005698000000000001
+    },
+    {
+      "id": "langfuse.correctness.053",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-4",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "8cc964163ab00dd48a2b9ef35580f70e26ce9c9ec0fd9409ed5232478f21e431"
+      ],
+      "costUsd": 0.0005699
+    },
+    {
+      "id": "langfuse.correctness.054",
+      "kind": "double-negation",
+      "pair": "double-negation-8",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "065d2ea640e733ce9aa79360a6c00f1a801717b741acb94df9b5fca70d370ffe"
+      ],
+      "costUsd": 0.0005431
+    },
+    {
+      "id": "langfuse.correctness.055",
+      "kind": "partial-credit",
+      "pair": "partial-credit-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "042e560a81d389d2b5be77205775ae9d87bb7bd3859a3fb0af6949a117551ce0"
+      ],
+      "costUsd": 0.00038350000000000005
+    },
+    {
+      "id": "langfuse.correctness.056",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-7",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "b7b401377bde065baafa76b626eb8ae03f0b1bd8899edce2145b8fc45bd6b0cb"
+      ],
+      "costUsd": 0.00048649999999999995
+    },
+    {
+      "id": "langfuse.correctness.057",
+      "kind": "partial-credit",
+      "pair": "partial-credit-4",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "3d699e5ee277df28e3089c075a5f54c8a02842ac1da3cd08785c8a7e52243675"
+      ],
+      "costUsd": 0.00046010000000000007
+    },
+    {
+      "id": "langfuse.correctness.058",
+      "kind": "partial-credit",
+      "pair": "partial-credit-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "11f449fe538fbe7e6bd42b1e1f759bbd8fe57bcec7d74db386fec070f97080c7"
+      ],
+      "costUsd": 0.0003616
+    },
+    {
+      "id": "langfuse.correctness.059",
+      "kind": "near-miss",
+      "pair": "near-miss-3",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "9e770d99734c38365647679097d722d040300da7ca4abf98323baa1470366c7a"
+      ],
+      "costUsd": 0.00038770000000000005
+    },
+    {
+      "id": "langfuse.correctness.060",
+      "kind": "double-negation",
+      "pair": "double-negation-6",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "cf6763f0292491a4929ab5c52bb7c225314bc619b4c890139ae19fed80efd5a5"
+      ],
+      "costUsd": 0.0006118
+    },
+    {
+      "id": "langfuse.correctness.061",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-8",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "89b462bd56c98ebaa95f3ae8760a2305b46bbcff8fde16ea0421982a076813d7"
+      ],
+      "costUsd": 0.0005059999999999999
+    },
+    {
+      "id": "langfuse.correctness.062",
+      "kind": "near-miss",
+      "pair": "near-miss-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "c8eba79edbc057cb63d56f0d16b791f1bc474bc042ca3200c1110b43b80e0971"
+      ],
+      "costUsd": 0.000382
+    },
+    {
+      "id": "langfuse.correctness.063",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-8",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "56b22de2a6abe2a969bf7f8b2bb7d5634fd7c35c1e691112417da94b366c0db9"
+      ],
+      "costUsd": 0.0004984
+    },
+    {
+      "id": "langfuse.correctness.064",
+      "kind": "double-negation",
+      "pair": "double-negation-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "89a8e57dddcfb94db39d7e2dcc136e10209d840e2795f4338f49fa985355dba4"
+      ],
+      "costUsd": 0.0005894
+    },
+    {
+      "id": "langfuse.correctness.065",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "46c99604b1e3e9aa1c2bed5ed635c6317db37cf56f4b236eca370b08264effed"
+      ],
+      "costUsd": 0.0005189000000000001
+    },
+    {
+      "id": "langfuse.correctness.066",
+      "kind": "near-miss",
+      "pair": "near-miss-6",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "4678591a556d393bf83fc94953f21e48163587ee9b041a4dcd449d84a032f1e0"
+      ],
+      "costUsd": 0.0004339
+    },
+    {
+      "id": "langfuse.correctness.067",
+      "kind": "near-miss",
+      "pair": "near-miss-7",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "c230650c7fe272405f266050f468dffd0f110ae4ffdf6139cf4b241a0b0a1f5a"
+      ],
+      "costUsd": 0.0003905
+    },
+    {
+      "id": "langfuse.correctness.068",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-7",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "1b048ab860cf9cab5cc1d656580f0e326f3d0edef3e56a1c77326dfe0e8c53cd"
+      ],
+      "costUsd": 0.0006505
+    },
+    {
+      "id": "langfuse.correctness.069",
+      "kind": "unusual-format",
+      "pair": "unusual-format-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "52e654a4acae73f9d2b7aaf0bc2c12363ea1cb368dd20ee0477bae3bc783a755"
+      ],
+      "costUsd": 0.0003746
+    },
+    {
+      "id": "langfuse.correctness.070",
+      "kind": "double-negation",
+      "pair": "double-negation-5",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "14af29b98d100e3f13e5b9cb938b55971ea4a106ca6c0188c4156ac93ec0ba48"
+      ],
+      "costUsd": 0.0005204000000000001
+    },
+    {
+      "id": "langfuse.correctness.071",
+      "kind": "partial-credit",
+      "pair": "partial-credit-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "456aaa6ca36a4e231d83fd59b724c03e2c97471b7c80048560a039f2a0fd2953"
+      ],
+      "costUsd": 0.0004545
+    },
+    {
+      "id": "langfuse.correctness.072",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-7",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "b1a0e1a132d631d22b8d12adf451a6367313a1e61dd8b5ba4c21a73a8930f8f2"
+      ],
+      "costUsd": 0.0007814
+    },
+    {
+      "id": "langfuse.correctness.073",
+      "kind": "near-miss",
+      "pair": "near-miss-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "6f5669665e29d8c17fae8a4391166ae35328b8db435318273890ffb1d0c92886"
+      ],
+      "costUsd": 0.0004765
+    },
+    {
+      "id": "langfuse.correctness.074",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "970845a32fef1155feb1f0c31bc50abb428e8eaa8e3dbba2fd88eb1eed0cb4ce"
+      ],
+      "costUsd": 0.0003597
+    },
+    {
+      "id": "langfuse.correctness.075",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-4",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "81b11e99acda4d5d505639e5879a1ea763d4aa4e94c2e18b8937e478a700f009"
+      ],
+      "costUsd": 0.0005909000000000001
+    },
+    {
+      "id": "langfuse.correctness.076",
+      "kind": "partial-credit",
+      "pair": "partial-credit-8",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "20c496a9d71ab8e1621e4579b7369a8b28b70993201c15906fb880eb49bd7e9b"
+      ],
+      "costUsd": 0.0003711
+    },
+    {
+      "id": "langfuse.correctness.077",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "b52af905524d8184e50752a6fd52893ef588b316e04f39633f864d140c325085"
+      ],
+      "costUsd": 0.0008266
+    },
+    {
+      "id": "langfuse.correctness.078",
+      "kind": "unusual-format",
+      "pair": "unusual-format-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "7f19c1f738e80aedfb059d2268128eaa5a0861d4b355e0d30a740f346d68e7e2"
+      ],
+      "costUsd": 0.0004598
+    },
+    {
+      "id": "langfuse.correctness.079",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-3",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "341a73d1549f95b2d5a905efac67f0837403529a5e0e086085c2c5721fa68f11"
+      ],
+      "costUsd": 0.0004383
+    },
+    {
+      "id": "langfuse.correctness.080",
+      "kind": "near-miss",
+      "pair": "near-miss-5",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "d5b72fff0ffe98ab78f730bc4b9f502219b58735d8bbf413da1d1000fa9c38c1"
+      ],
+      "costUsd": 0.0004046
+    },
+    {
+      "id": "langfuse.correctness.081",
+      "kind": "unusual-format",
+      "pair": "unusual-format-6",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "b44a03f0572c7e22ffc65da808cb0b8f7d336e73cd1c2a245e9cbe86cb3933a7"
+      ],
+      "costUsd": 0.0006772
+    },
+    {
+      "id": "langfuse.correctness.082",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-8",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "f6a04a6f56b607292fdced2cac68c6e7359abee5f4ac18c15c5ba21d44e35bcf"
+      ],
+      "costUsd": 0.00041390000000000003
+    },
+    {
+      "id": "langfuse.correctness.083",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-5",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "f11acd508793cb7ef8bafcf37004be58b230de9f24425ba8b7c1ad941bd5e2e4"
+      ],
+      "costUsd": 0.0005116
+    },
+    {
+      "id": "langfuse.correctness.084",
+      "kind": "partial-credit",
+      "pair": "partial-credit-6",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "14f7df64d17918b761084da2c91122321bc0a5cdadd356fb8fccfc97d0c88963"
+      ],
+      "costUsd": 0.0003783
+    },
+    {
+      "id": "langfuse.correctness.085",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "2d118bd70b32673952b8b56ce67c70bd2dd4bdfcb5242fa62aeb8bc29d342906"
+      ],
+      "costUsd": 0.0005606999999999999
+    },
+    {
+      "id": "langfuse.correctness.086",
+      "kind": "unusual-format",
+      "pair": "unusual-format-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "ff706413e75dc140167fb23e0e9fcbcb7be2d5b655d3d8334f521730419603c9"
+      ],
+      "costUsd": 0.0004123
+    },
+    {
+      "id": "langfuse.correctness.087",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-4",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "7a929d574f6415aa5606c926d2131134958fc299871325814d11045a8f93bad5"
+      ],
+      "costUsd": 0.0004984
+    },
+    {
+      "id": "langfuse.correctness.088",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-5",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "b161bcc1369c69c24b8df8ed679e836672ed45e1b8cb1fde7168029c7c2cf596"
+      ],
+      "costUsd": 0.000429
+    },
+    {
+      "id": "langfuse.correctness.089",
+      "kind": "partial-credit",
+      "pair": "partial-credit-7",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "f45ed562e5a8c2a3db5e65faf6a94f709f228485b09c672d31ce1b5ee2fccc1a"
+      ],
+      "costUsd": 0.00037089999999999996
+    },
+    {
+      "id": "langfuse.correctness.090",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-5",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "7507d2cfb57a9a6cb03d03800956a0fcfcddf99a30e6f78b046caa9a1e923c54"
+      ],
+      "costUsd": 0.0005625
+    },
+    {
+      "id": "langfuse.correctness.091",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-4",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "a97035f09189ad4b2e6a2661738562cf68671d52e53a0984b9cf64346514bbc5"
+      ],
+      "costUsd": 0.00036290000000000004
+    },
+    {
+      "id": "langfuse.correctness.092",
+      "kind": "unusual-format",
+      "pair": "unusual-format-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "a341292d2a41551d79a9c42abc711b686901ac18539211028877afb90d5b0cd0"
+      ],
+      "costUsd": 0.0003461
+    },
+    {
+      "id": "langfuse.correctness.093",
+      "kind": "double-negation",
+      "pair": "double-negation-6",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "1b9f832eda64d3d537a5c0876543f2c03ae2afc727db1ca7bd0330c788acc748"
+      ],
+      "costUsd": 0.0005734000000000001
+    },
+    {
+      "id": "langfuse.correctness.094",
+      "kind": "double-negation",
+      "pair": "double-negation-8",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "a01bab988cdc5634d3bb0380d8eb9d760390828bd7e1a75763dd7bc66b9757ed"
+      ],
+      "costUsd": 0.0005585
+    },
+    {
+      "id": "langfuse.correctness.095",
+      "kind": "double-negation",
+      "pair": "double-negation-7",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "4d474c2b36143cdabf90a865c3e70d8cb20c72757d12cfe5b5890fbbc45b32e0"
+      ],
+      "costUsd": 0.0005358
+    },
+    {
+      "id": "langfuse.correctness.096",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-8",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "88fc42421b1836c3a361ee2f9e7075c82dae5d36684e615c77357f3d1fe99837"
+      ],
+      "costUsd": 0.0005495000000000001
+    },
+    {
+      "id": "langfuse.correctness.097",
+      "kind": "near-miss",
+      "pair": "near-miss-0",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "4941db5ba2c317e8ff5f06e6a936771dc63e8bd2df2744408a449649bba5c14a"
+      ],
+      "costUsd": 0.0004715
+    },
+    {
+      "id": "langfuse.correctness.098",
+      "kind": "unusual-format",
+      "pair": "unusual-format-7",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "5ab9ee643167561a9e44276284aea14698911a3260e0d173dd960989e8b8b83c"
+      ],
+      "costUsd": 0.00040379999999999995
+    },
+    {
+      "id": "langfuse.correctness.099",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-6",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "ced9bc878d212cc00908bbc2e78f58f07ecc9282929daca484f880512bcd270a"
+      ],
+      "costUsd": 0.00037129999999999997
+    },
+    {
+      "id": "langfuse.correctness.100",
+      "kind": "unusual-format",
+      "pair": "unusual-format-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "112e817108ef17164783e468c0aee3117df5873e928427e9272c2fafc54f9507"
+      ],
+      "costUsd": 0.0004062
+    },
+    {
+      "id": "langfuse.correctness.101",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "614202c5c0dc0b34243bc11c2bd395cd6f9bd61b46a57e146a44228d7ed50da3"
+      ],
+      "costUsd": 0.00047499999999999994
+    },
+    {
+      "id": "langfuse.correctness.102",
+      "kind": "unusual-format",
+      "pair": "unusual-format-7",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "e8ed0786504ef43eee9ab00c459a23bce0b5e5f079788dbac1a15d075907348a"
+      ],
+      "costUsd": 0.0005308
+    },
+    {
+      "id": "langfuse.correctness.103",
+      "kind": "partial-credit",
+      "pair": "partial-credit-7",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "88f12de7918f68b6bc8fa1ba8b8545164da60251104fec01a35fcc8b3c813729"
+      ],
+      "costUsd": 0.000495
+    },
+    {
+      "id": "langfuse.correctness.104",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-6",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "3268fc1f47dff8c01fdd8d2ba85819ba29c771b6eef42fd0596db3f4ce9a6c7c"
+      ],
+      "costUsd": 0.000418
+    },
+    {
+      "id": "langfuse.correctness.105",
+      "kind": "near-miss",
+      "pair": "near-miss-5",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "a42ec065c4fde57a21154f6c93aa3b04d1cd7a8225bc97cd882b6b6f13181c92"
+      ],
+      "costUsd": 0.00038560000000000005
+    },
+    {
+      "id": "langfuse.correctness.106",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-0",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "5b6bc531004a83c4ca9a99677bbe22f945f5b617bcaa6a1b50cb83bff90bf863"
+      ],
+      "costUsd": 0.00036649999999999996
+    },
+    {
+      "id": "langfuse.correctness.107",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-6",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "79e827de5f2164fd1ed8181cdb33e7edba5c789d8f07831442db97bafd72d53e"
+      ],
+      "costUsd": 0.0004048
+    },
+    {
+      "id": "langfuse.correctness.108",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "6c6c05727f5e8c0c3c31e089524869667c6cc4db77ea7180fcbf7c4655c5d1c3"
+      ],
+      "costUsd": 0.0005817999999999999
+    },
+    {
+      "id": "langfuse.correctness.109",
+      "kind": "near-miss",
+      "pair": "near-miss-4",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "e57d7345a6bab6b65621966c8b085c506775ac2d861360d70bcb5205de52657a"
+      ],
+      "costUsd": 0.00034140000000000006
+    },
+    {
+      "id": "langfuse.correctness.110",
+      "kind": "double-negation",
+      "pair": "double-negation-4",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "723b129638be0e1aef4b4b84ff62c1a68ae22d7ff1c153bbc7f27524a28c9351"
+      ],
+      "costUsd": 0.0006042
+    },
+    {
+      "id": "langfuse.correctness.111",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-5",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "4b4ed0003e8f7719432393e8ba721bbebff30d789c6130310f543b99f968a0c2"
+      ],
+      "costUsd": 0.0006831
+    },
+    {
+      "id": "langfuse.correctness.112",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-7",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "ab9bf630cc31d6be170756f6e7768e5618fe484cbe9dae3e119d02712979bbd5"
+      ],
+      "costUsd": 0.00036360000000000006
+    },
+    {
+      "id": "langfuse.correctness.113",
+      "kind": "unusual-format",
+      "pair": "unusual-format-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "936135f3719d246ac484870c72b3b37a216074b439d13540ff66ebee23ad7968"
+      ],
+      "costUsd": 0.0004672
+    },
+    {
+      "id": "langfuse.correctness.114",
+      "kind": "near-miss",
+      "pair": "near-miss-4",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "01d26847a11ca762cc97d4b953803f749b5bf63843283112b2f2003e5e40baf6"
+      ],
+      "costUsd": 0.0003779
+    },
+    {
+      "id": "langfuse.correctness.115",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-3",
+      "truth": true,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "6fe48bd72e29e83ba3c62e23dcb754d11a198e8414a4907b7e1b6bfb9afe3ea8"
+      ],
+      "costUsd": 0.0006912999999999999
+    },
+    {
+      "id": "langfuse.correctness.116",
+      "kind": "partial-credit",
+      "pair": "partial-credit-1",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "988bcbb746cd1d97165abfd0d8950aff0b0cddb95a856c5d3d7ba3e2a1647bd8"
+      ],
+      "costUsd": 0.0004716
+    },
+    {
+      "id": "langfuse.correctness.117",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-2",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "9f96f9564fd9ef4c9142ab00a0e5adc7b6b75a62547a328b2c02e5427d54dc87"
+      ],
+      "costUsd": 0.0005523
+    },
+    {
+      "id": "langfuse.correctness.118",
+      "kind": "unusual-format",
+      "pair": "unusual-format-4",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "ef81dd9940fcd4361b5e2545c52fa2a65bc3a5cd28d28267d7764312781b2b9a"
+      ],
+      "costUsd": 0.00038390000000000006
+    },
+    {
+      "id": "langfuse.correctness.119",
+      "kind": "near-miss",
+      "pair": "near-miss-1",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "7940f310f7fb986f26e0b71866a91aaef4f46de078d78d243905bc195441dbe4"
+      ],
+      "costUsd": 0.0003792
+    },
+    {
+      "id": "langfuse.correctness.120",
+      "kind": "partial-credit",
+      "pair": "partial-credit-6",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "ab8c129ea365d5a3e83bca5a15a841a7c137aa7d9b73bd47338eaa1505e70cf8"
+      ],
+      "costUsd": 0.0005524
+    },
+    {
+      "id": "langfuse.correctness.121",
+      "kind": "unusual-format",
+      "pair": "unusual-format-5",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "7784a3448bc1d0503ecf4f90a7191c9e4273a732de6d59fc4fe7b614a0e4dea0"
+      ],
+      "costUsd": 0.0006286
+    },
+    {
+      "id": "langfuse.correctness.122",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "122a68a99af947ca9d8e3aafaa1b20425f57802338cee185eaa9d930e51b37ef"
+      ],
+      "costUsd": 0.00044880000000000007
+    },
+    {
+      "id": "langfuse.correctness.123",
+      "kind": "partial-credit",
+      "pair": "partial-credit-2",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "58572a68b1fe5cf924ba76772d49a2180d813c4b8bd9385d305d8c6e8462adc8"
+      ],
+      "costUsd": 0.00036899999999999997
+    },
+    {
+      "id": "langfuse.correctness.124",
+      "kind": "double-negation",
+      "pair": "double-negation-5",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "47d189e2c046e54f7e44190613b0683eaf7eb65c20d3d04258c69911d4384cde"
+      ],
+      "costUsd": 0.0005203
+    },
+    {
+      "id": "langfuse.correctness.125",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-5",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "41d8d008dff40fc6e97b456bc6737bf16830268d3b82db7d504c170952a5b842"
+      ],
+      "costUsd": 0.0003792
+    },
+    {
+      "id": "langfuse.correctness.126",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-3",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "daa03e18e0f7752cdfa668b12aaa923a8482da037bf319c24c106c6e68c29de1"
+      ],
+      "costUsd": 0.0005509
+    }
+  ]
+}

@@ -197,6 +197,8 @@ async function estateRun(estateRoot: string, specs: string[], ...extra: string[]
     'claude-code',
     '--command',
     FAKE,
+    '--set-env',
+    `FAKE_MANIFEST=${join(FIXTURE, 'live/fake/manifest.json')}`,
     '--store',
     store,
     '--states',

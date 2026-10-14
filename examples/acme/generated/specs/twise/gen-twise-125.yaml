@@ -73,6 +73,7 @@ blocks:
           count: 2
           input:
             address: 21 Willow Court, Acmeville
+          input_closed: true
       lang: EN
       criteria:
         - deviation.D8_tool_failure

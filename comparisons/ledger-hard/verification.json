@@ -1,0 +1,17 @@
+{
+  "verified_at": "2026-10-13T07:21:45.893096+00:00",
+  "seal_commit": "eeb7875e",
+  "seal_committed_at": "2026-10-13T09:08:41+02:00",
+  "first_dispatch": "2026-10-13T07:08:44.752657+00:00",
+  "completed_calls": 876,
+  "planned_unique_calls": 6560,
+  "inflight": 12,
+  "all_primary_complete": false,
+  "max_concurrent": 12,
+  "luna_http_max_after_amendment": 2,
+  "cap_accounted_usd": 0.25567195,
+  "native_peer_answers_checked": 283,
+  "successful": 876,
+  "seal_sha256": "5845e97e2651d2942134209e4abfa8f932409744930bd0d143ebbe03877b07a4",
+  "accounting_amendment_sha256": "78c421dcc4f879f9baedb638dc4069ec63552513c0a7165e23fe442f0bdf8789"
+}

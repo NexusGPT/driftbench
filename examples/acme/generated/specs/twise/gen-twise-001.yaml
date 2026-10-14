@@ -116,6 +116,7 @@ rules:
     - coverage.check
     - port.check
     - notify_sales
+  one_message_per_turn: true
 end_state:
   source: tool:order.create
   mode: subset

@@ -17,10 +17,14 @@
  *             Denylisted terms are never printed, not even partly.
  * Allow:      a line containing "guard:allow" suppresses pattern findings on that line.
  *             It never suppresses a denylist finding.
+ * Exceptions: each tools/guard/fingerprints/*.json lists exact values a generator made up.
+ *             An entry is the kind plus the sha256 of the exact matched text; nothing else is excused.
+ *             It never suppresses a denylist finding.
  * Size:       files above 10 MiB fail the guard with a named error; they are never skipped.
  * Exit:       0 clean, 1 findings, scan errors or a canary miss, 2 usage error.
  */
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, extname, join, relative, resolve } from 'node:path';
@@ -137,6 +141,7 @@ const BINARY_EXTENSIONS = new Set(
 const SKIP_DIRS = new Set(['.git', 'node_modules']);
 const MAX_BYTES = 10 * 1024 * 1024;
 const ALLOW_MARKER = 'guard:allow';
+const EXCEPTIONS_DIR = join(fileURLToPath(new URL('.', import.meta.url)), 'fingerprints');
 
 /** Remainder of a long decimal string divided by 97. */
 export function mod97(digits) {
@@ -202,13 +207,38 @@ function escapeRegExp(text) {
   return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+export function fingerprint(kind, value) {
+  return `${kind}:${createHash('sha256').update(value).digest('hex')}`;
+}
+
+/** Reads the exact-fingerprint exceptions of every JSON file in the folder: a set of `kind:sha256` strings. */
+export function loadExceptions(dir = EXCEPTIONS_DIR) {
+  const set = new Set();
+  if (!existsSync(dir)) return set;
+  for (const name of readdirSync(dir)
+    .filter((entry) => entry.endsWith('.json'))
+    .sort()) {
+    for (const entry of JSON.parse(readFileSync(join(dir, name), 'utf8')).entries ?? []) {
+      if (
+        !['national-number', 'phone', 'iban', 'email'].includes(entry.kind) ||
+        !/^[0-9a-f]{64}$/.test(entry.sha256)
+      ) {
+        throw new Error(`bad fingerprint entry in ${name}`);
+      }
+      set.add(`${entry.kind}:${entry.sha256}`);
+    }
+  }
+  return set;
+}
+
 /**
  * Finds personal data and denylisted terms in one text.
  * Returns raw values so the caller decides how to redact them.
  */
-export function scanText(text, { denylist = [] } = {}) {
+export function scanText(text, { denylist = [], exceptions = new Set() } = {}) {
   const findings = [];
   let allowed = 0;
+  let excused = 0;
   const terms = denylist.map((term, index) => ({
     index: index + 1,
     pattern: new RegExp(`(?<![A-Za-z0-9])${escapeRegExp(term)}(?![A-Za-z0-9])`, 'gi'),
@@ -216,7 +246,7 @@ export function scanText(text, { denylist = [] } = {}) {
 
   text.split('\n').forEach((content, offset) => {
     const line = offset + 1;
-    const lineFindings = [];
+    let lineFindings = [];
 
     for (const match of content.matchAll(IBAN_CANDIDATE)) {
       const compact = match[0].replace(/[\s ]/g, '');
@@ -242,6 +272,13 @@ export function scanText(text, { denylist = [] } = {}) {
       if (!isAllowedEmail(match[0])) lineFindings.push({ line, kind: 'email', value: match[0] });
     }
 
+    if (exceptions.size > 0) {
+      const kept = lineFindings.filter(
+        (finding) => !exceptions.has(fingerprint(finding.kind, finding.value)),
+      );
+      excused += lineFindings.length - kept.length;
+      lineFindings = kept;
+    }
     if (content.includes(ALLOW_MARKER)) {
       allowed += lineFindings.length;
     } else {
@@ -255,7 +292,7 @@ export function scanText(text, { denylist = [] } = {}) {
     }
   });
 
-  return { findings, allowed };
+  return { findings, allowed, excused };
 }
 
 /** Masks a value for printing. Denylisted terms are masked entirely. */
@@ -346,12 +383,13 @@ function readText(file) {
 }
 
 /** Scans files and returns findings and scan errors with paths relative to the root. */
-export function scanFiles(files, root, denylist) {
+export function scanFiles(files, root, denylist, exceptions = new Set()) {
   const findings = [];
   const skipped = [];
   const errors = [];
   let scanned = 0;
   let allowed = 0;
+  let excused = 0;
   for (const file of files) {
     const read = readText(file);
     const shown = relative(root, file) || file;
@@ -364,11 +402,12 @@ export function scanFiles(files, root, denylist) {
       continue;
     }
     scanned += 1;
-    const result = scanText(read.text, { denylist });
+    const result = scanText(read.text, { denylist, exceptions });
     allowed += result.allowed;
+    excused += result.excused;
     for (const finding of result.findings) findings.push({ file: shown, ...finding });
   }
-  return { findings, skipped, errors, scanned, allowed };
+  return { findings, skipped, errors, scanned, allowed, excused };
 }
 
 class UsageError extends Error {}
@@ -519,7 +558,7 @@ export function main(argv, io) {
     io.err('driftbench guard: --require-denylist is set but no denylist terms were loaded.\n');
     return 1;
   }
-  const result = scanFiles(listing.files, listing.root, denylist);
+  const result = scanFiles(listing.files, listing.root, denylist, loadExceptions(io.exceptionsDir));
   const shown = result.findings.map(({ file, line, kind, value, entry }) => ({
     file,
     line,
@@ -536,6 +575,7 @@ export function main(argv, io) {
           scanned: result.scanned,
           skipped: result.skipped.length,
           allowed: result.allowed,
+          excused: result.excused,
           denylistTerms: denylist.length,
           findings: shown,
           errors: result.errors,
@@ -550,7 +590,9 @@ export function main(argv, io) {
   for (const error of result.errors) {
     io.err(`driftbench guard: cannot scan ${error.file}: ${error.reason}.\n`);
   }
-  const allowedNote = result.allowed > 0 ? ` ${result.allowed} allowed by ${ALLOW_MARKER} markers.` : '';
+  const allowedNote =
+    (result.allowed > 0 ? ` ${result.allowed} allowed by ${ALLOW_MARKER} markers.` : '') +
+    (result.excused > 0 ? ` ${result.excused} excused by fingerprint.` : '');
   const scope = `${result.scanned} files scanned, ${result.skipped.length} skipped, ${denylist.length} denylist terms`;
   if (shown.length === 0) {
     if (!clean) {

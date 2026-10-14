@@ -167,6 +167,34 @@ jobs:
           GUARD_DENYLIST: ${{ secrets.GUARD_DENYLIST }}
         run: node tools/guard/guard.mjs ${{ github.event_name == 'push' && '--require-denylist' || '' }}
       - name: Secret scan
-        uses: gitleaks/gitleaks-action@v3
+        # The gitleaks binary runs directly, so the job makes no GitHub API call. The old action looked up the
+        # user through the API and failed the job when the installation quota was spent. The range matches the
+        # action's: on a pull request, the pull request's own commits; on a push, the pushed commits.
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_VERSION: 8.30.1
+          GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          archive="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          dir="$(mktemp -d)"
+          curl -sSfL -o "$dir/$archive" "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/$archive"
+          echo "${GITLEAKS_SHA256}  $dir/$archive" | sha256sum -c -
+          tar -xzf "$dir/$archive" -C "$dir" gitleaks
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            range="--no-merges --first-parent ${PR_BASE}..${PR_HEAD}"
+          else
+            first="$(jq -r '.commits[0].id // empty' "$GITHUB_EVENT_PATH")"
+            last="$(jq -r '.commits[-1].id // empty' "$GITHUB_EVENT_PATH")"
+            if [ -z "$first" ]; then
+              echo "No commits to scan"
+              exit 0
+            elif [ "$first" = "$last" ]; then
+              range="-1 ${last}"
+            else
+              range="--no-merges --first-parent ${first}^..${last}"
+            fi
+          fi
+          "$dir/gitleaks" detect --redact -v --exit-code=2 --config .gitleaks.toml --log-opts="$range"

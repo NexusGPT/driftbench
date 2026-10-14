@@ -16,9 +16,9 @@
     "max": null
   },
   "summary": {
-    "specs": 411,
-    "blocks": 1516,
-    "complete": 336,
+    "specs": 407,
+    "blocks": 1533,
+    "complete": 332,
     "incomplete": 75
   },
   "seeders": {
@@ -30,8 +30,8 @@
       "needs_then": 0,
       "cut": false,
       "measures": {
-        "hill_q0": 163,
-        "pielou": 0.948065939882,
+        "hill_q0": 255,
+        "pielou": 0.956356581176,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
@@ -52,14 +52,14 @@
     },
     "boundary": {
       "specs": 85,
-      "blocks": 146,
+      "blocks": 183,
       "complete": 13,
       "needs_phrase": 72,
       "needs_then": 15,
       "cut": false,
       "measures": {
-        "hill_q0": 128,
-        "pielou": 0.956431785228,
+        "hill_q0": 137,
+        "pielou": 0.95789348525,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
@@ -72,8 +72,8 @@
       "needs_then": 0,
       "cut": false,
       "measures": {
-        "hill_q0": 200,
-        "pielou": 0.91810102424,
+        "hill_q0": 205,
+        "pielou": 0.920928392645,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
@@ -107,15 +107,15 @@
       }
     },
     "cover": {
-      "specs": 28,
-      "blocks": 155,
-      "complete": 28,
+      "specs": 24,
+      "blocks": 135,
+      "complete": 24,
       "needs_phrase": 0,
       "needs_then": 0,
       "cut": false,
       "measures": {
-        "hill_q0": 318,
-        "pielou": 0.903779691578,
+        "hill_q0": 305,
+        "pielou": 0.910345548878,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
@@ -259,8 +259,8 @@
     ]
   },
   "cover": {
-    "cells": 29,
-    "covered": 29,
+    "cells": 25,
+    "covered": 25,
     "unbuilt": [],
     "unreachable": []
   },
@@ -4061,7 +4061,7 @@
     "actual": [
       {
         "t": 2,
-        "specs": 336,
+        "specs": 332,
         "allowed": 708,
         "covered": 708,
         "share": 1,
@@ -4069,10 +4069,10 @@
       },
       {
         "t": 3,
-        "specs": 336,
+        "specs": 332,
         "allowed": 4064,
-        "covered": 2885,
-        "share": 0.7098917322834646,
+        "covered": 2928,
+        "share": 0.7204724409448819,
         "uncovered": [
           {
             "behaviour": "B-002",
@@ -8972,11 +8972,6 @@
           {
             "deviation": "D1_off_topic",
             "channel": "chat",
-            "stage": "port_number"
-          },
-          {
-            "deviation": "D1_off_topic",
-            "channel": "chat",
             "stage": "details"
           },
           {
@@ -8993,6 +8988,11 @@
             "deviation": "D1_off_topic",
             "channel": "chat",
             "stage": "handover"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "channel": "whatsapp",
+            "stage": "port_number"
           },
           {
             "deviation": "D1_off_topic",
@@ -9007,22 +9007,17 @@
           {
             "deviation": "D5_language_switch",
             "channel": "chat",
-            "stage": "identify"
-          },
-          {
-            "deviation": "D5_language_switch",
-            "channel": "chat",
-            "stage": "port_number"
-          },
-          {
-            "deviation": "D5_language_switch",
-            "channel": "chat",
             "stage": "details"
           },
           {
             "deviation": "D5_language_switch",
             "channel": "chat",
             "stage": "closing"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "channel": "whatsapp",
+            "stage": "port_number"
           },
           {
             "deviation": "D5_language_switch",
@@ -9032,22 +9027,7 @@
           {
             "deviation": "D5_language_switch",
             "channel": "whatsapp",
-            "stage": "callback"
-          },
-          {
-            "deviation": "D5_language_switch",
-            "channel": "whatsapp",
             "stage": "handover"
-          },
-          {
-            "deviation": "D6_instruction_in_data",
-            "channel": "chat",
-            "stage": "port_number"
-          },
-          {
-            "deviation": "D6_instruction_in_data",
-            "channel": "chat",
-            "stage": "callback"
           },
           {
             "deviation": "D6_instruction_in_data",
@@ -9057,16 +9037,16 @@
           {
             "deviation": "D6_instruction_in_data",
             "channel": "whatsapp",
+            "stage": "callback"
+          },
+          {
+            "deviation": "D6_instruction_in_data",
+            "channel": "whatsapp",
             "stage": "handover"
           },
           {
             "deviation": "D10_return",
-            "channel": "whatsapp",
-            "stage": "port_number"
-          },
-          {
-            "deviation": "D10_return",
-            "channel": "whatsapp",
+            "channel": "chat",
             "stage": "details"
           },
           {
@@ -9076,23 +9056,18 @@
           },
           {
             "deviation": "D7_silence_or_burst",
-            "channel": "chat",
+            "channel": "whatsapp",
+            "stage": "recap"
+          },
+          {
+            "deviation": "D7_silence_or_burst",
+            "channel": "whatsapp",
+            "stage": "handover"
+          },
+          {
+            "deviation": "D7_silence_or_burst",
+            "channel": "whatsapp",
             "stage": "closing"
-          },
-          {
-            "deviation": "D7_silence_or_burst",
-            "channel": "whatsapp",
-            "stage": "port_number"
-          },
-          {
-            "deviation": "D7_silence_or_burst",
-            "channel": "whatsapp",
-            "stage": "recap"
-          },
-          {
-            "deviation": "D7_silence_or_burst",
-            "channel": "whatsapp",
-            "stage": "handover"
           },
           {
             "deviation": "D9_out_of_scope",
@@ -9112,22 +9087,12 @@
           {
             "deviation": "D9_out_of_scope",
             "channel": "whatsapp",
-            "stage": "needs"
-          },
-          {
-            "deviation": "D9_out_of_scope",
-            "channel": "whatsapp",
             "stage": "callback"
           },
           {
             "deviation": "D9_out_of_scope",
             "channel": "whatsapp",
             "stage": "closing"
-          },
-          {
-            "deviation": "D11_pii_leak",
-            "channel": "chat",
-            "stage": "port_number"
           },
           {
             "deviation": "D11_pii_leak",
@@ -9141,11 +9106,6 @@
           },
           {
             "deviation": "D11_pii_leak",
-            "channel": "chat",
-            "stage": "closing"
-          },
-          {
-            "deviation": "D11_pii_leak",
             "channel": "whatsapp",
             "stage": "recap"
           },
@@ -9153,11 +9113,6 @@
             "deviation": "D11_pii_leak",
             "channel": "whatsapp",
             "stage": "handover"
-          },
-          {
-            "deviation": "D12_prompt_extraction",
-            "channel": "chat",
-            "stage": "port_number"
           },
           {
             "deviation": "D12_prompt_extraction",
@@ -9180,21 +9135,6 @@
             "stage": "handover"
           },
           {
-            "deviation": "D1_off_topic",
-            "channel": "whatsapp",
-            "coverage_result": "fiber"
-          },
-          {
-            "deviation": "D1_off_topic",
-            "channel": "whatsapp",
-            "coverage_result": "not-in-map"
-          },
-          {
-            "deviation": "D5_language_switch",
-            "channel": "whatsapp",
-            "coverage_result": "fiber"
-          },
-          {
             "deviation": "D6_instruction_in_data",
             "channel": "whatsapp",
             "coverage_result": "5g-only"
@@ -9210,6 +9150,11 @@
             "coverage_result": "fiber"
           },
           {
+            "deviation": "D10_return",
+            "channel": "whatsapp",
+            "coverage_result": "no-service"
+          },
+          {
             "deviation": "D9_out_of_scope",
             "channel": "chat",
             "coverage_result": "not-in-map"
@@ -9218,31 +9163,6 @@
             "deviation": "D9_out_of_scope",
             "channel": "whatsapp",
             "coverage_result": "5g-only"
-          },
-          {
-            "deviation": "D9_out_of_scope",
-            "channel": "whatsapp",
-            "coverage_result": "no-service"
-          },
-          {
-            "deviation": "D11_pii_leak",
-            "channel": "chat",
-            "coverage_result": "fiber"
-          },
-          {
-            "deviation": "D11_pii_leak",
-            "channel": "whatsapp",
-            "coverage_result": "not-in-map"
-          },
-          {
-            "deviation": "D12_prompt_extraction",
-            "channel": "whatsapp",
-            "coverage_result": "not-in-map"
-          },
-          {
-            "deviation": "D1_off_topic",
-            "stage": "needs",
-            "user_type": "new-customer"
           },
           {
             "deviation": "D1_off_topic",
@@ -9262,11 +9182,6 @@
           {
             "deviation": "D1_off_topic",
             "stage": "order_placed",
-            "user_type": "new-customer"
-          },
-          {
-            "deviation": "D5_language_switch",
-            "stage": "needs",
             "user_type": "new-customer"
           },
           {
@@ -9316,11 +9231,6 @@
           },
           {
             "deviation": "D7_silence_or_burst",
-            "stage": "address",
-            "user_type": "existing-customer"
-          },
-          {
-            "deviation": "D7_silence_or_burst",
             "stage": "details",
             "user_type": "existing-customer"
           },
@@ -9342,16 +9252,6 @@
           {
             "deviation": "D9_out_of_scope",
             "stage": "order_placed",
-            "user_type": "existing-customer"
-          },
-          {
-            "deviation": "D9_out_of_scope",
-            "stage": "closing",
-            "user_type": "existing-customer"
-          },
-          {
-            "deviation": "D11_pii_leak",
-            "stage": "address",
             "user_type": "existing-customer"
           },
           {
@@ -9387,27 +9287,7 @@
           {
             "deviation": "D12_prompt_extraction",
             "stage": "order_placed",
-            "user_type": "existing-customer"
-          },
-          {
-            "deviation": "D1_off_topic",
-            "stage": "needs",
-            "coverage_result": "fiber"
-          },
-          {
-            "deviation": "D1_off_topic",
-            "stage": "needs",
-            "coverage_result": "5g-only"
-          },
-          {
-            "deviation": "D1_off_topic",
-            "stage": "needs",
-            "coverage_result": "no-service"
-          },
-          {
-            "deviation": "D1_off_topic",
-            "stage": "needs",
-            "coverage_result": "not-in-map"
+            "user_type": "new-customer"
           },
           {
             "deviation": "D1_off_topic",
@@ -9473,21 +9353,6 @@
             "deviation": "D1_off_topic",
             "stage": "closing",
             "coverage_result": "5g-only"
-          },
-          {
-            "deviation": "D5_language_switch",
-            "stage": "needs",
-            "coverage_result": "fiber"
-          },
-          {
-            "deviation": "D5_language_switch",
-            "stage": "needs",
-            "coverage_result": "5g-only"
-          },
-          {
-            "deviation": "D5_language_switch",
-            "stage": "needs",
-            "coverage_result": "no-service"
           },
           {
             "deviation": "D5_language_switch",
@@ -9626,11 +9491,6 @@
           },
           {
             "deviation": "D10_return",
-            "stage": "address",
-            "coverage_result": "fiber"
-          },
-          {
-            "deviation": "D10_return",
             "stage": "details",
             "coverage_result": "none"
           },
@@ -9643,11 +9503,6 @@
             "deviation": "D10_return",
             "stage": "callback",
             "coverage_result": "5g-only"
-          },
-          {
-            "deviation": "D7_silence_or_burst",
-            "stage": "address",
-            "coverage_result": "fiber"
           },
           {
             "deviation": "D7_silence_or_burst",
@@ -9703,21 +9558,6 @@
             "deviation": "D7_silence_or_burst",
             "stage": "closing",
             "coverage_result": "no-service"
-          },
-          {
-            "deviation": "D9_out_of_scope",
-            "stage": "needs",
-            "coverage_result": "fiber"
-          },
-          {
-            "deviation": "D9_out_of_scope",
-            "stage": "needs",
-            "coverage_result": "no-service"
-          },
-          {
-            "deviation": "D9_out_of_scope",
-            "stage": "needs",
-            "coverage_result": "not-in-map"
           },
           {
             "deviation": "D9_out_of_scope",
@@ -9762,22 +9602,17 @@
           {
             "deviation": "D9_out_of_scope",
             "stage": "handover",
-            "coverage_result": "5g-only"
+            "coverage_result": "fiber"
           },
           {
             "deviation": "D9_out_of_scope",
             "stage": "handover",
-            "coverage_result": "no-service"
+            "coverage_result": "5g-only"
           },
           {
             "deviation": "D9_out_of_scope",
             "stage": "closing",
             "coverage_result": "no-service"
-          },
-          {
-            "deviation": "D11_pii_leak",
-            "stage": "address",
-            "coverage_result": "5g-only"
           },
           {
             "deviation": "D11_pii_leak",
@@ -9822,26 +9657,21 @@
           {
             "deviation": "D11_pii_leak",
             "stage": "handover",
-            "coverage_result": "fiber"
+            "coverage_result": "5g-only"
           },
           {
             "deviation": "D11_pii_leak",
             "stage": "handover",
-            "coverage_result": "5g-only"
-          },
-          {
-            "deviation": "D11_pii_leak",
-            "stage": "closing",
-            "coverage_result": "5g-only"
-          },
-          {
-            "deviation": "D11_pii_leak",
-            "stage": "closing",
             "coverage_result": "no-service"
           },
           {
-            "deviation": "D12_prompt_extraction",
-            "stage": "address",
+            "deviation": "D11_pii_leak",
+            "stage": "closing",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D11_pii_leak",
+            "stage": "closing",
             "coverage_result": "no-service"
           },
           {
@@ -9867,7 +9697,7 @@
           {
             "deviation": "D12_prompt_extraction",
             "stage": "order_placed",
-            "coverage_result": "fiber"
+            "coverage_result": "none"
           },
           {
             "deviation": "D12_prompt_extraction",
@@ -9893,36 +9723,11 @@
             "deviation": "D12_prompt_extraction",
             "stage": "handover",
             "coverage_result": "5g-only"
-          },
-          {
-            "deviation": "D1_off_topic",
-            "user_type": "existing-customer",
-            "coverage_result": "fiber"
-          },
-          {
-            "deviation": "D4_loose_confirmation",
-            "user_type": "existing-customer",
-            "coverage_result": "fiber"
-          },
-          {
-            "deviation": "D5_language_switch",
-            "user_type": "existing-customer",
-            "coverage_result": "fiber"
           },
           {
             "deviation": "D8_tool_failure",
             "user_type": "existing-customer",
             "coverage_result": "5g-only"
-          },
-          {
-            "deviation": "D10_return",
-            "user_type": "existing-customer",
-            "coverage_result": "fiber"
-          },
-          {
-            "deviation": "D11_pii_leak",
-            "user_type": "existing-customer",
-            "coverage_result": "fiber"
           },
           {
             "deviation": "D11_pii_leak",
@@ -9930,16 +9735,6 @@
             "coverage_result": "5g-only"
           },
           {
-            "channel": "whatsapp",
-            "stage": "needs",
-            "user_type": "new-customer"
-          },
-          {
-            "channel": "chat",
-            "stage": "needs",
-            "coverage_result": "no-service"
-          },
-          {
             "channel": "chat",
             "stage": "needs",
             "coverage_result": "not-in-map"
@@ -9953,16 +9748,6 @@
             "channel": "whatsapp",
             "stage": "needs",
             "coverage_result": "no-service"
-          },
-          {
-            "channel": "whatsapp",
-            "stage": "needs",
-            "coverage_result": "not-in-map"
-          },
-          {
-            "stage": "needs",
-            "user_type": "existing-customer",
-            "coverage_result": "5g-only"
           },
           {
             "stage": "details",
@@ -9976,30 +9761,30 @@
     "allowed": 708,
     "complete": {
       "t": 2,
-      "specs": 336,
+      "specs": 332,
       "allowed": 708,
       "covered": 708,
       "share": 1
     },
     "all": {
       "t": 2,
-      "specs": 411,
+      "specs": 407,
       "allowed": 708,
       "covered": 708,
       "share": 1
     },
     "measures": {
-      "discovery": 0.013672471738466238,
-      "chao_coverage": 0.9863281583839363,
-      "chao1": 1004.653265069989,
+      "discovery": 0.012730367848419806,
+      "chao_coverage": 0.987270190928251,
+      "chao1": 998.0177487914714,
       "hill_q0": 708,
-      "hill_q1": 284.15369735081,
-      "hill_q2": 175.32924164682183,
-      "pielou": 0.860885852735,
-      "t3_share": 0.7098917322834646,
+      "hill_q1": 301.453359132226,
+      "hill_q2": 188.87304592724098,
+      "pielou": 0.869891648084,
+      "t3_share": 0.7204724409448819,
       "t3_allowed": 4064,
       "weighted_share": 0.999999999999909,
-      "effective_sample_size": 225.84353227331476,
+      "effective_sample_size": 217.99369087706685,
       "required_covered": 10,
       "required_total": 10,
       "axis_behaviour": 14,

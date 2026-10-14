@@ -16,7 +16,18 @@
       "!docs/lanes",
       "!docs/lane-dag.json",
       "!.github/readme",
-      "!comparisons/deepeval/judge/ours-prompts.json"
+      "!comparisons/deepeval/judge/ours-prompts.json",
+      "!comparisons/hard-peers/**/*.json",
+      "!comparisons/hard-peers/**/*.jsonl",
+      "!packages/validators/fixtures/generator/seed-1/oracle.mjs",
+      "!comparisons/ledger-hard/**/*.json",
+      "!comparisons/ledger-hard/**/*.jsonl",
+      "!comparisons/ledger-hard/*.mts",
+      "!research/moj/results/sealed/report.json",
+      "!research/moj/sealed/freeze.json",
+      "!comparisons/inspect/hard/shipped/heldout-480/*-audit.json",
+      "!comparisons/inspect/hard/shipped/heldout-480/*-default.json",
+      "!comparisons/inspect/hard/shipped/heldout-480/*-theirs.json"
     ]
   },
   "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2, "lineWidth": 110 },

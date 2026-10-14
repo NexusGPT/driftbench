@@ -1,0 +1,1650 @@
+{
+  "competitor": "deepeval",
+  "row": "knowledge",
+  "contestant": "theirs",
+  "metric": "knowledge retention",
+  "package": "deepeval==4.2.8",
+  "model": "haiku",
+  "items": 126,
+  "complete": 126,
+  "results": [
+    {
+      "id": "deepeval.knowledge.001",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-1",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "00dc75e4b1931e274387ebcccc0894325c8342a17baeb2e8fff4f9c0125c4679",
+        "0f331260b6b0f989db58dce13ad53ae9efde852bc6d970dbceee0d60f0e3b717"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.002",
+      "kind": "partial-credit",
+      "pair": "partial-credit-6",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "e600764d4d6890dd254e63b5e573eb8ccf7aefc5dac68582a8a8ce648022a0cf",
+        "7980735fdf6bd16a80d622cd9a7c12f72ed8465f40abbea0bcfc9b00038f24a0"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.003",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-7",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "e11a61f60a03bedbcb9315fc4ce0c3b81649f0f2703d42d72de9e61ce5638d55",
+        "dc59c7757a51cae7f33a5e3b16eab818ab8421c7beff76e355963ac0c31a0a0a"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.004",
+      "kind": "unusual-format",
+      "pair": "unusual-format-0",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "ca57afebf7bab9cddc4162aed7e180012b5bd69d7304b4814ac61c7ca936b6af",
+        "8cd67c778c2f35e6dffda9cb0e256eafef54e784b2a81f48a3f40b80f476d84a"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.005",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-1",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "f341026cbc81f72ef870464807dd6cff69fc3e6fe8420c14f3da1a4877a2dcf6",
+        "002cc176fe9d40be99b94e46165bc15307a64a51d16191d71feec7c8fad5e93b"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.006",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-0",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "2b49590a031226045837757220532328fe073b139e5d2e85d2ddf5d973f6d045",
+        "1e7f677c65e4a45334693263c0ef8ce4290fba5e3f1a7f0161a11d2a0f8de427"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.007",
+      "kind": "double-negation",
+      "pair": "double-negation-8",
+      "truth": true,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "d9d3af1a9b0d734c9403f170752db40c8d229e4a8860c10ceabc356da2f7458d",
+        "7555d76876d147fabb818d694bece838f173fff4dd178d4b9eb80853f839228b"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.008",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-7",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "bc4dc6907a4cc3197e0d99d4a8029fb8e7f2107e5d4697e729e05c8f10efb73f",
+        "a9c7a31aa5e46177b88254a3ebf0a9a93994baa12587f537f6af8eeda1ac08f3"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.009",
+      "kind": "near-miss",
+      "pair": "near-miss-2",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "54d79220db1093c664bed443cfa3f12ab383de2b9fcbb4433333507355ae4179",
+        "52b99c6ac200953f57a20f0b19c44188b16ca5a54900210c9f104d5260a1d696"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.010",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-4",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "495475d31af932baf54ec258462cd3ca7c9253b85192b2f44fd41246507b4f16",
+        "8137a12f4053b5cbe9a3b22873e0a5b8a1b04be0361dc6fe6d4770738bd6abf1"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.011",
+      "kind": "unusual-format",
+      "pair": "unusual-format-2",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "9e0a7479c2c3618730fc962ce3cf91307c65d05e5a4444741fe3bc4c09942055",
+        "5a37883176af753792f7d8abbf829ce9dbb7817e6ba7edf5fce8d8fd4b74cd6a"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.012",
+      "kind": "unusual-format",
+      "pair": "unusual-format-4",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "f20e265a68a43a17999083a0f9c9ae8f54c0b572e29cb5d85a09fa88c965029e",
+        "aa968da1953dc48fb69a11ef4d07ac3611774162ced4947f04766998ba55ee9a"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.013",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-2",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "627c178f0760e16ea3de150f2eae4adc216999282d733652d001165d541e41eb",
+        "bc4d21924e5c3a8aeb0b285d081f5dca7c725788e2dc05cb08b1c7c1f8b3a3d2"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.014",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-6",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "51f29dad9bcb0e7e69ee98b77667c030fdadb5303ef40a4219ea1a2c2b722377",
+        "fda847b8e680928cbcc3dc294750f616344a4393896dfebee02e3de62c1bf064"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.015",
+      "kind": "unusual-format",
+      "pair": "unusual-format-4",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "f20e265a68a43a17999083a0f9c9ae8f54c0b572e29cb5d85a09fa88c965029e",
+        "38d00aa98dc39fd0d43756c15dd5149770cc85d8ca169429acc8660d5f6bcc87"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.016",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-3",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "463f0b6ed17d762b8ee4af24855e894d60fedad289905a3f4dd275e7a178e16f",
+        "03b5204b54fc0a6daf1b1bcc4b31dff219330aa7d6ee7d8545e5c710ff3b6538"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.017",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-1",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "f341026cbc81f72ef870464807dd6cff69fc3e6fe8420c14f3da1a4877a2dcf6",
+        "e0d2e5bcb6197f10541235c1c40e5aaedda07617577262f53c826b44533aac76"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.018",
+      "kind": "unusual-format",
+      "pair": "unusual-format-7",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "3f5d9ba6f996c75604232185eebcfcf7003859377d6b5d76974778c637e2aa49",
+        "6d86472aae6dd915e6b79d7f1346f33b4df64af87d63aaca5f71e4565f396d32"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.019",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-0",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "0e3f2132889d8bbd06d20ff9dc81bfb6b379ee7ff107fc101568df2bfda5c7a5",
+        "f2909be9aa70f9bb014d5656aa1dc44b08be82ca4652d009134aa4b86393bb4a"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.020",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-2",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "627c178f0760e16ea3de150f2eae4adc216999282d733652d001165d541e41eb",
+        "9339c406ac6ff70c9d1a5d648d95cde143c250f82d4672d04096915e1a54ee04"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.021",
+      "kind": "partial-credit",
+      "pair": "partial-credit-8",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "3117b8b6607f0fd10709510d46eb02accfe467e2347a8300c093e288ccbf8042",
+        "ac7409a83bff73c738d5af4305e15a0b84e4e9c70ee9ef5025079e41ca61048b"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.022",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-8",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "7407c16606bfe83516958037a9b2252c9bea4a43e3768fb6f714a6892873d4f8",
+        "4392c2c5496bd9916700d5acceb4a820b8108860c9b669210669ea89a81be48c"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.023",
+      "kind": "near-miss",
+      "pair": "near-miss-4",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "f3e1a93416d57a5260c7217d2dcd082f0c4cd13d577e05d30875f50033c759ff",
+        "ce308e4aa4a78a50557ca96717fa37ec66beb635aaffca3524f0c57042db38ad"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.024",
+      "kind": "unusual-format",
+      "pair": "unusual-format-7",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "3f5d9ba6f996c75604232185eebcfcf7003859377d6b5d76974778c637e2aa49",
+        "43517514783db53a8f49acd6c352777997e14068968fa89b03e2699aec9c1b02"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.025",
+      "kind": "double-negation",
+      "pair": "double-negation-5",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "7f7c7285e1b0d92db649460f4b2b42cd272ec5f44dc8ececcbf0a19cdb352331",
+        "ec067239962f2161dae68abc92d1b629239d4b1ccaf77d4136703b03715a7b8e"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.026",
+      "kind": "double-negation",
+      "pair": "double-negation-4",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "0b2b8267fab31ba9e8956d571bdf78820657da0f6556dd12f15d3b583c2f3e65",
+        "83342d65446f23250c444bbd049b3b7912290730949cd1e21c9d9a30f353abd9"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.027",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-8",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "7407c16606bfe83516958037a9b2252c9bea4a43e3768fb6f714a6892873d4f8",
+        "facfa83b88b334b9f527dbc92c69bbebd543c1bbcb568a7a6ae980052ec1845b"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.028",
+      "kind": "unusual-format",
+      "pair": "unusual-format-8",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "f3bc529a6fc87f33649b6a91b9d3cd3280f2eee277fe561704ba98720efc7ed8",
+        "e98a185505fa14eb6148d899df4899dc961b65fc8fe78109e49020aa228b9a4b"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.029",
+      "kind": "near-miss",
+      "pair": "near-miss-8",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "8c0dab2fb7bdd98855b14038539f977e6718dd8a25f90bd88f1d40b94fdf6ce4",
+        "d52071a4f6890053f0521315dbdbaf18864cf92a6655dbd1e6d5e01e12fcb2d0"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.030",
+      "kind": "near-miss",
+      "pair": "near-miss-5",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "71524a8b361c7e95c47fd15190c2ee6842ed10da639b19a6463e80187fd21043",
+        "ead2b6e7462f5057bbb39be463a176dc4672aa8344c91fbfc25ab0fd79f4dadd"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.031",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-8",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "66c00e7cc0af62d44daa8d31dda07f594b8e43bca71f8f298b250ff9f38abbdf",
+        "1b829067c133e18730a33a5a51813c708c096123c5be877b9b0651c27b40fc1d"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.032",
+      "kind": "partial-credit",
+      "pair": "partial-credit-4",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "91d039817b183551ce633173b6524aff2e6481c2d89214dc52a1b204466d9d67",
+        "770fce7b597470d660e4603041cea59373d4fb148b1308a71cdf8e353853c05e"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.033",
+      "kind": "double-negation",
+      "pair": "double-negation-4",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "0b2b8267fab31ba9e8956d571bdf78820657da0f6556dd12f15d3b583c2f3e65",
+        "5a64306cf61da2635148db547565c017adfd25dea8b4656b23dcd2b80b4b5f2a"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.034",
+      "kind": "near-miss",
+      "pair": "near-miss-3",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "20024ebaea945a6e276f4bd4bc140f5a37c9c5f5dc8d6067db2499be413d2a7b",
+        "246fa6642c66bade90c26172640aa3888dde32b39ee9351800e75aeb758f7a5e"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.035",
+      "kind": "unusual-format",
+      "pair": "unusual-format-8",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "f3bc529a6fc87f33649b6a91b9d3cd3280f2eee277fe561704ba98720efc7ed8",
+        "3dea3be20e5021f048c5025951efbe2a27d3d0f95882c39393abfa3305244aa1"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.036",
+      "kind": "near-miss",
+      "pair": "near-miss-6",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "063d252d8e338185fff0beb50ba69942358984561a3f8409270bd32f6f95e8a9",
+        "a9138ba9c0e73dd6cb1c1892d57eae19aec06fef371b77981a9ae3ac51053e10"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.037",
+      "kind": "double-negation",
+      "pair": "double-negation-3",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "49aa7a8c1131e3c70e52f61a876a067bb43a4ff1b3960d219ce83a210a028726",
+        "d37840b3328308cf51cffe4b58da892bbc090c9ed236f88be08707fb35a1a136"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.038",
+      "kind": "unusual-format",
+      "pair": "unusual-format-2",
+      "truth": true,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "9e0a7479c2c3618730fc962ce3cf91307c65d05e5a4444741fe3bc4c09942055",
+        "07795e1be00fa7caeddf6ce5851370fbdf6a0db00240f8d5ee4f93621fb5cf21"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.039",
+      "kind": "double-negation",
+      "pair": "double-negation-1",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "8e955fffaed1de8ece6bf71938ba9d8fd40fb6f409e3ba0e366dc6b79a47479e",
+        "c116b6a5180fe194a76ea2775a571f25b54a1b643f3e3206f57f66664ea96a72"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.040",
+      "kind": "partial-credit",
+      "pair": "partial-credit-8",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "3117b8b6607f0fd10709510d46eb02accfe467e2347a8300c093e288ccbf8042",
+        "7081aff7ef954af28f1c2ba1279e65e7fd99b264a2733580de8ca66f774e31f1"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.041",
+      "kind": "partial-credit",
+      "pair": "partial-credit-5",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "cab73ed4e44efb21985b89a1a2a9996c97dba570b2ea42709d604ede1caed0ea",
+        "3f8dfa86cacff5259151a731a5a3cc9771d1f78f03976ed68c8975fefb716f9e"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.042",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-2",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "ea4d49d0f53a617bceeec38735f4a60923123713ad4b8084b52d1d8d06ffdf25",
+        "a7f517861e0f6a8f7474887d9af8199920de4ab3c42d06bfba06934edadc9352"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.043",
+      "kind": "double-negation",
+      "pair": "double-negation-8",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "d9d3af1a9b0d734c9403f170752db40c8d229e4a8860c10ceabc356da2f7458d",
+        "625ecbd8e1195da90cb4acadad0b141c1a715c521a22de7e2fa47966445c523a"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.044",
+      "kind": "near-miss",
+      "pair": "near-miss-7",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "c2b95bdf2d83d942bffe7b2f39b9ec83473f6a58798b0e714dabde7e2b3ac44b",
+        "b90f32148a4d930dd269c4d197df3d60bf50b2aa787b132d7267fa901d7fc289"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.045",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-8",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "146ffc24b828209a4ced6068e29e60a0c2a4677df4b78eb45b1a4803c10b315a",
+        "704b8c467ce5894e977b31f7788004a99049b077bba6070ca458e12fc93825ec"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.046",
+      "kind": "near-miss",
+      "pair": "near-miss-1",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "c04f14c055e6d1decc269df579b44be5400bc335b881eefa4f8f4f9fbbdf08bc",
+        "855687af40dc7dd48d93d919ee2b3d2760c90a275f9480c0eb0ebc9a23dc21bd"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.047",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-6",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "fdec5a7baaf45b550840db64b48541b5bf48afee0309ea9fc96f5b74f508f822",
+        "9a1365774143dd0f4afc950a9354b556a5b5c848500958fc8bd8ec2cf07a0363"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.048",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-5",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "d0e6b72665f7202295f47ce121836982c6cf140e5d454b3dae1b858bb7534561",
+        "190f2c61ba506f2ec48e076761a0dfaed916ff5ac9fbef5d47a994a968fb1764"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.049",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-3",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "69a233e0d93e6613333b3b222117f830e0d51ad795c5ef232f154a254f6ccf05",
+        "a22942e1334ed76c51d0fa723f07c746231efc76d0d8c120ddc9627020e00e89"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.050",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-3",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "463f0b6ed17d762b8ee4af24855e894d60fedad289905a3f4dd275e7a178e16f",
+        "b1850ce4d4c1f87053686c3c56e40440f6eeff0d6b29ac0f3552057dd29c2091"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.051",
+      "kind": "near-miss",
+      "pair": "near-miss-7",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "c2b95bdf2d83d942bffe7b2f39b9ec83473f6a58798b0e714dabde7e2b3ac44b",
+        "07f473755a856195f2ba46c047c105d08ff9a4380f0df0c1afb15ad77aa12256"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.052",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-8",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "66c00e7cc0af62d44daa8d31dda07f594b8e43bca71f8f298b250ff9f38abbdf",
+        "361e831188fd11df5457b875b75576be6a8fd5c5634959e35c39c0ff6462e578"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.053",
+      "kind": "near-miss",
+      "pair": "near-miss-1",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "c04f14c055e6d1decc269df579b44be5400bc335b881eefa4f8f4f9fbbdf08bc",
+        "800fcbd486338701843252141febd69e45825b28a55690d39667d357aac2c0e8"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.054",
+      "kind": "unusual-format",
+      "pair": "unusual-format-3",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "1c6569e8684b274ce4bb842a6484fec84c1b62020a56979a5238c4b1cef826ab",
+        "0fc20365bbf3bdcd44c7ea77f6feeefc9c8dd72083f1491c7828e835e8a4db88"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.055",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-1",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "dfde512550ce3eb9945d693f079a469f5e787f7f0ff29f80833ca8e248e6a774",
+        "2baa1f615a810af82d6167f85033b2d5844856a0c515a2498e173b7b95a61359"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.056",
+      "kind": "partial-credit",
+      "pair": "partial-credit-4",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "91d039817b183551ce633173b6524aff2e6481c2d89214dc52a1b204466d9d67",
+        "7c6781d1bbd9eb68bbf64c66846c3c01431f02f0c89b1b4bc03b45d529a5e1b2"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.057",
+      "kind": "partial-credit",
+      "pair": "partial-credit-2",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "2ab311eb85216776852497eac0ba03b62e7bba3ba6162169d0e01f2b8595368f",
+        "08f7d18aaa1d1ca4b03a016ef09dc5a1883f580c6917085bdb5bd24bf6105eb0"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.058",
+      "kind": "partial-credit",
+      "pair": "partial-credit-1",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "a75bab46fd96d4a4bf9ff9ad585c80ec281c35c85f5ab9b6eeff4f2fafa51dc1",
+        "dc1d4611beedca97a23235936a929e4e37ce47927583e7a6958a708dbbaf4a10"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.059",
+      "kind": "double-negation",
+      "pair": "double-negation-3",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "49aa7a8c1131e3c70e52f61a876a067bb43a4ff1b3960d219ce83a210a028726",
+        "5f66bd9cfa9d5675e5f316521549fe5de05793a13bcad2b6ae3b9817afc922ed"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.060",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-4",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "3647c17dca2b1ca5ac77de435e7c0ba79f584ee6ad68cedd66ef43aa985e40b7",
+        "a8d2674673050a77432746e2308beec90b236ceec4013224f53da1b23e24ee1e"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.061",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-5",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "7d2c5136ba0a16e4ee3f33d7621808f7e5add9a9af24649630234a2a79ab8f5c",
+        "66f0e940844c1b649309676b9db8f5a0148684e7b254e3601fb23ac15be68699"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.062",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-3",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "69a233e0d93e6613333b3b222117f830e0d51ad795c5ef232f154a254f6ccf05",
+        "15f43d6ecb052bcfcbeefcfec38f7eb4a13658ce8bea4505f0b4d0f407275e51"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.063",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-7",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "bc4dc6907a4cc3197e0d99d4a8029fb8e7f2107e5d4697e729e05c8f10efb73f",
+        "277dff6a828bd4e738f94ceb2654a79636d1c35b5369af7e16987b730920c8d2"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.064",
+      "kind": "unusual-format",
+      "pair": "unusual-format-5",
+      "truth": true,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "5df104ff0590cc7374089aaead929c76b0bd06cc4718028a18f21be0dbaa2391",
+        "bd9440683d91c85c9e0d9788e79b0b3a56545746d976d65a98f471c1690cf4d8"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.065",
+      "kind": "unusual-format",
+      "pair": "unusual-format-6",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "9f1f02ad9459e67972822ef0dd4587316652aa18e73a13d19250c87f6b3d5927",
+        "32a992e64b77b1342e179cc7c76a3dff00ab45f180c84e9bd86db05ce438ec61"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.066",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-0",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "0e3f2132889d8bbd06d20ff9dc81bfb6b379ee7ff107fc101568df2bfda5c7a5",
+        "43cf802d21c78e055879d06899efad5bef4f6ac688e8683ffefa7864ceb94875"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.067",
+      "kind": "double-negation",
+      "pair": "double-negation-0",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "f5f79a0a72549aff5ab9029104d810169015e93566a55d225ef8f2afd81ed230",
+        "01661bb2bfba6524f4a7eec4d218926ebe522bdd39b714895162127fd9eee1cf"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.068",
+      "kind": "near-miss",
+      "pair": "near-miss-0",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "f2f71a65829250abfa5de43e71b005addae6b179c03a887aa87263d74d911fe9",
+        "88955db17a2adb6db4732bd88e22592b4fe3ddfcf2fd34f1142cc29d38b61c3b"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.069",
+      "kind": "unusual-format",
+      "pair": "unusual-format-1",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "27b0740186054ec21c839b1cdba1188dc3382687acc4037880702141c92ba698",
+        "4c3fe707eabd5c38ec9fea0f51b4478396d933f5cc360ecd8734a430b7b4a9dd"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.070",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-4",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "059f5099995eed93d3768753a09ad180c21140aab9cb4ccb9ce03af7c57d3858",
+        "9154038385f3b8304265880391c85a5e021a9957b5cf54287fb8a9df048f8d73"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.071",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-7",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "26328af2620748e022679a2edcb737c6cd2a661ba854d91b72d94bf76b0ac3b6",
+        "ef8545e62a61973d1dac10f887c26e60b8791cc1883b34727f000b81f5824fae"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.072",
+      "kind": "unusual-format",
+      "pair": "unusual-format-6",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "9f1f02ad9459e67972822ef0dd4587316652aa18e73a13d19250c87f6b3d5927",
+        "48e8f3472af475c468423a231a7ff3f2883f73abb0b5ba70adc230f7462b4af0"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.073",
+      "kind": "partial-credit",
+      "pair": "partial-credit-0",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "c7dcdbbb9c619da45f984e93025dbfaf64ce8b6c1b72bad698475d57f8365c72",
+        "23b98e35eb21f5778e9d7504f43e34a0f3f0d528b7f1234e965a9ba4fdc5f065"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.074",
+      "kind": "near-miss",
+      "pair": "near-miss-6",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "063d252d8e338185fff0beb50ba69942358984561a3f8409270bd32f6f95e8a9",
+        "632d635c443e970727498dddda4fac5d51bc7069910dfed7ce7df9ebc230ae1e"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.075",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-0",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "2b49590a031226045837757220532328fe073b139e5d2e85d2ddf5d973f6d045",
+        "c0e934ed13a03969f8beebe2bdebc96043024baa607f222ccf9e89ac306fe49b"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.076",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-7",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "e11a61f60a03bedbcb9315fc4ce0c3b81649f0f2703d42d72de9e61ce5638d55",
+        "48d8f96c562f3483ae356d855dc33f03db173aee3b3a98a636f36a23edd7cfa6"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.077",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-3",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "b9ab68e062e30d72a36fe542543f8ef1a687547dd7bccca8d2881655c13eedfa",
+        "d94285c5d5ec88d7cf817502528bf77b10897ad20c46cd1baafae29d3ba89e5f"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.078",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-2",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "ea4d49d0f53a617bceeec38735f4a60923123713ad4b8084b52d1d8d06ffdf25",
+        "d983e1f91e785abcd7bccfeb7e1a342eb73953170db323d67ecc3f1537f8df28"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.079",
+      "kind": "partial-credit",
+      "pair": "partial-credit-3",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "bf70b100f738500e5d69d0c8f14e77a2da92667e704af964e94c109f87c68109",
+        "a62abdff0afc82ed3386918693571a6e0db26dc0f4aaad4b05fdb6fd0475621e"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.080",
+      "kind": "near-miss",
+      "pair": "near-miss-0",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "f2f71a65829250abfa5de43e71b005addae6b179c03a887aa87263d74d911fe9",
+        "212e12f00ff75ee3d4c29c252c14533d2268b6230fafb1015ad1df4127dbb07e"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.081",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-4",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "495475d31af932baf54ec258462cd3ca7c9253b85192b2f44fd41246507b4f16",
+        "086263da915b7179326dfb29980a292ab0f4942e47d7528d0eabb173d9d1cc4f"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.082",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-6",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "fdec5a7baaf45b550840db64b48541b5bf48afee0309ea9fc96f5b74f508f822",
+        "cc8ba699e91ba0e4c04a220fd3005ed6c85cf7f631859d499b778f77603edc7d"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.083",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-1",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "dfde512550ce3eb9945d693f079a469f5e787f7f0ff29f80833ca8e248e6a774",
+        "cd90dd3682f7d8cb3c0c993322ab92c86ce2c1118e2c19ab4b9912ed8e9f86df"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.084",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-6",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "a4506c8ccf00aa8ec880bef9820b219fac272b981d78a68635402bcaad9cb308",
+        "59ccc127dfa4066299d0e224a2923a8892baf9f8c2a060deeeecec21acd0df01"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.085",
+      "kind": "partial-credit",
+      "pair": "partial-credit-3",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "bf70b100f738500e5d69d0c8f14e77a2da92667e704af964e94c109f87c68109",
+        "ae67d6e507862524aa087fd78d4710f84c4b0f3dfea4d6a7be6d35bb5bd17b6f"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.086",
+      "kind": "near-miss",
+      "pair": "near-miss-3",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "20024ebaea945a6e276f4bd4bc140f5a37c9c5f5dc8d6067db2499be413d2a7b",
+        "5748bb794e2e2c4b1074bdd191e47f9dfc413b469e12adbddb4e994e9fb0f0fe"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.087",
+      "kind": "double-negation",
+      "pair": "double-negation-2",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "f0f0102afb04f9619a2565dadebf82e4d86f462503c3ad36d2b1d2f35fb2115f",
+        "a7c3826cf514e93c37fceaacf8887ed655e84632bbe043ab2788d1501779f75c"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.088",
+      "kind": "partial-credit",
+      "pair": "partial-credit-7",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "ba89568778c1b4ba3a57001012b1ef1107f1c3f34bed1e3a4f8c0e68fefee620",
+        "25588aed493028082334893a446ba29e372d3dd0533079d4fa9ae5160f5ebeac"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.089",
+      "kind": "double-negation",
+      "pair": "double-negation-6",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "55a4e7898bc6b5998b4b556b88f91e5cf11b508bb544e1fe5f71bee182631481",
+        "6042ffd825423b7e904487f75ab05e4b93792e79980e65577f45b9b95c164d1d"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.090",
+      "kind": "double-negation",
+      "pair": "double-negation-5",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "7f7c7285e1b0d92db649460f4b2b42cd272ec5f44dc8ececcbf0a19cdb352331",
+        "dba913d99583f0a07feb13d018dd4c08d8b1b02c923372e3e6ae4e4c10061bc8"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.091",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-0",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "21a42ab6b05eabb0caf7b602dbd277ceb0ee38383bd7dbb3df40c36b13615ff6",
+        "3b545e5e5a11d60362e2e90be01ba74e49dd86456fda9e78133ceef24cc3e9f5"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.092",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-8",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "146ffc24b828209a4ced6068e29e60a0c2a4677df4b78eb45b1a4803c10b315a",
+        "9a4048d35c30e09025222ce55d94b3f91d6d88146be1667fb1aaffd28965389e"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.093",
+      "kind": "near-miss",
+      "pair": "near-miss-8",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "8c0dab2fb7bdd98855b14038539f977e6718dd8a25f90bd88f1d40b94fdf6ce4",
+        "ff196837f410d836d2a9cd828eac3b95b6c8ba3d630e70302885003cd2f931a4"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.094",
+      "kind": "near-miss",
+      "pair": "near-miss-5",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "71524a8b361c7e95c47fd15190c2ee6842ed10da639b19a6463e80187fd21043",
+        "d63d1d53de513b33c71aeb5fb7cc5a5ac68e22d5012a4fa423b715d561c7d161"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.095",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-2",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "cf3865c6afd0713768a3a09ffd151cccf073c1d6b7130a154363f917e1a20d35",
+        "6408e6be2e5075fa9ceb6821f03ba281ae070319a80e74135625b9773f47d6ea"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.096",
+      "kind": "unusual-format",
+      "pair": "unusual-format-1",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "27b0740186054ec21c839b1cdba1188dc3382687acc4037880702141c92ba698",
+        "23e098f5de6d65275f5c8435413329571ca29d183de427fa54068a18955a66cf"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.097",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-1",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "00dc75e4b1931e274387ebcccc0894325c8342a17baeb2e8fff4f9c0125c4679",
+        "d28f382f56a2979a6e4e9008726be67c068245acbf1950cbcf1f0ee996cc8e5c"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.098",
+      "kind": "partial-credit",
+      "pair": "partial-credit-1",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "a75bab46fd96d4a4bf9ff9ad585c80ec281c35c85f5ab9b6eeff4f2fafa51dc1",
+        "b01d0f84f4009410bba1d9b39ce867c3dd104b46faf411c4a2d416c7b6ffbdcf"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.099",
+      "kind": "partial-credit",
+      "pair": "partial-credit-5",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "cab73ed4e44efb21985b89a1a2a9996c97dba570b2ea42709d604ede1caed0ea",
+        "e99860c249c437ea202be66cca1d80dae61425213d5ffde9b4e57af3e2bf59cf"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.100",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-4",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "3647c17dca2b1ca5ac77de435e7c0ba79f584ee6ad68cedd66ef43aa985e40b7",
+        "f10093667b1864ba9334644da2421722982ab7c77cb6eb391505fcec36d2b83d"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.101",
+      "kind": "double-negation",
+      "pair": "double-negation-1",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "8e955fffaed1de8ece6bf71938ba9d8fd40fb6f409e3ba0e366dc6b79a47479e",
+        "3d08206da8c6d46e4c66ccf25c432566bc6f39bf2dfd053b7aa6f52d8f9b39cb"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.102",
+      "kind": "double-negation",
+      "pair": "double-negation-0",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "f5f79a0a72549aff5ab9029104d810169015e93566a55d225ef8f2afd81ed230",
+        "dd57e40e89bbebd403151de4832eb3c537f2f7923c9373ecbf733f7295371563"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.103",
+      "kind": "unusual-format",
+      "pair": "unusual-format-0",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "ca57afebf7bab9cddc4162aed7e180012b5bd69d7304b4814ac61c7ca936b6af",
+        "f66c3c8c153849910b50495194de32793541b78630cea1d7a05abae3286fc0b3"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.104",
+      "kind": "double-negation",
+      "pair": "double-negation-7",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "5aeb0156362c4dec17822c5bf2a9e825b5bb8c011de147591d0228f93afc46c5",
+        "6a265136a1723cc95a3b00a71b004f990e0bddcd5ab1aebcfb0137799f5c8805"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.105",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-2",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "cf3865c6afd0713768a3a09ffd151cccf073c1d6b7130a154363f917e1a20d35",
+        "d9cf69aaef15bd32b14f7291ae62701430110a5ced07881a424d619773884d84"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.106",
+      "kind": "unusual-format",
+      "pair": "unusual-format-5",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "5df104ff0590cc7374089aaead929c76b0bd06cc4718028a18f21be0dbaa2391",
+        "24f06047bfb4b6df647c72573aee299d1b2fe080abd496e039bb3cf8bd01eaf1"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.107",
+      "kind": "near-miss",
+      "pair": "near-miss-4",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "f3e1a93416d57a5260c7217d2dcd082f0c4cd13d577e05d30875f50033c759ff",
+        "7286e23e0a4a81eb6ed1eb8cb149fd5b89ca6f4cce605b33c178c51d33cf3eda"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.108",
+      "kind": "double-negation",
+      "pair": "double-negation-6",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "55a4e7898bc6b5998b4b556b88f91e5cf11b508bb544e1fe5f71bee182631481",
+        "149be051ab73c2afa5a59f428a56c34fb0170d6803ba3aed8146787d07be7255"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.109",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-6",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "51f29dad9bcb0e7e69ee98b77667c030fdadb5303ef40a4219ea1a2c2b722377",
+        "20140f98b9de34901ffcac617e746f9e5088e2fbbe9e642a9772dbc08624b935"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.110",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-5",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "d0e6b72665f7202295f47ce121836982c6cf140e5d454b3dae1b858bb7534561",
+        "7b1468211a30283b91129c712012a97483542b6ee9f884c124b21ec5ae9e1db8"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.111",
+      "kind": "double-negation",
+      "pair": "double-negation-7",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "5aeb0156362c4dec17822c5bf2a9e825b5bb8c011de147591d0228f93afc46c5",
+        "90820048aafcaa07d4367ddd11d34f6593fea0f2a1f190256ab9a046ecf719c7"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.112",
+      "kind": "near-miss",
+      "pair": "near-miss-2",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "54d79220db1093c664bed443cfa3f12ab383de2b9fcbb4433333507355ae4179",
+        "e8687a6cb7e03fa82ded4559672854fca68582844cffb024927c582abe066de7"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.113",
+      "kind": "unusual-format",
+      "pair": "unusual-format-3",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "1c6569e8684b274ce4bb842a6484fec84c1b62020a56979a5238c4b1cef826ab",
+        "fb07f0e528fff65889ede224eb58e608a5de49ac95a3c448ded49aefe33ea134"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.114",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-6",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "a4506c8ccf00aa8ec880bef9820b219fac272b981d78a68635402bcaad9cb308",
+        "cb7936050e6fd309f9a858b8d7a3e5cc412c90215e27788bc302c086a91cfc15"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.115",
+      "kind": "partial-credit",
+      "pair": "partial-credit-2",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "2ab311eb85216776852497eac0ba03b62e7bba3ba6162169d0e01f2b8595368f",
+        "20b7796cd6b42fa7022bc928ca78376db6eef7e4bb254d938c2645bf3e1182c8"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.116",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-4",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "059f5099995eed93d3768753a09ad180c21140aab9cb4ccb9ce03af7c57d3858",
+        "c58defa9d4879bf1f230edc329c4cafa738e1530a1980a5d24dddbd3046be36f"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.117",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-3",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "b9ab68e062e30d72a36fe542543f8ef1a687547dd7bccca8d2881655c13eedfa",
+        "95ac6f172e7bd6c9ac371f5bd94855aabcd381f0e0bb908a615c113442042b30"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.118",
+      "kind": "double-negation",
+      "pair": "double-negation-2",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "f0f0102afb04f9619a2565dadebf82e4d86f462503c3ad36d2b1d2f35fb2115f",
+        "a780089707490234be3a175a84a3e93cfa00cd823c97c22bcdb8c068efd4de74"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.119",
+      "kind": "embedded-instruction",
+      "pair": "embedded-instruction-0",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "21a42ab6b05eabb0caf7b602dbd277ceb0ee38383bd7dbb3df40c36b13615ff6",
+        "e8189f8640281c4c1668c103246aec31fee9150b15753f2bb807c60b7b25a6b3"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.120",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-5",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "08407f7c616e4770e5ab4be6045c1eef4ee9295f8097bd8bcc760b8cbcbe23f0",
+        "f4c619bd190ee353ae390a8c7f55373b00b6b1c1c6f66c35fc6dd2eb6805ecb8"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.121",
+      "kind": "partial-credit",
+      "pair": "partial-credit-0",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "c7dcdbbb9c619da45f984e93025dbfaf64ce8b6c1b72bad698475d57f8365c72",
+        "df1609708e3246104bcf07d0a6262574b55ce4b29fe35f9f225419665c084d43"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.122",
+      "kind": "long-one-wrong",
+      "pair": "long-one-wrong-5",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "08407f7c616e4770e5ab4be6045c1eef4ee9295f8097bd8bcc760b8cbcbe23f0",
+        "a1c9a5e30491d6b255447f73a7bf510cc6133f79bce1823de06ef6ae9f8517e3"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.123",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-5",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "7d2c5136ba0a16e4ee3f33d7621808f7e5add9a9af24649630234a2a79ab8f5c",
+        "cf839a552a1706366c9d50d1bbfd72083f04e84d09365e548e50597a1a523075"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.124",
+      "kind": "flattened-trace",
+      "pair": "flattened-trace-7",
+      "truth": false,
+      "complete": true,
+      "prediction": false,
+      "score": 0.0,
+      "keys": [
+        "26328af2620748e022679a2edcb737c6cd2a661ba854d91b72d94bf76b0ac3b6",
+        "14db513d2798b3051c9b2efda86165ca5575007d58752cef81794487d1899676"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.125",
+      "kind": "partial-credit",
+      "pair": "partial-credit-6",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "e600764d4d6890dd254e63b5e573eb8ccf7aefc5dac68582a8a8ce648022a0cf",
+        "3a93a39d3fd93b25d80f6980de191e6a8a374055b06e3ac755120a8272c05e75"
+      ]
+    },
+    {
+      "id": "deepeval.knowledge.126",
+      "kind": "partial-credit",
+      "pair": "partial-credit-7",
+      "truth": true,
+      "complete": true,
+      "prediction": true,
+      "score": 1.0,
+      "keys": [
+        "ba89568778c1b4ba3a57001012b1ef1107f1c3f34bed1e3a4f8c0e68fefee620",
+        "0dfe4bf2ccd60a475198dbe526e381cff30a3354d001a3514de731c49e010b4b"
+      ]
+    }
+  ]
+}

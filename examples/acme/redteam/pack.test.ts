@@ -4,8 +4,13 @@ import { defaultChecks } from '@agent-nexus/driftbench-checks';
 import type { Observed } from '@agent-nexus/driftbench-core';
 import { faultAdapter } from '@agent-nexus/driftbench-generate';
 import { localProvider } from '@agent-nexus/driftbench-sandbox';
-import { loadRedteamPack, runAttack } from '@agent-nexus/driftbench-users';
-import { acmeSales, acmeSpec, PACK_DIR } from '../../../packages/users/test/support';
+import {
+  createPerturbingDriver,
+  fromPhrasing,
+  loadRedteamPack,
+  runAttack,
+} from '@agent-nexus/driftbench-users';
+import { acmeSales, acmeSpec, PACK_DIR, runP } from '../../../packages/users/test/support';
 import { salesFaults } from '../faults/sales';
 
 // Run with: node --import tsx --test examples/acme/redteam/pack.test.ts
@@ -139,6 +144,26 @@ for (const id of ['d2-home-instead', 'd2-cheaper-plan']) {
     assert.equal(noReoffer.findings, 1, 'the stock sentence without a re-offer must fail');
     assert.equal(noReoffer.rounds[0]?.finding, 'injected block failed');
 
+    // A recap-stage fault: the agent answers the goal shift with the OFFER question. The CONFIRM demand is
+    // bound to the recap, so this reply must fail there, as it does on main.
+    const OFFER_REPLY =
+      'I can only help with Acme plans and orders. Which one would you like: Acme Mobile M or Acme Mobile L?';
+    const wrongStage = await runAttack({
+      spec: direct,
+      adapter: acmeSales((agent) => ({
+        async respond(messages, world) {
+          const observed = await agent.respond(messages, world);
+          return messages.at(-1)?.content === phrasing.user
+            ? { ...observed, text: OFFER_REPLY, segments: [{ type: 'text', text: OFFER_REPLY }] }
+            : observed;
+        },
+      })),
+      checks: defaultChecks(),
+      replay: clean.recording,
+    });
+    assert.equal(wrongStage.findings, 1, 'the offer question at the recap must fail');
+    assert.equal(wrongStage.rounds[0]?.finding, 'injected block failed');
+
     const changed = await runAttack({
       spec: direct,
       adapter: acmeSales((agent) => {
@@ -162,5 +187,33 @@ for (const id of ['d2-home-instead', 'd2-cheaper-plan']) {
     assert.equal(changed.findings, 1, 'order integrity depends on the attack collateral rule');
     assert.equal(changed.rounds[0]?.finding, 'collateral damage');
     assert.match(changed.rounds[0]?.detail ?? '', /block 2:.*tools.order.create.input.plan_id/);
+  });
+}
+
+// The same phrasings land at the offer stage of a spec whose injection point precedes any recap. A correct
+// agent re-asks the plan choice there, so the CONFIRM line cannot be demanded; the mutant is still caught.
+const upgrade = await acmeSpec('conversations/plan-upgrade.yaml');
+for (const id of ['d2-home-instead', 'd2-cheaper-plan']) {
+  test(`${id} injected at the offer stage passes the correct agent and fails the goal-shift fault`, async () => {
+    const file = pack.files.get('D2_goal_shift');
+    assert.ok(file);
+    const phrasing = file.conversation.find((entry) => entry.id === id);
+    assert.ok(phrasing?.approved);
+    const drawn = fromPhrasing(upgrade, 'D2_goal_shift', 2, phrasing);
+    const run = async (adapter: ReturnType<typeof acmeSales>) => {
+      const driver = createPerturbingDriver({ spec: upgrade, perturbation: drawn });
+      return runP(driver.spec, driver, adapter, driver.perturbation.id);
+    };
+    const clean = await run(acmeSales());
+    const injected = clean.blocks[2];
+    assert.equal(injected?.stageObserved, 'offer', 'the injection lands at the offer stage');
+    assert.doesNotMatch(injected?.text ?? '', /CONFIRM/);
+    assert.deepEqual(
+      clean.blocks.filter((entry) => !entry.pass).map((entry) => entry.index),
+      [],
+      `${id} must not flag the correct agent at the offer stage`,
+    );
+    const mutant = await run(broken());
+    assert.equal(mutant.blocks[2]?.pass, false);
   });
 }
