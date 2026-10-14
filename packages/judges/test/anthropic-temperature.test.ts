@@ -60,6 +60,24 @@ describe('the Anthropic client and a model that refuses the temperature field', 
     expect(bodies.map((b) => b.temperature)).toEqual([0]);
   });
 
+  it('anthropic: does not drop temperature on a 429 whose body quotes a 400 about it', async () => {
+    const bodies: Record<string, unknown>[] = [];
+    const judge = createAnthropicJudge({
+      env: ENV,
+      maxRetries: 0,
+      fetch: async (_url: string, init?: RequestInit) => {
+        bodies.push(JSON.parse(String(init?.body)) as Record<string, unknown>);
+        return new Response(
+          JSON.stringify({ error: { message: 'upstream answered 400: temperature unsupported' } }),
+          { status: 429, headers: { 'content-type': 'application/json' } },
+        );
+      },
+    });
+    await expect(judge.judge(REQUEST)).rejects.toThrow(/429/);
+    await expect(judge.judge(REQUEST)).rejects.toThrow(/429/);
+    expect(bodies.map((b) => 'temperature' in b)).toEqual([true, true]);
+  });
+
   it('does not hide a 400 about something else', async () => {
     const judge = createAnthropicJudge({
       env: ENV,

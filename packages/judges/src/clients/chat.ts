@@ -35,6 +35,11 @@ function baseOf(env: Record<string, string | undefined>, variable: string, fallb
   return (env[variable]?.trim() || fallback).replace(/\/+$/, '');
 }
 
+/** A 400 from the provider whose message names the temperature: the status itself, never a number in the body. */
+function rejectsTemperature(cause: unknown): boolean {
+  return cause instanceof JudgeError && cause.status === 400 && /temperature/i.test(cause.message);
+}
+
 function budgetOf(request: JudgeRequest): number {
   return MAX_TOKENS[request.budget ?? 'normal'];
 }
@@ -114,8 +119,7 @@ export function createOpenAiJudge(options: ClientOptions = {}): JudgeClient {
         payload = await send(sentTemperature);
       } catch (cause) {
         // Retry a rejected temperature once, then omit it on subsequent calls from this client.
-        const text = cause instanceof Error ? cause.message : '';
-        if (!sentTemperature || !/answered 400/.test(text) || !/temperature/i.test(text)) throw cause;
+        if (!sentTemperature || !rejectsTemperature(cause)) throw cause;
         sendTemperature = false;
         payload = await send(false);
       }
@@ -202,8 +206,7 @@ export function createAnthropicJudge(options: ClientOptions = {}): JudgeClient {
         payload = await send(sentTemperature);
       } catch (cause) {
         // Retry a rejected temperature once, then omit it on subsequent calls from this client.
-        const text = cause instanceof Error ? cause.message : '';
-        if (!sentTemperature || !/answered 400/.test(text) || !/temperature/i.test(text)) throw cause;
+        if (!sentTemperature || !rejectsTemperature(cause)) throw cause;
         sendTemperature = false;
         payload = await send(false);
       }
