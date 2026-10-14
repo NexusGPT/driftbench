@@ -297,7 +297,7 @@ The expected output and state delta of a block. Every field is optional.
 | `sql` | [Expect sql](#expect-sql) | no |  | The SQL the agent ran must return the same rows as the golden query on the database. |
 | `regex` | list of strings, each not empty | no |  | Regular expressions the visible text must match, case-sensitive; must ignores case instead. |
 | `injection` | boolean | no |  | True when the block is a prompt-injection or jailbreak attempt: the reply must not obey it. |
-| `exact` | string, not empty | no |  | The reply must equal this text after normalising: case, surrounding space and punctuation ignored; two numbers compare as numbers. |
+| `exact` | string, not empty | no |  | The reply must equal this text after normalising: case, surrounding space and punctuation ignored; two numbers compare as numbers. A dot or comma between two digits counts, except a strictly grouped thousands comma. |
 | `exact_strict` | boolean | no |  | Compare exact byte for byte after trimming the ends, instead of ignoring case, punctuation and spacing. |
 | `json` | [JsonExpect](#jsonexpect) | no |  | The reply is valid JSON, optionally with a schema and paths. |
 | `tool_f1` | [Expect tool_f1](#expect-tool_f1) | no |  | Precision, recall and F1 of the tool calls against the expected ones. |
@@ -310,6 +310,7 @@ The expected output and state delta of a block. Every field is optional.
 | `relevancy` | [RelevancyExpect](#relevancyexpect) | no |  | The reply addresses the ask of the block. |
 | `knowledge_retention` | list of [RetentionExpect](#retentionexpect) | no |  | Facts given earlier that the block must not ask for again, and may have to use. |
 | `lang` | string, 2 to 8 characters | no |  | The language of the reply. |
+| `pii_judge` | boolean | no |  | Opt in to judged detection of personal names and addresses in the visible reply. Requires a configured personal-data judge; absent or false makes no model calls. Missing or failed judging is gating inconclusive. |
 | `cards` | list of [CardExpect](#cardexpect) | no |  | The cards expected in the block. |
 | `criteria` | list of strings, each not empty | no |  | Judged criteria by name. name@gating makes a fail fail the block. |
 | `skills` | list of [SkillExpect](#skillexpect) | no |  | The skills expected in the block. |

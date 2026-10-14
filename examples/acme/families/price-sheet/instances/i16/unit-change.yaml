@@ -486,7 +486,7 @@ metadata:
     id: acme-price-sheet
     family_sha256: 1e37ebb12716364465b0bcc9b340c3231347e9cf9bcdcbb45b4bb406cc975847
     oracle_sha256: 984c79bca3bd9204456a066b482560aa1d01b052b5e7dc0fff440349d5de667e
-    review: pending
+    review: signed
     instance: i16
     instance_seed: 3151469230
     run_seed: 1
