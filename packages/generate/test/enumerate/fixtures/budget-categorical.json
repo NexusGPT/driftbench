@@ -1,11 +1,11 @@
 {
-  "source": "Generator v4 with one reply per user turn on every generated spec (reply_count)",
-  "mapHash": "7c05b9cee9cc",
+  "source": "Generator v4 with phrases placed at a stage of a walk, Acme new-home phrase binds its address",
+  "mapHash": "7a022d4e1380",
   "hashes": {
-    "pairwise": "5f373a12f9bb21aad7e714d07920aa5adea104638677fd8bcec1e87ee6cd5e22",
-    "budget-20": "cc25ff4289c968d31c03d015566211d8114382dbd9063b0a8d25d143a3cfdd7f",
-    "budget-50": "facb1b9d858b8a7f39a7fb7d16b1d876f967969b6c2a71ab1b5297a8678308b3",
-    "budget-100": "80cf99505c35f00f4ed6622b7bb77450e546a3aa5f61f406beb71edd2f1b0c02",
-    "budget-200": "1ef0c15735107bff78d65b9d663ad8d9e2752c910978eaff45ee022a3f5c05f0"
+    "pairwise": "e1b4442c42e906f9036824ce26a41bd8198743fcf7d76b771f60caa51d282e1a",
+    "budget-20": "4f258d716fb46e4510d2207e3575e61454bc18c8ca306ea169e5f77a06cbf6c1",
+    "budget-50": "5c36cd57ddedb6e895ffff409f55e7a7f26bce863a99072f76922a9d7998fa45",
+    "budget-100": "67f0c50350218cc590f3424b9298f7bbd0ef048c92b871a9da54873b4d5ca9db",
+    "budget-200": "bb5a11191416f988f6bd9121053f91c004840ea17fdc600a8cbb7a9cf0305a85"
   }
 }

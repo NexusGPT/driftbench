@@ -27,6 +27,7 @@ import {
 } from '../seed/assemble';
 import { DeviationBalance } from '../seed/deviation-balance';
 import type { PreparedMap } from '../seed/map';
+import { phraseDrafts } from '../seed/phrase-seeder';
 import { restatedDrafts } from '../seed/restated-seeder';
 import {
   type BoundarySummary,
@@ -381,6 +382,19 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
   }
   // Restated slots: a value asked for first, another stated in the move; the move holds the latest.
   renderSeeder('boundary', restatedDrafts(prepared, context, 0));
+  // Phrases no complete spec says yet: each said once at the stage after a walk's first move.
+  const said = new Set(
+    complete.flatMap((spec) =>
+      spec.blocks.flatMap((block) =>
+        'user' in block.when
+          ? [block.when.user]
+          : 'injection' in block.when && block.when.injection.user !== undefined
+            ? [block.when.injection.user]
+            : [],
+      ),
+    ),
+  );
+  renderSeeder('cover', phraseDrafts(prepared, context, said, 0));
   // Deviation balance: after coverage, classes probed less than a third as often as the most probed class get
   // more approved probes, so one class is not tested many times while another barely is.
   const balance = new DeviationBalance(prepared);
