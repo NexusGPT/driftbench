@@ -58,7 +58,7 @@ The verifier checks the full criterion even when blind solutions agree. Agreemen
 
 Routing and verification can require more than one model call. `costUsd` includes all reported charges; `requestCount` includes retries. `defaultJudge` records the policy version, route and provider receipts, including raw failed attempts and retry receipts. Unknown cost is marked `costIncomplete`, never reported as a complete partial total.
 
-`spendCapUsd` caps the client across calls. Set `maxBudgetUsd` to reserve the maximum for each in-flight call; the client refuses another call when the reservation would exceed the cap or a prior cost is unknown. The Claude command also enforces its per-call budget. Other providers report usage but may not report monetary cost, so an application can supply a metered transport.
+`spendCapUsd` caps the client across calls. Set `maxBudgetUsd` as the per-call ceiling. Each in-flight call reserves the smaller of that ceiling and the unreserved balance. The same amount reaches the native command and retry budget. The client refuses another call when no unreserved balance remains or a prior cost is unknown. The Claude command also enforces its per-call budget. Other providers report usage but may not report monetary cost, so an application can supply a metered transport.
 
 Explicit reasoning settings add output room by reasoning level. Native command transports retain their own output limits.
 

@@ -261,14 +261,14 @@ describe('one default configuration', () => {
     const transport: DialectTransport = {
       dialect: 'scratchpad-json',
       fingerprint: 'test',
-      async complete() {
+      async complete(input) {
         calls++;
         return {
           text: '{"checks":[{"id":"x","reasoning":"absent","evidence":null,"met":false}]}',
           raw: '',
           dialect: 'scratchpad-json',
           fingerprint: 'test',
-          costUsd: 0.08,
+          costUsd: Math.min(0.08, input.maxBudgetUsd ?? 0.08),
         };
       },
     };
@@ -284,9 +284,11 @@ describe('one default configuration', () => {
     const request = { criterion: { name: 'x', rubric: 'x' }, transcript: [], system: 'caller policy' };
     await createDefaultJudge(options).judge(request);
     const second = await createDefaultJudge(options).judge(request);
-    expect(calls).toBe(1);
-    expect(second.answer.outcome).toBe('inconclusive');
-    expect(spendLedger.spentUsd).toBe(0.08);
+    expect(second.answer.outcome).toBe('fail');
+    const third = await createDefaultJudge(options).judge(request);
+    expect(calls).toBe(2);
+    expect(third.answer.outcome).toBe('inconclusive');
+    expect(spendLedger.spentUsd).toBeCloseTo(0.15);
     expect(spendLedger.reservedUsd).toBe(0);
   });
   it('reuses routing only for identical criteria and question data', async () => {
