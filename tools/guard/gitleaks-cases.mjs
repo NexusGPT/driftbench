@@ -1,0 +1,78 @@
+#!/usr/bin/env node
+// Planted cases for the recording-hash exceptions. Builds a scratch git repo with this repo's .gitleaks.toml,
+// generates its fingerprints with gitleaks-recording-fingerprints.mjs, scans it the way CI does, and fails unless
+// every bypass case stays reported and every real recording hash passes. Fixture values are random at runtime.
+// Usage: node tools/guard/gitleaks-cases.mjs [gitleaks-binary]
+import { execFileSync } from 'node:child_process';
+import { randomBytes } from 'node:crypto';
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join, resolve } from 'node:path';
+import { decide, scan, writeBlock } from './gitleaks-recording-fingerprints.mjs';
+
+const gitleaks = resolve(process.argv[2] ?? execFileSync('which', ['gitleaks']).toString().trim());
+const hex = (n) => randomBytes(Math.ceil(n / 2)).toString('hex').slice(0, n);
+const word = (n) => randomBytes(n).toString('base64').replace(/[^A-Za-z0-9]/g, 'x').slice(0, n);
+const RB = 'examples/judge-benchmarks/experiments/ledger-rb/';
+const LV = 'examples/ledger-verify/';
+const AP = 'examples/all-peers-public/cells/calls-parts/';
+const pat = ['gh', 'p_'].join('');
+
+// [name, file, text, mustBeReported]
+const cases = [
+  ['ledger-rb key, single-field line', RB + 'ok/a.json', `{\n  "key": "${hex(64)}",\n  "n": 1\n}`, false],
+  ['ledger-rb callKey in JSONL', RB + 'ok/b.jsonl', `{"callKey":"${hex(64)}","status":"ok"}`, false],
+  ['ledger-rb probeCallKey in JSONL', RB + 'ok/c.jsonl', `{"n":1,"probeCallKey":"${hex(64)}"}`, false],
+  ['ledger-rb audit hash, single-field line', RB + 'ok/d.json', `{\n  ".cache/ledger-rb/audit-token-loss.py": "${hex(64)}"\n}`, false],
+  ['ledger-verify key in JSONL', LV + 'ok.jsonl', `{"key":"${hex(64)}","v":2}`, false],
+  ['all-peers attempt_key in JSONL', AP + 'part-0001.jsonl', `{"attempt_key":"${hex(64)}","x":1}`, false],
+  ['api/key single-field line', RB + 'bad/1.json', `{\n  "api/key": "${hex(64)}"\n}`, true],
+  ['api:key in JSONL', RB + 'bad/2.jsonl', `{"api:key":"${hex(64)}"}`, true],
+  ['api@key in JSONL', RB + 'bad/3.jsonl', `{"api@key":"${hex(64)}","n":1}`, true],
+  ['foo/probeCallKey single-field line', RB + 'bad/4.json', `{\n  "foo/probeCallKey": "${hex(64)}"\n}`, true],
+  ['foo/audit-token-loss.py single-field line', RB + 'bad/5.json', `{\n  "foo/audit-token-loss.py": "${hex(64)}"\n}`, true],
+  ['password on the same line as a real key', RB + 'bad/6.jsonl', `{"key":"${hex(64)}","completion":"set password = '${word(32)}' now"}`, true],
+  ['api/key beside a real key on one line', RB + 'bad/7.jsonl', `{"key":"${hex(64)}","api/key":"${hex(64)}"}`, true],
+  ['api/key in ledger-verify', LV + 'bad.json', `{\n  "api/key": "${hex(64)}"\n}`, true],
+  ['api/key in all-peers', AP + 'part-0002.jsonl', `{"api/key":"${hex(64)}"}`, true],
+  ['api_key hex', RB + 'bad/8.json', `{\n  "api_key": "${hex(40)}"\n}`, true],
+  ['token in a key field', RB + 'bad/9.json', `{\n  "key": "${pat}${word(36)}"\n}`, true],
+  ['longer hex', RB + 'bad/10.json', `{\n  "key": "${hex(80)}"\n}`, true],
+  ['key outside the folders', 'examples/other/x.json', `{\n  "key": "${hex(64)}"\n}`, true],
+  ['sibling folder prefix', 'examples/judge-benchmarks/experiments/ledger-rbx/x.json', `{\n  "key": "${hex(64)}"\n}`, true],
+];
+
+const repo = mkdtempSync(join(tmpdir(), 'gitleaks-cases-'));
+const root = resolve(dirname(new URL(import.meta.url).pathname), '../..');
+const here = process.cwd();
+let failed = 0;
+try {
+  const git = (...args) => execFileSync('git', args, { cwd: repo, stdio: ['ignore', 'pipe', 'inherit'] }).toString();
+  git('init', '-q');
+  copyFileSync(join(root, '.gitleaks.toml'), join(repo, '.gitleaks.toml'));
+  writeFileSync(join(repo, '.gitleaksignore'), '');
+  for (const [, file, text] of cases) {
+    mkdirSync(dirname(join(repo, file)), { recursive: true });
+    writeFileSync(join(repo, file), text + '\n');
+  }
+  git('add', '-A');
+  git('-c', 'user.name=cases', '-c', 'user.email=cases@example.invalid', 'commit', '-qm', 'cases');
+  process.chdir(repo);
+  const { allowed, refused } = decide(scan(gitleaks, ['HEAD']));
+  writeFileSync('.gitleaksignore', writeBlock('', allowed));
+  const report = join(repo, 'report.json');
+  execFileSync(gitleaks, ['git', '--no-banner', '--redact', '--exit-code', '0', '--config', '.gitleaks.toml',
+    '--report-format', 'json', '--report-path', report, '--log-opts', '-1 HEAD'], { stdio: ['ignore', 'ignore', 'inherit'] });
+  const reported = new Set(JSON.parse(readFileSync(report, 'utf8')).map((f) => f.File));
+  for (const [name, file, , must] of cases) {
+    const got = reported.has(file);
+    if (got !== must) failed++;
+    console.log(`${got === must ? 'PASS' : 'FAIL'}  ${must ? 'reported' : 'passes  '}  ${name}`);
+  }
+  console.log(`${allowed.length} fingerprints generated, ${refused.length} lines refused`);
+} finally {
+  process.chdir(here);
+  rmSync(repo, { recursive: true, force: true });
+}
+console.log(failed ? `${failed} case(s) failed` : `all ${cases.length} cases pass`);
+process.exitCode = failed ? 1 : 0;
