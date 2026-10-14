@@ -7,969 +7,1211 @@
       "cls": "system2",
       "model": "gpt-6-luna",
       "cost": 10,
-      "settings": "{\"client\":\"openai-chat\",\"temperature\":0,\"maxTokens\":{\"normal\":1024,\"large\":4096},\"temperatureRetry\":\"drop on a 400 that names it\",\"responseFormat\":\"json_schema\",\"reasoning\":\"medium\"}"
+      "settings": "{\"client\":\"openai-chat\",\"temperature\":0,\"maxTokens\":{\"normal\":1024,\"large\":4096},\"temperatureRetry\":\"drop on a 400 that names it\",\"responseFormat\":\"json_schema\",\"reasoning\":\"medium\",\"reasoningTokens\":{\"low\":512,\"medium\":1024,\"high\":2048}}",
+      "dialect": "openai-json-schema",
+      "reasoning": "medium"
     }
   ],
   "entries": [
     {
       "judge": "gpt-6-luna",
-      "key": "755452647a71",
+      "key": "2f4dc6c63935",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function accepts a list and returns a dictionary mapping each distinct element to its count in that list.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) for x in list1}\"}],\"met\":true}]}",
-      "cost_usd": 0.0001685
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function takes `list1` and returns a dictionary mapping each element to its count in the list, so it satisfies the stated requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) for x in list1}\"}],\"met\":true}]}",
+      "cost_usd": 0.0001749
     },
     {
       "judge": "gpt-6-luna",
-      "key": "1b10a319ac69",
+      "key": "39c55aab1f56",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response defines a list comprehension that raises each input to the second power, not the third, so it does not return the cube of each input element.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 2 for x in nums]\"}],\"met\":false}]}",
-      "cost_usd": 0.0001617
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function converts alternating tuple elements into keys and values, so each adjacent pair becomes a dictionary entry.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[1::2]))\"}],\"met\":true}]}",
+      "cost_usd": 0.0001819
     },
     {
       "judge": "gpt-6-luna",
-      "key": "36c749265a52",
+      "key": "cd7a2c6fc349",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function returns a list comprehension that raises each input element to the third power, so it correctly returns the corresponding cubes.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 3 for x in nums]\"}],\"met\":true}]}",
-      "cost_usd": 0.00015869999999999998
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function returns a list comprehension that raises each input element to the third power, so each output element is the corresponding input cubed.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 3 for x in nums]\"}],\"met\":true}]}",
+      "cost_usd": 0.00015860000000000003
     },
     {
       "judge": "gpt-6-luna",
-      "key": "40a594e6000c",
+      "key": "bb46d13d49aa",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The implemented function does not map adjacent tuple elements into key-value pairs: it uses the even-indexed elements for both keys and values, rather than pairing them with the following elements.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[::2]))\"}],\"met\":false}]}",
-      "cost_usd": 0.00016340000000000001
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function takes a list and constructs a dictionary, but it adds 1 to each element's frequency, so the returned values are incorrect.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) + 1 for x in list1}\"}],\"met\":false}]}",
+      "cost_usd": 0.0001757
     },
     {
       "judge": "gpt-6-luna",
-      "key": "b13e04c54867",
+      "key": "630b9eece76f",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function should take a list and return a dictionary mapping each element to its frequency. Instead, it adds 1 to each element’s count, so the returned frequencies are incorrect.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) + 1 for x in list1}\"}],\"met\":false}]}",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function uses the same even-indexed elements for both keys and values, rather than pairing adjacent elements, so it does not convert the input tuple as requested.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[::2]))\"}],\"met\":false}]}",
       "cost_usd": 0.0001878
     },
     {
       "judge": "gpt-6-luna",
-      "key": "84674ad58588",
+      "key": "56ffddab43dc",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function should return each input element cubed, but it raises each element to the power of 2 instead.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 2 for x in nums]\"}],\"met\":false}]}",
+      "cost_usd": 0.0001566
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "94a04f741060",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
       "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function adds an extra 1 to the sum of the tuple values, so it does not correctly calculate the cumulative sum.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return 1 + sum(sum(t) for t in test_list)\"}],\"met\":false}]}",
-      "cost_usd": 0.000183
+      "cost_usd": 0.0001734
     },
     {
       "judge": "gpt-6-luna",
-      "key": "f1ec2e7b4bc0",
+      "key": "fe414e2c4b1d",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function sums each tuple and then sums those results, correctly calculating the cumulative sum of the integers in the input tuples.\",\"evidence\":[{\"source\":\"transcript.0\",\"quote\":\"cummulative_sum([(1, 2), (3,)]) == 6\"},{\"source\":\"transcript.1\",\"quote\":\"return sum(sum(t) for t in test_list)\"}],\"met\":true}]}",
-      "cost_usd": 0.0001937
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response strictly follows the format requirement: all words are in capital letters.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER0 LIGHTS THE NIGHT\"}],\"met\":true}]}",
+      "cost_usd": 0.0001774
     },
     {
       "judge": "gpt-6-luna",
-      "key": "4d48e5cb76c4",
+      "key": "822189b7072b",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains only lowercase letters, so it adheres to the constraint of not containing any capital letters.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer0 carries a tiny lantern.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001547
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function adds the sum of each tuple in the input list, correctly totaling the integer values in the shown tuple-list structure.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return sum(sum(t) for t in test_list)\"}],\"met\":true}]}",
+      "cost_usd": 0.00023810000000000001
     },
     {
       "judge": "gpt-6-luna",
-      "key": "82881e24f571",
+      "key": "a28370111f92",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response does not strictly avoid capital letters: its sentence contains an uppercase “C”.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer0 Carries a tiny lantern.\"}],\"met\":false}]}",
-      "cost_usd": 0.00015030000000000002
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response strictly adheres to the constraint: it contains no capital letters.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer0 carries a tiny lantern.\"}],\"met\":true}]}",
+      "cost_usd": 0.00015610000000000003
     },
     {
       "judge": "gpt-6-luna",
-      "key": "a61d6a83dd19",
+      "key": "d414e2a623a8",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response does not strictly use capital letters for every word: “Lights” contains lowercase letters.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER0 Lights THE NIGHT\"}],\"met\":false}]}",
-      "cost_usd": 0.00015790000000000002
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response must use capital letters for every word, but “Lights” contains lowercase letters.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER0 Lights THE NIGHT\"}],\"met\":false}]}",
+      "cost_usd": 0.0001798
     },
     {
       "judge": "gpt-6-luna",
-      "key": "2d7c7451a6e5",
+      "key": "cd18008036aa",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final response contains no commas and therefore strictly adheres to the stated constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer0 wakes then opens the silver gate.\"}],\"met\":true}]}",
-      "cost_usd": 0.000148
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains an uppercase letter, so it does not strictly adhere to the constraint of containing no capital letters.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer0 Carries a tiny lantern.\"}],\"met\":false}]}",
+      "cost_usd": 0.00017519999999999998
     },
     {
       "judge": "gpt-6-luna",
-      "key": "bb146b76a20c",
+      "key": "649a86823402",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response consists entirely of words written in capital letters, so it follows the requested format.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER0 LIGHTS THE NIGHT\"}],\"met\":true}]}",
-      "cost_usd": 0.000149
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "f357fd65502a",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains exactly four numbers: 1, 2, 3, and 4.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 1 bells, 2 keys, 3 maps and 4 lamps.\"}],\"met\":true}]}",
-      "cost_usd": 0.000172
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "c6b21467a80b",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function creates keys from every other tuple element starting at index 0 and values from the intervening elements, then combines them into a dictionary.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[1::2]))\"}],\"met\":true}]}",
-      "cost_usd": 0.0001685
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "480c3a5ddee3",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response does not strictly adhere to the no-commas constraint; its sentence contains a comma.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer0 wakes, then opens the silver gate.\"}],\"met\":false}]}",
-      "cost_usd": 0.00014010000000000002
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "21900e019e00",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response has two paragraphs, and the second starts with “it,” satisfying the question case-insensitively.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"it reveals a quiet garden.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001515
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "1368aef32dbf",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final response contains the Python code solution enclosed in a single complete triple-backtick Markdown code block.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 1\\n```\"}],\"met\":true}]}",
-      "cost_usd": 0.00015060000000000003
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "173d5789231c",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final Python code is not enclosed in a complete Markdown code block: the reply opens a triple-backtick fence but does not close it.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 1\\n\"}],\"met\":false}]}",
-      "cost_usd": 0.000153
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "390346e52e0f",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response must contain exactly 4 numbers, but it contains only three explicit numbers; “several” is not a number.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 1 bells, 2 keys, 3 maps and several lamps.\"}],\"met\":false}]}",
-      "cost_usd": 0.0001909
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "124433c32865",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The second paragraph begins with “That,” not the word “it,” so it does not satisfy the criterion.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That reveals a quiet garden.\"}],\"met\":false}]}",
-      "cost_usd": 0.000147
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "ccdc060e2960",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function takes `list1` and constructs a dictionary mapping each element to its count in the list, satisfying the requested behavior for elements usable as dictionary keys.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) for x in list1}\"}],\"met\":true}]}",
-      "cost_usd": 0.000185
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "327d2d5e8462",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response defines a function that accepts a list, but it adds 1 to each element’s count, so the returned values are not the elements’ frequencies.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) + 1 for x in list1}\"}],\"met\":false}]}",
-      "cost_usd": 0.00016930000000000002
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "9a263dfc86a2",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function uses the even-indexed elements for both keys and values, so it does not map adjacent tuple elements into key-value pairs.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[::2]))\"}],\"met\":false}]}",
-      "cost_usd": 0.0001739
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "e1b01815a0a3",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function returns the square of each input element, not its cube, so it does not correctly return the requested list.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 2 for x in nums]\"}],\"met\":false}]}",
-      "cost_usd": 0.0001527
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "bf041c4dc6fd",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function takes every other tuple element as a key and pairs it with the following element as a value, so it converts adjacent elements into dictionary key-value pairs.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[1::2]))\"}],\"met\":true}]}",
-      "cost_usd": 0.0001655
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "3772a801e307",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function returns a list produced by raising each input element to the third power, so it correctly cubes each corresponding element.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 3 for x in nums]\"}],\"met\":true}]}",
-      "cost_usd": 0.00015969999999999998
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "a345d4551dbd",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function should return the sum of the integers in the tuples, but it adds an extra 1, so it does not correctly calculate that sum.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return 1 + sum(sum(t) for t in test_list)\"}],\"met\":false}]}",
-      "cost_usd": 0.00017
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "7a3156fcd6fc",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final response strictly follows the format requirement: every word is in capital letters.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER1 LIGHTS THE NIGHT\"}],\"met\":true}]}",
-      "cost_usd": 0.0001565
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "ef15a6ef74fe",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response does not strictly use capital letters for every word: “Lights” contains lowercase letters.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER1 Lights THE NIGHT\"}],\"met\":false}]}",
-      "cost_usd": 0.0001654
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "0f2a48a41ae7",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains no capital letters, so it strictly adheres to the stated constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer1 carries a tiny lantern.\"}],\"met\":true}]}",
-      "cost_usd": 0.00014969999999999998
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "27c81447f7a8",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response does not strictly adhere to the constraint because it contains an uppercase letter in “Carries.”\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer1 Carries a tiny lantern.\"}],\"met\":false}]}",
-      "cost_usd": 0.0001453
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "6bfb1d9ef3cd",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains no commas and therefore strictly adheres to the constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer1 wakes then opens the silver gate.\"}],\"met\":true}]}",
-      "cost_usd": 0.000156
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "0eec647fe758",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response does not strictly adhere to the constraint because it contains a comma.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer1 wakes, then opens the silver gate.\"}],\"met\":false}]}",
-      "cost_usd": 0.00015560000000000001
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "410cf5d1a491",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function sums the values in each tuple and then sums those subtotals, which correctly calculates the cumulative sum of the integers in the input tuples.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return sum(sum(t) for t in test_list)\"}],\"met\":true}]}",
-      "cost_usd": 0.00023569999999999998
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "e96e907c4f98",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains exactly four numbers, satisfying the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 2 bells, 3 keys, 4 maps and 5 lamps.\"}],\"met\":true}]}",
-      "cost_usd": 0.000163
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "74f289518ae3",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The second paragraph starts with “it,” which matches the required word case-insensitively.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"it reveals a quiet garden.\"}],\"met\":true}]}",
-      "cost_usd": 0.000152
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "e7eddf50ffeb",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The second paragraph begins with “That,” not “it” (case-insensitive), so it does not satisfy the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That reveals a quiet garden.\"}],\"met\":false}]}",
-      "cost_usd": 0.00015
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "5954c1578ddd",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final code starts a triple-backtick Markdown block but does not include a closing triple-backtick fence, so it is not enclosed in a complete single code block.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 2\\n\"}],\"met\":false}]}",
-      "cost_usd": 0.000181
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "e08e58764814",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final Python code solution is enclosed in one complete Markdown code block using triple backticks.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 2\\n```\"}],\"met\":true}]}",
-      "cost_usd": 0.00015360000000000002
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "9b603d88fb2e",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function iterates over the input list and returns a dictionary mapping each distinct element to its count in the list, satisfying the stated question.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) for x in list1}\"}],\"met\":true}]}",
-      "cost_usd": 0.00018
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "36a8a8310cf0",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function accepts a list and returns a dictionary, but it adds 1 to each element’s actual frequency, so the values are incorrect.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) + 1 for x in list1}\"}],\"met\":false}]}",
-      "cost_usd": 0.0001933
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "0bc1457d02aa",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response should contain exactly four numbers, but it contains only three: 2, 3, and 4.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 2 bells, 3 keys, 4 maps and several lamps.\"}],\"met\":false}]}",
-      "cost_usd": 0.00020140000000000002
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "5b750309a858",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The implemented function converts the tuple into a dictionary by pairing elements at even indices with the immediately following elements.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[1::2]))\"}],\"met\":true}]}",
-      "cost_usd": 0.0001845
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "827a629ea524",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function returns a list comprehension that cubes each input element, so it correctly produces the requested list.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 3 for x in nums]\"}],\"met\":true}]}",
-      "cost_usd": 0.0001472
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "4d4d0032f945",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function returns the square of each input element, not its cube, so it does not correctly return the requested list.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 2 for x in nums]\"}],\"met\":false}]}",
-      "cost_usd": 0.0001427
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "e9760a8d18fa",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is to convert adjacent tuple elements into key-value pairs. The implementation uses the even-position elements for both keys and values, so it does not map each key to the following element.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[::2]))\"}],\"met\":false}]}",
-      "cost_usd": 0.0001664
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "c452dfb035ef",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains no capital letters, so it strictly adheres to the constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer2 carries a tiny lantern.\"}],\"met\":true}]}",
-      "cost_usd": 0.00014969999999999998
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "bcf29e3088c6",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response strictly follows the all-capital-letters format requirement: every word in the final response is uppercase.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER2 LIGHTS THE NIGHT\"}],\"met\":true}]}",
-      "cost_usd": 0.000159
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "86f17c595a53",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response must use capital letters for every word, but “Lights” contains lowercase letters.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER2 Lights THE NIGHT\"}],\"met\":false}]}",
-      "cost_usd": 0.00016790000000000002
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "c8f913c4a5d0",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function adds 1 to the sum of the tuple values, so it does not correctly return the cumulative sum of the integers.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return 1 + sum(sum(t) for t in test_list)\"}],\"met\":false}]}",
-      "cost_usd": 0.000161
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "cc7b4d229144",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response must contain no capital letters, but its sentence contains an uppercase “C” in “Carries.”\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer2 Carries a tiny lantern.\"}],\"met\":false}]}",
-      "cost_usd": 0.0001573
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "ae14dfe53ff5",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response strictly adheres to the constraint of not using any commas.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer2 wakes then opens the silver gate.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001565
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "661e791ebf3c",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function sums every value in each tuple and then sums those subtotals, correctly calculating the cumulative sum for the nested tuples in the input list.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return sum(sum(t) for t in test_list)\"}],\"met\":true}]}",
-      "cost_usd": 0.0001817
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "90621421dd85",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains exactly four numbers: 3, 4, 5, and 6.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 3 bells, 4 keys, 5 maps and 6 lamps.\"}],\"met\":true}]}",
-      "cost_usd": 0.000157
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "bfa872cc7a72",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains three numbers, not exactly four, so it does not satisfy the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 3 bells, 4 keys, 5 maps and several lamps.\"}],\"met\":false}]}",
-      "cost_usd": 0.00017240000000000002
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "478714495f90",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response does not satisfy the requirement: its second paragraph begins with “That,” not “it” (case-insensitive).\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That reveals a quiet garden.\"}],\"met\":false}]}",
-      "cost_usd": 0.0001535
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "e83eeecaac30",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final Python code solution is enclosed in one complete Markdown code block using triple backticks.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 3\\n```\"}],\"met\":true}]}",
-      "cost_usd": 0.0001611
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "aba8b16e69cc",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function returns a list comprehension that raises each input element to the third power, so it correctly returns the corresponding cubes.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 3 for x in nums]\"}],\"met\":true}]}",
-      "cost_usd": 0.00014769999999999999
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "dc7ded538cc3",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The second paragraph starts with “it,” so the answer to the question is yes.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"it reveals a quiet garden.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001545
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "c5c465391301",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final Python code solution must be enclosed in one complete triple-backtick Markdown code block. The response opens a code block but does not include a closing triple-backtick fence.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 3\\n\"}],\"met\":false}]}",
-      "cost_usd": 0.0001955
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "c59eeeda1c77",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The implemented function uses the even-indexed tuple elements as keys and the following odd-indexed elements as values, converting those adjacent pairs into a dictionary.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[1::2]))\"}],\"met\":true}]}",
-      "cost_usd": 0.000165
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "7c19ca3159a5",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response does not strictly adhere to the constraint because it contains a comma.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer2 wakes, then opens the silver gate.\"}],\"met\":false}]}",
-      "cost_usd": 0.00014010000000000002
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "ce97cf70f5c0",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function accepts a list and builds a dictionary, but it adds 1 to each element's count, so the values are not the elements' frequencies.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) + 1 for x in list1}\"}],\"met\":false}]}",
-      "cost_usd": 0.00017580000000000002
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "94b34724b10d",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function accepts a list parameter and returns a dictionary mapping each element to its frequency in that list.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"def freq_count(list1):\\n    return {x: list1.count(x) for x in list1}\"}],\"met\":true}]}",
-      "cost_usd": 0.0001725
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "a84ca3145307",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function must map each even-positioned element to the adjacent following element. It instead uses the same slice for keys and values, so each selected element maps to itself.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[::2]))\"}],\"met\":false}]}",
-      "cost_usd": 0.0001764
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "1fb269fb4eab",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the function return a list containing the cube of each input element. The submitted function raises each element to the second power, so it returns squares rather than cubes.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"    return [x ** 2 for x in nums]\"}],\"met\":false}]}",
-      "cost_usd": 0.0001602
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "285d8cfdd1a3",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response must use capital letters for every word, but “Lights” contains lowercase letters.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER3 Lights THE NIGHT\"}],\"met\":false}]}",
-      "cost_usd": 0.0001519
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "c4a12fecfc8f",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function sums each tuple and then adds those subtotals, correctly calculating the sum of the integer values in the input list’s tuples.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return sum(sum(t) for t in test_list)\"}],\"met\":true}]}",
-      "cost_usd": 0.0001862
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "9ea7081128fd",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response uses only uppercase letters for every word, satisfying the capital-letter format requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER3 LIGHTS THE NIGHT\"}],\"met\":true}]}",
-      "cost_usd": 0.0001695
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "a259aa055904",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function adds 1 to the sum of the tuple values, so it returns 16 for the provided example instead of the required cumulative sum of 15.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return 1 + sum(sum(t) for t in test_list)\"}],\"met\":false}]}",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response must strictly avoid commas. The agent’s sentence contains a comma, so it does not satisfy the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer0 wakes, then opens the silver gate.\"}],\"met\":false}]}",
       "cost_usd": 0.0001615
     },
     {
       "judge": "gpt-6-luna",
-      "key": "fbda4fb8cf88",
+      "key": "3b81ec50c0b3",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response strictly adheres to the constraint of not using commas; its sentence contains no commas.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer3 wakes then opens the silver gate.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001465
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response strictly adheres to the constraint because its sentence contains no commas.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer0 wakes then opens the silver gate.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001789
     },
     {
       "judge": "gpt-6-luna",
-      "key": "483e49a18aed",
+      "key": "588498c799c5",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response must not use any commas. The final response contains a comma, so it does not meet the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer3 wakes, then opens the silver gate.\"}],\"met\":false}]}",
-      "cost_usd": 0.00016460000000000002
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains exactly four numbers: 1, 2, 3, and 4.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 1 bells, 2 keys, 3 maps and 4 lamps.\"}],\"met\":true}]}",
+      "cost_usd": 0.00016690000000000002
     },
     {
       "judge": "gpt-6-luna",
-      "key": "5b36b1740175",
+      "key": "a35d422f038d",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response must contain no capital letters, but its second word begins with an uppercase C.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer3 Carries a tiny lantern.\"}],\"met\":false}]}",
-      "cost_usd": 0.0001533
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains only three numbers (1, 2, and 3), not exactly four.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 1 bells, 2 keys, 3 maps and several lamps.\"}],\"met\":false}]}",
+      "cost_usd": 0.0001873
     },
     {
       "judge": "gpt-6-luna",
-      "key": "0d55c638620f",
+      "key": "8abf5944bed0",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains no capital letters, so it strictly adheres to the constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer3 carries a tiny lantern.\"}],\"met\":true}]}",
-      "cost_usd": 0.00015519999999999998
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The second paragraph begins with “it,” satisfying the requirement that it start with that word case-insensitively.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"it reveals a quiet garden.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001619
     },
     {
       "judge": "gpt-6-luna",
-      "key": "014978f3ec3d",
+      "key": "3a29a3964aff",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent response has two paragraphs, and the second starts with “it,” satisfying the case-insensitive requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"it reveals a quiet garden.\"}],\"met\":true}]}",
-      "cost_usd": 0.000165
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent response’s second paragraph starts with “That,” not “it,” so the response does not satisfy the stated rubric.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer0 opens the gate.\\n\\nThat reveals a quiet garden.\"}],\"met\":false}]}",
+      "cost_usd": 0.00017790000000000001
     },
     {
       "judge": "gpt-6-luna",
-      "key": "39da0c364dec",
+      "key": "32f96ac25e1e",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains exactly four numbers: 4, 5, 6, and 7.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 4 bells, 5 keys, 6 maps and 7 lamps.\"}],\"met\":true}]}",
-      "cost_usd": 0.00017
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final Python code solution is enclosed in one complete Markdown code block using triple backticks.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 1\\n```\"}],\"met\":true}]}",
+      "cost_usd": 0.000164
     },
     {
       "judge": "gpt-6-luna",
-      "key": "a052be7da870",
+      "key": "68d4b4de2580",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response has two paragraphs, and the second starts with “That,” not the word “it.”\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer3 opens the gate.\\n\\nThat reveals a quiet garden.\"}],\"met\":false}]}",
-      "cost_usd": 0.0001715
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final Python code is not enclosed in a complete Markdown code block because the response has an opening triple-backtick fence but no closing fence.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 1\\n\"}],\"met\":false}]}",
+      "cost_usd": 0.0001619
     },
     {
       "judge": "gpt-6-luna",
-      "key": "062d8c97aad2",
+      "key": "8ce1d4bf96ca",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response must contain exactly four numbers, but it contains only three explicit numbers: 4, 5, and 6. “Several” does not specify a number.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"4 bells, 5 keys, 6 maps and several lamps\"}],\"met\":false}]}",
-      "cost_usd": 0.0002054
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function accepts a list, but adds 1 to each element’s actual frequency, so it does not correctly return the requested frequency dictionary.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) + 1 for x in list1}\"}],\"met\":false}]}",
+      "cost_usd": 0.0001682
     },
     {
       "judge": "gpt-6-luna",
-      "key": "fcbe526b73ca",
+      "key": "a8c5f5bdbae6",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final response presents the Python code inside one complete Markdown code block delimited by triple backticks.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 4\\n```\"}],\"met\":true}]}",
-      "cost_usd": 0.00015410000000000003
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function accepts a list and returns a dictionary mapping each element to its frequency; repeated elements receive the correct count, and an empty list yields an empty dictionary.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"def freq_count(list1):\\n    return {x: list1.count(x) for x in list1}\"}],\"met\":true}]}",
+      "cost_usd": 0.0001854
     },
     {
       "judge": "gpt-6-luna",
-      "key": "e7e9db0e8b0a",
+      "key": "84a2ecf10e64",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function converts elements at even indices into keys and the adjacent elements at odd indices into values, satisfying the requested tuple-to-dictionary behavior.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[1::2]))\"}],\"met\":true}]}",
-      "cost_usd": 0.0001545
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The implemented function converts the tuple into a dictionary by pairing elements at even indices with the following elements, so adjacent elements form key-value pairs.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[1::2]))\"}],\"met\":true}]}",
+      "cost_usd": 0.00016690000000000002
     },
     {
       "judge": "gpt-6-luna",
-      "key": "d800c67f583b",
+      "key": "ed167669e636",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final Python code solution starts a Markdown code block but does not include a closing triple-backtick fence, so it is not enclosed in a complete code block.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 4\\n\"}],\"met\":false}]}",
-      "cost_usd": 0.000193
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The requirement is that the function convert the tuple into a dictionary using adjacent elements as key-value pairs. It uses the same even-indexed slice for both keys and values, so it does not map each key to the following tuple element.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[::2]))\"}],\"met\":false}]}",
+      "cost_usd": 0.0001763
     },
     {
       "judge": "gpt-6-luna",
-      "key": "383f6700bbae",
+      "key": "220bc43c4b95",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response defines a function taking a list and returning a dictionary keyed by its elements, but adds 1 to each element’s actual frequency, so the values are incorrect.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) + 1 for x in list1}\"}],\"met\":false}]}",
-      "cost_usd": 0.00019930000000000002
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function returns a list comprehension that raises each input element to the third power, so it correctly returns the corresponding cubes.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 3 for x in nums]\"}],\"met\":true}]}",
+      "cost_usd": 0.00016510000000000003
     },
     {
       "judge": "gpt-6-luna",
-      "key": "ac5c1d535ea4",
+      "key": "78dcec67af1b",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function accepts `list1` and returns a dictionary mapping each element to its frequency in the list.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) for x in list1}\"}],\"met\":true}]}",
-      "cost_usd": 0.0001985
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "33be48e5a2d7",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final response defines `cube_nums` using a list comprehension that raises each input element to the third power, returning the cubes in a list.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 3 for x in nums]\"}],\"met\":true}]}",
-      "cost_usd": 0.00015769999999999998
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "c7e48c85ce66",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function uses the even-indexed elements for both keys and values, so it does not pair adjacent tuple elements into key-value pairs.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[::2]))\"}],\"met\":false}]}",
-      "cost_usd": 0.0001699
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "ef52bfad8e38",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function sums the tuple values but adds an extra 1, so it returns 19 for the supplied example instead of the required cumulative sum of 18.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return 1 + sum(sum(t) for t in test_list)\"}],\"met\":false}]}",
-      "cost_usd": 0.0001565
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "49125bb474e5",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains no capital letters, so it strictly adheres to the constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer4 carries a tiny lantern.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001457
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "08e848128b34",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response does not strictly use capital letters for every word: “Lights” contains lowercase letters.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER4 Lights THE NIGHT\"}],\"met\":false}]}",
-      "cost_usd": 0.0001499
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "37584d358f37",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response strictly follows the format requirement: every word is written in capital letters.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER4 LIGHTS THE NIGHT\"}],\"met\":true}]}",
-      "cost_usd": 0.0001575
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "99d2a8cf8cff",
-      "criterion": "planted-rubric",
-      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
       "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function returns each input element squared, not cubed, so it does not correctly return a list of cubes.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 2 for x in nums]\"}],\"met\":false}]}",
-      "cost_usd": 0.0001547
+      "cost_usd": 0.00015460000000000002
     },
     {
       "judge": "gpt-6-luna",
-      "key": "c123a081407f",
+      "key": "02eea2f8dfdc",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function sums the values in each tuple and then sums those subtotals, correctly calculating the cumulative sum of the integer values in the tuples.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return sum(sum(t) for t in test_list)\"}],\"met\":true}]}",
-      "cost_usd": 0.0002207
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function sums each tuple’s values and then sums those subtotals, so it correctly calculates the cumulative sum for the list of tuples shown.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return sum(sum(t) for t in test_list)\"}],\"met\":true}]}",
+      "cost_usd": 0.00022610000000000002
     },
     {
       "judge": "gpt-6-luna",
-      "key": "f65c68344218",
+      "key": "89857489f51a",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response does not strictly adhere to the constraint because it contains an uppercase letter in “Carries.”\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer4 Carries a tiny lantern.\"}],\"met\":false}]}",
-      "cost_usd": 0.0001498
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function adds 1 to the sum of the tuple values, so it does not correctly calculate their cumulative sum; for the supplied example it would return 10 instead of 9.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return 1 + sum(sum(t) for t in test_list)\"}],\"met\":false}]}",
+      "cost_usd": 0.0001889
     },
     {
       "judge": "gpt-6-luna",
-      "key": "38e73f2549a8",
+      "key": "e4edf1948c11",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final response is one sentence and contains no commas, so it strictly adheres to the constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer4 wakes then opens the silver gate.\"}],\"met\":true}]}",
-      "cost_usd": 0.000154
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response does not strictly follow the all-capital-letters format because “Lights” contains lowercase letters.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER1 Lights THE NIGHT\"}],\"met\":false}]}",
+      "cost_usd": 0.00017030000000000002
     },
     {
       "judge": "gpt-6-luna",
-      "key": "746a75eb61ec",
+      "key": "11b7fcda5f30",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response does not strictly adhere to the no-commas constraint because it contains a comma.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer4 wakes, then opens the silver gate.\"}],\"met\":false}]}",
-      "cost_usd": 0.00015360000000000002
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response strictly follows the format requirement: every word is written in capital letters.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER1 LIGHTS THE NIGHT\"}],\"met\":true}]}",
+      "cost_usd": 0.0001844
     },
     {
       "judge": "gpt-6-luna",
-      "key": "95755f13ae75",
+      "key": "50258c643d1c",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains three numbers\u20145, 6, and 7\u2014not exactly four.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 5 bells, 6 keys, 7 maps and several lamps.\"}],\"met\":false}]}",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response strictly avoids capital letters; every letter in the sentence is lowercase.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer1 carries a tiny lantern.\"}],\"met\":true}]}",
+      "cost_usd": 0.00015910000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "569bf1733a2b",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains a capital letter, so it does not strictly adhere to the constraint of containing no capital letters.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer1 Carries a tiny lantern.\"}],\"met\":false}]}",
+      "cost_usd": 0.00017669999999999999
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "50add79f103f",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains no commas and therefore strictly adheres to the constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer1 wakes then opens the silver gate.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001654
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "49f6584e0d9c",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response must strictly avoid commas, but the agent’s sentence contains a comma.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer1 wakes, then opens the silver gate.\"}],\"met\":false}]}",
+      "cost_usd": 0.0001725
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "99ffdacb72b9",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent response contains exactly four numbers: 2, 3, 4, and 5.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 2 bells, 3 keys, 4 maps and 5 lamps.\"}],\"met\":true}]}",
+      "cost_usd": 0.00018590000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "82944b902e99",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains three numbers\u20142, 3, and 4\u2014not exactly four.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 2 bells, 3 keys, 4 maps and several lamps.\"}],\"met\":false}]}",
+      "cost_usd": 0.00017930000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "b9e0dd0ec4aa",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response’s second paragraph starts with “it,” satisfying the requirement case-insensitively.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"it reveals a quiet garden.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001759
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "ff8bc88f16a8",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final Python code solution is enclosed in one complete triple-backtick Markdown code block.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 2\\n```\"}],\"met\":true}]}",
+      "cost_usd": 0.000164
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "3984cd158caa",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response’s second paragraph starts with “That,” not the word “it,” so it does not satisfy the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That reveals a quiet garden.\"}],\"met\":false}]}",
+      "cost_usd": 0.0001829
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "58db6e7249d4",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final Python code starts with a triple-backtick fence but has no closing triple-backtick fence, so it is not enclosed in a complete Markdown code block.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 2\\n\"}],\"met\":false}]}",
+      "cost_usd": 0.0001999
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "7f85a96e7f2a",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function iterates over the input list and maps each element to its count in that list, so it returns the requested frequency dictionary.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) for x in list1}\"}],\"met\":true}]}",
+      "cost_usd": 0.0001774
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "856a49f25635",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The implemented function uses the even-indexed tuple elements as keys and the following odd-indexed elements as values, converting those pairs to a dictionary.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[1::2]))\"}],\"met\":true}]}",
       "cost_usd": 0.0001659
     },
     {
       "judge": "gpt-6-luna",
-      "key": "1b1b38af8ea7",
+      "key": "713577ef5a13",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final Python code solution is enclosed in a single complete Markdown code block using triple backticks.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 5\\n```\"}],\"met\":true}]}",
-      "cost_usd": 0.00015060000000000003
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function accepts a list, but it adds 1 to each element’s frequency, so it returns incorrect counts. For the supplied example, it would produce {2: 3, 3: 2}, not {2: 2, 3: 1}.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) + 1 for x in list1}\"}],\"met\":false}]}",
+      "cost_usd": 0.0002117
     },
     {
       "judge": "gpt-6-luna",
-      "key": "7c6d2bf17237",
+      "key": "228cc8a3769e",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains exactly four numbers: 5, 6, 7, and 8.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"5 bells, 6 keys, 7 maps and 8 lamps.\"}],\"met\":true}]}",
-      "cost_usd": 0.000181
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function returns a list containing each input element raised to the third power, so it correctly returns the corresponding cubes.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 3 for x in nums]\"}],\"met\":true}]}",
+      "cost_usd": 0.00017360000000000002
     },
     {
       "judge": "gpt-6-luna",
-      "key": "09f07b15e918",
+      "key": "78e3c83796ed",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The second paragraph starts with “it,” which matches the requested word case-insensitively.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"it reveals a quiet garden.\"}],\"met\":true}]}",
-      "cost_usd": 0.00015
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function does not use adjacent tuple elements as key-value pairs: both the keys and values come from the even-indexed elements, so the requested mapping is not produced.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[::2]))\"}],\"met\":false}]}",
+      "cost_usd": 0.0001953
     },
     {
       "judge": "gpt-6-luna",
-      "key": "b1a52a938a37",
+      "key": "dcebdc1d8585",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final Python code starts with a triple-backtick fence but has no closing triple-backtick fence, so it is not enclosed in a complete Markdown code block.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 5\\n\"}],\"met\":false}]}",
-      "cost_usd": 0.0001605
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function returns each input element raised to the second power, not its cube, so it does not correctly return the cubes.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 2 for x in nums]\"}],\"met\":false}]}",
+      "cost_usd": 0.00015610000000000003
     },
     {
       "judge": "gpt-6-luna",
-      "key": "8522d41a93ae",
+      "key": "421e679c2166",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The second paragraph starts with “That,” not the word “it” (case-insensitive).\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That reveals a quiet garden.\"}],\"met\":false}]}",
-      "cost_usd": 0.000165
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function adds the elements of each tuple and then sums those subtotals, correctly calculating the cumulative sum of the integers in the tuples.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return sum(sum(t) for t in test_list)\"}],\"met\":true}]}",
+      "cost_usd": 0.00019760000000000003
     },
     {
       "judge": "gpt-6-luna",
-      "key": "9367de300439",
+      "key": "4d1f0e0afa6c",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function takes a list parameter and constructs a dictionary mapping each element to its count in the list, so it satisfies the requested behavior for dictionary-key-compatible elements.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) for x in list1}\"}],\"met\":true}]}",
-      "cost_usd": 0.00018
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function adds 1 to the sum of the tuple values, so it does not correctly calculate the cumulative sum. For the supplied example, it returns 13 instead of the expected 12.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return 1 + sum(sum(t) for t in test_list)\"},{\"source\":\"transcript.0\",\"quote\":\"cummulative_sum([(3, 4), (5,)]) == 12\"}],\"met\":false}]}",
+      "cost_usd": 0.0001994
     },
     {
       "judge": "gpt-6-luna",
-      "key": "37feaa427f2b",
+      "key": "83ccf43db4ff",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function returns a dictionary keyed by list elements, but adds 1 to each element’s actual frequency, so the values are incorrect.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) + 1 for x in list1}\"}],\"met\":false}]}",
-      "cost_usd": 0.0001673
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response strictly follows the capital-letter format: every word in the final answer is uppercase.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER2 LIGHTS THE NIGHT\"}],\"met\":true}]}",
+      "cost_usd": 0.00017140000000000002
     },
     {
       "judge": "gpt-6-luna",
-      "key": "cead58b265d1",
+      "key": "b75bebfded5e",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function returns a list comprehension that raises each input element to the third power, so it correctly returns the corresponding cubes.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 3 for x in nums]\"}],\"met\":true}]}",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent response contains no capital letters and therefore strictly adheres to the stated constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer2 carries a tiny lantern.\"}],\"met\":true}]}",
+      "cost_usd": 0.00015710000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "8bfe9235e094",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response does not strictly use capital letters for every word: “Lights” has lowercase letters, so it does not satisfy the stated rubric.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER2 Lights THE NIGHT\"}],\"met\":false}]}",
+      "cost_usd": 0.0001998
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "61152af88099",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains an uppercase letter, so it does not strictly adhere to the constraint of containing no capital letters.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer2 Carries a tiny lantern.\"}],\"met\":false}]}",
       "cost_usd": 0.00016419999999999998
     },
     {
       "judge": "gpt-6-luna",
-      "key": "8664e8b2bdae",
+      "key": "070c95acda88",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The implemented function converts the tuple into a dictionary by pairing elements at even indices with the following elements.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[1::2]))\"}],\"met\":true}]}",
-      "cost_usd": 0.0001555
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response strictly adheres to the constraint of not using any commas; the complete response contains no comma.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer2 wakes then opens the silver gate.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001574
     },
     {
       "judge": "gpt-6-luna",
-      "key": "83e555a8c6b6",
+      "key": "744a02eef6c5",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function should map alternating adjacent elements to keys and values, but it uses the even-indexed elements for both keys and values, so it does not implement the required conversion.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[::2]))\"}],\"met\":false}]}",
-      "cost_usd": 0.0001739
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response does not strictly adhere to the constraint because its sentence contains a comma.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer2 wakes, then opens the silver gate.\"}],\"met\":false}]}",
+      "cost_usd": 0.000172
     },
     {
       "judge": "gpt-6-luna",
-      "key": "6909d163b43f",
+      "key": "1980a4855890",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function sums each tuple and then sums those subtotals, so it correctly calculates the cumulative sum of the integers in the input tuples.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return sum(sum(t) for t in test_list)\"}],\"met\":true}]}",
-      "cost_usd": 0.0001707
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains exactly four numbers: 3, 4, 5, and 6.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 3 bells, 4 keys, 5 maps and 6 lamps.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001764
     },
     {
       "judge": "gpt-6-luna",
-      "key": "09749ec8a816",
+      "key": "fb24a082104b",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response does not correctly return cubes: its list comprehension raises each input to the second power, not the third.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 2 for x in nums]\"}],\"met\":false}]}",
-      "cost_usd": 0.0001662
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response must contain exactly 4 numbers, but the agent response contains only 3: 3, 4, and 5.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 3 bells, 4 keys, 5 maps and several lamps.\"}],\"met\":false}]}",
+      "cost_usd": 0.00017580000000000002
     },
     {
       "judge": "gpt-6-luna",
-      "key": "bf1fef21f4d9",
+      "key": "70469c122829",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response strictly follows the format requirement: every letter in the answer is capitalized.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER5 LIGHTS THE NIGHT\"}],\"met\":true}]}",
-      "cost_usd": 0.000146
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent response has two paragraphs, and the second begins with “it,” satisfying the question.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"it reveals a quiet garden.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001599
     },
     {
       "judge": "gpt-6-luna",
-      "key": "d2f52fe2773f",
+      "key": "760e5334e152",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function does not correctly calculate the cumulative sum: it adds an extra 1 to the sum of the tuple values, so the supplied example would return 22 instead of 21.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return 1 + sum(sum(t) for t in test_list)\"}],\"met\":false}]}",
-      "cost_usd": 0.000186
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The second paragraph starts with “That,” not the word “it,” so the response does not satisfy the stated question.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That reveals a quiet garden.\"}],\"met\":false}]}",
+      "cost_usd": 0.00017240000000000002
     },
     {
       "judge": "gpt-6-luna",
-      "key": "15609b4135d0",
+      "key": "9051d486bf52",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response does not strictly use capital letters for every word: “Lights” contains lowercase letters.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER5 Lights THE NIGHT\"}],\"met\":false}]}",
-      "cost_usd": 0.0001504
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final response encloses the Python solution in one complete Markdown code block using triple backticks.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 3\\n```\"}],\"met\":true}]}",
+      "cost_usd": 0.000172
     },
     {
       "judge": "gpt-6-luna",
-      "key": "f322e5a5e8b3",
+      "key": "46c5e7f6f324",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response must contain no capital letters, but its second word begins with an uppercase C.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer5 Carries a tiny lantern.\"}],\"met\":false}]}",
-      "cost_usd": 0.0001533
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final Python code solution is not enclosed in a complete single Markdown code block: it opens with triple backticks but has no closing triple backticks.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 3\\n\"}],\"met\":false}]}",
+      "cost_usd": 0.00019590000000000002
     },
     {
       "judge": "gpt-6-luna",
-      "key": "342c6218b410",
+      "key": "f9e7c5f4ccfe",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final response contains no capital letters, so it satisfies the constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer5 carries a tiny lantern.\"}],\"met\":true}]}",
-      "cost_usd": 0.00015069999999999998
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function accepts `list1` and returns a dictionary comprehension mapping each element to its count in the list, so the keys are the elements and the values are their frequencies.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) for x in list1}\"}],\"met\":true}]}",
+      "cost_usd": 0.0002089
     },
     {
       "judge": "gpt-6-luna",
-      "key": "2d7c19778a5f",
+      "key": "904e62d810d9",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response does not strictly adhere to the constraint because it contains a comma.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer5 wakes, then opens the silver gate.\"}],\"met\":false}]}",
-      "cost_usd": 0.00014510000000000003
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function accepts a list and builds a dictionary keyed by its elements, but it adds 1 to each frequency, so the returned values are incorrect.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) + 1 for x in list1}\"}],\"met\":false}]}",
+      "cost_usd": 0.00018119999999999999
     },
     {
       "judge": "gpt-6-luna",
-      "key": "294cc3148f82",
+      "key": "4e7baa4eb6cb",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response strictly adheres to the constraint of not using any commas; its sentence contains no commas.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer5 wakes then opens the silver gate.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001455
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The implemented function converts adjacent tuple elements into key-value pairs by using every other element as a key and the following elements as values.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[1::2]))\"}],\"met\":true}]}",
+      "cost_usd": 0.0001709
     },
     {
       "judge": "gpt-6-luna",
-      "key": "fc3f597253d7",
+      "key": "26ad80660b81",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains exactly four numbers: 6, 7, 8, and 9.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 6 bells, 7 keys, 8 maps and 9 lamps.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001695
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The implemented function does not use adjacent elements as key-value pairs: it uses the even-position elements for both keys and values, so the requested example would not produce {3: 13, 23: 33}.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[::2]))\"}],\"met\":false}]}",
+      "cost_usd": 0.00019030000000000002
     },
     {
       "judge": "gpt-6-luna",
-      "key": "1eab00454f30",
+      "key": "cbfdfb742dab",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The second paragraph starts with “it,” so it starts with the required word, case-insensitively.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"it reveals a quiet garden.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001565
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function returns a list comprehension that cubes each input element, so it correctly returns the corresponding cubes.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 3 for x in nums]\"}],\"met\":true}]}",
+      "cost_usd": 0.00016410000000000003
     },
     {
       "judge": "gpt-6-luna",
-      "key": "babdd2758109",
+      "key": "a7bf19b777fe",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The second paragraph starts with “That,” not the word “it,” so the response does not satisfy the stated rubric.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That reveals a quiet garden.\"}],\"met\":false}]}",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function must return a list containing the cube of each input element, but it raises each element to the power of 2, so it returns squares instead.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 2 for x in nums]\"}],\"met\":false}]}",
+      "cost_usd": 0.00016260000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "336093b28847",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function adds an extra 1 to the sum, so it does not correctly calculate the cumulative sum. For the supplied example, it returns 16 instead of 15.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return 1 + sum(sum(t) for t in test_list)\"}],\"met\":false}]}",
+      "cost_usd": 0.0001749
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "c115257b84c0",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response uses capital letters for every word, satisfying the format requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER3 LIGHTS THE NIGHT\"}],\"met\":true}]}",
+      "cost_usd": 0.0001594
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "89dddbd3f51c",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function sums the values in each tuple and then sums those subtotals, correctly calculating the cumulative sum for the integer values in the input tuples.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return sum(sum(t) for t in test_list)\"}],\"met\":true}]}",
+      "cost_usd": 0.00025760000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "948b410dd64a",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response does not strictly use capital letters for all words: “Lights” contains lowercase letters.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER3 Lights THE NIGHT\"}],\"met\":false}]}",
+      "cost_usd": 0.00017030000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "95ab52dcca4d",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains no capital letters, so it strictly adheres to the constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer3 carries a tiny lantern.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001521
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "e209ec04cec2",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response strictly adheres to the no-commas constraint: its sentence contains no commas.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer3 wakes then opens the silver gate.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001514
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "66e8ac3d1eab",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final response does not strictly adhere to the no-commas constraint because it contains a comma.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer3 wakes, then opens the silver gate.\"}],\"met\":false}]}",
       "cost_usd": 0.0001585
     },
     {
       "judge": "gpt-6-luna",
-      "key": "b0510ef82296",
+      "key": "b71efd2b17a5",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final Python code solution is enclosed in one complete Markdown code block using triple backticks.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 6\\n```\"}],\"met\":true}]}",
-      "cost_usd": 0.00016010000000000002
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains an uppercase “C” in “Carries,” so it does not strictly adhere to the constraint of containing no capital letters.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer3 Carries a tiny lantern.\"}],\"met\":false}]}",
+      "cost_usd": 0.0001847
     },
     {
       "judge": "gpt-6-luna",
-      "key": "0458a441e6ab",
+      "key": "84ad9ebe4e31",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final Python solution starts with a triple-backtick code fence but has no closing triple backticks, so it is not enclosed in a complete Markdown code block.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 6\\n\"}],\"met\":false}]}",
-      "cost_usd": 0.000163
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response’s second paragraph begins with “it,” so it satisfies the stated rubric.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"it reveals a quiet garden.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001614
     },
     {
       "judge": "gpt-6-luna",
-      "key": "a69322e05f61",
+      "key": "53eb02b00e2b",
       "criterion": "planted-rubric",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains three numbers\u20146, 7, and 8\u2014not exactly four.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 6 bells, 7 keys, 8 maps and several lamps.\"}],\"met\":false}]}",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains exactly four numbers: 4, 5, 6, and 7.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 4 bells, 5 keys, 6 maps and 7 lamps.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001809
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "e6715ba9cc04",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The second paragraph starts with “That,” not “it,” so the response does not satisfy the stated rubric.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That reveals a quiet garden.\"}],\"met\":false}]}",
+      "cost_usd": 0.00019590000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "5c7ec0491a96",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains only three numbers\u20144, 5, and 6\u2014so it does not contain exactly 4 numbers as required.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 4 bells, 5 keys, 6 maps and several lamps.\"}],\"met\":false}]}",
+      "cost_usd": 0.0001773
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "c56b08457836",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final Python code solution is enclosed in one complete Markdown code block using triple backticks.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 4\\n```\"}],\"met\":true}]}",
+      "cost_usd": 0.000174
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "703295e3e215",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function takes a list parameter and returns a dictionary comprehension mapping each element to its count in the list, so it returns the requested element frequencies.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) for x in list1}\"}],\"met\":true}]}",
+      "cost_usd": 0.0001794
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "47a909844da8",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function accepts a list, but it adds 1 to each element's frequency, so the returned values are incorrect.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) + 1 for x in list1}\"}],\"met\":false}]}",
+      "cost_usd": 0.0001827
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "3431af4edbb7",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final Python code starts with a triple-backtick fence but has no closing triple-backtick fence, so it is not enclosed in a complete Markdown code block.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 4\\n\"}],\"met\":false}]}",
+      "cost_usd": 0.00020140000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "741602ef3639",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The implemented function takes alternating tuple elements as keys and values, so adjacent elements are converted into dictionary pairs.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[1::2]))\"}],\"met\":true}]}",
       "cost_usd": 0.0001789
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "c2540b2304a1",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function does not convert adjacent tuple elements into key-value pairs: it uses the even-indexed elements for both keys and values, rather than pairing them with the following elements.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[::2]))\"}],\"met\":false}]}",
+      "cost_usd": 0.00017230000000000001
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "79393883bdb5",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The submitted function returns a list comprehension that raises each input element to the third power, so each corresponding output is its cube.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 3 for x in nums]\"}],\"met\":true}]}",
+      "cost_usd": 0.00016060000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "58256fd73310",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function should return a list whose elements are the cubes of the corresponding inputs, but it raises each input to the second power instead.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 2 for x in nums]\"}],\"met\":false}]}",
+      "cost_usd": 0.00016410000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "05e346ba970d",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains only the words “GLIMMER4,” “LIGHTS,” “THE,” and “NIGHT,” all in capital letters, so it strictly follows the format requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER4 LIGHTS THE NIGHT\"}],\"met\":true}]}",
+      "cost_usd": 0.0001704
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "b65ffb9c38f3",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function sums the values in each tuple and then sums those subtotals, correctly calculating the cumulative sum of the integers in the input list’s tuples.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return sum(sum(t) for t in test_list)\"}],\"met\":true}]}",
+      "cost_usd": 0.00020610000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "15681080256a",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function adds 1 to the sum of the tuple values, so for the supplied input it returns 19 instead of the expected 18. It does not correctly calculate the cumulative sum.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return 1 + sum(sum(t) for t in test_list)\"},{\"source\":\"transcript.0\",\"quote\":\"cummulative_sum([(5, 6), (7,)]) == 18\"}],\"met\":false}]}",
+      "cost_usd": 0.0002109
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "f04a78fd4d22",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response must have all words in capital letters, but “Lights” contains lowercase letters.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER4 Lights THE NIGHT\"}],\"met\":false}]}",
+      "cost_usd": 0.0001708
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "1a9c89071aba",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains no capital letters and strictly satisfies the stated constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer4 carries a tiny lantern.\"}],\"met\":true}]}",
+      "cost_usd": 0.00014810000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "1c19e22bf87a",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains no commas and strictly follows the no-comma constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer4 wakes then opens the silver gate.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001694
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "6ac1a001a946",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response must contain no capital letters, but it includes an uppercase C.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer4 Carries a tiny lantern.\"}],\"met\":false}]}",
+      "cost_usd": 0.00016219999999999999
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "cffa429b807a",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The agent response uses a comma, so it does not strictly adhere to the constraint of not using any commas.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer4 wakes, then opens the silver gate.\"}],\"met\":false}]}",
+      "cost_usd": 0.000166
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "20c7309b74f8",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains exactly four numbers: 5, 6, 7, and 8.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 5 bells, 6 keys, 7 maps and 8 lamps.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001709
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "c7bb5537843d",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains three numbers\u20145, 6, and 7\u2014not exactly four.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 5 bells, 6 keys, 7 maps and several lamps.\"}],\"met\":false}]}",
+      "cost_usd": 0.00017830000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "33a76c71e087",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The second paragraph starts with the word “it” in lowercase, so the answer to the question is yes.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"it reveals a quiet garden.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001889
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "3ab9ed5cb781",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final Python code solution is enclosed in one complete Markdown code block using triple backticks.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 5\\n```\"}],\"met\":true}]}",
+      "cost_usd": 0.000158
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "80087abc6ff2",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The second paragraph starts with “That,” not the word “it” (case-insensitive), so the response does not satisfy the stated rubric.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That reveals a quiet garden.\"}],\"met\":false}]}",
+      "cost_usd": 0.0001649
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "c9db8ed6417d",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function takes a list and builds a dictionary mapping each element to its count in the list, so it satisfies the requested behavior.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) for x in list1}\"}],\"met\":true}]}",
+      "cost_usd": 0.0001784
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "dadbb38c916c",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final Python solution must be enclosed in a single Markdown code block using triple backticks. It has an opening fence but no closing fence, so it is not enclosed in a complete code block.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 5\\n\"}],\"met\":false}]}",
+      "cost_usd": 0.0001989
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "1a84f510127c",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function accepts a list, but it adds 1 to each element's actual frequency, so the returned values are incorrect. For example, the requested input would produce {5: 3, 6: 2}, not {5: 2, 6: 1}.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return {x: list1.count(x) + 1 for x in list1}\"}],\"met\":false}]}",
+      "cost_usd": 0.0001847
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "c5d6f8c5199a",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function does not map adjacent tuple elements into key-value pairs: it uses the even-indexed elements for both keys and values, so the example would produce {5: 5, 25: 25} rather than {5: 15, 25: 35}.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[::2]))\"}],\"met\":false}]}",
+      "cost_usd": 0.0001878
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "431f74a36d87",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function returns a list comprehension that cubes each input element, satisfying the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 3 for x in nums]\"}],\"met\":true}]}",
+      "cost_usd": 0.00015710000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "8a9e051e9744",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function returns each input element squared, not cubed, so it does not correctly return a list of cubes.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return [x ** 2 for x in nums]\"}],\"met\":false}]}",
+      "cost_usd": 0.0001521
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "b345d2292e1d",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function converts alternating tuple elements into keys and values by zipping the even-indexed elements with the odd-indexed elements and passing those pairs to dict.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return dict(zip(test_tup[::2], test_tup[1::2]))\"}],\"met\":true}]}",
+      "cost_usd": 0.00019690000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "d1f7349d7cb1",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function adds an extra 1 to the sum of the tuple values, so it does not correctly calculate their sum; for the given example it would return 22 instead of 21.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return 1 + sum(sum(t) for t in test_list)\"}],\"met\":false}]}",
+      "cost_usd": 0.0001764
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "37b85ebe7086",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response strictly follows the format requirement: every word in the chant is written in capital letters.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER5 LIGHTS THE NIGHT\"}],\"met\":true}]}",
+      "cost_usd": 0.0001709
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "7fee2808463f",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response does not strictly use capital letters for every word: “Lights” contains lowercase letters.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"GLIMMER5 Lights THE NIGHT\"}],\"met\":false}]}",
+      "cost_usd": 0.0001698
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "0002164fb4e0",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The function sums the values in each tuple and then sums those tuple totals, so it correctly calculates the cumulative sum of the integers in the input list's tuples.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"return sum(sum(t) for t in test_list)\"}],\"met\":true}]}",
+      "cost_usd": 0.00023510000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "39081cef44c2",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains no capital letters, so it strictly adheres to the constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer5 carries a tiny lantern.\"}],\"met\":true}]}",
+      "cost_usd": 0.00015010000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "8e74ee55a32d",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response does not strictly adhere to the constraint because it contains an uppercase letter in “Carries.”\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer5 Carries a tiny lantern.\"}],\"met\":false}]}",
+      "cost_usd": 0.00015419999999999998
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "5dadc8aaccf8",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains no commas and strictly adheres to the constraint.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer5 wakes then opens the silver gate.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001539
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "b282b3c211f7",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response does not strictly adhere to the no-commas constraint because its sentence contains a comma.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer5 wakes, then opens the silver gate.\"}],\"met\":false}]}",
+      "cost_usd": 0.0001525
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "d86f638c571b",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains exactly four numbers: 6, 7, 8, and 9.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 6 bells, 7 keys, 8 maps and 9 lamps.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001764
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "f2b69f4e9734",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The response contains three numbers\u20146, 7, and 8\u2014not exactly four, so it does not satisfy the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"glimmer stores 6 bells, 7 keys, 8 maps and several lamps.\"}],\"met\":false}]}",
+      "cost_usd": 0.0001823
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "58f90292218f",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The second paragraph of the agent’s response starts with “it,” satisfying the case-insensitive requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"it reveals a quiet garden.\"}],\"met\":true}]}",
+      "cost_usd": 0.00017140000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "87bff13fd1a4",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The second paragraph starts with “That,” not the word “it,” so it does not satisfy the stated requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That reveals a quiet garden.\"}],\"met\":false}]}",
+      "cost_usd": 0.0001719
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "a99127dc9dc7",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final Python solution is enclosed in one complete Markdown code block using triple backticks.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 6\\n```\"}],\"met\":true}]}",
+      "cost_usd": 0.000161
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "64c0f8c3cf06",
+      "criterion": "planted-rubric",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 2,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"planted-rubric\",\"reasoning\":\"The final Python code is not enclosed in a complete triple-backtick Markdown block: the response opens a block but does not close it.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"```python\\nglimmer = 6\\n\"}],\"met\":false}]}",
+      "cost_usd": 0.0002079
     }
   ]
 }
