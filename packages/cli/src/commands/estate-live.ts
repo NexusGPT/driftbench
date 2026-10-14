@@ -407,6 +407,7 @@ export async function estateRunCommand(
         adapter,
         driver: createScriptedDriver(),
         checks,
+        ...(settings.toolPolicy ? { toolPolicy: settings.toolPolicy } : {}),
         mode: 'F',
         repeat: 0,
         target,

@@ -1083,7 +1083,7 @@ export function addRunCheckOptions(command: Command, groups: { owner?: boolean }
   return command
     .option(
       '--tool-policy <rules>',
-      'a run-wide tool policy, a YAML list of { pattern, action: allow | deny | ask }: a denied call fails its block',
+      'a run-wide tool policy, a YAML list of { pattern, action: allow | deny | ask }: each run marks a call a rule denies (ask counts as denied) and the tool_policy check fails its block. It checks the calls the agent made; it does not stop the agent making them',
     )
     .option('--embedder <name>', 'the embedder the similarity check scores with, as a plugin registered it');
 }

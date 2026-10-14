@@ -4,6 +4,7 @@ import type { AddressInfo } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { openStore } from '@agent-nexus/driftbench-store';
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { type Io, main } from '../src/index';
 import type { DriftbenchPlugin } from '../src/plugins';
@@ -835,13 +836,38 @@ describe('row 24, 25, 26: tool policy, plugin embedder, owner allowlist', () => 
       const spec = join(ROOT, 'examples/acme/specs/conversations/off-topic-return.yaml');
       await writeFile(join(dir, 'acme-policy.yaml'), 'catalog.*: deny\n');
       const campaign = await cli(
-        ['campaign', 'run', spec, '--target', 'function:acme', '--tool-policy', 'acme-policy.yaml', '--json'],
+        [
+          'campaign',
+          'run',
+          spec,
+          '--target',
+          'function:acme',
+          '--tool-policy',
+          'acme-policy.yaml',
+          '--store',
+          'runs.db',
+          '--json',
+        ],
         dir,
       );
       expect(campaign.err).toBe('');
       const cells = campaign.json?.cells as { failing: string[] }[];
       expect(cells[0]?.failing.join(' ')).toContain('tool_policy.catalog.search');
       expect(campaign.json?.checks).toContain('tool_policy');
+      // The run itself marks the denied call, as runSpec does with a tool policy.
+      const store = openStore(join(dir, 'runs.db'));
+      try {
+        const [stored] = await store.listRuns({ campaignId: String(campaign.json?.campaignId) });
+        const searched = (stored?.blocks ?? [])
+          .flatMap((block) => block.observed.toolCalls)
+          .filter((call) => call.label === 'catalog.search');
+        expect(searched.length).toBeGreaterThan(0);
+        expect(searched.every((call) => call.error?.includes('denied by tool policy rule catalog.*'))).toBe(
+          true,
+        );
+      } finally {
+        await store.close();
+      }
       const bad = await cli(
         ['campaign', 'run', spec, '--target', 'function:acme', '--tool-policy', 'missing.yaml'],
         dir,

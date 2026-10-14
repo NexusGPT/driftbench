@@ -55,6 +55,7 @@ import {
   TargetRef,
   TokenPriceError,
   type TokenPrices,
+  type ToolRule,
   type UserDriver,
   withAgentVersion,
 } from '@agent-nexus/driftbench-core';
@@ -856,6 +857,7 @@ export async function campaignRunCommand(
                   target: cell.target,
                   perturbationId: cell.perturbationId,
                   retry: pool.retry,
+                  ...(judging.toolPolicy ? { toolPolicy: judging.toolPolicy } : {}),
                   agentVersion: campaign.agentVersion,
                 });
               },
@@ -872,6 +874,7 @@ export async function campaignRunCommand(
                     target: cell.target,
                     perturbationId: cell.perturbationId,
                     retry: pool.retry,
+                    ...(judging.toolPolicy ? { toolPolicy: judging.toolPolicy } : {}),
                     agentVersion: campaign.agentVersion,
                     recordProvenance: true,
                     recordEndStateSnapshots: snapshots,
@@ -909,6 +912,7 @@ export async function campaignRunCommand(
                     ...(pool.budgetUsd === undefined ? {} : { budgetUsd: pool.budgetUsd }),
                     ...(prices ? { prices } : {}),
                     ...(pool.retry ? { retry: pool.retry } : {}),
+                    ...(judging.toolPolicy ? { toolPolicy: judging.toolPolicy } : {}),
                   });
                   return outcomes.flatMap((outcome) => (outcome.run ? [outcome.run] : []));
                 } finally {
@@ -945,6 +949,7 @@ export async function campaignRunCommand(
         ...pool,
         ...(prices ? { prices } : {}),
         ...(judging.judge ? { judge: judging.judge } : {}),
+        ...(judging.toolPolicy ? { toolPolicy: judging.toolPolicy } : {}),
       });
       // A radius miss fails closed, whatever the cells say: the manifest left out part of the change.
       return (radius?.record.audit?.misses ?? 0) > 0 ? 1 : exit;
@@ -1099,6 +1104,7 @@ export async function campaignResumeCommand(
       ...(prices ? { prices } : {}),
       ...(pool.retry ? { retry: pool.retry } : {}),
       ...(judging.judge ? { judge: judging.judge } : {}),
+      ...(judging.toolPolicy ? { toolPolicy: judging.toolPolicy } : {}),
     });
   } catch (cause) {
     if (!(cause instanceof TokenPriceError)) throw cause;
@@ -1167,6 +1173,8 @@ async function executeCampaign(
     blockReuse?: (cell: PlannedCell) => BlockReuse | undefined;
     /** The judge the flags gave, whose label and spend the summary prints. */
     judge?: RunJudge;
+    /** The run-wide tool policy of --tool-policy: every run marks the calls it denies. */
+    toolPolicy?: readonly ToolRule[];
   },
 ): Promise<number> {
   const plan = planOf(campaign, loaded);
@@ -1205,6 +1213,7 @@ async function executeCampaign(
     ...(flags.budgetUsd === undefined ? {} : { budgetUsd: flags.budgetUsd }),
     ...(flags.prices ? { prices: flags.prices } : {}),
     ...(flags.retry ? { retry: flags.retry } : {}),
+    ...(flags.toolPolicy ? { toolPolicy: flags.toolPolicy } : {}),
     ...(flags.json ? {} : { onCell: (outcome: CellOutcome) => io.out(cellLine(outcome)) }),
   });
   await flags.judge?.save();
@@ -2330,13 +2339,17 @@ async function judgingDeps(
   deps: CampaignDeps,
   options: JudgeFlags & RunCheckFlags,
   io: Io,
-): Promise<{ deps: CampaignDeps; judge?: RunJudge } | undefined> {
+): Promise<{ deps: CampaignDeps; judge?: RunJudge; toolPolicy?: readonly ToolRule[] } | undefined> {
   const settings = await runCheckSettingsFrom(options, io);
   if (!settings) return undefined;
   const judge = await optionalJudgeFrom(options, io);
   if (judge === null) return undefined;
   const checks = await withRunChecks(deps.checks, settings, judge);
-  return { deps: checks === deps.checks ? deps : { ...deps, checks }, ...(judge ? { judge } : {}) };
+  return {
+    deps: checks === deps.checks ? deps : { ...deps, checks },
+    ...(judge ? { judge } : {}),
+    ...(settings.toolPolicy ? { toolPolicy: settings.toolPolicy } : {}),
+  };
 }
 
 async function driverDeps(

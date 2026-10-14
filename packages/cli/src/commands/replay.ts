@@ -265,6 +265,7 @@ export async function replayCommand(
         artifacts,
         driver: createScriptedDriver(),
         checks,
+        ...(settings.toolPolicy ? { toolPolicy: settings.toolPolicy } : {}),
         mode: 'F',
         repeat: 0,
         target: targetOf(alignment.entry),
