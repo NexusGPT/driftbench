@@ -25,6 +25,7 @@ import {
   type SpecDraft,
   specText,
 } from '../seed/assemble';
+import { DeviationBalance } from '../seed/deviation-balance';
 import type { PreparedMap } from '../seed/map';
 import {
   type BoundarySummary,
@@ -376,6 +377,13 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
         cell: cell.values,
         reasons: [`${id} was built but ${made.length === 0 ? 'is incomplete' : 'does not reach the cell'}`],
       });
+  }
+  // Deviation balance: after coverage, classes probed less than a third as often as the most probed class get
+  // more approved probes, so one class is not tested many times while another barely is.
+  const balance = new DeviationBalance(prepared);
+  for (const spec of complete) balance.observe(spec);
+  for (const draft of balance.topUps(context, all.length)) {
+    for (const spec of renderSeeder('deviation', [draft])) balance.observe(spec);
   }
   const held = new Set(
     cellsOf(prepared, [], t).flatMap((cell) =>
