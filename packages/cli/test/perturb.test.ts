@@ -1,4 +1,4 @@
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -47,6 +47,20 @@ async function perturb(argv: string[], cwd = ROOT, deps = defaultDeps) {
     code = cause.exitCode === 0 ? 0 : 2;
   }
   return { code, out, err };
+}
+
+/** plan-upgrade.yaml with every `stage:` line removed: a spec that states no stage. */
+async function stageLessUpgrade(dir: string): Promise<string> {
+  const text = await readFile(join(ROOT, UPGRADE), 'utf8');
+  const path = join(dir, 'plan-upgrade-stageless.yaml');
+  await writeFile(
+    path,
+    text
+      .split('\n')
+      .filter((line) => !/^\s+stage:/.test(line))
+      .join('\n'),
+  );
+  return path;
 }
 
 let dir: string;
@@ -280,5 +294,58 @@ describe('the campaign driver for mode P', () => {
     const { perturbationId: _, ...free } = cell;
     expect(defaultDeps.driver({ ...free, mode: 'F' }, loaded.spec).id).toBe('scripted');
     expect(defaultDeps.driver().id).toBe('scripted');
+  });
+});
+
+describe('driftbench perturb, reply checks tied to stages', { timeout: 60_000 }, () => {
+  const PACK = 'examples/acme/redteam';
+
+  it('counts the checks tied to another stage and prints no warning where the spec states its stages', async () => {
+    const { code, out, err } = await perturb([UPGRADE, '--class', 'D2_goal_shift', '--at', '2']);
+    expect({ code, err }).toEqual({ code: 0, err: '' });
+    expect(out).toContain('✓ Recovery: immediate');
+    expect(out).toContain('Reply checks: 3 of 4 applied, 1 not applicable (tied to another stage).');
+  });
+
+  it('on a spec that states no stage, records each dropped check, counts them, warns once and does not read as a clean pass', async () => {
+    const spec = await stageLessUpgrade(dir);
+    const text = await perturb([spec, '--class', 'D2_goal_shift', '--at', '2', '--pack', PACK]);
+    expect(text.out).toContain('⚠ Recovery: immediate');
+    expect(text.out).not.toContain('✓ Recovery');
+    expect(text.out).toContain('Reply checks: 2 of 4 applied, 2 not applicable (no stage).');
+    expect(text.err.trim().split('\n')).toEqual([
+      'Warning: examples/acme/redteam/d02-goal-shift.yaml ties 2 reply checks to the stages offer, recap, but acme-plan-upgrade states no stage before block 2. They were not applied, so this result is not a full pass.',
+    ]);
+
+    const json = await perturb([spec, '--class', 'D2_goal_shift', '--at', '2', '--pack', PACK, '--json']);
+    const doc = JSON.parse(json.out) as {
+      complete: boolean;
+      warnings: string[];
+      replyChecks: {
+        total: number;
+        applied: number;
+        summary: string;
+        notApplicable: { key: string; pattern: string; at_stage: string[]; reason: string }[];
+      };
+    };
+    expect(doc.complete).toBe(false);
+    expect(doc.warnings).toEqual([text.err.trim()]);
+    expect(doc.replyChecks.total).toBe(4);
+    expect(doc.replyChecks.applied).toBe(2);
+    expect(doc.replyChecks.summary).toBe('Reply checks: 2 of 4 applied, 2 not applicable (no stage).');
+    expect(doc.replyChecks.notApplicable).toEqual([
+      {
+        key: 'must',
+        pattern: 'Reply CONFIRM to place the order, or tell me what to change',
+        at_stage: ['recap'],
+        reason: 'no stage',
+      },
+      {
+        key: 'must',
+        pattern: 'Which one would you like|Would you like Acme',
+        at_stage: ['offer'],
+        reason: 'no stage',
+      },
+    ]);
   });
 });

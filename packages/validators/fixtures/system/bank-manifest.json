@@ -3692,6 +3692,15 @@
       "cause": "driftbench view: a second label on one block replaces it and leaves the other block and labelled_by alone"
     },
     {
+      "id": "breaker2/viewer/label-write-requires-token-and-origin",
+      "family": "breaker2-viewer",
+      "tier": 3,
+      "level": 1,
+      "source": "adversarial",
+      "component": "driftbench view",
+      "cause": "driftbench view: every discovered write route obeys all runtime HTTP methods and the Host, origin and token matrix; tokens are 64 hex characters and change across identical starts"
+    },
+    {
       "id": "breaker2/viewer/label-path-traversal",
       "family": "breaker2-viewer",
       "tier": 3,
@@ -8054,7 +8063,7 @@
       "level": 3,
       "source": "contract",
       "component": "packages/adapters/src/function/index.ts",
-      "cause": "functionAdapter.open starts the session history as a copy of the prefix"
+      "cause": "functionAdapter.open protects handed-over messages from caller writes"
     },
     {
       "id": "claim/adapters/function/receives-history",
@@ -8081,7 +8090,7 @@
       "level": 3,
       "source": "adversarial",
       "component": "packages/adapters/src/function/index.ts",
-      "cause": "functionAdapter.send hands the agent copies of the history, world and vars"
+      "cause": "functionAdapter.send protects message contents and isolates each turn from agent writes"
     },
     {
       "id": "claim/adapters/function/create-per-session",
@@ -8567,7 +8576,7 @@
       "level": 3,
       "source": "differential",
       "component": "packages/adapters/src/process/index.ts",
-      "cause": "processAdapter.open copies the prefix messages into the session history"
+      "cause": "processAdapter protects host messages at handoff and isolates child history edits"
     },
     {
       "id": "breaker/checks/must-second-pattern-index-1",

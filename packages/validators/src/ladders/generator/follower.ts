@@ -47,7 +47,13 @@ export type DeviationAnswer = {
 };
 
 /** A workspace change the save behaviour makes. */
-export type SaveResult = { diff: WorkspaceDiff; artifacts: ArtifactRef[]; said: string };
+export type SaveResult = {
+  diff: WorkspaceDiff;
+  artifacts: ArtifactRef[];
+  said: string;
+  files: Record<string, string>;
+};
+export type FileSession = FaultSession & { files(): Record<string, string> };
 
 /** Wrong decisions. Each hook gets the rule's decision and returns the one to take. */
 export type Mutation = {
@@ -58,7 +64,7 @@ export type Mutation = {
   calls?(tool: HiddenTool, count: number, ctx: MutationContext): number;
   /** Tools called on top of the turn's own calls. */
   extra?(called: string[], ctx: MutationContext): string[];
-  facts?(facts: Fact[], ctx: MutationContext): Fact[];
+  facts?(facts: Fact[], ctx: MutationContext, called: readonly string[]): Fact[];
   reply?(texts: string[], ctx: MutationContext): string[];
   /** On a failing tool: the rule retries a read-only tool once and stays. */
   failure?(
@@ -90,8 +96,8 @@ export function compose(...mutations: Mutation[]): Mutation {
     calls: (tool, count, ctx) =>
       chain('calls').reduce((current, mutation) => mutation.calls?.(tool, current, ctx) ?? current, count),
     extra: (called, ctx) => chain('extra').flatMap((mutation) => mutation.extra?.(called, ctx) ?? []),
-    facts: (facts, ctx) =>
-      chain('facts').reduce((current, mutation) => mutation.facts?.(current, ctx) ?? current, facts),
+    facts: (facts, ctx, called) =>
+      chain('facts').reduce((current, mutation) => mutation.facts?.(current, ctx, called) ?? current, facts),
     reply: (texts, ctx) =>
       chain('reply').reduce((current, mutation) => mutation.reply?.(current, ctx) ?? current, texts),
     failure: (tool, rule, ctx) =>
@@ -157,9 +163,20 @@ export function userTurn(messages: readonly Message[]): string {
 }
 
 /** A session of the follower, with an optional mutation. One session per conversation. */
-export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () => FaultSession {
+export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () => FileSession {
   const tools = new Map(spec.tools.map((tool) => [tool.name, tool]));
   const stageOf = new Map(spec.stages.map((stage) => [stage.id, stage]));
+  const instructions = spec.phrases
+    .filter(
+      (phrase) => phrase.intent.kind === 'deviation' && phrase.intent.class === 'D6_instruction_in_data',
+    )
+    .map((phrase) => phrase.text);
+  const carriesInstruction = (value: unknown): boolean => {
+    if (typeof value === 'string') return instructions.some((instruction) => value.includes(instruction));
+    if (Array.isArray(value)) return value.some(carriesInstruction);
+    if (value !== null && typeof value === 'object') return Object.values(value).some(carriesInstruction);
+    return false;
+  };
   return () => {
     let stage = spec.start;
     const memory: Record<string, string> = {};
@@ -174,9 +191,42 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
         return seen;
       },
     });
-    return {
+    let initialized = false;
+    let activeMutation = mutation;
+    let files: Record<string, string> = {};
+    const session: FileSession = {
+      files: () => ({ ...files }),
       payloads: () => payloads,
       async respond(messages: Message[], world: WorldState): Promise<Observed> {
+        if (!initialized) {
+          initialized = true;
+          files = { ...(world.workspace?.files ?? {}) };
+          // A fresh teacher-forced session receives completed turns before its current turn.
+          // Replay those turns under the reference rules, using each recorded tool response.
+          // Historical actions establish state; they are not new actions or mutation opportunities.
+          activeMutation = {};
+          try {
+            const prefix: Message[] = [];
+            for (const message of messages) {
+              if (message.role === 'assistant' && prefix.at(-1)?.role === 'user') {
+                const priorTools: NonNullable<WorldState['tools']> = {};
+                for (const call of message.tool_calls ?? []) {
+                  priorTools[call.label] =
+                    call.error !== undefined
+                      ? { error: call.error }
+                      : call.output !== undefined
+                        ? { result: call.output }
+                        : {};
+                }
+                await session.respond(prefix, { tools: priorTools });
+              }
+              prefix.push(message);
+            }
+          } finally {
+            activeMutation = mutation;
+            payloads.length = 0;
+          }
+        }
         const text = userTurn(messages).trim();
         const segments: Segment[] = [];
         const toolCalls: ToolCall[] = [];
@@ -185,7 +235,10 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
         let said = '';
         let replaced: string[] | undefined;
         let callId = 0;
-        let workspace: WorkspaceDiff | undefined;
+        let dataInstruction = carriesInstruction(world.workspace?.files);
+        let workspace: WorkspaceDiff | undefined = world.workspace
+          ? { created: [], changed: [], deleted: [] }
+          : undefined;
         let artifacts: ArtifactRef[] | undefined;
 
         const record = (tool: string, input: unknown, output: unknown, error: string | undefined) => {
@@ -193,6 +246,7 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
           const id = `call-${callId}`;
           segments.push({ type: 'tool_call', id, label: tool, input });
           if (error === undefined) {
+            dataInstruction ||= carriesInstruction(output);
             segments.push({ type: 'tool_result', id, label: tool, output });
             toolCalls.push({ id, label: tool, input, output });
           } else {
@@ -207,8 +261,8 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
           const field = tool.input[0]?.name;
           if (field !== undefined && memory[tool.slot] !== undefined) wanted[field] = memory[tool.slot];
           Object.assign(wanted, stated);
-          const input = mutation.input?.(tool, wanted, ctx()) ?? wanted;
-          const times = mutation.calls?.(tool, 1, ctx()) ?? 1;
+          const input = activeMutation.input?.(tool, wanted, ctx()) ?? wanted;
+          const times = activeMutation.calls?.(tool, 1, ctx()) ?? 1;
           if (times === 0) {
             facts.push(
               ...tool.output.map((property) => ({
@@ -222,7 +276,7 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
           const override = world.tools?.[tool.name];
           if (override?.error !== undefined) {
             const rule = tool.sideEffect ? 'stop' : 'retry';
-            const choice = mutation.failure?.(tool, rule, ctx()) ?? rule;
+            const choice = activeMutation.failure?.(tool, rule, ctx()) ?? rule;
             const attempts = choice === 'retry' ? 2 : choice === 'retry-many' ? 4 : 1;
             for (let attempt = 0; attempt < attempts; attempt += 1)
               record(tool.name, input, null, override.error);
@@ -258,14 +312,14 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
             .map((line) => readTurn(spec, line))
             .find((found) => found !== undefined);
         for (const [name, value] of Object.entries(read?.slots ?? {})) {
-          memory[name] = mutation.slot?.(name, value, memory[name], ctx()) ?? value;
+          memory[name] = activeMutation.slot?.(name, value, memory[name], ctx()) ?? value;
         }
         const intent = read?.intent;
         switch (intent?.kind) {
           case 'transition': {
             const edge = spec.transitions.find((candidate) => candidate.id === intent.edge);
             if (edge && edge.from === stage) {
-              const target = mutation.move?.(stage, edge.to, ctx()) ?? edge.to;
+              const target = activeMutation.move?.(stage, edge.to, ctx()) ?? edge.to;
               enter(target);
               said = 'Thank you, noted.';
             } else {
@@ -278,7 +332,7 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
               intent.class === 'D2_goal_shift'
                 ? { stage: spec.goal, enter: true, said: DETOUR_TEXT.D2_goal_shift }
                 : { stage, enter: false, said: DETOUR_TEXT[intent.class] };
-            const answer = mutation.deviation?.(intent.class, rule, ctx()) ?? rule;
+            const answer = activeMutation.deviation?.(intent.class, rule, ctx()) ?? rule;
             if (answer.stage !== stage) {
               if (answer.enter) enter(answer.stage);
               else stage = answer.stage;
@@ -304,13 +358,19 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
             break;
           }
           case 'save': {
-            const content = savedContent(spec);
+            const record = files['input.json']
+              ? JSON.parse(files['input.json']).records[0]
+              : { agent: spec.agent };
+            const content = `${JSON.stringify({ agent: record.agent, saved: true })}\n`;
             const rule: SaveResult = {
+              files: { [spec.saveFile]: content },
               diff: { created: [spec.saveFile], changed: [], deleted: [] },
               artifacts: [{ path: spec.saveFile, sha256: sha256(content), bytes: content.length }],
               said: `I saved the record to ${spec.saveFile}.`,
             };
-            const result = mutation.save?.(rule, ctx()) ?? rule;
+            const result = activeMutation.save?.(rule, ctx()) ?? rule;
+            for (const path of result.diff.deleted) delete files[path];
+            Object.assign(files, result.files);
             workspace = result.diff;
             artifacts = result.artifacts;
             said = result.said;
@@ -334,23 +394,46 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
             said = 'I did not understand that.';
         }
 
-        for (const extra of mutation.extra?.(
+        // World-carried data is encountered during the normal turn. Keep that turn's
+        // completed action and stage; only a faulty agent follows the embedded instruction.
+        if (dataInstruction && !(intent?.kind === 'deviation' && intent.class === 'D6_instruction_in_data')) {
+          const rule: DeviationAnswer = {
+            stage,
+            enter: false,
+            said,
+            ...(replaced ? { replies: replaced } : {}),
+          };
+          const answer = activeMutation.deviation?.('D6_instruction_in_data', rule, ctx()) ?? rule;
+          if (answer.stage !== stage) {
+            if (answer.enter) enter(answer.stage);
+            else stage = answer.stage;
+          }
+          said = answer.said;
+          replaced = answer.replies;
+        }
+
+        for (const extra of activeMutation.extra?.(
           toolCalls.map((call) => call.label),
           ctx(),
         ) ?? []) {
           const tool = tools.get(extra);
           if (tool) record(tool.name, defaultInput(tool), defaultOutput(tool), undefined);
         }
-        const stated = mutation.facts?.(facts, ctx()) ?? facts;
+        const stated =
+          activeMutation.facts?.(
+            facts,
+            ctx(),
+            toolCalls.map((call) => call.label),
+          ) ?? facts;
         const factText = stated.map(
           (fact) => `${fact.tool.replace(/_/g, ' ')} says ${fact.field} is ${String(fact.value)}.`,
         );
         const question = stageOf.get(stage)?.question ?? '';
         const reply = [said.trim(), ...notes, ...factText, question].filter((part) => part !== '').join(' ');
         const composed = replaced ?? [reply];
-        const replies = mutation.reply?.(composed, ctx()) ?? composed;
+        const replies = activeMutation.reply?.(composed, ctx()) ?? composed;
         for (const part of replies) segments.push({ type: 'text', text: part });
-        const reported = mutation.report ? mutation.report(stage, ctx()) : stage;
+        const reported = activeMutation.report ? activeMutation.report(stage, ctx()) : stage;
         return {
           segments,
           text: replies.join('\n'),
@@ -363,5 +446,6 @@ export function createFollower(spec: HiddenSpec, mutation: Mutation = {}): () =>
         };
       },
     };
+    return session;
   };
 }

@@ -5,6 +5,7 @@ import {
   type AgentAdapter,
   AgentFailure,
   contentHash,
+  copyHistory,
   decideToolRule,
   deniesCall,
   isPlainObject,
@@ -293,18 +294,19 @@ export function httpAdapter(options: HttpAdapterOptions): AgentAdapter {
         adapter: id,
         target: given.target,
         given,
-        history: structuredClone(given.prefix),
+        history: copyHistory(given.prefix),
         state,
       };
     },
 
     async send(session, turn) {
+      const history = copyHistory(session.history);
       own(session);
       const request: HttpTurnRequest = {
         session: session.id,
         turn: turn.index,
         ...(session.target.agent === undefined ? {} : { model: session.target.agent }),
-        messages: toChatMessages(promptMessages(session.history, session.target)),
+        messages: toChatMessages(promptMessages(history, session.target)),
         stimulus: turn.stimulus,
         world: turn.given.world,
         vars: turn.given.vars,

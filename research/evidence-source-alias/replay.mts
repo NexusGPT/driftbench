@@ -38,10 +38,7 @@ for (const file of ['assessment', 'criterion-ledger', 'evidence']) {
   writeFileSync(resolve(output, `${file}.ts`), text);
 }
 const { parseJudgeText: baseline } = await import(pathToFileURL(resolve(output, 'assessment.ts')).href);
-const donor = resolve(
-  root,
-  '../default-decoder-ungrounded/packages/judges/test/fixtures/criterion-decoder-recordings.json.gz',
-);
+const donor = resolve(root, 'packages/judges/test/fixtures/criterion-decoder-recordings.json.gz');
 const donorBytes = readFileSync(donor);
 hashes['decoder-pr/criterion-decoder-recordings.json.gz'] = sha(donorBytes);
 const donorData = JSON.parse(gunzipSync(donorBytes).toString());
@@ -82,7 +79,14 @@ for (const slice of registry.slices) {
     const path = `benchmarks/cassettes/${slice.name}@${slice.version}/${model.id}.json`;
     if (!recordedFiles.has(path)) {
       assert.equal(model.id, 'gemini-3.8-flash', `Missing required recording ${set}`);
-      summaries.push({ set, total: 0, planned: slice.n, status: 'not recorded', fixes: null, breaks: null });
+      summaries.push({
+        set,
+        total: 0,
+        planned: slice.n,
+        status: 'dropped by the owner',
+        fixes: null,
+        breaks: null,
+      });
       continue;
     }
     const cassette = read(path);

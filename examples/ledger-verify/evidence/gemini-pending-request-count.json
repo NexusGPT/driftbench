@@ -1,0 +1,15 @@
+{
+  "at": "2026-10-13T12:08:59.192Z",
+  "model": "gemini-3.8-flash",
+  "items": 221,
+  "missingNoisePeer": 10,
+  "promptfooTest": 221,
+  "cascadeBaselineBeforeCacheDedup": 1020,
+  "quotedExtract": 69,
+  "finalStep": 67,
+  "maximumAdaptiveReview": 221,
+  "judgeRequestUpperBound": 1472,
+  "exactRemainingRequests": "Not knowable before adaptive review decisions. Upper bound counts every allowed content review; duplicate-prompt reuse can lower it.",
+  "transport429ExtraAttempts": "At most three extra no-answer attempts per request; not included in judge-request bound.",
+  "newProviderCalls": 0
+}

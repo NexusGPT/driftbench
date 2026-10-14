@@ -16,7 +16,15 @@ import {
   type WorldState,
 } from '@agent-nexus/driftbench-core';
 import { DEVIATIONS, isWorldClass } from './deviations';
-import { drawPhrasing, type Phrasing, type PhrasingKind, type RedteamPack } from './redteam';
+import {
+  drawPhrasing,
+  type Phrasing,
+  type PhrasingKind,
+  patternsAt,
+  type RedteamPack,
+  type ReplyChecks,
+  replyChecksAt,
+} from './redteam';
 import { createScriptedDriver } from './scripted';
 
 /**
@@ -61,7 +69,15 @@ export type PerturbingDriverOptions = {
 export type PerturbationSource =
   | { kind: 'declared' }
   | { kind: 'given' }
-  | { kind: 'drawn'; phrasingId: string; approved: boolean; packPath: string; seed: number };
+  | {
+      kind: 'drawn';
+      phrasingId: string;
+      approved: boolean;
+      packPath: string;
+      seed: number;
+      /** The reply checks of the phrasing that applied here, and those that did not. */
+      replyChecks: ReplyChecks;
+    };
 
 export type PerturbingDriver = UserDriver & {
   /** The spec to run: the input spec, with the resolved perturbation in its perturbations. */
@@ -158,6 +174,7 @@ export function resolvePerturbation(
         approved: phrasing.approved,
         packPath: phrasing.packPath,
         seed,
+        replyChecks: replyChecksFor(spec, choice.class, choice.inject_at, phrasing),
       },
     };
   }
@@ -195,9 +212,11 @@ export function fromPhrasing(
     const world: WorldState = task
       ? { workspace: plantFile(spec, injectAt, phrasing.file ?? 'NOTES.txt', phrasing.content ?? '') }
       : (phrasing.world ?? {});
+    const must = patternsAt(phrasing.must, stage);
+    const mustNot = patternsAt(phrasing.must_not, stage);
     const reply: Expect = {
-      ...(phrasing.must ? { must: phrasing.must } : {}),
-      ...(phrasing.must_not ? { must_not: phrasing.must_not } : {}),
+      ...(must.length > 0 ? { must } : {}),
+      ...(mustNot.length > 0 ? { must_not: mustNot } : {}),
     };
     const merged: Expect = { ...(expect ?? {}), ...reply };
     return {
@@ -223,12 +242,19 @@ export function fromPhrasing(
       };
     }
     const tool = phrasing.tool ?? firstExpectedTool(spec, injectAt);
+    const at = stageAt(spec, injectAt);
+    const must = patternsAt(phrasing.must, at);
+    const mustNot = patternsAt(phrasing.must_not, at);
     return {
       id,
       class: cls,
       inject_at: injectAt,
       world: { tools: { [tool]: { error: phrasing.error ?? 'the service is unavailable' } } },
-      expect: { tools: [{ label: tool, count: { max: 2 } }] },
+      expect: {
+        tools: [{ label: tool, count: { max: 2 } }],
+        ...(must.length > 0 ? { must } : {}),
+        ...(mustNot.length > 0 ? { must_not: mustNot } : {}),
+      },
       recovery: { within_blocks: within },
     };
   }
@@ -240,9 +266,12 @@ export function fromPhrasing(
     ...(cls === 'D5_language_switch' && spec.lang ? { lang: spec.lang } : {}),
   };
   const recovery: RecoveryExpect = { within_blocks: within, ...(pending ? { stage_after: pending } : {}) };
+  const at = stageAt(spec, injectAt);
+  const must = patternsAt(phrasing.must, at);
+  const mustNot = patternsAt(phrasing.must_not, at);
   const reply: Expect = {
-    ...(phrasing.must ? { must: phrasing.must } : {}),
-    ...(phrasing.must_not ? { must_not: phrasing.must_not } : {}),
+    ...(must.length > 0 ? { must } : {}),
+    ...(mustNot.length > 0 ? { must_not: mustNot } : {}),
   };
   const merged: Expect = { ...expect, ...reply };
   return {
@@ -253,6 +282,33 @@ export function fromPhrasing(
     ...(Object.keys(merged).length > 0 ? { expect: merged } : {}),
     recovery,
   };
+}
+
+/** The stage a phrasing's stage-bound patterns are judged against: D6 runs under its own block, any other class follows the earlier ones. */
+function replyStage(spec: Spec, cls: DeviationClass, injectAt: number): string | undefined {
+  return cls === 'D6_instruction_in_data' ? spec.blocks[injectAt]?.expect?.stage : stageAt(spec, injectAt);
+}
+
+/** Which of a phrasing's reply checks the perturbation built by `fromPhrasing` carries, and which not. */
+export function replyChecksFor(
+  spec: Spec,
+  cls: DeviationClass,
+  injectAt: number,
+  phrasing: Phrasing,
+): ReplyChecks {
+  return replyChecksAt(phrasing, replyStage(spec, cls, injectAt));
+}
+
+/**
+ * The stage the conversation stands in when the deviation arrives before block `injectAt`: the stage the
+ * nearest earlier block expects. Undefined when no earlier block states one.
+ */
+function stageAt(spec: Spec, injectAt: number): string | undefined {
+  for (let index = injectAt - 1; index >= 0; index--) {
+    const stage = spec.blocks[index]?.expect?.stage;
+    if (stage) return stage;
+  }
+  return undefined;
 }
 
 /** A perturbation with neither user text nor a burst: it changes the world only. */

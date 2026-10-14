@@ -241,10 +241,216 @@ The test can fail. A manifest that declares the loose confirmation fault as a ch
 
 The radius is sound for the declared change under two assumptions: a block's outcome depends only on its declared dependencies and its run history, and the manifest lists every change. It is not a proof that the new agent equals the old one outside the radius. A full run on a schedule, with no manifest, is what checks that.
 
-Mode T figures are a projection: the fault runs behind the gate report are free-running, so the containment above is measured in mode F only.
+Mode F containment is measured from the gate report, which holds free-running fault runs. Mode T containment is measured by running the faulty agent: see [mode T block reruns](#mode-t-block-reruns).
 
 ## What comes next
 
 Not built yet, in order:
 
-* Blocks as the unit in mode T, and a judged criterion change that judges again without calling the agent.
+* The learned dependency table and automatic estate-diff ingestion.
+
+## Prompt quotes
+
+`radius auto` compares two prompt files against the approved map's `evidence.quote` anchors. It writes a normal change manifest, so campaign carry, age limits and audits keep their existing checks. The source path selects exactly one of the map's declared sources. Every other source is assumed unchanged; include its change separately if it changed too.
+
+For Acme, use a quote map declaring just the approved offer anchor, then change its price expression.
+The full Acme map contains repeated and overlapping evidence; it conservatively selects the whole suite.
+The focused map below does not justify any other edit: text changed outside its one anchor still selects everything.
+
+```sh
+node -e 'const fs = require("node:fs"); const text = fs.readFileSync("examples/acme/src/policy.ts", "utf8"); fs.writeFileSync("/tmp/acme-price-next.ts", text.replace("plan.monthly_usd}", "plan.monthly_usd + 1}"));'
+node --input-type=module -e 'import fs from "node:fs"; import { parse } from "yaml"; const map = parse(fs.readFileSync("examples/acme/map/approved.yaml", "utf8")); const offer = map.relations.find(r => r.kind === "states" && r.to === "offer"); fs.writeFileSync("/tmp/acme-price-quotes.json", JSON.stringify({ ...map, dimensions: [], constraints: [], phrases: [], relations: [offer] }));'
+pnpm -s driftbench radius auto --prompt examples/acme/src/policy.ts /tmp/acme-price-next.ts --map /tmp/acme-price-quotes.json --source ../src/policy.ts --from-version acme-v1 --to-version acme-v2 --out /tmp/acme-price-change.yaml
+pnpm -s driftbench radius examples/acme/gated/specs --change /tmp/acme-price-change.yaml --mode T --explain
+```
+
+The manifest records each changed region, its old and new offsets, the matched entry, source and quote, and the rule that selected blocks or forced a full run. `--explain` prints those anchors, then every block's dependency reasons and state. Mode F and P still close forward and rerun complete conversations. Without `--explain`, existing radius output is unchanged.
+
+Supported anchors are dimension values, phrases, and `states`, `path`, `recovery`, `uses_tool` and
+`reply_language` relations. Changed unsupported entries select the whole suite.
+
+The diff normalizes CRLF and CR to LF, and Unicode to NFC. Offsets count UTF-16 code units in that
+normalized text. Every other whitespace character is retained and follows the same rule as other edits.
+Evidence quotes may match source whitespace runs so an extracted quote can span indentation. A
+normalized no-change with different version labels selects everything; with identical labels it adds no change.
+
+The mapper computes a character edit-distance alignment, with separate regions for separated edits.
+Every region must lie strictly inside exactly one declared anchor in BOTH the old and new prompt.
+It locates an edited anchor in the new text through the unchanged first and last characters of its old
+occurrence in a unique alignment, then verifies that the resulting quote occurs exactly once in the new
+prompt. Boundary edits and removed anchors therefore select everything. It counts overlapping quote
+occurrences too. Repeated quotes, overlapping distinct anchors, missing anchors, ambiguous alignments,
+unmapped changed anchors, or any region outside the anchors select everything. A matching price edit
+cannot hide an inserted language instruction before or after its quote.
+
+For bounded resource use, alignment admits at most 64 single-character edits and 8,000,000 band cells.
+Exceeding either limit selects everything, with the reason in the manifest. `radius --explain` prints the
+rule for each changed region, followed by block dependency reasons. No fuzzy match narrows the radius.
+
+Always use the agent versions your campaigns record. Without explicit version flags, `auto` uses the text content hashes; these need not equal a prompt registry's hash. The learned dependency table and automatic estate-diff ingestion remain separate work. Existing estate atom manifests continue to work.
+
+## Execution provenance
+
+New CLI campaigns store an optional execution stamp. Each block records SHA-256 hashes of the actual
+stimulus sent, the check ledger, and artifact paths, plus its spec block index and the existing resolved
+Given hash. File reads performed by checks are hashed as they happen; no extra reads or file contents
+are added. A failed read has a null byte hash. The observations retain any contents already stored there.
+
+Each run records hashes of its driver identity and declared seeds, adapter name and version, agent
+version, and execution options. Every user-supplied identity is hashed, including seed keys and values;
+no raw copy sits beside the hash. The scripted driver declares no random seeds. Other drivers must
+declare seeds explicitly; an undeclared seed set is unknown, not proof of determinism. The campaign
+records hashed identities for all routed targets, adapters and agent versions. Existing command output
+does not print these stamps. Library `runSpec` and `runCampaign` callers opt in with
+`recordProvenance: true`; standalone runs retain their previous serialized shape by default.
+
+The adapter's optional `cacheIdentity` is hashed into its stamp and execution hash. For process adapters,
+this identity covers the command and argument boundaries. A process stamp without it is legacy and
+cannot authorize a carry. Changing a binary's contents at the same path still requires a new agent version.
+
+Old stores without stamps still load. A campaign without a complete execution stamp is legacy: a
+blast-radius campaign reruns it in full and reports the missing provenance. Empty adapter lists, missing
+target coverage, incomplete run or block fields, and unknown seeds also force a full rerun. The public
+`planRadiusCampaign` applies the same check; callers supply the baseline campaign's `provenance` beside
+its runs. Legacy observations cannot establish compatibility for criterion re-judging; run a new full
+campaign first. These stamps preserve execution evidence; they do not themselves authorize reuse.
+
+A complete baseline is necessary but insufficient: the planner also needs the actual current run's
+execution stamp (`CarryLimits.currentProvenance`). It compares every stamp field by default, including
+new fields. Changed driver identity or seeds, adapter identity or configuration, target configuration,
+mode, repeat, perturbation, retry settings or other execution options force a fresh run. Missing current
+context also forces a fresh run. `ALLOWED_VERSION_TRANSITION_FIELDS` names the sole exception: the
+manifest's verified `from` to `to` agent transition, including its target variant and prompt. No other
+context difference is justified by a small radius. Carried records retain the original observation's
+origin and age, and pin the current context whose compatibility was proved.
+
+Each recorded run also stores `provenanceDigest`: SHA-256 of canonical JSON over the complete run
+stamp and the ordered block entries (`index`, `blockId`, `injected`, `givenHash`, and the whole block
+stamp). Canonical JSON sorts object keys at every depth and preserves array order. The planner checks
+this digest before carrying anything. A missing or mismatched digest, an unknown stamp field, or a
+partial stamp makes the baseline legacy and forces a full rerun. The digest detects accidental changes
+and partial writes; it is not a signature against someone who can rewrite both the record and digest.
+
+The planner additionally requires `CarryLimits.currentSpec`. From this current spec it recomputes each
+block's index, resolved Given hash, and check ledger. Scripted and teacher-forced stimuli must match the
+spec's stimulus hash. The Given comparison uses the target that actually produced the observation;
+the verified manifest transition is the only permitted target difference. Generated stimuli rely on
+the already-compared driver identity and seeds. Their text is not recovered from a fingerprint: a later
+free-running block with an unreconstructable prefix forces a rerun, unless an explicit Given prefix
+resets that history. Perturbed trajectories and a carried prompt whose original text is unavailable
+also rerun when their block inputs cannot be reconstructed. A valid digest alone never proves these
+inputs compatible. A legitimate carry seals its updated run stamp again and retains the original block
+evidence, observation origin, and age.
+
+Stamp hashes are deterministic equality fingerprints, not secrets. Low-entropy values such as short
+identifiers or numeric seeds are guessable by enumeration. No per-store salt is used: fingerprints remain
+comparable across stores, and this change adds no store metadata or salt lifecycle. Protect results stores
+as you protect the observations they contain; hashes do not replace that protection.
+
+## Re-judge a criterion
+
+`campaign rejudge` calls only the judge on stored observations. The manifest contains only
+`criterion` changes, and its `from` and `to` name the same agent version. Every new spec is
+pinned beside its old full hash and an observation-compatibility hash. Blocks identify the
+re-judged criterion ids; other results carry their source and age. Judge calls count in the
+new run cost. Historical agent cost is not charged again. The scorecard labels both kinds.
+
+The compatibility hash covers everything that can change what the agent receives or does:
+givens, stimuli, tools, target, adapter, modes, perturbations, user driver, seeds, stages and
+block order. An explicit exclusion list removes only criterion `rubric`, `pass`, `fail`,
+`gating`, `scope`, `judge_class` and `repeat_reducer`. Those are the schema's judge-only text,
+anchors and settings. New fields are included by default. Deterministic checks and expected
+outputs remain in the hash: changing them requires a full agent rerun; this command does not
+re-evaluate changed deterministic checks on old observations.
+
+Re-judge validates the existing carry age and count limits, the same agent version, the complete
+campaign stamp and integrity digest, and every resolved Given, ledger and stimulus hash before
+making a judge call. Its agent execution context is the frozen recorded context: this command accepts
+no new driver, seed, adapter or target configuration. Such changes require `campaign run`. It supports
+complete scripted F and T conversation runs whose judge inputs can be reconstructed. Legacy,
+partial, injected or adaptive runs, unknown seeds, task artifact reads, inconsistent stamps,
+and missing judge input bytes are refused with a full-rerun instruction. A judge-only command
+cannot silently turn that refusal into an agent call. Keep `campaign run` for those cases.
+Re-judged observations remain unpaired agent measurements. When no fresh agent pairs exist,
+`report` uses its default margin and says why; it does not estimate an automatic margin from
+copied observations.
+
+Run this offline Acme demonstration from the repository root with a fresh output directory.
+The fake judge deliberately fails the added public-holiday rule; it makes no model call.
+
+```sh
+mkdir -p /tmp/acme-radius-rejudge
+node --import tsx --input-type=module <<'JS'
+import { readFileSync, writeFileSync } from 'node:fs';
+import { parse } from 'yaml';
+const spec = parse(readFileSync('examples/acme/specs/conversations/plan-upgrade.yaml', 'utf8'));
+spec.criteria.find(c => c.name === 'no_invented_data').rubric += ' Never invent a public holiday.';
+writeFileSync('/tmp/acme-radius-rejudge/updated.spec.json', JSON.stringify(spec));
+writeFileSync('/tmp/acme-radius-rejudge/criterion.yaml', 'from: acme-v1\nto: acme-v1\nchanges:\n  - { kind: criterion, id: no_invented_data }\n');
+JS
+node --import tsx packages/cli/src/bin.ts campaign run examples/acme/specs/conversations/plan-upgrade.yaml --target function:acme-sales --agent-version acme-v1 --campaign acme-before --store /tmp/acme-radius-rejudge/runs.db
+node --import tsx packages/cli/src/bin.ts campaign rejudge /tmp/acme-radius-rejudge/updated.spec.json --from acme-before --campaign acme-rejudged --store /tmp/acme-radius-rejudge/runs.db --change /tmp/acme-radius-rejudge/criterion.yaml --judge claude:haiku --judge-command examples/estates/fixture/live/fake/judge.cjs
+```
+
+The final command exits 1 and prints:
+
+```text
+Campaign acme-rejudged: 2 blocks re-judged, 3 carried; 0 agent calls. Judge cost 0.0030 USD.
+```
+
+A paid judge requires `--judge-budget <usd>`. The budget guard is the existing run-judge guard.
+Exit 0 means the resulting campaign passes, 1 means a gating result fails or is inconclusive,
+and 2 means the inputs or reuse proof were refused. `--json` emits the campaign ids, carried
+and re-judged block counts, zero agent calls and judge spend.
+
+## Mode T block reruns
+
+A mode T block starts from its canonical Given, so the blocks of one cell do not depend on each other's replies. A change that reaches 1 block of a 4 block cell needs only that block sent. `--block-reruns` does this: the cell runs, but only the blocks in the radius reach the agent, and the other blocks keep their stored result.
+
+```sh
+driftbench campaign run examples/acme/gated/specs --target function:acme-sales \
+  --route flow:price-sheet=process:acme-ops --mode T --agent-version acme-v1 \
+  --campaign base --store runs.db --record-end-state-snapshots
+driftbench campaign run examples/acme/gated/specs --target function:acme-sales \
+  --route flow:price-sheet=process:acme-ops --mode T --agent-version acme-v2 \
+  --campaign next --store runs.db --change examples/acme/radius/tool-coverage-check-input.yaml \
+  --from base --block-reruns
+```
+
+Tell driftbench what changed with a change manifest, or with `radius auto --prompt` for a prompt edit. The campaign prints what it sends and what it keeps:
+
+```
+86 of 195 cells in the radius. 86 cells run fresh, 109 carried from base.
+Mode T block reruns: 86 cells send 86 blocks and keep 330 stored blocks from base.
+Saved: 781 of 867 blocks, 90.1%.
+```
+
+On the Acme gated suite, a rerun of the coverage check input change sends 86 of 867 blocks. The same campaign without end-state snapshots sends 376 of 867. A full mode T campaign sends all 867.
+
+### Which cells run in part
+
+A cell runs in part only when every check below passes. Otherwise the whole cell runs, and the campaign prints the reason.
+
+* The mode is T, the driver is the scripted driver and the adapter has no sandbox. A sandbox keeps the workspace of an earlier step, so a block cannot start alone.
+* The stored baseline run completed, every block passed, and every block has execution provenance. A failing or partial baseline is rerun whole.
+* The stored run passes the same proof as a whole-cell carry: complete stamps, an intact digest, an equal execution context, reconstructed block inputs, the full spec hash, and the `--max-carry` and `--max-age` limits. Each kept block counts one more campaign of age.
+* The radius is a strict part of the cell. A cell with every block in the radius runs whole, as it did before.
+
+The result is a normal run. Kept blocks carry the stamp of the campaign that measured them. The run records `blockRerun`: the blocks sent, the later blocks not rerun, and why the later blocks do not depend on the sent ones. The compounding rates read only the blocks that were sent. `compare` treats a partly rerun cell as a fresh run, so its pairs include the kept blocks of that cell.
+
+### End state
+
+A spec with `end_state` is judged on the whole cell, and the runner composes the end state across the blocks: for each source the last value that is not null, and the concatenated list for `*`. Skipped blocks still contribute to it, and a stored verdict cannot say what a skipped block contributed.
+
+* By default, a baseline records no per block values. A cell with `end_state` then runs whole. On the Acme gated suite, 65 cells run whole for this reason.
+* With `--record-end-state-snapshots` on the baseline campaign, each T block stores the raw values it read, and a value that was not read is stored as unavailable. A block rerun recomposes the end state from the stored values and the new ones, by the same rule, and re-evaluates the end state verdict of the last block. A block rerun campaign keeps recording snapshots when its baseline did, so a chain of reruns stays possible.
+
+Snapshots hold raw values read from the agent's systems. They can hold personal or secret data. Treat them as observations: they follow the same handling as the stored replies of the run, and the flag is off unless you set it.
+
+### Audit and misses
+
+`--audit <n>` also draws cells that run in part. A drawn cell runs whole and fresh, and each kept block is compared with its stored result on the gating verdicts. The end state verdict is not compared, because it is recomposed. One difference is a radius miss: nothing is kept, every cell runs whole, and the exit code is 1.
+
+On Acme, a full mode T run of the planted fault `x5-drops-coverage-check` fails 86 blocks. A block rerun with the right manifest fails the same 86 blocks, and every one was sent. With the recap manifest, which does not name this fault, the failing blocks stay unsent, so the check can fail. A fault planted in an offer price, outside the coverage check radius, is found by the audit. `packages/cli/test/radius-blocks-acme.test.ts` runs these cases with no model call.
+
+A block rerun needs no new assumption about the agent beyond the one every radius makes, and one more: in mode T a block depends only on its Given, which the spec writes. [When it is sound](#when-it-is-sound) lists the rest.
