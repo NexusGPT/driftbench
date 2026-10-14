@@ -790,6 +790,23 @@ export function hiddenSpec(seed: number): HiddenSpec {
     });
   }
 
+  // A recovery that moves to a named stage needs an opportunity to move: a noninitial,
+  // nonterminal position elsewhere. Keep the drawn flows, adding a capable flow only when
+  // their paths offer none. This preserves terminal feasibility and every drawn obligation.
+  for (const cls of deviations) {
+    const { stageAfter } = recoveryOf(cls, goal, tools);
+    if (stageAfter === 'pending') continue;
+    const capable = flows.filter((flow) =>
+      paths.some(
+        (path) => path.flow === flow.id && path.stages.slice(1, -1).some((stage) => stage !== stageAfter),
+      ),
+    );
+    if (capable.some((flow) => flow.deviations.includes(cls))) continue;
+    const flow = capable[0];
+    if (!flow) throw new Error(`no path can exercise recovery to ${stageAfter}`);
+    flow.deviations = DEVIATION_POOL.filter((entry) => entry === cls || flow.deviations.includes(entry));
+  }
+
   const recoveries: HiddenRecovery[] = deviations.map((cls) => ({
     class: cls,
     flows: flows.filter((flow) => flow.deviations.includes(cls)).map((flow) => flow.id),
