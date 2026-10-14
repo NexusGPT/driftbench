@@ -26,6 +26,7 @@ export {
   type PerturbationSource,
   type PerturbingDriver,
   type PerturbingDriverOptions,
+  replyChecksFor,
   resolvePerturbation,
 } from './perturb';
 export { seededIndex } from './random';
@@ -34,12 +35,14 @@ export {
   type DrawOptions,
   drawPhrasing,
   loadRedteamPack,
+  type NotApplicable,
   PackFile,
   Phrasing,
   type PhrasingKind,
   PhrasingKinds,
   type RedteamPack,
   RedteamPackError,
+  type ReplyChecks,
   redteamPack,
 } from './redteam';
 export {
