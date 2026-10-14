@@ -10,6 +10,8 @@ see_also:
   - judging-cassettes
   - judging-council
   - judging-families
+next:
+  - judging-queue
 ---
 
 ## What it is

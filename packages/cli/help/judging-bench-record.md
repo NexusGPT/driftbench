@@ -7,6 +7,8 @@ see_also:
   - judging-bench-floors
   - judging-cassettes
   - judging-default-judge
+next:
+  - judging-bench-floors
 ---
 
 ## What it is

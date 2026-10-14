@@ -12,6 +12,8 @@ see_also:
   - judging-families
   - judging-self-tests
   - judging-queue
+next:
+  - judging-judge-calibrate
 ---
 
 ## What it is

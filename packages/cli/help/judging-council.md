@@ -10,6 +10,8 @@ see_also:
   - judging-default-judge
   - judging-mixture-of-judges
   - judging-machine-checks
+next:
+  - judging-families
 ---
 
 ## What it is

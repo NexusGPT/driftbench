@@ -7,6 +7,8 @@ see_also:
   - judging-pairwise
   - judging-opt-in-settings
   - judging-calibration
+next:
+  - judging-opt-in-settings
 ---
 
 ## What it is

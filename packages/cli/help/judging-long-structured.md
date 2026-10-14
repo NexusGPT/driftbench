@@ -7,6 +7,8 @@ see_also:
   - judging-opt-in-settings
   - judging-default-judge
   - judging-bench-replay
+next:
+  - judging-pairwise
 ---
 
 ## What it is

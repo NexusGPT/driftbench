@@ -8,6 +8,8 @@ see_also:
   - judging-machine-checks
   - judging-check-text
   - judging-check-runtime
+next:
+  - judging-check-runtime
 ---
 
 ## What it is

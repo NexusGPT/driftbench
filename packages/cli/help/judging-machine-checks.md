@@ -13,6 +13,8 @@ see_also:
   - judging-check-runtime
   - judging-criteria
   - judging-council
+next:
+  - judging-check-text
 ---
 
 ## What it is

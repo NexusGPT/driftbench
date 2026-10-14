@@ -14,6 +14,8 @@ see_also:
   - judging-mixture-of-judges
   - judging-run-judge
   - judging-judge-run
+next:
+  - judging-calibration
 ---
 
 ## What it is

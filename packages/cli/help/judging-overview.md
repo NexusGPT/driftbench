@@ -13,6 +13,8 @@ see_also:
   - judging-default-judge
   - judging-self-tests
   - judging-queue
+next:
+  - judging-machine-checks
 ---
 
 ## What it is

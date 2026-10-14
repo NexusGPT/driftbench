@@ -11,6 +11,8 @@ see_also:
   - judging-calibration
   - judging-judge-calibrate
   - judging-criteria
+next:
+  - judging-cassettes
 ---
 
 ## What it is

@@ -9,6 +9,8 @@ see_also:
   - judging-check-tools
   - judging-check-runtime
   - judging-criteria
+next:
+  - judging-check-tools
 ---
 
 ## What it is

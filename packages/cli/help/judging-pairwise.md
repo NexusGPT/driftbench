@@ -9,6 +9,8 @@ see_also:
   - judging-opt-in-settings
   - judging-council
   - judging-mixture-of-judges
+next:
+  - judging-mixture-of-judges
 ---
 
 ## What it is

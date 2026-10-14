@@ -10,6 +10,8 @@ see_also:
   - judging-bench-replay
   - judging-bench-record
   - judging-default-judge
+next:
+  - judging-default-judge
 ---
 
 ## What it is

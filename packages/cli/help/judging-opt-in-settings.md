@@ -9,6 +9,8 @@ see_also:
   - judging-mixture-of-judges
   - judging-criteria
   - judging-long-structured
+next:
+  - judging-long-structured
 ---
 
 ## What it is

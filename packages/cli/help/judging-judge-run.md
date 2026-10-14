@@ -9,6 +9,8 @@ see_also:
   - judging-cassettes
   - judging-judge-calibrate
   - judging-families
+next:
+  - judging-council
 ---
 
 ## What it is

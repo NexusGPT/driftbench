@@ -8,6 +8,8 @@ see_also:
   - judging-criteria
   - judging-default-judge
   - judging-machine-checks
+next:
+  - judging-self-tests
 ---
 
 ## What it is

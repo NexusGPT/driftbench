@@ -13,6 +13,8 @@ see_also:
   - judging-bench-replay
   - judging-bench-floors
   - judging-cassettes
+next:
+  - judging-bench-replay
 ---
 
 ## What it is

@@ -8,6 +8,8 @@ see_also:
   - judging-judge-run
   - judging-judge-calibrate
   - judging-self-tests
+next:
+  - judging-judge-run
 ---
 
 ## What it is

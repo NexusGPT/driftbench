@@ -11,6 +11,8 @@ see_also:
   - judging-calibration
   - judging-default-judge
   - judging-machine-checks
+next:
+  - judging-judge-check
 ---
 
 ## What it is

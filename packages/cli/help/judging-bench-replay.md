@@ -8,6 +8,8 @@ see_also:
   - judging-default-judge
   - judging-cassettes
   - judging-self-tests
+next:
+  - judging-bench-record
 ---
 
 ## What it is

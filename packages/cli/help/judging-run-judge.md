@@ -10,6 +10,8 @@ see_also:
   - judging-council
   - judging-machine-checks
   - judging-families
+next:
+  - judging-campaign-rejudge
 ---
 
 ## What it is

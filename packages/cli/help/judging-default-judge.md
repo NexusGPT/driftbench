@@ -13,6 +13,8 @@ see_also:
   - judging-opt-in-settings
   - judging-pairwise
   - judging-run-judge
+next:
+  - judging-evidence
 ---
 
 ## What it is

@@ -9,6 +9,8 @@ see_also:
   - judging-machine-checks
   - judging-check-tools
   - judging-check-text
+next:
+  - judging-criteria
 ---
 
 ## What it is
