@@ -1,6 +1,6 @@
 ---
 title: Checking specs
-summary: '`spec validate` parses and validates spec files and exits 1 on any invalid one; `spec lint` does the same and also prints advice warnings; every problem has a stable issue code listed here.'
+summary: '`spec validate` parses and validates spec files and fails on any invalid one; `spec lint` does the same and also prints advice warnings; every problem it reports is listed here with its level.'
 commands:
   - spec validate
   - spec lint
@@ -117,92 +117,6 @@ The path in a spec is dotted, counting from 0: `blocks.2.expect.tools.0.label` i
 | `TASK_WITHOUT_OUTCOME` | warning | a task spec checks none of `artifacts`, `workspace`, `execution` and `end_state` |
 | `PERTURBATION_NO_RECOVERY` | warning | a perturbation has no `recovery`, so its recovery is not measured |
 
-### Specs of your own: every semantic error and every warning
-
-Two files written in `out/authoring-spec-check/`: `errors.yaml` breaks eleven semantic rules, and `warnings.yaml` is valid but weak. A spec that triggers eleven semantic errors, beside one that is valid but weak (both in `out/authoring-spec-check/`):
-
-```text
-$ driftbench spec validate out/authoring-spec-check
-✗ out/authoring-spec-check/errors.yaml
-    criteria.1.name  CRITERION_DUPLICATE  criterion "polite" is defined twice
-    blocks.0.expect.must.0  MUST_CONFLICT  "hello" is in both must and must_not
-    blocks.0.expect.must.1  MUST_CONFLICT  "hello" is in both must and must_not
-    blocks.0.expect.tools.0  TOOL_FORBIDDEN_EXPECTED  "order.create" is forbidden by the spec's rules but expected here
-    blocks.0.expect.criteria.0  CRITERION_UNDEFINED  criterion "rude" is not defined in this spec's criteria
-    blocks.0.expect.criteria.1  CRITERION_REF_INVALID  "polite@always" is not a criterion name, optionally followed by @gating
-    blocks.0.expect.knowledge_retention.0.fact  RETENTION_FACT_UNKNOWN  fact "email" is in no ledger before this block: not in given.ledger, nor in an earlier ledger_add
-    blocks.1.id  DUPLICATE_BLOCK_ID  block id "a" is used twice
-    perturbations.0.inject_at  PERTURBATION_OUT_OF_RANGE  inject_at 5 is past the last position (2); it inserts before block n, counting from 0
-    perturbations.1.id  DUPLICATE_PERTURBATION_ID  perturbation id "p1" is used twice
-    perturbations.1  PERTURBATION_EMPTY  a perturbation needs `user`, `burst` or `world`
-✓ out/authoring-spec-check/warnings.yaml  lint-warnings · 2 blocks · 1 perturbation · hash 2a1eceff25a2
-Checked 2 specs: 1 valid, 1 invalid, 4 warnings.
-(exit 1)
-```
-
-`spec lint` shows the four warnings of the valid one; `--strict` turns them into exit 1:
-
-```text
-$ driftbench spec lint out/authoring-spec-check/warnings.yaml
-✓ out/authoring-spec-check/warnings.yaml  lint-warnings · 2 blocks · 1 perturbation · hash 2a1eceff25a2
-  ! criteria  CRITERION_UNRESOLVED  criteria referenced without local definitions (reports_what_it_did); they must come from a shared catalogue
-  ! blocks.0  BLOCK_NO_EXPECTATION  this block checks nothing
-  ! blocks  TASK_WITHOUT_OUTCOME  a task spec should check what the agent produced: artifacts, workspace, execution or end_state
-  ! perturbations.0  PERTURBATION_NO_RECOVERY  without a recovery expectation this deviation is run but its recovery is not measured
-Checked 1 spec: 1 valid, 0 invalid, 4 warnings.
-(exit 0)
-$ driftbench spec lint out/authoring-spec-check/warnings.yaml --strict
-✓ out/authoring-spec-check/warnings.yaml  lint-warnings · 2 blocks · 1 perturbation · hash 2a1eceff25a2
-  ! criteria  CRITERION_UNRESOLVED  criteria referenced without local definitions (reports_what_it_did); they must come from a shared catalogue
-  ! blocks.0  BLOCK_NO_EXPECTATION  this block checks nothing
-  ! blocks  TASK_WITHOUT_OUTCOME  a task spec should check what the agent produced: artifacts, workspace, execution or end_state
-  ! perturbations.0  PERTURBATION_NO_RECOVERY  without a recovery expectation this deviation is run but its recovery is not measured
-Checked 1 spec: 1 valid, 0 invalid, 4 warnings.
-(exit 1)
-```
-
-The same with `--json`:
-
-```text
-$ driftbench spec lint out/authoring-spec-check/warnings.yaml --json
-[
-  {
-    "path": "out/authoring-spec-check/warnings.yaml",
-    "ok": true,
-    "id": "lint-warnings",
-    "hash": "2a1eceff25a2",
-    "blocks": 2,
-    "warnings": [
-      {
-        "level": "warning",
-        "code": "CRITERION_UNRESOLVED",
-        "path": "criteria",
-        "message": "criteria referenced without local definitions (reports_what_it_did); they must come from a shared catalogue"
-      },
-      {
-        "level": "warning",
-        "code": "BLOCK_NO_EXPECTATION",
-        "path": "blocks.0",
-        "message": "this block checks nothing"
-      },
-      {
-        "level": "warning",
-        "code": "TASK_WITHOUT_OUTCOME",
-        "path": "blocks",
-        "message": "a task spec should check what the agent produced: artifacts, workspace, execution or end_state"
-      },
-      {
-        "level": "warning",
-        "code": "PERTURBATION_NO_RECOVERY",
-        "path": "perturbations.0",
-        "message": "without a recovery expectation this deviation is run but its recovery is not measured"
-      }
-    ]
-  }
-]
-(exit 0)
-```
-
 ## Worked example
 
 The seven Acme specs are valid. The coverage test fixtures hold one broken spec beside four valid ones, so `spec lint` exits 1. `--json` gives the same verdicts as data:
@@ -263,6 +177,145 @@ $ driftbench spec lint packages/core/test/coverage/fixtures/specs/broken.yaml --
   }
 ]
 (exit 1)
+```
+
+### Specs of your own: every semantic error and every warning
+
+Two files in one folder: `errors.yaml` breaks eleven semantic rules, and `warnings.yaml` is valid but weak.
+
+```yaml file=out/authoring-spec-check/errors.yaml
+id: semantic-errors
+stages: [identify, offer]
+criteria:
+  - { name: polite, rubric: Is the reply polite? }
+  - { name: polite, rubric: Is the reply polite again? }
+rules:
+  forbidden_tools: [order.create]
+blocks:
+  - id: a
+    user: hi
+    expect:
+      must: ['hello', 'hello']
+      must_not: ['hello']
+      criteria: ['rude', 'polite@always']
+      tools:
+        - { label: order.create, count: 1 }
+      knowledge_retention:
+        - { fact: email }
+  - id: a
+    user: again
+perturbations:
+  - { id: p1, class: D2_goal_shift, inject_at: 5, user: other plan }
+  - { id: p1, class: D8_tool_failure, inject_at: 1 }
+```
+
+```yaml file=out/authoring-spec-check/warnings.yaml
+id: lint-warnings
+kind: task
+blocks:
+  - user: Build the report.
+  - user: Add a summary.
+    expect:
+      criteria: [reports_what_it_did]
+perturbations:
+  - { id: aside, class: D1_off_topic, inject_at: 1, user: Is it raining? }
+```
+
+Validate the folder:
+
+```sh
+driftbench spec validate out/authoring-spec-check # exit 1
+```
+
+```text
+$ driftbench spec validate out/authoring-spec-check
+✗ out/authoring-spec-check/errors.yaml
+    criteria.1.name  CRITERION_DUPLICATE  criterion "polite" is defined twice
+    blocks.0.expect.must.0  MUST_CONFLICT  "hello" is in both must and must_not
+    blocks.0.expect.must.1  MUST_CONFLICT  "hello" is in both must and must_not
+    blocks.0.expect.tools.0  TOOL_FORBIDDEN_EXPECTED  "order.create" is forbidden by the spec's rules but expected here
+    blocks.0.expect.criteria.0  CRITERION_UNDEFINED  criterion "rude" is not defined in this spec's criteria
+    blocks.0.expect.criteria.1  CRITERION_REF_INVALID  "polite@always" is not a criterion name, optionally followed by @gating
+    blocks.0.expect.knowledge_retention.0.fact  RETENTION_FACT_UNKNOWN  fact "email" is in no ledger before this block: not in given.ledger, nor in an earlier ledger_add
+    blocks.1.id  DUPLICATE_BLOCK_ID  block id "a" is used twice
+    perturbations.0.inject_at  PERTURBATION_OUT_OF_RANGE  inject_at 5 is past the last position (2); it inserts before block n, counting from 0
+    perturbations.1.id  DUPLICATE_PERTURBATION_ID  perturbation id "p1" is used twice
+    perturbations.1  PERTURBATION_EMPTY  a perturbation needs `user`, `burst` or `world`
+✓ out/authoring-spec-check/warnings.yaml  lint-warnings · 2 blocks · 1 perturbation · hash 2a1eceff25a2
+Checked 2 specs: 1 valid, 1 invalid, 4 warnings.
+(exit 1)
+```
+
+`spec lint` shows the four warnings of the valid one; `--strict` turns them into exit 1:
+
+```sh
+driftbench spec lint out/authoring-spec-check/warnings.yaml
+driftbench spec lint out/authoring-spec-check/warnings.yaml --strict # exit 1
+```
+
+```text
+$ driftbench spec lint out/authoring-spec-check/warnings.yaml
+✓ out/authoring-spec-check/warnings.yaml  lint-warnings · 2 blocks · 1 perturbation · hash 2a1eceff25a2
+  ! criteria  CRITERION_UNRESOLVED  criteria referenced without local definitions (reports_what_it_did); they must come from a shared catalogue
+  ! blocks.0  BLOCK_NO_EXPECTATION  this block checks nothing
+  ! blocks  TASK_WITHOUT_OUTCOME  a task spec should check what the agent produced: artifacts, workspace, execution or end_state
+  ! perturbations.0  PERTURBATION_NO_RECOVERY  without a recovery expectation this deviation is run but its recovery is not measured
+Checked 1 spec: 1 valid, 0 invalid, 4 warnings.
+(exit 0)
+$ driftbench spec lint out/authoring-spec-check/warnings.yaml --strict
+✓ out/authoring-spec-check/warnings.yaml  lint-warnings · 2 blocks · 1 perturbation · hash 2a1eceff25a2
+  ! criteria  CRITERION_UNRESOLVED  criteria referenced without local definitions (reports_what_it_did); they must come from a shared catalogue
+  ! blocks.0  BLOCK_NO_EXPECTATION  this block checks nothing
+  ! blocks  TASK_WITHOUT_OUTCOME  a task spec should check what the agent produced: artifacts, workspace, execution or end_state
+  ! perturbations.0  PERTURBATION_NO_RECOVERY  without a recovery expectation this deviation is run but its recovery is not measured
+Checked 1 spec: 1 valid, 0 invalid, 4 warnings.
+(exit 1)
+```
+
+The same with `--json`:
+
+```sh
+driftbench spec lint out/authoring-spec-check/warnings.yaml --json
+```
+
+```text
+$ driftbench spec lint out/authoring-spec-check/warnings.yaml --json
+[
+  {
+    "path": "out/authoring-spec-check/warnings.yaml",
+    "ok": true,
+    "id": "lint-warnings",
+    "hash": "2a1eceff25a2",
+    "blocks": 2,
+    "warnings": [
+      {
+        "level": "warning",
+        "code": "CRITERION_UNRESOLVED",
+        "path": "criteria",
+        "message": "criteria referenced without local definitions (reports_what_it_did); they must come from a shared catalogue"
+      },
+      {
+        "level": "warning",
+        "code": "BLOCK_NO_EXPECTATION",
+        "path": "blocks.0",
+        "message": "this block checks nothing"
+      },
+      {
+        "level": "warning",
+        "code": "TASK_WITHOUT_OUTCOME",
+        "path": "blocks",
+        "message": "a task spec should check what the agent produced: artifacts, workspace, execution or end_state"
+      },
+      {
+        "level": "warning",
+        "code": "PERTURBATION_NO_RECOVERY",
+        "path": "perturbations.0",
+        "message": "without a recovery expectation this deviation is run but its recovery is not measured"
+      }
+    ]
+  }
+]
+(exit 0)
 ```
 
 ## Common errors

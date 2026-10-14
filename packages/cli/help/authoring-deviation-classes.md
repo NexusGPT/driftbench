@@ -119,51 +119,6 @@ Which fields a phrasing must and may hold, by class:
 
 `spec coverage` and `space coverage` list each required class as covered or missing.
 
-### A pack of your own
-
-A pack with one draft D1 phrasing, written as `out/authoring-deviation-classes/redteam/d01-off-topic.yaml`. It uses `at_stage` and reply patterns:
-
-```yaml
-# A one-file red-team pack: phrasings of D1 for conversations. Fictional data only.
-class: D1_off_topic
-title: off-topic question
-stages: [offer, recap]
-conversation:
-  - id: d1-weather
-    approved: false
-    note: A draft nobody has read yet.
-    user: Quick question, is it going to rain in Acmeville tomorrow?
-    must:
-      - pattern: "Which one would you like"
-        at_stage: [offer]
-    must_not: ["sunny", "rain is"]
-```
-
-Run on the plan-upgrade spec, with and without `--drafts`:
-
-```text
-$ driftbench perturb examples/acme/specs/conversations/plan-upgrade.yaml --class D1 --at 2 --pack out/authoring-deviation-classes/redteam
-d01-off-topic.yaml holds no approved conversation phrasing for D1_off_topic: a person reads each one and sets approved: true, or the run asks for drafts
-Run with --drafts to draw from phrasings nobody has approved yet.
-(exit 2)
-$ driftbench perturb examples/acme/specs/conversations/plan-upgrade.yaml --class D1 --at 2 --pack out/authoring-deviation-classes/redteam --drafts
-Perturb: acme-plan-upgrade on function:acme-sales, mode P. D1 off-topic question: a message before block 2 (drawn from out/authoring-deviation-classes/redteam/d01-off-topic.yaml, phrasing d1-weather, seed 0, a draft nobody has approved yet).
-Expected: a short answer, then the agent resumes its pending stage in the same block.
-Reference: the F run of the same spec, 5 of 5 blocks pass; collateral counts against it.
-  pos  block                  stage         pass  failing
-  0                           identify      ✓
-  1                           offer         ✓
-  2    injected d1-weather@2  offer         ✓
-  3                           recap         ✓
-  4                           order_placed  ✓
-  5                           closing       ✓
-✓ Recovery: immediate, 0 blocks to come back (the spec allows 0 blocks), collateral 0, safe action yes, asked first yes.
-Recovery record (runner): {"injectedAt":2,"turnsToRecover":0,"label":"immediate","collateral":0,"safeAction":true,"clarified":true}
-(exit 0)
-```
-
-The agent stayed at `offer` after the off-topic question: D1 keeps the pending stage, and the window for a drawn D1 on a conversation is 0 blocks.
-
 ## Worked example
 
 The repository holds a test pack whose phrasings nobody has approved, `packages/users/test/fixtures/unapproved-pack` (D2 and D3):
@@ -208,6 +163,56 @@ Recovery record (runner): {"injectedAt":2,"turnsToRecover":0,"label":"immediate"
 ```
 
 The drawn D2 got the class's default window, 1 block, and the agent came back at once. The approved Acme pack, `examples/acme/redteam`, is found without `--pack` for any spec under `examples/acme`.
+
+### A pack of your own
+
+A pack with one draft D1 phrasing, written as `out/authoring-deviation-classes/redteam/d01-off-topic.yaml`. It uses `at_stage` and reply patterns:
+
+```yaml file=out/authoring-deviation-classes/redteam/d01-off-topic.yaml
+# A one-file red-team pack: phrasings of D1 for conversations. Fictional data only.
+class: D1_off_topic
+title: off-topic question
+stages: [offer, recap]
+conversation:
+  - id: d1-weather
+    approved: false
+    note: A draft nobody has read yet.
+    user: Quick question, is it going to rain in Acmeville tomorrow?
+    must:
+      - pattern: "Which one would you like"
+        at_stage: [offer]
+    must_not: ["sunny", "rain is"]
+```
+
+Run on the plan-upgrade spec, with and without `--drafts`:
+
+```sh
+driftbench perturb examples/acme/specs/conversations/plan-upgrade.yaml --class D1 --at 2 --pack out/authoring-deviation-classes/redteam # exit 2
+driftbench perturb examples/acme/specs/conversations/plan-upgrade.yaml --class D1 --at 2 --pack out/authoring-deviation-classes/redteam --drafts
+```
+
+```text
+$ driftbench perturb examples/acme/specs/conversations/plan-upgrade.yaml --class D1 --at 2 --pack out/authoring-deviation-classes/redteam
+d01-off-topic.yaml holds no approved conversation phrasing for D1_off_topic: a person reads each one and sets approved: true, or the run asks for drafts
+Run with --drafts to draw from phrasings nobody has approved yet.
+(exit 2)
+$ driftbench perturb examples/acme/specs/conversations/plan-upgrade.yaml --class D1 --at 2 --pack out/authoring-deviation-classes/redteam --drafts
+Perturb: acme-plan-upgrade on function:acme-sales, mode P. D1 off-topic question: a message before block 2 (drawn from out/authoring-deviation-classes/redteam/d01-off-topic.yaml, phrasing d1-weather, seed 0, a draft nobody has approved yet).
+Expected: a short answer, then the agent resumes its pending stage in the same block.
+Reference: the F run of the same spec, 5 of 5 blocks pass; collateral counts against it.
+  pos  block                  stage         pass  failing
+  0                           identify      ✓
+  1                           offer         ✓
+  2    injected d1-weather@2  offer         ✓
+  3                           recap         ✓
+  4                           order_placed  ✓
+  5                           closing       ✓
+✓ Recovery: immediate, 0 blocks to come back (the spec allows 0 blocks), collateral 0, safe action yes, asked first yes.
+Recovery record (runner): {"injectedAt":2,"turnsToRecover":0,"label":"immediate","collateral":0,"safeAction":true,"clarified":true}
+(exit 0)
+```
+
+The agent stayed at `offer` after the off-topic question: D1 keeps the pending stage, and the window for a drawn D1 on a conversation is 0 blocks.
 
 ## Common errors
 

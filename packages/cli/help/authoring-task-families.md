@@ -1,6 +1,6 @@
 ---
 title: Task families
-summary: 'A task family is one code-agent task written once with knobs, an oracle in code and a signed review; use `family instances`, `family verify` and `family review` to build, check and release its instances.'
+summary: 'A task family is one coding-agent task written once with knobs, an oracle written as a program and a signed review; use `family instances`, `family verify` and `family review` to build, check and release its instances.'
 commands:
   - family instances
   - family verify

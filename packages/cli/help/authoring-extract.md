@@ -176,102 +176,6 @@ Quotes in recorded answers name their source by its path relative to the proposa
 
 `extract map` prints `Wrote <file>: <n> axes (<ids>), <c> constraints, a full grid of <cells> cells.`
 
-### The full Acme proposal from a recording
-
-This walkthrough copies files first, so it is shown as text. The sources quoted by the recorded Acme answers sit one folder above the proposal (`../src/policy.ts`). To replay into a folder of your own, copy that layout first:
-
-```text
-mkdir -p out/authoring-extract/acme/src out/authoring-extract/acme/map
-cp examples/acme/src/policy.ts examples/acme/src/store.ts out/authoring-extract/acme/src/
-cp examples/acme/README.md examples/acme/inventory.yaml out/authoring-extract/acme/
-cp examples/acme/map/tools.yaml examples/acme/map/answers.yaml out/authoring-extract/acme/map/
-```
-
-Code pre-pass only, then the full proposal from the recording (no model call in either):
-
-```text
-$ driftbench extract --prompt examples/acme/src/policy.ts --inventory examples/acme/inventory.yaml --tools examples/acme/map/tools.yaml --no-model --out out/authoring-extract/code-only.yaml
-Wrote out/authoring-extract/code-only.yaml: 34 dimensions, 91 values, 55 constraints, 0 phrases, 7 relations, none approved.
-  Code pre-pass: 34 dimensions, 91 values, 55 constraints, 7 relations.
-  Roles: 3 axes (behaviour, deviation, channel), 31 details; the axes make a full grid of 252 cells.
-  No model call: the code pre-pass alone (--no-model).
-Notes:
-  catalog.search output: no partition stated for customer.id, customer.name, customer.current_plan_id
-  coverage.check output: no partition stated for address
-  port.check output: no partition stated for number
-  order.create input: no partition stated for plan_id, customer.name, customer.email
-  order.create output: no partition stated for order_id, plan_id, monthly_usd
-  notify_sales output: no partition stated for ticket_id
-Next: driftbench extract approve out/authoring-extract/code-only.yaml lists the decisions; approve by --dimension <id> or --all.
-(exit 0)
-$ driftbench extract --prompt out/authoring-extract/acme/src/policy.ts --prompt out/authoring-extract/acme/README.md --prompt out/authoring-extract/acme/src/store.ts --inventory out/authoring-extract/acme/inventory.yaml --tools out/authoring-extract/acme/map/tools.yaml --replay out/authoring-extract/acme/map/answers.yaml --out out/authoring-extract/acme/map/proposal.yaml
-Wrote out/authoring-extract/acme/map/proposal.yaml: 51 dimensions, 184 values, 111 constraints, 55 phrases, 74 relations, none approved.
-  Code pre-pass: 34 dimensions, 91 values, 55 constraints, 7 relations.
-  Roles: 7 axes (behaviour, deviation, channel, stage, user_type, coverage_result, workspace_start), 44 details; the axes make a full grid of 113568 cells.
-  Model lane claude-opus-5-5 as the extract and generate2 lanes, by hand: 6 sections, 6 calls.
-    stages     added 39 entries
-    rules      added 16 entries
-    personas   added 45 entries
-    data       added 49 entries
-    phrases    added 55 entries
-    relations  added 67 entries
-Notes:
-  catalog.search output: no partition stated for customer.id, customer.name, customer.current_plan_id
-  coverage.check output: no partition stated for address
-  port.check output: no partition stated for number
-  order.create input: no partition stated for plan_id, customer.name, customer.email
-  order.create output: no partition stated for order_id, plan_id, monthly_usd
-  notify_sales output: no partition stated for ticket_id
-Next: driftbench extract approve out/authoring-extract/acme/map/proposal.yaml lists the decisions; approve by --dimension <id> or --all.
-(exit 0)
-```
-
-List the open decisions (481 lines in all; the middle is cut):
-
-```text
-$ driftbench extract approve out/authoring-extract/acme/map/proposal.yaml
-out/authoring-extract/acme/map/proposal.yaml: 291 of 291 decisions are open (51 dimensions, 111 constraints, 55 phrases, 74 relations).
-Axes: 7 of 51 dimensions, a full grid of 113568 cells (the space commands accept 250000).
-  dimension   behaviour  behaviour axis, by code, 14 values: The behaviours the inventory lists
-  dimension   flow  behaviour detail, by code, 5 values: The flows the inventory lists
-  dimension   deviation  deviation axis, by code, 12 values: The deviation classes the flows must be perturbed with
-  dimension   channel  channel axis, by code, 2 values: The channels the inventory names
-  (471 more lines)
-  relation    recovery  recovery D8_tool_failure of notify_sales in new-home
-              ../src/policy.ts: "our sales system is not responding"
-Approve a dimension and its values with --dimension <id>, or every entry with --all. In the file, set
-approved: true; a value may set its own flag, and role: axis or detail decides what enters the space map.
-(exit 0)
-```
-
-Approve two dimensions into a copy, and write the space map of what is approved:
-
-```text
-$ driftbench extract approve out/authoring-extract/acme/map/proposal.yaml --dimension stage --dimension deviation --to out/authoring-extract/acme/map/partly.yaml
-Approved 2 dimensions in out/authoring-extract/acme/map/partly.yaml: deviation, stage.
-(exit 0)
-$ driftbench extract map out/authoring-extract/acme/map/partly.yaml --to out/authoring-extract/acme/map/space-partly.yaml
-Wrote out/authoring-extract/acme/map/space-partly.yaml: 2 axes (deviation, stage), 0 constraints, a full grid of 169 cells.
-(exit 0)
-```
-
-Approve everything (on a fictional example; on a real agent, read each entry first), check, and write the space map:
-
-```text
-$ driftbench extract approve out/authoring-extract/acme/map/proposal.yaml --all --to out/authoring-extract/acme/map/approved.yaml
-Approved 291 flags in out/authoring-extract/acme/map/approved.yaml; 0 were already set.
-(exit 0)
-$ driftbench extract approve out/authoring-extract/acme/map/approved.yaml
-out/authoring-extract/acme/map/approved.yaml: all 291 decisions are made.
-Axes: 7 of 51 dimensions, a full grid of 113568 cells (the space commands accept 250000).
-(exit 0)
-$ driftbench extract map out/authoring-extract/acme/map/approved.yaml --to out/authoring-extract/acme/map/space.yaml
-Wrote out/authoring-extract/acme/map/space.yaml: 7 axes (behaviour, deviation, channel, stage, user_type, coverage_result, workspace_start), 380 constraints, a full grid of 212940 cells.
-(exit 0)
-```
-
-`approved.yaml` is what `generate --map` takes; `space.yaml` is what `space coverage --map` takes.
-
 ## Worked example
 
 Code pre-pass only (no model call), on the Acme policy, inventory and tool schemas. Then list the open decisions, approve the three axis dimensions into a copy beside the proposal, and write the space map of what is approved. Last, the approved Acme proposal of the repository: every decision is made, and its space map is written:
@@ -329,6 +233,122 @@ Wrote out/extract/acme-space.yaml: 7 axes (behaviour, deviation, channel, stage,
 ```
 
 The approved copy has `0 constraints` in its space map: its 3 channel constraints exist but are not approved yet. Approve them in the file (`approved: true`) or with `--all`, and write the map again. `examples/acme/map/approved.yaml` is what `generate --map` takes; the written `acme-space.yaml` is what `space coverage --map` takes.
+
+### The full Acme proposal from a recording
+
+The sources quoted by the recorded Acme answers sit one folder above the proposal (`../src/policy.ts`). To replay into a folder of your own, copy that layout first:
+
+```sh setup
+mkdir -p out/authoring-extract/acme/src out/authoring-extract/acme/map
+cp examples/acme/src/policy.ts examples/acme/src/store.ts out/authoring-extract/acme/src/
+cp examples/acme/README.md examples/acme/inventory.yaml out/authoring-extract/acme/
+cp examples/acme/map/tools.yaml examples/acme/map/answers.yaml out/authoring-extract/acme/map/
+```
+
+Code pre-pass only, then the full proposal from the recording (no model call in either):
+
+```sh
+driftbench extract --prompt examples/acme/src/policy.ts --inventory examples/acme/inventory.yaml --tools examples/acme/map/tools.yaml --no-model --out out/authoring-extract/code-only.yaml
+driftbench extract --prompt out/authoring-extract/acme/src/policy.ts --prompt out/authoring-extract/acme/README.md --prompt out/authoring-extract/acme/src/store.ts --inventory out/authoring-extract/acme/inventory.yaml --tools out/authoring-extract/acme/map/tools.yaml --replay out/authoring-extract/acme/map/answers.yaml --out out/authoring-extract/acme/map/proposal.yaml
+```
+
+```text
+$ driftbench extract --prompt examples/acme/src/policy.ts --inventory examples/acme/inventory.yaml --tools examples/acme/map/tools.yaml --no-model --out out/authoring-extract/code-only.yaml
+Wrote out/authoring-extract/code-only.yaml: 34 dimensions, 91 values, 55 constraints, 0 phrases, 7 relations, none approved.
+  Code pre-pass: 34 dimensions, 91 values, 55 constraints, 7 relations.
+  Roles: 3 axes (behaviour, deviation, channel), 31 details; the axes make a full grid of 252 cells.
+  No model call: the code pre-pass alone (--no-model).
+Notes:
+  catalog.search output: no partition stated for customer.id, customer.name, customer.current_plan_id
+  coverage.check output: no partition stated for address
+  port.check output: no partition stated for number
+  order.create input: no partition stated for plan_id, customer.name, customer.email
+  order.create output: no partition stated for order_id, plan_id, monthly_usd
+  notify_sales output: no partition stated for ticket_id
+Next: driftbench extract approve out/authoring-extract/code-only.yaml lists the decisions; approve by --dimension <id> or --all.
+(exit 0)
+$ driftbench extract --prompt out/authoring-extract/acme/src/policy.ts --prompt out/authoring-extract/acme/README.md --prompt out/authoring-extract/acme/src/store.ts --inventory out/authoring-extract/acme/inventory.yaml --tools out/authoring-extract/acme/map/tools.yaml --replay out/authoring-extract/acme/map/answers.yaml --out out/authoring-extract/acme/map/proposal.yaml
+Wrote out/authoring-extract/acme/map/proposal.yaml: 51 dimensions, 184 values, 111 constraints, 55 phrases, 74 relations, none approved.
+  Code pre-pass: 34 dimensions, 91 values, 55 constraints, 7 relations.
+  Roles: 7 axes (behaviour, deviation, channel, stage, user_type, coverage_result, workspace_start), 44 details; the axes make a full grid of 113568 cells.
+  Model lane claude-opus-5-5 as the extract and generate2 lanes, by hand: 6 sections, 6 calls.
+    stages     added 39 entries
+    rules      added 16 entries
+    personas   added 45 entries
+    data       added 49 entries
+    phrases    added 55 entries
+    relations  added 67 entries
+Notes:
+  catalog.search output: no partition stated for customer.id, customer.name, customer.current_plan_id
+  coverage.check output: no partition stated for address
+  port.check output: no partition stated for number
+  order.create input: no partition stated for plan_id, customer.name, customer.email
+  order.create output: no partition stated for order_id, plan_id, monthly_usd
+  notify_sales output: no partition stated for ticket_id
+Next: driftbench extract approve out/authoring-extract/acme/map/proposal.yaml lists the decisions; approve by --dimension <id> or --all.
+(exit 0)
+```
+
+List the open decisions (481 lines in all; the middle is cut):
+
+```sh
+driftbench extract approve out/authoring-extract/acme/map/proposal.yaml
+```
+
+```text
+$ driftbench extract approve out/authoring-extract/acme/map/proposal.yaml
+out/authoring-extract/acme/map/proposal.yaml: 291 of 291 decisions are open (51 dimensions, 111 constraints, 55 phrases, 74 relations).
+Axes: 7 of 51 dimensions, a full grid of 113568 cells (the space commands accept 250000).
+  dimension   behaviour  behaviour axis, by code, 14 values: The behaviours the inventory lists
+  dimension   flow  behaviour detail, by code, 5 values: The flows the inventory lists
+  dimension   deviation  deviation axis, by code, 12 values: The deviation classes the flows must be perturbed with
+  dimension   channel  channel axis, by code, 2 values: The channels the inventory names
+  (471 more lines)
+  relation    recovery  recovery D8_tool_failure of notify_sales in new-home
+              ../src/policy.ts: "our sales system is not responding"
+Approve a dimension and its values with --dimension <id>, or every entry with --all. In the file, set
+approved: true; a value may set its own flag, and role: axis or detail decides what enters the space map.
+(exit 0)
+```
+
+Approve two dimensions into a copy, and write the space map of what is approved:
+
+```sh
+driftbench extract approve out/authoring-extract/acme/map/proposal.yaml --dimension stage --dimension deviation --to out/authoring-extract/acme/map/partly.yaml
+driftbench extract map out/authoring-extract/acme/map/partly.yaml --to out/authoring-extract/acme/map/space-partly.yaml
+```
+
+```text
+$ driftbench extract approve out/authoring-extract/acme/map/proposal.yaml --dimension stage --dimension deviation --to out/authoring-extract/acme/map/partly.yaml
+Approved 2 dimensions in out/authoring-extract/acme/map/partly.yaml: deviation, stage.
+(exit 0)
+$ driftbench extract map out/authoring-extract/acme/map/partly.yaml --to out/authoring-extract/acme/map/space-partly.yaml
+Wrote out/authoring-extract/acme/map/space-partly.yaml: 2 axes (deviation, stage), 0 constraints, a full grid of 169 cells.
+(exit 0)
+```
+
+Approve everything (on a fictional example; on a real agent, read each entry first), check, and write the space map:
+
+```sh
+driftbench extract approve out/authoring-extract/acme/map/proposal.yaml --all --to out/authoring-extract/acme/map/approved.yaml
+driftbench extract approve out/authoring-extract/acme/map/approved.yaml
+driftbench extract map out/authoring-extract/acme/map/approved.yaml --to out/authoring-extract/acme/map/space.yaml
+```
+
+```text
+$ driftbench extract approve out/authoring-extract/acme/map/proposal.yaml --all --to out/authoring-extract/acme/map/approved.yaml
+Approved 291 flags in out/authoring-extract/acme/map/approved.yaml; 0 were already set.
+(exit 0)
+$ driftbench extract approve out/authoring-extract/acme/map/approved.yaml
+out/authoring-extract/acme/map/approved.yaml: all 291 decisions are made.
+Axes: 7 of 51 dimensions, a full grid of 113568 cells (the space commands accept 250000).
+(exit 0)
+$ driftbench extract map out/authoring-extract/acme/map/approved.yaml --to out/authoring-extract/acme/map/space.yaml
+Wrote out/authoring-extract/acme/map/space.yaml: 7 axes (behaviour, deviation, channel, stage, user_type, coverage_result, workspace_start), 380 constraints, a full grid of 212940 cells.
+(exit 0)
+```
+
+`approved.yaml` is what `generate --map` takes; `space.yaml` is what `space coverage --map` takes.
 
 ## Common errors
 

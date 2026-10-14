@@ -484,11 +484,15 @@ changes:
 
 ### radius auto from a real prompt edit
 
-The rest of this example needs two files you write first, so its transcripts are shown as text. 
 Make the new prompt: the offer price expression in the Acme policy changes.
 
+```sh setup
+mkdir -p out/authoring-blast-radius
+node -e 'const fs=require("node:fs"); const t=fs.readFileSync("examples/acme/src/policy.ts","utf8"); fs.writeFileSync("out/authoring-blast-radius/policy-next.ts", t.replace("plan.monthly_usd}", "plan.monthly_usd + 1}"));'
+diff examples/acme/src/policy.ts out/authoring-blast-radius/policy-next.ts # exit 1
 ```
-$ node -e 'const fs=require("node:fs"); const t=fs.readFileSync("examples/acme/src/policy.ts","utf8"); fs.writeFileSync("out/authoring-blast-radius/policy-next.ts", t.replace("plan.monthly_usd}", "plan.monthly_usd + 1}"));'
+
+```text
 $ diff examples/acme/src/policy.ts out/authoring-blast-radius/policy-next.ts
 635c635
 <   const price = `for $${plan.monthly_usd} a month`;
@@ -498,8 +502,7 @@ $ diff examples/acme/src/policy.ts out/authoring-blast-radius/policy-next.ts
 
 Write a focused map that declares only the approved offer anchor (copied from `examples/acme/map/approved.yaml`, with the source path made relative to the new map's folder):
 
-```
-$ cat > out/authoring-blast-radius/price-quotes.yaml <<'EOF'
+```yaml file=out/authoring-blast-radius/price-quotes.yaml
 version: 1
 agent: acme
 produced_by: { family: code, model: by hand, at: 2026-10-14T00:00:00.000Z }
@@ -520,10 +523,13 @@ relations:
       quote: const price = `for $${plan.monthly_usd} a month`;
     produced_by: model
     approved: true
-EOF
 ```
 
 Derive the manifest. Without `--source`, the source is the old prompt path relative to the map, which here equals the declared path:
+
+```sh
+driftbench radius auto --prompt examples/acme/src/policy.ts out/authoring-blast-radius/policy-next.ts --map out/authoring-blast-radius/price-quotes.yaml --from-version acme-v1 --to-version acme-v2
+```
 
 ```text
 $ driftbench radius auto --prompt examples/acme/src/policy.ts out/authoring-blast-radius/policy-next.ts --map out/authoring-blast-radius/price-quotes.yaml --from-version acme-v1 --to-version acme-v2
@@ -540,6 +546,11 @@ changes:
 ```
 
 Write it to a file and compute its radius in mode T with the anchor trace:
+
+```sh
+driftbench radius auto --prompt examples/acme/src/policy.ts out/authoring-blast-radius/policy-next.ts --map out/authoring-blast-radius/price-quotes.yaml --from-version acme-v1 --to-version acme-v2 --out out/authoring-blast-radius/price-change.yaml
+driftbench radius examples/acme/gated/specs --change out/authoring-blast-radius/price-change.yaml --mode T --explain
+```
 
 ```text
 $ driftbench radius auto --prompt examples/acme/src/policy.ts out/authoring-blast-radius/policy-next.ts --map out/authoring-blast-radius/price-quotes.yaml --from-version acme-v1 --to-version acme-v2 --out out/authoring-blast-radius/price-change.yaml
@@ -564,6 +575,10 @@ gen-twise-131/b6-order_placed-to-closing: {"T":"out"}: outside declared changes
 ```
 
 With the full Acme map the same edit is the whole suite, because the full map quotes that line more than once:
+
+```sh
+driftbench radius auto --prompt examples/acme/src/policy.ts out/authoring-blast-radius/policy-next.ts --map examples/acme/map/approved.yaml --from-version acme-v1 --to-version acme-v2
+```
 
 ```text
 $ driftbench radius auto --prompt examples/acme/src/policy.ts out/authoring-blast-radius/policy-next.ts --map examples/acme/map/approved.yaml --from-version acme-v1 --to-version acme-v2

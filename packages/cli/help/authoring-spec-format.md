@@ -188,11 +188,52 @@ A spec file produces nothing by itself. Each command prints its own result:
 - The hash is the first 12 hex characters of the SHA-256 of the spec's canonical JSON, keys sorted at every depth. Equal content gives an equal hash. The hash, not `version`, enters the cache key and every run id. A workspace folder written `./<path>` is resolved from the spec's folder before the hash is taken.
 - `campaign run` prints one line per cell: spec id, target, mode, repeat, `pass` or `fail`, and the block count.
 
+## Worked example
+
+The Acme example holds one spec of each kind: `examples/acme/specs/conversations/plan-upgrade.yaml` (a conversation on `function:acme-sales`) and `examples/acme/specs/tasks/price-sheet.yaml` (a task on `process:acme-ops`, with `workspace_seed`, artifacts and a workspace diff). Validate the seven Acme specs, then run one of each kind on the targets they name; both agents are deterministic and free:
+
+```sh
+driftbench spec validate examples/acme/specs
+driftbench campaign run examples/acme/specs/conversations/plan-upgrade.yaml examples/acme/specs/tasks/price-sheet.yaml --no-cache
+```
+
+```text
+$ driftbench spec validate examples/acme/specs
+✓ examples/acme/specs/conversations/new-customer-coverage.yaml  acme-new-customer-coverage · 4 blocks · 2 perturbations · hash be195c993d4f
+✓ examples/acme/specs/conversations/number-porting.yaml  acme-number-porting · 5 blocks · 2 perturbations · hash 134c8e993f95
+✓ examples/acme/specs/conversations/off-topic-return.yaml  acme-off-topic-return · 5 blocks · 1 perturbation · hash cca285407040
+✓ examples/acme/specs/conversations/order-loose-confirmation.yaml  acme-order-loose-confirmation · 4 blocks · 2 perturbations · hash ae116e6312eb
+✓ examples/acme/specs/conversations/plan-upgrade.yaml  acme-plan-upgrade · 5 blocks · 3 perturbations · hash 5ae085d0b267
+✓ examples/acme/specs/conversations/tool-failure.yaml  acme-tool-failure · 3 blocks · 1 perturbation · hash e5bc5c9ba9d2
+✓ examples/acme/specs/tasks/price-sheet.yaml  acme-price-sheet · 2 blocks · 1 perturbation · hash d96437659138
+Checked 7 specs: 7 valid, 0 invalid, 0 warnings.
+(exit 0)
+$ driftbench campaign run examples/acme/specs/conversations/plan-upgrade.yaml examples/acme/specs/tasks/price-sheet.yaml --no-cache
+Campaign c-e9442dcb01a2: 2 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, regex, exact, injection, length, markup, starts_with, finish_reason, json, tool_f1, refusal, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Not judged: 4 criteria in 6 blocks of 2 specs (one_question_per_turn, no_invented_data, sheet_matches_catalog, reports_what_it_did), 2 of them gating. This campaign loads no judge, so these criteria have no verdict and count in no pass or fail. See docs/concepts/judges.md.
+✓ acme-plan-upgrade · function:acme-sales · F · repeat 0  pass  5 blocks
+✓ acme-price-sheet · process:acme-ops · F · repeat 0  pass  2 blocks
+2 cells: 2 pass, 0 fail, 0 failed. Spent $0.00.
+The runs are not kept: pass --store <file> to keep them.
+(exit 0)
+```
+
+The campaign id holds the clock, so it differs on each run.
+
 ### A spec of your own
 
-A short conversation spec for the free, deterministic Acme sales agent, written as `out/authoring-spec-format/upgrade-short.yaml` beside the minimal spec above (`minimal.yaml`):
+Write the minimal spec of the Inputs section and a short conversation spec for the free, deterministic Acme sales agent into one folder:
 
-```yaml
+```yaml file=out/authoring-spec-format/minimal.yaml
+id: minimal-greeting
+blocks:
+  - user: Hi, I'm already an Acme customer and I want more data.
+    expect:
+      must: ['email address']
+```
+
+
+```yaml file=out/authoring-spec-format/upgrade-short.yaml
 # Fictional data only.
 id: upgrade-short
 version: '1'
@@ -237,6 +278,11 @@ metadata:
 
 Validate both, then run the short one on the agent its `target` names:
 
+```sh
+driftbench spec validate out/authoring-spec-format
+driftbench campaign run out/authoring-spec-format/upgrade-short.yaml --no-cache
+```
+
 ```text
 $ driftbench spec validate out/authoring-spec-format
 ✓ out/authoring-spec-format/minimal.yaml  minimal-greeting · 1 block · hash b70e47af2ac6
@@ -253,38 +299,6 @@ The runs are not kept: pass --store <file> to keep them.
 ```
 
 The campaign id holds the clock, so it differs on each run. The criterion has no verdict because no judge is loaded; the block still passes on its machine checks.
-
-## Worked example
-
-The Acme example holds one spec of each kind: `examples/acme/specs/conversations/plan-upgrade.yaml` (a conversation on `function:acme-sales`) and `examples/acme/specs/tasks/price-sheet.yaml` (a task on `process:acme-ops`, with `workspace_seed`, artifacts and a workspace diff). Validate the seven Acme specs, then run one of each kind on the targets they name; both agents are deterministic and free:
-
-```sh
-driftbench spec validate examples/acme/specs
-driftbench campaign run examples/acme/specs/conversations/plan-upgrade.yaml examples/acme/specs/tasks/price-sheet.yaml --no-cache
-```
-
-```text
-$ driftbench spec validate examples/acme/specs
-✓ examples/acme/specs/conversations/new-customer-coverage.yaml  acme-new-customer-coverage · 4 blocks · 2 perturbations · hash be195c993d4f
-✓ examples/acme/specs/conversations/number-porting.yaml  acme-number-porting · 5 blocks · 2 perturbations · hash 134c8e993f95
-✓ examples/acme/specs/conversations/off-topic-return.yaml  acme-off-topic-return · 5 blocks · 1 perturbation · hash cca285407040
-✓ examples/acme/specs/conversations/order-loose-confirmation.yaml  acme-order-loose-confirmation · 4 blocks · 2 perturbations · hash ae116e6312eb
-✓ examples/acme/specs/conversations/plan-upgrade.yaml  acme-plan-upgrade · 5 blocks · 3 perturbations · hash 5ae085d0b267
-✓ examples/acme/specs/conversations/tool-failure.yaml  acme-tool-failure · 3 blocks · 1 perturbation · hash e5bc5c9ba9d2
-✓ examples/acme/specs/tasks/price-sheet.yaml  acme-price-sheet · 2 blocks · 1 perturbation · hash d96437659138
-Checked 7 specs: 7 valid, 0 invalid, 0 warnings.
-(exit 0)
-$ driftbench campaign run examples/acme/specs/conversations/plan-upgrade.yaml examples/acme/specs/tasks/price-sheet.yaml --no-cache
-Campaign c-e9442dcb01a2: 2 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, regex, exact, injection, length, markup, starts_with, finish_reason, json, tool_f1, refusal, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
-Not judged: 4 criteria in 6 blocks of 2 specs (one_question_per_turn, no_invented_data, sheet_matches_catalog, reports_what_it_did), 2 of them gating. This campaign loads no judge, so these criteria have no verdict and count in no pass or fail. See docs/concepts/judges.md.
-✓ acme-plan-upgrade · function:acme-sales · F · repeat 0  pass  5 blocks
-✓ acme-price-sheet · process:acme-ops · F · repeat 0  pass  2 blocks
-2 cells: 2 pass, 0 fail, 0 failed. Spent $0.00.
-The runs are not kept: pass --store <file> to keep them.
-(exit 0)
-```
-
-The campaign id holds the clock, so it differs on each run.
 
 ## Common errors
 

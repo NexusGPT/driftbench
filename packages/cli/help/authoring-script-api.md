@@ -88,9 +88,21 @@ The arguments above. `expect` objects take the keys of a block's `expect` in the
 
 ## Worked example
 
-`out/authoring-script-api/refund.ts` builds a fictional refund conversation with every step kind, prints the verdict and the YAML, and writes `refund-basic.yaml` beside itself:
+A script needs a TypeScript runner and the package. In your own project, install `@agent-nexus/driftbench-core` and `tsx`. In a scratch folder beside a clone of the repository (the folder holds `packages` as a link), a `tsconfig.json` maps the package name to its source instead:
 
-```ts
+```json file=tsconfig.json
+{
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "paths": { "@agent-nexus/driftbench-*": ["./packages/*/src/index.ts"] }
+  }
+}
+```
+
+The script builds a fictional refund conversation with every step kind, prints the verdict and the YAML, and writes `refund-basic.yaml` beside itself:
+
+```ts file=out/authoring-script-api/refund.ts
 // Fictional data only. Builds one conversation spec in code and writes it as YAML.
 import { writeFileSync } from 'node:fs';
 import { script } from '@agent-nexus/driftbench-core';
@@ -124,8 +136,14 @@ writeFileSync(new URL('./refund-basic.yaml', import.meta.url), yaml);
 process.stdout.write(yaml);
 ```
 
+Run it:
+
+```sh setup
+tsx out/authoring-script-api/refund.ts
+```
+
 ```text
-$ pnpm exec tsx out/authoring-script-api/refund.ts
+$ tsx out/authoring-script-api/refund.ts
 load.ok: true
 hash: c9dc31d6e6ab
 id: refund-basic
@@ -184,7 +202,11 @@ metadata:
 (exit 0)
 ```
 
-`atBlock: 3`: the run stops after `b4`; `b5` is kept and skipped by the verdict. `simulated_blocks` counts from 0, so `b3` and `b4` are the simulated user's. The command line reads the file the script wrote with the same hash (`driftbench spec lint out/authoring-script-api/refund-basic.yaml`, after the script ran):
+`atBlock: 3`: the run stops after `b4`; `b5` is kept and skipped by the verdict. `simulated_blocks` counts from 0, so `b3` and `b4` are the simulated user's. The command line reads the file the script wrote with the same hash:
+
+```sh
+driftbench spec lint out/authoring-script-api/refund-basic.yaml
+```
 
 ```text
 $ driftbench spec lint out/authoring-script-api/refund-basic.yaml

@@ -98,58 +98,6 @@ A prefix changes no output format. It changes what the block starts from:
 - In a run, the block reports as usual: `✓ <spec> · <target> · <mode> · repeat 0  pass  <n> blocks`, or the failing verdict.
 - A ledger contradiction (a block adds a fact with a value that differs from the one the ledger holds) is reported by the ledger check with both values.
 
-### A prefix you write
-
-The plan-upgrade conversation of the Acme example, started at its third turn. The prefix holds the first two turns; the block only checks the choice. Written as `out/authoring-prefixes/resume-at-offer.yaml`:
-
-```yaml
-# Fictional data only. The block starts after the offer, without replaying the blocks before it.
-id: resume-at-offer
-target: { adapter: function, agent: acme-sales }
-stages: [identify, offer, recap, order_placed, closing]
-ledger_seed: { customer: existing }
-blocks:
-  - id: choose
-    given:
-      prefix:
-        - role: user
-          content: Hi, I'm already an Acme customer and I keep running out of data on my phone.
-        - role: assistant
-          content: Hi, I'm the Acme Telecom sales assistant. What is the email address on your Acme account?
-        - role: user
-          content: It's sam.rivera@example.com
-        - role: assistant
-          content: 'Plans with more data: Acme Mobile M, 40 GB for $25 a month; Acme Mobile L, unlimited data for $35 a month. Which one would you like?'
-          tool_calls:
-            - label: catalog.search
-              input: { category: mobile, customer_email: sam.rivera@example.com }
-      ledger: { customer_id: cust-001, current_plan: mobile-s }
-    user: The unlimited one, please.
-    expect:
-      stage: recap
-      tools:
-        - { label: order.create, count: 0 }
-      must: ['CONFIRM']
-```
-
-The recorded call has no `output`, so the Acme agent reads the catalog again for that past turn, without recording a new call.
-
-```text
-$ driftbench spec validate out/authoring-prefixes/resume-at-offer.yaml
-✓ out/authoring-prefixes/resume-at-offer.yaml  resume-at-offer · 1 block · hash bf920fcd867c
-Checked 1 spec: 1 valid, 0 invalid, 0 warnings.
-(exit 0)
-$ driftbench campaign run out/authoring-prefixes/resume-at-offer.yaml --no-cache --mode T,F
-Campaign c-6448f17e9702: 2 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, regex, exact, injection, length, markup, starts_with, finish_reason, json, tool_f1, refusal, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
-✓ resume-at-offer · function:acme-sales · T · repeat 0  pass  1 block
-✓ resume-at-offer · function:acme-sales · F · repeat 0  pass  1 block
-2 cells: 2 pass, 0 fail, 0 failed. Spent $0.00.
-The runs are not kept: pass --store <file> to keep them.
-(exit 0)
-```
-
-Both modes pass: the agent reached `recap` and asked for `CONFIRM` from the prefix alone.
-
 ## Worked example
 
 `import traces` turns a recorded session into a draft spec: each observed user turn becomes a block, and every block after the first gets the conversation before it as its `given.prefix`, tool calls and their outputs included. On a recorded Claude Code session of the repository:
@@ -202,6 +150,63 @@ blocks:
 ```
 
 The lint warnings are expected: a draft has no `expect` until a person writes it.
+
+### A prefix you write
+
+The plan-upgrade conversation of the Acme example, started at its third turn. The prefix holds the first two turns; the block only checks the choice. Written as `out/authoring-prefixes/resume-at-offer.yaml`:
+
+```yaml file=out/authoring-prefixes/resume-at-offer.yaml
+# Fictional data only. The block starts after the offer, without replaying the blocks before it.
+id: resume-at-offer
+target: { adapter: function, agent: acme-sales }
+stages: [identify, offer, recap, order_placed, closing]
+ledger_seed: { customer: existing }
+blocks:
+  - id: choose
+    given:
+      prefix:
+        - role: user
+          content: Hi, I'm already an Acme customer and I keep running out of data on my phone.
+        - role: assistant
+          content: Hi, I'm the Acme Telecom sales assistant. What is the email address on your Acme account?
+        - role: user
+          content: It's sam.rivera@example.com
+        - role: assistant
+          content: 'Plans with more data: Acme Mobile M, 40 GB for $25 a month; Acme Mobile L, unlimited data for $35 a month. Which one would you like?'
+          tool_calls:
+            - label: catalog.search
+              input: { category: mobile, customer_email: sam.rivera@example.com }
+      ledger: { customer_id: cust-001, current_plan: mobile-s }
+    user: The unlimited one, please.
+    expect:
+      stage: recap
+      tools:
+        - { label: order.create, count: 0 }
+      must: ['CONFIRM']
+```
+
+The recorded call has no `output`, so the Acme agent reads the catalog again for that past turn, without recording a new call.
+
+```sh
+driftbench spec validate out/authoring-prefixes/resume-at-offer.yaml
+driftbench campaign run out/authoring-prefixes/resume-at-offer.yaml --no-cache --mode T,F
+```
+
+```text
+$ driftbench spec validate out/authoring-prefixes/resume-at-offer.yaml
+✓ out/authoring-prefixes/resume-at-offer.yaml  resume-at-offer · 1 block · hash bf920fcd867c
+Checked 1 spec: 1 valid, 0 invalid, 0 warnings.
+(exit 0)
+$ driftbench campaign run out/authoring-prefixes/resume-at-offer.yaml --no-cache --mode T,F
+Campaign c-6448f17e9702: 2 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, regex, exact, injection, length, markup, starts_with, finish_reason, json, tool_f1, refusal, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+✓ resume-at-offer · function:acme-sales · T · repeat 0  pass  1 block
+✓ resume-at-offer · function:acme-sales · F · repeat 0  pass  1 block
+2 cells: 2 pass, 0 fail, 0 failed. Spent $0.00.
+The runs are not kept: pass --store <file> to keep them.
+(exit 0)
+```
+
+Both modes pass: the agent reached `recap` and asked for `CONFIRM` from the prefix alone.
 
 ## Common errors
 

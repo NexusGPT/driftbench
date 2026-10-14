@@ -147,11 +147,39 @@ Patterns are JavaScript regular expressions, compiled with the `m` flag. Escape 
 
 Verdict ids follow the `expect` keys: `must.<index>`, `must_not.<index>`, `tools.<label>.count`, `tools.<label>.input.<field>`, `tools.order`, `forbidden.<label>`, `stage.reached`, `guards.<name>.<verdict>`, `skills.<name>`, `artifacts.<path>.<index>.<check>`, `workspace.created`, `budget.steps`, `judge.<criterion>`. A tool expected 0 times is reported by `forbidden.<label>`, not by `tools`.
 
+## Worked example
+
+The Acme plan-upgrade spec uses most block features: `user` stimuli, `expect.stage`, tool counts and input assertions (`{ absent: true }` included), `must` and `must_not`, `guards`, `ledger_add`, gating and non-gating criteria, and a world-only perturbation. Read it with `cat examples/acme/specs/conversations/plan-upgrade.yaml`. Check it, then run it with the tool-failure spec in modes T and F on the free, deterministic Acme sales agent:
+
+```sh
+driftbench spec lint examples/acme/specs/conversations/plan-upgrade.yaml
+driftbench campaign run examples/acme/specs/conversations/plan-upgrade.yaml examples/acme/specs/conversations/tool-failure.yaml --no-cache --mode T,F
+```
+
+```text
+$ driftbench spec lint examples/acme/specs/conversations/plan-upgrade.yaml
+✓ examples/acme/specs/conversations/plan-upgrade.yaml  acme-plan-upgrade · 5 blocks · 3 perturbations · hash 5ae085d0b267
+Checked 1 spec: 1 valid, 0 invalid, 0 warnings.
+(exit 0)
+$ driftbench campaign run examples/acme/specs/conversations/plan-upgrade.yaml examples/acme/specs/conversations/tool-failure.yaml --no-cache --mode T,F
+Campaign c-35168ff0e39d: 4 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, regex, exact, injection, length, markup, starts_with, finish_reason, json, tool_f1, refusal, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Not judged: 3 criteria in 6 blocks of 2 specs (one_question_per_turn, no_invented_data, honest_failure), 2 of them gating. This campaign loads no judge, so these criteria have no verdict and count in no pass or fail. See docs/concepts/judges.md.
+✓ acme-plan-upgrade · function:acme-sales · T · repeat 0  pass  5 blocks
+✓ acme-plan-upgrade · function:acme-sales · F · repeat 0  pass  5 blocks
+✓ acme-tool-failure · function:acme-sales · T · repeat 0  pass  3 blocks
+✓ acme-tool-failure · function:acme-sales · F · repeat 0  pass  3 blocks
+4 cells: 4 pass, 0 fail, 0 failed. Spent $0.00.
+The runs are not kept: pass --store <file> to keep them.
+(exit 0)
+```
+
+Every block passes on its machine checks. The judged criteria have no verdict, because no judge is loaded, and they count neither way.
+
 ### A spec of your own
 
-A tour of the three stimulus forms and several expect families, written as `out/authoring-blocks/blocks-tour.yaml` and run on the free Acme sales agent:
+A tour of the three stimulus forms and several expect families, run on the free Acme sales agent:
 
-```yaml
+```yaml file=out/authoring-blocks/blocks-tour.yaml
 # Fictional data only.
 id: blocks-tour
 target: { adapter: function, agent: acme-sales }
@@ -202,6 +230,11 @@ blocks:
     budget: { steps: 5 }
 ```
 
+```sh
+driftbench spec lint out/authoring-blocks
+driftbench campaign run out/authoring-blocks/blocks-tour.yaml --no-cache
+```
+
 ```text
 $ driftbench spec lint out/authoring-blocks
 ✓ out/authoring-blocks/blocks-tour.yaml  blocks-tour · 4 blocks · hash ec11e78f5498
@@ -215,7 +248,62 @@ The runs are not kept: pass --store <file> to keep them.
 (exit 0)
 ```
 
-The same spec with a second pattern on the last block that the agent never says (`must: ["CONFIRM", "free gift"]`, in `out/authoring-blocks/fail/`):
+The same spec under another id, with a second pattern on the last block that the agent never says (`must: ["CONFIRM", "free gift"]`):
+
+```yaml file=out/authoring-blocks/fail/blocks-tour-fail.yaml
+# Fictional data only.
+id: blocks-tour-fail
+target: { adapter: function, agent: acme-sales }
+stages: [identify, offer, recap, order_placed, callback, handover, closing]
+given:
+  ledger: { customer: existing }
+blocks:
+  - id: hello
+    user: Hi, I'm already an Acme customer and I keep running out of data on my phone.
+    expect:
+      stage: identify
+      tools:
+        - { label: catalog.search, count: 0 }
+      must: ['email address']
+      must_not: ['[Aa]s an AI']
+      length:
+        words: { max: 60 }
+  - id: email
+    burst:
+      - It's sam.rivera@example.com
+      - I want more data please
+    expect:
+      stage: offer
+      ledger_add: { customer_id: cust-001 }
+      tools:
+        - label: catalog.search
+          count: 1
+          input:
+            category: mobile
+            customer_email: { regex: '@example\.com$' }
+            address_id: { absent: true }
+      must: ['Acme Mobile L']
+  - id: aside
+    when:
+      injection:
+        class: D1_off_topic
+        user: By the way, do you sell phone cases?
+    expect:
+      tools:
+        - { label: order.create, count: 0 }
+  - id: choose
+    user: The unlimited one, please.
+    expect:
+      stage: recap
+      tools:
+        - { label: order.create, count: 0 }
+      must: ["CONFIRM", "free gift"]
+    budget: { steps: 5 }
+```
+
+```sh
+driftbench campaign run out/authoring-blocks/fail/blocks-tour-fail.yaml --no-cache # exit 1
+```
 
 ```text
 $ driftbench campaign run out/authoring-blocks/fail/blocks-tour-fail.yaml --no-cache
@@ -227,34 +315,6 @@ The runs are not kept: pass --store <file> to keep them.
 ```
 
 `block 3 must.1`: the fourth block (index 3), its second `must` pattern. The campaign id holds the clock, so it differs on each run.
-
-## Worked example
-
-The Acme plan-upgrade spec uses most block features: `user` stimuli, `expect.stage`, tool counts and input assertions (`{ absent: true }` included), `must` and `must_not`, `guards`, `ledger_add`, gating and non-gating criteria, and a world-only perturbation. Read it with `cat examples/acme/specs/conversations/plan-upgrade.yaml`. Check it, then run it with the tool-failure spec in modes T and F on the free, deterministic Acme sales agent:
-
-```sh
-driftbench spec lint examples/acme/specs/conversations/plan-upgrade.yaml
-driftbench campaign run examples/acme/specs/conversations/plan-upgrade.yaml examples/acme/specs/conversations/tool-failure.yaml --no-cache --mode T,F
-```
-
-```text
-$ driftbench spec lint examples/acme/specs/conversations/plan-upgrade.yaml
-✓ examples/acme/specs/conversations/plan-upgrade.yaml  acme-plan-upgrade · 5 blocks · 3 perturbations · hash 5ae085d0b267
-Checked 1 spec: 1 valid, 0 invalid, 0 warnings.
-(exit 0)
-$ driftbench campaign run examples/acme/specs/conversations/plan-upgrade.yaml examples/acme/specs/conversations/tool-failure.yaml --no-cache --mode T,F
-Campaign c-35168ff0e39d: 4 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, regex, exact, injection, length, markup, starts_with, finish_reason, json, tool_f1, refusal, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
-Not judged: 3 criteria in 6 blocks of 2 specs (one_question_per_turn, no_invented_data, honest_failure), 2 of them gating. This campaign loads no judge, so these criteria have no verdict and count in no pass or fail. See docs/concepts/judges.md.
-✓ acme-plan-upgrade · function:acme-sales · T · repeat 0  pass  5 blocks
-✓ acme-plan-upgrade · function:acme-sales · F · repeat 0  pass  5 blocks
-✓ acme-tool-failure · function:acme-sales · T · repeat 0  pass  3 blocks
-✓ acme-tool-failure · function:acme-sales · F · repeat 0  pass  3 blocks
-4 cells: 4 pass, 0 fail, 0 failed. Spent $0.00.
-The runs are not kept: pass --store <file> to keep them.
-(exit 0)
-```
-
-Every block passes on its machine checks. The judged criteria have no verdict, because no judge is loaded, and they count neither way.
 
 ## Common errors
 

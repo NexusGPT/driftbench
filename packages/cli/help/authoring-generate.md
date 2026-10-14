@@ -1,6 +1,6 @@
 ---
 title: Generating specs from the map
-summary: '`generate` writes a suite of specs from an approved map, by code and with no model call: stage-graph paths, a t-wise covering array, boundary values, one probe per deviation class, metamorphic families, task-family instances, and a cover pass; `--model` adds model proposals that count only once the gate accepts them.'
+summary: '`generate` writes a suite of specs from an approved map, by the generator alone with no model call: stage-graph paths, a t-wise covering array, boundary values, one probe per deviation class, metamorphic families, task-family instances, and a cover pass; `--model` adds model proposals that count only once the gate accepts them.'
 commands:
   - generate
 see_also:
