@@ -32,8 +32,8 @@ const moving = suite.complete.flatMap((spec) =>
 
 describe('a class whose recovery moves the conversation', () => {
   it('is declared by a clean walk cut at its stage, said after the last turn', () => {
-    // A goal shift said at check goes back to intake: no later turn of the walk could follow it, so the
-    // walk stops at check and the perturbation is said after its last turn, with no end state.
+    // A goal shift said after intake goes back to intake: no later turn of the walk could follow it, so the
+    // walk stops where it is said and the perturbation comes after its last turn, with no end state.
     expect(moving.length).toBeGreaterThan(0);
     for (const { spec, id } of moving) {
       const perturbation = spec.perturbations?.find((entry) => entry.id === id);

@@ -10,7 +10,7 @@ import { hasPaths, pad, type SeedContext, scenarioDraft } from './seed-drafts';
  * Perturbations a clean walk cannot hold: a class whose recovery moves the conversation elsewhere (a goal shift
  * goes back to intake) leaves every later turn of the walk starting from a stage the conversation has left, so
  * no clean walk declares it, and a perturbed run never sees an agent that ignores it. After coverage, each such
- * class no complete spec declares gets one walk of its flow cut at the first stage before the last where it
+ * class no complete spec declares gets one walk of its flow cut at the latest stage before the last where it
  * can be said; the perturbation is said after the walk's last turn, with the recovery as its Then. The caller
  * renders each draft and observes it only when complete, before resuming this iterator.
  */
@@ -45,11 +45,14 @@ export class TerminalPerturbations {
       const places = relations.paths.flatMap((path) => {
         const own = recoveryFor(relations, classId, path.flow);
         if (!own) return [];
-        return path.stages.flatMap((stage, index) => {
-          if (index + 1 >= path.stages.length) return [];
-          const after = stageAfter(own, stage);
-          return after !== undefined && after !== stage ? [{ path, stage }] : [];
-        });
+        // The latest stage first: the walk covers as much of its path as it can before the class is said.
+        return path.stages
+          .flatMap((stage, index) => {
+            if (index + 1 >= path.stages.length) return [];
+            const after = stageAfter(own, stage);
+            return after !== undefined && after !== stage ? [{ path, stage }] : [];
+          })
+          .reverse();
       });
       for (const { path, stage } of places) {
         const id = `gen-deviation-cut-${pad(added + 1)}`;
