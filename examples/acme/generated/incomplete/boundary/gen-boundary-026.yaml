@@ -63,6 +63,7 @@ rules:
     - port.check
     - order.create
     - notify_sales
+  one_message_per_turn: true
 metadata:
   generated:
     by: driftbench generate

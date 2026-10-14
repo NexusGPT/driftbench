@@ -129,6 +129,7 @@ rules:
   forbidden_tools:
     - port.check
     - order.create
+  one_message_per_turn: true
 metadata:
   generated:
     by: driftbench generate

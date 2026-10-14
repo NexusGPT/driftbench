@@ -126,6 +126,7 @@ rules:
   forbidden_tools:
     - coverage.check
     - port.check
+  one_message_per_turn: true
 metadata:
   generated:
     by: driftbench generate
