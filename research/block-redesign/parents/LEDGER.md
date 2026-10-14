@@ -11,3 +11,9 @@ Price basis: stand-in of 1.00 USD per million input tokens and 5.00 per million 
 - Tiny-sample projection (protocol item 3), written after the pilot and before the main run: 0.00515 USD per turn, 1,140 planned turns, about 5.9 USD. Measured: 0.00531 USD per turn, 6.06 USD.
 - Total at the stand-in price: 6.29 USD, 42% of the 15 USD cap. The stop level (13.50 USD) was never reached.
 - Requests that the API refused (the pilot's first five calls, `temperature` not accepted) returned no completion and no usage and are not in the table. The harness retries 429 and 5xx answers; none of those answers carry usage, so no retry is in the table, and the run log shows no failed item.
+
+## Published price (received after the runs)
+
+claude-haiku-5-5, prompts up to 100K tokens: 0.10 USD per million input tokens, 0.50 USD per million output tokens (Anthropic pricing page, https://platform.claude.com/docs/en/about-claude/pricing, and model page https://platform.claude.com/docs/en/models/haiku-5-5/overview). Every call here had a prompt far under 100K tokens.
+
+Recomputed: pilot 206,142 in and 6,183 out = 0.0237 USD; main 5,298,995 in and 151,664 out = 0.6057 USD; total 0.6294 USD. The stand-in figure of 6.29 USD above was ten times higher. The stop rule used the stand-in, so it was the safer bound. Total spend of the lane at the published price: 0.63 USD of the 15 USD cap.
