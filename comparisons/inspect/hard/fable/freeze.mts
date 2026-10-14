@@ -16,10 +16,10 @@ import { configs, requestFor } from './request';
 //   node --import tsx comparisons/inspect/hard/fable/freeze.mts heldout-480 20 900001 910001 920001
 const here = fileURLToPath(new URL('./', import.meta.url));
 const repo = fileURLToPath(new URL('../../../../', import.meta.url));
-const [name, per, qaStart, panelStart, borderlineStart, borderlinePer] = process.argv.slice(2);
+const [name, per, qaStart, panelStart, borderlineStart, borderlinePer, panelPer] = process.argv.slice(2);
 if (!name || !per || !qaStart || !panelStart || !borderlineStart)
   throw new Error(
-    'Usage: freeze.mts <set name> <items per family and label> <qa and fact start seed> <panel start seed> <borderline start seed> [borderline items per family and label]',
+    'Usage: freeze.mts <set name> <items per family and label> <qa and fact start seed> <panel start seed> <borderline start seed> [borderline items per family and label] [panel items per family and label]',
   );
 const out = `${here}${name}/`;
 if (existsSync(`${out}freeze.json`)) throw new Error(`The ${name} set is already frozen`);
@@ -31,7 +31,7 @@ const perCell = Number(per);
 const perCellOf: Record<Row, number> = {
   qa: perCell,
   fact: perCell,
-  panel: perCell,
+  panel: Number(panelPer ?? per),
   borderline: Number(borderlinePer ?? per),
 };
 const start: Record<Row, number> = {

@@ -65,7 +65,7 @@
     "comparisons/inspect/hard/fable/request.ts": "04fa47b3a6fb4e10679222319d951cc0122e72078e4708efd0a2835ec3bd5cf9",
     "comparisons/inspect/hard/fable/run.mts": "9221187de39b4110d2d0450f3605ac54528b37a4035454ba4bba6d328ae7d5f0",
     "comparisons/inspect/hard/fable/report.mts": "2a2c74e5ade51de2fc5c4bcfddef4129109fb01d240590d351e1959bda2886d7",
-    "comparisons/inspect/hard/fable/freeze.mts": "5cd6261662b43a85381a8ba0b6ccd94525e30903cd64a0532012a207aa59f833"
+    "comparisons/inspect/hard/fable/freeze.mts": "42bf1ea311d35f1e606db8dbde558ebabcac94b23877acfedd136829d921fcbf"
   },
   "amendments": [
     {
@@ -88,6 +88,13 @@
       "from": "8a7cb45a7505060b7dae7bacdfd24234ecba79e4b924dd1f3ab28500395caef4",
       "to": "5cd6261662b43a85381a8ba0b6ccd94525e30903cd64a0532012a207aa59f833",
       "reason": "freeze.mts learns to leave a row out (count 0) and to write a pre-registration, for the fresh held-out set. The practice set itself is unchanged."
+    },
+    {
+      "at": "2026-10-14T11:25:32.328Z",
+      "file": "comparisons/inspect/hard/fable/freeze.mts",
+      "from": "5cd6261662b43a85381a8ba0b6ccd94525e30903cd64a0532012a207aa59f833",
+      "to": "42bf1ea311d35f1e606db8dbde558ebabcac94b23877acfedd136829d921fcbf",
+      "reason": "freeze.mts takes a panel count of its own, for a panel-only practice set of the next round. This set and its results are unchanged and already recorded."
     }
   ]
 }
