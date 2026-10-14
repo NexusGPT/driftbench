@@ -14,6 +14,8 @@ import {
 } from '../seed/assemble';
 import { DeviationBalance } from '../seed/deviation-balance';
 import type { PreparedMap } from '../seed/map';
+import { phraseDrafts } from '../seed/phrase-seeder';
+import { restatedDrafts } from '../seed/restated-seeder';
 import {
   boundarySeeder,
   coverDraft,
@@ -122,6 +124,8 @@ function writeSuite(
     fileCount += 1;
   };
   const balance = new DeviationBalance(prepared);
+  // The phrases the complete specs say so far: the phrase seeder adds only those no complete spec says yet.
+  const saidPhrases = new Set<string>();
   const render = (draft: SpecDraft): Spec | undefined => {
     const seeder = draft.seeder;
     drafted[seeder] += 1;
@@ -167,7 +171,14 @@ function writeSuite(
     }
     const complete = !needsPhrase && !needsThen;
     if (complete) totals.complete += 1;
-    if (complete) balance.observe(loaded.spec);
+    if (complete) {
+      balance.observe(loaded.spec);
+      for (const block of loaded.spec.blocks) {
+        if ('user' in block.when) saidPhrases.add(block.when.user);
+        else if ('injection' in block.when && block.when.injection.user !== undefined)
+          saidPhrases.add(block.when.injection.user);
+      }
+    }
     coverage.add(loaded.spec, seeder, complete);
     write(
       `${complete ? COMPLETE_DIR : INCOMPLETE_DIR}/${seeder}/${rendered.id}.yaml`,
@@ -251,6 +262,9 @@ function writeSuite(
         reasons: [`${id} was built but ${made === undefined ? 'is incomplete' : 'does not reach the cell'}`],
       });
   }
+  // Restated slots, then phrases no complete spec says yet, in the order the eager API runs them.
+  for (const draft of restatedDrafts(prepared, context, 0)) render(draft);
+  for (const draft of phraseDrafts(prepared, context, saidPhrases, 0)) render(draft);
   // Deviation balance, as the eager API runs it: after coverage, on what the suite probes so far.
   const written = Object.values(seeders).reduce((sum, entry) => sum + entry.specs, 0);
   for (const draft of balance.topUps(context, written)) render(draft);

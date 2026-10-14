@@ -63,6 +63,8 @@ blocks:
         - label: notify_sales
           count: 0
       lang: EN
+rules:
+  one_message_per_turn: true
 metadata:
   generated:
     by: driftbench generate

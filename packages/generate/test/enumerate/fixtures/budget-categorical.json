@@ -1,11 +1,11 @@
 {
-  "source": "Generator v4 with phrases placed at a stage of a walk, Acme new-home phrase binds its address",
+  "source": "Generator v4 with one run per directly requested tool call, one reply per user turn (reply_count), restated slots and phrase cover specs",
   "mapHash": "7a022d4e1380",
   "hashes": {
-    "pairwise": "e1b4442c42e906f9036824ce26a41bd8198743fcf7d76b771f60caa51d282e1a",
-    "budget-20": "4f258d716fb46e4510d2207e3575e61454bc18c8ca306ea169e5f77a06cbf6c1",
-    "budget-50": "5c36cd57ddedb6e895ffff409f55e7a7f26bce863a99072f76922a9d7998fa45",
-    "budget-100": "67f0c50350218cc590f3424b9298f7bbd0ef048c92b871a9da54873b4d5ca9db",
-    "budget-200": "bb5a11191416f988f6bd9121053f91c004840ea17fdc600a8cbb7a9cf0305a85"
+    "pairwise": "4876cc984ae14c1d31aeccc7c03d613ca142f2c52616432504cb06335d456619",
+    "budget-20": "0aeba2dc72ac1f221e5a9861df7d7df55249d6cadeaf70c3382dec30da828e04",
+    "budget-50": "9883c0d3666843a8a2349f25066f58370372bbe2c8cf3f052bb5d2faef6a4047",
+    "budget-100": "bf5091d9511fcac22ca13ae4bd4ec3b11b990ee1daa520d69ae6b9c63925de9a",
+    "budget-200": "dc7d3595a6b57b5a7a2fa4f1272e8984258da23f4fc05ff636c2bec406be3676"
   }
 }
