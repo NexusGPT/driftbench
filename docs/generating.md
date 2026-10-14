@@ -451,6 +451,8 @@ The files match the committed `examples/acme/generated`, apart from the relative
 
 `generate --spec-cap N` limits all written specs, independently of `--budget N`, which still limits only the budget seeder's rows. The cap keeps every graph, boundary, deviation, metamorphic and task spec, plus every incomplete spec. It selects complete t-wise and cover specs by their actual axis-map placements. A limit below the protected spec count is refused.
 
+Each retained task spec keeps its entire generated `.seed-*` folder, including binary and nested fixtures. Seed assets do not count toward the spec cap.
+
 The default `--spec-cap-mode tuples` preserves the uncapped candidate pool's pairs, triples and requested strength when the cap permits it. Explicit `--spec-cap-mode pairs` preserves pairs and permits triple losses. Both modes report the exact missing tuples in `spec_cap.coverage`; existing gaps stay visible. The `preserving` count is the deterministic greedy selection size, not a proof of the global minimum.
 
 A cap below that selection size writes the best selection it can, names the lost target tuples and exits 1. Losing triples in explicit pairs mode is reported without failing the pair target. Selection preserves tuple coverage, not fault detection on every possible agent: compare planted faults before adopting a smaller suite. A cap does not repair gaps already present in the candidate pool, and changing `--budget` also changes that pool.
@@ -676,8 +678,8 @@ A person reviews each family once. The signature holds for the two hashes: a cha
 
 ```
 $ pnpm -s driftbench family review examples/acme/families/price-sheet
-Review: pending. examples/acme/families/price-sheet/review.yaml is not signed yet; the instances record it, and a person signs it before release.
-exit 1
+Review: signed by owner on 2026-10-13.
+exit 0
 ```
 
 `family instances` draws the knobs with the seed, builds each instance with its corner-case variants, and checks the style invariant: it rebuilds every variant with each other allowed value of each style knob and writes nothing when one changes the expected outcome. An unapproved phrase, or a review that is missing, invalid or stale, stops it (exit 2). A pending review is recorded in every instance.
@@ -695,7 +697,7 @@ The listing goes on with one line per instance, then ends:
 
 ```
 Style invariant: 116 style alternatives rebuilt; none changed the expected outcome.
-Review: pending. examples/acme/families/price-sheet/review.yaml is not signed yet; the instances record it, and a person signs it before release.
+Review: signed by owner on 2026-10-13.
 Wrote 88 specs and family-report.json to _captures/docs3/generating/families/instances.
 exit 0
 ```
@@ -715,7 +717,6 @@ and, after one line per spec:
 
 ```
 ✓ The reference passes all 88 specs: 20 instances may ship.
-Release also waits for a person to sign the review of acme-price-sheet (20 instances wait on it).
 Wrote _captures/docs3/generating/families/instances/verify-report.json.
 exit 0
 ```

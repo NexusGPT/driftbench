@@ -38,6 +38,10 @@ export const ToolCall = z.strictObject({
 export type ToolCall = z.infer<typeof ToolCall>;
 
 export const Cost = z.strictObject({
+  /** Exact pricing key; otherwise the runner uses target.options.model. */
+  model: z.string().min(1).optional(),
+  /** Cache reads, included in inputTokens (not additional input tokens). */
+  cachedInputTokens: z.number().int().nonnegative().optional(),
   usd: z.number().nonnegative().optional(),
   inputTokens: z.number().int().nonnegative().optional(),
   outputTokens: z.number().int().nonnegative().optional(),
@@ -324,8 +328,8 @@ export const RunResult = z.strictObject({
   repeat: z.number().int().min(0),
   perturbationId: z.string().optional(),
   status: z.enum(['completed', 'failed', 'stopped']),
-  /** The verdict the spec's end gave the run, when the script ended with one. */
-  endVerdict: z.enum(['success', 'failure']).optional(),
+  /** The driver or spec's end verdict. Inconclusive means the run could not be judged. */
+  endVerdict: z.enum(['success', 'failure', 'inconclusive']).optional(),
   error: z.string().optional(),
   blocks: z.array(BlockResult),
   succession: Succession,
@@ -427,6 +431,8 @@ export const Campaign = z.strictObject({
   budgetUsd: z.number().nonnegative(),
   judge: JudgeConfig,
   createdAt: z.string().min(1),
+  /** The explicit agent version used by the block cache, retained when the campaign resumes. */
+  agentVersion: z.string().optional(),
   /** The registry versions the campaign ran: the dataset its specs came from, the prompts it pinned. */
   sources: z.array(RegistrySource).optional(),
   /** Set when the campaign ran the blast radius of a change and carried the rest. Absent on a full campaign. */
