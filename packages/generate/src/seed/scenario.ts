@@ -77,6 +77,19 @@ export type ScenarioRequest = {
    */
   aside?: { phrase: ProposalPhrase; carries: Pick[] };
   /**
+   * A request said just before the walk's move from `stage` to `to`, which calls `call.tool`: the user asks
+   * for the tool with another value of `call.field` first, then states the move's own value in the move (a
+   * restated slot). The request's call carries the move's arguments with `call.value`, and its reply states
+   * the tool's returned fields as the move's does; the move then expects its own value, the latest one.
+   */
+  before?: {
+    stage: string;
+    to: string;
+    stimulus: Stimulus;
+    carries: Pick[];
+    call: { tool: string; field: string; value: Assertion };
+  };
+  /**
    * A clean walk declares one perturbation, drawn among the classes it can take. With this, it declares one
    * for every class it can take: the stage graph's walks do, so no class depends on a draw to be declared.
    */
@@ -287,6 +300,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
   // What the reply that reached the pending stage must never hold, whatever the data: the states `must_not`
   // patterns with no slot, such as narrated internal steps. A recovery that stays there is held to them too.
   let pending: { stage: string; mustNot: string[] } | undefined;
+  let beforePlaced = false;
   for (let index = 0; index < path.stages.length; index += 1) {
     if (request.turn && !request.turn.call && index === 1) {
       blocks.push({
@@ -405,6 +419,8 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     // What the reply of this turn must state (a quoted price read from the tool's answer), from the map.
     const stated: string[] = [];
     const unstated: string[] = [];
+    // The patterns that state a returned field of the tool a `before` request runs.
+    const reported: string[] = [];
     for (const entry of relations.states) {
       const subject =
         entry.subject.dimension === 'flow'
@@ -429,6 +445,12 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
           if (!filled.ok)
             return fail(`what the reply states at ${from} reads unbound slots ${filled.missing.join(', ')}`);
           target.push(filled.value);
+          const reports = slotsOf(pattern).some((slot) => {
+            const source = boundBy.get(slot);
+            const found = source ? prepared.toolDimensions.get(source[0]) : undefined;
+            return found?.direction === 'out' && found.tool.name === request.before?.call.tool;
+          });
+          if (target === stated && reports) reported.push(filled.value);
         }
       }
       for (const dimension of Object.keys(entry.when ?? {})) {
@@ -450,6 +472,21 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       pending.mustNot.push(...(entry.must_not ?? []).filter((pattern) => slotsOf(pattern).length === 0));
     }
     const carries = unique([[prepared.transition as number, transition], ...ruled]);
+    const ask = request.before;
+    const first = ask && !beforePlaced && from === ask.stage && to === ask.to ? ask : undefined;
+    const run = first ? tools.find((tool) => tool.label === first.call.tool && calls(tool)) : undefined;
+    if (first && run) {
+      blocks.push({
+        id: `b${blocks.length + 1}-restated`,
+        stimulus: first.stimulus,
+        stage: from,
+        carries: first.carries,
+        tools: [{ ...run, input: { ...run.input, [first.call.field]: first.call.value } }],
+        ...(reported.length > 0 ? { must: reported } : {}),
+        ...(lang === undefined ? {} : { lang }),
+      });
+      beforePlaced = true;
+    }
     blocks.push({
       id: `b${blocks.length + 1}-${transitionId}`,
       stimulus: stimulusOf(phrase, transitionKey, transitionId),
@@ -480,6 +517,10 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     }
   }
   if (request.turn?.call && !turnPlaced) return fail(`no move of the path calls ${request.turn.call.tool}`);
+  if (request.before && !beforePlaced)
+    return fail(
+      `no move of the path from ${request.before.stage} to ${request.before.to} calls ${request.before.call.tool}`,
+    );
 
   let placed: Built['probe'];
   let truncated = turnPlaced;
@@ -524,6 +565,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     !probe &&
     !request.turn &&
     !request.aside &&
+    !request.before &&
     deviationKey !== undefined &&
     prepared.deviation !== undefined
   ) {
