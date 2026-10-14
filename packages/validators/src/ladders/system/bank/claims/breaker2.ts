@@ -3430,11 +3430,13 @@ add(
       routes = await viewerWriteForms(base);
     });
     if (routes.size === 0) return fail('viewer discovery found no write routes');
-    const cases = [...routes.values()].flatMap((forms) =>
+    type OriginKind = 'own' | 'foreign' | 'absent' | 'near-userinfo' | 'near-suffix' | 'near-null';
+    type RefererKind = 'own' | 'foreign' | 'absent' | 'malformed' | 'near-userinfo' | 'near-path';
+    const matrix = [...routes.values()].flatMap((forms) =>
       METHODS.flatMap((method) =>
         (['own', 'foreign', 'different-port'] as const).flatMap((host) =>
-          (['own', 'foreign', 'absent'] as const).flatMap((origin) =>
-            (['own', 'foreign', 'absent', 'malformed'] as const).flatMap((referer) =>
+          (['own', 'foreign', 'absent'] as OriginKind[]).flatMap((origin) =>
+            (['own', 'foreign', 'absent', 'malformed'] as RefererKind[]).flatMap((referer) =>
               (['body', 'missing', 'wrong', 'query-only', 'header-only'] as const).map((token) => ({
                 form: forms[Math.abs(ctx.seed) % forms.length] as ViewerForm,
                 method,
@@ -3448,6 +3450,26 @@ add(
         ),
       ),
     );
+    // Near-miss origins look like the viewer's own address but name another site. A valid page form with
+    // a correct token and the exact Host must still be refused with 403 for each of them.
+    const nearMisses: [OriginKind, RefererKind][] = [
+      ['near-userinfo', 'absent'],
+      ['near-suffix', 'absent'],
+      ['near-null', 'absent'],
+      ['absent', 'near-userinfo'],
+      ['absent', 'near-path'],
+    ];
+    const nearCases = [...routes.values()].flatMap((forms) =>
+      nearMisses.map(([origin, referer]) => ({
+        form: forms[Math.abs(ctx.seed) % forms.length] as ViewerForm,
+        method: 'POST',
+        host: 'own' as const,
+        origin,
+        referer,
+        token: 'body' as const,
+      })),
+    );
+    const cases = [...matrix, ...nearCases];
     for (const { form: source, method, host, origin, referer, token } of cases) {
       // docs/viewer.md: "Requests must use the exact `127.0.0.1:<port>` address printed at startup."
       // "Other Host headers are refused to block DNS rebinding."
@@ -3514,14 +3536,29 @@ add(
                 ? 'foreign.example'
                 : `${address.hostname}:${otherPort}`,
         };
-        if (origin !== 'absent') headers.Origin = origin === 'own' ? base : 'https://foreign.example';
+        if (origin !== 'absent') {
+          headers.Origin =
+            origin === 'own'
+              ? base
+              : origin === 'near-userinfo'
+                ? `http://${address.host}@foreign.example`
+                : origin === 'near-suffix'
+                  ? `${base}.foreign.example`
+                  : origin === 'near-null'
+                    ? 'null'
+                    : 'https://foreign.example';
+        }
         if (referer !== 'absent') {
           headers.Referer =
             referer === 'own'
               ? base + source.page
               : referer === 'foreign'
                 ? 'https://foreign.example/review'
-                : 'not a URL';
+                : referer === 'near-userinfo'
+                  ? `http://${address.host}@foreign.example/review`
+                  : referer === 'near-path'
+                    ? `https://foreign.example/${base}/review`
+                    : 'not a URL';
         }
         if (token === 'header-only') headers['X-CSRF-Token'] = csrf;
         // node:http preserves an explicit Host; fetch may replace it. Send a body for every method.
