@@ -4,6 +4,7 @@ export { lintCommand, validateCommand } from './commands/spec';
 export { type Io, processIo } from './io';
 export { type MainOptions, main } from './main';
 export {
+  BUILTIN_PLUGINS,
   type DriftbenchPlugin,
   definePlugin,
   type PluginAdapterFactory,
