@@ -11,7 +11,7 @@ import emptySourceFixes from './fixtures/whole-empty-source-fixes.json';
 const movedBy = emptySourceFixes as Record<string, string[]>;
 
 // Recorded span lists that version 2 now reads: a quote of symbols alone found in the source it names, an
-// input source label spelled another way (`input/<path>`), or a span quoting the criterion, which is dropped.
+// input source label spelled another way (`input/<path>`), or a span that only quotes the criterion, now dropped.
 // The frozen candidate column holds these rows as inconclusive; version 2 keeps the recorded met.
 const symbolMoved = decoderTwoMoves as Record<string, Record<string, string>>;
 

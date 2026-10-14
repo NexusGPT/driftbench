@@ -74,7 +74,6 @@ describe('criterion evidence spans are grounded in their named sources', () => {
     { source: 'transcript.99', quote: 'Usage is 32 GB.' },
     { source: 'transcript.00', quote: 'Usage is 32 GB.' },
     { source: 'transcript.-1', quote: 'Usage is 32 GB.' },
-    { source: 'criterion', quote: request.criterion.rubric },
     { source: 'input.missing.txt', quote: 'Limit is 50 GB.' },
     { source: 'artifact', quote: 'Invoice total is 4 USD.' },
     { source: 'reference', quote: 'The threshold is at least 32 GB.' },
@@ -85,6 +84,33 @@ describe('criterion evidence spans are grounded in their named sources', () => {
     const result = parse([{ source: 'transcript.1', quote: 'I approve the discount.' }, bad]);
     expect(result.unparsed).toBe(true);
     expect(result.answer.outcome).toBe('inconclusive');
+  });
+
+  it('drops a span that only quotes the criterion and counts it as no evidence (decoder 2)', () => {
+    const criterionSpan = { source: 'criterion', quote: request.criterion.rubric };
+    const grounded = { source: 'transcript.1', quote: 'I approve the discount.' };
+    const kept = parse([grounded, criterionSpan]);
+    expect(kept.unparsed).toBeUndefined();
+    expect(kept.answer.outcome).toBe('pass');
+    expect(kept.criterionQuotesDropped).toBe(1);
+    expect(kept.checks?.[0]?.evidence).toEqual([grounded]);
+    // Any label other than a transcript entry, such as the given, is read the same way.
+    expect(parse([grounded, { ...criterionSpan, source: 'given' }]).criterionQuotesDropped).toBe(1);
+    // With no other span, a met check has no evidence and voids the ledger; an unmet one keeps its verdict.
+    expect(parse([criterionSpan]).unparsed).toBe(true);
+    expect(parse([criterionSpan], false)).toMatchObject({
+      answer: { outcome: 'fail' },
+      criterionQuotesDropped: 1,
+      checks: [{ met: false, evidence: null }],
+    });
+    // A criterion quote presented as a transcript entry is a wrong-source claim, never dropped.
+    expect(parse([grounded, { source: 'transcript.0', quote: request.criterion.rubric }]).unparsed).toBe(
+      true,
+    );
+    // The strict decoder, version 1, still voids the ledger.
+    expect(parse([grounded, criterionSpan], true, { ...request, criterionDecoderVersion: 1 }).unparsed).toBe(
+      true,
+    );
   });
 
   it('keeps missing evidence, exact requirement coverage and old string evidence behavior', () => {

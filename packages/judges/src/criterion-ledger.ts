@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { inconclusive, type JudgeRequest, type JudgeResult } from './contract';
-import { groundEvidence, groundEvidenceSpan } from './evidence';
+import { type EvidenceSpan, groundEvidence, groundEvidenceSpan, textContainsQuote } from './evidence';
 
 export type CriterionRequirement = { readonly id: string; readonly requirement: string };
 /**
@@ -8,7 +8,8 @@ export type CriterionRequirement = { readonly id: string; readonly requirement: 
  * string quote is dropped and the check keeps its met value. Version 1 is the strict decoder, selectable
  * by name: any ungrounded quote voids the ledger. A version 1 recording keeps its key under version 1.
  * Version 2 also grounds a span quote of symbols alone in the exact source it names, and reads an input
- * source label spelled another way, such as `input/<path>` (see groundEvidenceSpan).
+ * source label spelled another way, such as `input/<path>` (see groundEvidenceSpan). A span that only quotes the
+ * criterion is dropped and counts as no evidence (criterionQuotesDropped); a met check then needs another span.
  */
 export const CRITERION_DECODER_VERSION = 2;
 export type CriterionDecoderVersion = 1 | 2;
@@ -93,7 +94,22 @@ export function parseCriterionLedger(value: unknown, request: JudgeRequest, raw:
   let evidenceUnverified = 0;
   const decoder = request.criterionDecoderVersion ?? CRITERION_DECODER_VERSION;
   const spanOptions = { symbolQuotes: decoder === 2, inputSpellings: decoder === 2 };
+  let criterionQuotesDropped = 0;
   for (const check of checks) {
+    if (decoder === 2 && Array.isArray(check.evidence)) {
+      // The criterion is not data: a span that only quotes it is dropped and counts as no evidence.
+      const requirement = expected.find((r) => r.id === check.id)?.requirement ?? '';
+      const spans: EvidenceSpan[] = check.evidence;
+      const kept = spans.filter(
+        (span) =>
+          !quotesCriterion(request, requirement, span) ||
+          groundEvidenceSpan(request, span, spanOptions).grounded,
+      );
+      if (kept.length < spans.length) {
+        criterionQuotesDropped += spans.length - kept.length;
+        check.evidence = kept.length ? (kept as typeof check.evidence) : null;
+      }
+    }
     if (check.met === true && check.evidence === null)
       return invalid('a met requirement needs grounded evidence');
     if (
@@ -127,6 +143,7 @@ export function parseCriterionLedger(value: unknown, request: JudgeRequest, raw:
     raw,
     checks,
     ...(evidenceUnverified ? { evidenceUnverified } : {}),
+    ...(criterionQuotesDropped ? { criterionQuotesDropped } : {}),
     ...diagnostics,
     answer: {
       outcome,
@@ -136,4 +153,15 @@ export function parseCriterionLedger(value: unknown, request: JudgeRequest, raw:
       ...(evidence === undefined ? {} : { evidence }),
     },
   };
+}
+
+/**
+ * Whether a span quotes the criterion rather than the data: its label names no transcript entry, and its quote
+ * is in the criterion rubric or in the requirement being checked.
+ */
+function quotesCriterion(request: JudgeRequest, requirement: string, span: EvidenceSpan): boolean {
+  return (
+    !/^transcript\./.test(span.source) &&
+    [request.criterion.rubric, requirement].some((text) => textContainsQuote(text, span.quote))
+  );
 }
