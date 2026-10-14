@@ -26,6 +26,7 @@ import {
   specText,
 } from '../seed/assemble';
 import type { PreparedMap } from '../seed/map';
+import { phraseDrafts } from '../seed/phrase-seeder';
 import {
   type BoundarySummary,
   type BudgetSummary,
@@ -377,6 +378,19 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
         reasons: [`${id} was built but ${made.length === 0 ? 'is incomplete' : 'does not reach the cell'}`],
       });
   }
+  // Phrases no complete spec says yet: each said once at the stage after a walk's first move.
+  const said = new Set(
+    complete.flatMap((spec) =>
+      spec.blocks.flatMap((block) =>
+        'user' in block.when
+          ? [block.when.user]
+          : 'injection' in block.when && block.when.injection.user !== undefined
+            ? [block.when.injection.user]
+            : [],
+      ),
+    ),
+  );
+  renderSeeder('cover', phraseDrafts(prepared, context, said, 0));
   const held = new Set(
     cellsOf(prepared, [], t).flatMap((cell) =>
       Object.entries(cell.values).map(([dimension, value]) => `${dimension}=${value}`),

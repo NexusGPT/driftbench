@@ -70,6 +70,13 @@ export type ScenarioRequest = {
      * call carries that move's arguments with `field` set to `value`, so every argument and the count hold.
      */
     call?: { tool: string; field: string; value: Assertion };
+    /**
+     * The map ties no tool to what the turn says (a behaviour or flow phrase): the walk forbids no tool, since
+     * a correct agent may run one the map does not name for it.
+     */
+    free?: boolean;
+    /** How many moves of the walk come before the turn; 1, the first move, when absent. */
+    at?: number;
   };
   /**
    * A turn said after the walk's first move that names a context value (who the user is) and asks for nothing:
@@ -284,8 +291,11 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
   const lang = relations.replyLanguage;
   let movedAway = false;
   let turnPlaced = false;
+  // A free turn's block: no tool is closed on it (`turn.free`).
+  let freeBlock: number | undefined;
   for (let index = 0; index < path.stages.length; index += 1) {
-    if (request.turn && !request.turn.call && index === 1) {
+    if (request.turn && !request.turn.call && index === (request.turn.at ?? 1)) {
+      freeBlock = request.turn.free ? blocks.length : undefined;
       blocks.push({
         id: `b${blocks.length + 1}-value`,
         stimulus: request.turn.stimulus,
@@ -465,6 +475,8 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     }
   }
   if (request.turn?.call && !turnPlaced) return fail(`no move of the path calls ${request.turn.call.tool}`);
+  if (request.turn && !turnPlaced)
+    return fail(`the path has no stage ${request.turn.at ?? 1} moves after its start`);
 
   let placed: Built['probe'];
   let truncated = turnPlaced;
@@ -489,12 +501,15 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
   // is forbidden in every turn.
   const inPlay = new Set<string>();
   for (const block of blocks) for (const tool of block.tools ?? []) if (calls(tool)) inPlay.add(tool.label);
-  for (const block of blocks) {
+  for (const [position, block] of blocks.entries()) {
+    if (position === freeBlock) continue;
     const listed = new Set((block.tools ?? []).map((tool) => tool.label));
     const closed = [...inPlay].filter((label) => !listed.has(label)).map((label) => ({ label, count: 0 }));
     if (closed.length > 0) block.tools = [...(block.tools ?? []), ...closed];
   }
-  const forbidden = prepared.tools.map((tool) => tool.name).filter((name) => !inPlay.has(name));
+  const forbidden = request.turn?.free
+    ? []
+    : prepared.tools.map((tool) => tool.name).filter((name) => !inPlay.has(name));
   const rules: Rules = {
     ...(forbidden.length > 0 ? { forbidden_tools: forbidden } : {}),
     ...(probe?.classId === 'D7_silence_or_burst' ? { one_message_per_turn: true } : {}),

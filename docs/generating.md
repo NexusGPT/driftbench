@@ -289,7 +289,7 @@ That is the last line of `pnpm -s driftbench space coverage examples/acme/gated/
 | `deviation` | one probe per deviation class, injected at a stage of a path whose flow has a recovery for the class; a class a first message can carry may arrive on the first turn, and a class whose recovery stays may arrive after the last stage |
 | `metamorphic` | families of specs that differ only in the phrasing of one value, with the same Then by construction |
 | `task` | the instances of every family a `task_family` relation names (`--tasks <n>` per relation, default 8), each with its corner and planted variants; see [task families](#task-families) |
-| `cover` | runs last: one scenario for each allowed pair no complete spec of the other seeders covers, its values fixed and its deviation a probe at its stage; a pair it cannot build is listed in `generate-report.json` under `cover.unbuilt` with the reasons |
+| `cover` | runs last: one scenario for each allowed pair no complete spec of the other seeders covers, its values fixed and its deviation a probe at its stage; a pair it cannot build is listed in `generate-report.json` under `cover.unbuilt` with the reasons. Then each approved phrase of a behaviour, a flow or a tool value that no complete spec says gets one spec (`gen-phrase-NNN`): a walk's moves reach a stage and the user says the phrase there; the Then is that stage, plus one run of the tool for a returned value and no run of a side-effecting tool. The phrases of one dimension go to distinct stages while the walks have stages left. A phrase that states slot values (`binds` or a `{slot}`) is left out, since a stage-only Then cannot judge them |
 
 Every seeded choice comes from `--seed` (default 1), so the same map and seed give the same suite byte for byte.
 
@@ -394,7 +394,7 @@ $ pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out genera
 Actual axis-map coverage (written complete specs): pairs 708 of 708 (100.0%); triples 2928 of 4064 (72.0%).
 Candidate t-wise array (before the total cap): covering array of 156 rows over 5 dimensions, 356 of 356 allowed 2-tuples (100.0%); 2 pairs no path reaches are left out.
 Uncovered on the axis map: 0 pairs, 1136 triples (see coverage.actual[].uncovered).
-Map acme (../examples/acme/map/approved.yaml), hash 7c05b9cee9cc: 51 dimensions, 187 values, 463 constraints, 55 approved phrases.
+Map acme (../examples/acme/map/approved.yaml), hash 7a022d4e1380: 51 dimensions, 187 values, 463 constraints, 55 approved phrases.
 Seed 1, t = 2.
 
 Seeder        specs  blocks  complete  incomplete
@@ -404,7 +404,7 @@ boundary         85     183        13          72
 deviation        21     111        21           0
 metamorphic      42     192        42           0
 task             67      71        67           0
-cover            24     135        24           0
+cover            27     142        27           0
 
 Stage graph: 18 of 23 edges covered in 12 paths from needs.
 Constraints applied: 463.
@@ -439,11 +439,11 @@ Specs with a block the map supports no machine Then for (18), in incomplete/: ge
      1  no approved path needs callback_phone=not-given
      1  no approved path needs catalog.search.in.unknown-key=catalog.search.in.unknown-key.sent
      1  no approved path needs coverage.check.in.unknown-key=coverage.check.in.unknown-key.sent
-Wrote 504 files to generated.
+Wrote 507 files to generated.
 exit 1
 ```
 
-The files match the committed `examples/acme/generated`, apart from the relative path of the map, which follows the output folder. Exit 1 is the exit for a suite written with incomplete specs: 332 specs are complete, 75 are incomplete. Complete specs cover all 708 allowed pairs. The price-sheet flow has no conversation path: its specs come from the map's `task_family` relation, so B-013, B-014 and `sales-operations` hold allowed pairs through the [task families](#task-families). `--baseline <specs>` measures other specs on the same map for comparison; `--max <n>` caps the specs per seeder.
+The files match the committed `examples/acme/generated`, apart from the relative path of the map, which follows the output folder. Exit 1 is the exit for a suite written with incomplete specs: 335 specs are complete, 75 are incomplete. Complete specs cover all 708 allowed pairs. The price-sheet flow has no conversation path: its specs come from the map's `task_family` relation, so B-013, B-014 and `sales-operations` hold allowed pairs through the [task families](#task-families). `--baseline <specs>` measures other specs on the same map for comparison; `--max <n>` caps the specs per seeder.
 
 `generate-report.json` holds the generator and map identity, the options, the summary (specs, blocks, complete, incomplete), one entry per seeder, the stage graph, the covering array, the boundary values, the deviation probes, the metamorphic families, the constraints applied, the values with no phrase (`no_phrase`), the blocks with no machine Then and why (`no_then`), the coverage, and any invalid spec or lint finding. `generate` exits 0 when every block has an approved phrase and a Then, 1 when the suite is written with incomplete specs, a seeder cut by `--max` or a generator defect, 2 on a usage or input error (nothing written).
 
@@ -493,7 +493,7 @@ Selected lines from the Acme comparison command, run from the repository root:
 $ pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out _captures/budget/budget-20 --t 2 --seed 1 --budget 20 --force
 Candidate budget array (before the total cap), budget 20: 20 cells of 901 allowed, pairs covered 155 of 356 (43.5%), max deviation from fair share 2.00.
 Coverage on the axis map at t = 2: complete specs 708 of 708 (100.0%), all specs 708 (100.0%).
-Wrote 500 files to _captures/budget/budget-20.
+Wrote 498 files to _captures/budget/budget-20.
 exit 1
 ```
 
