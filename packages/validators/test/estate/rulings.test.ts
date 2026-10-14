@@ -1,14 +1,9 @@
 import { writeFileSync } from 'node:fs';
-import { orderedCheck } from '@agent-nexus/driftbench-adapters';
-import {
-  CheckRegistry,
-  type CustomCheckFunction,
-  defaultChecks,
-  ESTATE_CHECKS,
-} from '@agent-nexus/driftbench-checks';
-import { type CheckSet, machineVerdict, parseSpecText } from '@agent-nexus/driftbench-core';
+import { fileURLToPath } from 'node:url';
+import { type CustomCheckFunction, ESTATE_CHECKS } from '@agent-nexus/driftbench-checks';
+import type { CheckSet } from '@agent-nexus/driftbench-core';
 import { describe, expect, it, vi } from 'vitest';
-import { genCompleteFamily, roleOf } from '../../src/ladders/estate/bank/loop';
+import { genCompleteFamily } from '../../src/ladders/estate/bank/loop';
 import { completionComponents } from '../../src/ladders/estate/completion';
 import { completionContract } from '../../src/ladders/estate/completion-contract';
 import { follow } from '../../src/ladders/estate/follower';
@@ -17,188 +12,14 @@ import { estateMeta } from '../../src/ladders/estate/levels';
 import * as pipeline from '../../src/ladders/estate/pipeline';
 import { renderEstate } from '../../src/ladders/estate/render';
 import { situationsOf } from '../../src/ladders/estate/situations';
-
-function required<T>(value: T | undefined): T {
-  if (value === undefined) throw new Error('Required fixture value is absent');
-  return value;
-}
-
-const SUFFIXES = [
-  'guard_negative-guard-reply-length-py',
-  'guard_register-guard-read-before-edit-py',
-  'guard_register-guard-reply-length-py',
-  'hazard_recovery-hazard-after-compaction',
-  'journey-route-table',
-  'read_when-reference-skill',
-  'read_when-reference-standing',
-  'skip_pressure-gate-fixed-gate',
-  'stage_anytime-stage-anytime',
-  'stage_order-stage-anytime',
-  'tool_boundary-tool-allow',
-  'tool_boundary-tool-declared',
-  'tool_boundary-tool-ask',
-  'tool_denied-tool-deny',
-];
-
-function suffix(run: pipeline.EstateRun, spec: pipeline.GeneratedSpec): string {
-  const atom = run.scanned.map.atoms.find((a) => a.id === estateMeta(spec).atoms?.[0]);
-  if (!atom) return '';
-  return `${spec.record.testType}|${atom.kind}:${roleOf(run.scanned.match.hidOf.get(atom.id) ?? '')}`
-    .replace(/[|:.]+/g, '-')
-    .replace(/-+$/, '');
-}
-
-/** A deliberately small reference for the two capabilities not yet in the product.
- * It consumes runtime output, never the hidden estate, the item id or a mutant id. */
-const messageReference: CustomCheckFunction = (ctx, options) => {
-  const { name, mustNot = [] } = options as { name: string; mustNot?: string[] };
-  const runs = (ctx.observed.runtime?.guards ?? []).filter((g) => g.name === name && g.verdict !== 'allow');
-  const ok =
-    runs.length > 0 &&
-    runs.every((g) => {
-      const text = (g.stderr || g.stdout || '').trim();
-      return text !== '' && mustNot.every((p) => !new RegExp(p).test(text));
-    });
-  return machineVerdict(
-    'guard_message',
-    'output',
-    ok ? 'pass' : 'fail',
-    'every intervention needs rule-conforming runtime output',
-  );
-};
-function permissionReference(requireDecision = true): CustomCheckFunction {
-  return async (ctx, options) => {
-    const rules = (options as { rules: Array<{ effect: string; rule: string }> }).rules;
-    return (
-      await Promise.all(
-        rules.map(async (rule) => {
-          if (rule.effect !== 'ask') return required(ESTATE_CHECKS.permission)(ctx, { rules: [rule] });
-          const raw = ctx.observed.raw as { kept?: Array<{ line: number; record: Record<string, unknown> }> };
-          const kept = raw.kept ?? [];
-          const requests = kept.filter((r) => r.record.subtype === 'permission_request');
-          const prefix = rule.rule.slice(rule.rule.indexOf('(') + 1, -1).replace(/:\*$/, '');
-          const calls = ctx.observed.toolCalls.filter(
-            (c) =>
-              c.label === rule.rule.split('(')[0] &&
-              String((c.input as Record<string, unknown>).command).startsWith(prefix),
-          );
-          const ok =
-            calls.length > 0 &&
-            calls.every((call) =>
-              requests.some((request) => {
-                const decision = kept.find(
-                  (r) =>
-                    r.record.subtype === 'permission_decision' &&
-                    r.record.requestId === request.record.requestId &&
-                    r.record.decision === 'allow',
-                );
-                return (
-                  request.record.requestId === call.id &&
-                  request.record.tool === call.label &&
-                  JSON.stringify(request.record.input) === JSON.stringify(call.input) &&
-                  (!requireDecision ||
-                    (decision &&
-                      request.line < decision.line &&
-                      String(decision.record.timestamp) < String(call.startedAt)))
-                );
-              }),
-            );
-          return machineVerdict(
-            'permission',
-            'ask',
-            ok ? 'pass' : 'fail',
-            'a matching runtime grant must precede each protected call',
-          );
-        }),
-      )
-    ).flat();
-  };
-}
-
-function referenceChecks(requireDecision = true, overrides: Record<string, CustomCheckFunction> = {}) {
-  const registry = new CheckRegistry();
-  for (const [name, check] of Object.entries(ESTATE_CHECKS)) registry.register(name, check);
-  registry.register('ordered', orderedCheck);
-  registry.unregister('guard_message');
-  registry.register('guard_message', messageReference);
-  registry.unregister('permission');
-  registry.register('permission', permissionReference(requireDecision));
-  for (const [name, check] of Object.entries(overrides)) {
-    registry.unregister(name);
-    registry.register(name, check);
-  }
-  return defaultChecks({ registry });
-}
-
-/** Reference compilation for warning distinction, path-qualified ordering, declaration ownership and approval.
- * All other expectations, provenance and generated fields remain the real product output. */
-function referenceRun(run: pipeline.EstateRun): pipeline.EstateRun {
-  return {
-    ...run,
-    specs: run.specs.map((source) => {
-      const key = suffix(run, source);
-      if (!SUFFIXES.includes(key) || !source.loaded) return source;
-      const spec = structuredClone(source.loaded.spec);
-      if (key === SUFFIXES[0]) {
-        for (const block of spec.blocks)
-          for (const guard of block.expect?.guards ?? []) guard.verdict = 'warn';
-      }
-      if (key === 'skip_pressure-gate-fixed-gate') {
-        const atom = required(run.scanned.map.atoms.find((a) => a.id === estateMeta(source).atoms?.[0]));
-        spec.rules = {
-          ...spec.rules,
-          custom: {
-            ...spec.rules?.custom,
-            ordered: {
-              pairs: [{ before: `Read~${atom.fields?.path}`, after: 'Edit' }],
-            },
-          },
-        };
-      }
-      if (key === 'tool_boundary-tool-ask') {
-        const atom = required(run.scanned.map.atoms.find((a) => a.id === estateMeta(source).atoms?.[0]));
-        spec.rules = {
-          ...spec.rules,
-          custom: {
-            ...spec.rules?.custom,
-            permission: { rules: [{ effect: 'ask', rule: atom.fields?.rule }], block: 0 },
-          },
-        };
-        const meta = spec.metadata?.estate as Record<string, unknown>;
-        for (const block of spec.blocks)
-          if (block.expect?.criteria)
-            block.expect.criteria = block.expect.criteria.filter((c) => c !== 'needs-registered-check');
-        meta.needs = [];
-        meta.complete = true;
-        spec.tags = spec.tags?.filter((t) => !t.startsWith('needs-') && t !== 'incomplete');
-      }
-      if (key === 'tool_boundary-tool-declared') {
-        const atom = required(run.scanned.map.atoms.find((a) => a.id === estateMeta(source).atoms?.[0]));
-        const owner = run.scanned.map.atoms.find(
-          (a) => ['skill', 'subagent'].includes(a.kind) && a.provenance.file === atom.provenance.file,
-        );
-        if (owner)
-          for (const block of spec.blocks) {
-            block.expect ??= {};
-            block.expect[owner.kind === 'skill' ? 'skills' : 'subagents'] = [
-              { name: String(owner.fields?.name), count: { min: 1 } },
-            ];
-          }
-      }
-      const text = JSON.stringify(spec);
-      const loaded = parseSpecText(text, 'json');
-      if (!loaded.ok) throw new Error(JSON.stringify(loaded.errors));
-      return {
-        ...source,
-        text,
-        loaded,
-        record: { ...source.record, complete: true },
-        errors: [],
-        warnings: loaded.warnings.map((w) => w.message),
-      };
-    }),
-  };
-}
+import {
+  messageReference,
+  referenceChecks,
+  referenceRun,
+  required,
+  SUFFIXES,
+  suffix,
+} from './ruling-reference';
 
 async function measure(run: pipeline.EstateRun, checks: CheckSet = referenceChecks()) {
   const source = vi.spyOn(pipeline, 'generationRun').mockResolvedValue(run);
@@ -228,6 +49,9 @@ describe('the fourteen gen.complete rulings', { timeout: 600_000 }, () => {
   it('enumerates components, kills structural check deletions, and restores the reference', async () => {
     const run = referenceRun(await pipeline.generationRun(1));
     const green = await measure(run);
+    expect(
+      SUFFIXES.map((key) => ({ item: key, ...green.get(`gen.complete.${key}`) })).filter((row) => !row.pass),
+    ).toEqual([]);
     const coverage = [];
     for (const key of SUFFIXES) {
       const sources = run.specs.filter((s) => suffix(run, s) === key);
@@ -264,7 +88,10 @@ describe('the fourteen gen.complete rulings', { timeout: 600_000 }, () => {
         );
       }
     }
-    writeFileSync('/tmp/estate-component-coverage.json', `${JSON.stringify(coverage, null, 2)}\n`);
+    writeFileSync(
+      fileURLToPath(new URL('../../../../validators/estate/GEN-COMPLETE-COMPONENTS.json', import.meta.url)),
+      `${JSON.stringify(coverage, null, 2)}\n`,
+    );
     const restored = await measure({ ...run });
     for (const key of SUFFIXES) expect(restored.get(`gen.complete.${key}`)?.pass, key).toBe(true);
   });

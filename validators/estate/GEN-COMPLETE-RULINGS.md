@@ -32,7 +32,7 @@ mutant, then passes after restoration. No mutant is passed to the follower.
 
 ## Reference and product boundary
 
-The reference in `rulings.test.ts` keeps production scanning, planning, generation,
+The reference in `test/estate/ruling-reference.ts` keeps production scanning, planning, generation,
 parsing, mapping and checks except for five narrow gaps:
 
 - A negative length-guard expectation filters `warn` instead of counting ordinary
@@ -70,8 +70,8 @@ mark those production capabilities implemented.
 `completion-contract.ts` builds the expected assertion structure from the generated
 spec and its source evidence. Required source clauses survive a generator that
 omits them: skill routes, file reads, scoped prerequisites, permission patterns,
-guard intervention, stages, hazards and situation workspace outcomes. The harness
-contains no bank item names, fixture names or hidden atom identifiers.
+guard intervention, stages, hazards and situation workspace outcomes. The contract builder and component visitor
+contain no bank item names, fixture names or hidden atom identifiers.
 
 `completion.ts` visits that structure by check type. It expands finite count bounds,
 selectors, positive and negative membership, workspace clauses, ordered pairs,
@@ -80,15 +80,21 @@ use conforming collections with at least three members, then invalidate the firs
 interior and last member separately. This is a finite witness basis, not a proof
 for arbitrarily long traces or arbitrary checker programs.
 
-The bank first retains its full-spec conforming replay. For each derived component
-it then projects the actual product output onto the inspected check. This prevents
-an unrelated check from masking a missing assertion, while keeping the input
-trace and all other observation channels. A prepared conforming control must pass,
-and its one-component violating trace must fail. Missing checks cannot pass this
-pair: both projected replays pass and the item reports the unchallenged component.
-Every component is exercised on a passing reference item; a derivation gap makes
-the item fail with the gap's name.
+The bank retains its full-spec conforming replay. For each derived component it
+projects the actual product output onto the inspected check, then selects the exact
+verdict ids belonging to that clause. The control requires those verdicts to pass
+and remain gating. The violation requires the expected failing, inconclusive,
+not-applicable or absent outcome. It never accepts another clause's failure as proof.
+Missing evidence therefore cannot silently become a pass. A derivation gap fails
+the item with its name.
 
+The traces are not always isolated across sibling clauses. With `created: []` and
+`others_untouched: true`, creating a foreign path violates both. This is a known
+logical coupling, not two independent trace violations. The projection regression
+suppresses the failing `others_untouched` verdict while retaining the failing
+`created` verdict and proves that the bank rejects the suppressed clause. Clause
+controls also inspect only their named verdicts; the original complete conforming
+replay still checks the whole specification.
 Guard-message witnesses keep other messages valid. Forbidden-call witnesses keep
 the offered list compliant. Recovery safety witnesses retain the event and
 resumption. Required-file presence and order have separate witnesses; other Reads
@@ -113,27 +119,27 @@ floor, other validator or executor branch is changed.
 ## Component coverage
 
 Seed 1, bounded reference described above. Counts are component witness occurrences
-summed across each item's generated specs (319 total), including each quantifier position and
-workspace assertion. They are not unique capability counts. All entries below have
-passing conforming controls and rejecting violating traces. The machine-generated
-inventory is `GEN-COMPLETE-COMPONENTS.json`.
+summed across each item's generated specs (2989 total), including selector,
+threshold, evidence, quantifier and operation-vocabulary witnesses. These are witness
+occurrences, not unique capability counts. The machine-generated inventory is
+`GEN-COMPLETE-COMPONENTS.json`.
 
 | Item suffix under `gen.complete` | Specs | Component witnesses | Derivation gaps |
 |---|---:|---:|---:|
-| guard_negative-guard-reply-length-py | 1 | 4 | 0 |
-| guard_register-guard-read-before-edit-py | 1 | 10 | 0 |
-| guard_register-guard-reply-length-py | 1 | 9 | 0 |
-| hazard_recovery-hazard-after-compaction | 1 | 12 | 0 |
-| journey-route-table | 6 | 48 | 0 |
-| read_when-reference-skill | 5 | 40 | 0 |
-| read_when-reference-standing | 2 | 12 | 0 |
-| skip_pressure-gate-fixed-gate | 1 | 8 | 0 |
-| stage_anytime-stage-anytime | 1 | 5 | 0 |
-| stage_order-stage-anytime | 13 | 65 | 0 |
-| tool_boundary-tool-allow | 4 | 30 | 0 |
-| tool_boundary-tool-declared | 3 | 28 | 0 |
-| tool_boundary-tool-ask | 1 | 32 | 0 |
-| tool_denied-tool-deny | 3 | 16 | 0 |
+| guard_negative-guard-reply-length-py | 1 | 12 | 0 |
+| guard_register-guard-read-before-edit-py | 1 | 55 | 0 |
+| guard_register-guard-reply-length-py | 1 | 49 | 0 |
+| hazard_recovery-hazard-after-compaction | 1 | 993 | 0 |
+| journey-route-table | 6 | 336 | 0 |
+| read_when-reference-skill | 5 | 280 | 0 |
+| read_when-reference-standing | 2 | 90 | 0 |
+| skip_pressure-gate-fixed-gate | 1 | 69 | 0 |
+| stage_anytime-stage-anytime | 1 | 43 | 0 |
+| stage_order-stage-anytime | 13 | 559 | 0 |
+| tool_boundary-tool-allow | 4 | 70 | 0 |
+| tool_boundary-tool-declared | 3 | 105 | 0 |
+| tool_boundary-tool-ask | 1 | 187 | 0 |
+| tool_denied-tool-deny | 3 | 141 | 0 |
 
 Named derivation gaps outside the shapes present in these fourteen reference items:
 
@@ -190,3 +196,78 @@ The owner-dispatched re-review of 99b6b66f8 confirms the earlier fixes but finds
 three further survivors. This revision replaces the per-demand counterexample
 selector with the structural component mechanism above. Only the owner-dispatched
 reviewer may accept this head. Later groups remain paused.
+
+## Emission mutation table
+
+`EMISSION-MUTATION-MANIFEST.json` covers recursive deletion of every emitted check
+structure, entry and field, with compiler source anchors. These are output
+mutations, not literal edits of compiler source. Controls and restorations run on
+fresh objects. Parser-rejected output is identified separately in each row. The
+pinned seeds are 1, 2, 3 and 292269655, the hidden seed derived from reviewed head
+88920017.
+
+Each row also records its provenance. `product` means the deleted value is the
+product's own output. `reference` means the bounded test reference authored it
+(for example the ask permission and its filtered criteria list); such a deletion
+is not a product mutant and is counted apart.
+
+| Provenance | Deletions | Killed | Equivalent | Survived |
+|---|---:|---:|---:|---:|
+| product | 1,643 | 1,426 | 217 | 0 |
+| reference | 103 | 85 | 18 | 0 |
+| total | 1,746 | 1,511 | 235 | 0 |
+
+An equivalent row needs a proved reason class. Each class has two executable proofs:
+a comparison of verdict semantics (id, kind, outcome, gating, score) on every
+generated input, under both the production and the bounded reference evaluators,
+and a complete argument from source. The source argument pins every non-comment
+line under `checks`, `judges`, `adapters`, `core` and the reference that reads the
+deleted field. A new reader changes that census and fails the test, which reopens
+the class. A case analysis then covers every value those readers can see, and each
+site must meet the class premise with unchanged loader errors and lint warnings.
+
+| Reason class | Premise | Readers and case analysis | Product | Reference |
+|---|---|---|---:|---:|
+| default-equivalent | `count: { min: 1 }` on a guards, references, skills or subagents entry | Only `countAllows` and `describeCount` read the count; both treat an omitted count as at least one for every observed number 0 to 256. Entry ids use name, path or verdict, never count. `checkCount` lints only a min above a max. | 118 | 12 |
+| empty-demand | `expect.criteria: []` | Every reader uses `?? []`, `?.length ?? 0` or `?.forEach`; lint treats an empty array as no expectation. | 0 | 3 |
+| single-block-scope | `block: 0` on a custom check of a one-block spec | Every reader is `typeof block === 'number' && block !== blockIndex` (or the reference's `!== undefined` form). The runner refuses a block index outside the spec, so the index is always 0. The custom check passes options through unread. | 99 | 3 |
+
+Reproduce one class:
+
+```
+pnpm exec vitest run packages/validators/test/estate/emission-mutations.test.ts -t "<class>" --maxWorkers=1 --testTimeout=1200000
+```
+
+Two former labels are withdrawn. `min: 0` deletions are not equivalent:
+`checks/src/checks/tool_f1.ts` reads `count.min ?? 1`, so `{ min: 0, max: n }` and
+`{ max: n }` differ there. No site carried that label, and such a deletion is now a
+live demand. An absent `count.max` was never a JSON field, so it had no site either.
+
+### Corrected false kills
+
+The previous table reported 113 equivalents and 1,633 kills. 122 of those kills
+deleted `count: { min: 1 }` from a references, skills or subagents entry. The
+comparison proof already showed identical verdicts on every generated input, yet
+the item failed. The cause was the completion contract: it compared required
+entries by exact JSON, appended a duplicate `{ ..., count: { min: 1 } }` entry, and
+then found no product verdict for the duplicate. The item therefore rejected a
+correct product output that relies on the documented default. The contract now
+merges a required entry into an emitted entry of the same identity (path, name or
+label). It raises a weaker bound to the required minimum and never lowers one,
+as the guard reconstruction already did. Deleting a whole entry, a weaker bound
+(`{ max: n }` or `0`) and every reviewer mutant still turn the item red; the
+rulings suite passes 9/9 with an unchanged component inventory.
+
+The source operation vocabulary is extracted by AST into
+`fixtures/estate/operation-vocabulary.json`. Literal tool aliases, read qualifiers,
+order verbs and command regex branches yield observation witnesses by code. The
+regex grammar is finite; unsupported syntax is an explicit derivation gap. The
+fixture records its source hash, and `operation-vocabulary.test.ts` compares it
+with a fresh extraction of the product source.
+
+## Evaluator operator table: not in this revision
+
+Reviewer comment 6155118524 also proposes an AST operator sweep over the evaluator
+sources. A first implementation enumerates 812 sites, but its execution table was
+never completed, so this revision does not include it and claims no evaluator
+operator coverage. That bar remains open for the owner to rule on.

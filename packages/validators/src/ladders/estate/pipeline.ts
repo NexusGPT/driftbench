@@ -291,6 +291,34 @@ export function asksOf(spec: LoadedSpec): string[] {
   });
 }
 
+// The immutable follower inputs can be shared by fresh EstateRun wrappers. Key every
+// dependency by identity: follow reads estate and situations; mapSession reads file keys.
+// Changed inputs must have new identities. Never share a writable observation.
+type FollowerSessions = Map<string, ReturnType<typeof mapSession>>;
+const followerSessions = new WeakMap<
+  HiddenEstate,
+  WeakMap<Rendered['files'], WeakMap<HiddenSituation[], FollowerSessions>>
+>();
+
+function sessionsFor(run: EstateRun): FollowerSessions {
+  let byFiles = followerSessions.get(run.estate);
+  if (!byFiles) {
+    byFiles = new WeakMap();
+    followerSessions.set(run.estate, byFiles);
+  }
+  let bySituations = byFiles.get(run.rendered.files);
+  if (!bySituations) {
+    bySituations = new WeakMap();
+    byFiles.set(run.rendered.files, bySituations);
+  }
+  let sessions = bySituations.get(run.situations);
+  if (!sessions) {
+    sessions = new Map();
+    bySituations.set(run.situations, sessions);
+  }
+  return sessions;
+}
+
 /** Replays a spec over the follower's session for the spec's asks. */
 export async function replayOnFollower(
   run: EstateRun,
@@ -299,19 +327,28 @@ export async function replayOnFollower(
   mutant?: string,
   counterexample?: (observed: Observed) => void,
 ): Promise<ReplayOutcome> {
-  const session = follow(run.estate, run.situations, asksOf(spec), {
-    ...(mutant ? { mutant } : {}),
-    events: spec.spec.blocks.map((block) => {
-      const event = block.given?.vars?.event ?? spec.spec.given?.vars?.event;
-      return typeof event === 'string' ? event : undefined;
-    }),
+  const asks = asksOf(spec);
+  const events = spec.spec.blocks.map((block) => {
+    const event = block.given?.vars?.event ?? spec.spec.given?.vars?.event;
+    return typeof event === 'string' ? event : undefined;
   });
-  const mapped = mapSession({
-    transcript: parseJsonl(session.transcript),
-    decisions: parseJsonl(session.decisions),
-    steps: parseJsonl(session.steps),
-    references: Object.keys(run.rendered.files).map((path) => `**/${path}`),
-  });
+  const sessions = sessionsFor(run);
+  const key = JSON.stringify({ asks, events, mutant });
+  let original = sessions.get(key);
+  if (!original) {
+    const session = follow(run.estate, run.situations, asks, {
+      ...(mutant ? { mutant } : {}),
+      events,
+    });
+    original = mapSession({
+      transcript: parseJsonl(session.transcript),
+      decisions: parseJsonl(session.decisions),
+      steps: parseJsonl(session.steps),
+      references: Object.keys(run.rendered.files).map((path) => `**/${path}`),
+    });
+    sessions.set(key, original);
+  }
+  const mapped = structuredClone(original);
   if (counterexample) for (const block of mapped.blocks) counterexample(block.observed);
   const result = await runSpec(spec.spec, {
     adapter: replayAdapter({ session: mapped }),

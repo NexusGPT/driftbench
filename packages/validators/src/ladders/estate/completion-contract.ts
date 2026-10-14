@@ -17,10 +17,28 @@ export function completionContract(run: EstateRun, source: GeneratedSpec): Spec 
   spec.rules.custom ??= {};
   const custom = spec.rules.custom;
   const fields = head.fields ?? {};
-  const append = (key: 'references' | 'skills' | 'tools' | 'subagents', entry: unknown) => {
+  const identity = { references: 'path', skills: 'name', tools: 'label', subagents: 'name' } as const;
+  const append = (key: 'references' | 'skills' | 'tools' | 'subagents', entry: Record<string, unknown>) => {
     const expect = block.expect as Record<string, unknown>;
-    const entries = (expect[key] ?? []) as unknown[];
-    if (!entries.some((e) => JSON.stringify(e) === JSON.stringify(entry))) entries.push(entry);
+    const entries = (expect[key] ?? []) as Array<Record<string, unknown>>;
+    if (entries.some((e) => JSON.stringify(e) === JSON.stringify(entry))) return;
+    // An emitted entry with the same identity carries the requirement. An omitted count means
+    // at least one, so it already satisfies `{ min: 1 }`; any weaker bound is raised to the
+    // required minimum, never lowered, exactly as the guard reconstruction below does.
+    const required = entry.count as { min?: number } | number | undefined;
+    const index = entries.findIndex((e) => e[identity[key]] === entry[identity[key]]);
+    const known = entries[index];
+    if (known && typeof required === 'object' && typeof required.min === 'number') {
+      const count = known.count as { min?: number; max?: number } | number | undefined;
+      const knownMin = count === undefined ? 1 : typeof count === 'number' ? count : (count.min ?? 0);
+      entries[index] = {
+        ...known,
+        count:
+          typeof count === 'number' && count >= required.min
+            ? count
+            : { ...(typeof count === 'object' ? count : {}), min: Math.max(required.min, knownMin) },
+      };
+    } else entries.push(entry);
     expect[key] = entries;
   };
   const situation = run.situations.find((s) =>
@@ -28,6 +46,7 @@ export function completionContract(run: EstateRun, source: GeneratedSpec): Spec 
   );
   if (situation) {
     block.expect.workspace = {
+      ...block.expect.workspace,
       ...Object.fromEntries(Object.entries(situation.touches).filter(([, paths]) => paths.length > 0)),
       others_untouched: true,
     };
@@ -49,11 +68,40 @@ export function completionContract(run: EstateRun, source: GeneratedSpec): Spec 
   }
   if (source.record.testType === 'guard_register') {
     custom.guard_message ??= { name: fields.name, block: 0 };
-    const guard = run.estate.guards.find((g) => g.name === fields.name);
-    block.expect.guards ??= [
-      { name: String(fields.name), ...(guard ? { verdict: guard.verdict } : {}), count: { min: 1 } },
-    ];
-    for (const entry of block.expect.guards) if (entry.name === fields.name) entry.count = { min: 1 };
+    // The scanner owns the required selector, including whether verdict is constrained.
+    // Reconstruct from evidence so deleting an emitted entry cannot delete its probe.
+    for (const evidence of head.evidence ?? []) {
+      if (evidence.type !== 'guard') continue;
+      const entry = {
+        name: evidence.name,
+        ...(evidence.verdict === undefined ? {} : { verdict: evidence.verdict }),
+        count: { min: evidence.min ?? 1 },
+      };
+      block.expect.guards ??= [];
+      const index = block.expect.guards.findIndex((known) => known.name === evidence.name);
+      if (index < 0) block.expect.guards.push(entry);
+      else {
+        const known = block.expect.guards[index];
+        if (known)
+          block.expect.guards[index] = {
+            ...known,
+            ...entry,
+            ...(evidence.verdict === undefined && known.verdict !== undefined
+              ? { verdict: known.verdict }
+              : {}),
+            count:
+              typeof known.count === 'number' && known.count >= entry.count.min
+                ? known.count
+                : {
+                    ...(typeof known.count === 'object' ? known.count : {}),
+                    min: Math.max(
+                      entry.count.min,
+                      typeof known.count === 'object' ? (known.count.min ?? 0) : 0,
+                    ),
+                  },
+          };
+      }
+    }
   }
   if (source.record.testType === 'guard_negative') {
     const guard = run.estate.guards.find((g) => g.name === fields.name);

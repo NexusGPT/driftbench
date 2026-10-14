@@ -239,7 +239,15 @@ export function genCompleteFamily(): Family {
                 undefined,
                 component.prepare,
               );
-              if (!control.pass) {
+              const controlVerdicts =
+                control.run?.blocks[component.block]?.verdicts.filter((v) =>
+                  component.controlVerdicts.includes(v.id),
+                ) ?? [];
+              if (
+                control.run?.status !== 'completed' ||
+                controlVerdicts.length !== component.controlVerdicts.length ||
+                controlVerdicts.some((v) => v.outcome !== 'pass' || !v.gating)
+              ) {
                 bad.push(`${verdict.spec.record.id}: component control failed ${component.id}`);
                 break;
               }
@@ -247,7 +255,22 @@ export function genCompleteFamily(): Family {
                 component.prepare?.(o);
                 component.change(o);
               });
-              if (result.pass) {
+              const targeted =
+                result.run?.blocks[component.block]?.verdicts.filter((v) =>
+                  component.verdicts.includes(v.id),
+                ) ?? [];
+              const witnessed =
+                component.violationOutcome === 'absent'
+                  ? targeted.length === 0
+                  : targeted.length === component.verdicts.length &&
+                    targeted.every(
+                      (v) =>
+                        v.gating &&
+                        (component.violationOutcome
+                          ? v.outcome === component.violationOutcome
+                          : v.outcome === 'fail' || v.outcome === 'inconclusive'),
+                    );
+              if (result.run?.status !== 'completed' || !witnessed) {
                 bad.push(`${verdict.spec.record.id}: accepts component violation ${component.id}`);
                 break;
               }

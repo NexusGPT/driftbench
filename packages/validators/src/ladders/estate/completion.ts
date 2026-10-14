@@ -1,4 +1,5 @@
 import { globMatches, type Observed, type Spec, type ToolCall } from '@agent-nexus/driftbench-core';
+import { operationWitnesses } from './operation-witnesses';
 
 export type Component = {
   id: string;
@@ -7,9 +8,16 @@ export type Component = {
   check: string;
   prepare?: (o: Observed) => void;
   change: (o: Observed) => void;
+  verdicts: string[];
+  controlVerdicts: string[];
+  violationOutcome?: 'fail' | 'inconclusive' | 'not_applicable' | 'absent';
 };
 export type ComponentInventory = { components: Component[]; gaps: string[] };
 type RecordValue = Record<string, unknown>;
+function required<T>(value: T | undefined): T {
+  if (value === undefined) throw new Error('Missing derived assertion component');
+  return value;
+}
 const record = (value: unknown): RecordValue =>
   value && typeof value === 'object' ? (value as RecordValue) : {};
 const strings = (value: unknown): string[] =>
@@ -40,6 +48,12 @@ export function completionComponents(spec: Spec): ComponentInventory {
           channel,
           check,
           change,
+          verdicts: verdictIds(check, value, clause),
+          controlVerdicts: verdictIds(
+            check,
+            value,
+            clause.startsWith('event') ? 'resumed.call_or_text' : clause,
+          ),
           ...(prepare ? { prepare } : {}),
         });
       const gap = (clause: string) => inventory.gaps.push(`${prefix}.${clause}`);
@@ -71,6 +85,7 @@ export function completionComponents(spec: Spec): ComponentInventory {
             ...(entry.model ? { model: entry.model } : {}),
           };
           if (check === 'tools') sample.input = {};
+          if (check === 'guards' && sample.verdict === undefined) sample.verdict = 'allow';
           const count = entry.count ?? { min: 1 };
           const min = typeof count === 'number' ? count : Number(record(count).min ?? 0);
           const max = typeof count === 'number' ? count : Number(record(count).max ?? Infinity);
@@ -82,23 +97,77 @@ export function completionComponents(spec: Spec): ComponentInventory {
               ...Array.from({ length: n }, () => structuredClone(exemplar)),
             ]);
           };
-          if (min > 0) add(`${at}.count.min`, (o) => resize(o, min - 1));
+          if (min > 0) {
+            add(`${at}.count.min`, (o) => resize(o, min - 1));
+            for (const n of new Set([min, Number.isFinite(max) ? max : min + 1]))
+              add(
+                `${at}.count.boundary.${n}`,
+                (o) => resize(o, min - 1),
+                (o) => resize(o, n),
+              );
+            // A matching entry need not be the first observation. Preserve all existing
+            // entries, but place nonmatching evidence on both sides of them.
+            add(
+              `${at}.selection.all-entries`,
+              (o) => resize(o, min - 1),
+              (o) => {
+                resize(o, min);
+                const irrelevant = {
+                  ...structuredClone(get(o).find(matches) ?? sample),
+                  [identity]: foreign,
+                };
+                set(o, [irrelevant, ...get(o), structuredClone(irrelevant)]);
+              },
+            );
+          }
           if (Number.isFinite(max)) add(`${at}.count.max`, (o) => resize(o, max + 1));
+          if (min === 0 && Number.isFinite(max))
+            for (const variant of comparisonWitnesses(String(entry[identity]))) {
+              const candidate = { ...sample, [identity]: variant.value };
+              if (matches(candidate)) continue;
+              add(
+                `${at}.negative.selector.${identity}.${variant.name}`,
+                (o) => resize(o, max + 1),
+                (o) => {
+                  resize(o, max);
+                  set(o, [...get(o), candidate]);
+                },
+              );
+            }
           if (min > 0) {
             // Same cardinality, wrong selector. Detects name/path/model/verdict filters being ignored.
             for (const field of [identity, ...['verdict', 'model'].filter((k) => entry[k] !== undefined)])
-              add(`${at}.selector.${field}`, (o) => {
-                resize(o, min);
-                for (const r of get(o).filter(matches))
-                  r[field] = field === 'verdict' ? (entry.verdict === 'allow' ? 'deny' : 'allow') : foreign;
-              });
+              for (const variant of comparisonWitnesses(String(entry[field]))) {
+                const candidate = { ...sample, [field]: variant.value };
+                if (matches(candidate)) continue;
+                add(`${at}.selector.${field}.${variant.name}`, (o) => {
+                  resize(o, min);
+                  for (const r of get(o).filter(matches)) r[field] = variant.value;
+                });
+              }
           }
           for (const key of Object.keys(entry))
             if (![identity, 'count', 'verdict', 'model'].includes(key))
               gap(`${at}.unsupported-clause:${key}`);
         }
+        if (['guards', 'skills'].includes(check)) {
+          add('evidence.runtime', (o) => {
+            delete o.runtime;
+          });
+          required(inventory.components.at(-1)).violationOutcome = 'inconclusive';
+        }
+        if (['references', 'subagents'].includes(check)) {
+          add('evidence.channel', (o) => {
+            if (o.runtime) delete (o.runtime as RecordValue)[check];
+          });
+          required(inventory.components.at(-1)).violationOutcome = 'absent';
+        }
       } else if (channel === 'expect' && check === 'workspace') {
         keys(['created', 'changed', 'deleted', 'others_untouched']);
+        add('evidence.diff', (o) => {
+          delete o.workspaceDiff;
+        });
+        required(inventory.components.at(-1)).violationOutcome = 'inconclusive';
         for (const set of ['created', 'changed', 'deleted'] as const) {
           if (opts[set] === undefined) continue;
           const paths = strings(opts[set]);
@@ -112,29 +181,103 @@ export function completionComponents(spec: Spec): ComponentInventory {
               if (o.workspaceDiff) o.workspaceDiff[set] = o.workspaceDiff[set].filter((p) => p !== path);
             });
         }
-        if (opts.others_untouched === true)
-          for (const set of ['created', 'changed', 'deleted'] as const)
-            add(`others_untouched.${set}`, (o) => {
+        for (const set of ['created', 'changed', 'deleted'] as const) {
+          for (const [at, path] of strings(opts[set]).entries()) {
+            for (const variant of comparisonWitnesses(path))
+              add(`${set}.${at}.selector.${variant.name}`, (o) => {
+                if (o.workspaceDiff)
+                  o.workspaceDiff[set] = o.workspaceDiff[set].map((p) => (p === path ? variant.value : p));
+              });
+            add(
+              `${set}.${at}.selection.all-entries`,
+              (o) => {
+                if (o.workspaceDiff) o.workspaceDiff[set] = o.workspaceDiff[set].filter((p) => p !== path);
+              },
+              (o) => {
+                o.workspaceDiff?.[set].unshift(foreign);
+              },
+            );
+            add(`${set}.${at}.operation`, (o) => {
+              if (!o.workspaceDiff) return;
+              o.workspaceDiff[set] = o.workspaceDiff[set].filter((p) => p !== path);
+              o.workspaceDiff[set === 'changed' ? 'created' : 'changed'].push(path);
+            });
+          }
+        }
+        if (opts.others_untouched === true) {
+          const named = ['created', 'changed', 'deleted'].flatMap((set) => strings(opts[set]));
+          for (const set of ['created', 'changed', 'deleted'] as const) {
+            const change = (o: Observed) => {
               o.workspaceDiff ??= { created: [], changed: [], deleted: [] };
               o.workspaceDiff[set].push(foreign);
-            });
+            };
+            add(`others_untouched.${set}`, change);
+            for (const [at, path] of named.entries())
+              for (const variant of comparisonWitnesses(path))
+                if (!named.includes(variant.value))
+                  add(`others_untouched.${set}.${at}.selector.${variant.name}`, (o) => {
+                    o.workspaceDiff ??= { created: [], changed: [], deleted: [] };
+                    o.workspaceDiff[set].push(variant.value);
+                  });
+            if (named[0])
+              add(`others_untouched.${set}.all-entries`, change, (o) => {
+                o.workspaceDiff ??= { created: [], changed: [], deleted: [] };
+                o.workspaceDiff[set].unshift(required(named[0]));
+              });
+          }
+        }
       } else if (channel === 'expect' && check === 'tools_offered') {
         keys(['include', 'exclude']);
-        for (const [at, name] of strings(opts.include).entries())
+        add('evidence.offered', (o) => {
+          if (o.runtime) delete o.runtime.offered;
+        });
+        required(inventory.components.at(-1)).violationOutcome = 'inconclusive';
+        for (const [at, name] of strings(opts.include).entries()) {
           add(`include.${at}`, (o) => {
             o.runtime ??= {};
             o.runtime.offered = (o.runtime.offered ?? []).filter((n) => n !== name);
           });
-        for (const [at, name] of strings(opts.exclude).entries())
-          add(`exclude.${at}`, (o) => {
+          for (const variant of comparisonWitnesses(name))
+            add(`include.${at}.selector.${variant.name}`, (o) => {
+              if (o.runtime?.offered)
+                o.runtime.offered = o.runtime.offered.map((n) => (n === name ? variant.value : n));
+            });
+        }
+        for (const [at, name] of strings(opts.exclude).entries()) {
+          const change = (o: Observed) => {
             o.runtime ??= {};
             o.runtime.offered = [...(o.runtime.offered ?? []), name];
-          });
+          };
+          add(`exclude.${at}`, change);
+          for (const variant of comparisonWitnesses(name))
+            add(`exclude.${at}.selector.${variant.name}`, change, (o) => {
+              o.runtime ??= {};
+              o.runtime.offered = [...(o.runtime.offered ?? []), variant.value];
+            });
+        }
       } else if (channel === 'custom' && check === 'stage_seen') {
         keys(['name', 'block']);
+        add('evidence.stages', (o) => {
+          if (o.runtime) delete o.runtime.stages;
+        });
+        required(inventory.components.at(-1)).violationOutcome = 'not_applicable';
         add('exists', (o) => {
           if (o.runtime?.stages) o.runtime.stages = o.runtime.stages.filter((s) => s.name !== opts.name);
         });
+        for (const variant of comparisonWitnesses(String(opts.name)))
+          add(`exists.selector.${variant.name}`, (o) => {
+            for (const stage of o.runtime?.stages ?? [])
+              if (stage.name === opts.name) stage.name = variant.value;
+          });
+        add(
+          'exists.all-entries',
+          (o) => {
+            if (o.runtime?.stages) o.runtime.stages = o.runtime.stages.filter((s) => s.name !== opts.name);
+          },
+          (o) => {
+            o.runtime?.stages?.unshift({ name: foreign });
+          },
+        );
       } else if (channel === 'custom' && check === 'guard_message') {
         keys(['name', 'mustNot', 'block']);
         const matches = (g: RecordValue) =>
@@ -143,6 +286,10 @@ export function completionComponents(spec: Spec): ComponentInventory {
         add('intervention.exists', (o) => {
           if (o.runtime?.guards) o.runtime.guards = o.runtime.guards.filter((g) => !matches(g));
         });
+        for (const variant of comparisonWitnesses(String(opts.name)))
+          add(`intervention.selector.${variant.name}`, (o) => {
+            for (const g of selected(o)) g.name = variant.value;
+          });
         const prepare = (o: Observed) => {
           const found = selected(o);
           if (!found[0]) throw new Error('No conforming intervention for guard_message');
@@ -168,6 +315,119 @@ export function completionComponents(spec: Spec): ComponentInventory {
           g.stdout = '';
           g.stderr = '';
         });
+        each('message.available', (g) => {
+          delete g.stdout;
+          delete g.stderr;
+        });
+        for (const component of inventory.components.filter(
+          (c) => c.id.startsWith(prefix) && c.id.includes('message.available'),
+        ))
+          component.violationOutcome = 'fail';
+        add(
+          'evidence.output',
+          (o) => {
+            for (const g of selected(o)) {
+              delete g.stdout;
+              delete g.stderr;
+            }
+          },
+          prepare,
+        );
+        required(inventory.components.at(-1)).violationOutcome = 'inconclusive';
+        const interventions = ['deny', 'block', 'warn'];
+        const excludedVerdicts = new Set([
+          'allow',
+          ...interventions.flatMap((value) =>
+            comparisonWitnesses(value)
+              .map((variant) => variant.value)
+              .filter((value) => !/^(deny|block)$/i.test(value) && value !== 'warn'),
+          ),
+        ]);
+        for (const verdict of excludedVerdicts)
+          add(
+            `intervention.exclude.${verdict}`,
+            (o) => {
+              for (const g of selected(o)) {
+                g.stdout = '';
+                g.stderr = '';
+              }
+            },
+            (o) => {
+              prepare(o);
+              const g = structuredClone(selected(o)[0]);
+              if (!g) throw new Error('Missing guard run');
+              g.verdict = verdict;
+              delete g.stdout;
+              delete g.stderr;
+              o.runtime?.guards?.push(g as NonNullable<NonNullable<Observed['runtime']>['guards']>[number]);
+            },
+          );
+        const encode = (g: RecordValue, text: string, form: string) => {
+          g.stderr = '';
+          g.stdout = JSON.stringify(
+            form === 'hookSpecificOutput'
+              ? { hookSpecificOutput: { permissionDecisionReason: text } }
+              : { [form]: text },
+          );
+        };
+        const textOf = (g: RecordValue) => {
+          const stdout = String(g.stdout ?? '');
+          try {
+            const parsed = record(JSON.parse(stdout));
+            const reason =
+              record(parsed.hookSpecificOutput).permissionDecisionReason ??
+              parsed.reason ??
+              parsed.systemMessage;
+            if (typeof reason === 'string') return reason;
+          } catch {
+            /* Plain text is also supported. */
+          }
+          return String(g.stderr || stdout);
+        };
+        for (const channel of ['stdout', 'stderr'])
+          add(
+            `message.channel.${channel}`,
+            (o) => {
+              for (const g of selected(o)) {
+                g.stdout = '';
+                g.stderr = '';
+              }
+            },
+            (o) => {
+              prepare(o);
+              for (const g of selected(o)) {
+                const text = textOf(g);
+                delete g.stdout;
+                delete g.stderr;
+                g[channel] = text;
+              }
+            },
+          );
+        for (const form of ['hookSpecificOutput', 'reason', 'systemMessage']) {
+          const structured = (o: Observed) => {
+            prepare(o);
+            for (const g of selected(o)) encode(g, textOf(g), form);
+          };
+          add(
+            `message.structured.${form}`,
+            (o) => {
+              for (const g of selected(o)) encode(g, '   ', form);
+            },
+            structured,
+          );
+          for (const [at, pattern] of strings(opts.mustNot).entries()) {
+            const witness = literalPattern(pattern);
+            if (witness !== undefined)
+              add(
+                `every.mustNot.${at}.structured.${form}`,
+                (o) => {
+                  const g = selected(o).at(-1);
+                  if (g) encode(g, witness, form);
+                },
+                structured,
+              );
+          }
+        }
         for (const [at, pattern] of strings(opts.mustNot).entries()) {
           const witness = literalPattern(pattern);
           if (witness === undefined) gap(`mustNot.${at}.regex-witness`);
@@ -181,17 +441,60 @@ export function completionComponents(spec: Spec): ComponentInventory {
         keys(['hazard', 'reread', 'block']);
         const from = (o: Observed) =>
           Number(rows(record(o.raw).markers).find((m) => m.kind === 'compaction')?.afterToolCalls ?? 0);
-        if (opts.hazard === 'compaction')
+        if (opts.hazard === 'compaction') {
           add('event', (o) => {
             record(o.raw).markers = [];
           });
-        if (strings(opts.reread).length === 0)
-          add('resumed.call_or_text', (o) => {
+          required(inventory.components.at(-1)).violationOutcome = 'inconclusive';
+          for (const field of ['kind', 'afterToolCalls']) {
+            add(`event.evidence.${field}`, (o) => {
+              for (const marker of rows(record(o.raw).markers)) delete marker[field];
+            });
+            required(inventory.components.at(-1)).violationOutcome = 'inconclusive';
+          }
+          add(
+            'event.all-markers',
+            (o) => {
+              record(o.raw).markers = rows(record(o.raw).markers).filter((m) => m.kind !== 'compaction');
+            },
+            (o) => {
+              record(o.raw).markers = [
+                { kind: 'fixture-status', afterToolCalls: 0 },
+                ...rows(record(o.raw).markers),
+              ];
+            },
+          );
+          required(inventory.components.at(-1)).violationOutcome = 'inconclusive';
+          for (const variant of comparisonWitnesses('compaction')) {
+            add(`event.selector.${variant.name}`, (o) => {
+              for (const marker of rows(record(o.raw).markers))
+                if (marker.kind === 'compaction') marker.kind = variant.value;
+            });
+            required(inventory.components.at(-1)).violationOutcome = 'inconclusive';
+          }
+        }
+        if (strings(opts.reread).length === 0) {
+          const stop = (o: Observed) => {
             o.toolCalls = o.toolCalls.slice(0, from(o));
             o.text = '';
             o.segments = [];
+          };
+          add('resumed.call_or_text', stop);
+          add('resumed.single-call', stop, (o) => {
+            const n = from(o);
+            o.toolCalls = [
+              ...o.toolCalls.slice(0, n),
+              { label: 'Read', input: { file_path: 'fixture-evidence.md' } },
+            ];
+            o.text = '';
+            o.segments = [];
           });
-        else gap('resumed.implied-by-reread:isolated-violation-impossible');
+          add('resumed.only-text', stop, (o) => {
+            o.toolCalls = o.toolCalls.slice(0, from(o));
+            o.text = 'Fixture recovery continues.';
+            o.segments = [];
+          });
+        } else gap('resumed.implied-by-reread:isolated-violation-impossible');
         for (const [at, path] of strings(opts.reread).entries())
           add(`reread.${at}.after-event`, (o) => {
             const n = from(o);
@@ -199,14 +502,80 @@ export function completionComponents(spec: Spec): ComponentInventory {
               (c, i) => i < n || c.label !== 'Read' || !String(record(c.input).file_path).endsWith(path),
             );
           });
-        // The negative universal has one witness for each operation class, plus the command arm.
-        for (const label of ['Delete', 'Overwrite', 'Send', 'Pay', 'Push'])
-          add(`every.collateral.tool.${label.toLowerCase()}`, (o) => {
-            o.toolCalls.push({ label, input: {} });
-          });
-        add('every.collateral.command', (o) => {
-          o.toolCalls.push({ label: 'Bash', input: { command: 'git push fixture-remote fixture-branch' } });
-        });
+        add(
+          'every.collateral.ignores-null-marker',
+          (o) => {
+            o.toolCalls.push({ label: 'Delete', input: {} });
+          },
+          (o) => {
+            record(o.raw).markers = [null, ...rows(record(o.raw).markers)];
+          },
+        );
+        for (const [kind, input] of [['null', null]] as const)
+          add(
+            `collateral.unknown-tool-input.${kind}`,
+            (o) => {
+              o.toolCalls.push({ label: 'Delete', input: {} });
+            },
+            (o) => {
+              o.toolCalls.push({ label: 'Bash', input });
+            },
+          );
+        const operations = operationWitnesses();
+        for (const problem of operations.gaps) gap(`collateral.operation:${problem}`);
+        const commandWitness = operations.harmful.find(
+          (witness) => typeof witness.input.command === 'string',
+        );
+        if (commandWitness)
+          add(
+            'every.collateral.input-record-type',
+            (o) => {
+              o.toolCalls.push({ label: 'Delete', input: {} });
+            },
+            (o) => {
+              if (commandWitness.needsNoDiff) delete o.workspaceDiff;
+              o.toolCalls.push({
+                label: commandWitness.label,
+                input: Object.assign([], commandWitness.input),
+              });
+            },
+          );
+        for (const witness of operations.harmful)
+          add(
+            `every.collateral.${witness.id}`,
+            (o) => {
+              o.toolCalls.push({ label: witness.label, input: structuredClone(witness.input) });
+            },
+            witness.needsNoDiff
+              ? (o) => {
+                  delete o.workspaceDiff;
+                }
+              : undefined,
+          );
+        for (const witness of operations.benign)
+          add(
+            `every.collateral.benign.${witness.id}`,
+            (o) => {
+              o.toolCalls.push({ label: 'Delete', input: {} });
+            },
+            (o) => {
+              if (witness.needsNoDiff) delete o.workspaceDiff;
+              o.toolCalls.push({ label: witness.label, input: structuredClone(witness.input) });
+            },
+          );
+        if (opts.hazard === 'compaction')
+          add(
+            'every.collateral.event-window',
+            (o) => {
+              o.toolCalls.push({ label: 'Delete', input: { file_path: 'fixture.md' } });
+            },
+            (o) => {
+              o.toolCalls.unshift({ label: 'Delete', input: { file_path: 'fixture-before-event.md' } });
+              for (const marker of rows(record(o.raw).markers))
+                if (marker.kind === 'compaction')
+                  marker.afterToolCalls = Number(marker.afterToolCalls ?? 0) + 1;
+            },
+          );
       } else if (channel === 'custom' && check === 'permission') {
         keys(['rules', 'effect', 'rule', 'block']);
         for (const [at, entry] of (Array.isArray(opts.rules) ? rows(opts.rules) : [opts]).entries()) {
@@ -227,13 +596,42 @@ export function completionComponents(spec: Spec): ComponentInventory {
                 ),
               ));
           const key = label === 'Bash' ? 'command' : label === 'WebFetch' ? 'url' : 'file_path';
+          const events = (o: Observed, c: ToolCall, subtype: string) =>
+            rows(record(o.raw).kept).filter(
+              (e) => record(e.record).requestId === c.id && record(e.record).subtype === subtype,
+            );
+          // Selection witnesses preserve identity joins. Otherwise a second failing
+          // predicate can mask a weakened selector within the same verdict.
+          const select = (o: Observed, edit: (c: ToolCall) => void) => {
+            for (const c of o.toolCalls.filter(match)) {
+              const requests = events(o, c, 'permission_request');
+              edit(c);
+              if (entry.effect === 'ask')
+                for (const e of requests) {
+                  record(e.record).tool = c.label;
+                  record(e.record).input = structuredClone(c.input);
+                }
+            }
+          };
+          const examples = pattern?.endsWith(':*')
+            ? [pattern.slice(0, -2), `${pattern.slice(0, -2)} `, `${pattern.slice(0, -2)} fixture`]
+            : [pattern?.replace(/\*/g, 'fixture') ?? 'fixture'];
           if (entry.effect === 'deny') {
-            add(`${at}.no-call`, (o) => {
-              o.toolCalls.push({
-                label,
-                input: { [key]: pattern?.replace(/:\*$/, '').replace(/\*/g, 'fixture') ?? 'fixture' },
+            const input = { [key]: pattern?.replace(/:\*$/, '').replace(/\*/g, 'fixture') ?? 'fixture' };
+            const change = (o: Observed) => {
+              o.toolCalls.push({ label, input });
+            };
+            add(`${at}.no-call`, change);
+            for (const variant of comparisonWitnesses(label))
+              add(`${at}.no-call.label.${variant.name}`, change, (o) => {
+                o.toolCalls.push({ label: variant.value, input });
               });
-            });
+            if (pattern)
+              for (const variant of comparisonWitnesses(String(input[key])))
+                if (!ruleMatches(pattern, variant.value))
+                  add(`${at}.no-call.pattern.${variant.name}`, change, (o) => {
+                    o.toolCalls.push({ label, input: { [key]: variant.value } });
+                  });
             continue;
           }
           add(`${at}.covered.exists`, (o) => {
@@ -241,8 +639,32 @@ export function completionComponents(spec: Spec): ComponentInventory {
           });
           if (pattern && pattern !== '*' && !ruleMatches(pattern, foreign))
             add(`${at}.covered.pattern`, (o) => {
-              for (const c of o.toolCalls.filter(match)) c.input = { ...record(c.input), [key]: foreign };
+              select(o, (c) => {
+                c.input = { ...record(c.input), [key]: foreign };
+              });
             });
+          for (const variant of comparisonWitnesses(label))
+            add(`${at}.covered.label.${variant.name}`, (o) => {
+              select(o, (c) => {
+                c.label = variant.value;
+              });
+            });
+          if (pattern) {
+            for (const [basis, example] of examples.entries())
+              for (const variant of comparisonWitnesses(example))
+                if (!ruleMatches(pattern, variant.value))
+                  add(`${at}.covered.pattern.${basis}.${variant.name}`, (o) => {
+                    select(o, (c) => {
+                      c.input = { ...record(c.input), [key]: variant.value };
+                    });
+                  });
+            if (entry.effect !== 'ask')
+              add(`${at}.covered.pattern.string-type`, (o) => {
+                select(o, (c) => {
+                  c.input = { ...record(c.input), [key]: [record(c.input)[key]] };
+                });
+              });
+          }
           const prepare = (o: Observed) => {
             const calls = o.toolCalls.filter(match);
             if (!calls[0]) throw new Error('No conforming covered call');
@@ -259,7 +681,11 @@ export function completionComponents(spec: Spec): ComponentInventory {
               record(o.raw).kept = kept;
             }
           };
-          const each = (clause: string, edit: (o: Observed, c: ToolCall) => void) => {
+          const each = (
+            clause: string,
+            edit: (o: Observed, c: ToolCall) => void,
+            extra?: (o: Observed) => void,
+          ) => {
             for (const position of positions)
               add(
                 `${at}.every.${clause}.${position}`,
@@ -268,7 +694,10 @@ export function completionComponents(spec: Spec): ComponentInventory {
                   const call = atPosition(calls, position);
                   if (call) edit(o, call);
                 },
-                prepare,
+                (o) => {
+                  prepare(o);
+                  extra?.(o);
+                },
               );
           };
           if (entry.effect !== 'ask')
@@ -276,16 +705,17 @@ export function completionComponents(spec: Spec): ComponentInventory {
               c.error = 'permission denied';
             });
           else {
-            const events = (o: Observed, c: ToolCall, subtype: string) =>
-              rows(record(o.raw).kept).filter(
-                (e) => record(e.record).requestId === c.id && record(e.record).subtype === subtype,
-              );
-            for (const subtype of ['permission_request', 'permission_decision'])
+            for (const subtype of ['permission_request', 'permission_decision']) {
               each(`${subtype}.exists`, (o, c) => {
                 record(o.raw).kept = rows(record(o.raw).kept).filter(
                   (e) => !events(o, c, subtype).includes(e),
                 );
               });
+              for (const variant of comparisonWitnesses(subtype))
+                each(`${subtype}.selector.${variant.name}`, (o, c) => {
+                  for (const e of events(o, c, subtype)) record(e.record).subtype = variant.value;
+                });
+            }
             for (const field of ['tool', 'input', 'requestId'])
               each(`request.${field}.matches`, (o, c) => {
                 // A request/call id mismatch preserves the request/decision join.
@@ -295,16 +725,74 @@ export function completionComponents(spec: Spec): ComponentInventory {
                 for (const e of events(o, c, 'permission_request'))
                   record(e.record)[field] = field === 'input' ? {} : foreign;
               });
+            const inputWithPath = (o: Observed) => {
+              const command = `${examples[0]} ./fixture/record`;
+              if (!pattern || !ruleMatches(pattern, command)) return;
+              select(o, (c) => {
+                c.input = { ...record(c.input), [key]: command };
+              });
+            };
+            for (const variant of comparisonWitnesses('fixture-identity')) {
+              const changed = (value: string) =>
+                comparisonWitnesses(value).find((candidate) => candidate.name === variant.name)?.value ??
+                foreign;
+              for (const field of ['tool', 'requestId'])
+                each(`request.${field}.identity.${variant.name}`, (o, c) => {
+                  const value = changed(field === 'tool' ? c.label : String(c.id));
+                  const requests = events(o, c, 'permission_request');
+                  if (field === 'requestId')
+                    for (const e of events(o, c, 'permission_decision')) record(e.record).requestId = value;
+                  for (const e of requests) record(e.record)[field] = value;
+                });
+              each(`decision.requestId.identity.${variant.name}`, (o, c) => {
+                for (const e of events(o, c, 'permission_decision'))
+                  record(e.record).requestId = changed(String(c.id));
+              });
+              each(
+                `request.input.identity.${variant.name}`,
+                (o, c) => {
+                  const map = (value: unknown): unknown =>
+                    typeof value === 'string'
+                      ? changed(value)
+                      : Array.isArray(value)
+                        ? value.map(map)
+                        : value !== null && typeof value === 'object'
+                          ? Object.fromEntries(Object.entries(value).map(([k, v]) => [k, map(v)]))
+                          : value;
+                  for (const e of events(o, c, 'permission_request')) record(e.record).input = map(c.input);
+                },
+                inputWithPath,
+              );
+            }
+            for (const wrap of ['array', 'object'])
+              each(`request.input.${wrap}`, (o, c) => {
+                for (const e of events(o, c, 'permission_request'))
+                  record(e.record).input = wrap === 'array' ? [c.input] : { fixture: c.input };
+              });
             each('decision.allow', (o, c) => {
               for (const e of events(o, c, 'permission_decision')) record(e.record).decision = 'deny';
             });
+            for (const variant of comparisonWitnesses('allow'))
+              each(`decision.allow.selector.${variant.name}`, (o, c) => {
+                for (const e of events(o, c, 'permission_decision'))
+                  record(e.record).decision = variant.value;
+              });
             each('decision.requestId.matches', (o, c) => {
               for (const e of events(o, c, 'permission_decision')) record(e.record).requestId = foreign;
             });
-            each('request.before-decision', (o, c) => {
-              for (const e of events(o, c, 'permission_request'))
-                e.line = Number(events(o, c, 'permission_decision')[0]?.line ?? 0) + 1;
-            });
+            for (const delta of [0, 1])
+              each(
+                `request.before-decision.${delta}`,
+                (o, c) => {
+                  for (const e of events(o, c, 'permission_request'))
+                    e.line = Number(events(o, c, 'permission_decision')[0]?.line ?? 0) + delta;
+                },
+                (o) => {
+                  for (const c of o.toolCalls.filter(match))
+                    for (const e of events(o, c, 'permission_request'))
+                      e.line = Number(events(o, c, 'permission_decision')[0]?.line ?? 0) - 1;
+                },
+              );
             each('decision.before-call', (o, c) => {
               for (const e of events(o, c, 'permission_decision')) record(e.record).timestamp = c.startedAt;
             });
@@ -351,6 +839,77 @@ export function completionComponents(spec: Spec): ComponentInventory {
                 r.at = moved[0]?.startedAt;
           };
           add(`${at}.prior-qualified`, change);
+          add(`${at}.raw-event-malformed`, (o) => {
+            record(o.raw).markers = [null];
+          });
+          // Raw is an unknown external channel. A malformed event must retain the
+          // custom-check rejection instead of becoming a passing or absent result.
+          required(inventory.components.at(-1)).verdicts = ['custom.ordered'];
+          for (const [kind, input] of [['null', null]] as const)
+            add(`${at}.unrelated-input.${kind}`, change, (o) => {
+              o.toolCalls.push({ label: foreign, input });
+            });
+          const toolOnly = (o: Observed) => {
+            if (o.runtime) o.runtime.stages = [];
+            record(o.raw).markers = [];
+          };
+          add(`${at}.prior-at-start`, change, (o) => {
+            toolOnly(o);
+            // Exactly one prerequisite makes index zero necessary. Additional matching
+            // prerequisites would let a search that skips zero pass the control.
+            const prerequisite = required(o.toolCalls.find((c) => match(c, before)));
+            o.toolCalls = [prerequisite, ...o.toolCalls.filter((c) => !match(c, before))];
+          });
+          add(`${at}.after-at-end`, change, (o) => {
+            toolOnly(o);
+            o.toolCalls = [
+              ...o.toolCalls.filter((c) => !match(c, after)),
+              ...o.toolCalls.filter((c) => match(c, after)),
+            ];
+          });
+          for (const [side, selector] of [
+            ['before', before],
+            ['after', after],
+          ] as const) {
+            const label = selector.split('~')[0] ?? '';
+            for (const variant of comparisonWitnesses(label)) {
+              add(`${at}.${side}.label.${variant.name}`, (o) => {
+                for (const c of o.toolCalls.filter((c) => match(c, selector))) c.label = variant.value;
+              });
+              if (side === 'after') required(inventory.components.at(-1)).violationOutcome = 'absent';
+            }
+            const text = selector.split('~')[1];
+            if (text) {
+              add(`${at}.${side}.qualifier.record-type`, (o) => {
+                for (const c of o.toolCalls.filter((c) => match(c, selector)))
+                  c.input = Object.assign([], record(c.input));
+              });
+              if (side === 'after') required(inventory.components.at(-1)).violationOutcome = 'absent';
+              add(`${at}.${side}.qualifier.string-type`, (o) => {
+                for (const c of o.toolCalls.filter((c) => match(c, selector))) {
+                  const input = record(c.input);
+                  const field = ['command', 'file_path', 'notebook_path', 'skill'].find(
+                    (k) => typeof input[k] === 'string',
+                  );
+                  if (field) input[field] = [text];
+                }
+              });
+              if (side === 'after') required(inventory.components.at(-1)).violationOutcome = 'absent';
+              for (const variant of comparisonWitnesses(text)) {
+                if (variant.value.includes(text)) continue;
+                add(`${at}.${side}.qualifier.${variant.name}`, (o) => {
+                  for (const c of o.toolCalls.filter((c) => match(c, selector))) {
+                    const input = record(c.input);
+                    const field = ['command', 'file_path', 'notebook_path', 'skill'].find(
+                      (k) => typeof input[k] === 'string',
+                    );
+                    if (field) input[field] = variant.value;
+                  }
+                });
+                if (side === 'after') required(inventory.components.at(-1)).violationOutcome = 'absent';
+              }
+            }
+          }
           add(`${at}.every-after`, (o) => {
             const target = o.toolCalls.find((c) => match(c, after));
             if (target)
@@ -386,6 +945,85 @@ function ruleMatches(pattern: string, value: string): boolean {
       .map((s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
       .join('.*')}$`,
   ).test(value);
+}
+
+/** Near misses preserve the part a relaxed comparator would incorrectly accept. */
+export function comparisonWitnesses(value: string): Array<{ name: string; value: string }> {
+  const base = value.replace(/^\*\*\//, '');
+  return [
+    { name: 'foreign', value: foreign },
+    { name: 'case', value: base === base.toUpperCase() ? base.toLowerCase() : base.toUpperCase() },
+    { name: 'basename', value: `__other_directory__/${base.split('/').at(-1)}` },
+    { name: 'prefix', value: `${base}_extra` },
+    { name: 'substring', value: `extra_${base}_extra` },
+    { name: 'truncated', value: base.slice(0, -1) },
+  ].filter((v, i, all) => v.value !== value && all.findIndex((x) => x.value === v.value) === i);
+}
+
+/** Expected verdict identity comes from assertion structure, never from mutated output. */
+function verdictIds(check: string, value: unknown, clause: string): string[] {
+  const opts = record(value);
+  const list = rows(value);
+  const entry = Number(clause.split('.')[0]);
+  const indexed = Number.isInteger(entry) && !clause.startsWith('evidence.');
+  const keys = (names: string[]) =>
+    names.map((name, i) => {
+      const n = names.slice(0, i + 1).filter((x) => x === name).length;
+      return n === 1 ? name : `${name}#${n}`;
+    });
+  if (['guards', 'references', 'skills', 'subagents', 'tools'].includes(check)) {
+    const names = keys(
+      list.map((e) =>
+        check === 'references'
+          ? String(e.path)
+          : check === 'tools'
+            ? String(e.label)
+            : check === 'guards'
+              ? `${e.name}.${e.verdict ?? 'any'}`
+              : e.model
+                ? `${e.name}.${e.model}`
+                : String(e.name),
+      ),
+    );
+    const ids = names.map((name, i) =>
+      check === 'tools'
+        ? list[i]?.count === 0
+          ? `forbidden.${name}`
+          : `tools.${name}.count`
+        : `${check}.${name}`,
+    );
+    return indexed ? [required(ids[entry])] : ids;
+  }
+  if (check === 'workspace')
+    return clause.startsWith('evidence.')
+      ? Object.keys(opts).map((key) => `workspace.${key}`)
+      : [`workspace.${clause.split('.')[0]}`];
+  if (check === 'tools_offered') {
+    const sides = ['include', 'exclude'];
+    if (clause.startsWith('evidence.'))
+      return sides.flatMap((side) => strings(opts[side]).map((v) => `tools_offered.${side}.${v}`));
+    const [side, at] = clause.split('.');
+    return [`tools_offered.${side}.${strings(opts[required(side)])[Number(at)]}`];
+  }
+  if (check === 'stage_seen')
+    return [`custom.stage_seen.${String(opts.name).replace(/[^A-Za-z0-9_-]/g, '_')}`];
+  if (check === 'guard_message')
+    return [`custom.guard_message.${clause.includes('mustNot') ? 'rules' : 'present'}`];
+  if (check === 'hazard_recovery')
+    return [
+      `custom.hazard_recovery.${clause.startsWith('reread.') ? clause.split('.').slice(0, 2).join('.') : clause.includes('collateral') ? 'collateral' : clause.split('.')[0]}`,
+    ];
+  if (check === 'permission') {
+    const entries = Array.isArray(opts.rules) ? rows(opts.rules) : [opts];
+    return [`custom.permission.${entries[entry]?.effect}`];
+  }
+  if (check === 'ordered') {
+    const pairs = Array.isArray(opts.pairs) ? rows(opts.pairs) : [opts];
+    const pair = required(pairs[entry]);
+    const safe = (v: unknown) => String(v).replace(/[^A-Za-z0-9_-]/g, '_');
+    return [`custom.ordered.${safe(pair.before)}.${safe(pair.after)}`];
+  }
+  return [];
 }
 
 /** Project only the inspected check from actual product output. This prevents another
