@@ -56,7 +56,7 @@ describe('HTTP reasoning follows the request capability', () => {
   // Captured from the merged client before adding HTTP reasoning settings or rejection paths.
   for (const [request, digest, key] of [
     // The plain body carries the default system prompt: these two values follow prompt and decoder version 2.
-    [plain, '5c36c63ad20d0ce5d6a0c77032da2ba13d7df395198776af33dea270a54cd20d', 'fd8125992046'],
+    [plain, '7512b17731c7fd9695a102d4d13e1e179d2368da9036946e48400e8d42d16f98', '2a98b134cd72'],
     [ledger, 'c9f70fc218bca25ee29988129ad474203e88b8ebf993ea99cdee3952e523623b', '8ef5c47147a3'],
   ] as const) {
     it(`preserves unset ${request.answerContract ?? 'plain'} request bytes and key`, async () => {

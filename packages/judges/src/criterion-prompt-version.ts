@@ -8,7 +8,7 @@ export type CriterionPromptVersion = 1 | 2;
 
 /** The rules version 2 adds, after the version 1 rules. */
 export const CRITERION_PROMPT_V2_RULES = [
-  '- Compare each named identifier, number and unit exactly. A similar name, an added suffix or a nearby value is a different thing.',
+  '- Compare each named identifier, number and unit exactly. A similar name, an added suffix or a nearby value is a different thing. Read each fact in the context of the whole reply: a unit, period or subject that the surrounding text supplies carries over to a short clause, a synonym states the same fact, and an exact unit conversion is the same value.',
   '- Facts the criterion states are the expected values: compare the data with them. met null is never for a missing outside source.',
   '- When the QUESTION names which record counts, that record alone decides the requirement, over the SCOPE line and over a reply that contradicts the record.',
 ] as const;
