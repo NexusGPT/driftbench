@@ -27,6 +27,24 @@ import { seededIndex } from './random';
 export const PhrasingKinds = ['conversation', 'task'] as const;
 export type PhrasingKind = (typeof PhrasingKinds)[number];
 
+/**
+ * One reply pattern. A bare string applies at every stage. An object with `at_stage` applies only where the
+ * conversation stands in one of the named stages when the deviation arrives.
+ */
+export const ReplyPattern = z.union([
+  z.string().min(1),
+  z.strictObject({
+    pattern: z.string().min(1).describe('The pattern.'),
+    at_stage: z
+      .array(z.string().min(1))
+      .min(1)
+      .describe(
+        'The stages the pattern applies at, named in the `stages` of the file. The stage is the one the previous block of the spec expects.',
+      ),
+  }),
+]);
+export type ReplyPattern = z.infer<typeof ReplyPattern>;
+
 export const Phrasing = z
   .strictObject({
     id: z
@@ -50,15 +68,17 @@ export const Phrasing = z
     file: z.string().min(1).optional().describe('The planted file (D6 on a task).'),
     content: z.string().min(1).optional().describe('The text of the planted file or obstacle (task).'),
     must: z
-      .array(z.string().min(1))
+      .array(ReplyPattern)
       .optional()
       .describe(
-        'Patterns the reply to this phrasing must match (conversation only). Merged into the injected block.',
+        'Patterns the reply to this phrasing must match (conversation only). Merged into the injected block. A pattern with `at_stage` applies only at those stages.',
       ),
     must_not: z
-      .array(z.string().min(1))
+      .array(ReplyPattern)
       .optional()
-      .describe('Patterns the reply to this phrasing must not match (conversation only).'),
+      .describe(
+        'Patterns the reply to this phrasing must not match (conversation only). A pattern with `at_stage` applies only at those stages.',
+      ),
   })
   .describe('One phrasing of a deviation.');
 export type Phrasing = z.infer<typeof Phrasing>;
@@ -67,6 +87,11 @@ export const PackFile = z
   .strictObject({
     class: DeviationClass.describe('The class every phrasing of the file belongs to.'),
     title: z.string().min(1).optional().describe('A title for a reader; no command reads it.'),
+    stages: z
+      .array(z.string().min(1))
+      .min(1)
+      .optional()
+      .describe('The stage names this file may use in `at_stage`. Any other name makes the pack invalid.'),
     conversation: z.array(Phrasing).min(1).describe('Phrasings for conversation specs.'),
     task: z.array(Phrasing).min(1).optional().describe('Phrasings for task specs.'),
   })
@@ -152,6 +177,18 @@ export function checkPackFile(file: PackFile): string[] {
       ids.add(phrasing.id);
       for (const problem of shapeProblems(file.class, kind, phrasing)) {
         problems.push(`${kind} ${phrasing.id}: ${problem}`);
+      }
+      for (const key of ['must', 'must_not'] as const) {
+        for (const entry of phrasing[key] ?? []) {
+          if (typeof entry === 'string') continue;
+          for (const stage of entry.at_stage) {
+            if (!(file.stages ?? []).includes(stage)) {
+              problems.push(
+                `${kind} ${phrasing.id}: ${key} ${JSON.stringify(entry.pattern)} names the stage ${stage}, which the file does not list in stages`,
+              );
+            }
+          }
+        }
       }
     }
   }
@@ -262,4 +299,23 @@ export function drawPhrasing(pack: RedteamPack, options: DrawOptions): Phrasing 
   const picked = pool[seededIndex([options.seed, options.cls, options.kind], pool.length)];
   if (!picked) throw new RedteamPackError('the seeded draw fell outside the pool');
   return { ...picked, packPath: file.path };
+}
+
+/** The text of a reply pattern. */
+export function patternText(entry: ReplyPattern): string {
+  return typeof entry === 'string' ? entry : entry.pattern;
+}
+
+/**
+ * The patterns of a phrasing that apply where the conversation stands in `stage`. A pattern with `at_stage`
+ * stays only when the stage is one of its stages; where the spec states no stage, it is dropped, because no
+ * stage-bound demand can be shown to be reachable there.
+ */
+export function patternsAt(
+  entries: readonly ReplyPattern[] | undefined,
+  stage: string | undefined,
+): string[] {
+  return (entries ?? [])
+    .filter((entry) => typeof entry === 'string' || (stage !== undefined && entry.at_stage.includes(stage)))
+    .map(patternText);
 }

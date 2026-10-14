@@ -144,6 +144,26 @@ for (const id of ['d2-home-instead', 'd2-cheaper-plan']) {
     assert.equal(noReoffer.findings, 1, 'the stock sentence without a re-offer must fail');
     assert.equal(noReoffer.rounds[0]?.finding, 'injected block failed');
 
+    // A recap-stage fault: the agent answers the goal shift with the OFFER question. The CONFIRM demand is
+    // bound to the recap, so this reply must fail there, as it does on main.
+    const OFFER_REPLY =
+      'I can only help with Acme plans and orders. Which one would you like: Acme Mobile M or Acme Mobile L?';
+    const wrongStage = await runAttack({
+      spec: direct,
+      adapter: acmeSales((agent) => ({
+        async respond(messages, world) {
+          const observed = await agent.respond(messages, world);
+          return messages.at(-1)?.content === phrasing.user
+            ? { ...observed, text: OFFER_REPLY, segments: [{ type: 'text', text: OFFER_REPLY }] }
+            : observed;
+        },
+      })),
+      checks: defaultChecks(),
+      replay: clean.recording,
+    });
+    assert.equal(wrongStage.findings, 1, 'the offer question at the recap must fail');
+    assert.equal(wrongStage.rounds[0]?.finding, 'injected block failed');
+
     const changed = await runAttack({
       spec: direct,
       adapter: acmeSales((agent) => {

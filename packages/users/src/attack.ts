@@ -19,6 +19,7 @@ import { seededIndex } from './random';
 import {
   drawPhrasing,
   Phrasing,
+  patternText,
   phrasingKindProblems,
   phrasingPool,
   type RedteamPack,
@@ -294,15 +295,21 @@ function terminalReplyPassed(
   phrasing: Phrasing,
   perturbation: PerturbationSpec,
 ): boolean {
+  // A stage-bound pattern the injection stage dropped is not owed; every other pattern must be in the block.
   const expected = (['must', 'must_not'] as const).flatMap((key) =>
-    (phrasing[key] ?? []).map((pattern, index) => ({ key, pattern, index })),
+    (phrasing[key] ?? []).flatMap((entry) => {
+      const pattern = patternText(entry);
+      const index = perturbation.expect?.[key]?.indexOf(pattern) ?? -1;
+      if (index < 0 && typeof entry !== 'string') return [];
+      return [{ key, index }];
+    }),
   );
   return (
     block.pass &&
     expected.length > 0 &&
     expected.every(
-      ({ key, pattern, index }) =>
-        perturbation.expect?.[key]?.[index] === pattern &&
+      ({ key, index }) =>
+        index >= 0 &&
         block.verdicts.some((v) => v.id === `${key}.${index}` && v.gating && v.outcome === 'pass'),
     )
   );
