@@ -80,24 +80,25 @@ The command line has the label-aware cascade, a measurement of cheap-first routi
 driftbench judge calibrate --criteria examples/acme/criteria --labels examples/acme/labels --cassette examples/acme/criteria/calibration/claude-council.cassette.json --cascade --only plain_language --only ledger_intact --out cascade.json
 ```
 
-```text
-$ driftbench judge calibrate --criteria examples/acme/criteria --labels examples/acme/labels --cassette examples/acme/criteria/calibration/claude-council.cassette.json --cascade --only plain_language --only ledger_intact --out cascade.json
-Cascade: claude-haiku answers everything; claude-sonnet and claude-opus answer where it is unsure or disagrees with the label.
-ledger_intact: separation 3/3, kappa 1.00 (3/3), 0.0020 USD; escalated: none
-    unsure only: separation 3/3, kappa 1.00 (3/3), 0.0020 USD
-plain_language: separation 3/3, kappa 1.00 (3/3), 0.0016 USD; escalated: none
-    unsure only: separation 3/3, kappa 1.00 (3/3), 0.0016 USD
-
-Spent 0.0036 USD. Wrote cascade.json.
-(exit 0)
-```
-
 Scripted judges (`FakeJudge`, no model call): a sure cheap judge decides alone in one call; an unsure one triggers the two experts. A pool that shares the agent's family is refused:
 
-From a repository checkout, not run by the help test:
+The scripts below run the package from its source with `tsx`; this file tells `tsx` where the packages are:
 
-```text
-$ mkdir -p out/judging/moj && cat > out/judging/moj/escalate.ts <<'EOF'
+```json file=tsconfig.json
+{
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "paths": {
+      "@agent-nexus/driftbench-example-acme": ["./examples/acme/src/package.ts"],
+      "@agent-nexus/driftbench-adapters/contract": ["./packages/adapters/src/contract.ts"],
+      "@agent-nexus/driftbench-*": ["./packages/*/src/index.ts"]
+    }
+  }
+}
+```
+
+```ts file=escalate.mts
 import { createEscalation, FakeJudge } from '@agent-nexus/driftbench-judges';
 
 const request = {
@@ -122,8 +123,36 @@ try {
 } catch (cause) {
   console.log(`refused: ${(cause as Error).message}`);
 }
-EOF
-$ pnpm -s exec tsx out/judging/moj/escalate.ts
+```
+
+```sh setup
+tsx escalate.mts
+```
+
+```text
+$ driftbench judge calibrate --criteria examples/acme/criteria --labels examples/acme/labels --cassette examples/acme/criteria/calibration/claude-council.cassette.json --cascade --only plain_language --only ledger_intact --out cascade.json
+node:internal/modules/esm/resolve:271
+    throw new ERR_MODULE_NOT_FOUND(
+          ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/Users/assem/Documents/GitHub/driftbench/.worktrees/opus-help-judging/packages/cli/node_modules/@agent-nexus/driftbench-judges/dist/index.js' imported from /Users/assem/Documents/GitHub/driftbench/.worktrees/opus-help-judging/packages/cli/src/commands/judge.ts
+    at finalizeResolution (node:internal/modules/esm/resolve:271:11)
+    at moduleResolve (node:internal/modules/esm/resolve:865:10)
+    at defaultResolve (node:internal/modules/esm/resolve:992:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:701:20)
+    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:721:38)
+    at nextStep (node:internal/modules/customization_hooks:189:26)
+    at resolveBaseSync (file:///Users/assem/Documents/GitHub/driftbench/.worktrees/opus-help-judging/node_modules/.pnpm/tsx@4.23.15/node_modules/tsx/dist/register-nyXW-TH3.mjs:2:11092)
+    at resolveDirectorySync (file:///Users/assem/Documents/GitHub/driftbench/.worktrees/opus-help-judging/node_modules/.pnpm/tsx@4.23.15/node_modules/tsx/dist/register-nyXW-TH3.mjs:2:12398)
+    at resolveTsPathsSync (file:///Users/assem/Documents/GitHub/driftbench/.worktrees/opus-help-judging/node_modules/.pnpm/tsx@4.23.15/node_modules/tsx/dist/register-nyXW-TH3.mjs:2:13605)
+    at resolve (file:///Users/assem/Documents/GitHub/driftbench/.worktrees/opus-help-judging/node_modules/.pnpm/tsx@4.23.15/node_modules/tsx/dist/register-nyXW-TH3.mjs:2:16832) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///Users/assem/Documents/GitHub/driftbench/.worktrees/opus-help-judging/packages/cli/node_modules/@agent-nexus/driftbench-judges/dist/index.js'
+}
+
+Node.js v24.18.0
+(exit 1)
+$ tsx escalate.mts
 first sure: pass; escalated false, triggers [], decision first, calls 1
 first unsure: pass; escalated true, triggers [inconclusive], decision majority, calls 3
 refused: a judge shares the agent family: refused
