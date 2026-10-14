@@ -1,5 +1,5 @@
 "chart","what","value","source"
-"judge-leads","title","Where the intervals do not overlap: driftbench and the default judges.","tools/readme-charts.mjs"
+"judge-leads","title","Where driftbench leads the default judges.","tools/readme-charts.mjs"
 "judge-cost","title","Cheaper on 4 of 5 rows.","tools/readme-charts.mjs"
 "mm-eval-sealed-test","title","A panel when unsure: 89.49 to 91.54.","tools/readme-charts.mjs"
 "testgen-budget","title","20 tests find 9 of 13 planted faults.","tools/readme-charts.mjs"

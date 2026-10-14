@@ -277,7 +277,9 @@
     // vertical bars: one group per model or test, driftbench beside the competitor, one normalised scale
     const H = 210;
     const bars = c.groups.reduce((n, g) => n + g.bars.length, 0);
-    const bw = Math.max(16, Math.min(46, Math.floor((540 - c.groups.length * 22) / bars) - 6));
+    // Fresh cohorts have four-digit counts; reserve room for each label above its bar.
+    const labelWidth = Math.max(...c.groups.flatMap(g => g.bars.map(b => String(b.text).length))) * 7;
+    const bw = Math.max(16, labelWidth, Math.min(46, Math.floor((540 - c.groups.length * 22) / bars) - 6));
     const wrap = el('div', 'cols');
     wrap.style.height = (H + 16) + 'px';
     wrap.style.gap = (c.groups.length > 6 ? 10 : 22) + 'px';

@@ -80,19 +80,39 @@ function sameInterval(computed, stored, where) {
 
 function judgeRows(chart = 'judge-heldout') {
   const groups = [];
-  const row = (label, n, ours, theirs, source, stored, setting) => {
+  const row = (label, n, ours, theirs, source, stored, setting, paired) => {
     const oursCi = wilson(ours, n);
     const theirsCi = wilson(theirs, n);
     if (stored?.ours) sameInterval(oursCi, stored.ours, `${source} ${label} ours`);
     if (stored?.theirs) sameInterval(theirsCi, stored.theirs, `${source} ${label} theirs`);
-    const standing = oursCi[0] > theirsCi[1] ? 'lead' : oursCi[1] < theirsCi[0] ? 'deficit' : 'close';
+    const standing = paired
+      ? paired.adjusted <= 0.05 && ours !== theirs
+        ? ours > theirs
+          ? 'lead'
+          : 'deficit'
+        : 'close'
+      : oursCi[0] > theirsCi[1]
+        ? 'lead'
+        : oursCi[1] < theirsCi[0]
+          ? 'deficit'
+          : 'close';
     fact(
       chart,
       `${label}: driftbench ${ours} of ${n}, other ${theirs} of ${n}, ${standing}`,
       [ours, theirs, n],
       source,
     );
-    return { label, n, ours, theirs, oursCi, theirsCi, standing, ...(setting ? { setting } : {}) };
+    return {
+      label,
+      n,
+      ours,
+      theirs,
+      oursCi,
+      theirsCi,
+      standing,
+      ...(setting ? { setting } : {}),
+      ...(paired ? { paired } : {}),
+    };
   };
 
   const deepeval = json(SOURCES.deepeval);
@@ -130,6 +150,7 @@ function judgeRows(chart = 'judge-heldout') {
         source,
         { ours: used.ours_ci, theirs: used.theirs_ci },
         setting,
+        renewed ? { raw: renewed.paired_p, adjusted: renewed.paired_p_holm } : undefined,
       );
     }),
   });
@@ -369,7 +390,7 @@ function judgeData(leadsOnly) {
     kind: 'pairs',
     kicker: 'Judge accuracy · held-out cases · Claude Haiku 5.5 on both sides',
     title: leadsOnly
-      ? 'Where the intervals do not overlap: driftbench and the default judges.'
+      ? 'Where driftbench leads the default judges.'
       : `${total} judge tests: cases correct, driftbench and the default judges.`,
     key: ['driftbench, shipped judge', "the other tool's default"],
     min: 0,
@@ -379,8 +400,8 @@ function judgeData(leadsOnly) {
     axis: 'score out of 100: correct verdicts, % of cases',
     groups: groups.map((g) => ({ header: g.header, rows: g.rows.map(pair) })),
     note: leadsOnly
-      ? `${[...new Set(all.map((r) => r.n))].sort((a, b) => a - b).join(' or ')} cases per row · lines: 95% interval`
-      : '60 to 480 cases per row · lines: 95% interval',
+      ? `${[...new Set(all.map((r) => r.n))].sort((a, b) => a - b).join(' or ')} cases per row · lines: 95% interval${all.some((r) => r.paired) ? ' · fresh rows: paired Holm test' : ''}`
+      : `${Math.min(...all.map((r) => r.n))} to ${Math.max(...all.map((r) => r.n))} cases per row · lines: 95% interval · fresh rows: paired Holm test`,
   };
 }
 
@@ -832,7 +853,7 @@ function hardPerTool(tool) {
   };
   const groups = group.rows.map((r) => ({
     label: `${breaks[r.label] ?? r.label}${r.setting ? ' *' : ''}`,
-    sub: `of ${r.n}`,
+    sub: `of ${r.n}${r.paired ? `; ${r.standing === 'lead' ? 'ahead' : r.standing === 'deficit' ? 'behind' : 'level'}` : ''}`,
     bars: [
       { series: 0, value: round(pct(r.ours, r.n)), text: String(r.ours) },
       { series: 1, value: round(pct(r.theirs, r.n)), text: String(r.theirs) },
@@ -885,7 +906,11 @@ function hardPerTool(tool) {
     key: [settings.length ? 'driftbench' : 'driftbench, shipped judge', `${name} default`],
     groups,
     note: [
-      'Ahead or behind: the 95% intervals do not overlap',
+      group.rows.some((r) => r.paired)
+        ? 'Fresh rows: exact paired test, Holm p <= 0.05; other rows: separate 95% intervals'
+        : 'Ahead or behind: the 95% intervals do not overlap',
+      group.rows.find((r) => r.label === 'Knowledge retention' && r.paired) &&
+        `Retention exact p = ${group.rows.find((r) => r.label === 'Knowledge retention').paired.raw.toPrecision(3)}`,
       sizes.length > 1 && `cases per test: ${sizes.sort((a, b) => a - b).join(' or ')}`,
       settings.length && `* opt-in setting ${settings.join(', ')}; every other bar is the shipped judge`,
     ]

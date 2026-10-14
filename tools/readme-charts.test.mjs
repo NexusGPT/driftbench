@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -95,6 +95,24 @@ describe('readme charts, competitors', () => {
 });
 
 describe('readme charts, rows measured with an opt-in setting', () => {
+  it('labels retention by the paired test and shows its exact p value', () => {
+    const c = chart('hard-deepeval');
+    const source = JSON.parse(
+      readFileSync(new URL('../comparisons/deepeval/lead/fresh-scores.json', import.meta.url), 'utf8'),
+    );
+    const retention = source.find((r) => r.row === 'knowledge retention');
+    const group = c.groups.find((r) => r.label.replaceAll('|', '') === 'Knowledge retention');
+    const verdict =
+      retention.paired_p_holm > 0.05 || retention.ours === retention.theirs
+        ? 'level'
+        : retention.ours > retention.theirs
+          ? 'ahead'
+          : 'behind';
+    expect(group.sub).toBe(`of ${retention.n}; ${verdict}`);
+    expect(c.note).toContain(`Retention exact p = ${retention.paired_p.toPrecision(3)}`);
+    expect(c.note).toContain('Holm p <= 0.05');
+  });
+
   it('draw the bar as plain driftbench, with a footnote that names the setting', () => {
     const c = chart('hard-deepeval');
     const marked = c.groups.filter((g) => g.label.endsWith(' *'));

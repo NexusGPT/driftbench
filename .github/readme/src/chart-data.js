@@ -3,7 +3,7 @@ window.CHART_DATA = {
   "judge-leads": {
     "kind": "pairs",
     "kicker": "Judge accuracy · held-out cases · Claude Haiku 5.5 on both sides",
-    "title": "Where the intervals do not overlap: driftbench and the default judges.",
+    "title": "Where driftbench leads the default judges.",
     "key": [
       "driftbench, shipped judge",
       "the other tool's default"
@@ -1229,7 +1229,7 @@ window.CHART_DATA = {
       },
       {
         "label": "G-Eval, strict *",
-        "sub": "of 480",
+        "sub": "of 480; ahead",
         "bars": [
           {
             "series": 0,
@@ -1245,7 +1245,7 @@ window.CHART_DATA = {
       },
       {
         "label": "Knowl|edge re|ten|tion",
-        "sub": "of 480",
+        "sub": "of 480; level",
         "bars": [
           {
             "series": 0,
@@ -1292,7 +1292,7 @@ window.CHART_DATA = {
         ]
       }
     ],
-    "note": "Ahead or behind: the 95% intervals do not overlap · cases per test: 72 or 480 · * opt-in setting response-relevance; every other bar is the shipped judge"
+    "note": "Fresh rows: exact paired test, Holm p <= 0.05; other rows: separate 95% intervals · Retention exact p = 0.250 · cases per test: 72 or 480 · * opt-in setting response-relevance; every other bar is the shipped judge"
   },
   "hard-promptfoo": {
     "kind": "columns",
