@@ -7,7 +7,7 @@ import type { JudgeClient } from './client';
 import { JudgeClass, type JudgeOutcome, type JudgeRequest } from './contract';
 import type { AssignmentRow, CouncilMode, UnassignedCriterion } from './council';
 import { CriterionFixture, fixtureInputs, fixtureRequest, type LoadedCriterion } from './criteria';
-import { normalizeFamily, sameFamily } from './family';
+import { familyOfModel, normalizeFamily } from './family';
 
 /**
  * Calibration (P2.3): a judge earns a criterion, it is never assumed to own one.
@@ -41,21 +41,37 @@ const COUNCIL_SIZE = 3;
  * a span is a trace span id, which the transcript cannot show.
  */
 export const AnnotationAnchor = z.discriminatedUnion('kind', [
-  z.strictObject({ kind: z.literal('message'), index: z.number().int().min(0) }),
   z.strictObject({
-    kind: z.literal('tool_call'),
-    tool: z.string().min(1),
-    occurrence: z.number().int().min(1).optional(),
+    kind: z.literal('message').describe('A transcript line.'),
+    index: z.number().int().min(0).describe('The index of the line in the transcript, from 0.'),
   }),
-  z.strictObject({ kind: z.literal('field'), path: z.string().min(1) }),
-  z.strictObject({ kind: z.literal('span'), span_id: z.string().min(1) }),
+  z.strictObject({
+    kind: z.literal('tool_call').describe('A tool the transcript calls.'),
+    tool: z.string().min(1).describe('The tool name.'),
+    occurrence: z
+      .number()
+      .int()
+      .min(1)
+      .optional()
+      .describe('Which call of that tool, from 1; 1 when absent.'),
+  }),
+  z.strictObject({
+    kind: z.literal('field').describe('A field of the ledger or of a tool output.'),
+    path: z.string().min(1).describe('The dot path of the field.'),
+  }),
+  z.strictObject({
+    kind: z.literal('span').describe('A trace span, which the transcript cannot show.'),
+    span_id: z.string().min(1).describe('The span id the run recorded.'),
+  }),
 ]);
 export type AnnotationAnchor = z.infer<typeof AnnotationAnchor>;
 
 export const LabelledBlock = CriterionFixture.extend({
-  id: z.string().min(1),
-  label: z.enum(['pass', 'fail']),
-  anchor: AnnotationAnchor.optional(),
+  id: z.string().min(1).describe('The id of the block; a new label for the same id replaces the old one.'),
+  label: z.enum(['pass', 'fail']).describe("The human's verdict on the criterion: pass or fail."),
+  anchor: AnnotationAnchor.optional().describe(
+    'The element of the block the label is about; absent: the whole block.',
+  ),
 });
 export type LabelledBlock = z.infer<typeof LabelledBlock>;
 
@@ -122,10 +138,10 @@ function fieldAt(root: unknown, path: string): boolean {
 
 /** One labels file: the hand-labelled blocks of one criterion. */
 export const LabelFile = z.strictObject({
-  criterion: z.string().min(1),
+  criterion: z.string().min(1).describe('The name of the criterion the labels are for.'),
   /** Who labelled, for a reader. */
-  labelled_by: z.string().optional(),
-  blocks: z.array(LabelledBlock).min(1),
+  labelled_by: z.string().optional().describe('Who labelled, for a reader.'),
+  blocks: z.array(LabelledBlock).min(1).describe('The labelled blocks.'),
 });
 export type LabelFile = z.infer<typeof LabelFile>;
 
@@ -284,6 +300,8 @@ export type JudgeCalibration = {
   /** Calls made, re-asks included, and what they cost in US dollars as the clients reported it. */
   readonly calls: number;
   readonly spentUsd: number;
+  /** Calls whose cost is unknown. Present only when above 0: spentUsd is then a lower bound. */
+  readonly costIncompleteCalls?: number;
   readonly meetsBar: boolean;
   /** Why the judge misses the bar, when it does. */
   readonly misses: readonly string[];
@@ -339,6 +357,8 @@ export type CalibrationReport = {
   readonly errors: number;
   /** What every call cost in US dollars, summed from the clients that report a cost; 0 for a replay without one. */
   readonly spentUsd: number;
+  /** Calls whose cost is unknown. Present only when above 0: spentUsd is then a lower bound. */
+  readonly costIncompleteCalls?: number;
 };
 
 /** Runs calibration. Never throws on a judge failure: the failure is an inconclusive answer, counted. */
@@ -349,13 +369,16 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
   const mode = config.mode ?? 'hybrid';
   const kappaMin = config.kappaMin ?? KAPPA_MIN;
   const agentFamily = config.agentFamily ?? 'none';
-  const excluded = config.judges.filter((judge) => sameFamily(judge.family, agentFamily)).map((j) => j.id);
+  const excluded = config.judges
+    .filter((judge) => familiesOf(judge).includes(familyOfModel(agentFamily) ?? normalizeFamily(agentFamily)))
+    .map((j) => j.id);
   const judges = config.judges.filter((judge) => !excluded.includes(judge.id));
 
   const criteria: CriterionCalibration[] = [];
   const pooled = new Map<string, { judged: JudgeOutcome[]; human: ('pass' | 'fail')[] }>();
   let errors = 0;
   let spentUsd = 0;
+  let costIncompleteCalls = 0;
 
   for (const criterion of config.criteria) {
     const blocks = config.labels.get(criterion.def.name) ?? [];
@@ -363,7 +386,7 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
     // Units for alpha: the pass fixture, the fail fixture, then each labelled block; one row per judge.
     const matrix: (JudgeOutcome | null)[][] = [];
     for (const judge of judges) {
-      const counter = { errors: 0, spentUsd: 0, calls: 0 };
+      const counter = { errors: 0, spentUsd: 0, calls: 0, costIncomplete: 0 };
       const pass: JudgeOutcome[] = [];
       const fail: JudgeOutcome[] = [];
       for (let r = 0; r < repeats; r += 1) {
@@ -374,6 +397,7 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
       for (const block of blocks) judged.push(await answer(judge, labelRequest(criterion, block), counter));
       errors += counter.errors;
       spentUsd += counter.spentUsd;
+      costIncompleteCalls += counter.costIncomplete;
 
       const separated = pass.filter((outcome, r) => outcome === 'pass' && fail[r] === 'fail').length;
       const labels = agreement(
@@ -396,6 +420,7 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
         errors: counter.errors,
         calls: counter.calls,
         spentUsd: counter.spentUsd,
+        ...(counter.costIncomplete > 0 ? { costIncompleteCalls: counter.costIncomplete } : {}),
         meetsBar: misses.length === 0,
         misses,
       });
@@ -436,6 +461,7 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
     excluded,
     errors,
     spentUsd,
+    ...(costIncompleteCalls > 0 ? { costIncompleteCalls } : {}),
   };
 }
 
@@ -466,23 +492,30 @@ export function fixtureLeaks(criterion: LoadedCriterion, blocks: readonly Labell
   return blocks.filter((block) => fixtures.has(slice(block))).map((block) => block.id);
 }
 
+/** True for a judge result or a thrown judge failure whose cost is unknown in part or in whole. */
+const unpriced = (value: unknown): boolean =>
+  typeof value === 'object' && value !== null && 'costIncomplete' in value && value.costIncomplete === true;
+
 /** One answer as a council vote would get it: an unparsed answer is asked again with the large budget. */
 async function answer(
   judge: JudgeClient,
   request: JudgeRequest,
-  counter: { errors: number; spentUsd: number; calls: number },
+  counter: { errors: number; spentUsd: number; calls: number; costIncomplete: number },
 ): Promise<JudgeOutcome> {
   try {
     counter.calls += 1;
     let result = await judge.judge({ ...request, budget: 'normal' });
     counter.spentUsd += result.costUsd ?? 0;
+    if (unpriced(result)) counter.costIncomplete += 1;
     if (result.unparsed) {
       counter.calls += 1;
       result = await judge.judge({ ...request, budget: 'large' });
       counter.spentUsd += result.costUsd ?? 0;
+      if (unpriced(result)) counter.costIncomplete += 1;
     }
     return result.unparsed ? 'inconclusive' : result.answer.outcome;
-  } catch {
+  } catch (cause) {
+    if (unpriced(cause)) counter.costIncomplete += 1;
     counter.errors += 1;
     return 'inconclusive';
   }
@@ -579,6 +612,16 @@ function byCost<T extends { cost: number; id: string }>(a: T, b: T): number {
   return a.cost - b.cost || a.id.localeCompare(b.id);
 }
 
+function familiesOf(judge: JudgeClient): string[] {
+  return [
+    ...new Set(
+      [judge.family, ...(judge.families ?? [])].map(
+        (family) => familyOfModel(family) ?? normalizeFamily(family),
+      ),
+    ),
+  ];
+}
+
 /** The cheapest-judge rule: the one cheapest judge at the bar, in a class the mode uses, judges alone. */
 function assignCheapest(
   rows: readonly JudgeCalibration[],
@@ -594,14 +637,16 @@ function assignCheapest(
     const missing = rows.map((row) => `${row.judge} ${row.misses.join(' and ')}`).join('; ');
     return { status: 'unassigned', reason: `no judge meets the bar${missing ? `: ${missing}` : ''}` };
   }
-  const family = judges.find((j) => j.id === owner.id)?.family;
+  const client = judges.find((j) => j.id === owner.id);
+  const families = client ? familiesOf(client) : [];
+  const [only] = families;
   return {
     status: 'assigned',
     owner: owner.id,
     cls: owner.cls,
     judges: [owner.id],
     rejudge: [],
-    ...(family === undefined ? {} : { singleFamily: normalizeFamily(family) }),
+    ...(families.length === 1 && only !== undefined ? { singleFamily: only } : {}),
   };
 }
 
@@ -641,7 +686,10 @@ function assign(
     }
     const seatedIds = seated.slice(0, COUNCIL_SIZE).map((judge) => judge.id);
     const families = new Set(
-      [...seatedIds, ...rejudge].map((id) => normalizeFamily(judges.find((j) => j.id === id)?.family ?? id)),
+      [...seatedIds, ...rejudge].flatMap((id) => {
+        const judge = judges.find((j) => j.id === id);
+        return judge ? familiesOf(judge) : [id];
+      }),
     );
     const [only] = families;
     return {

@@ -5,7 +5,7 @@
 ```
 driftbench ci --specs <path> --target <adapter[:agent]> --baseline <store file | campaign id> \
   --store <file> [--margin <points|auto>] [--min-goldens 30] [--strict] [--mode F] [--repeats n] [--budget-usd usd] [--faults <path>] \
-  [--flag <family>]... [--out driftbench-ci.json] [--cache] [--json]
+  [--route <tag=target>]... [--process-command <command>] [--flag <family>]... [--out driftbench-ci.json] [--cache] [--json]
 ```
 
 ## What it decides
@@ -56,7 +56,7 @@ With `--strict --margin 30`, the identity control on the 10-golden suite reads `
 
 `action/action.yml` at the repository root is a composite action around the command. Inputs: `specs`, `target`, `baseline`, `store`, `margin` (default `auto`), `min-goldens` (default 30), `strict`, `repeats`, `mode`, `budget-usd`, `faults`, `route` (one `tag=target` per line), `report-path`, `working-directory`, `driftbench` (the command that runs the CLI). Outputs: `verdict` and `report-path`. The step exits with the CLI exit code, so any verdict but parity fails the job.
 
-`driftbench-ci.yml` in this folder is a complete workflow. Copy it to `.github/workflows/`. It checks out the pull request's base and head, runs the baseline campaign on the base, runs the action on the head, and uploads the summary.
+`driftbench-ci.yml` in this folder is a complete workflow. Copy it to `.github/workflows/`. It checks out the pull request's base and head, runs the baseline campaign on the base, runs the action on the head, and uploads the summary. Both steps pass `--route flow:price-sheet=process:acme-ops`: the suite holds price-sheet tasks for the ops agent, and without the route `--target function:acme-sales` runs them on the chat agent, where they fail (171 of 195 cells pass instead of 195).
 
 ## Watching a store over time: `driftbench monitor`
 
@@ -78,3 +78,13 @@ Measured on 200 synthetic series of 60 campaigns of 20 runs each, pass rate 90% 
 | Drop to 60% at campaign 30: exit 1, and two detectors place it within 3 campaigns | 193 |
 
 These rates hold for that series shape only. A cost or latency series with heavier tails, or fewer runs per campaign, needs its own measurement.
+
+## A campaign declared in a file
+
+[`campaign.yaml`](campaign.yaml) is a project config: its `campaign:` key holds the settings of `driftbench campaign run`, each the flag it names, and a flag on the command line wins. From the repository root:
+
+```
+pnpm driftbench campaign run --config examples/acme/ci/campaign.yaml --store acme.db
+```
+
+It runs the six conversation specs on `function:acme-sales` in modes T and F, two repeats: 24 cells. `driftbench ci --config examples/acme/ci/campaign.yaml` takes the modes and repeats from the same file, and scores its `aggregates`. The key is described on the [running](../../../docs/running.md#the-campaign-key) page.

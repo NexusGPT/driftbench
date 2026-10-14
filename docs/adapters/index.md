@@ -63,6 +63,14 @@ The Observed of a block validates against the schema, and:
 * `text` is the text segments joined by a newline;
 * `cost` and `latencyMs` are present.
 
+## Optional observation assertions
+
+The shared checks apply `tools[].input_closed: true` and `expect.stage_reported: true` to every adapter. Adapters preserve all tool input keys in `toolCalls`; they never filter inputs to the keys a spec expects. Missing, null or malformed input is not evidence of an empty argument object.
+
+`stage_reported` reads only `observed.runtime.stages` for this block and excludes entries marked `carried: true`. The optional `carried` flag preserves an earlier stage for `expect.stage` without claiming a current-block report. Function and HTTP Observed replies can supply stages directly. The process adapter reads current-block runtime events, including stages written by Python `Reply.stage`. OpenAI Agents handoffs, CrewAI task results and Claude Code step-feed events supply their runtime stages. An adapter or turn with no stage report fails this assertion; the runner never creates a report from tool calls or history. The Python `run_specs` wrapper uses this same CLI runner and checks.
+
+Both assertions are optional. Omitted or false preserves the existing checks. See [the spec fields](../reference/spec.md#expect) and [check semantics](../reference/checks.md#stage-and-facts).
+
 ## End-state sources
 
 `endState(session, source)` reads one source:
@@ -129,7 +137,7 @@ The runner uses `trace` and `endState` today. It does not act on the others yet:
 
 ## The contract suite
 
-`packages/adapters/test/contract.ts` exports `adapterContract(name, makeAdapter, options)`, the suite every adapter passes. `makeAdapter` builds a fresh adapter for each test. The suite plays the runner: it appends each user message before `send` and the reply after it.
+`@agent-nexus/driftbench-adapters/contract` exports `adapterContract(name, makeAdapter, options)`, the suite every adapter passes; its source is `packages/adapters/src/contract.ts`, and `packages/adapters/test/contract.ts` re-exports it for the adapters' own tests. `makeAdapter` builds a fresh adapter for each test. The suite plays the runner: it appends each user message before `send` and the reply after it.
 
 It runs in one of two modes. A chat adapter holds the conversation of the Acme Telecom example agent ([`examples/acme`](../../examples/acme/README.md)), tool calls and end states included. An adapter that runs a code agent in a sandbox names a `task` instead: a workspace, two instructions or more, and the file the first one produces. The suite then runs its generic tests on the task's blocks and skips the Acme ones, saying why.
 
@@ -152,6 +160,25 @@ The function, http and nexus adapters, the four SDK adapters and the four framew
 ```sh
 pnpm vitest run packages/adapters
 ```
+
+
+### Run it on your own adapter
+
+The suite is a second entry of the adapters package, so a team proves its own adapter with the tests the built-in ones pass. It registers vitest tests: import it in a vitest test file. `vitest` (3 or later) and `@agent-nexus/driftbench-checks` are optional peers of the package, needed for this entry only.
+
+```ts
+// my-adapter.contract.test.ts
+import { adapterContract, createAcmeAgent, createStore } from '@agent-nexus/driftbench-adapters/contract';
+import { myAdapter } from './my-adapter';
+
+adapterContract('my-adapter', () => myAdapter({ agent: createAcmeAgent(createStore()) }), {
+  brokenTransport: () => myAdapter({ endpoint: 'http://127.0.0.1:1' }),
+});
+```
+
+In chat mode the adapter must reach the reference agent, the Acme Telecom sales assistant: the entry exports it as `createAcmeAgent(store)` and `createStore()`, so you put it behind your transport (a function, a local endpoint, a bridge) the way your adapter reaches a real agent. In task mode (`options.task`) no reference agent is needed. The entry also exports the helpers the built-in tests use: `acmeGiven`, `userTurn`, `sendUser`, `converse`, `replyMessage`, `expectWholeObserved`, and the conversation constants.
+
+[`examples/adapter-contract`](https://github.com/achammah/driftbench/tree/main/examples/adapter-contract) holds a hand-written adapter and the test that runs the suite on it: `pnpm vitest run examples/adapter-contract` reports 10 tests passed and 4 skipped (the capabilities it does not declare).
 
 ## The adapters
 

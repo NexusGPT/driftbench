@@ -3,8 +3,8 @@ import type { Spec, Stimulus } from '../schema/spec';
 
 /**
  * The user driver contract. A driver decides what the next block's stimulus is: the scripted
- * driver replays the spec's blocks, the simulated driver plays a persona (phase 3), the perturbing
- * driver injects a deviation at a chosen block (phase 3).
+ * driver replays the spec's blocks, the simulated driver plays a persona, the perturbing driver injects
+ * a deviation at a chosen block.
  */
 
 export type DriverContext = {
@@ -20,9 +20,11 @@ export type DriverContext = {
 export type DriverStep =
   | { kind: 'block'; blockIndex: number; stimulus: Stimulus }
   | { kind: 'injected'; perturbationId: string; stimulus: Stimulus; beforeBlock: number }
-  | { kind: 'stop'; reason: string; verdict?: 'success' | 'failure' };
+  | { kind: 'stop'; reason: string; verdict?: 'success' | 'failure' | 'inconclusive' };
 
 export interface UserDriver {
   readonly id: string;
+  /** Every random seed this driver uses. {} means no randomness; absent means unknown. */
+  readonly seeds?: Readonly<Record<string, string | number>>;
   next(ctx: DriverContext): Promise<DriverStep> | DriverStep;
 }

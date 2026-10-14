@@ -5,7 +5,7 @@ counts until it is approved; code enumerates blocks later from the approved entr
 
 | File | What it is |
 |---|---|
-| `proposal.yaml` | the proposal: 51 dimensions (182 values), 111 constraints, 51 phrases and 71 relations, nothing approved |
+| `proposal.yaml` | the proposal: 51 dimensions (184 values), 111 constraints, 55 phrases and 74 relations, nothing approved |
 | `approved.yaml` | the same proposal with every flag set, by `extract approve --all` (approved on the owner's delegation for the fictional demo, by the extract lane and then by the generate2 lane) |
 | `space.yaml` | the space map of the approved axes, by `extract map`: what `driftbench space` reads |
 | `tools.yaml` | the five Acme tools as JSON Schema, written from `src/tools.ts` |
@@ -39,9 +39,9 @@ Each dimension has a role. An axis is a dimension of the space map, crossed with
 stays in the proposal, and the generator varies it inside a cell as boundary values. Code proposes the
 roles: every tool-schema dimension is a detail, and the first dimension of each kind is an axis, the
 others details. Here that gives 7 axes (behaviour, deviation, channel, stage, user_type, coverage_result,
-workspace_start) and a full grid of 96096 cells on the proposal, under the 250000 the space commands accept.
+workspace_start) and a full grid of 113568 cells on the proposal, under the 250000 the space commands accept.
 The space map of the approved map adds `none` to the data and task axes and derives the pairs its
-relations rule out: 180180 cells, 374 constraints. A person may flip any role; `extract approve` prints the
+relations rule out: 212940 cells, 380 constraints. A person may flip any role; `extract approve` prints the
 grid it gives.
 
 The proposal is a valid space map at every step (`toSpaceMap`, then `validateSpaceMap` from

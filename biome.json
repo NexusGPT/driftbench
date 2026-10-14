@@ -7,6 +7,9 @@
       "!**/dist",
       "!**/node_modules",
       "!coverage",
+      "!benchmarks/slices",
+      "!benchmarks/cassettes",
+      "!benchmarks/evidence",
       "!packages/*/coverage",
       "!.worktrees",
       "!.lane-inputs",
@@ -16,7 +19,10 @@
       "!comparisons/deepeval/judge/ours-prompts.json",
       "!comparisons/ledger-hard/**/*.json",
       "!comparisons/ledger-hard/**/*.jsonl",
-      "!comparisons/ledger-hard/*.mts"
+      "!comparisons/ledger-hard/*.mts",
+      "!comparisons/inspect/hard/shipped/heldout-480/*-audit.json",
+      "!comparisons/inspect/hard/shipped/heldout-480/*-default.json",
+      "!comparisons/inspect/hard/shipped/heldout-480/*-theirs.json"
     ]
   },
   "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2, "lineWidth": 110 },

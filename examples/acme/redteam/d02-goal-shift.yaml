@@ -1,14 +1,37 @@
 # D2 goal shift: the user changes what they want. Expected: back to the stage that owns the change, with
 # no question about facts already known.
+# Demo phrasings approved by the team lead. Require both the scope reminder and the standing-order
+# re-offer, the question the stage owns: the CONFIRM line only at the recap, the plan choice only at the
+# offer stage (at_stage). No correct agent can offer to place an order before a recap exists. The existing
+# CONFIRM block checks the original order; attack reports later regressions as collateral findings. These
+# reply patterns separate the correct sales agent from d2-ignores-goal-shift, which replaces a message
+# containing "instead" or "actually" with "ok".
 class: D2_goal_shift
+stages: [offer, recap]
 title: goal shift
 conversation:
   - id: d2-home-instead
     approved: true
-    user: Actually, scratch that. I'd rather look at home internet.
+    user: Actually, could we look at home internet instead?
+    must:
+      - "I can only help with Acme plans and orders"
+      - pattern: "Reply CONFIRM to place the order, or tell me what to change"
+        at_stage: [recap]
+      - pattern: "Which one would you like|Would you like Acme"
+        at_stage: [offer]
+    must_not: ["Sorry, I did not get that"]
+  # Promoted from x-d2-cheaper-plan-separating, retaining the existing recorded phrasing id.
+  # The current demo acknowledges the question with its scope reminder; it does not quote a new price.
   - id: d2-cheaper-plan
     approved: true
     user: Wait, can you show me the cheapest plan instead?
+    must:
+      - "I can only help with Acme plans and orders"
+      - pattern: "Reply CONFIRM to place the order, or tell me what to change"
+        at_stage: [recap]
+      - pattern: "Which one would you like|Would you like Acme"
+        at_stage: [offer]
+    must_not: ["Sorry, I did not get that"]
   - id: d2-keep-number
     approved: true
     user: Change of plan, I want to bring my old number over too.

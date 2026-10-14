@@ -4,7 +4,7 @@
 id: estate.pairwise.0919
 version: be2e7a0919cb
 kind: task
-title: "obligation: Never guess a shipment status"
+title: "obligation: Ask for the tracking number when none is given"
 lang: EN
 tier: generated
 tags:
@@ -21,66 +21,37 @@ given:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
     session_state: after_restart
-    event: rate_wave
-    workspace_seed: northwind-ops
-  world:
-    workspace:
-      files:
-        ledger/2026-W41.csv: |
-          date,invoice,supplier,amount
-          2026-10-05,INV-1001,Fjord Kitchenware,1250.00 EUR
-          2026-10-06,INV-1002,Copperline Pans,480.00 EUR
-        invoices/INV-1001.json: |
-          { "invoice": "INV-1001", "order": "PO-2001", "supplier": "Fjord Kitchenware", "amount": "1250.00", "currency": "EUR" }
-        orders/PO-2001.json: |
-          { "order": "PO-2001", "supplier": "Fjord Kitchenware", "amount": "1250.00", "currency": "EUR" }
-        shipments/log.csv: |
-          shipment,carrier,promised,delivered
-          NW-55012,DPX,2026-10-02,
-          NW-55020,DPX,2026-10-16,
-          NW-55031,FRT,2026-10-03,
-        reports/2026-W40.md: |
-          # Week 40
-          ## Invoices reconciled
-          4
-          ## Shipments late
-          0
-        reports/2026-W41.md: |
-          # Week 41
-          ## Invoices reconciled
-          2
-          ## Shipments late
+    event: dead_helper
 blocks:
   - id: ask
     when:
-      user: Which shipments in shipments/log.csv are late today?
+      user: Please ask for the tracking number when none is given.
     expect:
+      must:
+        - tracking number
+        - \?
       workspace:
-        others_untouched: true
-rules:
-  custom:
-    grounded_values:
-      block: 0
+        deleted: []
 perturbations:
-  - id: deviation-D7_silence_or_burst
-    class: D7_silence_or_burst
+  - id: deviation-D5_language_switch
+    class: D5_language_switch
     inject_at: 0
-    user: Hello? Hello? Are you there?
+    user: Kannst du ab jetzt bitte auf Deutsch antworten?
     recovery:
       within_blocks: 1
 metadata:
   estate:
     atoms:
-      - instruction.shipment-tracker.never-guess-a-shipment-status
+      - instruction.shipment-tracker.ask-for-the-tracking-number-when
     planRow: pairwise.0919
     cell:
-      ask_class: compose
-      ask_shape: correction
+      ask_class: change_estate
+      ask_shape: multi_part
       session_state: after_restart
-      owner_signal: stop
-      deviation: D7_silence_or_burst
-      estate_hazard: rate_wave
-      atoms.instruction: instruction.shipment-tracker.never-guess-a-shipment-status
+      owner_signal: language_switch
+      deviation: D5_language_switch
+      estate_hazard: dead_helper
+      atoms.instruction: instruction.shipment-tracker.ask-for-the-tracking-number-when
     seeder: estate
     seed: 1
     mapHash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
@@ -88,7 +59,8 @@ metadata:
     mode: live
     map: ../approved.yaml
     plan: ../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml
-    situation: shipment-late-check
-    phrase: 0
+    situation: null
+    phrase: null
     ask: code
-    outcome: bank
+    askFrom: instruction.shipment-tracker.ask-for-the-tracking-number-when (title)
+    outcome: no-delete

@@ -20,7 +20,7 @@ function checksFromDocs(): { count: number; names: string[] } {
     line.indexOf('in the order the runner applies them:'),
     line.indexOf('. `defaultChecks({'),
   );
-  return { count, names: [...list.matchAll(/`([a-z_]+)`/g)].map((match) => match[1] as string) };
+  return { count, names: [...list.matchAll(/`([a-z0-9_]+)`/g)].map((match) => match[1] as string) };
 }
 
 const estateContracts = [

@@ -1,4 +1,5 @@
 import type { JudgeClass, JudgeRequest, JudgeResult } from './contract';
+import type { CriterionDecoderVersion } from './criterion-ledger';
 import type { HttpOptions } from './http';
 
 /**
@@ -13,6 +14,8 @@ export interface JudgeClient {
   readonly id: string;
   /** The model family, such as openai, anthropic or google. A judge never shares the agent's family. */
   readonly family: string;
+  /** All underlying model families of a composite client, for outer council protection. */
+  readonly families?: readonly string[];
   readonly cls: JudgeClass;
   readonly model?: string;
   /** Relative cost of one call. The cascade runs the cheapest first. */
@@ -22,17 +25,32 @@ export interface JudgeClient {
    * Part of the cassette key: a recording made with other settings never replays.
    */
   readonly settings?: string;
+  /** Replay decoder inferred from a cassette. Absent means strict version 1. */
+  readonly criterionDecoderVersion?: CriterionDecoderVersion;
+  /** The provider's ledger output dialect, included in ledger recording keys. */
+  readonly dialect?: string;
+  /** A client default; an explicit request reasoning setting takes precedence. */
+  readonly reasoning?: ClientOptions['reasoning'];
   judge(request: JudgeRequest): Promise<JudgeResult>;
+  /** Own both supplied presentation orders as one comparison, preserving every request field. */
+  judgeComparison?(ordered: JudgeRequest, swapped: JudgeRequest): Promise<JudgeResult>;
 }
 
 /** What every provider client takes. Keys are read from `env` only, never from an option. */
 export type ClientOptions = HttpOptions & {
+  /** Opt-in framing of user material as a quoted assessment source. */
+  quotedMaterial?: boolean;
   /** Where variables are read. Default `process.env`. */
   env?: Record<string, string | undefined>;
   /** The vote name. Default the client kind, such as `openai`. */
   id?: string;
   /** The model, when the variable that names it is not set. */
   model?: string;
+  /**
+   * Reasoning effort for OpenAI chat and Google Gemini clients, on models supporting the level.
+   * Unset preserves the provider default. HTTP ledger requests forward it; unsupported paths reject it.
+   */
+  reasoning?: 'low' | 'medium' | 'high';
   /** Relative cost. Defaults: 1 for system 1 clients, 10 for chat models. */
   cost?: number;
 };

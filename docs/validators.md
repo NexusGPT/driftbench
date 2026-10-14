@@ -1,6 +1,6 @@
 # Validators: code that proves driftbench works
 
-Status: designed on 2026-10-11, owner approved. The frame (V0) is built: `driftbench validate`, the floors, the loop files, the brief and the CI job (section 8), with two ladders registered: the judge ladder at levels 1 to 7 (section 4), floor 7, and the statistics ladder at levels 1 and 2 (section 7), floor 1. A validator is code. It contains no model. It plants a truth it knows, runs one part of driftbench, and measures what came back against the plant. It prints a ladder of levels. Each level has one metric, one threshold, the observed value, pass or fail, and the named items that failed. The exit code is the level reached. A builder with less judgement than the author climbs the ladder by fixing the named items of the first failing level and running the validator again.
+Status: designed on 2026-10-11, owner approved. The frame (V0) is built: `driftbench validate`, the floors, the loop files, the brief and the CI job (section 8), with six ladders registered: estate (section 6), generator (section 3), judges (section 4), map (section 2), statistics (section 7) and system (section 5). Floors in `validators/floors.json`: judges 7, map 8, stats 7, system 9; estate and generator have none yet. A validator is code. It contains no model. It plants a truth it knows, runs one part of driftbench, and measures what came back against the plant. It prints a ladder of levels. Each level has one metric, one threshold, the observed value, pass or fail, and the named items that failed. The exit code is the level reached. A builder with less judgement than the author climbs the ladder by fixing the named items of the first failing level and running the validator again.
 
 ## 1. The common frame
 
@@ -52,7 +52,7 @@ How it works. A campaign runs on an agent with planted defects at known blocks: 
 
 The non-obvious parts. The plant includes recoveries: an agent that deviates at block k and recovers at block k plus m, so the recovery metrics have an exact oracle. It includes a planted effect: two agent versions whose true pass rates differ by a chosen number of points, run as baseline and candidate 100 times with different seeds, so the parity verdict's power and false-alarm rate are measured, and the intervals' coverage probability is measured against the true rates. It includes replay: every live run is recorded and replayed, and the two verdict sets must be identical.
 
-Score. Level 1: every run stored and loadable, the campaign resumable. Level 2: defect recall 1.0 (every planted defect produces a failing block at the planted index). Level 3: precision 1.0 (no failing block without a planted defect). Level 4: drift class right on every failing block. Level 5: recovery metrics equal the plant (turns to recover, collateral, safe action). Level 6: calibration, at least 93 of 100 Wilson intervals contain the true rate, and the design effect is within the bootstrap interval. Level 7: the parity verdict detects the planted drop in at least 95 of 100 campaigns and false-alarms in at most 5 of 100 with no drop. Level 8: replay equals live on every run.
+Score. Level 1: every run stored and loadable, the campaign resumable. Level 2: defect recall 1.0 (every planted defect produces a failing block at the planted index). Level 3: precision 1.0 (no failing block without a planted defect). Level 4: drift class right on every failing block. Level 5: recovery metrics equal the plant (turns to recover, collateral, safe action). Level 6: calibration, at least 93 of 100 Wilson intervals contain the true rate, and, reported separately, the design effect estimated on each clustered campaign equals one-way ANOVA on its stored runs and the mean over the campaigns is within the 0.999 interval of its exact finite-sample law (its expected value under the truncated estimator, 1.7408, not the population value 1.75), with a bootstrap interval of that mean that has the width and centre of its level. Level 7: the parity verdict detects the planted drop in at least 95 of 100 campaigns and false-alarms in at most 5 of 100 with no drop. Level 8: replay equals live on every run.
 
 Feedback. A missed defect prints the block, the planted fault, the checks that ran and their verdicts. A wrong class prints the verdict id and the mapping line that chose the class. A calibration miss prints the seeds whose intervals missed and the rates involved. A power miss prints the pass-rate pairs and the test statistic.
 
@@ -130,13 +130,13 @@ Option errors that the argument parser itself reports (an unknown flag) exit 2, 
 
 ### 8.3 The registered validators
 
-`registeredLadders()` in `packages/validators/src/ladders/index.ts` returns two validators today: `judges` and `stats`. `validate floors` prints their floors:
+`registeredLadders()` in `packages/validators/src/ladders/index.ts` returns six validators: `estate`, `generator`, `judges`, `map`, `stats` and `system`. `validators/floors.json` holds a floor for four of them; `estate` and `generator` have none yet. `validate floors` prints the floors:
 
 ```
-Floors (validators/floors.json): judges = 7 (ladder version 1), stats = 7 (ladder version 2), system = 7 (ladder version 5).
+Floors (validators/floors.json): judges = 7 (ladder version 1), map = 8 (ladder version 2), stats = 7 (ladder version 2), system = 9 (ladder version 5).
 ```
 
-The CI command, run from the repository root at the commit that merged main into this docs branch, printed this and exited 0. The hidden seed changes with every commit.
+The run below is an earlier capture of the CI command, from when only `judges` and `stats` were registered. It printed this and exited 0. The hidden seed changes with every commit.
 
 ```
 Validator judges (hidden seed 690409099)

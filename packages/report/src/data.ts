@@ -1,4 +1,5 @@
 import {
+  agentVersionOf,
   type BlockResult,
   type Campaign,
   canonicalJson,
@@ -97,11 +98,62 @@ function sortRuns(
 export function runPassed(run: RunResult): boolean {
   return (
     run.status === 'completed' &&
-    run.endVerdict !== 'failure' &&
+    (run.endVerdict === undefined || run.endVerdict === 'success') &&
     run.blocks.length > 0 &&
     run.blocks.every((block) => block.pass) &&
     run.endState?.match !== false
   );
+}
+
+/** What a campaign merges: its fresh runs, and the runs it carried from earlier campaigns. */
+export type CarriedSummary = {
+  fresh: number;
+  carried: number;
+  /** The agent versions the campaign itself runs, read from its targets. */
+  versions: string[];
+  /** One entry per campaign and agent version the carried runs come from, most runs first. */
+  sources: Array<{
+    campaign: string;
+    /** The agent version that produced the results, when the fresh runs named one. */
+    agentVersion?: string;
+    runs: number;
+    /** The oldest result of the group: campaigns it was carried through, and days since its fresh run. */
+    maxCampaigns: number;
+    maxDays: number;
+  }>;
+};
+
+/** The fresh and carried runs of a campaign, or undefined when every run is fresh. */
+export function carriedSummary(runs: readonly RunResult[]): CarriedSummary | undefined {
+  const carried = runs.filter((run) => run.carried !== undefined);
+  if (carried.length === 0) return undefined;
+  const sources = new Map<string, CarriedSummary['sources'][number]>();
+  for (const run of carried) {
+    const from = run.carried as NonNullable<RunResult['carried']>;
+    const key = `${from.fromCampaign}\u0000${from.agentVersion ?? ''}`;
+    const held = sources.get(key) ?? {
+      campaign: from.fromCampaign,
+      ...(from.agentVersion === undefined ? {} : { agentVersion: from.agentVersion }),
+      runs: 0,
+      maxCampaigns: 0,
+      maxDays: 0,
+    };
+    held.runs += 1;
+    held.maxCampaigns = Math.max(held.maxCampaigns, from.age.campaigns);
+    held.maxDays = Math.max(held.maxDays, from.age.days);
+    sources.set(key, held);
+  }
+  const versions = new Set<string>();
+  for (const run of runs) {
+    const version = agentVersionOf(run);
+    if (version !== undefined) versions.add(version);
+  }
+  return {
+    fresh: runs.length - carried.length,
+    carried: carried.length,
+    versions: [...versions],
+    sources: [...sources.values()].sort((a, b) => b.runs - a.runs || a.campaign.localeCompare(b.campaign)),
+  };
 }
 
 /** The share of a run's blocks that pass; 0 for a run with no block. */

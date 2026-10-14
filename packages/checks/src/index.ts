@@ -32,6 +32,7 @@ export {
 } from './checks/estate';
 export { exact, normaliseExact } from './checks/exact';
 export { execution } from './checks/execution';
+export { finishReason } from './checks/finish_reason';
 export { forbidden } from './checks/forbidden';
 export { guards } from './checks/guards';
 export {
@@ -43,18 +44,37 @@ export {
 } from './checks/injection';
 export { knowledgeRetention } from './checks/knowledge_retention';
 export { createLangCheck, lang } from './checks/lang';
+export { length } from './checks/length';
+export { markup } from './checks/markup';
 export { must, mustNot } from './checks/must';
 export { bleu, bleuScore, rougeL, rougeLScore } from './checks/overlap';
 export { createPiiCheck, ownerKey, type PiiCheckOptions, pii } from './checks/pii';
 export { references } from './checks/references';
+export { refusal } from './checks/refusal';
+export { regex } from './checks/regex';
 export { relevancy } from './checks/relevancy';
+export { replyJson } from './checks/reply_json';
 export { safety } from './checks/safety';
 export { schemaStrict } from './checks/schema_strict';
 export { createSimilarityCheck, similarity } from './checks/similarity';
 export { skills } from './checks/skills';
 export { singleReadStatement, sqlEquivalence } from './checks/sql';
 export { stage } from './checks/stage';
+export { startsWith } from './checks/starts_with';
+export {
+  countLengthUnits,
+  type LengthUnit,
+  parseStatedLength,
+  preferByStatedLength,
+  STATED_LENGTH_DEFAULTS,
+  type StatedLength,
+  type StatedLengthOptions,
+  type StatedLengthResult,
+  statedLength,
+  statedLengthVerdict,
+} from './checks/stated_length';
 export { subagents } from './checks/subagents';
+export { toolF1 } from './checks/tool_f1';
 export { tools } from './checks/tools';
 export { toolsOffered } from './checks/tools_offered';
 export { workspace } from './checks/workspace';

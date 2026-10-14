@@ -217,7 +217,7 @@ describe('openai-agents adapter', () => {
       labels,
     );
     expect(segments).toEqual([
-      { type: 'tool_call', id: 'ws_1', label: 'web_search_call', input: {} },
+      { type: 'tool_call', id: 'ws_1', label: 'web_search_call', input: null },
       { type: 'tool_result', id: 'ws_1', label: 'web_search_call', output: { hits: 2 } },
       { type: 'tool_call', id: 'c1', label: 'coverage.check', input: 'not json' },
       { type: 'tool_result', id: 'c1', label: 'coverage.check', output: null, error: 'address unknown' },

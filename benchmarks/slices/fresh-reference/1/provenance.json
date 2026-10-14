@@ -1,0 +1,10 @@
+{
+  "sourceCommit": "89425c88b12e5fd7516ed9cdbf6d37b9b0261595",
+  "sourceBranch": "research/astra-hard-fresh",
+  "sourcePath": "comparisons/astra-hard/langfuse-reference-cases.json",
+  "sourceSha256": "a09ae84d04bbe731990bd4d1831b8cdae213df5532b7794901951e7fd4cacdbf",
+  "sourceRows": 192,
+  "population": 192,
+  "labels": "Construction labels retained outside each model request.",
+  "mapping": "Verbatim request mapping from comparisons/astra-hard/native.mts and map/native.mts. The trusted reference is an input file. The default answer contract is implicit."
+}

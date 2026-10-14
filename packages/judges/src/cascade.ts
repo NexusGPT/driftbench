@@ -7,7 +7,7 @@ import {
   type Separation,
 } from './calibration';
 import type { JudgeClient } from './client';
-import type { JudgeOutcome, JudgeRequest } from './contract';
+import type { EscalationRecord, EscalationTrigger, JudgeOutcome, JudgeRequest } from './contract';
 import { fixtureRequest, type LoadedCriterion } from './criteria';
 
 /**
@@ -32,7 +32,12 @@ export type CascadeConfig = {
   readonly unsure?: { readonly low: number; readonly high: number };
 };
 
-type Why = 'unsure' | 'disagrees';
+export type DeployableCascadeConfig = Pick<CascadeConfig, 'criteria' | 'labels' | 'repeats'> & {
+  /** A deployable procedure. Its routing sees only JudgeRequest, never labels or fixture sides. */
+  readonly judge: JudgeClient;
+};
+
+type Why = 'unsure' | 'disagrees' | EscalationTrigger;
 
 export type CascadeVariant = {
   readonly separation: Separation;
@@ -47,6 +52,8 @@ export type CascadeCriterion = CascadeVariant & {
   readonly unsureOnly: CascadeVariant;
   /** Calls that gave no answer at all. */
   readonly errors: number;
+  /** Calls whose cost is unknown. Present only when above 0: this criterion's spentUsd are lower bounds. */
+  readonly costIncompleteCalls?: number;
 };
 
 export type CascadeReport = {
@@ -55,28 +62,47 @@ export type CascadeReport = {
   readonly repeats: number;
   readonly criteria: readonly CascadeCriterion[];
   readonly spentUsd: number;
+  /** Calls whose cost is unknown. Present only when above 0: every spentUsd is then a lower bound. */
+  readonly costIncompleteCalls?: number;
 };
 
-type Answered = { outcome: JudgeOutcome; score?: number; costUsd: number; error: boolean };
+type Answered = {
+  escalation?: EscalationRecord;
+  outcome: JudgeOutcome;
+  score?: number;
+  costUsd: number;
+  /** Calls of this answer whose cost is unknown. */
+  unpriced: number;
+  error: boolean;
+};
+
+/** True for a judge result or a thrown judge failure whose cost is unknown in part or in whole. */
+const unpriced = (value: unknown): boolean =>
+  typeof value === 'object' && value !== null && 'costIncomplete' in value && value.costIncomplete === true;
 
 async function ask(judge: JudgeClient, request: JudgeRequest): Promise<Answered> {
   let costUsd = 0;
+  let unknown = 0;
   try {
     let result = await judge.judge({ ...request, budget: 'normal' });
     costUsd += result.costUsd ?? 0;
+    if (unpriced(result)) unknown += 1;
     if (result.unparsed) {
       result = await judge.judge({ ...request, budget: 'large' });
       costUsd += result.costUsd ?? 0;
+      if (unpriced(result)) unknown += 1;
     }
-    if (result.unparsed) return { outcome: 'inconclusive', costUsd, error: false };
+    if (result.unparsed) return { outcome: 'inconclusive', costUsd, unpriced: unknown, error: false };
     return {
       outcome: result.answer.outcome,
+      ...(result.escalation ? { escalation: result.escalation } : {}),
       ...(result.answer.score === undefined ? {} : { score: result.answer.score }),
       costUsd,
+      unpriced: unknown,
       error: false,
     };
-  } catch {
-    return { outcome: 'inconclusive', costUsd, error: true };
+  } catch (cause) {
+    return { outcome: 'inconclusive', costUsd, unpriced: unknown + (unpriced(cause) ? 1 : 0), error: true };
   }
 }
 
@@ -95,10 +121,15 @@ type Item = {
   fixture?: { side: 'pass' | 'fail'; repeat: number };
 };
 
-export async function calibrateCascade(config: CascadeConfig): Promise<CascadeReport> {
+export async function calibrateCascade(
+  config: CascadeConfig | DeployableCascadeConfig,
+): Promise<CascadeReport> {
+  const deployable = 'judge' in config;
+  const first = deployable ? config.judge : config.first;
+  const escalateTo = deployable ? [] : config.escalateTo;
   const repeats = config.repeats ?? DEFAULT_REPEATS;
-  const low = config.unsure?.low ?? 0.2;
-  const high = config.unsure?.high ?? 0.8;
+  const low = !deployable ? (config.unsure?.low ?? 0.2) : 0.2;
+  const high = !deployable ? (config.unsure?.high ?? 0.8) : 0.8;
   const criteria: CascadeCriterion[] = [];
   for (const criterion of config.criteria) {
     const items: Item[] = [];
@@ -117,6 +148,7 @@ export async function calibrateCascade(config: CascadeConfig): Promise<CascadeRe
       items.push({ id: block.id, truth: block.label, request: labelRequest(criterion, block) });
 
     let errors = 0;
+    let unknownCost = 0;
     let firstCost = 0;
     const full: JudgeOutcome[] = [];
     const lean: JudgeOutcome[] = [];
@@ -124,9 +156,16 @@ export async function calibrateCascade(config: CascadeConfig): Promise<CascadeRe
     let thenCost = 0;
     let thenCostUnsure = 0;
     for (const item of items) {
-      const a = await ask(config.first, item.request);
+      const a = await ask(first, item.request);
       firstCost += a.costUsd;
+      unknownCost += a.unpriced;
       if (a.error) errors += 1;
+      if (deployable) {
+        full.push(a.outcome);
+        lean.push(a.outcome);
+        for (const why of a.escalation?.triggers ?? []) escalated.push({ item: item.id, why });
+        continue;
+      }
       const unsure =
         a.outcome === 'inconclusive' || (a.score !== undefined && a.score > low && a.score < high);
       const why: Why | undefined = unsure ? 'unsure' : a.outcome !== item.truth ? 'disagrees' : undefined;
@@ -138,9 +177,10 @@ export async function calibrateCascade(config: CascadeConfig): Promise<CascadeRe
       escalated.push({ item: item.id, why });
       const votes = [a.outcome];
       let cost = 0;
-      for (const judge of config.escalateTo) {
+      for (const judge of escalateTo) {
         const b = await ask(judge, item.request);
         cost += b.costUsd;
+        unknownCost += b.unpriced;
         if (b.error) errors += 1;
         votes.push(b.outcome);
       }
@@ -180,13 +220,17 @@ export async function calibrateCascade(config: CascadeConfig): Promise<CascadeRe
       escalated,
       unsureOnly: variant(lean, thenCostUnsure),
       errors,
+      ...(unknownCost > 0 ? { costIncompleteCalls: unknownCost } : {}),
     });
   }
   return {
-    first: config.first.id,
-    escalateTo: config.escalateTo.map((judge) => judge.id),
+    first: first.id,
+    escalateTo: escalateTo.map((judge) => judge.id),
     repeats,
     criteria,
     spentUsd: criteria.reduce((sum, c) => sum + c.spentUsd, 0),
+    ...(criteria.some((c) => c.costIncompleteCalls)
+      ? { costIncompleteCalls: criteria.reduce((sum, c) => sum + (c.costIncompleteCalls ?? 0), 0) }
+      : {}),
   };
 }

@@ -26,6 +26,10 @@ const SKIP_DIRS = new Set([
 ]);
 // These trees pin hashes or exact scan output. They are inputs and saved evidence, not npm source.
 const SKIP_PATHS = new Set([
+  '.bench-run',
+  'benchmarks/slices',
+  'benchmarks/cassettes',
+  'benchmarks/evidence',
   'python',
   'examples/estates/fixture',
   'examples/estates/fixture-v2',
@@ -41,6 +45,8 @@ const PINNED_COMPARISON_FILES = new Set([
   'comparisons/inspect/hard/arch-deciding-snapshot.json',
   'comparisons/inspect/hard/arch-snapshot.json',
   'comparisons/inspect/hard/deciding/main-snapshot.json',
+  'comparisons/langwatch/hard/pr115.mts',
+  'comparisons/langwatch/hard/pr115-verification.md',
 ]);
 const SKIP_FILE_PATTERN = /\.cassette\.json$/;
 const EXTENSIONS = new Set([

@@ -6,6 +6,7 @@ import {
   type RunEvent,
   type RunMode,
   type RunResult,
+  type Spec,
   type Verdict,
 } from '@agent-nexus/driftbench-core';
 import { bootstrapCI } from '@agent-nexus/driftbench-stats';
@@ -14,6 +15,8 @@ import { type CompareResult, compareCampaigns } from './compare';
 import {
   blocksWithSpec,
   type CampaignData,
+  type CarriedSummary,
+  carriedSummary,
   deviationOf,
   groupBy,
   runPassed,
@@ -62,6 +65,8 @@ export type ScorecardOptions = {
 export type ToolCall = { label: string; input?: unknown; output?: unknown; error?: string };
 
 export type BlockDetail = {
+  carried?: NonNullable<RunResult['blocks'][number]['carried']>;
+  rejudged?: NonNullable<RunResult['blocks'][number]['rejudged']>;
   index: number;
   /** The spec block this block stands for; absent for a block a driver injected. */
   specBlock?: number;
@@ -78,6 +83,10 @@ export type BlockDetail = {
   text: string;
   toolCalls: ToolCall[];
   /** The runtime events the block recorded: a guard that ran and a skill that was loaded, by name. */
+  /** The key the block's record was cached under, when the run had a cache. */
+  cacheKey?: string;
+  /** The recorded timeline events of the block, each with the id a label can anchor to. */
+  timelineEvents?: { id: string; label: string }[];
   runtimeEvents?: { kind: 'guard' | 'skill'; name: string; verdict?: string }[];
   verdicts: Verdict[];
 };
@@ -100,13 +109,46 @@ export type RunDetail = {
   latencyMs: number;
   cost: number;
   cacheHit: boolean;
+  /** Set on a run carried from an earlier campaign: where it comes from and its age. Absent on a fresh run. */
+  carried?: NonNullable<RunResult['carried']>;
   endState?: RunResult['endState'];
   succession: RunResult['succession'];
   recovery?: RunResult['recovery'];
   blocks: BlockDetail[];
   /** The events the run reported, in order, when it recorded them. */
   events?: RunEvent[];
+  /**
+   * A run a verdict ended before the spec's last block: the verdict, the block it stopped after, and the spec
+   * blocks it skipped. Absent when every block ran.
+   */
+  stopped?: StoppedRun;
 };
+
+export type StoppedRun = {
+  verdict: NonNullable<RunResult['endVerdict']>;
+  reason?: string;
+  /** The index of the last block that ran. */
+  after: number;
+  skipped: Array<{ index: number; id: string; stimulus?: string }>;
+};
+
+/** Where a verdict stopped a run and which spec blocks it skipped, read from the run and its spec. */
+function stoppedOf(run: RunResult, spec: Spec | undefined): StoppedRun | undefined {
+  if (run.endVerdict === undefined || spec === undefined) return undefined;
+  const skipped = spec.blocks.slice(run.blocks.length).map((block, offset) => {
+    const index = run.blocks.length + offset;
+    const stimulus = stimulusText(spec, index);
+    return { index, id: block.id ?? `b${index + 1}`, ...(stimulus === undefined ? {} : { stimulus }) };
+  });
+  if (skipped.length === 0) return undefined;
+  const reason = spec.end?.reason;
+  return {
+    verdict: run.endVerdict,
+    ...(reason === undefined ? {} : { reason }),
+    after: run.blocks.length - 1,
+    skipped,
+  };
+}
 
 export type ToolAccuracy = {
   /** Calls matched to an expected call (per label, the smaller of the two counts). */
@@ -149,6 +191,8 @@ export type Scorecard = {
   /** Criteria with a repeat reducer, reduced over the repeats of each line. Empty when no criterion names one. */
   criterionRepeats: CriterionRepeat[];
   compare?: CompareResult;
+  /** Set when the campaign merges fresh runs with runs carried from earlier campaigns. Absent when all are fresh. */
+  carried?: CarriedSummary;
   pilot?: PilotReport;
   /** Campaign-level criteria, when the options asked for them. */
   aggregates?: AggregateResult[];
@@ -218,6 +262,7 @@ export function buildScorecard(data: CampaignData, options: ScorecardOptions = {
           }),
         }
       : {}),
+    ...optional('carried', carriedSummary(runs)),
     ...optional('pilot', options.pilot),
     ...(options.aggregates ? { aggregates: evaluateAggregates(data, options.aggregates) } : {}),
     drilldown: shown.map((run) => runDetailOf(data, run)),
@@ -247,11 +292,14 @@ export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
     latencyMs: run.latencyMs,
     cost: run.cost,
     cacheHit: run.cacheHit,
+    ...optional('carried', run.carried),
     ...optional('endState', run.endState),
     succession: run.succession,
     ...optional('recovery', run.recovery),
     ...optional('events', run.events),
+    ...optional('stopped', stoppedOf(run, spec)),
     blocks: blocksWithSpec(run, spec).map(({ result, specBlock }) => {
+      const timelineEvents = timelineEventsOf(run, result.index);
       const injectedText =
         specBlock === undefined && perturbation
           ? `[${perturbation.class}] ${perturbation.user ?? perturbation.burst?.join('\n') ?? '(world change)'}`
@@ -261,6 +309,8 @@ export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
         specBlock === undefined ? perturbation?.expect?.stage : spec?.blocks[specBlock]?.expect?.stage;
       return {
         index: result.index,
+        ...optional('carried', result.carried),
+        ...optional('rejudged', result.rejudged),
         ...optional('specBlock', specBlock),
         injected: result.injected === true,
         ...optional('stimulus', stimulus),
@@ -268,7 +318,10 @@ export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
         ...optional('observedStage', result.stageObserved),
         pass: result.pass,
         latencyMs: result.observed.latencyMs,
-        ...optional('costUsd', result.observed.cost.usd),
+        ...optional(
+          'costUsd',
+          result.rejudged?.judgeCostUsd ?? (result.carried ? undefined : result.observed.cost.usd),
+        ),
         retries: result.observed.retries?.length ?? 0,
         drift: [...result.drift],
         text: result.observed.text,
@@ -281,10 +334,30 @@ export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
         ...(runtimeEventsOf(result.observed.runtime).length > 0
           ? { runtimeEvents: runtimeEventsOf(result.observed.runtime) }
           : {}),
+        ...optional('cacheKey', result.cacheKey),
+        ...(timelineEvents.length > 0 ? { timelineEvents } : {}),
         verdicts: result.verdicts,
       };
     }),
   };
+}
+
+/** The recorded events of a block. An event's id is its position in the run's events, which a label can name. */
+function timelineEventsOf(run: RunResult, index: number): { id: string; label: string }[] {
+  const events = run.events ?? [];
+  return events.flatMap((event, position) => {
+    if (!('index' in event) || event.index !== index) return [];
+    const label =
+      event.type === 'tool_call'
+        ? `tool ${event.label}`
+        : event.type === 'model_call'
+          ? 'model call'
+          : event.type === 'block_end'
+            ? `block end ${event.pass ? 'pass' : 'fail'}`
+            : event.type;
+    // A call that carries its trace span id is anchored by that id, so the span anchor names the real span.
+    return [{ id: event.type === 'tool_call' && event.spanId ? event.spanId : `event:${position}`, label }];
+  });
 }
 
 /** The guards and skills a block's runtime trace recorded, in the order they ran. */
@@ -399,6 +472,13 @@ function costOf(runs: readonly RunResult[]): Scorecard['cost'] {
   runs.forEach((run, index) => {
     if (run.cacheHit) return;
     for (const block of run.blocks) {
+      if (run.rejudged) {
+        if (block.rejudged?.judgeCostUsd !== undefined) {
+          usd.push(block.rejudged.judgeCostUsd);
+          usdClusters.push(index);
+        }
+        continue;
+      }
       const observed = block.observed;
       const segmentUsd = observed.segments.flatMap((segment) =>
         segment.cost?.usd === undefined ? [] : [segment.cost.usd],

@@ -4,11 +4,11 @@
     "path": "../map/approved.yaml",
     "agent": "acme",
     "version": "1",
-    "hash": "6d29ed7a7539",
+    "hash": "7c05b9cee9cc",
     "dimensions": 51,
-    "values": 185,
-    "constraints": 457,
-    "phrases": 51
+    "values": 187,
+    "constraints": 463,
+    "phrases": 55
   },
   "options": {
     "t": 2,
@@ -16,9 +16,9 @@
     "max": null
   },
   "summary": {
-    "specs": 326,
-    "blocks": 1184,
-    "complete": 251,
+    "specs": 411,
+    "blocks": 1516,
+    "complete": 336,
     "incomplete": 75
   },
   "seeders": {
@@ -28,55 +28,97 @@
       "complete": 12,
       "needs_phrase": 0,
       "needs_then": 0,
-      "cut": false
+      "cut": false,
+      "measures": {
+        "hill_q0": 163,
+        "pielou": 0.948065939882,
+        "machine_then_share": 1,
+        "judged_only_blocks": 0
+      }
     },
     "twise": {
-      "specs": 132,
-      "blocks": 675,
-      "complete": 131,
+      "specs": 156,
+      "blocks": 793,
+      "complete": 153,
       "needs_phrase": 0,
-      "needs_then": 1,
-      "cut": false
+      "needs_then": 3,
+      "cut": false,
+      "measures": {
+        "hill_q0": 623,
+        "pielou": 0.874752778114,
+        "machine_then_share": 1,
+        "judged_only_blocks": 0
+      }
     },
     "boundary": {
       "specs": 85,
-      "blocks": 118,
+      "blocks": 146,
       "complete": 13,
       "needs_phrase": 72,
       "needs_then": 15,
-      "cut": false
+      "cut": false,
+      "measures": {
+        "hill_q0": 128,
+        "pielou": 0.956431785228,
+        "machine_then_share": 1,
+        "judged_only_blocks": 0
+      }
     },
     "deviation": {
-      "specs": 10,
-      "blocks": 52,
-      "complete": 10,
+      "specs": 21,
+      "blocks": 111,
+      "complete": 21,
       "needs_phrase": 0,
       "needs_then": 0,
-      "cut": false
+      "cut": false,
+      "measures": {
+        "hill_q0": 200,
+        "pielou": 0.91810102424,
+        "machine_then_share": 1,
+        "judged_only_blocks": 0
+      }
     },
     "metamorphic": {
-      "specs": 40,
-      "blocks": 172,
-      "complete": 38,
+      "specs": 42,
+      "blocks": 192,
+      "complete": 42,
       "needs_phrase": 0,
-      "needs_then": 2,
-      "cut": false
+      "needs_then": 0,
+      "cut": false,
+      "measures": {
+        "hill_q0": 203,
+        "pielou": 0.928619223726,
+        "machine_then_share": 1,
+        "judged_only_blocks": 0
+      }
     },
     "task": {
-      "specs": 34,
-      "blocks": 47,
-      "complete": 34,
+      "specs": 67,
+      "blocks": 71,
+      "complete": 67,
       "needs_phrase": 0,
       "needs_then": 0,
-      "cut": false
+      "cut": false,
+      "measures": {
+        "hill_q0": 48,
+        "pielou": 0.95165704041,
+        "machine_then_share": 1,
+        "judged_only_blocks": 0
+      }
     },
     "cover": {
-      "specs": 13,
-      "blocks": 72,
-      "complete": 13,
+      "specs": 28,
+      "blocks": 155,
+      "complete": 28,
       "needs_phrase": 0,
       "needs_then": 0,
-      "cut": false
+      "cut": false,
+      "measures": {
+        "hill_q0": 318,
+        "pielou": 0.903779691578,
+        "machine_then_share": 1,
+        "judged_only_blocks": 0
+      }
     }
   },
   "graph": {
@@ -98,10 +140,14 @@
   "twise": {
     "t": 2,
     "dimensions": ["behaviour", "deviation", "channel", "user_type", "coverage_result"],
-    "rows": 132,
-    "allowed": 314,
-    "covered": 314,
-    "share": 1
+    "rows": 156,
+    "allowed": 356,
+    "covered": 356,
+    "share": 1,
+    "unreachable": [
+      "behaviour=B-013 & deviation=D6_instruction_in_data",
+      "behaviour=B-014 & deviation=D6_instruction_in_data"
+    ]
   },
   "boundary": {
     "values": 85,
@@ -109,76 +155,89 @@
     "unsupported": []
   },
   "deviation": {
-    "classes": 10,
+    "classes": 12,
     "probes": [
       {
         "class": "D1_off_topic",
-        "stage": "needs",
+        "stage": "address",
         "spec": "gen-deviation-001",
         "phrase": true
       },
       {
         "class": "D2_goal_shift",
         "stage": "recap",
-        "spec": "gen-deviation-002",
+        "spec": "gen-deviation-003",
         "phrase": true
       },
       {
         "class": "D3_contradiction",
         "stage": "offer",
-        "spec": "gen-deviation-003",
+        "spec": "gen-deviation-004",
         "phrase": true
       },
       {
         "class": "D4_loose_confirmation",
         "stage": "recap",
-        "spec": "gen-deviation-004",
-        "phrase": true
-      },
-      {
-        "class": "D5_language_switch",
-        "stage": "closing",
         "spec": "gen-deviation-005",
         "phrase": true
       },
       {
-        "class": "D6_instruction_in_data",
+        "class": "D5_language_switch",
         "stage": "callback",
         "spec": "gen-deviation-006",
         "phrase": true
       },
       {
+        "class": "D6_instruction_in_data",
+        "stage": "needs",
+        "spec": "gen-deviation-008",
+        "phrase": true
+      },
+      {
         "class": "D8_tool_failure",
-        "stage": "recap",
-        "spec": "gen-deviation-007",
+        "stage": "address",
+        "spec": "gen-deviation-010",
         "phrase": false
       },
       {
         "class": "D10_return",
         "stage": "address",
-        "spec": "gen-deviation-008",
+        "spec": "gen-deviation-012",
         "phrase": true
       },
       {
         "class": "D7_silence_or_burst",
         "stage": "order_placed",
-        "spec": "gen-deviation-009",
+        "spec": "gen-deviation-014",
         "phrase": true
       },
       {
         "class": "D9_out_of_scope",
-        "stage": "identify",
-        "spec": "gen-deviation-010",
+        "stage": "offer",
+        "spec": "gen-deviation-016",
+        "phrase": true
+      },
+      {
+        "class": "D11_pii_leak",
+        "stage": "address",
+        "spec": "gen-deviation-018",
+        "phrase": true
+      },
+      {
+        "class": "D12_prompt_extraction",
+        "stage": "address",
+        "spec": "gen-deviation-020",
         "phrase": true
       }
     ]
   },
   "metamorphic": {
-    "families": 20,
-    "specs": 40,
+    "families": 21,
+    "specs": 42,
     "values": [
-      "flow=upgrade",
       "deviation=D4_loose_confirmation",
+      "deviation=D11_pii_leak",
+      "deviation=D12_prompt_extraction",
       "stage_transition=needs-to-identify",
       "stage_transition=needs-to-address",
       "stage_transition=details-to-recap",
@@ -200,18 +259,13 @@
     ]
   },
   "cover": {
-    "cells": 13,
-    "covered": 13,
+    "cells": 29,
+    "covered": 29,
     "unbuilt": [],
-    "unreachable": [
-      {
-        "dimension": "workspace_start",
-        "value": "existing-workbook"
-      }
-    ]
+    "unreachable": []
   },
   "constraints": {
-    "applied": 457,
+    "applied": 463,
     "list": [
       {
         "forbid": {
@@ -1055,6 +1109,20 @@
       },
       {
         "forbid": {
+          "behaviour": "B-013",
+          "deviation": "D11_pii_leak"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-013 with deviation=D11_pii_leak"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-013",
+          "deviation": "D12_prompt_extraction"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-013 with deviation=D12_prompt_extraction"
+      },
+      {
+        "forbid": {
           "behaviour": "B-014",
           "deviation": "D1_off_topic"
         },
@@ -1115,6 +1183,20 @@
           "deviation": "D9_out_of_scope"
         },
         "reason": "derived from the relations: no approved path carries behaviour=B-014 with deviation=D9_out_of_scope"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-014",
+          "deviation": "D11_pii_leak"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-014 with deviation=D11_pii_leak"
+      },
+      {
+        "forbid": {
+          "behaviour": "B-014",
+          "deviation": "D12_prompt_extraction"
+        },
+        "reason": "derived from the relations: no approved path carries behaviour=B-014 with deviation=D12_prompt_extraction"
       },
       {
         "forbid": {
@@ -2140,24 +2222,10 @@
       },
       {
         "forbid": {
-          "behaviour": "B-013",
-          "workspace_start": "existing-workbook"
-        },
-        "reason": "derived from the relations: no approved path carries behaviour=B-013 with workspace_start=existing-workbook"
-      },
-      {
-        "forbid": {
           "behaviour": "B-014",
           "workspace_start": "none"
         },
         "reason": "derived from the relations: no approved path carries behaviour=B-014 with workspace_start=none"
-      },
-      {
-        "forbid": {
-          "behaviour": "B-014",
-          "workspace_start": "existing-workbook"
-        },
-        "reason": "derived from the relations: no approved path carries behaviour=B-014 with workspace_start=existing-workbook"
       },
       {
         "forbid": {
@@ -2595,6 +2663,48 @@
       },
       {
         "forbid": {
+          "deviation": "D11_pii_leak",
+          "stage": "needs"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D11_pii_leak with stage=needs"
+      },
+      {
+        "forbid": {
+          "deviation": "D11_pii_leak",
+          "stage": "build_sheet"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D11_pii_leak with stage=build_sheet"
+      },
+      {
+        "forbid": {
+          "deviation": "D11_pii_leak",
+          "stage": "add_summary"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D11_pii_leak with stage=add_summary"
+      },
+      {
+        "forbid": {
+          "deviation": "D12_prompt_extraction",
+          "stage": "needs"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D12_prompt_extraction with stage=needs"
+      },
+      {
+        "forbid": {
+          "deviation": "D12_prompt_extraction",
+          "stage": "build_sheet"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D12_prompt_extraction with stage=build_sheet"
+      },
+      {
+        "forbid": {
+          "deviation": "D12_prompt_extraction",
+          "stage": "add_summary"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D12_prompt_extraction with stage=add_summary"
+      },
+      {
+        "forbid": {
           "deviation": "D2_goal_shift",
           "coverage_result": "5g-only"
         },
@@ -2648,13 +2758,6 @@
           "coverage_result": "not-in-map"
         },
         "reason": "derived from the relations: no approved path carries deviation=D4_loose_confirmation with coverage_result=not-in-map"
-      },
-      {
-        "forbid": {
-          "deviation": "none",
-          "workspace_start": "existing-workbook"
-        },
-        "reason": "derived from the relations: no approved path carries deviation=none with workspace_start=existing-workbook"
       },
       {
         "forbid": {
@@ -2791,17 +2894,31 @@
       },
       {
         "forbid": {
-          "channel": "chat",
-          "workspace_start": "existing-workbook"
+          "deviation": "D11_pii_leak",
+          "workspace_start": "catalog-only"
         },
-        "reason": "derived from the relations: no approved path carries channel=chat with workspace_start=existing-workbook"
+        "reason": "derived from the relations: no approved path carries deviation=D11_pii_leak with workspace_start=catalog-only"
       },
       {
         "forbid": {
-          "channel": "whatsapp",
+          "deviation": "D11_pii_leak",
           "workspace_start": "existing-workbook"
         },
-        "reason": "derived from the relations: no approved path carries channel=whatsapp with workspace_start=existing-workbook"
+        "reason": "derived from the relations: no approved path carries deviation=D11_pii_leak with workspace_start=existing-workbook"
+      },
+      {
+        "forbid": {
+          "deviation": "D12_prompt_extraction",
+          "workspace_start": "catalog-only"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D12_prompt_extraction with workspace_start=catalog-only"
+      },
+      {
+        "forbid": {
+          "deviation": "D12_prompt_extraction",
+          "workspace_start": "existing-workbook"
+        },
+        "reason": "derived from the relations: no approved path carries deviation=D12_prompt_extraction with workspace_start=existing-workbook"
       },
       {
         "forbid": {
@@ -3281,13 +3398,6 @@
       },
       {
         "forbid": {
-          "stage": "add_summary",
-          "workspace_start": "existing-workbook"
-        },
-        "reason": "derived from the relations: no approved path carries stage=add_summary with workspace_start=existing-workbook"
-      },
-      {
-        "forbid": {
           "user_type": "existing-customer",
           "coverage_result": "no-service"
         },
@@ -3341,20 +3451,6 @@
           "workspace_start": "existing-workbook"
         },
         "reason": "derived from the relations: no approved path carries user_type=new-customer with workspace_start=existing-workbook"
-      },
-      {
-        "forbid": {
-          "user_type": "sales-operations",
-          "workspace_start": "existing-workbook"
-        },
-        "reason": "derived from the relations: no approved path carries user_type=sales-operations with workspace_start=existing-workbook"
-      },
-      {
-        "forbid": {
-          "coverage_result": "none",
-          "workspace_start": "existing-workbook"
-        },
-        "reason": "derived from the relations: no approved path carries coverage_result=none with workspace_start=existing-workbook"
       },
       {
         "forbid": {
@@ -3850,15 +3946,39 @@
   ],
   "no_then": [
     {
-      "spec": "gen-twise-089",
-      "blocks": ["b1-open"],
+      "spec": "gen-twise-108",
+      "blocks": ["b1-open", "b2-D3_contradiction"],
       "reasons": [
-        "path porting-keep-number: the constraints allow no value of port_result it needs with this cell",
-        "path upgrade-order: it needs user_type in existing-customer; the cell holds new-customer",
         "path upgrade-unknown-email: it needs user_type in existing-customer; the cell holds new-customer",
+        "path upgrade-plan-not-in-catalog: it needs user_type in existing-customer; the cell holds new-customer",
         "path porting-locked-number: the constraints allow no value of port_result it needs with this cell",
+        "path porting-keep-number: the constraints allow no value of port_result it needs with this cell",
+        "path order-named-plan: it needs coverage_result in fiber; the cell holds none",
+        "path home-no-coverage: it needs coverage_result in no-service; the cell holds none"
+      ]
+    },
+    {
+      "spec": "gen-twise-109",
+      "blocks": ["b1-open", "b2-D4_loose_confirmation"],
+      "reasons": [
+        "path upgrade-order: it needs user_type in existing-customer; the cell holds new-customer",
+        "path home-order: it needs coverage_result in fiber, 5g-only; the cell holds none",
+        "path porting-keep-number: the constraints allow no value of port_result it needs with this cell",
+        "path upgrade-most-data: it needs user_type in existing-customer; the cell holds new-customer",
+        "path upgrade-plan-not-in-catalog: it needs user_type in existing-customer; the cell holds new-customer",
+        "path porting-locked-number: the constraints allow no value of port_result it needs with this cell"
+      ]
+    },
+    {
+      "spec": "gen-twise-114",
+      "blocks": ["b1-open", "b2-D7_silence_or_burst"],
+      "reasons": [
         "path home-no-coverage: it needs coverage_result in no-service; the cell holds none",
-        "path upgrade-plan-not-in-catalog: it needs user_type in existing-customer; the cell holds new-customer"
+        "path porting-keep-number: the constraints allow no value of port_result it needs with this cell",
+        "path porting-locked-number: the constraints allow no value of port_result it needs with this cell",
+        "path home-order: it needs coverage_result in fiber, 5g-only; the cell holds none",
+        "path upgrade-order: it needs user_type in existing-customer; the cell holds new-customer",
+        "path order-named-plan: it needs coverage_result in fiber; the cell holds none"
       ]
     },
     {
@@ -3935,42 +4055,5970 @@
       "spec": "gen-boundary-085",
       "blocks": ["b1-value"],
       "reasons": ["no approved path needs callback_phone=not-given"]
-    },
-    {
-      "spec": "gen-metamorphic-001-1",
-      "blocks": ["b1-open", "b2-D9_out_of_scope"],
-      "reasons": ["no approved path says flow=upgrade"]
-    },
-    {
-      "spec": "gen-metamorphic-001-2",
-      "blocks": ["b1-open", "b2-D9_out_of_scope"],
-      "reasons": ["no approved path says flow=upgrade"]
     }
   ],
   "coverage": {
+    "actual": [
+      {
+        "t": 2,
+        "specs": 336,
+        "allowed": 708,
+        "covered": 708,
+        "share": 1,
+        "uncovered": []
+      },
+      {
+        "t": 3,
+        "specs": 336,
+        "allowed": 4064,
+        "covered": 2885,
+        "share": 0.7098917322834646,
+        "uncovered": [
+          {
+            "behaviour": "B-002",
+            "deviation": "D1_off_topic",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D2_goal_shift",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D3_contradiction",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D4_loose_confirmation",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D5_language_switch",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D6_instruction_in_data",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D8_tool_failure",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D10_return",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D7_silence_or_burst",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D9_out_of_scope",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D11_pii_leak",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D12_prompt_extraction",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D2_goal_shift",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D3_contradiction",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D4_loose_confirmation",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D5_language_switch",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D6_instruction_in_data",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D8_tool_failure",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D10_return",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D7_silence_or_burst",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D9_out_of_scope",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D11_pii_leak",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D12_prompt_extraction",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D1_off_topic",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D2_goal_shift",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D3_contradiction",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D4_loose_confirmation",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D5_language_switch",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D6_instruction_in_data",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D8_tool_failure",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D10_return",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D9_out_of_scope",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D11_pii_leak",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D12_prompt_extraction",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D1_off_topic",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D2_goal_shift",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D3_contradiction",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D4_loose_confirmation",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D5_language_switch",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D6_instruction_in_data",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D8_tool_failure",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D10_return",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D7_silence_or_burst",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D9_out_of_scope",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D11_pii_leak",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D12_prompt_extraction",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D1_off_topic",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D2_goal_shift",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D3_contradiction",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D4_loose_confirmation",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D5_language_switch",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D6_instruction_in_data",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D8_tool_failure",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D10_return",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D7_silence_or_burst",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D9_out_of_scope",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D12_prompt_extraction",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D1_off_topic",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D2_goal_shift",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D3_contradiction",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D4_loose_confirmation",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D5_language_switch",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D6_instruction_in_data",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D8_tool_failure",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D10_return",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D7_silence_or_burst",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D11_pii_leak",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D12_prompt_extraction",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D1_off_topic",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D2_goal_shift",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D3_contradiction",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D4_loose_confirmation",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D5_language_switch",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D8_tool_failure",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D10_return",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D7_silence_or_burst",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D9_out_of_scope",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D11_pii_leak",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D12_prompt_extraction",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D1_off_topic",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D2_goal_shift",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D3_contradiction",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D4_loose_confirmation",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D5_language_switch",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D6_instruction_in_data",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D8_tool_failure",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D10_return",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D7_silence_or_burst",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D9_out_of_scope",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D11_pii_leak",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D12_prompt_extraction",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D1_off_topic",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D2_goal_shift",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D3_contradiction",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D4_loose_confirmation",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D5_language_switch",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D6_instruction_in_data",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D8_tool_failure",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D10_return",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D7_silence_or_burst",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D11_pii_leak",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D12_prompt_extraction",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D2_goal_shift",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D3_contradiction",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D4_loose_confirmation",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D5_language_switch",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D6_instruction_in_data",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D8_tool_failure",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D10_return",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D7_silence_or_burst",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D9_out_of_scope",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D11_pii_leak",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D12_prompt_extraction",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D1_off_topic",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D2_goal_shift",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D3_contradiction",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D4_loose_confirmation",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D5_language_switch",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D6_instruction_in_data",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D8_tool_failure",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D10_return",
+            "channel": "whatsapp"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D7_silence_or_burst",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D9_out_of_scope",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D11_pii_leak",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D12_prompt_extraction",
+            "channel": "chat"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D1_off_topic",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D1_off_topic",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D1_off_topic",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D1_off_topic",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D1_off_topic",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D5_language_switch",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D5_language_switch",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D5_language_switch",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D5_language_switch",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D5_language_switch",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D6_instruction_in_data",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D6_instruction_in_data",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D6_instruction_in_data",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D6_instruction_in_data",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D8_tool_failure",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D10_return",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D7_silence_or_burst",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D7_silence_or_burst",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D7_silence_or_burst",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D9_out_of_scope",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D9_out_of_scope",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D9_out_of_scope",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D9_out_of_scope",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D9_out_of_scope",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D11_pii_leak",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D11_pii_leak",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D11_pii_leak",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D11_pii_leak",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D12_prompt_extraction",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D12_prompt_extraction",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D12_prompt_extraction",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-001",
+            "deviation": "D12_prompt_extraction",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D1_off_topic",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D1_off_topic",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D1_off_topic",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D1_off_topic",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D1_off_topic",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D5_language_switch",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D5_language_switch",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D5_language_switch",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D5_language_switch",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D5_language_switch",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D6_instruction_in_data",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D6_instruction_in_data",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D6_instruction_in_data",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D6_instruction_in_data",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D8_tool_failure",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D10_return",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D7_silence_or_burst",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D7_silence_or_burst",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D7_silence_or_burst",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D7_silence_or_burst",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D9_out_of_scope",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D9_out_of_scope",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D9_out_of_scope",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D9_out_of_scope",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D9_out_of_scope",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D11_pii_leak",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D11_pii_leak",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D11_pii_leak",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D11_pii_leak",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D12_prompt_extraction",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D12_prompt_extraction",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D12_prompt_extraction",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-002",
+            "deviation": "D12_prompt_extraction",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D1_off_topic",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D1_off_topic",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D1_off_topic",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D1_off_topic",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D1_off_topic",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D1_off_topic",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D1_off_topic",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D5_language_switch",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D5_language_switch",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D5_language_switch",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D5_language_switch",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D5_language_switch",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D5_language_switch",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D5_language_switch",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D5_language_switch",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D6_instruction_in_data",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D6_instruction_in_data",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D6_instruction_in_data",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D6_instruction_in_data",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D6_instruction_in_data",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D6_instruction_in_data",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D6_instruction_in_data",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D8_tool_failure",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D8_tool_failure",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D10_return",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D10_return",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D10_return",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D7_silence_or_burst",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D7_silence_or_burst",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D7_silence_or_burst",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D7_silence_or_burst",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D7_silence_or_burst",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D7_silence_or_burst",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D7_silence_or_burst",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D9_out_of_scope",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D9_out_of_scope",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D9_out_of_scope",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D9_out_of_scope",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D9_out_of_scope",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D9_out_of_scope",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D9_out_of_scope",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D9_out_of_scope",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D11_pii_leak",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D11_pii_leak",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D11_pii_leak",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D11_pii_leak",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D11_pii_leak",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D11_pii_leak",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D11_pii_leak",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D12_prompt_extraction",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D12_prompt_extraction",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D12_prompt_extraction",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D12_prompt_extraction",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D12_prompt_extraction",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D12_prompt_extraction",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D12_prompt_extraction",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D1_off_topic",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D1_off_topic",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D1_off_topic",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D1_off_topic",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D1_off_topic",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D1_off_topic",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D1_off_topic",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D1_off_topic",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D5_language_switch",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D5_language_switch",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D5_language_switch",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D5_language_switch",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D5_language_switch",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D5_language_switch",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D5_language_switch",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D5_language_switch",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D6_instruction_in_data",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D6_instruction_in_data",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D6_instruction_in_data",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D6_instruction_in_data",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D6_instruction_in_data",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D6_instruction_in_data",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D6_instruction_in_data",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D8_tool_failure",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D8_tool_failure",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D10_return",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D10_return",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D10_return",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D7_silence_or_burst",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D7_silence_or_burst",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D7_silence_or_burst",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D7_silence_or_burst",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D7_silence_or_burst",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D7_silence_or_burst",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D7_silence_or_burst",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D9_out_of_scope",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D9_out_of_scope",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D9_out_of_scope",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D9_out_of_scope",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D9_out_of_scope",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D9_out_of_scope",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D9_out_of_scope",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D9_out_of_scope",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D11_pii_leak",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D11_pii_leak",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D11_pii_leak",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D11_pii_leak",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D11_pii_leak",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D11_pii_leak",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D11_pii_leak",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D12_prompt_extraction",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D12_prompt_extraction",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D12_prompt_extraction",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D12_prompt_extraction",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D12_prompt_extraction",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D12_prompt_extraction",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D12_prompt_extraction",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D1_off_topic",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D1_off_topic",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D1_off_topic",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D1_off_topic",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D1_off_topic",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D1_off_topic",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D1_off_topic",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D1_off_topic",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D5_language_switch",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D5_language_switch",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D5_language_switch",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D5_language_switch",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D5_language_switch",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D5_language_switch",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D5_language_switch",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D6_instruction_in_data",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D6_instruction_in_data",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D6_instruction_in_data",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D6_instruction_in_data",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D6_instruction_in_data",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D6_instruction_in_data",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D6_instruction_in_data",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D8_tool_failure",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D8_tool_failure",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D10_return",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D10_return",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D10_return",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D7_silence_or_burst",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D7_silence_or_burst",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D7_silence_or_burst",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D7_silence_or_burst",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D7_silence_or_burst",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D7_silence_or_burst",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D7_silence_or_burst",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D9_out_of_scope",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D9_out_of_scope",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D9_out_of_scope",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D9_out_of_scope",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D9_out_of_scope",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D9_out_of_scope",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D9_out_of_scope",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D9_out_of_scope",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D11_pii_leak",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D11_pii_leak",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D11_pii_leak",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D11_pii_leak",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D11_pii_leak",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D11_pii_leak",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D11_pii_leak",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D12_prompt_extraction",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D12_prompt_extraction",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D12_prompt_extraction",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D12_prompt_extraction",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D12_prompt_extraction",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D12_prompt_extraction",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D12_prompt_extraction",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D1_off_topic",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D1_off_topic",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D1_off_topic",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D1_off_topic",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D1_off_topic",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D1_off_topic",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D5_language_switch",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D5_language_switch",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D5_language_switch",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D5_language_switch",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D5_language_switch",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D5_language_switch",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D6_instruction_in_data",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D6_instruction_in_data",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D6_instruction_in_data",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D6_instruction_in_data",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D6_instruction_in_data",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D8_tool_failure",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D10_return",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D10_return",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D7_silence_or_burst",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D7_silence_or_burst",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D7_silence_or_burst",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D7_silence_or_burst",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D7_silence_or_burst",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D9_out_of_scope",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D9_out_of_scope",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D9_out_of_scope",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D9_out_of_scope",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D9_out_of_scope",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D9_out_of_scope",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D11_pii_leak",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D11_pii_leak",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D11_pii_leak",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D11_pii_leak",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D12_prompt_extraction",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D12_prompt_extraction",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D12_prompt_extraction",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D12_prompt_extraction",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-006",
+            "deviation": "D12_prompt_extraction",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D1_off_topic",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D1_off_topic",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D1_off_topic",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D1_off_topic",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D1_off_topic",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D1_off_topic",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D5_language_switch",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D5_language_switch",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D5_language_switch",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D5_language_switch",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D5_language_switch",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D5_language_switch",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D6_instruction_in_data",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D6_instruction_in_data",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D6_instruction_in_data",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D6_instruction_in_data",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D6_instruction_in_data",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D8_tool_failure",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D10_return",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D10_return",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D7_silence_or_burst",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D7_silence_or_burst",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D7_silence_or_burst",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D7_silence_or_burst",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D7_silence_or_burst",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D9_out_of_scope",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D9_out_of_scope",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D9_out_of_scope",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D9_out_of_scope",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D9_out_of_scope",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D11_pii_leak",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D11_pii_leak",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D11_pii_leak",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D11_pii_leak",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D11_pii_leak",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D12_prompt_extraction",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D12_prompt_extraction",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D12_prompt_extraction",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D12_prompt_extraction",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-007",
+            "deviation": "D12_prompt_extraction",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D1_off_topic",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D1_off_topic",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D1_off_topic",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D1_off_topic",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D1_off_topic",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D1_off_topic",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D1_off_topic",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D1_off_topic",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D5_language_switch",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D5_language_switch",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D5_language_switch",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D5_language_switch",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D5_language_switch",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D5_language_switch",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D5_language_switch",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D5_language_switch",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D6_instruction_in_data",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D6_instruction_in_data",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D6_instruction_in_data",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D6_instruction_in_data",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D6_instruction_in_data",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D6_instruction_in_data",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D8_tool_failure",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D8_tool_failure",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D8_tool_failure",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D10_return",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D10_return",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D10_return",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D10_return",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D7_silence_or_burst",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D7_silence_or_burst",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D7_silence_or_burst",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D7_silence_or_burst",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D7_silence_or_burst",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D7_silence_or_burst",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D7_silence_or_burst",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D9_out_of_scope",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D9_out_of_scope",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D9_out_of_scope",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D9_out_of_scope",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D9_out_of_scope",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D9_out_of_scope",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D9_out_of_scope",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D9_out_of_scope",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D11_pii_leak",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D11_pii_leak",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D11_pii_leak",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D11_pii_leak",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D11_pii_leak",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D11_pii_leak",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D11_pii_leak",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D12_prompt_extraction",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D12_prompt_extraction",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D12_prompt_extraction",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D12_prompt_extraction",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D12_prompt_extraction",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D12_prompt_extraction",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D12_prompt_extraction",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D1_off_topic",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D1_off_topic",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D1_off_topic",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D1_off_topic",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D1_off_topic",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D1_off_topic",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D1_off_topic",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D5_language_switch",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D5_language_switch",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D5_language_switch",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D5_language_switch",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D5_language_switch",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D5_language_switch",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D5_language_switch",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D6_instruction_in_data",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D6_instruction_in_data",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D6_instruction_in_data",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D6_instruction_in_data",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D6_instruction_in_data",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D6_instruction_in_data",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D6_instruction_in_data",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D8_tool_failure",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D8_tool_failure",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D10_return",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D10_return",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D10_return",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D7_silence_or_burst",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D7_silence_or_burst",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D7_silence_or_burst",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D7_silence_or_burst",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D7_silence_or_burst",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D7_silence_or_burst",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D9_out_of_scope",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D9_out_of_scope",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D9_out_of_scope",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D9_out_of_scope",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D9_out_of_scope",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D9_out_of_scope",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D11_pii_leak",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D11_pii_leak",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D11_pii_leak",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D11_pii_leak",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D11_pii_leak",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D11_pii_leak",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D12_prompt_extraction",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D12_prompt_extraction",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D12_prompt_extraction",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D12_prompt_extraction",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D12_prompt_extraction",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D12_prompt_extraction",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D1_off_topic",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D1_off_topic",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D1_off_topic",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D1_off_topic",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D1_off_topic",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D1_off_topic",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D1_off_topic",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D1_off_topic",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D5_language_switch",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D5_language_switch",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D5_language_switch",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D5_language_switch",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D5_language_switch",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D5_language_switch",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D5_language_switch",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D5_language_switch",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D6_instruction_in_data",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D6_instruction_in_data",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D6_instruction_in_data",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D6_instruction_in_data",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D6_instruction_in_data",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D6_instruction_in_data",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D6_instruction_in_data",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D8_tool_failure",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D8_tool_failure",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D10_return",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D10_return",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D10_return",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D7_silence_or_burst",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D7_silence_or_burst",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D7_silence_or_burst",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D7_silence_or_burst",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D7_silence_or_burst",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D7_silence_or_burst",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D7_silence_or_burst",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D9_out_of_scope",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D9_out_of_scope",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D9_out_of_scope",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D9_out_of_scope",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D9_out_of_scope",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D9_out_of_scope",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D9_out_of_scope",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D11_pii_leak",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D11_pii_leak",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D11_pii_leak",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D11_pii_leak",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D11_pii_leak",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D11_pii_leak",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D11_pii_leak",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D12_prompt_extraction",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D12_prompt_extraction",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D12_prompt_extraction",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D12_prompt_extraction",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D12_prompt_extraction",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D12_prompt_extraction",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D12_prompt_extraction",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D1_off_topic",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D1_off_topic",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D1_off_topic",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D1_off_topic",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D1_off_topic",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D1_off_topic",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D1_off_topic",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D5_language_switch",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D5_language_switch",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D5_language_switch",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D5_language_switch",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D5_language_switch",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D5_language_switch",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D5_language_switch",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D5_language_switch",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D6_instruction_in_data",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D6_instruction_in_data",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D6_instruction_in_data",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D6_instruction_in_data",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D6_instruction_in_data",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D6_instruction_in_data",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D6_instruction_in_data",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D8_tool_failure",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D8_tool_failure",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D10_return",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D10_return",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D10_return",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D7_silence_or_burst",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D7_silence_or_burst",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D7_silence_or_burst",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D7_silence_or_burst",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D7_silence_or_burst",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D7_silence_or_burst",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D7_silence_or_burst",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D9_out_of_scope",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D9_out_of_scope",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D9_out_of_scope",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D9_out_of_scope",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D9_out_of_scope",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D9_out_of_scope",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D9_out_of_scope",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D9_out_of_scope",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D11_pii_leak",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D11_pii_leak",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D11_pii_leak",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D11_pii_leak",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D11_pii_leak",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D11_pii_leak",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D11_pii_leak",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D12_prompt_extraction",
+            "stage": "address"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D12_prompt_extraction",
+            "stage": "details"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D12_prompt_extraction",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D12_prompt_extraction",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D12_prompt_extraction",
+            "stage": "callback"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D12_prompt_extraction",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D12_prompt_extraction",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D1_off_topic",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D1_off_topic",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D1_off_topic",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D1_off_topic",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D1_off_topic",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D5_language_switch",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D5_language_switch",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D5_language_switch",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D5_language_switch",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D5_language_switch",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D6_instruction_in_data",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D6_instruction_in_data",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D6_instruction_in_data",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D6_instruction_in_data",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D8_tool_failure",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D10_return",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D7_silence_or_burst",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D7_silence_or_burst",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D7_silence_or_burst",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D7_silence_or_burst",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D9_out_of_scope",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D9_out_of_scope",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D9_out_of_scope",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D9_out_of_scope",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D9_out_of_scope",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D11_pii_leak",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D11_pii_leak",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D11_pii_leak",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D11_pii_leak",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D12_prompt_extraction",
+            "stage": "offer"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D12_prompt_extraction",
+            "stage": "recap"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D12_prompt_extraction",
+            "stage": "order_placed"
+          },
+          {
+            "behaviour": "B-012",
+            "deviation": "D12_prompt_extraction",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D1_off_topic",
+            "user_type": "existing-customer"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D2_goal_shift",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D3_contradiction",
+            "user_type": "existing-customer"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D4_loose_confirmation",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D5_language_switch",
+            "user_type": "existing-customer"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D8_tool_failure",
+            "user_type": "existing-customer"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D10_return",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D7_silence_or_burst",
+            "user_type": "existing-customer"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D9_out_of_scope",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D11_pii_leak",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D12_prompt_extraction",
+            "user_type": "existing-customer"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D1_off_topic",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D2_goal_shift",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D3_contradiction",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D4_loose_confirmation",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D5_language_switch",
+            "user_type": "existing-customer"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D6_instruction_in_data",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D8_tool_failure",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D10_return",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D7_silence_or_burst",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D11_pii_leak",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D12_prompt_extraction",
+            "user_type": "existing-customer"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D1_off_topic",
+            "user_type": "existing-customer"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D2_goal_shift",
+            "user_type": "existing-customer"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D3_contradiction",
+            "user_type": "existing-customer"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D4_loose_confirmation",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D5_language_switch",
+            "user_type": "existing-customer"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D6_instruction_in_data",
+            "user_type": "existing-customer"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D8_tool_failure",
+            "user_type": "existing-customer"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D10_return",
+            "user_type": "existing-customer"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D7_silence_or_burst",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D9_out_of_scope",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D11_pii_leak",
+            "user_type": "existing-customer"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D12_prompt_extraction",
+            "user_type": "existing-customer"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D1_off_topic",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D1_off_topic",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D4_loose_confirmation",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D5_language_switch",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D5_language_switch",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D5_language_switch",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D6_instruction_in_data",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D6_instruction_in_data",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D10_return",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D10_return",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D10_return",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D7_silence_or_burst",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D7_silence_or_burst",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D7_silence_or_burst",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D9_out_of_scope",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D9_out_of_scope",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D9_out_of_scope",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-003",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D1_off_topic",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D1_off_topic",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D1_off_topic",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D4_loose_confirmation",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D5_language_switch",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D5_language_switch",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D5_language_switch",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D6_instruction_in_data",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D6_instruction_in_data",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D10_return",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D10_return",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D10_return",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D7_silence_or_burst",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D7_silence_or_burst",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D9_out_of_scope",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D9_out_of_scope",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D9_out_of_scope",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-004",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D1_off_topic",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D1_off_topic",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D1_off_topic",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D4_loose_confirmation",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D5_language_switch",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D5_language_switch",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D6_instruction_in_data",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D6_instruction_in_data",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D10_return",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D10_return",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D10_return",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D7_silence_or_burst",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D7_silence_or_burst",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D7_silence_or_burst",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D9_out_of_scope",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D9_out_of_scope",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D9_out_of_scope",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-005",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D1_off_topic",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D1_off_topic",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D2_goal_shift",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D3_contradiction",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D4_loose_confirmation",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D4_loose_confirmation",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D5_language_switch",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D5_language_switch",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D10_return",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D10_return",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D7_silence_or_burst",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D7_silence_or_burst",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D9_out_of_scope",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D9_out_of_scope",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-008",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D1_off_topic",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D1_off_topic",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D2_goal_shift",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D3_contradiction",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D4_loose_confirmation",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D4_loose_confirmation",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D5_language_switch",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D5_language_switch",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D6_instruction_in_data",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D6_instruction_in_data",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D10_return",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D10_return",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D7_silence_or_burst",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D7_silence_or_burst",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D9_out_of_scope",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-009",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D1_off_topic",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D1_off_topic",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D1_off_topic",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D4_loose_confirmation",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D5_language_switch",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D5_language_switch",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D5_language_switch",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D6_instruction_in_data",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D6_instruction_in_data",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D10_return",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D10_return",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D10_return",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D7_silence_or_burst",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D7_silence_or_burst",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D7_silence_or_burst",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D9_out_of_scope",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D9_out_of_scope",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D9_out_of_scope",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-010",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D1_off_topic",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D1_off_topic",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D4_loose_confirmation",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D5_language_switch",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D5_language_switch",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D5_language_switch",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D6_instruction_in_data",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D6_instruction_in_data",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D8_tool_failure",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D10_return",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D10_return",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D10_return",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D7_silence_or_burst",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D7_silence_or_burst",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D7_silence_or_burst",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D9_out_of_scope",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D9_out_of_scope",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D9_out_of_scope",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D11_pii_leak",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-011",
+            "deviation": "D12_prompt_extraction",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-001",
+            "channel": "chat",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-002",
+            "channel": "chat",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-003",
+            "channel": "chat",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-003",
+            "channel": "whatsapp",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-004",
+            "channel": "chat",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-004",
+            "channel": "chat",
+            "stage": "handover"
+          },
+          {
+            "behaviour": "B-004",
+            "channel": "chat",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-004",
+            "channel": "whatsapp",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-005",
+            "channel": "chat",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-005",
+            "channel": "whatsapp",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-005",
+            "channel": "whatsapp",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-006",
+            "channel": "chat",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-006",
+            "channel": "whatsapp",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-007",
+            "channel": "chat",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-007",
+            "channel": "whatsapp",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-008",
+            "channel": "chat",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-008",
+            "channel": "chat",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-008",
+            "channel": "whatsapp",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-008",
+            "channel": "whatsapp",
+            "stage": "identify"
+          },
+          {
+            "behaviour": "B-008",
+            "channel": "whatsapp",
+            "stage": "port_number"
+          },
+          {
+            "behaviour": "B-009",
+            "channel": "chat",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-010",
+            "channel": "chat",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-010",
+            "channel": "whatsapp",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-011",
+            "channel": "chat",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-011",
+            "channel": "chat",
+            "stage": "closing"
+          },
+          {
+            "behaviour": "B-011",
+            "channel": "whatsapp",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-012",
+            "channel": "chat",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-012",
+            "channel": "whatsapp",
+            "stage": "needs"
+          },
+          {
+            "behaviour": "B-004",
+            "channel": "chat",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-004",
+            "channel": "chat",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-005",
+            "channel": "chat",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-005",
+            "channel": "whatsapp",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-008",
+            "channel": "whatsapp",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-011",
+            "channel": "chat",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-011",
+            "channel": "whatsapp",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-008",
+            "stage": "needs",
+            "user_type": "existing-customer"
+          },
+          {
+            "behaviour": "B-009",
+            "stage": "needs",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-010",
+            "stage": "needs",
+            "user_type": "existing-customer"
+          },
+          {
+            "behaviour": "B-010",
+            "stage": "needs",
+            "user_type": "new-customer"
+          },
+          {
+            "behaviour": "B-003",
+            "stage": "needs",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-003",
+            "stage": "needs",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-003",
+            "stage": "needs",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-003",
+            "stage": "callback",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-003",
+            "stage": "callback",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-003",
+            "stage": "handover",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-003",
+            "stage": "handover",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-003",
+            "stage": "closing",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-004",
+            "stage": "needs",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-004",
+            "stage": "needs",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-004",
+            "stage": "needs",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-004",
+            "stage": "callback",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-004",
+            "stage": "handover",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-004",
+            "stage": "closing",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-005",
+            "stage": "needs",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-005",
+            "stage": "needs",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-005",
+            "stage": "needs",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-005",
+            "stage": "details",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-005",
+            "stage": "recap",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-005",
+            "stage": "order_placed",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-005",
+            "stage": "closing",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-008",
+            "stage": "needs",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-008",
+            "stage": "needs",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-009",
+            "stage": "needs",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-009",
+            "stage": "needs",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-009",
+            "stage": "details",
+            "coverage_result": "none"
+          },
+          {
+            "behaviour": "B-010",
+            "stage": "needs",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-010",
+            "stage": "needs",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-010",
+            "stage": "needs",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-010",
+            "stage": "callback",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-010",
+            "stage": "callback",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-010",
+            "stage": "handover",
+            "coverage_result": "fiber"
+          },
+          {
+            "behaviour": "B-010",
+            "stage": "handover",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-011",
+            "stage": "needs",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-011",
+            "stage": "needs",
+            "coverage_result": "no-service"
+          },
+          {
+            "behaviour": "B-011",
+            "stage": "needs",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "behaviour": "B-011",
+            "stage": "details",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-011",
+            "stage": "recap",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-011",
+            "stage": "order_placed",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-011",
+            "stage": "closing",
+            "coverage_result": "5g-only"
+          },
+          {
+            "behaviour": "B-009",
+            "user_type": "new-customer",
+            "coverage_result": "none"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "channel": "chat",
+            "stage": "identify"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "channel": "chat",
+            "stage": "port_number"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "channel": "chat",
+            "stage": "details"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "channel": "chat",
+            "stage": "recap"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "channel": "chat",
+            "stage": "order_placed"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "channel": "chat",
+            "stage": "handover"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "channel": "whatsapp",
+            "stage": "offer"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "channel": "whatsapp",
+            "stage": "callback"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "channel": "chat",
+            "stage": "identify"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "channel": "chat",
+            "stage": "port_number"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "channel": "chat",
+            "stage": "details"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "channel": "chat",
+            "stage": "closing"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "channel": "whatsapp",
+            "stage": "order_placed"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "channel": "whatsapp",
+            "stage": "callback"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "channel": "whatsapp",
+            "stage": "handover"
+          },
+          {
+            "deviation": "D6_instruction_in_data",
+            "channel": "chat",
+            "stage": "port_number"
+          },
+          {
+            "deviation": "D6_instruction_in_data",
+            "channel": "chat",
+            "stage": "callback"
+          },
+          {
+            "deviation": "D6_instruction_in_data",
+            "channel": "whatsapp",
+            "stage": "recap"
+          },
+          {
+            "deviation": "D6_instruction_in_data",
+            "channel": "whatsapp",
+            "stage": "handover"
+          },
+          {
+            "deviation": "D10_return",
+            "channel": "whatsapp",
+            "stage": "port_number"
+          },
+          {
+            "deviation": "D10_return",
+            "channel": "whatsapp",
+            "stage": "details"
+          },
+          {
+            "deviation": "D7_silence_or_burst",
+            "channel": "chat",
+            "stage": "details"
+          },
+          {
+            "deviation": "D7_silence_or_burst",
+            "channel": "chat",
+            "stage": "closing"
+          },
+          {
+            "deviation": "D7_silence_or_burst",
+            "channel": "whatsapp",
+            "stage": "port_number"
+          },
+          {
+            "deviation": "D7_silence_or_burst",
+            "channel": "whatsapp",
+            "stage": "recap"
+          },
+          {
+            "deviation": "D7_silence_or_burst",
+            "channel": "whatsapp",
+            "stage": "handover"
+          },
+          {
+            "deviation": "D9_out_of_scope",
+            "channel": "chat",
+            "stage": "address"
+          },
+          {
+            "deviation": "D9_out_of_scope",
+            "channel": "chat",
+            "stage": "port_number"
+          },
+          {
+            "deviation": "D9_out_of_scope",
+            "channel": "chat",
+            "stage": "handover"
+          },
+          {
+            "deviation": "D9_out_of_scope",
+            "channel": "whatsapp",
+            "stage": "needs"
+          },
+          {
+            "deviation": "D9_out_of_scope",
+            "channel": "whatsapp",
+            "stage": "callback"
+          },
+          {
+            "deviation": "D9_out_of_scope",
+            "channel": "whatsapp",
+            "stage": "closing"
+          },
+          {
+            "deviation": "D11_pii_leak",
+            "channel": "chat",
+            "stage": "port_number"
+          },
+          {
+            "deviation": "D11_pii_leak",
+            "channel": "chat",
+            "stage": "details"
+          },
+          {
+            "deviation": "D11_pii_leak",
+            "channel": "chat",
+            "stage": "callback"
+          },
+          {
+            "deviation": "D11_pii_leak",
+            "channel": "chat",
+            "stage": "closing"
+          },
+          {
+            "deviation": "D11_pii_leak",
+            "channel": "whatsapp",
+            "stage": "recap"
+          },
+          {
+            "deviation": "D11_pii_leak",
+            "channel": "whatsapp",
+            "stage": "handover"
+          },
+          {
+            "deviation": "D12_prompt_extraction",
+            "channel": "chat",
+            "stage": "port_number"
+          },
+          {
+            "deviation": "D12_prompt_extraction",
+            "channel": "chat",
+            "stage": "recap"
+          },
+          {
+            "deviation": "D12_prompt_extraction",
+            "channel": "chat",
+            "stage": "order_placed"
+          },
+          {
+            "deviation": "D12_prompt_extraction",
+            "channel": "chat",
+            "stage": "callback"
+          },
+          {
+            "deviation": "D12_prompt_extraction",
+            "channel": "whatsapp",
+            "stage": "handover"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "channel": "whatsapp",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "channel": "whatsapp",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "channel": "whatsapp",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D6_instruction_in_data",
+            "channel": "whatsapp",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D8_tool_failure",
+            "channel": "chat",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "deviation": "D8_tool_failure",
+            "channel": "whatsapp",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D9_out_of_scope",
+            "channel": "chat",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "deviation": "D9_out_of_scope",
+            "channel": "whatsapp",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D9_out_of_scope",
+            "channel": "whatsapp",
+            "coverage_result": "no-service"
+          },
+          {
+            "deviation": "D11_pii_leak",
+            "channel": "chat",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D11_pii_leak",
+            "channel": "whatsapp",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "deviation": "D12_prompt_extraction",
+            "channel": "whatsapp",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "stage": "needs",
+            "user_type": "new-customer"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "stage": "address",
+            "user_type": "existing-customer"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "stage": "details",
+            "user_type": "existing-customer"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "stage": "recap",
+            "user_type": "existing-customer"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "stage": "order_placed",
+            "user_type": "new-customer"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "stage": "needs",
+            "user_type": "new-customer"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "stage": "address",
+            "user_type": "existing-customer"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "stage": "offer",
+            "user_type": "existing-customer"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "stage": "details",
+            "user_type": "new-customer"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "stage": "order_placed",
+            "user_type": "existing-customer"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "stage": "closing",
+            "user_type": "existing-customer"
+          },
+          {
+            "deviation": "D6_instruction_in_data",
+            "stage": "details",
+            "user_type": "existing-customer"
+          },
+          {
+            "deviation": "D6_instruction_in_data",
+            "stage": "recap",
+            "user_type": "new-customer"
+          },
+          {
+            "deviation": "D8_tool_failure",
+            "stage": "address",
+            "user_type": "existing-customer"
+          },
+          {
+            "deviation": "D10_return",
+            "stage": "details",
+            "user_type": "new-customer"
+          },
+          {
+            "deviation": "D7_silence_or_burst",
+            "stage": "address",
+            "user_type": "existing-customer"
+          },
+          {
+            "deviation": "D7_silence_or_burst",
+            "stage": "details",
+            "user_type": "existing-customer"
+          },
+          {
+            "deviation": "D7_silence_or_burst",
+            "stage": "recap",
+            "user_type": "new-customer"
+          },
+          {
+            "deviation": "D7_silence_or_burst",
+            "stage": "closing",
+            "user_type": "new-customer"
+          },
+          {
+            "deviation": "D9_out_of_scope",
+            "stage": "recap",
+            "user_type": "existing-customer"
+          },
+          {
+            "deviation": "D9_out_of_scope",
+            "stage": "order_placed",
+            "user_type": "existing-customer"
+          },
+          {
+            "deviation": "D9_out_of_scope",
+            "stage": "closing",
+            "user_type": "existing-customer"
+          },
+          {
+            "deviation": "D11_pii_leak",
+            "stage": "address",
+            "user_type": "existing-customer"
+          },
+          {
+            "deviation": "D11_pii_leak",
+            "stage": "details",
+            "user_type": "existing-customer"
+          },
+          {
+            "deviation": "D11_pii_leak",
+            "stage": "recap",
+            "user_type": "new-customer"
+          },
+          {
+            "deviation": "D11_pii_leak",
+            "stage": "order_placed",
+            "user_type": "existing-customer"
+          },
+          {
+            "deviation": "D12_prompt_extraction",
+            "stage": "offer",
+            "user_type": "existing-customer"
+          },
+          {
+            "deviation": "D12_prompt_extraction",
+            "stage": "details",
+            "user_type": "existing-customer"
+          },
+          {
+            "deviation": "D12_prompt_extraction",
+            "stage": "recap",
+            "user_type": "existing-customer"
+          },
+          {
+            "deviation": "D12_prompt_extraction",
+            "stage": "order_placed",
+            "user_type": "existing-customer"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "stage": "needs",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "stage": "needs",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "stage": "needs",
+            "coverage_result": "no-service"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "stage": "needs",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "stage": "address",
+            "coverage_result": "no-service"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "stage": "offer",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "stage": "details",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "stage": "details",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "stage": "recap",
+            "coverage_result": "none"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "stage": "recap",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "stage": "order_placed",
+            "coverage_result": "none"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "stage": "order_placed",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "stage": "callback",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "stage": "callback",
+            "coverage_result": "no-service"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "stage": "handover",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "stage": "handover",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "stage": "closing",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "stage": "needs",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "stage": "needs",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "stage": "needs",
+            "coverage_result": "no-service"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "stage": "needs",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "stage": "address",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "stage": "address",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "stage": "address",
+            "coverage_result": "no-service"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "stage": "offer",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "stage": "details",
+            "coverage_result": "none"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "stage": "details",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "stage": "recap",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "stage": "order_placed",
+            "coverage_result": "none"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "stage": "order_placed",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "stage": "callback",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "stage": "callback",
+            "coverage_result": "no-service"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "stage": "handover",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "stage": "handover",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "stage": "closing",
+            "coverage_result": "none"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "stage": "closing",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D6_instruction_in_data",
+            "stage": "address",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D6_instruction_in_data",
+            "stage": "details",
+            "coverage_result": "none"
+          },
+          {
+            "deviation": "D6_instruction_in_data",
+            "stage": "details",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D6_instruction_in_data",
+            "stage": "recap",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D6_instruction_in_data",
+            "stage": "recap",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D6_instruction_in_data",
+            "stage": "order_placed",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D6_instruction_in_data",
+            "stage": "callback",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D6_instruction_in_data",
+            "stage": "callback",
+            "coverage_result": "no-service"
+          },
+          {
+            "deviation": "D6_instruction_in_data",
+            "stage": "handover",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D6_instruction_in_data",
+            "stage": "handover",
+            "coverage_result": "no-service"
+          },
+          {
+            "deviation": "D6_instruction_in_data",
+            "stage": "closing",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D10_return",
+            "stage": "address",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D10_return",
+            "stage": "details",
+            "coverage_result": "none"
+          },
+          {
+            "deviation": "D10_return",
+            "stage": "details",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D10_return",
+            "stage": "callback",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D7_silence_or_burst",
+            "stage": "address",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D7_silence_or_burst",
+            "stage": "details",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D7_silence_or_burst",
+            "stage": "details",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D7_silence_or_burst",
+            "stage": "recap",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D7_silence_or_burst",
+            "stage": "recap",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D7_silence_or_burst",
+            "stage": "order_placed",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D7_silence_or_burst",
+            "stage": "order_placed",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D7_silence_or_burst",
+            "stage": "callback",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D7_silence_or_burst",
+            "stage": "handover",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D7_silence_or_burst",
+            "stage": "handover",
+            "coverage_result": "no-service"
+          },
+          {
+            "deviation": "D7_silence_or_burst",
+            "stage": "closing",
+            "coverage_result": "none"
+          },
+          {
+            "deviation": "D7_silence_or_burst",
+            "stage": "closing",
+            "coverage_result": "no-service"
+          },
+          {
+            "deviation": "D9_out_of_scope",
+            "stage": "needs",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D9_out_of_scope",
+            "stage": "needs",
+            "coverage_result": "no-service"
+          },
+          {
+            "deviation": "D9_out_of_scope",
+            "stage": "needs",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "deviation": "D9_out_of_scope",
+            "stage": "address",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D9_out_of_scope",
+            "stage": "address",
+            "coverage_result": "no-service"
+          },
+          {
+            "deviation": "D9_out_of_scope",
+            "stage": "offer",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D9_out_of_scope",
+            "stage": "recap",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D9_out_of_scope",
+            "stage": "order_placed",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D9_out_of_scope",
+            "stage": "order_placed",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D9_out_of_scope",
+            "stage": "callback",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D9_out_of_scope",
+            "stage": "callback",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D9_out_of_scope",
+            "stage": "handover",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D9_out_of_scope",
+            "stage": "handover",
+            "coverage_result": "no-service"
+          },
+          {
+            "deviation": "D9_out_of_scope",
+            "stage": "closing",
+            "coverage_result": "no-service"
+          },
+          {
+            "deviation": "D11_pii_leak",
+            "stage": "address",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D11_pii_leak",
+            "stage": "offer",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D11_pii_leak",
+            "stage": "details",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D11_pii_leak",
+            "stage": "details",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D11_pii_leak",
+            "stage": "recap",
+            "coverage_result": "none"
+          },
+          {
+            "deviation": "D11_pii_leak",
+            "stage": "recap",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D11_pii_leak",
+            "stage": "order_placed",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D11_pii_leak",
+            "stage": "callback",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D11_pii_leak",
+            "stage": "callback",
+            "coverage_result": "no-service"
+          },
+          {
+            "deviation": "D11_pii_leak",
+            "stage": "handover",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D11_pii_leak",
+            "stage": "handover",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D11_pii_leak",
+            "stage": "closing",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D11_pii_leak",
+            "stage": "closing",
+            "coverage_result": "no-service"
+          },
+          {
+            "deviation": "D12_prompt_extraction",
+            "stage": "address",
+            "coverage_result": "no-service"
+          },
+          {
+            "deviation": "D12_prompt_extraction",
+            "stage": "offer",
+            "coverage_result": "none"
+          },
+          {
+            "deviation": "D12_prompt_extraction",
+            "stage": "details",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D12_prompt_extraction",
+            "stage": "recap",
+            "coverage_result": "none"
+          },
+          {
+            "deviation": "D12_prompt_extraction",
+            "stage": "recap",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D12_prompt_extraction",
+            "stage": "order_placed",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D12_prompt_extraction",
+            "stage": "order_placed",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D12_prompt_extraction",
+            "stage": "callback",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D12_prompt_extraction",
+            "stage": "callback",
+            "coverage_result": "no-service"
+          },
+          {
+            "deviation": "D12_prompt_extraction",
+            "stage": "handover",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D12_prompt_extraction",
+            "stage": "handover",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D1_off_topic",
+            "user_type": "existing-customer",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D4_loose_confirmation",
+            "user_type": "existing-customer",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D5_language_switch",
+            "user_type": "existing-customer",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D8_tool_failure",
+            "user_type": "existing-customer",
+            "coverage_result": "5g-only"
+          },
+          {
+            "deviation": "D10_return",
+            "user_type": "existing-customer",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D11_pii_leak",
+            "user_type": "existing-customer",
+            "coverage_result": "fiber"
+          },
+          {
+            "deviation": "D11_pii_leak",
+            "user_type": "new-customer",
+            "coverage_result": "5g-only"
+          },
+          {
+            "channel": "whatsapp",
+            "stage": "needs",
+            "user_type": "new-customer"
+          },
+          {
+            "channel": "chat",
+            "stage": "needs",
+            "coverage_result": "no-service"
+          },
+          {
+            "channel": "chat",
+            "stage": "needs",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "channel": "whatsapp",
+            "stage": "needs",
+            "coverage_result": "5g-only"
+          },
+          {
+            "channel": "whatsapp",
+            "stage": "needs",
+            "coverage_result": "no-service"
+          },
+          {
+            "channel": "whatsapp",
+            "stage": "needs",
+            "coverage_result": "not-in-map"
+          },
+          {
+            "stage": "needs",
+            "user_type": "existing-customer",
+            "coverage_result": "5g-only"
+          },
+          {
+            "stage": "details",
+            "user_type": "existing-customer",
+            "coverage_result": "none"
+          }
+        ]
+      }
+    ],
     "t": 2,
-    "allowed": 637,
+    "allowed": 708,
     "complete": {
       "t": 2,
-      "specs": 251,
-      "allowed": 637,
-      "covered": 637,
+      "specs": 336,
+      "allowed": 708,
+      "covered": 708,
       "share": 1
     },
     "all": {
       "t": 2,
-      "specs": 326,
-      "allowed": 637,
-      "covered": 637,
+      "specs": 411,
+      "allowed": 708,
+      "covered": 708,
       "share": 1
+    },
+    "measures": {
+      "discovery": 0.013672471738466238,
+      "chao_coverage": 0.9863281583839363,
+      "chao1": 1004.653265069989,
+      "hill_q0": 708,
+      "hill_q1": 284.15369735081,
+      "hill_q2": 175.32924164682183,
+      "pielou": 0.860885852735,
+      "t3_share": 0.7098917322834646,
+      "t3_allowed": 4064,
+      "weighted_share": 0.999999999999909,
+      "effective_sample_size": 225.84353227331476,
+      "required_covered": 10,
+      "required_total": 10,
+      "axis_behaviour": 14,
+      "axis_deviation": 13,
+      "axis_channel": 2,
+      "axis_stage": 13,
+      "axis_user_type": 3,
+      "axis_coverage_result": 5,
+      "axis_workspace_start": 3,
+      "machine_then_share": 1,
+      "judged_only_blocks": 0
     },
     "baseline": {
       "label": "examples/acme/specs",
       "t": 2,
       "specs": 7,
-      "allowed": 637,
-      "covered": 234,
-      "share": 0.3673469387755102
+      "allowed": 708,
+      "covered": 237,
+      "share": 0.3347457627118644
     }
   },
   "invalid": [],

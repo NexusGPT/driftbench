@@ -7,30 +7,12 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 <!-- level-table:start -->
 | Seed | Level |
 |---|---|
-| 1 | 1 |
-| 2 | 1 |
-| 3 | 1 |
-| 4 | 1 |
-| 5 | 1 |
-| 6 | 1 |
-| 7 | 1 |
-| 8 | 1 |
-| 9 | 1 |
-| 10 | 1 |
-| 11 | 1 |
-| 12 | 1 |
-| 13 | 1 |
-| 14 | 1 |
-| 15 | 1 |
-| 16 | 1 |
-| 17 | 1 |
-| 18 | 1 |
-| 19 | 1 |
-| 20 | 1 |
-| hidden | 1 |
+| 1 | 5 |
 <!-- level-table:end -->
 
-The bank holds 2033 items in 26 families, ordered in 22 levels; a level passes when every item of it passes on every seed. After pilot 10 every seed stops at level 1: the differential level fails on diff.twise.allowed (the t-wise report counts tuples no possible full cell holds).
+The owner resumes this work after the recorded pause and authorizes merging cap PR 155 and speed PR 158 into this branch. The replay-stage edge case and old-cache provenance are repaired. Cap PR 155 is merged at `6236f772`; speed PR 158 is merged at `8d44e8f5`. The plugin interruption stops the measurements after the completed 1x and 10x comparisons. Their source is `1084a1e5`; the 100x comparison and cap refresh remain incomplete. No new sweep is active yet. Options A and B and the separate compose repair are pushed to PR 113 before the 06:40 deadline. Fresh completed seeds 1 through 4 each reach level 5, with 1788, 1791, 1773 and 1789 of 2009 seed-dependent items passing respectively. Seeds 5 through 20 plus hidden and the 24 global items remain unmeasured. This is a partial result, not a full 2033-item bank score. Source code: `8359f453`; [partial sweep evidence](evidence/options-ab-partial-sweep.json). Row 17 (1551 of 2033 on source `4d94b132`) remains the pre-change seed-1-only full-bank baseline. [SWEEP-JOURNAL.md](SWEEP-JOURNAL.md) records the deadline, test results and pause.
+
+The protected validator part of this work (reply renderer, composed follower repair, seed-1 fixtures and their validator tests) has left PR 113 for an independent maintainer; see [Moved to the maintainer](#moved-to-the-maintainer). The seed results above were measured with those changes in place.
 
 ## Floor
 
@@ -38,93 +20,303 @@ See `validators/floors.json`; `pnpm driftbench validate floors` prints it. The l
 
 ## Open items
 
-296 distinct causes among 689 failing items, largest first. Each line: the cause, how many items it holds, the component to change, and what the first item says.
+Fresh seed-1 level-6 failures on source `8359f453`:
+- `gate.shortcut.passed-by-first-tool`: 8 boundary blocks remain vulnerable to the first-tool shortcut.
+- `gate.contrast.then-ignores-edit`: 30 boundary blocks have a Then that ignores the edited value.
+- `gate.accepted.boundary`: 54 of 72 boundary blocks pass the gate, below its 0.9 threshold.
 
-- `kill.X1.field-extra`: 54 items, `packages/generate/src/seed/relations.ts#toolExpect`. fault.X1.field-extra: 0 of 5 scored instances killed; survivors: X1.field-extra@any/r1 (changed 279 specs), X1.field-extra@list_options/r1 (changed 90 specs), X1.field-extra@any/r2 (changed 167 specs), X1.field-extra@lookup_record/r1 (changed 268 specs), X1.field-extra@any/r3 (c...
-- `kill.X2.fact-flip`: 53 items, `packages/generate/src/seed/relations.ts#recoveryFor`. fault.X2.fact-flip: 0 of 5 scored instances killed; survivors: X2.fact-flip@any/r1 (changed 261 specs), X2.fact-flip@list_options/r1 (changed 90 specs), X2.fact-flip@any/r2 (changed 166 specs), X2.fact-flip@submit_request/r1 (changed 94 specs), X2.fact-flip@any/r3 (changed 44 ...
-- `kill.X2.slot-first`: 52 items, `packages/generate/src/seed/scenario.ts#buildScenario`. fault.X2.slot-first: no instance ever changed what an agent did in a generated spec: the suite never sets up X2.slot-first; it lacks a tools input or end state assertion after a slot is restated
-- `kill.X2.fact-invent`: 50 items, `packages/generate/src/seed/relations.ts#recoveryFor`. fault.X2.fact-invent: 0 of 5 scored instances killed; survivors: X2.fact-invent@any/r1 (changed 293 specs), X2.fact-invent@done/r1 (changed 94 specs), X2.fact-invent@any/r2 (changed 257 specs), X2.fact-invent@choice/r1 (changed 79 specs), X2.fact-invent@any/r3 (changed 236 specs...
-- `kill.X4.narrate`: 49 items, `packages/generate/src/seed/relations.ts#recoveryFor`. fault.X4.narrate: 0 of 5 scored instances killed; survivors: X4.narrate@any/r1 (changed 293 specs), X4.narrate@choice/r1 (changed 79 specs), X4.narrate@any/r2 (changed 257 specs), X4.narrate@recap/r1 (changed 115 specs), X4.narrate@any/r3 (changed 236 specs); it breaks "Repl...
-- `kill.X4.no-question`: 49 items, `packages/generate/src/seed/relations.ts#recoveryFor`. fault.X4.no-question: 0 of 5 scored instances killed; survivors: X4.no-question@any/r1 (changed 293 specs), X4.no-question@intake/r1 (changed 257 specs), X4.no-question@any/r2 (changed 257 specs), X4.no-question@check/r1 (changed 239 specs), X4.no-question@any/r3 (changed 236 sp...
-- `kill.X3.no-report`: 48 items, `packages/generate/src/seed/scenario.ts#buildScenario`. fault.X3.no-report: 3 of 5 scored instances killed; survivors: X3.no-report@any/r1 (changed 293 specs), X3.no-report@opening/r1 (changed 61 specs); it breaks "The runtime reports the stage of every turn."; it lacks a stage check that fails when no stage is reported
-- `kill.D2.ignore`: 46 items, `packages/generate/src/seed/scenario.ts#buildScenario`. fault.D2.ignore: no instance ever changed what an agent did in a generated spec: the suite never sets up D2.ignore; it lacks expect.stage at the goal stage after the goal shift
-- `acme.coverage`: 1 items, `packages/generate/src/seed/seeders.ts#twiseSeeder`. acme.coverage.complete-pairs: complete Acme specs cover 708 of the 840 allowed pairs at t = 2 (all of them are wanted). Find the missing pairs with `pnpm driftbench generate --map examples/acme/map/approved.yaml --out /tmp/acme --t 2` and `pnpm driftbench space coverage /tmp/acme/specs ...
-- `acme.price-sheet-d6`: 1 items, `packages/generate/src/seed/seeders.ts#deviationSeeder`. acme.split.price-sheet-D6: no dev-split gated spec covers the price-sheet flow with an instruction in data (D6); the only such spec, acme-price-sheet, is sealed in the holdout. The generator must write a complete price-sheet spec carrying D6 so the gate can place one in the dev split.
-- `acme.price-sheet-path`: 1 items, `packages/generate/src/seed/scenario.ts#buildScenario`. acme.fault.ops-x1-wrong-price: the gated Acme suite does not kill ops-x1-wrong-price: it ran on 0 specs, 0 gated blocks target it, none goes red (it changed nothing observable: no complete spec reaches it). No complete generated spec runs on the ops agent: the price-sheet flow (B-013) ha...
-- `acme.price-slot`: 1 items, `packages/generate/src/seed/scenario.ts#buildScenario`. acme.fault.x1-invents-price: the gated Acme suite does not kill x1-invents-price: it ran on 216 specs, 81 gated blocks target it, none goes red. No generated block reads a quoted price: give the map an expected-price slot bound to the catalog.search result and make the block that state...
-- `adequacy.D4.no-reask`: 1 items, `packages/generate/src/seed/scenario.ts#buildScenario`. adequacy.D4.no-reask: in 3 of 19 specs the block where D4.no-reask first changes the agent does not fail: gen-twise-005 block 3, gen-twise-086 block 3, gen-twise-108 block 3
-- `adequacy.D8.advance`: 1 items, `packages/generate/src/seed/scenario.ts#buildScenario`. adequacy.D8.advance: in 1 of 19 specs the block where D8.advance first changes the agent does not fail: gen-twise-198 block 2
-- `adequacy.X1.case`: 1 items, `packages/generate/src/seed/scenario.ts#buildScenario`. adequacy.X1.case: in 16 of 279 specs the block where X1.case first changes the agent does not fail: gen-boundary-005 block 0, gen-boundary-006 block 0, gen-boundary-007 block 0
-- `adequacy.X1.enum-next`: 1 items, `packages/generate/src/seed/scenario.ts#buildScenario`. adequacy.X1.enum-next: in 16 of 279 specs the block where X1.enum-next first changes the agent does not fail: gen-boundary-005 block 0, gen-boundary-006 block 0, gen-boundary-007 block 0
-- `adequacy.X1.field-extra`: 1 items, `packages/generate/src/seed/scenario.ts#buildScenario`. adequacy.X1.field-extra: in 279 of 279 specs the block where X1.field-extra first changes the agent does not fail: gen-boundary-001 block 0, gen-boundary-002 block 0, gen-boundary-003 block 0
-- `adequacy.X1.field-missing`: 1 items, `packages/generate/src/seed/scenario.ts#buildScenario`. adequacy.X1.field-missing: in 16 of 279 specs the block where X1.field-missing first changes the agent does not fail: gen-boundary-005 block 0, gen-boundary-006 block 0, gen-boundary-007 block 0
-- `adequacy.X1.integer-invalid`: 1 items, `packages/generate/src/seed/scenario.ts#buildScenario`. adequacy.X1.integer-invalid: in 271 of 279 specs the block where X1.integer-invalid first changes the agent does not fail: gen-boundary-001 block 0, gen-boundary-002 block 0, gen-boundary-003 block 0
-- `adequacy.X1.integer-up`: 1 items, `packages/generate/src/seed/scenario.ts#buildScenario`. adequacy.X1.integer-up: in 271 of 279 specs the block where X1.integer-up first changes the agent does not fail: gen-boundary-001 block 0, gen-boundary-002 block 0, gen-boundary-003 block 0
-- `adequacy.X2.fact-flip`: 1 items, `packages/generate/src/seed/scenario.ts#buildScenario`. adequacy.X2.fact-flip: in 261 of 261 specs the block where X2.fact-flip first changes the agent does not fail: gen-boundary-001 block 0, gen-boundary-002 block 0, gen-boundary-003 block 0
-- `adequacy.X2.fact-invent`: 1 items, `packages/generate/src/seed/scenario.ts#buildScenario`. adequacy.X2.fact-invent: in 293 of 293 specs the block where X2.fact-invent first changes the agent does not fail: gen-boundary-001 block 0, gen-boundary-002 block 0, gen-boundary-003 block 0
-- `adequacy.X3.no-report`: 1 items, `packages/generate/src/seed/scenario.ts#buildScenario`. adequacy.X3.no-report: in 293 of 293 specs the block where X3.no-report first changes the agent does not fail: gen-boundary-001 block 0, gen-boundary-002 block 0, gen-boundary-003 block 0
-- `adequacy.X3.wrong-name`: 1 items, `packages/generate/src/seed/scenario.ts#buildScenario`. adequacy.X3.wrong-name: in 36 of 293 specs the block where X3.wrong-name first changes the agent does not fail: gen-boundary-001 block 0, gen-boundary-002 block 0, gen-boundary-003 block 0
-- `adequacy.X4.double`: 1 items, `packages/generate/src/seed/scenario.ts#buildScenario`. adequacy.X4.double: in 272 of 293 specs the block where X4.double first changes the agent does not fail: gen-boundary-001 block 0, gen-boundary-002 block 0, gen-boundary-003 block 0
-- `adequacy.X4.dutch`: 1 items, `packages/generate/src/seed/scenario.ts#buildScenario`. adequacy.X4.dutch: in 36 of 293 specs the block where X4.dutch first changes the agent does not fail: gen-boundary-001 block 0, gen-boundary-002 block 0, gen-boundary-003 block 0
-- `adequacy.X4.empty`: 1 items, `packages/generate/src/seed/scenario.ts#buildScenario`. adequacy.X4.empty: in 264 of 293 specs the block where X4.empty first changes the agent does not fail: gen-boundary-001 block 0, gen-boundary-002 block 0, gen-boundary-003 block 0
-- `adequacy.X4.narrate`: 1 items, `packages/generate/src/seed/scenario.ts#buildScenario`. adequacy.X4.narrate: in 293 of 293 specs the block where X4.narrate first changes the agent does not fail: gen-boundary-001 block 0, gen-boundary-002 block 0, gen-boundary-003 block 0
-- `adequacy.X4.no-question`: 1 items, `packages/generate/src/seed/scenario.ts#buildScenario`. adequacy.X4.no-question: in 293 of 293 specs the block where X4.no-question first changes the agent does not fail: gen-boundary-001 block 0, gen-boundary-002 block 0, gen-boundary-003 block 0
-- `adequacy.X5.duplicate`: 1 items, `packages/generate/src/seed/scenario.ts#buildScenario`. adequacy.X5.duplicate: in 22 of 261 specs the block where X5.duplicate first changes the agent does not fail: gen-boundary-001 block 0, gen-boundary-002 block 0, gen-boundary-003 block 0
-- `allocation.channel.evenness`: 1 items, `packages/generate/src/seed/seeders.ts#twiseSeeder`. allocation.channel.evenness: Pielou evenness 0.859 (at least 0.9); counts web 127, messaging 50
-- `allocation.channel.ratio`: 1 items, `packages/generate/src/seed/seeders.ts#twiseSeeder`. allocation.channel.ratio: the most placed value has 195, the least 59 (ratio at most 3); counts web 195, messaging 59
-- `allocation.stage.evenness`: 1 items, `packages/generate/src/seed/scenario.ts#buildScenario`. allocation.stage.evenness: Pielou evenness 0.848 (at least 0.9); counts opening 25, intake 400, check 307, choice 89, details 76, recap 134, done 94
-- `allocation.stage.hill1`: 1 items, `packages/generate/src/seed/scenario.ts#buildScenario`. allocation.stage.hill1: Hill number of order 1 is 5.21 for 7 values (at least 0.8 of them); counts opening 25, intake 400, check 307, choice 89, details 76, recap 134, done 94
-- `allocation.stage.ratio`: 1 items, `packages/generate/src/seed/scenario.ts#buildScenario`. allocation.stage.ratio: the most placed value has 400, the least 25 (ratio at most 3); counts opening 25, intake 400, check 307, choice 89, details 76, recap 134, done 94
-- `behaviour.list.exercised`: 1 items, `packages/generate/src/seed/seeders.ts#twiseSeeder`. behaviour.list.exercised: 0 complete specs cover B-004 and hold the Then that exercises it
-- `behaviour.save.exercised`: 1 items, `packages/generate/src/seed/seeders.ts#twiseSeeder`. behaviour.save.exercised: 0 complete specs cover B-003 and hold the Then that exercises it
-- `behaviour.submit.exercised`: 1 items, `packages/generate/src/seed/seeders.ts#twiseSeeder`. behaviour.submit.exercised: 0 complete specs cover B-005 and hold the Then that exercises it
-- `boundary.list.in.above-maximum`: 1 items, `packages/generate/src/seed/seeders.ts#boundarySeeder`. boundary.list.in.above-maximum: 1 of 1 values have no discriminating block: list_options.in.limit.above-maximum (1 blocks hold it, none green on the follower and failed by every cheater)
-- `boundary.list.in.below-minimum`: 1 items, `packages/generate/src/seed/seeders.ts#boundarySeeder`. boundary.list.in.below-minimum: 1 of 1 values have no discriminating block: list_options.in.limit.below-minimum (1 blocks hold it, none green on the follower and failed by every cheater)
+### Historical findings before options A and B
 
-The other 256 causes hold one or two items each; list them with `pnpm driftbench validate generator --seeds 1..20 --hidden --items`.
+The following list is historical. The full new sweep is paused after four completed seed workers.
+
+Failing items per family on seed 1 after row 14: fault-code 20, fault-drift 9, fault-deviation 1, modes 47, perturbation 3, coverage 9, minimality 53, interaction-pair 286, interaction-triple 11, stability 6, scale 11, sequence 2, allocation 4, contrast 4, phrases 3, behaviours 1, adequacy 18, gate 8 (after row 16: gate 4, scale 1). Report, boundary and paths are at 0.
+
+Level 6, the validity gate, 8 items (found with a script that runs `runGate` on the generated suite; see Tools):
+- `gate.contrast.then-ignores-edit` (31 blocks, was about 590). Row 15 fixed the transition siblings (a move block records the stage it is said at, and only the data its Then reads). What is left: boundary blocks of one dimension whose Then is the same (an invalid quantity below the minimum and one above the maximum both forbid the call and stay on the stage; true and false of a tool output) and D2 against D5 probes. Equal Thens are correct there; a fix would need the Then to read the value.
+- `gate.shortcut.passed-by-first-tool` (8 blocks, gen-boundary-010 to 012 and 3 more): single-turn reads of a tool output value ("tell me whether found comes back as true"). The block has count min 1 and no input, so the first-tool cheater passes.
+- `gate.accepted.*` and `gate.killers`: the accepted share follows the two causes above; the six unkilled classes below.
+
+Causes that look blocked by the spec language or the follower (checked, not fixed):
+- `X1.field-extra`, `X2.fact-flip`, `X2.fact-invent`, `X4.no-question`, `X4.narrate`, `X3.no-report` (about 400 interaction-pair items plus stable.*, mode.*, minimal.*). A Then can assert named input keys, stage, tool counts and word patterns. It cannot forbid an unnamed extra argument, and the stage check does not apply when no stage was ever reported (`packages/checks/src/checks/stage.ts`). Text facts need a map relation that says what the reply states; the validator's map has none. These need either a spec language addition or a `states` relation in the map.
+- `stage=opening` is never placed (cover.* 8 items, allocation.stage.* 4): the first block always moves to intake. A first-turn probe that stays on opening is passed by the constant, echo and copy cheaters (iteration 13 removed them to hold level 5).
+- `phrases.personas` and `phrases.behaviours`: a persona or behaviour phrase is a standalone turn whose Then (stay on the stage, no calls) is passed by a reply that does nothing.
+- `contrast.write.integer.*`: the follower never sends the write tool an argument, so no Then can tell `units` at-minimum from above-minimum.
+- `minimal.*` (53): a conversation repeats its first blocks in every spec, so blocks with the same Then and outcomes group; this is a property of multi-turn specs.
+- `mode.T.*`: teacher-forced runs replay a prefix with empty assistant text; the follower fails most later blocks there. Not investigated further.
+
+Known regression to repair: iteration 13 removed the first-turn D9 probe (`fault.D9.inside`, `mode.F.D9_out_of_scope`, about 41 `pair.*+D9.inside` items). `fault.D9.inside` passes on seed 1 now; re-check on a full sweep.
+
+## Decision for the owner: the six unkilled fault classes
+
+The owner approved both options. They are implemented on this branch. The decision record below preserves the original rationale.
+
+Option A, a spec language addition. Two new assertions on a block:
+- `tools[].input_closed: true` (the call carries only the keys named in `input`). Example: `X1.field-extra` adds `note: "added by the agent"` to a lookup call; with `input_closed` on the lookup expectation `{ kind: green }` the call `{ kind: green, note: ... }` fails.
+- `expect.stage_reported: true` (the runtime must report a stage in this block). Example: `X3.no-report` reports no stage; today `expect.stage` does not apply when no stage was ever reported, so the block passes.
+Trade-off: every runner and adapter must implement both; the generator then emits them everywhere, which makes old specs and new specs differ. It does not help the three text classes.
+
+Option B, a `states` relation in the map for what a reply states (the relation already exists in the generator for quoted prices). Example: `{ subject: flow=status-check, stage: check, to: check, must: ["{found}"] }` makes the reply of the lookup turn state the value the tool returned, which kills `X2.fact-flip` (opposite of a yes or no) and `X2.fact-invent`; a `must_not` of narration words kills `X4.narrate`; a question pattern kills `X4.no-question`.
+Trade-off: the owner approves one relation per flow, and the validator's rendered map (`packages/validators/.../render.ts`) has none today, so the generator has nothing to read; the follower's reply texts would have to be stated by the map. It leaves `X1.field-extra` and `X3.no-report` open.
+
+Both together kill all six. A alone kills two, B alone kills four.
 
 ## Hypotheses tried
 
-The ten pilot iterations, each one fix to `packages/generate` with a test that fails first. Their journal rows are `validators/generator/journal.jsonl` rows 1 to 10.
-
-1. Pilot 1, commit `1485a88` on `exec/generator-pilot`, bank 1209 to 1236 of 2033. A t-wise row whose behaviour no own path carries walks another flow's path. The generator validator's first failing level (differential, diff.twise.pairs) named allowed pairs no complete t-wise spec held: rows whose behaviour belongs to no flow with a path, or whose flows recover none of the row's deviation, ended incomplete. The row now tries the paths of other flows after its own. On the Acme map 186 specs are complete (168 before); the real Acme agent passes all of them.
-2. Pilot 2, commit `350b805` on `exec/generator-pilot`, bank 1236 to 1246 of 2033. The covering array's default strength is 3. The validator's first failing level named diff.twise.triples: complete t-wise specs held no allowed triple of the axes beyond what pairs give by chance. The default strength of the covering array is now 3 (--t 2 keeps the old suite; the committed Acme suite and its tests stay at 2).
-3. Pilot 3, commit `7ede370` on `exec/generator-pilot`, bank 1246 to 1253 of 2033. A recovery that moves the conversation ends the walk. The validator's reference level named blocks the rule follower fails after a goal shift: the probe's recovery sends the conversation back to the goal stage, and the scenario then played the path's next turn from the stage the conversation had left. A recovery whose stage after differs from the stage reached now ends the walk after the probe, with no end state, as a tool failure does.
-4. Pilot 4, commit `e4ce16a` on `exec/generator-pilot`, bank 1253 to 1252 of 2033. Boundary values of a side-effecting tool go through a path, or forbid the call. The validator's reference level named boundary blocks the rule follower fails: a single turn asked for the side-effecting tool directly and expected the call, while the map calls that tool only on a move of a flow (it is a path's end-state source). Such a value now walks a path that reads it; a value no path reads expects the tool not to run on a request alone. The committed Acme suite is regenerated at strength 2 (it also carries pilot 3's ended walks).
-5. Pilot 5, commit `b7f486f` on `exec/generator-pilot`, bank 1252 to 1262 of 2033. A boundary block expects every other tool 0 times. The validator's cheater level named boundary blocks the every-tool and replay cheaters pass: a block on one tool's value expected that tool and said nothing of the others, so an agent calling every tool passed it. The block now expects every other tool of the map 0 times, as a scenario block does.
-6. Pilot 6, commit `3f5d3ce` on `exec/generator-pilot`, bank 1262 to 1264 of 2033. A tool failure carries the words of its recovery. The validator's perturbation level named perturbation.recovery.D8_tool_failure: the probe of a tool failure expected the recovery's stage and calls but dropped its must and must_not, so an agent that hid the failure behind a cheerful reply passed. The probe now expects the recovery's words, filled as literal patterns.
-7. Pilot 7, commit `dd21aea` on `exec/generator-pilot`, bank 1264 to 1274 of 2033. Invariance families over the persona and channel axes. The validator's contrast level named invariance items: no two complete specs walked a path with the same values under different personas or channels, so nothing checked that an irrelevant change keeps the expectation (CheckList's invariance). The metamorphic seeder now walks each path with its data values fixed under every allowed value of each persona and channel axis, a family whose relation is the same observed outcome. On Acme 216 specs are complete; the real agent passes all of them.
-8. Pilot 8, commit `5831234` on `exec/generator-pilot`, bank 1274 to 1275 of 2033. A boundary value carried by a path records its concrete value. Pilot 4 sent the boundary values of a side-effecting tool through a path, and those specs lost the record of the concrete value every boundary spec keeps; the validator's differential level named diff.boundary.in.enum. The path-carried spec now records it.
-9. Pilot 9, commit `8a1dc7d` on `exec/generator-pilot`, bank 1275 to 1295 of 2033. A clean path walk declares a perturbation for mode P. The validator's modes level found no complete spec declaring a perturbation, so no perturbed run could apply a deviation. A walk with no probe now declares one: a deviation class whose map recovery keeps the conversation on the stage it reached, said before the turn that leaves that stage, with the recovery as its Then and a window of 0 blocks. The Acme suite is regenerated at t 2; the gate test points at an incomplete spec that still exists.
-10. Pilot 10, commit `37cbb94` on `exec/generator-pilot`, bank 1295 to 1344 of 2033. A deviation can arrive on the first turn. The validator's coverage and allocation levels found that no complete spec places a block on the start stage: every probe went in after the first move. A probe now goes in at the start stage too, for the classes a first message can carry (an off-topic question, a language switch, an instruction in data, an out-of-scope request); a silence, a burst, a contradiction, a loose confirmation, a goal shift and a return need an earlier turn. The Acme suite is regenerated at t 2 and stays green on the real agent.
+Rows 1 to 10 are the pilot (branch `exec/generator-pilot`, merged). Rows 11 to 13 are listed in the journal. Row 14 covers four causes:
+- The report states `coverage.measures.*` and `seeders.<seeder>.measures.*` (the validator's definitions: Good-Turing discovery, Chao, Hill, Pielou, t = 3 share, weighted share, required cells, axis values, machine Then share). The 40 `report.*` items pass. Code: `coverageMeasures` in `packages/generate/src/enumerate/generate.ts`.
+- A flow phrase opens a path of its flow, in place of the opening move (`choosePhrase(..., opening)` in `scenario.ts`; flow branch in `metamorphicOnPaths`). The metamorphic flow families are complete: `phrases.flows` and `phrases.metamorphic` pass.
+- A boundary request that only forbids calls (an invalid value, a write tool asked for early) is said after the walk's first move, and the block expects the conversation to stay on that stage (`turn` in `ScenarioRequest`; boundary seeder). The 13 failing `boundary.*` items pass, and `phrases.data-out` too.
+- A single-turn boundary block states the reply language (`paths.lang.boundary` passes).
+- Row 15: a transition block's recorded cell now holds the stage it is said at (`saidAt`) and only the data values its Then reads. Gate.accepted.graph, twise, deviation and metamorphic pass.
+- Row 16: scale. `cellsOf` in `generate.ts` projects the grid once per map (`gridAt`) and the cover loop reads only the cells a spec reaches (`reachedCells`); the report counts maps up to 4 million cells (the space package refused 277200). Ten times the behaviours: 29 s of CPU for one generation (was 78 s for two); a hundred times completes but takes 384 s of CPU for two against a 60 s budget (`scale.100x.time` still fails).
+- Row 17: scale again. A spec is validated as built (`validateSpec`) instead of being parsed back from its YAML text (the parse was 69 percent of `generateSuite` at 30 times), and the coverage share is read from the cached grid (`measuredCoverage`). A hundred times: 170 s of CPU for two generations. What is left at 100 times: stringifying each spec (about 14 percent), coverage of the cover seeder and the report (about 12 percent), the covering array and scenario search, and the validator's own reload of every written file (`loadSpecFile`, about a fifth of the timed window, outside this package). Reaching 60 s needs fewer or smaller specs at that size, not more tuning.
+- Tried and reverted: a stable transition phrase per context (no change in then-ignores-edit); letting a requested probe stage skip the first-turn filter (it fixed the Acme cover cells but added 53 constant and echo cheater passes on gen-cover blocks and level 6 got worse, 8 to 10 failing).
+- The previous builder's iteration 14 (a second probe of a class at another stage) and 15 (a probe after the last stage; main has its own version) were merged, not journaled separately.
 
 ## Next actions
 
-1. Run `pnpm driftbench validate generator --seed 1` and read the first failing level: it names each failing item, its component and what it lacks.
-2. Pick the largest cause in Open items whose component you can change (`kill.<class>` lines first: one change there turns about 50 items green). The item text says what the suite lacks, for example "it lacks a must or must_not on the tool answer the reply states".
-3. Write a test in `packages/generate/test/seed/scenario.test.ts` that fails on the current code, make the one change, see it pass, then run `pnpm -s vitest run packages/generate packages/validators`.
-4. Measure with `node --import tsx packages/validators/src/ladders/generator/bank-run.ts /tmp/bank.json --seeds 1..20 --hidden --jobs 4`, turn it into a row with `bank-row.ts` (see How to run), and record it with `--journal`.
+1. Merge opening-pair PR 174 only after its CI is green. The replay repair is already committed and its focused recheck passes 22 tests.
+2. The maintainer applies `.exec/generator-protected-maintainer.patch` on `fix/generator-validator-contracts` (non-executor branch) once PR 113's unprotected changes are on main. Import main after that PR merges, then verify protection against origin/main. Re-measure cap limits and caught classes on the final source; preserve historical stamps.
+3. Run a fresh full sweep on the final combined source, seeds 1 to 20 plus hidden, with two seed workers and load logging. The pre-pause files do not count toward this sweep.
+4. Append the completed native journal row after all bank items across all requested seeds are measured; use `SWEEP-JOURNAL.md` for partial progress.
+
+## Approved options A and B
+
+- Optional spec assertions `tools[].input_closed` and `expect.stage_reported` are implemented in the canonical schema, shared checks, runner integration tests, adapters and reference docs. No field default is added; existing saved specs retain their behavior.
+- Generated stages require a current-block report. A generated call is closed only when its approved input assertion names every declared input schema property. Partial legacy input assertions remain open.
+- Approved `states` relations accept `must`, `must_not`, or both. Both lists support regex-escaped bound tool values. The validator renders these reply requirements and their source evidence for every flow transition.
+- The six previously unchecked fault classes are killed by the graph-suite integration test. The all-spec reference smoke before the main merge passes all 426 generated specs.
+- Main is merged at `e2a5acdf` (upstream `7c0b3592`); `node tools/rename-scope.mjs` reports no remaining changes. The separate performance PRs are merged on resume, as recorded above.
+- Acme generated fixtures are refreshed. Its inline-email flow phrase now carries the existing `first_message=says-everything` context, so it is not treated as equivalent to a greeting that gives no email.
+- Read-only review found that a bound numeric reply value could disagree with the synthetic tool answer. The repair injects the exact typed scalar binding and refuses ambiguous or inconsistent bindings. The bound-reply and related scenario/value tests pass (71 tests); the six-class integration recheck also passes.
+- Final typecheck and lint pass at `8359f453`. The full repository run finishes with 5018 passing tests, 7 failed tests and 43 skips; its CI cleanup hook also times out. Acme extraction, generation and budget rechecks pass all 30 tests. The 7 CLI generation tests, isolated CI action test, and 10 gate/pilot rechecks also pass. The exact system-floor recheck also passes all 1297 items through level 7 on `cf271ae8`. All six affected suites then pass together: 105 tests pass and 4 skip, with one worker and larger test-harness timeouts. The original failures are three stale fixture expectations, three test timeouts, and a system-floor assertion reporting level 2. The exact system rerun passes through level 7; the original failing item was not captured. No bank threshold changes. The initial full-suite failures and the passing recheck are reported separately.
+- No external model API calls are made by this work.
+
+## Validator item defects (logged, not edited)
+
+- `gate.shortcut.passed-by-first-tool` on single-turn tool output reads: the follower returns no argument for a read, so no generator Then separates it from the cheater without an input the map does not give.
+- `contrast.write.integer.*`: the follower ignores the write tool's integer argument.
+- Resolved by option A: `fault.X3.no-report` now has the `stage.reported` check. Its composed variant also retains absent reports after the authorized repair.
+
+## Tools
+
+Gate funnel and fault table on the generated suite: a script with `SeedData(1, {}, ...)`, `data.generated()` and `runGate` as `gated()` does in `packages/validators/src/ladders/generator/bank4.ts` (copy it into `packages/validators/` as `gate.tmp.mts`, never commit it). Items by prefix: a script that calls `evaluate(bankItems().filter(...), data)` as `bank-run.ts` does. `pnpm driftbench validate generator --seed 1` (no `--items`) stops at the first failing level and takes about 6 minutes; `--items` takes about 40.
 
 ## Pitfalls
 
-* Never edit the bank (`packages/validators/src/ladders/generator/**`): an item you think is wrong goes to the maintainer with the counter-example.
-* The Acme items (`acme.*`) read `examples/acme`, not the seed. They run once per bank run, take about 40 s, and need the Acme map; regenerate `examples/acme/generated` with `--t 2` when a test pins it.
-* The scale items judge CPU time; a slow machine does not fail them, a slow generator does.
-* A full bank run over 21 seeds takes 15 to 50 minutes depending on machine load; check one family first with `--seed 1`.
-* Items sharing a cause count once: fixing the cause of a `kill.<class>` turns the fault, adequacy, minimality, stability and interaction items of that class green together.
+* Do not change bank item expected answers. The owner authorizes the rendered-map reply relations and the separate composed-report repair described below.
+* An echo agent repeats every literal word of the spec's `must` patterns: words alone never kill it.
+* Acme items read `examples/acme`. The fixtures are regenerated on this branch. For later map changes, regenerate with `pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out examples/acme/generated --baseline examples/acme/specs --t 2 --force` then `pnpm -s biome check --write examples`; pinned counts live in `packages/generate/test/enumerate/acme.test.ts` and `test/gate/acme-generated.test.ts`.
+* Memory is tight: vitest with `--maxWorkers=2`, bank-run with `--jobs 2`, one sweep at a time, about 25 minutes each.
+* Measurements live in `.exec/` (untracked, excluded in the git common dir).
 
 ## How to run
 
 ```
-pnpm driftbench validate generator --seed 1
-pnpm driftbench validate generator --seeds 1..20 --hidden --items
-pnpm driftbench validate generator --hardness
-node --import tsx packages/validators/src/ladders/generator/bank-run.ts /tmp/after.json --seeds 1..20 --hidden --jobs 4
-node --import tsx packages/validators/src/ladders/generator/bank-row.ts /tmp/after.json /tmp/row.json --iteration <n> --before /tmp/before.json --hypothesis "<what you changed and why>" --files <a,b> --commit <sha> --tests "<test names>" --minutes <n> --tokens <n>
-pnpm driftbench validate generator --journal /tmp/row.json
+pnpm driftbench validate generator --seed 1 --items
+node --import tsx packages/validators/src/ladders/generator/bank-run.ts .exec/after.json --seeds 1..20 --hidden --jobs 2
+node --import tsx packages/validators/src/ladders/generator/bank-row.ts .exec/after.json .exec/row.json --iteration <n> --before .exec/before.json --hypothesis "<text>" --files <a,b> --commit <sha> --tests "<names>" --minutes <n> --model sonnet
+pnpm driftbench validate generator --journal .exec/row.json
 ```
 
 ## Fixtures
 
-* The hidden specification of each seed is drawn by `hiddenSpec(seed)` in `packages/validators/src/ladders/generator/hidden.ts` and rendered by `render.ts`; seed 1 is kept in `packages/validators/fixtures/generator/seed-1/` (refresh: `pnpm exec tsx --tsconfig tsconfig.json packages/validators/fixtures/generator/refresh.ts`).
-* The rule follower is `follower.ts`, the 70 fault classes `faults.ts`, the cheaters `cheaters.ts`, the runs `measure.ts`, the items `bank.ts` to `bank4.ts` and `acme.ts`, all in `packages/validators/src/ladders/generator/`.
+* Hidden specification per seed: `hiddenSpec(seed)` in `packages/validators/src/ladders/generator/hidden.ts`, rendered by `render.ts`; seed 1 is kept in `packages/validators/fixtures/generator/seed-1/`.
+* Rule follower `follower.ts`, faults `faults.ts`, cheaters `cheaters.ts`, items `bank*.ts` and `acme.ts`.
+
+
+## Approved composed-report repair
+
+The owner authorizes the `follower.compose` repair. A report mutation returning `null` now remains absent when composed with another mutation, in either order. This makes the bank stricter and changes no item's expected answer. The regression test `composed missing-stage reports` fails before the fix (it sees an `intake` report) and passes after the fix. Evidence: `.exec/compose-red.log` and `.exec/compose-green.log`. The paused sweep measures this repaired fault family together with options A and B; its completed seed results are recorded above.
+
+## Replay-stage boundary repair
+
+Pre-turn Claude Code step-feed entries remain in the first block for legacy `stage.reached` behavior, with optional `carried: true` provenance. The new `stage.reported` check excludes carried entries. Reports at the user-turn timestamp count in that block only. The T/F/P replay regression fails before the production fix and passes afterward; omitted and false reporting flags retain the prior result. Evidence: `.exec/replay-stage-red-confirmed.log` and `.exec/replay-stage-green.log`, with 130 targeted tests passing across 12 files. Replay adapter version `0.1.1` invalidates pre-fix cache entries for library callers. The T/F/P cache regression fails before the version bump and passes after it; the 27-test recheck confirms the new cached failure stays a failure. Evidence: `.exec/replay-cache-version-red.log` and `.exec/replay-cache-version-green.log`.
+
+## Spec cap: historical PR 155 evidence
+
+This section preserves the pre-integration record from PR 155. Its measurements and handoff instructions apply to that source; the current next actions appear above.
+
+### Interface and preservation target
+
+`--budget N` still bounds only the budget seeder's t-wise rows. The independent `--spec-cap N` bounds total written specs. `--spec-cap-mode tuples` is the default: preserve every pair, triple and requested-strength tuple reached by the candidate pool. Explicit `--spec-cap-mode pairs` permits reported triple losses. Both modes retain every graph, boundary, deviation, metamorphic and task probe, plus every incomplete spec. Only complete t-wise and cover specs can be trimmed. A cap below the protected count is refused; a cap losing a target tuple exits 1 and lists that tuple.
+
+The full candidate pool remains necessary: a 10x trial with `--budget 256 --t 3` reaches 1,465 pairs, below the uncapped suite's 1,485. The total cap therefore selects after both the existing budget/t-wise seeder and cover seeder. Budget mode remains available independently and composes with the cap. The reported `preserving` size is the deterministic greedy selection's minimum passing limit, not a proof of a globally optimal set cover.
+
+The coverage report now leads with actual axis-map coverage of written complete specs. The candidate t-wise or budget array appears second and is labelled as measured before total-cap selection. `coverage.actual[].uncovered` lists all missed axis tuples; `spec_cap.coverage[].lost` distinguishes new cap losses from pre-existing gaps.
+
+### The 41 uncovered pairs at 10x
+
+Actual uncapped coverage is **1,485 of 1,526 pairs (97.31 percent)**. Every missing pair is one of the behaviours below paired with `stage=opening`. The candidate array's 2,049 of 2,049 triples is a different denominator and does not establish full axis-map coverage.
+
+Cause: the first-turn recovery stays at the initial stage and requires no tool call. The first-turn discriminator rejects that probe. All 41 targeted `coverDraft` attempts reproduce this cause; some alternative paths additionally have no recovery for the requested class. These are alternate path failures for the same pairs, not additional uncovered pairs.
+
+- `B-001`, `B-002`, `B-003`, `B-004`, `B-006`, `B-1000`, `B-1001`
+- `B-1003`, `B-1004`, `B-1006`, `B-1007`, `B-1009`, `B-1010`, `B-1012`
+- `B-1013`, `B-1016`, `B-1019`, `B-1020`, `B-1021`, `B-1022`, `B-1023`
+- `B-1024`, `B-1025`, `B-1027`, `B-1028`, `B-1030`, `B-1031`, `B-1034`
+- `B-1036`, `B-1037`, `B-1039`, `B-1040`, `B-1042`, `B-1043`, `B-1044`
+- `B-1045`, `B-1046`, `B-1049`, `B-1051`, `B-1052`, `B-1053`
+
+Other causes: **0 pairs**. The complete pair list and per-path reasons are in [generator-cap-opening.json](../../tools/analysis/generator-cap-opening.json).
+
+The guard remains unchanged at `packages/generate/src/seed/scenario.ts:203`; its discriminator is at `scenario.ts:471`. A diagnostic fix at `scenario.ts:223` now names this rejection when an approved opening phrase exists. It no longer incorrectly attributes that case to a missing phrase. The scenario tests retain the positive control where an approved recovery requires a call at the first stage, and add the negative control with an approved phrase but no discriminating recovery.
+
+Next-owner handoff:
+
+- `packages/generate/src/seed/seeders.ts:1553` already tries all opening-compatible classes when a missing pair targets the start stage.
+- `packages/generate/src/seed/possible.ts:76` treats these conversational events as possible. Do not remove them from the declared axis denominator to report 100 percent.
+- `packages/validators/src/ladders/generator/hidden.ts:379` defines the fictional recoveries; D1, D5, D6 and D9 remain at the pending stage without a required call. `packages/validators/src/ladders/generator/render.ts:301` copies those contracts into the map.
+- Closing these pairs needs an approved opening contract and matching follower behaviour that distinguishes an idle or echo reply, followed by a gate check. The prior handover records 53 extra constant/echo passes when the first-turn filter was bypassed. This change preserves that filter and does not invent new map behaviour or modify the validator.
+
+### Candidate cap measurements
+
+Actual uncapped axis-map coverage comes first: at **10x, pairs 1,485/1,526 and triples 8,690/9,162**; at **100x, pairs 13,510/13,946 and triples 83,722/88,542**. The baseline leaves 41 and 436 pairs uncovered respectively. The chosen caps preserve every reached pair, not 100 percent of the declared axis map.
+
+Candidate t-wise array coverage, a separate measurement before the total cap: **10x, 2,049/2,049 triples in 989 rows**; **100x, 19,689/19,689 triples in 9,690 rows**. These figures exclude unreachable candidate combinations and do not replace actual coverage.
+
+Fictional fixture `scaledSpec(1, factor)`, generator seed 1, `t=3`. Each row measures actual written specs, including all 109 protected probes. CPU is process user plus system time for one map load, generation, file write and YAML reload, excluding fault assays. These exploratory measurements use the same cap algorithm (`8ce6daa7`) while the separate report and diagnostic changes were finalized. They exclude the speed branch's optimizations. The committed [measurement script](../../tools/analysis/generator-cap.ts) runs the same comparison at a single version; [raw results](../../tools/analysis/generator-cap-results.json) include tuple denominators, exact caught classes, witnesses, survivor classes and suite hashes.
+
+| Scale | Total cap | Specs written | Pairs kept / uncapped | Triples kept (% uncapped; % axis map) | Faults caught | CPU seconds | Pass |
+|---|---:|---:|---:|---|---:|---:|---|
+| 10x | none | 3,283 | 1,485 / 1,485 | 8,690 (100.00%; 94.85%) | 44 / 70 | 10.981 | yes |
+| 10x | 512 | 512 | 1,287 / 1,485 | 3,935 (45.28%; 42.95%) | 44 / 70 | 4.382 | no: pairs lost |
+| 10x | 709 | 709 | 1,484 / 1,485 | 4,680 (53.86%; 51.08%) | 44 / 70 | 5.719 | no: pairs lost |
+| 10x | 710 | 710 | 1,485 / 1,485 | 4,684 (53.90%; 51.12%) | 44 / 70 | 4.464 | yes |
+| 10x | 4096 | 710 | 1,485 / 1,485 | 4,684 (53.90%; 51.12%) | 44 / 70 | 4.697 | yes |
+| 10x | 6126 | 710 | 1,485 / 1,485 | 4,684 (53.90%; 51.12%) | 44 / 70 | 4.191 | yes |
+| 10x | 6127 | 710 | 1,485 / 1,485 | 4,684 (53.90%; 51.12%) | 44 / 70 | 4.340 | yes |
+| 100x | none | 32,067 | 13,510 / 13,510 | 83,722 (100.00%; 94.56%) | 44 / 70 | 97.489 | yes |
+| 100x | 512 | 512 | 4,188 / 13,510 | 9,999 (11.94%; 11.29%) | 44 / 70 | 25.105 | no: pairs lost |
+| 100x | 709 | 709 | 6,158 / 13,510 | 14,727 (17.59%; 16.63%) | 44 / 70 | 23.786 | no: pairs lost |
+| 100x | 710 | 710 | 6,164 / 13,510 | 14,742 (17.61%; 16.65%) | 44 / 70 | 23.220 | no: pairs lost |
+| 100x | 4096 | 4,096 | 11,479 / 13,510 | 36,251 (43.30%; 40.94%) | 44 / 70 | 28.263 | no: pairs lost |
+| 100x | 6126 | 6,126 | 13,509 / 13,510 | 43,752 (52.26%; 49.41%) | 44 / 70 | 34.579 | no: pairs lost |
+| 100x | 6127 | 6,127 | 13,510 / 13,510 | 43,755 (52.26%; 49.42%) | 44 / 70 | 37.499 | yes |
+
+Choose **710 at 10x** and **6,127 at 100x**, explicitly with `--spec-cap-mode pairs`. Each keeps every reached pair and catches exactly the same 44 fault classes as the uncapped suite. Each limit one lower loses a reached pair. These are the smallest passing limits for this deterministic greedy selection, not a global-minimum claim. Larger tested limits at 10x stop after the same 710 useful specs; they do not fill spare capacity with redundant specs.
+
+At 10x, the chosen cap trims **719 t-wise specs and 1,854 cover specs**. At 100x it trims **7,063 t-wise specs and 18,877 cover specs**. It trims no graph, boundary, deviation, metamorphic, task or incomplete probe. Every tested cap retains all 109 protected specs equal to the uncapped parsed specs: graph 6, boundary 39, deviation 20, metamorphic 44. There are no task or incomplete specs in these fixtures. The default tuple-exact mode remains unchanged by this recommendation.
+
+### Fault assay limits and remaining gaps
+
+All rows test the validator's 70 fault classes, one deterministic every-time, anywhere instance per class, with the scripted reference follower. A kill requires a passing reference block and a failed fault block at or after the fault's first changed block, matching the validator's causal rule. Every reference passes; runner errors are zero. The same **44 classes** are caught in all rows, including the rejected smaller caps. No caught class is lost, but this is not evidence for every intermittent or location-specific fault variant, another seed, or another map.
+
+The uncapped suite and chosen caps leave the same 26 classes uncaught. Changed but uncaught: `X1.field-extra`, `X2.fact-flip`, `X2.fact-invent`, `X3.no-report`, `X4.narrate`. No changed trace in this fixture: `X2.slot-first`, `C.no-file`, `C.wrong-name`, `C.wrong-folder`, `C.empty-file`, `C.deletes-input`, `C.touches-other`, `C.temp-left`, `C.no-artifact`, `C.artifact-only`, `C.outside`, `C.absolute`, `C.uppercase`, `C.wrong-ext`, `C.nested`, `C.overwrite-input`, `C.extra-file`, `C.partial`, `C.binary`, `C.says-nothing`, `C.twice`. The code-related classes are not exercised by these conversational maps. The capped suites also leave the reported triples uncovered: 4,478 of 9,162 at 10x and 44,787 of 88,542 at 100x. `coverage.actual[].uncovered` names those tuples; `spec_cap.coverage[].lost` names the subset that the cap removed.
+
+### Verification and speed handoff
+
+Typecheck passes. Lint passes with 20 existing warnings. The final cap, coverage-report, CLI and scenario test run passes **52 tests in 3 files**. A fresh full `pnpm test --maxWorkers=2` run is active against the fixed source. An isolated Acme check reproduces five stale-fixture assertions already named by the base handover. The pilot additionally reports that the committed suite has map hash `b583de68c530` while the approved map has hash `6d29ed7a7539`. The extraction checks pass when re-run with a 60-second test timeout; their first run hit the 5-second default. These fixture and runtime issues are not marked as passes. `node tools/rename-scope.mjs` ran after the initial main merge and changed zero files.
+
+The separate speed worker has the request to measure `--spec-cap 6127 --spec-cap-mode pairs` with and without its speed fixes. No completed speed-worker result has been received at this checkpoint. The single-generation CPU column above does not establish the validator's two-generation 60-second time gate.
+
+### Post-outage integration
+
+The owner directs this PR to remain on its measured base before the outage. At the pre-outage checkpoint, GitHub reports conflicts against `exec/generator-v2` in `packages/generate/src/enumerate/generate.ts`, `packages/generate/src/seed/seeders.ts`, `packages/generate/test/enumerate/acme.test.ts` and this handover. The branch has not merged the newer A/B contracts.
+
+After network restoration, merge `origin/exec/generator-v2` into `exec/generator-cap` in this worktree, preserve both the new contracts and these cap/report invariants, and run `node tools/rename-scope.mjs`. Then re-measure the uncapped and capped suites against the new fault contracts. Recompute the smallest passing limits, retain every reached pair and protected probe, and compare the exact caught class sets. Commit the newly stamped evidence separately from the base merge. Re-run typecheck, lint and tests, and add the speed worker's completed result if supplied. Do not reuse this pre-A/B fault count as evidence for the combined implementation.
+
+## Speed: historical PR 158 evidence
+
+This section preserves the pre-integration record from PR 158. Its measurements apply to that source. The integrated measurements below supersede its performance figures for this branch.
+
+Speed work is based on `ffc1db8c3131d78bb1bf9e1befba05debf525711` from `origin/exec/generator-v2`. It changes neither spec selection nor the cap. The capped measurements use isolated copies of `8ce6daa7` inside the speed worktree, with the same four production changes applied to the after copy. No other branch or worktree is edited.
+
+Changes:
+- Unseeded feasibility search visits dimension values directly. Seeded search keeps its shuffle order and random draws.
+- Coverage enumerates event products without intermediate arrays and indexes specs by behaviour before channel filtering. Ordering and duplicate-id handling stay unchanged.
+- Seeder totals append to existing arrays. The report reuses the complete coverage when all specs are complete, and reuses the triple tally already computed in pair coverage.
+- `tools/generator-speed.ts` measures the complete scale window by stage, including both disk writes, both directory reads, every spec reload and cleanup. It hashes every generated file, including the report, after timing.
+
+Profiling precedes the changes. The initial `node --cpu-prof` run shows inclusive sample shares of 10.88% for spec serialization, 6.57% for feasibility completion, 4.90% for report coverage measures, and 18.78% for `loadSpecFile`. Cached YAML serialization preserves bytes but does not improve the measured 10x run; that experiment is reverted. The first retained search change reduces paired 10x generation CPU from 9.195 to 6.989 seconds, and the full window from 18.398 to 14.666 seconds.
+
+The final profiled 100x suite keeps all 32,068 file hashes. Its two generation calls take 66.598 CPU seconds, against 79.943 before. These profile runs are diagnostic, not an adjacent full-window comparison: total CPU is 196.315 before and 205.233 after while the one-minute load rises from 31.01 at the first start to 119.34 at the last end. Use the adjacent measurements below for the full-window comparison.
+
+Measurement method: Apple M4 Pro, Node v24.18.0, hidden seed 1, the same command on each revision, before immediately followed by after. Each command generates twice and checks that both runs match. CPU means process user plus system time in seconds. The output label only selects the measurement JSON filename. The two 100x comparison pairs overlap under the existing machine load; load averages are recorded at both ends of every run.
+
+```sh
+node --max-old-space-size=2048 --import tsx tools/generator-speed.ts 100 before
+node --max-old-space-size=2048 --import tsx tools/generator-speed.ts 100 after
+# On cap commit 8ce6daa7, then the same commit plus the speed changes:
+node --max-old-space-size=2048 --import tsx tools/generator-speed.ts 100 before --spec-cap 6127 --spec-cap-mode pairs
+node --max-old-space-size=2048 --import tsx tools/generator-speed.ts 100 after --spec-cap 6127 --spec-cap-mode pairs
+```
+
+Use factors `1` and `10` for the smaller maps. Add `--cpu-prof --cpu-prof-dir=.exec/speed` before `--max-old-space-size` to profile. Full measurements and per-file SHA-256 manifests remain under `.exec/speed/`, following this handover's measurement convention. No validator or bank file changes.
+
+Adjacent paired results: the capped full window falls from **68.666 to 54.079 CPU seconds**, a **21.24% reduction**, below the 60-second budget. The uncapped 100x window falls from **182.515 to 147.855 CPU seconds**, an **18.99% reduction**, with the same 32,067 specs. Its two generation calls fall from 80.855 to 53.186 seconds. The uncapped 10x window falls from 15.970 to 13.662 seconds. The 1x generation calls improve, but its full-window CPU rises from 2.445 to 2.753 seconds under load. The uncapped pair finishes at 06:40:26 local, before the expected outage; these completed measurements replace the pending update.
+
+CPU seconds by stage. Each cell is before / after.
+
+| Stage | 1x | 10x | 100x | 100x cap 6127 |
+|---|---:|---:|---:|---:|
+| render_map | 0.049 / 0.019 | 0.028 / 0.048 | 0.073 / 0.067 | 0.089 / 0.095 |
+| write_map | 0.029 / 0.002 | 0.004 / 0.053 | 0.017 / 0.027 | 0.083 / 0.027 |
+| load_map | 0.169 / 0.181 | 0.306 / 0.232 | 0.814 / 0.775 | 1.031 / 0.926 |
+| generate_first | 0.630 / 0.619 | 3.480 / 3.175 | 39.953 / 25.597 | 25.584 / 19.319 |
+| generate_second | 0.439 / 0.347 | 3.270 / 2.813 | 40.902 / 27.589 | 24.092 / 17.973 |
+| write_suites | 0.261 / 0.617 | 1.778 / 1.646 | 16.954 / 15.110 | 4.758 / 4.625 |
+| read_suites | 0.149 / 0.270 | 1.720 / 1.136 | 13.874 / 8.475 | 2.774 / 1.846 |
+| reload_specs | 0.591 / 0.602 | 4.705 / 4.018 | 63.784 / 63.366 | 9.053 / 8.012 |
+| normalize_specs | 0.002 / 0.015 | 0.007 / 0.010 | 0.079 / 0.767 | 0.013 / 0.017 |
+| cleanup | 0.100 / 0.075 | 0.671 / 0.527 | 6.058 / 6.075 | 1.185 / 1.185 |
+| **Full window** | **2.445 / 2.753** | **15.970 / 13.662** | **182.515 / 147.855** | **68.666 / 54.079** |
+| Wall seconds | 17.667 / 16.583 | 111.601 / 104.718 | 1141.659 / 470.234 | 358.736 / 261.863 |
+
+Load averages are 1 / 5 / 15 minutes. Timestamps identify when each run finishes, in UTC on 2026-10-13.
+
+| Map | Run | Finished UTC | Load at start | Load at end |
+|---|---|---|---|---|
+| 1x | before | 04:19:22.037 | 181.67 / 150.16 / 105.65 | 176.43 / 150.57 / 106.57 |
+| 1x | after | 04:19:45.109 | 173.19 / 150.69 / 107.13 | 165.51 / 150.08 / 107.67 |
+| 10x | before | 04:21:44.346 | 158.68 / 149.15 / 107.84 | 139.07 / 147.64 / 112.43 |
+| 10x | after | 04:23:37.184 | 139.72 / 147.52 / 112.80 | 144.39 / 147.48 / 116.66 |
+| 100x | before | 04:32:31.947 | 95.04 / 84.67 / 71.94 | 283.60 / 259.52 / 188.87 |
+| 100x | after | 04:40:26.236 | 285.71 / 260.36 / 189.58 | 117.04 / 162.97 / 171.16 |
+| 100x cap 6127 | before | 04:14:25.893 | 50.47 / 55.56 / 59.89 | 105.83 / 88.82 / 74.24 |
+| 100x cap 6127 | after | 04:18:58.232 | 108.92 / 90.06 / 74.85 | 186.17 / 150.50 / 105.51 |
+
+All per-file SHA-256 comparisons pass, including the JSON report. Both generations in each run also match.
+
+| Map | Specs | Blocks | Files compared | Changed hashes | Manifest SHA-256 |
+|---|---:|---:|---:|---:|---|
+| 1x | 434 | 2003 | 435 | 0 | `e3e69214ff0f4aea46ef958b8191ce1ef6eeafa58af373cc68fbe6c4480351a4` |
+| 10x | 3283 | 16284 | 3284 | 0 | `510bd91ada0c4ecee2347a87e2fc0dad47fd34969f0f6a3950639d2137992073` |
+| 100x | 32067 | 160817 | 32068 | 0 | `cded18f57e73e871e2c819e061864d84828f3f8e887b0ff77e285a17c52b3202` |
+| 100x cap 6127 | 6127 | 27092 | 6128 | 0 | `b0af985375bcb2a81a963173aa96a263f7ab18cb40007bf57be7e7dbc390fd2b` |
+
+Manifest hashes cover sorted `path<TAB>file-sha256<NEWLINE>` entries. The uncapped 100x file count remains 32,068, representing 32,067 specs plus the report.
+
+Verification after both full runs finish:
+- `pnpm typecheck` and the benchmark tool's separate TypeScript check pass.
+- `pnpm lint` passes with four pre-existing warnings.
+- Focused coverage, space, seed and generation tests: 18 files and 236 tests pass.
+- Full `pnpm exec vitest run --maxWorkers=2` completes on both revisions. Baseline: 352 test files pass and 8 fail; 4,138 tests pass, 15 fail and 38 skip. Speed: 355 files pass and 6 fail; 4,144 tests pass, 12 fail and 38 skip. Wall durations are 2,887.62 and 2,666.99 seconds respectively. Neither full run is green.
+- The speed run has five Acme assertion failures that also fail on the baseline, plus seven timeouts: two estate unit tests, the CLI-CI wrapper, the estate and generator CLI floors, the Acme coverage check, and the generator ladder check. The baseline has six Acme assertion failures, five timeouts and four archive-only docs failures. The Acme coverage assertion fails before the change and times out after it.
+- The estate file passes all 16 tests, and the CLI-select usage test passes, when retried with `--testTimeout=30000`. The CLI-CI wrapper retry still hits its explicit 120-second timeout and a cleanup race. No assertion in the added tests or focused coverage/search/generation checks fails.
+- Four baseline docs failures come from Git excluding the archive under `.exec/`; its checker finds zero pages. All 23 affected docs tests pass when retried with `GIT_CEILING_DIRECTORIES` set to the archive parent, so the checker uses its non-repository fallback. The actual speed worktree has 612 valid links across 50 pages.
+- `node tools/rename-scope.mjs` runs; it changes only three README copies in the ignored measurement archives. No merges are performed. `git diff --check` passes.
+
+## Integrated verification checkpoint
+
+The resolved cap conflicts retain the A/B assertions, reply bindings, unreachable budget-pair reporting and current Acme fixture expectations. The Acme report is regenerated and lists actual coverage of 624/637 pairs and 2529/3510 triples. The speed production diff matches its four reviewed file changes. All 104 focused integration tests pass. `node tools/rename-scope.mjs` changes no files; lint passes with 20 warnings and 8 information notices. The owner delegates full suites to CI; the local full run is stopped without a result. The new sweep remains pending. The selected 100x cap receives five process-CPU timing runs, reported as a contended median with no speed-gain claim.
+
+CI protection rejects the executor branch because the approved renderer, composed follower repair and their fixtures/tests touch seven protected validator paths. [The protection job](https://github.com/achammah/driftbench/actions/runs/38362466850/job/115179908448) records the exact list. The protection rule is unchanged; maintainer review is required before merging PR 113. This check is separate from runtime tests.
+
+## Moved to the maintainer
+
+Commit `54e65573` removes every protected path change from PR 113, so `validate protect` passes against main. Protected paths may change only on an independent maintainer branch (docs/validators.md section 8.1, `packages/validators/src/protect.ts`); the GATE files tune hardness and grant no exception. The removed hunks are saved byte-identical in `.exec/generator-protected-maintainer.patch` (a local, untracked file in this worktree; its header lists the contents).
+
+| Path | What it carries | Why it moved |
+|---|---|---|
+| `packages/validators/src/ladders/generator/render.ts` | Option B reply requirements: `states` relations per flow transition, output dimensions in path `when`, full typed tool inputs, out-value slots | Protected validator code |
+| `packages/validators/src/ladders/generator/follower.ts` | Approved composed-report repair: a `null` report stays absent in either mutation order | Protected validator code |
+| `packages/validators/fixtures/generator/seed-1/approved.yaml`, `prompt.md` | Seed-1 fixtures regenerated by the new renderer | Protected fixtures |
+| `packages/validators/test/generator/approved-replies.test.ts` (new) | Reply renderer tests | Protected test; needs render.ts and the A/B code in PR 113 |
+| `packages/validators/test/generator/follower.test.ts` | `composed missing-stage reports` regression | Protected test; needs follower.ts |
+| `packages/validators/test/generator/ladder.test.ts` | Ladder expectations for the new renderer | Protected test; needs render.ts |
+
+- What stays in PR 113: Option A (`input_closed`, `stage_reported`) and Option B (`states` must and must_not) in schema, checks, adapters, generator and docs; cap PR 155; speed PR 158; the replay-stage repair. No unprotected test depended on the moved changes: all 28 focused test files pass without them.
+- Until the maintainer patch lands, the validator bank renders the old prompt and keeps the old composed-report behavior. The partial A/B sweep above therefore describes source with the patch applied.
+- The pinned Acme hashes in `packages/generate/test/enumerate/fixtures/budget-categorical.json` are refreshed. They failed CI before this move too. Every generated spec file is identical to the A/B pin at all five budgets; only `generate-report.json` differs, with the opening-pair reasons from cap commit `9e42656e`. Evidence: `.exec/nr-ab.json` and `.exec/nr-head.json`.
+- No floor, threshold or bank expected answer changes.

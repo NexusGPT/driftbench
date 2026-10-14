@@ -7,8 +7,9 @@ import {
 import type { z } from 'zod';
 import { type JudgeCheckOptions, judgeCheck } from './check';
 import type { JudgeClient } from './client';
-import type { Budget, JudgeClass, JudgeOutcome, JudgeRequest } from './contract';
-import { normalizeFamily, sameFamily } from './family';
+import type { Budget, JudgeClass, JudgeOutcome, JudgeRequest, JudgeResult } from './contract';
+import { familyOfModel, normalizeFamily, sameFamily } from './family';
+import { judgePersonalData, type PersonalDataVerdict } from './pii-judge';
 import { screenData } from './screen';
 
 /**
@@ -75,6 +76,7 @@ export type CouncilConfig = {
 export type RoundOutcome = JudgeOutcome | 'split';
 
 export type CouncilRound = {
+  readonly winner?: JudgeResult['winner'];
   readonly cls: JudgeClass;
   readonly budget: Budget;
   readonly votes: readonly Vote[];
@@ -83,6 +85,8 @@ export type CouncilRound = {
 };
 
 export type CouncilResult = {
+  /** Named pairwise decision, present only for a pairwise assessment. */
+  readonly winner?: JudgeResult['winner'];
   readonly criterion: string;
   readonly outcome: JudgeOutcome;
   /** The class whose round decided, or the assigned class when nothing decided. */
@@ -134,6 +138,8 @@ export type Council = {
   judge(request: JudgeRequest, judgeClass?: 'system1' | 'system2' | 'auto'): Promise<CouncilResult>;
   /** This council as the `judge` check, for a check set such as `defaultChecks({ judges: council })`. */
   check(options?: JudgeCheckOptions): Check;
+  /** Personal-data hook used by defaultChecks only when `expect.pii_judge` is true. */
+  piiJudge(text: string): Promise<PersonalDataVerdict>;
 };
 
 export function createCouncil(config: CouncilConfig): Council {
@@ -179,6 +185,16 @@ export function createCouncil(config: CouncilConfig): Council {
     assignmentFor,
     unassignedReason: (criterion) => unassigned.get(criterion),
     check: (options) => judgeCheck(council, options),
+    piiJudge: (text) =>
+      judgePersonalData(
+        {
+          async judge(request) {
+            const result = await council.judge(request);
+            return { answer: { outcome: result.outcome, reasoning: result.log.join(' | ') }, raw: '' };
+          },
+        },
+        text,
+      ),
     async judge(request, judgeClass) {
       const row = assignmentFor(request.criterion.name, judgeClass);
       const pick = (ids: readonly string[]) => ids.map((id) => byId.get(id) as JudgeClient);
@@ -238,6 +254,9 @@ export function createCouncil(config: CouncilConfig): Council {
           ? agreeing.reduce((sum, vote) => sum + (vote.score as number), 0) / agreeing.length
           : undefined;
       return {
+        ...(request.assessment?.kind === 'pairwise'
+          ? { winner: decided?.winner ?? ('inconclusive' as const) }
+          : {}),
         criterion: request.criterion.name,
         outcome,
         cls: decided?.cls ?? row.cls,
@@ -273,9 +292,13 @@ function validateJudges(config: CouncilConfig): Map<string, JudgeClient> {
   const byId = new Map<string, JudgeClient>();
   for (const judge of config.judges) {
     if (byId.has(judge.id)) throw new CouncilConfigError(`two judges are named ${judge.id}`);
-    if (sameFamily(judge.family, config.agentFamily)) {
+    const canonical = (family: string) => familyOfModel(family) ?? normalizeFamily(family);
+    const conflict = [judge.family, ...(judge.families ?? [])].find((family) =>
+      sameFamily(canonical(family), canonical(config.agentFamily)),
+    );
+    if (conflict !== undefined) {
       throw new CouncilConfigError(
-        `judge ${judge.id} is from the ${normalizeFamily(judge.family)} family, the family of the agent under test: refused`,
+        `judge ${judge.id} is from the ${canonical(conflict)} family, the family of the agent under test: refused`,
       );
     }
     byId.set(judge.id, judge);
@@ -390,9 +413,23 @@ async function runRound(
   } else {
     votes.push(...(await Promise.all(ordered.map((judge) => castVote(request, judge, budget, counter)))));
   }
-  const outcome: RoundOutcome = cascaded
+  let outcome: RoundOutcome = cascaded
     ? 'pass'
     : majority(votes, weights === undefined ? {} : { weights: { ...weights } });
+  if (request.assessment?.kind === 'pairwise') {
+    // An explicit tie can win a majority; missing evidence cannot. Reuse the same quorum and weights.
+    const tied =
+      majority(
+        votes.map((vote) => ({
+          ...vote,
+          outcome: vote.winner === 'tie' ? ('pass' as const) : ('inconclusive' as const),
+        })),
+        weights === undefined ? {} : { weights: { ...weights } },
+      ) === 'pass';
+    if (!cascaded && outcome === 'split' && tied) outcome = 'inconclusive';
+    const winner = outcome === 'pass' ? 'A' : outcome === 'fail' ? 'B' : tied ? 'tie' : 'inconclusive';
+    return { cls, budget, votes, outcome, cascaded, winner };
+  }
   return { cls, budget, votes, outcome, cascaded };
 }
 
@@ -454,9 +491,13 @@ async function castVote(
   // Every retry the judge's client takes, under the shared policy, is recorded in its vote.
   const spent: RetryEvent[] = [];
   const retries = () => (spent.length > 0 ? { retries: spent } : {});
-  const ask = (asked: Budget) => {
+  const ask = async (asked: Budget) => {
     counter.cost += judge.cost;
-    return retriesInto(spent, () => judge.judge({ ...request, budget: asked }));
+    const result = await retriesInto(spent, () => judge.judge({ ...request, budget: asked }));
+    if (result.thinkingRecovery) counter.errors++;
+    // Every further process of the call is billed: the thinking recovery and each transient retry.
+    counter.cost += judge.cost * ((result.requestCount ?? result.thinkingRecovery?.requestCount ?? 1) - 1);
+    return result;
   };
   try {
     let result = await ask(budget);
@@ -467,17 +508,38 @@ async function castVote(
     }
     if (result.repaired) note += 'answer repaired (unescaped quotes escaped); ';
     const { answer } = result;
+    const pairwise = request.assessment?.kind === 'pairwise';
+    const winner = result.unparsed ? 'inconclusive' : (result.winner ?? 'inconclusive');
+    const outcome = pairwise
+      ? winner === 'A'
+        ? 'pass'
+        : winner === 'B'
+          ? 'fail'
+          : 'inconclusive'
+      : answer.outcome;
     return {
       judge: name,
-      outcome: answer.outcome,
+      outcome,
+      ...(pairwise ? { winner } : {}),
       ...(answer.score === undefined ? {} : { score: answer.score }),
       reasoning: `${note}${answer.reasoning}${answer.evidence ? ` (evidence: ${answer.evidence})` : ''}`,
       ...retries(),
     };
   } catch (cause) {
     counter.errors += 1;
+    if (cause instanceof Error && ('thinkingRecovery' in cause || 'requestCount' in cause)) {
+      const counted = cause as { requestCount?: number; thinkingRecovery?: { requestCount: number } };
+      const requests = counted.requestCount ?? counted.thinkingRecovery?.requestCount ?? 1;
+      counter.cost += judge.cost * Math.max(0, requests - 1);
+    }
     const why = cause instanceof Error ? cause.message : String(cause);
-    return { judge: name, outcome: 'inconclusive', reasoning: `no answer: ${why}`, ...retries() };
+    return {
+      judge: name,
+      outcome: 'inconclusive',
+      reasoning: `no answer: ${why}`,
+      ...retries(),
+      ...(request.assessment?.kind === 'pairwise' ? { winner: 'inconclusive' as const } : {}),
+    };
   }
 }
 

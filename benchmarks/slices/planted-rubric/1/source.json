@@ -1,0 +1,2024 @@
+[
+  {
+    "id": "rb-bank-000",
+    "family": 0,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_178",
+      "questionSha256": "63744dcaa23a193d775780faa3dd4fe46e3c509888dfdf7cf8633af7d440f3c6",
+      "criterionSha256": "ccc17ce1cbf91d9a4358fb17e494a813b0dc4abe5840ddba99f33c40f1e69a04"
+    },
+    "question": "Write Python freq_count(list1) returning element frequencies as a dictionary.\nfreq_count([0, 0, 1]) == {0: 2, 1: 1}",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the function correctly take a list as input and return a dictionary where keys are the elements and values are their frequencies?",
+    "clean": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) for x in list1}\n```",
+    "defect": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) + 1 for x in list1}\n```",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "execute known bounded pure Python and compare to independent arithmetic oracle",
+      "function": "freq_count",
+      "args": [
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "expected": "{0: 2, 1: 1}",
+      "cleanActual": "{0: 2, 1: 1}",
+      "defectActual": "{0: 3, 1: 2}"
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) for x in list1}\n```",
+      "to": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) + 1 for x in list1}\n```"
+    }
+  },
+  {
+    "id": "rb-bank-001",
+    "family": 1,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_193",
+      "questionSha256": "0f0cc3c59bbaa0ed7a2d720bb333b081ee3b92c9cc5ac52a9737a3c9f7a1e798",
+      "criterionSha256": "59a166b5ac1f689823db74bea9295d3ce602d46a8b751107e458a12a469ec34d"
+    },
+    "question": "Write Python tuple_to_dict(test_tup) mapping adjacent tuple elements into key and value pairs.\ntuple_to_dict((0, 10, 20, 30)) == {0: 10, 20: 30}",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the implemented function convert the input tuple to a dictionary where adjacent elements form key-value pairs?",
+    "clean": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[1::2]))\n```",
+    "defect": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[::2]))\n```",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "execute known bounded pure Python and compare to independent arithmetic oracle",
+      "function": "tuple_to_dict",
+      "args": [
+        [
+          0,
+          10,
+          20,
+          30
+        ]
+      ],
+      "expected": "{0: 10, 20: 30}",
+      "cleanActual": "{0: 10, 20: 30}",
+      "defectActual": "{0: 0, 20: 20}"
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[1::2]))\n```",
+      "to": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[::2]))\n```"
+    }
+  },
+  {
+    "id": "rb-bank-002",
+    "family": 2,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_644",
+      "questionSha256": "85b75ad383718439a51fa5cb9eb172135344eea590079df1695b39eafb2231b7",
+      "criterionSha256": "ce80eaaaf9a6f028e03eeb16f5ad0bc779409429153dff55eb3c911461d16c61"
+    },
+    "question": "Write Python cube_nums(nums) returning the cube of each input element.\ncube_nums([2, -3, 0]) == [8, -27, 0]",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the function correctly return a list where each element is the cube of the corresponding input element?",
+    "clean": "```python\ndef cube_nums(nums):\n    return [x ** 3 for x in nums]\n```",
+    "defect": "```python\ndef cube_nums(nums):\n    return [x ** 2 for x in nums]\n```",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "execute known bounded pure Python and compare to independent arithmetic oracle",
+      "function": "cube_nums",
+      "args": [
+        [
+          2,
+          -3,
+          0
+        ]
+      ],
+      "expected": "[8, -27, 0]",
+      "cleanActual": "[8, -27, 0]",
+      "defectActual": "[4, 9, 0]"
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "```python\ndef cube_nums(nums):\n    return [x ** 3 for x in nums]\n```",
+      "to": "```python\ndef cube_nums(nums):\n    return [x ** 2 for x in nums]\n```"
+    }
+  },
+  {
+    "id": "rb-bank-003",
+    "family": 3,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_1051",
+      "questionSha256": "4d1231ee68a107f25ddd32bb6ca9e49757ae9f41f79472431bebc0eb68e9dcc8",
+      "criterionSha256": "60dfede0e9759978aa24959f07d993d302e00b43ce91cbbfa61d4453a34f969d"
+    },
+    "question": "Write Python cummulative_sum(test_list) returning the sum of all integers in the tuples.\ncummulative_sum([(1, 2), (3,)]) == 6",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the function correctly calculate the cumulative sum of all integer values present in the nested tuples of the input list?",
+    "clean": "```python\ndef cummulative_sum(test_list):\n    return sum(sum(t) for t in test_list)\n```",
+    "defect": "```python\ndef cummulative_sum(test_list):\n    return 1 + sum(sum(t) for t in test_list)\n```",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "execute known bounded pure Python and compare to independent arithmetic oracle",
+      "function": "cummulative_sum",
+      "args": [
+        [
+          [
+            1,
+            2
+          ],
+          [
+            3
+          ]
+        ]
+      ],
+      "expected": "6",
+      "cleanActual": "6",
+      "defectActual": "7"
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "```python\ndef cummulative_sum(test_list):\n    return sum(sum(t) for t in test_list)\n```",
+      "to": "```python\ndef cummulative_sum(test_list):\n    return 1 + sum(sum(t) for t in test_list)\n```"
+    }
+  },
+  {
+    "id": "rb-bank-004",
+    "family": 4,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_161",
+      "questionSha256": "4410badd2e76d115b8b5461dc4217dd079b4cf90c81bd2eea9abf8bb2e1f6196",
+      "criterionSha256": "e8dff8aac2facbdf60e6c2dcf27bd670d0d301f38650281281f93900e5d52200"
+    },
+    "question": "Write one fictional chant about glimmer0. All words must use capital letters.",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the response strictly follow the format requirement that all words are in capital letters?",
+    "clean": "GLIMMER0 LIGHTS THE NIGHT",
+    "defect": "GLIMMER0 Lights THE NIGHT",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 4,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "GLIMMER0 LIGHTS THE NIGHT",
+      "to": "GLIMMER0 Lights THE NIGHT"
+    }
+  },
+  {
+    "id": "rb-bank-005",
+    "family": 5,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_201",
+      "questionSha256": "c9f68e95e977ab59632613507b12425a2cf8e5cd4a622306b983a489f71bdf01",
+      "criterionSha256": "89c9c5211205983790285be291d1061ff24c23f48344d9a546e695af8e9bafcb"
+    },
+    "question": "Write one fictional sentence about glimmer0. Do not use any capital letters.",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not containing any capital letters?",
+    "clean": "glimmer0 carries a tiny lantern.",
+    "defect": "glimmer0 Carries a tiny lantern.",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 5,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "glimmer0 carries a tiny lantern.",
+      "to": "glimmer0 Carries a tiny lantern."
+    }
+  },
+  {
+    "id": "rb-bank-006",
+    "family": 6,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_279",
+      "questionSha256": "c5db006d931f93bd83888171e237fba6d01a5945205a131e209a081d4313b2c8",
+      "criterionSha256": "c26b5a36eb1028fc465823448c6a598fa0032e9a6e9f76950e54375b2fe1cc5a"
+    },
+    "question": "Write one fictional sentence about glimmer0. Do not use commas.",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not using any commas?",
+    "clean": "glimmer0 wakes then opens the silver gate.",
+    "defect": "glimmer0 wakes, then opens the silver gate.",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 6,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "glimmer0 wakes then opens the silver gate.",
+      "to": "glimmer0 wakes, then opens the silver gate."
+    }
+  },
+  {
+    "id": "rb-bank-007",
+    "family": 7,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_833",
+      "questionSha256": "47cdac0526411daf21c01ca3bad00d2ecf04ad3e426bd528d5662eadc4af3a6f",
+      "criterionSha256": "6fde1839ef1a8f24dd02eb0d328aafc2f67aa0b0d894622fa670c7740c2dc9b9"
+    },
+    "question": "Describe a fictional inventory using exactly 4 numbers. Use the word glimmer.",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the response contain exactly 4 numbers as required?",
+    "clean": "glimmer stores 1 bells, 2 keys, 3 maps and 4 lamps.",
+    "defect": "glimmer stores 1 bells, 2 keys, 3 maps and several lamps.",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 7,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "glimmer stores 1 bells, 2 keys, 3 maps and 4 lamps.",
+      "to": "glimmer stores 1 bells, 2 keys, 3 maps and several lamps."
+    }
+  },
+  {
+    "id": "rb-bank-008",
+    "family": 8,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_1115",
+      "questionSha256": "3d6478b154969c914c438a530a114fdc98836a5ff5354680d511ed3db6f6e4cb",
+      "criterionSha256": "0695a0414e9aba658ccf47e8c78801d417835c98307532cb5b10af66fe499e4b"
+    },
+    "question": "Write two fictional paragraphs about glimmer0. The second paragraph must start with the word it.",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the second paragraph start with the word \"it\" (case-insensitive)?",
+    "clean": "glimmer0 opens the gate.\n\nit reveals a quiet garden.",
+    "defect": "glimmer0 opens the gate.\n\nThat reveals a quiet garden.",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 8,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "glimmer0 opens the gate.\n\nit reveals a quiet garden.",
+      "to": "glimmer0 opens the gate.\n\nThat reveals a quiet garden."
+    }
+  },
+  {
+    "id": "rb-bank-009",
+    "family": 9,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_49",
+      "questionSha256": "4d400e3eb12d621d31518a1bcf2494b9dc379fd84d9fcd40e8906f9ba18a3260",
+      "criterionSha256": "4207f8f6d9941ca1ba664a382c0893194847a4327b9478372f1882046f2fe408"
+    },
+    "question": "Give Python assigning 1 to a variable called glimmer. Enclose all code in a single complete triple-backtick Markdown code block.",
+    "criterion": "The response satisfies the rubrics below better.\nIs the final Python code solution enclosed in a single Markdown code block (using triple backticks)?",
+    "clean": "```python\nglimmer = 1\n```",
+    "defect": "```python\nglimmer = 1\n",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 9,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "```python\nglimmer = 1\n```",
+      "to": "```python\nglimmer = 1\n"
+    }
+  },
+  {
+    "id": "rb-bank-010",
+    "family": 0,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_178",
+      "questionSha256": "63744dcaa23a193d775780faa3dd4fe46e3c509888dfdf7cf8633af7d440f3c6",
+      "criterionSha256": "ccc17ce1cbf91d9a4358fb17e494a813b0dc4abe5840ddba99f33c40f1e69a04"
+    },
+    "question": "Write Python freq_count(list1) returning element frequencies as a dictionary.\nfreq_count([1, 1, 2]) == {1: 2, 2: 1}",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the function correctly take a list as input and return a dictionary where keys are the elements and values are their frequencies?",
+    "clean": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) for x in list1}\n```",
+    "defect": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) + 1 for x in list1}\n```",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "execute known bounded pure Python and compare to independent arithmetic oracle",
+      "function": "freq_count",
+      "args": [
+        [
+          1,
+          1,
+          2
+        ]
+      ],
+      "expected": "{1: 2, 2: 1}",
+      "cleanActual": "{1: 2, 2: 1}",
+      "defectActual": "{1: 3, 2: 2}"
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) for x in list1}\n```",
+      "to": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) + 1 for x in list1}\n```"
+    }
+  },
+  {
+    "id": "rb-bank-011",
+    "family": 1,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_193",
+      "questionSha256": "0f0cc3c59bbaa0ed7a2d720bb333b081ee3b92c9cc5ac52a9737a3c9f7a1e798",
+      "criterionSha256": "59a166b5ac1f689823db74bea9295d3ce602d46a8b751107e458a12a469ec34d"
+    },
+    "question": "Write Python tuple_to_dict(test_tup) mapping adjacent tuple elements into key and value pairs.\ntuple_to_dict((1, 11, 21, 31)) == {1: 11, 21: 31}",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the implemented function convert the input tuple to a dictionary where adjacent elements form key-value pairs?",
+    "clean": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[1::2]))\n```",
+    "defect": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[::2]))\n```",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "execute known bounded pure Python and compare to independent arithmetic oracle",
+      "function": "tuple_to_dict",
+      "args": [
+        [
+          1,
+          11,
+          21,
+          31
+        ]
+      ],
+      "expected": "{1: 11, 21: 31}",
+      "cleanActual": "{1: 11, 21: 31}",
+      "defectActual": "{1: 1, 21: 21}"
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[1::2]))\n```",
+      "to": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[::2]))\n```"
+    }
+  },
+  {
+    "id": "rb-bank-012",
+    "family": 2,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_644",
+      "questionSha256": "85b75ad383718439a51fa5cb9eb172135344eea590079df1695b39eafb2231b7",
+      "criterionSha256": "ce80eaaaf9a6f028e03eeb16f5ad0bc779409429153dff55eb3c911461d16c61"
+    },
+    "question": "Write Python cube_nums(nums) returning the cube of each input element.\ncube_nums([3, -4, 0]) == [27, -64, 0]",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the function correctly return a list where each element is the cube of the corresponding input element?",
+    "clean": "```python\ndef cube_nums(nums):\n    return [x ** 3 for x in nums]\n```",
+    "defect": "```python\ndef cube_nums(nums):\n    return [x ** 2 for x in nums]\n```",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "execute known bounded pure Python and compare to independent arithmetic oracle",
+      "function": "cube_nums",
+      "args": [
+        [
+          3,
+          -4,
+          0
+        ]
+      ],
+      "expected": "[27, -64, 0]",
+      "cleanActual": "[27, -64, 0]",
+      "defectActual": "[9, 16, 0]"
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "```python\ndef cube_nums(nums):\n    return [x ** 3 for x in nums]\n```",
+      "to": "```python\ndef cube_nums(nums):\n    return [x ** 2 for x in nums]\n```"
+    }
+  },
+  {
+    "id": "rb-bank-013",
+    "family": 3,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_1051",
+      "questionSha256": "4d1231ee68a107f25ddd32bb6ca9e49757ae9f41f79472431bebc0eb68e9dcc8",
+      "criterionSha256": "60dfede0e9759978aa24959f07d993d302e00b43ce91cbbfa61d4453a34f969d"
+    },
+    "question": "Write Python cummulative_sum(test_list) returning the sum of all integers in the tuples.\ncummulative_sum([(2, 3), (4,)]) == 9",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the function correctly calculate the cumulative sum of all integer values present in the nested tuples of the input list?",
+    "clean": "```python\ndef cummulative_sum(test_list):\n    return sum(sum(t) for t in test_list)\n```",
+    "defect": "```python\ndef cummulative_sum(test_list):\n    return 1 + sum(sum(t) for t in test_list)\n```",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "execute known bounded pure Python and compare to independent arithmetic oracle",
+      "function": "cummulative_sum",
+      "args": [
+        [
+          [
+            2,
+            3
+          ],
+          [
+            4
+          ]
+        ]
+      ],
+      "expected": "9",
+      "cleanActual": "9",
+      "defectActual": "10"
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "```python\ndef cummulative_sum(test_list):\n    return sum(sum(t) for t in test_list)\n```",
+      "to": "```python\ndef cummulative_sum(test_list):\n    return 1 + sum(sum(t) for t in test_list)\n```"
+    }
+  },
+  {
+    "id": "rb-bank-014",
+    "family": 4,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_161",
+      "questionSha256": "4410badd2e76d115b8b5461dc4217dd079b4cf90c81bd2eea9abf8bb2e1f6196",
+      "criterionSha256": "e8dff8aac2facbdf60e6c2dcf27bd670d0d301f38650281281f93900e5d52200"
+    },
+    "question": "Write one fictional chant about glimmer1. All words must use capital letters.",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the response strictly follow the format requirement that all words are in capital letters?",
+    "clean": "GLIMMER1 LIGHTS THE NIGHT",
+    "defect": "GLIMMER1 Lights THE NIGHT",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 4,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "GLIMMER1 LIGHTS THE NIGHT",
+      "to": "GLIMMER1 Lights THE NIGHT"
+    }
+  },
+  {
+    "id": "rb-bank-015",
+    "family": 5,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_201",
+      "questionSha256": "c9f68e95e977ab59632613507b12425a2cf8e5cd4a622306b983a489f71bdf01",
+      "criterionSha256": "89c9c5211205983790285be291d1061ff24c23f48344d9a546e695af8e9bafcb"
+    },
+    "question": "Write one fictional sentence about glimmer1. Do not use any capital letters.",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not containing any capital letters?",
+    "clean": "glimmer1 carries a tiny lantern.",
+    "defect": "glimmer1 Carries a tiny lantern.",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 5,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "glimmer1 carries a tiny lantern.",
+      "to": "glimmer1 Carries a tiny lantern."
+    }
+  },
+  {
+    "id": "rb-bank-016",
+    "family": 6,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_279",
+      "questionSha256": "c5db006d931f93bd83888171e237fba6d01a5945205a131e209a081d4313b2c8",
+      "criterionSha256": "c26b5a36eb1028fc465823448c6a598fa0032e9a6e9f76950e54375b2fe1cc5a"
+    },
+    "question": "Write one fictional sentence about glimmer1. Do not use commas.",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not using any commas?",
+    "clean": "glimmer1 wakes then opens the silver gate.",
+    "defect": "glimmer1 wakes, then opens the silver gate.",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 6,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "glimmer1 wakes then opens the silver gate.",
+      "to": "glimmer1 wakes, then opens the silver gate."
+    }
+  },
+  {
+    "id": "rb-bank-017",
+    "family": 7,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_833",
+      "questionSha256": "47cdac0526411daf21c01ca3bad00d2ecf04ad3e426bd528d5662eadc4af3a6f",
+      "criterionSha256": "6fde1839ef1a8f24dd02eb0d328aafc2f67aa0b0d894622fa670c7740c2dc9b9"
+    },
+    "question": "Describe a fictional inventory using exactly 4 numbers. Use the word glimmer.",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the response contain exactly 4 numbers as required?",
+    "clean": "glimmer stores 2 bells, 3 keys, 4 maps and 5 lamps.",
+    "defect": "glimmer stores 2 bells, 3 keys, 4 maps and several lamps.",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 7,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "glimmer stores 2 bells, 3 keys, 4 maps and 5 lamps.",
+      "to": "glimmer stores 2 bells, 3 keys, 4 maps and several lamps."
+    }
+  },
+  {
+    "id": "rb-bank-018",
+    "family": 8,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_1115",
+      "questionSha256": "3d6478b154969c914c438a530a114fdc98836a5ff5354680d511ed3db6f6e4cb",
+      "criterionSha256": "0695a0414e9aba658ccf47e8c78801d417835c98307532cb5b10af66fe499e4b"
+    },
+    "question": "Write two fictional paragraphs about glimmer1. The second paragraph must start with the word it.",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the second paragraph start with the word \"it\" (case-insensitive)?",
+    "clean": "glimmer1 opens the gate.\n\nit reveals a quiet garden.",
+    "defect": "glimmer1 opens the gate.\n\nThat reveals a quiet garden.",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 8,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "glimmer1 opens the gate.\n\nit reveals a quiet garden.",
+      "to": "glimmer1 opens the gate.\n\nThat reveals a quiet garden."
+    }
+  },
+  {
+    "id": "rb-bank-019",
+    "family": 9,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_49",
+      "questionSha256": "4d400e3eb12d621d31518a1bcf2494b9dc379fd84d9fcd40e8906f9ba18a3260",
+      "criterionSha256": "4207f8f6d9941ca1ba664a382c0893194847a4327b9478372f1882046f2fe408"
+    },
+    "question": "Give Python assigning 2 to a variable called glimmer. Enclose all code in a single complete triple-backtick Markdown code block.",
+    "criterion": "The response satisfies the rubrics below better.\nIs the final Python code solution enclosed in a single Markdown code block (using triple backticks)?",
+    "clean": "```python\nglimmer = 2\n```",
+    "defect": "```python\nglimmer = 2\n",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 9,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "```python\nglimmer = 2\n```",
+      "to": "```python\nglimmer = 2\n"
+    }
+  },
+  {
+    "id": "rb-bank-020",
+    "family": 0,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_178",
+      "questionSha256": "63744dcaa23a193d775780faa3dd4fe46e3c509888dfdf7cf8633af7d440f3c6",
+      "criterionSha256": "ccc17ce1cbf91d9a4358fb17e494a813b0dc4abe5840ddba99f33c40f1e69a04"
+    },
+    "question": "Write Python freq_count(list1) returning element frequencies as a dictionary.\nfreq_count([2, 2, 3]) == {2: 2, 3: 1}",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the function correctly take a list as input and return a dictionary where keys are the elements and values are their frequencies?",
+    "clean": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) for x in list1}\n```",
+    "defect": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) + 1 for x in list1}\n```",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "execute known bounded pure Python and compare to independent arithmetic oracle",
+      "function": "freq_count",
+      "args": [
+        [
+          2,
+          2,
+          3
+        ]
+      ],
+      "expected": "{2: 2, 3: 1}",
+      "cleanActual": "{2: 2, 3: 1}",
+      "defectActual": "{2: 3, 3: 2}"
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) for x in list1}\n```",
+      "to": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) + 1 for x in list1}\n```"
+    }
+  },
+  {
+    "id": "rb-bank-021",
+    "family": 1,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_193",
+      "questionSha256": "0f0cc3c59bbaa0ed7a2d720bb333b081ee3b92c9cc5ac52a9737a3c9f7a1e798",
+      "criterionSha256": "59a166b5ac1f689823db74bea9295d3ce602d46a8b751107e458a12a469ec34d"
+    },
+    "question": "Write Python tuple_to_dict(test_tup) mapping adjacent tuple elements into key and value pairs.\ntuple_to_dict((2, 12, 22, 32)) == {2: 12, 22: 32}",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the implemented function convert the input tuple to a dictionary where adjacent elements form key-value pairs?",
+    "clean": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[1::2]))\n```",
+    "defect": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[::2]))\n```",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "execute known bounded pure Python and compare to independent arithmetic oracle",
+      "function": "tuple_to_dict",
+      "args": [
+        [
+          2,
+          12,
+          22,
+          32
+        ]
+      ],
+      "expected": "{2: 12, 22: 32}",
+      "cleanActual": "{2: 12, 22: 32}",
+      "defectActual": "{2: 2, 22: 22}"
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[1::2]))\n```",
+      "to": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[::2]))\n```"
+    }
+  },
+  {
+    "id": "rb-bank-022",
+    "family": 2,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_644",
+      "questionSha256": "85b75ad383718439a51fa5cb9eb172135344eea590079df1695b39eafb2231b7",
+      "criterionSha256": "ce80eaaaf9a6f028e03eeb16f5ad0bc779409429153dff55eb3c911461d16c61"
+    },
+    "question": "Write Python cube_nums(nums) returning the cube of each input element.\ncube_nums([4, -5, 0]) == [64, -125, 0]",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the function correctly return a list where each element is the cube of the corresponding input element?",
+    "clean": "```python\ndef cube_nums(nums):\n    return [x ** 3 for x in nums]\n```",
+    "defect": "```python\ndef cube_nums(nums):\n    return [x ** 2 for x in nums]\n```",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "execute known bounded pure Python and compare to independent arithmetic oracle",
+      "function": "cube_nums",
+      "args": [
+        [
+          4,
+          -5,
+          0
+        ]
+      ],
+      "expected": "[64, -125, 0]",
+      "cleanActual": "[64, -125, 0]",
+      "defectActual": "[16, 25, 0]"
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "```python\ndef cube_nums(nums):\n    return [x ** 3 for x in nums]\n```",
+      "to": "```python\ndef cube_nums(nums):\n    return [x ** 2 for x in nums]\n```"
+    }
+  },
+  {
+    "id": "rb-bank-023",
+    "family": 3,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_1051",
+      "questionSha256": "4d1231ee68a107f25ddd32bb6ca9e49757ae9f41f79472431bebc0eb68e9dcc8",
+      "criterionSha256": "60dfede0e9759978aa24959f07d993d302e00b43ce91cbbfa61d4453a34f969d"
+    },
+    "question": "Write Python cummulative_sum(test_list) returning the sum of all integers in the tuples.\ncummulative_sum([(3, 4), (5,)]) == 12",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the function correctly calculate the cumulative sum of all integer values present in the nested tuples of the input list?",
+    "clean": "```python\ndef cummulative_sum(test_list):\n    return sum(sum(t) for t in test_list)\n```",
+    "defect": "```python\ndef cummulative_sum(test_list):\n    return 1 + sum(sum(t) for t in test_list)\n```",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "execute known bounded pure Python and compare to independent arithmetic oracle",
+      "function": "cummulative_sum",
+      "args": [
+        [
+          [
+            3,
+            4
+          ],
+          [
+            5
+          ]
+        ]
+      ],
+      "expected": "12",
+      "cleanActual": "12",
+      "defectActual": "13"
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "```python\ndef cummulative_sum(test_list):\n    return sum(sum(t) for t in test_list)\n```",
+      "to": "```python\ndef cummulative_sum(test_list):\n    return 1 + sum(sum(t) for t in test_list)\n```"
+    }
+  },
+  {
+    "id": "rb-bank-024",
+    "family": 4,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_161",
+      "questionSha256": "4410badd2e76d115b8b5461dc4217dd079b4cf90c81bd2eea9abf8bb2e1f6196",
+      "criterionSha256": "e8dff8aac2facbdf60e6c2dcf27bd670d0d301f38650281281f93900e5d52200"
+    },
+    "question": "Write one fictional chant about glimmer2. All words must use capital letters.",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the response strictly follow the format requirement that all words are in capital letters?",
+    "clean": "GLIMMER2 LIGHTS THE NIGHT",
+    "defect": "GLIMMER2 Lights THE NIGHT",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 4,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "GLIMMER2 LIGHTS THE NIGHT",
+      "to": "GLIMMER2 Lights THE NIGHT"
+    }
+  },
+  {
+    "id": "rb-bank-025",
+    "family": 5,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_201",
+      "questionSha256": "c9f68e95e977ab59632613507b12425a2cf8e5cd4a622306b983a489f71bdf01",
+      "criterionSha256": "89c9c5211205983790285be291d1061ff24c23f48344d9a546e695af8e9bafcb"
+    },
+    "question": "Write one fictional sentence about glimmer2. Do not use any capital letters.",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not containing any capital letters?",
+    "clean": "glimmer2 carries a tiny lantern.",
+    "defect": "glimmer2 Carries a tiny lantern.",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 5,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "glimmer2 carries a tiny lantern.",
+      "to": "glimmer2 Carries a tiny lantern."
+    }
+  },
+  {
+    "id": "rb-bank-026",
+    "family": 6,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_279",
+      "questionSha256": "c5db006d931f93bd83888171e237fba6d01a5945205a131e209a081d4313b2c8",
+      "criterionSha256": "c26b5a36eb1028fc465823448c6a598fa0032e9a6e9f76950e54375b2fe1cc5a"
+    },
+    "question": "Write one fictional sentence about glimmer2. Do not use commas.",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not using any commas?",
+    "clean": "glimmer2 wakes then opens the silver gate.",
+    "defect": "glimmer2 wakes, then opens the silver gate.",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 6,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "glimmer2 wakes then opens the silver gate.",
+      "to": "glimmer2 wakes, then opens the silver gate."
+    }
+  },
+  {
+    "id": "rb-bank-027",
+    "family": 7,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_833",
+      "questionSha256": "47cdac0526411daf21c01ca3bad00d2ecf04ad3e426bd528d5662eadc4af3a6f",
+      "criterionSha256": "6fde1839ef1a8f24dd02eb0d328aafc2f67aa0b0d894622fa670c7740c2dc9b9"
+    },
+    "question": "Describe a fictional inventory using exactly 4 numbers. Use the word glimmer.",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the response contain exactly 4 numbers as required?",
+    "clean": "glimmer stores 3 bells, 4 keys, 5 maps and 6 lamps.",
+    "defect": "glimmer stores 3 bells, 4 keys, 5 maps and several lamps.",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 7,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "glimmer stores 3 bells, 4 keys, 5 maps and 6 lamps.",
+      "to": "glimmer stores 3 bells, 4 keys, 5 maps and several lamps."
+    }
+  },
+  {
+    "id": "rb-bank-028",
+    "family": 8,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_1115",
+      "questionSha256": "3d6478b154969c914c438a530a114fdc98836a5ff5354680d511ed3db6f6e4cb",
+      "criterionSha256": "0695a0414e9aba658ccf47e8c78801d417835c98307532cb5b10af66fe499e4b"
+    },
+    "question": "Write two fictional paragraphs about glimmer2. The second paragraph must start with the word it.",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the second paragraph start with the word \"it\" (case-insensitive)?",
+    "clean": "glimmer2 opens the gate.\n\nit reveals a quiet garden.",
+    "defect": "glimmer2 opens the gate.\n\nThat reveals a quiet garden.",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 8,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "glimmer2 opens the gate.\n\nit reveals a quiet garden.",
+      "to": "glimmer2 opens the gate.\n\nThat reveals a quiet garden."
+    }
+  },
+  {
+    "id": "rb-bank-029",
+    "family": 9,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_49",
+      "questionSha256": "4d400e3eb12d621d31518a1bcf2494b9dc379fd84d9fcd40e8906f9ba18a3260",
+      "criterionSha256": "4207f8f6d9941ca1ba664a382c0893194847a4327b9478372f1882046f2fe408"
+    },
+    "question": "Give Python assigning 3 to a variable called glimmer. Enclose all code in a single complete triple-backtick Markdown code block.",
+    "criterion": "The response satisfies the rubrics below better.\nIs the final Python code solution enclosed in a single Markdown code block (using triple backticks)?",
+    "clean": "```python\nglimmer = 3\n```",
+    "defect": "```python\nglimmer = 3\n",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 9,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "```python\nglimmer = 3\n```",
+      "to": "```python\nglimmer = 3\n"
+    }
+  },
+  {
+    "id": "rb-bank-030",
+    "family": 0,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_178",
+      "questionSha256": "63744dcaa23a193d775780faa3dd4fe46e3c509888dfdf7cf8633af7d440f3c6",
+      "criterionSha256": "ccc17ce1cbf91d9a4358fb17e494a813b0dc4abe5840ddba99f33c40f1e69a04"
+    },
+    "question": "Write Python freq_count(list1) returning element frequencies as a dictionary.\nfreq_count([3, 3, 4]) == {3: 2, 4: 1}",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the function correctly take a list as input and return a dictionary where keys are the elements and values are their frequencies?",
+    "clean": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) for x in list1}\n```",
+    "defect": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) + 1 for x in list1}\n```",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "execute known bounded pure Python and compare to independent arithmetic oracle",
+      "function": "freq_count",
+      "args": [
+        [
+          3,
+          3,
+          4
+        ]
+      ],
+      "expected": "{3: 2, 4: 1}",
+      "cleanActual": "{3: 2, 4: 1}",
+      "defectActual": "{3: 3, 4: 2}"
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) for x in list1}\n```",
+      "to": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) + 1 for x in list1}\n```"
+    }
+  },
+  {
+    "id": "rb-bank-031",
+    "family": 1,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_193",
+      "questionSha256": "0f0cc3c59bbaa0ed7a2d720bb333b081ee3b92c9cc5ac52a9737a3c9f7a1e798",
+      "criterionSha256": "59a166b5ac1f689823db74bea9295d3ce602d46a8b751107e458a12a469ec34d"
+    },
+    "question": "Write Python tuple_to_dict(test_tup) mapping adjacent tuple elements into key and value pairs.\ntuple_to_dict((3, 13, 23, 33)) == {3: 13, 23: 33}",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the implemented function convert the input tuple to a dictionary where adjacent elements form key-value pairs?",
+    "clean": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[1::2]))\n```",
+    "defect": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[::2]))\n```",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "execute known bounded pure Python and compare to independent arithmetic oracle",
+      "function": "tuple_to_dict",
+      "args": [
+        [
+          3,
+          13,
+          23,
+          33
+        ]
+      ],
+      "expected": "{3: 13, 23: 33}",
+      "cleanActual": "{3: 13, 23: 33}",
+      "defectActual": "{3: 3, 23: 23}"
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[1::2]))\n```",
+      "to": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[::2]))\n```"
+    }
+  },
+  {
+    "id": "rb-bank-032",
+    "family": 2,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_644",
+      "questionSha256": "85b75ad383718439a51fa5cb9eb172135344eea590079df1695b39eafb2231b7",
+      "criterionSha256": "ce80eaaaf9a6f028e03eeb16f5ad0bc779409429153dff55eb3c911461d16c61"
+    },
+    "question": "Write Python cube_nums(nums) returning the cube of each input element.\ncube_nums([5, -6, 0]) == [125, -216, 0]",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the function correctly return a list where each element is the cube of the corresponding input element?",
+    "clean": "```python\ndef cube_nums(nums):\n    return [x ** 3 for x in nums]\n```",
+    "defect": "```python\ndef cube_nums(nums):\n    return [x ** 2 for x in nums]\n```",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "execute known bounded pure Python and compare to independent arithmetic oracle",
+      "function": "cube_nums",
+      "args": [
+        [
+          5,
+          -6,
+          0
+        ]
+      ],
+      "expected": "[125, -216, 0]",
+      "cleanActual": "[125, -216, 0]",
+      "defectActual": "[25, 36, 0]"
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "```python\ndef cube_nums(nums):\n    return [x ** 3 for x in nums]\n```",
+      "to": "```python\ndef cube_nums(nums):\n    return [x ** 2 for x in nums]\n```"
+    }
+  },
+  {
+    "id": "rb-bank-033",
+    "family": 3,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_1051",
+      "questionSha256": "4d1231ee68a107f25ddd32bb6ca9e49757ae9f41f79472431bebc0eb68e9dcc8",
+      "criterionSha256": "60dfede0e9759978aa24959f07d993d302e00b43ce91cbbfa61d4453a34f969d"
+    },
+    "question": "Write Python cummulative_sum(test_list) returning the sum of all integers in the tuples.\ncummulative_sum([(4, 5), (6,)]) == 15",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the function correctly calculate the cumulative sum of all integer values present in the nested tuples of the input list?",
+    "clean": "```python\ndef cummulative_sum(test_list):\n    return sum(sum(t) for t in test_list)\n```",
+    "defect": "```python\ndef cummulative_sum(test_list):\n    return 1 + sum(sum(t) for t in test_list)\n```",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "execute known bounded pure Python and compare to independent arithmetic oracle",
+      "function": "cummulative_sum",
+      "args": [
+        [
+          [
+            4,
+            5
+          ],
+          [
+            6
+          ]
+        ]
+      ],
+      "expected": "15",
+      "cleanActual": "15",
+      "defectActual": "16"
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "```python\ndef cummulative_sum(test_list):\n    return sum(sum(t) for t in test_list)\n```",
+      "to": "```python\ndef cummulative_sum(test_list):\n    return 1 + sum(sum(t) for t in test_list)\n```"
+    }
+  },
+  {
+    "id": "rb-bank-034",
+    "family": 4,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_161",
+      "questionSha256": "4410badd2e76d115b8b5461dc4217dd079b4cf90c81bd2eea9abf8bb2e1f6196",
+      "criterionSha256": "e8dff8aac2facbdf60e6c2dcf27bd670d0d301f38650281281f93900e5d52200"
+    },
+    "question": "Write one fictional chant about glimmer3. All words must use capital letters.",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the response strictly follow the format requirement that all words are in capital letters?",
+    "clean": "GLIMMER3 LIGHTS THE NIGHT",
+    "defect": "GLIMMER3 Lights THE NIGHT",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 4,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "GLIMMER3 LIGHTS THE NIGHT",
+      "to": "GLIMMER3 Lights THE NIGHT"
+    }
+  },
+  {
+    "id": "rb-bank-035",
+    "family": 5,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_201",
+      "questionSha256": "c9f68e95e977ab59632613507b12425a2cf8e5cd4a622306b983a489f71bdf01",
+      "criterionSha256": "89c9c5211205983790285be291d1061ff24c23f48344d9a546e695af8e9bafcb"
+    },
+    "question": "Write one fictional sentence about glimmer3. Do not use any capital letters.",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not containing any capital letters?",
+    "clean": "glimmer3 carries a tiny lantern.",
+    "defect": "glimmer3 Carries a tiny lantern.",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 5,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "glimmer3 carries a tiny lantern.",
+      "to": "glimmer3 Carries a tiny lantern."
+    }
+  },
+  {
+    "id": "rb-bank-036",
+    "family": 6,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_279",
+      "questionSha256": "c5db006d931f93bd83888171e237fba6d01a5945205a131e209a081d4313b2c8",
+      "criterionSha256": "c26b5a36eb1028fc465823448c6a598fa0032e9a6e9f76950e54375b2fe1cc5a"
+    },
+    "question": "Write one fictional sentence about glimmer3. Do not use commas.",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not using any commas?",
+    "clean": "glimmer3 wakes then opens the silver gate.",
+    "defect": "glimmer3 wakes, then opens the silver gate.",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 6,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "glimmer3 wakes then opens the silver gate.",
+      "to": "glimmer3 wakes, then opens the silver gate."
+    }
+  },
+  {
+    "id": "rb-bank-037",
+    "family": 7,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_833",
+      "questionSha256": "47cdac0526411daf21c01ca3bad00d2ecf04ad3e426bd528d5662eadc4af3a6f",
+      "criterionSha256": "6fde1839ef1a8f24dd02eb0d328aafc2f67aa0b0d894622fa670c7740c2dc9b9"
+    },
+    "question": "Describe a fictional inventory using exactly 4 numbers. Use the word glimmer.",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the response contain exactly 4 numbers as required?",
+    "clean": "glimmer stores 4 bells, 5 keys, 6 maps and 7 lamps.",
+    "defect": "glimmer stores 4 bells, 5 keys, 6 maps and several lamps.",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 7,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "glimmer stores 4 bells, 5 keys, 6 maps and 7 lamps.",
+      "to": "glimmer stores 4 bells, 5 keys, 6 maps and several lamps."
+    }
+  },
+  {
+    "id": "rb-bank-038",
+    "family": 8,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_1115",
+      "questionSha256": "3d6478b154969c914c438a530a114fdc98836a5ff5354680d511ed3db6f6e4cb",
+      "criterionSha256": "0695a0414e9aba658ccf47e8c78801d417835c98307532cb5b10af66fe499e4b"
+    },
+    "question": "Write two fictional paragraphs about glimmer3. The second paragraph must start with the word it.",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the second paragraph start with the word \"it\" (case-insensitive)?",
+    "clean": "glimmer3 opens the gate.\n\nit reveals a quiet garden.",
+    "defect": "glimmer3 opens the gate.\n\nThat reveals a quiet garden.",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 8,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "glimmer3 opens the gate.\n\nit reveals a quiet garden.",
+      "to": "glimmer3 opens the gate.\n\nThat reveals a quiet garden."
+    }
+  },
+  {
+    "id": "rb-bank-039",
+    "family": 9,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_49",
+      "questionSha256": "4d400e3eb12d621d31518a1bcf2494b9dc379fd84d9fcd40e8906f9ba18a3260",
+      "criterionSha256": "4207f8f6d9941ca1ba664a382c0893194847a4327b9478372f1882046f2fe408"
+    },
+    "question": "Give Python assigning 4 to a variable called glimmer. Enclose all code in a single complete triple-backtick Markdown code block.",
+    "criterion": "The response satisfies the rubrics below better.\nIs the final Python code solution enclosed in a single Markdown code block (using triple backticks)?",
+    "clean": "```python\nglimmer = 4\n```",
+    "defect": "```python\nglimmer = 4\n",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 9,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "```python\nglimmer = 4\n```",
+      "to": "```python\nglimmer = 4\n"
+    }
+  },
+  {
+    "id": "rb-bank-040",
+    "family": 0,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_178",
+      "questionSha256": "63744dcaa23a193d775780faa3dd4fe46e3c509888dfdf7cf8633af7d440f3c6",
+      "criterionSha256": "ccc17ce1cbf91d9a4358fb17e494a813b0dc4abe5840ddba99f33c40f1e69a04"
+    },
+    "question": "Write Python freq_count(list1) returning element frequencies as a dictionary.\nfreq_count([4, 4, 5]) == {4: 2, 5: 1}",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the function correctly take a list as input and return a dictionary where keys are the elements and values are their frequencies?",
+    "clean": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) for x in list1}\n```",
+    "defect": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) + 1 for x in list1}\n```",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "execute known bounded pure Python and compare to independent arithmetic oracle",
+      "function": "freq_count",
+      "args": [
+        [
+          4,
+          4,
+          5
+        ]
+      ],
+      "expected": "{4: 2, 5: 1}",
+      "cleanActual": "{4: 2, 5: 1}",
+      "defectActual": "{4: 3, 5: 2}"
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) for x in list1}\n```",
+      "to": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) + 1 for x in list1}\n```"
+    }
+  },
+  {
+    "id": "rb-bank-041",
+    "family": 1,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_193",
+      "questionSha256": "0f0cc3c59bbaa0ed7a2d720bb333b081ee3b92c9cc5ac52a9737a3c9f7a1e798",
+      "criterionSha256": "59a166b5ac1f689823db74bea9295d3ce602d46a8b751107e458a12a469ec34d"
+    },
+    "question": "Write Python tuple_to_dict(test_tup) mapping adjacent tuple elements into key and value pairs.\ntuple_to_dict((4, 14, 24, 34)) == {4: 14, 24: 34}",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the implemented function convert the input tuple to a dictionary where adjacent elements form key-value pairs?",
+    "clean": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[1::2]))\n```",
+    "defect": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[::2]))\n```",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "execute known bounded pure Python and compare to independent arithmetic oracle",
+      "function": "tuple_to_dict",
+      "args": [
+        [
+          4,
+          14,
+          24,
+          34
+        ]
+      ],
+      "expected": "{4: 14, 24: 34}",
+      "cleanActual": "{4: 14, 24: 34}",
+      "defectActual": "{4: 4, 24: 24}"
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[1::2]))\n```",
+      "to": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[::2]))\n```"
+    }
+  },
+  {
+    "id": "rb-bank-042",
+    "family": 2,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_644",
+      "questionSha256": "85b75ad383718439a51fa5cb9eb172135344eea590079df1695b39eafb2231b7",
+      "criterionSha256": "ce80eaaaf9a6f028e03eeb16f5ad0bc779409429153dff55eb3c911461d16c61"
+    },
+    "question": "Write Python cube_nums(nums) returning the cube of each input element.\ncube_nums([6, -7, 0]) == [216, -343, 0]",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the function correctly return a list where each element is the cube of the corresponding input element?",
+    "clean": "```python\ndef cube_nums(nums):\n    return [x ** 3 for x in nums]\n```",
+    "defect": "```python\ndef cube_nums(nums):\n    return [x ** 2 for x in nums]\n```",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "execute known bounded pure Python and compare to independent arithmetic oracle",
+      "function": "cube_nums",
+      "args": [
+        [
+          6,
+          -7,
+          0
+        ]
+      ],
+      "expected": "[216, -343, 0]",
+      "cleanActual": "[216, -343, 0]",
+      "defectActual": "[36, 49, 0]"
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "```python\ndef cube_nums(nums):\n    return [x ** 3 for x in nums]\n```",
+      "to": "```python\ndef cube_nums(nums):\n    return [x ** 2 for x in nums]\n```"
+    }
+  },
+  {
+    "id": "rb-bank-043",
+    "family": 3,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_1051",
+      "questionSha256": "4d1231ee68a107f25ddd32bb6ca9e49757ae9f41f79472431bebc0eb68e9dcc8",
+      "criterionSha256": "60dfede0e9759978aa24959f07d993d302e00b43ce91cbbfa61d4453a34f969d"
+    },
+    "question": "Write Python cummulative_sum(test_list) returning the sum of all integers in the tuples.\ncummulative_sum([(5, 6), (7,)]) == 18",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the function correctly calculate the cumulative sum of all integer values present in the nested tuples of the input list?",
+    "clean": "```python\ndef cummulative_sum(test_list):\n    return sum(sum(t) for t in test_list)\n```",
+    "defect": "```python\ndef cummulative_sum(test_list):\n    return 1 + sum(sum(t) for t in test_list)\n```",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "execute known bounded pure Python and compare to independent arithmetic oracle",
+      "function": "cummulative_sum",
+      "args": [
+        [
+          [
+            5,
+            6
+          ],
+          [
+            7
+          ]
+        ]
+      ],
+      "expected": "18",
+      "cleanActual": "18",
+      "defectActual": "19"
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "```python\ndef cummulative_sum(test_list):\n    return sum(sum(t) for t in test_list)\n```",
+      "to": "```python\ndef cummulative_sum(test_list):\n    return 1 + sum(sum(t) for t in test_list)\n```"
+    }
+  },
+  {
+    "id": "rb-bank-044",
+    "family": 4,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_161",
+      "questionSha256": "4410badd2e76d115b8b5461dc4217dd079b4cf90c81bd2eea9abf8bb2e1f6196",
+      "criterionSha256": "e8dff8aac2facbdf60e6c2dcf27bd670d0d301f38650281281f93900e5d52200"
+    },
+    "question": "Write one fictional chant about glimmer4. All words must use capital letters.",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the response strictly follow the format requirement that all words are in capital letters?",
+    "clean": "GLIMMER4 LIGHTS THE NIGHT",
+    "defect": "GLIMMER4 Lights THE NIGHT",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 4,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "GLIMMER4 LIGHTS THE NIGHT",
+      "to": "GLIMMER4 Lights THE NIGHT"
+    }
+  },
+  {
+    "id": "rb-bank-045",
+    "family": 5,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_201",
+      "questionSha256": "c9f68e95e977ab59632613507b12425a2cf8e5cd4a622306b983a489f71bdf01",
+      "criterionSha256": "89c9c5211205983790285be291d1061ff24c23f48344d9a546e695af8e9bafcb"
+    },
+    "question": "Write one fictional sentence about glimmer4. Do not use any capital letters.",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not containing any capital letters?",
+    "clean": "glimmer4 carries a tiny lantern.",
+    "defect": "glimmer4 Carries a tiny lantern.",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 5,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "glimmer4 carries a tiny lantern.",
+      "to": "glimmer4 Carries a tiny lantern."
+    }
+  },
+  {
+    "id": "rb-bank-046",
+    "family": 6,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_279",
+      "questionSha256": "c5db006d931f93bd83888171e237fba6d01a5945205a131e209a081d4313b2c8",
+      "criterionSha256": "c26b5a36eb1028fc465823448c6a598fa0032e9a6e9f76950e54375b2fe1cc5a"
+    },
+    "question": "Write one fictional sentence about glimmer4. Do not use commas.",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not using any commas?",
+    "clean": "glimmer4 wakes then opens the silver gate.",
+    "defect": "glimmer4 wakes, then opens the silver gate.",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 6,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "glimmer4 wakes then opens the silver gate.",
+      "to": "glimmer4 wakes, then opens the silver gate."
+    }
+  },
+  {
+    "id": "rb-bank-047",
+    "family": 7,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_833",
+      "questionSha256": "47cdac0526411daf21c01ca3bad00d2ecf04ad3e426bd528d5662eadc4af3a6f",
+      "criterionSha256": "6fde1839ef1a8f24dd02eb0d328aafc2f67aa0b0d894622fa670c7740c2dc9b9"
+    },
+    "question": "Describe a fictional inventory using exactly 4 numbers. Use the word glimmer.",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the response contain exactly 4 numbers as required?",
+    "clean": "glimmer stores 5 bells, 6 keys, 7 maps and 8 lamps.",
+    "defect": "glimmer stores 5 bells, 6 keys, 7 maps and several lamps.",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 7,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "glimmer stores 5 bells, 6 keys, 7 maps and 8 lamps.",
+      "to": "glimmer stores 5 bells, 6 keys, 7 maps and several lamps."
+    }
+  },
+  {
+    "id": "rb-bank-048",
+    "family": 8,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_1115",
+      "questionSha256": "3d6478b154969c914c438a530a114fdc98836a5ff5354680d511ed3db6f6e4cb",
+      "criterionSha256": "0695a0414e9aba658ccf47e8c78801d417835c98307532cb5b10af66fe499e4b"
+    },
+    "question": "Write two fictional paragraphs about glimmer4. The second paragraph must start with the word it.",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the second paragraph start with the word \"it\" (case-insensitive)?",
+    "clean": "glimmer4 opens the gate.\n\nit reveals a quiet garden.",
+    "defect": "glimmer4 opens the gate.\n\nThat reveals a quiet garden.",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 8,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "glimmer4 opens the gate.\n\nit reveals a quiet garden.",
+      "to": "glimmer4 opens the gate.\n\nThat reveals a quiet garden."
+    }
+  },
+  {
+    "id": "rb-bank-049",
+    "family": 9,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_49",
+      "questionSha256": "4d400e3eb12d621d31518a1bcf2494b9dc379fd84d9fcd40e8906f9ba18a3260",
+      "criterionSha256": "4207f8f6d9941ca1ba664a382c0893194847a4327b9478372f1882046f2fe408"
+    },
+    "question": "Give Python assigning 5 to a variable called glimmer. Enclose all code in a single complete triple-backtick Markdown code block.",
+    "criterion": "The response satisfies the rubrics below better.\nIs the final Python code solution enclosed in a single Markdown code block (using triple backticks)?",
+    "clean": "```python\nglimmer = 5\n```",
+    "defect": "```python\nglimmer = 5\n",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 9,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "```python\nglimmer = 5\n```",
+      "to": "```python\nglimmer = 5\n"
+    }
+  },
+  {
+    "id": "rb-bank-050",
+    "family": 0,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_178",
+      "questionSha256": "63744dcaa23a193d775780faa3dd4fe46e3c509888dfdf7cf8633af7d440f3c6",
+      "criterionSha256": "ccc17ce1cbf91d9a4358fb17e494a813b0dc4abe5840ddba99f33c40f1e69a04"
+    },
+    "question": "Write Python freq_count(list1) returning element frequencies as a dictionary.\nfreq_count([5, 5, 6]) == {5: 2, 6: 1}",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the function correctly take a list as input and return a dictionary where keys are the elements and values are their frequencies?",
+    "clean": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) for x in list1}\n```",
+    "defect": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) + 1 for x in list1}\n```",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "execute known bounded pure Python and compare to independent arithmetic oracle",
+      "function": "freq_count",
+      "args": [
+        [
+          5,
+          5,
+          6
+        ]
+      ],
+      "expected": "{5: 2, 6: 1}",
+      "cleanActual": "{5: 2, 6: 1}",
+      "defectActual": "{5: 3, 6: 2}"
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) for x in list1}\n```",
+      "to": "```python\ndef freq_count(list1):\n    return {x: list1.count(x) + 1 for x in list1}\n```"
+    }
+  },
+  {
+    "id": "rb-bank-051",
+    "family": 1,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_193",
+      "questionSha256": "0f0cc3c59bbaa0ed7a2d720bb333b081ee3b92c9cc5ac52a9737a3c9f7a1e798",
+      "criterionSha256": "59a166b5ac1f689823db74bea9295d3ce602d46a8b751107e458a12a469ec34d"
+    },
+    "question": "Write Python tuple_to_dict(test_tup) mapping adjacent tuple elements into key and value pairs.\ntuple_to_dict((5, 15, 25, 35)) == {5: 15, 25: 35}",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the implemented function convert the input tuple to a dictionary where adjacent elements form key-value pairs?",
+    "clean": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[1::2]))\n```",
+    "defect": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[::2]))\n```",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "execute known bounded pure Python and compare to independent arithmetic oracle",
+      "function": "tuple_to_dict",
+      "args": [
+        [
+          5,
+          15,
+          25,
+          35
+        ]
+      ],
+      "expected": "{5: 15, 25: 35}",
+      "cleanActual": "{5: 15, 25: 35}",
+      "defectActual": "{5: 5, 25: 25}"
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[1::2]))\n```",
+      "to": "```python\ndef tuple_to_dict(test_tup):\n    return dict(zip(test_tup[::2], test_tup[::2]))\n```"
+    }
+  },
+  {
+    "id": "rb-bank-052",
+    "family": 2,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_644",
+      "questionSha256": "85b75ad383718439a51fa5cb9eb172135344eea590079df1695b39eafb2231b7",
+      "criterionSha256": "ce80eaaaf9a6f028e03eeb16f5ad0bc779409429153dff55eb3c911461d16c61"
+    },
+    "question": "Write Python cube_nums(nums) returning the cube of each input element.\ncube_nums([7, -8, 0]) == [343, -512, 0]",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the function correctly return a list where each element is the cube of the corresponding input element?",
+    "clean": "```python\ndef cube_nums(nums):\n    return [x ** 3 for x in nums]\n```",
+    "defect": "```python\ndef cube_nums(nums):\n    return [x ** 2 for x in nums]\n```",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "execute known bounded pure Python and compare to independent arithmetic oracle",
+      "function": "cube_nums",
+      "args": [
+        [
+          7,
+          -8,
+          0
+        ]
+      ],
+      "expected": "[343, -512, 0]",
+      "cleanActual": "[343, -512, 0]",
+      "defectActual": "[49, 64, 0]"
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "```python\ndef cube_nums(nums):\n    return [x ** 3 for x in nums]\n```",
+      "to": "```python\ndef cube_nums(nums):\n    return [x ** 2 for x in nums]\n```"
+    }
+  },
+  {
+    "id": "rb-bank-053",
+    "family": 3,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_1051",
+      "questionSha256": "4d1231ee68a107f25ddd32bb6ca9e49757ae9f41f79472431bebc0eb68e9dcc8",
+      "criterionSha256": "60dfede0e9759978aa24959f07d993d302e00b43ce91cbbfa61d4453a34f969d"
+    },
+    "question": "Write Python cummulative_sum(test_list) returning the sum of all integers in the tuples.\ncummulative_sum([(6, 7), (8,)]) == 21",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the function correctly calculate the cumulative sum of all integer values present in the nested tuples of the input list?",
+    "clean": "```python\ndef cummulative_sum(test_list):\n    return sum(sum(t) for t in test_list)\n```",
+    "defect": "```python\ndef cummulative_sum(test_list):\n    return 1 + sum(sum(t) for t in test_list)\n```",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "execute known bounded pure Python and compare to independent arithmetic oracle",
+      "function": "cummulative_sum",
+      "args": [
+        [
+          [
+            6,
+            7
+          ],
+          [
+            8
+          ]
+        ]
+      ],
+      "expected": "21",
+      "cleanActual": "21",
+      "defectActual": "22"
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "```python\ndef cummulative_sum(test_list):\n    return sum(sum(t) for t in test_list)\n```",
+      "to": "```python\ndef cummulative_sum(test_list):\n    return 1 + sum(sum(t) for t in test_list)\n```"
+    }
+  },
+  {
+    "id": "rb-bank-054",
+    "family": 4,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_161",
+      "questionSha256": "4410badd2e76d115b8b5461dc4217dd079b4cf90c81bd2eea9abf8bb2e1f6196",
+      "criterionSha256": "e8dff8aac2facbdf60e6c2dcf27bd670d0d301f38650281281f93900e5d52200"
+    },
+    "question": "Write one fictional chant about glimmer5. All words must use capital letters.",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the response strictly follow the format requirement that all words are in capital letters?",
+    "clean": "GLIMMER5 LIGHTS THE NIGHT",
+    "defect": "GLIMMER5 Lights THE NIGHT",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 4,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "GLIMMER5 LIGHTS THE NIGHT",
+      "to": "GLIMMER5 Lights THE NIGHT"
+    }
+  },
+  {
+    "id": "rb-bank-055",
+    "family": 5,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_201",
+      "questionSha256": "c9f68e95e977ab59632613507b12425a2cf8e5cd4a622306b983a489f71bdf01",
+      "criterionSha256": "89c9c5211205983790285be291d1061ff24c23f48344d9a546e695af8e9bafcb"
+    },
+    "question": "Write one fictional sentence about glimmer5. Do not use any capital letters.",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not containing any capital letters?",
+    "clean": "glimmer5 carries a tiny lantern.",
+    "defect": "glimmer5 Carries a tiny lantern.",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 5,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "glimmer5 carries a tiny lantern.",
+      "to": "glimmer5 Carries a tiny lantern."
+    }
+  },
+  {
+    "id": "rb-bank-056",
+    "family": 6,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_279",
+      "questionSha256": "c5db006d931f93bd83888171e237fba6d01a5945205a131e209a081d4313b2c8",
+      "criterionSha256": "c26b5a36eb1028fc465823448c6a598fa0032e9a6e9f76950e54375b2fe1cc5a"
+    },
+    "question": "Write one fictional sentence about glimmer5. Do not use commas.",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the response strictly adhere to the constraint of not using any commas?",
+    "clean": "glimmer5 wakes then opens the silver gate.",
+    "defect": "glimmer5 wakes, then opens the silver gate.",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 6,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "glimmer5 wakes then opens the silver gate.",
+      "to": "glimmer5 wakes, then opens the silver gate."
+    }
+  },
+  {
+    "id": "rb-bank-057",
+    "family": 7,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_833",
+      "questionSha256": "47cdac0526411daf21c01ca3bad00d2ecf04ad3e426bd528d5662eadc4af3a6f",
+      "criterionSha256": "6fde1839ef1a8f24dd02eb0d328aafc2f67aa0b0d894622fa670c7740c2dc9b9"
+    },
+    "question": "Describe a fictional inventory using exactly 4 numbers. Use the word glimmer.",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the response contain exactly 4 numbers as required?",
+    "clean": "glimmer stores 6 bells, 7 keys, 8 maps and 9 lamps.",
+    "defect": "glimmer stores 6 bells, 7 keys, 8 maps and several lamps.",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 7,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "glimmer stores 6 bells, 7 keys, 8 maps and 9 lamps.",
+      "to": "glimmer stores 6 bells, 7 keys, 8 maps and several lamps."
+    }
+  },
+  {
+    "id": "rb-bank-058",
+    "family": 8,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_1115",
+      "questionSha256": "3d6478b154969c914c438a530a114fdc98836a5ff5354680d511ed3db6f6e4cb",
+      "criterionSha256": "0695a0414e9aba658ccf47e8c78801d417835c98307532cb5b10af66fe499e4b"
+    },
+    "question": "Write two fictional paragraphs about glimmer5. The second paragraph must start with the word it.",
+    "criterion": "The response satisfies the rubrics below better.\nDoes the second paragraph start with the word \"it\" (case-insensitive)?",
+    "clean": "glimmer5 opens the gate.\n\nit reveals a quiet garden.",
+    "defect": "glimmer5 opens the gate.\n\nThat reveals a quiet garden.",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 8,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "glimmer5 opens the gate.\n\nit reveals a quiet garden.",
+      "to": "glimmer5 opens the gate.\n\nThat reveals a quiet garden."
+    }
+  },
+  {
+    "id": "rb-bank-059",
+    "family": 9,
+    "source": {
+      "benchmark": "rubricbench",
+      "split": "dev",
+      "id": "rubric_eval_49",
+      "questionSha256": "4d400e3eb12d621d31518a1bcf2494b9dc379fd84d9fcd40e8906f9ba18a3260",
+      "criterionSha256": "4207f8f6d9941ca1ba664a382c0893194847a4327b9478372f1882046f2fe408"
+    },
+    "question": "Give Python assigning 6 to a variable called glimmer. Enclose all code in a single complete triple-backtick Markdown code block.",
+    "criterion": "The response satisfies the rubrics below better.\nIs the final Python code solution enclosed in a single Markdown code block (using triple backticks)?",
+    "clean": "```python\nglimmer = 6\n```",
+    "defect": "```python\nglimmer = 6\n",
+    "truth": {
+      "clean": true,
+      "defect": false
+    },
+    "proof": {
+      "algorithm": "literal string predicate",
+      "predicateFamily": 9,
+      "cleanPass": true,
+      "defectPass": false
+    },
+    "mutation": {
+      "scope": "one requirement broken",
+      "from": "```python\nglimmer = 6\n```",
+      "to": "```python\nglimmer = 6\n"
+    }
+  }
+]

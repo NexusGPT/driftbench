@@ -1,5 +1,12 @@
 import { z } from 'zod';
+import { AnswerAudit, parseAnswerAudit, validateAnswerAuditRequest } from './answer-audit';
 import type { JudgeClient } from './client';
+import {
+  ConformanceAudit,
+  parseConformanceText,
+  parseConformanceValue,
+  validateConformanceRequest,
+} from './conformance';
 import {
   extractObject,
   inconclusive,
@@ -10,13 +17,30 @@ import {
 } from './contract';
 import { CriterionLedger, parseCriterionLedger, requirementsFor } from './criterion-ledger';
 import { candidateContainsQuote, quoteContinuations, stripReplyLabel } from './evidence';
-import { FactLedgerAnswer, parseFactLedger } from './fact-audit';
+import {
+  FactLedgerAnswer,
+  PointwiseFactLedgerAnswer,
+  parseFactLedger,
+  parsePointwiseFactLedger,
+  validatePointwiseFactRequest,
+} from './fact-audit';
 import {
   parseAnswerText as parseLegacyAnswerText,
   parseAnswerValue as parseLegacyAnswerValue,
 } from './legacy-contract';
+import {
+  isPairLedgerRequest,
+  pairLedgerSchema,
+  parsePairLedgerText,
+  parsePairLedgerValue,
+} from './pair-ledger-contract';
+import {
+  parseResponseRelevance,
+  ResponseRelevanceAnswer,
+  validateResponseRelevanceRequest,
+} from './response-relevance';
 
-/** A caller-supplied rubric item. Weights belong to the caller, never to the model. */
+/** The caller owns item names and weights. Names identify requirements, never output positions. */
 export type RubricItem = {
   readonly name: string;
   readonly rubric: string;
@@ -24,8 +48,21 @@ export type RubricItem = {
   readonly hard?: boolean;
 };
 export type Assessment =
-  | { readonly kind: 'pairwise' }
-  | { readonly kind: 'fact-ledger' }
+  | {
+      readonly kind: 'pairwise';
+      readonly items?: readonly RubricItem[];
+      /** Internal contract of the opt-in final ledger tie follow-up. */
+      readonly tieFollowup?: 'direct' | 'reasoning';
+    }
+  | {
+      readonly kind: 'fact-ledger';
+      /** Pointwise only: reject reference/reply text that is not a source quote. Default semantic. */
+      readonly grounding?: 'strict';
+    }
+  | { readonly kind: 'response-relevance' }
+  | { readonly kind: 'conformance'; readonly reference: string }
+  /** Role-separated audit of a submitted answer against the criterion and an optional reference. */
+  | { readonly kind: 'answer-audit' }
   | {
       readonly kind: 'rubric';
       readonly items: readonly RubricItem[];
@@ -41,6 +78,8 @@ export const PairwiseAnswer = z.strictObject({
   winnerQuote: z.string().trim().min(1).nullable(),
 });
 export type PairwiseAnswer = z.infer<typeof PairwiseAnswer>;
+
+const PairLedgerFollowupAnswer = z.strictObject({ winner: z.enum(['A', 'B']) });
 
 const score = z.number().int().min(0).max(4).nullable();
 const pointItem = z.strictObject({
@@ -95,20 +134,35 @@ export function validateAssessment(assessment: Assessment): void {
 
 /** The provider schema matches the exact answer contract of this request. */
 export function responseSchema(request: JudgeRequest): Record<string, unknown> & { properties?: unknown } {
+  if (isPairLedgerRequest(request)) return pairLedgerSchema(request);
+  if (request.assessment?.kind === 'response-relevance') validateResponseRelevanceRequest(request);
+  if (request.assessment?.kind === 'conformance') validateConformanceRequest(request);
+  if (request.assessment?.kind === 'answer-audit') validateAnswerAuditRequest(request);
   const a = request.answerContract === 'legacy' ? undefined : request.assessment;
   if (a) validateAssessment(a);
+  if (a?.kind === 'fact-ledger' && !request.candidates) validatePointwiseFactRequest(request);
   const schema =
-    a?.kind === 'fact-ledger'
-      ? FactLedgerAnswer
-      : a?.kind === 'pairwise'
-        ? PairwiseAnswer
-        : a?.kind === 'rubric'
-          ? a.pairwise
-            ? pairLedger
-            : pointLedger
-          : request.answerContract === 'legacy'
-            ? undefined
-            : CriterionLedger;
+    a?.kind === 'response-relevance'
+      ? ResponseRelevanceAnswer
+      : a?.kind === 'conformance'
+        ? ConformanceAudit
+        : a?.kind === 'answer-audit'
+          ? AnswerAudit
+          : a?.kind === 'fact-ledger'
+            ? request.candidates
+              ? FactLedgerAnswer
+              : PointwiseFactLedgerAnswer
+            : a?.kind === 'pairwise'
+              ? a.tieFollowup
+                ? PairLedgerFollowupAnswer
+                : PairwiseAnswer
+              : a?.kind === 'rubric'
+                ? a.pairwise
+                  ? pairLedger
+                  : pointLedger
+                : request.answerContract === 'legacy'
+                  ? undefined
+                  : CriterionLedger;
   if (!schema)
     return {
       type: 'object',
@@ -127,7 +181,23 @@ export function responseSchema(request: JudgeRequest): Record<string, unknown> &
 
 /** Parse only the final complete object. No binary fallback can reverse an explicit winner. */
 export function parseJudgeText(raw: string, request: JudgeRequest): JudgeResult {
+  if (request.assessment?.kind === 'response-relevance') {
+    const text = extractObject(raw);
+    if (text === undefined) return invalid(raw, 'no final complete JSON object');
+    const duplicate = repeatedObjectKey(text);
+    if (duplicate !== undefined) return invalid(raw, `repeated key ${duplicate}`);
+    try {
+      return parseJudgeValue(JSON.parse(text), request, raw);
+    } catch {
+      return invalid(raw, 'invalid JSON');
+    }
+  }
+  if (request.assessment?.kind === 'conformance') {
+    validateConformanceRequest(request);
+    return parseConformanceText(raw);
+  }
   if (request.answerContract === 'legacy') return parseLegacyAnswerText(raw);
+  if (isPairLedgerRequest(request)) return parsePairLedgerText(raw, request);
   const callerError = requirementsError(request);
   if (callerError) return invalid(raw, callerError);
   const text = extractObject(raw);
@@ -152,7 +222,27 @@ export function parseJudgeValue(
   request: JudgeRequest,
   raw = JSON.stringify(value),
 ): JudgeResult {
+  if (request.assessment?.kind === 'response-relevance') {
+    const duplicate = repeatedObjectKey(raw);
+    if (duplicate !== undefined) return invalid(raw, `repeated key ${duplicate}`);
+    return parseResponseRelevance(value, request, raw);
+  }
+  if (request.assessment?.kind === 'conformance') {
+    validateConformanceRequest(request);
+    return parseConformanceValue(value, raw);
+  }
   if (request.answerContract === 'legacy') return parseLegacyAnswerValue(value, raw);
+  if (isPairLedgerRequest(request)) {
+    const result = parsePairLedgerValue(value, request, raw);
+    return repeatedObjectKey(raw) === undefined
+      ? result
+      : {
+          raw,
+          unparsed: true,
+          metadata: { graderError: true },
+          answer: inconclusive('duplicate pair ledger key'),
+        };
+  }
   const callerError = requirementsError(request);
   if (callerError) return invalid(raw, callerError);
   const duplicate = repeatedObjectKey(repairAnswerText(raw));
@@ -160,8 +250,24 @@ export function parseJudgeValue(
   const assessment = request.assessment;
   if (!assessment) return parseCriterionLedger(value, request, raw);
   validateAssessment(assessment);
-  if (assessment.kind === 'fact-ledger') return parseFactLedger(value, request, raw);
+  if (assessment.kind === 'answer-audit') return parseAnswerAudit(value, request, raw);
+  if (assessment.kind === 'fact-ledger')
+    return request.candidates
+      ? parseFactLedger(value, request, raw)
+      : parsePointwiseFactLedger(value, request, raw);
   if (assessment.kind === 'pairwise') {
+    if (assessment.tieFollowup) {
+      const parsed = PairLedgerFollowupAnswer.safeParse(value);
+      if (!parsed.success) return invalid(raw, 'tie follow-up requires exactly one winner, A or B');
+      return {
+        raw,
+        winner: parsed.data.winner,
+        answer: {
+          outcome: parsed.data.winner === 'A' ? 'pass' : 'fail',
+          reasoning: 'forced-choice ledger tie follow-up',
+        },
+      };
+    }
     const parsed = PairwiseAnswer.safeParse(value);
     if (!parsed.success) return invalid(raw, parsed.error.issues[0]?.message ?? 'invalid winner');
     const { winner, winnerQuote, ...answer } = parsed.data;
@@ -200,15 +306,36 @@ export function parseJudgeValue(
       answer: { ...answer, outcome: winner === 'A' ? 'pass' : winner === 'B' ? 'fail' : 'inconclusive' },
     };
   }
-  const parsed = (assessment.pairwise ? pairLedger : pointLedger).safeParse(value);
-  if (!parsed.success) return invalid(raw, parsed.error.issues[0]?.message ?? 'invalid item score');
+  const names = new Set(assessment.items.map((item) => item.name));
+  const ignoredRequirementIds: string[] = [];
+  let known = value;
+  if (value !== null && typeof value === 'object' && 'items' in value && Array.isArray(value.items)) {
+    const items = value.items.filter((row: unknown) => {
+      if (
+        row !== null &&
+        typeof row === 'object' &&
+        'name' in row &&
+        typeof row.name === 'string' &&
+        !names.has(row.name)
+      ) {
+        ignoredRequirementIds.push(row.name);
+        return false;
+      }
+      return true;
+    });
+    known = { ...value, items };
+  }
+  const diagnostics = ignoredRequirementIds.length ? { ignoredRequirementIds } : {};
+  const invalidRubric = (why: string): JudgeResult => ({ ...invalid(raw, why), ...diagnostics });
+  const parsed = (assessment.pairwise ? pairLedger : pointLedger).safeParse(known);
+  if (!parsed.success) return invalidRubric(parsed.error.issues[0]?.message ?? 'invalid item score');
   const byName = new Map(parsed.data.items.map((item) => [item.name, item]));
   if (
     byName.size !== assessment.items.length ||
     parsed.data.items.length !== assessment.items.length ||
     assessment.items.some((item) => !byName.has(item.name))
   )
-    return invalid(raw, 'every requested rubric item must appear exactly once, with no extra items');
+    return invalidRubric('every requested rubric item must appear exactly once');
   const items: RubricScore[] = assessment.items.map((def) => {
     const item = byName.get(def.name) as z.infer<typeof pointItem> | z.infer<typeof pairItem>;
     const { name, reasoning, evidence } = item;
@@ -257,6 +384,7 @@ export function parseJudgeValue(
         : 'fail';
   return {
     raw,
+    ...diagnostics,
     answer: { outcome, reasoning: items.map((item) => `${item.name}: ${item.reasoning}`).join('\n') },
     ...(assessment.pairwise ? { winner } : {}),
     rubric: { items, ...(first === undefined ? {} : { first }), ...(second === undefined ? {} : { second }) },
@@ -300,7 +428,7 @@ function requirementsError(request: JudgeRequest): string | undefined {
   }
 }
 
-/** One batched model call, one score per caller-supplied item, arithmetic in code. */
+/** One batched score ledger, with one large-budget re-ask if it breaks the caller's contract. */
 export async function judgeRubric(
   client: JudgeClient,
   request: JudgeRequest,
@@ -309,5 +437,25 @@ export async function judgeRubric(
 ): Promise<JudgeResult> {
   const assessment: Assessment = { kind: 'rubric', items, ...options };
   validateAssessment(assessment);
-  return client.judge({ ...request, assessment });
+  const scoped = { ...request, assessment };
+  const first = await client.judge(scoped);
+  if (request.answerContract === 'legacy') return first;
+  const normalize = (result: JudgeResult): JudgeResult => {
+    if (result.unparsed) return { ...result, answer: inconclusive(result.answer.reasoning) };
+    if (!result.rubric) return { ...result, ...invalid(result.raw, 'client returned no rubric item ledger') };
+    return result;
+  };
+  const result = normalize(first);
+  if (!result.unparsed) return result;
+  const retry = normalize(await client.judge({ ...scoped, budget: 'large' }));
+  return {
+    ...retry,
+    ...(first.costUsd === undefined && retry.costUsd === undefined
+      ? {}
+      : { costUsd: (first.costUsd ?? 0) + (retry.costUsd ?? 0) }),
+    // An unknown part makes the sum unknown: it is never reported as the known part alone.
+    ...(first.costIncomplete || retry.costIncomplete
+      ? { costUsd: undefined, costIncomplete: true as const }
+      : {}),
+  };
 }

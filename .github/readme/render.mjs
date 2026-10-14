@@ -46,6 +46,20 @@ const jobs = [
   { name: 'perturbed', src: 'perturbed.html', out: 'perturbed-{theme}.png' },
   { name: 'council', src: 'council.html', out: 'council-{theme}.png' },
   { name: 'kinds', src: 'kinds.html', out: 'kinds-{theme}.png' },
+  { name: 'flow', src: 'flow.html', out: 'flow-{theme}.png' },
+  { name: 'moj', src: 'moj.html', out: 'moj-{theme}.png' },
+  { name: 'blast', src: 'blast.html', out: 'blast-{theme}.png' },
+  // The charts: one page, chart.html?c=<name>, reading chart-data.js (written by tools/readme-charts.mjs).
+  { name: 'judge-leads', src: 'chart.html', query: 'c=judge-leads', out: 'judge-leads-{theme}.png' },
+  { name: 'judge-cost', src: 'chart.html', query: 'c=judge-cost', out: 'judge-cost-{theme}.png' },
+  { name: 'mm-eval-sealed-test', src: 'chart.html', query: 'c=mm-eval-sealed-test', out: 'mm-eval-sealed-test-{theme}.png' },
+  { name: 'testgen-budget', src: 'chart.html', query: 'c=testgen-budget', out: 'testgen-budget-{theme}.png' },
+  { name: 'self-tests', src: 'chart.html', query: 'c=self-tests', out: 'self-tests-{theme}.png' },
+  { name: 'capability-matrix', src: 'chart.html', query: 'c=capability-matrix', out: 'capability-matrix-{theme}.png' },
+  { name: 'bench-judgebench', src: 'chart.html', query: 'c=bench-judgebench', out: 'bench-judgebench-{theme}.png' },
+  { name: 'hard-deepeval', src: 'chart.html', query: 'c=hard-deepeval', out: 'hard-deepeval-{theme}.png' },
+  { name: 'hard-promptfoo', src: 'chart.html', query: 'c=hard-promptfoo', out: 'hard-promptfoo-{theme}.png' },
+  { name: 'hard-langfuse', src: 'chart.html', query: 'c=hard-langfuse', out: 'hard-langfuse-{theme}.png' },
 ];
 
 const wanted = process.argv.slice(2);
@@ -84,7 +98,7 @@ try {
       const errors = [];
       page.on('pageerror', (e) => errors.push(String(e)));
       page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
-      await page.goto(pathToFileURL(path.join(src, job.src)).href, { waitUntil: 'networkidle' });
+      await page.goto(pathToFileURL(path.join(src, job.src)).href + (job.query ? `?${job.query}` : ''), { waitUntil: 'networkidle' });
       await page.waitForFunction(() => window.__ready === true, null, { timeout: 60000 });
       // Each source lists the faces it uses in window.__fonts and loads them before it is ready.
       const missing = await page.evaluate(() => (window.__fonts || ['400 16px Inter'])

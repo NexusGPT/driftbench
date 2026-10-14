@@ -24,7 +24,7 @@ import {
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
-import { type CampaignDeps, defaultDeps, noAdapter, parseTarget, showTarget } from './campaign';
+import { type CampaignDeps, defaultDeps, parseTarget, resolveAdapter, showTarget } from './campaign';
 
 type InstancesOptions = { n: string; seed: string; out: string; force?: boolean; json?: boolean };
 type VerifyOptions = { reference: string; concurrency: string; json?: boolean };
@@ -139,8 +139,8 @@ export async function familyInstancesCommand(
     n: n as number,
     seed: seed as number,
     review: review.state,
-    seedFrom: (instance: string, variant: string) =>
-      portable(relative(io.cwd, join(outDir, instance, seedFolderName(variant)))),
+    // The seed folder sits beside the variant's spec, in its instance folder; the spec names it relative to itself.
+    seedFrom: (_instance: string, variant: string) => `./${seedFolderName(variant)}`,
   };
   let instances: Instance[];
   try {
@@ -203,9 +203,8 @@ export async function familyVerifyCommand(
     return 2;
   }
   const target = parseTarget(options.reference);
-  const adapter = await deps.adapterFor(target);
+  const adapter = await resolveAdapter(target, () => deps.adapterFor(target), io);
   if (!adapter) {
-    io.err(`${noAdapter(target)}\n`);
     return 2;
   }
   const root = resolve(io.cwd, dir);

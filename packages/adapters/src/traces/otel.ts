@@ -1,5 +1,5 @@
 import type { Cost, Segment, ToolCall } from '@agent-nexus/driftbench-core';
-import { joinText, parseObserved } from '../shared';
+import { isRecord, joinText, parseArguments, parseObserved } from '../shared';
 import { type PriceTable, priced, type Trace, type TraceObservation, type TraceTurn } from './types';
 
 /**
@@ -221,7 +221,7 @@ function outputOf(span: OtelSpan): Message {
       calls.push({
         ...(typeof id === 'string' ? { id } : {}),
         name: String(span.attributes[`${prefix}.name`]),
-        input: parsed(stringOf(span.attributes[`${prefix}.arguments`])) ?? {},
+        input: parseArguments(span.attributes[`${prefix}.arguments`]),
       });
     }
     return {
@@ -241,7 +241,7 @@ function outputOf(span: OtelSpan): Message {
               {
                 ...(typeof call.id === 'string' ? { id: call.id } : {}),
                 name: call.function.name,
-                input: parsed(stringOf(call.function.arguments)) ?? {},
+                input: parseArguments(call.function.arguments),
               },
             ]
           : [],
@@ -267,7 +267,7 @@ function messageOfParts(raw: unknown): Message[] {
       message.calls.push({
         ...(typeof part.id === 'string' ? { id: part.id } : {}),
         name: part.name,
-        input: typeof part.arguments === 'string' ? (parsed(part.arguments) ?? {}) : (part.arguments ?? {}),
+        input: parseArguments(part.arguments),
       });
     }
     if (part.type === 'tool_call_response') {
@@ -451,7 +451,7 @@ function traceOf(id: string, turns: Turn[], prices: PriceTable | undefined): Tra
     for (const span of toolSpans) {
       if (claimed.has(span)) continue;
       const name = toolName(span) ?? span.name;
-      const record = toolRecord(name, parsed(stringOf(toolArguments(span))) ?? {}, span, toolCallId(span));
+      const record = toolRecord(name, parseArguments(toolArguments(span)), span, toolCallId(span));
       events.push({
         at: span.start,
         segments: [
@@ -525,7 +525,12 @@ function toolRecord(
   span: OtelSpan | undefined,
   id: string | undefined,
 ): ToolCall {
-  const record: ToolCall = { ...(id !== undefined ? { id } : {}), label: name, input };
+  const record: ToolCall = {
+    ...(id !== undefined ? { id } : {}),
+    ...(span === undefined ? {} : { spanId: span.spanId }),
+    label: name,
+    input,
+  };
   if (span === undefined) return record;
   if (span.status?.code === 2)
     record.error = span.status.message || stringOf(span.attributes['error.type']) || 'error';
@@ -597,10 +602,6 @@ function iso(ms: number): string {
 
 function round(ms: number): number {
   return Math.round(ms * 1000) / 1000;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
 /** A tool span's arguments and result, or a chat span's reply text, as the source wrote them. */

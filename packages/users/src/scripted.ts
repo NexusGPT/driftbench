@@ -7,10 +7,19 @@ import type { DriverContext, DriverStep, UserDriver } from '@agent-nexus/driftbe
 export function createScriptedDriver(): UserDriver {
   return {
     id: 'scripted',
+    seeds: {},
     next(ctx: DriverContext): DriverStep {
+      const end = ctx.spec.end;
+      const stopAfter = end ? (end.atBlock ?? ctx.spec.blocks.length - 1) : undefined;
+      if (end && stopAfter !== undefined && ctx.blockIndex > stopAfter) {
+        return {
+          kind: 'stop',
+          reason: end.reason ?? `the script ends with ${end.verdict}`,
+          verdict: end.verdict,
+        };
+      }
       const block = ctx.spec.blocks[ctx.blockIndex];
       if (!block) {
-        const end = ctx.spec.end;
         if (end) {
           return {
             kind: 'stop',
