@@ -28,6 +28,21 @@ jobs:
       - run: node tools/bench-lint.mjs
       - run: node --import tsx benchmarks/cli.ts replay --slice all --check-floor
 
+  research-replay:
+    name: research replays
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: tools/research-replay-ci.sh
+
   build:
     # Draft pull requests do not use runners; marking one ready starts its checks.
     if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
