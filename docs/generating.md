@@ -76,6 +76,7 @@ The relations are what lets code derive a machine Then. Each one quotes its sour
 | `binds` | the concrete values a data or persona value stands for, such as the email of a found account | 12 |
 | `recovery` | how a flow recovers from one deviation class: the stages it is probed at (`at`), the stage after (`pending` is the stage the conversation had reached), reply patterns, guards and calls; for `D8_tool_failure`, the tool that fails | 24: 7 by code, 17 by the model |
 | `reply_language` | the language every reply is in, whatever the user writes | 1 |
+| `reply_count` | how many replies the agent sends to one user turn: `one`, or `any` when a source says it may send several. A map without it means one reply per user turn | 0 |
 | `task_family` | a flow a code agent does as a task: the [task family](#task-families) folder, its stages, the values every instance holds (`holds`), the family knob values of the instances it places (`instances`), and the deviation class its planted variant carries | 2 |
 
 A phrase may hold a `{slot}` (`It's {email}.`), may say where it fits with `when` (a flow, a stage, a data value), and may state slot values itself with `binds` (`The unlimited one, please.` binds the plan `mobile-l`). The generator fills each slot from the values the cell binds, so a tool input expected in a block is the value the block's own When states.
@@ -307,6 +308,7 @@ A complete generated block reads observed state, not only words. Code derives ea
 | a tool failure | the path's own turn, with the tool failing in its Given; the recovery's stage and calls; calls after the failing tool expected 0 times; the conversation stops there |
 | `expect.must` and `expect.must_not` on a move | the approved `states` relations of the flow or behaviour at that stage, such as returned prices, the pending question, and forbidden invented facts |
 | `expect.lang` on every block | the `reply_language` relation, never the language of the user's message |
+| `rules.one_message_per_turn` on every spec | the `reply_count` relation: one reply per user turn unless the map states `per_turn: any`, so an agent that sends its reply twice fails. With `any`, only the probes of `D7_silence_or_burst` keep the rule, from the nudge recovery |
 
 A `states` relation names a `subject` (`dimension` and `value`), the departing `stage`, optional destination `to`, optional `when`, and `must`, `must_not`, or both. Each supplied list contains at least one regular expression. Both lists reuse the quoted-price relation's `{slot}` syntax: an approved `binds` relation supplies the value, which is escaped as literal regex text. Missing bindings make the scenario incomplete, with the reason in the report. Relations without approval do not contribute assertions. Existing `must`-only maps remain valid.
 

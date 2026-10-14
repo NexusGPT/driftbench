@@ -22,6 +22,8 @@ blocks:
       criteria:
         - needs-derivable-then
         - needs-approved-phrase
+rules:
+  one_message_per_turn: true
 metadata:
   generated:
     by: driftbench generate

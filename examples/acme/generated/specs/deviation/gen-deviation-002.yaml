@@ -117,6 +117,7 @@ rules:
     - catalog.search
     - port.check
     - order.create
+  one_message_per_turn: true
 end_state:
   source: tool:notify_sales
   mode: subset

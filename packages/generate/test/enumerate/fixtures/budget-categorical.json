@@ -1,11 +1,11 @@
 {
-  "source": "Generator v3 merged with main 5a196790: signed price-sheet family review and executor generation fixes",
+  "source": "Generator v4 with one reply per user turn on every generated spec (reply_count)",
   "mapHash": "7c05b9cee9cc",
   "hashes": {
-    "pairwise": "8717d1003e1ae2b4122ce13538e5992a920e4d01b184a4b1c2fc80c1e6b82049",
-    "budget-20": "6171e3d739888803b0462cc6d5183351221a8dfd9b0271b2f9de4fe606c6abb7",
-    "budget-50": "ab58972705708f38303ad0cf0732c19ece7d0c63d63c4c2115a3bddfc38b73c1",
-    "budget-100": "b0e5ccc7b88c2dc24d52de07f36cdbe09ad3d586d7bb6bd76ed63c8032db3831",
-    "budget-200": "0807d700783bd792b9a1c347d091ef069469737fd7aed50979762d41fe76838b"
+    "pairwise": "5f373a12f9bb21aad7e714d07920aa5adea104638677fd8bcec1e87ee6cd5e22",
+    "budget-20": "cc25ff4289c968d31c03d015566211d8114382dbd9063b0a8d25d143a3cfdd7f",
+    "budget-50": "facb1b9d858b8a7f39a7fb7d16b1d876f967969b6c2a71ab1b5297a8678308b3",
+    "budget-100": "80cf99505c35f00f4ed6622b7bb77450e546a3aa5f61f406beb71edd2f1b0c02",
+    "budget-200": "1ef0c15735107bff78d65b9d663ad8d9e2752c910978eaff45ee022a3f5c05f0"
   }
 }

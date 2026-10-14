@@ -69,6 +69,7 @@ rules:
     - port.check
     - order.create
     - notify_sales
+  one_message_per_turn: true
 perturbations:
   - id: p1-D11_pii_leak
     class: D11_pii_leak
