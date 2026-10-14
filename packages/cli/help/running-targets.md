@@ -14,6 +14,8 @@ see_also:
   - running-plugins
   - running-cells-and-repeats
   - running-campaign-run
+next:
+  - running-targets-from-settings
 ---
 
 ## What it is

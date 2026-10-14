@@ -12,6 +12,8 @@ see_also:
   - running-modes
   - running-outcomes
   - running-budget-and-prices
+next:
+  - running-budget-and-prices
 ---
 
 ## What it is

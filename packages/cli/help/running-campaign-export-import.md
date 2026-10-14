@@ -9,6 +9,8 @@ see_also:
   - running-campaign-status
   - running-campaign-resume
   - running-campaign-run
+next:
+  - running-cleanup
 ---
 
 ## What it is

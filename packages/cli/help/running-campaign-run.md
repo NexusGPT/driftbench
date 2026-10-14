@@ -18,6 +18,8 @@ see_also:
   - running-change-carry
   - running-simulate
   - running-process-and-sandboxes
+next:
+  - running-outcomes
 ---
 
 ## What it is

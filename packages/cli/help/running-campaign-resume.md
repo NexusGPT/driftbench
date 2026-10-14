@@ -11,6 +11,8 @@ see_also:
   - running-cleanup
   - running-budget-and-prices
   - running-outcomes
+next:
+  - running-store
 ---
 
 ## What it is

@@ -9,6 +9,8 @@ see_also:
   - running-campaign-resume
   - running-store
   - running-modes
+next:
+  - running-campaign-resume
 ---
 
 ## What it is

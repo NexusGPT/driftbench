@@ -10,6 +10,8 @@ see_also:
   - running-targets
   - running-budget-and-prices
   - running-campaign-config
+next:
+  - running-smoke
 ---
 
 ## What it is

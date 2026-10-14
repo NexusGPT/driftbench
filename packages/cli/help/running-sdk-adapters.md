@@ -9,6 +9,8 @@ see_also:
   - running-targets-from-settings
   - running-process-and-sandboxes
   - running-recordings
+next:
+  - running-plugins
 ---
 
 ## What it is

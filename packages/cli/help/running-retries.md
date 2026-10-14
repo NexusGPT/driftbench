@@ -10,6 +10,8 @@ see_also:
   - running-targets-from-settings
   - running-cells-and-repeats
   - running-campaign-config
+next:
+  - running-campaign-config
 ---
 
 ## What it is
