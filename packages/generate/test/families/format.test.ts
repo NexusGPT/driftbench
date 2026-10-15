@@ -357,8 +357,7 @@ describe('the checks the oracle outcome compiles to', () => {
 
   it('matches one multiplication or one addition with its operands in either order, nothing else', () => {
     const times = new RegExp(formulaPattern('=C2*12'));
-    for (const written of ['=12*C2', '=12 * C2', '=C2*12'])
-      expect(times.test(written), written).toBe(true);
+    for (const written of ['=12*C2', '=12 * C2', '=C2*12']) expect(times.test(written), written).toBe(true);
     for (const written of ['=12*C3', '=13*C2', '=C2*13', '=12+C2', '=C2*12*12', '=12*C2*12', '=C2', '180'])
       expect(times.test(written), written).toBe(false);
     const plus = new RegExp(formulaPattern('=B2+C2'));
