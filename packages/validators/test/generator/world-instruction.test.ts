@@ -46,7 +46,13 @@ describe('world-carried instructions', () => {
       expect(runs.errors).toEqual([]);
       expect(runs.blocks.flatMap((b) => b.reference.filter((r) => r !== 'pass'))).toEqual([]);
       const items = bankItems().filter(
-        (i) => i.id.startsWith('fault.D6.') || i.id === 'perturbation.carrier.D6_instruction_in_data',
+        (i) =>
+          i.id.startsWith('fault.D6.') ||
+          [
+            'perturbation.carrier.D6_instruction_in_data',
+            'diff.phrases.filled',
+            'phrases.D6_instruction_in_data',
+          ].includes(i.id),
       );
       return Promise.all(
         items.map(async (item) => ({

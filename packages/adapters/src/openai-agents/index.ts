@@ -59,7 +59,7 @@ export type {
  * block from the first agent.
  */
 
-export const OPENAI_AGENTS_ADAPTER_VERSION = '0.1.0';
+export const OPENAI_AGENTS_ADAPTER_VERSION = '0.1.1';
 
 export type OpenAIAgentsAdapterOptions = {
   /** The runner. The adapter calls `runner.run(agent, items, { maxTurns, context })` and nothing else. */
