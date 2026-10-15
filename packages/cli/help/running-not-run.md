@@ -1,6 +1,6 @@
 ---
 title: Blocks not run and blocked
-summary: 'A block whose Given the target cannot apply is `not_run`, never a pass or a fail: how the capability check decides it, how every command counts it, and how `ci --max-not-run` turns it into exit 3.'
+summary: 'A block whose Given cannot be applied is `not_run`, never a pass or a fail. The checks that decide it, how every command counts it, and `ci --max-not-run` with exit 3.'
 commands: []
 see_also:
   - running-campaign-run
@@ -9,6 +9,7 @@ see_also:
   - authoring-prefixes
   - running-targets
   - core-exit-codes
+  - authoring-given-checks
 next:
   - running-outcomes
 ---
@@ -35,6 +36,13 @@ Before it sends a block, the runner checks that the target can apply every layer
 | a forced result or error in `world.tools` | the `toolStubs` capability | `process`, `nexus`, live Claude Code, Claude Code replay, `openai-agents`, `langgraph`, `crewai`, `pydantic-ai`, and `http` by default |
 
 A layer the target cannot apply makes the block `not_run` with kind `unsupported`. Before this check existed, the layer was dropped without a word, and the block measured something other than the spec.
+
+Two more checks give `not_run`, both described in the topic authoring-given-checks:
+
+| Kind | Check | When |
+|---|---|---|
+| `given_unmet` | `tool_history_paired`, `tool_known`, `history_matches_world`, `value_in_message` | the Given verifier finds the spec's own Given wrong, before the block is sent. It runs first, before the capability check |
+| `setup_failed` | `world_digest` | after a session opens on an adapter with a sandbox, a file `world.workspace.files` seeds does not read back as written |
 
 How the run goes on after a block that was not run depends on the mode:
 
@@ -123,8 +131,8 @@ With `--json`, a block not run carries three more keys:
 |---|---|
 | `status` | `not_run` or `blocked`; absent on a block that passed or failed |
 | `notRun.kind` | `unsupported` (the target cannot apply a layer), `given_unmet` (the Given itself is wrong) or `setup_failed` (the setup did not hold) |
-| `notRun.layer` | the layer of the Given: `1 history` for a prefix, `5 world` for the world |
-| `notRun.check` | the check that refused it: `capability` here |
+| `notRun.layer` | the layer of the Given: `1 history` for a prefix, `2 tool history` for recorded calls, `4 beliefs` for shared facts, `5 world` for the world |
+| `notRun.check` | the check that refused it: `capability`, a Given verifier check, or `world_digest` |
 | `notRun.expected` | what the check expected, such as `the adapter applies a prefix (seedPrefix)` |
 | `notRun.got` | what it found, such as `nexus declares seedPrefix false: the agent would never see it` |
 | `blocked.by`, `blocked.root`, `blocked.reason` | the block it depends on that failed, the earliest failing one, and why |
@@ -352,6 +360,8 @@ Read the first `ci` output from the bottom: `Verdict: NOT RUN. Exit 3.`, then th
 | a cell line `- ... not_run  block 0 not_run capability`, and `got` says `<adapter> declares seedPrefix false: the agent would never see it` | the spec writes a `prefix` and the target cannot hand it to the agent | run on an adapter with `seedPrefix`, or write the earlier turns as blocks |
 | the same, with `declares toolStubs false` and `expected` naming `forced tool results (<tools>)` | the Given forces a tool result and the target cannot apply it | run on an adapter with `toolStubs`, such as `function`, or move the forced result into the agent's own test double |
 | every block after the first is `not_run`, `got` starting `block 0 was not run, so the conversation cannot reach this block` | modes F and P stop at the first block not run | fix the first block; the rest follow |
+| a block `not_run` with kind `given_unmet` | the spec's Given is wrong: `spec lint` shows the same finding as `GIVEN_UNMET` | fix the Given (topic authoring-given-checks) |
+| a block `not_run` with kind `setup_failed`, check `world_digest` | a seeded workspace file did not read back as written in the sandbox | check `world.workspace.files` (topic authoring-given-checks) |
 | `Verdict: NOT RUN. Exit 3.` from `ci` | a spec has blocks not run beyond `--max-not-run` | fix the spec or the target; for an exploratory suite, raise `--max-not-run` |
 | `--max-not-run takes a share from 0 to 1, not "<value>".` (exit 2) | a value below 0, above 1, or not a number | give a share such as `0.25`; it is a share, not a percentage |
 | `unpaired` reason `not measured in the candidate: ...` in `compare` or `ci` | every run of that golden had a block not run | the same fix as the block's own reason |

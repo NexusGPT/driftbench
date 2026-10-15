@@ -11,6 +11,7 @@ see_also:
   - authoring-prefixes
   - authoring-perturbations
   - authoring-inventory
+  - authoring-given-checks
 next:
   - authoring-inventory
 ---
@@ -133,6 +134,8 @@ The path in a spec is dotted, counting from 0: `blocks.2.expect.tools.0.label` i
 | `GIVEN_CANONICAL_UNPAIRED` | warning | a prefix whose `origin` is `canonical` holds a tool call with no output or error. Advice only: the block runs |
 
 ### The Given verifier
+
+Topic authoring-given-checks explains each check with the keys it reads, a worked example and every message.
 
 A Given is a recipe: these checks are its predicate. Each runs only on the layers the spec writes. A finding is a warning of `spec lint`; the four Given errors also stop the block at run time, so a block whose Given is wrong is `not_run` (kind `given_unmet`, with the layer, the check, what was expected and what was found) instead of a pass or a fail of the agent.
 
