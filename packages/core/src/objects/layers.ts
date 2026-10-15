@@ -285,16 +285,20 @@ export function resolveBlockObjects(
       }
       continue;
     }
+    const forKind = (context.cli?.set ?? []).filter((set) => set.kind === kind);
     let object: ResolvedObject | undefined;
     if (reference !== undefined) {
       object = withPlace(
         () => context.store.resolveRef(kind, reference.ref as never, reference.setAt, reference.place),
         reference.place,
       );
-    } else if (!options.explicitOnly && context.store.has(kind, 'default')) {
+    } else if (
+      (!options.explicitOnly || forKind.some((set) => set.id === undefined)) &&
+      context.store.has(kind, 'default')
+    ) {
+      // A kind-only --set explicitly targets the effective default, even during loader preflight.
       object = context.store.resolve(kind, 'default');
     }
-    const forKind = (context.cli?.set ?? []).filter((set) => set.kind === kind);
     if (object === undefined) {
       const unresolved = forKind.find((set) => set.id === undefined || /^\([a-z]+\)$/.test(set.id));
       if (unresolved)
