@@ -18,17 +18,16 @@ function atom(id: string, kind: Atom['kind'], file: string): Atom {
   };
 }
 
-const atoms = [
-  atom('route.standing.export', 'route', 'CLAUDE.md'),
-  atom('skill.archive.export', 'skill', '.claude/skills/archive/SKILL.md'),
-  atom('script.archive.pack', 'script', '.claude/skills/archive/SKILL.md'),
-  atom('script.other.clean', 'script', '.claude/skills/other/SKILL.md'),
-];
+const route = atom('route.standing.export', 'route', 'CLAUDE.md');
+const skill = atom('skill.archive.export', 'skill', '.claude/skills/archive/SKILL.md');
+const script = atom('script.archive.pack', 'script', '.claude/skills/archive/SKILL.md');
+const unrelated = atom('script.other.clean', 'script', '.claude/skills/other/SKILL.md');
+const atoms = [route, skill, script, unrelated];
 const edges: EstateMap['edges'] = [
-  { from: atoms[0]!.id, to: atoms[1]!.id, kind: 'route' },
-  { from: atoms[1]!.id, to: atoms[2]!.id, kind: 'script' },
+  { from: route.id, to: skill.id, kind: 'route' },
+  { from: skill.id, to: script.id, kind: 'script' },
 ];
-atoms[2]!.evidence = [
+script.evidence = [
   { type: 'tool_called', label: 'Bash', input: { command: { contains: 'scripts/pack.py' } } },
 ];
 const map = { atoms, edges, hash: mapHash(atoms, edges), runtime: 'claude-code' } as EstateMap;
@@ -47,22 +46,24 @@ describe('script calls in estate journeys', () => {
             .join('/'),
       ),
     ).toBe(true);
-    expect(result.journeys.some(({ atomIds }) => atomIds.includes(atoms[3]!.id))).toBe(false);
+    expect(result.journeys.some(({ atomIds }) => atomIds.includes(unrelated.id))).toBe(false);
     expect(result.uncovered).toEqual([]);
   });
 
   it('does not walk a script whose approval is withdrawn', () => {
     const copy = structuredClone(map);
-    copy.atoms[2]!.approved = false;
+    const copiedScript = copy.atoms.find((atom) => atom.id === script.id);
+    if (!copiedScript) throw new Error('The copied script is missing');
+    copiedScript.approved = false;
     expect(planJourneys(copy).edges.some((edge) => edge.kind === 'script')).toBe(false);
   });
 });
 
 describe('a generated journey catches a faulty script caller', () => {
   it('rejects a missing or substituted script even when the skill loaded and other commands ran', async () => {
-    const journey = planJourneys(map).journeys.find((j) => j.atomIds.includes(atoms[2]!.id));
+    const journey = planJourneys(map).journeys.find((j) => j.atomIds.includes(script.id));
     expect(journey).toBeDefined();
-    if (!journey) return;
+    if (!journey) throw new Error('No journey reaches the required script');
     const result = generateEstateSuite(
       {
         map,
@@ -99,7 +100,8 @@ describe('a generated journey catches a faulty script caller', () => {
       },
       { paths: { map: 'map.yaml', plan: 'plan.yaml', phrases: 'phrases.yaml' } },
     );
-    const file = result.files.find((f) => f.path.endsWith('.yaml'))!;
+    const file = result.files.find((f) => f.path.endsWith('.yaml'));
+    if (!file) throw new Error('No generated spec');
     expect(result.specs[0]?.complete).toBe(true);
     const loaded = parseSpecText(file.text, 'yaml', file.path);
     if (!loaded.ok) throw new Error(JSON.stringify(loaded.errors));
