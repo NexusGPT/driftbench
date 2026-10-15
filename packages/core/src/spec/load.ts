@@ -31,6 +31,19 @@ export type LoadedSpec = Extract<LoadResult, { ok: true }>;
  */
 export type SpecLoadOptions = { objects?: ObjectContext | (() => ObjectContext) };
 
+/**
+ * The object context each loaded spec resolved against: the objects visible from its file (shipped, project,
+ * suite and their `uses.yaml`), or the context a caller gave. A check that resolves a `uses` key reads it, so a
+ * project or suite object reaches the check the way it reached the loader. Kept by spec identity, never in the
+ * spec itself, so no hash changes.
+ */
+const loadedContexts = new WeakMap<Spec, ObjectContext>();
+
+/** The object context a loaded spec resolved against; undefined for a spec no loader produced. */
+export function objectContextOfSpec(spec: Spec): ObjectContext | undefined {
+  return loadedContexts.get(spec);
+}
+
 /** Parses, normalises and validates spec text. Never throws on bad input. */
 export function parseSpecText(
   text: string,
@@ -103,6 +116,7 @@ export function checkSpec(
         : objects;
   const resolved = context === undefined ? [] : checkSpecObjects(parsed.data, context);
   if (resolved.length > 0) return { ok: false, path, errors: resolved, warnings: [] };
+  if (context !== undefined) loadedContexts.set(parsed.data, context);
 
   return {
     ok: true,
@@ -125,11 +139,17 @@ export async function loadSpecFile(path: string): Promise<LoadResult> {
       warnings: [],
     };
   }
-  return anchorWorkspace(
+  let context: ObjectContext | undefined;
+  const result = anchorWorkspace(
     parseSpecText(text, extname(path).toLowerCase() === '.json' ? 'json' : 'yaml', path, {
-      objects: () => objectContextFor(path),
+      objects: () => {
+        context = objectContextFor(path);
+        return context;
+      },
     }),
   );
+  if (result.ok && context !== undefined) loadedContexts.set(result.spec, context);
+  return result;
 }
 
 /**

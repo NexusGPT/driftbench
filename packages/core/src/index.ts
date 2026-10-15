@@ -383,6 +383,7 @@ export {
   type LoadResult,
   loadSpecFile,
   loadSpecs,
+  objectContextOfSpec,
   parseSpecText,
   type SpecLoadOptions,
   type SpecValidationResult,

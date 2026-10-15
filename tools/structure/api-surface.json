@@ -706,6 +706,7 @@
       "normaliseText": "value",
       "normalizeSpec": "value",
       "objectContextFor": "value",
+      "objectContextOfSpec": "value",
       "objectRegistry": "value",
       "observationCompatibilityHash": "value",
       "openAiCompatibleEmbedder": "value",
