@@ -18,7 +18,7 @@ import { writingRequirementsV1 } from './writing-requirements';
 
 /** One policy across providers and tasks. Routing sees the criterion and user requests, never answers. */
 export const DEFAULT_JUDGE_POLICY = Object.freeze({
-  version: 'default-on-v6',
+  version: 'default-on-v7',
   criterionPromptVersion: 2,
   criterionDecoderVersion: 3,
   pairOrders: 'both',

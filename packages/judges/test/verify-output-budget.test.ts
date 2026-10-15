@@ -12,6 +12,9 @@ const request: JudgeRequest = {
   ],
 };
 
+// Without a reasoning level, verification stages also carry room for a model that thinks by default.
+const THINKING_ROOM = MAX_TOKENS.large + 12288;
+
 function boundedTransport(reasoning?: DialectTransport['reasoning'], requiredTokens = 2048) {
   const calls: DialectCompletionRequest[] = [];
   const transport: DialectTransport = {
@@ -64,7 +67,7 @@ describe('objective verification output room', () => {
     const result = await verifyAnswer(transport, request);
     expect(result.answer.outcome).toBe('pass');
     expect(calls).toHaveLength(7);
-    expect(calls.map((call) => call.maxTokens)).toEqual(Array(7).fill(MAX_TOKENS.large));
+    expect(calls.map((call) => call.maxTokens)).toEqual(Array(7).fill(THINKING_ROOM));
     expect(JSON.parse(result.raw)).toMatchObject({ version: 2 });
     expect(JSON.parse(result.raw).calls.map((call: { stage: string }) => call.stage)).toEqual([
       'extract',
@@ -105,11 +108,8 @@ describe('objective verification output room', () => {
     const judge = createDefaultJudge({ provider: 'openai', model: 'fixture', env: {}, transport });
     const result = await judge.judge(request);
     expect(result.answer.outcome).toBe('pass');
-    expect(result.defaultJudge).toMatchObject({ version: 'default-on-v6', route: 'objective' });
-    expect(calls.map((call) => call.maxTokens)).toEqual([
-      MAX_TOKENS.normal,
-      ...Array(7).fill(MAX_TOKENS.large),
-    ]);
+    expect(result.defaultJudge).toMatchObject({ version: 'default-on-v7', route: 'objective' });
+    expect(calls.map((call) => call.maxTokens)).toEqual([MAX_TOKENS.normal, ...Array(7).fill(THINKING_ROOM)]);
     expect(result.requestCount).toBe(8);
     expect(result.costUsd).toBeCloseTo(0.08);
   });
@@ -143,13 +143,13 @@ describe('objective verification output room', () => {
     },
   );
 
-  it('keeps an answer that exhausts the larger allowance inconclusive', async () => {
-    const { transport, calls } = boundedTransport(undefined, MAX_TOKENS.large + 1);
+  it('keeps an extraction that exhausts the thinking room inconclusive', async () => {
+    const { transport, calls } = boundedTransport(undefined, THINKING_ROOM + 1);
     const result = await verifyAnswer(transport, request);
     expect(result.answer.outcome).toBe('inconclusive');
-    expect(result.answer.reasoning).toContain('incomplete or empty response');
+    expect(result.answer.reasoning).toContain('extract: incomplete or empty response');
     expect(calls).toHaveLength(1);
-    expect(calls[0]?.maxTokens).toBe(MAX_TOKENS.large);
+    expect(calls[0]?.maxTokens).toBe(THINKING_ROOM);
     expect(JSON.parse(result.raw).calls[0].completion.truncated).toBe(true);
     expect(result.costUsd).toBe(0.01);
   });
