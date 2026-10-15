@@ -2,7 +2,13 @@ import { readdir, readFile, stat } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { readSession, replayAdapter } from '@agent-nexus/driftbench-adapters';
 import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
-import { type LoadedSpec, loadSpecFile, type Observed, runSpec } from '@agent-nexus/driftbench-core';
+import {
+  isScored,
+  type LoadedSpec,
+  loadSpecFile,
+  type Observed,
+  runSpec,
+} from '@agent-nexus/driftbench-core';
 import {
   type Atom,
   AtomKind,
@@ -258,6 +264,8 @@ async function sessionEvidence(folder: string, tests: CompleteTest[], io: Io): P
     const mine = verdicts.get(alignment.entry.name) ?? new Map<number, boolean[]>();
     verdicts.set(alignment.entry.name, mine);
     for (const block of result.blocks) {
+      // A block not run or blocked is no measurement of the agent: it joins no rate.
+      if (!isScored(block)) continue;
       const index = block.index + alignment.fromBlock;
       const values = mine.get(index) ?? [];
       values.push(result.status === 'completed' && block.pass);

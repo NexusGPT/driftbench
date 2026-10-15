@@ -34,6 +34,7 @@ import {
   renderRun,
   runDetailOf,
   runPassed,
+  scoredRuns,
 } from '@agent-nexus/driftbench-report';
 import { openStore } from '@agent-nexus/driftbench-store';
 
@@ -389,14 +390,20 @@ async function queuePage(labelsDir: string, reviewer: string, csrf: string): Pro
   ]);
 }
 
+/** Runs that pass and runs that fail, for the index: a run not run or blocked is in neither column. */
+export function passingAndFailing(runs: readonly RunResult[]): { passing: number; failing: number } {
+  const passing = runs.filter(runPassed).length;
+  return { passing, failing: scoredRuns(runs).length - passing };
+}
+
 async function indexPage(store: Store): Promise<string> {
   const campaigns = await store.listCampaigns();
   const rows: string[] = [];
   for (const campaign of campaigns) {
     const data = await loadCampaign(store, campaign.campaignId);
-    const passing = data.runs.filter(runPassed).length;
+    const { passing, failing } = passingAndFailing(data.runs);
     rows.push(
-      `<tr><td class="mono"><a href="/campaign/${encodeURIComponent(campaign.campaignId)}">${esc(campaign.campaignId)}</a></td><td>${esc(campaign.createdAt)}</td><td>${esc(campaign.modes.join(', '))}</td><td class="num">${campaign.specs.length}</td><td class="num">${data.runs.length} runs</td><td class="num">${passing}</td><td class="num">${data.runs.length - passing}</td></tr>`,
+      `<tr><td class="mono"><a href="/campaign/${encodeURIComponent(campaign.campaignId)}">${esc(campaign.campaignId)}</a></td><td>${esc(campaign.createdAt)}</td><td>${esc(campaign.modes.join(', '))}</td><td class="num">${campaign.specs.length}</td><td class="num">${data.runs.length} runs</td><td class="num">${passing}</td><td class="num">${failing}</td></tr>`,
     );
   }
   const body =

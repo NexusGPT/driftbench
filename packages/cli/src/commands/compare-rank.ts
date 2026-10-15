@@ -1,7 +1,7 @@
 import { resolve } from 'node:path';
 import { canonicalJson, type RunResult } from '@agent-nexus/driftbench-core';
 import { bradleyTerry, findCycles } from '@agent-nexus/driftbench-judges';
-import { type CampaignData, runPassed } from '@agent-nexus/driftbench-report';
+import { type CampaignData, runPassed, scoredRuns } from '@agent-nexus/driftbench-report';
 import type { Io } from '../io';
 import { noStoreAt } from '../store-path';
 import { loadReported, openReported, parseModes, type ReportDeps } from './compare';
@@ -53,7 +53,8 @@ export async function rankCommand(options: RankOptions, io: Io, deps: ReportDeps
           return 2;
         }
         targets.set(unit, target);
-        byUnit.set(unit, runPassed(run));
+        const outcome = rankOutcome(run);
+        if (outcome !== undefined) byUnit.set(unit, outcome);
       }
       outcomes.push(byUnit);
     }
@@ -106,6 +107,14 @@ export async function rankCommand(options: RankOptions, io: Io, deps: ReportDeps
   } finally {
     await store.close();
   }
+}
+
+/**
+ * A run's outcome for the ranking: passed or failed. A run neither passed nor failed (a block not run or
+ * blocked) is no outcome, so its unit is not shared with the other campaigns.
+ */
+export function rankOutcome(run: RunResult): boolean | undefined {
+  return scoredRuns([run]).length === 1 ? runPassed(run) : undefined;
 }
 
 function unitOf(run: RunResult): string {
