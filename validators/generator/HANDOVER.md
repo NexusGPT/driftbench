@@ -216,3 +216,10 @@ Additional product gaps: `allocation.deviation.ratio` needs balancing in `genera
 The rendered D8 read-tool recovery now requires `count: 2`: the initial failed call and exactly one retry, matching the existing prompt. The recovery item already reads that same hidden relation, so neither bank item changes. The mutant remains unchanged. This resolves item 13 above without lowering a threshold or removing a fault.
 
 The generator must carry that exact count into every D8 failure Then, keep the pending stage and report the failure, including self-loop failures. Actual generated suites pass both named items on seeds 1 and 3. The focused regression covers visible seeds 1–20 and the base-commit hidden seed. See [the partial-measurement journal](SWEEP-JOURNAL.md) and [evidence](evidence/d8-retry-contract.json). The historical level table is not a new measurement.
+## D6 maintainer ruling (2026-10-15)
+
+The users package declares D6 a world carrier; the spec reference and rendered prompt identify instructions inside supplied workspace files and tool results as data. Phrase provenance and phrase coverage now inspect that content when the injection carries no user text. The same shared reader serves both items. It requires an approved phrase of the injected class, never merely an empty user or a populated world.
+
+The reader ignores filenames, object keys, metadata, background Given, store/fixtures and tool errors. Ordinary user/burst provenance remains exact; nonempty user text cannot borrow approval from the world. The carrier and behavioural fault items remain unchanged, so recording an approved phrase is not proof that the agent consumed it or that the suite caught obedience.
+
+Product obligation: put every approved D6 instruction in the injected world file/tool-result content, leave injection.user empty, and retain checks that catch both obedience faults. See [the partial journal](SWEEP-JOURNAL.md) and [evidence](evidence/d6-world-carrier-contract.json). No historical ladder level is updated by this scoped ruling.
