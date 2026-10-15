@@ -33,6 +33,7 @@ import {
   canonicalGiven,
   enterBlock,
   initialGiven,
+  type RunningGiven,
   resolveGiven,
   stimulusMessages,
 } from './given';
@@ -432,20 +433,27 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       const notRun = capabilityGap(run.adapter.id, run.capabilities, {
         prefix:
           run.mode === 'T' && step.kind === 'block'
-            ? spec.blocks
-                .slice(0, step.blockIndex + 1)
-                .some((block) => (block.given?.prefix?.length ?? 0) > 0)
+            ? latestPrefixWritten(spec, step.blockIndex)
             : prefixWritten,
         world: state.world,
       });
       if (notRun) {
-        blocks.push(notRunBlock(run, position, planned, given.hash, notRun));
+        const specIndex = step.kind === 'block' ? step.blockIndex : step.beforeBlock;
+        const ledger = addFacts(state.ledger, planned.expect.ledger_add).ledger;
+        blocks.push(
+          notRunBlock(run, position, planned, { givenHash: given.hash, specIndex, ledger }, notRun),
+        );
         if (run.mode === 'T') continue;
         // In F and P the free conversation cannot go past a block it did not run: every later spec block is
         // not run either, and the driver is not asked for more steps.
+        // Each later block is stamped as a run reconstructs it (a re-judge checks the stamps): the blocks before
+        // it with their user messages and an empty reply, and the facts their ledger_add establishes.
         const from = step.kind === 'block' ? step.blockIndex + 1 : nextBlock;
-        let laterState = state;
-        let laterHistory = history;
+        let laterState: RunningGiven = { ...state, ledger };
+        let laterHistory = copyHistory(history, [
+          ...stimulusMessages(planned.stimulus),
+          assistantMessage(NOT_SENT),
+        ]);
         for (let index = from; index < spec.blocks.length; index++) {
           const later = planStep(spec, {
             kind: 'block',
@@ -455,11 +463,23 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
           laterState = enterBlock(laterState, later.given);
           if (later.given?.prefix) laterHistory = copyHistory(later.given.prefix);
           const laterHash = resolveGiven(laterState, laterHistory, run.target).hash;
+          const laterLedger = addFacts(laterState.ledger, later.expect.ledger_add).ledger;
+          laterState = { ...laterState, ledger: laterLedger };
+          laterHistory = copyHistory(laterHistory, [
+            ...stimulusMessages(later.stimulus),
+            assistantMessage(NOT_SENT),
+          ]);
           blocks.push(
-            notRunBlock(run, blocks.length, later, laterHash, {
-              ...notRun,
-              got: `block ${position} was not run, so the conversation cannot reach this block: ${notRun.got}`,
-            }),
+            notRunBlock(
+              run,
+              blocks.length,
+              later,
+              { givenHash: laterHash, specIndex: index, ledger: laterLedger },
+              {
+                ...notRun,
+                got: `block ${position} was not run, so the conversation cannot reach this block: ${notRun.got}`,
+              },
+            ),
           );
         }
         break;
@@ -703,12 +723,31 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
   };
 }
 
-/** A block that was never sent: nothing observed, no verdict, never a pass. Reports its start and end. */
+/**
+ * Mode T: whether the history block `index` starts from holds a prefix the spec wrote. The latest block up to
+ * this one that writes `given.prefix` sets the history; an empty prefix clears it.
+ */
+function latestPrefixWritten(spec: Spec, index: number): boolean {
+  for (let at = index; at >= 0; at--) {
+    const prefix = spec.blocks[at]?.given?.prefix;
+    if (prefix !== undefined) return prefix.length > 0;
+  }
+  return false;
+}
+
+/** The Observed of a block that was never sent: nothing happened, at no cost. */
+const NOT_SENT: Observed = { segments: [], text: '', toolCalls: [], cost: {}, latencyMs: 0 };
+
+/**
+ * A block that was never sent: nothing observed, no verdict, never a pass. Reports its start and end. With
+ * provenance, it carries the same block stamp as a block that ran (spec index, stimulus and ledger hashes, no
+ * artifact), so a run that holds it can still be re-judged on its other blocks.
+ */
 function notRunBlock(
   run: RunContext,
   position: number,
   planned: PlannedStep,
-  givenHash: string,
+  stamp: { givenHash: string; specIndex: number; ledger: Record<string, unknown> },
   notRun: NotRun,
 ): BlockResult {
   run.onEvent?.({ type: 'block_start', index: position, at: new Date().toISOString() });
@@ -723,8 +762,18 @@ function notRunBlock(
     index: position,
     ...(planned.blockId !== undefined ? { blockId: planned.blockId } : {}),
     ...(planned.injected ? { injected: true } : {}),
-    givenHash,
-    observed: { segments: [], text: '', toolCalls: [], cost: {}, latencyMs: 0 },
+    ...(run.provenance
+      ? {
+          provenance: {
+            specIndex: stamp.specIndex,
+            stimulusHash: provenanceHash(planned.stimulus),
+            ledgerHash: provenanceHash(stamp.ledger),
+            artifacts: [],
+          },
+        }
+      : {}),
+    givenHash: stamp.givenHash,
+    observed: { ...NOT_SENT, segments: [], toolCalls: [], cost: {} },
     verdicts: [],
     ledgerCheck: { ok: true, contradictions: [] },
     drift: [],

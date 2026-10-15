@@ -12,8 +12,10 @@ import {
   pct,
   points,
   pValue,
+  unscoredReason,
   unscoredRuns,
   usd,
+  verdictOf,
 } from './format';
 import { chartsZone, overview, pageModel, runsZone, testsZone, versionsZone } from './html-zones';
 import type { PilotReport } from './pilot';
@@ -630,9 +632,11 @@ function blockDetail(block: BlockDetail, extra = ''): string {
       ? `<details><summary>${esc(block.toolCalls.map((call) => call.label).join(', '))}</summary>${calls}</details>`
       : calls;
   const verdictHead = ['outcome', 'verdict', 'kind', 'gating', 'evidence', 'judge reasoning'];
-  return `<div class="block ${block.pass ? 'block-pass' : 'block-fail'}" id="block-${block.index}">
-${block.rejudged ? `<p>Re-judged: ${esc(block.rejudged.criteria.join(', '))}; observations from ${esc(block.rejudged.fromCampaign)}.</p>\n` : block.carried ? `<p>carried from ${esc(block.carried.fromCampaign)}</p>\n` : ''}<p class="block-head"><span class="badge ${block.pass ? 'ok' : 'bad'}">${block.pass ? 'pass' : 'fail'}</span> Block ${block.index}, ${esc(where)}${block.drift.length > 0 ? `, drift ${esc(block.drift.join(', '))}` : ''}. Stage expected ${esc(block.expectedStage ?? 'none')}, observed ${esc(block.observedStage ?? 'none')}.</p>
-${block.stimulus === undefined ? '' : `<p class="label">User</p><pre class="msg">${esc(block.stimulus)}</pre>`}
+  const verdict = verdictOf(block.pass, block.status);
+  const reason = unscoredReason(block);
+  return `<div class="block ${verdict.cls === 'ok' ? 'block-pass' : verdict.cls === 'skip' ? 'block-skip' : 'block-fail'}" id="block-${block.index}">
+${block.rejudged ? `<p>Re-judged: ${esc(block.rejudged.criteria.join(', '))}; observations from ${esc(block.rejudged.fromCampaign)}.</p>\n` : block.carried ? `<p>carried from ${esc(block.carried.fromCampaign)}</p>\n` : ''}<p class="block-head"><span class="badge ${verdict.cls}">${verdict.text}</span> Block ${block.index}, ${esc(where)}${block.drift.length > 0 ? `, drift ${esc(block.drift.join(', '))}` : ''}. Stage expected ${esc(block.expectedStage ?? 'none')}, observed ${esc(block.observedStage ?? 'none')}.</p>
+${reason === undefined ? '' : `<p class="skip-reason">${esc(reason)}</p>\n`}${block.stimulus === undefined ? '' : `<p class="label">User</p><pre class="msg">${esc(block.stimulus)}</pre>`}
 <p class="label">Agent</p><pre class="msg">${esc(block.text || '(no text)')}</pre>
 <p class="label">Cache key</p><pre class="mono">${esc(block.cacheKey ?? 'not cached')}</pre>
 <p class="label">Tool calls</p>${tools}
@@ -679,8 +683,9 @@ function runDetail(run: RunDetail, options: RenderOptions = {}): string {
           ),
         )
       : '';
-  return `<details class="run ${run.pass ? 'run-pass' : 'run-fail'}" id="run-${esc(run.runId)}"${run.pass ? '' : ' open'}>
-<summary><span class="badge ${run.pass ? 'ok' : 'bad'}">${run.pass ? 'pass' : 'fail'}</span> <span class="mono">${esc(name)}</span>${options.runHref ? ` <a class="open" href="${esc(options.runHref(run.runId))}">open the run</a>` : ''}</summary>
+  const verdict = verdictOf(run.pass, run.outcome);
+  return `<details class="run ${verdict.cls === 'ok' ? 'run-pass' : verdict.cls === 'skip' ? 'run-skip' : 'run-fail'}" id="run-${esc(run.runId)}"${run.pass ? '' : ' open'}>
+<summary><span class="badge ${verdict.cls}">${verdict.text}</span> <span class="mono">${esc(name)}</span>${options.runHref ? ` <a class="open" href="${esc(options.runHref(run.runId))}">open the run</a>` : ''}</summary>
 <p class="run-facts">${esc(facts.join(', '))}.${run.title ? ` ${esc(run.title)}.` : ''}</p>
 ${run.error ? `<p class="bad">${esc(run.error)}</p>` : ''}
 ${diff}
@@ -693,8 +698,10 @@ ${run.blocks.map((block) => blockDetail(block)).join('\n')}
  * which holds every block. Says how many runs the run limit left out.
  */
 function drilldownIndex(card: Scorecard, options: RenderOptions): string {
-  const failing = card.drilldown.filter((run) => !run.pass).length;
-  const passing = card.drilldown.length - failing;
+  // A run not run or blocked is neither failing nor passing: it is counted on its own.
+  const unscored = card.drilldown.filter((run) => run.outcome !== undefined).length;
+  const failing = card.drilldown.filter((run) => !run.pass && run.outcome === undefined).length;
+  const passing = card.drilldown.length - failing - unscored;
   const runs = card.drilldown.map((run) =>
     runDetail({ ...run, blocks: [] }, options)
       .replace(/ id="run-[^"]*"/, '')
@@ -706,7 +713,7 @@ function drilldownIndex(card: Scorecard, options: RenderOptions): string {
   );
   return `<section id="drilldown-index">
 <h2>Drilldown</h2>
-<p>Failing runs first. Each run opens its panel, with every block: what the user sent, what the agent said and called, and every check with its evidence. Shown: ${count(failing, 'failing run')} and ${count(passing, 'passing run')}.${card.omittedRuns > 0 ? ` ${count(card.omittedRuns, 'more run')} left out by the run limit.` : ''}</p>
+<p>Failing runs first. Each run opens its panel, with every block: what the user sent, what the agent said and called, and every check with its evidence. Shown: ${count(failing, 'failing run')}${unscored > 0 ? `, ${count(unscored, 'run')} not run or blocked,` : ''} and ${count(passing, 'passing run')}.${card.omittedRuns > 0 ? ` ${count(card.omittedRuns, 'more run')} left out by the run limit.` : ''}</p>
 ${runs.join('\n')}
 </section>`;
 }
@@ -908,7 +915,7 @@ svg .hl{fill:var(--card-2);opacity:0}svg .row:hover .hl{opacity:1}
 .count{margin-left:auto;font:500 12.5px/1 var(--mono);color:var(--ink-2)}
 .chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font:500 13px/1.3 var(--sans);white-space:nowrap}
 .chip::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
-.chip.ok{background:var(--ok-bg);color:var(--ok-ink)}.chip.fail{background:var(--fail-bg);color:var(--fail-ink)}
+.chip.ok{background:var(--ok-bg);color:var(--ok-ink)}.chip.fail{background:var(--fail-bg);color:var(--fail-ink)}.chip.skip{background:var(--wait-bg);color:var(--wait-ink)}
 .move{display:block;font:500 12.5px/1.3 var(--mono);white-space:nowrap}
 .move.down{color:var(--fail-ink)}.move.up{color:var(--ok-ink)}.move.same{color:var(--ink-3)}
 td .move{display:inline}
@@ -947,7 +954,7 @@ td .move{display:inline}
 .runs td.t small{display:block;font:400 12.5px/1.3 var(--mono);color:var(--ink-2)}
 .sq{display:inline-flex;gap:3px;vertical-align:middle}
 .sq i{display:block;width:12px;height:12px;border-radius:3px;background:var(--ok)}
-.sq i.f{background:var(--fail)}.sq i.inj{box-shadow:inset 0 0 0 2px var(--card)}
+.sq i.f{background:var(--fail)}.sq i.s{background:var(--wait)}.sq i.inj{box-shadow:inset 0 0 0 2px var(--card)}
 .firstfail{font:400 12.5px/1.35 var(--mono);color:var(--ink-2)}.firstfail b{font-weight:500;color:var(--fail-ink)}
 .scrim{display:none;position:fixed;inset:0;z-index:40;background:rgba(14,17,22,.4)}
 #drilldown:has(.drawer:target) .scrim{display:block}
@@ -1027,9 +1034,9 @@ details.run{border:1px solid var(--line);border-radius:12px;padding:6px 10px;mar
 details.run>summary{cursor:pointer}
 .run-facts{color:var(--ink-2);margin:6px 0}
 .badge{display:inline-block;border-radius:999px;padding:0 8px;font-size:12px;font-weight:500}
-.badge.ok{background:var(--ok-bg);color:var(--ok-ink)}.badge.bad{background:var(--fail-bg);color:var(--fail-ink)}
+.badge.ok{background:var(--ok-bg);color:var(--ok-ink)}.badge.bad{background:var(--fail-bg);color:var(--fail-ink)}.badge.skip{background:var(--wait-bg);color:var(--wait-ink)}
 .block{border-left:3px solid var(--line);padding:4px 0 4px 10px;margin:10px 0}
-.block-fail{border-left-color:var(--fail)}.block-pass{border-left-color:var(--ok)}
+.block-fail{border-left-color:var(--fail)}.block-pass{border-left-color:var(--ok)}.block-skip{border-left-color:var(--wait)}
 .block-head{margin:0 0 4px}.label{margin:6px 0 2px;color:var(--ink-2);font-size:12.5px}.passed{margin:6px 0;font-size:12.5px;word-break:break-word}
 .call{margin:4px 0}.call p{margin:0 0 2px}
 nav.top{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;max-width:1176px;margin:0 auto;padding:16px var(--gutter)}nav.top a{text-decoration:none}

@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { BUILT_IN_AGGREGATES, evaluateAggregates } from '../src/aggregate';
 import { compareCampaigns } from '../src/compare';
 import { blockScore, runPassed, scoredRuns } from '../src/data';
+import { renderHtml, renderRun } from '../src/html';
 import { renderJunit } from '../src/junit';
 import { reliability } from '../src/reliability';
 import { buildScorecard } from '../src/scorecard';
@@ -93,5 +94,28 @@ describe('a run with a block not run is neither a pass nor a fail', () => {
       reason:
         'not measured in the candidate: block 1 not run (capability: echo declares toolStubs false: the agent would never see it)',
     });
+  });
+
+  it('the run page shows its own badge and the reason, never a fail', () => {
+    const card = buildScorecard(campaign('c', 1, [skipped]));
+    const detail = card.drilldown.find((entry) => entry.specId === 'g-skip');
+    if (!detail) throw new Error('no drilldown entry');
+    const page = renderRun(detail);
+    expect(page).toContain('<span class="badge skip">not run</span> <span class="mono">g-skip');
+    expect(page).toContain('<span class="badge skip">not run</span> Block 1');
+    expect(page).toContain(
+      'Not run (unsupported, check capability, layer 5 world): expected the adapter applies forced tool results (lookup) (toolStubs); got echo declares toolStubs false: the agent would never see it.',
+    );
+    expect(page).not.toContain('<span class="badge bad">fail</span>');
+  });
+
+  it('the scorecard page counts it apart from the failing runs, with its own chip and reason', () => {
+    const html = renderHtml(buildScorecard(campaign('c', 2, [skipped])));
+    expect(html).toContain('Shown: 0 failing runs, 1 run not run or blocked, and 2 passing runs.');
+    expect(html).toContain('<span class="chip skip">Not run</span>');
+    expect(html).toContain('<tr class="run-row r-skip');
+    expect(html).toContain('Failed<span class="c">0</span>');
+    expect(html).toContain('Not run (unsupported, check capability');
+    expect(html).not.toContain('<tr class="run-row r-fail');
   });
 });

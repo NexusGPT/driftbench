@@ -77,6 +77,25 @@ describe('the capability check: a layer the adapter cannot apply is not_run, nev
     expect(adapter.calls.send).toBe(1);
   });
 
+  it('mode T: a later block whose empty prefix clears the history runs', async () => {
+    const cleared = specOf({
+      id: 'prefix-cleared',
+      blocks: [
+        {
+          when: { user: 'Yes, the 500 one please.' },
+          given: {
+            prefix: [{ role: 'user', content: 'Hi, I want home internet at 12 Oak Street, Acmeville.' }],
+          },
+        },
+        { when: { user: 'Hi, I want home internet at 12 Oak Street, Acmeville.' }, given: { prefix: [] } },
+      ],
+    });
+    const adapter = acmeAdapter({ capabilities: NO_PREFIX });
+    const run = await runSpec(cleared, { adapter, driver, checks: defaultChecks(), mode: 'T', repeat: 0 });
+    expect(run.blocks.map((block) => block.status)).toEqual(['not_run', undefined]);
+    expect(adapter.calls.send).toBe(1);
+  });
+
   it('the same prefix on an adapter with seedPrefix runs every block', async () => {
     const adapter = acmeAdapter();
     const run = await runSpec(withPrefix, { adapter, driver, checks: defaultChecks(), mode: 'T', repeat: 0 });
