@@ -52,18 +52,13 @@ describe('suiteHeadline', () => {
     expect(h?.estimate).not.toBeCloseTo(h?.pooledRate ?? 0, 3);
   });
 
-  it('prints the design effect, the effective runs and the detectable drop of the same clustering', () => {
-    const effective = wilsonEffective([
-      { n: 5, k: 5 },
-      { n: 5, k: 5 },
-      { n: 5, k: 4 },
-      { n: 5, k: 0 },
-      { n: 5, k: 2 },
-      { n: 2, k: 2 },
-    ]);
-    expect(h?.designEffect).toBe(effective.designEffect);
-    expect(h?.effectiveRuns).toBe(effective.effectiveN);
-    const drop = mde({ n: effective.effectiveN, baselineRate: h?.estimate ?? 0, power: 0.8 }).effect;
+  it('prints the design effect, the effective runs and the detectable drop of the mean over goldens', () => {
+    // Tree rates 1, 1, 0.8, 0, 0.4, 1 with mean 0.7: variance of the mean = sum (r - 0.7)^2 / (G - 1) / G.
+    const variance = 0.86 / 5 / 6;
+    const effective = (0.7 * 0.3) / variance;
+    expect(h?.effectiveRuns).toBeCloseTo(effective, 10);
+    expect(h?.designEffect).toBeCloseTo(27 / effective, 10);
+    const drop = mde({ n: effective, baselineRate: h?.estimate ?? 0, power: 0.8 }).effect;
     expect(h?.detectableDrop).toBeCloseTo(drop ?? Number.NaN, 12);
     expect(HEADLINE_POWER).toBe(PLANNING_POWER);
   });
@@ -111,6 +106,26 @@ describe('suiteHeadline', () => {
       'every run agrees, so each golden counts once',
     );
     expect(h?.degenerate).toBe(false);
+  });
+
+  it('reads n_eff and the detectable drop from the variance of the equal-weight mean, not of the pooled rate', () => {
+    // One golden of 1000 runs at 50% beside 11 goldens of 2 runs at 50%: the mean over goldens is 50%.
+    const trees = [{ n: 1000, k: 500 }, ...Array.from({ length: 11 }, () => ({ n: 2, k: 1 }))];
+    const runs = trees.flatMap((t, g) =>
+      Array.from({ length: t.n }, (_, repeat) =>
+        run({ specId: `g${g}`, repeat, blocks: repeat < t.k ? [{}] : [{}, { pass: false }] }),
+      ),
+    );
+    const got = suiteHeadline(runs, treeOf);
+    // variance of the mean = (1 / 12^2) * (0.25 / 1000 + 11 * 0.25 / 2); n_eff = 0.25 / variance.
+    const variance = (0.25 / 1000 + (11 * 0.25) / 2) / 144;
+    expect(got?.estimate).toBeCloseTo(0.5, 12);
+    expect(got?.effectiveRuns).toBeCloseTo(0.25 / variance, 6);
+    expect(got?.effectiveRuns).toBeCloseTo(26.18, 2);
+    const drop = mde({ n: 0.25 / variance, baselineRate: 0.5, power: 0.8 }).effect as number;
+    expect(got?.detectableDrop).toBeCloseTo(drop, 12);
+    expect((got?.detectableDrop ?? 0) * 100).toBeCloseTo(35.4, 1);
+    expect(got?.designEffect).toBeCloseTo(1022 / 26.18, 1);
   });
 
   it('is undefined with no run', () => {
