@@ -129,7 +129,9 @@ function blockInstruction(guards: GuardEvent[]): void {
 /**
  * The tools, with each answer read as data. A string of the answer that carries an instruction is dropped
  * before the policy reads the answer, and so is an entry whose key carries one; an error that carries one is
- * replaced. When a value the policy needs is dropped, the answer is one it cannot read, as any other.
+ * replaced. Only the value goes: a list item it leaves unreadable is left out of its list and the rest of
+ * the answer is read (`readCatalog`). When a value the policy needs is dropped and nothing readable is left,
+ * the answer is one it cannot read, as any other.
  */
 function readAsData(call: CallTool, guards: GuardEvent[]): CallTool {
   return (label, input) => {
@@ -148,6 +150,9 @@ function readAsData(call: CallTool, guards: GuardEvent[]): CallTool {
 
 const DROPPED = Symbol('dropped');
 
+/** The records of a tool answer the guard took a value from. */
+const TRIMMED = new WeakSet<object>();
+
 /** The value without the strings that carry an instruction; the same value when it holds none. */
 function withoutInstructions(value: unknown): unknown {
   if (typeof value === 'string') return isInjection(value) ? DROPPED : value;
@@ -162,9 +167,10 @@ function withoutInstructions(value: unknown): unknown {
     key,
     isInjection(key) ? DROPPED : withoutInstructions(item),
   ]);
-  return entries.every(([key, item]) => item === value[key])
-    ? value
-    : Object.fromEntries(entries.filter(([, item]) => item !== DROPPED));
+  if (entries.every(([key, item]) => item === value[key])) return value;
+  const trimmed = Object.fromEntries(entries.filter(([, item]) => item !== DROPPED));
+  TRIMMED.add(trimmed);
+  return trimmed;
 }
 
 const NEEDS = 'What are you looking for: a mobile plan, home internet, an upgrade, or keeping your number?';
@@ -740,8 +746,13 @@ type CatalogAnswer = {
 
 function readCatalog(outcome: ToolOutcome): CatalogAnswer | undefined {
   if (!outcome.ok || !isRecord(outcome.output)) return undefined;
-  const { plans, customer } = outcome.output;
-  if (!Array.isArray(plans) || !plans.every(isPlanView)) return undefined;
+  const { plans: listed, customer } = outcome.output;
+  if (!Array.isArray(listed)) return undefined;
+  // A plan the guard took a value from is left out when it no longer reads; any other unreadable plan, or
+  // none left to read, and the answer is unreadable.
+  const plans = listed.filter(isPlanView);
+  if (!listed.every((plan) => isPlanView(plan) || (isRecord(plan) && TRIMMED.has(plan)))) return undefined;
+  if (plans.length === 0 && listed.length > 0) return undefined;
   if (customer === undefined || customer === null) return { plans, customer };
   if (
     !isRecord(customer) ||
