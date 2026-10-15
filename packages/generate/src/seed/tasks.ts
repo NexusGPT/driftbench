@@ -21,6 +21,7 @@ import type { PreparedMap } from './map';
  *
  * - the values every instance holds (`holds`) become the spec's tags, as a generated spec carries its
  *   persona, data and task values;
+ * - the spec holds the map's reply rule (`reply_count`), one reply per user turn unless the map says any;
  * - a planted variant, whose workspace holds an instruction in a file, also declares that file as a
  *   perturbation of the class the relation names, at the first block, with the first block's Then: the
  *   space places the class there, and a perturbed run applies the same workspace.
@@ -64,6 +65,12 @@ export function* streamTaskSpecs(
       const spec: Record<string, unknown> = { ...variant.spec };
       const own = (spec.tags as string[] | undefined) ?? [];
       spec.tags = [...own, ...tags.filter((tag) => !own.includes(tag))];
+      // One reply per user turn unless the map says otherwise (`reply_count`), as on every generated spec.
+      if (prepared.relations.repliesPerTurn === 'one')
+        spec.rules = {
+          ...((spec.rules as Record<string, unknown> | undefined) ?? {}),
+          one_message_per_turn: true,
+        };
       if (variant.planted && planted) {
         const blocks = (spec.blocks as Array<{ expect?: Record<string, unknown> }> | undefined) ?? [];
         const files = (spec.workspace_seed as { files?: Record<string, string> } | undefined)?.files;
