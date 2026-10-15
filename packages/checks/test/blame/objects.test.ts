@@ -1,6 +1,8 @@
 import { ObjectRegistry, ObjectStore, objectRegistry, parseObjectText } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
-import { blame } from '../../src';
+import { blame, initializeShippedObjects } from '../../src';
+
+initializeShippedObjects();
 
 /**
  * The shipped blame and placement files are data that resolve through the object framework: 32 blame items and

@@ -1,7 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { objectRegistry, parseObjectText } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
-import '../../src';
+import { initializeShippedObjects } from '../../src';
+
+initializeShippedObjects();
 
 describe('shipped blame data', () => {
   it.each(['policy/blame', 'policy/placement'])(

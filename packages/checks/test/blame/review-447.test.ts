@@ -1,7 +1,9 @@
 import { evidence, ObjectStore, parseObjectText } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
-import { blame, type placement } from '../../src';
+import { blame, initializeShippedObjects, type placement } from '../../src';
 import { f7 } from '../fixtures/blame/cases';
+
+initializeShippedObjects();
 
 function project(kind: string, items: string) {
   const store = new ObjectStore();
