@@ -34,6 +34,7 @@ What the agent sees of a canonical call depends on the adapter:
   > Not recorded: this earlier call comes from a replayed conversation that states the call, with only the arguments it fixes, and not what it returned.
 
   To give the agent a real result instead, force the tool's result or error in the spec's `world.tools`.
+  The same rule applies outside mode T to any history call with neither an output nor an error. An SDK adapter's own loop always records one of the two, so this happens only when an http endpoint answers with an Observed that holds a `tool_call` segment and no matching `tool_result`: the next request of that run carries the note.
 * The call's arguments are only the input fields the spec pins to an exact value. A field pinned with a pattern (`regex`, `contains`) is left out, so such a call goes out with fewer arguments, or none.
 
 ## Free-running
