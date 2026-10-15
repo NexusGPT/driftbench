@@ -19,7 +19,7 @@ import {
 } from '../schema/run';
 import type { BlockSpec, EndState, Expect, GivenOverride, Spec, Stimulus } from '../schema/spec';
 import { cloneJson, contentHash } from '../spec/hash';
-import { compareEndState, deepEqual, type EndStateMatch } from './assertion';
+import { compareEndState, type EndStateMatch } from './assertion';
 import { blockCacheKey, endStateCacheKey, type ObservedCache, unwrapEndState, wrapEndState } from './cache';
 import { recheckCarriedEndState } from './carried-end-state';
 import { cellId } from './cell';
@@ -293,18 +293,21 @@ type RunContext = {
 };
 
 /**
- * The stimulus the driver sent, as text, when it differs from the block the spec wrote: the user messages
- * the agent received, joined by newlines. A scripted run sends what the spec wrote and records nothing.
+ * The text the driver sent, when it differs from the text the spec block wrote: the user messages the
+ * agent received, joined by newlines. Only the text counts: the same text sent in another form (an
+ * injection instead of a user turn) records nothing, since `injected` and the stimulus hash say that. A
+ * scripted run sends what the spec wrote and records nothing.
  */
 function realizedOf(planned: PlannedStep): { realized?: { text: string } } {
-  if (deepEqual(planned.block.when, planned.stimulus)) return {};
-  return {
-    realized: {
-      text: stimulusMessages(planned.stimulus)
-        .map((message) => message.content)
-        .join('\n'),
-    },
-  };
+  const sent = stimulusText(planned.stimulus);
+  return sent === stimulusText(planned.block.when) ? {} : { realized: { text: sent } };
+}
+
+/** The user messages a stimulus sends, joined by newlines. */
+function stimulusText(stimulus: Stimulus): string {
+  return stimulusMessages(stimulus)
+    .map((message) => message.content)
+    .join('\n');
 }
 
 /** One step of the driver, resolved against the spec. */

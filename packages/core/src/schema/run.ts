@@ -238,9 +238,10 @@ export const BlockResult = z.strictObject({
   blockId: z.string().optional(),
   injected: z.boolean().optional(),
   /**
-   * What the driver actually sent, when it differs from the block the spec wrote (a simulated user, a
-   * red-team attacker). `text` is the user messages the agent received, joined by newlines. Absent means
-   * the authored stimulus was sent.
+   * The text the driver actually sent, when it differs from the text the spec block wrote (a simulated
+   * user, a red-team attacker): the user messages the agent received, joined by newlines. Only the text
+   * is compared; a change of form alone (the same text as an injection) is in `injected`. Absent means
+   * the authored text was sent. The provenance digest covers it.
    */
   realized: z.strictObject({ text: z.string() }).optional(),
   givenHash: z.string().min(1),
