@@ -292,7 +292,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
         stating.push(pattern);
       }
     }
-    for (const pattern of statedFields(prepared, context, tool, read)) {
+    for (const pattern of statedFields(prepared, path.flow, context, tool, read)) {
       const filled = fillText(pattern, slots, true);
       if (!filled.ok) continue;
       if (!patterns.includes(filled.value)) patterns.push(filled.value);
@@ -1022,19 +1022,20 @@ const VALUE_MARK = '\u0002';
  * The one form the map's `states` relations state a returned field in, with the tool's label (its name with
  * spaces), the field's name and its value marked: "lookup record says found is {lookup_record_out_found}\."
  * gives "<tool> says <field> is <value>\.". Read from every `must` pattern that states one returned field and
- * nothing else, of a relation whose conditions hold in `context` (its `when`, and its subject unless the
- * subject is a flow: the form a flow's reply uses shows how any reply states a field); null when those
- * patterns hold more than one form, or come from fewer than two tools (one tool shows no form a second tool
- * shares).
+ * nothing else, of a relation whose conditions hold in the spec: its subject (the spec's `flow`, or a value
+ * `context` holds) and its `when`. Null when those patterns hold no form or more than one, or when no second
+ * tool states its fields in that form anywhere in the map (one tool shows no form a second tool shares).
  */
-function statedForm(prepared: PreparedMap, context: Context): string | null {
+function statedForm(prepared: PreparedMap, flow: string, context: Context): string | null {
   const bySlot = new Map(returnedFields(prepared).map((entry) => [entry.slot, entry]));
-  const seen = new Set<string>();
-  const tools = new Set<string>();
+  const holding = new Set<string>();
+  const toolsOf = new Map<string, Set<string>>();
   for (const entry of prepared.relations.states) {
-    if (entry.subject.dimension !== 'flow' && context[entry.subject.dimension] !== entry.subject.value)
-      continue;
-    if (!matches(entry.when, context)) continue;
+    const subject =
+      entry.subject.dimension === 'flow'
+        ? entry.subject.value === flow
+        : context[entry.subject.dimension] === entry.subject.value;
+    const holds = subject && matches(entry.when, context);
     for (const pattern of entry.must ?? []) {
       const read = slotsIn(pattern);
       const field = read.length === 1 ? bySlot.get(read[0] as string) : undefined;
@@ -1047,11 +1048,13 @@ function statedForm(prepared: PreparedMap, context: Context): string | null {
       const withTool = parts.map((part) => part.join(TOOL_MARK)).join(VALUE_MARK);
       const named = withTool.split(field.field);
       if (named.length !== 2) continue;
-      seen.add(named.join(FIELD_MARK));
-      tools.add(field.tool);
+      const form = named.join(FIELD_MARK);
+      if (holds) holding.add(form);
+      toolsOf.set(form, new Set([...(toolsOf.get(form) ?? []), field.tool]));
     }
   }
-  return seen.size === 1 && tools.size >= 2 ? ([...seen][0] as string) : null;
+  const form = holding.size === 1 ? ([...holding][0] as string) : undefined;
+  return form !== undefined && (toolsOf.get(form)?.size ?? 0) >= 2 ? form : null;
 }
 
 /**
@@ -1060,11 +1063,12 @@ function statedForm(prepared: PreparedMap, context: Context): string | null {
  */
 function statedFields(
   prepared: PreparedMap,
+  flow: string,
   context: Context,
   tool: string,
   read: ReadonlySet<string>,
 ): string[] {
-  const form = statedForm(prepared, context);
+  const form = statedForm(prepared, flow, context);
   if (form === null) return [];
   return returnedFields(prepared)
     .filter((entry) => entry.tool === tool && !read.has(entry.slot))

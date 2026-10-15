@@ -52,57 +52,69 @@ describe('a request turn that runs a tool', () => {
   }, 180_000);
 });
 
+/**
+ * Seed 3 with every returned-field statement moved to relations that hold in one scope only, with a prefix:
+ * a reply outside that scope states the field without it. Every block of every spec outside the scope that
+ * runs the request-only tool must pass the correct follower.
+ */
+async function scopedForm(scope: 'channel' | 'flow') {
+  const hidden = hiddenSpec(SEED);
+  const tool = hidden.tools.find(
+    (entry) => !hidden.uses.some((use) => use.tool === entry.name) && !entry.sideEffect,
+  );
+  if (!tool) throw new Error(`seed ${SEED} has no tool that no flow calls`);
+  const scoped = scope === 'channel' ? (hidden.channels[0] as string) : (hidden.flows.at(-1)?.id as string);
+  const prefix = scope === 'channel' ? 'CHANNEL_ONLY' : 'FLOW_ONLY';
+  const rendered = renderMap(hidden);
+  const map = parse(rendered.map) as { relations: Array<Record<string, unknown>> };
+  const added: Array<Record<string, unknown>> = [];
+  for (const relation of map.relations) {
+    if (relation.kind !== 'states') continue;
+    const must = (relation.must ?? []) as string[];
+    const reported = must.filter((pattern) => pattern.includes('{'));
+    if (reported.length === 0) continue;
+    relation.must = must.filter((pattern) => !pattern.includes('{'));
+    const quote = `Only in ${scope} ${scoped}, prefix every returned-field statement with ${prefix}. Elsewhere use the ordinary statement without that prefix.`;
+    rendered.prompt += `\n${quote}\n`;
+    added.push({
+      ...relation,
+      must: reported.map((pattern) => `${prefix} ${pattern}`),
+      must_not: undefined,
+      ...(scope === 'channel'
+        ? { when: { ...((relation.when as object | undefined) ?? {}), channel: [scoped] } }
+        : { subject: { dimension: 'flow', value: scoped } }),
+      evidence: { source: './prompt.md', quote },
+    });
+  }
+  map.relations.push(...added);
+  rendered.map = stringify(map);
+  const generated = await generateFrom(hidden, rendered, SEED, {}, { once: true });
+  if (!generated.prepared) throw new Error(JSON.stringify(generated.refused));
+  const outside = ({ spec }: (typeof generated.complete)[number]) =>
+    scope === 'channel'
+      ? spec.channel !== scoped
+      : (spec.metadata?.generated as { cell?: Record<string, string> } | undefined)?.cell?.flow !== scoped;
+  const specs = generated.complete.filter(
+    (entry) =>
+      outside(entry) &&
+      entry.spec.blocks.some(
+        (block) =>
+          (block.id ?? '').endsWith('-value') &&
+          block.expect?.tools?.some((call) => call.label === tool.name && call.count !== 0),
+      ),
+  );
+  expect(specs.length).toBeGreaterThan(0);
+  for (const { spec } of specs) {
+    const run = await runOnce(spec, followerAdapter(createFollower(hidden)), 0, runContext());
+    spec.blocks.forEach((block, index) => {
+      expect(blockOutcome(run, index), `${spec.id} ${block.id} ${JSON.stringify(block.expect?.must)}`).toBe(
+        'pass',
+      );
+    });
+  }
+}
+
 describe('the form a request turn reads', () => {
-  it('comes only from relations whose conditions hold in the spec', async () => {
-    // Every returned-field statement moves to relations that hold on one channel only, with a prefix: a reply
-    // on another channel states the field without it, and a request turn there gets no must from that form.
-    const hidden = hiddenSpec(SEED);
-    expect(hidden.channels.length).toBeGreaterThanOrEqual(2);
-    const scoped = hidden.channels[0] as string;
-    const tool = hidden.tools.find(
-      (entry) => !hidden.uses.some((use) => use.tool === entry.name) && !entry.sideEffect,
-    );
-    if (!tool) throw new Error(`seed ${SEED} has no tool that no flow calls`);
-    const rendered = renderMap(hidden);
-    const map = parse(rendered.map) as { relations: Array<Record<string, unknown>> };
-    const added: Array<Record<string, unknown>> = [];
-    for (const relation of map.relations) {
-      if (relation.kind !== 'states') continue;
-      const must = (relation.must ?? []) as string[];
-      const reported = must.filter((pattern) => pattern.includes('{'));
-      if (reported.length === 0) continue;
-      relation.must = must.filter((pattern) => !pattern.includes('{'));
-      const quote = `Only on channel ${scoped}, prefix every returned-field statement with CHANNEL_ONLY. On other channels use the ordinary statement without that prefix.`;
-      rendered.prompt += `\n${quote}\n`;
-      added.push({
-        ...relation,
-        must: reported.map((pattern) => `CHANNEL_ONLY ${pattern}`),
-        must_not: undefined,
-        when: { ...((relation.when as object | undefined) ?? {}), channel: [scoped] },
-        evidence: { source: './prompt.md', quote },
-      });
-    }
-    map.relations.push(...added);
-    rendered.map = stringify(map);
-    const generated = await generateFrom(hidden, rendered, SEED, {}, { once: true });
-    if (!generated.prepared) throw new Error(JSON.stringify(generated.refused));
-    const specs = generated.complete.filter(
-      ({ spec }) =>
-        spec.channel !== scoped &&
-        spec.blocks.some(
-          (block) =>
-            (block.id ?? '').endsWith('-value') &&
-            block.expect?.tools?.some((call) => call.label === tool.name && call.count !== 0),
-        ),
-    );
-    expect(specs.length).toBeGreaterThan(0);
-    for (const { spec } of specs) {
-      const run = await runOnce(spec, followerAdapter(createFollower(hidden)), 0, runContext());
-      spec.blocks.forEach((block, index) => {
-        expect(blockOutcome(run, index), `${spec.id} ${block.id} ${JSON.stringify(block.expect?.must)}`).toBe(
-          'pass',
-        );
-      });
-    }
-  }, 300_000);
+  it('comes only from relations that hold on the spec channel', () => scopedForm('channel'), 300_000);
+  it('comes only from relations of the spec flow', () => scopedForm('flow'), 300_000);
 });
