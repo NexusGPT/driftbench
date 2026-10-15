@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import { canonicalGiven, findSpecFiles, loadSpecFile, type Message } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
-import { ToolLabels, WireNames } from '../src/anthropic/common';
+import { ToolLabels, UNRECORDED_RESULT, WireNames } from '../src/anthropic/common';
 import { ANTHROPIC_NAME, toAnthropicMessages } from '../src/anthropic/messages';
 import { toChatMessages } from '../src/http/chat';
 import { toInputItems } from '../src/openai-agents/items';
