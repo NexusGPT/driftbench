@@ -5,8 +5,8 @@ commands:
   - spec validate
   - spec lint
   - spec coverage
-  - campaign run
 see_also:
+  - running-campaign-run
   - authoring-blocks
   - authoring-prefixes
   - authoring-perturbations
@@ -24,7 +24,12 @@ A spec is a test for an agent. One spec file holds one mapping. The mapping desc
 - one golden conversation (`kind: conversation`, the default), or
 - one task for a code agent that works in a workspace (`kind: task`).
 
-The core of a spec is `blocks`: a list of steps in order. Each block sends one stimulus to the agent and checks what the agent did. Around the blocks, the spec declares the agent to run (`target`), the starting state (`given`), the stage names (`stages`), the judged criteria (`criteria`), rules for the whole run (`rules`), the expected final state (`end_state`), and the deviations a perturbed run injects (`perturbations`).
+The core of a spec is `blocks`: a list of steps in order. Each block sends one stimulus to the agent and checks what the agent did. Around the blocks, the spec declares:
+
+- the agent to run (`target`) and the starting state (`given`);
+- the stage names (`stages`) and the judged criteria (`criteria`);
+- rules for the whole run (`rules`) and the expected final state (`end_state`);
+- the deviations a perturbed run injects (`perturbations`).
 
 Every command that reads specs parses, normalises and validates them the same way. Unknown keys are errors at every level.
 
@@ -36,14 +41,49 @@ Every command that reads specs parses, normalises and validates them the same wa
 
 ## Commands and every option
 
-This is a format topic. These commands read spec files:
+This is a format topic: no option of any command changes the format. The three `spec` commands read spec files and report on them. `campaign run` runs them; its options are in running-campaign-run.
 
-| Command | What it does with specs | Topic |
+### driftbench spec validate
+
+```
+driftbench spec validate [options] <paths...>
+```
+
+Parses and validates specs. Exit 0 when every spec is valid, 1 when one is invalid. Its codes are in authoring-spec-check.
+
+| Option | Meaning | Default |
 |---|---|---|
-| `driftbench spec validate <paths...> [--json]` | parses and validates; exit 1 on an invalid spec | authoring-spec-check |
-| `driftbench spec lint <paths...> [--json] [--strict]` | validates and prints warnings | authoring-spec-check |
-| `driftbench spec coverage <paths...> --inventory <file> [--channel <name>] [--json]` | counts behaviours and deviations covered | authoring-inventory |
-| `driftbench campaign run [paths...] [--target <adapter[:agent]>] ...` | runs the specs on an agent | the running area |
+| `<paths...>` (required) | spec files or folders | none |
+| `--json` | print one JSON document | off |
+
+### driftbench spec lint
+
+```
+driftbench spec lint [options] <paths...>
+```
+
+Validates specs and prints advice warnings. Exit 1 on an invalid spec, and on a warning with `--strict`.
+
+| Option | Meaning | Default |
+|---|---|---|
+| `<paths...>` (required) | spec files or folders | none |
+| `--json` | print one JSON document | off |
+| `--strict` | treat warnings as failures | off |
+
+### driftbench spec coverage
+
+```
+driftbench spec coverage [options] <paths...>
+```
+
+Shows which behaviours and deviations the specs cover. Exit 1 when one is missing. The inventory format is in authoring-inventory.
+
+| Option | Meaning | Default |
+|---|---|---|
+| `<paths...>` (required) | spec files or folders | none |
+| `--inventory <file>` | the behaviour inventory, YAML or JSON | none |
+| `--channel <name>` | count only the specs of this channel | every channel |
+| `--json` | print one JSON document | off |
 
 How every command finds spec files in the paths you give:
 
@@ -326,9 +366,39 @@ blocks:
       must: ['email address']
 ```
 
+Three more specs write the version in a form the schema refuses: `0`, `1.5` and the text `'1'`:
+
+```yaml file=out/authoring-spec-format/malformed/zero.yaml
+schema_version: 0
+id: format-zero
+blocks:
+  - user: Hi, I'm already an Acme customer and I want more data.
+    expect:
+      must: ['email address']
+```
+
+```yaml file=out/authoring-spec-format/malformed/half.yaml
+schema_version: 1.5
+id: format-half
+blocks:
+  - user: Hi, I'm already an Acme customer and I want more data.
+    expect:
+      must: ['email address']
+```
+
+```yaml file=out/authoring-spec-format/malformed/text.yaml
+schema_version: '1'
+id: format-text
+blocks:
+  - user: Hi, I'm already an Acme customer and I want more data.
+    expect:
+      must: ['email address']
+```
+
 ```sh
 driftbench spec validate out/authoring-spec-format/formats/current.yaml
 driftbench spec validate out/authoring-spec-format/newer/next.yaml # exit 1
+driftbench spec validate out/authoring-spec-format/malformed # exit 1
 ```
 
 ```text
@@ -340,6 +410,15 @@ $ driftbench spec validate out/authoring-spec-format/newer/next.yaml
 ✗ out/authoring-spec-format/newer/next.yaml
     schema_version  SPEC_SCHEMA_VERSION  the spec is written for spec format version 2; this driftbench reads version 1 and older: upgrade driftbench
 Checked 1 spec: 0 valid, 1 invalid, 0 warnings.
+(exit 1)
+$ driftbench spec validate out/authoring-spec-format/malformed
+✗ out/authoring-spec-format/malformed/half.yaml
+    schema_version  SCHEMA_INVALID_TYPE  Invalid input: expected int, received number
+✗ out/authoring-spec-format/malformed/text.yaml
+    schema_version  SCHEMA_INVALID_TYPE  Invalid input: expected number, received string
+✗ out/authoring-spec-format/malformed/zero.yaml
+    schema_version  SCHEMA_TOO_SMALL  Too small: expected number to be >=1
+Checked 3 specs: 0 valid, 3 invalid, 0 warnings.
 (exit 1)
 ```
 
@@ -375,6 +454,8 @@ Checked 4 specs: 0 valid, 4 invalid, 0 warnings.
 | `SCHEMA_INVALID_VALUE` on `kind` | a kind other than the two | `conversation` or `task` |
 | `SCHEMA_UNRECOGNIZED_KEYS` | a key the format does not know | move free data under `metadata` or `tags` |
 | `SPEC_NOT_OBJECT` | the file holds a list or a scalar | one mapping per file |
-| `SPEC_SCHEMA_VERSION`: `the spec is written for spec format version 2; this driftbench reads version 1 and older: upgrade driftbench` | `schema_version` is a whole number above the format this driftbench reads | upgrade driftbench, or write the spec in format 1 |
-| `SCHEMA_TOO_SMALL` or `SCHEMA_INVALID_TYPE` on `schema_version` | `schema_version: 0`, `1.5` or `'1'` | a whole number, 1 or more, with no quotes |
+| `schema_version  SPEC_SCHEMA_VERSION  the spec is written for spec format version 2; this driftbench reads version 1 and older: upgrade driftbench` | `schema_version` is a whole number above the format this driftbench reads | upgrade driftbench, or write the spec in format 1 |
+| `schema_version  SCHEMA_TOO_SMALL  Too small: expected number to be >=1` | `schema_version: 0` | a whole number, 1 or more |
+| `schema_version  SCHEMA_INVALID_TYPE  Invalid input: expected int, received number` | `schema_version: 1.5` | a whole number |
+| `schema_version  SCHEMA_INVALID_TYPE  Invalid input: expected number, received string` | `schema_version: '1'`, a quoted number | write the number with no quotes |
 | `SPEC_PARSE` | the YAML or JSON does not parse, a key is repeated, or the path does not exist | fix the syntax or the path |
