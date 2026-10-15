@@ -570,6 +570,7 @@
       "blockCell": "value",
       "blockDependencies": "value",
       "blockStatus": "value",
+      "blocksOutcome": "value",
       "campaignRadius": "value",
       "canonicalGiven": "value",
       "canonicalJson": "value",

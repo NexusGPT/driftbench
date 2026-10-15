@@ -3,7 +3,8 @@ import { describe, expect, it } from 'vitest';
 import { BUILT_IN_AGGREGATES, evaluateAggregates } from '../src/aggregate';
 import { compareCampaigns } from '../src/compare';
 import { blockScore, runPassed, scoredRuns } from '../src/data';
-import { unscoredReason, unscoredRuns, verdictOf } from '../src/format';
+import { headlineNote, unscoredReason, unscoredRuns, verdictOf } from '../src/format';
+import { suiteHeadline } from '../src/headline';
 import { renderHtml, renderRun } from '../src/html';
 import { overview, pageModel } from '../src/html-zones';
 import { renderJunit } from '../src/junit';
@@ -260,5 +261,22 @@ describe('every rate says how many runs it left out', () => {
     unsent.blocks[1] = { ...notRunBlock(1), injected: true, blockId: 'x' };
     const summary = recoveryOf([sent, unsent]);
     expect(summary?.labels).toEqual({ immediate: 1, late: 0, never: 0 });
+  });
+});
+
+describe('the suite headline counts the scored runs and names the share left out', () => {
+  it('two goldens, one with a pass, a not_run and a blocked run: 2 scored runs, rate 1, 25% not run, 25% blocked', () => {
+    const runs = [...three, run({ specId: 'h', repeat: 0, blocks: [{}, {}] })];
+    const headline = suiteHeadline(runs, (entry) => entry.specId);
+    expect(headline).toMatchObject({
+      trees: 2,
+      runs: 2,
+      estimate: 1,
+      shares: { incomplete: 0, notRun: 0.25, blocked: 0.25 },
+    });
+    const note = headline ? headlineNote(headline) : '';
+    expect(note).toContain('not run');
+    expect(note).toContain('blocked');
+    expect(suiteHeadline([notRun, blocked], (entry) => entry.specId)).toBeUndefined();
   });
 });

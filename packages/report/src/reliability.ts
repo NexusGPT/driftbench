@@ -379,7 +379,13 @@ export function modeReliability(data: CampaignData, lines: readonly ReliabilityL
           { rate: true },
         ),
       ),
-      ...optional('headline', suiteHeadline(runs, lineKey)),
+      ...optional(
+        'headline',
+        suiteHeadline(
+          data.runs.filter((run) => run.mode === mode),
+          lineKey,
+        ),
+      ),
       ...optional('blockAccuracy', blockAccuracy(runs)),
       ...(modeLines.length === 0
         ? {}
