@@ -37,6 +37,12 @@ Primary, judged correct use (regex pass and judge YES), passes out of 30:
 - Judge against a blinded hand reading of 40 replies (seed 66, 20 per arm, arm hidden while labelling): 37 of 40 agree, above the pre-registered bar of 36. The 3 disagreements are all judge NO where the reading is YES: two prose lead replies that disown, re-submit and then give the reference, and one record order reply that gives the number and flags the order. The judge is stricter than the reading on self-corrections, so the judged gaps on lead blocks are partly judge strictness; the regex metric shows no gap on lead blocks, the re-call metric shows a full one.
 - M4.2 instrument checks (`m42/wire-results*.json`): the compiler's Anthropic rendering equals the adapter's on all 30 histories; round trip is the identity on 93 of 93; all 15 record histories get no 400 on Anthropic, OpenAI Responses and Chat Completions; a history with the `tool_result` block truly removed gets the documented 400 on all three wires.
 
+## Protocol notes
+- The 4 pilot runs are excluded from the analysis: they live in `runs-pilot.jsonl` and `judged-pilot.jsonl`, and none of the 900 counted runs (`runs-full.jsonl`) carries a pilot id.
+- The judge amendment predates the first counted run: amendment commit c14f313cd at 2026-10-15 00:04:01 +0200; `runs-full.jsonl` was created at 00:04:12 by the run launched after that commit.
+- Judge against regex on the 900 counted runs: they disagree on 123 (81 prose, 42 record). Every disagreement is a regex pass the judge calls NO (the reply quotes the value but disowns or doubts it); the judge never says YES where the regex fails.
+- Agent: H6 ran on this lane's own live Acme agent (`agent/acme-live.ts`), built before the shared live Acme agent of `research/block-shared` was announced. It is not that shared agent; results do not transfer to it without a re-run.
+
 ## Limits
 - One agent model and one prompt. The system prompt says facts must come from a tool result or the customer; a prompt without that rule may distrust prose less. The size of the gap is a property of this prompt, the direction is what H6 asked.
 - Default sampling: the API rejects temperature 0 on this model (stated in PREREG).

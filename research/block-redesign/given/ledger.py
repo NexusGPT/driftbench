@@ -1,5 +1,5 @@
 """Sums calls.jsonl into LEDGER rows: per batch (run prefix up to the first ':'), calls, tokens, USD.
-Prices: claude-haiku-5-5 0.10/0.50 USD per MTok up to 100K input, 0.50/2.50 above (claude-api skill table, 2026-10-06).
+Prices: claude-haiku-5-5 0.10/0.50 USD per MTok up to 100K input, 0.50/2.50 above (platform.claude.com/docs/en/about-claude/pricing).
 gpt-6-luna 0.10/0.50 USD per MTok (third-party trackers citing OpenAI's page; the page refused our fetch with 403)."""
 import json, sys, collections
 PRICE = {'claude-haiku-5-5': (0.10, 0.50, 0.50, 2.50, 100_000), 'gpt-6-luna': (0.10, 0.50, 0.20, 0.75, 272_000)}

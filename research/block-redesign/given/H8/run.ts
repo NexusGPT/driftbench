@@ -10,7 +10,7 @@ import { BLOCKS, DEPTHS, SIZES } from './blocks';
 import { build } from './context';
 
 const DIR = 'research/block-redesign/given';
-const mode = process.argv[2] === 'full' ? 'full' : 'pilot';
+const mode = process.argv[2] === 'full' ? 'full' : process.argv[2] === 'resume' ? 'resume' : 'pilot';
 const OUT = `${DIR}/H8/runs-${mode}.jsonl`;
 
 function mulberry32(seed: number) {
@@ -28,6 +28,10 @@ type Job = { block: string; size: number; depth: number | 'control'; rep: number
 let jobs: Job[] = [];
 if (mode === 'pilot') {
   for (const block of BLOCKS) for (const size of [64000, 2000]) jobs.push({ block: block.id, size, depth: 0.5, rep: 99 });
+} else if (mode === 'resume') {
+  // Re-run after the 2026-10-15 network outage: only the jobs whose row in runs-full.jsonl is an error.
+  // runs-full.jsonl keeps those error rows; the new attempts go to runs-resume.jsonl.
+  jobs = readFileSync(`${DIR}/H8/runs-full.jsonl`, 'utf8').trim().split('\n').map((l) => JSON.parse(l)).filter((r) => r.error !== null).map((r) => ({ block: r.block, size: r.size, depth: r.depth, rep: r.rep }));
 } else {
   for (const block of BLOCKS) for (const size of SIZES) for (const depth of [...DEPTHS, 'control' as const]) for (let rep = 0; rep < 30; rep++) jobs.push({ block: block.id, size, depth, rep });
   const rng = mulberry32(8);
