@@ -195,6 +195,8 @@ A value is an id, such as `blame: acme`, or an inline object that extends one: `
 
 Where an id is looked up, weakest first: the shipped objects; the project, files `driftbench/<kind>/<id>.yaml` beside `driftbench.yaml` and its `objects:` list; each `_driftbench/<kind>/<id>.yaml` suite folder from the project down to the spec, a nearer one stronger. A `uses.yaml` in a `driftbench/` or `_driftbench/` folder sets `uses` for the specs below it. A block's key replaces the spec's, which replaces the suite's and the project's.
 
+A diagnostic (`uses.diagnostics`) runs after a block's checks and writes diagnoses on the block; it never changes a verdict or `pass`. Its file holds `when` (`always: true`, or `any_verdict: { name, outcome, id_contains }`), `reads` (the kinds it reads), and `steps`, each naming a registered diagnostic step. A step of cost class `run` or `model` runs only within the diagnostic budget, 0 by default, and is counted in the block's `skippedForBudget` otherwise. With no `uses.diagnostics` at any layer, the shipped diagnostics marked `default: true` run; `diagnostics: []` runs none.
+
 Every kind `uses` names is scoring-only: `uses` stays out of the block cache key and the re-judge compatibility hash, so changing it never reruns the agent. The spec hash does record it.
 
 The loader resolves every object a layer names. An unknown object, an unknown item, an `extends` cycle, an order that is not a permutation, a missing implementation or params of the wrong type is a load error naming the spec, the block, the kind and the id.

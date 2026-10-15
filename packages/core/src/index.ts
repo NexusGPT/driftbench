@@ -65,6 +65,17 @@ export {
   validateInventory,
 } from './coverage';
 export {
+  type DiagnosticBudget,
+  type DiagnosticStep,
+  type DiagnosticStepContext,
+  diagnosticStep,
+  registerDiagnosticStep,
+  runDiagnostics,
+  StepCost,
+  type StepOutput,
+  triggers,
+} from './diagnostics';
+export {
   type ImportError,
   type ImportedSpec,
   type ImportResult,
