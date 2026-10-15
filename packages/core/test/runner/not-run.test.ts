@@ -2,7 +2,14 @@ import { defaultChecks } from '@agent-nexus/driftbench-checks';
 import { RunResult } from '@agent-nexus/driftbench-core';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { describe, expect, it } from 'vitest';
-import { blockStatus, capabilityGap, runOutcome, runSpec, succession } from '../../src/runner';
+import {
+  blockStatus,
+  capabilityGap,
+  compoundingIndex,
+  runOutcome,
+  runSpec,
+  succession,
+} from '../../src/runner';
 import { acmeAdapter, acmeSpec, loadAcmeConversations, specOf } from './support';
 
 const loaded = await loadAcmeConversations();
@@ -223,5 +230,25 @@ describe('verdict helpers', () => {
     expect(metrics.driftCount).toBe(1);
     expect(metrics.driftRate).toBe(0.5);
     expect(metrics.firstDriftBlock).toBe(1);
+  });
+
+  it('the compounding index rates each block over the runs that scored it', async () => {
+    const spec = acmeSpec(loaded, 'acme-tool-failure');
+    const tRun = await runSpec(spec, {
+      adapter: acmeAdapter({ capabilities: NO_STUBS }),
+      driver,
+      checks: defaultChecks(),
+      mode: 'T',
+      repeat: 0,
+    });
+    const fRun = await runSpec(spec, {
+      adapter: acmeAdapter(),
+      driver,
+      checks: defaultChecks(),
+      mode: 'F',
+      repeat: 0,
+    });
+    // Every T block was not run: no block has a T rate, so nothing is compared.
+    expect(compoundingIndex([tRun, fRun]).specs).toEqual([]);
   });
 });
