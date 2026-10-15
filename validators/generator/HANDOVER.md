@@ -7,8 +7,22 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 <!-- level-table:start -->
 | Seed | Level |
 |---|---|
-| 1 | 8 |
+| 2 | 12 |
 <!-- level-table:end -->
+
+## Current climb: iteration 21
+
+This section supersedes the historical measurements and diagnoses below. Starting commit `14034c6ca`, measured with `validate generator --seeds 1..3 --hidden --json`: seed 1 = 11, seed 2 = 12, seed 3 = 11, hidden (336760492) = 9. Evidence: `.exec/baseline.json`. The prior handover's level 8 was stale.
+
+Iteration 21 measures seed 2 only: level 12 remains, but `mode.P.X2.slot-first` now passes. The sole level-13 failure is `perturbation.carrier.D6_instruction_in_data`. Evidence: `.exec/restated-after.json`. No levels above 13 are measured yet. Restated-slot scenarios now declare approved perturbations, indexed after the inserted earlier-value turn; their tool-failure stage comes from the actual block. The regression was red with zero restated perturbations and passes on seeds 1, 2 and 3.
+
+Active branch: `feat/generator-climb`, one worktree in the owner's `scratchpad/astra-gen-climb`. Only generator tests and validator runs are authorized. No paid calls. Keep the worktree and dependencies until the last push.
+
+Coordination: PR 475 and its author's follow-up own phrase handling in `scenario.ts` and `phrase-seeder.ts`. They cover hidden B-003 and seed 13 fact-flip. Do not change those sections. The owner permits tool-failure and world-carrier changes in `scenario.ts`. Persona/channel invariance on seeds 12/13/18 is a separate maintainer fix.
+
+`adequacy.D8.advance` is with the maintainer on `fix/generator-d8-retry-contract`. Seed 1 `gen-cover-021`, block 2: reference and mutant have identical check stage, text and input; reference calls lookup twice, mutant once; both satisfy `{max:2}`. Recovery level 13 also requires that exact count object. Evidence: `.exec/d8-evidence.jsonl`; sent to the owner. Await the product contract; never edit the validator item.
+
+World-carrier diagnosis: approved D6 text is emitted as user text. The canonical `world-instruction.test.ts` demonstrates file content plus an empty injected user turn; the follower reads that world. The earlier historical claim that D6 requires a fixture change is obsolete. The next product change will preserve the existing world and place approved D6 text in a collision-free workspace file for both explicit probes and mode P.
 
 V4 gate measurement: seed 1 reaches level 8. Counts by level 1 through 9: 25/25, 25/25, 26/26, 25/25, 25/25, 22/22, 30/30, 30/30, 17/20. Levels 10 through 22 were not run. The scoped measured bank is 225/228, not a replacement for the historical all-seed total. Gate-only checks on seeds 2 and 3 each pass 22/22; their full ladders were not rerun. Evidence: `.exec/gate-ladder-s1.json`, `.exec/gate-structured-s2.json`, `.exec/gate-structured-s3.json`. No full sweep is authorized on the loaded host.
 
@@ -116,6 +130,14 @@ Tried and rejected:
 - A perturbation per class drawn with the seeded generator: the extra draws changed the context of every graph walk. The extra classes are taken at their first stage with no draw.
 
 ## Next actions
+
+Current actions (supersede the historical list below):
+
+1. Finish and commit iteration 21, with generator regression checks and the journal.
+2. Move D6 approved instruction text into the world, run seed 2, and push/open a draft PR at the first gained level.
+3. Continue each newly reached level; incorporate the maintainer's D8 contract and the author's phrase fixes when available. Recheck seeds 1/2/3 and the commit-derived hidden seed, using CI for the latter.
+
+Historical actions:
 
 1. Take the rulings on items 1 to 19 to the maintainer. Item 1 alone holds every seed at level 5.
 2. After pull request 306 merges, a maintainer sets the generator floor at 5 (`fix/generator-floor`).
