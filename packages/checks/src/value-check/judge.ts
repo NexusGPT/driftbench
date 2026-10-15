@@ -112,11 +112,24 @@ export async function readValue(
     seed: 7200 + repeat,
     parts: { d: 'read', m: judge.model, f: field, v: value, r: repeat },
   });
-  const record = answer !== null && typeof answer === 'object' ? (answer as Record<string, unknown>) : {};
-  return {
-    has_content: record.has_content === true,
-    reading: typeof record.reading === 'string' ? record.reading : null,
-  };
+  return readingOf(judge, answer);
+}
+
+/**
+ * A read answer, checked: `has_content` a boolean, and with content a non-empty `reading`. Anything else is no
+ * decision, so it throws and the rung leaves the value inconclusive, never a negative vote.
+ */
+function readingOf(judge: SameReferentJudge, answer: unknown): Reading {
+  const record =
+    answer !== null && typeof answer === 'object' ? (answer as Record<string, unknown>) : undefined;
+  if (record === undefined || typeof record.has_content !== 'boolean') {
+    throw new Error(`malformed reading from ${judge.model}: ${show(answer)}`);
+  }
+  if (!record.has_content) return { has_content: false, reading: null };
+  if (typeof record.reading !== 'string' || record.reading.trim() === '') {
+    throw new Error(`malformed reading from ${judge.model}: ${show(answer)}`);
+  }
+  return { has_content: true, reading: record.reading };
 }
 
 /** Lower case, single spaces, no leading or trailing space, dot, comma or semicolon. */
@@ -141,7 +154,12 @@ export async function readFirstVote(
   const fromGold = await readValue(judge, field, gold, repeat);
   const fromCandidate = await readValue(judge, field, candidate, repeat);
   const readings: [string | null, string | null] = [fromGold.reading, fromCandidate.reading];
-  if (!fromGold.has_content || !fromCandidate.has_content || !fromGold.reading || !fromCandidate.reading) {
+  if (
+    !fromGold.has_content ||
+    !fromCandidate.has_content ||
+    fromGold.reading === null ||
+    fromCandidate.reading === null
+  ) {
     return { same: false, compared: false, readings };
   }
   if (canon(fromGold.reading) === canon(fromCandidate.reading))
@@ -155,7 +173,7 @@ export async function readFirstVote(
     seed: 7300 + repeat,
     parts: { d: 'cmp', m: judge.model, f: field, a, b, r: repeat },
   });
-  return { same: sameOf(answer), compared: true, readings };
+  return { same: sameOf(judge, answer), compared: true, readings };
 }
 
 /** One side-by-side vote: the field, the reference and the candidate in one call (the HF7 control design). */
@@ -176,11 +194,15 @@ export async function sideBySideVote(
     seed: 7100 + repeat,
     parts: { d: 'sbs', m: judge.model, f: field, g: gold, c: candidate, o: order, r: repeat },
   });
-  return sameOf(answer);
+  return sameOf(judge, answer);
 }
 
-function sameOf(answer: unknown): boolean {
-  return answer !== null && typeof answer === 'object' && (answer as Record<string, unknown>).same === true;
+/** A compare answer, checked: `same` must be a boolean; anything else is no decision and throws. */
+function sameOf(judge: SameReferentJudge, answer: unknown): boolean {
+  const same =
+    answer !== null && typeof answer === 'object' ? (answer as Record<string, unknown>).same : undefined;
+  if (typeof same !== 'boolean') throw new Error(`malformed comparison from ${judge.model}: ${show(answer)}`);
+  return same;
 }
 
 /** Why a judge may not decide under these parameters; undefined when it may. */

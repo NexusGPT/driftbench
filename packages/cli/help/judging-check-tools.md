@@ -94,7 +94,7 @@ The calls the adapter recorded in the block, with their labels and inputs; the r
 
 ## Outputs and how to read them
 
-The evidence names the call and the value: `catalog.search input.category is one of ["mobile","home"] on 1 call: "mobile"`. When the ladder decided a value, the evidence adds the item that settled it and why, in brackets: `(call 1 (call-2): address_id rung1_outcome: catalog.search resolves "addr-101" to ...)`; `exact_fallback` names a value no item settled, compared exactly, with every reason. A failing count lists the calls the block did make. A failing order names what was expected and what was seen. `tool_f1` names the unexpected and the missed calls. `schema_strict` names each invented parameter.
+The evidence names the call and the value: `catalog.search input.category is one of ["mobile","home"] on 1 call: "mobile"`. When the ladder decided a value, the evidence adds the item that settled it and why, in brackets: `(call 1 (call-2): address_id rung1_outcome: catalog.search resolves "addr-101" to ...)`; `exact_fallback` names a value no item settled, compared exactly, with every reason. The same decisions are data on the argument verdict, `valueCheck`: one entry per value a rung decided, `{ call, path, rung, outcome }`, absent when every value equalled the expected one. A failing count lists the calls the block did make. A failing order names what was expected and what was seen. `tool_f1` names the unexpected and the missed calls. `schema_strict` names each invented parameter.
 
 ## Worked example
 
