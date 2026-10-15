@@ -5,8 +5,11 @@ import {
   type CompareMode,
   isZero,
   machineVerdict,
+  type ResolvedObject,
+  resolveBlockObjects,
   type Stimulus,
   sentStimulus,
+  shippedObjectContext,
   type ToolCall,
   type ToolExpect,
   type Verdict,
@@ -17,6 +20,7 @@ import { entryKeys, isRecord, listed, plural, show, times } from '../support/val
 import {
   DEFAULT_VALUE_POLICY,
   type LadderResult,
+  policyOf,
   runLadder,
   type Settles,
   type ValueCase,
@@ -52,23 +56,62 @@ export type ToolsCheckOptions = {
  * A tool expected 0 times belongs to the forbidden check, so its fact is never reported twice.
  */
 export function createToolsCheck(options: ToolsCheckOptions = {}): Check {
-  const policy = options.policy ?? DEFAULT_VALUE_POLICY;
-  const problems = valuePolicyProblems(policy);
-  if (problems.length > 0) {
-    throw new Error(
-      `the value-check policy ${policy.ref ?? policy.id ?? ''} cannot run: ${problems.join('; ')}`,
-    );
+  const configured = options.policy;
+  if (configured !== undefined) {
+    const problems = valuePolicyProblems(configured);
+    if (problems.length > 0) {
+      throw new Error(
+        `the value-check policy ${configured.ref ?? configured.id ?? ''} cannot run: ${problems.join('; ')}`,
+      );
+    }
   }
   const services = options.services ?? {};
   return {
     name: NAME,
     applies: (ctx) => expectedTools(ctx).length > 0 || ctx.expect.tool_order !== undefined,
-    evaluate: (ctx) => evaluate(ctx, policy, services),
+    async evaluate(ctx) {
+      const policy = policyFor(ctx, configured);
+      if ('problem' in policy) return [machineVerdict(NAME, 'value_check', 'fail', policy.problem)];
+      return evaluate(ctx, policy, services);
+    },
   };
 }
 
 /** The tools check with the shipped value-check policy and no service: no replay, no judge. */
 export const tools: Check = createToolsCheck();
+
+/**
+ * The value-check policy of one block, read through the object resolver: the object the block's or the spec's
+ * `uses.value_check` names, else the configured policy, else the shipped `policy/value-check:default`. Only the
+ * shipped objects and the spec's and block's own are visible here: a project or suite object reaches the check
+ * once the run hands the resolved objects to it.
+ */
+function policyFor(
+  ctx: CheckContext,
+  configured: ValuePolicy | undefined,
+): ValuePolicy | { problem: string } {
+  const named = ctx.spec.uses?.value_check !== undefined || ctx.block.uses?.value_check !== undefined;
+  if (!named && configured !== undefined) return configured;
+  let object: ResolvedObject | undefined;
+  try {
+    object = resolveBlockObjects(ctx.spec, ctx.blockIndex, shippedObjectContext()).find(
+      (used) => used.key === 'value_check',
+    )?.object;
+  } catch (cause) {
+    if (!named) return configured ?? DEFAULT_VALUE_POLICY;
+    return { problem: `the value-check object this block uses cannot resolve: ${message(cause)}` };
+  }
+  if (object === undefined) return configured ?? DEFAULT_VALUE_POLICY;
+  const policy = policyOf(object);
+  const problems = valuePolicyProblems(policy);
+  if (problems.length > 0)
+    return { problem: `the value-check object ${object.ref} cannot run: ${problems.join('; ')}` };
+  return policy;
+}
+
+function message(cause: unknown): string {
+  return cause instanceof Error ? cause.message : String(cause);
+}
 
 async function evaluate(ctx: CheckContext, policy: ValuePolicy, services: ValueServices): Promise<Verdict[]> {
   const expected = expectedTools(ctx);
@@ -315,7 +358,8 @@ function valueCase(
   const { ctx, tool } = values;
   const schemas = ctx.spec.metadata?.tool_schemas;
   const definition = isRecord(schemas) ? schemas[tool.label] : undefined;
-  const store = ctx.given.world.store;
+  // A context built by hand may carry no Given: no store, no prefix.
+  const store = ctx.given?.world?.store;
   const compare = compareFor(tool.compare, path);
   return {
     tool: tool.label,
@@ -343,7 +387,7 @@ function compareFor(compare: ToolExpect['compare'], path: string): CompareMode |
 
 /** What the user wrote before and in this block: the prefix, the earlier blocks' turns, and this block's turn. */
 function userTexts(ctx: CheckContext): string[] {
-  const texts = ctx.given.prefix
+  const texts = (ctx.given?.prefix ?? [])
     .filter((message) => message.role === 'user')
     .map((message) => message.content);
   for (const block of ctx.spec.blocks.slice(0, ctx.blockIndex)) texts.push(...stimulusTexts(block.when));
