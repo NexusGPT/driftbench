@@ -1076,7 +1076,7 @@ paired-test noise. The exclusion is a post-review correction using recorded deci
 </a>
 <p align="center"><sub><a href="docs/comparison/methods.md#what-a-judgement-costs">How we measured</a></sub></p>
 
-On Inspect's grader panel, driftbench spends $0.076 per 100 judged cases where the default spends $0.138, at the same score, 59 of 60.
+On Inspect's grader panel, default-on-v7 spends $0.065 per 100 cases against $0.138, and scores 54 of 60 against 59. Lower cost does not establish equal accuracy.
 
 ## How it compares
 

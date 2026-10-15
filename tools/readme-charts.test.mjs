@@ -454,5 +454,12 @@ describe('readme charts, v7 held-out results', () => {
     const qa = c.groups[0].rows.find((r) => r.label === 'Inspect, model-graded QA');
     expect(qa.a).toBe(analysis.rows.find((r) => r.row === 'Model-graded QA').v7UsdPer100);
     expect(c.note).toContain('Messages API');
+    const readme = readFileSync(new URL('../README.md', import.meta.url), 'utf8');
+    const panel = c.groups[0].rows.find((r) => r.label === 'Inspect, grader panel');
+    const score = analysis.rows.find((r) => r.row === 'Grader panel');
+    expect(readme).toContain(
+      `default-on-v7 spends $${panel.a.toFixed(3)} per 100 cases against $${panel.b.toFixed(3)}, and scores ${score.v7} of ${score.n} against ${score.peer}`,
+    );
+    expect(readme).not.toContain('at the same score, 59 of 60');
   });
 });

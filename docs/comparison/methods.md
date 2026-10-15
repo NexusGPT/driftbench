@@ -60,7 +60,7 @@ The numbers of every model, one table per benchmark, are on the [detail page](be
 
 ## What a judgement costs
 
-Recorded model spend per 100 held-out cases, Claude Haiku 5.5 on both sides, one run. Cost is not accuracy: on three of the Inspect rows the cheaper judge is also the less accurate one. On the Langfuse row driftbench costs slightly more.
+Recorded model spend per 100 held-out cases, Claude Haiku 5.5 on both sides. The driftbench side uses the v7 Messages API run; peers retain their earlier recorded spend. v7 costs less on the Inspect panel and borderline rows, but the grader panel scores 54/60 against 59/60. On model-graded QA and fact, v7 costs more. Langfuse rounds to USD 0.052 per 100 cases on both sides. Cost is not accuracy.
 
 ## driftbench tests itself
 

@@ -1629,6 +1629,13 @@ function readmeText() {
   let text = swap(swap(read(README), 'readme-charts', readmeCharts()), 'readme-table', readmeTable());
   text = swap(text, 'readme-summary', readmeSummary());
   text = swap(text, 'readme-v7', readmeV7());
+  const costs = costRows(false);
+  const panelCost = costs.find((r) => r.label === 'Inspect, grader panel');
+  const panelScore = json(SOURCES.readmeV7).rows.find((r) => r.row === 'Grader panel');
+  text = text.replace(
+    /^On Inspect's grader panel,.*$/m,
+    `On Inspect's grader panel, default-on-v7 spends $${panelCost.ours.toFixed(3)} per 100 cases against $${panelCost.theirs.toFixed(3)}, and scores ${panelScore.v7} of ${panelScore.n} against ${panelScore.peer}. Lower cost does not establish equal accuracy.`,
+  );
   return text.replace(
     /alt="[^"]*"(?= src="\.github\/readme\/judge-cost-light\.png")/,
     `alt="Recorded USD per 100 cases, default-on-v7 over the Messages API against the recorded peer. ${costRows(
