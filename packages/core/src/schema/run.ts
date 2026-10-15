@@ -230,7 +230,14 @@ export const Verdict = z.strictObject({
 });
 export type Verdict = z.infer<typeof Verdict>;
 
+/** Provenance of a copy whose realized text was removed by its destination's privacy policy. */
+const RealizedTextStripped = z.strictObject({
+  fromRun: z.string().min(1),
+  fromCampaign: z.string().min(1).optional(),
+});
+
 export const BlockResult = z.strictObject({
+  realizedTextStripped: RealizedTextStripped.optional(),
   provenance: BlockProvenance.optional(),
   carried: z.lazy(() => CarriedFrom.extend({ measuredAt: z.string().optional() })).optional(),
   rejudged: RejudgedFrom.optional(),
@@ -337,6 +344,7 @@ export const CarriedFrom = z.strictObject({
 export type CarriedFrom = z.infer<typeof CarriedFrom>;
 
 export const RunResult = z.strictObject({
+  realizedTextStripped: RealizedTextStripped.optional(),
   provenance: RunProvenance.optional(),
   blockRerun: z
     .strictObject({
