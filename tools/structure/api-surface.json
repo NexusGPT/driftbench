@@ -533,6 +533,7 @@
       "RunResult": "value",
       "RunningGiven": "type",
       "RuntimeTrace": "value",
+      "SPEC_SCHEMA_VERSION": "value",
       "SUITE_OBJECTS_DIR": "value",
       "SafetyExpect": "value",
       "Sandbox": "type",

@@ -300,6 +300,8 @@ export type CampaignRunOptions = {
   recordProvenance?: boolean;
   /** Opt in: store the raw end-state values each T block reads. They may hold sensitive data. */
   recordEndStateSnapshots?: boolean;
+  /** Opt in: keep the text a driver sent where it differs from the spec, not only its hash. */
+  recordRealizedText?: boolean;
   /** Mode T: the stored baseline run to rerun only the radius blocks from; a refused plan reruns the whole cell. */
   blockReuse?(cell: PlannedCell): BlockReuse | undefined;
   retry?: RetryOptions;
@@ -459,6 +461,7 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
       store: options.store,
       recordProvenance: options.recordProvenance,
       ...(options.recordEndStateSnapshots ? { recordEndStateSnapshots: true } : {}),
+      ...(options.recordRealizedText ? { recordRealizedText: true } : {}),
       ...(blockReuse ? { blockReuse } : {}),
       campaignId: options.campaignId,
       ...(options.cache ? { cache: options.cache } : {}),

@@ -108,14 +108,18 @@ export function boundarySeeder(
         if (shown.kind === 'value') concrete[value.id] = shown.value;
         else if (shown.kind === 'absent') concrete[value.id] = '(absent)';
         else unsupported.push(`${value.id}: ${shown.why}`);
-        if (found.direction === 'out') {
-          const full = prepared.feasibility.complete([target], rng);
+        // The values a run of the tool returns, completed with the cell: they join the cell.
+        const returned = (tool: string) => {
+          const full = prepared.feasibility.complete(cell, rng);
           for (const [other, otherValue] of full?.entries() ?? []) {
             const sibling = prepared.toolDimensions.get(other);
-            if (other !== index && sibling?.tool.name === found.tool.name && sibling.direction === 'out') {
+            if (other !== index && sibling?.tool.name === tool && sibling.direction === 'out') {
               cell.push([other, otherValue]);
             }
           }
+        };
+        if (found.direction === 'out') {
+          returned(found.tool.name);
           // Asked to run the tool and report a returned value: one run, as a map's call is made once, with
           // each argument the user does not name at its schema default; closed when that names every one.
           const defaults = schemaDefaults(found.tool);
@@ -132,6 +136,9 @@ export function boundarySeeder(
           // every argument of the schema (assemble.ts closeKnownInputs).
           const assertion = inputAssertion(found.path, found.schema, partition);
           const name = found.path[0];
+          // The run answers from the Given: the tool's returned values join the cell, so its reply has
+          // facts a Then reads.
+          returned(found.tool.name);
           tools.push({
             label: found.tool.name,
             count: 1,
@@ -204,9 +211,26 @@ export function boundarySeeder(
           id,
           'boundary',
           `Boundary value ${value.id}`,
-          [target],
+          // The tool's returned values go with the value, so the run answers with them.
+          [
+            target,
+            ...cell.filter(
+              ([at]) =>
+                at !== index &&
+                prepared.toolDimensions.get(at)?.tool.name === found.tool.name &&
+                prepared.toolDimensions.get(at)?.direction === 'out',
+            ),
+          ],
           { preferred: prepared.relations.paths.filter((path) => path.stages.length >= 3), others: [] },
-          { turn: { stimulus: choosePhrase(prepared, rng, [target]), carries: [target], tools } },
+          {
+            turn: {
+              stimulus: choosePhrase(prepared, rng, [target]),
+              carries: [target],
+              tools,
+              // A turn that runs the tool: its reply states the tool's returned fields.
+              ...(asked ? { report: found.tool.name } : {}),
+            },
+          },
         );
         if ('draft' in built) {
           if (Object.keys(concrete).length > 0) built.draft.concrete = concrete;

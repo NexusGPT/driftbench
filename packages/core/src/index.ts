@@ -365,6 +365,7 @@ export {
   SafetyExpect,
   SimilarityExpect,
   SkillExpect,
+  SPEC_SCHEMA_VERSION,
   Spec,
   Stimulus,
   SubagentExpect,

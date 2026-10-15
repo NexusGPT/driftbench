@@ -7,7 +7,7 @@ import type { z } from 'zod';
 import { bindObjectContext, objectContextOfSpec } from '../objects/context';
 import { checkSpecObjects, specUsesObjects } from '../objects/index';
 import { type ObjectContext, objectContextFor, shippedObjectContext } from '../objects/layers';
-import type { Spec } from '../schema/spec';
+import { SPEC_SCHEMA_VERSION, type Spec } from '../schema/spec';
 import { parseBlockYaml } from './block-yaml';
 import { parseSpecSchema } from './compiled-schema';
 import { contentHash } from './hash';
@@ -73,6 +73,9 @@ export function checkSpec(
   path = '<inline>',
   options: SpecLoadOptions = {},
 ): SpecValidationResult {
+  // A spec written for a newer format is refused first, with the fix, before its newer keys read as unknown.
+  const newer = newerSchema(raw);
+  if (newer) return { ok: false, path, errors: [newer], warnings: [] };
   const normalized = normalizeSpec(raw);
   const errors = normalized.issues.filter((issue) => issue.level === 'error');
   const parsed = parseSpecSchema(normalized.value);
@@ -116,6 +119,20 @@ export function checkSpec(
     spec: context === undefined ? parsed.data : bindObjectContext(parsed.data, context),
     warnings: lintSpec(parsed.data),
   };
+}
+
+/** The refusal of a spec whose `schema_version` is a whole number above the version this driftbench reads. */
+function newerSchema(raw: unknown): Issue | undefined {
+  if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) return undefined;
+  const version = (raw as { schema_version?: unknown }).schema_version;
+  if (typeof version !== 'number' || !Number.isInteger(version) || version <= SPEC_SCHEMA_VERSION) {
+    return undefined;
+  }
+  return error(
+    'SPEC_SCHEMA_VERSION',
+    'schema_version',
+    `the spec is written for spec format version ${version}; this driftbench reads version ${SPEC_SCHEMA_VERSION} and older: upgrade driftbench`,
+  );
 }
 
 /** Reads one file. `.json` is parsed as JSON, anything else as YAML. */

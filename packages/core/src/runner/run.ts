@@ -73,6 +73,11 @@ export type RunOptions = {
   recordProvenance?: boolean;
   /** Opt in: raw adapter end-state values are stored like observations, and may contain sensitive data. */
   recordEndStateSnapshots?: boolean;
+  /**
+   * Opt in: a block whose driver sent other text than the spec wrote keeps that text (`realized.text`), not
+   * only its hash. What a driver writes may be private.
+   */
+  recordRealizedText?: boolean;
   /** Execute only these spec blocks; supported in independent mode T only. */
   blocks?: ReadonlySet<number>;
   blockReuse?: BlockReuse;
@@ -205,6 +210,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     blockRerunReason,
     carriedBlocks,
     recordEndStateSnapshots: options.recordEndStateSnapshots === true,
+    recordRealizedText: options.recordRealizedText === true,
     spec,
     specHash,
     cacheSpecHash,
@@ -269,6 +275,7 @@ type RunContext = {
   blockRerunReason: string | undefined;
   carriedBlocks: Map<number, BlockResult> | undefined;
   recordEndStateSnapshots: boolean;
+  recordRealizedText: boolean;
   prices: TokenPrices | undefined;
   requireTokenPrices: boolean;
   provenance: RunResult['provenance'];
@@ -304,6 +311,26 @@ type RunContext = {
   signatures: Map<string, Set<string>>;
   recovery: RecoveryOptions;
 };
+
+/**
+ * The text the driver sent, when it differs from the text the spec block wrote: its hash, and the text
+ * itself when the run asked for it. The text is the user messages the agent received, joined by newlines.
+ * Only the text counts: the same text sent in another form (an injection instead of a user turn) records
+ * nothing, since `injected` and the stimulus hash say that. A scripted run sends what the spec wrote and
+ * records nothing.
+ */
+function realizedOf(planned: PlannedStep, withText: boolean): { realized?: { hash: string; text?: string } } {
+  const sent = stimulusText(planned.stimulus);
+  if (sent === stimulusText(planned.block.when)) return {};
+  return { realized: { hash: provenanceHash(sent), ...(withText ? { text: sent } : {}) } };
+}
+
+/** The user messages a stimulus sends, joined by newlines. */
+function stimulusText(stimulus: Stimulus): string {
+  return stimulusMessages(stimulus)
+    .map((message) => message.content)
+    .join('\n');
+}
 
 /** One step of the driver, resolved against the spec. */
 type PlannedStep = {
@@ -554,6 +581,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         index: position,
         ...(planned.blockId !== undefined ? { blockId: planned.blockId } : {}),
         ...(planned.injected ? { injected: true } : {}),
+        ...realizedOf(planned, run.recordRealizedText),
         ...(capture
           ? {
               provenance: {
