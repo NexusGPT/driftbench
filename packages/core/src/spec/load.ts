@@ -1,9 +1,11 @@
-import { readFile as readFileCallback } from 'node:fs';
+import { existsSync, readFile as readFileCallback } from 'node:fs';
 import { readdir, stat } from 'node:fs/promises';
 import { dirname, extname, join, resolve } from 'node:path';
 import { promisify } from 'node:util';
 import { parse as parseYaml } from 'yaml';
 import type { z } from 'zod';
+import { checkSpecObjects, specUsesObjects } from '../objects/index';
+import { type ObjectContext, objectContextFor, shippedObjectContext } from '../objects/layers';
 import type { Spec } from '../schema/spec';
 import { parseBlockYaml } from './block-yaml';
 import { parseSpecSchema } from './compiled-schema';
@@ -22,8 +24,20 @@ export type LoadResult =
 
 export type LoadedSpec = Extract<LoadResult, { ok: true }>;
 
+/**
+ * What the resolve pass checks a spec's object references against. A spec read from a file resolves against
+ * the objects visible from its folder; one given as text or a value, against the shipped objects only, unless
+ * a context is given. A function is called only when the pass runs.
+ */
+export type SpecLoadOptions = { objects?: ObjectContext | (() => ObjectContext) };
+
 /** Parses, normalises and validates spec text. Never throws on bad input. */
-export function parseSpecText(text: string, format: 'yaml' | 'json', path = '<inline>'): LoadResult {
+export function parseSpecText(
+  text: string,
+  format: 'yaml' | 'json',
+  path = '<inline>',
+  options: SpecLoadOptions = {},
+): LoadResult {
   let raw: unknown;
   try {
     raw =
@@ -33,15 +47,15 @@ export function parseSpecText(text: string, format: 'yaml' | 'json', path = '<in
   } catch (cause) {
     return { ok: false, path, errors: [error('SPEC_PARSE', '', describe(cause))], warnings: [] };
   }
-  return validateSpec(raw, path);
+  return validateSpec(raw, path, options);
 }
 
 /** The full schema, semantic and lint result, for callers that do not consume a content hash. */
 export type SpecValidationResult = Omit<LoadedSpec, 'hash'> | Extract<LoadResult, { ok: false }>;
 
 /** Normalises, validates and hashes an already parsed value. */
-export function validateSpec(raw: unknown, path = '<inline>'): LoadResult {
-  const checked = checkSpec(raw, path);
+export function validateSpec(raw: unknown, path = '<inline>', options: SpecLoadOptions = {}): LoadResult {
+  const checked = checkSpec(raw, path, options);
   if (!checked.ok) return checked;
   return {
     ok: true,
@@ -53,7 +67,11 @@ export function validateSpec(raw: unknown, path = '<inline>'): LoadResult {
 }
 
 /** Runs the same checks as validateSpec without computing an unused content digest. */
-export function checkSpec(raw: unknown, path = '<inline>'): SpecValidationResult {
+export function checkSpec(
+  raw: unknown,
+  path = '<inline>',
+  options: SpecLoadOptions = {},
+): SpecValidationResult {
   const normalized = normalizeSpec(raw);
   const errors = normalized.issues.filter((issue) => issue.level === 'error');
   const parsed = parseSpecSchema(normalized.value);
@@ -72,6 +90,19 @@ export function checkSpec(raw: unknown, path = '<inline>'): SpecValidationResult
 
   const semantic = checkSemantics(parsed.data);
   if (semantic.length > 0) return { ok: false, path, errors: semantic, warnings: [] };
+
+  // Resolve: every object a layer names, against the objects visible from here (src/objects).
+  const objects = options.objects;
+  const context =
+    objects === undefined
+      ? specUsesObjects(parsed.data)
+        ? shippedObjectContext()
+        : undefined
+      : typeof objects === 'function'
+        ? objects()
+        : objects;
+  const resolved = context === undefined ? [] : checkSpecObjects(parsed.data, context);
+  if (resolved.length > 0) return { ok: false, path, errors: resolved, warnings: [] };
 
   return {
     ok: true,
@@ -95,7 +126,9 @@ export async function loadSpecFile(path: string): Promise<LoadResult> {
     };
   }
   return anchorWorkspace(
-    parseSpecText(text, extname(path).toLowerCase() === '.json' ? 'json' : 'yaml', path),
+    parseSpecText(text, extname(path).toLowerCase() === '.json' ? 'json' : 'yaml', path, {
+      objects: () => objectContextFor(path),
+    }),
   );
 }
 
@@ -136,12 +169,16 @@ export async function loadSpecs(paths: string[]): Promise<LoadResult[]> {
   return Promise.all(files.map((file) => loadSpecFile(file)));
 }
 
-const SKIP = new Set(['node_modules', 'dist']);
+// `_driftbench` holds a suite's object files, never specs.
+const SKIP = new Set(['node_modules', 'dist', '_driftbench']);
 
 async function walk(dir: string): Promise<string[]> {
   const out: string[] = [];
   for (const entry of await readdir(dir, { withFileTypes: true })) {
     if (entry.name.startsWith('.') || SKIP.has(entry.name)) continue;
+    // The project's object files sit in `driftbench/` beside `driftbench.yaml`: they are not specs.
+    if (entry.isDirectory() && entry.name === 'driftbench' && existsSync(join(dir, 'driftbench.yaml')))
+      continue;
     const full = join(dir, entry.name);
     if (entry.isDirectory()) {
       out.push(...(await walk(full)));

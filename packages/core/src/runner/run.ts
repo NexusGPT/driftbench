@@ -20,7 +20,14 @@ import {
 import type { BlockSpec, EndState, Expect, GivenOverride, Spec, Stimulus } from '../schema/spec';
 import { cloneJson, contentHash } from '../spec/hash';
 import { compareEndState, type EndStateMatch } from './assertion';
-import { blockCacheKey, endStateCacheKey, type ObservedCache, unwrapEndState, wrapEndState } from './cache';
+import {
+  blockCacheKey,
+  cacheSpecHash as cacheSpecHashOf,
+  endStateCacheKey,
+  type ObservedCache,
+  unwrapEndState,
+  wrapEndState,
+} from './cache';
 import { recheckCarriedEndState } from './carried-end-state';
 import { cellId } from './cell';
 import { driftOf } from './drift';
@@ -133,10 +140,8 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
   }
   const now = options.now ?? (() => new Date());
   const specHash = contentHash(spec);
-  // The cache key leaves out the spec's version: a free label that plays no part (docs/running.md, "The
-  // cache and replay"), so relabelling a spec still replays its runs.
-  const { version: _version, ...unlabelled } = spec;
-  const cacheSpecHash = contentHash(unlabelled);
+  // The cache key leaves out the spec's version label and its scoring-only `uses` (cacheSpecHash).
+  const cacheSpecHash = cacheSpecHashOf(spec);
   const target = options.target ?? spec.target ?? { adapter: options.adapter.id };
   const prices = options.prices === undefined ? undefined : TokenPrices.parse(options.prices);
   if (options.requireTokenPrices) preflightTargetPrices([target], prices);
