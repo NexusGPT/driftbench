@@ -1,5 +1,5 @@
 import type { Message } from '@agent-nexus/driftbench-core';
-import type { WireNames } from '../anthropic/common';
+import { historyOutput, type WireNames } from '../anthropic/common';
 
 /**
  * The slice of the Gemini API the adapter speaks, mirrored from `@google/genai` 2.28.0
@@ -113,7 +113,7 @@ export function toGoogleContents(
           functionResponse: {
             ...(call.id === undefined ? {} : { id: call.id }),
             name: names.wire(call.label),
-            response: call.error !== undefined ? { error: call.error } : { output: call.output ?? null },
+            response: call.error !== undefined ? { error: call.error } : { output: historyOutput(call) },
           },
         })),
       );

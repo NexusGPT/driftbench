@@ -26,6 +26,8 @@ The end state of a T run is composed over the blocks. Each block's session is re
 
 An agent that reads its own earlier replies, such as a language model, sees blank assistant turns in a T prefix. A field for the canonical reply text is not in the spec format.
 
+A canonical call whose tool the world does not force has no result. An adapter that sends the history to a model (anthropic, google, http, litellm, langgraph, openai-agents, pydantic-ai, vercel-ai) sends that call's result as a note saying the result was not recorded, never as `null`. The call's arguments are only the fields the spec pins to an exact value, so a call the spec pins with a pattern goes out with fewer arguments, or none. A call whose result the world forces goes out with that result.
+
 ## Free-running
 
 One session runs the whole conversation. The user turns come from the spec; the agent's turns are its own, and each block inherits them. An early mistake stays in the context of every later block.
