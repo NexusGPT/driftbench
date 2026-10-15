@@ -72,8 +72,7 @@ export function phraseDrafts(
                 (stage, index) => index < at && stage === use.stage && path.stages[index + 1] === use.to,
               ),
           );
-        // A behaviour or flow phrase forbids no tool. The map does not say which tool the agent may run for a
-        // behaviour (a flow phrase names a flow and runs nothing): a behaviour phrase is said once the walk's
+        // A free phrase closes only the calls the map declares for it. A behaviour phrase is said once the walk's
         // moves have run every read tool its flow calls, so a fault on such a call shows at the move first. Two such phrases of one dimension at the same stage of the same flow
         // are one-slot siblings with the same Then, which the gate rejects when the reference answers them
         // differently; each takes a stage and flow none of its siblings holds, and the flow joins its cell.
@@ -150,18 +149,15 @@ export function phraseDrafts(
               target,
               ...(found || flow === undefined || target[0] === flowAt ? [] : [[flowAt, flow] as Pick]),
             ];
-            // A behaviour the map says runs a read tool at the stage the phrase is said there: the turn runs it
-            // and its reply states the tool's returned fields, which the Then reads.
+            // The scenario resolves all declared read calls against its actual stage, conditions and slots,
+            // and states the returned fields of each applicable call.
             const runs =
               found || dimension === FLOW_DIMENSION
-                ? undefined
-                : prepared.relations.usesTools.find(
+                ? []
+                : prepared.relations.usesTools.filter(
                     (use) =>
                       use.subject.dimension === dimension &&
                       use.subject.value === phrase.value &&
-                      path !== undefined &&
-                      use.stage === path.stages[at] &&
-                      (use.to === undefined || use.to === use.stage) &&
                       !sideEffecting.has(use.tool),
                   );
             const attempt = scenarioDraft(
@@ -178,14 +174,13 @@ export function phraseDrafts(
                 turn: {
                   stimulus: { kind: 'phrase', phrase },
                   carries,
-                  tools: runs ? [...tools, { label: runs.tool, count: runs.count ?? 1 }] : tools,
+                  tools,
+                  ...(runs.length > 0 ? { usesTools: runs } : {}),
                   free: !found,
                   at,
                   ...(found?.direction === 'out' && !sideEffecting.has(found.tool.name)
                     ? { report: found.tool.name }
-                    : runs
-                      ? { report: runs.tool }
-                      : {}),
+                    : {}),
                 },
               },
             );
