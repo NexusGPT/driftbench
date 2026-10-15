@@ -440,12 +440,12 @@ describe('the policy comes through the object resolver', () => {
     expect((await field({ value_check: 'default' })).outcome).toBe('pass');
   });
 
-  it('a block that names an object nobody registered fails the check with the resolver reason', async () => {
+  it('a block that names an object nobody registered fails tools.value_check and still compares its values exactly', async () => {
     const spec = { ...coverage, uses: { value_check: 'nowhere' } } as typeof coverage;
     const verdicts = await run(createToolsCheck(), context(spec, 1, seen, { expect: expectation }));
-    expect(verdicts).toHaveLength(1);
     expect(verdicts[0]).toMatchObject({ id: 'tools.value_check', outcome: 'fail' });
     expect(verdicts[0]?.evidence).toContain('cannot resolve');
+    expect(verdict(verdicts, 'tools.coverage.check.input.address')).toMatchObject({ outcome: 'fail' });
   });
 
   it('the shipped object is registered with the resolver, item for item', () => {
