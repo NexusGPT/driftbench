@@ -8,9 +8,10 @@ import {
   type DialectTransport,
   type DialectTransportOptions,
 } from './clients/transport';
-import { extractObject, inconclusive, type JudgeResult, MAX_TOKENS, REASONING_TOKENS } from './contract';
+import { inconclusive, type JudgeResult } from './contract';
 import { JudgeError } from './http';
 import { type DefaultJudgeRequest, normalizeJudgeRequest } from './normalize-record';
+import { outputRoom } from './output-room';
 import { judgePairLedger } from './pair-ledger';
 import { buildPrompt, renderRubric } from './prompt';
 import { verifyAnswer } from './verify-answer';
@@ -129,10 +130,7 @@ export function createDefaultJudge(options: DefaultJudgeOptions): DefaultJudgeCl
             ...(reservation > 0 ? { maxBudgetUsd: reservation } : {}),
             ...(reasoning === undefined ? {} : { reasoning }),
             maxTokens:
-              options.maxTokens ??
-              input.maxTokens ??
-              MAX_TOKENS[request.budget ?? 'normal'] +
-                (reasoning === undefined ? 0 : REASONING_TOKENS[reasoning]),
+              options.maxTokens ?? input.maxTokens ?? outputRoom(request.budget ?? 'normal', reasoning),
           });
           receipts.push(result);
           if (
@@ -198,10 +196,7 @@ export function createDefaultJudge(options: DefaultJudgeOptions): DefaultJudgeCl
           ...buildPrompt(effective),
           schema: responseSchema(effective),
           reasoning: effective.reasoning,
-          maxTokens:
-            options.maxTokens ??
-            MAX_TOKENS[effective.budget ?? 'normal'] +
-              (effective.reasoning === undefined ? 0 : REASONING_TOKENS[effective.reasoning]),
+          maxTokens: options.maxTokens ?? outputRoom(effective.budget ?? 'normal', effective.reasoning),
         });
         if (result.truncated || result.refusal || result.providerBlock || result.declineReason)
           return {
@@ -247,18 +242,8 @@ export function createDefaultJudge(options: DefaultJudgeOptions): DefaultJudgeCl
               schema: ROUTE_SCHEMA,
             });
             if (!routed.refusal && !routed.truncated && !routed.providerBlock && !routed.declineReason) {
-              try {
-                const value: unknown = JSON.parse(extractObject(routed.text) ?? 'null');
-                if (
-                  value &&
-                  typeof value === 'object' &&
-                  'route' in value &&
-                  ['criterion', 'objective', 'writing', 'relevance'].includes(String(value.route))
-                )
-                  return value.route as Route;
-              } catch {
-                /* Invalid routing cannot replace the criterion. */
-              }
+              const value = finalRoute(routed.text);
+              if (value !== undefined) return value;
             }
             return 'criterion';
           })();
@@ -474,4 +459,40 @@ export function createDefaultJudge(options: DefaultJudgeOptions): DefaultJudgeCl
         : { costUsd: undefined, costIncomplete: true }),
     };
   }
+}
+
+/**
+ * The route in the router's final {"route": ...} object. The rationale before it may quote unbalanced braces (code,
+ * sets, bracket problems), so the object is read from its last start, never from the first brace. Invalid or unknown
+ * routing returns undefined and the criterion route applies.
+ */
+function finalRoute(text: string): Route | undefined {
+  const start = [...text.matchAll(/\{\s*"route"\s*:/g)].at(-1)?.index;
+  if (start === undefined) return undefined;
+  let depth = 0;
+  let quoted = false;
+  let escaped = false;
+  for (let end = start; end < text.length; end++) {
+    const character = text[end];
+    if (quoted) {
+      if (escaped) escaped = false;
+      else if (character === '\\') escaped = true;
+      else if (character === '"') quoted = false;
+    } else if (character === '"') quoted = true;
+    else if (character === '{') depth++;
+    else if (character === '}' && --depth === 0) {
+      try {
+        const value: unknown = JSON.parse(text.slice(start, end + 1));
+        if (value && typeof value === 'object' && 'route' in value) {
+          const route = String(value.route);
+          if (route === 'criterion' || route === 'objective' || route === 'writing' || route === 'relevance')
+            return route;
+        }
+      } catch {
+        /* Invalid routing cannot replace the criterion. */
+      }
+      return undefined;
+    }
+  }
+  return undefined;
 }

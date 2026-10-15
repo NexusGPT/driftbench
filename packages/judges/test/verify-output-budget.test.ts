@@ -103,13 +103,16 @@ describe('objective verification output room', () => {
     },
   );
 
-  it('gives the routed verifier its procedure allowance without raising the router allowance', async () => {
+  it('gives the router its normal budget plus thinking room, and the routed verifier its procedure allowance', async () => {
     const { transport, calls } = boundedTransport();
     const judge = createDefaultJudge({ provider: 'openai', model: 'fixture', env: {}, transport });
     const result = await judge.judge(request);
     expect(result.answer.outcome).toBe('pass');
     expect(result.defaultJudge).toMatchObject({ version: 'default-on-v7', route: 'objective' });
-    expect(calls.map((call) => call.maxTokens)).toEqual([MAX_TOKENS.normal, ...Array(7).fill(THINKING_ROOM)]);
+    expect(calls.map((call) => call.maxTokens)).toEqual([
+      MAX_TOKENS.normal + 12288,
+      ...Array(7).fill(THINKING_ROOM),
+    ]);
     expect(result.requestCount).toBe(8);
     expect(result.costUsd).toBeCloseTo(0.08);
   });
