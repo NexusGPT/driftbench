@@ -11,13 +11,13 @@
 | hidden | 0 |
 <!-- level-table:end -->
 
-Iteration 28, source 24376949cfecd7adc0ee5cc7094573972b553c84 plus the change recorded in this journal row. Hidden seed 608611209, derived from that head.
+Iteration 29, source 1fc3cee0213900700d43a8d865c9657aa2e929ac plus the change recorded in this journal row. Hidden seed 533926176, derived from that head.
 | Seed | Reader passing / items |
 |---|---|
-| 1 | 601/641 |
-| 2 | 601/641 |
-| 3 | 601/641 |
-| hidden (608611209) | 601/641 |
+| 1 | 604/641 |
+| 2 | 604/641 |
+| 3 | 604/641 |
+| hidden (533926176) | 604/641 |
 
 Each fraction counts reader items passing on that seed, out of 641 reader items. Journal `passing` counts distinct evaluated item IDs passing every seed; it is not a sum of seed counts. The journal's per-level `metrics` use seed 1; its `perSeed` records achieved levels separately.
 
@@ -36,9 +36,6 @@ Owner rule: "make sure all the fixes are fixes that are TO THE FRAMEWORK in gene
 ## Open items
 
 - scan.registry.md-label-lowercase: [scan.registry, tier 3] the guard enforces the rules of a label written in lower case: missed the enforces edge scan.registry.md-label-lowercase:guard to scan.registry.md-label-lowercase:rule0
-- scan.steps.process-array: [scan.steps, tier 3] the reader reads the stages of an array of named processes: missed stage tariff4-s1 at .claude/tariff4-processes.json:4; missed stage tariff4-s2 at .claude/tariff4-processes.json:5; missed stage tariff4-s3 at .claude/tariff4-processes.json:6; missed stage tariff4-s4 at .claude/tariff4-processes.json:7
-- scan.steps.keyed-by-id: [scan.steps, tier 3] the reader reads the stages of steps keyed by their id: missed stage parcel5-s1 at .claude/parcel5-steps.json:3; missed stage parcel5-s2 at .claude/parcel5-steps.json:4; missed stage parcel5-s3 at .claude/parcel5-steps.json:5; missed stage parcel5-s4 at .claude/parcel5-steps.json:6
-- scan.steps.nested-workflow: [scan.steps, tier 3] the reader reads the stages of steps nested under a workflow key: missed stage tariff11-s1 at .claude/tariff11-workflow.json:4; missed stage tariff11-s2 at .claude/tariff11-workflow.json:5; missed stage tariff11-s3 at .claude/tariff11-workflow.json:6; missed stage tariff11-s4 at .claude/tariff11-workflow.json:7
 - scan.steps.comments: [scan.steps, tier 4] the reader reads the stages of JSON with comments: missed stage label15-s1 at .claude/label15-steps.jsonc:4; missed stage label15-s2 at .claude/label15-steps.jsonc:5; missed stage label15-s3 at .claude/label15-steps.jsonc:6; missed stage label15-s4 at .claude/label15-steps.jsonc:7
 - scan.steps.trailing-commas: [scan.steps, tier 4] the reader reads the stages of JSON with trailing commas: missed stage shelf16-s1 at .claude/shelf16-steps.json:3; missed stage shelf16-s2 at .claude/shelf16-steps.json:4; missed stage shelf16-s3 at .claude/shelf16-steps.json:5; missed stage shelf16-s4 at .claude/shelf16-steps.json:6
 - scan.catalogue.guard-command-key: [scan.catalogue, tier 4] the reader reads the guard by its command: missed the enforces edge scan.catalogue.guard-command-key:guard to scan.catalogue.guard-command-key:rule0; scan.catalogue.guard-command-key:guard: registry is undefined, expected "C15"
@@ -75,10 +72,10 @@ Owner rule: "make sure all the fixes are fixes that are TO THE FRAMEWORK in gene
 - scan.standing.imported-standing: [scan.standing, tier 4] the reader reads a file the standing file imports: missed instruction at .claude/docs/crate-rules.md:3; found reference reference.standing.read-claude-docs-crate-rules-md at CLAUDE.md:3, never planted
 - blind.lint.emoji-count-as-characters: [blind.lint, tier 4] lint finds no oversize finding for a standing file of 30,000 emoji: a OVERSIZE finding: the standing instructions hold 60317 characters, over the ceiling of 40000
 - blind.edges.dispatch-plain-name: [blind.edges, tier 3] the reader reads a skill body that dispatches a helper by its plain name: no dispatch edge from skill at .claude/skills/orchard-plan-7beyan/SKILL.md
-- scan.hostile.wide-folder: [scan.hostile, tier 3] the scan survives a references folder of two thousand files: the scan took 9106 ms, over 5000 ms; holds
 
 ## Hypotheses tried
 
+Iteration 29: step containers at any depth (process arrays, keyed steps, wrapper keys). +3 items on every seed: scan.steps.process-array, keyed-by-id, nested-workflow.
 Iteration 28: gate clause grammar. No bank change (601 on every seed); it repairs the two audit regressions. A first version read "read it before anything else" as a gate (pronoun target, "anything" taken for an -ing verb) and lost scan.hazards.notification; bounded targets now must be a token or a path, and -thing words are no act.
 Parse prerequisite clauses with directive anchoring, all supported read-order forms and act labels. Eleven gate items improve; scan.hostile.wide-folder times out at 9106ms on seed3 only, retained for investigation.
 Fixed this round: blind.gates.decoy-never-read-before, scan.gates.act-rename, scan.gates.act-update, scan.gates.decoy-example, scan.gates.markdown-link, scan.gates.only-after-form, scan.gates.prior-to-form, scan.gates.question-form, scan.gates.then-form, scan.gates.two-on-one-line, scan.gates.without-form. Regressions: scan.hostile.wide-folder.

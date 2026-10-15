@@ -555,15 +555,67 @@ function keyValue(key: string, value: string): RegExp {
   return new RegExp(`["']?${escapeRegex(key)}["']?\\s*:\\s*["']?${escapeRegex(value)}["']?(?![\\w-])`);
 }
 
+type StepCollection = readonly unknown[] | Record<string, unknown>;
+
+/** Schema descriptions declare possible fields rather than actual stage entries. */
+function stepSchema(value: Record<string, unknown>): boolean {
+  return (
+    typeof value.$schema === 'string' ||
+    typeof value.$ref === 'string' ||
+    (value.type === 'array' && 'items' in value) ||
+    (value.type === 'object' && ('properties' in value || 'additionalProperties' in value))
+  );
+}
+
+/** A map key in JSON or YAML: bare YAML keys and both quoting styles retain their source line. */
+function stepMapKey(key: string): RegExp {
+  const quoted = [JSON.stringify(key), `'${key.replace(/'/g, "''")}'`];
+  const forms = [...quoted, key].map(escapeRegex).join('|');
+  return new RegExp(`(?<=^|[\\n\\r{,])[\\t ]*(?:-[\\t ]+)?(?:${forms})\\s*:`);
+}
+
+/** Named stages require a nonempty identifier; keyed stages additionally require an object value. */
+function stepEntries(steps: StepCollection): Array<{ step: unknown; mapKey?: string }> {
+  const entries = Array.isArray(steps)
+    ? steps.map((step) => ({ step, mapKey: undefined }))
+    : Object.entries(steps).map(([mapKey, step]) => ({ mapKey, step }));
+  return entries.filter(({ step, mapKey }) => {
+    if (mapKey === undefined && typeof step === 'string') return step !== '';
+    if (!isRecord(step)) return false;
+    const id = 'id' in step ? step.id : 'name' in step ? step.name : mapKey;
+    return typeof id === 'string' && id !== '';
+  });
+}
+
+/** Step containers share one traversal for classification and reading, preserving declaration order. */
+function stepLists(value: unknown, process?: string): Array<{ steps: StepCollection; process?: string }> {
+  if (!isRecord(value)) return [];
+  const found: Array<{ steps: StepCollection; process?: string }> = [];
+  for (const [key, child] of Object.entries(value)) {
+    if (key === 'steps' && (Array.isArray(child) || isRecord(child))) {
+      if (
+        !(isRecord(child) && stepSchema(child)) &&
+        (Object.keys(child).length === 0 || stepEntries(child).length > 0)
+      )
+        found.push({ steps: child, ...(process === undefined ? {} : { process }) });
+    } else if (key === 'processes') {
+      if (Array.isArray(child)) {
+        for (const entry of child) {
+          if (!isRecord(entry)) continue;
+          const name = typeof entry.name === 'string' ? entry.name : entry.id;
+          if (typeof name === 'string' && name !== '') found.push(...stepLists(entry, name));
+        }
+      } else if (isRecord(child)) {
+        for (const [name, entry] of Object.entries(child)) found.push(...stepLists(entry, name));
+      }
+    } else if (isRecord(child)) found.push(...stepLists(child, process));
+  }
+  return found;
+}
+
 function isStepList(text: string, path = '.json'): boolean {
   try {
-    const parsed: unknown = parseData(text, path);
-    if (!isRecord(parsed)) return false;
-    if (Array.isArray(parsed.steps)) return true;
-    return (
-      isRecord(parsed.processes) &&
-      Object.values(parsed.processes).some((process) => isRecord(process) && Array.isArray(process.steps))
-    );
+    return stepLists(parseData(text, path)).length > 0;
   } catch {
     return false;
   }
@@ -1285,22 +1337,17 @@ function readSteps(file: EstateFile, estate: RawEstate): void {
     estate.notes.push({ file: file.path, message: `not JSON: ${String(cause)}` });
     return;
   }
-  if (!isRecord(json)) return;
-  if (Array.isArray(json.steps)) readStepList(file, json.steps, undefined, { at: 0 }, estate);
-  if (!isRecord(json.processes)) return;
-  const start = file.text.search(/"processes"\s*:/);
-  for (const [name, process] of Object.entries(json.processes)) {
-    if (!isRecord(process) || !Array.isArray(process.steps)) continue;
-    const cursor = { at: Math.max(0, start) };
-    const key = seek(file, JSON.stringify(name), cursor);
-    if (!key) continue;
-    readStepList(file, process.steps, name, cursor, estate);
+  const cursor = { at: 0 };
+  for (const { steps, process } of stepLists(json)) {
+    // Enter the actual steps container before locating identifiers that may repeat in process names.
+    if (!seekPattern(file, stepMapKey('steps'), cursor)) continue;
+    readStepList(file, steps, process, cursor, estate);
   }
 }
 
 function readStepList(
   file: EstateFile,
-  steps: readonly unknown[],
+  steps: StepCollection,
   process: string | undefined,
   cursor: { at: number },
   estate: RawEstate,
@@ -1308,15 +1355,18 @@ function readStepList(
   const qualify = (id: string) => (process === undefined ? id : `${process}/${id}`);
   const read: StepDecl[] = [];
   let declaresNext = false;
-  for (const step of steps) {
+  for (const { step, mapKey } of stepEntries(steps)) {
     const record = isRecord(step) ? step : {};
-    const key = typeof record.id === 'string' ? 'id' : 'name';
-    const id = typeof step === 'string' ? step : record[key];
+    const key = 'id' in record ? 'id' : 'name';
+    const explicit = key in record;
+    const id = mapKey !== undefined && !explicit ? mapKey : typeof step === 'string' ? step : record[key];
     if (typeof id !== 'string' || id === '') continue;
     const found =
-      typeof step === 'string'
-        ? seek(file, JSON.stringify(step), cursor)
-        : seekPattern(file, keyValue(key, id), cursor);
+      mapKey !== undefined && !explicit
+        ? seekPattern(file, stepMapKey(mapKey), cursor)
+        : typeof step === 'string'
+          ? seek(file, JSON.stringify(step), cursor)
+          : seekPattern(file, keyValue(key, id), cursor);
     if (!found) continue;
     const line = linesOf(file.text)[found.startLine - 1]?.text ?? found.quote;
     const next = record.next ?? record.then;
