@@ -105,8 +105,7 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
       .join('\n');
     for (const helper of helpers) {
       const name = String(helper.fields?.name ?? '');
-      if (name !== '' && positiveMention(visible, `\`${name}\``, ['dispatch', 'call', 'delegate', 'invoke']))
-        add(unit.id, helper.id, 'dispatch');
+      if (dispatchesHelper(visible, name)) add(unit.id, helper.id, 'dispatch');
     }
   }
 
@@ -221,6 +220,27 @@ export function literals(text: string): string[] {
     if (value !== undefined) found.push(value);
   }
   return found;
+}
+
+/** A quoted helper mention, or an explicit dispatch act naming a whole unquoted helper name. */
+function dispatchesHelper(text: string, name: string): boolean {
+  if (name === '') return false;
+  const verbs = ['dispatch', 'call', 'delegate', 'invoke'];
+  if (positiveMention(text, `\`${name}\``, verbs)) return true;
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const mentions = new RegExp(`(?<![\\w-])${escaped}(?![\\w-])`, 'g');
+  for (const match of text.matchAll(mentions)) {
+    const before = text.slice(0, match.index);
+    const clause = before.split(/[\n;!?]|\.(?=\s|$)|\b(?:but|until|instead)\b/i).at(-1) ?? '';
+    const act =
+      /\b(?:dispatch|call|delegate|invoke|spawn|launch|ask|hand(?:\s+(?:it|the\s+\w+))?(?:\s+(?:off|over))?\s+to)\s+(?:(?:the|to|helper|agent|subagent|named)\s+)*[`*]*$/i.exec(
+        clause,
+      );
+    if (!act) continue;
+    const prefix = clause.slice(0, act.index);
+    if (!/\b(?:never|do not|don['’]t|must not|should not)\s*$/i.test(prefix)) return true;
+  }
+  return false;
 }
 
 export function sortEdges(edges: readonly Edge[]): Edge[] {

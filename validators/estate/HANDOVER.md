@@ -11,13 +11,13 @@
 | hidden | 0 |
 <!-- level-table:end -->
 
-Iteration 45, source 7c9f564ef009b3a256cadf6293ebc5b4c11f9c53 plus the change recorded in this journal row. Hidden seed 91817102, derived from that head.
+Iteration 46, source c1ac480c04ed2c7c44cb957a283d631be379ef0f plus the change recorded in this journal row. Hidden seed 250293324, derived from that head.
 | Seed | Reader passing / items |
 |---|---|
-| 1 | 635/641 |
-| 2 | 635/641 |
-| 3 | 635/641 |
-| hidden (91817102) | 635/641 |
+| 1 | 636/641 |
+| 2 | 636/641 |
+| 3 | 636/641 |
+| hidden (250293324) | 636/641 |
 
 Each fraction counts reader items passing on that seed, out of 641 reader items. Journal `passing` counts distinct evaluated item IDs passing every seed; it is not a sum of seed counts. The journal's per-level `metrics` use seed 1; its `perSeed` records achieved levels separately.
 
@@ -40,10 +40,10 @@ Owner rule: "make sure all the fixes are fixes that are TO THE FRAMEWORK in gene
 - scan.decoys.guard-message-overlap: [scan.decoys, tier 4] code is not fooled: a guard message that quotes part of a rule's words is no enforcement: the guard enforces a rule it only quotes in passing
 - scan.decoys.script-name-in-prose: [scan.decoys, tier 3] code is not fooled: a script's name mentioned in passing anchors no script on that line: missed script .claude/skills/recipe-pack-18xh08m/scripts/tally.py at .claude/skills/recipe-pack-18xh08m/SKILL.md:10; found script script.recipe-pack-18xh08m.script-scripts-tally-py at .claude/skills/recipe-pack-18xh08m/SKILL.md:9, never planted
 - scan.decoys.hazard-in-example-quote: [scan.decoys, tier 4] code is not fooled: a hazard word inside a quoted example is no hazard: found hazard hazard.menu-review-6c2zvj.recover-from-a-wave-of-rate at .claude/skills/menu-review-6c2zvj/SKILL.md:10, never planted
-- blind.edges.dispatch-plain-name: [blind.edges, tier 3] the reader reads a skill body that dispatches a helper by its plain name: no dispatch edge from skill at .claude/skills/orchard-plan-7beyan/SKILL.md
 
 ## Hypotheses tried
 
+Iteration 46: plain-name helper dispatch. +1 on every seed: blind.edges.dispatch-plain-name.
 Iteration 45: reference chains owned by the reading skill. +1 on every seed: scan.reference-prose.chained.
 Iteration 44: routing read by role (tables of any header, links, slash commands, outer-pipe-less tables, standing directive lines, per-skill headings, owner tables rejected). +8 on every seed.
 Iteration 43: standing @imports. +1 on every seed: scan.standing.imported-standing.
