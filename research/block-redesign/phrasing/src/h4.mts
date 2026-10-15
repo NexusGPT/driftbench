@@ -1,6 +1,6 @@
 // H4: planted items through the gate, the audit sample, the second-model labels, and the analysis.
 // Usage: tsx h4.mts planted | sample | label | analyse
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { BLOCKS } from './blocks.ts';
 import { wilson } from './envelope.ts';
@@ -63,8 +63,13 @@ Judge carefully, one item at a time. Answer with JSON: {"valid": true or false, 
 if (step === 'label') {
   if (!existsSync(h4('audit-mine.json'))) throw new Error('my labels must exist before the second labeller runs');
   const items = read<{ item: number; lastReply: string; seed: string; text: string }[]>(h4('audit-items.json'));
-  const labels = [];
+  // Each label is appended as it lands, so a crash resumes without relabelling (the first run died in a network outage).
+  const partial = h4('audit-model.partial.jsonl');
+  const labels: { item: number; valid: boolean; reason: string }[] = existsSync(partial)
+    ? readFileSync(partial, 'utf8').split('\n').filter((l) => l.trim() !== '').map((l) => JSON.parse(l))
+    : [];
   for (const it of items) {
+    if (labels.some((l) => l.item === it.item)) continue;
     const v = await chatJson<{ valid?: boolean; reason?: string }>(
       'h4-audit',
       AUDIT_MODEL,
@@ -73,8 +78,11 @@ if (step === 'label') {
       4004 + it.item,
       'high',
     );
-    labels.push({ item: it.item, valid: v.valid === true, reason: v.reason ?? '' });
+    const label = { item: it.item, valid: v.valid === true, reason: v.reason ?? '' };
+    labels.push(label);
+    appendFileSync(partial, `${JSON.stringify(label)}\n`);
   }
+  labels.sort((a, b) => a.item - b.item);
   writeFileSync(h4('audit-model.json'), `${JSON.stringify(labels, null, 1)}\n`);
   console.log(`invalid by model: ${labels.filter((l) => !l.valid).length}`);
 }
