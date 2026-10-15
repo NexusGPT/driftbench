@@ -1321,6 +1321,8 @@ driftbench estate unit <tests...> --estate <root> [--runtime claude-code] [--rec
 
 Runs the unit tests that `estate generate` writes under `unit/`, with no model: each guard on the event payloads of its cases, each script on its fixtures. `<tests...>` are test files, or folders that hold them, such as `<suite>/unit`. `--estate` is the root the tests run against: the original estate, or a mutant copy from `estate mutate`.
 
+It also runs the generated specs of mode unit (`<suite>/specs/unit`; in a folder, specs of other modes are skipped). A unit-mode spec carries its run (`metadata.estate.unit`) and is judged by its own Then, so it needs no `--record` (which it refuses). See the [estate](../estate.md#unit-live-and-estate-mutants) page for how its guard runs are judged, and what a script or a helper spec checks with no model.
+
 | Option | Meaning |
 |---|---|
 | `--estate <root>` | the estate root; required |
@@ -1339,11 +1341,11 @@ $ pnpm -s driftbench estate unit <copy>/unit --estate examples/estates/fixture -
 ...
 Recorded 26 unit tests (sandbox: sandbox-exec); 0 have no fixture.
 $ pnpm -s driftbench estate unit <copy>/unit --estate examples/estates/fixture
-✓ unit.guard_hostile.guard.settings.posttooluse-bash-guard-ledger-guard-py  6 of 6 cases as recorded
+✓ unit.guard_hostile.guard.settings.posttooluse-bash-guard-ledger-guard-py  3 of 3 cases as recorded
 ...
 · unit.guard_hostile.guard.settings.stop-guard-reply-length-py  no recorded case shows the guard at work
 ...
-20 of 26 unit tests pass, 0 fail, 6 inert, 0 unrecorded (sandbox: sandbox-exec).
+22 of 26 unit tests pass, 0 fail, 4 inert, 0 unrecorded (sandbox: sandbox-exec).
 ```
 
 Without `--record`, a test with no recorded outcome prints `?` and `no outcome recorded: run --record on the original first`.

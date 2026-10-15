@@ -272,6 +272,11 @@ describe('the negative control', () => {
     expect(then.must).toEqual([]);
   });
 
+  it('forbids the act of a guard with no declared verdict, a block, never its runs that let the act through', () => {
+    const then = thenOf([atom('g', [{ type: 'guard', name: 'tidy.py' }])], 'negative', ctx);
+    expect(then.guards).toEqual([{ name: 'tidy.py', verdict: 'deny', count: 0 }]);
+  });
+
   it('never forbids a whole tool for an act that names its input, and names what has no inverse', () => {
     const then = thenOf(
       [

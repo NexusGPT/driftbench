@@ -1,10 +1,19 @@
-import { readFile, stat, writeFile } from 'node:fs/promises';
-import { relative, resolve } from 'node:path';
-import { RUNTIMES, readerFor, runUnitTests, type UnitResult } from '@agent-nexus/driftbench-estate';
+import { readdir, readFile, stat, writeFile } from 'node:fs/promises';
+import { extname, join, relative, resolve } from 'node:path';
+import type { Spec } from '@agent-nexus/driftbench-core';
+import {
+  RUNTIMES,
+  readerFor,
+  runUnitSpecs,
+  runUnitTests,
+  type UnitResult,
+  type UnitSpecInput,
+  type UnitSpecResult,
+} from '@agent-nexus/driftbench-estate';
 import { formatJson, UnitTest } from '@agent-nexus/driftbench-generate';
 import type { Command } from 'commander';
-import { jsonFiles } from '../files';
 import type { Io } from '../io';
+import { guardJudge, loadUnitSpec } from './estate-unit-spec';
 
 export type EstateUnitOptions = {
   estate?: string;
@@ -30,7 +39,10 @@ export function registerEstateUnitCommand(estate: Command, io: Io, setExit: (cod
     .description(
       'Run the unit tests of a generated suite (guards and scripts, no model) against an estate root',
     )
-    .argument('<tests...>', 'unit test files, or folders holding them (such as <suite>/unit)')
+    .argument(
+      '<tests...>',
+      'unit test files or unit-mode specs, or folders holding them (such as <suite>/unit, <suite>/specs/unit)',
+    )
     .option('--estate <root>', 'the estate root: the original (with --record) or a mutant copy')
     .option('--runtime <name>', `the runtime that reads the estate: ${RUNTIMES.join(', ')}`, 'claude-code')
     .option('--record', 'run on the original estate and write the outcomes into the test files')
@@ -65,6 +77,8 @@ export async function estateUnitCommand(
     return 2;
   }
   const files: string[] = [];
+  // A folder may hold specs of every mode: only its unit-mode specs run. A file named on its own must be one.
+  const fromFolder = new Set<string>();
   for (const path of paths) {
     const full = resolve(io.cwd, path);
     const info = await stat(full).catch(() => undefined);
@@ -72,11 +86,28 @@ export async function estateUnitCommand(
       io.err(`Cannot find ${path}.\n`);
       return 2;
     }
-    if (info.isDirectory()) files.push(...(await jsonFiles(full)));
-    else files.push(full);
+    if (info.isDirectory()) {
+      for (const file of await testFiles(full)) {
+        files.push(file);
+        fromFolder.add(file);
+      }
+    } else files.push(full);
   }
   const tests: Array<{ file: string; test: UnitTest }> = [];
+  const specs: UnitSpecInput[] = [];
+  const loadedSpecs = new Map<string, Spec>();
   for (const file of files.sort()) {
+    if (YAML.has(extname(file).toLowerCase())) {
+      const loaded = await loadUnitSpec(file);
+      if (typeof loaded === 'string') {
+        if (fromFolder.has(file) && !loaded.startsWith('a unit-mode spec')) continue;
+        io.err(`✗ ${relative(io.cwd, file)}  ${loaded}\n`);
+        return 2;
+      }
+      specs.push(loaded.input);
+      loadedSpecs.set(loaded.input.id, loaded.spec);
+      continue;
+    }
     let raw: unknown;
     try {
       raw = JSON.parse(await readFile(file, 'utf8'));
@@ -95,8 +126,14 @@ export async function estateUnitCommand(
     }
     tests.push({ file, test: parsed.data });
   }
-  if (tests.length === 0) {
+  if (tests.length === 0 && specs.length === 0) {
     io.err('No unit test found.\n');
+    return 2;
+  }
+  if (specs.length > 0 && options.record) {
+    io.err(
+      '--record writes outcomes into unit test files; a unit-mode spec carries its own Then: run it without --record.\n',
+    );
     return 2;
   }
   const jobs = Number(options.jobs ?? '1');
@@ -104,10 +141,25 @@ export async function estateUnitCommand(
     io.err(`--jobs takes a whole number of 1 or more, not ${options.jobs}\n`);
     return 2;
   }
-  const run = await runUnitTests(
-    tests.map((entry) => entry.test),
-    { root, reader, record: options.record === true, noSandbox: options.sandbox === false, jobs },
-  );
+  const run =
+    tests.length > 0
+      ? await runUnitTests(
+          tests.map((entry) => entry.test),
+          { root, reader, record: options.record === true, noSandbox: options.sandbox === false, jobs },
+        )
+      : { results: [], sandbox: 'none' as const, notes: [] };
+  const specRun =
+    specs.length > 0
+      ? await runUnitSpecs(specs, {
+          root,
+          reader,
+          noSandbox: options.sandbox === false,
+          jobs,
+          judge: guardJudge(loadedSpecs),
+        })
+      : { results: [], sandbox: run.sandbox, notes: [] };
+  const sandbox = tests.length > 0 ? run.sandbox : specRun.sandbox;
+  const notes = [...new Set([...run.notes, ...specRun.notes])];
   if (options.record) {
     for (const [index, result] of run.results.entries()) {
       const entry = tests[index];
@@ -116,16 +168,21 @@ export async function estateUnitCommand(
   }
   const counts = { pass: 0, fail: 0, inert: 0, unrecorded: 0 };
   for (const result of run.results) counts[result.status] += 1;
+  for (const result of specRun.results) counts[result.status] += 1;
   if (options.json) {
-    io.out(
-      formatJson(
-        contractOf(
-          run.results,
-          tests.map((entry) => entry.test),
-        ),
-      ),
+    const contract = contractOf(
+      run.results,
+      tests.map((entry) => entry.test),
     );
-  } else io.out(report(run.results, counts, run.sandbox, run.notes, options.record === true));
+    const fromSpecs = specContractOf(specRun.results);
+    io.out(
+      formatJson({
+        runs: [...contract.runs, ...fromSpecs.runs],
+        guards: [...contract.guards, ...fromSpecs.guards],
+        scripts: [...contract.scripts, ...fromSpecs.scripts],
+      }),
+    );
+  } else io.out(report(run.results, counts, sandbox, notes, options.record === true, specRun.results));
   if (counts.unrecorded > 0 && !options.record) return 2;
   return counts.fail > 0 ? 1 : 0;
 }
@@ -190,15 +247,60 @@ export function contractOf(results: readonly UnitResult[], tests: readonly UnitT
   return contract;
 }
 
+/** The contract entries of unit-mode specs: one run per spec, one guard entry per guard run, one script entry per script run. */
+export function specContractOf(results: readonly UnitSpecResult[]): UnitContract {
+  const contract: UnitContract = { runs: [], guards: [], scripts: [] };
+  for (const result of results) {
+    contract.runs.push({ spec: result.id, pass: result.status === 'pass', failing: result.failing });
+    const target = result.target;
+    if (target.kind === 'guard') {
+      for (const run of result.guards) {
+        const decision = run.outcome.decision === 'error' ? 'allow' : run.outcome.decision;
+        contract.guards.push({
+          guard: target.name,
+          event: target.event,
+          decision,
+          ...(run.outcome.message !== undefined ? { message: run.outcome.message } : {}),
+          ms: Math.round(run.ms),
+        });
+      }
+    }
+    if (target.kind === 'script') {
+      for (const run of result.scripts)
+        contract.scripts.push({ script: target.path, exit: run.exitCode, stdout: run.stdout.trim() });
+    }
+  }
+  return contract;
+}
+
+/** The test files under a folder, at any depth: unit tests (.json) and generated specs (.yaml). */
+async function testFiles(dir: string): Promise<string[]> {
+  const out: string[] = [];
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) out.push(...(await testFiles(full)));
+    else if (entry.name.endsWith('.json') || YAML.has(extname(entry.name).toLowerCase())) out.push(full);
+  }
+  return out;
+}
+
+const YAML = new Set(['.yaml', '.yml']);
+
 function report(
   results: readonly UnitResult[],
   counts: Record<UnitResult['status'], number>,
   sandbox: string,
   notes: readonly string[],
   record: boolean,
+  specResults: readonly UnitSpecResult[] = [],
 ): string {
   const mark = { pass: '✓', fail: '✗', inert: '·', unrecorded: '?' } as const;
   const lines = results.map((result) => `${mark[result.status]} ${result.id}  ${result.detail}`);
+  for (const result of specResults) {
+    lines.push(`${mark[result.status]} ${result.id}  ${result.detail}`);
+    for (const note of result.notes) lines.push(`    ${note}`);
+  }
+  const total = results.length + specResults.length;
   for (const note of notes) lines.push(`note: ${note}`);
   const flaky = results.flatMap((result) => result.cases.filter((entry) => entry.flaky).map(() => result.id));
   if (flaky.length > 0) {
@@ -216,7 +318,7 @@ function report(
   lines.push(
     record
       ? `Recorded ${results.length} unit tests (sandbox: ${sandbox}); ${counts.inert} have no fixture.`
-      : `${counts.pass} of ${results.length} unit tests pass, ${counts.fail} fail, ${counts.inert} inert, ${counts.unrecorded} unrecorded (sandbox: ${sandbox}).`,
+      : `${counts.pass} of ${total} unit tests pass, ${counts.fail} fail, ${counts.inert} inert, ${counts.unrecorded} unrecorded (sandbox: ${sandbox}).`,
     '',
   );
   return lines.join('\n');

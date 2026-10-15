@@ -32,6 +32,7 @@ import {
   type ThenParts,
   thenOf,
 } from './then';
+import { specUnitOf } from './unit';
 
 /**
  * The situation a row is asked in. A live guard_positive row takes a `forced` situation, whose phrase
@@ -274,6 +275,8 @@ export function build(
     : undefined;
   if (seed) vars.workspace_seed = seed.id;
 
+  // A unit-mode spec carries the run that `estate unit` makes of it: no model, so the payloads are written here.
+  const unit = row.mode === 'unit' ? specUnitOf(row, atoms, ctx.atoms) : undefined;
   const usesStages = blocks.some((block) => (block.expect as Record<string, unknown>).stage !== undefined);
   const kinds = [...new Set(atoms.map((atom) => `kind:${atom.kind}`))];
   const expectRun = session
@@ -321,6 +324,7 @@ export function build(
         ask,
         ...(askFrom ? { askFrom } : {}),
         outcome,
+        ...(unit !== undefined && typeof unit !== 'string' ? { unit } : {}),
         ...(then.judged.length > 0 ? { judged: then.judged } : {}),
         ...(session ? { session: session.name, expect: expectRun } : {}),
         ...(complete

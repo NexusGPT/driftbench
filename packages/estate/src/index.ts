@@ -259,12 +259,18 @@ export { runStaticTests, type StaticInput, type StaticResult } from './static';
 export {
   casesFromSource,
   ESTATE_CONFIG_FILE,
+  type GuardJudge,
+  type GuardRunRecord,
   neutral,
   outcomeOf,
+  runUnitSpecs,
   runUnitTests,
   sandboxProfile,
   type UnitCaseResult,
   type UnitResult,
   type UnitRun,
   type UnitRunOptions,
+  type UnitSpecInput,
+  type UnitSpecResult,
+  verdictOf,
 } from './unit';

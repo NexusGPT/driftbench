@@ -4,7 +4,13 @@ import { copyFile, mkdir, mkdtemp, readFile, realpath, rm, writeFile } from 'nod
 import { createRequire } from 'node:module';
 import { homedir, tmpdir } from 'node:os';
 import { dirname, extname, join } from 'node:path';
-import type { GuardCase, UnitDecision, UnitOutcome, UnitTest } from '@agent-nexus/driftbench-generate';
+import type {
+  GuardCase,
+  SpecUnit,
+  UnitDecision,
+  UnitOutcome,
+  UnitTest,
+} from '@agent-nexus/driftbench-generate';
 import {
   reapFolder,
   trackFolder,
@@ -147,6 +153,328 @@ export async function runUnitTests(tests: readonly UnitTest[], options: UnitRunO
 }
 
 type Runner = { work: string; copy: string; sandbox: boolean; counter: number };
+
+/** A generated spec of mode unit: its id, its test type and the run it carries (`metadata.estate.unit`). */
+export type UnitSpecInput = { id: string; testType: string; unit: SpecUnit };
+
+/** One run of a guard on a case of a unit-mode spec, as the runtime would record it. */
+export type GuardRunRecord = {
+  case: string;
+  material: string;
+  outcome: UnitOutcome;
+  /** The verdict the runtime would log: deny, ask, allow, or the guard's own word for acting without blocking. */
+  verdict: string;
+  /** How the run ended: blocking, success, error, or timeout when the guard ran past its timeout. */
+  ended: 'blocking' | 'success' | 'error' | 'timeout';
+  stdout: string;
+  stderr: string;
+  exitCode: number;
+  ms: number;
+};
+
+/** How a unit-mode spec judges the runs of its guard: its own Then, read by the caller's checks. */
+export type GuardJudge = (
+  spec: UnitSpecInput,
+  runs: readonly GuardRunRecord[],
+) => GuardJudgement | Promise<GuardJudgement>;
+
+export type GuardJudgement = { pass: boolean; failing: string[]; detail: string; notes?: string[] };
+
+export type UnitSpecResult = {
+  id: string;
+  testType: string;
+  target: SpecUnit['target'];
+  status: 'pass' | 'fail';
+  detail: string;
+  failing: string[];
+  /** Guard specs: every run of the guard, in case order. */
+  guards: GuardRunRecord[];
+  /** Script specs: every run of the script. */
+  scripts: Array<{ case: string; exitCode: number; stdout: string; stderr: string; ms: number }>;
+  notes: string[];
+};
+
+/**
+ * The verdict a runtime would log for a guard run. Blocking is `deny` (or `ask`); a run that tells the agent
+ * something without blocking (a message on another exit code, context on stdout) acted with the guard's own
+ * non-blocking verdict (`warn`, `nudge`, ...), `warn` when the estate declares none; a silent run is `allow`.
+ */
+export function verdictOf(outcome: UnitOutcome, declared: string | undefined): string {
+  if (outcome.decision === 'deny' || outcome.decision === 'ask') return outcome.decision;
+  const said = outcome.message !== undefined || outcome.output !== undefined;
+  if (outcome.decision === 'allow' && outcome.output !== undefined && isAllowAnswer(outcome.output))
+    return 'allow';
+  if (!said) return 'allow';
+  return declared !== undefined && !/^(deny|ask|allow|block)$/i.test(declared) ? declared : 'warn';
+}
+
+/** A JSON answer that only allows: it tells the agent nothing. */
+function isAllowAnswer(output: string): boolean {
+  try {
+    const json = JSON.parse(output) as Record<string, unknown>;
+    const specific = json.hookSpecificOutput as Record<string, unknown> | undefined;
+    return (
+      specific?.permissionDecision === 'allow' &&
+      specific.additionalContext === undefined &&
+      json.systemMessage === undefined
+    );
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Runs generated specs of mode unit with no model, on a copy of the estate: a guard spec runs the guard on the
+ * payloads it carries and hands the runs to `judge`, which reads the spec's own Then; a script spec runs the
+ * script on the fixtures the estate declares, else on its minimal fixtures (see `judgeScript`); a helper spec
+ * checks what the runtime would serve the helper alone (see `judgeHelper`).
+ */
+export async function runUnitSpecs(
+  specs: readonly UnitSpecInput[],
+  options: UnitRunOptions & { judge: GuardJudge },
+): Promise<{ results: UnitSpecResult[]; sandbox: 'sandbox-exec' | 'none'; notes: string[] }> {
+  const notes: string[] = [];
+  const raw = await options.reader.read(options.root);
+  const work = await realpath(await mkdtemp(join(tmpdir(), 'driftbench-unit-')));
+  trackFolder(work);
+  const copy = join(work, 'estate');
+  try {
+    await copyListed(options.root, copy, options.reader);
+    const sandbox =
+      !options.noSandbox && process.platform === 'darwin' && existsSync('/usr/bin/sandbox-exec');
+    if (!sandbox)
+      notes.push('no sandbox: the guards and scripts ran with the network and the home folder open');
+    const runner = { work, copy, sandbox, counter: 0 };
+    const config = await readConfig(options.root);
+    const results: UnitSpecResult[] = new Array(specs.length);
+    const runOne = async (spec: UnitSpecInput): Promise<UnitSpecResult> => {
+      const target = spec.unit.target;
+      const base = { id: spec.id, testType: spec.testType, target, guards: [], scripts: [], notes: [] };
+      if (target.kind === 'subagent') return { ...base, ...(await judgeHelper(target, runner.copy)) };
+      if (target.kind === 'script') return { ...base, ...(await judgeScript(spec, config, runner)) };
+      const guard = raw.guards.find(
+        (candidate) =>
+          guardName(candidate) === target.name &&
+          candidate.event === target.event &&
+          (candidate.matcher ?? '') === (target.matcher ?? ''),
+      );
+      if (!guard) {
+        const detail = `the estate no longer runs the ${target.event} guard ${target.name}${target.matcher ? ` on ${target.matcher}` : ''}`;
+        return { ...base, status: 'fail', detail, failing: [detail] };
+      }
+      // The estate's own timeout wins: a mutant that changes it is judged by what the runtime would do.
+      const timeoutMs = Math.round((guard.timeout ?? target.timeout ?? 60) * 1000);
+      const test = { id: spec.id } as UnitTest;
+      const guards: GuardRunRecord[] = [];
+      for (const unitCase of spec.unit.cases) {
+        const run = await runGuard(guard, test, unitCase, runner, timeoutMs);
+        const outcome = outcomeOf(run);
+        guards.push({
+          case: unitCase.id,
+          material: unitCase.material,
+          outcome,
+          verdict: run.timedOut ? 'timeout' : verdictOf(outcome, target.verdict),
+          ended: run.timedOut
+            ? 'timeout'
+            : outcome.decision === 'deny' || outcome.decision === 'ask'
+              ? 'blocking'
+              : run.exitCode === 0
+                ? 'success'
+                : 'error',
+          stdout: run.stdout,
+          stderr: run.stderr,
+          exitCode: run.exitCode,
+          ms: run.ms,
+        });
+      }
+      const judged = await options.judge(spec, guards);
+      // A guard that crashes enforces nothing, whatever the spec expects of its verdicts.
+      const crashed = guards
+        .filter((run) => crashedRun(run.exitCode, `${run.stderr}\n${run.stdout}`, run.ended === 'timeout'))
+        .map(
+          (run) =>
+            `${run.case} (${run.material}): the guard crashed, exit ${run.exitCode}: ${firstLine(run.stderr)}`,
+        );
+      const failing = [...crashed, ...judged.failing];
+      return {
+        ...base,
+        guards,
+        status: judged.pass && crashed.length === 0 ? 'pass' : 'fail',
+        detail: crashed.length > 0 ? failing.join(' | ') : judged.detail,
+        failing,
+        notes: judged.notes ?? [],
+      };
+    };
+    let next = 0;
+    const lanes = Math.max(1, Math.min(Math.floor(options.jobs ?? 1), specs.length));
+    await Promise.all(
+      Array.from({ length: lanes }, async () => {
+        while (next < specs.length) {
+          const index = next++;
+          results[index] = await runOne(specs[index] as UnitSpecInput);
+        }
+      }),
+    );
+    return { results, sandbox: sandbox ? 'sandbox-exec' : 'none', notes };
+  } finally {
+    await reapFolder([work]);
+    await rm(work, { recursive: true, force: true });
+    untrackFolder(work);
+  }
+}
+
+/**
+ * A run that did not end on an answer of its own: the interpreter, the shell or the system stopped it (an
+ * uncaught exception or a syntax error, a missing command, a file it cannot execute).
+ */
+const CRASH =
+  /Traceback \(most recent call last\)|^[A-Z]\w*(?:Error|Exception): |command not found|syntax error|cannot execute/m;
+
+/** Whether a run crashed: exit 126 or more (not executable, not found, a signal), or a crash on another exit than 0 or 2. */
+export function crashedRun(exitCode: number, said: string, timedOut: boolean): boolean {
+  if (timedOut) return false;
+  if (exitCode >= 126) return true;
+  return exitCode !== 0 && exitCode !== 2 && CRASH.test(said);
+}
+
+/**
+ * A script spec. Fixtures the estate declares (`scripts:` in driftbench.estate.yaml) run as declared. Without
+ * them, the script runs on the minimal fixtures the spec carries (no argument, then each command line the
+ * estate documents), and with no recorded outcome to compare, the oracle is what any script owes its caller:
+ * no run crashes (an interpreter error, a missing command, a timeout or a signal), and when the documented
+ * command line takes arguments, the run without them answers with its usage (a line naming `usage` or the
+ * script) and a non-zero exit, rather than failing some other way or acting on nothing.
+ */
+async function judgeScript(
+  spec: UnitSpecInput,
+  config: Record<string, unknown>,
+  runner: Runner,
+): Promise<Pick<UnitSpecResult, 'status' | 'detail' | 'failing' | 'scripts' | 'notes'>> {
+  const target = spec.unit.target;
+  if (target.kind !== 'script') throw new Error('not a script spec');
+  const path = target.path;
+  if (!existsSync(join(runner.copy, path))) {
+    const detail = `the estate no longer holds ${path}`;
+    return { status: 'fail', detail, failing: [detail], scripts: [], notes: [] };
+  }
+  const declared = (config.scripts as Record<string, unknown> | undefined)?.[path];
+  if (Array.isArray(declared) && declared.length > 0) {
+    const test = {
+      id: spec.id,
+      planRow: spec.id,
+      testType: 'script_fixture',
+      atom: spec.id,
+      title: path,
+      mapHash: '',
+      target,
+      cases: [],
+    } as UnitTest;
+    const result = await runScriptTest(test, config, runner, false);
+    return {
+      status: result.status === 'pass' ? 'pass' : 'fail',
+      detail: result.detail,
+      failing: result.cases.filter((entry) => !entry.pass).map((entry) => `${entry.case}: ${entry.detail}`),
+      scripts: result.cases.map((entry) => ({
+        case: entry.case,
+        exitCode: entry.outcome.exitCode,
+        stdout: entry.outcome.output ?? '',
+        stderr: '',
+        ms: entry.ms,
+      })),
+      notes: [],
+    };
+  }
+  const name = path.split('/').pop() ?? path;
+  const takesArguments = spec.unit.cases.some(
+    (entry) => Array.isArray(entry.payload.args) && entry.payload.args.length > 0,
+  );
+  const failing: string[] = [];
+  const scripts: UnitSpecResult['scripts'] = [];
+  for (const fixture of spec.unit.cases) {
+    const run = await runScript(path, fixture, runner);
+    scripts.push({
+      case: fixture.id,
+      exitCode: run.exitCode,
+      stdout: run.stdout,
+      stderr: run.stderr,
+      ms: run.ms,
+    });
+    const said = `${run.stderr}\n${run.stdout}`;
+    if (run.timedOut || crashedRun(run.exitCode, said, false)) {
+      failing.push(`${fixture.id} (${fixture.material}): crashed, exit ${run.exitCode}: ${firstLine(said)}`);
+      continue;
+    }
+    const bare = !Array.isArray(fixture.payload.args) || fixture.payload.args.length === 0;
+    if (bare && takesArguments) {
+      const usage = new RegExp(`\\busage\\b|${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'i').test(said);
+      if (run.exitCode === 0 || !usage)
+        failing.push(
+          `${fixture.id} (no argument): ${run.exitCode === 0 ? 'exit 0' : `exit ${run.exitCode} with no usage line`} where the documented command line takes arguments: ${firstLine(said) || 'nothing printed'}`,
+        );
+    }
+  }
+  return {
+    status: failing.length === 0 ? 'pass' : 'fail',
+    detail:
+      failing.length === 0
+        ? `${scripts.length} of ${scripts.length} fixtures ran to an answer of the script's own`
+        : failing.join(' | '),
+    failing,
+    scripts,
+    notes: [
+      'no recorded outcome: judged on what any script owes its caller (no crash, usage without arguments)',
+    ],
+  };
+}
+
+function firstLine(text: string): string {
+  return (text.trim().split('\n')[0] ?? '').slice(0, 160);
+}
+
+/**
+ * A helper spec with no model: what the runtime would serve the helper run alone. Its agent file is in the
+ * estate, its frontmatter names the helper, and its body, the helper's system prompt, is not empty. Running
+ * the helper on its task needs a model: that is live mode (`estate run`).
+ */
+async function judgeHelper(
+  target: Extract<SpecUnit['target'], { kind: 'subagent' }>,
+  copy: string,
+): Promise<Pick<UnitSpecResult, 'status' | 'detail' | 'failing' | 'notes'>> {
+  const text = await readFile(join(copy, target.file), 'utf8').catch(() => undefined);
+  const notes = ['no model in unit mode: the helper is checked as the runtime would serve it, not run'];
+  if (text === undefined) {
+    const detail = `the estate no longer holds ${target.file}`;
+    return { status: 'fail', detail, failing: [detail], notes };
+  }
+  const front = /^﻿?---\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/.exec(text);
+  const failing: string[] = [];
+  let name: unknown;
+  if (front) {
+    try {
+      const parsed: unknown = parseYaml(front[1] ?? '');
+      name =
+        parsed !== null && typeof parsed === 'object' ? (parsed as Record<string, unknown>).name : undefined;
+    } catch (cause) {
+      failing.push(
+        `the frontmatter of ${target.file} does not parse: ${cause instanceof Error ? cause.message : String(cause)}`,
+      );
+    }
+  }
+  if (name !== undefined && name !== target.name)
+    failing.push(`${target.file} names the helper ${String(name)}, not ${target.name}`);
+  const body = front ? text.slice(front[0].length) : text;
+  if (body.trim() === '')
+    failing.push(`${target.file} has no body: the helper runs with an empty system prompt`);
+  return {
+    status: failing.length === 0 ? 'pass' : 'fail',
+    detail:
+      failing.length === 0
+        ? `${target.file} serves ${target.name} a system prompt of ${body.trim().length} characters`
+        : failing.join('; '),
+    failing,
+    notes,
+  };
+}
 
 async function runGuardTest(
   test: UnitTest,
@@ -394,7 +722,15 @@ async function runGuard(
     payload.last_assistant_message = reply || 'ok';
     delete payload.last_reply;
   }
-  return execute(['/bin/sh', '-c', guard.command], `${JSON.stringify(payload)}\n`, runner, folder, timeoutMs);
+  // The runtime runs a hook in the project folder, the cwd of its payload: a command that names its script
+  // by a relative path finds it there.
+  return execute(
+    ['/bin/sh', '-c', guard.command],
+    `${JSON.stringify(payload)}\n`,
+    runner,
+    runner.copy,
+    timeoutMs,
+  );
 }
 
 async function runScriptTest(
