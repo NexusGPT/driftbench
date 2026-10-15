@@ -4,6 +4,8 @@ Source baseline: `de43bbbfef822ccecd6537aa09ec0f39d29ebe6d`. Branch: `feat/estat
 
 ## Scope and result
 
+The opening sections record the baseline and earlier measurements. The approved metadata measurement below records the current result.
+
 The runner executes explicit task-spec operations and recorded JSON unit tests. The generated bank specs at this baseline omit `metadata.estate.unit`; accepting their YAML alone does not make them executable. No bank gain is claimed until the generator supplies runnable operations and their independent oracles. No validator code, threshold, fixture or bank is changed.
 
 ## Baseline measurements
@@ -110,3 +112,47 @@ A separate compatibility probe consumes the generator owner's actual pending ope
 ## Script assertion conformance follow-up
 
 Four independent regressions expose dropped `ran_code: false`, dropped command limits, an ignored custom script check, and an exit expectation wrongly applied to every fixture rather than the last command. All four fail before the fix. Script operations now enforce the execution contract; unsupported custom checks and cross-operation assertions are input errors. Per-case outcomes still judge every fixture separately. All 31 targeted runner tests pass after the fix.
+
+
+## Approved metadata dependency
+
+The narrow dependency from `6b5ef95daa628c462c61040182faf5778a7d38aa` supplies only `packages/generate/src/estate/build-row.ts`, `packages/generate/src/estate/unit.ts`, their `packages/generate/test/estate/unit.test.ts` test, and that commit's changed fixture snapshots. All 40 inherited files are byte-identical to the source commit. The commit message and PR body enumerate every path.
+
+Original author: achammah <35874917+achammah@users.noreply.github.com>, with the source commit's Claude Opus 5.5 coauthor credit retained.
+
+These files generate declared operation metadata and input cases. They do not score execution, infer script success from usage words, count a helper prompt as a run, or mine executable source literals. Rule quotations generate inputs; actual process observations determine outcomes. No runner, `then.ts`, export barrel, reader, scanner, or lint code is inherited.
+
+After inheritance, all 47 targeted tests pass across the four runner test files above and the inherited generator unit test file. Biome checks the changed runner and inherited generator sources without findings. Targeted typecheck remains blocked only by the existing missing `mammoth` dependency in `packages/artifacts/src/docx.ts:312`.
+
+
+## Measurement with the approved metadata
+
+Instrument: the direct level-4 `unitFamily()` through `levelMeasure`, without running other levels or changing validators. Tested runtime source: `37d3c3c495996daa0202c7d2d1b0cb6b73e0922d` plus the byte-identical approved dependency from `6b5ef95da`. Only this report and the estate journal change after measurement.
+
+| Seeds | Before | After |
+|---|---:|---:|
+| 1, 2, 3, hidden 937625092 | 0/41 | 29/41 |
+| 4, 5, 6, 7, 8, 1009 | 0/41 | 29/41 |
+
+The bank declares this family seed-free and reuses its first result across these seeds. The gain is on the assigned fixed bank; diverse behavior is checked by the independent handwritten estates.
+
+Every item in the original 41-item table passes except the 12 below. Each has the same result on all measured seeds.
+
+| Remaining item | Cause |
+|---|---|
+| `unit.runner.green-reply-length.py` | The generated Stop payload is the short rule sentence, not an over-limit reply. The real guard allows it and emits no blocking message. |
+| `unit.runner.report-message-reply-length.py` | The generated Stop payload is the short rule sentence, not an over-limit reply. The real guard allows it and emits no blocking message. |
+| `unit.runner.helper-green-inbox-triager` | No configured helper executor. The runner refuses to count prompt presence as execution. |
+| `unit.runner.helper-broken-inbox-triager` | No configured helper executor. The runner refuses to count prompt presence as execution. |
+| `unit.runner.helper-green-ledger-auditor` | No configured helper executor. The runner refuses to count prompt presence as execution. |
+| `unit.runner.helper-broken-ledger-auditor` | No configured helper executor. The runner refuses to count prompt presence as execution. |
+| `unit.runner.helper-green-route-planner` | No configured helper executor. The runner refuses to count prompt presence as execution. |
+| `unit.runner.helper-broken-route-planner` | No configured helper executor. The runner refuses to count prompt presence as execution. |
+| `unit.runner.script-green-reconcile.py` | The generated spec requires unsupported custom some_call and declares no independent expected exit/output. Missing input is not a mutant kill. |
+| `unit.runner.script-broken-reconcile.py` | The generated spec requires unsupported custom some_call and declares no independent expected exit/output. Missing input is not a mutant kill. |
+| `unit.runner.script-green-track.sh` | The generated spec requires unsupported custom some_call and declares no independent expected exit/output. Missing input is not a mutant kill. |
+| `unit.runner.script-broken-track.sh` | The generated spec requires unsupported custom some_call and declares no independent expected exit/output. Missing input is not a mutant kill. |
+
+The reply-length guard actually checks a reply above its limit; its generated hostile/register/speed cases do not cross that limit. Fixing those inputs belongs to the generator owner. Its existing `max_characters` evidence can supply a declared boundary without reading implementation literals. No further generation change is made under the narrow inheritance approval.
+
+Helper execution needs an actual configured runtime and observations. Script correctness needs declared valid fixtures with expected exit/output and trace-backed support for the requested checks. No paid calls run.
