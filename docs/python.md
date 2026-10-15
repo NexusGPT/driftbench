@@ -24,7 +24,7 @@ cell.state, cell.target            # ("pass", "function:acme")
 [block.passed for block in cell.blocks]
 ```
 
-`run_specs(specs, *, target=None, agent=None, python_path=(), mode="F", repeats=1, store=None, concurrency=None, cli=None, cwd=None, timeout=None)` runs spec files or folders and returns a `CampaignResult`. Exit codes 0 and 1 of the command line give a result; any other code raises `DriftbenchError` with the command line's message, such as an unknown target.
+`run_specs(specs, *, target=None, agent=None, python_path=(), mode="F", repeats=1, store=None, concurrency=None, cli=None, cwd=None, timeout=None)` runs spec files or folders and returns a `CampaignResult`. Exit codes 0, 1 and 3 of the command line give a result (3: nothing failed but a cell was not run or blocked; `verdict_of(result)` reads it as `not_run` or `blocked`, never a pass); any other code raises `DriftbenchError` with the command line's message, such as an unknown target.
 
 | Type | Holds |
 |---|---|
