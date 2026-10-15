@@ -6,7 +6,7 @@ A failing block gets two answers besides its machine verdict: who made the mista
 
 ## Evidence names
 
-Every name is computed once by one provider, from what the run, the estate map, the value check and any confirm run stored. A name whose value is unknown is left out, so a condition on it never holds. 45 names ship.
+Every name is computed once by one provider, from what the run, the estate map, the value check and any confirm run stored. A name whose value is unknown is left out, so a condition on it never holds. 46 names ship.
 
 | Cost class | Means |
 |---|---|
@@ -26,6 +26,7 @@ Every name is computed once by one provider, from what the run, the estate map, 
 | `downstream_need` | static | declared, none | a consumer the block or the project declares |
 | `verdict_check` | static | a check name | the failing verdict |
 | `verdict_kind` | static | machine, judge | the failing verdict |
+| `first_violation` | static | a verdict id | the earliest failing gating verdict of the block, by the place of its act in the trace, then check order |
 | `rule_atom` | static | atom ids, none | the spec's estate atoms for the failing check, or the block's links with relation verifies |
 | `rule_home` | static | core, skill_body, skill_reference, skill_script, helper, guard, tool_schema, instruction, none | the atom's kind and provenance file, or the link's home |
 | `rule_skill` | static | a skill name | the provenance path of the atom, or the link |
@@ -36,15 +37,15 @@ Every name is computed once by one provider, from what the run, the estate map, 
 | `rule_needed_by` | static | number | the skills whose plan rows name the rule's atom, the routed skill, the rule's own skill, and the core prompt when a core atom cites it (a core rule's own home is not counted) |
 | `routed_skills` | static | skill names | expect.skills and the route atoms the failing check names |
 | `skill_loaded` | static | boolean | the trace's skills list, or a Read of the skill's SKILL.md, for the skill the check is about |
-| `skill_covers` | static | covered, not_covered, unknown | a stored reference agent's load count against the bar, else a route_positive plan row for the skill, else unknown |
-| `rule_skill_routed` | static | boolean | rule_skill is one of routed_skills |
-| `rule_in_context` | static | boolean | skill_loaded for a rule in a skill body; ref_read full for a rule in a reference; always for a core or instruction rule |
+| `skill_covers` | static | covered, not_covered, unknown | the block's plan row for the skill (route_positive: covered, route_near_miss: not_covered); with no such row, a stored reference agent's load count against the bar; else unknown |
+| `rule_skill_routed` | static | boolean | derived: rule_skill is one of routed_skills |
+| `rule_in_context` | static | boolean | derived: always for a core or instruction rule; skill_loaded for a rule in a skill body; ref_read full for a rule in a reference |
 | `ref_exists` | static | boolean | the reference atom's fields.exists |
-| `ref_forced` | static | boolean | a reference or gate atom points to the file from a skill body or the core prompt |
+| `ref_forced` | static | boolean | a reference or gate atom points to the file from a skill body or the core prompt, in this block's situation (a pointer with a situation forces only there) |
 | `ref_depth` | static | number | the map edges: 1 when a main file names the reference, 2 or more when only another reference does |
 | `ref_read` | static | none, partial, full | Read calls with their offset and limit, head, tail and sed -n commands, and the runtime's references list |
 | `guard_caught` | static | boolean | the guard decision log: an enforcing guard denied the act, then allowed it later (the agent complied) |
-| `tool_failed` | static | boolean | the exit code or the error of the call the check is about, or a rung that found the tool did not resolve the value |
+| `tool_failed` | static | boolean | the error, the reported exit code or the recorded execution of the call the check is about, or a rung that found the tool did not resolve the value |
 | `tool_silent` | static | boolean | exit 0 or no error, with output that lacks what the tool's own usage text promises |
 | `tool_output_wrong` | static | boolean | a value the agent reported that came from a tool output (not from the user or a file), and that differs from gold |
 | `env_error` | static | network, sandbox, package, timeout, none | a classifier over stderr, the output of failed commands and tool errors; the first class that matches, in the order timeout, network, package, sandbox |

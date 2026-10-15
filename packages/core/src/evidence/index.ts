@@ -19,6 +19,7 @@ import {
 import {
   act_signature,
   routed_skills,
+  routedOf,
   rule_act,
   rule_atom,
   rule_home,
@@ -27,14 +28,16 @@ import {
   rule_situational,
   rule_skill,
   rule_skill_routed,
+  ruleSkillOf,
   skill_covers,
   skill_loaded,
   skillLoaded,
 } from './rule';
-import { skillOfPath, subjectTool, verdictSubject } from './subject';
+import { outputFailed, skillOfPath, subjectTool, verdictSubject } from './subject';
 import {
   claim_contradicted,
   env_error,
+  first_violation,
   guard_caught,
   next_action,
   protected_changed,
@@ -80,8 +83,11 @@ export type {
 } from './types';
 export {
   homeOfAtom,
+  outputFailed,
   readAmount,
   referencePath,
+  routedOf,
+  ruleSkillOf,
   signature,
   skillLoaded,
   skillOfPath,
@@ -105,6 +111,7 @@ export const EVIDENCE_PROVIDERS: readonly EvidenceProvider[] = [
   downstream_need,
   verdict_check,
   verdict_kind,
+  first_violation,
   rule_atom,
   rule_home,
   rule_skill,
@@ -153,6 +160,9 @@ export class EvidenceRegistry {
   register(provider: EvidenceProvider): this {
     if (this.#providers.has(provider.name))
       throw new Error(`the evidence name ${provider.name} is already registered`);
+    if ((provider.compute === undefined) === (provider.derive === undefined)) {
+      throw new Error(`the evidence name ${provider.name} needs either compute or derive`);
+    }
     this.#providers.set(provider.name, provider);
     return this;
   }
@@ -174,21 +184,49 @@ export class EvidenceRegistry {
 export const evidenceRegistry = new EvidenceRegistry();
 
 /**
- * Computes evidence for one failing verdict: every name, or the names asked for. A name whose value is unknown
- * is left out, so a rule condition on it never holds. Names of cost class `run` are read only when a confirm
- * run stored them. An unknown name is refused.
+ * The evidence step: computes the evidence of one failing verdict (one chain root), every name or the names
+ * asked for and the names they read. Each provider runs once: the computed names first, from the stored run and
+ * the map, then the derived names, from the values already computed. A name whose value is unknown is left out,
+ * so a rule condition on it never holds. Names of cost class `run` are read only when a confirm run stored them.
+ * An unknown name is refused.
  */
 export function computeEvidence(
   input: EvidenceInput,
   names?: readonly string[],
   registry: EvidenceRegistry = evidenceRegistry,
 ): Record<string, Exclude<EvidenceValue, undefined>> {
-  const out: Record<string, Exclude<EvidenceValue, undefined>> = {};
-  for (const name of names ?? registry.names()) {
+  const wanted = names ?? registry.names();
+  const needed = new Set<string>();
+  const need = (name: string) => {
+    if (needed.has(name)) return;
     const provider = registry.get(name);
     if (!provider)
       throw new Error(`unknown evidence name ${name}; known names: ${registry.names().join(', ')}`);
-    const value = provider.compute(input);
+    needed.add(name);
+    for (const read of provider.reads ?? []) need(read);
+  };
+  for (const name of wanted) need(name);
+  const known: Record<string, EvidenceValue> = {};
+  const derived: EvidenceProvider[] = [];
+  for (const name of needed) {
+    const provider = registry.get(name) as EvidenceProvider;
+    if (provider.compute) known[name] = provider.compute(input);
+    else derived.push(provider);
+  }
+  const done = new Set(Object.keys(known));
+  while (derived.length > 0) {
+    const index = derived.findIndex((provider) => (provider.reads ?? []).every((read) => done.has(read)));
+    if (index < 0)
+      throw new Error(
+        `the derived evidence names ${derived.map((one) => one.name).join(', ')} read each other`,
+      );
+    const [provider] = derived.splice(index, 1) as [EvidenceProvider];
+    known[provider.name] = provider.derive?.(known);
+    done.add(provider.name);
+  }
+  const out: Record<string, Exclude<EvidenceValue, undefined>> = {};
+  for (const name of wanted) {
+    const value = known[name];
     if (value !== undefined) out[name] = value;
   }
   return out;
@@ -199,7 +237,5 @@ export function computeEvidence(
  * first routed skill, else the rule's skill, else `none` (a block with no routed skill).
  */
 export function homeOf(input: EvidenceInput): string {
-  const routed = (routed_skills.compute(input) as string[])[0];
-  if (routed !== undefined) return routed;
-  return (rule_skill.compute(input) as string | undefined) ?? 'none';
+  return routedOf(input)[0] ?? ruleSkillOf(input) ?? 'none';
 }

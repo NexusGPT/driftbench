@@ -1,4 +1,4 @@
-import { globRegex, subjectCalls, subjectTool, verdictAtoms } from './subject';
+import { globRegex, outputFailed, subjectCalls, subjectTool, verdictAtoms, verdictSubject } from './subject';
 import type { EvidenceInput, EvidenceProvider, GuardDecision } from './types';
 
 /**
@@ -10,8 +10,13 @@ import type { EvidenceInput, EvidenceProvider, GuardDecision } from './types';
 /** Whether the subject's value failed: an error on the call, or a rung that settled the value as not resolved. */
 function subjectFailed(input: EvidenceInput): boolean {
   const calls = subjectCalls(input);
-  if (calls.some((call) => call.error !== undefined)) return true;
-  return (input.values ?? []).some((one) => one.outcome === 'failed');
+  const runs = input.block.observed.executions ?? [];
+  const failed = calls.some((call) => {
+    if (call.error !== undefined || outputFailed(call.output)) return true;
+    const command = (call.input as { command?: unknown } | undefined)?.command;
+    return typeof command === 'string' && runs.some((run) => run.command === command && run.exitCode !== 0);
+  });
+  return failed || (input.values ?? []).some((one) => one.outcome === 'failed');
 }
 
 export const next_action: EvidenceProvider = {
@@ -84,7 +89,7 @@ export const tool_failed: EvidenceProvider = {
   name: 'tool_failed',
   cost: 'static',
   values: ['boolean'],
-  from: 'the exit code or the error of the call the check is about, or a rung that found the tool did not resolve the value',
+  from: 'the error, the reported exit code or the recorded execution of the call the check is about, or a rung that found the tool did not resolve the value',
   compute: (input) => {
     if (subjectTool(input) !== undefined) return subjectFailed(input);
     return (input.block.observed.executions ?? []).some((run) => run.role !== 'agent' && run.exitCode !== 0);
@@ -252,4 +257,29 @@ export const task_flagged: EvidenceProvider = {
   values: ['boolean'],
   from: 'a stored judged reading of the reply: the agent stopped and said the task or its tests conflict',
   compute: (input) => input.reply?.task_flagged,
+};
+
+/** Where a failing verdict's act sits in the trace: the first call of its tool, else after every call, in check order. */
+function actPosition(input: EvidenceInput, id: string, listed: number): number {
+  const tool = verdictSubject(id).tool;
+  const calls = input.block.observed.toolCalls;
+  const at = tool === undefined ? -1 : calls.findIndex((call) => call.label === tool);
+  return at >= 0 ? at * 1000 + listed : (calls.length + 1) * 1000 + listed;
+}
+
+export const first_violation: EvidenceProvider = {
+  name: 'first_violation',
+  cost: 'static',
+  values: ['a verdict id'],
+  from: 'the earliest failing gating verdict of the block, by the place of its act in the trace, then check order',
+  compute: (input) => {
+    const failing = input.block.verdicts
+      .map((verdict, listed) => ({ verdict, listed }))
+      .filter(({ verdict }) => verdict.gating && verdict.outcome !== 'pass');
+    if (failing.length === 0) return undefined;
+    failing.sort(
+      (a, b) => actPosition(input, a.verdict.id, a.listed) - actPosition(input, b.verdict.id, b.listed),
+    );
+    return failing[0]?.verdict.id;
+  },
 };

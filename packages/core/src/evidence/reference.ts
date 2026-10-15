@@ -1,5 +1,4 @@
-import { skillLoaded } from './rule';
-import { samePath, skillOfPath, verdictAtoms, verdictLinks } from './subject';
+import { outputFailed, samePath, skillOfPath, verdictAtoms, verdictLinks } from './subject';
 import type { EvidenceInput, EvidenceProvider, RuleAtom } from './types';
 import { homeOfAtom } from './value';
 
@@ -89,15 +88,27 @@ export const ref_exists: EvidenceProvider = {
   },
 };
 
+/**
+ * Whether a pointer fires in this block's situation: it names no situation, or the block was generated for it
+ * (the failing check enforces it), or the block's situation is the pointer's, or the situation holds it.
+ */
+function firesHere(input: EvidenceInput, atom: RuleAtom): boolean {
+  const situation = (atom.situation ?? '').trim();
+  if (situation === '') return true;
+  if ((input.ruleAtoms ?? []).includes(atom.id)) return true;
+  if (input.expect?.situation !== undefined && input.expect.situation.trim() === situation) return true;
+  return (input.expect?.situationAtoms ?? []).includes(atom.id);
+}
+
 export const ref_forced: EvidenceProvider = {
   name: 'ref_forced',
   cost: 'static',
   values: ['boolean'],
-  from: 'a reference or gate atom points to the file from a skill body or the core prompt',
+  from: "a reference or gate atom points to the file from a skill body or the core prompt, in this block's situation (a pointer with a situation forces only there)",
   compute: (input) => {
     const path = referencePath(input);
     if (path === undefined) return undefined;
-    return pointersTo(input, path).some((entry) => isMainFile(entry.from));
+    return pointersTo(input, path).some((entry) => isMainFile(entry.from) && firesHere(input, entry.atom));
   },
 };
 
@@ -115,23 +126,35 @@ export const ref_depth: EvidenceProvider = {
 const PARTIAL_COMMAND = /\b(head|tail|sed\s+-n|awk|grep)\b/;
 const FULL_COMMAND = /\b(cat|less|more|bat)\b/;
 
-/** How much of `path` the agent read: none, partial (a Read with offset or limit, head, sed -n) or full. */
+/** Whether a command run at this place exited 0: a failed `cat` or `head` read nothing. */
+function succeeded(input: EvidenceInput, command: string): boolean {
+  const runs = (input.block.observed.executions ?? []).filter((run) => run.command === command);
+  return runs.length === 0 || runs.some((run) => run.exitCode === 0);
+}
+
+/**
+ * How much of `path` the agent read: none, partial (a Read with offset or limit, head, sed -n) or full. A read
+ * that failed (a tool error, a command that exited nonzero) reads nothing.
+ */
 export function readAmount(input: EvidenceInput, path: string): 'none' | 'partial' | 'full' {
   let amount: 'none' | 'partial' | 'full' = 'none';
   const raise = (to: 'partial' | 'full') => {
     if (to === 'full' || amount === 'none') amount = to;
   };
   for (const call of input.block.observed.toolCalls) {
+    if (call.error !== undefined || outputFailed(call.output)) continue;
     const args = (call.input ?? {}) as Record<string, unknown>;
     if (call.label === 'Read') {
       const file = args.file_path ?? args.path;
       if (typeof file !== 'string' || !samePath(file, path)) continue;
       raise(args.offset !== undefined || args.limit !== undefined ? 'partial' : 'full');
     } else if (call.label === 'Bash' && typeof args.command === 'string') {
-      commandRead(args.command, path, raise);
+      if (succeeded(input, args.command)) commandRead(args.command, path, raise);
     }
   }
-  for (const run of input.block.observed.executions ?? []) commandRead(run.command, path, raise);
+  for (const run of input.block.observed.executions ?? []) {
+    if (run.exitCode === 0) commandRead(run.command, path, raise);
+  }
   for (const ref of input.block.observed.runtime?.references ?? []) {
     if (samePath(ref.path, path) && amount === 'none') amount = 'full';
   }
@@ -160,21 +183,15 @@ export const rule_in_context: EvidenceProvider = {
   name: 'rule_in_context',
   cost: 'static',
   values: ['boolean'],
-  from: 'skill_loaded for a rule in a skill body; ref_read full for a rule in a reference; always for a core or instruction rule',
-  compute: (input) => {
-    const atom = verdictAtoms(input)[0];
-    const link = verdictLinks(input)[0];
-    const home = atom ? homeOfAtom(atom) : link?.home;
-    if (home === undefined) return undefined;
+  from: 'derived: always for a core or instruction rule; skill_loaded for a rule in a skill body; ref_read full for a rule in a reference',
+  reads: ['rule_home', 'skill_loaded', 'ref_read'],
+  derive: (known) => {
+    const home = known.rule_home as string | undefined;
+    if (home === undefined || home === 'none') return undefined;
     if (home === 'core' || home === 'instruction') return true;
-    if (home === 'skill_body') {
-      const skill = atom ? skillOfPath(atom.provenance.file) : link?.skill;
-      return skill === undefined ? undefined : skillLoaded(input, skill);
-    }
-    if (home === 'skill_reference') {
-      const path = referencePath(input);
-      return path === undefined ? undefined : readAmount(input, path) === 'full';
-    }
+    if (home === 'skill_body') return known.skill_loaded as boolean | undefined;
+    if (home === 'skill_reference')
+      return known.ref_read === undefined ? undefined : known.ref_read === 'full';
     return undefined;
   },
 };

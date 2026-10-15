@@ -152,6 +152,8 @@ export type BlockExpect = {
   downstream?: boolean;
   /** The block's situation, for situational pointers. */
   situation?: string;
+  /** The atoms the block's situation holds, when the plan or the phrase bank lists them. */
+  situationAtoms?: readonly string[];
 };
 
 /** Everything a provider may read about one failing verdict. Every field but `block` and `verdict` is optional. */
@@ -180,7 +182,7 @@ export type EvidenceInput = {
   testsFailReverted?: boolean;
   confirm?: ConfirmEvidence;
   history?: readonly PastDiagnosis[];
-  /** Plan rows that name the rule's atom, for `rule_needed_by` and `skill_covers`. */
+  /** The block's plan rows (its own row, and rows naming the rule's atom), for `rule_needed_by` and `skill_covers`. */
   planRows?: ReadonlyArray<{ atomIds: readonly string[]; testType?: string; skill?: string }>;
   /** The longest retry streak that counts as a loop (CRITICTOOL appendix C.3). */
   maxRetries?: number;
@@ -201,7 +203,12 @@ export type EvidenceValue =
   | Record<string, unknown>
   | undefined;
 
-/** One evidence name and the function that computes it. */
+/**
+ * One evidence name and how it is found. A provider either computes its name from the stored run and the map
+ * (`compute`), or derives it from names already computed for the same root (`derive`, with the names it
+ * `reads`). No provider calls another: shared logic lives in helpers, and `computeEvidence` runs each provider
+ * once per root.
+ */
 export type EvidenceProvider = {
   name: string;
   cost: EvidenceCost;
@@ -209,7 +216,10 @@ export type EvidenceProvider = {
   values: readonly string[];
   /** What it is computed from, for the reference page. */
   from: string;
-  compute: (input: EvidenceInput) => EvidenceValue;
+  compute?: (input: EvidenceInput) => EvidenceValue;
+  /** The names a derived provider reads. */
+  reads?: readonly string[];
+  derive?: (known: Readonly<Record<string, EvidenceValue>>) => EvidenceValue;
 };
 
 export type { ExecutionRecord, ToolCall, Verdict };
