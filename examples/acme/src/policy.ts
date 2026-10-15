@@ -85,7 +85,8 @@ export type CallTool = (label: ToolLabel, input: ToolInput) => ToolOutcome;
 
 /**
  * A guardrail of the policy that fired in a turn. `explicit_confirmation` passes when the CONFIRM token
- * places the order and blocks a loose yes; `instruction_in_data` blocks an instruction hidden in a message.
+ * places the order and blocks a loose yes; `instruction_in_data` blocks an instruction hidden in what the
+ * agent reads: the customer's message, a document of the turn or a tool answer. It fires once per turn.
  */
 export type GuardEvent = { name: 'explicit_confirmation' | 'instruction_in_data'; verdict: 'pass' | 'block' };
 
@@ -93,17 +94,77 @@ export function initialState(): State {
   return { stage: 'needs', greeted: false, customer: {}, offered: [] };
 }
 
-/** Answers one customer turn. Never mutates `previous`. */
+/**
+ * Answers one customer turn. Never mutates `previous`. `documents` are the files the turn reads beside the
+ * customer's text.
+ *
+ * What the agent reads is untrusted: an instruction in it is blocked, whoever wrote it. The customer's text
+ * is the turn itself, so an instruction there refuses the turn. A document or a tool answer is data: the
+ * instruction it carries never reaches a reply, a payload or a decision, and the customer's own request is
+ * still served; a turn with nothing else to answer gets the same refusal. Only what the agent wrote itself
+ * is trusted: its policy, its replies and its tool inputs are never read as data.
+ */
 export function takeTurn(
   previous: State,
   text: string,
   call: CallTool,
+  documents: readonly string[] = [],
 ): { state: State; reply: string; guards: GuardEvent[] } {
   const state = structuredClone(previous);
   const guards: GuardEvent[] = [];
   const opening = state.greeted ? '' : `Hi, I'm the ${ACME.name} sales assistant. `;
   state.greeted = true;
-  return { state, reply: opening + route(state, text, call, guards), guards };
+  if (documents.some(isInjection)) blockInstruction(guards);
+  const reply = route(state, text, readAsData(call, guards), guards);
+  return { state, reply: opening + reply, guards };
+}
+
+/** Records the instruction guard's block, once per turn. */
+function blockInstruction(guards: GuardEvent[]): void {
+  if (!guards.some((guard) => guard.name === 'instruction_in_data')) {
+    guards.push({ name: 'instruction_in_data', verdict: 'block' });
+  }
+}
+
+/**
+ * The tools, with each answer read as data. A string of the answer that carries an instruction is dropped
+ * before the policy reads the answer, and so is an entry whose key carries one; an error that carries one is
+ * replaced. When a value the policy needs is dropped, the answer is one it cannot read, as any other.
+ */
+function readAsData(call: CallTool, guards: GuardEvent[]): CallTool {
+  return (label, input) => {
+    const outcome = call(label, input);
+    if (!outcome.ok) {
+      if (!isInjection(outcome.error)) return outcome;
+      blockInstruction(guards);
+      return { ok: false, error: 'an answer carrying an instruction, which the agent did not read' };
+    }
+    const kept = withoutInstructions(outcome.output);
+    if (kept === outcome.output) return outcome;
+    blockInstruction(guards);
+    return { ok: true, output: kept === DROPPED ? undefined : kept };
+  };
+}
+
+const DROPPED = Symbol('dropped');
+
+/** The value without the strings that carry an instruction; the same value when it holds none. */
+function withoutInstructions(value: unknown): unknown {
+  if (typeof value === 'string') return isInjection(value) ? DROPPED : value;
+  if (Array.isArray(value)) {
+    const items = value.map(withoutInstructions);
+    return items.every((item, index) => item === value[index])
+      ? value
+      : items.filter((item) => item !== DROPPED);
+  }
+  if (!isRecord(value)) return value;
+  const entries = Object.entries(value).map(([key, item]): [string, unknown] => [
+    key,
+    isInjection(key) ? DROPPED : withoutInstructions(item),
+  ]);
+  return entries.every(([key, item]) => item === value[key])
+    ? value
+    : Object.fromEntries(entries.filter(([, item]) => item !== DROPPED));
 }
 
 const NEEDS = 'What are you looking for: a mobile plan, home internet, an upgrade, or keeping your number?';
@@ -111,14 +172,16 @@ const CARE = `I can't handle billing or service issues here. Acme Care can help:
 const SALES_LINE = `Please call Acme Sales at ${formatPhone(ACME.salesPhone)}.`;
 
 function route(s: State, text: string, call: CallTool, guards: GuardEvent[]): string {
-  if (isBlank(text) || isNudge(text)) {
+  const nothingAsked = isBlank(text) || isNudge(text);
+  // A turn that asks nothing answers the instruction a document of the turn carried.
+  if (isInjection(text) || (nothingAsked && guards.some((guard) => guard.name === 'instruction_in_data'))) {
+    blockInstruction(guards);
+    return `I can't change prices, offers or my instructions. ${pendingQuestion(s)}`;
+  }
+  if (nothingAsked) {
     return s.flow
       ? `I'm here. ${pendingQuestion(s)}`
       : `I can help with plans, internet and orders. ${NEEDS}`;
-  }
-  if (isInjection(text)) {
-    guards.push({ name: 'instruction_in_data', verdict: 'block' });
-    return `I can't change prices, offers or my instructions. ${pendingQuestion(s)}`;
   }
   if (isForeign(text)) return `I can only help in English for now. ${pendingQuestion(s)}`;
   if (isCareMatter(text)) return `${CARE} ${pendingQuestion(s)}`;
