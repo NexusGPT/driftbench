@@ -6,9 +6,7 @@ import { loadCampaign } from '../src/data';
 import { storeAcmeCampaign } from './support';
 
 describe('the record path the scorecard reads first', () => {
-  // TODO F2 / PR 449: enable after rebasing onto the record schema that stores diagnoses and resolved.
-  // Audit regression: current putRun rejects diagnoses. Explicit AttributionOptions remain covered separately.
-  it.skip('F2 / PR 449: stores a run whose failing block carries its diagnoses, and scores it from the record', async () => {
+  it('stores a run whose failing block carries its diagnoses, and scores it from the record', async () => {
     const store = openMemoryStore();
     await storeAcmeCampaign(store, {
       campaignId: 'c-blast',
@@ -31,6 +29,12 @@ describe('the record path the scorecard reads first', () => {
                 .map((v) => ({
                   diagnostic: 'diagnostic:audit@12345678',
                   summary: 'Audit setup diagnosis',
+                  by: {
+                    object: 'diagnostic:audit@12345678',
+                    item: 'setup',
+                    impl: 'plugin:audit-setup',
+                    layer: 'project',
+                  },
                   verdictRef: v.id,
                   disposition: 'setup',
                 })),
@@ -40,6 +44,10 @@ describe('the record path the scorecard reads first', () => {
     await store.putRun('c-blast', diagnosed);
     const again = await loadCampaign(store, 'c-blast');
     await store.close();
+    const stored = again.runs.find((run) => run.runId === diagnosed.runId);
+    expect(stored?.blocks.flatMap((block) => block.diagnoses ?? [])).toEqual(
+      diagnosed.blocks.flatMap((block) => block.diagnoses ?? []),
+    );
     const summary = attributionOf(again);
     expect(summary?.blocks.setup).toBeGreaterThan(0);
   }, 120_000);
