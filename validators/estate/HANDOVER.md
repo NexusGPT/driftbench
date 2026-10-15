@@ -11,13 +11,13 @@
 | hidden | 0 |
 <!-- level-table:end -->
 
-Iteration 36, source 67096ccc508de286af5881e37524289fa97d4da8 plus the change recorded in this journal row. Hidden seed 729670924, derived from that head.
+Iteration 37, source 9afa3d4b142780a9252a38b4a7d68c76d0838a17 plus the change recorded in this journal row. Hidden seed 601090955, derived from that head.
 | Seed | Reader passing / items |
 |---|---|
-| 1 | 614/641 |
-| 2 | 614/641 |
-| 3 | 614/641 |
-| hidden (729670924) | 614/641 |
+| 1 | 616/641 |
+| 2 | 617/641 |
+| 3 | 617/641 |
+| hidden (601090955) | 617/641 |
 
 Each fraction counts reader items passing on that seed, out of 641 reader items. Journal `passing` counts distinct evaluated item IDs passing every seed; it is not a sum of seed counts. The journal's per-level `metrics` use seed 1; its `perSeed` records achieved levels separately.
 
@@ -43,9 +43,6 @@ Owner rule: "make sure all the fixes are fixes that are TO THE FRAMEWORK in gene
 - scan.hazards.reboot: [scan.hazards, tier 3] code reads a restart called a reboot: missed hazard restart at .claude/skills/badge-review-c9u5qq/SKILL.md:9
 - scan.hazards.resumed: [scan.hazards, tier 3] code reads a session resumed the next day: missed hazard session_boundary at .claude/skills/parcel-sort-mokh4w/SKILL.md:9
 - scan.hazards.decoy-price: [scan.hazards, tier 3] code reads a decoy: nudging a price: found hazard hazard.recipe-pack-14rrbst.recover-from-repeated-guard-nudges at .claude/skills/recipe-pack-14rrbst/SKILL.md:9, never planted
-- scan.combination.colon+crlf: [scan.combination, tier 4] the reader reads a skill with both colon and crlf: missed route shelf-audit-3dpxle at .claude/skills/shelf-audit-3dpxle/SKILL.md:3; missed the route edge scan.combination.colon+crlf:route to scan.combination.colon+crlf:skill
-- scan.combination.prefixguard+crlf: [scan.combination, tier 4] the reader reads a skill with both prefixguard and crlf: missed route badge-check-f38gr8 at .claude/skills/badge-check-f38gr8/SKILL.md:3; missed guard check.sh at .claude/skills/badge-check-f38gr8/SKILL.md:10; found script script.badge-check-f38gr8.script-scripts-check-sh at .claude/skills/badge-check-f38gr8/scripts/check.sh:2, never planted; missed the route edge scan.combination.prefixguard+crlf:route to scan.combination.prefixguard+crlf:skill
-- scan.hostile.tabs-in-frontmatter: [scan.hostile, tier 3] the scan survives a frontmatter indented with tabs: found tool tool.roster-count-1dxpozt.declared-read at .claude/skills/roster-count-1dxpozt/SKILL.md:5, never planted
 - scan.decoys.owner-table: [scan.decoys, tier 3] code is not fooled: a table of owners that names a skill is no routing table: found route route.standing.an-ask-to-ana-loads-tariff at CLAUDE.md:4, never planted
 - scan.decoys.changelog-reference: [scan.decoys, tier 4] code is not fooled: a file named in a change note is no reference: found reference reference.ticket-price-14oprfr.read-references-legacy-md at .claude/skills/ticket-price-14oprfr/SKILL.md:12, never planted
 - scan.decoys.form-number-label: [scan.decoys, tier 4] code is not fooled: a form number that reads like a rule label cites no rule: a form number cited a rule
@@ -60,11 +57,13 @@ Owner rule: "make sure all the fixes are fixes that are TO THE FRAMEWORK in gene
 - scan.standing.sentence: [scan.standing, tier 4] the reader reads routing written as a sentence: missed route parcel-update-1713qix at CLAUDE.md:5
 - scan.standing.heading-per-skill: [scan.standing, tier 4] the reader reads routing written as a heading per skill: missed route shelf-price-ftj8gw at CLAUDE.md:5
 - scan.standing.imported-standing: [scan.standing, tier 4] the reader reads a file the standing file imports: missed instruction at .claude/docs/crate-rules.md:3; found reference reference.standing.read-claude-docs-crate-rules-md at CLAUDE.md:3, never planted
+- blind.gates.plain-comma: [blind.gates, tier 1] : [blind.gates, tier 1] the reader reads the gate "Before X, read Y" on a line of its own in the standing file: the scan took 6178 ms, over 5000 ms; holds
 - blind.lint.emoji-count-as-characters: [blind.lint, tier 4] lint finds no oversize finding for a standing file of 30,000 emoji: a OVERSIZE finding: the standing instructions hold 60317 characters, over the ceiling of 40000
 - blind.edges.dispatch-plain-name: [blind.edges, tier 3] the reader reads a skill body that dispatches a helper by its plain name: no dispatch edge from skill at .claude/skills/orchard-plan-7beyan/SKILL.md
 
 ## Hypotheses tried
 
+Iteration 37: CRLF and tab-indented frontmatter in the tolerant pass. +3 on every seed: scan.combination.colon+crlf, prefixguard+crlf, scan.hostile.tabs-in-frontmatter. Seed 1 lost blind.gates.plain-comma on timing only.
 Iteration 36: nested CLAUDE.md discovery. +1 on every seed: scan.standing.nested-standing.
 Iteration 35: helpers in agent subfolders. +1 on every seed: scan.hostile.helper-subfolder.
 Iteration 34: shell context for hook commands (cd &&, sh -c wrappers). +2 on every seed: scan.dispatcher.change-folder, shell-wrapper. Seed 1 lost wide-folder on timing only.

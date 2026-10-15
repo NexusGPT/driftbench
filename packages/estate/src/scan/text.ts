@@ -216,7 +216,9 @@ const TOP_KEY = /^([A-Za-z0-9_][\w.-]*)\s*:(.*)$/;
  */
 export function tolerantFields(block: readonly string[]): Record<string, unknown> | undefined {
   const entries: Array<{ key: string; lines: string[] }> = [];
-  for (const line of block) {
+  for (const original of block) {
+    // Normalize only syntax whitespace, retaining scalar content and source line numbers.
+    const line = original.replace(/\r$/, '').replace(/^\t+/, (tabs) => '  '.repeat(tabs.length));
     const match = TOP_KEY.exec(line);
     if (match?.[1] !== undefined) entries.push({ key: match[1], lines: [line] });
     else if (line.startsWith('#') && entries.length === 0) continue;
