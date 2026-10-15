@@ -112,7 +112,10 @@ export type ScenarioRequest = {
   /**
    * The perturbation a clean walk must declare: this class said at this stage of the path. A first-turn
    * class whose recovery stays on the start stage has no Then an idle reply fails, so it is no block of the
-   * walk; declared here, a perturbed run says it and checks its recovery. The walk fails without it.
+   * walk; declared here, a perturbed run says it and checks its recovery. The walk fails without it. A class
+   * whose recovery moves the conversation elsewhere (a goal shift goes back to intake) cuts the walk at that
+   * stage: the perturbation is said after the walk's last turn, so no later turn starts from a stage the
+   * conversation has left.
    */
   perturb?: { classId: string; stage: string };
 };
@@ -334,7 +337,29 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
   let beforePlaced = false;
   // A free turn's block: no tool is closed on it (`turn.free`).
   let freeBlock: number | undefined;
+  // A wanted perturbation whose recovery moves the conversation: the walk stops at its stage, never the last.
+  let cutAt: number | undefined;
+  const wantedMove = request.perturb;
+  if (wantedMove && !probe && !request.turn && !request.aside) {
+    const own = recoveryFor(relations, wantedMove.classId, path.flow);
+    const after = own ? stageAfter(own, wantedMove.stage) : undefined;
+    if (after !== undefined && after !== wantedMove.stage) {
+      const at = path.stages.findIndex(
+        (stage, index) =>
+          stage === wantedMove.stage &&
+          index + 1 < path.stages.length &&
+          (index >= 1 || OPENING_CLASSES.has(wantedMove.classId)),
+      );
+      if (at < 0)
+        return failedScenario(
+          path,
+          `no stage before the last takes ${wantedMove.classId} at ${wantedMove.stage}`,
+        );
+      cutAt = at;
+    }
+  }
   for (let index = 0; index < path.stages.length; index += 1) {
+    if (index === cutAt) break;
     if (request.turn && !request.turn.call && index === (request.turn.at ?? 1)) {
       freeBlock = request.turn.free ? blocks.length : undefined;
       const reports: string[] = [];
@@ -592,7 +617,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     return failedScenario(path, `the path has no stage ${request.turn.at ?? 1} moves after its start`);
 
   let placed: Built['probe'];
-  let truncated = turnPlaced;
+  let truncated = turnPlaced || cutAt !== undefined;
   // The answer a tool gives once it works again: the bound values the replies state, else its defaults.
   if (probe && probe.classId === TOOL_FAILURE) {
     const failed = toolFailure(prepared, rng, path, blocks, cell, probe, (tool) =>
@@ -660,7 +685,19 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
         if (index === 0 && !OPENING_CLASSES.has(classId)) continue;
         if (own.at && !own.at.includes(stage)) continue;
         const after = stageAfter(own, stage);
-        if (after !== undefined && after !== stage) continue;
+        // A recovery that moves is said only where the walk was cut for it, after its last turn.
+        if (after !== undefined && after !== stage && index !== cutAt) continue;
+        if (cutAt !== undefined && index !== cutAt) continue;
+        if (after !== undefined && after !== stage) {
+          const stagePick =
+            prepared.stage === undefined ? undefined : dimensions[prepared.stage]?.index.get(stage);
+          const picks: Pick[] = [...cell];
+          if (prepared.stage !== undefined && stagePick !== undefined)
+            picks.push([prepared.stage, stagePick]);
+          const classPick = dimensions[prepared.deviation]?.index.get(classId);
+          if (classPick !== undefined) picks.push([prepared.deviation, classPick]);
+          if (!prepared.feasibility.allowed(picks)) continue;
+        }
         const said = { ...slots };
         const phrase = choosePhrase(deviationKey, classId, contextOf(stage), said);
         if (!phrase) continue;
@@ -706,7 +743,8 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     // A tool failure the recovery stays from: before the first turn that calls a recovered tool first, the
     // user says that turn with the tool failing. The recovery is the injected block's Then, and the turn
     // itself then runs with the tool answering again. It takes no seeded draw, so the rest is unchanged.
-    const failure = toolFailurePerturbation(relations, path, blocks, slots, inPlay, lang);
+    const failure =
+      cutAt === undefined ? toolFailurePerturbation(relations, path, blocks, slots, inPlay, lang) : undefined;
     if (failure) {
       const block = blocks[failure.index] as BlockDraft;
       block.given = {

@@ -251,7 +251,7 @@ Not built yet, in order:
 
 ## Prompt quotes
 
-`radius auto` compares two prompt files against the approved map's `evidence.quote` anchors. It writes a normal change manifest, so campaign carry, age limits and audits keep their existing checks. The source path selects exactly one of the map's declared sources. Every other source is assumed unchanged; include its change separately if it changed too.
+`radius auto` compares two prompt files against the approved map's `evidence.quote` anchors. It writes a normal change manifest, so campaign carry, age limits and audits keep their existing checks. Successful manifest creation exits 0, including when the manifest selects the whole suite; invalid input exits 2. Run `radius <specs> --change <manifest>` to compute the radius and get exit 1 for a whole-suite result. The source path selects exactly one of the map's declared sources. Every other source is assumed unchanged; include its change separately if it changed too.
 
 For Acme, use a quote map declaring just the approved offer anchor, then change its price expression.
 The full Acme map contains repeated and overlapping evidence; it conservatively selects the whole suite.
@@ -314,6 +314,11 @@ target coverage, incomplete run or block fields, and unknown seeds also force a 
 `planRadiusCampaign` applies the same check; callers supply the baseline campaign's `provenance` beside
 its runs. Legacy observations cannot establish compatibility for criterion re-judging; run a new full
 campaign first. These stamps preserve execution evidence; they do not themselves authorize reuse.
+
+A new baseline may mix P cells with F and T cells: the perturbing driver records the base driver's
+known seeds and any pack draw seed. Eligible F and T cells can still carry. P cells themselves run
+fresh because their injected block inputs cannot yet be reconstructed for carry. Older baselines
+whose P drivers recorded unknown seeds still need a new full run.
 
 A complete baseline is necessary but insufficient: the planner also needs the actual current run's
 execution stamp (`CarryLimits.currentProvenance`). It compares every stamp field by default, including

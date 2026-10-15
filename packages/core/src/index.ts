@@ -28,6 +28,7 @@ export {
   type SandboxProvider,
   type Session,
   type Store,
+  sentStimulus,
   type ToolRule,
   type TransportErrorOptions,
   type Turn,

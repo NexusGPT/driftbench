@@ -13,7 +13,7 @@ import { loadCampaign } from '@agent-nexus/driftbench-report';
 import { openStore } from '@agent-nexus/driftbench-store';
 import type { Command } from 'commander';
 import type { Io } from '../io';
-import { addJudgeOptions, type RunJudgeOptions, runJudgeFrom } from './run-judge';
+import { addJudgeOptions, judgeAsked, type RunJudgeOptions, runJudgeFrom } from '../judge-options';
 
 type Options = RunJudgeOptions & {
   from: string;
@@ -111,14 +111,15 @@ export async function campaignRejudge(paths: string[], options: Options, io: Io)
         throw new Error('Baseline campaign is incomplete; rerun the agent.');
     }
     if (!prepared.length) throw new Error('Baseline campaign contains no observations; rerun the agent.');
-    if (!options.judge) throw new Error('Re-judge requires --judge claude:<model>.');
+    if (!judgeAsked(options))
+      throw new Error('Re-judge requires a judge: --judge <kind>:<model> or --judges <cassette>.');
     const judge = await runJudgeFrom(options, io);
     if (!judge) return 2;
     const campaign: Campaign = {
       ...data.campaign,
       campaignId: options.campaign,
       createdAt: now.toISOString(),
-      judge: { mode: 'llm', judges: [judge.label] },
+      judge: { mode: judge.mode, judges: judge.judges },
       specs: data.campaign.specs.map((p) => ({ ...p, hash: specs.get(p.id)?.hash ?? p.hash })),
       rejudged: prepared.map((p) => p.stamp),
     };
@@ -134,6 +135,7 @@ export async function campaignRejudge(paths: string[], options: Options, io: Io)
       await store.putRun(campaign.campaignId, run);
       runs.push(run);
     }
+    await judge.save();
     const summary = {
       campaign: campaign.campaignId,
       from: options.from,

@@ -25,6 +25,7 @@ export const COMMAND_MODULES: readonly { names: readonly string[]; load: () => P
   { names: ['perturb'], load: async () => (await import('./commands/perturb')).registerPerturbCommand },
   { names: ['simulate'], load: async () => (await import('./commands/simulate')).registerSimulateCommand },
   { names: ['attack'], load: async () => (await import('./commands/attack')).registerAttackCommand },
+  { names: ['redteam'], load: async () => (await import('./commands/redteam')).registerRedteamCommand },
   { names: ['judge'], load: async () => (await import('./commands/judge')).registerJudgeCommand },
   { names: ['validate'], load: async () => (await import('./commands/validate')).registerValidateCommand },
   { names: ['report'], load: async () => (await import('./commands/report')).registerReportCommand },
@@ -70,7 +71,10 @@ export const COMMAND_HELP: readonly (readonly [term: string, description: string
   ],
   ['intake', 'Build the reference set of user turns: from past conversations, or from an interview'],
   ['estate', 'Read an agent estate into atoms, lint it, approve its prose atoms, export its space map'],
-  ['replay [options] <sessions...>', 'Run a spec suite over recorded sessions, offline, with no model call.'],
+  [
+    'replay [options] <sessions...>',
+    'Re-run the checks of a spec suite on recorded sessions: no agent call; a judge model only with --judge.',
+  ],
   [
     'gate [options] <specs>',
     'Pass candidate blocks through the nine-stage validity gate and write the gated suite',
@@ -86,6 +90,7 @@ export const COMMAND_HELP: readonly (readonly [term: string, description: string
     'attack [options] <spec>',
     'Attack one spec adaptively: each deviation is picked from the agent’s last replies',
   ],
+  ['redteam', 'Run Crescendo or GOAT; list red-team plugins, generate a spec from one and grade it.'],
   ['judge', 'Judge criteria with the council: replay recorded answers, or validate criteria and fixtures'],
   [
     'validate [options] <component> [level]',
