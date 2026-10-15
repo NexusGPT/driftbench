@@ -41,7 +41,7 @@ This is a source audit, not a ruling that each broader interval is wrong.
 | Judges | The `scale/` items listed below | `v2/families/scale.ts` starts before the callback. Transcript, votes, strings, cassette and calibration fixtures built inside it are included. The separate large-player growth ratio times replay after cassette setup. |
 | Map | Cases with `budgetMs` | `bank/run.ts` starts after case/source construction and excludes perfect-model time. No fixture-disk-I/O interval like the estate defect is found there. |
 | Stats | `scale.*` | `bank/scale.ts` builds data before timing the product callback with CPU time. The outer child watchdog is a distinct whole-item safety bound. |
-| Generator | Ladder source | No scored wall-clock scan/setup budget is found in the ladder source. |
+| Generator | `scale.{10,100}x.time` | `scale-child.ts` starts CPU timing before temporary-directory creation, map rendering and fixture writes. It also includes map loads, both generations and writes, byte comparison, reload and cleanup; follower execution is excluded. A separate parent wall-clock cap covers the whole child. |
 
 System subjects whose growth and largest-size timing include fixture construction:
 
