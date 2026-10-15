@@ -255,3 +255,84 @@ describe('finding 6: each provider runs once per chain root', () => {
     ).toThrow(/either compute or derive/);
   });
 });
+
+describe('second review at 3b063ab09', () => {
+  it('(a) first_violation counts only a fail: a not_applicable verdict is no violation', () => {
+    const skipped = { ...verdict('tools.coverage.check.input.address'), outcome: 'not_applicable' as const };
+    const failing = verdict('tools.catalog.search.count');
+    const given = input({
+      verdict: failing,
+      verdicts: [skipped, failing],
+      observed: {
+        toolCalls: [
+          { label: 'coverage.check', input: { address: '88 Summit Ave' }, output: { found: true } },
+        ],
+      },
+    });
+    expect(one('first_violation', given)).toBe('tools.catalog.search.count');
+  });
+
+  it('(b) a failed Read of SKILL.md loads no skill and puts no skill rule in context', () => {
+    const atom: evidence.RuleAtom = {
+      id: 'instruction.weekly-report.save-the-report-by-week',
+      kind: 'instruction',
+      provenance: { file: '.claude/skills/weekly-report/SKILL.md', startLine: 14 },
+    };
+    const read = (over: { error?: string; output?: unknown }) =>
+      input({
+        verdict: verdict('custom.save_path'),
+        expect: { skills: ['weekly-report'] },
+        ruleAtoms: [atom.id],
+        atoms: [atom],
+        observed: {
+          toolCalls: [
+            { label: 'Read', input: { file_path: '/work/.claude/skills/weekly-report/SKILL.md' }, ...over },
+          ],
+        },
+      });
+    for (const failed of [read({ error: 'ENOENT: no such file' }), read({ output: { is_error: true } })]) {
+      expect(one('skill_loaded', failed)).toBe(false);
+      expect(one('rule_in_context', failed)).toBe(false);
+    }
+    expect(one('skill_loaded', read({ output: '# weekly-report' }))).toBe(true);
+    expect(one('rule_in_context', read({ output: '# weekly-report' }))).toBe(true);
+    const skill = input({
+      verdict: verdict('skills.weekly-report'),
+      observed: {
+        toolCalls: [{ label: 'Skill', input: { skill: 'weekly-report' }, error: 'unknown skill' }],
+      },
+    });
+    expect(one('skill_loaded', skill)).toBe(false);
+  });
+
+  it('(b) a failed Read of a workspace file is no source of a value', () => {
+    const given = input({
+      user: 'Reconcile INV-1004.',
+      values: [{ value: 'FK-BOWL-16', tool: 'Write' }],
+      observed: {
+        toolCalls: [
+          {
+            label: 'Read',
+            input: { file_path: 'invoices/INV-1004.json' },
+            output: { is_error: true, content: 'permission denied reading FK-BOWL-16' },
+          },
+        ],
+      },
+    });
+    expect(one('source', given)).not.toBe('workspace_file');
+  });
+
+  it('(c) an HTTP status is not an exit code: 200 succeeds, 500 fails, an exit code 2 fails, a bare code is neither', () => {
+    const call = (output: unknown) =>
+      input({
+        verdict: verdict('tools.http.request.count'),
+        observed: { toolCalls: [{ label: 'http.request', input: { url: 'https://example.com' }, output }] },
+      });
+    expect(one('tool_failed', call({ status: 200, body: 'ok', code: 200 }))).toBe(false);
+    expect(one('tool_failed', call({ statusCode: 302 }))).toBe(false);
+    expect(one('tool_failed', call({ status: 500 }))).toBe(true);
+    expect(one('tool_failed', call({ status_code: 404 }))).toBe(true);
+    expect(one('tool_failed', call({ exit_code: 2 }))).toBe(true);
+    expect(one('tool_failed', call({ code: 1 }))).toBe(false);
+  });
+});

@@ -1,5 +1,6 @@
 import {
   asText,
+  callSucceeded,
   foldSpace,
   subjectCalls,
   subjectField,
@@ -33,6 +34,8 @@ function readTexts(input: EvidenceInput): { files: string[]; skills: string[]; o
           : JSON.stringify(call.output);
     const path = readPath(call.input);
     if (call.label === 'Read' && path !== undefined) {
+      // A Read that failed read nothing: its error text is no file content.
+      if (!callSucceeded(input, call)) continue;
       if (/(?:^|\/)skills\//.test(path)) skills.push(text);
       else files.push(text);
     } else if (text !== '') {

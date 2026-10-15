@@ -271,11 +271,11 @@ export const first_violation: EvidenceProvider = {
   name: 'first_violation',
   cost: 'static',
   values: ['a verdict id'],
-  from: 'the earliest failing gating verdict of the block, by the place of its act in the trace, then check order',
+  from: 'the earliest gating verdict of the block whose outcome is fail (not inconclusive, not not_applicable), by the place of its act in the trace, then check order',
   compute: (input) => {
     const failing = input.block.verdicts
       .map((verdict, listed) => ({ verdict, listed }))
-      .filter(({ verdict }) => verdict.gating && verdict.outcome !== 'pass');
+      .filter(({ verdict }) => verdict.gating && verdict.outcome === 'fail');
     if (failing.length === 0) return undefined;
     failing.sort(
       (a, b) => actPosition(input, a.verdict.id, a.listed) - actPosition(input, b.verdict.id, b.listed),

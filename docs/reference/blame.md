@@ -26,7 +26,7 @@ Every name is computed once by one provider, from what the run, the estate map, 
 | `downstream_need` | static | declared, none | a consumer the block or the project declares |
 | `verdict_check` | static | a check name | the failing verdict |
 | `verdict_kind` | static | machine, judge | the failing verdict |
-| `first_violation` | static | a verdict id | the earliest failing gating verdict of the block, by the place of its act in the trace, then check order |
+| `first_violation` | static | a verdict id | the earliest gating verdict of the block whose outcome is fail (not inconclusive, not not_applicable), by the place of its act in the trace, then check order |
 | `rule_atom` | static | atom ids, none | the spec's estate atoms for the failing check, or the block's links with relation verifies |
 | `rule_home` | static | core, skill_body, skill_reference, skill_script, helper, guard, tool_schema, instruction, none | the atom's kind and provenance file, or the link's home |
 | `rule_skill` | static | a skill name | the provenance path of the atom, or the link |

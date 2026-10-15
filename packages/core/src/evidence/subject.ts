@@ -99,11 +99,38 @@ export function globRegex(glob: string): RegExp {
   return new RegExp(`^(?:.*/)?${out}$`);
 }
 
-/** A tool output that reports its own failure: an exit code other than 0, or an error flag. */
+/**
+ * A tool output that reports its own failure. Two kinds of record carry a status, in different fields:
+ * - a process (a shell tool, a script) carries its exit code in `exitCode`, `exit_code` or `returncode`: any
+ *   value other than 0 is a failure;
+ * - an HTTP tool carries its response status in `status`, `statusCode`, `status_code` or `httpStatus`: 400 and
+ *   above is a failure, 2xx and 3xx are not.
+ * `is_error: true` or `isError: true` (an MCP or SDK tool result) is a failure. A bare `code` field is read as
+ * neither: it names an exit code in some tools and a status in others.
+ */
 export function outputFailed(output: unknown): boolean {
   if (output === null || typeof output !== 'object' || Array.isArray(output)) return false;
   const record = output as Record<string, unknown>;
-  const code = record.exitCode ?? record.exit_code ?? record.returncode ?? record.code;
-  if (typeof code === 'number' && code !== 0) return true;
+  for (const key of ['exitCode', 'exit_code', 'returncode']) {
+    const code = record[key];
+    if (typeof code === 'number' && code !== 0) return true;
+  }
+  for (const key of ['status', 'statusCode', 'status_code', 'httpStatus']) {
+    const status = record[key];
+    if (typeof status === 'number' && status >= 400) return true;
+  }
   return record.is_error === true || record.isError === true;
+}
+
+/**
+ * Whether a tool call succeeded, so what it read counts: no error, no failure in its output, and for a shell
+ * command a recorded execution that exited 0 when one is recorded. Every provider that reads what a call read
+ * (a file, a skill, a reference) skips a call that failed.
+ */
+export function callSucceeded(input: EvidenceInput, call: ToolCall): boolean {
+  if (call.error !== undefined || outputFailed(call.output)) return false;
+  const command = (call.input as { command?: unknown } | undefined)?.command;
+  if (typeof command !== 'string') return true;
+  const runs = (input.block.observed.executions ?? []).filter((run) => run.command === command);
+  return runs.length === 0 || runs.some((run) => run.exitCode === 0);
 }

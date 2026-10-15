@@ -1,4 +1,4 @@
-import { samePath, skillOfPath, verdictAtoms, verdictLinks } from './subject';
+import { callSucceeded, samePath, skillOfPath, verdictAtoms, verdictLinks } from './subject';
 import type { EvidenceInput, EvidenceProvider, RuleAtom } from './types';
 import { homeOfAtom } from './value';
 
@@ -180,11 +180,15 @@ function subjectSkill(input: EvidenceInput): string | undefined {
   return ruleSkillOf(input) ?? routedOf(input)[0];
 }
 
-/** Whether a skill loaded in the block: the runtime's skill list, a Read of its SKILL.md, or a Skill tool call. */
+/**
+ * Whether a skill loaded in the block: the runtime's skill list, a Read of its SKILL.md, or a Skill tool call. A
+ * Read or a Skill call that failed loads nothing.
+ */
 export function skillLoaded(input: EvidenceInput, name: string): boolean {
   const runtime = input.block.observed.runtime?.skills ?? [];
   if (runtime.some((skill) => skill.name === name)) return true;
   return input.block.observed.toolCalls.some((call) => {
+    if (!callSucceeded(input, call)) return false;
     const args = (call.input ?? {}) as Record<string, unknown>;
     if (call.label === 'Skill') return args.skill === name || args.name === name || args.command === name;
     const path = args.file_path ?? args.path;

@@ -1,4 +1,4 @@
-import { outputFailed, samePath, skillOfPath, verdictAtoms, verdictLinks } from './subject';
+import { callSucceeded, samePath, skillOfPath, verdictAtoms, verdictLinks } from './subject';
 import type { EvidenceInput, EvidenceProvider, RuleAtom } from './types';
 import { homeOfAtom } from './value';
 
@@ -126,12 +126,6 @@ export const ref_depth: EvidenceProvider = {
 const PARTIAL_COMMAND = /\b(head|tail|sed\s+-n|awk|grep)\b/;
 const FULL_COMMAND = /\b(cat|less|more|bat)\b/;
 
-/** Whether a command run at this place exited 0: a failed `cat` or `head` read nothing. */
-function succeeded(input: EvidenceInput, command: string): boolean {
-  const runs = (input.block.observed.executions ?? []).filter((run) => run.command === command);
-  return runs.length === 0 || runs.some((run) => run.exitCode === 0);
-}
-
 /**
  * How much of `path` the agent read: none, partial (a Read with offset or limit, head, sed -n) or full. A read
  * that failed (a tool error, a command that exited nonzero) reads nothing.
@@ -142,14 +136,14 @@ export function readAmount(input: EvidenceInput, path: string): 'none' | 'partia
     if (to === 'full' || amount === 'none') amount = to;
   };
   for (const call of input.block.observed.toolCalls) {
-    if (call.error !== undefined || outputFailed(call.output)) continue;
+    if (!callSucceeded(input, call)) continue;
     const args = (call.input ?? {}) as Record<string, unknown>;
     if (call.label === 'Read') {
       const file = args.file_path ?? args.path;
       if (typeof file !== 'string' || !samePath(file, path)) continue;
       raise(args.offset !== undefined || args.limit !== undefined ? 'partial' : 'full');
     } else if (call.label === 'Bash' && typeof args.command === 'string') {
-      if (succeeded(input, args.command)) commandRead(args.command, path, raise);
+      commandRead(args.command, path, raise);
     }
   }
   for (const run of input.block.observed.executions ?? []) {
