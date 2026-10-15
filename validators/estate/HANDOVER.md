@@ -11,13 +11,13 @@
 | hidden | 0 |
 <!-- level-table:end -->
 
-Iteration 30, source 8991e7f28e8834035d6d487d01231dc835db4274 plus the change recorded in this journal row. Hidden seed 309040690, derived from that head.
+Iteration 31, source be2c9338acaf9ca6af497992ed961526245c1dd2 plus the change recorded in this journal row. Hidden seed 191592312, derived from that head.
 | Seed | Reader passing / items |
 |---|---|
-| 1 | 606/641 |
-| 2 | 606/641 |
-| 3 | 606/641 |
-| hidden (309040690) | 606/641 |
+| 1 | 608/641 |
+| 2 | 608/641 |
+| 3 | 608/641 |
+| hidden (191592312) | 608/641 |
 
 Each fraction counts reader items passing on that seed, out of 641 reader items. Journal `passing` counts distinct evaluated item IDs passing every seed; it is not a sum of seed counts. The journal's per-level `metrics` use seed 1; its `perSeed` records achieved levels separately.
 
@@ -48,8 +48,6 @@ Owner rule: "make sure all the fixes are fixes that are TO THE FRAMEWORK in gene
 - scan.hazards.decoy-price: [scan.hazards, tier 3] code reads a decoy: nudging a price: found hazard hazard.recipe-pack-14rrbst.recover-from-repeated-guard-nudges at .claude/skills/recipe-pack-14rrbst/SKILL.md:9, never planted
 - scan.combination.colon+crlf: [scan.combination, tier 4] the reader reads a skill with both colon and crlf: missed route shelf-audit-3dpxle at .claude/skills/shelf-audit-3dpxle/SKILL.md:3; missed the route edge scan.combination.colon+crlf:route to scan.combination.colon+crlf:skill
 - scan.combination.prefixguard+crlf: [scan.combination, tier 4] the reader reads a skill with both prefixguard and crlf: missed route badge-check-f38gr8 at .claude/skills/badge-check-f38gr8/SKILL.md:3; missed guard check.sh at .claude/skills/badge-check-f38gr8/SKILL.md:10; found script script.badge-check-f38gr8.script-scripts-check-sh at .claude/skills/badge-check-f38gr8/scripts/check.sh:2, never planted; missed the route edge scan.combination.prefixguard+crlf:route to scan.combination.prefixguard+crlf:skill
-- scan.hostile.hooks-wrong-shape: [scan.hostile, tier 3] the scan survives hooks given as an object, not a list: noted: no note names .claude/settings.json
-- scan.hostile.prompt-hook: [scan.hostile, tier 3] the scan survives a hook of type prompt is a guard with no script: missed guard check-the-reply at .claude/settings.json:3
 - scan.hostile.duplicate-names: [scan.hostile, tier 3] the scan survives two skill folders with one name: both read, noted: no note names the shared name
 - scan.hostile.helper-subfolder: [scan.hostile, tier 3] the scan survives a helper in a subfolder of the helpers folder: missed subagent crate-price-1xtpv3h at .claude/agents/team/crate-price-1xtpv3h.md:2; missed route crate-price-1xtpv3h at .claude/agents/team/crate-price-1xtpv3h.md:3
 - scan.hostile.tabs-in-frontmatter: [scan.hostile, tier 3] the scan survives a frontmatter indented with tabs: found tool tool.roster-count-1dxpozt.declared-read at .claude/skills/roster-count-1dxpozt/SKILL.md:5, never planted
@@ -73,6 +71,7 @@ Owner rule: "make sure all the fixes are fixes that are TO THE FRAMEWORK in gene
 
 ## Hypotheses tried
 
+Iteration 31: prompt hooks and malformed hook containers. +2 on every seed: scan.hostile.prompt-hook, hooks-wrong-shape.
 Iteration 30: JSON with comments and trailing commas in step files. +2 on every seed: scan.steps.comments, trailing-commas.
 Iteration 29: step containers at any depth (process arrays, keyed steps, wrapper keys). +3 items on every seed: scan.steps.process-array, keyed-by-id, nested-workflow.
 Iteration 28: gate clause grammar. No bank change (601 on every seed); it repairs the two audit regressions. A first version read "read it before anything else" as a gate (pronoun target, "anything" taken for an -ing verb) and lost scan.hazards.notification; bounded targets now must be a token or a path, and -thing words are no act.

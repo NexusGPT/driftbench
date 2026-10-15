@@ -787,13 +787,22 @@ function readGuards(
   file: EstateFile,
 ): void {
   for (const [event, groups] of Object.entries(hooks)) {
-    if (!Array.isArray(groups)) continue;
+    if (!Array.isArray(groups)) {
+      estate.notes.push({ file: file.path, message: `${event} hooks must be a list of matcher groups` });
+      continue;
+    }
     for (const group of groups) {
-      if (!isRecord(group) || !Array.isArray(group.hooks)) continue;
+      if (!isRecord(group) || !Array.isArray(group.hooks)) {
+        estate.notes.push({ file: file.path, message: `${event} hook group must contain a hooks list` });
+        continue;
+      }
       const matcher = typeof group.matcher === 'string' && group.matcher !== '' ? group.matcher : undefined;
       for (const hook of group.hooks) {
-        if (!isRecord(hook) || hook.type !== 'command' || typeof hook.command !== 'string') continue;
-        const found = locate(hook.command);
+        if (!isRecord(hook)) continue;
+        const command =
+          hook.type === 'command' ? hook.command : hook.type === 'prompt' ? hook.prompt : undefined;
+        if (typeof command !== 'string') continue;
+        const found = locate(command);
         if (!found) {
           estate.notes.push({
             file: file.path,
@@ -803,10 +812,12 @@ function readGuards(
         }
         const guard: GuardDecl = {
           event,
-          command: hook.command,
+          command,
           scope,
           at: found,
-          ...scriptOf(hook.command, new Set(estate.files.map((entry) => entry.path))),
+          ...(hook.type === 'command'
+            ? scriptOf(command, new Set(estate.files.map((entry) => entry.path)))
+            : { anchored: false }),
         };
         if (matcher !== undefined) guard.matcher = matcher;
         if (typeof hook.timeout === 'number') guard.timeout = hook.timeout;
