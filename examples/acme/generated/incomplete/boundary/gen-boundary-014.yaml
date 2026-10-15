@@ -79,6 +79,7 @@ metadata:
     path: home-address-not-found
     cell:
       catalog.search.out.customer: catalog.search.out.customer.absent
+      catalog.search.out.plans: catalog.search.out.plans.several-items
       flow: new-home
       user_type: new-customer
       coverage_result: not-in-map
