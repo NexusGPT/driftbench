@@ -11,13 +11,13 @@
 | hidden | 0 |
 <!-- level-table:end -->
 
-Iteration 29, source 1fc3cee0213900700d43a8d865c9657aa2e929ac plus the change recorded in this journal row. Hidden seed 533926176, derived from that head.
+Iteration 30, source 8991e7f28e8834035d6d487d01231dc835db4274 plus the change recorded in this journal row. Hidden seed 309040690, derived from that head.
 | Seed | Reader passing / items |
 |---|---|
-| 1 | 604/641 |
-| 2 | 604/641 |
-| 3 | 604/641 |
-| hidden (533926176) | 604/641 |
+| 1 | 606/641 |
+| 2 | 606/641 |
+| 3 | 606/641 |
+| hidden (309040690) | 606/641 |
 
 Each fraction counts reader items passing on that seed, out of 641 reader items. Journal `passing` counts distinct evaluated item IDs passing every seed; it is not a sum of seed counts. The journal's per-level `metrics` use seed 1; its `perSeed` records achieved levels separately.
 
@@ -36,8 +36,6 @@ Owner rule: "make sure all the fixes are fixes that are TO THE FRAMEWORK in gene
 ## Open items
 
 - scan.registry.md-label-lowercase: [scan.registry, tier 3] the guard enforces the rules of a label written in lower case: missed the enforces edge scan.registry.md-label-lowercase:guard to scan.registry.md-label-lowercase:rule0
-- scan.steps.comments: [scan.steps, tier 4] the reader reads the stages of JSON with comments: missed stage label15-s1 at .claude/label15-steps.jsonc:4; missed stage label15-s2 at .claude/label15-steps.jsonc:5; missed stage label15-s3 at .claude/label15-steps.jsonc:6; missed stage label15-s4 at .claude/label15-steps.jsonc:7
-- scan.steps.trailing-commas: [scan.steps, tier 4] the reader reads the stages of JSON with trailing commas: missed stage shelf16-s1 at .claude/shelf16-steps.json:3; missed stage shelf16-s2 at .claude/shelf16-steps.json:4; missed stage shelf16-s3 at .claude/shelf16-steps.json:5; missed stage shelf16-s4 at .claude/shelf16-steps.json:6
 - scan.catalogue.guard-command-key: [scan.catalogue, tier 4] the reader reads the guard by its command: missed the enforces edge scan.catalogue.guard-command-key:guard to scan.catalogue.guard-command-key:rule0; scan.catalogue.guard-command-key:guard: registry is undefined, expected "C15"
 - scan.dispatcher.change-folder: [scan.dispatcher, tier 3] a guard declared with a change into the project folder first names and finds its script: scan.dispatcher.change-folder:guard: anchored is false, expected true
 - scan.dispatcher.shell-wrapper: [scan.dispatcher, tier 4] a guard declared with a shell wrapper with a quoted command names and finds its script: scan.dispatcher.shell-wrapper:guard: script is "python3 $CLAUDE_PROJECT_DIR/.claude/guards/crate-plan-oh9oal.py", expected ".claude/guards/crate-plan-oh9oal.py"; scan.dispatcher.shell-wrapper:guard: anchored is false, expected true
@@ -75,6 +73,7 @@ Owner rule: "make sure all the fixes are fixes that are TO THE FRAMEWORK in gene
 
 ## Hypotheses tried
 
+Iteration 30: JSON with comments and trailing commas in step files. +2 on every seed: scan.steps.comments, trailing-commas.
 Iteration 29: step containers at any depth (process arrays, keyed steps, wrapper keys). +3 items on every seed: scan.steps.process-array, keyed-by-id, nested-workflow.
 Iteration 28: gate clause grammar. No bank change (601 on every seed); it repairs the two audit regressions. A first version read "read it before anything else" as a gate (pronoun target, "anything" taken for an -ing verb) and lost scan.hazards.notification; bounded targets now must be a token or a path, and -thing words are no act.
 Parse prerequisite clauses with directive anchoring, all supported read-order forms and act labels. Eleven gate items improve; scan.hostile.wide-folder times out at 9106ms on seed3 only, retained for investigation.

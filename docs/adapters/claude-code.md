@@ -15,7 +15,7 @@ Status: the estate reader, the session reader, the replay adapter, the ordered-p
 | Guard | hooks in `.claude/settings.json` and `.claude/settings.local.json` (event, matcher, command) and in skill frontmatter, the hook source, a check registry (a `.md` or `.json` file whose name holds "registry") when the estate keeps one |
 | Tool | permission rules in the settings, and the tools a skill or an agent declares. MCP servers, deferred tools and plugin folders are not read yet. |
 | Setting | the settings file: its top-level values such as `model`, `permissions.defaultMode`, and the keys of `env` (never a value) |
-| Stage | step lists: a JSON or YAML file with a `steps` container at any depth (a wrapper key such as `workflow` is not a process): a list of named steps, or a map keyed by step id; `processes` as a map or a list of named processes qualifies each step as `process/step`; JSON Schema descriptions of a `steps` field are not steps |
+| Stage | step lists: a JSON or YAML file with a `steps` container at any depth (a wrapper key such as `workflow` is not a process): a list of named steps, or a map keyed by step id; `processes` as a map or a list of named processes qualifies each step as `process/step`; JSON Schema descriptions of a `steps` field are not steps; JSON files (`.json`, `.jsonc`) may hold `//` and `/* */` comments and trailing commas, and each step keeps its line in the original file |
 | Hazard | a passage of the prose that names a runtime hazard: a compaction, a restart, rate limits, a new session, a helper notification, repeated hook nudges |
 
 The scanner names the runtime's tools for the generic acts: `Read` reads, `Edit` edits, `Write` writes, `Bash` is the shell, `Agent` dispatches a helper.

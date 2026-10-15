@@ -501,7 +501,7 @@ function classify(path: string, text: string): { kind: FileKind; owner?: string 
   if (parts[1] === 'agents' && parts.length === 3 && path.endsWith('.md')) return { kind: 'subagent' };
   if (/registry|catalogu?e?/i.test(basename(path)) && /\.(md|json|ya?ml)$/.test(path))
     return { kind: 'registry' };
-  if (/\.(json|ya?ml)$/.test(path) && isStepList(text, path)) return { kind: 'step_list' };
+  if (/\.(jsonc?|ya?ml)$/.test(path) && isStepList(text, path)) return { kind: 'step_list' };
   if (path.endsWith('.json') && catalogueEntries(text) !== undefined) return { kind: 'registry' };
   return { kind: 'other' };
 }
@@ -544,10 +544,77 @@ function isCatalogueEntry(value: unknown): boolean {
   return isRecord(value) && CATALOGUE_KEYS.filter((key) => key in value).length >= 2;
 }
 
-/** A step list: a top-level `steps` list, or a `processes` map whose entries each hold a `steps` list. */
-/** A data file's content: YAML for `.yaml` and `.yml`, else JSON. Throws when it does not parse. */
+/** JSON comments and trailing commas are whitespace; strings and source positions stay intact. */
+function jsonSource(text: string): string {
+  const chars = text.split('');
+  let quoted = false;
+  let escaped = false;
+  for (let index = 0; index < chars.length; index++) {
+    const char = chars[index];
+    if (quoted) {
+      if (escaped) escaped = false;
+      else if (char === '\\') escaped = true;
+      else if (char === '"') quoted = false;
+      continue;
+    }
+    if (char === '"') {
+      quoted = true;
+      continue;
+    }
+    if (char !== '/' || !['/', '*'].includes(chars[index + 1] ?? '')) continue;
+    const block = chars[index + 1] === '*';
+    chars[index] = chars[index + 1] = ' ';
+    index += 2;
+    let closed = !block;
+    for (; index < chars.length; index++) {
+      if (block && chars[index] === '*' && chars[index + 1] === '/') {
+        chars[index] = chars[index + 1] = ' ';
+        index++;
+        closed = true;
+        break;
+      }
+      if (!block && (chars[index] === '\n' || chars[index] === '\r')) break;
+      if (chars[index] !== '\n' && chars[index] !== '\r') chars[index] = ' ';
+    }
+    if (!closed) throw new SyntaxError('Unterminated JSON block comment');
+  }
+  quoted = false;
+  escaped = false;
+  for (let index = 0; index < chars.length; index++) {
+    const char = chars[index];
+    if (quoted) {
+      if (escaped) escaped = false;
+      else if (char === '\\') escaped = true;
+      else if (char === '"') quoted = false;
+      continue;
+    }
+    if (char === '"') {
+      quoted = true;
+      continue;
+    }
+    if (char !== ',') continue;
+    let next = index + 1;
+    while (/\s/.test(chars[next] ?? '') && next < chars.length) next++;
+    if (chars[next] === ']' || chars[next] === '}') chars[index] = ' ';
+  }
+  return chars.join('');
+}
+
+const JSON_SOURCE_CACHE = new WeakMap<EstateFile, { text: string; masked: string }>();
+
+/** All declaration lookups in one JSON file share a single offset-preserving lexical pass. */
+function searchableText(file: EstateFile): string {
+  if (!/\.jsonc?$/.test(file.path)) return file.text;
+  const cached = JSON_SOURCE_CACHE.get(file);
+  if (cached?.text === file.text) return cached.masked;
+  const masked = jsonSource(file.text);
+  JSON_SOURCE_CACHE.set(file, { text: file.text, masked });
+  return masked;
+}
+
+/** YAML uses its parser; JSON permits comments and trailing commas without changing string values. */
 function parseData(text: string, path: string): unknown {
-  return /\.ya?ml$/.test(path) ? parseYaml(text) : JSON.parse(text);
+  return /\.ya?ml$/.test(path) ? parseYaml(text) : JSON.parse(jsonSource(text));
 }
 
 /** Where a key holding a value is written, in JSON or YAML: `"id": "G1"` or `id: G1`. */
@@ -629,7 +696,8 @@ function at(file: EstateFile, offset: number, quote: string): Located {
 
 /** Finds a needle from a cursor and moves the cursor past it. */
 function seek(file: EstateFile, needle: string, cursor: { at: number }): Located | undefined {
-  const offset = file.text.indexOf(needle, cursor.at);
+  const searchable = searchableText(file);
+  const offset = searchable.indexOf(needle, cursor.at);
   if (offset < 0) return undefined;
   cursor.at = offset + needle.length;
   return at(file, offset, needle);
@@ -639,7 +707,8 @@ function seekPattern(file: EstateFile, pattern: RegExp, cursor: { at: number }):
   const flags = pattern.flags.includes('g') ? pattern.flags : `${pattern.flags}g`;
   const search = new RegExp(pattern.source, flags);
   search.lastIndex = cursor.at;
-  const match = search.exec(file.text);
+  const searchable = searchableText(file);
+  const match = search.exec(searchable);
   if (!match) return undefined;
   cursor.at = match.index + match[0].length;
   return at(file, match.index, match[0]);
