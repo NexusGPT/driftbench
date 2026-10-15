@@ -19,3 +19,6 @@ Written 2026-10-15, before any paid call, and before the H1 runs it re-scores ex
 
 ## Sample, stop
 300 class runs from H1; no new paid calls.
+
+## Amendment 2, 2026-10-15, before the H1 runs exist
+The H1 runs come from the shared live Acme agent (README, Amendment 2). The tool names are mapped back to the Acme labels before both oracles score them. Nothing else changes.

@@ -30,3 +30,6 @@ Written 2026-10-15, before any paid call. The shared setup in `../README.md` bin
 - Sample: 300 seed runs plus at most 300 class runs.
 - Tiny sample first: 2 seed runs and 3 class runs on 2 blocks, measured USD per run, total re-projected in `../LEDGER.md`.
 - Stop: the lane guard (36 USD). Projected H1 agent cost: a few USD.
+
+## Amendment 2, 2026-10-15, before any agent run of this hypothesis
+The agent under test is the shared live Acme agent (`research/block-shared` at `be8bb2f8f`, merged unchanged), not the stand-in of `src/agent.ts`. Details and the harness: README, Amendment 2. Everything else in this file is unchanged.

@@ -31,3 +31,6 @@ Written 2026-10-15, before any paid call. The shared setup in `../README.md` bin
 - Agent and gate as README. About 10 x (15 + 46) x 2 = 1220 runs, plus 4 per consistently failing realisation.
 - Tiny sample first: covered by the H1 tiny sample (same agent, same run shape); the H2 cost is projected from the H1 measured USD per run.
 - Stop: the lane guard (36 USD).
+
+## Amendment 2, 2026-10-15, before any agent run of this hypothesis
+The agent under test is the shared live Acme agent (`research/block-shared` at `be8bb2f8f`, merged unchanged), not the stand-in of `src/agent.ts`. Details and the harness: README, Amendment 2. Everything else in this file is unchanged.
