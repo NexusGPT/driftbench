@@ -10,3 +10,7 @@ USD is computed from each response's usage fields and the prices in the `researc
 
 Projection after row 1: 0.0077 USD per conversation. HF10 640 conversations about 4.9 USD; HF11 275 about
 2.1 USD; lane total about 7.1 USD, under the 9.0 USD stop. No size reduction needed.
+| 2 | 2026-10-15 | HF10 full run: 20 blocks x 4 persona ids x 8 trials (640 conversations), 0 errors | claude-haiku-5-5, gpt-5.4-nano | 5,889 + 7,762 | haiku 18,900 in, 149,384,660 cache read, 17,653,337 cache write / 632,307 out; nano 3,257,652 / 270,625 | 5.00837 | 5.08493 |
+| 3 | 2026-10-15 | HF11 full run: 11 blocks x 5 arms x 5 trials (275 conversations), 0 errors | claude-haiku-5-5, gpt-5.4-nano | 2,444 + 3,119 | haiku 7,732 in, 61,799,727 cache read, 7,707,535 cache write / 308,745 out; nano 1,329,540 / 103,782 | 2.13222 | 7.21715 |
+
+Lane total 7.22 USD of the 10 USD cap (stop at 9.0). HF12 was offline (0 USD).
