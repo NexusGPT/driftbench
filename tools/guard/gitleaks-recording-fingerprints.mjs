@@ -16,19 +16,36 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
 export const FOLDERS = [
-  { path: /^examples\/all-peers-public\/cells\/calls-parts\/part-\d{4}\.jsonl$/, fields: ['key', 'attempt_key'], min: 16 },
+  {
+    path: /^examples\/all-peers-public\/cells\/calls-parts\/part-\d{4}\.jsonl$/,
+    fields: ['key', 'attempt_key'],
+    min: 16,
+  },
   { path: /^examples\/ledger-verify\//, fields: ['key'], min: 12 },
-  { path: /^examples\/judge-benchmarks\/experiments\/ledger-rb\//, fields: ['key', 'callKey', 'probeCallKey'], min: 12 },
+  {
+    path: /^examples\/judge-benchmarks\/experiments\/ledger-rb\//,
+    fields: ['key', 'callKey', 'probeCallKey'],
+    min: 12,
+  },
 ];
-export const PATHSPECS = ['examples/all-peers-public/cells/calls-parts', 'examples/ledger-verify', 'examples/judge-benchmarks/experiments/ledger-rb'];
-export const BEGIN = '# BEGIN generated recording-hash fingerprints: tools/guard/gitleaks-recording-fingerprints.mjs';
+export const PATHSPECS = [
+  'examples/all-peers-public/cells/calls-parts',
+  'examples/ledger-verify',
+  'examples/judge-benchmarks/experiments/ledger-rb',
+];
+export const BEGIN =
+  '# BEGIN generated recording-hash fingerprints: tools/guard/gitleaks-recording-fingerprints.mjs';
 export const END = '# END generated recording-hash fingerprints';
 
 // Allowed hash fields on one line: where each field name starts, where the field ends, and its whole hex value.
 export function allowedFields(line, folder) {
   const names = folder.fields.join('|');
   const re = new RegExp(`(?:^|[{,])\\s*"(${names})"\\s*:\\s*"([0-9a-f]{${folder.min},64})"`, 'dg');
-  return [...line.matchAll(re)].map((match) => ({ start: match.indices[1][0], end: match.index + match[0].length, value: match[2] }));
+  return [...line.matchAll(re)].map((match) => ({
+    start: match.indices[1][0],
+    end: match.index + match[0].length,
+    value: match[2],
+  }));
 }
 
 // Decides one line. Each finding must sit exactly on one allowed field: its match text begins where the field name
@@ -40,8 +57,13 @@ export function lineAllowed(line, folder, findings) {
   for (const finding of findings) {
     const { RuleID, Match, Secret } = finding;
     if (RuleID !== 'generic-api-key' || !Match || !Secret || !Match.includes(Secret)) return false;
-    const field = fields.find((f, i) => !used.has(i) && f.value === Secret && f.start + Match.length <= f.end
-      && line.startsWith(Match, f.start));
+    const field = fields.find(
+      (f, i) =>
+        !used.has(i) &&
+        f.value === Secret &&
+        f.start + Match.length <= f.end &&
+        line.startsWith(Match, f.start),
+    );
     if (!field) return false;
     used.add(fields.indexOf(field));
   }
@@ -62,7 +84,13 @@ function readLines(objects) {
     const header = out.subarray(offset, end).toString();
     const size = Number(header.split(' ')[2]);
     if (header.endsWith(' missing') || Number.isNaN(size)) throw new Error('Cannot read ' + object);
-    result.set(object, out.subarray(end + 1, end + 1 + size).toString('utf8').split('\n'));
+    result.set(
+      object,
+      out
+        .subarray(end + 1, end + 1 + size)
+        .toString('utf8')
+        .split('\n'),
+    );
     offset = end + 1 + size + 1;
   }
   return result;
@@ -79,9 +107,27 @@ export function scan(gitleaks, revs) {
     const git = (...args) => execFileSync('git', args).toString().trim();
     const gitDir = git('rev-parse', '--path-format=absolute', '--git-common-dir');
     const commits = revs.map((rev) => git('rev-parse', '--verify', `${rev}^{commit}`));
-    execFileSync(gitleaks, ['git', '--no-banner', '--exit-code', '0', '--config', resolve('.gitleaks.toml'),
-      '--gitleaks-ignore-path', dir, '--report-format', 'json', '--report-path', report,
-      '--log-opts', [...commits, '--', ...PATHSPECS].join(' '), gitDir], { cwd: dir, stdio: ['ignore', 'ignore', 'inherit'] });
+    execFileSync(
+      gitleaks,
+      [
+        'git',
+        '--no-banner',
+        '--exit-code',
+        '0',
+        '--config',
+        resolve('.gitleaks.toml'),
+        '--gitleaks-ignore-path',
+        dir,
+        '--report-format',
+        'json',
+        '--report-path',
+        report,
+        '--log-opts',
+        [...commits, '--', ...PATHSPECS].join(' '),
+        gitDir,
+      ],
+      { cwd: dir, stdio: ['ignore', 'ignore', 'inherit'] },
+    );
     return JSON.parse(readFileSync(report, 'utf8'));
   } finally {
     rmSync(dir, { recursive: true, force: true });
@@ -102,15 +148,21 @@ export function decide(findings) {
   for (const [id, group] of groups) {
     const { Commit, File, StartLine } = group[0];
     const folder = folderOf(File);
-    const line = folder ? lines.get(`${Commit}:${File}`)[StartLine - 1] ?? '' : '';
+    const line = folder ? (lines.get(`${Commit}:${File}`)[StartLine - 1] ?? '') : '';
     if (folder && lineAllowed(line, folder, group)) allowed.push(id);
-    else refused.push({ id, findings: group.length, rules: [...new Set(group.map((f) => f.RuleID))].join(',') });
+    else
+      refused.push({ id, findings: group.length, rules: [...new Set(group.map((f) => f.RuleID))].join(',') });
   }
   return { allowed: allowed.sort(), refused };
 }
 
 export function writeBlock(text, fingerprints) {
-  const block = [BEGIN, '# Recording content hashes inside JSONL lines. Do not edit by hand; rerun the script.', ...fingerprints, END].join('\n');
+  const block = [
+    BEGIN,
+    '# Recording content hashes inside JSONL lines. Do not edit by hand; rerun the script.',
+    ...fingerprints,
+    END,
+  ].join('\n');
   const start = text.indexOf(BEGIN);
   if (start === -1) return text.replace(/\n*$/, '\n\n') + block + '\n';
   const stop = text.indexOf(END, start);
