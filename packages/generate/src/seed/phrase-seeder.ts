@@ -6,7 +6,7 @@ import { FLOW_DIMENSION, type PathRelation, type ProposalPhrase } from '../extra
 import { type Pick, pickOf, type SpecDraft } from './assemble';
 import { dimensionId, type PreparedMap } from './map';
 import { slotsOf } from './relations';
-import { hasPaths, type SeedContext, scenarioDraft } from './seed-drafts';
+import { type SeedContext, scenarioDraft } from './seed-drafts';
 
 /** The dimensions whose phrases ask for something without moving the walk: a behaviour, a flow. */
 const ASKING = new Set(['behaviour', FLOW_DIMENSION]);
@@ -44,7 +44,6 @@ export function phraseDrafts(
   first: number,
   unsaid?: UnsaidPhrase[],
 ): SpecDraft[] {
-  if (!hasPaths(prepared)) return [];
   const sideEffecting = new Set(
     prepared.relations.paths.flatMap((path) =>
       path.end_state ? [path.end_state.source.replace(/^tool:/, '')] : [],
