@@ -47,7 +47,7 @@ import { type ChatMessage, readCompletion, toChatMessages } from '../http/chat';
  * names is kept in `raw.models`, the finish reason of each call in `raw.finishReasons`.
  */
 
-export const LITELLM_ADAPTER_VERSION = '0.1.0';
+export const LITELLM_ADAPTER_VERSION = '0.1.1';
 
 /** The body of one chat completion call, the OpenAI shape LiteLLM speaks. */
 export type ChatCompletionParams = {

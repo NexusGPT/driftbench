@@ -1,5 +1,12 @@
 import { isPlainObject, type Message, type Segment } from '@agent-nexus/driftbench-core';
-import { errorOf, outputText, readToolText, type ToolLabels, type ToolOutcome } from '../anthropic/common';
+import {
+  errorOf,
+  historyOutput,
+  outputText,
+  readToolText,
+  type ToolLabels,
+  type ToolOutcome,
+} from '../anthropic/common';
 import { contentText, parseArguments } from '../shared';
 
 /**
@@ -84,7 +91,8 @@ export function toInputItems(history: readonly Message[], labels: ToolLabels): A
         arguments: JSON.stringify(call.input ?? {}),
         status: 'completed',
       });
-      const text = call.error !== undefined ? JSON.stringify({ error: call.error }) : outputText(call.output);
+      const text =
+        call.error !== undefined ? JSON.stringify({ error: call.error }) : outputText(historyOutput(call));
       items.push({
         type: 'function_call_result',
         callId,
