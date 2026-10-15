@@ -22,15 +22,22 @@ function cell(value: ExpectedCell | undefined): ExpectedCell {
   return value === null || value === undefined ? '' : value;
 }
 
+/** An operand that may be swapped: a cell reference (C2) or a number (12, 1.5), nothing else. */
+const OPERAND = '([A-Z]+[0-9]+|[0-9]+(?:\\.[0-9]+)?)';
+/** Exactly two such operands around one multiplication or one addition. */
+const SWAPPABLE = new RegExp(`^=${OPERAND}\\s*([*+])\\s*${OPERAND}$`);
+
 /**
  * A pattern that matches the formula as written, with any spaces around its operators. A formula that is
- * one multiplication or one addition also matches with its two operands swapped: =12*C2 computes what
- * =C2*12 computes, and an instruction that states the behaviour does not fix the order.
+ * one multiplication or one addition of two operands, each a cell reference or a number, also matches with
+ * its operands swapped: =12*C2 computes what =C2*12 computes, and an instruction that states the behaviour
+ * does not fix the order. Any other formula (a comparison, a power, a function, a second operation) keeps
+ * the order as written.
  */
 export function formulaPattern(formula: string): string {
   const body = (text: string) =>
     text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s*(\\\*|\\\+|-|\/)\s*/g, '\\s*$1\\s*');
-  const one = /^=([^*+\-/]+?)\s*([*+])\s*([^*+\-/]+)$/.exec(formula);
+  const one = SWAPPABLE.exec(formula);
   if (one) {
     const [, left = '', operator = '', right = ''] = one;
     const swapped = `${right.trim()}${operator}${left.trim()}`;

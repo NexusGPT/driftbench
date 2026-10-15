@@ -369,6 +369,22 @@ describe('the checks the oracle outcome compiles to', () => {
     expect(new RegExp(formulaPattern('=C2*12+1')).test('=1+C2*12')).toBe(false);
   });
 
+  it('swaps only two operands that are each a cell reference or a number; any other formula keeps its order', () => {
+    // A comparison or a power inside an operand makes a formula of two operations: no swap.
+    const comparison = new RegExp(formulaPattern('=C2=12+1'));
+    expect(comparison.test('=C2=12+1')).toBe(true);
+    expect(comparison.test('=1+C2=12')).toBe(false);
+    const power = new RegExp(formulaPattern('=C2^2+1'));
+    expect(power.test('=C2^2+1')).toBe(true);
+    expect(power.test('=1+C2^2')).toBe(false);
+    for (const formula of ['=SUM(C2)*12', '=$C2*12', '=C2*-12', '=C2&12+1', '=C2*12%', '=C2>1*2'])
+      expect(formulaPattern(formula), formula).not.toContain('(?:');
+    // A decimal constant is a number operand, its dot taken literally.
+    const decimal = new RegExp(formulaPattern('=C2*1.5'));
+    expect(decimal.test('=1.5*C2')).toBe(true);
+    expect(decimal.test('=1x5*C2')).toBe(false);
+  });
+
   it('lets the committed price-sheet instance i04 take =12*C<row> for its yearly formula, on its own row only', async () => {
     const formulas: Array<{ cell: string; regex: string }> = [];
     const walk = (node: unknown): void => {
