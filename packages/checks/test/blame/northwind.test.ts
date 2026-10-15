@@ -147,28 +147,50 @@ describe('code-agent-liability on the Northwind recorded sessions', () => {
     expect(block.pass).toBe(false);
   });
 
-  it('F5 p01: route_positive is covered, so the unloaded skill is an agent fault', () => {
-    const { result } = diagnose('estate.p01.weekly-skill-skipped|weekly-skill-skipped');
-    expect(result.diagnoses[0]).toMatchObject({
-      verdict_ref: 'skills.weekly-report',
-      item: 'skill_not_loaded_covered',
-      disposition: 'agent',
-      confidence: 'static',
+  it('p01 checks the desired load obligation without asserting coverage of the update ask', async () => {
+    expect(planRows.find((row) => row.id === 'p01')?.testType).toBe('obligation');
+    const entry = stored.get('estate.p01.weekly-skill-skipped|weekly-skill-skipped');
+    expect(entry?.spec.blocks[0]?.when).toEqual({
+      user: "Add the late shipment count to this week's report, reports/2026-W41.md.",
     });
-    expect(result.diagnoses[0]?.evidence.skill_covers).toBe('covered');
+    const skill = await readFile(join(FIXTURE, '.claude/skills/weekly-report/SKILL.md'), 'utf8');
+    expect(skill).toContain(
+      'description: Prepare the weekly operations report from the ledger and the shipment log. Use when the user asks for the weekly report or a summary of last week.',
+    );
   });
 
-  it('F5 p01: plan coverage wins over zero reference loads, contrary to the design note uncovered/setup case', () => {
+  it('F5 p01: coverage is unknown before confirmation, with the actual obligation row supplied', () => {
+    const { result, block } = diagnose('estate.p01.weekly-skill-skipped|weekly-skill-skipped');
+    expect(block.pass).toBe(false);
+    expect(result.diagnoses[0]).toMatchObject({
+      verdict_ref: 'skills.weekly-report',
+      item: 'skill_not_loaded_undecided',
+      disposition: 'shared',
+      confidence: 'undecided',
+    });
+    expect(result.diagnoses[0]?.evidence.skill_covers).toBe('unknown');
+  });
+
+  it('F5 p01: zero reference loads confirms the design note uncovered/setup/skill.trigger case', () => {
     const { result } = diagnose('estate.p01.weekly-skill-skipped|weekly-skill-skipped', {
       'skills.weekly-report': { runs: 3, reference_loads: 0 },
     });
     expect(result.diagnoses[0]).toMatchObject({
-      item: 'skill_not_loaded_covered',
-      disposition: 'agent',
-      fault: ['agent'],
-      fix_location: 'skill.layout',
-      fix_action: 'route_rule',
+      item: 'skill_not_loaded_uncovered',
+      disposition: 'setup',
+      fault: ['skill'],
+      fix_location: 'skill.trigger',
+      fix_action: 'rewrite_description',
     });
+    expect(result.diagnoses[0]?.evidence.skill_covers).toBe('not_covered');
+  });
+
+  it('F5 contrast: three reference loads confirms covered and an agent fault', () => {
+    const { result } = diagnose('estate.p01.weekly-skill-skipped|weekly-skill-skipped', {
+      'skills.weekly-report': { runs: 3, reference_loads: 3 },
+    });
+    expect(result.diagnoses[0]).toMatchObject({ item: 'skill_not_loaded_covered', disposition: 'agent' });
+    expect(result.diagnoses[0]?.evidence.skill_covers).toBe('covered');
   });
 
   it('writes nothing on the clean session, which passes', () => {
