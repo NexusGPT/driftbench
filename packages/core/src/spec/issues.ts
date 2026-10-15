@@ -25,6 +25,9 @@ export const IssueCodes = [
   'RETENTION_FACT_UNKNOWN',
   'GIVEN_ORIGIN_WITHOUT_PREFIX',
   'PREFIX_PROSE_HISTORY',
+  'NORMALISE_INVALID',
+  'SLOT_FIELD_NO_RULE',
+  'SURFACE_FORM_UNAPPROVED',
 ] as const;
 
 export type IssueCode = (typeof IssueCodes)[number] | `SCHEMA_${string}`;
