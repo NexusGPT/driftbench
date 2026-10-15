@@ -23,7 +23,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please use the Write tool on the files here.
+      user: Please write a short notes file here with the Write tool.
     expect:
       workspace:
         deleted: []

@@ -42,9 +42,9 @@
   },
   "summary": {
     "specs": 1568,
-    "blocks": 1563,
-    "complete": 1360,
-    "incomplete": 208,
+    "blocks": 1568,
+    "complete": 1361,
+    "incomplete": 207,
     "judged": 348
   },
   "unit": {
@@ -62,7 +62,7 @@
   "sources": {
     "asks": {
       "bank": 433,
-      "code": 919,
+      "code": 920,
       "session": 0,
       "none": 8
     },
@@ -72,7 +72,7 @@
       "no-change:guard": 27,
       "no-change:negative": 58,
       "no-change:read-only": 17,
-      "no-delete": 267,
+      "no-delete": 268,
       "static": 8
     },
     "judged": 201
@@ -106,8 +106,8 @@
     "skip_pressure": {
       "rows": 8,
       "specs": 8,
-      "complete": 6,
-      "incomplete": 2
+      "complete": 7,
+      "incomplete": 1
     },
     "route_positive": {
       "rows": 260,
@@ -264,16 +264,15 @@
     "live": {
       "rows": 1525,
       "specs": 1525,
-      "complete": 1323,
-      "incomplete": 202
+      "complete": 1324,
+      "incomplete": 201
     }
   },
   "gaps": [
     {
       "marker": "needs-askable-act",
-      "specs": 185,
+      "specs": 184,
       "atoms": [
-        "gate.standing.read-claude-skills-invoice-reconcile-references",
         "instruction.invoice-reconcile.a-line-matches-on-article-code",
         "instruction.invoice-reconcile.an-invoice-line-with-no-order",
         "instruction.ledger-auditor.a-brief-missing-a-number-gets",
@@ -297,7 +296,6 @@
         "register.route-planner.the-plan-is-a-table-of"
       ],
       "details": [
-        "no task in the atom's words (gate.standing.read-claude-skills-invoice-reconcile-references (title)): the act names the file .claude/skills/invoice-reconcile/references/matching-rules.md: \"read .claude/skills/invoice-reconcile/references/matching-rules.md before editing any invoice file\"",
         "no task in the atom's words (instruction.invoice-reconcile.a-line-matches-on-article-code (title)): the act does not start with a verb: \"\"",
         "no task in the atom's words (instruction.invoice-reconcile.an-invoice-line-with-no-order (title)): the act does not start with a verb: \"\"",
         "no task in the atom's words (instruction.ledger-auditor.a-brief-missing-a-number-gets (title)): the act does not start with a verb: \"\"",

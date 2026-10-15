@@ -23,7 +23,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please use the Bash tool on the files here.
+      user: Please run a shell command here that lists the files, with the Bash tool.
     expect:
       workspace:
         deleted: []

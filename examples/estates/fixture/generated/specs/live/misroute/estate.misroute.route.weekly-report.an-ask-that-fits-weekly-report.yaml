@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please help me with the weekly report or a summary of last week.
+      user: Please look into the weekly report or a summary of last week.
     expect:
       skills:
         - name: weekly-report

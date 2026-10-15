@@ -3,7 +3,7 @@
 import type { CriterionDef } from '@agent-nexus/driftbench-core';
 import { DEVIATION_EXPECTED } from '../seed/deviation';
 import { rngFor, shuffle } from '../seed/random';
-import { codeAsk, DEVIATION_ASKS } from './asks';
+import { actOf, type Carrier, clauseOf, codeAsk, DEVIATION_ASKS } from './asks';
 import {
   type AskSource,
   type Built,
@@ -114,6 +114,8 @@ export function build(
   let phraseIndex: number | undefined;
   let ask: AskSource = use === 'none' ? 'none' : 'bank';
   let askFrom: string | undefined;
+  /** The workspace of the task a code-written ask leads with, seeded when the row's situation names none. */
+  let carriedWorkspace: string | undefined;
   if (use !== 'none') {
     let missing: { marker: Marker; detail: string } | undefined;
     if (!situation) {
@@ -139,6 +141,7 @@ export function build(
       } else phraseIndex = situation.phrases.indexOf(phrase);
     }
     if (missing && ctx.fallback) {
+      const carried = carrierOf(atoms, ctx, row.testType === 'twin', undefined, variant);
       const written = codeAsk(
         use,
         atoms,
@@ -146,7 +149,14 @@ export function build(
         row.testType === 'twin',
         (id) => ctx.atoms.get(id),
         variant,
+        carried?.carrier,
       );
+      if (
+        written.text !== undefined &&
+        carried?.carrier.act === undefined &&
+        written.text.startsWith(carried?.carrier.text ?? '\u0000')
+      )
+        carriedWorkspace = carried?.situation?.workspace;
       if (written.text === undefined) {
         // Never a nonsense ask: the row waits for an approved phrase, under its own gap.
         gap(then, MARKERS.askable, first, written.refused ?? 'the atom gives no task');
@@ -191,6 +201,14 @@ export function build(
   const blocks: Array<Record<string, unknown>> = [
     { id: 'ask', when: { user: phrase?.text ?? placeholder }, expect: expectOf(then, true) },
   ];
+  // An owner's signal (a stop, a hold) is said besides an ask, never as one: the spec opens on a task of
+  // the estate in the same workspace, and the signal and the rule's Then come in the next turn. A guard on
+  // the prompt itself is set off by the signal alone and keeps its single block.
+  const lead =
+    phrase && situation?.cell?.owner_signal !== undefined && first.kind !== 'guard'
+      ? leadIn(atoms, ctx, situation.workspace)
+      : undefined;
+  if (lead) blocks.unshift(lead.block);
   if (row.testType === 'stop_resume') {
     const resume = findSituation(ctx.bank, 'resume', row);
     const order = resume
@@ -243,7 +261,7 @@ export function build(
       perturbation = {
         id: `deviation-${deviation}`,
         class: deviation,
-        inject_at: 0,
+        inject_at: lead ? 1 : 0,
         user: text ?? `[no approved phrase: deviation ${deviation}]`,
         recovery: { within_blocks: 1 },
       };
@@ -269,9 +287,8 @@ export function build(
   if (sessionState !== undefined) vars.session_state = sessionState;
   const hazard = row.cell.estate_hazard;
   if (hazard !== undefined && hazard !== 'no_hazard') vars.event = hazard;
-  const seed = situation?.workspace
-    ? ctx.bank.workspaces.find((candidate) => candidate.id === situation.workspace)
-    : undefined;
+  const seedId = situation?.workspace ?? lead?.workspace ?? carriedWorkspace;
+  const seed = seedId ? ctx.bank.workspaces.find((candidate) => candidate.id === seedId) : undefined;
   if (seed) vars.workspace_seed = seed.id;
 
   const usesStages = blocks.some((block) => (block.expect as Record<string, unknown>).stage !== undefined);
@@ -301,7 +318,7 @@ export function build(
     ...(usesStages ? { stages: ctx.stages.ids } : {}),
     ...(complete && then.criteria.length > 0 ? { criteria: then.criteria } : {}),
     blocks,
-    ...(customOf(then) ? { rules: { custom: customOf(then) } } : {}),
+    ...(customOf(then, lead ? 1 : 0) ? { rules: { custom: customOf(then, lead ? 1 : 0) } } : {}),
     ...(perturbation ? { perturbations: [perturbation] } : {}),
     metadata: {
       estate: {
@@ -350,15 +367,119 @@ export function build(
   };
 }
 
-/** `rules.custom` of a spec: the ordered pairs, the some_call entries of the first block, the other checks. */
-function customOf(then: ThenParts): Record<string, unknown> | undefined {
+/**
+ * `rules.custom` of a spec: the ordered pairs, the some_call entries of the ask's block, the other checks.
+ * A check the Then pins to the ask's block (`block: 0`) moves with it when a lead-in task opens the spec.
+ */
+function customOf(then: ThenParts, askBlock = 0): Record<string, unknown> | undefined {
   const custom: Record<string, unknown> = {};
   if (then.ordered.length > 0) custom.ordered = { pairs: then.ordered };
   if (then.someCalls.length > 0) {
-    custom.some_call = { calls: then.someCalls.map((call) => ({ ...call, block: 0 })) };
+    custom.some_call = { calls: then.someCalls.map((call) => ({ ...call, block: askBlock })) };
   }
-  for (const [name, options] of Object.entries(then.custom)) custom[name] = options;
+  for (const [name, options] of Object.entries(then.custom)) {
+    const pinned =
+      typeof options === 'object' && options !== null && (options as { block?: unknown }).block === 0;
+    custom[name] = pinned ? { ...(options as Record<string, unknown>), block: askBlock } : options;
+  }
   return Object.keys(custom).length > 0 ? custom : undefined;
+}
+
+function touchesSome(situation: Situation): boolean {
+  const touches = situation.touches;
+  return touches !== undefined && ((touches.created ?? []).length > 0 || (touches.changed ?? []).length > 0);
+}
+
+/** The skill or helper a row's first atom belongs to: one the row names, else the one of its file. */
+function unitOf(atoms: readonly EstateAtom[], ctx: Context): EstateAtom | undefined {
+  const named = atoms.find((atom) => atom.kind === 'skill' || atom.kind === 'subagent');
+  if (named) return named;
+  const file = atoms[0]?.provenance?.file;
+  if (file === undefined) return undefined;
+  return [...ctx.atoms.values()].find(
+    (atom) => (atom.kind === 'skill' || atom.kind === 'subagent') && atom.provenance?.file === file,
+  );
+}
+
+/** The approved phrases of a situation, in the seeded order every row of it uses. */
+function approvedOf(ctx: Context, situation: Situation): BankPhrase[] {
+  return shuffle(
+    rngFor(ctx.seed, `estate:${situation.id}`),
+    situation.phrases.filter((entry) => entry.approved),
+  );
+}
+
+/**
+ * The task a row's ask leads with when its act would restate a rule (asks.ts): an approved phrase of a
+ * trigger situation of the rule's unit (no pinned cell value), else the unit's own act in code words, else
+ * an approved phrase of a trigger situation of the estate that changes files, a task in any reading. The
+ * second phrase of the situation for a twin when it has one. Undefined when the estate offers none.
+ */
+export function carrierOf(
+  atoms: readonly EstateAtom[],
+  ctx: Context,
+  twin = false,
+  workspace?: string,
+  variant?: number,
+): { carrier: Carrier; situation?: Situation } | undefined {
+  const unit = unitOf(atoms, ctx);
+  const tasks = ctx.bank.situations.filter(
+    (situation) =>
+      situation.use === 'trigger' &&
+      Object.keys(situation.cell ?? {}).length === 0 &&
+      situation.phrases.some((phrase) => phrase.approved) &&
+      (workspace === undefined || situation.workspace === workspace),
+  );
+  const pick = (situation: Situation) => {
+    const order = approvedOf(ctx, situation);
+    const at = variant ?? (twin ? 1 : 0);
+    const phrase = (order[at % order.length] ?? order[0]) as BankPhrase;
+    return { carrier: { text: phrase.text }, situation };
+  };
+  const own = unit ? tasks.find((situation) => situation.atoms.includes(unit.id)) : undefined;
+  if (own) {
+    const found = pick(own);
+    return { ...found, carrier: { ...found.carrier, own: true } };
+  }
+  if (unit && workspace === undefined) {
+    const act = clauseOf(actOf([unit]).act);
+    const written = act === '' ? undefined : codeAsk('trigger', [unit], ctx.units, false, undefined, variant);
+    if (written?.text !== undefined) return { carrier: { text: written.text, act, own: true } };
+  }
+  // A focus variant takes the next task of the estate, so its ask differs from the row it varies.
+  const any = tasks.filter(touchesSome);
+  const chosen = any[(variant ?? 0) % Math.max(1, any.length)];
+  return chosen ? pick(chosen) : undefined;
+}
+
+/**
+ * The block a spec opens with when its ask is an owner's signal: a task of the estate (an approved phrase
+ * that changes files, in the signal's workspace when it names one), checked by the files its situation
+ * says it changes. Undefined when the estate has no such task.
+ */
+function leadIn(
+  atoms: readonly EstateAtom[],
+  ctx: Context,
+  workspace: string | undefined,
+): { block: Record<string, unknown>; workspace?: string } | undefined {
+  const found = carrierOf(atoms, ctx, false, workspace);
+  const situation = found?.situation;
+  if (!found || !situation || !touchesSome(situation)) return undefined;
+  const created = situation.touches?.created ?? [];
+  const changed = situation.touches?.changed ?? [];
+  return {
+    block: {
+      id: 'task',
+      when: { user: found.carrier.text },
+      expect: {
+        workspace: {
+          ...(created.length > 0 ? { created: [...created] } : {}),
+          ...(changed.length > 0 ? { changed: [...changed] } : {}),
+        },
+      },
+    },
+    ...(situation.workspace ? { workspace: situation.workspace } : {}),
+  };
 }
 
 /** The Then of a block as `expect`. The first block holds the outcome and the judged criteria. */
