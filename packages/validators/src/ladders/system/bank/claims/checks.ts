@@ -778,8 +778,8 @@ function toolItems(out: BankItem[]): void {
     'tools/argument-accuracy',
     2,
     C('tools'),
-    'tools.argument_accuracy never gates; its score is the share of expected arguments that matched ("Every check and its verdict ids")',
-    'tools: argument accuracy is a non-gating verdict scored by the share of matched arguments',
+    'the argument accuracy never gates; its score is the share of expected arguments that matched ("Every check and its verdict ids")',
+    'tools: argument accuracy never gates and is scored by the share of matched arguments, as a verdict or as a diagnosis',
     async ({ seed }) => {
       const run = await scene(seed, 'arg-accuracy', [
         {
@@ -793,6 +793,26 @@ function toolItems(out: BankItem[]): void {
         },
       ]);
       const verdict = find(run, 0, 'tools.argument_accuracy');
+      // The block framework moves a measure computed from other verdicts to a diagnosis, which never gates: the
+      // claim holds the same score and the same "never gates" on whichever form the code ships, and refuses both.
+      const block = run.blocks[0] as
+        | { pass: boolean; diagnoses?: Array<{ diagnostic: string; score?: number }> }
+        | undefined;
+      const diagnosis = block?.diagnoses?.find((entry) =>
+        entry.diagnostic.startsWith('diagnostic:argument-accuracy@'),
+      );
+      if (verdict && diagnosis) {
+        return fail(`expected the argument accuracy once, got both ${shown(verdict)} and a diagnosis`);
+      }
+      if (diagnosis) {
+        const gating = verdictsOf(run, 0).filter((entry) => entry.gating);
+        const passFromGating = gating.every((entry) => entry.outcome === 'pass');
+        return diagnosis.score === 0.5 && block?.pass === passFromGating
+          ? PASS
+          : fail(
+              `expected the argument-accuracy diagnosis with score 0.5 (1 of 2 matched) and a pass decided by the gating verdicts alone, got score ${String(diagnosis.score)}, pass ${String(block?.pass)}`,
+            );
+      }
       return verdict?.gating === false && verdict.score === 0.5
         ? PASS
         : fail(
