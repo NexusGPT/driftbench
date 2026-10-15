@@ -29,7 +29,6 @@ export {
   restoreFiles,
 } from './registry';
 export { SCHEMA_VERSION } from './schema';
-export { recordedObjectsOfSpec, type SpecObjectIdentity } from './spec-objects';
 export { assertNodeVersion, MIN_NODE_VERSION } from './sqlite';
 export { openMemoryStore, openStore, type SqliteStore } from './store';
 export {

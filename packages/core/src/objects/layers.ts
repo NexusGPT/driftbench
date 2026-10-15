@@ -232,6 +232,30 @@ export function resolveBlockObjects(
   context: ObjectContext,
   options: { explicitOnly?: boolean } = {},
 ): UsedObject[] {
+  // Validate every named target before kind-specific branches can skip it, including unselected objects.
+  for (const set of context.cli?.set ?? []) {
+    if (set.id === undefined || /^\([a-z]+\)$/.test(set.id)) continue;
+    if (!context.store.has(set.kind, set.id)) {
+      throw new ObjectError(
+        `--set ${set.flag}: unknown object ${set.kind}:${set.id}; searched layers ${LAYERS.join(', ')}`,
+        'OBJECT_UNKNOWN',
+        `--set ${set.flag}`,
+      );
+    }
+    const target = context.store.resolve(set.kind, set.id);
+    context.store.resolveCli(target, [cliPatch(target, set)]);
+  }
+  const applySets = (object: ResolvedObject): ResolvedObject => {
+    const sets = (context.cli?.set ?? []).filter(
+      (set) => set.kind === object.kind && (set.id === undefined || set.id === object.id),
+    );
+    return sets.length === 0
+      ? object
+      : context.store.resolveCli(
+          object,
+          sets.map((set) => cliPatch(object, set)),
+        );
+  };
   const out: UsedObject[] = [];
   for (const key of Object.keys(USES_KINDS) as Array<keyof typeof USES_KINDS>) {
     const kind = USES_KINDS[key];
@@ -242,12 +266,21 @@ export function resolveBlockObjects(
         : referenceOf(spec, blockIndex, key, context);
     if (key === 'diagnostics') {
       const ids = (reference?.ref as string[] | undefined) ?? [];
+      const unresolved = (context.cli?.set ?? []).find(
+        (set) => set.kind === kind && (set.id === undefined ? ids.length === 0 : /^\([a-z]+\)$/.test(set.id)),
+      );
+      if (unresolved)
+        throw new ObjectError(
+          `--set ${unresolved.flag}: unknown object ${kind}:${unresolved.id ?? 'default'}; searched layers ${LAYERS.join(', ')}`,
+          'OBJECT_UNKNOWN',
+          `--set ${unresolved.flag}`,
+        );
       for (const id of ids) {
         out.push({
           key,
           setAt: reference?.setAt ?? 'shipped',
           place: reference?.place ?? '',
-          object: withPlace(() => context.store.resolve(kind, id), reference?.place),
+          object: applySets(withPlace(() => context.store.resolve(kind, id), reference?.place)),
         });
       }
       continue;
@@ -262,25 +295,17 @@ export function resolveBlockObjects(
       object = context.store.resolve(kind, 'default');
     }
     const forKind = (context.cli?.set ?? []).filter((set) => set.kind === kind);
-    // A --set that names an object id no layer defines is refused, never left without effect. An inline object is
-    // named by its layer in parentheses, such as (block).
-    for (const set of forKind) {
-      if (set.id !== undefined && !/^\([a-z]+\)$/.test(set.id) && !context.store.has(kind, set.id)) {
+    if (object === undefined) {
+      const unresolved = forKind.find((set) => set.id === undefined || /^\([a-z]+\)$/.test(set.id));
+      if (unresolved)
         throw new ObjectError(
-          `--set ${set.flag}: unknown object ${kind}:${set.id}; searched layers ${LAYERS.join(', ')}`,
+          `--set ${unresolved.flag}: unknown object ${kind}:${unresolved.id ?? 'default'}; searched layers ${LAYERS.join(', ')}`,
           'OBJECT_UNKNOWN',
-          `--set ${set.flag}`,
+          `--set ${unresolved.flag}`,
         );
-      }
+      continue;
     }
-    if (object === undefined) continue;
-    const resolved = object;
-    const sets = forKind.filter((set) => set.id === undefined || set.id === resolved.id);
-    if (sets.length > 0)
-      object = context.store.resolveCli(
-        object,
-        sets.map((set) => cliPatch(resolved, set)),
-      );
+    object = applySets(object);
     out.push({ key, setAt: reference?.setAt ?? 'shipped', place: reference?.place ?? '', object });
   }
   return out;

@@ -10,7 +10,8 @@ import {
   objectContextOfSpec,
 } from '@agent-nexus/driftbench-core';
 import { afterEach, describe, expect, it } from 'vitest';
-import { openMemoryStore, readCampaignBundle, recordedObjectsOfSpec } from '../src/index';
+import { openMemoryStore, readCampaignBundle } from '../src/index';
+import { recordedObjectsOfSpec } from '../src/spec-objects';
 import { campaign } from './fixtures';
 
 const made: string[] = [];
