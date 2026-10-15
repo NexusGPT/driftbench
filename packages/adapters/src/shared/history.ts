@@ -43,6 +43,11 @@ export type HistoryIds = {
   clean?: (id: string) => string;
   /** `keep` (default): the recorded ids. `rekey`: a fresh id for every call. */
   policy?: 'keep' | 'rekey';
+  /**
+   * Whether a call recorded with no id gets a fresh one. Default true. False suits a wire whose ids are
+   * optional (Gemini): such a call stays without one, and only a repeated id is replaced.
+   */
+  fillMissing?: boolean;
 };
 
 /** The result of one recorded call. */
@@ -86,10 +91,11 @@ export class HistoryCompiler {
     taken: ReadonlySet<string>,
     reserved: ReadonlySet<string>,
   ): string | undefined {
-    const { fallback, count = 'fresh', policy = 'keep' } = this.ids;
+    const { fallback, count = 'fresh', policy = 'keep', fillMissing = true } = this.ids;
     if (count === 'every') this.counter++;
     if (policy === 'keep' && kept !== undefined && !taken.has(kept)) return kept;
     if (!fallback) return kept;
+    if (policy === 'keep' && kept === undefined && !fillMissing) return undefined;
     if (count === 'fresh') this.counter++;
     const base = fallback(this.counter);
     let fresh = base;

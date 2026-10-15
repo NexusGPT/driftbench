@@ -3,6 +3,7 @@ import { canonicalGiven, findSpecFiles, loadSpecFile, type Message } from '@agen
 import { describe, expect, it } from 'vitest';
 import { ToolLabels, UNRECORDED_RESULT, WireNames } from '../src/anthropic/common';
 import { ANTHROPIC_NAME, toAnthropicMessages } from '../src/anthropic/messages';
+import { toGoogleContents } from '../src/google/contents';
 import { toChatMessages } from '../src/http/chat';
 import { toInputItems } from '../src/openai-agents/items';
 import { HistoryCompiler } from '../src/shared/history';
@@ -107,6 +108,35 @@ describe('every wire receives the history as paired tool records', () => {
       expect(pairingProblems(wire, hazards)).toEqual([]);
     });
   }
+
+  it('google: a recorded id that repeats one of the same turn is replaced; a call recorded with no id gets none', () => {
+    const { contents } = toGoogleContents(hazards, new WireNames([], ANTHROPIC_NAME));
+    const ids = contents.flatMap((content) =>
+      (content.parts ?? []).flatMap((part) =>
+        part.functionCall
+          ? [part.functionCall.id ?? null]
+          : part.functionResponse
+            ? [part.functionResponse.id ?? null]
+            : [],
+      ),
+    );
+    // Turn 1: two calls recorded as call-1, then their two responses. Turn 2: a.b and a_b, distinct as
+    // recorded on this wire, and a call with no id. Turn 3: call-1 again, kept across turns.
+    expect(ids).toEqual([
+      'call-1',
+      'call_h1',
+      'call-1',
+      'call_h1',
+      'a.b',
+      'a_b',
+      null,
+      'a.b',
+      'a_b',
+      null,
+      'call-1',
+      'call-1',
+    ]);
+  });
 
   it('chat: a free tool note goes as user text, never as a tool message that answers no call', () => {
     const notes = toChatMessages(hazards).filter(

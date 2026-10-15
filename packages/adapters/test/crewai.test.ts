@@ -1,6 +1,13 @@
 import { readFileSync } from 'node:fs';
-import { AdapterTransportError, AgentFailure, type Session } from '@agent-nexus/driftbench-core';
+import {
+  AdapterTransportError,
+  AgentFailure,
+  canonicalGiven,
+  resolveGiven,
+  type Session,
+} from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
+import { acmeSpec, loadAcmeConversations } from '../../core/test/runner/support';
 import { CREWAI_BRIDGE } from '../src/crewai/bridge-source';
 import { type CrewRun, crewaiAdapter, crewaiHttp, crewaiInputs, crewaiProcess } from '../src/crewai/index';
 import { readBridgeReply } from '../src/shared/bridge';
@@ -92,7 +99,7 @@ describe('crewai adapter', () => {
     ).toBe('a\nb');
   });
 
-  it('refuses a Given whose prefix holds recorded tool calls when the crew takes the default text inputs', async () => {
+  it('refuses a prefix whose tool calls the spec states as a record, on the default text inputs', async () => {
     const prefix = [
       { role: 'user' as const, content: 'Is fiber available at 3 Orchard Way?' },
       {
@@ -105,16 +112,45 @@ describe('crewai adapter', () => {
     ];
     const exec = fakeCrewBridge();
     const plain = crewaiAdapter({ transport: crewaiProcess({ crew: 'acme.crew:build', exec }) });
-    const refused = plain.open(acmeGiven({ adapter: 'crewai' }, {}, prefix));
-    await expect(refused).rejects.toBeInstanceOf(AgentFailure);
-    await expect(refused).rejects.toThrow(/1 recorded tool call.*as prose, not as tool results/);
+    for (const origin of ['recorded', 'authored'] as const) {
+      const refused = plain.open({ ...acmeGiven({ adapter: 'crewai' }, {}, prefix), origin });
+      await expect(refused).rejects.toBeInstanceOf(AgentFailure);
+      await expect(refused).rejects.toThrow(/1 recorded tool call.*as prose, not as tool results/);
+    }
     expect(exec.requests).toHaveLength(0);
+    // A canonical prefix, or one whose origin the spec does not state, goes to the crew as it always did.
+    await expect(
+      plain.open({ ...acmeGiven({ adapter: 'crewai' }, {}, prefix), origin: 'canonical' }),
+    ).resolves.toBeDefined();
+    await expect(plain.open(acmeGiven({ adapter: 'crewai' }, {}, prefix))).resolves.toBeDefined();
     // A crew given its own inputs takes the history its own way.
     const own = crewaiAdapter({
       transport: crewaiProcess({ crew: 'acme.crew:build', exec }),
       inputs: (history) => ({ message: 'x', messages: JSON.stringify(history) }),
     });
-    await expect(own.open(acmeGiven({ adapter: 'crewai' }, {}, prefix))).resolves.toBeDefined();
+    await expect(
+      own.open({ ...acmeGiven({ adapter: 'crewai' }, {}, prefix), origin: 'recorded' }),
+    ).resolves.toBeDefined();
+  });
+
+  it('opens every mode T block of a tool spec: the canonical calls of earlier blocks are not refused', async () => {
+    // The Acme plan upgrade: its blocks expect catalog.search and order.create, so the mode T prefixes of the
+    // later blocks hold canonical calls. Mode T opens a session per block from its canonical Given.
+    const spec = acmeSpec(await loadAcmeConversations(), 'acme-plan-upgrade');
+    const adapter = crewaiAdapter({
+      transport: crewaiProcess({ crew: 'acme.crew:build', exec: fakeCrewBridge() }),
+      toolLabels: ACME_TOOL_NAMES,
+    });
+    const target = { adapter: 'crewai' };
+    let canonicalCalls = 0;
+    for (let index = 0; index < spec.blocks.length; index++) {
+      const canonical = canonicalGiven(spec, index);
+      canonicalCalls += canonical.prefix.reduce((n, message) => n + (message.tool_calls?.length ?? 0), 0);
+      const session = await adapter.open(resolveGiven(canonical.state, canonical.prefix, target));
+      await adapter.close(session);
+    }
+    // The spec is a real case: its canonical prefixes hold calls.
+    expect(canonicalCalls).toBeGreaterThan(0);
   });
 
   it('kicks off a deployed crew over HTTP, polls its status until it completes, and never prints the token', async () => {

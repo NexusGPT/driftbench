@@ -137,23 +137,23 @@ const vercelTurns = (rendered: unknown): WireTurn[] | string => {
 
 /** Gemini pairs by name and order: each turn's responses carry the names of its calls, in order. */
 const googleTurns = (rendered: unknown): WireTurn[] | string => {
+  type Named = { name: string; id?: string };
   const { contents } = rendered as {
-    contents: {
-      role: string;
-      parts: { functionCall?: { name: string }; functionResponse?: { name: string } }[];
-    }[];
+    contents: { role: string; parts: { functionCall?: Named; functionResponse?: Named }[] }[];
   };
   const turns: WireTurn[] = [];
   for (const [at, content] of contents.entries()) {
-    const calls = content.parts.flatMap((part) => (part.functionCall ? [part.functionCall.name] : []));
+    const calls = content.parts.flatMap((part) => (part.functionCall ? [part.functionCall] : []));
     if (content.role !== 'model' || calls.length === 0) continue;
     const answers = (contents[at + 1]?.parts ?? []).flatMap((part) =>
-      part.functionResponse ? [part.functionResponse.name] : [],
+      part.functionResponse ? [part.functionResponse] : [],
     );
+    // Gemini pairs by name and order, and by id when one travels: both must agree, and an id that travels
+    // is distinct within its turn (pairingProblems checks it as on every wire).
     turns.push({
-      calls: calls.map(() => undefined),
-      results: answers.map(() => undefined),
-      names: [calls, answers],
+      calls: calls.map((call) => call.id),
+      results: answers.map((answer) => answer.id),
+      names: [calls.map((call) => call.name), answers.map((answer) => answer.name)],
     });
   }
   return turns;

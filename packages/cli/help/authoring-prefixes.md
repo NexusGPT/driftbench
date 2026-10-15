@@ -76,7 +76,7 @@ What the agent receives of the prefix depends on the adapter, as its source code
 
 `world.tools` applies only on adapters with the `toolStubs` capability: `function`, `anthropic`, `google`, `vercel-ai`, `litellm`, and `http` when its options turn it on.
 
-An adapter that sends the history to a model sends each tool call of the prefix as that model's own tool call and tool result records, with ids that pair them, never as text. The crewai adapter takes history as text inputs, so with its default inputs it refuses a prefix that holds tool calls rather than let the crew read them as prose.
+An adapter that sends the history to a model sends each tool call of the prefix as that model's own tool call and tool result records, with ids that pair them, never as text. The crewai adapter takes history as text inputs, so with its default inputs it refuses a prefix whose tool calls the spec states as a record (`origin: recorded` or `authored`) rather than let the crew read them as prose. A canonical prefix (mode T) runs as before.
 
 ## When to use it
 
@@ -489,6 +489,7 @@ PREFIX_PROSE_HISTORY  the assistant states <fact> (<value>) in prose, which no r
 | `ledger_seed  SPEC_ALIAS_CONFLICT  set \`ledger_seed\` or \`given.ledger\`, not both` | `ledger_seed` and `given.ledger` both set | keep one |
 | `PREFIX_PROSE_HISTORY`, a warning: its full text is above the table | a spec that names a tool, and an assistant message of a prefix that states a ledger value in prose | record the call with its `output` in `tool_calls`. Or keep the prose on purpose, and read the results as a different test |
 | `error: too many arguments for 'traces'. Expected 1 argument but got 2: ...` (exit 2) | two paths given to `import traces` | give one file, or a folder that holds them |
+| `crewai: the Given prefix (origin recorded) holds N recorded tool call(s), and a crew takes its history as text inputs, ...` | a prefix with tool calls and `origin: recorded` or `authored` on the crewai adapter, whose default inputs pass history as text | write those turns as blocks the crew runs, or pass `inputs` to the adapter; a canonical prefix (mode T) is not refused |
 
 Problems with no message:
 

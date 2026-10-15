@@ -41,8 +41,8 @@ import { CREWAI_BRIDGE } from './bridge-source';
  * A crew runs tasks; a conversation reaches it through its inputs. By default each block hands the crew
  * `message` (the block's user text), `history` (the earlier turns as text) and `messages` (the whole history
  * as JSON); `inputs` replaces that mapping. The crew runs its own tools, so `world.tools` cannot reach them.
- * With the default inputs, a Given whose prefix holds recorded tool calls is refused: the crew would read
- * them as prose.
+ * With the default inputs, a Given whose prefix holds tool calls the spec states as a record (`origin:
+ * recorded` or `authored`) is refused: the crew would read them as prose. A canonical prefix runs.
  */
 
 export const CREWAI_ADAPTER_VERSION = '0.1.0';
@@ -105,13 +105,17 @@ export function crewaiAdapter(options: CrewaiAdapterOptions): AgentAdapter {
     capabilities: () => ({ ...capabilities }),
 
     async open(given: ResolvedGiven) {
-      // A crew takes its history as text inputs. With the default inputs a recorded call of the Given would
-      // reach the crew's agents as prose, which is a different test: refuse it rather than run it silently.
+      // A crew takes its history as text inputs: the earlier turns as `role: text` lines and the whole history
+      // as JSON. With the default inputs, tool calls the spec wrote as a record (origin recorded or authored)
+      // would reach the crew's agents as data in a text field, never as tool results: a different test from the
+      // one the spec states, so it is refused. A canonical prefix (mode T, or origin canonical) and a prefix of
+      // unstated origin go as they always did.
       const prefix = copyHistory(given.prefix);
-      const recorded = options.inputs ? 0 : prefix.reduce((n, m) => n + (m.tool_calls?.length ?? 0), 0);
+      const stated = given.origin === 'recorded' || given.origin === 'authored';
+      const recorded = options.inputs || !stated ? 0 : prefix.reduce((n, m) => n + (m.tool_calls?.length ?? 0), 0);
       if (recorded > 0) {
         throw new AgentFailure(
-          `crewai: the Given prefix holds ${recorded} recorded tool call(s), and a crew takes its history as text inputs, so its agents would read them as prose, not as tool results. Write those turns as blocks the crew runs, or pass \`inputs\` that hand the calls to the crew in a form it reads as records.`,
+          `crewai: the Given prefix (origin ${given.origin}) holds ${recorded} recorded tool call(s), and a crew takes its history as text inputs, so its agents would read them as prose, not as tool results. Write those turns as blocks the crew runs, or pass \`inputs\` that hand the calls to the crew in a form it reads as records.`,
         );
       }
       return openSession(id, given, {
