@@ -122,16 +122,20 @@ export function outputFailed(output: unknown): boolean {
   return record.is_error === true || record.isError === true;
 }
 
+/** Tool actions only: the live adapter's agent record contains the ask, not a tool command. */
+export function toolExecutions(input: EvidenceInput) {
+  return (input.block.observed.executions ?? []).filter((run) => run.role !== 'agent');
+}
+
 /** A failure on either the call or its matching execution reads nothing. */
 export function callSucceeded(input: EvidenceInput, call: ToolCall): boolean {
   if (call.error !== undefined || outputFailed(call.output)) return false;
   const command = (call.input as { command?: unknown } | undefined)?.command;
   if (typeof command !== 'string') return true;
-  const runs = (input.block.observed.executions ?? []).filter(
+  const runs = toolExecutions(input).filter(
     (run) =>
       run.command === command &&
       (call.startedAt === undefined || run.startedAt === undefined || call.startedAt === run.startedAt),
   );
   return runs.length === 0 || runs.some((run) => run.exitCode === 0);
 }
-

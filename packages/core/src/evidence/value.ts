@@ -5,6 +5,7 @@ import {
   subjectCalls,
   subjectField,
   subjectTool,
+  toolExecutions,
   verdictAtoms,
   verdictLinks,
 } from './subject';
@@ -42,7 +43,7 @@ function readTexts(input: EvidenceInput): { files: string[]; skills: string[]; o
       outputs.push(text);
     }
   }
-  for (const run of input.block.observed.executions ?? []) {
+  for (const run of toolExecutions(input)) {
     if (!run.stdout) continue;
     const call = { label: 'Bash', input: { command: run.command }, startedAt: run.startedAt };
     const paths = readPaths(call);

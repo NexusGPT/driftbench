@@ -1,5 +1,6 @@
-import { callSucceeded, samePath } from './subject';
+import { callSucceeded, samePath, toolExecutions } from './subject';
 import type { EvidenceInput, ToolCall } from './types';
+
 export { callSucceeded } from './subject';
 
 const PARTIAL_COMMAND = /\b(head|tail|sed\s+-n|awk|grep)\b/;
@@ -42,7 +43,7 @@ export function readAmount(input: EvidenceInput, path: string): 'none' | 'partia
         : PARTIAL_COMMAND.test(String(args.command)),
     );
   }
-  for (const run of input.block.observed.executions ?? []) {
+  for (const run of toolExecutions(input)) {
     const call = { label: 'Bash', input: { command: run.command } };
     if (!readPaths(call).some((file) => samePath(file, path))) continue;
     attempted = true;
