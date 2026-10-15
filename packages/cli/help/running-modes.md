@@ -1,11 +1,10 @@
 ---
 title: Run modes T, F and P
 summary: 'The three run modes (teacher-forced T, free-running F, perturbed P): what each block starts from and measures, what a model reads for a past call with no recorded result, --mode, and the compounding index.'
-commands:
-  - campaign run
-  - campaign plan
+commands: []
 see_also:
   - running-campaign-run
+  - running-campaign-plan
   - running-campaign-status
   - running-cells-and-repeats
   - running-simulate
@@ -28,9 +27,9 @@ Every spec, conversation or task, can run in three modes. Each answers a differe
 
 Details that change results:
 
-* In T, the canonical history of block k is the latest `given.prefix` up to k, then for each earlier block its user messages and a canonical assistant message: empty text, carrying the tool calls the block expects with the inputs the spec pins and the results the spec's world forces. An agent that reads its own earlier replies sees blank assistant turns. An adapter that sends the history to a model sends a past call with no result the world forces with the text "Not recorded: this earlier call comes from a replayed conversation that states the call, with only the arguments it fixes, and not what it returned." as its result, never `null`; force the tool's result in `world.tools` to give the agent a real one. The checks of a T block see no earlier block. The end state is read after every block and composed. A driver that injects a block in T fails the run.
+* In T, the canonical history of block k starts with the latest `given.prefix` up to k. Each earlier block then adds its user messages and a canonical assistant message. That message has empty text and the tool calls the block expects. The calls carry the inputs the spec pins and the results the spec's world forces. An agent that reads its own earlier replies sees blank assistant turns. An adapter that sends the history to a model may meet a past call with no forced result. It sends a note as that call's result, never `null`: "Not recorded: this earlier call comes from a replayed conversation that states the call, with only the arguments it fixes, and not what it returned." Force the tool's result in `world.tools` to give the agent a real one. The checks of a T block see no earlier block. The end state is read after every block and composed. A driver that injects a block in T fails the run.
 * On a sandboxed agent (a `process` target), a T step keeps the workspace the step before left, and only its history is reset; a step that writes its own `given.world.workspace` starts from exactly that.
-* In P, each perturbation the spec declares makes its own cells. A perturbation with a `user` or `burst` message is sent as an extra block before block `inject_at`; one that writes only a `world` (such as a tool forced to fail) runs in place of block `inject_at`, so the run has as many blocks as the spec. The spec's end state is neither read nor compared in P. Each P run takes the F run of the same spec, target and repeat in the campaign as the reference for its recovery metrics.
+* In P, each perturbation the spec declares makes its own cells. A perturbation with a `user` or `burst` message is sent as an extra block before block `inject_at`. One that writes only a `world`, such as a tool forced to fail, runs in place of block `inject_at`. The run then has as many blocks as the spec. The spec's end state is neither read nor compared in P. Each P run takes the F run of the same spec, target and repeat in the campaign as the reference for its recovery metrics.
 * A spec that declares no perturbation makes no P cell.
 
 The compounding index is the T pass rate minus the F pass rate, over the spec blocks both modes ran (injected blocks left out). High T with low F means the agent is right block by block and fragile across the conversation. `campaign status --detail` prints it per spec with a clustered bootstrap interval (topic running-campaign-status).
@@ -74,6 +73,8 @@ For a past call with no recorded result:
 * Do not read a mode T failure on a model adapter as an agent fault before you check the history. An agent that needs the earlier result may call the tool again, or say it does not know.
 
 ## Commands and every option
+
+The mode is an option of the commands that run cells. Their other options are in running-campaign-run, running-campaign-plan and results-ci.
 
 | Option | Commands | Default | Effect |
 |---|---|---|---|
@@ -120,7 +121,7 @@ What a model adapter sends for a past call shows in the request it makes, not in
 
 ## Worked example
 
-The Acme price-sheet task in all three modes on its own target, then the plan-upgrade conversation in P and T (written in that order, run in the order T, P). No model is called.
+The Acme price-sheet task runs in all three modes on its own target. Then the plan-upgrade conversation runs in P and T: written in that order, run in the order T, P. No model is called.
 
 ```sh
 driftbench campaign run examples/acme/specs/tasks/price-sheet.yaml --mode T,F,P --campaign modes-task
