@@ -214,7 +214,7 @@ driftbench campaign run examples/acme/specs/conversations/new-customer-coverage.
 
 ```text
 $ driftbench campaign run examples/acme/specs/conversations/new-customer-coverage.yaml --no-cache
-Campaign c-179d9d831756: 1 cell, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, regex, exact, injection, length, markup, starts_with, finish_reason, json, tool_f1, refusal, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Campaign c-4bf80e6d1b5b: 1 cell, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, regex, exact, injection, length, markup, starts_with, finish_reason, json, tool_f1, refusal, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
 Not judged: 2 criteria in 2 blocks of 1 spec (one_question_per_turn, coverage_before_offer), 1 of them gating. This campaign loads no judge, so these criteria have no verdict and count in no pass or fail. See docs/concepts/judges.md.
 ✓ acme-new-customer-coverage · function:acme-sales · F · repeat 0  pass  4 blocks
 1 cell: 1 pass, 0 fail, 0 failed. Spent $0.00.
