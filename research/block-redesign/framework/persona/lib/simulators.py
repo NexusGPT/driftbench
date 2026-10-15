@@ -256,6 +256,10 @@ def describe_acts(acts, engine):
 
 
 LANGUAGE_NAMES = {"en": "English", "fr": "French"}
+# (words for a polite turn, words a non-polite turn avoids); English is the H10 text unchanged
+POLITE_WORDS = {"en": ("please, thanks or sorry", "please, thanks, thank you or sorry"),
+                "fr": ("s'il vous plaît, merci or pardon", "please, thanks, sorry, s'il vous plaît, merci or pardon")}
+UNSURE_EXAMPLE = {"en": "'I think'", "fr": "'je crois'"}
 
 
 def style_lines(style, p=None):
@@ -264,10 +268,11 @@ def style_lines(style, p=None):
     plain = f"About {p['words_target']} words." if p.get("words_target") else "Plain length, like a real chat message."
     s.append("Very short: at most 3 words (if a detail must be given, give only the detail)." if style.get("short")
              else plain)
-    s.append("Include one polite word (please, thanks or sorry)." if style.get("polite")
-             else "Do not use the words please, thanks, thank you or sorry.")
+    lg = p.get("language", "en")
+    s.append(f"Include one polite word ({POLITE_WORDS[lg][0]})." if style.get("polite")
+             else f"Do not use the words {POLITE_WORDS[lg][1]}.")
     if style.get("uncertain"):
-        s.append("Sound a little unsure (for example 'I think').")
+        s.append(f"Sound a little unsure (for example {UNSURE_EXAMPLE[lg]}).")
     if style.get("question"):
         s.append("Phrase the message as a question if the acts allow it.")
     if p.get("language"):

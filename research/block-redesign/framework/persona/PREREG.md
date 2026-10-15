@@ -134,3 +134,10 @@ Protocol: `codex/block-experiments/PROTOCOL.md` and `framework/HYPOTHESES.md` (G
 - Order: HF12 (offline) and the tiny sample, then HF10, then HF11.
 
 ## Amendments
+
+1. 2026-10-15, after the tiny sample (10 conversations, not data), before any HF10 or HF11 data: the
+   realiser's style lines named English polite words ("Include one polite word (please, thanks or
+   sorry)") and an English example of an unsure turn, so the French persona wrote "Bonjour, please ...".
+   For a French persona the lines now name French words ("s'il vous plaît, merci or pardon"; "je crois")
+   and a non-polite French turn avoids both languages' words. English personas get the H10 text
+   unchanged. No parameter, persona value, metric or threshold changed.
