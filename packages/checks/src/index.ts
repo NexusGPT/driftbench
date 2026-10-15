@@ -109,6 +109,7 @@ export {
   type Rung,
   type RungContext,
   type RungResult,
+  registerValueCheck,
   runLadder,
   type Settles,
   type ValueCase,
