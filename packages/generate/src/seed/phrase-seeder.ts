@@ -101,26 +101,42 @@ export function phraseDrafts(
               })),
               { at: 1, fresh: false, after: false },
             ]
-          : [
-              // No fallback: a sibling at a held stage and flow is rejected by the gate whenever the reference
-              // answers the two differently, and the map does not say when that is.
-              ...Array.from({ length: deepest }, (_, index) => ({ at: index + 1, fresh: true, after: true })),
-            ];
+          : last
+            ? // The second pass tries each walk at its last stage: every walk with no end state before any walk
+              // with one, then the shorter walk first.
+              prepared.relations.paths
+                .map((path, order) => ({ path, order }))
+                .sort(
+                  (a, b) =>
+                    Number(a.path.end_state !== undefined) - Number(b.path.end_state !== undefined) ||
+                    a.path.stages.length - b.path.stages.length ||
+                    a.order - b.order,
+                )
+                .map(({ path }) => ({ at: path.stages.length - 1, fresh: true, after: true, only: path }))
+            : [
+                // No fallback: a sibling at a held stage and flow is rejected by the gate whenever the reference
+                // answers the two differently, and the map does not say when that is.
+                ...Array.from({ length: deepest }, (_, index) => ({
+                  at: index + 1,
+                  fresh: true,
+                  after: true,
+                })),
+              ];
         const flowAt = prepared.space.dimensions.findIndex((entry) => entry.id === FLOW_DIMENSION);
-        for (const { at, fresh, after } of tries) {
+        for (const { at, fresh, after, only } of tries as Array<{
+          at: number;
+          fresh: boolean;
+          after: boolean;
+          only?: PathRelation;
+        }>) {
           // The first pass says a phrase before a walk's last stage. The second says the phrases left over at the
-          // last stage, after the walk's last move, which cuts nothing: the walk still checks its end state. A
-          // walk with no end state goes first, so a turn after an end state is the last resort.
+          // last stage, after the walk's last move, which cuts nothing: the walk still checks its end state.
           const fits = (path: PathRelation) =>
-            (last ? path.stages.length === at + 1 : path.stages.length > at + 1) &&
+            (only ? path === only : path.stages.length > at + 1) &&
             !(fresh && used?.has(slotOf(path, at))) &&
             (!after ||
               (found ? ran(path, at, found.tool.name) : dimension === FLOW_DIMENSION || exercised(path, at)));
-          const candidates = prepared.relations.paths
-            .filter(fits)
-            .sort(
-              (a, b) => Number(last && a.end_state !== undefined) - Number(last && b.end_state !== undefined),
-            );
+          const candidates = prepared.relations.paths.filter(fits);
           const own = candidates.filter((path) => dimension !== FLOW_DIMENSION || path.flow === phrase.value);
           const order = found
             ? [candidates]
