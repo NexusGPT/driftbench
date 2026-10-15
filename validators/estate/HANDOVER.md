@@ -11,13 +11,13 @@
 | hidden | 0 |
 <!-- level-table:end -->
 
-Iteration 43, source 741db398013ae9059c1398e37934a579d58b7aaf plus the change recorded in this journal row. Hidden seed 949103576, derived from that head.
+Iteration 44, source b12983b1c109de3ff0a6d520231160d528b99915 plus the change recorded in this journal row. Hidden seed 973287921, derived from that head.
 | Seed | Reader passing / items |
 |---|---|
-| 1 | 626/641 |
-| 2 | 626/641 |
-| 3 | 626/641 |
-| hidden (949103576) | 626/641 |
+| 1 | 634/641 |
+| 2 | 634/641 |
+| 3 | 634/641 |
+| hidden (973287921) | 634/641 |
 
 Each fraction counts reader items passing on that seed, out of 641 reader items. Journal `passing` counts distinct evaluated item IDs passing every seed; it is not a sum of seed counts. The journal's per-level `metrics` use seed 1; its `perSeed` records achieved levels separately.
 
@@ -36,23 +36,16 @@ Owner rule: "make sure all the fixes are fixes that are TO THE FRAMEWORK in gene
 ## Open items
 
 - scan.reference-prose.chained: [scan.reference-prose, tier 4] the scan reads the rules of a reference naming a second reference with its own rule: missed the reference edge scan.reference-prose.chained:skill to scan.reference-prose.chained:inner-ref
-- scan.decoys.owner-table: [scan.decoys, tier 3] code is not fooled: a table of owners that names a skill is no routing table: found route route.standing.an-ask-to-ana-loads-tariff at CLAUDE.md:4, never planted
 - scan.decoys.changelog-reference: [scan.decoys, tier 4] code is not fooled: a file named in a change note is no reference: found reference reference.ticket-price-14oprfr.read-references-legacy-md at .claude/skills/ticket-price-14oprfr/SKILL.md:12, never planted
 - scan.decoys.form-number-label: [scan.decoys, tier 4] code is not fooled: a form number that reads like a rule label cites no rule: a form number cited a rule
 - scan.decoys.guard-message-overlap: [scan.decoys, tier 4] code is not fooled: a guard message that quotes part of a rule's words is no enforcement: the guard enforces a rule it only quotes in passing
 - scan.decoys.script-name-in-prose: [scan.decoys, tier 3] code is not fooled: a script's name mentioned in passing anchors no script on that line: missed script .claude/skills/recipe-pack-18xh08m/scripts/tally.py at .claude/skills/recipe-pack-18xh08m/SKILL.md:10; found script script.recipe-pack-18xh08m.script-scripts-tally-py at .claude/skills/recipe-pack-18xh08m/SKILL.md:9, never planted
 - scan.decoys.hazard-in-example-quote: [scan.decoys, tier 4] code is not fooled: a hazard word inside a quoted example is no hazard: found hazard hazard.menu-review-6c2zvj.recover-from-a-wave-of-rate at .claude/skills/menu-review-6c2zvj/SKILL.md:10, never planted
-- scan.standing.linked-file: [scan.standing, tier 3] the reader reads a routing cell linking to the skill file: missed route shelf-price-j6n1na at CLAUDE.md:7; found reference reference.standing.read-claude-skills-shelf-price-j6n1na at CLAUDE.md:7, never planted
-- scan.standing.slash-command: [scan.standing, tier 3] the reader reads a routing cell naming the skill as a slash command: missed route invoice-update-10pk7r5 at CLAUDE.md:7
-- scan.standing.skill-first: [scan.standing, tier 4] the reader reads a routing table whose first column names the skill: missed route label-plan-11jwa9m at CLAUDE.md:5
-- scan.standing.no-outer-pipes: [scan.standing, tier 3] the reader reads a routing table written without outer pipes: missed route recipe-sort-11y7li9 at CLAUDE.md:5
-- scan.standing.list-item: [scan.standing, tier 3] the reader reads routing written as a list item: missed route route-review-1wyhk4c at CLAUDE.md:5
-- scan.standing.sentence: [scan.standing, tier 4] the reader reads routing written as a sentence: missed route parcel-update-1713qix at CLAUDE.md:5
-- scan.standing.heading-per-skill: [scan.standing, tier 4] the reader reads routing written as a heading per skill: missed route shelf-price-ftj8gw at CLAUDE.md:5
 - blind.edges.dispatch-plain-name: [blind.edges, tier 3] the reader reads a skill body that dispatches a helper by its plain name: no dispatch edge from skill at .claude/skills/orchard-plan-7beyan/SKILL.md
 
 ## Hypotheses tried
 
+Iteration 44: routing read by role (tables of any header, links, slash commands, outer-pipe-less tables, standing directive lines, per-skill headings, owner tables rejected). +8 on every seed.
 Iteration 43: standing @imports. +1 on every seed: scan.standing.imported-standing.
 Iteration 42: explicit document references followed transitively. +2 on every seed: scan.reference-prose.text-file, outside-skill. Chained still misses its graph edge (separate cause).
 Iteration 41: case-insensitive rule labels. +1 on every seed: scan.registry.md-label-lowercase.

@@ -280,17 +280,24 @@ export function readTables(text: string, fromLine = 1, toLine = Number.POSITIVE_
     const head = lines[index];
     const rule = lines[index + 1];
     if (!head || !rule || head.line < fromLine || head.line > toLine) continue;
-    if (!head.text.startsWith('|') || !/^\|?\s*:?-{3,}/.test(rule.text)) continue;
-    const table: Table = { header: cells(head.text), headerLine: head.line, rows: [] };
+    const header = cells(head.text);
+    const separators = cells(rule.text);
+    if (
+      header.length < 2 ||
+      separators.length !== header.length ||
+      !separators.every((cell) => /^:?-{3,}:?$/.test(cell))
+    )
+      continue;
+    const table: Table = { header, headerLine: head.line, rows: [] };
     let next = index + 2;
     for (; next < lines.length; next++) {
       const row = lines[next];
       // A table belongs to the range that holds its header, and runs to its last row: a chunk that ends
       // inside a table must not cut it, and the next chunk never sees its header, so it would lose the rest.
-      if (!row?.text.startsWith('|')) break;
+      if (!row || cells(row.text).length < 2) break;
       table.rows.push({
         line: row.line,
-        text: originals[row.line - 1]?.text ?? row.text,
+        text: originals[row.line - 1]?.raw ?? row.text,
         cells: cells(row.text),
       });
     }
@@ -301,11 +308,24 @@ export function readTables(text: string, fromLine = 1, toLine = Number.POSITIVE_
 }
 
 function cells(row: string): string[] {
-  return row
-    .replace(/^\|/, '')
-    .replace(/\|$/, '')
-    .split('|')
-    .map((cell) => cell.trim());
+  // Markdown permits omitted outer pipes; escaped pipes are content, not column separators.
+  const columns: string[] = [];
+  let value = '';
+  const trimmed = row.trim();
+  for (let index = 0; index < trimmed.length; index++) {
+    const char = trimmed[index];
+    if (char === '\\' && trimmed[index + 1] === '|') {
+      value += '|';
+      index++;
+    } else if (char === '|') {
+      columns.push(value.trim());
+      value = '';
+    } else value += char;
+  }
+  columns.push(value.trim());
+  if (trimmed.startsWith('|')) columns.shift();
+  if (trimmed.endsWith('|') && !trimmed.endsWith('\\|')) columns.pop();
+  return columns;
 }
 
 /** Text compared across files (a guard's message against a rule): folded, lowercased, without markup. */

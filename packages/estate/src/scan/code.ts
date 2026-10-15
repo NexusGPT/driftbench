@@ -600,6 +600,16 @@ function referenceAtoms(
       });
       const path = located.path;
       const target = files.get(path);
+      const source = files.get(chunk.file);
+      // A routing link loads the declared skill; it does not separately order a read of its definition.
+      if (
+        source &&
+        routeNames(raw).definitions.has(path) &&
+        routeSources(source, files, raw)
+          .get(line.line)
+          ?.some((route) => route.definition === path)
+      )
+        continue;
       const isSkipped = target === undefined && skipped.has(path);
       if (!target && !isSkipped && !DOCUMENT.test(path)) continue;
       if (target && (target.kind === 'guard_script' || SCRIPT.test(path))) continue;
@@ -624,42 +634,210 @@ function referenceAtoms(
   }
 }
 
+type RouteSource = {
+  line: number;
+  quote: string;
+  ask: string;
+  target: string;
+  isSkill: boolean;
+  via: 'table' | 'prose' | 'heading';
+  definition?: string;
+};
+
+const ROUTE_SOURCES = new WeakMap<RawEstate, Map<string, Map<number, RouteSource[]>>>();
+const ROUTE_NAMES = new WeakMap<
+  RawEstate,
+  {
+    skills: Set<string>;
+    helpers: Set<string>;
+    definitions: Map<string, string>;
+  }
+>();
+
+function routeNames(raw: RawEstate) {
+  let index = ROUTE_NAMES.get(raw);
+  if (!index) {
+    index = {
+      skills: new Set(raw.skills.map((skill) => skill.name)),
+      helpers: new Set(raw.subagents.map((helper) => helper.name)),
+      definitions: new Map(raw.skills.map((skill) => [skill.file, skill.name])),
+    };
+    ROUTE_NAMES.set(raw, index);
+  }
+  return index;
+}
+
+/** Resolve only declared targets, retaining the distinction between a skill and a named agent. */
+function routeTargets(
+  cell: string,
+  file: EstateFile,
+  files: ReadonlyMap<string, EstateFile>,
+  raw: RawEstate,
+) {
+  const { skills, helpers, definitions } = routeNames(raw);
+  const targets = new Map<string, { target: string; isSkill: boolean; definition?: string }>();
+  const add = (written: string, spelling = written, definition?: string) => {
+    const clean = written
+      .replace(/[`*]/g, '')
+      .replace(/[.!]+$/, '')
+      .trim();
+    const helper = /^(?:the )?(.+?) agent$/i.exec(clean)?.[1];
+    const target = (helper ?? clean.replace(/^the\s+/i, '').replace(/\s+skill$/i, '')).replace(/^\//, '');
+    const isSkill = !(helper && helpers.has(helper)) && skills.has(target);
+    if (
+      (!isSkill && !helpers.has(target)) ||
+      !positiveMention(cell, spelling, ['load', 'use', 'dispatch', 'call'], true)
+    )
+      return;
+    targets.set(`${isSkill ? 'skill' : 'agent'}:${target}`, {
+      target,
+      isSkill,
+      ...(definition ? { definition } : {}),
+    });
+  };
+  const clean = cell.replace(/[`*]/g, '').trim();
+  const explicitHelper = /^(?:the )?(.+?) agent[.!]?$/i.exec(clean)?.[1];
+  if (explicitHelper && helpers.has(explicitHelper)) {
+    add(clean, explicitHelper);
+  } else {
+    add(clean);
+    for (const match of cell.matchAll(/`([^`]+)`/g)) add(match[1] ?? '');
+  }
+  for (const match of cell.matchAll(/\[[^\]]+\]\(([^\s)]+)(?:\s+"[^"]*")?\)/g)) {
+    const path = resolveNamed((match[1] ?? '').replace(/[#?].*$/, ''), file.path, files, raw.bases);
+    const skill = definitions.get(path);
+    if (skill) add(skill, match[0], path);
+  }
+  return [...targets.values()];
+}
+
+/** A routing table header that states the condition of an ask. */
+const ROUTE_CONDITION =
+  /^(?:when|use when|if|whenever|ask|asks|request|requests|trigger|triggers|condition|situation|intent|task|tasks|for|the user wants)\b/i;
+/** A column of people: who owns or maintains a skill is no ask. */
+const ROUTE_PEOPLE =
+  /^(?:owners?|maintainers?|maintained by|owned by|authors?|contacts?|team|people|person|assignees?|reviewers?)\b/i;
+/** A column of remarks names no target. */
+const ROUTE_NOTES =
+  /^(?:notes?|comments?|remarks?|descriptions?|details?|why|reasons?|see also|examples?)\b/i;
+
+/** Routing is defined by a condition and an action, never by a name appearing in an arbitrary table. */
+function routeSources(
+  file: EstateFile,
+  files: ReadonlyMap<string, EstateFile>,
+  raw: RawEstate,
+): Map<number, RouteSource[]> {
+  let cache = ROUTE_SOURCES.get(raw);
+  if (!cache) {
+    cache = new Map();
+    ROUTE_SOURCES.set(raw, cache);
+  }
+  const cached = cache.get(file.path);
+  if (cached) return cached;
+  const sources = new Map<number, RouteSource[]>();
+  const add = (route: RouteSource) => {
+    const row = sources.get(route.line) ?? [];
+    row.push(route);
+    sources.set(route.line, row);
+  };
+  const clean = (value: string) =>
+    value
+      .replace(/[`*]/g, '')
+      .replace(/[.!]+$/, '')
+      .trim();
+  for (const table of readTables(file.text)) {
+    const headers = table.header.map(clean);
+    // The ask is the column whose header states a condition, else the first column; a column of people
+    // (owners, maintainers) is no ask, and a notes column names no target.
+    const conditional = headers.findIndex((header) => ROUTE_CONDITION.test(header));
+    const condition = conditional >= 0 ? conditional : 0;
+    if (ROUTE_PEOPLE.test(headers[condition] ?? '')) continue;
+    const actions = headers.flatMap((header, index) =>
+      index !== condition && !ROUTE_NOTES.test(header) ? [index] : [],
+    );
+    for (const row of table.rows) {
+      const ask = clean(row.cells[condition] ?? '');
+      if (!ask) continue;
+      for (const action of actions) {
+        for (const target of routeTargets(row.cells[action] ?? '', file, files, raw)) {
+          add({ ...target, ask, line: row.line, quote: row.text, via: 'table' });
+        }
+      }
+    }
+  }
+  // Routing in prose and headings is read in the standing instructions, where routing lives; a skill body's
+  // "when X, dispatch Y" is a step of that skill, not the routing of an ask.
+  if (file.kind !== 'standing') {
+    cache.set(file.path, sources);
+    return sources;
+  }
+  const lines = chunkLines(
+    { id: 'routing', file: file.path, startLine: 1, endLine: file.text.split('\n').length, text: file.text },
+    file,
+  );
+  for (const [index, line] of lines.entries()) {
+    const directive =
+      /^(?:[-*+]\s+|\d+[.)]\s+)?(?:(?:to|for)\s+(.+?)\s*[:,]|(?:when|if|whenever)\s+(?:the user|a user|someone)?\s*(?:wants|asks|needs)?\s*(?:to\s+)?(.+?),)\s*(?:please\s+)?(?:always\s+)?(?:load|use|invoke|dispatch|call)\s+(.+?)\.?$/i.exec(
+        line.text,
+      );
+    if (directive) {
+      const ask = clean(directive[1] ?? directive[2] ?? '');
+      for (const target of routeTargets(directive[3] ?? '', file, files, raw)) {
+        add({ ...target, ask, line: line.line, quote: line.quote, via: 'prose' });
+      }
+    }
+    const heading = /^#{1,6}\s+(.+?)\s*#*$/.exec(line.text);
+    if (!heading) continue;
+    const targets = routeTargets(heading[1] ?? '', file, files, raw);
+    if (!targets.length) continue;
+    for (let next = index + 1; next < lines.length; next++) {
+      const following = lines[next];
+      if (!following) break;
+      if (/^#{1,6}\s/.test(following.text)) break;
+      const condition =
+        /^(?:use|load|invoke|dispatch|call)\s+(?:it|this(?:\s+skill|\s+agent|\s+helper)?)\s+(?:when|if|whenever|for)\s+(?:the user|a user|someone)?\s*(?:wants|asks|needs)?\s*(?:to\s+)?(.+?)\.?$/i.exec(
+          following.text,
+        );
+      if (!condition) continue;
+      for (const target of targets)
+        add({
+          ...target,
+          ask: clean(condition[1] ?? ''),
+          line: line.line,
+          quote: line.quote,
+          via: 'heading',
+        });
+      break;
+    }
+  }
+  cache.set(file.path, sources);
+  return sources;
+}
+
 function routeAtoms(
   chunk: ProseChunk,
   files: ReadonlyMap<string, EstateFile>,
-  names: { skills: Set<string>; subagents: Set<string> },
+  _names: { skills: Set<string>; subagents: Set<string> },
   raw: RawEstate,
   builder: AtomBuilder,
 ): void {
   const file = files.get(chunk.file);
   if (!file) return;
-  for (const table of readTables(file.text, chunk.startLine, chunk.endLine)) {
-    for (const row of table.rows) {
-      const ask = row.cells[0]?.replace(/[`*]/g, '').trim() ?? '';
-      for (const cell of row.cells.slice(1)) {
-        const targets = new Set(Array.from(cell.matchAll(/`([^`]+)`/g), (match) => match[1] ?? ''));
-        const plain = cell.replace(/[`*]/g, '').trim();
-        if (names.skills.has(plain) || names.subagents.has(plain)) targets.add(plain);
-        const helper = /^(?:the )?(.+) agent$/.exec(plain)?.[1];
-        if (helper && names.subagents.has(helper)) targets.add(helper);
-        for (const target of targets) {
-          if (!positiveMention(cell, target, ['load', 'dispatch', 'call'], true)) continue;
-          const isSkill = !(target === helper && names.subagents.has(helper)) && names.skills.has(target);
-          if (!isSkill && !names.subagents.has(target)) continue;
-          builder.add({
-            kind: 'route',
-            title: `An ask to ${ask} ${isSkill ? 'loads' : 'dispatches'} ${target}`,
-            at: { file: chunk.file, startLine: row.line, endLine: row.line, quote: row.text },
-            evidence: [
-              isSkill
-                ? { type: 'skill_loaded', name: target }
-                : { type: 'tool_called', label: raw.labels.dispatch, input: { subagent_type: target } },
-            ],
-            situation: ask,
-            fields: { target, targetKind: isSkill ? 'skill' : 'subagent', via: 'table', ask },
-          });
-        }
-      }
+  const routes = routeSources(file, files, raw);
+  for (let line = chunk.startLine; line <= chunk.endLine; line++) {
+    for (const { quote, ask, target, isSkill, via } of routes.get(line) ?? []) {
+      builder.add({
+        kind: 'route',
+        title: `An ask to ${ask} ${isSkill ? 'loads' : 'dispatches'} ${target}`,
+        at: { file: chunk.file, startLine: line, endLine: line, quote },
+        evidence: [
+          isSkill
+            ? { type: 'skill_loaded', name: target }
+            : { type: 'tool_called', label: raw.labels.dispatch, input: { subagent_type: target } },
+        ],
+        situation: ask,
+        fields: { target, targetKind: isSkill ? 'skill' : 'subagent', via, ask },
+      });
     }
   }
 }
