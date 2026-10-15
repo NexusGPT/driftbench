@@ -98,3 +98,12 @@ export function globRegex(glob: string): RegExp {
   }
   return new RegExp(`^(?:.*/)?${out}$`);
 }
+
+/** A tool output that reports its own failure: an exit code other than 0, or an error flag. */
+export function outputFailed(output: unknown): boolean {
+  if (output === null || typeof output !== 'object' || Array.isArray(output)) return false;
+  const record = output as Record<string, unknown>;
+  const code = record.exitCode ?? record.exit_code ?? record.returncode ?? record.code;
+  if (typeof code === 'number' && code !== 0) return true;
+  return record.is_error === true || record.isError === true;
+}

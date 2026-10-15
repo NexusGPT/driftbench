@@ -43,17 +43,20 @@ export const rule_home: EvidenceProvider = {
   },
 };
 
+/** The skill the rule lives in: the provenance path of its atom, or the link. A helper, not a provider. */
+export function ruleSkillOf(input: EvidenceInput): string | undefined {
+  const atom = verdictAtoms(input)[0];
+  if (atom) return skillOfPath(atom.provenance.file);
+  const link = verdictLinks(input)[0];
+  return link?.skill ?? (link?.file === undefined ? undefined : skillOfPath(link.file));
+}
+
 export const rule_skill: EvidenceProvider = {
   name: 'rule_skill',
   cost: 'static',
   values: ['a skill name'],
   from: 'the provenance path of the atom, or the link',
-  compute: (input) => {
-    const atom = verdictAtoms(input)[0];
-    if (atom) return skillOfPath(atom.provenance.file);
-    const link = verdictLinks(input)[0];
-    return link?.skill ?? (link?.file === undefined ? undefined : skillOfPath(link.file));
-  },
+  compute: ruleSkillOf,
 };
 
 /** The act class of an atom: its first evidence predicate, else its kind. */
@@ -150,30 +153,31 @@ export const rule_mechanical: EvidenceProvider = {
   compute: (input) => input.verdict.kind === 'machine',
 };
 
+/** The skills the block routes to: expect.skills and the route atoms the failing check names. A helper. */
+export function routedOf(input: EvidenceInput): string[] {
+  const out = new Set(input.expect?.skills ?? []);
+  for (const atom of verdictAtoms(input)) {
+    if (atom.kind === 'route' || atom.kind === 'skill') {
+      const name = (atom.fields?.name as string | undefined) ?? skillOfPath(atom.provenance.file);
+      if (name) out.add(name);
+    }
+  }
+  return [...out];
+}
+
 export const routed_skills: EvidenceProvider = {
   name: 'routed_skills',
   cost: 'static',
   values: ['skill names'],
   from: 'expect.skills and the route atoms the failing check names',
-  compute: (input) => {
-    const out = new Set(input.expect?.skills ?? []);
-    for (const atom of verdictAtoms(input)) {
-      if (atom.kind === 'route' || atom.kind === 'skill') {
-        const name = (atom.fields?.name as string | undefined) ?? skillOfPath(atom.provenance.file);
-        if (name) out.add(name);
-      }
-    }
-    return [...out];
-  },
+  compute: routedOf,
 };
 
 /** The skill a load question is about: the one the verdict names, the rule's skill, else the first routed one. */
 function subjectSkill(input: EvidenceInput): string | undefined {
   const named = /^skills\.(.+)$/.exec(input.verdict.id) ?? /^skills\.(.+)$/.exec(input.verdict.name);
   if (named) return named[1];
-  const skill = rule_skill.compute(input) as string | undefined;
-  if (skill !== undefined) return skill;
-  return (routed_skills.compute(input) as string[])[0];
+  return ruleSkillOf(input) ?? routedOf(input)[0];
 }
 
 /** Whether a skill loaded in the block: the runtime's skill list, a Read of its SKILL.md, or a Skill tool call. */
@@ -199,21 +203,32 @@ export const skill_loaded: EvidenceProvider = {
   },
 };
 
+/**
+ * The plan row of the block for a skill: route_positive (the ask fits the description) or route_near_miss (it
+ * belongs elsewhere). The first row that names the skill decides.
+ */
+function planRowType(input: EvidenceInput, name: string | undefined): string | undefined {
+  if (name === undefined) return undefined;
+  const row = (input.planRows ?? []).find(
+    (one) =>
+      (one.testType === 'route_positive' || one.testType === 'route_near_miss') &&
+      (one.skill === name || one.atomIds.some((id) => id.includes(`.${name}.`))),
+  );
+  return row?.testType;
+}
+
 export const skill_covers: EvidenceProvider = {
   name: 'skill_covers',
   cost: 'static',
   values: ['covered', 'not_covered', 'unknown'],
-  from: "a stored reference agent's load count against the bar, else a route_positive plan row for the skill, else unknown",
+  from: "the block's plan row for the skill (route_positive: covered, route_near_miss: not_covered); with no such row, a stored reference agent's load count against the bar; else unknown",
   compute: (input) => {
+    const type = planRowType(input, subjectSkill(input));
+    if (type === 'route_positive') return 'covered';
+    if (type === 'route_near_miss') return 'not_covered';
     const loads = input.confirm?.reference_loads;
     if (loads !== undefined) return loads >= (input.bar ?? 2) ? 'covered' : 'not_covered';
-    const name = subjectSkill(input);
-    const positive = (input.planRows ?? []).some(
-      (row) =>
-        row.testType === 'route_positive' &&
-        (row.skill === name || row.atomIds.some((id) => id.includes(`.${name}.`))),
-    );
-    return positive ? 'covered' : 'unknown';
+    return 'unknown';
   },
 };
 
@@ -221,11 +236,12 @@ export const rule_skill_routed: EvidenceProvider = {
   name: 'rule_skill_routed',
   cost: 'static',
   values: ['boolean'],
-  from: 'rule_skill is one of routed_skills',
-  compute: (input) => {
-    const skill = rule_skill.compute(input) as string | undefined;
+  from: 'derived: rule_skill is one of routed_skills',
+  reads: ['rule_skill', 'routed_skills'],
+  derive: (known) => {
+    const skill = known.rule_skill as string | undefined;
     if (skill === undefined) return undefined;
-    return (routed_skills.compute(input) as string[]).includes(skill);
+    return ((known.routed_skills as readonly string[] | undefined) ?? []).includes(skill);
   },
 };
 
@@ -242,7 +258,7 @@ export const rule_needed_by: EvidenceProvider = {
     for (const row of input.planRows ?? []) {
       if (row.skill !== undefined && row.atomIds.some((id) => ids.has(id))) homes.add(row.skill);
     }
-    for (const skill of routed_skills.compute(input) as string[]) homes.add(skill);
+    for (const skill of routedOf(input)) homes.add(skill);
     for (const atom of atoms) {
       const skill = skillOfPath(atom.provenance.file);
       if (skill) homes.add(skill);
