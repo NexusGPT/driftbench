@@ -81,12 +81,13 @@ The example is a private workspace package, `@agent-nexus/driftbench-example-acm
   once per turn.
 * Data stays data. The agent reads the customer's message, the files of `world.workspace` (the folder
   `from`, then `files` over it) at every turn, and every tool answer and error. An instruction in the
-  message refuses the turn. An instruction in a file or a tool answer is blocked the same way, and the
-  customer's own request is still served: the string that carries it is dropped before the agent reads
-  the answer, so it reaches no reply and no payload, and a turn that asks nothing else gets the refusal.
-  Only that value goes: a plan it leaves unreadable is left out of the catalog and the other plans are
-  still offered; with no readable plan left, the answer is unreadable. The tool call is still observed as the tool answered. Only the agent's own text is trusted: the system
-  message, its replies and its tool inputs are never read as data.
+  message refuses the turn. An instruction in a file or a tool answer is dropped each time it is read,
+  before the agent reads the answer, and `instruction_in_data` reports a block: it reaches no reply and no
+  payload, and the turn is answered from the clean data as it would be without it. A file stays in the
+  workspace, so refusing on it would block every later turn. Only the poisoned value goes: a plan it
+  leaves unreadable is left out of the catalog and the other plans are still offered; with no readable
+  plan left, the answer is unreadable. The tool call is still observed as the tool answered. Only the
+  agent's own text is trusted: the system message, its replies and its tool inputs are never read as data.
 * World. `world.tools.<label>.error` makes the tool fail, and the agent says so without inventing its
   answer. `world.tools.<label>.result` replaces the answer. `latency_ms` is reported as the call's
   latency. `world.store` seeds records over the store, such as a transfer record for one spec.

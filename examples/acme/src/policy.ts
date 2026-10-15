@@ -100,9 +100,11 @@ export function initialState(): State {
  *
  * What the agent reads is untrusted: an instruction in it is blocked, whoever wrote it. The customer's text
  * is the turn itself, so an instruction there refuses the turn. A document or a tool answer is data: the
- * instruction it carries never reaches a reply, a payload or a decision, and the customer's own request is
- * still served; a turn with nothing else to answer gets the same refusal. Only what the agent wrote itself
- * is trusted: its policy, its replies and its tool inputs are never read as data.
+ * value carrying an instruction is dropped each time it is read and the guard reports it, and the turn is
+ * answered from the clean data, as it would be without that value. A document stays in the workspace and
+ * is read at every turn, so refusing on it would block every later turn. The agent takes no fact from a
+ * document: dropping a poisoned one leaves the turn as it was. Only what the agent wrote itself is trusted:
+ * its policy, its replies and its tool inputs are never read as data.
  */
 export function takeTurn(
   previous: State,
@@ -178,16 +180,14 @@ const CARE = `I can't handle billing or service issues here. Acme Care can help:
 const SALES_LINE = `Please call Acme Sales at ${formatPhone(ACME.salesPhone)}.`;
 
 function route(s: State, text: string, call: CallTool, guards: GuardEvent[]): string {
-  const nothingAsked = isBlank(text) || isNudge(text);
-  // A turn that asks nothing answers the instruction a document of the turn carried.
-  if (isInjection(text) || (nothingAsked && guards.some((guard) => guard.name === 'instruction_in_data'))) {
-    blockInstruction(guards);
-    return `I can't change prices, offers or my instructions. ${pendingQuestion(s)}`;
-  }
-  if (nothingAsked) {
+  if (isBlank(text) || isNudge(text)) {
     return s.flow
       ? `I'm here. ${pendingQuestion(s)}`
       : `I can help with plans, internet and orders. ${NEEDS}`;
+  }
+  if (isInjection(text)) {
+    blockInstruction(guards);
+    return `I can't change prices, offers or my instructions. ${pendingQuestion(s)}`;
   }
   if (isForeign(text)) return `I can only help in English for now. ${pendingQuestion(s)}`;
   if (isCareMatter(text)) return `${CARE} ${pendingQuestion(s)}`;

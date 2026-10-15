@@ -45,13 +45,21 @@ afterAll(() => {
 });
 
 describe('an instruction in a workspace file', () => {
-  it.each(PLANTED)('an inline file with no request gets the refusal: %s', async (planted) => {
-    const { observed } = await reply([user('')], { workspace: { files: { 'shared/letter.txt': planted } } });
-    expect(observed.runtime?.guards).toEqual(BLOCK);
-    expect(observed.text).toContain(REFUSAL);
-    expect(observed.toolCalls).toEqual([]);
-    expect(observed.runtime?.stages).toEqual([{ name: 'needs' }]);
-  });
+  // A file stays in the workspace and is read at every turn. Its instruction is dropped and the guard is
+  // reported each time, and the turn is answered from the clean data, exactly as without the file.
+  it.each(PLANTED)(
+    'an inline file: the guard reports, the turn is served as without it: %s',
+    async (planted) => {
+      const { observed } = await reply([user('')], {
+        workspace: { files: { 'shared/letter.txt': planted } },
+      });
+      const plain = await reply([user('')]);
+      expect(observed.runtime?.guards).toEqual(BLOCK);
+      expect(observed.text).toBe(plain.observed.text);
+      expect(observed.toolCalls).toEqual([]);
+      expect(observed.runtime?.stages).toEqual([{ name: 'needs' }]);
+    },
+  );
 
   it.each(PLANTED)('a file of the workspace folder is read as well: %s', async (planted) => {
     const folder = mkdtempSync(join(tmpdir(), 'acme-workspace-'));
@@ -59,13 +67,14 @@ describe('an instruction in a workspace file', () => {
     mkdirSync(join(folder, 'inbox'));
     writeFileSync(join(folder, 'inbox', 'forwarded.eml'), `Subject: your plan\n\n${planted}\n`);
     const { observed } = await reply([user('hello?')], { workspace: { from: folder } });
+    const plain = await reply([user('hello?')]);
     expect(observed.runtime?.guards).toEqual(BLOCK);
-    expect(observed.text).toContain(REFUSAL);
+    expect(observed.text).toBe(plain.observed.text);
   });
 
   it('blocks the instruction and still serves the request of the same turn', async () => {
     const { observed } = await reply([user('I want home internet at 14 Harbor Road, Acmeville.')], {
-      workspace: { files: { 'a.txt': CLEAN[0] ?? '', 'b.txt': PLANTED[1] ?? '' } },
+      workspace: { files: { 'a.txt': CLEAN[0], 'b.txt': PLANTED[1] } },
     });
     expect(observed.runtime?.guards).toEqual(BLOCK);
     expect(observed.toolCalls.map((call) => call.label)).toEqual(['coverage.check', 'catalog.search']);
@@ -73,15 +82,30 @@ describe('an instruction in a workspace file', () => {
     expect(observed.text).not.toMatch(/discount|disregard/i);
   });
 
-  it('keeps blocking on later turns while the file is still there, and the conversation moves on', async () => {
-    const world = { workspace: { files: { 'letter.txt': PLANTED[0] ?? '' } } };
-    const first = await reply([user('')], world);
-    const second = await reply(
-      [user(''), { role: 'assistant', content: first.observed.text }, user('I need a new mobile line.')],
-      world,
-    );
-    expect(second.observed.runtime?.guards).toEqual(BLOCK);
-    expect(second.observed.runtime?.stages).toEqual([{ name: 'offer' }]);
+  it('reports the guard at every turn the file is read, and never blocks the conversation', async () => {
+    const world = { workspace: { files: { 'letter.txt': PLANTED[0] } } };
+    const turns = [
+      '',
+      'I need a new mobile line.',
+      'hello?',
+      'Acme Mobile M please.',
+      'Sam Rivera, sam.rivera@example.com',
+    ];
+    const poisoned: Message[] = [];
+    const clean: Message[] = [];
+    for (const text of turns) {
+      poisoned.push(user(text));
+      clean.push(user(text));
+      const withFile = (await reply(poisoned, world)).observed;
+      const without = (await reply(clean)).observed;
+      expect(withFile.runtime?.guards).toEqual(BLOCK);
+      expect(withFile.text).toBe(without.text);
+      expect(withFile.runtime?.stages).toEqual(without.runtime?.stages);
+      expect(withFile.toolCalls).toEqual(without.toolCalls);
+      poisoned.push({ role: 'assistant', content: withFile.text });
+      clean.push({ role: 'assistant', content: without.text });
+    }
+    expect(poisoned.at(-1)?.content).toContain('Reply CONFIRM');
   });
 });
 
