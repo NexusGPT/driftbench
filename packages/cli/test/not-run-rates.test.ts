@@ -1,6 +1,7 @@
 import type { RunResult } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { rankOutcome } from '../src/commands/compare-rank';
+import { decayOf, type SessionEvidence } from '../src/commands/estate-stats';
 import { metricOf, standardErrorOf } from '../src/commands/monitor';
 import { passingAndFailing } from '../src/view/server';
 
@@ -62,5 +63,20 @@ describe('rates over runs leave out the runs neither passed nor failed', () => {
 
   it('the viewer index: passing and failing leave the not-run runs out of both columns', () => {
     expect(passingAndFailing(runs)).toEqual({ passing: 1, failing: 1 });
+  });
+
+  it('estate stats decay: a session whose block was only not run leaves that block out', () => {
+    const session = (blocks: number, passed: number[], unscored: number[]) =>
+      ({
+        entry: { session: { blocks: Array.from({ length: blocks }, () => ({})) } },
+        passedBlocks: new Set(passed),
+        unscoredBlocks: new Set(unscored),
+        followed: new Set<string>(),
+      }) as unknown as SessionEvidence;
+    // Block 1: one session passed, one was only not run there: 1 of 1, not 1 of 2.
+    expect(decayOf([session(2, [0, 1], []), session(2, [0], [1])])).toEqual([
+      { block: 0, runs: 2, passRate: 1 },
+      { block: 1, runs: 1, passRate: 1 },
+    ]);
   });
 });

@@ -9,6 +9,7 @@ import {
   planCampaign,
   type RunResult,
   runCampaign,
+  runOutcome,
   type Store,
   type TargetRef,
   type UserDriver,
@@ -204,12 +205,17 @@ export type PilotObservation = PilotFactors & {
   model?: Record<string, unknown>;
 };
 
-/** The observation of a stored run, or undefined when its spec carries no pilot factors. */
+/**
+ * The observation of a stored run, or undefined when its spec carries no pilot factors, or when the run is no
+ * measurement: a block not run or blocked and no failure.
+ */
 export function observationOf(
   run: RunResult,
   factors: PilotFactors | undefined,
 ): PilotObservation | undefined {
   if (!factors) return undefined;
+  const outcome = runOutcome(run);
+  if (outcome === 'not_run' || outcome === 'blocked') return undefined;
   const pass =
     run.status === 'completed' &&
     run.blocks.length > 0 &&

@@ -5,7 +5,7 @@ import { compareCampaigns } from '../src/compare';
 import { blockScore, runPassed, scoredRuns } from '../src/data';
 import { renderHtml, renderRun } from '../src/html';
 import { renderJunit } from '../src/junit';
-import { reliability } from '../src/reliability';
+import { reliability, successionOf } from '../src/reliability';
 import { buildScorecard } from '../src/scorecard';
 import { dataOf, run } from './support';
 
@@ -133,5 +133,16 @@ describe('a run with a block not run is neither a pass nor a fail', () => {
       '<p class="n">1<small>of 1</small></p><a class="l" href="#drilldown">Runs passing</a><p class="s">100.0% · 0 failed · 1 not run · 1 blocked · 0 did not complete</p>',
     );
     expect(html).toContain('1 of 1 blocks pass, 2 not run or blocked');
+  });
+
+  it('the drift rate counts the scored blocks only', () => {
+    // Block 0 drifts, block 1 was not run: one of one scored block drifts.
+    const base = run({ specId: 'g-drift', blocks: [{ pass: false }, {}] });
+    const mixed = notRunAt('g-drift', 1);
+    const drifting = {
+      ...mixed,
+      blocks: [base.blocks[0] as RunResult['blocks'][number], mixed.blocks[1] as RunResult['blocks'][number]],
+    };
+    expect(successionOf([drifting]).driftRate?.estimate).toBe(1);
   });
 });

@@ -274,6 +274,8 @@ export function successionOf(runs: readonly RunResult[]): SuccessionSummary {
   const first = new Map<number | 'none', number>();
   runs.forEach((run, index) => {
     for (const block of run.blocks) {
+      // A block not run or blocked has no verdict, so no drift: it is left out of the rate.
+      if (!isScored(block)) continue;
       driftValues.push(block.drift.length > 0 ? 1 : 0);
       driftClusters.push(index);
       for (const cls of block.drift) classes[cls] = (classes[cls] ?? 0) + 1;
