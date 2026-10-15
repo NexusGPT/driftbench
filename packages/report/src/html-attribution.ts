@@ -1,4 +1,4 @@
-import type { AttributionSummary, ReportDiagnosis } from './attribution';
+import { type AttributionSummary, assignedRunCounts, type ReportDiagnosis } from './attribution';
 import type { Rate } from './estimate';
 import { esc, interval, pct } from './format';
 
@@ -11,7 +11,7 @@ function span(value: Rate | undefined): string {
   return value === undefined ? 'no run' : interval(value, pct);
 }
 
-function stat(value: Rate | undefined, label: string, note: string): string {
+function stat(value: Pick<Rate, 'k' | 'n'> | undefined, label: string, note: string): string {
   const n = value === undefined ? '0' : String(value.k);
   const of = value === undefined ? '0' : String(value.n);
   return `<div class="stat"><p class="n">${n}<small>of ${of}</small></p><span class="l">${esc(label)}</span><p class="s">${esc(note)}</p></div>`;
@@ -27,6 +27,8 @@ export function nonDefaultBadge(nonDefault: readonly string[]): string {
 export function attributionZone(summary: AttributionSummary | undefined): string {
   if (summary === undefined) return '';
   const b = summary.blocks;
+  const agentNote =
+    assignedRunCounts(summary) + ('estimate' in summary.agent ? ` · ${span(summary.agent)}` : '');
   const fixes = summary.fixes.map(
     (fix, index) =>
       `<tr><td class="num">${index + 1}</td><td class="mono">${esc(fix.fixLocation)}</td><td class="mono">${esc(fix.fixTarget ?? '')}</td><td>${esc(fix.fixAction)}</td><td class="num">${fix.blocks}</td><td class="num">${fix.agentBlocks}</td><td>${esc(fix.supersededBy === undefined ? (fix.removeCopies ?? []).join('; ') : `remove: replaced by ${fix.supersededBy}`)}</td><td>${esc(fix.confidence ?? '')}</td></tr>`,
@@ -46,7 +48,7 @@ ${fixes.join('\n')}
 ${nonDefaultBadge(summary.nonDefault)}
 <div class="stat-row">
 ${stat(summary.machine, 'Machine pass rate', `all completed runs · ${span(summary.machine)}`)}
-${stat(summary.agent, 'Agent-attributed pass rate', `setup, excluded and credited failures set aside · ${span(summary.agent)}`)}
+${stat(summary.agent, 'Agent-attributed pass rate', `${agentNote} · setup, excluded and credited failures set aside`)}
 <div class="stat"><p class="n">${summary.unassigned}<small>${summary.unassigned === 1 ? 'run' : 'runs'}</small></p><span class="l">Unassigned, shown apart</span><p class="s">excluded from the agent-attributed rate; included among all completed runs in the machine rate</p></div>
 </div>
 <p class="note">Failing blocks: ${b.failing}. The agent's ${b.agent}, setup ${b.setup}, excluded ${b.excluded}, credited ${b.credited}, unassigned ${b.unassigned}.</p>

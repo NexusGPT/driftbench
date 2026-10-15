@@ -29,6 +29,44 @@ function summary(...runs: RunResult[]) {
 }
 
 describe('PR 454 review regressions', () => {
+  it.each([
+    { passed: 2, failed: 1, unassigned: 2, showRate: false },
+    { passed: 2, failed: 1, unassigned: 1, showRate: true },
+    { passed: 2, failed: 2, unassigned: 1, showRate: true },
+    { passed: 2, failed: 0, unassigned: 0, showRate: true },
+    { passed: 0, failed: 0, unassigned: 1, showRate: false },
+    { passed: 0, failed: 0, unassigned: 0, showRate: false },
+  ])(
+    'uses assigned failed runs as the suppression threshold: $passed/$failed/$unassigned',
+    ({ passed, failed, unassigned, showRate }) => {
+      const result = summary(
+        ...Array.from({ length: passed }, () => run([block([])])),
+        // Multiple failing blocks still represent only one assigned failed run.
+        ...Array.from({ length: failed }, () =>
+          run([
+            block(['a'], [{ verdictRef: 'a', disposition: 'agent' }]),
+            block(['b'], [{ verdictRef: 'b', disposition: 'agent' }]),
+            block(['c'], [{ verdictRef: 'c', disposition: 'shared' }]),
+          ]),
+        ),
+        ...Array.from({ length: unassigned }, () => run([block(['unknown'])])),
+      );
+      const counts = `${passed} of ${passed + failed} assigned runs; ${unassigned} unassigned`;
+      const json = JSON.parse(JSON.stringify(result));
+      expect(json.agent).toMatchObject({ k: passed, n: passed + failed });
+      const agentHtml = attributionZone(result)
+        .split('<div class="stat">')
+        .find((part) => part.includes('Agent-attributed pass rate'));
+      const agentText = attributionText(result)[0]?.split('Agent-attributed pass rate: ')[1];
+      for (const rendered of [agentHtml, agentText]) {
+        expect(rendered).toContain(counts);
+        expect(rendered?.includes('%')).toBe(showRate);
+      }
+      if (showRate) expect(json.agent.estimate).toBe(passed / (passed + failed));
+      else expect(json.agent).toEqual({ k: passed, n: passed + failed });
+    },
+  );
+
   it.each(['setup', 'credited', 'excluded'])(
     'keeps independent end failures unassigned after %s credit',
     (disposition) => {
@@ -36,7 +74,7 @@ describe('PR 454 review regressions', () => {
       for (const extra of [{ endState: { match: false } }, { endVerdict: 'failure' }]) {
         const result = summary(run(blocks, extra as Partial<RunResult>));
         expect(result?.machine).toMatchObject({ k: 0, n: 1 });
-        expect(result?.agent).toBeUndefined();
+        expect(result?.agent).toEqual({ k: 0, n: 0 });
         expect(result?.unassigned).toBe(1);
       }
       expect(summary(run(blocks))?.agent).toMatchObject({ k: 1, n: 1 });
@@ -91,7 +129,8 @@ describe('PR 454 review regressions', () => {
       expect(nonDefaultOf(run([a, b, a]))).toEqual(expected);
       expect(summary(run([a]), run([b]), run([a]))?.nonDefault).toEqual(expected);
       expect(
-        attributionOf({ runs: [run([b])] } as unknown as CampaignData, { fixes: [], objects: [first] })?.nonDefault,
+        attributionOf({ runs: [run([b])] } as unknown as CampaignData, { fixes: [], objects: [first] })
+          ?.nonDefault,
       ).toEqual(expected);
     },
   );

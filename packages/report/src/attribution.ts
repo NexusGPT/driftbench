@@ -56,8 +56,11 @@ export type BlockOutcome = 'pass' | 'fail' | 'unassigned';
 export type AttributionSummary = {
   /** Runs passing their machine checks, over every completed run. Undefined with no completed run. */
   machine: Rate | undefined;
-  /** Runs passing once setup, excluded and credited failures are set aside, over the runs a rule decided. */
-  agent: Rate | undefined;
+  /**
+   * Assigned passing/total runs. Counts always remain, including zero assigned runs.
+   * The estimate and interval are omitted when unassigned runs outnumber assigned failed runs.
+   */
+  agent: Rate | Pick<Rate, 'k' | 'n'>;
   /** Runs left out of the agent-attributed rate: a failure no rule attributed, and none of the agent's. */
   unassigned: number;
   /** Failing blocks by disposition of their root diagnoses, the first that counts against the agent winning. */
@@ -202,7 +205,10 @@ export function attributionOf(
   }
   return {
     machine: rate(runs.filter(runPassed).length, runs.length),
-    agent: rate(agentPass, decided),
+    agent:
+      unassigned > decided - agentPass
+        ? { k: agentPass, n: decided }
+        : (rate(agentPass, decided) ?? { k: agentPass, n: decided }),
     unassigned,
     blocks,
     fixes: [...(options.fixes ?? [])],
@@ -211,4 +217,9 @@ export function attributionOf(
       .map(showObject)
       .sort(),
   };
+}
+
+/** The denominator is explicit beside every agent-attributed score, including counts-only scores. */
+export function assignedRunCounts(summary: AttributionSummary): string {
+  return `${summary.agent.k} of ${summary.agent.n} assigned runs; ${summary.unassigned} unassigned`;
 }

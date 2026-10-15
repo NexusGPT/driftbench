@@ -92,6 +92,36 @@ function attribution(data: CampaignData): AttributionOptions {
 }
 
 describe('the two scores on the Acme x3 campaign', () => {
+  it.each(['HTML', 'text', 'JSON'])(
+    'shows Acme 20 of 20 assigned runs and 26 unassigned without an agent percentage in %s',
+    (format) => {
+      // The audit reproduction has a fix list but no assigned failure diagnoses.
+      const card = buildScorecard(fault, { attribution: { fixes: [] } });
+      const summary = card.attribution;
+      expect(summary?.agent).toMatchObject({ k: 20, n: 20 });
+      expect(summary?.unassigned).toBe(26);
+      expect(summary?.blocks.agent).toBe(0);
+      expect(summary?.machine).toMatchObject({ k: 20, n: 46, estimate: 20 / 46 });
+      const html = attributionZone(summary);
+      const agentHtml = html
+        .split('<div class="stat">')
+        .find((part) => part.includes('Agent-attributed pass rate'));
+      if (format === 'HTML') {
+        expect(agentHtml).toContain('20 of 20 assigned runs; 26 unassigned');
+        expect(agentHtml).not.toContain('%');
+      }
+      const agentText = attributionText(summary)[0]?.split('Agent-attributed pass rate: ')[1];
+      if (format === 'text') {
+        expect(agentText).toContain('20 of 20 assigned runs; 26 unassigned');
+        expect(agentText).not.toContain('%');
+      }
+      const json = JSON.parse(JSON.stringify(card)).attribution;
+      if (format === 'JSON') expect(json.agent).toEqual({ k: 20, n: 20 });
+      expect(json.unassigned).toBe(26);
+      expect(json.machine.estimate).toBe(summary?.machine?.estimate);
+    },
+  );
+
   it('keeps the machine pass rate of the scorecard, and adds the agent-attributed one', () => {
     const plain = buildScorecard(fault);
     const card = buildScorecard(fault, { attribution: attribution(fault) });

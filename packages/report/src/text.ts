@@ -1,4 +1,4 @@
-import type { AttributionSummary } from './attribution';
+import { type AttributionSummary, assignedRunCounts } from './attribution';
 import { type CompareResult, PLANNING_MARGIN, PLANNING_POWER } from './compare';
 import type { Rate } from './estimate';
 import { carriedLines, count, fixed, interval, pct, points, pValue } from './format';
@@ -134,8 +134,10 @@ function rateText(value: Rate | undefined): string {
 export function attributionText(summary: AttributionSummary | undefined): string[] {
   if (summary === undefined) return [];
   const b = summary.blocks;
+  const agent =
+    ('estimate' in summary.agent ? `${pct(summary.agent.estimate)}; ` : '') + assignedRunCounts(summary);
   const lines = [
-    `Machine pass rate: ${rateText(summary.machine)} (all completed runs). Agent-attributed pass rate: ${rateText(summary.agent)}; ${count(summary.unassigned, 'run')} unassigned, shown apart and excluded from the agent-attributed rate.`,
+    `Machine pass rate: ${rateText(summary.machine)} (all completed runs). Agent-attributed pass rate: ${agent}. Unassigned runs are excluded from the agent-attributed rate.`,
     `Failing blocks: ${b.failing}; the agent's ${b.agent}, setup ${b.setup}, excluded ${b.excluded}, credited ${b.credited}, unassigned ${b.unassigned}.`,
   ];
   if (summary.nonDefault.length > 0) lines.push(`Non-default rules: ${summary.nonDefault.join(', ')}.`);

@@ -78,9 +78,15 @@ folded into a score. `confidence` is `static` until a confirm run decides. `flag
 
 The scorecard (`buildScorecard(data, { attribution })` of the report package) then opens a zone named "Two
 scores": the machine pass rate, unchanged and final; the agent-attributed pass rate, over the runs a rule
-decided; the unassigned runs, counted apart and in neither rate; the failing blocks by disposition; and the
-ranked fix list. A run page lists each block's diagnoses under its verdicts. A page scored with a rule file
+decided; the unassigned runs, excluded only from the agent-attributed rate; the failing blocks by disposition;
+and the ranked fix list. A run page lists each block's diagnoses under its verdicts. A page scored with a rule file
 that is not a shipped default carries a `non-default` badge naming it.
+
+The agent-attributed score always names its denominator: for example, `20 of 20 assigned runs; 26
+unassigned`. When unassigned runs outnumber assigned failed runs, HTML and text show counts without any
+percentage or interval. JSON keeps the assigned counts (`agent.k`, `agent.n`) and `unassigned`, and omits
+the agent estimate and interval fields. With no assigned runs the counts are 0 of 0. The machine rate still
+includes every completed run.
 
 ## Worked example
 
