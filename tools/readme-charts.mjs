@@ -24,6 +24,7 @@ const PRINT = process.argv.includes('--print')
   : undefined;
 
 const SOURCES = {
+  readmeV7: 'comparisons/default-on/readme-v7/ANALYSIS.json',
   promptfoo: 'comparisons/promptfoo/hard/recorded/summary.json',
   deepeval: 'comparisons/deepeval/hard/baseline-heldout-scores.json',
   deepevalReceipts: 'comparisons/deepeval/hard/baseline-task-receipts-heldout-scores.json',
@@ -97,12 +98,13 @@ function judgeRows(chart = 'judge-heldout') {
         : oursCi[1] < theirsCi[0]
           ? 'deficit'
           : 'close';
-    fact(
-      chart,
-      `${label}: driftbench ${ours} of ${n}, other ${theirs} of ${n}, ${standing}`,
-      [ours, theirs, n],
-      source,
-    );
+    if (chart)
+      fact(
+        chart,
+        `${label}: driftbench ${ours} of ${n}, other ${theirs} of ${n}, ${standing}`,
+        [ours, theirs, n],
+        source,
+      );
     return {
       label,
       n,
@@ -116,113 +118,57 @@ function judgeRows(chart = 'judge-heldout') {
     };
   };
 
-  const deepeval = json(SOURCES.deepeval);
-  const receipts = json(SOURCES.deepevalReceipts);
-  const fresh = json(SOURCES.deepevalFresh);
-  const names = {
-    'turn relevancy': 'Turn relevancy',
-    'G-Eval strict': 'G-Eval, strict',
-    DAG: 'DAG, one node',
-    'role adherence': 'Role adherence',
-    'conversation completeness': 'Completeness',
-    'task completion': 'Task completion',
-    hallucination: 'Hallucination',
-    faithfulness: 'Faithfulness',
-    'knowledge retention': 'Knowledge retention',
-  };
-  groups.push({
-    // Row sizes differ (72, or the fresh set for a renewed row): each chart states them in its note.
-    header: 'DeepEval 4.2.8, default metrics',
-    rows: deepeval.map((entry) => {
-      const renewed = fresh.find((r) => r.row === entry.row);
-      const used =
-        renewed ?? (entry.row === 'task completion' ? receipts.find((r) => r.row === entry.row) : entry);
-      const source = renewed
-        ? SOURCES.deepevalFresh
-        : entry.row === 'task completion'
-          ? SOURCES.deepevalReceipts
-          : SOURCES.deepeval;
-      const setting = renewed && renewed.setting !== 'default' ? renewed.setting : undefined;
-      return row(
-        names[entry.row],
-        used.n,
-        used.ours,
-        used.theirs,
-        source,
-        { ours: used.ours_ci, theirs: used.theirs_ci },
-        setting,
-        renewed
-          ? { raw: renewed.paired_p, adjusted: renewed.paired_p_holm, missing: renewed.excluded_missing ?? 0 }
-          : undefined,
-      );
-    }),
-  });
-
-  const promptfoo = json(SOURCES.promptfoo);
-  const pick = (list, name) =>
-    list.find((r) => r.set === 'heldout' && r.side === 'shipped' && r.row === name);
-  groups.push({
-    header: 'promptfoo, default graders, 72 cases each',
-    rows: [
-      ['LLM rubric', pick(promptfoo.rows, 'rubric')],
-      ['Factuality', pick(promptfoo.rows, 'factuality')],
-      ['Personal data', pick(promptfoo.rows, 'pii')],
-      ['Goal success', pick(promptfoo.ablations, 'goal-equal-evidence')],
-    ].map(([label, r]) =>
-      row(label, r.n, r.ours, r.theirs, SOURCES.promptfoo, { ours: r.ours_ci, theirs: r.theirs_ci }),
-    ),
-  });
-
-  const ours = json(SOURCES.langfuseOurs).summary['heldout-cases.json'];
-  const theirs = json(SOURCES.langfuseTheirs).variants.theirs;
-  groups.push({
-    header: 'Langfuse, Correctness template, 120 cases',
-    rows: [
-      row(
-        'Reference correctness',
-        ours.total,
-        ours.correct,
-        theirs.at_half_correct,
-        `${SOURCES.langfuseOurs} and ${SOURCES.langfuseTheirs}`,
-        { ours: ours.ci95 },
-      ),
-    ],
-  });
-
-  const inspect = json(SOURCES.inspect);
-  const inspectNames = {
-    qa: 'Model-graded QA',
-    fact: 'Model-graded fact',
-    panel: 'Grader panel',
-    borderline: 'Panel, borderline',
-  };
-  groups.push({
-    header: 'Inspect 0.3.278, default graders, 60 cases each',
-    rows: inspect.rows
-      .filter((r) => inspectNames[r.row])
-      .map((r) => {
-        const held = r.records.heldout;
-        return row(
-          inspectNames[r.row],
-          held.ours.items,
-          held.ours.right,
-          held.theirs.right,
-          SOURCES.inspect,
-          {
-            ours: [held.ours.ci95.lower, held.ours.ci95.upper],
-            theirs: [held.theirs.ci95.lower, held.theirs.ci95.upper],
-          },
-        );
-      }),
-  });
+  const analysis = json(SOURCES.readmeV7);
+  const preregistration = json('comparisons/default-on/readme-v7/PREREGISTRATION.json');
+  const freeze = preregistration.amendments.at(-1).runFreeze;
+  if (analysis.frozen !== freeze || analysis.rows.length !== preregistration.rows.length)
+    throw new Error(`${SOURCES.readmeV7}: run freeze or row population differs from preregistration`);
+  const definitions = [
+    ['DeepEval 4.2.8, default metrics', 'deepeval'],
+    ['promptfoo, default graders, 72 cases each', 'promptfoo-langfuse'],
+    ['Langfuse, Correctness template, 120 cases', 'langfuse'],
+    ['Inspect 0.3.278, default graders, 60 cases each', 'inspect'],
+  ];
+  for (const [header, lane] of definitions) {
+    groups.push({
+      header,
+      rows: analysis.rows
+        .filter((r) =>
+          lane === 'langfuse'
+            ? r.row === 'Reference correctness'
+            : r.lane === lane && r.row !== 'Reference correctness',
+        )
+        .map((r) => {
+          const registered = preregistration.rows.find((p) => p.row === r.row);
+          if (!registered || r.n !== registered.n || r.peer !== registered.recordedPeer)
+            throw new Error(`${SOURCES.readmeV7}: ${r.row} differs from preregistered population`);
+          const built = row(
+            r.row === 'G-Eval strict' ? 'G-Eval, strict' : r.row,
+            r.n,
+            r.v7,
+            r.peer,
+            SOURCES.readmeV7,
+            { ours: r.v7Ci, theirs: r.peerCi },
+            r.setting,
+            r.pairedHolmP === undefined
+              ? undefined
+              : { raw: r.pairedP, adjusted: r.pairedHolmP, missing: r.n - r.pairedN },
+          );
+          if (built.standing !== r.standing)
+            throw new Error(`${SOURCES.readmeV7}: ${r.row} standing differs from the README rule`);
+          return built;
+        }),
+    });
+  }
 
   for (const group of groups)
     group.rows.sort((a, b) => b.ours / b.n - b.theirs / b.n - (a.ours / a.n - a.theirs / a.n));
   return groups;
 }
 
-function costRows() {
+function costRows(record = true) {
   const rows = [];
+  const v7 = json(SOURCES.readmeV7).rows;
   const inspect = json(SOURCES.inspect);
   const labels = {
     qa: 'Inspect, model-graded QA',
@@ -235,22 +181,36 @@ function costRows() {
     const held = r.records.heldout;
     rows.push({
       label: labels[r.row],
-      ours: (held.ours.costUsd / held.ours.items) * 100,
+      ours: v7.find(
+        (entry) =>
+          entry.row ===
+          {
+            qa: 'Model-graded QA',
+            fact: 'Model-graded fact',
+            panel: 'Grader panel',
+            borderline: 'Panel, borderline',
+          }[r.row],
+      ).v7UsdPer100,
       theirs: (held.theirs.costUsd / held.theirs.items) * 100,
-      source: SOURCES.inspect,
+      source: `${SOURCES.readmeV7} and ${SOURCES.inspect}`,
     });
   }
-  const ours = json(SOURCES.langfuseOurs).summary['heldout-cases.json'];
   const theirs = json(SOURCES.langfuseTheirs).variants.theirs;
   rows.push({
     label: 'Langfuse, Correctness template',
-    ours: ours.usd_per_100,
+    ours: v7.find((r) => r.row === 'Reference correctness').v7UsdPer100,
     theirs: (theirs.evaluation_cost_usd / theirs.total) * 100,
-    source: `${SOURCES.langfuseOurs} and ${SOURCES.langfuseTheirs}`,
+    source: `${SOURCES.readmeV7} and ${SOURCES.langfuseTheirs}`,
   });
   rows.sort((a, b) => a.ours / a.theirs - b.ours / b.theirs);
   for (const r of rows)
-    fact('judge-cost', `${r.label}: USD per 100 cases, driftbench then other`, [r.ours, r.theirs], r.source);
+    if (record)
+      fact(
+        'judge-cost',
+        `${r.label}: USD per 100 cases, driftbench then other`,
+        [r.ours, r.theirs],
+        r.source,
+      );
   return rows;
 }
 
@@ -395,7 +355,7 @@ function judgeData(leadsOnly) {
     title: leadsOnly
       ? `Cases correct of ${all[0].n}, driftbench against DeepEval's default.`
       : `${total} judge tests, cases correct.`,
-    key: ['driftbench, shipped judge', "the other tool's default"],
+    key: ['driftbench default-on-v7', "the other tool's default"],
     min: 0,
     max: 100,
     ticks: [0, 25, 50, 75, 100],
@@ -414,7 +374,7 @@ function costData() {
     kind: 'pairs',
     kicker: 'Judge cost · US dollars per 100 cases · Claude Haiku 5.5',
     title: 'Cost per 100 judged cases.',
-    key: ['driftbench, shipped judge', "the other tool's default"],
+    key: ['driftbench default-on-v7', "the other tool's default"],
     min: 0,
     max: 0.15,
     ticks: [0, 0.05, 0.1, 0.15],
@@ -432,7 +392,7 @@ function costData() {
         })),
       },
     ],
-    note: '60 to 120 cases per row · recorded spend',
+    note: '60 to 120 cases per row · v7: Messages API; peers: recorded spend',
   };
 }
 
@@ -964,7 +924,7 @@ function hardPerTool(tool) {
       kind: 'hbars',
       kicker,
       title: `${name}: ${r.ours} of ${r.n} correct, against ${r.theirs}.`,
-      key: ['driftbench, shipped judge', `${name} default`],
+      key: ['driftbench default-on-v7', `${name} default`],
       min: 0,
       max: 100,
       ticks: [0, 25, 50, 75, 100],
@@ -998,7 +958,7 @@ function hardPerTool(tool) {
   return columns(`hard-${tool}`, {
     kicker: `${kicker} · bars labelled with cases correct`,
     title,
-    key: [settings.length ? 'driftbench' : 'driftbench, shipped judge', `${name} default`],
+    key: [settings.length ? 'driftbench' : 'driftbench default-on-v7', `${name} default`],
     groups,
     note: [
       group.rows.some((r) => r.paired)
@@ -1145,12 +1105,13 @@ function bestCase({ chart, bench, name, unit, kicker }) {
       ...(b.ours ? { ours: true } : {}),
       ...(refused > 0 ? { refused } : {}),
     });
-    fact(
-      chart,
-      `${label}, percent${refused > 0 ? ', refused items counted wrong' : ''}`,
-      out.score === null ? 'not run' : refused > 0 ? [out.score, refused] : out.score,
-      b.ours && frozen ? frozen.source : path,
-    );
+    if (chart)
+      fact(
+        chart,
+        `${label}, percent${refused > 0 ? ', refused items counted wrong' : ''}`,
+        out.score === null ? 'not run' : refused > 0 ? [out.score, refused] : out.score,
+        b.ours && frozen ? frozen.source : path,
+      );
     return out;
   });
   const n = row(PROMPTFOO)[cohort].n;
@@ -1167,12 +1128,13 @@ function bestCase({ chart, bench, name, unit, kicker }) {
     readerFirstDefault = plain.score * 100;
     const longer = json(`${SEALED}/writing.json`).cells.find((c) => c.contestant === 'longer-wins');
     longerReply = longer.accuracy;
-    fact(
-      chart,
-      'driftbench default, reader-first setting, rule that picks the longer reply, percent',
-      [round(plain.score * 100), round(ours[cohort].score * 100), round(longer.accuracy)],
-      `${path}, ${SEALED}/writing.json`,
-    );
+    if (chart)
+      fact(
+        chart,
+        'driftbench default, reader-first setting, rule that picks the longer reply, percent',
+        [round(plain.score * 100), round(ours[cohort].score * 100), round(longer.accuracy)],
+        `${path}, ${SEALED}/writing.json`,
+      );
     const same = Math.abs(ours[cohort].score * 100 - longer.accuracy) < 0.005;
     note += ` The driftbench bar uses its opt-in reader-first setting (default ${p1(plain.score * 100)}).${same ? ` It scores the same as a rule that always picks the longer reply, ${p1(longer.accuracy)}.` : ''}`;
   }
@@ -1606,6 +1568,55 @@ function readmeTable() {
   return `| Benchmark | ${names.join(' | ')} |\n|---|${names.map(() => '---:').join('|')}|\n${rows.join('\n')}\n\n${footnote}`;
 }
 
+function readmeV7() {
+  const analysis = json(SOURCES.readmeV7);
+  const returned = [...new Map(analysis.rows.map((r) => [r.dataset, r.returned])).values()].reduce(
+    (sum, n) => sum + n,
+    0,
+  );
+  const panel = analysis.rows.find((r) => r.row === 'Grader panel');
+  const missing = analysis.rows
+    .filter((r) => r.n !== r.verdicts)
+    .map((r) => `${r.row}: ${r.n - r.verdicts}`)
+    .join('; ');
+  const image = (name, alt) => `<a href=".github/readme/${name}-light.png">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/${name}-dark.png">
+    <img alt="${alt}" src=".github/readme/${name}-light.png" width="100%">
+  </picture>
+</a>
+<p align="center"><sub><a href="docs/comparison/methods.md#the-judge-on-hard-cases">How we measured</a></sub></p>`;
+  const groups = judgeRows(null);
+  const alt = (rows) =>
+    rows.map((r) => `${r.label}: ${r.ours} against ${r.theirs} of ${r.n}, ${r.standing}.`).join(' ');
+  const leads = groups.flatMap((g) => g.rows).filter((r) => r.standing === 'lead' && !r.setting);
+  const rows = analysis.rows.map(
+    (r) =>
+      `| ${r.row}${r.setting ? ' *' : ''} | ${r.n.toLocaleString('en-US')} | ${r.v7.toLocaleString('en-US')} | ${r.peer.toLocaleString('en-US')} | ${r.standing} |`,
+  );
+  return [
+    '### The shipped judge against DeepEval',
+    image('judge-leads', `default-on-v7 against the recorded DeepEval default. ${alt(leads)}`),
+    'On hallucination, faithfulness, turn relevancy, completeness and role adherence, default-on-v7 scores above DeepEval beyond the separate 95% intervals.',
+    '### Hard cases, framework by framework',
+    `The v7 run returns ${returned.toLocaleString('en-US')} items across ${analysis.rows.length} rows on Claude Haiku 5.5. Peers keep their recorded answers. Earlier driftbench rows used \`claude -p\` with old prompts (knowledge retention mostly used the Messages API); v7 uses \`createDefaultJudge\` over the Anthropic Messages API. The transport difference is part of this comparison.`,
+    ...['deepeval', 'promptfoo', 'langfuse'].map((tool) =>
+      image(
+        `hard-${tool}`,
+        `default-on-v7 against the recorded ${tool} default. ${alt(groups.find((g) => g.header.toLowerCase().startsWith(tool)).rows)}`,
+      ),
+    ),
+    [
+      '| Judge row | Cases | driftbench v7 correct | Recorded peer correct | Standing |',
+      '|---|---:|---:|---:|---|',
+      ...rows,
+    ].join('\n'),
+    '* G-Eval strict retains the explicit `response-relevance` setting. G-Eval strict and knowledge retention use exact paired tests, Holm over those two rows. Other standings use separate Wilson 95% intervals. Close means no separation under that rule.',
+    `Inconclusive answers count wrong (${missing}). They stay in the score denominator and leave the peer paired tests. Grader panel falls from ${panel.earlierJudge} to ${panel.v7} correct against the earlier driftbench answers; this is included in the secondary analysis.`,
+    '[Results, analysis and reproduction](comparisons/default-on/readme-v7/RESULT.md). Historical public benchmark rows below retain their recorded judge versions and settings.',
+  ].join('\n\n');
+}
+
 function readmeText() {
   const swap = (text, tag, body) => {
     const start = `<!-- ${tag}:start -->`;
@@ -1615,10 +1626,16 @@ function readmeText() {
     if (a < 0 || b < 0) throw new Error(`${README}: the markers ${start} and ${end} are missing`);
     return `${text.slice(0, a + start.length)}\n${body}\n${text.slice(b)}`;
   };
-  return swap(
-    swap(swap(read(README), 'readme-charts', readmeCharts()), 'readme-table', readmeTable()),
-    'readme-summary',
-    readmeSummary(),
+  let text = swap(swap(read(README), 'readme-charts', readmeCharts()), 'readme-table', readmeTable());
+  text = swap(text, 'readme-summary', readmeSummary());
+  text = swap(text, 'readme-v7', readmeV7());
+  return text.replace(
+    /alt="[^"]*"(?= src="\.github\/readme\/judge-cost-light\.png")/,
+    `alt="Recorded USD per 100 cases, default-on-v7 over the Messages API against the recorded peer. ${costRows(
+      false,
+    )
+      .map((r) => `${r.label}: ${r.ours.toFixed(3)} against ${r.theirs.toFixed(3)}.`)
+      .join(' ')}"`,
   );
 }
 

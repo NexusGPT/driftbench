@@ -203,21 +203,21 @@ describe('readme charts, rows measured with an opt-in setting', () => {
   it('labels retention by the paired test and shows its exact p value', () => {
     const c = chart('hard-deepeval');
     const source = JSON.parse(
-      readFileSync(new URL('../comparisons/deepeval/lead/fresh-scores.json', import.meta.url), 'utf8'),
+      readFileSync(new URL('../comparisons/default-on/readme-v7/ANALYSIS.json', import.meta.url), 'utf8'),
     );
-    const retention = source.find((r) => r.row === 'knowledge retention');
+    const retention = source.rows.find((r) => r.row === 'Knowledge retention');
     const group = c.groups.find((r) => r.label.replaceAll('|', '') === 'Knowledge retention');
     const verdict =
-      retention.paired_p_holm > 0.05 || retention.ours === retention.theirs
+      retention.pairedHolmP > 0.05 || retention.v7 === retention.peer
         ? 'level'
-        : retention.ours > retention.theirs
+        : retention.v7 > retention.peer
           ? 'ahead'
           : 'behind';
     expect(group.sub).toBe(`of ${retention.n}; ${verdict}`);
-    expect(c.note).toContain(`Retention exact p = ${retention.paired_p.toPrecision(3)}`);
-    if (retention.excluded_missing) {
+    expect(c.note).toContain(`Retention exact p = ${retention.pairedP.toPrecision(3)}`);
+    if (retention.n - retention.pairedN) {
       expect(c.note).toContain(
-        `Knowledge retention: ${retention.excluded_missing} incomplete pairs excluded`,
+        `Knowledge retention: ${retention.n - retention.pairedN} incomplete pairs excluded`,
       );
     }
     expect(c.note).toContain('Holm p <= 0.05');
@@ -425,5 +425,34 @@ describe('readme charts, best case on the frozen default', () => {
     expect(c.alt).toContain('default-on-v6');
     expect(c.alt).not.toContain('Reader-first');
     expect(c.alt).toContain('driftbench 75.0');
+  });
+});
+
+describe('readme charts, v7 held-out results', () => {
+  const analysis = JSON.parse(
+    readFileSync(new URL('../comparisons/default-on/readme-v7/ANALYSIS.json', import.meta.url), 'utf8'),
+  );
+  it('takes every hard-row score from the v7 analysis, including the panel decline', () => {
+    const rows = ['deepeval', 'promptfoo', 'langfuse', 'inspect'].flatMap((tool) => {
+      const c = chart(`hard-${tool}`);
+      if (c.rows) return [{ label: 'Reference correctness', ours: c.rows[0].sub, peer: c.rows[1].sub }];
+      return c.groups.map((g) => ({
+        label: g.label.replaceAll('|', '').replace(' *', '').replace('G-Eval, strict', 'G-Eval strict'),
+        ours: g.bars[0].text,
+        peer: g.bars[1].text,
+      }));
+    });
+    expect(rows).toHaveLength(18);
+    for (const row of analysis.rows) {
+      const plotted = rows.find((r) => r.label === row.row);
+      expect(Number.parseInt(plotted.ours, 10)).toBe(row.v7);
+      expect(Number.parseInt(plotted.peer, 10)).toBe(row.peer);
+    }
+  });
+  it('uses the v7 cost rather than earlier driftbench spend', () => {
+    const c = chart('judge-cost');
+    const qa = c.groups[0].rows.find((r) => r.label === 'Inspect, model-graded QA');
+    expect(qa.a).toBe(analysis.rows.find((r) => r.row === 'Model-graded QA').v7UsdPer100);
+    expect(c.note).toContain('Messages API');
   });
 });

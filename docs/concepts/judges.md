@@ -48,7 +48,7 @@ A reference to a name the spec does not define is an error. A spec with no `crit
 
 ### Judge settings a criterion carries
 
-A criterion in a spec or a criteria file can carry its own judge settings. A criterion without them gets the default judge's settings: criterion prompt version 2 and the default ledger reader. A recorded answer replays only under the settings it was recorded with; setting `prompt_version: 1` or `decoder_version: 1` selects the earlier rules, and any setting changes the request and its cassette key.
+A criterion in a spec or a criteria file can carry its own judge settings. A criterion without them gets the default judge's settings: criterion prompt version 2 and ledger decoder version 3. A recorded answer replays only under the settings it was recorded with; setting `prompt_version: 1` or `decoder_version: 1` selects the earlier rules, and settings that change the effective request change its cassette key. Explicit `prompt_version: 2` sends the same request as leaving it unset.
 
 ```yaml
 criteria:
@@ -70,7 +70,7 @@ criteria:
     repeat: 3
 ```
 
-* `prompt_version: 2`, the default, has the exact-identifier, stated-facts and stated-scope rules in the criterion prompt; `prompt_version: 1` is the earlier prompt without them. `decoder_version: 1` rejects an ungrounded quote; `decoder_version: 2` drops it and keeps the verdict; `answer_contract: legacy` replays scores recorded with the earlier prompt and parser.
+* `prompt_version: 2`, the default, has the exact-identifier, stated-facts and stated-scope rules in the criterion prompt; `prompt_version: 1` is the earlier prompt without them. The default decoder is version 3; it also accepts source-local symbol spans and input-label aliases, and drops criterion-only spans. `decoder_version: 1` rejects an ungrounded quote; `decoder_version: 2` drops an ungrounded string and keeps the verdict, preserving its historical span rules; `answer_contract: legacy` replays scores recorded with the earlier prompt and parser.
 * `assessment` replaces the criterion ledger: `response-relevance` (the reply answers the latest ask), `conformance` (to `reference`, which may be empty), `answer-audit` (the submitted answer, against `reference` when given) or `fact-ledger` (every fact of `reference` in the reply; `grounding: strict` refuses text that is not a source quote). The first three read the transcript only, so a run leaves the Given summary out of their request. Conformance reads the rubric alone over the whole supplied slice: it takes no `pass` or `fail` picture (a criteria file of it needs none) and no `scope: block`. Response relevance and conformance take no separate artifact: on a task block the produced file text joins the end of their transcript as a context line.
 * `items` score a rubric item by item, from 0 to 4, with optional `weight` and `hard`; `threshold` is the weighted fraction a pass needs (default 1). `requirements` instead split the criterion ledger into named requirements.
 * `repeat: <k>` asks the judge the same request k times: the verdict holds only when all k agree, else it is inconclusive. It is not the spec repeats (`repeat_reducer`). `per_turn: true` judges a conversation one customer turn at a time ([turn-by-turn judging](#additional-judge-apis)). They apply to the judge of a run (`--judge`) and to `judge run`.
