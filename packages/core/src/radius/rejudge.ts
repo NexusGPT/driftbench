@@ -11,6 +11,7 @@ import {
   stimulusMessages,
 } from '../runner/given';
 import { provenanceHash } from '../runner/provenance';
+import { applyRealizedTextPolicy } from '../runner/realized-text';
 import { succession } from '../runner/succession';
 import type { Message } from '../schema/common';
 import { type BlockResult, type Campaign, type RunResult, Verdict } from '../schema/run';
@@ -190,6 +191,7 @@ export async function rejudgeRun(
   prepared: PreparedRejudge,
   judge: Check,
   spent: () => number,
+  recordRealizedText = false,
 ): Promise<RunResult> {
   const { source, spec, contexts, stamp, carried } = prepared;
   const before = spent();
@@ -234,5 +236,8 @@ export async function rejudgeRun(
     cost: spent() - before,
     cacheHit: false,
   };
-  return { ...updated, runId: cellId(updated) };
+  return applyRealizedTextPolicy({ ...updated, runId: cellId(updated) }, recordRealizedText, {
+    fromRun: source.runId,
+    fromCampaign: stamp.fromCampaign,
+  });
 }
