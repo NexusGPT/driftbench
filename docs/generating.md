@@ -294,6 +294,14 @@ That is the last line of `pnpm -s driftbench space coverage examples/acme/gated/
 
 Every seeded choice comes from `--seed` (default 1), so the same map and seed give the same suite byte for byte.
 
+The `cover` seeder uses only paths whose flow lists every behaviour the requested cell holds. Path
+annotations rank those eligible paths; they never grant membership in another flow. An unplaceable cell
+is reported under `cover.unbuilt` with its values and reasons, without falling back to an unrelated flow.
+
+In `metadata.generated.blocks`, a move records the stage it reaches. A deviation records the stage where
+it is injected, even when its recovery moves elsewhere. These event stages match the map's reachability
+model; `expect.stage` continues to name the stage the reply must reach.
+
 ### The machine Then in every block
 
 A complete generated block reads observed state, not only words. Code derives each part of its Then from the approved relations:

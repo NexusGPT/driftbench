@@ -486,7 +486,8 @@ function failingTool(prepared: PreparedMap, rng: Rng, cell: Pick[]): string | un
  * covers. Every value of the cell is fixed in the scenario's cell except the stage and the deviation: a
  * deviation is a probe, at the cell's stage when the cell names one; a stage alone is reached by a path that
  * passes it. The start stage is placed only by an event said there, so a stage-only cell on a start stage
- * takes a probe of a class a first message can carry. Returns the draft, or every reason no path fits.
+ * takes a probe of a class a first message can carry. Every behaviour must belong to the path's flow;
+ * a path annotation only ranks those eligible paths. Returns the draft, or every reason no path fits.
  */
 export function coverDraft(
   prepared: PreparedMap,
@@ -519,6 +520,15 @@ export function coverDraft(
     .map(([dimension, value]) => `${dimension}=${value}`)
     .join(', ');
   const paths = prepared.relations.paths.filter((path) => {
+    if (
+      fixed.some(
+        ([dimension, value]) =>
+          dimension !== prepared.transition &&
+          prepared.space.dimensions[dimension]?.kind === 'behaviour' &&
+          !flowsOfBehaviour(prepared, valueId(prepared, dimension, value)).includes(path.flow),
+      )
+    )
+      return false;
     if (stage === undefined) return true;
     const position = path.stages.indexOf(stage);
     // A probe goes in before a move, so its stage is never the last of the path; a walk reaches any
@@ -605,6 +615,7 @@ export function coverDraft(
       reasons.push(...built.reasons);
     }
   }
-  if (paths.length === 0) reasons.push(`no approved path passes the stage ${stage}`);
+  if (paths.length === 0)
+    reasons.push(`no approved path of a flow listing the behaviours fits the cell ${key}`);
   return { reasons: reasons.length > 0 ? reasons : [`no approved path fits the cell ${key}`] };
 }
