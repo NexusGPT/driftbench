@@ -253,6 +253,20 @@
         "policy": "default-on-v7"
       },
       "runFreeze": "18804d90fb66a8ae1fb007fa28244d28945ceb75dd9a0905437a30760782fb33"
+    },
+    {
+      "declaredAt": "2026-10-15T22:25:05.548189+00:00",
+      "beforeAnyCall": true,
+      "reason": "The stale-default docs fix changes two description strings in packages/core/src/schema/spec.ts, inside the frozen product tree. A later merge of main (1bf5348ef) changes neither packages/judges/src nor packages/core/src. No model call of this run had been made.",
+      "changes": [
+        "Product commit eb2e61214. Only the prompt_version and decoder_version descriptions differ from 01801f6f5; no judge code changes.",
+        "New run freeze below; manifest, driver, analysis and budget unchanged."
+      ],
+      "product": {
+        "commit": "eb2e61214",
+        "policy": "default-on-v7"
+      },
+      "runFreeze": "dcefaf5cd24416b9e618152ad2e3b19ed76d3f5a2ba4009d7d707272bc08d35c"
     }
   ]
 }
