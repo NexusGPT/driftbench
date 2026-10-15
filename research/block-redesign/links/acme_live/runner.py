@@ -150,9 +150,10 @@ def run_variant(variant: str, system_text: str, reps: int, convs: list[str] | No
             try:
                 res = run_conversation(cl, system_text, c)
                 break
-            except anthropic.APIStatusError as e:  # non-retried by the SDK after its own retries
+            except (anthropic.APIStatusError, anthropic.APIConnectionError) as e:  # after the SDK's own retries
                 if attempt == 2:
-                    return {"variant": variant, "rep": r, "conv": c["id"], "error": f"{e.status_code}: {str(e)[:300]}"}
+                    code = getattr(e, "status_code", "connection")
+                    return {"variant": variant, "rep": r, "conv": c["id"], "error": f"{code}: {str(e)[:300]}"}
                 time.sleep(10 * (attempt + 1))
         res.update({"variant": variant, "rep": r, "conv": c["id"], "secs": round(time.time() - t0, 1),
                     "model": MODEL, "effort": EFFORT, "tag": tag})

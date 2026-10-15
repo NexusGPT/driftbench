@@ -67,14 +67,22 @@ def confirm():
     cands = stage1_candidates()
     pairs = sorted({(m, conv) for m, _b, conv in cands})
     print(f"{len(cands)} candidate (mutant, block) pairs over {len(pairs)} (mutant, conversation) runs")
-    for m, conv in pairs:
+    from concurrent.futures import ThreadPoolExecutor
+
+    def one(mc):
+        m, conv = mc
         if spent() >= STOP_USD:
-            print("STOP: budget"); return
+            return "skipped: budget"
         have = done_jobs(m, "confirm")
         text = (HERE / "mutants" / f"{m}.md").read_text()
-        for rep in range(100, 103):
-            if (rep, conv) not in have:
-                run_variant(m, text, 1, [conv], 1, rep_offset=rep, tag="confirm")
+        missing = [rep for rep in range(100, 103) if (rep, conv) not in have]
+        for rep in missing:
+            run_variant(m, text, 1, [conv], 1, rep_offset=rep, tag="confirm")
+        return f"{m} {conv}"
+
+    with ThreadPoolExecutor(max_workers=12) as ex:
+        for msg in ex.map(one, pairs):
+            print(msg, flush=True)
     print(f"cum ${spent():.3f}")
 
 
