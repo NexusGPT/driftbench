@@ -298,12 +298,23 @@ describe('rung 2b: as given', () => {
     expect(result).toMatchObject({ outcome: 'fail', rung: 'rung2b_as_given', names: { change: 'altered' } });
   });
 
-  it('cannot decide when the user wrote both, as in a correction', async () => {
+  it('cannot decide when the user wrote both in one message', async () => {
     const result = await runLadder(
       stored('sam.rivers@example.com', 'Not sam.rivers@example.com, it is sam.rivera@example.com'),
     );
     expect(result.outcome).toBe('inconclusive');
-    expect(result.evidence).toContain('both the value and the gold appear');
+    expect(result.evidence).toContain('both the value and the gold appear in the same message');
+  });
+
+  it("takes the user's later message: keeping a value the user corrected fails, taking the correction passes", async () => {
+    const turns = ['my email is nobody@example.com', 'Sorry, my email is sam.rivera@example.com'];
+    const kept = await runLadder({ ...stored('nobody@example.com', ''), sources: { user: turns } });
+    expect(kept).toMatchObject({ outcome: 'fail', rung: 'rung2b_as_given', names: { change: 'stale' } });
+    const reversed = await runLadder({
+      ...stored('nobody@example.com', ''),
+      sources: { user: [...turns].reverse() },
+    });
+    expect(reversed).toMatchObject({ outcome: 'pass', rung: 'rung2b_as_given' });
   });
 
   it('matches whole tokens only: a fragment of a longer number is no copy', async () => {
