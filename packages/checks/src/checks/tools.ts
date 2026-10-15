@@ -279,7 +279,10 @@ async function ladderAnswer(
       ? 'inconclusive'
       : 'pass';
   const note = settled
-    .map((entry) => `${entry.path} ${entry.result.rung}: ${entry.result.evidence}`)
+    .map((entry) => {
+      const rung = entry.result.rung === 'none' ? 'undecided' : entry.result.rung;
+      return `${entry.path} ${rung}: ${entry.result.evidence}`;
+    })
     .join('; ');
   const lints = results
     .map((entry) => entry.result.lint)

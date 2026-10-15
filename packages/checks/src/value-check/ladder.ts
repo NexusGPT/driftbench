@@ -417,5 +417,5 @@ function unstatedFormat(
   if (settledBy === undefined || !WRITING_RUNGS.has(settledBy.impl) || result.outcome !== 'pass')
     return undefined;
   const where = value.tool === undefined ? value.field : `${value.tool} input.${value.field}`;
-  return `the block demands the writing ${show(value.gold)} for ${where}, but neither the tool nor the prompt states a format; declare it in the tool (pattern, enum or format) or drop it from the block`;
+  return `the block demands the writing ${show(value.gold)} for ${where}, but neither the tool nor the prompt states a format; declare it in the tool (a pattern or an enum) or drop it from the block`;
 }
