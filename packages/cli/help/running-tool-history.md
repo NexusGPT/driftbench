@@ -2,9 +2,9 @@
 title: Tool history on the wire
 summary: 'How the tool calls of a history reach a model: as paired call and result records with ids the wire accepts, never as prose. Why crewai refuses a prefix with tool calls.'
 commands:
-  - campaign run
   - spec validate
 see_also:
+  - running-campaign-run
   - authoring-prefixes
   - running-modes
   - running-targets
@@ -46,7 +46,7 @@ The fallback ids, numbered from 1 in the order of the history:
 
 A fresh id never takes an id that a call of the same turn already holds.
 
-Nothing else changed. Every history of the example specs renders byte for byte as before on all seven wires. Spec hashes, Given hashes, cache keys, cassettes and recorded results are unchanged. A rendering changes only in two cases the wires refused before: a repeated id in one turn, and a free tool note on chat completions.
+Nothing else changed. Every history of the example specs renders byte for byte as before on all seven wires: 539 histories were compared when the compiler landed. Spec hashes, Given hashes, cache keys, cassettes and recorded results are unchanged. A rendering changes only in two cases the wires refused before: a repeated id in one turn, and a free tool note on chat completions.
 
 ### crewai
 
@@ -54,7 +54,11 @@ The crewai adapter hands the history to the crew as text inputs. With its defaul
 
 ### Adapters that send no history
 
-`process`, `nexus` and the live Claude Code adapter do not hand a prefix to the agent (no `seedPrefix` capability). The `function` adapter hands the history to your code as it is, with no wire rendering. None of these use the compiler.
+None of these adapters uses the compiler:
+
+* `process` writes the history as it is, prefix included, as a JSON array to the file `DRIFTBENCH_HISTORY_FILE` names. The agent reads it from there.
+* `function` hands the history to your code as it is, with no wire rendering.
+* `nexus` and the live Claude Code adapter send only the block's own user turn: the agent never receives the prefix.
 
 ## When to use it
 
@@ -81,7 +85,20 @@ What changes what the model reads:
 | the spec's or a block's `given.world.tools` | `result`, `error` | the result of each mode T canonical call of that tool |
 | the crewai target | `inputs` | hands the history to the crew your own way; no refusal |
 
-`spec validate` checks the prefix's shape (topic authoring-spec-check).
+The commands that run an agent, such as `campaign run`, use the pairing with no option of their own; their options are in running-campaign-run.
+
+`spec validate` checks the prefix's shape before any run:
+
+```
+driftbench spec validate [options] <paths...>
+```
+
+| Option | Meaning | Default |
+|---|---|---|
+| `<paths...>` (required) | spec files or folders | none |
+| `--json` | print one JSON document | off |
+
+Exit 0 when every spec is valid, 1 when one is invalid. Its codes are in authoring-spec-check.
 
 ## Inputs
 
