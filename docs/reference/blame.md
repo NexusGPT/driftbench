@@ -141,6 +141,6 @@ Five diagnostic files ship in `packages/checks/objects/diagnostic/`. A step of c
 | `liability-confirm` | campaign | `store` | `builtin:confirm/store` | static | Stores reference_pass, reference_loads, forced_load_pass and hint_pass. |  |
 | `liability-confirm` | campaign | `rejudge` | `builtin:diagnostic/rerun` | static | Re-runs a block diagnostic with the stored confirm evidence; with none, the diagnoses stay static. | diagnostic: code-agent-liability |
 | `value-mismatch` | block | `chain` | `builtin:blame/chain` | static | Only the root of each chain of failing verdicts is attributed. | emit: false |
-| `value-mismatch` | block | `evidence` | `builtin:blame/evidence` | static | The evidence names of each root, from the stored run and the map. | emit: false |
+| `value-mismatch` | block | `evidence` | `builtin:blame/value-evidence` | static | Value outcome unknown with a lint until the value ladder integration is available. | emit: false |
 | `value-mismatch` | block | `attribute` | `builtin:blame/attribute` | static | policy/blame, first match in order. | emit: true |
 | `flaky-block` | campaign | `disagreement` | `builtin:flaky/repeat-disagreement` | static | Blocks whose repeats both pass and fail. | min_repeats: 2 |

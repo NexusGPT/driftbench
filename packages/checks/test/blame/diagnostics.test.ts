@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import {
   BUILTIN_KINDS,
+  evidence,
   ObjectRegistry,
   ObjectStore,
   type ResolvedObject,
@@ -277,8 +278,42 @@ describe('liability-confirm', () => {
   });
 });
 
+describe('block evidence handoff', () => {
+  it('uses the generated plan row without requiring a caller to supply it twice', () => {
+    const one = f7(1);
+    const v = verdict('skills.weekly-report');
+    const given = blame.blockEvidenceInputs({
+      observed: one.input(v).block.observed,
+      verdicts: [v],
+      spec: {
+        metadata: {
+          estate: {
+            planRow: 'p01',
+            testType: 'route_positive',
+            atoms: ['route.weekly-report.an-ask-that-fits-weekly-report'],
+          },
+        },
+      },
+      confirm: { [v.id]: { runs: 3, reference_loads: 0 } },
+    })(v);
+    expect(evidence.computeEvidence(given, ['skill_covers']).skill_covers).toBe('covered');
+  });
+  it('retains the deciding blame item stamp through the diagnostic step handoff', () => {
+    const one = f7(1);
+    const diagnosis = blame.diagnoseBlock({
+      verdicts: one.verdicts,
+      evidenceFor: one.input,
+      blame: blame.shippedPolicy('policy/blame'),
+      placement: blame.shippedPolicy('policy/placement'),
+    }).diagnoses[0];
+    if (!diagnosis) throw new Error('missing diagnosis');
+    expect(blame.toStepOutput(diagnosis).by).toEqual(diagnosis.by);
+    expect(blame.toStepOutput(diagnosis).by?.item).toBe('skill_reference_forced_unread');
+  });
+});
+
 describe('value-mismatch', () => {
-  it('attributes a failing tools value with policy/blame, without a placement step', async () => {
+  it('leaves the value outcome unknown with a lint until the ladder integration is available', async () => {
     const object = new ObjectStore(registry()).resolve('diagnostic', 'value-mismatch');
     const v = verdict('tools.coverage.check.input.address', { name: 'tools' });
     const ctx = {
@@ -311,7 +346,14 @@ describe('value-mismatch', () => {
       for (const one of (await step.run({ ...ctx, params: item.params, earlier })) ?? []) earlier.push(one);
     }
     expect(earlier).toHaveLength(1);
-    expect(earlier[0]).toMatchObject({ verdictRef: v.id, disposition: 'unassigned' });
+    expect(earlier[0]).toMatchObject({
+      verdictRef: v.id,
+      disposition: 'unassigned',
+      confidence: 'undecided',
+      evidence: { outcome: 'unknown' },
+      flags: ['lint:value_ladder_unavailable'],
+    });
+    expect(earlier[0]?.rule).toBeUndefined();
   });
 });
 

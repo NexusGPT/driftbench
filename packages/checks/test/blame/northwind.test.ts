@@ -2,7 +2,13 @@ import { mkdtemp, readdir, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parseSpecText, type RunResult, type Spec } from '@agent-nexus/driftbench-core';
+import {
+  type evidence,
+  parseObjectText,
+  parseSpecText,
+  type RunResult,
+  type Spec,
+} from '@agent-nexus/driftbench-core';
 import { openStore } from '@agent-nexus/driftbench-store';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { type Io, main } from '../../../cli/src/index';
@@ -49,8 +55,15 @@ type Stored = { run: RunResult; spec: Spec; path: string };
 
 describe('code-agent-liability on the Northwind recorded sessions', () => {
   const stored = new Map<string, Stored>();
+  let planRows: Array<{ id: string } & NonNullable<evidence.EvidenceInput['planRows']>[number]> = [];
 
   beforeAll(async () => {
+    planRows = (
+      parseObjectText(
+        await readFile(join(ROOT, 'packages/generate/test/estate/fixtures/plan.yaml'), 'utf8'),
+        'plan.yaml',
+      ).raw as { rows: typeof planRows }
+    ).rows;
     const out = await mkdtemp(join(tmpdir(), 'blame-northwind-'));
     const generated = await cli([
       'estate',
@@ -105,6 +118,9 @@ describe('code-agent-liability on the Northwind recorded sessions', () => {
         verdicts: block.verdicts,
         ...(specBlock?.expect === undefined ? {} : { expect: specBlock.expect }),
         spec: entry.spec,
+        planRows: planRows.filter(
+          (row) => row.id === (entry.spec.metadata as { estate?: { planRow?: string } })?.estate?.planRow,
+        ),
         specPath: entry.path,
         ...(confirm === undefined ? {} : { confirm }),
       }),
@@ -131,28 +147,27 @@ describe('code-agent-liability on the Northwind recorded sessions', () => {
     expect(block.pass).toBe(false);
   });
 
-  it('F5 static: weekly-report not loaded, coverage unknown: shared and undecided, a confirm run asked for', () => {
+  it('F5 p01: route_positive is covered, so the unloaded skill is an agent fault', () => {
     const { result } = diagnose('estate.p01.weekly-skill-skipped|weekly-skill-skipped');
     expect(result.diagnoses[0]).toMatchObject({
       verdict_ref: 'skills.weekly-report',
-      item: 'skill_not_loaded_undecided',
-      disposition: 'shared',
-      confidence: 'undecided',
+      item: 'skill_not_loaded_covered',
+      disposition: 'agent',
+      confidence: 'static',
     });
-    expect(result.diagnoses[0]?.flags).toContain('run_liability_confirm');
+    expect(result.diagnoses[0]?.evidence.skill_covers).toBe('covered');
   });
 
-  it('F5 with the stored confirm runs (the reference loads it 0 of 3): the trigger, setup', () => {
+  it('F5 p01: plan coverage wins over zero reference loads, contrary to the design note uncovered/setup case', () => {
     const { result } = diagnose('estate.p01.weekly-skill-skipped|weekly-skill-skipped', {
       'skills.weekly-report': { runs: 3, reference_loads: 0 },
     });
     expect(result.diagnoses[0]).toMatchObject({
-      item: 'skill_not_loaded_uncovered',
-      disposition: 'setup',
-      fault: ['skill'],
-      fix_location: 'skill.trigger',
-      fix_target: 'skill:weekly-report#description',
-      fix_action: 'rewrite_description',
+      item: 'skill_not_loaded_covered',
+      disposition: 'agent',
+      fault: ['agent'],
+      fix_location: 'skill.layout',
+      fix_action: 'route_rule',
     });
   });
 

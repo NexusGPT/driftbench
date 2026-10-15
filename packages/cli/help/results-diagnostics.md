@@ -19,7 +19,7 @@ diagnosis never changes a verdict or the block's machine pass. Five ship, in
 | `code-agent-liability` | block | for each failing gating verdict: `fault` (agent, skill, tool, test, env, setup), `disposition` (agent, shared, setup, excluded, credited, unassigned), `fix_location`, `fix_target`, `fix_action`, `fix_forms`, the blame item and the placement item that decided it |
 | `fix-plan` | campaign | one fix per target and action, ranked by the failing blocks it explains (the agent's first), then cost; a core fix that replaces local fixes lists them as copies to remove |
 | `liability-confirm` | campaign | the cheapest run that could change each static diagnosis (the skill forced into context, the rule as a hint, a reference agent), made only within its budget, then `code-agent-liability` again |
-| `value-mismatch` | block | for a failing tools verdict: `policy/blame` over the value check's record |
+| `value-mismatch` | block | for a failing tools value: `unknown` with `lint:value_ladder_unavailable` until the value ladder integration is available |
 | `flaky-block` | campaign | blocks whose repeats both pass and fail, with their pass share |
 
 `code-agent-liability` runs four steps: `chain` (only the earliest failing verdict of a chain is attributed;

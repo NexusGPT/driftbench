@@ -1,9 +1,9 @@
-import type {
-  CheckContext,
+import {
+  type CheckContext,
   evidence,
-  ResolvedObject,
-  RunResult,
-  Verdict,
+  type ResolvedObject,
+  type RunResult,
+  type Verdict,
 } from '@agent-nexus/driftbench-core';
 import { z } from 'zod';
 import type { PlacedBefore, PolicyView } from '../placement/apply';
@@ -58,6 +58,7 @@ export type CampaignStepContext = {
 /** A diagnosis as a step writes it, before the runner stamps `diagnostic`, `step` and `by`. */
 export type StepOutput = {
   summary: string;
+  by?: BlameDiagnosis['by'];
   verdictRef?: string;
   rule?: string;
   fault?: string[];
@@ -91,6 +92,7 @@ export function toStepOutput(one: BlameDiagnosis): StepOutput {
     summary: `${one.verdict_ref}: ${one.disposition}, ${one.fault.join(' and ')}; fix ${one.fix_action} at ${one.fix_location}${target}`,
     verdictRef: one.verdict_ref,
     rule: one.rule,
+    ...(one.by === undefined ? {} : { by: one.by }),
     fault: one.fault,
     fixLocation: one.fix_location,
     flags: one.flags,
@@ -139,7 +141,7 @@ function fixedOnly(placement: PolicyView): PolicyView {
 }
 
 function blockStep(
-  stage: 'chain' | 'evidence' | 'attribute' | 'place',
+  stage: 'chain' | 'evidence' | 'value-evidence' | 'attribute' | 'place',
   summary: string,
 ): BlameStep<BlockStepContext> {
   return {
@@ -150,6 +152,27 @@ function blockStep(
       const state = stateOf(ctx.earlier);
       state.stages.add(stage);
       if (ctx.params.emit !== true) return undefined;
+      // TODO after PR 459 merges: the value-evidence step calls
+      // runLadder(valueCase, policy, services) per call and maps its per-value record
+      // to EvidenceInput.values. No Verdict field; do not infer a rung from a failed check.
+      if (state.stages.has('value-evidence')) {
+        return ctx.verdicts
+          .filter(
+            (verdict) =>
+              verdict.gating &&
+              verdict.outcome === 'fail' &&
+              evidence.verdictSubject(verdict.id).part === 'input',
+          )
+          .map((verdict) => ({
+            summary: `${verdict.id}: value outcome unknown; value ladder integration pending`,
+            verdictRef: verdict.id,
+            disposition: 'unassigned',
+            fixLocation: 'unassigned',
+            confidence: 'undecided',
+            evidence: { outcome: 'unknown' },
+            flags: ['lint:value_ladder_unavailable'],
+          }));
+      }
       const placement = policyOf(ctx.objects, 'policy/placement');
       const tools = (ctx.check.expect?.tools ?? [])
         .filter((tool) => tool.count !== 0)
@@ -185,6 +208,10 @@ export const BLOCK_STEPS: Readonly<Record<string, BlameStep<BlockStepContext>>> 
   'builtin:blame/evidence': blockStep(
     'evidence',
     'The evidence names of each root, from the stored run and the map.',
+  ),
+  'builtin:blame/value-evidence': blockStep(
+    'value-evidence',
+    'Value outcome unknown with a lint until the value ladder integration is available.',
   ),
   'builtin:blame/attribute': blockStep('attribute', 'policy/blame, first match in order.'),
   'builtin:placement/apply': blockStep('place', 'policy/placement, with recurrence from the history given.'),
