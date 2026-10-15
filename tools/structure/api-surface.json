@@ -221,6 +221,8 @@
       "packageName": "value"
     },
     "checks": {
+      "ARGUMENT_ACCURACY_DIAGNOSTIC": "value",
+      "ARGUMENT_ACCURACY_STEP": "value",
       "ATTACK_RULES": "value",
       "AssertionResult": "type",
       "BUILTIN_RUNGS": "value",
