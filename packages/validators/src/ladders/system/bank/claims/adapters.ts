@@ -3728,7 +3728,8 @@ await store.close();
       cause: 'openStore refuses a database of a newer schema version without touching it',
       async check(ctx) {
         const { path } = await seededFile(ctx, 'newer-schema');
-        const newer = 3 + (ctx.seed % 4);
+        // Above the store's current schema, whatever its number: the next version first, then a few beyond.
+        const newer = SCHEMA_VERSION + 1 + (ctx.seed % 4);
         editByHand(path, `PRAGMA user_version = ${newer}`);
         const code = await codeOf(async () => {
           openStore(path);
@@ -3790,7 +3791,8 @@ await store.close();
         const folder = await withStore(path, (store) => store.exportCampaign('c-1', join(dir, 'export')));
         const manifestPath = join(folder, 'manifest.json');
         const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as Record<string, unknown>;
-        writeFileSync(manifestPath, JSON.stringify({ ...manifest, schemaVersion: 9 }));
+        const newer = SCHEMA_VERSION + 1 + (ctx.seed % 4);
+        writeFileSync(manifestPath, JSON.stringify({ ...manifest, schemaVersion: newer }));
         const target = join(dir, 'target.sqlite');
         const code = await codeOf(withStore(target, (store) => store.importCampaign(folder)));
         const left = await withStore(target, (store) => store.listCampaigns());
