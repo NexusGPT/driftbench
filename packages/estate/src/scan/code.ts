@@ -750,14 +750,55 @@ function routeTargets(
   return [...targets.values()];
 }
 
-/** A routing table header that states the condition of an ask. */
-const ROUTE_CONDITION =
-  /^(?:when|use when|if|whenever|ask|asks|request|requests|trigger|triggers|condition|situation|intent|task|tasks|for|the user wants)\b/i;
-/** An action header explicitly says what the reader must load, use or dispatch. */
-const ROUTE_ACTION =
-  /^(?:(?:you\s+)?(?:load|use|invoke|dispatch|call)\b|(?:skills?|agents?|helpers?)\s+(?:(?:you\s+|to\s+)?(?:load|use|invoke|dispatch|call))\b)/i;
-/** A bare target-kind header is an action only beside an explicit ask column. */
-const ROUTE_TARGET = /^(?:skills?|agents?|helpers?|targets?|handlers?|actions?)$/i;
+/**
+ * Metadata describes a unit or a record, rather than work to send to it. Match the relationship
+ * anywhere in the noun phrase: "task owner" is ownership and "when added" is chronology, even
+ * though their first words could introduce a request. These roles exclude both source and target
+ * columns; no vocabulary of permitted request headers is required.
+ */
+function routeMetadata(header: string): boolean {
+  return (
+    /\b(?:owners?|ownership|custodians?|maintainers?|authors?|authorship|maintain(?:s|ed|ing)?|wrote|written|authored)\b/i.test(
+      header,
+    ) ||
+    /\b(?:date|dates|timestamp|timestamps|added|created|updated|modified|published|version|versions)\b/i.test(
+      header,
+    ) ||
+    /\b(?:notes?|comments?|remarks?|publications?|licen[cs]es?|status)\b/i.test(header)
+  );
+}
+
+/**
+ * A target column is evidenced by a cell designating a declared unit, not by the header spelling
+ * or by a unit merely mentioned inside a request. Normalise links and decoration, then recognise
+ * a designation (optionally a load/dispatch command or a list of units).
+ */
+function routeDesignation(cell: string, targets: ReturnType<typeof routeTargets>): boolean {
+  if (!targets.length) return false;
+  let text = cell.replace(/[`*]/g, '').trim();
+  for (const target of targets) {
+    if (target.definition) {
+      text = text.replace(/\[[^\]]+\]\([^)]*\)/g, target.target);
+    }
+    const escaped = target.target.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    text = text.replace(new RegExp(`(?<![\\w-])/?${escaped}(?![\\w-])`, 'g'), '@');
+  }
+  // A designated unit can be followed by a prerequisite or an explanation. A request such as
+  // "`auditor` fails to read receipts" is still descriptive prose, not a designation.
+  if (
+    /^(?:(?:please|always)\s+)*(?:load|use|invoke|dispatch|call)\s+(?:the\s+)?@(?=\s|[.!,:;(]|$)/i.test(text)
+  )
+    return true;
+  if (/^(?:the\s+)?@(?:\s+(?:skill|agent|helper))?\s*(?:→|->|[:;(])/.test(text)) return true;
+  return /^(?:(?:please|always)\s+)*(?:(?:load|use|invoke|dispatch|call)\s+)?(?:the\s+)?@(?:\s+(?:skill|agent|helper))?(?:\s*(?:,|;|\/|&|\+|and|or|→|->)\s*(?:the\s+)?@(?:\s+(?:skill|agent|helper))?)*[.!]?$/i.test(
+    text,
+  );
+}
+
+/** Dates and identifiers alone describe a record, not a request, even under an opaque header. */
+function routeRecordValue(value: string): boolean {
+  return /^(?:\d+(?:[./:-]\d+)*|\d{4}-\d{2}-\d{2}(?:T\S+)?|[^\s@]+@[^\s@]+\.[^\s@]+)$/.test(value);
+}
 
 /** Routing is defined by a condition and an action, never by a name appearing in an arbitrary table. */
 function routeSources(
@@ -785,26 +826,33 @@ function routeSources(
       .trim();
   for (const table of readTables(file.text)) {
     const headers = table.header.map(clean);
-    // A table must state an ask or an action. Arbitrary catalogue and ownership headers
-    // cannot become routes merely because their cells happen to name declared skills.
-    const conditional = headers.findIndex((header) => ROUTE_CONDITION.test(header));
-    const explicitActions = headers.flatMap((header, index) => (ROUTE_ACTION.test(header) ? [index] : []));
-    if (conditional < 0 && !explicitActions.length) continue;
-    const condition =
-      conditional >= 0
-        ? conditional
-        : headers.findIndex((_header, index) => !explicitActions.includes(index));
-    if (condition < 0) continue;
-    const actions = headers.flatMap((header, index) =>
-      index !== condition && (ROUTE_ACTION.test(header) || (conditional >= 0 && ROUTE_TARGET.test(header)))
-        ? [index]
+    const cells = table.rows.map((row) =>
+      headers.map((_header, column) => routeTargets(row.cells[column] ?? '', file, files, raw)),
+    );
+    const actions = headers.flatMap((header, column) =>
+      !routeMetadata(header) &&
+      table.rows.some((row, index) => routeDesignation(row.cells[column] ?? '', cells[index]?.[column] ?? []))
+        ? [column]
         : [],
     );
-    for (const row of table.rows) {
+    // Resolve the target role from actual declarations first. The remaining descriptive column
+    // supplies the request in either direction; metadata and bare unit labels cannot supply it.
+    const condition = headers.findIndex(
+      (header, column) =>
+        !routeMetadata(header) &&
+        !actions.includes(column) &&
+        !/^(?:skills?|agents?|helpers?|targets?|handlers?)$/i.test(header) &&
+        table.rows.some((row) => {
+          const value = clean(row.cells[column] ?? '');
+          return value !== '' && !routeRecordValue(value);
+        }),
+    );
+    if (condition < 0 || !actions.length) continue;
+    for (const [index, row] of table.rows.entries()) {
       const ask = clean(row.cells[condition] ?? '');
-      if (!ask) continue;
+      if (!ask || routeRecordValue(ask)) continue;
       for (const action of actions) {
-        for (const target of routeTargets(row.cells[action] ?? '', file, files, raw)) {
+        for (const target of cells[index]?.[action] ?? []) {
           add({ ...target, ask, line: row.line, quote: row.text, via: 'table' });
         }
       }
