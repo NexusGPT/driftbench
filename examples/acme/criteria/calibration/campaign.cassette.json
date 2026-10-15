@@ -2,13 +2,13 @@
   "version": 1,
   "judges": [
     {
-      "id": "jev-a",
+      "id": "s1p-a",
       "family": "jev",
       "cls": "system1",
       "cost": 1
     },
     {
-      "id": "jev-b",
+      "id": "s1p-b",
       "family": "jev",
       "cls": "system1",
       "cost": 1
@@ -40,92 +40,92 @@
   ],
   "entries": [
     {
-      "judge": "jev-a",
+      "judge": "s1p-a",
       "key": "6d606674998d",
       "criterion": "one_question_per_turn",
       "answer": {
         "outcome": "pass",
         "score": 0.95,
-        "reasoning": "jev-a: the block matches the PASS picture"
+        "reasoning": "s1p-a: the block matches the PASS picture"
       },
-      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"s1p-a: the block matches the PASS picture\"}"
     },
     {
-      "judge": "jev-a",
+      "judge": "s1p-a",
       "key": "8cd9f92272d2",
       "criterion": "coverage_before_offer",
       "answer": {
         "outcome": "pass",
         "score": 0.95,
-        "reasoning": "jev-a: the block matches the PASS picture"
+        "reasoning": "s1p-a: the block matches the PASS picture"
       },
-      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"s1p-a: the block matches the PASS picture\"}"
     },
     {
-      "judge": "jev-a",
+      "judge": "s1p-a",
       "key": "ecedd50c972a",
       "criterion": "one_question_per_turn",
       "answer": {
         "outcome": "pass",
         "score": 0.95,
-        "reasoning": "jev-a: the block matches the PASS picture"
+        "reasoning": "s1p-a: the block matches the PASS picture"
       },
-      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"s1p-a: the block matches the PASS picture\"}"
     },
     {
-      "judge": "jev-a",
+      "judge": "s1p-a",
       "key": "4cb3ee511fa7",
       "criterion": "one_question_per_turn",
       "answer": {
         "outcome": "pass",
         "score": 0.95,
-        "reasoning": "jev-a: the block matches the PASS picture"
+        "reasoning": "s1p-a: the block matches the PASS picture"
       },
-      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"s1p-a: the block matches the PASS picture\"}"
     },
     {
-      "judge": "jev-a",
+      "judge": "s1p-a",
       "key": "26703bef4176",
       "criterion": "checks_before_promising",
       "answer": {
         "outcome": "pass",
         "score": 0.95,
-        "reasoning": "jev-a: the block matches the PASS picture"
+        "reasoning": "s1p-a: the block matches the PASS picture"
       },
-      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"s1p-a: the block matches the PASS picture\"}"
     },
     {
-      "judge": "jev-a",
+      "judge": "s1p-a",
       "key": "bdf80be9af12",
       "criterion": "one_question_per_turn",
       "answer": {
         "outcome": "pass",
         "score": 0.95,
-        "reasoning": "jev-a: the block matches the PASS picture"
+        "reasoning": "s1p-a: the block matches the PASS picture"
       },
-      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"s1p-a: the block matches the PASS picture\"}"
     },
     {
-      "judge": "jev-a",
+      "judge": "s1p-a",
       "key": "f356121ade58",
       "criterion": "resumes_pending_step",
       "answer": {
         "outcome": "pass",
         "score": 0.95,
-        "reasoning": "jev-a: the block matches the PASS picture"
+        "reasoning": "s1p-a: the block matches the PASS picture"
       },
-      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"s1p-a: the block matches the PASS picture\"}"
     },
     {
-      "judge": "jev-a",
+      "judge": "s1p-a",
       "key": "4dd3d74dd19d",
       "criterion": "resumes_pending_step",
       "answer": {
         "outcome": "pass",
         "score": 0.95,
-        "reasoning": "jev-a: the block matches the PASS picture"
+        "reasoning": "s1p-a: the block matches the PASS picture"
       },
-      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"s1p-a: the block matches the PASS picture\"}"
     },
     {
       "judge": "google-chat",
@@ -160,26 +160,26 @@
       "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"anthropic-chat: the block matches the PASS picture\"}"
     },
     {
-      "judge": "jev-a",
+      "judge": "s1p-a",
       "key": "2669c9963436",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
         "score": 0.95,
-        "reasoning": "jev-a: the block matches the PASS picture"
+        "reasoning": "s1p-a: the block matches the PASS picture"
       },
-      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"s1p-a: the block matches the PASS picture\"}"
     },
     {
-      "judge": "jev-a",
+      "judge": "s1p-a",
       "key": "ba9dc200b925",
       "criterion": "explicit_confirmation",
       "answer": {
         "outcome": "pass",
         "score": 0.95,
-        "reasoning": "jev-a: the block matches the PASS picture"
+        "reasoning": "s1p-a: the block matches the PASS picture"
       },
-      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"s1p-a: the block matches the PASS picture\"}"
     },
     {
       "judge": "google-chat",
@@ -214,15 +214,15 @@
       "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"anthropic-chat: the block matches the PASS picture\"}"
     },
     {
-      "judge": "jev-a",
+      "judge": "s1p-a",
       "key": "adb29d1e6908",
       "criterion": "one_question_per_turn",
       "answer": {
         "outcome": "pass",
         "score": 0.95,
-        "reasoning": "jev-a: the block matches the PASS picture"
+        "reasoning": "s1p-a: the block matches the PASS picture"
       },
-      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"s1p-a: the block matches the PASS picture\"}"
     },
     {
       "judge": "google-chat",
@@ -257,15 +257,15 @@
       "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"anthropic-chat: the block matches the PASS picture\"}"
     },
     {
-      "judge": "jev-a",
+      "judge": "s1p-a",
       "key": "f356e19cd67e",
       "criterion": "one_question_per_turn",
       "answer": {
         "outcome": "pass",
         "score": 0.95,
-        "reasoning": "jev-a: the block matches the PASS picture"
+        "reasoning": "s1p-a: the block matches the PASS picture"
       },
-      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: the block matches the PASS picture\"}"
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"s1p-a: the block matches the PASS picture\"}"
     },
     {
       "judge": "google-chat",
@@ -364,15 +364,15 @@
       "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"anthropic-chat: the block matches the PASS picture\"}"
     },
     {
-      "judge": "jev-a",
+      "judge": "s1p-a",
       "key": "b67813a53a07",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "pass",
         "score": 0.95,
-        "reasoning": "jev-a: every catalog row is in the workbook"
+        "reasoning": "s1p-a: every catalog row is in the workbook"
       },
-      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: every catalog row is in the workbook\"}"
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"s1p-a: every catalog row is in the workbook\"}"
     },
     {
       "judge": "google-chat",
@@ -407,15 +407,15 @@
       "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"anthropic-chat: the block matches the PASS picture\"}"
     },
     {
-      "judge": "jev-a",
+      "judge": "s1p-a",
       "key": "6021146c9bda",
       "criterion": "sheet_matches_catalog",
       "answer": {
         "outcome": "pass",
         "score": 0.95,
-        "reasoning": "jev-a: every catalog row is in the workbook"
+        "reasoning": "s1p-a: every catalog row is in the workbook"
       },
-      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"jev-a: every catalog row is in the workbook\"}"
+      "raw": "{\"outcome\":\"pass\",\"score\":0.95,\"reasoning\":\"s1p-a: every catalog row is in the workbook\"}"
     },
     {
       "judge": "google-chat",

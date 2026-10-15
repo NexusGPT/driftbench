@@ -2,6 +2,7 @@ import type { DriftClass, RunMode, RunResult, TargetRef } from '@agent-nexus/dri
 import { passAtK, passK, unreliability } from '@agent-nexus/driftbench-stats';
 import { blockScore, type CampaignData, deviationOf, groupBy, lineKey, runPassed, specOfRun } from './data';
 import { clustered, type Estimate, median, type Rate, rate } from './estimate';
+import { type SuiteHeadline, suiteHeadline } from './headline';
 
 /** pass^k or pass@k at one k, with the Wilson bounds of the per-run rate raised the same way. */
 export type AtK = { k: number; value: number; lower: number; upper: number; incomplete?: boolean };
@@ -100,6 +101,8 @@ export type ModeReliability = {
   runs: number;
   /** Runs that pass; the runs of one line (the repeats of one golden) form one cluster. */
   runPass?: Estimate;
+  /** The suite headline: the mean over goldens with the hierarchical interval, n_eff, detectable drop and shares. */
+  headline?: SuiteHeadline;
   /** Share of passing blocks; one run (one conversation) is one cluster. */
   blockAccuracy?: Estimate;
   /** Mean over the lines of pass^k at the smallest repeat count of the mode. */
@@ -340,6 +343,7 @@ export function modeReliability(data: CampaignData, lines: readonly ReliabilityL
           { rate: true },
         ),
       ),
+      ...optional('headline', suiteHeadline(runs, lineKey)),
       ...optional('blockAccuracy', blockAccuracy(runs)),
       ...(modeLines.length === 0
         ? {}

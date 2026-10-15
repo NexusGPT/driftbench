@@ -13,7 +13,7 @@ import { loadCampaign } from '@agent-nexus/driftbench-report';
 import { openStore } from '@agent-nexus/driftbench-store';
 import type { Command } from 'commander';
 import type { Io } from '../io';
-import { addJudgeOptions, type RunJudgeOptions, runJudgeFrom } from './run-judge';
+import { addJudgeOptions, judgeAsked, type RunJudgeOptions, runJudgeFrom } from '../judge-options';
 
 type Options = RunJudgeOptions & {
   from: string;
@@ -23,6 +23,7 @@ type Options = RunJudgeOptions & {
   maxCarry?: string;
   maxAge?: string;
   json?: boolean;
+  recordRealizedText?: boolean;
 };
 export function registerCampaignRejudge(campaign: Command, io: Io, setExit: (code: number) => void): void {
   addJudgeOptions(
@@ -39,6 +40,7 @@ export function registerCampaignRejudge(campaign: Command, io: Io, setExit: (cod
       )
       .option('--max-carry <n>', 'maximum consecutive carries', '5')
       .option('--max-age <days>', 'maximum age of the observations', '7')
+      .option('--record-realized-text', 'keep available driver text in this new campaign')
       .option('--json', 'print the re-judge summary as JSON'),
   ).action(async (paths: string[], options: Options) => {
     setExit(await campaignRejudge(paths, options, io));
@@ -111,17 +113,25 @@ export async function campaignRejudge(paths: string[], options: Options, io: Io)
         throw new Error('Baseline campaign is incomplete; rerun the agent.');
     }
     if (!prepared.length) throw new Error('Baseline campaign contains no observations; rerun the agent.');
-    if (!options.judge) throw new Error('Re-judge requires --judge claude:<model>.');
+    if (!judgeAsked(options))
+      throw new Error('Re-judge requires a judge: --judge <kind>:<model> or --judges <cassette>.');
     const judge = await runJudgeFrom(options, io);
     if (!judge) return 2;
     const campaign: Campaign = {
       ...data.campaign,
       campaignId: options.campaign,
       createdAt: now.toISOString(),
-      judge: { mode: 'llm', judges: [judge.label] },
+      judge: { mode: judge.mode, judges: judge.judges },
       specs: data.campaign.specs.map((p) => ({ ...p, hash: specs.get(p.id)?.hash ?? p.hash })),
       rejudged: prepared.map((p) => p.stamp),
     };
+    if (campaign.provenance) {
+      const { realizedText: _sourceOptIn, ...provenance } = campaign.provenance;
+      campaign.provenance = {
+        ...provenance,
+        ...(options.recordRealizedText === true ? { realizedText: true } : {}),
+      };
+    }
     delete campaign.radius;
     if (campaign.sources) campaign.sources = campaign.sources.filter((source) => source.kind === 'prompt');
     // Preflight above completes before any call or write. Store the new campaign so a failed judge
@@ -130,10 +140,16 @@ export async function campaignRejudge(paths: string[], options: Options, io: Io)
     await store.putCampaign(campaign);
     const runs: RunResult[] = [];
     for (const item of prepared) {
-      const run = await rejudgeRun(item, judge.check, () => judge.spend.usd);
+      const run = await rejudgeRun(
+        item,
+        judge.check,
+        () => judge.spend.usd,
+        options.recordRealizedText === true,
+      );
       await store.putRun(campaign.campaignId, run);
       runs.push(run);
     }
+    await judge.save();
     const summary = {
       campaign: campaign.campaignId,
       from: options.from,

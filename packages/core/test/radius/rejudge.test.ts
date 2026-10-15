@@ -2,7 +2,7 @@ import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { expect, it } from 'vitest';
 import { z } from 'zod';
 import { observationCompatibilityHash, prepareRejudge, rejudgeRun } from '../../src/radius/rejudge';
-import { adapterProvenance, provenanceHash } from '../../src/runner/provenance';
+import { adapterProvenance, provenanceDigest, provenanceHash } from '../../src/runner/provenance';
 import { runSpec } from '../../src/runner/run';
 import { Spec } from '../../src/schema/spec';
 import { echoAdapter, specOf } from '../runner/support';
@@ -204,4 +204,41 @@ it('reconstructs teacher-forced canonical Givens and retains carry age over repe
   expect(() => prepareRejudge(changed(), changed(), result, { ...options, maxCarry: 1 })).toThrow(
     'limit is 1',
   );
+});
+
+it.each([false, true])('rejudge copies obey the destination text policy (%s)', async (record) => {
+  const source = await base();
+  for (const block of source.blocks) block.realized = { hash: provenanceHash('private'), text: 'private' };
+  source.provenanceDigest = provenanceDigest(source);
+  const prepared = prepareRejudge(original, changed(), source, options);
+  const judge = {
+    name: 'judge',
+    applies: () => true,
+    evaluate: () => [
+      {
+        id: 'price',
+        name: 'price',
+        kind: 'judge' as const,
+        outcome: 'pass' as const,
+        gating: true,
+        evidence: 'ok',
+      },
+    ],
+  };
+  const result = await rejudgeRun(prepared, judge, () => 0, record);
+  for (const block of result.blocks)
+    expect(block.realized).toEqual({
+      hash: provenanceHash('private'),
+      ...(record ? { text: 'private' } : {}),
+    });
+  expect(result.provenanceDigest).toBe(provenanceDigest(result));
+  if (!record)
+    expect(result.realizedTextStripped).toEqual({
+      fromRun: source.runId,
+      fromCampaign: options.fromCampaign,
+    });
+  expect(source.blocks.every((block) => block.realized?.text === 'private')).toBe(true);
+  const stripped = await rejudgeRun(prepared, judge, () => 0);
+  const copiedAgain = await rejudgeRun({ ...prepared, source: stripped }, judge, () => 0, true);
+  expect(copiedAgain.blocks.every((block) => block.realized?.text === undefined)).toBe(true);
 });

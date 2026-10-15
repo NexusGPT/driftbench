@@ -1,4 +1,4 @@
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile, stat, writeFile } from 'node:fs/promises';
 import { isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
 import {
@@ -202,12 +202,24 @@ export async function familyVerifyCommand(
     io.err(`${concurrency}\n`);
     return 2;
   }
+  const root = resolve(io.cwd, dir);
+  try {
+    if (!(await stat(root)).isDirectory()) {
+      io.err(`Family path is not a folder: ${display(root, io)}.\n`);
+      return 2;
+    }
+  } catch (cause) {
+    if ((cause as NodeJS.ErrnoException).code !== 'ENOENT') throw cause;
+    io.err(
+      `Family folder does not exist: ${display(root, io)}. Write instances with driftbench family instances first.\n`,
+    );
+    return 2;
+  }
   const target = parseTarget(options.reference);
   const adapter = await resolveAdapter(target, () => deps.adapterFor(target), io);
   if (!adapter) {
     return 2;
   }
-  const root = resolve(io.cwd, dir);
   const report = await verifyInstances(root, {
     adapter,
     target,

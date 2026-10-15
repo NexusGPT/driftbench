@@ -164,6 +164,33 @@ it('stores only hashes of private provenance inputs, including the campaign vers
   }
 });
 
+it('records the campaign choice to store the text a driver sent only with --record-realized-text', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'acme-realized-text-'));
+  const path = join(dir, 'runs.db');
+  try {
+    await writeFile(join(dir, 'spec.yaml'), 'id: acme-realized\nblocks:\n  - user: hello\n');
+    const cli = (args: string[]) => main(args, { cwd: dir, out: () => {}, err: () => {} });
+    const args = [
+      'campaign',
+      'run',
+      'spec.yaml',
+      '--target',
+      'function:acme-sales',
+      '--store',
+      path,
+      '--no-cache',
+    ];
+    expect(await cli([...args, '--campaign', 'hashed'])).toBe(0);
+    expect(await cli([...args, '--campaign', 'kept', '--record-realized-text'])).toBe(0);
+    const db = openStore(path);
+    expect((await db.getCampaign('hashed'))?.provenance).not.toHaveProperty('realizedText');
+    expect((await db.getCampaign('kept'))?.provenance?.realizedText).toBe(true);
+    await db.close();
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
 it('refuses an empty campaign adapter stamp for a cell outside an unused criterion change', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'acme-partial-provenance-'));
   const path = join(dir, 'runs.db');

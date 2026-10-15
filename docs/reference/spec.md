@@ -37,6 +37,7 @@ The loader rewrites these forms before it validates a spec.
 * [Given](#given)
 * [Message](#message)
 * [PrefixToolCall](#prefixtoolcall)
+* [GivenOrigin](#givenorigin)
 * [Expect](#expect)
 * [ToolExpect](#toolexpect)
 * [Count](#count)
@@ -80,6 +81,7 @@ One golden conversation, or one task for a code agent, written as a succession o
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
+| `schema_version` | integer, 1 to 1 | no |  | The spec format version the spec is written for. A driftbench that reads a lower version refuses the spec and says to upgrade. Absent means version 1. |
 | `id` | string matching `^[A-Za-z0-9][A-Za-z0-9._-]*$` | yes |  | The spec id: letters, digits, dots, underscores and hyphens. |
 | `version` | string | no |  | A free label. The content hash, not this label, is the cache key. |
 | `kind` | `conversation` or `task` | yes | `conversation`, set by the loader | conversation or task. The loader sets conversation when it is absent. |
@@ -280,6 +282,7 @@ Initial conditions set on one block. A prefix lets the block start without repla
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `prefix` | list of [Message](#message) | no |  | The messages before this block. Lets the block start without replaying the ones before. |
+| `origin` | [GivenOrigin](#givenorigin) | no |  | Where the prefix comes from: authored, recorded or canonical. Only with a prefix on the same block. It enters the Given hash. |
 | `ledger` | map of string to any value | no |  | Facts the agent must hold at this block. They merge into the ledger from here on. |
 | `world` | [WorldState](#worldstate) | no |  | Changes to the world from this block onwards. |
 | `vars` | map of string to any value | no |  | Runtime variables from this block onwards. |
@@ -306,6 +309,18 @@ A tool call written in a spec prefix.
 | `input` | JSON value | no |  | The arguments of the call. |
 | `output` | JSON value | no |  | What the tool returned. |
 | `error` | string | no |  | The error the tool returned. |
+
+## GivenOrigin
+
+Where the prefix comes from: authored (written by a person), recorded (copied from a real run, its tool calls with their real results) or canonical (the replay of a spec as it is written).
+
+Used by `blocks[].given.origin`, beside a `prefix`. The origin enters the Given hash: an agent trusts a recorded call and tends to call a tool again when its earlier result is only in prose, so the three are different tests and their results are never pooled. See [Given](../concepts/given-when-then.md#tool-history-records-not-prose).
+
+| Value | Meaning |
+|---|---|
+| `authored` | A person wrote the prefix. |
+| `recorded` | The prefix is copied from a real run: its tool calls carry the results the tools really returned. `import traces` writes it. |
+| `canonical` | The prefix is the replay of a spec as it is written, such as a teacher-forced history: the calls the blocks expect, with the results the world forces. |
 
 ## Expect
 

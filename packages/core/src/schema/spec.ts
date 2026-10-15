@@ -5,6 +5,7 @@ import {
   Budget,
   Count,
   DeviationClass,
+  GivenOrigin,
   Lang,
   Message,
   Pattern,
@@ -65,6 +66,9 @@ export const GivenOverride = z
       .array(Message)
       .optional()
       .describe('The messages before this block. Lets the block start without replaying the ones before.'),
+    origin: GivenOrigin.optional().describe(
+      'Where the prefix comes from: authored, recorded or canonical. Only with a prefix on the same block. It enters the Given hash.',
+    ),
     ledger: z
       .record(z.string(), z.unknown())
       .optional()
@@ -736,8 +740,24 @@ export const CriterionDef = z
   );
 export type CriterionDef = z.infer<typeof CriterionDef>;
 
+/**
+ * The spec format version this driftbench reads, and the highest a spec may declare in `schema_version`. A
+ * release that adds a key a reader must understand raises it, so an older driftbench refuses such a spec
+ * with an "upgrade driftbench" message instead of an unknown-key error.
+ */
+export const SPEC_SCHEMA_VERSION = 1;
+
 export const Spec = z
   .strictObject({
+    schema_version: z
+      .number()
+      .int()
+      .min(1)
+      .max(SPEC_SCHEMA_VERSION)
+      .optional()
+      .describe(
+        'The spec format version the spec is written for. A driftbench that reads a lower version refuses the spec and says to upgrade. Absent means version 1.',
+      ),
     id: z
       .string()
       .regex(/^[A-Za-z0-9][A-Za-z0-9._-]*$/)

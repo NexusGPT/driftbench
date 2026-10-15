@@ -7,6 +7,7 @@ import {
   type RunMode,
   type RunResult,
   type Spec,
+  stimulusMessages,
   type Verdict,
 } from '@agent-nexus/driftbench-core';
 import { bootstrapCI } from '@agent-nexus/driftbench-stats';
@@ -72,6 +73,13 @@ export type BlockDetail = {
   specBlock?: number;
   injected: boolean;
   stimulus?: string;
+  /** Exact authored user text, without presentation labels; used to verify realized hashes. */
+  authoredText?: string;
+  /**
+   * Present when the driver sent other text than the spec wrote: its hash, and the text when the run stored
+   * it (`campaign run --record-realized-text`).
+   */
+  realized?: { hash: string; text?: string };
   expectedStage?: string;
   observedStage?: string;
   pass: boolean;
@@ -305,6 +313,16 @@ export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
           ? `[${perturbation.class}] ${perturbation.user ?? perturbation.burst?.join('\n') ?? '(world change)'}`
           : undefined;
       const stimulus = specBlock === undefined ? injectedText : stimulusText(spec, specBlock);
+      const when =
+        specBlock === undefined ? undefined : spec?.blocks[result.provenance?.specIndex ?? specBlock]?.when;
+      const authoredText =
+        specBlock === undefined
+          ? (perturbation?.user ?? perturbation?.burst?.join('\n'))
+          : when === undefined
+            ? undefined
+            : stimulusMessages(when)
+                .map((message) => message.content)
+                .join('\n');
       const expectedStage =
         specBlock === undefined ? perturbation?.expect?.stage : spec?.blocks[specBlock]?.expect?.stage;
       return {
@@ -314,6 +332,8 @@ export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
         ...optional('specBlock', specBlock),
         injected: result.injected === true,
         ...optional('stimulus', stimulus),
+        ...optional('authoredText', authoredText),
+        ...optional('realized', result.realized),
         ...optional('expectedStage', expectedStage),
         ...optional('observedStage', result.stageObserved),
         pass: result.pass,
@@ -498,4 +518,9 @@ function costOf(runs: readonly RunResult[]): Scorecard['cost'] {
     ...optional('perBlockUsd', clustered(usd, usdClusters)),
     ...optional('latencyMsPerBlock', clustered(latency, latencyClusters)),
   };
+}
+
+/** What a page shows for sent text the run kept only as a hash. */
+export function notStored(hash: string): string {
+  return `(other text than the spec wrote; not stored, only its hash ${hash.slice(0, 12)}. campaign run --record-realized-text stores it)`;
 }

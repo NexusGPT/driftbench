@@ -167,6 +167,18 @@ export const Message = z
   .describe('One message of a conversation prefix.');
 export type Message = z.infer<typeof Message>;
 
+/**
+ * Where a prefix comes from. A history copied from a real run is a different test from one a person wrote,
+ * and from the canonical replay of a spec: the agent trusts a recorded call and re-checks a fact it only
+ * finds in prose. So the origin enters the Given hash, and results with different origins are never pooled.
+ */
+export const GivenOrigin = z
+  .enum(['authored', 'recorded', 'canonical'])
+  .describe(
+    'Where the prefix comes from: authored (written by a person), recorded (copied from a real run, its tool calls with their real results) or canonical (the replay of a spec as it is written).',
+  );
+export type GivenOrigin = z.infer<typeof GivenOrigin>;
+
 /** A forced result or error for one tool, from the block where it is set onwards. */
 export const ToolOverride = z
   .strictObject({

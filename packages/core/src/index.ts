@@ -28,6 +28,7 @@ export {
   type SandboxProvider,
   type Session,
   type Store,
+  sentStimulus,
   type ToolRule,
   type TransportErrorOptions,
   type Turn,
@@ -234,12 +235,14 @@ export {
   withRetry,
   wrapEndState,
 } from './runner';
+export { applyRealizedTextPolicy, realizedTextOf } from './runner/realized-text';
 export {
   Assertion,
   Budget,
   Count,
   DeviationClass,
   DriftClass,
+  GivenOrigin,
   Lang,
   Message,
   Pattern,
@@ -305,6 +308,7 @@ export {
   SafetyExpect,
   SimilarityExpect,
   SkillExpect,
+  SPEC_SCHEMA_VERSION,
   Spec,
   Stimulus,
   SubagentExpect,

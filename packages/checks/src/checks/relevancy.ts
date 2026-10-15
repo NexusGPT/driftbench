@@ -3,6 +3,7 @@ import {
   machineVerdict,
   parseCriterionRef,
   type Stimulus,
+  sentStimulus,
   wordsOf,
 } from '@agent-nexus/driftbench-core';
 import { fold, keyTerms, termMatches } from '../support/terms';
@@ -24,7 +25,7 @@ export const relevancy: Check = {
   evaluate(ctx) {
     const entry = ctx.expect.relevancy ?? {};
     const min = entry.min ?? 0.5;
-    const ask = keyTerms(askOf(ctx.block.when), ctx.expect.lang ?? ctx.spec.lang);
+    const ask = keyTerms(askOf(sentStimulus(ctx)), ctx.expect.lang ?? ctx.spec.lang);
     const lang = ask.lang;
     const terms = entry.terms?.map(fold) ?? ask.terms;
     if (terms.length === 0) {
