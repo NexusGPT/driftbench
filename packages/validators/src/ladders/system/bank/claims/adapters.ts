@@ -1679,7 +1679,7 @@ function processItems(): BankItem[] {
       component: PROC,
       source: 'contract',
       title:
-        'process.md "Capabilities": sandbox and readArtifact on, deterministic as declared, variants, seedPrefix, toolStubs, trace and endState off, version 0.1.0',
+        'process.md "Capabilities": sandbox, readArtifact and seedPrefix (the history file) on, deterministic as declared, variants, toolStubs, trace and endState off, version 0.1.0',
       cause: 'processAdapter declares its capabilities and version as the process page documents',
       async check({ scratch }) {
         const adapter = processAdapter({
@@ -1689,7 +1689,7 @@ function processItems(): BankItem[] {
         });
         const want = {
           variants: false,
-          seedPrefix: false,
+          seedPrefix: true,
           toolStubs: false,
           trace: false,
           sandbox: true,
