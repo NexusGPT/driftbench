@@ -1,4 +1,5 @@
-import type { ItemPatch, Layer } from '../schema/object';
+import type { AppliesTo, ItemPatch, Layer } from '../schema/object';
+import { anyGlobMatches } from '../spec/glob';
 import { cloneJson } from '../spec/hash';
 import { isPlainObject } from '../spec/normalize';
 
@@ -40,6 +41,8 @@ export type ResolvedItem = {
   params: Record<string, unknown>;
   impl: string;
   cites?: string;
+  /** Where the item applies; absent means everywhere. */
+  applies_to?: AppliesTo;
   /** The layer of the last operation that set any field of this item. */
   layer: Layer;
   /** Where that operation is written: `path:line`, `path#items.3`, or an inline place such as `uses.blame`. */
@@ -157,6 +160,7 @@ export function applyItemOperations(
         params: cloneJson(patch.params ?? {}),
         impl: patch.impl as string,
         ...(patch.cites === undefined ? {} : { cites: patch.cites }),
+        ...(patch.applies_to === undefined ? {} : { applies_to: cloneJson(patch.applies_to) }),
         layer: ops.layer,
         from: where,
       });
@@ -177,6 +181,15 @@ export function applyItemOperations(
           patch.params === undefined
             ? known.params
             : mergeFields(known.params, patch.params, `${where}.params`),
+        ...(patch.applies_to === undefined
+          ? {}
+          : {
+              applies_to: mergeFields(
+                known.applies_to ?? {},
+                patch.applies_to,
+                `${where}.applies_to`,
+              ) as AppliesTo,
+            }),
         layer: ops.layer,
         from: where,
       });
@@ -255,4 +268,26 @@ function checkedOrder(
     );
   }
   return [...order, ...previous.filter((id) => !seen.has(id))];
+}
+
+/** What a rule's scope is checked against: the skills, the failing tool labels and the units the evidence names. */
+export type ScopeEvidence = {
+  skills?: readonly string[];
+  tools?: readonly string[];
+  units?: readonly string[];
+};
+
+/**
+ * Whether an item applies to this evidence, checked before its `when`: an item without `applies_to` applies
+ * everywhere; one with it applies when the evidence names one of its skills, one of its tools, or a unit that
+ * matches one of its unit patterns (`*` matches any run of characters).
+ */
+export function itemApplies(item: Pick<ResolvedItem, 'applies_to'>, evidence: ScopeEvidence): boolean {
+  const scope = item.applies_to;
+  if (scope === undefined) return true;
+  if (scope.skills?.some((skill) => evidence.skills?.includes(skill))) return true;
+  if (scope.tools?.some((tool) => evidence.tools?.includes(tool))) return true;
+  return (
+    scope.units?.some((pattern) => evidence.units?.some((unit) => anyGlobMatches(pattern, unit))) ?? false
+  );
 }

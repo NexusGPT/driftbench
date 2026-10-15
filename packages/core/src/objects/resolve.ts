@@ -466,6 +466,7 @@ export class ObjectStore {
           params: patch.params ?? {},
           impl: patch.impl as string,
           ...(patch.cites === undefined ? {} : { cites: patch.cites }),
+          ...(patch.applies_to === undefined ? {} : { applies_to: patch.applies_to }),
           layer: entry.layer,
           from: entry.places[index] ?? entry.path,
         });

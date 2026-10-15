@@ -8,6 +8,7 @@ import { ObjectError, type ResolvedItem } from './rules';
 export {
   type CliOverrides,
   clearObjectContexts,
+  cliPatch,
   type LayerUses,
   type ObjectContext,
   objectContextFor,
@@ -35,10 +36,12 @@ export {
 export {
   applyItemOperations,
   type ItemOperations,
+  itemApplies,
   mergeFields,
   ObjectError,
   type ObjectErrorCode,
   type ResolvedItem,
+  type ScopeEvidence,
 } from './rules';
 
 /** Whether a spec names any object itself: `uses` on the spec or on a block. */

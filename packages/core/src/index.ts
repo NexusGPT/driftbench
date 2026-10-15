@@ -80,11 +80,13 @@ export {
   type CliOverrides,
   checkSpecObjects,
   clearObjectContexts,
+  cliPatch,
   type ExplainRow,
   explainObject,
   explainRows,
   type ImplDef,
   type ItemOperations,
+  itemApplies,
   itemOf,
   type KindDef,
   type LayerUses,
@@ -104,6 +106,7 @@ export {
   type ResolvedItem,
   type ResolvedObject,
   resolveBlockObjects,
+  type ScopeEvidence,
   SUITE_OBJECTS_DIR,
   shippedObjectContext,
   specUsesObjects,
@@ -292,6 +295,7 @@ export {
 export { CampaignConfig, CampaignRetryConfig } from './schema/config';
 export { parameterSchema, unsupportedSchemaKeywords } from './schema/json-schema';
 export {
+  AppliesTo,
   Envelope,
   ImplRef,
   Item,
