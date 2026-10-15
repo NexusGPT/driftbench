@@ -666,11 +666,18 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
   // its Then. The rest of the walk stays valid after it, so the perturbed run checks every later block too.
   const perturbations: PerturbationSpec[] = [];
   // A walk with an aside keeps its turns where they are: a perturbation's position counts the path's moves.
+  // A restated walk takes one no later than the stage of its request, where the blocks are still the moves,
+  // so a perturbed run still reaches the move that must hold the latest value.
+  const askAt = request.before
+    ? path.stages.findIndex(
+        (stage, index) => stage === request.before?.stage && path.stages[index + 1] === request.before.to,
+      )
+    : undefined;
   if (
     !probe &&
     !request.turn &&
     !request.aside &&
-    !request.before &&
+    (askAt === undefined || askAt >= 0) &&
     deviationKey !== undefined &&
     prepared.deviation !== undefined
   ) {
@@ -683,6 +690,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       for (let index = 0; index + 1 < path.stages.length; index += 1) {
         const stage = path.stages[index] as string;
         if (index === 0 && !OPENING_CLASSES.has(classId)) continue;
+        if (askAt !== undefined && index > askAt) continue;
         if (own.at && !own.at.includes(stage)) continue;
         const after = stageAfter(own, stage);
         // A recovery that moves is said only where the walk was cut for it, after its last turn.
@@ -744,7 +752,9 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     // user says that turn with the tool failing. The recovery is the injected block's Then, and the turn
     // itself then runs with the tool answering again. It takes no seeded draw, so the rest is unchanged.
     const failure =
-      cutAt === undefined ? toolFailurePerturbation(relations, path, blocks, slots, inPlay, lang) : undefined;
+      cutAt === undefined && askAt === undefined
+        ? toolFailurePerturbation(relations, path, blocks, slots, inPlay, lang)
+        : undefined;
     if (failure) {
       const block = blocks[failure.index] as BlockDraft;
       block.given = {
