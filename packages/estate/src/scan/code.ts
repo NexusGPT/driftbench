@@ -753,12 +753,11 @@ function routeTargets(
 /** A routing table header that states the condition of an ask. */
 const ROUTE_CONDITION =
   /^(?:when|use when|if|whenever|ask|asks|request|requests|trigger|triggers|condition|situation|intent|task|tasks|for|the user wants)\b/i;
-/** A column of people: who owns or maintains a skill is no ask. */
-const ROUTE_PEOPLE =
-  /^(?:owners?|maintainers?|maintained by|owned by|authors?|contacts?|team|people|person|assignees?|reviewers?)\b/i;
-/** A column of remarks names no target. */
-const ROUTE_NOTES =
-  /^(?:notes?|comments?|remarks?|descriptions?|details?|why|reasons?|see also|examples?)\b/i;
+/** An action header explicitly says what the reader must load, use or dispatch. */
+const ROUTE_ACTION =
+  /^(?:(?:you\s+)?(?:load|use|invoke|dispatch|call)\b|(?:skills?|agents?|helpers?)\s+(?:(?:you\s+|to\s+)?(?:load|use|invoke|dispatch|call))\b)/i;
+/** A bare target-kind header is an action only beside an explicit ask column. */
+const ROUTE_TARGET = /^(?:skills?|agents?|helpers?|targets?|handlers?|actions?)$/i;
 
 /** Routing is defined by a condition and an action, never by a name appearing in an arbitrary table. */
 function routeSources(
@@ -786,13 +785,20 @@ function routeSources(
       .trim();
   for (const table of readTables(file.text)) {
     const headers = table.header.map(clean);
-    // The ask is the column whose header states a condition, else the first column; a column of people
-    // (owners, maintainers) is no ask, and a notes column names no target.
+    // A table must state an ask or an action. Arbitrary catalogue and ownership headers
+    // cannot become routes merely because their cells happen to name declared skills.
     const conditional = headers.findIndex((header) => ROUTE_CONDITION.test(header));
-    const condition = conditional >= 0 ? conditional : 0;
-    if (ROUTE_PEOPLE.test(headers[condition] ?? '')) continue;
+    const explicitActions = headers.flatMap((header, index) => (ROUTE_ACTION.test(header) ? [index] : []));
+    if (conditional < 0 && !explicitActions.length) continue;
+    const condition =
+      conditional >= 0
+        ? conditional
+        : headers.findIndex((_header, index) => !explicitActions.includes(index));
+    if (condition < 0) continue;
     const actions = headers.flatMap((header, index) =>
-      index !== condition && !ROUTE_NOTES.test(header) ? [index] : [],
+      index !== condition && (ROUTE_ACTION.test(header) || (conditional >= 0 && ROUTE_TARGET.test(header)))
+        ? [index]
+        : [],
     );
     for (const row of table.rows) {
       const ask = clean(row.cells[condition] ?? '');
