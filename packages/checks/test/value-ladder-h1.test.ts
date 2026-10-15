@@ -159,23 +159,24 @@ describe('HF6: rung 1 settles the format flips of the stored H1 runs', { timeout
 describe('HF5: the ladder against the two labellers on all 259 stored runs', { timeout: 60_000 }, () => {
   const ladder = () => createToolsCheck({ services: { replayer: acmeReplayer(), judge: recordedJudge() } });
 
-  it('settles the 255 slot values as HF5 did: 57 identical, rung 1 113 pass and 28 fail, the 57 stored phones pass', async () => {
+  it('settles the 255 slot values as HF5 did: 57 identical, rung 1 113 pass and 28 fail, the 57 stored phones pass at rung 3', async () => {
     const counts: Record<string, number> = {};
+    const phones: string[] = [];
     for (const run of CLASS_RUNS) {
       for (const result of await slotResults(run, BUILTIN_RUNGS, recordedJudge())) {
-        const key = `${result.rung} ${result.outcome}${result.lint === undefined ? '' : ' lint'}`;
+        const key = `${result.rung} ${result.outcome}${result.lint === undefined ? '' : ` ${result.lint.id}`}`;
         counts[key] = (counts[key] ?? 0) + 1;
+        if (result.rung === 'rung3_same_referent' && result.outcome === 'pass') phones.push(run.id);
       }
     }
-    // The research ladder had no as-given rung: its judge passed all 57 phones. Here 56 are copies of what the
-    // customer typed, and the one the agent wrote with an added +1 goes to the recorded judge.
+    // As in the research ladder: a copied phone proves nothing alone, so the recorded judge decides every one.
     expect(counts).toEqual({
       'identity pass': 57,
       'rung1_outcome pass': 113,
       'rung1_outcome fail': 28,
-      'rung2b_as_given pass lint': 56,
-      'rung3_same_referent pass lint': 1,
+      'rung3_same_referent pass unstated_format': 57,
     });
+    expect(phones.sort()).toEqual(PHONES_AT_RUNG_3);
   });
 
   it('passes 183 runs, with 0 false passes and 0 false fails on the 249 runs the labellers agree on', async () => {
@@ -254,3 +255,64 @@ describe('the H3 harness of PR 434 as the kind validator', { timeout: 60_000 }, 
     expect(outcomes).toHaveLength(10);
   });
 });
+
+/** The B2 and B7 runs whose stored phone differs from the gold: the recorded judge passes each one at rung 3. */
+const PHONES_AT_RUNG_3 = [
+  'B2#0#0',
+  'B2#1#0',
+  'B2#10#0',
+  'B2#12#0',
+  'B2#14#0',
+  'B2#15#0',
+  'B2#16#0',
+  'B2#17#0',
+  'B2#18#0',
+  'B2#19#0',
+  'B2#20#0',
+  'B2#21#0',
+  'B2#22#0',
+  'B2#23#0',
+  'B2#24#0',
+  'B2#25#0',
+  'B2#26#0',
+  'B2#27#0',
+  'B2#28#0',
+  'B2#29#0',
+  'B2#3#0',
+  'B2#4#0',
+  'B2#5#0',
+  'B2#6#0',
+  'B2#7#0',
+  'B2#8#0',
+  'B2#9#0',
+  'B7#0#0',
+  'B7#1#0',
+  'B7#10#0',
+  'B7#11#0',
+  'B7#12#0',
+  'B7#13#0',
+  'B7#14#0',
+  'B7#15#0',
+  'B7#16#0',
+  'B7#17#0',
+  'B7#18#0',
+  'B7#19#0',
+  'B7#2#0',
+  'B7#20#0',
+  'B7#21#0',
+  'B7#22#0',
+  'B7#23#0',
+  'B7#24#0',
+  'B7#25#0',
+  'B7#26#0',
+  'B7#27#0',
+  'B7#28#0',
+  'B7#29#0',
+  'B7#3#0',
+  'B7#4#0',
+  'B7#5#0',
+  'B7#6#0',
+  'B7#7#0',
+  'B7#8#0',
+  'B7#9#0',
+];
