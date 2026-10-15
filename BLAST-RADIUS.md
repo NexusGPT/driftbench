@@ -107,7 +107,7 @@ Rows are (changed item, consumer) pairs. COVERED: an existing test exercised the
 
 | PR | Rows | COVERED | NEW | BUG | NA |
 |---|---|---|---|---|---|
-| 422 | 33 | 11 | 13 | 1 | 8 |
+| 422 | 33 | 12 | 13 | 1 | 7 |
 | 422+432 | 6 | 3 | 0 | 0 | 3 |
 | 424 | 32 | 17 | 7 | 0 | 8 |
 | 425 | 15 | 8 | 3 | 0 | 4 |
@@ -146,7 +146,7 @@ Rows are (changed item, consumer) pairs. COVERED: an existing test exercised the
 | 470 | 2 | 0 | 0 | 1 | 1 |
 | 471 | 1 | 0 | 0 | 0 | 1 |
 | 472 | 1 | 0 | 0 | 0 | 1 |
-| **all** | **678** | **242** | **184** | **65** | **187** |
+| **all** | **678** | **243** | **184** | **65** | **186** |
 
 Rows with no status of the four: 0.
 
@@ -175,7 +175,7 @@ Covering test paths start with the branch they live on: `main/` is `test/block-b
 | 422 | adapter | nexus | adapters | packages/adapters/src/nexus/index.ts:97 | NA: seedPrefix false | NA |
 | 422 | behaviour | toInputItems | adapters | packages/adapters/src/openai-agents/index.ts:136 | pr-422/packages/adapters/test/blast-wire0-unrecorded-runner.test.ts 'openai-agents: block 2's request carries the note for each of the two calls, never null for them' (runner, mode T) | NEW |
 | 422 | behaviour | toInputItems | adapters | packages/adapters/src/openai-agents/items.ts:95 | packages/adapters/test/history-unrecorded.test.ts '<openai-agents>: is sent with the unrecorded note, never as null' + 'a recorded null output is sent as before' | COVERED |
-| 422 | adapter | process | adapters | packages/adapters/src/process/index.ts:101 | NA: seedPrefix false, no history sent | NA |
+| 422 | adapter | process | adapters | packages/adapters/src/process/index.ts:101 | packages/adapters/test/process.test.ts "shows a rewritten file as changed in a second block, and hands the agent the runner history": serializes role/content history to DRIFTBENCH_HISTORY_FILE (user, assistant, current user); seedPrefix false does not suppress runtime history | COVERED |
 | 422 | adapter | pydantic-ai bridge | adapters | packages/adapters/src/pydantic-ai/bridge.py:43 ModelMessagesTypeAdapter | NA: ToolReturnPart.content is Any; a string is valid as null was; pydantic_ai not installed, TS side covered by NEW pydantic-ai row | NA |
 | 422 | behaviour | toPydanticMessages | adapters | packages/adapters/src/pydantic-ai/index.ts:113 | pr-422/packages/adapters/test/blast-wire0-unrecorded-runner.test.ts 'pydantic-ai: block 2's request carries the note for each of the two calls, never null for them' (runner, mode T) | NEW |
 | 422 | behaviour | toPydanticMessages | adapters | packages/adapters/src/pydantic-ai/index.ts:213 | packages/adapters/test/history-unrecorded.test.ts '<pydantic-ai>: is sent with the unrecorded note, never as null' + 'a recorded null output is sent as before' | COVERED |
