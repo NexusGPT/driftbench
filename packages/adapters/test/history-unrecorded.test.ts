@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { canonicalGiven, type Message, validateSpec } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { ToolLabels, UNRECORDED_RESULT, WireNames } from '../src/anthropic/common';
@@ -78,4 +79,9 @@ describe('a history call with no recorded result', () => {
       expect(wire).toContain('null');
     });
   }
+
+  it('is the text the mode T docs quote', () => {
+    const docs = readFileSync(new URL('../../../docs/concepts/run-modes.md', import.meta.url), 'utf8');
+    expect(docs).toContain(UNRECORDED_RESULT);
+  });
 });
