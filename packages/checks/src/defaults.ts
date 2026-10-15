@@ -1,5 +1,4 @@
 import type { Check, Embedder } from '@agent-nexus/driftbench-core';
-import { registerBlameObjects } from './blame/objects';
 import { artifacts } from './checks/artifacts';
 import { budget } from './checks/budget';
 import { cards } from './checks/cards';
@@ -116,5 +115,3 @@ export function defaultChecks(options: DefaultChecksOptions = {}): Check[] {
     ...(options.judges ? [options.judges.check()] : []),
   ];
 }
-
-registerBlameObjects();

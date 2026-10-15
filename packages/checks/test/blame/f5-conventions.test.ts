@@ -1,6 +1,9 @@
 import { readFileSync } from 'node:fs';
 import {
   BUILTIN_KINDS,
+  type CampaignDiagnosis,
+  Diagnosis,
+  type DiagnosticStep,
   ObjectRegistry,
   ObjectStore,
   parseObjectText,
@@ -10,18 +13,16 @@ import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 import { blame } from '../../src';
 import { f7 } from '../fixtures/blame/cases';
-import { f5DiagnosticKind } from './f5-contract';
 
 describe('F5 conventions', () => {
   it('registers executable steps through the F5 registrar and matches all reviewed YAML', async () => {
     const registry = new ObjectRegistry();
-    for (const kind of BUILTIN_KINDS)
-      registry.registerKind(kind.kind === 'diagnostic' ? f5DiagnosticKind() : kind);
-    const registered = new Map<string, blame.BlameStep<blame.DiagnosticContext>>();
-    const registrar: blame.RegisterDiagnosticStep = (name, step, target) => {
+    for (const kind of BUILTIN_KINDS) registry.registerKind(kind);
+    const registered = new Map<string, DiagnosticStep>();
+    const registrar: blame.RegisterDiagnosticStep = (name, step, target = registry) => {
       expect(registered.has(name)).toBe(false);
       registered.set(name, step);
-      target.registerImpl(name, step);
+      target.registerImpl(name, { ...step, kinds: ['diagnostic'] });
     };
     blame.registerBlameObjects(registry, registrar);
     blame.registerBlameObjects(registry, registrar);
@@ -68,7 +69,7 @@ describe('F5 conventions', () => {
     }
   });
 
-  it('campaign steps read stored block diagnoses with no extra F5 context', async () => {
+  it('campaign steps consume core envelopes and do not traverse runs', async () => {
     const one = f7(1);
     const diagnoses = blame.diagnoseBlock({
       verdicts: one.verdicts,
@@ -79,7 +80,24 @@ describe('F5 conventions', () => {
     const runs = [
       { runId: 'r', blocks: [{ index: 0, diagnoses: diagnoses.map(blame.toStepOutput) }] },
     ] as unknown as RunResult[];
-    expect(blame.campaignDiagnoses(runs)).toMatchObject(diagnoses.map((one) => ({ ...one, block: 'r:0' })));
+    const envelopes = (runs: RunResult[]): CampaignDiagnosis[] =>
+      runs.flatMap((run) =>
+        run.blocks.flatMap((block) =>
+          (block.diagnoses ?? []).map((one) => ({
+            runId: run.runId,
+            blockIndex: block.index,
+            verdictRef: one.verdictRef,
+            diagnosis: Diagnosis.parse({ ...one, diagnostic: 'diagnostic:code-agent-liability@12345678' }),
+          })),
+        ),
+      );
+    expect(blame.campaignDiagnoses(envelopes(runs))).toMatchObject(
+      diagnoses.map((one) => ({
+        ...one,
+        diagnostic: 'diagnostic:code-agent-liability@12345678',
+        block: 'r:0',
+      })),
+    );
     const mixed = [
       ...runs,
       {
@@ -89,14 +107,14 @@ describe('F5 conventions', () => {
             index: 0,
             diagnoses: [
               ...diagnoses.map(blame.toStepOutput),
-              { summary: 'unrelated diagnostic', confidence: 'static' },
+              { summary: 'unrelated diagnostic', confidence: 'static', by: diagnoses[0]?.by },
             ],
           },
         ],
       },
     ] as unknown as RunResult[];
-    expect(blame.campaignDiagnoses(mixed).map((one) => one.block)).toEqual(['r:0', 's:0']);
-    const ctx = { runs, objects: [], earlier: [], params: { n: 10, by: [] } };
+    expect(blame.campaignDiagnoses(envelopes(mixed)).map((one) => one.block)).toEqual(['r:0', 's:0']);
+    const ctx = { runs, diagnoses: envelopes(runs), objects: [], earlier: [], params: { n: 10, by: [] } };
     const ranked = await blame.CAMPAIGN_STEPS['builtin:rank/top-n']?.run(ctx);
     expect(ranked).toHaveLength(1);
     expect(ranked?.[0]).toMatchObject({ score: 1, evidence: { blocks: 1 } });

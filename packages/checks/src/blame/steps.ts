@@ -1,5 +1,7 @@
 import {
+  type CampaignDiagnosis,
   type CheckContext,
+  type StepOutput as DiagnosticStepOutput,
   evidence,
   type ResolvedObject,
   type RunResult,
@@ -16,7 +18,7 @@ import {
   planConfirm,
   runConfirm,
 } from './confirm';
-import { type CampaignDiagnosis, fixPlan } from './fixplan';
+import { fixPlan } from './fixplan';
 import { flakyBlocks } from './flaky';
 import { checkEvidenceInputs } from './inputs';
 import { shippedPolicy } from './objects';
@@ -44,8 +46,8 @@ export type BlockStepContext = {
 /** What a campaign step reads: every run of the campaign and the diagnoses its blocks hold. */
 export type CampaignStepContext = {
   readonly runs: readonly RunResult[];
-  /** Optional direct-library input; F5 uses runs[].blocks[].diagnoses. */
-  readonly diagnoses?: readonly CampaignDiagnosis[];
+  /** Identified diagnoses supplied by the core runner; no local run-record traversal. */
+  readonly diagnoses: readonly CampaignDiagnosis[];
   readonly objects: ReadonlyArray<{ object: ResolvedObject }>;
   readonly params: Readonly<Record<string, unknown>>;
   readonly earlier: readonly StepOutput[];
@@ -66,25 +68,7 @@ export type CampaignStepContext = {
 };
 
 /** A diagnosis as a step writes it, before the runner stamps `diagnostic`, `step` and `by`. */
-export type StepOutput = {
-  summary: string;
-  by?: BlameDiagnosis['by'];
-  verdictRef?: string;
-  rule?: string;
-  fault?: string[];
-  fixLocation?: string;
-  flags?: string[];
-  score?: number;
-  evidence?: Record<string, unknown>;
-  inherits?: string;
-  disposition?: string;
-  fixTarget?: string;
-  fixAction?: string;
-  fixForms?: string[];
-  placement?: string;
-  confidence?: string;
-  removeCopies?: string[];
-};
+export type StepOutput = DiagnosticStepOutput;
 
 export type StepCost = 'static' | 'run' | 'model';
 
@@ -249,7 +233,7 @@ export const CAMPAIGN_STEPS: Readonly<Record<string, BlameStep<CampaignStepConte
       const stages = stateOf(ctx.earlier).stages;
       const placement = policyOf(ctx.objects, 'policy/placement');
       const plan = fixPlan(
-        ctx.diagnoses ?? campaignDiagnoses(ctx.runs),
+        campaignDiagnoses(ctx.diagnoses),
         stages.has('recurrence') && stages.has('replace') ? placement : fixedOnly(placement),
         Number(ctx.params.n),
       );
@@ -279,7 +263,7 @@ export const CAMPAIGN_STEPS: Readonly<Record<string, BlameStep<CampaignStepConte
     cost: 'static',
     summary: 'The cheapest run that could change each static or undecided diagnosis.',
     run: (ctx) => {
-      const plan = planConfirm(ctx.diagnoses ?? campaignDiagnoses(ctx.runs), Number(ctx.params.runs));
+      const plan = planConfirm(campaignDiagnoses(ctx.diagnoses), Number(ctx.params.runs));
       const open = new Set(plan.map((one) => `${one.block} ${one.verdict_ref}`)).size;
       return [
         {
@@ -298,7 +282,7 @@ export const CAMPAIGN_STEPS: Readonly<Record<string, BlameStep<CampaignStepConte
     cost: 'run',
     summary: 'Runs the planned confirm runs within the budget; a stand-in command is free.',
     run: async (ctx) => {
-      const plan = planConfirm(ctx.diagnoses ?? campaignDiagnoses(ctx.runs), Number(ctx.params.runs));
+      const plan = planConfirm(campaignDiagnoses(ctx.diagnoses), Number(ctx.params.runs));
       const result = await runConfirm(plan, {
         budgetUsd: Number(ctx.params.budget_usd),
         ...(ctx.confirmRunner === undefined ? {} : { runner: ctx.confirmRunner }),
@@ -329,7 +313,7 @@ export const CAMPAIGN_STEPS: Readonly<Record<string, BlameStep<CampaignStepConte
       'Re-runs a block diagnostic with the stored confirm evidence; with none, the diagnoses stay static.',
     run: (ctx) => {
       const state = stateOf(ctx.earlier);
-      const open = (ctx.diagnoses ?? campaignDiagnoses(ctx.runs)).filter(
+      const open = campaignDiagnoses(ctx.diagnoses).filter(
         (one) =>
           one.inherits === undefined && (one.confidence === 'static' || one.confidence === 'undecided'),
       );
@@ -352,7 +336,7 @@ export const CAMPAIGN_STEPS: Readonly<Record<string, BlameStep<CampaignStepConte
       const out: StepOutput[] = [];
       for (const [block, confirm] of byBlock) {
         for (const next of ctx.rediagnose(block, confirm)) {
-          const before = (ctx.diagnoses ?? campaignDiagnoses(ctx.runs)).find(
+          const before = campaignDiagnoses(ctx.diagnoses).find(
             (one) =>
               one.block === block && one.verdict_ref === next.verdict_ref && one.inherits === undefined,
           );

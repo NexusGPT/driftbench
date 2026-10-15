@@ -37,12 +37,15 @@ a guard when code can check it.
 
 ## Commands and every option
 
-No command of its own yet. The diagnostics run from the checks package (`blame.diagnoseBlock`,
-`blame.fixPlan`, `blame.planConfirm` and `blame.runConfirm`, `blame.flakyBlocks`), and their steps are
-registered through `registerDiagnosticStep` when the F5 diagnostics API is present. This stack does not yet
-include F5; until it does, the direct library calls work and diagnostic objects stay unavailable. Campaign
-steps read diagnoses from `runs[].blocks[].diagnoses`, whose storage schema needs F2. The F5 context supplies
-no confirm runner; confirmation stays static unless a direct library caller supplies one.
+The checks initializer registers the shipped objects and executable steps through `registerDiagnosticStep`.
+The core runner runs block diagnostics selected by `uses.diagnostics`, and exposes `runCampaignDiagnostics`
+for campaign diagnostics. Campaign steps consume core `CampaignDiagnosis` records with `runId`, `blockIndex`,
+`verdictRef` and the nested diagnosis. Run-level records and records without a verdict do not enter block
+recurrence counts. Stored block diagnoses retain the deciding rule in `by` and the executing step in `via`.
+
+Direct library calls remain available: `blame.diagnoseBlock`, `blame.fixPlan`, `blame.planConfirm`,
+`blame.runConfirm` and `blame.flakyBlocks`. The F5 context supplies no confirm runner; confirmation stays
+static unless a direct library caller supplies one. A positive budget alone does not configure that service.
 
 The params a user sets in a file that extends a shipped one:
 
@@ -60,7 +63,7 @@ The params a user sets in a file that extends a shipped one:
   reads, commands with exit codes, the guard decisions, the workspace diff).
 * For an estate spec, the atoms it enforces (`metadata.estate.atoms`) and the estate map
   (`metadata.estate.map`): each rule's file and line, its kind, its situation, and the guards that enforce it.
-* The value check's record of each failing value, when the value check ran.
+* Value evidence remains unknown with a lint until the separate value-ladder integration is available.
 * For `liability-confirm`, a confirm runner: a stand-in command runs free; a reference target is billed.
 
 ## Outputs and how to read them
@@ -106,7 +109,7 @@ with the shipped budget of 0, `liability-confirm` makes no run and the diagnosis
   `default`, or link the failing expectation to the line it enforces so `rule_home` is known.
 * Every diagnosis is `provisional`: no history was given, so placement counts one home. `fix-plan` over a
   campaign counts the homes and moves a recurring fix to the core prompt.
-* `liability-confirm` changed nothing: its budget is 0 and no stand-in command is set. Set `budget_usd`, or
-  give a stand-in command, which runs free.
+* `liability-confirm` changed nothing: no confirm runner is configured, or its budget prevents billed runs.
+  A direct library caller must supply a runner and a cost quote for billed calls; a free stand-in needs no budget.
 * A project object that extends `policy/blame:default` names an item the default does not hold: the load is
   refused and the message lists the items it holds.

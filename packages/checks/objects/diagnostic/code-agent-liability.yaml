@@ -9,8 +9,7 @@ version: 1
 extends: null
 description: Who made the mistake behind each failing gating verdict, and where the fix goes.
 scope: block
-# TODO PR 453: restore gating: true after the matcher supports it; the step filters gating.
-when: { any_verdict: { outcome: fail } }
+when: { any_verdict: { gating: true, outcome: fail } }
 reads: [policy/value-check, policy/blame, policy/placement]
 steps:
   - id: chain

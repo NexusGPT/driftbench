@@ -4,9 +4,13 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   type evidence,
+  ObjectStore,
+  objectRegistry,
   parseObjectText,
   parseSpecText,
   type RunResult,
+  runCampaignDiagnostics,
+  runDiagnostics,
   type Spec,
 } from '@agent-nexus/driftbench-core';
 import { openStore } from '@agent-nexus/driftbench-store';
@@ -191,6 +195,69 @@ describe('code-agent-liability on the Northwind recorded sessions', () => {
     });
     expect(result.diagnoses[0]).toMatchObject({ item: 'skill_not_loaded_covered', disposition: 'agent' });
     expect(result.diagnoses[0]?.evidence.skill_covers).toBe('covered');
+  });
+
+  it('runs p01 through real F5 block and campaign steps with its stored identity', async () => {
+    const entry = stored.get('estate.p01.weekly-skill-skipped|weekly-skill-skipped');
+    if (!entry) throw new Error('missing p01');
+    const block = entry.run.blocks[0];
+    const specBlock = entry.spec.blocks[0];
+    if (!block || !specBlock) throw new Error('missing p01 block');
+    const store = new ObjectStore(objectRegistry);
+    const { diagnoses } = await runDiagnostics([store.resolve('diagnostic', 'code-agent-liability')], {
+      check: {
+        spec: entry.spec,
+        block: specBlock,
+        expect: specBlock.expect ?? {},
+        observed: block.observed,
+        mode: entry.run.mode,
+        blockIndex: block.index,
+        given: {
+          prefix: [],
+          ledger: {},
+          world: {},
+          vars: {},
+          target: entry.run.target,
+          hash: block.givenHash,
+        },
+        history: [],
+        ledger: {},
+      },
+      verdicts: block.verdicts,
+      objects: [],
+    });
+    expect(diagnoses).toHaveLength(1);
+    expect(diagnoses[0]).toMatchObject({
+      disposition: 'shared',
+      confidence: 'undecided',
+      fixLocation: 'skill.trigger',
+      by: { item: 'skill_not_loaded_undecided' },
+      via: { item: 'place' },
+      evidence: { skill_covers: 'unknown' },
+    });
+    const diagnosed = { ...entry.run, blocks: [{ ...block, diagnoses }] };
+    const result = await runCampaignDiagnostics(
+      ['fix-plan', 'liability-confirm'].map((id) => store.resolve('diagnostic', id)),
+      [diagnosed],
+    );
+    expect(result.skippedForBudget).toBe(1);
+    expect(result.diagnoses.find((one) => one.step === 'rank')).toMatchObject({
+      fixLocation: 'skill.trigger',
+      score: 1,
+      evidence: { blocks: 1 },
+    });
+    const plan = result.diagnoses.find((one) => one.step === 'plan')?.evidence?.plan;
+    expect(plan).toEqual([
+      expect.objectContaining({
+        block: `${entry.run.runId}:${block.index}`,
+        verdict_ref: 'skills.weekly-report',
+        kind: 'reference_load',
+      }),
+    ]);
+    expect(result.diagnoses.every((one) => !/undefined|schema refuses|step threw/.test(one.summary))).toBe(
+      true,
+    );
+    expect(entry.run.blocks[0]?.pass).toBe(false);
   });
 
   it('writes nothing on the clean session, which passes', () => {

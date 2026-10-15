@@ -2,51 +2,13 @@ import * as core from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 
-type Stamp = { object: string; item: string; impl: string; layer: core.Layer };
-type Output = { summary: string; by?: Stamp };
-type F5Context = {
-  readonly scope: 'block' | 'run' | 'campaign';
-  readonly check?: core.CheckContext;
-  readonly run?: core.RunResult;
-  readonly runs?: readonly core.RunResult[];
-  readonly verdicts: readonly core.Verdict[];
-  readonly objects: readonly { object: core.ResolvedObject }[];
-  readonly params: Readonly<Record<string, unknown>>;
-  readonly earlier: readonly Output[];
-};
+type Stamp = core.By;
 
-type F5Api = {
-  registerDiagnosticStep?: (
-    name: string,
-    step: {
-      params: z.ZodType;
-      cost: 'static' | 'run' | 'model';
-      run: (ctx: F5Context) => Output | Output[] | undefined;
-    },
-    registry?: core.ObjectRegistry,
-  ) => void;
-  runDiagnostics?: (
-    diagnostics: readonly core.ResolvedObject[],
-    input: {
-      check: core.CheckContext;
-      verdicts: readonly core.Verdict[];
-      objects: readonly [];
-    },
-    budget?: { runs?: number },
-  ) => Promise<{
-    diagnoses: Array<Output & { diagnostic: string; step?: string }>;
-    skippedForBudget: number;
-  }>;
-};
+core.initializeShippedObjects();
 
-/**
- * These expectations deliberately fail until F5 lands AND resolves these two contract gaps. Once an
- * expectation passes, Vitest reports it.fails as an unexpected pass: remove that marker after the rebase.
- * Never substitute the test fixture kind above for the actual core kind in these pending assertions.
- */
-describe('pending F5 integration contracts', () => {
-  it.fails('TODO PR 453: real runDiagnostics preserves the deciding item output.by stamp', async () => {
-    const api = core as unknown as F5Api;
+describe('F5 integration contracts', () => {
+  it('real runDiagnostics preserves the deciding item output.by stamp', async () => {
+    const api = core;
     expect(api.registerDiagnosticStep, 'requires the real F5 registrar').toBeTypeOf('function');
     expect(api.runDiagnostics, 'requires the real F5 runner').toBeTypeOf('function');
     if (!api.registerDiagnosticStep || !api.runDiagnostics) throw new Error('F5 API is not available');
@@ -95,7 +57,7 @@ describe('pending F5 integration contracts', () => {
     });
   });
 
-  it.fails('TODO PR 453: diagnostic schema accepts and retains any_verdict.gating', () => {
+  it('diagnostic schema accepts and retains any_verdict.gating', () => {
     const when = core.objectRegistry.kind('diagnostic')?.fields?.when;
     expect(when, 'requires the real F5 diagnostic kind').toBeDefined();
     const trigger = { any_verdict: { gating: true, outcome: 'fail' } };
@@ -105,7 +67,7 @@ describe('pending F5 integration contracts', () => {
     });
   });
 
-  it.fails('TODO PR 453: diagnostic schema accepts and retains any_diagnosis.confidence', () => {
+  it('diagnostic schema accepts and retains any_diagnosis.confidence', () => {
     const when = core.objectRegistry.kind('diagnostic')?.fields?.when;
     expect(when, 'requires the real F5 diagnostic kind').toBeDefined();
     const trigger = { any_diagnosis: { confidence: ['static', 'undecided'] } };

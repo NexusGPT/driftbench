@@ -1,6 +1,8 @@
 import { readFileSync } from 'node:fs';
 import {
   BUILTIN_KINDS,
+  type CampaignDiagnosis,
+  Diagnosis,
   evidence,
   ObjectRegistry,
   ObjectStore,
@@ -10,7 +12,6 @@ import {
 import { describe, expect, it } from 'vitest';
 import { blame } from '../../src';
 import { f7, SKILL, verdict, WORKED_CASES, type WorkedCase } from '../fixtures/blame/cases';
-import { f5DiagnosticKind } from './f5-contract';
 
 /**
  * The five shipped diagnostics as files with their steps: code-agent-liability, fix-plan, liability-confirm,
@@ -23,11 +24,9 @@ import { f5DiagnosticKind } from './f5-contract';
 function registry(): ObjectRegistry {
   const out = new ObjectRegistry();
   for (const kind of BUILTIN_KINDS) {
-    out.registerKind(kind.kind === 'diagnostic' ? f5DiagnosticKind() : kind);
+    out.registerKind(kind);
   }
-  return blame.registerBlameObjects(out, (name, step, registry) => {
-    registry.registerImpl(name, step);
-  });
+  return blame.registerBlameObjects(out);
 }
 
 /** The F5 runner's loop, for a campaign diagnostic. */
@@ -68,6 +67,16 @@ function campaign(cases: Array<{ block: string; one: WorkedCase }>): blame.Campa
       })
       .diagnoses.map((diagnosis) => ({ ...diagnosis, block })),
   );
+}
+
+/** Core envelopes for direct-library service tests; the real runner is covered in f5-campaign.test.ts. */
+function identified(diagnoses: blame.CampaignDiagnosis[]): CampaignDiagnosis[] {
+  return diagnoses.map((one) => ({
+    runId: one.block,
+    blockIndex: 0,
+    verdictRef: one.verdict_ref,
+    diagnosis: Diagnosis.parse({ ...blame.toStepOutput(one), diagnostic: one.diagnostic }),
+  }));
 }
 
 /** F7 over a campaign: the forced currency pointer skipped in two invoice blocks, the language pointer in two supplier blocks. */
@@ -131,13 +140,13 @@ describe('the shipped diagnostic files', () => {
     expect(liability.items.map((item) => item.id)).toEqual(['chain', 'evidence', 'attribute', 'place']);
   });
 
-  it('stay out of a registry whose diagnostic kind does not declare their fields', () => {
+  it('resolves diagnostics with the real core kind', () => {
     const plain = new ObjectRegistry();
     for (const kind of BUILTIN_KINDS) plain.registerKind(kind);
     blame.registerBlameObjects(plain);
-    expect(blame.diagnosticKindReady(plain)).toBe(false);
+    expect(blame.diagnosticKindReady(plain)).toBe(true);
     expect(() => new ObjectStore(plain).resolve('policy/blame', 'default')).not.toThrow();
-    expect(() => new ObjectStore(plain).resolve('diagnostic', 'fix-plan')).toThrow(/unknown object/);
+    expect(new ObjectStore(plain).resolve('diagnostic', 'fix-plan').items.length).toBeGreaterThan(0);
   });
 });
 
@@ -178,7 +187,11 @@ describe('fix-plan', () => {
 
   it('runs as the shipped file: the ranked list is the rank step output', async () => {
     const object = new ObjectStore(registry()).resolve('diagnostic', 'fix-plan');
-    const { outputs } = await runCampaign(object, { runs: [], diagnoses: f7Campaign(), objects: [] });
+    const { outputs } = await runCampaign(object, {
+      runs: [],
+      diagnoses: identified(f7Campaign()),
+      objects: [],
+    });
     expect(outputs[0]).toMatchObject({ step: 'rank', fixLocation: 'agent.skill_reading', score: 4 });
     expect(outputs[0]?.removeCopies).toHaveLength(2);
   });
@@ -193,7 +206,7 @@ describe('liability-confirm', () => {
     let called = 0;
     const { outputs, skippedForBudget } = await runCampaign(object, {
       runs: [],
-      diagnoses,
+      diagnoses: identified(diagnoses),
       objects: [],
       confirmRunner: () => {
         called += 1;
@@ -226,7 +239,7 @@ describe('liability-confirm', () => {
       object,
       {
         runs: [],
-        diagnoses,
+        diagnoses: identified(diagnoses),
         objects: [],
         confirmFree: true,
         // The stand-in: the hint run passes 3 of 3, the reference without the hint 0 of 3 (F4, constructed).

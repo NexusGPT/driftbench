@@ -1,5 +1,4 @@
-/** Shipped diagnostic data, validated against the reviewed YAML in tests.
- * TODO PR 453: restore gating/any_diagnosis triggers once supported; steps filter today. */
+/** Shipped diagnostic data, validated against the reviewed YAML in tests. */
 export const SHIPPED_DIAGNOSTICS = {
   'diagnostic:code-agent-liability': {
     kind: 'diagnostic',
@@ -10,6 +9,7 @@ export const SHIPPED_DIAGNOSTICS = {
     scope: 'block',
     when: {
       any_verdict: {
+        gating: true,
         outcome: 'fail',
       },
     },
@@ -155,7 +155,7 @@ export const SHIPPED_DIAGNOSTICS = {
     extends: null,
     description: 'Runs the cheapest experiment that could change each static diagnosis, within a budget.',
     scope: 'campaign',
-    when: { always: true },
+    when: { any_diagnosis: { confidence: ['static', 'undecided'] } },
     reads: ['policy/blame'],
     steps: [
       {
