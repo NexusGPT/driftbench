@@ -23,6 +23,7 @@ type Options = RunJudgeOptions & {
   maxCarry?: string;
   maxAge?: string;
   json?: boolean;
+  recordRealizedText?: boolean;
 };
 export function registerCampaignRejudge(campaign: Command, io: Io, setExit: (code: number) => void): void {
   addJudgeOptions(
@@ -39,6 +40,7 @@ export function registerCampaignRejudge(campaign: Command, io: Io, setExit: (cod
       )
       .option('--max-carry <n>', 'maximum consecutive carries', '5')
       .option('--max-age <days>', 'maximum age of the observations', '7')
+      .option('--record-realized-text', 'keep available driver text in this new campaign')
       .option('--json', 'print the re-judge summary as JSON'),
   ).action(async (paths: string[], options: Options) => {
     setExit(await campaignRejudge(paths, options, io));
@@ -123,6 +125,13 @@ export async function campaignRejudge(paths: string[], options: Options, io: Io)
       specs: data.campaign.specs.map((p) => ({ ...p, hash: specs.get(p.id)?.hash ?? p.hash })),
       rejudged: prepared.map((p) => p.stamp),
     };
+    if (campaign.provenance) {
+      const { realizedText: _sourceOptIn, ...provenance } = campaign.provenance;
+      campaign.provenance = {
+        ...provenance,
+        ...(options.recordRealizedText === true ? { realizedText: true } : {}),
+      };
+    }
     delete campaign.radius;
     if (campaign.sources) campaign.sources = campaign.sources.filter((source) => source.kind === 'prompt');
     // Preflight above completes before any call or write. Store the new campaign so a failed judge
@@ -131,7 +140,12 @@ export async function campaignRejudge(paths: string[], options: Options, io: Io)
     await store.putCampaign(campaign);
     const runs: RunResult[] = [];
     for (const item of prepared) {
-      const run = await rejudgeRun(item, judge.check, () => judge.spend.usd);
+      const run = await rejudgeRun(
+        item,
+        judge.check,
+        () => judge.spend.usd,
+        options.recordRealizedText === true,
+      );
       await store.putRun(campaign.campaignId, run);
       runs.push(run);
     }

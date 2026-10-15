@@ -28,7 +28,7 @@ Before any judge call, it proves the stored observations still fit the new specs
 ## Commands and every option
 
 ```
-driftbench campaign rejudge <paths...> --from <campaign> --campaign <new-id> --store <file> --change <manifest> --judge claude:<model> [--judge-command <path>] [--judge-budget <usd>] [--max-carry <n>] [--max-age <days>] [--json]
+driftbench campaign rejudge <paths...> --from <campaign> --campaign <new-id> --store <file> --change <manifest> --judge claude:<model> [--judge-command <path>] [--judge-budget <usd>] [--max-carry <n>] [--max-age <days>] [--record-realized-text] [--json]
 ```
 
 | Option | Meaning | Default |
@@ -43,6 +43,7 @@ driftbench campaign rejudge <paths...> --from <campaign> --campaign <new-id> --s
 | `--judge-budget <usd>` | Stop judging at this spend; required for a billed judge. | none |
 | `--max-carry <n>` | The most campaigns in a row a result may be carried, a whole number from 0. | `5` |
 | `--max-age <days>` | The most days since a carried observation was measured, at least 0. | `7` |
+| `--record-realized-text` | Retain available `realized.text` in this new campaign. Without it, copies keep only the hash, even when the baseline recorded text. Missing text is never reconstructed. | off |
 | `--json` | Print the summary as JSON. | off |
 
 Exit codes:
