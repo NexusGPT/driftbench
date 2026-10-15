@@ -16,12 +16,14 @@ import { pick, type Rng } from './random';
 import {
   type Context,
   endState,
+  escapeRegExp,
   failureTools,
   fillText,
   matches,
   phraseFits,
   type Recovery,
   recoveryFor,
+  slotsIn,
   slotsOf,
   stageAfter,
   toolExpect,
@@ -247,6 +249,62 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       return source ? [source] : [];
     });
 
+  /**
+   * The patterns a reply that ran `tool` must hold: those of the `states` relations holding at `stage` (the
+   * subject the cell holds, the `when` its values meet) that state a returned field of the tool, filled from
+   * the cell. A returned field no such relation states is read in the one form the map's `states` relations
+   * state every returned field in (`statedForm`), when the map has one. `strict` refuses a relation that
+   * reads a slot the cell does not bind; otherwise that pattern is left out.
+   */
+  const reportOf = (
+    tool: string,
+    stage: string,
+    strict: boolean,
+  ): { ok: true; patterns: string[] } | { ok: false; reason: string } => {
+    const patterns: string[] = [];
+    const stating: string[] = [];
+    const read = new Set<string>();
+    const context = contextOf(stage);
+    for (const entry of relations.states) {
+      const subject =
+        entry.subject.dimension === 'flow'
+          ? entry.subject.value === path.flow
+          : context[entry.subject.dimension] === entry.subject.value;
+      if (!subject || !matches(entry.when, context)) continue;
+      for (const pattern of entry.must ?? []) {
+        const out = slotsOf(pattern).filter((slot) => {
+          const source = boundBy.get(slot);
+          const found = source ? prepared.toolDimensions.get(source[0]) : undefined;
+          return found?.direction === 'out' && found.tool.name === tool;
+        });
+        if (out.length === 0) continue;
+        const filled = fillText(pattern, slots, true);
+        if (!filled.ok) {
+          if (strict)
+            return {
+              ok: false,
+              reason: `the report of ${tool} reads unbound slots ${filled.missing.join(', ')}`,
+            };
+          continue;
+        }
+        for (const slot of out) read.add(slot);
+        if (!patterns.includes(filled.value)) patterns.push(filled.value);
+        stating.push(pattern);
+      }
+    }
+    for (const pattern of statedFields(prepared, tool, read)) {
+      const filled = fillText(pattern, slots, true);
+      if (!filled.ok) continue;
+      if (!patterns.includes(filled.value)) patterns.push(filled.value);
+      stating.push(pattern);
+    }
+    // The Given answers with the values the reply states.
+    replyData.push(
+      ...sourcesOf(stating).filter(([at]) => prepared.toolDimensions.get(at)?.direction === 'out'),
+    );
+    return { ok: true, patterns };
+  };
+
   // A phrase probe goes in at a stage of the path, chosen before the walk: its phrase may bind a slot a later
   // turn reads (a plan named again at the recap).
   const probe = request.probe;
@@ -318,33 +376,12 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
   for (let index = 0; index < path.stages.length; index += 1) {
     if (request.turn && !request.turn.call && index === (request.turn.at ?? 1)) {
       freeBlock = request.turn.free ? blocks.length : undefined;
-      const reports: string[] = [];
-      // The relations that hold here, as a move's Then reads them: the subject the cell holds, the `when`
-      // its values meet (a channel-only reply rule stays on its channel).
-      const context = contextOf(path.stages[index] as string);
-      for (const entry of request.turn.report ? relations.states : []) {
-        const subject =
-          entry.subject.dimension === 'flow'
-            ? entry.subject.value === path.flow
-            : context[entry.subject.dimension] === entry.subject.value;
-        if (!subject || !matches(entry.when, context)) continue;
-        for (const pattern of entry.must ?? []) {
-          const out = slotsOf(pattern).some((slot) => {
-            const source = boundBy.get(slot);
-            const found = source ? prepared.toolDimensions.get(source[0]) : undefined;
-            return found?.direction === 'out' && found.tool.name === request.turn?.report;
-          });
-          if (!out) continue;
-          const filled = fillText(pattern, slots, true);
-          if (!filled.ok)
-            return fail(
-              `the report of ${request.turn.report} reads unbound slots ${filled.missing.join(', ')}`,
-            );
-          if (!reports.includes(filled.value)) reports.push(filled.value);
-        }
-      }
+      const reports = request.turn.report
+        ? reportOf(request.turn.report, path.stages[index] as string, true)
+        : { ok: true as const, patterns: [] };
+      if (!reports.ok) return fail(reports.reason);
       blocks.push({
-        ...(reports.length > 0 ? { must: reports } : {}),
+        ...(reports.patterns.length > 0 ? { must: reports.patterns } : {}),
         id: `b${blocks.length + 1}-value`,
         stimulus: request.turn.stimulus,
         stage: path.stages[index] as string,
@@ -542,6 +579,9 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     const asked = request.turn?.call;
     const made = asked ? tools.find((tool) => tool.label === asked.tool && calls(tool)) : undefined;
     if (request.turn && asked && made) {
+      // The run the user asks for answers from the same Given: its reply states the tool's returned fields.
+      const answered = reportOf(asked.tool, to, false);
+      if (!answered.ok) return fail(answered.reason);
       blocks.push({
         id: `b${blocks.length + 1}-value`,
         stimulus: request.turn.stimulus,
@@ -551,6 +591,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
           { ...made, input: { ...made.input, [asked.field]: asked.value } },
           ...request.turn.tools.filter((tool) => tool.label !== asked.tool),
         ],
+        ...(answered.patterns.length > 0 ? { must: answered.patterns } : {}),
         ...(lang === undefined ? {} : { lang }),
       });
       turnPlaced = true;
@@ -952,4 +993,78 @@ function toolFailure(
     });
   }
   return { ok: true, placed: { classId: TOOL_FAILURE, stage: at, tool: chosen.tool } };
+}
+
+/** Each top-level returned field of a tool the map binds a slot for: the tool, the field and the slot. */
+function returnedFields(prepared: PreparedMap): Array<{ tool: string; field: string; slot: string }> {
+  const out: Array<{ tool: string; field: string; slot: string }> = [];
+  for (const [dimension, found] of prepared.toolDimensions) {
+    if (found.direction !== 'out' || found.path.length !== 1) continue;
+    const field = found.path[0] as string;
+    const values = prepared.space.dimensions[dimension]?.values ?? [];
+    const slots = new Set<string>();
+    for (let value = 0; value < values.length; value += 1) {
+      const bound = prepared.relations.binds.get(
+        `${dimensionId(prepared, dimension)}=${valueId(prepared, dimension, value)}`,
+      );
+      for (const slot of Object.keys(bound ?? {})) slots.add(slot);
+    }
+    for (const slot of slots) out.push({ tool: found.tool.name, field, slot });
+  }
+  return out;
+}
+
+const TOOL_MARK = '\u0000';
+const FIELD_MARK = '\u0001';
+const VALUE_MARK = '\u0002';
+
+const forms = new WeakMap<PreparedMap, string | null>();
+
+/**
+ * The one form the map's `states` relations state a returned field in, with the tool's label (its name with
+ * spaces), the field's name and its value marked: "lookup record says found is {lookup_record_out_found}\."
+ * gives "<tool> says <field> is <value>\.". Read from every `must` pattern that states one returned field and
+ * nothing else; null when those patterns hold more than one form, or come from fewer than two tools (one
+ * tool shows no form a second tool shares).
+ */
+function statedForm(prepared: PreparedMap): string | null {
+  const known = forms.get(prepared);
+  if (known !== undefined) return known;
+  const bySlot = new Map(returnedFields(prepared).map((entry) => [entry.slot, entry]));
+  const seen = new Set<string>();
+  const tools = new Set<string>();
+  for (const entry of prepared.relations.states) {
+    for (const pattern of entry.must ?? []) {
+      const read = slotsIn(pattern);
+      const field = read.length === 1 ? bySlot.get(read[0] as string) : undefined;
+      if (!field) continue;
+      const label = escapeRegExp(field.tool.replace(/_/g, ' '));
+      const marked = pattern.split(`{${field.slot}}`);
+      if (marked.length !== 2) continue;
+      const parts = marked.map((part) => part.split(label));
+      if (parts.flat().length !== 3) continue;
+      const withTool = parts.map((part) => part.join(TOOL_MARK)).join(VALUE_MARK);
+      const named = withTool.split(field.field);
+      if (named.length !== 2) continue;
+      seen.add(named.join(FIELD_MARK));
+      tools.add(field.tool);
+    }
+  }
+  const form = seen.size === 1 && tools.size >= 2 ? ([...seen][0] as string) : null;
+  forms.set(prepared, form);
+  return form;
+}
+
+/** The patterns, in the map's one form, of the returned fields of `tool` whose slot is not in `read`. */
+function statedFields(prepared: PreparedMap, tool: string, read: ReadonlySet<string>): string[] {
+  const form = statedForm(prepared);
+  if (form === null) return [];
+  return returnedFields(prepared)
+    .filter((entry) => entry.tool === tool && !read.has(entry.slot))
+    .map((entry) =>
+      form
+        .replace(TOOL_MARK, escapeRegExp(tool.replace(/_/g, ' ')))
+        .replace(FIELD_MARK, escapeRegExp(entry.field))
+        .replace(VALUE_MARK, `{${entry.slot}}`),
+    );
 }
