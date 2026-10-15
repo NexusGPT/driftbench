@@ -106,11 +106,11 @@ The keys after `failing` appear only when the cell has a run. A block's `status`
 
 ### Exit codes
 
-| Command | 0 | 1 | 2 |
-|---|---|---|---|
-| `campaign run` | every cell passes | a cell fails, is not run or blocked, failed or was stopped (the budget included), or a `--change` audit found a miss | bad input; nothing ran |
-| `campaign resume` | every cell passes | a cell fails, failed or was stopped | bad input |
-| `campaign status` | every cell passes | any other state, pending included | bad input, an unknown campaign, or a store with no campaign |
+| Command | 0 | 1 | 2 | 3 |
+|---|---|---|---|---|
+| `campaign run` | every cell passes | a cell fails, failed or was stopped (the budget included), or a `--change` audit found a miss | bad input; nothing ran | no cell failed, but a cell is not run or blocked |
+| `campaign resume` | every cell passes | a cell fails, failed or was stopped | bad input | no cell failed, but a cell is not run or blocked |
+| `campaign status` | every cell passes | any other state, pending, not run and blocked included: it only reports | bad input, an unknown campaign, or a store with no campaign | |
 
 ## Worked example
 

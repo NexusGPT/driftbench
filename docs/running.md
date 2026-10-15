@@ -728,7 +728,7 @@ effective units per arm = specs * repeats / design effect
 ```ts
 import { functionAdapter } from '@agent-nexus/driftbench-adapters';
 import { defaultChecks } from '@agent-nexus/driftbench-checks';
-import { loadSpecFile, runSpec } from '@agent-nexus/driftbench-core';
+import { blockStatus, loadSpecFile, runSpec } from '@agent-nexus/driftbench-core';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { createAcmeAgent, createStore } from './examples/acme/src/index';
 
@@ -752,19 +752,19 @@ const run = await runSpec(loaded.spec, {
   mode: 'F',
   repeat: 0,
 });
-console.log(run.runId, run.status, run.blocks.map((block) => block.pass), run.endState?.match);
+console.log(run.runId, run.status, run.blocks.map(blockStatus), run.endState?.match);
 ```
 
 Run from the repository root, it prints:
 
 ```
-a66a7aba9986a136 completed [ true, true, true, true, true ] true
+a66a7aba9986a136 completed [ 'pass', 'pass', 'pass', 'pass', 'pass' ] true
 ```
 
 With `mode: 'T'`, it prints:
 
 ```
-6a402b958212918e completed [ true, true, true, true, true ] true
+6a402b958212918e completed [ 'pass', 'pass', 'pass', 'pass', 'pass' ] true
 ```
 
 | Option | Meaning |

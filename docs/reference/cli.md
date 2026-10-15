@@ -324,8 +324,9 @@ driftbench smoke <spec> [--target <adapter[:agent]>] [--runs <n>] [--json]
 | Exit code | When |
 |---|---|
 | 0 | `plan`: the plan printed. `run`, `resume`, `status`: every cell passes. `smoke`: the transcripts are identical |
-| 1 | `run`, `resume`, `status`: a cell fails, failed, or was stopped. `smoke`: the transcripts differ, or a run fails |
+| 1 | `run`, `resume`: a cell fails, failed, or was stopped. `status`: any cell that does not pass, not run and blocked included. `smoke`: the transcripts differ, or a run fails |
 | 2 | bad input: an unknown target, an invalid spec or none found, a bad number, a store that cannot be opened |
+| 3 | `run`, `resume`: no cell failed, but a cell was not run or blocked (a Given the target cannot apply), as `ci` does |
 
 ## Judge flags
 
@@ -1013,6 +1014,7 @@ Review: signed by owner on 2026-10-13.
 | 0 | every instance is written | the reference passes every spec under the folder | a signed review holds for the family as it is |
 | 1 | the family or its oracle has a defect (an oracle that fails or answers outside the format, an invalid spec, a style knob that changes the expected outcome); nothing written | the reference fails a spec, or a spec is invalid; each is listed and never shipped | a person still has to sign |
 | 2 | bad input: an invalid family, an unapproved phrase, a missing, invalid or stale review, a bad number, an earlier output without `--force` | bad input: no adapter for the reference, no spec under the folder, a bad number | bad input, or an invalid review file |
+| 3 | | none fails, but the reference could not run one (a block not run): unverified, listed apart, never shipped | |
 
 ## `driftbench estate`
 
