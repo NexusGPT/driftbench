@@ -12,7 +12,6 @@
 <p align="center">
   <a href="#quickstart">Quickstart</a> ·
   <a href="#what-makes-it-different">Why driftbench</a> ·
-  <a href="#the-block-redesigned">Block redesign</a> ·
   <a href="#what-it-does">What it does</a> ·
   <a href="#how-it-works">How it works</a> ·
   <a href="#the-command-line">CLI</a> ·
@@ -157,24 +156,23 @@ Four ideas lead. Each one changes what you learn when a test fails, and what it 
 - **Why it matters.** You know what your tests cover, and a test is kept only if it catches a bug planted on purpose. You stop paying for tests that cannot catch anything.
 - **Impact.** On our example agent, every pair of settings is covered with 5.8 times fewer tests than all the combinations. [How we measured](docs/comparison/methods.md#tests-written-by-code)
 
-### Blocks: see which step failed
+### Blocks: test each step and find the fix
 
 <a href=".github/readme/blocks-diff-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/blocks-diff-dark.png">
-    <img alt="A sales conversation with a bug. Other tools: one score for the whole conversation, seven steps, fail, and you read the transcript to find which step broke. driftbench: a verdict for every step. Number, offer and details pass; recap and order fail; the two closing steps pass. Expected: read the order back to the customer. Got: placed the order without a recap." src=".github/readme/blocks-diff-light.png" width="100%">
+    <img alt="A sales conversation, with a verdict on each step. Number, offer and details pass; recap and order fail; both closing steps pass. The recap block opens below. Given: the customer has chosen a plan. When: the customer says, That plan, please. Then: read the order back and wait for confirmation. Got: the agent placed the order. The parent is the details block, whose end state supplies the starting point. The persona is an impatient customer who gives short replies. Source links point to the prompt's recap section, the spec's confirmation clause and a past conversation turn. The deciding rule says no order call at this step. The verdict is fail, and the rule lives in a file the reader can change. This is an illustration; the note below lists the parts on their way." src=".github/readme/blocks-diff-light.png" width="100%">
   </picture>
 </a>
-<p align="center"><sub>A recorded run: an agent with a bug that skips the order recap.</sub></p>
+<p align="center"><sub>The order recap as a block, with its starting point, customer, sources and deciding rule. An illustration.</sub></p>
 
+**Each step carries its starting point, expected result and source, so a failed test points to the rule and the place to fix.**
 
-**See which step failed, and why, instead of reading a whole transcript.**
+- **What it is.** A block is one step with its own starting point (Given), user turn (When) and expected result (Then). A simulated person, called a persona, can play it. A parent block can supply its starting point from that parent's end state. Links point to the prompt lines and spec clauses it tests, or the past conversation turn it came from. Every verdict names the rule that decided it, and you can change any rule in a file. The fault finder reads the evidence to name who is at fault and where to fix it. It leaves the check's verdict unchanged.
+- **Why no other framework does it.** The seven tools we read score a whole scenario, test row, conversation, sample, dataset item or trace. See row 1 of our [comparison](docs/comparison.md#where-driftbench-is-ahead). A verdict per step needs each step to carry its own starting point and expected result. The block stores both.
+- **Measured impact.** On the Acme sales assistant, dropping a coverage check fails 86 conversations containing 413 blocks. A conversation score marks all 413 blocks; driftbench marks the 86 that fail. For eight of nine planted faults, failing blocks account for 18 to 40 percent of the blocks in failed conversations. Sources: [gate-report.json](examples/acme/gated/gate-report.json) and [chart-facts.csv](docs/assets/data/chart-facts.csv). [How we measured](docs/comparison/methods.md#blocks-a-failure-you-can-diagnose). The [fault study](https://github.com/achammah/driftbench/pull/441) tests the suggested fix. Changing the tool description removed 86 coverage lookup failures in 249 runs; 29 exact assertion failures remained.
 
-- **What it is.** A conversation is split into steps, which driftbench calls blocks. Each block has its own starting point and its own expected result, so each block passes or fails on its own. The report names the block, the check and the evidence.
-- **Why no other framework does it.** The seven tools we read score a whole scenario, test row, conversation, sample, dataset item or trace (row 1 of our [comparison](docs/comparison.md#where-driftbench-is-ahead)). A verdict per step needs every step to carry its own starting point and expected result, and the driftbench spec format is built that way.
-- **Measured impact.** On the Acme sales assistant, the fault that drops a coverage check fails 86 conversations that hold 413 blocks. A whole-conversation score marks all 413 blocks; driftbench marks the 86 that fail. For eight of the nine planted faults, the failing blocks are 18 to 40 percent of the blocks of the conversations that fail. Sources: [gate-report.json](examples/acme/gated/gate-report.json) and every count in [chart-facts.csv](docs/assets/data/chart-facts.csv). [How we measured](docs/comparison/methods.md#blocks-a-failure-you-can-diagnose)
-
-<sub>Counts are over the 195 conversations and 861 blocks of the gated Acme suite. The ninth fault, a wrong language, fails 826 of the 861 blocks: every block of the 171 conversations that fail.</sub>
+<sub>Counts cover 195 conversations and 861 blocks. The ninth fault, a wrong language, fails all 826 blocks in the 171 failed conversations. On its way: source links ([#423](https://github.com/achammah/driftbench/pull/423), [#429](https://github.com/achammah/driftbench/pull/429), [#433](https://github.com/achammah/driftbench/pull/433)); parents ([#416](https://github.com/achammah/driftbench/pull/416)). Parent blocks have research results; their integration is not built. Rule files and verdict stamps are on their way ([#443](https://github.com/achammah/driftbench/pull/443), [#449](https://github.com/achammah/driftbench/pull/449)). The fault finder is on its way ([#447](https://github.com/achammah/driftbench/pull/447), [#451](https://github.com/achammah/driftbench/pull/451), [#453](https://github.com/achammah/driftbench/pull/453)).</sub>
 
 ### Blast radius: rerun only what a change touches
 
@@ -231,171 +229,6 @@ Four ideas lead. Each one changes what you learn when a test fails, and what it 
 - **An attacker that adapts.** A simulated user picks each next move from the agent's last reply. → [attacker](docs/attack.md)
 - **Replay for free.** A recorded run replays with no model call, so CI costs nothing. LangWatch and Inspect cache model calls (row 22); driftbench replays whole runs. → [replay](docs/estate.md#replay-built)
 
-## The block, redesigned
-
-> **In progress.** Every result below was registered before its data was collected. Most features are open pull requests, and each line names its PR. A spec you already have keeps working unchanged.
-
-A block is driftbench's unit test: one user message, everything the agent does in reply, and what must be true afterwards. Today a block stands alone. The redesign links each block to everything that explains it. You can change every rule that scores it, and a failure says who is at fault.
-
-<a href=".github/readme/block-graph-light.png">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/block-graph-dark.png">
-    <img alt="The redesigned block as a graph. In the middle, one test, block b2: given after the greeting, the user asks for a refund, then the refund tool is called once. Six typed links surround it. On the left, it verifies prompt lines, the refunds section, drawn as the one blue link. It verifies spec clauses, refund policy clause 4.2. It is derived from a real conversation, turn 3, with its history recorded. On the right, it is played by personas: terse, chatty and skeptic. It is scored by rule files: value check and blame. It starts after a parent block, b1, the shared opening. Under the test: every link is optional, and a spec with none runs as it does today." src=".github/readme/block-graph-light.png" width="100%">
-  </picture>
-</a>
-<p align="center"><sub>One test in the middle, six optional links around it. The blue link is the one a failure is blamed through.</sub></p>
-
-### Today: five limits
-
-Each limit was measured on a live agent or on the shipped examples, in a study registered before its data.
-
-| Limit today | What goes wrong | Measured |
-|---|---|---|
-| One exact user message | The block tests one wording, and an exact match on tool values fails correct answers. | 116 of 182 failures of reworded messages passed once phones, emails and addresses were compared as values, not strings ([H3](https://github.com/achammah/driftbench/blob/research/block-phrasing/research/block-redesign/phrasing/RESULTS.md)). |
-| No simulated person | A block cannot say who the user is, so you cannot ask whether impatient users break your agent. | An engine that draws behaviour outside the model gave short user turns 38.0% of the time. Humans did so 38.2% of the time, a prompted simulator 2.0% ([H10](https://github.com/achammah/driftbench/blob/research/block-sim/research/block-redesign/sim/RESULTS.md)). |
-| No links to the prompt, the spec or past conversations | A prompt edit cannot tell which tests it touches, and a failure cannot point at the line to fix. | Choosing blocks by declared section links ran 19.9% of the suite on average and missed 3 of 90 planted prompt faults ([H7](https://github.com/achammah/driftbench/blob/research/block-links/research/block-redesign/links/RESULTS.md)). |
-| Loose starting conditions | A Given can be dropped or rewritten without anyone seeing it. | Teacher forced mode sent 2,688 of 2,698 past tool calls with no result ([H9](https://github.com/achammah/driftbench/blob/research/block-given/research/block-redesign/given/H9/RESULTS.md)). Written as prose, the same history made the agent request a second sales callback in 90 of 90 runs ([H6](https://github.com/achammah/driftbench/blob/research/block-given/research/block-redesign/given/H6/RESULTS.md)). |
-| No parent blocks | Shared openings are copied into every spec, and one early failure is counted many times. | On the real tree of 923 Acme blocks, grouping failures by their first failing ancestor cut the root cause count error from 50.8 to 8.4. This was a simulation ([H12](https://github.com/achammah/driftbench/blob/research/block-parents/research/block-redesign/parents/RESULTS.md)). |
-
-### The redesigned block
-
-A block keeps its Given, its user message and its Then. Around them, optional keys say why the block exists and how it is scored.
-
-- **Prompt lines and spec clauses.** A link names the prompt section or spec clause the block verifies. It starts as `declared`, and becomes `verified` only when breaking that section flips the block. In progress: [#423](https://github.com/achammah/driftbench/pull/423), [#429](https://github.com/achammah/driftbench/pull/429), [#433](https://github.com/achammah/driftbench/pull/433).
-- **Source conversations.** A link can name the turn of a real conversation the block came from. A history copied from a real run is marked `given.origin: recorded`, which is on main ([#424](https://github.com/achammah/driftbench/pull/424)).
-- **Personas and a scenario.** Who the user is stays apart from what they want today. One block runs on several personas, and an impossible pair is `not_run`, never patched. Measured in [#444](https://github.com/achammah/driftbench/pull/444), not built yet.
-- **Rule files.** `uses:` names the rule files that score the spec or one block. In progress: [#443](https://github.com/achammah/driftbench/pull/443).
-- **A parent block.** A block can start where another one ended, and a failure inherited from the parent counts once. Measured in [#416](https://github.com/achammah/driftbench/pull/416), not built yet.
-- **Honest verdicts.** A Given the adapter cannot apply gives `not_run`, and a block whose parent failed gives `blocked`. Neither counts as a pass or a fail. In progress: [#428](https://github.com/achammah/driftbench/pull/428), [#436](https://github.com/achammah/driftbench/pull/436).
-
-A sketch of the keys, from the open pull requests:
-
-```yaml
-id: refund-late-order
-uses: { blame: acme }                     # PR 443: the rule files for every block of this spec
-metadata:
-  links:                                  # PR 423: why each block exists, kept out of the spec hash
-    - block: b2
-      to: { kind: prompt_section, prompt: support-agent, section: refunds }
-      status: verified                    # a mutant of the section flipped the block
-    - block: b2
-      to: { kind: spec_clause, spec: refund-policy, clause: R-4.2 }
-      status: declared
-    - block: b2
-      to: { kind: source_turn, conversation: conv-8812, turn: 3 }
-      relation: derived_from
-      status: declared
-blocks:
-  - id: b1
-    user: Hi, my order arrived late.
-    expect: { must: ['order number'] }
-  - id: b2
-    uses: { value_check: strict-phone }   # one block can use a stricter file
-    user: It is A-1042. I would like a refund.
-    expect:
-      tools: [{ label: refund.create, count: 1 }]
-```
-
-Nothing breaks. With these keys absent, 0 of 2,351 example specs changed their hash and 0 of 4,453 block cache keys changed ([HF1](https://github.com/achammah/driftbench/blob/research/block-framework/research/block-redesign/framework/core/RESULTS.md)).
-
-### Rule files every user can change
-
-<a href=".github/readme/block-rules-light.png">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/block-rules-dark.png">
-    <img alt="Rule files, read left to right. Layers, stronger wins: 1 shipped default, 2 project folder, highlighted, 3 suite folder, 4 spec, 5 block, 6 command line. A blue line leads to your rule file, blame: acme, which extends the shipped default. R3, asking is enough, is set. R6 is switched off. R8, your own rule, is added. R9 names no such item and is refused. A line leads to every verdict, which says what made it: object blame:acme, item R3, layer project, code builtin, and the hash of the file. Below, two paths. A rule changes, such as the value check or blame: the stored runs are scored again, with no agent call. An input changes, such as a persona, a parent or the model: the block runs again." src=".github/readme/block-rules-light.png" width="100%">
-  </picture>
-</a>
-<p align="center"><sub>Your file extends the shipped default item by item. Every verdict names the file, the item and the layer that produced it.</sub></p>
-
-Every rule driftbench applies becomes a named file of numbered items. The kinds include the value check, blame, where a fix goes, links, selection, gating, statistics, the check set and the judge council.
-
-- **Defaults ship, you extend.** A shipped file never changes. Your file `extends` it, then sets, switches off, replaces, adds or reorders items. An item the parent does not hold is refused, never ignored ([#443](https://github.com/achammah/driftbench/pull/443)).
-- **Layers.** A setting resolves from the shipped default through project, suite, spec and block to the command line, and the stronger layer wins. `driftbench object explain` prints each item's value with the file and line that set it ([#446](https://github.com/achammah/driftbench/pull/446)).
-- **A stamp on every verdict.** Each verdict records the object, item, code and layer that produced it. Each block records the hash of the files it used, so a published number says which rules scored it ([#449](https://github.com/achammah/driftbench/pull/449)).
-- **Score again, without rerunning.** A change to a scoring rule scores the stored runs again. Only a change to what the agent receives, such as a persona, a parent or the model, runs the block again.
-- **Plugins.** A plugin can add a kind of file, a rule, a piece of evidence or a diagnostic step. It never changes a shipped file ([#448](https://github.com/achammah/driftbench/pull/448)).
-
-Measured on the framework prototype, at 0 USD and with no model call ([HF1 to HF4](https://github.com/achammah/driftbench/blob/research/block-framework/research/block-redesign/framework/core/RESULTS.md)):
-
-- **Same results by default.** The shipped files changed 0 verdicts over 259 stored runs, which hold 1,223 gating verdicts.
-- **Stamps everywhere.** 0 of 11,054 verdicts lacked a stamp, and 0 of 8 overrides naming an unknown item were accepted.
-- **Scoring again is free.** A scoring change scored all 259 runs again with 0 adapter calls. A model change on the same runs made 777.
-- **One gap, closed.** An override of a single item also moved 36 scores that do not gate and are computed from other verdicts. The design now makes such scores diagnoses, which never change a pass.
-
-### Who is at fault, and where to fix it
-
-<a href=".github/readme/block-blame-light.png">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/block-blame-dark.png">
-    <img alt="The diagnosis of one failed block, left to right. A block fails: coverage.check; the user wrote 7 Quarry Ln, the agent sent 7 Quarry Ln, the tool found nothing, the check fails. Evidence, read from the stored run: the value came from the user and was copied as written. Its format is stated nowhere, the tool failed, and the agent asked again. A blue line leads to rule R3, which fires: not the agent's fault. At fault: the tool definition. Fix in: the tool description. The fix: give the street type in full, for example Road, not Rd. Below, two scores. Score 1, unchanged: the machine pass rate; a machine check that fails is final, and blame never turns it into a pass. Score 2, new: the agent pass rate, which counts only the failures that are the agent's, with the fix list beside it." src=".github/readme/block-blame-light.png" width="100%">
-  </picture>
-</a>
-<p align="center"><sub>A real case from the Acme study. The agent copied the customer's address, the tool could not read it, and the rule blames the tool definition.</sub></p>
-
-A failing check says what broke. The diagnostic layer says whose fault it is and where the fix goes. It never changes a verdict.
-
-- **Evidence, not opinion.** Each failure is read for five facts. Where did the value come from, did the agent change it, and was a format stated? What did the tool do, and what did the agent do next? All of it comes from the stored run, so a diagnosis costs no agent call.
-- **Rules name a party and a place.** The fault goes to the test, the environment, a tool, the prompt, a skill or the agent. The fix goes to a named place, such as the tool description ([#445](https://github.com/achammah/driftbench/pull/445), [#447](https://github.com/achammah/driftbench/pull/447)).
-- **Code agents.** A skill's content, its trigger, its layout, the way the agent reads skills, and behaviour across skills are separate places. A mistake in one skill is fixed in that skill. The same mistake in two or more is fixed in the agent's core prompt.
-- **Two scores.** The machine pass rate stays as it is, and a machine fail stays final. The agent pass rate counts only the failures attributed to the agent, and failures no rule assigns are shown apart.
-
-Measured on 182 exact match failures and 1,701 fresh runs of a live agent, for 3.80 USD ([HF5 to HF9](https://github.com/achammah/driftbench/blob/research/block-framework-value/research/block-redesign/framework/value/RESULTS.md)):
-
-- **The rules reproduce a careful reading.** Written as data, the blame rules give agent 45, tool definition 28, prompt 3, and 106 passes with the test flagged. That matches the hand classification exactly.
-- **The evidence needs no hand work.** Computed automatically, it agrees with the hand evidence on 182 of 182 runs.
-- **The diagnosis is causal.** One sentence added to the tool description, where the rule pointed, took the blamed failures from 86 of 249 runs to 0. The control blocks did not get worse.
-- **Asking the tool settles format disputes.** Replaying the tool with both values settled 59 of 116 disputed values, with 0 disagreements where a reference label exists.
-- **A judge that reads first is stricter.** Reading each value alone before comparing, it accepted 1 of 432 near misses, against 7 of 432 side by side, on `gpt-6-luna`.
-
-The same procedure found real defects in driftbench's own examples. The Northwind invoice script read CSV only and exited 0 on the JSON invoices. The price sheet check refused `=12*C2`. Both are fixed in [#439](https://github.com/achammah/driftbench/pull/439), in progress.
-
-### What no peer does
-
-We read each tool's docs or source on 2026-10-14 and 2026-10-15. An absence holds for the pages read, linked in the last column. We did not compare rule files with stamps, or the blame layer, so we make no claim about peers there.
-
-| Capability | driftbench | What the peers document | Sources |
-|---|---|---|---|
-| A test linked to the prompt lines it verifies | A block links to prompt sections, spec clauses and conversation turns. A link is verified by mutation (in progress). | Langfuse links a dataset item to the production trace it came from. None of the five test formats links a test to a section of the prompt. | [Langfuse](https://langfuse.com/docs/evaluation/experiments/datasets) · [promptfoo](https://www.promptfoo.dev/docs/configuration/test-cases/) · [DeepEval](https://deepeval.com/docs/evaluation-multiturn-test-cases) · [Inspect](https://inspect.aisi.org.uk/datasets.html) · [LangWatch](https://langwatch.ai/scenario/) |
-| A parent block | A block starts where another ended, and an inherited failure counts once (measured, not built). | None of the five test formats lets one test inherit another test's end state. | The same five pages |
-| One test on many personas | Personas and scenarios are separate files, and an impossible pair is `not_run` (measured, not built). The grid prints the false flags expected by chance. | DeepEval attaches one persona to each golden. promptfoo puts identity, goal and behaviour in one `instructions` string per test. | [DeepEval `golden.py`](https://github.com/confident-ai/deepeval/blob/03ef3a2/deepeval/dataset/golden.py) · [promptfoo simulated user](https://www.promptfoo.dev/docs/providers/simulated-user/) |
-| A value check that asks the tool | The first rung replays the tool with the agent's value and the expected one (in progress). | DeepEval compares tool input parameters with `!=`. promptfoo's `tool-args-match` uses deep strict equality. Inspect's cascade stops at the first scorer that settles a sample, and asks no tool. | [`tool_correctness.py`](https://github.com/confident-ai/deepeval/blob/03ef3a2/deepeval/metrics/tool_correctness/tool_correctness.py) · [`trajectory.ts`](https://github.com/promptfoo/promptfoo/blob/1c28848/src/assertions/trajectory.ts) · [`_cascade.py`](https://github.com/UKGovernmentBEIS/inspect_ai/blob/3f9c2e3/src/inspect_ai/scorer/_cascade.py) |
-
-### Limits, stated plainly
-
-- **HF10 is falsified.** The persona flag as first written fired on an A/A control: two copies of one persona flagged 1 block in 20. The flag is now the exact test alone. On that agent, no persona effect was visible at all ([HF10](https://github.com/achammah/driftbench/blob/research/block-framework-persona/research/block-redesign/framework/persona/RESULTS.md)).
-- **Links confirmation is pending.** Selection by declared links missed 3 of 90 planted faults, and 8.2% once faults touching two sections were added ([H7](https://github.com/achammah/driftbench/blob/research/block-links/research/block-redesign/links/RESULTS.md)). Links advise which blocks to run. They skip no test until a larger confirmation of the automatic linker lands.
-- **HF5 is falsified by its registered rule.** The value ladder made 0 false passes and 0 false fails, but so did the simpler normaliser. The 10 runs that separate them are exactly where the two labellers disagreed.
-- **A wording fix is not a behaviour fix.** Removing the prompt's demand for a town removed 20 of 20 flagged failures. Yet the runs with no tool call only fell from 20 to 17.
-- **Narrow evidence.** Every live agent was `claude-haiku-5-5`, with one domain per study. No experiment had a human labeller.
-- **Negatives that removed work.** Context up to 64K tokens did not change pass rates ([H8](https://github.com/achammah/driftbench/blob/research/block-given/research/block-redesign/given/H8/RESULTS.md)). Simulator families flipped fewer verdicts than plain reruns, and uncovered production clusters did not fail more ([H11, H14](https://github.com/achammah/driftbench/blob/research/block-sim/research/block-redesign/sim/RESULTS.md)).
-
-<details>
-<summary>Where each part stands, with its pull request</summary>
-
-<br/>
-
-| Part | State | Pull request |
-|---|---|---|
-| Judges read the user message the agent received | merged | [#414](https://github.com/achammah/driftbench/pull/414) |
-| `given.origin` in the Given hash | merged | [#424](https://github.com/achammah/driftbench/pull/424) |
-| A spec `schema_version` | merged | [#431](https://github.com/achammah/driftbench/pull/431) |
-| The sent user message stored with each result | in progress | [#430](https://github.com/achammah/driftbench/pull/430) |
-| Past tool calls sent as paired records, never as `null` | in progress | [#422](https://github.com/achammah/driftbench/pull/422), [#432](https://github.com/achammah/driftbench/pull/432) |
-| `not_run`, `blocked` and the capability check | in progress | [#428](https://github.com/achammah/driftbench/pull/428) |
-| The Given verifier | in progress | [#436](https://github.com/achammah/driftbench/pull/436) |
-| Values compared as values (phones, emails, addresses) | in progress | [#434](https://github.com/achammah/driftbench/pull/434) |
-| Hierarchical intervals for linked blocks | in progress | [#425](https://github.com/achammah/driftbench/pull/425), [#426](https://github.com/achammah/driftbench/pull/426) |
-| Prompt sections, links, advisory selection, localisation | in progress | [#423](https://github.com/achammah/driftbench/pull/423), [#429](https://github.com/achammah/driftbench/pull/429), [#433](https://github.com/achammah/driftbench/pull/433) |
-| Rule files: objects, stamps, commands, plugins | in progress | [#443](https://github.com/achammah/driftbench/pull/443), [#449](https://github.com/achammah/driftbench/pull/449), [#446](https://github.com/achammah/driftbench/pull/446), [#448](https://github.com/achammah/driftbench/pull/448) |
-| Evidence, blame and where a fix goes | in progress | [#445](https://github.com/achammah/driftbench/pull/445), [#447](https://github.com/achammah/driftbench/pull/447) |
-| Personas and scenarios inside the block | measured, not built | research [#444](https://github.com/achammah/driftbench/pull/444) |
-| Parent blocks | measured, not built | research [#416](https://github.com/achammah/driftbench/pull/416) |
-
-The studies: H1 to H4 in [#415](https://github.com/achammah/driftbench/pull/415), H5 and H7 in [#421](https://github.com/achammah/driftbench/pull/421), H6, H8 and H9 in [#417](https://github.com/achammah/driftbench/pull/417). Then H10, H11 and H14 in [#418](https://github.com/achammah/driftbench/pull/418), and H12 and H13 in [#416](https://github.com/achammah/driftbench/pull/416). The framework studies: HF1 to HF4 in [#437](https://github.com/achammah/driftbench/pull/437), HF5 to HF9 in [#441](https://github.com/achammah/driftbench/pull/441), HF10 to HF12 in [#444](https://github.com/achammah/driftbench/pull/444). Every study is a draft pull request; its files are linked on its branch.
-
-</details>
-
 ## What it does
 
 <a href=".github/readme/areas-light.png">
@@ -406,7 +239,7 @@ The studies: H1 to H4 in [#415](https://github.com/achammah/driftbench/pull/415)
 </a>
 
 **Write and generate tests**
-- [Specs](docs/reference/spec.md): one conversation or one task as YAML blocks, each with a Given, a When and a Then.
+- [Specs](docs/reference/spec.md): one conversation or task as blocks. Each carries a starting point (Given), a user turn (When) and an expected result (Then).
 - [Generated tests](docs/generating.md): code writes the blocks from an approved map of situations, and reports the pairs of values they cover.
 - [Tests from production](docs/traces.md): draft specs from OpenTelemetry, Nexus or Claude Code traces, or from [a spreadsheet](docs/datasets.md).
 
@@ -419,6 +252,9 @@ The studies: H1 to H4 in [#415](https://github.com/achammah/driftbench/pull/415)
 - [37 machine checks](docs/reference/checks.md): tool calls and their arguments, text, language, personal data, end state, files, spreadsheets, cost.
 - [Judges](docs/concepts/judges.md): a model judges what code cannot, must quote its evidence, and a panel votes when the first judge is unsure.
 - [Hand labels](docs/viewer.md): label blocks in a local viewer and measure each judge against them.
+- [Block rules and fault finding](#blocks-test-each-step-and-find-the-fix): trace a verdict to its rule file and a failure to its fix.
+
+<sub>Rule files and fault finding are on their way ([#443](https://github.com/achammah/driftbench/pull/443), [#449](https://github.com/achammah/driftbench/pull/449), [#447](https://github.com/achammah/driftbench/pull/447), [#451](https://github.com/achammah/driftbench/pull/451), [#453](https://github.com/achammah/driftbench/pull/453)).</sub>
 
 **Measure variance**
 - [Intervals on every rate](docs/concepts/statistics.md), repeats, and the share of runs that pass every time.
@@ -639,14 +475,17 @@ An agent can pass every step on its own and still fail the whole conversation. R
 <a href=".github/readme/council-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/council-dark.png">
-    <img alt="How a verdict is reached. First, rules checked by code: tools, text, language, personal data, end state; a rule that fails is final. Then three fast judges, which answer one yes or no question, or three expert judges, models from different labs that reason it through. The majority of three wins; a split goes to the other kind of judge; an unsure answer is judged again and never counted. Below, a judge earns its place: two examples, one bad and one good; it tells them apart 3 times out of 3; it agrees with your own labels; then it judges, and ties go to the fast judge." src=".github/readme/council-light.png" width="100%">
+    <img alt="How a verdict is reached. First, rules checked by code: tools, text, language, personal data, end state; a rule that fails is final. Then three fast judges, which answer one yes or no question, or three expert judges, models from different labs that reason it through. The majority of three wins; a split goes to the other kind of judge; an unsure answer is judged again and never counted. A judge earns its place by telling a bad example from a good one 3 times out of 3. It must agree with your labels. Ties go to the fast judge." src=".github/readme/council-light.png" width="100%">
   </picture>
 </a>
-<p align="center"><sub>Rules first, then fast or expert judges, each one tested before it may judge.</sub></p>
+<p align="center"><sub>Rules first, then fast or expert judges, each one tested to earn its place.</sub></p>
 
 - **Machine checks first.** Code checks everything code can check. A machine fail is final.
-- **Earned on evidence.** A judge owns a criterion only if it separates a failing transcript from a clean one 3 times out of 3 and agrees with hand labels at a kappa of 0.8 or more.
+- **Earned on evidence.** A judge must separate a failing transcript from a clean one 3 times out of 3. It must also agree with hand labels at a kappa of 0.8 or more.
 - **Strict verdicts.** Majority of three. A split goes to the other class of judge. An inconclusive answer is judged again and never counted. A judge never shares the agent's model family.
+- **Rules you can inspect.** Every verdict names its deciding rule. You can change that rule in a file and score the stored run again.
+
+<sub>Rule files and verdict stamps are on their way ([#443](https://github.com/achammah/driftbench/pull/443), [#449](https://github.com/achammah/driftbench/pull/449)).</sub>
 
 → [judges](docs/concepts/judges.md)
 
@@ -682,11 +521,15 @@ The gate turns all of this into an exit code: parity, regression, or not enough 
 
 ### Fixing the block that failed
 
-The verdict names the block, the stage and the check, with the evidence. You fix that part of the agent, not the whole prompt.
+The verdict names the block, the stage and the check, with the evidence. The fault finder reads that evidence and names who is at fault and where the fix belongs. A failed tool call can point to the tool description; a missing order recap can point to the prompt. The diagnosis never changes a failed check into a pass.
+
+<sub>The fault finder is on its way ([#447](https://github.com/achammah/driftbench/pull/447), [#451](https://github.com/achammah/driftbench/pull/451), [#453](https://github.com/achammah/driftbench/pull/453)).</sub>
 
 ### Rerunning the blast radius
 
-The fix maps to the blocks it can affect. driftbench reruns those and carries the rest from the last run, then the gate decides again. The nightly run still covers everything. See [blast radius](#blast-radius-rerun-only-what-a-change-touches).
+The fix maps to the blocks it can affect through their declared dependencies. driftbench reruns affected blocks and any steps that inherit their state. It carries the other results from the last run. When it cannot tell what the change touches, it reruns everything. The gate decides again, and the nightly run still covers everything. Source links advise which blocks to run; they do not skip tests. See [blast radius](#blast-radius-rerun-only-what-a-change-touches).
+
+<sub>Source links are on their way ([#423](https://github.com/achammah/driftbench/pull/423), [#429](https://github.com/achammah/driftbench/pull/429)).</sub>
 
 Concepts in the docs: [block](docs/concepts/block.md) · [Given, When, Then](docs/concepts/given-when-then.md) · [run modes](docs/concepts/run-modes.md) · [judges](docs/concepts/judges.md) · [statistics](docs/concepts/statistics.md)
 
