@@ -3,7 +3,7 @@ import { applyBlockRealizedTextPolicy } from '../runner/realized-text';
 import type { RunOptions } from '../runner/run';
 import type { BlockResult, Campaign, RunResult } from '../schema/run';
 import type { Spec } from '../schema/spec';
-import { contentHash } from '../spec/hash';
+import { specHash } from '../spec/identity';
 import { planRadiusCampaign } from './carry';
 import type { ChangeManifest } from './change';
 import { radiusOf } from './radius';
@@ -39,7 +39,7 @@ export function planBlockRerun(
   if (source.rejudged) return fail('a re-judged baseline requires a full agent measurement');
   if (options.driver.id !== 'scripted' || JSON.stringify(options.driver.seeds) !== '{}')
     return fail('the driver inputs are uncertain');
-  if (source.specHash !== contentHash(spec)) return fail('the full spec hash changed');
+  if (source.specHash !== specHash(spec)) return fail('the full spec hash changed');
   const radius = radiusOf([{ spec, hash: source.specHash }], manifest, { modes: ['T'] });
   if (radius.whole) return fail(radius.whole.reason);
   const indices = new Set(radius.specs[0]?.blocks.filter((b) => b.state.T !== 'out').map((b) => b.index));
