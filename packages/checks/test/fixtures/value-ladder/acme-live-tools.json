@@ -27,7 +27,7 @@
   },
   "coverage.check": {
     "name": "coverage.check",
-    "description": "Check whether Acme home internet reaches a street address. Returns found, address_id, address, fiber_mbps (0 = no fiber) and five_g.",
+    "description": "Check whether Acme home internet reaches a street address. Give the street type in full, for example Road, not Rd. Returns found, address_id, address, fiber_mbps (0 = no fiber) and five_g.",
     "input_schema": {
       "type": "object",
       "properties": {

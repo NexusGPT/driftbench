@@ -35,7 +35,7 @@ Every run command applies these checks; no command option changes them (see `jud
 
 | Field | Check | What passes | Verdict ids |
 |---|---|---|---|
-| `tools: [{ label, count, input, input_closed, compare }]` | `tools` | Each tool runs `count` times (a number, or `{ min, max }`; no `count` means at least once), and every call holds each `input` assertion; a value the assertion names goes through the value-check ladder (below). A tool not called fails each of its input assertions. `input_closed: true`: each call's input is an object with only the keys listed in `input`. `compare`: how differing values are decided, one mode for every argument or a mode by argument name; absent means `auto`. | `tools.<label>.count`, `tools.<label>.input.<field>`, `tools.<label>.input.<field>.unstated_format` (not gating: a lint on the test), `tools.<label>.input_closed`, `tools.argument_accuracy` (not gating: the share of expected arguments that matched) |
+| `tools: [{ label, count, input, input_closed, compare }]` | `tools` | Each tool runs `count` times (a number, or `{ min, max }`; no `count` means at least once), and every call holds each `input` assertion; a value the assertion names goes through the value-check ladder (below). A tool not called fails each of its input assertions. `input_closed: true`: each call's input is an object with only the keys listed in `input`. `compare`: how differing values are decided, one mode for every argument or a mode by argument name; absent means `auto`. | `tools.<label>.count`, `tools.<label>.input.<field>`, `tools.<label>.input.<field>.unstated_format` and `.no_decider` (not gating: lints on the test), `tools.<label>.input_closed`, `tools.argument_accuracy` (not gating: the share of expected arguments that matched) |
 | `tool_order: exact`, `in_order` or `any_order` | `tools` | `exact`: the calls split into consecutive runs, one per expected tool, with nothing left over (a fail names the first diverging call). `in_order`: the expected calls appear in order, others may sit between. `any_order`: they all appear. | `tools.order` |
 | `tools: [{ label, count: 0 }]` | `forbidden` | The tool is not called in the block. Reported by `forbidden`, not `tools`. | `forbidden.<label>` |
 | `rules.forbidden_tools: [label...]` | `forbidden` | The tool is never called. A block that expects a forbidden tool is a spec error (`TOOL_FORBIDDEN_EXPECTED`). | `forbidden.<label>` |
@@ -72,12 +72,13 @@ In `tools[].input`, a bare value, `{ exact: <value> }` and each leaf of `{ subse
 | 5 | `rung2_contract` | the field's schema in `metadata.tool_schemas` has a `pattern`, `enum` or `const` | A value that breaks it fails; two different members of an enum fail. It settles no pass. |
 | 6 | `rung2b_as_given` | the agent's value, or the expected one, appears as a whole token in what the user wrote (this block and the ones before) | The agent copied its value and the expected writing is not what it was given: pass. The user gave the expected writing and the agent wrote something else: fail. Both, in different messages: the later message stands (a correction), so keeping the earlier value fails. Both in one message, or neither: no decision. |
 | 7 | `rung3_same_referent` | a same-referent judge is configured, its calibration meets the policy (false acceptance at most 0.02), and the field states no contract | The judge reads each value alone, then compares the readings, 3 repeats in both orders: all say the same thing, pass; none, fail; split, inconclusive. |
+| 8 | `exact_fallback` (after the items) | no item settled the value | The exact compare of today: the differing value fails, and the `no_decider` lint names what would settle it. |
 
-A value no item settles is **inconclusive**, with every reason in the evidence, such as `rung3_same_referent: no same-referent judge is configured`. A gating inconclusive verdict fails the block; it is never a pass on a string compare, and it is not counted as a drift or as red by the generator gate.
+A value no item settles falls back to the exact compare, the verdict of today: it fails, the evidence says `exact_fallback: no decider configured for <tool>.<arg>; compared exactly` with every item's reason, and the non-gating lint `tools.<label>.input.<field>.no_decider` names the deciders that would settle it. The ladder turns a fail into a pass only when an item decides the value. Only a configured judge that cannot decide (its votes split, or its call fails) leaves a value inconclusive.
 
 A spec or a block runs another policy with `uses.value_check`: an object id, or an inline object that extends the shipped one, such as `uses: { value_check: { extends: default, items: [{ id: rung1_outcome, enabled: false }] } }`; a block's choice replaces the spec's. An object the check cannot resolve fails it with `tools.value_check` and the reason.
 
-`compare` modes: `auto` (the default) walks the ladder; `outcome`, `contract`, `as_given` or `same_referent` runs that item alone (inconclusive when it cannot apply); `{ exact: <reason> }` declares the writing itself is the requirement. Give one mode for every argument (`compare: auto`) or a mode by argument name (`compare: { customer: same_referent }`). The other assertion forms (`regex`, `contains`, `one_of`, `nonempty`, `absent`) list their own accepted writings and compare as written.
+`compare` modes: `auto` (the default) walks the ladder; `outcome`, `contract`, `as_given` or `same_referent` runs that item alone (the exact fallback when it cannot apply); `{ exact: <reason> }` declares the writing itself is the requirement. Give one mode for every argument (`compare: auto`) or a mode by argument name (`compare: { customer: same_referent }`). The other assertion forms (`regex`, `contains`, `one_of`, `nonempty`, `absent`) list their own accepted writings and compare as written.
 
 A value passed by `rung2b_as_given` or by the judge differs from the expected one only in its writing, and no contract states that writing: the check adds `tools.<label>.input.<field>.unstated_format`, not gating, which flags the test. Declare the format in the tool (a `pattern` or an `enum`) or drop it from the block.
 
@@ -93,7 +94,7 @@ The calls the adapter recorded in the block, with their labels and inputs; the r
 
 ## Outputs and how to read them
 
-The evidence names the call and the value: `catalog.search input.category is one of ["mobile","home"] on 1 call: "mobile"`. When the ladder decided a value, the evidence adds the item that settled it and why, in brackets: `(call 1 (call-2): address_id rung1_outcome: catalog.search resolves "addr-101" to ...)`; `undecided` names a value no item settled, with every reason. A failing count lists the calls the block did make. A failing order names what was expected and what was seen. `tool_f1` names the unexpected and the missed calls. `schema_strict` names each invented parameter.
+The evidence names the call and the value: `catalog.search input.category is one of ["mobile","home"] on 1 call: "mobile"`. When the ladder decided a value, the evidence adds the item that settled it and why, in brackets: `(call 1 (call-2): address_id rung1_outcome: catalog.search resolves "addr-101" to ...)`; `exact_fallback` names a value no item settled, compared exactly, with every reason. A failing count lists the calls the block did make. A failing order names what was expected and what was seen. `tool_f1` names the unexpected and the missed calls. `schema_strict` names each invented parameter.
 
 ## Worked example
 
@@ -199,7 +200,7 @@ The run fails on `tools.coverage.check.count`, `tools.order`, `tool_f1.f1` and `
 
 ### Values the agent wrote
 
-A second scratch spec: the customer gives a phone number in block 3, the Acme agent stores it on the lead as `+12025550131`, and the block expects the writing `(202) 555-0131`, once with the default `compare` and once declared exact. `notify_sales` only stores the value, the CLI configures no judge, and nobody wrote `(202) 555-0131`, so the default comparison stays undecided; the exact one fails, with its reason:
+A second scratch spec: the customer gives a phone number in block 3, the Acme agent stores it on the lead as `+12025550131`, and the block expects the writing `(202) 555-0131`, once with the default `compare` and once declared exact. `notify_sales` only stores the value, the CLI configures no judge, and nobody wrote `(202) 555-0131`, so the default comparison falls back to the exact compare and lints the test; the declared exact one fails, with its reason:
 
 ```yaml file=values-demo.yaml
 # Fictional data. The second expectation of block 3 repeats the first with an exact compare.
@@ -246,14 +247,15 @@ block 1 tools.coverage.check.count pass: coverage.check called 1 time, expected 
 block 1 tools.coverage.check.input.address pass: coverage.check input.address is equal to "88 Summit Avenue, Acmeville" on 1 call: "88 Summit Avenue, Acmeville"
 block 1 tools.argument_accuracy pass (not gating): 1 of 1 expected argument matched
 block 3 tools.notify_sales.count pass: notify_sales called 1 time, expected at least 1
-block 3 tools.notify_sales.input.customer inconclusive: notify_sales call 1 (call-1): input.customer is {"phone":"+12025550131"}; expected holding at least {"phone":"(202) 555-0131"} (call 1 (call-1): customer.phone undecided: "+12025550131" differs from "(202) 555-0131" and no rung settled it (rung3_same_referent: no same-referent judge is configured))
+block 3 tools.notify_sales.input.customer fail: notify_sales call 1 (call-1): input.customer is {"phone":"+12025550131"}; expected holding at least {"phone":"(202) 555-0131"} (call 1 (call-1): customer.phone exact_fallback: no decider configured for notify_sales.customer.phone; compared exactly: "+12025550131" is not "(202) 555-0131" (rung3_same_referent: no same-referent judge is configured))
+block 3 tools.notify_sales.input.customer.no_decider fail (not gating): test lint: nothing could decide whether "+12025550131" names the same thing as "(202) 555-0131" for notify_sales.customer.phone, so it was compared exactly; it would be settled by a replayer that declares notify_sales and resolves customer.phone (rung1_outcome), or a pattern or an enum for customer.phone in metadata.tool_schemas (rung2_contract), or a calibrated same-referent judge (rung3_same_referent)
 block 3 tools.notify_sales#2.count pass: notify_sales called 1 time, expected at least 1
 block 3 tools.notify_sales#2.input.customer fail: notify_sales call 1 (call-1): input.customer is {"phone":"+12025550131"}; expected holding at least {"phone":"(202) 555-0131"} (call 1 (call-1): customer.phone rung4_exact: "+12025550131" is not exactly "(202) 555-0131" (the sales dialer reads this exact form))
 block 3 tools.argument_accuracy fail (not gating): 0 of 2 expected arguments matched; missed: notify_sales input.customer, notify_sales input.customer
 (exit 0)
 ```
 
-The first expectation is inconclusive, which fails the block without calling the agent wrong: a judge configured from code would decide it, and it would then add the `unstated_format` lint, since no contract asks for `(202) 555-0131`. The second fails on the declared writing.
+The first expectation fails on the exact fallback and names the deciders that would settle it: a judge configured from code would pass it, and then add the `unstated_format` lint, since no contract asks for `(202) 555-0131`. The second fails on the declared writing.
 
 ## Common errors
 
@@ -263,7 +265,8 @@ The first expectation is inconclusive, which fails the block without calling the
 * A spec error naming `$ref`, `format` or another keyword: that schema keyword is not supported; inline the schema or drop the keyword.
 * `tools_offered...` gating inconclusive: the adapter reports no offered list.
 * `sql.0` inconclusive: the golden query itself failed; check it on the database.
-* `tools.<label>.input.<field>` inconclusive with `no same-referent judge is configured`: the value differs from the expected one, the tool only stores it, and no contract, source or judge decides it. Configure a judge or a replayer from code, declare the format in `metadata.tool_schemas`, or write `compare: { exact: <reason> }` when the writing is the requirement.
+* `tools.<label>.input.<field>` fails with `exact_fallback: no decider configured`, beside the `no_decider` lint: the value differs from the expected one and no replayer, contract, source or judge decides it. Configure a judge or a replayer from code, declare the format in `metadata.tool_schemas`, or write `compare: { exact: <reason> }` when the writing is the requirement.
+* `tools.<label>.input.<field>` inconclusive: a configured judge could not decide (its votes split, or its call failed).
 * `tools.<label>.input.<field>` fails with `the agent was given ... and wrote ...`: the user wrote the expected value and the agent changed it, a reformatting included (`rung2b_as_given`).
 * `tools.<label>.input.<field>.unstated_format`: the block demands a writing nobody stated to the agent; the agent passed. Declare the format in the tool or relax the block.
 * `the value-check policy ... cannot run` when the check is built: a policy names a rung no implementation provides, a `when` reads an unknown evidence name, or its `order` is not every item once.
