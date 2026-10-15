@@ -554,6 +554,7 @@
       "addFacts": "value",
       "agentVersionOf": "value",
       "anyGlobMatches": "value",
+      "applyRealizedTextPolicy": "value",
       "assistantMessage": "value",
       "auditBound": "value",
       "auditSample": "value",

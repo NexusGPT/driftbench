@@ -32,6 +32,11 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 * Every CLI target resolution shares the install-aware no-adapter message. `gate`, `generate --model` and `holdout score` now explain the absent Acme example in a CLI-only install; holdout still confirms that no query was spent.
 
 * The Acme example leaves the command's source. `examples/acme` is now a private workspace package, `@agent-nexus/driftbench-example-acme` (never published), that the command imports by name at run time. The built `@agent-nexus/driftbench` no longer contains the example's code (its bundle is 42 KB smaller), and `process:acme-ops` no longer depends on the layout of a checkout. No public name changes. In a checkout, target execution is unchanged; the gate and holdout no-adapter messages gain the reachable-target explanation described above. From an install of the published command alone, `function:acme-sales`, `function:acme`, `process:acme-ops` and `function:acme-random` have no adapter; the refusal there says the example is not part of the installed CLI, where it lives and how to run it from a checkout, and names only the targets that install reaches. `pnpm build` now also builds `examples/*`.
+
+### Fixed
+
+* Runs and blocks copied into another campaign follow that campaign's realized-text opt-in. Whole-run carries, partial block reruns, re-judging, store writes and imports strip `realized.text` by default, preserve its hash, and record the source run in `realizedTextStripped` provenance covered by the recomputed digest. Exports also strip legacy hash-only records. `campaign rejudge --record-realized-text` explicitly retains available source text; no copy reconstructs missing text. Core exports `applyRealizedTextPolicy` for the shared copy boundary.
+
 ### Breaking
 
 * History messages are now shared and deeply frozen. Adapters and function callbacks receive fresh arrays of the same messages; strict-mode writes to message fields throw. History must be an ordinary dense array of non-null plain message objects, without accessors or extra own properties. Messages must be plain JSON data; accessors and non-plain values such as Date, Map, class instances and typed arrays are rejected with a property path. A Proxy history array, message or nested value is rejected with its path.
