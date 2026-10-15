@@ -10,6 +10,7 @@ see_also:
   - running-modes
   - running-budget-and-prices
   - running-campaign-config
+  - running-realized-text
 next:
   - running-recordings
 ---
@@ -82,6 +83,8 @@ A recording (fields `family`, `model`, `persona`, `answers`), such as `examples/
 `simulate` prints a header naming the spec, target, persona and source (`recording <family>` or `model <family> <model>`), then per block the user's line, the agent's line, the stage reached and `✓` or `✗`, then `Facts given, each once asked: <names>.` and `<mark> <p> of <n> blocks pass. The run ended: <reason>.` The reason is the stop token, `--turns <n> reached`, `the spec has no block <n>`, or the run's error. `--json` prints `specId`, `target`, `persona`, `source`, `status`, `ended`, `revealed`, and `blocks` with `index`, `user`, `agent`, `stage`, `pass`.
 
 `campaign run --driver simulated` prints `Driver: simulated, persona <id> on <spec>, <source>.` before the usual campaign output.
+
+A stored simulated run records what the persona really said. Each block whose sent text differs from the spec's keeps `realized.hash`, and `realized.text` with `campaign run --record-realized-text`. The report shows the text as written and as sent (topic running-realized-text).
 
 Exit codes of `simulate`: 0 when the run completes and every block passes; 1 when a block fails or the run fails; 2 on bad input, nothing ran. `campaign run` exits as usual.
 
