@@ -24,6 +24,7 @@ export {
   type ClaudeCodeLiveOptions,
   claudeCodeLiveAdapter,
   DEFAULT_ESTATE_FILES,
+  DEFAULT_STATE_LIBRARY,
   type DecisionRow,
   decisionRow,
   diffTrees,

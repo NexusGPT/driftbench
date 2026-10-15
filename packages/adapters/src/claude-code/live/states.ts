@@ -214,8 +214,8 @@ export function readSessionRecords(text: string): SessionRecord[] {
 
 /**
  * The operations a turn needs: the session state's at the first turn, an event's the first turn it is
- * named, and `vars.mid_turn` as a queued message. A value the library does not hold is an error, never a
- * silent fresh run.
+ * named, and `vars.mid_turn` as a queued message. A value the library does not hold takes its default
+ * (`DEFAULT_STATE_LIBRARY`); a value with neither is an error, never a silent fresh run.
  */
 export function opsForTurn(
   library: StateLibrary | undefined,
@@ -248,7 +248,7 @@ function lookUp(
   part: 'states' | 'events',
   value: string,
 ): readonly LiveOp[] {
-  const ops = library?.[part][value];
+  const ops = library?.[part][value] ?? DEFAULT_STATE_LIBRARY[part][value];
   if (ops === undefined) {
     const what = part === 'states' ? 'session state' : 'event';
     throw new Error(
@@ -257,6 +257,89 @@ function lookUp(
   }
   return ops;
 }
+
+/** An earlier exchange of a session, written by code for the default library. Fictional, no estate named. */
+function exchange(n: number, ask: string, reply: string): SessionRecord[] {
+  const at = (second: number) =>
+    `2026-10-12T08:${String(n).padStart(2, '0')}:${String(second).padStart(2, '0')}.000Z`;
+  return [
+    {
+      type: 'user',
+      uuid: `default-${n}-ask`,
+      parentUuid: n === 0 ? null : `default-${n - 1}-reply`,
+      timestamp: at(0),
+      message: { role: 'user', content: ask },
+    },
+    {
+      type: 'assistant',
+      uuid: `default-${n}-reply`,
+      parentUuid: `default-${n}-ask`,
+      timestamp: at(5),
+      message: {
+        id: `msg_default_${n}`,
+        type: 'message',
+        role: 'assistant',
+        model: 'recorded',
+        content: [{ type: 'text', text: reply }],
+        usage: { input_tokens: 0, output_tokens: 0 },
+      },
+    },
+  ];
+}
+
+const EARLIER: readonly SessionRecord[] = exchange(
+  0,
+  'Note what is still open from this morning; we pick it up later.',
+  'Noted: two items are still open, and nothing was changed yet.',
+);
+const LONGER: readonly SessionRecord[] = [
+  ...EARLIER,
+  ...exchange(
+    1,
+    'What did we settle on for the first item?',
+    'We agreed to check it again before any change.',
+  ),
+  ...exchange(2, 'And the second one?', 'It waits for an answer from the owner of the file.'),
+  ...exchange(3, 'Fine, keep both open for now.', 'Both stay open; I change nothing until you ask.'),
+];
+
+/**
+ * The operations of the values of the six situation axes every estate shares (docs/estate.md section 3), used
+ * when the given library holds no entry for a value: an earlier exchange to resume (`resumed`, and a longer one
+ * for `long`), its compaction, a restart that tears it, a helper running or gone, a compaction or a restart
+ * during the task, and a wave of overloaded answers. A stale tracker names a file only the estate knows, so it
+ * has no default: give it in a library. A library entry replaces the default of its value.
+ */
+export const DEFAULT_STATE_LIBRARY: StateLibrary = {
+  states: {
+    resumed: [{ op: 'resume', prefix: EARLIER }],
+    long: [{ op: 'resume', prefix: LONGER }],
+    after_compaction: [
+      {
+        op: 'compact',
+        prefix: LONGER,
+        summary: 'Earlier in this session: two items were noted as open; nothing was changed yet.',
+        trigger: 'auto',
+      },
+    ],
+    after_restart: [{ op: 'restart', prefix: EARLIER }],
+    helpers_running: [
+      { op: 'helper', alive: true, prefix: EARLIER, description: 'Check the open items in the background.' },
+    ],
+  },
+  events: {
+    compaction_mid_task: [
+      {
+        op: 'compact',
+        summary: 'Work so far: the ask is in progress; nothing was changed yet.',
+        trigger: 'auto',
+      },
+    ],
+    process_restart: [{ op: 'restart' }],
+    rate_wave: [{ op: 'rate_wave', overloads: 2 }],
+    dead_helper: [{ op: 'helper', alive: false, description: 'Check the open items in the background.' }],
+  },
+};
 
 function lastUuid(records: readonly SessionRecord[]): string | undefined {
   for (let index = records.length - 1; index >= 0; index -= 1) {

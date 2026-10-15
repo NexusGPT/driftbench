@@ -128,8 +128,9 @@ describe('estate generate on the Northwind fixture and the hand plan', () => {
     ]);
     expect(only(byId, 'estate.p24').blocks[0]?.expect?.tools).toEqual([{ label: 'WebFetch', count: 0 }]);
     expect(only(byId, 'estate.p09').blocks[0]?.expect?.must).toEqual(['late']);
+    // "Read a file before you edit it": the same file, read then edited.
     expect(only(byId, 'estate.p13').rules?.custom).toEqual({
-      ordered: { pairs: [{ before: 'Read', after: 'Edit' }] },
+      ordered: { pairs: [{ before: 'Read', after: 'Edit', key: 'file_path' }] },
     });
     const stageSkip = only(byId, 'estate.p27');
     expect(stageSkip.blocks[0]?.expect?.stage).toBe('report');
@@ -483,8 +484,8 @@ describe('the committed suite', () => {
     expect(result.report.summary).toEqual({
       specs: 1568,
       blocks: 1563,
-      complete: 1360,
-      incomplete: 208,
+      complete: 1375,
+      incomplete: 193,
       judged: 348,
     });
     expect(result.report.invalid).toEqual([]);

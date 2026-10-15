@@ -76,6 +76,7 @@ export {
   type ThenContext,
   type ThenParts,
   thenOf,
+  workPairs,
 } from './then';
 export {
   CHECK_GAP,

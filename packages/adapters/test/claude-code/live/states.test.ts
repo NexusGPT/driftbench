@@ -11,6 +11,7 @@ import {
   applySessionOps,
   type ClaudeCodeLiveOptions,
   claudeCodeLiveAdapter,
+  DEFAULT_STATE_LIBRARY,
   type LiveOp,
   loadStateLibrary,
   opsForTurn,
@@ -296,5 +297,27 @@ describe('the operations, alone', () => {
     expect(opsForTurn(library, { session_state: 'long' }, 0, applied).map((op) => op.op)).toEqual(['resume']);
     expect(opsForTurn(library, { session_state: 'long' }, 1, applied)).toEqual([]);
     expect(opsForTurn(library, {}, 0, new Set(), fallback)).toEqual(fallback);
+  });
+
+  it('plants the shared situation values from the default library, a given entry first', () => {
+    const own: StateLibrary = { states: { resumed: [{ op: 'queue', message: 'mine' }] }, events: {} };
+    expect(
+      opsForTurn(undefined, { session_state: 'after_restart' }, 0, new Set()).map((op) => op.op),
+    ).toEqual(['restart']);
+    expect(opsForTurn(own, { session_state: 'resumed' }, 0, new Set())).toEqual([
+      { op: 'queue', message: 'mine' },
+    ]);
+    expect(opsForTurn(own, { event: 'dead_helper' }, 0, new Set())).toEqual(
+      DEFAULT_STATE_LIBRARY.events.dead_helper,
+    );
+    // A value that names a file only the estate knows has no default.
+    expect(() => opsForTurn(undefined, { event: 'stale_tracker' }, 0, new Set())).toThrow(/no operation/);
+    // Every default prefix resumes as a session: its records chain from the first to the last.
+    const { file } = applySessionOps(undefined, DEFAULT_STATE_LIBRARY.states.long ?? [], context);
+    const records = file?.records ?? [];
+    expect(records.length).toBeGreaterThan(2);
+    for (let index = 1; index < records.length; index += 1) {
+      expect(records[index]?.parentUuid).toBe(records[index - 1]?.uuid);
+    }
   });
 });

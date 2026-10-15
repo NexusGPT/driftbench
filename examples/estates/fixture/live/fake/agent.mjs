@@ -452,7 +452,9 @@ function skillActions(unit, estate, requested, cwd) {
   let unresolved = false;
   const relate = (before, after) => {
     const predecessors = matchActions(before);
-    const successors = matchActions(after);
+    // An act never waits for itself: a later end whose words only echo the earlier act's own input ("read
+    // `matching-rules.md` before matching any line") names no other act, so the relation is unresolved.
+    const successors = matchActions(after).filter((action) => !predecessors.includes(action));
     if (!predecessors.length || !successors.length) {
       unresolved = true;
       return;

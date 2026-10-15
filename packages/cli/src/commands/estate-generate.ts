@@ -169,6 +169,18 @@ export async function estateGenerateCommand(options: EstateGenerateOptions, io: 
   const lister = readerFor(loaded.map.runtime, { ignore: loaded.map.ignore ?? [] });
   if (lister?.listFiles && (await stat(root).catch(() => undefined))?.isDirectory()) {
     files = await lister.listFiles(root);
+    // A folder that lacks a file the map's atoms are quoted from is not the estate the map was read from
+    // (the map was copied or moved): its listing would turn every expected read into a missing file.
+    const listed = new Set(files);
+    const quoted = [...new Set(loaded.map.atoms.map((atom) => atom.provenance.file))];
+    const absent = quoted.filter((file) => !listed.has(file));
+    if (absent.length > 0) {
+      files = undefined;
+      if (!options.json)
+        io.out(
+          `The folder ${display(root, io)} lacks ${absent.length} file${absent.length === 1 ? '' : 's'} the map quotes (such as ${absent[0]}), so it is not the estate the map was read from: reads are checked against the files the map knows.\n`,
+        );
+    }
   } else if (!options.json) {
     io.out(
       `The estate folder ${display(root, io)} cannot be listed: reads are checked against the files the map knows.\n`,

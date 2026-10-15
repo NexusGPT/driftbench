@@ -43,8 +43,8 @@
   "summary": {
     "specs": 1568,
     "blocks": 1563,
-    "complete": 1360,
-    "incomplete": 208,
+    "complete": 1375,
+    "incomplete": 193,
     "judged": 348
   },
   "unit": {
@@ -61,18 +61,18 @@
   },
   "sources": {
     "asks": {
-      "bank": 433,
-      "code": 919,
+      "bank": 438,
+      "code": 929,
       "session": 0,
       "none": 8
     },
     "outcomes": {
-      "bank": 981,
+      "bank": 995,
       "no-change:denied": 2,
       "no-change:guard": 27,
       "no-change:negative": 58,
       "no-change:read-only": 17,
-      "no-delete": 267,
+      "no-delete": 268,
       "static": 8
     },
     "judged": 201
@@ -100,14 +100,14 @@
     "ordered_pair": {
       "rows": 112,
       "specs": 112,
-      "complete": 98,
-      "incomplete": 14
+      "complete": 112,
+      "incomplete": 0
     },
     "skip_pressure": {
       "rows": 8,
       "specs": 8,
-      "complete": 6,
-      "incomplete": 2
+      "complete": 7,
+      "incomplete": 1
     },
     "route_positive": {
       "rows": 260,
@@ -264,8 +264,8 @@
     "live": {
       "rows": 1525,
       "specs": 1525,
-      "complete": 1323,
-      "incomplete": 202
+      "complete": 1338,
+      "incomplete": 187
     }
   },
   "gaps": [
@@ -326,12 +326,6 @@
       "specs": 2,
       "atoms": ["reference.weekly-report.read-references-kpi-definitions-md"],
       "details": [".claude/skills/weekly-report/references/kpi-definitions.md is no file of the estate"]
-    },
-    {
-      "marker": "needs-ordered-anchor",
-      "specs": 15,
-      "atoms": ["gate.invoice-reconcile.read-references-matching-rules-md-before"],
-      "details": ["Read before matching any line: \"matching any line\" is no tool label, skill or stage"]
     },
     {
       "marker": "needs-recorded-session",
