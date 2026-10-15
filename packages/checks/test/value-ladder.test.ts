@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
+import { objectRegistry } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { createToolsCheck } from '../src/checks/tools';
 import {
@@ -391,6 +392,50 @@ describe('a named compare mode runs that rung alone', () => {
       ).outcome;
     expect(await field()).toBe('fail');
     expect(await field(withoutOutcome)).toBe('inconclusive');
+  });
+});
+
+describe('the policy comes through the object resolver', () => {
+  const coverage = acme('acme-new-customer-coverage');
+  const seen = observed('Checking.', [
+    { label: 'coverage.check', input: { address: '88 Summit Ave, Acmeville' } },
+  ]);
+  const expectation = {
+    tools: [{ label: 'coverage.check', input: { address: '88 Summit Avenue, Acmeville' } }],
+  };
+  const field = async (uses?: Record<string, unknown>, at: 'spec' | 'block' = 'block') => {
+    const blocks = coverage.blocks.map((block, index) =>
+      index === 1 && at === 'block' && uses ? { ...block, uses } : block,
+    );
+    const spec = { ...coverage, blocks, ...(at === 'spec' && uses ? { uses } : {}) } as typeof coverage;
+    const check = createToolsCheck({ services: { replayer: acmeReplayer() } });
+    return verdict(
+      await run(check, context(spec, 1, seen, { expect: expectation })),
+      'tools.coverage.check.input.address',
+    );
+  };
+
+  it('a block that disables rung 1 in an inline object extending the default leaves Ln undecided', async () => {
+    expect((await field()).outcome).toBe('fail');
+    const off = { value_check: { extends: 'default', items: [{ id: 'rung1_outcome', enabled: false }] } };
+    expect((await field(off)).outcome).toBe('inconclusive');
+    expect((await field(off, 'spec')).outcome).toBe('inconclusive');
+    expect((await field({ value_check: 'default' })).outcome).toBe('fail');
+  });
+
+  it('a block that names an object nobody registered fails the check with the resolver reason', async () => {
+    const spec = { ...coverage, uses: { value_check: 'nowhere' } } as typeof coverage;
+    const verdicts = await run(createToolsCheck(), context(spec, 1, seen, { expect: expectation }));
+    expect(verdicts).toHaveLength(1);
+    expect(verdicts[0]).toMatchObject({ id: 'tools.value_check', outcome: 'fail' });
+    expect(verdicts[0]?.evidence).toContain('cannot resolve');
+  });
+
+  it('the shipped object is registered with the resolver, item for item', () => {
+    const shipped = objectRegistry.shipped().find(({ path }) => path === 'policy/value-check/default.yaml');
+    if (shipped === undefined) throw new Error('policy/value-check:default is not registered');
+    const { extends: _parent, description: _description, ...rest } = shipped.raw as Record<string, unknown>;
+    expect(rest).toEqual(DEFAULT_VALUE_POLICY);
   });
 });
 
