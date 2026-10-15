@@ -855,30 +855,78 @@ export function scriptOf(
   command: string,
   paths?: ReadonlySet<string>,
 ): { script?: string; anchored: boolean; dispatcher?: string } {
-  for (const segment of segments(command)) {
+  return scriptFrom(command, paths, '', false);
+}
+
+/** Carry a proven working directory into a command, including a shell's quoted command string. */
+function scriptFrom(
+  command: string,
+  paths: ReadonlySet<string> | undefined,
+  directory: string,
+  anchoredDirectory: boolean,
+): { script?: string; anchored: boolean; dispatcher?: string } {
+  for (const { words: segment, after } of segments(command)) {
+    const words = segment.map((word) => word.replace(/["']/g, ''));
+    if (words[0] === 'cd') {
+      const target = words[1] === '--' ? words[2] : words[1];
+      if (target !== undefined && after === '&&') {
+        const changed = anchorOf(`${target.replace(/\/$/, '')}/`);
+        directory = changed.anchored ? changed.script : posix.join(directory, changed.script);
+        anchoredDirectory = changed.anchored || anchoredDirectory;
+      } else {
+        directory = '';
+        anchoredDirectory = false;
+      }
+      continue;
+    }
+    let head = 0;
+    while (ENV_ASSIGNMENT.test(words[head] ?? '')) head++;
+    if (words[head] === 'env') {
+      head++;
+      while (ENV_ASSIGNMENT.test(words[head] ?? '') || words[head]?.startsWith('-')) head++;
+    }
+    if (['sh', 'bash', 'zsh', 'dash', 'ksh'].includes(basename(words[head] ?? ''))) {
+      const flag = words[head + 1];
+      if (flag !== undefined && /^-[a-z]*c[a-z]*$/.test(flag)) {
+        const quoted = segment[head + 2];
+        if (quoted !== undefined) {
+          const payload = /^(["']).*\1$/.test(quoted) ? quoted.slice(1, -1) : quoted;
+          const nested = scriptFrom(payload, paths, directory, anchoredDirectory);
+          if (nested.script !== undefined) return nested;
+          continue;
+        }
+      }
+    }
     const runs = runPath(segment);
     if (runs === undefined) continue;
-    const first = anchorOf(runs);
+    const relative = anchorOf(runs);
+    const first = relative.anchored
+      ? relative
+      : { script: posix.normalize(posix.join(directory, relative.script)), anchored: anchoredDirectory };
     if (!paths) return first;
-    const last = scriptIn(segment.join(' '), '', paths);
+    const last = scriptIn(segment.join(' '), directory, paths, true);
     if (last === undefined || last === first.script) return first;
     return {
       script: last,
       anchored: first.anchored,
-      ...(first.script !== undefined && paths.has(first.script) ? { dispatcher: first.script } : {}),
+      ...(paths.has(first.script) ? { dispatcher: first.script } : {}),
     };
   }
   return { anchored: false };
 }
 
-/** A command line cut into its parts at the shell's list and pipe operators. */
-function segments(command: string): string[][] {
-  const parts: string[][] = [[]];
+/** A command line cut into parts, retaining the operator that follows each part. */
+function segments(command: string): Array<{ words: string[]; after?: string }> {
+  const parts: Array<{ words: string[]; after?: string }> = [];
+  let words: string[] = [];
   for (const token of tokens(command)) {
-    if (OPERATORS.has(token)) parts.push([]);
-    else parts[parts.length - 1]?.push(token);
+    if (OPERATORS.has(token)) {
+      parts.push({ words, after: token });
+      words = [];
+    } else words.push(token);
   }
-  return parts.filter((part) => part.length > 0);
+  parts.push({ words });
+  return parts.filter((part) => part.words.length > 0);
 }
 
 /** The path a part of a command runs, as written: after assignments, `env` and an interpreter's flags. */
@@ -1290,19 +1338,29 @@ function parseWatchList(items: readonly string[], own: string): RegistryRow['enf
  * tried from the root, from the folder the command is written in, and from the folder of each earlier path
  * and the folders above it (a dispatcher names its target from where it sits). The last one that exists wins.
  */
-function scriptIn(command: string, from: string, paths: ReadonlySet<string>): string | undefined {
+function scriptIn(
+  command: string,
+  from: string,
+  paths: ReadonlySet<string>,
+  workingDirectoryFirst = false,
+): string | undefined {
   let found: string | undefined;
   const bases = [''];
-  if (from !== '.' && from !== '') bases.push(from);
+  if (from !== '.' && from !== '') {
+    if (workingDirectoryFirst) bases.unshift(from);
+    else bases.push(from);
+  }
   for (const raw of tokens(command)) {
-    const token = stripAnchor(raw.replace(/["']/g, ''));
+    const unquoted = raw.replace(/["']/g, '');
+    const token = stripAnchor(unquoted);
     if (token === '' || token.startsWith('-') || /^[A-Za-z_][A-Za-z0-9_]*=/.test(token)) continue;
     const named = token.includes('/') || SCRIPT_EXTENSION.test(token);
     // After a dispatcher, a bare word may name its target script without the extension.
     const bare = !named && found !== undefined && /^[\w.-]+$/.test(token);
     if (!named && !bare) continue;
     const names = bare ? DISPATCH_EXTENSIONS.map((extension) => `${token}${extension}`) : [token];
-    const hit = bases
+    const searchBases = workingDirectoryFirst && anchorOf(unquoted).anchored ? [''] : bases;
+    const hit = searchBases
       .flatMap((base) => names.map((name) => posix.normalize(posix.join(base, name))))
       .find((candidate) => paths.has(candidate));
     if (hit === undefined) continue;

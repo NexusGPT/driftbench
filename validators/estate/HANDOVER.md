@@ -11,13 +11,13 @@
 | hidden | 0 |
 <!-- level-table:end -->
 
-Iteration 33, source 21ffa34cf4536d416b9be629f97d2be90a2b9af9 plus the change recorded in this journal row. Hidden seed 571401612, derived from that head.
+Iteration 34, source 096925106b18ce692f4455ea1cc9d34cb9304021 plus the change recorded in this journal row. Hidden seed 158885712, derived from that head.
 | Seed | Reader passing / items |
 |---|---|
-| 1 | 610/641 |
-| 2 | 610/641 |
-| 3 | 610/641 |
-| hidden (571401612) | 610/641 |
+| 1 | 611/641 |
+| 2 | 612/641 |
+| 3 | 612/641 |
+| hidden (158885712) | 612/641 |
 
 Each fraction counts reader items passing on that seed, out of 641 reader items. Journal `passing` counts distinct evaluated item IDs passing every seed; it is not a sum of seed counts. The journal's per-level `metrics` use seed 1; its `perSeed` records achieved levels separately.
 
@@ -36,8 +36,6 @@ Owner rule: "make sure all the fixes are fixes that are TO THE FRAMEWORK in gene
 ## Open items
 
 - scan.registry.md-label-lowercase: [scan.registry, tier 3] the guard enforces the rules of a label written in lower case: missed the enforces edge scan.registry.md-label-lowercase:guard to scan.registry.md-label-lowercase:rule0
-- scan.dispatcher.change-folder: [scan.dispatcher, tier 3] a guard declared with a change into the project folder first names and finds its script: scan.dispatcher.change-folder:guard: anchored is false, expected true
-- scan.dispatcher.shell-wrapper: [scan.dispatcher, tier 4] a guard declared with a shell wrapper with a quoted command names and finds its script: scan.dispatcher.shell-wrapper:guard: script is "python3 $CLAUDE_PROJECT_DIR/.claude/guards/crate-plan-oh9oal.py", expected ".claude/guards/crate-plan-oh9oal.py"; scan.dispatcher.shell-wrapper:guard: anchored is false, expected true
 - scan.reference-prose.text-file: [scan.reference-prose, tier 3] the scan reads the rules of a plain text reference: missed instruction at .claude/skills/recipe-sort-1ki10ij/references/notes.txt:2
 - scan.reference-prose.chained: [scan.reference-prose, tier 4] the scan reads the rules of a reference naming a second reference with its own rule: missed the reference edge scan.reference-prose.chained:skill to scan.reference-prose.chained:inner-ref
 - scan.reference-prose.outside-skill: [scan.reference-prose, tier 3] the scan reads the rules of a reference outside any skill, named by the standing instructions: missed instruction at .claude/docs/ledger-check-138qwq4.md:2
@@ -47,6 +45,7 @@ Owner rule: "make sure all the fixes are fixes that are TO THE FRAMEWORK in gene
 - scan.hazards.decoy-price: [scan.hazards, tier 3] code reads a decoy: nudging a price: found hazard hazard.recipe-pack-14rrbst.recover-from-repeated-guard-nudges at .claude/skills/recipe-pack-14rrbst/SKILL.md:9, never planted
 - scan.combination.colon+crlf: [scan.combination, tier 4] the reader reads a skill with both colon and crlf: missed route shelf-audit-3dpxle at .claude/skills/shelf-audit-3dpxle/SKILL.md:3; missed the route edge scan.combination.colon+crlf:route to scan.combination.colon+crlf:skill
 - scan.combination.prefixguard+crlf: [scan.combination, tier 4] the reader reads a skill with both prefixguard and crlf: missed route badge-check-f38gr8 at .claude/skills/badge-check-f38gr8/SKILL.md:3; missed guard check.sh at .claude/skills/badge-check-f38gr8/SKILL.md:10; found script script.badge-check-f38gr8.script-scripts-check-sh at .claude/skills/badge-check-f38gr8/scripts/check.sh:2, never planted; missed the route edge scan.combination.prefixguard+crlf:route to scan.combination.prefixguard+crlf:skill
+- scan.hostile.wide-folder: [scan.hostile, tier 3] : [scan.hostile, tier 3] the scan survives a references folder of two thousand files: the scan took 7898 ms, over 5000 ms; holds
 - scan.hostile.helper-subfolder: [scan.hostile, tier 3] the scan survives a helper in a subfolder of the helpers folder: missed subagent crate-price-1xtpv3h at .claude/agents/team/crate-price-1xtpv3h.md:2; missed route crate-price-1xtpv3h at .claude/agents/team/crate-price-1xtpv3h.md:3
 - scan.hostile.tabs-in-frontmatter: [scan.hostile, tier 3] the scan survives a frontmatter indented with tabs: found tool tool.roster-count-1dxpozt.declared-read at .claude/skills/roster-count-1dxpozt/SKILL.md:5, never planted
 - scan.decoys.owner-table: [scan.decoys, tier 3] code is not fooled: a table of owners that names a skill is no routing table: found route route.standing.an-ask-to-ana-loads-tariff at CLAUDE.md:4, never planted
@@ -69,6 +68,7 @@ Owner rule: "make sure all the fixes are fixes that are TO THE FRAMEWORK in gene
 
 ## Hypotheses tried
 
+Iteration 34: shell context for hook commands (cd &&, sh -c wrappers). +2 on every seed: scan.dispatcher.change-folder, shell-wrapper. Seed 1 lost wide-folder on timing only.
 Iteration 33: registry rows that name a guard by its command. +1 on every seed: scan.catalogue.guard-command-key.
 Iteration 32: duplicate skill names noted. +1 on every seed: scan.hostile.duplicate-names.
 Iteration 31: prompt hooks and malformed hook containers. +2 on every seed: scan.hostile.prompt-hook, hooks-wrong-shape.
