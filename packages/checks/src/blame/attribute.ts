@@ -102,6 +102,8 @@ export type DiagnoseBlockInput = {
   /** `diagnostic/<id>@<hash8>`, written on every diagnosis. */
   diagnostic?: string;
   fixText?: string;
+  /** false: every failing verdict is a root (the chain step disabled). */
+  chain?: boolean;
 };
 
 export type DiagnoseBlockResult = {
@@ -124,19 +126,23 @@ export function diagnoseBlock(options: DiagnoseBlockInput): DiagnoseBlockResult 
     }
     return known;
   };
-  const links = chainVerdicts(options.verdicts, {
-    ...(options.tools === undefined ? {} : { tools: options.tools }),
-    breaks: (verdict) => {
-      const known = factsFor(verdict);
-      if (known.tool_failed === true) return true;
-      const tool = known.tool as string | undefined;
-      const input = inputs.get(verdict.id);
-      const called =
-        tool !== undefined && (input?.block.observed.toolCalls ?? []).some((call) => call.label === tool);
-      return tool !== undefined && !called;
-    },
-    by: (options.blame.params.chain_by as string[] | undefined) ?? ['artifact_path', 'tool_output'],
-  });
+  const links =
+    options.chain === false
+      ? chainVerdicts(options.verdicts, { breaks: () => false, by: [] })
+      : chainVerdicts(options.verdicts, {
+          ...(options.tools === undefined ? {} : { tools: options.tools }),
+          breaks: (verdict) => {
+            const known = factsFor(verdict);
+            if (known.tool_failed === true) return true;
+            const tool = known.tool as string | undefined;
+            const input = inputs.get(verdict.id);
+            const called =
+              tool !== undefined &&
+              (input?.block.observed.toolCalls ?? []).some((call) => call.label === tool);
+            return tool !== undefined && !called;
+          },
+          by: (options.blame.params.chain_by as string[] | undefined) ?? ['artifact_path', 'tool_output'],
+        });
   const diagnoses: BlameDiagnosis[] = [];
   const recovered: string[] = [];
   const byRoot = new Map<string, BlameDiagnosis>();
