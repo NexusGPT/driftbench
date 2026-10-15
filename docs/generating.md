@@ -71,7 +71,7 @@ The relations are what lets code derive a machine Then. Each one quotes its sour
 | Kind | What it says | Acme |
 |---|---|---|
 | `path` | a flow's stage order on one branch, the cell values the branch needs (`when`), the behaviours it exercises, and the end state the store holds when it ends (by slots) | 12 |
-| `uses_tool` | a tool a flow or behaviour calls, the stage it is called at (and, with `to`, the stage the turn reaches), the call count, and its inputs by slot | 14 |
+| `uses_tool` | a tool a flow or behaviour calls, the stage it is called at (and, with `to`, the stage the turn reaches), the call count, and its inputs by slot. A flow's call is made on the move that leaves the stage; a behaviour's call is made in the turn that asks for the behaviour, said at that stage, and never on a move | 14 |
 | `states` | what the reply of one turn must state, such as each plan with the monthly price the tool returned; it becomes `expect.must` on that turn | 7 |
 | `binds` | the concrete values a data or persona value stands for, such as the email of a found account | 12 |
 | `recovery` | how a flow recovers from one deviation class: the stages it is probed at (`at`), the stage after (`pending` is the stage the conversation had reached), reply patterns, guards and calls; for `D8_tool_failure`, the tool that fails | 24: 7 by code, 17 by the model |
@@ -302,6 +302,7 @@ A complete generated block reads observed state, not only words. Code derives ea
 |---|---|
 | `expect.stage` and `expect.stage_reported` | the path's next stage, reported by the runtime in this block |
 | `expect.tools` (label, count, input) | the `uses_tool` relations of the flow at that stage, inputs filled from the slots the cell's data values and the phrases bind; every other tool the scenario calls is expected 0 times in that turn |
+| `expect.tools` and `expect.must` on a behaviour's phrase turn | the `uses_tool` relations of that behaviour at the stage the phrase is said, for a tool without side effects: one call, and the `states` patterns that state the tool's returned fields |
 | `rules.forbidden_tools` | every tool the scenario never calls |
 | `end_state` on the last block | the path's end state, slots filled |
 | a probe block's stage, `must`, `must_not`, guards and calls | the recovery of that class in that flow; `pending` is the stage the conversation had reached. A recovery that stays there also keeps the `must_not` patterns with no slot of the `states` relation that reached the stage, such as narrated internal steps |

@@ -12,31 +12,37 @@ import { blockOutcome, runOnce } from '../../src/gate/agents';
 // at any stage, without moving the conversation.
 const SEED = 13;
 
+/** Seed 13's rendered map with a `uses_tool` for every behaviour that runs a read tool, at every stage. */
+function linkedMap() {
+  const hidden = hiddenSpec(SEED);
+  const rendered = renderMap(hidden);
+  const map = parse(rendered.map) as { relations: Array<Record<string, unknown>> };
+  const running = hidden.behaviours.filter(
+    (behaviour) => behaviour.tool && !hidden.tools.find((tool) => tool.name === behaviour.tool)?.sideEffect,
+  );
+  for (const behaviour of running) {
+    const quote = `${behaviour.title}.`;
+    rendered.prompt += `\n${quote}\n`;
+    for (const stage of hidden.stages)
+      map.relations.push({
+        kind: 'uses_tool',
+        subject: { dimension: 'behaviour', value: behaviour.id },
+        tool: behaviour.tool,
+        stage: stage.id,
+        to: stage.id,
+        evidence: { source: './prompt.md', quote },
+        produced_by: 'code',
+        approved: true,
+      });
+  }
+  rendered.map = stringify(map);
+  return { hidden, rendered, running };
+}
+
 describe('a behaviour phrase whose behaviour runs a read tool', () => {
   it('runs the tool and reads the facts its reply states, so a flipped fact fails the turn', async () => {
-    const hidden = hiddenSpec(SEED);
-    const rendered = renderMap(hidden);
-    const map = parse(rendered.map) as { relations: Array<Record<string, unknown>> };
-    const running = hidden.behaviours.filter(
-      (behaviour) => behaviour.tool && !hidden.tools.find((tool) => tool.name === behaviour.tool)?.sideEffect,
-    );
+    const { hidden, rendered, running } = linkedMap();
     expect(running.length).toBeGreaterThan(0);
-    for (const behaviour of running) {
-      const quote = `${behaviour.title}.`;
-      rendered.prompt += `\n${quote}\n`;
-      for (const stage of hidden.stages)
-        map.relations.push({
-          kind: 'uses_tool',
-          subject: { dimension: 'behaviour', value: behaviour.id },
-          tool: behaviour.tool,
-          stage: stage.id,
-          to: stage.id,
-          evidence: { source: './prompt.md', quote },
-          produced_by: 'code',
-          approved: true,
-        });
-    }
-    rendered.map = stringify(map);
     const generated = await generateFrom(hidden, rendered, SEED, {}, { once: true });
     if (!generated.prepared) throw new Error(JSON.stringify(generated.refused));
     const titles = new Map(
@@ -74,5 +80,38 @@ describe('a behaviour phrase whose behaviour runs a read tool', () => {
       expect(blockOutcome(lying, index), `${spec.id} with flipped facts`).toBe('fail');
     }
     expect(checked).toBeGreaterThan(0);
+  }, 300_000);
+});
+
+describe('a behaviour call the map states', () => {
+  it('is never made on a move: every spec without that behaviour phrase is the spec the map without it gives', async () => {
+    const { hidden, rendered, running } = linkedMap();
+    const linked = await generateFrom(hidden, rendered, SEED, {}, { once: true });
+    const plain = await generateFrom(hidden, renderMap(hidden), SEED, {}, { once: true });
+    if (!linked.prepared || !plain.prepared) throw new Error('the fictional map failed to load');
+    const phrases = new Set(
+      hidden.phrases
+        .filter(
+          (phrase) =>
+            phrase.intent.kind === 'behaviour' &&
+            running.some(
+              (behaviour) => phrase.intent.kind === 'behaviour' && behaviour.id === phrase.intent.behaviour,
+            ),
+        )
+        .map((phrase) => phrase.text),
+    );
+    const says = (spec: (typeof linked.complete)[number]['spec']) =>
+      spec.blocks.some((block) => 'user' in block.when && phrases.has(block.when.user));
+    const strip = (spec: object, hash: string) => JSON.stringify(spec).split(hash).join('HASH');
+    const before = new Map(
+      plain.complete.map(({ spec }) => [spec.id, strip(spec, plain.prepared?.hash ?? '')]),
+    );
+    let compared = 0;
+    for (const { spec } of linked.complete) {
+      if (says(spec)) continue;
+      compared += 1;
+      expect(strip(spec, linked.prepared.hash), spec.id).toBe(before.get(spec.id));
+    }
+    expect(compared).toBeGreaterThan(100);
   }, 300_000);
 });

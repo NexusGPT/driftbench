@@ -11,7 +11,7 @@ import type {
 import type { PathRelation, ProposalPhrase, Slots } from '../extract/proposal';
 import type { BlockDraft, Pick, Stimulus } from './assemble';
 import { OPENING_CLASSES, TOOL_FAILURE, TOOL_FAILURE_ERROR } from './deviation';
-import { dimensionId, type PreparedMap, phraseKey, valueId } from './map';
+import { behaviourSubject, dimensionId, type PreparedMap, phraseKey, valueId } from './map';
 import { pick, type Rng } from './random';
 import {
   type Context,
@@ -515,6 +515,8 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     const tools: ToolExpect[] = [];
     const ruled: Pick[] = [];
     for (const call of relations.usesTools) {
+      // A behaviour's call is made in that behaviour's own phrase turn, never on a move.
+      if (behaviourSubject(prepared, call.subject)) continue;
       const subject =
         call.subject.dimension === 'flow'
           ? call.subject.value === path.flow
