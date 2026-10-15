@@ -166,7 +166,7 @@ export const BUILTIN_KINDS: readonly KindDef[] = [
     itemsKey: 'steps',
     ownImpls: true,
     fields: {
-      scope: z.enum(['block']).optional(),
+      scope: z.enum(['block', 'run', 'campaign']).optional(),
       when: z
         .strictObject({
           always: z.literal(true).optional(),
@@ -182,6 +182,12 @@ export const BUILTIN_KINDS: readonly KindDef[] = [
       reads: z.array(z.string().min(1)).optional(),
       output: z.strictObject({ fields: z.array(z.string().min(1)) }).optional(),
       default: z.boolean().optional(),
+      cost: z
+        .strictObject({
+          model_calls: z.enum(['none', 'conditional', 'always']).optional(),
+          agent_runs: z.enum(['none', 'conditional', 'always']).optional(),
+        })
+        .optional(),
     },
     check: (object, registry) => {
       const unknown = ((object.fields.reads as string[] | undefined) ?? []).filter(

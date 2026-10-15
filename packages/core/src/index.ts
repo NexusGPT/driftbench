@@ -66,13 +66,17 @@ export {
 } from './coverage';
 export {
   type DiagnosticBudget,
+  type DiagnosticScope,
   type DiagnosticStep,
   type DiagnosticStepContext,
   diagnosticStep,
   registerDiagnosticStep,
+  runCampaignDiagnostics,
   runDiagnostics,
+  runRunDiagnostics,
   StepCost,
   type StepOutput,
+  scopeOf,
   triggers,
 } from './diagnostics';
 export {

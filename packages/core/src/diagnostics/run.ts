@@ -3,7 +3,7 @@ import type { CheckContext } from '../contracts/check';
 import type { UsedObject } from '../objects/layers';
 import { type ObjectRegistry, objectRegistry, type ResolvedObject } from '../objects/resolve';
 import { describeError } from '../runner/retry';
-import type { By, Diagnosis, Verdict } from '../schema/run';
+import type { By, Diagnosis, RunResult, Verdict } from '../schema/run';
 import { Diagnosis as DiagnosisSchema } from '../schema/run';
 
 /**
@@ -15,9 +15,21 @@ import { Diagnosis as DiagnosisSchema } from '../schema/run';
 export const StepCost = z.enum(['static', 'run', 'model']);
 export type StepCost = z.infer<typeof StepCost>;
 
-/** What one step reads: the block as its checks saw it, its verdicts, its objects, its params, the earlier steps' output. */
+/** Where a diagnostic runs: on one block after its checks, on a whole run, or on every run of a campaign. */
+export type DiagnosticScope = 'block' | 'run' | 'campaign';
+
+/**
+ * What one step reads: its scope; the block as its checks saw it (block scope only); the run (run scope) or the
+ * runs (campaign scope); the verdicts in scope; the objects; its params; the earlier steps' output.
+ */
 export type DiagnosticStepContext = {
-  readonly check: CheckContext;
+  readonly scope: DiagnosticScope;
+  /** The block's check context; present at block scope only. */
+  readonly check?: CheckContext;
+  /** The run, at run scope. */
+  readonly run?: RunResult;
+  /** Every run of the campaign, at campaign scope. */
+  readonly runs?: readonly RunResult[];
   readonly verdicts: readonly Verdict[];
   readonly objects: readonly UsedObject[];
   readonly params: Readonly<Record<string, unknown>>;
@@ -84,22 +96,36 @@ export function triggers(object: ResolvedObject, verdicts: readonly Verdict[]): 
   );
 }
 
+/** The scope a diagnostic runs at: its `scope` field, block when absent. */
+export function scopeOf(diagnostic: ResolvedObject): DiagnosticScope {
+  return (diagnostic.fields.scope as DiagnosticScope | undefined) ?? 'block';
+}
+
+type ScopeInput = {
+  check?: CheckContext;
+  run?: RunResult;
+  runs?: readonly RunResult[];
+  verdicts: readonly Verdict[];
+  objects: readonly UsedObject[];
+};
+
 /**
- * Runs a block's diagnostics after its checks, in order, each step in its diagnostic's item order. A diagnostic
- * fires on its `when`; a disabled step is left out; a step of cost class `run` or `model` runs only while the
- * budget lasts, and is counted in `skippedForBudget` otherwise. A step that throws writes a diagnosis that says
- * so. The verdicts are read, never changed.
+ * Runs the diagnostics of one scope, in order, each step in its diagnostic's item order. A diagnostic of another
+ * scope is left out; one fires on its `when` over the verdicts in scope; a disabled step is left out; a step of
+ * cost class `run` or `model` runs only while the budget lasts, and is counted in `skippedForBudget` otherwise. A
+ * step that throws writes a diagnosis that says so. The verdicts are read, never changed.
  */
-export async function runDiagnostics(
+async function runScope(
+  scope: DiagnosticScope,
   diagnostics: readonly ResolvedObject[],
-  input: { check: CheckContext; verdicts: readonly Verdict[]; objects: readonly UsedObject[] },
-  budget: DiagnosticBudget = {},
+  input: ScopeInput,
+  budget: DiagnosticBudget,
 ): Promise<{ diagnoses: Diagnosis[]; skippedForBudget: number }> {
   const diagnoses: Diagnosis[] = [];
   let left = budget.runs ?? 0;
   let skippedForBudget = 0;
   for (const diagnostic of diagnostics) {
-    if (!triggers(diagnostic, input.verdicts)) continue;
+    if (scopeOf(diagnostic) !== scope || !triggers(diagnostic, input.verdicts)) continue;
     const own: Diagnosis[] = [];
     for (const item of diagnostic.items) {
       if (!item.enabled) continue;
@@ -123,7 +149,7 @@ export async function runDiagnostics(
         left -= 1;
       }
       try {
-        const out = await step.run({ ...input, params: item.params, earlier: own });
+        const out = await step.run({ ...input, scope, params: item.params, earlier: own });
         for (const output of out === undefined ? [] : Array.isArray(out) ? out : [out]) {
           const parsed = DiagnosisSchema.safeParse(stamp(output));
           own.push(
@@ -142,4 +168,41 @@ export async function runDiagnostics(
     diagnoses.push(...own);
   }
   return { diagnoses, skippedForBudget };
+}
+
+/** Runs a block's block-scope diagnostics after its checks; they land on `BlockResult.diagnoses`. */
+export function runDiagnostics(
+  diagnostics: readonly ResolvedObject[],
+  input: { check: CheckContext; verdicts: readonly Verdict[]; objects: readonly UsedObject[] },
+  budget: DiagnosticBudget = {},
+): Promise<{ diagnoses: Diagnosis[]; skippedForBudget: number }> {
+  return runScope('block', diagnostics, input, budget);
+}
+
+/** Runs the run-scope diagnostics over a whole run, every block's verdicts in scope; they land on `RunResult.diagnoses`. */
+export function runRunDiagnostics(
+  diagnostics: readonly ResolvedObject[],
+  run: RunResult,
+  objects: readonly UsedObject[] = [],
+  budget: DiagnosticBudget = {},
+): Promise<{ diagnoses: Diagnosis[]; skippedForBudget: number }> {
+  return runScope(
+    'run',
+    diagnostics,
+    { run, verdicts: run.blocks.flatMap((block) => block.verdicts), objects },
+    budget,
+  );
+}
+
+/**
+ * Runs the campaign-scope diagnostics over every run of a campaign, every verdict in scope; they land on
+ * `Campaign.diagnoses`.
+ */
+export function runCampaignDiagnostics(
+  diagnostics: readonly ResolvedObject[],
+  runs: readonly RunResult[],
+  budget: DiagnosticBudget = {},
+): Promise<{ diagnoses: Diagnosis[]; skippedForBudget: number }> {
+  const verdicts = runs.flatMap((run) => run.blocks.flatMap((block) => block.verdicts));
+  return runScope('campaign', diagnostics, { runs, verdicts, objects: [] }, budget);
 }
