@@ -504,6 +504,7 @@
       "RunResult": "value",
       "RunningGiven": "type",
       "RuntimeTrace": "value",
+      "SPEC_SCHEMA_VERSION": "value",
       "SafetyExpect": "value",
       "Sandbox": "type",
       "SandboxKind": "type",
