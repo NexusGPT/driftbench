@@ -1,30 +1,60 @@
 #!/usr/bin/env python3
 """Reconcile one invoice against one purchase order.
 
-Usage: python3 reconcile.py <invoice.csv> <order.csv>
+Usage: python3 reconcile.py <invoice> <order>
+Each file is a .json file with a list of lines, or a CSV file with the columns article, quantity, unit_price.
 Prints one line per article: matched, short or over, and the difference in EUR.
-Exits 0 when every line matches, 1 when a line differs, 2 on a usage error.
+A line matches when the quantities are equal and the unit prices differ by less than 0.05 EUR (rounding).
+Exits 0 when every line matches, 1 when a line differs, 2 on a usage error or a missing or invalid JSON lines list.
 """
 import csv
+import json
 import sys
+from decimal import Decimal
+
+ROUNDING = Decimal("0.05")
+
+
+class InputShapeError(ValueError):
+    pass
 
 
 def load(path):
     with open(path, newline="") as handle:
-        return {row["article"]: (int(row["quantity"]), float(row["unit_price"])) for row in csv.DictReader(handle)}
+        if path.endswith(".json"):
+            data = json.load(handle)
+            if not isinstance(data, dict) or not isinstance(data.get("lines"), list):
+                raise InputShapeError(
+                    f"{path}: missing or invalid 'lines'; expected a JSON object with a 'lines' list "
+                    "of {article, quantity, unit_price} records"
+                )
+            rows = data["lines"]
+        else:
+            rows = list(csv.DictReader(handle))
+    return {row["article"]: (int(row["quantity"]), Decimal(str(row["unit_price"]))) for row in rows}
+
+
+def compare(got, want):
+    if got[0] == want[0] and abs(got[1] - want[1]) < ROUNDING:
+        return "matched", Decimal("0")
+    difference = got[0] * got[1] - want[0] * want[1]
+    if got[0] != want[0]:
+        return ("over" if got[0] > want[0] else "short"), difference
+    return ("over" if difference > 0 else "short"), difference
 
 
 def main(argv):
     if len(argv) != 3:
         print(__doc__.strip().splitlines()[2], file=sys.stderr)
         return 2
-    invoice, order = load(argv[1]), load(argv[2])
+    try:
+        invoice, order = load(argv[1]), load(argv[2])
+    except InputShapeError as error:
+        print(error, file=sys.stderr)
+        return 2
     differs = False
     for article in sorted(set(invoice) | set(order)):
-        got = invoice.get(article, (0, 0.0))
-        want = order.get(article, (0, 0.0))
-        difference = got[0] * got[1] - want[0] * want[1]
-        state = "matched" if abs(difference) < 0.05 else ("over" if difference > 0 else "short")
+        state, difference = compare(invoice.get(article, (0, Decimal("0"))), order.get(article, (0, Decimal("0"))))
         differs = differs or state != "matched"
         print(f"{article}: {state} {difference:.2f} EUR")
     return 1 if differs else 0

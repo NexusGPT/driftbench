@@ -19,6 +19,12 @@ export const ResolvedGiven = z.strictObject({
   prefix: z.array(Message),
   /** The origin of the latest prefix, when the spec states one; it is hashed only when present. */
   origin: GivenOrigin.optional(),
+  /**
+   * With `origin`: how many of the first prefix messages the origin covers, the ones the spec wrote. Messages
+   * after them (a run's own turns, a teacher-forced replay's canonical turns) are not covered. Outside the
+   * Given hash; inside the block cache key, which reads the whole resolved Given.
+   */
+  originLength: z.number().int().nonnegative().optional(),
   ledger: z.record(z.string(), z.unknown()),
   world: WorldState,
   vars: z.record(z.string(), z.unknown()),
@@ -230,7 +236,14 @@ export const Verdict = z.strictObject({
 });
 export type Verdict = z.infer<typeof Verdict>;
 
+/** Provenance of a copy whose realized text was removed by its destination's privacy policy. */
+const RealizedTextStripped = z.strictObject({
+  fromRun: z.string().min(1),
+  fromCampaign: z.string().min(1).optional(),
+});
+
 export const BlockResult = z.strictObject({
+  realizedTextStripped: RealizedTextStripped.optional(),
   provenance: BlockProvenance.optional(),
   carried: z.lazy(() => CarriedFrom.extend({ measuredAt: z.string().optional() })).optional(),
   rejudged: RejudgedFrom.optional(),
@@ -337,6 +350,7 @@ export const CarriedFrom = z.strictObject({
 export type CarriedFrom = z.infer<typeof CarriedFrom>;
 
 export const RunResult = z.strictObject({
+  realizedTextStripped: RealizedTextStripped.optional(),
   provenance: RunProvenance.optional(),
   blockRerun: z
     .strictObject({
