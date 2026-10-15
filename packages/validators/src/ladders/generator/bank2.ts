@@ -443,6 +443,20 @@ function allocationItems(): BankItem[] {
 // contrast ------------------------------------------------------------------------------------------------
 
 /** The machine expectations of a spec's blocks, as text: what two specs are compared on. */
+/**
+ * What an invariance pair holds fixed: every input and returned data value of the cell, and the turns the
+ * spec says, by block id (the move or request each turn is, whatever its wording). Two specs that walk the
+ * same path with other turns, such as a request said before the walk's end, are no invariance pair.
+ */
+export function heldFixed(spec: Spec): string {
+  return JSON.stringify({
+    data: Object.entries(cellOf(spec))
+      .filter(([key]) => key.includes('.in.') || key.includes('.out.'))
+      .sort(),
+    turns: spec.blocks.map((block, index) => block.id ?? String(index)),
+  });
+}
+
 function thens(spec: Spec): string {
   return JSON.stringify(spec.blocks.map((block) => ({ ...block.expect, criteria: undefined })));
 }
@@ -552,13 +566,8 @@ function contrastItems(): BankItem[] {
         async check(data) {
           const generated = await data.generated();
           const specs = walking(generated, path).filter((spec) => probes(spec).length === 0);
-          // Invariance varies persona/channel while holding all input and returned data fixed.
-          const slots = (spec: Spec) =>
-            JSON.stringify(
-              Object.entries(cellOf(spec))
-                .filter(([key]) => key.includes('.in.') || key.includes('.out.'))
-                .sort(),
-            );
+          // Invariance varies persona/channel while holding all input and returned data and the turns fixed.
+          const slots = heldFixed;
           const pair = specs.some((left) =>
             specs.some((right) => personaOf(left) !== personaOf(right) && slots(left) === slots(right)),
           );
@@ -610,13 +619,8 @@ function contrastItems(): BankItem[] {
         async check(data) {
           const generated = await data.generated();
           const specs = walking(generated, path).filter((spec) => probes(spec).length === 0);
-          // Invariance varies persona/channel while holding all input and returned data fixed.
-          const slots = (spec: Spec) =>
-            JSON.stringify(
-              Object.entries(cellOf(spec))
-                .filter(([key]) => key.includes('.in.') || key.includes('.out.'))
-                .sort(),
-            );
+          // Invariance varies persona/channel while holding all input and returned data and the turns fixed.
+          const slots = heldFixed;
           const pair = specs.some((left) =>
             specs.some((right) => left.channel !== right.channel && slots(left) === slots(right)),
           );
