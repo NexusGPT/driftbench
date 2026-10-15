@@ -19,6 +19,11 @@ export const ResolvedGiven = z.strictObject({
   prefix: z.array(Message),
   /** The origin of the latest prefix, when the spec states one; it is hashed only when present. */
   origin: GivenOrigin.optional(),
+  /**
+   * With `origin`: how many of the first prefix messages the origin covers, the ones the spec wrote. Messages
+   * after them (a run's own turns, a teacher-forced replay's canonical turns) are not covered. Not hashed.
+   */
+  originLength: z.number().int().nonnegative().optional(),
   ledger: z.record(z.string(), z.unknown()),
   world: WorldState,
   vars: z.record(z.string(), z.unknown()),

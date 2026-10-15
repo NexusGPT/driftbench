@@ -108,12 +108,14 @@ export function crewaiAdapter(options: CrewaiAdapterOptions): AgentAdapter {
       // A crew takes its history as text inputs: the earlier turns as `role: text` lines and the whole history
       // as JSON. With the default inputs, tool calls the spec wrote as a record (origin recorded or authored)
       // would reach the crew's agents as data in a text field, never as tool results: a different test from the
-      // one the spec states, so it is refused. A canonical prefix (mode T, or origin canonical) and a prefix of
-      // unstated origin go as they always did.
+      // one the spec states, so it is refused. The origin covers only the messages the spec wrote
+      // (`originLength`); the canonical calls a teacher-forced replay adds after them, a canonical prefix and a
+      // prefix of unstated origin go as they always did.
       const prefix = copyHistory(given.prefix);
       const stated = given.origin === 'recorded' || given.origin === 'authored';
+      const written = prefix.slice(0, given.originLength ?? prefix.length);
       const recorded =
-        options.inputs || !stated ? 0 : prefix.reduce((n, m) => n + (m.tool_calls?.length ?? 0), 0);
+        options.inputs || !stated ? 0 : written.reduce((n, m) => n + (m.tool_calls?.length ?? 0), 0);
       if (recorded > 0) {
         throw new AgentFailure(
           `crewai: the Given prefix (origin ${given.origin}) holds ${recorded} recorded tool call(s), and a crew takes its history as text inputs, so its agents would read them as prose, not as tool results. Write those turns as blocks the crew runs, or pass \`inputs\` that hand the calls to the crew in a form it reads as records.`,

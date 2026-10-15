@@ -76,8 +76,8 @@ describe('the tool history compiler', () => {
     const calls = new HistoryCompiler({ fallback: (n) => `c${n}` }).calls(hazards[5] as Message);
     expect(calls.map((call) => call.result)).toEqual([
       { kind: 'error', message: 'address unknown' },
-      { kind: 'output', value: UNRECORDED_RESULT, recorded: false },
-      { kind: 'output', value: UNRECORDED_RESULT, recorded: false },
+      { kind: 'output', value: UNRECORDED_RESULT },
+      { kind: 'output', value: UNRECORDED_RESULT },
     ]);
   });
 
@@ -136,6 +136,30 @@ describe('every wire receives the history as paired tool records', () => {
       'call-1',
       'call-1',
     ]);
+  });
+
+  it('anthropic: a call recorded with no id takes the number of its place among every call, as before', () => {
+    // The Anthropic wire numbers every call of the history, recorded id or not: toolu_h<n> for the n-th call.
+    const mixed: Message[] = [
+      { role: 'user', content: 'Check two addresses.' },
+      {
+        role: 'assistant',
+        content: '',
+        tool_calls: [
+          { id: 'kept-1', label: 'coverage.check', output: { found: true } },
+          { label: 'coverage.check', output: { found: false } },
+        ],
+      },
+      { role: 'user', content: 'And the plans?' },
+      { role: 'assistant', content: '', tool_calls: [{ label: 'catalog.search', output: { plans: [] } }] },
+    ];
+    const { messages } = toAnthropicMessages(mixed, new WireNames([], ANTHROPIC_NAME));
+    const ids = messages.flatMap((message) =>
+      (message.content as { type: string; id?: string; tool_use_id?: string }[]).flatMap((block) =>
+        block.type === 'tool_use' ? [block.id] : block.type === 'tool_result' ? [block.tool_use_id] : [],
+      ),
+    );
+    expect(ids).toEqual(['kept-1', 'toolu_h2', 'kept-1', 'toolu_h2', 'toolu_h3', 'toolu_h3']);
   });
 
   it('chat: a free tool note goes as user text, never as a tool message that answers no call', () => {

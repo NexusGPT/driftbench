@@ -20,7 +20,7 @@ import { historyOutput } from '../anthropic/common';
 
 /** What a history call returned, as the wire carries it. */
 export type HistoryResult =
-  | { readonly kind: 'output'; readonly value: unknown; readonly recorded: boolean }
+  | { readonly kind: 'output'; readonly value: unknown }
   | { readonly kind: 'error'; readonly message: string };
 
 /** One recorded call, paired with its result and the id the wire receives. */
@@ -55,7 +55,7 @@ export function resultOf(call: NonNullable<Message['tool_calls']>[number]): Hist
   if (call.error !== undefined) return { kind: 'error', message: call.error };
   // The unrecorded-result rule lives in `historyOutput`; the call stays a call with a result, so the history
   // stays paired.
-  return { kind: 'output', value: historyOutput(call), recorded: call.output !== undefined };
+  return { kind: 'output', value: historyOutput(call) };
 }
 
 /**
