@@ -303,6 +303,7 @@
       "guardMessage": "value",
       "guards": "value",
       "hazardRecovery": "value",
+      "initializeShippedObjects": "value",
       "injection": "value",
       "knowledgeRetention": "value",
       "lang": "value",
