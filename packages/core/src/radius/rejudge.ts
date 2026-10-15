@@ -158,6 +158,7 @@ export function prepareRejudge(
       mode: run.mode,
       blockIndex: index,
       block: { ...block, when: stimulus },
+      stimulus,
       expect: { ...block.expect, criteria: refs },
       given,
       observed: result.observed,

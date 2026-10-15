@@ -714,6 +714,7 @@ answers:
         value: new-home
         text: Hi, do you have home internet at 3 Orchard Way, Acmeville?
         lang: en
+        binds: { address: "3 Orchard Way, Acmeville" }
         source: ../README.md
         quote: Hi, do you have home internet at 3 Orchard Way, Acmeville?
       - { dimension: flow, value: porting, text: I want to switch to Acme and keep my number., lang: en }

@@ -189,6 +189,7 @@ export {
   CRITERION_PROMPT_VERSION,
   type CriterionPromptVersion,
 } from './criterion-prompt-version';
+export { criteriaJudge, criterionJudge, withCriterionSettings } from './criterion-settings';
 export {
   createDefaultJudge,
   DEFAULT_JUDGE_POLICY,
@@ -209,6 +210,13 @@ export {
   SYSTEM_PROMPT as LEGACY_SYSTEM_PROMPT,
 } from './legacy-prompt';
 export { type LintIssue, lintCriterion } from './lint';
+export {
+  applyLongStructured,
+  isStructured,
+  PAIR_PREFERENCES,
+  type PairPreference,
+  type PreferenceResult,
+} from './long-structured';
 export {
   type DefaultJudgeRequest,
   normalizeJudgeRequest,
@@ -333,4 +341,5 @@ export {
   withVerification,
 } from './verification';
 export { verifyAnswer } from './verify-answer';
+export { type PanelOutcome, type PanelVote, weightedPanel } from './weighted-panel';
 export { BETTER_PIECE_V1, explicitRequestRows, writingRequirementsV1 } from './writing-requirements';

@@ -113,7 +113,12 @@ function lastUserText(messages: Message[]): string {
 
 /** Imports a fault set: a module, or a folder whose index module exports `faults`. */
 export async function importFaultSet(path: string): Promise<FaultSet> {
-  const module: unknown = await import(pathToFileURL(path).href);
+  const url = pathToFileURL(path).href;
+  // Fault sets are often authored as TypeScript with extensionless local imports.
+  // Load their dependency graph the same way from the installed CLI and from source.
+  const module: unknown = /\.[cm]?tsx?$/.test(path)
+    ? await (await import('tsx/esm/api')).tsImport(url, import.meta.url)
+    : await import(url);
   const faults = (module as { faults?: unknown }).faults;
   if (!Array.isArray(faults)) throw new Error(`${path} exports no list named faults`);
   const seen = new Set<string>();

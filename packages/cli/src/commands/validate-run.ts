@@ -1,5 +1,5 @@
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
 import {
   allFailingItems,
   appendJournal,
@@ -354,6 +354,7 @@ function floorsCommand(
     io.err(`Refused: ${result.refused}\n`);
     return 1;
   }
+  mkdirSync(dirname(join(root, FLOORS_FILE)), { recursive: true });
   writeFloors(root, result.file);
   io.out(
     `The floor of ${options.raise} for ladder version ${version} rises from ${floorOf(floors, options.raise, version)} to ${level} in ${FLOORS_FILE}. Commit it on its own with the evidence run.\n`,

@@ -7,6 +7,7 @@ import type { JudgeClient } from './client';
 import { JudgeClass, type JudgeOutcome, type JudgeRequest } from './contract';
 import type { AssignmentRow, CouncilMode, UnassignedCriterion } from './council';
 import { CriterionFixture, fixtureInputs, fixtureRequest, type LoadedCriterion } from './criteria';
+import { withCriterionSettings } from './criterion-settings';
 import { familyOfModel, normalizeFamily } from './family';
 
 /**
@@ -217,14 +218,17 @@ export async function loadLabels(dir: string): Promise<LabelsLoad> {
 /** The request a labelled block sends, as a fixture would. */
 export function labelRequest(criterion: LoadedCriterion, block: LabelledBlock): JudgeRequest {
   const base = fixtureRequest(criterion, 'pass');
-  return {
-    criterion: base.criterion,
-    transcript: block.transcript,
-    ...(block.artifact === undefined ? {} : { artifact: block.artifact }),
-    ...(block.given === undefined ? {} : { given: block.given }),
-    // A block that carries no input of its own reads those of the criterion's pass fixture.
-    ...fixtureInputs(criterion.def.inputs, block.inputs ?? criterion.fixtures.pass.inputs),
-  };
+  return withCriterionSettings(
+    {
+      criterion: base.criterion,
+      transcript: block.transcript,
+      ...(block.artifact === undefined ? {} : { artifact: block.artifact }),
+      ...(block.given === undefined ? {} : { given: block.given }),
+      // A block that carries no input of its own reads those of the criterion's pass fixture.
+      ...fixtureInputs(criterion.def.inputs, block.inputs ?? criterion.fixtures.pass.inputs),
+    },
+    criterion.def,
+  );
 }
 
 export type CalibrationConfig = {

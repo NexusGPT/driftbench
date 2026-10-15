@@ -23,7 +23,7 @@
 
 <p align="center">
   <a href="https://www.npmjs.com/package/@agent-nexus/driftbench"><img alt="npm version" src="https://img.shields.io/npm/v/%40agent-nexus%2Fdriftbench?color=2F5FD0&label=npm" /></a>
-  <a href="LICENSE"><img alt="licence Apache 2.0" src="https://img.shields.io/badge/licence-Apache--2.0-2F5FD0?style=flat" /></a>
+  <a href="LICENSE"><img alt="licence MIT" src="https://img.shields.io/badge/licence-MIT-2F5FD0?style=flat" /></a>
   <img alt="Node 22 or newer" src="https://img.shields.io/badge/node-22%2B-1B2A44?style=flat" />
   <a href="https://github.com/achammah/driftbench/actions/workflows/ci.yml"><img alt="CI status" src="https://github.com/achammah/driftbench/actions/workflows/ci.yml/badge.svg" /></a>
 </p>
@@ -35,7 +35,7 @@ driftbench is an open-source evaluation framework for AI agents: chat agents, an
 - **The tests are not written by hand.** Code generates them from a map of what the agent can face, and counts what they cover.
 - **The evaluator is tested too.** driftbench checks its own scores on cases where the right answer is known.
 
-Works with any agent through an [adapter](#adapters). No account, no server. Apache 2.0, TypeScript, Node 22 or newer.
+Works with any agent through an [adapter](#adapters). No account, no server. MIT, TypeScript, Node 22 or newer.
 
 <!-- readme-summary:start -->
 <p align="center">
@@ -351,6 +351,23 @@ Complete specs go to `specs/`. A spec with no approved phrase or no machine-chec
 <p align="center"><sub>Before the step, what the user says, and what must be true after it.</sub></p>
 
 A block holds everything the agent does between two user messages: text, cards, tool calls and tool results. The spec fixes what must be true after it. driftbench reads what happened, compares it field by field, and keeps the evidence behind every verdict. Because a block starts from its own Given, it can be run many times on its own and gets its own pass rate.
+
+A Given can hold the conversation before the block, tool calls included. A past lookup goes in as a recorded call with its result, never as a sentence of the assistant: an agent that finds an earlier result only in its own prose tends to call the tool again ([why](docs/concepts/given-when-then.md#tool-history-records-not-prose)).
+
+```yaml
+- user: What is my callback reference?
+  given:
+    origin: recorded              # copied from a real run
+    prefix:
+      - { role: user, content: Can someone call me back about fiber? }
+      - role: assistant
+        content: Done, an advisor will call you today.
+        tool_calls:
+          - { id: call-1, label: notify_sales, input: { topic: fiber }, output: { ref: LD-4471 } }
+  expect:
+    must: [LD-4471]
+    tools: [{ label: notify_sales, count: 0 }]   # it must not file the request twice
+```
 
 <a href=".github/readme/kinds-light.png">
   <picture>
@@ -981,7 +998,7 @@ Questions and ideas go in [GitHub issues](https://github.com/achammah/driftbench
 
 ## Licence
 
-Apache 2.0. See [LICENSE](LICENSE).
+MIT. See [LICENSE](LICENSE).
 
 <p>
   <a href="https://agent.nexus">
@@ -992,4 +1009,4 @@ Apache 2.0. See [LICENSE](LICENSE).
   </a>
 </p>
 
-Made by [Nexus](https://agent.nexus). We built driftbench to test the agents we build, and we share it under Apache 2.0.
+Made by [Nexus](https://agent.nexus). We built driftbench to test the agents we build, and we share it under MIT.

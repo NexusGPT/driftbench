@@ -4,14 +4,15 @@ import { createRequire } from 'node:module';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import type { CustomCheckFunction } from '@agent-nexus/driftbench-checks';
-import type { AgentAdapter, TargetRef } from '@agent-nexus/driftbench-core';
+import type { AgentAdapter, Embedder, TargetRef } from '@agent-nexus/driftbench-core';
 import type { JudgeClient } from '@agent-nexus/driftbench-judges';
 import type { Io } from './io';
 
 /**
  * Plugins: modules of the team's own code that the CLI loads before it runs a command. A plugin registers
  * adapters (so a target such as `http:my-bot` reaches the team's agent), custom checks (the names a spec
- * lists under `rules.custom`) and pairwise judges (the names `compare --pairwise-judge` takes).
+ * lists under `rules.custom`), pairwise judges (the names `compare --pairwise-judge` takes) and embedders
+ * (the names `--embedder` takes).
  *
  * The CLI loads a plugin from two places only: the `plugins` list of the project config (`driftbench.yaml`
  * in the working folder, or the file `--config` names) and the `--plugin <module>` flag. It never loads one
@@ -40,6 +41,8 @@ export type PluginApi = {
   check(name: string, check: CustomCheckFunction): void;
   /** A judge that `compare --pairwise-judge <name>` uses. */
   pairwiseJudge(name: string, factory: () => JudgeClient): void;
+  /** An embedder the similarity check scores with when a run passes `--embedder <name>`. */
+  embedder(name: string, factory: () => Embedder | Promise<Embedder>): void;
 };
 
 /** A plugin: a function that registers adapters, checks and judges. A plugin module exports it as default. */
@@ -52,6 +55,7 @@ export function definePlugin(plugin: DriftbenchPlugin): DriftbenchPlugin {
 
 let adapters = new Map<string, { factory: PluginAdapterFactory; owner: string }>();
 let judges = new Map<string, { factory: () => JudgeClient; owner: string }>();
+let embedders = new Map<string, { factory: () => Embedder | Promise<Embedder>; owner: string }>();
 /** Checks a plugin named, not yet in the registry of the checks package, which loads only when one exists. */
 let pendingChecks = new Map<string, { check: CustomCheckFunction; owner: string }>();
 /** The registry of the checks package, once a plugin check made it load. */
@@ -81,6 +85,7 @@ const NEVER_REPLACES = 'A plugin never replaces a check: give it another name.';
 export function resetPlugins(): void {
   adapters.clear();
   judges.clear();
+  embedders.clear();
   for (const name of checks.keys()) checkRegistry?.unregister(name);
   checks.clear();
   pendingChecks.clear();
@@ -88,21 +93,22 @@ export function resetPlugins(): void {
 
 /** Opens an isolated run and returns its cleanup, preserving any caller-owned registrations. */
 export function beginPluginRun(): () => void {
-  const previous = { adapters, judges, pendingChecks, checks };
+  const previous = { adapters, judges, embedders, pendingChecks, checks };
   adapters = new Map();
   judges = new Map();
+  embedders = new Map();
   pendingChecks = new Map();
   checks = new Map();
   return () => {
     resetPlugins();
-    ({ adapters, judges, pendingChecks, checks } = previous);
+    ({ adapters, judges, embedders, pendingChecks, checks } = previous);
   };
 }
 
 function refuseDuplicate(kind: string, name: string, owner: string, earlier: string | undefined): void {
   if (earlier !== undefined) {
     throw new PluginRefusal(
-      `The plugin ${owner} registers the ${kind} ${name}, which the plugin ${earlier} already registered. A plugin never replaces a ${kind}: give it another name.`,
+      `The plugin ${owner} registers the ${kind} ${name}, which the plugin ${earlier} already registered. A plugin never replaces ${kind === 'adapter' ? 'an' : 'a'} ${kind}: give it another name.`,
     );
   }
 }
@@ -124,6 +130,12 @@ export function pluginAdapterNames(): string[] {
 /** The pairwise judge a plugin registered under the name, or undefined. */
 export function pluginPairwiseJudge(name: string): JudgeClient | undefined {
   return judges.get(name)?.factory();
+}
+
+/** The embedder a plugin registered under the name, made now, or undefined. */
+export async function pluginEmbedder(name: string): Promise<Embedder | undefined> {
+  const factory = embedders.get(name)?.factory;
+  return factory === undefined ? undefined : factory();
 }
 
 const NAME = /^[a-z0-9][a-z0-9._-]*$/;
@@ -152,6 +164,12 @@ function apiFor(cwd: string, owner: string): PluginApi {
       if (typeof factory !== 'function') throw new Error(`the judge ${name} needs a factory function`);
       refuseDuplicate('judge', name, owner, judges.get(name)?.owner);
       judges.set(name, { factory, owner });
+    },
+    embedder(name, factory) {
+      if (!NAME.test(name)) throw new Error(`the embedder name ${JSON.stringify(name)} is not a plain name`);
+      if (typeof factory !== 'function') throw new Error(`the embedder ${name} needs a factory function`);
+      refuseDuplicate('embedder', name, owner, embedders.get(name)?.owner);
+      embedders.set(name, { factory, owner });
     },
   };
 }

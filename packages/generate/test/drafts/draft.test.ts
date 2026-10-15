@@ -77,6 +77,9 @@ describe('draftSpec', () => {
         ],
       },
     ]);
+    // A prefix copied from production is a recorded history, and the spec says so.
+    expect(raw.blocks[1].given.origin).toBe('recorded');
+    expect(loaded.ok && loaded.spec.blocks[1]?.given?.origin).toBe('recorded');
     expect(raw.metadata.imported).toMatchObject({
       approved: false,
       source: 'otel',

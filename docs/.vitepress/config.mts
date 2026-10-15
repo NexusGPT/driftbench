@@ -181,7 +181,7 @@ export default defineConfig({
     search: { provider: 'local' },
     outline: { level: [2, 3] },
     footer: {
-      message: 'Apache 2.0. driftbench is made by Nexus.',
+      message: 'MIT. driftbench is made by Nexus.',
     },
   },
 });

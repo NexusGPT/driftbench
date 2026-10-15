@@ -312,7 +312,7 @@ condition or read each one correctly.
 
 ## License
 
-Apache-2.0
+MIT
 
 ## Pointwise fact ledger (opt-in)
 

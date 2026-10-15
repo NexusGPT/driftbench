@@ -112,7 +112,7 @@ describe('driftbench judge run', () => {
     const cassette = JSON.parse(await readFile(join(ROOT, CASSETTE), 'utf8'));
     cassette.entries = cassette.entries.filter(
       (entry: { criterion: string; judge: string }) =>
-        !(entry.criterion === 'plain_language' && entry.judge === 'jev-a'),
+        !(entry.criterion === 'plain_language' && entry.judge === 's1p-a'),
     );
     const path = join(scratch, 'missing.json');
     await writeFile(path, JSON.stringify(cassette));
@@ -206,7 +206,7 @@ describe('driftbench judge calibrate', () => {
       'plain_language: owned by google-chat (system2: google-chat, openai-chat, anthropic-chat',
     );
     expect(text).toMatch(
-      /jev-b {14}system1 {2}separation 3\/3 {2}kappa {2}0\.40 {2}agreement 2\/3 \[0\.21, 0\.94\] {2}misses/,
+      /s1p-b {14}system1 {2}separation 3\/3 {2}kappa {2}0\.40 {2}agreement 2\/3 \[0\.21, 0\.94\] {2}misses/,
     );
     expect(text).toContain('ledger_intact: UNASSIGNED, judged but not gating');
     expect(text).toContain('11 of 12 criteria assigned in mode hybrid (3 repeats, kappa at least 0.8).');
@@ -215,10 +215,10 @@ describe('driftbench judge calibrate', () => {
 
   it('exits 1 when a gating criterion stays unassigned, and still writes the table', async () => {
     const cassette = JSON.parse(await readFile(join(ROOT, CALIBRATION), 'utf8'));
-    // jev-a and google-chat now pass every care_redirect block they failed: neither class seats three at the bar.
+    // s1p-a and google-chat now pass every care_redirect block they failed: neither class seats three at the bar.
     for (const entry of cassette.entries) {
       if (entry.criterion !== 'care_redirect') continue;
-      if (entry.judge === 'jev-a' && entry.answer?.outcome === 'fail') {
+      if (entry.judge === 's1p-a' && entry.answer?.outcome === 'fail') {
         entry.answer = { outcome: 'pass', score: 0.9, reasoning: 'flipped' };
       }
       if (entry.judge === 'google-chat' && entry.raw?.includes('"outcome":"fail"')) {
@@ -445,7 +445,7 @@ describe('the judge check in the default check set', () => {
     // The cascade stops on a sure pass with a score: one system 1 vote.
     const one = judged.find((verdict) => verdict.name === 'one_question_per_turn');
     expect(one?.judge).toMatchObject({ cls: 'system1' });
-    expect(one?.judge?.votes.map((vote) => vote.judge)).toEqual(['jev-a']);
+    expect(one?.judge?.votes.map((vote) => vote.judge)).toEqual(['s1p-a']);
     // Calibration gave no_invented_data to system 2, led by google-chat, which gives no score: all three vote.
     const invented = judged.find((verdict) => verdict.name === 'no_invented_data');
     expect(invented?.judge?.cls).toBe('system2');
@@ -650,6 +650,38 @@ process.stdin.on('end', () => {
     const report = JSON.parse(await readFile(out, 'utf8'));
     expect(report.criteria).toHaveLength(1);
     expect(report.criteria[0].escalated).toEqual([{ item: 'explicit_confirmation.3', why: 'unsure' }]);
+  }, 60_000);
+
+  it('refuses a cascade judge of the agent family, and --assign or --mode with --cascade', async () => {
+    const command = await fakeClaude();
+    const base = [
+      'judge',
+      'calibrate',
+      '--criteria',
+      CRITERIA,
+      '--labels',
+      LABELS,
+      '--cassette',
+      'examples/acme/criteria/calibration/claude-haiku.cassette.json',
+      '--claude',
+      'sonnet',
+      '--claude-command',
+      command,
+      '--cascade',
+      '--only',
+      'explicit_confirmation',
+      '--out',
+      join(scratch, 'refused-cascade.json'),
+    ];
+    const family = await run([...base, '--agent-family', 'anthropic']);
+    expect(family.code).toBe(2);
+    expect(family.err).toMatch(/the family of the agent under test: refused/);
+    const assign = await run([...base, '--assign', 'cheapest']);
+    expect(assign.code).toBe(2);
+    expect(assign.err).toContain('--assign');
+    const mode = await run([...base, '--mode', 'llm']);
+    expect(mode.code).toBe(2);
+    expect(mode.err).toContain('--mode');
   }, 60_000);
 
   it('assigns the one cheapest judge at the bar with --assign cheapest, and prints its cost per call', async () => {

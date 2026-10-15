@@ -1,7 +1,6 @@
 import type { Spec } from '@agent-nexus/driftbench-core';
 import { coverage, type SpaceCoverage } from '@agent-nexus/driftbench-space';
 import type { BankItem, SeedData, Tier, Verdict } from './bank';
-import { isCodeTaskSpec, oracleThen } from './code-task';
 import { FAULT_CLASSES } from './faults';
 import { DEVIATION_POOL, type HiddenSpec, phrasePattern } from './hidden';
 import type { Generation } from './measure';
@@ -248,9 +247,14 @@ function phraseItems(): BankItem[] {
   items.push(
     item('phrases.slot-values', 3, 'packages/generate/src/seed/relations.ts#fillText', (generated) => {
       const said = turns(generated).join('\n');
+      // The value as a word of a turn: not inside a longer word, and at the end of a sentence too ("set to east.").
+      const says = (value: unknown) =>
+        new RegExp(
+          `(?<![A-Za-z0-9_-])${String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![A-Za-z0-9_-])`,
+        ).test(said);
       const missing = generated.hidden.data
         .filter((value) => value.binds !== undefined)
-        .filter((value) => !said.includes(` ${String(value.value)} `))
+        .filter((value) => !says(value.value))
         .map((value) => value.id);
       return verdict(
         missing.length === 0,
@@ -489,23 +493,9 @@ function adequacyItems(): BankItem[] {
       component: 'packages/generate/src/seed/scenario.ts#buildScenario',
       async check(data: SeedData) {
         const runs = await data.runs();
-        const generated = await data.generated();
-        // A task spec's Then is its family oracle's (docs/generating.md, task families): a block whose Then is
-        // exactly the oracle's has no check the generator may add, so a drift there is the oracle's to catch.
-        const oracleOwned = new Set(
-          generated.complete
-            .filter(({ spec }) => isCodeTaskSpec(spec))
-            .flatMap(({ spec }) =>
-              spec.blocks.flatMap((_, index) =>
-                oracleThen(generated.hidden, spec, index) ? [`${spec.id}#${index}`] : [],
-              ),
-            ),
-        );
         const record = runs.faults.find((entry) => entry.fault.def.id === `${cls.id}@any/r1`);
         if (!record) return verdict(false, 'the every-time instance was not planted');
-        const changed = Object.entries(record.firstChange).filter(
-          ([spec, index]) => !oracleOwned.has(`${spec}#${index}`),
-        );
+        const changed = Object.entries(record.firstChange);
         if (changed.length === 0)
           return verdict(false, `${cls.id} never changes what the agent does in a complete spec`);
         const late = changed.filter(([spec, index]) => {

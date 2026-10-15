@@ -177,6 +177,8 @@ it('every registered action that resolves a target explains an absent example', 
       'examples/acme/personas/recordings/sam-upgrader.yaml',
     ],
     attack: [SPEC],
+    'redteam grade': [SPEC, '--cassette', 'packages/cli/test/fixtures/redteam-grade.cassette.json'],
+    'redteam run': [SPEC, '--replay', 'packages/cli/test/fixtures/redteam-crescendo.json'],
     'family verify': ['examples/acme/specs', '--reference', 'function:acme-sales'],
     'pilot run': [
       '--map',

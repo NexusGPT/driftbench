@@ -1,5 +1,5 @@
 import type { BlockResult, Observed, ResolvedGiven, RunMode, Verdict } from '../schema/run';
-import type { BlockSpec, Expect, Spec } from '../schema/spec';
+import type { BlockSpec, Expect, Spec, Stimulus } from '../schema/spec';
 import type { ArtifactReaderRegistry } from './artifacts';
 
 /**
@@ -14,7 +14,13 @@ export type CheckContext = {
   readonly spec: Spec;
   readonly mode: RunMode;
   readonly blockIndex: number;
+  /** The block as the spec wrote it, or the perturbation's block when the block was injected. */
   readonly block: BlockSpec;
+  /**
+   * What the driver sent the agent in this block. It differs from `block.when` when the driver writes the
+   * user turn itself (a simulated user, a red-team attacker). Absent means `block.when` was sent.
+   */
+  readonly stimulus?: Stimulus;
   /** The block's expectations, or the perturbation's when the block was injected. */
   readonly expect: Expect;
   readonly given: ResolvedGiven;
@@ -38,6 +44,14 @@ export interface Check {
   applies(ctx: CheckContext): boolean;
   /** One verdict per fact checked. Evidence names the matched or missing thing, never only "fail". */
   evaluate(ctx: CheckContext): Promise<Verdict[]> | Verdict[];
+}
+
+/**
+ * The stimulus the agent received in a block: the one the driver sent, else the block's authored `when`. A
+ * check that reads the user turn reads this, so it judges the reply against the message the agent saw.
+ */
+export function sentStimulus(ctx: Pick<CheckContext, 'block' | 'stimulus'>): Stimulus {
+  return ctx.stimulus ?? ctx.block.when;
 }
 
 /** Builds a machine verdict. Machine verdicts are gating by default. */
