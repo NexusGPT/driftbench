@@ -251,8 +251,9 @@ export class ClaudeCodeReader implements EstateReader {
     // so every guard is known before a row is matched to one.
     const catalogues = files.filter((file) => file.kind === 'registry' && catalogueEntries(file.text));
     for (const file of catalogues) readCatalogue(file, estate);
+    const registryPaths = new Set(files.map((file) => file.path));
     for (const file of files) {
-      if (file.kind === 'registry' && !catalogues.includes(file)) readRegistry(file, estate);
+      if (file.kind === 'registry' && !catalogues.includes(file)) readRegistry(file, estate, registryPaths);
     }
     const scripts = new Set(estate.guards.flatMap((guard) => (guard.script ? [guard.script] : [])));
     for (const file of files) if (scripts.has(file.path)) file.kind = 'guard_script';
@@ -1019,9 +1020,9 @@ function noteFrontmatter(
   }
 }
 
-function readRegistry(file: EstateFile, estate: RawEstate): void {
+function readRegistry(file: EstateFile, estate: RawEstate, paths: ReadonlySet<string>): void {
   if (/\.(json|ya?ml)$/.test(file.path)) {
-    readJsonRegistry(file, estate);
+    readJsonRegistry(file, estate, paths);
     return;
   }
   const known = knownGuards(estate);
@@ -1342,14 +1343,14 @@ function registryEntries(value: unknown): RegistryEntry[] {
   return Object.entries(current).flatMap<RegistryEntry>(([key, row]) => {
     if (Array.isArray(row)) return row.filter(isRecord).map((entry) => ({ row: entry, event: key }));
     if (!isRecord(row)) return [];
-    const guard = [row.guard, row.script, row.check, row.hook, row.file, row.path].some(
+    const guard = [row.guard, row.script, row.check, row.hook, row.file, row.path, row.command].some(
       (candidate) => typeof candidate === 'string',
     );
     return guard ? [{ row, key }] : [];
   });
 }
 
-function readJsonRegistry(file: EstateFile, estate: RawEstate): void {
+function readJsonRegistry(file: EstateFile, estate: RawEstate, paths: ReadonlySet<string>): void {
   let json: unknown;
   try {
     json = parseData(file.text, file.path);
@@ -1362,11 +1363,13 @@ function readJsonRegistry(file: EstateFile, estate: RawEstate): void {
   for (const { row, key, event } of rows) {
     const id = typeof row.id === 'string' ? row.id : key;
     if (id === undefined) continue;
-    const named = [row.guard, row.script, row.check, row.hook, row.file, row.path].find(
-      (value) => typeof value === 'string',
+    const field = ['guard', 'script', 'check', 'hook', 'file', 'path', 'command'].find(
+      (key) => typeof row[key] === 'string',
     );
+    const named = field === undefined ? undefined : row[field];
     if (typeof named !== 'string') continue;
-    const guard = basename(named);
+    const guard =
+      field === 'command' ? guardName({ command: named, ...scriptOf(named, paths) }) : basename(named);
     const found = seekPattern(
       file,
       key !== undefined ? new RegExp(`${escapeRegex(JSON.stringify(key))}\\s*:`) : keyValue('id', id),

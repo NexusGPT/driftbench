@@ -11,13 +11,13 @@
 | hidden | 0 |
 <!-- level-table:end -->
 
-Iteration 32, source ce43159c2d88a431a8fde943eef2404658810daa plus the change recorded in this journal row. Hidden seed 461502940, derived from that head.
+Iteration 33, source 21ffa34cf4536d416b9be629f97d2be90a2b9af9 plus the change recorded in this journal row. Hidden seed 571401612, derived from that head.
 | Seed | Reader passing / items |
 |---|---|
-| 1 | 609/641 |
-| 2 | 609/641 |
-| 3 | 609/641 |
-| hidden (461502940) | 609/641 |
+| 1 | 610/641 |
+| 2 | 610/641 |
+| 3 | 610/641 |
+| hidden (571401612) | 610/641 |
 
 Each fraction counts reader items passing on that seed, out of 641 reader items. Journal `passing` counts distinct evaluated item IDs passing every seed; it is not a sum of seed counts. The journal's per-level `metrics` use seed 1; its `perSeed` records achieved levels separately.
 
@@ -36,7 +36,6 @@ Owner rule: "make sure all the fixes are fixes that are TO THE FRAMEWORK in gene
 ## Open items
 
 - scan.registry.md-label-lowercase: [scan.registry, tier 3] the guard enforces the rules of a label written in lower case: missed the enforces edge scan.registry.md-label-lowercase:guard to scan.registry.md-label-lowercase:rule0
-- scan.catalogue.guard-command-key: [scan.catalogue, tier 4] the reader reads the guard by its command: missed the enforces edge scan.catalogue.guard-command-key:guard to scan.catalogue.guard-command-key:rule0; scan.catalogue.guard-command-key:guard: registry is undefined, expected "C15"
 - scan.dispatcher.change-folder: [scan.dispatcher, tier 3] a guard declared with a change into the project folder first names and finds its script: scan.dispatcher.change-folder:guard: anchored is false, expected true
 - scan.dispatcher.shell-wrapper: [scan.dispatcher, tier 4] a guard declared with a shell wrapper with a quoted command names and finds its script: scan.dispatcher.shell-wrapper:guard: script is "python3 $CLAUDE_PROJECT_DIR/.claude/guards/crate-plan-oh9oal.py", expected ".claude/guards/crate-plan-oh9oal.py"; scan.dispatcher.shell-wrapper:guard: anchored is false, expected true
 - scan.reference-prose.text-file: [scan.reference-prose, tier 3] the scan reads the rules of a plain text reference: missed instruction at .claude/skills/recipe-sort-1ki10ij/references/notes.txt:2
@@ -70,6 +69,7 @@ Owner rule: "make sure all the fixes are fixes that are TO THE FRAMEWORK in gene
 
 ## Hypotheses tried
 
+Iteration 33: registry rows that name a guard by its command. +1 on every seed: scan.catalogue.guard-command-key.
 Iteration 32: duplicate skill names noted. +1 on every seed: scan.hostile.duplicate-names.
 Iteration 31: prompt hooks and malformed hook containers. +2 on every seed: scan.hostile.prompt-hook, hooks-wrong-shape.
 Iteration 30: JSON with comments and trailing commas in step files. +2 on every seed: scan.steps.comments, trailing-commas.
