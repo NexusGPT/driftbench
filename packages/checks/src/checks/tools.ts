@@ -184,7 +184,16 @@ type ValueContext = {
 };
 
 /** One call's answer for an argument: its outcome, a note for the evidence, and a lint on the test. */
-type CallAnswer = { outcome: Settles; note?: string; lints?: NonNullable<LadderResult['lint']>[] };
+type CallAnswer = {
+  outcome: Settles;
+  note?: string;
+  lints?: NonNullable<LadderResult['lint']>[];
+  /** The values a rung decided: their path, the rung and its outcome. */
+  decided?: { path: string; rung: string; outcome: Settles }[];
+};
+
+/** One entry of `Verdict.valueCheck`. */
+type Decision = NonNullable<Verdict['valueCheck']>[number];
 
 /**
  * One argument on every call of its tool. A value the block names goes through the value-check ladder; the
@@ -211,6 +220,7 @@ async function inputVerdict(
   const open: string[] = [];
   const notes: string[] = [];
   const lints = new Map<string, Set<string>>();
+  const decisions: Decision[] = [];
   let expected = '';
   let problem: string | undefined;
   for (const [index, call] of own.entries()) {
@@ -225,6 +235,7 @@ async function inputVerdict(
         ? await ladderAnswer(values, call, value, assertion)
         : ({ outcome: 'fail' } as CallAnswer);
     if (answer.note !== undefined) notes.push(`${at}: ${answer.note}`);
+    for (const entry of answer.decided ?? []) decisions.push({ call: index + 1, ...entry });
     for (const lint of answer.lints ?? [])
       lints.set(lint.id, (lints.get(lint.id) ?? new Set()).add(lint.text));
     if (answer.outcome === 'fail') failures.push(`${at}: input.${field} is ${show(value)}`);
@@ -235,25 +246,33 @@ async function inputVerdict(
   );
   const how = notes.length > 0 ? ` (${notes.join('; ')})` : '';
   if (problem) return [machineVerdict(NAME, id, 'fail', `input.${field} ${expected}: ${problem}`), lint];
+  const decided = (made: Verdict): Verdict =>
+    decisions.length === 0 ? made : { ...made, valueCheck: decisions };
   if (failures.length > 0) {
     return [
-      machineVerdict(NAME, id, 'fail', `${label} ${failures.join('; ')}; expected ${expected}${how}`),
+      decided(
+        machineVerdict(NAME, id, 'fail', `${label} ${failures.join('; ')}; expected ${expected}${how}`),
+      ),
       lint,
     ];
   }
   if (open.length > 0) {
     return [
-      machineVerdict(NAME, id, 'inconclusive', `${label} ${open.join('; ')}; expected ${expected}${how}`),
+      decided(
+        machineVerdict(NAME, id, 'inconclusive', `${label} ${open.join('; ')}; expected ${expected}${how}`),
+      ),
       lint,
     ];
   }
   const shown = own.map((call) => show(isRecord(call.input) ? call.input[field] : undefined));
   return [
-    machineVerdict(
-      NAME,
-      id,
-      'pass',
-      `${label} input.${field} is ${expected} on ${plural(own.length, 'call')}: ${[...new Set(shown)].join(', ')}${how}`,
+    decided(
+      machineVerdict(
+        NAME,
+        id,
+        'pass',
+        `${label} input.${field} is ${expected} on ${plural(own.length, 'call')}: ${[...new Set(shown)].join(', ')}${how}`,
+      ),
     ),
     lint,
   ];
@@ -327,8 +346,14 @@ async function ladderAnswer(
   const lints = results
     .map((entry) => entry.result.lint)
     .filter((lint): lint is NonNullable<LadderResult['lint']> => lint !== undefined);
+  const decided = settled.map((entry) => ({
+    path: entry.path,
+    rung: entry.result.rung,
+    outcome: entry.result.outcome,
+  }));
   return {
     outcome,
+    ...(decided.length === 0 ? {} : { decided }),
     ...(note === '' ? {} : { note }),
     ...(lints.length === 0 ? {} : { lints }),
   };

@@ -71,31 +71,66 @@ export const outcome: Rung = async (value, ctx) => {
   }
   const agent = resolvedOf(mine.output, declaration.resolved);
   const reference = resolvedOf(gold.output, declaration.resolved);
-  if (deepEqual(agent, reference)) {
-    if (ctx.params.distractors_required === true && declaration.distractors !== true) {
-      return {
-        skip: `${tool} resolves both values the same, but its world declares no distractor to tell the gold referent apart`,
-      };
-    }
+  // Only a field both replays returned can be compared: a missing field resolved nothing, so it proves nothing.
+  const both = declaration.resolved.filter((path) => path in agent && path in reference);
+  const differing = both.filter((path) => !deepEqual(agent[path], reference[path]));
+  if (differing.length > 0) {
+    const failed = Object.values(agent).every((entry) => entry === null || entry === false);
     return {
-      settles: 'pass',
-      evidence: `${tool} resolves ${show(value.value)} as it resolves the gold ${show(value.gold)}: ${show(agent)}`,
-      emits: { outcome: 'accepted_as_gold' },
+      settles: 'fail',
+      evidence: `${tool} resolves ${show(value.value)} to ${show(agent)}, and the gold ${show(value.gold)} to ${show(reference)}`,
+      emits: { outcome: failed ? 'failed' : 'resolved_differently' },
     };
   }
-  const failed = Object.values(agent).every(
-    (entry) => entry === undefined || entry === null || entry === false,
-  );
+  const missing = declaration.resolved.filter((path) => !both.includes(path));
+  if (missing.length > 0) {
+    return {
+      skip: `${tool} returned no ${missing.join(', ')} for ${sides(agent, reference, missing)}, so the replay proves nothing`,
+    };
+  }
+  if (ctx.params.distractors_required === true && declaration.distractors !== true) {
+    return {
+      skip: `${tool} resolves both values the same, but its world declares no distractor to tell the gold referent apart`,
+    };
+  }
   return {
-    settles: 'fail',
-    evidence: `${tool} resolves ${show(value.value)} to ${show(agent)}, and the gold ${show(value.gold)} to ${show(reference)}`,
-    emits: { outcome: failed ? 'failed' : 'resolved_differently' },
+    settles: 'pass',
+    evidence: `${tool} resolves ${show(value.value)} as it resolves the gold ${show(value.gold)}: ${show(agent)}`,
+    emits: { outcome: 'accepted_as_gold' },
   };
 };
 
-/** The declared output fields of a result, by dotted path; a missing field reads as null. */
+/** Which replay lacks the missing fields: the agent value's, the gold value's, or both. */
+function sides(
+  agent: Record<string, unknown>,
+  reference: Record<string, unknown>,
+  missing: readonly string[],
+) {
+  const mine = missing.some((entry) => !(entry in agent));
+  const gold = missing.some((entry) => !(entry in reference));
+  return mine && gold ? 'either value' : mine ? 'the agent value' : 'the gold value';
+}
+
+/**
+ * The declared output fields a result returned, by dotted path. A field the result does not hold is left out; a
+ * field under a parent that resolved to null (no customer for that email) is a result, null.
+ */
 function resolvedOf(output: unknown, paths: readonly string[]): Record<string, unknown> {
-  return Object.fromEntries(paths.map((path) => [path, valueAt(output, path) ?? null]));
+  const out: Record<string, unknown> = {};
+  for (const dotted of paths) {
+    let at: unknown = output;
+    let present = true;
+    for (const key of dotted.split('.')) {
+      if (at === null) break;
+      if (!isRecord(at) || !(key in at) || at[key] === undefined) {
+        present = false;
+        break;
+      }
+      at = at[key];
+    }
+    if (present) out[dotted] = at;
+  }
+  return out;
 }
 
 /** The value at a dotted path, or undefined. */
