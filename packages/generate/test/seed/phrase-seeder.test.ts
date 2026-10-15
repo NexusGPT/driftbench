@@ -5,6 +5,7 @@ import { generateFrom } from '../../../validators/src/ladders/generator/measure'
 import { renderMap } from '../../../validators/src/ladders/generator/render';
 import { generateSuite } from '../../src/enumerate/generate';
 import { loadApprovedMap } from '../../src/enumerate/load';
+import { blockCell } from '../../src/gate/then';
 import { ACME_MAP } from '../enumerate/support';
 
 const userTurns = (specs: ReturnType<typeof generateSuite>['complete']) =>
@@ -21,8 +22,9 @@ const userTurns = (specs: ReturnType<typeof generateSuite>['complete']) =>
   );
 
 describe('phrases no other spec says', () => {
-  // Seeds 12, 13 and 18 hold more behaviour phrases than stages and flows a behaviour phrase can be said at.
-  it.each([1, 3, 12, 13, 18])(
+  // Seeds 12 and 18 hold one behaviour phrase more than the stages and flows before a walk's last stage; a
+  // walk with no end state takes it at its last stage. Seed 13 holds two more and has one such walk only.
+  it.each([1, 3, 12, 18])(
     'are each said in a complete spec on seed %s',
     async (seed) => {
       const hidden = hiddenSpec(seed);
@@ -48,9 +50,9 @@ describe('phrases no other spec says', () => {
   }, 300_000);
 });
 
-describe('behaviour phrases that share a stage and flow', () => {
+describe('behaviour phrases on seeds with more phrases than stages and flows', () => {
   it.each([12, 13, 18])(
-    'differ in another value of the spec cell too on seed %s, so none is a one-slot sibling',
+    'never share a stage and flow on seed %s, and the ones said at a last stage come after every other',
     async (seed) => {
       const hidden = hiddenSpec(seed);
       const source = await generateFrom(hidden, renderMap(hidden), seed, {}, { once: true });
@@ -59,27 +61,44 @@ describe('behaviour phrases that share a stage and flow', () => {
       const behaviours = new Set(
         hidden.phrases.filter((phrase) => phrase.intent.kind === 'behaviour').map((phrase) => phrase.text),
       );
-      const said = suite.complete.flatMap((spec) => {
-        const cell = (spec.metadata?.generated as { cell?: Record<string, string> } | undefined)?.cell ?? {};
-        return spec.blocks.flatMap((block) =>
+      const said = suite.complete.flatMap((spec) =>
+        spec.blocks.flatMap((block, index) =>
           'user' in block.when && behaviours.has(block.when.user)
-            ? [{ id: spec.id, slot: `${block.expect?.stage}@${cell.flow}`, cell }]
+            ? [
+                {
+                  id: spec.id,
+                  cell: blockCell(spec, index),
+                },
+              ]
             : [],
-        );
-      });
-      const shared = said.filter((one) => said.some((other) => other !== one && other.slot === one.slot));
-      // Seed 13 holds six behaviour phrases and five such stages and flows: at least two share one.
-      if (seed === 13) expect(shared.length).toBeGreaterThan(0);
-      for (const one of shared)
-        for (const other of shared) {
-          if (other === one || other.slot !== one.slot) continue;
+        ),
+      );
+      // The gate compares blocks whose own cells differ in one value: two behaviour phrases at one stage and
+      // flow are such siblings, and the gate rejects them whenever the reference answers the two differently.
+      for (const one of said)
+        for (const other of said) {
+          if (one === other) continue;
           const keys = new Set([...Object.keys(one.cell), ...Object.keys(other.cell)]);
           const changed = [...keys].filter((key) => one.cell[key] !== other.cell[key]);
-          expect(
-            changed.length,
-            `${one.id} and ${other.id} at ${one.slot} differ in ${changed}`,
-          ).toBeGreaterThanOrEqual(2);
+          expect(changed.length, `${one.id} and ${other.id}`).toBeGreaterThan(1);
         }
+      // A phrase said at the last stage of its walk is placed after every other phrase spec: the phrases placed
+      // first keep their ids, so their streams and values stay what they were without it.
+      const atLast = said.filter((entry) => {
+        const spec = suite.complete.find((candidate) => candidate.id === entry.id);
+        const path = source.prepared?.relations.paths.find(
+          (candidate) => candidate.id === (spec?.metadata?.generated as { path?: string } | undefined)?.path,
+        );
+        return spec !== undefined && path !== undefined && spec.blocks.length === path.stages.length;
+      });
+      if (seed !== 13) expect(atLast.length).toBeGreaterThan(0);
+      const phraseIds = suite.complete
+        .map((spec) => spec.id)
+        .filter((id) => id.startsWith('gen-phrase-'))
+        .sort();
+      expect(atLast.map((entry) => entry.id).sort()).toEqual(
+        phraseIds.slice(phraseIds.length - atLast.length),
+      );
     },
     300_000,
   );
