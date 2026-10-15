@@ -241,7 +241,7 @@ describe('rung 1: the outcome', () => {
       },
     };
     const result = await runLadder(coverageCall('7 quarry lane'), DEFAULT_VALUE_POLICY, { replayer: lonely });
-    expect(result.outcome).toBe('inconclusive');
+    expect(result).toMatchObject({ outcome: 'fail', rung: 'exact_fallback' });
     expect(result.evidence).toContain('declares no distractor');
   });
 });
@@ -289,7 +289,7 @@ describe('rung 2: the contract', () => {
 
   it('settles no pass: a value inside the contract that differs goes on to the next rungs', async () => {
     const result = await runLadder({ ...phone('+12025550113'), sources: { user: [] } });
-    expect(result.outcome).toBe('inconclusive');
+    expect(result).toMatchObject({ outcome: 'fail', rung: 'exact_fallback' });
     expect(result.tried.map((entry) => entry.rung)).toEqual(['rung2_contract']);
   });
 
@@ -334,7 +334,7 @@ describe('rung 2b: as given', () => {
     const result = await runLadder(
       stored('sam.rivers@example.com', 'Not sam.rivers@example.com, it is sam.rivera@example.com'),
     );
-    expect(result.outcome).toBe('inconclusive');
+    expect(result).toMatchObject({ outcome: 'fail', rung: 'exact_fallback' });
     expect(result.evidence).toContain('both the value and the gold appear in the same message');
   });
 
@@ -362,13 +362,13 @@ describe('rung 2b: as given', () => {
 });
 
 describe('a named compare mode runs that rung alone', () => {
-  it('outcome on a tool nobody can replay is inconclusive with the reason', async () => {
+  it('outcome on a tool nobody can replay falls back to the exact compare, with the reason', async () => {
     const result = await runLadder({ ...coverageCall('7 Quarry Ln'), compare: 'outcome' });
-    expect(result.outcome).toBe('inconclusive');
+    expect(result).toMatchObject({ outcome: 'fail', rung: 'exact_fallback' });
     expect(result.evidence).toContain('rung1_outcome: no replayer declares this tool');
   });
 
-  it('the tools check reads the policy it is given: an override without rung 1 leaves Ln undecided', async () => {
+  it('the tools check reads the policy it is given: without rung 1, a writing the tool resolves falls back to exact', async () => {
     const withoutOutcome: ValuePolicy = {
       ...DEFAULT_VALUE_POLICY,
       items: DEFAULT_VALUE_POLICY.items.map((item) =>
@@ -377,7 +377,7 @@ describe('a named compare mode runs that rung alone', () => {
     };
     const spec = acme('acme-new-customer-coverage');
     const seen = observed('Checking.', [
-      { label: 'coverage.check', input: { address: '88 Summit Ave, Acmeville' } },
+      { label: 'coverage.check', input: { address: '88 summit avenue, acmeville' } },
     ]);
     const expectation = {
       tools: [{ label: 'coverage.check', input: { address: '88 Summit Avenue, Acmeville' } }],
@@ -390,15 +390,15 @@ describe('a named compare mode runs that rung alone', () => {
         ),
         'tools.coverage.check.input.address',
       ).outcome;
-    expect(await field()).toBe('fail');
-    expect(await field(withoutOutcome)).toBe('inconclusive');
+    expect(await field()).toBe('pass');
+    expect(await field(withoutOutcome)).toBe('fail');
   });
 });
 
 describe('the policy comes through the object resolver', () => {
   const coverage = acme('acme-new-customer-coverage');
   const seen = observed('Checking.', [
-    { label: 'coverage.check', input: { address: '88 Summit Ave, Acmeville' } },
+    { label: 'coverage.check', input: { address: '88 summit avenue, acmeville' } },
   ]);
   const expectation = {
     tools: [{ label: 'coverage.check', input: { address: '88 Summit Avenue, Acmeville' } }],
@@ -415,12 +415,13 @@ describe('the policy comes through the object resolver', () => {
     );
   };
 
-  it('a block that disables rung 1 in an inline object extending the default leaves Ln undecided', async () => {
-    expect((await field()).outcome).toBe('fail');
+  it('a block that disables rung 1 in an inline object extending the default compares a resolved writing exactly', async () => {
+    expect((await field()).outcome).toBe('pass');
     const off = { value_check: { extends: 'default', items: [{ id: 'rung1_outcome', enabled: false }] } };
-    expect((await field(off)).outcome).toBe('inconclusive');
-    expect((await field(off, 'spec')).outcome).toBe('inconclusive');
-    expect((await field({ value_check: 'default' })).outcome).toBe('fail');
+    expect(await field(off)).toMatchObject({ outcome: 'fail' });
+    expect((await field(off)).evidence).toContain('exact_fallback');
+    expect((await field(off, 'spec')).outcome).toBe('fail');
+    expect((await field({ value_check: 'default' })).outcome).toBe('pass');
   });
 
   it('a block that names an object nobody registered fails the check with the resolver reason', async () => {

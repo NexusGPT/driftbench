@@ -169,17 +169,28 @@ describe('tools', () => {
     expect(accuracy.evidence).toContain('missed: catalog.search input.address_id');
   });
 
-  it('without a replayer or a judge, a different value is inconclusive with every rung reason, never a pass', async () => {
+  it('without a replayer or a judge, a different value falls back to the exact compare, says so, and lints the test', async () => {
     const wrong: Call[] = [
       offerCalls[0] as Call,
       { label: 'catalog.search', input: { category: 'home', address_id: 'addr-101' } },
     ];
     const verdicts = await run(tools, context(coverage, 1, observed(offerText, wrong)));
-    expect(failing(verdicts)).toEqual(['tools.catalog.search.input.address_id', 'tools.argument_accuracy']);
+    expect(failing(verdicts)).toEqual([
+      'tools.catalog.search.input.address_id',
+      'tools.catalog.search.input.address_id.no_decider',
+      'tools.argument_accuracy',
+    ]);
     const field = verdict(verdicts, 'tools.catalog.search.input.address_id');
-    expect(field).toMatchObject({ gating: true, outcome: 'inconclusive' });
-    expect(field.evidence).toContain('no rung settled it');
+    expect(field).toMatchObject({ gating: true, outcome: 'fail' });
+    expect(field.evidence).toContain(
+      'address_id exact_fallback: no decider configured for catalog.search.address_id; compared exactly: "addr-101" is not "addr-103"',
+    );
     expect(field.evidence).toContain('rung3_same_referent: no same-referent judge is configured');
+    const lint = verdict(verdicts, 'tools.catalog.search.input.address_id.no_decider');
+    expect(lint.gating).toBe(false);
+    expect(lint.evidence).toContain(
+      'a replayer that declares catalog.search and resolves address_id (rung1_outcome)',
+    );
   });
 
   it('mutation: a missing call fails its count and every input assertion on it, naming the calls seen', async () => {
@@ -269,8 +280,6 @@ describe('tools: every assertion form, on the Acme expectations', () => {
     run: (input: Record<string, unknown>, check?: typeof tools) => ReturnType<typeof run>;
     good: Record<string, unknown>;
     bad: Record<string, unknown>;
-    /** The mutation's outcome with no judge: a stored value nothing else settles is inconclusive. */
-    unjudged?: 'inconclusive';
   }> = [
     {
       form: 'one_of',
@@ -287,7 +296,6 @@ describe('tools: every assertion form, on the Acme expectations', () => {
         run(check, context(callback, 3, observed('Done.', [{ label: 'notify_sales', input }]))),
       good: { ...notify, customer: { phone: '+12025550131', name: 'Pat' } },
       bad: { ...notify, customer: { phone: '+12025550199' } },
-      unjudged: 'inconclusive',
     },
     {
       form: 'contains',
@@ -320,7 +328,6 @@ describe('tools: every assertion form, on the Acme expectations', () => {
         run(check, context(porting, 4, observed('Done.', [{ label: 'order.create', input }]))),
       good: order,
       bad: { ...order, plan_id: 'mobile-l' },
-      unjudged: 'inconclusive',
     },
     {
       form: 'regex',
@@ -367,7 +374,7 @@ describe('tools: every assertion form, on the Acme expectations', () => {
   it.each(cases)('$form passes on the target input and never passes its mutation', async (item) => {
     expect(verdict(await item.run(item.good), item.id).outcome).toBe('pass');
     const mutated = verdict(await item.run(item.bad), item.id);
-    expect(mutated.outcome).toBe(item.unjudged ?? 'fail');
+    expect(mutated.outcome).toBe('fail');
     expect(mutated.evidence).toMatch(/expected /);
   });
 

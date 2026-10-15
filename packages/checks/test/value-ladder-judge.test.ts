@@ -143,21 +143,26 @@ describe('rung 3 runs only with a configured, calibrated judge', { timeout: 60_0
     expect(field.evidence).toContain('customer.phone rung3_same_referent: 6 of 6 votes say');
   });
 
-  it('without a judge the value is inconclusive, with the reason', async () => {
+  it('without a judge the value falls back to the exact compare, with the reason', async () => {
     const field = await judged();
-    expect(field.outcome).toBe('inconclusive');
+    expect(field.outcome).toBe('fail');
+    expect(field.evidence).toContain(
+      'customer.phone exact_fallback: no decider configured for notify_sales.customer.phone',
+    );
     expect(field.evidence).toContain('rung3_same_referent: no same-referent judge is configured');
   });
 
   it('refuses a judge with no calibration, and one whose false acceptance is above the policy', async () => {
     const bare = { ...recordedJudge(), calibration: undefined };
-    expect((await judged(bare)).evidence).toContain('carries no calibration against labels');
+    const unmeasured = await judged(bare);
+    expect(unmeasured.outcome).toBe('fail');
+    expect(unmeasured.evidence).toContain('carries no calibration against labels');
     const lenient = {
       ...recordedJudge(),
       calibration: { falseAcceptance: 0.05, source: 'a lenient judge, 1 near miss in 20 accepted' },
     };
     const field = await judged(lenient);
-    expect(field.outcome).toBe('inconclusive');
+    expect(field.outcome).toBe('fail');
     expect(field.evidence).toContain("above the policy's 0.02");
   });
 
