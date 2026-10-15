@@ -3,7 +3,7 @@
 import type { ToolExpect } from '@agent-nexus/driftbench-core';
 import { NONE } from '@agent-nexus/driftbench-space';
 import { FLOW_DIMENSION, type PathRelation } from '../extract/proposal';
-import { pickOf, type SpecDraft } from './assemble';
+import { type Pick, pickOf, type SpecDraft } from './assemble';
 import { dimensionId, type PreparedMap } from './map';
 import { slotsOf } from './relations';
 import { hasPaths, type SeedContext, scenarioDraft } from './seed-drafts';
@@ -56,19 +56,37 @@ export function phraseDrafts(
       const id = `gen-phrase-${String(first + drafts.length + 1).padStart(3, '0')}`;
       let built: ReturnType<typeof scenarioDraft> | undefined;
       // A tool's value is asked for after a move that already ran the tool, whose Then checks the call and
-      // the reply: a fault on the tool's arguments or its reported fields shows there first. Else, after the
-      // first move. A phrase asking for something takes a stage none of its siblings holds first; when every
-      // stage holds one, any stage after the first move.
-      const ran = (path: PathRelation, at: number) =>
+      // the reply: a fault on the tool's arguments or its reported fields shows there first.
+      const ran = (path: PathRelation, at: number, tool: string) =>
         prepared.relations.usesTools.some(
           (use) =>
-            use.tool === found?.tool.name &&
+            use.tool === tool &&
             use.subject.dimension === FLOW_DIMENSION &&
             use.subject.value === path.flow &&
             path.stages.some(
               (stage, index) => index < at && stage === use.stage && path.stages[index + 1] === use.to,
             ),
         );
+      // A behaviour or flow phrase forbids no tool. The map does not say which tool the agent may run for a
+      // behaviour (a flow phrase names a flow and runs nothing): a behaviour phrase is said once the walk's
+      // moves have run every read tool its flow calls, so a fault on such a call shows at the move first. Two such phrases of one dimension at the same stage of the same flow
+      // are one-slot siblings with the same Then, which the gate rejects when the reference answers them
+      // differently; each takes a stage and flow none of its siblings holds, and the flow joins its cell.
+      const readTools = (path: PathRelation) => [
+        ...new Set(
+          prepared.relations.usesTools
+            .filter(
+              (use) =>
+                use.subject.dimension === FLOW_DIMENSION &&
+                use.subject.value === path.flow &&
+                !sideEffecting.has(use.tool),
+            )
+            .map((use) => use.tool),
+        ),
+      ];
+      const exercised = (path: PathRelation, at: number) =>
+        readTools(path).every((tool) => ran(path, at, tool));
+      const slotOf = (path: PathRelation, at: number) => `${path.stages[at]}@${path.flow}`;
       const tries = found
         ? [
             ...Array.from({ length: Math.max(0, deepest - 1) }, (_, index) => ({
@@ -79,50 +97,65 @@ export function phraseDrafts(
             { at: 1, fresh: false, after: false },
           ]
         : [
-            ...Array.from({ length: deepest }, (_, index) => ({ at: index + 1, fresh: true, after: false })),
-            ...((used?.size ?? 0) > 0 ? [{ at: 1, fresh: false, after: false }] : []),
+            // No fallback: a sibling at a held stage and flow is rejected by the gate whenever the reference
+            // answers the two differently, and the map does not say when that is.
+            ...Array.from({ length: deepest }, (_, index) => ({ at: index + 1, fresh: true, after: true })),
           ];
+      const flowAt = prepared.space.dimensions.findIndex((entry) => entry.id === FLOW_DIMENSION);
       for (const { at, fresh, after } of tries) {
         // Never at the last stage: a walk that reaches its end checks its end state, which the turn cuts.
         const fits = (path: PathRelation) =>
           path.stages.length > at + 1 &&
-          !(fresh && used?.has(path.stages[at] as string)) &&
-          (!after || ran(path, at));
-        const own = prepared.relations.paths.filter(
-          (path) => fits(path) && (dimension !== FLOW_DIMENSION || path.flow === phrase.value),
-        );
-        const others = prepared.relations.paths.filter(fits);
-        if (others.length === 0) continue;
-        const attempt = scenarioDraft(
-          prepared,
-          context,
-          id,
-          'cover',
-          `Phrase of ${dimension}=${phrase.value}`,
-          [target],
-          { preferred: own, others },
-          {
-            turn: {
-              stimulus: { kind: 'phrase', phrase },
-              carries: [target],
-              tools,
-              free: !found,
-              at,
-              ...(found?.direction === 'out' && !sideEffecting.has(found.tool.name)
-                ? { report: found.tool.name }
-                : {}),
+          !(fresh && used?.has(slotOf(path, at))) &&
+          (!after ||
+            (found ? ran(path, at, found.tool.name) : dimension === FLOW_DIMENSION || exercised(path, at)));
+        const candidates = prepared.relations.paths.filter(fits);
+        const own = candidates.filter((path) => dimension !== FLOW_DIMENSION || path.flow === phrase.value);
+        const order = found
+          ? [candidates]
+          : [...own, ...candidates.filter((path) => !own.includes(path))].map((path) => [path]);
+        for (const paths of order) {
+          if (paths.length === 0) continue;
+          const path = paths.length === 1 ? paths[0] : undefined;
+          const flow = path ? prepared.space.dimensions[flowAt]?.index.get(path.flow) : undefined;
+          // The flow joins the cell; a flow phrase's own value is its flow already.
+          const carries: Pick[] = [
+            target,
+            ...(found || flow === undefined || target[0] === flowAt ? [] : [[flowAt, flow] as Pick]),
+          ];
+          const attempt = scenarioDraft(
+            prepared,
+            context,
+            id,
+            'cover',
+            `Phrase of ${dimension}=${phrase.value}`,
+            [target],
+            found
+              ? { preferred: own, others: candidates.filter((entry) => !own.includes(entry)) }
+              : { preferred: paths, others: [] },
+            {
+              turn: {
+                stimulus: { kind: 'phrase', phrase },
+                carries,
+                tools,
+                free: !found,
+                at,
+                ...(found?.direction === 'out' && !sideEffecting.has(found.tool.name)
+                  ? { report: found.tool.name }
+                  : {}),
+              },
             },
-          },
-        );
-        if ('draft' in attempt) {
-          built = attempt;
-          break;
+          );
+          if ('draft' in attempt) {
+            built = attempt;
+            if (used && path) stagesUsed.set(dimension, used.add(slotOf(path, at)));
+            break;
+          }
         }
+        if (built) break;
       }
       if (!built || !('draft' in built)) continue;
       asked.add(phrase.text);
-      const stage = built.draft.blocks.at(-1)?.stage;
-      if (used && stage !== undefined) stagesUsed.set(dimension, used.add(stage));
       drafts.push(built.draft);
     }
   }
