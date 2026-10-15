@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>driftbench: change a rule and score saved runs</title>
+<link rel="stylesheet" href="brand.css">
+<style>
+  #frame { width:640px; height:350px; }
+  .card { padding:12px; }
+  .card .nx-kind { position:static; display:block; font-size:10px; }
+  .title { margin-top:9px; font:600 12.5px/1.3 var(--nx-sans); }
+  .detail { margin-top:7px; font:400 11px/1.4 var(--nx-sans); color:var(--detail); }
+  .file { left:206px; top:62px; width:208px; height:133px; }
+  .rule { margin-top:12px; padding:10px 9px; border-radius:7px; background:var(--tile); font:400 11.5px/1.4 var(--nx-sans); color:var(--tile-ink); }
+  .verdict { left:444px; top:62px; width:160px; height:133px; }
+  .fail { display:inline-flex; align-items:center; height:20px; padding:0 8px; border-radius:999px; background:var(--nx-ink); color:var(--nx-card); font:600 10.5px/1 var(--nx-sans); }
+  .saved { left:16px; top:216px; width:588px; height:49px; display:flex; align-items:center; gap:13px; padding:0 13px; }
+  .saved .nx-kind { position:static; font-size:10px; }
+  .saved .text { font:500 11.5px/1.3 var(--nx-sans); }
+  .saved .nx-done { margin-left:auto; }
+  .bottom { left:16px; top:281px; width:588px; height:34px; display:flex; align-items:center; padding:0 13px; font:500 11.5px/1.3 var(--nx-sans); }
+</style>
+</head>
+<body>
+<div id="frame" class="nx-ill scene"><div class="nx-ill__glass">
+  <svg class="nx-edges" viewBox="0 0 620 330">
+    <path class="nx-edge" d="M176 128 L206 128"/>
+    <path class="nx-edge--new" d="M414 128 L444 128"/>
+    <path class="nx-edge" d="M310 195 L310 216"/>
+  </svg>
+  <span class="nx-kind" style="left:16px;top:16px">The rule is yours to change</span>
+  <div class="nx-ill-panel card" style="left:16px;top:62px;width:160px;height:133px">
+    <span class="nx-kind">Default rules</span>
+    <div class="title">Start with the defaults</div>
+    <div class="detail">Existing tests keep their verdicts.</div>
+  </div>
+  <div class="nx-ill-panel card file nx-ring">
+    <span class="nx-kind">Project rule file</span>
+    <div class="title">Order timing</div>
+    <div class="rule">No order call at this step.</div>
+    <div class="detail">Edit the rule in the file.</div>
+  </div>
+  <div class="nx-ill-panel card verdict">
+    <span class="nx-kind">Recorded verdict</span>
+    <div class="title"><span class="fail">fail</span></div>
+    <div class="detail">Rule · Order timing<br>The agent placed the order.</div>
+  </div>
+  <div class="nx-ill-panel saved">
+    <span class="nx-kind">Saved runs</span><span class="text">Edit a project scoring rule. Score saved runs.</span><span class="nx-done">0 agent calls</span>
+  </div>
+  <div class="nx-ill-panel bottom">With the defaults · 0 changed verdicts on 259 runs.</div>
+</div></div>
+<script>
+  window.__fonts = ['400 11px Geist', '600 13px Geist', '500 10.5px "Geist Mono"'];
+  Promise.all(window.__fonts.map((f) => document.fonts.load(f))).then(() => document.fonts.ready).then(() => { window.__ready = true; });
+</script>
+</body>
+</html>
