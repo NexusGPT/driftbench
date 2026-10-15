@@ -44,6 +44,16 @@ export {
   type ResolvedItem,
   type ScopeEvidence,
 } from './rules';
+export {
+  applyScoringPlan,
+  checkImpl,
+  NoParams,
+  RUNNER_ITEMS,
+  resolvedRecord,
+  type ScoringPlan,
+  scoringPlan,
+  stamp,
+} from './scoring';
 
 /** Whether a spec names any object itself: `uses` on the spec or on a block. */
 export function specUsesObjects(spec: Pick<Spec, 'uses' | 'blocks'>): boolean {

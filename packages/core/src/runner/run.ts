@@ -6,7 +6,14 @@ import { copyHistory, freezeMessage } from '../contracts/history';
 import type { Store } from '../contracts/store';
 import { gateToolCalls, type ToolRule } from '../contracts/tool-policy';
 import { objectContextOfSpec } from '../objects/context';
-import { checkSpecObjects, type ObjectContext, shippedObjectContext } from '../objects/index';
+import { checkSpecObjects } from '../objects/index';
+import {
+  type ObjectContext,
+  resolveBlockObjects,
+  shippedObjectContext,
+  type UsedObject,
+} from '../objects/layers';
+import { applyScoringPlan, resolvedRecord, type ScoringPlan, scoringPlan, stamp } from '../objects/scoring';
 import { type BlockReuse, planBlockRerun } from '../radius/blocks';
 import { collectRetries, type RetryPolicy, retryPolicy } from '../retry';
 import type { Message, TargetRef, WorldState } from '../schema/common';
@@ -59,8 +66,6 @@ import { succession } from './succession';
 export type { RunEvent };
 
 export type RunOptions = {
-  /** Defaults to the context carried by the loaded spec. */
-  objects?: ObjectContext;
   /** Dated, user-supplied USD prices for token-only observations. */
   prices?: TokenPrices;
   /** A budgeted campaign cannot continue with an unpriced token-only block. */
@@ -84,8 +89,14 @@ export type RunOptions = {
   adapter: AgentAdapter;
   /** Decides each block's stimulus. The scripted driver of `@agent-nexus/driftbench-users` replays the spec's blocks. */
   driver: UserDriver;
-  /** Applied to every block, in order. */
+  /** Applied to every block, in order, as the block's check-set object chooses and orders them. */
   checks: CheckSet;
+  /**
+   * The objects each block resolves its `uses` against (`objectContextFor(specPath)` for a spec read from a
+   * file). Absent: the context carried by the loaded spec, then shipped objects. Every verdict is stamped with the check-set item that produced it,
+   * and every block records the objects it resolved to.
+   */
+  objects?: ObjectContext;
   /** F runs free: one session, each block inherits the agent's own earlier replies. P is F plus the
    *  blocks a perturbing driver injects. T (teacher-forced) runs every block from its canonical Given in a
    *  session of its own: the prefix, ledger and world the spec writes, never the agent's own history. */
@@ -156,6 +167,26 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
   // The cache key leaves out the spec's version label and its scoring-only `uses` (cacheSpecHash).
   const cacheSpecHash = cacheSpecHashOf(spec);
   const target = options.target ?? spec.target ?? { adapter: options.adapter.id };
+  // Every block's objects resolve before any call reaches the adapter: a reference that cannot resolve fails here.
+  const objectContext = objects;
+  const scoring = new Map<number, BlockScoring>();
+  const scoringOf = (blockIndex: number): BlockScoring => {
+    let known = scoring.get(blockIndex);
+    if (!known) {
+      const used = resolveBlockObjects(spec, blockIndex, objectContext);
+      known = {
+        used,
+        plan: scoringPlan(options.checks, used.find((entry) => entry.key === 'check_set')?.object),
+      };
+      scoring.set(blockIndex, known);
+    }
+    return known;
+  };
+  try {
+    for (let index = -1; index < spec.blocks.length; index += 1) scoringOf(index);
+  } catch (cause) {
+    throw new Error(`runSpec: ${cause instanceof Error ? cause.message : String(cause)}`);
+  }
   const prices = options.prices === undefined ? undefined : TokenPrices.parse(options.prices);
   if (options.requireTokenPrices) preflightTargetPrices([target], prices);
   // In P mode the spec's end state describes the unperturbed run, so it is neither read nor compared, as
@@ -222,6 +253,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     capabilities,
     driver: options.driver,
     checks: options.checks,
+    scoringOf,
     toolPolicy: options.toolPolicy,
     onEvent: reportEvent,
     cache,
@@ -270,6 +302,9 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
   return parsed;
 }
 
+/** What one block is scored with: the objects it resolved to, and the plan that applies its check set. */
+type BlockScoring = { used: UsedObject[]; plan: ScoringPlan };
+
 type RunContext = {
   selectedBlocks: ReadonlySet<number> | undefined;
   blockRerunReason: string | undefined;
@@ -293,6 +328,8 @@ type RunContext = {
   toolPolicy: readonly ToolRule[] | undefined;
   onEvent?: (event: RunEvent) => void;
   checks: CheckSet;
+  /** The objects and the scoring plan of a spec block; -1 for a step the driver injected, which reads the spec's. */
+  scoringOf: (blockIndex: number) => BlockScoring;
   cache: ObservedCache | undefined;
   cacheTtlMs: number | undefined;
   suite: string | undefined;
@@ -422,7 +459,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
               kept,
               spec,
               run.target,
-              run.checks,
+              run.scoringOf(step.blockIndex).plan,
               composed ? endStateValue(run.endState, sources, composed) : undefined,
             ),
           );
@@ -543,7 +580,8 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       const capture = run.provenance
         ? captureArtifacts({ observed, readArtifact: channel.readArtifact() })
         : undefined;
-      const verdicts = await applyChecks(run.checks, {
+      const scored = run.scoringOf(step.kind === 'block' ? step.blockIndex : -1);
+      const verdicts = await applyScoringPlan(scored.plan, {
         spec,
         mode: run.mode,
         blockIndex: position,
@@ -571,11 +609,13 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         previous,
         signatures: run.signatures,
       });
-      const flow = flowVerdicts(spec, planned.expect, reading, previous);
+      const { flow: flowBy, ledger: ledgerBy } = scored.plan.runner;
+      const flow = flowBy ? stamp(flowVerdicts(spec, planned.expect, reading, previous), flowBy) : [];
       users.push(...userMessagesOf(user));
       usersBlock = step.kind === 'block' ? step.blockIndex : Number.NaN;
       const ledger = ledgerVerdicts(facts.ledger, observed, users);
-      const all = [...verdicts, ...flow, ...ledger.verdicts];
+      const all = [...verdicts, ...flow, ...(ledgerBy ? stamp(ledger.verdicts, ledgerBy) : [])];
+      const resolved = resolvedRecord(scored.used);
       const contradictions = [...facts.contradictions, ...ledger.contradictions.map(describeContradiction)];
       const block = {
         index: position,
@@ -597,6 +637,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         cacheKey: key,
         observed,
         verdicts: all,
+        ...(resolved ? { resolved } : {}),
         ...(reading !== undefined ? { stageObserved: reading.stage } : {}),
         ledgerCheck: { ok: contradictions.length === 0, contradictions },
         drift: driftOf(all),
@@ -766,49 +807,6 @@ function planStep(spec: Spec, step: Exclude<DriverStep, { kind: 'stop' }>): Plan
     ...(perturbation?.world ? { world: perturbation.world } : {}),
     lastSpecBlock: false,
   };
-}
-
-/**
- * Applies every check whose `applies` holds. A check that throws, or returns a verdict the schema
- * refuses, gives an inconclusive gating verdict that names the problem: the block cannot pass on it,
- * and nothing is skipped silently.
- */
-async function applyChecks(checks: CheckSet, ctx: CheckContext): Promise<Verdict[]> {
-  const verdicts: Verdict[] = [];
-  for (const check of checks) {
-    let produced: Verdict[];
-    try {
-      if (!check.applies(ctx)) continue;
-      produced = await check.evaluate(ctx);
-    } catch (cause) {
-      verdicts.push(
-        machineVerdict(
-          check.name || 'check',
-          'error',
-          'inconclusive',
-          `the check threw ${describeError(cause)}`,
-        ),
-      );
-      continue;
-    }
-    for (const verdict of produced) {
-      const parsed = Verdict.safeParse(verdict);
-      if (parsed.success) {
-        verdicts.push(parsed.data);
-      } else {
-        const issue = parsed.error.issues[0];
-        verdicts.push(
-          machineVerdict(
-            check.name || 'check',
-            'invalid',
-            'inconclusive',
-            `the check returned a verdict the schema refuses: ${issue?.path.join('.') || '(root)'} ${issue?.message ?? ''}`.trim(),
-          ),
-        );
-      }
-    }
-  }
-  return verdicts;
 }
 
 /** The Observed with the block's retries added after any the adapter reported itself. */

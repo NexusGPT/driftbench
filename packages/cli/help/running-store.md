@@ -61,7 +61,7 @@ What the store holds, one table each:
 | `units` | measured cost units per adapter, read by `campaign plan` for its projection. No command records units during a run; code puts them with the store's `putUnit`. |
 | `blobs`, `versions` | the registry of datasets and prompts: each file once by its SHA-256, and one immutable row per version (`dataset` and `prompt` commands). |
 
-A run record holds `runId`, `specId`, `specHash`, `target`, `mode`, `repeat`, `perturbationId`, `status` (`completed`, `failed` or `stopped`), `error`, `blocks`, `succession`, `recovery` (mode P), `endState`, `cost`, `latencyMs`, `startedAt`, `finishedAt`, `cacheHit`, `events`, `provenance`, and `carried` on a run copied by `--change`. Each block holds `index`, `blockId`, `injected`, `givenHash`, `cacheKey`, `observed`, `verdicts`, `stageObserved`, `ledgerCheck`, `drift` and `pass`.
+A run record holds `runId`, `specId`, `specHash`, `target`, `mode`, `repeat`, `perturbationId`, `status` (`completed`, `failed` or `stopped`), `error`, `blocks`, `succession`, `recovery` (mode P), `endState`, `cost`, `latencyMs`, `startedAt`, `finishedAt`, `cacheHit`, `events`, `provenance`, and `carried` on a run copied by `--change`. Each block holds `index`, `blockId`, `injected`, `givenHash`, `cacheKey`, `observed`, `verdicts`, `stageObserved`, `ledgerCheck`, `drift` and `pass`, and on newer records `resolved` (the objects the block was scored with and one hash over them) and `diagnoses`. Each verdict of a newer record carries `by`: the object (`kind:id@hash8`), the item, the implementation and the layer that produced it.
 
 ## Outputs and how to read them
 

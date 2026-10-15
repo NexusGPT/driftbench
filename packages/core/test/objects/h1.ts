@@ -71,8 +71,8 @@ export function h1Context(spec: Spec, index: number, run: Run): CheckContext {
 /**
  * The stored oracle's shape (exactOracle of research/block-phrasing src/oracle.ts): the ids of the failed gating
  * verdicts of the tools check, and `<label>.count0` for a tool the block expects 0 times that was called, the
- * forbidden check's share for a count of 0. The oracle held no other forbidden verdict (`rules.forbidden_tools`,
- * `rules.max_calls`), so those stay out of the comparison.
+ * forbidden check's share for a count of 0. The oracle held no other verdict (no text check, no
+ * `rules.forbidden_tools` or `rules.max_calls` verdict of the forbidden check), so those stay out of the comparison.
  */
 export function failedLikeStored(ctx: CheckContext, verdicts: readonly Verdict[]): string[] {
   const zero = new Set(
@@ -81,8 +81,8 @@ export function failedLikeStored(ctx: CheckContext, verdicts: readonly Verdict[]
   const out: string[] = [];
   for (const verdict of verdicts) {
     if (!verdict.gating || verdict.outcome === 'pass') continue;
-    if (!verdict.id.startsWith('forbidden.')) out.push(verdict.id);
-    else if (zero.has(verdict.id.slice('forbidden.'.length)))
+    if (verdict.name === 'tools') out.push(verdict.id);
+    else if (verdict.name === 'forbidden' && zero.has(verdict.id.slice('forbidden.'.length)))
       out.push(`${verdict.id.slice('forbidden.'.length)}.count0`);
   }
   return out;
