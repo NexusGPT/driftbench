@@ -1,0 +1,3 @@
+{"id": "B8#0#0", "label": "format_only", "verdict": "pass", "said_verdict": "pass", "reason": "The only difference in the tool argument is using 'Ln' instead of 'Lane', which both refer to the exact same street location."}
+{"id": "B3#1#0", "label": "real_error", "verdict": "fail", "said_verdict": "fail", "reason": "The agent failed to call catalog_search for mobile plans as required after completing the port check for a new customer."}
+{"id": "B2#0#0", "label": "format_only", "verdict": "pass", "said_verdict": "pass", "reason": "The phone number format supplied to notify_sales differs from the gold standard only by punctuation and country code formatting."}

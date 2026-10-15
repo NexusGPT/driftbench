@@ -1,0 +1,4 @@
+{"id": "B1#11#0", "next_action": "asked_user", "asked_for": ["street_number", "street_name", "town"]}
+{"id": "B5#13#0", "next_action": "asked_user", "asked_for": ["full_address", "town"]}
+{"id": "B5#22#0", "next_action": "asked_user", "asked_for": ["address_confirmation", "name", "email"]}
+{"id": "B9#0#0", "next_action": "asked_user", "asked_for": ["other"]}

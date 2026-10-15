@@ -1,0 +1,96 @@
+{"model": "gpt-6-luna", "design": "sbs", "item": "I000", "order": 2, "repeat": 0, "same": true}
+{"model": "gpt-6-luna", "design": "sbs", "item": "I000", "order": 1, "repeat": 0, "same": true}
+{"model": "gpt-6-luna", "design": "sbs", "item": "I000", "order": 1, "repeat": 1, "same": true}
+{"model": "gpt-6-luna", "design": "sbs", "item": "I000", "order": 2, "repeat": 1, "same": true}
+{"model": "gpt-6-luna", "design": "sbs", "item": "I000", "order": 2, "repeat": 2, "same": true}
+{"model": "gpt-6-luna", "design": "sbs", "item": "I000", "order": 1, "repeat": 2, "same": true}
+{"model": "gpt-6-luna", "design": "read_first", "item": "I000", "order": 2, "repeat": 0, "same": true, "compared": true, "readings": ["+1 (202) 555-0131", "+1 202-555-0131"]}
+{"model": "gpt-6-luna", "design": "read_first", "item": "I000", "order": 1, "repeat": 1, "same": true, "compared": true, "readings": ["+1 202-555-0131", "+1 202 555 0131"]}
+{"model": "gpt-6-luna", "design": "read_first", "item": "I000", "order": 2, "repeat": 1, "same": true, "compared": true, "readings": ["+1 202-555-0131", "+1 202 555 0131"]}
+{"model": "gpt-6-luna", "design": "read_first", "item": "I000", "order": 1, "repeat": 0, "same": true, "compared": true, "readings": ["+1 (202) 555-0131", "+1 202-555-0131"]}
+{"model": "gpt-6-luna", "design": "sbs", "item": "I001", "order": 1, "repeat": 0, "same": true}
+{"model": "gpt-6-luna", "design": "sbs", "item": "I001", "order": 2, "repeat": 0, "same": true}
+{"model": "gpt-6-luna", "design": "sbs", "item": "I001", "order": 1, "repeat": 1, "same": true}
+{"model": "gpt-6-luna", "design": "read_first", "item": "I000", "order": 1, "repeat": 2, "same": true, "compared": true, "readings": ["+1 202-555-0131", "+12025550131"]}
+{"model": "gpt-6-luna", "design": "read_first", "item": "I000", "order": 2, "repeat": 2, "same": true, "compared": true, "readings": ["+1 202-555-0131", "+12025550131"]}
+{"model": "gpt-6-luna", "design": "sbs", "item": "I001", "order": 2, "repeat": 1, "same": true}
+{"model": "gpt-6-luna", "design": "read_first", "item": "I001", "order": 1, "repeat": 1, "same": true, "compared": true, "readings": ["+1 202-555-0131", "(202) 555-0131"]}
+{"model": "gpt-6-luna", "design": "read_first", "item": "I001", "order": 2, "repeat": 1, "same": true, "compared": true, "readings": ["+1 202-555-0131", "(202) 555-0131"]}
+{"model": "gpt-6-luna", "design": "read_first", "item": "I001", "order": 1, "repeat": 0, "same": true, "compared": true, "readings": ["+1 (202) 555-0131", "(202) 555-0131"]}
+{"model": "gpt-6-luna", "design": "read_first", "item": "I001", "order": 2, "repeat": 0, "same": true, "compared": true, "readings": ["+1 (202) 555-0131", "(202) 555-0131"]}
+{"model": "gpt-6-luna", "design": "sbs", "item": "I001", "order": 2, "repeat": 2, "same": true}
+{"model": "gpt-6-luna", "design": "sbs", "item": "I001", "order": 1, "repeat": 2, "same": true}
+{"model": "gpt-6-luna", "design": "read_first", "item": "I001", "order": 2, "repeat": 2, "same": true, "compared": true, "readings": ["+1 202-555-0131", "(202) 555-0131"]}
+{"model": "gpt-6-luna", "design": "read_first", "item": "I001", "order": 1, "repeat": 2, "same": true, "compared": true, "readings": ["+1 202-555-0131", "(202) 555-0131"]}
+{"model": "gpt-6-luna", "design": "sbs", "item": "I002", "order": 1, "repeat": 0, "same": true}
+{"model": "gpt-6-luna", "design": "sbs", "item": "I002", "order": 2, "repeat": 0, "same": true}
+{"model": "gpt-6-luna", "design": "read_first", "item": "I002", "order": 2, "repeat": 0, "same": true, "compared": true, "readings": ["+1 (202) 555-0131", "202-555-0131"]}
+{"model": "gpt-6-luna", "design": "read_first", "item": "I002", "order": 1, "repeat": 1, "same": true, "compared": true, "readings": ["+1 202-555-0131", "(202) 555-0131"]}
+{"model": "gpt-6-luna", "design": "read_first", "item": "I002", "order": 2, "repeat": 1, "same": true, "compared": true, "readings": ["+1 202-555-0131", "(202) 555-0131"]}
+{"model": "gpt-6-luna", "design": "read_first", "item": "I002", "order": 1, "repeat": 0, "same": true, "compared": true, "readings": ["+1 (202) 555-0131", "202-555-0131"]}
+{"model": "gpt-6-luna", "design": "sbs", "item": "I002", "order": 2, "repeat": 1, "same": true}
+{"model": "gpt-6-luna", "design": "read_first", "item": "I003", "order": 1, "repeat": 0, "same": true, "compared": true, "readings": ["+1 (202) 555-0131", "202-555-0131"]}
+{"model": "gpt-6-luna", "design": "read_first", "item": "I003", "order": 2, "repeat": 0, "same": true, "compared": true, "readings": ["+1 (202) 555-0131", "202-555-0131"]}
+{"model": "gpt-6-luna", "design": "sbs", "item": "I002", "order": 1, "repeat": 2, "same": true}
+{"model": "gpt-6-luna", "design": "sbs", "item": "I003", "order": 1, "repeat": 0, "same": true}
+{"model": "gpt-6-luna", "design": "sbs", "item": "I002", "order": 2, "repeat": 2, "same": true}
+{"model": "gpt-6-luna", "design": "sbs", "item": "I002", "order": 1, "repeat": 1, "same": true}
+{"model": "gpt-6-luna", "design": "sbs", "item": "I003", "order": 2, "repeat": 0, "same": true}
+{"model": "gpt-6-luna", "design": "read_first", "item": "I002", "order": 1, "repeat": 2, "same": true, "compared": true, "readings": ["+1 202-555-0131", "202.555.0131"]}
+{"model": "gpt-6-luna", "design": "read_first", "item": "I002", "order": 2, "repeat": 2, "same": true, "compared": true, "readings": ["+1 202-555-0131", "202.555.0131"]}
+{"model": "gpt-6-luna", "design": "sbs", "item": "I003", "order": 1, "repeat": 1, "same": true}
+{"model": "gpt-6-luna", "design": "sbs", "item": "I003", "order": 2, "repeat": 1, "same": true}
+{"model": "gpt-6-luna", "design": "sbs", "item": "I003", "order": 1, "repeat": 2, "same": true}
+{"model": "gpt-6-luna", "design": "sbs", "item": "I003", "order": 2, "repeat": 2, "same": true}
+{"model": "gpt-6-luna", "design": "read_first", "item": "I003", "order": 2, "repeat": 1, "same": true, "compared": true, "readings": ["+1 202-555-0131", "202-555-0131"]}
+{"model": "gpt-6-luna", "design": "read_first", "item": "I003", "order": 1, "repeat": 1, "same": true, "compared": true, "readings": ["+1 202-555-0131", "202-555-0131"]}
+{"model": "gpt-6-luna", "design": "read_first", "item": "I003", "order": 2, "repeat": 2, "same": true, "compared": true, "readings": ["+1 202-555-0131", "202-555-0131"]}
+{"model": "gpt-6-luna", "design": "read_first", "item": "I003", "order": 1, "repeat": 2, "same": false, "compared": true, "readings": ["+1 202-555-0131", "202-555-0131"]}
+{"model": "gemini-3.6-flash", "design": "sbs", "item": "I000", "order": 1, "repeat": 1, "same": true}
+{"model": "gemini-3.6-flash", "design": "sbs", "item": "I000", "order": 1, "repeat": 0, "same": true}
+{"model": "gemini-3.6-flash", "design": "sbs", "item": "I000", "order": 2, "repeat": 0, "same": true}
+{"model": "gemini-3.6-flash", "design": "sbs", "item": "I000", "order": 2, "repeat": 1, "same": true}
+{"model": "gemini-3.6-flash", "design": "sbs", "item": "I000", "order": 1, "repeat": 2, "same": true}
+{"model": "gemini-3.6-flash", "design": "sbs", "item": "I001", "order": 1, "repeat": 0, "same": true}
+{"model": "gemini-3.6-flash", "design": "sbs", "item": "I000", "order": 2, "repeat": 2, "same": true}
+{"model": "gemini-3.6-flash", "design": "read_first", "item": "I000", "order": 2, "repeat": 0, "same": true, "compared": true, "readings": ["+1 202-555-0131", "+1 202 555 0131"]}
+{"model": "gemini-3.6-flash", "design": "read_first", "item": "I000", "order": 1, "repeat": 0, "same": true, "compared": true, "readings": ["+1 202-555-0131", "+1 202 555 0131"]}
+{"model": "gemini-3.6-flash", "design": "sbs", "item": "I001", "order": 2, "repeat": 0, "same": true}
+{"model": "gemini-3.6-flash", "design": "read_first", "item": "I000", "order": 1, "repeat": 1, "same": true, "compared": true, "readings": ["+1 202-555-0131", "+1 202 555 0131"]}
+{"model": "gemini-3.6-flash", "design": "read_first", "item": "I000", "order": 2, "repeat": 2, "same": true, "compared": true, "readings": ["+1 202-555-0131", "+1 202 555 0131"]}
+{"model": "gemini-3.6-flash", "design": "read_first", "item": "I000", "order": 2, "repeat": 1, "same": true, "compared": true, "readings": ["+1 202-555-0131", "+1 202 555 0131"]}
+{"model": "gemini-3.6-flash", "design": "sbs", "item": "I001", "order": 1, "repeat": 1, "same": true}
+{"model": "gemini-3.6-flash", "design": "read_first", "item": "I000", "order": 1, "repeat": 2, "same": true, "compared": true, "readings": ["+1 202-555-0131", "+1 202 555 0131"]}
+{"model": "gemini-3.6-flash", "design": "read_first", "item": "I001", "order": 1, "repeat": 0, "same": true, "compared": true, "readings": ["+1 202-555-0131", "+1-202-555-0131"]}
+{"model": "gemini-3.6-flash", "design": "read_first", "item": "I001", "order": 2, "repeat": 0, "same": true, "compared": true, "readings": ["+1 202-555-0131", "+1-202-555-0131"]}
+{"model": "gemini-3.6-flash", "design": "sbs", "item": "I001", "order": 2, "repeat": 1, "same": true}
+{"model": "gemini-3.6-flash", "design": "sbs", "item": "I001", "order": 1, "repeat": 2, "same": true}
+{"model": "gemini-3.6-flash", "design": "sbs", "item": "I001", "order": 2, "repeat": 2, "same": true}
+{"model": "gemini-3.6-flash", "design": "read_first", "item": "I002", "order": 1, "repeat": 0, "same": true, "compared": true, "readings": ["+1 202-555-0131", "+1-202-555-0131"]}
+{"model": "gemini-3.6-flash", "design": "read_first", "item": "I002", "order": 2, "repeat": 0, "same": true, "compared": true, "readings": ["+1 202-555-0131", "+1-202-555-0131"]}
+{"model": "gemini-3.6-flash", "design": "sbs", "item": "I002", "order": 1, "repeat": 0, "same": true}
+{"model": "gemini-3.6-flash", "design": "read_first", "item": "I001", "order": 1, "repeat": 2, "same": true, "compared": true, "readings": ["+1 202-555-0131", "+1-202-555-0131"]}
+{"model": "gemini-3.6-flash", "design": "sbs", "item": "I002", "order": 2, "repeat": 0, "same": true}
+{"model": "gemini-3.6-flash", "design": "read_first", "item": "I001", "order": 2, "repeat": 2, "same": true, "compared": true, "readings": ["+1 202-555-0131", "+1-202-555-0131"]}
+{"model": "gemini-3.6-flash", "design": "read_first", "item": "I001", "order": 1, "repeat": 1, "same": true, "compared": true, "readings": ["+1 202-555-0131", "+1-202-555-0131"]}
+{"model": "gemini-3.6-flash", "design": "sbs", "item": "I002", "order": 1, "repeat": 1, "same": true}
+{"model": "gemini-3.6-flash", "design": "read_first", "item": "I002", "order": 1, "repeat": 1, "same": true, "compared": true, "readings": ["+1 202-555-0131", "+1-202-555-0131"]}
+{"model": "gemini-3.6-flash", "design": "read_first", "item": "I001", "order": 2, "repeat": 1, "same": true, "compared": true, "readings": ["+1 202-555-0131", "+1-202-555-0131"]}
+{"model": "gemini-3.6-flash", "design": "read_first", "item": "I002", "order": 2, "repeat": 1, "same": true, "compared": true, "readings": ["+1 202-555-0131", "+1-202-555-0131"]}
+{"model": "gemini-3.6-flash", "design": "sbs", "item": "I002", "order": 2, "repeat": 1, "same": true}
+{"model": "gemini-3.6-flash", "design": "read_first", "item": "I002", "order": 1, "repeat": 2, "same": true, "compared": true, "readings": ["+1 202-555-0131", "+1-202-555-0131"]}
+{"model": "gemini-3.6-flash", "design": "read_first", "item": "I002", "order": 2, "repeat": 2, "same": true, "compared": true, "readings": ["+1 202-555-0131", "+1-202-555-0131"]}
+{"model": "gemini-3.6-flash", "design": "sbs", "item": "I002", "order": 2, "repeat": 2, "same": true}
+{"model": "gemini-3.6-flash", "design": "sbs", "item": "I002", "order": 1, "repeat": 2, "same": true}
+{"model": "gemini-3.6-flash", "design": "sbs", "item": "I003", "order": 1, "repeat": 0, "same": true}
+{"model": "gemini-3.6-flash", "design": "sbs", "item": "I003", "order": 2, "repeat": 0, "same": true}
+{"model": "gemini-3.6-flash", "design": "sbs", "item": "I003", "order": 1, "repeat": 1, "same": true}
+{"model": "gemini-3.6-flash", "design": "sbs", "item": "I003", "order": 1, "repeat": 2, "same": true}
+{"model": "gemini-3.6-flash", "design": "sbs", "item": "I003", "order": 2, "repeat": 1, "same": true}
+{"model": "gemini-3.6-flash", "design": "read_first", "item": "I003", "order": 2, "repeat": 0, "same": true, "compared": true, "readings": ["+1 202-555-0131", "202-555-0131"]}
+{"model": "gemini-3.6-flash", "design": "read_first", "item": "I003", "order": 1, "repeat": 1, "same": true, "compared": true, "readings": ["+1 202-555-0131", "202-555-0131"]}
+{"model": "gemini-3.6-flash", "design": "read_first", "item": "I003", "order": 1, "repeat": 0, "same": true, "compared": true, "readings": ["+1 202-555-0131", "202-555-0131"]}
+{"model": "gemini-3.6-flash", "design": "read_first", "item": "I003", "order": 2, "repeat": 1, "same": true, "compared": true, "readings": ["+1 202-555-0131", "202-555-0131"]}
+{"model": "gemini-3.6-flash", "design": "sbs", "item": "I003", "order": 2, "repeat": 2, "same": true}
+{"model": "gemini-3.6-flash", "design": "read_first", "item": "I003", "order": 1, "repeat": 2, "same": true, "compared": true, "readings": ["+1 202-555-0131", "202-555-0131"]}
+{"model": "gemini-3.6-flash", "design": "read_first", "item": "I003", "order": 2, "repeat": 2, "same": true, "compared": true, "readings": ["+1 202-555-0131", "202-555-0131"]}
