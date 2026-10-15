@@ -6,6 +6,7 @@ import {
   type Session,
 } from '@agent-nexus/driftbench-core';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { UNRECORDED_RESULT } from '../src/anthropic/common';
 import { toChatMessages } from '../src/http/chat';
 import { httpAdapter } from '../src/http/index';
 import { acmeGiven, adapterContract, COVERAGE_QUESTION, converse, sendUser, userTurn } from './contract';
@@ -99,7 +100,8 @@ describe('http adapter', () => {
         content: null,
         tool_calls: [{ id: 'call-h1', type: 'function', function: { name: 'x', arguments: '{}' } }],
       },
-      { role: 'tool', tool_call_id: 'call-h1', content: 'null' },
+      // A call with no recorded result says so; it is never sent as null.
+      { role: 'tool', tool_call_id: 'call-h1', content: JSON.stringify(UNRECORDED_RESULT) },
     ]);
   });
 

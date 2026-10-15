@@ -100,7 +100,7 @@ Any other error fails the run at once too. A failed run is recorded with status 
 | Capability | The adapter can |
 |---|---|
 | `variants` | run a named variant of the agent, such as a prompt version |
-| `seedPrefix` | let the agent see a session's prefix, which teacher-forced mode needs |
+| `seedPrefix` | let the agent see a session's prefix, which teacher-forced mode needs. A built-in adapter that sends the prefix to a model sends a past call with no recorded result with a note saying so, never `null`; see [run modes](../concepts/run-modes.md#teacher-forced) |
 | `toolStubs` | force tool results and errors from `world.tools` |
 | `trace` | offer `trace` |
 | `sandbox` | run the agent in a sandboxed workspace, which task specs need; it then offers `readArtifact` |

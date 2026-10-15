@@ -91,3 +91,13 @@ The next entry records completed seed results or the final bank result. No unmea
 - Product obligation: every generated D8 read-tool failure block must require exactly two calls, the pending stage and the failure report, including self-loop failures.
 
 - Validation: focused Biome and diff whitespace checks pass. Typecheck passes with only the test importing sparse-excluded `comparisons/langfuse` omitted; the ordinary full typecheck reports that missing import and its two dependent implicit-any errors.
+## 2026-10-15: maintainer D6 world-carrier phrase contract
+
+- Base: `5354503afed4cccfafdc43bd3988316aaa555c3d`, origin/main; separate from the D8 branch. Contract sources are the D6 definition in `docs/reference/spec.md`, the users package carrier registry, the WorldState schema and the existing hidden prompt.
+- Ruling: a world-carried phrase is proven by the injected workspace-file/tool-result content. Both `diff.phrases.filled` and `phrases.D6_instruction_in_data` use the same carrier-aware reader. Its class and wording come from the registry and map, never seed IDs or fixture filenames.
+- Red first: 25 failed, 11 passed. The existing world-instruction regression now includes differential and phrase coverage; those reject the valid world-only instruction while both fault items and the carrier item pass.
+- Green: 44 focused tests pass across four files, including visible seeds 1–20 and base-derived hidden seed 399034490. Negative controls reject missing/empty worlds, invented text, wrong-class phrases, filenames/JSON keys, metadata, background Given and store/fixture/error fields. Removing behavioural assertions still leaves both fault items failing.
+- Supplied product report: seed 2 falls to level 1 because differential rejects 24 empty user fields. A local reproduction relocates the main-generated suite's D6 text into world content in memory: all five affected provenance/coverage/carrier/fault items pass, with no reference block failures. Product files are unchanged; the parked product implementation and its passing real-run log were read only.
+- Focused lint, whitespace, handover and sparse typecheck pass; the sparse typecheck omits only the unrelated test importing excluded comparisons/langfuse. No full ladder or bank score is claimed; the historical executor journal and level table remain unchanged.
+- Evidence: [d6-world-carrier-contract.json](evidence/d6-world-carrier-contract.json). No items, thresholds, fault agents, fixtures, floors or hidden-seed rules are removed or lowered.
+- Product obligation: put every approved D6 instruction in the injected world file/tool-result content, leave injection.user empty, and retain checks that catch both obedience faults.

@@ -1,4 +1,5 @@
 import { isPlainObject, type Message } from '@agent-nexus/driftbench-core';
+import { historyOutput } from '../anthropic/common';
 import { contentText, parseArguments } from '../shared';
 
 /**
@@ -48,7 +49,7 @@ export function toChatMessages(messages: readonly Message[]): ChatMessage[] {
     );
     out.push({ role: 'assistant', content: null, tool_calls: calls, ...name });
     recorded.forEach((call, index) => {
-      const content = call.error !== undefined ? { error: call.error } : (call.output ?? null);
+      const content = call.error !== undefined ? { error: call.error } : historyOutput(call);
       out.push({ role: 'tool', tool_call_id: calls[index]?.id ?? '', content: JSON.stringify(content) });
     });
     if (message.content !== '') out.push({ role: 'assistant', content: message.content, ...name });
