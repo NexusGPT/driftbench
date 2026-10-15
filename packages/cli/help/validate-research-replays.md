@@ -19,8 +19,8 @@ and evidence:
 
 | Replay | Folder | What it compares |
 |---|---|---|
-| default decoder, ungrounded evidence | `research/default-decoder-ungrounded` | decoder version 2 (opt-in with `criterionDecoderVersion: 2`, which nulls an evidence string that does not ground in the data and keeps the verdict) against the strict version 1 |
-| input-source alias | `research/evidence-source-alias` | the decoder's alias rule (a bare input path resolves to the single declared input when the canonical source is absent, and the quote must still ground in it) against strict decoding |
+| default decoder, ungrounded evidence | `research/default-decoder-ungrounded` | decoder version 2 (opt-in with `criterionDecoderVersion: 2`) against the strict version 1. Version 2 nulls an evidence string that does not ground in the data and keeps the verdict |
+| input-source alias | `research/evidence-source-alias` | the decoder's alias rule against strict decoding. A bare input path resolves to the single declared input when the canonical source is absent, and the quote must still ground in it |
 
 Each replay feeds the public decoder the raw judge answers recorded at commit
 `d25cc282013bcb170d7bd6e0c4ab0fdc6c4fa85d` and compares the verdicts per recorded set with the labels:

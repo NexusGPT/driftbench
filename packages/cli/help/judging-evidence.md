@@ -1,6 +1,6 @@
 ---
 title: Evidence quoting
-summary: "How a judge's evidence quote is checked against the data it was given: what counts as grounded, the source ids of evidence spans, the folding rules, ellipsis segments and empty containers, and what a grounded quote proves and does not prove."
+summary: "How a judge's evidence quote is checked against the data it was given. It covers what counts as grounded, the source ids of evidence spans, the folding rules, ellipsis segments and empty containers. It also covers what a grounded quote proves and does not prove."
 commands: []
 see_also:
   - judging-default-judge
@@ -13,7 +13,7 @@ next:
 
 ## What it is
 
-A judge must show where its verdict comes from. The default judge returns, for each requirement, a list of evidence spans `{ source, quote }`. Code checks every quote against the data the judge received. A quote that is not in its named source is ungrounded, and under the default decoder (version 1) one ungrounded span makes the whole answer unparseable, so the verdict is inconclusive. A judge can therefore never pass a criterion on an invented quote.
+A judge must show where its verdict comes from. The default judge returns, for each requirement, a list of evidence spans `{ source, quote }`. Code checks every quote against the data the judge received. A quote that is not in its named source is ungrounded. Under the default decoder (version 1) one ungrounded span makes the whole answer unparseable, so the verdict is inconclusive. A judge can therefore never pass a criterion on an invented quote.
 
 Grounding proves presence only: the quoted text appears in the data. It does not prove that the judge read it correctly, that `met` is right, or that the quote supports the verdict.
 
@@ -25,7 +25,7 @@ Grounding proves presence only: the quoted text appears in the data. It does not
 
 ## Commands and every option
 
-No command option changes the grounding rules. Every command that judges applies them: `judge run`, `judge calibrate`, `replay --judge`, `estate run --judge`, `pnpm bench replay`, and `compare --pairwise-judge` (for the named-winner quote, see `judging-pairwise`). The decoder version is a library request field, `criterionDecoderVersion`, 1 by default (see `judging-default-judge`).
+No command option changes the grounding rules. Every command that judges applies them: `judge run`, `judge calibrate`, `replay --judge`, `estate run --judge`, `pnpm bench replay`, and `compare --pairwise-judge`. For the named-winner quote, see `judging-pairwise`. The decoder version is a library request field, `criterionDecoderVersion`, 1 by default (see `judging-default-judge`).
 
 ## Inputs
 
@@ -39,7 +39,7 @@ Evidence span sources:
 | `input.<path>` | The text of that input file. |
 | `reference` | The reference answer. |
 
-When a request has exactly one input, a span whose source is that input's bare path, or `reference`, `given` or `artifact`, may also ground in that one input. The judge never guesses among several inputs.
+A request may have exactly one input. Then a span may also ground in that one input when its source is that input's bare path, `reference`, `given` or `artifact`. The judge never guesses among several inputs.
 
 The matching rules (`groundEvidence` and the span checker):
 
@@ -47,24 +47,24 @@ The matching rules (`groundEvidence` and the span checker):
 * One pair of quotes around the whole quote is stripped.
 * The quote must be found on word boundaries: a fragment of a word does not ground.
 * Parts split by `...` must each be found, in order, in one place.
-* A quote of the rubric, a role name alone, a tool name alone, an empty quote, or a quote with no letter or digit is never grounded.
+* A quote of the rubric, a role name alone, a tool name alone or an empty quote is never grounded. A quote with no letter or digit is never grounded either.
 * One exception: `{}` or `[]` grounds only in a place whose whole text is that same empty container. It is how a check cites an empty file.
 * A quote may start with the entry's rendered role prefix, such as `[agent]`, but then the role must be that entry's real role.
 * Separate quotations go in separate spans. A pipe-joined quotation is never split or guessed.
 
-Without a span source (the older single string `evidence`), the quote is searched in the transcript entries in order, then the artifact, the Given, each input and the reference.
+Without a span source (the older single string `evidence`), the quote is searched in the transcript entries in order. Then it is searched in the artifact, the Given, each input and the reference.
 
 ## Outputs and how to read them
 
 `groundEvidence(request, answer)` returns `{ grounded, where }`, where `where` is the first place that holds the quote. In a judge result:
 
 * Decoder version 1 (default): an ungrounded span makes the ledger invalid; the reasoning starts `invalid criterion ledger:` and the result is `unparsed`, so inconclusive.
-* Decoder version 2 (opt-in, code only): an ungrounded string quote becomes `evidence: null` with `grounded: false` on its check; the check keeps its `met`; `evidenceUnverified` counts them. An ungrounded span list stays invalid under both versions.
+* Decoder version 2 (opt-in, code only): an ungrounded string quote becomes `evidence: null` with `grounded: false` on its check. The check keeps its `met`. `evidenceUnverified` counts them. An ungrounded span list stays invalid under both versions.
 * The public `answer.evidence` is the first grounded quote, as a string.
 
 ## Worked example
 
-Real haiku answers, replayed with no model call. They were recorded under the legacy contract, whose single `evidence` string is quoted from the rendered workbook; the ledger-era span rules are shown by the script after it:
+Real haiku answers, replayed with no model call. They were recorded under the legacy contract, whose single `evidence` string is quoted from the rendered workbook. The script after it shows the ledger-era span rules:
 
 ```sh
 driftbench judge calibrate --criteria examples/acme/criteria --labels examples/acme/labels --cassette examples/acme/criteria/calibration/claude-haiku.cassette.json --mode llm --assign cheapest --only sheet_matches_catalog --out haiku.yaml
