@@ -42,6 +42,8 @@ How a run uses a prefix depends on the run mode:
 
 Whether the agent itself reads the prefix depends on the adapter. Adapters with the `seedPrefix` capability hand the messages to the agent: `function`, `http`, `anthropic`, `openai-agents`, `vercel-ai`, `google`, `langgraph`, `crewai`, `pydantic-ai`, `litellm` and the Claude Code replay adapter. `process`, `nexus` and the live Claude Code adapter do not: the agent itself does not receive the prefix messages as its history, so a prefix there cannot set what the agent remembers. `world.tools` applies only on adapters with the `toolStubs` capability.
 
+An adapter that sends the history to a model sends each tool call of the prefix as that model's own tool call and tool result records, with ids that pair them, never as text. The crewai adapter takes history as text inputs, so with its default inputs it refuses a prefix that holds tool calls rather than let the crew read them as prose.
+
 ## When to use it
 
 - Test a late turn of a long conversation in one block.
@@ -296,5 +298,6 @@ The runs are not kept: pass --store <file> to keep them.
 | `GIVEN_ORIGIN_WITHOUT_PREFIX` | `origin` on a block with no `prefix` | add the `prefix` it describes, or remove `origin` |
 | `PREFIX_PROSE_HISTORY` warning | an assistant message states a ledger fact no recorded call holds | record the call with its `output` in `tool_calls`, or keep the prose on purpose and read the results as a different test |
 | a block fails right after a prefix | a recorded `output` with a shape the real tool never returns | copy the output from a real run, or leave `output` out so the agent reads the tool again |
+| `crewai: the Given prefix holds N recorded tool call(s)` | a prefix with tool calls on the crewai adapter, whose default inputs pass history as text | write those turns as blocks the crew runs, or pass `inputs` to the adapter |
 | the prefix seems ignored | the adapter has no `seedPrefix` capability (`process`, `nexus`, live Claude Code), so the agent does not receive it | write the earlier turns as blocks instead |
 | `SPEC_ALIAS_CONFLICT` | `ledger_seed` and `given.ledger` both set | keep one |

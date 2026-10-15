@@ -92,6 +92,31 @@ describe('crewai adapter', () => {
     ).toBe('a\nb');
   });
 
+  it('refuses a Given whose prefix holds recorded tool calls when the crew takes the default text inputs', async () => {
+    const prefix = [
+      { role: 'user' as const, content: 'Is fiber available at 3 Orchard Way?' },
+      {
+        role: 'assistant' as const,
+        content: 'Yes.',
+        tool_calls: [
+          { id: 'c1', label: 'coverage.check', input: { address: '3 Orchard Way' }, output: { found: true } },
+        ],
+      },
+    ];
+    const exec = fakeCrewBridge();
+    const plain = crewaiAdapter({ transport: crewaiProcess({ crew: 'acme.crew:build', exec }) });
+    const refused = plain.open(acmeGiven({ adapter: 'crewai' }, {}, prefix));
+    await expect(refused).rejects.toBeInstanceOf(AgentFailure);
+    await expect(refused).rejects.toThrow(/1 recorded tool call.*as prose, not as tool results/);
+    expect(exec.requests).toHaveLength(0);
+    // A crew given its own inputs takes the history its own way.
+    const own = crewaiAdapter({
+      transport: crewaiProcess({ crew: 'acme.crew:build', exec }),
+      inputs: (history) => ({ message: 'x', messages: JSON.stringify(history) }),
+    });
+    await expect(own.open(acmeGiven({ adapter: 'crewai' }, {}, prefix))).resolves.toBeDefined();
+  });
+
   it('kicks off a deployed crew over HTTP, polls its status until it completes, and never prints the token', async () => {
     const seen: { method: string; url: string; auth: string | null }[] = [];
     let polls = 0;
