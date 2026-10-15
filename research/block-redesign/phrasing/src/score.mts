@@ -18,7 +18,8 @@ const results = lines(`results-${x}.jsonl`) as { id: string; text: string; calls
 const expects = new Map<string, unknown>();
 for (const def of BLOCKS) expects.set(def.id, (await blockGiven(def)).expect);
 
-const label = (name: string) => name.replace('_', '.');
+const LABELS: Record<string, string> = { catalog_search: 'catalog.search', coverage_check: 'coverage.check', port_check: 'port.check', order_create: 'order.create', notify_sales: 'notify_sales' };
+const label = (name: string) => LABELS[name] ?? name;
 const out = results.map((r) => {
   const job = jobs.get(r.id) as { block: string; row: number | null; cell: unknown; text: string; k: number };
   const def = BLOCKS.find((d) => d.id === job.block);

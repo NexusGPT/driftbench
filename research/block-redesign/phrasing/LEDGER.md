@@ -14,8 +14,10 @@ Computed by `src/ledger.mts` from `data/usage.jsonl`: each paid call's provider 
 | gen-h2s3 | gpt-6-luna | 2401 | 1014202 | 483986 | 0.3434 | 0.7384 |
 | h4-planted | gpt-6-luna | 20 | 5272 | 1298 | 0.0012 | 0.7396 |
 | h4-audit | gpt-6.1-sol | 96 | 28089 | 6195 | 0.1181 | 0.8577 |
+| tiny-shared-seed | claude-haiku-5-5 | 4 | 29829 | 715 | 0.0025 | 0.8602 |
+| tiny-shared-class | claude-haiku-5-5 | 3 | 22772 | 579 | 0.0007 | 0.8609 |
 
-Total: 0.8577 USD of 40.
+Total: 0.8609 USD of 40.
 
 ## Notes
 - Before the pre-registration, one capability probe of `gpt-6-luna` (13 tokens, under 0.0001 USD) checked which parameters it accepts. It produced no data and is not in the log.
@@ -23,3 +25,4 @@ Total: 0.8577 USD of 40.
 - Projection written before scaling: generation of 300 (H1) plus 610 (H2) planned rows at 0.0007 to 0.0015 USD per row, under 1.5 USD; H1 600 agent runs and H2 about 1,300 runs at about 0.0007 USD each, about 1.4 USD; the H4 audit labeller, 50 calls of `gpt-6.1-sol`, under 0.5 USD. Total projection about 3.5 USD, far under the 40 USD cap.
 - Price sources. `claude-haiku-5-5`: https://platform.claude.com/docs/en/about-claude/pricing (verified by the lead): 0.10 USD input and 0.50 USD output per million up to 100K tokens; 0.50 and 2.50 over 100K; cache reads 0.01. No run here exceeds 100K input tokens. OpenAI: developers.openai.com/api/docs/pricing, read 2026-10-14.
 - `h4-audit` holds 96 calls: a first run of 46 that died in a network outage before writing any label, then one full resumable run of 50.
+- Tiny sample on the shared agent (Amendment 2): 4 seed runs and 3 class runs on B3 and B7, 0.0032 USD, 0.00017 to 0.00068 USD per run. Re-projection: H1 600 runs and H2 about 1,300 runs, under 1.5 USD together.

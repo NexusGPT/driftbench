@@ -5236,3 +5236,10 @@
 {"batch":"h4-audit","model":"gpt-6.1-sol","input":318,"cachedInput":0,"output":63,"usd":0.001266}
 {"batch":"h4-audit","model":"gpt-6.1-sol","input":296,"cachedInput":0,"output":36,"usd":0.000952}
 {"batch":"h4-audit","model":"gpt-6.1-sol","input":297,"cachedInput":0,"output":59,"usd":0.001184}
+{"batch": "tiny-shared-seed", "model": "claude-haiku-5-5", "input": 7162, "cachedInput": 3382, "output": 110, "usd": 0.00055137}
+{"batch": "tiny-shared-seed", "model": "claude-haiku-5-5", "input": 7162, "cachedInput": 3382, "output": 110, "usd": 0.00055137}
+{"batch": "tiny-shared-seed", "model": "claude-haiku-5-5", "input": 7759, "cachedInput": 3382, "output": 251, "usd": 0.00068157}
+{"batch": "tiny-shared-seed", "model": "claude-haiku-5-5", "input": 7746, "cachedInput": 3382, "output": 244, "usd": 0.0006767700000000001}
+{"batch": "tiny-shared-class", "model": "claude-haiku-5-5", "input": 7221, "cachedInput": 6764, "output": 106, "usd": 0.00016634}
+{"batch": "tiny-shared-class", "model": "claude-haiku-5-5", "input": 7781, "cachedInput": 6764, "output": 237, "usd": 0.00028784}
+{"batch": "tiny-shared-class", "model": "claude-haiku-5-5", "input": 7770, "cachedInput": 6764, "output": 236, "usd": 0.00028624}
