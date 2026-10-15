@@ -26,6 +26,17 @@ The end state of a T run is composed over the blocks. Each block's session is re
 
 An agent that reads its own earlier replies, such as a language model, sees blank assistant turns in a T prefix. A field for the canonical reply text is not in the spec format.
 
+What the agent sees of a canonical call depends on the adapter:
+
+* An adapter that hands the history to your code (`function`) passes each call as it is. A call whose tool the world does not force has no result; the Acme agent reads such a tool again from its store.
+* An adapter that sends the history to a model (anthropic, google, http, litellm, langgraph, openai-agents, pydantic-ai, vercel-ai) sends a call with the result or error the world forces. For a call with no result it never sends `null`: it sends this text as the call's result, so the model reads that the result is unknown, not that the tool returned nothing:
+
+  > Not recorded: this earlier call comes from a replayed conversation that states the call, with only the arguments it fixes, and not what it returned.
+
+  To give the agent a real result instead, force the tool's result or error in the spec's `world.tools`.
+  The same rule applies outside mode T to any history call with neither an output nor an error. An SDK adapter's own loop always records one of the two, so this happens only when an http endpoint answers with an Observed that holds a `tool_call` segment and no matching `tool_result`: the next request of that run carries the note.
+* The call's arguments are only the input fields the spec pins to an exact value. A field pinned with a pattern (`regex`, `contains`) is left out, so such a call goes out with fewer arguments, or none.
+
 ## Free-running
 
 One session runs the whole conversation. The user turns come from the spec; the agent's turns are its own, and each block inherits them. An early mistake stays in the context of every later block.

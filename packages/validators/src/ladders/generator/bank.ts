@@ -24,6 +24,7 @@ import {
   runCombinations,
   STABILITY_OFFSETS,
 } from './measure';
+import { matchesPhrase, phraseStimulus } from './phrase-stimulus';
 import {
   hiddenInventory,
   hiddenProposal,
@@ -720,27 +721,21 @@ function differentialItems(): BankItem[] {
       component: C.scenario,
       async check(data) {
         const generated = await data.generated();
-        const patterns = generated.hidden.phrases.map((phrase) => phrasePattern(phrase.text));
         const bad: string[] = [];
         for (const { spec } of generated.complete) {
           for (const block of spec.blocks) {
-            const text = block.when
-              ? 'user' in block.when
-                ? block.when.user
-                : 'injection' in block.when
-                  ? block.when.injection.user
-                  : block.when.burst.join('\n')
-              : '';
+            const stimulus = phraseStimulus(block);
             // A task spec holds the family's approved phrases, not the map's (docs/generating.md, task families).
-            const approved = isCodeTaskSpec(spec)
-              ? familyPhrase(generated.hidden, text)
-              : patterns.some((pattern) => pattern.test(text));
-            if (!approved) bad.push(`${spec.id}#${block.id}: "${text}"`);
+            const approved =
+              isCodeTaskSpec(spec) && stimulus.carrier === 'user'
+                ? familyPhrase(generated.hidden, stimulus.text)
+                : generated.hidden.phrases.some((phrase) => matchesPhrase(stimulus, phrase));
+            if (!approved) bad.push(`${spec.id}#${block.id}: ${JSON.stringify(stimulus)}`);
           }
         }
         return verdict(
           bad.length === 0,
-          `${bad.length} user turns match no approved phrase: ${bad.slice(0, 3).join('; ')}`,
+          `${bad.length} stimuli match no approved phrase in their carrier: ${bad.slice(0, 3).join('; ')}`,
         );
       },
     },
