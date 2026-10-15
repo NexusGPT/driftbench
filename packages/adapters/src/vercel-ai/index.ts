@@ -18,6 +18,7 @@ import {
 import {
   addUsage,
   closeOpenCalls,
+  historyOutput,
   measureOnce,
   newUsage,
   observedOf,
@@ -51,7 +52,7 @@ import {
  * The shapes match the `ai` package 7.0.137 (`generateText`, `ModelMessage`, language model `doGenerate`).
  */
 
-export const VERCEL_AI_ADAPTER_VERSION = '0.1.0';
+export const VERCEL_AI_ADAPTER_VERSION = '0.1.1';
 
 /** A tool as the SDK takes it: `tool({ description, inputSchema, execute })` is a plain object. */
 export type VercelToolLike = Record<string, unknown> & {
@@ -309,7 +310,7 @@ export function toModelMessages(history: readonly Message[], labels: ToolLabels)
           output:
             call.error !== undefined
               ? { type: 'error-text' as const, value: call.error }
-              : { type: 'json' as const, value: call.output ?? null },
+              : { type: 'json' as const, value: historyOutput(call) },
         })),
       });
     }
