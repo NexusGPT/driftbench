@@ -3,7 +3,16 @@ import { type Issue, parseSpecText } from '@agent-nexus/driftbench-core';
 import { stringify } from 'yaml';
 import type { GeneratedFile } from '../enumerate/generate';
 import { formatJson } from '../enumerate/json';
-import { build, buildRow, findSituation, specId, uniqueId, useOf } from './build-row';
+import {
+  brokenAtoms,
+  build,
+  buildRow,
+  findSituation,
+  relatedAtoms,
+  specId,
+  uniqueId,
+  useOf,
+} from './build-row';
 import {
   type Built,
   type Context,
@@ -150,6 +159,11 @@ export function generateEstateSuite(
     fallback: options.fallback ?? true,
     judge: options.judge ?? true,
     files: new Set(options.files ?? mapFiles(input.map)),
+    stepFiles: new Set(
+      input.map.atoms
+        .filter((atom) => atom.kind === 'stage' && atom.provenance?.file)
+        .map((atom) => atom.provenance?.file as string),
+    ),
     ...(loadedOf(options, input.map.runtime) ? { loaded: loadedOf(options, input.map.runtime) } : {}),
     units: [
       ...new Set(
@@ -328,7 +342,16 @@ export function generateEstateSuite(
         };
         const atoms = varied.atomIds.map((id) => ctx.atoms.get(id) as EstateAtom);
         const use = useOf(varied);
-        const situation = use === 'none' ? undefined : findSituation(ctx.bank, use, varied);
+        const situation =
+          use === 'none'
+            ? undefined
+            : findSituation(
+                ctx.bank,
+                use,
+                varied,
+                relatedAtoms(atoms[0], ctx.atoms.values()),
+                brokenAtoms(ctx.atoms.values()),
+              );
         const built = build(varied, atoms, ctx, used, situation, undefined, false, variant);
         emit(built, varied, totalsFor(perTestType, row.testType), totalsFor(perMode, row.mode));
       }

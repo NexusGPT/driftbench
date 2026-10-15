@@ -9,6 +9,7 @@ import {
   stageModel,
   type ThenContext,
   thenOf,
+  workPairs,
 } from '../../src/estate/then';
 
 function atom(id: string, evidence: EstateEvidence[], extra: Partial<EstateAtom> = {}): EstateAtom {
@@ -171,6 +172,30 @@ describe('each evidence predicate as an existing check', () => {
     const then = thenOf([atom('g', [{ type: 'ordered', before: 'Bash', after: 'Bash' }])], 'positive', ctx);
     expect(then.ordered).toEqual([]);
     expect(then.gaps.map((entry) => entry.marker)).toEqual([MARKERS.anchor]);
+  });
+
+  it('reads a later act in prose as the work of the unit: the earlier act before every change or command', () => {
+    const fields = { first: 'docs/style.md', trigger: 'drafting any reply' };
+    const then = thenOf(
+      [
+        atom('g', [{ type: 'ordered', before: 'Read', after: 'drafting any reply' }], {
+          kind: 'gate',
+          fields,
+        }),
+      ],
+      'positive',
+      ctx,
+    );
+    expect(then.gaps).toEqual([]);
+    expect(then.ordered).toEqual(
+      ['Bash', 'Edit', 'MultiEdit', 'Write', 'NotebookEdit'].map((after) => ({
+        before: 'Read~docs/style.md',
+        after,
+      })),
+    );
+    // Prose that is not the act the gate names, or an earlier end in prose, stays a gap.
+    expect(workPairs('Read', 'something else', ctx, fields)).toBeUndefined();
+    expect(workPairs('the notes', 'drafting any reply', ctx, fields)).toBeUndefined();
   });
 
   it('reaches a stage by the closing stage and the order, the closing stage by itself', () => {
@@ -554,12 +579,23 @@ describe('ordered pairs between two calls of one tool, and a step allowed at any
     expect(then.ordered).toEqual([{ before: 'Bash~git status', after: 'Bash~commit' }]);
   });
 
-  it('still names a gap for an end that is no act, such as matching any line', () => {
+  it('anchors a later act in prose on the work of the unit, and names a gap when the earlier act is prose', () => {
     const gate = atom('gate.x', [{ type: 'ordered', before: 'Read', after: 'matching any line' }], {
       kind: 'gate',
       fields: { first: 'references/matching-rules.md', trigger: 'matching any line' },
     });
-    expect(thenOf([gate], 'positive', runner).gaps.map((entry) => entry.marker)).toEqual([MARKERS.anchor]);
+    const then = thenOf([gate], 'positive', runner);
+    expect(then.gaps).toEqual([]);
+    expect(then.ordered[0]).toEqual({ before: 'Read~references/matching-rules.md', after: 'Bash' });
+    const prose = atom(
+      'gate.y',
+      [{ type: 'ordered', before: 'the matching rules', after: 'matching any line' }],
+      {
+        kind: 'gate',
+        fields: { trigger: 'matching any line' },
+      },
+    );
+    expect(thenOf([prose], 'positive', runner).gaps.map((entry) => entry.marker)).toEqual([MARKERS.anchor]);
   });
 
   it('checks that a step allowed at any point was reached at least once, when the runner registers stage_seen', () => {

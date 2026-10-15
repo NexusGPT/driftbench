@@ -15,6 +15,7 @@ export {
 } from './adapter';
 export {
   applySessionOps,
+  DEFAULT_STATE_LIBRARY,
   fitRecords,
   type LiveOp,
   loadStateLibrary,

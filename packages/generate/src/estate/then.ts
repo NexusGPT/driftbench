@@ -23,8 +23,9 @@ export { literal };
  * | tool_called without input, tool_not_called | `expect.tools` with a count (0 forbids the tool) |
  * | tool_not_called on a setting that denies the whole tool | also `expect.tools_offered.exclude` |
  * | tool_called Read with a path (equal or contained) | `expect.references`, a glob ending in the path |
+ * | tool_called Read of the step list's own file | `expect.stage` on the closing stage: the list is walked, not read |
  * | tool_called Agent with a helper name | `expect.subagents` with a count |
- * | ordered | the ordered-pair custom check, `rules.custom.ordered` |
+ * | ordered | the ordered-pair custom check, `rules.custom.ordered`; a later act in prose stands for the unit's work (`WORK_ACTS`) |
  * | stage_reached | `expect.stage` on the closing stage, and an ordered pair when the stage is not the last |
  * | workspace, artifact | `expect.workspace`, `expect.artifacts` |
  * | text | `expect.must`, `expect.must_not` (the words as literal text), `expect.lang` |
@@ -70,7 +71,8 @@ export const MARKER_NAMES: ReadonlySet<string> = new Set(Object.values(MARKERS))
 
 export type Gap = { marker: Marker; atom: string; detail: string };
 
-export type OrderedPair = { before: string; after: string };
+/** `key: file_path` when the two acts must be on the same file (`read a file before you edit it`). */
+export type OrderedPair = { before: string; after: string; key?: string };
 
 export type SomeCall = { label: string; input: Record<string, unknown>; count: 0 | { min: number } };
 
@@ -140,6 +142,8 @@ export type ThenContext = {
   live?: boolean;
   /** Files the runtime loads by itself (no Read call ever shows it): a read of one is never expected. */
   loaded?: (path: string) => boolean;
+  /** The files the step list is read from (the files of the stage atoms). */
+  stepFiles?: ReadonlySet<string>;
 };
 
 export type Polarity = 'positive' | 'negative';
@@ -201,6 +205,7 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
     case 'tool_called':
       if (hasInput(evidence.input)) {
         if (loadedRead(evidence.label, evidence.input, ctx)) return;
+        if (stepListRead(then, evidence.label, evidence.input, ctx)) return;
         if (missingRead(then, atom, evidence.label, evidence.input, ctx)) return;
         if (someCall(then, evidence.label, evidence.input, evidence.min ?? 1)) return;
         if (ctx.customChecks.has('some_call')) {
@@ -225,8 +230,13 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       return;
     case 'ordered': {
       const pair = anchorPair(evidence.before, evidence.after, ctx, atom.fields);
-      if (typeof pair === 'string') gap(then, MARKERS.anchor, atom, pair);
-      else addPair(then, pair);
+      if (typeof pair !== 'string') {
+        addPair(then, sameObject(atom, pair) ? { ...pair, key: 'file_path' } : pair);
+        return;
+      }
+      const work = workPairs(evidence.before, evidence.after, ctx, atom.fields);
+      if (work) for (const each of work) addPair(then, each);
+      else gap(then, MARKERS.anchor, atom, pair);
       return;
     }
     case 'stage_reached':
@@ -359,6 +369,12 @@ function negative(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       return;
     case 'guard':
       if (untraced(then, atom, evidence.name, ctx)) return;
+      // A guard on an event of every turn (Stop, UserPromptSubmit) runs on every turn: with no verdict of its
+      // own, its control is that it does not block, not that it does not run.
+      if (evidence.verdict === undefined && EVERY_TURN.has(String(atom.fields?.event ?? ''))) {
+        for (const verdict of BLOCKING) addGuard(then, { name: evidence.name, verdict, count: 0 });
+        return;
+      }
       addGuard(then, {
         name: evidence.name,
         ...(evidence.verdict === undefined ? {} : { verdict: evidence.verdict }),
@@ -437,7 +453,66 @@ export function anchorPair(
   }
   if (a === b)
     return `${before} before ${after}: both ends are ${a}, so the pair cannot tell the two acts apart`;
+  // The earlier act holds the path the gate names first, so another call of that tool does not stand in for it.
+  if (TOOL_LABEL.test(a) && isPath(first)) return { before: `${a}~${first}`, after: b };
   return { before: a, after: b };
+}
+
+function isPath(text: string): boolean {
+  return text !== '' && !/\s/.test(text) && (text.includes('/') || /\.[A-Za-z0-9]{1,5}$/.test(text));
+}
+
+/** Hook events the runtime fires on every turn, whatever the agent does. */
+const EVERY_TURN = new Set([
+  'Stop',
+  'SubagentStop',
+  'UserPromptSubmit',
+  'SessionStart',
+  'SessionEnd',
+  'PreCompact',
+  'Notification',
+]);
+/** The verdicts with which a guard stops an act. */
+const BLOCKING = ['deny', 'block'] as const;
+
+const FILE_ACTS = new Set(['Read', 'Write', 'Edit', 'MultiEdit', 'NotebookEdit']);
+
+/**
+ * True when a gate's later act takes the earlier act's object by a pronoun (`read a file before you edit it`):
+ * the pair then holds only for the same file, so a read of another file does not stand in for it.
+ */
+function sameObject(atom: EstateAtom, pair: OrderedPair): boolean {
+  if (!FILE_ACTS.has(pair.before) || !FILE_ACTS.has(pair.after)) return false;
+  const words = `${atom.provenance?.quote ?? ''} ${atom.title}`;
+  return /\b(?:edit|edits|editing|change|changing|write|writing|modify|modifying|update|updating|overwrite)\s+(?:it|them|that file|the same file|this file)\b/i.test(
+    words,
+  );
+}
+
+/** The calls that do a unit's work: they change a file or run a command. */
+export const WORK_ACTS: readonly string[] = ['Bash', 'Edit', 'MultiEdit', 'Write', 'NotebookEdit'];
+
+/**
+ * A gate whose later act is prose (`read the rules before matching any line`): no tool label names the act,
+ * so it stands for the work of the unit, and the earlier act comes before every call that changes a file or
+ * runs a command. The earlier act holds what the gate names first (`Read~references/rules.md`), so another
+ * read does not stand in for it. Undefined when the earlier end does not anchor either, or the later end is
+ * not the act the gate names.
+ */
+export function workPairs(
+  before: string,
+  after: string,
+  ctx: ThenContext,
+  fields?: Record<string, unknown>,
+): OrderedPair[] | undefined {
+  const a = anchor(before, ctx);
+  const trigger = typeof fields?.trigger === 'string' ? fields.trigger.trim() : '';
+  if (a === undefined || anchor(after, ctx) !== undefined || trigger === '' || after.trim() !== trigger) {
+    return undefined;
+  }
+  const first = typeof fields?.first === 'string' ? fields.first.trim() : '';
+  const start = TOOL_LABEL.test(a) && first !== '' ? `${a}~${first}` : a;
+  return WORK_ACTS.filter((label) => label !== a).map((label) => ({ before: start, after: label }));
 }
 
 function anchor(name: string, ctx: ThenContext): string | undefined {
@@ -676,6 +751,30 @@ function untraced(then: ThenParts, atom: EstateAtom, name: string, ctx: ThenCont
     `${name} runs inside a guard script the live trace names, never the check`,
   );
   return true;
+}
+
+/**
+ * A reference to the file the step list lives in is followed by walking the list: the runtime reports the
+ * steps it reaches, not a read of the list. The row expects the closing stage, reached in order, instead of a
+ * Read. True when it is such a reference and the list has one closing stage.
+ */
+function stepListRead(
+  then: ThenParts,
+  label: string,
+  input: Record<string, unknown>,
+  ctx: ThenContext,
+): boolean {
+  if (label !== 'Read' || !ctx.stepFiles || ctx.stages.closing === undefined) return false;
+  const value = textOf(input.file_path ?? input.path);
+  if (value === undefined) return false;
+  const path = value.replace(/^\.?\/+/, '');
+  for (const file of ctx.stepFiles) {
+    if (file === path || file.endsWith(`/${path}`) || path.endsWith(`/${file}`)) {
+      then.stage = ctx.stages.closing;
+      return true;
+    }
+  }
+  return false;
 }
 
 /** A Read of a file the runtime loads by itself: never seen as a call, so never expected. */

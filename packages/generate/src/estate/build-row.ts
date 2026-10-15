@@ -48,7 +48,16 @@ export function useOf(row: Pick<EstatePlanRow, 'testType' | 'mode'>): SituationU
 export function buildRow(row: EstatePlanRow, ctx: Context, used: Set<string>): Built[] {
   const atoms = row.atomIds.map((id) => ctx.atoms.get(id) as EstateAtom);
   const use = useOf(row);
-  const situation = use === 'none' ? undefined : findSituation(ctx.bank, use, row);
+  const situation =
+    use === 'none'
+      ? undefined
+      : findSituation(
+          ctx.bank,
+          use,
+          row,
+          relatedAtoms(atoms[0], ctx.atoms.values()),
+          brokenAtoms(ctx.atoms.values()),
+        );
   // The k positive asks of a route (`route_positive.<route>.<n>`) each take their own phrasing.
   const nth = row.testType === 'route_positive' ? /\.(\d+)$/.exec(row.id)?.[1] : undefined;
   const variant = nth !== undefined && Number(nth) > 1 ? Number(nth) - 1 : undefined;
@@ -409,27 +418,70 @@ function stageOrder(then: ThenParts, atom: EstateAtom, stages: StageModel): void
 /**
  * The situation of a row: a situation of the right use whose atoms hold the row's first atom and whose
  * pinned cell values agree with the row; among them the one that holds most of the row's atoms, then the
- * first in the bank.
+ * one that holds most atoms related to the first atom (`related`: the unit whose folder holds a path it
+ * names), then the one that holds fewest broken atoms (`broken`: a reference or script whose file is
+ * missing, which stops the unit's work whatever the rule under test), then the first in the bank.
  */
 export function findSituation(
   bank: PhraseBank,
   use: SituationUse,
   row: Pick<EstatePlanRow, 'atomIds' | 'cell'>,
+  related: ReadonlySet<string> = new Set(),
+  broken: ReadonlySet<string> = new Set(),
 ): Situation | undefined {
   const head = row.atomIds[0];
   let best: Situation | undefined;
-  let score = -1;
+  let score: number[] = [-1, -1, Number.NEGATIVE_INFINITY];
   for (const situation of bank.situations) {
     if (situation.use !== use || head === undefined || !situation.atoms.includes(head)) continue;
     const pins = Object.entries(situation.cell ?? {});
     if (pins.some(([key, value]) => row.cell[key] !== undefined && row.cell[key] !== value)) continue;
     const held = row.atomIds.filter((id) => situation.atoms.includes(id)).length;
-    if (held > score) {
+    const near = situation.atoms.filter((id) => related.has(id)).length;
+    const sound = -situation.atoms.filter((id) => broken.has(id) && !row.atomIds.includes(id)).length;
+    const next = [held, near, sound];
+    const better = next.findIndex((value, index) => value !== score[index]);
+    if (better >= 0 && (next[better] as number) > (score[better] as number)) {
       best = situation;
-      score = held;
+      score = next;
     }
   }
   return best;
+}
+
+/** Atoms that name a file the estate lacks: a reference or a script whose file is missing. */
+export function brokenAtoms(atoms: Iterable<EstateAtom>): Set<string> {
+  const out = new Set<string>();
+  for (const atom of atoms) {
+    if ((atom.kind === 'reference' || atom.kind === 'script') && atom.fields?.exists === false)
+      out.add(atom.id);
+  }
+  return out;
+}
+
+/**
+ * The atoms of the unit an atom points into: a standing rule that names a path inside a skill's or helper's
+ * folder (`read .claude/skills/x/references/a.md before ...`) is about that unit, so a situation that holds the
+ * unit's atoms is the one whose ask exercises the rule. Empty when the atom names no path inside a unit.
+ */
+export function relatedAtoms(head: EstateAtom | undefined, atoms: Iterable<EstateAtom>): Set<string> {
+  const out = new Set<string>();
+  if (!head) return out;
+  const fields = head.fields ?? {};
+  const named = [fields.path, fields.first, ...(Array.isArray(fields.spans) ? fields.spans : [])]
+    .filter((value): value is string => typeof value === 'string' && value.includes('/'))
+    .map((value) => value.replace(/^\.?\/+/, ''));
+  if (named.length === 0) return out;
+  const list = [...atoms];
+  const folders = list
+    .filter((atom) => atom.kind === 'skill' || atom.kind === 'subagent')
+    .map((atom) => (atom.provenance?.file ?? '').replace(/\/[^/]*$/, ''))
+    .filter((folder) => folder !== '' && named.some((path) => path.startsWith(`${folder}/`)));
+  for (const atom of list) {
+    const file = atom.provenance?.file ?? '';
+    if (atom.id !== head.id && folders.some((folder) => file.startsWith(`${folder}/`))) out.add(atom.id);
+  }
+  return out;
 }
 
 /**

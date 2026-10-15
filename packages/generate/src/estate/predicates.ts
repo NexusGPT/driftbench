@@ -7,7 +7,7 @@ import { literal } from './literal';
  *
  * | Predicate | Check |
  * |---|---|
- * | command_not_run { contains or regex } | `some_call`: no Bash call whose command matches |
+ * | command_not_run, command_absent { contains, command or regex } | `some_call`: no Bash call whose command matches |
  * | max_characters { max } | `must_not`: a run of max + 1 characters |
  * | max_questions { max } | `must_not`: max + 1 question marks |
  * | json_only | `must`: the whole reply is one JSON object or array |
@@ -40,10 +40,12 @@ export const TABLE_ROW = '^\\s*\\|.*\\|';
 export function compilePredicate(name: string, options: Record<string, unknown> = {}): Compiled | undefined {
   const max = typeof options.max === 'number' && Number.isInteger(options.max) ? options.max : undefined;
   switch (name) {
-    case 'command_not_run': {
+    case 'command_not_run':
+    case 'command_absent': {
+      const contains = options.contains ?? options.command;
       const assertion =
-        typeof options.contains === 'string'
-          ? { contains: options.contains }
+        typeof contains === 'string' && contains.trim() !== ''
+          ? { contains: contains.trim() }
           : typeof options.regex === 'string'
             ? { regex: options.regex }
             : undefined;
@@ -83,6 +85,7 @@ export function compilePredicate(name: string, options: Record<string, unknown> 
 export const COMPILED_PREDICATES: readonly string[] = [
   'asks_again_on_loose_yes',
   'asks_for',
+  'command_absent',
   'command_not_run',
   'confirmed_before_send',
   'currency_after_amount',

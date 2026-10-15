@@ -151,6 +151,7 @@ export {
   unitTestOf,
   WorkspaceSeed,
   WRITING_TOOLS,
+  workPairs,
   type YamlSchema,
 } from './estate';
 export {

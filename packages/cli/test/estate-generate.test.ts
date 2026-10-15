@@ -1,4 +1,4 @@
-import { copyFile, mkdir, mkdtemp, readdir, readFile, writeFile } from 'node:fs/promises';
+import { copyFile, cp, mkdir, mkdtemp, readdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -357,5 +357,33 @@ describe('estate generate with no phrase bank (bench defect D7)', () => {
     );
     expect(named.code).toBe(2);
     expect(named.err).toContain('the phrase bank cannot be read or is invalid');
+  }, 120_000);
+});
+
+describe('estate generate on a map copied away from its estate', () => {
+  it('checks reads against the files the map knows, not the folder the copy sits in', async () => {
+    const work = await mkdtemp(join(tmpdir(), 'estate-generate-moved-'));
+    for (const name of ['approved.yaml', 'phrases.yaml'])
+      await copyFile(join(FIXTURE, name), join(work, name));
+    await copyFile(PLAN, join(work, 'plan.yaml'));
+    await cp(SESSIONS, join(work, 'sessions'), { recursive: true });
+    const moved = await run([
+      'estate',
+      'generate',
+      '--map',
+      join(work, 'approved.yaml'),
+      '--plan',
+      join(work, 'plan.yaml'),
+      '--out',
+      join(work, 'out'),
+    ]);
+    expect(moved.out).toContain('so it is not the estate the map was read from');
+    const here = await mkdtemp(join(tmpdir(), 'estate-generate-home-'));
+    await generate(here);
+    const incomplete = async (dir: string) =>
+      (await files(dir))
+        .filter((path) => path.startsWith('incomplete/'))
+        .map((path) => path.split('/').pop());
+    expect(await incomplete(join(work, 'out'))).toEqual(await incomplete(here));
   }, 120_000);
 });

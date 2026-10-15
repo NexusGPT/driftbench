@@ -27,6 +27,10 @@ blocks:
     expect:
       guards:
         - name: reply-length.py
+          verdict: deny
+          count: 0
+        - name: reply-length.py
+          verdict: block
           count: 0
       workspace:
         others_untouched: true
