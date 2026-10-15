@@ -25,6 +25,7 @@ export { literal };
  * | tool_called Read with a path (equal or contained) | `expect.references`, a glob ending in the path |
  * | tool_called Agent with a helper name | `expect.subagents` with a count |
  * | ordered | the ordered-pair custom check, `rules.custom.ordered` |
+ * | ordered from a Read | the Read of the file the gate names (`Read~<path>`), or of the file changed (`key`) |
  * | stage_reached | `expect.stage` on the closing stage, and an ordered pair when the stage is not the last |
  * | workspace, artifact | `expect.workspace`, `expect.artifacts` |
  * | text | `expect.must`, `expect.must_not` (the words as literal text), `expect.lang` |
@@ -70,7 +71,8 @@ export const MARKER_NAMES: ReadonlySet<string> = new Set(Object.values(MARKERS))
 
 export type Gap = { marker: Marker; atom: string; detail: string };
 
-export type OrderedPair = { before: string; after: string };
+/** `key`: the two calls name the same value in that input field (`file_path`: the file read is the one edited). */
+export type OrderedPair = { before: string; after: string; key?: string };
 
 export type SomeCall = { label: string; input: Record<string, unknown>; count: 0 | { min: number } };
 
@@ -224,7 +226,7 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       }
       return;
     case 'ordered': {
-      const pair = anchorPair(evidence.before, evidence.after, ctx, atom.fields);
+      const pair = anchorPair(evidence.before, evidence.after, ctx, atom.fields, atom.provenance?.quote);
       if (typeof pair === 'string') gap(then, MARKERS.anchor, atom, pair);
       else addPair(then, pair);
       return;
@@ -410,15 +412,25 @@ function negative(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
   }
 }
 
+/** Tools that change a file named by `file_path`. */
+const FILE_EDITS = new Set(['Edit', 'MultiEdit', 'Write']);
+/** A gate whose change acts on what it read: "read a file before you edit it". */
+const SAME_OBJECT =
+  /\b(?:edit|change|modify|update|overwrite|rewrite|write)\w*\s+(?:it|them|that file|this file|the same file)\b/i;
+
 /**
  * An ordered pair in the names the ordered check reads: a tool label as is, `skill:<name>`, `stage:<name>`.
- * A string says why the pair cannot be anchored.
+ * A string says why the pair cannot be anchored. A Read end is what the gate reads: the file it names
+ * (`Read~<path>`, from the gate's `path` field), or, when it names none and its change acts on what it read
+ * ("read a file before you edit it"), the file of the change itself (`key: file_path`). Any Read before the
+ * change would let a gate whose own read went missing pass on another read.
  */
 export function anchorPair(
   before: string,
   after: string,
   ctx: ThenContext,
   fields?: Record<string, unknown>,
+  quote?: string,
 ): OrderedPair | string {
   const a = anchor(before, ctx);
   const b = anchor(after, ctx);
@@ -437,6 +449,11 @@ export function anchorPair(
   }
   if (a === b)
     return `${before} before ${after}: both ends are ${a}, so the pair cannot tell the two acts apart`;
+  if (a === 'Read') {
+    const path = typeof fields?.path === 'string' ? fields.path.trim().replace(/^\.?\/+/, '') : '';
+    if (path !== '') return { before: `Read~${path}`, after: b };
+    if (FILE_EDITS.has(b) && SAME_OBJECT.test(quote ?? '')) return { before: a, after: b, key: 'file_path' };
+  }
   return { before: a, after: b };
 }
 
@@ -610,7 +627,11 @@ export function pathsOf(atom: EstateAtom): string[] {
 }
 
 export function addPair(then: ThenParts, pair: OrderedPair): void {
-  if (!then.ordered.some((known) => known.before === pair.before && known.after === pair.after)) {
+  if (
+    !then.ordered.some(
+      (known) => known.before === pair.before && known.after === pair.after && known.key === pair.key,
+    )
+  ) {
     then.ordered.push(pair);
   }
 }
