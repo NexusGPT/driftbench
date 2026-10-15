@@ -15,6 +15,7 @@ import {
   type UsedObject,
   type Verdict,
 } from '@agent-nexus/driftbench-core';
+import { initializeShippedObjects } from '../initialize';
 import { checkAssertion } from '../support/assert';
 import { countAllows, describeCount, minimumOf } from '../support/count';
 import { entryKeys, isRecord, listed, plural, show, times } from '../support/values';
@@ -71,6 +72,7 @@ export function createToolsCheck(options: ToolsCheckOptions = {}): Check {
     name: NAME,
     applies: (ctx) => expectedTools(ctx).length > 0 || ctx.expect.tool_order !== undefined,
     async evaluate(ctx) {
+      initializeShippedObjects();
       const chosen = policyFor(ctx, configured);
       const verdicts = await evaluate(ctx, chosen.policy, services);
       return chosen.problem === undefined

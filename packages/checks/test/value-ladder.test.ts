@@ -2,8 +2,9 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { objectRegistry } from '@agent-nexus/driftbench-core';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { createToolsCheck } from '../src/checks/tools';
+import { initializeShippedObjects } from '../src/initialize';
 import type { SameReferentJudge } from '../src/value-check/judge';
 import {
   BUILTIN_RUNGS,
@@ -22,6 +23,7 @@ import { context, observed, run, verdict } from './support/context';
 import { fixturePath } from './support/h1';
 
 /** The value-check ladder rung by rung: the policy file, the order, each rung's pass and fail, and its mutants. */
+beforeEach(() => initializeShippedObjects());
 
 const POLICY_FILE = new URL('../../../policy/value-check/default.yaml', import.meta.url);
 /** The YAML parser the object loader reads policy files with: core's own dependency. */

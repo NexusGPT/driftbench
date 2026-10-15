@@ -1,7 +1,7 @@
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import '@agent-nexus/driftbench-checks';
+import { initializeShippedObjects } from '@agent-nexus/driftbench-checks';
 import { clearObjectContexts, loadSpecFile } from '@agent-nexus/driftbench-core';
 import { afterAll, expect, it } from 'vitest';
 import { openMemoryStore } from '../src/store';
@@ -18,6 +18,7 @@ afterAll(async () => {
 });
 
 it('puts and gets a spec that names a project value-check policy', async () => {
+  initializeShippedObjects();
   clearObjectContexts();
   const root = await mkdtemp(join(tmpdir(), 'store-project-objects-'));
   made.push(root);

@@ -35,6 +35,7 @@ import { createToolPolicyCheck, type ToolRule } from './checks/tool-policy';
 import { createToolsCheck, type ToolsCheckOptions, tools } from './checks/tools';
 import { toolsOffered } from './checks/tools_offered';
 import { workspace } from './checks/workspace';
+import { initializeShippedObjects } from './initialize';
 
 /**
  * What judges the criteria a block names: a council of @agent-nexus/driftbench-judges (its `check()` makes the
@@ -70,6 +71,7 @@ export type DefaultChecksOptions = {
  * verdicts and never replace one. The list is new on each call; the checks themselves hold no state.
  */
 export function defaultChecks(options: DefaultChecksOptions = {}): Check[] {
+  initializeShippedObjects();
   const piiJudge = options.piiJudge ?? options.judges?.piiJudge;
   return [
     options.valueCheck === undefined ? tools : createToolsCheck(options.valueCheck),
