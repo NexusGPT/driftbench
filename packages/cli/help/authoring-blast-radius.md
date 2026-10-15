@@ -6,6 +6,7 @@ commands:
   - radius auto
 see_also:
   - results-radius
+  - authoring-prompt-sections
   - authoring-spec-format
   - authoring-blocks
   - authoring-map
@@ -27,6 +28,8 @@ You describe the change in a change manifest: the agent version before (`from`),
 `driftbench radius` reads the specs and the manifest and prints, per run mode, which blocks are in the radius and how much a rerun saves against the whole suite. It is read only: it writes nothing.
 
 `driftbench radius auto` writes a change manifest for you from two versions of a prompt file and an approved map whose entries carry evidence quotes. A change inside exactly one approved quote becomes a narrow change. Any doubt becomes a whole-suite change.
+
+A prompt can also carry a section registry, which names its sections by stable ids. Blocks can link to the sections they test in `metadata.links`. The registry, re-anchoring and links are in authoring-prompt-sections. Links stay out of the spec hash, so adding them never invalidates a carry. A `prompt_section` change is always the whole suite: selection by section links is advisory until links are verified by mutation, and `radius --sections` only prints what it would skip.
 
 Each block of each spec gets one state per mode:
 
@@ -75,7 +78,7 @@ Do not use it as proof that the new agent equals the old one outside the radius.
 ### driftbench radius
 
 ```
-driftbench radius <paths...> --change <manifest> [--mode <modes>] [--explain] [--json]
+driftbench radius <paths...> --change <manifest> [--mode <modes>] [--explain] [--json] [--sections <registries...>]
 ```
 
 | Option | Meaning | Default |
@@ -85,6 +88,7 @@ driftbench radius <paths...> --change <manifest> [--mode <modes>] [--explain] [-
 | `--mode <modes>` | the run modes to plan for: `T` teacher-forced, `F` free-running, `P` perturbed. Several separated by commas, for example `T,F`. Spaces around each are trimmed, repeats are dropped, the output follows your order | `F` |
 | `--explain` | after the normal output, print one line per manifest change (`<kind>:<id or global>: <note>`, or `declared in the manifest` when the change has no note), then one line per block of every spec: `<specId>/<blockId>: <state JSON>: <reasons>`. Ignored with `--json` | off |
 | `--json` | print one JSON document instead of the text | off |
+| `--sections <registries...>` | section registries (authoring-prompt-sections). When the manifest holds `prompt_section` changes, print after the radius the advisory section selection: the blocks selection by section links would run and the ones it would skip. Nothing is skipped: the radius stays the whole suite. With `--explain`, one `<specId>/<blockId>: advisory <state>: <reasons>` line per block; with `--json`, the key `advisory` | off |
 
 Exit codes:
 
@@ -158,7 +162,7 @@ YAML or JSON. Strict: an unknown key is an error at every level.
 
 | Key | Type | Required | Meaning |
 |---|---|---|---|
-| `kind` | string, not empty | yes | what changed: `stage`, `tool`, `rule`, `deviation`, `prompt`, `map`, `fixture`, `criterion`, `model`, `agent`. Any other string is accepted and makes the radius the whole suite |
+| `kind` | string, not empty | yes | what changed: `stage`, `tool`, `rule`, `deviation`, `prompt`, `map`, `fixture`, `criterion`, `model`, `agent`, `prompt_section`. Any other string is accepted and makes the radius the whole suite |
 | `id` | string, not empty | no | which one (see the table below). Without it, every kind is the whole suite |
 | `part` | `input`, `result`, `description` or `presence` | no | for a tool: which part changed. Absent: any part, the widest reading |
 | `global` | boolean | no | `true` when the change applies to every block, such as a tone rule: the whole suite |
@@ -184,6 +188,7 @@ What each kind selects:
 | `fixture` | a name or a literal value | blocks whose Given (spec and blocks up to this one) names it as a world store key, a fixture name, a workspace file or `workspace.from`; specs of family `<id>` as `family:<id>` (from `metadata.family.id` or a `family:` tag); names in `metadata.depends.fixtures`; and blocks whose When, expected tool inputs, Given or end state hold the literal text |
 | `criterion` | a criterion name | blocks whose `expect.criteria` name it |
 | `model`, `agent` | none | the whole suite |
+| `prompt_section` | `<prompt-id>#<section-id>`, or a section id alone for any prompt | the whole suite, with the reason `section selection is advisory until links are verified by mutation`. `--sections` prints which blocks the section links would select (authoring-prompt-sections) |
 
 What a tool change selects, by `part`:
 
@@ -303,6 +308,7 @@ After the text output: one line per change, `<kind>:<id or global>: <note or "de
 | `specs[].blocks[]` | `id`, `index`, `scored` (false for a gate rejected block), `why` (reasons; empty when not direct), `state` (`{ "<mode>": "direct" | "forward" | "out" }`) |
 | `specs[].cells[]` | `mode`, `perturbationId` (mode P), `in`, `why` (the reasons of the first direct block, or of the perturbation) |
 | `totals.<mode>` | `in` (direct plus forward), `direct`, `forward`, `out`, `total` (scored blocks), `unknown` (scored blocks with unknown dependencies), `cells.in`, `cells.total`, `sent` (scored blocks of the cells in the radius) |
+| `advisory` | with `--sections` and `prompt_section` changes only: `{ advisory: true, changed, closure, all, specs[].blocks[] (id, index, state, why), counts (selected, direct, forward, skipped, total) }`. See authoring-prompt-sections |
 
 `radius` writes no file.
 
