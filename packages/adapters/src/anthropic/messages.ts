@@ -1,5 +1,6 @@
 import type { Message } from '@agent-nexus/driftbench-core';
-import { historyOutput, outputText, type WireNames } from './common';
+import { HistoryCompiler } from '../shared';
+import { outputText, type WireNames } from './common';
 
 /**
  * The slice of the Anthropic Messages API the adapter speaks, mirrored from `@anthropic-ai/sdk` 0.133.0
@@ -83,7 +84,7 @@ export function toAnthropicMessages(
 ): { messages: AnthropicMessageParam[]; system: string[] } {
   const system: string[] = [];
   const messages: { role: 'user' | 'assistant'; content: AnthropicBlockParam[] }[] = [];
-  let unnamed = 0;
+  const compiler = new HistoryCompiler({ fallback: (n) => `toolu_h${n}`, count: 'every', clean: toolUseId });
   const push = (role: 'user' | 'assistant', blocks: AnthropicBlockParam[]) => {
     if (blocks.length === 0) return;
     const last = messages.at(-1);
@@ -101,33 +102,32 @@ export function toAnthropicMessages(
       push('user', text(message.content));
       continue;
     }
-    const recorded = message.tool_calls ?? [];
-    if (recorded.length > 0) {
-      const ids = recorded.map((call) => toolUseId(call.id, ++unnamed));
+    const calls = compiler.calls(message);
+    if (calls.length > 0) {
       push(
         'assistant',
-        recorded.map((call, index) => ({
+        calls.map((call) => ({
           type: 'tool_use',
-          id: ids[index] as string,
+          id: call.id as string,
           name: names.wire(call.label),
           input: call.input ?? {},
         })),
       );
       push(
         'user',
-        recorded.map(
-          (call, index): AnthropicToolResultBlock =>
-            call.error !== undefined
+        calls.map(
+          (call): AnthropicToolResultBlock =>
+            call.result.kind === 'error'
               ? {
                   type: 'tool_result',
-                  tool_use_id: ids[index] as string,
-                  content: call.error,
+                  tool_use_id: call.id as string,
+                  content: call.result.message,
                   is_error: true,
                 }
               : {
                   type: 'tool_result',
-                  tool_use_id: ids[index] as string,
-                  content: outputText(historyOutput(call)),
+                  tool_use_id: call.id as string,
+                  content: outputText(call.result.value),
                 },
         ),
       );
@@ -137,8 +137,7 @@ export function toAnthropicMessages(
   return { messages, system };
 }
 
-/** A recorded call id as a tool use id the API accepts; a call recorded with none gets one. */
-function toolUseId(id: string | undefined, n: number): string {
-  const cleaned = id?.replace(ID_CHARS, '_');
-  return cleaned === undefined || cleaned === '' ? `toolu_h${n}` : cleaned;
+/** A recorded call id as a tool use id the API accepts. */
+function toolUseId(id: string): string {
+  return id.replace(ID_CHARS, '_');
 }
