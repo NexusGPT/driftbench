@@ -37,14 +37,16 @@
   "files": [
     "NOTICE",
     "THIRD_PARTY_LICENSES.md",
-    "dist"
+    "dist",
+    "objects"
   ],
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean --target node22"
   },
   "dependencies": {
     "@agent-nexus/driftbench-core": "workspace:*",
-    "franc-min": "^6.2.0"
+    "franc-min": "^6.2.0",
+    "zod": "^4.6.5"
   },
   "publishConfig": {
     "access": "public",
