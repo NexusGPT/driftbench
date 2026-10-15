@@ -11,13 +11,13 @@
 | hidden | 0 |
 <!-- level-table:end -->
 
-Iteration 37, source 9afa3d4b142780a9252a38b4a7d68c76d0838a17 plus the change recorded in this journal row. Hidden seed 601090955, derived from that head.
+Iteration 38, source 96e784a8bee5f8a22796aadfad9b38ec05de0caa plus the change recorded in this journal row. Hidden seed 532755176, derived from that head.
 | Seed | Reader passing / items |
 |---|---|
-| 1 | 616/641 |
-| 2 | 617/641 |
-| 3 | 617/641 |
-| hidden (601090955) | 617/641 |
+| 1 | 620/641 |
+| 2 | 620/641 |
+| 3 | 619/641 |
+| hidden (532755176) | 619/641 |
 
 Each fraction counts reader items passing on that seed, out of 641 reader items. Journal `passing` counts distinct evaluated item IDs passing every seed; it is not a sum of seed counts. The journal's per-level `metrics` use seed 1; its `perSeed` records achieved levels separately.
 
@@ -39,9 +39,6 @@ Owner rule: "make sure all the fixes are fixes that are TO THE FRAMEWORK in gene
 - scan.reference-prose.text-file: [scan.reference-prose, tier 3] the scan reads the rules of a plain text reference: missed instruction at .claude/skills/recipe-sort-1ki10ij/references/notes.txt:2
 - scan.reference-prose.chained: [scan.reference-prose, tier 4] the scan reads the rules of a reference naming a second reference with its own rule: missed the reference edge scan.reference-prose.chained:skill to scan.reference-prose.chained:inner-ref
 - scan.reference-prose.outside-skill: [scan.reference-prose, tier 3] the scan reads the rules of a reference outside any skill, named by the standing instructions: missed instruction at .claude/docs/ledger-check-138qwq4.md:2
-- scan.hazards.status-429: [scan.hazards, tier 3] code reads a rate limit called a 429: missed hazard rate_wave at .claude/skills/badge-update-dqzflh/SKILL.md:9
-- scan.hazards.reboot: [scan.hazards, tier 3] code reads a restart called a reboot: missed hazard restart at .claude/skills/badge-review-c9u5qq/SKILL.md:9
-- scan.hazards.resumed: [scan.hazards, tier 3] code reads a session resumed the next day: missed hazard session_boundary at .claude/skills/parcel-sort-mokh4w/SKILL.md:9
 - scan.hazards.decoy-price: [scan.hazards, tier 3] code reads a decoy: nudging a price: found hazard hazard.recipe-pack-14rrbst.recover-from-repeated-guard-nudges at .claude/skills/recipe-pack-14rrbst/SKILL.md:9, never planted
 - scan.decoys.owner-table: [scan.decoys, tier 3] code is not fooled: a table of owners that names a skill is no routing table: found route route.standing.an-ask-to-ana-loads-tariff at CLAUDE.md:4, never planted
 - scan.decoys.changelog-reference: [scan.decoys, tier 4] code is not fooled: a file named in a change note is no reference: found reference reference.ticket-price-14oprfr.read-references-legacy-md at .claude/skills/ticket-price-14oprfr/SKILL.md:12, never planted
@@ -57,12 +54,12 @@ Owner rule: "make sure all the fixes are fixes that are TO THE FRAMEWORK in gene
 - scan.standing.sentence: [scan.standing, tier 4] the reader reads routing written as a sentence: missed route parcel-update-1713qix at CLAUDE.md:5
 - scan.standing.heading-per-skill: [scan.standing, tier 4] the reader reads routing written as a heading per skill: missed route shelf-price-ftj8gw at CLAUDE.md:5
 - scan.standing.imported-standing: [scan.standing, tier 4] the reader reads a file the standing file imports: missed instruction at .claude/docs/crate-rules.md:3; found reference reference.standing.read-claude-docs-crate-rules-md at CLAUDE.md:3, never planted
-- blind.gates.plain-comma: [blind.gates, tier 1] : [blind.gates, tier 1] the reader reads the gate "Before X, read Y" on a line of its own in the standing file: the scan took 6178 ms, over 5000 ms; holds
 - blind.lint.emoji-count-as-characters: [blind.lint, tier 4] lint finds no oversize finding for a standing file of 30,000 emoji: a OVERSIZE finding: the standing instructions hold 60317 characters, over the ceiling of 40000
 - blind.edges.dispatch-plain-name: [blind.edges, tier 3] the reader reads a skill body that dispatches a helper by its plain name: no dispatch edge from skill at .claude/skills/orchard-plan-7beyan/SKILL.md
 
 ## Hypotheses tried
 
+Iteration 38: hazard synonyms (reboot, 429, too many requests, resumed session). +3 on every seed: scan.hazards.status-429, reboot, resumed. Wide-folder lost on seed 3 and hidden on timing only.
 Iteration 37: CRLF and tab-indented frontmatter in the tolerant pass. +3 on every seed: scan.combination.colon+crlf, prefixguard+crlf, scan.hostile.tabs-in-frontmatter. Seed 1 lost blind.gates.plain-comma on timing only.
 Iteration 36: nested CLAUDE.md discovery. +1 on every seed: scan.standing.nested-standing.
 Iteration 35: helpers in agent subfolders. +1 on every seed: scan.hostile.helper-subfolder.

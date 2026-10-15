@@ -45,12 +45,18 @@ export const HAZARDS = [
     pattern:
       /\b(compactions?|compacted|auto-?compact)\b|\b(?:conversation|context) is summari[sz]ed\b|\bcontext window (?:fills? up|is full)\b/i,
   },
-  { id: 'restart', title: 'A process restart', pattern: /\brestart(s|ed)?\b/i },
-  { id: 'rate_wave', title: 'A wave of rate limits', pattern: /\brate[- ]limit/i },
+  { id: 'restart', title: 'A process restart', pattern: /\b(?:restart|reboot)(?:s|ed)?\b/i },
+  {
+    id: 'rate_wave',
+    title: 'A wave of rate limits',
+    pattern:
+      /\brate[- ]limit|\btoo many requests\b|\b(?:HTTP(?: status)?|status(?: code)?|responds?|answers?|returns?)\s+(?:with\s+)?(?:an?\s+)?429\b|\b429\s+(?:error|response|status)\b/i,
+  },
   {
     id: 'session_boundary',
     title: 'A new session',
-    pattern: /\b(start of (every|each|a) session|new session|session start)/i,
+    pattern:
+      /\b(start of (every|each|a) session|new session|session start|session (?:is )?resumed|resume (?:the |a )?session)/i,
   },
   { id: 'notification', title: 'A helper notification', pattern: /\bnotification/i },
   { id: 'nudge_storm', title: 'Repeated guard nudges', pattern: /\bnudges?\b/i },
@@ -1014,7 +1020,7 @@ function runtimeHazard(id: (typeof HAZARDS)[number]['id'], text: string): boolea
       return HAZARDS.find((hazard) => hazard.id === id)?.pattern.test(runtime) ?? false;
     }
     case 'restart':
-      return !/\b(?:restart\s+button|(?:printer|device|equipment|appliance)(?:'s)?\s+restarts?)\b/i.test(
+      return !/\b(?:restart\s+button|(?:printer|device|equipment|appliance)(?:'s)?\s+(?:restarts?|reboots?))\b/i.test(
         line,
       );
     case 'rate_wave':
