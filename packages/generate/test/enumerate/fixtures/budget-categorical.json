@@ -1,11 +1,10 @@
 {
-  "source": "Generator v4 with one run per directly requested tool call, one reply per user turn (reply_count), restated slots and phrase cover specs",
   "mapHash": "7a022d4e1380",
   "hashes": {
-    "pairwise": "4876cc984ae14c1d31aeccc7c03d613ca142f2c52616432504cb06335d456619",
-    "budget-20": "0aeba2dc72ac1f221e5a9861df7d7df55249d6cadeaf70c3382dec30da828e04",
-    "budget-50": "9883c0d3666843a8a2349f25066f58370372bbe2c8cf3f052bb5d2faef6a4047",
-    "budget-100": "bf5091d9511fcac22ca13ae4bd4ec3b11b990ee1daa520d69ae6b9c63925de9a",
-    "budget-200": "dc7d3595a6b57b5a7a2fa4f1272e8984258da23f4fc05ff636c2bec406be3676"
+    "pairwise": "dcf59f89f498cf273cdc72d2f04888e989546402e480f3f64e24f0d5f7f2fe82",
+    "budget-20": "03491d6dfca94fec26d8be33eb11d0a1aff9e97720376d7242f81670ed4102ea",
+    "budget-50": "05ccdc66ba6cf2badcd23ceaacbb2d360e6f4f0746d6d2145ed704a3cbae9a10",
+    "budget-100": "b0c8ee7c8580de23d384ec43d18f3713757b6260f4fc9864b335794c480fb47a",
+    "budget-200": "9215e7ef681b49625619b246d5fff084e4355efb4e68b3910529b25904f81eff"
   }
 }
