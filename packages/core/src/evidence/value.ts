@@ -63,8 +63,7 @@ type Reading = { source: string; change?: string };
  * appear in the user turn was built by the agent from the user's value (agent_derived). A value found nowhere is
  * read as the user's value, altered.
  */
-function reading(input: EvidenceInput): Reading | undefined {
-  const known = fact(input);
+function reading(input: EvidenceInput, known: ValueFact | undefined = fact(input)): Reading | undefined {
   if (known === undefined) return undefined;
   const text = asText(known.value);
   if (text === undefined) return known.source === undefined ? undefined : { source: known.source };
@@ -260,14 +259,10 @@ export const tool_output_wrong: EvidenceProvider = {
   name: 'tool_output_wrong',
   cost: 'static',
   values: ['boolean'],
-  from: 'a value the agent reported that a tool output holds, and that differs from gold',
-  compute: (input) => {
-    const outputs = readTexts(input).outputs.map(foldSpace);
-    return (input.values ?? []).some((one) => {
-      const text = asText(one.value);
-      const fromTool =
-        one.source === 'tool_output' ||
-        (text !== undefined && outputs.some((out) => out.includes(foldSpace(text))));
+  from: 'a value the agent reported that came from a tool output (not from the user or a file), and that differs from gold',
+  compute: (input) =>
+    (input.values ?? []).some((one) => {
+      const fromTool = reading(input, one)?.source === 'tool_output';
       const wrong =
         one.outcome === 'failed' ||
         one.outcome === 'resolved_differently' ||
@@ -275,8 +270,7 @@ export const tool_output_wrong: EvidenceProvider = {
           one.gold !== undefined &&
           JSON.stringify(one.gold) !== JSON.stringify(one.value));
       return fromTool && wrong;
-    });
-  },
+    }),
 };
 
 /** The parts the reply asks the user for: the stored reading, else the part names found in a question. */

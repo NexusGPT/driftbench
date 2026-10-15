@@ -457,6 +457,24 @@ const cases: Array<{ name: string; given: evidence.EvidenceInput; want: unknown;
     want: true,
   },
   {
+    name: 'tool_output_wrong',
+    why: "a user value the tool echoed back is the user's, not the tool's",
+    given: input({
+      user: 'My street address is 88 Summit Ave, Acmeville',
+      values: [address('88 Summit Ave, Acmeville', { outcome: 'failed' })],
+      observed: {
+        toolCalls: [
+          {
+            label: 'coverage.check',
+            input: { address: '88 Summit Ave, Acmeville' },
+            output: { found: false, address: '88 Summit Ave, Acmeville' },
+          },
+        ],
+      },
+    }),
+    want: false,
+  },
+  {
     name: 'env_error',
     why: 'pip cannot reach the index (F2)',
     given: input({
