@@ -1,4 +1,4 @@
-import { mkdirSync } from 'node:fs';
+import { existsSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import type { DatabaseSync, SQLInputValue, StatementSync } from 'node:sqlite';
 import {
@@ -7,6 +7,8 @@ import {
   canonicalJson,
   type LoadedSpec,
   Observed,
+  objectContextFor,
+  objectContextOfSpec,
   type RunFilter,
   RunResult,
   type Store,
@@ -196,7 +198,9 @@ export class SqliteStore implements Store {
   async putSpec(spec: LoadedSpec): Promise<void> {
     this.live();
     if (spec?.ok !== true) throw new StoreError('INVALID_RECORD', 'putSpec takes a spec the loader accepted');
-    const checked = validateSpec(spec.spec, spec.path);
+    // Re-checked against the objects it was loaded with, so a project or suite object it names still resolves.
+    const objects = objectContextOfSpec(spec.spec);
+    const checked = validateSpec(spec.spec, spec.path, objects === undefined ? {} : { objects });
     if (!checked.ok) {
       const errors = checked.errors.slice(0, 5).map((issue) => `${issue.path}: ${issue.message}`);
       throw new StoreError('INVALID_RECORD', `putSpec refused an invalid spec: ${errors.join('; ')}`);
@@ -215,7 +219,13 @@ export class SqliteStore implements Store {
     const row = this.sql.selectSpec.get(id, hash);
     if (row === undefined) return undefined;
     const where = `the specs row ${id}@${hash}`;
-    const loaded = validateSpec(parseColumn(row, 'yaml', where), text(row, 'path', where));
+    const path = text(row, 'path', where);
+    // A stored spec resolves its objects from the file it was read from, as the loader did, while that file exists.
+    const loaded = validateSpec(
+      parseColumn(row, 'yaml', where),
+      path,
+      existsSync(path) ? { objects: () => objectContextFor(path) } : {},
+    );
     if (!loaded.ok) {
       const errors = loaded.errors.slice(0, 5).map((issue) => `${issue.path}: ${issue.message}`);
       throw corrupt(`${where} does not hold a valid spec: ${errors.join('; ')}`);

@@ -29,6 +29,10 @@ export type MainOptions = {
  * those of `options.plugins`, of the project config's `plugins` list and of `--plugin` (see `./plugins`).
  */
 export async function main(argv: string[], io: Io = processIo, options: MainOptions = {}): Promise<number> {
+  // Fill the shared object registry before plugins or any command resolve objects: the checks package registers
+  // the shipped objects it owns (policy/value-check:default) on import, and `spec validate` or `spec lint` may
+  // otherwise run before anything imports it.
+  await import('@agent-nexus/driftbench-checks');
   let exitCode = 0;
   const setExit = (code: number) => {
     exitCode = code;

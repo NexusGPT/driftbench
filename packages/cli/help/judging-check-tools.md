@@ -78,6 +78,8 @@ A value no item settles falls back to the exact compare, the verdict of today: i
 
 A spec or a block runs another policy with `uses.value_check`: an object id (shipped, or a project or suite object visible from the spec file), or an inline object that extends the shipped one, such as `uses: { value_check: { extends: default, items: [{ id: rung1_outcome, enabled: false }] } }`; a block's choice replaces the spec's, and a suite or project `uses.yaml` applies to the specs below it. An object the check cannot resolve adds a failing `tools.value_check` with the reason, and the block's values are then compared exactly; its count, input and order verdicts stay.
 
+`compare` is scoring-only, like `uses`: it stays out of the block cache key and the re-judge compatibility hash, so after writing or changing it a cached run replays the stored observations and scores them again, and never calls the agent.
+
 `compare` modes: `auto` (the default) walks the ladder; `outcome`, `contract`, `as_given` or `same_referent` runs that item alone (the exact fallback when it cannot apply); `{ exact: <reason> }` declares the writing itself is the requirement. Give one mode for every argument (`compare: auto`) or a mode by argument name (`compare: { customer: same_referent }`). The other assertion forms (`regex`, `contains`, `one_of`, `nonempty`, `absent`) list their own accepted writings and compare as written.
 
 A value the judge passes differs from the expected one only in its writing, and no contract states that writing: the check adds `tools.<label>.input.<field>.unstated_format`, not gating, which flags the test. Declare the format in the tool (a `pattern` or an `enum`) or drop it from the block.
