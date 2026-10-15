@@ -1,4 +1,8 @@
-import { callSucceeded, samePath, skillOfPath, verdictAtoms, verdictLinks } from './subject';
+import { readAmount } from './reads';
+import { samePath, skillOfPath, verdictAtoms, verdictLinks } from './subject';
+
+export { readAmount } from './reads';
+
 import type { EvidenceInput, EvidenceProvider, RuleAtom } from './types';
 import { homeOfAtom } from './value';
 
@@ -122,45 +126,6 @@ export const ref_depth: EvidenceProvider = {
     return path === undefined ? undefined : depth(input, path);
   },
 };
-
-const PARTIAL_COMMAND = /\b(head|tail|sed\s+-n|awk|grep)\b/;
-const FULL_COMMAND = /\b(cat|less|more|bat)\b/;
-
-/**
- * How much of `path` the agent read: none, partial (a Read with offset or limit, head, sed -n) or full. A read
- * that failed (a tool error, a command that exited nonzero) reads nothing.
- */
-export function readAmount(input: EvidenceInput, path: string): 'none' | 'partial' | 'full' {
-  let amount: 'none' | 'partial' | 'full' = 'none';
-  const raise = (to: 'partial' | 'full') => {
-    if (to === 'full' || amount === 'none') amount = to;
-  };
-  for (const call of input.block.observed.toolCalls) {
-    if (!callSucceeded(input, call)) continue;
-    const args = (call.input ?? {}) as Record<string, unknown>;
-    if (call.label === 'Read') {
-      const file = args.file_path ?? args.path;
-      if (typeof file !== 'string' || !samePath(file, path)) continue;
-      raise(args.offset !== undefined || args.limit !== undefined ? 'partial' : 'full');
-    } else if (call.label === 'Bash' && typeof args.command === 'string') {
-      commandRead(args.command, path, raise);
-    }
-  }
-  for (const run of input.block.observed.executions ?? []) {
-    if (run.exitCode === 0) commandRead(run.command, path, raise);
-  }
-  for (const ref of input.block.observed.runtime?.references ?? []) {
-    if (samePath(ref.path, path) && amount === 'none') amount = 'full';
-  }
-  return amount;
-}
-
-function commandRead(command: string, path: string, raise: (to: 'partial' | 'full') => void): void {
-  const tail = path.replace(/\\/g, '/').split('/').slice(-2).join('/');
-  if (!command.includes(tail)) return;
-  if (PARTIAL_COMMAND.test(command)) raise('partial');
-  else if (FULL_COMMAND.test(command)) raise('full');
-}
 
 export const ref_read: EvidenceProvider = {
   name: 'ref_read',

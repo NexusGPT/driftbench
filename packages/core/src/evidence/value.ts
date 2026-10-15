@@ -1,6 +1,6 @@
+import { callSucceeded, readPaths } from './reads';
 import {
   asText,
-  callSucceeded,
   foldSpace,
   subjectCalls,
   subjectField,
@@ -32,25 +32,33 @@ function readTexts(input: EvidenceInput): { files: string[]; skills: string[]; o
         : call.output === undefined
           ? ''
           : JSON.stringify(call.output);
-    const path = readPath(call.input);
-    if (call.label === 'Read' && path !== undefined) {
-      // A Read that failed read nothing: its error text is no file content.
-      if (!callSucceeded(input, call)) continue;
+    const paths = readPaths(call);
+    if (paths.length > 0 && !callSucceeded(input, call)) continue;
+    const path = paths[0];
+    if (path !== undefined) {
       if (/(?:^|\/)skills\//.test(path)) skills.push(text);
       else files.push(text);
     } else if (text !== '') {
       outputs.push(text);
     }
   }
-  for (const run of input.block.observed.executions ?? []) if (run.stdout) outputs.push(run.stdout);
+  for (const run of input.block.observed.executions ?? []) {
+    if (!run.stdout) continue;
+    const call = { label: 'Bash', input: { command: run.command }, startedAt: run.startedAt };
+    const paths = readPaths(call);
+    if (paths.length > 0) {
+      if (run.exitCode !== 0) continue;
+      const matches = input.block.observed.toolCalls.filter(
+        (one) =>
+          (one.input as { command?: unknown } | undefined)?.command === run.command &&
+          (run.startedAt === undefined || one.startedAt === undefined || one.startedAt === run.startedAt),
+      );
+      if (matches.length > 0 && !matches.some((one) => callSucceeded(input, one))) continue;
+      if (paths.some((path) => /(?:^|\/)skills\//.test(path))) skills.push(run.stdout);
+      else files.push(run.stdout);
+    } else outputs.push(run.stdout);
+  }
   return { files, skills, outputs };
-}
-
-function readPath(value: unknown): string | undefined {
-  if (value === null || typeof value !== 'object') return undefined;
-  const record = value as Record<string, unknown>;
-  const path = record.file_path ?? record.path;
-  return typeof path === 'string' ? path : undefined;
 }
 
 function digits(text: string): string {

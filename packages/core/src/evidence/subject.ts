@@ -101,7 +101,7 @@ export function globRegex(glob: string): RegExp {
 
 /**
  * A tool output that reports its own failure. Two kinds of record carry a status, in different fields:
- * - a process (a shell tool, a script) carries its exit code in `exitCode`, `exit_code` or `returncode`: any
+ * - a process (a shell tool, a script) carries its exit code in `exitCode`, `exit_code`, `returncode` or `returnCode`: any
  *   value other than 0 is a failure;
  * - an HTTP tool carries its response status in `status`, `statusCode`, `status_code` or `httpStatus`: 400 and
  *   above is a failure, 2xx and 3xx are not.
@@ -111,7 +111,7 @@ export function globRegex(glob: string): RegExp {
 export function outputFailed(output: unknown): boolean {
   if (output === null || typeof output !== 'object' || Array.isArray(output)) return false;
   const record = output as Record<string, unknown>;
-  for (const key of ['exitCode', 'exit_code', 'returncode']) {
+  for (const key of ['exitCode', 'exit_code', 'returncode', 'returnCode']) {
     const code = record[key];
     if (typeof code === 'number' && code !== 0) return true;
   }
@@ -122,15 +122,16 @@ export function outputFailed(output: unknown): boolean {
   return record.is_error === true || record.isError === true;
 }
 
-/**
- * Whether a tool call succeeded, so what it read counts: no error, no failure in its output, and for a shell
- * command a recorded execution that exited 0 when one is recorded. Every provider that reads what a call read
- * (a file, a skill, a reference) skips a call that failed.
- */
+/** A failure on either the call or its matching execution reads nothing. */
 export function callSucceeded(input: EvidenceInput, call: ToolCall): boolean {
   if (call.error !== undefined || outputFailed(call.output)) return false;
   const command = (call.input as { command?: unknown } | undefined)?.command;
   if (typeof command !== 'string') return true;
-  const runs = (input.block.observed.executions ?? []).filter((run) => run.command === command);
+  const runs = (input.block.observed.executions ?? []).filter(
+    (run) =>
+      run.command === command &&
+      (call.startedAt === undefined || run.startedAt === undefined || call.startedAt === run.startedAt),
+  );
   return runs.length === 0 || runs.some((run) => run.exitCode === 0);
 }
+
