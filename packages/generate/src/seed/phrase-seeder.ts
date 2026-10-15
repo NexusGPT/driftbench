@@ -108,14 +108,19 @@ export function phraseDrafts(
             ];
         const flowAt = prepared.space.dimensions.findIndex((entry) => entry.id === FLOW_DIMENSION);
         for (const { at, fresh, after } of tries) {
-          // Never at the last stage of a walk with an end state: the walk checks it at its end, which the turn
-          // cuts. A walk with none ends on its last stage, where the second pass says the phrase.
+          // The first pass says a phrase before a walk's last stage. The second says the phrases left over at the
+          // last stage, after the walk's last move, which cuts nothing: the walk still checks its end state. A
+          // walk with no end state goes first, so a turn after an end state is the last resort.
           const fits = (path: PathRelation) =>
-            (last ? !path.end_state && path.stages.length === at + 1 : path.stages.length > at + 1) &&
+            (last ? path.stages.length === at + 1 : path.stages.length > at + 1) &&
             !(fresh && used?.has(slotOf(path, at))) &&
             (!after ||
               (found ? ran(path, at, found.tool.name) : dimension === FLOW_DIMENSION || exercised(path, at)));
-          const candidates = prepared.relations.paths.filter(fits);
+          const candidates = prepared.relations.paths
+            .filter(fits)
+            .sort(
+              (a, b) => Number(last && a.end_state !== undefined) - Number(last && b.end_state !== undefined),
+            );
           const own = candidates.filter((path) => dimension !== FLOW_DIMENSION || path.flow === phrase.value);
           const order = found
             ? [candidates]

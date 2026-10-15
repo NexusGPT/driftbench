@@ -22,9 +22,9 @@ const userTurns = (specs: ReturnType<typeof generateSuite>['complete']) =>
   );
 
 describe('phrases no other spec says', () => {
-  // Seeds 12 and 18 hold one behaviour phrase more than the stages and flows before a walk's last stage; a
-  // walk with no end state takes it at its last stage. Seed 13 holds two more and has one such walk only.
-  it.each([1, 3, 12, 18])(
+  // Seeds 12, 13 and 18 hold more behaviour phrases than the stages and flows before a walk's last stage: the
+  // phrases left over are said at a walk's last stage, one with no end state first (seed 13 needs both kinds).
+  it.each([1, 3, 12, 13, 18])(
     'are each said in a complete spec on seed %s',
     async (seed) => {
       const hidden = hiddenSpec(seed);
@@ -91,7 +91,15 @@ describe('behaviour phrases on seeds with more phrases than stages and flows', (
         );
         return spec !== undefined && path !== undefined && spec.blocks.length === path.stages.length;
       });
-      if (seed !== 13) expect(atLast.length).toBeGreaterThan(0);
+      expect(atLast.length).toBeGreaterThan(0);
+      // A turn said after the walk's last move cuts nothing: a walk with an end state still checks it.
+      for (const entry of atLast) {
+        const spec = suite.complete.find((candidate) => candidate.id === entry.id);
+        const path = source.prepared?.relations.paths.find(
+          (candidate) => candidate.id === (spec?.metadata?.generated as { path?: string } | undefined)?.path,
+        );
+        if (path?.end_state) expect(spec?.end_state, `${entry.id} walks ${path.id}`).toBeDefined();
+      }
       const phraseIds = suite.complete
         .map((spec) => spec.id)
         .filter((id) => id.startsWith('gen-phrase-'))
