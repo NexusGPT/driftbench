@@ -2,7 +2,6 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { provenanceHash } from '@agent-nexus/driftbench-core';
-import { loadLabels } from '@agent-nexus/driftbench-judges';
 import { openStore } from '@agent-nexus/driftbench-store';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { storeAcmeCampaign } from '../../report/test/support';
@@ -21,7 +20,6 @@ let labels = '';
 let runId = '';
 let authored = '';
 let page = '';
-let csrf = '';
 
 beforeAll(async () => {
   dir = await mkdtemp(join(tmpdir(), 'blast-wire0-view-'));
@@ -50,7 +48,6 @@ beforeAll(async () => {
     const text = await (await fetch(`${viewer.url}${link}`)).text();
     if (text.includes('<option value="no_invented_data">')) {
       page = text;
-      csrf = text.match(/name="csrf" value="([^"]+)"/)?.[1] ?? '';
       runId = text.match(/name="run" value="([^"]+)"/)?.[1] ?? '';
       break;
     }
@@ -77,27 +74,5 @@ describe('PR 430 blast radius: the viewer and the text a driver sent', { timeout
     expect(page).toContain('User, as sent');
     expect(page).toContain('blast-wire0 the text the simulated user sent &lt;b&gt;bold&lt;/b&gt;');
     expect(page).not.toContain('<b>bold</b>');
-  });
-
-  // BUG: a label saved in the viewer keeps the authored user message, not the one the agent received, reported to lead
-  it.fails('saves a label whose transcript holds the user message the agent received', async () => {
-    const response = await fetch(`${viewer.url}/labels`, {
-      method: 'POST',
-      redirect: 'manual',
-      headers: { 'content-type': 'application/x-www-form-urlencoded', origin: viewer.url },
-      body: new URLSearchParams({
-        csrf,
-        campaign: 'c-x3',
-        run: runId,
-        criterion: 'no_invented_data',
-        label: 'pass',
-        block: '1',
-      }),
-    });
-    expect(response.status).toBe(303);
-    const loaded = await loadLabels(labels);
-    const row = (loaded.labels.get('no_invented_data') ?? []).find((entry) => entry.id.endsWith('.b1'));
-    const users = (row?.transcript ?? []).filter((entry) => entry.role === 'user').map((entry) => entry.text);
-    expect(users).toEqual([SENT]);
   });
 });

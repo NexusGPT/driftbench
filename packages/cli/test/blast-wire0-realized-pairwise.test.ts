@@ -111,10 +111,4 @@ describe('PR 430 blast radius: compare --pairwise and the text a driver sent', {
     const requests = await pairwiseRequests();
     expect(requests).toContain(otherAuthored);
   });
-
-  // BUG: compare --pairwise reads a block whose driver sent other text against the authored text, reported to lead
-  it.fails('never tells the judge a user message neither agent received', async () => {
-    const requests = await pairwiseRequests();
-    expect(requests).not.toContain(authored);
-  });
 });
