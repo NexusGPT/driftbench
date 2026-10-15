@@ -45,9 +45,9 @@ ${fixes.join('\n')}
 <div class="zone-h"><h2 id="h-attribution">Two scores</h2><span class="kicker">The machine verdict stays final; blame says whose failure it is</span></div>
 ${nonDefaultBadge(summary.nonDefault)}
 <div class="stat-row">
-${stat(summary.machine, 'Machine pass rate', `every check passed · ${span(summary.machine)}`)}
+${stat(summary.machine, 'Machine pass rate', `all completed runs · ${span(summary.machine)}`)}
 ${stat(summary.agent, 'Agent-attributed pass rate', `setup, excluded and credited failures set aside · ${span(summary.agent)}`)}
-<div class="stat"><p class="n">${summary.unassigned}<small>${summary.unassigned === 1 ? 'run' : 'runs'}</small></p><span class="l">Unassigned, shown apart</span><p class="s">no rule attributed a failure; in neither rate</p></div>
+<div class="stat"><p class="n">${summary.unassigned}<small>${summary.unassigned === 1 ? 'run' : 'runs'}</small></p><span class="l">Unassigned, shown apart</span><p class="s">excluded from the agent-attributed rate; included among all completed runs in the machine rate</p></div>
 </div>
 <p class="note">Failing blocks: ${b.failing}. The agent's ${b.agent}, setup ${b.setup}, excluded ${b.excluded}, credited ${b.credited}, unassigned ${b.unassigned}.</p>
 ${fixTable}

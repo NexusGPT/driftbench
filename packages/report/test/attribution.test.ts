@@ -19,7 +19,7 @@ import { storeAcmeCampaign } from './support';
 /**
  * The second score on the scorecard and the run page (codeagent_equivalence_blame.md E5), on the stored Acme
  * campaign with the x3 fault: the diagnoses come from the shipped blame and placement files, the fix list from
- * the fix plan. The machine pass rate never changes; unassigned runs are in neither rate.
+ * the fix plan. The machine pass rate never changes; the machine rate includes all completed runs, while the agent-attributed rate excludes unassigned runs.
  */
 
 let fault: CampaignData;
@@ -138,12 +138,12 @@ describe('the two scores on the Acme x3 campaign', () => {
       },
       maxRuns: 1,
     });
-    expect(custom.attribution?.nonDefault).toEqual(['policy/blame:northwind@01234567']);
+    expect(custom.attribution?.nonDefault).toEqual(['policy/blame:northwind@0123456789abcdef']);
     expect(renderHtml(custom)).toContain(
-      '<span class="badge">non-default</span> Scored with policy/blame:northwind@01234567.',
+      '<span class="badge">non-default</span> Scored with policy/blame:northwind@0123456789abcdef.',
     );
     const run = custom.drilldown[0];
-    expect(run?.nonDefault).toEqual(['policy/blame:northwind@01234567']);
+    expect(run?.nonDefault).toEqual(['policy/blame:northwind@0123456789abcdef']);
     expect(renderRun(run as NonNullable<typeof run>)).toContain('non-default');
     const shipped = buildScorecard(fault, {
       attribution: { ...options, objects: [{ kind: 'policy/blame', id: 'default' }] },
@@ -153,7 +153,7 @@ describe('the two scores on the Acme x3 campaign', () => {
   });
 });
 
-describe('unassigned is never folded into either score', () => {
+describe('unassigned stays in the machine denominator and outside the agent-attributed rate', () => {
   const block = (pass: boolean, ids: string[]): RunResult['blocks'][number] =>
     ({
       index: 0,

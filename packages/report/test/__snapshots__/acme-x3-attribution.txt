@@ -1,4 +1,4 @@
-Machine pass rate: 20 of 46 (43.5%). Agent-attributed pass rate: 20 of 46 (43.5%); 0 runs unassigned, shown apart and in neither rate.
+Machine pass rate: 20 of 46 (43.5%) (all completed runs). Agent-attributed pass rate: 20 of 46 (43.5%); 0 runs unassigned, shown apart and excluded from the agent-attributed rate.
 Failing blocks: 58; the agent's 40, setup 0, excluded 0, credited 0, unassigned 18.
 Fix list:
   #  where              target                         action           blocks  agent's  note

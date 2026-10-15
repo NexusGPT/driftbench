@@ -135,7 +135,7 @@ export function attributionText(summary: AttributionSummary | undefined): string
   if (summary === undefined) return [];
   const b = summary.blocks;
   const lines = [
-    `Machine pass rate: ${rateText(summary.machine)}. Agent-attributed pass rate: ${rateText(summary.agent)}; ${count(summary.unassigned, 'run')} unassigned, shown apart and in neither rate.`,
+    `Machine pass rate: ${rateText(summary.machine)} (all completed runs). Agent-attributed pass rate: ${rateText(summary.agent)}; ${count(summary.unassigned, 'run')} unassigned, shown apart and excluded from the agent-attributed rate.`,
     `Failing blocks: ${b.failing}; the agent's ${b.agent}, setup ${b.setup}, excluded ${b.excluded}, credited ${b.credited}, unassigned ${b.unassigned}.`,
   ];
   if (summary.nonDefault.length > 0) lines.push(`Non-default rules: ${summary.nonDefault.join(', ')}.`);

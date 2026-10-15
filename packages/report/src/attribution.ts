@@ -7,7 +7,8 @@ import { type Rate, rate } from './estimate';
  * The second score (codeagent_equivalence_blame.md E5). The machine pass rate stays final. The agent-attributed
  * pass rate counts a run as passed when every failing gating verdict of every block has a diagnosis whose
  * disposition is setup, excluded or credited. A run with a failure no rule attributed (`unassigned`, or no
- * diagnosis) and none of the agent's is shown apart and never folded into either rate.
+ * diagnosis) and none of the agent's is shown apart and excluded from the agent-attributed rate.
+ * The machine rate includes all completed runs, including unassigned runs.
  */
 
 /** A diagnosis as the report reads it: the fields of a block's diagnoses that the scores and the fix list use. */
@@ -107,8 +108,19 @@ export function blockOutcome(
 }
 
 /** The disposition a failing block shows: the agent's when any failure is, else the first set-aside kind. */
-function blockDisposition(diagnoses: readonly ReportDiagnosis[]): keyof AttributionSummary['blocks'] {
-  const roots = diagnoses.filter((one) => one.inherits === undefined);
+function blockDisposition(
+  block: RunResult['blocks'][number],
+  diagnoses: readonly ReportDiagnosis[],
+  outcome: BlockOutcome,
+): keyof AttributionSummary['blocks'] {
+  if (outcome === 'fail') return 'agent';
+  if (outcome === 'unassigned') return 'unassigned';
+  const failing = new Set(
+    block.verdicts
+      .filter((verdict) => verdict.gating && verdict.outcome !== 'pass')
+      .map((verdict) => verdict.id),
+  );
+  const roots = diagnoses.filter((one) => one.inherits === undefined && failing.has(one.verdictRef ?? ''));
   const kinds = new Set(roots.map((one) => one.disposition ?? 'unassigned'));
   if (kinds.has('agent') || kinds.has('shared')) return 'agent';
   if (kinds.has('unassigned') || roots.length === 0) return 'unassigned';
@@ -123,16 +135,19 @@ function isDefault(object: ReportObject): boolean {
 
 function showObject(object: ReportObject): string {
   const key = `${object.kind}:${object.id}`;
-  return object.hash === undefined ? key : `${key}@${object.hash.slice(0, 8)}`;
+  return object.hash === undefined ? key : `${key}@${object.hash}`;
+}
+
+function objectKey(object: ReportObject): string {
+  return JSON.stringify([object.kind, object.id, object.hash ?? null]);
 }
 
 /** The non-default objects one run was scored with: its blocks' resolved objects, else the ones given. */
 export function nonDefaultOf(run: RunResult, options: AttributionOptions = {}): string[] {
   const objects = new Map<string, ReportObject>();
-  for (const object of options.objects ?? []) objects.set(`${object.kind}:${object.id}`, object);
+  for (const object of options.objects ?? []) objects.set(objectKey(object), object);
   for (const block of run.blocks) {
-    for (const object of (block as Block).resolved?.objects ?? [])
-      objects.set(`${object.kind}:${object.id}`, object);
+    for (const object of (block as Block).resolved?.objects ?? []) objects.set(objectKey(object), object);
   }
   return [...objects.values()]
     .filter((object) => !isDefault(object))
@@ -156,23 +171,27 @@ export function attributionOf(
   let unassigned = 0;
   const blocks = { failing: 0, agent: 0, setup: 0, excluded: 0, credited: 0, unassigned: 0 };
   const objects = new Map<string, ReportObject>();
-  for (const object of options.objects ?? []) objects.set(`${object.kind}:${object.id}`, object);
+  for (const object of options.objects ?? []) objects.set(objectKey(object), object);
   for (const run of runs) {
     let outcome: BlockOutcome = 'pass';
     for (const block of run.blocks) {
-      for (const object of (block as Block).resolved?.objects ?? [])
-        objects.set(`${object.kind}:${object.id}`, object);
+      for (const object of (block as Block).resolved?.objects ?? []) objects.set(objectKey(object), object);
       const diagnoses = blockDiagnoses(run, block, options);
       const own = blockOutcome(block, diagnoses);
       if (!block.pass) {
         blocks.failing += 1;
-        blocks[blockDisposition(diagnoses)] += 1;
+        blocks[blockDisposition(block, diagnoses, own)] += 1;
       }
       if (own === 'fail') outcome = 'fail';
       else if (own === 'unassigned' && outcome === 'pass') outcome = 'unassigned';
     }
     // A run that fails outside its blocks (its end state, its end verdict) has no block diagnosis to read.
-    if (outcome === 'pass' && run.blocks.every((block) => block.pass) && !runPassed(run))
+    if (
+      outcome === 'pass' &&
+      (run.blocks.length === 0 ||
+        run.endState?.match === false ||
+        (run.endVerdict !== undefined && run.endVerdict !== 'success'))
+    )
       outcome = 'unassigned';
     if (outcome === 'unassigned') {
       unassigned += 1;
