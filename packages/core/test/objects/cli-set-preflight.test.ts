@@ -46,7 +46,9 @@ function defaultContext(flag: string) {
 
 it('accepts --set check-set#rule.limit=2 against a shipped default without uses', () => {
   const context = defaultContext('check-set#rule.limit=2');
-  const spec = parseSpecText('id: default-set\nblocks:\n  - when: {user: hello}').spec!;
+  const loaded = parseSpecText('id: default-set\nblocks:\n  - when: {user: hello}', 'yaml');
+  if (!loaded.ok) throw new Error(JSON.stringify(loaded.errors));
+  const spec = loaded.spec;
   expect(
     resolveBlockObjects(spec, 0, context).find(({ object }) => object.kind === 'check-set')?.object.items[0]
       ?.params,
@@ -56,6 +58,8 @@ it('accepts --set check-set#rule.limit=2 against a shipped default without uses'
 
 it('still validates an implicit default item during the explicit preflight', () => {
   const context = defaultContext('check-set#missing.limit=2');
-  const spec = parseSpecText('id: default-set\nblocks:\n  - when: {user: hello}').spec!;
+  const loaded = parseSpecText('id: default-set\nblocks:\n  - when: {user: hello}', 'yaml');
+  if (!loaded.ok) throw new Error(JSON.stringify(loaded.errors));
+  const spec = loaded.spec;
   expect(checkSpecObjects(spec, context)).toEqual([expect.objectContaining({ code: 'OBJECT_ITEM_UNKNOWN' })]);
 });
