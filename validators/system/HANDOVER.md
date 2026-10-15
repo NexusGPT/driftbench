@@ -8,7 +8,7 @@
 | 1 | 11 |
 <!-- level-table:end -->
 
-Measured 2026-10-15: unchanged main `14034c6ca` and product `4170c016e` both reach 11 of 11 on local seed 1. The current bank has 2385 items, all passing; level 10 has 867 items and level 11 has 76. This supersedes the historical local state in journal rows 0–2. Seeds 2, 3 and the hidden seed still require the current CI result.
+Measured 2026-10-15: unchanged main `14034c6ca` and product `4170c016e` both reach 11 of 11 on local seed 1. The current bank is Bank version 5 (2385 items), all passing; level 10 has 867 items and level 11 has 76. This supersedes the historical local state in journal rows 0–2. Seeds 2, 3 and the hidden seed still require the current CI result.
 
 ## Floor
 
