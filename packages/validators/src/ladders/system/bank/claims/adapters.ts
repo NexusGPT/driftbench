@@ -40,7 +40,13 @@ import {
   type WorldState,
 } from '@agent-nexus/driftbench-core';
 import { localProvider } from '@agent-nexus/driftbench-sandbox';
-import { BLOCK_METRIC, openStore, type SqliteStore, StoreError } from '@agent-nexus/driftbench-store';
+import {
+  BLOCK_METRIC,
+  openStore,
+  SCHEMA_VERSION,
+  type SqliteStore,
+  StoreError,
+} from '@agent-nexus/driftbench-store';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { type BankItem, expectAll, fail, type ItemContext, type ItemResult, PASS, type Tier } from '../types';
 import { behavioursFor, plantedFlow, runScenario } from '../world';
@@ -1679,7 +1685,7 @@ function processItems(): BankItem[] {
       component: PROC,
       source: 'contract',
       title:
-        'process.md "Capabilities": sandbox and readArtifact on, deterministic as declared, variants, seedPrefix, toolStubs, trace and endState off, version 0.1.0',
+        'process.md "Capabilities": sandbox, readArtifact and seedPrefix (the history file) on, deterministic as declared, variants, toolStubs, trace and endState off, version 0.1.0',
       cause: 'processAdapter declares its capabilities and version as the process page documents',
       async check({ scratch }) {
         const adapter = processAdapter({
@@ -1689,7 +1695,7 @@ function processItems(): BankItem[] {
         });
         const want = {
           variants: false,
-          seedPrefix: false,
+          seedPrefix: true,
           toolStubs: false,
           trace: false,
           sandbox: true,
@@ -3763,7 +3769,10 @@ await store.close();
         const after = Number(readByHand(path, 'PRAGMA user_version')?.user_version);
         return expectAll([
           [code === 'no error', `expected the upgraded store to work, got ${code}`],
-          [after === 2, `expected schema version 2 after the upgrade, got ${after}`],
+          [
+            after === SCHEMA_VERSION,
+            `expected schema version ${SCHEMA_VERSION} (the current schema) after the upgrade, got ${after}`,
+          ],
         ]);
       },
     }),

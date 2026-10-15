@@ -4310,7 +4310,7 @@
       "level": 1,
       "source": "contract",
       "component": "packages/store/src/schema.ts",
-      "cause": "openStore upgrades a schema 1 store to schema 2 on open"
+      "cause": "openStore upgrades a schema 1 store to the current schema on open"
     },
     {
       "id": "robust/version/schema-1-campaign",
