@@ -164,25 +164,32 @@ export async function verifyAnswer(transport: DialectTransport, request: JudgeRe
         );
       } catch (error) {
         const reason = error instanceof Error ? error.message : String(error);
-        if (decline || reason !== 'solve: incomplete or empty response') throw error;
+        // Out of room: an empty or cut completion, or a client that reports its output limit (Claude CLI).
+        const outOfRoom =
+          reason === 'solve: incomplete or empty response' ||
+          (typeof error === 'object' &&
+            error !== null &&
+            (error as { category?: unknown }).category === 'output-limit');
+        if (decline || !outOfRoom) throw error;
         dropped.push({ solve: index + 1, reason });
+        audit.dropped = dropped;
         continue;
       }
       const final = extractFinalAnswer(solution)?.text;
       if (!final) {
         dropped.push({ solve: index + 1, reason: 'no explicit final answer' });
+        audit.dropped = dropped;
         continue;
       }
       solutions.push(solution);
       finals.push(final);
     }
     audit.finals = finals;
-    if (dropped.length) audit.dropped = dropped;
     const settled = finals.map(
       (candidate) => optionAgreement(answer, candidate) ?? exactNumberDifference(answer, candidate),
     );
     let same: boolean[];
-    if (finals.length === 0 || settled.every((value) => value !== undefined)) same = settled as boolean[];
+    if (settled.every((value) => value !== undefined)) same = settled as boolean[];
     else {
       const text = await call(
         'match',

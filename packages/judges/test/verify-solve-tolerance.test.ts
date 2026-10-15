@@ -111,3 +111,29 @@ describe('blind solves are evidence, not a precondition', () => {
     expect(result.answer.reasoning).toContain('fetch failed');
   });
 });
+
+describe('review notes on dropped solves', () => {
+  it('drops a solve whose client reports an output-limit failure', async () => {
+    const limit = Object.assign(new Error('Claude exhausted its output budget before producing an answer'), {
+      category: 'output-limit',
+    });
+    const { client } = transport([limit, 'Final answer: 4', 'Final answer: 4', pass]);
+    const result = await verifyAnswer(client, request);
+    expect(result.answer.outcome).toBe('pass');
+    expect(JSON.parse(result.raw).dropped).toEqual([
+      { solve: 1, reason: 'Claude exhausted its output budget before producing an answer' },
+    ]);
+  });
+
+  it('keeps a dropped solve in the audit when a later solve is declined', async () => {
+    const { client } = transport([
+      outOfRoom,
+      { text: 'I cannot help.', refusal: 'I cannot help.', declineReason: 'provider-blocked' },
+    ]);
+    const result = await verifyAnswer(client, request);
+    expect(result.answer.outcome).toBe('inconclusive');
+    expect(JSON.parse(result.raw).dropped).toEqual([
+      { solve: 1, reason: 'solve: incomplete or empty response' },
+    ]);
+  });
+});

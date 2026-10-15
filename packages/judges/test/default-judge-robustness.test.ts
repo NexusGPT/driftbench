@@ -101,3 +101,20 @@ describe('the router reads its final route object', () => {
     expect((await judge.judge(pointwise)).defaultJudge).toMatchObject({ route: 'criterion' });
   });
 });
+
+describe('the final route object, whatever its key order', () => {
+  it('reads a route that is not the first key', async () => {
+    const { transport } = scripted(
+      'unused',
+      'Decided. {"why":"only relevance is asked","route":"relevance"}',
+    );
+    const judge = createDefaultJudge({ provider: 'openai', model: 'fixture', env: {}, transport });
+    expect((await judge.judge(pointwise)).defaultJudge).toMatchObject({ route: 'relevance' });
+  });
+
+  it('falls back to the criterion route on a repeated route key', async () => {
+    const { transport } = scripted('unused', '{"route":"relevance","route":"objective"}');
+    const judge = createDefaultJudge({ provider: 'openai', model: 'fixture', env: {}, transport });
+    expect((await judge.judge(pointwise)).defaultJudge).toMatchObject({ route: 'criterion' });
+  });
+});

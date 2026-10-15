@@ -8,7 +8,7 @@ import {
   type DialectTransport,
   type DialectTransportOptions,
 } from './clients/transport';
-import { inconclusive, type JudgeResult } from './contract';
+import { inconclusive, type JudgeResult, repeatedObjectKey } from './contract';
 import { JudgeError } from './http';
 import { type DefaultJudgeRequest, normalizeJudgeRequest } from './normalize-record';
 import { outputRoom } from './output-room';
@@ -462,13 +462,33 @@ export function createDefaultJudge(options: DefaultJudgeOptions): DefaultJudgeCl
 }
 
 /**
- * The route in the router's final {"route": ...} object. The rationale before it may quote unbalanced braces (code,
- * sets, bracket problems), so the object is read from its last start, never from the first brace. Invalid or unknown
- * routing returns undefined and the criterion route applies.
+ * The route in the router's last JSON object that carries a route key. The rationale before it may quote unbalanced
+ * braces (code, sets, bracket problems) or route-shaped examples, so objects are tried from the last opening brace
+ * backward. A repeated key, an unknown route or no route object returns undefined and the criterion route applies.
  */
 function finalRoute(text: string): Route | undefined {
-  const start = [...text.matchAll(/\{\s*"route"\s*:/g)].at(-1)?.index;
-  if (start === undefined) return undefined;
+  const starts = [...text.matchAll(/\{/g)].map((match) => match.index).reverse();
+  for (const start of starts) {
+    const raw = balancedObject(text, start);
+    if (raw === undefined) continue;
+    let value: unknown;
+    try {
+      value = JSON.parse(raw);
+    } catch {
+      continue;
+    }
+    if (!value || typeof value !== 'object' || Array.isArray(value) || !('route' in value)) continue;
+    if (repeatedObjectKey(raw)) return undefined;
+    const route = String((value as { route: unknown }).route);
+    return route === 'criterion' || route === 'objective' || route === 'writing' || route === 'relevance'
+      ? route
+      : undefined;
+  }
+  return undefined;
+}
+
+/** The balanced object that opens at start, reading double-quoted strings with escapes; undefined if unclosed. */
+function balancedObject(text: string, start: number): string | undefined {
   let depth = 0;
   let quoted = false;
   let escaped = false;
@@ -480,19 +500,7 @@ function finalRoute(text: string): Route | undefined {
       else if (character === '"') quoted = false;
     } else if (character === '"') quoted = true;
     else if (character === '{') depth++;
-    else if (character === '}' && --depth === 0) {
-      try {
-        const value: unknown = JSON.parse(text.slice(start, end + 1));
-        if (value && typeof value === 'object' && 'route' in value) {
-          const route = String(value.route);
-          if (route === 'criterion' || route === 'objective' || route === 'writing' || route === 'relevance')
-            return route;
-        }
-      } catch {
-        /* Invalid routing cannot replace the criterion. */
-      }
-      return undefined;
-    }
+    else if (character === '}' && --depth === 0) return text.slice(start, end + 1);
   }
   return undefined;
 }
