@@ -25,7 +25,8 @@ let store: SqliteStore;
 beforeEach(async () => {
   dir = await tempDir();
   store = openStore(join(dir, 'runs.db'));
-  await store.putCampaign(campaign());
+  // These round-trip tests retain text explicitly; the store strips it without this opt-in.
+  await store.putCampaign(campaign(ID, { provenance: { version: 2, adapters: [], realizedText: true } }));
   for (const each of mixed) await store.putRun(ID, each);
 });
 afterEach(async () => {
