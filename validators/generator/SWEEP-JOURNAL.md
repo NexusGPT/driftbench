@@ -100,3 +100,13 @@ The next entry records completed seed results or the final bank result. No unmea
 - A comparison with base 119802811739d45a85c3dda5d3402a5cd31bce2c confirms all original ownership edges and every other hidden field are preserved on 24 public maps and the commit-derived hidden map. The latter is tested in memory and never serialized.
 - Review the seed-independent construction, hand-written parcel routes and public seed-1 fixture diff; rerun the test at the reviewed commit for its new hidden map. The seed formula, bank, faults, thresholds and floors remain unchanged.
 - Evidence: [behaviour-ownership-capacity.json](evidence/behaviour-ownership-capacity.json) and [red output](evidence/behaviour-ownership-capacity-red.txt). No full-bank or ladder score is claimed; the executor journal and level table retain their historical measurements.
+
+
+## 2026-10-16: ownership repair review correction
+
+- The first repair is not globally minimal on the reviewer's hand-written orphan-first example. It consumes a narrow owned slot before reserving all drawn ownership.
+- Compute the maximum matching across all original ownership first. Add one edge per unmatched behaviour to a free eligible slot. This achieves the lower bound of behaviour count minus maximum original matching cardinality.
+- Red first against b1ffc7ca1611550ee32a33c87f117c20df4b1616: the reviewer case and exhaustive graph control both fail. Corrected: 42 tests pass in two files; the graph control covers all 512 three-by-three ownership graphs.
+- The independent probe confirms minimum additions and preservation on visible 1–20, fresh 1009, 2027, 4093, 8191, 12289, 24593, 49157, 98317, and the hidden map in memory. No hidden map or hidden seed is serialized.
+- Existing omission and forged-capacity-report controls remain strict. No source outside the generator validator, no thresholds, no waivers and no RNG changes.
+- Evidence correction: [JSON](evidence/behaviour-ownership-capacity.json); [review red output](evidence/behaviour-ownership-capacity-review-red.txt). Prior measurements remain historical.

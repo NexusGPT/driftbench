@@ -139,6 +139,66 @@ describe('capacity repair is independent of seed and bank vocabulary', () => {
     hidden.paths = hidden.paths.slice(0, 1);
     expect(() => ensureBehaviourCapacity(hidden)).toThrow('capacity');
   });
+  it('reserves originally owned capacity before assigning an orphan', () => {
+    const hidden = parcelFixture();
+    hidden.behaviours = ['orphan', 'fixed'].map((id) => ({ id, title: id }));
+    hidden.flows = [
+      { id: 'narrow', title: 'Narrow', behaviours: ['fixed'], deviations: [] },
+      { id: 'spare', title: 'Spare', behaviours: [], deviations: [] },
+    ];
+    hidden.paths = hidden.flows.map((flow) => ({
+      id: `${flow.id}-path`,
+      flow: flow.id,
+      stages: ['dock', 'ready'],
+      when: {},
+      quote: 'At the dock.',
+    }));
+    ensureBehaviourCapacity(hidden);
+    expect(hidden.flows.map((flow) => flow.behaviours)).toEqual([['fixed'], ['orphan']]);
+    expect(canSeat(hidden)).toBe(true);
+  });
+  it('adds the minimum number of edges across every three-by-three ownership graph', () => {
+    const ids = ['inspect-parcel', 'check-label', 'store-receipt'];
+    // Independent exhaustive maximum-cardinality matching, including the option to leave a phrase unmatched.
+    const maximum = (owners: string[][], at = 0, used = new Set<number>()): number => {
+      if (at === ids.length) return 0;
+      return Math.max(
+        maximum(owners, at + 1, used),
+        ...owners.map((owned, flow) =>
+          !used.has(flow) && owned.includes(ids[at] as string)
+            ? 1 + maximum(owners, at + 1, new Set([...used, flow]))
+            : 0,
+        ),
+      );
+    };
+    for (let mask = 0; mask < 2 ** 9; mask++) {
+      const hidden = parcelFixture();
+      hidden.flows = ['north', 'south', 'west'].map((id, flow) => ({
+        id,
+        title: id,
+        deviations: [],
+        behaviours: ids.filter((_, behaviour) => Boolean(mask & (1 << (flow * ids.length + behaviour)))),
+      }));
+      hidden.paths = hidden.flows.map((flow) => ({
+        id: `${flow.id}-path`,
+        flow: flow.id,
+        stages: ['dock', 'ready'],
+        when: {},
+        quote: 'At the dock.',
+      }));
+      const original = hidden.flows.map((flow) => [...flow.behaviours]);
+      const required = ids.length - maximum(original);
+      ensureBehaviourCapacity(hidden);
+      const added = hidden.flows.reduce(
+        (sum, flow, index) => sum + flow.behaviours.filter((id) => !original[index]?.includes(id)).length,
+        0,
+      );
+      expect(added, `ownership graph ${mask}`).toBe(required);
+      for (const [index, owned] of original.entries())
+        expect(owned.every((id) => hidden.flows[index]?.behaviours.includes(id))).toBe(true);
+      expect(canSeat(hidden)).toBe(true);
+    }
+  });
 });
 
 describe('owned phrases remain mandatory on fresh generated maps', () => {

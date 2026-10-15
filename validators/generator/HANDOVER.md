@@ -199,3 +199,12 @@ The hidden constructor preserves every drawn ownership edge. An augmenting-path 
 The public seed-1 fixture is refreshed. Independent exhaustive matching checks visible seeds 1–20, fresh seeds 1009, 2027, 4093 and 8191, and the commit-derived hidden map. The hidden map stays in memory; review the general construction, hand-written parcel example and public fixture diff, then run the test at the reviewed commit. The hidden-seed formula and coverage items remain unchanged.
 
 The final regression suite fails 13 cases on the unchanged constructor. The repaired constructor passes 40 tests across the new file and the existing hidden-map tests. Controls reject silently skipped owned phrases and forged capacity reports on all four fresh seeds. See [evidence](evidence/behaviour-ownership-capacity.json). This scoped measurement does not update historical ladder levels.
+
+
+### Review correction: globally minimum ownership additions (2026-10-16)
+
+The incremental seating sentence above is superseded. An early orphan can occupy a slot that a later, originally owned behaviour needs. The first repair adds two edges in the reviewer's two-behaviour example although one suffices.
+
+The constructor now completes a maximum matching over all originally drawn ownership before adding any edge. If B behaviours have a maximum original matching of M, at least B minus M edges are required: one new ownership edge increases matching cardinality by at most one. Assigning each unmatched behaviour to a free slot adds exactly B minus M edges and meets that lower bound.
+
+Both new review controls fail on the first repair. The corrected suite passes 42 tests, including the reviewer example and all 512 three-by-three ownership graphs against independent exhaustive matching. A separate comparison verifies minimal additions, full capacity, all drawn edges and every other field on 28 public maps plus the commit-derived hidden map in memory. The four fresh omission and forged-report controls still pass. See the appended correction in the existing evidence JSON and the review red output. No public seed-1 fixture change is needed.

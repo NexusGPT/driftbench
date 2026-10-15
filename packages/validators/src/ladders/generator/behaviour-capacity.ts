@@ -4,8 +4,8 @@ type CapacitySpec = Pick<HiddenSpec, 'behaviours' | 'flows' | 'paths' | 'uses' |
 
 /**
  * Every required behaviour phrase needs an owning flow and a distinct post-read (flow, stage) slot.
- * Preserve all drawn ownership and add an owner only when augmenting the existing matching cannot
- * seat that behaviour. This is a fixture invariant, independent of seeds, names and generator output.
+ * Preserve all drawn ownership and first maximize the matching over every originally drawn edge.
+ * Only unmatched behaviours gain an owner. This fixture invariant is independent of seeds and names.
  * No random draw is consumed. Insufficient total path capacity is an invalid fixture, never a waiver.
  */
 export function ensureBehaviourCapacity(spec: CapacitySpec): void {
@@ -52,8 +52,13 @@ export function ensureBehaviourCapacity(spec: CapacitySpec): void {
     }
     return false;
   };
+  // Finish the maximum matching before adding any owner: an early orphan must not consume
+  // capacity that a later, originally owned behaviour needs. Each new edge can raise matching
+  // cardinality by at most one, so one edge per unmatched behaviour is globally minimal.
+  for (const behaviour of spec.behaviours) seat(behaviour.id, new Set());
+  const matched = new Set(occupied.values());
   for (const behaviour of spec.behaviours) {
-    if (seat(behaviour.id, new Set())) continue;
+    if (matched.has(behaviour.id)) continue;
     const free = [...slots].find(
       ([key, slot]) => !occupied.has(key) && spec.flows.some((flow) => flow.id === slot.flow),
     );
