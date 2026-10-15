@@ -4,8 +4,8 @@ import type { Rung } from './ladder';
 
 /**
  * Rung 2, the contract: the format the tool states to the agent. When the tool cannot be asked, the value is
- * held to what the tool's definition declares for its field: a JSON Schema `pattern`, `enum`, `const` or
- * standard `format`. A value outside the declared contract fails, because the agent was told. Two different
+ * held to what the tool's definition declares for its field: a JSON Schema `pattern`, `enum` or `const` (the
+ * keywords `metadata.tool_schemas` accepts). A value outside the declared contract fails, because the agent was told. Two different
  * members of a declared enum name two different things, so they fail too. A value inside the contract is not
  * settled here (the shipped item settles only fails): a stated format tells what a writing must look like,
  * not which thing it names. value_equivalence.md section 3, rung 2, and 3c R1.
@@ -15,17 +15,7 @@ import type { Rung } from './ladder';
  */
 
 /** The JSON Schema keywords that state a format. */
-const FORMAT_KEYWORDS = ['pattern', 'enum', 'const', 'format'] as const;
-
-/** The standard JSON Schema formats the rung reads, each as the shape a value must have. */
-const FORMATS: Readonly<Record<string, RegExp>> = {
-  date: /^\d{4}-\d{2}-\d{2}$/,
-  'date-time': /^\d{4}-\d{2}-\d{2}[Tt ]\d{2}:\d{2}(:\d{2}(\.\d+)?)?([Zz]|[+-]\d{2}:?\d{2})$/,
-  time: /^\d{2}:\d{2}(:\d{2}(\.\d+)?)?([Zz]|[+-]\d{2}:?\d{2})?$/,
-  email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-  uri: /^[A-Za-z][A-Za-z0-9+.-]*:\S+$/,
-  uuid: /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/,
-};
+const FORMAT_KEYWORDS = ['pattern', 'enum', 'const'] as const;
 
 /** The schema of one field of a tool definition, by dotted path; undefined when the definition has none. */
 export function fieldSchema(definition: unknown, field: string): Record<string, unknown> | undefined {
@@ -83,11 +73,6 @@ function brokenBy(schema: Record<string, unknown>, value: unknown, gold: unknown
       return undefined;
     }
     if (typeof value !== 'string' || !pattern.test(value)) return `pattern /${schema.pattern}/`;
-  }
-  if (typeof schema.format === 'string') {
-    const shape = FORMATS[schema.format];
-    if (shape !== undefined && (typeof value !== 'string' || !shape.test(value)))
-      return `format ${schema.format}`;
   }
   return undefined;
 }
