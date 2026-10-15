@@ -106,7 +106,10 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
     findings.push({
       code: 'MISSING_SCRIPT',
       subject: id,
-      message: `the guard runs ${String(atom?.fields?.script)}, which does not exist`,
+      message:
+        typeof atom?.fields?.dispatcher === 'string'
+          ? `the guard's dispatcher ${atom.fields.dispatcher} names ${String(atom.fields.script)}, which no file of the estate is`
+          : `the guard runs ${String(atom?.fields?.script)}, which does not exist`,
     });
   }
 

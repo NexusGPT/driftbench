@@ -1059,7 +1059,11 @@ function scriptFrom(
       : { script: posix.normalize(posix.join(directory, relative.script)), anchored: anchoredDirectory };
     if (!paths) return first;
     const last = scriptIn(segment.join(' '), directory, paths, true);
-    if (last === undefined || last === first.script) return first;
+    if (last === undefined || last === first.script) {
+      // A dispatcher whose target name matches no file still names that target: the guard runs nothing.
+      const target = paths.has(first.script) ? dispatchedName(first.script, segment, runs) : undefined;
+      return target === undefined ? first : { script: target, anchored: first.anchored, dispatcher: first.script };
+    }
     return {
       script: last,
       anchored: first.anchored,
@@ -1067,6 +1071,46 @@ function scriptFrom(
     };
   }
   return { anchored: false };
+}
+
+/** A script that runs the hook its argument names: kept in a library folder, or named as a runner. */
+const LIBRARY_FOLDERS = new Set(['lib', 'libs']);
+const RUNNER_STEM = /(run|runner|dispatch|dispatcher)$/i;
+const HOOK_EVENTS = new Set(
+  [
+    'PreToolUse',
+    'PostToolUse',
+    'PostToolUseFailure',
+    'UserPromptSubmit',
+    'Stop',
+    'StopFailure',
+    'SubagentStart',
+    'SubagentStop',
+    'PreCompact',
+    'SessionStart',
+    'SessionEnd',
+    'Notification',
+    'PermissionRequest',
+  ].map((event) => event.toLowerCase()),
+);
+
+/**
+ * The target a dispatcher is given that no file of the estate is: the first argument after the dispatcher's
+ * path, either a script path (`gone.py`, `$CLAUDE_PROJECT_DIR/.claude/hooks/gone.py`) or a bare name
+ * (`gone-hook`; not a flag, not a hook event name). Only a script that reads as a dispatcher (in a `lib`
+ * folder, or a stem such as `run`, `hookrun`, `dispatch`) names a target this way: an argument of any other
+ * script (`check.py strict`) is a plain argument.
+ */
+function dispatchedName(script: string, segment: readonly string[], runs: string): string | undefined {
+  const folder = basename(posix.dirname(script));
+  const stem = basename(script).replace(/\.[^.]+$/, '');
+  if (!LIBRARY_FOLDERS.has(folder) && !RUNNER_STEM.test(stem)) return undefined;
+  const words = segment.map((token) => token.replace(/["']/g, ''));
+  const word = words[words.indexOf(runs) + 1];
+  if (word === undefined || word.startsWith('-')) return undefined;
+  if (word.includes('/') || SCRIPT_EXTENSION.test(word)) return anchorOf(word).script;
+  if (!/^[A-Za-z][\w.-]*$/.test(word)) return undefined;
+  return HOOK_EVENTS.has(word.replace(/[-_]/g, '').toLowerCase()) ? undefined : word;
 }
 
 /** A command line cut into parts, retaining the operator that follows each part. */
