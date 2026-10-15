@@ -1237,3 +1237,58 @@ it('preserves scenario choices and RNG draws with generation-local path indices'
       expect(second()).toBe(first());
     }
 });
+
+it('uses the actual stage of a later recovered tool after an earlier inserted request', () => {
+  const prepared = prepare((draft) => {
+    const relations = draft.relations;
+    if (!relations) throw new Error('no relations');
+    const p = relations.find((r) => r.kind === 'path' && r.id === 'balance-found');
+    if (p?.kind !== 'path') throw new Error('no path');
+    p.stages = ['greet', 'verify', 'help', 'lost'];
+    delete p.end_state;
+    draft.phrases.push(phrase('stage_transition', 'help-to-lost', 'Record the reviewed result.'));
+    const transitions = draft.dimensions.find((d) => d.id === 'stage_transition');
+    if (!transitions) throw new Error('no transitions');
+    transitions.values.push({ id: 'help-to-lost', title: 'Record', ...by });
+    draft.relations = relations.filter((r) => r.kind !== 'recovery' || r.class !== 'D8_tool_failure');
+    draft.relations.push(
+      {
+        kind: 'uses_tool',
+        subject: { dimension: 'flow', value: 'balance' },
+        tool: 'notify',
+        stage: 'help',
+        input: { reason: 'reviewed' },
+        ...by,
+      },
+      {
+        kind: 'recovery',
+        class: 'D8_tool_failure',
+        flows: ['balance'],
+        tool: 'notify',
+        stage_after: 'help',
+        tools: [{ tool: 'notify', count: 2 }],
+        ...by,
+      },
+    );
+  });
+  const built = buildScenario(prepared, rngFor(1097, 'independent-later-recovery'), {
+    path: path(prepared, 'balance-found'),
+    fixed: [],
+    before: {
+      stage: 'verify',
+      to: 'help',
+      stimulus: { kind: 'phrase', phrase: phrase('account_state', 'missing', 'Search account 81.') },
+      carries: [],
+      call: { tool: 'lookup', field: 'account', value: '81' },
+    },
+    perturbEvery: true,
+  });
+  if (!built.ok) throw new Error(built.reason);
+  expect(built.perturbations?.find((p) => p.class === 'D8_tool_failure')).toMatchObject({
+    inject_at: 3,
+    expect: {
+      stage: 'help',
+      tools: expect.arrayContaining([expect.objectContaining({ label: 'notify', count: 2 })]),
+    },
+  });
+});
