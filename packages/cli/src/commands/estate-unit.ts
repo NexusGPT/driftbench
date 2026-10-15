@@ -1,10 +1,22 @@
-import { readFile, stat, writeFile } from 'node:fs/promises';
-import { relative, resolve } from 'node:path';
-import { RUNTIMES, readerFor, runUnitTests, type UnitResult } from '@agent-nexus/driftbench-estate';
+import { readdir, readFile, stat, writeFile } from 'node:fs/promises';
+import { join, relative, resolve } from 'node:path';
+import { loadSpecFile, runSpec, type Spec } from '@agent-nexus/driftbench-core';
+import {
+  isUnitSpec,
+  RUNTIMES,
+  readerFor,
+  runUnitTests,
+  traceUnitSpecs,
+  type UnitResult,
+  type UnitSpecTrace,
+  unitJudges,
+  unitTraceAdapter,
+} from '@agent-nexus/driftbench-estate';
 import { formatJson, UnitTest } from '@agent-nexus/driftbench-generate';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import type { Command } from 'commander';
-import { jsonFiles } from '../files';
 import type { Io } from '../io';
+import { replayChecks } from './replay';
 
 export type EstateUnitOptions = {
   estate?: string;
@@ -19,7 +31,8 @@ export type EstateUnitOptions = {
 
 /**
  * `driftbench estate unit <tests...> --estate <root>`: runs the unit tests `estate generate` wrote
- * (`unit/**.json`: guards with hook payloads, scripts with their declared fixtures) directly, with no model.
+ * (`unit/**.json`: guards with hook payloads, scripts with their declared fixtures) directly, with no model;
+ * or its unit-mode specs (`specs/unit/**.yaml`), each judged by its own expectations (`traceUnitSpecs`).
  * `--record` runs them on the original estate and writes each guard's outcomes into its test file, the oracle
  * a later run on a mutant copy compares with. Exit 0 every test passes, 1 one fails, 2 a usage or input
  * error (an unrecorded guard test included).
@@ -30,7 +43,10 @@ export function registerEstateUnitCommand(estate: Command, io: Io, setExit: (cod
     .description(
       'Run the unit tests of a generated suite (guards and scripts, no model) against an estate root',
     )
-    .argument('<tests...>', 'unit test files, or folders holding them (such as <suite>/unit)')
+    .argument(
+      '<tests...>',
+      'unit test files or unit-mode specs, or folders holding them (such as <suite>/unit or <suite>/specs/unit)',
+    )
     .option('--estate <root>', 'the estate root: the original (with --record) or a mutant copy')
     .option('--runtime <name>', `the runtime that reads the estate: ${RUNTIMES.join(', ')}`, 'claude-code')
     .option('--record', 'run on the original estate and write the outcomes into the test files')
@@ -65,6 +81,8 @@ export async function estateUnitCommand(
     return 2;
   }
   const files: string[] = [];
+  // A file named on the command line must be a unit test or a unit spec; one found in a folder may be anything.
+  const named = new Set<string>();
   for (const path of paths) {
     const full = resolve(io.cwd, path);
     const info = await stat(full).catch(() => undefined);
@@ -72,30 +90,43 @@ export async function estateUnitCommand(
       io.err(`Cannot find ${path}.\n`);
       return 2;
     }
-    if (info.isDirectory()) files.push(...(await jsonFiles(full)));
-    else files.push(full);
+    if (info.isDirectory()) files.push(...(await testFiles(full)));
+    else {
+      files.push(full);
+      named.add(full);
+    }
   }
   const tests: Array<{ file: string; test: UnitTest }> = [];
+  const specs: Array<{ file: string; spec: Spec }> = [];
   for (const file of files.sort()) {
+    const text = await readFile(file, 'utf8');
     let raw: unknown;
     try {
-      raw = JSON.parse(await readFile(file, 'utf8'));
-    } catch (cause) {
-      io.err(
-        `✗ ${relative(io.cwd, file)}  not JSON: ${cause instanceof Error ? cause.message : String(cause)}\n`,
-      );
-      return 2;
+      raw = JSON.parse(text);
+    } catch {
+      raw = undefined;
     }
-    const parsed = UnitTest.safeParse(raw);
-    if (!parsed.success) {
-      io.err(
-        `✗ ${relative(io.cwd, file)}  not a unit test: ${parsed.error.issues[0]?.message ?? 'invalid'}\n`,
-      );
-      return 2;
+    const parsed = raw === undefined ? undefined : UnitTest.safeParse(raw);
+    if (parsed?.success) {
+      tests.push({ file, test: parsed.data });
+      continue;
     }
-    tests.push({ file, test: parsed.data });
+    // Not a unit test file: a spec `estate generate` wrote to run as a unit (YAML or JSON).
+    const loaded = await loadSpecFile(file);
+    if (loaded.ok && isUnitSpec(loaded.spec)) {
+      specs.push({ file, spec: loaded.spec });
+      continue;
+    }
+    if (!named.has(file)) continue;
+    const why = loaded.ok
+      ? 'a spec that does not run as a unit (metadata.estate.mode is not unit)'
+      : raw === undefined
+        ? `neither a unit test nor a spec: ${loaded.errors[0]?.message ?? 'unreadable'}`
+        : `not a unit test: ${parsed?.success === false ? (parsed.error.issues[0]?.message ?? 'invalid') : 'invalid'}`;
+    io.err(`✗ ${relative(io.cwd, file)}  ${why}\n`);
+    return 2;
   }
-  if (tests.length === 0) {
+  if (tests.length === 0 && specs.length === 0) {
     io.err('No unit test found.\n');
     return 2;
   }
@@ -104,6 +135,17 @@ export async function estateUnitCommand(
     io.err(`--jobs takes a whole number of 1 or more, not ${options.jobs}\n`);
     return 2;
   }
+  if (specs.length > 0 && options.record) {
+    io.err(
+      '--record writes the outcomes of unit test files; a unit spec judges itself and records nothing.\n',
+    );
+    return 2;
+  }
+  if (tests.length > 0 && specs.length > 0) {
+    io.err('Give unit test files or unit specs, not both in one run.\n');
+    return 2;
+  }
+  if (tests.length === 0) return unitSpecCommand(specs, { root, reader, options }, io);
   const run = await runUnitTests(
     tests.map((entry) => entry.test),
     { root, reader, record: options.record === true, noSandbox: options.sandbox === false, jobs },
@@ -220,4 +262,87 @@ function report(
     '',
   );
   return lines.join('\n');
+}
+
+/** Every unit test file (.json) and spec file (.yaml, .yml) under a folder, at any depth. */
+async function testFiles(dir: string): Promise<string[]> {
+  const out: string[] = [];
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) out.push(...(await testFiles(full)));
+    else if (/\.(json|ya?ml)$/.test(entry.name)) out.push(full);
+  }
+  return out;
+}
+
+/**
+ * Unit specs judged on their own (docs/estate.md section 6): each spec's blocks get the trace the unit run
+ * built (the guard runs that fired, the commands the script ran) and the replay checks judge them. A spec
+ * passes when the run completes, every block passes and the run found nothing that keeps it from passing.
+ */
+async function unitSpecCommand(
+  specs: ReadonlyArray<{ file: string; spec: Spec }>,
+  context: { root: string; reader: NonNullable<ReturnType<typeof readerFor>>; options: EstateUnitOptions },
+  io: Io,
+): Promise<number> {
+  const { traces, sandbox, notes } = await traceUnitSpecs(
+    specs.map(({ file, spec }) => ({ file, spec })),
+    { root: context.root, reader: context.reader, noSandbox: context.options.sandbox === false },
+  );
+  const checks = replayChecks();
+  const runs: UnitContract['runs'] = [];
+  for (const [index, trace] of traces.entries()) {
+    const spec = (specs[index] as { spec: Spec }).spec;
+    const failing = [...trace.problems];
+    const result = await runSpec(spec, {
+      adapter: unitTraceAdapter(trace.blocks),
+      driver: createScriptedDriver(),
+      checks,
+      mode: 'F',
+      repeat: 0,
+      target: { adapter: 'claude-code', agent: 'estate-unit' },
+    });
+    if (result.status !== 'completed')
+      failing.push(`the run did not complete: ${result.error ?? result.status}`);
+    for (const block of result.blocks) {
+      for (const verdict of block.verdicts) {
+        if (verdict.gating && verdict.outcome !== 'pass' && unitJudges(verdict.id))
+          failing.push(`block ${block.index}: ${verdict.id}: ${verdict.evidence}`.trim());
+      }
+    }
+    runs.push({ spec: trace.id, pass: failing.length === 0, failing });
+  }
+  const contract: UnitContract = { runs, guards: guardsOf(traces), scripts: scriptsOf(traces) };
+  const failed = runs.filter((run) => !run.pass).length;
+  if (context.options.json) io.out(formatJson(contract));
+  else {
+    const lines = runs.map(
+      (run) => `${run.pass ? '✓' : '✗'} ${run.spec}${run.pass ? '' : `\n    ${run.failing.join('\n    ')}`}`,
+    );
+    for (const note of notes) lines.push(`note: ${note}`);
+    lines.push(
+      `${runs.length - failed} of ${runs.length} unit specs pass, ${failed} fail (sandbox: ${sandbox}).`,
+      '',
+    );
+    io.out(lines.join('\n'));
+  }
+  return failed > 0 ? 1 : 0;
+}
+
+function guardsOf(traces: readonly UnitSpecTrace[]): UnitContract['guards'] {
+  return traces.flatMap((trace) =>
+    trace.guards.map((run) => ({
+      guard: run.guard,
+      event: run.event,
+      decision: run.decision === 'error' ? 'allow' : run.decision,
+      ...(run.message !== undefined ? { message: run.message } : {}),
+      ms: Math.round(run.ms),
+    })),
+  );
+}
+
+function scriptsOf(traces: readonly UnitSpecTrace[]): UnitContract['scripts'] {
+  return traces.flatMap((trace) =>
+    trace.scripts.map((run) => ({ script: run.script, exit: run.exit, stdout: run.stdout })),
+  );
 }

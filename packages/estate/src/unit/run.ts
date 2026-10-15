@@ -80,7 +80,7 @@ export type UnitRunOptions = {
 
 export type UnitRun = { results: UnitResult[]; sandbox: 'sandbox-exec' | 'none'; notes: string[] };
 
-type Exec = { exitCode: number; stdout: string; stderr: string; ms: number; timedOut: boolean };
+export type Exec = { exitCode: number; stdout: string; stderr: string; ms: number; timedOut: boolean };
 
 const CREDENTIAL_FOLDERS = [
   '.ssh',
@@ -99,9 +99,15 @@ const CREDENTIAL_FOLDERS = [
   'Library/Keychains',
 ];
 
-export async function runUnitTests(tests: readonly UnitTest[], options: UnitRunOptions): Promise<UnitRun> {
+/**
+ * A copy of the estate in a temporary folder, the sandbox decision and a case counter, for `use`; the folder
+ * and what still runs in it are gone when `use` ends.
+ */
+export async function withRunner<T>(
+  options: Pick<UnitRunOptions, 'root' | 'reader' | 'noSandbox'>,
+  use: (runner: Runner, notes: string[]) => Promise<T>,
+): Promise<T> {
   const notes: string[] = [];
-  const raw = await options.reader.read(options.root);
   const work = await realpath(await mkdtemp(join(tmpdir(), 'driftbench-unit-')));
   // Removed at exit or on a signal if the run never reaches its finally, with what still runs in it.
   trackFolder(work);
@@ -112,7 +118,20 @@ export async function runUnitTests(tests: readonly UnitTest[], options: UnitRunO
       !options.noSandbox && process.platform === 'darwin' && existsSync('/usr/bin/sandbox-exec');
     if (!sandbox)
       notes.push('no sandbox: the guards and scripts ran with the network and the home folder open');
-    const runner = { work, copy, sandbox, counter: 0 };
+    return await use({ work, copy, sandbox, counter: 0 }, notes);
+  } finally {
+    // A guard may start a daemon that leaves its process group (a new session) and outlives the run: what
+    // still names or stands in the run's folder ends before the folder goes.
+    await reapFolder([work]);
+    await rm(work, { recursive: true, force: true });
+    untrackFolder(work);
+  }
+}
+
+export async function runUnitTests(tests: readonly UnitTest[], options: UnitRunOptions): Promise<UnitRun> {
+  const raw = await options.reader.read(options.root);
+  return withRunner(options, async (runner, notes) => {
+    const sandbox = runner.sandbox;
     const config = await readConfig(options.root);
     const results: UnitResult[] = new Array(tests.length);
     const runOne = async (test: UnitTest): Promise<UnitResult> => {
@@ -137,16 +156,10 @@ export async function runUnitTests(tests: readonly UnitTest[], options: UnitRunO
       }),
     );
     return { results, sandbox: sandbox ? 'sandbox-exec' : 'none', notes };
-  } finally {
-    // A guard may start a daemon that leaves its process group (a new session) and outlives the run: what
-    // still names or stands in the run's folder ends before the folder goes.
-    await reapFolder([work]);
-    await rm(work, { recursive: true, force: true });
-    untrackFolder(work);
-  }
+  });
 }
 
-type Runner = { work: string; copy: string; sandbox: boolean; counter: number };
+export type Runner = { work: string; copy: string; sandbox: boolean; counter: number };
 
 async function runGuardTest(
   test: UnitTest,
@@ -589,7 +602,7 @@ async function runRecordedScript(
 }
 
 /** A script's outcome: allow on exit 0, error otherwise; stderr the message, stdout the output. */
-function scriptOutcome(run: Exec): UnitOutcome {
+export function scriptOutcome(run: Exec): UnitOutcome {
   const stdout = run.stdout.trim();
   const stderr = run.stderr.trim();
   return {
@@ -651,7 +664,7 @@ function typeScriptRunner(): string[] {
   }
 }
 
-function interpreterOf(path: string): string[] {
+export function interpreterOf(path: string): string[] {
   switch (extname(path)) {
     case '.py':
       return ['python3'];
@@ -683,7 +696,7 @@ export function sandboxProfile(writable: readonly string[], home: string): strin
   ].join('\n');
 }
 
-async function execute(
+export async function execute(
   argv: string[],
   stdin: string,
   runner: Runner,
@@ -776,7 +789,7 @@ export function neutral(text: string, work: string): string {
 }
 
 /** The estate configuration, when the estate has one. */
-async function readConfig(root: string): Promise<Record<string, unknown>> {
+export async function readConfig(root: string): Promise<Record<string, unknown>> {
   const text = await readFile(join(root, ESTATE_CONFIG_FILE), 'utf8').catch(() => undefined);
   if (text === undefined) return {};
   try {
