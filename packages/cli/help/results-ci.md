@@ -123,6 +123,12 @@ with any warning, the underpowered criteria, then the measures:
 Then "Goldens that changed" (with the candidate's failing verdicts per block), "Why" (the reasons), the
 line `Verdict: <VERDICT>. Exit <n>.` and `Summary: <file>`.
 
+`ci` prints no suite headline. To read the candidate's pass rate with its hierarchical interval and
+`n_eff`, run `driftbench report` on the candidate campaign in `--store` (see `results-statistics`). The gate
+itself is the paired comparison and the aggregates: neither reads the headline. An aggregate
+`pass-rate` pools every run as independent, with a Wilson interval over the runs, so its interval is
+usually narrower than the headline's.
+
 The JSON summary (`--out`, and standard output with `--json`) holds: `verdict`, `exitCode`, `reasons`,
 `aggregates`, `marginPoints`, `marginAuto` (`neededPoints`, `limitedBy`, `warning`), `minGoldens`,
 `strict`, `underpowered`, `comparator`, `flags`, `baseline` (`campaignId`, `store`), `candidate`
@@ -320,3 +326,4 @@ $ driftbench ci --specs examples/acme/specs/conversations --target fault:control
 | verdict `NOT SHOWN NON-INFERIOR` on an unchanged agent | the suite is too small for the margin. Read "smallest margin these pairs can show"; add goldens, or accept the auto margin |
 | price-sheet task specs fail on `function:acme-sales` | the mixed Acme suites need `--route flow:price-sheet=process:acme-ops` |
 | every cell reran though `--cache` was not given | expected: the cache is off by default in `ci` |
+| the `pass-rate` aggregate passes while the suite headline of `report` is lower | expected: the aggregate pools every run and reads them as independent; the headline is the mean over goldens. Gate on the paired verdict, or set the aggregate threshold with that in mind |

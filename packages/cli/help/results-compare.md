@@ -44,6 +44,11 @@ of campaigns.
 
 To run the candidate and compare in one step, in CI, use `driftbench ci`.
 
+Do not quote the per side rate of `compare` as the pass rate of a suite. It counts each golden once as
+passing or failing, over the goldens both campaigns ran. The rate to quote for one campaign is the suite
+headline of `driftbench report`: the mean of the golden pass rates, with its hierarchical interval and
+`n_eff` (see `results-statistics`).
+
 ## Commands and every option
 
 ```
@@ -82,7 +87,8 @@ The text output, top to bottom:
 1. `Margin auto: ...`: the margin chosen and what set it (the all-pass flag or a criterion). A warning
    follows when it is above 15 points, naming the goldens a 15 point margin needs.
 2. `Paired: <n> goldens ...; <n> goldens not paired. Margin <m> points.`
-3. All-pass per golden: passing goldens and rate per side with a Wilson interval; the paired table
+3. All-pass per golden: passing goldens and rate per side with a Wilson interval (each golden is one
+   independent unit, so no design effect applies); the paired table
    (both pass, regressed, improved, both fail); `McNemar exact p`; the effect (baseline rate minus
    candidate rate, positive is a drop) with its Newcombe paired interval; a planning line: the smallest
    margin these goldens can show (the floor), the drop they detect at 80% power, and the goldens a 10
@@ -258,3 +264,4 @@ A comparison with a real regression is in `results-ci`, where `driftbench ci` ru
 | `pairwise judge gave no answer: ...` (exit 2) | the provider failed or its key is missing from the environment |
 | exit 1 with every golden passing on both sides | the verdict is not shown non-inferior: the margin is below what these goldens can show. Read the floor in the planning line; raise the margin or add goldens |
 | goldens listed as not paired | the two campaigns ran different spec versions or modes, or the candidate carried them from a baseline |
+| the per side rate differs from the `Suite pass rate` of `report` | expected: `compare` counts a golden as passing only when every repeat passes; the headline is the mean of the golden pass rates |

@@ -31,6 +31,11 @@ The command only reads the store. It runs no agent and calls no model.
 * To score a rule over the whole campaign, such as "at least 80 percent of runs pass" (`--aggregate`).
 * To see a candidate against a baseline on one page (`--baseline`). For the exit code of that
   comparison use `driftbench compare` or `driftbench ci`: `report` exits 0 whatever the verdict.
+* To quote how well an agent does on a suite: the suite headline line, one per mode, with its interval,
+  `n_eff` and the drop the suite can detect.
+
+Do not use the suite headline to decide whether a candidate is worse than a baseline: that takes the
+paired tests of `--baseline`, `compare` or `ci`.
 
 ## Commands and every option
 
@@ -82,6 +87,14 @@ Standard output, without `--json`:
 * `Margin auto: ...` when the margin is `auto`: the margin used and what set it, with a warning when it
   is above 15 points.
 * `Campaign <id>: <runs> runs, <n> pass, <n> fail, <n> did not complete.`
+* One suite headline per mode the campaign ran: `Suite pass rate, mode <m>: <rate> [<lower>, <upper>]
+  (hierarchical 95% interval); <n> goldens, n_eff <x> runs (design effect <d>), detectable drop <p> points
+  at 80% power.` The rate is the mean over goldens, so every golden weighs the same whatever its repeats.
+  `n_eff` is the independent runs the clustered runs are worth. `no drop detectable at 80% power` means the
+  suite is too small to catch even a fall to 0%. When every run agrees the line reads `(every run agrees, so
+  each golden counts once)` in place of the design effect. With one golden it reads `no interval: one
+  cluster` and `(one golden)`. A share of runs that did not complete follows when above 0. Each part is
+  read in `results-statistics`.
 * Lines about carried results, when the campaign ran a blast radius (see `results-radius`).
 * `Against baseline <id>: <verdict>, margin <m> points.` with `--baseline`. The verdict is
   `non-inferior`, `regressed` or `unproven`, as `driftbench compare` decides it.
@@ -98,7 +111,10 @@ runs with a detail panel per run), and every detailed table folded under "All de
 perturbation id in mode P); a failing run is a `<failure>`, a run that did not complete an `<error>`.
 
 With `--json` the standard output is the scorecard object itself (the `compare` part with its maps
-written as plain objects); see `results-exports`.
+written as plain objects); see `results-exports`. The suite headline of each mode is `modes[].headline`,
+with `estimate`, `lower`, `upper`, `method`, `trees`, `runs`, `pooledRate`, `effectiveRuns`,
+`designEffect`, `degenerate`, `detectableDrop` and `shares`. Rates are proportions from 0 to 1. A rate
+with the method `wilson, design effect` also carries `designEffect` and `effectiveN`.
 
 ## Worked example
 
@@ -166,3 +182,5 @@ Wrote c-base.html.
 | `Unknown mode "X"` (exit 2) | the modes are `T`, `F` and `P` |
 | an aggregate line reads `fails` but the exit code is 0 | expected: `report` never gates. Use `driftbench ci --aggregate` for a failing exit code |
 | the Runs zone lists fewer runs than the campaign has | `--max-runs` (default 200) caps it; the page says how many runs it left out |
+| a `Suite pass rate` line reads `no interval: one cluster` | the mode ran one golden; add specs to get an interval |
+| the `Suite pass rate` differs from the `aggregate pass-rate` value | expected: the aggregate pools every run as independent, the headline is the mean over goldens |
