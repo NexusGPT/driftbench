@@ -11,13 +11,13 @@
 | hidden | 0 |
 <!-- level-table:end -->
 
-Iteration 41, source 7c3171127792ae33ef01155ce51f8e21c0bdd4cc plus the change recorded in this journal row. Hidden seed 84614994, derived from that head.
+Iteration 42, source dddc75847305f7e03848aff3a85618e94e894d50 plus the change recorded in this journal row. Hidden seed 723212740, derived from that head.
 | Seed | Reader passing / items |
 |---|---|
-| 1 | 623/641 |
-| 2 | 623/641 |
-| 3 | 623/641 |
-| hidden (84614994) | 623/641 |
+| 1 | 625/641 |
+| 2 | 625/641 |
+| 3 | 625/641 |
+| hidden (723212740) | 625/641 |
 
 Each fraction counts reader items passing on that seed, out of 641 reader items. Journal `passing` counts distinct evaluated item IDs passing every seed; it is not a sum of seed counts. The journal's per-level `metrics` use seed 1; its `perSeed` records achieved levels separately.
 
@@ -35,9 +35,7 @@ Owner rule: "make sure all the fixes are fixes that are TO THE FRAMEWORK in gene
 
 ## Open items
 
-- scan.reference-prose.text-file: [scan.reference-prose, tier 3] the scan reads the rules of a plain text reference: missed instruction at .claude/skills/recipe-sort-1ki10ij/references/notes.txt:2
 - scan.reference-prose.chained: [scan.reference-prose, tier 4] the scan reads the rules of a reference naming a second reference with its own rule: missed the reference edge scan.reference-prose.chained:skill to scan.reference-prose.chained:inner-ref
-- scan.reference-prose.outside-skill: [scan.reference-prose, tier 3] the scan reads the rules of a reference outside any skill, named by the standing instructions: missed instruction at .claude/docs/ledger-check-138qwq4.md:2
 - scan.decoys.owner-table: [scan.decoys, tier 3] code is not fooled: a table of owners that names a skill is no routing table: found route route.standing.an-ask-to-ana-loads-tariff at CLAUDE.md:4, never planted
 - scan.decoys.changelog-reference: [scan.decoys, tier 4] code is not fooled: a file named in a change note is no reference: found reference reference.ticket-price-14oprfr.read-references-legacy-md at .claude/skills/ticket-price-14oprfr/SKILL.md:12, never planted
 - scan.decoys.form-number-label: [scan.decoys, tier 4] code is not fooled: a form number that reads like a rule label cites no rule: a form number cited a rule
@@ -56,6 +54,7 @@ Owner rule: "make sure all the fixes are fixes that are TO THE FRAMEWORK in gene
 
 ## Hypotheses tried
 
+Iteration 42: explicit document references followed transitively. +2 on every seed: scan.reference-prose.text-file, outside-skill. Chained still misses its graph edge (separate cause).
 Iteration 41: case-insensitive rule labels. +1 on every seed: scan.registry.md-label-lowercase.
 Iteration 40: standing size in code points. +1 on every seed: blind.lint.emoji-count-as-characters.
 Iteration 39: nudge as a verb on domain objects is no hazard. +1 on every seed: scan.hazards.decoy-price.

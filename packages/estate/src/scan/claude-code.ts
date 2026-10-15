@@ -1,7 +1,7 @@
 import { readdir, readFile, realpath, stat } from 'node:fs/promises';
 import { basename, join, posix } from 'node:path';
 import { parse as parseYaml } from 'yaml';
-import { chunkLines, fileNames, guardName, locateNamed, namedPaths } from './code';
+import { chunkLines, fileNames, guardName, locateNamed, namedPaths, positiveMention } from './code';
 import type {
   CheckDecl,
   EstateFile,
@@ -260,7 +260,7 @@ export class ClaudeCodeReader implements EstateReader {
   }
 }
 
-/** Read only explicitly named bare root files, after local references have had their first choice. */
+/** Follow explicit document references, once each, without loading unrelated prose. */
 async function readRootReferences(
   root: string,
   estate: RawEstate,
@@ -271,44 +271,91 @@ async function readRootReferences(
   let byName = fileNames(files);
   const skipped = new Set(ignored.paths);
   const tried = new Set<string>();
-  // Newly read root guides may themselves name another guide. The file set bounds cycles.
+  const proseFiles = new Set(estate.prose.map((chunk) => chunk.file));
+  const expanded = new Set<string>();
   for (let index = 0; index < estate.prose.length; index++) {
     const chunk = estate.prose[index];
     if (!chunk) continue;
-    for (const name of chunkLines(chunk, files.get(chunk.file)).flatMap((line) => namedPaths(line.text))) {
-      if (name.includes('/') || files.has(name) || tried.has(name)) continue;
-      const candidate: EstateFile = { path: name, text: '', kind: 'other' };
-      // The resolver only needs a root placeholder for this synchronous choice. Avoid copying the
-      // whole estate index for each name, which makes large estates quadratic.
-      files.set(name, candidate);
-      const target = locateNamed(name, chunk.file, files, { byName, skipped });
-      files.delete(name);
-      if (target.path !== name) continue;
-      tried.add(name);
-      const info = await stat(join(root, name)).catch(() => undefined);
-      if (!info?.isFile()) continue;
-      const rule = ignored.rules.find((rule) => rule.test(name));
-      if (rule) {
-        ignored.counts.set(rule.pattern, (ignored.counts.get(rule.pattern) ?? 0) + 1);
-        ignored.paths.push(name);
-        skipped.add(name);
-        continue;
+    const source = files.get(chunk.file);
+    for (const line of chunkLines(chunk, source)) {
+      const names = namedPaths(line.text);
+      for (const name of names) {
+        if (!/\.(md|markdown|txt)$/i.test(name) || /^(?:\/|~\/|[a-z]+:)/i.test(name)) continue;
+        if (!positiveMention(line.text, name, ['read', 'open', 'load'])) continue;
+        // An unindexed root guide is a candidate only after the naming file's own subtree.
+        const local = posix.normalize(posix.join(posix.dirname(chunk.file), name));
+        const localPlaceholder =
+          local !== name &&
+          !files.has(local) &&
+          !skipped.has(local) &&
+          local !== '..' &&
+          !local.startsWith('../') &&
+          !local.startsWith('/') &&
+          (await stat(join(root, local)).catch(() => undefined))?.isFile();
+        if (localPlaceholder) files.set(local, { path: local, text: '', kind: 'other' });
+        const placeholder = !name.includes('/') && !files.has(name);
+        if (placeholder) files.set(name, { path: name, text: '', kind: 'other' });
+        const target = locateNamed(name, chunk.file, files, {
+          byName,
+          skipped,
+          ...(estate.bases ? { bases: estate.bases } : {}),
+          ...(estate.aliases ? { aliases: estate.aliases } : {}),
+          ...(estate.externals ? { externals: estate.externals } : {}),
+        });
+        if (placeholder) files.delete(name);
+        if (localPlaceholder) files.delete(local);
+        const path = posix.normalize(target.path);
+        if (
+          target.candidates ||
+          target.via === 'external' ||
+          path === '..' ||
+          path.startsWith('../') ||
+          path.startsWith('/')
+        )
+          continue;
+        let candidate = files.get(path);
+        if (!candidate) {
+          if (tried.has(path)) continue;
+          tried.add(path);
+          const rule = ignored.rules.find((rule) => rule.test(path));
+          if (rule || skipped.has(path)) {
+            if (rule && !skipped.has(path)) {
+              ignored.counts.set(rule.pattern, (ignored.counts.get(rule.pattern) ?? 0) + 1);
+              ignored.paths.push(path);
+              skipped.add(path);
+            }
+            continue;
+          }
+          const info = await stat(join(root, path)).catch(() => undefined);
+          if (!info?.isFile()) continue;
+          if (info.size > MAX_FILE_BYTES) {
+            estate.notes.push({ file: path, message: 'skipped: larger than 1 MB' });
+            continue;
+          }
+          const text = (await readFile(join(root, path), 'utf8')).replace(/^\uFEFF/, '');
+          candidate = { path, text, kind: 'other' };
+          estate.files.push(candidate);
+          files.set(path, candidate);
+          byName = fileNames(files);
+        }
+        // A file code reads as structure (a registry, settings, a step list, a guard, an alias table) is
+        // not sent again as prose.
+        if (STRUCTURED_KINDS.has(candidate.kind) || definesAliases(candidate)) continue;
+        if (proseFiles.has(path)) continue;
+        const real = await realpath(join(root, path)).catch(() => undefined);
+        // Two spellings of one file (a link, a relative path) may form a cycle; canonical identity bounds it.
+        if (real && expanded.has(real)) continue;
+        if (real) expanded.add(real);
+        proseFiles.add(path);
+        if (candidate.text.trim() === '') {
+          estate.notes.push({ file: path, message: 'empty file: nothing to read' });
+          continue;
+        }
+        const first = /\.(md|markdown)$/i.test(path) ? readFrontmatter(candidate.text).bodyLine : 1;
+        addProse(estate, candidate, first, lastLine(candidate.text), budget);
       }
-      if (info.size > MAX_FILE_BYTES) {
-        estate.notes.push({ file: name, message: 'skipped: larger than 1 MB' });
-        continue;
-      }
-      candidate.text = (await readFile(join(root, name), 'utf8')).replace(/^\uFEFF/, '');
-      estate.files.push(candidate);
-      files.set(name, candidate);
-      byName = fileNames(files);
-      if (candidate.text.trim() === '')
-        estate.notes.push({ file: name, message: 'empty file: nothing to read' });
-      else if (/\.(md|markdown)$/i.test(name))
-        addProse(estate, candidate, 1, lastLine(candidate.text), budget);
     }
   }
-  // The report points at the mutable counters by value, so refresh counts after root discovery.
   for (const pattern of estate.ignored?.patterns ?? [])
     pattern.files = ignored.counts.get(pattern.pattern) ?? 0;
 }
@@ -450,6 +497,18 @@ function inlineAliases(files: readonly EstateFile[]): Record<string, string[]> {
     }
   }
   return aliases;
+}
+
+const STRUCTURED_KINDS = new Set<string>(['registry', 'settings', 'step_list', 'guard_script']);
+
+/** A markdown file whose name holds "alias" and that holds an alias table. */
+function definesAliases(file: EstateFile): boolean {
+  if (!/alias/i.test(basename(file.path)) || !/\.(md|markdown)$/i.test(file.path)) return false;
+  return readTables(file.text).some(
+    (table) =>
+      table.header.some((cell) => /^(alias|prefix)(es)?$/i.test(strip(cell))) &&
+      table.header.some((cell) => /^(path|folder|target|resolves to)s?$/i.test(strip(cell))),
+  );
 }
 
 function aliasTables(files: readonly EstateFile[], notes: ReadNote[]): Record<string, string[]> {
