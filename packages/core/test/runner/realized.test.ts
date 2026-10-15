@@ -9,8 +9,9 @@ import { echoAdapter, specOf } from './support';
 const spec = specOf({ id: 'realized', blocks: [{ user: 'authored' }] });
 
 /** A run of one block whose driver sends `stimulus` in place of the authored `{ user: 'authored' }`. */
-function sending(stimulus: Stimulus) {
+function sending(stimulus: Stimulus, recordRealizedText = false) {
   return runSpec(spec, {
+    ...(recordRealizedText ? { recordRealizedText: true } : {}),
     adapter: echoAdapter(),
     driver: {
       ...createScriptedDriver(),
@@ -28,9 +29,15 @@ function sending(stimulus: Stimulus) {
 }
 
 describe('the realized text of a block', () => {
-  it('is recorded when the text sent differs from the text written', async () => {
-    const run = await sending({ user: 'actually sent' });
-    expect(run.blocks[0]?.realized).toEqual({ text: 'actually sent' });
+  it('is recorded as a hash when the text sent differs from the text written, the text kept only on request', async () => {
+    const hashed = await sending({ user: 'actually sent' });
+    expect(hashed.blocks[0]?.realized).toEqual({ hash: provenanceHash('actually sent') });
+    expect(JSON.stringify(hashed)).not.toContain('actually sent');
+    const kept = await sending({ user: 'actually sent' }, true);
+    expect(kept.blocks[0]?.realized).toEqual({
+      hash: provenanceHash('actually sent'),
+      text: 'actually sent',
+    });
   });
 
   it('is not recorded when only the stimulus kind differs: the same text sent as an injection', async () => {
@@ -40,9 +47,11 @@ describe('the realized text of a block', () => {
   });
 
   it('is covered by the provenance digest, so a changed text no longer passes as the baseline', async () => {
-    const run = await sending({ user: 'actually sent' });
+    const run = await sending({ user: 'actually sent' }, true);
     const changed = structuredClone(run);
     if (changed.blocks[0]?.realized) changed.blocks[0].realized.text = 'never sent';
+    expect(provenanceDigest(changed)).not.toBe(run.provenanceDigest);
+    if (changed.blocks[0]?.realized) delete changed.blocks[0].realized.text;
     expect(provenanceDigest(changed)).not.toBe(run.provenanceDigest);
     const provenance = run.provenance;
     if (!provenance) throw new Error('the run recorded no provenance');

@@ -3,7 +3,7 @@ import { criterionOf } from './compare';
 import { showTarget } from './data';
 import { count, esc, fixed, json, pct, pValue, usd } from './format';
 import type { ReliabilityLine } from './reliability';
-import type { BlockDetail, RunDetail, Scorecard } from './scorecard';
+import { type BlockDetail, notStored, type RunDetail, type Scorecard } from './scorecard';
 
 /*
  * The three zones that open the scorecard page: the numbers and charts, the tests, the runs with a detail
@@ -602,7 +602,7 @@ function blockView(block: BlockDetail): string {
           .join('')}</div>`;
   return `<div class="blk${block.pass ? '' : ' bad'}">
 <p class="bh"><span class="kicker">Block ${block.index}${block.specBlock === undefined ? ' · injected' : ''}</span>${stage}${chip(block.pass)}</p>
-${note}${block.stimulus === undefined ? '' : `<p class="who">${block.realized === undefined ? 'User' : 'User, as written'}</p><p class="msg user">${esc(block.stimulus)}</p>`}${block.realized === undefined ? '' : `<p class="who">User, as sent</p><p class="msg user">${esc(block.realized)}</p>`}
+${note}${block.stimulus === undefined ? '' : `<p class="who">${block.realized === undefined ? 'User' : 'User, as written'}</p><p class="msg user">${esc(block.stimulus)}</p>`}${block.realized === undefined ? '' : `<p class="who">User, as sent</p><p class="msg user">${esc(block.realized.text ?? notStored(block.realized.hash))}</p>`}
 <p class="who r">Agent · ${esc(fixed(block.latencyMs, 0))} ms</p><p class="msg agent">${esc(block.text || '(no text)')}</p>
 ${tools}${block.drift.length > 0 ? `<p class="stage">drift ${esc(block.drift.join(', '))}</p>` : ''}${shown.map(verdictRow).join('')}${passed.length > 0 ? `<details class="fold"><summary>${ICON_CHEV}${count(passed.length, 'machine check')} passed</summary><p class="ids">${passed.map((v) => esc(v.id)).join(', ')}</p></details>` : ''}
 </div>`;

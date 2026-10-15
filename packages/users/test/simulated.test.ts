@@ -1,6 +1,13 @@
 import { readdir } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
-import { type BlockResult, type DriverStep, loadSpecFile, type Spec } from '@agent-nexus/driftbench-core';
+import {
+  type BlockResult,
+  type DriverStep,
+  loadSpecFile,
+  provenanceHash,
+  runSpec,
+  type Spec,
+} from '@agent-nexus/driftbench-core';
 import { FakeModelPort } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import {
@@ -256,7 +263,7 @@ describe('the simulated user through the real runner, on the Acme agent, with th
     expect(port.requests.some((request) => request.user.includes('catalog.search'))).toBe(false);
   });
 
-  it('stores the text each block sent, and a scripted run of the same spec stores none', async () => {
+  it('stores the text each block sent when asked, its hash otherwise, and nothing for a scripted run', async () => {
     const persona = await loadPersona(join(PERSONA_DIR, 'sam-upgrader.yaml'));
     const recording = await loadUserRecording(join(PERSONA_DIR, 'recordings', 'sam-upgrader.yaml'));
     const user = createSimulatedUser({
@@ -274,14 +281,38 @@ describe('the simulated user through the real runner, on the Acme agent, with th
         return agent.respond(messages, world);
       },
     }));
-    const result = await runP(plan, user, adapter);
+    const result = await runSpec(plan, {
+      adapter,
+      driver: user,
+      checks: [],
+      mode: 'P',
+      repeat: 0,
+      recordRealizedText: true,
+    });
     expect(result.status).toBe('completed');
     const authored = plan.blocks.map((each) => (each.when as { user: string }).user);
     // A block whose sent text differs from the authored one stores it; one that sent the authored text does not.
-    expect(result.blocks.map((each) => each.realized?.text)).toEqual(
-      received.map((text, index) => (text === authored[index] ? undefined : text)),
+    const expected = received.map((text, index) =>
+      text === authored[index] ? undefined : { hash: provenanceHash(text), text },
     );
-    expect(result.blocks.filter((each) => each.realized !== undefined).length).toBeGreaterThan(0);
+    expect(result.blocks.map((each) => each.realized)).toEqual(expected);
+    expect(expected.filter((each) => each !== undefined).length).toBeGreaterThan(0);
+    // Without the request, the same run keeps each hash and no text.
+    const hashed = await runSpec(plan, {
+      adapter: acmeSales(),
+      driver: createSimulatedUser({
+        ...personaOptions(persona),
+        port: userRecordingPort(recording),
+        agentFamily: 'none',
+        judgeFamilies: ['jev', 'openai', 'google', 'anthropic'],
+      }),
+      checks: [],
+      mode: 'P',
+      repeat: 0,
+    });
+    expect(hashed.blocks.map((each) => each.realized)).toEqual(
+      expected.map((each) => (each === undefined ? undefined : { hash: each.hash })),
+    );
     const scripted = await runP(plan, createScriptedDriver(), acmeSales());
     expect(scripted.blocks.some((each) => 'realized' in each)).toBe(false);
   });
