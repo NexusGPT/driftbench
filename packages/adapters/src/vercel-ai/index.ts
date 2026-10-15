@@ -18,6 +18,7 @@ import {
 import {
   addUsage,
   closeOpenCalls,
+  historyOutput,
   measureOnce,
   newUsage,
   observedOf,
@@ -309,7 +310,7 @@ export function toModelMessages(history: readonly Message[], labels: ToolLabels)
           output:
             call.error !== undefined
               ? { type: 'error-text' as const, value: call.error }
-              : { type: 'json' as const, value: call.output ?? null },
+              : { type: 'json' as const, value: historyOutput(call) },
         })),
       });
     }

@@ -13,6 +13,7 @@ import {
 import {
   addUsage,
   closeOpenCalls,
+  historyOutput,
   measureOnce,
   newUsage,
   observedOf,
@@ -209,7 +210,7 @@ export function toPydanticMessages(history: readonly Message[], labels: ToolLabe
           : {
               part_kind: 'tool-return',
               tool_name: labels.name(call.label),
-              content: call.output ?? null,
+              content: historyOutput(call),
               tool_call_id: ids[index],
             },
       ),
