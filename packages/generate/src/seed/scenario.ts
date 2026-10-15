@@ -657,7 +657,10 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     return failedScenario(path, `the path has no stage ${request.turn.at ?? 1} moves after its start`);
 
   let placed: Built['probe'];
-  let truncated = turnPlaced || cutAt !== undefined;
+  // A turn said after the walk's last move cuts nothing: the walk still reaches its end and checks its end state.
+  const afterLastMove =
+    request.turn !== undefined && !request.turn.call && (request.turn.at ?? 1) === path.stages.length - 1;
+  let truncated = (turnPlaced && !afterLastMove) || cutAt !== undefined;
   // The answer a tool gives once it works again: the bound values the replies state, else its defaults.
   if (probe && probe.classId === TOOL_FAILURE) {
     const failed = toolFailure(prepared, rng, path, blocks, cell, probe, (tool) =>
