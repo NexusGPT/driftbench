@@ -12,10 +12,13 @@ import type { Rung, ValueCase } from './ladder';
  * - the gold's writing appears in a source and the agent's value does not: the agent changed a value it was
  *   given; fail, change `altered`. A reformatted copy fails here and never reaches the judge, since the reader
  *   of the value may not share the conversion the agent assumed (`1024 MB` written `1 GB`);
- * - both appear (the user wrote both, as in a correction), or neither: the source cannot decide.
+ * - both appear: the user's later message stands, as in a correction ("sorry, my email is ...") given in a turn
+ *   after the first value. The agent kept the earlier value: fail, change `stale`; it took the later one: pass.
+ *   Both in the same message, or neither anywhere: the source cannot decide.
  *
  * A source matches as a whole token: the characters around it are not letters or digits. With
- * `ignore: [surrounding_space]` the value is trimmed first.
+ * `ignore: [surrounding_space]` the value is trimmed first. Workspace files count as read before the user's
+ * messages.
  */
 
 /**
@@ -44,9 +47,8 @@ export const asGiven: Rung = (value, ctx) => {
   const mine = trim ? value.value.trim() : value.value;
   const gold = trim ? value.gold.trim() : value.gold;
   if (mine === '') return { skip: 'the value is empty' };
-  const texts = [...(value.sources?.user ?? []), ...Object.values(value.sources?.files ?? {})];
   const copied = where(value, mine);
-  const goldGiven = texts.some((text) => holdsToken(text, gold));
+  const goldGiven = where(value, gold) !== undefined;
   if (copied !== undefined && !goldGiven) {
     return {
       settles: 'pass',
@@ -61,13 +63,36 @@ export const asGiven: Rung = (value, ctx) => {
       emits: { change: 'altered' },
     };
   }
-  return {
-    skip:
-      copied === undefined
-        ? 'neither the value nor the gold appears in what the agent was given'
-        : `both the value and the gold appear in what the agent was given (${copied})`,
-  };
+  if (copied === undefined)
+    return { skip: 'neither the value nor the gold appears in what the agent was given' };
+  const latestMine = latest(value, mine);
+  const latestGold = latest(value, gold);
+  if (latestGold > latestMine) {
+    return {
+      settles: 'fail',
+      evidence: `the user gave ${show(value.value)}, then ${show(value.gold)} in a later message; the agent kept the earlier value`,
+      emits: { change: 'stale' },
+    };
+  }
+  if (latestMine > latestGold) {
+    return {
+      settles: 'pass',
+      evidence: `the user gave ${show(value.gold)}, then ${show(value.value)} in a later message; the agent took the later value`,
+      emits: { change: 'verbatim' },
+    };
+  }
+  return { skip: `both the value and the gold appear in the same message the agent was given (${copied})` };
 };
+
+/** The position of the last source holding a needle: files first, then the user's messages in order; -1 when none. */
+function latest(value: ValueCase, needle: string): number {
+  const texts = [...Object.values(value.sources?.files ?? {}), ...(value.sources?.user ?? [])];
+  let found = -1;
+  texts.forEach((text, index) => {
+    if (holdsToken(text, needle)) found = index;
+  });
+  return found;
+}
 
 /** Where a needle appears as a whole token: `the user's message` or `the file <path>`; undefined when nowhere. */
 function where(value: ValueCase, needle: string): string | undefined {
