@@ -237,6 +237,17 @@ export const BlockResult = z.strictObject({
   index: z.number().int().min(0),
   blockId: z.string().optional(),
   injected: z.boolean().optional(),
+  /**
+   * Present when the text the driver sent differs from the text the spec block wrote (a simulated user, a
+   * red-team attacker). The sent text is the user messages the agent received, joined by newlines; `hash`
+   * is its SHA-256 (of its canonical JSON). `text` holds it only when the run asked for it
+   * (`recordRealizedText`): what a driver writes may be private, so by default only the hash is kept. Only
+   * the text is compared; a change of form alone (the same text as an injection) is in `injected`. Absent
+   * means the authored text was sent. The provenance digest covers it.
+   */
+  realized: z
+    .strictObject({ hash: z.string().regex(/^[0-9a-f]{64}$/), text: z.string().optional() })
+    .optional(),
   givenHash: z.string().min(1),
   /** The key the block's observed record is cached under: what a replay looked up. */
   cacheKey: z.string().min(1).optional(),
