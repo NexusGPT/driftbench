@@ -585,7 +585,10 @@ function referenceAtoms(
   builder: AtomBuilder,
 ): void {
   const skipped = new Set(raw.ignored?.paths ?? []);
+  const standing = files.get(chunk.file)?.kind === 'standing';
   for (const line of chunkLines(chunk, files.get(chunk.file))) {
+    // A standing line `@path` is an import: the runtime loads that file, so the agent reads nothing.
+    if (standing && /^@\S+$/.test(line.text.trim())) continue;
     for (const { path: named, spelling } of namedReferences(line.text)) {
       if (!positiveMention(line.text, spelling, ['read', 'open', 'load'])) continue;
       const located = locateNamed(named, chunk.file, files, {

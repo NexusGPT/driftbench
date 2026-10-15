@@ -260,7 +260,7 @@ export class ClaudeCodeReader implements EstateReader {
   }
 }
 
-/** Follow explicit document references, once each, without loading unrelated prose. */
+/** Follow explicit document references and standing imports, once each, without loading unrelated prose. */
 async function readRootReferences(
   root: string,
   estate: RawEstate,
@@ -278,10 +278,12 @@ async function readRootReferences(
     if (!chunk) continue;
     const source = files.get(chunk.file);
     for (const line of chunkLines(chunk, source)) {
-      const names = namedPaths(line.text);
+      // A standing file's line `@path` imports that file into the standing instructions.
+      const imported = source?.kind === 'standing' ? /^@([^\s]+)\s*$/.exec(line.text.trim())?.[1] : undefined;
+      const names = imported ? [imported] : namedPaths(line.text);
       for (const name of names) {
         if (!/\.(md|markdown|txt)$/i.test(name) || /^(?:\/|~\/|[a-z]+:)/i.test(name)) continue;
-        if (!positiveMention(line.text, name, ['read', 'open', 'load'])) continue;
+        if (!imported && !positiveMention(line.text, name, ['read', 'open', 'load'])) continue;
         // An unindexed root guide is a candidate only after the naming file's own subtree.
         const local = posix.normalize(posix.join(posix.dirname(chunk.file), name));
         const localPlaceholder =
@@ -300,7 +302,7 @@ async function readRootReferences(
           skipped,
           ...(estate.bases ? { bases: estate.bases } : {}),
           ...(estate.aliases ? { aliases: estate.aliases } : {}),
-          ...(estate.externals ? { externals: estate.externals } : {}),
+          ...(!imported && estate.externals ? { externals: estate.externals } : {}),
         });
         if (placeholder) files.delete(name);
         if (localPlaceholder) files.delete(local);
@@ -338,9 +340,10 @@ async function readRootReferences(
           files.set(path, candidate);
           byName = fileNames(files);
         }
-        // A file code reads as structure (a registry, settings, a step list, a guard, an alias table) is
-        // not sent again as prose.
-        if (STRUCTURED_KINDS.has(candidate.kind) || definesAliases(candidate)) continue;
+        // An imported file is standing; a file code reads as structure (a registry, settings, a step list,
+        // a guard, an alias table) is not sent again as prose.
+        if (imported) candidate.kind = 'standing';
+        else if (STRUCTURED_KINDS.has(candidate.kind) || definesAliases(candidate)) continue;
         if (proseFiles.has(path)) continue;
         const real = await realpath(join(root, path)).catch(() => undefined);
         // Two spellings of one file (a link, a relative path) may form a cycle; canonical identity bounds it.

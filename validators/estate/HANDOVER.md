@@ -11,13 +11,13 @@
 | hidden | 0 |
 <!-- level-table:end -->
 
-Iteration 42, source dddc75847305f7e03848aff3a85618e94e894d50 plus the change recorded in this journal row. Hidden seed 723212740, derived from that head.
+Iteration 43, source 741db398013ae9059c1398e37934a579d58b7aaf plus the change recorded in this journal row. Hidden seed 949103576, derived from that head.
 | Seed | Reader passing / items |
 |---|---|
-| 1 | 625/641 |
-| 2 | 625/641 |
-| 3 | 625/641 |
-| hidden (723212740) | 625/641 |
+| 1 | 626/641 |
+| 2 | 626/641 |
+| 3 | 626/641 |
+| hidden (949103576) | 626/641 |
 
 Each fraction counts reader items passing on that seed, out of 641 reader items. Journal `passing` counts distinct evaluated item IDs passing every seed; it is not a sum of seed counts. The journal's per-level `metrics` use seed 1; its `perSeed` records achieved levels separately.
 
@@ -49,11 +49,11 @@ Owner rule: "make sure all the fixes are fixes that are TO THE FRAMEWORK in gene
 - scan.standing.list-item: [scan.standing, tier 3] the reader reads routing written as a list item: missed route route-review-1wyhk4c at CLAUDE.md:5
 - scan.standing.sentence: [scan.standing, tier 4] the reader reads routing written as a sentence: missed route parcel-update-1713qix at CLAUDE.md:5
 - scan.standing.heading-per-skill: [scan.standing, tier 4] the reader reads routing written as a heading per skill: missed route shelf-price-ftj8gw at CLAUDE.md:5
-- scan.standing.imported-standing: [scan.standing, tier 4] the reader reads a file the standing file imports: missed instruction at .claude/docs/crate-rules.md:3; found reference reference.standing.read-claude-docs-crate-rules-md at CLAUDE.md:3, never planted
 - blind.edges.dispatch-plain-name: [blind.edges, tier 3] the reader reads a skill body that dispatches a helper by its plain name: no dispatch edge from skill at .claude/skills/orchard-plan-7beyan/SKILL.md
 
 ## Hypotheses tried
 
+Iteration 43: standing @imports. +1 on every seed: scan.standing.imported-standing.
 Iteration 42: explicit document references followed transitively. +2 on every seed: scan.reference-prose.text-file, outside-skill. Chained still misses its graph edge (separate cause).
 Iteration 41: case-insensitive rule labels. +1 on every seed: scan.registry.md-label-lowercase.
 Iteration 40: standing size in code points. +1 on every seed: blind.lint.emoji-count-as-characters.
