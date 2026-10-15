@@ -66,7 +66,7 @@ Running only a change (topic running-change-carry):
 | `--max-age <days>` | `7` | with `--change`: the most days since a carried result was measured. |
 | `--block-reruns` | off | with `--change` and mode T: send only the blocks a change can affect and keep the other stored blocks of a cell. |
 | `--record-end-state-snapshots` | off | store the raw end-state values each mode T block reads, so a later `--block-reruns` can rerun cells that check an end state. The values may be sensitive. |
-| `--record-realized-text` | off | store the text a driver sent where it differs from the spec (a simulated user, a red-team attacker) as `realized.text`, for replay and audit. Off, each such block keeps only the text's hash. The text may be private. A resumed campaign keeps the choice. Topic running-realized-text. |
+| `--record-realized-text` | off | store the text a driver sent where it differs from the spec (a simulated user, a red-team attacker) as `realized.text`, for replay and audit. Off, each such block keeps only the text's hash. The text may be private. A resumed campaign keeps the choice. Whole-run and block carries follow this new campaign’s choice, not the baseline’s; missing source text is never reconstructed. Topic running-realized-text. |
 
 Where results go (topics running-store and running-cache):
 

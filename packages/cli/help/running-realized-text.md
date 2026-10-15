@@ -6,6 +6,8 @@ see_also:
   - running-simulate
   - running-campaign-run
   - running-campaign-resume
+  - judging-campaign-rejudge
+  - judging-pairwise
   - running-store
   - results-report
   - results-view
@@ -39,8 +41,16 @@ Rules:
 * The provenance digest of a run covers `realized`. A baseline whose sent text was edited later no longer passes the provenance check.
 * A run without `realized` keeps the digest it always had. Cache keys, Given hashes and spec hashes do not change.
 * A campaign remembers the choice as `provenance.realizedText: true`. `campaign resume` reads it, so a resumed campaign keeps the text, or keeps only the hash, as it started.
+* A copy into another campaign follows the choice of that campaign, not the choice of its source. A carried run, a block rerun, a re-judged run, a store write and an import drop `realized.text`. The new campaign must ask to keep it. `campaign export` applies the choice of the campaign it exports in the same way.
+* A dropped text leaves the hash. The copy records `realizedTextStripped`: `fromRun`, and `fromCampaign` when it is known. The provenance digest of the copy covers that record and is computed again.
+* Text that was never stored is never rebuilt. A copy cannot get back what its source did not hold.
 
 The report pages show both texts. A block with `realized` shows "User, as written" (the spec's text) and "User, as sent". A block without it shows one "User".
+
+### Where the sent text is read
+
+* `compare --pairwise` judges two replies only when both blocks have the same verifiable sent text. It uses the stored `realized.text`. For a hash-only block it uses the spec's own text only when that text has the stored hash. Other pairs are skipped and counted as `differentStimulus` ("different stimulus" in the text output). Topic judging-pairwise.
+* A label saved in `driftbench view` uses the sent text in its transcript. When that text is not available, the label saves `flags: ["sent text not stored"]`. Calibration leaves such a label out. Topic results-view.
 
 ## When to use it
 
@@ -57,13 +67,14 @@ You do not need it for scripted runs: they send what the spec wrote, and record 
 | Option | Command | Default | Effect |
 |---|---|---|---|
 | `--record-realized-text` | `campaign run` | off | store `realized.text` beside `realized.hash` on every block whose driver sent other text than the spec wrote. Off, each such block keeps only the hash. |
+| `--record-realized-text` | `campaign rejudge` | off | keep the `realized.text` the source runs hold in the new campaign. Off, the copies keep only the hash, even when the baseline recorded text. |
 
 Rules for the option:
 
 * It is a setting of one run. It has no key under `campaign:` in `driftbench.yaml`.
 * `campaign resume` has no such option. It reads the choice the campaign was created with.
 * It changes nothing for a scripted run.
-* No other command stores the text. In code, the same switch is the run option `recordRealizedText`.
+* `campaign rejudge` only keeps text its source already holds. No command stores text that no run recorded. In code, the same switch is the run option `recordRealizedText`.
 
 ## Inputs
 
@@ -145,12 +156,14 @@ $ driftbench report sim-text --store sim.db --out sim-text.html
 Margin auto: 79.5 points, the smallest half point at which the baseline compared with itself is non-inferior (set by the all-pass flag, 79.3 points).
 Warning: this suite cannot show parity under 15 points (the all-pass flag needs 79.3 points); about 22 goldens would.
 Campaign sim-text: 1 runs, 1 pass, 0 fail, 0 did not complete.
+Suite pass rate, mode F: 100.0% no interval: one cluster (one golden); 1 golden.
 Wrote sim-text.html.
 (exit 0)
 $ driftbench report sim-hash --store sim.db --out sim-hash.html
 Margin auto: 79.5 points, the smallest half point at which the baseline compared with itself is non-inferior (set by the all-pass flag, 79.3 points).
 Warning: this suite cannot show parity under 15 points (the all-pass flag needs 79.3 points); about 22 goldens would.
 Campaign sim-hash: 1 runs, 1 pass, 0 fail, 0 did not complete.
+Suite pass rate, mode F: 100.0% no interval: one cluster (one golden); 1 golden.
 Wrote sim-hash.html.
 (exit 0)
 ```
@@ -234,8 +247,10 @@ How to read it:
 | Message or symptom | Cause | Fix |
 |---|---|---|
 | `<path>: campaign: Unrecognized key: "record_realized_text"` (exit 2) | the setting is written under `campaign:` in `driftbench.yaml` | it is a setting of one run: pass `--record-realized-text` on the command line |
-| `error: unknown option '--record-realized-text'` (exit 2) | the option on another command, such as `campaign resume` or `simulate` | only `campaign run` takes it; a resumed campaign keeps its own choice |
+| `error: unknown option '--record-realized-text'` (exit 2) | the option on another command, such as `campaign resume` or `simulate` | only `campaign run` and `campaign rejudge` take it; a resumed campaign keeps its own choice |
 | A page reads `(other text than the spec wrote; not stored, only its hash ...)` | the run kept only the hash | run the campaign again with `--record-realized-text`; a stored run cannot get its text back |
+| A carried or re-judged run has the hash but no text, and the baseline had the text | the new campaign did not ask for the text, so the copy dropped it. `realizedTextStripped` names the source run | run the new campaign with `--record-realized-text` (`campaign rejudge --record-realized-text` for a re-judge) |
+| `Skipped <n> pairs: different stimulus.` in the `compare --pairwise` summary | the two replies have no same verifiable sent text, so the pair is not judged | record the text on both campaigns, or compare runs that sent the same text |
 | No `realized` on any block | the run was scripted, or the driver sent the spec's own text | expected: nothing differs, so nothing is recorded |
 | `the baseline has no execution provenance`, and `campaign run --change --from` reruns the whole suite | the baseline's runs fail the provenance check, for example a `realized` edited by hand | use the stored baseline as it was written, or run a new full campaign as the baseline |
 | `Legacy campaign has missing, incomplete or inconsistent execution provenance; run a new full campaign before re-judging.` | `campaign rejudge --from` on a campaign that fails the same check | run a new full campaign, then re-judge it |
