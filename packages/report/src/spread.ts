@@ -70,6 +70,8 @@ export type Spread = {
   source: 'pilot' | 'generated' | 'spec';
   by: string[];
   margin: number;
+  /** Runs of the mode left out as no measurement (a block not run or blocked, no failure). Absent when 0. */
+  unscored?: number;
   cells: CellSpread[];
   /** Quantiles of the cell rates. */
   quantiles?: { min: number; p10: number; p25: number; p50: number; p75: number; p90: number; max: number };
@@ -119,6 +121,7 @@ export function spread(data: CampaignData, options: SpreadOptions): Spread {
   const mode = options.mode ?? (modes.includes('F') ? 'F' : (modes[0] ?? 'F'));
   // A run neither passed nor failed (a block not run or blocked) is no measurement: it is left out.
   const runs = scoredRuns(data.runs).filter((run) => run.mode === mode);
+  const unscored = data.runs.filter((run) => run.mode === mode).length - runs.length;
   const threshold = options.wordingThreshold ?? 0.2;
   const factors = new Map(runs.map((run) => [run, factorsOf(specOfRun(data, run), run.specId, options.by)]));
   const sources = new Set([...factors.values()].map((entry) => entry.source));
@@ -178,6 +181,7 @@ export function spread(data: CampaignData, options: SpreadOptions): Spread {
   const noise = noiseOf(data, runs);
   return {
     mode,
+    ...(unscored > 0 ? { unscored } : {}),
     source,
     by: source === 'generated' ? byOf(data, runs, options.by) : [],
     margin: options.margin,

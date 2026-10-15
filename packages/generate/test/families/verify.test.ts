@@ -6,8 +6,10 @@ import { fileURLToPath } from 'node:url';
 import { processAdapter } from '@agent-nexus/driftbench-adapters';
 import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
 import { defaultChecks } from '@agent-nexus/driftbench-checks';
+import { loadSpecFile } from '@agent-nexus/driftbench-core';
 import { localProvider } from '@agent-nexus/driftbench-sandbox';
 import { beforeAll, describe, expect, it } from 'vitest';
+import { acmeAdapter } from '../../../core/test/runner/support';
 import {
   type BuildOptions,
   buildInstances,
@@ -15,7 +17,7 @@ import {
   type Instance,
   writeInstances,
 } from '../../src/families/instances';
-import { type VerifyDeps, verifyInstances, withoutSandbox } from '../../src/families/verify';
+import { type VerifyDeps, verifyInstances, verifySpec, withoutSandbox } from '../../src/families/verify';
 import { ACME_FAMILY, load } from './support';
 
 const AGENT = fileURLToPath(new URL('../../../../examples/acme/ops/agent.mjs', import.meta.url));
@@ -126,5 +128,25 @@ describe('the verify report', () => {
     expect(withoutSandbox('out/acme-price-sheet.xlsx was not created')).toBe(
       'out/acme-price-sheet.xlsx was not created',
     );
+  });
+});
+
+describe('verify on a reference that cannot run the spec', () => {
+  it('fails the spec and lists each block not run with its reason, never an empty failing list', async () => {
+    const file = fileURLToPath(
+      new URL('../../../../examples/acme/specs/conversations/tool-failure.yaml', import.meta.url),
+    );
+    const loaded = await loadSpecFile(file);
+    if (!loaded.ok) throw new Error('the spec does not load');
+    const verdict = await verifySpec(file, loaded.spec, {
+      adapter: acmeAdapter({ capabilities: { toolStubs: false } }),
+      target: { adapter: 'function', agent: 'acme-sales' },
+      checks: defaultChecks(),
+      artifacts: defaultReaders(),
+      cwd: tmpdir(),
+    });
+    expect(verdict.state).toBe('fail');
+    expect(verdict.failing[0]).toMatchObject({ block: 0, check: 'not_run' });
+    expect(verdict.failing[0]?.evidence).toContain('toolStubs false');
   });
 });

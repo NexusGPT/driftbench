@@ -146,6 +146,8 @@ export async function simulateCommand(
   if (!ended && result.error) ended = result.error;
   const revealed = (driver as RecordedDriver).revealed();
   const passed = result.blocks.filter((block) => block.pass).length;
+  // A block not run or blocked is no pass (ok stays false) and no failure: it is counted apart.
+  const unscored = result.blocks.filter((block) => block.status !== undefined).length;
   const ok = result.status === 'completed' && passed === result.blocks.length && result.blocks.length > 0;
 
   if (options.json) {
@@ -165,6 +167,7 @@ export async function simulateCommand(
             agent: block.observed.text,
             stage: block.stageObserved ?? null,
             pass: block.pass,
+            ...(block.status === undefined ? {} : { status: block.status }),
           })),
         },
         null,
@@ -178,11 +181,13 @@ export async function simulateCommand(
     result.blocks.forEach((block, index) => {
       io.out(`  ${block.index}  user   ${oneLine(said[index] ?? '')}\n`);
       io.out(`  ${block.index}  agent  ${oneLine(block.observed.text)}\n`);
-      io.out(`     ${block.stageObserved ?? '-'}  ${block.pass ? '✓' : '✗'}\n`);
+      io.out(
+        `     ${block.stageObserved ?? '-'}  ${block.pass ? '✓' : block.status === undefined ? '✗' : `- ${block.status === 'blocked' ? 'blocked' : 'not run'}`}\n`,
+      );
     });
     io.out(`Facts given, each once asked: ${revealed.length > 0 ? revealed.join(', ') : 'none'}.\n`);
     io.out(
-      `${ok ? '✓' : '✗'} ${passed} of ${result.blocks.length} blocks pass. The run ended: ${ended || result.status}.\n`,
+      `${ok ? '✓' : '✗'} ${passed} of ${result.blocks.length - unscored} blocks pass${unscored > 0 ? `, ${unscored} not run or blocked` : ''}. The run ended: ${ended || result.status}.\n`,
     );
   }
   return ok ? 0 : 1;

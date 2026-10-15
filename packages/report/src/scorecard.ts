@@ -449,7 +449,8 @@ export function toolAccuracy(data: CampaignData): ToolAccuracy {
     const sums = { matched: 0, expected: 0, observed: 0 };
     let counted = false;
     for (const { result, specBlock } of blocksWithSpec(run, spec)) {
-      if (specBlock === undefined) continue;
+      // A block not run or blocked made no call because it was never sent: it is no tool measurement.
+      if (specBlock === undefined || result.status !== undefined) continue;
       const tools = spec?.blocks[specBlock]?.expect?.tools;
       if (!tools) continue;
       counted = true;

@@ -656,11 +656,16 @@ function runPanel(m: PageModel, run: RunDetail, options: RunPanelOptions): strin
   const verdicts = run.blocks.flatMap((b) => b.verdicts);
   const failedChecks = verdicts.filter((v) => v.outcome === 'fail').length;
   const passingBlocks = run.blocks.filter((b) => b.pass).length;
+  // A block not run or blocked is no measurement: out of the rate, its count beside it.
+  const unscoredBlocks = run.blocks.filter((b) => b.status !== undefined).length;
   const s = run.succession;
   const facts: Array<[string, string]> = [
     ['Run', run.runId],
     ['Test', run.specId],
-    ['Blocks passing', `${passingBlocks} of ${run.blocks.length}`],
+    ['Blocks passing', `${passingBlocks} of ${run.blocks.length - unscoredBlocks}`],
+    ...(unscoredBlocks > 0
+      ? ([['Blocks not run or blocked', String(unscoredBlocks)]] as Array<[string, string]>)
+      : []),
     ['Checks failed', `${failedChecks} of ${verdicts.length}`],
     ['Latency', `${fixed(run.latencyMs, 0)} ms`],
     ...(c?.baseline === undefined

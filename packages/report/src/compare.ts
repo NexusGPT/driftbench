@@ -128,6 +128,11 @@ export type CompareResult = {
   /** Units only one campaign ran, or ran on another spec version, or that the candidate carried. */
   unpaired: Array<{ unit: string; reason: string }>;
   /**
+   * Paired units that left some of their runs out as no measurement (a block not run or blocked, no
+   * failure): the side and how many runs. Absent when none did.
+   */
+  excluded?: Array<{ unit: string; side: 'baseline' | 'candidate'; runs: number }>;
+  /**
    * Set when the candidate carried results from an earlier campaign: a carried unit is the baseline result
    * copied, so it never forms a pair. Absent when every candidate run is fresh.
    */
@@ -221,6 +226,7 @@ export function compareCampaigns(
   const right = unitEntries(candidateUnits.scored, flagFamilies);
   const pairs: UnitPair[] = [];
   const unpaired: CompareResult['unpaired'] = [];
+  const excluded: NonNullable<CompareResult['excluded']> = [];
   for (const [unit, b] of left) {
     const copy = carriedUnits.get(unit);
     if (copy?.carried) {
@@ -238,6 +244,13 @@ export function compareCampaigns(
         reason: `the spec changed between the campaigns: ${b.specHash} and ${c.specHash}`,
       });
       continue;
+    }
+    for (const [side, units] of [
+      ['baseline', baselineUnits],
+      ['candidate', candidateUnits],
+    ] as const) {
+      const runs = units.partial.get(unit);
+      if (runs !== undefined) excluded.push({ unit, side, runs });
     }
     pairs.push({
       unit,
@@ -363,6 +376,7 @@ export function compareCampaigns(
     modes,
     pairs,
     unpaired,
+    ...(excluded.length > 0 ? { excluded } : {}),
     ...optional('carried', carriedUnits.size === 0 ? undefined : carriedSummary(candidate.runs)),
     allPass,
     drift,
@@ -413,13 +427,15 @@ function newcombe(effect: { estimate: number; lower: number; upper: number; n: n
 function scoredUnits(
   units: ReadonlyMap<string, readonly RunResult[]>,
   side: 'baseline' | 'candidate',
-): { scored: Map<string, RunResult[]>; unscored: Map<string, string> } {
+): { scored: Map<string, RunResult[]>; unscored: Map<string, string>; partial: Map<string, number> } {
   const scored = new Map<string, RunResult[]>();
   const unscored = new Map<string, string>();
+  const partial = new Map<string, number>();
   for (const [unit, runs] of units) {
     const kept = scoredRuns(runs);
     if (kept.length > 0) {
       scored.set(unit, kept);
+      if (kept.length < runs.length) partial.set(unit, runs.length - kept.length);
       continue;
     }
     const block = runs.flatMap((run) => run.blocks).find((entry) => entry.notRun || entry.blocked);
@@ -430,7 +446,7 @@ function scoredUnits(
         : 'no run passed or failed';
     unscored.set(unit, `not measured in the ${side}: ${why}`);
   }
-  return { scored, unscored };
+  return { scored, unscored, partial };
 }
 
 /** Why a carried unit is not paired, with where its result comes from. */

@@ -89,6 +89,8 @@ export type ReliabilityLine = {
   perturbationId?: string;
   deviation?: string;
   runs: number;
+  /** Runs of the line left out as no measurement (a block not run or blocked, no failure). Absent when 0. */
+  unscored?: number;
   /** Runs that completed; the others failed or were stopped and count as failing. */
   completed: number;
   /** Runs that pass (completed, every block passed, end state matched), Wilson over the repeats. */
@@ -134,10 +136,17 @@ export function reliability(
   data: CampaignData,
   incompletePolicy: 'interval' | 'withhold' = 'interval',
 ): ReliabilityLine[] {
-  // A run neither passed nor failed (a block not run or blocked) is no measurement: it is left out.
-  return [...groupBy(scoredRuns(data.runs), lineKey).values()].map((runs) =>
-    lineOf(data, runs, incompletePolicy),
-  );
+  // A run neither passed nor failed (a block not run or blocked) is no measurement: it is left out of the
+  // line, and the line says how many it left out.
+  const left = new Map<string, number>();
+  const scored = scoredRuns(data.runs);
+  const kept = new Set(scored);
+  for (const run of data.runs) if (!kept.has(run)) left.set(lineKey(run), (left.get(lineKey(run)) ?? 0) + 1);
+  return [...groupBy(scored, lineKey).values()].map((runs) => {
+    const line = lineOf(data, runs, incompletePolicy);
+    const unscored = left.get(lineKey(runs[0] as RunResult));
+    return unscored === undefined ? line : { ...line, unscored };
+  });
 }
 
 function lineOf(
@@ -286,7 +295,9 @@ export function successionOf(runs: readonly RunResult[]): SuccessionSummary {
   const firstDrift = [...first.entries()]
     .sort(([a], [b]) => (a === 'none' ? 1 : b === 'none' ? -1 : a - b))
     .map(([block, count]) => ({ block, runs: count }));
-  const allBlocksPass = rate(runs.filter((run) => run.succession.minOverBlocks).length, runs.length);
+  // Over the runs that passed or failed: one neither is no measurement.
+  const scored = scoredRuns(runs);
+  const allBlocksPass = rate(scored.filter((run) => run.succession.minOverBlocks).length, scored.length);
   return {
     runs: runs.length,
     ...optional(
@@ -310,7 +321,10 @@ export function successionOf(runs: readonly RunResult[]): SuccessionSummary {
 
 /** The recovery summary of the runs that carry a recovery record; undefined when none does. */
 export function recoveryOf(runs: readonly RunResult[]): RecoverySummary | undefined {
-  const measured = runs.flatMap((run) => (run.recovery ? [run.recovery] : []));
+  // A run whose injected block was not run or blocked measured no recovery, even one stored with a label.
+  const measured = runs.flatMap((run) =>
+    run.recovery && run.blocks.every((block) => !block.injected || isScored(block)) ? [run.recovery] : [],
+  );
   if (measured.length === 0) return undefined;
   const labels = { immediate: 0, late: 0, never: 0 };
   for (const entry of measured) labels[entry.label] += 1;

@@ -84,6 +84,15 @@ export function describeSpec(
           const observed = result.blocks.find((entry) => entry.index === index && !entry.injected);
           if (!observed)
             throw new Error(`block ${index} did not run: ${result.error ?? `the run ${result.status}`}`);
+          // A block not run or blocked is no pass, and no failure of the agent: the test fails and says why.
+          if (observed.notRun)
+            throw new Error(
+              `block ${index} was not run (${observed.notRun.kind}, check ${observed.notRun.check}): expected ${observed.notRun.expected}; got ${observed.notRun.got}`,
+            );
+          if (observed.blocked)
+            throw new Error(
+              `block ${index} was blocked by ${observed.blocked.by} (root ${observed.blocked.root})`,
+            );
           if (!observed.pass) throw new Error(blockFailure(observed));
         },
         timeout,
@@ -94,6 +103,11 @@ export function describeSpec(
         'end state',
         async () => {
           const result = await once();
+          const skipped = result.blocks.find((entry) => entry.status !== undefined);
+          if (!result.endState && skipped)
+            throw new Error(
+              `no end state was compared: block ${skipped.index} was ${skipped.status === 'blocked' ? 'blocked' : 'not run'}`,
+            );
           if (!result.endState)
             throw new Error(`no end state was read: ${result.error ?? `the run ${result.status}`}`);
           if (!result.endState.match) {

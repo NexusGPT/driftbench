@@ -49,6 +49,9 @@ export function recoveryOf(
   const { blocks } = run;
   const k = blocks.findIndex((block) => block.injected === true && block.blockId === run.perturbationId);
   if (k < 0) return undefined;
+  // A deviation that was never sent (its block not run or blocked) measures no recovery.
+  if (blockStatus(blocks[k] as BlockResult) !== 'pass' && blockStatus(blocks[k] as BlockResult) !== 'fail')
+    return undefined;
   const indexOf = specIndexes(spec, run);
   const expectOf = (position: number): Expect =>
     position === k ? (perturbation.expect ?? {}) : (spec.blocks[indexOf.get(position) ?? -1]?.expect ?? {});

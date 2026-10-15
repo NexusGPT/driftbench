@@ -332,7 +332,18 @@ ${table(
 )}
 ${table('New gating flags: fire for the candidate, not for the baseline', ['golden', 'family'], flagRows)}
 ${table('Goldens that changed', ['golden', 'baseline', 'candidate', 'drift baseline', 'drift candidate', 'criteria lost', 'criteria gained'], unitRows)}
-${unpairedRows.length > 0 ? table('Not paired', ['golden', 'reason'], unpairedRows) : ''}
+${unpairedRows.length > 0 ? table('Not paired', ['golden', 'reason'], unpairedRows) : ''}${
+  compare.excluded
+    ? table(
+        'Runs left out of a pair: a block not run or blocked, no failure',
+        ['golden', 'side', 'runs'],
+        compare.excluded.map(
+          (entry) =>
+            `<tr>${textCell(entry.unit, 'mono')}${textCell(entry.side)}${numCell(String(entry.runs))}</tr>`,
+        ),
+      )
+    : ''
+}
 </section>`;
 }
 
@@ -353,7 +364,7 @@ function atKText(line: ReliabilityLine, which: 'passK' | 'passAtK'): string {
 function reliabilitySection(lines: readonly ReliabilityLine[]): string {
   const rows = lines.map(
     (line) =>
-      `<tr${line.passRate.k < line.passRate.n ? ' class="row-warn"' : ''}>${textCell(line.specId, 'mono')}${textCell(lineTarget(line), 'mono')}${textCell(line.mode)}${textCell(line.perturbationId ?? '', 'mono')}${numCell(`${line.passRate.k} of ${line.runs}`)}${rateCell(line.passRate)}${numCell(`k=${line.runs}: ${atKText(line, 'passK')}`)}${numCell(`k=${line.runs}: ${atKText(line, 'passAtK')}`)}${numCell(`${pct(line.unreliability.estimate)} ${interval(line.unreliability, pct)}`)}${rateCell(line.blockAccuracy)}</tr>`,
+      `<tr${line.passRate.k < line.passRate.n ? ' class="row-warn"' : ''}>${textCell(line.specId, 'mono')}${textCell(lineTarget(line), 'mono')}${textCell(line.mode)}${textCell(line.perturbationId ?? '', 'mono')}${numCell(`${line.passRate.k} of ${line.runs}${line.unscored ? ` (${line.unscored} not run or blocked)` : ''}`)}${rateCell(line.passRate)}${numCell(`k=${line.runs}: ${atKText(line, 'passK')}`)}${numCell(`k=${line.runs}: ${atKText(line, 'passAtK')}`)}${numCell(`${pct(line.unreliability.estimate)} ${interval(line.unreliability, pct)}`)}${rateCell(line.blockAccuracy)}</tr>`,
   );
   const ks = lines.flatMap((line) =>
     line.runs < 2
@@ -566,7 +577,7 @@ function spreadSection(s: Spread): string {
         : 'no generated cell in these specs: one golden is one cell';
   return `<section id="spread">
 <h2>Spread</h2>
-<p>Mode ${esc(s.mode)}, ${esc(source)}. A cell rate takes its conversations as clusters when it holds two or more, else the Wilson interval over its runs. A cell is undecided when its interval straddles its reference minus the margin (${esc(fixed(s.margin * 100, 1))} points); the reference is the baseline cell rate when a baseline is given, else 100%.</p>
+<p>Mode ${esc(s.mode)}, ${esc(source)}.${s.unscored ? ` ${esc(count(s.unscored, 'run'))} left out: a block not run or blocked, no failure.` : ''} A cell rate takes its conversations as clusters when it holds two or more, else the Wilson interval over its runs. A cell is undecided when its interval straddles its reference minus the margin (${esc(fixed(s.margin * 100, 1))} points); the reference is the baseline cell rate when a baseline is given, else 100%.</p>
 ${quantiles}
 ${table('Five worst cells', head, s.worst.map(cellRow))}
 ${table('Undecided cells', head, s.undecided.map(cellRow))}

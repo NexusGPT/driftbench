@@ -66,6 +66,8 @@ export type SeriesPoint = {
   campaignId: string;
   createdAt: string;
   runs: number;
+  /** pass_rate: runs left out of the value as no measurement (a block not run or blocked). Absent when 0. */
+  unscored?: number;
   value: number;
   /**
    * The standard error of the value from its own runs: sqrt(p (1 - p) / n) for pass_rate, the sample sd of
@@ -87,7 +89,7 @@ export type MonitorReport = {
   store: string;
   window: number;
   campaigns: number;
-  /** Campaigns with no run: left out of the series. */
+  /** Campaigns with no run (for pass_rate, no scored run): left out of the series. */
   skipped: string[];
   inControl: {
     mean: number;
@@ -337,6 +339,9 @@ async function seriesOf(
       campaignId: campaign.campaignId,
       createdAt: campaign.createdAt,
       runs: runs.length,
+      ...(metric === 'pass_rate' && scoredRuns(runs).length < runs.length
+        ? { unscored: runs.length - scoredRuns(runs).length }
+        : {}),
       value: metricOf(runs, metric),
       se: standardErrorOf(runs, metric),
     });
@@ -553,7 +558,7 @@ export function monitorText(report: MonitorReport, withSeries: boolean, unit = '
           point.campaignId,
           point.createdAt,
           show(point.value),
-          String(point.runs),
+          `${point.runs}${point.unscored ? ` (${point.unscored} not run or blocked)` : ''}`,
           point.cusumUp.toFixed(2),
           point.cusumDown.toFixed(2),
           show(point.phUp),

@@ -8,6 +8,7 @@ import {
 import { mulberry32, passK, wilson } from '@agent-nexus/driftbench-stats';
 import { streamSeed } from '../seed/random';
 import {
+  blockNotRun,
   blockOutcome,
   failingIds,
   projectObserved,
@@ -59,7 +60,8 @@ export type GateInput = {
   onProgress?: (line: string) => void;
 };
 
-export type FaultRun = { outcome: BlockOutcome; changed: boolean; failing: string[] };
+/** One fault agent on one block. `notRun`: the runner did not send the block to it (no measurement). */
+export type FaultRun = { outcome: BlockOutcome; notRun?: true; changed: boolean; failing: string[] };
 
 /** Everything the gate learned about one block. */
 export type BlockRecord = {
@@ -111,6 +113,8 @@ export type FaultSummary = {
 
 export type KillCount = {
   targeting: number;
+  /** Targeting blocks the fault's adapter did not run (not_run): out of `targeting` and the rate. Absent when 0. */
+  notRun?: number;
   red: number;
   killed: boolean;
   /** The share of targeting blocks that go red, with its Wilson 95% interval; absent with no block. */
@@ -234,6 +238,7 @@ export async function runGate(input: GateInput): Promise<GateResult> {
     for (const [id, run] of specRuns.faults) {
       record.faults[id] = {
         outcome: blockOutcome(run.result, record.index),
+        ...(blockNotRun(run.result, record.index) ? { notRun: true } : {}),
         changed: run.changed,
         failing: failingIds(run.result, record.index),
       };
@@ -531,6 +536,7 @@ function difficultyStage(
   equivalent: ReadonlySet<string>,
 ): { verdict: StageVerdict; probability: number; agents: number } {
   const outcomes: BlockOutcome[] = [];
+  let notRun = 0;
   if (record.reference[0] !== undefined) outcomes.push(record.reference[0]);
   for (const name of TRIVIAL_AGENTS) {
     const outcome = record.trivial[name];
@@ -540,12 +546,15 @@ function difficultyStage(
     if (fault.def.kind === 'control' || fault.def.target !== record.target || equivalent.has(fault.def.id))
       continue;
     const run = record.faults[fault.def.id];
-    if (run) outcomes.push(run.outcome);
+    // A fault agent whose adapter did not run the block measured nothing: it is out of the difficulty.
+    if (run?.notRun) notRun += 1;
+    else if (run) outcomes.push(run.outcome);
   }
-  const passes = outcomes.filter((outcome) => outcome === 'pass').length;
-  const probability = outcomes.length === 0 ? 0 : passes / outcomes.length;
-  const detail = `${passes} of ${outcomes.length} agents pass it`;
-  if (passes === 0 || passes === outcomes.length) {
+  const measured = outcomes;
+  const passes = measured.filter((outcome) => outcome === 'pass').length;
+  const probability = measured.length === 0 ? 0 : passes / measured.length;
+  const detail = `${passes} of ${measured.length} agents pass it${notRun > 0 ? ` (${notRun} not run)` : ''}`;
+  if (passes === 0 || passes === measured.length) {
     return {
       verdict: {
         status: 'mark',
@@ -553,10 +562,10 @@ function difficultyStage(
         detail: `${detail}: ${passes === 0 ? 'every' : 'no'} agent fails it`,
       },
       probability,
-      agents: outcomes.length,
+      agents: measured.length,
     };
   }
-  return { verdict: { status: 'pass', detail }, probability, agents: outcomes.length };
+  return { verdict: { status: 'pass', detail }, probability, agents: measured.length };
 }
 
 /** Stage 8: a seeded sample of each family's accepted blocks goes to a person. */
@@ -673,14 +682,18 @@ function killCount(
   equivalent: ReadonlySet<string>,
 ): KillCount {
   // A control is counted on every block of its target: each red one is a control the gate failed to keep green.
-  const targeting = blocks.filter((record) =>
+  const all = blocks.filter((record) =>
     fault.kind === 'control'
       ? record.target === fault.target && record.faults[fault.id] !== undefined
       : targets(record, fault, equivalent),
   );
+  // A block the fault's adapter did not run measured nothing: it is out of the targeting count and the rate.
+  const targeting = all.filter((record) => record.faults[fault.id]?.notRun !== true);
+  const notRun = all.length - targeting.length;
   const red = targeting.filter((record) => record.faults[fault.id]?.outcome === 'fail').length;
   return {
     targeting: targeting.length,
+    ...(notRun > 0 ? { notRun } : {}),
     red,
     killed: red > 0,
     ...(targeting.length > 0 ? { rate: interval(red, targeting.length) } : {}),
@@ -691,7 +704,13 @@ function killCount(
 export function classScores(faults: readonly FaultSummary[]): ClassScore[] {
   const byClass = groupBy(faults, (fault) => fault.class);
   return [...byClass.entries()].map(([name, members]) => {
-    const scored = members.filter((fault) => !fault.equivalent && fault.kind !== 'control');
+    // A fault whose every targeting block was not run measured nothing: it is not scored.
+    const scored = members.filter(
+      (fault) =>
+        !fault.equivalent &&
+        fault.kind !== 'control' &&
+        !(fault.suite.targeting === 0 && (fault.suite.notRun ?? 0) > 0),
+    );
     const killed = scored.filter((fault) => fault.suite.killed).length;
     return {
       class: name,
