@@ -1,4 +1,4 @@
-import { canonicalJson, type Observed, type RunResult } from '@agent-nexus/driftbench-core';
+import { canonicalJson, type Observed, type RunResult, realizedTextOf } from '@agent-nexus/driftbench-core';
 
 /**
  * Pairs the replies of two campaigns for a pairwise judge. A pair is one block that both campaigns ran in the
@@ -40,12 +40,14 @@ function unitOf(run: RunResult): string {
 
 /**
  * The reply pairs of two sets of runs. `stimulusOf` gives the user message of a block; the caller reads it
- * from the spec the run pins.
+ * from the spec each run pins. Only equal, verifiable sent text is paired.
+ * `onDifferentStimulus` counts otherwise pairable replies skipped for differing or unavailable text.
  */
 export function replyPairs(
   baseline: readonly RunResult[],
   candidate: readonly RunResult[],
-  stimulusOf: (run: RunResult, block: number) => string,
+  stimulusOf: (run: RunResult, block: number) => string | undefined,
+  onDifferentStimulus?: () => void,
 ): ReplyPair[] {
   const pairs: ReplyPair[] = [];
   const candidates = new Map<string, RunResult>();
@@ -63,7 +65,13 @@ export function replyPairs(
       const first = replyText(block.observed);
       const second = replyText(counterpart.observed);
       if (first === '' || second === '') continue;
-      pairs.push({ unit, block: block.index, stimulus: stimulusOf(run, block.index), first, second });
+      const stimulus = realizedTextOf(stimulusOf(run, block.index), block.realized);
+      const otherStimulus = realizedTextOf(stimulusOf(other, counterpart.index), counterpart.realized);
+      if (stimulus === undefined || otherStimulus === undefined || stimulus !== otherStimulus) {
+        onDifferentStimulus?.();
+        continue;
+      }
+      pairs.push({ unit, block: block.index, stimulus, first, second });
     }
   }
   return pairs;

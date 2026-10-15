@@ -1,5 +1,6 @@
 import { type CompareResult, PLANNING_MARGIN, PLANNING_POWER } from './compare';
-import { carriedLines, count, fixed, interval, pct, points, pValue } from './format';
+import { carriedLines, count, fixed, headlineNote, interval, pct, points, pValue } from './format';
+import type { SuiteHeadline } from './headline';
 import type { CriterionRepeat } from './repeats';
 
 /** Pads every column but the last to its widest cell, two spaces apart, indented by two. */
@@ -122,4 +123,13 @@ export function criterionRepeatsText(lines: readonly CriterionRepeat[]): string[
     const verdict = line.verdict === 1 ? 'pass' : line.verdict === 0 ? 'fail' : 'undecided';
     return `Criterion ${line.criterion} (${line.specId}, mode ${line.mode}): ${line.reducer} over ${line.outcomes.length} repeats, ${verdict} (${outcomes}).`;
   });
+}
+
+/**
+ * The suite headline of one mode as a line for the command line: the mean over goldens, its interval and the
+ * method, then what stands behind it (see headlineNote).
+ */
+export function headlineText(mode: string, headline: SuiteHeadline): string {
+  const method = headline.method === 'hierarchical' ? 'hierarchical 95% interval' : 'one golden';
+  return `Suite pass rate, mode ${mode}: ${pct(headline.estimate)} ${interval(headline, pct)} (${method}); ${headlineNote(headline)}.`;
 }
