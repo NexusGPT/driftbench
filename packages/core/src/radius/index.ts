@@ -94,4 +94,16 @@ export {
   sectionsFromHeadings,
   sha256Hex,
 } from './sections';
+export {
+  defaultParentOf,
+  type ParentRef,
+  SECTION_SELECTION_ADVISORY,
+  type SectionBlockState,
+  type SectionSelection,
+  type SectionSelectionBlock,
+  type SectionSelectionSpec,
+  sectionChangeManifest,
+  sectionChanges,
+  sectionSelection,
+} from './select';
 export { agentVersionOf, withAgentVersion } from './version';
