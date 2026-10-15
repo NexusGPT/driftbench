@@ -54,9 +54,10 @@ describe('focused mutation opportunities', () => {
         if (!parsed.ok) throw new Error(JSON.stringify(parsed.errors));
         return JSON.stringify([
           parsed.spec.blocks[0]?.when,
-          (parsed.spec.metadata?.estate as { cell: unknown }).cell,
+          (parsed.spec.metadata?.estate as { cell: unknown } | undefined)?.cell,
         ]);
       });
     expect(new Set(cases).size).toBeGreaterThanOrEqual(5);
+    expect(result.specs).toHaveLength(9);
   });
 });

@@ -187,6 +187,8 @@ export function generateEstateSuite(
   const focusCases = new Map<string, Set<string>>();
   let blocks = 0;
   let judged = 0;
+  const focusCaseKey = (built: Built, row: EstatePlanRow): string =>
+    JSON.stringify([(built.spec.blocks as Array<{ when: unknown }>)[0]?.when, sortedKeys(row.cell)]);
 
   /** Writes one built spec: its file, its record, the totals of its row's test type and mode, its gaps. */
   const emit = (built: Built, row: EstatePlanRow, totalsType: Totals, totalsMode: Totals): void => {
@@ -220,8 +222,7 @@ export function generateEstateSuite(
       ...(built.expect ? { expect: built.expect } : {}),
     });
     if (complete) {
-      const firstBlock = (built.spec.blocks as Array<{ when: unknown }>)[0];
-      const key = JSON.stringify([firstBlock?.when, sortedKeys(row.cell)]);
+      const key = focusCaseKey(built, row);
       for (const atom of row.atomIds) {
         const cases = focusCases.get(atom) ?? new Set<string>();
         cases.add(key);
@@ -340,6 +341,7 @@ export function generateEstateSuite(
         const use = useOf(varied);
         const situation = use === 'none' ? undefined : findSituation(ctx.bank, use, varied);
         const built = build(varied, atoms, ctx, used, situation, undefined, false, variant);
+        if (built.gaps.length === 0 && focusCases.get(atom)?.has(focusCaseKey(built, varied))) continue;
         emit(built, varied, totalsFor(perTestType, row.testType), totalsFor(perMode, row.mode));
       }
     }

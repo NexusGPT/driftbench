@@ -31,7 +31,7 @@ describe('ordering a read before a domain operation', () => {
       expect.objectContaining({
         name: gate.id,
         gating: true,
-        rubric: expect.stringContaining(gate.provenance!.quote),
+        rubric: expect.stringContaining(gate.provenance?.quote ?? ''),
       }),
     ]);
     expect(then.judged).toEqual([gate.id]);
