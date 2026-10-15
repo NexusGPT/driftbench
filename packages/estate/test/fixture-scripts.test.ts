@@ -8,8 +8,8 @@ import { estate, FIXTURE } from './support';
 /** The reconcile script of the fixture estate's invoice-reconcile skill. */
 const SCRIPT = join(FIXTURE, '.claude/skills/invoice-reconcile/scripts/reconcile.py');
 
-function reconcile(root: string, invoice: string, order: string) {
-  const run = spawnSync('python3', [SCRIPT, invoice, order], { cwd: root, encoding: 'utf8' });
+function reconcile(root: string, invoice: string, order: string, script = SCRIPT) {
+  const run = spawnSync('python3', [script, invoice, order], { cwd: root, encoding: 'utf8' });
   return { code: run.status, out: run.stdout, err: run.stderr };
 }
 
@@ -75,5 +75,33 @@ describe('the fixture reconcile script', () => {
     expect(none.status).toBe(2);
     expect(none.stdout).toBe('');
     expect(none.stderr).toMatch(/^Usage: python3 reconcile\.py /);
+  });
+});
+
+describe.each(['fixture', 'fixture-v2'])('%s rejects unreadable JSON inputs', (fixture) => {
+  const script = join(FIXTURE, '..', fixture, '.claude/skills/invoice-reconcile/scripts/reconcile.py');
+
+  it.each([
+    ['missing', {}],
+    ['null', { lines: null }],
+    ['object', { lines: {} }],
+    ['string', { lines: 'not a list' }],
+    ['root array', []],
+  ])('refuses a %s lines list on either side with one diagnostic', async (_label, invalid) => {
+    for (const path of ['invoice.json', 'order.json']) {
+      const files = { 'invoice.json': '{"lines":[]}', 'order.json': '{"lines":[]}' };
+      files[path as keyof typeof files] = JSON.stringify(invalid);
+      const root = await estate(files);
+      expect(reconcile(root, 'invoice.json', 'order.json', script)).toEqual({
+        code: 2,
+        out: '',
+        err: `${path}: missing or invalid 'lines'; expected a JSON object with a 'lines' list of {article, quantity, unit_price} records\n`,
+      });
+    }
+  });
+
+  it('accepts an explicitly empty lines list', async () => {
+    const root = await estate({ 'invoice.json': '{"lines":[]}', 'order.json': '{"lines":[]}' });
+    expect(reconcile(root, 'invoice.json', 'order.json', script)).toEqual({ code: 0, out: '', err: '' });
   });
 });

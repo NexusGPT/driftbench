@@ -5,7 +5,7 @@ Usage: python3 reconcile.py <invoice> <order>
 Each file is a .json file with a list of lines, or a CSV file with the columns article, quantity, unit_price.
 Prints one line per article: matched, short or over, and the difference in EUR.
 A line matches when the quantities are equal and the unit prices differ by less than 0.05 EUR (rounding).
-Exits 0 when every line matches, 1 when a line differs, 2 on a usage error.
+Exits 0 when every line matches, 1 when a line differs, 2 on a usage error or a missing or invalid JSON lines list.
 """
 import csv
 import json
@@ -15,10 +15,20 @@ from decimal import Decimal
 ROUNDING = Decimal("0.05")
 
 
+class InputShapeError(ValueError):
+    pass
+
+
 def load(path):
     with open(path, newline="") as handle:
         if path.endswith(".json"):
-            rows = json.load(handle)["lines"]
+            data = json.load(handle)
+            if not isinstance(data, dict) or not isinstance(data.get("lines"), list):
+                raise InputShapeError(
+                    f"{path}: missing or invalid 'lines'; expected a JSON object with a 'lines' list "
+                    "of {article, quantity, unit_price} records"
+                )
+            rows = data["lines"]
         else:
             rows = list(csv.DictReader(handle))
     return {row["article"]: (int(row["quantity"]), Decimal(str(row["unit_price"]))) for row in rows}
@@ -37,7 +47,11 @@ def main(argv):
     if len(argv) != 3:
         print(__doc__.strip().splitlines()[2], file=sys.stderr)
         return 2
-    invoice, order = load(argv[1]), load(argv[2])
+    try:
+        invoice, order = load(argv[1]), load(argv[2])
+    except InputShapeError as error:
+        print(error, file=sys.stderr)
+        return 2
     differs = False
     for article in sorted(set(invoice) | set(order)):
         state, difference = compare(invoice.get(article, (0, Decimal("0"))), order.get(article, (0, Decimal("0"))))
