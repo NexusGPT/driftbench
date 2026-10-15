@@ -133,7 +133,7 @@ async function evaluate(ctx: CheckContext, policy: ValuePolicy, services: ValueS
       const [verdict, lint] = await inputVerdict(key, values, own, assertion);
       if (verdict.outcome !== 'pass') missed.push(`${tool.label} input.${field}`);
       verdicts.push(verdict);
-      if (lint !== undefined) verdicts.push(lint);
+      verdicts.push(...lint);
     }
   }
 
@@ -184,7 +184,7 @@ type ValueContext = {
 };
 
 /** One call's answer for an argument: its outcome, a note for the evidence, and a lint on the test. */
-type CallAnswer = { outcome: Settles; note?: string; lint?: string };
+type CallAnswer = { outcome: Settles; note?: string; lints?: NonNullable<LadderResult['lint']>[] };
 
 /**
  * One argument on every call of its tool. A value the block names goes through the value-check ladder; the
@@ -196,7 +196,7 @@ async function inputVerdict(
   values: ValueContext,
   own: ToolCall[],
   assertion: Assertion,
-): Promise<[Verdict, Verdict | undefined]> {
+): Promise<[Verdict, Verdict[]]> {
   const { tool, field } = values;
   const label = tool.label;
   const id = `${key}.input.${field}`;
@@ -204,13 +204,13 @@ async function inputVerdict(
     const { expected } = checkAssertion(undefined, assertion);
     return [
       machineVerdict(NAME, id, 'fail', `${label} was not called, so input.${field} could not be ${expected}`),
-      undefined,
+      [],
     ];
   }
   const failures: string[] = [];
   const open: string[] = [];
   const notes: string[] = [];
-  const lints = new Set<string>();
+  const lints = new Map<string, Set<string>>();
   let expected = '';
   let problem: string | undefined;
   for (const [index, call] of own.entries()) {
@@ -225,16 +225,14 @@ async function inputVerdict(
         ? await ladderAnswer(values, call, value, assertion)
         : ({ outcome: 'fail' } as CallAnswer);
     if (answer.note !== undefined) notes.push(`${at}: ${answer.note}`);
-    if (answer.lint !== undefined) lints.add(answer.lint);
+    for (const lint of answer.lints ?? [])
+      lints.set(lint.id, (lints.get(lint.id) ?? new Set()).add(lint.text));
     if (answer.outcome === 'fail') failures.push(`${at}: input.${field} is ${show(value)}`);
     if (answer.outcome === 'inconclusive') open.push(`${at}: input.${field} is ${show(value)}`);
   }
-  const lint =
-    lints.size === 0
-      ? undefined
-      : machineVerdict(NAME, `${id}.unstated_format`, 'fail', `test lint: ${[...lints].join('; ')}`, {
-          gating: false,
-        });
+  const lint = [...lints.entries()].map(([kind, texts]) =>
+    machineVerdict(NAME, `${id}.${kind}`, 'fail', `test lint: ${[...texts].join('; ')}`, { gating: false }),
+  );
   const how = notes.length > 0 ? ` (${notes.join('; ')})` : '';
   if (problem) return [machineVerdict(NAME, id, 'fail', `input.${field} ${expected}: ${problem}`), lint];
   if (failures.length > 0) {
@@ -323,17 +321,16 @@ async function ladderAnswer(
       : 'pass';
   const note = settled
     .map((entry) => {
-      const rung = entry.result.rung === 'none' ? 'undecided' : entry.result.rung;
-      return `${entry.path} ${rung}: ${entry.result.evidence}`;
+      return `${entry.path} ${entry.result.rung}: ${entry.result.evidence}`;
     })
     .join('; ');
   const lints = results
     .map((entry) => entry.result.lint)
-    .filter((lint): lint is string => lint !== undefined);
+    .filter((lint): lint is NonNullable<LadderResult['lint']> => lint !== undefined);
   return {
     outcome,
     ...(note === '' ? {} : { note }),
-    ...(lints.length === 0 ? {} : { lint: lints.join('; ') }),
+    ...(lints.length === 0 ? {} : { lints }),
   };
 }
 
