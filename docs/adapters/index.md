@@ -64,7 +64,7 @@ An adapter that sends the history to a model sends each recorded tool call as th
 * The calls of one assistant turn have distinct ids, as every wire requires. A recorded id that repeats one of the same turn, after the wire's own character rules, gets a fresh id, so the result still answers its call; an id repeated in another turn is kept, which the wires accept. A call recorded with no id gets the adapter's fallback id.
 * A `tool` message that answers no call (a free tool note) goes as user text, also on Chat Completions, which refuses a `tool` message without its call.
 
-The crewai adapter takes the history as text inputs. With its default inputs, it refuses a Given whose prefix holds recorded tool calls with an `AgentFailure`: the crew's agents would read them as prose, which is a different test (see [Given](../concepts/given-when-then.md#tool-history-records-not-prose)). Pass `inputs` to hand the calls to the crew your own way.
+The crewai adapter takes the history as text inputs. With its default inputs, it refuses a Given whose prefix holds recorded tool calls with an `AgentFailure`: the crew's agents would read them as prose, which is a different test (see [Given](../concepts/given-when-then.md)). Pass `inputs` to hand the calls to the crew your own way.
 
 The write-error guarantee applies to shared host `Message` objects. SDK adapters can build separate wire representations, and processes receive serialized copies; writes to those independent copies need not throw and cannot change host history.
 
