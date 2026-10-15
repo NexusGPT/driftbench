@@ -8,6 +8,17 @@
 export const SCHEMA_VERSION = 3;
 
 /**
+ * The tables each schema version added: schema 1's tables, the registry with 2, none with 3. A test checks that
+ * together they are every table SCHEMA_SQL creates and that every version up to SCHEMA_VERSION is listed, so a
+ * new table or a new version is written here with its number.
+ */
+export const TABLES_BY_VERSION: Readonly<Record<number, readonly string[]>> = {
+  1: ['specs', 'campaigns', 'runs', 'blocks', 'cache', 'units'],
+  2: ['blobs', 'versions'],
+  3: [],
+};
+
+/**
  * The tables. Each row keeps its record as JSON; the plain columns are copies of record fields, kept
  * for filters and for SQL read by hand. A run's blocks live in `blocks`, one row per block, and the
  * run's own JSON holds everything else. Times are ISO 8601 text in UTC.
