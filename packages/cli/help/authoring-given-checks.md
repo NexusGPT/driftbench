@@ -3,8 +3,8 @@ title: Given checks, shared facts and summaries
 summary: 'The Given verifier checks a block''s starting state before the block runs: paired tool history, known tools, history that matches the world, and `given.shared` facts said in the message they name. `given.summary`, `world.workspace.summary` and `spec lint --summaries` describe a named state.'
 commands:
   - spec lint
-  - campaign run
 see_also:
+  - running-campaign-run
   - authoring-prefixes
   - authoring-spec-check
   - running-not-run
@@ -27,7 +27,7 @@ The Given verifier is a set of checks on that recipe. It reads only the spec, an
 | `tool_history_paired` | 2 tool history | every tool call of a prefix carries an `output` or an `error`, and no call `id` repeats within one message. The same id in two different assistant messages is accepted | `not_run`. A warning only (`GIVEN_CANONICAL_UNPAIRED`) on a prefix whose `origin` is `canonical` |
 | `tool_known` | 2 tool history, 5 world | every tool a prefix calls, or `world.tools` forces, is a key of `metadata.tool_schemas`. Off when the spec declares no tool schemas | `not_run` |
 | `history_matches_world` | 2 tool history and 5 world | a recorded call of a tool the block's world forces records that forced result or error | `not_run` |
-| `value_in_message` | 4 beliefs | each `given.shared` fact said by `user` or `agent` is in the ledger, and its value is in the prefix message it names, sent by that speaker | `not_run` |
+| `value_in_message` | 4 beliefs | each `given.shared` fact said by `user` or `agent` is in the ledger. Its value is in the prefix message it names, sent by that speaker | `not_run` |
 | `chain` | 4 beliefs | a block's `ledger_add` agrees with the ledger the block starts from | warning only (`GIVEN_CHAIN`) |
 | `summary_present` | 5 world | a workspace folder (`world.workspace.from`) and a named session state (`vars.session_state`) carry a summary | warning only (`GIVEN_SUMMARY_MISSING`), and only with `spec lint --summaries` |
 
@@ -70,9 +70,9 @@ driftbench spec lint <paths...> [--json] [--strict] [--summaries]
 
 Exit codes: 0 when every spec is valid (warnings allowed), 1 when one is invalid or, with `--strict`, has a warning, 2 when no path is given. The other options and codes are in the topic authoring-spec-check.
 
-### driftbench campaign run
+### In a run
 
-No option. The verifier runs before each block, on every target. A Given error makes the block `not_run` with kind `given_unmet`; the cell is `not_run`, and the command exits 1.
+The verifier has no option of `campaign run` or any other command. It runs before each block, on every target. A Given error makes the block `not_run` with kind `given_unmet`; the cell is `not_run`, and the command exits 1.
 
 ## Inputs
 
@@ -255,14 +255,14 @@ $ driftbench spec lint out/authoring-given-checks
 Checked 3 specs: 3 valid, 0 invalid, 2 warnings.
 (exit 0)
 $ driftbench campaign run out/authoring-given-checks/shared.yaml --no-cache --mode T,F
-Campaign c-eb44efe69269: 2 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, regex, exact, injection, length, markup, starts_with, finish_reason, json, tool_f1, refusal, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Campaign c-80474e4b6f5a: 2 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, regex, exact, injection, length, markup, starts_with, finish_reason, json, tool_f1, refusal, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
 ✓ shared-facts · function:acme-sales · T · repeat 0  pass  1 block
 ✓ shared-facts · function:acme-sales · F · repeat 0  pass  1 block
 2 cells: 2 pass, 0 fail, 0 failed. Spent $0.00.
 The runs are not kept: pass --store <file> to keep them.
 (exit 0)
 $ driftbench campaign run out/authoring-given-checks/broken/wrong-message.yaml --no-cache
-Campaign c-f5e957a7f5dd: 1 cell, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, regex, exact, injection, length, markup, starts_with, finish_reason, json, tool_f1, refusal, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Campaign c-04f55c0f1e54: 1 cell, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, regex, exact, injection, length, markup, starts_with, finish_reason, json, tool_f1, refusal, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
 - shared-wrong-message · function:acme-sales · F · repeat 0  not_run  block 0 not_run value_in_message
 1 cell: 0 pass, 0 fail, 1 not run, 0 failed. Spent $0.00.
 The runs are not kept: pass --store <file> to keep them.

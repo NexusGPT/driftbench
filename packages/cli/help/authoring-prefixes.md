@@ -169,7 +169,14 @@ The topic authoring-import tells the rest of the command.
 
 A `prefix` or an `origin` at the top-level `given` is a schema error: only a block takes them. An `origin` on a block that writes no `prefix` is `GIVEN_ORIGIN_WITHOUT_PREFIX`.
 
-The Given verifier checks a prefix before the block runs (topic authoring-spec-check): every tool call carries an `output` or an `error`, no call id repeats within one message, a call of a tool `world.tools` forces records that forced result, and each `shared` fact said by the user or the agent is in the message it names. A block that fails one is `not_run` (kind `given_unmet`), never sent, and `spec lint` warns `GIVEN_UNMET`. Topic authoring-given-checks has every check, the `shared` and `summary` keys and a worked example.
+The Given verifier checks a prefix before the block runs (topic authoring-spec-check). Its rules:
+
+- every tool call carries an `output` or an `error`;
+- no call id repeats within one message;
+- a call of a tool that `world.tools` forces records that forced result;
+- each `shared` fact said by the user or the agent is in the message it names.
+
+ A block that fails one is `not_run` (kind `given_unmet`), never sent, and `spec lint` warns `GIVEN_UNMET`. Topic authoring-given-checks has every check, the `shared` and `summary` keys and a worked example.
 
 ### A message of the prefix
 
