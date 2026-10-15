@@ -52,6 +52,10 @@ const jobs = [
   { name: 'innovations', src: 'innovations.html', out: 'innovations-{theme}.png' },
   { name: 'moj', src: 'moj.html', out: 'moj-{theme}.png' },
   { name: 'blast', src: 'blast.html', out: 'blast-{theme}.png' },
+  // The block redesign section: the block as a graph, its rule files, its diagnosis.
+  { name: 'block-graph', src: 'block-graph.html', out: 'block-graph-{theme}.png' },
+  { name: 'block-rules', src: 'block-rules.html', out: 'block-rules-{theme}.png' },
+  { name: 'block-blame', src: 'block-blame.html', out: 'block-blame-{theme}.png' },
   // The charts: one page, chart.html?c=<name>, reading chart-data.js (written by tools/readme-charts.mjs).
   // The five public benchmark charts render into docs/assets, where the README and the docs site both read them.
   { name: 'judge-leads', src: 'chart.html', query: 'c=judge-leads', out: 'judge-leads-{theme}.png' },
