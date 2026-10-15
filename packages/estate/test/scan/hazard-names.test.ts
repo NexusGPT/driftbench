@@ -17,9 +17,13 @@ describe('runtime event names', () => {
     ['When we resume the session, read the saved state.', 'session_boundary'],
     ['A 429 error means the queue must wait.', 'rate_wave'],
     ['On Too Many Requests, back off.', 'rate_wave'],
+    ['When a hook nudges the agent twice, stop and report.', 'nudge_storm'],
+    ['After three nudges the guard blocks the call.', 'nudge_storm'],
   ])('reads %s', async (text, expected) => expect(await hazards(text)).toEqual([expected]));
   it.each([
     'Invoice 429 requires a receipt.',
+    'Nudge the price up by one percent.',
+    'Nudge the delivery date down a day if the client agrees.',
     'The printer reboots after maintenance.',
     'Resume the session of the training course.',
   ])('keeps domain work out: %s', async (text) => expect(await hazards(text)).toEqual([]));

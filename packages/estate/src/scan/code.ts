@@ -1027,6 +1027,18 @@ function runtimeHazard(id: (typeof HAZARDS)[number]['id'], text: string): boolea
       return !/\b(?:supplier|customer|client)(?:'s)?\s+rate[- ]limits?\b|\brate[- ]limits?\s+for\s+(?:orders|purchases|deliveries)\b/i.test(
         line,
       );
+    case 'nudge_storm':
+      // A nudge the agent receives (repeated nudges, a hook nudges the agent), never the agent nudging a
+      // value of the work ("nudge the price up").
+      return [
+        ...line.matchAll(
+          /\bnudg(?:e|es|ed|ing)\b(\s+(?:up\s+|down\s+)?(?:the|a|an|this|that|these|those|its|their|our|your|my|it|them)\b(?:\s+(\w+))?)?/gi,
+        ),
+      ].some(
+        (match) =>
+          match[1] === undefined ||
+          /^(?:agent|assistant|model|session|helper|subagent|claude|guard|hook)$/i.test(match[2] ?? ''),
+      );
     case 'notification':
       return (
         !/\b(?:send|deliver|post|email)\b[^.;!?]*\bnotifications?\b/i.test(line) ||
