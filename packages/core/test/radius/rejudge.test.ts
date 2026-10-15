@@ -241,6 +241,8 @@ it.each([false, true])('rejudge copies obey the destination text policy (%s)', a
   const stripped = await rejudgeRun(prepared, judge, () => 0);
   const copiedAgain = await rejudgeRun({ ...prepared, source: stripped }, judge, () => 0, true);
   expect(copiedAgain.blocks.every((block) => block.realized?.text === undefined)).toBe(true);
+});
+
 it('re-judges the scored block of a run whose later blocks were not run, and leaves those as they were', async () => {
   const forced = specOf({
     ...original,
