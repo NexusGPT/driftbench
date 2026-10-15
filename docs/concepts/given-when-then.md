@@ -15,7 +15,7 @@ A spec sets Given in two places.
 * `given` at the top of the spec: the default for every block. It holds `ledger`, `world` and `vars`.
 * `given` on a block: the same three parts, plus `prefix`, the messages that come before the block, and `origin`, where that prefix comes from.
 
-A block's `prefix` starts the block in the middle of a conversation, without replaying the blocks before it. In a free-running run, the block opens a new session from that prefix, and the blocks after it continue from there. Whether the agent itself sees the prefix depends on the adapter's `seedPrefix` capability; see [adapters](../adapters/index.md#capabilities). The block's `ledger`, `world` and `vars` merge into the running state from that block onwards, in free-running and perturbed modes. In teacher-forced mode, every block starts from its own resolved Given. See [run modes](run-modes.md).
+A block's `prefix` starts the block in the middle of a conversation, without replaying the blocks before it. In a free-running run, the block opens a new session from that prefix, and the blocks after it continue from there. The agent sees the prefix only on an adapter with the `seedPrefix` capability; on another, the block is `not_run` (the `capability` check), never run without it. See [adapters](../adapters/index.md#capabilities). The block's `ledger`, `world` and `vars` merge into the running state from that block onwards, in free-running and perturbed modes. In teacher-forced mode, every block starts from its own resolved Given. See [run modes](run-modes.md).
 
 | Part | What it holds | Example |
 |---|---|---|
@@ -27,7 +27,7 @@ A block's `prefix` starts the block in the middle of a conversation, without rep
 | `world.fixtures` | free fixtures | a price table |
 | `vars` | runtime variables | the clock, the channel, the sender |
 
-An adapter applies `world.tools` only when it has the `toolStubs` capability; see [adapters](../adapters/index.md#capabilities).
+An adapter applies `world.tools` only when it has the `toolStubs` capability; on another, a block with a forced tool result is `not_run`. See [adapters](../adapters/index.md#capabilities).
 
 ### Tool history: records, not prose
 

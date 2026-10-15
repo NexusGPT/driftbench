@@ -161,7 +161,7 @@ Bounds, so a runaway agent cannot exhaust the run:
 
 ## Capabilities
 
-`sandbox` is on, and so is `readArtifact`. `deterministic` is as declared. `variants`, `seedPrefix`, `toolStubs`, `trace` and `endState` are off: the adapter reads no end state, so a task checks its outcome through `artifacts`, `workspace` and `execution`. The version is `0.1.0`.
+`sandbox` is on, and so is `readArtifact`. `seedPrefix` is on: the agent receives the session history, the prefix included (and in mode T the canonical history), in `driftbench-history.json`. `deterministic` is as declared. `variants`, `toolStubs`, `trace` and `endState` are off: the adapter reads no end state, so a task checks its outcome through `artifacts`, `workspace` and `execution`. The version is `0.1.0`.
 
 ## Target
 

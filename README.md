@@ -635,7 +635,7 @@ From code, wrap your agent in an adapter. Save this as `run.mjs` and run `node r
 ```js
 import { functionAdapter } from '@agent-nexus/driftbench-adapters';
 import { defaultChecks } from '@agent-nexus/driftbench-checks';
-import { loadSpecFile, runSpec } from '@agent-nexus/driftbench-core';
+import { blockStatus, loadSpecFile, runOutcome, runSpec } from '@agent-nexus/driftbench-core';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 
 // Your agent: any async function from the conversation so far to a reply.
@@ -672,8 +672,8 @@ const run = await runSpec(loaded.spec, {
   mode: 'F',
   repeat: 0,
 });
-for (const block of run.blocks) console.log(`block ${block.index}: ${block.pass ? 'pass' : 'fail'}`);
-process.exit(run.blocks.every((block) => block.pass) ? 0 : 1);
+for (const block of run.blocks) console.log(`block ${block.index}: ${blockStatus(block)}`);
+process.exit(runOutcome(run) === 'pass' ? 0 : 1);
 ```
 
 ```

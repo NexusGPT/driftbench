@@ -3,6 +3,7 @@ import { dirname } from 'node:path';
 import type { DatabaseSync, SQLInputValue, StatementSync } from 'node:sqlite';
 import {
   applyRealizedTextPolicy,
+  blockStatus,
   Campaign,
   type CostUnit,
   canonicalJson,
@@ -708,7 +709,7 @@ export class SqliteStore implements Store {
         toJson(observed, label),
         toJson(verdicts, label),
         toJson(drift, label),
-        block.pass ? 1 : 0,
+        blockStatus(block) === 'pass' ? 1 : 0,
         toJson(rest, label),
       ] satisfies SQLInputValue[];
     });

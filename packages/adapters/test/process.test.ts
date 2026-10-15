@@ -139,7 +139,7 @@ describe('the process adapter', () => {
     expect(adapter.id).toBe('process');
     expect(adapter.capabilities()).toEqual({
       variants: false,
-      seedPrefix: false,
+      seedPrefix: true,
       toolStubs: false,
       trace: false,
       sandbox: true,

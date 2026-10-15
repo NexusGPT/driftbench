@@ -100,7 +100,7 @@ Any other error fails the run at once too. A failed run is recorded with status 
 | Capability | The adapter can |
 |---|---|
 | `variants` | run a named variant of the agent, such as a prompt version |
-| `seedPrefix` | let the agent see a session's prefix, which teacher-forced mode needs |
+| `seedPrefix` | let the agent see a session's prefix, which teacher-forced mode needs. A built-in adapter that sends the prefix to a model sends a past call with no recorded result with a note saying so, never `null`; see [run modes](../concepts/run-modes.md#teacher-forced) |
 | `toolStubs` | force tool results and errors from `world.tools` |
 | `trace` | offer `trace` |
 | `sandbox` | run the agent in a sandboxed workspace, which task specs need; it then offers `readArtifact` |
@@ -110,7 +110,7 @@ Any other error fails the run at once too. A failed run is recorded with status 
 | Capability | function | http | nexus | process |
 |---|---|---|---|---|
 | `variants` | no | as declared | yes | no |
-| `seedPrefix` | yes | yes | no | no |
+| `seedPrefix` | yes | yes | no | yes: the history file |
 | `toolStubs` | yes | as declared | no | no |
 | `trace` | no | no | yes | no |
 | `sandbox` | no | no | no | yes |
@@ -139,7 +139,7 @@ Any other error fails the run at once too. A failed run is recorded with status 
 
 The four SDK adapters report tokens, never a cost in USD.
 
-The runner uses `trace` and `endState` today. It does not act on the others yet: a forced tool result in `world.tools` on an adapter without `toolStubs` is not applied, and a spec's `prefix` on an adapter without `seedPrefix` is not replayed to the agent.
+The runner uses `trace`, `endState`, `seedPrefix` and `toolStubs` today. A forced tool result in `world.tools` on an adapter without `toolStubs`, and a spec's `prefix` on an adapter without `seedPrefix`, give `not_run: unsupported`: the block is not sent, it is neither a pass nor a fail, and `ci` fails with exit 3 (see [running](../running.md)). The layer is never dropped silently.
 
 ## The contract suite
 
