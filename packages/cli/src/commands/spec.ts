@@ -1,5 +1,5 @@
 import { relative, resolve } from 'node:path';
-import { type Issue, type LoadResult, loadSpecs } from '@agent-nexus/driftbench-core';
+import { givenIssues, type Issue, type LoadResult, loadSpecs } from '@agent-nexus/driftbench-core';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { coverageCommand } from './coverage';
@@ -22,7 +22,11 @@ export function registerSpecCommands(program: Command, io: Io, setExit: (code: n
     .argument('<paths...>', 'spec files or folders')
     .option('--json', 'print one JSON document')
     .option('--strict', 'treat warnings as failures')
-    .action(async (paths: string[], options: { json?: boolean; strict?: boolean }) => {
+    .option(
+      '--summaries',
+      'also warn when a workspace folder (world.workspace.from) or a named session state has no summary',
+    )
+    .action(async (paths: string[], options: { json?: boolean; strict?: boolean; summaries?: boolean }) => {
       setExit(await lintCommand(paths, options, io));
     });
 
@@ -57,10 +61,27 @@ export async function validateCommand(paths: string[], options: { json?: boolean
 
 export async function lintCommand(
   paths: string[],
-  options: { json?: boolean; strict?: boolean },
+  options: { json?: boolean; strict?: boolean; summaries?: boolean },
   io: Io,
 ): Promise<number> {
-  const results = await loadSpecs(paths.map((path) => resolve(io.cwd, path)));
+  const loaded = await loadSpecs(paths.map((path) => resolve(io.cwd, path)));
+  // The summary warnings are asked for: the loader leaves them out, so the specs that name a state or a folder
+  // without one keep linting clean by default.
+  const results = options.summaries
+    ? loaded.map((result) =>
+        result.ok
+          ? {
+              ...result,
+              warnings: [
+                ...result.warnings,
+                ...givenIssues(result.spec, { summaries: true }).filter(
+                  (issue) => issue.code === 'GIVEN_SUMMARY_MISSING',
+                ),
+              ],
+            }
+          : result,
+      )
+    : loaded;
   if (options.json) {
     io.out(
       `${JSON.stringify(

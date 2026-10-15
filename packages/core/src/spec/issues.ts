@@ -26,6 +26,10 @@ export const IssueCodes = [
   'GIVEN_ORIGIN_WITHOUT_PREFIX',
   'PREFIX_PROSE_HISTORY',
   'SPEC_SCHEMA_VERSION',
+  'GIVEN_UNMET',
+  'GIVEN_CHAIN',
+  'GIVEN_SUMMARY_MISSING',
+  'GIVEN_CANONICAL_UNPAIRED',
 ] as const;
 
 export type IssueCode = (typeof IssueCodes)[number] | `SCHEMA_${string}`;
