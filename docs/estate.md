@@ -490,7 +490,7 @@ How a row becomes a spec:
 | `needs-workspace-outcome` | the situation declares no paths its ask may touch (with `--no-fallback` only) |
 | `needs-some-call-check` | a tool call with input assertions: a check that some call matches |
 | `needs-registered-check` | a custom predicate no registered check runs and the generator does not compile |
-| `needs-ordered-anchor` | an ordered pair whose ends are not a tool label, a skill or a stage, or are the same label |
+| `needs-ordered-anchor` | an ordered pair whose ends are not a tool label, a skill or a stage, or are the same label, with no configured judge to check the source rule |
 | `needs-stage-reach-check` | a stage reachable at any time, or a step list with no single closing stage |
 | `needs-static-runner` | a static property of the estate files that names no check the static runner knows |
 | `needs-negation` | in a negative control, a predicate with no inverse |
@@ -500,9 +500,15 @@ How a row becomes a spec:
 | `needs-guard-message-check` | the message a guard gives |
 | `needs-derivable-then` | a row with no Then code can derive |
 | `needs-askable-act` | no approved phrase, and the atoms' words give no task the floor accepts |
-| `needs-existing-file` | a Read of a file the estate copy does not hold |
+| `needs-existing-file` | a Read of a file the estate copy does not hold, with no registered `some_call` checker to verify the attempt |
+
+When an ordered obligation names a domain operation with no tool, skill or stage anchor, a configured judge checks the order against the full source rule. Machine checks for named reads remain in place. Without a judge the row retains `needs-ordered-anchor`.
+
+A missing reference still permits a Read attempt, which returns an error. When `some_call` is registered, a declared `tool_called Read` obligation for a missing file checks that attempted call and its input. It does not expect a successful read or invented file content. Existing references still use the successful-read check.
 
 The files of the estate copy are listed from the map's `root`. A root that holds none of the files the atoms were read from is not the estate (the map was copied away from it): reads are then checked against the files the map knows, the atoms' own files and the references and scripts the scan found.
+
+Focus coverage counts distinct asks and situation cells. Repeated rows with the same ask and cell do not replace additional mutation opportunities.
 
 Layout: `<specs|incomplete>/<mode>/<test type>/<id>.yaml`, so `driftbench replay --suite <out>/specs/replay` takes the replay specs alone.
 
