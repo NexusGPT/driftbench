@@ -56,6 +56,16 @@ A session's history starts as a fresh array of the prefix's shared, deeply froze
 
 History must be an ordinary dense array of non-null plain message objects. Array subclasses, accessor entries, extra own properties, holes and `undefined` entries are rejected. Entries are captured once from data descriptors; validation and delivery use those same values. Messages and nested values must be plain JSON data: objects with `Object.prototype` or null prototype, ordinary dense arrays, strings, finite numbers, booleans and `null`. Properties must be enumerable string-keyed data properties; arrays have indexed entries only. Boundaries reject accessor properties, class instances, `Date`, `Map`, `Set`, typed arrays, functions, `undefined`, non-finite numbers, symbols, bigints and cycles with a path-specific `TypeError`. Convert special values explicitly and omit absent optional properties; the adapter never invokes getters or `toJSON` to convert them. Validation shares the once-per-message freeze cache. Adapters validate and freeze prefixes before invoking user-supplied setup factories, including tool, agent and context factories.
 
+### Tool history on the wire
+
+An adapter that sends the history to a model sends each recorded tool call as the wire's own tool records, never as text: Anthropic `tool_use` and `tool_result` blocks, Responses `function_call` and `function_call_result` items, Chat Completions `tool_calls` and `tool` messages, and the shapes of Gemini, LangGraph, Pydantic AI and the Vercel AI SDK. One compiler pairs every call of the history with its result before any adapter renders it (`anthropic`, `http`, `litellm`, `openai-agents`, `google`, `langgraph`, `pydantic-ai`, `vercel-ai`):
+
+* Every call goes with a result: its recorded output, its recorded error, or, when the history recorded neither, the value the adapter sends for an unrecorded result. A result follows its own call, in order.
+* The calls of one assistant turn have distinct ids, as every wire requires. A recorded id that repeats one of the same turn, after the wire's own character rules, gets a fresh id, so the result still answers its call; an id repeated in another turn is kept, which the wires accept. A call recorded with no id gets the adapter's fallback id.
+* A `tool` message that answers no call (a free tool note) goes as user text, also on Chat Completions, which refuses a `tool` message without its call.
+
+The crewai adapter takes the history as text inputs. With its default inputs, it refuses a Given whose prefix holds recorded tool calls with an `AgentFailure`: the crew's agents would read them as prose, which is a different test (see [Given](../concepts/given-when-then.md#tool-history-records-not-prose)). Pass `inputs` to hand the calls to the crew your own way.
+
 The write-error guarantee applies to shared host `Message` objects. SDK adapters can build separate wire representations, and processes receive serialized copies; writes to those independent copies need not throw and cannot change host history.
 
 Proxies are rejected. A Proxy history array, a Proxy message or a Proxy nested value fails with a path-specific `TypeError` before any setup factory runs; no `get` trap is called during the check.

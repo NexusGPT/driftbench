@@ -76,6 +76,8 @@ What the agent receives of the prefix depends on the adapter, as its source code
 
 `world.tools` applies only on adapters with the `toolStubs` capability: `function`, `anthropic`, `google`, `vercel-ai`, `litellm`, and `http` when its options turn it on.
 
+An adapter that sends the history to a model sends each tool call of the prefix as that model's own tool call and tool result records, with ids that pair them, never as text. The crewai adapter takes history as text inputs, so with its default inputs it refuses a prefix that holds tool calls rather than let the crew read them as prose.
+
 ## When to use it
 
 - Test a late turn of a long conversation in one block.
