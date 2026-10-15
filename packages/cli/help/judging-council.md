@@ -78,10 +78,10 @@ A weighted panel with abstain, `weightedPanel(votes, weights, margin)` with a de
 A council result has `criterion`, `outcome`, `cls` (the class whose round decided), `votes` (every vote of every round), `rounds`, `split` (the first round split), `cascaded`, `errors`, `cost`, `score` (the mean score of the agreeing votes that carry one) and `log`, one line per round:
 
 ```
-system1: jev-a pass, jev-b inconclusive, openai-decisions fail; split
+system1: s1p-a pass, s1p-b inconclusive, openai-decisions fail; split
 system2: google-chat fail, openai-chat fail, anthropic-chat fail; fail
-system1 (large budget): jev-a@large inconclusive, ...; split
-system1: jev-a pass; pass, the cheapest judge was sure
+system1 (large budget): s1p-a@large inconclusive, ...; split
+system1: s1p-a pass; pass, the cheapest judge was sure
 ```
 
 In a run, the council's check is the check named `judge`, placed after every machine check. Each criterion a block names gives one verdict `judge.<name>` (a character other than a letter, digit, `_`, `.` or `-` becomes `_`), of kind `judge`, with the deciding class and every vote, the round log as evidence, and the reasoning of the first agreeing vote. It gates when the definition sets `gating: true` or the block writes `name@gating`, unless calibration left it unassigned; then its evidence starts `unassigned by calibration, not gating:`. A criterion the spec does not define gives an inconclusive verdict. A judge verdict never replaces a machine verdict: a block passes only when every gating verdict passes. `combineVerdicts(machine, judged)` applies the same rule for a caller merging lists, and refuses a judge verdict of kind `machine` or one reusing a machine verdict id. A failing gating judge verdict carries drift class X1.

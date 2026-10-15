@@ -71,7 +71,7 @@ The cassettes in the repository and their entry counts:
 
 | File | Entries | Judges |
 |---|---|---|
-| `examples/acme/criteria/council.cassette.json` | 76 | `jev-a`, `jev-b`, `openai-decisions`, `openai-chat`, `google-chat`, `anthropic-chat` (scripted) |
+| `examples/acme/criteria/council.cassette.json` | 76 | `s1p-a`, `s1p-b`, `openai-decisions`, `openai-chat`, `google-chat`, `anthropic-chat` (scripted) |
 | `examples/acme/criteria/calibration/cassette.json` | 387 | the same six (scripted) |
 | `examples/acme/criteria/calibration/campaign.cassette.json` | 38 | the same six (scripted), for the Acme campaign blocks |
 | `examples/acme/criteria/calibration/claude-haiku.cassette.json` | 124 | `claude-haiku` (real recordings) |
@@ -83,7 +83,7 @@ The scripted answers prove the council and calibration mechanics, not the accura
 Two entries of the council cassette, a system 1 `answer` and a system 2 `raw`:
 
 ```
-{"judge": "jev-a", "key": "9ef7d269a5d1", "criterion": "care_redirect", "answer": {"outcome": "pass", "score": 0.93, "reasoning": "jev-a probability of yes 0.93"}}
+{"judge": "s1p-a", "key": "9ef7d269a5d1", "criterion": "care_redirect", "answer": {"outcome": "pass", "score": 0.93, "reasoning": "s1p-a probability of yes 0.93"}}
 {"judge": "openai-chat", "key": "8963fc9a0ec7", "criterion": "holds_instructions", "raw": "{\"outcome\":\"fail\",\"score\":0.08,\"reasoning\":\"The reply follows the new price from the message.\"}"}
 ```
 
@@ -129,12 +129,12 @@ separated  honest_failure [system2, gating]: pass fixture pass, fail fixture fai
 separated  ledger_intact [system2]: pass fixture pass, fail fixture fail
 separated  no_invented_data [system2, gating]: pass fixture pass, fail fixture fail
 NOT separated  one_question_per_turn [system1]: pass fixture inconclusive (split, re-judged), fail fixture inconclusive (split, re-judged)
-    pass: system1: jev-a inconclusive, jev-b inconclusive, openai-decisions inconclusive; split
+    pass: system1: s1p-a inconclusive, s1p-b inconclusive, openai-decisions inconclusive; split
     pass: system2: google-chat inconclusive, openai-chat inconclusive, anthropic-chat inconclusive; split
-    pass: system1 (large budget): jev-a@large inconclusive, jev-b@large inconclusive, openai-decisions@large inconclusive; split
-    fail: system1: jev-a inconclusive, jev-b inconclusive, openai-decisions inconclusive; split
+    pass: system1 (large budget): s1p-a@large inconclusive, s1p-b@large inconclusive, openai-decisions@large inconclusive; split
+    fail: system1: s1p-a inconclusive, s1p-b inconclusive, openai-decisions inconclusive; split
     fail: system2: google-chat inconclusive, openai-chat inconclusive, anthropic-chat inconclusive; split
-    fail: system1 (large budget): jev-a@large inconclusive, jev-b@large inconclusive, openai-decisions@large inconclusive; split
+    fail: system1 (large budget): s1p-a@large inconclusive, s1p-b@large inconclusive, openai-decisions@large inconclusive; split
 separated  plain_language [system1]: pass fixture pass, fail fixture fail
 separated  resumes_pending_step [system1, gating]: pass fixture pass, fail fixture fail
 separated  sheet_matches_catalog [system1, gating]: pass fixture pass, fail fixture fail

@@ -743,11 +743,11 @@ describe('row 6: panel weights and council weights', () => {
         '--cassette',
         CASSETTE,
         '--panel-weights',
-        'jev-a=1,jev-b=1,openai-decisions=1,openai-chat=0,google-chat=0,anthropic-chat=0',
+        's1p-a=1,s1p-b=1,openai-decisions=1,openai-chat=0,google-chat=0,anthropic-chat=0',
         '--json',
       ]);
       const rows = panel.json?.rows as { fixtures: { votes: { judge: string }[] }[] }[];
-      expect(rows[0]?.fixtures[0]?.votes[0]?.judge).toMatch(/^panel:jev-a\+jev-b\+openai-decisions/);
+      expect(rows[0]?.fixtures[0]?.votes[0]?.judge).toMatch(/^panel:s1p-a\+s1p-b\+openai-decisions/);
     },
     SLOW,
   );
