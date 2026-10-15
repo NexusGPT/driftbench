@@ -110,7 +110,7 @@ Any other error fails the run at once too. A failed run is recorded with status 
 | Capability | function | http | nexus | process |
 |---|---|---|---|---|
 | `variants` | no | as declared | yes | no |
-| `seedPrefix` | yes | yes | no | no |
+| `seedPrefix` | yes | yes | no | yes: the history file |
 | `toolStubs` | yes | as declared | no | no |
 | `trace` | no | no | yes | no |
 | `sandbox` | no | no | no | yes |

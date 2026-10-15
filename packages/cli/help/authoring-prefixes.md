@@ -74,7 +74,7 @@ What the agent receives of the prefix depends on the adapter, as its source code
 | `nexus`, live Claude Code | nothing: these adapters send only the block's own user turn and have no `seedPrefix` capability, so a block with a prefix is `not_run` (below) |
 | Claude Code replay | no agent runs: the adapter returns the recorded session, so a prefix changes nothing it returns |
 
-A prefix needs the `seedPrefix` capability, which every adapter above has except `nexus` and live Claude Code. On those a block with a prefix (and, in modes F and P, every block after it; in mode T every block that keeps that history) is `not_run` with kind `unsupported` and check `capability`: it is not sent, and it is neither a pass nor a fail (see running-outcomes). `world.tools` applies only on adapters with the `toolStubs` capability: `function`, `anthropic`, `google`, `vercel-ai`, `litellm`, and `http` when its options turn it on; on the others a block with a forced tool result is `not_run` the same way.
+A prefix needs the `seedPrefix` capability, which every adapter above has except `nexus` and live Claude Code. On those a block with a prefix (and, in modes F and P, every block after it) is `not_run`, and so is every mode T block after the first, whose canonical history (the blocks before, as the spec writes them) the agent would never see. Such a block is `not_run` with kind `unsupported` and check `capability`: it is not sent, and it is neither a pass nor a fail (see running-outcomes). `world.tools` applies only on adapters with the `toolStubs` capability: `function`, `anthropic`, `google`, `vercel-ai`, `litellm`, and `http` when its options turn it on; on the others a block with a forced tool result is `not_run` the same way.
 
 ## When to use it
 
@@ -493,6 +493,6 @@ Problems with no message:
 | Symptom | Cause | Fix |
 |---|---|---|
 | a block fails right after a prefix | a recorded `output` with a shape the real tool never returns | copy the output from a real run, or leave `output` out so the agent reads the tool again |
-| the block is `not_run`, check `capability` | the adapter has no `seedPrefix` capability (`nexus`, live Claude Code), so the agent could not receive the prefix | write the earlier turns as blocks instead, or run on an adapter with `seedPrefix` |
+| the block is `not_run`, check `capability` | the adapter has no `seedPrefix` capability (`nexus`, live Claude Code), so the agent could not receive the prefix, or in mode T the canonical history of the blocks before | write the earlier turns as blocks instead, or run on an adapter with `seedPrefix` |
 | the prefix seems ignored on `process` | the agent does not read `DRIFTBENCH_HISTORY_FILE` | read the history from that file in the agent |
 | two repeats of one block both call the agent | each repeat has its own cache key | expected: repeats are independent samples |
