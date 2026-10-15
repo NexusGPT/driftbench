@@ -43,7 +43,7 @@ import { PYDANTIC_AI_BRIDGE } from './bridge-source';
  * The shapes match pydantic-ai 2.55.0 (`ModelMessagesTypeAdapter`, `result.new_messages_json()`).
  */
 
-export const PYDANTIC_AI_ADAPTER_VERSION = '0.1.0';
+export const PYDANTIC_AI_ADAPTER_VERSION = '0.1.1';
 
 export type PydanticAiAdapterOptions = {
   /** The agent, as `<module>:<name>`: an Agent, or a function that returns one. */

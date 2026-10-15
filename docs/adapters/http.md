@@ -143,7 +143,7 @@ A response with status 200 holds one of two shapes.
 
 `seedPrefix` is on: the endpoint receives the whole history. `endState` is on when `endStateUrl` is set. `variants`, `toolStubs` and `deterministic` are as declared. `trace` and `sandbox` are off.
 
-The version is `0.1.0+` and a hash of `url`, so two endpoints never share a cache entry.
+The version is `0.1.1+` and a hash of `url`, so two endpoints never share a cache entry.
 
 ## Target
 
