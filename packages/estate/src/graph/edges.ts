@@ -67,9 +67,28 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
     if (target) add(route.id, target.id, 'route');
   }
 
+  // References can themselves name references. Follow those explicit reads for each unit, rather
+  // than assigning all files in a skill folder to it: an unread sibling remains unowned, and a shared
+  // guide retains every unit that reads it. A per-unit visited set bounds cycles in reference files.
+  const referencesByFile = new Map<string, Atom[]>();
   for (const reference of byKind('reference')) {
-    const unit = unitOfFile.get(reference.provenance.file);
-    if (unit) add(unit.id, reference.id, 'reference');
+    const file = reference.provenance.file;
+    const references = referencesByFile.get(file) ?? [];
+    references.push(reference);
+    referencesByFile.set(file, references);
+  }
+  for (const unit of unitOfFile.values()) {
+    const pending = [unit.provenance.file];
+    const visited = new Set<string>();
+    for (let file = pending.pop(); file !== undefined; file = pending.pop()) {
+      if (visited.has(file)) continue;
+      visited.add(file);
+      for (const reference of referencesByFile.get(file) ?? []) {
+        add(unit.id, reference.id, 'reference');
+        const target = reference.fields?.path;
+        if (typeof target === 'string' && files.has(target)) pending.push(target);
+      }
+    }
   }
 
   for (const script of byKind('script')) {

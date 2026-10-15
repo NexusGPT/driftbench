@@ -11,13 +11,13 @@
 | hidden | 0 |
 <!-- level-table:end -->
 
-Iteration 44, source b12983b1c109de3ff0a6d520231160d528b99915 plus the change recorded in this journal row. Hidden seed 973287921, derived from that head.
+Iteration 45, source 7c9f564ef009b3a256cadf6293ebc5b4c11f9c53 plus the change recorded in this journal row. Hidden seed 91817102, derived from that head.
 | Seed | Reader passing / items |
 |---|---|
-| 1 | 634/641 |
-| 2 | 634/641 |
-| 3 | 634/641 |
-| hidden (973287921) | 634/641 |
+| 1 | 635/641 |
+| 2 | 635/641 |
+| 3 | 635/641 |
+| hidden (91817102) | 635/641 |
 
 Each fraction counts reader items passing on that seed, out of 641 reader items. Journal `passing` counts distinct evaluated item IDs passing every seed; it is not a sum of seed counts. The journal's per-level `metrics` use seed 1; its `perSeed` records achieved levels separately.
 
@@ -35,7 +35,6 @@ Owner rule: "make sure all the fixes are fixes that are TO THE FRAMEWORK in gene
 
 ## Open items
 
-- scan.reference-prose.chained: [scan.reference-prose, tier 4] the scan reads the rules of a reference naming a second reference with its own rule: missed the reference edge scan.reference-prose.chained:skill to scan.reference-prose.chained:inner-ref
 - scan.decoys.changelog-reference: [scan.decoys, tier 4] code is not fooled: a file named in a change note is no reference: found reference reference.ticket-price-14oprfr.read-references-legacy-md at .claude/skills/ticket-price-14oprfr/SKILL.md:12, never planted
 - scan.decoys.form-number-label: [scan.decoys, tier 4] code is not fooled: a form number that reads like a rule label cites no rule: a form number cited a rule
 - scan.decoys.guard-message-overlap: [scan.decoys, tier 4] code is not fooled: a guard message that quotes part of a rule's words is no enforcement: the guard enforces a rule it only quotes in passing
@@ -45,6 +44,7 @@ Owner rule: "make sure all the fixes are fixes that are TO THE FRAMEWORK in gene
 
 ## Hypotheses tried
 
+Iteration 45: reference chains owned by the reading skill. +1 on every seed: scan.reference-prose.chained.
 Iteration 44: routing read by role (tables of any header, links, slash commands, outer-pipe-less tables, standing directive lines, per-skill headings, owner tables rejected). +8 on every seed.
 Iteration 43: standing @imports. +1 on every seed: scan.standing.imported-standing.
 Iteration 42: explicit document references followed transitively. +2 on every seed: scan.reference-prose.text-file, outside-skill. Chained still misses its graph edge (separate cause).

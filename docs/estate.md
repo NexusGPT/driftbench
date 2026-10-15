@@ -247,7 +247,7 @@ Edges, decided by code:
 | Edge | From, to |
 |---|---|
 | route | a route atom to the skill or helper it loads |
-| reference | a skill or helper to a file its body names |
+| reference | a skill or helper to a file its body names, and to each file those files name in turn (a chain read once per skill or helper; a shared file keeps every owner; a file in the skill folder that nothing names has no owner) |
 | script | a skill to a script it ships |
 | dispatch | a skill or helper to a helper its body names |
 | enforces | a guard to a rule it checks |
