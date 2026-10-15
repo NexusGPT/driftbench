@@ -5,6 +5,7 @@ import type { CheckSet } from '../contracts/check';
 import type { UserDriver } from '../contracts/driver';
 import type { CostUnit, Store } from '../contracts/store';
 import type { ToolRule } from '../contracts/tool-policy';
+import type { ObjectContext } from '../objects/layers';
 import type { BlockReuse } from '../radius/blocks';
 import type { TargetRef } from '../schema/common';
 import type { RunMode, RunResult } from '../schema/run';
@@ -281,6 +282,8 @@ export type CampaignRunOptions = {
   cells: readonly PlannedCell[];
   /** The spec of a cell, by id and hash. */
   specFor(cell: PlannedCell): Spec;
+  /** The objects a cell's blocks resolve their `uses` against; the shipped objects only when absent. */
+  objectsFor?(cell: PlannedCell): ObjectContext;
   adapterFor(target: TargetRef): AgentAdapter;
   /** A fresh driver for each run, given the cell and the spec the cell runs (a perturbing driver needs it). */
   driver(cell: PlannedCell, spec: Spec): UserDriver;
@@ -440,6 +443,7 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
       adapter: options.adapterFor(cell.target),
       driver: options.driver(cell, spec),
       checks: options.checks,
+      ...(options.objectsFor ? { objects: options.objectsFor(cell) } : {}),
       ...(options.artifacts ? { artifacts: options.artifacts } : {}),
       mode: cell.mode,
       repeat: cell.repeat,
