@@ -5,9 +5,10 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { initializeShippedObjects } from '@agent-nexus/driftbench-checks';
+import { createToolsCheck, initializeShippedObjects } from '@agent-nexus/driftbench-checks';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { afterEach, expect, it } from 'vitest';
+import { acmeReplayer } from '../../../checks/test/support/acme-replayer';
 import { clearObjectContexts, objectContextFor } from '../../src/objects/layers';
 import { rescoreCarriedRun } from '../../src/runner/carried-scoring';
 import { adapterProvenance, provenanceHash } from '../../src/runner/provenance';
@@ -194,3 +195,52 @@ it('refuses an unreconstructible later block before any check evaluates', async 
   ).rejects.toThrow(/block 2 inputs differ/);
   expect(evaluated).toBe(0);
 });
+
+it.each(['run', 'carry'] as const)(
+  'passes explicit object overrides into the tools check during %s',
+  async (action) => {
+    const { root, path } = project();
+    const policyFolder = join(root, 'driftbench/policy/value-check');
+    mkdirSync(policyFolder, { recursive: true });
+    writeFileSync(
+      join(policyFolder, 'strict.yaml'),
+      'kind: policy/value-check\nid: strict\nextends: default\nitems:\n  - { id: rung1_outcome, enabled: false }\n',
+    );
+    writeFileSync(
+      path,
+      'id: carry-value-policy\nblocks:\n  - user: Do you cover this address?\n    expect:\n      tools:\n        - label: coverage.check\n          input: { address: "88 Summit Avenue, Acmeville" }\n',
+    );
+    const loaded = await loadSpecFile(path);
+    if (!loaded.ok) throw new Error(JSON.stringify(loaded.errors));
+    const checks = [createToolsCheck({ services: { replayer: acmeReplayer() } })];
+    const adapter = {
+      ...echoAdapter(),
+      send: async () => ({
+        segments: [],
+        text: 'Checking.',
+        cost: { usd: 0 },
+        latencyMs: 0,
+        toolCalls: [
+          { id: 'coverage', label: 'coverage.check', input: { address: '88 summit avenue, acmeville' } },
+        ],
+      }),
+    };
+    const baseline = await runSpec(loaded.spec, { ...common, target, adapter, checks });
+    const field = (run: typeof baseline) =>
+      run.blocks[0]?.verdicts.find((entry) => entry.id === 'tools.coverage.check.input.address');
+    expect(field(baseline)?.outcome).toBe('pass');
+    const objects = {
+      ...objectContextFor(path),
+      cli: { use: new Map([['policy/value-check', 'strict']]), set: [] },
+    };
+    const result =
+      action === 'run'
+        ? await runSpec(loaded.spec, { ...common, target, adapter, checks, objects })
+        : await rescoreCarriedRun(loaded.spec, baseline, { checks, objects });
+    expect(field(result)?.outcome).toBe('fail');
+    expect(field(result)?.evidence).toContain('exact_fallback');
+    // An explicit run override must not mutate the context carried by the caller's loaded spec.
+    const original = await runSpec(loaded.spec, { ...common, target, adapter, checks });
+    expect(field(original)?.outcome).toBe('pass');
+  },
+);

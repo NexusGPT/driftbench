@@ -7,7 +7,13 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { defaultChecks, initializeShippedObjects } from '@agent-nexus/driftbench-checks';
 import type { CheckContext, Expect } from '@agent-nexus/driftbench-core';
-import { applyScoringPlan, scoringPlan, shippedObjectContext, loadSpecFile, type Spec } from '@agent-nexus/driftbench-core';
+import {
+  applyScoringPlan,
+  loadSpecFile,
+  type Spec,
+  scoringPlan,
+  shippedObjectContext,
+} from '@agent-nexus/driftbench-core';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { BLOCKS, failedLikeStored, h1Context, h1Runs, multisetDiff } from './h1';
 
@@ -39,7 +45,11 @@ describe('HF2: default parity over the 259 stored H1 runs', () => {
       const ctx = exactly(h1Context(specs.get(def.spec) as Spec, def.index, run));
       const plan = scoringPlan(defaultChecks(), shippedObjectContext().store.resolve('check-set', 'default'));
       const verdicts = await applyScoringPlan(plan, ctx);
-      expect(verdicts.every((verdict) => verdict.by?.object && verdict.by.item && verdict.by.impl && verdict.by.layer)).toBe(true);
+      expect(
+        verdicts.every(
+          (verdict) => verdict.by?.object && verdict.by.item && verdict.by.impl && verdict.by.layer,
+        ),
+      ).toBe(true);
       gating += verdicts.filter((verdict) => verdict.gating).length;
       const failed = failedLikeStored(ctx, verdicts);
       const diff = multisetDiff(run.exactFailed, failed);
@@ -62,7 +72,11 @@ describe('HF2: default parity over the 259 stored H1 runs', () => {
       const ctx = h1Context(specs.get(def.spec) as Spec, def.index, run);
       const plan = scoringPlan(defaultChecks(), shippedObjectContext().store.resolve('check-set', 'default'));
       const verdicts = await applyScoringPlan(plan, ctx);
-      expect(verdicts.every((verdict) => verdict.by?.object && verdict.by.item && verdict.by.impl && verdict.by.layer)).toBe(true);
+      expect(
+        verdicts.every(
+          (verdict) => verdict.by?.object && verdict.by.item && verdict.by.impl && verdict.by.layer,
+        ),
+      ).toBe(true);
       if (multisetDiff(run.exactFailed, failedLikeStored(ctx, verdicts)) > 0) delta.push(run.id);
     }
     expect(delta).toEqual([]);

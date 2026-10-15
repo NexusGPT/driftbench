@@ -1,7 +1,7 @@
+import type { Store } from '../contracts/store';
 import { objectContextOfSpec } from '../objects/context';
 import { resolveBlockObjects, shippedObjectContext } from '../objects/layers';
 import { resolvedRecord } from '../objects/scoring';
-import type { Store } from '../contracts/store';
 import type { PlannedCell } from '../runner/campaign';
 import { provenanceDigest } from '../runner/provenance';
 import type { TargetRef } from '../schema/common';
@@ -208,13 +208,18 @@ export function planRadiusCampaign(
         break;
       }
       const index = block.injected ? -1 : (block.provenance?.specIndex ?? block.index);
-      const current = currentSpec ? resolvedRecord(resolveBlockObjects(currentSpec, index, context)) : undefined;
+      const current = currentSpec
+        ? resolvedRecord(resolveBlockObjects(currentSpec, index, context))
+        : undefined;
       if (previous?.hash === current?.hash) continue;
       needsRescore = true;
       // Only scoring-only objects may reuse observations across a changed hash.
-      if ([...(previous?.objects ?? []), ...(current?.objects ?? [])].some(
-        ({ kind }) => context.store.registry.kind(kind)?.agentFacing !== false,
-      )) invalidObjects = true;
+      if (
+        [...(previous?.objects ?? []), ...(current?.objects ?? [])].some(
+          ({ kind }) => context.store.registry.kind(kind)?.agentFacing !== false,
+        )
+      )
+        invalidObjects = true;
     }
     if (invalidObjects || (needsRescore && !limits.rescoreObservations)) {
       refuse('resolved objects differ or cannot be proved; observations must be re-scored');
@@ -225,14 +230,23 @@ export function planRadiusCampaign(
       refuse(origin.reason);
       continue;
     }
-    plan.carried.push({ cell, source, provenance, carried: origin.carried, ...(needsRescore ? { needsRescore: true } : {}) });
+    plan.carried.push({
+      cell,
+      source,
+      provenance,
+      carried: origin.carried,
+      ...(needsRescore ? { needsRescore: true } : {}),
+    });
   }
   return plan;
 }
 
 /** The run a carried cell stores: the baseline run under the cell's own id and target, stamped. */
 export function carriedRun(entry: CarriedCell): RunResult {
-  if (entry.needsRescore) throw new Error('carried observations must be re-scored under their current resolved objects before storing');
+  if (entry.needsRescore)
+    throw new Error(
+      'carried observations must be re-scored under their current resolved objects before storing',
+    );
   return {
     ...entry.source,
     runId: entry.cell.cellId,

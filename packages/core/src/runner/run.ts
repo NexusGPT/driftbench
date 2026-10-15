@@ -5,7 +5,7 @@ import type { DriverStep, UserDriver } from '../contracts/driver';
 import { copyHistory, freezeMessage } from '../contracts/history';
 import type { Store } from '../contracts/store';
 import { gateToolCalls, type ToolRule } from '../contracts/tool-policy';
-import { objectContextOfSpec } from '../objects/context';
+import { bindObjectContext, objectContextOfSpec } from '../objects/context';
 import { checkSpecObjects } from '../objects/index';
 import { type ObjectContext, resolveBlockObjects, shippedObjectContext } from '../objects/layers';
 import { scoringPlan } from '../objects/scoring';
@@ -151,6 +151,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     throw new Error('runSpec: a store needs a campaignId to file the run under');
   }
   const objects = options.objects ?? objectContextOfSpec(spec) ?? shippedObjectContext();
+  spec = bindObjectContext({ ...spec }, objects);
   const objectErrors = checkSpecObjects(spec, objects);
   if (objectErrors.length)
     throw new RunnerError(objectErrors.map((issue) => `${issue.code}: ${issue.message}`).join('; '));

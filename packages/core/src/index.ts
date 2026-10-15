@@ -285,6 +285,7 @@ export {
   withRetry,
   wrapEndState,
 } from './runner';
+export { rescoreCarriedRun } from './runner/carried-scoring';
 export {
   Assertion,
   Budget,

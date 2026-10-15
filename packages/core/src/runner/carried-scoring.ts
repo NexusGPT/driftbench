@@ -1,6 +1,6 @@
 import type { ArtifactReaderRegistry } from '../contracts/artifacts';
 import type { CheckContext, CheckSet } from '../contracts/check';
-import { objectContextOfSpec } from '../objects/context';
+import { bindObjectContext, objectContextOfSpec } from '../objects/context';
 import { checkSpecObjects } from '../objects/index';
 import {
   type ObjectContext,
@@ -145,6 +145,7 @@ export async function rescoreCarriedRun(
   )
     refuse('artifact bytes required for scoring are not stored');
   const context = options.objects ?? objectContextOfSpec(spec) ?? shippedObjectContext();
+  spec = bindObjectContext({ ...spec }, context);
   const errors = checkSpecObjects(spec, context);
   if (errors.length) refuse(errors.map((issue) => `${issue.code}: ${issue.message}`).join('; '));
   const plans = spec.blocks.map((_block, index) => {

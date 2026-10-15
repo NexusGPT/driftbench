@@ -162,7 +162,10 @@ describe('every verdict carries by', () => {
         for (const block of run.blocks) {
           expect(
             block.resolved?.objects.map((entry) => [entry.key, entry.kind, entry.id, entry.setAt]),
-          ).toEqual([['check_set', 'check-set', 'default', 'shipped']]);
+          ).toEqual([
+            ['value_check', 'policy/value-check', 'default', 'shipped'],
+            ['check_set', 'check-set', 'default', 'shipped'],
+          ]);
           for (const verdict of block.verdicts) {
             verdicts += 1;
             expect(verdict.by, verdict.id).toMatchObject({
@@ -261,6 +264,13 @@ describe('the check set chooses the checks', () => {
       layer: 'shipped',
     });
     expect(run.blocks[0]?.resolved?.objects).toEqual([
+      {
+        key: 'value_check',
+        kind: 'policy/value-check',
+        id: 'default',
+        hash: expect.any(String),
+        setAt: 'shipped',
+      },
       { key: 'check_set', kind: 'check-set', id: 'acme', hash: expect.any(String), setAt: 'spec' },
     ]);
   });
