@@ -1,6 +1,6 @@
 ---
 title: Spec file format
-summary: 'A spec is one YAML or JSON file that describes one golden conversation or one code-agent task as a list of blocks; read this before you write or edit any spec.'
+summary: 'A spec is one YAML or JSON file: one golden conversation or one code-agent task, as a list of blocks. Read this before you write or edit a spec.'
 commands:
   - spec validate
   - spec lint
@@ -191,7 +191,7 @@ When a spec has no `criteria` key, blocks may still name criteria; they must the
 |---|---|---|---|
 | `source` | string | yes | Where the adapter reads the state, such as `tool:order.create` (the payload the tool recorded). |
 | `mode` | `subset` or `exact` | no | `subset` compares the listed fields; `exact` compares the whole state. |
-| `expect` | mapping of field to assertion | yes | Assertions on fields of the state. An assertion is a bare value (exact equality) or one of `{ exact }`, `{ regex }`, `{ contains }`, `{ one_of }`, `{ nonempty: true }`, `{ absent: true }`, `{ subset }`. |
+| `expect` | mapping of field to assertion | yes | Assertions on fields of the state. An assertion is a bare value, compared for exact equality. Or it is one of seven forms. Four take a value: `{ exact }`, `{ regex }`, `{ contains }` and `{ one_of }`. The others are `{ nonempty: true }`, `{ absent: true }` and `{ subset }`. |
 
 The end state is checked on the last block of a run in modes T and F.
 
@@ -227,13 +227,13 @@ blocks:
 
 A spec file produces nothing by itself. Each command prints its own result:
 
-- `spec validate` prints `✓ <path>  <id> · <n> blocks · <m> perturbations · hash <12 hex>` for a valid spec, and `✗ <path>` with one line per error for an invalid one. See authoring-spec-check.
+- For a valid spec, `spec validate` prints `✓ <path>  <id> · <n> blocks · <m> perturbations · hash <12 hex>`. For an invalid one, it prints `✗ <path>` with one line per error. See authoring-spec-check.
 - The hash is the first 12 hex characters of the SHA-256 of the spec's canonical JSON, keys sorted at every depth. Equal content gives an equal hash. The hash, not `version`, enters the cache key and every run id. A workspace folder written `./<path>` is resolved from the spec's folder before the hash is taken.
 - `campaign run` prints one line per cell: spec id, target, mode, repeat, `pass` or `fail`, and the block count.
 
 ## Worked example
 
-The Acme example holds one spec of each kind: `examples/acme/specs/conversations/plan-upgrade.yaml` (a conversation on `function:acme-sales`) and `examples/acme/specs/tasks/price-sheet.yaml` (a task on `process:acme-ops`, with `workspace_seed`, artifacts and a workspace diff). Validate the seven Acme specs, then run one of each kind on the targets they name; both agents are deterministic and free:
+The Acme example holds one spec of each kind. `examples/acme/specs/conversations/plan-upgrade.yaml` is a conversation on `function:acme-sales`. `examples/acme/specs/tasks/price-sheet.yaml` is a task on `process:acme-ops`, with `workspace_seed`, artifacts and a workspace diff. Validate the seven Acme specs, then run one of each kind on the targets they name; both agents are deterministic and free:
 
 ```sh
 driftbench spec validate examples/acme/specs

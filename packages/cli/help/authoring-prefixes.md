@@ -34,8 +34,17 @@ A fact the agent got from a tool belongs in the prefix as a tool call with its `
 
 `spec lint` warns with `PREFIX_PROSE_HISTORY` when two conditions hold:
 
-1. The spec names a tool somewhere: an expected tool (`expect.tools`), a forced tool (`world.tools`, in `given` or a perturbation), or a tool call in a prefix.
-2. An assistant message of a prefix states the value of a ledger fact, as a whole word with case ignored. The ledger is the spec's `given.ledger`, the block's `given.ledger` and the `ledger_add` of earlier blocks.
+1. The spec names a tool somewhere. That is an expected tool (`expect.tools`), a forced tool (`world.tools`, in `given` or a perturbation), or a tool call in a prefix.
+2. An assistant message of a prefix states the value of a ledger fact, as a whole word with case ignored.
+
+The ledger facts come from four places:
+
+- the spec's `given.ledger`, and `ledger_seed`, its shorthand;
+- the `given.ledger` of this block;
+- the `given.ledger` of every earlier block;
+- the `expect.ledger_add` of every earlier block.
+
+Only some values are looked for. A string counts when it holds two characters or more, spaces at either end trimmed. A number counts as it is written. Lists and maps are read inside, value by value. A boolean, `null` and a single-character string never trigger the warning.
 
 The check reads the prefix in order. A value is not prose history when a user message said it earlier. Nor is it when a tool call up to that message holds it in its input, output or error. A spec that names no tool gets no such warning.
 
@@ -57,7 +66,10 @@ What the agent receives of the prefix depends on the adapter, as its source code
 
 | Adapter | What the agent receives |
 |---|---|
-| `function`, `http`, `anthropic`, `openai-agents`, `vercel-ai`, `google`, `langgraph`, `crewai`, `pydantic-ai`, `litellm` | the session history, the prefix included, passed with each turn |
+| `function`, `http`, `anthropic`, `openai-agents`, `vercel-ai`, `google`, `pydantic-ai`, `litellm` | the session history, the prefix included, passed with each turn |
+| `langgraph`, a graph with no checkpointer | the same: the whole history with each turn |
+| `langgraph`, a graph with a checkpointer | the prefix once, with the first turn. Each later turn sends only the new user messages: the graph keeps the rest on its thread |
+| `crewai` | the history as text inputs to the crew, with each turn. `message` holds the new user turn, and `history` each earlier message as `role: text`. `messages` holds the whole history as JSON. An `inputs` option replaces them |
 | `process` | the session history, the prefix included, as a JSON array in the file `DRIFTBENCH_HISTORY_FILE` names, written before each block. The agent must read that file |
 | `nexus`, live Claude Code | nothing: these adapters send only the block's own user turn, so a prefix cannot set what the agent remembers |
 | Claude Code replay | no agent runs: the adapter returns the recorded session, so a prefix changes nothing it returns |
@@ -69,7 +81,7 @@ What the agent receives of the prefix depends on the adapter, as its source code
 - Test a late turn of a long conversation in one block.
 - Pin the exact history a block starts from, so the block does not depend on how the agent answered earlier.
 - Give a code agent a workspace (`world.workspace`), or force a tool to fail from a given block (`world.tools`).
-- Read a draft from `import traces`: each observed user turn becomes a block, and the state observed before it becomes that block's `given.prefix`, with `origin: recorded`.
+- Read a draft from `import traces`. Each observed user turn becomes a block. The state observed before it becomes that block's `given.prefix`, with `origin: recorded`.
 - Mark where a prefix comes from with `origin`. Results of a recorded history and of a written one are then never read as one test.
 
 When not to use it:
@@ -459,6 +471,12 @@ Checked 1 spec: 1 valid, 0 invalid, 1 warning.
 
 The messages below are printed by `spec validate` or `spec lint`, as the worked example shows.
 
+The full text of the `PREFIX_PROSE_HISTORY` warning:
+
+```text
+PREFIX_PROSE_HISTORY  the assistant states <fact> (<value>) in prose, which no recorded tool call of the prefix holds and the user never said: the agent may re-call the tool. Record the call with its output in tool_calls
+```
+
 | Message | Cause | Fix |
 |---|---|---|
 | `blocks.0.given.prefix.0.role  SCHEMA_INVALID_VALUE  Invalid option: expected one of "user"\|"assistant"\|"system"\|"tool"` | a role outside the four | `user`, `assistant`, `system` or `tool` |
@@ -467,7 +485,7 @@ The messages below are printed by `spec validate` or `spec lint`, as the worked 
 | `given  SCHEMA_UNRECOGNIZED_KEYS  unknown key: prefix` (or `origin`) | `prefix` or `origin` at the top-level `given` | move it to a block's `given` |
 | `blocks.0.given.origin  GIVEN_ORIGIN_WITHOUT_PREFIX  origin says where a prefix comes from, and this block writes no prefix: add given.prefix or remove origin` | `origin` on a block with no `prefix` | add the `prefix` it describes, or remove `origin` |
 | `ledger_seed  SPEC_ALIAS_CONFLICT  set \`ledger_seed\` or \`given.ledger\`, not both` | `ledger_seed` and `given.ledger` both set | keep one |
-| `PREFIX_PROSE_HISTORY  the assistant states <fact> (<value>) in prose, which no recorded tool call of the prefix holds and the user never said: the agent may re-call the tool. Record the call with its output in tool_calls` (a warning) | a spec that names a tool, and an assistant message of a prefix that states a ledger value in prose | record the call with its `output` in `tool_calls`. Or keep the prose on purpose, and read the results as a different test |
+| `PREFIX_PROSE_HISTORY`, a warning: its full text is above the table | a spec that names a tool, and an assistant message of a prefix that states a ledger value in prose | record the call with its `output` in `tool_calls`. Or keep the prose on purpose, and read the results as a different test |
 | `error: too many arguments for 'traces'. Expected 1 argument but got 2: ...` (exit 2) | two paths given to `import traces` | give one file, or a folder that holds them |
 
 Problems with no message:
