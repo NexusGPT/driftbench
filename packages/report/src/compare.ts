@@ -216,7 +216,7 @@ export function compareCampaigns(
   for (const [unit, b] of left) {
     const copy = carriedUnits.get(unit);
     if (copy?.carried) {
-      unpaired.push({ unit, reason: carriedReason(copy.carried) });
+      unpaired.push({ unit, reason: carriedReason(copy.carried, copy.rejudged) });
       continue;
     }
     const c = right.get(unit);
@@ -242,7 +242,8 @@ export function compareCampaigns(
   }
   for (const unit of right.keys()) if (!left.has(unit)) unpaired.push({ unit, reason: 'candidate only' });
   for (const [unit, copy] of carriedUnits) {
-    if (!left.has(unit) && copy.carried) unpaired.push({ unit, reason: carriedReason(copy.carried) });
+    if (!left.has(unit) && copy.carried)
+      unpaired.push({ unit, reason: carriedReason(copy.carried, copy.rejudged) });
   }
   if (pairs.length === 0) throw new RangeError('compare: the two campaigns share no golden in a shared mode');
 
@@ -389,7 +390,9 @@ function newcombe(effect: { estimate: number; lower: number; upper: number; n: n
 }
 
 /** Why a carried unit is not paired, with where its result comes from. */
-function carriedReason(carried: NonNullable<RunResult['carried']>): string {
+function carriedReason(carried: NonNullable<RunResult['carried']>, rejudged?: RunResult['rejudged']): string {
+  if (rejudged?.criteria.length === 0)
+    return `Re-scored; observations from ${rejudged.fromCampaign}; not a new measurement`;
   const version = carried.agentVersion === undefined ? '' : `, agent version ${carried.agentVersion}`;
   const campaigns = `${carried.age.campaigns} ${carried.age.campaigns === 1 ? 'campaign' : 'campaigns'}`;
   return `carried from ${carried.fromCampaign}${version}, age ${campaigns}: not a new measurement`;

@@ -648,14 +648,21 @@ function runPanel(m: PageModel, run: RunDetail, options: RunPanelOptions): strin
           ],
         ] as Array<[string, string]>)
       : []),
-    ...(run.carried
+    ...(run.rejudged
       ? ([
           [
-            'Carried',
-            `carried from ${run.carried.fromCampaign}${run.carried.agentVersion === undefined ? '' : `, agent version ${run.carried.agentVersion}`}, age ${count(run.carried.age.campaigns, 'campaign')}`,
+            'Scoring',
+            `${run.rejudged.criteria.length === 0 ? 'Re-scored' : `Re-judged: ${run.rejudged.criteria.join(', ')}`}; observations from ${run.rejudged.fromCampaign}`,
           ],
         ] as Array<[string, string]>)
-      : []),
+      : run.carried
+        ? ([
+            [
+              'Carried',
+              `carried from ${run.carried.fromCampaign}${run.carried.agentVersion === undefined ? '' : `, agent version ${run.carried.agentVersion}`}, age ${count(run.carried.age.campaigns, 'campaign')}`,
+            ],
+          ] as Array<[string, string]>)
+        : []),
     ...(run.error ? ([['Error', run.error]] as Array<[string, string]>) : []),
   ];
   const diff = run.endState && !run.endState.match ? `<pre>${esc(json(run.endState.diff, 2000))}</pre>` : '';

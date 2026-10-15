@@ -71,6 +71,14 @@ it('re-scores a stored campaign under --use with no agent call, and refuses an a
     const rescored = await cli([...args, '--campaign', 'quiet', '--use', 'check-set/quiet', '--json']);
     expect(rescored.err).toBe('');
     expect(JSON.parse(rescored.out)).toMatchObject({ agentCalls: 0, rescored: 5, use: ['check-set/quiet'] });
+    // Reviewer regression: the report command also describes these observations as re-scored.
+    const reported = await cli(['report', 'quiet', '--store', 'runs.db', '--out', 'quiet.html']);
+    expect(reported.code, reported.err).toBe(0);
+    expect(reported.err).toBe('');
+    expect(reported.out).toContain('Re-scored; observations from base');
+    expect(reported.out).not.toContain('re-judged observations');
+    expect(reported.out).not.toContain('1 run carried');
+
     const db = openStore(join(dir, 'runs.db'));
     const [before] = await db.listRuns({ campaignId: 'base' });
     const [after] = await db.listRuns({ campaignId: 'quiet' });

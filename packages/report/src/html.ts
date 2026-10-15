@@ -640,11 +640,15 @@ function runDetail(run: RunDetail, options: RenderOptions = {}): string {
   const s = run.succession;
   const facts = [
     `status ${run.status}`,
-    ...(run.carried
+    ...(run.rejudged
       ? [
-          `carried from ${run.carried.fromCampaign}${run.carried.agentVersion === undefined ? '' : `, agent version ${run.carried.agentVersion}`}, age ${count(run.carried.age.campaigns, 'campaign')}`,
+          `${run.rejudged.criteria.length === 0 ? 'Re-scored' : `Re-judged: ${run.rejudged.criteria.join(', ')}`}; observations from ${run.rejudged.fromCampaign}`,
         ]
-      : []),
+      : run.carried
+        ? [
+            `carried from ${run.carried.fromCampaign}${run.carried.agentVersion === undefined ? '' : `, agent version ${run.carried.agentVersion}`}, age ${count(run.carried.age.campaigns, 'campaign')}`,
+          ]
+        : []),
     `${count(run.blocks.length, 'block')}`,
     `first drift ${s.firstDriftBlock === undefined ? 'none' : `block ${s.firstDriftBlock}`}`,
     `${s.driftCount} drifting`,

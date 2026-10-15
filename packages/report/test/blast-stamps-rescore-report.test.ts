@@ -40,6 +40,7 @@ describe('blast stamps: a re-scored block on the report pages', () => {
     const one = rescored();
     const judged: RunResult = {
       ...one,
+      rejudged: { ...stamp, criteria: ['price'] },
       blocks: one.blocks.map((block) => ({
         ...block,
         rejudged: { ...stamp, criteria: ['price'], judgeCostUsd: 0 },

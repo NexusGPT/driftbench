@@ -1942,6 +1942,12 @@ const MARK: Record<CellOutcome['state'], string> = {
   pending: '·',
 };
 
+function rescoreSources(run: RunResult | undefined): string[] {
+  if (!run) return [];
+  const stamps = [run.rejudged, ...run.blocks.map((block) => block.rejudged)];
+  return [...new Set(stamps.flatMap((stamp) => (stamp?.criteria.length === 0 ? [stamp.fromCampaign] : [])))];
+}
+
 function cellLine(outcome: CellOutcome): string {
   const { cell, run } = outcome;
   const name = [
@@ -1952,12 +1958,15 @@ function cellLine(outcome: CellOutcome): string {
     ...(cell.perturbationId === undefined ? [] : [cell.perturbationId]),
   ].join(' · ');
   const carried = run?.carried;
+  const rescored = rescoreSources(run);
   const notes = [
-    ...(carried
-      ? [`carried from ${carried.fromCampaign}, age ${count(carried.age.campaigns, 'campaign')}`]
-      : outcome.reused
-        ? ['reused']
-        : []),
+    ...(rescored.length
+      ? rescored.map((source) => `Re-scored; observations from ${source}`)
+      : carried
+        ? [`carried from ${carried.fromCampaign}, age ${count(carried.age.campaigns, 'campaign')}`]
+        : outcome.reused
+          ? ['reused']
+          : []),
     ...(run?.cacheHit && !outcome.reused ? ['replayed from the cache'] : []),
   ];
   let detail = '';
@@ -1974,8 +1983,14 @@ function cellLine(outcome: CellOutcome): string {
 function summaryLine(outcomes: readonly CellOutcome[]): string {
   const states = (state: CellOutcome['state']) =>
     outcomes.filter((outcome) => outcome.state === state).length;
-  const carried = outcomes.filter((outcome) => outcome.run?.carried).length;
-  const reused = outcomes.filter((outcome) => outcome.reused && !outcome.run?.carried).length;
+  const rescored = outcomes.filter((outcome) => rescoreSources(outcome.run).length > 0);
+  const sources = [...new Set(rescored.flatMap((outcome) => rescoreSources(outcome.run)))];
+  const carried = outcomes.filter(
+    (outcome) => outcome.run?.carried && rescoreSources(outcome.run).length === 0,
+  ).length;
+  const reused = outcomes.filter(
+    (outcome) => outcome.reused && !outcome.run?.carried && rescoreSources(outcome.run).length === 0,
+  ).length;
   const budgetStops = outcomes.filter((outcome) => outcome.budgetStop).length;
   const parts = [
     `${states('pass')} pass`,
@@ -1987,7 +2002,7 @@ function summaryLine(outcomes: readonly CellOutcome[]): string {
   const spent = outcomes
     .filter((outcome) => outcome.run && !outcome.reused && !outcome.run.cacheHit)
     .reduce((sum, outcome) => sum + (outcome.run?.cost ?? 0), 0);
-  return `${count(outcomes.length, 'cell')}: ${parts.join(', ')}${reused > 0 ? `, ${reused} reused` : ''}${carried > 0 ? `, ${carried} carried` : ''}. Spent ${usd(spent)}.`;
+  return `${count(outcomes.length, 'cell')}: ${parts.join(', ')}${reused > 0 ? `, ${reused} reused` : ''}${carried > 0 ? `, ${carried} carried` : ''}${rescored.length > 0 ? `, ${rescored.length} re-scored` : ''}.${sources.map((source) => ` Re-scored; observations from ${source}.`).join('')} Spent ${usd(spent)}.`;
 }
 
 /** Blocks a radius campaign sent to the agent, and blocks it carried without sending them. */

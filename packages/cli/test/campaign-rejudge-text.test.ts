@@ -98,3 +98,27 @@ it('retains the criterion rejudge text label', async () => {
     await rm(dir, { recursive: true, force: true });
   }
 }, 30_000);
+
+it.each(['status', 'resume'])(
+  'labels re-scored cells and the campaign %s summary',
+  async (command) => {
+    const { dir, cli, args } = await fixture();
+    try {
+      const scored = await cli([...args, '--campaign', 'rescored', '--use', 'check-set/default']);
+      expect(scored.err).toBe('');
+      const result = await cli(['campaign', command, 'rescored', '--store', join(dir, 'runs.db')]);
+      expect(result.err).toBe('');
+      expect(result.code).not.toBe(2);
+      const lines = result.out.split('\n');
+      const cell = lines.find((line) => line.includes('repeat 0'));
+      const summary = lines.find((line) => line.startsWith('1 cell:'));
+      expect(cell).toContain('Re-scored; observations from source-campaign');
+      expect(summary).toContain('Re-scored; observations from source-campaign');
+      expect(result.out).not.toContain('1 carried');
+      expect(result.out).not.toContain('carried from source-campaign');
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  },
+  30_000,
+);
