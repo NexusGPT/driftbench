@@ -1,11 +1,11 @@
 ---
 title: Plugins for adapters, checks and judges
-summary: Load your own code into any driftbench command with --plugin or the plugins key of driftbench.yaml, to register an adapter (so a target name reaches your agent), custom checks, pairwise judges, and the kinds, rules, steps, evidence, prompt templates and objects of the rules framework.
-commands:
-  - campaign run
-  - smoke
-  - spec validate
+summary: Load your own code with --plugin or the plugins key, to register adapters, checks, pairwise judges and the kinds, rules and objects of the rules framework.
+commands: []
 see_also:
+  - running-campaign-run
+  - running-smoke
+  - authoring-spec-check
   - running-sdk-adapters
   - running-targets
   - running-campaign-config
@@ -40,7 +40,7 @@ In this release the rules framework is checked when specs load, and no run reads
 
 ## When to use it
 
-* Your agent is reached by an adapter the command line does not build by itself (an SDK object, a client of your own, a custom transport): register it under a target name.
+* Your agent needs an adapter the command line does not build, such as an SDK object, your own client or a custom transport. Register it under a target name.
 * You need a check driftbench does not ship.
 * You want an `http`, `litellm` or `nexus` target built differently: a plugin that registers one of those names replaces the built-in target of that name.
 * Your rule files name `impl: plugin:<name>`: a plugin gives that implementation, and the schema its params must pass.
@@ -56,9 +56,9 @@ Do not use a plugin to change a shipped object, kind or implementation: it is re
 | `--plugin <module>` | every command (a global option; it may stand anywhere on the line, also as `--plugin=<module>`) | none | load this module before the command runs. A path (starting with `.` or absolute, or an existing file) is read from the working folder; any other value is a package name, resolved from the working folder. Repeat it for several. |
 | `plugins:` | the project config, `driftbench.yaml` in the working folder or the file `--config <file>` names | none | a list of modules. A path is relative to the config file; any other entry is a package name. |
 
-Load order: plugins given in code to `main()`, then the config's `plugins:` list, then each `--plugin`, in order. A module named twice (in the config and by the flag) runs once. A plugin may never replace what another registered: two plugins registering the same adapter, check or judge name are refused, and so is a check name already registered elsewhere. The same holds for the rules framework: a kind, a `plugin:<name>` implementation (rules and diagnostic steps share these names), an evidence name of a kind, a prompt template id or an object `kind:id` that driftbench ships or another plugin registered is refused. To change a shipped object, a plugin ships an object with another id that `extends` it. Everything a plugin registers lasts for the command it was loaded for. The judge names `openai`, `anthropic` and `google` are built in and refused. An adapter name must be lower case letters, digits, `.`, `_` or `-`, starting with a letter or digit. With no plugin, no extra file is read.
+Load order: plugins given in code to `main()`, then the config's `plugins:` list, then each `--plugin`, in order. A module named twice (in the config and by the flag) runs once. A plugin may never replace what another registered: two plugins registering the same adapter, check or judge name are refused, and so is a check name already registered elsewhere. The same holds for the rules framework. A plugin cannot register what driftbench ships or another plugin registered: a kind, a `plugin:<name>` implementation, an evidence name of a kind, a prompt template id or an object `kind:id`. Rules and diagnostic steps share the implementation names. To change a shipped object, a plugin ships an object with another id that `extends` it. Everything a plugin registers lasts for the command it was loaded for. The judge names `openai`, `anthropic` and `google` are built in and refused. An adapter name must be lower case letters, digits, `.`, `_` or `-`, starting with a letter or digit. With no plugin, no extra file is read.
 
-The commands that use plugin adapters are those that run a target: `campaign plan`, `campaign run`, `campaign resume`, `smoke`, `simulate`, `perturb`, `attack`, `ci`, `gate`, `pilot`, `family` and `holdout`.
+`--plugin` is a global option: it is the same on every command, and no command has a plugin option of its own. The commands that use plugin adapters are those that run a target: `campaign plan`, `campaign run`, `campaign resume`, `smoke`, `simulate`, `perturb`, `attack`, `ci`, `gate`, `pilot`, `family` and `holdout`.
 
 ## Inputs
 
