@@ -272,7 +272,7 @@ The graph answers what code can walk:
 | `ORPHAN` | a file nothing names |
 | `UNREACHABLE` | a file the standing instructions never lead to (orphans are listed apart) |
 | `UNENFORCED` | an instruction, gate or register atom no guard enforces: trusted, reported as a count, never failing alone |
-| `OVERSIZE` | the standing instructions are over the ceiling |
+| `OVERSIZE` | the standing instructions are over the ceiling, counted in Unicode characters (code points): an emoji is one character, never its bytes or UTF-16 units |
 | `UNANCHORED_GUARD` | a guard command finds its script from the working folder, not from an anchor |
 | `MISSING_REFERENCE` | a file a body names does not exist |
 | `MISSING_SCRIPT` | a guard command runs a script that does not exist |
