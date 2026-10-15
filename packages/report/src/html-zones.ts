@@ -1,7 +1,7 @@
 import type { RunMode, Verdict } from '@agent-nexus/driftbench-core';
 import { criterionOf } from './compare';
 import { showTarget } from './data';
-import { count, esc, fixed, json, pct, pValue, unscoredRuns, usd } from './format';
+import { count, esc, fixed, json, pct, pValue, unscoredReason, unscoredRuns, usd, verdictOf } from './format';
 import type { ReliabilityLine } from './reliability';
 import { type BlockDetail, notStored, type RunDetail, type Scorecard } from './scorecard';
 
@@ -163,6 +163,22 @@ function caseLabel(c: { mode: RunMode; perturbationId?: string }): string {
 
 function chip(pass: boolean): string {
   return `<span class="chip ${pass ? 'ok' : 'fail'}">${pass ? 'Pass' : 'Fail'}</span>`;
+}
+
+/** The chip of a run (its `outcome`) or a block (its `status`): Pass, Fail, or Not run and Blocked, which are neither. */
+function chipOf(pass: boolean, unscored: 'not_run' | 'blocked' | undefined): string {
+  if (unscored === undefined) return chip(pass);
+  return `<span class="chip skip">${unscored === 'not_run' ? 'Not run' : 'Blocked'}</span>`;
+}
+
+/** A block that failed: not one that was not run or blocked. */
+function blockFailed(block: BlockDetail): boolean {
+  return !block.pass && block.status === undefined;
+}
+
+/** A run that failed: not one whose outcome is not run or blocked. */
+function runFailed(run: RunDetail): boolean {
+  return !run.pass && run.outcome === undefined;
 }
 
 function move(baseline: boolean | undefined, now: boolean): string {
@@ -491,9 +507,12 @@ ${rows}
 /* ---------- zone 3: runs and their panels ---------- */
 
 function squares(run: RunDetail): string {
-  const failing = run.blocks.filter((b) => !b.pass).length;
+  const failing = run.blocks.filter(blockFailed).length;
   return `<span class="sq" title="${count(run.blocks.length, 'block')}, ${failing} failing">${run.blocks
-    .map((b) => `<i class="${b.pass ? '' : 'f'}${b.specBlock === undefined ? ' inj' : ''}"></i>`)
+    .map(
+      (b) =>
+        `<i class="${b.pass ? '' : blockFailed(b) ? 'f' : 's'}${b.specBlock === undefined ? ' inj' : ''}"></i>`,
+    )
     .join('')}</span>`;
 }
 
@@ -519,14 +538,14 @@ export type RunPanelOptions = {
 
 export function runsZone(m: PageModel, options: RunPanelOptions): string {
   const runs = m.card.drilldown;
-  const failing = runs.filter((r) => !r.pass).length;
+  const failing = runs.filter(runFailed).length;
   const latency = runs.some((r) => r.latencyMs > 0);
   const rows = runs
     .map((run) => {
       const c = caseOf(m, run);
       const test = c ? m.tests.find((t) => t.cases.includes(c)) : undefined;
       const ff = firstFail(run);
-      return `<tr class="run-row ${run.pass ? 'r-pass' : 'r-fail'}${c ? ` c-${c.index}` : ''}"><td>${chip(run.pass)}</td><td class="t"><a class="rowlink" href="#run-${esc(run.runId)}">${esc(test?.title ?? run.title ?? run.specId)}</a><small>${esc(c ? caseLabel(c) : run.mode)} · repeat ${run.repeat}</small></td><td class="hide-s">${squares(run)}</td><td class="hide-s"><span class="firstfail">${ff ? `<b>${esc(ff.verdict.id)}</b> · block ${ff.block.index}` : 'none'}</span></td>${latency ? `<td class="num hide-s">${esc(fixed(run.latencyMs, 0))} ms</td>` : ''}</tr>`;
+      return `<tr class="run-row ${run.pass ? 'r-pass' : runFailed(run) ? 'r-fail' : 'r-skip'}${c ? ` c-${c.index}` : ''}"><td>${chipOf(run.pass, run.outcome)}</td><td class="t"><a class="rowlink" href="#run-${esc(run.runId)}">${esc(test?.title ?? run.title ?? run.specId)}</a><small>${esc(c ? caseLabel(c) : run.mode)} · repeat ${run.repeat}</small></td><td class="hide-s">${squares(run)}</td><td class="hide-s"><span class="firstfail">${ff ? `<b>${esc(ff.verdict.id)}</b> · block ${ff.block.index}` : 'none'}</span></td>${latency ? `<td class="num hide-s">${esc(fixed(run.latencyMs, 0))} ms</td>` : ''}</tr>`;
     })
     .join('\n');
   // A case filter is an address: "#case-3" shows the runs of case 3, with a pill that clears it.
@@ -543,7 +562,7 @@ export function runsZone(m: PageModel, options: RunPanelOptions): string {
         `<span class="pill pill-${c.index}">Case: ${esc(m.tests.find((t) => t.cases.includes(c))?.title ?? c.specId)}, ${esc(caseLabel(c))}<a href="#drilldown">${ICON_X}<span class="sr">Clear the case filter</span></a></span>`,
     )
     .join('');
-  const seg = `<div class="seg" role="radiogroup" aria-label="Show runs"><input type="radio" name="rf" id="rf-all" checked><label for="rf-all">All<span class="c">${runs.length}</span></label><input type="radio" name="rf" id="rf-fail"><label for="rf-fail">Failed<span class="c">${failing}</span></label><input type="radio" name="rf" id="rf-pass"><label for="rf-pass">Passed<span class="c">${runs.length - failing}</span></label></div>`;
+  const seg = `<div class="seg" role="radiogroup" aria-label="Show runs"><input type="radio" name="rf" id="rf-all" checked><label for="rf-all">All<span class="c">${runs.length}</span></label><input type="radio" name="rf" id="rf-fail"><label for="rf-fail">Failed<span class="c">${failing}</span></label><input type="radio" name="rf" id="rf-pass"><label for="rf-pass">Passed<span class="c">${runs.filter((r) => r.pass).length}</span></label></div>`;
   return `<section id="drilldown">
 <div class="zone wrap">
 <style>${caseCss}</style>
@@ -600,9 +619,10 @@ function blockView(block: BlockDetail): string {
               `<details class="tool${call.error ? ' err' : ''}"><summary>${esc(call.label)}${call.error ? ` · ${esc(call.error)}` : ''}</summary><pre>${esc(json({ input: call.input, output: call.output }, 1200))}</pre></details>`,
           )
           .join('')}</div>`;
-  return `<div class="blk${block.pass ? '' : ' bad'}">
-<p class="bh"><span class="kicker">Block ${block.index}${block.specBlock === undefined ? ' · injected' : ''}</span>${stage}${chip(block.pass)}</p>
-${note}${block.stimulus === undefined ? '' : `<p class="who">${block.realized === undefined ? 'User' : 'User, as written'}</p><p class="msg user">${esc(block.stimulus)}</p>`}${block.realized === undefined ? '' : `<p class="who">User, as sent</p><p class="msg user">${esc(block.realized.text ?? notStored(block.realized.hash))}</p>`}
+  const reason = unscoredReason(block);
+  return `<div class="blk${block.pass ? '' : blockFailed(block) ? ' bad' : ' skip'}">
+<p class="bh"><span class="kicker">Block ${block.index}${block.specBlock === undefined ? ' · injected' : ''}</span>${stage}${chipOf(block.pass, block.status)}</p>
+${note}${reason === undefined ? '' : `<p class="stage">${esc(reason)}</p>`}${block.stimulus === undefined ? '' : `<p class="who">${block.realized === undefined ? 'User' : 'User, as written'}</p><p class="msg user">${esc(block.stimulus)}</p>`}${block.realized === undefined ? '' : `<p class="who">User, as sent</p><p class="msg user">${esc(block.realized.text ?? notStored(block.realized.hash))}</p>`}
 <p class="who r">Agent · ${esc(fixed(block.latencyMs, 0))} ms</p><p class="msg agent">${esc(block.text || '(no text)')}</p>
 ${tools}${block.drift.length > 0 ? `<p class="stage">drift ${esc(block.drift.join(', '))}</p>` : ''}${shown.map(verdictRow).join('')}${passed.length > 0 ? `<details class="fold"><summary>${ICON_CHEV}${count(passed.length, 'machine check')} passed</summary><p class="ids">${passed.map((v) => esc(v.id)).join(', ')}</p></details>` : ''}
 </div>`;
@@ -663,7 +683,7 @@ function runPanel(m: PageModel, run: RunDetail, options: RunPanelOptions): strin
   return `<section class="drawer" id="run-${id}" aria-label="Run ${id}">
 <div class="dh">
 <p class="row"><span class="dtitle">${esc(test?.title ?? run.title ?? run.specId)}</span><a class="x" href="#drilldown">${ICON_X}<span class="sr">Close</span></a></p>
-<p class="dstatus">${chip(run.pass)} <span class="stage">${esc(c ? caseLabel(c) : run.mode)} · repeat ${run.repeat}</span>${options.runHref ? ` <a class="open" href="${esc(options.runHref(run.runId))}">open the run</a>` : ''}</p>
+<p class="dstatus">${chipOf(run.pass, run.outcome)} <span class="stage">${esc(c ? caseLabel(c) : run.mode)} · repeat ${run.repeat}</span>${options.runHref ? ` <a class="open" href="${esc(options.runHref(run.runId))}">open the run</a>` : ''}</p>
 <p class="dfacts">${facts.map(([k, v]) => `<span>${esc(k)} <b>${esc(v)}</b></span>`).join('')}</p>
 <div class="seg dtabs" role="radiogroup" aria-label="Detail view"><input type="radio" name="dt-${id}" id="dc-${id}" class="tab-conv" checked><label for="dc-${id}">Conversation</label><input type="radio" name="dt-${id}" id="dk-${id}" class="tab-checks"><label for="dk-${id}">Checks<span class="c">${failedChecks}</span></label><input type="radio" name="dt-${id}" id="dd-${id}" class="tab-data"><label for="dd-${id}">Run data</label></div>
 </div>

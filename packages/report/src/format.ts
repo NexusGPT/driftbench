@@ -123,3 +123,32 @@ export function unscoredRuns(counts: { notRun?: number; blocked?: number }, sepa
   ];
   return parts.map((part) => `${part}${separator}`).join('');
 }
+
+/**
+ * The verdict a run or a block shows: pass, fail, or one of the two that are neither. `unscored` is a block's
+ * `status`, or a run's `outcome`, never a run's own `status` (completed, failed, stopped).
+ */
+export function verdictOf(
+  pass: boolean,
+  unscored: 'not_run' | 'blocked' | undefined,
+): { cls: 'ok' | 'bad' | 'skip'; text: string } {
+  if (unscored === 'not_run') return { cls: 'skip', text: 'not run' };
+  if (unscored === 'blocked') return { cls: 'skip', text: 'blocked' };
+  return pass ? { cls: 'ok', text: 'pass' } : { cls: 'bad', text: 'fail' };
+}
+
+/** Why a block was not run or blocked, in one sentence; undefined for a block that ran. */
+export function unscoredReason(block: {
+  notRun?: { kind: string; layer: string; check: string; expected: string; got: string };
+  blocked?: { by: string; root: string; reason?: string };
+}): string | undefined {
+  if (block.notRun) {
+    const n = block.notRun;
+    return `Not run (${n.kind}, check ${n.check}, layer ${n.layer}): expected ${n.expected}; got ${n.got}.`;
+  }
+  if (block.blocked) {
+    const b = block.blocked;
+    return `Blocked by ${b.by} (root ${b.root})${b.reason ? `: ${b.reason}` : ''}.`;
+  }
+  return undefined;
+}
