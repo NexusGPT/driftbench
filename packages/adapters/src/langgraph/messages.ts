@@ -2,6 +2,7 @@ import { isPlainObject, type Message, type Segment } from '@agent-nexus/driftben
 import {
   addUsage,
   errorOf,
+  historyOutput,
   outputText,
   readToolText,
   type ToolLabels,
@@ -137,7 +138,7 @@ export function toLangChainMessages(history: readonly Message[], labels: ToolLab
               role: 'tool',
               tool_call_id: ids[index] as string,
               name: labels.name(call.label),
-              content: outputText(call.output),
+              content: outputText(historyOutput(call)),
             };
       out.push(answer);
     });

@@ -188,3 +188,11 @@ A pair holds Given facts and ordered semantic stimuli fixed, including transitio
 The auditor's renamed same-turn wrong-Then case is a regression on all three paths and both axes. Fresh-map planted pairs also retain rejection, with clean reference runs and a separate clean pair present. The six failures previously described as product defects were reused-label pairs asking different questions (input vs behaviour or output); their side-by-side requests and Thens are in [the evidence](evidence/invariance-semantic-turns.json). Seed 18's gen-cover-096/gen-phrase-012 remains excluded. The [partial journal](SWEEP-JOURNAL.md) records focused results only.
 
 Product obligation: for the same facts and ordered requests, generate identical machine expectations across persona/channel variants, regardless of block labels.
+
+## D6 maintainer ruling (2026-10-15)
+
+The users package declares D6 a world carrier; the spec reference and rendered prompt identify instructions inside supplied workspace files and tool results as data. Phrase provenance and phrase coverage now inspect that content when the injection carries no user text. The same shared reader serves both items. It requires an approved phrase of the injected class, never merely an empty user or a populated world.
+
+The reader ignores filenames, object keys, metadata, background Given, store/fixtures and tool errors. Ordinary user/burst provenance remains exact; nonempty user text cannot borrow approval from the world. The carrier and behavioural fault items remain unchanged, so recording an approved phrase is not proof that the agent consumed it or that the suite caught obedience.
+
+Product obligation: put every approved D6 instruction in the injected world file/tool-result content, leave injection.user empty, and retain checks that catch both obedience faults. See [the partial journal](SWEEP-JOURNAL.md) and [evidence](evidence/d6-world-carrier-contract.json). No historical ladder level is updated by this scoped ruling.

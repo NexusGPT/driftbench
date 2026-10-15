@@ -1,5 +1,5 @@
 import type { Message } from '@agent-nexus/driftbench-core';
-import { outputText, type WireNames } from './common';
+import { historyOutput, outputText, type WireNames } from './common';
 
 /**
  * The slice of the Anthropic Messages API the adapter speaks, mirrored from `@anthropic-ai/sdk` 0.133.0
@@ -124,7 +124,11 @@ export function toAnthropicMessages(
                   content: call.error,
                   is_error: true,
                 }
-              : { type: 'tool_result', tool_use_id: ids[index] as string, content: outputText(call.output) },
+              : {
+                  type: 'tool_result',
+                  tool_use_id: ids[index] as string,
+                  content: outputText(historyOutput(call)),
+                },
         ),
       );
     }
