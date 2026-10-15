@@ -1,6 +1,21 @@
-import type { DriftClass, RunMode, RunResult, TargetRef } from '@agent-nexus/driftbench-core';
+import {
+  type DriftClass,
+  isScored,
+  type RunMode,
+  type RunResult,
+  type TargetRef,
+} from '@agent-nexus/driftbench-core';
 import { passAtK, passK, unreliability } from '@agent-nexus/driftbench-stats';
-import { blockScore, type CampaignData, deviationOf, groupBy, lineKey, runPassed, specOfRun } from './data';
+import {
+  blockScore,
+  type CampaignData,
+  deviationOf,
+  groupBy,
+  lineKey,
+  runPassed,
+  scoredRuns,
+  specOfRun,
+} from './data';
 import { clustered, type Estimate, median, type Rate, rate } from './estimate';
 
 /** pass^k or pass@k at one k, with the Wilson bounds of the per-run rate raised the same way. */
@@ -116,7 +131,10 @@ export function reliability(
   data: CampaignData,
   incompletePolicy: 'interval' | 'withhold' = 'interval',
 ): ReliabilityLine[] {
-  return [...groupBy(data.runs, lineKey).values()].map((runs) => lineOf(data, runs, incompletePolicy));
+  // A run neither passed nor failed (a block not run or blocked) is no measurement: it is left out.
+  return [...groupBy(scoredRuns(data.runs), lineKey).values()].map((runs) =>
+    lineOf(data, runs, incompletePolicy),
+  );
 }
 
 function lineOf(
@@ -237,6 +255,7 @@ export function blockAccuracy(runs: readonly RunResult[]): Estimate | undefined 
   const clusters: number[] = [];
   runs.forEach((run, index) => {
     for (const block of run.blocks) {
+      if (!isScored(block)) continue;
       values.push(block.pass ? 1 : 0);
       clusters.push(index);
     }
@@ -318,7 +337,7 @@ export function recoveryOf(runs: readonly RunResult[]): RecoverySummary | undefi
 export function modeReliability(data: CampaignData, lines: readonly ReliabilityLine[]): ModeReliability[] {
   const modes = [...new Set(data.runs.map((run) => run.mode))];
   return modes.map((mode) => {
-    const runs = data.runs.filter((run) => run.mode === mode);
+    const runs = scoredRuns(data.runs).filter((run) => run.mode === mode);
     const modeLines = lines.filter((line) => line.mode === mode);
     const lineOfRun = runs.map((run) => lineKey(run));
     const minRepeats = Math.min(...modeLines.map((line) => line.runs));

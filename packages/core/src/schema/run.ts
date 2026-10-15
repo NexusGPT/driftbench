@@ -230,6 +230,33 @@ export const Verdict = z.strictObject({
 });
 export type Verdict = z.infer<typeof Verdict>;
 
+/**
+ * A block's verdict. `pass` and `fail` are measurements. `not_run`: the block was never sent, because its
+ * Given could not be applied (a layer the adapter cannot apply, an unmet or failed setup). `blocked`: an
+ * ancestor the block depends on failed, so the block was not run. Neither is a pass or a fail.
+ */
+export const BlockStatus = z.enum(['pass', 'fail', 'not_run', 'blocked']);
+export type BlockStatus = z.infer<typeof BlockStatus>;
+
+/** Why a block was not run: the check that refused its Given, on which layer, what it expected and what it got. */
+export const NotRun = z.strictObject({
+  /** given_unmet: the Given is wrong; unsupported: the adapter cannot apply a layer; setup_failed: setup broke. */
+  kind: z.enum(['given_unmet', 'unsupported', 'setup_failed']),
+  layer: z.string().min(1),
+  check: z.string().min(1),
+  expected: z.string(),
+  got: z.string(),
+});
+export type NotRun = z.infer<typeof NotRun>;
+
+/** Why a block was blocked: the ancestor that failed (`by`) and the earliest failing ancestor (`root`). */
+export const Blocked = z.strictObject({
+  by: z.string().min(1),
+  root: z.string().min(1),
+  reason: z.string().optional(),
+});
+export type Blocked = z.infer<typeof Blocked>;
+
 export const BlockResult = z.strictObject({
   provenance: BlockProvenance.optional(),
   carried: z.lazy(() => CarriedFrom.extend({ measuredAt: z.string().optional() })).optional(),
@@ -245,7 +272,12 @@ export const BlockResult = z.strictObject({
   stageObserved: z.string().optional(),
   ledgerCheck: z.strictObject({ ok: z.boolean(), contradictions: z.array(z.string()) }),
   drift: z.array(DriftClass),
+  /** False on a not_run or blocked block: an old reader never counts one as a pass. */
   pass: z.boolean(),
+  /** Written only on a not_run or blocked block; absent, the status is pass or fail as `pass` says. */
+  status: BlockStatus.optional(),
+  notRun: NotRun.optional(),
+  blocked: Blocked.optional(),
 });
 export type BlockResult = z.infer<typeof BlockResult>;
 
@@ -295,6 +327,8 @@ export const RunEvent = z.discriminatedUnion('type', [
     type: z.literal('block_end'),
     index: z.number().int().min(0),
     pass: z.boolean(),
+    /** Set on a not_run or blocked block. */
+    status: BlockStatus.optional(),
     at: z.string().min(1),
   }),
   z.strictObject({

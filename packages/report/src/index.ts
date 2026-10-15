@@ -36,10 +36,11 @@ export {
   loadCampaign,
   ReportInputError,
   runPassed,
+  scoredRuns,
   showTarget,
 } from './data';
 export { type Estimate, type IntervalMethod, type Rate, rate } from './estimate';
-export { carriedLines } from './format';
+export { carriedLines, unscoredRuns } from './format';
 export { type RenderOptions, renderCompare, renderHtml, renderPage, renderRun, renderSpread } from './html';
 export { failures, renderJunit } from './junit';
 export {

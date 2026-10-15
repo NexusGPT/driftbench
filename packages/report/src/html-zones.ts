@@ -1,7 +1,7 @@
 import type { RunMode, Verdict } from '@agent-nexus/driftbench-core';
 import { criterionOf } from './compare';
 import { showTarget } from './data';
-import { count, esc, fixed, json, pct, pValue, usd } from './format';
+import { count, esc, fixed, json, pct, pValue, unscoredRuns, usd } from './format';
 import type { ReliabilityLine } from './reliability';
 import type { BlockDetail, RunDetail, Scorecard } from './scorecard';
 
@@ -204,7 +204,7 @@ export function overview(m: PageModel): string {
 <div class="glass">
 <div class="stat-row">
 <div class="stat"><p class="n">${casesPassing}<small>of ${m.cases.length}</small></p><a class="l" href="#tests">Cases passing</a><p class="s">${esc(pct(m.cases.length === 0 ? 0 : casesPassing / m.cases.length))}${compare ? ` · baseline ${compare.allPass.baseline.k} of ${compare.allPass.baseline.n}` : ''}</p></div>
-<div class="stat"><p class="n">${c.passing}<small>of ${c.runs}</small></p><a class="l" href="#drilldown">Runs passing</a><p class="s">${esc(pct(c.runs === 0 ? 0 : c.passing / c.runs))} · ${c.failing} failed · ${c.broken} did not complete</p></div>
+<div class="stat"><p class="n">${c.passing}<small>of ${c.runs}</small></p><a class="l" href="#drilldown">Runs passing</a><p class="s">${esc(pct(c.runs === 0 ? 0 : c.passing / c.runs))} · ${c.failing} failed · ${unscoredRuns(c, ' · ')}${c.broken} did not complete</p></div>
 ${third}
 </div>
 <p class="path"><span><b>${m.tests.length}</b> tests</span><i>›</i><span><b>${m.cases.length}</b> cases</span><i>›</i><span><b>${c.runs}</b> runs</span><i>›</i><span><b>${m.blocks}</b> blocks</span><i>›</i><span><b>${m.checks}</b> checks</span><span class="path-end">${m.blocksPassing} of ${m.blocks} blocks pass · ${m.checksFailed} checks failed${card.omittedRuns > 0 ? ` · ${count(card.omittedRuns, 'run')} beyond the run limit not counted here` : ''}</span></p>

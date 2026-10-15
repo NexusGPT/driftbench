@@ -12,6 +12,7 @@ import {
 } from '../runner/given';
 import { provenanceHash } from '../runner/provenance';
 import { succession } from '../runner/succession';
+import { isScored } from '../runner/verdicts';
 import type { Message } from '../schema/common';
 import { type BlockResult, type Campaign, type RunResult, Verdict } from '../schema/run';
 import type { Spec } from '../schema/spec';
@@ -198,7 +199,8 @@ export async function rejudgeRun(
     const original = source.blocks[ctx.blockIndex];
     if (!original) return refuse('The observation disappeared');
     const selected = (ctx.expect.criteria ?? []).map((ref) => parseCriterionRef(ref)?.name ?? ref);
-    if (!selected.length) {
+    // A block not run or blocked holds no observation to judge: it stays as it was, never a pass.
+    if (!selected.length || !isScored(original)) {
       const { rejudged: _previousJudge, ...unchanged } = original;
       blocks.push({ ...unchanged, carried });
       continue;

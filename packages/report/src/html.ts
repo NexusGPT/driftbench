@@ -2,7 +2,19 @@ import type { DriftClass, RunEvent, Verdict } from '@agent-nexus/driftbench-core
 import type { CompareResult } from './compare';
 import type { Estimate } from './estimate';
 import { CASLON_DISPLAY, CASLON_TEXT, GEIST, GEIST_MONO } from './fonts';
-import { carriedLines, count, esc, fixed, interval, json, pct, points, pValue, usd } from './format';
+import {
+  carriedLines,
+  count,
+  esc,
+  fixed,
+  interval,
+  json,
+  pct,
+  points,
+  pValue,
+  unscoredRuns,
+  usd,
+} from './format';
 import { chartsZone, overview, pageModel, runsZone, testsZone, versionsZone } from './html-zones';
 import type { PilotReport } from './pilot';
 import type { RecoverySummary, ReliabilityLine } from './reliability';
@@ -122,7 +134,7 @@ ${fact('Targets', c.targets.join(', ') || 'none')}
 ${fact('Modes', c.modes.join(', '))}
 ${fact('Repeats', repeats)}
 ${fact('Specs', String(c.specs))}
-${fact('Runs', `${c.runs}: ${c.passing} pass, ${c.failing} fail, ${c.broken} did not complete`)}
+${fact('Runs', `${c.runs}: ${c.passing} pass, ${c.failing} fail, ${unscoredRuns(c)}${c.broken} did not complete`)}
 ${fact('Spent', usd(card.cost.totalUsd))}
 </dl>
 </header>`;

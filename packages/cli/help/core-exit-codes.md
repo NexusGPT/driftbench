@@ -44,7 +44,8 @@ Commands with their own codes:
 | `campaign status` | every cell passes | any other state | bad input, unknown campaign, empty store | |
 | `smoke` | transcripts identical, every run completed | transcripts differ, or a run did not complete | bad input | |
 | `report` | written | | bad input | |
-| `compare`, `ci` | non-inferior (parity) | regressed, or not shown non-inferior | bad input | |
+| `compare` | non-inferior (parity) | regressed, or not shown non-inferior | bad input | |
+| `ci` | non-inferior (parity) | regressed, not shown non-inferior, incomplete, a failing aggregate, a radius miss | bad input | 3: a gating spec had blocks not run (a Given the target cannot apply) beyond `--max-not-run` |
 | `monitor` | no shift | two of the three detectors alarm | bad input | |
 | `validate` | | | | the level reached, 0 to 63: the lowest over seeds of the highest level passed, 0 when level 1 fails; `all` exits with the lowest level of every validator; an input error exits 64. With `--check-floor`: 1 when below the floor, else 0 |
 | `view` | | | bad input | runs until stopped |
