@@ -1,10 +1,11 @@
 ---
 title: Prompt sections and block links
-summary: 'Give the sections of a prompt stable ids in a section registry, find them again in the next prompt version, link blocks to the sections they test without changing any spec hash, and see which blocks selection by those links would run (advisory only).'
+summary: 'Give the sections of a prompt stable ids in a section registry, find them again in the next prompt version, link blocks to the sections they test without changing any spec hash, see which blocks selection by those links would run (advisory only), and rank the sections most likely to cause the failures of a campaign.'
 commands:
   - radius sections init
   - radius sections check
   - radius sections reanchor
+  - radius localize
 see_also:
   - authoring-blast-radius
   - authoring-spec-check
@@ -55,6 +56,10 @@ A target is a `prompt_section`, a `spec_clause` (`spec`, `clause`, optional `sha
 - every block, when a changed section is `global`, is in no registry, or its prompt has no registry.
 
 It is a report, never a filter. A `prompt_section` change makes the radius the whole suite, so `campaign run --change`, `ci --change` and block reruns run every block. On the H7 mutation suite (30 sections, 37 blocks, 9,690 runs), declared links alone missed a block a mutant flipped in 3 of 90 single-section mutants (Wilson 95% upper bound 9.3%) and in 9 of 110 with two-section mutants; the forward closure brings that to 2 of 90 and 4 of 110 at a selection ratio of 0.23. Selection may skip blocks only after links verified by mutation pass that gate below 5%, two-section mutants included.
+
+**Localisation.** `radius localize` ranks the local sections of a prompt by how likely they are to cause the failures of a stored campaign (Ochiai suspiciousness, Abreu et al. 2007). A prompt has no execution trace, so a block covers the sections it links to. For each section, `failed` sums the failure rate of the blocks linked to it over the suite runs and `passed` sums their pass rate; the score is `failed / sqrt(total failure weight x (failed + passed))`, 0 when nothing linked failed. A block's failure is dropped when an earlier block of its conversation (or, across a parent edge, the parent block or its ancestors) failed in the same run: the failure is inherited, not evidence. A block that passes after a failing one stays a row, because it clears the sections it links to. Global sections are listed apart and never ranked: a section that reaches every block scores the same whatever it says. Ties print as a rank range.
+
+On the H7 mutation suite this rule ranked the planted section worse than counting every block flat on 3 of 98 faults (and better on 5). The rule of dropping every block after a failing one ranked worse on 18 of 98, because a block that fails in every baseline run then removed the passing blocks that cleared the innocent sections. Ranking each block against its own baseline verdict, and mutation to verify links, come with the mutation runner.
 
 **Anthropic Citations** count `start_char_index` and `end_char_index` in code points, not UTF-16 units: on a text with two emoji before the cited sentence the API gave 23 where UTF-16 gives 25. Any citation pointer is converted before it is compared with a span (`codePointToUtf16`, `citationSpan` and `sectionOfCitation` in `@agent-nexus/driftbench-core`). A prompt sent as a custom-content document with one block per section (`sectionDocument`) needs no offset: the citation's block index names the section.
 
@@ -119,6 +124,28 @@ Re-anchors the registry of the old prompt on the new one, by the rule in What it
 
 Exit 0 when every section was found again in order and nothing changed outside them; 1 when a section is stale, a change lies outside every section, or sections changed order; 2 on bad input, or when the registry does not describe the old prompt.
 
+### driftbench radius localize
+
+```
+driftbench radius localize <paths...> --store <file> --campaign <id> --sections <registries...> [--prompt <prompt-id>] [--mode <mode>] [--counting <rule>] [--top <n>] [--json]
+```
+
+Reads the campaign's runs and the specs' links, and prints the local sections of one prompt, most suspicious first.
+
+| Option | Meaning | Default |
+|---|---|---|
+| `<paths...>` (required) | The spec files or folders the campaign ran. A run of a spec not given, or of another version of it (another spec hash), is skipped and named. | none |
+| `--store <file>` (required) | The store that holds the campaign. | none |
+| `--campaign <id>` (required) | The campaign to read. | none |
+| `--sections <registries...>` (required) | Section registries. | none |
+| `--prompt <prompt-id>` | The prompt to rank, when several registries are given. | the only registry |
+| `--mode <mode>` | The run mode to read: `T`, `F` or `P`. In `T` a block starts from its canonical Given and inherits nothing; in `F` and `P` it inherits the earlier blocks of its conversation. | the only mode of the campaign |
+| `--counting <rule>` | `grouped`: drop inherited failures only. `flat`: count every block, for comparison. | `grouped` |
+| `--top <n>` | How many sections to print; `0` prints all. | `10` |
+| `--json` | Print `{prompt, version, mode, localization, suiteRuns, skipped}`. | off |
+
+The runs are pooled into suite runs, one per target, mode, repeat and perturbation. An injected block and a block with no pass or fail verdict are not rows. Exit 0 when a ranking is printed, 1 when nothing failed outside inherited failures (every score 0), 2 on bad input: no `--sections`, an unknown campaign or store, several modes without `--mode`, several registries without `--prompt`.
+
 ## Inputs
 
 - A prompt file, read as UTF-8 and normalised (NFC, CRLF or CR to LF).
@@ -146,6 +173,8 @@ sections:
 - Specs with `metadata.links`, checked by `spec validate` (shape, and the block they name) and by `spec lint --sections` (the target section).
 
 ## Outputs and how to read them
+
+`radius localize` prints a header (the prompt, the mode, the number of suite runs, the counting), the block rows counted, the total failure weight and the inherited failures dropped, then a table: `rank` (a range on ties), `section`, `ochiai`, `failed`, `passed`, and `blocks` (the linked blocks that were rows). Then the failing roots (blocks that failed as a row; with `--counting flat`, every failing block), the global sections left out, and every skipped run with its reason. JSON: `localization.sections[]` holds `section`, `score`, `failed`, `passed`, `linked`, `best`, `worst`; `localization` also holds `global`, `failureWeight`, `rows`, `inherited`, `roots`, `counting`.
 
 `radius --sections` adds, after the radius, `Advisory section selection (<changes>)`, the sections the closure adds, `Would run <n> of <m> blocks (<d> by links, <f> forward) and would skip <k>`, and one row per spec with a selected block: its count, its first selected block and the links that drove it (`link:<prompt>#<section> (<status>)`, `no-links:<prompt>`, `stale-link:<prompt>#<section>`). A forward block reads `after <block>` or `via <spec>#<block>`. `Every block would run: <reason>` when a change is global or unknown. See authoring-blast-radius for `--explain` and `--json`.
 
@@ -217,6 +246,47 @@ Advisory section selection (acme-sales#explicit_confirm): nothing is skipped, th
   acme-linked-order-confirm  3 of 4  loose-yes  link:acme-sales#explicit_confirm (declared)
 ```
 
+Run the three linked specs on the Acme agent, twice, and rank the sections. The order and porting specs start mid-conversation, so the agent fails their first block, and the later blocks of the order spec fail after it:
+
+```sh
+driftbench campaign run examples/acme/prompts/linked --store acme.db --campaign linked --repeats 2 # exit 1
+driftbench radius localize examples/acme/prompts/linked --store acme.db --campaign linked --sections examples/acme/prompts/acme-sales.sections.yaml --top 4
+driftbench radius localize examples/acme/prompts/linked --store acme.db --campaign linked --sections examples/acme/prompts/acme-sales.sections.yaml --counting flat --top 4
+```
+
+```text
+Campaign linked: 6 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, regex, exact, injection, length, markup, starts_with, finish_reason, json, tool_f1, refusal, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+✗ acme-linked-order-confirm · function:acme-sales · F · repeat 0  fail  block 0 must.0, block 1 must.0, block 2 tools.order.create.count, block 3 must_not.0
+✗ acme-linked-order-confirm · function:acme-sales · F · repeat 1  fail  block 0 must.0, block 1 must.0, block 2 tools.order.create.count, block 3 must_not.0
+✗ acme-linked-porting · function:acme-sales · F · repeat 0  fail  block 0 tools.port.check.count
+✗ acme-linked-porting · function:acme-sales · F · repeat 1  fail  block 0 tools.port.check.count
+✓ acme-linked-store-hours · function:acme-sales · F · repeat 0  pass  1 block
+✓ acme-linked-store-hours · function:acme-sales · F · repeat 1  pass  1 block
+6 cells: 2 pass, 4 fail, 0 failed. Spent $0.00.
+Sections of acme-sales v1 by Ochiai suspiciousness, mode F, 2 suite runs, grouped counting.
+  8 block rows, failure weight 2.000, 6 inherited failures dropped (a passing block after a failing one stays a row).
+  rank  section               ochiai  failed  passed  blocks
+  1-3   porting_check_first   0.707   1.000   0.000   1
+  1-3   new_customer_details  0.707   1.000   0.000   1
+  1-3   recap                 0.707   1.000   0.000   1
+  4-26  scope                 0.000   0.000   0.000   0
+  22 more; --top 0 prints all.
+  Failing roots: acme-linked-order-confirm#details, acme-linked-porting#keep-number.
+  Not ranked, global: identity, language, style, facts_from_tools. A global section reaches every block; only mutation can blame it.
+Sections of acme-sales v1 by Ochiai suspiciousness, mode F, 2 suite runs, flat counting.
+  14 block rows, failure weight 5.000, 0 inherited failures dropped 
+  rank  section               ochiai  failed  passed  blocks
+  1     explicit_confirm      0.632   2.000   0.000   2
+  2-5   porting_check_first   0.447   1.000   0.000   1
+  2-5   new_customer_details  0.447   1.000   0.000   1
+  2-5   recap                 0.447   1.000   0.000   1
+  22 more; --top 0 prints all.
+  Failing blocks: acme-linked-order-confirm#details, acme-linked-order-confirm#loose-yes, acme-linked-order-confirm#confirm, acme-linked-order-confirm#thanks, acme-linked-porting#keep-number.
+  Not ranked, global: identity, language, style, facts_from_tools. A global section reaches every block; only mutation can blame it.
+```
+
+Counted per root, the sections of the two first failures tie at the top and `explicit_confirm` is not suspected: its blocks failed only after `details` failed. Counted flat, the inherited failures put `explicit_confirm` first.
+
 `upgrade_order` and `order_failure` refer to the confirmation rule, so blocks linked to them would run too. `details` of the order spec is linked to `recap` and `new_customer_details` only and comes before the changed block, so selection would skip it; `confirm` is linked to the changed section and `thanks` follows a selected block. The radius stays the whole suite.
 
 ## Common errors
@@ -225,4 +295,7 @@ Advisory section selection (acme-sales#explicit_confirm): nothing is skipped, th
 - `the registry does not describe the old prompt text (text_sha256 differs)` from `reanchor`: the first `--prompt` file is not the version of the registry.
 - `<id>: no quote inside the section is unique in the prompt` from `init`: two sections hold the same text. Make one differ, or write that entry by hand.
 - A section that stays stale after every re-anchoring: declare its span again (`span`, `sha256`, `anchor`) and remove `stale`.
+- `radius localize needs --sections <registries...>`: give the registry of the prompt to rank.
+- `The campaign holds runs in modes F, T: name one with --mode`: localisation reads one mode at a time.
+- Every score is 0 and the exit is 1: nothing failed, or every failure was inherited.
 - `LINK_BLOCK_UNKNOWN` from `spec validate`: a link names a block id the spec does not have.
