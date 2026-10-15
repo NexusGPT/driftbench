@@ -212,7 +212,7 @@ The codes:
 
 | Code | Meaning |
 |---|---|
-| `OBJECT_INVALID` | a rule file, an inline object or a `uses.yaml` does not fit the format, or a file sits at a path that does not match its kind and id |
+| `OBJECT_INVALID` | a rule file, an inline object or a `uses.yaml` does not fit the format. Or a file sits at a path that does not match its kind and id |
 | `OBJECT_KIND_UNKNOWN` | an object names a kind no package or plugin registered |
 | `OBJECT_UNKNOWN` | no layer defines the object a reference names |
 | `OBJECT_CYCLE` | objects extend each other in a loop |
@@ -221,7 +221,7 @@ The codes:
 | `OBJECT_ITEM_UNKNOWN` | an operation, an `order`, a `before` or an `after` names an item the parent does not hold |
 | `OBJECT_ITEM_EXISTS` | `add: true` names an item the parent already holds |
 | `OBJECT_ITEM_INCOMPLETE` | a new item lacks `title`, `when`, `effect` or `impl`, or a root object lists an item without `title` or `impl` |
-| `OBJECT_ORDER_INVALID` | an `order` leaves out an enabled item or lists one twice, an item moves relative to itself or sets both `before` and `after`, or a file sets `order` and also moves an item |
+| `OBJECT_ORDER_INVALID` | an `order` leaves out an enabled item or lists one twice. Or an item moves relative to itself, or sets both `before` and `after`. Or a file sets `order` and also moves an item |
 | `OBJECT_IMPL_UNKNOWN` | an enabled item names an implementation no builtin or plugin provides |
 | `OBJECT_PARAMS_INVALID` | an enabled item's params do not fit its implementation's schema |
 
