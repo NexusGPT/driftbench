@@ -129,14 +129,16 @@ export const rule_situational: EvidenceProvider = {
   name: 'rule_situational',
   cost: 'static',
   values: ['boolean'],
-  from: "the atom's situation: a rule stated for one situation of its skill; for a rule no file states, the block's own situation",
+  from: "the atom's situation: a rule stated for one situation of its skill (a pointer's situation is where it fires, already a layout); for a rule no file states, the block's own situation",
   compute: (input) => {
     const atom = verdictAtoms(input)[0];
     if (!atom) {
       if (verdictLinks(input).length > 0) return false;
       return (input.expect?.situation ?? '').trim() === '' ? undefined : true;
     }
-    return (atom.situation ?? '').trim() !== '' && atom.kind !== 'skill' && atom.kind !== 'route';
+    const pointer =
+      (atom.kind === 'reference' || atom.kind === 'gate') && typeof atom.fields?.path === 'string';
+    return (atom.situation ?? '').trim() !== '' && atom.kind !== 'skill' && atom.kind !== 'route' && !pointer;
   },
 };
 
@@ -231,7 +233,7 @@ export const rule_needed_by: EvidenceProvider = {
   name: 'rule_needed_by',
   cost: 'static',
   values: ['number'],
-  from: "the skills whose plan rows name the rule's atom, the routed skill, the rule's own skill, and the core prompt when a core atom cites it",
+  from: "the skills whose plan rows name the rule's atom, the routed skill, the rule's own skill, and the core prompt when a core atom cites it (a core rule's own home is not counted)",
   compute: (input) => {
     const atoms = verdictAtoms(input);
     if (atoms.length === 0) return undefined;
@@ -244,7 +246,6 @@ export const rule_needed_by: EvidenceProvider = {
     for (const atom of atoms) {
       const skill = skillOfPath(atom.provenance.file);
       if (skill) homes.add(skill);
-      else if (homeOfAtom(atom) === 'core') homes.add('core');
     }
     const byId = new Map((input.atoms ?? []).map((atom) => [atom.id, atom]));
     for (const edge of input.edges ?? []) {
