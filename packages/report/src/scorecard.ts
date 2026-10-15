@@ -20,12 +20,13 @@ import {
   carriedSummary,
   deviationOf,
   groupBy,
+  lineKey,
   runPassed,
   showTarget,
   specOfRun,
   stimulusText,
 } from './data';
-import { clustered, type Estimate, type Rate, rate } from './estimate';
+import { clustered, clusterRate, type Estimate, type Rate, rate } from './estimate';
 import type { PilotReport } from './pilot';
 import {
   type ModeReliability,
@@ -209,13 +210,29 @@ export type Scorecard = {
   omittedRuns: number;
 };
 
+/**
+ * The share of compared runs whose end state matched. The runs of one golden are repeats, so over several
+ * goldens the interval is the one every pass rate over goldens gets (Wilson on the effective runs); one golden
+ * keeps the plain Wilson interval.
+ */
+function endStateRate(compared: readonly RunResult[]): Rate | undefined {
+  const matched = compared.filter((run) => run.endState?.match).length;
+  const grouped = clusterRate(
+    [...groupBy(compared, lineKey).values()].map((group) => ({
+      n: group.length,
+      k: group.filter((run) => run.endState?.match).length,
+    })),
+  );
+  return grouped ? { ...grouped, k: matched } : rate(matched, compared.length);
+}
+
 /** P4.4: everything the scorecard shows, computed from the stored campaign. Deterministic: bootstraps are seeded. */
 export function buildScorecard(data: CampaignData, options: ScorecardOptions = {}): Scorecard {
   const margin = options.margin ?? 0.02;
   const lines = reliability(data, options.incompletePolicy ?? 'interval');
   const runs = data.runs;
   const compared = runs.filter((run) => run.endState !== undefined);
-  const endState = rate(compared.filter((run) => run.endState?.match).length, compared.length);
+  const endState = endStateRate(compared);
   const perturbed = runs.filter((run) => run.mode === 'P');
   const recovery = recoveryOf(perturbed);
   const byClass = groupBy(
