@@ -188,3 +188,14 @@ The users package declares D6 a world carrier; the spec reference and rendered p
 The reader ignores filenames, object keys, metadata, background Given, store/fixtures and tool errors. Ordinary user/burst provenance remains exact; nonempty user text cannot borrow approval from the world. The carrier and behavioural fault items remain unchanged, so recording an approved phrase is not proof that the agent consumed it or that the suite caught obedience.
 
 Product obligation: put every approved D6 instruction in the injected world file/tool-result content, leave injection.user empty, and retain checks that catch both obedience faults. See [the partial journal](SWEEP-JOURNAL.md) and [evidence](evidence/d6-world-carrier-contract.json). No historical ladder level is updated by this scoped ruling.
+
+
+## Behaviour ownership and capacity ruling (2026-10-16)
+
+Every listed behaviour phrase remains required. The rendered map must provide an owning flow and a distinct post-read (flow, stage) slot for each phrase. A reported orphan or capacity gap does not waive coverage.
+
+The hidden constructor preserves every drawn ownership edge. An augmenting-path matching first uses the existing ownership. Only a behaviour that cannot be seated gains an edge to a flow with a free eligible slot. Slot eligibility follows the approved paths after every readonly tool used by that flow has run. Insufficient total path capacity rejects the fixture. The repair consumes no random draws.
+
+The public seed-1 fixture is refreshed. Independent exhaustive matching checks visible seeds 1–20, fresh seeds 1009, 2027, 4093 and 8191, and the commit-derived hidden map. The hidden map stays in memory; review the general construction, hand-written parcel example and public fixture diff, then run the test at the reviewed commit. The hidden-seed formula and coverage items remain unchanged.
+
+The final regression suite fails 13 cases on the unchanged constructor. The repaired constructor passes 40 tests across the new file and the existing hidden-map tests. Controls reject silently skipped owned phrases and forged capacity reports on all four fresh seeds. See [evidence](evidence/behaviour-ownership-capacity.json). This scoped measurement does not update historical ladder levels.

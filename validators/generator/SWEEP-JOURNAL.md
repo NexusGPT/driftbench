@@ -89,3 +89,14 @@ The next entry records completed seed results or the final bank result. No unmea
 - Focused lint, whitespace, handover and sparse typecheck pass; the sparse typecheck omits only the unrelated test importing excluded comparisons/langfuse. No full ladder or bank score is claimed; the historical executor journal and level table remain unchanged.
 - Evidence: [d6-world-carrier-contract.json](evidence/d6-world-carrier-contract.json). No items, thresholds, fault agents, fixtures, floors or hidden-seed rules are removed or lowered.
 - Product obligation: put every approved D6 instruction in the injected world file/tool-result content, leave injection.user empty, and retain checks that catch both obedience faults.
+
+
+## 2026-10-16: required behaviour ownership and distinct phrase capacity
+
+- Ruling: every inventory behaviour phrase stays mandatory. Repair fixture ownership and feasibility; reports cannot waive orphan or capacity failures.
+- Preserve all drawn ownership; augment existing matchings into distinct post-read (flow, stage) slots before adding a needed owner. No RNG calls are added. Insufficient total path capacity throws.
+- Red first: final tests against unchanged constructor fail 13 and pass 19. Green: 40 tests in two generator files pass.
+- Fresh seeds 1009, 2027, 4093 and 8191 pass the unchanged behaviour coverage item. Removing an owned phrase fails; adding a forged capacity report still fails.
+- A comparison with base 119802811739d45a85c3dda5d3402a5cd31bce2c confirms all original ownership edges and every other hidden field are preserved on 24 public maps and the commit-derived hidden map. The latter is tested in memory and never serialized.
+- Review the seed-independent construction, hand-written parcel routes and public seed-1 fixture diff; rerun the test at the reviewed commit for its new hidden map. The seed formula, bank, faults, thresholds and floors remain unchanged.
+- Evidence: [behaviour-ownership-capacity.json](evidence/behaviour-ownership-capacity.json) and [red output](evidence/behaviour-ownership-capacity-red.txt). No full-bank or ladder score is claimed; the executor journal and level table retain their historical measurements.
