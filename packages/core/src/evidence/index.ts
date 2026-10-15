@@ -194,9 +194,12 @@ export function computeEvidence(
   return out;
 }
 
-/** Where a failing check's home is for recurrence: the rule's skill, else the first routed skill, else `none`. */
+/**
+ * Where a failing check's home is for recurrence (C3): a skill whose blocks show the mistake, so the block's
+ * first routed skill, else the rule's skill, else `none` (a block with no routed skill).
+ */
 export function homeOf(input: EvidenceInput): string {
-  const skill = rule_skill.compute(input) as string | undefined;
-  if (skill !== undefined) return skill;
-  return (routed_skills.compute(input) as string[])[0] ?? 'none';
+  const routed = (routed_skills.compute(input) as string[])[0];
+  if (routed !== undefined) return routed;
+  return (rule_skill.compute(input) as string | undefined) ?? 'none';
 }
