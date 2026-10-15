@@ -7,10 +7,21 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 <!-- level-table:start -->
 | Seed | Level |
 |---|---|
-| 2 | 12 |
+| 1 | 14 |
+| 2 | 14 |
+| 3 | 14 |
+| hidden | 8 |
 <!-- level-table:end -->
 
-## Current climb: iteration 21
+## Current climb: iteration 22
+
+D6 product change committed (`90832b3d5`), per the D6 maintainer ruling: an approved instruction of a class the users package carries in the world is the content of a supplied workspace file (`NOTES.txt`, first unused name), the injected turn says nothing, held files are kept, and a probe block's file lasts for its own turn. Measured with `validate generator --seeds 1..3 --hidden --json` at that commit (`.exec/d6-after.json`): seeds 1, 2, 3 at 14 (from 11, 12, 11); the hidden seed of that commit (425515389) at 8. A first version kept the file for later turns: seed 2 then failed `fault.D6.says-skipped` (r2 and r3 instances fired on later turns with no must_not), so the file now lasts one turn.
+
+* Level 15 on seeds 1, 2, 3 fails only `sequence.stages.D8_tool_failure`. It asks for D8 probes at stages the rendered map forbids: `render.ts:542` adds `possible.ts` impossible pairs, which forbid `{deviation: D8_tool_failure, stage: <stage>}` exactly at the stages the item lists, while the item reads `hidden.constraints` only (`bank2.ts:288-294`). Sent to the lead for a ruling (item 14 below); no product change.
+* Hidden 425515389 fails `phrases.behaviours` (3 of 6 behaviour phrases unsaid). PRs 475 and 507 say all 6 on that seed; not caused by the D6 change.
+* The Acme reference agent passes the regenerated Acme suite only with PR 514 (file and tool-result guard); without it the 26 D6 blocks of `acme-generated.test.ts` fail. This branch depends on PR 514.
+
+## Earlier: iteration 21
 
 Follow-up coverage: branch rebased onto maintainer D8 contract `30e038ed5` (PR 511). No D8 production edit is needed: generation already preserves the rendered exact count. Independent Zed Bank tests now cover exact retry count, pending stage and failure text on ordinary and self-loop paths; the same non-bank map verifies perturbation placement after a restatement. Restoring the old restatement exclusion makes both placement tests fail. Focused tests pass 64/64, including real mode-P reference/fault runs on seeds 1 through 8. Evidence: `.exec/d8-modep-tests.log`, `.exec/nonbank-restated-red.log`.
 
