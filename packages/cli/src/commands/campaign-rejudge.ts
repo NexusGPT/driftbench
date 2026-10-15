@@ -17,6 +17,7 @@ import { openStore } from '@agent-nexus/driftbench-store';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { addJudgeOptions, judgeAsked, type RunJudgeOptions, runJudgeFrom } from '../judge-options';
+import { gateExit } from './gate-exit';
 
 type Options = RunJudgeOptions & {
   from: string;
@@ -193,9 +194,8 @@ export async function campaignRejudge(paths: string[], options: Options, io: Io)
           `  ${entry.spec} ${entry.mode} repeat ${entry.repeat} block ${entry.block} ${entry.status === 'blocked' ? 'blocked' : 'not run'}: ${entry.reason}\n`,
         );
     }
-    // Exit 0 only when every run passes; a run not run or blocked is no pass, so it exits 1 as a failure does,
-    // and the summary says which it was.
-    return outcomes.every((outcome) => outcome === 'pass') ? 0 : 1;
+    // 1 when a run fails; 3 when none fails but a run was not run or blocked (no pass, no failure).
+    return gateExit(outcomes);
   } catch (error) {
     io.err(`${error instanceof Error ? error.message : String(error)}\n`);
     return 2;

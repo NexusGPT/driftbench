@@ -13,6 +13,7 @@ import { defaultDeps } from '../src/commands/campaign';
 import { rankInputs } from '../src/commands/compare-rank';
 import { lineOf } from '../src/commands/estate-live';
 import { familyVerifyCommand } from '../src/commands/family';
+import { gateExit } from '../src/commands/gate-exit';
 import { registerPerturbCommand } from '../src/commands/perturb';
 import { registerRedteamCommand } from '../src/commands/redteam';
 import { registerSimulateCommand } from '../src/commands/simulate';
@@ -354,7 +355,7 @@ describe('redteam grade on a target that cannot run the spec', () => {
 
 describe('family verify on a reference that cannot run the spec', () => {
   it(
-    'counts the instance apart as unverified, never as a reference defect, and exits 1',
+    'counts the instance apart as unverified, never as a reference defect, and exits 3',
     async () => {
       const dir = await temp();
       await writeFile(join(dir, 'tool-failure.yaml'), await readFile(join(ROOT, TOOL_FAILURE), 'utf8'));
@@ -376,11 +377,22 @@ describe('family verify on a reference that cannot run the spec', () => {
         noStubs,
       );
       expect(err).toBe('');
-      expect(code).toBe(1);
+      expect(code).toBe(3);
       expect(out).toContain('- tool-failure.yaml  not run');
       expect(out).toContain('could not run 1 instances');
       expect(out).not.toContain('reference defect');
     },
     SLOW,
   );
+});
+
+describe('the exit of a command that gates a pipeline', () => {
+  it('is 0 when all pass, 1 when one fails, failed or stopped, and 3 when none did but one was not run', () => {
+    expect(gateExit(['pass', 'pass'])).toBe(0);
+    expect(gateExit(['pass', 'not_run'])).toBe(3);
+    expect(gateExit(['blocked'])).toBe(3);
+    expect(gateExit(['not_run', 'fail'])).toBe(1);
+    expect(gateExit(['not_run', 'failed'])).toBe(1);
+    expect(gateExit(['pass', 'stopped'])).toBe(1);
+  });
 });

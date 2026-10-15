@@ -100,6 +100,7 @@ import { pricesFromConfig } from '../token-prices';
 import { carriedBlocksAgree, planCellBlockReruns } from './campaign-blocks';
 import { campaignProvenance } from './campaign-provenance';
 import { registerCampaignRejudge } from './campaign-rejudge';
+import { gateExit } from './gate-exit';
 import { agentFamilyOf, describeSource, loadPersonas, portFor, userFactory, userSource } from './personas';
 
 /** What lives as long as one campaign: a temporary folder for its sandboxes, made on first use. */
@@ -383,7 +384,9 @@ export function registerCampaignCommands(
 
   const run = campaign
     .command('run')
-    .description('Run every cell and print pass or fail per cell. Exit 1 on any failed or failing cell.')
+    .description(
+      'Run every cell and print pass or fail per cell. Exit 1 on any failed or failing cell, 3 when none failed but a cell was not run.',
+    )
     .argument('[paths...]', 'spec files or folders; none when --dataset gives the specs')
     .option('--dataset <name[@version]>', 'run the specs of this dataset version of the store, and record it')
     .option(
@@ -1241,7 +1244,7 @@ async function executeCampaign(
     if (campaign.radius) io.out(radiusSummary(campaign.radius, outcomes));
     if (!flags.kept) io.out('The runs are not kept: pass --store <file> to keep them.\n');
   }
-  return outcomes.every((outcome) => outcome.state === 'pass') ? 0 : 1;
+  return gateExit(outcomes.map((outcome) => outcome.state));
 }
 
 /**

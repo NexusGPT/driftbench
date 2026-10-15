@@ -8,7 +8,7 @@ import { main } from '../src/index';
 
 /**
  * `campaign rejudge` over a stored run whose last block was not run: the re-judged block passes and none fails.
- * The run does not pass, so the command exits 1, and the summary names the block not run and counts the run.
+ * Nothing fails but a block was not run, so the command exits 3, and the summary names the block and counts the run.
  */
 const root = fileURLToPath(new URL('../../../', import.meta.url));
 const made: string[] = [];
@@ -31,7 +31,7 @@ async function cli(args: string[]) {
   return { code, out, err };
 }
 
-it('names the block not run and its reason, counts the run as not run, and exits 1', async () => {
+it('names the block not run and its reason, counts the run as not run, and exits 3', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'driftbench-not-run-rejudge-'));
   made.push(dir);
   const path = join(dir, 'runs.db');
@@ -103,5 +103,5 @@ it('names the block not run and its reason, counts the run as not run, and exits
     runs: { pass: 0, fail: 0, notRun: 1, blocked: 0 },
     unmeasured: [{ spec: 'acme-criterion', block: 1, status: 'not_run', reason: 'capability: g' }],
   });
-  expect(judged.code).toBe(1);
+  expect(judged.code).toBe(3);
 }, 120_000);

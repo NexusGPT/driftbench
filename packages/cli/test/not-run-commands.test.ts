@@ -114,7 +114,7 @@ const three = [syntheticRun(0, 'pass'), syntheticRun(1, 'not_run'), syntheticRun
 
 describe('campaign run and report with blocks not run', () => {
   it(
-    'campaign run marks the cell not run, counts it apart in the summary and the JSON, and exits 1',
+    'campaign run marks the cell not run, counts it apart in the summary and the JSON, and exits 3',
     async () => {
       const dir = await temp();
       const store = join(dir, 'c.db');
@@ -123,7 +123,6 @@ describe('campaign run and report with blocks not run', () => {
         noStubs,
       );
       expect(json.err).toBe('');
-      expect(json.code).toBe(1);
       const report = JSON.parse(json.out) as {
         campaignId: string;
         cells: Array<{
@@ -142,6 +141,9 @@ describe('campaign run and report with blocks not run', () => {
       expect(toolFailure?.blocks[0]?.notRun).toMatchObject({ check: 'capability' });
       expect(report.summary.notRun).toBe(skipped.length);
       expect(report.summary.blocked).toBeUndefined();
+      // Every other cell passes: nothing failed, so the exit is 3, as ci's.
+      expect(report.cells.every((cell) => cell.state === 'pass' || cell.state === 'not_run')).toBe(true);
+      expect(json.code).toBe(3);
       expect(report.cells.filter((cell) => cell.state === 'fail').map((cell) => cell.specId)).not.toContain(
         'acme-tool-failure',
       );
@@ -166,6 +168,28 @@ describe('campaign run and report with blocks not run', () => {
       expect(shown.out).toMatch(
         new RegExp(`\\d+ pass, \\d+ fail, ${skipped.length} not run, \\d+ did not complete`),
       );
+    },
+    SLOW,
+  );
+});
+
+describe('campaign run and resume when nothing failed but a cell was not run', () => {
+  it(
+    'exit 3, as ci does',
+    async () => {
+      const dir = await temp();
+      const store = join(dir, 'only.db');
+      const spec = `${CONVERSATIONS}/tool-failure.yaml`;
+      const run = await cli(
+        ['campaign', 'run', spec, '--target', 'function:acme-sales', '--store', store, '--campaign', 'only'],
+        noStubs,
+      );
+      expect(run.err).toBe('');
+      expect(run.out).toContain('not run');
+      expect(run.code).toBe(3);
+      const resumed = await cli(['campaign', 'resume', 'only', '--store', store], noStubs);
+      expect(resumed.err).toBe('');
+      expect(resumed.code).toBe(3);
     },
     SLOW,
   );
