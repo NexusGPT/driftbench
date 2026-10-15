@@ -279,13 +279,37 @@ export function phraseDrafts(
   };
 
   const pending: Array<{ plan: Plan; reasons: string[] }> = [];
+  // The cap stops building specs, not accounting for eligible approved phrases. Include phrases
+  // not visited yet as well as those already waiting for a slot, without repeating a reported gap.
+  const capped = (): SpecDraft[] => {
+    const reported = new Set(unsaid?.map((entry) => entry.text));
+    for (const phrases of prepared.phrasesOf.values())
+      for (const phrase of phrases) {
+        if (said.has(phrase.text) || asked.has(phrase.text) || reported.has(phrase.text)) continue;
+        const plan = planOf(phrase);
+        if (!plan) continue;
+        unsaid?.push({
+          dimension: plan.dimension,
+          value: phrase.value,
+          text: phrase.text,
+          reasons: [
+            ...new Set([
+              ...(pending.find((entry) => entry.plan.phrase === phrase)?.reasons ?? []),
+              'cut by --max',
+            ]),
+          ],
+        });
+        reported.add(phrase.text);
+      }
+    return drafts;
+  };
   // A first pass says each phrase before a walk's last stage; a second says the phrases left over at the last
   // stage of a walk with no end state, after every other phrase, so the phrases the first pass places keep
   // their ids and their streams.
   for (const last of [false, true])
     for (const phrases of prepared.phrasesOf.values()) {
       for (const phrase of phrases) {
-        if (first + drafts.length >= context.max) return drafts;
+        if (first + drafts.length >= context.max) return capped();
         if (said.has(phrase.text) || asked.has(phrase.text)) continue;
         const plan = planOf(phrase);
         if (!plan) continue;
@@ -307,7 +331,7 @@ export function phraseDrafts(
     }
   // A phrase both passes left over may still be said: it takes a slot a placed sibling gives up for another.
   for (const { plan, reasons } of pending) {
-    if (first + drafts.length >= context.max) return drafts;
+    if (first + drafts.length >= context.max) return capped();
     const id = `gen-phrase-${String(first + drafts.length + 1).padStart(3, '0')}`;
     const slot = plan.found ? undefined : augment(plan, id, new Set());
     const draft = slot ? commit(plan, id, slot) : undefined;

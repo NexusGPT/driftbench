@@ -86,6 +86,75 @@ function placements(prepared: ReturnType<typeof crowded>['prepared'], unsaid: Un
 }
 
 describe('behaviour phrases on a map whose slots are crowded', () => {
+  it.each([0, 1, 2, 3])('reports every waiting phrase when the spec cap is %i', (max) => {
+    const { prepared } = crowded();
+    const unsaid: UnsaidPhrase[] = [];
+    const drafts = phraseDrafts(prepared, { seed: 1097, t: 2, max }, new Set(), 0, unsaid);
+    const said = new Set(
+      drafts.flatMap((draft) =>
+        draft.blocks.flatMap((block) =>
+          block.stimulus.kind === 'phrase' ? [block.stimulus.phrase.text] : [],
+        ),
+      ),
+    );
+    const waiting = Object.values(BEHAVIOURS).filter((text) => !said.has(text));
+    expect(unsaid.map((entry) => entry.text).sort()).toEqual(waiting.sort());
+    expect(new Set(unsaid.map((entry) => entry.text)).size).toBe(unsaid.length);
+    expect(unsaid.every((entry) => entry.reasons.includes('cut by --max'))).toBe(true);
+  });
+
+  it('reports an impossible call conjunction instead of silently dropping its phrase', () => {
+    const { proposal } = crowded();
+    const call = proposal.relations?.find(
+      (entry) => entry.kind === 'uses_tool' && entry.subject.value === 'read-account',
+    );
+    if (call?.kind !== 'uses_tool') throw new Error('missing conditional call');
+    call.when = { flow: ['balance'], stage: ['help'] };
+    const prepared = prepareMap(proposal, { tools: ZED_TOOLS });
+    const result = generateSuite(prepared, { seed: 1061, mapPath: '../approved.yaml' });
+    expect(result.report.no_phrase).toContainEqual(
+      expect.objectContaining({
+        value: 'read-account',
+        unsaid: [
+          expect.objectContaining({
+            text: BEHAVIOURS['read-account'],
+            reasons: expect.arrayContaining([expect.stringContaining('no behaviour tool relation applies')]),
+          }),
+        ],
+      }),
+    );
+  });
+
+  it.each([1013, 1061, 1097])('keeps capped phrase gaps in the suite report on seed %i', (seed) => {
+    const { prepared } = crowded();
+    const result = generateSuite(prepared, { seed, max: 0, mapPath: '../approved.yaml' });
+    for (const [value, text] of Object.entries(BEHAVIOURS))
+      expect(result.report.no_phrase).toContainEqual(
+        expect.objectContaining({
+          value,
+          unsaid: [expect.objectContaining({ text, reasons: ['cut by --max'] })],
+        }),
+      );
+  });
+
+  it('does not report phrases already said when an offset exhausts the cap', () => {
+    const { prepared } = crowded();
+    const unsaid: UnsaidPhrase[] = [];
+    const drafts = phraseDrafts(
+      prepared,
+      { seed: 2203, t: 2, max: 3 },
+      new Set([BEHAVIOURS['note-down']]),
+      3,
+      unsaid,
+    );
+    expect(drafts).toEqual([]);
+    expect(unsaid.map((entry) => entry.text).sort()).toEqual(
+      Object.values(BEHAVIOURS)
+        .filter((text) => text !== BEHAVIOURS['note-down'])
+        .sort(),
+    );
+  });
+
   it('says a conditional phrase at the one slot its call allows, moving a free sibling elsewhere', () => {
     const { prepared } = crowded();
     const unsaid: UnsaidPhrase[] = [];
