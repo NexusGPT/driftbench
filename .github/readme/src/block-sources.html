@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>driftbench: follow a failure to its source</title><link rel="stylesheet" href="brand.css">
+<style>
+#frame { width:640px;height:470px; }
+.fail { left:16px;top:76px;width:166px;height:182px;padding:12px; }
+.nx-kind.static {position:static;display:block;font-size:10px;}
+.title {margin-top:8px;font:600 13px/1.3 var(--nx-sans);}
+.detail {margin-top:8px;font:400 11.5px/1.4 var(--nx-sans);color:var(--detail);}
+.bad {display:inline-flex;align-items:center;height:20px;padding:0 9px;border-radius:999px;background:var(--nx-ink);color:var(--nx-card);font:600 10.5px/1 var(--nx-sans);margin-top:12px;}
+.source {left:232px;width:372px;padding:10px 12px;}
+.code {margin-top:7px;font:400 11.5px/1.45 var(--nx-sans);color:var(--detail);}
+.code span {display:inline-block;width:22px;font:400 10px/1.45 var(--nx-mono);color:var(--kind);}
+.selected {background:var(--tile);color:var(--tile-ink);border-left:3px solid var(--nx-blue);padding:3px 5px;margin:3px 0;}
+.ranks {left:16px;top:304px;width:588px;height:124px;padding:12px;}
+.rank {display:grid;grid-template-columns:18px 150px 1fr;gap:8px;align-items:start;margin-top:11px;font:400 11.5px/1.3 var(--nx-sans);}
+.rank .where {font:500 10.5px/1.4 var(--nx-mono);color:var(--detail);}
+.rank .n {font:600 11px/1.3 var(--nx-sans);color:var(--nx-blue);}
+</style></head><body>
+<div id="frame" class="nx-ill scene"><div class="nx-ill__glass">
+<svg class="nx-edges" viewBox="0 0 620 450"><path class="nx-edge--new" d="M182 124 C212 124 204 98 232 98"/><path class="nx-edge" d="M182 164 C208 164 208 186 232 186"/><path class="nx-edge" d="M182 204 C208 204 208 250 232 250"/><path class="nx-edge" d="M418 278 L418 304"/></svg>
+<span class="nx-kind" style="left:16px;top:16px">A failure points to its sources</span>
+<div class="nx-ill-panel fail"><span class="nx-kind static">Order test</span><div class="title">The agent skipped the recap.</div><div class="detail">Spec clause 4<br>Wait for customer confirmation.</div><span class="bad">fail</span></div>
+<div class="nx-ill-panel source" style="top:42px;height:108px"><span class="nx-kind static">Acme prompt · fictional</span><div class="code"><div><span>17</span>Read the plan details.</div><div class="selected"><span>18</span>Place the order when the customer picks a plan.</div><div><span>19</span>Confirm the order number.</div></div></div>
+<div class="nx-ill-panel source" style="top:162px;height:52px"><span class="nx-kind static">Skill · checkout.md</span><div class="code"><span>8</span>Read the order back.</div></div>
+<div class="nx-ill-panel source" style="top:226px;height:52px"><span class="nx-kind static">Tool description · order.create</span><div class="code"><span>3</span>Creates the chosen order.</div></div>
+<div class="nx-ill-panel ranks"><span class="nx-kind static">Leading suspects · illustrative ranking</span><div class="rank"><span class="n">1</span><span class="where">Prompt · line 18</span><span>Place the order when the customer picks a plan.</span></div><div class="rank"><span class="n">2</span><span class="where">Tool · line 3</span><span>Creates the chosen order.</span></div><div class="rank"><span class="n">3</span><span class="where">Skill · line 8</span><span>Read the order back.</span></div></div>
+</div></div><script>window.__fonts=['400 11.5px Geist','600 13px Geist','500 10px "Geist Mono"'];Promise.all(window.__fonts.map(f=>document.fonts.load(f))).then(()=>document.fonts.ready).then(()=>window.__ready=true);</script></body></html>

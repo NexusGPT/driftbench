@@ -1,5 +1,6 @@
 import type { CarriedSummary } from './data';
 import type { Estimate } from './estimate';
+import type { SuiteHeadline } from './headline';
 
 /** Escapes text for HTML element content and attribute values. */
 export function esc(text: string): string {
@@ -42,6 +43,37 @@ export function usd(value: number): string {
 export function interval(estimate: Estimate, show: (value: number) => string): string {
   if (estimate.method === 'none') return 'no interval: one cluster';
   return `[${show(estimate.lower)}, ${show(estimate.upper)}]`;
+}
+
+/** The independent units a clustered rate is worth, as text: `n_eff 12.3 (design effect 2.41)`; empty when it has none. */
+export function effectiveNote(estimate: Estimate): string {
+  if (estimate.effectiveN === undefined || estimate.designEffect === undefined) return '';
+  return `n_eff ${fixed(estimate.effectiveN, 1)} (design effect ${fixed(estimate.designEffect, 2)})`;
+}
+
+/**
+ * What stands behind a suite headline, as text: the goldens, the effective runs, the drop two suites like it
+ * could detect, and the shares of runs that gave no verdict (only those above 0).
+ */
+export function headlineNote(headline: SuiteHeadline): string {
+  const parts = [`${count(headline.trees, 'golden')}`];
+  if (headline.trees > 1) {
+    parts.push(
+      headline.degenerate
+        ? `n_eff ${fixed(headline.effectiveRuns, 1)} runs (every run agrees, so each golden counts once)`
+        : `n_eff ${fixed(headline.effectiveRuns, 1)} runs (design effect ${fixed(headline.designEffect, 2)})`,
+    );
+    parts.push(
+      headline.detectableDrop === null
+        ? 'no drop detectable at 80% power'
+        : `detectable drop ${fixed(headline.detectableDrop * 100, 1)} points at 80% power`,
+    );
+  }
+  const { incomplete, blocked, notRun } = headline.shares;
+  if (incomplete > 0) parts.push(`${pct(incomplete)} did not complete`);
+  if (blocked > 0) parts.push(`${pct(blocked)} blocked`);
+  if (notRun > 0) parts.push(`${pct(notRun)} not run`);
+  return parts.join(', ');
 }
 
 /** Singular or plural: `1 run`, `3 runs`. */
