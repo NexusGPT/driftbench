@@ -4,6 +4,7 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* A block's Given says where its prefix comes from: `given.origin` is `authored`, `recorded` or `canonical`, beside `given.prefix` (`GIVEN_ORIGIN_WITHOUT_PREFIX` without one). It holds until a block writes another prefix, enters the resolved Given (`ResolvedGiven.origin`, exported type `GivenOrigin`) and the Given hash, and changes the spec hash, so results with different origins are never pooled. A spec that does not use it keeps its spec hash, its Given hashes and its cache keys; no recorded result or cassette changes. `import traces` drafts now write `origin: recorded` on every prefix, so a new draft has a new spec hash. `spec lint` warns with `PREFIX_PROSE_HISTORY` when an assistant message of a prefix states a ledger fact that no recorded tool call holds and the user never said, in a spec that names tools: an agent told an earlier result only in its own prose tends to call the tool again (H6: 332 of 450 runs against 0 of 450 with the recorded call).
 * The generator declares a deviation class whose recovery moves the conversation (a goal shift goes back to intake) as a perturbation: one walk of its flow cut at the latest stage before the last that can take it (`gen-deviation-cut-NNN`), with the perturbation said after the walk's last turn. A perturbed run now fails an agent that ignores the goal shift.
 * License changed from Apache-2.0 to MIT for driftbench's own code
 

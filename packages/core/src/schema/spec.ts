@@ -5,6 +5,7 @@ import {
   Budget,
   Count,
   DeviationClass,
+  GivenOrigin,
   Lang,
   Message,
   Pattern,
@@ -65,6 +66,9 @@ export const GivenOverride = z
       .array(Message)
       .optional()
       .describe('The messages before this block. Lets the block start without replaying the ones before.'),
+    origin: GivenOrigin.optional().describe(
+      'Where the prefix comes from: authored, recorded or canonical. Only with a prefix on the same block. It enters the Given hash.',
+    ),
     ledger: z
       .record(z.string(), z.unknown())
       .optional()

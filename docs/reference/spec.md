@@ -37,6 +37,7 @@ The loader rewrites these forms before it validates a spec.
 * [Given](#given)
 * [Message](#message)
 * [PrefixToolCall](#prefixtoolcall)
+* [GivenOrigin](#givenorigin)
 * [Expect](#expect)
 * [ToolExpect](#toolexpect)
 * [Count](#count)
@@ -280,6 +281,7 @@ Initial conditions set on one block. A prefix lets the block start without repla
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `prefix` | list of [Message](#message) | no |  | The messages before this block. Lets the block start without replaying the ones before. |
+| `origin` | [GivenOrigin](#givenorigin) | no |  | Where the prefix comes from: authored, recorded or canonical. Only with a prefix on the same block. It enters the Given hash. |
 | `ledger` | map of string to any value | no |  | Facts the agent must hold at this block. They merge into the ledger from here on. |
 | `world` | [WorldState](#worldstate) | no |  | Changes to the world from this block onwards. |
 | `vars` | map of string to any value | no |  | Runtime variables from this block onwards. |
@@ -306,6 +308,18 @@ A tool call written in a spec prefix.
 | `input` | JSON value | no |  | The arguments of the call. |
 | `output` | JSON value | no |  | What the tool returned. |
 | `error` | string | no |  | The error the tool returned. |
+
+## GivenOrigin
+
+Where the prefix comes from: authored (written by a person), recorded (copied from a real run, its tool calls with their real results) or canonical (the replay of a spec as it is written).
+
+Used by `blocks[].given.origin`, beside a `prefix`. The origin enters the Given hash: an agent trusts a recorded call and tends to call a tool again when its earlier result is only in prose, so the three are different tests and their results are never pooled. See [Given](../concepts/given-when-then.md#tool-history-records-not-prose).
+
+| Value | Meaning |
+|---|---|
+| `authored` | A person wrote the prefix. |
+| `recorded` | The prefix is copied from a real run: its tool calls carry the results the tools really returned. `import traces` writes it. |
+| `canonical` | The prefix is the replay of a spec as it is written, such as a teacher-forced history: the calls the blocks expect, with the results the world forces. |
 
 ## Expect
 

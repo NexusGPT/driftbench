@@ -1,6 +1,6 @@
 ---
 title: Prefixes and given
-summary: '`given.prefix` starts a block in the middle of a conversation without replaying the blocks before it, and `given.ledger`, `given.world` and `given.vars` set the facts, the world and the runtime variables a block starts from.'
+summary: '`given.prefix` starts a block in the middle of a conversation without replaying the blocks before it, `given.origin` says where that prefix comes from, and `given.ledger`, `given.world` and `given.vars` set the facts, the world and the runtime variables a block starts from.'
 commands:
   - spec validate
   - campaign run
@@ -18,9 +18,13 @@ next:
 Given is the starting state of a block. A spec sets it in two places:
 
 - `given` at the top of the spec: the default for every block. Keys: `ledger`, `world`, `vars`.
-- `given` on a block: the same three keys, plus `prefix`.
+- `given` on a block: the same three keys, plus `prefix` and `origin`.
 
 `prefix` is a list of messages that come before the block: user turns, assistant turns with their tool calls, system or tool messages. With a prefix, a block starts as if that conversation had already happened. You can test the tenth turn of a conversation without writing nine blocks.
+
+`origin` says where the prefix comes from: `authored` (a person wrote it), `recorded` (copied from a real run, its tool calls with the results the tools really returned) or `canonical` (the replay of a spec as written). It is optional, and enters the Given hash only when present.
+
+A fact the agent got from a tool belongs in the prefix as a tool call with its `output`, never only in the assistant's text. A history in prose is a different test: in an experiment on a sales agent, the agent that read an earlier result only in its own prose called the tool again in 332 of 450 runs, against 0 of 450 with the recorded call, and filed the same callback request a second time in all 90 prose runs of the lead blocks. `spec lint` warns with `PREFIX_PROSE_HISTORY` when an assistant message of a prefix states a ledger fact that no recorded call of the prefix holds and the user never said.
 
 `ledger`, `world` and `vars` on a block merge into the running state from that block onwards:
 
@@ -43,7 +47,8 @@ Whether the agent itself reads the prefix depends on the adapter. Adapters with 
 - Test a late turn of a long conversation in one block.
 - Pin the exact history a block starts from, so the block does not depend on how the agent answered earlier.
 - Give a code agent a workspace (`world.workspace`), or force a tool to fail from a given block (`world.tools`).
-- Read a draft from `import traces`: each observed user turn becomes a block, and the state observed before it becomes that block's `given.prefix`.
+- Read a draft from `import traces`: each observed user turn becomes a block, and the state observed before it becomes that block's `given.prefix`, with `origin: recorded`.
+- Mark where a prefix comes from with `origin`, so results of a recorded history and of a written one are never read as the same test.
 
 ## Commands and every option
 
@@ -56,11 +61,12 @@ This is a format topic. `spec validate` and `spec lint` check the keys (see auth
 | Key | Where | Type | Meaning |
 |---|---|---|---|
 | `prefix` | block only | list of messages | The messages before this block. |
+| `origin` | block only, with `prefix` | `authored`, `recorded` or `canonical` | Where the prefix comes from. It holds for later blocks until a block writes another prefix. |
 | `ledger` | spec or block | mapping | Facts the agent must hold; on a block they merge from that block on. |
 | `world` | spec or block | mapping | `tools`, `store`, `workspace`, `fixtures`, see below. |
 | `vars` | spec or block | mapping | Runtime variables. |
 
-A `prefix` at the top-level `given` is a schema error: only a block takes one.
+A `prefix` or an `origin` at the top-level `given` is a schema error: only a block takes them. An `origin` on a block that writes no `prefix` is `GIVEN_ORIGIN_WITHOUT_PREFIX`.
 
 ### A message of the prefix
 
@@ -96,13 +102,13 @@ Top-level shorthands: `ledger_seed` is `given.ledger`, and `workspace_seed` is `
 
 A prefix changes no output format. It changes what the block starts from:
 
-- The resolved Given of each block (prefix, ledger, world, vars, target) is hashed, and the hash enters the block's cache key. Two blocks with the same Given and stimulus share a cache entry.
+- The resolved Given of each block (prefix, ledger, world, vars, target, and `origin` when the spec states one) is hashed, and the hash enters the block's cache key. Two blocks with the same Given and stimulus share a cache entry. `origin` also changes the spec hash, so results with different origins are never pooled; a spec without it keeps its hashes.
 - In a run, the block reports as usual: `✓ <spec> · <target> · <mode> · repeat 0  pass  <n> blocks`, or the failing verdict.
 - A ledger contradiction (a block adds a fact with a value that differs from the one the ledger holds) is reported by the ledger check with both values.
 
 ## Worked example
 
-`import traces` turns a recorded session into a draft spec: each observed user turn becomes a block, and every block after the first gets the conversation before it as its `given.prefix`, tool calls and their outputs included. On a recorded Claude Code session of the repository:
+`import traces` turns a recorded session into a draft spec: each observed user turn becomes a block, and every block after the first gets the conversation before it as its `given.prefix`, tool calls and their outputs included, and `origin: recorded`. On a recorded Claude Code session of the repository:
 
 ```sh
 driftbench import traces examples/estates/sessions/clean-build.jsonl --from claude-code --out out/drafts
@@ -117,7 +123,7 @@ Wrote 1 draft spec to out/drafts, none approved: 2 blocks, no expect yet.
 Next: write each block's expect from the agent spec, then driftbench import approve out/drafts --all.
 (exit 0)
 $ driftbench spec lint out/drafts
-✓ out/drafts/draft-claude-code-00000000-0000-4000-8000-000000000001.yaml  draft-claude-code-00000000-0000-4000-8000-000000000001 · 2 blocks · hash 8c901a9727c0
+✓ out/drafts/draft-claude-code-00000000-0000-4000-8000-000000000001.yaml  draft-claude-code-00000000-0000-4000-8000-000000000001 · 2 blocks · hash c8d713f9cc9d
   ! blocks.0  BLOCK_NO_EXPECTATION  this block checks nothing
   ! blocks.1  BLOCK_NO_EXPECTATION  this block checks nothing
 Checked 1 spec: 1 valid, 0 invalid, 2 warnings.
@@ -210,6 +216,52 @@ The runs are not kept: pass --store <file> to keep them.
 
 Both modes pass: the agent reached `recap` and asked for `CONFIRM` from the prefix alone.
 
+### A history in prose
+
+The same turn, written by a person, with the current plan stated in the assistant's text and no recorded call. Written as `out/authoring-prefixes/prose-history.yaml`:
+
+```yaml file=out/authoring-prefixes/prose-history.yaml
+# Fictional data only. The current plan is in the assistant's prose, not in a recorded call.
+id: prose-history
+target: { adapter: function, agent: acme-sales }
+stages: [identify, offer, recap, order_placed, closing]
+ledger_seed: { customer: existing }
+blocks:
+  - id: choose
+    given:
+      origin: authored
+      prefix:
+        - role: user
+          content: Hi, I'm already an Acme customer and I keep running out of data on my phone.
+        - role: assistant
+          content: Hi, I'm the Acme Telecom sales assistant. What is the email address on your Acme account?
+        - role: user
+          content: It's sam.rivera@example.com
+        - role: assistant
+          content: 'Plans with more data: Acme Mobile M, 40 GB for $25 a month; Acme Mobile L, unlimited data for $35 a month. Your current plan is mobile-s. Which one would you like?'
+      ledger: { customer_id: cust-001, current_plan: mobile-s }
+    user: The unlimited one, please.
+    expect:
+      stage: recap
+      tools:
+        - { label: order.create, count: 0 }
+      must: ['CONFIRM']
+```
+
+```sh
+driftbench spec lint out/authoring-prefixes/prose-history.yaml
+```
+
+```text
+$ driftbench spec lint out/authoring-prefixes/prose-history.yaml
+✓ out/authoring-prefixes/prose-history.yaml  prose-history · 1 block · hash 5fa4e915ada7
+  ! blocks.0.given.prefix.3  PREFIX_PROSE_HISTORY  the assistant states current_plan (mobile-s) in prose, which no recorded tool call of the prefix holds and the user never said: the agent may re-call the tool. Record the call with its output in tool_calls
+Checked 1 spec: 1 valid, 0 invalid, 1 warning.
+(exit 0)
+```
+
+The spec is valid; the warning says the history is a different test from a recorded call. Record the call that produced the plan in `tool_calls`, with its `output`, to test what the agent does after a real lookup.
+
 ## Common errors
 
 Bad message shapes (`out/authoring-prefixes/bad/bad-prefix.yaml`):
@@ -240,7 +292,9 @@ The runs are not kept: pass --store <file> to keep them.
 | `SCHEMA_INVALID_VALUE` on `role` | a role outside the four | `user`, `assistant`, `system` or `tool` |
 | `SCHEMA_INVALID_TYPE` on `content` | an assistant turn with tool calls only and no `content` | write `content: ''` |
 | `SCHEMA_INVALID_TYPE` on `tool_calls.N.label` | a tool call with no name | add `label` |
-| `SCHEMA_UNRECOGNIZED_KEYS` on `given` | `prefix` at the top-level `given` | move it to a block's `given` |
+| `SCHEMA_UNRECOGNIZED_KEYS` on `given` | `prefix` or `origin` at the top-level `given` | move it to a block's `given` |
+| `GIVEN_ORIGIN_WITHOUT_PREFIX` | `origin` on a block with no `prefix` | add the `prefix` it describes, or remove `origin` |
+| `PREFIX_PROSE_HISTORY` warning | an assistant message states a ledger fact no recorded call holds | record the call with its `output` in `tool_calls`, or keep the prose on purpose and read the results as a different test |
 | a block fails right after a prefix | a recorded `output` with a shape the real tool never returns | copy the output from a real run, or leave `output` out so the agent reads the tool again |
 | the prefix seems ignored | the adapter has no `seedPrefix` capability (`process`, `nexus`, live Claude Code), so the agent does not receive it | write the earlier turns as blocks instead |
 | `SPEC_ALIAS_CONFLICT` | `ledger_seed` and `given.ledger` both set | keep one |

@@ -70,6 +70,15 @@ export function checkSemantics(spec: Spec): Issue[] {
       }
       blockIds.add(block.id);
     }
+    if (block.given?.origin !== undefined && block.given.prefix === undefined) {
+      issues.push(
+        error(
+          'GIVEN_ORIGIN_WITHOUT_PREFIX',
+          `blocks.${index}.given.origin`,
+          'origin says where a prefix comes from, and this block writes no prefix: add given.prefix or remove origin',
+        ),
+      );
+    }
     if (block.expect) checkExpect(block.expect, `blocks.${index}.expect`, ctx, issues);
     if (block.expect)
       checkRetention(

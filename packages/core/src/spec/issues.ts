@@ -23,6 +23,8 @@ export const IssueCodes = [
   'TASK_WITHOUT_OUTCOME',
   'PERTURBATION_NO_RECOVERY',
   'RETENTION_FACT_UNKNOWN',
+  'GIVEN_ORIGIN_WITHOUT_PREFIX',
+  'PREFIX_PROSE_HISTORY',
 ] as const;
 
 export type IssueCode = (typeof IssueCodes)[number] | `SCHEMA_${string}`;

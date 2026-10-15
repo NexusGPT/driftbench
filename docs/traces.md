@@ -86,7 +86,10 @@ blocks:
               input:
                 address: "[ADDRESS_1], Acmeville"
               output: { found: true, address_id: addr-102, fiber_mbps: 300, five_g: true }
+      origin: recorded
 ```
+
+Every prefix of a draft carries `origin: recorded`: its tool calls hold what the tools really returned, which an agent trusts in a way it does not trust the same fact in prose. See [Given](concepts/given-when-then.md#tool-history-records-not-prose).
 
 ## Monitoring: `driftbench monitor --source traces`
 
