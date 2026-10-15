@@ -212,9 +212,9 @@ export const DEFAULT_VALUE_POLICY: ValuePolicy = {
     },
     {
       id: 'rung2b_as_given',
-      title: 'A value copied from the user or a workspace file equals its source',
+      title: 'A value the user or a workspace file gave is not changed (a copy alone passes nothing)',
       when: { tool_replayable: false, recomputable: false, source: ['user', 'workspace_file'] },
-      effect: { settles: ['pass', 'fail'], emits: ['change'] },
+      effect: { settles: ['fail'], emits: ['change'] },
       params: { ignore: ['surrounding_space'] },
       impl: 'builtin:value-check/as-given',
       cites: 'value_equivalence.md 3c R2; tau-bench policy p.16',
@@ -406,8 +406,8 @@ function settlesOf(item: ValuePolicyItem): readonly unknown[] {
   return Array.isArray(listed) ? listed : ['pass', 'fail', 'inconclusive'];
 }
 
-/** Rungs that pass a value whose writing differs from the gold's: the source it was copied from, the judge. */
-const WRITING_RUNGS = new Set(['builtin:value-check/as-given', 'builtin:value-check/judge']);
+/** The rung that passes a value whose writing differs from the gold's: the judge. */
+const WRITING_RUNGS = new Set(['builtin:value-check/judge']);
 
 /**
  * Decides one value. Two facts first (equal passes; a non-string difference fails), then the policy's items
@@ -519,7 +519,7 @@ function exactFallback(
 /**
  * The lint `test_demands_unstated_format` (value_equivalence.md 3, rung 2): the agent's value differs from the
  * gold only in its writing, and nothing outside the test asks for the gold's writing. The tool cannot be asked,
- * no contract states a format, and the value passed as given from its source or by the judge (same referent).
+ * no contract states a format, and the judge passed the value (same referent).
  * The block demands a writing nobody told the agent; the fix is to declare the format in the tool or to drop it
  * from the block. A value nothing settled falls back to the exact compare and carries the `no_decider` lint instead.
  */
