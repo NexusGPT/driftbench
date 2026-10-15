@@ -146,10 +146,8 @@ export class ClaudeCodeReader implements EstateReader {
     const walked = await walk(root, '.claude', notes, ignored, new Set(), undefined, large);
     const raw = await this.read(root);
     const rootReferences = [
-      ...raw.files.filter((file) => !file.path.includes('/')).map((file) => file.path),
-      ...raw.notes
-        .filter((note) => !note.file.includes('/') && note.message === 'skipped: larger than 1 MB')
-        .map((note) => note.file),
+      ...raw.files.map((file) => file.path),
+      ...raw.notes.filter((note) => note.message === 'skipped: larger than 1 MB').map((note) => note.file),
     ];
     return [
       ...new Set([
@@ -185,6 +183,7 @@ export class ClaudeCodeReader implements EstateReader {
     const paths = [
       ...(await present(root, ['CLAUDE.md', 'CLAUDE.local.md'])),
       ...(await walk(root, '.claude', notes, ignored)),
+      ...(await nestedStanding(root, '', notes, ignored)),
     ];
     const files: EstateFile[] = [];
     for (const path of paths) {
@@ -312,6 +311,40 @@ async function readRootReferences(
   // The report points at the mutable counters by value, so refresh counts after root discovery.
   for (const pattern of estate.ignored?.patterns ?? [])
     pattern.files = ignored.counts.get(pattern.pattern) ?? 0;
+}
+
+/** Discover only nested standing instructions; ignore whole excluded trees and stop directory cycles. */
+async function nestedStanding(
+  root: string,
+  folder: string,
+  notes: ReadNote[],
+  ignored: Ignored,
+  ancestors: ReadonlySet<string> = new Set(),
+): Promise<string[]> {
+  const real = await realpath(join(root, folder)).catch(() => undefined);
+  if (!real) return [];
+  if (ancestors.has(real)) {
+    notes.push({ file: folder, message: 'skipped: a link back to a folder the walk is already inside' });
+    return [];
+  }
+  const inside = new Set(ancestors).add(real);
+  const entries = await readdir(join(root, folder), { withFileTypes: true }).catch(() => []);
+  const found: string[] = [];
+  for (const entry of entries.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))) {
+    const path = posix.join(folder, entry.name);
+    // The regular layout walk already owns this tree and the root standing files.
+    if (folder === '' && (entry.name === '.claude' || STANDING.has(path))) continue;
+    if (ignored.rules.some((rule) => rule.test(path))) continue;
+    const linked = entry.isSymbolicLink() ? await stat(join(root, path)).catch(() => undefined) : undefined;
+    if (entry.isDirectory() || linked?.isDirectory()) {
+      found.push(...(await nestedStanding(root, path, notes, ignored, inside)));
+    } else if (/^CLAUDE(?:\.local)?\.md$/.test(entry.name) && (entry.isFile() || linked?.isFile())) {
+      const info = linked ?? (await stat(join(root, path)));
+      if (info.size > MAX_FILE_BYTES) notes.push({ file: path, message: 'skipped: larger than 1 MB' });
+      else found.push(path);
+    }
+  }
+  return found;
 }
 
 async function present(root: string, names: readonly string[]): Promise<string[]> {
@@ -500,7 +533,7 @@ async function walk(
 }
 
 function classify(path: string, text: string): { kind: FileKind; owner?: string } {
-  if (STANDING.has(path)) return { kind: 'standing' };
+  if (STANDING.has(path) || /(?:^|\/)(?:CLAUDE|CLAUDE\.local)\.md$/.test(path)) return { kind: 'standing' };
   if (SETTINGS.has(path)) return { kind: 'settings' };
   const parts = path.split('/');
   if (parts[1] === 'memory' && path.endsWith('.md')) return { kind: 'memory' };

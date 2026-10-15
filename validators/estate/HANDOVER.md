@@ -11,13 +11,13 @@
 | hidden | 0 |
 <!-- level-table:end -->
 
-Iteration 35, source dd9fef8a3eb13ca6675cc97f9e112b1fb21cfdf7 plus the change recorded in this journal row. Hidden seed 719246282, derived from that head.
+Iteration 36, source 67096ccc508de286af5881e37524289fa97d4da8 plus the change recorded in this journal row. Hidden seed 729670924, derived from that head.
 | Seed | Reader passing / items |
 |---|---|
-| 1 | 613/641 |
-| 2 | 613/641 |
-| 3 | 613/641 |
-| hidden (719246282) | 613/641 |
+| 1 | 614/641 |
+| 2 | 614/641 |
+| 3 | 614/641 |
+| hidden (729670924) | 614/641 |
 
 Each fraction counts reader items passing on that seed, out of 641 reader items. Journal `passing` counts distinct evaluated item IDs passing every seed; it is not a sum of seed counts. The journal's per-level `metrics` use seed 1; its `perSeed` records achieved levels separately.
 
@@ -59,13 +59,13 @@ Owner rule: "make sure all the fixes are fixes that are TO THE FRAMEWORK in gene
 - scan.standing.list-item: [scan.standing, tier 3] the reader reads routing written as a list item: missed route route-review-1wyhk4c at CLAUDE.md:5
 - scan.standing.sentence: [scan.standing, tier 4] the reader reads routing written as a sentence: missed route parcel-update-1713qix at CLAUDE.md:5
 - scan.standing.heading-per-skill: [scan.standing, tier 4] the reader reads routing written as a heading per skill: missed route shelf-price-ftj8gw at CLAUDE.md:5
-- scan.standing.nested-standing: [scan.standing, tier 3] the reader reads a standing file in a subfolder: missed instruction at src/route/CLAUDE.md:3
 - scan.standing.imported-standing: [scan.standing, tier 4] the reader reads a file the standing file imports: missed instruction at .claude/docs/crate-rules.md:3; found reference reference.standing.read-claude-docs-crate-rules-md at CLAUDE.md:3, never planted
 - blind.lint.emoji-count-as-characters: [blind.lint, tier 4] lint finds no oversize finding for a standing file of 30,000 emoji: a OVERSIZE finding: the standing instructions hold 60317 characters, over the ceiling of 40000
 - blind.edges.dispatch-plain-name: [blind.edges, tier 3] the reader reads a skill body that dispatches a helper by its plain name: no dispatch edge from skill at .claude/skills/orchard-plan-7beyan/SKILL.md
 
 ## Hypotheses tried
 
+Iteration 36: nested CLAUDE.md discovery. +1 on every seed: scan.standing.nested-standing.
 Iteration 35: helpers in agent subfolders. +1 on every seed: scan.hostile.helper-subfolder.
 Iteration 34: shell context for hook commands (cd &&, sh -c wrappers). +2 on every seed: scan.dispatcher.change-folder, shell-wrapper. Seed 1 lost wide-folder on timing only.
 Iteration 33: registry rows that name a guard by its command. +1 on every seed: scan.catalogue.guard-command-key.
