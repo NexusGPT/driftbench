@@ -41,7 +41,7 @@ Works with any agent through an [adapter](#adapters). No account, no server. Apa
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/summary-dark.png">
-    <img alt="Judge accuracy on public benchmarks, Claude Haiku 5.5, scores out of 100, bars ranked within each benchmark, driftbench the only coloured bar and each competitor grey with its own pattern, with an axis break from 30 to 50. JudgeBench, 270 pairs: driftbench 88.9, DeepEval 86.3, LangWatch 83.7, promptfoo 83.0, Inspect 80.0, Langfuse 74.8. MM-Eval, 591 items: driftbench 88.9, promptfoo 86.5, DeepEval 84.1, LangWatch 83.9, Inspect 75.4, Langfuse 73.5. RubricBench, 1,580 games: driftbench 82.7, DeepEval 77.6, promptfoo 75.6, LangWatch 74.9, Inspect 26.6, Langfuse 25.1. verify, 221 items: Langfuse 75.1, driftbench 74.2, Inspect 73.3, LangWatch 73.3, promptfoo 71.9, DeepEval 58.8. writing, 346 games: driftbench 67.6, DeepEval 58.4, promptfoo 56.9, LangWatch 52.6, Langfuse 14.5, Inspect 11.6. Reader-first setting: 67.6 shown; default 61.3. Same score as a rule that always picks the longer reply (67.6)." src="docs/assets/summary-light.png" width="100%" />
+    <img alt="Judge accuracy on public benchmarks, Claude Haiku 5.5, scores out of 100, bars ranked within each benchmark, driftbench the only coloured bar and each competitor grey with its own pattern, with an axis break from 30 to 50. JudgeBench, 270 pairs: DeepEval 86.3, LangWatch 83.7, promptfoo 83.0, Inspect 80.0, driftbench 79.6, Langfuse 74.8. MM-Eval, 591 items: driftbench 88.4, promptfoo 86.5, DeepEval 84.1, LangWatch 83.9, Inspect 75.4, Langfuse 73.5. RubricBench, 1,580 games: driftbench 78.2, DeepEval 77.6, promptfoo 75.6, LangWatch 74.9, Inspect 26.6, Langfuse 25.1. verify, 221 items: Langfuse 75.1, Inspect 73.3, LangWatch 73.3, promptfoo 71.9, driftbench 63.8, DeepEval 58.8. writing, 346 games: DeepEval 58.4, promptfoo 56.9, LangWatch 52.6, driftbench 52.0, Langfuse 14.5, Inspect 11.6. driftbench: frozen default-on-v6. Competitors: recorded runs, unverified historical (lane report)." src="docs/assets/summary-light.png" width="100%" />
   </picture>
 </p>
 <!-- readme-summary:end -->
@@ -769,55 +769,55 @@ Every number comes from a result file in this repository. All scores are on one 
 Five public benchmarks for judges, all on the same sealed items and the same model, Claude Haiku 5.5, with every tool running its default judge. Scores are out of 100. The other models and the charts that carry them are in the detail of each benchmark: [JudgeBench](docs/comparison/benchmarks/index.md#judgebench), [MM-Eval](docs/comparison/benchmarks/index.md#mm-eval), [RubricBench](docs/comparison/benchmarks/index.md#rubricbench), [verify and writing](docs/comparison/benchmarks/index.md#longjudgebench).
 
 <!-- readme-charts:start -->
-**JudgeBench.** driftbench picks the correct answer more often than DeepEval, LangWatch, promptfoo, Inspect and Langfuse on the same model: 88.9, against 86.3 for the next best, DeepEval.
+**JudgeBench.** driftbench picks the correct answer 79.6 times in 100, within 6.7 points of the top score (DeepEval, 86.3) and above Langfuse (74.8).
 
 <a href="docs/assets/bench-judgebench-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-judgebench-dark.png">
-    <img alt="JudgeBench: driftbench scores 88.9. Claude Haiku 5.5, 270 pairs, percent correct, highest to lowest: driftbench 88.9, DeepEval 86.3, LangWatch 83.7, promptfoo 83.0, Inspect 80.0, Langfuse 74.8." src="docs/assets/bench-judgebench-light.png" width="100%">
+    <img alt="JudgeBench: driftbench scores 79.6. Claude Haiku 5.5, 270 pairs, percent correct, highest to lowest: DeepEval 86.3, LangWatch 83.7, promptfoo 83.0, Inspect 80.0, driftbench 79.6, Langfuse 74.8." src="docs/assets/bench-judgebench-light.png" width="100%">
   </picture>
 </a>
-<p align="center"><sub>Claude Haiku 5.5, 270 pairs. Each judge runs its default settings; driftbench runs its opt-in pair ledger. A refused item counts as wrong.</sub></p>
+<p align="center"><sub>Claude Haiku 5.5, 270 pairs. Each judge runs its default settings; driftbench runs its frozen default-on-v6 product default; competitor results are recorded, unverified historical (lane report). A refused item counts as wrong.</sub></p>
 
-**MM-Eval.** driftbench picks the better answer more often than promptfoo, DeepEval, LangWatch, Inspect and Langfuse on the same model: 88.9, against 86.5 for the next best, promptfoo.
+**MM-Eval.** driftbench picks the better answer more often than promptfoo, DeepEval, LangWatch, Inspect and Langfuse on the same model: 88.4, against 86.5 for the next best, promptfoo.
 
 <a href="docs/assets/bench-mm-eval-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-mm-eval-dark.png">
-    <img alt="MM-Eval: driftbench scores 88.9. Claude Haiku 5.5, 591 items, percent correct, highest to lowest: driftbench 88.9, promptfoo 86.5, DeepEval 84.1, LangWatch 83.9, Inspect 75.4, Langfuse 73.5." src="docs/assets/bench-mm-eval-light.png" width="100%">
+    <img alt="MM-Eval: driftbench scores 88.4. Claude Haiku 5.5, 591 items, percent correct, highest to lowest: driftbench 88.4, promptfoo 86.5, DeepEval 84.1, LangWatch 83.9, Inspect 75.4, Langfuse 73.5." src="docs/assets/bench-mm-eval-light.png" width="100%">
   </picture>
 </a>
-<p align="center"><sub>Claude Haiku 5.5, 591 items. Each judge runs its default settings; driftbench runs its opt-in pair ledger. A refused item counts as wrong (refused: DeepEval 3, LangWatch 7, Inspect 7, Langfuse 6).</sub></p>
+<p align="center"><sub>Claude Haiku 5.5, 591 items. Each judge runs its default settings; driftbench runs its frozen default-on-v6 product default; competitor results are recorded, unverified historical (lane report). A refused item counts as wrong (refused: DeepEval 3, LangWatch 7, Inspect 7, Langfuse 6).</sub></p>
 
-**RubricBench.** driftbench picks the reply that meets the grading criteria more often than DeepEval, promptfoo, LangWatch, Inspect and Langfuse on the same model: 82.7, against 77.6 for the next best, DeepEval.
+**RubricBench.** driftbench picks the reply that meets the grading criteria more often than DeepEval, promptfoo, LangWatch, Inspect and Langfuse on the same model: 78.2, against 77.6 for the next best, DeepEval.
 
 <a href="docs/assets/bench-rubricbench-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-rubricbench-dark.png">
-    <img alt="RubricBench: driftbench scores 82.7. Claude Haiku 5.5, 1,580 games, percent correct, highest to lowest: driftbench 82.7, DeepEval 77.6, promptfoo 75.6, LangWatch 74.9, Inspect 26.6, Langfuse 25.1." src="docs/assets/bench-rubricbench-light.png" width="100%">
+    <img alt="RubricBench: driftbench scores 78.2. Claude Haiku 5.5, 1,580 games, percent correct, highest to lowest: driftbench 78.2, DeepEval 77.6, promptfoo 75.6, LangWatch 74.9, Inspect 26.6, Langfuse 25.1." src="docs/assets/bench-rubricbench-light.png" width="100%">
   </picture>
 </a>
-<p align="center"><sub>Claude Haiku 5.5, 1,580 games. Each judge runs its default settings; driftbench runs its opt-in pair ledger. A refused item counts as wrong (refused: DeepEval 1, Langfuse 1).</sub></p>
+<p align="center"><sub>Claude Haiku 5.5, 1,580 games. Each judge runs its default settings; driftbench runs its frozen default-on-v6 product default; competitor results are recorded, unverified historical (lane report). A refused item counts as wrong (refused: DeepEval 1, Langfuse 1).</sub></p>
 
-**Verify.** driftbench decides whether the final answer is correct 74.2 times in 100, within 0.9 points of the top score (Langfuse, 75.1) and above Inspect (73.3), LangWatch (73.3), promptfoo (71.9) and DeepEval (58.8).
+**Verify.** driftbench decides whether the final answer is correct 63.8 times in 100, within 11.3 points of the top score (Langfuse, 75.1) and above DeepEval (58.8).
 
 <a href="docs/assets/bench-verify-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-verify-dark.png">
-    <img alt="Verify: driftbench scores 74.2. Claude Haiku 5.5, 221 items, percent correct, highest to lowest: Langfuse 75.1, driftbench 74.2, Inspect 73.3, LangWatch 73.3, promptfoo 71.9, DeepEval 58.8." src="docs/assets/bench-verify-light.png" width="100%">
+    <img alt="Verify: driftbench scores 63.8. Claude Haiku 5.5, 221 items, percent correct, highest to lowest: Langfuse 75.1, Inspect 73.3, LangWatch 73.3, promptfoo 71.9, driftbench 63.8, DeepEval 58.8." src="docs/assets/bench-verify-light.png" width="100%">
   </picture>
 </a>
-<p align="center"><sub>Claude Haiku 5.5, 221 items. Each judge runs its default settings; driftbench runs its opt-in frozen verify cascade. A refused item counts as wrong.</sub></p>
+<p align="center"><sub>Claude Haiku 5.5, 221 items. Each judge runs its default settings; driftbench runs its frozen default-on-v6 product default; competitor results are recorded, unverified historical (lane report). A refused item counts as wrong.</sub></p>
 
-**Writing.** driftbench picks the reply readers prefer more often than DeepEval, promptfoo, LangWatch, Langfuse and Inspect on the same model: 67.6, against 58.4 for the next best, DeepEval.
+**Writing.** driftbench picks the reply readers prefer 52.0 times in 100, within 6.4 points of the top score (DeepEval, 58.4) and above Langfuse (14.5) and Inspect (11.6).
 
 <a href="docs/assets/bench-writing-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/bench-writing-dark.png">
-    <img alt="Writing: driftbench scores 67.6. Claude Haiku 5.5, 346 games, percent correct, highest to lowest: driftbench 67.6, DeepEval 58.4, promptfoo 56.9, LangWatch 52.6, Langfuse 14.5, Inspect 11.6." src="docs/assets/bench-writing-light.png" width="100%">
+    <img alt="Writing: driftbench scores 52.0. Claude Haiku 5.5, 346 games, percent correct, highest to lowest: DeepEval 58.4, promptfoo 56.9, LangWatch 52.6, driftbench 52.0, Langfuse 14.5, Inspect 11.6." src="docs/assets/bench-writing-light.png" width="100%">
   </picture>
 </a>
-<p align="center"><sub>Claude Haiku 5.5, 346 games. Each judge runs its default settings; driftbench runs its opt-in pair ledger. A refused item counts as wrong. The driftbench bar uses its opt-in reader-first setting (long-structured), which scores the same as a rule that always picks the longer reply, 67.6; the default setting scores 61.3.</sub></p>
+<p align="center"><sub>Claude Haiku 5.5, 346 games. Each judge runs its default settings; driftbench runs its frozen default-on-v6 product default; competitor results are recorded, unverified historical (lane report). A refused item counts as wrong.</sub></p>
 
 <!-- readme-charts:end -->
 
@@ -892,18 +892,18 @@ The table holds the numbers of the five charts. DeepEval, Inspect, Langfuse and 
 <!-- readme-table:start -->
 | Benchmark | driftbench | promptfoo | DeepEval | Inspect | Langfuse | LangWatch |
 |---|---:|---:|---:|---:|---:|---:|
-| JudgeBench, 270 pairs | 88.9 | 83.0 | 86.3 | 80.0 | 74.8 | 83.7 |
-| MM-Eval, 591 items | 88.9 | 86.5 | 84.1 | 75.4 | 73.5 | 83.9 |
-| RubricBench, 1,580 games | 82.7 | 75.6 | 77.6 | 26.6 | 25.1 | 74.9 |
-| LongJudgeBench verify, 221 items | 74.2 | 71.9 | 58.8 | 73.3 | 75.1 | 73.3 |
-| LongJudgeBench writing, 346 games (footnote) | 67.6 | 56.9 | 58.4 | 11.6 | 14.5 | 52.6 |
+| JudgeBench, 270 pairs | 79.6 | 83.0 | 86.3 | 80.0 | 74.8 | 83.7 |
+| MM-Eval, 591 items | 88.4 | 86.5 | 84.1 | 75.4 | 73.5 | 83.9 |
+| RubricBench, 1,580 games | 78.2 | 75.6 | 77.6 | 26.6 | 25.1 | 74.9 |
+| LongJudgeBench verify, 221 items | 63.8 | 71.9 | 58.8 | 73.3 | 75.1 | 73.3 |
+| LongJudgeBench writing, 346 games | 52.0 | 56.9 | 58.4 | 11.6 | 14.5 | 52.6 |
 
-Footnote: the driftbench figure for writing uses its opt-in reader-first setting (long-structured); the default setting scores 61.3.
+Footnote: driftbench figures are the frozen default-on-v6 product default on Claude Haiku 5.5; competitor figures are recorded, unverified historical (lane report).
 <!-- readme-table:end -->
 
-- Verify: Langfuse scores 0.9 points above driftbench. On the paired items driftbench alone is right on 13 and Langfuse alone on 15 (raw p 0.85).
-- Writing: the reader-first setting picks the longer reply on all 173 pairs, so its 67.6 equals a longer-reply rule.
-- The verify column here is Claude Haiku 5.5 (driftbench 74.2, promptfoo 71.9). The 74.7 and 72.4 in [the public benchmark table](docs/comparison/methods.md) are GPT-6 Luna, a different model.
+- Verify: the frozen default scores 63.8, below Langfuse, Inspect, LangWatch and promptfoo. Across the 25 exact paired tests with Holm correction, it loses to Inspect, Langfuse and LangWatch on verify, wins 9 comparisons elsewhere and ties 13 ([paired results](comparisons/default-on/readme-v6/RESULTS.md)).
+- Writing: the frozen default has no length preference. The earlier 67.6 bar was the opt-in reader-first setting, which picks the longer reply on all 173 pairs.
+- The verify column here is Claude Haiku 5.5 (driftbench 63.8, promptfoo 71.9). The 74.7 and 72.4 in [the public benchmark table](docs/comparison/methods.md) are GPT-6 Luna, a different model.
 - A few items stay undecided after three passes because the model refused them. They count as wrong for the contestant. Undecided items: MM-Eval 3 to 7 per peer, RubricBench 1 each for DeepEval and Langfuse.
 - Inspect and Langfuse scores on RubricBench and writing are low because a pointwise grader returns equal scores for many pairs, and a tie counts as wrong.
 

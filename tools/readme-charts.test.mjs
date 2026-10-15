@@ -187,8 +187,15 @@ describe('readme summary chart', () => {
     const run = spawnSync('node', [script, '--print', 'summary'], { encoding: 'utf8' });
     expect(run.status, run.stderr).toBe(0);
     const c = JSON.parse(run.stdout);
-    expect(c.alt).toContain('JudgeBench, 270 pairs: driftbench 88.9');
-    expect(c.svg.light).toContain('88.9');
+    // The committed JudgeBench chart supplies the number, whichever result set is committed.
+    const bench = spawnSync('node', [script, '--print', 'bench-judgebench'], { encoding: 'utf8' });
+    expect(bench.status, bench.stderr).toBe(0);
+    const ours = JSON.parse(bench.stdout)
+      .panels[0].bars.find((b) => b.ours)
+      .score.toFixed(1);
+    const judgebench = c.alt.split('JudgeBench, 270 pairs: ')[1].split(' MM-Eval')[0];
+    expect(judgebench).toContain(`driftbench ${ours}`);
+    expect(c.svg.light).toContain(ours);
   });
 });
 

@@ -1550,7 +1550,10 @@ function benefit(chart) {
   const below = rest.filter((b) => tenth(b.score) < tenth(ours.score));
   const list = below.map((b) => `${b.name} (${one(b.score)})`);
   const gap = one(next.score - ours.score);
-  return `driftbench ${TASK[chart]} ${one(ours.score)} times in 100, within ${gap} points of the top score (${next.name}, ${one(next.score)}) and above ${list.slice(0, -1).join(', ')} and ${list.at(-1)}.`;
+  // "A", "A and B", "A, B and C": a one-name list must not print an empty name before "and".
+  const joined = list.length > 1 ? `${list.slice(0, -1).join(', ')} and ${list.at(-1)}` : (list[0] ?? '');
+  const above = joined ? ` and above ${joined}` : '';
+  return `driftbench ${TASK[chart]} ${one(ours.score)} times in 100, within ${gap} points of the top score (${next.name}, ${one(next.score)})${above}.`;
 }
 
 function readmeCharts() {
