@@ -33,7 +33,7 @@ import {
   skill_loaded,
   skillLoaded,
 } from './rule';
-import { outputFailed, skillOfPath, subjectTool, verdictSubject } from './subject';
+import { callSucceeded, outputFailed, skillOfPath, subjectTool, verdictSubject } from './subject';
 import {
   claim_contradicted,
   env_error,
@@ -82,6 +82,7 @@ export type {
   ValueFact,
 } from './types';
 export {
+  callSucceeded,
   homeOfAtom,
   outputFailed,
   readAmount,
