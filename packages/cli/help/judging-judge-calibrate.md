@@ -121,16 +121,16 @@ driftbench judge calibrate --criteria examples/acme/criteria --labels examples/a
 
 ```text
 $ driftbench judge calibrate --criteria examples/acme/criteria --labels examples/acme/labels --cassette examples/acme/criteria/calibration/cassette.json --out assignments.yaml
-care_redirect [gating]: owned by jev-a (system1: jev-a, jev-b, openai-decisions; re-judge google-chat, openai-chat, anthropic-chat)
-    jev-a              system1  separation 3/3  kappa  1.00  agreement 4/4 [0.51, 1.00]  at the bar
-    jev-b              system1  separation 3/3  kappa  1.00  agreement 4/4 [0.51, 1.00]  at the bar
+care_redirect [gating]: owned by s1p-a (system1: s1p-a, s1p-b, openai-decisions; re-judge google-chat, openai-chat, anthropic-chat)
+    s1p-a              system1  separation 3/3  kappa  1.00  agreement 4/4 [0.51, 1.00]  at the bar
+    s1p-b              system1  separation 3/3  kappa  1.00  agreement 4/4 [0.51, 1.00]  at the bar
     openai-decisions   system1  separation 3/3  kappa  1.00  agreement 4/4 [0.51, 1.00]  at the bar
     openai-chat        system2  separation 3/3  kappa  1.00  agreement 4/4 [0.51, 1.00]  at the bar
     google-chat        system2  separation 3/3  kappa  1.00  agreement 4/4 [0.51, 1.00]  at the bar
     anthropic-chat     system2  separation 3/3  kappa  1.00  agreement 4/4 [0.51, 1.00]  at the bar
     alpha across judges 1.00; bar: 3/3 separation and kappa 0.8
 (88 more lines)
-Kappa over every labelled block: jev-a 0.90 (38/40), jev-b 0.90 (38/40), openai-decisions 1.00 (40/40), openai-chat 1.00 (40/40), google-chat 0.95 (39/40), anthropic-chat 1.00 (40/40).
+Kappa over every labelled block: s1p-a 0.90 (38/40), s1p-b 0.90 (38/40), openai-decisions 1.00 (40/40), openai-chat 1.00 (40/40), google-chat 0.95 (39/40), anthropic-chat 1.00 (40/40).
 
 11 of 12 criteria assigned in mode hybrid (3 repeats, kappa at least 0.8). Unassigned, judged but never gating: ledger_intact.
 Wrote assignments.yaml.

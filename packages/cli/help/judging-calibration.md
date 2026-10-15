@@ -66,7 +66,7 @@ How a criterion is assigned:
 
 * `council` (the default): a class takes a criterion only when three of its judges meet the bar. The owner is the cheapest judge at the bar in such a class (by cost, then id), seated with the next two cheapest at the bar of that class. In hybrid mode the re-judge row is three judges of the other class, those at the bar first.
 * `cheapest`: the one cheapest judge at the bar owns the criterion alone: a council row of one judge, whose vote is the verdict, with no re-judge. The table records its measured `cost_per_call_usd` when the client reports a cost.
-* No class (or no judge, under `cheapest`) at the bar: the criterion is unassigned, with a reason such as `no class has 3 judges at the bar (system1 has 2 of 3 judges at the bar, system2 has 2 of 3 judges at the bar): jev-b kappa 0.40 is under 0.8; google-chat kappa 0.50 is under 0.8`. It is still judged; its verdict never gates.
+* No class (or no judge, under `cheapest`) at the bar: the criterion is unassigned, with a reason such as `no class has 3 judges at the bar (system1 has 2 of 3 judges at the bar, system2 has 2 of 3 judges at the bar): s1p-b kappa 0.40 is under 0.8; google-chat kappa 0.50 is under 0.8`. It is still judged; its verdict never gates.
 * A row whose judges all share one model family is marked `single_family: <family>` in the table and `[single family: <family>]` in the report: they share that family's blind spots.
 * A judge of the agent's family (`--agent-family`) is left out entirely, and the report names it.
 
@@ -94,15 +94,15 @@ driftbench judge calibrate --criteria examples/acme/criteria --labels examples/a
 
 ```text
 $ driftbench judge calibrate --criteria examples/acme/criteria --labels examples/acme/labels --cassette examples/acme/criteria/calibration/cassette.json --only ledger_intact --out ledger.yaml
-ledger_intact: UNASSIGNED, judged but not gating: no class has 3 judges at the bar (system1 has 2 of 3 judges at the bar, system2 has 2 of 3 judges at the bar): jev-b kappa 0.40 is under 0.8; google-chat kappa 0.50 is under 0.8
-    jev-a              system1  separation 3/3  kappa  1.00  agreement 3/3 [0.44, 1.00]  at the bar
-    jev-b              system1  separation 3/3  kappa  0.40  agreement 2/3 [0.21, 0.94]  misses: kappa 0.40 is under 0.8
+ledger_intact: UNASSIGNED, judged but not gating: no class has 3 judges at the bar (system1 has 2 of 3 judges at the bar, system2 has 2 of 3 judges at the bar): s1p-b kappa 0.40 is under 0.8; google-chat kappa 0.50 is under 0.8
+    s1p-a              system1  separation 3/3  kappa  1.00  agreement 3/3 [0.44, 1.00]  at the bar
+    s1p-b              system1  separation 3/3  kappa  0.40  agreement 2/3 [0.21, 0.94]  misses: kappa 0.40 is under 0.8
     openai-decisions   system1  separation 3/3  kappa  1.00  agreement 3/3 [0.44, 1.00]  at the bar
     openai-chat        system2  separation 3/3  kappa  1.00  agreement 3/3 [0.44, 1.00]  at the bar
     google-chat        system2  separation 3/3  kappa  0.50  agreement 2/3 [0.21, 0.94]  misses: kappa 0.50 is under 0.8
     anthropic-chat     system2  separation 3/3  kappa  1.00  agreement 3/3 [0.44, 1.00]  at the bar
     alpha across judges 0.87; bar: 3/3 separation and kappa 0.8
-Kappa over every labelled block: jev-a 1.00 (3/3), jev-b 0.40 (2/3), openai-decisions 1.00 (3/3), openai-chat 1.00 (3/3), google-chat 0.50 (2/3), anthropic-chat 1.00 (3/3).
+Kappa over every labelled block: s1p-a 1.00 (3/3), s1p-b 0.40 (2/3), openai-decisions 1.00 (3/3), openai-chat 1.00 (3/3), google-chat 0.50 (2/3), anthropic-chat 1.00 (3/3).
 
 0 of 1 criteria assigned in mode hybrid (3 repeats, kappa at least 0.8). Unassigned, judged but never gating: ledger_intact.
 Wrote ledger.yaml.
@@ -122,7 +122,7 @@ kappa_min: 0.8
 criteria:
   - criterion: ledger_intact
     status: unassigned
-    reason: "no class has 3 judges at the bar (system1 has 2 of 3 judges at the bar, system2 has 2 of 3 judges at the bar): jev-b kappa 0.40 is under 0.8; google-chat kappa 0.50 is under 0.8"
+    reason: "no class has 3 judges at the bar (system1 has 2 of 3 judges at the bar, system2 has 2 of 3 judges at the bar): s1p-b kappa 0.40 is under 0.8; google-chat kappa 0.50 is under 0.8"
 ```
 
 Every judge separates the pair, but one judge of each class disagrees with one of the three labels, so neither class seats three judges at the bar. The exit code is 0 because `ledger_intact` is not declared gating. With `--json`, this criterion also carries `warnings: [few-labels]`: each label class has fewer than 5 blocks.

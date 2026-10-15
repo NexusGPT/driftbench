@@ -70,7 +70,7 @@ NOT separated  <criterion> [<class>]: pass fixture <outcome>, fail fixture <outc
 * `<class>` is the class of the row that judged the criterion: `system1` or `system2`.
 * `gating` appears when the criterion is declared gating and calibration did not leave it unassigned. `unassigned: not gating` appears when the assignment table leaves it unassigned: it is still judged but never gates.
 * `(split, re-judged)` after a fixture means the first three judges gave no majority and another round decided. `(cascade)` means the cheapest judge decided alone.
-* Under a `NOT separated` line, the round log of each fixture follows, one line per round, such as `pass: system1: jev-a inconclusive, jev-b inconclusive, openai-decisions inconclusive; split`. A judge id ending in `@large` is the retry with the large token budget.
+* Under a `NOT separated` line, the round log of each fixture follows, one line per round, such as `pass: system1: s1p-a inconclusive, s1p-b inconclusive, openai-decisions inconclusive; split`. A judge id ending in `@large` is the retry with the large token budget.
 * The last line counts: `<n> of <m> criteria separated in mode <mode>.`, then, when calls failed, `; <k> judge call(s) gave no answer (a cassette miss or a recorded failure).`
 
 With `--json`, one object: `mode`, `separated` (count), `criteria` (count), `errors` (judge calls with no answer) and `rows`. Each row has `criterion`, `cls`, `gating`, optional `unassigned` (the reason), `separated`, and `fixtures`. Each fixture has `fixture` (`pass` or `fail`), `outcome`, `cls`, `split`, `cascaded`, `errors`, `votes` (each `judge`, `outcome`, optional `score` and `reasoning`) and `log` (the round lines).
