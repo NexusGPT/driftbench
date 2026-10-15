@@ -1319,12 +1319,13 @@ function readStepList(
         : seekPattern(file, keyValue(key, id), cursor);
     if (!found) continue;
     const line = linesOf(file.text)[found.startLine - 1]?.text ?? found.quote;
-    if (Array.isArray(record.next)) declaresNext = true;
+    const next = record.next ?? record.then;
+    if (next !== undefined) declaresNext = true;
     const decl: StepDecl = {
       id: qualify(id),
-      next: Array.isArray(record.next)
-        ? record.next.filter((next): next is string => typeof next === 'string').map(qualify)
-        : [],
+      next: (Array.isArray(next) ? next : [next])
+        .filter((id): id is string => typeof id === 'string' && id !== '')
+        .map(qualify),
       anytime: record.anytime === true,
       at: { ...found, endLine: found.startLine, quote: line },
     };
@@ -1332,7 +1333,7 @@ function readStepList(
     if (process !== undefined) decl.process = process;
     read.push(decl);
   }
-  if (process !== undefined && !declaresNext) {
+  if (!declaresNext) {
     const ordered = read.filter((step) => !step.anytime);
     ordered.forEach((step, index) => {
       const following = ordered[index + 1];
