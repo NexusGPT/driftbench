@@ -33,3 +33,5 @@ The haiku recorder (`benchmarks/record.ts`) now uses the default judge's output 
 | planted-verify | 189/190 | 188 | 189 |
 
 Second run: no haiku answer stopped at its limit (the largest used 1,757 output tokens). Four slices stay below their floor (hard-factuality, heldout-factuality, heldout-pii, map-rubric); their changed cases are judgement errors, several of them unstable between the two runs. The floors are an owner decision.
+
+Owner ruling, 2026-10-16: "Ok lower in this specific case". The four haiku floors are set to the second run's scores: hard-factuality 118/120 (was 119), heldout-factuality 70/72 (was 71), heldout-pii 70/72 (was 72), map-rubric 153/156 (was 156). The earlier floors move to the floor history. Every other floor is unchanged, and all 42 recordings hold their floors in `pnpm bench replay --slice all --check-floor`.

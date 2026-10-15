@@ -7,969 +7,1211 @@
       "cls": "system2",
       "model": "gpt-6-luna",
       "cost": 10,
-      "settings": "{\"client\":\"openai-chat\",\"temperature\":0,\"maxTokens\":{\"normal\":1024,\"large\":4096},\"temperatureRetry\":\"drop on a 400 that names it\",\"responseFormat\":\"json_schema\",\"reasoning\":\"medium\"}"
+      "settings": "{\"client\":\"openai-chat\",\"temperature\":0,\"maxTokens\":{\"normal\":1024,\"large\":4096},\"temperatureRetry\":\"drop on a 400 that names it\",\"responseFormat\":\"json_schema\",\"reasoning\":\"medium\",\"reasoningTokens\":{\"low\":512,\"medium\":1024,\"high\":2048}}",
+      "dialect": "openai-json-schema",
+      "reasoning": "medium"
     }
   ],
   "entries": [
     {
       "judge": "gpt-6-luna",
-      "key": "96aac6008d16",
+      "key": "3409ee6ef4dc",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-124 costs 54 credits monthly, includes 40 GB, and has no roaming, consistent with the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-124 costs 54 credits monthly, with 40 GB and no roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001919
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The final reply states that Lumen-124 costs 54 credits monthly, includes 40 GB, and has no roaming. These facts are consistent with the reference; the extra text does not assert a conflicting fact about the plan.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-124 costs 54 credits monthly, with 40 GB and no roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.000202
     },
     {
       "judge": "gpt-6-luna",
-      "key": "3ea62fb82dc4",
+      "key": "60c1a74f2e40",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the non-student pays 44 credits a month, but the reference says Lumen-119 costs 49 credits per month and the discount applies only to students. This is a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 44 credits a month, receives 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-119 costs 49 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.00017680000000000001
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-133 costs 63 credits per month, includes 40 Go, and has no roaming. These facts agree with the reference's price, 40 GB allowance, and exclusion of roaming.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Le forfait coûte 63 crédits par mois, comprend 40 Go, sans itinérance.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-133 costs 63 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.00020260000000000002
     },
     {
       "judge": "gpt-6-luna",
-      "key": "7404fc7e47af",
+      "key": "57deb5a20205",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says Lumen-132 costs 62 credits per month, which matches the reference. The reply omits the data allowance and roaming detail, but a consistent subset passes.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"62 credits per month.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-132 costs 62 credits per month\"}],\"met\":true}]}",
-      "cost_usd": 0.0001711
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the non-student pays 44 credits per month, but reference.txt states the price is 49 credits per month and the discount applies only to students. The reply therefore contradicts the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 44 credits a month, receives 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-119 costs 49 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00020590000000000002
     },
     {
       "judge": "gpt-6-luna",
-      "key": "ed40a23cde10",
+      "key": "756f47e45c7e",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-151 costs 81 credits monthly, has 40 GB, and excludes roaming, consistent with the reference on all three facts.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-151 costs 81 credits monthly, has 40 GB and excludes roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-151 costs 81 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001902
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply’s price, monthly period, data allowance, and roaming policy agree with the current authorized record. Its claim about reviewing the portfolio is not contradicted by the reference.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"CURRENT AUTHORIZED RECORD: Lumen-111 costs 41 credits per month, includes 40 GB, and excludes roaming.\"},{\"source\":\"transcript.1\",\"quote\":\"41 credits monthly, 40 GB and no roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.0003306
     },
     {
       "judge": "gpt-6-luna",
-      "key": "c854b2fcc368",
+      "key": "2ffee6f9f097",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states 59 credits per month, equivalent to the reference price of 708 credits per year, and matches the reference on 40 GB and no roaming.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-129 costs 708 credits per year, includes 40 GB, and excludes roaming.\"},{\"source\":\"transcript.1\",\"quote\":\"That is 59 credits per month, with 40 GB and no roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001878
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply gives 59 credits per month, equivalent to 708 credits per year, and matches the reference’s 40 GB and exclusion of roaming. It contains no factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That is 59 credits per month, with 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-129 costs 708 credits per year, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002064
     },
     {
       "judge": "gpt-6-luna",
-      "key": "b371121df186",
+      "key": "12d637f9b19e",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply’s price, data allowance, and roaming policy agree with the current authorized record; it contains no factual disagreement with the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"41 credits monthly, 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-111 costs 41 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.000263
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply's stated price, monthly period, data allowance, and roaming policy match the current authorized record. Its additional statement about reviewing the portfolio is not contradicted by the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"65 credits monthly, 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"CURRENT AUTHORIZED RECORD: Lumen-135 costs 65 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.0003211
     },
     {
       "judge": "gpt-6-luna",
-      "key": "961958e58073",
+      "key": "02c58efc7ea0",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the plan costs 63 credits per month, includes 40 GB, and has no roaming. These facts agree with reference.txt; the French wording is a consistent paraphrase.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Le forfait coûte 63 crédits par mois, comprend 40 Go, sans itinérance.\"},{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-133 costs 63 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001955
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply matches the reference: it gives Lumen-151 as 81 credits monthly, 40 GB, and excluding roaming. “Monthly” is equivalent to “per month,” and no factual disagreement appears.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-151 costs 81 credits monthly, has 40 GB and excludes roaming.\"},{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-151 costs 81 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002088
     },
     {
       "judge": "gpt-6-luna",
-      "key": "7010a1047741",
+      "key": "63cb06aa90d9",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply's total of 36 credits matches the 29-credit base charge plus the mandatory 7-credit fee. Its 40 GB data and excluded roaming statements also agree with the reference.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"base monthly charge 29 credits plus a mandatory 7-credit monthly service fee. Data 40 GB. No roaming.\"},{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 36 credits. Data 40 GB. Roaming excluded.\"}],\"met\":true}]}",
-      "cost_usd": 0.00019969999999999998
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "3a158c881f6c",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states 65 credits monthly, 40 GB, and no roaming, consistent with the authorized record’s price, data allowance, and roaming exclusion; it contains no factual disagreement with the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"65 credits monthly, 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"CURRENT AUTHORIZED RECORD: Lumen-135 costs 65 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.000285
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "29dfa410e116",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says Lumen-127 costs 57 credits monthly, includes 40 GB, and excludes roaming, matching the reference without contradiction.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-127 costs 57 credits monthly, has 40 GB and excludes roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-127 costs 57 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.00017669999999999999
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "86a5c5054af4",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-134 costs 64 credits per month, includes 40 GB, and has no roaming, consistent with the reference that it costs 64 credits per month, includes 40 GB, and excludes roaming.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-134: 64 credits per month, 40 GB, no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-134 costs 64 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001935
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "06385bfb28cc",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-120 costs 50 credits per month, which matches the reference. It omits other details but does not contradict them.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"50 credits per month.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-120 costs 50 credits per month\"}],\"met\":true}]}",
-      "cost_usd": 0.00017710000000000002
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "bc5196d7fd7b",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply contradicts the authorized record on the monthly price: it says 42 credits, while the record says 41 credits. The data amount and roaming policy are consistent, but the price disagreement means the reply does not satisfy the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"42 credits monthly, 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-111 costs 41 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":false}]}",
-      "cost_usd": 0.0002695
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "f60530fa6c65",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that the current price is 82 credits per month, the data allowance is 40 GB, and roaming is excluded, consistent with reference.txt.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The current price is 82 credits per month, data 40 GB, no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-152 costs 82 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-132 costs 62 credits per month, which matches the reference. It makes no conflicting claims about the other plan details.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"62 credits per month.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-132 costs 62 credits per month\"}],\"met\":true}]}",
       "cost_usd": 0.00018419999999999998
     },
     {
       "judge": "gpt-6-luna",
-      "key": "76da90ef09c0",
+      "key": "8edfb0c0a323",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees that the plan includes 40 GB and excludes roaming, but contradicts the reference on price: it says 40 credits per month instead of 39.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Le forfait coûte 40 crédits par mois, comprend 40 Go, sans itinérance.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-109 costs 39 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":false}]}",
-      "cost_usd": 0.0002005
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees with the reference: the base charge plus mandatory fee totals 36 credits, data is 40 GB, and “Roaming excluded” is consistent with no roaming.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"base monthly charge 29 credits plus a mandatory 7-credit monthly service fee. Data 40 GB. No roaming.\"},{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 36 credits. Data 40 GB. Roaming excluded.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002133
     },
     {
       "judge": "gpt-6-luna",
-      "key": "469dc7fa76fb",
+      "key": "d4b08e97d445",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states a monthly price of 63 credits, which contradicts the reference price of 62 credits per month.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"63 credits per month.\"},{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-132 costs 62 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.00018310000000000003
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states the current price is 82 credits per month, includes 40 GB of data, and has no roaming; all three claims agree with reference.txt.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The current price is 82 credits per month, data 40 GB, no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-152 costs 82 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002258
     },
     {
       "judge": "gpt-6-luna",
-      "key": "c7557a1ca25a",
+      "key": "d82581ac07ec",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the total monthly charge is 49 credits, but the reference gives a 41-credit base charge plus a mandatory 7-credit fee, totaling 48 credits. This is a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 49 credits.\"},{\"source\":\"input.reference.txt\",\"quote\":\"base monthly charge 41 credits plus a mandatory 7-credit monthly service fee.\"}],\"met\":false}]}",
-      "cost_usd": 0.0001772
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "1e633135b855",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the non-student pays 56 credits per month, but the reference says the plan costs 61 credits per month and the discount applies only to students. This is a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 56 credits a month\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-131 costs 61 credits per month\"},{\"source\":\"input.reference.txt\",\"quote\":\"A 5-credit discount applies only to students.\"}],\"met\":false}]}",
-      "cost_usd": 0.00019580000000000002
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "55661fe43a41",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says 83 credits per month, equivalent to 996 credits per year, and matches the reference on 40 GB and no roaming. It contains no factual disagreement with the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That is 83 credits per month, with 40 GB and no roaming.\"},{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-153 costs 996 credits per year, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001888
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "5b3032705678",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees that Lumen-105 includes 40 GB and has no roaming, but its price of 36 credits per month implies 432 credits per year, contradicting the reference price of 420 credits per year.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That is 36 credits per month, with 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-105 costs 420 credits per year, includes 40 GB, and excludes roaming.\"}],\"met\":false}]}",
-      "cost_usd": 0.00018480000000000002
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "c3a034e5718f",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says Lumen-108 costs 39 credits per month, while the reference says it costs 38 credits per month, so the reply contains a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"39 credits per month.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-108 costs 38 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.00016910000000000002
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "32d2700e6ef5",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-101 costs 32 credits monthly, while the reference says it costs 31 credits per month. This is a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101 costs 32 credits monthly, with 40 GB and no roaming.\"},{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-101 costs 31 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.0001735
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "240aa7a11edf",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-139 costs 70 credits monthly, but the reference says it costs 69 credits per month. This factual disagreement means the requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-139 costs 70 credits monthly\"},{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-139 costs 69 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.00018419999999999998
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "7c0d49187298",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says Lumen-114 costs 44 credits monthly, includes 40 GB, and does not include roaming, consistent with the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-114 costs 44 credits monthly, with 40 GB. Roaming is not included.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-114 costs 44 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001778
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "12ec53d073b0",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply contradicts the reference on the monthly price: it says 34 credits, while the reference says 33 credits. The other stated details agree, but any contradicted fact fails this requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-103 costs 34 credits monthly, has 40 GB and excludes roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-103 costs 33 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":false}]}",
-      "cost_usd": 0.0001927
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "330fba00ecab",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply matches the reference on price, monthly billing, included data, and roaming exclusion; it contains no factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-149 costs 79 credits monthly, with 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-149 costs 79 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001815
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "b7eb4d332784",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply disagrees with the reference on the included data allowance: it says 41 GB, while the reference says 40 GB.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"41 GB\"},{\"source\":\"input.reference.txt\",\"quote\":\"includes 40 GB\"}],\"met\":false}]}",
-      "cost_usd": 0.000171
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "c6d6b5e47299",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply contradicts the reference on price: it says 67 credits monthly, while the reference says 66 credits per month. The data amount and roaming policy are consistent, but any contradicted fact fails this requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-136 costs 67 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-136 costs 66 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.0001799
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "e79cdc712f82",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees on the price and data allowance but contradicts the reference on roaming: it says roaming is included, while the reference says it is excluded.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Roaming is included.\"},{\"source\":\"input.reference.txt\",\"quote\":\"excludes roaming.\"}],\"met\":false}]}",
-      "cost_usd": 0.00016319999999999998
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "70e50d67543e",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says Lumen-121 costs 51 credits per month, includes 40 GB, and has no roaming, matching the reference without factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Le forfait coûte 51 crédits par mois, comprend 40 Go, sans itinérance.\"},{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-121 costs 51 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001925
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "09ba7cf18c18",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The final reply matches the reference on price, data allowance, and roaming policy; it contains no factual disagreement.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-126 costs 56 credits per month, includes 40 GB, and excludes roaming.\"},{\"source\":\"transcript.1\",\"quote\":\"Lumen-126 costs 56 credits monthly, with 40 GB. Roaming is not included.\"}],\"met\":true}]}",
-      "cost_usd": 0.00018680000000000001
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "2b8b19b2327a",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply is consistent with the reference: 71 credits per month equals 852 credits per year, and it gives the same data allowance and roaming policy.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That is 71 credits per month, with 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-141 costs 852 credits per year, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001888
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "d9200d561aa3",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says Lumen-160 costs 91 credits monthly, contradicting the reference price of 90 credits per month. The other stated details are consistent, but this factual disagreement means the requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-160 costs 91 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-160 costs 90 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.00018690000000000002
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "b33e5bcbc0cb",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the non-student pays 68 credits a month, but the reference says Lumen-143 costs 73 credits per month and the 5-credit discount applies only to students. That price claim contradicts the reference; the data and roaming claims are consistent.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 68 credits a month, receives 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-143 costs 73 credits per month\"},{\"source\":\"input.reference.txt\",\"quote\":\"A 5-credit discount applies only to students.\"}],\"met\":false}]}",
-      "cost_usd": 0.00020130000000000001
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "0ac43c21e85d",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the current price is 47 credits per month, while the reference says the current price is 46; this is a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The current price is 47 credits per month, data 40 GB, no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-116 costs 46 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.00016869999999999998
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "6eb5fea58430",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states a total monthly charge of 48 credits, matching the 41-credit base charge plus the mandatory 7-credit fee. It also gives 40 GB of data and says roaming is excluded, consistent with the reference's 40 GB and no roaming.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"base monthly charge 41 credits plus a mandatory 7-credit monthly service fee. Data 40 GB. No roaming.\"},{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 48 credits. Data 40 GB. Roaming excluded.\"}],\"met\":true}]}",
-      "cost_usd": 0.00021419999999999998
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "34eb5f3a8c10",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says Lumen-158 includes 41 GB, while reference.txt says it includes 40 GB. This is a factual disagreement, so the requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"41 GB\"},{\"source\":\"input.reference.txt\",\"quote\":\"includes 40 GB\"}],\"met\":false}]}",
-      "cost_usd": 0.000176
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "d91436d5b759",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply contradicts the reference on the monthly price: it says 80 credits, while the reference says 79. The matching data amount and roaming policy do not remove this factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-149 costs 80 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-149 costs 79 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.00017
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "cd36c53ed4f3",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-121 costs 52 credits per month, contradicting the reference price of 51 credits per month. The data and roaming claims agree, but the price disagreement means the requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Le forfait coûte 52 crédits par mois\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-121 costs 51 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.0001845
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "25ae4d18d32a",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says roaming is included, while reference.txt says roaming is excluded. This is a factual disagreement, so the requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Roaming is included.\"},{\"source\":\"input.reference.txt\",\"quote\":\"excludes roaming.\"}],\"met\":false}]}",
-      "cost_usd": 0.0001807
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "ae9a63c2c985",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply’s total monthly charge of 84 credits matches the 77-credit base charge plus the mandatory 7-credit fee. Its 40 GB data and excluded roaming policy also agree with the reference.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"base monthly charge 77 credits plus a mandatory 7-credit monthly service fee. Data 40 GB. No roaming.\"},{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 84 credits. Data 40 GB. Roaming excluded.\"}],\"met\":true}]}",
-      "cost_usd": 0.0002117
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "9760e3aa0630",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says Lumen-144 costs 74 credits per month, which agrees with the reference. It makes no conflicting claim about the plan’s other details.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"74 credits per month.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-144 costs 74 credits per month\"}],\"met\":true}]}",
-      "cost_usd": 0.0001621
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "da48cf821c07",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states 89 credits monthly, 40 GB, and no roaming, which matches the authorized record. Its additional claim about reviewing the portfolio is not contradicted by the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"89 credits monthly, 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"CURRENT AUTHORIZED RECORD: Lumen-159 costs 89 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0003095
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "34951abe1515",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply contradicts the reference on the included data allowance: it says 41 GB, while the reference says 40 GB.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"41 GB\"},{\"source\":\"input.reference.txt\",\"quote\":\"includes 40 GB\"}],\"met\":false}]}",
-      "cost_usd": 0.000165
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "a92f85f8310d",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states a total monthly charge of 73 credits, but the reference gives a 65-credit base charge plus a mandatory 7-credit fee, totaling 72 credits. This is a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 73 credits.\"},{\"source\":\"input.reference.txt\",\"quote\":\"base monthly charge 65 credits plus a mandatory 7-credit monthly service fee.\"}],\"met\":false}]}",
-      "cost_usd": 0.00019569999999999999
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "7498898d3a49",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply disagrees with the reference on the monthly price: it says 88 credits, while the reference says 87 credits. Therefore, the reply does not contain no factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Le forfait coûte 88 crédits par mois\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-157 costs 87 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.000194
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "2ee2dcd78610",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply contradicts the reference on price: it says 43 credits monthly, while the reference says 42 credits per month. Its data and roaming claims are consistent, but any contradicted fact fails the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-112 costs 43 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-112 costs 42 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.00017790000000000001
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "d3877dab9b3f",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The final reply states that Lumen-103 costs 33 credits monthly, has 40 GB, and excludes roaming, which agrees with reference.txt on all three facts.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-103 costs 33 credits monthly, has 40 GB and excludes roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-103 costs 33 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.00017969999999999998
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "542b7340f24b",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says roaming is included, while the reference says roaming is excluded. This is a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Roaming is included.\"},{\"source\":\"input.reference.txt\",\"quote\":\"excludes roaming.\"}],\"met\":false}]}",
-      "cost_usd": 0.0001712
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "44e7002a788a",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says 47 credits per month, equivalent to 564 credits per year, and matches the reference on 40 GB and no roaming. It contains no factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That is 47 credits per month, with 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-117 costs 564 credits per year, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001988
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "0a437f9e0ddf",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states 77 credits monthly, 40 GB, and no roaming, which agrees with the authorized record on price, data allowance, and roaming policy. No factual disagreement is present.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"77 credits monthly, 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"CURRENT AUTHORIZED RECORD: Lumen-147 costs 77 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.000323
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "1362673be11a",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the total monthly charge is 61 credits, but the reference gives a base charge of 53 credits plus a mandatory 7-credit fee, totaling 60. This is a factual disagreement, so the requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 61 credits.\"},{\"source\":\"input.reference.txt\",\"quote\":\"base monthly charge 53 credits plus a mandatory 7-credit monthly service fee.\"}],\"met\":false}]}",
-      "cost_usd": 0.00020319999999999998
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "670b8cf3f51c",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-137 costs 67 credits monthly, includes 40 GB, and has no roaming, consistent with the reference’s price, data allowance, and roaming exclusion.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-137 costs 67 credits monthly, with 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-137 costs 67 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0002005
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "e655751b0fbf",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the price is 78 credits monthly, but the reference says Lumen-147 costs 77 credits per month. This is a factual disagreement, so the requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"78 credits monthly, 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-147 costs 77 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.0002495
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "8bd8e7ac3514",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-137 costs 68 credits monthly, contradicting the reference price of 67 credits per month. The requirement that the reply contain no factual disagreement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-137 costs 68 credits monthly\"},{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-137 costs 67 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.0001885
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "7d62895a87ed",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-125 costs 55 credits monthly, includes 40 GB, and has no roaming. These facts are consistent with the reference.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-125 costs 55 credits per month, includes 40 GB, and excludes roaming.\"},{\"source\":\"transcript.1\",\"quote\":\"Lumen-125 costs 55 credits monthly, with 40 GB and no roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001825
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "69897e1fa6a9",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees that Lumen-117 includes 40 GB and has no roaming, but its price of 48 credits per month conflicts with the reference price of 564 credits per year (48 per month implies 576 per year). Therefore, the reply contains a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"48 credits per month, with 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-117 costs 564 credits per year, includes 40 GB, and excludes roaming.\"}],\"met\":false}]}",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-127 costs 57 credits monthly, has 40 GB, and excludes roaming. These facts agree with reference.txt; the wording “monthly” is equivalent to “per month.”\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-127 costs 57 credits monthly, has 40 GB and excludes roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-127 costs 57 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
       "cost_usd": 0.0002043
     },
     {
       "judge": "gpt-6-luna",
-      "key": "58c32c4b0f1c",
+      "key": "f6c4500627e4",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states the current price is 58 credits per month, the data allowance is 40 GB, and roaming is not included. These facts agree with reference.txt.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The current price is 58 credits per month, data 40 GB, no roaming.\"},{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-128 costs 58 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0002192
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply matches the reference: both state Lumen-134 costs 64 credits per month, includes 40 GB, and excludes roaming; “no roaming” is equivalent to “excludes roaming.”\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-134: 64 credits per month, 40 GB, no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-134 costs 64 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.00019710000000000002
     },
     {
       "judge": "gpt-6-luna",
-      "key": "0b56f920066f",
+      "key": "38baa81e24ca",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply matches the reference: it states the same monthly price and data allowance, and paraphrases the roaming exclusion without contradiction.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-102 costs 32 credits monthly, with 40 GB. Roaming is not included.\"},{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-102 costs 32 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.00020130000000000001
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "2406a62e5e38",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply disagrees with the reference on the monthly price: it says 56 credits, while the reference says 55 credits. Therefore, it does not contain no factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-125 costs 56 credits monthly, with 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-125 costs 55 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":false}]}",
-      "cost_usd": 0.000189
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "c367ee534fcd",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states the monthly cost as 86 credits, which agrees with reference.txt. It makes no claim that contradicts the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"86 credits per month.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-156 costs 86 credits per month\"}],\"met\":true}]}",
-      "cost_usd": 0.00016960000000000003
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "6a001cb0bd57",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says Lumen-160 costs 90 credits monthly, includes 40 GB, and has no roaming, which is consistent with the reference. The appended text makes no contradictory factual claim.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-160 costs 90 credits monthly, with 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-160 costs 90 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.00021690000000000001
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "9b15444ffcdd",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-150 costs 80 credits monthly, includes 40 GB, and does not include roaming, consistent with the reference.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-150 costs 80 credits per month, includes 40 GB, and excludes roaming.\"},{\"source\":\"transcript.1\",\"quote\":\"Lumen-150 costs 80 credits monthly, with 40 GB. Roaming is not included.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001773
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "9ea76cd0b950",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply matches the reference on the monthly price, included data, and roaming exclusion, with no factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"88 credits per month, 40 GB, no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-158 costs 88 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.000167
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "36528b3d2bde",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says Lumen-127 costs 58 credits monthly, but the reference says it costs 57 credits per month. This is a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-127 costs 58 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-127 costs 57 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.0001637
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "2ed1479bb0c9",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply contradicts the reference on the monthly total: the base charge plus mandatory fee is 36 credits, not 37. Its data and roaming statements are consistent with the reference, but the contradicted price fact means the requirement is not satisfied.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"base monthly charge 29 credits plus a mandatory 7-credit monthly service fee.\"},{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 37 credits.\"}],\"met\":false}]}",
-      "cost_usd": 0.0002037
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "7f678f5da541",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees that the plan includes 40 GB and has no roaming, but it says the current price is 59 credits per month. The reference says the current price is 58; 59 was the price before revision, so the reply contradicts the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The current price is 59 credits per month, data 40 GB, no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-128 costs 58 credits per month, includes 40 GB, and excludes roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Before the revision, its price was 59.\"}],\"met\":false}]}",
-      "cost_usd": 0.0002182
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "b60e949c6447",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states the same monthly price, data allowance, and roaming exclusion as the reference, with no factual disagreement.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-122 costs 52 credits per month, includes 40 GB, and excludes roaming.\"},{\"source\":\"transcript.1\",\"quote\":\"Lumen-122: 52 credits per month, 40 GB, no roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001875
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "30bd82fc82f1",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that the non-student pays 37 credits per month, receives 40 GB, and has no roaming. These claims agree with the reference, including that the customer is not a student; it makes no contradictory factual claim.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 37 credits a month, receives 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-107 costs 37 credits per month, includes 40 GB, and excludes roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"The customer is not a student.\"}],\"met\":true}]}",
-      "cost_usd": 0.0002478
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "a425f0ef8e77",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-115 costs 45 credits monthly, has 40 GB, and excludes roaming, matching the reference facts without contradiction.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-115 costs 45 credits monthly, has 40 GB and excludes roaming.\"},{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-115 costs 45 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.00019119999999999999
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "aabe4d1e7112",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-136 costs 66 credits monthly, includes 40 GB, and has no roaming, which is consistent with the reference. It contains no factual disagreement with the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-136 costs 66 credits monthly, with 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-136 costs 66 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0002424
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "77a1638d0045",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-148 costs 79 credits monthly, but the reference says it costs 78 credits per month. This is a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-148 costs 79 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-148 costs 78 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.00018240000000000002
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "cfb840cfe77f",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the total monthly charge is 85 credits, but the reference specifies a 77-credit base charge plus a mandatory 7-credit fee, totaling 84 credits. This is a factual disagreement; the matching data and roaming details do not remove it.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 85 credits.\"},{\"source\":\"input.reference.txt\",\"quote\":\"base monthly charge 77 credits plus a mandatory 7-credit monthly service fee.\"}],\"met\":false}]}",
-      "cost_usd": 0.0001927
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "5b40f72e69f8",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The final reply says Lumen-139 costs 69 credits monthly, includes 40 GB, and excludes roaming; these facts match reference.txt with no disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-139 costs 69 credits monthly, has 40 GB and excludes roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-139 costs 69 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001772
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "415a8db17adb",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply's 35 credits per month is equivalent to the reference's 420 credits per year. It also agrees on 40 GB and no roaming, so it contains no factual disagreement.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-105 costs 420 credits per year, includes 40 GB, and excludes roaming.\"},{\"source\":\"transcript.1\",\"quote\":\"That is 35 credits per month, with 40 GB and no roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001898
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "dff196def5fe",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees with the reference: 53 credits plus the mandatory 7-credit fee totals 60, it states 40 GB, and “Roaming excluded” is consistent with no roaming.\",\"evidence\":[{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-130: base monthly charge 53 credits plus a mandatory 7-credit monthly service fee. Data 40 GB. No roaming.\"},{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 60 credits. Data 40 GB. Roaming excluded.\"}],\"met\":true}]}",
-      "cost_usd": 0.00020119999999999998
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "13c7cf304761",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states the current price is 70 credits per month, data is 40 GB, and roaming is unavailable, matching the reference without factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The current price is 70 credits per month, data 40 GB, no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-140 costs 70 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001892
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "24caaf75f805",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that the non-student pays 61 credits per month, receives 40 GB, and has no roaming, consistent with the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 61 credits a month, receives 40 GB and no roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001673
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "717ab49f8f6f",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply gives the current price as 83 credits per month, but the reference says the current price is 82; 83 was the price before the revision. This is a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The current price is 83 credits per month\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-152 costs 82 credits per month\"},{\"source\":\"input.reference.txt\",\"quote\":\"Before the revision, its price was 83.\"}],\"met\":false}]}",
-      "cost_usd": 0.0001972
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "07b44b01f68a",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states a total monthly charge of 72 credits, consistent with the 65-credit base charge plus the mandatory 7-credit fee. It also matches the reference on 40 GB of data and no roaming.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"base monthly charge 65 credits plus a mandatory 7-credit monthly service fee. Data 40 GB. No roaming.\"},{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 72 credits. Data 40 GB. Roaming excluded.\"}],\"met\":true}]}",
-      "cost_usd": 0.00018869999999999998
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "d302099bc4c3",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-124 costs 55 credits monthly, while the reference says it costs 54 credits per month. This is a factual disagreement, so the requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-124 costs 55 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-124 costs 54 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.0001764
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "2457a68ec846",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states 40 credits per month and 40 GB, and “no roaming” is consistent with the reference saying roaming is excluded. No factual disagreement is present.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-110 costs 40 credits per month, includes 40 GB, and excludes roaming.\"},{\"source\":\"transcript.1\",\"quote\":\"Lumen-110: 40 credits per month, 40 GB, no roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.000186
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "b836073b7bbc",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply disagrees with the authorized record on price: it says 90 credits monthly, while the record says 89 credits per month. Its data allowance and roaming policy are consistent, but the price contradiction means the requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"90 credits monthly, 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"CURRENT AUTHORIZED RECORD: Lumen-159 costs 89 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":false}]}",
-      "cost_usd": 0.000287
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "902d417a1264",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply’s stated monthly price, data allowance, and roaming policy agree with the current authorized record; it contains no factual disagreement with the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"53 credits monthly, 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-123 costs 53 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.000294
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "9ecbaa3848fb",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states 76 credits per month, 40 GB, and no roaming, consistent with the reference that says the plan costs 76 credits per month, includes 40 GB, and excludes roaming.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-146: 76 credits per month, 40 GB, no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-146 costs 76 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001945
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "a918c1485228",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-145 costs 75 credits per month, includes 40 GB, and has no roaming, consistent with the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Le forfait coûte 75 crédits par mois, comprend 40 Go, sans itinérance.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-145 costs 75 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0002005
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "b46894ee8d4a",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says roaming is included, which contradicts the reference stating that roaming is excluded.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Roaming is included.\"},{\"source\":\"input.reference.txt\",\"quote\":\"excludes roaming.\"}],\"met\":false}]}",
-      "cost_usd": 0.00014519999999999998
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "9631df150460",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that the non-student pays 85 credits per month, receives 40 GB, and gets no roaming. These claims agree with the reference, which gives the 85-credit price, 40 GB, no roaming, and says the customer is not a student.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 85 credits a month, receives 40 GB and no roaming.\"},{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-155 costs 85 credits per month, includes 40 GB, and excludes roaming.\"},{\"source\":\"input/reference.txt\",\"quote\":\"The customer is not a student.\"}],\"met\":true}]}",
-      "cost_usd": 0.00021930000000000002
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "d9a4855e99ef",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-108 costs 38 credits per month, which agrees with the reference. It makes no conflicting claim about the other plan details.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"38 credits per month.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-108 costs 38 credits per month\"}],\"met\":true}]}",
-      "cost_usd": 0.0001611
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "3c702c58acba",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees that Lumen-114 costs 44 credits monthly and includes 40 GB, but contradicts the reference on roaming: the reply says roaming is included, while the reference says it is excluded.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Roaming is included.\"},{\"source\":\"input.reference.txt\",\"quote\":\"excludes roaming.\"}],\"met\":false}]}",
-      "cost_usd": 0.0001717
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "709d23903be5",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-133 costs 64 credits per month, while the reference says it costs 63 credits per month. This is a factual disagreement, so the requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Le forfait coûte 64 crédits par mois\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-133 costs 63 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.0001675
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "484a1e88cf8d",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees on the 40 GB allowance and no-roaming policy, but its stated price of 60 credits per month implies 720 credits per year, which disagrees with the reference price of 708 credits per year.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"60 credits per month\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-129 costs 708 credits per year\"}],\"met\":false}]}",
-      "cost_usd": 0.0002018
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "25c7d204b617",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply disagrees with the reference on the included data amount: it says 41 GB, while the reference says 40 GB. Therefore, the reply does not satisfy the requirement of containing no factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"41 GB\"},{\"source\":\"input.reference.txt\",\"quote\":\"includes 40 GB\"}],\"met\":false}]}",
-      "cost_usd": 0.0001665
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "7c6b1e5aa0f7",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-151 costs 82 credits monthly, while the reference says it costs 81 credits per month. This factual disagreement violates the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-151 costs 82 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-151 costs 81 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.00017319999999999998
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "91ef77532941",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states the same price, data allowance, and roaming policy as the reference. The additional text makes no factual claim that contradicts the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-148 costs 78 credits monthly, with 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-148 costs 78 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.00022590000000000002
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "b34cc7846d37",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the plan costs 76 credits per month, while the reference says 75 credits per month. This factual disagreement means the requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Le forfait coûte 76 crédits par mois\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-145 costs 75 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.00018
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "dd0d4b2699c3",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees that the plan includes 40 GB and excludes roaming, but its stated price of 72 credits per month conflicts with the reference price of 852 credits per year (71 credits per month).\",\"evidence\":[{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-141 costs 852 credits per year, includes 40 GB, and excludes roaming.\"},{\"source\":\"transcript.1\",\"quote\":\"That is 72 credits per month, with 40 GB and no roaming.\"}],\"met\":false}]}",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply contradicts the reference on the total monthly charge: the 41-credit base charge plus the mandatory 7-credit fee totals 48 credits, not 49. Its data and roaming statements are consistent.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"base monthly charge 41 credits plus a mandatory 7-credit monthly service fee.\"},{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 49 credits.\"}],\"met\":false}]}",
       "cost_usd": 0.0001968
     },
     {
       "judge": "gpt-6-luna",
-      "key": "abecb4dc818b",
+      "key": "b576ab6934fd",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply correctly states 40 GB and no roaming, but its price claim contradicts the reference: the non-student price is 37 credits per month, not 32.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 32 credits a month, receives 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-107 costs 37 credits per month\"},{\"source\":\"input.reference.txt\",\"quote\":\"The customer is not a student.\"}],\"met\":false}]}",
-      "cost_usd": 0.0002053
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply disagrees with the authorized record on price: it says 42 credits monthly, while the record says Lumen-111 costs 41 credits per month. Its data and roaming claims are consistent, but the price contradiction means the reply does not satisfy the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"42 credits monthly, 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-111 costs 41 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":false}]}",
+      "cost_usd": 0.00028460000000000003
     },
     {
       "judge": "gpt-6-luna",
-      "key": "147c30ffd4aa",
+      "key": "10e0354b3049",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the current price is 71 credits per month, but the reference says the current price is 70; the reply therefore contains a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The current price is 71 credits per month\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-140 costs 70 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.00017869999999999998
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-120 costs 50 credits per month, which agrees with the reference. It makes no claim about the included data or roaming, so it is a consistent subset.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"50 credits per month.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-120 costs 50 credits per month\"}],\"met\":true}]}",
+      "cost_usd": 0.00019769999999999998
     },
     {
       "judge": "gpt-6-luna",
-      "key": "3fa4b2fa9c3d",
+      "key": "57a24be0830a",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-120 costs 51 credits per month, contradicting the reference price of 50 credits per month.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"51 credits per month.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-120 costs 50 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.00017410000000000003
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says Lumen-132 costs 63 credits per month, while the reference says it costs 62 credits per month. This is a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"63 credits per month.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-132 costs 62 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00018319999999999998
     },
     {
       "judge": "gpt-6-luna",
-      "key": "f5cc7c474439",
+      "key": "3dbd1a7d059f",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that the non-student pays 73 credits a month, receives 40 GB, and has no roaming. This agrees with the reference, which gives the 73-credit monthly price, 40 GB, no roaming, and says the customer is not a student.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 73 credits a month, receives 40 GB and no roaming.\"},{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-143 costs 73 credits per month, includes 40 GB, and excludes roaming.\"},{\"source\":\"input/reference.txt\",\"quote\":\"The customer is not a student.\"}],\"met\":true}]}",
-      "cost_usd": 0.00021930000000000002
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply contradicts the reference on the monthly price: it says 40 credits, while the reference says 39. Its data allowance and roaming policy agree, but the price disagreement means the reply does not contain only consistent facts.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Le forfait coûte 40 crédits par mois\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-109 costs 39 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00019860000000000003
     },
     {
       "judge": "gpt-6-luna",
-      "key": "d94c7587cb59",
+      "key": "5d41fd13a472",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply matches the reference: “monthly” paraphrases “per month,” “no roaming” matches “excludes roaming,” and the price and data allowance are the same.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-113 costs 43 credits monthly, with 40 GB and no roaming.\"},{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-113 costs 43 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001855
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that the non-student pays 56 credits a month, but the reference says Lumen-131 costs 61 credits per month and the 5-credit discount applies only to students. That is a factual disagreement.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-131 costs 61 credits per month\"},{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 56 credits a month\"}],\"met\":false}]}",
+      "cost_usd": 0.0002099
     },
     {
       "judge": "gpt-6-luna",
-      "key": "6dbf7a73afc1",
+      "key": "5bfaed3dda5d",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply gives the monthly price as 44 credits, but the reference says 43 credits, so it contains a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-113 costs 44 credits monthly\"},{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-113 costs 43 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.000173
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply's price of 83 credits per month is equivalent to 996 credits per year. It also matches the reference on 40 GB and no roaming, so there is no factual disagreement.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-153 costs 996 credits per year, includes 40 GB, and excludes roaming.\"},{\"source\":\"transcript.1\",\"quote\":\"That is 83 credits per month, with 40 GB and no roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.00019590000000000002
     },
     {
       "judge": "gpt-6-luna",
-      "key": "13ee75240bf8",
+      "key": "b0240ff95b2e",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states a monthly price of 66 credits, but the authorized record says Lumen-135 costs 65 credits per month. This is a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"66 credits monthly, 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-135 costs 65 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":false}]}",
-      "cost_usd": 0.0002565
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply disagrees with the reference on price: 36 credits per month is 432 credits per year, not 420. Its data allowance and roaming policy are consistent, but the price contradiction means the reply does not satisfy the requirement.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-105 costs 420 credits per year\"},{\"source\":\"transcript.1\",\"quote\":\"That is 36 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.0002219
     },
     {
       "judge": "gpt-6-luna",
-      "key": "79853a527168",
+      "key": "03751728efdf",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-109 costs 39 credits per month, includes 40 GB, and has no roaming, matching the reference without factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Le forfait coûte 39 crédits par mois, comprend 40 Go, sans itinérance.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-109 costs 39 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.000181
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says Lumen-103 costs 34 credits monthly, while the reference says it costs 33 credits per month. These prices contradict, so the reply contains a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-103 costs 34 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-103 costs 33 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.0001978
     },
     {
       "judge": "gpt-6-luna",
-      "key": "5521d3c65fb8",
+      "key": "a6e38a1327a5",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that the current price is 35 credits per month, but reference.txt says the current version costs 34 credits per month. This is a factual disagreement; the data and roaming claims are consistent.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The current price is 35 credits per month\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-104 costs 34 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.00018669999999999998
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply matches the reference: it gives the same monthly price and data allowance, and says roaming is not included, equivalent to excluding roaming. No factual disagreement is present.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-114 costs 44 credits per month, includes 40 GB, and excludes roaming.\"},{\"source\":\"transcript.1\",\"quote\":\"Lumen-114 costs 44 credits monthly, with 40 GB. Roaming is not included.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002074
     },
     {
       "judge": "gpt-6-luna",
-      "key": "18d1c603722a",
+      "key": "4269bb6cdf46",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply disagrees with the reference on the included data allowance: it says 41 GB, while the reference says 40 GB.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"41 GB\"},{\"source\":\"input.reference.txt\",\"quote\":\"includes 40 GB\"}],\"met\":false}]}",
-      "cost_usd": 0.00016
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-139 costs 70 credits monthly, while the reference says it costs 69 credits per month. This is a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-139 costs 70 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-139 costs 69 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.0001888
     },
     {
       "judge": "gpt-6-luna",
-      "key": "26841f84e229",
+      "key": "f09308944698",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-157 costs 87 credits per month, includes 40 GB, and has no roaming, matching the reference without factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Le forfait coûte 87 crédits par mois, comprend 40 Go, sans itinérance.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-157 costs 87 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001935
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply contradicts the reference on the monthly price: it says 32 credits, while the reference says 31 credits. The other stated details agree, but this contradiction means the reply does not satisfy the requirement.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101 costs 31 credits per month\"},{\"source\":\"transcript.1\",\"quote\":\"Lumen-101 costs 32 credits monthly\"}],\"met\":false}]}",
+      "cost_usd": 0.00018210000000000004
     },
     {
       "judge": "gpt-6-luna",
-      "key": "368b487d3707",
+      "key": "6291726e0735",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-156 costs 87 credits per month, contradicting the reference, which says it costs 86 credits per month.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"87 credits per month.\"},{\"source\":\"given\",\"quote\":\"Lumen-156 costs 86 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.00016760000000000004
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states a monthly cost of 39 credits, which disagrees with the reference value of 38 credits per month.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"39 credits per month.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-108 costs 38 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00017419999999999998
     },
     {
       "judge": "gpt-6-luna",
-      "key": "9072c273301c",
+      "key": "56e9e9fcdcc7",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states the same monthly cost, data allowance, and roaming exclusion as reference.txt, with no factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101 costs 31 credits monthly, with 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101 costs 31 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001785
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The final reply matches the reference: 79 credits monthly is the same price period, 40 GB matches, and “no roaming” paraphrases excludes roaming. There is no factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-149 costs 79 credits monthly, with 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-149 costs 79 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.00021210000000000003
     },
     {
       "judge": "gpt-6-luna",
-      "key": "e394ea76813f",
+      "key": "bf5a28a7faf2",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says Lumen-115 costs 46 credits monthly, while the reference says it costs 45 credits per month. This is a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-115 costs 46 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-115 costs 45 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.00018519999999999998
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees with the reference on price and roaming, but contradicts the included data amount: it says 41 GB while the reference says 40 GB.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"41 GB\"},{\"source\":\"input.reference.txt\",\"quote\":\"includes 40 GB\"}],\"met\":false}]}",
+      "cost_usd": 0.00018510000000000003
     },
     {
       "judge": "gpt-6-luna",
-      "key": "ea5061a69183",
+      "key": "c4aed8a32b91",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that the current price is 46 credits per month, data is 40 GB, and roaming is not included, consistent with reference.txt.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The current price is 46 credits per month, data 40 GB, no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-116 costs 46 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.00017669999999999999
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees with the reference: 71 credits per month is equivalent to 852 credits per year, and it gives the same 40 GB allowance and no-roaming policy.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-141 costs 852 credits per year, includes 40 GB, and excludes roaming.\"},{\"source\":\"transcript.1\",\"quote\":\"That is 71 credits per month, with 40 GB and no roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001954
     },
     {
       "judge": "gpt-6-luna",
-      "key": "f4a6ad4f9aef",
+      "key": "0502a6ce56be",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees that the plan includes 40 GB and has no roaming, but its stated price of 84 credits per month amounts to 1008 credits per year, contradicting the reference price of 996 credits per year.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"84 credits per month, with 40 GB and no roaming.\"},{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-153 costs 996 credits per year\"}],\"met\":false}]}",
-      "cost_usd": 0.0001963
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the non-student pays 68 credits a month, but the reference says Lumen-143 costs 73 credits per month and the 5-credit discount applies only to students. The quoted price therefore contradicts the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 68 credits a month\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-143 costs 73 credits per month\"},{\"source\":\"input.reference.txt\",\"quote\":\"A 5-credit discount applies only to students.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002234
     },
     {
       "judge": "gpt-6-luna",
-      "key": "beca31b0dec7",
+      "key": "bf91ae3927f5",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees that the plan includes 40 GB and excludes roaming, but contradicts the reference on price: the reference says the non-student pays 85 credits per month, while the reply says 80.\",\"evidence\":[{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-155 costs 85 credits per month\"},{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 80 credits a month\"}],\"met\":false}]}",
-      "cost_usd": 0.00020130000000000001
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply contradicts the reference on the monthly price: it says 67 credits, while the reference says 66 credits. The data allowance and roaming policy are consistent, but any contradicted fact fails this requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-136 costs 67 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-136 costs 66 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.0001885
     },
     {
       "judge": "gpt-6-luna",
-      "key": "9a41fd477106",
+      "key": "b16df9737870",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states the current price is 34 credits per month, data is 40 GB, and roaming is unavailable, matching the reference without contradiction.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The current price is 34 credits per month, data 40 GB, no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-104 costs 34 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.00019869999999999998
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the plan costs 51 credits per month, includes 40 GB, and has no roaming, matching the reference without factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Le forfait coûte 51 crédits par mois, comprend 40 Go, sans itinérance.\"},{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-121 costs 51 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.00020660000000000003
     },
     {
       "judge": "gpt-6-luna",
-      "key": "07e556b219e6",
+      "key": "ea3abdf66512",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-112 costs 42 credits monthly, includes 40 GB, and has no roaming, which agrees with the reference. Its additional category statement is not contradicted by the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-112 costs 42 credits monthly, with 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-112 costs 42 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says Lumen-160 costs 91 credits monthly, contradicting the reference price of 90 credits per month. The data allowance and roaming policy agree, but the price contradiction means the reply does not satisfy the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-160 costs 91 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-160 costs 90 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.000218
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "30fdc68e2c47",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees with the reference on price and data, but contradicts its roaming policy: the reference says roaming is excluded while the reply says it is included.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"excludes roaming.\"},{\"source\":\"transcript.1\",\"quote\":\"Roaming is included.\"}],\"met\":false}]}",
+      "cost_usd": 0.0001823
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "a9d7985b68c8",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees with the reference on the monthly price, data allowance, and roaming exclusion; it contains no factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-126 costs 56 credits monthly, with 40 GB. Roaming is not included.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001749
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "30dec43d8682",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees with the reference: 41 credits plus the mandatory 7-credit monthly fee totals 48 credits, the data allowance is 40 GB, and roaming is unavailable.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"base monthly charge 41 credits plus a mandatory 7-credit monthly service fee. Data 40 GB. No roaming.\"},{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 48 credits. Data 40 GB. Roaming excluded.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002088
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "e707170c049f",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the monthly price is 52 credits, while reference.txt says 51 credits per month. The price is contradicted, so the reply does not meet the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"52 crédits par mois\"},{\"source\":\"input/reference.txt\",\"quote\":\"51 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00018860000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "e85bd957952b",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says Lumen-158 includes 41 GB, while the reference says it includes 40 GB. This is a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"41 GB\"},{\"source\":\"input/reference.txt\",\"quote\":\"includes 40 GB\"}],\"met\":false}]}",
+      "cost_usd": 0.00017760000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "fac5e97f3390",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the current price is 47 credits per month, but the reference gives the current price as 46 credits per month. This is a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The current price is 47 credits per month\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-116 costs 46 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.0002143
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "c3f7b86617cd",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply's claims match the current authorized record: 89 credits monthly, 40 GB, and no roaming. There is no factual disagreement.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"CURRENT AUTHORIZED RECORD: Lumen-159 costs 89 credits per month, includes 40 GB, and excludes roaming.\"},{\"source\":\"transcript.1\",\"quote\":\"89 credits monthly, 40 GB and no roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002906
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "222a3572961f",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply disagrees with the reference on the monthly price: it says 80 credits, while the reference says 79 credits. The matching data and roaming policy do not eliminate this contradiction.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-149 costs 80 credits monthly, with 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-149 costs 79 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00019860000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "2ac4dff5dfc9",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply’s total of 84 credits matches the reference’s 77-credit base charge plus the mandatory 7-credit fee. Its 40 GB data and “Roaming excluded” statements are consistent with the reference’s 40 GB and no-roaming policy; no factual disagreement is present.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"base monthly charge 77 credits plus a mandatory 7-credit monthly service fee. Data 40 GB. No roaming.\"},{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 84 credits. Data 40 GB. Roaming excluded.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002258
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "be4eab4a8db9",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The price and data amount agree with the reference, but the reply says roaming is included while the reference says it is excluded.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Roaming is included.\"},{\"source\":\"input.reference.txt\",\"quote\":\"excludes roaming.\"}],\"met\":false}]}",
+      "cost_usd": 0.0001873
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "ed8d9b727c92",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply contradicts the reference on the monthly charge: the reference gives a 65-credit base charge plus a 7-credit fee, totaling 72 credits, while the reply says 73 credits. The data amount and roaming policy are consistent.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"base monthly charge 65 credits plus a mandatory 7-credit monthly service fee.\"},{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 73 credits.\"}],\"met\":false}]}",
+      "cost_usd": 0.00020030000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "09a97843b416",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states only the monthly cost, which matches the reference; it makes no contradictory factual claim.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"74 credits per month.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-144 costs 74 credits per month\"}],\"met\":true}]}",
+      "cost_usd": 0.0001872
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "cbdf7decebef",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states 41 GB, while reference.txt says the plan includes 40 GB, so the reply contains a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"41 GB\"},{\"source\":\"input.reference.txt\",\"quote\":\"includes 40 GB\"}],\"met\":false}]}",
+      "cost_usd": 0.00017160000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "f4a33cd9edfd",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply’s price of 47 credits per month is equivalent to 564 credits per year. It also matches the reference’s 40 GB and no-roaming policy, so there is no factual disagreement.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-117 costs 564 credits per year, includes 40 GB, and excludes roaming.\"},{\"source\":\"transcript.1\",\"quote\":\"47 credits per month, with 40 GB and no roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001999
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "f38d004b3109",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states the same price, data allowance, and roaming policy as the current authorized record, using equivalent wording. No factual disagreement is present.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"77 credits monthly, 40 GB and no roaming.\"},{\"source\":\"input/reference.txt\",\"quote\":\"CURRENT AUTHORIZED RECORD: Lumen-147 costs 77 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.0003101
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "59590a7b394b",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the monthly price is 88 credits, while reference.txt says 87 credits per month. This is a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"88 crédits par mois\"},{\"source\":\"input/reference.txt\",\"quote\":\"costs 87 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00018610000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "4191549bded7",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-112 costs 43 credits monthly, but the reference says it costs 42 credits per month. This is a factual disagreement, so the requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-112 costs 43 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-112 costs 42 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.000188
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "39a95f1cde30",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-103 costs 33 credits monthly, has 40 GB, and excludes roaming, consistent with all facts about Lumen-103 in reference.txt.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-103 costs 33 credits monthly, has 40 GB and excludes roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-103 costs 33 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.00018580000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "3abbf4c31807",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees on the price and data allowance, but says roaming is included, contradicting the reference that roaming is excluded.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"excludes roaming.\"},{\"source\":\"transcript.1\",\"quote\":\"Roaming is included.\"}],\"met\":false}]}",
+      "cost_usd": 0.0001673
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "51d5aa6b2d1c",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply disagrees with the reference on the total monthly charge: 53 credits plus the mandatory 7-credit fee is 60 credits, not 61. The data and roaming statements are consistent.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"base monthly charge 53 credits plus a mandatory 7-credit monthly service fee.\"},{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 61 credits.\"}],\"met\":false}]}",
+      "cost_usd": 0.00021030000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "586918125923",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states the same price, data allowance, and roaming policy as the reference, with no factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-137 costs 67 credits monthly, with 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-137 costs 67 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.00019460000000000001
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "9c811800616e",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees that Lumen-117 includes 40 GB and has no roaming, but its price of 48 credits per month disagrees with 564 credits per year (47 credits per month).\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-117 costs 564 credits per year\"},{\"source\":\"transcript.1\",\"quote\":\"48 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.0001989
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "2cc3df32596a",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply contradicts the authorized record on price: it says 78 credits monthly, while the record says 77 credits per month. The data amount and roaming policy are consistent, but the price disagreement means the reply does not contain no factual disagreement.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-147 costs 77 credits per month, includes 40 GB, and excludes roaming.\"},{\"source\":\"transcript.1\",\"quote\":\"78 credits monthly, 40 GB and no roaming.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002766
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "ad4bc47b67e6",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states the current price is 58 credits per month, includes 40 GB of data, and has no roaming. These facts agree with the reference; “no roaming” is equivalent to “excludes roaming.”\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The current price is 58 credits per month, data 40 GB, no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-128 costs 58 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002213
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "b3cb6545f1d4",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply contradicts the reference on the monthly price: it says 68 credits, while the reference says 67 credits. The data amount and roaming policy agree, but the price disagreement means the requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-137 costs 68 credits monthly, with 40 GB and no roaming.\"},{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-137 costs 67 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":false}]}",
+      "cost_usd": 0.00021610000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "a01e9b8135b0",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply matches the reference: the monthly price, included data, and roaming exclusion are equivalent, with no factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-102 costs 32 credits monthly, with 40 GB.\"},{\"source\":\"transcript.1\",\"quote\":\"Roaming is not included.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-102 costs 32 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.00021140000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "a89b33c79366",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says Lumen-125 costs 56 credits monthly, while reference.txt says it costs 55 credits per month. This is a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-125 costs 56 credits monthly\"},{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-125 costs 55 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00018310000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "bccc8a0395a2",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply matches the reference: it states 55 credits monthly, 40 GB, and no roaming, which is equivalent to the reference’s price, data allowance, and roaming exclusion.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-125 costs 55 credits monthly, with 40 GB and no roaming.\"},{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-125 costs 55 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.00020810000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "1a1cd460b893",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply matches the reference: it gives the same monthly price and data amount, and says there is no roaming, equivalent to roaming being excluded. It contains no factual disagreement.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-160 costs 90 credits per month, includes 40 GB, and excludes roaming.\"},{\"source\":\"transcript.1\",\"quote\":\"Lumen-160 costs 90 credits monthly, with 40 GB and no roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.000208
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "14a276893253",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-156 costs 86 credits per month, matching the reference. It gives a consistent subset of the reference facts and does not contradict any of them.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"86 credits per month.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-156 costs 86 credits per month\"}],\"met\":true}]}",
+      "cost_usd": 0.00018869999999999998
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "b4846275bded",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees with the reference on the price, monthly period, data allowance, and roaming policy; it contains no factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-150 costs 80 credits monthly, with 40 GB. Roaming is not included.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-150 costs 80 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002124
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "670d30d594f2",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states a total monthly charge of 37 credits, but the reference gives a 29-credit base charge plus a mandatory 7-credit fee, totaling 36 credits. The data amount and roaming policy agree, but the price disagreement means the reply does not satisfy the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 37 credits.\"},{\"source\":\"input.reference.txt\",\"quote\":\"base monthly charge 29 credits plus a mandatory 7-credit monthly service fee.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002123
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "d5c88f0c6bca",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says Lumen-127 costs 58 credits monthly, while reference.txt says it costs 57 credits per month. This is a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-127 costs 58 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-127 costs 57 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00019030000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "0310b6dba871",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply identifies 59 credits per month as the current price, but the reference says the current price is 58; this is a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The current price is 59 credits per month\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-128 costs 58 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.0001933
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "5cd2e46f2bfd",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-158 costs 88 credits per month, includes 40 GB, and has no roaming; these facts agree with reference.txt, where roaming is excluded.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-158: 88 credits per month, 40 GB, no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-158 costs 88 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.00019160000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "490bb3874e7e",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that the non-student pays 37 credits per month, receives 40 GB, and gets no roaming. These claims agree with the reference; it makes no contradicted factual claim.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 37 credits a month, receives 40 GB and no roaming.\"},{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-107 costs 37 credits per month, includes 40 GB, and excludes roaming.\"},{\"source\":\"input/reference.txt\",\"quote\":\"The customer is not a student.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002374
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "823549e080c6",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states the same monthly price and data allowance as the reference, and “no roaming” is equivalent to excluding roaming. There is no factual disagreement.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-122 costs 52 credits per month, includes 40 GB, and excludes roaming.\"},{\"source\":\"transcript.1\",\"quote\":\"Lumen-122: 52 credits per month, 40 GB, no roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.00019460000000000001
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "a8398a7375d6",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply matches the reference on the price, monthly period, data amount, and roaming policy; it contains no factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-136 costs 66 credits monthly, with 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-136 costs 66 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002065
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "fc87070b3985",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply contradicts the reference on the total monthly charge: 77 credits plus the mandatory 7-credit fee is 84 credits, not 85. Its data and roaming statements are consistent, but the contradicted price means the reply does not contain no factual disagreement.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"base monthly charge 77 credits plus a mandatory 7-credit monthly service fee.\"},{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 85 credits.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002033
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "3367a6e365fd",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-115 costs 45 credits monthly, has 40 GB, and excludes roaming. These facts agree with reference.txt; “monthly” is equivalent to “per month.”\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-115 costs 45 credits monthly, has 40 GB and excludes roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-115 costs 45 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002123
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "096676c31fdc",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says Lumen-148 costs 79 credits monthly, while reference.txt says 78 credits per month. This is a factual disagreement, so the requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-148 costs 79 credits monthly\"},{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-148 costs 78 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.0001905
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "03fad90894e3",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply’s price of 35 credits per month is equivalent to 420 credits per year. Its 40 GB data allowance and no-roaming statement agree with the reference, so there is no factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That is 35 credits per month, with 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-105 costs 420 credits per year, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002234
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "cb3b5dfa3689",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply is consistent with the reference: 53 plus the mandatory 7-credit monthly fee totals 60 credits, the data allowance is 40 GB, and “Roaming excluded” agrees with “No roaming.”\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"base monthly charge 53 credits plus a mandatory 7-credit monthly service fee. Data 40 GB. No roaming.\"},{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 60 credits. Data 40 GB. Roaming excluded.\"}],\"met\":true}]}",
+      "cost_usd": 0.00022730000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "da521dd01c8d",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-139 costs 69 credits monthly, has 40 GB, and excludes roaming. These facts match reference.txt, so there is no factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-139 costs 69 credits monthly, has 40 GB and excludes roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-139 costs 69 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001998
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "0e06e9950a23",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply’s total monthly charge of 72 credits matches the reference’s 65-credit base charge plus the mandatory 7-credit fee. Its 40 GB data and excluded roaming policy also match the reference.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"base monthly charge 65 credits plus a mandatory 7-credit monthly service fee. Data 40 GB. No roaming.\"},{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 72 credits. Data 40 GB. Roaming excluded.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002153
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "0ee644ad6fb3",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reference states that the current Lumen-140 costs 70 credits per month, includes 40 GB, and excludes roaming. The reply states the same facts, so it contains no factual disagreement.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-140 costs 70 credits per month, includes 40 GB, and excludes roaming.\"},{\"source\":\"transcript.1\",\"quote\":\"The current price is 70 credits per month, data 40 GB, no roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002068
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "aefb471ea35f",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that the current price is 83 credits per month, but the reference says the current price is 82 credits per month. The data and roaming claims are consistent, but the price disagreement means the reply does not meet the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The current price is 83 credits per month\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-152 costs 82 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.0001988
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "fc79b91d864a",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees with the reference on the monthly price, included data, and roaming policy. Its description of the customer as a non-student also matches the reference; it makes no contradicted factual claim.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-131 costs 61 credits per month, includes 40 GB, and excludes roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"The customer is not a student.\"},{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 61 credits a month, receives 40 GB and no roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002194
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "d429f33acfad",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply gives 53 credits monthly, 40 GB, and no roaming, matching the authorized record’s price, data allowance, and roaming exclusion.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"CURRENT AUTHORIZED RECORD: Lumen-123 costs 53 credits per month, includes 40 GB, and excludes roaming.\"},{\"source\":\"transcript.1\",\"quote\":\"53 credits monthly, 40 GB and no roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002906
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "4b453bf872b9",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply must contain no factual disagreement with reference.txt. It agrees that Lumen-159 includes 40 GB and excludes roaming, but it says 90 credits monthly while the authorized record says 89 credits per month, so it contradicts the reference.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-159 costs 89 credits per month\"},{\"source\":\"transcript.1\",\"quote\":\"90 credits monthly, 40 GB and no roaming\"}],\"met\":false}]}",
+      "cost_usd": 0.00029860000000000005
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "a764fa23b738",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states 40 credits per month, 40 GB, and no roaming, which agrees with the reference that Lumen-110 costs 40 credits per month, includes 40 GB, and excludes roaming.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-110: 40 credits per month, 40 GB, no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-110 costs 40 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.00019860000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "96f8ab097483",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states a monthly price of 55 credits, which contradicts the reference price of 54 credits. The matching data amount and roaming policy do not remove that disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-124 costs 55 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-124 costs 54 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00018
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "b6dcc6e58ccc",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states the same monthly price and data allowance as the reference, and “no roaming” is equivalent to excluding roaming. It contains no factual disagreement.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-146 costs 76 credits per month, includes 40 GB, and excludes roaming.\"},{\"source\":\"transcript.1\",\"quote\":\"Lumen-146: 76 credits per month, 40 GB, no roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002001
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "164ab748c378",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that the plan costs 75 credits per month, includes 40 GB, and has no roaming, matching the reference without factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Le forfait coûte 75 crédits par mois, comprend 40 Go, sans itinérance.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-145 costs 75 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002001
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "df6a1f3eb6a8",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The final reply matches the reference: the customer is not a student, the monthly price is 85 credits, the data allowance is 40 GB, and roaming is excluded. It contains no factual disagreement.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-155 costs 85 credits per month, includes 40 GB, and excludes roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"The customer is not a student.\"},{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 85 credits a month, receives 40 GB and no roaming.\"}],\"met\":true}]}",
       "cost_usd": 0.0002294
     },
     {
       "judge": "gpt-6-luna",
-      "key": "dc23763e993d",
+      "key": "e245fceeb813",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-138 costs 68 credits monthly, includes 40 GB, and does not include roaming, consistent with reference.txt.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-138 costs 68 credits monthly, with 40 GB. Roaming is not included.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001533
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees that Lumen-129 includes 40 GB and excludes roaming, but its price of 60 credits per month equals 720 credits per year, contradicting the reference price of 708 credits per year.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"60 credits per month\"},{\"source\":\"input.reference.txt\",\"quote\":\"708 credits per year\"}],\"met\":false}]}",
+      "cost_usd": 0.0001874
     },
     {
       "judge": "gpt-6-luna",
-      "key": "cb9067a5ce30",
+      "key": "dea22762e2fb",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the monthly cost is 75 credits, contradicting the reference’s stated cost of 74 credits per month.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"75 credits per month.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-144 costs 74 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.00016910000000000002
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply correctly states the monthly cost and data allowance, but it contradicts the reference on roaming: the reply says roaming is included, while the reference says it is excluded.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Roaming is included.\"},{\"source\":\"input.reference.txt\",\"quote\":\"excludes roaming.\"}],\"met\":false}]}",
+      "cost_usd": 0.00018680000000000001
     },
     {
       "judge": "gpt-6-luna",
-      "key": "04922e70012e",
+      "key": "162195bd64cd",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees that Lumen-123 includes 40 GB and has no roaming, but its monthly price of 54 credits contradicts the reference price of 53 credits.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"54 credits monthly, 40 GB and no roaming.\"},{\"source\":\"input_data/reference.txt\",\"quote\":\"Lumen-123 costs 53 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":false}]}",
-      "cost_usd": 0.00026
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The price and data amount are consistent with reference.txt, but the reply says roaming is included while the reference says roaming is excluded. This is a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Roaming is included.\"},{\"source\":\"input.reference.txt\",\"quote\":\"excludes roaming.\"}],\"met\":false}]}",
+      "cost_usd": 0.0001778
     },
     {
       "judge": "gpt-6-luna",
-      "key": "881169e49766",
+      "key": "7caa8a6b1a97",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The final reply states that the non-student pays 49 credits a month, receives 40 GB, and has no roaming. These facts agree with reference.txt; it makes no contradicted factual claim.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 49 credits a month, receives 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-119 costs 49 credits per month, includes 40 GB, and excludes roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"The customer is not a student.\"}],\"met\":true}]}",
-      "cost_usd": 0.00021730000000000002
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states the monthly cost as 38 credits, matching the reference. It makes no claims that contradict the reference; omitting the data allowance and roaming details is a consistent subset.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"38 credits per month.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-108 costs 38 credits per month\"}],\"met\":true}]}",
+      "cost_usd": 0.0002007
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "99c1a1fa24bc",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply disagrees with the reference on the monthly price: it says 64 credits instead of 63. The data amount and roaming policy agree, but this contradiction means the reply does not satisfy the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"64 crédits par mois\"},{\"source\":\"input.reference.txt\",\"quote\":\"63 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00019660000000000004
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "bfb2a409a6dd",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees that the plan costs 40 credits per month and has no roaming, but it says 41 GB instead of the reference's 40 GB, so it contains a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"41 GB\"},{\"source\":\"input/reference.txt\",\"quote\":\"includes 40 GB\"}],\"met\":false}]}",
+      "cost_usd": 0.00018510000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "c94111fb6d34",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says Lumen-151 costs 82 credits monthly, but the reference says it costs 81 credits per month. This is a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-151 costs 82 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-151 costs 81 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00018830000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "59a5b12c1b7e",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-148 costs 78 credits monthly, includes 40 GB, and has no roaming, which agrees with the reference facts.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-148 costs 78 credits monthly, with 40 GB and no roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.000188
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "1df7ddd9cb0b",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the non-student pays 32 credits per month, contradicting the reference price of 37 credits per month. Its data and roaming claims are consistent, but the price disagreement means the reply does not satisfy the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 32 credits a month\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-107 costs 37 credits per month\"},{\"source\":\"input.reference.txt\",\"quote\":\"A 5-credit discount applies only to students. The customer is not a student.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002669
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "b710fd0eaccc",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees that Lumen-140 includes 40 GB and excludes roaming, but states its current price is 71 credits per month. The reference says the current price is 70 and that 71 was the price before the revision, so the reply contains a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The current price is 71 credits per month, data 40 GB, no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-140 costs 70 credits per month, includes 40 GB, and excludes roaming. Before the revision, its price was 71. This question concerns the current version.\"}],\"met\":false}]}",
+      "cost_usd": 0.00023380000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "b4a16a7630af",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that the non-student pays 73 credits a month, receives 40 GB, and has no roaming. These facts agree with reference.txt, including the customer’s non-student status; there is no factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 73 credits a month, receives 40 GB and no roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001939
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "1c4e9ec4a11f",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply disagrees with the reference on the monthly price: it says 76 credits, while the reference says 75. The data amount and roaming policy agree, but the price contradiction means the reply does not satisfy the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Le forfait coûte 76 crédits par mois\"},{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-145 costs 75 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.0002056
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "7539a27c9559",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states 72 credits per month, which is 864 credits per year and conflicts with the reference price of 852 credits per year. The data amount and roaming policy are consistent, but the price disagreement means the reply does not satisfy the requirement.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-141 costs 852 credits per year\"},{\"source\":\"transcript.1\",\"quote\":\"72 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.0001974
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "54882a04938e",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says Lumen-120 costs 51 credits per month, contradicting the reference value of 50 credits per month.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"51 credits per month.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-120 costs 50 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00016969999999999998
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "89505d3d7830",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-113 costs 43 credits monthly, includes 40 GB, and has no roaming; these facts agree with reference.txt.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-113 costs 43 credits monthly, with 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-113 costs 43 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001956
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "ff6cadb39f6a",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply disagrees with the reference on the monthly price: it says 44 credits, while the reference says 43 credits. The matching data amount and roaming policy do not remove this contradiction.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-113 costs 44 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-113 costs 43 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00019210000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "2408ad8ddf21",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the current price is 35 credits per month, but the reference says the current price is 34 credits per month; this is a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The current price is 35 credits per month\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-104 costs 34 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00019480000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "9e2994157f7e",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-109 costs 39 credits per month, includes 40 GB, and excludes roaming, matching the reference without factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Le forfait coûte 39 crédits par mois, comprend 40 Go, sans itinérance.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-109 costs 39 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.00018710000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "08b727d532f3",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply disagrees with the authorized record on the monthly price: it says 66 credits, while the record says 65 credits. The data allowance and roaming policy agree, but the price contradiction means the reply does not contain no factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"66 credits monthly, 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-135 costs 65 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":false}]}",
+      "cost_usd": 0.00028960000000000005
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "5e1e844eb565",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-157 costs 87 credits per month, includes 40 GB, and has no roaming, matching the reference without factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Le forfait coûte 87 crédits par mois, comprend 40 Go, sans itinérance.\"},{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-157 costs 87 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002101
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "fd43435c99a9",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply disagrees with the reference on the included data allowance: it says 41 GB, while the reference says 40 GB. The price and roaming policy agree, but the contradicted fact means the requirement is not satisfied.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"includes 40 GB\"},{\"source\":\"transcript.1\",\"quote\":\"41 GB\"}],\"met\":false}]}",
+      "cost_usd": 0.00018660000000000004
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "2f5a29445431",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states the same price, data allowance, and roaming policy as the reference, with equivalent wording and no factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101 costs 31 credits monthly, with 40 GB and no roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.00017960000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "04e89a4a6205",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states a monthly cost of 87 credits, while reference.txt says Lumen-156 costs 86 credits per month. This is a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"87 credits per month.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-156 costs 86 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.0001862
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "f76f1e3d3651",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says Lumen-115 costs 46 credits monthly, but reference.txt says it costs 45 credits per month. This is a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-115 costs 46 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-115 costs 45 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.0001973
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "05836482b886",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states the current price is 46 credits per month, includes 40 GB of data, and has no roaming. These facts agree with reference.txt; the reply does not repeat the outdated pre-revision price.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The current price is 46 credits per month, data 40 GB, no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-116 costs 46 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.00022480000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "8b83395a7b7e",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply's price of 84 credits per month equals 1,008 credits per year, contradicting the reference price of 996 credits per year. The data and roaming claims are consistent, but the price contradiction means the reply does not contain only consistent facts.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"84 credits per month\"},{\"source\":\"input.reference.txt\",\"quote\":\"996 credits per year\"}],\"met\":false}]}",
+      "cost_usd": 0.0002174
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "abe176649eb0",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states the current price as 34 credits per month, data as 40 GB, and no roaming, consistent with all relevant facts in reference.txt.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The current price is 34 credits per month, data 40 GB, no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-104 costs 34 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002133
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "bd0670845f7b",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-112 costs 42 credits monthly, includes 40 GB, and has no roaming. These match the reference’s 42 credits per month, 40 GB, and exclusion of roaming; there is no factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-112 costs 42 credits monthly, with 40 GB and no roaming.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-112 costs 42 credits per month, includes 40 GB, and excludes roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002165
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "4d54de99d3df",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the non-student pays 80 credits a month, but reference.txt states the price is 85 credits per month. The data and roaming claims agree, but this price disagreement means the reply is not factually consistent with the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 80 credits a month\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-155 costs 85 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.0002209
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "00c7e0e175bb",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that the non-student pays 49 credits a month, receives 40 GB, and has no roaming. These facts agree with the reference; it makes no contradicted factual claim.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 49 credits a month, receives 40 GB and no roaming.\"},{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-119 costs 49 credits per month, includes 40 GB, and excludes roaming.\"},{\"source\":\"input/reference.txt\",\"quote\":\"The customer is not a student.\"}],\"met\":true}]}",
+      "cost_usd": 0.00024040000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "63e239851cd3",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states 68 credits monthly, 40 GB, and that roaming is not included, matching the reference without factual disagreement.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-138 costs 68 credits per month, includes 40 GB, and excludes roaming.\"},{\"source\":\"transcript.1\",\"quote\":\"Lumen-138 costs 68 credits monthly, with 40 GB. Roaming is not included.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001979
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "d47a1eb59f62",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply gives the monthly price as 54 credits, but reference.txt says Lumen-123 costs 53 credits per month. The matching data and roaming claims do not undo this factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"54 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-123 costs 53 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00028260000000000004
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "21acbf5be0da",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states a monthly cost of 75 credits, contradicting the reference’s cost of 74 credits per month.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"75 credits per month.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-144 costs 74 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00017419999999999998
     }
   ]
 }
