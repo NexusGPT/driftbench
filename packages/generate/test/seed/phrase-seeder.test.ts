@@ -21,7 +21,8 @@ const userTurns = (specs: ReturnType<typeof generateSuite>['complete']) =>
   );
 
 describe('phrases no other spec says', () => {
-  it.each([1, 3])(
+  // Seeds 12, 13 and 18 hold more behaviour phrases than stages and flows a behaviour phrase can be said at.
+  it.each([1, 3, 12, 13, 18])(
     'are each said in a complete spec on seed %s',
     async (seed) => {
       const hidden = hiddenSpec(seed);
@@ -45,6 +46,43 @@ describe('phrases no other spec says', () => {
     expect(placed.length).toBeGreaterThan(0);
     expect(userTurns(placed).has('Hi, do you have home internet at 3 Orchard Way, Acmeville?')).toBe(false);
   }, 300_000);
+});
+
+describe('behaviour phrases that share a stage and flow', () => {
+  it.each([12, 13, 18])(
+    'differ in another value of the spec cell too on seed %s, so none is a one-slot sibling',
+    async (seed) => {
+      const hidden = hiddenSpec(seed);
+      const source = await generateFrom(hidden, renderMap(hidden), seed, {}, { once: true });
+      if (!source.prepared) throw new Error('the fictional map failed to load');
+      const suite = generateSuite(source.prepared, { mapPath: '../map.yaml', t: 2, seed });
+      const behaviours = new Set(
+        hidden.phrases.filter((phrase) => phrase.intent.kind === 'behaviour').map((phrase) => phrase.text),
+      );
+      const said = suite.complete.flatMap((spec) => {
+        const cell = (spec.metadata?.generated as { cell?: Record<string, string> } | undefined)?.cell ?? {};
+        return spec.blocks.flatMap((block) =>
+          'user' in block.when && behaviours.has(block.when.user)
+            ? [{ id: spec.id, slot: `${block.expect?.stage}@${cell.flow}`, cell }]
+            : [],
+        );
+      });
+      const shared = said.filter((one) => said.some((other) => other !== one && other.slot === one.slot));
+      // Seed 13 holds six behaviour phrases and five such stages and flows: at least two share one.
+      if (seed === 13) expect(shared.length).toBeGreaterThan(0);
+      for (const one of shared)
+        for (const other of shared) {
+          if (other === one || other.slot !== one.slot) continue;
+          const keys = new Set([...Object.keys(one.cell), ...Object.keys(other.cell)]);
+          const changed = [...keys].filter((key) => one.cell[key] !== other.cell[key]);
+          expect(
+            changed.length,
+            `${one.id} and ${other.id} at ${one.slot} differ in ${changed}`,
+          ).toBeGreaterThanOrEqual(2);
+        }
+    },
+    300_000,
+  );
 });
 
 describe('the returned fields a tool-value phrase reports', () => {

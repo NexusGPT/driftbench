@@ -33,6 +33,8 @@ export function phraseDrafts(
   const drafts: SpecDraft[] = [];
   const asked = new Set<string>();
   const stagesUsed = new Map<string, Set<string>>();
+  // The spec cells of the phrases said at each stage and flow, by dimension.
+  const holders = new Map<string, Pick[][]>();
   for (const phrases of prepared.phrasesOf.values()) {
     for (const phrase of phrases) {
       if (first + drafts.length >= context.max) return drafts;
@@ -97,15 +99,19 @@ export function phraseDrafts(
             { at: 1, fresh: false, after: false },
           ]
         : [
-            // No fallback: a sibling at a held stage and flow is rejected by the gate whenever the reference
-            // answers the two differently, and the map does not say when that is.
             ...Array.from({ length: deepest }, (_, index) => ({ at: index + 1, fresh: true, after: true })),
+            // With every stage and flow held, a phrase shares one only with a spec cell that differs from each
+            // phrase said there in another value too: the two are no one-slot siblings, so neither Then is
+            // read as ignoring the phrase. A one-value difference is a sibling the gate rejects whenever the
+            // reference answers the two differently, and the map does not say when that is.
+            ...Array.from({ length: deepest }, (_, index) => ({ at: index + 1, fresh: false, after: true })),
           ];
       const flowAt = prepared.space.dimensions.findIndex((entry) => entry.id === FLOW_DIMENSION);
       for (const { at, fresh, after } of tries) {
-        // Never at the last stage: a walk that reaches its end checks its end state, which the turn cuts.
+        // Never at the last stage of a walk with an end state: the walk checks it at its end, which the turn
+        // cuts. A walk with none ends on its last stage, where the turn can be said.
         const fits = (path: PathRelation) =>
-          path.stages.length > at + 1 &&
+          path.stages.length > at + (path.end_state ? 1 : 0) &&
           !(fresh && used?.has(slotOf(path, at))) &&
           (!after ||
             (found ? ran(path, at, found.tool.name) : dimension === FLOW_DIMENSION || exercised(path, at)));
@@ -147,8 +153,14 @@ export function phraseDrafts(
             },
           );
           if ('draft' in attempt) {
+            const slot = path ? `${dimension}|${slotOf(path, at)}` : undefined;
+            const held = slot ? (holders.get(slot) ?? []) : [];
+            if (!fresh && used && held.some((cell) => differences(cell, attempt.draft.cell) < 2)) continue;
             built = attempt;
-            if (used && path) stagesUsed.set(dimension, used.add(slotOf(path, at)));
+            if (used && path && slot) {
+              stagesUsed.set(dimension, used.add(slotOf(path, at)));
+              holders.set(slot, [...held, attempt.draft.cell]);
+            }
             break;
           }
         }
@@ -160,4 +172,15 @@ export function phraseDrafts(
     }
   }
   return drafts;
+}
+
+/** How many dimensions two spec cells hold different values of, a dimension only one holds included. */
+function differences(one: readonly Pick[], other: readonly Pick[]): number {
+  const values = (cell: readonly Pick[]) => new Map(cell.map(([dimension, value]) => [dimension, value]));
+  const a = values(one);
+  const b = values(other);
+  let count = 0;
+  for (const dimension of new Set([...a.keys(), ...b.keys()]))
+    if (a.get(dimension) !== b.get(dimension)) count += 1;
+  return count;
 }
