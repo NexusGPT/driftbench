@@ -595,5 +595,5 @@ searched. The fourth names an id that already exists.
 | `<file>: holds an object of kind <kind>, not <kind>` then `Fix the invalid objects first: nothing was pushed.` | 1 from `push` | push one kind at a time |
 | `"<name>" is not a registry name: use letters, digits, dots, underscores and hyphens` | 2 from `push` | change `--name` |
 | `<file>: the persona <id> is also in <file>` then `Nothing was written.` | 2 from `migrate persona` | migrate files with distinct persona ids |
-| `<situational file>: unknown object persona:<id>; ...` | 2 from `simulate` | the situational block is read in a folder whose project does not hold its persona: keep it under the folder `migrate persona --out` wrote |
+| `<situational file>: unknown object persona:<id>; searched layers shipped, project, suite, spec, block, cli` | 2 from `simulate` | the situational block is read in a folder whose project does not hold its persona: keep it under the folder `migrate persona --out` wrote |
 | `<situational file>: simulated_user.personas must name one persona: a migrated block plays the persona it came from` | 2 from `simulate` | name exactly one persona |
