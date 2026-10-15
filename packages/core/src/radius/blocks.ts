@@ -1,4 +1,5 @@
 import { runProvenance } from '../runner/provenance';
+import { applyBlockRealizedTextPolicy } from '../runner/realized-text';
 import type { RunOptions } from '../runner/run';
 import type { BlockResult, Campaign, RunResult } from '../schema/run';
 import type { Spec } from '../schema/spec';
@@ -85,7 +86,10 @@ export function planBlockRerun(
     if (campaigns > (reuse.maxCarry ?? 5) || days > (reuse.maxAgeDays ?? 7))
       return fail('the carried block exceeds an age or count limit');
     carried.set(index, {
-      ...block,
+      ...applyBlockRealizedTextPolicy(block, options.recordRealizedText === true, {
+        fromRun: source.runId,
+        fromCampaign: reuse.fromCampaign,
+      }),
       carried: {
         ...eligible.carried,
         ...(block.carried ?? {}),
