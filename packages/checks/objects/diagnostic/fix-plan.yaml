@@ -24,4 +24,4 @@ steps:
     params: { n: 10, by: [agent_blocks, blocks, cost_class] }
 output:
   fields: [fix_location, fix_target, fix_action, fix_forms, blocks, agent_blocks, rules, remove_copies, confidence]
-cost: { model_calls: 0, agent_runs: 0 }
+cost: { model_calls: none, agent_runs: none }

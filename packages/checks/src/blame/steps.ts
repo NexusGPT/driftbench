@@ -8,6 +8,7 @@ import {
 import { z } from 'zod';
 import type { PlacedBefore, PolicyView } from '../placement/apply';
 import { diagnoseBlock } from './attribute';
+import { campaignDiagnoses } from './campaign';
 import {
   type ConfirmQuote,
   type ConfirmResult,
@@ -43,7 +44,8 @@ export type BlockStepContext = {
 /** What a campaign step reads: every run of the campaign and the diagnoses its blocks hold. */
 export type CampaignStepContext = {
   readonly runs: readonly RunResult[];
-  readonly diagnoses: readonly CampaignDiagnosis[];
+  /** Optional direct-library input; F5 uses runs[].blocks[].diagnoses. */
+  readonly diagnoses?: readonly CampaignDiagnosis[];
   readonly objects: ReadonlyArray<{ object: ResolvedObject }>;
   readonly params: Readonly<Record<string, unknown>>;
   readonly earlier: readonly StepOutput[];
@@ -247,7 +249,7 @@ export const CAMPAIGN_STEPS: Readonly<Record<string, BlameStep<CampaignStepConte
       const stages = stateOf(ctx.earlier).stages;
       const placement = policyOf(ctx.objects, 'policy/placement');
       const plan = fixPlan(
-        ctx.diagnoses,
+        ctx.diagnoses ?? campaignDiagnoses(ctx.runs),
         stages.has('recurrence') && stages.has('replace') ? placement : fixedOnly(placement),
         Number(ctx.params.n),
       );
@@ -277,7 +279,7 @@ export const CAMPAIGN_STEPS: Readonly<Record<string, BlameStep<CampaignStepConte
     cost: 'static',
     summary: 'The cheapest run that could change each static or undecided diagnosis.',
     run: (ctx) => {
-      const plan = planConfirm(ctx.diagnoses, Number(ctx.params.runs));
+      const plan = planConfirm(ctx.diagnoses ?? campaignDiagnoses(ctx.runs), Number(ctx.params.runs));
       const open = new Set(plan.map((one) => `${one.block} ${one.verdict_ref}`)).size;
       return [
         {
@@ -296,7 +298,7 @@ export const CAMPAIGN_STEPS: Readonly<Record<string, BlameStep<CampaignStepConte
     cost: 'run',
     summary: 'Runs the planned confirm runs within the budget; a stand-in command is free.',
     run: async (ctx) => {
-      const plan = planConfirm(ctx.diagnoses, Number(ctx.params.runs));
+      const plan = planConfirm(ctx.diagnoses ?? campaignDiagnoses(ctx.runs), Number(ctx.params.runs));
       const result = await runConfirm(plan, {
         budgetUsd: Number(ctx.params.budget_usd),
         ...(ctx.confirmRunner === undefined ? {} : { runner: ctx.confirmRunner }),
@@ -327,7 +329,7 @@ export const CAMPAIGN_STEPS: Readonly<Record<string, BlameStep<CampaignStepConte
       'Re-runs a block diagnostic with the stored confirm evidence; with none, the diagnoses stay static.',
     run: (ctx) => {
       const state = stateOf(ctx.earlier);
-      const open = ctx.diagnoses.filter(
+      const open = (ctx.diagnoses ?? campaignDiagnoses(ctx.runs)).filter(
         (one) =>
           one.inherits === undefined && (one.confidence === 'static' || one.confidence === 'undecided'),
       );
@@ -350,7 +352,7 @@ export const CAMPAIGN_STEPS: Readonly<Record<string, BlameStep<CampaignStepConte
       const out: StepOutput[] = [];
       for (const [block, confirm] of byBlock) {
         for (const next of ctx.rediagnose(block, confirm)) {
-          const before = ctx.diagnoses.find(
+          const before = (ctx.diagnoses ?? campaignDiagnoses(ctx.runs)).find(
             (one) =>
               one.block === block && one.verdict_ref === next.verdict_ref && one.inherits === undefined,
           );

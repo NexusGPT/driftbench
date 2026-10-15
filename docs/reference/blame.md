@@ -136,6 +136,7 @@ Five diagnostic files ship in `packages/checks/objects/diagnostic/`. A step of c
 | `fix-plan` | campaign | `replace` | `builtin:fix-plan/replace` | static | Re-place each diagnosis whose signature crossed a threshold. |  |
 | `fix-plan` | campaign | `merge` | `builtin:fix-plan/merge` | static | One fix per target and action; local copies listed for removal. |  |
 | `fix-plan` | campaign | `rank` | `builtin:rank/top-n` | static | Rank the fixes: agent blocks, then blocks, then cost. | n: 10; by: [agent_blocks, blocks, cost_class] |
+| `flaky-block` | campaign | `disagreement` | `builtin:flaky/repeat-disagreement` | static | Blocks whose repeats both pass and fail. | min_repeats: 2 |
 | `liability-confirm` | campaign | `plan` | `builtin:confirm/plan` | static | The cheapest run that could change each static or undecided diagnosis. | runs: 3 |
 | `liability-confirm` | campaign | `run` | `builtin:confirm/run` | run | Runs the planned confirm runs within the budget; a stand-in command is free. | runs: 3; budget_usd: 0; reference_target: null |
 | `liability-confirm` | campaign | `store` | `builtin:confirm/store` | static | Stores reference_pass, reference_loads, forced_load_pass and hint_pass. |  |
@@ -143,4 +144,3 @@ Five diagnostic files ship in `packages/checks/objects/diagnostic/`. A step of c
 | `value-mismatch` | block | `chain` | `builtin:blame/chain` | static | Only the root of each chain of failing verdicts is attributed. | emit: false |
 | `value-mismatch` | block | `evidence` | `builtin:blame/value-evidence` | static | Value outcome unknown with a lint until the value ladder integration is available. | emit: false |
 | `value-mismatch` | block | `attribute` | `builtin:blame/attribute` | static | policy/blame, first match in order. | emit: true |
-| `flaky-block` | campaign | `disagreement` | `builtin:flaky/repeat-disagreement` | static | Blocks whose repeats both pass and fail. | min_repeats: 2 |

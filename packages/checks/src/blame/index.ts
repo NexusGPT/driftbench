@@ -7,6 +7,7 @@ export {
   factsOf,
   registerBlameImpl,
 } from './attribute';
+export { campaignDiagnoses } from './campaign';
 export { type ChainLink, chainVerdicts } from './chain';
 export {
   BEHAVIOUR,
@@ -39,12 +40,12 @@ export {
 } from './inputs';
 export {
   DIAGNOSTIC_FIELDS,
+  type DiagnosticContext,
   diagnosticKindReady,
-  objectsDir,
+  type RegisterDiagnosticStep,
   registerBlameObjects,
-  SHIPPED_DIAGNOSTIC_FILES,
-  SHIPPED_OBJECT_FILES,
-  shippedObjectText,
+  SHIPPED_DIAGNOSTICS,
+  SHIPPED_OBJECTS,
   shippedPolicy,
 } from './objects';
 export {

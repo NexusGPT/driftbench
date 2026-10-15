@@ -12,14 +12,9 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import {
-  SHIPPED_DIAGNOSTIC_FILES,
-  shippedObjectText,
-  shippedPolicy,
-} from '../../packages/checks/src/blame/objects';
+import { SHIPPED_DIAGNOSTICS, shippedPolicy } from '../../packages/checks/src/blame/objects';
 import { BLOCK_STEPS, CAMPAIGN_STEPS } from '../../packages/checks/src/blame/steps';
 import { EVIDENCE_PROVIDERS } from '../../packages/core/src/evidence';
-import { parseObjectText } from '../../packages/core/src/objects';
 
 const ROOT = fileURLToPath(new URL('../..', import.meta.url));
 export const BLAME_OUT = resolve(ROOT, 'docs/reference/blame.md');
@@ -45,17 +40,15 @@ function inline(value: unknown): string {
   return String(value);
 }
 
-/** The shipped diagnostics, read from their files: scope, steps with their impl, cost class and params. */
+/** The shipped diagnostics, from the registered TypeScript data: scope, steps with their impl, cost class and params. */
 function diagnosticRows(): string[] {
   const steps = { ...BLOCK_STEPS, ...CAMPAIGN_STEPS } as Record<string, { cost: string; summary: string }>;
   const rows: string[] = [];
-  for (const key of Object.keys(SHIPPED_DIAGNOSTIC_FILES) as Array<keyof typeof SHIPPED_DIAGNOSTIC_FILES>) {
-    const { text, path } = shippedObjectText(key);
-    const raw = parseObjectText(text, path).raw as {
-      id: string;
-      scope?: string;
-      steps?: Array<{ id: string; impl: string; params?: Record<string, unknown> }>;
-    };
+  for (const raw of Object.values(SHIPPED_DIAGNOSTICS) as Array<{
+    id: string;
+    scope?: string;
+    steps?: Array<{ id: string; impl: string; params?: Record<string, unknown> }>;
+  }>) {
     for (const step of raw.steps ?? []) {
       const impl = steps[step.impl];
       rows.push(

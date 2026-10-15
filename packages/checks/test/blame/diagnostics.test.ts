@@ -8,9 +8,9 @@ import {
   type RunResult,
 } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
-import { z } from 'zod';
 import { blame } from '../../src';
 import { f7, SKILL, verdict, WORKED_CASES, type WorkedCase } from '../fixtures/blame/cases';
+import { f5DiagnosticKind } from './f5-contract';
 
 /**
  * The five shipped diagnostics as files with their steps: code-agent-liability, fix-plan, liability-confirm,
@@ -23,22 +23,11 @@ import { f7, SKILL, verdict, WORKED_CASES, type WorkedCase } from '../fixtures/b
 function registry(): ObjectRegistry {
   const out = new ObjectRegistry();
   for (const kind of BUILTIN_KINDS) {
-    out.registerKind(
-      kind.kind === 'diagnostic'
-        ? {
-            ...kind,
-            fields: {
-              scope: z.enum(['block', 'campaign']).optional(),
-              when: z.record(z.string(), z.unknown()).optional(),
-              reads: z.array(z.string()).optional(),
-              output: z.record(z.string(), z.unknown()).optional(),
-              cost: z.record(z.string(), z.unknown()).optional(),
-            },
-          }
-        : kind,
-    );
+    out.registerKind(kind.kind === 'diagnostic' ? f5DiagnosticKind() : kind);
   }
-  return blame.registerBlameObjects(out);
+  return blame.registerBlameObjects(out, (name, step, registry) => {
+    registry.registerImpl(name, step);
+  });
 }
 
 /** The F5 runner's loop, for a campaign diagnostic. */

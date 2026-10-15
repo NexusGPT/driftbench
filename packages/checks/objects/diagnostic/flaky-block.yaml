@@ -14,4 +14,4 @@ steps:
     params: { min_repeats: 2 }
 output:
   fields: [spec, block, target, mode, repeats, passes, pass_share]
-cost: { model_calls: 0, agent_runs: 0 }
+cost: { model_calls: none, agent_runs: none }

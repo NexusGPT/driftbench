@@ -25,4 +25,4 @@ steps:
     params: { emit: true }
 output:
   fields: [verdict_ref, rule, fault, disposition, fix_location, evidence, flags]
-cost: { model_calls: 0, agent_runs: 0 }
+cost: { model_calls: none, agent_runs: none }

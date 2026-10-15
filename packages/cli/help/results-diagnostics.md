@@ -11,8 +11,8 @@ see_also:
 ## What it is
 
 A diagnostic is a rule file of the object kind `diagnostic` that runs after the checks and writes diagnoses. A
-diagnosis never changes a verdict or the block's machine pass. Five ship, in
-`packages/checks/objects/diagnostic/`:
+diagnosis never changes a verdict or the block's machine pass. Five ship as TypeScript data in
+`packages/checks/src/blame/diagnostics.ts`; the YAML under `packages/checks/objects/diagnostic/` is a reviewed test fixture:
 
 | Diagnostic | Scope | What it writes |
 |---|---|---|
@@ -39,8 +39,10 @@ a guard when code can check it.
 
 No command of its own yet. The diagnostics run from the checks package (`blame.diagnoseBlock`,
 `blame.fixPlan`, `blame.planConfirm` and `blame.runConfirm`, `blame.flakyBlocks`), and their steps are
-registered for the diagnostics runner of the block framework, which runs the files a spec names in
-`uses.diagnostics`.
+registered through `registerDiagnosticStep` when the F5 diagnostics API is present. This stack does not yet
+include F5; until it does, the direct library calls work and diagnostic objects stay unavailable. Campaign
+steps read diagnoses from `runs[].blocks[].diagnoses`, whose storage schema needs F2. The F5 context supplies
+no confirm runner; confirmation stays static unless a direct library caller supplies one.
 
 The params a user sets in a file that extends a shipped one:
 
