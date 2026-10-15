@@ -8,6 +8,7 @@ see_also:
   - results-radius
   - results-exports
   - results-statistics
+  - running-not-run
 next:
   - results-statistics
 ---
@@ -30,7 +31,7 @@ next:
 | `INCOMPLETE` (`incomplete`) | 1 | a candidate cell did not run: stopped by `--budget-usd`, or pending, and nothing regressed |
 | `AGGREGATE FAILED` (`aggregate-failed`) | 1 | a campaign-level criterion fails, unless the verdict is already regression, not-run or incomplete |
 | `RADIUS MISS` (`radius-miss`) | 1 | with `--change --audit`: an audited carried cell differs from its stored run. It outranks every other verdict |
-| `NOT RUN` (`not-run`) | 3 | a spec of the candidate has more of its blocks not run than `--max-not-run` allows (default 0: any block not run). A block not run is a Given the target cannot apply, never a pass. It outranks every verdict but radius-miss and regression. The verdict never depends on an unrelated spec not run: a regression gives `REGRESSION`, exit 1, with or without it. A golden that flipped while compare calls the change noise is no regression |
+| `NOT RUN` (`not-run`) | 3 | a spec of the candidate has more of its blocks not run than `--max-not-run` allows (default 0: any block not run). A block not run is a Given the target cannot apply, never a pass. It outranks every verdict but radius-miss and regression. The verdict never depends on an unrelated spec not run: a regression gives `REGRESSION`, exit 1, with or without it. A golden that flipped while compare calls the change noise is no regression. Topic running-not-run has a worked example |
 | none | 2 | bad input; nothing is run and nothing is written |
 
 On the same pair of campaigns `ci` and `compare` give the same verdict and the same exit code.
@@ -320,3 +321,5 @@ $ driftbench ci --specs examples/acme/specs/conversations --target fault:control
 | verdict `NOT SHOWN NON-INFERIOR` on an unchanged agent | the suite is too small for the margin. Read "smallest margin these pairs can show"; add goldens, or accept the auto margin |
 | price-sheet task specs fail on `function:acme-sales` | the mixed Acme suites need `--route flow:price-sheet=process:acme-ops` |
 | every cell reran though `--cache` was not given | expected: the cache is off by default in `ci` |
+| `Verdict: NOT RUN. Exit 3.` | a candidate spec has blocks not run beyond `--max-not-run`: the target cannot apply a layer of their Given. The `Not run` line names the spec and the first reason. Fix the target or the spec; raise `--max-not-run` only for an exploratory suite (topic running-not-run) |
+| `--max-not-run takes a share from 0 to 1, not "<value>".` (exit 2) | give a share such as `0.25`, not a percentage |
