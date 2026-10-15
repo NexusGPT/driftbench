@@ -742,6 +742,8 @@ exit 0
 
 `family review --write` writes a pending review with the current hashes, unless a current signed one exists.
 
+A column asked as a formula is checked by its formula on every row: the formula the oracle names, with any spaces around its operators. A formula of one multiplication or one addition also passes with its two operands swapped, so `=12*C2` passes where the oracle names `=C2*12`; `=12*C3` and `=13*C2` still fail.
+
 Limits today:
 
 * A column asked as a value is checked by its value only: the reader vocabulary has no check that a cell holds no formula, so a formula with the right cached result passes.
