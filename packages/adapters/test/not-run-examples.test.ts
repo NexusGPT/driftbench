@@ -39,21 +39,24 @@ function adapterOf(spec: Spec, path: string): string | undefined {
 function gaps(spec: Spec, adapter: string, capabilities: AdapterCapabilities): string[] {
   const out: string[] = [];
   let state = initialGiven(spec);
-  let prefix = false;
+  let written = false;
   spec.blocks.forEach((block, index) => {
     state = enterBlock(state, block.given);
-    prefix ||= (block.given?.prefix?.length ?? 0) > 0;
-    const f = capabilityGap(adapter, capabilities, { prefix, world: state.world });
+    if (block.given?.prefix !== undefined) written = block.given.prefix.length > 0;
+    const prefix = written ? ('authored' as const) : undefined;
+    const f = capabilityGap(adapter, capabilities, { ...(prefix ? { prefix } : {}), world: state.world });
     if (f) out.push(`F block ${index}: ${f.got}`);
+    const canonical = canonicalGiven(spec, index);
+    const history = canonical.prefix.length === 0 ? undefined : (prefix ?? ('canonical' as const));
     const t = capabilityGap(adapter, capabilities, {
-      prefix,
-      world: canonicalGiven(spec, index).state.world,
+      ...(history ? { prefix: history } : {}),
+      world: canonical.state.world,
     });
     if (t) out.push(`T block ${index}: ${t.got}`);
     for (const perturbation of spec.perturbations ?? []) {
       if (perturbation.inject_at !== index || !perturbation.world) continue;
       const p = capabilityGap(adapter, capabilities, {
-        prefix,
+        ...(prefix ? { prefix } : {}),
         world: enterBlock(state, undefined, perturbation.world).world,
       });
       if (p) out.push(`P ${perturbation.id}: ${p.got}`);
@@ -63,7 +66,7 @@ function gaps(spec: Spec, adapter: string, capabilities: AdapterCapabilities): s
 }
 
 describe('the capability check over the shipped example specs', () => {
-  it('finds no block not run on any example spec run on its own target', async () => {
+  it('finds no block not run in F or P, and in T only the second block of the five live Claude Code specs', async () => {
     const files = await findSpecFiles(['examples']);
     const found: string[] = [];
     let checked = 0;
@@ -76,7 +79,19 @@ describe('the capability check over the shipped example specs', () => {
       checked += 1;
       for (const gap of gaps(loaded.spec, adapter, capabilities)) found.push(`${path} ${gap}`);
     }
-    expect(found).toEqual([]);
+    // The live Claude Code adapter cannot seed a history, so mode T cannot hand it the canonical history of the
+    // blocks before: those blocks are not run, never run without it. The two session specs are written for the
+    // replay adapter, which shares the id and does seed a prefix: on it they run.
+    const live = 'examples/estates/fixture/generated/specs/live/stop_resume/estate.stop_resume.subagent';
+    const sessions = 'examples/estates/sessions/specs';
+    const why = 'T block 1: claude-code declares seedPrefix false: the agent would never see it';
+    expect(found).toEqual([
+      `${live}.inbox-triager.helper-inbox-triager.yaml ${why}`,
+      `${live}.ledger-auditor.helper-ledger-auditor.yaml ${why}`,
+      `${live}.route-planner.helper-route-planner.yaml ${why}`,
+      `${sessions}/clean-build.yaml ${why}`,
+      `${sessions}/compaction-mid-task.yaml ${why}`,
+    ]);
     // The population is the shipped examples, not a handful: guards against a loader that finds nothing.
     expect(checked).toBeGreaterThan(1500);
   }, 120_000);

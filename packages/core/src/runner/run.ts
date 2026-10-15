@@ -431,10 +431,19 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       const given = resolveGiven(state, history, run.target);
       // The capability check: a layer the adapter cannot apply makes the block not_run, never a silent drop.
       const notRun = capabilityGap(run.adapter.id, run.capabilities, {
-        prefix:
-          run.mode === 'T' && step.kind === 'block'
-            ? latestPrefixWritten(spec, step.blockIndex)
-            : prefixWritten,
+        // In mode T the block starts from the canonical history: the latest written prefix, then the blocks
+        // after it; in F and P from the prefix the spec wrote, the session holding the agent's own turns.
+        ...(run.mode === 'T'
+          ? history.length === 0
+            ? {}
+            : {
+                prefix: latestPrefixWritten(spec, step.kind === 'block' ? step.blockIndex : position)
+                  ? ('authored' as const)
+                  : ('canonical' as const),
+              }
+          : prefixWritten
+            ? { prefix: 'authored' as const }
+            : {}),
         world: state.world,
       });
       if (notRun) {

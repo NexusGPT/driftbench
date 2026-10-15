@@ -77,6 +77,37 @@ describe('the capability check: a layer the adapter cannot apply is not_run, nev
     expect(adapter.calls.send).toBe(1);
   });
 
+  it('mode T: the canonical history of the blocks before needs seedPrefix too, never dropped', async () => {
+    const plain = specOf({
+      id: 'canonical-history',
+      blocks: [
+        { when: { user: 'Hi, I want home internet at 12 Oak Street, Acmeville.' } },
+        { when: { user: 'Yes, the 500 one please.' } },
+      ],
+    });
+    const adapter = acmeAdapter({ capabilities: NO_PREFIX });
+    const run = await runSpec(plain, { adapter, driver, checks: defaultChecks(), mode: 'T', repeat: 0 });
+    expect(run.blocks.map((block) => block.status)).toEqual([undefined, 'not_run']);
+    expect(run.blocks[1]?.notRun).toMatchObject({
+      kind: 'unsupported',
+      check: 'capability',
+      layer: '1 history',
+    });
+    expect(run.blocks[1]?.notRun?.expected).toBe(
+      'the adapter applies the canonical history mode T builds from the blocks before (seedPrefix)',
+    );
+    expect(adapter.calls.send).toBe(1);
+    // In mode F the agent's own session carries the history: both blocks run.
+    const free = await runSpec(plain, {
+      adapter: acmeAdapter({ capabilities: NO_PREFIX }),
+      driver,
+      checks: defaultChecks(),
+      mode: 'F',
+      repeat: 0,
+    });
+    expect(free.blocks.map((block) => block.status)).toEqual([undefined, undefined]);
+  });
+
   it('mode T: a later block whose empty prefix clears the history runs', async () => {
     const cleared = specOf({
       id: 'prefix-cleared',
@@ -149,21 +180,16 @@ describe('capabilityGap', () => {
   };
   it('names the missing capability, and finds none when every layer is supported', () => {
     expect(
-      capabilityGap('x', caps, { prefix: true, world: { tools: { a: { error: 'e' } } } }),
+      capabilityGap('x', caps, { prefix: 'authored', world: { tools: { a: { error: 'e' } } } }),
     ).toBeUndefined();
-    expect(capabilityGap('x', { ...caps, seedPrefix: false }, { prefix: false, world: {} })).toBeUndefined();
-    expect(
-      capabilityGap('x', { ...caps, toolStubs: false }, { prefix: false, world: { tools: {} } }),
-    ).toBeUndefined();
-    expect(capabilityGap('x', { ...caps, seedPrefix: false }, { prefix: true, world: {} })?.got).toBe(
+    expect(capabilityGap('x', { ...caps, seedPrefix: false }, { world: {} })).toBeUndefined();
+    expect(capabilityGap('x', { ...caps, toolStubs: false }, { world: { tools: {} } })).toBeUndefined();
+    expect(capabilityGap('x', { ...caps, seedPrefix: false }, { prefix: 'authored', world: {} })?.got).toBe(
       'x declares seedPrefix false: the agent would never see it',
     );
     expect(
-      capabilityGap(
-        'x',
-        { ...caps, toolStubs: false },
-        { prefix: false, world: { tools: { a: { error: 'e' } } } },
-      )?.expected,
+      capabilityGap('x', { ...caps, toolStubs: false }, { world: { tools: { a: { error: 'e' } } } })
+        ?.expected,
     ).toBe('the adapter applies forced tool results (a) (toolStubs)');
   });
 });
