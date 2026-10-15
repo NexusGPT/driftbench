@@ -79,12 +79,14 @@ function crossParams(placement: PolicyView) {
 
 /** The homes of a group of diagnoses: homes with at least `minRuns` runs. */
 function homesOf(group: readonly CampaignDiagnosis[], minRuns: number, countNone: boolean): number {
-  const runs = new Map<string, number>();
+  const runs = new Map<string, Set<string>>();
   for (const one of group) {
     if (one.home === 'none' && !countNone) continue;
-    runs.set(one.home, (runs.get(one.home) ?? 0) + 1);
+    const blocks = runs.get(one.home) ?? new Set<string>();
+    blocks.add(one.block);
+    runs.set(one.home, blocks);
   }
-  return [...runs.values()].filter((count) => count >= minRuns).length;
+  return [...runs.values()].filter((blocks) => blocks.size >= minRuns).length;
 }
 
 /** Steps 1 and 2: recurrence over the campaign, and the diagnoses re-placed to the core prompt. */

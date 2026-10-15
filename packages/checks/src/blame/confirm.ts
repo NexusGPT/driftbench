@@ -71,8 +71,17 @@ export function planConfirm(diagnoses: readonly CampaignDiagnosis[], runs = 3): 
 /** What one stand-in or billed run reports: passes out of runs, loads of the routed skill, and its cost. */
 export type ConfirmOutcome = { passes: number; loads?: number; costUsd: number };
 
-/** Runs one planned confirm run: a stand-in command (free) or an adapter (billed). */
-export type ConfirmRunner = (run: PlannedRun) => ConfirmOutcome | Promise<ConfirmOutcome>;
+/** Quotes a binding upper bound for one runner call, including every repeat it contains. */
+export type ConfirmQuote = (run: PlannedRun) => number | Promise<number>;
+
+/** The runner must enforce this cap before each paid operation within the call. */
+export type ConfirmAllowance = { maxCostUsd: number };
+
+/** Runs one planned confirm call: a free stand-in or a billed adapter accepting the quoted cap. */
+export type ConfirmRunner = (
+  run: PlannedRun,
+  allowance: ConfirmAllowance,
+) => ConfirmOutcome | Promise<ConfirmOutcome>;
 
 export type ConfirmResult = {
   runs_made: number;
@@ -91,7 +100,7 @@ export type ConfirmResult = {
  */
 export async function runConfirm(
   plan: readonly PlannedRun[],
-  options: { budgetUsd: number; runner?: ConfirmRunner; free?: boolean },
+  options: { budgetUsd: number; runner?: ConfirmRunner; quote?: ConfirmQuote; free?: boolean },
 ): Promise<ConfirmResult> {
   const stored: Record<string, evidence.ConfirmEvidence> = {};
   if (options.runner === undefined || (options.budgetUsd <= 0 && options.free !== true)) {
@@ -110,11 +119,17 @@ export async function runConfirm(
   let made = 0;
   let skipped = 0;
   for (const run of plan) {
-    if (options.free !== true && spent >= options.budgetUsd) {
+    // A positive budget is no permission to incur an unknown cost. Quote each call
+    // again against the remaining allowance; a batch quote covers all its repeats.
+    const quote = options.free === true ? 0 : await options.quote?.(run);
+    if (quote === undefined || !Number.isFinite(quote) || quote < 0 || quote > options.budgetUsd - spent) {
       skipped += run.runs;
       continue;
     }
-    const outcome = await options.runner(run);
+    const outcome = await options.runner(run, { maxCostUsd: quote });
+    if (!Number.isFinite(outcome.costUsd) || outcome.costUsd < 0 || outcome.costUsd > quote) {
+      throw new Error(`confirm runner exceeded its quoted cost cap of ${quote} USD`);
+    }
     spent += outcome.costUsd;
     made += run.runs;
     const key = `${run.block} ${run.verdict_ref}`;

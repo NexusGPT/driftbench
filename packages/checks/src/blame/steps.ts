@@ -8,7 +8,13 @@ import {
 import { z } from 'zod';
 import type { PlacedBefore, PolicyView } from '../placement/apply';
 import { diagnoseBlock } from './attribute';
-import { type ConfirmResult, type ConfirmRunner, planConfirm, runConfirm } from './confirm';
+import {
+  type ConfirmQuote,
+  type ConfirmResult,
+  type ConfirmRunner,
+  planConfirm,
+  runConfirm,
+} from './confirm';
 import { type CampaignDiagnosis, fixPlan } from './fixplan';
 import { flakyBlocks } from './flaky';
 import { checkEvidenceInputs } from './inputs';
@@ -43,6 +49,8 @@ export type CampaignStepContext = {
   readonly earlier: readonly StepOutput[];
   /** A stand-in command or a reference target that makes a confirm run; absent means nothing can run. */
   readonly confirmRunner?: ConfirmRunner;
+  /** Binding upper bound per billed runner call, including all requested repeats. */
+  readonly confirmQuote?: ConfirmQuote;
   /** True when the runner is a stand-in command: its runs cost nothing, so a budget of 0 does not stop them. */
   readonly confirmFree?: boolean;
   /**
@@ -152,6 +160,7 @@ function blockStep(
       const state = stateOf(ctx.earlier);
       state.stages.add(stage);
       if (ctx.params.emit !== true) return undefined;
+      if (!state.stages.has('attribute')) return [];
       // TODO after PR 459 merges: the value-evidence step calls
       // runLadder(valueCase, policy, services) per call and maps its per-value record
       // to EvidenceInput.values. No Verdict field; do not infer a rung from a failed check.
@@ -291,6 +300,7 @@ export const CAMPAIGN_STEPS: Readonly<Record<string, BlameStep<CampaignStepConte
       const result = await runConfirm(plan, {
         budgetUsd: Number(ctx.params.budget_usd),
         ...(ctx.confirmRunner === undefined ? {} : { runner: ctx.confirmRunner }),
+        ...(ctx.confirmQuote === undefined ? {} : { quote: ctx.confirmQuote }),
         ...(ctx.confirmFree === true ? { free: true } : {}),
       });
       stateOf(ctx.earlier).confirm = result;

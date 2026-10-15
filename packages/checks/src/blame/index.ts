@@ -10,8 +10,10 @@ export {
 export { type ChainLink, chainVerdicts } from './chain';
 export {
   BEHAVIOUR,
+  type ConfirmAllowance,
   type ConfirmKind,
   type ConfirmOutcome,
+  type ConfirmQuote,
   type ConfirmResult,
   type ConfirmRunner,
   checkFixRemoval,
