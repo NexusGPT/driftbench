@@ -423,7 +423,7 @@ window.CHART_DATA = {
         "value": 638,
         "text": "638",
         "series": 0,
-        "sub": "floor: level 7"
+        "sub": "floor: level 20"
       },
       {
         "label": "Map extraction",
