@@ -15,7 +15,7 @@ import copy
 import json
 import re
 import sys
-from collections import Counter, defaultdict
+from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
