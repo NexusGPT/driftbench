@@ -357,6 +357,18 @@ Journeys: edge coverage over the route, reference, script, dispatch and next edg
 
 Pairwise: a covering array of strength t (default 2) over the situation axes, under the constraint list, with the target dimensions merged into one: every pairwise row is one atom in one situation, with the first test type of its atom's kind, live. A constraint on one target atom is carried; one that names atoms of two kinds cannot hold for a single target and is dropped (and counted). In the Northwind plan the lower bound is the targets times the deviation values, 89 times 11, or 979; the array has 980 rows.
 
+### Situation relevance in a proposed plan
+
+The default plan derives target relevance from the estate's own behavioural text and evidence. It does not hold a situation-to-atom-kind whitelist. An instruction that calls a tool remains relevant to a tool failure. A dispatch instruction remains relevant to a helper event. A rule about the tracker remains relevant regardless of whether it is an instruction or a stage.
+
+For the event axes (`session_state`, `owner_signal`, `deviation`, `estate_hazard`), the planner compares the subject words of each value's title with the atom's own quoted rule, situation or unit description. It normalizes English inflections and omits grammatical context, code spans and paths. Atom ids, file names and custom check names supply no relevance. Typed evidence supplies observable capabilities: a positive tool call supplies tools; a dispatch supplies helpers; a text predicate supplies language. Explicit reply and answer rules supply language even when checked by a custom predicate. Routes and dispatches inherit the contract of the unit they reach, transitively; unrelated neighbouring rules supply no context.
+
+The baseline of each axis and an unperturbed long session remain available. When a situation has identified targets, inferred constraints exclude its combinations with other targets before the covering array runs. Coverage counts only tuples feasible under those constraints. Mandatory contract rows and journeys keep their own obligations. A situation with no identified target stays unresolved: its combinations remain in the plan, with an explicit note. A missing match never removes an entire situation to obtain vacuous coverage.
+
+This is a lexical proposal for review, not a proof of natural-language entailment. Synonyms and multilingual conditions may need declared relevance. Supplying `--space` makes that space authoritative: its values and constraints are used without inferred exclusions. The summary exposes every inferred exclusion in `relevanceConstraints` and explains unresolved situations in `notes`. These are proposed rows, subject to approval like the rest of the plan.
+
+The captured Northwind example below uses the explicit full space exported by `estate map`; its counts precede inferred relevance.
+
 The plan of the approved Northwind map:
 
 ```
