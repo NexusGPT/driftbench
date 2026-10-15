@@ -65,6 +65,7 @@ export {
   validateInventory,
 } from './coverage';
 export {
+  type CampaignDiagnosis,
   type DiagnosticBudget,
   type DiagnosticScope,
   type DiagnosticStep,

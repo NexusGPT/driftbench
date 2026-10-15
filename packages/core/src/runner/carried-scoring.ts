@@ -262,7 +262,7 @@ export async function rescoreCarriedRun(
     );
     blocks.push(replaceScoring(item.source, scored));
   }
-  const { diagnoses: _diagnoses, ...measured } = source;
+  const { diagnoses: _diagnoses, skippedForBudget: _skippedForBudget, ...measured } = source;
   const result: RunResult = { ...measured, blocks, succession: succession(blocks), cost: 0, latencyMs: 0 };
   const diagnosed = await runRunDiagnostics(
     spanning.filter((entry) => entry.key === 'diagnostics').map((entry) => entry.object),
@@ -271,5 +271,6 @@ export async function rescoreCarriedRun(
     options.diagnosticBudget,
   );
   if (diagnosed.diagnoses.length) result.diagnoses = diagnosed.diagnoses;
+  if (diagnosed.skippedForBudget) result.skippedForBudget = diagnosed.skippedForBudget;
   return source.provenance ? { ...result, provenanceDigest: provenanceDigest(result) } : result;
 }

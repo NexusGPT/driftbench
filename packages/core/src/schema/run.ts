@@ -467,6 +467,8 @@ export const RunResult = z.strictObject({
   blocks: z.array(BlockResult),
   /** What the run-scope diagnostics wrote over the whole run. Absent when none ran; never changes a pass. */
   diagnoses: z.array(Diagnosis).optional(),
+  /** Run-scope diagnostic steps skipped because their run/model budget was exhausted. Absent when none. */
+  skippedForBudget: z.number().int().min(1).optional(),
   succession: Succession,
   recovery: Recovery.optional(),
   endState: z

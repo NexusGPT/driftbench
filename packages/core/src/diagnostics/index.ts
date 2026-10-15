@@ -1,4 +1,5 @@
 export {
+  type CampaignDiagnosis,
   type DiagnosticBudget,
   type DiagnosticScope,
   type DiagnosticStep,
