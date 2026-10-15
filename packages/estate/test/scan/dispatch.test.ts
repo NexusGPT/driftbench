@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ClaudeCodeReader, scanEstate, scriptOf } from '../../src/index';
+import { ClaudeCodeReader, lintEstate, scanEstate, scriptOf } from '../../src/index';
 import { estate, NOW } from '../support';
 import { CASES } from './cases';
 
@@ -49,11 +49,59 @@ describe('guard commands behind a prefix or a dispatcher', () => {
       anchored: true,
       dispatcher: '.claude/hooks/lib/run.py',
     });
-    // A target that exists nowhere leaves the dispatcher as the script.
+    // A target that exists nowhere is still the guard's script: the lint reports it missing.
     expect(scriptOf('python3 lib/dispatch.py gone.py', PATHS)).toEqual({
-      script: 'lib/dispatch.py',
+      script: 'gone.py',
+      anchored: false,
+      dispatcher: 'lib/dispatch.py',
+    });
+  });
+
+  it('names the missing target of a dispatcher, and reads no target into a plain script argument', () => {
+    const paths = new Set([...PATHS, 'tools/check.py', 'hooks/hookrun.sh']);
+    expect(scriptOf('python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/lib/run.py no-such-hook', paths)).toEqual({
+      script: 'no-such-hook',
+      anchored: true,
+      dispatcher: '.claude/hooks/lib/run.py',
+    });
+    expect(scriptOf('sh hooks/hookrun.sh lint_on_save --fast', paths)).toEqual({
+      script: 'lint_on_save',
+      anchored: false,
+      dispatcher: 'hooks/hookrun.sh',
+    });
+    // A hook event name or a flag is an argument, not a target.
+    expect(scriptOf('python3 .claude/hooks/lib/run.py PreToolUse', paths)).toEqual({
+      script: '.claude/hooks/lib/run.py',
       anchored: false,
     });
+    expect(scriptOf('python3 .claude/hooks/lib/run.py --verbose', paths)).toEqual({
+      script: '.claude/hooks/lib/run.py',
+      anchored: false,
+    });
+    // A script that is no dispatcher keeps its plain argument.
+    expect(scriptOf('python3 tools/check.py strict', paths)).toEqual({ script: 'tools/check.py', anchored: false });
+  });
+
+  it('lints a dispatched target that does not exist as a missing script', async () => {
+    const root = await estate({
+      'CLAUDE.md': '# Shop\n',
+      '.claude/hooks/lib/run.py': '#!/usr/bin/env python3\n',
+      '.claude/settings.json': JSON.stringify({
+        hooks: {
+          Stop: [
+            {
+              hooks: [
+                { type: 'command', command: 'python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/lib/run.py tidy-up' },
+              ],
+            },
+          ],
+        },
+      }),
+    });
+    const { map, raw } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const findings = lintEstate(map, raw).findings.filter((finding) => finding.code !== 'UNENFORCED');
+    expect(findings.map((finding) => finding.code)).toEqual(['MISSING_SCRIPT']);
+    expect(findings[0]?.message).toContain('names tidy-up');
   });
 
   it('reads the dispatched guard of a settings file, and its registry row by the target name', async () => {

@@ -275,7 +275,7 @@ The graph answers what code can walk:
 | `OVERSIZE` | the standing instructions are over the ceiling, counted in Unicode characters (code points): an emoji is one character, never its bytes or UTF-16 units |
 | `UNANCHORED_GUARD` | a guard command finds its script from the working folder, not from an anchor |
 | `MISSING_REFERENCE` | a file a body names does not exist |
-| `MISSING_SCRIPT` | a guard command runs a script that does not exist |
+| `MISSING_SCRIPT` | a guard command runs a script that does not exist; a dispatcher (a script in a `lib` folder, or named as a runner such as `run.py` or `hookrun.sh`) whose first argument names a target that no file is counts too |
 | `REGISTRY_ROW` | a guard has no row in the check registry |
 | `REGISTRY_GUARD` | a registry row names a guard the estate does not run |
 | `QUOTE_DRIFT` | an atom's quote is no longer at its span: scan again |
