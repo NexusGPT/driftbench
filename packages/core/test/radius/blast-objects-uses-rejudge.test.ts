@@ -58,7 +58,7 @@ function projectObjects(): ObjectContext {
     { kind: 'policy/value-check', id: 'strict', extends: 'default', items: [] },
     { kind: 'policy/blame', id: 'acme', items: [] },
     { kind: 'judge-council', id: 'council-3', items: [] },
-    { kind: 'diagnostic', id: 'value-mismatch', scope: 'block', steps: [] },
+    { kind: 'diagnostic', id: 'value-mismatch-fixture', scope: 'block', steps: [] },
   ];
   for (const object of definitions) {
     store.add(object, 'project', { path: `fixture/${object.kind}/${object.id}.yaml` });
@@ -72,7 +72,9 @@ const withUses = (): Spec =>
       ...original,
       uses: { blame: 'acme', judges: 'council-3' },
       blocks: original.blocks.map((block, index) =>
-        index === 0 ? { ...block, uses: { value_check: 'strict', diagnostics: ['value-mismatch'] } } : block,
+        index === 0
+          ? { ...block, uses: { value_check: 'strict', diagnostics: ['value-mismatch-fixture'] } }
+          : block,
       ),
     },
     projectObjects(),
@@ -90,7 +92,7 @@ describe('blast 443: campaign rejudge accepts a spec whose uses alone changed', 
         ['value_check', 'strict'],
         ['blame', 'acme'],
         ['judges', 'council-3'],
-        ['diagnostics', 'value-mismatch'],
+        ['diagnostics', 'value-mismatch-fixture'],
       ]),
     );
     const prepared = prepareRejudge(original, next, run, options);
