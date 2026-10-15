@@ -3,6 +3,7 @@ title: Prefixes and given
 summary: '`given.prefix` starts a block in the middle of a conversation without replaying the blocks before it, `given.origin` says where that prefix comes from, and `given.ledger`, `given.world` and `given.vars` set the facts, the world and the runtime variables a block starts from.'
 commands:
   - spec validate
+  - spec lint
   - campaign run
   - import traces
 see_also:
@@ -50,9 +51,22 @@ Whether the agent itself reads the prefix depends on the adapter. Adapters with 
 - Read a draft from `import traces`: each observed user turn becomes a block, and the state observed before it becomes that block's `given.prefix`, with `origin: recorded`.
 - Mark where a prefix comes from with `origin`, so results of a recorded history and of a written one are never read as the same test.
 
+When not to use it:
+
+- Do not add or change `origin` on a spec whose stored results you still compare. It changes the spec hash, so the new runs no longer pool with the old ones.
+- Do not put a tool result only in the assistant's prose when you test what the agent does after a real lookup. Record the call with its `output`.
+- Do not use a prefix on an adapter without `seedPrefix` (`process`, `nexus`, live Claude Code): the agent never receives it. Write the earlier turns as blocks.
+
 ## Commands and every option
 
-This is a format topic. `spec validate` and `spec lint` check the keys (see authoring-spec-check). `campaign run` uses them; its `--mode T,F,P` option picks the run modes described above (default `F`). `import traces` writes prefixes into the drafts it creates.
+This is a format topic: no command has an option for `given`. The commands below read or write it.
+
+| Command | What it does with `given` | Options that matter here |
+|---|---|---|
+| `spec validate <paths...>` | checks every key and message shape; refuses `origin` without `prefix` | `--json` prints the issues as JSON. All options in authoring-spec-check |
+| `spec lint <paths...>` | the same checks, plus warnings such as `PREFIX_PROSE_HISTORY` | `--strict` exits 1 on a warning, default off. All options in authoring-spec-check |
+| `campaign run <paths...>` | starts each block from its resolved Given | `--mode <modes>`: `T`, `F`, `P`, several with commas, default `F`. `--no-cache` runs again a block whose Given and stimulus already have a cached result |
+| `import traces <files...>` | writes a `given.prefix` with `origin: recorded` on every block after the first of each draft | `--from <source>` (`otel`, `nexus` or `claude-code`) and `--out <dir>`, both required. All options in authoring-import |
 
 ## Inputs
 
@@ -123,7 +137,7 @@ Wrote 1 draft spec to out/drafts, none approved: 2 blocks, no expect yet.
 Next: write each block's expect from the agent spec, then driftbench import approve out/drafts --all.
 (exit 0)
 $ driftbench spec lint out/drafts
-✓ out/drafts/draft-claude-code-00000000-0000-4000-8000-000000000001.yaml  draft-claude-code-00000000-0000-4000-8000-000000000001 · 2 blocks · hash c8d713f9cc9d
+✓ out/drafts/draft-claude-code-00000000-0000-4000-8000-000000000001.yaml  draft-claude-code-00000000-0000-4000-8000-000000000001 · 2 blocks · hash 0566601ed4c7
   ! blocks.0  BLOCK_NO_EXPECTATION  this block checks nothing
   ! blocks.1  BLOCK_NO_EXPECTATION  this block checks nothing
 Checked 1 spec: 1 valid, 0 invalid, 2 warnings.

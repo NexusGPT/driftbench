@@ -62,7 +62,7 @@ YAML is parsed with unique keys: a key written twice in one mapping is a `SPEC_P
 
 | Key | Type | Required | Default | Meaning |
 |---|---|---|---|---|
-| `schema_version` | whole number, 1 | no | 1 | The spec format the spec is written for. A driftbench that reads a lower version refuses the spec with `SPEC_SCHEMA_VERSION` and says to upgrade, instead of reporting its newer keys as unknown. Written, it is part of the spec and its hash. |
+| `schema_version` | whole number, 1 | no | 1 | The spec format the spec is written for. A driftbench that reads a lower version refuses the spec with `SPEC_SCHEMA_VERSION` and says to upgrade, instead of reporting its newer keys as unknown. Written, it is part of the spec and its hash. It is not the free `version` label below. |
 | `id` | string matching `^[A-Za-z0-9][A-Za-z0-9._-]*$` | yes | none | The spec id. Run ids and reports use it. |
 | `version` | string | no | none | A free label. The content hash, not this label, is the cache key. Quote numbers: `version: '1'`. |
 | `kind` | `conversation` or `task` | no | `conversation` | A conversation with a chat agent, or a task for a code agent in a workspace. |
@@ -303,6 +303,48 @@ The runs are not kept: pass --store <file> to keep them.
 
 The campaign id holds the clock, so it differs on each run. The criterion has no verdict because no judge is loaded; the block still passes on its machine checks.
 
+### A spec written for a newer format
+
+`schema_version` says which spec format a file is written for. This driftbench reads format 1. A spec that says 1 loads as before; its hash changes, because the key is now part of the spec. A spec that says 2 is refused with one error, before any of its keys is read:
+
+```yaml file=out/authoring-spec-format/formats/current.yaml
+schema_version: 1
+id: format-current
+blocks:
+  - user: Hi, I'm already an Acme customer and I want more data.
+    expect:
+      must: ['email address']
+```
+
+```yaml file=out/authoring-spec-format/newer/next.yaml
+schema_version: 2
+id: format-next
+blocks:
+  - user: Hi, I'm already an Acme customer and I want more data.
+    persona: terse-regular
+    expect:
+      must: ['email address']
+```
+
+```sh
+driftbench spec validate out/authoring-spec-format/formats/current.yaml
+driftbench spec validate out/authoring-spec-format/newer/next.yaml # exit 1
+```
+
+```text
+$ driftbench spec validate out/authoring-spec-format/formats/current.yaml
+✓ out/authoring-spec-format/formats/current.yaml  format-current · 1 block · hash 09681194e96f
+Checked 1 spec: 1 valid, 0 invalid, 0 warnings.
+(exit 0)
+$ driftbench spec validate out/authoring-spec-format/newer/next.yaml
+✗ out/authoring-spec-format/newer/next.yaml
+    schema_version  SPEC_SCHEMA_VERSION  the spec is written for spec format version 2; this driftbench reads version 1 and older: upgrade driftbench
+Checked 1 spec: 0 valid, 1 invalid, 0 warnings.
+(exit 1)
+```
+
+The second spec carries a block key, `persona`, that format 1 does not know. driftbench names the format, not that key, so the fix is plain: upgrade driftbench, or remove `schema_version` and the newer keys.
+
 ## Common errors
 
 Four broken files in `out/authoring-spec-format/bad/`:
@@ -333,4 +375,6 @@ Checked 4 specs: 0 valid, 4 invalid, 0 warnings.
 | `SCHEMA_INVALID_VALUE` on `kind` | a kind other than the two | `conversation` or `task` |
 | `SCHEMA_UNRECOGNIZED_KEYS` | a key the format does not know | move free data under `metadata` or `tags` |
 | `SPEC_NOT_OBJECT` | the file holds a list or a scalar | one mapping per file |
+| `SPEC_SCHEMA_VERSION`: `the spec is written for spec format version 2; this driftbench reads version 1 and older: upgrade driftbench` | `schema_version` is a whole number above the format this driftbench reads | upgrade driftbench, or write the spec in format 1 |
+| `SCHEMA_TOO_SMALL` or `SCHEMA_INVALID_TYPE` on `schema_version` | `schema_version: 0`, `1.5` or `'1'` | a whole number, 1 or more, with no quotes |
 | `SPEC_PARSE` | the YAML or JSON does not parse, a key is repeated, or the path does not exist | fix the syntax or the path |
