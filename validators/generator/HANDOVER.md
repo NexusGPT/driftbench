@@ -19,6 +19,7 @@ D6 product change committed (`90832b3d5`), per the D6 maintainer ruling: an appr
 
 * Level 15 on seeds 1, 2, 3 fails only `sequence.stages.D8_tool_failure`. It asks for D8 probes at stages the rendered map forbids: `render.ts:542` adds `possible.ts` impossible pairs, which forbid `{deviation: D8_tool_failure, stage: <stage>}` exactly at the stages the item lists, while the item reads `hidden.constraints` only (`bank2.ts:288-294`). Sent to the lead for a ruling (item 14 below); no product change.
 * Hidden 425515389 fails `phrases.behaviours` (3 of 6 behaviour phrases unsaid). PRs 475 and 507 say all 6 on that seed; not caused by the D6 change.
+* All levels on seed 2 at `90832b3d5` (`--all-levels`, `.exec/all-s2.json`): levels 1 to 14, 17, 20, 21 and 22 pass. The other failures are all on the rulings list below: 15 `sequence.stages.D8_tool_failure` (item 14); 16 `allocation.stage.present`, `ratio`, `evenness`, `hill1`, with opening at 0 placements (item 7); 18 `minimal.*`, 54 of 55 (item 4); 19 `contrast.read`/`list.integer.at-minimum-above-minimum` (item 2) and `contrast.write.integer.*` (item 1). No product-only change is left for seed 2 without a ruling.
 * The Acme reference agent passes the regenerated Acme suite only with PR 514 (file and tool-result guard); without it the 26 D6 blocks of `acme-generated.test.ts` fail. This branch depends on PR 514.
 
 ## Earlier: iteration 21
