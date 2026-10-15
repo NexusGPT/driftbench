@@ -37,8 +37,8 @@ export type DiagnosticStepContext = {
   readonly earlier: readonly Diagnosis[];
 };
 
-/** What a step writes: a diagnosis without its stamp; the runner adds `diagnostic`, `step` and `by`. */
-export type StepOutput = Omit<Diagnosis, 'diagnostic' | 'step' | 'by'>;
+/** A step can name its deciding rule in `by`; the runner then records the executing step in `via`. */
+export type StepOutput = Omit<Diagnosis, 'diagnostic' | 'step' | 'by' | 'via'> & { by?: By };
 
 /** A step implementation a diagnostic item names by its impl. */
 export type DiagnosticStep = {
@@ -80,19 +80,63 @@ export function diagnosticStep(name: string): DiagnosticStep | undefined {
 /** How much a block's diagnostics may spend: the number of `run` and `model` steps they may take. Default 0. */
 export type DiagnosticBudget = { runs?: number };
 
-/** Does the diagnostic's `when` hold for these verdicts? Absent `when` fires always. */
-export function triggers(object: ResolvedObject, verdicts: readonly Verdict[]): boolean {
-  const when = object.fields.when as
-    | { always?: true; any_verdict?: { name?: string; outcome?: string; id_contains?: string } }
-    | undefined;
+type MatchValue = string | readonly string[];
+type DiagnosticWhen = {
+  always?: true;
+  any_verdict?: { name?: string; outcome?: string; id_contains?: string; gating?: boolean };
+  any_diagnosis?: {
+    diagnostic?: MatchValue;
+    step?: MatchValue;
+    disposition?: MatchValue;
+    confidence?: MatchValue;
+  };
+};
+
+function matches(wanted: MatchValue | undefined, value: string | undefined): boolean {
+  return (
+    wanted === undefined ||
+    (typeof wanted === 'string' ? wanted === value : wanted.some((entry) => entry === value))
+  );
+}
+
+function matchesDiagnostic(wanted: MatchValue | undefined, ref: string): boolean {
+  if (wanted === undefined) return true;
+  const id = /^diagnostic:([^@]+)@[^@]+$/.exec(ref)?.[1];
+  return (
+    matches(wanted, ref) || (id !== undefined && (matches(wanted, id) || matches(wanted, `diagnostic:${id}`)))
+  );
+}
+
+/** Any declared trigger may fire. Filters within a trigger must all match the same record. */
+export function triggers(
+  object: ResolvedObject,
+  verdicts: readonly Verdict[],
+  diagnoses: readonly Diagnosis[] = [],
+): boolean {
+  const when = object.fields.when as DiagnosticWhen | undefined;
   if (when === undefined || when.always === true) return true;
-  const match = when.any_verdict;
-  if (!match) return false;
-  return verdicts.some(
-    (verdict) =>
-      (match.name === undefined || verdict.name === match.name) &&
-      (match.outcome === undefined || verdict.outcome === match.outcome) &&
-      (match.id_contains === undefined || verdict.id.includes(match.id_contains)),
+  const verdictMatch = when.any_verdict;
+  if (
+    verdictMatch &&
+    verdicts.some(
+      (verdict) =>
+        (verdictMatch.name === undefined || verdict.name === verdictMatch.name) &&
+        (verdictMatch.outcome === undefined || verdict.outcome === verdictMatch.outcome) &&
+        (verdictMatch.id_contains === undefined || verdict.id.includes(verdictMatch.id_contains)) &&
+        (verdictMatch.gating === undefined || verdict.gating === verdictMatch.gating),
+    )
+  )
+    return true;
+  const diagnosisMatch = when.any_diagnosis;
+  return (
+    diagnosisMatch !== undefined &&
+    diagnoses.some(
+      (diagnosis) =>
+        matchesDiagnostic(diagnosisMatch.diagnostic, diagnosis.diagnostic) &&
+        matches(diagnosisMatch.step, diagnosis.step) &&
+        matches(diagnosisMatch.disposition, diagnosis.disposition) &&
+        matches(diagnosisMatch.confidence, diagnosis.confidence),
+    )
   );
 }
 
@@ -102,6 +146,7 @@ export function scopeOf(diagnostic: ResolvedObject): DiagnosticScope {
 }
 
 type ScopeInput = {
+  diagnoses?: readonly Diagnosis[];
   check?: CheckContext;
   run?: RunResult;
   runs?: readonly RunResult[];
@@ -125,7 +170,11 @@ async function runScope(
   let left = budget.runs ?? 0;
   let skippedForBudget = 0;
   for (const diagnostic of diagnostics) {
-    if (scopeOf(diagnostic) !== scope || !triggers(diagnostic, input.verdicts)) continue;
+    if (
+      scopeOf(diagnostic) !== scope ||
+      !triggers(diagnostic, input.verdicts, [...(input.diagnoses ?? []), ...diagnoses])
+    )
+      continue;
     const own: Diagnosis[] = [];
     for (const item of diagnostic.items) {
       if (!item.enabled) continue;
@@ -135,7 +184,8 @@ async function runScope(
         ...output,
         diagnostic: diagnostic.ref,
         step: item.id,
-        by,
+        by: output.by ?? by,
+        ...(output.by === undefined ? {} : { via: by }),
       });
       if (!step) {
         own.push(stamp({ summary: `no diagnostic step is registered as ${item.impl}` }));
@@ -189,7 +239,12 @@ export function runRunDiagnostics(
   return runScope(
     'run',
     diagnostics,
-    { run, verdicts: run.blocks.flatMap((block) => block.verdicts), objects },
+    {
+      run,
+      verdicts: run.blocks.flatMap((block) => block.verdicts),
+      diagnoses: [...run.blocks.flatMap((block) => block.diagnoses ?? []), ...(run.diagnoses ?? [])],
+      objects,
+    },
     budget,
   );
 }
@@ -204,5 +259,9 @@ export function runCampaignDiagnostics(
   budget: DiagnosticBudget = {},
 ): Promise<{ diagnoses: Diagnosis[]; skippedForBudget: number }> {
   const verdicts = runs.flatMap((run) => run.blocks.flatMap((block) => block.verdicts));
-  return runScope('campaign', diagnostics, { runs, verdicts, objects: [] }, budget);
+  const diagnoses = runs.flatMap((run) => [
+    ...run.blocks.flatMap((block) => block.diagnoses ?? []),
+    ...(run.diagnoses ?? []),
+  ]);
+  return runScope('campaign', diagnostics, { runs, verdicts, diagnoses, objects: [] }, budget);
 }

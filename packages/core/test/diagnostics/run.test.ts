@@ -153,6 +153,7 @@ describe('a diagnostic', () => {
       },
     ]);
     expect(result.blocks[1]?.resolved?.objects.map((entry) => [entry.key, entry.id])).toEqual([
+      ['value_check', 'default'],
       ['check_set', 'default'],
       ['diagnostics', 'explain-fails'],
     ]);

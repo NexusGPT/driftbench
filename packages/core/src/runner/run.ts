@@ -8,7 +8,7 @@ import { gateToolCalls, type ToolRule } from '../contracts/tool-policy';
 import { type DiagnosticBudget, runRunDiagnostics } from '../diagnostics/run';
 import { bindObjectContext, objectContextOfSpec } from '../objects/context';
 import { checkSpecObjects } from '../objects/index';
-import { type ObjectContext, resolveBlockObjects, shippedObjectContext, type UsedObject } from '../objects/layers';
+import { type ObjectContext, resolveBlockObjects, shippedObjectContext } from '../objects/layers';
 import { scoringPlan } from '../objects/scoring';
 import { type BlockReuse, planBlockRerun } from '../radius/blocks';
 import { collectRetries, type RetryPolicy, retryPolicy } from '../retry';
@@ -478,6 +478,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
               run.scoringOf(step.blockIndex),
               planned.lastSpecBlock && composed ? endStateValue(run.endState, sources, composed) : undefined,
               run.artifacts,
+              run.diagnosticBudget,
             ),
           );
         }
@@ -628,6 +629,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
           users,
           contradictions: facts.contradictions,
         },
+        run.diagnosticBudget,
       );
       const block = {
         index: position,

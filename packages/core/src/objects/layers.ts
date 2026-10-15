@@ -269,7 +269,8 @@ export function resolveBlockObjects(
       // No layer names a list: the shipped diagnostics marked `default: true` run. `diagnostics: []` runs none.
       const ids =
         (reference?.ref as string[] | undefined) ??
-        (options.explicitOnly
+        (options.explicitOnly &&
+        !(context.cli?.set ?? []).some((set) => set.kind === kind && set.id === undefined)
           ? []
           : context.store
               .list(kind)

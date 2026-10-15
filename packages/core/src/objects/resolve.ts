@@ -175,6 +175,25 @@ export const BUILTIN_KINDS: readonly KindDef[] = [
               name: z.string().min(1).optional(),
               outcome: z.enum(['pass', 'fail', 'inconclusive', 'not_applicable']).optional(),
               id_contains: z.string().min(1).optional(),
+              gating: z.boolean().optional(),
+            })
+            .optional(),
+          any_diagnosis: z
+            .strictObject({
+              diagnostic: z.union([z.string().min(1), z.array(z.string().min(1))]).optional(),
+              step: z.union([z.string().min(1), z.array(z.string().min(1))]).optional(),
+              disposition: z
+                .union([
+                  z.enum(['agent', 'shared', 'setup', 'excluded', 'credited', 'unassigned']),
+                  z.array(z.enum(['agent', 'shared', 'setup', 'excluded', 'credited', 'unassigned'])),
+                ])
+                .optional(),
+              confidence: z
+                .union([
+                  z.enum(['static', 'undecided', 'confirmed']),
+                  z.array(z.enum(['static', 'undecided', 'confirmed'])),
+                ])
+                .optional(),
             })
             .optional(),
         })

@@ -321,6 +321,8 @@ export const Diagnosis = z.strictObject({
   /** The local copies a shared fix makes redundant, to remove. */
   removeCopies: z.array(z.string().min(1)).optional(),
   by: By,
+  /** The executing diagnostic step, when `by` names a more specific deciding rule. */
+  via: By.optional(),
 });
 export type Diagnosis = z.infer<typeof Diagnosis>;
 
