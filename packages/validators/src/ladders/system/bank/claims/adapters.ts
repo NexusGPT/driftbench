@@ -3763,7 +3763,7 @@ await store.close();
         const after = Number(readByHand(path, 'PRAGMA user_version')?.user_version);
         return expectAll([
           [code === 'no error', `expected the upgraded store to work, got ${code}`],
-          [after === 2, `expected schema version 2 after the upgrade, got ${after}`],
+          [after === 3, `expected schema version 3 after the upgrade, got ${after}`],
         ]);
       },
     }),
