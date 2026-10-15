@@ -36,7 +36,7 @@ The finding for M1.1: an LLM equivalence judge, given the class's own surface fo
 - First rejecting stage over all 518 rejected candidates: axis_conformance 415, near_duplicate 76, equivalence_judge 25, slot_presence 2.
 - Post-gate coverage of the accepted rows: 2-way 0.970 to 1.000, 3-way 0.688 to 0.884 per block. The planned arrays had 2-way 1.000.
 - Surface diversity: Vendi score with a character 1- to 4-gram kernel, 2.9 to 5.8 per block, 0.10 to 0.24 of the set size. All blocks fall below the `min_vendi_ratio: 0.5` of the class schema. With a character kernel, strings that share the same slot values score as similar, so this threshold needs recalibration before it can gate anything.
-- Generation and gate cost for these 300 rows: 0.633 USD (see `../LEDGER.md`).
+- Generation and gate cost for these 300 rows: 0.252 USD (batch `gen-h1` in `../LEDGER.md`). The `usd` figure printed in `../data/h1/gen.log` (0.633) is wrong: it is the growth of the shared usage log while the H2 generations ran at the same time.
 
 ## Deviations
 - Amendment 1 (before scaled data): the gate fixes after three tiny samples. See `PREREG.md`.
