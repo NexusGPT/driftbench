@@ -10,7 +10,7 @@ Status: the estate reader, the session reader, the replay adapter, the ordered-p
 |---|---|
 | Instruction, gate | `CLAUDE.md`, `.claude/CLAUDE.md` and `CLAUDE.local.md`, memory files under `.claude/memory/`, the bodies of `SKILL.md` files and agent files |
 | Route | the `description` of each skill and agent, rows of a routing table in the standing file that name a skill or an agent |
-| Skill, reference, script | a skill folder, `.claude/skills/<name>/`: `SKILL.md` (frontmatter, with `allowed-tools`, and body), the files it names, its scripts, the hooks in its frontmatter |
+| Skill, reference, script | a skill folder, `.claude/skills/<name>/`: `SKILL.md` (frontmatter, with `allowed-tools`, and body), the files it names, its scripts, the hooks in its frontmatter; two folders that declare one skill name are both read, and each later one is noted with the file of the first |
 | Subagent | `.claude/agents/*.md`: name, description, tools, model, effort, skills, the body |
 | Guard | hooks in `.claude/settings.json` and `.claude/settings.local.json` (event, matcher, command) and in skill frontmatter; a `prompt` hook is a guard with its prompt and no script; an event whose hooks are not a list of matcher groups, or a group with no `hooks` list, is noted on its file, never dropped silently; the hook source, a check registry (a `.md` or `.json` file whose name holds "registry") when the estate keeps one |
 | Tool | permission rules in the settings, and the tools a skill or an agent declares. MCP servers, deferred tools and plugin folders are not read yet. |

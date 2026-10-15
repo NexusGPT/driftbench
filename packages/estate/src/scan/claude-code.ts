@@ -235,6 +235,17 @@ export class ClaudeCodeReader implements EstateReader {
         addProse(estate, file, frontmatter.bodyLine, lastLine(file.text), budget);
       }
     }
+    // Keep declarations intact and report name collisions in one pass per read.
+    const skillsByName = new Map<string, string>();
+    for (const skill of estate.skills) {
+      const earlier = skillsByName.get(skill.name);
+      if (earlier !== undefined) {
+        estate.notes.push({
+          file: skill.file,
+          message: `duplicate skill name ${skill.name}: also declared in ${earlier}`,
+        });
+      } else skillsByName.set(skill.name, skill.file);
+    }
     await readRootReferences(root, estate, ignored, budget);
     // The registry comes last: a row names its guard by a script, a check id or an id the script holds,
     // so every guard is known before a row is matched to one.
