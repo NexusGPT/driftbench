@@ -5,11 +5,14 @@ import type { DriverStep, UserDriver } from '../contracts/driver';
 import { copyHistory, freezeMessage } from '../contracts/history';
 import type { Store } from '../contracts/store';
 import { gateToolCalls, type ToolRule } from '../contracts/tool-policy';
+import { objectContextOfSpec } from '../objects/context';
+import { checkSpecObjects, type ObjectContext, shippedObjectContext } from '../objects/index';
 import { type BlockReuse, planBlockRerun } from '../radius/blocks';
 import { collectRetries, type RetryPolicy, retryPolicy } from '../retry';
 import type { Message, TargetRef, WorldState } from '../schema/common';
 import {
   type BlockResult,
+  type NotRun,
   Observed,
   type RetryEvent,
   type RunEvent,
@@ -28,6 +31,7 @@ import {
   unwrapEndState,
   wrapEndState,
 } from './cache';
+import { capabilityGap } from './capability';
 import { recheckCarriedEndState } from './carried-end-state';
 import { cellId } from './cell';
 import { driftOf } from './drift';
@@ -38,6 +42,7 @@ import {
   canonicalGiven,
   enterBlock,
   initialGiven,
+  type RunningGiven,
   resolveGiven,
   stimulusMessages,
 } from './given';
@@ -48,6 +53,7 @@ import { type RecoveryOptions, recoveryOf } from './recovery';
 import { CallFailure, describeError, type RetryOptions, retryLayer, withRetry } from './retry';
 import { canonicalPreviousStage, flowVerdicts, readStage, stageSignatures } from './stages';
 import { succession } from './succession';
+import { blockStatus, isScored } from './verdicts';
 
 /**
  * What the runner reports as it runs, in order: a block starting, each tool call the adapter recorded, each retry a block took,
@@ -57,6 +63,8 @@ import { succession } from './succession';
 export type { RunEvent };
 
 export type RunOptions = {
+  /** Defaults to the context carried by the loaded spec. */
+  objects?: ObjectContext;
   /** Dated, user-supplied USD prices for token-only observations. */
   prices?: TokenPrices;
   /** A budgeted campaign cannot continue with an unpriced token-only block. */
@@ -69,6 +77,11 @@ export type RunOptions = {
   recordProvenance?: boolean;
   /** Opt in: raw adapter end-state values are stored like observations, and may contain sensitive data. */
   recordEndStateSnapshots?: boolean;
+  /**
+   * Opt in: a block whose driver sent other text than the spec wrote keeps that text (`realized.text`), not
+   * only its hash. What a driver writes may be private.
+   */
+  recordRealizedText?: boolean;
   /** Execute only these spec blocks; supported in independent mode T only. */
   blocks?: ReadonlySet<number>;
   blockReuse?: BlockReuse;
@@ -138,6 +151,10 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
   if (options.store && options.campaignId === undefined) {
     throw new Error('runSpec: a store needs a campaignId to file the run under');
   }
+  const objects = options.objects ?? objectContextOfSpec(spec) ?? shippedObjectContext();
+  const objectErrors = checkSpecObjects(spec, objects);
+  if (objectErrors.length)
+    throw new RunnerError(objectErrors.map((issue) => `${issue.code}: ${issue.message}`).join('; '));
   const now = options.now ?? (() => new Date());
   const specHash = contentHash(spec);
   // The cache key leaves out the spec's version label and its scoring-only `uses` (cacheSpecHash).
@@ -197,6 +214,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     blockRerunReason,
     carriedBlocks,
     recordEndStateSnapshots: options.recordEndStateSnapshots === true,
+    recordRealizedText: options.recordRealizedText === true,
     spec,
     specHash,
     cacheSpecHash,
@@ -261,6 +279,7 @@ type RunContext = {
   blockRerunReason: string | undefined;
   carriedBlocks: Map<number, BlockResult> | undefined;
   recordEndStateSnapshots: boolean;
+  recordRealizedText: boolean;
   prices: TokenPrices | undefined;
   requireTokenPrices: boolean;
   provenance: RunResult['provenance'];
@@ -296,6 +315,26 @@ type RunContext = {
   signatures: Map<string, Set<string>>;
   recovery: RecoveryOptions;
 };
+
+/**
+ * The text the driver sent, when it differs from the text the spec block wrote: its hash, and the text
+ * itself when the run asked for it. The text is the user messages the agent received, joined by newlines.
+ * Only the text counts: the same text sent in another form (an injection instead of a user turn) records
+ * nothing, since `injected` and the stimulus hash say that. A scripted run sends what the spec wrote and
+ * records nothing.
+ */
+function realizedOf(planned: PlannedStep, withText: boolean): { realized?: { hash: string; text?: string } } {
+  const sent = stimulusText(planned.stimulus);
+  if (sent === stimulusText(planned.block.when)) return {};
+  return { realized: { hash: provenanceHash(sent), ...(withText ? { text: sent } : {}) } };
+}
+
+/** The user messages a stimulus sends, joined by newlines. */
+function stimulusText(stimulus: Stimulus): string {
+  return stimulusMessages(stimulus)
+    .map((message) => message.content)
+    .join('\n');
+}
 
 /** One step of the driver, resolved against the spec. */
 type PlannedStep = {
@@ -352,6 +391,8 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
   let status: RunResult['status'] = 'completed';
   let endVerdict: RunResult['endVerdict'];
   let error: string | undefined;
+  /** F and P: a prefix the spec wrote at a block run so far; the session holds it from there on. */
+  let prefixWritten = false;
 
   try {
     for (let position = 0; ; position++) {
@@ -424,10 +465,75 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
           await channel.restart();
           history = copyHistory(planned.given.prefix);
           users = userMessagesOf(history);
+          prefixWritten = planned.given.prefix.length > 0;
         }
       }
-      const user = stimulusMessages(planned.stimulus).map(freezeMessage);
       const given = resolveGiven(state, history, run.target);
+      // The capability check: a layer the adapter cannot apply makes the block not_run, never a silent drop.
+      const notRun = capabilityGap(run.adapter.id, run.capabilities, {
+        // In mode T the block starts from the canonical history: the latest written prefix, then the blocks
+        // after it; in F and P from the prefix the spec wrote, the session holding the agent's own turns.
+        ...(run.mode === 'T'
+          ? history.length === 0
+            ? {}
+            : {
+                prefix: latestPrefixWritten(spec, step.kind === 'block' ? step.blockIndex : position)
+                  ? ('authored' as const)
+                  : ('canonical' as const),
+              }
+          : prefixWritten
+            ? { prefix: 'authored' as const }
+            : {}),
+        world: state.world,
+      });
+      if (notRun) {
+        const specIndex = step.kind === 'block' ? step.blockIndex : step.beforeBlock;
+        const ledger = addFacts(state.ledger, planned.expect.ledger_add).ledger;
+        blocks.push(
+          notRunBlock(run, position, planned, { givenHash: given.hash, specIndex, ledger }, notRun),
+        );
+        if (run.mode === 'T') continue;
+        // In F and P the free conversation cannot go past a block it did not run: every later spec block is
+        // not run either, and the driver is not asked for more steps.
+        // Each later block is stamped as a run reconstructs it (a re-judge checks the stamps): the blocks before
+        // it with their user messages and an empty reply, and the facts their ledger_add establishes.
+        const from = step.kind === 'block' ? step.blockIndex + 1 : nextBlock;
+        let laterState: RunningGiven = { ...state, ledger };
+        let laterHistory = copyHistory(history, [
+          ...stimulusMessages(planned.stimulus),
+          assistantMessage(NOT_SENT),
+        ]);
+        for (let index = from; index < spec.blocks.length; index++) {
+          const later = planStep(spec, {
+            kind: 'block',
+            blockIndex: index,
+            stimulus: (spec.blocks[index] as BlockSpec).when,
+          });
+          laterState = enterBlock(laterState, later.given);
+          if (later.given?.prefix) laterHistory = copyHistory(later.given.prefix);
+          const laterHash = resolveGiven(laterState, laterHistory, run.target).hash;
+          const laterLedger = addFacts(laterState.ledger, later.expect.ledger_add).ledger;
+          laterState = { ...laterState, ledger: laterLedger };
+          laterHistory = copyHistory(laterHistory, [
+            ...stimulusMessages(later.stimulus),
+            assistantMessage(NOT_SENT),
+          ]);
+          blocks.push(
+            notRunBlock(
+              run,
+              blocks.length,
+              later,
+              { givenHash: laterHash, specIndex: index, ledger: laterLedger },
+              {
+                ...notRun,
+                got: `block ${position} was not run, so the conversation cannot reach this block: ${notRun.got}`,
+              },
+            ),
+          );
+        }
+        break;
+      }
+      const user = stimulusMessages(planned.stimulus).map(freezeMessage);
       const turn: Turn = {
         index: position,
         stimulus: planned.stimulus,
@@ -546,6 +652,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         index: position,
         ...(planned.blockId !== undefined ? { blockId: planned.blockId } : {}),
         ...(planned.injected ? { injected: true } : {}),
+        ...realizedOf(planned, run.recordRealizedText),
         ...(capture
           ? {
               provenance: {
@@ -567,7 +674,12 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         pass: all.every((verdict) => !verdict.gating || verdict.outcome === 'pass'),
       };
       blocks.push(block);
-      run.onEvent?.({ type: 'block_end', index: position, pass: block.pass, at: new Date().toISOString() });
+      run.onEvent?.({
+        type: 'block_end',
+        index: position,
+        pass: blockStatus(block) === 'pass',
+        at: new Date().toISOString(),
+      });
     }
   } catch (cause) {
     if (cause instanceof TokenPriceError) {
@@ -586,7 +698,9 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
   let endState: EndStateMatch | undefined;
   // The value read, kept in the run so a later reader compares end states without reading them again.
   let value: unknown;
-  if (run.endState !== undefined) {
+  // A run with a block that was not run never reached its end: its end state is not compared, so a setup
+  // gap never reads as a failure of the agent.
+  if (run.endState !== undefined && blocks.every(isScored)) {
     let states = endRead?.afterBlock === blocks.length - 1 ? endRead.states : undefined;
     let unreadable = 'no block ran, so no session was open to read from';
     if (!states && lastKey !== undefined) {
@@ -661,6 +775,66 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
     startedAt: run.startedAt,
     finishedAt: run.now().toISOString(),
     cacheHit: channel.replay,
+  };
+}
+
+/**
+ * Mode T: whether the history block `index` starts from holds a prefix the spec wrote. The latest block up to
+ * this one that writes `given.prefix` sets the history; an empty prefix clears it.
+ */
+function latestPrefixWritten(spec: Spec, index: number): boolean {
+  for (let at = index; at >= 0; at--) {
+    const prefix = spec.blocks[at]?.given?.prefix;
+    if (prefix !== undefined) return prefix.length > 0;
+  }
+  return false;
+}
+
+/** The Observed of a block that was never sent: nothing happened, at no cost. */
+const NOT_SENT: Observed = { segments: [], text: '', toolCalls: [], cost: {}, latencyMs: 0 };
+
+/**
+ * A block that was never sent: nothing observed, no verdict, never a pass. Reports its start and end. With
+ * provenance, it carries the same block stamp as a block that ran (spec index, stimulus and ledger hashes, no
+ * artifact), so a run that holds it can still be re-judged on its other blocks.
+ */
+function notRunBlock(
+  run: RunContext,
+  position: number,
+  planned: PlannedStep,
+  stamp: { givenHash: string; specIndex: number; ledger: Record<string, unknown> },
+  notRun: NotRun,
+): BlockResult {
+  run.onEvent?.({ type: 'block_start', index: position, at: new Date().toISOString() });
+  run.onEvent?.({
+    type: 'block_end',
+    index: position,
+    pass: false,
+    status: 'not_run',
+    at: new Date().toISOString(),
+  });
+  return {
+    index: position,
+    ...(planned.blockId !== undefined ? { blockId: planned.blockId } : {}),
+    ...(planned.injected ? { injected: true } : {}),
+    ...(run.provenance
+      ? {
+          provenance: {
+            specIndex: stamp.specIndex,
+            stimulusHash: provenanceHash(planned.stimulus),
+            ledgerHash: provenanceHash(stamp.ledger),
+            artifacts: [],
+          },
+        }
+      : {}),
+    givenHash: stamp.givenHash,
+    observed: { ...NOT_SENT, segments: [], toolCalls: [], cost: {} },
+    verdicts: [],
+    ledgerCheck: { ok: true, contradictions: [] },
+    drift: [],
+    pass: false,
+    status: 'not_run',
+    notRun,
   };
 }
 

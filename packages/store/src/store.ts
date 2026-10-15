@@ -2,14 +2,18 @@ import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import type { DatabaseSync, SQLInputValue, StatementSync } from 'node:sqlite';
 import {
+  applyRealizedTextPolicy,
+  blockStatus,
   Campaign,
   type CostUnit,
   canonicalJson,
   type LoadedSpec,
   Observed,
+  objectContextOfSpec,
   type RunFilter,
   RunResult,
   type Store,
+  shippedObjectContext,
   validateSpec,
 } from '@agent-nexus/driftbench-core';
 import { type BundleSource, type CampaignBundle, readCampaignBundle, writeCampaignBundle } from './bundle';
@@ -27,6 +31,12 @@ import {
   versionHash,
 } from './registry';
 import { SCHEMA_SQL, SCHEMA_VERSION } from './schema';
+import {
+  bindStoredSpec,
+  isSpecObjectIdentities,
+  recordedObjectsOfSpec,
+  specObjectIdentities,
+} from './spec-objects';
 import { loadSqlite } from './sqlite';
 import { unitProblems } from './units';
 
@@ -125,6 +135,11 @@ function statements(db: DatabaseSync) {
        ON CONFLICT (id, hash) DO UPDATE SET path = excluded.path, yaml = excluded.yaml`,
     ),
     selectSpec: db.prepare('SELECT path, yaml FROM specs WHERE id = ? AND hash = ?'),
+    upsertSpecObjects: db.prepare(
+      `INSERT INTO spec_objects (spec_id, spec_hash, json) VALUES (?, ?, ?)
+       ON CONFLICT (spec_id, spec_hash) DO UPDATE SET json = excluded.json`,
+    ),
+    selectSpecObjects: db.prepare('SELECT json FROM spec_objects WHERE spec_id = ? AND spec_hash = ?'),
     insertCampaignIfNew: db.prepare(
       'INSERT INTO campaigns (id, json, created_at) VALUES (?, ?, ?) ON CONFLICT (id) DO NOTHING',
     ),
@@ -196,7 +211,7 @@ export class SqliteStore implements Store {
   async putSpec(spec: LoadedSpec): Promise<void> {
     this.live();
     if (spec?.ok !== true) throw new StoreError('INVALID_RECORD', 'putSpec takes a spec the loader accepted');
-    const checked = validateSpec(spec.spec, spec.path);
+    const checked = validateSpec(spec.spec, spec.path, { objects: objectContextOfSpec(spec.spec) });
     if (!checked.ok) {
       const errors = checked.errors.slice(0, 5).map((issue) => `${issue.path}: ${issue.message}`);
       throw new StoreError('INVALID_RECORD', `putSpec refused an invalid spec: ${errors.join('; ')}`);
@@ -207,7 +222,14 @@ export class SqliteStore implements Store {
         `putSpec refused spec ${checked.spec.id}: its hash says ${spec.hash} but its content hashes to ${checked.hash}`,
       );
     }
-    this.sql.upsertSpec.run(checked.spec.id, checked.hash, spec.path, canonicalJson(checked.spec), now());
+    const objects = specObjectIdentities(
+      checked.spec,
+      objectContextOfSpec(checked.spec) ?? shippedObjectContext(),
+    );
+    transaction(this.db, () => {
+      this.sql.upsertSpec.run(checked.spec.id, checked.hash, spec.path, canonicalJson(checked.spec), now());
+      this.sql.upsertSpecObjects.run(checked.spec.id, checked.hash, canonicalJson(objects));
+    });
   }
 
   async getSpec(id: string, hash: string): Promise<LoadedSpec | undefined> {
@@ -215,7 +237,9 @@ export class SqliteStore implements Store {
     const row = this.sql.selectSpec.get(id, hash);
     if (row === undefined) return undefined;
     const where = `the specs row ${id}@${hash}`;
-    const loaded = validateSpec(parseColumn(row, 'yaml', where), text(row, 'path', where));
+    const loaded = validateSpec(parseColumn(row, 'yaml', where), text(row, 'path', where), {
+      resolveObjects: false,
+    });
     if (!loaded.ok) {
       const errors = loaded.errors.slice(0, 5).map((issue) => `${issue.path}: ${issue.message}`);
       throw corrupt(`${where} does not hold a valid spec: ${errors.join('; ')}`);
@@ -223,7 +247,12 @@ export class SqliteStore implements Store {
     if (loaded.spec.id !== id || loaded.hash !== hash) {
       throw corrupt(`${where} holds spec ${loaded.spec.id}@${loaded.hash}`);
     }
-    return loaded;
+    const objectsRow = this.sql.selectSpecObjects.get(id, hash);
+    const identities = objectsRow === undefined ? undefined : parseColumn(objectsRow, 'json', where);
+    if (identities !== undefined && !isSpecObjectIdentities(identities)) {
+      throw corrupt(`${where} holds invalid object identities`);
+    }
+    return bindStoredSpec(loaded, identities);
   }
 
   async putCampaign(campaign: Campaign): Promise<void> {
@@ -422,16 +451,26 @@ export class SqliteStore implements Store {
 
   /**
    * Reads a folder `exportCampaign` wrote and stores its campaign and runs, all or nothing. The
-   * campaign must be new to this store or equal to the one it holds. Returns what it read.
+   * campaign must be new to this store or equal to the one it holds. Returns the stored runs
+   * after applying its text policy, alongside the verified source manifest.
    */
   async importCampaign(folder: string): Promise<CampaignBundle> {
     this.live();
     const bundle = await readCampaignBundle(folder);
+    bundle.runs = bundle.runs.map((run) =>
+      applyRealizedTextPolicy(run, bundle.campaign.provenance?.realizedText === true, {
+        fromRun: run.runId,
+        fromCampaign: bundle.campaign.campaignId,
+      }),
+    );
     this.live();
     transaction(this.db, () => {
       for (const source of bundle.sources) this.importVersionNow(source.version, source.files);
       for (const spec of bundle.specs) {
         this.sql.upsertSpec.run(spec.spec.id, spec.hash, spec.path, canonicalJson(spec.spec), now());
+        const objects = recordedObjectsOfSpec(spec.spec);
+        if (objects !== undefined)
+          this.sql.upsertSpecObjects.run(spec.spec.id, spec.hash, canonicalJson(objects));
       }
       this.putCampaignNow(bundle.campaign);
       for (const run of bundle.runs) this.putRunNow(bundle.campaign.campaignId, run);
@@ -636,7 +675,18 @@ export class SqliteStore implements Store {
         `putRun refused an invalid RunResult: ${describeIssues(parsed.error.issues)}`,
       );
     }
-    const { blocks, ...summary } = parsed.data;
+    const campaignRow = this.sql.selectCampaign.get(campaignId);
+    if (campaignRow === undefined) {
+      throw new StoreError(
+        'CAMPAIGN_MISSING',
+        `putRun: campaign ${campaignId} is not in the store; put the campaign before its runs`,
+      );
+    }
+    const campaign = readCampaign(campaignRow);
+    const { blocks, ...summary } = applyRealizedTextPolicy(
+      parsed.data,
+      campaign.provenance?.realizedText === true,
+    );
     const what = `run ${summary.runId}`;
     let previous = -1;
     for (const block of blocks) {
@@ -647,12 +697,6 @@ export class SqliteStore implements Store {
         );
       }
       previous = block.index;
-    }
-    if (this.sql.selectCampaign.get(campaignId) === undefined) {
-      throw new StoreError(
-        'CAMPAIGN_MISSING',
-        `putRun: campaign ${campaignId} is not in the store; put the campaign before its runs`,
-      );
     }
     const rows = blocks.map((block) => {
       const { observed, verdicts, drift, ...rest } = block;
@@ -665,7 +709,7 @@ export class SqliteStore implements Store {
         toJson(observed, label),
         toJson(verdicts, label),
         toJson(drift, label),
-        block.pass ? 1 : 0,
+        blockStatus(block) === 'pass' ? 1 : 0,
         toJson(rest, label),
       ] satisfies SQLInputValue[];
     });

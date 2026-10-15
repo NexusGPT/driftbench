@@ -37,7 +37,7 @@ next:
 ## Commands and every option
 
 ```text
-driftbench campaign run [paths...] [--dataset <name[@version]>] [--prompt <name[@version]>] [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--agent-version <label>] [--change <manifest> --from <campaign> [--audit <n>] [--audit-seed <n>] [--max-carry <n>] [--max-age <days>] [--block-reruns]] [--record-end-state-snapshots] [--campaign <id>] [--store <file>] [--no-cache] [--cache-suite <name>] [--concurrency <n>] [--budget-usd <usd>] [--prices <file>] [--process-command <command>] [--driver <driver>] [--persona <file>]... [--recording <file>]... [--model] [--agent-family <family>] [--judge-family <family>]... [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--json] [--config <file>]
+driftbench campaign run [paths...] [--dataset <name[@version]>] [--prompt <name[@version]>] [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--agent-version <label>] [--change <manifest> --from <campaign> [--audit <n>] [--audit-seed <n>] [--max-carry <n>] [--max-age <days>] [--block-reruns]] [--record-end-state-snapshots] [--record-realized-text] [--campaign <id>] [--store <file>] [--no-cache] [--cache-suite <name>] [--concurrency <n>] [--budget-usd <usd>] [--prices <file>] [--process-command <command>] [--driver <driver>] [--persona <file>]... [--recording <file>]... [--model] [--agent-family <family>] [--judge-family <family>]... [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--json] [--config <file>]
 ```
 
 What to run:
@@ -65,6 +65,7 @@ Running only a change (topic running-change-carry):
 | `--max-age <days>` | `7` | with `--change`: the most days since a carried result was measured. |
 | `--block-reruns` | off | with `--change` and mode T: send only the blocks a change can affect and keep the other stored blocks of a cell. |
 | `--record-end-state-snapshots` | off | store the raw end-state values each mode T block reads, so a later `--block-reruns` can rerun cells that check an end state. The values may be sensitive. |
+| `--record-realized-text` | off | store the text a driver sent where it differs from the spec (a simulated user, a red-team attacker) as `realized.text`, for replay and audit. Off, each such block keeps only the text's hash. The text may be private. A resumed campaign keeps the choice. Whole-run and block carries follow this new campaign’s choice, not the baseline’s; missing source text is never reconstructed. |
 
 Where results go (topics running-store and running-cache):
 
@@ -130,7 +131,7 @@ On stderr: errors, and the note that a budget does not count simulated-user or j
 
 With `--store`, the store gains the campaign record, the specs at their content hash, one run per cell (filed as each finishes), and the cache entries. The run id of a cell is its cell id.
 
-Exit codes: 0 when every cell passes; 1 when a cell fails, failed or was stopped (the budget included), or when a `--change` audit finds a miss; 2 on bad input, when nothing ran.
+Exit codes: 0 when every cell passes; 1 when a cell fails, failed or was stopped (the budget included), or when a `--change` audit finds a miss; 3 when no cell failed but a cell was not run or blocked (a Given the target cannot apply: no pass, no failure); 2 on bad input, when nothing ran.
 
 ## Worked example
 

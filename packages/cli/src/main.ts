@@ -1,3 +1,4 @@
+import { initializeShippedObjects } from '@agent-nexus/driftbench-core';
 import { Command, CommanderError, Help } from 'commander';
 import { COMMAND_HELP, COMMAND_MODULES, type Register } from './command-index';
 import type { CampaignDeps } from './commands/campaign';
@@ -29,6 +30,7 @@ export type MainOptions = {
  * those of `options.plugins`, of the project config's `plugins` list and of `--plugin` (see `./plugins`).
  */
 export async function main(argv: string[], io: Io = processIo, options: MainOptions = {}): Promise<number> {
+  initializeShippedObjects();
   let exitCode = 0;
   const setExit = (code: number) => {
     exitCode = code;

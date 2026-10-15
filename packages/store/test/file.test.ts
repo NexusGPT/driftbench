@@ -83,7 +83,17 @@ describe('a store on disk', () => {
       .prepare("SELECT name FROM sqlite_schema WHERE type = 'table' ORDER BY name")
       .all()
       .map((row) => row.name);
-    expect(tables).toEqual(['blobs', 'blocks', 'cache', 'campaigns', 'runs', 'specs', 'units', 'versions']);
+    expect(tables).toEqual([
+      'blobs',
+      'blocks',
+      'cache',
+      'campaigns',
+      'runs',
+      'spec_objects',
+      'specs',
+      'units',
+      'versions',
+    ]);
     expect({ ...raw.prepare('SELECT spec_id, mode, repeat, status, cost FROM runs').get() }).toEqual({
       spec_id: 'acme-new-customer-coverage',
       mode: 'F',
@@ -247,6 +257,41 @@ describe('opening a store', () => {
       { path: 'acme-sales.md', bytes: new TextEncoder().encode('You are the Acme sales assistant.\n') },
     ]);
     expect(pushed.version.version).toBe(1);
+  });
+
+  it('upgrades schema 2 without changing stored spec hashes or run records', async () => {
+    const stored = await seed();
+    await store.close();
+    const before = raw.prepare('SELECT id, hash, yaml FROM specs ORDER BY id, hash').all();
+    raw.exec('DROP TABLE spec_objects; PRAGMA user_version = 2');
+    store = openStore(path);
+    expect(raw.prepare('PRAGMA user_version').get()?.user_version).toBe(SCHEMA_VERSION);
+    expect(raw.prepare('SELECT id, hash, yaml FROM specs ORDER BY id, hash').all()).toEqual(before);
+    expect(raw.prepare('SELECT count(*) AS count FROM spec_objects').get()?.count).toBe(0);
+    expect(await store.getRun(stored.runId)).toStrictEqual(stored);
+  });
+
+  it('upgrades every older schema to the current one, whatever the current number', async () => {
+    // The tables each schema added (schema.ts): the registry came with 2; 3 added none.
+    const added: Record<number, string[]> = { 2: ['versions', 'blobs'] };
+    for (let version = 1; version < SCHEMA_VERSION; version += 1) {
+      const stored = await seed();
+      await store.close();
+      const dropped = Object.entries(added)
+        .filter(([since]) => Number(since) > version)
+        .flatMap(([, tables]) => tables);
+      raw.exec(
+        [...dropped.map((table) => `DROP TABLE ${table}`), `PRAGMA user_version = ${version}`].join('; '),
+      );
+      store = openStore(path);
+      expect(raw.prepare('PRAGMA user_version').get()?.user_version, `from schema ${version}`).toBe(
+        SCHEMA_VERSION,
+      );
+      expect(await store.getRun(stored.runId), `from schema ${version}`).toStrictEqual(stored);
+      await store.pushVersion('dataset', `from-${version}`, [
+        { path: 'a.yaml', bytes: new TextEncoder().encode('a\n') },
+      ]);
+    }
   });
 
   it('refuses a file that is not a database', async () => {
