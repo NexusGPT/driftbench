@@ -369,49 +369,57 @@ function scriptAtoms(
   }
 }
 
-/** Paths a line names: literal quoted file names and markdown link destinations. */
+/** A path and its spelling in the source, before notation is normalized. */
+type NamedReference = { path: string; spelling: string };
+
+/** Paths a line names, sharing one tokenizer with reference provenance and negation checks. */
 export function namedPaths(line: string): string[] {
-  const found: string[] = [];
+  return namedReferences(line).map(({ path }) => path);
+}
+
+function namedReferences(line: string): NamedReference[] {
+  const found: NamedReference[] = [];
   const claimed: Array<[number, number]> = [];
-  // A section anchor or a query names the same file; a web address is no path.
-  const bare = (path: string) => path.replace(/[#?].*$/, '');
-  for (const match of line.matchAll(/`([^`\n]+)`/g)) {
-    claimed.push([match.index, match.index + match[0].length]);
-    const token = match[1]?.trim();
-    // A quoted shell command is an example, not one file name. Spaces within a file name stay.
-    const execution = /\b(?:run|execute)(?: the command)?\s*$|\bexample:\s*$/i.test(
-      line.slice(0, match.index),
-    );
+  const take = (match: RegExpMatchArray, token: string | undefined, wiki = false) => {
+    const start = match.index ?? 0;
+    if (claimed.some(([from, to]) => start >= from && start < to)) return;
+    claimed.push([start, start + match[0].length]);
+    if (!token) return;
+    const spelling = token.trim();
+    let path = spelling
+      .replace(/\\/g, '/')
+      .replace(/^@/, '')
+      .replace(/^\$(?:\{CLAUDE_PROJECT_DIR\}|CLAUDE_PROJECT_DIR)\//, '')
+      .replace(/[#?].*$/, '')
+      .replace(/:\d+(?::\d+)?$/, '');
+    if (wiki && !/\.[A-Za-z0-9]+$/.test(path)) path += '.md';
+    const execution = /\b(?:run|execute)(?: the command)?\s*$|\bexample:\s*$/i.test(line.slice(0, start));
     if (
-      token &&
-      !/^[a-z]+:\/\//i.test(token) &&
-      !/[|;&]/.test(token) &&
-      !/\s--?\w/.test(token) &&
-      !(execution && /\s/.test(token))
+      /^[a-z]+:/i.test(path) ||
+      /[<>*?{}$|;&]/.test(path) ||
+      /\s--?\w/.test(path) ||
+      (execution && /\s/.test(path)) ||
+      !/\.[A-Za-z0-9]+$/.test(path)
     )
-      found.push(bare(token));
+      return;
+    found.push({ path, spelling });
+  };
+  for (const match of line.matchAll(/`([^`\n]+)`/g)) take(match, match[1]);
+  for (const match of line.matchAll(/\[[^\]\n]*\]\((?:<([^>\n]+)>|([^\s)]+))(?:\s+"[^"]*")?\)/g))
+    take(match, match[1] ?? match[2]);
+  for (const match of line.matchAll(/"([^"\n]+)"|'([^'\n]+)'/g)) take(match, match[1] ?? match[2]);
+  for (const match of line.matchAll(/\[\[([^\]\n|]+)(?:\|[^\]\n]*)?\]\]/g)) take(match, match[1], true);
+  for (const match of line.matchAll(/<([^<>\s]+)>|\*\*([^*\n]+)\*\*/g)) take(match, match[1] ?? match[2]);
+  // Whole tokens, never a filename extracted from inside a URL, glob, example or link title.
+  // Find the directive once: rescanning each token's prefix makes long prose quadratic.
+  const directive = /\b(?:read|open|load|consult|include|import|see|use)\b/i.exec(line);
+  const directiveEnd = directive ? directive.index + directive[0].length : Number.POSITIVE_INFINITY;
+  for (const match of line.matchAll(/[^\s`"'<>()[\],;!]+/g)) {
+    if (!match[0].includes('.')) continue;
+    if (!match[0].startsWith('@') && (match.index ?? 0) < directiveEnd) continue;
+    take(match, match[0].replace(/[.:]+$/, ''));
   }
-  for (const match of line.matchAll(/\]\((?:<([^>\n]+)>|([^\s)]+))(?:\s+"[^"]*")?\)/g)) {
-    claimed.push([match.index, match.index + match[0].length]);
-    const target = match[1] ?? match[2];
-    if (target && !/^[a-z]+:/i.test(target)) found.push(bare(target));
-  }
-  for (const match of line.matchAll(/"([^"\n]+)"|'([^'\n]+)'/g)) {
-    if (claimed.some(([start, end]) => match.index >= start && match.index < end)) continue;
-    const token = (match[1] ?? match[2])?.trim();
-    const execution = /\b(?:run|execute)(?: the command)?\s*$|\bexample:\s*$/i.test(
-      line.slice(0, match.index),
-    );
-    if (
-      token &&
-      !/^[a-z]+:/i.test(token) &&
-      !/[|;&]/.test(token) &&
-      !/\s--?\w/.test(token) &&
-      !(execution && /\s/.test(token))
-    )
-      found.push(bare(token));
-  }
-  return found.filter((path) => !/[<>*?{}$]/.test(path) && /\.[A-Za-z0-9]+$/.test(path));
+  return found;
 }
 
 /** Whether at least one mention requires the act, rather than forbidding it in its own clause. */
@@ -572,8 +580,8 @@ function referenceAtoms(
 ): void {
   const skipped = new Set(raw.ignored?.paths ?? []);
   for (const line of chunkLines(chunk, files.get(chunk.file))) {
-    for (const named of namedPaths(line.text)) {
-      if (!positiveMention(line.text, named, ['read', 'open', 'load'])) continue;
+    for (const { path: named, spelling } of namedReferences(line.text)) {
+      if (!positiveMention(line.text, spelling, ['read', 'open', 'load'])) continue;
       const located = locateNamed(named, chunk.file, files, {
         bases: raw.bases ?? [],
         skipped,
