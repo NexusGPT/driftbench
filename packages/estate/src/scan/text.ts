@@ -12,19 +12,58 @@ import { parse as parseYaml } from 'yaml';
 /** A passage of a file: its lines (1-based, inclusive) and the exact text quoted from them. */
 export type Located = { file: string; startLine: number; endLine: number; quote: string };
 
+/**
+ * Where every line of a text starts, for the texts asked about last. A scan asks for many lines and spans of
+ * the same file; counting from the top each time makes a file with many atoms quadratic.
+ */
+const LINE_STARTS = new Map<string, number[]>();
+const LINE_STARTS_KEPT = 16;
+function lineStarts(text: string): number[] {
+  const known = LINE_STARTS.get(text);
+  if (known) return known;
+  const starts = [0];
+  for (let index = text.indexOf('\n'); index >= 0; index = text.indexOf('\n', index + 1))
+    starts.push(index + 1);
+  if (LINE_STARTS.size >= LINE_STARTS_KEPT) {
+    const oldest = LINE_STARTS.keys().next().value;
+    if (oldest !== undefined) LINE_STARTS.delete(oldest);
+  }
+  LINE_STARTS.set(text, starts);
+  return starts;
+}
+
 /** The 1-based line of a character offset. */
 export function lineAt(text: string, offset: number): number {
-  let line = 1;
-  for (let index = 0; index < offset && index < text.length; index++) if (text[index] === '\n') line++;
-  return line;
+  if (!(offset > 0)) return 1;
+  // One more than the number of line breaks before the offset: the breaks sit just before each line start.
+  const starts = lineStarts(text);
+  let low = 1;
+  let high = starts.length;
+  while (low < high) {
+    const middle = (low + high) >> 1;
+    if ((starts[middle] as number) - 1 < offset) low = middle + 1;
+    else high = middle;
+  }
+  return low;
 }
 
 /** The lines `from` to `to` (1-based, inclusive) of a text, joined. */
 export function sliceLines(text: string, from: number, to: number): string {
-  return text
-    .split('\n')
-    .slice(from - 1, to)
-    .join('\n');
+  if (
+    !Number.isInteger(from) ||
+    from < 1 ||
+    to < 0 ||
+    !(Number.isInteger(to) || to === Number.POSITIVE_INFINITY)
+  ) {
+    return text
+      .split('\n')
+      .slice(from - 1, to)
+      .join('\n');
+  }
+  const starts = lineStarts(text);
+  const last = Math.min(to, starts.length);
+  if (from > last) return '';
+  return text.slice(starts[from - 1], last < starts.length ? (starts[last] as number) - 1 : text.length);
 }
 
 /**
@@ -280,6 +319,8 @@ export function readTables(text: string, fromLine = 1, toLine = Number.POSITIVE_
     const head = lines[index];
     const rule = lines[index + 1];
     if (!head || !rule || head.line < fromLine || head.line > toLine) continue;
+    // A rule line holds a pipe and dashes: most lines are not one, and splitting every line into cells is slow.
+    if (!rule.text.includes('|') || !rule.text.includes('---')) continue;
     const header = cells(head.text);
     const separators = cells(rule.text);
     if (
