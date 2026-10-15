@@ -1,4 +1,10 @@
-import { deepEqual } from '@agent-nexus/driftbench-core';
+import {
+  deepEqual,
+  type ObjectRegistry,
+  objectRegistry,
+  type ResolvedObject,
+} from '@agent-nexus/driftbench-core';
+import { z } from 'zod';
 import { show } from '../support/values';
 import { asGiven, sourceOf } from './as-given';
 import { contract, contractOf } from './contract';
@@ -235,6 +241,90 @@ export const DEFAULT_VALUE_POLICY: ValuePolicy = {
     'rung3_same_referent',
   ],
 };
+
+/** The path the shipped object is known by: its file in the repository. */
+export const DEFAULT_VALUE_POLICY_PATH = 'policy/value-check/default.yaml';
+
+/** The parameters each built-in rung accepts: what the object resolver checks an item's `params` against. */
+export const RUNG_PARAMS: Readonly<Record<string, z.ZodType>> = {
+  'builtin:value-check/exact': z.strictObject({}),
+  'builtin:value-check/outcome': z.strictObject({
+    resolved_fields: z.literal('from_tool_declaration').optional(),
+    distractors_required: z.boolean().optional(),
+  }),
+  'builtin:value-check/recompute': z.strictObject({
+    trials: z.number().int().min(0).optional(),
+    seed: z.number().int().optional(),
+    inputs: z.literal('drawn_from_seed_ranges').optional(),
+  }),
+  'builtin:value-check/state-diff': z.strictObject({}),
+  'builtin:value-check/contract': z.strictObject({}),
+  'builtin:value-check/as-given': z.strictObject({
+    ignore: z.array(z.literal('surrounding_space')).optional(),
+  }),
+  'builtin:value-check/judge': z.strictObject({
+    design: z.enum(['read_each_value_first', 'side_by_side']).optional(),
+    orders: z.enum(['both', 'one']).optional(),
+    repeats: z.number().int().min(1).optional(),
+    max_false_acceptance: z.number().min(0).max(1).optional(),
+    min_kappa_vs_labels: z.union([z.number(), z.string().regex(/^labellers_minus_\d+(\.\d+)?$/)]).optional(),
+    prompt_template: z.string().min(1).optional(),
+  }),
+};
+
+/**
+ * Registers the value-check rungs and the shipped `policy/value-check:default` with an object registry, the
+ * core one by default, so a spec or a block that writes `uses.value_check` resolves against them. Each name is
+ * registered once: a registry that already holds it is left as it is.
+ */
+export function registerValueCheck(registry: ObjectRegistry = objectRegistry): void {
+  for (const [name, params] of Object.entries(RUNG_PARAMS)) {
+    if (registry.impl(name) === undefined) registry.registerImpl(name, { params });
+  }
+  const shipped = registry
+    .shipped()
+    .some(({ raw }) => isPolicy(raw) && raw.kind === 'policy/value-check' && raw.id === 'default');
+  if (!shipped) {
+    const { kind, id, params, items, order } = DEFAULT_VALUE_POLICY;
+    registry.registerShipped(
+      {
+        kind,
+        id,
+        extends: null,
+        description: 'Decides when a value, a file or a state the agent produced is the right one.',
+        params,
+        items,
+        order,
+      },
+      DEFAULT_VALUE_POLICY_PATH,
+    );
+  }
+}
+
+function isPolicy(raw: unknown): raw is { kind?: unknown; id?: unknown } {
+  return raw !== null && typeof raw === 'object';
+}
+
+registerValueCheck();
+
+/** A resolved `policy/value-check` object as the ladder runs it: its items in their resolved order. */
+export function policyOf(object: ResolvedObject): ValuePolicy {
+  return {
+    kind: object.kind,
+    id: object.id,
+    ref: object.ref,
+    params: object.params,
+    items: object.items.map(({ id, title, enabled, when, effect, params, impl }) => ({
+      id,
+      title,
+      enabled,
+      when,
+      effect,
+      params,
+      impl,
+    })),
+  };
+}
 
 /**
  * The problems of a policy, empty when it can run: an unknown implementation, an evidence name a `when`
