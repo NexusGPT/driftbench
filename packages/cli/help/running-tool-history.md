@@ -15,7 +15,7 @@ next:
 
 ## What it is
 
-A block can start from a history that holds tool calls. That history is a `given.prefix` you write or import, the canonical history of mode T, or the agent's own earlier turns in modes F and P. Each recorded call has a `label`, an optional `id`, an `input`, and an `output` or an `error`.
+A block can start from a history that holds tool calls. It is a `given.prefix` you write or import, the canonical history of mode T, or the agent's own earlier turns in modes F and P. Each recorded call has a `label`, an optional `id`, an `input`, and an `output` or an `error`.
 
 An adapter that sends the history to a model turns each recorded call into that model's own tool records, never into text:
 
