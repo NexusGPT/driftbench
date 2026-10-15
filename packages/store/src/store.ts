@@ -2,6 +2,7 @@ import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import type { DatabaseSync, SQLInputValue, StatementSync } from 'node:sqlite';
 import {
+  applyRealizedTextPolicy,
   Campaign,
   type CostUnit,
   canonicalJson,
@@ -422,11 +423,18 @@ export class SqliteStore implements Store {
 
   /**
    * Reads a folder `exportCampaign` wrote and stores its campaign and runs, all or nothing. The
-   * campaign must be new to this store or equal to the one it holds. Returns what it read.
+   * campaign must be new to this store or equal to the one it holds. Returns the stored runs
+   * after applying its text policy, alongside the verified source manifest.
    */
   async importCampaign(folder: string): Promise<CampaignBundle> {
     this.live();
     const bundle = await readCampaignBundle(folder);
+    bundle.runs = bundle.runs.map((run) =>
+      applyRealizedTextPolicy(run, bundle.campaign.provenance?.realizedText === true, {
+        fromRun: run.runId,
+        fromCampaign: bundle.campaign.campaignId,
+      }),
+    );
     this.live();
     transaction(this.db, () => {
       for (const source of bundle.sources) this.importVersionNow(source.version, source.files);
@@ -636,7 +644,18 @@ export class SqliteStore implements Store {
         `putRun refused an invalid RunResult: ${describeIssues(parsed.error.issues)}`,
       );
     }
-    const { blocks, ...summary } = parsed.data;
+    const campaignRow = this.sql.selectCampaign.get(campaignId);
+    if (campaignRow === undefined) {
+      throw new StoreError(
+        'CAMPAIGN_MISSING',
+        `putRun: campaign ${campaignId} is not in the store; put the campaign before its runs`,
+      );
+    }
+    const campaign = readCampaign(campaignRow);
+    const { blocks, ...summary } = applyRealizedTextPolicy(
+      parsed.data,
+      campaign.provenance?.realizedText === true,
+    );
     const what = `run ${summary.runId}`;
     let previous = -1;
     for (const block of blocks) {
@@ -647,12 +666,6 @@ export class SqliteStore implements Store {
         );
       }
       previous = block.index;
-    }
-    if (this.sql.selectCampaign.get(campaignId) === undefined) {
-      throw new StoreError(
-        'CAMPAIGN_MISSING',
-        `putRun: campaign ${campaignId} is not in the store; put the campaign before its runs`,
-      );
     }
     const rows = blocks.map((block) => {
       const { observed, verdicts, drift, ...rest } = block;

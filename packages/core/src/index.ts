@@ -235,6 +235,7 @@ export {
   withRetry,
   wrapEndState,
 } from './runner';
+export { applyRealizedTextPolicy, realizedTextOf } from './runner/realized-text';
 export {
   Assertion,
   Budget,
