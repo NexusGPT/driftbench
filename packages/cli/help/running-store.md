@@ -55,6 +55,7 @@ What the store holds, one table each:
 |---|---|
 | `campaigns` | one record per campaign: id, the pinned specs (id, hash, own target), targets, modes, repeats per mode, budget (0 means none), agent version, the dataset and prompt versions it ran, provenance, and creation time. A campaign never changes once written. |
 | `specs` | each spec a campaign pinned, by id and content hash, as canonical JSON. `status` and `resume` read specs from here, not from disk. |
+| `spec_objects` | the identities and hashes of the objects resolved when a spec was stored. Reading a stored spec validates its structure without reopening project files. |
 | `runs` | one row per campaign and run id (a run id is a cell id, so the same cell run in two campaigns gives two rows). A run put again under the same campaign and run id replaces the first. |
 | `blocks` | one row per block of a run: its Given hash, what the agent did (observed), the verdicts, the drift classes and whether it passed. |
 | `cache` | observed blocks and end-state reads by cache key (topic running-cache). |
@@ -65,7 +66,7 @@ A run record holds `runId`, `specId`, `specHash`, `target`, `mode`, `repeat`, `p
 
 ## Outputs and how to read them
 
-The store prints nothing itself. Commands read it back as text or JSON (`campaign status`, `campaign status --json`, `report`, `view`). The tables are plain SQLite: any SQLite tool can read them, and each row keeps its full record as JSON in a `json` column beside the plain columns used for filters. The schema version is 2; an older store is upgraded when opened, and a store written by a newer driftbench is refused.
+The store prints nothing itself. Commands read it back as text or JSON (`campaign status`, `campaign status --json`, `report`, `view`). The tables are plain SQLite: any SQLite tool can read them, and each row keeps its full record as JSON in a `json` column beside the plain columns used for filters. The schema version is 3; an older store is upgraded when opened, and a store written by a newer driftbench is refused.
 
 Writes are transactional: a run and its blocks land together, and an import lands whole or not at all. A second process waits up to 5 seconds for a write lock.
 
@@ -97,6 +98,6 @@ The folder `stores` was created. The store now holds two campaigns, each with a 
 * `No store at missing.db: this command reads a store and does not make one.` (exit 2) `status`, `resume` or `export` was given a path with no file. Check the path; these commands never create a store, so a typo cannot leave an empty one behind.
 * `Cannot open the store at <path>: store: cannot open the store at <path>: ...` (exit 2) The file is not a SQLite database, or the folder is not writable.
 * `the store needs Node.js 22.13 or newer for node:sqlite; this is Node.js <version>` Upgrade Node.js.
-* `the store at <path> has schema version <n>; this version of driftbench reads 2 and older` The store was written by a newer driftbench. Upgrade driftbench.
+* `the store at <path> has schema version <n>; this version of driftbench reads 3 and older` The store was written by a newer driftbench. Upgrade driftbench.
 * `The store at <path> holds no campaign. Run one with: driftbench campaign run <paths...>` (exit 2) The file exists but holds no campaign; `campaign plan --store` creates such empty files.
 * Results from an earlier agent version replayed into a new campaign: the cache lives in the store. Use `--agent-version`, `--cache-suite` or `--no-cache` (topic running-cache).
