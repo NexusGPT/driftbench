@@ -30,7 +30,8 @@ as independent samples.
 |---|---|
 | Wilson score interval | a rate over independent units: goldens, holdout conversations, aggregates, recovery shares |
 | Clopper-Pearson exact | library only (`clopperPearson`) |
-| Wilson with the design effect | the scorecard's pass rate over specs with repeats: Wilson on the effective runs (runs divided by the design effect from the spread of spec rates), with the Student t quantile on specs minus one. Method name `wilson, design effect` |
+| Wilson on n_eff | a rate over clusters: the scorecard's pass rate over specs with repeats, and block accuracy over conversations. Wilson on the effective units `n_eff` (units divided by the design effect from the spread of the cluster rates), with the Student t quantile on clusters minus one. The cell prints `n_eff` and the design effect. Method name `wilson, design effect` |
+| hierarchical Beta-Bernoulli | the suite headline, the pass rate of a whole suite: the mean over goldens (every golden weighs the same) with a model that learns from the spread between goldens how far the runs of one golden move together. No sampling, no seed. Method name `hierarchical` |
 | cluster bootstrap | anything pooled over blocks (block accuracy, the compounding index): 2000 percentile resamples of whole clusters, seed 1 |
 | Wilson raised to k | pass^k and pass@k: the Wilson bounds of the per-run rate raised to k, widened to contain the value; runs that did not complete count both ways |
 | Newcombe method 10 | the paired difference of two rates (baseline minus candidate) |
@@ -38,6 +39,18 @@ as independent samples.
 **Design effect.** `1 + (m - 1) rho` for clusters of size m with intraclass correlation rho; the effective
 sample size is n divided by it. Repeats of one conversation that agree add less information than
 independent runs.
+
+**Which interval to quote.** A naive Wilson interval reads every run as independent. On simulated suites of
+correlated goldens it held the true rate 73.9% of the time, against the 95% it claims. Wilson on `n_eff` held
+it 91.3% (normal quantile) to 93.1% (Student t quantile); the hierarchical interval held it 95.3% (24 cells,
+400 suites each). So the suite headline, and any result you publish, uses the hierarchical interval; a rate
+of one conversation or one block, and interactive output, use Wilson on `n_eff`. The headline needs at least
+two goldens: one golden has no spread to measure and prints no interval.
+
+**The suite headline** (`report`, per mode): the mean over goldens with its interval, then `n_eff` (the runs
+the clustering is worth), the design effect, the smallest drop two suites like it detect at 80% power, and
+the share of runs that did not complete (and, when a run carries those states, the share blocked or not
+run). The share is printed beside the rate so that dropping broken runs cannot raise it unseen.
 
 **Paired tests** (in `compare` and `ci`):
 
@@ -100,7 +113,8 @@ Two campaigns of one store for the paired numbers; one campaign for the interval
 
 In `compare` text: `95% interval` columns are Wilson (per side) and Newcombe (effect); `p` is McNemar
 exact; `q` is the Benjamini-Hochberg adjusted p; `floor`, `drop seen` and `for 10` are the planning
-numbers. In the scorecard, "How the numbers are made" lists the method of each interval.
+numbers. In the scorecard, "How the numbers are made" lists the method of each interval. In `report` text and in the
+scorecard summary, the line `Suite pass rate, mode F: ...` is the suite headline described above.
 
 ## Worked example
 
