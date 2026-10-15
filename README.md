@@ -352,6 +352,23 @@ Complete specs go to `specs/`. A spec with no approved phrase or no machine-chec
 
 A block holds everything the agent does between two user messages: text, cards, tool calls and tool results. The spec fixes what must be true after it. driftbench reads what happened, compares it field by field, and keeps the evidence behind every verdict. Because a block starts from its own Given, it can be run many times on its own and gets its own pass rate.
 
+A Given can hold the conversation before the block, tool calls included. A past lookup goes in as a recorded call with its result, never as a sentence of the assistant: an agent that finds an earlier result only in its own prose tends to call the tool again ([why](docs/concepts/given-when-then.md#tool-history-records-not-prose)).
+
+```yaml
+- user: What is my callback reference?
+  given:
+    origin: recorded              # copied from a real run
+    prefix:
+      - { role: user, content: Can someone call me back about fiber? }
+      - role: assistant
+        content: Done, an advisor will call you today.
+        tool_calls:
+          - { id: call-1, label: notify_sales, input: { topic: fiber }, output: { ref: LD-4471 } }
+  expect:
+    must: [LD-4471]
+    tools: [{ label: notify_sales, count: 0 }]   # it must not file the request twice
+```
+
 <a href=".github/readme/kinds-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/kinds-dark.png">

@@ -114,10 +114,12 @@ The path in a spec is dotted, counting from 0: `blocks.2.expect.tools.0.label` i
 | `STAGE_UNKNOWN` | error | the spec lists `stages`, and `expect.stage` or `recovery.stage_after` names a stage not there |
 | `RETENTION_FACT_UNKNOWN` | error | `knowledge_retention` names a fact no ledger holds before the block: not in `given.ledger`, nor in an earlier block's `ledger_add` |
 | `TOOL_FORBIDDEN_EXPECTED` | error | a block expects a tool that `rules.forbidden_tools` or `rules.max_calls: 0` forbids |
+| `GIVEN_ORIGIN_WITHOUT_PREFIX` | error | a block sets `given.origin` and writes no `given.prefix` |
 | `CRITERION_UNRESOLVED` | warning | blocks name criteria and the spec defines none; they must come from a shared catalogue |
 | `BLOCK_NO_EXPECTATION` | warning | a block checks nothing |
 | `TASK_WITHOUT_OUTCOME` | warning | a task spec checks none of `artifacts`, `workspace`, `execution` and `end_state` |
 | `PERTURBATION_NO_RECOVERY` | warning | a perturbation has no `recovery`, so its recovery is not measured |
+| `PREFIX_PROSE_HISTORY` | warning | an assistant message of a prefix states a ledger fact that no recorded tool call of the prefix holds and the user never said, in a spec that names tools: the agent may call the tool again (see authoring-prefixes) |
 
 ## Worked example
 

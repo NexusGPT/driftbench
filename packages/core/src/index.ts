@@ -241,6 +241,7 @@ export {
   Count,
   DeviationClass,
   DriftClass,
+  GivenOrigin,
   Lang,
   Message,
   Pattern,

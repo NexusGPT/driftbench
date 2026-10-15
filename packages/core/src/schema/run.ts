@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { DriftClass, Message, TargetRef, WorldState } from './common';
+import { DriftClass, GivenOrigin, Message, TargetRef, WorldState } from './common';
 import { BlockProvenance, CampaignProvenance, RejudgedFrom, RunProvenance } from './provenance';
 
 /**
@@ -17,6 +17,8 @@ export type Outcome = z.infer<typeof Outcome>;
 /** The fully resolved initial conditions of a block. */
 export const ResolvedGiven = z.strictObject({
   prefix: z.array(Message),
+  /** The origin of the latest prefix, when the spec states one; it is hashed only when present. */
+  origin: GivenOrigin.optional(),
   ledger: z.record(z.string(), z.unknown()),
   world: WorldState,
   vars: z.record(z.string(), z.unknown()),
