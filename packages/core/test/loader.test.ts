@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   canonicalJson,
+  checkSpec,
   contentHash,
   findSpecFiles,
   type LoadResult,
@@ -10,9 +11,10 @@ import {
   loadSpecs,
   parseCriterionRef,
   parseSpecText,
+  validateSpec,
 } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
-import { stringify } from 'yaml';
+import { parse, stringify } from 'yaml';
 
 const VALID = `
 id: acme-upgrade
@@ -394,4 +396,22 @@ describe('a relative workspace folder', () => {
     if (!parsed.ok) throw new Error('invalid');
     expect(parsed.spec.given?.world?.workspace?.from).toBe('./.seed-seeded-task');
   });
+});
+
+it('offers the same normalization, errors and warnings when the caller does not need a hash', () => {
+  for (const raw of [
+    parse(VALID),
+    null,
+    { id: 'invalid', blocks: [] },
+    { id: 'semantic', stages: ['start'], blocks: [{ user: 'hi', expect: { stage: 'other' } }] },
+    { id: 'warning', blocks: [{ user: 'hi', expect: { criteria: ['not-defined'] } }] },
+  ]) {
+    const loaded = validateSpec(raw, 'same.yaml');
+    const checked = checkSpec(raw, 'same.yaml');
+    if (loaded.ok) {
+      const { hash, ...withoutHash } = loaded;
+      expect(checked).toEqual(withoutHash);
+      expect(hash).toBe(contentHash(loaded.spec));
+    } else expect(checked).toEqual(loaded);
+  }
 });

@@ -2,7 +2,7 @@
   "name": "driftbench-monorepo",
   "private": true,
   "type": "module",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "packageManager": "pnpm@10.30.2",
   "engines": {
     "node": ">=22.13"

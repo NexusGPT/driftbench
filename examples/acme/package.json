@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "description": "The Acme Telecom example agents, as the package the driftbench CLI loads when it is installed beside it.",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "type": "module",
   "engines": {
     "node": ">=22.13"

@@ -28,6 +28,7 @@ export {
   type SandboxProvider,
   type Session,
   type Store,
+  sentStimulus,
   type ToolRule,
   type TransportErrorOptions,
   type Turn,
@@ -234,12 +235,14 @@ export {
   withRetry,
   wrapEndState,
 } from './runner';
+export { applyRealizedTextPolicy, realizedTextOf } from './runner/realized-text';
 export {
   Assertion,
   Budget,
   Count,
   DeviationClass,
   DriftClass,
+  GivenOrigin,
   Lang,
   Message,
   Pattern,
@@ -305,6 +308,7 @@ export {
   SafetyExpect,
   SimilarityExpect,
   SkillExpect,
+  SPEC_SCHEMA_VERSION,
   Spec,
   Stimulus,
   SubagentExpect,
@@ -318,12 +322,14 @@ export { canonicalJson, cloneJson, contentHash } from './spec/hash';
 export { error, type Issue, type IssueCode, IssueCodes, warning } from './spec/issues';
 export { lintSpec } from './spec/lint';
 export {
+  checkSpec,
   findSpecFiles,
   type LoadedSpec,
   type LoadResult,
   loadSpecFile,
   loadSpecs,
   parseSpecText,
+  type SpecValidationResult,
   validateSpec,
 } from './spec/load';
 export { isPlainObject, normalizeSpec } from './spec/normalize';

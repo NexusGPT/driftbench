@@ -42,6 +42,27 @@ describe('generation to disk at scale', () => {
     }
   }, 300_000);
 
+  it('writes the eager files, byte for byte, with the restated-slot and phrase specs', async () => {
+    const seed = 1;
+    const hidden = hiddenSpec(seed);
+    const source = await generateFrom(hidden, renderMap(hidden), seed, {}, { once: true });
+    if (!source.prepared) throw new Error('the fictional map failed to load');
+    const options = { mapPath: '../map.yaml', seed };
+    const eager = generateSuite(source.prepared, options);
+    expect(eager.files.some((file) => file.path.includes('gen-restated-'))).toBe(true);
+    expect(eager.files.some((file) => file.path.includes('gen-phrase-'))).toBe(true);
+    const directory = await mkdtemp(join(tmpdir(), 'driftbench-stream-seeders-'));
+    try {
+      const disk = generateSuiteToDisk(source.prepared, { ...options, outputDir: directory });
+      expect(disk.summary).toEqual(eager.report.summary);
+      expect(disk.fileCount).toBe(eager.files.length);
+      for (const file of eager.files.filter((entry) => entry.path !== REPORT_FILE))
+        expect(await readFile(join(directory, file.path), 'utf8'), file.path).toBe(file.text);
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  }, 300_000);
+
   it('keeps the heap under a cap the eager API runs out of', async () => {
     // Ten times the behaviours: 3470 specs. The eager API holds every file and runs out of a 96 MB heap (at
     // 128 MB it sometimes finishes);

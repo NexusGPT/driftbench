@@ -1,5 +1,6 @@
 import {
   agreement,
+  calibrationEligible,
   DEFAULT_REPEATS,
   type LabelAgreement,
   type LabelledBlock,
@@ -9,6 +10,7 @@ import {
 import type { JudgeClient } from './client';
 import type { EscalationRecord, EscalationTrigger, JudgeOutcome, JudgeRequest } from './contract';
 import { fixtureRequest, type LoadedCriterion } from './criteria';
+import { familyOfModel, normalizeFamily } from './family';
 
 /**
  * Cascade calibration: the cheap judge answers every fixture (each repeat) and every labelled block; the
@@ -30,9 +32,17 @@ export type CascadeConfig = {
   readonly repeats?: number;
   /** A score inside this range is unsure. Default 0.2 to 0.8. */
   readonly unsure?: { readonly low: number; readonly high: number };
+  /**
+   * The model family of the agent under test, or a model name. A judge of that family is refused before any
+   * call, as the council refuses it. Default none.
+   */
+  readonly agentFamily?: string;
 };
 
-export type DeployableCascadeConfig = Pick<CascadeConfig, 'criteria' | 'labels' | 'repeats'> & {
+export type DeployableCascadeConfig = Pick<
+  CascadeConfig,
+  'criteria' | 'labels' | 'repeats' | 'agentFamily'
+> & {
   /** A deployable procedure. Its routing sees only JudgeRequest, never labels or fixture sides. */
   readonly judge: JudgeClient;
 };
@@ -127,6 +137,7 @@ export async function calibrateCascade(
   const deployable = 'judge' in config;
   const first = deployable ? config.judge : config.first;
   const escalateTo = deployable ? [] : config.escalateTo;
+  refuseAgentFamily([first, ...escalateTo], config.agentFamily ?? 'none');
   const repeats = config.repeats ?? DEFAULT_REPEATS;
   const low = !deployable ? (config.unsure?.low ?? 0.2) : 0.2;
   const high = !deployable ? (config.unsure?.high ?? 0.8) : 0.8;
@@ -143,7 +154,7 @@ export async function calibrateCascade(
         });
       }
     }
-    const blocks = config.labels.get(criterion.def.name) ?? [];
+    const blocks = (config.labels.get(criterion.def.name) ?? []).filter(calibrationEligible);
     for (const block of blocks)
       items.push({ id: block.id, truth: block.label, request: labelRequest(criterion, block) });
 
@@ -233,4 +244,19 @@ export async function calibrateCascade(
       ? { costIncompleteCalls: criteria.reduce((sum, c) => sum + (c.costIncompleteCalls ?? 0), 0) }
       : {}),
   };
+}
+
+/** Throws when a judge shares the agent's model family: a model grading its own family is the bias to avoid. */
+function refuseAgentFamily(judges: readonly JudgeClient[], agentFamily: string): void {
+  const canonical = (family: string) => familyOfModel(family) ?? normalizeFamily(family);
+  const agent = canonical(agentFamily);
+  if (agent === 'none') return;
+  for (const judge of judges) {
+    const conflict = [judge.family, ...(judge.families ?? [])].find((family) => canonical(family) === agent);
+    if (conflict !== undefined) {
+      throw new Error(
+        `judge ${judge.id} is from the ${agent} family, the family of the agent under test: refused`,
+      );
+    }
+  }
 }

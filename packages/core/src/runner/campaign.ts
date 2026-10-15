@@ -4,6 +4,7 @@ import type { ArtifactReaderRegistry } from '../contracts/artifacts';
 import type { CheckSet } from '../contracts/check';
 import type { UserDriver } from '../contracts/driver';
 import type { CostUnit, Store } from '../contracts/store';
+import type { ToolRule } from '../contracts/tool-policy';
 import type { BlockReuse } from '../radius/blocks';
 import type { TargetRef } from '../schema/common';
 import type { RunMode, RunResult } from '../schema/run';
@@ -297,9 +298,13 @@ export type CampaignRunOptions = {
   recordProvenance?: boolean;
   /** Opt in: store the raw end-state values each T block reads. They may hold sensitive data. */
   recordEndStateSnapshots?: boolean;
+  /** Opt in: keep the text a driver sent where it differs from the spec, not only its hash. */
+  recordRealizedText?: boolean;
   /** Mode T: the stored baseline run to rerun only the radius blocks from; a refused plan reruns the whole cell. */
   blockReuse?(cell: PlannedCell): BlockReuse | undefined;
   retry?: RetryOptions;
+  /** A run-wide tool policy, passed to every run: each denied call is marked before the checks read it. */
+  toolPolicy?: readonly ToolRule[];
   now?: () => Date;
   /** Cells that run at the same time. Default 4. */
   concurrency?: number;
@@ -445,6 +450,7 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
       store: options.store,
       recordProvenance: options.recordProvenance,
       ...(options.recordEndStateSnapshots ? { recordEndStateSnapshots: true } : {}),
+      ...(options.recordRealizedText ? { recordRealizedText: true } : {}),
       ...(blockReuse ? { blockReuse } : {}),
       campaignId: options.campaignId,
       ...(options.cache ? { cache: options.cache } : {}),
@@ -452,6 +458,7 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
       ...(options.agentVersion === undefined ? {} : { agentVersion: options.agentVersion }),
       ...(options.recordEvents ? { recordEvents: true } : {}),
       ...(options.retry ? { retry: options.retry } : {}),
+      ...(options.toolPolicy?.length ? { toolPolicy: options.toolPolicy } : {}),
       ...(options.now ? { now: options.now } : {}),
       ...(reference ? { reference } : {}),
       ...(options.consequential ? { consequential: options.consequential } : {}),

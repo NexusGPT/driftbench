@@ -113,6 +113,16 @@ describe('driftbench replay over the seven fixture sessions', () => {
     expect(json?.notes).toEqual([]);
   });
 
+  it('reports only the recorded spec/session cells in campaign status', async () => {
+    const db = join(await tempDir(), 'status.db');
+    await replayJson(['replay', ...SESSIONS, '--suite', `${DIR}/specs`, ...LOGS, '--store', db]);
+    const status = await cli(['campaign', 'status', '--store', db, '--json']);
+    expect(status.err).toBe('');
+    const report = JSON.parse(status.out);
+    expect(report.cells).toHaveLength(8);
+    expect(report.cells.every((cell: { state: string }) => cell.state !== 'pending')).toBe(true);
+  });
+
   it('prints pass or fail per spec with the failing verdict ids', async () => {
     const { code, out } = await cli(['replay', ...SESSIONS, '--suite', `${DIR}/specs`, ...LOGS]);
     expect(code).toBe(1);
@@ -391,9 +401,14 @@ describe('driftbench replay: judged criteria', () => {
     expect(doc.judge).toBe('claude:haiku');
     expect(doc.judgeCostUsd).toBeCloseTo(0.0015);
     expect(doc.runs[0]?.pass).toBe(true);
+    // The judge ran, so no note may say the criteria were not run.
+    expect(judged.json?.notes ?? []).toEqual([]);
 
     const bare = await replayJson(['replay', session, '--suite', dir]);
     expect(bare.code).toBe(1);
+    expect(bare.json?.notes).toEqual([
+      'judged-positional: judged criteria are inconclusive: no --judge was given',
+    ]);
     const failing = (bare.json as unknown as { runs: Array<{ failing: string[] }> }).runs[0]?.failing ?? [];
     expect(failing).toEqual(['block 0: judge.keeps-scope (inconclusive)']);
   }, 60_000);

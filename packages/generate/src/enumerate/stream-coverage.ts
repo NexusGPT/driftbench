@@ -39,6 +39,7 @@ export class StreamCoverage {
     deviation: string;
     covered: boolean;
   }>;
+  private readonly cellCounts = new WeakMap<object, { counts: Float64Array; code: number }>();
   private complete = 0;
   private all = 0;
 
@@ -149,15 +150,11 @@ export class StreamCoverage {
     }
   }
 
-  *reached(spec: Spec, t: number): Generator<Record<string, string>> {
-    const placement = placeSpec(this.space, spec);
-    for (const index of this.indices(Math.min(t, this.space.dimensions.length))) {
-      const projection = this.projections[index] as Projection;
-      const codes = new Set<number>();
-      for (const event of placement.events) addEventCodes(projection, event, codes);
-      for (const code of codes)
-        if (projection.allowed[code] === 1) yield { ...tupleValues(projection, code, this.space) };
-    }
+  /** Current coverage of a cell snapshot, without placing and decoding the same spec again. */
+  isCovered(cell: { values: Record<string, string>; count: number }): boolean {
+    const entry = this.cellCounts.get(cell);
+    if (!entry) throw new Error('Expected a cell returned by this coverage instance');
+    return (entry.counts[entry.code] ?? 0) > 0;
   }
 
   cells(t: number): Array<{ values: Record<string, string>; count: number }> {
@@ -166,11 +163,14 @@ export class StreamCoverage {
       const projection = this.projections[index] as Projection;
       const counts = this.counts[index] as Counts;
       projection.allowed.forEach((allowed, code) => {
-        if (allowed)
-          out.push({
+        if (allowed) {
+          const cell = {
             values: { ...tupleValues(projection, code, this.space) },
             count: counts.complete[code] ?? 0,
-          });
+          };
+          this.cellCounts.set(cell, { counts: counts.complete, code });
+          out.push(cell);
+        }
       });
     }
     return out;

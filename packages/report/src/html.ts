@@ -2,12 +2,26 @@ import type { DriftClass, RunEvent, Verdict } from '@agent-nexus/driftbench-core
 import type { CompareResult } from './compare';
 import type { Estimate } from './estimate';
 import { CASLON_DISPLAY, CASLON_TEXT, GEIST, GEIST_MONO } from './fonts';
-import { carriedLines, count, esc, fixed, interval, json, pct, points, pValue, usd } from './format';
+import {
+  carriedLines,
+  count,
+  effectiveNote,
+  esc,
+  fixed,
+  headlineNote,
+  interval,
+  json,
+  pct,
+  points,
+  pValue,
+  usd,
+} from './format';
+import type { SuiteHeadline } from './headline';
 import { chartsZone, overview, pageModel, runsZone, testsZone, versionsZone } from './html-zones';
 import type { PilotReport } from './pilot';
 import type { RecoverySummary, ReliabilityLine } from './reliability';
 import type { CriterionRepeat } from './repeats';
-import type { BlockDetail, RunDetail, Scorecard, StoppedRun } from './scorecard';
+import { type BlockDetail, notStored, type RunDetail, type Scorecard, type StoppedRun } from './scorecard';
 import type { CellSpread, Spread } from './spread';
 
 const DRIFT_NAMES: Record<DriftClass, string> = {
@@ -135,6 +149,9 @@ function fact(label: string, value: string): string {
 function summary(card: Scorecard): string {
   const tiles: string[] = [];
   for (const mode of card.modes) {
+    if (mode.headline) {
+      tiles.push(tile(`Suite pass rate, ${mode.mode}`, mode.headline, pct, headlineNote(mode.headline)));
+    }
     if (mode.runPass) tiles.push(tile(`Runs passing, ${mode.mode}`, mode.runPass, pct, `${mode.runs} runs`));
     if (mode.blockAccuracy)
       tiles.push(tile(`Block accuracy, ${mode.mode}`, mode.blockAccuracy, pct, 'blocks'));
@@ -212,7 +229,14 @@ function verdictBanner(compare: CompareResult): string {
 /** A rate cell: the value, its interval, and a bar drawn to scale on [0, 1]. */
 function rateCell(estimate: Estimate | undefined): string {
   if (!estimate) return '<td class="num muted">none</td>';
-  return `<td class="num"><span class="val">${esc(pct(estimate.estimate))}</span> <span class="ci">${esc(interval(estimate, pct))}</span>${bar(estimate)}</td>`;
+  const effective = effectiveNote(estimate);
+  return `<td class="num"><span class="val">${esc(pct(estimate.estimate))}</span> <span class="ci">${esc(interval(estimate, pct))}</span>${effective === '' ? '' : ` <span class="ci">${esc(effective)}</span>`}${bar(estimate)}</td>`;
+}
+
+/** A suite headline cell: the mean over goldens, its hierarchical interval, and what stands behind it. */
+function headlineCell(headline: SuiteHeadline | undefined): string {
+  if (!headline) return '<td class="num muted">none</td>';
+  return `<td class="num"><span class="val">${esc(pct(headline.estimate))}</span> <span class="ci">${esc(interval(headline, pct))}</span> <span class="ci">${esc(headlineNote(headline))}</span>${bar(headline)}</td>`;
 }
 
 function bar(estimate: Estimate): string {
@@ -407,7 +431,7 @@ function successionSection(card: Scorecard): string {
   });
   const modeRows = card.modes.map(
     (mode) =>
-      `<tr>${textCell(mode.mode)}${numCell(String(mode.lines))}${numCell(String(mode.runs))}${rateCell(mode.runPass)}${rateCell(mode.blockAccuracy)}${rateCell(mode.allBlocksPass)}${numCell(mode.passK ? `k=${mode.passK.k}: ${pct(mode.passK.mean)}` : '')}${numCell(mode.driftCount ? `${fixed(mode.driftCount.estimate, 2)} ${interval(mode.driftCount, (v) => fixed(v, 2))}` : '')}${textCell(classes(mode.classes), 'mono')}</tr>`,
+      `<tr>${textCell(mode.mode)}${numCell(String(mode.lines))}${numCell(String(mode.runs))}${headlineCell(mode.headline)}${rateCell(mode.runPass)}${rateCell(mode.blockAccuracy)}${rateCell(mode.allBlocksPass)}${numCell(mode.passK ? `k=${mode.passK.k}: ${pct(mode.passK.mean)}` : '')}${numCell(mode.driftCount ? `${fixed(mode.driftCount.estimate, 2)} ${interval(mode.driftCount, (v) => fixed(v, 2))}` : '')}${textCell(classes(mode.classes), 'mono')}</tr>`,
   );
   return `<section id="succession">
 <h2>Blocks and their succession</h2>
@@ -417,6 +441,7 @@ ${table(
     'mode',
     'goldens',
     'runs',
+    'suite pass rate',
     'runs passing',
     'block accuracy',
     'every block passes',
@@ -620,7 +645,7 @@ function blockDetail(block: BlockDetail, extra = ''): string {
   const verdictHead = ['outcome', 'verdict', 'kind', 'gating', 'evidence', 'judge reasoning'];
   return `<div class="block ${block.pass ? 'block-pass' : 'block-fail'}" id="block-${block.index}">
 ${block.rejudged ? `<p>Re-judged: ${esc(block.rejudged.criteria.join(', '))}; observations from ${esc(block.rejudged.fromCampaign)}.</p>\n` : block.carried ? `<p>carried from ${esc(block.carried.fromCampaign)}</p>\n` : ''}<p class="block-head"><span class="badge ${block.pass ? 'ok' : 'bad'}">${block.pass ? 'pass' : 'fail'}</span> Block ${block.index}, ${esc(where)}${block.drift.length > 0 ? `, drift ${esc(block.drift.join(', '))}` : ''}. Stage expected ${esc(block.expectedStage ?? 'none')}, observed ${esc(block.observedStage ?? 'none')}.</p>
-${block.stimulus === undefined ? '' : `<p class="label">User</p><pre class="msg">${esc(block.stimulus)}</pre>`}
+${block.stimulus === undefined ? '' : `<p class="label">${block.realized === undefined ? 'User' : 'User, as written'}</p><pre class="msg">${esc(block.stimulus)}</pre>`}${block.realized === undefined ? '' : `\n<p class="label">User, as sent</p><pre class="msg">${esc(block.realized.text ?? notStored(block.realized.hash))}</pre>`}
 <p class="label">Agent</p><pre class="msg">${esc(block.text || '(no text)')}</pre>
 <p class="label">Cache key</p><pre class="mono">${esc(block.cacheKey ?? 'not cached')}</pre>
 <p class="label">Tool calls</p>${tools}
@@ -795,6 +820,8 @@ function methodSection(): string {
 <li>Every interval is two-sided at 95%.</li>
 <li>Wilson: the score interval on k of n, used for a rate over independent units (the repeats of one golden, the goldens of a campaign).</li>
 <li>Cluster bootstrap: 2000 percentile resamples of whole clusters, seed 1, so the same store gives the same page. Anything pooled over blocks takes one run (one conversation) as one cluster; anything pooled over the runs of a mode takes one golden as one cluster.</li>
+<li>Hierarchical: the suite pass rate is the mean over goldens (every golden weighs the same, whatever its repeats). Its interval comes from a Beta-Bernoulli model that learns from the spread between goldens how far the runs of one golden move together; it needs no sampling, so the same store gives the same page. Next to it: the effective runs (n_eff, the runs divided by the design effect), the smallest drop two suites like this one detect at 80% power, and the share of runs that gave no verdict.</li>
+<li>Wilson on n_eff: a pass rate over clusters (the repeats of a golden, the blocks of a conversation) takes the Wilson interval on the effective number of units, the units divided by the design effect the spread of the cluster rates implies, with the Student t quantile on the clusters less one. The cell prints n_eff and the design effect.</li>
 <li>Wilson over clusters: a pass rate whose values all agree (every block passes, or none does) leaves a bootstrap no width, so it takes the Wilson interval with each cluster counted once.</li>
 <li>Newcombe: the paired difference of two rates, for baseline against candidate.</li>
 <li>No interval: a bootstrap over a single cluster has none; the page says so instead of drawing one.</li>

@@ -3,8 +3,8 @@ import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { CampaignConfig } from '@agent-nexus/driftbench-core';
 import type { Command } from 'commander';
-import { parse as parseYaml } from 'yaml';
-import { DEFAULT_CONFIG } from './aggregate-config';
+import { parseDocument } from 'yaml';
+import { configKeyError, DEFAULT_CONFIG } from './aggregate-config';
 import type { Io } from './io';
 
 /**
@@ -20,7 +20,8 @@ export type CampaignConfigLoad =
 /**
  * Reads the `campaign:` key. Without --config the file is `driftbench.yaml` in the working folder and is
  * optional: a missing file, a file that is not YAML, or one with no `campaign:` key gives no settings, as
- * before the key existed. A --config that cannot be read, and a `campaign:` key that does not fit, are errors.
+ * before the key existed. Unknown top-level keys, a --config that cannot be read, and a `campaign:` key
+ * that does not fit are errors.
  */
 export async function readCampaignConfig(
   given: string | undefined,
@@ -40,7 +41,11 @@ export async function readCampaignConfig(
   }
   let root: unknown;
   try {
-    root = parseYaml(text);
+    const doc = parseDocument(text);
+    if (doc.errors.length > 0) throw doc.errors[0];
+    const keyError = configKeyError(doc.contents, text, path);
+    if (keyError) return { ok: false, message: keyError };
+    root = doc.toJS();
   } catch (cause) {
     if (!explicit) return { ok: true, config: undefined };
     return {

@@ -1,0 +1,10 @@
+{
+ "frozenBefore": "the one confirmation run on pool/confirm.jsonl",
+ "driftbench": "pair ledger as shipped at the branch base (bench/all-peers-public 7ba369f42, from main a04632338); no judge change",
+ "branchCommitAtFreeze": "6d2790fd86bf228ddb0c1c7c26b42ee0e14088dd",
+ "packagesJudgesSrcSha256": "3eaae648c2e33ae9c26993d921cf0ae52d558e320d3a57320d7cfa4b4b701bec",
+ "runner": {"judge.mjs": "ec9fe0c886750a9b15c0cef595f38642803dada8ce57d8ac91a84443ea0985ef", "run_peers.py": "a130d089fa2cdedb0d331c7e3649aa147e308cff69ed9851f2ca56e2f13f96a2", "stats.py": "24cd073f5ee74e507c2da211d26966e86ddf6f198acab0e43bd9eccb5eb9e41e"},
+ "model": "claude-haiku-5-5 for every contestant, claude command, ledger-cell flags",
+ "holmFamily": "driftbench against promptfoo, DeepEval, Inspect, Langfuse, LangWatch on pool/confirm.jsonl (5 tests)",
+ "devCandidatesTried": ["solo solve before judging (solver 112/150 vs ledger 124/150; rejected)", "solo solve at high effort (114/150; rejected)", "two extra reads on split pairs (reads repeat the same position preference; rejected)"]
+}

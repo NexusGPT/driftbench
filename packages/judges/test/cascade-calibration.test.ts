@@ -173,3 +173,36 @@ describe('the recorded cascade on the 5 criteria the council run did not reach (
     expect(report.spentUsd).toBeCloseTo(0.0094, 4);
   });
 });
+
+describe('calibrateCascade and the family of the agent under test', () => {
+  it('refuses a judge of the agent family, first or escalated, before any call', async () => {
+    const small = first();
+    const other = new FakeJudge('other', [{ outcome: 'pass', reasoning: 'ok' }], {
+      family: 'anthropic',
+      cls: 'system2',
+    });
+    await expect(
+      calibrateCascade({
+        first: small,
+        escalateTo: [costly('mid'), other],
+        criteria: [CRITERION],
+        labels: LABELS,
+        agentFamily: 'claude-sonnet-5-5',
+      }),
+    ).rejects.toThrow(
+      /judge other is from the anthropic family, the family of the agent under test: refused/,
+    );
+    expect(small.requests).toHaveLength(0);
+  });
+
+  it('runs when no judge shares the agent family', async () => {
+    const report = await calibrateCascade({
+      first: first(),
+      escalateTo: [costly('mid'), costly('big')],
+      criteria: [CRITERION],
+      labels: LABELS,
+      agentFamily: 'anthropic',
+    });
+    expect(report.criteria).toHaveLength(1);
+  });
+});

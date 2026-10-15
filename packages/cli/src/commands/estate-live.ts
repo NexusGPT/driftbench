@@ -25,11 +25,20 @@ import { openStore } from '@agent-nexus/driftbench-store';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
+import {
+  addJudgeOptions,
+  addRunCheckOptions,
+  isStandIn,
+  type RunCheckFlags,
+  type RunJudgeOptions,
+  runCheckSettingsFrom,
+  runJudgeFrom,
+  STAND_IN_MARKER,
+} from '../judge-options';
 import { optionNumber } from '../number';
 import { loadValidSpecs } from './campaign';
 import { mapCacheOptions } from './map-cache';
 import { replayChecks } from './replay';
-import { addJudgeOptions, isStandIn, type RunJudgeOptions, runJudgeFrom, STAND_IN_MARKER } from './run-judge';
 
 export { isStandIn, STAND_IN_MARKER };
 
@@ -101,7 +110,7 @@ export function registerEstateLiveCommands(estate: Command, io: Io, setExit: (co
       'append one JSON line per finished spec to this file as each finishes, so a stopped batch keeps them',
     )
     .option('--json', 'print one JSON document');
-  addJudgeOptions(run).action(async (specs: string[], options: EstateRunOptions) => {
+  addRunCheckOptions(addJudgeOptions(run)).action(async (specs: string[], options: EstateRunOptions) => {
     setExit(await estateRunCommand(specs, options, io));
   });
 }
@@ -132,7 +141,8 @@ export type EstateRunOptions = {
   trustEstate?: boolean;
   config?: string;
   json?: boolean;
-} & RunJudgeOptions;
+} & RunJudgeOptions &
+  RunCheckFlags;
 
 export type RunLine = {
   spec: string;
@@ -244,6 +254,8 @@ export async function estateRunCommand(
     return 2;
   }
   const config = (options.config ?? (standIn ? 'isolated' : 'host')) as 'host' | 'isolated';
+  const settings = await runCheckSettingsFrom(options, io);
+  if (!settings) return 2;
   const judge = await runJudgeFrom(options, io);
   if (!judge) return 2;
 
@@ -356,14 +368,17 @@ export async function estateRunCommand(
       modes: ['F'],
       repeats: { T: 0, F: 1, P: 0 },
       budgetUsd: 0,
-      judge: {
-        mode: judge.label === 'none' ? 'system1' : 'llm',
-        judges: judge.label === 'none' ? [] : [judge.label],
-      },
+      judge: { mode: judge.mode, judges: judge.judges },
       createdAt,
     };
     await store.putCampaign(campaign);
-    const checks = replayChecks({ judge: judge.check, piiJudge: judge.piiJudge });
+    const checks = replayChecks({
+      judge: judge.check,
+      piiJudge: judge.piiJudge,
+      ...(settings.piiOwner.length > 0 ? { piiOwner: settings.piiOwner } : {}),
+      ...(settings.toolPolicy ? { toolPolicy: settings.toolPolicy } : {}),
+      ...(settings.embedder ? { embedder: settings.embedder } : {}),
+    });
     // The files a run copies, listed once for every spec: what the runtime may load, never an ignored folder
     // (node_modules, test runs), which made each spec's copy as large as the whole estate folder.
     const lister = readerFor(options.runtime, { ignore: mapIgnore });
@@ -392,6 +407,7 @@ export async function estateRunCommand(
         adapter,
         driver: createScriptedDriver(),
         checks,
+        ...(settings.toolPolicy ? { toolPolicy: settings.toolPolicy } : {}),
         mode: 'F',
         repeat: 0,
         target,
@@ -408,6 +424,7 @@ export async function estateRunCommand(
     return 2;
   }
   await store.close();
+  await judge.save();
 
   const passed = lines.filter((line) => line.pass).length;
   const undecided = lines.filter((line) => line.undecided).length;
