@@ -351,7 +351,7 @@ The contract: every approved atom gets the mandatory test types of its kind. Neg
 
 Run modes: `guard_positive` replays a recorded event; `script_fixture`, `contract_alone`, `guard_negative`, `guard_hostile`, `guard_speed`, `guard_register` and `invariant` run as units; every other type runs live.
 
-Journeys: edge coverage over the route, reference, dispatch and next edges of approved atoms. A start node stands for the standing instructions: it points at the routes stated outside any skill or helper file and at the stages no `next` edge enters. Each path is a journey row listing its atoms in order. A route read only from a skill or helper description starts no journey; the Northwind estate has 7 such routes, reported as edges with no journey, and each still gets its contract rows.
+Journeys: edge coverage over the route, reference, script, dispatch and next edges of approved atoms. A script reached from a skill is part of the journey, so the generated live test checks its execution as well as the skill load. A start node stands for the standing instructions: it points at the routes stated outside any skill or helper file and at the stages no `next` edge enters. Each path is a journey row listing its atoms in order. A route read only from a skill or helper description starts no journey; the Northwind estate has 7 such routes, reported as edges with no journey, and each still gets its contract rows.
 
 Pairwise: a covering array of strength t (default 2) over the situation axes, under the constraint list, with the target dimensions merged into one: every pairwise row is one atom in one situation, with the first test type of its atom's kind, live. A constraint on one target atom is carried; one that names atoms of two kinds cannot hold for a single target and is dropped (and counted). In the Northwind plan the lower bound is the targets times the deviation values, 89 times 11, or 979; the array has 980 rows.
 
@@ -467,13 +467,14 @@ How a row becomes a spec:
 | `custom` hazard_recovery | `rules.custom.hazard_recovery`: after the hazard the agent goes on, rereads the paths its passage names, and does nothing destructive |
 | `custom` grounded_values | `rules.custom.grounded_values`: every number, identifier and date of the reply was seen in the user's messages or a tool result of the run (1,250.00 and 1250 are one value, 5 October 2026 and 2026-10-05 one date); a value only the agent wrote fails; whole numbers up to 10 are left alone |
 | `ordered` between two calls of one tool | ends anchored on what each call holds, `Bash~git status` before `Bash~commit`: the gate's first act and the verb of its trigger |
+| `ordered` from a Read | the Read of what the gate reads: the file it names (`Read~<path>`), or, when it names none and its change acts on what it read ("read a file before you edit it"), the file of the change (`key: file_path`). A read of some other file never holds the gate |
 | `stage_reached` on a step allowed at any point | `rules.custom.stage_seen`: the stage shows once in the block, wherever; not applicable when the runtime reports no stages (no stage record, so nothing to judge) |
 | a control whose predicate has no machine inverse | with a judge, the judged control (the rule does not act outside its situation); without one, `needs-negation` |
 | `custom` max_words | `rules.custom.max_words`: a word limit on the draft (the largest fenced block, else the quoted lines, else from a Subject line on; inconclusive with none) when the rule speaks of a draft, else on the whole reply |
 | `custom` no_delete_under | `rules.custom.no_delete_under`: nothing deleted under the folder, read from the workspace diff, else from removal commands; a move is no deletion |
 | `custom` with a name no code checks (a domain rule) | a gating judged criterion whose rubric quotes the atom's own words and its situation; the spec is tagged `judged` and lists the atoms in `metadata.estate.judged`. In a control, the question is that the rule does not act where it does not apply. `--no-judge` leaves it `needs-registered-check` |
 | `custom` permission | `rules.custom.permission`: deny, no call the rule covers; allow or declared, a covered call none refused; ask stays a gap |
-| `custom` with a name the generator compiles | `command_not_run` to some_call; `max_characters`, `max_questions`, `no_secret_in_reply`, `currency_after_amount`, `stopped_and_confirmed` to `must_not` (and `execution.max_commands: 0`); `json_only`, `asks_for`, `route_table` to `must`; `same_language_as_user` to `lang`; `confirmed_before_send`, `asks_again_on_loose_yes` to `safety.confirm_before: [send]` |
+| `custom` with a name the generator compiles | `command_not_run`, `command_absent`, `command_forbidden` (the command in `contains`, `regex` or `command`) to some_call, no Bash call whose command matches; `max_characters`, `max_questions`, `no_secret_in_reply`, `currency_after_amount`, `stopped_and_confirmed` to `must_not` (and `execution.max_commands: 0`); `json_only`, `asks_for`, `route_table` to `must`; `same_language_as_user` to `lang`; `confirmed_before_send`, `asks_again_on_loose_yes` to `safety.confirm_before: [send]` |
 
 * The outcome, when neither the situation nor the atoms name a path, is read from the atoms (`metadata.estate.outcome`): nothing changes (`others_untouched`) for a negative control, a denied tool, a guard that denies or blocks, or a row whose skills and helpers may use no writing tool; otherwise nothing is deleted (`deleted: []`). `--no-fallback` turns this off.
 * Invariant and setting rows are static tests: JSON under `static/<test type>/`, run by `driftbench estate static <suite>/static --estate <root>` on the original or a mutant copy. An invariant passes when it still holds on the files; a setting when the settings still declare its key and value. The replay and live runners register `some_call`, `hazard_recovery`, `permission`, `grounded_values`, `max_words`, `no_delete_under` and `stage_seen` next to `ordered`.
@@ -502,6 +503,8 @@ How a row becomes a spec:
 | `needs-derivable-then` | a row with no Then code can derive |
 | `needs-askable-act` | no approved phrase, and the atoms' words give no task the floor accepts |
 | `needs-existing-file` | a Read of a file the estate copy does not hold |
+
+The files of the estate copy are listed from the map's `root`. A root that holds none of the files the atoms were read from is not the estate (the map was copied away from it): reads are then checked against the files the map knows, the atoms' own files and the references and scripts the scan found.
 
 Layout: `<specs|incomplete>/<mode>/<test type>/<id>.yaml`, so `driftbench replay --suite <out>/specs/replay` takes the replay specs alone.
 
