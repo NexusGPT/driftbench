@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>driftbench: count the broken step once</title>
+<link rel="stylesheet" href="brand.css">
+<style>
+  #frame { width: 640px; height: 380px; }
+  .step { width: 168px; padding: 12px; }
+  .step .nx-kind { position: static; display: block; font-size: 10px; }
+  .title { margin-top: 8px; font: 600 12.5px/1.3 var(--nx-sans); }
+  .detail { margin-top: 8px; color: var(--detail); font: 400 11px/1.35 var(--nx-sans); }
+  .status { margin-top: 10px; }
+  .fail { display: inline-flex; align-items: center; height: 20px; padding: 0 8px; border-radius: 999px; background: var(--nx-ink); color: var(--nx-card); font: 600 10.5px/1 var(--nx-sans); }
+  .blocked { display: inline-flex; align-items: center; height: 20px; padding: 0 8px; border-radius: 999px; background: var(--miss-bg); color: var(--miss-ink); font: 600 10.5px/1 var(--nx-sans); }
+  .end { left: 16px; top: 46px; height: 150px; }
+  .root { left: 226px; top: 46px; height: 150px; }
+  .child { left: 436px; height: 102px; }
+  .independent { left: 16px; top: 228px; width: 378px; height: 62px; padding: 12px; display: flex; align-items: center; gap: 16px; }
+  .independent .nx-kind { position: static; display: block; font-size: 10px; }
+  .independent .title { margin-top: 5px; }
+  .bottom { left: 16px; top: 310px; width: 588px; height: 34px; display: flex; align-items: center; gap: 12px; padding: 0 12px; font: 500 11.5px/1.3 var(--nx-sans); }
+</style>
+</head>
+<body>
+<div id="frame" class="nx-ill scene"><div class="nx-ill__glass">
+  <svg class="nx-edges" viewBox="0 0 620 360">
+    <path class="nx-edge--new" d="M184 111 L226 111"/>
+    <path class="nx-edge" d="M394 121 L415 121 L415 97 L436 97"/>
+    <path class="nx-edge" d="M415 121 L415 237 L436 237"/>
+  </svg>
+  <span class="nx-kind" style="left:16px;top:16px">A child starts where its parent ends</span>
+  <div class="nx-ill-panel step end"><span class="nx-kind">Details block</span><div class="title">The customer chose a plan.</div><div class="status"><span class="nx-done">pass</span></div><div class="detail">End state becomes the start.</div></div>
+  <div class="nx-ill-panel step root nx-ring"><span class="nx-kind">Recap block</span><div class="title">The agent skips confirmation.</div><div class="status"><span class="fail">fail</span></div><div class="detail">This is the broken step.</div></div>
+  <div class="nx-ill-panel step child" style="top:46px"><span class="nx-kind">Order block</span><div class="title">Needs the recap.</div><div class="status"><span class="blocked">blocked</span></div></div>
+  <div class="nx-ill-panel step child" style="top:186px"><span class="nx-kind">Receipt block</span><div class="title">Needs the recap.</div><div class="status"><span class="blocked">blocked</span></div></div>
+  <div class="nx-ill-panel independent"><div><span class="nx-kind">Independent block</span><div class="title">Answer the opening hours question.</div></div><span class="nx-done">pass</span></div>
+  <div class="nx-ill-panel bottom"><span class="fail">1 failure</span>Fix the recap. Its children wait. The independent test still passes.</div>
+</div></div>
+<script>
+window.__fonts = ['400 12px Geist', '600 13px Geist', '500 10.5px "Geist Mono"'];
+Promise.all(window.__fonts.map((f) => document.fonts.load(f))).then(() => document.fonts.ready).then(() => { window.__ready = true; });
+</script>
+</body>
+</html>

@@ -1,6 +1,12 @@
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import type { RunMode, RunResult, Stimulus, Store } from '@agent-nexus/driftbench-core';
+import {
+  type RunMode,
+  type RunResult,
+  type Store,
+  specBlocks,
+  stimulusMessages,
+} from '@agent-nexus/driftbench-core';
 import {
   createAnthropicJudge,
   createDefaultJudge,
@@ -350,14 +356,6 @@ async function readItems(path: string): Promise<RubricItem[]> {
   });
 }
 
-/** The stimulus a block sent, as the text the pairwise judge reads it against. Empty when it has none. */
-function stimulusText(when: Stimulus | undefined): string {
-  if (when === undefined) return '';
-  if ('user' in when) return when.user;
-  if ('burst' in when) return when.burst.join(' / ');
-  return when.injection.user;
-}
-
 /**
  * Judges each reply pair of the two campaigns with the criterion, in both orders unless canonical. A judge
  * that gives no answer fails the command with its reason; it is never counted as a tie.
@@ -406,11 +404,26 @@ async function runPairwise(
       return undefined;
     }
   }
-  const stimulusOf = (run: RunResult, index: number): string => {
-    const loaded = baseline.specs.get(`${run.specId}@${run.specHash}`);
-    return stimulusText(loaded?.ok ? loaded.spec.blocks[index]?.when : undefined);
+  const stimulusOf = (run: RunResult, index: number): string | undefined => {
+    const data = baseline.runs.includes(run) ? baseline : candidate;
+    const loaded = data.specs.get(`${run.specId}@${run.specHash}`);
+    if (!loaded?.ok) return undefined;
+    const mapped = specBlocks(run, loaded.spec).find((entry) => entry.result.index === index);
+    const when =
+      mapped === undefined
+        ? undefined
+        : loaded.spec.blocks[mapped.result.provenance?.specIndex ?? mapped.block]?.when;
+    return when === undefined
+      ? undefined
+      : stimulusMessages(when)
+          .map((message) => message.content)
+          .join('\n');
   };
-  const pairs = replyPairs(baseline.runs, candidate.runs, stimulusOf);
+  let differentStimulus = 0;
+  const pairs = replyPairs(baseline.runs, candidate.runs, stimulusOf, () => {
+    differentStimulus += 1;
+  });
+  const skipped = ` Skipped ${differentStimulus} pairs: different stimulus.`;
   const pairOptions: PairwiseOptions = {
     ...(reference === undefined ? {} : { reference }),
     ...(items === undefined ? {} : { rubricItems: items }),
@@ -422,7 +435,7 @@ async function runPairwise(
   const judgeOne = async (pair: (typeof pairs)[number]): Promise<PairwiseCall> => {
     const transcript = pair.stimulus === '' ? [] : [{ role: 'user' as const, text: pair.stimulus }];
     if (readerFirst !== undefined) {
-      const read = await readerFirst.judgePair(pair.stimulus || criterion.rubric, pair.first, pair.second);
+      const read = await readerFirst.judgePair(pair.stimulus, pair.first, pair.second);
       return single(read.choice === 'A' ? 'first' : read.choice === 'B' ? 'second' : 'tie');
     }
     const verdict = await judgePairwise(judge, criterion, transcript, pair.first, pair.second, pairOptions);
@@ -451,13 +464,13 @@ async function runPairwise(
     const measured =
       readerFirst === undefined && settings.contract === 'winner' && settings.presentation === 'both-orders';
     if (measured && settings.itemsFile === undefined && settings.audit) {
-      const line = `Pairwise: ${pairs.length} pairs, baseline ${tally.baseline}, candidate ${tally.candidate}, tie ${tally.tie}, inconsistent ${tally.inconsistent}, position bias ${tally.positionBias}.${spent}`;
-      return { line, json: { ...tally, pairs: pairs.length } };
+      const line = `Pairwise: ${pairs.length} pairs, baseline ${tally.baseline}, candidate ${tally.candidate}, tie ${tally.tie}, inconsistent ${tally.inconsistent}, position bias ${tally.positionBias}.${skipped}${spent}`;
+      return { line, json: { ...tally, pairs: pairs.length, differentStimulus } };
     }
     const line = `Pairwise (${how}): ${pairs.length} pairs, baseline ${tally.baseline}, candidate ${tally.candidate}, tie ${tally.tie}${
       measured ? `, inconsistent ${tally.inconsistent}, position bias ${tally.positionBias}` : ''
-    }.${spent}`;
-    return { line, json: { ...tally, pairs: pairs.length, how } };
+    }.${skipped}${spent}`;
+    return { line, json: { ...tally, pairs: pairs.length, differentStimulus, how } };
   } catch (cause) {
     io.err(`pairwise judge gave no answer: ${cause instanceof Error ? cause.message : String(cause)}\n`);
     return undefined;
