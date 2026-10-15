@@ -101,6 +101,7 @@ export {
   isScored,
   type RunOutcome,
   runOutcome,
+  skipReason,
   unscoredText,
   type VerdictCounts,
 } from './verdicts';

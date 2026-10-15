@@ -231,6 +231,7 @@ export {
   runsByCell,
   type StageReading,
   type StageSource,
+  skipReason,
   specBlocks,
   stageSignatures,
   stimulusMessages,

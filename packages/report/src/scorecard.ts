@@ -5,6 +5,7 @@ import {
   type Count,
   compoundingIndex,
   type DriftClass,
+  isScored,
   type NotRun,
   type RunEvent,
   type RunMode,
@@ -24,6 +25,7 @@ import {
   carriedSummary,
   deviationOf,
   groupBy,
+  measuredRecovery,
   runPassed,
   showTarget,
   specOfRun,
@@ -244,12 +246,16 @@ export function buildScorecard(data: CampaignData, options: ScorecardOptions = {
   const perturbed = runs.filter((run) => run.mode === 'P');
   const recovery = recoveryOf(perturbed);
   const byClass = groupBy(
-    perturbed.filter((run) => run.recovery),
+    perturbed.filter((run) => measuredRecovery(run)),
     (run) => deviationOf(specOfRun(data, run), run) ?? 'unknown',
   );
+  // A class whose every run left its injected block unsent measured no recovery: it has no row.
   const recoveryByClass = [...byClass.entries()]
     .sort(([a], [b]) => a.localeCompare(b, 'en', { numeric: true }))
-    .map(([deviation, group]) => ({ deviation, summary: recoveryOf(group) as RecoverySummary }));
+    .flatMap(([deviation, group]) => {
+      const summary = recoveryOf(group);
+      return summary === undefined ? [] : [{ deviation, summary }];
+    });
   const maxRuns = options.maxRuns ?? 200;
   const ordered = [...runs.filter((run) => !runPassed(run)), ...runs.filter(runPassed)];
   const shown = ordered.slice(0, maxRuns);
@@ -331,7 +337,7 @@ export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
     ...optional('carried', run.carried),
     ...optional('endState', run.endState),
     succession: run.succession,
-    ...optional('recovery', run.recovery),
+    ...optional('recovery', measuredRecovery(run)),
     ...optional('events', run.events),
     ...optional('stopped', stoppedOf(run, spec)),
     blocks: blocksWithSpec(run, spec).map(({ result, specBlock }) => {
@@ -365,7 +371,7 @@ export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
         ...optional('expectedStage', expectedStage),
         ...optional('observedStage', result.stageObserved),
         pass: result.pass,
-        ...(result.status === 'not_run' || result.status === 'blocked' ? { status: result.status } : {}),
+        ...(isScored(result) ? {} : { status: blockStatus(result) as 'not_run' | 'blocked' }),
         ...optional('notRun', result.notRun),
         ...optional('blocked', result.blocked),
         latencyMs: result.observed.latencyMs,
@@ -451,7 +457,7 @@ export function toolAccuracy(data: CampaignData): ToolAccuracy {
     let counted = false;
     for (const { result, specBlock } of blocksWithSpec(run, spec)) {
       // A block not run or blocked made no call because it was never sent: it is no tool measurement.
-      if (specBlock === undefined || result.status !== undefined) continue;
+      if (specBlock === undefined || !isScored(result)) continue;
       const tools = spec?.blocks[specBlock]?.expect?.tools;
       if (!tools) continue;
       counted = true;

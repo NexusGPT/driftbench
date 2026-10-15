@@ -51,7 +51,7 @@ Exit codes:
 | Code | When |
 |---|---|
 | 0 | The new campaign passes: every block passes and every end state matches. |
-| 1 | The new campaign is written, and a gating result fails or is inconclusive. |
+| 1 | The new campaign is written, and a run does not pass: a gating result fails or is inconclusive, or a block was not run or blocked (no measurement; the summary lists each with its reason and counts the runs as `notRun` or `blocked`). |
 | 2 | The inputs or the reuse proof were refused; nothing is judged or written. |
 
 ## Inputs

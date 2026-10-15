@@ -158,8 +158,8 @@ describe('rates over 1 pass, 1 not_run, 1 blocked read 100% of the scored', () =
   });
 
   it('the format helpers name blocked apart from not run', () => {
-    expect(verdictOf(false, 'blocked')).toEqual({ cls: 'skip', text: 'blocked' });
-    expect(verdictOf(false, undefined)).toEqual({ cls: 'bad', text: 'fail' });
+    expect(verdictOf('blocked')).toEqual({ cls: 'skip', text: 'blocked' });
+    expect(verdictOf('fail')).toEqual({ cls: 'bad', text: 'fail' });
     expect(unscoredReason(blockedBlock(1))).toBe('Blocked by block 0 (root block 0): the ancestor failed.');
     expect(unscoredRuns({ notRun: 1, blocked: 1 })).toBe('1 not run, 1 blocked, ');
     expect(unscoredRuns({})).toBe('');

@@ -1,3 +1,4 @@
+import type { BlockStatus } from '@agent-nexus/driftbench-core';
 import type { CarriedSummary } from './data';
 import type { Estimate } from './estimate';
 import type { SuiteHeadline } from './headline';
@@ -125,16 +126,18 @@ export function unscoredRuns(counts: { notRun?: number; blocked?: number }, sepa
 }
 
 /**
- * The verdict a run or a block shows: pass, fail, or one of the two that are neither. `unscored` is a block's
- * `status`, or a run's `outcome`, never a run's own `status` (completed, failed, stopped).
+ * The verdict a run or a block shows: pass, fail, or one of the two that are neither. A block's status comes
+ * from `blockStatus`, a run's from `runDetailStatus`, never from a run's own `status` (completed, failed).
  */
-export function verdictOf(
-  pass: boolean,
-  unscored: 'not_run' | 'blocked' | undefined,
-): { cls: 'ok' | 'bad' | 'skip'; text: string } {
-  if (unscored === 'not_run') return { cls: 'skip', text: 'not run' };
-  if (unscored === 'blocked') return { cls: 'skip', text: 'blocked' };
-  return pass ? { cls: 'ok', text: 'pass' } : { cls: 'bad', text: 'fail' };
+export function verdictOf(status: BlockStatus): { cls: 'ok' | 'bad' | 'skip'; text: string } {
+  if (status === 'not_run') return { cls: 'skip', text: 'not run' };
+  if (status === 'blocked') return { cls: 'skip', text: 'blocked' };
+  return status === 'pass' ? { cls: 'ok', text: 'pass' } : { cls: 'bad', text: 'fail' };
+}
+
+/** The verdict of a run of the scorecard: its outcome when it was not run or blocked, else pass or fail. */
+export function runDetailStatus(run: { pass: boolean; outcome?: 'not_run' | 'blocked' }): BlockStatus {
+  return run.outcome ?? (run.pass ? 'pass' : 'fail');
 }
 
 /** Why a block was not run or blocked, in one sentence; undefined for a block that ran. */

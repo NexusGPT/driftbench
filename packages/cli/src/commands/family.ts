@@ -188,9 +188,9 @@ export async function familyInstancesCommand(
 
 /**
  * Exit 0 when the reference passes every spec under the folder; 1 when it fails one, or one is invalid
- * (each listed: an oracle or a reference defect, never shipped); 3 when none fails but the reference could
- * not run one (a block not run: unverified, never shipped); 2 on bad input: no adapter for the reference, no
- * spec under the folder, a bad number.
+ * (each listed: an oracle or a reference defect, never shipped), or the reference could not run one (a block
+ * not run: unverified, counted apart, never shipped); 2 on bad input: no adapter for the reference, no spec
+ * under the folder, a bad number.
  */
 export async function familyVerifyCommand(
   dir: string,
@@ -268,7 +268,7 @@ export async function familyVerifyCommand(
       );
     } else {
       io.out(
-        `✗ The reference fails ${report.specs - report.passed} of ${report.specs} specs. Each is an oracle or a reference defect: one of the two is wrong about the task. These instances are not shipped: ${report.rejected.join(', ')}.\n`,
+        `✗ The reference fails ${report.results.filter((result) => result.state !== 'pass' && result.state !== 'not_run').length} of ${report.specs} specs. Each is an oracle or a reference defect: one of the two is wrong about the task. These instances are not shipped: ${report.rejected.join(', ')}.\n`,
       );
       if (report.shipped.length > 0)
         io.out(`  ${report.shipped.length} instances pass every variant: ${report.shipped.join(', ')}.\n`);
@@ -280,8 +280,8 @@ export async function familyVerifyCommand(
     if (pending) io.out(`${pending}\n`);
     io.out(`Wrote ${display(join(root, VERIFY_REPORT_NAME), io)}.\n`);
   }
-  // 1 when the reference fails an instance; 3 when none fails but one could not be run (as ci); never 0 then.
-  return report.rejected.length > 0 ? 1 : (report.unverified ?? []).length > 0 ? 3 : 0;
+  // 0 only when every instance ships: an instance the reference could not run is not shipped either.
+  return report.rejected.length === 0 && (report.unverified ?? []).length === 0 ? 0 : 1;
 }
 
 /** A line when the instances were built while the family review was pending: release waits for it too. */

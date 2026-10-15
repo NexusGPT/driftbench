@@ -50,6 +50,21 @@ export function blocksOutcome(run: Pick<RunResult, 'blocks' | 'status' | 'endSta
   });
 }
 
+/**
+ * Why a block was not run or blocked, in one line: `not run (unsupported, check capability): expected ...; got
+ * ...` or `blocked by <block> (root <block>)`. Undefined for a pass or a fail.
+ */
+export function skipReason(
+  block: Pick<BlockResult, 'pass' | 'status' | 'notRun' | 'blocked'>,
+): string | undefined {
+  const status = blockStatus(block);
+  if (status === 'pass' || status === 'fail') return undefined;
+  if (block.notRun)
+    return `not run (${block.notRun.kind}, check ${block.notRun.check}): expected ${block.notRun.expected}; got ${block.notRun.got}`;
+  if (block.blocked) return `blocked by ${block.blocked.by} (root ${block.blocked.root})`;
+  return status === 'blocked' ? 'blocked' : 'not run';
+}
+
 /** Runs and blocks by verdict, for the counts printed beside a pass rate. */
 export type VerdictCounts = { pass: number; fail: number; not_run: number; blocked: number };
 

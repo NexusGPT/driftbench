@@ -103,6 +103,14 @@ export function runPassed(run: RunResult): boolean {
 }
 
 /**
+ * The recovery record of a run, when it measured one: a run whose injected block was not run or blocked sent the
+ * agent nothing, so a recovery stored on it is no measurement. Every reader of a recovery goes through this.
+ */
+export function measuredRecovery(run: RunResult): RunResult['recovery'] {
+  return run.blocks.every((block) => !block.injected || isScored(block)) ? run.recovery : undefined;
+}
+
+/**
  * The runs a pass rate counts: those that passed or failed. A run with a block not run or blocked, and no
  * failure, is neither: it is left out of every rate, and its count is printed beside the rate.
  */

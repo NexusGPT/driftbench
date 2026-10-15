@@ -13,6 +13,7 @@ import {
   deviationOf,
   groupBy,
   lineKey,
+  measuredRecovery,
   runPassed,
   scoredRuns,
   specOfRun,
@@ -323,9 +324,10 @@ export function successionOf(runs: readonly RunResult[]): SuccessionSummary {
 /** The recovery summary of the runs that carry a recovery record; undefined when none does. */
 export function recoveryOf(runs: readonly RunResult[]): RecoverySummary | undefined {
   // A run whose injected block was not run or blocked measured no recovery, even one stored with a label.
-  const measured = runs.flatMap((run) =>
-    run.recovery && run.blocks.every((block) => !block.injected || isScored(block)) ? [run.recovery] : [],
-  );
+  const measured = runs.flatMap((run) => {
+    const recovery = measuredRecovery(run);
+    return recovery ? [recovery] : [];
+  });
   if (measured.length === 0) return undefined;
   const labels = { immediate: 0, late: 0, never: 0 };
   for (const entry of measured) labels[entry.label] += 1;

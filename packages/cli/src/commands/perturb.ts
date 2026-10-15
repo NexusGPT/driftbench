@@ -1,6 +1,6 @@
 import { existsSync, statSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
-import { blockStatus, type RunResult, runSpec, type Spec } from '@agent-nexus/driftbench-core';
+import { blockStatus, isScored, type RunResult, runSpec, type Spec } from '@agent-nexus/driftbench-core';
 import {
   createPerturbingDriver,
   DEVIATIONS,
@@ -238,9 +238,9 @@ function notMeasured(driver: PerturbingDriver, result: RunResult): string {
   );
   // A block not run or blocked sends nothing: the deviation never reached the agent.
   const skipped =
-    injected?.status !== undefined ? injected : result.blocks.find((block) => block.status !== undefined);
-  if (skipped?.status !== undefined) {
-    return `the deviation ${driver.perturbation.id} never reached the agent: block ${skipped.index} was ${skipped.status === 'blocked' ? 'blocked' : 'not run'}`;
+    injected && !isScored(injected) ? injected : result.blocks.find((block) => !isScored(block));
+  if (skipped) {
+    return `the deviation ${driver.perturbation.id} never reached the agent: block ${skipped.index} was ${blockStatus(skipped) === 'blocked' ? 'blocked' : 'not run'}`;
   }
   if (!injected) {
     return `the deviation ${driver.perturbation.id} never went in: the run ${result.status} after ${result.blocks.length} blocks`;
@@ -344,7 +344,7 @@ function printText(
   );
   io.out(`Expected: ${def.expected}.\n`);
   const passed = reference.blocks.filter((block) => blockStatus(block) === 'pass').length;
-  const unscored = reference.blocks.filter((block) => block.status !== undefined).length;
+  const unscored = reference.blocks.filter((block) => !isScored(block)).length;
   io.out(
     reference.status === 'completed'
       ? `Reference: the F run of the same spec, ${passed} of ${reference.blocks.length - unscored} blocks pass${unscored > 0 ? ` (${unscored} not run or blocked)` : ''}; collateral counts against it.\n`

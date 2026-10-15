@@ -62,7 +62,7 @@ describe('rates over runs leave out the runs neither passed nor failed', () => {
   });
 
   it('the viewer index: passing and failing leave the not-run runs out of both columns', () => {
-    expect(passingAndFailing(runs)).toEqual({ passing: 1, failing: 1 });
+    expect(passingAndFailing(runs)).toEqual({ passing: 1, failing: 1, unscored: 2 });
   });
 
   it('estate stats decay: a session whose block was only not run leaves that block out', () => {

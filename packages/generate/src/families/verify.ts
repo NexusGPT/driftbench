@@ -4,6 +4,7 @@ import { isAbsolute, relative, resolve } from 'node:path';
 import {
   type AgentAdapter,
   type ArtifactReaderRegistry,
+  blockStatus,
   blocksOutcome,
   type CheckSet,
   findSpecFiles,
@@ -11,6 +12,7 @@ import {
   type RunResult,
   runSpec,
   type Spec,
+  skipReason,
   type TargetRef,
 } from '@agent-nexus/driftbench-core';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
@@ -117,21 +119,20 @@ function anchored(spec: Spec, cwd: string): Spec {
 function verdictOf(file: string, spec: Spec, run: RunResult): SpecVerdict {
   const where = familyOf(spec);
   // A block not run or blocked has no verdicts: it is listed with its reason, so the spec never fails silently.
-  const unscored = run.blocks.flatMap((block) =>
-    block.status === undefined
-      ? []
-      : [
-          {
-            block: block.index,
-            ...(block.blockId === undefined ? {} : { blockId: block.blockId }),
-            check: block.status,
-            id: block.status,
-            evidence: block.notRun
-              ? `${block.notRun.check}: ${block.notRun.got}`
-              : `blocked by ${block.blocked?.by ?? 'an ancestor'}`,
-          },
-        ],
-  );
+  const unscored = run.blocks.flatMap((block) => {
+    const reason = skipReason(block);
+    if (reason === undefined) return [];
+    const status = blockStatus(block);
+    return [
+      {
+        block: block.index,
+        ...(block.blockId === undefined ? {} : { blockId: block.blockId }),
+        check: status,
+        id: status,
+        evidence: reason,
+      },
+    ];
+  });
   const failing = run.blocks.flatMap((block) =>
     block.verdicts
       .filter((verdict) => verdict.gating && verdict.outcome !== 'pass')

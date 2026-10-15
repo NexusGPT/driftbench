@@ -14,9 +14,11 @@ import {
   type BlockSpec,
   blockStatus,
   type CheckSet,
+  isScored,
   parseSpecText,
   type RunResult,
   runSpec,
+  skipReason,
   type UserDriver,
 } from '@agent-nexus/driftbench-core';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
@@ -102,7 +104,7 @@ export function describeSpec(
         'end state',
         async (context) => {
           const result = await once();
-          const skipped = result.blocks.find((entry) => entry.status !== undefined);
+          const skipped = result.blocks.find((entry) => !isScored(entry));
           if (!result.endState && skipped) {
             context.skip(`no end state was compared: ${notRunReason(skipped)}`);
             return;
@@ -145,13 +147,8 @@ function cut(text: string): string {
 
 /** Why a block was not run or blocked, as a skipped test says it; undefined for a pass or a fail. */
 function notRunReason(block: BlockResult): string | undefined {
-  if (block.notRun)
-    return `block ${block.index} was not run (${block.notRun.kind}, check ${block.notRun.check}): expected ${block.notRun.expected}; got ${block.notRun.got}`;
-  if (block.blocked)
-    return `block ${block.index} was blocked by ${block.blocked.by} (root ${block.blocked.root})`;
-  if (block.status !== undefined)
-    return `block ${block.index} was ${block.status === 'blocked' ? 'blocked' : 'not run'}`;
-  return undefined;
+  const reason = skipReason(block);
+  return reason === undefined ? undefined : `block ${block.index} was ${reason}`;
 }
 
 /** What failed in a block: each gating verdict that did not pass, with its evidence. */

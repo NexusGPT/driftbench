@@ -1,8 +1,10 @@
 import { resolve } from 'node:path';
 import {
+  blockStatus,
   blocksOutcome,
   type Campaign,
   completeBaselineProvenance,
+  isScored,
   loadChangeManifest,
   loadSpecs,
   planCampaign,
@@ -151,23 +153,49 @@ export async function campaignRejudge(paths: string[], options: Options, io: Io)
       runs.push(run);
     }
     await judge.save();
+    // A block not run or blocked is left as it was: no measurement to re-judge, named with its reason.
+    const unmeasured = runs.flatMap((r) =>
+      r.blocks.flatMap((b) => {
+        const status = blockStatus(b);
+        if (status !== 'not_run' && status !== 'blocked') return [];
+        const reason = b.notRun
+          ? `${b.notRun.check}: ${b.notRun.got}`
+          : `blocked by ${b.blocked?.by ?? 'an ancestor'}`;
+        return [{ spec: r.specId, mode: r.mode, repeat: r.repeat, block: b.index, status, reason }];
+      }),
+    );
+    const outcomes = runs.map(blocksOutcome);
     const summary = {
       campaign: campaign.campaignId,
       from: options.from,
       agentCalls: 0,
       rejudged: runs.flatMap((r) => r.blocks).filter((b) => b.rejudged).length,
-      carried: runs.flatMap((r) => r.blocks).filter((b) => !b.rejudged).length,
+      carried: runs.flatMap((r) => r.blocks).filter((b) => !b.rejudged && isScored(b)).length,
+      ...(unmeasured.length > 0 ? { unmeasured } : {}),
+      runs: {
+        pass: outcomes.filter((outcome) => outcome === 'pass').length,
+        fail: outcomes.filter((outcome) => outcome === 'fail').length,
+        notRun: outcomes.filter((outcome) => outcome === 'not_run').length,
+        blocked: outcomes.filter((outcome) => outcome === 'blocked').length,
+      },
       judgeCostUsd: judge.spend.usd,
     };
-    io.out(
-      options.json
-        ? `${JSON.stringify(summary, null, 2)}\n`
-        : `Campaign ${summary.campaign}: ${summary.rejudged} blocks re-judged, ${summary.carried} carried; 0 agent calls. Judge cost ${summary.judgeCostUsd.toFixed(4)} USD.\n`,
-    );
-    // Exit 1 when a run fails; 3 when none fails but a block was not run or blocked (as ci), never a pass.
-    const outcomes = runs.map(blocksOutcome);
-    if (outcomes.includes('fail')) return 1;
-    return outcomes.every((outcome) => outcome === 'pass') ? 0 : 3;
+    if (options.json) io.out(`${JSON.stringify(summary, null, 2)}\n`);
+    else {
+      io.out(
+        `Campaign ${summary.campaign}: ${summary.rejudged} blocks re-judged, ${summary.carried} carried${unmeasured.length > 0 ? `, ${unmeasured.length} not run or blocked (left as they were)` : ''}; 0 agent calls. Judge cost ${summary.judgeCostUsd.toFixed(4)} USD.\n`,
+      );
+      io.out(
+        `Runs: ${summary.runs.pass} pass, ${summary.runs.fail} fail${summary.runs.notRun > 0 ? `, ${summary.runs.notRun} not run` : ''}${summary.runs.blocked > 0 ? `, ${summary.runs.blocked} blocked` : ''}.\n`,
+      );
+      for (const entry of unmeasured)
+        io.out(
+          `  ${entry.spec} ${entry.mode} repeat ${entry.repeat} block ${entry.block} ${entry.status === 'blocked' ? 'blocked' : 'not run'}: ${entry.reason}\n`,
+        );
+    }
+    // Exit 0 only when every run passes; a run not run or blocked is no pass, so it exits 1 as a failure does,
+    // and the summary says which it was.
+    return outcomes.every((outcome) => outcome === 'pass') ? 0 : 1;
   } catch (error) {
     io.err(`${error instanceof Error ? error.message : String(error)}\n`);
     return 2;

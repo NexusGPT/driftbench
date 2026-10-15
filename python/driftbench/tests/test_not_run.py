@@ -92,3 +92,25 @@ def test_a_spec_only_not_run_is_skipped_and_one_that_failed_still_fails():
     doc = report()
     doc["cells"][1] = {**doc["cells"][1], "state": "fail"}
     assert not unmeasured(CampaignResult.from_json(doc, exit_code=1))
+
+
+def test_verdict_of_reads_blocks_and_cells():
+    from driftbench import verdict_of
+
+    result = CampaignResult.from_json(report(), exit_code=1)
+    assert [verdict_of(cell) for cell in result.cells] == ["not_run", "blocked"]
+    assert [verdict_of(block) for block in result.cells[0].blocks] == ["pass", "not_run"]
+    text = describe(result)
+    assert "repeat 0: not run" in text
+    assert " failed" not in text
+
+
+def test_one_pass_and_one_not_run_cell_read_one_of_one_and_no_failure():
+    doc = report()
+    passing = {**doc["cells"][0], "cellId": "c-pass", "state": "pass", "failing": [], "blocks": [doc["cells"][0]["blocks"][0]]}
+    doc["cells"] = [passing, doc["cells"][0]]
+    doc["summary"] = {"cells": 2, "pass": 1, "fail": 0, "failed": 0}
+    text = describe(CampaignResult.from_json(doc, exit_code=1))
+    assert "1 of 1 cells pass (1 not run)" in text
+    assert "failed" not in text
+    assert "block 1 not run (capability)" in text

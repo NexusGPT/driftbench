@@ -1,7 +1,24 @@
-import { blockStatus, type RunMode, type Verdict } from '@agent-nexus/driftbench-core';
+import {
+  type BlockStatus,
+  blockStatus,
+  isScored,
+  type RunMode,
+  type Verdict,
+} from '@agent-nexus/driftbench-core';
 import { criterionOf } from './compare';
 import { showTarget } from './data';
-import { count, esc, fixed, json, pct, pValue, unscoredReason, unscoredRuns, usd, verdictOf } from './format';
+import {
+  count,
+  esc,
+  fixed,
+  json,
+  pct,
+  pValue,
+  runDetailStatus,
+  unscoredReason,
+  unscoredRuns,
+  usd,
+} from './format';
 import type { ReliabilityLine } from './reliability';
 import { type BlockDetail, notStored, type RunDetail, type Scorecard } from './scorecard';
 
@@ -144,7 +161,7 @@ export function pageModel(card: Scorecard): PageModel {
   for (const run of card.drilldown) {
     for (const block of run.blocks) {
       // A block not run or blocked is no measurement: out of the rate, counted beside it.
-      if (block.status !== undefined) {
+      if (!isScored(block)) {
         blocksUnscored += 1;
         continue;
       }
@@ -185,9 +202,9 @@ function chip(pass: boolean): string {
 }
 
 /** The chip of a run (its `outcome`) or a block (its `status`): Pass, Fail, or Not run and Blocked, which are neither. */
-function chipOf(pass: boolean, unscored: 'not_run' | 'blocked' | undefined): string {
-  if (unscored === undefined) return chip(pass);
-  return `<span class="chip skip">${unscored === 'not_run' ? 'Not run' : 'Blocked'}</span>`;
+function chipOf(status: BlockStatus): string {
+  if (status === 'pass' || status === 'fail') return chip(status === 'pass');
+  return `<span class="chip skip">${status === 'not_run' ? 'Not run' : 'Blocked'}</span>`;
 }
 
 /** A block that failed: not one that was not run or blocked. */
@@ -197,7 +214,7 @@ function blockFailed(block: BlockDetail): boolean {
 
 /** A run that failed: not one whose outcome is not run or blocked. */
 function runFailed(run: RunDetail): boolean {
-  return !run.pass && run.outcome === undefined;
+  return runDetailStatus(run) === 'fail';
 }
 
 function move(baseline: boolean | undefined, now: boolean): string {
@@ -566,7 +583,7 @@ export function runsZone(m: PageModel, options: RunPanelOptions): string {
       const c = caseOf(m, run);
       const test = c ? m.tests.find((t) => t.cases.includes(c)) : undefined;
       const ff = firstFail(run);
-      return `<tr class="run-row ${run.pass ? 'r-pass' : runFailed(run) ? 'r-fail' : 'r-skip'}${c ? ` c-${c.index}` : ''}"><td>${chipOf(run.pass, run.outcome)}</td><td class="t"><a class="rowlink" href="#run-${esc(run.runId)}">${esc(test?.title ?? run.title ?? run.specId)}</a><small>${esc(c ? caseLabel(c) : run.mode)} · repeat ${run.repeat}</small></td><td class="hide-s">${squares(run)}</td><td class="hide-s"><span class="firstfail">${ff ? `<b>${esc(ff.verdict.id)}</b> · block ${ff.block.index}` : 'none'}</span></td>${latency ? `<td class="num hide-s">${esc(fixed(run.latencyMs, 0))} ms</td>` : ''}</tr>`;
+      return `<tr class="run-row ${{ pass: 'r-pass', fail: 'r-fail', not_run: 'r-skip', blocked: 'r-skip' }[runDetailStatus(run)]}${c ? ` c-${c.index}` : ''}"><td>${chipOf(runDetailStatus(run))}</td><td class="t"><a class="rowlink" href="#run-${esc(run.runId)}">${esc(test?.title ?? run.title ?? run.specId)}</a><small>${esc(c ? caseLabel(c) : run.mode)} · repeat ${run.repeat}</small></td><td class="hide-s">${squares(run)}</td><td class="hide-s"><span class="firstfail">${ff ? `<b>${esc(ff.verdict.id)}</b> · block ${ff.block.index}` : 'none'}</span></td>${latency ? `<td class="num hide-s">${esc(fixed(run.latencyMs, 0))} ms</td>` : ''}</tr>`;
     })
     .join('\n');
   // A case filter is an address: "#case-3" shows the runs of case 3, with a pill that clears it.
@@ -642,7 +659,7 @@ function blockView(block: BlockDetail): string {
           .join('')}</div>`;
   const reason = unscoredReason(block);
   return `<div class="blk${{ pass: '', fail: ' bad', not_run: ' skip', blocked: ' skip' }[blockStatus(block)]}">
-<p class="bh"><span class="kicker">Block ${block.index}${block.specBlock === undefined ? ' · injected' : ''}</span>${stage}${chipOf(blockStatus(block) === 'pass', block.status)}</p>
+<p class="bh"><span class="kicker">Block ${block.index}${block.specBlock === undefined ? ' · injected' : ''}</span>${stage}${chipOf(blockStatus(block))}</p>
 ${note}${reason === undefined ? '' : `<p class="stage">${esc(reason)}</p>`}${block.stimulus === undefined ? '' : `<p class="who">${block.realized === undefined ? 'User' : 'User, as written'}</p><p class="msg user">${esc(block.stimulus)}</p>`}${block.realized === undefined ? '' : `<p class="who">User, as sent</p><p class="msg user">${esc(block.realized.text ?? notStored(block.realized.hash))}</p>`}
 <p class="who r">Agent · ${esc(fixed(block.latencyMs, 0))} ms</p><p class="msg agent">${esc(block.text || '(no text)')}</p>
 ${tools}${block.drift.length > 0 ? `<p class="stage">drift ${esc(block.drift.join(', '))}</p>` : ''}${shown.map(verdictRow).join('')}${passed.length > 0 ? `<details class="fold"><summary>${ICON_CHEV}${count(passed.length, 'machine check')} passed</summary><p class="ids">${passed.map((v) => esc(v.id)).join(', ')}</p></details>` : ''}
@@ -657,7 +674,7 @@ function runPanel(m: PageModel, run: RunDetail, options: RunPanelOptions): strin
   const failedChecks = verdicts.filter((v) => v.outcome === 'fail').length;
   const passingBlocks = run.blocks.filter((b) => blockStatus(b) === 'pass').length;
   // A block not run or blocked is no measurement: out of the rate, its count beside it.
-  const unscoredBlocks = run.blocks.filter((b) => b.status !== undefined).length;
+  const unscoredBlocks = run.blocks.filter((b) => !isScored(b)).length;
   const s = run.succession;
   const facts: Array<[string, string]> = [
     ['Run', run.runId],
@@ -709,7 +726,7 @@ function runPanel(m: PageModel, run: RunDetail, options: RunPanelOptions): strin
   return `<section class="drawer" id="run-${id}" aria-label="Run ${id}">
 <div class="dh">
 <p class="row"><span class="dtitle">${esc(test?.title ?? run.title ?? run.specId)}</span><a class="x" href="#drilldown">${ICON_X}<span class="sr">Close</span></a></p>
-<p class="dstatus">${chipOf(run.pass, run.outcome)} <span class="stage">${esc(c ? caseLabel(c) : run.mode)} · repeat ${run.repeat}</span>${options.runHref ? ` <a class="open" href="${esc(options.runHref(run.runId))}">open the run</a>` : ''}</p>
+<p class="dstatus">${chipOf(runDetailStatus(run))} <span class="stage">${esc(c ? caseLabel(c) : run.mode)} · repeat ${run.repeat}</span>${options.runHref ? ` <a class="open" href="${esc(options.runHref(run.runId))}">open the run</a>` : ''}</p>
 <p class="dfacts">${facts.map(([k, v]) => `<span>${esc(k)} <b>${esc(v)}</b></span>`).join('')}</p>
 <div class="seg dtabs" role="radiogroup" aria-label="Detail view"><input type="radio" name="dt-${id}" id="dc-${id}" class="tab-conv" checked><label for="dc-${id}">Conversation</label><input type="radio" name="dt-${id}" id="dk-${id}" class="tab-checks"><label for="dk-${id}">Checks<span class="c">${failedChecks}</span></label><input type="radio" name="dt-${id}" id="dd-${id}" class="tab-data"><label for="dd-${id}">Run data</label></div>
 </div>

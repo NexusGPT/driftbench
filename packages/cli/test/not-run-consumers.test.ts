@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -12,6 +12,7 @@ import { acmeAdapter } from '../../core/test/runner/support';
 import { defaultDeps } from '../src/commands/campaign';
 import { rankInputs } from '../src/commands/compare-rank';
 import { lineOf } from '../src/commands/estate-live';
+import { familyVerifyCommand } from '../src/commands/family';
 import { registerPerturbCommand } from '../src/commands/perturb';
 import { registerRedteamCommand } from '../src/commands/redteam';
 import { registerSimulateCommand } from '../src/commands/simulate';
@@ -346,6 +347,39 @@ describe('redteam grade on a target that cannot run the spec', () => {
       const text = await run(false);
       expect(text.out).toContain('not run (a block was not sent)');
       expect(text.out).not.toContain('not passed');
+    },
+    SLOW,
+  );
+});
+
+describe('family verify on a reference that cannot run the spec', () => {
+  it(
+    'counts the instance apart as unverified, never as a reference defect, and exits 1',
+    async () => {
+      const dir = await temp();
+      await writeFile(join(dir, 'tool-failure.yaml'), await readFile(join(ROOT, TOOL_FAILURE), 'utf8'));
+      let out = '';
+      let err = '';
+      const io: Io = {
+        out: (text) => {
+          out += text;
+        },
+        err: (text) => {
+          err += text;
+        },
+        cwd: dir,
+      };
+      const code = await familyVerifyCommand(
+        '.',
+        { reference: 'function:acme-sales', concurrency: '1' },
+        io,
+        noStubs,
+      );
+      expect(err).toBe('');
+      expect(code).toBe(1);
+      expect(out).toContain('- tool-failure.yaml  not run');
+      expect(out).toContain('could not run 1 instances');
+      expect(out).not.toContain('reference defect');
     },
     SLOW,
   );

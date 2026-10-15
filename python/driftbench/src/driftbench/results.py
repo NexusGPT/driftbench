@@ -45,7 +45,7 @@ class Block:
     @property
     def scored(self) -> bool:
         """True for a pass or a fail: a block the agent was measured on."""
-        return self.status is None
+        return verdict_of(self) in ("pass", "fail")
 
     @property
     def reason(self) -> str | None:
@@ -76,6 +76,19 @@ class Block:
             not_run=doc.get("notRun"),
             blocked=doc.get("blocked"),
         )
+
+
+def verdict_of(item: Block | Cell) -> str:
+    """The verdict of a block or a cell: pass, fail, not_run or blocked. The one reader of a block's pass and
+    status and a cell's state, as `blockStatus` and `runOutcome` are in TypeScript: a block or a cell not run or
+    blocked is neither a pass nor a fail, and a cell that failed, broke or stopped is a fail."""
+    if isinstance(item, Block):
+        if item.status in ("not_run", "blocked"):
+            return item.status
+        return "pass" if item.passed else "fail"
+    if item.state in ("not_run", "blocked", "pass"):
+        return item.state
+    return "fail"
 
 
 @dataclass(frozen=True)
@@ -113,12 +126,12 @@ class Cell:
 
     @property
     def passed(self) -> bool:
-        return self.state == "pass"
+        return verdict_of(self) == "pass"
 
     @property
     def scored(self) -> bool:
         """False for a cell not run or blocked: no measurement."""
-        return self.state not in ("not_run", "blocked")
+        return verdict_of(self) in ("pass", "fail")
 
     @classmethod
     def from_json(cls, doc: dict[str, Any]) -> Cell:

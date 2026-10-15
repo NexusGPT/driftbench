@@ -681,6 +681,7 @@
       "sameCarryContext": "value",
       "script": "value",
       "sentStimulus": "value",
+      "skipReason": "value",
       "specBlocks": "value",
       "stageSignatures": "value",
       "stimulusMessages": "value",

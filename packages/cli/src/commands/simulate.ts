@@ -1,6 +1,7 @@
 import {
   blockStatus,
   type DriverStep,
+  isScored,
   runSpec,
   type Stimulus,
   type UserDriver,
@@ -153,7 +154,7 @@ export async function simulateCommand(
   const revealed = (driver as RecordedDriver).revealed();
   const passed = result.blocks.filter((block) => blockStatus(block) === 'pass').length;
   // A block not run or blocked is no pass (ok stays false) and no failure: it is counted apart.
-  const unscored = result.blocks.filter((block) => block.status !== undefined).length;
+  const unscored = result.blocks.filter((block) => !isScored(block)).length;
   const ok = result.status === 'completed' && passed === result.blocks.length && result.blocks.length > 0;
 
   if (options.json) {

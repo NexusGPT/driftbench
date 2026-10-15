@@ -14,6 +14,7 @@ import {
   pct,
   points,
   pValue,
+  runDetailStatus,
   unscoredReason,
   unscoredRuns,
   usd,
@@ -657,7 +658,7 @@ function blockDetail(block: BlockDetail, extra = ''): string {
       ? `<details><summary>${esc(block.toolCalls.map((call) => call.label).join(', '))}</summary>${calls}</details>`
       : calls;
   const verdictHead = ['outcome', 'verdict', 'kind', 'gating', 'evidence', 'judge reasoning'];
-  const verdict = verdictOf(blockStatus(block) === 'pass', block.status);
+  const verdict = verdictOf(blockStatus(block));
   const reason = unscoredReason(block);
   return `<div class="block ${verdict.cls === 'ok' ? 'block-pass' : verdict.cls === 'skip' ? 'block-skip' : 'block-fail'}" id="block-${block.index}">
 ${block.rejudged ? `<p>Re-judged: ${esc(block.rejudged.criteria.join(', '))}; observations from ${esc(block.rejudged.fromCampaign)}.</p>\n` : block.carried ? `<p>carried from ${esc(block.carried.fromCampaign)}</p>\n` : ''}<p class="block-head"><span class="badge ${verdict.cls}">${verdict.text}</span> Block ${block.index}, ${esc(where)}${block.drift.length > 0 ? `, drift ${esc(block.drift.join(', '))}` : ''}. Stage expected ${esc(block.expectedStage ?? 'none')}, observed ${esc(block.observedStage ?? 'none')}.</p>
@@ -708,7 +709,7 @@ function runDetail(run: RunDetail, options: RenderOptions = {}): string {
           ),
         )
       : '';
-  const verdict = verdictOf(run.pass, run.outcome);
+  const verdict = verdictOf(runDetailStatus(run));
   return `<details class="run ${verdict.cls === 'ok' ? 'run-pass' : verdict.cls === 'skip' ? 'run-skip' : 'run-fail'}" id="run-${esc(run.runId)}"${run.pass ? '' : ' open'}>
 <summary><span class="badge ${verdict.cls}">${verdict.text}</span> <span class="mono">${esc(name)}</span>${options.runHref ? ` <a class="open" href="${esc(options.runHref(run.runId))}">open the run</a>` : ''}</summary>
 <p class="run-facts">${esc(facts.join(', '))}.${run.title ? ` ${esc(run.title)}.` : ''}</p>
@@ -724,8 +725,8 @@ ${run.blocks.map((block) => blockDetail(block)).join('\n')}
  */
 function drilldownIndex(card: Scorecard, options: RenderOptions): string {
   // A run not run or blocked is neither failing nor passing: it is counted on its own.
-  const unscored = card.drilldown.filter((run) => run.outcome !== undefined).length;
-  const failing = card.drilldown.filter((run) => !run.pass && run.outcome === undefined).length;
+  const unscored = card.drilldown.filter((run) => !['pass', 'fail'].includes(runDetailStatus(run))).length;
+  const failing = card.drilldown.filter((run) => runDetailStatus(run) === 'fail').length;
   const passing = card.drilldown.length - failing - unscored;
   const runs = card.drilldown.map((run) =>
     runDetail({ ...run, blocks: [] }, options)
