@@ -1,5 +1,5 @@
 import type { BlockResult, RunResult } from '../schema/run';
-import { provenanceDigest } from './provenance';
+import { provenanceDigest, provenanceHash } from './provenance';
 
 type Source = NonNullable<RunResult['realizedTextStripped']>;
 
@@ -28,4 +28,14 @@ export function applyRealizedTextPolicy(
   if (blocks.every((block, index) => block === run.blocks[index])) return run;
   const stripped = { ...run, blocks, realizedTextStripped: source };
   return { ...stripped, provenanceDigest: provenanceDigest(stripped) };
+}
+
+/** Resolve only text supported by the stored observation. Missing text is never reconstructed. */
+export function realizedTextOf(
+  authored: string | undefined,
+  realized?: BlockResult['realized'],
+): string | undefined {
+  if (realized === undefined) return authored;
+  const text = realized.text ?? authored;
+  return text !== undefined && provenanceHash(text) === realized.hash ? text : undefined;
 }

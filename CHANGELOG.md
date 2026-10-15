@@ -35,6 +35,8 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ### Fixed
 
+* Pairwise comparison judges only replies with the same verifiable sent text. It uses stored realized text, accepts authored text only when its realized hash matches, and counts skipped pairs as `differentStimulus` ("different stimulus" in text output). Viewer labels use the sent text and mark unavailable text with `flags: ["sent text not stored"]`; those labels are excluded from calibration, including both cascade paths. Core exports `realizedTextOf` to share the hash check.
+
 * Runs and blocks copied into another campaign follow that campaign's realized-text opt-in. Whole-run carries, partial block reruns, re-judging, store writes and imports strip `realized.text` by default, preserve its hash, and record the source run in `realizedTextStripped` provenance covered by the recomputed digest. Exports also strip legacy hash-only records. `campaign rejudge --record-realized-text` explicitly retains available source text; no copy reconstructs missing text. Core exports `applyRealizedTextPolicy` for the shared copy boundary.
 
 ### Breaking

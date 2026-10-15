@@ -649,6 +649,7 @@
       "provenanceHash": "value",
       "radiusOf": "value",
       "readStage": "value",
+      "realizedTextOf": "value",
       "recordRetry": "value",
       "recoveryOf": "value",
       "rejudgeRun": "value",
