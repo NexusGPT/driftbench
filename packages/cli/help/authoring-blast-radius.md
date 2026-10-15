@@ -29,7 +29,7 @@ You describe the change in a change manifest: the agent version before (`from`),
 
 `driftbench radius auto` writes a change manifest for you from two versions of a prompt file and an approved map whose entries carry evidence quotes. A change inside exactly one approved quote becomes a narrow change. Any doubt becomes a whole-suite change.
 
-A prompt can also carry a section registry, which names its sections by stable ids, and blocks can link to the sections they test in `metadata.links`. The registry, re-anchoring and links are in authoring-prompt-sections. Links stay out of the spec hash, so adding them never invalidates a carry. A `prompt_section` change is always the whole suite: selection by section links is advisory until links are verified by mutation, and `radius --sections` only prints what it would skip.
+A prompt can also carry a section registry, which names its sections by stable ids. Blocks can link to the sections they test in `metadata.links`. The registry, re-anchoring and links are in authoring-prompt-sections. Links stay out of the spec hash, so adding them never invalidates a carry. A `prompt_section` change is always the whole suite: selection by section links is advisory until links are verified by mutation, and `radius --sections` only prints what it would skip.
 
 Each block of each spec gets one state per mode:
 
