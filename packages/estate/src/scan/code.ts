@@ -655,18 +655,108 @@ function routeAtoms(
   }
 }
 
-/** The fixed forms of a gate, each giving the thing to read first and the act it comes before. */
+/** A prerequisite is one path notation or a quoted command; the rest of the clause names the act. */
+const GATE_TARGET = String.raw`(\[[^\]\n]*\]\((?:<[^>\n]+>|[^\s)]+)(?:\s+"[^"]*")?\)|\x60[^\x60]+\x60|"[^"]+"|'[^']+'|\S+)`;
 const GATE_FORMS: Array<{ form: string; pattern: RegExp; read: number; act: number }> = [
-  { form: 'before-colon-read', pattern: /\bbefore ([^:]+?):\s*read\s+(`[^`]+`|\S+)/i, read: 2, act: 1 },
-  { form: 'before-comma-read', pattern: /\bbefore ([^,:]+?),\s*read\s+(`[^`]+`)/i, read: 2, act: 1 },
-  { form: 'read-before', pattern: /\bread\s+(`[^`]+`)\s+before\s+([^.;!]+)/i, read: 1, act: 2 },
+  {
+    form: 'before-colon-read',
+    pattern: new RegExp(String.raw`^before\s+([^:]+?):\s*read\s+${GATE_TARGET}`, 'i'),
+    read: 2,
+    act: 1,
+  },
+  {
+    form: 'before-comma-read',
+    pattern: new RegExp(String.raw`^before\s+([^,]+?),\s*read\s+${GATE_TARGET}`, 'i'),
+    read: 2,
+    act: 1,
+  },
+  {
+    form: 'read-before',
+    pattern: new RegExp(String.raw`^read\s+${GATE_TARGET}\s+before\s+(.+)$`, 'i'),
+    read: 1,
+    act: 2,
+  },
   {
     form: 'not-until-read',
-    pattern: /\bdo not ([^.;]+?) until you have read (?:the output of )?(`[^`]+`|[^.;]+)/i,
+    pattern: new RegExp(
+      String.raw`^do not\s+(.+?)\s+until you have read\s+(?:the output of\s+)?${GATE_TARGET}`,
+      'i',
+    ),
+    read: 2,
+    act: 1,
+  },
+  {
+    form: 'read-first-then',
+    pattern: new RegExp(String.raw`^read\s+${GATE_TARGET}\s+first,?\s+then\s+(.+)$`, 'i'),
+    read: 1,
+    act: 2,
+  },
+  {
+    form: 'not-without-reading',
+    pattern: new RegExp(String.raw`^(?:never|do not|don't)\s+(.+?)\s+without reading\s+${GATE_TARGET}`, 'i'),
+    read: 2,
+    act: 1,
+  },
+  {
+    form: 'only-after-reading',
+    pattern: new RegExp(String.raw`^(.+?)\s+only after reading\s+${GATE_TARGET}`, 'i'),
+    read: 2,
+    act: 1,
+  },
+  {
+    form: 'question-read-first',
+    pattern: new RegExp(String.raw`^(.+?)\?\s*read\s+${GATE_TARGET}\s+first\b`, 'i'),
+    read: 2,
+    act: 1,
+  },
+  {
+    form: 'prior-to-read',
+    pattern: new RegExp(String.raw`^prior to\s+(.+?),\s*read\s+${GATE_TARGET}`, 'i'),
     read: 2,
     act: 1,
   },
 ];
+
+/** Separate directives without splitting punctuation inside a path, link or quoted command. */
+function gateClauses(text: string): string[] {
+  const clauses: string[] = [];
+  let start = 0;
+  let quote = '';
+  let parentheses = 0;
+  for (let index = 0; index < text.length; index++) {
+    const char = text[index];
+    if (quote) {
+      if (char === quote && text[index - 1] !== '\\') quote = '';
+      continue;
+    }
+    if (char === '`' || char === '"' || (char === "'" && !/\w/.test(text[index - 1] ?? ''))) {
+      quote = char;
+      continue;
+    }
+    if (char === '(') parentheses++;
+    if (char === ')') parentheses = Math.max(0, parentheses - 1);
+    if (
+      parentheses === 0 &&
+      (char === ';' || ((char === '.' || char === '!') && /\s|$/.test(text[index + 1] ?? '')))
+    ) {
+      // A numbered list or a rule label is a prefix, not a complete directive.
+      const prefix = text
+        .slice(start, index + 1)
+        .replace(/[*`]/g, '')
+        .trim();
+      if (char === '.' && /^(?:[-+]\s*)?(?:\d+|[A-Z]+#?\d+)\.$/i.test(prefix)) continue;
+      clauses.push(text.slice(start, index));
+      start = index + 1;
+    }
+  }
+  clauses.push(text.slice(start));
+  return clauses.map((clause) =>
+    clause
+      .replace(/\*\*/g, '')
+      .replace(/^\s*(?:[-+*]\s+)?(?:\d+[.)]\s+)?(?:[A-Z]+#?\d+[.:]\s+)?/i, '')
+      .trim(),
+  );
+}
 
 function gateAtoms(
   chunk: ProseChunk,
@@ -675,50 +765,51 @@ function gateAtoms(
   builder: AtomBuilder,
 ): void {
   for (const line of chunkLines(chunk, files.get(chunk.file))) {
-    for (const { form, pattern, read, act } of GATE_FORMS) {
-      const match = pattern.exec(line.text);
-      if (!match) continue;
-      // Markup around the words (bold, backticks) is not part of the act or of what is read.
-      const first = (match[read] ?? '').replace(/[`*]/g, '').trim();
-      const trigger = (match[act] ?? '').replace(/[`*]/g, '').trim();
-      if (first === '' || trigger === '' || !isAct(trigger)) continue;
-      const isFile = /\.[A-Za-z0-9]+$/.test(first) && !/\s/.test(first);
-      // The file to read first is found as a reference's is: its place, an alias, then its ending.
-      const located = isFile
-        ? locateNamed(first, chunk.file, files, {
-            bases: raw.bases ?? [],
-            skipped: new Set(raw.ignored?.paths ?? []),
-            aliases: raw.aliases ?? {},
-            byName: names(raw, files),
-            externals: raw.externals ?? [],
-          })
-        : undefined;
-      const path = located?.path;
-      const before = isFile ? raw.labels.read : raw.labels.shell;
-      const after = actLabel(trigger, raw);
-      const evidence: EvidencePredicate[] = [
-        { type: 'ordered', before, after },
-        path
-          ? { type: 'tool_called', label: raw.labels.read, input: { file_path: { contains: path } } }
-          : { type: 'tool_called', label: raw.labels.shell, input: { command: { contains: first } } },
-      ];
-      builder.add({
-        kind: 'gate',
-        title: `Read ${first} before ${trigger}`,
-        at: { file: chunk.file, startLine: line.line, endLine: line.line, quote: line.quote },
-        evidence,
-        situation: trigger,
-        fields: {
-          form,
-          first,
-          trigger,
-          ...(path ? { path } : {}),
-          ...(located?.via === 'alias' || located?.via === 'suffix' ? { resolvedBy: located.via } : {}),
-          ...(located?.candidates ? { candidates: located.candidates } : {}),
-          ...(located?.via === 'external' ? { external: true } : {}),
-        },
-      });
-      break;
+    for (const clause of gateClauses(line.text)) {
+      for (const { form, pattern, read, act } of GATE_FORMS) {
+        const match = pattern.exec(clause);
+        if (!match) continue;
+        const target = match[read] ?? '';
+        const first = namedPaths(`Read ${target}`)[0] ?? target.replace(/[`*"']/g, '').trim();
+        const trigger = (match[act] ?? '').replace(/[`*]/g, '').trim();
+        if (first === '' || trigger === '' || !isAct(trigger)) continue;
+        const isFile = /\.[A-Za-z0-9]+$/.test(first) && !/\s/.test(first);
+        const located = isFile
+          ? locateNamed(first, chunk.file, files, {
+              bases: raw.bases ?? [],
+              skipped: new Set(raw.ignored?.paths ?? []),
+              aliases: raw.aliases ?? {},
+              byName: names(raw, files),
+              externals: raw.externals ?? [],
+            })
+          : undefined;
+        const path = located?.path;
+        const before = isFile ? raw.labels.read : raw.labels.shell;
+        const after = actLabel(trigger, raw);
+        const evidence: EvidencePredicate[] = [
+          { type: 'ordered', before, after },
+          path
+            ? { type: 'tool_called', label: raw.labels.read, input: { file_path: { contains: path } } }
+            : { type: 'tool_called', label: raw.labels.shell, input: { command: { contains: first } } },
+        ];
+        builder.add({
+          kind: 'gate',
+          title: `Read ${first} before ${trigger}`,
+          at: { file: chunk.file, startLine: line.line, endLine: line.line, quote: line.quote },
+          evidence,
+          situation: trigger,
+          fields: {
+            form,
+            first,
+            trigger,
+            ...(path ? { path } : {}),
+            ...(located?.via === 'alias' || located?.via === 'suffix' ? { resolvedBy: located.via } : {}),
+            ...(located?.candidates ? { candidates: located.candidates } : {}),
+            ...(located?.via === 'external' ? { external: true } : {}),
+          },
+        });
+        break;
+      }
     }
   }
 }
@@ -776,10 +867,14 @@ function isAct(trigger: string): boolean {
 /** The tool an act names: editing is an edit, committing or running is a shell call; else the act itself. */
 function actLabel(act: string, raw: RawEstate): string {
   const verb = act.toLowerCase();
-  if (/\b(edit|editing|change|changing|modify)\b/.test(verb)) return raw.labels.edit;
+  if (/\b(edit|editing|change|changing|modify|modifying|update|updating)\b/.test(verb))
+    return raw.labels.edit;
   if (/\b(write|writing|save|saving|create|creating)\b/.test(verb)) return raw.labels.write;
-  if (/\b(commit|committing|push|pushing|run|running|deploy)\b/.test(verb)) return raw.labels.shell;
-  if (/\b(dispatch|dispatching|delegate)\b/.test(verb)) return raw.labels.dispatch;
+  if (
+    /\b(commit|committing|push|pushing|run|running|deploy|deploying|rename|renaming|move|moving)\b/.test(verb)
+  )
+    return raw.labels.shell;
+  if (/\b(dispatch|dispatching|delegate|delegating)\b/.test(verb)) return raw.labels.dispatch;
   return act;
 }
 
