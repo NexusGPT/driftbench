@@ -62,6 +62,26 @@ describe('a Given error found by the verifier is not_run given_unmet, never sent
   });
 });
 
+describe('a shared fact on a block that inherits the prefix', () => {
+  it('reads the inherited history: mode T runs both blocks', async () => {
+    const spec = specOf({
+      id: 'inherited-shared',
+      given: { ledger: { address: '12 Oak Street' } },
+      blocks: [
+        {
+          user: 'Hi, I want home internet.',
+          given: { prefix: [{ role: 'user', content: 'I live at 12 Oak Street, Acmeville.' }] },
+        },
+        { user: 'Thanks.', given: { shared: [{ fact: 'address', by: 'user', in: 0 }] } },
+      ],
+    });
+    const adapter = acmeAdapter();
+    const run = await runSpec(spec, { adapter, driver, checks: [], mode: 'T', repeat: 0 });
+    expect(run.blocks.map((block) => block.status)).toEqual([undefined, undefined]);
+    expect(adapter.calls.send).toBe(2);
+  });
+});
+
 /** An adapter with a sandbox whose files read back as `readBack` says. */
 function sandboxAdapter(readBack: (path: string) => string): AgentAdapter & { sends: number } {
   const adapter = {

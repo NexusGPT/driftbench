@@ -140,7 +140,7 @@ describe('verifyGiven: each check on a planted defect, and silence on the correc
     });
     expect(verifyGiven(specOf(raw([{ fact: 'phone', by: 'user', in: 0 }])))).toEqual([]);
     expect(verifyGiven(specOf(raw([{ fact: 'customer', by: 'record' }])))).toEqual([]);
-    const wrong = verifyGiven(specOf(raw([{ fact: 'phone', by: 'user', in: 1 }])));
+    const wrong = verifyGiven(specOf(raw([{ fact: 'phone', by: 'agent', in: 1 }])));
     expect(wrong.map((f) => [f.check, f.got])).toEqual([['value_in_message', 'the message says: noted']]);
     expect(verifyGiven(specOf(raw([{ fact: 'email', by: 'user', in: 0 }])))[0]?.got).toBe(
       'the ledger holds no such fact',
@@ -148,6 +148,34 @@ describe('verifyGiven: each check on a planted defect, and silence on the correc
     expect(verifyGiven(specOf(raw([{ fact: 'phone', by: 'agent', in: 5 }])))[0]?.got).toBe(
       'the prefix has no such message',
     );
+  });
+
+  it('value_in_message reads the history a later block inherits, and checks the speaker', () => {
+    const inherits = (by: 'user' | 'agent', at: number) =>
+      specOf({
+        id: 'inherits',
+        given: { ledger: { phone: '+12025550131' } },
+        blocks: [
+          {
+            user: 'first',
+            given: {
+              prefix: [
+                { role: 'user', content: 'my number is +1 202 555 0131' },
+                { role: 'assistant', content: 'noted +1 202 555 0131' },
+              ],
+            },
+            expect: { must: ['x'] },
+          },
+          { user: 'second', given: { shared: [{ fact: 'phone', by, in: at }] }, expect: { must: ['x'] } },
+        ],
+      });
+    expect(verifyGiven(inherits('user', 0))).toEqual([]);
+    expect(verifyGiven(inherits('agent', 1))).toEqual([]);
+    const wrongSpeaker = verifyGiven(inherits('user', 1));
+    expect(wrongSpeaker.map((f) => [f.check, f.got])).toEqual([
+      ['value_in_message', 'it is an assistant message'],
+    ]);
+    expect(verifyGiven(inherits('agent', 0))[0]?.got).toBe('it is a user message');
   });
 
   it('chain and summary_present are warnings only', () => {

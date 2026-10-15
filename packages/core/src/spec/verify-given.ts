@@ -18,7 +18,9 @@ import { isPlainObject } from './normalize';
  * - `history_matches_world`: a recorded call of a tool the block's world forces records that forced result or
  *   error.
  * - `value_in_message`: a fact `shared` says the user or the agent stated is in the ledger, and its value is
- *   in the message named, matched on whole tokens (case, spacing and punctuation aside).
+ *   in the message named, of the history the block starts from (its own prefix, else the latest earlier
+ *   one), sent by the speaker named (`user` a user message, `agent` an assistant one), matched on whole
+ *   tokens (case, spacing and punctuation aside).
  * - `chain` (warning): a block's `ledger_add` agrees with the ledger it starts from.
  * - `summary_present` (warning): a workspace folder (`from`) and a named session state carry a summary.
  */
@@ -85,12 +87,16 @@ export function verifyGiven(spec: Spec, options: VerifyGivenOptions = {}): Given
   const ledger: Record<string, unknown> = { ...spec.given?.ledger };
   const forcedTools: NonNullable<WorldState['tools']> = { ...spec.given?.world?.tools };
   let summary = spec.given?.summary;
+  let history: readonly Message[] = [];
   spec.blocks.forEach((block, index) => {
     const at = `blocks.${index}.given`;
     Object.assign(ledger, block.given?.ledger);
     Object.assign(forcedTools, block.given?.world?.tools);
     summary = block.given?.summary ?? summary;
     const prefix = block.given?.prefix ?? [];
+    // The history the block starts from: the latest prefix a block up to this one writes, as a run merges
+    // them (a block with no prefix of its own keeps the one before; an empty prefix clears it).
+    if (block.given?.prefix !== undefined) history = block.given.prefix;
     // A canonical prefix may leave a past call without a result: that is a warning, as H9 registered.
     pairing(prefix, `${at}.prefix`, index, unmet, block.given?.origin === 'canonical' ? advise : unmet);
     if (tools) {
@@ -116,11 +122,21 @@ export function verifyGiven(spec: Spec, options: VerifyGivenOptions = {}): Given
       const where = `${at}.shared.${s}`;
       const value = ledger[entry.fact];
       const expected = `ledger.${entry.fact} appears in prefix message ${entry.in ?? '(none named)'}`;
-      const message = entry.in === undefined ? undefined : prefix[entry.in];
+      const message = entry.in === undefined ? undefined : history[entry.in];
+      const role = entry.by === 'user' ? 'user' : 'assistant';
       if (!Object.hasOwn(ledger, entry.fact)) {
         unmet(index, where, '4 beliefs', 'value_in_message', expected, 'the ledger holds no such fact');
       } else if (message === undefined) {
         unmet(index, where, '4 beliefs', 'value_in_message', expected, 'the prefix has no such message');
+      } else if (message.role !== role) {
+        unmet(
+          index,
+          where,
+          '4 beliefs',
+          'value_in_message',
+          `prefix message ${entry.in}, which states the fact, is from the ${entry.by === 'user' ? 'user' : 'agent'}`,
+          `it is ${message.role === 'assistant' ? 'an assistant' : `a ${message.role}`} message`,
+        );
       } else if (!valueInText(value, message.content)) {
         unmet(
           index,

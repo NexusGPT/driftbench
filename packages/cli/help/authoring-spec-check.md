@@ -136,7 +136,7 @@ A Given is a recipe: these checks are its predicate. Each runs only on the layer
 | `tool_history_paired` | 2 tool history | every tool call of a prefix carries an `output` or an `error`, and no call `id` repeats within one message. The same id in two assistant turns is accepted, as every wire accepts it | `not_run`; a warning only on a prefix whose `origin` is `canonical` |
 | `tool_known` | 2 tool history, 5 world | every tool a prefix calls or `world.tools` forces is a key of `metadata.tool_schemas`. Off when the spec declares no tool schemas | `not_run` |
 | `history_matches_world` | 2 tool history and 5 world | a recorded call of a tool the block's world forces records that forced result or error | `not_run` |
-| `value_in_message` | 4 beliefs | each `given.shared` entry said by `user` or `agent` names a fact the ledger holds, and its value is in prefix message `in`, as whole tokens: case, spacing and punctuation aside, so `+1 202 555 0131` holds `+12025550131` and `went` does not hold `EN` | `not_run` |
+| `value_in_message` | 4 beliefs | each `given.shared` entry said by `user` or `agent` names a fact the ledger holds, and its value is in message `in` of the history the block starts from (its own prefix, else the latest earlier one), a user message for `user` and an assistant message for `agent`, as whole tokens: case, spacing and punctuation aside, so `+1 202 555 0131` holds `+12025550131` and `went` does not hold `EN` | `not_run` |
 | `chain` | 4 beliefs | a block's `ledger_add` agrees with the ledger | warning only |
 | `summary_present` | 5 world | a workspace folder and a named session state carry a summary | warning only, with `--summaries` |
 
