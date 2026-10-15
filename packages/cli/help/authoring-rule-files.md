@@ -79,6 +79,17 @@ Do not copy a parent and edit the copy. Extend it, so a later change to the pare
 
 Every command that loads specs reads the rule files: `spec validate`, `spec lint`, `campaign run` and the others. `spec validate <paths...>` (see authoring-spec-check) checks them through the specs that use them: a spec whose objects do not resolve is invalid, exit 1.
 
+```
+driftbench spec validate [options] <paths...>
+```
+
+| Option | Meaning | Default |
+|---|---|---|
+| `<paths...>` (required) | spec files or folders | none |
+| `--json` | print one JSON document | off |
+
+`spec validate` exits 0 when every spec is valid, 1 when one is invalid. Its other codes are in authoring-spec-check.
+
 The `object` commands work on the rule files themselves (see core-objects):
 
 - `object init` starts a child of a parent.
