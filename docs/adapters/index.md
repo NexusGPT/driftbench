@@ -139,7 +139,7 @@ Any other error fails the run at once too. A failed run is recorded with status 
 
 The four SDK adapters report tokens, never a cost in USD.
 
-The runner uses `trace` and `endState` today. It does not act on the others yet: a forced tool result in `world.tools` on an adapter without `toolStubs` is not applied, and a spec's `prefix` on an adapter without `seedPrefix` is not replayed to the agent.
+The runner uses `trace`, `endState`, `seedPrefix` and `toolStubs` today. A forced tool result in `world.tools` on an adapter without `toolStubs`, and a spec's `prefix` on an adapter without `seedPrefix`, give `not_run: unsupported`: the block is not sent, it is neither a pass nor a fail, and `ci` fails with exit 3 (see [running](../running.md)). The layer is never dropped silently.
 
 ## The contract suite
 

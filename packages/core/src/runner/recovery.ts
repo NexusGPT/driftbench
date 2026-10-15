@@ -2,6 +2,7 @@ import type { BlockResult, RunResult } from '../schema/run';
 import type { Expect, Spec } from '../schema/spec';
 import { isZero } from '../spec/semantics';
 import { specBlocks } from './compounding';
+import { blockStatus } from './verdicts';
 
 export type RecoveryMetrics = NonNullable<RunResult['recovery']>;
 
@@ -93,7 +94,7 @@ export function recoveryOf(
       }
     }
   } else if (recoveredAt !== undefined) {
-    collateral = blocks.slice(recoveredAt + 1).filter((block) => !block.pass).length;
+    collateral = blocks.slice(recoveredAt + 1).filter((block) => blockStatus(block) === 'fail').length;
   }
 
   const consequential = consequentialTools(spec, options.consequential);

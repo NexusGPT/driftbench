@@ -1422,7 +1422,7 @@ With a setting, the printed line names it, such as `Pairwise (ledger): ...`, and
 ## `driftbench ci`
 
 ```
-driftbench ci --specs <path> --target <adapter[:agent]> --baseline <campaign|store> --store <file> [--margin <points|auto>] [--min-goldens <n>] [--strict] [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--faults <path>] [--route <tag=target>]... [--process-command <command>] [--flag <family>]... [--aggregate <name:op threshold>]... [--out <file>] [--cache] [--concurrency <n>] [--change <manifest>] [--agent-version <label>] [--audit <n>] [--audit-seed <n>] [--max-carry <n>] [--max-age <days>] [judge flags] [run check flags] [--json]
+driftbench ci --specs <path> --target <adapter[:agent]> --baseline <campaign|store> --store <file> [--margin <points|auto>] [--min-goldens <n>] [--strict] [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--faults <path>] [--route <tag=target>]... [--process-command <command>] [--flag <family>]... [--aggregate <name:op threshold>]... [--out <file>] [--cache] [--concurrency <n>] [--change <manifest>] [--agent-version <label>] [--audit <n>] [--audit-seed <n>] [--max-carry <n>] [--max-age <days>] [--max-not-run <share>] [judge flags] [run check flags] [--json]
 ```
 
 The [judge flags](#judge-flags) reach the candidate run.
@@ -1445,6 +1445,7 @@ Runs the specs on a candidate target, then compares the new campaign with a base
 | `regressed` | `regression` | 1 | evidence of a drop: a new flag, a criterion the false discovery rate control keeps, or the all-pass McNemar test below 0.05 with more goldens regressed than improved |
 | `unproven` | `not-shown-non-inferior` | 1 | no evidence of a drop, but an interval is wider than the margin; this means too few goldens, never a regression |
 | none | `incomplete` | 1 | a candidate cell did not run (stopped by the budget, or pending) |
+| none | `not-run` | 3 | a spec of the candidate has more of its blocks not run (a Given the target cannot apply, see [running](../running.md#outcomes)) than `--max-not-run` allows, default 0. Not-run units are left out of the comparison and listed |
 
 Measured 2026-10-12 on the Acme golden suite (10 goldens) with the defaults:
 

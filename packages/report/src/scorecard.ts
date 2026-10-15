@@ -1,11 +1,14 @@
 import {
+  type Blocked,
   type CompoundingIndex,
   type Count,
   compoundingIndex,
   type DriftClass,
+  type NotRun,
   type RunEvent,
   type RunMode,
   type RunResult,
+  runOutcome,
   type Spec,
   stimulusMessages,
   type Verdict,
@@ -83,6 +86,10 @@ export type BlockDetail = {
   expectedStage?: string;
   observedStage?: string;
   pass: boolean;
+  /** Set on a block not run or blocked, with why: neither a pass nor a fail. */
+  status?: 'not_run' | 'blocked';
+  notRun?: NotRun;
+  blocked?: Blocked;
   /** The block's own latency, its cost in USD when the adapter reports one, and the retries it took. */
   latencyMs: number;
   costUsd?: number;
@@ -111,6 +118,8 @@ export type RunDetail = {
   status: RunResult['status'];
   error?: string;
   pass: boolean;
+  /** Set when no block failed but a block was not run or blocked: the run is neither a pass nor a fail. */
+  outcome?: 'not_run' | 'blocked';
   /** When the run started and finished, its total latency and cost, and whether the run replayed the cache. */
   startedAt: string;
   finishedAt: string;
@@ -180,6 +189,9 @@ export type Scorecard = {
     runs: number;
     passing: number;
     failing: number;
+    /** Runs with a block not run, or blocked, and no failure: neither passing nor failing. Absent when 0. */
+    notRun?: number;
+    blocked?: number;
     /** Runs that did not complete: failed or stopped. */
     broken: number;
   };
@@ -208,6 +220,18 @@ export type Scorecard = {
   /** Runs left out of the drilldown by maxRuns. */
   omittedRuns: number;
 };
+
+/** The runs whose outcome is this one, among those that completed; undefined when there is none. */
+function countWhenAny(runs: readonly RunResult[], outcome: 'not_run' | 'blocked'): number | undefined {
+  const n = runs.filter((run) => run.status === 'completed' && runOutcome(run) === outcome).length;
+  return n > 0 ? n : undefined;
+}
+
+/** `not_run` or `blocked` for a completed run that is neither a pass nor a fail; undefined otherwise. */
+function unscoredOutcome(run: RunResult): 'not_run' | 'blocked' | undefined {
+  const outcome = runOutcome(run);
+  return run.status === 'completed' && (outcome === 'not_run' || outcome === 'blocked') ? outcome : undefined;
+}
 
 /** P4.4: everything the scorecard shows, computed from the stored campaign. Deterministic: bootstraps are seeded. */
 export function buildScorecard(data: CampaignData, options: ScorecardOptions = {}): Scorecard {
@@ -240,7 +264,9 @@ export function buildScorecard(data: CampaignData, options: ScorecardOptions = {
       specs: data.campaign.specs.length,
       runs: runs.length,
       passing: runs.filter(runPassed).length,
-      failing: runs.filter((run) => run.status === 'completed' && !runPassed(run)).length,
+      failing: runs.filter((run) => run.status === 'completed' && runOutcome(run) === 'fail').length,
+      ...optional('notRun', countWhenAny(runs, 'not_run')),
+      ...optional('blocked', countWhenAny(runs, 'blocked')),
       broken: runs.filter((run) => run.status !== 'completed').length,
     },
     modes: modeReliability(data, lines),
@@ -295,6 +321,7 @@ export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
     status: run.status,
     ...optional('error', run.error),
     pass: runPassed(run),
+    ...optional('outcome', unscoredOutcome(run)),
     startedAt: run.startedAt,
     finishedAt: run.finishedAt,
     latencyMs: run.latencyMs,
@@ -337,6 +364,9 @@ export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
         ...optional('expectedStage', expectedStage),
         ...optional('observedStage', result.stageObserved),
         pass: result.pass,
+        ...(result.status === 'not_run' || result.status === 'blocked' ? { status: result.status } : {}),
+        ...optional('notRun', result.notRun),
+        ...optional('blocked', result.blocked),
         latencyMs: result.observed.latencyMs,
         ...optional(
           'costUsd',

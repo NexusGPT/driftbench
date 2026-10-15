@@ -14,6 +14,7 @@ import {
   pct,
   points,
   pValue,
+  unscoredRuns,
   usd,
 } from './format';
 import type { SuiteHeadline } from './headline';
@@ -136,7 +137,7 @@ ${fact('Targets', c.targets.join(', ') || 'none')}
 ${fact('Modes', c.modes.join(', '))}
 ${fact('Repeats', repeats)}
 ${fact('Specs', String(c.specs))}
-${fact('Runs', `${c.runs}: ${c.passing} pass, ${c.failing} fail, ${c.broken} did not complete`)}
+${fact('Runs', `${c.runs}: ${c.passing} pass, ${c.failing} fail, ${unscoredRuns(c)}${c.broken} did not complete`)}
 ${fact('Spent', usd(card.cost.totalUsd))}
 </dl>
 </header>`;

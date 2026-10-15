@@ -111,3 +111,15 @@ export function carriedLines(summary: CarriedSummary | undefined): string[] {
   }
   return lines;
 }
+
+/**
+ * The runs neither passed nor failed, as they follow the fail count: `2 not run, 1 blocked, `, each part
+ * only when above 0, the separator after each; the empty string when there is none.
+ */
+export function unscoredRuns(counts: { notRun?: number; blocked?: number }, separator = ', '): string {
+  const parts = [
+    ...(counts.notRun ? [`${counts.notRun} not run`] : []),
+    ...(counts.blocked ? [`${counts.blocked} blocked`] : []),
+  ];
+  return parts.map((part) => `${part}${separator}`).join('');
+}

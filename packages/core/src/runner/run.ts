@@ -10,6 +10,7 @@ import { collectRetries, type RetryPolicy, retryPolicy } from '../retry';
 import type { Message, TargetRef, WorldState } from '../schema/common';
 import {
   type BlockResult,
+  type NotRun,
   Observed,
   type RetryEvent,
   type RunEvent,
@@ -21,6 +22,7 @@ import type { BlockSpec, EndState, Expect, GivenOverride, Spec, Stimulus } from 
 import { cloneJson, contentHash } from '../spec/hash';
 import { compareEndState, type EndStateMatch } from './assertion';
 import { blockCacheKey, endStateCacheKey, type ObservedCache, unwrapEndState, wrapEndState } from './cache';
+import { capabilityGap } from './capability';
 import { recheckCarriedEndState } from './carried-end-state';
 import { cellId } from './cell';
 import { driftOf } from './drift';
@@ -41,6 +43,7 @@ import { type RecoveryOptions, recoveryOf } from './recovery';
 import { CallFailure, describeError, type RetryOptions, retryLayer, withRetry } from './retry';
 import { canonicalPreviousStage, flowVerdicts, readStage, stageSignatures } from './stages';
 import { succession } from './succession';
+import { isScored } from './verdicts';
 
 /**
  * What the runner reports as it runs, in order: a block starting, each tool call the adapter recorded, each retry a block took,
@@ -374,6 +377,8 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
   let status: RunResult['status'] = 'completed';
   let endVerdict: RunResult['endVerdict'];
   let error: string | undefined;
+  /** F and P: a prefix the spec wrote at a block run so far; the session holds it from there on. */
+  let prefixWritten = false;
 
   try {
     for (let position = 0; ; position++) {
@@ -446,10 +451,47 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
           await channel.restart();
           history = copyHistory(planned.given.prefix);
           users = userMessagesOf(history);
+          prefixWritten = planned.given.prefix.length > 0;
         }
       }
-      const user = stimulusMessages(planned.stimulus).map(freezeMessage);
       const given = resolveGiven(state, history, run.target);
+      // The capability check: a layer the adapter cannot apply makes the block not_run, never a silent drop.
+      const notRun = capabilityGap(run.adapter.id, run.capabilities, {
+        prefix:
+          run.mode === 'T' && step.kind === 'block'
+            ? spec.blocks
+                .slice(0, step.blockIndex + 1)
+                .some((block) => (block.given?.prefix?.length ?? 0) > 0)
+            : prefixWritten,
+        world: state.world,
+      });
+      if (notRun) {
+        blocks.push(notRunBlock(run, position, planned, given.hash, notRun));
+        if (run.mode === 'T') continue;
+        // In F and P the free conversation cannot go past a block it did not run: every later spec block is
+        // not run either, and the driver is not asked for more steps.
+        const from = step.kind === 'block' ? step.blockIndex + 1 : nextBlock;
+        let laterState = state;
+        let laterHistory = history;
+        for (let index = from; index < spec.blocks.length; index++) {
+          const later = planStep(spec, {
+            kind: 'block',
+            blockIndex: index,
+            stimulus: (spec.blocks[index] as BlockSpec).when,
+          });
+          laterState = enterBlock(laterState, later.given);
+          if (later.given?.prefix) laterHistory = copyHistory(later.given.prefix);
+          const laterHash = resolveGiven(laterState, laterHistory, run.target).hash;
+          blocks.push(
+            notRunBlock(run, blocks.length, later, laterHash, {
+              ...notRun,
+              got: `block ${position} was not run, so the conversation cannot reach this block: ${notRun.got}`,
+            }),
+          );
+        }
+        break;
+      }
+      const user = stimulusMessages(planned.stimulus).map(freezeMessage);
       const turn: Turn = {
         index: position,
         stimulus: planned.stimulus,
@@ -609,7 +651,9 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
   let endState: EndStateMatch | undefined;
   // The value read, kept in the run so a later reader compares end states without reading them again.
   let value: unknown;
-  if (run.endState !== undefined) {
+  // A run with a block that was not run never reached its end: its end state is not compared, so a setup
+  // gap never reads as a failure of the agent.
+  if (run.endState !== undefined && blocks.every(isScored)) {
     let states = endRead?.afterBlock === blocks.length - 1 ? endRead.states : undefined;
     let unreadable = 'no block ran, so no session was open to read from';
     if (!states && lastKey !== undefined) {
@@ -684,6 +728,37 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
     startedAt: run.startedAt,
     finishedAt: run.now().toISOString(),
     cacheHit: channel.replay,
+  };
+}
+
+/** A block that was never sent: nothing observed, no verdict, never a pass. Reports its start and end. */
+function notRunBlock(
+  run: RunContext,
+  position: number,
+  planned: PlannedStep,
+  givenHash: string,
+  notRun: NotRun,
+): BlockResult {
+  run.onEvent?.({ type: 'block_start', index: position, at: new Date().toISOString() });
+  run.onEvent?.({
+    type: 'block_end',
+    index: position,
+    pass: false,
+    status: 'not_run',
+    at: new Date().toISOString(),
+  });
+  return {
+    index: position,
+    ...(planned.blockId !== undefined ? { blockId: planned.blockId } : {}),
+    ...(planned.injected ? { injected: true } : {}),
+    givenHash,
+    observed: { segments: [], text: '', toolCalls: [], cost: {}, latencyMs: 0 },
+    verdicts: [],
+    ledgerCheck: { ok: true, contradictions: [] },
+    drift: [],
+    pass: false,
+    status: 'not_run',
+    notRun,
   };
 }
 
