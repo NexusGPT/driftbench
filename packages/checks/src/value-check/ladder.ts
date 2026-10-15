@@ -4,7 +4,7 @@ import { asGiven, sourceOf } from './as-given';
 import { contract, contractOf } from './contract';
 import { exact } from './exact';
 import { type SameReferentJudge, sameReferent } from './judge';
-import { outcome, type ToolReplayer } from './outcome';
+import { outcome, resolvesField, type ToolReplayer } from './outcome';
 import { type RecomputeCase, recompute } from './recompute';
 import { type StateDiffCase, stateDiff } from './state-diff';
 
@@ -286,8 +286,8 @@ export function evidenceOf(value: ValueCase, services: ValueServices): Record<st
     compare: compareName(value.compare),
     tool_replayable:
       value.tool !== undefined &&
-      services.replayer?.declaration(value.tool) !== undefined &&
-      value.input !== undefined,
+      value.input !== undefined &&
+      resolvesField(services.replayer?.declaration(value.tool), value.field),
     recomputable: value.recompute !== undefined,
     compares: value.stateDiff === undefined ? 'value' : 'workspace',
     contract: contractOf(value.definition, value.field),

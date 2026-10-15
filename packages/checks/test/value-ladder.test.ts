@@ -12,6 +12,7 @@ import {
   type ValuePolicy,
   valuePolicyProblems,
 } from '../src/value-check/ladder';
+import type { ToolReplayer } from '../src/value-check/outcome';
 import { evaluateFormula, type RecomputeCase } from '../src/value-check/recompute';
 import { acme } from './support/acme';
 import { acmeReplayer, type ReplayedCall } from './support/acme-replayer';
@@ -201,12 +202,42 @@ describe('rung 1: the outcome', () => {
     expect(other).toMatchObject({ outcome: 'fail', names: { outcome: 'resolved_differently' } });
   });
 
+  it('decides only the inputs a tool resolves: the plan of an order, not the email kept on it', async () => {
+    const services = { replayer: acmeReplayer() };
+    const order = {
+      type: 'new',
+      plan_id: 'mobile-m',
+      customer: { name: 'Dana Brooks', email: 'dana.brooks@example.com' },
+    };
+    const plan = await runLadder(
+      { tool: 'order.create', field: 'plan_id', gold: 'mobile-l', value: 'mobile-m', input: order },
+      DEFAULT_VALUE_POLICY,
+      services,
+    );
+    expect(plan).toMatchObject({ outcome: 'fail', rung: 'rung1_outcome' });
+    const email = await runLadder(
+      {
+        tool: 'order.create',
+        field: 'customer.email',
+        gold: 'dana.b@example.com',
+        value: 'dana.brooks@example.com',
+        input: order,
+      },
+      DEFAULT_VALUE_POLICY,
+      services,
+    );
+    expect(email.rung).not.toBe('rung1_outcome');
+    expect(email.names.tool_replayable).toBe(false);
+  });
+
   it('passes nothing on a world without distractors when the policy requires them', async () => {
-    const lonely = acmeReplayer();
-    const declaration = lonely.declaration;
-    lonely.declaration = (tool) => {
-      const found = declaration(tool);
-      return found === undefined ? undefined : { resolved: found.resolved };
+    const acme = acmeReplayer();
+    const lonely: ToolReplayer = {
+      call: acme.call,
+      declaration: (tool) => {
+        const found = acme.declaration(tool);
+        return found === undefined ? undefined : { resolved: found.resolved };
+      },
     };
     const result = await runLadder(coverageCall('7 quarry lane'), DEFAULT_VALUE_POLICY, { replayer: lonely });
     expect(result.outcome).toBe('inconclusive');
