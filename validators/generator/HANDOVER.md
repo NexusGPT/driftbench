@@ -179,3 +179,12 @@ This supersedes the earlier claim that all 19 groups need rulings. Paths below a
 19. **fixture gap: maintainer**: `validators/src/ladders/generator/hidden.ts` and `possible.ts:48-51` permit seed 8's goal shift only at its goal, and disallow a non-staying terminal recovery.
 
 Additional product gaps: `allocation.deviation.ratio` needs balancing in `generate/src/seed/deviation-seeder.ts` after coverage; `scale.100x` needs a bounded-memory disk API in `generate/src/enumerate/`. Protected `measure.ts` retains both results, both file maps and reloaded specs; the maintainer will wire the new API into that harness.
+
+
+## D6 maintainer ruling (2026-10-15)
+
+The users package declares D6 a world carrier; the spec reference and rendered prompt identify instructions inside supplied workspace files and tool results as data. Phrase provenance and phrase coverage now inspect that content when the injection carries no user text. The same shared reader serves both items. It requires an approved phrase of the injected class, never merely an empty user or a populated world.
+
+The reader ignores filenames, object keys, metadata, background Given, store/fixtures and tool errors. Ordinary user/burst provenance remains exact; nonempty user text cannot borrow approval from the world. The carrier and behavioural fault items remain unchanged, so recording an approved phrase is not proof that the agent consumed it or that the suite caught obedience.
+
+Product obligation: put every approved D6 instruction in the injected world file/tool-result content, leave injection.user empty, and retain checks that catch both obedience faults. See [the partial journal](SWEEP-JOURNAL.md) and [evidence](evidence/d6-world-carrier-contract.json). No historical ladder level is updated by this scoped ruling.
