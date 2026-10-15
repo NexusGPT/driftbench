@@ -7,6 +7,7 @@ import {
   createDialectTransport,
   type JudgeRequest,
   MAX_TOKENS,
+  outputRoom,
   parseJudgeText,
   requestKey,
 } from '@agent-nexus/driftbench-judges';
@@ -28,6 +29,9 @@ vi.mock('@agent-nexus/driftbench-judges', async (importOriginal) => ({
     throw new Error('Forbidden native CLI in Messages API recorder');
   },
 }));
+
+// The recorder's wire allowance is the default judge's output room: answer budget plus thinking room.
+const ROOM = { normal: outputRoom('normal', undefined), large: outputRoom('large', undefined) } as const;
 
 const request: JudgeRequest = {
   criterion: { name: 'c', rubric: 'Reply politely.' },
@@ -59,7 +63,7 @@ it('constructs the exact frozen Messages API identity without credentials, but c
   const fetch = vi.fn();
   const client = makeRecordingClient('haiku', new SpendBudget(1), {}, () => {}, { fetch });
   const transports = Object.fromEntries(
-    Object.entries(MAX_TOKENS).map(([budget, maxTokens]) => [
+    Object.entries(ROOM).map(([budget, maxTokens]) => [
       budget,
       createDialectTransport({
         provider: 'anthropic',
@@ -77,7 +81,7 @@ it('constructs the exact frozen Messages API identity without credentials, but c
       model: 'claude-haiku-5-5',
       anthropicVersion: '2023-06-01',
       temperature: 'omitted',
-      maxTokens: MAX_TOKENS,
+      maxTokens: ROOM,
       schema: 'none',
       transportFingerprints: Object.fromEntries(
         Object.entries(transports).map(([key, transport]) => [key, transport.fingerprint]),
@@ -102,7 +106,7 @@ it.each(['normal', 'large'] as const)(
         model: 'claude-haiku-5-5',
         system: prompt.system,
         messages: [{ role: 'user', content: prompt.user }],
-        max_tokens: MAX_TOKENS[budgetName],
+        max_tokens: ROOM[budgetName],
       });
       expect(new Headers(init?.headers).get('anthropic-version')).toBe('2023-06-01');
       return receipt();
@@ -214,7 +218,8 @@ it('charges known error usage separately and uses long-context pricing', async (
 });
 
 it('stops before a retry when its allowance cannot fit and retains the failed attempt', async () => {
-  const budget = new SpendBudget(0.02),
+  // One reservation for the output room fits; a second one does not.
+  const budget = new SpendBudget(0.06),
     rows: SpendRow[] = [];
   const fetch = vi.fn(async () => new Response('Temporary failure', { status: 503 }));
   const client = makeRecordingClient(
@@ -331,7 +336,7 @@ it.each(['normal', 'large'] as const)(
         provider: 'anthropic',
         model: 'claude-haiku-5-5',
         env: { ANTHROPIC_API_KEY: 'fictional' },
-        maxTokens: MAX_TOKENS[budgetName],
+        maxTokens: ROOM[budgetName],
         maxRetries: 0,
         timeoutMs: 300_000,
         fetch: async (_url, init) => {
@@ -358,7 +363,7 @@ it.each(['normal', 'large'] as const)(
       expect(actualBody).toBe(oracleBody);
       expect(actual).toEqual({ ...parseJudgeText(expected.text, prepared), costUsd: cost, requestCount: 1 });
       const transports = Object.fromEntries(
-        Object.entries(MAX_TOKENS).map(([name, maxTokens]) => [
+        Object.entries(ROOM).map(([name, maxTokens]) => [
           name,
           createDialectTransport({
             provider: 'anthropic',
@@ -375,7 +380,7 @@ it.each(['normal', 'large'] as const)(
         model: 'claude-haiku-5-5',
         anthropicVersion: '2023-06-01',
         temperature: 'omitted',
-        maxTokens: MAX_TOKENS,
+        maxTokens: ROOM,
         schema: 'none',
         transportFingerprints: Object.fromEntries(
           Object.entries(transports).map(([name, t]) => [name, t.fingerprint]),
@@ -399,7 +404,7 @@ it.each(['refusal', 'max_tokens'] as const)('preserves full frozen %s result met
     provider: 'anthropic',
     model: 'claude-haiku-5-5',
     env: { ANTHROPIC_API_KEY: 'fictional' },
-    maxTokens: MAX_TOKENS.normal,
+    maxTokens: ROOM.normal,
     maxRetries: 0,
     timeoutMs: 300_000,
     fetch: async () => receipt(stop),
@@ -443,4 +448,29 @@ it('preserves Retry-After milliseconds and seconds without changing retry accoun
   );
   expect(await client.judge(request)).toMatchObject({ costIncomplete: true, requestCount: 3 });
   expect(sleep.mock.calls).toEqual([[125001], [240000]]);
+});
+
+it('gives a long-thinking answer the default output room instead of cutting it', async () => {
+  // A model that thinks by default spends its thinking from max_tokens; 3,000 thinking tokens plus a short answer
+  // do not fit in the answer budget alone.
+  const needed = 3000 + 200;
+  expect(MAX_TOKENS.normal).toBeLessThan(needed);
+  const sent: number[] = [];
+  const client = makeRecordingClient(
+    'haiku',
+    new SpendBudget(1),
+    { ANTHROPIC_API_KEY: 'fictional' },
+    () => {},
+    {
+      fetch: async (_url, init) => {
+        const limit = JSON.parse(String(init?.body)).max_tokens as number;
+        sent.push(limit);
+        return receipt(limit < needed ? 'max_tokens' : 'end_turn');
+      },
+    },
+  );
+  const result = await client.judge(request);
+  expect(sent).toEqual([ROOM.normal]);
+  expect(result.unparsed).toBeUndefined();
+  expect(result.answer.outcome).toBe('pass');
 });

@@ -223,6 +223,7 @@ export {
   type ParsedRecord,
   parseRenderedRecord,
 } from './normalize-record';
+export { outputRoom, THINKING_ROOM } from './output-room';
 export {
   canonicalPairOrder,
   judgePairLedger,

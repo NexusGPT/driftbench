@@ -5,6 +5,7 @@ import {
   createGoogleJudge,
   createOpenAiJudge,
   type JudgeClient,
+  outputRoom,
   parseJudgeText,
 } from '@agent-nexus/driftbench-judges';
 
@@ -129,9 +130,13 @@ function anthropicCost(usage: AnthropicUsage): number {
   );
 }
 
-// Frozen wire allowances, checked against the public client's oracle in the recorder tests.
+// Wire allowances: the default judge's output room (answer budget plus thinking room), so a model that thinks by
+// default is not cut before its answer. Checked against the public client's oracle in the recorder tests.
 // These are transport settings, not criterion, prompt or decoder policy.
-const MESSAGES_OUTPUT_LIMITS = { normal: 1024, large: 4096 } as const;
+const MESSAGES_OUTPUT_LIMITS = {
+  normal: outputRoom('normal', undefined),
+  large: outputRoom('large', undefined),
+} as const;
 const MESSAGES_URL = 'https://api.anthropic.com/v1/messages';
 const MESSAGES_DIALECT = 'scratchpad-json';
 
