@@ -337,6 +337,7 @@ export {
   Block,
   BlockSpec,
   CardExpect,
+  CompareMode,
   CriterionDef,
   EndState,
   EndStateSpec,

@@ -1,0 +1,98 @@
+import { show } from '../support/values';
+import type { Rung, ValueCase } from './ladder';
+
+/**
+ * Rung 2b, as given: a value the agent copied from the user or from a workspace file is judged against that
+ * source, not against the test author's writing of it. Copying is the safe default ("do not make up
+ * information", tau-bench p.16); changing a value the user gave is the agent's own act (value_equivalence.md
+ * 3c R2). So:
+ *
+ * - the agent's value appears in a source and the gold's writing does not: the agent copied what it was given,
+ *   and the block's other writing is the test's, not the agent's; pass, change `verbatim`;
+ * - the gold's writing appears in a source and the agent's value does not: the agent changed a value it was
+ *   given; fail, change `altered`. A reformatted copy fails here and never reaches the judge, since the reader
+ *   of the value may not share the conversion the agent assumed (`1024 MB` written `1 GB`);
+ * - both appear (the user wrote both, as in a correction), or neither: the source cannot decide.
+ *
+ * A source matches as a whole token: the characters around it are not letters or digits. With
+ * `ignore: [surrounding_space]` the value is trimmed first.
+ */
+
+/**
+ * Where the value came from: the source that holds the agent's value, else the one that holds the gold's
+ * writing (the agent was given it and wrote something else); `unknown` when neither appears.
+ */
+export function sourceOf(value: ValueCase, trim = true): 'user' | 'workspace_file' | 'unknown' {
+  for (const candidate of [value.value, value.gold]) {
+    if (typeof candidate !== 'string') continue;
+    const needle = trim ? candidate.trim() : candidate;
+    if (needle === '') continue;
+    if ((value.sources?.user ?? []).some((text) => holdsToken(text, needle))) return 'user';
+    if (Object.values(value.sources?.files ?? {}).some((text) => holdsToken(text, needle))) {
+      return 'workspace_file';
+    }
+  }
+  return 'unknown';
+}
+
+export const asGiven: Rung = (value, ctx) => {
+  if (typeof value.value !== 'string' || typeof value.gold !== 'string') {
+    return { skip: 'a value that is not a string has no source to copy' };
+  }
+  const ignore = Array.isArray(ctx.params.ignore) ? ctx.params.ignore : [];
+  const trim = ignore.includes('surrounding_space');
+  const mine = trim ? value.value.trim() : value.value;
+  const gold = trim ? value.gold.trim() : value.gold;
+  if (mine === '') return { skip: 'the value is empty' };
+  const texts = [...(value.sources?.user ?? []), ...Object.values(value.sources?.files ?? {})];
+  const copied = where(value, mine);
+  const goldGiven = texts.some((text) => holdsToken(text, gold));
+  if (copied !== undefined && !goldGiven) {
+    return {
+      settles: 'pass',
+      evidence: `${show(value.value)} is copied as given from ${copied}; the block's writing ${show(value.gold)} is not what the agent was given`,
+      emits: { change: 'verbatim' },
+    };
+  }
+  if (copied === undefined && goldGiven) {
+    return {
+      settles: 'fail',
+      evidence: `the agent was given ${show(value.gold)} and wrote ${show(value.value)}: it changed the value`,
+      emits: { change: 'altered' },
+    };
+  }
+  return {
+    skip:
+      copied === undefined
+        ? 'neither the value nor the gold appears in what the agent was given'
+        : `both the value and the gold appear in what the agent was given (${copied})`,
+  };
+};
+
+/** Where a needle appears as a whole token: `the user's message` or `the file <path>`; undefined when nowhere. */
+function where(value: ValueCase, needle: string): string | undefined {
+  if ((value.sources?.user ?? []).some((text) => holdsToken(text, needle))) return "the user's message";
+  for (const [path, text] of Object.entries(value.sources?.files ?? {})) {
+    if (holdsToken(text, needle)) return `the file ${path}`;
+  }
+  return undefined;
+}
+
+const WORD = /[\p{L}\p{N}]/u;
+
+/** True when `needle` occurs in `text` with no letter or digit right before or right after it. */
+export function holdsToken(text: string, needle: string): boolean {
+  if (needle === '') return false;
+  let from = text.indexOf(needle);
+  while (from >= 0) {
+    const before = from === 0 ? '' : (text[from - 1] ?? '');
+    const after = text[from + needle.length] ?? '';
+    const startsWord = WORD.test(needle[0] ?? '');
+    const endsWord = WORD.test(needle[needle.length - 1] ?? '');
+    const openLeft = !startsWord || before === '' || !WORD.test(before);
+    const openRight = !endsWord || after === '' || !WORD.test(after);
+    if (openLeft && openRight) return true;
+    from = text.indexOf(needle, from + 1);
+  }
+  return false;
+}
