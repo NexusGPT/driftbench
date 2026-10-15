@@ -16,8 +16,12 @@ Computed by `src/ledger.mts` from `data/usage.jsonl`: each paid call's provider 
 | h4-audit | gpt-6.1-sol | 96 | 28089 | 6195 | 0.1181 | 0.8577 |
 | tiny-shared-seed | claude-haiku-5-5 | 4 | 29829 | 715 | 0.0025 | 0.8602 |
 | tiny-shared-class | claude-haiku-5-5 | 3 | 22772 | 579 | 0.0007 | 0.8609 |
+| agent-h1-class | claude-haiku-5-5 | 259 | 2160751 | 63375 | 0.0718 | 0.9328 |
+| agent-h1-seed | claude-haiku-5-5 | 300 | 2599227 | 67593 | 0.0810 | 1.0137 |
+| agent-h2s3 | claude-haiku-5-5 | 190 | 1665110 | 41769 | 0.0553 | 1.0690 |
+| agent-h2s2 | claude-haiku-5-5 | 182 | 1579885 | 46275 | 0.0533 | 1.1223 |
 
-Total: 0.8609 USD of 40.
+Total: 1.1223 USD of 40.
 
 ## Notes
 - Before the pre-registration, one capability probe of `gpt-6-luna` (13 tokens, under 0.0001 USD) checked which parameters it accepts. It produced no data and is not in the log.
