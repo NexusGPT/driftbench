@@ -8579,6 +8579,24 @@
       "cause": "processAdapter protects host messages at handoff and isolates child history edits"
     },
     {
+      "id": "claim/adapters/capability/tool-stubs-not-run",
+      "family": "claim-adapters",
+      "tier": 2,
+      "level": 3,
+      "source": "contract",
+      "component": "packages/core/src/runner/run.ts",
+      "cause": "runSpec runs the capability check before it sends a block"
+    },
+    {
+      "id": "claim/adapters/capability/tool-stubs-declared-runs",
+      "family": "claim-adapters",
+      "tier": 1,
+      "level": 3,
+      "source": "contract",
+      "component": "packages/core/src/runner/run.ts",
+      "cause": "the capability check passes a layer the adapter declares it applies"
+    },
+    {
       "id": "breaker/checks/must-second-pattern-index-1",
       "family": "breaker-checks",
       "tier": 1,
