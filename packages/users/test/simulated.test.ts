@@ -5,6 +5,7 @@ import { FakeModelPort } from '@agent-nexus/driftbench-generate';
 import { describe, expect, it } from 'vitest';
 import {
   createPerturbingDriver,
+  createScriptedDriver,
   createSimulatedUser,
   loadPersona,
   loadUserRecording,
@@ -253,6 +254,36 @@ describe('the simulated user through the real runner, on the Acme agent, with th
     expect(port.requests[1]?.user).toContain('- email: sam.rivera@example.com');
     expect(port.requests[4]?.user).toContain('Assistant: Done. Your order ORD-');
     expect(port.requests.some((request) => request.user.includes('catalog.search'))).toBe(false);
+  });
+
+  it('stores the text each block sent, and a scripted run of the same spec stores none', async () => {
+    const persona = await loadPersona(join(PERSONA_DIR, 'sam-upgrader.yaml'));
+    const recording = await loadUserRecording(join(PERSONA_DIR, 'recordings', 'sam-upgrader.yaml'));
+    const user = createSimulatedUser({
+      ...personaOptions(persona),
+      port: userRecordingPort(recording),
+      agentFamily: 'none',
+      judgeFamilies: ['jev', 'openai', 'google', 'anthropic'],
+    });
+    const plan = await acmeSpec('conversations/plan-upgrade.yaml');
+    // The last user message of each request is the text the adapter received for that block.
+    const received: string[] = [];
+    const adapter = acmeSales((agent) => ({
+      respond: (messages, world) => {
+        received.push(messages.filter((message) => message.role === 'user').at(-1)?.content ?? '');
+        return agent.respond(messages, world);
+      },
+    }));
+    const result = await runP(plan, user, adapter);
+    expect(result.status).toBe('completed');
+    const authored = plan.blocks.map((each) => (each.when as { user: string }).user);
+    // A block whose sent text differs from the authored one stores it; one that sent the authored text does not.
+    expect(result.blocks.map((each) => each.realized?.text)).toEqual(
+      received.map((text, index) => (text === authored[index] ? undefined : text)),
+    );
+    expect(result.blocks.filter((each) => each.realized !== undefined).length).toBeGreaterThan(0);
+    const scripted = await runP(plan, createScriptedDriver(), acmeSales());
+    expect(scripted.blocks.some((each) => 'realized' in each)).toBe(false);
   });
 
   it('drives a perturbed run as the base of the perturbing driver', async () => {

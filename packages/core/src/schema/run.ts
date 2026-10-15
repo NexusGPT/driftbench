@@ -237,6 +237,12 @@ export const BlockResult = z.strictObject({
   index: z.number().int().min(0),
   blockId: z.string().optional(),
   injected: z.boolean().optional(),
+  /**
+   * What the driver actually sent, when it differs from the block the spec wrote (a simulated user, a
+   * red-team attacker). `text` is the user messages the agent received, joined by newlines. Absent means
+   * the authored stimulus was sent.
+   */
+  realized: z.strictObject({ text: z.string() }).optional(),
   givenHash: z.string().min(1),
   /** The key the block's observed record is cached under: what a replay looked up. */
   cacheKey: z.string().min(1).optional(),

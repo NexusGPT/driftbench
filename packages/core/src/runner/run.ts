@@ -19,7 +19,7 @@ import {
 } from '../schema/run';
 import type { BlockSpec, EndState, Expect, GivenOverride, Spec, Stimulus } from '../schema/spec';
 import { cloneJson, contentHash } from '../spec/hash';
-import { compareEndState, type EndStateMatch } from './assertion';
+import { compareEndState, deepEqual, type EndStateMatch } from './assertion';
 import { blockCacheKey, endStateCacheKey, type ObservedCache, unwrapEndState, wrapEndState } from './cache';
 import { recheckCarriedEndState } from './carried-end-state';
 import { cellId } from './cell';
@@ -292,6 +292,21 @@ type RunContext = {
   recovery: RecoveryOptions;
 };
 
+/**
+ * The stimulus the driver sent, as text, when it differs from the block the spec wrote: the user messages
+ * the agent received, joined by newlines. A scripted run sends what the spec wrote and records nothing.
+ */
+function realizedOf(planned: PlannedStep): { realized?: { text: string } } {
+  if (deepEqual(planned.block.when, planned.stimulus)) return {};
+  return {
+    realized: {
+      text: stimulusMessages(planned.stimulus)
+        .map((message) => message.content)
+        .join('\n'),
+    },
+  };
+}
+
 /** One step of the driver, resolved against the spec. */
 type PlannedStep = {
   block: BlockSpec;
@@ -541,6 +556,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         index: position,
         ...(planned.blockId !== undefined ? { blockId: planned.blockId } : {}),
         ...(planned.injected ? { injected: true } : {}),
+        ...realizedOf(planned),
         ...(capture
           ? {
               provenance: {

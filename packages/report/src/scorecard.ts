@@ -72,6 +72,8 @@ export type BlockDetail = {
   specBlock?: number;
   injected: boolean;
   stimulus?: string;
+  /** What the driver actually sent, when it differs from the authored stimulus. */
+  realized?: string;
   expectedStage?: string;
   observedStage?: string;
   pass: boolean;
@@ -314,6 +316,7 @@ export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
         ...optional('specBlock', specBlock),
         injected: result.injected === true,
         ...optional('stimulus', stimulus),
+        ...optional('realized', result.realized?.text),
         ...optional('expectedStage', expectedStage),
         ...optional('observedStage', result.stageObserved),
         pass: result.pass,
