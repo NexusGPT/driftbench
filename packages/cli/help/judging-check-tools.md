@@ -75,6 +75,8 @@ In `tools[].input`, a bare value, `{ exact: <value> }` and each leaf of `{ subse
 
 A value no item settles is **inconclusive**, with every reason in the evidence, such as `rung3_same_referent: no same-referent judge is configured`. A gating inconclusive verdict fails the block; it is never a pass on a string compare, and it is not counted as a drift or as red by the generator gate.
 
+A spec or a block runs another policy with `uses.value_check`: an object id, or an inline object that extends the shipped one, such as `uses: { value_check: { extends: default, items: [{ id: rung1_outcome, enabled: false }] } }`; a block's choice replaces the spec's. An object the check cannot resolve fails it with `tools.value_check` and the reason.
+
 `compare` modes: `auto` (the default) walks the ladder; `outcome`, `contract`, `as_given` or `same_referent` runs that item alone (inconclusive when it cannot apply); `{ exact: <reason> }` declares the writing itself is the requirement. Give one mode for every argument (`compare: auto`) or a mode by argument name (`compare: { customer: same_referent }`). The other assertion forms (`regex`, `contains`, `one_of`, `nonempty`, `absent`) list their own accepted writings and compare as written.
 
 A value passed by `rung2b_as_given` or by the judge differs from the expected one only in its writing, and no contract states that writing: the check adds `tools.<label>.input.<field>.unstated_format`, not gating, which flags the test. Declare the format in the tool (a `pattern` or an `enum`) or drop it from the block.
