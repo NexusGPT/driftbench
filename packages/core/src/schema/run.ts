@@ -289,6 +289,22 @@ export const Diagnosis = z.strictObject({
   rankedCauses: z
     .array(z.strictObject({ cause: z.string().min(1), score: z.number(), by: z.string().optional() }))
     .optional(),
+  /** A chained verdict's root: the id of the verdict it inherits its fault from. */
+  inherits: z.string().min(1).optional(),
+  /** Who the fault is attributed to; the agent-attributed score reads it. */
+  disposition: z.enum(['agent', 'shared', 'setup', 'excluded', 'credited', 'unassigned']).optional(),
+  /** What the fix changes, such as a skill file or a tool contract. */
+  fixTarget: z.string().min(1).optional(),
+  /** What the fix does there. */
+  fixAction: z.string().min(1).optional(),
+  /** The forms the fix may take. */
+  fixForms: z.array(z.string().min(1)).optional(),
+  /** Where the fix goes, as `kind:id@hash8#item` of the placement rule that chose it. */
+  placement: z.string().min(1).optional(),
+  /** How sure the attribution is: read statically, undecided, or confirmed by a rerun. */
+  confidence: z.enum(['static', 'undecided', 'confirmed']).optional(),
+  /** The local copies a shared fix makes redundant, to remove. */
+  removeCopies: z.array(z.string().min(1)).optional(),
   by: By,
 });
 export type Diagnosis = z.infer<typeof Diagnosis>;

@@ -8,6 +8,7 @@ import { DEFAULT_CHECK_SET, defaultChecks, SHIPPED_CHECKS } from '@agent-nexus/d
 import {
   BlockResult,
   clearObjectContexts,
+  Diagnosis,
   loadSpecFile,
   objectContextFor,
   RunResult,
@@ -86,6 +87,41 @@ describe('old records', () => {
         .success,
     ).toBe(true);
     expect(BlockResult.shape.resolved.safeParse({ objects: [], hash: '' }).success).toBe(false);
+  });
+});
+
+describe('a diagnosis', () => {
+  const base = {
+    diagnostic: 'diagnostic:code-agent-liability@12345678',
+    summary: 'the skill states the format; the agent did not read it',
+    by: {
+      object: 'diagnostic:code-agent-liability@12345678',
+      item: 'attribute',
+      impl: 'builtin:blame/attribute',
+      layer: 'shipped',
+    },
+  };
+
+  it('holds the blame fields, each optional and without a default', () => {
+    const full = {
+      ...base,
+      inherits: 'tools.order',
+      disposition: 'agent',
+      fixTarget: 'skill.content',
+      fixAction: 'state the format in the skill',
+      fixForms: ['skill.content', 'tool.contract'],
+      placement: 'policy/placement:default@abcdef12#P3',
+      confidence: 'static',
+      removeCopies: ['skills/a/SKILL.md', 'skills/b/SKILL.md'],
+    };
+    expect(Diagnosis.parse(full)).toEqual(full);
+    expect(Diagnosis.parse(base)).toEqual(base);
+  });
+
+  it('refuses an unknown disposition or confidence, and an unknown key', () => {
+    expect(Diagnosis.safeParse({ ...base, disposition: 'nobody' }).success).toBe(false);
+    expect(Diagnosis.safeParse({ ...base, confidence: 'sure' }).success).toBe(false);
+    expect(Diagnosis.safeParse({ ...base, fix_target: 'x' }).success).toBe(false);
   });
 });
 
