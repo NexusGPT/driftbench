@@ -47,7 +47,8 @@ if a.returncode != 0:
     print(a.stderr[-2000:])
     sys.exit('analyze.py failed')
 analysis = json.loads((scratch / 'analysis.json').read_text())
-ok = statuses == {'returned': expected} and len(analysis['rows']) == len(m['rows']) and not analysis['notReturned']
+not_returned = [x for x in analysis['notInPairs'] if x['status'] != 'returned']
+ok = statuses == {'returned': expected} and len(analysis['rows']) == len(m['rows']) and not not_returned
 print(json.dumps({'ok': ok, 'datasets': len(small['datasets']), 'items': expected, 'statuses': statuses,
-                  'rows': len(analysis['rows']), 'notReturned': len(analysis['notReturned'])}))
+                  'rows': len(analysis['rows']), 'notReturned': len(not_returned)}))
 sys.exit(0 if ok else 1)

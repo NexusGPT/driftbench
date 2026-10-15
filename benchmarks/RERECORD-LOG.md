@@ -17,17 +17,19 @@ The haiku recorder (`benchmarks/record.ts`) now uses the default judge's output 
 
 | Slice | Floor | First run (1,024 limit) | Second run (output room) |
 |---|---|---|---|
-| fresh-reference | 189/192 | 188 | pending |
-| fresh-rubric | 188/192 | 192 | pending |
-| hard-factuality | 119/120 | 118 | pending |
-| hard-goal | 106/120 | 120 | pending |
-| hard-pii | 118/120 | 120 | pending |
-| hard-rubric | 117/120 | 120 | pending |
-| heldout-factuality | 71/72 | 70 | pending |
-| heldout-goal | 65/72 | 72 | pending |
-| heldout-pii | 72/72 | 72 | pending |
-| heldout-rubric | 71/72 | 72 | pending |
-| map-reference | 173/180 | 174 | pending |
-| map-rubric | 156/156 | 152 | pending |
-| planted-rubric | 117/120 | 119 | pending |
-| planted-verify | 189/190 | 188 | pending |
+| fresh-reference | 189/192 | 188 | 190 |
+| fresh-rubric | 188/192 | 192 | 191 |
+| hard-factuality | 119/120 | 118 | 118 |
+| hard-goal | 106/120 | 120 | 120 |
+| hard-pii | 118/120 | 120 | 120 |
+| hard-rubric | 117/120 | 120 | 120 |
+| heldout-factuality | 71/72 | 70 | 70 |
+| heldout-goal | 65/72 | 72 | 72 |
+| heldout-pii | 72/72 | 72 | 70 |
+| heldout-rubric | 71/72 | 72 | 72 |
+| map-reference | 173/180 | 174 | 176 |
+| map-rubric | 156/156 | 152 | 153 |
+| planted-rubric | 117/120 | 119 | 119 |
+| planted-verify | 189/190 | 188 | 189 |
+
+Second run: no haiku answer stopped at its limit (the largest used 1,757 output tokens). Four slices stay below their floor (hard-factuality, heldout-factuality, heldout-pii, map-rubric); their changed cases are judgement errors, several of them unstable between the two runs. The floors are an owner decision.

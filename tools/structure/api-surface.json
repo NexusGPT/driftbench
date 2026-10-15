@@ -1812,6 +1812,7 @@
       "normalizeFamily": "value",
       "normalizeJudgeRequest": "value",
       "outcomeFromProbability": "value",
+      "outputRoom": "value",
       "packageName": "value",
       "pairLedgerFollowupRequest": "value",
       "pairLedgerRequest": "value",
