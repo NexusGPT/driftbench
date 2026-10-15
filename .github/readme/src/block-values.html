@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>driftbench: check what a value means</title>
+<link rel="stylesheet" href="brand.css">
+<style>
+  #frame { width: 640px; height: 350px; }
+  .values { left:16px; top:62px; width:204px; height:140px; padding:12px; }
+  .values .nx-kind { position:static; display:block; font-size:10px; }
+  .value { margin-top:8px; font:500 12.5px/1.3 var(--nx-mono); }
+  .pair { margin-top:15px; padding-top:12px; border-top:1px solid var(--nx-line); }
+  .lookup { left:250px; top:62px; width:150px; height:140px; padding:12px; align-content:start; row-gap:9px; }
+  .lookup .nx-node__kind { font:500 10px/1.3 var(--nx-mono); text-transform:uppercase; letter-spacing:.6px; }
+  .result { left:438px; width:166px; padding:11px 12px; }
+  .result .nx-kind { position:static; display:block; font-size:10px; }
+  .result .title { margin-top:7px; font:600 12.5px/1.3 var(--nx-sans); }
+  .result .detail { margin-top:6px; font:400 11px/1.3 var(--nx-sans); color:var(--detail); }
+  .note { position:absolute; left:16px; top:225px; width:588px; font:400 11px/1.4 var(--nx-sans); color:var(--detail); }
+  .bottom { left:16px; top:277px; width:588px; height:38px; display:flex; align-items:center; padding:0 13px; font:500 11.5px/1.3 var(--nx-sans); }
+</style>
+</head>
+<body>
+<div id="frame" class="nx-ill scene"><div class="nx-ill__glass">
+  <svg class="nx-edges" viewBox="0 0 620 330">
+    <path class="nx-edge--new" d="M220 132 L250 132"/>
+    <path class="nx-edge--new" d="M400 113 C421 113,417 95,438 95"/>
+    <path class="nx-edge" d="M400 151 C420 151,418 183,438 183"/>
+  </svg>
+  <span class="nx-kind" style="left:16px;top:16px">Check what the value means</span>
+  <div class="nx-ill-panel values">
+    <span class="nx-kind">Expected number</span><div class="value">+1 202 555 0131</div>
+    <div class="pair"><span class="nx-kind">Number the agent used</span><div class="value">+12025550131</div></div>
+  </div>
+  <div class="nx-node nx-node--noico lookup">
+    <span class="nx-node__kind">Illustrative lookup tool</span>
+    <span class="nx-node__title">Resolve both values</span>
+    <span class="nx-node__detail">Compare the records the tool returns.</span>
+  </div>
+  <div class="nx-ill-panel result nx-ring" style="top:52px;height:82px">
+    <span class="nx-kind">Same record</span><div class="title"><span class="nx-done">pass</span></div>
+    <div class="detail">The tool settles it.</div>
+  </div>
+  <div class="nx-ill-panel result" style="top:152px;height:70px">
+    <span class="nx-kind">Cannot resolve</span><div class="title">Use the next check</div>
+    <div class="detail">No guessed equality.</div>
+  </div>
+  <div class="note">A tool that only stores the number cannot settle this comparison.<br>The phone lookup above illustrates a tool that can.</div>
+  <div class="nx-ill-panel bottom">Measured on Acme · the tool settles 59 of 116 format disputes.</div>
+</div></div>
+<script>
+  window.__fonts = ['400 11px Geist', '600 13px Geist', '500 10.5px "Geist Mono"'];
+  Promise.all(window.__fonts.map((f) => document.fonts.load(f))).then(() => document.fonts.ready).then(() => { window.__ready = true; });
+</script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>driftbench: play the test as different customers</title>
+<link rel="stylesheet" href="brand.css">
+<style>
+  #frame { width: 640px; height: 490px; }
+  .test { left: 168px; top: 36px; width: 284px; height: 66px; padding: 10px 12px; }
+  .test .nx-kind, .customer .nx-kind, .measure .nx-kind, .refusal .nx-kind { position: static; display: block; font-size: 10px; }
+  .title { margin-top: 7px; font: 600 12.5px/1.3 var(--nx-sans); }
+  .customer { top: 142px; width: 184px; height: 108px; padding: 12px; }
+  .customer .quote { margin-top: 10px; font: 400 12px/1.4 var(--nx-sans); }
+  .customer .detail { margin-top: 8px; color: var(--detail); font: 400 11px/1.3 var(--nx-sans); }
+  .measure { left: 16px; top: 282px; width: 304px; height: 126px; padding: 12px; }
+  .barrow { display: grid; grid-template-columns: 60px 1fr 42px; align-items: center; gap: 8px; margin-top: 12px; font: 400 11px/1 var(--nx-sans); }
+  .track { height: 8px; border-radius: 5px; background: var(--miss-bg); }
+  .bar { height: 8px; border-radius: 5px; background: var(--nx-blue); }
+  .pct { font: 400 10.5px/1 var(--nx-mono); text-align: right; }
+  .refusal { left: 336px; top: 282px; width: 268px; height: 126px; padding: 12px; }
+  .refusal .detail { font: 400 11.5px/1.4 var(--nx-sans); margin-top: 10px; color: var(--detail); }
+  .state { display: inline-flex; padding: 4px 8px; border-radius: 999px; background: var(--miss-bg); color: var(--miss-ink); font: 600 10.5px/1 var(--nx-sans); }
+  .bottom { left: 16px; top: 426px; width: 588px; height: 30px; display: flex; align-items: center; padding: 0 12px; font: 500 11.5px/1.3 var(--nx-sans); }
+</style>
+</head>
+<body>
+<div id="frame" class="nx-ill scene"><div class="nx-ill__glass">
+  <svg class="nx-edges" viewBox="0 0 620 470">
+    <path class="nx-edge" d="M310 102 L310 120 L108 120 L108 142"/>
+    <path class="nx-edge--new" d="M310 102 L310 142"/>
+    <path class="nx-edge" d="M310 120 L512 120 L512 142"/>
+  </svg>
+  <span class="nx-kind" style="left:16px;top:16px">One test, different customers</span>
+  <div class="nx-ill-panel test nx-ring"><span class="nx-kind">The recap block</span><div class="title">Read the order back.<br>Wait for confirmation.</div></div>
+  <div class="nx-ill-panel customer" style="left:16px"><span class="nx-kind">Terse</span><div class="quote">“Yes. That plan.”</div><div class="detail">Illustrative draw · 3 words</div></div>
+  <div class="nx-ill-panel customer" style="left:218px"><span class="nx-kind">Chatty</span><div class="quote">“Yes, that fits. Let me explain what I need…”</div><div class="detail">Illustrative draw · 9 words</div></div>
+  <div class="nx-ill-panel customer" style="left:420px"><span class="nx-kind">Pushy</span><div class="quote">“Skip the recap. Order it.”</div><div class="detail">Illustrative draw · 5 words</div></div>
+  <span class="nx-kind" style="left:16px;top:264px">Behaviour drawn as numbers</span>
+  <div class="nx-ill-panel measure"><span class="nx-kind">Short turns · measured H10</span>
+    <div class="barrow"><span>Human</span><span class="track"><span class="bar" style="display:block;width:95.5%"></span></span><span class="pct">38.2%</span></div>
+    <div class="barrow"><span>Engine</span><span class="track"><span class="bar" style="display:block;width:95%"></span></span><span class="pct">38.0%</span></div>
+    <div class="barrow"><span>Prompting</span><span class="track"><span class="bar" style="display:block;width:5%"></span></span><span class="pct">2.0%</span></div>
+  </div>
+  <div class="nx-ill-panel refusal"><span class="nx-kind">Cannot play this test</span><div class="detail">The test requires an account.<br>The persona has no account.</div><div class="detail"><span class="state">not_run</span> Requirement named.</div></div>
+  <div class="nx-ill-panel bottom">HF10 grid: no persona effect appeared on the test agent.</div>
+</div></div>
+<script>
+window.__fonts = ['400 12px Geist', '600 13px Geist', '500 10.5px "Geist Mono"'];
+Promise.all(window.__fonts.map((f) => document.fonts.load(f))).then(() => document.fonts.ready).then(() => { window.__ready = true; });
+</script>
+</body>
+</html>
