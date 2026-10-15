@@ -57,8 +57,8 @@ driftbench compare --baseline <campaign> --candidate <campaign> --store <file> [
 
 | Option | Default | Meaning |
 |---|---|---|
-| `--baseline <campaign>` | required | the baseline campaign id |
-| `--candidate <campaign>` | required | the candidate campaign id |
+| `--baseline <campaign>` | required, unless `--rank` | the baseline campaign id |
+| `--candidate <campaign>` | required, unless `--rank` | the candidate campaign id |
 | `--store <file>` | required | the store that holds both campaigns |
 | `--margin <points\|auto>` | `auto` | the largest drop in pass rate tolerated, in percentage points, above 0 and below 100, such as `2`. `auto`: the smallest half point at which the baseline compared with itself is non-inferior, printed with what sets it; above 15 points it warns |
 | `--min-goldens <n>` | `30` | a gating criterion decided on fewer goldens is underpowered: reported, and left out of the parity test |
@@ -69,6 +69,40 @@ driftbench compare --baseline <campaign> --candidate <campaign> --store <file> [
 | `--pairwise <criterion.yaml>` | none | also judge, for every block both campaigns ran, which reply better meets this criterion, in both orders. The file holds `name` and `rubric`, optionally `pass` and `fail`. Calls a model |
 | `--pairwise-judge <kind>` | `openai` | the judge of the pairwise calls: `openai`, `anthropic`, `google`, or a judge a plugin registered. Its key is read from the environment |
 | `--pairwise-reference <file>` | none | judge which reply matches the reference answer in this file better, instead of which reply is better |
+| `--pairwise-contract <contract>` | `winner` | `winner`: the judge names the better reply. `ledger`: the judge scores each requirement for both replies and code decides |
+| `--pairwise-presentation <order>` | `both-orders` | `both-orders`: judge each pair in both orders. `canonical`: one order fixed by content; position bias is not measured |
+| `--pairwise-items <file>` | none | a YAML list of rubric items (`{ name, rubric, weight, hard }`) the judge scores for both replies |
+| `--no-pairwise-audit` | audit on | turn off the reference fact audit and its ledger recovery |
+| `--pairwise-config <config>` | none | `reader-first`: prefer the longer complete reply unless the judge finds supported failures in it (topic judging-pairwise) |
+| `--judge-margin <n>` | `4` | with `reader-first`: the score advantage the shorter reply needs, 0 to 20 |
+| `--feature-margin <n>` | `5` | with `reader-first`: the machine risk-flag gap |
+| `--min-failures <n>` | `1` | with `reader-first`: the supported failures the longer reply needs |
+| `--pairwise-preference <preference>` | none | `long-structured`: a declared preference for the longer structured reply, applied after the ledger verdict. Needs `--pairwise-contract ledger` |
+| `--rank <campaigns...>` | none | rank three or more campaigns instead: wins per shared run, the Bradley-Terry order and every three-campaign cycle. `--baseline` and `--candidate` are then not needed |
+
+The judged criteria of the stored runs can be judged again during the comparison, with the same judge options as `campaign run` (topic judging-council):
+
+| Option | Default | Meaning |
+|---|---|---|
+| `--judge <kind:model>` | none | judge the judged criteria with this judge, such as `claude:haiku`. Kinds: claude, openai, anthropic, google, openai-decisions, jev, http. Repeat it for a council. Paid calls |
+| `--judge-command <path>` | `claude` | the claude command a claude judge runs |
+| `--judge-budget <usd>` | none | stop judging once the judges have spent this much |
+| `--judges <cassette>` | none | add every judge of this recording as a player: no call |
+| `--judge-route <route>` | none | `escalation`: route each call through a label-blind router |
+| `--route-first <judge>` | none | with `--judge-route escalation`: the judge that answers first |
+| `--route-then <judge>` | none | with `--judge-route escalation`: a judge asked when a trigger fires; repeatable |
+| `--route-on <triggers>` | `order-split,inconclusive,reference-disagreement,low-confidence` | the escalation triggers, comma separated |
+| `--route-confidence <p>` | `0.5` | the low-confidence bar, from 0 to 1 |
+| `--route-decide <rule>` | `majority` | `majority` or `first-stands` |
+| `--panel-weights <weights>` | none | a weighted panel of every judge; a thin margin abstains |
+| `--panel-margin <share>` | `0.3` | with `--panel-weights`: the smallest winning margin, a share of the total weight |
+| `--reference-solve <kind:model>` | none | solve each question blind first, and judge against the agreed answer |
+| `--reference-samples <n>` | `5` | with `--reference-solve`: how many solves, from 1 to 20 |
+| `--reference-route <route>` | none | with `--reference-solve`: `auto` solves only a question with one checkable answer |
+| `--verify <kind>` | none | `arithmetic`: check explicit equations in the reply, in a bounded sandbox, before the judge reads it |
+| `--prompt-budget <chars>` | none | drop the oldest transcript entries until the judge prompt fits; the last block stays |
+| `--record <cassette>` | none | save every live judge answer as a cassette, to replay with `--judges` |
+| `--agent-family <family>` | none | the model family of the agent under test: a judge of that family is refused. `none` for no model |
 
 Global: `--plugin <module>`. New flags always gate, and so does an underpowered criterion whose
 regression Benjamini-Hochberg keeps. The pairwise line never changes the exit code; a pairwise judge

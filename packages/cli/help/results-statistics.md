@@ -1,8 +1,7 @@
 ---
 title: "The statistics behind results"
 summary: "The intervals and tests driftbench prints: the suite headline (hierarchical interval, n_eff, design effect, detectable drop), paired tests, false discovery control, noise floor, power and variance components."
-commands:
-  - compare
+commands: []
 see_also:
   - results-report
   - results-compare
@@ -159,12 +158,9 @@ When not to use the headline:
 
 ## Commands and every option
 
-This topic's command is `driftbench compare`, which prints most of these numbers. Its options, with
-defaults (details in `results-compare`): `--baseline <campaign>`, `--candidate <campaign>`,
-`--store <file>` (all required), `--margin <points|auto>` (`auto`), `--min-goldens <n>` (`30`),
-`--strict` (off), `--mode <modes>` (every mode both ran), `--q <rate>` (`0.05`), `--json` (off),
-`--pairwise <criterion.yaml>` (none), `--pairwise-judge <kind>` (`openai`), `--pairwise-reference <file>`
-(none). Global: `--plugin <module>`.
+`driftbench compare` prints most of these numbers; every option of it, with its default, is in
+`results-compare`. The ones that change the statistics: `--margin <points|auto>` (`auto`),
+`--min-goldens <n>` (`30`), `--strict` (off), `--mode <modes>` (every mode both ran) and `--q <rate>` (`0.05`).
 
 ### The suite headline in `report`
 
