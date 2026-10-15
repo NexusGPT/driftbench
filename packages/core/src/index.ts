@@ -100,6 +100,7 @@ export {
   PROJECT_OBJECTS_DIR,
   parseCliOverrides,
   parseObjectText,
+  type RegistrySnapshot,
   type ResolvedItem,
   type ResolvedObject,
   resolveBlockObjects,

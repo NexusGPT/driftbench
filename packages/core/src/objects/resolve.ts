@@ -28,6 +28,13 @@ export type ImplDef = {
   summary?: string;
 };
 
+/** What `ObjectRegistry.snapshot` copies: the kinds, implementations and shipped objects, by name. */
+export type RegistrySnapshot = {
+  kinds: ReadonlyMap<string, KindDef>;
+  impls: ReadonlyMap<string, ImplDef>;
+  shipped: ReadonlyMap<string, { raw: unknown; path: string }>;
+};
+
 /**
  * The kinds, implementations and shipped objects a process knows. Packages register their builtins on import;
  * a plugin registers its own. A name registered twice is refused, so no registration replaces another: an
@@ -64,6 +71,24 @@ export class ObjectRegistry {
     if (this.#shipped.has(key)) throw new Error(`the shipped object ${key} is already registered`);
     this.#shipped.set(key, { raw, path });
     return this;
+  }
+
+  /** A copy of everything registered, for `restore`. */
+  snapshot(): RegistrySnapshot {
+    return { kinds: new Map(this.#kinds), impls: new Map(this.#impls), shipped: new Map(this.#shipped) };
+  }
+
+  /**
+   * Puts back what `snapshot` copied: every kind, implementation and shipped object registered since is
+   * forgotten. The command line uses it to undo what the plugins of one run registered.
+   */
+  restore(snapshot: RegistrySnapshot): void {
+    this.#kinds.clear();
+    for (const [key, value] of snapshot.kinds) this.#kinds.set(key, value);
+    this.#impls.clear();
+    for (const [key, value] of snapshot.impls) this.#impls.set(key, value);
+    this.#shipped.clear();
+    for (const [key, value] of snapshot.shipped) this.#shipped.set(key, value);
   }
 
   kind(name: string): KindDef | undefined {

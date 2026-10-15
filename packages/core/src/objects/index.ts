@@ -29,6 +29,7 @@ export {
   ObjectStore,
   objectRegistry,
   parseObjectText,
+  type RegistrySnapshot,
   type ResolvedObject,
 } from './resolve';
 export {
