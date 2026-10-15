@@ -21,7 +21,20 @@ export type ToolDeclaration = {
    * same result is not a coincidence. A policy with `distractors_required` passes nothing on a world without.
    */
   distractors?: boolean;
+  /**
+   * The input fields whose effect the resolved result shows, by dotted path; absent means every input (a read
+   * tool). A tool that also keeps values as given (a name or an email on an order) lists only the fields it
+   * resolves, such as `plan_id`: the outcome cannot decide the others, so the other rungs do.
+   */
+  inputs?: readonly string[];
 };
+
+/** True when the replayed result can decide the field: the tool is declared and the field is one it resolves. */
+export function resolvesField(declaration: ToolDeclaration | undefined, field: string): boolean {
+  if (declaration === undefined) return false;
+  if (declaration.inputs === undefined) return true;
+  return declaration.inputs.some((input) => field === input || field.startsWith(`${input}.`));
+}
 
 /** What one replayed call returned. */
 export type ReplayOutcome = { ok: true; output: unknown } | { ok: false; error: string };
@@ -42,6 +55,8 @@ export const outcome: Rung = async (value, ctx) => {
   if (replayer === undefined || value.tool === undefined || declaration === undefined) {
     return { skip: 'no replayer declares this tool' };
   }
+  if (!resolvesField(declaration, value.field))
+    return { skip: `${value.tool} does not resolve ${value.field}: its result does not show it` };
   if (value.input === undefined) return { skip: 'no call input to replay' };
   const tool = value.tool;
   const mine = await replayer.call(tool, structuredClone({ ...value.input }), value.world);
