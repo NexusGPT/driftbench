@@ -32,6 +32,7 @@ import {
   loadSpecs,
   type MinimumDetectableEffect,
   mdeLine,
+  objectContextFor,
   outcomeOf,
   type PlannedCell,
   type PlanOptions,
@@ -52,6 +53,7 @@ import {
   runsByCell,
   type Spec,
   type Store,
+  shippedObjectContext,
   type TargetPrompt,
   TargetRef,
   TokenPriceError,
@@ -909,6 +911,12 @@ export async function campaignRunCommand(
                     recordEvents: true,
                     specFor: (cell) =>
                       required(specs.get(`${cell.specId}@${cell.specHash}`), `spec ${cell.specId}`),
+                    objectsFor: (cell) => {
+                      const path = loaded.find(
+                        (entry) => entry.spec.id === cell.specId && entry.hash === cell.specHash,
+                      )?.path;
+                      return path === undefined ? shippedObjectContext() : objectContextFor(path);
+                    },
                     adapterFor: (target) =>
                       required(adapters.get(showTarget(target)), `adapter ${showTarget(target)}`),
                     driver: (cell, spec) => deps.driver(cell, spec),
@@ -1189,6 +1197,8 @@ async function executeCampaign(
 ): Promise<number> {
   const plan = planOf(campaign, loaded);
   const specs = new Map(loaded.map((entry) => [`${entry.spec.id}@${entry.hash}`, entry.spec]));
+  // Each spec resolves its objects from its own folder: the project and suite layers around it.
+  const specPaths = new Map(loaded.map((entry) => [`${entry.spec.id}@${entry.hash}`, entry.path]));
   const checks = deps.checks.map((check) => check.name);
   if (!flags.json) {
     const budget = flags.budgetUsd === undefined ? '' : ` Budget ${usd(flags.budgetUsd)}.`;
@@ -1209,6 +1219,10 @@ async function executeCampaign(
     ...(flags.blockReuse ? { blockReuse: flags.blockReuse } : {}),
     recordEvents: true,
     specFor: (cell) => required(specs.get(`${cell.specId}@${cell.specHash}`), `spec ${cell.specId}`),
+    objectsFor: (cell) => {
+      const path = specPaths.get(`${cell.specId}@${cell.specHash}`);
+      return path === undefined ? shippedObjectContext() : objectContextFor(path);
+    },
     adapterFor: (target) => required(adapters.get(showTarget(target)), `adapter ${showTarget(target)}`),
     driver: (cell, spec) => deps.driver(cell, spec),
     ...(deps.consequential ? { consequential: deps.consequential } : {}),
