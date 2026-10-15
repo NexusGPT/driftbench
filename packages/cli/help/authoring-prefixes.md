@@ -69,7 +69,7 @@ What the agent receives of the prefix depends on the adapter, as its source code
 | `function`, `http`, `anthropic`, `openai-agents`, `vercel-ai`, `google`, `pydantic-ai`, `litellm` | the session history, the prefix included, passed with each turn |
 | `langgraph`, a graph with no checkpointer | the same: the whole history with each turn |
 | `langgraph`, a graph with a checkpointer | the prefix once, with the first turn. Each later turn sends only the new user messages: the graph keeps the rest on its thread |
-| `crewai` | the history as text inputs to the crew, with each turn. `message` holds the new user turn, and `history` each earlier message as `role: text`. `messages` holds the whole history as JSON. An `inputs` option replaces them |
+| `crewai` | by default, each kickoff receives `message`, `history` and `messages`. `message` joins all trailing user messages with newlines, including adjacent prefix messages. `history` joins the remaining earlier messages as `role: text`, separated by newlines. `messages` holds the full history as JSON, including the prefix. A custom `inputs` function replaces these defaults |
 | `process` | the session history, the prefix included, as a JSON array in the file `DRIFTBENCH_HISTORY_FILE` names, written before each block. The agent must read that file |
 | `nexus`, live Claude Code | nothing: these adapters send only the block's own user turn, so a prefix cannot set what the agent remembers |
 | Claude Code replay | no agent runs: the adapter returns the recorded session, so a prefix changes nothing it returns |
