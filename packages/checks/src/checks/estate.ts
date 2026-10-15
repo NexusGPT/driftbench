@@ -26,7 +26,7 @@ import type { CustomCheckFunction } from './custom';
  * - `max_words`: a word limit on a named part of the reply: a draft, or the whole reply.
  * - `no_delete_under`: nothing deleted under a folder.
  * - `stage_seen`: a step allowed at any point was reached at least once.
- * - `guard_message`: a guard that blocked said why, and the message keeps the output rules.
+ * - `guard_message`: a guard that acted said why, and the message keeps the output rules.
  * - `guard_finished`: every run of a guard answered within its time.
  */
 
@@ -568,7 +568,12 @@ function messageOf(run: GuardRun): string | undefined {
       const output: unknown = JSON.parse(stdout);
       if (isRecord(output)) {
         const specific = isRecord(output.hookSpecificOutput) ? output.hookSpecificOutput : {};
-        const reason = specific.permissionDecisionReason ?? output.reason ?? output.systemMessage;
+        const reason =
+          specific.permissionDecisionReason ??
+          output.reason ??
+          output.systemMessage ??
+          specific.additionalContext ??
+          output.additionalContext;
         if (typeof reason === 'string') return reason.trim();
       }
     } catch {
@@ -579,22 +584,28 @@ function messageOf(run: GuardRun): string | undefined {
   return stderr !== '' ? stderr : stdout;
 }
 
+/** A verdict of a run that let the act through, or that did not answer: the guard told the agent nothing. */
+const SILENT = /^(allow|approve|ok|pass|error|timeout|timed_out|cancelled|canceled|no_response)$/i;
+
 /**
- * `{ name, mustNot?, block? }`. Every run of the guard that blocked (deny or block) gives a message, and
- * each message keeps the output rules: no pattern of `mustNot` matches it. Inconclusive when the guard did
- * not block in the block, or the runtime reports no output for it.
+ * `{ name, mustNot?, block? }`. Every run of the guard that acted (blocked, or answered with its own verdict
+ * such as warn or nudge) gives a message, and each message keeps the output rules: no pattern of `mustNot`
+ * matches it. When the guard did not act in the block, or the runtime reports no output for it, there is
+ * nothing to judge: the verdict is inconclusive and not gating, so a recording without hook output leaves the
+ * spec to its other checks (`expect.guards` says whether the guard acted).
  */
 export const guardMessage: CustomCheckFunction = (ctx, options) => {
   if (!isRecord(options) || typeof options.name !== 'string') throw new Error('guard_message needs { name }');
   if (typeof options.block === 'number' && options.block !== ctx.blockIndex) return [];
-  const blocked = runsOf(ctx, options.name).filter((run) => /^(deny|block)$/i.test(run.verdict));
+  const blocked = runsOf(ctx, options.name).filter((run) => !SILENT.test(run.verdict));
   if (blocked.length === 0) {
     return [
       machineVerdict(
         'guard_message',
         'present',
         'inconclusive',
-        `${options.name} did not block in this block`,
+        `${options.name} did not act in this block`,
+        { gating: false },
       ),
     ];
   }
@@ -606,6 +617,7 @@ export const guardMessage: CustomCheckFunction = (ctx, options) => {
         'present',
         'inconclusive',
         `the runtime reports no output of ${options.name}`,
+        { gating: false },
       ),
     ];
   }
@@ -616,8 +628,8 @@ export const guardMessage: CustomCheckFunction = (ctx, options) => {
       'present',
       given.length === blocked.length ? 'pass' : 'fail',
       given.length === blocked.length
-        ? `${plural(blocked.length, 'blocking run')} of ${options.name}, each with a message: ${given.map((m) => JSON.stringify(m)).join('; ')}`
-        : `${blocked.length - given.length} of ${plural(blocked.length, 'blocking run')} of ${options.name} gave no message`,
+        ? `${plural(blocked.length, 'run')} of ${options.name} that acted, each with a message: ${given.map((m) => JSON.stringify(m)).join('; ')}`
+        : `${blocked.length - given.length} of ${plural(blocked.length, 'run')} of ${options.name} that acted gave no message`,
     ),
   ];
   const patterns = Array.isArray(options.mustNot)

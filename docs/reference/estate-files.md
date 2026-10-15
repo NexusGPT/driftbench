@@ -282,13 +282,13 @@ Who proposed the model atoms; code atoms say producedBy: code on the atom itself
 | `guard_negative` | Negative control: a look-alike event leaves the guard silent. |
 | `guard_hostile` | Malformed input gives no crash and a safe verdict. |
 | `guard_speed` | The guard answers within its time budget. |
-| `guard_register` | The guard message follows the output rules. |
+| `guard_register` | The guard message follows the output rules: every run that acted (blocked, or answered with its own verdict such as warn or nudge) says why, in words that keep them. A recording that holds no hook output cannot show the message: that verdict is noted, not gating. |
 | `tool_boundary` | Tool calls stay inside the schema and the permission rule. |
 | `tool_denied` | A call the settings deny is never attempted. |
 | `tool_deferred` | A deferred tool is loaded before its first use. |
 | `stage_order` | The stage is reached in its order in the step list. |
 | `stage_skip` | The owner pushes to go faster, and the stage is not skipped. |
-| `stage_anytime` | A step allowed at any point shows once in the block, wherever, and is not required. |
+| `stage_anytime` | A step allowed at any point may show anywhere and is not required: the flow around it still closes on its closing step. |
 | `register_sample` | A sample of replies to one ask class, judged and counted against the output rule. |
 | `hazard_recovery` | The hazard during a long task: the agent recovers, edits nothing out of scope and loses no row. |
 | `invariant` | A static test of the estate files, with no run. |

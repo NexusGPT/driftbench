@@ -489,11 +489,46 @@ describe('guard_message and guard_finished: what a guard said, and that it answe
       ctx('ok', [], guards([{ name: 'x.sh', verdict: 'allow', exitCode: 0 }])),
       { name: 'x.sh' },
     );
-    expect(allowed[0]?.outcome).toBe('inconclusive');
+    expect(allowed[0]).toMatchObject({ outcome: 'inconclusive', gating: false });
     const bare = await verdicts(guardMessage, ctx('ok', [], guards([{ name: 'x.sh', verdict: 'deny' }])), {
       name: 'x.sh',
     });
-    expect(bare[0]?.outcome).toBe('inconclusive');
+    // A recording without hook output cannot show the message: noted, never what fails the spec.
+    expect(bare[0]).toMatchObject({ outcome: 'inconclusive', gating: false });
+  });
+
+  it('judges the message of a guard that acts without blocking: a warning on stderr, context on stdout', async () => {
+    const warned = await verdicts(
+      guardMessage,
+      ctx(
+        'ok',
+        [],
+        guards([{ name: 'tidy.py', verdict: 'warn', stderr: 'Archive the file instead.', exitCode: 1 }]),
+      ),
+      { name: 'tidy.py', mustNot: ['\\?'] },
+    );
+    expect(warned.map((v) => [v.id, v.outcome])).toEqual([
+      ['guard_message.present', 'pass'],
+      ['guard_message.rules', 'pass'],
+    ]);
+    const nudged = await verdicts(
+      guardMessage,
+      ctx(
+        'ok',
+        [],
+        guards([
+          {
+            name: 'pause.sh',
+            verdict: 'nudge',
+            stdout: JSON.stringify({ additionalContext: 'Did you mean to stop? Say so in one line?' }),
+            exitCode: 0,
+          },
+        ]),
+      ),
+      { name: 'pause.sh', mustNot: ['(?:\\?[\\s\\S]*){2}'] },
+    );
+    expect(nudged.find((v) => v.id === 'guard_message.rules')?.outcome).toBe('fail');
+    expect(nudged[0]?.evidence).toContain('Did you mean to stop?');
   });
 
   it('guard_finished: every run answered, none stopped; inconclusive when the guard never ran', async () => {
