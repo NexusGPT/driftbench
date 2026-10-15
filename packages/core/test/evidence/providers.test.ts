@@ -77,7 +77,14 @@ const READ_BEFORE_EDIT: evidence.RuleAtom = {
   kind: 'gate',
   provenance: { file: 'CLAUDE.md', startLine: 20 },
   evidence: [{ type: 'ordered', before: 'Read', after: 'Edit' }],
-  enforcement: ['read-before-edit.py'],
+  enforcement: ['guard.settings.pretooluse-edit-write-guard-read-before'],
+};
+const READ_BEFORE_EDIT_GUARD: evidence.RuleAtom = {
+  id: 'guard.settings.pretooluse-edit-write-guard-read-before',
+  kind: 'guard',
+  provenance: { file: '.claude/settings.json', startLine: 26 },
+  evidence: [{ type: 'guard', name: 'read-before-edit.py', verdict: 'deny' }],
+  fields: { name: 'read-before-edit.py', script: '.claude/guards/read-before-edit.py' },
 };
 const WEEKLY_SKILL: evidence.RuleAtom = {
   id: 'skill.weekly-report.skill-weekly-report',
@@ -395,7 +402,7 @@ const cases: Array<{ name: string; given: evidence.EvidenceInput; want: unknown;
     given: input({
       verdict: verdict('custom.ordered.Read.Edit'),
       ruleAtoms: [READ_BEFORE_EDIT.id],
-      atoms: [READ_BEFORE_EDIT],
+      atoms: [READ_BEFORE_EDIT, READ_BEFORE_EDIT_GUARD],
       decisions: decisions('weekly-gate-violated'),
     }),
     want: true,
@@ -406,7 +413,7 @@ const cases: Array<{ name: string; given: evidence.EvidenceInput; want: unknown;
     given: input({
       verdict: verdict('custom.ordered.Read.Edit'),
       ruleAtoms: [READ_BEFORE_EDIT.id],
-      atoms: [READ_BEFORE_EDIT],
+      atoms: [READ_BEFORE_EDIT, READ_BEFORE_EDIT_GUARD],
       decisions: decisions('weekly-clean'),
     }),
     want: false,
@@ -624,6 +631,15 @@ const cases: Array<{ name: string; given: evidence.EvidenceInput; want: unknown;
       atoms: [LATE_RULE],
     }),
     want: false,
+  },
+  {
+    name: 'rule_situational',
+    why: "a rule no file states, needed in the block's own situation (F4)",
+    given: input({
+      verdict: verdict('must.short-delivery'),
+      expect: { skills: ['invoice-reconcile'], situation: 'invoice-short-delivery' },
+    }),
+    want: true,
   },
   {
     name: 'verdict_kind',

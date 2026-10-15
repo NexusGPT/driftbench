@@ -129,10 +129,13 @@ export const rule_situational: EvidenceProvider = {
   name: 'rule_situational',
   cost: 'static',
   values: ['boolean'],
-  from: "the atom's situation: a rule stated for one situation of its skill",
+  from: "the atom's situation: a rule stated for one situation of its skill; for a rule no file states, the block's own situation",
   compute: (input) => {
     const atom = verdictAtoms(input)[0];
-    if (!atom) return undefined;
+    if (!atom) {
+      if (verdictLinks(input).length > 0) return false;
+      return (input.expect?.situation ?? '').trim() === '' ? undefined : true;
+    }
     return (atom.situation ?? '').trim() !== '' && atom.kind !== 'skill' && atom.kind !== 'route';
   },
 };

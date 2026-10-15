@@ -40,7 +40,14 @@ export const next_action: EvidenceProvider = {
 
 /** The guards that enforce the failing check's rule, by name; empty means any guard counts. */
 function enforcing(input: EvidenceInput): string[] {
-  return verdictAtoms(input).flatMap((atom) => [...(atom.enforcement ?? [])]);
+  const byId = new Map((input.atoms ?? []).map((atom) => [atom.id, atom]));
+  return verdictAtoms(input).flatMap((atom) =>
+    (atom.enforcement ?? []).flatMap((id) => {
+      const guard = byId.get(id);
+      const name = guard?.fields?.name;
+      return typeof name === 'string' ? [id, name] : [id];
+    }),
+  );
 }
 
 function decisions(input: EvidenceInput): GuardDecision[] {
