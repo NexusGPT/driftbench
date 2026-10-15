@@ -1319,7 +1319,7 @@ The `tool_denied` spec fails by design: the stand-in plays a planted fault, a `W
 driftbench estate unit <tests...> --estate <root> [--runtime claude-code] [--record] [--no-sandbox] [--jobs <n>] [--json]
 ```
 
-Runs the unit tests that `estate generate` writes under `unit/`, with no model: each guard on the event payloads of its cases, each script on its fixtures. `<tests...>` are test files, or folders that hold them, such as `<suite>/unit`. `--estate` is the root the tests run against: the original estate, or a mutant copy from `estate mutate`.
+Runs the unit tests that `estate generate` writes under `unit/`, with no model: each guard on the event payloads of its cases, each script on its fixtures. `<tests...>` are test files, or folders that hold them, such as `<suite>/unit`. It also runs the unit-mode specs `estate generate` writes under `specs/unit/` (`metadata.estate.mode: unit`), each judged by its own expectations with nothing recorded; give test files or unit specs, not both in one run. In a folder, files that are neither are passed over; a file named on the command line that is neither is an input error. `--estate` is the root the tests run against: the original estate, or a mutant copy from `estate mutate`.
 
 | Option | Meaning |
 |---|---|
@@ -1347,6 +1347,8 @@ $ pnpm -s driftbench estate unit <copy>/unit --estate examples/estates/fixture
 ```
 
 Without `--record`, a test with no recorded outcome prints `?` and `no outcome recorded: run --record on the original first`.
+
+A unit spec needs no record. A block that expects a guard not to fire (`count: 0`) runs it on a neutral event: a listing for a shell tool, a new file for a file tool, a short reply, the block's own prompt. A block that expects it to fire runs it on events built from the guard's own source (each literal its conditions test, all of them together, a JSON pair as that field, a text longer than a length it compares with, an existing file for a file tool, the block's prompt for a prompt event) until one gets an answer. A run that denies or asks counts as that verdict, an exit code other than 0 or 2 as `warn`, output on exit 0 as `nudge`, a run past the guard's `timeout` as `timeout`; a run with no effect is no firing. A script runs on its declared fixtures, else on minimal fixtures from its own argument parsing, and keeps its argument contract: with no argument, a script that reads arguments refuses and states its usage, and one that reads none succeeds. A helper alone (`contract_alone`) fails when its agent file holds no instructions; running it with a model is not part of a unit run. The checks then judge the expectations such a trace can hold (guards, skills, tools, execution, and `guard_message`, `guard_finished`, `some_call`); what the agent would reply or change in the workspace is the live run's to judge. `--record` does not apply to unit specs.
 
 Exit 0 when every test passes (an inert test passes), 1 when one fails, 2 on a usage or input error or when a test has no recorded outcome and `--record` was not given.
 

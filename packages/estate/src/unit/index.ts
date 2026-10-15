@@ -10,3 +10,16 @@ export {
   type UnitRun,
   type UnitRunOptions,
 } from './run';
+export {
+  conditionsOf,
+  firingEvents,
+  type GuardReport,
+  isUnitSpec,
+  type ScriptReport,
+  traceUnitSpecs,
+  type UnitSpecInput,
+  type UnitSpecOptions,
+  type UnitSpecTrace,
+  unitJudges,
+  unitTraceAdapter,
+} from './spec';
