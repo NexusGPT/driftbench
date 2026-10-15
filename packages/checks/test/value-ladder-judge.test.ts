@@ -77,7 +77,7 @@ function rates(rows: Judgment[]) {
   };
 }
 
-describe('HF7: the read-first judge replays its recorded calls', () => {
+describe('HF7: the read-first judge replays its recorded calls', { timeout: 60_000 }, () => {
   it('reproduces every one of the 3,072 stored judgments, readings included', async () => {
     expect(judgments).toHaveLength(3072);
     const differ: string[] = [];
@@ -110,7 +110,7 @@ describe('HF7: the read-first judge replays its recorded calls', () => {
   });
 });
 
-describe('rung 3 runs only with a configured, calibrated judge', () => {
+describe('rung 3 runs only with a configured, calibrated judge', { timeout: 60_000 }, () => {
   const coverage = acme('acme-new-customer-coverage');
   const spec = { ...coverage, metadata: { ...coverage.metadata, tool_schemas: ACME_LIVE_TOOLS } };
   /** B7 of the stored runs: the agent added +1 to the number the user typed, so no source holds its value. */

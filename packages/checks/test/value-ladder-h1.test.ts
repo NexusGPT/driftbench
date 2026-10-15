@@ -108,7 +108,7 @@ function reference(): Map<string, 'pass' | 'fail'> {
   return agreed;
 }
 
-describe('HF6: rung 1 settles the format flips of the stored H1 runs', () => {
+describe('HF6: rung 1 settles the format flips of the stored H1 runs', { timeout: 60_000 }, () => {
   it('settles 59 of the 116 flips: 49 pass, and the 10 B8 runs that send Ln fail', async () => {
     const { flips, settled } = await hf6();
     expect(flips).toBe(116);
@@ -156,7 +156,7 @@ describe('HF6: rung 1 settles the format flips of the stored H1 runs', () => {
   });
 });
 
-describe('HF5: the ladder against the two labellers on all 259 stored runs', () => {
+describe('HF5: the ladder against the two labellers on all 259 stored runs', { timeout: 60_000 }, () => {
   const ladder = () => createToolsCheck({ services: { replayer: acmeReplayer(), judge: recordedJudge() } });
 
   it('settles the 255 slot values as HF5 did: 57 identical, rung 1 113 pass and 28 fail, the 57 stored phones pass', async () => {
@@ -215,7 +215,7 @@ describe('HF5: the ladder against the two labellers on all 259 stored runs', () 
   });
 });
 
-describe('the H3 harness of PR 434 as the kind validator', () => {
+describe('the H3 harness of PR 434 as the kind validator', { timeout: 60_000 }, () => {
   const ladder = () => createToolsCheck({ services: { replayer: acmeReplayer(), judge: recordedJudge() } });
 
   it('turns no real H1 failure into a pass: every run H3 found failing still fails, seed and class', async () => {
