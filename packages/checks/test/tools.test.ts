@@ -1,8 +1,8 @@
 import { diagnosticStep, type Expect, type StepOutput, type Verdict } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
+import { ARGUMENT_ACCURACY_STEP } from '../src/argument-accuracy';
 import { createToolsCheck, tools } from '../src/checks/tools';
 import type { SameReferentJudge } from '../src/value-check/judge';
-import { ARGUMENT_ACCURACY_STEP } from '../src/argument-accuracy';
 import { acme, perturbation } from './support/acme';
 import { acmeReplayer } from './support/acme-replayer';
 import { type Call, context, failing, observed, outcomes, run, verdict } from './support/context';

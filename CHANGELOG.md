@@ -4,6 +4,8 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* The argument-accuracy diagnostic registers through explicit shipped-object initialization, including registry restore. It counts expected argument verdicts only; value-policy lints cannot alter its score. Input names, repeated tool labels and non-gating argument verdicts retain their meaning.
+
 * Partial and whole-cell observation re-scoring share the artifact-evidence guard. Blocks whose artifact bytes were not stored run fresh; carrying them never creates a missing-workspace failure.
 * Diagnostic steps preserve their explicit deciding-rule `by`; `via` records the executing diagnostic step. Triggers filter gating verdicts and earlier diagnoses by diagnostic, step, disposition and confidence. Fresh and carried observations use the same diagnostic pass; whole-cell re-scoring refreshes run diagnoses. Diagnostic costs remain `none`, `conditional` or `always`.
 

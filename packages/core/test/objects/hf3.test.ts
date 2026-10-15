@@ -4,7 +4,7 @@ import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { defaultChecks } from '@agent-nexus/driftbench-checks';
+import { defaultChecks, initializeShippedObjects } from '@agent-nexus/driftbench-checks';
 import {
   applyScoringPlan,
   loadSpecFile,
@@ -27,6 +27,7 @@ const AGGREGATE = 'tools.argument_accuracy';
 
 const specs = new Map<string, Spec>();
 beforeAll(async () => {
+  initializeShippedObjects();
   for (const def of Object.values(BLOCKS)) {
     if (specs.has(def.spec)) continue;
     const loaded = await loadSpecFile(join(ROOT, def.spec));
@@ -76,7 +77,7 @@ describe('HF3: a one-item override changes no untargeted verdict', () => {
           const b = before.get(id);
           const a = after.get(id);
           if (a && b && a.outcome === b.outcome && a.score === b.score) continue;
-          if (a?.by?.item === item || b?.by?.item === item) targeted[item] = (targeted[item] ?? 0) + 1;
+          if (a?.name === item || b?.name === item) targeted[item] = (targeted[item] ?? 0) + 1;
           else untargeted += 1;
         }
       });
@@ -92,7 +93,9 @@ describe('HF3: a one-item override changes no untargeted verdict', () => {
     const withScore = baseline.filter(({ scores }) => scores.length === 1);
     expect(withScore.length).toBe(259);
     for (const { verdicts, scores } of withScore) {
-      const inputs = verdicts.filter((v) => v.name === 'tools' && v.id.includes('.input.'));
+      const inputs = verdicts.filter(
+        (v) => v.name === 'tools' && v.id.includes('.input.') && !v.evidence?.startsWith('test lint:'),
+      );
       expect(scores[0]).toBe(inputs.filter((v) => v.outcome === 'pass').length / inputs.length);
     }
   });
