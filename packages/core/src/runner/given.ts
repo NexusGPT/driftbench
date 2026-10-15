@@ -52,7 +52,8 @@ export function enterBlock(
  * new list of the same message objects: the run owns them and never changes one after it joined the
  * history, so the cost of a block does not grow with the messages before it. The origin of the prefix joins
  * the hash only when the spec states one, so a Given without it hashes as it always did. `originLength`
- * follows from the spec the hash already covers, so it stays out of the hash.
+ * follows from the spec the hash already covers, so it stays out of the Given hash. The block cache key reads
+ * the whole resolved Given, so it does change that key: what an adapter receives decides a cache entry.
  */
 export function resolveGiven(
   state: RunningGiven,
