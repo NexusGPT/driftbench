@@ -19,7 +19,9 @@ import { type StateDiffCase, stateDiff } from './state-diff';
  * with a gold value; the ladder decides whether the two are the same where it matters, without any rule per
  * value type. Its rungs are the items of a `policy/value-check` object (`policy/value-check/default.yaml`),
  * tried in the object's order: the first item whose `when` holds and that settles the value decides it. A
- * value no item settles is inconclusive, with every rung's reason; it never falls back to a string compare.
+ * value no item settles falls back to the exact compare of today (`exact_fallback`): the ladder turns a fail
+ * into a pass only when a decider proved the values the same. Only a configured judge that cannot decide (its
+ * votes split, or its call failed) leaves a value inconclusive.
  *
  * Before the rungs, two facts settle a value alone: a value equal to the gold passes, and a value or a gold
  * that is not a string (a number, a boolean, a list, an absent value) has one writing, so a difference fails.
@@ -114,13 +116,16 @@ export type ValuePolicy = {
 /** The ladder's answer for one value. */
 export type LadderResult = {
   outcome: Settles;
-  /** The item that settled the value, `identity` for the two facts that settle alone, `none` when nothing did. */
+  /** The item that settled the value, `identity` for the two facts that settle alone, `exact_fallback` when none did. */
   rung: string;
   evidence: string;
   /** The evidence names computed for the value and the ones the settling rung emitted. */
   names: Record<string, unknown>;
-  /** Set when the block demands a writing nobody states: a lint on the test, never a fail of the agent. */
-  lint?: string;
+  /**
+   * A lint on the test, never a fail of the agent: `unstated_format` when the block demands a writing nobody
+   * states, `no_decider` when nothing could decide the value and it was compared exactly.
+   */
+  lint?: { id: 'unstated_format' | 'no_decider'; text: string };
   /** The rungs that ran and could not decide, with their reasons, in order. */
   tried: { rung: string; reason: string }[];
 };
@@ -471,18 +476,44 @@ export async function runLadder(
       tried,
     };
     const lint = unstatedFormat(value, policy, settled, item);
-    return lint === undefined ? settled : { ...settled, lint };
+    return lint === undefined ? settled : { ...settled, lint: { id: 'unstated_format', text: lint } };
   }
 
+  return exactFallback(value, names, tried);
+}
+
+/**
+ * The floor when no rung could settle a value: the exact compare of today, so the ladder turns a fail into a
+ * pass only when a decider proved the two values the same. The value already differs from the gold, so the
+ * fallback fails it, says so, and lints the test with the deciders that would settle it.
+ */
+function exactFallback(
+  value: ValueCase,
+  names: Record<string, unknown>,
+  tried: LadderResult['tried'],
+): LadderResult {
+  const where = value.tool === undefined ? value.field : `${value.tool}.${value.field}`;
   const reasons = tried.map((entry) => `${entry.rung}: ${entry.reason}`);
-  const none: LadderResult = {
-    outcome: 'inconclusive',
-    rung: 'none',
-    evidence: `${show(value.value)} differs from ${show(value.gold)} and no rung settled it (${reasons.length === 0 ? 'no rung applies' : reasons.join('; ')})`,
+  const deciders = [
+    ...(names.tool_replayable === true
+      ? []
+      : [`a replayer that declares ${value.tool ?? 'the tool'} and resolves ${value.field} (rung1_outcome)`]),
+    ...(names.contract === 'none'
+      ? [`a pattern or an enum for ${value.field} in metadata.tool_schemas (rung2_contract)`]
+      : []),
+    'a calibrated same-referent judge (rung3_same_referent)',
+  ];
+  return {
+    outcome: 'fail',
+    rung: 'exact_fallback',
+    evidence: `no decider configured for ${where}; compared exactly: ${show(value.value)} is not ${show(value.gold)}${reasons.length === 0 ? '' : ` (${reasons.join('; ')})`}`,
     names,
     tried,
+    lint: {
+      id: 'no_decider',
+      text: `nothing could decide whether ${show(value.value)} names the same thing as ${show(value.gold)} for ${where}, so it was compared exactly; it would be settled by ${deciders.join(', or ')}`,
+    },
   };
-  return none;
 }
 
 /**
@@ -490,7 +521,7 @@ export async function runLadder(
  * gold only in its writing, and nothing outside the test asks for the gold's writing. The tool cannot be asked,
  * no contract states a format, and the value passed as given from its source or by the judge (same referent).
  * The block demands a writing nobody told the agent; the fix is to declare the format in the tool or to drop it
- * from the block. A value nothing settled is not linted: it may name another thing.
+ * from the block. A value nothing settled falls back to the exact compare and carries the `no_decider` lint instead.
  */
 function unstatedFormat(
   value: ValueCase,
