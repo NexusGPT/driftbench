@@ -1,4 +1,4 @@
-## gpt-6.1-sol final cell, 2026-10-14T12:05:52.027074+00:00
+## gpt-6.1-sol final cell, 2026-10-14T14:33:19.864528+00:00
 
 Both contestants use the same model, medium reasoning and the original sealed 790 pairs.
 The Responses API omits temperature and caps total output, including reasoning, at 8192 tokens.
@@ -61,12 +61,12 @@ Above-chance cheaters: 0; allow TEST: True. Validity covers the fixed planted ca
 | network-cell-amendment.json | fcd6e74c6b3c27d8923dec5381805fb2836abbbc423fe1f701a9d370a107dfb3 |
 | test-run-seal.json | 02694d9973ddeea6304ea6ddae2a97eea88875e9123ae4ecefd1288452ee25a2 |
 | pretest-summary.json | 611d8855cc068733463fb16750f11e692cfc9f9358eebfab912b0183ad028cb2 |
-| live-summary.json | 2f6bbc76b9c5a5e1da63c1430ede2920d6b4d7ef20a4ea508a3564997d1dd71d |
+| live-summary.json | 9d5ae5465087df108391b47f63959a44b2d460c3c70703bbb5a7181601f5b849 |
 | ordered-test.json | 9ce50fa46ef2edd3e509ffea09a5ce1ba44e550bb8a5c55bf60f641112ae9bb1 |
-| final-integrity.json | 1c1f4e7bd646252db26c2b267449f5f20472beb9f87c4964571fd63c9c2e2382 |
+| final-integrity.json | 39d919eda93d1a398f0d7c825094ef6490c1611c26ccd9435300408c88c88dbe |
 | provider-block-request-audit.json | 6c246c3ca80fe16c0c2ee2a624ebe1cde4b87a77b5c9d4b5dd80429ddddf3fc8 |
-| gpt-6.1-sol-token-loss-audit.json | e41a72f4be5f7c972ddb87c7e4d2fd071c56d351f4a474f6cfa55fe0b7e1ef07 |
-| final-cost-and-token-audit.json | 0c8c0b681b4904891105820c3f166c3665799f1335581148d4512d7bcda11eb1 |
+| gpt-6.1-sol-token-loss-audit.json | 47935547f0f2028aa75a30ff29a93e6479561ffab2b69291964ba565961fd194 |
+| final-cost-and-token-audit.json | ed50b5018ad993b2b1e7bf4b406c1fbf44e3f7d66b21f9f5a53ca688fcd4c4ea |
 
 Sources are the named artifacts in examples/judge-benchmarks/experiments/ledger-rb/gpt-6.1-sol and its append-only request journals.
 Sonnet is approved under USD 60 including holds and runs next, with caching off. Gemini 3.8 is dropped by the owner on 13 Oct 2026, partial data kept, not reported as a score. Flash Lite remains the Gemini result.
