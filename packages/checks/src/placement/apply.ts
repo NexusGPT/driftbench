@@ -1,4 +1,4 @@
-import { evidence } from '@agent-nexus/driftbench-core';
+import { evidence, type Layer } from '@agent-nexus/driftbench-core';
 import { z } from 'zod';
 import type { Attribution, Placement } from '../blame/types';
 import { type Facts, whenHolds } from '../blame/when';
@@ -22,6 +22,7 @@ export type PolicyView = {
     effect: Readonly<Record<string, unknown>>;
     params: Readonly<Record<string, unknown>>;
     impl: string;
+    layer?: Layer;
   }>;
 };
 
@@ -170,8 +171,11 @@ const crossCuttingImpl: PlacementImpl = {
     const out = withLocation(current, ctx, location, render(ctx.item.effect.target, ctx, { section }));
     if (ctx.item.effect.remove_local_copies !== true) return out;
     const item = ctx.place.attribution.item;
-    const copies = new Set<string>([ctx.local]);
+    const copies = new Set<string>(
+      ctx.item.params.count_no_skill_home === false && ctx.facts.home_name === 'none' ? [] : [ctx.local],
+    );
     for (const past of ctx.place.history ?? []) {
+      if (ctx.item.params.count_no_skill_home === false && past.home === 'none') continue;
       if (past.item === item && past.act === act && past.target !== undefined) copies.add(past.target);
     }
     const rule = act === undefined ? undefined : CLASS_RULE_BY_ACT[act];
@@ -319,6 +323,7 @@ export function applyPlacement(object: PolicyView, place: PlaceInput): Placement
         home: String(facts.home_name),
       },
       history: place.history ?? [],
+      countNoSkillHome: cross?.params.count_no_skill_home !== false,
       ...(typeof minRuns === 'number' ? { minRunsPerHome: minRuns } : {}),
     },
     ['recurrence_homes', 'recurrence_class_homes'],

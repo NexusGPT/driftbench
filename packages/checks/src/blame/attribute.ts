@@ -35,7 +35,11 @@ export function attribute(object: PolicyView, facts: Facts): Attribution {
         `${object.ref}: item ${item.id} names ${item.impl}, which no blame builtin or plugin provides`,
       );
     const out = impl.attribute(item, facts, `${object.ref}#${item.id}`);
-    if (out !== null) return out;
+    if (out !== null)
+      return {
+        ...out,
+        by: { object: object.ref, item: item.id, impl: item.impl, layer: item.layer ?? 'shipped' },
+      };
   }
   return {
     item: 'unassigned',
@@ -166,6 +170,7 @@ export function diagnoseBlock(options: DiagnoseBlockInput): DiagnoseBlockResult 
       diagnostic: options.diagnostic ?? 'diagnostic/code-agent-liability',
       verdict_ref: link.verdict.id,
       rule: attribution.rule,
+      ...(attribution.by === undefined ? {} : { by: attribution.by }),
       fault: attribution.fault,
       disposition: attribution.disposition,
       fix_location: placed.fix_location,

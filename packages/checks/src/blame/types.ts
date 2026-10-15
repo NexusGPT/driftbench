@@ -1,3 +1,5 @@
+import type { Layer } from '@agent-nexus/driftbench-core';
+
 /**
  * What blame and placement write for one failing verdict (codeagent_equivalence_blame.md B1, G5). Three answers:
  * `fault` (who made the mistake at run time), `disposition` (how it counts for the agent) and `fix_location`
@@ -16,6 +18,8 @@ export type Attribution = {
   item: string;
   /** `policy/blame:<id>@<hash8>#<item>`: the object, its content hash and the item. */
   rule: string;
+  /** The deciding item's resolved origin; inherited diagnoses retain the root's stamp. */
+  by?: { object: string; item: string; impl: string; layer: Layer };
   /** The attributed verdict, carried by the diagnosis: pass, fail or not_scored. The machine pass stays final. */
   verdict: string;
   fault: string[];
@@ -53,6 +57,8 @@ export type BlameDiagnosis = {
   /** The root verdict a chained verdict inherits its diagnosis from. */
   inherits?: string;
   rule: string;
+  /** The deciding item's resolved origin; inherited diagnoses retain the root's stamp. */
+  by?: { object: string; item: string; impl: string; layer: Layer };
   fault: string[];
   disposition: Disposition;
   fix_location: string;

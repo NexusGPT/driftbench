@@ -55,18 +55,20 @@ export function fromEffect(item: BlameItemView, rule: string, over: Partial<Attr
 
 /**
  * The agent's share of a tool fault, by what it did next: the item's table maps each next action to a
- * disposition. A shared fault names the agent beside the tool. With no next action, a recovery the item lists
- * as fine is setup, anything else shared.
+ * disposition. When recovery_ok is present it is authoritative: an action it excludes cannot be cleared by
+ * the shipped disposition table. A shared fault names the agent beside the tool.
  */
 export function splitByNextAction(item: BlameItemView, facts: Facts, rule: string): Attribution {
   const table = (item.params.disposition_by_next_action ?? {}) as Record<string, Disposition>;
   const next = facts.next_action as string | undefined;
   const recoveryOk = list(item.params.recovery_ok);
   const disposition: Disposition =
-    next !== undefined && table[next] !== undefined
-      ? table[next]
-      : next !== undefined && recoveryOk.includes(next)
+    item.params.recovery_ok !== undefined
+      ? next !== undefined && recoveryOk.includes(next)
         ? 'setup'
+        : 'shared'
+      : next !== undefined && table[next] !== undefined
+        ? table[next]
         : 'shared';
   const base = fromEffect(item, rule);
   const fault =
