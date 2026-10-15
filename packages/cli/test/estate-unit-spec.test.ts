@@ -235,3 +235,59 @@ it('checks script case outputs and refuses an absent oracle or a helper with no 
   expect(helper.err).toContain('configured executor');
   expect(helper.out).toBe('');
 }, 30000);
+
+it('preserves explicitly declared reply payload fields and empty values', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'unit-payload-'));
+  await mkdir(join(root, '.claude/hooks'), { recursive: true });
+  await writeFile(join(root, 'CLAUDE.md'), '# Payload handling\n');
+  await writeFile(
+    join(root, '.claude/hooks/echo.py'),
+    'import json,sys\ne=json.load(sys.stdin)\nprint(json.dumps([e["last_reply"],e["last_assistant_message"]]))\n',
+  );
+  const command = 'python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/echo.py';
+  await writeFile(
+    join(root, '.claude/settings.json'),
+    JSON.stringify({ hooks: { Stop: [{ hooks: [{ type: 'command', command }] }] } }),
+  );
+  const file = join(root, 'operation.yaml');
+  await writeFile(
+    file,
+    stringify({
+      id: 'literal-payload',
+      title: 'Preserve the declared event',
+      kind: 'task',
+      target: { adapter: 'claude-code' },
+      blocks: [{ user: 'Inspect the event' }],
+      metadata: {
+        estate: {
+          mode: 'unit',
+          testType: 'guard_positive',
+          unit: {
+            target: { kind: 'guard', name: 'echo.py', command, event: 'Stop' },
+            cases: [
+              {
+                id: 'empty',
+                material: 'empty reply',
+                payload: { last_reply: '' },
+                expected: { decision: 'allow', exitCode: 0, output: '["", ""]' },
+              },
+            ],
+          },
+        },
+      },
+    }),
+  );
+  let out = '';
+  let err = '';
+  const code = await main(['estate', 'unit', file, '--estate', root, '--json'], {
+    cwd: root,
+    out: (t) => {
+      out += t;
+    },
+    err: (t) => {
+      err += t;
+    },
+  });
+  expect(err).toBe('');
+  expect(code, out).toBe(0);
+}, 30000);

@@ -100,3 +100,9 @@ The assigned group remains 0/41 on seeds 1, 2, 3, hidden 729980927, 4, 5, 6, 7, 
 ## Remaining work
 
 The generator owner must emit the explicit operation metadata. Script tests need independent output/exit expectations, and helper tests need actual executor observations. The runner does not infer correctness from usage words or infer helper behavior from prompt presence. Re-measure the group after those dependencies land.
+
+## Explicit payload fidelity follow-up
+
+A further hand-written Stop hook reads both the explicitly supplied `last_reply` and the canonical `last_assistant_message`. Before the fix, the task run loses the supplied key and raises `KeyError`. Explicit task operations now retain supplied keys and empty values, while recorded JSON tests keep their existing shorthand conversion. The new regression and the existing runner set pass: 27 tests.
+
+A separate compatibility probe consumes the generator owner's actual pending operation metadata from temporary suite `hFkCXt`, without changing that owner's files. Of 18 guard-negative, speed and register task specs on the original estate, 16 pass. The two reply-length speed/register payloads contain a short rule sentence, which does not exceed the guard's length condition. This is compatibility evidence on uncommitted generator output, not bank credit.

@@ -224,6 +224,7 @@ export async function observeUnitTests(
               fixture,
               runner,
               Math.round((guard.timeout ?? target.timeout ?? 60) * 1000),
+              true,
             );
             observed.cases.push({
               id: fixture.id,
@@ -456,19 +457,31 @@ async function runGuard(
   unitCase: GuardCase,
   runner: Runner,
   timeoutMs: number,
+  literalPayload = false,
 ): Promise<Exec> {
   runner.counter += 1;
   const number = runner.counter;
   const folder = join(runner.work, `case-${number}`);
   await mkdir(folder, { recursive: true });
   const transcript = join(folder, 'transcript.jsonl');
-  const reply = typeof unitCase.payload.last_reply === 'string' ? unitCase.payload.last_reply : '';
+  const reply =
+    literalPayload && typeof unitCase.payload.last_assistant_message === 'string'
+      ? unitCase.payload.last_assistant_message
+      : typeof unitCase.payload.last_reply === 'string'
+        ? unitCase.payload.last_reply
+        : '';
   const prompt = typeof unitCase.payload.prompt === 'string' ? unitCase.payload.prompt : 'unit test';
   await writeFile(
     transcript,
     [
       { type: 'user', message: { role: 'user', content: prompt } },
-      { type: 'assistant', message: { role: 'assistant', content: [{ type: 'text', text: reply || 'ok' }] } },
+      {
+        type: 'assistant',
+        message: {
+          role: 'assistant',
+          content: [{ type: 'text', text: literalPayload ? reply : reply || 'ok' }],
+        },
+      },
     ]
       .map((line) => JSON.stringify(line))
       .join('\n')
@@ -483,10 +496,12 @@ async function runGuard(
     ...(unitCase.payload.tool_name !== undefined ? { tool_use_id: `toolu_unit_${number}` } : {}),
     ...unitCase.payload,
   };
-  // The runtime hands a Stop guard the last reply as last_assistant_message; the test file names it last_reply.
+  // Recorded JSON tests use a shorthand. Explicit task payloads retain their declared keys and values;
+  // add the runtime's canonical alias only when the task did not already supply it.
   if ('last_reply' in payload) {
-    payload.last_assistant_message = reply || 'ok';
-    delete payload.last_reply;
+    if (!literalPayload || !('last_assistant_message' in payload))
+      payload.last_assistant_message = literalPayload ? reply : reply || 'ok';
+    if (!literalPayload) delete payload.last_reply;
   }
   return execute(
     ['/bin/sh', '-c', guard.command],
