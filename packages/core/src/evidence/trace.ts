@@ -1,4 +1,12 @@
-import { globRegex, outputFailed, subjectCalls, subjectTool, verdictAtoms, verdictSubject } from './subject';
+import {
+  globRegex,
+  outputFailed,
+  subjectCalls,
+  subjectTool,
+  toolExecutions,
+  verdictAtoms,
+  verdictSubject,
+} from './subject';
 import type { EvidenceInput, EvidenceProvider, GuardDecision } from './types';
 
 /**
@@ -10,7 +18,7 @@ import type { EvidenceInput, EvidenceProvider, GuardDecision } from './types';
 /** Whether the subject's value failed: an error on the call, or a rung that settled the value as not resolved. */
 function subjectFailed(input: EvidenceInput): boolean {
   const calls = subjectCalls(input);
-  const runs = input.block.observed.executions ?? [];
+  const runs = toolExecutions(input);
   const failed = calls.some((call) => {
     if (call.error !== undefined || outputFailed(call.output)) return true;
     const command = (call.input as { command?: unknown } | undefined)?.command;
@@ -92,7 +100,7 @@ export const tool_failed: EvidenceProvider = {
   from: 'the error, the reported exit code or the recorded execution of the call the check is about, or a rung that found the tool did not resolve the value',
   compute: (input) => {
     if (subjectTool(input) !== undefined) return subjectFailed(input);
-    return (input.block.observed.executions ?? []).some((run) => run.role !== 'agent' && run.exitCode !== 0);
+    return toolExecutions(input).some((run) => run.exitCode !== 0);
   },
 };
 
@@ -118,7 +126,7 @@ export const tool_silent: EvidenceProvider = {
               : JSON.stringify(call.output);
         if (lacks(promise, output)) return true;
       }
-      for (const run of input.block.observed.executions ?? []) {
+      for (const run of toolExecutions(input)) {
         if (run.exitCode !== 0 || !run.command.includes(promise.tool)) continue;
         if (lacks(promise, run.stdout ?? '')) return true;
       }
@@ -150,6 +158,7 @@ export const env_error: EvidenceProvider = {
   from: 'a classifier over stderr, the output of failed commands and tool errors; the first class that matches, in the order timeout, network, package, sandbox',
   compute: (input) => {
     const texts: string[] = [];
+    // Agent-process stderr can report a real harness failure; never inspect its ask/command as an act.
     for (const run of input.block.observed.executions ?? []) {
       if (run.stderr) texts.push(run.stderr);
       if (run.exitCode !== 0 && run.stdout) texts.push(run.stdout);
@@ -200,7 +209,7 @@ export const claim_contradicted: EvidenceProvider = {
     const observed = input.block.observed;
     const reply = observed.text;
     if (TESTS_PASS.test(reply)) {
-      const tests = (observed.executions ?? []).filter((run) => TEST_COMMAND.test(run.command));
+      const tests = toolExecutions(input).filter((run) => TEST_COMMAND.test(run.command));
       const last = tests[tests.length - 1];
       if (last && last.exitCode !== 0) return true;
     }
