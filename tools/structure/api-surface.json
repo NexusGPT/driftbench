@@ -633,6 +633,7 @@
       "endStateCacheKey": "value",
       "enterBlock": "value",
       "error": "value",
+      "evidence": "value",
       "explainObject": "value",
       "explainRows": "value",
       "findSpecFiles": "value",
