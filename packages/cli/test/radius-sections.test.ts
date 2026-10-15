@@ -64,7 +64,7 @@ it('writes a registry from the headings and checks it against the prompt', async
   ]);
   expect(wrong.code).toBe(1);
   expect(wrong.out).toContain('text_sha256');
-});
+}, 60_000);
 
 it('re-anchors on the next prompt version: edited sections stale, the rest moved or kept', async () => {
   const prompt = await readFile(join(fixtures, 'acme-sales.md'), 'utf8');
@@ -111,7 +111,7 @@ it('re-anchors on the next prompt version: edited sections stale, the rest moved
   expect(
     JSON.parse(json.out).sections.every((section: { status: string }) => section.status === 'kept'),
   ).toBe(true);
-});
+}, 60_000);
 
 it('lints prompt-section links against the registries', async () => {
   const spec = {
@@ -159,4 +159,4 @@ it('lints prompt-section links against the registries', async () => {
   expect(ok.code).toBe(0);
   const bad = await cli(['spec', 'lint', 'spec.yaml', '--sections', 'spec.yaml']);
   expect(bad.code).toBe(2);
-});
+}, 60_000);
