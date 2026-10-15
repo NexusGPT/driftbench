@@ -7,7 +7,7 @@ import { hiddenSpec } from '../../../validators/src/ladders/generator/hidden';
 import { followerAdapter, generateFrom, runContext } from '../../../validators/src/ladders/generator/measure';
 import { renderMap } from '../../../validators/src/ladders/generator/render';
 
-it.each([1, 2, 3])(
+it.each([1, 2, 3, 4, 5, 6, 7, 8])(
   'keeps a restated slot observable after an approved perturbation (seed %i)',
   async (seed) => {
     const hidden = hiddenSpec(seed);
