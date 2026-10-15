@@ -437,6 +437,8 @@ export const RunResult = z.strictObject({
   endVerdict: z.enum(['success', 'failure', 'inconclusive']).optional(),
   error: z.string().optional(),
   blocks: z.array(BlockResult),
+  /** What the run-scope diagnostics wrote over the whole run. Absent when none ran; never changes a pass. */
+  diagnoses: z.array(Diagnosis).optional(),
   succession: Succession,
   recovery: Recovery.optional(),
   endState: z
@@ -522,6 +524,8 @@ export type CampaignRadius = z.infer<typeof CampaignRadius>;
 export const Campaign = z.strictObject({
   provenance: CampaignProvenance.optional(),
   rejudged: z.array(RejudgedFrom).optional(),
+  /** What the campaign-scope diagnostics wrote over the runs, when the command that wrote this record ran them. */
+  diagnoses: z.array(Diagnosis).optional(),
   campaignId: z.string().min(1),
   specs: z
     .array(

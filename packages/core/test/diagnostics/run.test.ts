@@ -5,20 +5,26 @@ import { dirname, join } from 'node:path';
 import { defaultChecks } from '@agent-nexus/driftbench-checks';
 import {
   clearObjectContexts,
+  type Diagnosis,
   loadSpecFile,
   type ObjectContext,
   ObjectStore,
   objectContextFor,
   objectRegistry,
+  planCampaign,
   type RunResult,
   registerDiagnosticStep,
+  runCampaign,
+  runCampaignDiagnostics,
+  runRunDiagnostics,
   runSpec,
   type Spec,
 } from '@agent-nexus/driftbench-core';
+import { openMemoryStore } from '@agent-nexus/driftbench-store';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
-import { acmeAdapter } from '../runner/support';
+import { acmeAdapter, loadAcmeConversations, putCampaign } from '../runner/support';
 
 const driver = createScriptedDriver();
 
@@ -272,5 +278,113 @@ describe('shipped diagnostics', () => {
       { adapter: acmeAdapter(), driver, checks: defaultChecks(), mode: 'T', repeat: 0, objects: context },
     );
     expect(none.blocks[0]?.diagnoses).toBeUndefined();
+  });
+});
+
+registerDiagnosticStep('plugin:test-count', {
+  params: z.strictObject({}),
+  cost: 'static',
+  run: ({ scope, run, runs, verdicts }) => ({
+    summary: `${scope}: ${runs?.length ?? (run ? 1 : 0)} runs, ${verdicts.length} verdicts`,
+    score: verdicts.length,
+  }),
+});
+
+describe('run and campaign scope', () => {
+  const objects = (scope: string) => ({
+    kind: 'diagnostic',
+    id: `count-${scope}`,
+    scope,
+    when: { always: true },
+    cost: { model_calls: 'none', agent_runs: 'none' },
+    steps: [{ id: 'count', title: 'Count', impl: 'plugin:test-count' }],
+  });
+
+  it('declares scope, when, reads, output and cost, and refuses an unknown scope or cost', () => {
+    const registry = objectRegistry.clone();
+    registry.registerShipped(
+      { ...objects('run'), reads: ['check-set'], output: { fields: ['score'] } },
+      'test',
+    );
+    expect(new ObjectStore(registry).resolve('diagnostic', 'count-run').fields).toMatchObject({
+      scope: 'run',
+      cost: { model_calls: 'none', agent_runs: 'none' },
+      output: { fields: ['score'] },
+    });
+    expect(() =>
+      new ObjectStore(objectRegistry.clone()).add(objects('suite'), 'project', { path: 'x.yaml' }),
+    ).toThrow(/scope/);
+    expect(() =>
+      new ObjectStore(objectRegistry.clone()).add({ ...objects('run'), cost: { dollars: 1 } }, 'project', {
+        path: 'y.yaml',
+      }),
+    ).toThrow(/dollars/);
+  });
+
+  it('runs a run-scope diagnostic once over the whole run, never on a block', async () => {
+    const registry = objectRegistry.clone();
+    registry.registerShipped(objects('run'), 'test');
+    const context: ObjectContext = { store: new ObjectStore(registry), uses: [], problems: [] };
+    const spec = {
+      id: 'run-scope',
+      kind: 'conversation',
+      uses: { diagnostics: ['count-run'] },
+      blocks: [{ when: { user: 'Hi' }, expect: { must: ['plan'] } }, { when: { user: 'And roaming?' } }],
+    } as Spec;
+    const run = await runSpec(spec, {
+      adapter: acmeAdapter(),
+      driver,
+      checks: defaultChecks(),
+      mode: 'T',
+      repeat: 0,
+      objects: context,
+    });
+    const verdicts = run.blocks.flatMap((block) => block.verdicts).length;
+    expect(run.diagnoses).toEqual([
+      expect.objectContaining({
+        step: 'count',
+        summary: `run: 1 runs, ${verdicts} verdicts`,
+        score: verdicts,
+      }),
+    ]);
+    expect(run.blocks.every((block) => block.diagnoses === undefined)).toBe(true);
+  });
+
+  it('runs a campaign-scope diagnostic once over every run of a campaign, after the last cell', async () => {
+    const registry = objectRegistry.clone();
+    registry.registerShipped(objects('campaign'), 'test');
+    const diagnostic = new ObjectStore(registry).resolve('diagnostic', 'count-campaign');
+    const conversations = await loadAcmeConversations();
+    const plan = planCampaign(conversations.slice(0, 2), [{ adapter: 'function', agent: 'acme' }], ['T'], 1);
+    const store = openMemoryStore();
+    await putCampaign(store, 'c-diagnosed', conversations.slice(0, 2));
+    const heard: Diagnosis[] = [];
+    const outcomes = await runCampaign({
+      campaignId: 'c-diagnosed',
+      cells: plan.cells,
+      specFor: (cell) => conversations.find((entry) => entry.spec.id === cell.specId)?.spec as Spec,
+      adapterFor: () => acmeAdapter(),
+      driver: () => createScriptedDriver(),
+      checks: defaultChecks(),
+      store,
+      diagnostics: [diagnostic],
+      onDiagnoses: (written) => {
+        heard.push(...written);
+      },
+    });
+    const verdicts = outcomes.flatMap(
+      (outcome) => outcome.run?.blocks.flatMap((block) => block.verdicts) ?? [],
+    ).length;
+    expect(heard).toEqual([
+      expect.objectContaining({ summary: `campaign: 2 runs, ${verdicts} verdicts`, score: verdicts }),
+    ]);
+    // A diagnostic of another scope never runs at this one.
+    const { diagnoses } = await runCampaignDiagnostics(
+      [new ObjectStore(registry).resolve('diagnostic', 'count-campaign')],
+      [],
+    );
+    expect(diagnoses).toHaveLength(1);
+    expect((await runRunDiagnostics([diagnostic], outcomes[0]?.run as RunResult)).diagnoses).toEqual([]);
+    await store.close();
   });
 });

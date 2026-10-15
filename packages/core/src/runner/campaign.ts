@@ -5,9 +5,11 @@ import type { CheckSet } from '../contracts/check';
 import type { UserDriver } from '../contracts/driver';
 import type { CostUnit, Store } from '../contracts/store';
 import type { ToolRule } from '../contracts/tool-policy';
+import { runCampaignDiagnostics } from '../diagnostics/run';
+import type { ResolvedObject } from '../objects/resolve';
 import type { BlockReuse } from '../radius/blocks';
 import type { TargetRef } from '../schema/common';
-import type { RunMode, RunResult } from '../schema/run';
+import type { Diagnosis, RunMode, RunResult } from '../schema/run';
 import type { Spec } from '../schema/spec';
 import type { ObservedCache } from './cache';
 import { cellId } from './cell';
@@ -281,6 +283,13 @@ export type CampaignRunOptions = {
   cells: readonly PlannedCell[];
   /** The spec of a cell, by id and hash. */
   specFor(cell: PlannedCell): Spec;
+  /**
+   * Campaign-scope diagnostics: run once every cell is done, over every run of the campaign. A stored campaign is
+   * immutable, so their diagnoses go to `onDiagnoses`; a command that writes a new campaign record (a re-judge, a
+   * re-score) puts them in `Campaign.diagnoses`. None when absent.
+   */
+  diagnostics?: readonly ResolvedObject[];
+  onDiagnoses?(diagnoses: Diagnosis[]): void | Promise<void>;
   adapterFor(target: TargetRef): AgentAdapter;
   /** A fresh driver for each run, given the cell and the spec the cell runs (a perturbing driver needs it). */
   driver(cell: PlannedCell, spec: Spec): UserDriver;
@@ -495,5 +504,11 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
   for (const planned of fRuns.values()) planned.settle();
   for (const entry of settled.values()) entry.settle();
   if (failure) throw failure.cause;
-  return outcomes.filter((outcome): outcome is CellOutcome => outcome !== undefined);
+  const finished = outcomes.filter((outcome): outcome is CellOutcome => outcome !== undefined);
+  if (options.diagnostics?.length) {
+    const runs = finished.flatMap((outcome) => (outcome.run ? [outcome.run] : []));
+    const { diagnoses } = await runCampaignDiagnostics(options.diagnostics, runs);
+    await options.onDiagnoses?.(diagnoses);
+  }
+  return finished;
 }
