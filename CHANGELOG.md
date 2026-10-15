@@ -4,6 +4,8 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* The argument-accuracy bank claim isolates its non-gating property: input assertions do not gate the control, every other gating verdict passes, and accuracy 0.5 must leave the block passing. Seeds 1–3 reject both verdict-gating and diagnosis-gating mutants.
+
 * Regenerate the system-bank manifest with `node --import tsx packages/validators/test/system/bank-manifest.ts --write`. The argument-accuracy claim now matches its verdict-or-diagnosis assertion.
 
 * A restated slot (`gen-restated-NNN`) states a value that no single slip of the first value reaches in the tool's schema (the next enum member, the first member, the integer one either side) whenever another value allows it, so an agent that keeps the first value and also sends the next enum member fails the move.
