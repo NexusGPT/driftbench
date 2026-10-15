@@ -18,10 +18,16 @@ import { claudeCodeLiveAdapter, functionAdapter, httpAdapter, processAdapter } f
  * spec writes a layer its own target silently drops. Measured as 0 of the 2,351 example specs in H9.
  */
 const CAPABILITIES: Record<string, AdapterCapabilities> = {
-  function: functionAdapter({ respond: () => ({ text: '' }) }).capabilities(),
+  function: functionAdapter({
+    respond: () => ({ segments: [], text: '', toolCalls: [], cost: {}, latencyMs: 0 }),
+  }).capabilities(),
   http: httpAdapter({ url: 'http://127.0.0.1:9/never' }).capabilities(),
   process: processAdapter({ command: 'true', provider: localProvider() }).capabilities(),
-  'claude-code': claudeCodeLiveAdapter({ command: 'true', estateRoot: '.' }).capabilities(),
+  'claude-code': claudeCodeLiveAdapter({
+    command: 'true',
+    estateRoot: '.',
+    provider: localProvider(),
+  }).capabilities(),
 };
 
 function adapterOf(spec: Spec, path: string): string | undefined {
