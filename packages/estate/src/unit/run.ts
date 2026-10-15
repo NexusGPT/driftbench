@@ -100,20 +100,7 @@ const CREDENTIAL_FOLDERS = [
 ];
 
 export async function runUnitTests(tests: readonly UnitTest[], options: UnitRunOptions): Promise<UnitRun> {
-  const notes: string[] = [];
-  const raw = await options.reader.read(options.root);
-  const work = await realpath(await mkdtemp(join(tmpdir(), 'driftbench-unit-')));
-  // Removed at exit or on a signal if the run never reaches its finally, with what still runs in it.
-  trackFolder(work);
-  const copy = join(work, 'estate');
-  try {
-    await copyListed(options.root, copy, options.reader);
-    const sandbox =
-      !options.noSandbox && process.platform === 'darwin' && existsSync('/usr/bin/sandbox-exec');
-    if (!sandbox)
-      notes.push('no sandbox: the guards and scripts ran with the network and the home folder open');
-    const runner = { work, copy, sandbox, counter: 0 };
-    const config = await readConfig(options.root);
+  const observed = await withRunner(options, async (runner, raw, config) => {
     const results: UnitResult[] = new Array(tests.length);
     const runOne = async (test: UnitTest): Promise<UnitResult> => {
       if (test.target.kind === 'script') return runScriptTest(test, config, runner, options.record === true);
@@ -136,7 +123,35 @@ export async function runUnitTests(tests: readonly UnitTest[], options: UnitRunO
         }
       }),
     );
-    return { results, sandbox: sandbox ? 'sandbox-exec' : 'none', notes };
+    return results;
+  });
+  return { results: observed.value, sandbox: observed.sandbox, notes: observed.notes };
+}
+
+async function withRunner<T>(
+  options: UnitRunOptions,
+  action: (
+    runner: Runner,
+    raw: Awaited<ReturnType<EstateReader['read']>>,
+    config: Record<string, unknown>,
+  ) => Promise<T>,
+): Promise<{ value: T; sandbox: UnitRun['sandbox']; notes: string[] }> {
+  const notes: string[] = [];
+  const raw = await options.reader.read(options.root);
+  const work = await realpath(await mkdtemp(join(tmpdir(), 'driftbench-unit-')));
+  // Removed at exit or on a signal if the run never reaches its finally, with what still runs in it.
+  trackFolder(work);
+  const copy = join(work, 'estate');
+  try {
+    await copyListed(options.root, copy, options.reader);
+    const sandbox =
+      !options.noSandbox && process.platform === 'darwin' && existsSync('/usr/bin/sandbox-exec');
+    if (!sandbox)
+      notes.push('no sandbox: the guards and scripts ran with the network and the home folder open');
+    const runner = { work, copy, sandbox, counter: 0 };
+    const config = await readConfig(options.root);
+    const value = await action(runner, raw, config);
+    return { value, sandbox: sandbox ? 'sandbox-exec' : 'none', notes };
   } finally {
     // A guard may start a daemon that leaves its process group (a new session) and outlives the run: what
     // still names or stands in the run's folder ends before the folder goes.
@@ -144,6 +159,85 @@ export async function runUnitTests(tests: readonly UnitTest[], options: UnitRunO
     await rm(work, { recursive: true, force: true });
     untrackFolder(work);
   }
+}
+
+/** A case executed without recording or inventing an expected outcome. A spec supplies its assertions. */
+export type UnitObservation = {
+  id: string;
+  target: UnitTest['target'];
+  cases: Array<{ id: string; outcome: UnitOutcome; ms: number; timedOut: boolean }>;
+  error?: string;
+  declared?: boolean;
+};
+
+export async function observeUnitTests(
+  tests: readonly UnitTest[],
+  options: UnitRunOptions,
+): Promise<{ observations: UnitObservation[]; sandbox: UnitRun['sandbox']; notes: string[] }> {
+  const run = await withRunner(options, async (runner, raw, config) => {
+    const observations: UnitObservation[] = [];
+    for (const test of tests) {
+      const observed: UnitObservation = { id: test.id, target: test.target, cases: [] };
+      if (test.target.kind === 'script') {
+        if (!existsSync(join(runner.copy, test.target.path))) {
+          observed.error = `the estate no longer holds ${test.target.path}`;
+          observations.push(observed);
+          continue;
+        }
+        // Declared fixtures have their own independent oracle; use the normal script runner for them.
+        const scripts = config.scripts as Record<string, unknown> | undefined;
+        if (Array.isArray(scripts?.[test.target.path])) {
+          observed.declared = true;
+          const result = await runScriptTest(test, config, runner, false);
+          observed.cases = result.cases.map((entry) => ({
+            id: entry.case,
+            outcome: entry.outcome,
+            ms: entry.ms,
+            timedOut: entry.outcome.message === 'timed out',
+          }));
+          if (result.status !== 'pass') observed.error = result.detail;
+        } else {
+          for (const fixture of test.cases) {
+            const result = await runScript(test.target.path, fixture, runner);
+            observed.cases.push({
+              id: fixture.id,
+              outcome: scriptOutcome(result),
+              ms: result.ms,
+              timedOut: result.timedOut,
+            });
+          }
+        }
+      } else {
+        const target = test.target;
+        const guard = raw.guards.find(
+          (candidate) =>
+            guardName(candidate) === target.name &&
+            candidate.event === target.event &&
+            (candidate.matcher ?? '') === (target.matcher ?? ''),
+        );
+        if (!guard) observed.error = `the estate no longer runs the ${target.event} guard ${target.name}`;
+        else
+          for (const fixture of test.cases) {
+            const result = await runGuard(
+              guard,
+              test,
+              fixture,
+              runner,
+              Math.round((guard.timeout ?? target.timeout ?? 60) * 1000),
+            );
+            observed.cases.push({
+              id: fixture.id,
+              outcome: outcomeOf(result),
+              ms: result.ms,
+              timedOut: result.timedOut,
+            });
+          }
+      }
+      observations.push(observed);
+    }
+    return observations;
+  });
+  return { observations: run.value, sandbox: run.sandbox, notes: run.notes };
 }
 
 type Runner = { work: string; copy: string; sandbox: boolean; counter: number };
@@ -394,7 +488,13 @@ async function runGuard(
     payload.last_assistant_message = reply || 'ok';
     delete payload.last_reply;
   }
-  return execute(['/bin/sh', '-c', guard.command], `${JSON.stringify(payload)}\n`, runner, folder, timeoutMs);
+  return execute(
+    ['/bin/sh', '-c', guard.command],
+    `${JSON.stringify(payload)}\n`,
+    runner,
+    runner.copy,
+    timeoutMs,
+  );
 }
 
 async function runScriptTest(
@@ -426,7 +526,7 @@ async function runScriptTest(
       await writeFile(join(folder, name), String(text));
     }
     const run = await execute(
-      [...interpreterOf(path), join(runner.copy, path), ...args],
+      [...(await interpreterFor(join(runner.copy, path))), join(runner.copy, path), ...args],
       typeof entry.stdin === 'string' ? entry.stdin : '',
       runner,
       folder,
@@ -610,7 +710,13 @@ async function runScript(path: string, fixture: GuardCase, runner: Runner): Prom
     await writeFile(join(folder, name), String(text));
   }
   const args = Array.isArray(fixture.payload.args) ? fixture.payload.args.map(String) : [];
-  return execute([...interpreterOf(path), join(runner.copy, path), ...args], '', runner, folder, 60_000);
+  return execute(
+    [...(await interpreterFor(join(runner.copy, path))), join(runner.copy, path), ...args],
+    typeof fixture.payload.stdin === 'string' ? fixture.payload.stdin : '',
+    runner,
+    folder,
+    60_000,
+  );
 }
 
 /**
@@ -649,6 +755,15 @@ function typeScriptRunner(): string[] {
   } catch {
     return [process.execPath, '--experimental-strip-types', '--no-warnings'];
   }
+}
+
+/** Honor the estate's interpreter declaration; extension inference is only a fallback. */
+async function interpreterFor(path: string): Promise<string[]> {
+  const source = await readFile(path, 'utf8');
+  const first = source.split('\n', 1)[0]?.trim() ?? '';
+  const shebang = /^#!\s*(\S+)(?:\s+(.+))?$/.exec(first);
+  if (shebang) return [shebang[1] as string, ...(shebang[2] ? [shebang[2]] : [])];
+  return interpreterOf(path);
 }
 
 function interpreterOf(path: string): string[] {

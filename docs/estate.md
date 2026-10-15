@@ -984,3 +984,11 @@ The failing session that motivated a change is its fail-to-pass case: red before
 Built, in order: scan, lint and map; plan; the session reader and replay; generation; maintenance; the live runner with planted session states and hazards; estate mutants; the static and unit runners. Not built yet: the unit run of a helper alone, and a validation on a real estate against its native test battery.
 
 See also: [checks](reference/checks.md), [running](running.md), [statistics](concepts/statistics.md).
+
+### Explicit operations in unit task specs
+
+`estate unit` accepts YAML or JSON task specs marked `metadata.estate.mode: unit`, alongside recorded JSON unit tests. A task spec declares its executable operation in `metadata.estate.unit`: a guard target (name, event, matcher and command) or a script target (path), plus concrete `cases` with hook payloads or script arguments, files and stdin. The runner executes those inputs on a copy. It does not turn the user ask into a command or search the implementation for an input that satisfies the expected verdict.
+
+A unit task spec has one block. Guard expectations check actual firings: exit 2 denies, a JSON permission decision supplies its decision, another nonzero exit warns, and context on stdout nudges. `guard_message` checks the actual messages; `guard_finished` and an optional `budgetMs` check completion. A case may supply an exact `expected` outcome. A script needs declared configuration fixtures, exact case outcomes, or an explicit expected exit code. Starting a process alone does not establish its correctness. Missing inputs, unsupported checks and missing script oracles are input errors, not executed failures or successful mutant kills.
+
+Hooks run from the copied estate's working folder. Scripts use their shebang interpreter when present, and otherwise the file extension selects the interpreter. Declared and recorded script fixtures both pass their stdin to the process. A helper's prompt alone supplies no observed execution; helper-only task specs require an executor and currently report an input error.
