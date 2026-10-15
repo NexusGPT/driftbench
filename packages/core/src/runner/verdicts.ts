@@ -37,6 +37,19 @@ export function runOutcome(
   return 'pass';
 }
 
+/**
+ * The run's outcome over its blocks and its end state, without the end verdict: for the readers that judge the
+ * end verdict apart, or not at all. Every reader of a run's pass goes through this or `runOutcome`, never
+ * through `block.pass`, so a block not run or blocked is never read as a failure.
+ */
+export function blocksOutcome(run: Pick<RunResult, 'blocks' | 'status' | 'endState'>): RunOutcome {
+  return runOutcome({
+    blocks: run.blocks,
+    status: run.status,
+    ...(run.endState ? { endState: run.endState } : {}),
+  });
+}
+
 /** Runs and blocks by verdict, for the counts printed beside a pass rate. */
 export type VerdictCounts = { pass: number; fail: number; not_run: number; blocked: number };
 

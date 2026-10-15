@@ -1,4 +1,4 @@
-import { isScored, type RunMode, type RunResult, type Spec } from '@agent-nexus/driftbench-core';
+import { blockStatus, isScored, type RunMode, type RunResult, type Spec } from '@agent-nexus/driftbench-core';
 import { quantile, repeatsForFloor, sampleVariance, Z95 } from '@agent-nexus/driftbench-stats';
 import {
   blocksWithSpec,
@@ -286,7 +286,7 @@ function noiseOf(data: CampaignData, runs: readonly RunResult[]): NoiseFloor | u
       for (const { result, specBlock } of blocksWithSpec(run, specOfRun(data, run))) {
         if (specBlock === undefined || !isScored(result)) continue;
         const seen = byBlock.get(specBlock) ?? new Set<boolean>();
-        seen.add(result.pass);
+        seen.add(blockStatus(result) === 'pass');
         byBlock.set(specBlock, seen);
       }
     }

@@ -46,6 +46,8 @@ Commands with their own codes:
 | `report` | written | | bad input | |
 | `compare` | non-inferior (parity) | regressed, or not shown non-inferior | bad input | |
 | `ci` | non-inferior (parity) | regressed, not shown non-inferior, incomplete, a failing aggregate, a radius miss | bad input | 3: a gating spec had blocks not run (a Given the target cannot apply) beyond `--max-not-run` |
+| `campaign rejudge` | every re-judged run passes | a run fails | bad input | 3: no run fails but a block was not run or blocked |
+| `family verify` | the reference passes every spec | the reference fails one, or one is invalid | bad input | 3: none fails but the reference could not run one (a block not run) |
 | `monitor` | no shift | two of the three detectors alarm | bad input | |
 | `validate` | | | | the level reached, 0 to 63: the lowest over seeds of the highest level passed, 0 when level 1 fails; `all` exits with the lowest level of every validator; an input error exits 64. With `--check-floor`: 1 when below the floor, else 0 |
 | `view` | | | bad input | runs until stopped |

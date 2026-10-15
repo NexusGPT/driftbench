@@ -80,6 +80,9 @@ class SpecItem(pytest.Item):
             cli=config.getoption("driftbench_cli"),
         )
         if not result.passed:
+            # A spec whose cells were only not run or blocked measured nothing: skipped with why, never a pass.
+            if unmeasured(result):
+                pytest.skip(describe(result))
             raise SpecFailed(result)
 
     def repr_failure(self, excinfo: pytest.ExceptionInfo[BaseException], style: Any = None) -> str:
@@ -91,9 +94,26 @@ class SpecItem(pytest.Item):
         return self.path, None, f"driftbench spec {self.name}"
 
 
+def unmeasured(result: CampaignResult) -> bool:
+    """True when no cell failed but some cell was not run or blocked: the spec is skipped, never passed."""
+    return any(not cell.scored for cell in result.cells) and all(cell.passed or not cell.scored for cell in result.cells)
+
+
 def describe(result: CampaignResult) -> str:
     """Every cell that did not pass, and why: its error, each failing block with its evidence, its end state."""
-    lines = [f"campaign {result.campaign_id}: {result.summary.passed} of {result.summary.cells} cells pass"]
+    summary = result.summary
+    unscored = ", ".join(
+        part
+        for part in (
+            f"{summary.not_run} not run" if summary.not_run else "",
+            f"{summary.blocked} blocked" if summary.blocked else "",
+        )
+        if part
+    )
+    lines = [
+        f"campaign {result.campaign_id}: {summary.passed} of {summary.cells - summary.not_run - summary.blocked} cells pass"
+        + (f" ({unscored})" if unscored else "")
+    ]
     for cell in result.cells:
         if cell.passed:
             continue
@@ -110,6 +130,9 @@ def describe_cell(cell: Cell) -> list[str]:
         if block.passed:
             continue
         name = f"block {block.index}" + (f" ({block.block_id})" if block.block_id else "")
+        if not block.scored:
+            lines.append(f"  {name} {block.reason}")
+            continue
         lines.append(f"  {name} failed")
         for verdict in block.failing:
             lines.append(f"    {verdict.id} {verdict.outcome}: {verdict.evidence}")

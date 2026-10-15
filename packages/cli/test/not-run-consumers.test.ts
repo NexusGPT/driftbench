@@ -13,6 +13,7 @@ import { defaultDeps } from '../src/commands/campaign';
 import { rankInputs } from '../src/commands/compare-rank';
 import { lineOf } from '../src/commands/estate-live';
 import { registerPerturbCommand } from '../src/commands/perturb';
+import { registerRedteamCommand } from '../src/commands/redteam';
 import { registerSimulateCommand } from '../src/commands/simulate';
 import { type Io, main } from '../src/index';
 import { passingAndFailing } from '../src/view/server';
@@ -307,6 +308,44 @@ describe('simulate and perturb on a target that cannot run the spec', () => {
       expect(result.out).toMatch(/0 of 0 blocks pass \(\d+ not run or blocked\)/);
       expect(result.out).not.toContain('✗');
       expect(result.out).toContain('not run: capability');
+    },
+    SLOW,
+  );
+});
+
+describe('redteam grade on a target that cannot run the spec', () => {
+  it(
+    'prints the run as not run, never as not passed, with the outcome in the JSON',
+    async () => {
+      const run = (json: boolean) =>
+        cli(
+          [
+            'redteam',
+            'grade',
+            TOOL_FAILURE,
+            '--target',
+            'function:acme-sales',
+            '--judge',
+            'openai',
+            ...(json ? ['--json'] : []),
+          ],
+          (program, io, setExit) =>
+            registerRedteamCommand(program, io, setExit, noStubs, () => ({
+              id: 'unused',
+              family: 'openai',
+              cls: 'system2',
+              cost: 1,
+              judge: async () => {
+                throw new Error('no judge call: no block was sent');
+              },
+            })),
+        );
+      const json = await run(true);
+      expect(json.err).toBe('');
+      expect(JSON.parse(json.out)).toMatchObject({ passed: false, outcome: 'not_run' });
+      const text = await run(false);
+      expect(text.out).toContain('not run (a block was not sent)');
+      expect(text.out).not.toContain('not passed');
     },
     SLOW,
   );

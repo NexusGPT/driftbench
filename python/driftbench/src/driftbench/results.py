@@ -26,7 +26,11 @@ class Verdict:
 
 @dataclass(frozen=True)
 class Block:
-    """One block of a run: its position, the spec block id when it has one, and its verdicts."""
+    """One block of a run: its position, the spec block id when it has one, and its verdicts.
+
+    `status` is "not_run" or "blocked" for a block the runner did not send, None for a pass or a fail. Such a
+    block is neither: `passed` is False and it holds no verdict. `not_run` and `blocked` carry the reason.
+    """
 
     index: int
     block_id: str | None
@@ -34,6 +38,25 @@ class Block:
     stage: str | None
     injected: bool
     verdicts: tuple[Verdict, ...]
+    status: str | None = None
+    not_run: dict[str, Any] | None = None
+    blocked: dict[str, Any] | None = None
+
+    @property
+    def scored(self) -> bool:
+        """True for a pass or a fail: a block the agent was measured on."""
+        return self.status is None
+
+    @property
+    def reason(self) -> str | None:
+        """Why the block was not run or blocked; None for a pass or a fail."""
+        if self.not_run is not None:
+            return f"not run ({self.not_run.get('check')}): {self.not_run.get('got')}"
+        if self.blocked is not None:
+            return f"blocked by {self.blocked.get('by')}"
+        if self.status is not None:
+            return "blocked" if self.status == "blocked" else "not run"
+        return None
 
     @property
     def failing(self) -> tuple[Verdict, ...]:
@@ -49,6 +72,9 @@ class Block:
             stage=doc.get("stage"),
             injected=bool(doc.get("injected", False)),
             verdicts=tuple(Verdict.from_json(verdict) for verdict in doc.get("verdicts", [])),
+            status=doc.get("status"),
+            not_run=doc.get("notRun"),
+            blocked=doc.get("blocked"),
         )
 
 
@@ -66,7 +92,11 @@ class EndState:
 
 @dataclass(frozen=True)
 class Cell:
-    """One spec on one target, in one mode, for one repeat. `state` is pass, fail, failed, stopped or pending."""
+    """One spec on one target, in one mode, for one repeat.
+
+    `state` is pass, fail, failed, stopped, pending, not_run or blocked. The last two are no measurement: a
+    block was not sent and none failed, so the cell neither passes nor fails.
+    """
 
     cell_id: str
     spec_id: str
@@ -84,6 +114,11 @@ class Cell:
     @property
     def passed(self) -> bool:
         return self.state == "pass"
+
+    @property
+    def scored(self) -> bool:
+        """False for a cell not run or blocked: no measurement."""
+        return self.state not in ("not_run", "blocked")
 
     @classmethod
     def from_json(cls, doc: dict[str, Any]) -> Cell:
@@ -108,7 +143,10 @@ class Cell:
 
 @dataclass(frozen=True)
 class Summary:
-    """Cell counts: passed, failed_checks (a gating verdict did not pass), failed (the run broke), and the rest."""
+    """Cell counts: passed, failed_checks (a gating verdict did not pass), failed (the run broke), and the rest.
+
+    `not_run` and `blocked` count the cells with a block not sent and none failed: neither passed nor failed.
+    """
 
     cells: int
     passed: int
@@ -116,6 +154,8 @@ class Summary:
     failed: int
     stopped_by_budget: int
     pending: int
+    not_run: int = 0
+    blocked: int = 0
 
     @classmethod
     def from_json(cls, doc: dict[str, Any]) -> Summary:
@@ -126,6 +166,8 @@ class Summary:
             failed=int(doc["failed"]),
             stopped_by_budget=int(doc.get("stoppedByBudget", 0)),
             pending=int(doc.get("pending", 0)),
+            not_run=int(doc.get("notRun", 0)),
+            blocked=int(doc.get("blocked", 0)),
         )
 
 

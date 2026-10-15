@@ -1,5 +1,6 @@
 import {
   type Blocked,
+  blockStatus,
   type CompoundingIndex,
   type Count,
   compoundingIndex,
@@ -403,7 +404,7 @@ function timelineEventsOf(run: RunResult, index: number): { id: string; label: s
         : event.type === 'model_call'
           ? 'model call'
           : event.type === 'block_end'
-            ? `block end ${event.pass ? 'pass' : 'fail'}`
+            ? `block end ${{ pass: 'pass', fail: 'fail', not_run: 'not run', blocked: 'blocked' }[blockStatus(event)]}`
             : event.type;
     // A call that carries its trace span id is anchored by that id, so the span anchor names the real span.
     return [{ id: event.type === 'tool_call' && event.spanId ? event.spanId : `event:${position}`, label }];

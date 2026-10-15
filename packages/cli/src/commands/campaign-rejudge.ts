@@ -1,5 +1,6 @@
 import { resolve } from 'node:path';
 import {
+  blocksOutcome,
   type Campaign,
   completeBaselineProvenance,
   loadChangeManifest,
@@ -163,7 +164,10 @@ export async function campaignRejudge(paths: string[], options: Options, io: Io)
         ? `${JSON.stringify(summary, null, 2)}\n`
         : `Campaign ${summary.campaign}: ${summary.rejudged} blocks re-judged, ${summary.carried} carried; 0 agent calls. Judge cost ${summary.judgeCostUsd.toFixed(4)} USD.\n`,
     );
-    return runs.every((r) => r.blocks.every((b) => b.pass) && r.endState?.match !== false) ? 0 : 1;
+    // Exit 1 when a run fails; 3 when none fails but a block was not run or blocked (as ci), never a pass.
+    const outcomes = runs.map(blocksOutcome);
+    if (outcomes.includes('fail')) return 1;
+    return outcomes.every((outcome) => outcome === 'pass') ? 0 : 3;
   } catch (error) {
     io.err(`${error instanceof Error ? error.message : String(error)}\n`);
     return 2;

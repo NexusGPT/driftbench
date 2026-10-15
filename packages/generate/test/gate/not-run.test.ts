@@ -22,6 +22,8 @@ it('difficulty and kill counts leave out a fault agent whose adapter did not run
   });
   // The reference passes; three trivial agents and wrong-sku fail; the unsupported one measured nothing.
   expect(result.blocks[0]?.passProbability).toBe(1 / 5);
+  expect(result.blocks[0]?.notRun).toEqual(['unsupported']);
+  expect(result.blocks[0]?.stages.difficulty.detail).toContain('(not run: unsupported)');
   const fault = result.faults.find((entry) => entry.id === 'unsupported');
   expect(fault?.pool.targeting).toBe(0);
   expect(fault?.pool.notRun).toBe(1);

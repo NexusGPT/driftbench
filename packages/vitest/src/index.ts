@@ -12,6 +12,7 @@ import {
   type AgentAdapter,
   type BlockResult,
   type BlockSpec,
+  blockStatus,
   type CheckSet,
   parseSpecText,
   type RunResult,
@@ -79,21 +80,19 @@ export function describeSpec(
     spec.blocks.forEach((block, index) => {
       it(
         blockName(index, block),
-        async () => {
+        async (context) => {
           const result = await once();
           const observed = result.blocks.find((entry) => entry.index === index && !entry.injected);
           if (!observed)
             throw new Error(`block ${index} did not run: ${result.error ?? `the run ${result.status}`}`);
-          // A block not run or blocked is no pass, and no failure of the agent: the test fails and says why.
-          if (observed.notRun)
-            throw new Error(
-              `block ${index} was not run (${observed.notRun.kind}, check ${observed.notRun.check}): expected ${observed.notRun.expected}; got ${observed.notRun.got}`,
-            );
-          if (observed.blocked)
-            throw new Error(
-              `block ${index} was blocked by ${observed.blocked.by} (root ${observed.blocked.root})`,
-            );
-          if (!observed.pass) throw new Error(blockFailure(observed));
+          // A block not run or blocked is no pass and no failure of the agent: the test is skipped with why, as a
+          // JUnit report skips it.
+          const reason = notRunReason(observed);
+          if (reason !== undefined) {
+            context.skip(reason);
+            return;
+          }
+          if (blockStatus(observed) !== 'pass') throw new Error(blockFailure(observed));
         },
         timeout,
       );
@@ -101,13 +100,13 @@ export function describeSpec(
     if (spec.end_state !== undefined) {
       it(
         'end state',
-        async () => {
+        async (context) => {
           const result = await once();
           const skipped = result.blocks.find((entry) => entry.status !== undefined);
-          if (!result.endState && skipped)
-            throw new Error(
-              `no end state was compared: block ${skipped.index} was ${skipped.status === 'blocked' ? 'blocked' : 'not run'}`,
-            );
+          if (!result.endState && skipped) {
+            context.skip(`no end state was compared: ${notRunReason(skipped)}`);
+            return;
+          }
           if (!result.endState)
             throw new Error(`no end state was read: ${result.error ?? `the run ${result.status}`}`);
           if (!result.endState.match) {
@@ -142,6 +141,17 @@ function stimulusText(when: BlockSpec['when']): string {
 function cut(text: string): string {
   const line = text.replace(/\s+/g, ' ');
   return line.length > 60 ? `${line.slice(0, 57)}...` : line;
+}
+
+/** Why a block was not run or blocked, as a skipped test says it; undefined for a pass or a fail. */
+function notRunReason(block: BlockResult): string | undefined {
+  if (block.notRun)
+    return `block ${block.index} was not run (${block.notRun.kind}, check ${block.notRun.check}): expected ${block.notRun.expected}; got ${block.notRun.got}`;
+  if (block.blocked)
+    return `block ${block.index} was blocked by ${block.blocked.by} (root ${block.blocked.root})`;
+  if (block.status !== undefined)
+    return `block ${block.index} was ${block.status === 'blocked' ? 'blocked' : 'not run'}`;
+  return undefined;
 }
 
 /** What failed in a block: each gating verdict that did not pass, with its evidence. */

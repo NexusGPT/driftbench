@@ -1,4 +1,5 @@
 import {
+  blockStatus,
   type DriftClass,
   isScored,
   type RunMode,
@@ -268,7 +269,7 @@ export function blockAccuracy(runs: readonly RunResult[]): Estimate | undefined 
   runs.forEach((run, index) => {
     for (const block of run.blocks) {
       if (!isScored(block)) continue;
-      values.push(block.pass ? 1 : 0);
+      values.push(blockStatus(block) === 'pass' ? 1 : 0);
       clusters.push(index);
     }
   });

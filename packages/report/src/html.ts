@@ -1,4 +1,4 @@
-import type { DriftClass, RunEvent, Verdict } from '@agent-nexus/driftbench-core';
+import { blockStatus, type DriftClass, type RunEvent, type Verdict } from '@agent-nexus/driftbench-core';
 import type { CompareResult } from './compare';
 import type { Estimate } from './estimate';
 import { CASLON_DISPLAY, CASLON_TEXT, GEIST, GEIST_MONO } from './fonts';
@@ -653,11 +653,11 @@ function blockDetail(block: BlockDetail, extra = ''): string {
           )
           .join('');
   const tools =
-    block.pass && block.toolCalls.length > 0
+    blockStatus(block) === 'pass' && block.toolCalls.length > 0
       ? `<details><summary>${esc(block.toolCalls.map((call) => call.label).join(', '))}</summary>${calls}</details>`
       : calls;
   const verdictHead = ['outcome', 'verdict', 'kind', 'gating', 'evidence', 'judge reasoning'];
-  const verdict = verdictOf(block.pass, block.status);
+  const verdict = verdictOf(blockStatus(block) === 'pass', block.status);
   const reason = unscoredReason(block);
   return `<div class="block ${verdict.cls === 'ok' ? 'block-pass' : verdict.cls === 'skip' ? 'block-skip' : 'block-fail'}" id="block-${block.index}">
 ${block.rejudged ? `<p>Re-judged: ${esc(block.rejudged.criteria.join(', '))}; observations from ${esc(block.rejudged.fromCampaign)}.</p>\n` : block.carried ? `<p>carried from ${esc(block.carried.fromCampaign)}</p>\n` : ''}<p class="block-head"><span class="badge ${verdict.cls}">${verdict.text}</span> Block ${block.index}, ${esc(where)}${block.drift.length > 0 ? `, drift ${esc(block.drift.join(', '))}` : ''}. Stage expected ${esc(block.expectedStage ?? 'none')}, observed ${esc(block.observedStage ?? 'none')}.</p>
@@ -816,7 +816,7 @@ function eventText(event: RunEvent): string {
     case 'retry':
       return `${event.at} a retry on block ${event.index}`;
     case 'block_end':
-      return `${event.at} block ${event.index} ${event.pass ? 'passes' : 'fails'}`;
+      return `${event.at} block ${event.index} ${{ pass: 'passes', fail: 'fails', not_run: 'was not run', blocked: 'was blocked' }[blockStatus(event)]}`;
     case 'run_end':
       return `${event.at} run ends: ${event.status}`;
   }

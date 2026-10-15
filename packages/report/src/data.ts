@@ -1,6 +1,7 @@
 import {
   agentVersionOf,
   type BlockResult,
+  blockStatus,
   type Campaign,
   canonicalJson,
   isScored,
@@ -167,7 +168,7 @@ export function carriedSummary(runs: readonly RunResult[]): CarriedSummary | und
 export function blockScore(run: RunResult): number {
   const scored = run.blocks.filter(isScored);
   if (scored.length === 0) return 0;
-  return scored.filter((block) => block.pass).length / scored.length;
+  return scored.filter((block) => blockStatus(block) === 'pass').length / scored.length;
 }
 
 /** `adapter:agent`, with the variant and the deployment when the target names them. */

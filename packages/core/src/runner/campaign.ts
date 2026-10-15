@@ -15,7 +15,7 @@ import { replacesBlock } from './inject';
 import { preflightTargetPrices, priceObserved, TokenPrices } from './pricing';
 import type { RetryOptions } from './retry';
 import { runSpec } from './run';
-import { runOutcome } from './verdicts';
+import { blocksOutcome } from './verdicts';
 
 /** One run to make: one spec, on one target, in one mode, for one repeat (and one perturbation in P). */
 export type PlannedCell = {
@@ -247,7 +247,7 @@ export type CellOutcome = {
 
 /**
  * The outcome of a cell from its run: pass when the run completed, every block passed and the end state
- * matched; not_run or blocked when nothing failed but a block was not run or blocked (`runOutcome`).
+ * matched; not_run or blocked when nothing failed but a block was not run or blocked (`blocksOutcome`).
  */
 export function outcomeOf(cell: PlannedCell, run: RunResult | undefined, reused = false): CellOutcome {
   if (!run) return { cell, reused, state: 'pending', failing: [] };
@@ -269,12 +269,9 @@ export function outcomeOf(cell: PlannedCell, run: RunResult | undefined, reused 
     ),
   ];
   if (run.status !== 'completed') return { cell, run, reused, state: run.status, failing };
-  const pass =
-    run.blocks.length > 0 && run.blocks.every((block) => block.pass) && run.endState?.match !== false;
-  if (pass) return { cell, run, reused, state: 'pass', failing };
   // The end verdict is left to the readers of the run, as before: only a block not run or blocked moves the state.
-  const { endVerdict: _endVerdict, ...unended } = run;
-  const outcome = runOutcome(unended);
+  const outcome = blocksOutcome(run);
+  if (outcome === 'pass') return { cell, run, reused, state: 'pass', failing };
   return {
     cell,
     run,

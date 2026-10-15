@@ -1,15 +1,17 @@
 import {
   type AgentAdapter,
   type ArtifactReaderRegistry,
+  blockStatus,
+  blocksOutcome,
   type Campaign,
   type CellOutcome,
   type CheckSet,
   type CostUnit,
   contentHash,
+  isScored,
   planCampaign,
   type RunResult,
   runCampaign,
-  runOutcome,
   type Store,
   type TargetRef,
   type UserDriver,
@@ -194,6 +196,8 @@ export type PilotObservation = PilotFactors & {
   pass: boolean;
   /** The pass flag of each block, in order. */
   blocks: boolean[];
+  /** Indices of the blocks not run or blocked in a run that still failed: no measurement, left out of block flips. */
+  unscored?: number[];
   /**
    * The chance this run fails, when the agent states it (a control agent records `pilotControl.pFail`
    * on every block's raw output): 1 minus the product of the blocks' chances to pass. A control wraps a
@@ -214,13 +218,10 @@ export function observationOf(
   factors: PilotFactors | undefined,
 ): PilotObservation | undefined {
   if (!factors) return undefined;
-  const outcome = runOutcome(run);
+  const outcome = blocksOutcome(run);
   if (outcome === 'not_run' || outcome === 'blocked') return undefined;
-  const pass =
-    run.status === 'completed' &&
-    run.blocks.length > 0 &&
-    run.blocks.every((block) => block.pass) &&
-    run.endState?.match !== false;
+  const pass = outcome === 'pass';
+  const unscored = run.blocks.flatMap((block, index) => (isScored(block) ? [] : [index]));
   const controls = run.blocks.map((block) => controlOf(block.observed.raw));
   const stated = controls.length > 0 && controls.every((control) => control !== undefined);
   const baseFailed =
@@ -243,7 +244,8 @@ export function observationOf(
     repeat: run.repeat,
     status: run.status,
     pass,
-    blocks: run.blocks.map((block) => block.pass),
+    blocks: run.blocks.map((block) => blockStatus(block) === 'pass'),
+    ...(unscored.length > 0 ? { unscored } : {}),
     ...(planted === undefined ? {} : { planted }),
     ...(model === undefined ? {} : { model }),
   };

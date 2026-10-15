@@ -64,7 +64,7 @@ export function recoveryOf(
   for (let position = k; position < blocks.length; position++) {
     const block = blocks[position] as BlockResult;
     const target = targetOf(position);
-    if (block.pass && (target === undefined || block.stageObserved === target)) {
+    if (blockStatus(block) === 'pass' && (target === undefined || block.stageObserved === target)) {
       recoveredAt = position;
       break;
     }

@@ -2,7 +2,7 @@ import type { BlockResult, RunResult } from '../schema/run';
 import type { Spec } from '../schema/spec';
 import { canonicalJson } from '../spec/hash';
 import { replacesBlock } from './inject';
-import { isScored } from './verdicts';
+import { blockStatus, isScored } from './verdicts';
 
 /** A point estimate with its two-sided interval, the shape `@agent-nexus/driftbench-stats` returns. */
 export type IntervalEstimate = { estimate: number; lower: number; upper: number };
@@ -142,7 +142,7 @@ function blockRates(runs: readonly RunResult[]): Map<number, Rate> {
       if (result.carried || run.carried || !isScored(result)) continue;
       const rate = rates.get(block) ?? { pass: 0, runs: 0 };
       rate.runs += 1;
-      if (result.pass) rate.pass += 1;
+      if (blockStatus(result) === 'pass') rate.pass += 1;
       rates.set(block, rate);
     }
   }

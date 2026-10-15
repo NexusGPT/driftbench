@@ -1,4 +1,4 @@
-import type { RunMode, Verdict } from '@agent-nexus/driftbench-core';
+import { blockStatus, type RunMode, type Verdict } from '@agent-nexus/driftbench-core';
 import { criterionOf } from './compare';
 import { showTarget } from './data';
 import { count, esc, fixed, json, pct, pValue, unscoredReason, unscoredRuns, usd, verdictOf } from './format';
@@ -149,7 +149,7 @@ export function pageModel(card: Scorecard): PageModel {
         continue;
       }
       blocks += 1;
-      if (block.pass) blocksPassing += 1;
+      if (blockStatus(block) === 'pass') blocksPassing += 1;
       for (const v of block.verdicts) {
         checks += 1;
         if (v.outcome === 'fail') {
@@ -192,7 +192,7 @@ function chipOf(pass: boolean, unscored: 'not_run' | 'blocked' | undefined): str
 
 /** A block that failed: not one that was not run or blocked. */
 function blockFailed(block: BlockDetail): boolean {
-  return !block.pass && block.status === undefined;
+  return blockStatus(block) === 'fail';
 }
 
 /** A run that failed: not one whose outcome is not run or blocked. */
@@ -532,7 +532,7 @@ function squares(run: RunDetail): string {
   return `<span class="sq" title="${count(run.blocks.length, 'block')}, ${failing} failing">${run.blocks
     .map(
       (b) =>
-        `<i class="${b.pass ? '' : blockFailed(b) ? 'f' : 's'}${b.specBlock === undefined ? ' inj' : ''}"></i>`,
+        `<i class="${{ pass: '', fail: 'f', not_run: 's', blocked: 's' }[blockStatus(b)]}${b.specBlock === undefined ? ' inj' : ''}"></i>`,
     )
     .join('')}</span>`;
 }
@@ -641,8 +641,8 @@ function blockView(block: BlockDetail): string {
           )
           .join('')}</div>`;
   const reason = unscoredReason(block);
-  return `<div class="blk${block.pass ? '' : blockFailed(block) ? ' bad' : ' skip'}">
-<p class="bh"><span class="kicker">Block ${block.index}${block.specBlock === undefined ? ' · injected' : ''}</span>${stage}${chipOf(block.pass, block.status)}</p>
+  return `<div class="blk${{ pass: '', fail: ' bad', not_run: ' skip', blocked: ' skip' }[blockStatus(block)]}">
+<p class="bh"><span class="kicker">Block ${block.index}${block.specBlock === undefined ? ' · injected' : ''}</span>${stage}${chipOf(blockStatus(block) === 'pass', block.status)}</p>
 ${note}${reason === undefined ? '' : `<p class="stage">${esc(reason)}</p>`}${block.stimulus === undefined ? '' : `<p class="who">${block.realized === undefined ? 'User' : 'User, as written'}</p><p class="msg user">${esc(block.stimulus)}</p>`}${block.realized === undefined ? '' : `<p class="who">User, as sent</p><p class="msg user">${esc(block.realized.text ?? notStored(block.realized.hash))}</p>`}
 <p class="who r">Agent · ${esc(fixed(block.latencyMs, 0))} ms</p><p class="msg agent">${esc(block.text || '(no text)')}</p>
 ${tools}${block.drift.length > 0 ? `<p class="stage">drift ${esc(block.drift.join(', '))}</p>` : ''}${shown.map(verdictRow).join('')}${passed.length > 0 ? `<details class="fold"><summary>${ICON_CHEV}${count(passed.length, 'machine check')} passed</summary><p class="ids">${passed.map((v) => esc(v.id)).join(', ')}</p></details>` : ''}
@@ -655,7 +655,7 @@ function runPanel(m: PageModel, run: RunDetail, options: RunPanelOptions): strin
   const id = esc(run.runId);
   const verdicts = run.blocks.flatMap((b) => b.verdicts);
   const failedChecks = verdicts.filter((v) => v.outcome === 'fail').length;
-  const passingBlocks = run.blocks.filter((b) => b.pass).length;
+  const passingBlocks = run.blocks.filter((b) => blockStatus(b) === 'pass').length;
   // A block not run or blocked is no measurement: out of the rate, its count beside it.
   const unscoredBlocks = run.blocks.filter((b) => b.status !== undefined).length;
   const s = run.succession;

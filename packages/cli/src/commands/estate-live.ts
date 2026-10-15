@@ -2,10 +2,10 @@ import { appendFile, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:
 import { dirname, join, resolve } from 'node:path';
 import { claudeCodeLiveAdapter, loadStateLibrary, type StateLibrary } from '@agent-nexus/driftbench-adapters';
 import {
+  blocksOutcome,
   type Campaign,
   contentHash,
   type RunResult,
-  runOutcome,
   runSpec,
   type Store,
 } from '@agent-nexus/driftbench-core';
@@ -477,13 +477,12 @@ export function lineOf(run: RunResult, judgeCostUsd: number): RunLine {
       ),
   );
   const reported = run.blocks.filter((block) => block.observed.cost.usd !== undefined);
-  const pass =
-    run.status === 'completed' && run.blocks.every((block) => block.pass) && run.endState?.match !== false;
+  const outcome = blocksOutcome(run);
+  const pass = outcome === 'pass';
   const gating = run.blocks.flatMap((block) =>
     block.verdicts.filter((verdict) => verdict.gating && verdict.outcome !== 'pass'),
   );
   const settled = run.status === 'completed' && run.endState?.match !== false;
-  const outcome = runOutcome(run);
   return {
     spec: run.specId,
     runId: run.runId,

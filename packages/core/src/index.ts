@@ -156,6 +156,7 @@ export {
   type BlockKeyParts,
   blockCacheKey,
   blockStatus,
+  blocksOutcome,
   CallFailure,
   type CampaignPlan,
   type CampaignRunOptions,

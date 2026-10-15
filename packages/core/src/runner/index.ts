@@ -95,6 +95,7 @@ export {
 } from './transcript';
 export {
   blockStatus,
+  blocksOutcome,
   countBlocks,
   countRuns,
   isScored,

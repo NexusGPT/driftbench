@@ -3,11 +3,12 @@ import { join, resolve } from 'node:path';
 import { readSession, replayAdapter } from '@agent-nexus/driftbench-adapters';
 import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
 import {
+  blockStatus,
+  blocksOutcome,
   isScored,
   type LoadedSpec,
   loadSpecFile,
   type Observed,
-  runOutcome,
   runSpec,
 } from '@agent-nexus/driftbench-core';
 import {
@@ -293,17 +294,13 @@ async function sessionEvidence(folder: string, tests: CompleteTest[], io: Io): P
         continue;
       }
       const values = mine.get(index) ?? [];
-      values.push(result.status === 'completed' && block.pass);
+      values.push(result.status === 'completed' && blockStatus(block) === 'pass');
       mine.set(index, values);
     }
     const atoms = record(alignment.spec.spec.metadata?.estate).atoms;
-    const outcome = runOutcome(result);
+    const outcome = blocksOutcome(result);
     if (Array.isArray(atoms) && outcome !== 'not_run' && outcome !== 'blocked') {
-      const passed =
-        result.status === 'completed' &&
-        result.blocks.length > 0 &&
-        result.blocks.every((b) => b.pass) &&
-        result.endState?.match !== false;
+      const passed = outcome === 'pass';
       const mine = followed.get(alignment.entry.name) ?? new Map<string, boolean[]>();
       for (const atom of atoms)
         if (typeof atom === 'string') {

@@ -14,6 +14,7 @@ import {
   ESTATE_CHECKS,
 } from '@agent-nexus/driftbench-checks';
 import {
+  blocksOutcome,
   type Campaign,
   type Check,
   type CheckSet,
@@ -21,7 +22,6 @@ import {
   type Embedder,
   type LoadedSpec,
   type RunResult,
-  runOutcome,
   runSpec,
   type Store,
   type TargetRef,
@@ -552,9 +552,8 @@ function lineOf(alignment: Alignment, run: RunResult): ReplayLine {
           `block ${block.index}: ${verdict.id}${verdict.outcome === 'inconclusive' ? ' (inconclusive)' : ''}`,
       ),
   );
-  const pass =
-    run.status === 'completed' && run.blocks.every((block) => block.pass) && run.endState?.match !== false;
-  const outcome = runOutcome(run);
+  const outcome = blocksOutcome(run);
+  const pass = outcome === 'pass';
   const skipped = run.blocks.flatMap((block) =>
     block.notRun
       ? [`block ${block.index}: not run (${block.notRun.check}: ${block.notRun.got})`]

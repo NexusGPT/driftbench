@@ -1,6 +1,6 @@
 import { existsSync, statSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
-import { type RunResult, runSpec, type Spec } from '@agent-nexus/driftbench-core';
+import { blockStatus, type RunResult, runSpec, type Spec } from '@agent-nexus/driftbench-core';
 import {
   createPerturbingDriver,
   DEVIATIONS,
@@ -186,7 +186,8 @@ export async function perturbCommand(
               ...(block.blockId === undefined ? {} : { blockId: block.blockId }),
               injected: block.injected === true,
               stage: block.stageObserved ?? null,
-              pass: block.pass,
+              pass: blockStatus(block) === 'pass',
+              ...(block.status === undefined ? {} : { status: block.status }),
               failing: failing(block),
               text: block.observed.text,
             })),
@@ -342,7 +343,7 @@ function printText(
     `Perturb: ${spec.id} on ${showTarget(target)}, mode P. ${def.code} ${def.title}: ${carried} (${origin}).\n`,
   );
   io.out(`Expected: ${def.expected}.\n`);
-  const passed = reference.blocks.filter((block) => block.pass).length;
+  const passed = reference.blocks.filter((block) => blockStatus(block) === 'pass').length;
   const unscored = reference.blocks.filter((block) => block.status !== undefined).length;
   io.out(
     reference.status === 'completed'
@@ -355,7 +356,7 @@ function printText(
       ? `injected ${perturbation.id}`
       : (block.blockId ?? ''),
     block.stageObserved ?? '-',
-    block.pass ? '✓' : block.status === undefined ? '✗' : '-',
+    { pass: '✓', fail: '✗', not_run: '-', blocked: '-' }[blockStatus(block)],
     failing(block).join(', '),
   ]);
   for (const line of table([['pos', 'block', 'stage', 'pass', 'failing'], ...rows])) io.out(`${line}\n`);

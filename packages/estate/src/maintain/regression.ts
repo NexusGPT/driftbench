@@ -1,4 +1,4 @@
-import { type RunResult, runOutcome, type Store } from '@agent-nexus/driftbench-core';
+import { blocksOutcome, type RunResult, type Store } from '@agent-nexus/driftbench-core';
 import { z } from 'zod';
 
 /**
@@ -92,9 +92,7 @@ export function compareReplays(
 
 /** A stored run's verdict, as the replay command reads it. */
 export function runPassed(run: RunResult): boolean {
-  return (
-    run.status === 'completed' && run.blocks.every((block) => block.pass) && run.endState?.match !== false
-  );
+  return blocksOutcome(run) === 'pass';
 }
 
 /**
@@ -110,7 +108,7 @@ export async function latestReplay(
   return {
     campaignId: campaign.campaignId,
     outcomes: runs.map((run) => {
-      const outcome = runOutcome(run);
+      const outcome = blocksOutcome(run);
       return {
         spec: run.specId,
         session: run.target.agent ?? run.target.adapter,

@@ -51,15 +51,16 @@ describe('describeSpec on blocks not run', () => {
     expect(blocks.every((result) => result.status !== 'passed')).toBe(true);
   }, 120_000);
 
-  it('each block test is skipped, or fails naming the block not run and why', () => {
+  it('each block test is skipped, and the verbose report names the block not run and why', async () => {
     const blocks = results.filter((result) => result.fullName.includes(' block '));
-    expect(blocks).toHaveLength(3);
-    for (const result of blocks) {
-      if (result.status === 'skipped') continue;
-      const [message = ''] = result.failureMessages;
-      expect(message).toContain('not run');
-      expect(message).toContain('toolStubs');
-      expect(message).not.toMatch(/block \d+ failed/);
-    }
-  });
+    expect(blocks.map((result) => result.status)).toEqual(['skipped', 'skipped', 'skipped']);
+    const { stdout } = await promisify(execFile)(
+      join(ROOT, 'node_modules', '.bin', 'vitest'),
+      ['run', 'packages/vitest/test/fixtures/not-run.fixture.ts', '--config', CONFIG, '--reporter=verbose'],
+      { cwd: ROOT },
+    );
+    expect(stdout).toContain('block 0 was not run (unsupported, check capability)');
+    expect(stdout).toContain('toolStubs');
+    expect(stdout).not.toMatch(/block \d+ failed/);
+  }, 120_000);
 });

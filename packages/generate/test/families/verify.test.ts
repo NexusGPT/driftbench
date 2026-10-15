@@ -132,7 +132,7 @@ describe('the verify report', () => {
 });
 
 describe('verify on a reference that cannot run the spec', () => {
-  it('fails the spec and lists each block not run with its reason, never an empty failing list', async () => {
+  it('gives the spec the state not_run and lists each block not run with its reason', async () => {
     const file = fileURLToPath(
       new URL('../../../../examples/acme/specs/conversations/tool-failure.yaml', import.meta.url),
     );
@@ -145,8 +145,28 @@ describe('verify on a reference that cannot run the spec', () => {
       artifacts: defaultReaders(),
       cwd: tmpdir(),
     });
-    expect(verdict.state).toBe('fail');
+    expect(verdict.state).toBe('not_run');
     expect(verdict.failing[0]).toMatchObject({ block: 0, check: 'not_run' });
     expect(verdict.failing[0]?.evidence).toContain('toolStubs false');
+  });
+
+  it('the report leaves an instance the reference cannot run unverified: neither shipped nor rejected', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'driftbench-verify-not-run-'));
+    const source = fileURLToPath(
+      new URL('../../../../examples/acme/specs/conversations/tool-failure.yaml', import.meta.url),
+    );
+    await writeFile(join(dir, 'tool-failure.yaml'), await readFile(source, 'utf8'));
+    const report = await verifyInstances(dir, {
+      adapter: acmeAdapter({ capabilities: { toolStubs: false } }),
+      target: { adapter: 'function', agent: 'acme-sales' },
+      checks: defaultChecks(),
+      artifacts: defaultReaders(),
+      cwd: dir,
+    });
+    expect({ shipped: report.shipped, rejected: report.rejected, unverified: report.unverified }).toEqual({
+      shipped: [],
+      rejected: [],
+      unverified: ['tool-failure.yaml'],
+    });
   });
 });
