@@ -28,6 +28,13 @@ import type { Command } from 'commander';
 import { criteriaFromConfig } from '../aggregate-config';
 import { applyCampaignConfig } from '../campaign-config';
 import type { Io } from '../io';
+import {
+  addJudgeOptions,
+  addRunCheckOptions,
+  type JudgeFlags,
+  judgeAndCheckFlags,
+  type RunCheckFlags,
+} from '../judge-options';
 import { type CampaignDeps, campaignRunCommand, defaultDeps, parseTarget } from './campaign';
 import { parseGate } from './compare';
 
@@ -90,7 +97,8 @@ type CiCommandOptions = {
   auditSeed?: string;
   maxCarry?: string;
   maxAge?: string;
-};
+} & JudgeFlags &
+  RunCheckFlags;
 
 /** One golden as `compare` pairs it: a spec in one mode (and perturbation), every repeat of it. */
 export type CiPair = {
@@ -168,7 +176,7 @@ export function registerCiCommand(
   setExit: (code: number) => void,
   deps: CampaignDeps = defaultDeps,
 ): void {
-  program
+  const ci = program
     .command('ci')
     .description(
       'Run the specs on a candidate target, compare with a baseline campaign as `compare` does and gate: exit 0 on parity, 1 on a regression or a comparison not shown non-inferior, 2 on bad input.',
@@ -242,21 +250,13 @@ export function registerCiCommand(
       'a campaign-level criterion, name:op threshold, e.g. pass-rate:>=0.8; repeatable; a failing one fails the gate',
       collect,
       [] as string[],
-    )
-    .action(async (options: CiCommandOptions, command: Command) => {
-      // The run settings ci shares with campaign run; what ci requires on the command line stays there.
-      const shared = [
-        'route',
-        'mode',
-        'repeats',
-        'concurrency',
-        'budgetUsd',
-        'processCommand',
-        'agentVersion',
-      ];
-      if ((await applyCampaignConfig(command, options, io, shared)) === false) return setExit(2);
-      setExit(await ciCommand(options, io, deps));
-    });
+    );
+  addRunCheckOptions(addJudgeOptions(ci)).action(async (options: CiCommandOptions, command: Command) => {
+    // The run settings ci shares with campaign run; what ci requires on the command line stays there.
+    const shared = ['route', 'mode', 'repeats', 'concurrency', 'budgetUsd', 'processCommand', 'agentVersion'];
+    if ((await applyCampaignConfig(command, options, io, shared)) === false) return setExit(2);
+    setExit(await ciCommand(options, io, deps));
+  });
 }
 
 /** `driftbench ci`. Returns the exit code. */
@@ -344,6 +344,7 @@ export async function ciCommand(options: CiCommandOptions, io: Io, deps: Campaig
       ...(options.auditSeed === undefined ? {} : { auditSeed: options.auditSeed }),
       ...(options.maxCarry === undefined ? {} : { maxCarry: options.maxCarry }),
       ...(options.maxAge === undefined ? {} : { maxAge: options.maxAge }),
+      ...judgeAndCheckFlags(options),
       json: true,
     },
     capture,

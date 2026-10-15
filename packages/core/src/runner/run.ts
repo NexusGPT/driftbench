@@ -508,6 +508,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         mode: run.mode,
         blockIndex: position,
         block: planned.block,
+        stimulus: planned.stimulus,
         expect: planned.expect,
         given,
         observed,

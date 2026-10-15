@@ -28,6 +28,8 @@ The loader rewrites these forms before it validates a spec.
 * [ToolOverride](#tooloverride)
 * [WorldState workspace](#worldstate-workspace)
 * [CriterionDef](#criteriondef)
+* [CriterionDef requirements](#criteriondef-requirements)
+* [CriterionDef items](#criteriondef-items)
 * [Block](#block)
 * [Stimulus](#stimulus)
 * [Stimulus injection](#stimulus-injection)
@@ -35,6 +37,7 @@ The loader rewrites these forms before it validates a spec.
 * [Given](#given)
 * [Message](#message)
 * [PrefixToolCall](#prefixtoolcall)
+* [GivenOrigin](#givenorigin)
 * [Expect](#expect)
 * [ToolExpect](#toolexpect)
 * [Count](#count)
@@ -191,6 +194,33 @@ A judged criterion. Blocks reference it by name, with @gating when a fail fails 
 | `inputs` | list of strings, each not empty | no |  | Workspace files the judge reads beside the transcript, such as the source a produced file is compared against. Read from the seed the agent was given, else from the workspace. |
 | `judge_class` | one of `system1`, `system2`, `auto` | no |  | system1, system2, or auto: calibration assigns the class, ties go to system1. |
 | `repeat_reducer` | string matching `^(mode\|median\|at_least:[1-9][0-9]*)$` | no |  | How the verdicts across the repeats of one spec become one verdict: mode, median, or at_least:<k>. |
+| `prompt_version` | `1` or `2` | no |  | The criterion prompt rules the judge reads. 1, the default; 2 adds the exact-identifier, stated-facts and stated-scope rules. |
+| `decoder_version` | `1` or `2` | no |  | How a criterion ledger answer is read. 1, the default, rejects an ungrounded quote; 2 drops the quote and keeps the verdict. |
+| `answer_contract` | `ledger` or `legacy` | no |  | ledger, the default, or legacy: the earlier prompt and parser, to replay scores recorded with them. |
+| `assessment` | one of `response-relevance`, `conformance`, `answer-audit`, `fact-ledger` | no |  | An assessment kind in place of the criterion ledger: response-relevance (the reply answers the latest ask), conformance (to reference), answer-audit (the submitted answer, optionally against reference), or fact-ledger (every fact of reference in the reply). |
+| `reference` | string | no |  | The reference answer an assessment reads: needed by conformance (may be empty) and fact-ledger, optional for answer-audit. |
+| `grounding` | `strict` | no |  | fact-ledger only: strict refuses reference or reply text that is not a source quote. |
+| `requirements` | list of [CriterionDef requirements](#criteriondef-requirements), at least 1 item | no |  | The rubric split into requirements the judge checks one by one. Absent: one requirement, the whole rubric. |
+| `items` | list of [CriterionDef items](#criteriondef-items), at least 1 item | no |  | Rubric items, each scored 0 to 4 by the judge; the weighted score decides the verdict against threshold. |
+| `threshold` | number, 0 to 1 | no |  | With items: the weighted fraction a pass needs, from 0 to 1. Default 1. |
+| `repeat` | integer, 1 to 20 | no |  | How many times the judge answers the same request; the verdict holds only when every answer agrees, else inconclusive. Not the spec repeats (see repeat_reducer). |
+| `per_turn` | boolean | no |  | True judges the transcript one customer turn at a time; any failing turn fails the criterion. |
+
+## CriterionDef requirements
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `id` | string, not empty | yes |  | The requirement id the judge answers under. |
+| `requirement` | string, not empty | yes |  | What the requirement asks. |
+
+## CriterionDef items
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `name` | string, not empty | yes |  | The item name, unique in the criterion. |
+| `rubric` | string, not empty | yes |  | What the item requires. |
+| `weight` | number, greater than 0 | no |  | The item weight. Default 1. |
+| `hard` | boolean | no |  | True: the criterion fails when this item is not met. |
 
 ## Block
 
@@ -251,6 +281,7 @@ Initial conditions set on one block. A prefix lets the block start without repla
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `prefix` | list of [Message](#message) | no |  | The messages before this block. Lets the block start without replaying the ones before. |
+| `origin` | [GivenOrigin](#givenorigin) | no |  | Where the prefix comes from: authored, recorded or canonical. Only with a prefix on the same block. It enters the Given hash. |
 | `ledger` | map of string to any value | no |  | Facts the agent must hold at this block. They merge into the ledger from here on. |
 | `world` | [WorldState](#worldstate) | no |  | Changes to the world from this block onwards. |
 | `vars` | map of string to any value | no |  | Runtime variables from this block onwards. |
@@ -277,6 +308,18 @@ A tool call written in a spec prefix.
 | `input` | JSON value | no |  | The arguments of the call. |
 | `output` | JSON value | no |  | What the tool returned. |
 | `error` | string | no |  | The error the tool returned. |
+
+## GivenOrigin
+
+Where the prefix comes from: authored (written by a person), recorded (copied from a real run, its tool calls with their real results) or canonical (the replay of a spec as it is written).
+
+Used by `blocks[].given.origin`, beside a `prefix`. The origin enters the Given hash: an agent trusts a recorded call and tends to call a tool again when its earlier result is only in prose, so the three are different tests and their results are never pooled. See [Given](../concepts/given-when-then.md#tool-history-records-not-prose).
+
+| Value | Meaning |
+|---|---|
+| `authored` | A person wrote the prefix. |
+| `recorded` | The prefix is copied from a real run: its tool calls carry the results the tools really returned. `import traces` writes it. |
+| `canonical` | The prefix is the replay of a spec as it is written, such as a teacher-forced history: the calls the blocks expect, with the results the world forces. |
 
 ## Expect
 

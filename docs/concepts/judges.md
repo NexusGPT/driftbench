@@ -44,6 +44,39 @@ criteria:
 
 A reference to a name the spec does not define is an error. A spec with no `criteria` list may name criteria from a shared catalogue; `spec lint` warns that they must come from there.
 
+### Judge settings a criterion carries
+
+A criterion in a spec or a criteria file can carry its own judge settings. A criterion without them sends the same request as before, byte for byte, so recorded answers keep replaying; with them the request changes, and so does its cassette key.
+
+```yaml
+criteria:
+  - name: ship_day
+    rubric: Does the reply give the ship day the order record states?
+    prompt_version: 2
+    decoder_version: 2
+  - name: matches_policy
+    rubric: Does the reply state the refund policy?
+    assessment: fact-ledger
+    reference: Refunds are paid within 14 days to the card used.
+    grounding: strict
+  - name: complete_answer
+    rubric: Does the reply answer the customer fully?
+    items:
+      - { name: day, rubric: Names the ship day., hard: true }
+      - { name: carrier, rubric: Names the carrier., weight: 0.5 }
+    threshold: 0.8
+    repeat: 3
+```
+
+* `prompt_version: 2` adds the exact-identifier, stated-facts and stated-scope rules to the criterion prompt; `decoder_version: 2` drops an ungrounded quote and keeps the verdict; `answer_contract: legacy` replays scores recorded with the earlier prompt and parser.
+* `assessment` replaces the criterion ledger: `response-relevance` (the reply answers the latest ask), `conformance` (to `reference`, which may be empty), `answer-audit` (the submitted answer, against `reference` when given) or `fact-ledger` (every fact of `reference` in the reply; `grounding: strict` refuses text that is not a source quote). The first three read the transcript only, so a run leaves the Given summary out of their request. Conformance reads the rubric alone over the whole supplied slice: it takes no `pass` or `fail` picture (a criteria file of it needs none) and no `scope: block`. Response relevance and conformance take no separate artifact: on a task block the produced file text joins the end of their transcript as a context line.
+* `items` score a rubric item by item, from 0 to 4, with optional `weight` and `hard`; `threshold` is the weighted fraction a pass needs (default 1). `requirements` instead split the criterion ledger into named requirements.
+* `repeat: <k>` asks the judge the same request k times: the verdict holds only when all k agree, else it is inconclusive. It is not the spec repeats (`repeat_reducer`). `per_turn: true` judges a conversation one customer turn at a time ([turn-by-turn judging](#additional-judge-apis)). They apply to the judge of a run (`--judge`) and to `judge run`.
+
+`spec lint` and `judge check` refuse a setting that cannot work and name the fix, such as `assessment fact-ledger needs a nonempty reference` or `threshold needs items`. The field reference is in [the spec reference](../reference/spec.md).
+
+Two settings apply to a whole run, as flags: `--verify arithmetic` and `--prompt-budget <chars>` (see [the CLI](../reference/cli.md#driftbench-judge)).
+
 ## Criteria folders and fixture pairs
 
 Every field of a criterion file and of a label file is in the [criteria and labels reference](../reference/criteria.md).
@@ -103,7 +136,7 @@ The 12 Acme criteria declare nine system 1 and three system 2; nine are gating. 
 
 For each criterion a block names, the judge check builds one request:
 
-* The transcript: for `scope: block`, the last 2 messages of the Given prefix as context, then the block's user turn, then what the agent did in the block (replies, tool calls and results, cards). For `scope: conversation`, the whole prefix, then the block.
+* The transcript: for `scope: block`, the last 2 messages of the Given prefix as context, then the block's user turn as the agent received it (a simulated user's or an attacker's own words when the driver wrote them, not the spec's `when`), then what the agent did in the block (replies, tool calls and results, cards). For `scope: conversation`, the whole prefix, then the block.
 * The Given summary: the stage the block expects and the ledger.
 * The criterion: its rubric, its FAIL and PASS pictures, its scope.
 
@@ -216,7 +249,7 @@ The repository ships three cassettes of scripted answers, each for the same six 
 | `examples/acme/criteria/calibration/cassette.json` | 387 | `judge calibrate`, and `judge run --assignments` |
 | `examples/acme/criteria/calibration/campaign.cassette.json` | 38 | the Acme campaign with the judge check |
 
-The six judges are three of system 1 (`s1p-a` and `s1p-b`, cost 1, and `openai-decisions`, cost 2) and three of system 2 (`openai-chat` and `google-chat`, cost 10, and `anthropic-chat`, cost 12). The cassette files name the first two after the system 1 judge of the Nexus platform (see the [Nexus adapter](../adapters/nexus.md#judge)). This page shows them as `s1p-a` and `s1p-b`, in prose and in every output below; that substitution is the only change to the output. The answers are written by a test script: every judge tells the truth except 7 scripted misses, each with a note in the cassette.
+The six judges are three of system 1 (`s1p-a` and `s1p-b`, cost 1, and `openai-decisions`, cost 2) and three of system 2 (`openai-chat` and `google-chat`, cost 10, and `anthropic-chat`, cost 12). The first two have neutral scripted IDs; see the [Nexus adapter](../adapters/nexus.md#judge) for the platform judge they model. The prose and output below use those same cassette names. The answers are written by a test script: every judge tells the truth except 7 scripted misses, each with a note in the cassette.
 
 ## The council
 

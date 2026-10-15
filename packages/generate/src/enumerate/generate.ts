@@ -1,4 +1,4 @@
-import { type Issue, type LoadResult, type Spec, validateSpec } from '@agent-nexus/driftbench-core';
+import { checkSpec, type Issue, type LoadResult, type Spec } from '@agent-nexus/driftbench-core';
 import {
   assertGridSize,
   type CompiledSpace,
@@ -15,6 +15,7 @@ import {
 import { stringify } from 'yaml';
 import { seedFolderName } from '../families/instances';
 import {
+  generatedSpecText,
   NO_THEN_CRITERION,
   PLACEHOLDER_CRITERION,
   type Rendered,
@@ -23,12 +24,12 @@ import {
   SEEDERS,
   type Seeder,
   type SpecDraft,
-  specText,
 } from '../seed/assemble';
 import { DeviationBalance } from '../seed/deviation-balance';
 import type { PreparedMap } from '../seed/map';
 import { phraseDrafts } from '../seed/phrase-seeder';
 import { restatedDrafts } from '../seed/restated-seeder';
+import { indexDimensions, indexPathValues } from '../seed/scenario';
 import {
   type BoundarySummary,
   type BudgetSummary,
@@ -46,6 +47,7 @@ import {
   twiseSeeder,
 } from '../seed/seeders';
 import { type TaskInput, taskSpecs } from '../seed/tasks';
+import { TerminalPerturbations } from '../seed/terminal-perturbation';
 import { formatJson } from './json';
 import { capSpecPool, type SpecCapMode, type SpecCapReport, seederOf } from './spec-cap';
 
@@ -201,7 +203,13 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
   const t = options.t ?? DEFAULT_T;
   const seed = options.seed ?? DEFAULT_SEED;
   const max = options.max ?? Number.POSITIVE_INFINITY;
-  const context: SeedContext = { seed, t, max };
+  const context: SeedContext = {
+    seed,
+    t,
+    max,
+    pathValues: indexPathValues(prepared),
+    dimensionIndex: indexDimensions(prepared),
+  };
   const run: RunIdentity = { seed, mapPath: options.mapPath };
 
   const graph = graphSeeder(prepared, context);
@@ -265,9 +273,9 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
     };
     for (const draft of list) {
       const rendered: Rendered = renderDraft(prepared, draft, run);
-      const renderText = () => specText(rendered, run, prepared.hash);
+      const renderText = () => generatedSpecText(rendered, run, prepared.hash);
       const text = options.specCap === undefined ? renderText() : '';
-      const loaded = validateSpec(rendered.spec, rendered.id);
+      const loaded = checkSpec(rendered.spec, rendered.id);
       if (!loaded.ok) {
         invalid.push({ id: rendered.id, errors: loaded.errors });
         continue;
@@ -326,7 +334,7 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
   for (const { id, spec, seed: workspace } of taskSpecs(prepared, options.tasks ?? [], run)) {
     const renderText = () => `${header}\n${stringify(spec, { lineWidth: 0, aliasDuplicateObjects: false })}`;
     const text = options.specCap === undefined ? renderText() : '';
-    const loaded = validateSpec(spec, id);
+    const loaded = checkSpec(spec, id);
     const totals = seeders.task;
     if (!loaded.ok) {
       invalid.push({ id, errors: loaded.errors });
@@ -401,6 +409,12 @@ export function generateSuite(prepared: PreparedMap, options: GenerateOptions): 
   for (const spec of complete) balance.observe(spec);
   for (const draft of balance.topUps(context, all.length)) {
     for (const spec of renderSeeder('deviation', [draft])) balance.observe(spec);
+  }
+  // A class whose recovery moves the conversation elsewhere no clean walk declares: one walk cut for it.
+  const terminal = new TerminalPerturbations(prepared);
+  for (const spec of complete) terminal.observe(spec);
+  for (const draft of terminal.drafts(context)) {
+    for (const spec of renderSeeder('deviation', [draft])) terminal.observe(spec);
   }
   const held = new Set(
     cellsOf(prepared, [], t).flatMap((cell) =>

@@ -13,7 +13,7 @@ The same three parts hold for a conversational exchange and for a task step. See
 A spec sets Given in two places.
 
 * `given` at the top of the spec: the default for every block. It holds `ledger`, `world` and `vars`.
-* `given` on a block: the same three parts, plus `prefix`, the messages that come before the block.
+* `given` on a block: the same three parts, plus `prefix`, the messages that come before the block, and `origin`, where that prefix comes from.
 
 A block's `prefix` starts the block in the middle of a conversation, without replaying the blocks before it. In a free-running run, the block opens a new session from that prefix, and the blocks after it continue from there. Whether the agent itself sees the prefix depends on the adapter's `seedPrefix` capability; see [adapters](../adapters/index.md#capabilities). The block's `ledger`, `world` and `vars` merge into the running state from that block onwards, in free-running and perturbed modes. In teacher-forced mode, every block starts from its own resolved Given. See [run modes](run-modes.md).
 
@@ -29,11 +29,45 @@ A block's `prefix` starts the block in the middle of a conversation, without rep
 
 An adapter applies `world.tools` only when it has the `toolStubs` capability; see [adapters](../adapters/index.md#capabilities).
 
+### Tool history: records, not prose
+
+A fact the agent learnt from a tool belongs in the prefix as a tool call with its `output`, never only in the assistant's text. The two are different tests. In an experiment on a sales agent (15 blocks, each run 30 times per arm), the agent that read an earlier result only in its own prose called the tool again in 332 of 450 runs, and the one that read the recorded call in 0 of 450; on the three lead blocks it filed the same callback request a second time in all 90 prose runs. `spec lint` warns with `PREFIX_PROSE_HISTORY` when an assistant message of a prefix states a ledger fact that no recorded call of the prefix holds and the user never said.
+
+`origin` says where a prefix comes from:
+
+| Value | Meaning |
+|---|---|
+| `authored` | a person wrote it |
+| `recorded` | it is copied from a real run, its tool calls with the results the tools really returned; `import traces` writes it |
+| `canonical` | it is the replay of a spec as written: the calls the blocks expect, with the results the world forces |
+
+`origin` is optional and needs a `prefix` on the same block (`GIVEN_ORIGIN_WITHOUT_PREFIX` otherwise). It holds for the blocks after it until a block writes another prefix. It enters the Given hash and the spec hash only when present, so a spec without it keeps its hashes, and results with different origins are never pooled: a report and `compare` key results on the spec hash.
+
+```yaml
+- user: What is my callback reference?
+  given:
+    origin: recorded
+    prefix:
+      - role: user
+        content: Can someone call me back about fiber?
+      - role: assistant
+        content: Done, an advisor will call you today.
+        tool_calls:
+          - id: call-1
+            label: notify_sales
+            input: { topic: fiber }
+            output: { ref: LD-4471 }
+  expect:
+    must: [LD-4471]
+    tools:
+      - { label: notify_sales, count: 0 }
+```
+
 The facts grow block by block: `ledger_add` in a block's `expect` adds the facts that block establishes, and every later check sees them. The ledger check compares what each block states with them, in code; see [drift](drift.md#the-ledger-check).
 
 For a task step, Given includes the workspace. The adapter that owns the workspace takes a snapshot of it before the step and a diff after; see the [process adapter](../adapters/process.md).
 
-The runner resolves Given into one record per block (`ResolvedGiven`): the prefix, the ledger, the world, the vars, the target agent and a hash of all of them. The prefix is the run's history before the block. The block's record keeps the hash, and the cache key holds the whole resolved Given. See [running](../running.md#given-resolution-and-the-hash).
+The runner resolves Given into one record per block (`ResolvedGiven`): the prefix, its origin when the spec states one, the ledger, the world, the vars, the target agent and a hash of all of them. The prefix is the run's history before the block. The block's record keeps the hash, and the cache key holds the whole resolved Given. See [running](../running.md#given-resolution-and-the-hash).
 
 ## When
 

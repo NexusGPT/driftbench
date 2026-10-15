@@ -1,5 +1,5 @@
 import { copyHistory, freezeHistory } from '../contracts/history';
-import type { Assertion, Count, Message, TargetRef, WorldState } from '../schema/common';
+import type { Assertion, Count, GivenOrigin, Message, TargetRef, WorldState } from '../schema/common';
 import type { Observed, ResolvedGiven } from '../schema/run';
 import type { Expect, GivenOverride, Spec, Stimulus } from '../schema/spec';
 import { contentHashWithList } from '../spec/hash';
@@ -9,12 +9,14 @@ import { deepEqual } from './assertion';
  * The Given of a free-running run, carried from block to block. The spec's `given` is the start. A block's
  * `given` merges into it from that block onwards, and so does the world of an injected perturbation. A
  * block's `ledger_add` joins the ledger after the block. For each tool, store key, fixture, variable and
- * fact the later value wins; a later workspace replaces the earlier one.
+ * fact the later value wins; a later workspace replaces the earlier one. `origin` is the one the latest
+ * prefix states: a block that writes a prefix sets it, or clears it when it states none.
  */
 export type RunningGiven = {
   ledger: Record<string, unknown>;
   world: WorldState;
   vars: Record<string, unknown>;
+  origin?: GivenOrigin;
 };
 
 export function initialGiven(spec: Spec): RunningGiven {
@@ -31,17 +33,20 @@ export function enterBlock(
   given: GivenOverride | undefined,
   world?: WorldState,
 ): RunningGiven {
+  const origin = given?.prefix === undefined ? state.origin : given.origin;
   return {
     ledger: { ...state.ledger, ...given?.ledger },
     world: mergeWorld(mergeWorld(state.world, given?.world), world),
     vars: { ...state.vars, ...given?.vars },
+    ...(origin === undefined ? {} : { origin }),
   };
 }
 
 /**
  * The resolved Given of one block: what it starts from, and the content hash of all of it. The prefix is a
  * new list of the same message objects: the run owns them and never changes one after it joined the
- * history, so the cost of a block does not grow with the messages before it.
+ * history, so the cost of a block does not grow with the messages before it. The origin of the prefix joins
+ * the hash only when the spec states one, so a Given without it hashes as it always did.
  */
 export function resolveGiven(
   state: RunningGiven,
@@ -50,6 +55,7 @@ export function resolveGiven(
 ): ResolvedGiven {
   const body = {
     prefix: copyHistory(prefix),
+    ...(state.origin === undefined ? {} : { origin: state.origin }),
     ledger: structuredClone(state.ledger),
     world: structuredClone(state.world),
     vars: structuredClone(state.vars),

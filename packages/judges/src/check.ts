@@ -1,16 +1,18 @@
 import {
-  type BlockSpec,
   type Check,
   type CheckContext,
   type CriterionDef,
   type Message,
   type Observed,
   parseCriterionRef,
+  type Stimulus,
+  sentStimulus,
   type Verdict,
 } from '@agent-nexus/driftbench-core';
 import { taskArtifactText } from './artifacts';
 import type { JudgeRequest, TranscriptEntry } from './contract';
 import type { Council, CouncilResult } from './council';
+import { withCriterionSettings } from './criterion-settings';
 
 /**
  * `judgeCheck`: the council as a check. For every criterion a block names, it builds the request (the
@@ -104,24 +106,27 @@ export function requestFor(
     scope === 'conversation' ? prefix : prefix.slice(Math.max(0, prefix.length - contextMessages));
   const transcript: TranscriptEntry[] = [
     ...earlier.flatMap(messageEntries),
-    ...stimulusEntries(ctx.block),
+    ...stimulusEntries(sentStimulus(ctx)),
     ...observedEntries(ctx.observed),
   ];
-  return {
-    criterion: {
-      name: def.name,
-      rubric: def.rubric,
-      ...(def.pass === undefined ? {} : { pass: def.pass }),
-      ...(def.fail === undefined ? {} : { fail: def.fail }),
-      scope,
+  return withCriterionSettings(
+    {
+      criterion: {
+        name: def.name,
+        rubric: def.rubric,
+        ...(def.pass === undefined ? {} : { pass: def.pass }),
+        ...(def.fail === undefined ? {} : { fail: def.fail }),
+        scope,
+      },
+      transcript,
+      ...(artifact === undefined ? {} : { artifact }),
+      given: {
+        ...(ctx.expect.stage === undefined ? {} : { stage: ctx.expect.stage }),
+        ledger: ctx.ledger,
+      },
     },
-    transcript,
-    ...(artifact === undefined ? {} : { artifact }),
-    given: {
-      ...(ctx.expect.stage === undefined ? {} : { stage: ctx.expect.stage }),
-      ledger: ctx.ledger,
-    },
-  };
+    def,
+  );
 }
 
 /** The council's result as a judge verdict. */
@@ -198,8 +203,8 @@ function messageEntries(message: Message): TranscriptEntry[] {
   return entries;
 }
 
-function stimulusEntries(block: BlockSpec): TranscriptEntry[] {
-  const when = block.when;
+/** The user turn the agent received, which the reply is judged against. */
+function stimulusEntries(when: Stimulus): TranscriptEntry[] {
   if ('user' in when) return [{ role: 'user', text: when.user }];
   if ('burst' in when) return when.burst.map((text) => ({ role: 'user' as const, text }));
   return [{ role: 'user', text: when.injection.user }];

@@ -1,0 +1,453 @@
+{
+  "version": 1,
+  "judges": [
+    {
+      "id": "fixture-judge",
+      "family": "fixture-judge",
+      "cls": "system1",
+      "cost": 1
+    }
+  ],
+  "entries": [
+    {
+      "judge": "fixture-judge",
+      "key": "3c3295345804",
+      "criterion": "harm-privacy",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "2fae64cf197a",
+      "criterion": "harm-hate",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "212325babc67",
+      "criterion": "harm-self-harm",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "c3109f1c2453",
+      "criterion": "harm-violent-crime",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "5c51b9840f21",
+      "criterion": "harm-harassment-bullying",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "69da57c79413",
+      "criterion": "harm-misinformation",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "070e5c32d03e",
+      "criterion": "harm-specialised-advice",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "c4607b52f8ed",
+      "criterion": "harm-insults",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "4b21bdfcdf12",
+      "criterion": "harm-profanity",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "1e3a5bed0eb5",
+      "criterion": "harm-graphic-content",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "94fb7526855a",
+      "criterion": "harm-intellectual-property",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "14ea6420b197",
+      "criterion": "harm-copyright",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "163167884d0c",
+      "criterion": "harm-illegal-drugs",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "f935b9a19aad",
+      "criterion": "harm-cybercrime",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "38cd040772a9",
+      "criterion": "harm-radicalisation",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "f29f41c32e99",
+      "criterion": "sql-injection",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "b9edc4c57bb2",
+      "criterion": "shell-injection",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "3d87999942e9",
+      "criterion": "ssrf",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "92607eeaa2fe",
+      "criterion": "rbac",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "73d29fbf7e33",
+      "criterion": "bola",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "854353dea94b",
+      "criterion": "bfla",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "71f864693474",
+      "criterion": "debug-access",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "7b424e5099de",
+      "criterion": "prompt-extraction",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "4dbd43d93faa",
+      "criterion": "hijacking",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "9b5f63c04015",
+      "criterion": "cross-session-leak",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "b4b1b3527c80",
+      "criterion": "excessive-agency",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "2de77694ef3c",
+      "criterion": "tool-discovery",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "a011b524d5f3",
+      "criterion": "pii-disclosure",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "d79bf0c579be",
+      "criterion": "indirect-prompt-injection",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "0e766b5fdd3e",
+      "criterion": "context-compliance-attack",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "4fdec2810dfd",
+      "criterion": "ascii-smuggling",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "a54254165b41",
+      "criterion": "data-exfiltration",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "86119382c4c9",
+      "criterion": "rag-document-exfiltration",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "67c7ea40481c",
+      "criterion": "reasoning-dos",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "b2bf8e645b8b",
+      "criterion": "divergent-repetition",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "989a79ab796e",
+      "criterion": "overreliance",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "b8069a4ad349",
+      "criterion": "hallucination",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "f383aacc5b70",
+      "criterion": "unverifiable-claims",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "111b7cc39651",
+      "criterion": "imitation",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    },
+    {
+      "judge": "fixture-judge",
+      "key": "b517cd84519f",
+      "criterion": "politics",
+      "answerContract": "legacy",
+      "answer": {
+        "outcome": "inconclusive",
+        "reasoning": "Hand-written fixture: no judge read this reply."
+      },
+      "raw": "{\"outcome\":\"inconclusive\",\"reasoning\":\"Hand-written fixture: no judge read this reply.\"}"
+    }
+  ]
+}

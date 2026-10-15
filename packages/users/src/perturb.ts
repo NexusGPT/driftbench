@@ -104,6 +104,15 @@ export function createPerturbingDriver(options: PerturbingDriverOptions): Pertur
 
   return {
     id: `perturbing:${perturbation.id}`,
+    // The wrapper adds only the pack draw; unknown base randomness must stay unknown.
+    ...(base.seeds === undefined
+      ? {}
+      : {
+          seeds: {
+            ...Object.fromEntries(Object.entries(base.seeds).map(([name, seed]) => [`base:${name}`, seed])),
+            ...(resolved.source.kind === 'drawn' ? { perturbation: resolved.source.seed } : {}),
+          },
+        }),
     spec: runSpecOf,
     perturbation,
     source: resolved.source,

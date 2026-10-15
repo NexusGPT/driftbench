@@ -802,11 +802,11 @@ A block passes when every gating verdict passes, the flow and ledger verdicts in
 
 The run starts from the spec's `given`: its ledger, world and vars. A block's own `given` merges into them from that block on: tools, store keys, fixtures, variables and facts by name, the later value winning, and a later workspace replacing the earlier one whole. The world of an injected perturbation merges the same way.
 
-A block's `given.prefix` ends the open session: the next send opens a new one, whose history is that prefix.
+A block's `given.prefix` ends the open session: the next send opens a new one, whose history is that prefix. The block's `given.origin`, when it writes one, holds from that block until a block writes another prefix.
 
 In mode T every block opens its own session from its canonical Given: the ledger, world and vars the spec writes up to that block, and a prefix of the earlier blocks as the spec writes them. On an adapter with a sandbox, a block that writes no `given.world.workspace` of its own keeps the session of the block before, with the canonical prefix as its history, so a task step finds the files the step before made. See [run modes](concepts/run-modes.md#teacher-forced).
 
-The resolved Given of a block holds the prefix (the run's history before the block), the ledger, the world, the vars and the target, and `hash`: the first 12 hex characters of the SHA-256 of the canonical JSON of those five. The block record keeps it as `givenHash`. See [Given, When, Then](concepts/given-when-then.md).
+The resolved Given of a block holds the prefix (the run's history before the block), the ledger, the world, the vars and the target, and `hash`: the first 12 hex characters of the SHA-256 of the canonical JSON of those five. When the spec states the prefix's `origin`, the resolved Given holds it too and it joins the hashed fields; without it, the hash is the one of the five. The block record keeps it as `givenHash`. See [Given, When, Then](concepts/given-when-then.md).
 
 ### The history
 

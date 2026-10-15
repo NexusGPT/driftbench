@@ -39,9 +39,9 @@ async function until<T>(read: () => Promise<T>, done: (value: T) => boolean, lim
 }
 
 describe('a campaign killed mid-run', () => {
-  it(
-    'leaves no sandbox folder behind',
-    async () => {
+  it.each(['SIGKILL', 'SIGINT', 'SIGTERM'] as const)(
+    'leaves no sandbox folder behind after %s',
+    async (signal) => {
       const dir = await mkdtemp(join(tmpdir(), 'driftbench-killed-'));
       made.push(dir);
       const temp = join(dir, 'tmp');
@@ -73,7 +73,7 @@ describe('a campaign killed mid-run', () => {
         60_000,
       );
       expect(open).toHaveLength(1);
-      process.kill(pid as number, 'SIGKILL');
+      process.kill(pid as number, signal);
       const left = await until(
         () => scopes(temp),
         (found) => found.length === 0,

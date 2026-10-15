@@ -63,10 +63,10 @@ describe('cassettes', () => {
   it('miss loudly: a request with no recording throws, it never answers', async () => {
     const cassette: Cassette = {
       version: 1,
-      judges: [{ id: 'jev-a', family: 'jev', cls: 'system1', cost: 1 }],
+      judges: [{ id: 's1p-a', family: 'jev', cls: 'system1', cost: 1 }],
       entries: [],
     };
-    const error = await playerClient(cassette, 'jev-a')
+    const error = await playerClient(cassette, 's1p-a')
       .judge(REQUEST)
       .catch((cause: unknown) => cause);
     expect((error as JudgeError).code).toBe('cassette_miss');
@@ -76,12 +76,12 @@ describe('cassettes', () => {
   it('replay a hand-written entry that breaks the contract as unparsed inconclusive', async () => {
     const cassette: Cassette = {
       version: 1,
-      judges: [{ id: 'jev-a', family: 'jev', cls: 'system1', cost: 1 }],
+      judges: [{ id: 's1p-a', family: 'jev', cls: 'system1', cost: 1 }],
       entries: [
-        { judge: 'jev-a', key: requestKey(REQUEST, { cls: 'system1' }), answer: { outcome: 'pass' } },
+        { judge: 's1p-a', key: requestKey(REQUEST, { cls: 'system1' }), answer: { outcome: 'pass' } },
       ],
     };
-    const result = await playerClient(cassette, 'jev-a').judge(REQUEST);
+    const result = await playerClient(cassette, 's1p-a').judge(REQUEST);
     expect(result.answer.outcome).toBe('inconclusive');
     expect(result.unparsed).toBe(true);
   });
