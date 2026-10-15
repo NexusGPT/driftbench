@@ -253,7 +253,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
    * The patterns a reply that ran `tool` must hold: those of the `states` relations holding at `stage` (the
    * subject the cell holds, the `when` its values meet) that state a returned field of the tool, filled from
    * the cell. A returned field no such relation states is read in the one form the map's `states` relations
-   * state every returned field in (`statedForm`), when the map has one. `strict` refuses a relation that
+   * state every returned field in where they hold (`statedForm`), when they show one. `strict` refuses a relation that
    * reads a slot the cell does not bind; otherwise that pattern is left out.
    */
   const reportOf = (
@@ -292,7 +292,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
         stating.push(pattern);
       }
     }
-    for (const pattern of statedFields(prepared, tool, read)) {
+    for (const pattern of statedFields(prepared, context, tool, read)) {
       const filled = fillText(pattern, slots, true);
       if (!filled.ok) continue;
       if (!patterns.includes(filled.value)) patterns.push(filled.value);
@@ -1018,22 +1018,23 @@ const TOOL_MARK = '\u0000';
 const FIELD_MARK = '\u0001';
 const VALUE_MARK = '\u0002';
 
-const forms = new WeakMap<PreparedMap, string | null>();
-
 /**
  * The one form the map's `states` relations state a returned field in, with the tool's label (its name with
  * spaces), the field's name and its value marked: "lookup record says found is {lookup_record_out_found}\."
  * gives "<tool> says <field> is <value>\.". Read from every `must` pattern that states one returned field and
- * nothing else; null when those patterns hold more than one form, or come from fewer than two tools (one
- * tool shows no form a second tool shares).
+ * nothing else, of a relation whose conditions hold in `context` (its `when`, and its subject unless the
+ * subject is a flow: the form a flow's reply uses shows how any reply states a field); null when those
+ * patterns hold more than one form, or come from fewer than two tools (one tool shows no form a second tool
+ * shares).
  */
-function statedForm(prepared: PreparedMap): string | null {
-  const known = forms.get(prepared);
-  if (known !== undefined) return known;
+function statedForm(prepared: PreparedMap, context: Context): string | null {
   const bySlot = new Map(returnedFields(prepared).map((entry) => [entry.slot, entry]));
   const seen = new Set<string>();
   const tools = new Set<string>();
   for (const entry of prepared.relations.states) {
+    if (entry.subject.dimension !== 'flow' && context[entry.subject.dimension] !== entry.subject.value)
+      continue;
+    if (!matches(entry.when, context)) continue;
     for (const pattern of entry.must ?? []) {
       const read = slotsIn(pattern);
       const field = read.length === 1 ? bySlot.get(read[0] as string) : undefined;
@@ -1050,14 +1051,20 @@ function statedForm(prepared: PreparedMap): string | null {
       tools.add(field.tool);
     }
   }
-  const form = seen.size === 1 && tools.size >= 2 ? ([...seen][0] as string) : null;
-  forms.set(prepared, form);
-  return form;
+  return seen.size === 1 && tools.size >= 2 ? ([...seen][0] as string) : null;
 }
 
-/** The patterns, in the map's one form, of the returned fields of `tool` whose slot is not in `read`. */
-function statedFields(prepared: PreparedMap, tool: string, read: ReadonlySet<string>): string[] {
-  const form = statedForm(prepared);
+/**
+ * The patterns, in the one form of the relations that hold in `context`, of the returned fields of `tool`
+ * whose slot is not in `read`.
+ */
+function statedFields(
+  prepared: PreparedMap,
+  context: Context,
+  tool: string,
+  read: ReadonlySet<string>,
+): string[] {
+  const form = statedForm(prepared, context);
   if (form === null) return [];
   return returnedFields(prepared)
     .filter((entry) => entry.tool === tool && !read.has(entry.slot))
