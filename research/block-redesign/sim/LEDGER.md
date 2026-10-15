@@ -1,8 +1,10 @@
 # Ledger: simulated lane (cap 25 USD, stop at 22.5 USD)
 
 USD is computed from each response's usage fields and the published price read on 2026-10-14:
-claude-haiku-5-5 0.10 in / 0.50 out per 1M (cache read 0.01, cache write 5m 0.125, assumed at the usual
-0.1x and 1.25x of input; the skill table gives only input and output) ;
+claude-haiku-5-5 0.10 in / 0.50 out per 1M up to 100K prompt tokens, cache read 0.01
+(https://platform.claude.com/docs/en/about-claude/pricing, verified by the lead 2026-10-15; every prompt here
+is under 100K); cache write priced at 0.125 (1.25x input, the standard 5-minute write multiplier, not
+re-verified);
 gpt-5.4-nano 0.20 in / 0.02 cached / 1.25 out; gemini-3.5-flash-lite 0.30 in / 2.50 out (thinking billed
 as output); text-embedding-3-small 0.02 in.
 
@@ -25,3 +27,8 @@ Projection after row 4: facets 0.0008 USD each, 1,000 about 0.8 USD.
 
 Projection after row 6: U = 17 uncovered clusters, so M = 17 blocks per arm, 102 runs at about 0.007 USD, about 0.7 USD.
 | 7 | 2026-10-15 | H11 full run: 20 blocks x 2 families x 8 trials (320 conversations) | claude-haiku-5-5, gpt-5.4-nano, gemini-3.5-flash-lite | 3,048 + 1,153 + 980 | haiku 9,722 in, 79,048,121 cache read, 7,434,991 cache write / 333,512 out; nano 747,844 (+12,544 cached) / 33,121; gemini 516,576 / 18,140 | 2.27913 | 2.47388 |
+| 8 | 2026-10-15 | H10 full run: 100 scenarios x 3 arms (300 conversations) | claude-haiku-5-5, gpt-5.4-nano | 3,178 + 3,014 | haiku 10,364 in, 82,063,510 cache read, 8,438,269 cache write / 351,422 out; nano 1,706,540 (+18,944 cached) / 100,564 | 2.51956 | 4.99344 |
+| 9 | 2026-10-15 | H14 blocks full run: 34 blocks x 3 runs (102 conversations) | claude-haiku-5-5, gpt-5.4-nano | 973 + 699 | haiku 3,140 in, 24,753,785 cache read, 2,941,416 cache write / 116,649 out; nano 447,427 (+1,792 cached) / 20,530 | 0.78904 | 5.78248 |
+
+Lane total 5.78 USD of the 25 USD cap. A 7-hour network outage hit after rows 8 and 9 had finished; no run
+was lost or repeated.

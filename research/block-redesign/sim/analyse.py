@@ -98,7 +98,7 @@ elif which == "h10":
     pass_rate = {a: statistics.mean(r["passed"] for r in ok if r["arm"] == a) for a in arms}
     stops = {a: dict(Counter(r["stop"] for r in ok if r["arm"] == a)) for a in arms}
     # engine ledger checks
-    leaks = halluc = rec_ok = rec_n = premature = 0
+    leaks = leaks_no_overlap = halluc = rec_ok = rec_n = premature = 0
     for r in ok:
         if r["arm"] != "engine":
             continue
@@ -113,6 +113,8 @@ elif which == "h10":
             planned = {a["slot"] for a in e["planned_acts"] if a["act"] == "answer"}
             present = {k for k, v in vals.items() if v in t["text"].lower()}
             leaks += len(present - planned)
+            pv = [vals[k] for k in planned if k in vals] + [facts[k].lower() for k in planned if k in facts]
+            leaks_no_overlap += len({k for k in present - planned if not any(vals[k] in v for v in pv)})
             ids_in_text = metrics.n_ids(t["text"])
             unknown_planned = [a for a in e["planned_acts"] if a["act"] == "dont_know"]
             if unknown_planned and ids_in_text > len(present):
@@ -130,7 +132,7 @@ elif which == "h10":
         "dice_diff_engine_minus_findings_bootstrap95": cis, "ceiling_split_half": ceiling,
         "m23_metric_check": m23, "secondary": sec, "secondary_dice": sec_dice, "cvm_turns_per_dialogue": cvm,
         "agent_pass_rate": pass_rate, "stop_reasons": stops,
-        "engine_checks": {"unplanned_fact_disclosures": leaks, "turns_with_dont_know_and_unmatched_id": halluc,
+        "engine_checks": {"unplanned_fact_disclosures": leaks, "unplanned_fact_disclosures_excluding_substring_overlap": leaks_no_overlap, "turns_with_dont_know_and_unmatched_id": halluc,
                           "act_recovery": f"{rec_ok}/{rec_n}", "goodbye_before_last_agent_tool_call": premature},
     }
     json.dump(res, open(os.path.join(HERE, "h10", "results.json"), "w"), indent=1)
