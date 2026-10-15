@@ -1,19 +1,14 @@
 import type { AdapterCapabilities, AgentAdapter, Session, Turn } from '../contracts/adapter';
 import type { ArtifactReaderRegistry } from '../contracts/artifacts';
-import { type CheckContext, type CheckSet, machineVerdict } from '../contracts/check';
+import type { CheckSet } from '../contracts/check';
 import type { DriverStep, UserDriver } from '../contracts/driver';
 import { copyHistory, freezeMessage } from '../contracts/history';
 import type { Store } from '../contracts/store';
 import { gateToolCalls, type ToolRule } from '../contracts/tool-policy';
 import { objectContextOfSpec } from '../objects/context';
 import { checkSpecObjects } from '../objects/index';
-import {
-  type ObjectContext,
-  resolveBlockObjects,
-  shippedObjectContext,
-  type UsedObject,
-} from '../objects/layers';
-import { applyScoringPlan, resolvedRecord, type ScoringPlan, scoringPlan, stamp } from '../objects/scoring';
+import { type ObjectContext, resolveBlockObjects, shippedObjectContext } from '../objects/layers';
+import { scoringPlan } from '../objects/scoring';
 import { type BlockReuse, planBlockRerun } from '../radius/blocks';
 import { collectRetries, type RetryPolicy, retryPolicy } from '../retry';
 import type { Message, TargetRef, WorldState } from '../schema/common';
@@ -24,7 +19,6 @@ import {
   type RunEvent,
   type RunMode,
   RunResult,
-  Verdict,
 } from '../schema/run';
 import type { BlockSpec, EndState, Expect, GivenOverride, Spec, Stimulus } from '../schema/spec';
 import { cloneJson, contentHash } from '../spec/hash';
@@ -37,9 +31,8 @@ import {
   unwrapEndState,
   wrapEndState,
 } from './cache';
-import { recheckCarriedEndState } from './carried-end-state';
+import { type BlockScoring, rescoreCarriedBlock, scoreBlockObservation } from './carried-scoring';
 import { cellId } from './cell';
-import { driftOf } from './drift';
 import { composeStates, type EndStateSnapshot, endStateSnapshot, snapshotValues } from './end-state-snapshot';
 import {
   addFacts,
@@ -50,12 +43,11 @@ import {
   resolveGiven,
   stimulusMessages,
 } from './given';
-import { describeContradiction, ledgerVerdicts } from './ledger';
 import { preflightTargetPrices, priceObserved, TokenPriceError, TokenPrices } from './pricing';
 import { captureArtifacts, provenanceDigest, provenanceHash, runProvenance } from './provenance';
 import { type RecoveryOptions, recoveryOf } from './recovery';
 import { CallFailure, describeError, type RetryOptions, retryLayer, withRetry } from './retry';
-import { canonicalPreviousStage, flowVerdicts, readStage, stageSignatures } from './stages';
+import { canonicalPreviousStage, stageSignatures } from './stages';
 import { succession } from './succession';
 
 /**
@@ -302,9 +294,6 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
   return parsed;
 }
 
-/** What one block is scored with: the objects it resolved to, and the plan that applies its check set. */
-type BlockScoring = { used: UsedObject[]; plan: ScoringPlan };
-
 type RunContext = {
   selectedBlocks: ReadonlySet<number> | undefined;
   blockRerunReason: string | undefined;
@@ -455,12 +444,13 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
             }
           }
           blocks.push(
-            await recheckCarriedEndState(
+            await rescoreCarriedBlock(
               kept,
               spec,
               run.target,
-              run.scoringOf(step.blockIndex).plan,
-              composed ? endStateValue(run.endState, sources, composed) : undefined,
+              run.scoringOf(step.blockIndex),
+              planned.lastSpecBlock && composed ? endStateValue(run.endState, sources, composed) : undefined,
+              run.artifacts,
             ),
           );
         }
@@ -581,42 +571,37 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         ? captureArtifacts({ observed, readArtifact: channel.readArtifact() })
         : undefined;
       const scored = run.scoringOf(step.kind === 'block' ? step.blockIndex : -1);
-      const verdicts = await applyScoringPlan(scored.plan, {
-        spec,
-        mode: run.mode,
-        blockIndex: position,
-        block: planned.block,
-        stimulus: planned.stimulus,
-        expect: planned.expect,
-        given,
-        observed,
-        // A teacher-forced block is an independent sample: no earlier block of the run is its history.
-        history: run.mode === 'T' ? [] : [...blocks],
-        ledger: facts.ledger,
-        endState,
-        artifacts: run.artifacts,
-        readArtifact: capture ? capture.readArtifact : channel.readArtifact(),
-      });
-      // The stage reached: the runtime's, else the step classifier's. Before the block: in T the stage the
-      // spec expects of the blocks before it, in F and P the stage the run's previous block reached.
       const previous =
         run.mode === 'T' && step.kind === 'block'
           ? canonicalPreviousStage(spec, step.blockIndex)
           : blocks.at(-1)?.stageObserved;
-      const reading = readStage(spec, observed, {
-        mode: run.mode,
-        history: run.mode === 'T' ? [] : blocks,
-        previous,
-        signatures: run.signatures,
-      });
-      const { flow: flowBy, ledger: ledgerBy } = scored.plan.runner;
-      const flow = flowBy ? stamp(flowVerdicts(spec, planned.expect, reading, previous), flowBy) : [];
       users.push(...userMessagesOf(user));
       usersBlock = step.kind === 'block' ? step.blockIndex : Number.NaN;
-      const ledger = ledgerVerdicts(facts.ledger, observed, users);
-      const all = [...verdicts, ...flow, ...(ledgerBy ? stamp(ledger.verdicts, ledgerBy) : [])];
-      const resolved = resolvedRecord(scored.used);
-      const contradictions = [...facts.contradictions, ...ledger.contradictions.map(describeContradiction)];
+      const scoringResult = await scoreBlockObservation(
+        {
+          spec,
+          mode: run.mode,
+          blockIndex: position,
+          block: planned.block,
+          stimulus: planned.stimulus,
+          expect: planned.expect,
+          given,
+          observed,
+          // A teacher-forced block is an independent sample: no earlier block of the run is its history.
+          history: run.mode === 'T' ? [] : [...blocks],
+          ledger: facts.ledger,
+          endState,
+          artifacts: run.artifacts,
+          readArtifact: capture ? capture.readArtifact : channel.readArtifact(),
+        },
+        scored,
+        {
+          previous,
+          signatures: run.signatures,
+          users,
+          contradictions: facts.contradictions,
+        },
+      );
       const block = {
         index: position,
         ...(planned.blockId !== undefined ? { blockId: planned.blockId } : {}),
@@ -636,12 +621,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         givenHash: given.hash,
         cacheKey: key,
         observed,
-        verdicts: all,
-        ...(resolved ? { resolved } : {}),
-        ...(reading !== undefined ? { stageObserved: reading.stage } : {}),
-        ledgerCheck: { ok: contradictions.length === 0, contradictions },
-        drift: driftOf(all),
-        pass: all.every((verdict) => !verdict.gating || verdict.outcome === 'pass'),
+        ...scoringResult,
       };
       blocks.push(block);
       run.onEvent?.({ type: 'block_end', index: position, pass: block.pass, at: new Date().toISOString() });

@@ -5,7 +5,7 @@ import type { By, ResolvedObjects, Verdict } from '../schema/run';
 import { Verdict as VerdictSchema } from '../schema/run';
 import { contentHash } from '../spec/hash';
 import type { UsedObject } from './layers';
-import { objectRegistry, type ResolvedObject } from './resolve';
+import type { ObjectRegistry, ResolvedObject } from './resolve';
 import type { ResolvedItem } from './rules';
 
 /** The params schema of an implementation that takes none: an item that sets any is refused. */
@@ -13,7 +13,13 @@ export const NoParams = z.strictObject({});
 
 /** The verdicts the runner writes itself, beside the checks': the flow family and the ledger family. */
 export const RUNNER_ITEMS = { flow: 'builtin:runner/flow', ledger: 'builtin:runner/ledger' } as const;
-for (const impl of Object.values(RUNNER_ITEMS)) objectRegistry.registerImpl(impl, { params: NoParams });
+
+/** Registers runner implementations during explicit core initialization. Safe after registry restore. */
+export function registerRunnerObjects(registry: ObjectRegistry): void {
+  for (const impl of Object.values(RUNNER_ITEMS)) {
+    if (!registry.impl(impl)) registry.registerImpl(impl, { params: NoParams });
+  }
+}
 
 /** The implementation name a check-set item of a shipped check carries: `builtin:check/<check name>`. */
 export const checkImpl = (name: string) => `builtin:check/${name}`;

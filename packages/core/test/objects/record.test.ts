@@ -4,7 +4,12 @@ import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DEFAULT_CHECK_SET, defaultChecks, SHIPPED_CHECKS } from '@agent-nexus/driftbench-checks';
+import {
+  DEFAULT_CHECK_SET,
+  defaultChecks,
+  initializeShippedObjects,
+  SHIPPED_CHECKS,
+} from '@agent-nexus/driftbench-checks';
 import {
   BlockResult,
   clearObjectContexts,
@@ -19,11 +24,12 @@ import {
   Verdict,
 } from '@agent-nexus/driftbench-core';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { acmeAdapter, loadAcmeConversations } from '../runner/support';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const driver = createScriptedDriver();
+beforeEach(() => initializeShippedObjects());
 
 function tempProject(files: Record<string, string>): string {
   const root = mkdtempSync(join(tmpdir(), 'driftbench-record-'));
@@ -293,7 +299,7 @@ describe('the check set chooses the checks', () => {
     } as Spec;
     await expect(
       runSpec(spec, { adapter, driver, checks: defaultChecks(), mode: 'T', repeat: 0 }),
-    ).rejects.toThrow(/runSpec: uses\.check_set: unknown object check-set:nobody/);
+    ).rejects.toThrow(/OBJECT_UNKNOWN: spec x: uses\.check_set: unknown object check-set:nobody/);
     expect(adapter.calls.open + adapter.calls.send).toBe(0);
   });
 });

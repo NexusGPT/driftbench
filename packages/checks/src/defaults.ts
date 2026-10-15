@@ -1,6 +1,4 @@
 import type { Check, Embedder } from '@agent-nexus/driftbench-core';
-// Registers check-set:default and the builtin:check/<name> implementations with the core object registry.
-import './check-set';
 import { artifacts } from './checks/artifacts';
 import { budget } from './checks/budget';
 import { cards } from './checks/cards';
