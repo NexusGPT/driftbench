@@ -354,8 +354,8 @@ describe('rung 2b: as given', () => {
       tool: 'notify_sales',
       field: 'customer.phone',
       gold: '+12025550131',
-      value: '555 0131',
-      sources: { user: ['+1 202 555 01310'] },
+      value: '202 555 01',
+      sources: { user: ['+1 202 555 0131'] },
     });
     expect(result.rung).not.toBe('rung2b_as_given');
   });
