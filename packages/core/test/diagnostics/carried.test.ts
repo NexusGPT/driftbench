@@ -45,9 +45,7 @@ function objects(tag: string, enabled = true): ObjectContext {
         when: { any_verdict: { name: 'must', outcome: 'fail' } },
         steps: [
           { id: 'explain', title: 'Explain', impl: 'plugin:carry-explain', params: { tag } },
-          ...(scope === 'block'
-            ? [{ id: 'budget', title: 'Budget', impl: 'plugin:carry-budget', params: { tag } }]
-            : []),
+          { id: 'budget', title: 'Budget', impl: 'plugin:carry-budget', params: { tag } },
         ],
       },
       'project',
@@ -105,6 +103,7 @@ function withStale(source: RunResult): RunResult {
   return {
     ...source,
     diagnoses: [stale],
+    skippedForBudget: 99,
     blocks: source.blocks.map((block) => ({
       ...block,
       diagnoses: [stale],
@@ -132,6 +131,7 @@ function expectCurrent(run: RunResult, current: ObjectContext, budget: boolean) 
     });
     expect(block.skippedForBudget).toBe(budget ? undefined : 1);
   }
+  expect(run.skippedForBudget).toBe(budget ? undefined : 1);
   expect(run.diagnoses).toEqual([
     expect.objectContaining({
       summary: 'new:run:3',
@@ -139,6 +139,7 @@ function expectCurrent(run: RunResult, current: ObjectContext, budget: boolean) 
       by: expect.objectContaining({ object: runDiagnostic }),
       evidence: { checkSet },
     }),
+    ...(budget ? [expect.objectContaining({ summary: 'new:budget' })] : []),
   ]);
 }
 
@@ -221,6 +222,7 @@ it('removes obsolete diagnoses and skip counts when new verdicts no longer trigg
   );
   const rescored = await rescoreCarriedRun(spec, source, { checks, objects: objects('new', false) });
   expect(rescored.diagnoses).toBeUndefined();
+  expect(rescored.skippedForBudget).toBeUndefined();
   for (const block of rescored.blocks) {
     expect(block.pass).toBe(true);
     expect(block.diagnoses).toBeUndefined();

@@ -18,6 +18,14 @@ export type StepCost = z.infer<typeof StepCost>;
 /** Where a diagnostic runs: on one block after its checks, on a whole run, or on every run of a campaign. */
 export type DiagnosticScope = 'block' | 'run' | 'campaign';
 
+/** A diagnosis with its source identity; run-scope diagnoses have no block index. */
+export type CampaignDiagnosis = {
+  readonly runId: string;
+  readonly blockIndex: number | undefined;
+  readonly verdictRef: string | undefined;
+  readonly diagnosis: Diagnosis;
+};
+
 /**
  * What one step reads: its scope; the block as its checks saw it (block scope only); the run (run scope) or the
  * runs (campaign scope); the verdicts in scope; the objects; its params; the earlier steps' output.
@@ -30,6 +38,8 @@ export type DiagnosticStepContext = {
   readonly run?: RunResult;
   /** Every run of the campaign, at campaign scope. */
   readonly runs?: readonly RunResult[];
+  /** Stored diagnoses in scope, with source identity. Run scope includes only this run. */
+  readonly diagnoses?: readonly CampaignDiagnosis[];
   readonly verdicts: readonly Verdict[];
   readonly objects: readonly UsedObject[];
   readonly params: Readonly<Record<string, unknown>>;
@@ -146,7 +156,7 @@ export function scopeOf(diagnostic: ResolvedObject): DiagnosticScope {
 }
 
 type ScopeInput = {
-  diagnoses?: readonly Diagnosis[];
+  diagnoses?: readonly CampaignDiagnosis[];
   check?: CheckContext;
   run?: RunResult;
   runs?: readonly RunResult[];
@@ -172,7 +182,10 @@ async function runScope(
   for (const diagnostic of diagnostics) {
     if (
       scopeOf(diagnostic) !== scope ||
-      !triggers(diagnostic, input.verdicts, [...(input.diagnoses ?? []), ...diagnoses])
+      !triggers(diagnostic, input.verdicts, [
+        ...(input.diagnoses ?? []).map((entry) => entry.diagnosis),
+        ...diagnoses,
+      ])
     )
       continue;
     const own: Diagnosis[] = [];
@@ -229,6 +242,25 @@ export function runDiagnostics(
   return runScope('block', diagnostics, input, budget);
 }
 
+function diagnosesOfRun(run: RunResult): CampaignDiagnosis[] {
+  return [
+    ...run.blocks.flatMap((block) =>
+      (block.diagnoses ?? []).map((diagnosis) => ({
+        runId: run.runId,
+        blockIndex: block.index,
+        verdictRef: diagnosis.verdictRef,
+        diagnosis,
+      })),
+    ),
+    ...(run.diagnoses ?? []).map((diagnosis) => ({
+      runId: run.runId,
+      blockIndex: undefined,
+      verdictRef: diagnosis.verdictRef,
+      diagnosis,
+    })),
+  ];
+}
+
 /** Runs the run-scope diagnostics over a whole run, every block's verdicts in scope; they land on `RunResult.diagnoses`. */
 export function runRunDiagnostics(
   diagnostics: readonly ResolvedObject[],
@@ -242,7 +274,7 @@ export function runRunDiagnostics(
     {
       run,
       verdicts: run.blocks.flatMap((block) => block.verdicts),
-      diagnoses: [...run.blocks.flatMap((block) => block.diagnoses ?? []), ...(run.diagnoses ?? [])],
+      diagnoses: diagnosesOfRun(run),
       objects,
     },
     budget,
@@ -259,9 +291,6 @@ export function runCampaignDiagnostics(
   budget: DiagnosticBudget = {},
 ): Promise<{ diagnoses: Diagnosis[]; skippedForBudget: number }> {
   const verdicts = runs.flatMap((run) => run.blocks.flatMap((block) => block.verdicts));
-  const diagnoses = runs.flatMap((run) => [
-    ...run.blocks.flatMap((block) => block.diagnoses ?? []),
-    ...(run.diagnoses ?? []),
-  ]);
+  const diagnoses = runs.flatMap(diagnosesOfRun);
   return runScope('campaign', diagnostics, { runs, verdicts, diagnoses, objects: [] }, budget);
 }

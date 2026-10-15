@@ -310,6 +310,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     options.diagnosticBudget,
   );
   if (runScoped.diagnoses.length > 0) result.diagnoses = runScoped.diagnoses;
+  if (runScoped.skippedForBudget > 0) result.skippedForBudget = runScoped.skippedForBudget;
   reportEvent?.({ type: 'run_end', status: result.status, at: new Date().toISOString() });
   // The run as the store keeps it: written as JSON and read back, so what is returned is what is stored.
   const parsed = RunResult.parse(

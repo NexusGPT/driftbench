@@ -410,6 +410,7 @@
       "CallFailure": "value",
       "Campaign": "value",
       "CampaignConfig": "value",
+      "CampaignDiagnosis": "type",
       "CampaignPlan": "type",
       "CampaignRadius": "value",
       "CampaignRetryConfig": "value",
