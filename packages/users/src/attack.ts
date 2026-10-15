@@ -3,13 +3,13 @@ import {
   type ArtifactReaderRegistry,
   type BlockResult,
   type CheckSet,
-  contentHash,
   DeviationClass,
   type PerturbationSpec,
   type RunResult,
   runSpec,
   type Spec,
   specBlocks,
+  specHash as specHashOf,
   type TargetRef,
 } from '@agent-nexus/driftbench-core';
 import { z } from 'zod';
@@ -134,7 +134,7 @@ export class AttackError extends Error {
 export async function runAttack(options: AttackOptions): Promise<AttackResult> {
   const { spec } = options;
   const seed = options.replay?.seed ?? options.seed ?? 0;
-  const specHash = contentHash(spec);
+  const specHash = specHashOf(spec);
   if (options.replay && (options.replay.spec !== spec.id || options.replay.specHash !== specHash)) {
     throw new AttackError(
       `the recording attacks ${options.replay.spec} at ${options.replay.specHash.slice(0, 12)}, not ${spec.id} at ${specHash.slice(0, 12)}: a replay runs on the spec it was recorded on`,

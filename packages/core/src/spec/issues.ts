@@ -23,6 +23,9 @@ export const IssueCodes = [
   'TASK_WITHOUT_OUTCOME',
   'PERTURBATION_NO_RECOVERY',
   'RETENTION_FACT_UNKNOWN',
+  'LINK_BLOCK_UNKNOWN',
+  'LINK_TARGET_UNKNOWN',
+  'LINK_STALE',
 ] as const;
 
 export type IssueCode = (typeof IssueCodes)[number] | `SCHEMA_${string}`;
