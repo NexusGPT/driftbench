@@ -116,6 +116,8 @@ describe('criterion settings from a spec reach the judge of a run', () => {
     const v1 = await recorded('    prompt_version: 1');
     expect(plain.calls[0]?.system).toContain('Compare each named identifier, number and unit exactly');
     expect(v1.calls[0]?.system).not.toContain('Compare each named identifier, number and unit exactly');
+    // A pinned version keeps the request as written: no routing call.
+    expect(v1.routes).toHaveLength(0);
 
     const items = await recorded(
       '    items:\n      - { name: on-scope, rubric: Edits only the invoice total. }\n    threshold: 0.5',
@@ -126,10 +128,14 @@ describe('criterion settings from a spec reach the judge of a run', () => {
       '    assessment: conformance\n    reference: The shop build stays in scope.',
     );
     expect(conformance.calls).toHaveLength(1);
+    // An assessment is pinned too: an unexpected routing call fails here, not only in the count above.
+    expect(conformance.routes).toHaveLength(0);
     expect(conformance.calls[0]?.input).toContain('The shop build stays in scope.');
 
     const repeat = await recorded('    repeat: 3');
     expect(repeat.calls).toHaveLength(3);
+    // The repeats share one routing call; a second routing call per repeat would fail here.
+    expect(repeat.routes).toHaveLength(1);
   }, 120_000);
 
   it('refuses a spec whose settings cannot work, naming the fix', async () => {
