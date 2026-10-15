@@ -40,7 +40,7 @@ export interface EffectiveWilson extends Interval {
  * The variance of p is the cluster-robust ratio estimator g / (g - 1) sum (k_c - p n_c)^2 / n^2 (the CR1 small-
  * cluster factor); the design effect is that variance over p (1 - p) / n; n_eff = n / design effect. When the
  * rate is exactly 0 or 1 the spread is zero and tells nothing, so the clusters themselves are the units
- * (n_eff = g). Throws a RangeError on no clusters, a count that is not a whole number or k above n.
+ * (n_eff = g). Throws a RangeError on no clusters, a cluster with no block (it would count in g without holding an observation), a count that is not a whole number or k above n.
  */
 export function wilsonEffective(
   clusters: readonly ClusterCount[],
@@ -54,11 +54,11 @@ export function wilsonEffective(
   clusters.forEach((c, i) => {
     assertCount('wilsonEffective', `clusters[${i}].n`, c.n);
     assertCount('wilsonEffective', `clusters[${i}].k`, c.k);
+    if (c.n === 0) throw new RangeError(`wilsonEffective: clusters[${i}] has no block`);
     if (c.k > c.n) throw new RangeError(`wilsonEffective: clusters[${i}].k (${c.k}) exceeds n (${c.n})`);
     n += c.n;
     k += c.k;
   });
-  if (n === 0) throw new RangeError('wilsonEffective: clusters hold no block');
   const g = clusters.length;
   const p = k / n;
   const degenerate = p === 0 || p === 1;

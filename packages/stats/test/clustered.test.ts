@@ -177,6 +177,23 @@ describe('wilsonEffective', () => {
     expect(loose.upper - loose.lower).toBeGreaterThan(tight.upper - tight.lower);
   });
 
+  it('refuses an empty cluster: it must not inflate the cluster count', () => {
+    const one = wilsonEffective([{ n: 1, k: 1 }]);
+    expect(one.effectiveN).toBe(1);
+    const padded = [{ n: 1, k: 1 }, ...Array.from({ length: 99 }, () => ({ n: 0, k: 0 }))];
+    expect(() => wilsonEffective(padded)).toThrow(/no block/);
+  });
+
+  it('keeps 1 <= design effect <= n', () => {
+    for (const c of reference.wilsonEffective) {
+      const got = wilsonEffective(c.clusters);
+      if (!got.degenerate) {
+        expect(got.designEffect).toBeGreaterThanOrEqual(1 - 1e-12);
+        expect(got.designEffect).toBeLessThanOrEqual(got.n);
+      }
+    }
+  });
+
   it('rejects bad input', () => {
     expect(() => wilsonEffective([])).toThrow(RangeError);
     expect(() => wilsonEffective([{ n: 0, k: 0 }])).toThrow(/no block/);
