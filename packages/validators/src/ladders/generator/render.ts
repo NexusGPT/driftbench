@@ -369,7 +369,7 @@ export function hiddenProposal(spec: HiddenSpec): Proposal {
       evidence: { source: prompt, quote: use.quote },
       ...common,
     })),
-    // A behaviour whose own text names its read tool ("with lookup_record") runs it when asked, at any stage and
+    // A behaviour whose own text names its read tool runs it when asked, at any stage and
     // without moving: a map built from that text states the call. A behaviour that never names its tool stays
     // unlinked, so the map holds nothing the generator could not read from the inventory.
     ...spec.behaviours.flatMap((behaviour) => {
