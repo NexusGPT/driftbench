@@ -15,4 +15,11 @@ export {
   renderEstateMap,
   validateEstateMap,
 } from './file';
-export { ESTATE_AXES, ESTATE_CONSTRAINTS, type EstateSpaceOptions, toEstateSpaceMap } from './space';
+export {
+  actsOn,
+  ESTATE_AXES,
+  ESTATE_CONSTRAINTS,
+  type EstateSpaceOptions,
+  SITUATION_RELEVANCE,
+  toEstateSpaceMap,
+} from './space';

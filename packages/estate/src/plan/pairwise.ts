@@ -39,7 +39,13 @@ export type PairwiseResult = {
   dropped: number;
 };
 
-export type PairwiseOptions = { t: number; seed: number; maxRows: number };
+export type PairwiseOptions = {
+  t: number;
+  seed: number;
+  maxRows: number;
+  /** Whether a situation value can act on a target atom; a pair it refuses is forbidden. Default: every pair. */
+  acts?: (dimension: string, value: string, atom: string) => boolean;
+};
 
 export function pairwiseCells(space: SpaceMap, options: PairwiseOptions): PairwiseResult {
   const situations = space.dimensions.filter((dimension) => !dimension.id.startsWith(TARGET_PREFIX));
@@ -63,6 +69,20 @@ export function pairwiseCells(space: SpaceMap, options: PairwiseOptions): Pairwi
     }
     if (atomDimensions > 1) dropped += 1;
     else constraints.push({ forbid, reason: constraint.reason });
+  }
+  if (options.acts) {
+    for (const dimension of situations) {
+      for (const value of dimension.values) {
+        for (const atom of values) {
+          if (!options.acts(dimension.id, value.id, atom.id)) {
+            constraints.push({
+              forbid: { [dimension.id]: value.id, [TARGET]: atom.id },
+              reason: `${value.id} cannot act on ${atom.id}`,
+            });
+          }
+        }
+      }
+    }
   }
 
   const merged: SpaceMap = {

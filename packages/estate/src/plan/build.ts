@@ -1,7 +1,7 @@
 import { contentHash } from '@agent-nexus/driftbench-core';
 import { Feasibility } from '@agent-nexus/driftbench-generate';
 import { compileSpace, gridSize, type SpaceMap } from '@agent-nexus/driftbench-space';
-import { toEstateSpaceMap } from '../map/space';
+import { actsOn, toEstateSpaceMap } from '../map/space';
 import { AtomKind, type EstateMap, type Plan, type PlanRow, TestType } from '../schema';
 import { contractRows, type DraftRow, MODE_OF, NO_CONTRACT, PRIMARY_TYPE } from './contract';
 import { JOURNEY_DEFAULTS, type JourneyResult, planJourneys } from './journeys';
@@ -68,7 +68,16 @@ export function buildPlan(map: EstateMap, options: PlanOptions = {}): PlanResult
   const askClasses = space.dimensions.find((dimension) => dimension.id === 'ask_class')?.values ?? [];
   const drafts = contractRows(map, AtomKind.options, { k, askClasses: askClasses.map((value) => value.id) });
   const journeys = planJourneys(map, { ...JOURNEY_DEFAULTS, seed });
-  const pairwise = pairwiseCells(space, { t, seed, maxRows: options.maxRows ?? PLAN_DEFAULTS.maxRows });
+  const atomOf = new Map(map.atoms.map((atom) => [atom.id, atom]));
+  const pairwise = pairwiseCells(space, {
+    t,
+    seed,
+    maxRows: options.maxRows ?? PLAN_DEFAULTS.maxRows,
+    acts: (dimension, value, id) => {
+      const atom = atomOf.get(id);
+      return atom === undefined || actsOn(dimension, value, atom);
+    },
+  });
 
   const adjusted: PlanDetails['adjusted'] = [];
   const fit = cellFitter(space);
