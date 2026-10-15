@@ -179,3 +179,12 @@ This supersedes the earlier claim that all 19 groups need rulings. Paths below a
 19. **fixture gap: maintainer**: `validators/src/ladders/generator/hidden.ts` and `possible.ts:48-51` permit seed 8's goal shift only at its goal, and disallow a non-staying terminal recovery.
 
 Additional product gaps: `allocation.deviation.ratio` needs balancing in `generate/src/seed/deviation-seeder.ts` after coverage; `scale.100x` needs a bounded-memory disk API in `generate/src/enumerate/`. Protected `measure.ts` retains both results, both file maps and reloaded specs; the maintainer will wire the new API into that harness.
+
+
+## Invariance maintainer ruling (2026-10-15, PR 510)
+
+A pair holds Given facts and ordered semantic stimuli fixed, including transition order and slot bindings. Approved persona wording may vary; unknown text remains literal. Block ids are labels and expected stages are assertions, so neither belongs in the pairing key. Both persona and channel items share this comparison; no item or threshold changes.
+
+The auditor's renamed same-turn wrong-Then case is a regression on all three paths and both axes. Fresh-map planted pairs also retain rejection, with clean reference runs and a separate clean pair present. The six failures previously described as product defects were reused-label pairs asking different questions (input vs behaviour or output); their side-by-side requests and Thens are in [the evidence](evidence/invariance-semantic-turns.json). Seed 18's gen-cover-096/gen-phrase-012 remains excluded. The [partial journal](SWEEP-JOURNAL.md) records focused results only.
+
+Product obligation: for the same facts and ordered requests, generate identical machine expectations across persona/channel variants, regardless of block labels.

@@ -163,7 +163,7 @@ describe('invariance holds the turns fixed too', () => {
     const cover = spec('gen-cover-096');
     const phrase = spec('gen-phrase-012');
     const data = (value: string) => (JSON.parse(value) as { data: unknown }).data;
-    expect(data(heldFixed(cover))).toEqual(data(heldFixed(phrase)));
-    expect(heldFixed(cover)).not.toBe(heldFixed(phrase));
+    expect(data(heldFixed(cover, generated.hidden))).toEqual(data(heldFixed(phrase, generated.hidden)));
+    expect(heldFixed(cover, generated.hidden)).not.toBe(heldFixed(phrase, generated.hidden));
   }, 300_000);
 });
