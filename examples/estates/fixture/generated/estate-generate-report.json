@@ -8,8 +8,8 @@
   },
   "plan": {
     "path": "../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml",
-    "rows": 1568,
-    "approved": 1568,
+    "rows": 1569,
+    "approved": 1569,
     "proposed": 0,
     "struck": 0
   },
@@ -41,9 +41,9 @@
     "judge": true
   },
   "summary": {
-    "specs": 1568,
-    "blocks": 1563,
-    "complete": 1360,
+    "specs": 1569,
+    "blocks": 1564,
+    "complete": 1361,
     "incomplete": 208,
     "judged": 348
   },
@@ -61,13 +61,13 @@
   },
   "sources": {
     "asks": {
-      "bank": 433,
+      "bank": 434,
       "code": 919,
       "session": 0,
       "none": 8
     },
     "outcomes": {
-      "bank": 981,
+      "bank": 982,
       "no-change:denied": 2,
       "no-change:guard": 27,
       "no-change:negative": 58,
@@ -242,9 +242,9 @@
       "incomplete": 0
     },
     "journey": {
-      "rows": 10,
-      "specs": 10,
-      "complete": 9,
+      "rows": 11,
+      "specs": 11,
+      "complete": 10,
       "incomplete": 1
     }
   },
@@ -262,9 +262,9 @@
       "incomplete": 0
     },
     "live": {
-      "rows": 1525,
-      "specs": 1525,
-      "complete": 1323,
+      "rows": 1526,
+      "specs": 1526,
+      "complete": 1324,
       "incomplete": 202
     }
   },
