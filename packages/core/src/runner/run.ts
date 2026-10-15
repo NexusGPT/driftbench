@@ -31,7 +31,12 @@ import {
   unwrapEndState,
   wrapEndState,
 } from './cache';
-import { type BlockScoring, rescoreCarriedBlock, scoreBlockObservation } from './carried-scoring';
+import {
+  type BlockScoring,
+  blockNeedsArtifactReplay,
+  rescoreCarriedBlock,
+  scoreBlockObservation,
+} from './carried-scoring';
 import { cellId } from './cell';
 import { composeStates, type EndStateSnapshot, endStateSnapshot, snapshotValues } from './end-state-snapshot';
 import {
@@ -207,6 +212,13 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
         throw new RunnerError('the block subset omits part of the radius');
       selectedBlocks = options.blocks ?? reuse.indices;
       carriedBlocks = new Map([...reuse.carried].filter(([i]) => !selectedBlocks?.has(i)));
+      // A carried block can only use stored evidence. Artifact bytes are not in the run record.
+      // Expand the selected subset instead of turning a previous pass into a missing-workspace failure.
+      for (const [index, block] of carriedBlocks) {
+        if (!blockNeedsArtifactReplay(spec.blocks[index], block)) continue;
+        selectedBlocks = new Set([...selectedBlocks, index]);
+        carriedBlocks.delete(index);
+      }
     }
   }
   if (options.blocks && endState !== undefined && !carriedBlocks && options.blocks.size < spec.blocks.length)

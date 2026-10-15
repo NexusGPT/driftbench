@@ -11,7 +11,7 @@ import {
 import { applyScoringPlan, resolvedRecord, type ScoringPlan, scoringPlan, stamp } from '../objects/scoring';
 import type { Message, TargetRef } from '../schema/common';
 import type { BlockResult, RunResult } from '../schema/run';
-import type { Spec } from '../schema/spec';
+import type { BlockSpec, Spec } from '../schema/spec';
 import { driftOf } from './drift';
 import {
   addFacts,
@@ -38,6 +38,13 @@ type ScoreState = {
   users: readonly Message[];
   contradictions: readonly string[];
 };
+
+/** Stored artifact metadata contains identities, not the bytes needed by artifact checks. */
+export function blockNeedsArtifactReplay(block: BlockSpec | undefined, result: BlockResult): boolean {
+  return Boolean(
+    block?.expect?.artifacts?.length || result.observed.workspaceDiff || result.provenance?.artifacts.length,
+  );
+}
 
 /** The same scoring path for fresh observations and carried observations. */
 export async function scoreBlockObservation(
@@ -91,6 +98,10 @@ export async function rescoreCarriedBlock(
 ): Promise<BlockResult> {
   const block = spec.blocks[result.index];
   if (!block) throw new Error(`cannot re-score carried block ${result.index}: spec block missing`);
+  if (blockNeedsArtifactReplay(block, result))
+    throw new Error(
+      `cannot re-score carried block ${result.index}: artifact bytes required for scoring are not stored; run the block fresh`,
+    );
   const canonical = canonicalGiven(spec, result.index);
   const facts = addFacts(canonical.state.ledger, block.expect?.ledger_add);
   const scored = await scoreBlockObservation(
@@ -138,11 +149,7 @@ export async function rescoreCarriedRun(
   };
   if (source.mode === 'P' || source.blocks.some((block) => block.injected || block.realized))
     refuse('the realized driver stimulus cannot be reconstructed');
-  if (
-    source.blocks.some(
-      (block) => (block.provenance?.artifacts.length ?? 0) > 0 || block.observed.workspaceDiff,
-    )
-  )
+  if (source.blocks.some((block) => blockNeedsArtifactReplay(spec.blocks[block.index], block)))
     refuse('artifact bytes required for scoring are not stored');
   const context = options.objects ?? objectContextOfSpec(spec) ?? shippedObjectContext();
   spec = bindObjectContext({ ...spec }, context);
