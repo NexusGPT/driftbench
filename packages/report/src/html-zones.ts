@@ -587,7 +587,7 @@ function blockView(block: BlockDetail): string {
         ? `<span class="stage">stage ${esc(exp ?? 'none')}</span>`
         : `<span class="stage miss">expected ${esc(exp ?? 'none')}, reached ${esc(obs ?? 'none')}</span>`;
   const note = block.rejudged
-    ? `<p class="stage">Re-judged: ${esc(block.rejudged.criteria.join(', '))}; observations from ${esc(block.rejudged.fromCampaign)}.</p>`
+    ? `<p class="stage">${block.rejudged.criteria.length === 0 ? 'Re-scored' : `Re-judged: ${esc(block.rejudged.criteria.join(', '))}`}; observations from ${esc(block.rejudged.fromCampaign)}.</p>`
     : block.carried
       ? `<p class="stage">carried from ${esc(block.carried.fromCampaign)}</p>`
       : '';

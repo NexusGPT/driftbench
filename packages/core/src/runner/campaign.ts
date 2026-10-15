@@ -343,12 +343,12 @@ export type CampaignRunOptions = {
  */
 export async function runCampaign(options: CampaignRunOptions): Promise<CellOutcome[]> {
   // Validate before even a completed cell can be reused. A stored spec may outlive its object files.
-  const checkedSpecs = new Set<Spec>();
+  const objectContexts = new Map<string, ObjectContext>();
   for (const cell of options.cells) {
     const spec = options.specFor(cell);
-    if (checkedSpecs.has(spec)) continue;
-    checkedSpecs.add(spec);
-    const issues = checkSpecObjects(spec, objectContextOfSpec(spec) ?? shippedObjectContext());
+    const context = options.objectsFor?.(cell) ?? objectContextOfSpec(spec) ?? shippedObjectContext();
+    objectContexts.set(cell.cellId, context);
+    const issues = checkSpecObjects(spec, context);
     if (issues.length) throw new Error(issues.map((issue) => `${issue.code}: ${issue.message}`).join('; '));
   }
   const stored = await options.store.listRuns({ campaignId: options.campaignId });
@@ -456,7 +456,7 @@ export async function runCampaign(options: CampaignRunOptions): Promise<CellOutc
       adapter: options.adapterFor(cell.target),
       driver: options.driver(cell, spec),
       checks: options.checks,
-      ...(options.objectsFor ? { objects: options.objectsFor(cell) } : {}),
+      objects: objectContexts.get(cell.cellId),
       ...(options.artifacts ? { artifacts: options.artifacts } : {}),
       mode: cell.mode,
       repeat: cell.repeat,

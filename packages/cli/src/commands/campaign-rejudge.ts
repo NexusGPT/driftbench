@@ -2,12 +2,15 @@ import { resolve } from 'node:path';
 import { defaultChecks } from '@agent-nexus/driftbench-checks';
 import {
   agentVersionOf,
+  bindObjectContext,
   type Campaign,
   type CliOverrides,
+  checkSpecObjects,
   completeBaselineProvenance,
   loadChangeManifest,
   loadSpecs,
   objectContextFor,
+  objectContextOfSpec,
   type PreparedRejudge,
   parseCliOverrides,
   planCampaign,
@@ -17,6 +20,7 @@ import {
   refuseAgentFacing,
   rejudgeRun,
   rescoreRun,
+  resolveBlockObjects,
 } from '@agent-nexus/driftbench-core';
 import { loadCampaign } from '@agent-nexus/driftbench-report';
 import { openStore } from '@agent-nexus/driftbench-store';
@@ -165,12 +169,12 @@ export async function campaignRejudge(paths: string[], options: Options, io: Io)
     await store.putCampaign(campaign);
     const runs: RunResult[] = [];
     for (const item of prepared) {
-      const path = specs.get(item.source.specId)?.path;
+      const next = specs.get(item.source.specId);
       const run = await rejudgeRun(
         item,
         judge.check,
         () => judge.spend.usd,
-        ...(path === undefined ? [] : [objectContextFor(path)]),
+        ...(next === undefined ? [] : [objectContextOfSpec(next.spec) ?? objectContextFor(next.path)]),
       );
       await store.putRun(campaign.campaignId, run);
       runs.push(run);
@@ -230,6 +234,19 @@ async function campaignRescore(paths: string[], options: Options, io: Io): Promi
     )
       throw new Error('Re-score requires exactly the baseline specs, with unique ids.');
     const specs = new Map(loaded.map((l) => [l.spec.id, l]));
+    // Resolve every reference and CLI item before writing specs or a new campaign record.
+    const objects = new Map(
+      loaded.map((entry) => {
+        const context = { ...(objectContextOfSpec(entry.spec) ?? objectContextFor(entry.path)), cli };
+        const issues = checkSpecObjects(entry.spec, context);
+        if (issues.length)
+          throw new Error(issues.map((issue) => `${issue.code}: ${issue.message}`).join('; '));
+        for (let index = -1; index < entry.spec.blocks.length; index++)
+          resolveBlockObjects(entry.spec, index, context);
+        bindObjectContext(entry.spec, context);
+        return [entry.spec.id, context] as const;
+      }),
+    );
     const now = new Date();
     const prepared: PreparedRejudge[] = data.runs.map((run) => {
       const old = data.specs.get(`${run.specId}@${run.specHash}`);
@@ -259,8 +276,9 @@ async function campaignRescore(paths: string[], options: Options, io: Io): Promi
     await store.putCampaign(campaign);
     const runs: RunResult[] = [];
     for (const item of prepared) {
-      const path = specs.get(item.source.specId)?.path as string;
-      const run = await rescoreRun(item, defaultChecks(), { ...objectContextFor(path), cli });
+      const context = objects.get(item.source.specId);
+      if (!context) throw new Error(`Missing resolved objects for ${item.source.specId}`);
+      const run = await rescoreRun(item, defaultChecks(), context);
       await store.putRun(campaign.campaignId, run);
       runs.push(run);
     }

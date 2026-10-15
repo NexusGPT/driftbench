@@ -51,6 +51,23 @@ it('re-scores a stored campaign under --use with no agent call, and refuses an a
     ]);
     expect(base.err).toBe('');
     const args = ['campaign', 'rejudge', 'specs/plan-upgrade.yaml', '--from', 'base', '--store', 'runs.db'];
+    for (const [index, flag] of [
+      'check-set/missing#must.limit=2',
+      'check-set/quiet#missing.limit=2',
+      'diagnostic/missing#rule.limit=2',
+    ].entries()) {
+      const campaign = `invalid-${index}`;
+      const rejected = await cli([...args, '--campaign', campaign, '--set', flag]);
+      expect(rejected.code, rejected.err).toBe(2);
+      expect(rejected.err).toMatch(/unknown object|no item/);
+      const db = openStore(join(dir, 'runs.db'));
+      try {
+        expect(await db.getCampaign(campaign), flag).toBeUndefined();
+        expect(await db.listRuns({ campaignId: campaign })).toEqual([]);
+      } finally {
+        await db.close();
+      }
+    }
     const rescored = await cli([...args, '--campaign', 'quiet', '--use', 'check-set/quiet', '--json']);
     expect(rescored.err).toBe('');
     expect(JSON.parse(rescored.out)).toMatchObject({ agentCalls: 0, rescored: 5, use: ['check-set/quiet'] });
@@ -61,7 +78,7 @@ it('re-scores a stored campaign under --use with no agent call, and refuses an a
     expect(after?.blocks.flatMap((b) => b.verdicts).some((v) => v.name === 'must')).toBe(false);
     expect(after?.blocks.map((b) => b.observed)).toEqual(before?.blocks.map((b) => b.observed));
     expect(after?.blocks[0]?.verdicts[0]?.by?.object).toMatch(/^check-set:quiet@/);
-    expect(after?.blocks[0]?.resolved?.objects[0]).toMatchObject({
+    expect(after?.blocks[0]?.resolved?.objects.find((object) => object.key === 'check_set')).toMatchObject({
       key: 'check_set',
       id: 'quiet',
       setAt: 'cli',

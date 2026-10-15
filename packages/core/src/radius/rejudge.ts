@@ -1,4 +1,6 @@
 import type { Check, CheckContext, CheckSet } from '../contracts/check';
+import { bindObjectContext } from '../objects/context';
+import { checkSpecObjects } from '../objects/index';
 import {
   type CliOverrides,
   type ObjectContext,
@@ -312,10 +314,19 @@ function blockPlan(
 /** The runner's own verdict families: stored, never recomputed by a re-score. */
 const RUNNER_FAMILIES = new Set(['flow', 'ledger']);
 
+// A retained judge participates in check-set selection but never makes a new judge call.
+const STORED_JUDGE: Check = { name: 'judge', applies: () => false, evaluate: () => [] };
+
+// Later record versions can carry unexecuted blocks. Preserve them even before their schema lands here.
+function unexecuted(block: BlockResult): boolean {
+  const status = (block as BlockResult & { status?: string }).status;
+  return status === 'not_run' || status === 'blocked';
+}
+
 /**
  * Re-scores a prepared stored run under `objects` with no agent call: every block's machine checks run again on
  * its stored observation through the block's check set, and every verdict is stamped anew. Judge verdicts are
- * kept as they were judged; the runner's flow and ledger verdicts are kept, stamped with their items, and left
+ * kept as they were judged when the judge item remains enabled; flow and ledger verdicts are stamped and left
  * out when the check set disables them. Each block records the objects it was re-scored with and a `rejudged`
  * stamp with no criterion.
  */
@@ -324,17 +335,34 @@ export async function rescoreRun(
   checks: CheckSet,
   objects: ObjectContext,
 ): Promise<RunResult> {
-  const { source, spec, contexts, stamp, carried } = prepared;
-  const machine = checks.filter((check) => check.name !== 'judge');
+  const { source, contexts, stamp, carried } = prepared;
+  const spec = bindObjectContext({ ...prepared.spec }, objects);
+  const issues = checkSpecObjects(spec, objects);
+  if (issues.length) return refuse(issues.map((issue) => `${issue.code}: ${issue.message}`).join('; '));
+  const available = [...checks.filter((check) => check.name !== 'judge'), STORED_JUDGE];
+  // Freeze every plan before any check executes, just as a fresh run does.
+  const plans = contexts.map((ctx) => blockPlan(spec, ctx.blockIndex, available, objects));
   const blocks: BlockResult[] = [];
-  for (const ctx of contexts) {
+  for (const [index, originalContext] of contexts.entries()) {
+    const ctx = { ...originalContext, spec };
     const original = source.blocks[ctx.blockIndex];
     if (!original) return refuse('The observation disappeared');
-    const { used, plan } = blockPlan(spec, ctx.blockIndex, machine, objects);
+    if (unexecuted(original)) {
+      blocks.push(original);
+      continue;
+    }
+    const planned = plans[index];
+    if (!planned) return refuse('The scoring plan disappeared');
+    const { used, plan } = planned;
     // The end state the last block's checks read is the one the run recorded after it.
     const last = ctx.blockIndex === spec.blocks.length - 1 && source.endStateValue !== undefined;
-    const scored = await applyScoringPlan(plan, last ? { ...ctx, endState: source.endStateValue } : ctx);
-    const judged = original.verdicts.filter((v) => v.kind === 'judge');
+    const machinePlan = { ...plan, steps: plan.steps.filter(({ check }) => check.name !== 'judge') };
+    const scored = await applyScoringPlan(
+      machinePlan,
+      last ? { ...ctx, endState: source.endStateValue } : ctx,
+    );
+    const judgeEnabled = plan.steps.some(({ check }) => check.name === 'judge');
+    const judged = judgeEnabled ? original.verdicts.filter((v) => v.kind === 'judge') : [];
     const runnerOwn = original.verdicts.flatMap((v) => {
       if (!RUNNER_FAMILIES.has(v.name)) return [];
       const by = plan.runner[v.name as 'flow' | 'ledger'];
@@ -342,7 +370,14 @@ export async function rescoreRun(
     });
     const verdicts = [...scored, ...judged, ...runnerOwn];
     const resolved = resolvedRecord(used);
-    const { carried: _carried, rejudged: _rejudged, resolved: _resolved, ...rest } = original;
+    const {
+      carried: _carried,
+      rejudged: _rejudged,
+      resolved: _resolved,
+      diagnoses: _diagnoses,
+      skippedForBudget: _skippedForBudget,
+      ...rest
+    } = original;
     blocks.push({
       ...rest,
       verdicts,
@@ -352,7 +387,13 @@ export async function rescoreRun(
       rejudged: { ...stamp, criteria: [], judgeCostUsd: 0 },
     });
   }
-  const { carried: _carried, events: _events, ...rest } = source;
+  const {
+    carried: _carried,
+    events: _events,
+    diagnoses: _diagnoses,
+    skippedForBudget: _skippedForBudget,
+    ...rest
+  } = source as RunResult & { diagnoses?: unknown; skippedForBudget?: unknown };
   const updated = {
     ...rest,
     specHash: contentHash(spec),
