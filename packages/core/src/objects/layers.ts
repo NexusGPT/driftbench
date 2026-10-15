@@ -231,7 +231,8 @@ function referenceOf(
 /**
  * The objects one block uses, key by key: the command line, then the block, the spec, the suite and project
  * `uses.yaml` files; a key no layer sets resolves to the shipped `default` of its kind, when one is
- * registered. `explicitOnly` resolves only what a layer names, as the loader checks it.
+ * registered, and `diagnostics` to every shipped diagnostic marked `default: true`. `explicitOnly` resolves
+ * only what a layer names, as the loader checks it.
  */
 export function resolveBlockObjects(
   spec: Pick<Spec, 'uses' | 'blocks'>,
@@ -248,7 +249,16 @@ export function resolveBlockObjects(
         ? { ref: cliId, setAt: 'cli', place: `--use ${kind}/${cliId}` }
         : referenceOf(spec, blockIndex, key, context);
     if (key === 'diagnostics') {
-      const ids = (reference?.ref as string[] | undefined) ?? [];
+      // No layer names a list: the shipped diagnostics marked `default: true` run. `diagnostics: []` runs none.
+      const ids =
+        (reference?.ref as string[] | undefined) ??
+        (options.explicitOnly
+          ? []
+          : context.store
+              .list(kind)
+              .filter((entry) => entry.layer === 'shipped')
+              .map((entry) => entry.id)
+              .filter((id) => context.store.resolve(kind, id).fields.default === true));
       for (const id of ids) {
         out.push({
           key,

@@ -5,6 +5,7 @@ import type { DriverStep, UserDriver } from '../contracts/driver';
 import { copyHistory, freezeMessage } from '../contracts/history';
 import type { Store } from '../contracts/store';
 import { gateToolCalls, type ToolRule } from '../contracts/tool-policy';
+import { type DiagnosticBudget, runDiagnostics } from '../diagnostics/run';
 import {
   type ObjectContext,
   resolveBlockObjects,
@@ -90,6 +91,8 @@ export type RunOptions = {
    * and every block records the objects it resolved to.
    */
   objects?: ObjectContext;
+  /** What the diagnostics of each block may spend: the number of `run` and `model` steps. Default 0: static steps only. */
+  diagnosticBudget?: DiagnosticBudget;
   /** F runs free: one session, each block inherits the agent's own earlier replies. P is F plus the
    *  blocks a perturbing driver injects. T (teacher-forced) runs every block from its canonical Given in a
    *  session of its own: the prefix, ledger and world the spec writes, never the agent's own history. */
@@ -242,6 +245,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     driver: options.driver,
     checks: options.checks,
     scoringOf,
+    diagnosticBudget: options.diagnosticBudget ?? {},
     toolPolicy: options.toolPolicy,
     onEvent: reportEvent,
     cache,
@@ -317,6 +321,7 @@ type RunContext = {
   checks: CheckSet;
   /** The objects and the scoring plan of a spec block; -1 for a step the driver injected, which reads the spec's. */
   scoringOf: (blockIndex: number) => BlockScoring;
+  diagnosticBudget: DiagnosticBudget;
   cache: ObservedCache | undefined;
   cacheTtlMs: number | undefined;
   suite: string | undefined;
@@ -548,7 +553,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         ? captureArtifacts({ observed, readArtifact: channel.readArtifact() })
         : undefined;
       const scored = run.scoringOf(step.kind === 'block' ? step.blockIndex : -1);
-      const verdicts = await applyScoringPlan(scored.plan, {
+      const checkContext: CheckContext = {
         spec,
         mode: run.mode,
         blockIndex: position,
@@ -563,7 +568,8 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         endState,
         artifacts: run.artifacts,
         readArtifact: capture ? capture.readArtifact : channel.readArtifact(),
-      });
+      };
+      const verdicts = await applyScoringPlan(scored.plan, checkContext);
       // The stage reached: the runtime's, else the step classifier's. Before the block: in T the stage the
       // spec expects of the blocks before it, in F and P the stage the run's previous block reached.
       const previous =
@@ -583,6 +589,12 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       const ledger = ledgerVerdicts(facts.ledger, observed, users);
       const all = [...verdicts, ...flow, ...(ledgerBy ? stamp(ledger.verdicts, ledgerBy) : [])];
       const resolved = resolvedRecord(scored.used);
+      // Diagnostics read the verdicts and write diagnoses; they never change a verdict or `pass`.
+      const diagnosed = await runDiagnostics(
+        scored.used.filter((entry) => entry.key === 'diagnostics').map((entry) => entry.object),
+        { check: checkContext, verdicts: all, objects: scored.used },
+        run.diagnosticBudget,
+      );
       const contradictions = [...facts.contradictions, ...ledger.contradictions.map(describeContradiction)];
       const block = {
         index: position,
@@ -603,6 +615,8 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         cacheKey: key,
         observed,
         verdicts: all,
+        ...(diagnosed.diagnoses.length > 0 ? { diagnoses: diagnosed.diagnoses } : {}),
+        ...(diagnosed.skippedForBudget > 0 ? { skippedForBudget: diagnosed.skippedForBudget } : {}),
         ...(resolved ? { resolved } : {}),
         ...(reading !== undefined ? { stageObserved: reading.stage } : {}),
         ledgerCheck: { ok: contradictions.length === 0, contradictions },
