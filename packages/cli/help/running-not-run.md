@@ -1,10 +1,9 @@
 ---
 title: Blocks not run and blocked
 summary: 'A block whose Given the target cannot apply is `not_run`, never a pass or a fail: how the capability check decides it, how every command counts it, and how `ci --max-not-run` turns it into exit 3.'
-commands:
-  - campaign run
-  - ci
+commands: []
 see_also:
+  - running-campaign-run
   - running-outcomes
   - results-ci
   - authoring-prefixes
@@ -31,7 +30,8 @@ Before it sends a block, the runner checks that the target can apply every layer
 
 | Layer of the Given | The target needs | Adapters that lack it |
 |---|---|---|
-| a `prefix` the spec writes, at this block or an earlier one | the `seedPrefix` capability | `process`, `nexus`, live Claude Code |
+| a `prefix` the spec writes, at this block or an earlier one | the `seedPrefix` capability | `nexus`, live Claude Code |
+| in mode T, the canonical history the runner builds from the blocks before | the `seedPrefix` capability | `nexus`, live Claude Code |
 | a forced result or error in `world.tools` | the `toolStubs` capability | `process`, `nexus`, live Claude Code, Claude Code replay, `openai-agents`, `langgraph`, `crewai`, `pydantic-ai`, and `http` by default |
 
 A layer the target cannot apply makes the block `not_run` with kind `unsupported`. Before this check existed, the layer was dropped without a word, and the block measured something other than the spec.
@@ -39,7 +39,7 @@ A layer the target cannot apply makes the block `not_run` with kind `unsupported
 How the run goes on after a block that was not run depends on the mode:
 
 * Free-running (F) and perturbed (P): the conversation cannot go past a block it did not run. Every later block of the spec is `not_run` too, and the agent is not asked again.
-* Teacher-forced (T): each block starts from its own Given, so each block is checked alone. A later block that keeps the same prefix is `not_run` as well; a block that writes an empty prefix clears it and can run.
+* Teacher-forced (T): each block starts from its own Given, so each block is checked alone. A block after the first also starts from the canonical history of the blocks before. On `nexus` and live Claude Code, every block after the first is therefore `not_run`.
 
 A run that holds a block not run never compares its end state, so a setup gap never reads as a failure of the agent.
 
@@ -126,7 +126,7 @@ With `--json`, a block not run carries three more keys:
 | `notRun.layer` | the layer of the Given: `1 history` for a prefix, `5 world` for the world |
 | `notRun.check` | the check that refused it: `capability` here |
 | `notRun.expected` | what the check expected, such as `the adapter applies a prefix (seedPrefix)` |
-| `notRun.got` | what it found, such as `process declares seedPrefix false: the agent would never see it` |
+| `notRun.got` | what it found, such as `nexus declares seedPrefix false: the agent would never see it` |
 | `blocked.by`, `blocked.root`, `blocked.reason` | the block it depends on that failed, the earliest failing one, and why |
 
 A later block that was not run because an earlier one was not run says so in `got`: `block <i> was not run, so the conversation cannot reach this block: <the first reason>`. The summary gains `notRun` and `blocked` counts only when they are above 0.
@@ -175,7 +175,7 @@ Not judged: 1 criterion in 3 blocks of 1 spec (honest_failure), 1 of them gating
 (exit 0)
 $ driftbench campaign run examples/acme/specs/conversations/tool-failure.yaml --target process:my-agent --process-command my-agent --mode T,F
 Note: acme-tool-failure names the function adapter; --target runs it on process:my-agent.
-Campaign c-961b3c08472a: 2 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, regex, exact, injection, length, markup, starts_with, finish_reason, json, tool_f1, refusal, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+Campaign c-4078475b2180: 2 cells, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, regex, exact, injection, length, markup, starts_with, finish_reason, json, tool_f1, refusal, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
 Not judged: 1 criterion in 3 blocks of 1 spec (honest_failure), 1 of them gating. This campaign loads no judge, so it has no verdict and counts in no pass or fail. See docs/concepts/judges.md.
 - acme-tool-failure · process:my-agent · T · repeat 0  not_run  block 0 not_run capability, block 1 not_run capability, block 2 not_run capability
 - acme-tool-failure · process:my-agent · F · repeat 0  not_run  block 0 not_run capability, block 1 not_run capability, block 2 not_run capability
@@ -195,7 +195,7 @@ driftbench campaign run examples/acme/specs/conversations/tool-failure.yaml --ta
 ```text
 $ driftbench campaign run examples/acme/specs/conversations/tool-failure.yaml --target process:my-agent --process-command my-agent --json
 {
-  "campaignId": "c-13d08deff648",
+  "campaignId": "c-07e62fae7703",
   "stored": false,
   "checks": ["tools", "tools_offered", "...", "custom"],
   "cells": [
@@ -285,7 +285,7 @@ driftbench ci --specs examples/acme/specs/conversations/tool-failure.yaml --targ
 
 ```text
 $ driftbench ci --specs examples/acme/specs/conversations/tool-failure.yaml --target process:my-agent --process-command my-agent --baseline baseline --store nr.db --out nr.json
-driftbench ci: candidate process:my-agent (campaign c-ce7ddf223bd6) against baseline campaign baseline, compared as driftbench compare does (golden by golden, every repeat).
+driftbench ci: candidate process:my-agent (campaign c-cddaad1476c1) against baseline campaign baseline, compared as driftbench compare does (golden by golden, every repeat).
 Margin auto: 79.5 points, the smallest half point at which the baseline compared with itself is non-inferior (set by the all-pass flag, 79.35 points).
 Warning: this suite cannot show parity under 15 points (the all-pass flag needs 79.3 points); about 22 goldens would.
   measure                                      value
@@ -312,7 +312,7 @@ Verdict: NOT RUN. Exit 3.
 Summary: nr.json
 (exit 3)
 $ driftbench ci --specs examples/acme/specs/conversations/tool-failure.yaml --target process:my-agent --process-command my-agent --baseline baseline --store nr.db --out explore.json --max-not-run 1
-driftbench ci: candidate process:my-agent (campaign c-9c0e8020bb85) against baseline campaign baseline, compared as driftbench compare does (golden by golden, every repeat).
+driftbench ci: candidate process:my-agent (campaign c-fc2ca6ebadac) against baseline campaign baseline, compared as driftbench compare does (golden by golden, every repeat).
 Margin auto: 79.5 points, the smallest half point at which the baseline compared with itself is non-inferior (set by the all-pass flag, 79.35 points).
 Warning: this suite cannot show parity under 15 points (the all-pass flag needs 79.3 points); about 22 goldens would.
   measure                                      value
