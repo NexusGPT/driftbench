@@ -4,6 +4,7 @@ import { createRequire } from 'node:module';
 import { objectRegistry } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { createToolsCheck } from '../src/checks/tools';
+import type { SameReferentJudge } from '../src/value-check/judge';
 import {
   BUILTIN_RUNGS,
   DEFAULT_VALUE_POLICY,
@@ -301,8 +302,18 @@ describe('rung 2: the contract', () => {
         input: { reason: 'callback', customer: { phone: '+1 202 555 0131' }, summary: '88 Summit Avenue' },
       },
     ]);
-    const verdicts = await run(createToolsCheck(), context(spec, 3, seen));
+    // A calibrated judge that reads a phone as its digits: the copy goes to it, and it finds the same number.
+    const digits: SameReferentJudge = {
+      model: 'digits-reader',
+      calibration: { falseAcceptance: 0, source: 'a test stub' },
+      complete: async (request) =>
+        request.kind === 'read'
+          ? { has_content: true, reading: String(request.parts.v).replace(/\D/g, '').replace(/^1/, '') }
+          : { same: request.parts.a === request.parts.b },
+    };
+    const verdicts = await run(createToolsCheck({ services: { judge: digits } }), context(spec, 3, seen));
     expect(verdict(verdicts, 'tools.notify_sales.input.customer').outcome).toBe('pass');
+    expect(verdict(verdicts, 'tools.notify_sales.input.customer').evidence).toContain('rung3_same_referent');
     const lint = verdict(verdicts, 'tools.notify_sales.input.customer.unstated_format');
     expect(lint).toMatchObject({ gating: false, outcome: 'fail' });
     expect(lint.evidence).toContain(
@@ -320,9 +331,13 @@ describe('rung 2b: as given', () => {
     sources: { user: [user] },
   });
 
-  it('passes a value copied from the user when the block writes it another way', async () => {
+  it('passes nothing on a copy: a value copied from the user goes on, here to the exact fallback', async () => {
     const result = await runLadder(stored('Sam.Rivera@Example.com', 'Reach me at Sam.Rivera@Example.com'));
-    expect(result).toMatchObject({ outcome: 'pass', rung: 'rung2b_as_given', names: { change: 'verbatim' } });
+    expect(result).toMatchObject({ outcome: 'fail', rung: 'exact_fallback' });
+    expect(result.tried).toContainEqual({
+      rung: 'rung2b_as_given',
+      reason: `"Sam.Rivera@Example.com" is copied as given from the user's message; a copy proves the source, not the value`,
+    });
   });
 
   it('fails a value the agent changed after the user gave the gold writing', async () => {
@@ -338,7 +353,7 @@ describe('rung 2b: as given', () => {
     expect(result.evidence).toContain('both the value and the gold appear in the same message');
   });
 
-  it("takes the user's later message: keeping a value the user corrected fails, taking the correction passes", async () => {
+  it("takes the user's later message: keeping a value the user corrected fails, taking the correction decides nothing", async () => {
     const turns = ['my email is nobody@example.com', 'Sorry, my email is sam.rivera@example.com'];
     const kept = await runLadder({ ...stored('nobody@example.com', ''), sources: { user: turns } });
     expect(kept).toMatchObject({ outcome: 'fail', rung: 'rung2b_as_given', names: { change: 'stale' } });
@@ -346,7 +361,8 @@ describe('rung 2b: as given', () => {
       ...stored('nobody@example.com', ''),
       sources: { user: [...turns].reverse() },
     });
-    expect(reversed).toMatchObject({ outcome: 'pass', rung: 'rung2b_as_given' });
+    expect(reversed).toMatchObject({ outcome: 'fail', rung: 'exact_fallback' });
+    expect(reversed.evidence).toContain('the agent took the later value');
   });
 
   it('matches whole tokens only: a fragment of a longer number is no copy', async () => {

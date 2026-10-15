@@ -43,9 +43,9 @@ items:
     impl: builtin:value-check/contract
     cites: value_equivalence.md 3c R1
   - id: rung2b_as_given
-    title: A value copied from the user or a workspace file equals its source
+    title: A value the user or a workspace file gave is not changed (a copy alone passes nothing)
     when: { tool_replayable: false, recomputable: false, source: [user, workspace_file] }
-    effect: { settles: [pass, fail], emits: [change] }
+    effect: { settles: [fail], emits: [change] }
     params: { ignore: [surrounding_space] }
     impl: builtin:value-check/as-given
     cites: value_equivalence.md 3c R2; tau-bench policy p.16

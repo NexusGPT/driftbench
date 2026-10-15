@@ -2,19 +2,20 @@ import { show } from '../support/values';
 import type { Rung, ValueCase } from './ladder';
 
 /**
- * Rung 2b, as given: a value the agent copied from the user or from a workspace file is judged against that
- * source, not against the test author's writing of it. Copying is the safe default ("do not make up
- * information", tau-bench p.16); changing a value the user gave is the agent's own act (value_equivalence.md
- * 3c R2). So:
+ * Rung 2b, as given: a value is held against the source the agent was given, the user's messages or a workspace
+ * file. Changing a value the user gave is the agent's own act (value_equivalence.md 3c R2), so the rung fails
+ * it. It never passes one: a copy proves where the value came from, not that it is right (a copied `7 Quarry
+ * Ln` is still a value the coverage map rejects, R3), so a copied value goes on to the judge, else to the
+ * exact fallback. So:
  *
- * - the agent's value appears in a source and the gold's writing does not: the agent copied what it was given,
- *   and the block's other writing is the test's, not the agent's; pass, change `verbatim`;
+ * - the agent's value appears in a source and the gold's writing does not: the agent copied what it was given;
+ *   no decision here, change `verbatim`;
  * - the gold's writing appears in a source and the agent's value does not: the agent changed a value it was
  *   given; fail, change `altered`. A reformatted copy fails here and never reaches the judge, since the reader
  *   of the value may not share the conversion the agent assumed (`1024 MB` written `1 GB`);
  * - both appear: the user's later message stands, as in a correction ("sorry, my email is ...") given in a turn
- *   after the first value. The agent kept the earlier value: fail, change `stale`; it took the later one: pass.
- *   Both in the same message, or neither anywhere: the source cannot decide.
+ *   after the first value. The agent kept the earlier value: fail, change `stale`; it took the later one: no
+ *   decision here. Both in the same message, or neither anywhere: the source cannot decide.
  *
  * A source matches as a whole token: the characters around it are not letters or digits. With
  * `ignore: [surrounding_space]` the value is trimmed first. Workspace files count as read before the user's
@@ -51,9 +52,7 @@ export const asGiven: Rung = (value, ctx) => {
   const goldGiven = where(value, gold) !== undefined;
   if (copied !== undefined && !goldGiven) {
     return {
-      settles: 'pass',
-      evidence: `${show(value.value)} is copied as given from ${copied}; the block's writing ${show(value.gold)} is not what the agent was given`,
-      emits: { change: 'verbatim' },
+      skip: `${show(value.value)} is copied as given from ${copied}; a copy proves the source, not the value`,
     };
   }
   if (copied === undefined && goldGiven) {
@@ -76,9 +75,7 @@ export const asGiven: Rung = (value, ctx) => {
   }
   if (latestMine > latestGold) {
     return {
-      settles: 'pass',
-      evidence: `the user gave ${show(value.gold)}, then ${show(value.value)} in a later message; the agent took the later value`,
-      emits: { change: 'verbatim' },
+      skip: `the user gave ${show(value.gold)}, then ${show(value.value)} in a later message, and the agent took the later value; a copy proves the source, not the value`,
     };
   }
   return { skip: `both the value and the gold appear in the same message the agent was given (${copied})` };
