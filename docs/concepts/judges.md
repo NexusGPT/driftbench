@@ -136,7 +136,7 @@ The 12 Acme criteria declare nine system 1 and three system 2; nine are gating. 
 
 For each criterion a block names, the judge check builds one request:
 
-* The transcript: for `scope: block`, the last 2 messages of the Given prefix as context, then the block's user turn, then what the agent did in the block (replies, tool calls and results, cards). For `scope: conversation`, the whole prefix, then the block.
+* The transcript: for `scope: block`, the last 2 messages of the Given prefix as context, then the block's user turn as the agent received it (a simulated user's or an attacker's own words when the driver wrote them, not the spec's `when`), then what the agent did in the block (replies, tool calls and results, cards). For `scope: conversation`, the whole prefix, then the block.
 * The Given summary: the stage the block expects and the ledger.
 * The criterion: its rubric, its FAIL and PASS pictures, its scope.
 
@@ -249,7 +249,7 @@ The repository ships three cassettes of scripted answers, each for the same six 
 | `examples/acme/criteria/calibration/cassette.json` | 387 | `judge calibrate`, and `judge run --assignments` |
 | `examples/acme/criteria/calibration/campaign.cassette.json` | 38 | the Acme campaign with the judge check |
 
-The six judges are three of system 1 (`s1p-a` and `s1p-b`, cost 1, and `openai-decisions`, cost 2) and three of system 2 (`openai-chat` and `google-chat`, cost 10, and `anthropic-chat`, cost 12). The cassette files name the first two after the system 1 judge of the Nexus platform (see the [Nexus adapter](../adapters/nexus.md#judge)). This page shows them as `s1p-a` and `s1p-b`, in prose and in every output below; that substitution is the only change to the output. The answers are written by a test script: every judge tells the truth except 7 scripted misses, each with a note in the cassette.
+The six judges are three of system 1 (`s1p-a` and `s1p-b`, cost 1, and `openai-decisions`, cost 2) and three of system 2 (`openai-chat` and `google-chat`, cost 10, and `anthropic-chat`, cost 12). The first two have neutral scripted IDs; see the [Nexus adapter](../adapters/nexus.md#judge) for the platform judge they model. The prose and output below use those same cassette names. The answers are written by a test script: every judge tells the truth except 7 scripted misses, each with a note in the cassette.
 
 ## The council
 
