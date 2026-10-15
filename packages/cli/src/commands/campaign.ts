@@ -316,6 +316,7 @@ type RunCommandOptions = {
   maxAge?: string;
   blockReruns?: boolean;
   recordEndStateSnapshots?: boolean;
+  recordRealizedText?: boolean;
   store?: string;
   cache: boolean;
   concurrency: string;
@@ -424,6 +425,10 @@ export function registerCampaignCommands(
     .option(
       '--record-end-state-snapshots',
       'store the raw end-state values each mode T block reads, so a later --block-reruns can recompose them; they may hold sensitive data',
+    )
+    .option(
+      '--record-realized-text',
+      'store the text a driver sent where it differs from the spec (a simulated user, a red-team attacker), not only its hash; it may hold private data',
     )
     .option('--campaign <id>', 'the campaign id; one is made from the content and the clock without it')
     .option('--store <file>', 'keep the campaign, its runs and the cache in this store')
@@ -829,6 +834,7 @@ export async function campaignRunCommand(
           runs.flatMap((run) => run.targets),
           (target) => required(adapters.get(showTarget(target)), 'adapter'),
           snapshots,
+          options.recordRealizedText === true,
         ),
         judge: judging.judge
           ? { mode: judging.judge.mode, judges: judging.judge.judges }
@@ -879,6 +885,7 @@ export async function campaignRunCommand(
                     agentVersion: campaign.agentVersion,
                     recordProvenance: true,
                     recordEndStateSnapshots: snapshots,
+                    ...(options.recordRealizedText ? { recordRealizedText: true } : {}),
                   },
                 };
               },
@@ -897,6 +904,7 @@ export async function campaignRunCommand(
                     cells,
                     recordProvenance: true,
                     ...(snapshots ? { recordEndStateSnapshots: true } : {}),
+                    ...(options.recordRealizedText ? { recordRealizedText: true } : {}),
                     recordEvents: true,
                     specFor: (cell) =>
                       required(specs.get(`${cell.specId}@${cell.specHash}`), `spec ${cell.specId}`),
@@ -1196,6 +1204,7 @@ async function executeCampaign(
     cells: plan.cells,
     recordProvenance: campaign.provenance !== undefined,
     ...(campaign.provenance?.endStateSnapshots ? { recordEndStateSnapshots: true } : {}),
+    ...(campaign.provenance?.realizedText ? { recordRealizedText: true } : {}),
     ...(flags.blockReuse ? { blockReuse: flags.blockReuse } : {}),
     recordEvents: true,
     specFor: (cell) => required(specs.get(`${cell.specId}@${cell.specHash}`), `spec ${cell.specId}`),
