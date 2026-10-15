@@ -4,6 +4,8 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* Checks export `initializeShippedObjects` for entry points to register the value-check policy explicitly before loading specs. The shared core object context carries project policies through execution and storage.
+
 * The shared object-context API exports `bindObjectContext`, `initializeShippedObjects` and `objectContextOfSpec` from core. Store identity metadata stays internal. Every named `--set` target validates before resolution, including diagnostics. Kind-only overrides also validate and apply to registered shipped defaults when a spec has no `uses`.
 
 * Loaded specs carry their object context through execution and revalidation. Stored specs remain readable after project files move or disappear; object identities and hashes are stored separately, and missing objects fail at execution. Project config readers accept `objects`.
