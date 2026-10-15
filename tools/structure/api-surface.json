@@ -509,6 +509,7 @@
       "RecoveryMetrics": "type",
       "RecoveryOptions": "type",
       "ReferenceExpect": "value",
+      "RegistrySnapshot": "type",
       "RegistrySource": "value",
       "RejudgeOptions": "type",
       "RelevancyExpect": "value",
