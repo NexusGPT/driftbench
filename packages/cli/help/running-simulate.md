@@ -3,7 +3,6 @@ title: Simulated users
 summary: Let a simulated user play a persona against the agent instead of the spec's scripted turns, with driftbench simulate for one spec or campaign run --driver simulated for a campaign, through the model port (paid) or a recording of answers (free, no model call).
 commands:
   - simulate
-  - campaign run
 see_also:
   - running-campaign-run
   - running-recordings

@@ -1,8 +1,7 @@
 ---
 title: The text a driver sent
 summary: 'When a simulated user or an attacker sends other text than the spec block wrote, the block result records `realized`: the hash of the sent text, and the text itself with `campaign run --record-realized-text`, for audit and replay.'
-commands:
-  - campaign run
+commands: []
 see_also:
   - running-simulate
   - running-campaign-run
