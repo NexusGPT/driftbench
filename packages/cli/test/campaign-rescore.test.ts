@@ -100,3 +100,80 @@ it('re-scores a stored campaign under --use with no agent call, and refuses an a
     await rm(dir, { recursive: true, force: true });
   }
 }, 60_000);
+
+it.each([
+  ['--use', 'diagnostic/missing', 'diagnostic:missing'],
+  ['--use', 'prompt-template/missing', 'prompt-template:missing'],
+  ['--set', 'prompt-template#missing.limit=2', 'prompt-template:default'],
+])(
+  'refuses %s %s before writing a re-scored campaign',
+  async (flag, value, target) => {
+    const dir = await mkdtemp(join(tmpdir(), 'rescore-all-kinds-'));
+    const cli = async (args: string[]) => {
+      let out = '';
+      let err = '';
+      const code = await main(args, {
+        cwd: dir,
+        out: (s) => {
+          out += s;
+        },
+        err: (s) => {
+          err += s;
+        },
+      });
+      return { code, out, err };
+    };
+    try {
+      await writeFile(join(dir, 'driftbench.yaml'), 'plugins: []\n');
+      await copyFile(
+        join(root, 'examples/acme/specs/conversations/plan-upgrade.yaml'),
+        join(dir, 'spec.yaml'),
+      );
+      const base = await cli([
+        'campaign',
+        'run',
+        'spec.yaml',
+        '--target',
+        'function:acme-sales',
+        '--agent-version',
+        'acme-v1',
+        '--campaign',
+        'base',
+        '--store',
+        'runs.db',
+      ]);
+      expect(base.err).toBe('');
+      const before = openStore(join(dir, 'runs.db'));
+      const campaigns = await before.listCampaigns();
+      const runs = await before.listRuns({ campaignId: 'base' });
+      await before.close();
+      const rejected = await cli([
+        'campaign',
+        'rejudge',
+        'spec.yaml',
+        '--from',
+        'base',
+        '--campaign',
+        'invalid',
+        '--store',
+        'runs.db',
+        flag,
+        value,
+      ]);
+      expect(rejected.code, rejected.out + rejected.err).toBe(2);
+      expect(rejected.err).toContain(target);
+      expect(rejected.err).toContain('searched layers shipped, project, suite, spec, block, cli');
+      const after = openStore(join(dir, 'runs.db'));
+      try {
+        expect(await after.listCampaigns()).toEqual(campaigns);
+        expect(await after.listRuns({ campaignId: 'invalid' })).toEqual([]);
+        expect(await after.listRuns({ campaignId: 'base' })).toEqual(runs);
+      } finally {
+        await after.close();
+      }
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  },
+  60_000,
+);

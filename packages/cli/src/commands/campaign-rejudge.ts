@@ -293,7 +293,7 @@ async function campaignRescore(paths: string[], options: Options, io: Io): Promi
     io.out(
       options.json
         ? `${JSON.stringify(summary, null, 2)}\n`
-        : `Campaign ${summary.campaign}: ${summary.rescored} blocks re-scored under ${[...summary.use, ...summary.set].join(', ')}; 0 agent calls, 0 judge calls.\n`,
+        : `Re-scored; observations from ${summary.from}.\nCampaign ${summary.campaign}: ${summary.rescored} blocks re-scored under ${[...summary.use, ...summary.set].join(', ')}; 0 agent calls, 0 judge calls.\n`,
     );
     return runs.every((r) => r.blocks.every((b) => b.pass) && r.endState?.match !== false) ? 0 : 1;
   } catch (error) {

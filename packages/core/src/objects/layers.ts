@@ -232,17 +232,24 @@ export function resolveBlockObjects(
   context: ObjectContext,
   options: { explicitOnly?: boolean } = {},
 ): UsedObject[] {
-  // Validate every named target before kind-specific branches can skip it, including unselected objects.
+  // Every CLI target validates before selection can skip its kind. Kinds outside `uses`
+  // still resolve against the same store; kind-only sets target the CLI choice or default.
+  for (const [kind, id] of context.cli?.use ?? []) {
+    withPlace(() => context.store.resolve(kind, id), `--use ${kind}/${id}`);
+  }
+  const selectedKinds = new Set<string>(Object.values(USES_KINDS));
   for (const set of context.cli?.set ?? []) {
-    if (set.id === undefined || /^\([a-z]+\)$/.test(set.id)) continue;
-    if (!context.store.has(set.kind, set.id)) {
+    if (set.id === undefined && selectedKinds.has(set.kind)) continue;
+    if (set.id !== undefined && /^\([a-z]+\)$/.test(set.id) && selectedKinds.has(set.kind)) continue;
+    const id = set.id ?? context.cli?.use.get(set.kind) ?? 'default';
+    if (!context.store.has(set.kind, id)) {
       throw new ObjectError(
-        `--set ${set.flag}: unknown object ${set.kind}:${set.id}; searched layers ${LAYERS.join(', ')}`,
+        `--set ${set.flag}: unknown object ${set.kind}:${id}; searched layers ${LAYERS.join(', ')}`,
         'OBJECT_UNKNOWN',
         `--set ${set.flag}`,
       );
     }
-    const target = context.store.resolve(set.kind, set.id);
+    const target = context.store.resolve(set.kind, id);
     context.store.resolveCli(target, [cliPatch(target, set)]);
   }
   const applySets = (object: ResolvedObject): ResolvedObject => {
@@ -259,10 +266,10 @@ export function resolveBlockObjects(
   const out: UsedObject[] = [];
   for (const key of Object.keys(USES_KINDS) as Array<keyof typeof USES_KINDS>) {
     const kind = USES_KINDS[key];
-    const cliId = key === 'diagnostics' ? undefined : context.cli?.use.get(kind);
+    const cliId = context.cli?.use.get(kind);
     const reference: Reference | undefined =
       cliId !== undefined
-        ? { ref: cliId, setAt: 'cli', place: `--use ${kind}/${cliId}` }
+        ? { ref: key === 'diagnostics' ? [cliId] : cliId, setAt: 'cli', place: `--use ${kind}/${cliId}` }
         : referenceOf(spec, blockIndex, key, context);
     if (key === 'diagnostics') {
       const ids = (reference?.ref as string[] | undefined) ?? [];
