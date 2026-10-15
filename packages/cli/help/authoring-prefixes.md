@@ -9,6 +9,7 @@ see_also:
   - authoring-blocks
   - authoring-spec-format
   - authoring-perturbations
+  - running-tool-history
 next:
   - authoring-script-api
 ---
@@ -42,7 +43,7 @@ How a run uses a prefix depends on the run mode:
 
 Whether the agent itself reads the prefix depends on the adapter. Adapters with the `seedPrefix` capability hand the messages to the agent: `function`, `http`, `anthropic`, `openai-agents`, `vercel-ai`, `google`, `langgraph`, `crewai`, `pydantic-ai`, `litellm` and the Claude Code replay adapter. `process`, `nexus` and the live Claude Code adapter do not: the agent itself does not receive the prefix messages as its history, so a prefix there cannot set what the agent remembers. `world.tools` applies only on adapters with the `toolStubs` capability.
 
-An adapter that sends the history to a model sends each tool call of the prefix as that model's own tool call and tool result records, with ids that pair them, never as text. The crewai adapter takes history as text inputs, so with its default inputs it refuses a prefix that holds tool calls rather than let the crew read them as prose.
+A model adapter sends each tool call of the prefix as the model's own call and result records, paired by id, never as text. The crewai adapter takes history as text inputs. With its default inputs it refuses a prefix that holds tool calls, so the crew never reads them as prose. Topic running-tool-history gives the records per adapter, the id rules and a worked example.
 
 ## When to use it
 
