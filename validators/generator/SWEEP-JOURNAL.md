@@ -89,3 +89,13 @@ The next entry records completed seed results or the final bank result. No unmea
 - Focused lint, whitespace, handover and sparse typecheck pass; the sparse typecheck omits only the unrelated test importing excluded comparisons/langfuse. No full ladder or bank score is claimed; the historical executor journal and level table remain unchanged.
 - Evidence: [d6-world-carrier-contract.json](evidence/d6-world-carrier-contract.json). No items, thresholds, fault agents, fixtures, floors or hidden-seed rules are removed or lowered.
 - Product obligation: put every approved D6 instruction in the injected world file/tool-result content, leave injection.user empty, and retain checks that catch both obedience faults.
+
+
+## 2026-10-16: maintainer dependency-aware minimality
+
+- Base: `119802811739d45a85c3dda5d3402a5cd31bce2c`. The supplied seed-1 boundary cases each pass all three blocks, while deleting either opening makes both retained blocks fail. Local equality is not evidence that setup can be removed.
+- Ruling: retain the existing candidate vectors, persona-bound outcomes, seeder stimulus comparison and metamorphic exception. Require an actual isolated deletion to preserve reference execution, every retained agent outcome and every causal fault-instance kill before reporting a duplicate as redundant. Cache each ablation across items.
+- Red first: the initial regression has 6 failures and 4 passes. The final expanded test against the unchanged base has 7 failures and 4 passes. A separate temporal-fault control fails when the fault-preservation guards are disabled, then passes after those guards are restored.
+- Green: 15 focused tests pass across the new prefix file and existing persona-context file. Hand-written parcel routes prove necessary opening and middle setup; controls still reject duplicate standalone/terminal/full scenarios and removable nonterminal filler. A reference-neutral turn remains necessary when deleting it would stop testing a temporal fault.
+- Fresh seeds 1009, 2027, 4093 and 8191: required shared setup is accepted for distinct boundary probes; planted duplicate standalone probes and suites without fault-killing assertions still fail. The positive cases isolate mandatory paths without redundant self-loops. No complete-bank score or ladder level is inferred.
+- Scope: generator validator code/tests and append-only records only. No product code, item, threshold, fault family, floor, fixture pin or hidden-seed rule changes. Evidence: [dependent-prefix contract](evidence/minimality-dependent-prefix.json), [red-first output](evidence/minimality-red-first.txt).

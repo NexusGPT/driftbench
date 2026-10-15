@@ -1,5 +1,11 @@
-import type { Spec } from '@agent-nexus/driftbench-core';
-import { type Proposal, renderProposal, rngFor } from '@agent-nexus/driftbench-generate';
+import { type Spec, validateSpec } from '@agent-nexus/driftbench-core';
+import {
+  blockOutcome,
+  type Proposal,
+  renderProposal,
+  rngFor,
+  runOnce,
+} from '@agent-nexus/driftbench-generate';
 import { coverage, type SpaceCoverage } from '@agent-nexus/driftbench-space';
 import { acmeItems } from './acme';
 import { researchItems } from './bank2';
@@ -8,9 +14,11 @@ import { gateFamilyItems } from './bank4';
 import { CHEATERS } from './cheaters';
 import { familyPhrase, isCodeTaskSpec } from './code-task';
 import { FAULT_CLASSES, type FaultClass } from './faults';
+import { createFollower } from './follower';
 import { DEVIATION_POOL, type HiddenSpec, phrasePattern, type ToolRole } from './hidden';
 import {
   type BlockRun,
+  followerAdapter,
   type Generation,
   type GeneratorParts,
   generatedCells,
@@ -22,6 +30,7 @@ import {
   type Runs,
   runAll,
   runCombinations,
+  runContext,
   STABILITY_OFFSETS,
 } from './measure';
 import { matchesPhrase, phraseStimulus } from './phrase-stimulus';
@@ -1951,6 +1960,65 @@ export function vectorOf(block: BlockRun): string {
   return vector;
 }
 
+/** A local duplicate is redundant only when deleting it preserves the executable remainder.
+ * Cache each ablation across fault and seeder items. Reference dependence short-circuits the more
+ * expensive agent replay; no block position, label or seeder is exempt by construction.
+ */
+function removable(data: SeedData, block: BlockRun): Promise<boolean> {
+  return data.memoized(`minimality:remove:${block.key}`, async () => {
+    const generated = await data.generated();
+    const runs = await data.runs();
+    const source = generated.complete.find(({ spec }) => spec.id === block.spec);
+    if (!source) throw new Error(`minimality source missing: ${block.spec}`);
+    const original = runs.blocks.filter((entry) => entry.spec === block.spec);
+    if (original.some((entry) => entry.reference.some((outcome) => outcome !== 'pass'))) return false;
+    const spec = structuredClone(source.spec);
+    spec.blocks.splice(block.index, 1);
+    // Retained perturbations follow their original target block when an earlier block is removed.
+    for (const entry of spec.perturbations ?? []) if (entry.inject_at > block.index) entry.inject_at--;
+    let reduced: Runs = { blocks: [], faults: [], errors: [] };
+    if (spec.blocks.length > 0) {
+      const parsed = validateSpec(spec);
+      if (!parsed.ok) return false;
+      const create = (data.parts.follower ?? createFollower)(generated.hidden);
+      const reference = await runOnce(parsed.spec, followerAdapter(create), 1, runContext());
+      for (const before of original) {
+        if (before.index === block.index) continue;
+        const index = before.index < block.index ? before.index : before.index - 1;
+        if (blockOutcome(reference, index) !== before.reference[0]) return false;
+      }
+      const loaded = { ...source, spec: parsed.spec };
+      reduced = await runAll({ ...generated, complete: [loaded], loaded: [loaded] }, { ...data.parts, k: 1 });
+      if (reduced.errors.length > 0) return false;
+      for (const before of original) {
+        if (before.index === block.index) continue;
+        const index = before.index < block.index ? before.index : before.index - 1;
+        const after = reduced.blocks.find((entry) => entry.index === index);
+        if (!after || vectorOf(after) !== vectorOf(before)) return false;
+      }
+    }
+    // Equal fail vectors are not sufficient: every fault instance must retain a causal kill,
+    // at or after that instance's first changed action, in this or another retained scenario.
+    return runs.faults.every((record) => {
+      const id = record.fault.def.id;
+      if (killers(runs, id).length === 0) return true;
+      if (
+        runs.blocks.some(
+          (entry) => entry.spec !== block.spec && causalKill(entry, id, record.firstChange[entry.spec]),
+        )
+      )
+        return true;
+      const changed = reduced.faults.find((entry) => entry.fault.def.id === id);
+      return reduced.blocks.some((entry) => causalKill(entry, id, changed?.firstChange[entry.spec]));
+    });
+  });
+}
+
+async function hasRemovable(data: SeedData, group: BlockRun[]): Promise<boolean> {
+  for (const block of group) if (await removable(data, block)) return true;
+  return false;
+}
+
 function minimalityItems(): BankItem[] {
   const items: BankItem[] = FAULT_CLASSES.filter((cls) => cls.family !== 'code').map(
     (cls): BankItem => ({
@@ -1969,15 +2037,22 @@ function minimalityItems(): BankItem[] {
         ];
         if (found.length === 0)
           return verdict(false, `no block kills ${cls.id}, so there is no test set to judge`);
-        const groups = new Map<string, string[]>();
+        const groups = new Map<string, BlockRun[]>();
         for (const block of found)
-          groups.set(vectorOf(block), [...(groups.get(vectorOf(block)) ?? []), block.key]);
-        const redundant = [...groups.values()].filter((keys) => keys.length > 1);
+          groups.set(vectorOf(block), [...(groups.get(vectorOf(block)) ?? []), block]);
+        const redundant: BlockRun[][] = [];
+        for (const group of groups.values())
+          if (group.length > 1 && (await hasRemovable(data, group))) redundant.push(group);
         return verdict(
           redundant.length === 0,
-          `${found.length} blocks kill ${cls.id}; ${redundant.length} groups are redundant (same Then, same outcome on every agent): ${redundant
+          `${found.length} blocks kill ${cls.id}; ${redundant.length} groups contain a removable duplicate (same Then/outcomes, retained execution and causal kills preserved): ${redundant
             .slice(0, 2)
-            .map((keys) => keys.slice(0, 3).join(' = '))
+            .map((group) =>
+              group
+                .slice(0, 3)
+                .map((block) => block.key)
+                .join(' = '),
+            )
             .join('; ')}`,
         );
       },
@@ -1999,12 +2074,15 @@ function minimalityItems(): BankItem[] {
             ...(groups.get(`${block.when}|${vectorOf(block)}`) ?? []),
             block,
           ]);
-        const redundant = [...groups.values()].filter(
-          (group) => group.length > 1 && !(seeder === 'metamorphic' && new Set(group.map(family)).size === 1),
-        );
+        const redundant: BlockRun[][] = [];
+        for (const group of groups.values()) {
+          if (group.length < 2 || (seeder === 'metamorphic' && new Set(group.map(family)).size === 1))
+            continue;
+          if (await hasRemovable(data, group)) redundant.push(group);
+        }
         return verdict(
           blocks.length > 0 && redundant.length === 0,
-          `${redundant.length} groups of ${seeder} blocks say the same turn, expect the same and come out the same on every agent: ${redundant
+          `${redundant.length} groups of ${seeder} blocks contain removable duplicates with the same turn, Then and outcomes: ${redundant
             .slice(0, 2)
             .map((group) =>
               group

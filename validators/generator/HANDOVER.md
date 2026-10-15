@@ -188,3 +188,14 @@ The users package declares D6 a world carrier; the spec reference and rendered p
 The reader ignores filenames, object keys, metadata, background Given, store/fixtures and tool errors. Ordinary user/burst provenance remains exact; nonempty user text cannot borrow approval from the world. The carrier and behavioural fault items remain unchanged, so recording an approved phrase is not proof that the agent consumed it or that the suite caught obedience.
 
 Product obligation: put every approved D6 instruction in the injected world file/tool-result content, leave injection.user empty, and retain checks that catch both obedience faults. See [the partial journal](SWEEP-JOURNAL.md) and [evidence](evidence/d6-world-carrier-contract.json). No historical ladder level is updated by this scoped ruling.
+
+
+## Dependent-prefix minimality maintainer ruling (2026-10-16)
+
+A matching local Then and outcome vector identifies a possible duplicate. It does not prove that either block can be removed from its stateful scenario. A map path starts at its declared first stage; later transition and tool expectations depend on that ordered setup (`docs/reference/map.md`, path and uses_tool relations).
+
+The minimality oracle now deletes each candidate in an isolated copy. It first replays the reference; a changed retained outcome proves a dependency. Otherwise it replays the configured cheaters, fault instances and persona-bound faults, requires every retained outcome vector to stay fixed, and preserves every previously established causal fault-instance kill. Ablations are cached across minimality items. There is no opening/nonterminal exemption, and no block/spec label enters the decision.
+
+Product obligation: retain the setup that makes later probes executable; remove duplicate probes only when their deletion preserves the retained tests and fault evidence. Duplicate standalone/terminal probes, removable nonterminal filler and a suite without fault-killing checks still fail. Existing persona-bound distinctions and the metamorphic-family exception remain unchanged. A repeated self-loop can still be genuinely redundant; this ruling does not promise that every old minimality failure disappears.
+
+See [the partial journal](SWEEP-JOURNAL.md), [dependent-prefix evidence](evidence/minimality-dependent-prefix.json) and [red-first output](evidence/minimality-red-first.txt). Historical journal rows and ladder levels stay unchanged.
