@@ -239,6 +239,20 @@
         "bench_spend_import.py": "6f59dc08a5b681ae15640134d6c9ae889684e42274c2558a0d9525550fd93cdc"
       },
       "tests": "test_analyze.py: retention replays to 1270 pairs, p 1; G-Eval to 479 pairs; shared cost counted once; a failed result counts wrong and leaves the pairs. Each test fails on its mutant. offline_check.py: 30 of 30 returned, 18 rows."
+    },
+    {
+      "declaredAt": "2026-10-15T20:06:01.490440+00:00",
+      "beforeAnyCall": true,
+      "reason": "Merge of main (5354503af) into the PR changes the product tree the run freezes: packages/judges/src calibration.ts and cascade.ts, and 7 files in packages/core/src (radius, runner provenance and realized text, run schema). No model call of this run had been made.",
+      "changes": [
+        "Product commit 01801f6f5 (merge); packages/judges/src and packages/core/src are unchanged by the later commits up to the push head. The direct modules of createDefaultJudge import neither calibration.ts nor cascade.ts.",
+        "New run freeze below; manifest, driver, analysis and budget unchanged."
+      ],
+      "product": {
+        "commit": "01801f6f5",
+        "policy": "default-on-v7"
+      },
+      "runFreeze": "18804d90fb66a8ae1fb007fa28244d28945ceb75dd9a0905437a30760782fb33"
     }
   ]
 }
