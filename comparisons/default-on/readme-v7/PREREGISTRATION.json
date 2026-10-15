@@ -213,5 +213,32 @@
   "offlineCheck": "offline_check.py: two items per dataset through the frozen driver with a fake Messages API and analyze.py; 30 of 30 returned, 18 rows scored",
   "budget": "Inside the 75 USD default-judge cap, enforced by the shared meter; the bench re-record spend (3.859459 USD, 5,394 calls) is imported as a prior ledger (bench_spend_import.py) so the hard stop holds across both. Estimate 3 to 8 USD.",
   "rerunPolicy": "One execution. Items interrupted by transport failure rerun under the same freeze (no verdict existed). No returned verdict is rerun; no item is excluded; results are reported as they come.",
-  "readme": "README charts are regenerated from these results only after PR 371 merges."
+  "readme": "README charts are regenerated from these results only after PR 371 merges.",
+  "amendments": [
+    {
+      "declaredAt": "2026-10-15T18:27:58.589215+00:00",
+      "beforeAnyCall": true,
+      "reason": "Independent review of 1ca27b67e (FAIL) found two analysis defects, and the recorder fix changed one product file. No model call of this run had been made.",
+      "changes": [
+        "Paired tests use only pass or fail verdicts. A returned inconclusive answer has no verdict: it counts wrong in the score and is excluded from the pairs (reviewer finding: analyze.py paired inconclusive answers, so replaying the recorded knowledge retention answers gave 1272 pairs, p 0.5, instead of the recorded 1270, p 1). Replaying the recorded G-Eval strict answers under this rule gives 479 pairs, p 3.856e-05; the recorded row counted its one unparsed answer as a wrong verdict in the pairs (480 pairs, p 1.168e-04). Both are lead.",
+        "The run cost total counts each dataset once; rows that share a dataset (relevancy, grounding, Inspect QA and fact) no longer add its cost twice (reviewer finding: a synthetic 1 USD per item run reported 2,844 instead of 2,700).",
+        "Product commit 897b7380e: packages/judges/src differs from f1e520bbd only in index.ts, which exports outputRoom for the bench recorder. createDefaultJudge is unchanged. New run freeze below.",
+        "The bench spend import covers both bench runs (4.570911 USD, 7,192 calls), file bench-rerecord-import-2.jsonl."
+      ],
+      "product": {
+        "commit": "897b7380e",
+        "policy": "default-on-v7"
+      },
+      "runFreeze": "419763055031f02ac9c0b04b1d160cd4b50e1f82bb070717255f2c5fde5c6f7c",
+      "benchSpendImportSha256": "6e9133e61fc456b3ea69967fb2a3561fd4449946b7e69177264399f76abf9825",
+      "scripts": {
+        "analyze.py": "b6d8fc2fd99b5d99846aeec4aeadedbaa199de21ca41ae2ff939b0e925402b7b",
+        "offline_check.py": "df8ba8c84cfeb8f160dca6729b3e612c9c3b87028250ddddf9dae8386996f6cc",
+        "test_analyze.py": "53082dbebf2bbbd8b724d45a8841bb0930099bd00d50e63c4cddadfb9db13e52",
+        "combine.py": "d631e49f8805e9a729b19edd9c60e6e64b661d4c4c8ed81c46d5d4ca4c12745c",
+        "bench_spend_import.py": "6f59dc08a5b681ae15640134d6c9ae889684e42274c2558a0d9525550fd93cdc"
+      },
+      "tests": "test_analyze.py: retention replays to 1270 pairs, p 1; G-Eval to 479 pairs; shared cost counted once; a failed result counts wrong and leaves the pairs. Each test fails on its mutant. offline_check.py: 30 of 30 returned, 18 rows."
+    }
+  ]
 }
