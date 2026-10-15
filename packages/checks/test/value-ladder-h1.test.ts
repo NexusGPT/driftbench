@@ -1,5 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { createToolsCheck } from '../src/checks/tools';
+import type { SameReferentJudge } from '../src/value-check/judge';
 import {
   BUILTIN_RUNGS,
   DEFAULT_VALUE_POLICY,
@@ -42,7 +43,11 @@ function userTexts(run: ClassRun): string[] {
 }
 
 /** The ladder on the slot field of every call of the slot tool, with the given rungs. */
-async function slotResults(run: ClassRun, rungs: Readonly<Record<string, Rung>> = BUILTIN_RUNGS) {
+async function slotResults(
+  run: ClassRun,
+  rungs: Readonly<Record<string, Rung>> = BUILTIN_RUNGS,
+  judge?: SameReferentJudge,
+) {
   const slot = SLOTS[run.block];
   if (!slot) throw new Error(`no slot for ${run.block}`);
   const results: LadderResult[] = [];
@@ -61,7 +66,7 @@ async function slotResults(run: ClassRun, rungs: Readonly<Record<string, Rung>> 
           ...(worldOf(run.block) === undefined ? {} : { world: worldOf(run.block) }),
         },
         DEFAULT_VALUE_POLICY,
-        { replayer: acmeReplayer() },
+        { replayer: acmeReplayer(), ...(judge === undefined ? {} : { judge }) },
         rungs,
       ),
     );
@@ -153,6 +158,25 @@ describe('HF6: rung 1 settles the format flips of the stored H1 runs', () => {
 
 describe('HF5: the ladder against the two labellers on all 259 stored runs', () => {
   const ladder = () => createToolsCheck({ services: { replayer: acmeReplayer(), judge: recordedJudge() } });
+
+  it('settles the 255 slot values as HF5 did: 57 identical, rung 1 113 pass and 28 fail, the 57 stored phones pass', async () => {
+    const counts: Record<string, number> = {};
+    for (const run of CLASS_RUNS) {
+      for (const result of await slotResults(run, BUILTIN_RUNGS, recordedJudge())) {
+        const key = `${result.rung} ${result.outcome}${result.lint === undefined ? '' : ' lint'}`;
+        counts[key] = (counts[key] ?? 0) + 1;
+      }
+    }
+    // The research ladder had no as-given rung: its judge passed all 57 phones. Here 56 are copies of what the
+    // customer typed, and the one the agent wrote with an added +1 goes to the recorded judge.
+    expect(counts).toEqual({
+      'identity pass': 57,
+      'rung1_outcome pass': 113,
+      'rung1_outcome fail': 28,
+      'rung2b_as_given pass lint': 56,
+      'rung3_same_referent pass lint': 1,
+    });
+  });
 
   it('passes 183 runs, with 0 false passes and 0 false fails on the 249 runs the labellers agree on', async () => {
     const agreed = reference();
