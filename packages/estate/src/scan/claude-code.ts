@@ -38,6 +38,29 @@ import { keyLine, type Located, lineAt, linesOf, readFrontmatter, readTables } f
 const STANDING = new Set(['CLAUDE.md', '.claude/CLAUDE.md', 'CLAUDE.local.md']);
 const SETTINGS = new Set(['.claude/settings.json', '.claude/settings.local.json']);
 const MAX_FILE_BYTES = 1024 * 1024;
+
+/** Bound open files and queued filesystem work while retaining the caller's order. */
+async function readBatch<T, R>(values: readonly T[], read: (value: T) => Promise<R>): Promise<R[]> {
+  const results: R[] = [];
+  const pending = values.entries();
+  let failed = false;
+  await Promise.all(
+    Array.from({ length: Math.min(16, values.length) }, async () => {
+      while (!failed) {
+        const next = pending.next();
+        if (next.done) return;
+        const [index, value] = next.value;
+        try {
+          results[index] = await read(value);
+        } catch (cause) {
+          failed = true;
+          throw cause;
+        }
+      }
+    }),
+  );
+  return results;
+}
 const INTERPRETERS = new Set([
   'python',
   'python3',
@@ -186,9 +209,13 @@ export class ClaudeCodeReader implements EstateReader {
       ...(await nestedStanding(root, '', notes, ignored)),
     ];
     const files: EstateFile[] = [];
-    for (const path of paths) {
+    const loaded = await readBatch(paths, async (path) => ({
+      path,
+      text: await readFile(join(root, path), 'utf8'),
+    }));
+    for (const { path, text: source } of loaded) {
       // A byte order mark is not part of the text any reader quotes.
-      const text = (await readFile(join(root, path), 'utf8')).replace(/^\uFEFF/, '');
+      const text = source.replace(/^\uFEFF/, '');
       // An empty file holds no line to quote: it is kept as a file, read as no kind, and noted.
       if (text.trim() === '') {
         notes.push({ file: path, message: 'empty file: nothing to read' });
@@ -369,32 +396,45 @@ async function nestedStanding(
   folder: string,
   notes: ReadNote[],
   ignored: Ignored,
-  ancestors: ReadonlySet<string> = new Set(),
+  ancestors: Set<string> = new Set(),
+  canonical?: string,
+  found: string[] = [],
 ): Promise<string[]> {
-  const real = await realpath(join(root, folder)).catch(() => undefined);
+  const real = canonical ?? (await realpath(join(root, folder)).catch(() => undefined));
   if (!real) return [];
   if (ancestors.has(real)) {
     notes.push({ file: folder, message: 'skipped: a link back to a folder the walk is already inside' });
     return [];
   }
-  const inside = new Set(ancestors).add(real);
-  const entries = await readdir(join(root, folder), { withFileTypes: true }).catch(() => []);
-  const found: string[] = [];
-  for (const entry of entries.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))) {
-    const path = posix.join(folder, entry.name);
-    // The regular layout walk already owns this tree and the root standing files.
-    if (folder === '' && (entry.name === '.claude' || STANDING.has(path))) continue;
-    if (ignored.rules.some((rule) => rule.test(path))) continue;
-    const linked = entry.isSymbolicLink() ? await stat(join(root, path)).catch(() => undefined) : undefined;
-    if (entry.isDirectory() || linked?.isDirectory()) {
-      found.push(...(await nestedStanding(root, path, notes, ignored, inside)));
-    } else if (/^CLAUDE(?:\.local)?\.md$/.test(entry.name) && (entry.isFile() || linked?.isFile())) {
-      const info = linked ?? (await stat(join(root, path)));
-      if (info.size > MAX_FILE_BYTES) notes.push({ file: path, message: 'skipped: larger than 1 MB' });
-      else found.push(path);
+  ancestors.add(real);
+  try {
+    const entries = await readdir(join(root, folder), { withFileTypes: true }).catch(() => []);
+    for (const entry of entries.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))) {
+      const path = posix.join(folder, entry.name);
+      // The regular layout walk already owns this tree and the root standing files.
+      if (folder === '' && (entry.name === '.claude' || STANDING.has(path))) continue;
+      if (ignored.rules.some((rule) => rule.test(path))) continue;
+      const linked = entry.isSymbolicLink() ? await stat(join(root, path)).catch(() => undefined) : undefined;
+      if (entry.isDirectory() || linked?.isDirectory()) {
+        await nestedStanding(
+          root,
+          path,
+          notes,
+          ignored,
+          ancestors,
+          entry.isSymbolicLink() ? undefined : join(real, entry.name),
+          found,
+        );
+      } else if (/^CLAUDE(?:\.local)?\.md$/.test(entry.name) && (entry.isFile() || linked?.isFile())) {
+        const info = linked ?? (await stat(join(root, path)));
+        if (info.size > MAX_FILE_BYTES) notes.push({ file: path, message: 'skipped: larger than 1 MB' });
+        else found.push(path);
+      }
     }
+    return found;
+  } finally {
+    ancestors.delete(real);
   }
-  return found;
 }
 
 async function present(root: string, names: readonly string[]): Promise<string[]> {
@@ -549,11 +589,13 @@ async function walk(
   folder: string,
   notes: ReadNote[],
   ignored: Ignored,
-  ancestors: ReadonlySet<string> = new Set(),
+  ancestors: Set<string> = new Set(),
   ignoredBy?: string,
   large?: string[],
+  canonical?: string,
+  found: string[] = [],
 ): Promise<string[]> {
-  const real = await realpath(join(root, folder)).catch(() => undefined);
+  const real = canonical ?? (await realpath(join(root, folder)).catch(() => undefined));
   if (real === undefined) return [];
   if (ancestors.has(real)) {
     if (ignoredBy === undefined) {
@@ -561,37 +603,54 @@ async function walk(
     }
     return [];
   }
-  const inside = new Set(ancestors).add(real);
-  const entries = await readdir(join(root, folder), { withFileTypes: true }).catch(() => []);
-  const found: string[] = [];
-  for (const entry of [...entries].sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))) {
-    const path = posix.join(folder, entry.name);
-    const by = ignoredBy ?? ignored.rules.find((rule) => rule.test(path))?.pattern;
-    let folderEntry = entry.isDirectory();
-    let fileEntry = entry.isFile();
-    if (entry.isSymbolicLink()) {
-      const target = await stat(join(root, path)).catch(() => undefined);
-      if (!target) {
+  ancestors.add(real);
+  try {
+    const entries = await readdir(join(root, folder), { withFileTypes: true }).catch(() => []);
+    const ordered = [...entries].sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+    // Dirents already identify ordinary directories. Follow a link once; its stat also gives the size.
+    const inspected = await readBatch(ordered, async (entry) => {
+      const path = posix.join(folder, entry.name);
+      const by = ignoredBy ?? ignored.rules.find((rule) => rule.test(path))?.pattern;
+      const info = entry.isSymbolicLink()
+        ? await stat(join(root, path)).catch(() => undefined)
+        : entry.isFile() && by === undefined
+          ? await stat(join(root, path))
+          : undefined;
+      return { entry, path, by, info };
+    });
+    for (const { entry, path, by, info } of inspected) {
+      if (entry.isSymbolicLink() && !info) {
         if (by === undefined) notes.push({ file: path, message: 'skipped: a link that points at nothing' });
         continue;
       }
-      folderEntry = target.isDirectory();
-      fileEntry = target.isFile();
+      const folderEntry = entry.isDirectory() || info?.isDirectory();
+      const fileEntry = entry.isFile() || info?.isFile();
+      if (folderEntry) {
+        await walk(
+          root,
+          path,
+          notes,
+          ignored,
+          ancestors,
+          by,
+          large,
+          entry.isSymbolicLink() ? undefined : join(real, entry.name),
+          found,
+        );
+      } else if (fileEntry && by !== undefined) {
+        ignored.counts.set(by, (ignored.counts.get(by) ?? 0) + 1);
+        ignored.paths.push(path);
+      } else if (fileEntry && info) {
+        if (info.size > MAX_FILE_BYTES) {
+          notes.push({ file: path, message: 'skipped: larger than 1 MB' });
+          large?.push(path);
+        } else found.push(path);
+      }
     }
-    if (folderEntry) {
-      found.push(...(await walk(root, path, notes, ignored, inside, by, large)));
-    } else if (fileEntry && by !== undefined) {
-      ignored.counts.set(by, (ignored.counts.get(by) ?? 0) + 1);
-      ignored.paths.push(path);
-    } else if (fileEntry) {
-      const info = await stat(join(root, path));
-      if (info.size > MAX_FILE_BYTES) {
-        notes.push({ file: path, message: 'skipped: larger than 1 MB' });
-        large?.push(path);
-      } else found.push(path);
-    }
+    return found;
+  } finally {
+    ancestors.delete(real);
   }
-  return found;
 }
 
 function classify(path: string, text: string): { kind: FileKind; owner?: string } {
