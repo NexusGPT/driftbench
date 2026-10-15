@@ -1230,16 +1230,11 @@ function readJsonRegistry(file: EstateFile, estate: RawEstate): void {
       cursor,
     );
     if (!found) continue;
-    const listed = [row.enforces, row.rules, row.gates].find((value) => Array.isArray(value)) as
-      | unknown[]
-      | undefined;
-    const enforces = (listed ?? []).filter((item): item is string => typeof item === 'string');
+    const listed = row.enforces ?? row.rules ?? row.gates;
     const entry: RegistryRow = {
       id,
       guard,
-      enforces: enforces.map((item) =>
-        /^[A-Za-z]{1,3}\d{1,3}$/.test(item) ? { id: item } : { quote: item },
-      ),
+      enforces: registryRules(listed),
       at: found,
     };
     if (typeof row.event === 'string') entry.event = row.event;
@@ -1247,6 +1242,22 @@ function readJsonRegistry(file: EstateFile, estate: RawEstate): void {
     if (typeof row.verdict === 'string') entry.verdict = row.verdict;
     estate.registry.push(entry);
   }
+}
+
+/** A rules field may be a scalar, a list of labels/passages, or explicit id/quote records. */
+function registryRules(value: unknown): RegistryRow['enforces'] {
+  if (Array.isArray(value)) return value.flatMap(registryRules);
+  if (isRecord(value)) {
+    if (typeof value.id === 'string' && value.id.trim() !== '') return [{ id: value.id.trim() }];
+    if (typeof value.quote === 'string' && value.quote.trim() !== '') return [{ quote: value.quote }];
+    return [];
+  }
+  if (typeof value !== 'string' || value.trim() === '') return [];
+  const text = value.trim();
+  // Split only an entire label list. A passage mentioning a label remains a passage.
+  if (/^[A-Za-z]{1,3}#?\d{1,3}(?:\s*(?:,|and)\s*[A-Za-z]{1,3}#?\d{1,3})*$/.test(text))
+    return (text.match(/[A-Za-z]{1,3}#?\d{1,3}/g) ?? []).map((id) => ({ id: id.replace('#', '') }));
+  return [{ quote: text }];
 }
 
 /** `R3, R5` or `"a quoted rule"`: ids and quoted passages. */
