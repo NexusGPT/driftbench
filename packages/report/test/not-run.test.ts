@@ -118,4 +118,20 @@ describe('a run with a block not run is neither a pass nor a fail', () => {
     expect(html).toContain('Not run (unsupported, check capability');
     expect(html).not.toContain('<tr class="run-row r-fail');
   });
+
+  it('the page rates runs and blocks over the scored ones, the rest counted beside', () => {
+    const blocked: RunResult = {
+      ...notRunAt('g-blocked', 0, 1),
+      blocks: notRunAt('g-blocked', 0, 1).blocks.map((entry) => {
+        const { notRun: _n, ...rest } = entry;
+        return { ...rest, status: 'blocked' as const, blocked: { by: 'parent#0', root: 'parent#0' } };
+      }),
+    };
+    const html = renderHtml(buildScorecard(campaign('c', 1, [notRunAt('g-skip', 0, 1), blocked])));
+    // One pass, one not run, one blocked, no failure: 1 of 1 scored runs pass, 100%.
+    expect(html).toContain(
+      '<p class="n">1<small>of 1</small></p><a class="l" href="#drilldown">Runs passing</a><p class="s">100.0% · 0 failed · 1 not run · 1 blocked · 0 did not complete</p>',
+    );
+    expect(html).toContain('1 of 1 blocks pass, 2 not run or blocked');
+  });
 });

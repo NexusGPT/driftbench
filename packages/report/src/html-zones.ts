@@ -60,8 +60,10 @@ export type PageModel = {
   /** Check families that fail somewhere in the shown runs, most failures first. */
   checkColumns: string[];
   failedByCheck: Map<string, number>;
+  /** Scored blocks (passed or failed) of the shown runs; a block not run or blocked is counted apart. */
   blocks: number;
   blocksPassing: number;
+  blocksUnscored: number;
   checks: number;
   checksFailed: number;
 };
@@ -136,10 +138,16 @@ export function pageModel(card: Scorecard): PageModel {
   const failedByCheck = new Map<string, number>();
   let blocks = 0;
   let blocksPassing = 0;
+  let blocksUnscored = 0;
   let checks = 0;
   let checksFailed = 0;
   for (const run of card.drilldown) {
     for (const block of run.blocks) {
+      // A block not run or blocked is no measurement: out of the rate, counted beside it.
+      if (block.status !== undefined) {
+        blocksUnscored += 1;
+        continue;
+      }
       blocks += 1;
       if (block.pass) blocksPassing += 1;
       for (const v of block.verdicts) {
@@ -154,7 +162,18 @@ export function pageModel(card: Scorecard): PageModel {
   const checkColumns = [...failedByCheck.entries()]
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
     .map(([name]) => name);
-  return { card, cases, tests, checkColumns, failedByCheck, blocks, blocksPassing, checks, checksFailed };
+  return {
+    card,
+    cases,
+    tests,
+    checkColumns,
+    failedByCheck,
+    blocks,
+    blocksPassing,
+    blocksUnscored,
+    checks,
+    checksFailed,
+  };
 }
 
 function caseLabel(c: { mode: RunMode; perturbationId?: string }): string {
@@ -201,9 +220,11 @@ export function overview(m: PageModel): string {
   const c = card.campaign;
   const compare = card.compare;
   const casesPassing = m.cases.filter((x) => x.pass).length;
+  // The run rate is over the runs that passed or failed: one not run or blocked is counted beside it.
+  const scored = c.runs - (c.notRun ?? 0) - (c.blocked ?? 0);
   const third = compare
     ? `<div class="stat"><p class="n">${compare.allPass.table.regressed}<small>of ${compare.pairs.length}</small></p><a class="l" href="#tests">Cases regressed vs baseline</a><p class="s">${compare.allPass.table.improved} improved · McNemar p = ${esc(pValue(compare.allPass.mcnemar.pValue))}</p></div>`
-    : `<div class="stat"><p class="n">${m.blocksPassing}<small>of ${m.blocks}</small></p><span class="l">Blocks passing</span><p class="s">${esc(pct(m.blocks === 0 ? 0 : m.blocksPassing / m.blocks))} · ${m.checksFailed} checks failed</p></div>`;
+    : `<div class="stat"><p class="n">${m.blocksPassing}<small>of ${m.blocks}</small></p><span class="l">Blocks passing</span><p class="s">${esc(pct(m.blocks === 0 ? 0 : m.blocksPassing / m.blocks))} · ${m.checksFailed} checks failed${m.blocksUnscored > 0 ? ` · ${m.blocksUnscored} not run or blocked` : ''}</p></div>`;
   const facts = [
     ...(compare ? [['Baseline', compare.baseline.campaignId]] : []),
     ['Created', c.createdAt.slice(0, 16).replace('T', ' ')],
@@ -220,10 +241,10 @@ export function overview(m: PageModel): string {
 <div class="glass">
 <div class="stat-row">
 <div class="stat"><p class="n">${casesPassing}<small>of ${m.cases.length}</small></p><a class="l" href="#tests">Cases passing</a><p class="s">${esc(pct(m.cases.length === 0 ? 0 : casesPassing / m.cases.length))}${compare ? ` · baseline ${compare.allPass.baseline.k} of ${compare.allPass.baseline.n}` : ''}</p></div>
-<div class="stat"><p class="n">${c.passing}<small>of ${c.runs}</small></p><a class="l" href="#drilldown">Runs passing</a><p class="s">${esc(pct(c.runs === 0 ? 0 : c.passing / c.runs))} · ${c.failing} failed · ${unscoredRuns(c, ' · ')}${c.broken} did not complete</p></div>
+<div class="stat"><p class="n">${c.passing}<small>of ${scored}</small></p><a class="l" href="#drilldown">Runs passing</a><p class="s">${esc(pct(scored === 0 ? 0 : c.passing / scored))} · ${c.failing} failed · ${unscoredRuns(c, ' · ')}${c.broken} did not complete</p></div>
 ${third}
 </div>
-<p class="path"><span><b>${m.tests.length}</b> tests</span><i>›</i><span><b>${m.cases.length}</b> cases</span><i>›</i><span><b>${c.runs}</b> runs</span><i>›</i><span><b>${m.blocks}</b> blocks</span><i>›</i><span><b>${m.checks}</b> checks</span><span class="path-end">${m.blocksPassing} of ${m.blocks} blocks pass · ${m.checksFailed} checks failed${card.omittedRuns > 0 ? ` · ${count(card.omittedRuns, 'run')} beyond the run limit not counted here` : ''}</span></p>
+<p class="path"><span><b>${m.tests.length}</b> tests</span><i>›</i><span><b>${m.cases.length}</b> cases</span><i>›</i><span><b>${c.runs}</b> runs</span><i>›</i><span><b>${m.blocks}</b> blocks</span><i>›</i><span><b>${m.checks}</b> checks</span><span class="path-end">${m.blocksPassing} of ${m.blocks} blocks pass${m.blocksUnscored > 0 ? `, ${m.blocksUnscored} not run or blocked` : ''} · ${m.checksFailed} checks failed${card.omittedRuns > 0 ? ` · ${count(card.omittedRuns, 'run')} beyond the run limit not counted here` : ''}</span></p>
 </div>
 </div>
 </header>`;
