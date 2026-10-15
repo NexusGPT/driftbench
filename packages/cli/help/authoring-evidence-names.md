@@ -13,7 +13,7 @@ see_also:
 A failing verdict says that a block failed. Evidence says what surrounded the failure. Each piece of evidence is a
 name with a value, such as `source: user` or `next_action: asked_user`.
 
-driftbench ships 45 evidence names. Each name has one provider: a function that computes the value from records
+driftbench ships 46 evidence names. Each name has one provider: a function that computes the value from records
 that already exist. Those records are the stored run of the block, the estate map, the value check's record, and
 the record of any confirm run. A provider never calls a model and never runs the agent.
 
@@ -52,7 +52,7 @@ There is no command. Call the library from a script. Every call below is in the 
 | Call | What it does | Defaults |
 |---|---|---|
 | `computeEvidence(input, names?, registry?)` | Returns a map of name to value for one failing verdict. A name with no known value is left out | `names`: every registered name. `registry`: `evidenceRegistry` |
-| `new EvidenceRegistry(providers?)` | A registry of providers. A name registered twice is refused | `providers`: `EVIDENCE_PROVIDERS`, the 45 shipped ones |
+| `new EvidenceRegistry(providers?)` | A registry of providers. A name registered twice is refused | `providers`: `EVIDENCE_PROVIDERS`, the 46 shipped ones |
 | `registry.register(provider)` | Adds one provider: `{ name, cost, values, from, compute }`. Returns the registry | none |
 | `registry.get(name)`, `registry.names()`, `registry.providers()` | Reads one provider, every name, every provider, in order | none |
 | `evidenceRegistry` | The registry every blame and placement step reads unless given another | the shipped providers |
@@ -107,9 +107,9 @@ or a list. The names, grouped by what they describe:
 |---|---|
 | The value | `source` (user, agent_derived, prompt, tool_output, skill_file, workspace_file); `change` (verbatim, case_only, unit_converted, reformatted, altered); `contract` (tool, prompt, none, downstream, instruction, skill, error_seen); `contract_broken`; `outcome` (accepted_as_gold, failed, resolved_differently); `declared_format`; `downstream_need` (declared, none); `changed_inputs_fail`; `tool_output_wrong`; `stricter_rule_obeyed` |
 | What happened next | `next_action` (asked_user, retried_canonical, gave_up, wrong_fact, continued, looped, recovered) |
-| The verdict | `verdict_check` (the check name); `verdict_kind` (machine, judge) |
+| The verdict | `verdict_check` (the check name); `verdict_kind` (machine, judge); `first_violation` (the id of the earliest failing gating verdict of the block, by the place of its act in the trace) |
 | The rule | `rule_atom`; `rule_home` (core, skill_body, skill_reference, skill_script, helper, guard, tool_schema, instruction, none); `rule_skill`; `rule_act`; `act_signature`; `rule_situational`; `rule_mechanical`; `rule_needed_by` (a number) |
-| Skills and references | `routed_skills`; `skill_loaded`; `skill_covers` (covered, not_covered, unknown); `rule_skill_routed`; `rule_in_context`; `ref_exists`; `ref_forced`; `ref_depth` (a number); `ref_read` (none, partial, full) |
+| Skills and references | `routed_skills`; `skill_loaded`; `skill_covers` (covered, not_covered, unknown); `rule_skill_routed` and `rule_in_context` (both derived from the other names);  `ref_exists`; `ref_forced`; `ref_depth` (a number); `ref_read` (none, partial, full) |
 | The trace | `guard_caught`; `tool_failed`; `tool_silent`; `env_error` (network, sandbox, package, timeout, none); `protected_changed`; `tests_fail_reverted`; `claim_contradicted`; `task_impossible`; `task_flagged` (judge class) |
 | Recurrence | `recurrence_homes`, `recurrence_class_homes` (numbers, known only once a blame item is attributed) |
 | Confirm runs | `reference_pass`, `reference_loads`, `forced_load_pass`, `hint_pass` (run class: passes out of the confirm runs) |
@@ -122,6 +122,8 @@ How to read the names that decide most failures:
   stated rule, or an error the agent read before its next call would each name a contract.
 * `next_action` reads what came after the failing step. A retry of the same tool is `retried_canonical`. A
   question mark in the reply is `asked_user`. More calls are `continued`. An empty reply is `gave_up`.
+* `skill_covers` reads the block's plan row first: `route_positive` is covered, `route_near_miss` is not covered.
+* `tool_failed` is true when the call returned an error or its recorded run exited nonzero. A failed read reads nothing.
 * A name missing from the output is unknown, not false.
 
 `docs/reference/blame.md` lists every name with what it is computed from, generated from the code.
@@ -228,7 +230,7 @@ outcome: "failed"
 tool_failed: true
 next_action: "asked_user"
 rule_home: "none"
-names known: 24 of 45
+names known: 25 of 46
 home: none
 next_action when the agent did not ask: continued
 unknown evidence name sauce
@@ -239,7 +241,7 @@ the evidence name source is already registered
 Read it as follows. `source: "user"` with `change: "verbatim"` says the agent copied the user's address exactly.
 `contract: "none"` says nothing stated the format the tool wanted. `tool_failed: true` and `next_action:
 "asked_user"` say the tool refused the value and the agent asked the user again. Without the question mark the
-next action reads `continued`. `names known: 24 of 45`: 24 names hold a value for this block; the others need inputs it does not carry, such as files or a decision log. A blame rule turns these facts into who is at fault.
+next action reads `continued`. `names known: 25 of 46`: 25 names hold a value for this block; the others need inputs it does not carry, such as files or a decision log. A blame rule turns these facts into who is at fault.
 
 ## Common errors
 
