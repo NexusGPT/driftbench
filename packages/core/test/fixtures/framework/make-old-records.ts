@@ -24,4 +24,6 @@ for (const { spec } of await loadAcmeConversations()) {
     );
   }
 }
-process.stdout.write(`${JSON.stringify({ note: "Run records as origin/main <commit> writes them, by make-old-records.ts.", records })}\n`);
+process.stdout.write(
+  `${JSON.stringify({ note: 'Run records as origin/main <commit> writes them, by make-old-records.ts.', records })}\n`,
+);
