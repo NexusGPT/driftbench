@@ -11,13 +11,13 @@
 | hidden | 0 |
 <!-- level-table:end -->
 
-Iteration 27, source 51535652bcf2f3d21ffe83d12a2c0471a2658731 plus the change recorded in this journal row. Hidden seed {'seed': 365416082, 'source': 'head', 'head': '51535652bcf2f3d21ffe83d12a2c0471a2658731'}.
+Iteration 28, source 24376949cfecd7adc0ee5cc7094573972b553c84 plus the change recorded in this journal row. Hidden seed 608611209, derived from that head.
 | Seed | Reader passing / items |
 |---|---|
 | 1 | 601/641 |
 | 2 | 601/641 |
-| 3 | 600/641 |
-| hidden (365416082) | 601/641 |
+| 3 | 601/641 |
+| hidden (608611209) | 601/641 |
 
 Each fraction counts reader items passing on that seed, out of 641 reader items. Journal `passing` counts distinct evaluated item IDs passing every seed; it is not a sum of seed counts. The journal's per-level `metrics` use seed 1; its `perSeed` records achieved levels separately.
 
@@ -27,7 +27,7 @@ Estate currently has no configured floor. The owner authorizes raising it in thi
 
 ## Independent review and generalization evidence
 
-PR 509 remains work in progress. An independent overfitting review marks source `9d9db907d` SUSPECT: the gate scanner splits bare filenames at periods and drops legitimate polite/modal directives previously accepted on main. Fix these regressions before other product work. The stage-container patch is set aside, unapplied.
+PR 509 remains work in progress. An independent overfitting review marked source `9d9db907d` SUSPECT: the gate scanner split bare filenames at periods and dropped polite and modal directives that main accepts. Iteration 28 replaces the anchored gate patterns with a clause grammar (docs/estate.md, "Gates are read as clauses"). Code spans, links and quotations are single tokens; clauses end only at a sentence end, a semicolon or a coordinated directive; the lead-in before read must be a directive, not a negated, optional or conditional one. Both audit regressions pass in `packages/estate/test/scan/gate-natural-language.test.ts`. A 76-line hand-written corpus run against main `5354503af` loses no gate main finds correctly; every difference is a correct gain. The stage-container patch is still unapplied.
 
 The same-source comparison on seeds 4 through 8 and fresh hidden 645359431 (derived from `9d9db907d`) reproduces the first four groups' gains on every seed: registry values +4, stage successors +4, reference notation +8, prerequisite forms +11. Candidate reader counts are 601/641 on all six seeds; levels stay 0. Main product counts are 574 on seeds 4, 7 and hidden, and 573 on 5, 6 and 8 because the wide-folder timer fails. No item regresses in that comparison. Timing recoveries are not credited to the product changes. These bank gains do not discharge the independent gate regressions.
 
@@ -79,6 +79,7 @@ Owner rule: "make sure all the fixes are fixes that are TO THE FRAMEWORK in gene
 
 ## Hypotheses tried
 
+Iteration 28: gate clause grammar. No bank change (601 on every seed); it repairs the two audit regressions. A first version read "read it before anything else" as a gate (pronoun target, "anything" taken for an -ing verb) and lost scan.hazards.notification; bounded targets now must be a token or a path, and -thing words are no act.
 Parse prerequisite clauses with directive anchoring, all supported read-order forms and act labels. Eleven gate items improve; scan.hostile.wide-folder times out at 9106ms on seed3 only, retained for investigation.
 Fixed this round: blind.gates.decoy-never-read-before, scan.gates.act-rename, scan.gates.act-update, scan.gates.decoy-example, scan.gates.markdown-link, scan.gates.only-after-form, scan.gates.prior-to-form, scan.gates.question-form, scan.gates.then-form, scan.gates.two-on-one-line, scan.gates.without-form. Regressions: scan.hostile.wide-folder.
 Earlier rounds remain in journal.jsonl. Initial macOS baseline on 14034c6ca is 574/641, level 0 on seeds 1, 2, 3 and hidden 336760492.

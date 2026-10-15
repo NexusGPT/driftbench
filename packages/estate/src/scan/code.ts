@@ -655,107 +655,200 @@ function routeAtoms(
   }
 }
 
-/** A prerequisite is one path notation or a quoted command; the rest of the clause names the act. */
-const GATE_TARGET = String.raw`(\[[^\]\n]*\]\((?:<[^>\n]+>|[^\s)]+)(?:\s+"[^"]*")?\)|\x60[^\x60]+\x60|"[^"]+"|'[^']+'|\S+)`;
-const GATE_FORMS: Array<{ form: string; pattern: RegExp; read: number; act: number }> = [
+/**
+ * Read prerequisites are parsed as clauses. A line is first masked: each inline code span, markdown link
+ * and quotation becomes one opaque token, so a file name, a quoted command or a quoted example is never
+ * split, searched for directive words or mistaken for a rule. The masked line is cut into clauses at
+ * sentence ends, semicolons and coordinated directives (", and read …"), and each clause is matched against
+ * the forms below. The words in front of the verb read (its head) must give a directive: a polite, modal or
+ * adverbial lead-in is kept, while a negated, optional or conditional head ("do not read", "you need not
+ * read", "if you read") gives no gate.
+ */
+const OPEN_TOKEN = '\uE000';
+const CLOSE_TOKEN = '\uE001';
+const TOKEN = String.raw`\uE000\d+\uE001`;
+/** What is read: one masked span, else the words up to the next form word. */
+const TARGET = String.raw`(${TOKEN}|\S+)`;
+const NEGATIVE = String.raw`(?:do\s+not|don't|never|must\s+not|mustn't|should\s+not|shouldn't|cannot|can't|may\s+not)`;
+/** `prose`: the form ends on what is read, so a step in words ("the output of the build") may be read. */
+const GATE_FORMS: Array<{
+  form: string;
+  pattern: RegExp;
+  head: number[];
+  read: number;
+  act: number;
+  prose?: boolean;
+}> = [
   {
     form: 'before-colon-read',
-    pattern: new RegExp(String.raw`^before\s+([^:]+?):\s*read\s+${GATE_TARGET}`, 'i'),
-    read: 2,
-    act: 1,
+    pattern: new RegExp(String.raw`^(.*?)\bbefore\s+([^:]+?)\s*:\s*(.*?)\bread\s+(${TOKEN}|.+)$`, 'i'),
+    head: [1, 3],
+    read: 4,
+    act: 2,
+    prose: true,
   },
   {
     form: 'before-comma-read',
-    pattern: new RegExp(String.raw`^before\s+([^,]+?),\s*read\s+${GATE_TARGET}`, 'i'),
+    pattern: new RegExp(String.raw`^(.*?)\bbefore\s+([^,:]+?)\s*,\s*(.*?)\bread\s+(${TOKEN}|.+)$`, 'i'),
+    head: [1, 3],
+    read: 4,
+    act: 2,
+    prose: true,
+  },
+  {
+    form: 'prior-to-read',
+    pattern: new RegExp(
+      String.raw`^(.*?)\bprior\s+to\s+([^,:]+?)\s*[:,]\s*(.*?)\bread\s+(${TOKEN}|.+)$`,
+      'i',
+    ),
+    head: [1, 3],
+    read: 4,
+    act: 2,
+    prose: true,
+  },
+  {
+    form: 'read-first-then',
+    pattern: new RegExp(String.raw`^(.*?)\bread\s+${TARGET}\s+first,?\s+(?:and\s+)?then\s+(.+)$`, 'i'),
+    head: [1],
     read: 2,
-    act: 1,
+    act: 3,
   },
   {
     form: 'read-before',
-    pattern: new RegExp(String.raw`^read\s+${GATE_TARGET}\s+before\s+(.+)$`, 'i'),
-    read: 1,
-    act: 2,
+    pattern: new RegExp(String.raw`^(.*?)\bread\s+${TARGET}(?:\s+first)?\s+before\s+(.+)$`, 'i'),
+    head: [1],
+    read: 2,
+    act: 3,
   },
   {
     form: 'not-until-read',
     pattern: new RegExp(
-      String.raw`^do not\s+(.+?)\s+until you have read\s+(?:the output of\s+)?${GATE_TARGET}`,
+      String.raw`^(.*?)\b${NEGATIVE}\s+(.+?)\s+until\s+(?:you\s+have\s+|you've\s+|you\s+|after\s+)?(?:read|reading)\s+(?:the\s+output\s+of\s+)?(${TOKEN}|.+)$`,
       'i',
     ),
-    read: 2,
-    act: 1,
-  },
-  {
-    form: 'read-first-then',
-    pattern: new RegExp(String.raw`^read\s+${GATE_TARGET}\s+first,?\s+then\s+(.+)$`, 'i'),
-    read: 1,
+    head: [1],
+    read: 3,
     act: 2,
+    prose: true,
   },
   {
     form: 'not-without-reading',
-    pattern: new RegExp(String.raw`^(?:never|do not|don't)\s+(.+?)\s+without reading\s+${GATE_TARGET}`, 'i'),
-    read: 2,
-    act: 1,
+    pattern: new RegExp(
+      String.raw`^(.*?)\b${NEGATIVE}\s+(.+?)\s+without\s+(?:first\s+)?(?:reading|having\s+read)\s+${TARGET}`,
+      'i',
+    ),
+    head: [1],
+    read: 3,
+    act: 2,
   },
   {
     form: 'only-after-reading',
-    pattern: new RegExp(String.raw`^(.+?)\s+only after reading\s+${GATE_TARGET}`, 'i'),
+    pattern: new RegExp(
+      String.raw`^(.+?)\s+only\s+(?:after|once)\s+(?:you\s+have\s+|you've\s+|having\s+)?(?:reading|read)\s+${TARGET}`,
+      'i',
+    ),
+    head: [],
     read: 2,
     act: 1,
   },
   {
     form: 'question-read-first',
-    pattern: new RegExp(String.raw`^(.+?)\?\s*read\s+${GATE_TARGET}\s+first\b`, 'i'),
-    read: 2,
-    act: 1,
-  },
-  {
-    form: 'prior-to-read',
-    pattern: new RegExp(String.raw`^prior to\s+(.+?),\s*read\s+${GATE_TARGET}`, 'i'),
-    read: 2,
+    pattern: new RegExp(String.raw`^(.+?)\?\s*(.*?)\bread\s+${TARGET}\s+first\b`, 'i'),
+    head: [2],
+    read: 3,
     act: 1,
   },
 ];
 
-/** Separate directives without splitting punctuation inside a path, link or quoted command. */
+/** A clause led by one of these is a condition or a purpose, not the directive itself. */
+const SUBORDINATE =
+  /^(?:if|when|whenever|unless|whether|because|although|though|since|once|while|after|as\s+soon\s+as|in\s+case)\b/;
+/** A head with one of these words lifts the requirement: "do not read", "you need not read", "optionally read". */
+const NEGATED = /\b(?:not|never|no|nor|neither|cannot|optional|optionally)\b|n't\b/;
+
+/** Whether the words before "read" make it a directive: no negation, and not itself a condition. */
+function directiveHead(head: string): boolean {
+  const segments = head
+    .toLowerCase()
+    .replace(/[*_]/g, '')
+    .split(/[,:]/)
+    .map((segment) => segment.trim());
+  const main = segments.pop() ?? '';
+  if (SUBORDINATE.test(main) || NEGATED.test(main)) return false;
+  // A leading condition ("If no objection is raised,") may hold a negation of its own; any other lead-in may not.
+  return segments.every((segment) => SUBORDINATE.test(segment) || !NEGATED.test(segment));
+}
+
+type MaskedLine = { text: string; spans: string[] };
+
+/** Replace code spans, links and quotations with tokens; a code span around one plain word is emphasis. */
+function maskLine(line: string): MaskedLine {
+  const spans: string[] = [];
+  const token = (span: string) => `${OPEN_TOKEN}${spans.push(span) - 1}${CLOSE_TOKEN}`;
+  const text = line
+    .replace(/`([^`\n]+)`/g, (span, inner: string) => (/^[A-Za-z]+$/.test(inner) ? inner : token(span)))
+    .replace(/\[[^\]\n]*\]\((?:<[^>\n]+>|[^\s)]+)(?:\s+"[^"]*")?\)/g, token)
+    .replace(/"[^"\n]+"|\u201C[^\u201D\n]+\u201D/g, token)
+    .replace(
+      /(^|[\s(])('[^'\n]+')(?=$|[\s.,;:!?)])/g,
+      (_match, lead: string, span: string) => lead + token(span),
+    );
+  return { text, spans };
+}
+
+function unmask(text: string, spans: readonly string[]): string {
+  let out = text;
+  const pattern = new RegExp(TOKEN, 'g');
+  // A link's text may hold a masked code span: unmask until no token is left.
+  while (pattern.test(out)) {
+    pattern.lastIndex = 0;
+    out = out.replace(pattern, (token) => spans[Number(token.slice(1, -1))] ?? '');
+  }
+  return out;
+}
+
+/** Cut a masked line into directive clauses; masked spans are never cut. */
 function gateClauses(text: string): string[] {
   const clauses: string[] = [];
   let start = 0;
-  let quote = '';
-  let parentheses = 0;
   for (let index = 0; index < text.length; index++) {
     const char = text[index];
-    if (quote) {
-      if (char === quote && text[index - 1] !== '\\') quote = '';
-      continue;
-    }
-    if (char === '`' || char === '"' || (char === "'" && !/\w/.test(text[index - 1] ?? ''))) {
-      quote = char;
-      continue;
-    }
-    if (char === '(') parentheses++;
-    if (char === ')') parentheses = Math.max(0, parentheses - 1);
-    if (
-      parentheses === 0 &&
-      (char === ';' || ((char === '.' || char === '!') && /\s|$/.test(text[index + 1] ?? '')))
-    ) {
-      // A numbered list or a rule label is a prefix, not a complete directive.
-      const prefix = text
-        .slice(start, index + 1)
-        .replace(/[*`]/g, '')
-        .trim();
-      if (char === '.' && /^(?:[-+]\s*)?(?:\d+|[A-Z]+#?\d+)\.$/i.test(prefix)) continue;
-      clauses.push(text.slice(start, index));
-      start = index + 1;
-    }
+    const next = text[index + 1];
+    const end = char === ';' || ((char === '.' || char === '!') && (next === undefined || /\s/.test(next)));
+    if (!end) continue;
+    const prefix = text
+      .slice(start, index + 1)
+      .replace(/[*`]/g, '')
+      .trim();
+    // A numbered list, a rule label or an abbreviation ("e.g.") is not the end of a directive.
+    if (char === '.' && /^(?:[-+]\s*)?(?:\d+|[A-Z]+#?\d+)\.$/i.test(prefix)) continue;
+    if (char === '.' && /\b(?:e\.g|i\.e|etc|vs|cf)\.$/i.test(prefix)) continue;
+    clauses.push(text.slice(start, index));
+    start = index + 1;
   }
   clauses.push(text.slice(start));
-  return clauses.map((clause) =>
-    clause
-      .replace(/\*\*/g, '')
-      .replace(/^\s*(?:[-+*]\s+)?(?:\d+[.)]\s+)?(?:[A-Z]+#?\d+[.:]\s+)?/i, '')
-      .trim(),
-  );
+  return clauses
+    .flatMap((clause) => clause.split(/,\s*(?:and|but)\s+(?=\S)/i))
+    .map((clause) =>
+      clause
+        .replace(/\*\*/g, '')
+        .replace(/^\s*(?:[-+*]\s+)?(?:\d+[.)]\s+)?(?:[A-Z]+#?\d+[.:]\s+)?/i, '')
+        .trim(),
+    )
+    .filter((clause) => clause !== '');
+}
+
+/**
+ * The thing to read: a masked span, else a path-like word, else (where the form allows) the words of the
+ * clause, a step to run. A bare word such as "it" or "them" names nothing to read first.
+ */
+function gateTarget(raw: string, spans: readonly string[], prose: boolean): string {
+  const text = raw.trim();
+  const span = new RegExp(`^${TOKEN}`).exec(text);
+  if (span) return unmask(span[0], spans);
+  const word = /^\S+/.exec(text)?.[0] ?? '';
+  if (/[/\\]|\.[A-Za-z0-9]+[.,:;!?)]*$/.test(word)) return word.replace(/[.,:;!?)]+$/, '');
+  return prose ? unmask(text, spans).replace(/[.,:;!?]+$/, '') : '';
 }
 
 function gateAtoms(
@@ -765,15 +858,21 @@ function gateAtoms(
   builder: AtomBuilder,
 ): void {
   for (const line of chunkLines(chunk, files.get(chunk.file))) {
-    for (const clause of gateClauses(line.text)) {
-      for (const { form, pattern, read, act } of GATE_FORMS) {
+    const { text, spans } = maskLine(line.text);
+    for (const clause of gateClauses(text)) {
+      for (const { form, pattern, head, read, act, prose } of GATE_FORMS) {
         const match = pattern.exec(clause);
         if (!match) continue;
-        const target = match[read] ?? '';
-        const first = namedPaths(`Read ${target}`)[0] ?? target.replace(/[`*"']/g, '').trim();
-        const trigger = (match[act] ?? '').replace(/[`*]/g, '').trim();
+        if (!head.every((group) => directiveHead(unmask(match[group] ?? '', spans)))) continue;
+        const target = gateTarget(match[read] ?? '', spans, prose === true);
+        const named = namedPaths(`Read ${target}`)[0];
+        const first = named ?? target.replace(/[`*"'\u201C\u201D]/g, '').trim();
+        const trigger = unmask(match[act] ?? '', spans)
+          .replace(/[`*]/g, '')
+          .trim();
         if (first === '' || trigger === '' || !isAct(trigger)) continue;
-        const isFile = /\.[A-Za-z0-9]+$/.test(first) && !/\s/.test(first);
+        // A file is a path the reference tokenizer accepts (a code span may hold spaces), else one bare word.
+        const isFile = /\.[A-Za-z0-9]+$/.test(first) && (named !== undefined || !/\s/.test(first));
         const located = isFile
           ? locateNamed(first, chunk.file, files, {
               bases: raw.bases ?? [],
@@ -856,10 +955,14 @@ function isAct(trigger: string): boolean {
   const words = trigger
     .toLowerCase()
     .replace(/^(you|we|i|the agent|the assistant)\s+/, '')
+    // "before you can edit": a modal after the subject is not the act.
+    .replace(/^(?:can|may|must|should|will|shall)\s+/, '')
     .split(/\s+/);
   const first = words[0] ?? '';
   // An -ing form names an act in a gate (matching a line, posting a reply); else a verb of the list.
-  if (ACT_VERBS.has(first) || (first.length > 5 && first.endsWith('ing'))) return true;
+  // "anything", "something": a pronoun, not an -ing form.
+  if (ACT_VERBS.has(first) || (first.length > 5 && first.endsWith('ing') && !first.endsWith('thing')))
+    return true;
   // "every ticket edit", "each change": an act named as a noun after a quantifier.
   return ['every', 'each', 'any'].includes(first) && words.slice(1).some((word) => ACT_VERBS.has(word));
 }
