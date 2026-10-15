@@ -1,10 +1,10 @@
 ---
 title: Checks on tool calls
-summary: "The machine checks that read the agent's tool calls: tools (count, input assertions, the value-check ladder and compare, input_closed, argument accuracy), tool_order, forbidden tools and call caps, tools_offered, tool_f1, schema_strict, sql, the value assertion forms, and the run-wide tool policy."
-commands:
-  - campaign run
-  - replay
+summary: "The machine checks on tool calls: tools with the value-check ladder and compare, tool_order, forbidden tools, call caps, tools_offered, tool_f1, schema_strict, sql and the tool policy."
+commands: []
 see_also:
+  - running-campaign-run
+  - validate-estate-replay
   - judging-machine-checks
   - judging-check-text
   - judging-check-runtime
@@ -16,7 +16,7 @@ next:
 
 These checks compare the tool calls the adapter recorded in a block with what the block expects. A tool is named by its `label`, the name the adapter reports. Each check is turned on by a field of `expect`, of the spec's `rules`, or `metadata.tool_schemas`, and makes no model call of its own: the only model the `tools` check can use is a same-referent judge you configure, and none is configured by default.
 
-An input value the block names is decided by the value-check ladder, not by string equality: a value that differs from the expected one is right when it has the same effect where it is used. The ladder asks the tool, the tool's stated contract, the source the agent copied the value from, and a calibrated judge, in that order, and never a rule per value type (phone, email, address).
+An input value the block names is decided by the value-check ladder, not by string equality: a value that differs from the expected one is right when it has the same effect where it is used. The ladder asks, in order: the tool, the tool's stated contract, the source the agent copied the value from, and a calibrated judge. It never uses a rule per value type, such as phone, email or address.
 
 ## When to use it
 
@@ -82,7 +82,12 @@ A spec or a block runs another policy with `uses.value_check`: an object id, or 
 
 A value the judge passes differs from the expected one only in its writing, and no contract states that writing: the check adds `tools.<label>.input.<field>.unstated_format`, not gating, which flags the test. Declare the format in the tool (a `pattern` or an `enum`) or drop it from the block.
 
-The CLI runs the ladder with no replayer and no judge. From code, `defaultChecks({ valueCheck: { services: { replayer, judge } } })` or `createToolsCheck({ policy, services })` of `@agent-nexus/driftbench-checks` adds them: a replayer declares, per tool, the output fields that are its resolved result and, for a tool that also keeps values as given, the inputs it resolves (the Acme example exports one, `acmeReplayer`: its order tool resolves the plan, not the customer's email); a judge is a model function plus its measured calibration (`recordedJudgeModel` replays recorded calls). The research behind the ladder: on the 259 stored H1 runs of the Acme sales agent, the tool settles 59 of the 116 format-only failures (49 pass, 10 fail where `Ln` does not resolve), with 0 false passes and 0 false fails against two labellers.
+The CLI runs the ladder with no replayer and no judge. From code, `defaultChecks({ valueCheck: { services: { replayer, judge } } })` or `createToolsCheck({ policy, services })` of `@agent-nexus/driftbench-checks` adds them:
+
+- A replayer declares, per tool, the output fields that are its resolved result. For a tool that also keeps values as given, it declares the inputs the tool resolves. The Acme example exports one, `acmeReplayer`: its order tool resolves the plan, not the customer's email.
+- A judge is a model function plus its measured calibration. `recordedJudgeModel` replays recorded calls.
+
+The research behind the ladder used the 259 stored H1 runs of the Acme sales agent. The tool settled 59 of the 116 format-only failures: 49 pass, and 10 fail where `Ln` does not resolve. Against two labellers, it gave 0 false passes and 0 false fails.
 
 The supported schema keywords are `type`, `enum`, `const`, `required`, `properties`, `additionalProperties`, string, number and list bounds, `pattern`, `items`, `nullable`, `anyOf`, `oneOf` and `allOf`, plus the annotations `title`, `description`, `default`, `examples`, `$schema`, `$id`, `$comment`. Others (`$ref`, `not`, `format`, `if`, `patternProperties`, `uniqueItems`, `multipleOf`, tuple `items`) are refused when the spec loads.
 
@@ -200,7 +205,7 @@ The run fails on `tools.coverage.check.count`, `tools.order`, `tool_f1.f1` and `
 
 ### Values the agent wrote
 
-A second scratch spec: the customer gives a phone number in block 3, the Acme agent stores it on the lead as `+12025550131`, and the block expects the writing `(202) 555-0131`, once with the default `compare` and once declared exact. `notify_sales` only stores the value, the CLI configures no judge, and nobody wrote `(202) 555-0131`, so the default comparison falls back to the exact compare and lints the test; the declared exact one fails, with its reason:
+A second scratch spec. The customer gives a phone number in block 3, and the Acme agent stores it on the lead as `+12025550131`. The block expects the writing `(202) 555-0131`, once with the default `compare` and once declared exact. `notify_sales` only stores the value, the CLI configures no judge, and nobody wrote `(202) 555-0131`. So the default comparison falls back to the exact compare and lints the test. The declared exact one fails, with its reason:
 
 ```yaml file=values-demo.yaml
 # Fictional data. The second expectation of block 3 repeats the first with an exact compare.
@@ -257,6 +262,113 @@ block 3 tools.argument_accuracy fail (not gating): 0 of 2 expected arguments mat
 
 The first expectation fails on the exact fallback and names the deciders that would settle it: a judge configured from code would pass it, and then add the `unstated_format` lint, since no contract asks for `(202) 555-0131`. The second fails on the declared writing.
 
+### A value the user gave, and a policy for one spec
+
+Here the block expects the phone exactly as the customer typed it, `202 555 0131`. The agent wrote `+12025550131`. Under the shipped policy, `rung2b_as_given` fails the value: the agent changed what the user gave. The second spec turns that item off with an inline object, so the value falls back to the exact compare. The third writes a `compare` mode that does not exist:
+
+```yaml file=values/as-given.yaml
+# Fictional data. The block expects the phone as the customer typed it.
+id: as-given
+target: { adapter: function, agent: acme-sales }
+ledger_seed: { customer: new, lang: EN }
+stages: [address, offer, details, recap, order_placed, callback, handover, closing]
+blocks:
+  - user: Hello, I'm new here and looking for home internet.
+  - user: 88 Summit Avenue, Acmeville
+  - user: I really want fiber. Can someone call me when it arrives?
+  - user: 'My number is 202 555 0131'
+    expect:
+      tools:
+        - label: notify_sales
+          input:
+            customer: { subset: { phone: '202 555 0131' } }
+```
+
+```yaml file=values/no-as-given.yaml
+# Fictional data. The block expects the phone as the customer typed it.
+id: no-as-given
+target: { adapter: function, agent: acme-sales }
+ledger_seed: { customer: new, lang: EN }
+stages: [address, offer, details, recap, order_placed, callback, handover, closing]
+uses: { value_check: { extends: default, items: [{ id: rung2b_as_given, enabled: false }] } }
+blocks:
+  - user: Hello, I'm new here and looking for home internet.
+  - user: 88 Summit Avenue, Acmeville
+  - user: I really want fiber. Can someone call me when it arrives?
+  - user: 'My number is 202 555 0131'
+    expect:
+      tools:
+        - label: notify_sales
+          input:
+            customer: { subset: { phone: '202 555 0131' } }
+```
+
+```yaml file=values/bad-mode.yaml
+# Fictional data. The block expects the phone as the customer typed it.
+id: bad-mode
+target: { adapter: function, agent: acme-sales }
+ledger_seed: { customer: new, lang: EN }
+stages: [address, offer, details, recap, order_placed, callback, handover, closing]
+blocks:
+  - user: Hello, I'm new here and looking for home internet.
+  - user: 88 Summit Avenue, Acmeville
+  - user: I really want fiber. Can someone call me when it arrives?
+  - user: 'My number is 202 555 0131'
+    expect:
+      tools:
+        - label: notify_sales
+          compare: fuzzy
+          input:
+            customer: { subset: { phone: '202 555 0131' } }
+```
+
+```sh
+driftbench campaign run values/as-given.yaml --no-cache # exit 1
+driftbench campaign run values/no-as-given.yaml --no-cache # exit 1
+driftbench spec validate values/bad-mode.yaml # exit 1
+```
+
+```text
+$ driftbench campaign run values/as-given.yaml --no-cache
+Campaign c-6b2ccbdff576: 1 cell, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, regex, exact, injection, length, markup, starts_with, finish_reason, json, tool_f1, refusal, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+✗ as-given · function:acme-sales · F · repeat 0  fail  block 3 tools.notify_sales.input.customer
+1 cell: 0 pass, 1 fail, 0 failed. Spent $0.00.
+The runs are not kept: pass --store <file> to keep them.
+(exit 1)
+$ driftbench campaign run values/no-as-given.yaml --no-cache
+Campaign c-02314f7eaa68: 1 cell, 4 at a time. Checks: tools, tools_offered, forbidden, must, must_not, regex, exact, injection, length, markup, starts_with, finish_reason, json, tool_f1, refusal, rouge_l, bleu, sql, similarity, relevancy, knowledge_retention, lang, pii, cards, stage, skills, guards, references, subagents, execution, workspace, safety, artifacts, schema_strict, budget, end_state, custom.
+✗ no-as-given · function:acme-sales · F · repeat 0  fail  block 3 tools.notify_sales.input.customer
+1 cell: 0 pass, 1 fail, 0 failed. Spent $0.00.
+The runs are not kept: pass --store <file> to keep them.
+(exit 1)
+$ driftbench spec validate values/bad-mode.yaml
+✗ values/bad-mode.yaml
+    blocks.3.expect.tools.0.compare  SCHEMA_INVALID_UNION  Invalid input
+Checked 1 spec: 0 valid, 1 invalid, 0 warnings.
+(exit 1)
+```
+
+```sh setup
+tsx packages/cli/src/bin.ts campaign run values/as-given.yaml --no-cache --json | node show.mjs pii.,lang.,stage.,flow.,forbidden.,tools.coverage
+tsx packages/cli/src/bin.ts campaign run values/no-as-given.yaml --no-cache --json | node show.mjs pii.,lang.,stage.,flow.,forbidden.,tools.coverage
+```
+
+```text
+$ tsx packages/cli/src/bin.ts campaign run values/as-given.yaml --no-cache --json | node show.mjs pii.,lang.,stage.,flow.,forbidden.,tools.coverage
+block 3 tools.notify_sales.count pass: notify_sales called 1 time, expected at least 1
+block 3 tools.notify_sales.input.customer fail: notify_sales call 1 (call-1): input.customer is {"phone":"+12025550131"}; expected holding at least {"phone":"202 555 0131"} (call 1 (call-1): customer.phone rung2b_as_given: the agent was given "202 555 0131" and wrote "+12025550131": it changed the value)
+block 3 tools.argument_accuracy fail (not gating): 0 of 1 expected argument matched; missed: notify_sales input.customer
+(exit 0)
+$ tsx packages/cli/src/bin.ts campaign run values/no-as-given.yaml --no-cache --json | node show.mjs pii.,lang.,stage.,flow.,forbidden.,tools.coverage
+block 3 tools.notify_sales.count pass: notify_sales called 1 time, expected at least 1
+block 3 tools.notify_sales.input.customer fail: notify_sales call 1 (call-1): input.customer is {"phone":"+12025550131"}; expected holding at least {"phone":"202 555 0131"} (call 1 (call-1): customer.phone exact_fallback: no decider configured for notify_sales.customer.phone; compared exactly: "+12025550131" is not "202 555 0131" (rung3_same_referent: no same-referent judge is configured))
+block 3 tools.notify_sales.input.customer.no_decider fail (not gating): test lint: nothing could decide whether "+12025550131" names the same thing as "202 555 0131" for notify_sales.customer.phone, so it was compared exactly; it would be settled by a replayer that declares notify_sales and resolves customer.phone (rung1_outcome), or a pattern or an enum for customer.phone in metadata.tool_schemas (rung2_contract), or a calibrated same-referent judge (rung3_same_referent)
+block 3 tools.argument_accuracy fail (not gating): 0 of 1 expected argument matched; missed: notify_sales input.customer
+(exit 0)
+```
+
+Both runs fail block 3, for two reasons. Under the shipped policy, `rung2b_as_given` names the change: the agent was given one writing and wrote another. With that item off, nothing settles the value, so it fails on the exact fallback with the `no_decider` lint. `compare: fuzzy` is refused when the spec loads.
+
 ## Common errors
 
 * `TOOL_FORBIDDEN_EXPECTED` when the spec loads: a block expects a tool that `rules.forbidden_tools` forbids, or that `max_calls` caps at 0.
@@ -269,4 +381,8 @@ The first expectation fails on the exact fallback and names the deciders that wo
 * `tools.<label>.input.<field>` inconclusive: a configured judge could not decide (its votes split, or its call failed).
 * `tools.<label>.input.<field>` fails with `the agent was given ... and wrote ...`: the user wrote the expected value and the agent changed it, a reformatting included (`rung2b_as_given`).
 * `tools.<label>.input.<field>.unstated_format`: the block demands a writing nobody stated to the agent; the agent passed. Declare the format in the tool or relax the block.
-* `the value-check policy ... cannot run` when the check is built: a policy names a rung no implementation provides, a `when` reads an unknown evidence name, or its `order` is not every item once.
+* `the value-check policy <id> cannot run: <problems>` (thrown when `createToolsCheck` is built from code), or the verdict `tools.value_check` fail with `the value-check object <ref> cannot run: <problems>`. A problem reads `<item>: no rung implements <impl>`, or `order must name every item once: <order>`, or names a `when` that reads an unknown evidence name. Fix the object: one known implementation per item, every item once in `order`.
+* The verdict `tools.value_check` fail with `the value-check object this block uses cannot resolve: <reason>`: the object `uses.value_check` names does not resolve.
+* `blocks.<n>.expect.tools.<m>.compare  SCHEMA_INVALID_UNION  Invalid input` from `spec validate`: a `compare` mode that does not exist. Use `auto`, `outcome`, `contract`, `as_given`, `same_referent` or `{ exact: <reason> }`, alone or by argument name.
+* `uses.value_check  OBJECT_UNKNOWN  ... unknown object policy/value-check:default; searched layers shipped, project, suite, spec, block, cli` from `spec validate`: in this release the spec commands do not load the shipped value-check object. A run loads it, so `campaign run` accepts the same spec.
+* `StoreError: store: putSpec refused an invalid spec: uses.value_check: ... unknown object policy/value-check:<id>` from `campaign run`: a project object under `driftbench/policy/value-check/` is not read by the tools check in this release. Write the object inline in the spec's or the block's `uses`.
