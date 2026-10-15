@@ -25,6 +25,14 @@ Each fraction counts reader items passing on that seed, out of 641 reader items.
 
 Estate currently has no configured floor. The owner authorizes raising it in this PR at each level reached on seeds 1, 2, 3 and hidden, following the documented floor procedure. Never lower a floor or change validator items.
 
+## Independent review and generalization evidence
+
+PR 509 remains work in progress. An independent overfitting review marks source `9d9db907d` SUSPECT: the gate scanner splits bare filenames at periods and drops legitimate polite/modal directives previously accepted on main. Fix these regressions before other product work. The stage-container patch is set aside, unapplied.
+
+The same-source comparison on seeds 4 through 8 and fresh hidden 645359431 (derived from `9d9db907d`) reproduces the first four groups' gains on every seed: registry values +4, stage successors +4, reference notation +8, prerequisite forms +11. Candidate reader counts are 601/641 on all six seeds; levels stay 0. Main product counts are 574 on seeds 4, 7 and hidden, and 573 on 5, 6 and 8 because the wide-folder timer fails. No item regresses in that comparison. Timing recoveries are not credited to the product changes. These bank gains do not discharge the independent gate regressions.
+
+Owner rule: "make sure all the fixes are fixes that are TO THE FRAMEWORK in general and not just fixes that are overfitting to the problem to make the test pass". Each fix must state its general behavior with a product-doc line, avoid bank identifiers/seeds/fixture strings in product code, have independent non-bank product tests, and report seeds 4 through 8 plus a fresh hidden seed in PR 509. The owner controls merge after independent review and green CI.
+
 ## Open items
 
 - scan.registry.md-label-lowercase: [scan.registry, tier 3] the guard enforces the rules of a label written in lower case: missed the enforces edge scan.registry.md-label-lowercase:guard to scan.registry.md-label-lowercase:rule0
