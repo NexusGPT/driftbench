@@ -31,7 +31,7 @@
 driftbench is an open-source evaluation framework for AI agents: chat agents, and agents that write code and files. You describe a conversation or a task as a list of **blocks**. A block is one user message, everything the agent does in reply, and what must be true afterwards. driftbench runs the blocks against your agent, checks each one, and reports every rate with its interval.
 
 - **A failure has an address.** A failing run names the block, the check and the evidence, such as `block 1 forbidden.order.create`.
-- **You are told when a score is noise.** Every rate carries a 95% interval, and the gate says how many test conversations your suite needs before it can show anything.
+- **You are told when a score is noise.** Every rate carries a 95% interval, and the gate says how many test conversations your suite needs before it can show anything. Repeats of one conversation are not independent runs, so a rate over them is read through its design effect (Wilson on the effective sample), and the headline of a suite is the mean over conversations with a hierarchical interval. See [statistics](docs/concepts/statistics.md#the-suite-headline).
 - **The tests are not written by hand.** Code generates them from a map of what the agent can face, and counts what they cover.
 - **The evaluator is tested too.** driftbench checks its own scores on cases where the right answer is known.
 
