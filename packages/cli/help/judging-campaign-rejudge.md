@@ -24,7 +24,7 @@ Before any judge call, it proves the stored observations still fit the new specs
 
 * A rubric was sharpened, for example after calibration, and the old runs must be judged again under it without new agent calls.
 * A criterion became gating, or changed scope or judge class.
-* A project or suite object changed (a check disabled in a check set, a policy item set), or one is tried with `--use`, and the stored runs must be scored under it without new agent calls.
+* A project or suite object changed, such as a check disabled in a check set or a policy item set. Or you try one with `--use`. The stored runs are then scored under it with no new agent call.
 * Not for a new prompt, model, tool, check or spec structure: use `campaign run`, with `--change` for the blast radius.
 * Legacy, partial, injected or adaptive runs, unknown seeds and task artifact reads are refused with a full-rerun instruction.
 
@@ -50,6 +50,26 @@ driftbench campaign rejudge <paths...> --from <campaign> --campaign <new-id> --s
 | `--max-carry <n>` | The most campaigns in a row a result may be carried, a whole number from 0. | `5` |
 | `--max-age <days>` | The most days since a carried observation was measured, at least 0. | `7` |
 | `--json` | Print the summary as JSON. | off |
+| `--judges <cassette>` | Add every judge of this recording as a player: no call. | none |
+| `--judge-mode <mode>` | The council mode: `system1`, `hybrid` or `llm`. | from the judge classes |
+| `--assignments <file>` | The council assignment table `judge calibrate` wrote. | none |
+| `--cascade` | Run the cheapest judge first and stop on a sure pass. | off |
+| `--weights <weights>` | Council vote weights, `judge=weight,...` or a YAML file. | none |
+| `--judge-route <route>` | `escalation`: route each call through a label-blind router. | none |
+| `--route-first <judge>` | With `--judge-route escalation`: the judge that answers first. | none |
+| `--route-then <judge>` | With `--judge-route escalation`: a judge asked when a trigger fires; repeat it. | none |
+| `--route-on <triggers>` | The escalation triggers, comma separated. | `order-split,inconclusive,reference-disagreement,low-confidence` |
+| `--route-confidence <p>` | The low-confidence bar, from 0 to 1. | `0.5` |
+| `--route-decide <rule>` | `majority` or `first-stands`. | `majority` |
+| `--panel-weights <weights>` | A weighted panel of every judge; a thin margin abstains. | none |
+| `--panel-margin <share>` | With `--panel-weights`: the smallest winning margin, a share of the total weight. | `0.3` |
+| `--reference-solve <kind:model>` | Solve each question blind first, and judge against the agreed answer. | none |
+| `--reference-samples <n>` | With `--reference-solve`: how many solves, from 1 to 20. | `5` |
+| `--reference-route <route>` | With `--reference-solve`: `auto` solves only a question with one checkable answer. | none |
+| `--verify <kind>` | `arithmetic`: check explicit equations in the reply, in a bounded sandbox, before the judge reads it. | none |
+| `--prompt-budget <chars>` | Drop the oldest transcript entries until the judge prompt fits; the last block stays. | none |
+| `--record <cassette>` | Save every live judge answer as a cassette, to replay with `--judges`. | none |
+| `--agent-family <family>` | The model family of the agent under test: a judge of that family is refused. `none` for no model. | none |
 
 Exit codes:
 
@@ -77,7 +97,7 @@ changes:
 ## Outputs and how to read them
 
 * Text: `Campaign <id>: <r> blocks re-judged, <c> carried; 0 agent calls. Judge cost <usd> USD.`
-* Text, re-score: `Campaign <id>: <n> blocks re-scored under <flags>; 0 agent calls, 0 judge calls.` With `--json`: `campaign`, `from`, `agentCalls` (always 0), `rescored`, `use`, `set`. Each re-scored block keeps its observation, gets new verdicts stamped with the objects that scored them (`by`), records those objects in `resolved`, and carries a `rejudged` stamp with no criterion; judge verdicts and the runner's flow and ledger verdicts are kept.
+* Text, re-score: `Campaign <id>: <n> blocks re-scored under <flags>; 0 agent calls, 0 judge calls.` With `--json`: `campaign`, `from`, `agentCalls` (always 0), `rescored`, `use`, `set`. Each re-scored block keeps its observation and gets new verdicts, stamped with the objects that scored them (`by`). It records those objects in `resolved`, and carries a `rejudged` stamp with no criterion. Judge verdicts and the runner's flow and ledger verdicts are kept.
 * `--json`: `campaign`, `from`, `agentCalls` (always 0), `rejudged`, `carried`, `judgeCostUsd`.
 * The store gains the new specs, the new campaign (judge mode `llm`, the judge label, a `rejudged` stamp per run) and one run per baseline run. Judge calls count in the new runs' cost; the agent's historical cost is not charged again.
 * Errors print the reason on stderr with exit 2.
@@ -132,7 +152,7 @@ $ driftbench campaign rejudge rejudge/plan-upgrade.yaml --from acme-before --cam
 
 `no_invented_data` is named by 2 of the 5 blocks, so those 2 are re-judged and 3 carried. The stand-in reports 0.0015 USD per call.
 
-A re-score: a project check set that leaves out `must`, a baseline stored under it, and the same campaign re-scored with `--use`, with no agent and no judge call:
+A re-score: a project check set leaves out `must`, and a baseline is stored under it. The same campaign is then re-scored with `--use`, with no agent and no judge call:
 
 ```sh setup
 mkdir -p rescore/specs rescore/driftbench/check-set
@@ -181,3 +201,4 @@ run-profile is agent-facing: a change to it changes what the agent receives; rer
 * `Re-judge needs --change <manifest> (criteria), or --use / --set (a scoring-only object change).` (exit 2).
 * `--use <flag>: expected <kind>/<id>, such as policy/blame/acme` (exit 2). Name a known kind and an id.
 * `error: a judge on a command that is not a stand-in is billed: pass --judge-budget <usd>` (exit 2). Add a budget.
+* `StoreError: store: putSpec refused an invalid spec: uses.check_set: ... unknown object check-set:<id>` from `campaign run`, with a stack trace: the spec's own `uses` names a project check set by id. In this release, choose project objects with a `uses.yaml` file, as the worked example does, or write the object inline.
