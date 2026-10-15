@@ -1,4 +1,5 @@
 import type { Message } from '@agent-nexus/driftbench-core';
+import { historyOutput } from '../anthropic/common';
 
 /**
  * The tool history compiler: one pass over a history that pairs each recorded call with its result and gives
@@ -9,7 +10,8 @@ import type { Message } from '@agent-nexus/driftbench-core';
  *
  * Pairing rules, the ones the wires enforce:
  * - Every call has a result: its recorded output, its recorded error, or, for a call recorded with neither,
- *   the value `UNRECORDED_OUTPUT` stands for. A result always follows its own call, in the same order.
+ *   what `historyOutput` sends for a call that recorded neither (the run modes page quotes it). A result
+ *   always follows its own call, in the same order.
  * - The calls of one assistant message have distinct ids. A recorded id that repeats one earlier in the same
  *   message gets a fresh id, so the wire can pair each result with its call; the neutral history already
  *   pairs them, so no meaning changes. An id repeated across messages is kept: the wires accept it.
@@ -18,7 +20,7 @@ import type { Message } from '@agent-nexus/driftbench-core';
 
 /** What a history call returned, as the wire carries it. */
 export type HistoryResult =
-  | { readonly kind: 'output'; readonly value: unknown; readonly recorded: boolean }
+  | { readonly kind: 'output'; readonly value: unknown }
   | { readonly kind: 'error'; readonly message: string };
 
 /** One recorded call, paired with its result and the id the wire receives. */
@@ -41,19 +43,19 @@ export type HistoryIds = {
   clean?: (id: string) => string;
   /** `keep` (default): the recorded ids. `rekey`: a fresh id for every call. */
   policy?: 'keep' | 'rekey';
+  /**
+   * Whether a call recorded with no id gets a fresh one. Default true. False suits a wire whose ids are
+   * optional (Gemini): such a call stays without one, and only a repeated id is replaced.
+   */
+  fillMissing?: boolean;
 };
-
-/**
- * What a call recorded with neither an output nor an error is sent as. The call stays a call with a
- * result, so the history stays paired.
- */
-export const UNRECORDED_OUTPUT: unknown = null;
 
 /** The result of one recorded call. */
 export function resultOf(call: NonNullable<Message['tool_calls']>[number]): HistoryResult {
   if (call.error !== undefined) return { kind: 'error', message: call.error };
-  if (call.output !== undefined) return { kind: 'output', value: call.output, recorded: true };
-  return { kind: 'output', value: UNRECORDED_OUTPUT, recorded: false };
+  // The unrecorded-result rule lives in `historyOutput`; the call stays a call with a result, so the history
+  // stays paired.
+  return { kind: 'output', value: historyOutput(call) };
 }
 
 /**
@@ -89,10 +91,11 @@ export class HistoryCompiler {
     taken: ReadonlySet<string>,
     reserved: ReadonlySet<string>,
   ): string | undefined {
-    const { fallback, count = 'fresh', policy = 'keep' } = this.ids;
+    const { fallback, count = 'fresh', policy = 'keep', fillMissing = true } = this.ids;
     if (count === 'every') this.counter++;
     if (policy === 'keep' && kept !== undefined && !taken.has(kept)) return kept;
     if (!fallback) return kept;
+    if (policy === 'keep' && kept === undefined && !fillMissing) return undefined;
     if (count === 'fresh') this.counter++;
     const base = fallback(this.counter);
     let fresh = base;

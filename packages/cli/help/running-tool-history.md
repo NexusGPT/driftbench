@@ -1,6 +1,6 @@
 ---
 title: Tool history on the wire
-summary: 'How the tool calls of a history reach a model: as paired call and result records with ids the wire accepts, never as prose. Why crewai refuses a prefix with tool calls.'
+summary: 'How the tool calls of a history reach a model: as paired call and result records with ids the wire accepts, never as prose. When crewai refuses a prefix with tool calls.'
 commands:
   - spec validate
 see_also:
@@ -15,7 +15,7 @@ next:
 
 ## What it is
 
-A block can start from a history that holds tool calls: a `given.prefix` you write or import, the canonical history of mode T, or the agent's own earlier turns in modes F and P. Each recorded call has a `label`, an optional `id`, an `input`, and an `output` or an `error`.
+A block can start from a history that holds tool calls. That history is a `given.prefix` you write or import, the canonical history of mode T, or the agent's own earlier turns in modes F and P. Each recorded call has a `label`, an optional `id`, an `input`, and an `output` or an `error`.
 
 An adapter that sends the history to a model turns each recorded call into that model's own tool records, never into text:
 
@@ -24,7 +24,7 @@ An adapter that sends the history to a model turns each recorded call into that 
 | `anthropic` | a `tool_use` block | a `tool_result` block, `is_error` for an error |
 | `openai-agents` | a `function_call` item | a `function_call_result` item |
 | `http` and `litellm` (chat completions) | an entry of `tool_calls` | a `tool` message with its `tool_call_id` |
-| `google` | a `functionCall` part | a `functionResponse` part, paired by name |
+| `google` | a `functionCall` part | a `functionResponse` part with the same name, and the same id when the call has one |
 | `langgraph`, `pydantic-ai`, `vercel-ai` | the framework's tool call shape | the framework's tool result shape |
 
 One compiler pairs every call with its result before any of these adapters renders it. The rules are the ones the model wires enforce:
@@ -32,7 +32,7 @@ One compiler pairs every call with its result before any of these adapters rende
 * **Every call has a result.** The result is the recorded output or the recorded error. When the history recorded neither, it is the value the adapter sends for an unrecorded result. A result follows its own call, in the same order.
 * **The calls of one assistant turn have distinct ids.** A recorded id that repeats an id of the same turn gets a fresh id. Its result still answers it. The Acme agent numbers its calls from `call-1` in every turn, so this happens.
 * **An id repeated in another turn is kept.** The wires accept it.
-* **A call recorded with no id gets the adapter's fallback id.** A wire's own character rules apply first: `anthropic` turns each character outside letters, digits, `_` and `-` into `_`.
+* **A call recorded with no id gets the adapter's fallback id.** `google` is the exception: such a call stays without an id. A wire's own character rules apply first: `anthropic` turns each character outside letters, digits, `_` and `-` into `_`.
 * **A `tool` message that answers no call goes as user text.** This is a free tool note, such as `role: tool` with only `content`. Chat completions refuse a `tool` message without its call.
 
 The fallback ids, numbered from 1 in the order of the history:
@@ -42,15 +42,15 @@ The fallback ids, numbered from 1 in the order of the history:
 | `anthropic` | `toolu_h<n>` | every call |
 | `http`, `litellm` | `call-h<n>` | each call that needs a fresh id |
 | `openai-agents`, `langgraph`, `pydantic-ai`, `vercel-ai` | `call_h<n>` | each call that needs a fresh id |
-| `google` | none: calls keep their recorded id or go without one | nothing |
+| `google` | `call_h<n>`, only for a call whose recorded id repeats one of the same turn. A call with no id stays without one | each call that needs a fresh id |
 
 A fresh id never takes an id that a call of the same turn already holds.
 
-Nothing else changed. Every history of the example specs renders byte for byte as before on all seven wires: 539 histories were compared when the compiler landed. Spec hashes, Given hashes, cache keys, cassettes and recorded results are unchanged. A rendering changes only in two cases the wires refused before: a repeated id in one turn, and a free tool note on chat completions.
+Nothing else changed. Every history of the example specs renders byte for byte as before on all seven wires: 539 histories were compared when the compiler landed. Spec hashes, Given hashes, cassettes and recorded results are unchanged. A block cache key changes only for a block whose Given states an origin: the key now holds how many messages the origin covers. That block runs again once, and never replays a wrong result. A rendering changes only in two cases the wires refused before: a repeated id in one turn, and a free tool note on chat completions.
 
 ### crewai
 
-The crewai adapter hands the history to the crew as text inputs. With its default inputs, a recorded call would reach the crew's agents as prose, which is a different test. So it refuses a Given prefix that holds recorded tool calls, before the crew starts. Pass the adapter's `inputs` option to hand the calls to the crew your own way: then nothing is refused.
+The crewai adapter hands the history to the crew as text inputs. With its default inputs, a recorded call would reach the crew's agents as prose, which is a different test. So it refuses a Given prefix whose tool calls the spec states as a record, before the crew starts. That means `given.origin` is `recorded` or `authored`. It counts only the messages the spec wrote. A canonical prefix (mode T), a prefix with no origin, and the canonical calls mode T adds after a written prefix run as before. Pass the adapter's `inputs` option to hand the calls to the crew your own way: then nothing is refused.
 
 ### Adapters that send no history
 
@@ -67,9 +67,9 @@ Read this topic when:
 * you write a `given.prefix` with tool calls, and want to know what the model reads;
 * a recorded or imported history numbers its calls the same way in one turn;
 * a prefix holds a `role: tool` message with no call;
-* you run a crew through the crewai adapter with a prefix that holds tool calls.
+* you run a crew through the crewai adapter with a `recorded` or `authored` prefix that holds tool calls.
 
-You do not need to do anything for the pairing: it runs on every model adapter. Record each call with its `output` or `error`, so the model reads a real result. Do not write a past tool result into the assistant's text instead: that is a prose history, and the agent tends to call the tool again (topic authoring-prefixes, `PREFIX_PROSE_HISTORY`).
+You do not need to do anything for the pairing: it runs on every model adapter. Record each call with its `output` or `error`, so the model reads a real result. Do not write a past tool result into the assistant's text instead. That is a prose history, and the agent tends to call the tool again (topic authoring-prefixes, `PREFIX_PROSE_HISTORY`).
 
 ## Commands and every option
 
@@ -239,13 +239,13 @@ How to read it:
 
 ## Common errors
 
-A prefix with tool calls on the crewai adapter, with its default inputs, fails the run with this error:
+A prefix with tool calls and `origin: recorded` or `origin: authored` on the crewai adapter, with its default inputs, fails the run with this error:
 
 ```text
-crewai: the Given prefix holds 2 recorded tool call(s), and a crew takes its history as text inputs, so its agents would read them as prose, not as tool results. Write those turns as blocks the crew runs, or pass `inputs` that hand the calls to the crew in a form it reads as records.
+crewai: the Given prefix (origin recorded) holds 2 recorded tool call(s), and a crew takes its history as text inputs, so its agents would read them as prose, not as tool results. Write those turns as blocks the crew runs, or pass `inputs` that hand the calls to the crew in a form it reads as records.
 ```
 
-The number is the count of recorded calls in the prefix. Write those turns as blocks the crew runs, or set the adapter's `inputs` option.
+The origin in brackets is the prefix's own. The number is the count of recorded calls in the messages the spec wrote. Write those turns as blocks the crew runs, or set the adapter's `inputs` option.
 
 | Message or symptom | Cause | Fix |
 |---|---|---|

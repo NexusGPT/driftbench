@@ -1,6 +1,6 @@
 # Validators: code that proves driftbench works
 
-Status: designed on 2026-10-11, owner approved. The frame (V0) is built: `driftbench validate`, the floors, the loop files, the brief and the CI job (section 8), with six ladders registered: estate (section 6), generator (section 3), judges (section 4), map (section 2), statistics (section 7) and system (section 5). Floors in `validators/floors.json`: judges 7, map 8, stats 7, system 9; estate and generator have none yet. A validator is code. It contains no model. It plants a truth it knows, runs one part of driftbench, and measures what came back against the plant. It prints a ladder of levels. Each level has one metric, one threshold, the observed value, pass or fail, and the named items that failed. The exit code is the level reached. A builder with less judgement than the author climbs the ladder by fixing the named items of the first failing level and running the validator again.
+Status: designed on 2026-10-11, owner approved. The frame (V0) is built: `driftbench validate`, the floors, the loop files, the brief and the CI job (section 8), with six ladders registered: estate (section 6), generator (section 3), judges (section 4), map (section 2), statistics (section 7) and system (section 5). Floors in `validators/floors.json`: judges 20 (ladder version 2), map 8, stats 7, system 9; estate and generator have none yet. A validator is code. It contains no model. It plants a truth it knows, runs one part of driftbench, and measures what came back against the plant. It prints a ladder of levels. Each level has one metric, one threshold, the observed value, pass or fail, and the named items that failed. The exit code is the level reached. A builder with less judgement than the author climbs the ladder by fixing the named items of the first failing level and running the validator again.
 
 ## 1. The common frame
 
@@ -133,7 +133,7 @@ Option errors that the argument parser itself reports (an unknown flag) exit 2, 
 `registeredLadders()` in `packages/validators/src/ladders/index.ts` returns six validators: `estate`, `generator`, `judges`, `map`, `stats` and `system`. `validators/floors.json` holds a floor for four of them; `estate` and `generator` have none yet. `validate floors` prints the floors:
 
 ```
-Floors (validators/floors.json): judges = 7 (ladder version 1), map = 8 (ladder version 2), stats = 7 (ladder version 2), system = 9 (ladder version 5).
+Floors (validators/floors.json): judges = 20 (ladder version 2), map = 8 (ladder version 2), stats = 7 (ladder version 2), system = 9 (ladder version 5).
 ```
 
 The run below is an earlier capture of the CI command, from when only `judges` and `stats` were registered. It printed this and exited 0. The hidden seed changes with every commit.
@@ -213,7 +213,7 @@ Sources: the local research dossiers under the research notes, the design notes,
 
 ## 11. Build order with the loop
 
-V0 the frame: `driftbench validate` with the ladder table, items, seeds, the hidden seed, floors, `--brief`, `--fresh`, the journal and handover formats, `validators/EXECUTOR.md`, and the CI job (floors enforced, validator files protected). Built in `packages/validators/src` (the ladder contract `defineLadder`, `runLadder`, `formatLadder`; the registry in `ladders/index.ts`) and `packages/cli/src/commands/validate.ts`; the statistics ladder's levels 1 and 2 are registered, and its floor is 1. V3 is built too: the judge ladder's seven levels are registered in `packages/validators/src/ladders/judges`, on scripted cassettes in `packages/validators/fixtures/judges`, and its floor is 7. V1 generator validator and V2 system validator (they reuse the gate's fault family). V3 judge validator. V4 map validator (the renderer). V5 estate validator (the estate rule follower). V6 statistics validator. Each validator ships with its ladder at level 1 reachable on the current code, so the loop has a first rung; the executor loops it to 100 percent.
+V0 the frame: `driftbench validate` with the ladder table, items, seeds, the hidden seed, floors, `--brief`, `--fresh`, the journal and handover formats, `validators/EXECUTOR.md`, and the CI job (floors enforced, validator files protected). Built in `packages/validators/src` (the ladder contract `defineLadder`, `runLadder`, `formatLadder`; the registry in `ladders/index.ts`) and `packages/cli/src/commands/validate.ts`; the statistics ladder's levels 1 and 2 are registered, and its floor is 1. V3 is built too: the judge ladder's seven levels are registered in `packages/validators/src/ladders/judges`, on scripted cassettes in `packages/validators/fixtures/judges`, and its floor was 7 on ladder version 1; the floor of ladder version 2 is 20. V1 generator validator and V2 system validator (they reuse the gate's fault family). V3 judge validator. V4 map validator (the renderer). V5 estate validator (the estate rule follower). V6 statistics validator. Each validator ships with its ladder at level 1 reachable on the current code, so the loop has a first rung; the executor loops it to 100 percent.
 
 ## 12. The hardness contract (why a ladder must take 100 iterations)
 
@@ -258,7 +258,7 @@ The iteration 0 row and the ten pilot rows are the first rows of `validators/<co
 
 ### 12.5 Floors under the contract
 
-A floor is per ladder version. `floors.json` carries `ladderVersion` per component; a new bank starts a new ladder version with its floor at the pilot's level, and the evidence names the version. A floor never goes down within a version. The judges floor of 7 and the statistics floor of 1 belong to ladder version 1 of each and are kept in the file as history; version 2 of each starts at the level its pilot reaches.
+A floor is per ladder version. `floors.json` carries `ladderVersion` per component; a new bank starts a new ladder version with its floor at the pilot's level, and the evidence names the version. A floor never goes down within a version. The judges floor of 7 and the statistics floor of 1 belong to ladder version 1 of each and are kept in the file as history; version 2 of each started at the level its pilot reached, and the judges floor of ladder version 2 is now 20.
 
 ### 12.6 What each bank must contain at minimum
 

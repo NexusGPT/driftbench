@@ -86,8 +86,9 @@ export function toGoogleContents(
     else contents.push({ role, parts: [...parts] });
   };
   const text = (value: string): GooglePart[] => (value === '' ? [] : [{ text: value }]);
-  // Gemini pairs a response with its call by name and order; an id travels only when one was recorded.
-  const compiler = new HistoryCompiler();
+  // Gemini pairs a response with its call by name and order; an id travels only when one was recorded, and a
+  // recorded id that repeats one of the same turn is replaced, as on every wire.
+  const compiler = new HistoryCompiler({ fallback: (n) => `call_h${n}`, fillMissing: false });
 
   for (const message of history) {
     if (message.role === 'system') {

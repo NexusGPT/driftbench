@@ -14,13 +14,19 @@ import {
 } from 'node:fs';
 import { join, resolve } from 'node:path';
 import type * as Sqlite from 'node:sqlite';
-import { functionAdapter, httpAdapter, processAdapter } from '@agent-nexus/driftbench-adapters';
+import {
+  functionAdapter,
+  HTTP_ADAPTER_VERSION,
+  httpAdapter,
+  processAdapter,
+} from '@agent-nexus/driftbench-adapters';
 import {
   AdapterTransportError,
   type AgentAdapter,
   AgentFailure,
   type Campaign,
   canonicalJson,
+  contentHash,
   type Message,
   type Observed,
   type ResolvedGiven,
@@ -853,15 +859,20 @@ function httpItems(): BankItem[] {
       component: HTTP,
       source: 'contract',
       title:
-        'http.md "Capabilities and version": the version is 0.1.0+ and a hash of url, so two endpoints never share a cache entry',
-      cause: 'httpAdapter versions itself by a hash of its url',
+        'http.md "Capabilities and version": the version is <adapter version>+<hash of url>, stable for one url and distinct for different urls',
+      cause:
+        'httpAdapter combines its exported version with the content hash of its url, stably per url and distinctly across urls',
       async check({ seed }) {
         const make = (url: string) => httpAdapter({ url, fetch: fakeFetch(() => json({})).fetch }).version;
-        const a = make(`http://a.example.org/turn/${seed}`);
-        const a2 = make(`http://a.example.org/turn/${seed}`);
-        const b = make(`http://b.example.org/turn/${seed}`);
+        const urlA = `http://a.example.org/turn/${seed}`;
+        const urlB = `http://b.example.org/turn/${seed}`;
+        const a = make(urlA);
+        const a2 = make(urlA);
+        const b = make(urlB);
+        const expected = (url: string) => `${HTTP_ADAPTER_VERSION}+${contentHash(url)}`;
         return expectAll([
-          [/^0\.1\.0\+[0-9a-f]{6,}$/.test(a), `expected a version 0.1.0+<hash>, got ${a}`],
+          [a === expected(urlA), `expected version ${expected(urlA)} for ${urlA}, got ${a}`],
+          [b === expected(urlB), `expected version ${expected(urlB)} for ${urlB}, got ${b}`],
           [a === a2, `expected one url to give one version, got ${a} and ${a2}`],
           [a !== b, `expected two urls to give two versions, both gave ${a}`],
         ]);

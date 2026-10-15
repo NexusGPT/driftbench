@@ -1,11 +1,12 @@
 import { fileURLToPath } from 'node:url';
 import { canonicalGiven, findSpecFiles, loadSpecFile, type Message } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
-import { ToolLabels, WireNames } from '../src/anthropic/common';
+import { ToolLabels, UNRECORDED_RESULT, WireNames } from '../src/anthropic/common';
 import { ANTHROPIC_NAME, toAnthropicMessages } from '../src/anthropic/messages';
+import { toGoogleContents } from '../src/google/contents';
 import { toChatMessages } from '../src/http/chat';
 import { toInputItems } from '../src/openai-agents/items';
-import { HistoryCompiler, UNRECORDED_OUTPUT } from '../src/shared/history';
+import { HistoryCompiler } from '../src/shared/history';
 import { carried, fromAnthropic, fromChat, fromResponses, pairingProblems, WIRES } from './history-wires';
 
 // Fictional data only.
@@ -75,8 +76,8 @@ describe('the tool history compiler', () => {
     const calls = new HistoryCompiler({ fallback: (n) => `c${n}` }).calls(hazards[5] as Message);
     expect(calls.map((call) => call.result)).toEqual([
       { kind: 'error', message: 'address unknown' },
-      { kind: 'output', value: UNRECORDED_OUTPUT, recorded: false },
-      { kind: 'output', value: UNRECORDED_OUTPUT, recorded: false },
+      { kind: 'output', value: UNRECORDED_RESULT },
+      { kind: 'output', value: UNRECORDED_RESULT },
     ]);
   });
 
@@ -107,6 +108,59 @@ describe('every wire receives the history as paired tool records', () => {
       expect(pairingProblems(wire, hazards)).toEqual([]);
     });
   }
+
+  it('google: a recorded id that repeats one of the same turn is replaced; a call recorded with no id gets none', () => {
+    const { contents } = toGoogleContents(hazards, new WireNames([], ANTHROPIC_NAME));
+    const ids = contents.flatMap((content) =>
+      (content.parts ?? []).flatMap((part) =>
+        part.functionCall
+          ? [part.functionCall.id ?? null]
+          : part.functionResponse
+            ? [part.functionResponse.id ?? null]
+            : [],
+      ),
+    );
+    // Turn 1: two calls recorded as call-1, then their two responses. Turn 2: a.b and a_b, distinct as
+    // recorded on this wire, and a call with no id. Turn 3: call-1 again, kept across turns.
+    expect(ids).toEqual([
+      'call-1',
+      'call_h1',
+      'call-1',
+      'call_h1',
+      'a.b',
+      'a_b',
+      null,
+      'a.b',
+      'a_b',
+      null,
+      'call-1',
+      'call-1',
+    ]);
+  });
+
+  it('anthropic: a call recorded with no id takes the number of its place among every call, as before', () => {
+    // The Anthropic wire numbers every call of the history, recorded id or not: toolu_h<n> for the n-th call.
+    const mixed: Message[] = [
+      { role: 'user', content: 'Check two addresses.' },
+      {
+        role: 'assistant',
+        content: '',
+        tool_calls: [
+          { id: 'kept-1', label: 'coverage.check', output: { found: true } },
+          { label: 'coverage.check', output: { found: false } },
+        ],
+      },
+      { role: 'user', content: 'And the plans?' },
+      { role: 'assistant', content: '', tool_calls: [{ label: 'catalog.search', output: { plans: [] } }] },
+    ];
+    const { messages } = toAnthropicMessages(mixed, new WireNames([], ANTHROPIC_NAME));
+    const ids = messages.flatMap((message) =>
+      (message.content as { type: string; id?: string; tool_use_id?: string }[]).flatMap((block) =>
+        block.type === 'tool_use' ? [block.id] : block.type === 'tool_result' ? [block.tool_use_id] : [],
+      ),
+    );
+    expect(ids).toEqual(['kept-1', 'toolu_h2', 'kept-1', 'toolu_h2', 'toolu_h3', 'toolu_h3']);
+  });
 
   it('chat: a free tool note goes as user text, never as a tool message that answers no call', () => {
     const notes = toChatMessages(hazards).filter(

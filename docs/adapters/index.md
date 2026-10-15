@@ -61,10 +61,10 @@ History must be an ordinary dense array of non-null plain message objects. Array
 An adapter that sends the history to a model sends each recorded tool call as the wire's own tool records, never as text: Anthropic `tool_use` and `tool_result` blocks, Responses `function_call` and `function_call_result` items, Chat Completions `tool_calls` and `tool` messages, and the shapes of Gemini, LangGraph, Pydantic AI and the Vercel AI SDK. One compiler pairs every call of the history with its result before any adapter renders it (`anthropic`, `http`, `litellm`, `openai-agents`, `google`, `langgraph`, `pydantic-ai`, `vercel-ai`):
 
 * Every call goes with a result: its recorded output, its recorded error, or, when the history recorded neither, the value the adapter sends for an unrecorded result. A result follows its own call, in order.
-* The calls of one assistant turn have distinct ids, as every wire requires. A recorded id that repeats one of the same turn, after the wire's own character rules, gets a fresh id, so the result still answers its call; an id repeated in another turn is kept, which the wires accept. A call recorded with no id gets the adapter's fallback id.
+* The calls of one assistant turn have distinct ids, as every wire requires. A recorded id that repeats one of the same turn, after the wire's own character rules, gets a fresh id, so the result still answers its call; an id repeated in another turn is kept, which the wires accept. A call recorded with no id gets the adapter's fallback id, except on Gemini, whose ids are optional: there such a call goes without one, and Gemini pairs it by name and order.
 * A `tool` message that answers no call (a free tool note) goes as user text, also on Chat Completions, which refuses a `tool` message without its call.
 
-The crewai adapter takes the history as text inputs. With its default inputs, it refuses a Given whose prefix holds recorded tool calls with an `AgentFailure`: the crew's agents would read them as prose, which is a different test (see [Given](../concepts/given-when-then.md#tool-history-records-not-prose)). Pass `inputs` to hand the calls to the crew your own way.
+The crewai adapter takes the history as text inputs: the earlier turns as `role: text` lines, and the whole history, tool calls included, as one JSON string. With its default inputs, it refuses with an `AgentFailure` a Given whose prefix holds tool calls the spec states as a record (`given.origin: recorded` or `authored`): the crew's agents would read them as data in a text field, not as tool results, which is a different test (see [Given](../concepts/given-when-then.md#tool-history-records-not-prose)). The origin covers only the messages the spec wrote (`ResolvedGiven.originLength`): the canonical calls mode T adds after them, a canonical prefix and a prefix whose origin the spec does not state go to the crew as before. Pass `inputs` to hand the calls to the crew your own way.
 
 The write-error guarantee applies to shared host `Message` objects. SDK adapters can build separate wire representations, and processes receive serialized copies; writes to those independent copies need not throw and cannot change host history.
 
@@ -110,7 +110,7 @@ Any other error fails the run at once too. A failed run is recorded with status 
 | Capability | The adapter can |
 |---|---|
 | `variants` | run a named variant of the agent, such as a prompt version |
-| `seedPrefix` | let the agent see a session's prefix, which teacher-forced mode needs |
+| `seedPrefix` | let the agent see a session's prefix, which teacher-forced mode needs. A built-in adapter that sends the prefix to a model sends a past call with no recorded result with a note saying so, never `null`; see [run modes](../concepts/run-modes.md#teacher-forced) |
 | `toolStubs` | force tool results and errors from `world.tools` |
 | `trace` | offer `trace` |
 | `sandbox` | run the agent in a sandboxed workspace, which task specs need; it then offers `readArtifact` |

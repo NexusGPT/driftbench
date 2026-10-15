@@ -52,7 +52,7 @@ import { HistoryCompiler } from '../shared/history';
  * The shapes match the `ai` package 7.0.137 (`generateText`, `ModelMessage`, language model `doGenerate`).
  */
 
-export const VERCEL_AI_ADAPTER_VERSION = '0.1.0';
+export const VERCEL_AI_ADAPTER_VERSION = '0.1.1';
 
 /** A tool as the SDK takes it: `tool({ description, inputSchema, execute })` is a plain object. */
 export type VercelToolLike = Record<string, unknown> & {

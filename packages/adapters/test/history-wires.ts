@@ -1,5 +1,5 @@
 import type { Message } from '@agent-nexus/driftbench-core';
-import { outputText, readToolText, ToolLabels, WireNames } from '../src/anthropic/common';
+import { historyOutput, outputText, readToolText, ToolLabels, WireNames } from '../src/anthropic/common';
 import { ANTHROPIC_NAME, type AnthropicBlockParam, toAnthropicMessages } from '../src/anthropic/messages';
 import { toGoogleContents } from '../src/google/contents';
 import { type ChatMessage, toChatMessages } from '../src/http/chat';
@@ -137,23 +137,23 @@ const vercelTurns = (rendered: unknown): WireTurn[] | string => {
 
 /** Gemini pairs by name and order: each turn's responses carry the names of its calls, in order. */
 const googleTurns = (rendered: unknown): WireTurn[] | string => {
+  type Named = { name: string; id?: string };
   const { contents } = rendered as {
-    contents: {
-      role: string;
-      parts: { functionCall?: { name: string }; functionResponse?: { name: string } }[];
-    }[];
+    contents: { role: string; parts: { functionCall?: Named; functionResponse?: Named }[] }[];
   };
   const turns: WireTurn[] = [];
   for (const [at, content] of contents.entries()) {
-    const calls = content.parts.flatMap((part) => (part.functionCall ? [part.functionCall.name] : []));
+    const calls = content.parts.flatMap((part) => (part.functionCall ? [part.functionCall] : []));
     if (content.role !== 'model' || calls.length === 0) continue;
     const answers = (contents[at + 1]?.parts ?? []).flatMap((part) =>
-      part.functionResponse ? [part.functionResponse.name] : [],
+      part.functionResponse ? [part.functionResponse] : [],
     );
+    // Gemini pairs by name and order, and by id when one travels: both must agree, and an id that travels
+    // is distinct within its turn (pairingProblems checks it as on every wire).
     turns.push({
-      calls: calls.map(() => undefined),
-      results: answers.map(() => undefined),
-      names: [calls, answers],
+      calls: calls.map((call) => call.id),
+      results: answers.map((answer) => answer.id),
+      names: [calls.map((call) => call.name), answers.map((answer) => answer.name)],
     });
   }
   return turns;
@@ -234,7 +234,7 @@ export function carried(
         label: call.label,
         input: call.input ?? {},
         result:
-          call.error !== undefined ? ['error', call.error] : ['output', outputText(call.output ?? null)],
+          call.error !== undefined ? ['error', call.error] : ['output', outputText(historyOutput(call))],
       }),
     );
     if (options.mergeCallTurns && calls.length > 0 && open && last?.calls) {

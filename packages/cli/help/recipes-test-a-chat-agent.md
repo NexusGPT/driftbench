@@ -244,6 +244,7 @@ Campaign c-01d90c025dd3, created 2026-10-14T14:15:39.098Z.
 Margin auto: 24.5 points, the smallest half point at which the baseline compared with itself is non-inferior (set by the all-pass flag, 24.2 points).
 Warning: this suite cannot show parity under 15 points (the all-pass flag needs 24.2 points); about 22 goldens would.
 Campaign c-01d90c025dd3: 12 runs, 12 pass, 0 fail, 0 did not complete.
+Suite pass rate, mode F: 100.0% [75.3%, 100.0%] (hierarchical 95% interval); 12 goldens, n_eff 12.0 runs (every run agrees, so each golden counts once), detectable drop 49.3 points at 80% power.
 Wrote scorecard.html and junit.xml.
 ```
 
