@@ -11,13 +11,13 @@
 | hidden | 0 |
 <!-- level-table:end -->
 
-Iteration 40, source e57f562ee068f41f377202ddfc2b8e91dc3d4ac7 plus the change recorded in this journal row. Hidden seed 851327598, derived from that head.
+Iteration 41, source 7c3171127792ae33ef01155ce51f8e21c0bdd4cc plus the change recorded in this journal row. Hidden seed 84614994, derived from that head.
 | Seed | Reader passing / items |
 |---|---|
-| 1 | 622/641 |
-| 2 | 622/641 |
-| 3 | 622/641 |
-| hidden (851327598) | 622/641 |
+| 1 | 623/641 |
+| 2 | 623/641 |
+| 3 | 623/641 |
+| hidden (84614994) | 623/641 |
 
 Each fraction counts reader items passing on that seed, out of 641 reader items. Journal `passing` counts distinct evaluated item IDs passing every seed; it is not a sum of seed counts. The journal's per-level `metrics` use seed 1; its `perSeed` records achieved levels separately.
 
@@ -35,7 +35,6 @@ Owner rule: "make sure all the fixes are fixes that are TO THE FRAMEWORK in gene
 
 ## Open items
 
-- scan.registry.md-label-lowercase: [scan.registry, tier 3] the guard enforces the rules of a label written in lower case: missed the enforces edge scan.registry.md-label-lowercase:guard to scan.registry.md-label-lowercase:rule0
 - scan.reference-prose.text-file: [scan.reference-prose, tier 3] the scan reads the rules of a plain text reference: missed instruction at .claude/skills/recipe-sort-1ki10ij/references/notes.txt:2
 - scan.reference-prose.chained: [scan.reference-prose, tier 4] the scan reads the rules of a reference naming a second reference with its own rule: missed the reference edge scan.reference-prose.chained:skill to scan.reference-prose.chained:inner-ref
 - scan.reference-prose.outside-skill: [scan.reference-prose, tier 3] the scan reads the rules of a reference outside any skill, named by the standing instructions: missed instruction at .claude/docs/ledger-check-138qwq4.md:2
@@ -57,6 +56,7 @@ Owner rule: "make sure all the fixes are fixes that are TO THE FRAMEWORK in gene
 
 ## Hypotheses tried
 
+Iteration 41: case-insensitive rule labels. +1 on every seed: scan.registry.md-label-lowercase.
 Iteration 40: standing size in code points. +1 on every seed: blind.lint.emoji-count-as-characters.
 Iteration 39: nudge as a verb on domain objects is no hazard. +1 on every seed: scan.hazards.decoy-price.
 Iteration 38: hazard synonyms (reboot, 429, too many requests, resumed session). +3 on every seed: scan.hazards.status-429, reboot, resumed. Wide-folder lost on seed 3 and hidden on timing only.

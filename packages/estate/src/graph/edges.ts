@@ -121,7 +121,8 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
 
   const rules = atoms.filter((atom) => RULE_KINDS.has(atom.kind));
   const labels = new Map(rules.map((rule) => [rule.id, labelOf(rule, files)]));
-  const withLabel = (label: string) => rules.filter((rule) => labels.get(rule.id) === label);
+  const withLabel = (label: string) =>
+    rules.filter((rule) => labels.get(rule.id) === label.replace('#', '').toUpperCase());
   for (const rule of rules) {
     const own = labels.get(rule.id);
     for (const match of rule.provenance.quote.matchAll(/\b([A-Z]{1,3})#?(\d{1,3})\b/g)) {
@@ -172,11 +173,12 @@ function holds(quote: string, passage: string): boolean {
 export function declaredLabels(text: string): string[] {
   const found: string[] = [];
   for (const line of linesOf(text)) {
-    const match = /\b[Ee]nforces?\b\s*:?\s*([A-Z]{1,3}\d{1,3}(?:\s*(?:,|and)\s*[A-Z]{1,3}\d{1,3})*)/.exec(
+    const match = /\benforces?\b\s*:?\s*([A-Z]{1,3}#?\d{1,3}(?:\s*(?:,|and)\s*[A-Z]{1,3}#?\d{1,3})*)/i.exec(
       line.raw,
     );
     if (!match?.[1]) continue;
-    for (const label of match[1].matchAll(/[A-Z]{1,3}\d{1,3}/g)) found.push(label[0]);
+    for (const label of match[1].matchAll(/[A-Z]{1,3}#?\d{1,3}/gi))
+      found.push(label[0].replace('#', '').toUpperCase());
   }
   return found;
 }
@@ -184,7 +186,11 @@ export function declaredLabels(text: string): string[] {
 /** Rule ids a guard source cites in the `R#23` form, anywhere in its text, as labels (`R23`). */
 export function citedLabels(text: string): string[] {
   return [
-    ...new Set([...text.matchAll(/\b([A-Z]{1,3})#(\d{1,3})\b/g)].map((match) => `${match[1]}${match[2]}`)),
+    ...new Set(
+      [...text.matchAll(/\b([A-Z]{1,3})#(\d{1,3})\b/gi)].map((match) =>
+        `${match[1]}${match[2]}`.toUpperCase(),
+      ),
+    ),
   ];
 }
 

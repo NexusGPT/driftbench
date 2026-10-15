@@ -256,7 +256,7 @@ Edges, decided by code:
 | next | a stage to the stage that follows it |
 | cites | a rule to a rule its words name by label |
 
-`enforces` is decided in this order, and the method is kept on the guard atom: a check registry row that names the guard's script and lists rule labels (R5) or quoted passages; a label the guard source declares (`Enforces: R3, R5`); a string of 16 or more characters in the guard source that repeats a rule's quote. Only instruction, gate and register atoms are enforced.
+`enforces` is decided in this order, and the method is kept on the guard atom: a check registry row that names the guard's script and lists rule labels (R5) or quoted passages; a label the guard source declares (`Enforces: R3, R5`); a string of 16 or more characters in the guard source that repeats a rule's quote. Only instruction, gate and register atoms are enforced. A rule label is matched without regard to case or an optional `#` (`r1`, `R#1` and `R1` are one label), wherever it is written: the rule's own definition, a registry row, an `Enforces:` declaration or a hash citation in a guard message. Ordinary prose that happens to hold `r1` defines and cites nothing.
 
 The graph answers what code can walk:
 
