@@ -1,6 +1,6 @@
 ---
 title: Evidence names
-summary: "The named facts driftbench computes about one failing verdict, such as where a value came from and what the agent did next, which blame and placement rules read."
+summary: "Named facts about one failing verdict, such as where a value came from and what the agent did next, read by blame and placement rules."
 commands: []
 see_also:
   - authoring-blocks
