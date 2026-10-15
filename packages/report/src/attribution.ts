@@ -1,0 +1,195 @@
+import type { RunResult } from '@agent-nexus/driftbench-core';
+import type { CampaignData } from './data';
+import { runPassed } from './data';
+import { type Rate, rate } from './estimate';
+
+/**
+ * The second score (codeagent_equivalence_blame.md E5). The machine pass rate stays final. The agent-attributed
+ * pass rate counts a run as passed when every failing gating verdict of every block has a diagnosis whose
+ * disposition is setup, excluded or credited. A run with a failure no rule attributed (`unassigned`, or no
+ * diagnosis) and none of the agent's is shown apart and never folded into either rate.
+ */
+
+/** A diagnosis as the report reads it: the fields of a block's diagnoses that the scores and the fix list use. */
+export type ReportDiagnosis = {
+  verdictRef?: string;
+  inherits?: string;
+  disposition?: string;
+  rule?: string;
+  fault?: readonly string[];
+  fixLocation?: string;
+  fixTarget?: string;
+  fixAction?: string;
+  placement?: string;
+  confidence?: string;
+};
+
+/** One fix of a campaign's fix plan, as the report lists it. */
+export type ReportFix = {
+  fixLocation: string;
+  fixTarget?: string;
+  fixAction: string;
+  blocks: number;
+  agentBlocks: number;
+  removeCopies?: readonly string[];
+  /** Set on a local fix a core fix replaces. */
+  supersededBy?: string;
+  confidence?: string;
+  ruleText?: string;
+};
+
+/** An object a block was scored with, as `BlockResult.resolved` records it. */
+export type ReportObject = { kind: string; id: string; hash?: string };
+
+export type AttributionOptions = {
+  /** Diagnoses by run id and block index, for runs whose records do not carry them. */
+  diagnoses?: Readonly<Record<string, Readonly<Record<number, readonly ReportDiagnosis[]>>>>;
+  /** The campaign's fix plan, ranked. */
+  fixes?: readonly ReportFix[];
+  /** The objects the campaign was scored with, when the run records do not carry them. */
+  objects?: readonly ReportObject[];
+};
+
+export type BlockOutcome = 'pass' | 'fail' | 'unassigned';
+
+export type AttributionSummary = {
+  /** Runs passing their machine checks, over every completed run. Undefined with no completed run. */
+  machine: Rate | undefined;
+  /** Runs passing once setup, excluded and credited failures are set aside, over the runs a rule decided. */
+  agent: Rate | undefined;
+  /** Runs left out of the agent-attributed rate: a failure no rule attributed, and none of the agent's. */
+  unassigned: number;
+  /** Failing blocks by disposition of their root diagnoses, the first that counts against the agent winning. */
+  blocks: {
+    failing: number;
+    agent: number;
+    setup: number;
+    excluded: number;
+    credited: number;
+    unassigned: number;
+  };
+  fixes: ReportFix[];
+  /** The objects that are not a shipped default, as `kind:id`: a non-default rule scored these runs. */
+  nonDefault: string[];
+};
+
+const SET_ASIDE = new Set(['setup', 'excluded', 'credited']);
+
+type Block = RunResult['blocks'][number] & {
+  diagnoses?: readonly ReportDiagnosis[];
+  resolved?: { objects?: ReportObject[] };
+};
+
+/** The diagnoses of one block: its own record, else the ones given. */
+export function blockDiagnoses(
+  run: RunResult,
+  block: RunResult['blocks'][number],
+  options: AttributionOptions,
+): readonly ReportDiagnosis[] {
+  return (block as Block).diagnoses ?? options.diagnoses?.[run.runId]?.[block.index] ?? [];
+}
+
+/** How a block counts for the agent: its machine pass stands; a failing block passes when every failure is set aside. */
+export function blockOutcome(
+  block: RunResult['blocks'][number],
+  diagnoses: readonly ReportDiagnosis[],
+): BlockOutcome {
+  if (block.pass) return 'pass';
+  const failing = block.verdicts.filter((verdict) => verdict.gating && verdict.outcome !== 'pass');
+  let unassigned = false;
+  for (const verdict of failing) {
+    const own = diagnoses.find((one) => one.verdictRef === verdict.id);
+    const disposition = own?.disposition;
+    if (disposition === 'agent' || disposition === 'shared') return 'fail';
+    if (disposition === undefined || !SET_ASIDE.has(disposition)) unassigned = true;
+  }
+  return unassigned ? 'unassigned' : 'pass';
+}
+
+/** The disposition a failing block shows: the agent's when any failure is, else the first set-aside kind. */
+function blockDisposition(diagnoses: readonly ReportDiagnosis[]): keyof AttributionSummary['blocks'] {
+  const roots = diagnoses.filter((one) => one.inherits === undefined);
+  const kinds = new Set(roots.map((one) => one.disposition ?? 'unassigned'));
+  if (kinds.has('agent') || kinds.has('shared')) return 'agent';
+  if (kinds.has('unassigned') || roots.length === 0) return 'unassigned';
+  for (const kind of ['setup', 'excluded', 'credited'] as const) if (kinds.has(kind)) return kind;
+  return 'unassigned';
+}
+
+/** Whether a resolved object is a shipped default: the id `default`. */
+function isDefault(object: ReportObject): boolean {
+  return object.id === 'default';
+}
+
+function showObject(object: ReportObject): string {
+  const key = `${object.kind}:${object.id}`;
+  return object.hash === undefined ? key : `${key}@${object.hash.slice(0, 8)}`;
+}
+
+/** The non-default objects one run was scored with: its blocks' resolved objects, else the ones given. */
+export function nonDefaultOf(run: RunResult, options: AttributionOptions = {}): string[] {
+  const objects = new Map<string, ReportObject>();
+  for (const object of options.objects ?? []) objects.set(`${object.kind}:${object.id}`, object);
+  for (const block of run.blocks) {
+    for (const object of (block as Block).resolved?.objects ?? [])
+      objects.set(`${object.kind}:${object.id}`, object);
+  }
+  return [...objects.values()]
+    .filter((object) => !isDefault(object))
+    .map(showObject)
+    .sort();
+}
+
+/**
+ * The attribution of a campaign, or undefined when no block carries a diagnosis and none was given: the
+ * scorecard then shows the machine rate alone, as before.
+ */
+export function attributionOf(
+  data: CampaignData,
+  options: AttributionOptions = {},
+): AttributionSummary | undefined {
+  const runs = data.runs.filter((run) => run.status === 'completed');
+  const any = runs.some((run) => run.blocks.some((block) => blockDiagnoses(run, block, options).length > 0));
+  if (!any && options.fixes === undefined) return undefined;
+  let agentPass = 0;
+  let decided = 0;
+  let unassigned = 0;
+  const blocks = { failing: 0, agent: 0, setup: 0, excluded: 0, credited: 0, unassigned: 0 };
+  const objects = new Map<string, ReportObject>();
+  for (const object of options.objects ?? []) objects.set(`${object.kind}:${object.id}`, object);
+  for (const run of runs) {
+    let outcome: BlockOutcome = 'pass';
+    for (const block of run.blocks) {
+      for (const object of (block as Block).resolved?.objects ?? [])
+        objects.set(`${object.kind}:${object.id}`, object);
+      const diagnoses = blockDiagnoses(run, block, options);
+      const own = blockOutcome(block, diagnoses);
+      if (!block.pass) {
+        blocks.failing += 1;
+        blocks[blockDisposition(diagnoses)] += 1;
+      }
+      if (own === 'fail') outcome = 'fail';
+      else if (own === 'unassigned' && outcome === 'pass') outcome = 'unassigned';
+    }
+    // A run that fails outside its blocks (its end state, its end verdict) has no block diagnosis to read.
+    if (outcome === 'pass' && run.blocks.every((block) => block.pass) && !runPassed(run))
+      outcome = 'unassigned';
+    if (outcome === 'unassigned') {
+      unassigned += 1;
+      continue;
+    }
+    decided += 1;
+    if (outcome === 'pass') agentPass += 1;
+  }
+  return {
+    machine: rate(runs.filter(runPassed).length, runs.length),
+    agent: rate(agentPass, decided),
+    unassigned,
+    blocks,
+    fixes: [...(options.fixes ?? [])],
+    nonDefault: [...objects.values()]
+      .filter((object) => !isDefault(object))
+      .map(showObject)
+      .sort(),
+  };
+}

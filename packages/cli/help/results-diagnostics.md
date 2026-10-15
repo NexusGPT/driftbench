@@ -76,6 +76,12 @@ folded into a score. `confidence` is `static` until a confirm run decides. `flag
 `run_liability_confirm`, `provisional` (placed with no history), `class_rule:<wording>` for a core fix, and
 `escape:<kind>:<text>` when a proposed fix text names a skill, a file or a value.
 
+The scorecard (`buildScorecard(data, { attribution })` of the report package) then opens a zone named "Two
+scores": the machine pass rate, unchanged and final; the agent-attributed pass rate, over the runs a rule
+decided; the unassigned runs, counted apart and in neither rate; the failing blocks by disposition; and the
+ranked fix list. A run page lists each block's diagnoses under its verdicts. A page scored with a rule file
+that is not a shipped default carries a `non-default` badge naming it.
+
 ## Worked example
 
 The Northwind estate's three recorded sessions, replayed offline over specs generated from the estate tests'

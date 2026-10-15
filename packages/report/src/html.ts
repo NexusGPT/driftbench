@@ -3,6 +3,7 @@ import type { CompareResult } from './compare';
 import type { Estimate } from './estimate';
 import { CASLON_DISPLAY, CASLON_TEXT, GEIST, GEIST_MONO } from './fonts';
 import { carriedLines, count, esc, fixed, interval, json, pct, points, pValue, usd } from './format';
+import { attributionZone, diagnosesTable, nonDefaultBadge } from './html-attribution';
 import { chartsZone, overview, pageModel, runsZone, testsZone, versionsZone } from './html-zones';
 import type { PilotReport } from './pilot';
 import type { RecoverySummary, ReliabilityLine } from './reliability';
@@ -43,6 +44,7 @@ export function renderHtml(card: Scorecard, options: RenderOptions = {}): string
   const sections = [
     options.nav ?? '',
     overview(m),
+    ...(card.attribution === undefined ? [] : [attributionZone(card.attribution)]),
     versionsZone(m),
     chartsZone(m),
     testsZone(m),
@@ -625,7 +627,7 @@ ${block.stimulus === undefined ? '' : `<p class="label">${block.realized === und
 <p class="label">Cache key</p><pre class="mono">${esc(block.cacheKey ?? 'not cached')}</pre>
 <p class="label">Tool calls</p>${tools}
 ${shown.length > 0 ? table('Verdicts with evidence: every one that did not pass, every judged one', verdictHead, shown.map(verdictRow)) : ''}
-${passed.length > 0 ? `<p class="passed"><span class="label">Machine verdicts passed:</span> <span class="mono">${esc(passed.map((v) => v.id).join(', '))}</span></p>` : ''}${extra === '' ? '' : `\n${extra}`}
+${passed.length > 0 ? `<p class="passed"><span class="label">Machine verdicts passed:</span> <span class="mono">${esc(passed.map((v) => v.id).join(', '))}</span></p>` : ''}${block.diagnoses === undefined ? '' : `\n${diagnosesTable(block.diagnoses)}`}${extra === '' ? '' : `\n${extra}`}
 </div>`;
 }
 
@@ -714,7 +716,7 @@ export function renderRun(run: RunDetail, blockExtra: (block: BlockDetail) => st
   );
   return `<section id="run">
 <h2 class="mono">${esc(name)}</h2>
-${header.replace('</details>', '')}
+${run.nonDefault === undefined ? '' : `${nonDefaultBadge(run.nonDefault)}\n`}${header.replace('</details>', '')}
 ${timelineSection(run.events)}
 ${run.blocks.map((block) => blockDetail(block, blockExtra(block))).join('\n')}
 ${stoppedSection(run.stopped)}
