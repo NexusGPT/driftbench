@@ -184,6 +184,7 @@ export function generateEstateSuite(
   const unitSeen = new Set<string>();
   const unitWritten: UnitTest[] = [];
   const unitSkipped: string[] = [];
+  const focusCases = new Map<string, Set<string>>();
   let blocks = 0;
   let judged = 0;
 
@@ -218,6 +219,15 @@ export function generateEstateSuite(
       ...(built.session ? { session: built.session.name } : {}),
       ...(built.expect ? { expect: built.expect } : {}),
     });
+    if (complete) {
+      const firstBlock = (built.spec.blocks as Array<{ when: unknown }>)[0];
+      const key = JSON.stringify([firstBlock?.when, sortedKeys(row.cell)]);
+      for (const atom of row.atomIds) {
+        const cases = focusCases.get(atom) ?? new Set<string>();
+        cases.add(key);
+        focusCases.set(atom, cases);
+      }
+    }
     if (built.session && built.expect && complete) {
       replay.push({ spec: built.id, session: built.session.name, planRow: row.id, expect: built.expect });
     }
@@ -306,7 +316,7 @@ export function generateEstateSuite(
   // Focus atoms: variants of their rows, another ask and another situation each, until FOCUS_MIN complete
   // specs name the atom (a mutant of it then has several chances to turn one red).
   for (const atom of options.focus ? [...new Set(options.focus)] : []) {
-    const doneOf = () => records.filter((record) => record.complete && record.atoms.includes(atom)).length;
+    const doneOf = () => focusCases.get(atom)?.size ?? 0;
     if (doneOf() >= FOCUS_MIN) continue;
     const rows = input.plan.rows.filter(
       (row) =>
