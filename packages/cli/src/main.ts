@@ -29,6 +29,9 @@ export type MainOptions = {
  * those of `options.plugins`, of the project config's `plugins` list and of `--plugin` (see `./plugins`).
  */
 export async function main(argv: string[], io: Io = processIo, options: MainOptions = {}): Promise<number> {
+  // Fill the shared registry before plugins or any command resolve objects.
+  // Command modules stay independent of which package owns each shipped object.
+  await import('@agent-nexus/driftbench-checks');
   let exitCode = 0;
   const setExit = (code: number) => {
     exitCode = code;
