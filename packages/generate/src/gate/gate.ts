@@ -84,10 +84,11 @@ export type BlockRecord = {
   trivial: Partial<Record<TrivialAgent, BlockOutcome>>;
   faults: Record<string, FaultRun>;
   /**
-   * The agents whose run did not send this block (not_run or blocked): `reference`, a trivial agent's name or a
-   * fault id. They measured nothing, so they are out of the difficulty and the kill counts. Absent when none.
+   * The agents whose run did not send this block (not_run or blocked), by role: the reference, trivial agents by
+   * name, faults by id. They measured nothing, so they are out of the difficulty and the kill counts. Keyed by
+   * role, so a fault id never stands for the reference or a trivial agent. Absent when none.
    */
-  notRun?: string[];
+  notRun?: { reference?: true; trivial?: TrivialAgent[]; faults?: string[] };
   /** pass^k on the reference, from the k repeats. */
   passK?: number;
   /** The share of agents (reference, trivial agents, non-equivalent faults) that pass the block. */
@@ -236,15 +237,16 @@ export async function runGate(input: GateInput): Promise<GateResult> {
     if (!specRuns) continue;
     const spec = specOf.get(record.spec) as Spec;
     record.reference = specRuns.reference.map((run) => blockOutcome(run, record.index));
-    const notRun: string[] = [];
-    if (specRuns.reference.some((run) => blockNotRun(run, record.index))) notRun.push('reference');
+    const notRun: NonNullable<BlockRecord['notRun']> = {};
+    if (specRuns.reference.some((run) => blockNotRun(run, record.index))) notRun.reference = true;
     for (const name of TRIVIAL_AGENTS) {
       const run = specRuns.trivial.get(name);
       if (run) record.trivial[name] = blockOutcome(run, record.index);
-      if (run && blockNotRun(run, record.index)) notRun.push(name);
+      if (run && blockNotRun(run, record.index)) notRun.trivial = [...(notRun.trivial ?? []), name];
     }
-    for (const [id, run] of specRuns.faults) if (blockNotRun(run.result, record.index)) notRun.push(id);
-    if (notRun.length > 0) record.notRun = notRun;
+    for (const [id, run] of specRuns.faults)
+      if (blockNotRun(run.result, record.index)) notRun.faults = [...(notRun.faults ?? []), id];
+    if (Object.keys(notRun).length > 0) record.notRun = notRun;
     for (const [id, run] of specRuns.faults) {
       record.faults[id] = {
         outcome: blockOutcome(run.result, record.index),
@@ -547,20 +549,25 @@ function difficultyStage(
 ): { verdict: StageVerdict; probability: number; agents: number } {
   // An agent whose run did not send the block (not_run or blocked) measured nothing: it is out of the difficulty
   // and named in the detail. A block that ran and has no verdict stays `unjudged` and counts, as before.
-  const skipped = new Set(record.notRun ?? []);
+  const skipped = record.notRun ?? {};
   const excluded: string[] = [];
   const outcomes: BlockOutcome[] = [];
-  const add = (name: string, outcome: BlockOutcome | undefined) => {
+  const add = (unsent: boolean, shown: string, outcome: BlockOutcome | undefined) => {
     if (outcome === undefined) return;
-    if (skipped.has(name)) excluded.push(name);
+    if (unsent) excluded.push(shown);
     else outcomes.push(outcome);
   };
-  add('reference', record.reference[0]);
-  for (const name of TRIVIAL_AGENTS) add(name, record.trivial[name]);
+  add(skipped.reference === true, 'the reference', record.reference[0]);
+  for (const name of TRIVIAL_AGENTS)
+    add(skipped.trivial?.includes(name) ?? false, `trivial ${name}`, record.trivial[name]);
   for (const fault of faults) {
     if (fault.def.kind === 'control' || fault.def.target !== record.target || equivalent.has(fault.def.id))
       continue;
-    add(fault.def.id, record.faults[fault.def.id]?.outcome);
+    add(
+      record.faults[fault.def.id]?.notRun === true,
+      `fault ${fault.def.id}`,
+      record.faults[fault.def.id]?.outcome,
+    );
   }
   const measured = outcomes;
   const passes = measured.filter((outcome) => outcome === 'pass').length;

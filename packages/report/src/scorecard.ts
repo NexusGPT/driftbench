@@ -370,7 +370,7 @@ export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
         ...optional('realized', result.realized),
         ...optional('expectedStage', expectedStage),
         ...optional('observedStage', result.stageObserved),
-        pass: result.pass,
+        pass: blockStatus(result) === 'pass',
         ...(isScored(result) ? {} : { status: blockStatus(result) as 'not_run' | 'blocked' }),
         ...optional('notRun', result.notRun),
         ...optional('blocked', result.blocked),

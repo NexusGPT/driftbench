@@ -118,3 +118,55 @@ describe('store schema 3 and the new block verdicts', () => {
     }
   });
 });
+
+describe('a block whose pass and status disagree is refused', () => {
+  const contradictions = [
+    block(1, { pass: false, status: 'pass' }),
+    block(1, { pass: true, status: 'fail' }),
+    block(1, { pass: true, status: 'not_run', notRun: NOT_RUN, verdicts: [] }),
+    block(1, { pass: true, status: 'blocked', blocked: { by: 'block 0', root: 'block 0' }, verdicts: [] }),
+  ];
+
+  it('by the schema, while the runner normal form (no status) and a consistent status still parse', () => {
+    for (const bad of contradictions) {
+      const parsed = RunRecord.safeParse({ ...old, blocks: [block(0), bad] });
+      expect(parsed.success).toBe(false);
+      expect(parsed.error?.issues[0]?.path).toEqual(['blocks', 1, 'status']);
+    }
+    expect(RunRecord.safeParse(old).success).toBe(true);
+    expect(RunRecord.safeParse(fresh).success).toBe(true);
+    expect(
+      RunRecord.safeParse({
+        ...old,
+        blocks: [block(0, { status: 'pass' }), block(1, { pass: false, status: 'fail' })],
+      }).success,
+    ).toBe(true);
+  });
+
+  it('on write: putRun refuses the record', async () => {
+    const store = openMemoryStore();
+    await store.putCampaign(campaign());
+    for (const bad of contradictions) {
+      const error = await storeError(() => store.putRun(ID, { ...old, blocks: [block(0), bad] }));
+      expect(error.code).toBe('INVALID_RECORD');
+      expect(error.message).toContain('contradicts pass');
+    }
+    await store.close();
+  });
+
+  it('on read: a stored block whose record was changed to contradict itself is reported as corrupt', async () => {
+    const path = join(dir, 'contradiction.db');
+    const store = openStore(path);
+    await store.putCampaign(campaign());
+    await store.putRun(ID, fresh);
+    await store.close();
+    const raw = new DatabaseSync(path);
+    // The record of block 1 (status not_run) now says pass true, as a hand edit or another writer could.
+    raw.prepare(`UPDATE blocks SET json = json_set(json, '$.pass', json('true')) WHERE "index" = 1`).run();
+    raw.close();
+    const reopened = openStore(path);
+    const error = await storeError(() => reopened.listRuns({ campaignId: ID }));
+    expect(error.message).toContain('contradicts pass');
+    await reopened.close();
+  });
+});

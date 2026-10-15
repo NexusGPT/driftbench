@@ -710,7 +710,7 @@ function runDetail(run: RunDetail, options: RenderOptions = {}): string {
         )
       : '';
   const verdict = verdictOf(runDetailStatus(run));
-  return `<details class="run ${verdict.cls === 'ok' ? 'run-pass' : verdict.cls === 'skip' ? 'run-skip' : 'run-fail'}" id="run-${esc(run.runId)}"${run.pass ? '' : ' open'}>
+  return `<details class="run ${verdict.cls === 'ok' ? 'run-pass' : verdict.cls === 'skip' ? 'run-skip' : 'run-fail'}" id="run-${esc(run.runId)}"${verdict.cls === 'ok' ? '' : ' open'}>
 <summary><span class="badge ${verdict.cls}">${verdict.text}</span> <span class="mono">${esc(name)}</span>${options.runHref ? ` <a class="open" href="${esc(options.runHref(run.runId))}">open the run</a>` : ''}</summary>
 <p class="run-facts">${esc(facts.join(', '))}.${run.title ? ` ${esc(run.title)}.` : ''}</p>
 ${run.error ? `<p class="bad">${esc(run.error)}</p>` : ''}

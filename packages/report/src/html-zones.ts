@@ -600,7 +600,7 @@ export function runsZone(m: PageModel, options: RunPanelOptions): string {
         `<span class="pill pill-${c.index}">Case: ${esc(m.tests.find((t) => t.cases.includes(c))?.title ?? c.specId)}, ${esc(caseLabel(c))}<a href="#drilldown">${ICON_X}<span class="sr">Clear the case filter</span></a></span>`,
     )
     .join('');
-  const seg = `<div class="seg" role="radiogroup" aria-label="Show runs"><input type="radio" name="rf" id="rf-all" checked><label for="rf-all">All<span class="c">${runs.length}</span></label><input type="radio" name="rf" id="rf-fail"><label for="rf-fail">Failed<span class="c">${failing}</span></label><input type="radio" name="rf" id="rf-pass"><label for="rf-pass">Passed<span class="c">${runs.filter((r) => r.pass).length}</span></label></div>`;
+  const seg = `<div class="seg" role="radiogroup" aria-label="Show runs"><input type="radio" name="rf" id="rf-all" checked><label for="rf-all">All<span class="c">${runs.length}</span></label><input type="radio" name="rf" id="rf-fail"><label for="rf-fail">Failed<span class="c">${failing}</span></label><input type="radio" name="rf" id="rf-pass"><label for="rf-pass">Passed<span class="c">${runs.filter((r) => runDetailStatus(r) === 'pass').length}</span></label></div>`;
   return `<section id="drilldown">
 <div class="zone wrap">
 <style>${caseCss}</style>

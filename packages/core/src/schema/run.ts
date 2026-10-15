@@ -262,40 +262,52 @@ export const Blocked = z.strictObject({
 });
 export type Blocked = z.infer<typeof Blocked>;
 
-export const BlockResult = z.strictObject({
-  realizedTextStripped: RealizedTextStripped.optional(),
-  provenance: BlockProvenance.optional(),
-  carried: z.lazy(() => CarriedFrom.extend({ measuredAt: z.string().optional() })).optional(),
-  rejudged: RejudgedFrom.optional(),
-  index: z.number().int().min(0),
-  blockId: z.string().optional(),
-  injected: z.boolean().optional(),
-  /**
-   * Present when the text the driver sent differs from the text the spec block wrote (a simulated user, a
-   * red-team attacker). The sent text is the user messages the agent received, joined by newlines; `hash`
-   * is its SHA-256 (of its canonical JSON). `text` holds it only when the run asked for it
-   * (`recordRealizedText`): what a driver writes may be private, so by default only the hash is kept. Only
-   * the text is compared; a change of form alone (the same text as an injection) is in `injected`. Absent
-   * means the authored text was sent. The provenance digest covers it.
-   */
-  realized: z
-    .strictObject({ hash: z.string().regex(/^[0-9a-f]{64}$/), text: z.string().optional() })
-    .optional(),
-  givenHash: z.string().min(1),
-  /** The key the block's observed record is cached under: what a replay looked up. */
-  cacheKey: z.string().min(1).optional(),
-  observed: Observed,
-  verdicts: z.array(Verdict),
-  stageObserved: z.string().optional(),
-  ledgerCheck: z.strictObject({ ok: z.boolean(), contradictions: z.array(z.string()) }),
-  drift: z.array(DriftClass),
-  /** False on a not_run or blocked block: an old reader never counts one as a pass. */
-  pass: z.boolean(),
-  /** Written only on a not_run or blocked block; absent, the status is pass or fail as `pass` says. */
-  status: BlockStatus.optional(),
-  notRun: NotRun.optional(),
-  blocked: Blocked.optional(),
-});
+export const BlockResult = z
+  .strictObject({
+    realizedTextStripped: RealizedTextStripped.optional(),
+    provenance: BlockProvenance.optional(),
+    carried: z.lazy(() => CarriedFrom.extend({ measuredAt: z.string().optional() })).optional(),
+    rejudged: RejudgedFrom.optional(),
+    index: z.number().int().min(0),
+    blockId: z.string().optional(),
+    injected: z.boolean().optional(),
+    /**
+     * Present when the text the driver sent differs from the text the spec block wrote (a simulated user, a
+     * red-team attacker). The sent text is the user messages the agent received, joined by newlines; `hash`
+     * is its SHA-256 (of its canonical JSON). `text` holds it only when the run asked for it
+     * (`recordRealizedText`): what a driver writes may be private, so by default only the hash is kept. Only
+     * the text is compared; a change of form alone (the same text as an injection) is in `injected`. Absent
+     * means the authored text was sent. The provenance digest covers it.
+     */
+    realized: z
+      .strictObject({ hash: z.string().regex(/^[0-9a-f]{64}$/), text: z.string().optional() })
+      .optional(),
+    givenHash: z.string().min(1),
+    /** The key the block's observed record is cached under: what a replay looked up. */
+    cacheKey: z.string().min(1).optional(),
+    observed: Observed,
+    verdicts: z.array(Verdict),
+    stageObserved: z.string().optional(),
+    ledgerCheck: z.strictObject({ ok: z.boolean(), contradictions: z.array(z.string()) }),
+    drift: z.array(DriftClass),
+    /** False on a not_run or blocked block: an old reader never counts one as a pass. */
+    pass: z.boolean(),
+    /** Written only on a not_run or blocked block; absent, the status is pass or fail as `pass` says. */
+    status: BlockStatus.optional(),
+    notRun: NotRun.optional(),
+    blocked: Blocked.optional(),
+  })
+  .superRefine((block, context) => {
+    // A record that says two things is refused: `status` pass needs `pass` true; fail, not_run and blocked need
+    // it false. A missing status is the runner's normal form for a pass or a fail.
+    if (block.status !== undefined && block.pass !== (block.status === 'pass')) {
+      context.addIssue({
+        code: 'custom',
+        path: ['status'],
+        message: `status ${block.status} contradicts pass ${block.pass}: ${block.status === 'pass' ? 'a passing block has pass true' : 'a block that did not pass has pass false'}`,
+      });
+    }
+  });
 export type BlockResult = z.infer<typeof BlockResult>;
 
 export const Succession = z.strictObject({

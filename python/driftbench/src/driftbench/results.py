@@ -54,8 +54,9 @@ class Block:
             return f"not run ({self.not_run.get('check')}): {self.not_run.get('got')}"
         if self.blocked is not None:
             return f"blocked by {self.blocked.get('by')}"
-        if self.status is not None:
-            return "blocked" if self.status == "blocked" else "not run"
+        verdict = verdict_of(self)
+        if verdict in ("not_run", "blocked"):
+            return "blocked" if verdict == "blocked" else "not run"
         return None
 
     @property
@@ -78,17 +79,25 @@ class Block:
         )
 
 
-def verdict_of(item: Block | Cell) -> str:
-    """The verdict of a block or a cell: pass, fail, not_run or blocked. The one reader of a block's pass and
-    status and a cell's state, as `blockStatus` and `runOutcome` are in TypeScript: a block or a cell not run or
-    blocked is neither a pass nor a fail, and a cell that failed, broke or stopped is a fail."""
+def verdict_of(item: Block | Cell | CampaignResult) -> str:
+    """The verdict of a block, a cell or a campaign: pass, fail, not_run or blocked. The one reader of a block's
+    pass and status, a cell's state and a campaign's cells, as `blockStatus` and `runOutcome` are in TypeScript:
+    a block or a cell not run or blocked is neither a pass nor a fail, and a cell that failed, broke or stopped is
+    a fail. A campaign fails when a cell fails, passes when every cell passes, else is not_run or blocked."""
     if isinstance(item, Block):
         if item.status in ("not_run", "blocked"):
             return item.status
         return "pass" if item.passed else "fail"
-    if item.state in ("not_run", "blocked", "pass"):
-        return item.state
-    return "fail"
+    if isinstance(item, Cell):
+        if item.state in ("not_run", "blocked", "pass"):
+            return item.state
+        return "fail"
+    verdicts = [verdict_of(cell) for cell in item.cells]
+    if not verdicts or "fail" in verdicts:
+        return "fail"
+    if all(verdict == "pass" for verdict in verdicts):
+        return "pass"
+    return "not_run" if "not_run" in verdicts else "blocked"
 
 
 @dataclass(frozen=True)
@@ -196,7 +205,7 @@ class CampaignResult:
 
     @property
     def passed(self) -> bool:
-        return len(self.cells) > 0 and all(cell.passed for cell in self.cells)
+        return verdict_of(self) == "pass"
 
     @classmethod
     def from_json(cls, doc: dict[str, Any], exit_code: int) -> CampaignResult:

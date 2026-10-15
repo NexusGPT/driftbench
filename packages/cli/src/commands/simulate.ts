@@ -174,7 +174,7 @@ export async function simulateCommand(
             agent: block.observed.text,
             stage: block.stageObserved ?? null,
             pass: blockStatus(block) === 'pass',
-            ...(block.status === undefined ? {} : { status: block.status }),
+            ...(isScored(block) ? {} : { status: blockStatus(block) }),
           })),
         },
         null,

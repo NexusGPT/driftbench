@@ -79,10 +79,11 @@ class SpecItem(pytest.Item):
             repeats=config.getoption("driftbench_repeats"),
             cli=config.getoption("driftbench_cli"),
         )
-        if not result.passed:
-            # A spec whose cells were only not run or blocked measured nothing: skipped with why, never a pass.
-            if unmeasured(result):
-                pytest.skip(describe(result))
+        verdict = verdict_of(result)
+        # A spec whose cells were only not run or blocked measured nothing: skipped with why, never a pass.
+        if verdict in ("not_run", "blocked"):
+            pytest.skip(describe(result))
+        if verdict != "pass":
             raise SpecFailed(result)
 
     def repr_failure(self, excinfo: pytest.ExceptionInfo[BaseException], style: Any = None) -> str:
@@ -96,8 +97,7 @@ class SpecItem(pytest.Item):
 
 def unmeasured(result: CampaignResult) -> bool:
     """True when no cell failed but some cell was not run or blocked: the spec is skipped, never passed."""
-    verdicts = [verdict_of(cell) for cell in result.cells]
-    return "fail" not in verdicts and any(verdict in ("not_run", "blocked") for verdict in verdicts)
+    return verdict_of(result) in ("not_run", "blocked")
 
 
 def describe(result: CampaignResult) -> str:

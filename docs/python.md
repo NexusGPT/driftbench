@@ -33,7 +33,7 @@ cell.state, cell.target            # ("pass", "function:acme")
 | `Block` | `index`, `block_id`, `passed`, `stage`, `injected`, `verdicts`, `failing` (the gating verdicts that did not pass), `status` (not_run or blocked, else None), `not_run` and `blocked` (the reason records), `scored`, and `reason` |
 | `Verdict` | `id`, `outcome`, `gating`, `evidence`, and `passed` |
 | `EndState` | `match` and `diff`, one entry per field that does not hold |
-| `verdict_of(block or cell)` | the one reader of a block's pass and status and a cell's state: `pass`, `fail`, `not_run` or `blocked` |
+| `verdict_of(block, cell or campaign result)` | the one reader of a block's pass and status, a cell's state and a campaign's cells: `pass`, `fail`, `not_run` or `blocked` |
 | `Summary` | `cells`, `passed`, `failed_checks` (a gating verdict did not pass), `failed` (the run broke), `stopped_by_budget`, `pending`, `not_run`, `blocked` |
 
 ## A Python function as the agent

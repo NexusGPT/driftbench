@@ -187,7 +187,7 @@ export async function perturbCommand(
               injected: block.injected === true,
               stage: block.stageObserved ?? null,
               pass: blockStatus(block) === 'pass',
-              ...(block.status === undefined ? {} : { status: block.status }),
+              ...(isScored(block) ? {} : { status: blockStatus(block) }),
               failing: failing(block),
               text: block.observed.text,
             })),

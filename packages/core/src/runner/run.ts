@@ -44,7 +44,7 @@ import { type RecoveryOptions, recoveryOf } from './recovery';
 import { CallFailure, describeError, type RetryOptions, retryLayer, withRetry } from './retry';
 import { canonicalPreviousStage, flowVerdicts, readStage, stageSignatures } from './stages';
 import { succession } from './succession';
-import { isScored } from './verdicts';
+import { blockStatus, isScored } from './verdicts';
 
 /**
  * What the runner reports as it runs, in order: a block starting, each tool call the adapter recorded, each retry a block took,
@@ -661,7 +661,12 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         pass: all.every((verdict) => !verdict.gating || verdict.outcome === 'pass'),
       };
       blocks.push(block);
-      run.onEvent?.({ type: 'block_end', index: position, pass: block.pass, at: new Date().toISOString() });
+      run.onEvent?.({
+        type: 'block_end',
+        index: position,
+        pass: blockStatus(block) === 'pass',
+        at: new Date().toISOString(),
+      });
     }
   } catch (cause) {
     if (cause instanceof TokenPriceError) {
