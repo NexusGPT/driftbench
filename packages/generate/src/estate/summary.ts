@@ -34,7 +34,7 @@ export function runOrder(
     .map(({ record }) => record.path);
 }
 
-export function sortedKeys(table: Record<string, number>): Record<string, number> {
+export function sortedKeys<T>(table: Record<string, T>): Record<string, T> {
   return Object.fromEntries(Object.entries(table).sort(([a], [b]) => a.localeCompare(b)));
 }
 

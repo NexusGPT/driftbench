@@ -59,7 +59,7 @@ describe('script calls in estate journeys', () => {
 });
 
 describe('a generated journey catches a faulty script caller', () => {
-  it('rejects a missing or substituted script even when the skill loaded and other commands ran', () => {
+  it('rejects a missing or substituted script even when the skill loaded and other commands ran', async () => {
     const journey = planJourneys(map).journeys.find((j) => j.atomIds.includes(atoms[2]!.id));
     expect(journey).toBeDefined();
     if (!journey) return;
@@ -105,8 +105,8 @@ describe('a generated journey catches a faulty script caller', () => {
     if (!loaded.ok) throw new Error(JSON.stringify(loaded.errors));
     const options = loaded.spec.rules?.custom?.some_call;
     expect(options).toBeDefined();
-    const verdict = (commands: string[]) =>
-      someCall(
+    const verdict = async (commands: string[]) => {
+      const result = await someCall(
         {
           blockIndex: 0,
           observed: {
@@ -118,8 +118,10 @@ describe('a generated journey catches a faulty script caller', () => {
         } as CheckContext,
         options,
       );
-    expect(verdict(['python scripts/pack.py'])[0]?.outcome).toBe('pass');
-    expect(verdict([])[0]?.outcome).toBe('fail');
-    expect(verdict(['python scripts/other.py'])[0]?.outcome).toBe('fail');
+      return Array.isArray(result) ? result : [result];
+    };
+    expect((await verdict(['python scripts/pack.py']))[0]?.outcome).toBe('pass');
+    expect((await verdict([]))[0]?.outcome).toBe('fail');
+    expect((await verdict(['python scripts/other.py']))[0]?.outcome).toBe('fail');
   });
 });
