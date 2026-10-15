@@ -41,10 +41,18 @@ function statusOf(run: RunResult): string {
 
 /**
  * The independent runs the mean over trees is worth: n_eff = p (1 - p) / variance, with p the mean of the tree
- * rates and the variance that of this equal-weight mean, not of the pooled rate. The variance is the spread of the
- * tree rates over the trees, s^2 / G; when every tree has the same rate that spread is zero and the within-tree
- * binomial variance, sum p_g (1 - p_g) / n_g / G^2, stands in. With no variance at all (every run agrees) each
- * tree counts once. n_eff is kept within 1 to the runs; the design effect is the runs over n_eff.
+ * rates and the variance that of this equal-weight mean, not of the pooled rate.
+ *
+ * The variance is the larger of two estimates of the variance of a mean of G group means:
+ * - the between-group form s^2 / G, with s^2 the sample variance of the tree rates (the standard estimator for a
+ *   mean of cluster means, as in Cochran, Sampling Techniques); it carries the correlation inside a tree;
+ * - the sampling-noise form sum p_g (1 - p_g) / n_g / G^2, the variance the runs of each tree would give if its
+ *   rate were fixed. The between-group form already contains this noise in expectation, but a small sample can
+ *   land below it (identical rates, or rates that round to nearly identical ones), so the larger of the two never
+ *   claims less than sampling noise. This is the same idea as the floor of a random-effects estimate (a
+ *   between-group variance truncated at zero, DerSimonian and Laird 1986), without a tolerance.
+ * With no variance at all (every run agrees) each tree counts once. n_eff is kept within 1 to the runs; the design
+ * effect is the runs over n_eff.
  */
 function meanEffective(counts: readonly { n: number; k: number }[], p: number, runs: number) {
   const g = counts.length;
@@ -53,7 +61,7 @@ function meanEffective(counts: readonly { n: number; k: number }[], p: number, r
   const within =
     counts.reduce((sum, c, i) => sum + ((rates[i] as number) * (1 - (rates[i] as number))) / c.n, 0) /
     (g * g);
-  const variance = between > 0 ? between : within;
+  const variance = Math.max(between, within);
   const degenerate = !(variance > 0) || p === 0 || p === 1;
   const effective = degenerate ? g : Math.min(runs, Math.max(1, (p * (1 - p)) / variance));
   return { effective, designEffect: runs / effective, degenerate };

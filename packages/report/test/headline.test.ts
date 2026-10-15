@@ -128,6 +128,24 @@ describe('suiteHeadline', () => {
     expect(got?.designEffect).toBeCloseTo(1022 / 26.18, 1);
   });
 
+  it('never claims less variance than sampling noise when golden rates are identical up to rounding', () => {
+    // Every golden passes 70% of its runs, but the mean rounds to 0.6999999999999998: no tolerance may decide this.
+    const trees = [{ n: 1000, k: 700 }, ...Array.from({ length: 11 }, () => ({ n: 10, k: 7 }))];
+    const runs = trees.flatMap((t, g) =>
+      Array.from({ length: t.n }, (_, repeat) =>
+        run({ specId: `g${g}`, repeat, blocks: repeat < t.k ? [{}] : [{}, { pass: false }] }),
+      ),
+    );
+    const got = suiteHeadline(runs, treeOf);
+    const variance = (0.21 / 1000 + (11 * 0.21) / 10) / 144;
+    expect(got?.effectiveRuns).toBeCloseTo(0.21 / variance, 6);
+    expect(got?.effectiveRuns).toBeCloseTo(130.79, 2);
+    expect(got?.detectableDrop).toBeCloseTo(
+      mde({ n: 0.21 / variance, baselineRate: 0.7, power: 0.8 }).effect as number,
+      10,
+    );
+  });
+
   it('is undefined with no run', () => {
     expect(suiteHeadline([], treeOf)).toBeUndefined();
   });
