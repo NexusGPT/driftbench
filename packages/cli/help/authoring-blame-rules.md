@@ -1,6 +1,6 @@
 ---
 title: Blame and placement rules
-summary: "The two shipped rule files that read a failing verdict's evidence and say who made the mistake (policy/blame) and where one change stops it recurring (policy/placement), and how to write a project file that changes any of their items."
+summary: "The two shipped rule files that read a failing verdict's evidence: who made the mistake (policy/blame) and where one change stops it recurring (policy/placement)."
 commands: []
 see_also:
   - authoring-evidence-names
@@ -206,7 +206,13 @@ item names it.
 
 ## Worked example
 
-No command runs blame or placement in this release. First, the Acme coverage spec, whose `coverage.check` call the failing block below imitates, runs and passes on the Acme agent:
+No command runs blame or placement in this release; `spec validate` checks the rule files a spec names. The project config comes first, so every command below sees the project:
+
+```yaml file=driftbench.yaml
+# The project config. The project rule files are read from driftbench/ beside it.
+```
+
+Then the Acme coverage spec, whose `coverage.check` call the failing block below imitates, runs and passes on the Acme agent:
 
 ```sh
 driftbench campaign run examples/acme/specs/conversations/new-customer-coverage.yaml --no-cache
@@ -399,11 +405,48 @@ How to read it:
 * `seed_lint_failed` is not a shipped evidence name, so `seed_defect` never fires until a plugin provides it.
 * The escape test finds the skill name, the file name and the amount; the class wording has none.
 
+A spec names the rule files under `uses`. `spec validate` resolves them, the shipped defaults and the project file included:
+
+```yaml file=specs/blamed.yaml
+# Fictional data only.
+id: blamed-coverage
+target: { adapter: function, agent: acme-sales }
+uses: { blame: acme, placement: default }
+blocks:
+  - user: Can I get fiber at 7 Quarry Ln, Acmeville?
+    expect: { must: ['address'] }
+```
+
+```yaml file=specs/unknown/nope.yaml
+id: blamed-unknown
+uses: { blame: nope }
+blocks:
+  - user: Hi.
+    expect: { must: ['Acme'] }
+```
+
+```sh
+driftbench spec validate specs/blamed.yaml
+driftbench spec validate specs/unknown # exit 1
+```
+
+```text
+$ driftbench spec validate specs/blamed.yaml
+✓ specs/blamed.yaml  blamed-coverage · 1 block · hash 14c568e3de05
+Checked 1 spec: 1 valid, 0 invalid, 0 warnings.
+(exit 0)
+$ driftbench spec validate specs/unknown
+✗ specs/unknown/nope.yaml
+    uses.blame  OBJECT_UNKNOWN  spec blamed-unknown: uses.blame: unknown object policy/blame:nope; searched layers shipped, project, suite, spec, block, cli; known ids for policy/blame: acme, default
+Checked 1 spec: 0 valid, 1 invalid, 0 warnings.
+(exit 1)
+```
+
 ## Common errors
 
-* `uses.blame  OBJECT_UNKNOWN  spec <id>: uses.blame: unknown object policy/blame:default; searched layers shipped, project, suite, spec, block, cli`
-  from `spec validate`: in this release the spec commands do not load the shipped blame and placement files, so a
-  spec cannot name them under `uses`. Resolve them from code, as the worked example does.
+* `uses.blame  OBJECT_UNKNOWN  spec <id>: uses.blame: unknown object policy/blame:<id>; searched layers shipped, project, suite, spec, block, cli; known ids for policy/blame: <ids>`
+  from `spec validate`: a spec names a blame object no layer holds. Fix the id, or write the project file under
+  `driftbench/policy/blame/` beside a `driftbench.yaml`.
 * `unknown item <id> in policy/blame:<id> (<file>:<line>); the parent policy/blame:default holds <item list>. To add
   a new item write add: true with title, when, effect and impl`: an operation names an item the parent does not
   hold. Fix the id, or add `add: true` with the four fields.
