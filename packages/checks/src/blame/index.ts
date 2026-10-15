@@ -9,12 +9,6 @@ export {
 } from './attribute';
 export { type ChainLink, chainVerdicts } from './chain';
 export { BLAME_IMPLS, type BlameImpl, type BlameItemView, fromEffect, splitByNextAction } from './impls';
-export {
-  objectsDir,
-  registerBlameObjects,
-  SHIPPED_OBJECT_FILES,
-  shippedObjectText,
-  shippedPolicy,
-} from './objects';
+export { registerBlameObjects, SHIPPED_OBJECTS, shippedPolicy } from './objects';
 export type { Attribution, BlameDiagnosis, Confidence, Disposition, Placement } from './types';
 export { type Facts, holds, namesRead, whenHolds } from './when';
