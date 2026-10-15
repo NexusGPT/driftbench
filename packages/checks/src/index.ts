@@ -5,6 +5,8 @@
  * budget, end state and the
  * checks users register. `defaultChecks()` returns them all, in the order the runner applies them.
  */
+
+export { DEFAULT_CHECK_SET, SHIPPED_CHECKS } from './check-set';
 export { artifacts } from './checks/artifacts';
 export { budget } from './checks/budget';
 export { cards } from './checks/cards';
