@@ -152,8 +152,11 @@ describe('a diagnostic', () => {
         },
       },
     ]);
+    // defaultChecks() initializes the shipped blame and placement policies too.
     expect(result.blocks[1]?.resolved?.objects.map((entry) => [entry.key, entry.id])).toEqual([
       ['value_check', 'default'],
+      ['blame', 'default'],
+      ['placement', 'default'],
       ['check_set', 'default'],
       ['diagnostics', 'explain-fails'],
     ]);
