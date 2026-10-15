@@ -31,9 +31,9 @@ Every name is computed once by one provider, from what the run, the estate map, 
 | `rule_skill` | static | a skill name | the provenance path of the atom, or the link |
 | `rule_act` | static | load_skill, read_reference, ordered, stage, gate, step, recovery, tool_contract, provenance, integrity | the atom's evidence type (skill_loaded, tool_called, ordered, stage_reached, custom) and kind, or the link's act |
 | `act_signature` | static | an act class with its detail | rule_act with the ordered pair or the stage it names |
-| `rule_situational` | static | boolean | the atom's situation: a rule stated for one situation of its skill |
+| `rule_situational` | static | boolean | the atom's situation: a rule stated for one situation of its skill (a pointer's situation is where it fires, already a layout); for a rule no file states, the block's own situation |
 | `rule_mechanical` | static | boolean | the failing verdict is a machine verdict |
-| `rule_needed_by` | static | number | the skills whose plan rows name the rule's atom, the routed skill, the rule's own skill, and the core prompt when a core atom cites it |
+| `rule_needed_by` | static | number | the skills whose plan rows name the rule's atom, the routed skill, the rule's own skill, and the core prompt when a core atom cites it (a core rule's own home is not counted) |
 | `routed_skills` | static | skill names | expect.skills and the route atoms the failing check names |
 | `skill_loaded` | static | boolean | the trace's skills list, or a Read of the skill's SKILL.md, for the skill the check is about |
 | `skill_covers` | static | covered, not_covered, unknown | a stored reference agent's load count against the bar, else a route_positive plan row for the skill, else unknown |
@@ -46,7 +46,7 @@ Every name is computed once by one provider, from what the run, the estate map, 
 | `guard_caught` | static | boolean | the guard decision log: an enforcing guard denied the act, then allowed it later (the agent complied) |
 | `tool_failed` | static | boolean | the exit code or the error of the call the check is about, or a rung that found the tool did not resolve the value |
 | `tool_silent` | static | boolean | exit 0 or no error, with output that lacks what the tool's own usage text promises |
-| `tool_output_wrong` | static | boolean | a value the agent reported that a tool output holds, and that differs from gold |
+| `tool_output_wrong` | static | boolean | a value the agent reported that came from a tool output (not from the user or a file), and that differs from gold |
 | `env_error` | static | network, sandbox, package, timeout, none | a classifier over stderr, the output of failed commands and tool errors; the first class that matches, in the order timeout, network, package, sandbox |
 | `protected_changed` | static | boolean | a path of the block's protected list changed or deleted in the net workspace diff |
 | `tests_fail_reverted` | static | boolean | the stored sandbox re-execution with the agent's test edits reverted (no agent call) |
