@@ -112,7 +112,8 @@ export function crewaiAdapter(options: CrewaiAdapterOptions): AgentAdapter {
       // unstated origin go as they always did.
       const prefix = copyHistory(given.prefix);
       const stated = given.origin === 'recorded' || given.origin === 'authored';
-      const recorded = options.inputs || !stated ? 0 : prefix.reduce((n, m) => n + (m.tool_calls?.length ?? 0), 0);
+      const recorded =
+        options.inputs || !stated ? 0 : prefix.reduce((n, m) => n + (m.tool_calls?.length ?? 0), 0);
       if (recorded > 0) {
         throw new AgentFailure(
           `crewai: the Given prefix (origin ${given.origin}) holds ${recorded} recorded tool call(s), and a crew takes its history as text inputs, so its agents would read them as prose, not as tool results. Write those turns as blocks the crew runs, or pass \`inputs\` that hand the calls to the crew in a form it reads as records.`,
