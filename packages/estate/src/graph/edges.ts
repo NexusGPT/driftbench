@@ -143,9 +143,11 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
     rules.filter((rule) => labels.get(rule.id) === label.replace('#', '').toUpperCase());
   for (const rule of rules) {
     const own = labels.get(rule.id);
-    for (const match of rule.provenance.quote.matchAll(/\b([A-Z]{1,3})#?(\d{1,3})\b/g)) {
+    const quote = rule.provenance.quote;
+    for (const match of quote.matchAll(/\b([A-Z]{1,3})#?(\d{1,3})\b/g)) {
       const label = `${match[1]}${match[2]}`;
       if (label === own) continue;
+      if (!match[0].includes('#') && designates(quote.slice(0, match.index))) continue;
       for (const cited of withLabel(label)) add(rule.id, cited.id, 'cites');
     }
   }
@@ -169,7 +171,7 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
         for (const rule of withLabel(label)) take(rule, 'id');
       }
       for (const literal of literals(script.text)) {
-        for (const rule of rules) if (holds(rule.provenance.quote, literal)) take(rule, 'quote');
+        for (const rule of rules) if (repeats(rule.provenance.quote, literal)) take(rule, 'quote');
       }
     }
     for (const entry of found) add(guard.id, entry.atom, 'enforces');
@@ -185,6 +187,59 @@ function holds(quote: string, passage: string): boolean {
   const b = plain(passage);
   if (b.length < MIN_LITERAL || a.length < MIN_LITERAL) return a === b && a !== '';
   return a.includes(b) || b.includes(a);
+}
+
+/** A clause that sets when a rule applies: from its lead word to the next comma, colon or semicolon. */
+const CONDITION = /\b(?:when|whenever|if|unless|once|after|before|until|while|as soon as|in case)\b[^,:;]*/g;
+
+/**
+ * Whether a string of a guard's source repeats a rule. A registry row declares what it enforces, so any
+ * passage it quotes counts (`holds`); a string in the source is only circumstantial, so a part of the rule
+ * counts only when it reaches past the rule's condition. A message that quotes the condition alone ("the user
+ * asks to stop" of "When the user asks to stop, stop all work") repeats when the rule applies, not the rule.
+ */
+function repeats(quote: string, literal: string): boolean {
+  if (!holds(quote, literal)) return false;
+  const rule = plain(quote);
+  const part = plain(literal);
+  const at = rule.indexOf(part);
+  if (part.length >= rule.length || at < 0) return true;
+  for (const condition of rule.matchAll(CONDITION)) {
+    const start = condition.index ?? 0;
+    if (at >= start && at + part.length <= start + condition[0].length) return false;
+  }
+  return true;
+}
+
+/** Function words, pronouns, modals and adverbs: a word before a label that never heads a noun phrase. */
+const LEAD =
+  /^(?:a|an|the|this|that|these|those|each|every|any|some|no|its|their|our|your|my|his|her|as|per|under|see|cf|and|or|nor|but|of|to|with|by|from|in|on|at|for|than|like|unlike|after|before|until|when|if|unless|also|then|still|only|just|first|now|again|please|always|never|not|do|does|did|you|we|they|it|he|she|i|can|could|may|might|must|shall|should|will|would|is|are|was|were|be|been)$/i;
+/** Words after which a noun phrase opens: determiners, and prepositions other than the infinitive "to". */
+const NOUN_OPENER =
+  /^(?:a|an|the|this|that|these|those|each|every|any|some|no|its|their|our|your|my|his|her|of|with|by|from|in|on|at|for|into|onto|under|per)$/i;
+/** Nouns that name a rule: "rule R5" cites R5. */
+const RULE_NOUN =
+  /^(?:rules?|gates?|instructions?|principles?|guidelines?|polic(?:y|ies)|requirements?|constraints?)$/i;
+
+/**
+ * Whether a bare label (no `#`) names some other thing than a rule: it follows a noun it designates, as in
+ * "tax form R1", "the room B2" or "Keep Form R1". The word before the label is that noun when it is a content
+ * word (no function word, no verb ending in -s, -ed or -ing, no rule noun) and the word before it opens a noun
+ * phrase: a determiner, a preposition ("on form R5") or another content word. After a pronoun, a modal, an
+ * adverb, a conjunction or "to" the word is a verb, so "you must follow R1", "always obey R1", "Obey R1" and
+ * "as R1 asks" cite R1.
+ */
+function designates(before: string): boolean {
+  const tail = before.replace(/[*_`]/g, '').trimEnd();
+  const word = /(?:^|\s)([A-Za-z]+)$/.exec(tail)?.[1];
+  if (!word || tail.length === before.replace(/[*_`]/g, '').length || LEAD.test(word) || RULE_NOUN.test(word))
+    return false;
+  if (/(?:[^s]s|ed|ing)$/i.test(word)) return false;
+  const rest = tail.slice(0, tail.length - word.length);
+  const previous = /([A-Za-z]+)\s+$/.exec(rest)?.[1];
+  if (!previous) return false;
+  if (NOUN_OPENER.test(previous)) return true;
+  return !LEAD.test(previous) && !/ly$/i.test(previous);
 }
 
 /** Labels a guard source declares: `Enforces: R3, R5` in a comment or a docstring. */

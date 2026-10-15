@@ -361,7 +361,9 @@ function scriptAtoms(
     const relative = posix.relative(folder, file.path);
     if (!SCRIPT.test(file.path) && !relative.startsWith('scripts/')) continue;
     const name = basename(file.path);
-    const mention = body.find((line) => line.text.includes(name));
+    const mention =
+      body.find((line) => namesToRun(line.text, name, relative)) ??
+      body.find((line) => line.text.includes(name));
     const at: Located = mention
       ? { file: definition, startLine: mention.line, endLine: mention.line, quote: mention.quote }
       : firstLine(file);
@@ -373,6 +375,21 @@ function scriptAtoms(
       fields: { path: file.path, skill, named: mention !== undefined },
     });
   }
+}
+
+/**
+ * Whether a body line names a script as something to run: inside a code span or a link, or by its path from
+ * the skill folder. A bare file name in running prose ("the old tally.py was slow") is a passing mention; the
+ * script anchors there only when no line names it to run.
+ */
+function namesToRun(text: string, name: string, relative: string): boolean {
+  if (relative.includes('/') && text.includes(relative)) return true;
+  for (const match of text.matchAll(/`([^`\n]+)`|\[[^\]\n]*\]\(([^)\n]+)\)/g)) {
+    const span = match[1] ?? match[2] ?? '';
+    if (new RegExp(`(?:^|[\\s/"'])${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:$|[\\s"'])`).test(span))
+      return true;
+  }
+  return false;
 }
 
 /** A path and its spelling in the source, before notation is normalized. */
@@ -426,6 +443,27 @@ function namedReferences(line: string): NamedReference[] {
     take(match, match[0].replace(/[.:]+$/, ''));
   }
   return found;
+}
+
+/**
+ * Whether a line names a file only as history: the clause naming it reports, in the past tense, that the file
+ * was removed, renamed, moved or replaced ("Version 2 removed `legacy.md`", "`old.md` was deleted"), and no
+ * word of that clause asks for a read. In "renamed `a.md` to `b.md`" only the old name is history; the name
+ * after to, into, by or with is the file as it is now.
+ */
+function pastFile(text: string, spelling: string): boolean {
+  const { text: masked, spans } = maskLine(text);
+  for (const clause of masked.split(/[;!?]|\.(?=\s|$)/)) {
+    const verb = /\b(?:removed|deleted|dropped|retired|deprecated|renamed|moved|replaced|superseded)\b/i.exec(
+      clause,
+    );
+    if (!verb || /\b(?:read|open|load|see|consult|use)\b/i.test(clause)) continue;
+    const after = clause.slice(verb.index + verb[0].length);
+    const current = /\b(?:to|into|by|with)\b/i.exec(after);
+    const past = clause.slice(0, verb.index + verb[0].length + (current ? current.index : after.length));
+    if (unmask(past, spans).includes(spelling)) return true;
+  }
+  return false;
 }
 
 /** Whether at least one mention requires the act, rather than forbidding it in its own clause. */
@@ -591,6 +629,7 @@ function referenceAtoms(
     if (standing && /^@\S+$/.test(line.text.trim())) continue;
     for (const { path: named, spelling } of namedReferences(line.text)) {
       if (!positiveMention(line.text, spelling, ['read', 'open', 'load'])) continue;
+      if (pastFile(line.text, spelling)) continue;
       const located = locateNamed(named, chunk.file, files, {
         bases: raw.bases ?? [],
         skipped,
@@ -1173,6 +1212,7 @@ function hazardAtoms(chunk: ProseChunk, files: ReadonlyMap<string, EstateFile>, 
   for (const line of chunkLines(chunk, files.get(chunk.file))) {
     for (const hazard of HAZARDS) {
       if (!hazard.pattern.test(line.text) || !runtimeHazard(hazard.id, line.text)) continue;
+      if (quotedSample(line.text, hazard.pattern)) continue;
       builder.add({
         kind: 'hazard',
         title: `Recover from ${hazard.title.toLowerCase()}`,
@@ -1183,6 +1223,21 @@ function hazardAtoms(chunk: ProseChunk, files: ReadonlyMap<string, EstateFile>, 
       });
     }
   }
+}
+
+/**
+ * A hazard named only inside a quotation that the line offers as a sample of how some text reads ("an error
+ * reads like "rate limit exceeded""; "for example, `restart pending`") shows a format, not an event the agent
+ * meets. The same quotation inside a condition ("if the API answers "rate limit exceeded", wait") is the event,
+ * and stays a hazard, as does any hazard named outside the quotation.
+ */
+function quotedSample(text: string, pattern: RegExp): boolean {
+  const outside = maskLine(text).text.replace(new RegExp(TOKEN, 'g'), ' ');
+  if (pattern.test(outside)) return false;
+  const sample =
+    /\b(?:reads?|looks?|(?:is|are)\s+written|appears?)\s+(?:like|as)\b|\bfor\s+(?:example|instance)\b|\be\.g\.|\bexamples?\s*:/i;
+  const condition = /\b(?:if|when|whenever|once|after|upon|unless|until|in\s+case)\b/i;
+  return sample.test(outside) && !condition.test(outside);
 }
 
 /**
