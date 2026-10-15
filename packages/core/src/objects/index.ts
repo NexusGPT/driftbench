@@ -23,6 +23,7 @@ export {
 export {
   BUILTIN_KINDS,
   type ImplDef,
+  initializeShippedObjects,
   itemOf,
   type KindDef,
   ObjectRegistry,

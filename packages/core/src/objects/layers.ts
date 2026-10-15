@@ -4,7 +4,13 @@ import { parse as parseYaml } from 'yaml';
 import { type ItemPatch, LAYERS, type Layer, USES_KINDS, Uses } from '../schema/object';
 import type { Spec } from '../schema/spec';
 import { isPlainObject } from '../spec/normalize';
-import { type ObjectRegistry, ObjectStore, objectRegistry, type ResolvedObject } from './resolve';
+import {
+  initializeShippedObjects,
+  type ObjectRegistry,
+  ObjectStore,
+  objectRegistry,
+  type ResolvedObject,
+} from './resolve';
 import { ObjectError } from './rules';
 
 /** The project folder of user objects, beside `driftbench.yaml`: `driftbench/<kind>/<id>.yaml`. */
@@ -40,26 +46,17 @@ export type ObjectContext = {
 };
 
 type Discovered = { root?: string; suites: string[] };
-const discoveryCache = new Map<string, Discovered>();
-const contextCache = new Map<string, ObjectContext>();
-
-/** Forgets every discovered folder, so tests and long-lived processes read changed object files. */
-export function clearObjectContexts(): void {
-  discoveryCache.clear();
-  contextCache.clear();
-}
+/** Compatibility hook: contexts are read afresh, so there is no process cache to clear. */
+export function clearObjectContexts(): void {}
 
 /**
  * The objects visible from a spec file: the shipped ones, the project's (`driftbench/` beside the nearest
  * `driftbench.yaml`, and its `objects:` key), and every `_driftbench/` suite folder from the project root down
  * to the spec's folder, a nearer one stronger. The search stops at the project root, else at the repository
- * root (a folder holding `.git`). Folders are read once per process; `clearObjectContexts` forgets them.
+ * root (a folder holding `.git`). Each load reads fresh files; a loaded spec keeps its own context snapshot.
  */
 export function objectContextFor(specPath: string, registry: ObjectRegistry = objectRegistry): ObjectContext {
   const dir = dirname(resolve(specPath));
-  const cacheKey = registry === objectRegistry ? dir : '';
-  const cached = cacheKey === '' ? undefined : contextCache.get(cacheKey);
-  if (cached) return cached;
   const found = discover(dir);
   const store = new ObjectStore(registry);
   const uses: LayerUses[] = [];
@@ -87,7 +84,6 @@ export function objectContextFor(specPath: string, registry: ObjectRegistry = ob
     problems,
     ...(found.root === undefined ? {} : { root: found.root }),
   };
-  if (cacheKey !== '') contextCache.set(cacheKey, context);
   return context;
 }
 
@@ -97,8 +93,6 @@ export function shippedObjectContext(registry: ObjectRegistry = objectRegistry):
 }
 
 function discover(dir: string): Discovered {
-  const known = discoveryCache.get(dir);
-  if (known) return known;
   let result: Discovered;
   const suite = join(dir, SUITE_OBJECTS_DIR);
   const own = isDir(suite) ? [suite] : [];
@@ -110,7 +104,6 @@ function discover(dir: string): Discovered {
     const above = discover(dirname(dir));
     result = { ...(above.root === undefined ? {} : { root: above.root }), suites: [...above.suites, ...own] };
   }
-  discoveryCache.set(dir, result);
   return result;
 }
 
@@ -367,6 +360,7 @@ export function parseCliOverrides(
   setFlags: readonly string[],
   registry: ObjectRegistry = objectRegistry,
 ): CliOverrides {
+  if (registry === objectRegistry) initializeShippedObjects();
   const use = new Map<string, string>();
   for (const flag of useFlags) {
     const parsed = splitKindId(flag, registry);

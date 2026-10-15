@@ -30,6 +30,7 @@ import {
 } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
+import { initializeShippedObjects } from '../../src/objects';
 
 const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), '..', 'fixtures', 'framework');
 const PROTOTYPE = join(FIXTURES, 'objects');
@@ -368,6 +369,7 @@ describe('items', () => {
   it('refuses a key the kind does not hold: agent-facing is a property of the kind, not of a file', () => {
     const error = refusal(() => prototypeStore('shipped/run-profile/default.yaml'));
     expect(error.message).toContain('unknown key agent_facing');
+    initializeShippedObjects();
     expect(objectRegistry.kind('run-profile')?.agentFacing).toBe(true);
   });
 });

@@ -5,6 +5,8 @@ import type { DriverStep, UserDriver } from '../contracts/driver';
 import { copyHistory, freezeMessage } from '../contracts/history';
 import type { Store } from '../contracts/store';
 import { gateToolCalls, type ToolRule } from '../contracts/tool-policy';
+import { objectContextOfSpec } from '../objects/context';
+import { checkSpecObjects, type ObjectContext, shippedObjectContext } from '../objects/index';
 import { type BlockReuse, planBlockRerun } from '../radius/blocks';
 import { collectRetries, type RetryPolicy, retryPolicy } from '../retry';
 import type { Message, TargetRef, WorldState } from '../schema/common';
@@ -57,6 +59,8 @@ import { succession } from './succession';
 export type { RunEvent };
 
 export type RunOptions = {
+  /** Defaults to the context carried by the loaded spec. */
+  objects?: ObjectContext;
   /** Dated, user-supplied USD prices for token-only observations. */
   prices?: TokenPrices;
   /** A budgeted campaign cannot continue with an unpriced token-only block. */
@@ -138,6 +142,10 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
   if (options.store && options.campaignId === undefined) {
     throw new Error('runSpec: a store needs a campaignId to file the run under');
   }
+  const objects = options.objects ?? objectContextOfSpec(spec) ?? shippedObjectContext();
+  const objectErrors = checkSpecObjects(spec, objects);
+  if (objectErrors.length)
+    throw new RunnerError(objectErrors.map((issue) => `${issue.code}: ${issue.message}`).join('; '));
   const now = options.now ?? (() => new Date());
   const specHash = contentHash(spec);
   // The cache key leaves out the spec's version label and its scoring-only `uses` (cacheSpecHash).

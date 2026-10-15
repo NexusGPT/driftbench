@@ -86,6 +86,7 @@ export {
   explainRows,
   type ImplDef,
   type ItemOperations,
+  initializeShippedObjects,
   itemApplies,
   itemOf,
   type KindDef,
@@ -113,6 +114,7 @@ export {
   USES_FILE,
   type UsedObject,
 } from './objects';
+export { bindObjectContext, objectContextOfSpec } from './objects/context';
 export {
   ALLOWED_VERSION_TRANSITION_FIELDS,
   type AuditVerdict,
