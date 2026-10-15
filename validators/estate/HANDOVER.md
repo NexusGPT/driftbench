@@ -11,13 +11,13 @@
 | hidden | 0 |
 <!-- level-table:end -->
 
-Iteration 34, source 096925106b18ce692f4455ea1cc9d34cb9304021 plus the change recorded in this journal row. Hidden seed 158885712, derived from that head.
+Iteration 35, source dd9fef8a3eb13ca6675cc97f9e112b1fb21cfdf7 plus the change recorded in this journal row. Hidden seed 719246282, derived from that head.
 | Seed | Reader passing / items |
 |---|---|
-| 1 | 611/641 |
-| 2 | 612/641 |
-| 3 | 612/641 |
-| hidden (158885712) | 612/641 |
+| 1 | 613/641 |
+| 2 | 613/641 |
+| 3 | 613/641 |
+| hidden (719246282) | 613/641 |
 
 Each fraction counts reader items passing on that seed, out of 641 reader items. Journal `passing` counts distinct evaluated item IDs passing every seed; it is not a sum of seed counts. The journal's per-level `metrics` use seed 1; its `perSeed` records achieved levels separately.
 
@@ -45,8 +45,6 @@ Owner rule: "make sure all the fixes are fixes that are TO THE FRAMEWORK in gene
 - scan.hazards.decoy-price: [scan.hazards, tier 3] code reads a decoy: nudging a price: found hazard hazard.recipe-pack-14rrbst.recover-from-repeated-guard-nudges at .claude/skills/recipe-pack-14rrbst/SKILL.md:9, never planted
 - scan.combination.colon+crlf: [scan.combination, tier 4] the reader reads a skill with both colon and crlf: missed route shelf-audit-3dpxle at .claude/skills/shelf-audit-3dpxle/SKILL.md:3; missed the route edge scan.combination.colon+crlf:route to scan.combination.colon+crlf:skill
 - scan.combination.prefixguard+crlf: [scan.combination, tier 4] the reader reads a skill with both prefixguard and crlf: missed route badge-check-f38gr8 at .claude/skills/badge-check-f38gr8/SKILL.md:3; missed guard check.sh at .claude/skills/badge-check-f38gr8/SKILL.md:10; found script script.badge-check-f38gr8.script-scripts-check-sh at .claude/skills/badge-check-f38gr8/scripts/check.sh:2, never planted; missed the route edge scan.combination.prefixguard+crlf:route to scan.combination.prefixguard+crlf:skill
-- scan.hostile.wide-folder: [scan.hostile, tier 3] : [scan.hostile, tier 3] the scan survives a references folder of two thousand files: the scan took 7898 ms, over 5000 ms; holds
-- scan.hostile.helper-subfolder: [scan.hostile, tier 3] the scan survives a helper in a subfolder of the helpers folder: missed subagent crate-price-1xtpv3h at .claude/agents/team/crate-price-1xtpv3h.md:2; missed route crate-price-1xtpv3h at .claude/agents/team/crate-price-1xtpv3h.md:3
 - scan.hostile.tabs-in-frontmatter: [scan.hostile, tier 3] the scan survives a frontmatter indented with tabs: found tool tool.roster-count-1dxpozt.declared-read at .claude/skills/roster-count-1dxpozt/SKILL.md:5, never planted
 - scan.decoys.owner-table: [scan.decoys, tier 3] code is not fooled: a table of owners that names a skill is no routing table: found route route.standing.an-ask-to-ana-loads-tariff at CLAUDE.md:4, never planted
 - scan.decoys.changelog-reference: [scan.decoys, tier 4] code is not fooled: a file named in a change note is no reference: found reference reference.ticket-price-14oprfr.read-references-legacy-md at .claude/skills/ticket-price-14oprfr/SKILL.md:12, never planted
@@ -68,6 +66,7 @@ Owner rule: "make sure all the fixes are fixes that are TO THE FRAMEWORK in gene
 
 ## Hypotheses tried
 
+Iteration 35: helpers in agent subfolders. +1 on every seed: scan.hostile.helper-subfolder.
 Iteration 34: shell context for hook commands (cd &&, sh -c wrappers). +2 on every seed: scan.dispatcher.change-folder, shell-wrapper. Seed 1 lost wide-folder on timing only.
 Iteration 33: registry rows that name a guard by its command. +1 on every seed: scan.catalogue.guard-command-key.
 Iteration 32: duplicate skill names noted. +1 on every seed: scan.hostile.duplicate-names.

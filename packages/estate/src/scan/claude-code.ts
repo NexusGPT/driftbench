@@ -510,7 +510,7 @@ function classify(path: string, text: string): { kind: FileKind; owner?: string 
       ? { kind: 'skill', owner }
       : { kind: 'skill_file', owner };
   }
-  if (parts[1] === 'agents' && parts.length === 3 && path.endsWith('.md')) return { kind: 'subagent' };
+  if (parts[1] === 'agents' && parts.length >= 3 && path.endsWith('.md')) return { kind: 'subagent' };
   if (/registry|catalogu?e?/i.test(basename(path)) && /\.(md|json|ya?ml)$/.test(path))
     return { kind: 'registry' };
   if (/\.(jsonc?|ya?ml)$/.test(path) && isStepList(text, path)) return { kind: 'step_list' };
