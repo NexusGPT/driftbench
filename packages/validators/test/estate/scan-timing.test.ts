@@ -2,7 +2,7 @@ import * as fs from 'node:fs/promises';
 import * as product from '@agent-nexus/driftbench-estate';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { plantSkill } from '../../src/ladders/estate/bank/common';
-import { type Case, judgeCase } from '../../src/ladders/estate/bank/hostile';
+import { type Case, hostileFamily, judgeCase } from '../../src/ladders/estate/bank/hostile';
 
 vi.mock('node:fs/promises', async (original) => ({
   ...(await original<typeof import('node:fs/promises')>()),
@@ -91,6 +91,15 @@ describe('scan wall-clock budgets measure only the product scan', () => {
     expect(result.pass).toBe(ms <= 5000);
     if (ms > 5000) expect(result.detail).toContain('the scan took 5001 ms, over 5000 ms');
   });
+
+  it('the wide-folder item still rejects a deliberately slow scanner', async () => {
+    scanMs = 5001;
+    const result = (await hostileFamily().evaluate(17)).get('scan.hostile.wide-folder');
+    expect(result).toEqual({
+      pass: false,
+      detail: 'the scan took 5001 ms, over 5000 ms; holds',
+    });
+  }, 30_000);
 
   it('still rejects wrong scan output within budget', async () => {
     vi.mocked(product.scanEstate).mockImplementationOnce(async (...args) => {
