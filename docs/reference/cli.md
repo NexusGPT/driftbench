@@ -224,6 +224,7 @@ Every problem has a stable code, so tools and tests can branch on it. An error m
 | Code | Level | Meaning |
 |---|---|---|
 | `SPEC_PARSE` | error | the file cannot be read, or it is not valid YAML or JSON |
+| `SPEC_SCHEMA_VERSION` | error | `schema_version` names a spec format newer than this driftbench reads: upgrade driftbench |
 | `SPEC_NOT_OBJECT` | error | the file does not hold one mapping at the top level |
 | `SPEC_ALIAS_CONFLICT` | error | a shorthand and its long form are both set: `ledger_seed` with `given.ledger`, or `workspace_seed` with `given.world.workspace` |
 | `BLOCK_STIMULUS_MISSING` | error | a block has none of `user`, `burst` and `when` |
