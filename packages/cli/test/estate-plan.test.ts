@@ -2,7 +2,7 @@ import { cp, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parsePlanText } from '@agent-nexus/driftbench-estate';
+import { loadEstateMap, parsePlanText, toEstateSpaceMap } from '@agent-nexus/driftbench-estate';
 import { describe, expect, it } from 'vitest';
 import { type Io, main } from '../src/index';
 
@@ -32,9 +32,12 @@ async function folder(): Promise<string> {
 }
 
 describe('driftbench estate plan', () => {
-  it('writes the plan and its summary, and prints the summary', async () => {
+  it('writes the explicitly declared full plan and its summary, and prints the summary', async () => {
     const root = await folder();
-    const result = await run(['estate', 'plan', 'approved.yaml', '--out', 'plan.yaml'], root);
+    const result = await run(
+      ['estate', 'plan', 'approved.yaml', '--out', 'plan.yaml', '--space', 'space.yaml'],
+      root,
+    );
     expect(result.err).toBe('');
     expect(result.code).toBe(0);
     expect(result.out).toContain(
@@ -54,14 +57,46 @@ describe('driftbench estate plan', () => {
 
   it('writes the same bytes on a second run, and the committed fixture plan is that output', async () => {
     const root = await folder();
-    expect((await run(['estate', 'plan', 'approved.yaml', '--out', 'a.yaml'], root)).code).toBe(0);
-    expect((await run(['estate', 'plan', 'approved.yaml', '--out', 'b.yaml'], root)).code).toBe(0);
+    const loaded = await loadEstateMap(join(root, 'approved.yaml'));
+    if (!loaded.ok) throw new Error('invalid fixture map');
+    await writeFile(join(root, 'legacy-space.json'), JSON.stringify(toEstateSpaceMap(loaded.map)));
+    expect(
+      (
+        await run(
+          ['estate', 'plan', 'approved.yaml', '--out', 'a.yaml', '--space', 'legacy-space.json'],
+          root,
+        )
+      ).code,
+    ).toBe(0);
+    expect(
+      (
+        await run(
+          ['estate', 'plan', 'approved.yaml', '--out', 'b.yaml', '--space', 'legacy-space.json'],
+          root,
+        )
+      ).code,
+    ).toBe(0);
     const a = await readFile(join(root, 'a.yaml'), 'utf8');
     expect(await readFile(join(root, 'b.yaml'), 'utf8')).toBe(a);
     expect(await readFile(join(root, 'b.summary.json'), 'utf8')).toBe(
       await readFile(join(root, 'a.summary.json'), 'utf8'),
     );
     expect(await readFile(join(FIXTURE, 'plan.yaml'), 'utf8')).toBe(a);
+  }, 60_000);
+
+  it('uses inferred relevance by default and exposes the exclusions for review', async () => {
+    const root = await folder();
+    const result = await run(['estate', 'plan', 'approved.yaml', '--out', 'focused.yaml'], root);
+    expect(result.code).toBe(0);
+    const summary = JSON.parse(await readFile(join(root, 'focused.summary.json'), 'utf8'));
+    expect(summary.relevanceConstraints.length).toBeGreaterThan(0);
+    expect(summary.tuples.covered).toBe(summary.tuples.allowed);
+    const parsed = parsePlanText(await readFile(join(root, 'focused.yaml'), 'utf8'));
+    if (!parsed.ok) throw new Error('invalid focused plan');
+    const gate = 'gate.standing.read-git-status-before-commit-to';
+    const own = parsed.plan.rows.filter((row) => row.id.startsWith('pairwise.') && row.atomIds[0] === gate);
+    expect(own.length).toBeGreaterThan(0);
+    expect(own.some((row) => row.cell.deviation === 'D5_language_switch')).toBe(false);
   }, 60_000);
 
   it('takes a space map and a strength, and refuses one whose targets the map does not approve', async () => {
@@ -118,7 +153,10 @@ describe('driftbench estate plan', () => {
 describe('driftbench estate plan approve', () => {
   it('lists the rows by status, strikes a row, approves the rest, and refuses an unknown row', async () => {
     const root = await folder();
-    expect((await run(['estate', 'plan', 'approved.yaml', '--out', 'plan.yaml'], root)).code).toBe(0);
+    expect(
+      (await run(['estate', 'plan', 'approved.yaml', '--out', 'plan.yaml', '--space', 'space.yaml'], root))
+        .code,
+    ).toBe(0);
     const list = await run(['estate', 'plan', 'approve', 'plan.yaml'], root);
     expect(list.out).toContain('plan.yaml: 1568 rows, 1568 proposed, 0 approved, 0 struck.');
     const strike = await run(
@@ -145,7 +183,10 @@ describe('driftbench estate plan approve', () => {
 
   it('exits 2 when the options do not fit', async () => {
     const root = await folder();
-    expect((await run(['estate', 'plan', 'approved.yaml', '--out', 'plan.yaml'], root)).code).toBe(0);
+    expect(
+      (await run(['estate', 'plan', 'approved.yaml', '--out', 'plan.yaml', '--space', 'space.yaml'], root))
+        .code,
+    ).toBe(0);
     const both = await run(['estate', 'plan', 'approve', 'plan.yaml', '--all', '--row', 'journey.01'], root);
     expect(both.code).toBe(2);
     const strikeAll = await run(['estate', 'plan', 'approve', 'plan.yaml', '--strike'], root);
@@ -158,7 +199,10 @@ describe('driftbench estate plan approve', () => {
 
   it('writes the approved plan to --out and leaves the plan it read untouched', async () => {
     const root = await folder();
-    expect((await run(['estate', 'plan', 'approved.yaml', '--out', 'plan.yaml'], root)).code).toBe(0);
+    expect(
+      (await run(['estate', 'plan', 'approved.yaml', '--out', 'plan.yaml', '--space', 'space.yaml'], root))
+        .code,
+    ).toBe(0);
     const before = await readFile(join(root, 'plan.yaml'), 'utf8');
     const result = await run(
       ['estate', 'plan', 'approve', 'plan.yaml', '--all', '--out', 'plan.approved.yaml'],
