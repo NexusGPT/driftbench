@@ -89,3 +89,12 @@ The next entry records completed seed results or the final bank result. No unmea
 - Focused lint, whitespace, handover and sparse typecheck pass; the sparse typecheck omits only the unrelated test importing excluded comparisons/langfuse. No full ladder or bank score is claimed; the historical executor journal and level table remain unchanged.
 - Evidence: [d6-world-carrier-contract.json](evidence/d6-world-carrier-contract.json). No items, thresholds, fault agents, fixtures, floors or hidden-seed rules are removed or lowered.
 - Product obligation: put every approved D6 instruction in the injected world file/tool-result content, leave injection.user empty, and retain checks that catch both obedience faults.
+
+
+## 2026-10-16: maintainer per-event allocation placement
+
+- Base: `119802811739d45a85c3dda5d3402a5cd31bce2c`. The supplied opening-only D1 probe at seed 1 passes both reference and echo. The product correctly avoids claiming that stay as a standalone cheater-resistant test.
+- Ruling: stage and deviation are per-event strata under `placeSpec`, which counts blocks and declared perturbations. Use that contract for both allocation dimensions, including its arrival-stage semantics. Spec-level dimensions and all thresholds stay unchanged.
+- Red first: 6 tests fail and 2 pass on the unchanged oracle, including fresh-seed opening presence. The sibling deviation declaration case also fails before the repair. Green: all 9 focused tests pass.
+- Fresh seeds 1009, 2027, 4093 and 8191: opening presence passes on real generated suites; deleting initial declarations makes it fail. A reference-valid initial stay passes echo on each seed and still fails the unchanged cheater item. Hand-written controls reject forged metadata, a later recovery falsely claiming opening, a missing reached stage and extreme allocation skew.
+- Evidence: [placement contract](evidence/stage-allocation-placement.json), [red-first output](evidence/stage-allocation-red-first.txt). No product code, item, threshold, fault family, floor, fixture pin or hidden-seed rule changes. No full bank score or ladder level is inferred.

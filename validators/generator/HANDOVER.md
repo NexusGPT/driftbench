@@ -188,3 +188,12 @@ The users package declares D6 a world carrier; the spec reference and rendered p
 The reader ignores filenames, object keys, metadata, background Given, store/fixtures and tool errors. Ordinary user/burst provenance remains exact; nonempty user text cannot borrow approval from the world. The carrier and behavioural fault items remain unchanged, so recording an approved phrase is not proof that the agent consumed it or that the suite caught obedience.
 
 Product obligation: put every approved D6 instruction in the injected world file/tool-result content, leave injection.user empty, and retain checks that catch both obedience faults. See [the partial journal](SWEEP-JOURNAL.md) and [evidence](evidence/d6-world-carrier-contract.json). No historical ladder level is updated by this scoped ruling.
+
+
+## Per-event allocation maintainer ruling (2026-10-16)
+
+Stage and deviation allocation use the same placement contract as coverage: `packages/space/src/place.ts#placeSpec`. Blocks and declared perturbations are events. An injection or perturbation places on the stage reached at its arrival, with the documented initial-stage fallback; its recovery destination is not the arrival stage. Behaviour, channel and persona allocation remain per spec. All thresholds remain unchanged.
+
+An initial declared perturbation lets a complete executable walk cover opening without manufacturing a standalone stay that the echo cheater passes. The oracle previously counted only `block.expect.stage` and inline injection classes, so it ignored these valid events for both per-event dimensions. Counting canonical placement events repairs that omission; no standalone cheater check is relaxed.
+
+Product obligation: declare and exercise the required perturbation placements and keep ordinary block coverage balanced. Removing initial declarations must still lose opening coverage; wrong arrival claims, missing reached stages and skew remain failures. See [the partial journal](SWEEP-JOURNAL.md) and [placement evidence](evidence/stage-allocation-placement.json). Historical ladder measurements stay unchanged.
