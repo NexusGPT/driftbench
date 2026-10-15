@@ -1,4 +1,5 @@
-import { callSucceeded, samePath, skillOfPath, verdictAtoms, verdictLinks } from './subject';
+import { callSucceeded, readAmount } from './reads';
+import { skillOfPath, verdictAtoms, verdictLinks } from './subject';
 import type { EvidenceInput, EvidenceProvider, RuleAtom } from './types';
 import { homeOfAtom } from './value';
 
@@ -180,20 +181,16 @@ function subjectSkill(input: EvidenceInput): string | undefined {
   return ruleSkillOf(input) ?? routedOf(input)[0];
 }
 
-/**
- * Whether a skill loaded in the block: the runtime's skill list, a Read of its SKILL.md, or a Skill tool call. A
- * Read or a Skill call that failed loads nothing.
- */
+/** Whether a skill loaded in the block: the runtime's skill list, a Read of its SKILL.md, or a Skill tool call. */
 export function skillLoaded(input: EvidenceInput, name: string): boolean {
-  const runtime = input.block.observed.runtime?.skills ?? [];
-  if (runtime.some((skill) => skill.name === name)) return true;
-  return input.block.observed.toolCalls.some((call) => {
-    if (!callSucceeded(input, call)) return false;
+  const calls = input.block.observed.toolCalls.filter((call) => {
     const args = (call.input ?? {}) as Record<string, unknown>;
-    if (call.label === 'Skill') return args.skill === name || args.name === name || args.command === name;
-    const path = args.file_path ?? args.path;
-    return call.label === 'Read' && typeof path === 'string' && samePath(path, `skills/${name}/SKILL.md`);
+    return call.label === 'Skill' && (args.skill === name || args.name === name || args.command === name);
   });
+  if (calls.some((call) => callSucceeded(input, call))) return true;
+  if (calls.length === 0 && (input.block.observed.runtime?.skills ?? []).some((skill) => skill.name === name))
+    return true;
+  return readAmount(input, `skills/${name}/SKILL.md`) === 'full';
 }
 
 export const skill_loaded: EvidenceProvider = {
