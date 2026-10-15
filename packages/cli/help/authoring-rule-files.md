@@ -76,7 +76,18 @@ Do not copy a parent and edit the copy. Extend it, so a later change to the pare
 
 ## Commands and every option
 
-The rule files have no command of their own in this release. Every command that loads specs reads them: `spec validate`, `spec lint`, `campaign run` and the others. `spec validate <paths...>` (see authoring-spec-check) is the way to check them: a spec whose objects do not resolve is invalid, exit 1.
+The rule files have no command of their own in this release. Every command that loads specs reads them: `spec validate`, `spec lint`, `campaign run` and the others. `spec validate` is the way to check them: a spec whose objects do not resolve is invalid.
+
+```
+driftbench spec validate [options] <paths...>
+```
+
+| Option | Meaning | Default |
+|---|---|---|
+| `<paths...>` (required) | spec files or folders | none |
+| `--json` | print one JSON document | off |
+
+Exit 0 when every spec is valid, 1 when one is invalid. Its other codes are in authoring-spec-check.
 
 `spec validate` and every folder search skip `_driftbench/` folders, and a `driftbench/` folder that sits beside a `driftbench.yaml`: rule files are never read as specs.
 
