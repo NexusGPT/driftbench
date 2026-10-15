@@ -64,6 +64,20 @@ export async function runUnitSpecs(
       continue;
     }
     const test = parsed.data;
+    for (const block of spec.blocks) {
+      if (test.target.kind === 'script' && (block.expect?.guards?.length ?? 0) > 0)
+        invalid('a script operation does not execute guard assertions');
+      if (test.target.kind === 'guard' && block.expect?.execution !== undefined)
+        invalid('use case outcomes for guard processes; execution assertions describe script operations');
+    }
+    if (test.target.kind === 'script') {
+      for (const key of Object.keys(spec.rules?.custom ?? {}))
+        invalid(`unit runner does not evaluate script custom check ${key}`);
+    }
+    if (failing.length > 0) {
+      finish();
+      continue;
+    }
     const run = await observeUnitTests([test], options);
     const observed = run.observations[0];
     if (observed?.error) failing.push(observed.error);
@@ -111,7 +125,10 @@ export async function runUnitSpecs(
       let assertions = 0;
       for (const block of spec.blocks) {
         for (const expect of block.expect?.guards ?? []) {
-          if (expect.name !== name) continue;
+          if (expect.name !== name) {
+            invalid(`the operation runs ${name}, not the asserted guard ${expect.name}`);
+            continue;
+          }
           assertions++;
           const count = active.filter(
             (o) => expect.verdict === undefined || verdictOf(o) === expect.verdict,
@@ -135,7 +152,10 @@ export async function runUnitSpecs(
           continue;
         }
         const check = value as { name?: string; mustNot?: string[]; must?: string[] };
-        if (check.name !== name) continue;
+        if (check.name !== name) {
+          invalid(`custom check ${key} does not name the operation's guard ${name}`);
+          continue;
+        }
         assertions++;
         if (key === 'guard_message') {
           const messages = active.map((o) => o.message ?? o.output ?? '');
@@ -154,12 +174,14 @@ export async function runUnitSpecs(
     } else {
       // A process merely starting is not an oracle: require a declared fixture or an explicit exit/output.
       const expects = spec.blocks.flatMap((b) => (b.expect?.execution ? [b.expect.execution] : []));
+      const commands = observed?.cases ?? [];
       for (const expect of expects) {
-        if (
-          expect.exit_code !== undefined &&
-          observed?.cases.some((c) => c.outcome.exitCode !== expect.exit_code)
-        )
-          failing.push(`script exit differs from ${expect.exit_code}`);
+        if (expect.ran_code !== undefined && expect.ran_code !== commands.length > 0)
+          failing.push(`script ran_code differs from ${expect.ran_code}`);
+        if (expect.max_commands !== undefined && commands.length > expect.max_commands)
+          failing.push(`script ran ${commands.length} commands, over the limit of ${expect.max_commands}`);
+        if (expect.exit_code !== undefined && commands.at(-1)?.outcome.exitCode !== expect.exit_code)
+          failing.push(`last script exit differs from ${expect.exit_code}`);
       }
       if (
         !observed?.declared &&

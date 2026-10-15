@@ -291,3 +291,131 @@ it('preserves explicitly declared reply payload fields and empty values', async 
   expect(err).toBe('');
   expect(code, out).toBe(0);
 }, 30000);
+
+it.each([
+  { title: 'ran_code false', execution: { ran_code: false }, custom: undefined, code: 1 },
+  { title: 'command limit', execution: { max_commands: 0 }, custom: undefined, code: 1 },
+  { title: 'unsupported custom check', execution: undefined, custom: { unknown_check: {} }, code: 2 },
+])(
+  'enforces script $title instead of dropping the assertion',
+  async ({ execution, custom, code: expected }) => {
+    const root = await mkdtemp(join(tmpdir(), 'unit-script-assertion-'));
+    await mkdir(join(root, '.claude/skills/sample/scripts'), { recursive: true });
+    await writeFile(join(root, 'CLAUDE.md'), '# Samples\n');
+    await writeFile(
+      join(root, '.claude/skills/sample/SKILL.md'),
+      '---\nname: sample\n---\nRun `scripts/sample.sh`.\n',
+    );
+    const path = '.claude/skills/sample/scripts/sample.sh';
+    await writeFile(join(root, path), '#!/bin/sh\nprintf specimen\n');
+    const file = join(root, 'operation.yaml');
+    await writeFile(
+      file,
+      stringify({
+        id: 'script-assertion',
+        title: 'Sample execution',
+        kind: 'task',
+        target: { adapter: 'claude-code' },
+        blocks: [{ user: 'Produce a sample', ...(execution ? { expect: { execution } } : {}) }],
+        ...(custom ? { rules: { custom } } : {}),
+        metadata: {
+          estate: {
+            mode: 'unit',
+            testType: 'script_fixture',
+            unit: {
+              target: { kind: 'script', path },
+              cases: [
+                {
+                  id: 'sample',
+                  payload: {},
+                  material: 'sample',
+                  expected: { decision: 'allow', exitCode: 0, output: 'specimen' },
+                },
+              ],
+            },
+          },
+        },
+      }),
+    );
+    let out = '';
+    let err = '';
+    const code = await main(['estate', 'unit', file, '--estate', root, '--json'], {
+      cwd: root,
+      out: (t) => {
+        out += t;
+      },
+      err: (t) => {
+        err += t;
+      },
+    });
+    expect(code, `${out}\n${err}`).toBe(expected);
+  },
+  30000,
+);
+
+it('applies a script exit expectation to the last command while case oracles cover each fixture', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'unit-last-command-'));
+  await mkdir(join(root, '.claude/skills/sample/scripts'), { recursive: true });
+  await writeFile(join(root, 'CLAUDE.md'), '# Samples\n');
+  await writeFile(
+    join(root, '.claude/skills/sample/SKILL.md'),
+    '---\nname: sample\n---\nRun `scripts/sample.sh`.\n',
+  );
+  const path = '.claude/skills/sample/scripts/sample.sh';
+  await writeFile(
+    join(root, path),
+    '#!/bin/sh\nif [ "$1" = reject ]; then printf rejected; exit 1; fi\nprintf specimen\n',
+  );
+  const file = join(root, 'operation.yaml');
+  await writeFile(
+    file,
+    stringify({
+      id: 'last-command',
+      title: 'Fixture outcomes',
+      kind: 'task',
+      target: { adapter: 'claude-code' },
+      blocks: [
+        {
+          user: 'Exercise both outcomes',
+          expect: { execution: { exit_code: 0, max_commands: 2, ran_code: true } },
+        },
+      ],
+      metadata: {
+        estate: {
+          mode: 'unit',
+          testType: 'script_fixture',
+          unit: {
+            target: { kind: 'script', path },
+            cases: [
+              {
+                id: 'reject',
+                payload: { args: ['reject'] },
+                material: 'reject',
+                expected: { decision: 'error', exitCode: 1, output: 'rejected' },
+              },
+              {
+                id: 'accept',
+                payload: { args: ['accept'] },
+                material: 'accept',
+                expected: { decision: 'allow', exitCode: 0, output: 'specimen' },
+              },
+            ],
+          },
+        },
+      },
+    }),
+  );
+  let out = '';
+  let err = '';
+  const code = await main(['estate', 'unit', file, '--estate', root, '--json'], {
+    cwd: root,
+    out: (t) => {
+      out += t;
+    },
+    err: (t) => {
+      err += t;
+    },
+  });
+  expect(err).toBe('');
+  expect(code, out).toBe(0);
+}, 30000);

@@ -106,3 +106,7 @@ The generator owner must emit the explicit operation metadata. Script tests need
 A further hand-written Stop hook reads both the explicitly supplied `last_reply` and the canonical `last_assistant_message`. Before the fix, the task run loses the supplied key and raises `KeyError`. Explicit task operations now retain supplied keys and empty values, while recorded JSON tests keep their existing shorthand conversion. The new regression and the existing runner set pass: 27 tests.
 
 A separate compatibility probe consumes the generator owner's actual pending operation metadata from temporary suite `hFkCXt`, without changing that owner's files. Of 18 guard-negative, speed and register task specs on the original estate, 16 pass. The two reply-length speed/register payloads contain a short rule sentence, which does not exceed the guard's length condition. This is compatibility evidence on uncommitted generator output, not bank credit.
+
+## Script assertion conformance follow-up
+
+Four independent regressions expose dropped `ran_code: false`, dropped command limits, an ignored custom script check, and an exit expectation wrongly applied to every fixture rather than the last command. All four fail before the fix. Script operations now enforce the execution contract; unsupported custom checks and cross-operation assertions are input errors. Per-case outcomes still judge every fixture separately. All 31 targeted runner tests pass after the fix.
