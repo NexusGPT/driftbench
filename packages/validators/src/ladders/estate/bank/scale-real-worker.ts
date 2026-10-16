@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs';
-import { mkdir, mkdtemp, rm, symlink } from 'node:fs/promises';
+import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { join } from 'node:path';
 import {
   buildPlan,
   diffEstateMaps,
@@ -17,6 +17,7 @@ import { writeEstate } from '../pipeline';
 import { cli } from './bench';
 import { realEstate } from './scale-real-estate';
 import { lintFacts, planConsole, readFacts } from './scale-real-facts';
+import { plantHome, userSkillsFolder } from './scale-real-home';
 
 /**
  * Runs the whole estate loop once on a real-size estate and prints one JSON line: the time each stage takes (the
@@ -33,17 +34,9 @@ async function main(): Promise<void> {
   const scale = Number(scaleText);
   const planted = realEstate(seed, { scale });
   const root = await writeEstate(planted.files);
-  // The user-level skill layer lives in the home folder; the reader finds it through the platform's home.
-  const home = await writeEstate(planted.home.files);
-  for (const link of planted.home.links) {
-    const target = link.target.startsWith('project:')
-      ? join(root, link.target.slice(8))
-      : join(home, link.target);
-    await mkdir(dirname(join(home, link.path)), { recursive: true });
-    await symlink(target, join(home, link.path));
-  }
-  process.env.HOME = home;
-  const reader = readerFor(RUNTIME);
+  // The user-level skill layer is opt-in: the reader is told its folder, as a user passing --user-skills would.
+  const home = await plantHome(planted.home, root);
+  const reader = readerFor(RUNTIME, { userSkills: userSkillsFolder(home) });
   if (!reader) throw new Error('no reader');
   try {
     let started = Date.now();
