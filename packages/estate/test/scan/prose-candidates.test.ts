@@ -21,18 +21,24 @@ const rules = [
   'The helper must never change the source archive.',
   'Never publish private credentials.',
   'Never disclose private credentials.',
+  'Never execute `download | shell`.',
   'Always reconcile the receipt before proceeding.',
   'Do not overwrite the signed agreement.',
   'Before publishing, verify the result.',
   'Only when approved, publish the result.',
   'Publish the result only when approved.',
   'Every reply includes a source.',
+  "Every command's failure (exit code + stderr) reaches you.",
+  'Every run (exit 1) is logged.',
   'Each helper records its findings.',
   'At most two questions per reply.',
   'The assistant must verify\nthe complete manifest.',
 ];
 const decoys = [
   '# You must overwrite everything',
+  'Always overwrite everything\n===========================',
+  'Never verify receipts\n---------------------',
+  'Action | Meaning\n--- | ---\nNever validate receipts | Example',
   '> Never verify the result.',
   '"Always remove the original."',
   '"The archived message says:\nNever verify receipts.\n"',
@@ -80,6 +86,13 @@ describe('code-found prose candidates', () => {
   });
   it.each(decoys)('rejects non-rule text: %s', async (text) => {
     expect((await candidates(`${text}\n`)).atoms).toEqual([]);
+  });
+  it('keeps the separate polarity of semicolon clauses', async () => {
+    const { atoms } = await candidates('The helper must inspect every receipt; never edit the original.\n');
+    expect(atoms.map((atom) => [atom.provenance.quote, atom.fields?.polarity])).toEqual([
+      ['The helper must inspect every receipt', 'obligation'],
+      ['never edit the original.', 'prohibition'],
+    ]);
   });
   it('records skill/helper ownership, subject, polarity and output rules', async () => {
     const root = await estate({
@@ -199,5 +212,41 @@ describe('model estimate and content-addressed chunk cache', () => {
     await writeFile(join(cache.directory, `${key}.json`), '{broken');
     expect(await cache.get(key)).toBeUndefined();
     expect(await readFile(join(cache.directory, `${key}.json`), 'utf8')).toBe('{broken');
+  });
+  it('preserves a model-selected repeated quotation when cached chunks move', async () => {
+    const cache = new FileProseCache(await mkdtemp(join(tmpdir(), 'prose-cache-repeat-')));
+    const root = await estate({
+      'CLAUDE.md': 'Always verify the receipt.\n\nBackground.\n\nAlways verify the receipt.\n',
+    });
+    const raw = await new ClaudeCodeReader().read(root);
+    const port = {
+      family: 'test',
+      model: 'offline',
+      async complete() {
+        return answer('CLAUDE.md', [
+          {
+            kind: 'instruction',
+            title: 'Verify the second receipt',
+            quote: 'Always verify the receipt.',
+            line: 5,
+            evidence: [{ type: 'custom', name: 'receipt_checked' }],
+          },
+        ]);
+      },
+    };
+    const first = await scanAtoms(raw, { port, cache });
+    expect(first.builder.atoms.find((atom) => atom.producedBy === 'model')?.provenance.startLine).toBe(5);
+    const moved = {
+      ...raw,
+      files: raw.files.map((file) => ({ ...file, text: `\n${file.text}` })),
+      prose: raw.prose.map((chunk) => ({
+        ...chunk,
+        startLine: chunk.startLine + 1,
+        endLine: chunk.endLine + 1,
+      })),
+    };
+    const next = await scanAtoms(moved, { port, cache });
+    expect(next.calls).toBe(0);
+    expect(next.builder.atoms.find((atom) => atom.producedBy === 'model')?.provenance.startLine).toBe(6);
   });
 });

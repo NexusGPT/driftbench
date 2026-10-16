@@ -23,13 +23,7 @@ export class FileProseCache implements ProseCache {
   }
   async put(key: string, answer: ProseAnswer): Promise<void> {
     await mkdir(this.directory, { recursive: true, mode: 0o700 });
-    // Discard absolute line hints: the same chunk may move to different source lines on the next scan.
-    const atoms = answer.atoms.map((atom) => {
-      if (!atom || typeof atom !== 'object' || Array.isArray(atom)) return atom;
-      const { line: _line, ...rest } = atom as Record<string, unknown>;
-      return rest;
-    });
-    await writeFile(join(this.directory, `${key}.json`), JSON.stringify({ chunk: 'cached', atoms }), {
+    await writeFile(join(this.directory, `${key}.json`), JSON.stringify({ ...answer, chunk: 'cached' }), {
       mode: 0o600,
     });
   }
@@ -37,7 +31,7 @@ export class FileProseCache implements ProseCache {
 export function proseCacheKey(chunk: ProseChunk, port: ModelPort, maxTokens?: number): string {
   return sha256(
     JSON.stringify({
-      version: 1,
+      version: 2,
       prompt: PROSE_SYSTEM_PROMPT,
       family: port.family,
       model: port.model,

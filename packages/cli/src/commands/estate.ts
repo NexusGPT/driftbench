@@ -253,6 +253,13 @@ function scanReport(result: ScanEstateResult, out: string, io: Io): string {
       lines.push(`    ${run.chunk}  failed: ${run.error}${run.excerpt ? ` (answer: "${run.excerpt}")` : ''}`);
     }
   }
+  const candidateSkips = result.raw.notes.filter((note) =>
+    note.message.startsWith('Prose candidate skipped'),
+  );
+  if (candidateSkips.length > 0) {
+    lines.push(`  Code-found prose candidates skipped: ${candidateSkips.length}.`);
+    for (const note of candidateSkips) lines.push(`    ${note.file}: ${note.message}`);
+  }
   lines.push(result.refusals.length === 0 ? '  Refused: none.' : '  Refused, not in the map:');
   for (const refusal of result.refusals)
     lines.push(`    ${refusal.chunk}  ${refusal.entry}  ${refusal.reason}`);

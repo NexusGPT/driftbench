@@ -270,7 +270,12 @@ export async function runChunk(
   const key = proseCacheKey(chunk, port, maxTokens);
   const cached = await cache?.get(key);
   if (cached) {
-    const result = acceptProse(chunk, { ...cached, chunk: chunk.id }, fileText, builder);
+    const atoms = cached.atoms.map((raw) => {
+      if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return raw;
+      const atom = raw as Record<string, unknown>;
+      return typeof atom.line === 'number' ? { ...atom, line: atom.line + chunk.startLine - 1 } : atom;
+    });
+    const result = acceptProse(chunk, { ...cached, chunk: chunk.id, atoms }, fileText, builder);
     return {
       run: { chunk: chunk.id, calls: 0, status: 'done', accepted: result.accepted.length, cached: true },
       refusals: result.refusals,
@@ -302,7 +307,19 @@ export async function runChunk(
     const parsed = parseProseAnswer(chunk.id, text);
     if (parsed.ok) {
       const result = acceptProse(chunk, parsed.answer, fileText, builder);
-      if (result.refusals.length === 0) await cache?.put(key, parsed.answer);
+      if (cache && result.refusals.length === 0) {
+        // Keep the located occurrence, relative to content rather than absolute file lines.
+        const atoms = parsed.answer.atoms.map((raw) => {
+          const atom = AnswerAtom.parse(raw);
+          const span = locateQuote(fileText, atom.quote, {
+            fromLine: chunk.startLine,
+            toLine: chunk.endLine,
+            ...(atom.line !== undefined ? { nearLine: atom.line } : {}),
+          });
+          return span ? { ...atom, line: span.startLine - chunk.startLine + 1 } : atom;
+        });
+        await cache.put(key, { ...parsed.answer, atoms });
+      }
       return {
         run: { chunk: chunk.id, calls: attempt, status: 'done', accepted: result.accepted.length },
         refusals: result.refusals,

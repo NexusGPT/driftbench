@@ -24,18 +24,26 @@ export function proseCandidates(
     const visible = normativeLines(lines, body.bodyLine);
     for (const block of visible) {
       // Segment the masked text, retaining original offsets, including soft line wraps.
-      const segmenter = new Intl.Segmenter('en', { granularity: 'sentence' });
-      for (const segment of segmenter.segment(block.masked.replace(/\n/g, ' '))) {
+      for (const segment of proseClauses(block.masked.replace(/\n/g, ' '))) {
         const text = segment.segment.trim();
         if (!text || text.includes('?')) continue;
-        const rule = clauseRule(text);
-        if (!rule) continue;
         const leading = segment.segment.length - segment.segment.trimStart().length;
         const offset = segment.index + leading;
         const quote = block.original.slice(offset, segment.index + segment.segment.trimEnd().length);
         if (!quote.trim()) continue;
         const startLine = block.startLine + countNewlines(block.original.slice(0, offset));
         const endLine = startLine + countNewlines(quote);
+        let rule: Rule | undefined;
+        try {
+          rule = clauseRule(text);
+        } catch (cause) {
+          raw.notes.push({
+            file: file.path,
+            message: `Prose candidate skipped at lines ${startLine}-${endLine}: ${cause instanceof Error ? cause.message : String(cause)}`,
+          });
+          continue;
+        }
+        if (!rule) continue;
         // A successfully answered model chunk supersedes the cheaper candidate pass for its source span.
         if (
           resolved.some(
@@ -131,7 +139,13 @@ function normativeLines(lines: string[], bodyStart: number): Block[] {
       current = undefined;
       continue;
     }
-    const heading = /^\s{0,3}(#{1,6})\s+(.+)/.exec(line);
+    const underline = /^ {0,3}(=+|-+)\s*$/.exec(lines[i + 1] ?? '');
+    const setext = line.trim() && underline;
+    const heading =
+      /^\s{0,3}(#{1,6})\s+(.+)/.exec(line) ??
+      (setext ? ['', underline[1]?.startsWith('=') ? '#' : '##', line] : undefined);
+    if (setext) i++;
+
     if (heading) {
       if (excludedLevel !== undefined && (heading[1] ?? '').length <= excludedLevel)
         excludedLevel = undefined;
@@ -146,7 +160,7 @@ function normativeLines(lines: string[], bodyStart: number): Block[] {
     }
     if (
       excludedLevel !== undefined ||
-      /^\s*(?:>|\||```|~~~)/.test(line) ||
+      /^\s*(?:>|```|~~~)/.test(line) ||
       /^(?: {4}|\t)/.test(line) ||
       !line.trim()
     ) {
@@ -166,6 +180,10 @@ function normativeLines(lines: string[], bodyStart: number): Block[] {
       } else unquoted += char;
     }
     line = unquoted;
+    if (line.includes('|')) {
+      current = undefined;
+      continue;
+    }
     line = line.replace(
       /\[([^\]]+)\]\([^)]*\)/g,
       (all, label: string) => label + ' '.repeat(all.length - label.length),
@@ -186,13 +204,17 @@ function normativeLines(lines: string[], bodyStart: number): Block[] {
 }
 
 type Rule = { subject: string; polarity: 'obligation' | 'prohibition'; form: string };
-function clauseRule(text: string): Rule | undefined {
+function clauseRule(source: string): Rule | undefined {
+  // Parenthetical payloads are opaque to clause grammar, while the original quote remains intact.
+  const text = source.replace(/\([^)]*\)|\[[^\]]*\]|\{[^}]*\}/g, blank);
   // Fast prefilter for grammatical operators, before the POS parser visits long prose.
   if (!/\b(?:must|never|always|only\s+when|do\s+not|before|at\s+most|every|each)\b/i.test(text)) return;
   if (/\b(?:word|phrase|example|sample|quotation)\b/i.test(text.split(/\b(?:must|never|always)\b/i)[0] ?? ''))
     return;
   const parsed = nlp(text);
-  const verbs = parsed.match('#Verb').out('array') as string[];
+  const verbs = (parsed.match('#Verb').out('array') as string[])
+    .map((token) => token.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '').trim())
+    .filter(Boolean);
   const hasAct = verbs.length > 0;
   const modal = /^(.*?)\bmust\s+((?:not|never)\s+)?(.+)$/i.exec(text);
   if (
@@ -231,7 +253,12 @@ function clauseRule(text: string): Rule | undefined {
     return { subject: bound[1] ?? '', polarity: 'obligation', form: 'bound' };
   const quantified = /^(?:every|each)\s+(.+)$/i.exec(text);
   if (quantified && parsed.has('#PresentTense')) {
-    const subject = (text.split(new RegExp(`\\b${verbs[0]}\\b`, 'i'))[0] ?? '').trim();
+    const verb = (verbs[0] ?? '').split(/\s+/)[0]?.toLowerCase();
+    const token = [...text.matchAll(/[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu)].find(
+      (entry) => entry[0].toLowerCase() === verb,
+    );
+    if (!token || token.index <= 0) return;
+    const subject = text.slice(0, token.index).replace(/\s+/g, ' ').trim();
     return { subject, polarity: 'obligation', form: 'quantified' };
   }
   const conditional = /^(?:before|only\s+when)\s+(.+?)[,:]\s*(.+)$/i.exec(text);
@@ -256,4 +283,14 @@ function ruleText(text: string): string {
     .replace(/^\s*[-+*]?\s*(?:\*\*)?R#?\d+[.:]\s*(?:\*\*)?\s*/i, '')
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+const sentenceSegments = new Intl.Segmenter('en', { granularity: 'sentence' });
+function* proseClauses(text: string): Generator<{ segment: string; index: number }> {
+  for (const sentence of sentenceSegments.segment(text)) {
+    if (sentence.segment.includes('?')) continue;
+    for (const clause of sentence.segment.matchAll(/[^;]+/g)) {
+      yield { segment: clause[0], index: sentence.index + (clause.index ?? 0) };
+    }
+  }
 }
