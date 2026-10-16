@@ -1,0 +1,455 @@
+{
+  "version": 1,
+  "inference": "exploratory development iteration v6 after inspecting v5 results; never held-out confirmation",
+  "familySize": 44,
+  "alpha": 0.05,
+  "correction": "Holm, two-sided exact paired discordance p-values",
+  "endpoint": "One recorded decision per item and variant. Returned ties, blocks and unparsed answers count wrong. Transport errors and missing recordings are missing.",
+  "scope": "Original 38 + panel240 four + Verify v5 dev one + Verify v5 practice one. Verify dev shipped/fable retain their original cells and use supplemental results only.",
+  "selection": "All declared cells retained. Writing practice203 remains planned unmeasured at p=1. No pooling across runs or procedures.",
+  "identity": "All freeze fields must match exactly except datasetsSha256; each row must match its own full freeze hash and manifest gold.",
+  "completion": "No measure locks. Every expected item has exactly one returned new and baseline row. --allow-partial produces diagnostic output only; it does not shrink the family.",
+  "expected": {
+    "original": {
+      "judgebench-pilot20": {
+        "items": 20,
+        "variants": [
+          "new",
+          "baseline"
+        ]
+      },
+      "mmeval-pilot20": {
+        "items": 20,
+        "variants": [
+          "new",
+          "baseline"
+        ]
+      },
+      "judgebench-recipe-dev150": {
+        "items": 150,
+        "variants": [
+          "new",
+          "baseline"
+        ]
+      },
+      "rubricbench-pilot20": {
+        "items": 20,
+        "variants": [
+          "new",
+          "baseline"
+        ]
+      },
+      "verify-practice120": {
+        "items": 120,
+        "variants": [
+          "new",
+          "baseline"
+        ]
+      },
+      "writing-dev30": {
+        "items": 30,
+        "variants": [
+          "new",
+          "baseline"
+        ]
+      },
+      "inspect-fact-practice120": {
+        "items": 120,
+        "variants": [
+          "new",
+          "baseline"
+        ]
+      },
+      "inspect-qa-practice120": {
+        "items": 120,
+        "variants": [
+          "new",
+          "baseline"
+        ]
+      },
+      "inspect-panel-practice120": {
+        "items": 120,
+        "variants": [
+          "new",
+          "baseline"
+        ]
+      },
+      "inspect-borderline-practice96": {
+        "items": 96,
+        "variants": [
+          "new",
+          "baseline"
+        ]
+      },
+      "deepeval-relevancy-v3-120": {
+        "items": 120,
+        "variants": [
+          "new",
+          "baseline"
+        ]
+      },
+      "deepeval-knowledge-v3-120": {
+        "items": 120,
+        "variants": [
+          "new",
+          "baseline"
+        ]
+      }
+    },
+    "supplemental": {
+      "verify-dev95": {
+        "items": 95,
+        "variants": [
+          "new",
+          "baseline"
+        ]
+      },
+      "inspect-panel-practice240": {
+        "items": 240,
+        "variants": [
+          "new",
+          "baseline"
+        ]
+      }
+    }
+  },
+  "cells": [
+    {
+      "dataset": "judgebench-pilot20",
+      "baseline": "shipped-default",
+      "run": "original",
+      "baselineSource": "live",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "judgebench-pilot20",
+      "baseline": "promptfoo",
+      "run": "original",
+      "baselineSource": "manifest",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "judgebench-pilot20",
+      "baseline": "ledger",
+      "run": "original",
+      "baselineSource": "manifest",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "mmeval-pilot20",
+      "baseline": "shipped-default",
+      "run": "original",
+      "baselineSource": "live",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "mmeval-pilot20",
+      "baseline": "promptfoo",
+      "run": "original",
+      "baselineSource": "manifest",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "mmeval-pilot20",
+      "baseline": "ledger",
+      "run": "original",
+      "baselineSource": "manifest",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "judgebench-recipe-dev150",
+      "baseline": "shipped-default",
+      "run": "original",
+      "baselineSource": "live",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "judgebench-recipe-dev150",
+      "baseline": "driftbench",
+      "run": "original",
+      "baselineSource": "manifest",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "judgebench-recipe-dev150",
+      "baseline": "promptfoo",
+      "run": "original",
+      "baselineSource": "manifest",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "judgebench-recipe-dev150",
+      "baseline": "deepeval",
+      "run": "original",
+      "baselineSource": "manifest",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "judgebench-recipe-dev150",
+      "baseline": "inspect",
+      "run": "original",
+      "baselineSource": "manifest",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "judgebench-recipe-dev150",
+      "baseline": "langfuse",
+      "run": "original",
+      "baselineSource": "manifest",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "judgebench-recipe-dev150",
+      "baseline": "langwatch",
+      "run": "original",
+      "baselineSource": "manifest",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "rubricbench-pilot20",
+      "baseline": "shipped-default",
+      "run": "original",
+      "baselineSource": "live",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "rubricbench-pilot20",
+      "baseline": "promptfoo",
+      "run": "original",
+      "baselineSource": "manifest",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "rubricbench-pilot20",
+      "baseline": "pair-ledger",
+      "run": "original",
+      "baselineSource": "manifest",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "verify-practice120",
+      "baseline": "shipped-default",
+      "run": "original",
+      "baselineSource": "live",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "verify-practice120",
+      "baseline": "driftbench-fable-commit",
+      "run": "original",
+      "baselineSource": "manifest",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "verify-dev95",
+      "baseline": "shipped-default",
+      "run": "supplemental",
+      "baselineSource": "live",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "verify-dev95",
+      "baseline": "driftbench-fable-commit",
+      "run": "supplemental",
+      "baselineSource": "manifest",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "writing-dev30",
+      "baseline": "shipped-default",
+      "run": "original",
+      "baselineSource": "live",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "writing-dev30",
+      "baseline": "promptfoo",
+      "run": "original",
+      "baselineSource": "manifest",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "writing-dev30",
+      "baseline": "pair-ledger",
+      "run": "original",
+      "baselineSource": "manifest",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "writing-dev30",
+      "baseline": "reader-first-c50b2dc3",
+      "run": "original",
+      "baselineSource": "manifest",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "writing-practice203",
+      "baseline": "shipped-default",
+      "run": "original",
+      "baselineSource": "live",
+      "plannedUnmeasured": true
+    },
+    {
+      "dataset": "inspect-fact-practice120",
+      "baseline": "shipped-default",
+      "run": "original",
+      "baselineSource": "live",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "inspect-fact-practice120",
+      "baseline": "lane-best",
+      "run": "original",
+      "baselineSource": "manifest",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "inspect-qa-practice120",
+      "baseline": "shipped-default",
+      "run": "original",
+      "baselineSource": "live",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "inspect-qa-practice120",
+      "baseline": "lane-best",
+      "run": "original",
+      "baselineSource": "manifest",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "inspect-panel-practice120",
+      "baseline": "shipped-default",
+      "run": "original",
+      "baselineSource": "live",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "inspect-panel-practice120",
+      "baseline": "lane-best",
+      "run": "original",
+      "baselineSource": "manifest",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "inspect-borderline-practice96",
+      "baseline": "shipped-default",
+      "run": "original",
+      "baselineSource": "live",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "deepeval-relevancy-v3-120",
+      "baseline": "shipped-default",
+      "run": "original",
+      "baselineSource": "live",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "deepeval-relevancy-v3-120",
+      "baseline": "lane-best",
+      "run": "original",
+      "baselineSource": "manifest",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "deepeval-relevancy-v3-120",
+      "baseline": "deepeval",
+      "run": "original",
+      "baselineSource": "manifest",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "deepeval-knowledge-v3-120",
+      "baseline": "shipped-default",
+      "run": "original",
+      "baselineSource": "live",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "deepeval-knowledge-v3-120",
+      "baseline": "lane-best",
+      "run": "original",
+      "baselineSource": "manifest",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "deepeval-knowledge-v3-120",
+      "baseline": "deepeval",
+      "run": "original",
+      "baselineSource": "manifest",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "inspect-panel-practice240",
+      "baseline": "shipped-default",
+      "run": "supplemental",
+      "baselineSource": "live",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "inspect-panel-practice240",
+      "baseline": "inspect-panel-practice240-split-r2",
+      "run": "supplemental",
+      "baselineSource": "manifest",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "inspect-panel-practice240",
+      "baseline": "inspect-panel-practice240-split",
+      "run": "supplemental",
+      "baselineSource": "manifest",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "inspect-panel-practice240",
+      "baseline": "inspect-panel-practice240-theirs",
+      "run": "supplemental",
+      "baselineSource": "manifest",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "verify-dev95",
+      "baseline": "driftbench-v5",
+      "run": "supplemental",
+      "baselineSource": "manifest",
+      "plannedUnmeasured": false
+    },
+    {
+      "dataset": "verify-practice120",
+      "baseline": "driftbench-v5",
+      "run": "original",
+      "baselineSource": "sidecar",
+      "sidecarComparator": "verify-practice-driftbench-v5",
+      "plannedUnmeasured": false
+    }
+  ],
+  "inputHashes": {
+    "originalManifest": "2a30744f4370ef0c9926ad21074dd04be5c848fd6beedbb5d9927349a23d459f",
+    "supplementalManifest": "b99f4a93d75449e251b83eda24241e9a1e67118cc4d6713e954bc9c9e297780d",
+    "sidecar": "33fb331b267997ad2178506aff65b670453a3750aac9b0d70613a5064d9ad1dc"
+  },
+  "declaredAt": "2026-10-14T12:56:07.818831+00:00",
+  "resultsReadAtDeclaration": true,
+  "historicalQualification": "unverified historical (lane report)",
+  "primaryEvidence": "New product versus shipped default uses identical Haiku API model and frozen transport settings.",
+  "freezeMetadataReadOnly": true,
+  "iteration": "default-on-v6",
+  "priorIterationFreezeHashes": {
+    "original": "c19c343a68a324af68bf8dfba0b2fecf2fe62e77e4f8f42afddde242318eac93",
+    "supplemental": "843f56880a849b09bbfa4bc05a9a1cbd383419b26d197e728ebb6177d127843e"
+  },
+  "priorResultsRead": "Completed v5 DEV/PRACTICE results informed the evaluator stage allowance change. No v6 results exist.",
+  "v6ResultsReadAtDeclaration": false,
+  "outputDirectories": {
+    "original": "final-api-dev-v6",
+    "supplemental": "final-api-dev-v6-supplement"
+  },
+  "sourcePolicyChange": "Verify extract/solve/match/compare/commit output recommendation: existing large allowance4096 plus explicit reasoning; caller cap wins. Model-agnostic. Policyv6 and audit2.",
+  "rawReuse": "Scoped attributable v5 receipt first, then fixed generic exact-identity fallback. Full raw import hashes are frozen. Logical verdict rows are recomputed.",
+  "freezeHashes": {
+    "original": "630719b46290c35b1a9f2f3959e1c8c03bb8130244ca5d4f1969743158022803",
+    "supplemental": "5a315de92aa6440bea02952eb6b6703b6a781f60f970c270369551cea4b1f64f"
+  },
+  "productCommit": "779f6e9d3973e43bcb83e2a4b84a31f277900b5e"
+}

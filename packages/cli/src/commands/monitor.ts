@@ -7,7 +7,7 @@ import {
   type TraceSource,
 } from '@agent-nexus/driftbench-adapters';
 import { type Campaign, type RunResult, runsByCell, type Store } from '@agent-nexus/driftbench-core';
-import { textTable as table } from '@agent-nexus/driftbench-report';
+import { scoredRuns, textTable as table } from '@agent-nexus/driftbench-report';
 import { cusum, ksTest, mean, pageHinkley, sampleVariance } from '@agent-nexus/driftbench-stats';
 import type { Command } from 'commander';
 import type { Io } from '../io';
@@ -66,6 +66,8 @@ export type SeriesPoint = {
   campaignId: string;
   createdAt: string;
   runs: number;
+  /** pass_rate: runs left out of the value as no measurement (a block not run or blocked). Absent when 0. */
+  unscored?: number;
   value: number;
   /**
    * The standard error of the value from its own runs: sqrt(p (1 - p) / n) for pass_rate, the sample sd of
@@ -87,7 +89,7 @@ export type MonitorReport = {
   store: string;
   window: number;
   campaigns: number;
-  /** Campaigns with no run: left out of the series. */
+  /** Campaigns with no run (for pass_rate, no scored run): left out of the series. */
   skipped: string[];
   inControl: {
     mean: number;
@@ -327,7 +329,8 @@ async function seriesOf(
   const skipped: string[] = [];
   for (const campaign of campaigns) {
     const runs = [...(await runsByCell(store, campaign.campaignId)).values()];
-    if (runs.length === 0) {
+    // A campaign with no scored run has no pass rate: it is skipped like one with no run.
+    if (runs.length === 0 || (metric === 'pass_rate' && scoredRuns(runs).length === 0)) {
       skipped.push(campaign.campaignId);
       continue;
     }
@@ -336,6 +339,9 @@ async function seriesOf(
       campaignId: campaign.campaignId,
       createdAt: campaign.createdAt,
       runs: runs.length,
+      ...(metric === 'pass_rate' && scoredRuns(runs).length < runs.length
+        ? { unscored: runs.length - scoredRuns(runs).length }
+        : {}),
       value: metricOf(runs, metric),
       se: standardErrorOf(runs, metric),
     });
@@ -343,16 +349,22 @@ async function seriesOf(
   return { points, skipped };
 }
 
-/** pass_rate: the share of runs that pass; cost: mean USD per run; latency: mean milliseconds per run. */
+/**
+ * pass_rate: the share of the scored runs that pass (a run with a block not run or blocked, and no failure,
+ * is left out); cost: mean USD per run; latency: mean milliseconds per run.
+ */
 export function metricOf(runs: readonly RunResult[], metric: Metric): number {
-  if (metric === 'pass_rate') return runs.filter(runPasses).length / runs.length;
+  if (metric === 'pass_rate') {
+    const scored = scoredRuns(runs);
+    return scored.filter(runPasses).length / scored.length;
+  }
   if (metric === 'cost') return mean(runs.map((run) => run.cost));
   return mean(runs.map((run) => run.latencyMs));
 }
 
 /** The standard error of a campaign's value from its own runs; 0 for a single run of cost or latency. */
 export function standardErrorOf(runs: readonly RunResult[], metric: Metric): number {
-  const n = runs.length;
+  const n = metric === 'pass_rate' ? scoredRuns(runs).length : runs.length;
   if (metric === 'pass_rate') {
     const p = metricOf(runs, metric);
     return Math.sqrt((p * (1 - p)) / n);
@@ -546,7 +558,7 @@ export function monitorText(report: MonitorReport, withSeries: boolean, unit = '
           point.campaignId,
           point.createdAt,
           show(point.value),
-          String(point.runs),
+          `${point.runs}${point.unscored ? ` (${point.unscored} not run or blocked)` : ''}`,
           point.cusumUp.toFixed(2),
           point.cusumDown.toFixed(2),
           show(point.phUp),

@@ -1,6 +1,7 @@
+import { spawnSync } from 'node:child_process';
 import type { HiddenEstate, HiddenGuard, HiddenSkill } from './hidden';
-import { STANDING } from './layout';
-import { fileHid, skillPath, workFolder } from './render';
+import { STANDING, STEPS } from './layout';
+import { fileHid, HELPER_TOOLS, renderEstate, skillPath, skillTools, workFolder } from './render';
 import type { HiddenSituation } from './situations';
 
 /**
@@ -12,6 +13,10 @@ import type { HiddenSituation } from './situations';
  * helper with the brief fields, reads a file before editing it, walks the step list in order, keeps the
  * output rules in its reply, and the guards it runs into give the verdicts the estate declares.
  *
+ * A session opens with the init record a runtime writes: the tools it offers, which are its standard tools
+ * less every tool a bare deny rule of the settings names (a rule with a pattern, as in `Bash(rm -rf:*)`,
+ * keeps the tool offered). Deleting a deny rule offers the tool again.
+ *
  * An agent mutant is the follower with one atom deleted: every act that atom asks for is dropped (an act
  * several atoms ask for is dropped with any of them), an order the atom imposes is reversed, and what the
  * atom forbids happens. The follower knows the asks of its situations and nothing of any test.
@@ -21,6 +26,20 @@ const BASE = Date.parse('2026-10-12T09:00:00.000Z');
 const BLOCK_MS = 600_000;
 const SESSION = '00000000-0000-4000-8000-00000000e57a';
 
+/** The tools a runtime offers before any setting denies one. */
+const RUNTIME_TOOLS = [
+  'Agent',
+  'Bash',
+  'Edit',
+  'Glob',
+  'Grep',
+  'Read',
+  'Skill',
+  'Write',
+  'WebFetch',
+  'WebSearch',
+];
+
 type Call = {
   label: string;
   input: Record<string, unknown>;
@@ -29,13 +48,15 @@ type Call = {
   structured?: Record<string, unknown>;
 };
 
-type Step = { call: Call } | { stage: string };
+type Step = { call: Call } | { stage: string } | { event: 'compaction' };
 
 export type FollowerSession = { transcript: string; decisions: string; steps: string };
 
 export type FollowerOptions = {
   /** The hidden id of the atom the follower ignores: an agent mutant. */
   mutant?: string;
+  /** Runtime events supplied by the stimulus, never by the expected checks. */
+  events?: readonly (string | undefined)[];
 };
 
 /** The session the follower records for a list of asks, one user turn per ask. */
@@ -58,6 +79,20 @@ export function follow(
     uuid += 1;
     return `follower-${String(uuid).padStart(4, '0')}`;
   };
+  const denied = estate.permissions.deny.filter((rule) => !rule.includes('(') && !cut(`tool:deny:${rule}`));
+  records.push({
+    parentUuid: null,
+    isSidechain: false,
+    userType: 'external',
+    cwd,
+    sessionId: SESSION,
+    version: '2.0.0',
+    type: 'system',
+    subtype: 'init',
+    uuid: 'follower-init',
+    timestamp: new Date(BASE).toISOString(),
+    tools: RUNTIME_TOOLS.filter((tool) => !denied.includes(tool)),
+  });
   asks.forEach((ask, blockIndex) => {
     const situation = situations.find((candidate) => candidate.phrases.includes(ask));
     let clock = BASE + blockIndex * BLOCK_MS;
@@ -83,28 +118,79 @@ export function follow(
       });
       parent = uid;
     };
-    const guardRow = (guard: HiddenGuard, verdict: string, ms: number) => {
+    const reads = new Set<string>();
+    const guardRow = (guard: HiddenGuard, payload: Record<string, unknown>, ms: number) => {
       if (cut(guard.hid)) return;
-      decisions.push({ at: at(ms), event: guard.event, check: guard.name, verdict, session: SESSION });
+      const result = executeGuard(estate, guard, payload);
+      const verdict = result.exitCode === 2 ? 'deny' : result.stderr.trim() ? guard.verdict : 'allow';
+      decisions.push({
+        at: at(ms),
+        event: guard.event,
+        check: guard.name,
+        verdict,
+        session: SESSION,
+        ...result,
+      });
     };
 
     record('user', { role: 'user', content: ask });
+    // A bare-tool denial removes the offered tool; a command restriction does not remove Bash.
+    const offered = new Set([
+      'Skill',
+      'Agent',
+      ...HELPER_TOOLS,
+      'Edit',
+      'Write',
+      'Bash',
+      'WebFetch',
+      'WebSearch',
+      ...estate.permissions.allow.map((rule) => rule.split('(')[0] as string),
+      ...estate.skills.flatMap((skill) => skillTools(skill).map((rule) => rule.split('(')[0] as string)),
+    ]);
+    // The agent mutant that deletes the deny rule offers the tool again.
+    for (const denied of estate.permissions.deny)
+      if (!denied.includes('(') && !cut(`tool:deny:${denied}`)) offered.delete(denied);
+    record('system', {}, { subtype: 'init', tools: [...offered].sort() });
+    const suppliedEvent = options.events?.[blockIndex];
+    const event = suppliedEvent === 'compaction_mid_task' ? 'compaction' : suppliedEvent;
     const promptAt = clock + 100;
     const plan = situation
       ? stepsFor(estate, situation, cwd, cut)
       : { steps: [], reply: chatReply(estate, cut) };
+    if (event === 'compaction') {
+      const recovery: Step[] = estate.rules.some((rule) => rule.hazard === 'compaction' && !cut(rule.hid))
+        ? [{ call: read(cwd, STANDING) }]
+        : [];
+      plan.steps.unshift({ call: read(cwd, STANDING) }, { event: 'compaction' }, ...recovery);
+    }
     for (const guard of estate.guards.filter((candidate) => candidate.event === 'UserPromptSubmit')) {
-      const watched = situation?.act.type === 'stop' && guard.id === 'stop';
-      guardRow(guard, watched ? guard.verdict : 'allow', promptAt);
+      guardRow(guard, { prompt: ask }, promptAt);
     }
     let call = 0;
     for (const step of plan.steps) {
+      if ('event' in step) {
+        record(
+          'system',
+          {},
+          { subtype: 'compact_boundary', compactMetadata: { trigger: 'manual', preTokens: 100 } },
+        );
+        continue;
+      }
       if ('stage' in step) {
         steps.push({ at: at(clock + 500), step: step.stage });
         continue;
       }
       call += 1;
       const useId = `toolu_follower_${blockIndex}_${call}`;
+      const permission = estate.permissions.ask.find((rule) => permissionCovers(rule, step.call));
+      if (permission) {
+        record(
+          'system',
+          {},
+          { subtype: 'permission_request', requestId: useId, tool: step.call.label, input: step.call.input },
+        );
+        record('system', {}, { subtype: 'permission_decision', requestId: useId, decision: 'allow' });
+      }
       record('assistant', {
         id: `msg_follower_${blockIndex}_${call}`,
         type: 'message',
@@ -120,8 +206,13 @@ export function follow(
         if (!matches(guard.matcher, step.call.label)) continue;
         const scoped = guard.scope === 'estate' || loaded.has(guard.scope);
         if (!scoped) continue;
-        guardRow(guard, violates(guard, step.call) ? guard.verdict : 'allow', callAt + 250);
+        guardRow(
+          guard,
+          { tool_name: step.call.label, tool_input: step.call.input, reads: [...reads] },
+          callAt + 250,
+        );
       }
+      if (step.call.label === 'Read' && !step.call.error) reads.add(String(step.call.input.file_path));
       record(
         'user',
         {
@@ -147,8 +238,7 @@ export function follow(
       usage: { input_tokens: 10, output_tokens: 20 },
     });
     for (const guard of estate.guards.filter((candidate) => candidate.event === 'Stop')) {
-      const watched = situation?.act.type === 'guard' && situation.act.guard === guard.name;
-      guardRow(guard, watched ? guard.verdict : 'allow', clock + 100);
+      guardRow(guard, { reply: plan.reply }, clock + 100);
     }
   });
   const jsonl = (rows: readonly unknown[]) => rows.map((row) => `${JSON.stringify(row)}\n`).join('');
@@ -161,19 +251,48 @@ function matches(matcher: string | undefined, label: string): boolean {
   return matcher.split('|').includes(label);
 }
 
-/** Whether a call is the act a guard watches for, so it gives its declared verdict. */
-function violates(guard: HiddenGuard, call: Call): boolean {
-  const command = typeof call.input.command === 'string' ? call.input.command : '';
-  switch (guard.id) {
-    case 'push':
-      return command.includes('push --force');
-    case 'format':
-      return command.startsWith('python3 ') && command.trim().split(/\s+/).length === 2;
-    case 'read':
-      return call.label === 'Edit' && call.error === true;
-    default:
-      return false;
+/** Execute the rendered guard itself. Cache identical pure payloads, not expected verdicts. */
+const scripts = new WeakMap<HiddenEstate, Record<string, string>>();
+const guardResults = new Map<string, { stdout: string; stderr: string; exitCode: number; outcome: string }>();
+function executeGuard(estate: HiddenEstate, guard: HiddenGuard, payload: Record<string, unknown>) {
+  let files = scripts.get(estate);
+  if (!files) {
+    files = renderEstate(estate).files;
+    scripts.set(estate, files);
   }
+  const script = files[guard.script];
+  if (script === undefined) throw new Error(`No rendered guard script: ${guard.script}`);
+  const input = JSON.stringify(payload);
+  const key = JSON.stringify([script, input]);
+  let result = guardResults.get(key);
+  if (!result) {
+    const run = spawnSync(guard.interpreter ?? 'sh', ['-c', script], {
+      input,
+      encoding: 'utf8',
+      timeout: 30_000,
+    });
+    if (run.error || run.status === null)
+      throw new Error(`Guard failed: ${run.error?.message ?? run.stderr}`);
+    result = { stdout: run.stdout, stderr: run.stderr, exitCode: run.status, outcome: 'completed' };
+    guardResults.set(key, result);
+  }
+  return result;
+}
+
+/** Permission patterns use the same documented glob/prefix syntax as the rendered settings. */
+function permissionCovers(rule: string, call: Call): boolean {
+  const parts = /^([^()]+)(?:\((.*)\))?$/.exec(rule);
+  if (parts?.[1] !== call.label) return false;
+  const pattern = parts[2];
+  if (!pattern) return true;
+  const value = String(call.input.command ?? call.input.file_path ?? call.input.url ?? '');
+  const prefix = pattern.endsWith(':*') ? pattern.slice(0, -2) : undefined;
+  if (prefix !== undefined) return value === prefix || value.startsWith(`${prefix} `);
+  const source = pattern
+    .split('*')
+    .map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    .join('.*');
+  return new RegExp(`^${source}$`).test(value);
 }
 
 type Cut = (hid: string) => boolean;
@@ -243,8 +362,17 @@ function walkOf(estate: HiddenEstate, cut: Cut): (opening: Step[], work: Step[])
   if (cut('rule:verify-before-report')) {
     after = [...after.filter((id) => id === 'report'), ...after.filter((id) => id !== 'report')];
   }
-  const stage = (id: string): Step[] => (flow.includes(id) && !cut(`stage:${id}`) ? [{ stage: id }] : []);
-  return (opening, work) => [...stage('plan'), ...opening, ...stage('do'), ...work, ...after.flatMap(stage)];
+  const stage = (id: string): Step[] =>
+    estate.steps.some((step) => step.id === id) && !cut(`stage:${id}`) ? [{ stage: id }] : [];
+  const anytime = estate.steps.filter((step) => step.anytime).flatMap((step) => stage(step.id));
+  return (opening, work) => [
+    ...stage('plan'),
+    ...opening,
+    ...stage('do'),
+    ...work,
+    ...anytime,
+    ...after.flatMap(stage),
+  ];
 }
 
 /** What the follower does on an ask of a situation, and its reply. */
@@ -262,6 +390,34 @@ function stepsFor(
       : [];
 
   switch (act.type) {
+    case 'tool': {
+      const match = /^([^()]+)(?:\((.*)\))?$/.exec(act.rule);
+      const label = match?.[1] ?? act.rule;
+      const pattern = match?.[2];
+      const value = (pattern ?? '').replace(/:\*$/, ' fixture').replace(/\*/g, 'fixture');
+      const calls: Step[] = [];
+      if (act.skill)
+        calls.push({
+          call: { label: 'Skill', input: { skill: act.skill }, result: `Launching skill: ${act.skill}` },
+        });
+      const helper = estate.helpers.find((candidate) => candidate.topic.name === act.helper);
+      if (helper) calls.push({ call: dispatch(helper.topic.name, helper.topic.fields, ['5120', '8830']) });
+      if (label === 'Edit' || label === 'Write') calls.push({ call: read(cwd, 'notes/probe.md') });
+      const call =
+        label === 'Bash'
+          ? bash(value || 'printf fixture')
+          : label === 'Read'
+            ? read(cwd, value || STEPS)
+            : label === 'Edit' || label === 'Write'
+              ? edit(cwd, 'notes/probe.md')
+              : {
+                  label,
+                  input: { pattern: value || 'fixture', path: `${cwd}/notes` },
+                  result: 'fixture match',
+                };
+      calls.push({ call });
+      return { steps: calls, reply: words(estate, cut, ['The local permission probe is complete.']) };
+    }
     case 'chat':
       return { steps: [], reply: chatReply(estate, cut) };
     case 'stop':
@@ -352,27 +508,31 @@ function taskSteps(
       call: { label: 'Skill', input: { skill: name }, result: `Launching skill: ${name}` },
     });
   }
-  if (!cut(refHid(topic.lookup.file))) opening.push({ call: read(cwd, ref(topic.lookup.file)) });
-  if (skill.missing && !cut(refHid(topic.missing.file))) {
-    opening.push({ call: read(cwd, ref(topic.missing.file), false) });
-  }
+  if (!cut(`ref:${STANDING}:${STEPS}`)) opening.push({ call: read(cwd, STEPS) });
+  // One read per file. A file several atoms ask for (the lookup, the skill's gate reference and a standing line
+  // naming the same path) is one act: dropped with any reference atom that asks for it, read after the edit it
+  // guards when any gate atom that orders it is the mutant.
+  const reads = new Map<string, { path: string; exists: boolean; refs: string[]; gates: string[] }>();
+  const asks = (path: string, exists: boolean, refAtom: string, gate?: string) => {
+    const key = `${exists}:${path}`;
+    const act = reads.get(key) ?? { path, exists, refs: [], gates: [] };
+    act.refs.push(refAtom);
+    if (gate !== undefined) act.gates.push(gate);
+    reads.set(key, act);
+  };
+  asks(ref(topic.lookup.file), true, refHid(topic.lookup.file));
+  if (skill.missing)
+    asks(ref(topic.missing.file), skill.referenceSupplied === true, refHid(topic.missing.file));
   // Gate reads: before the edit, or after it when the gate is the mutant.
-  const gateReads: Array<{ read: string; ref: string; gate: string }> = [
-    { read: ref(topic.gate.file), ref: refHid(topic.gate.file), gate: `gate:${name}` },
-    ...(skill.comma
-      ? [{ read: ref(topic.comma.file), ref: refHid(topic.comma.file), gate: `gate:${name}:comma` }]
-      : []),
-    ...estate.rules
-      .filter((rule) => rule.fixedGate?.skill === name)
-      .map((rule) => ({
-        read: rule.fixedGate?.path as string,
-        ref: `ref:${STANDING}:${rule.fixedGate?.path}`,
-        gate: rule.hid,
-      })),
-  ];
-  for (const gate of gateReads) {
-    if (cut(gate.ref)) continue;
-    (cut(gate.gate) ? late : opening).push({ call: read(cwd, gate.read) });
+  asks(ref(topic.gate.file), true, refHid(topic.gate.file), `gate:${name}`);
+  if (skill.comma) asks(ref(topic.comma.file), true, refHid(topic.comma.file), `gate:${name}:comma`);
+  for (const rule of estate.rules.filter((candidate) => candidate.fixedGate?.skill === name)) {
+    const path = rule.fixedGate?.path as string;
+    asks(path, true, `ref:${STANDING}:${path}`, rule.hid);
+  }
+  for (const act of reads.values()) {
+    if (act.refs.some(cut)) continue;
+    (act.gates.some(cut) ? late : opening).push({ call: read(cwd, act.path, act.exists) });
   }
   const script = skillPath(skill, `scripts/${topic.script.file}`);
   if (!cut(fileHid('script', skill, `scripts/${topic.script.file}`)) && !cut(`rule:${name}:script`)) {

@@ -1,5 +1,7 @@
 # Judges
 
+For the task-based product policy, see [the default judge](../default-judge.md). It combines normalization, criterion judging, answer verification, relevance checks and pair comparison.
+
 Every block gets two kinds of verdict. They stay apart and are both reported.
 
 * Machine checks: deterministic, no model. A machine fail is a fail; no judge can overturn it. See [checks](../reference/checks.md).
@@ -46,7 +48,7 @@ A reference to a name the spec does not define is an error. A spec with no `crit
 
 ### Judge settings a criterion carries
 
-A criterion in a spec or a criteria file can carry its own judge settings. A criterion without them sends the same request as before, byte for byte, so recorded answers keep replaying; with them the request changes, and so does its cassette key.
+A criterion in a spec or a criteria file can carry its own judge settings. A criterion without them gets the default judge's settings: criterion prompt version 2 and ledger decoder version 3. A recorded answer replays only under the settings it was recorded with; setting `prompt_version: 1` or `decoder_version: 1` selects the earlier rules, and settings that change the effective request change its cassette key. Explicit `prompt_version: 2` sends the same request as leaving it unset.
 
 ```yaml
 criteria:
@@ -68,7 +70,7 @@ criteria:
     repeat: 3
 ```
 
-* `prompt_version: 2` adds the exact-identifier, stated-facts and stated-scope rules to the criterion prompt; `decoder_version: 2` drops an ungrounded quote and keeps the verdict; `answer_contract: legacy` replays scores recorded with the earlier prompt and parser.
+* `prompt_version: 2`, the default, has the exact-identifier, stated-facts and stated-scope rules in the criterion prompt; `prompt_version: 1` is the earlier prompt without them. The default decoder is version 3; it also accepts source-local symbol spans and input-label aliases, and drops criterion-only spans. `decoder_version: 1` rejects an ungrounded quote; `decoder_version: 2` drops an ungrounded string and keeps the verdict, preserving its historical span rules; `answer_contract: legacy` replays scores recorded with the earlier prompt and parser.
 * `assessment` replaces the criterion ledger: `response-relevance` (the reply answers the latest ask), `conformance` (to `reference`, which may be empty), `answer-audit` (the submitted answer, against `reference` when given) or `fact-ledger` (every fact of `reference` in the reply; `grounding: strict` refuses text that is not a source quote). The first three read the transcript only, so a run leaves the Given summary out of their request. Conformance reads the rubric alone over the whole supplied slice: it takes no `pass` or `fail` picture (a criteria file of it needs none) and no `scope: block`. Response relevance and conformance take no separate artifact: on a task block the produced file text joins the end of their transcript as a context line.
 * `items` score a rubric item by item, from 0 to 4, with optional `weight` and `hard`; `threshold` is the weighted fraction a pass needs (default 1). `requirements` instead split the criterion ledger into named requirements.
 * `repeat: <k>` asks the judge the same request k times: the verdict holds only when all k agree, else it is inconclusive. It is not the spec repeats (`repeat_reducer`). `per_turn: true` judges a conversation one customer turn at a time ([turn-by-turn judging](#additional-judge-apis)). They apply to the judge of a run (`--judge`) and to `judge run`.
@@ -181,7 +183,7 @@ Without its catalog, a real judge cannot answer `sheet_matches_catalog`: haiku a
 * An evidence quote can include its entry's rendered role prefix. It must match that entry's actual role and text. A role alone, tool name alone, wrong role or invented passage is not grounded.
 * `parseAnswerText` and `parseAnswerValue` remain explicit binary parsing utilities. Their public answer shape is `outcome`, `reasoning`, optional `score` and optional `evidence`; they are distinct from the default model-facing ledger contract.
 * `answerContract: 'legacy'` reproduces main `a97cb65e` rendering and parsing, including literal entry separators and its original quote repair. Additional repair forms and guard hardening do not change legacy playback.
-* `criterionPromptVersion: 2` on a request is opt-in. It sends the default criterion prompt plus three rules: compare named identifiers, numbers and units exactly; treat facts the criterion states as the expected values, so `met` is not null for want of an outside source; let the record the question names decide, over the scope line and a contradicting reply. It has its own prompt fingerprint, so its recordings are separate. The default stays version 1 with unchanged bytes and keys. Version 2 does not apply to legacy, assessment or caller-supplied system prompts.
+* Criterion prompt version 2 is the default: compare named identifiers, numbers and units exactly; treat criterion-stated facts as expected values; let the record named by the question decide. `criterionPromptVersion: 1` selects the earlier prompt and fingerprint for historical replay. Versions do not replace legacy, explicit assessment or caller-supplied system prompts.
 * Council and calibration paths retry an unparseable normal-budget answer once with the large budget. A single judge re-asks an invalid criterion ledger once. A split council can still run its existing additional round. A provider refusal or unresolved check remains inconclusive.
 
 ## Two classes of judge
@@ -670,7 +672,7 @@ The public `JudgeAnswer` remains `{ outcome, reasoning, evidence?, score? }`. `p
 
 Select `answerContract: 'legacy'` on a request to use main `a97cb65e` rendering and parsing byte for byte. This includes literal entry separators, the original data-tag guard, object extraction and the original single syntax repair. This keeps existing cassettes and old scores reproducible. Cassette players also accept that option; recordings made before the ledger contract select legacy automatically. A new ledger recording identifies its contract explicitly and cannot silently replay under a different prompt. No existing cassette needs to be re-recorded to keep using legacy.
 
-`criterionDecoderVersion` picks how code reads a criterion ledger; the model-facing prompt is the same for both. Version 1, the default, is strict: a string evidence quote that is not in the supplied data makes the whole ledger unparseable. Version 2 is opt-in: such a quote becomes `evidence: null` with `grounded: false` on its check, and the check keeps the `met` value the model gave, so the rest of the ledger still counts. An ungrounded list of `{ source, quote }` spans stays unparseable under both. Version 2 is a request field of the library only: no CLI option and no spec field sets it.
+`criterionDecoderVersion` picks how code reads a criterion ledger without changing the model-facing prompt. Version 1 is strict: an ungrounded string quote makes the whole ledger unparseable. Versions 2 and 3 drop that string to `evidence: null` with `grounded: false`, preserving the check's `met` value. Version 3 is the default and additionally grounds source-local symbol quotes and input-label spellings such as `input/<path>`. Explicit version 2 preserves its historical span behavior. Invalid span lists remain unparseable in every version. Each decoder has a separate recording identity; historical recordings retain their recorded version.
 
 Under the new default, an old binary model response is unparseable. Council, calibration and single-judge paths re-ask an invalid criterion ledger once with the large budget, then abstain if it remains invalid. A split council can still run its existing additional round. An unparseable response cannot become a fail or pass from its explanation. A parsed row still depends on the model judging that requirement correctly.
 

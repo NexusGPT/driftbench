@@ -52,6 +52,7 @@ Exit codes:
 |---|---|
 | 0 | The new campaign passes: every block passes and every end state matches. |
 | 1 | The new campaign is written, and a gating result fails or is inconclusive. |
+| 3 | The new campaign is written, and no run fails, but a block was not run or blocked: no measurement, never a gating failure. The summary lists each with its reason and counts the runs as `notRun` or `blocked`. |
 | 2 | The inputs or the reuse proof were refused; nothing is judged or written. |
 
 ## Inputs
@@ -71,8 +72,8 @@ changes:
 
 ## Outputs and how to read them
 
-* Text: `Campaign <id>: <r> blocks re-judged, <c> carried; 0 agent calls. Judge cost <usd> USD.`
-* `--json`: `campaign`, `from`, `agentCalls` (always 0), `rejudged`, `carried`, `judgeCostUsd`.
+* Text: `Campaign <id>: <r> blocks re-judged, <c> carried; 0 agent calls. Judge cost <usd> USD.`, with `, <n> not run or blocked (left as they were)` before the semicolon when a block was not run, then `Runs: <p> pass, <f> fail.` (with the not run and blocked counts when there are any), then one line per block not run or blocked with its reason.
+* `--json`: `campaign`, `from`, `agentCalls` (always 0), `rejudged`, `carried` (scored blocks only), `unmeasured` (each block not run or blocked: spec, mode, repeat, block, status, reason; absent when none), `runs` (`pass`, `fail`, `notRun`, `blocked`), `judgeCostUsd`.
 * The store gains the new specs, the new campaign (judge mode `llm`, the judge label, a `rejudged` stamp per run) and one run per baseline run. Judge calls count in the new runs' cost; the agent's historical cost is not charged again.
 * Errors print the reason on stderr with exit 2.
 
@@ -111,6 +112,7 @@ Re-judge needs a criterion-only manifest with identical from/to agent versions; 
 (exit 2)
 $ driftbench campaign rejudge rejudge/plan-upgrade.yaml --from acme-before --campaign acme-rejudged --store rejudge/runs.db --change rejudge/criterion.yaml --judge claude:haiku --judge-command examples/estates/fixture/live/fake/judge.cjs
 Campaign acme-rejudged: 2 blocks re-judged, 3 carried; 0 agent calls. Judge cost 0.0030 USD.
+Runs: 0 pass, 1 fail.
 (exit 1)
 $ driftbench campaign rejudge rejudge/plan-upgrade.yaml --from acme-before --campaign acme-r2 --store rejudge/runs.db --change rejudge/criterion.yaml --judge claude:haiku --judge-command examples/estates/fixture/live/fake/judge.cjs --json
 {
@@ -119,6 +121,12 @@ $ driftbench campaign rejudge rejudge/plan-upgrade.yaml --from acme-before --cam
   "agentCalls": 0,
   "rejudged": 2,
   "carried": 3,
+  "runs": {
+    "pass": 0,
+    "fail": 1,
+    "notRun": 0,
+    "blocked": 0
+  },
   "judgeCostUsd": 0.003
 }
 (exit 1)
