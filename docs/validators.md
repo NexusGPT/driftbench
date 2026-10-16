@@ -1,6 +1,6 @@
 # Validators: code that proves driftbench works
 
-Status: designed on 2026-10-11, owner approved. The frame (V0) is built: `driftbench validate`, the floors, the loop files, the brief and the CI job (section 8), with six ladders registered: estate (section 6), generator (section 3), judges (section 4), map (section 2), statistics (section 7) and system (section 5). Floors in `validators/floors.json`: judges 20 (ladder version 2), map 8, stats 7, system 9; estate and generator have none yet. A validator is code. It contains no model. It plants a truth it knows, runs one part of driftbench, and measures what came back against the plant. It prints a ladder of levels. Each level has one metric, one threshold, the observed value, pass or fail, and the named items that failed. The exit code is the level reached. A builder with less judgement than the author climbs the ladder by fixing the named items of the first failing level and running the validator again.
+Status: designed on 2026-10-11, owner approved. The frame (V0) is built: `driftbench validate`, the floors, the loop files, the brief and the CI job (section 8), with seven ladders registered: blocks (section 13), estate (section 6), generator (section 3), judges (section 4), map (section 2), statistics (section 7) and system (section 5). Floors in `validators/floors.json`: blocks 2 (ladder version 1), judges 20 (ladder version 2), map 8, stats 7, system 9; estate and generator have none yet. A validator is code. It contains no model. It plants a truth it knows, runs one part of driftbench, and measures what came back against the plant. It prints a ladder of levels. Each level has one metric, one threshold, the observed value, pass or fail, and the named items that failed. The exit code is the level reached. A builder with less judgement than the author climbs the ladder by fixing the named items of the first failing level and running the validator again.
 
 ## 1. The common frame
 
@@ -14,7 +14,7 @@ Every validator shares seven rules.
 6. A floor that only rises. `validators/floors.json` holds the level each component must reach. CI refuses a run below the floor. Raising the floor is a commit of its own with the run that justifies it. The floor is the progression.
 7. Differential reference where the answer is computable. Where a slow but obviously correct way exists (exhaustive enumeration on a small space, direct simulation, a second implementation), the validator compares the fast path against it. Agreement is a level of its own.
 
-Command shape: `driftbench validate <map|generator|judges|system|estate|stats> --seed <n> [--seeds a..b] [--json]`. Output: the ladder table, then the items of the first failing level, then the floor comparison.
+Command shape: `driftbench validate <blocks|map|generator|judges|system|estate|stats> --seed <n> [--seeds a..b] [--json]`. Output: the ladder table, then the items of the first failing level, then the floor comparison.
 
 ## 2. The map validator (does extraction find what the agent specifies)
 
@@ -130,10 +130,10 @@ Option errors that the argument parser itself reports (an unknown flag) exit 2, 
 
 ### 8.3 The registered validators
 
-`registeredLadders()` in `packages/validators/src/ladders/index.ts` returns six validators: `estate`, `generator`, `judges`, `map`, `stats` and `system`. `validators/floors.json` holds a floor for four of them; `estate` and `generator` have none yet. `validate floors` prints the floors:
+`registeredLadders()` in `packages/validators/src/ladders/index.ts` returns seven validators: `blocks`, `estate`, `generator`, `judges`, `map`, `stats` and `system`. `validators/floors.json` holds a floor for five of them; `estate` and `generator` have none yet. `validate floors` prints the floors:
 
 ```
-Floors (validators/floors.json): judges = 20 (ladder version 2), map = 8 (ladder version 2), stats = 7 (ladder version 2), system = 9 (ladder version 5).
+Floors (validators/floors.json): blocks = 2 (ladder version 1), judges = 20 (ladder version 2), map = 8 (ladder version 2), stats = 7 (ladder version 2), system = 9 (ladder version 5).
 ```
 
 The run below is an earlier capture of the CI command, from when only `judges` and `stats` were registered. It printed this and exited 0. The hidden seed changes with every commit.
@@ -298,6 +298,35 @@ The gate. No validator merges without the audit: `--hardness` fails its gate whe
 ### 12.8 The frozen contract
 
 Owner review, 2026-10-12: the rules of sections 12.1 to 12.7 changed four times while validators were being built, and every change cost rework across six lanes. From this point the contract is frozen as written: the bank (12.1, 12.2, 12.6), the forecast and the distinct-cause count (12.4), floors per ladder version (12.5) and the independent audit with its blind view (12.7, `--blind`, `--all-levels`). A rule changes only when an audit report names a hole the current rules let through, and the change is written here, with that report as its reason, before any lane acts on it.
+
+## 13. The blocks validator (does the block redesign work as a whole)
+
+The block redesign is ten capabilities built in separate pull requests. No other validator covers them together, so a block can lose a verdict, a link or a parent while every other ladder stays green. `driftbench validate blocks` measures them as one ladder.
+
+How it works. Every item builds its input from the seed: a spec of the fictional bike rental shop Larkspur Cycles, a scripted agent behind the function adapter, run records in a memory store, a prompt with headed sections, or a change manifest. Each item knows the right answer before the product runs: which block was planted to fail, which layer the adapter cannot apply, which section the failing blocks link to. The item runs the product itself (`runSpec`, the loader, the report, the statistics, `radius`, and the command line in process, with a local HTTP agent where a target is needed) and compares the answer with the plant. Nothing calls a model and nothing is billed.
+
+Items reach the product only through one record, `BlocksProduct` in `packages/validators/src/ladders/blocks/product.ts`. A capability that is not on the product yet is an export or a command it lacks, and its items fail with the name of what is missing. The same record lets the tests hand the bank a cheating product.
+
+| Level | Capability | What the items check | On main |
+|---|---|---|---|
+| 1 | Given, When, Then and the four verdicts | each block reads `pass`, `fail` or `not_run` as planted, in modes F and T, on adapters without tool stubs or without a seeded prefix; a block not run never reaches the agent and names the `capability` check; the run reads by the documented rule; `countRuns`, `unscoredText` and the headline count `not_run` apart; `campaign run` exits 0, 1 or 3 | yes |
+| 2 | Tool history as records | a recorded prefix reaches the agent call by call with its outputs; `origin` enters the spec and Given hashes exactly where it holds; `GIVEN_ORIGIN_WITHOUT_PREFIX`; `PREFIX_PROSE_HISTORY` fires exactly on prose a recorded call does not hold; forced tool results hold from their block and merge by name | yes |
+| 3 | Hierarchical intervals | `wilsonEffective` against a second implementation of its formula; the suite headline grouped by golden; the hierarchical interval's properties; the end-state rate and the pass-rate criterion as rates over goldens | partly (PRs 547 and 528) |
+| 4 | Rules as objects | `uses` overrides that load and the `OBJECT_*` refusals; `uses` in the spec hash and out of the cache key; `driftbench object` exits, the `--set` preflight; `Verdict.by` on every verdict | no (PRs 443, 446, 449) |
+| 5 | Value checks | `runLadder`: identity, the outcome rung with a fictional replayer, the contract rung, the as-given rung, the exact fallback | no (PR 459) |
+| 6 | Diagnostics | the machine and agent-attributed scores, unassigned and unmeasured runs, the non-default badge, the fix list, and diagnoses that never change a verdict | no (PRs 445 to 454) |
+| 7 | Parent blocks | forests drawn from the seed: `blocked` by the parent with the first cause as root, no agent call for a blocked block, each cause counted once, a child's history holding only its ancestors, `PARENT_MISSING` and `PARENT_CYCLE` | no (feat/block-parents) |
+| 8 | Section links and localization | links out of the spec hash, `LINK_BLOCK_UNKNOWN`, `radius sections` init, check and reanchor, `radius localize` ranking the planted section first with refuted links and inherited failures left out | no (PRs 423, 429, 433) |
+| 9 | Blast radius | for a tool part, a stage, a criterion or a spec rule, exactly the documented direct blocks and the forward closure in F and none in T; unknown means in; `driftbench radius` exits 0, 1 or 2 | yes |
+| 10 | Personas | the persona loader's refusals (ownership, slot collision, contradictory belief, persona switch in a chain) and one planned cell per persona, an incompatible persona refused as `persona_incompatible` | no (research PRs 418 and 444) |
+
+Every level has threshold 1: every item passes on every seed, or the level fails and names its items, each with its family, tier, component and cause. The bank holds 836 items in 36 families of at least 20. The level reached on main is 2 on seeds 1 to 3 and the hidden seed: level 3 fails on the end-state rate and the pass-rate criterion, which still print the plain Wilson interval over repeated goldens, and on the documented headline example, whose n_eff the product computes as 7.33 where `docs/concepts/statistics.md` prints 7.0.
+
+Cheaters. `CHEATERS` in `packages/validators/src/ladders/blocks/fakes.ts` are products that take a shortcut: every block passes, every block fails, nothing runs, everything is blocked, a tool history flattened into prose, a world that drops forced results, an interval that ignores the clustering, a loader that ignores objects, stamps that always say shipped, a value compared as a string, every failure blamed on the agent, parent links ignored, links that enter the hash, a radius that holds everything. `packages/validators/test/blocks.test.ts` runs every item on the cheaters of its level and requires each item to fail on at least one, every cheater to fail at least one item, and levels 1, 2 and 9 to pass item by item on this repository. The items of levels 3 to 8 were also run on the heads of their pull requests: they pass there, except the explain exit of an unresolved object (the reference says 1, the command exits 2) and the documented headline example.
+
+Feedback. A failing item prints `asks: <capability>. found: <what came back>`: the block whose verdict differs, the export the product lacks, the exit code and the last lines of the command, the interval against the expected one. Its component names the file to change.
+
+Run it: `pnpm driftbench validate blocks --seeds 1..3 --hidden`, and `--items` for the whole bank per family and tier.
 
 ## Measurement cache during system sweeps
 
