@@ -1865,6 +1865,14 @@ function definedTerm(words: string[], files: ReadonlyMap<string, EstateFile>): b
         const heading = /^#{1,6}\s+(.+)$/.exec(line)?.[1];
         if (heading) terms.push(heading.toLowerCase().replace(/[*`_]/g, ''));
         for (const bold of line.matchAll(/\*\*([^*]{3,60})\*\*/g)) terms.push((bold[1] ?? '').toLowerCase());
+        // A term set apart in quotes or code, or defined by a colon or a dash ("Term: ...", "term -- ...").
+        for (const quoted of line.matchAll(/["\u201C]([^"\u201D]{3,60})["\u201D]|`([^`]{3,60})`/g))
+          terms.push((quoted[1] ?? quoted[2] ?? '').toLowerCase());
+        const defined =
+          /^\s*(?:[-*]\s+)?\*{0,2}([A-Za-z][^:\u2014\u2013]{2,50}?)\*{0,2}\s*(?::|\s[\u2014\u2013-]{1,2}\s)/.exec(
+            line,
+          )?.[1];
+        if (defined) terms.push(defined.toLowerCase());
       }
     }
     TERMS.set(files, terms);
