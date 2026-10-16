@@ -282,6 +282,22 @@ describe('opening a store', () => {
     expect(await store.getRun(stored.runId)).toStrictEqual(stored);
   });
 
+  it('opens a store that holds every table of the current schema while another connection holds the write lock', async () => {
+    await seed();
+    await store.close();
+    // An open that took a write lock to run the schema again would wait here, then fail as locked.
+    raw.exec('BEGIN IMMEDIATE');
+    try {
+      const started = Date.now();
+      store = openStore(path);
+      expect(Date.now() - started).toBeLessThan(2000);
+      await store.close();
+    } finally {
+      raw.exec('ROLLBACK');
+    }
+    store = openStore(path);
+  });
+
   it('upgrades every older schema to the current one, whatever the current number', async () => {
     // The tables each schema added (schema.ts): the registry came with 2; 3 added none.
     const added: Record<number, string[]> = { 2: ['versions', 'blobs'] };
