@@ -4,6 +4,8 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* Estate graph at real size. A skill or helper stores one `reference` edge for each citation in a file it owns (its definition file and, for a skill, the files of its folder its citations lead to) and none for what a shared file cites in turn: an index cited by 57 units and citing 3,500 files stores 57 edges, not 200,000. Reach is computed on demand with the new `filesReached`, `referenceOwners` and `citationsByFile` of `@agent-nexus/driftbench-estate`. The plan command prints the first 10 lines of each list and names the summary file for the rest. A sentence that mentions a path is read once for every spelling of the path.
+
 * `@agent-nexus/driftbench-core` exports `GUARD_INTERVENTIONS` (the list of guard intervention kinds a guard expectation can count: deny, warn and nudge). A generated negative guard control checks each of them.
 
 * New public names for the estate work. `@agent-nexus/driftbench-checks` exports the `absence` check (a typed absence predicate compiled to a trace check). `@agent-nexus/driftbench-core` exports `stringifyBlockYaml` (the block writer for generated specs). `@agent-nexus/driftbench-estate` exports `observeUnitTests` and the `UnitObservation` type (the unit runner's recorded observations), and `observeHelper` with the `HelperObservation` type (a configured helper executor's recorded observations).

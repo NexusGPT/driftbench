@@ -9,3 +9,4 @@ export {
   literals,
   sortEdges,
 } from './edges';
+export { citationsByFile, filesReached, referenceOwners } from './reach';

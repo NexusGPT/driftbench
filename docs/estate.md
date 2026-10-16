@@ -279,7 +279,7 @@ Edges, decided by code:
 | Edge | From, to |
 |---|---|
 | route | a route atom to the skill or helper it loads |
-| reference | a skill or helper to a file its body names, and to each file those files name in turn (a chain read once per skill or helper; a shared file keeps every owner; a file in the skill folder that nothing names has no owner) |
+| reference | a skill or helper to a reference atom in a file it owns: its own file and, for a skill, the files of its own folder that its citations lead to, each read once (a file in the skill folder that nothing names has no owner). Edges are direct: a file outside the folder that several units cite, such as a shared index, is cited by each unit with one edge and its own citations belong to no unit's edges, so an index cited by 57 units and citing 3,500 files stores 57 edges and not 200,000. What a unit reaches by following citations is computed on demand (`filesReached`, `referenceOwners`, `citationsByFile`) and never stored |
 | script | a skill to a script it ships |
 | dispatch | a skill or helper to a helper its body names; by an imperative or obligation clause whose object or recipient is a known helper (quoted or plain). Predicate vocabulary is open; grammatical parts of speech distinguish actions from mentions. The helper name must end its noun phrase: a possessive, path suffix or following noun does not name that helper. Dispatch uses the gate clause boundaries and negation scope: prohibitions, optional acts, quoted examples, historical descriptions and noun phrases create no dispatch edge. Transfer objects are noun phrases ending at the recipient preposition; their determiners, possessives, quantities, modifiers and coordination do not restrict dispatch. Coordinated helper targets inherit the same directive and polarity |
 | enforces | a guard to a rule it checks |
@@ -475,6 +475,7 @@ Next: driftbench estate plan approve _captures/docs3/estate/plan.yaml --all, or 
 The written plan and summary are byte for byte the committed `examples/estates/fixture/plan.yaml` and `plan.summary.json`. How to read the counts:
 
 * "Mandatory rows per kind" counts contract rows, a row once for each kind it names: the skill line (111) holds its routes, instructions, references and scripts. "Rows per test type" counts every row, journeys and pairwise included.
+* The console prints a summary, never a line per item: each list (the edges with no journey, the rows adjusted to the space map, the notes) shows its first 10 lines, then one line that counts the rest and names `<plan>.summary.json`, which holds every one under `uncoveredEdges`, `adjusted` and `notes`. A list of 10 or fewer prints whole. A real estate with thousands of unreached edges prints under 100 lines.
 * A cell is a distinct pair of atoms and situation values over the rows. The plan reads no phrase bank, so every cell counts as a cell with no approved phrase.
 * `spaceHash` in the plan is the content hash of the space map used, derived from the map or given with `--space`.
 * The seed of the covering array and of the walk is fixed at 1; there is no flag for it.

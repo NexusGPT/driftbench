@@ -815,6 +815,12 @@ const PROHIBITION_VERBS = new Set([
 const PROHIBITION_STATES = new Set(['unable', 'inaccessible', 'refrain']);
 const OMISSION_VERBS = new Set(['forget', 'fail', 'omit']);
 
+/** The verdicts of `requiresAct`, by the marked text and the verbs asked about. */
+const MENTION_VERDICTS = new Map<string, boolean>();
+const MENTION_VERDICT_LIMIT = 16_384;
+/** Stands for the mentioned path in a text the grammar reads: the verdict does not depend on how the path is spelled. */
+const MENTION_MARKER = 'estatefilemarker';
+
 /** Whether at least one mention requires the act, rather than forbidding it in its own clause. */
 export function positiveMention(
   text: string,
@@ -823,45 +829,58 @@ export function positiveMention(
   bareNever = false,
 ): boolean {
   if (name === '') return false;
-  const actions = new Set(
-    verbs.flatMap((verb) => [verb, `${verb}s`, `${verb}es`, `${verb}ing`, `${verb}ed`]),
-  );
   let offset = text.indexOf(name);
   while (offset >= 0) {
     // Substitute the path so dots and punctuation in filenames cannot create sentence boundaries.
-    const marker = 'estatefilemarker';
-    const marked = text.slice(0, offset) + marker + text.slice(offset + name.length);
-    const clause =
-      nlp(marked.replace(/[\n;]/g, '. '))
-        .clauses()
-        .splitBefore('(and|or) (#Verb|#Negative)')
-        .out('array')
-        .find((part: string) => part.includes(marker)) ?? marked;
-    // A negation does not reach across a word that reverses or restarts the clause: "never proceed without
-    // reading X" requires the read, "do not read X unless asked" forbids it.
-    const segment = clause
-      .split(/\b(?:without|unless|until|before|but|instead)\b/i)
-      .find((part: string) => part.includes(marker));
-    const parsed = nlp((segment ?? clause).replace(/[‘’]/g, "'"));
-    const terms = parsed.termList();
-    const hasAction = terms.some((term) => actions.has(term.normal));
-    if (!hasAction && !bareNever) return true;
-    // Polarity belongs to the governing clause, including auxiliaries, passive prohibitions and
-    // intervening adverbs. A semantic verb lexicon supplements the parser's grammatical negatives.
-    const predicates = parsed.verbs().json() as Array<{ verb?: { infinitive?: string; negative?: boolean } }>;
-    const prohibits =
-      predicates.some(
-        ({ verb }) =>
-          (verb?.infinitive ?? '').split(' ').some((word) => PROHIBITION_VERBS.has(word)) && !verb?.negative,
-      ) || terms.some((term) => PROHIBITION_STATES.has(term.normal));
-    const negatives = predicates.filter(({ verb }) => verb?.negative);
-    const reminder =
-      negatives.length > 0 && negatives.every(({ verb }) => OMISSION_VERBS.has(verb?.infinitive ?? ''));
-    const negative = terms.some((term) => term.tags?.has('Negative') || term.normal === 'no');
-    if (!prohibits && (!negative || reminder)) return true;
+    const marked = text.slice(0, offset) + MENTION_MARKER + text.slice(offset + name.length);
+    // The grammar reads the marked text alone: lines that differ only in the path they name (the entries of an
+    // index) share one verdict, so each distinct sentence shape is parsed once.
+    const key = `${verbs.join(',')}\u0000${bareNever}\u0000${marked}`;
+    let verdict = MENTION_VERDICTS.get(key);
+    if (verdict === undefined) {
+      verdict = requiresAct(marked, verbs, bareNever);
+      if (MENTION_VERDICTS.size >= MENTION_VERDICT_LIMIT) MENTION_VERDICTS.clear();
+      MENTION_VERDICTS.set(key, verdict);
+    }
+    if (verdict) return true;
     offset = text.indexOf(name, offset + name.length);
   }
   return false;
+}
+
+/** Whether the mention marked in `marked` requires the act in its own clause. */
+function requiresAct(marked: string, verbs: readonly string[], bareNever: boolean): boolean {
+  const actions = new Set(
+    verbs.flatMap((verb) => [verb, `${verb}s`, `${verb}es`, `${verb}ing`, `${verb}ed`]),
+  );
+  const clause =
+    nlp(marked.replace(/[\n;]/g, '. '))
+      .clauses()
+      .splitBefore('(and|or) (#Verb|#Negative)')
+      .out('array')
+      .find((part: string) => part.includes(MENTION_MARKER)) ?? marked;
+  // A negation does not reach across a word that reverses or restarts the clause: "never proceed without
+  // reading X" requires the read, "do not read X unless asked" forbids it.
+  const segment = clause
+    .split(/\b(?:without|unless|until|before|but|instead)\b/i)
+    .find((part: string) => part.includes(MENTION_MARKER));
+  const parsed = nlp((segment ?? clause).replace(/[‘’]/g, "'"));
+  const terms = parsed.termList();
+  const hasAction = terms.some((term) => actions.has(term.normal));
+  if (!hasAction && !bareNever) return true;
+  // Polarity belongs to the governing clause, including auxiliaries, passive prohibitions and
+  // intervening adverbs. A semantic verb lexicon supplements the parser's grammatical negatives.
+  const predicates = parsed.verbs().json() as Array<{ verb?: { infinitive?: string; negative?: boolean } }>;
+  const prohibits =
+    predicates.some(
+      ({ verb }) =>
+        (verb?.infinitive ?? '').split(' ').some((word) => PROHIBITION_VERBS.has(word)) && !verb?.negative,
+    ) || terms.some((term) => PROHIBITION_STATES.has(term.normal));
+  const negatives = predicates.filter(({ verb }) => verb?.negative);
+  const reminder =
+    negatives.length > 0 && negatives.every(({ verb }) => OMISSION_VERBS.has(verb?.infinitive ?? ''));
+  const negative = terms.some((term) => term.tags?.has('Negative') || term.normal === 'no');
+  return !prohibits && (!negative || reminder);
 }
 
 /**

@@ -1,3 +1,4 @@
+import { referenceOwners } from '../graph/reach';
 import type { Atom, AtomKind, Edge, EstateMap, PlanRow, TestType } from '../schema';
 
 /**
@@ -287,7 +288,8 @@ function rowsOf(
 }
 
 /**
- * The skill or helper an atom belongs to: for a reference, the unit whose reference edge names it; for a
+ * The skill or helper an atom belongs to: for a reference, the unit whose reference edge names it, else the
+ * first unit whose citations lead to its file; for a
  * script, the unit whose script edge names it; for a rule or a hazard, the unit whose file holds it; for a
  * route, the unit it loads.
  */
@@ -304,10 +306,13 @@ function owners(atoms: readonly Atom[], edges: readonly Edge[]): Map<string, str
       if (!out.has(atom)) out.set(atom, unit);
     }
   }
+  // A reference in a file shared by units, or outside a unit's folder, has no stored edge: the first unit
+  // whose citations lead to its file owns it, found by walking the citations once for the whole estate.
+  const reached = referenceOwners(atoms);
   for (const atom of atoms) {
     if (out.has(atom.id) || atom.kind === 'skill' || atom.kind === 'subagent') continue;
     if (!['instruction', 'gate', 'register', 'hazard', 'reference'].includes(atom.kind)) continue;
-    const unit = unitOfFile.get(atom.provenance.file);
+    const unit = unitOfFile.get(atom.provenance.file) ?? reached.get(atom.id);
     if (unit) out.set(atom.id, unit);
   }
   return out;

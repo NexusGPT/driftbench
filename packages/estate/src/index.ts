@@ -1,13 +1,16 @@
 export {
   analyzeGraph,
   buildGraph,
+  citationsByFile,
   declaredLabels,
   type EnforceMethod,
   EVENT_PREFIX,
+  filesReached,
   type Graph,
   type GraphAnalysis,
   labelOf,
   literals,
+  referenceOwners,
   sortEdges,
   targetOf,
 } from './graph';
