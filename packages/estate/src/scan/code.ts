@@ -10,6 +10,7 @@ import {
   descriptive,
   eventHead,
   exampleOrHistory,
+  folderRead,
   headPhrase,
   isEvent,
   isUrl,
@@ -1657,6 +1658,17 @@ const GATE_FORMS: Array<{
     prose: true,
   },
   {
+    form: 'not-before-reading',
+    pattern: new RegExp(
+      String.raw`^(.*?)\b${NEGATIVE}\s+(.+?)\s+before\s+(?:first\s+)?(?:you\s+(?:have\s+|'ve\s+)?)?(?:reading|having\s+read|read)\s+(${TOKEN}|.+)$`,
+      'i',
+    ),
+    head: [1],
+    read: 3,
+    act: 2,
+    prose: true,
+  },
+  {
     form: 'not-without-reading',
     pattern: new RegExp(
       String.raw`^(.*?)\b${NEGATIVE}\s+(.+?)\s+without\s+(?:first\s+)?(?:reading|having\s+read)\s+${TARGET}`,
@@ -1903,7 +1915,7 @@ function gateAtoms(
         // A question asks and a dated entry records; neither directs the agent.
         if (trigger === '' || trigger.includes('?') || dated(trigger)) continue;
         // An act, or an event the read comes before: "any query", "the second query", "your first action".
-        const act_ = isAct(action);
+        const act_ = isAct(action, form.startsWith('not-'));
         if (!act_ && !isEvent(action)) continue;
         // Negation of the requirement sits at the predicate boundary, not in its object
         // ("editing optional metadata requires …" still requires the read).
@@ -1927,7 +1939,13 @@ function gateAtoms(
           let fromName = false;
           let self = false;
           let unresolved: string | undefined;
-          if (free && named === undefined) {
+          const folder = free
+            ? folderRead(target, (path) => [...files.keys()].some((file) => file.startsWith(`${path}/`)))
+            : undefined;
+          if (folder) {
+            first = folder;
+            unresolved = 'folder';
+          } else if (free && named === undefined) {
             // A relative clause says which one; the name is the head of the phrase.
             const phrase = headPhrase(target);
             const found = selfReference(target) ? undefined : namedReference(phrase, files, raw);
@@ -1978,7 +1996,7 @@ function gateAtoms(
             isFile,
             skill,
             located,
-            path: self ? chunk.file : located?.path,
+            path: self ? chunk.file : folder ? folder : located?.path,
             self,
             unresolved,
           };
@@ -2106,7 +2124,7 @@ const ACT_VERBS = new Set(
  * An act the agent performs: its first word, after a subject (you, we, the agent), is a verb of acting. A
  * time ("9 in the morning"), a meal or a past event ("the audit last year") is no act, nor is a feeling.
  */
-function isAct(trigger: string): boolean {
+function isAct(trigger: string, negated = false): boolean {
   const words = trigger
     .toLowerCase()
     .replace(/^(you|we|i|the agent|the assistant)\s+/, '')
@@ -2123,6 +2141,8 @@ function isAct(trigger: string): boolean {
     return true;
   // Grammar admits new imperative verbs without growing an estate-specific action vocabulary.
   if (nlp(words.join(' ')).termList()[0]?.tags?.has('Imperative')) return true;
+  // After a negation ("Never plan before reading X") the act is a bare verb, never a noun.
+  if (negated && tagsOf(first).has('Infinitive') && !tagsOf(first).has('Noun')) return true;
   // "every ticket edit", "each change": an act named as a noun after a quantifier.
   return ['every', 'each', 'any'].includes(first) && words.slice(1).some((word) => ACT_VERBS.has(word));
 }

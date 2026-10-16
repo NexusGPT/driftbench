@@ -110,17 +110,24 @@ export function withoutEmphasis(clause: string): string {
   const parts = clause.split(/(\s+)/);
   const out: string[] = [];
   let previous = '';
+  let words = 0;
+  // Where the last "read" stood: an adverb is emphasis only on the thing that verb takes.
+  let readAt = Number.NEGATIVE_INFINITY;
   for (const part of parts) {
     if (/^\s*$/.test(part)) {
       out.push(part);
       continue;
     }
-    const after = /^read(?:ing)?$/i.test(previous) || new RegExp(`^${ITEM}[.,;:!?)]*$`).test(previous);
+    words++;
+    const item = new RegExp(`^${ITEM}[.,;:!?)]*$`).test(previous);
+    const after = /^read(?:ing)?$/i.test(previous) || (item && words - readAt <= 6);
     if (after && emphasis(part)) {
       // Drop the adverb and the space that preceded it.
       if (/^\s+$/.test(out.at(-1) ?? '')) out.pop();
+      words--;
       continue;
     }
+    if (/^read(?:ing)?$/i.test(part)) readAt = words;
     out.push(part);
     previous = part;
   }
@@ -382,7 +389,12 @@ export function unresolvedKind(phrase: string): 'section' | 'state' | 'role' | u
   if (terms.slice(label ? 1 : 0).some(acts)) return undefined;
   if (label) return 'section';
   if (content.length < 2) return undefined;
-  return /^(?:state|status)$/i.test(content.at(-1) ?? '') ? 'state' : 'role';
+  if (/^(?:state|status)$/i.test(content.at(-1) ?? '')) return 'state';
+  // A part named by role must say it is a document: a word for what a rule, a standard or a checklist is
+  // written in. "the whole thread", "the customer's last email" name a thing of the conversation.
+  return content.some((word) => DOCUMENT_NOUNS.has(word.toLowerCase().replace(/['\u2019]s$/, '')))
+    ? 'role'
+    : undefined;
 }
 
 /**
@@ -427,4 +439,70 @@ export function ownWriting(phrase: string): boolean {
       text,
     )
   );
+}
+
+/**
+ * Nouns for a written source of rules or facts: a part named by role is a document only if one of its words
+ * is one of these. "file", "document" and "page" alone point at whatever the sentence is about, so they do
+ * not count.
+ */
+const DOCUMENT_NOUNS = new Set([
+  'guide',
+  'guides',
+  'guideline',
+  'guidelines',
+  'standard',
+  'standards',
+  'checklist',
+  'checklists',
+  'policy',
+  'policies',
+  'playbook',
+  'handbook',
+  'manual',
+  'runbook',
+  'spec',
+  'specs',
+  'specification',
+  'template',
+  'templates',
+  'rule',
+  'rules',
+  'rulebook',
+  'canon',
+  'protocol',
+  'procedure',
+  'procedures',
+  'rubric',
+  'criteria',
+  'charter',
+  'readme',
+  'reference',
+  'references',
+  'documentation',
+  'glossary',
+  'instructions',
+  'convention',
+  'conventions',
+  'gate',
+  'gates',
+  'appendix',
+]);
+
+/**
+ * A quantified read of a folder: "every file under `docs/plans/`", "each document in docs/plans/". The folder
+ * is what is read; it must end in a slash or hold files of the estate.
+ */
+export function folderRead(phrase: string, folders: (path: string) => boolean): string | undefined {
+  const match =
+    /^(?:every|each|all)\s+(?:of\s+)?(?:the\s+)?(?:[\w-]+\s+)?(?:files?|documents?|docs?|notes?|pages?|entries|guides?|plans?)\s+(?:under|in|inside|within|below|from|of)\s+(.+)$/i.exec(
+      phrase.trim(),
+    );
+  if (!match) return undefined;
+  const path = (match[1] ?? '')
+    .replace(/[`*"'\u201C\u201D]/g, '')
+    .replace(/[.,;:!?)]+$/, '')
+    .trim();
+  if (path === '' || /\s/.test(path)) return undefined;
+  return path.endsWith('/') || folders(path) ? path : undefined;
 }
