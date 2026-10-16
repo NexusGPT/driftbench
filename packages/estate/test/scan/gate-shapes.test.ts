@@ -125,6 +125,8 @@ describe('a read with no object gates only through "this" or one path that follo
     '### Rule: Read before you write',
     '| Read before editing |',
     'Read BEFORE the bakery opens.',
+    'After a restart, read this file again before you bake anything.',
+    'Read this file again before you touch the oven.',
     'KITCHEN RULE -- read before the FIRST oven setting of a shift.',
   ])('gives no gate for %s', async (block) => {
     expect(await gatesOf(block)).toEqual([]);
