@@ -576,8 +576,8 @@ export function holdsTask(ask: string, context: TaskContext = {}): boolean {
 function governedPhrase(quote: string): string | undefined {
   const text = quote
     .replace(/^[\s!*#>-]+|[\s!*]+$/g, '')
-    // A rule label in front of the clause ("R5.", "A1:", "3)", bold or not) is no part of it.
-    .replace(/^(?:[A-Za-z]{1,3}\d+|\d+)[.:)]\**\s+/, '')
+    // A rule label in front of the clause ("R5.", "A1:", "3)", "Rule 5.", "Step 2:", bold or not) is no part of it.
+    .replace(/^(?:(?:[A-Za-z]+\s+)?[A-Za-z]{0,3}\d+)[.:)]\**\s+/, '')
     .replace(/`[^`]*`/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();

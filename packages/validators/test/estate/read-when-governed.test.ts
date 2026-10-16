@@ -47,6 +47,24 @@ describe('a read-before ask performs the act its rule governs', () => {
     expect(performsGoverned('Please edit the shipment note.', quote)).toBe(false);
   });
 
+  // The clause is anchored at its start ("Before ...", "Do not ... until"), so only the label strip can read it: a
+  // label with other punctuation, with several letters or written as a word must be removed first.
+  it.each([
+    'A1: Before editing any invoice file: Read `references/rules.md`.',
+    '3) Before editing any invoice file: Read `references/rules.md`.',
+    'AB12) Before editing any invoice file, Read `references/rules.md`.',
+    'R5. Before editing any invoice file: Read `references/rules.md`.',
+    'Rule 5. Before editing any invoice file: Read `references/rules.md`.',
+    'Step 2: Before editing any invoice file, Read `references/rules.md`.',
+    '**Rule 12.** Before editing any invoice file: Read `references/rules.md`.',
+    '- **Step 2:** Do not edit any invoice file until you have read `references/rules.md`.',
+    'Rule 7) Do not edit any invoice file until you have read `references/rules.md`.',
+  ])('reads an anchored clause behind a label of any punctuation, length or word: %s', (quote) => {
+    expect(performsGoverned('Please edit any invoice file.', quote), quote).toBe(true);
+    expect(performsGoverned('Please delete any invoice file.', quote), quote).toBe(false);
+    expect(performsGoverned('Please edit the shipment note.', quote), quote).toBe(false);
+  });
+
   it('holds an ask to nothing when the clause names no act and object', () => {
     expect(performsGoverned('Anything at all.', 'Read `a.md` first.')).toBe(true);
   });
