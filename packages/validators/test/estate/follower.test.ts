@@ -207,3 +207,44 @@ describe('an act several atoms ask for, in the rule follower', { timeout: 120_00
     }
   });
 });
+
+describe('the tools the rule follower records as offered', { timeout: 120_000 }, () => {
+  const offeredOf = (estate: HiddenEstate, mutant?: string) => {
+    const situations = situationsOf(estate);
+    const phrase = situations.find((candidate) => candidate.use === 'trigger')?.phrases[0] as string;
+    const raw = follow(estate, situations, [phrase], mutant ? { mutant } : {});
+    return mapSession({
+      transcript: parseJsonl(raw.transcript),
+      decisions: parseJsonl(raw.decisions),
+      steps: parseJsonl(raw.steps),
+    }).blocks[0]?.observed.runtime?.offered;
+  };
+
+  it('opens the session with the runtime tools less every tool a bare deny rule names', () => {
+    for (let seed = 1; seed <= 8; seed += 1) {
+      const estate = drawEstate(seed);
+      estate.permissions.deny.push('WebSearch', 'Write(*.lock)');
+      const offered = offeredOf(estate);
+      expect(offered, `seed ${seed}`).toBeDefined();
+      for (const rule of estate.permissions.deny.filter((candidate) => !candidate.includes('('))) {
+        expect(offered, `seed ${seed} ${rule}`).not.toContain(rule);
+      }
+      // A rule with a pattern keeps the tool offered; the tools the follower itself uses stay offered.
+      expect(offered).toEqual(expect.arrayContaining(['Read', 'Edit', 'Bash', 'Skill', 'Agent', 'Write']));
+    }
+  });
+
+  it('offers the tool again when the deny rule that names it is the mutant, and only that tool', () => {
+    for (let seed = 1; seed <= 8; seed += 1) {
+      const estate = drawEstate(seed);
+      estate.permissions.deny.push('WebSearch');
+      const clean = offeredOf(estate) ?? [];
+      for (const rule of ['WebFetch', 'WebSearch']) {
+        const offered = offeredOf(estate, `tool:deny:${rule}`) ?? [];
+        expect(offered, `seed ${seed} without ${rule}`).toContain(rule);
+        expect(offered.filter((tool) => !clean.includes(tool))).toEqual([rule]);
+      }
+      expect(offeredOf(estate, 'rule:no-webfetch')).toEqual(clean);
+    }
+  });
+});

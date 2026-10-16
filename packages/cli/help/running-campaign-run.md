@@ -131,7 +131,7 @@ On stderr: errors, and the note that a budget does not count simulated-user or j
 
 With `--store`, the store gains the campaign record, the specs at their content hash, one run per cell (filed as each finishes), and the cache entries. The run id of a cell is its cell id.
 
-Exit codes: 0 when every cell passes; 1 when a cell fails, failed or was stopped (the budget included), or when a `--change` audit finds a miss; 2 on bad input, when nothing ran.
+Exit codes: 0 when every cell passes; 1 when a cell fails, failed or was stopped (the budget included), or when a `--change` audit finds a miss; 3 when no cell failed but a cell was not run or blocked (a Given the target cannot apply: no pass, no failure); 2 on bad input, when nothing ran.
 
 ## Worked example
 

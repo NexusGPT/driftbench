@@ -21,6 +21,7 @@ import { type Check, PlantedEstate, type ScanOutcome } from './planted';
 const READER = 'packages/estate/src/scan/claude-code.ts';
 const CODE = 'packages/estate/src/scan/code.ts';
 const EDGES = 'packages/estate/src/graph/edges.ts';
+// The product scanner's wall time, after fixture setup and before validator checks and cleanup.
 const BUDGET_MS = 5000;
 
 export type Case = {
@@ -649,7 +650,6 @@ export async function judgeCase(seed: number, family: string, item: Case): Promi
   if (!estate.writers.has(STANDING) && !estate.raws.has(STANDING))
     estate.file(STANDING, 'base').line('# Planted estate');
   if (!estate.writers.has(SETTINGS) && !estate.raws.has(SETTINGS)) writeSettings(estate);
-  const started = Date.now();
   let scan: ScanOutcome;
   try {
     scan = await estate.scan();
@@ -659,7 +659,7 @@ export async function judgeCase(seed: number, family: string, item: Case): Promi
       detail: `the scan threw: ${cause instanceof Error ? cause.message.slice(0, 160) : String(cause)}`,
     };
   }
-  const elapsed = Date.now() - started;
+  const elapsed = scan.scanMs;
   const result = estate.judge(scan, [owner]).get(owner) as ItemResult;
   if (elapsed > BUDGET_MS)
     return { pass: false, detail: `the scan took ${elapsed} ms, over ${BUDGET_MS} ms; ${result.detail}` };
