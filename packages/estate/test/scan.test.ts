@@ -171,7 +171,8 @@ describe('code atoms', () => {
   it('reads every structured atom of the fixture, approved as read, with no model call', async () => {
     const result = await scanEstate({ root: FIXTURE, reader: new ClaudeCodeReader(), now: NOW });
     const counts: Record<string, number> = {};
-    for (const atom of result.map.atoms) counts[atom.kind] = (counts[atom.kind] ?? 0) + 1;
+    for (const atom of result.map.atoms.filter((atom) => !atom.fields?.candidate))
+      counts[atom.kind] = (counts[atom.kind] ?? 0) + 1;
     expect(counts).toEqual({
       skill: 4,
       route: 13,
@@ -186,7 +187,14 @@ describe('code atoms', () => {
       hazard: 2,
       invariant: 4,
     });
-    expect(result.map.atoms.every((atom) => atom.producedBy === 'code' && atom.approved)).toBe(true);
+    expect(
+      result.map.atoms
+        .filter((atom) => !atom.fields?.candidate)
+        .every((atom) => atom.producedBy === 'code' && atom.approved),
+    ).toBe(true);
+    expect(result.map.atoms.filter((atom) => atom.fields?.candidate).every((atom) => !atom.approved)).toBe(
+      true,
+    );
     expect(result.calls).toBe(0);
     expect(result.map.producedBy).toBeUndefined();
   });

@@ -98,7 +98,9 @@ describe('driftbench estate scan', () => {
       elsewhere,
     );
     expect(result.code).toBe(0);
-    expect(result.out).toContain('No model call: structured atoms only (--no-model).');
+    expect(result.out).toContain(
+      'No model call: structured atoms and code-found prose candidates (--no-model).',
+    );
     expect(result.out).toContain('Unanswered prose chunks (no model call): 14, 6775 characters.');
     expect(result.out).toContain(
       '    .claude/skills/invoice-reconcile/references/matching-rules.md  261 characters\n',

@@ -13,6 +13,7 @@ import { parse as parseYaml } from 'yaml';
 import { z } from 'zod';
 import { type Atom, EvidencePredicate } from '../schema';
 import type { AtomBuilder } from './code';
+import { type ProseCache, proseCacheKey } from './prose-cache';
 import type { ProseChunk, RawEstate } from './reader';
 import { type Located, locateQuote, quoteAtSpan } from './text';
 
@@ -208,6 +209,7 @@ export function acceptProse(
           other.provenance.file === at.file &&
           other.provenance.startLine <= at.endLine &&
           at.startLine <= other.provenance.endLine &&
+          !other.fields?.candidate &&
           (other.producedBy === 'code' || foldQuote(other.provenance.quote) === folded),
       );
     if (same) {
@@ -251,6 +253,7 @@ export type ChunkRun = {
   calls: number;
   status: 'done' | 'failed';
   accepted: number;
+  cached?: boolean;
   error?: string;
   excerpt?: string;
 };
@@ -262,7 +265,18 @@ export async function runChunk(
   port: ModelPort,
   builder: AtomBuilder,
   maxTokens?: number,
+  cache?: ProseCache,
 ): Promise<{ run: ChunkRun; refusals: ProseRefusal[]; duplicates: string[] }> {
+  const key = proseCacheKey(chunk, port, maxTokens);
+  const cached = await cache?.get(key);
+  if (cached) {
+    const result = acceptProse(chunk, { ...cached, chunk: chunk.id }, fileText, builder);
+    return {
+      run: { chunk: chunk.id, calls: 0, status: 'done', accepted: result.accepted.length, cached: true },
+      refusals: result.refusals,
+      duplicates: result.duplicates,
+    };
+  }
   const request = proseRequest(chunk, maxTokens);
   let reason = '';
   let excerpt = '';
@@ -288,6 +302,7 @@ export async function runChunk(
     const parsed = parseProseAnswer(chunk.id, text);
     if (parsed.ok) {
       const result = acceptProse(chunk, parsed.answer, fileText, builder);
+      if (result.refusals.length === 0) await cache?.put(key, parsed.answer);
       return {
         run: { chunk: chunk.id, calls: attempt, status: 'done', accepted: result.accepted.length },
         refusals: result.refusals,
