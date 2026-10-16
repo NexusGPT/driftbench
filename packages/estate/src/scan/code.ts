@@ -1290,12 +1290,12 @@ function hazardAtoms(chunk: ProseChunk, files: ReadonlyMap<string, EstateFile>, 
 }
 
 /**
- * Quoting a sample does not make its words a runtime event: a quotation or code span the line presents as an
- * illustration (an example, how a message reads or looks) is blanked before hazards are matched. A quoted label
- * in a condition ("if the tool reports ...") or defined as a signal ("treat ... as a signal") stays.
+ * Quoted and colon-introduced payloads are samples by syntax, independent of the carrier's vocabulary.
+ * A recovery condition, operational signal definition, or explicit runtime receiver preserves its event.
  */
 function operationalHazardQuote(prefix: string, suffix: string): boolean {
-  if (/\b(?:if|when|after|once|upon)\b/i.test(prefix)) return true;
+  if (/\b(?:if|when|after|once|upon)\b[^,:]*$/i.test(prefix)) return true;
+  if (/:\s*$/.test(prefix)) return false;
   const operation =
     /^\s*(?:[-+*]\s+|\d+[.)]\s+)?(?:you\s+)?(?:(?:must|should|always)\s+)?(?:treat|interpret|recognize|recognise|regard|consider|take)\b/i.test(
       prefix,
@@ -1303,14 +1303,12 @@ function operationalHazardQuote(prefix: string, suffix: string): boolean {
     /^\s+as\s+(?:(?:an?|the|your)\s+)?(?:runtime\s+)?(?:signal|trigger|condition|event|error|warning)\b/i.test(
       suffix,
     );
-  const effect =
-    /^\s+(?:means|signals|indicates|requires|triggers)\b/i.test(suffix) &&
-    !/\b(?:example|sample|quotation)\b/i.test(prefix);
+  const effect = /^\s+(?:means?|signals?|indicates?|requires?|triggers?)\b/i.test(suffix);
   return operation || effect;
 }
 
 function withoutHazardExamples(text: string): string {
-  return text.replace(
+  const quoted = text.replace(
     /`[^`\n]+`|"(?:\\.|[^"\\\n])*"|\u201C[^\u201D\n]*\u201D|(?<!\w)'(?:\\.|[^'\\\n])*'|\u2018[^\u2019\n]*\u2019/g,
     (quote, offset: number) => {
       const prefix =
@@ -1319,13 +1317,23 @@ function withoutHazardExamples(text: string): string {
           .split(/[;!?]|\.(?=\s|$)/)
           .at(-1) ?? '';
       const suffix = text.slice(offset + quote.length).split(/[;!?]|\.(?=\s|$)/)[0] ?? '';
-      if (operationalHazardQuote(prefix, suffix)) return quote;
-      const illustrative =
-        /\b(?:example|instance|sample|phrase|literal)\b|\be\.g\.|\b(?:reads?|looks?|(?:is|are)\s+written|appears?)\s+(?:like|as)\b|\b(?:error|message|log)\s+(?:says|reads|shows)\b/i.test(
-          prefix,
-        ) || /^\s+is\s+(?:only\s+|just\s+)?an?\s+(?:example|sample|quotation)\b/i.test(suffix);
-      return illustrative ? ' '.repeat(quote.length) : quote;
+      // Quoted content after a carrier is a sample unless grammar makes it an event to handle.
+      if (
+        !prefix.trim() ||
+        operationalHazardQuote(prefix, suffix) ||
+        messageDirection(prefix, suffix) === true
+      )
+        return quote;
+      return ' '.repeat(quote.length);
     },
+  );
+  // Mask only the colon payload's clause; a later recovery instruction remains independent.
+  return quoted.replace(
+    /(^|[;.!?])([^;.!?]*?):\s+([^;.!?]*)/g,
+    (clause, lead: string, head: string, payload: string) =>
+      /\b(?:if|when|after|once|upon)\b[^,:]*$/i.test(head) || messageDirection(head, '') === true
+        ? clause
+        : `${lead}${head}: ${' '.repeat(payload.length)}`,
   );
 }
 
@@ -1379,12 +1387,23 @@ function runtimeHazard(id: (typeof HAZARDS)[number]['id'], text: string): boolea
   }
 }
 
-/**
- * Resolve the participant next to an event, not words elsewhere in the line. Unqualified recovery
- * events refer to the current runtime; an explicit subject/object must identify that runtime.
- * Possessors and modifiers stay in the phrase: a customer's process is not the agent's process.
- */
+/** The actor of an explicit call/use relationship, independent of the system's name. */
+function dependencyActor(phrase: string): string | undefined {
+  const relation =
+    /\b(?:that|which)\s+(.+?)\s+(?:calls?|uses?|invokes?|quer(?:y|ies))\s*$|\b(?:called|used|invoked|queried)\s+by\s+(.+)$/i.exec(
+      phrase.trim(),
+    );
+  return relation?.[1] ?? relation?.[2];
+}
+
+function runtimeDependency(phrase: string): boolean {
+  const actor = dependencyActor(phrase);
+  return actor !== undefined && runtimeParticipant(actor);
+}
+
+/** Possessors stay with runtime roles; dependencies require an explicit call/use relationship. */
 function runtimeParticipant(phrase: string): boolean {
+  if (runtimeDependency(phrase)) return true;
   const owner = phrase
     .trim()
     .replace(/^(?:(?:the|a|an|our|your|my|this|current|own|(?:agent|assistant|worker|subagent)'s)\s+)+/i, '');
@@ -1406,8 +1425,7 @@ function rateRecipient(phrase: string): boolean {
 /** The local subject, without clause introducers, auxiliaries or adverbs of the event. */
 function eventSubject(before: string): string {
   const clause =
-    before.split(/[.;,:!?]|\b(?:if|when|after|before|once|unless|while|and|or|but|then|that)\b/i).at(-1) ??
-    '';
+    before.split(/[.;,:!?]|\b(?:if|when|after|before|once|unless|while|and|or|but|then)\b/i).at(-1) ?? '';
   return clause
     .trim()
     .replace(/^(?:on|upon|following|during|at)\s+/i, '')
@@ -1425,7 +1443,7 @@ function eventObject(after: string): string {
       .trim()
       .replace(/^(?:\w+ly\s*)+/i, '')
       .split(
-        /[.;,:!?]|\b(?:if|when|after|before|once|unless|while|and|or|but|then|to|from|by|on|at|for|during|where|which|with)\b/i,
+        /[.;,:!?]|\b(?:if|when|after|before|once|unless|while|and|or|but|then|to|from|by|on|at|for|during|where|with)\b/i,
       )[0] ?? ''
   ).trim();
   const temporal =
@@ -1454,22 +1472,9 @@ function messageDirection(before: string, after: string): boolean | undefined {
   if (/^(?:get|got|receive|hit|encounter)/i.test(verb[0])) return rateRecipient(actor);
   const recipient = /^\s+(?:(?:is|was|gets?)\s+(?:returned|sent|shown)\s+)?(?:to|for)\s+(.+)/i.exec(after);
   if (recipient) return rateRecipient(eventObject(recipient[1] ?? ''));
-  return !runtimeParticipant(actor) && !/^(?:our|my|your|we|i)\b/i.test(actor);
-}
-
-/** Example carriers name a message, not the participant undergoing the event in that message. */
-function eventIntroduction(before: string): string {
-  const example = /\b(?:such as|like|for example|e\.g\.)\s*$/i.exec(before);
-  if (!example) return before;
-  const head = before.slice(0, example.index).trim();
-  const report = [
-    ...head.matchAll(
-      /\b(?:gets?|got|receives?|received|hits?|hit|encounters?|encountered|returns?|returned|responds?|responded|answers?|answered|replies|replied|tells?|told|asks?|asked|instructs?|instructed)\b/gi,
-    ),
-  ].at(-1);
-  if (report) return `${head.slice(0, (report.index ?? 0) + report[0].length)} `;
-  // A bare carrier ("warnings such as ...") has no actor. A possessor or a larger clause stays.
-  return /^(?:(?:an?|the|these|those|some)\s+)?\w+$/i.test(head) || unownedEvent(head) ? '' : before;
+  if (dependencyActor(actor) !== undefined) return runtimeDependency(actor);
+  if (/^(?:our|my|your|we|i)\b/i.test(actor) || runtimeParticipant(actor)) return false;
+  return undefined;
 }
 
 /**
@@ -1496,17 +1501,18 @@ function eventContext(
     if (direction === false) return undefined;
     const body = span[0].slice(1, -1);
     const local = at - start - 1;
-    const innerBefore = body
-      .slice(0, local)
-      .replace(/^\s*(?:for example\b|e\.g\.|i\.e\.|say\b)\s*/i, '')
-      .replace(/["“”]/g, '');
+    const innerBefore = body.slice(0, local).replace(/["“”]/g, '');
     const innerAfter = body.slice(local + event[0].length).replace(/["“”]/g, '');
+    const response = /\b(?:returns?|returned|responds?|responded|answers?|answered|replies|replied)\b/i.test(
+      outerBefore,
+    );
     if (unownedEvent(eventSubject(innerBefore))) {
-      before = eventIntroduction(`${outerBefore}${innerBefore}`);
-      after = `${innerAfter}${outerAfter}`;
+      before = `${outerBefore}${innerBefore}`;
+      after = response ? outerAfter : `${innerAfter}${outerAfter}`;
       // A quoted, unowned event in a reported message inherits its receiver, not the carrier noun.
       if (
         (direction === true || operationalHazardQuote(outerBefore, outerAfter)) &&
+        !response &&
         !/^(?:429s?)$/i.test(body.trim())
       )
         before = innerBefore;
@@ -1520,11 +1526,8 @@ function eventContext(
     }
     break;
   }
-  if (/\b(?:such as|like|for example|e\.g\.)\s*$/i.test(before)) {
-    if (messageDirection(before, after) === false) return undefined;
-    before = eventIntroduction(before);
-  }
-  const aside = /\(\s*(?:for example\b|e\.g\.|i\.e\.|say\b|including\b)[^()]*\)/gi;
+  // Parentheses are adjuncts unless they supply an event's explicit participant ("of the kiosk").
+  const aside = /\((?!\s*of\b)[^()]*\)/gi;
   return { before: before.replace(aside, ' '), after: after.replace(aside, ' ') };
 }
 
@@ -1559,8 +1562,8 @@ function runtimeTransition(line: string, eventPattern: RegExp, allowUnowned: boo
 }
 
 /**
- * Limits are runtime hazards when the agent receives them. A returned status is incoming by default,
- * but an explicit recipient wins; a service we operate returning a status is an outgoing API policy.
+ * Limits are runtime hazards when the agent or a dependency receives them. A service reply needs an
+ * explicit recipient, call relationship, or recovery instruction; describing a status is insufficient.
  */
 function runtimeRateLimit(line: string): boolean {
   return [...line.matchAll(new RegExp(RATE_LIMIT_EVENT.source, 'gi'))].some((event) => {
@@ -1585,7 +1588,13 @@ function runtimeRateLimit(line: string): boolean {
         );
       if (requester) return rateRecipient(requester[1] ?? '');
       const source = eventSubject(before.slice(0, response.index));
-      return !runtimeParticipant(source) && !/^(?:our|my|your|we|i)\b/i.test(source);
+      if (dependencyActor(source) !== undefined) return runtimeDependency(source);
+      return (
+        runtimeDependency(source) ||
+        (!runtimeParticipant(source) &&
+          !/^(?:our|my|your|we|i)\b/i.test(source) &&
+          /\b(?:if|when|once)\b[^;.!?]*,\s*[a-z]+\b/i.test(line))
+      );
     }
     // An active limiter names its recipient as the object; imposing a policy is not receiving one.
     const verb = /^throttl/i.test(event[0]) || /^rate[- ]limit/i.test(event[0]);
@@ -1595,7 +1604,7 @@ function runtimeRateLimit(line: string): boolean {
     const object = eventObject(after);
     const subject = eventSubject(before);
     if (verb && !passive && object && !unownedEvent(subject))
-      return !rateRecipient(subject) && rateRecipient(object);
+      return (!rateRecipient(subject) || runtimeDependency(subject)) && rateRecipient(object);
     if (verb && !passive && object && /^throttles?$/i.test(event[0])) return false;
     const scope = /^\s+(?:for|on|of)\s+(.+)/i.exec(after);
     if (scope) return rateRecipient(eventObject(scope[1] ?? ''));

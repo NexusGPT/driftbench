@@ -112,8 +112,64 @@ const cases: Array<[string, 'restart' | 'session_boundary' | 'rate_wave', boolea
   ['If the API answers "rate limit exceeded" to a browser, explain its quota.', 'rate_wave', false],
 ];
 
+// New audit examples plus independent pairs for participants, dependencies, and sample syntax.
+const syntaxCases: Array<[string, 'restart' | 'rate_wave', boolean]> = [
+  ['Reboot the access point when guests report wifi trouble.', 'restart', false],
+  ['The kiosk reboots nightly at 2am.', 'restart', false],
+  ['Our server answers with 429 after 100 calls in a minute.', 'rate_wave', false],
+  ['Customers see a 429 Too Many Requests page.', 'rate_wave', false],
+  ['If the router reboots, wait two minutes.', 'restart', false],
+  ['Tell the customer to reboot the printer.', 'restart', false],
+  ['A message such as "rate limit exceeded" appears in the logs.', 'rate_wave', false],
+  ['Typical error text: "rate limit exceeded".', 'rate_wave', false],
+  ['Never print "restart required" to the customer.', 'restart', false],
+  ['The billing portal returns 429 after a traffic spike.', 'rate_wave', false],
+  ['The assistant explains that the museum website returns 429.', 'rate_wave', false],
+  ['The satellite link reboots after losing power.', 'restart', false],
+  ['Reboot the laboratory sensor after calibration.', 'restart', false],
+  ['The tool that you call restarts during an upgrade.', 'restart', true],
+  ['The service which the agent queries reboots overnight.', 'restart', true],
+  ['The endpoint invoked by the assistant returns 429.', 'rate_wave', true],
+  ['The service that we call is throttled by its provider.', 'rate_wave', true],
+  ['The service that customers call is throttled by its provider.', 'rate_wave', false],
+  ['The service that you call returns HTTP 429.', 'rate_wave', true],
+  ['The service that customers call returns HTTP 429.', 'rate_wave', false],
+  ['If the service that customers call returns "429", record the incident for them.', 'rate_wave', false],
+  ['If the device that guests use returns 429, tell reception about its quota.', 'rate_wave', false],
+  ['The index that you query returns 429.', 'rate_wave', true],
+  ['Restart the service which the agent calls.', 'restart', true],
+  ['Restart the service which customers call.', 'restart', false],
+  ['The assistant receives: "too many requests".', 'rate_wave', true],
+  ['If asked for documentation, print "restart your own process".', 'restart', false],
+  ['If asked for documentation, print a sample: "rate limit exceeded".', 'rate_wave', false],
+  ['The service that you call throttles the assistant during a burst.', 'rate_wave', true],
+  ['The service that you call throttles a browser extension during a burst.', 'rate_wave', false],
+  [
+    'The service that you call returns "rate limit exceeded" when customers send excess requests.',
+    'rate_wave',
+    false,
+  ],
+  [
+    'The service that you call returns "rate limit exceeded" when you send excess requests.',
+    'rate_wave',
+    true,
+  ],
+  ['A diagnostic banner such as "restart required" appears above the form.', 'restart', false],
+  ['A response payload: "too many requests".', 'rate_wave', false],
+  ['A console transcript: "your process restarted".', 'restart', false],
+  ['A console transcript: your process restarted.', 'restart', false],
+  ['Diagnostic output ("rate limit exceeded") belongs in the appendix.', 'rate_wave', false],
+  ['If the service that you call returns "429", save the current cursor.', 'rate_wave', true],
+  ['When the process (running this agent) restarts, restore its saved state.', 'restart', true],
+  ['When the display (in the lobby) restarts, contact reception.', 'restart', false],
+  ['After a restart (an abrupt termination), inspect your unfinished work.', 'restart', true],
+  ['Warnings such as "too many requests" mean you must delay your next call.', 'rate_wave', true],
+  ['If you receive "too many requests", keep your checkpoint.', 'rate_wave', true],
+  ['When the reporting endpoint returns 429, retain your cursor and retry.', 'rate_wave', true],
+];
+
 describe('runtime hazard participants', () => {
-  it.each(cases)('%s (%s = %s)', async (text, hazard, expected) => {
+  it.each([...cases, ...syntaxCases])('%s (%s = %s)', async (text, hazard, expected) => {
     const root = await estate({ 'CLAUDE.md': text });
     const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
     expect(map.atoms.some((atom) => atom.kind === 'hazard' && atom.fields?.hazard === hazard)).toBe(expected);
