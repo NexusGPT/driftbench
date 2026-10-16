@@ -1,6 +1,7 @@
 import type { DeviationClass } from '@agent-nexus/driftbench-core';
 import type {
   HiddenBehaviour,
+  HiddenDataValue,
   HiddenFlow,
   HiddenPath,
   HiddenRecovery,
@@ -59,6 +60,22 @@ function deviationPhrase(cls: DeviationClass) {
     text: `A user turn of class ${cls}.`,
     lang: 'en',
     intent: { kind: 'deviation' as const, class: cls },
+  };
+}
+
+/** A partition of the output of lookup_parcel; an invalid one breaks the schema, so no rule follower reads it. */
+function outputValue(partition: string, invalid: boolean): HiddenDataValue {
+  return {
+    dimension: 'lookup_parcel.out.found',
+    id: `lookup_parcel.out.found.${partition}`,
+    tool: 'lookup_parcel',
+    direction: 'out',
+    field: 'found',
+    partition,
+    title: `found is ${partition}`,
+    value: partition === 'true',
+    invalid,
+    quote: 'found: { type: boolean }',
   };
 }
 
@@ -176,6 +193,7 @@ export function readDesk(): HiddenSpec {
     deviations: [D8],
     channels: ['web', 'phone'],
     personas: [{ id: 'sender', title: 'A sender' }],
+    data: [outputValue('true', false), outputValue('false', false), outputValue('garbled', true)],
     phrases: [...movePhrases({ open: 'sorting', sorting: 'end' }), ...behaviours.map(behaviourPhrase)],
     paths: [{ id: 'post-path', flow: 'post', stages: ['open', 'sorting', 'end'], when: {}, quote: 'Post.' }],
     uses: [

@@ -304,6 +304,15 @@ describe('the tool failure events of the read desk', () => {
     expect(jointlyPossible(desk, stay('end'))).toBe(false);
   });
 
+  it('holds an output value to the valid partitions the rendered path states after the tool stage', () => {
+    const desk = readDesk();
+    const found = 'lookup_parcel.out.found';
+    expect(jointlyPossible(desk, { stage: 'sorting', [found]: `${found}.true` })).toBe(true);
+    expect(jointlyPossible(desk, { stage: 'end', [found]: `${found}.false` })).toBe(true);
+    expect(jointlyPossible(desk, { stage: 'sorting', [found]: `${found}.garbled` })).toBe(false);
+    expect(jointlyPossible(desk, { stage: 'sorting', [found]: `${found}.unlisted` })).toBe(false);
+  });
+
   it('says a failure on a move only when the move is the edge the tool is called on', () => {
     const fork = forkDesk();
     // Both paths leave a, and the flow calls check_route on a to b only: the branch that goes to c has none.
