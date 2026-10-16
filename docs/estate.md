@@ -515,6 +515,10 @@ How a row becomes a spec:
 | `custom` permission | `rules.custom.permission`: deny, no covered call; allow or declared, no covered call refused for permission, with no call required; ask, a covered call held for permission passes and an executed call is inconclusive because approval is not recorded; no covered call satisfies the boundary |
 | `custom` with a name the generator compiles | `command_not_run`, `command_absent` are compatibility aliases lowered to `tool_not_called` on Bash with a command input assertion; `max_characters`, `max_questions`, `no_secret_in_reply`, `currency_after_amount`, `stopped_and_confirmed` to `must_not` (and `execution.max_commands: 0`); `json_only`, `asks_for`, `route_table` to `must`; `same_language_as_user` to `lang`; `confirmed_before_send`, `asks_again_on_loose_yes` to `safety.confirm_before: [send]` |
 
+Hazard tests assert recovery actions from their source contract for compaction, restart, rate limits, session boundaries, helper notifications and repeated nudges. Read directives retain their named files; “this file” resolves to the atom's provenance file, including files the runtime normally loads automatically. Run and execute directives supply concrete commands. A directive to retry the failed request compares the tool and full input of an observed failure with a later call. No action is invented from the hazard's name. A source with no concrete read, command or retry remains incomplete with the counted `needs-recovery-action` gap.
+
+`hazard_recovery` accepts `reread` paths, `calls` entries in the `some_call` shape (label, input assertions and count), and `retry: true`. These obligations apply after the last matching event marker. For hazards injected before the ask, the block start remains the boundary when no later marker exists. Compaction without its marker is inconclusive. Failed reads do not restore context. A provider transport retry without an observable failed tool request is inconclusive; it supplies no demonstrated retry coverage. Existing continuation and collateral checks remain in place.
+
 ### Typed absence predicates
 
 Absence is a typed family in `EvidencePredicate`, not a guess from a model's choice of words. These predicates forbid an observation within the tested block. Each compiles to a machine check. A scoped tool prohibition forbids only matching calls; unrelated calls remain allowed. Failed attempts still count as calls.
@@ -559,6 +563,7 @@ Absence is not automatically inverted in an outside-trigger control. Being outsi
 | `needs-negation` | in a negative control, a predicate with no inverse |
 | `needs-recorded-session` | a replay row whose situation no recorded session holds |
 | `needs-guard-trace` | in a live row, a check that runs inside another guard's script (a registry code with no script of its own): the runtime's trace names that script, never the check, so the unit runner tests it |
+| `needs-recovery-action` | a hazard source names no concrete recovery read, command or failed-request retry |
 | `needs-guard-timing` | the speed of a guard |
 | `needs-guard-message-check` | the message a guard gives |
 | `needs-derivable-then` | a row with no Then code can derive |
