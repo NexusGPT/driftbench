@@ -18,7 +18,7 @@ that tests compare with the data:
 | Diagnostic | Scope | Steps | What it writes |
 |---|---|---|---|
 | `code-agent-liability` | block | `chain`, `evidence`, `attribute`, `place` | for each failing gating verdict: who made the mistake, how it counts, where the fix goes |
-| `value-mismatch` | block | `chain`, `evidence`, `attribute` | for each failing gating tools input verdict: outcome `unknown`, disposition `unassigned`, flag `lint:value_ladder_unavailable`. The value check's record does not reach it yet, so no blame item is applied |
+| `value-mismatch` | block | `chain`, `evidence`, `attribute` | for each failing gating tools input verdict: outcome `unknown`, disposition `unassigned`, flag `lint:value_ladder_unavailable`. This diagnostic does not read the value check's record yet, so no blame item is applied |
 | `fix-plan` | campaign | `recurrence`, `replace`, `merge`, `rank` | one fix per target and action, ranked; a core fix lists the local copies it replaces |
 | `liability-confirm` | campaign | `plan`, `run`, `store`, `rejudge` | the cheapest run that could change each open diagnosis, made only within its budget, then `code-agent-liability` again |
 | `flaky-block` | campaign | `disagreement` | blocks whose repeats both pass and fail, with their pass share |
@@ -84,11 +84,12 @@ The fields of `blockEvidenceInputs(source)`:
 | Field | Meaning | Default |
 |---|---|---|
 | `observed`, `verdicts` | the stored block's observation and verdicts | required |
-| `expect` | the spec block's `expect`: its tools give the order, its skills the routed skills | none |
+| `expect` | the spec block's `expect`: its tools give the order, its skills the routed skills, its `protected` paths the files it guards | none |
 | `user` | the user turn the agent received | none |
-| `spec`, `specPath` | the spec, for `metadata.estate.atoms` and `metadata.estate.map`; the map path resolves from the spec's folder | none; the map path then resolves from the working folder |
+| `spec`, `specPath` | the spec, for `metadata.estate.atoms`, `metadata.estate.map` and `metadata.tool_schemas`; the map path resolves from the spec's folder | none; the map path then resolves from the working folder |
 | `map` | the estate map, when you read it yourself | read from `metadata.estate.map` |
 | `confirm` | stored confirm counts by verdict id, such as `{ runs: 3, reference_loads: 0 }` | none |
+| `valuePolicy` | the `policy/value-check` object the block resolved: it tells which implementation a stored rung id names | the shipped default |
 | `planRows`, `extra` | plan rows that name the rule's atom; any other evidence input field | none |
 
 The params a file that extends a shipped diagnostic may set:
@@ -113,7 +114,7 @@ location, disable `place` and set `emit: true` on `attribute`.
   commands with exit codes, guard decisions and the workspace diff.
 * For an estate spec: the atoms it enforces (`metadata.estate.atoms`) and the estate map (`metadata.estate.map`).
   The map gives each rule's file and line, kind, situation and enforcing guards.
-* For a value failure: the value check's record of each failing value, when the value check ran.
+* For a value failure: the value check's record of each failing value (`valueCheck` on the verdict), when the value check ran.
 * For `liability-confirm`: a runner. A stand-in command runs free; a reference target is billed.
 
 ## Outputs and how to read them
