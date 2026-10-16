@@ -377,7 +377,9 @@ function prohibitions(estate, unit, cwd, ask) {
  * prerequisite graph and permission/prohibition checks. Explicit before/after/first/until clauses become dependency
  * edges, including clauses in later sections. Repeated mentions identify the same action. Without an
  * ordering clause, choose the earliest first mention among ready actions (source order, then code-span
- * order). Unresolved relations and cycles stop the skill; they never silently fall back to prose order.
+ * order). A clause never orders an action against itself: a described part that names only the action the other
+ * part quotes is unresolved, not a cycle. Unresolved relations and cycles stop the skill; they never silently fall
+ * back to prose order.
  * This small grammar uses backticked paths/commands/helper names, or an unambiguous action description.
  */
 function skillActions(unit, estate, requested, cwd) {
@@ -419,7 +421,10 @@ function skillActions(unit, estate, requested, cwd) {
     ),
   );
   const terms = (text) => [...words(text)].filter((word) => !noise.has(word));
-  const matchActions = (clause) => {
+  // `except` holds the actions a clause may not name: the earlier part of an ordering clause cannot also be what
+  // the later part describes, whatever word the two share. Only a description is read that way; a quoted action
+  // is named on purpose, so a clause that quotes one action on both sides stays a contradiction.
+  const matchActions = (clause, except = []) => {
     const prose = masked(clause).prose;
     const kind = /\bread(?:ing)?\b/i.test(prose)
       ? 'Read'
@@ -430,14 +435,15 @@ function skillActions(unit, estate, requested, cwd) {
           : /\b(dispatch(?:ing)?|call(?:ing)?|delegat(?:e|ing))\b/i.test(prose)
             ? 'Agent'
             : undefined;
-    const candidates = actions.filter((action) => !kind || action.kind === kind);
+    const listed = actions.filter((action) => !kind || action.kind === kind);
     const quoted = [...clause.matchAll(/`([^`]+)`/g)].map((match) => match[1].trim());
     if (quoted.length) {
       const matches = (action, literal) =>
         action.target === actionTarget(action.kind, literal, cwd, unit.folder);
-      const found = candidates.filter((action) => quoted.some((literal) => matches(action, literal)));
+      const found = listed.filter((action) => quoted.some((literal) => matches(action, literal)));
       return quoted.every((literal) => found.some((action) => matches(action, literal))) ? found : [];
     }
+    const candidates = listed.filter((action) => !except.includes(action));
     const named = terms(clause);
     if (!named.length) return candidates.length === 1 ? candidates : [];
     // Names come from the action's own input, including a script's basename, never from a fixture table.
@@ -451,9 +457,12 @@ function skillActions(unit, estate, requested, cwd) {
   };
   let unresolved = false;
   const relate = (before, after) => {
-    const predecessors = matchActions(before);
-    const successors = matchActions(after);
-    if (!predecessors.length || !successors.length) {
+    const quotes = (clause) => /`[^`]+`/.test(clause);
+    const predecessors = matchActions(before, quotes(after) ? matchActions(after) : []);
+    const successors = matchActions(after, quotes(before) ? matchActions(before) : []);
+    // Two described parts that name one action do not order it: the words do not tell the parts apart.
+    const same = successors.some((action) => predecessors.includes(action));
+    if (!predecessors.length || !successors.length || (same && !(quotes(before) && quotes(after)))) {
       unresolved = true;
       return;
     }
