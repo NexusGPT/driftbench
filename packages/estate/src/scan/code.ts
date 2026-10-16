@@ -36,7 +36,15 @@ export const DEFAULT_ROLE: Record<AtomKind, 'axis' | 'detail'> = {
   invariant: 'detail',
 };
 
-/** Hazards of a long-running agent, found in prose by the words that name them. */
+/** Event words propose a hazard; the local subject/object decides whether the agent undergoes it. */
+const RESTART_EVENT = /\b(?:restart|reboot)(?:s|ed|ing)?\b/i;
+const RESUMPTION_EVENT =
+  /\bresum(?:e[sd]?|ing)\b|\bpick(?:s|ed)? up where (?:you|we|it|the agent) left off\b/i;
+const SESSION_START_EVENT = /\b(start of (every|each|a) session|new session|session start)/i;
+const RATE_LIMIT_EVENT =
+  /\brate[- ]limit(?:s|ed|ing)?\b|\bthrottl(?:e|es|ed|ing)\b|\btoo many requests\b|\b429s?\b/i;
+
+/** Hazards of a long-running agent, resolved against the event's participants below. */
 export const HAZARDS = [
   // The noun and the participle; "compact" alone is an adjective (a compact table) far more often.
   {
@@ -45,18 +53,16 @@ export const HAZARDS = [
     pattern:
       /\b(compactions?|compacted|auto-?compact)\b|\b(?:conversation|context) is summari[sz]ed\b|\bcontext window (?:fills? up|is full)\b/i,
   },
-  { id: 'restart', title: 'A process restart', pattern: /\b(?:restart|reboot)(?:s|ed)?\b/i },
+  { id: 'restart', title: 'A process restart', pattern: RESTART_EVENT },
   {
     id: 'rate_wave',
     title: 'A wave of rate limits',
-    pattern:
-      /\brate[- ]limit|\btoo many requests\b|\b(?:HTTP(?: status)?|status(?: code)?|responds?|answers?|returns?)\s+(?:with\s+)?(?:an?\s+)?429\b|\b429\s+(?:error|response|status)\b/i,
+    pattern: RATE_LIMIT_EVENT,
   },
   {
     id: 'session_boundary',
     title: 'A new session',
-    pattern:
-      /\b(start of (every|each|a) session|new session|session start|session (?:is )?resumed|resume (?:the |a )?session)/i,
+    pattern: new RegExp(`${SESSION_START_EVENT.source}|${RESUMPTION_EVENT.source}`, 'i'),
   },
   { id: 'notification', title: 'A helper notification', pattern: /\bnotification/i },
   { id: 'nudge_storm', title: 'Repeated guard nudges', pattern: /\bnudges?\b/i },
@@ -1201,13 +1207,9 @@ function runtimeHazard(id: (typeof HAZARDS)[number]['id'], text: string): boolea
       return HAZARDS.find((hazard) => hazard.id === id)?.pattern.test(runtime) ?? false;
     }
     case 'restart':
-      return !/\b(?:restart\s+button|(?:printer|device|equipment|appliance)(?:'s)?\s+(?:restarts?|reboots?))\b/i.test(
-        line,
-      );
+      return runtimeTransition(line, RESTART_EVENT, true);
     case 'rate_wave':
-      return !/\b(?:supplier|customer|client)(?:'s)?\s+rate[- ]limits?\b|\brate[- ]limits?\s+for\s+(?:orders|purchases|deliveries)\b/i.test(
-        line,
-      );
+      return runtimeRateLimit(line);
     case 'nudge_storm':
       // A nudge the agent receives (repeated nudges, a hook nudges the agent), never the agent nudging a
       // value of the work ("nudge the price up").
@@ -1226,12 +1228,157 @@ function runtimeHazard(id: (typeof HAZARDS)[number]['id'], text: string): boolea
         /\b(?:helper|subagent|worker|guard|hook)\b/i.test(line)
       );
     case 'session_boundary':
-      return !/\bsession\s+(?:of|for|in)\s+(?:the\s+|a\s+)?(?:training|course|class|workshop|lesson)\b/i.test(
-        line,
+      // Resumption requires a named runtime participant: "resume" can also name a document. New-session forms
+      // retain their existing behavior, independently of a resumption elsewhere on the same line.
+      if (RESUMPTION_EVENT.test(line) && runtimeTransition(line, RESUMPTION_EVENT, false)) return true;
+      return (
+        SESSION_START_EVENT.test(line) &&
+        !/\bsession\s+(?:of|for|in)\s+(?:the\s+|a\s+)?(?:training|course|class|workshop|lesson)\b/i.test(line)
       );
     default:
       return true;
   }
+}
+
+/**
+ * Resolve the participant next to an event, not words elsewhere in the line. Unqualified recovery
+ * events refer to the current runtime; an explicit subject/object must identify that runtime.
+ * Possessors and modifiers stay in the phrase: a customer's process is not the agent's process.
+ */
+function runtimeParticipant(phrase: string): boolean {
+  const owner = phrase
+    .trim()
+    .replace(/^(?:(?:the|a|an|our|your|my|this|current|own|(?:agent|assistant|worker|subagent)'s)\s+)+/i, '');
+  return /^(?:i|me|we|us|you|(?:agent|assistant|worker|subagent|session|process|runtime|machine|model|claude)(?:\s+(?:session|process|runtime))?)$/i.test(
+    owner,
+  );
+}
+
+/** A service can limit the agent's calls too; restarting a request is not restarting the runtime. */
+function rateRecipient(phrase: string): boolean {
+  return (
+    runtimeParticipant(phrase) ||
+    /^(?:(?:our|your|my|own|(?:the\s+)?(?:agent|assistant|worker|subagent)'s)\s+)+(?:outgoing\s+)?(?:calls|requests)$/i.test(
+      phrase.trim(),
+    )
+  );
+}
+
+/** The local subject, without clause introducers, auxiliaries or adverbs of the event. */
+function eventSubject(before: string): string {
+  const clause =
+    before.split(/[.;,:!?]|\b(?:if|when|after|before|once|unless|while|and|or|but|then|that)\b/i).at(-1) ??
+    '';
+  return clause
+    .trim()
+    .replace(/^(?:on|upon|following|during|at)\s+/i, '')
+    .replace(
+      /\s+(?:(?:is|are|am|was|were|be|been|being|has|have|had|gets?|got|will|would|can|could|may|might|must|should|shall|\w+ly)\s*)+$/i,
+      '',
+    )
+    .trim();
+}
+
+/** A direct object stops at a clause or preposition; temporal adjuncts do not name a target. */
+function eventObject(after: string): string {
+  const object = (
+    after
+      .trim()
+      .replace(/^(?:\w+ly\s*)+/i, '')
+      .split(
+        /[.;,:!?]|\b(?:if|when|after|before|once|unless|while|and|or|but|then|to|from|by|on|at|for|during|where|which|with)\b/i,
+      )[0] ?? ''
+  ).trim();
+  const temporal =
+    /^(?:the\s+)?(?:this|next|last|following|previous)\s+(?:morning|afternoon|evening|night|day|week|month|year)$|^(?:today|tomorrow|yesterday|tonight|overnight|again|later|earlier)$/i;
+  return temporal.test(object) ? '' : object;
+}
+
+function unownedEvent(subject: string): boolean {
+  return /^(?:(?:on|upon|following|during|a|an|the|each|every|any|repeated|multiple|several|many|few|one|two|three|four|five|six|seven|eight|nine|ten|\d+|wave|waves|of)\s*)*$/i.test(
+    subject,
+  );
+}
+
+/** In a passive event the subject undergoes it; in an active transitive event the object does. */
+function runtimeTransition(line: string, eventPattern: RegExp, allowUnowned: boolean): boolean {
+  return [...line.matchAll(new RegExp(eventPattern.source, 'gi'))].some((event) => {
+    const before = line.slice(0, event.index);
+    const after = line.slice((event.index ?? 0) + event[0].length);
+    const subject = eventSubject(before);
+    const passive =
+      /ed$/i.test(event[0]) &&
+      /\b(?:is|are|am|was|were|be|been|being|gets?|got)\b(?:\s+\w+ly)*\s*$/i.test(before);
+    const object = eventObject(after.replace(/^\s+of\s+/i, ' '));
+    // With no actor, plural "restarts" names events, not an imperative acting on the next phrase.
+    if (/^(?:restart|reboot)s$/i.test(event[0]) && unownedEvent(subject))
+      return /^\s+of\s+/i.test(after) ? runtimeParticipant(object) : true;
+    // In "a process restart invalidates state", process modifies the event noun, not its verb.
+    const nominal =
+      /^(?:restart|reboot)$/i.test(event[0]) &&
+      /\b(?:agent|assistant|worker|subagent|session|process|runtime|machine|model|claude)\s*$/i.test(before);
+    if (nominal && !/^\s+of\s+/i.test(after)) return runtimeParticipant(subject);
+    if (!passive && object) {
+      // A reflexive target inherits its actor's ownership, not a global meaning for "its process".
+      const target = runtimeParticipant(subject)
+        ? object.replace(/^(?:its|their)\s+own\s+/i, 'own ')
+        : object;
+      return runtimeParticipant(target);
+    }
+    return runtimeParticipant(subject) || (allowUnowned && unownedEvent(subject));
+  });
+}
+
+/**
+ * Limits are runtime hazards when the agent receives them. A returned status is incoming by default,
+ * but an explicit recipient wins; a service we operate returning a status is an outgoing API policy.
+ */
+function runtimeRateLimit(line: string): boolean {
+  return [...line.matchAll(new RegExp(RATE_LIMIT_EVENT.source, 'gi'))].some((event) => {
+    const before = line.slice(0, event.index);
+    const after = line.slice((event.index ?? 0) + event[0].length);
+    const receipt =
+      /\b(?:gets?|got|receives?|received|hits?|hit|encounters?|encountered)\s+(?:(?:an?|the|[\w-]+'s)\s+)*(?:HTTP(?:\s+status)?\s+|status(?:\s+code)?\s+)?$/i.exec(
+        before,
+      );
+    if (receipt) return rateRecipient(eventSubject(before.slice(0, receipt.index)));
+    const response =
+      /\b(?:returns?|returned|responds?|responded|answers?|answered|replies|replied)\s+(?:with\s+)?(?:an?\s+)?(?:HTTP(?:\s+status)?\s+|status(?:\s+code)?\s+)?$/i.exec(
+        before,
+      );
+    if (response) {
+      const recipient = /^\s+(?:response\s+|status\s+|error\s+)?to\s+(.+)/i.exec(after);
+      if (recipient) return rateRecipient(eventObject(recipient[1] ?? ''));
+      const requester =
+        /^\s+(?:when|if|whenever)\s+(.+?)\s+(?:sends?|makes?|exceeds?|requests?|crosses?|uses?)\b/i.exec(
+          after,
+        );
+      if (requester) return rateRecipient(requester[1] ?? '');
+      const source = eventSubject(before.slice(0, response.index));
+      return !runtimeParticipant(source) && !/^(?:our|my|your|we|i)\b/i.test(source);
+    }
+    // An active limiter names its recipient as the object; imposing a policy is not receiving one.
+    const verb = /^throttl/i.test(event[0]) || /^rate[- ]limit/i.test(event[0]);
+    const passive =
+      /ed$/i.test(event[0]) &&
+      /\b(?:is|are|am|was|were|be|been|being|gets?|got)\b(?:\s+\w+ly)*\s*$/i.test(before);
+    const object = eventObject(after);
+    const subject = eventSubject(before);
+    if (verb && !passive && object && !unownedEvent(subject))
+      return !rateRecipient(subject) && rateRecipient(object);
+    if (verb && !passive && object && /^throttles?$/i.test(event[0])) return false;
+    const scope = /^\s+(?:for|on|of)\s+(.+)/i.exec(after);
+    if (scope) return rateRecipient(eventObject(scope[1] ?? ''));
+    if (rateRecipient(subject)) return true;
+    if (/^429/i.test(event[0])) {
+      // A bare invoice number is not an HTTP event. Status/error/response forms name an event.
+      return (
+        /^(?:an?\s*)?(?:HTTP(?:\s+status)?|status(?:\s+code)?)?\s*$/i.test(subject) &&
+        (/\bHTTP\b|\bstatus\b/i.test(before) || /^\s+(?:error|response|status)\b/i.test(after))
+      );
+    }
+    return unownedEvent(subject);
+  });
 }
 
 /** The non-blank lines of a chunk, numbered as lines of its file. */
