@@ -16,6 +16,7 @@ The files of an estate test suite: the map `driftbench estate scan` writes and a
 * [EvidencePredicate](#evidencepredicate)
 * [Edge](#edge)
 * [EdgeKind](#edgekind)
+* [EstateMap followedLinks](#estatemap-followedlinks)
 * [EstateMap producedBy](#estatemap-producedby)
 * [Plan](#plan)
 * [PlanRow](#planrow)
@@ -44,6 +45,7 @@ The files of an estate test suite: the map `driftbench estate scan` writes and a
 | `edges` | list of [Edge](#edge) | yes |  | The edges of the estate graph, decided by code. |
 | `space` | string | no |  | Path of the exported space map of the situation axes |
 | `ignore` | list of strings, each not empty | no |  | Globs the scan skipped beside the runtime defaults; lint reads the estate with them again |
+| `followedLinks` | list of [EstateMap followedLinks](#estatemap-followedlinks) | no |  | Structural symbolic links the scan followed to a real path outside the estate root |
 | `producedBy` | [EstateMap producedBy](#estatemap-producedby) | no |  | Who proposed the model atoms; code atoms say producedBy: code on the atom itself |
 | `hash` | string, not empty | yes |  | SHA-256 over the sorted atom hashes and edges |
 
@@ -277,6 +279,13 @@ With `type: custom`:
 | `allows` | A skill or helper to a tool or skill it may use. |
 | `next` | A stage to the stage that follows it. |
 | `cites` | A rule to a rule its words name by label. |
+
+## EstateMap followedLinks
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `path` | string, not empty | yes |  | The link, relative to the estate root. |
+| `realPath` | string, not empty | yes |  | Where the link resolved when the scan read it. |
 
 ## EstateMap producedBy
 
