@@ -24,6 +24,7 @@ import {
 } from '../schema/run';
 import type { BlockSpec, EndState, Expect, GivenOverride, Spec, Stimulus } from '../schema/spec';
 import { cloneJson, contentHash } from '../spec/hash';
+import { specHash as specHashOf } from '../spec/identity';
 import { compareEndState, type EndStateMatch } from './assertion';
 import {
   blockCacheKey,
@@ -168,7 +169,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
   if (objectErrors.length)
     throw new RunnerError(objectErrors.map((issue) => `${issue.code}: ${issue.message}`).join('; '));
   const now = options.now ?? (() => new Date());
-  const specHash = contentHash(spec);
+  const specHash = specHashOf(spec);
   // The cache key leaves out the spec's version label and its scoring-only `uses` (cacheSpecHash).
   const cacheSpecHash = cacheSpecHashOf(spec);
   const target = options.target ?? spec.target ?? { adapter: options.adapter.id };

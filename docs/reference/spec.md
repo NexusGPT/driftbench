@@ -107,7 +107,7 @@ One golden conversation, or one task for a code agent, written as a succession o
 | `end_state` | [EndState](#endstate) | no |  | The expected end state of the world after the run. |
 | `perturbations` | list of [Perturbation](#perturbation) | no |  | Deviations to inject in perturbed mode. |
 | `uses` | [Uses](#uses) | no |  | The objects every block uses (policies, check set, diagnostics), by id or inline. Left out of the block cache key. |
-| `metadata` | map of string to any value | no |  | Free metadata. |
+| `metadata` | map of string to any value | no |  | Free metadata. `links` holds the links of the blocks to prompt sections, spec clauses and past turns; it and `provenance` stay out of the spec hash. |
 
 ## TargetRef
 
