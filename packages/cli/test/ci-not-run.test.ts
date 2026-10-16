@@ -123,6 +123,64 @@ describe('driftbench ci with blocks not run', () => {
     SLOW,
   );
 
+  it(
+    'a regression wins over blocks not run: exit 1, the verdict compare gives, and the not-run specs still listed',
+    async () => {
+      const { dir, base } = await setUp();
+      // The fault skips the recap, so the order conversations regress; the specs tagged flow:new-home run on
+      // the ops agent through the process adapter, which cannot force a tool result, so one is not run.
+      const result = await cli([
+        ...args(base, dir, 'both'),
+        '--target',
+        'fault:x3-skips-recap',
+        '--faults',
+        'examples/acme/faults',
+        '--route',
+        'flow:new-home=process:acme-ops',
+      ]);
+      expect(result.err).toBe('');
+      expect(result.code).toBe(1);
+      const summary = JSON.parse(await readFile(join(dir, 'both.json'), 'utf8')) as CiSummary;
+      expect(summary.regressed.length).toBeGreaterThan(0);
+      expect(summary.verdict).not.toBe('not-run');
+      expect(summary.exitCode).toBe(1);
+      expect(summary.notRun?.over).toContain('acme-tool-failure');
+      expect(summary.reasons.some((reason) => reason.includes('--max-not-run 0: acme-tool-failure'))).toBe(
+        true,
+      );
+      expect(result.out).toContain('Not run (--max-not-run 0): acme-tool-failure');
+    },
+    SLOW,
+  );
+
+  it(
+    'a regressed golden fails the gate even when compare shows parity on the goldens that ran',
+    async () => {
+      const { dir, base } = await setUp();
+      // The identity control changes nothing, but the flow:new-home conversations run on the ops agent: two of
+      // them regress, one is not run. At a 99 point margin compare alone would show parity.
+      const result = await cli([
+        ...args(base, dir, 'parity'),
+        '--target',
+        'fault:control-sales-identity',
+        '--faults',
+        'examples/acme/faults',
+        '--route',
+        'flow:new-home=process:acme-ops',
+        '--margin',
+        '99',
+      ]);
+      expect(result.err).toBe('');
+      expect(result.code).toBe(1);
+      expect(result.out).toContain('Verdict: REGRESSION. Exit 1.');
+      const summary = JSON.parse(await readFile(join(dir, 'parity.json'), 'utf8')) as CiSummary;
+      expect(summary.verdict).toBe('regression');
+      expect(summary.regressed.length).toBeGreaterThan(0);
+      expect(summary.reasons[0]).toContain('regressed while part of the suite was not run');
+    },
+    SLOW,
+  );
+
   it('refuses a threshold outside 0 to 1 as bad input', async () => {
     const result = await cli([...args('base.db', ROOT, 'bad'), '--max-not-run', '1.5']);
     expect(result.code).toBe(2);

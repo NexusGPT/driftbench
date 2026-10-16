@@ -668,21 +668,32 @@ function summarize(input: {
           : 'not-shown-non-inferior',
     input.aggregates,
   );
-  // Then blocks not run beyond the threshold: the gate did not measure that part of the suite.
+  // Then blocks not run beyond the threshold: the gate did not measure that part of the suite. A regression in
+  // the part it did measure wins over them: a golden that went from pass to fail exits 1, never 3. When compare
+  // still shows parity on the goldens that ran, the regressed golden alone fails the gate.
   const notRunOver = input.notRun?.over ?? [];
-  const verdict: CiVerdict = misses > 0 ? 'radius-miss' : notRunOver.length > 0 ? 'not-run' : compared;
+  const regressedGoldens = rows.filter((row) => row.change === 'regressed').length;
+  const regressionWins = notRunOver.length > 0 && (regressedGoldens > 0 || result.verdict === 'regressed');
+  const verdict: CiVerdict =
+    misses > 0
+      ? 'radius-miss'
+      : regressionWins
+        ? compared === 'parity'
+          ? 'regression'
+          : compared
+        : notRunOver.length > 0
+          ? 'not-run'
+          : compared;
+  const notRunReason = `${count(notRunOver.length, 'spec')} of the candidate had blocks not run beyond --max-not-run ${input.notRun?.threshold}: ${notRunOver.join(', ')}. A block not run is a Given the target could not apply, never a pass: fix the spec or the target, or raise the threshold for an exploratory suite`;
   const failingAggregates = input.aggregates.filter((entry) => entry.passed === false);
-  const reasons =
+  const measured =
     verdict === 'radius-miss'
       ? [
           `the audit ran ${input.radius?.audit?.sampled} cells outside the radius and ${misses} did not reproduce the carried result: the change reaches cells the manifest left out, so nothing was carried`,
           ...result.reasons,
         ]
       : verdict === 'not-run'
-        ? [
-            `${count(notRunOver.length, 'spec')} of the candidate had blocks not run beyond --max-not-run ${input.notRun?.threshold}: ${notRunOver.join(', ')}. A block not run is a Given the target could not apply, never a pass: fix the spec or the target, or raise the threshold for an exploratory suite`,
-            ...result.reasons,
-          ]
+        ? [notRunReason, ...result.reasons]
         : verdict === 'incomplete'
           ? [
               `${count(candidate.incompleteCells, 'cell')} of the candidate did not run (budget or pending): parity cannot be shown on part of the suite`,
@@ -692,6 +703,17 @@ function summarize(input: {
               ...result.reasons,
               ...failingAggregates.map((entry) => `aggregate ${entry.name} fails: ${entry.reason}`),
             ];
+  const reasons = regressionWins
+    ? [
+        ...(compared === 'parity'
+          ? [
+              `${count(regressedGoldens, 'golden')} regressed while part of the suite was not run: with blocks not run beyond the threshold, a regressed golden fails the gate`,
+            ]
+          : []),
+        ...measured,
+        notRunReason,
+      ]
+    : measured;
   return {
     verdict,
     aggregates: input.aggregates,

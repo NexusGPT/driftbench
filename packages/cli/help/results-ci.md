@@ -30,7 +30,7 @@ next:
 | `INCOMPLETE` (`incomplete`) | 1 | a candidate cell did not run: stopped by `--budget-usd`, or pending |
 | `AGGREGATE FAILED` (`aggregate-failed`) | 1 | a campaign-level criterion fails, unless the verdict was already incomplete |
 | `RADIUS MISS` (`radius-miss`) | 1 | with `--change --audit`: an audited carried cell differs from its stored run. It outranks every other verdict |
-| `NOT RUN` (`not-run`) | 3 | a spec of the candidate has more of its blocks not run than `--max-not-run` allows (default 0: any block not run). A block not run is a Given the target cannot apply, never a pass. It outranks every verdict but radius-miss |
+| `NOT RUN` (`not-run`) | 3 | a spec of the candidate has more of its blocks not run than `--max-not-run` allows (default 0: any block not run). A block not run is a Given the target cannot apply, never a pass. It outranks every verdict but radius-miss and a regression: when a golden regressed, the verdict is the one compare gives, `REGRESSION` when compare alone shows parity, and the exit is 1 |
 | none | 2 | bad input; nothing is run and nothing is written |
 
 On the same pair of campaigns `ci` and `compare` give the same verdict and the same exit code.
