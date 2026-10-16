@@ -952,32 +952,27 @@ A panel that sees only the unsure cases lifts the MM-Eval score from 89.49 to 91
 
 <sub>MM-Eval is a public benchmark for judges. Only 48 items went to the panel, and cost per 100 items rose from $0.2471 to $0.2646.</sub>
 
+<!-- readme-v7:start -->
 ### The shipped judge against DeepEval
 
 <a href=".github/readme/judge-leads-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/judge-leads-dark.png">
-    <img alt="Held-out judge tests where driftbench's shipped judge beats DeepEval's default metric beyond the 95% interval, of 72 cases each. Hallucination 71 against 36. Faithfulness 71 against 36. Turn relevancy 65 against 36. Completeness 70 against 46. Role adherence 72 against 63." src=".github/readme/judge-leads-light.png" width="100%">
+    <img alt="default-on-v7 against the recorded DeepEval default. Turn relevancy: 72 against 36 of 72, lead. Hallucination: 72 against 36 of 72, lead. Faithfulness: 72 against 36 of 72, lead. Completeness: 72 against 46 of 72, lead. Role adherence: 72 against 63 of 72, lead." src=".github/readme/judge-leads-light.png" width="100%">
   </picture>
 </a>
 <p align="center"><sub><a href="docs/comparison/methods.md#the-judge-on-hard-cases">How we measured</a></sub></p>
 
-On hallucination, faithfulness, turn relevancy, completeness and role adherence, the judge that ships today scores higher than DeepEval 4.2.8's default metric, by more than the 95% margin.
-
-<sub>Held-out cases, same model on both sides.</sub>
+On hallucination, faithfulness, turn relevancy, completeness and role adherence, default-on-v7 scores above DeepEval beyond the separate 95% intervals.
 
 ### Hard cases, framework by framework
 
-The shipped judge against each framework's own default judge. Bars show the cases judged correctly.
-
-<sub>Held-out hard cases, Claude Haiku 5.5 on both sides.</sub>
-
-On DeepEval, G-Eval strict uses 480 fresh cases and the opt-in setting `response-relevance` ([how](comparisons/deepeval/lead/README.md)). Knowledge retention uses 1,272 fresh cases: 1,270 against 1,272, level by the exact paired test ([how](comparisons/deepeval/lead/power/REPORT.md)).
+The v7 run returns 2,700 items across 18 rows on Claude Haiku 5.5. Peers keep their recorded answers. Earlier driftbench rows used `claude -p` with old prompts (knowledge retention mostly used the Messages API); v7 uses `createDefaultJudge` over the Anthropic Messages API. The transport difference is part of this comparison.
 
 <a href=".github/readme/hard-deepeval-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/hard-deepeval-dark.png">
-    <img alt="DeepEval hard cases, cases correct, driftbench against DeepEval default. Of 72: Hallucination 71 against 36. Faithfulness 71 against 36. Turn relevancy 65 against 36. Completeness 70 against 46. Role adherence 72 against 63. DAG 65 against 65. Task completion 72 against 72. Of 480 fresh cases: G-Eval strict 474 against 451, with the opt-in setting response-relevance. Of 1272 fresh cases: Knowledge retention 1270 against 1272, level. Two driftbench answers are inconclusive; exact paired p = 1 on 1270 complete pairs." src=".github/readme/hard-deepeval-light.png" width="100%">
+    <img alt="default-on-v7 against the recorded deepeval default. Turn relevancy: 72 against 36 of 72, lead. Hallucination: 72 against 36 of 72, lead. Faithfulness: 72 against 36 of 72, lead. Completeness: 72 against 46 of 72, lead. Role adherence: 72 against 63 of 72, lead. DAG, one node: 72 against 65 of 72, close. G-Eval, strict: 479 against 451 of 480, lead. Task completion: 72 against 72 of 72, close. Knowledge retention: 1271 against 1272 of 1272, close." src=".github/readme/hard-deepeval-light.png" width="100%">
   </picture>
 </a>
 <p align="center"><sub><a href="docs/comparison/methods.md#the-judge-on-hard-cases">How we measured</a></sub></p>
@@ -985,7 +980,7 @@ On DeepEval, G-Eval strict uses 480 fresh cases and the opt-in setting `response
 <a href=".github/readme/hard-promptfoo-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/hard-promptfoo-dark.png">
-    <img alt="promptfoo hard cases, cases correct of 72, driftbench against promptfoo default. LLM rubric 71 against 69. Personal data 72 against 71. Goal success 72 against 71. Factuality 70 against 70." src=".github/readme/hard-promptfoo-light.png" width="100%">
+    <img alt="default-on-v7 against the recorded promptfoo default. LLM rubric: 72 against 69 of 72, close. Factuality: 72 against 70 of 72, close. Personal data: 72 against 71 of 72, close. Goal success: 72 against 71 of 72, close." src=".github/readme/hard-promptfoo-light.png" width="100%">
   </picture>
 </a>
 <p align="center"><sub><a href="docs/comparison/methods.md#the-judge-on-hard-cases">How we measured</a></sub></p>
@@ -993,12 +988,38 @@ On DeepEval, G-Eval strict uses 480 fresh cases and the opt-in setting `response
 <a href=".github/readme/hard-langfuse-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/hard-langfuse-dark.png">
-    <img alt="Langfuse hard cases, cases correct of 120, driftbench against the Langfuse Correctness template: 116 against 115." src=".github/readme/hard-langfuse-light.png" width="100%">
+    <img alt="default-on-v7 against the recorded langfuse default. Reference correctness: 119 against 115 of 120, close." src=".github/readme/hard-langfuse-light.png" width="100%">
   </picture>
 </a>
 <p align="center"><sub><a href="docs/comparison/methods.md#the-judge-on-hard-cases">How we measured</a></sub></p>
 
-Every result, test by test and tool by tool: [how we measured](docs/comparison/methods.md) and the [per-tool pages](docs/comparison/index.md).
+| Judge row | Cases | driftbench v7 correct | Recorded peer correct | Standing |
+|---|---:|---:|---:|---|
+| Turn relevancy | 72 | 72 | 36 | lead |
+| DAG, one node | 72 | 72 | 65 | close |
+| Role adherence | 72 | 72 | 63 | lead |
+| Completeness | 72 | 72 | 46 | lead |
+| Hallucination | 72 | 72 | 36 | lead |
+| Faithfulness | 72 | 72 | 36 | lead |
+| Task completion | 72 | 72 | 72 | close |
+| G-Eval strict * | 480 | 479 | 451 | lead |
+| Knowledge retention | 1,272 | 1,271 | 1,272 | close |
+| LLM rubric | 72 | 72 | 69 | close |
+| Factuality | 72 | 72 | 70 | close |
+| Personal data | 72 | 72 | 71 | close |
+| Goal success | 72 | 72 | 71 | close |
+| Reference correctness | 120 | 119 | 115 | close |
+| Model-graded QA | 60 | 58 | 57 | close |
+| Model-graded fact | 60 | 58 | 59 | close |
+| Grader panel | 60 | 54 | 59 | close |
+| Panel, borderline | 60 | 60 | 60 | close |
+
+* G-Eval strict retains the explicit `response-relevance` setting. G-Eval strict and knowledge retention use exact paired tests, Holm over those two rows. Other standings use separate Wilson 95% intervals. Close means no separation under that rule.
+
+Inconclusive answers count wrong (Knowledge retention: 1; Reference correctness: 1; Grader panel: 4). They stay in the score denominator and leave the peer paired tests. Grader panel falls from 59 to 54 correct against the earlier driftbench answers; this is included in the secondary analysis.
+
+[Results, analysis and reproduction](comparisons/default-on/readme-v7/RESULT.md). Historical public benchmark rows below retain their recorded judge versions and settings.
+<!-- readme-v7:end -->
 
 ### The numbers
 
@@ -1050,12 +1071,12 @@ paired-test noise. The exclusion is a post-review correction using recorded deci
 <a href=".github/readme/judge-cost-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/judge-cost-dark.png">
-    <img alt="Recorded cost in US dollars per 100 judged cases, driftbench's shipped judge against the other tool's default. Inspect grader panel: 0.076 against 0.138. Inspect panel on borderline cases: 0.078 against 0.125. Inspect model-graded QA: 0.048 against 0.062. Inspect model-graded fact: 0.048 against 0.060. Langfuse Correctness template: 0.054 against 0.052." src=".github/readme/judge-cost-light.png" width="100%">
+    <img alt="Recorded USD per 100 cases, default-on-v7 over the Messages API against the recorded peer. Inspect, grader panel: 0.065 against 0.138. Inspect, panel on borderline cases: 0.067 against 0.125. Langfuse, Correctness template: 0.052 against 0.052. Inspect, model-graded QA: 0.073 against 0.062. Inspect, model-graded fact: 0.073 against 0.060." src=".github/readme/judge-cost-light.png" width="100%">
   </picture>
 </a>
 <p align="center"><sub><a href="docs/comparison/methods.md#what-a-judgement-costs">How we measured</a></sub></p>
 
-On Inspect's grader panel, driftbench spends $0.076 per 100 judged cases where the default spends $0.138, at the same score, 59 of 60.
+On Inspect's grader panel, default-on-v7 spends $0.065 per 100 cases against $0.138, and scores 54 of 60 against 59. Lower cost does not establish equal accuracy.
 
 ## How it compares
 
