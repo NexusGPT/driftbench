@@ -2189,7 +2189,7 @@ function scaleItems(): BankItem[] {
       if (growth.error) return verdict(false, growth.error);
       return verdict(
         growth.ratio <= growth.bound,
-        `the cost per behaviour grew ${growth.ratio.toFixed(2)} times between ${growth.low} and ${growth.high} times the behaviours, best of ${growth.rounds} back-to-back rounds (${growth.ratios.map((ratio) => ratio.toFixed(2)).join(', ')}); the bound is ${growth.bound}`,
+        `the cost per behaviour grew ${growth.ratio.toFixed(2)} times between ${growth.low} and ${growth.high} times the behaviours, fastest of ${growth.rounds} back-to-back rounds for each size (${growth.ratios.map((ratio) => ratio.toFixed(2)).join(', ')}); the bound is ${growth.bound}`,
       );
     },
   });

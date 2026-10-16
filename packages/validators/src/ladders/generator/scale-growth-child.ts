@@ -8,7 +8,7 @@
  * first, so neither size pays the cost of a cold start.
  *
  * Two sizes in one process, one after the other, are two measurements under the same machine load, the same
- * heap and the same warmed code. Their ratio, set against the ratio of the work, is the growth of the
+ * heap and the same warmed code. Their ratio (the fastest high time over the fastest low time), set against the ratio of the work, is the growth of the
  * product's cost: 1 for a product linear in the behaviours, the work ratio for a quadratic one. The optional
  * fifth argument names a module overriding `generateSuiteToDisk` or `loadApprovedMap`, as in `scale-child.ts`.
  */
@@ -93,6 +93,8 @@ const out: ScaleGrowth = {
   ratios: [],
   ratio: 0,
 };
+const lows: number[] = [];
+const highs: number[] = [];
 try {
   const lowMap = await mapOf(low);
   const highMap = await mapOf(high);
@@ -100,11 +102,17 @@ try {
   for (let round = 0; round < rounds; round += 1) {
     const small = await generated(lowMap);
     const large = await generated(highMap);
+    lows.push(small);
+    highs.push(large);
     out.lowMs.push(Math.round(small));
     out.highMs.push(Math.round(large));
     out.ratios.push(small > 0 ? large / small / (high / low) : Number.POSITIVE_INFINITY);
   }
-  out.ratio = Math.min(...out.ratios);
+  // The fastest high time over the fastest low time: a size slowed by load in one round decides nothing, and
+  // a low size inflated in every round cannot make a quadratic product look linear.
+  const fastLow = Math.min(...lows);
+  const fastHigh = Math.min(...highs);
+  out.ratio = fastLow > 0 ? fastHigh / fastLow / (high / low) : Number.POSITIVE_INFINITY;
 } finally {
   await rm(root, { recursive: true, force: true });
 }

@@ -50,7 +50,7 @@ export type ScaleReport = {
 /** Behaviours of the high size per behaviour of the low size in the growth measurement: 100 over 10. */
 export const SCALE_GROWTH_FACTORS: readonly [number, number] = [10, 100];
 
-/** Back-to-back pairs of generations the growth measurement times; the best pair judges. */
+/** Back-to-back pairs of generations the growth measurement times; the fastest time of each size judges. */
 export const SCALE_GROWTH_ROUNDS = 3;
 
 /**
@@ -75,9 +75,9 @@ export type ScaleGrowth = {
   /** The CPU time of the product's own work for one generation at each size, per round, in milliseconds. */
   lowMs: number[];
   highMs: number[];
-  /** Per round, the growth of the cost per behaviour between the sizes: (highMs / lowMs) / (high / low). */
+  /** Per round, the growth of the cost per behaviour between the sizes: (highMs / lowMs) / (high / low). Reported, not judged. */
   ratios: number[];
-  /** The best round: the smallest of the ratios. */
+  /** The judged growth: the fastest high time over the fastest low time, over the ratio of the behaviours. */
   ratio: number;
 };
 

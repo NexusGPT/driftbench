@@ -62,7 +62,7 @@ function dataWith(report: ScaleReport | undefined, growth?: ScaleGrowth): SeedDa
 }
 
 describe('the growth of the cost between two sizes, in one process', () => {
-  it('times both sizes back to back, three rounds, and judges the best round', async () => {
+  it('times both sizes back to back, three rounds, and judges the fastest time of each size', async () => {
     const report = await grown('linear');
     expect(report.error).toBeUndefined();
     expect([report.low, report.high, report.rounds]).toEqual([2, 20, 3]);
@@ -170,7 +170,7 @@ describe('the scale items', () => {
     expect(refused.detail).toContain(`${SCALE_GROWTH_BOUND}`);
   });
 
-  it('judges the best round: one round disturbed by the machine does not fail a linear product', async () => {
+  it('judges the fastest times: one round disturbed by the machine does not fail a linear product', async () => {
     const disturbed = { ...base, ratios: [7.9, 1.2, 6.5], ratio: 1.2 };
     expect((await growth.check(dataWith(undefined, disturbed))).pass).toBe(true);
     const slowEveryRound = { ...base, ratios: [7.9, 4.2, 6.5], ratio: 4.2 };
