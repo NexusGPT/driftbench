@@ -9,25 +9,8 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 |---|---|
 | 1 | 0 |
 | 2 | 0 |
-| hidden | 0 |
 | 3 | 0 |
-| 4 | 0 |
-| 5 | 0 |
-| 6 | 0 |
-| 7 | 0 |
-| 8 | 0 |
-| 9 | 0 |
-| 10 | 0 |
-| 11 | 0 |
-| 12 | 0 |
-| 13 | 0 |
-| 14 | 0 |
-| 15 | 0 |
-| 16 | 0 |
-| 17 | 0 |
-| 18 | 0 |
-| 19 | 0 |
-| 20 | 0 |
+| hidden | 0 |
 <!-- level-table:end -->
 
 ## Floor
@@ -36,7 +19,7 @@ None for ladder version 2: a floor starts at level 1 or more (docs/validators.md
 
 ## Open items
 
-Ladder version 2 (docs/validators.md section 13): 1,349 items, 53 families, 207 causes (at most about 25 items each), both agent kinds (a normal agent behind the function adapter, a code-interpreter agent behind the process adapter in a local sandbox) on every level. On main every failing item is a capability of an open pull request, except one:
+Ladder version 2 (docs/validators.md section 13): 1,444 items, 56 families, 222 causes (at most about 27 items each), both agent kinds (a normal agent behind the function adapter, a code-interpreter agent behind the process adapter in a local sandbox) on every level. On main every failing item is a capability of an open pull request, except one:
 
 - Level 1 (verdicts): every pattern with a parent fails, because the loader refuses the `parent` key, and the binary and byte-order-mark seeds fail, because `workspace.binary` is not in the schema (both on PR 562, head 03a6cc0e8, where level 1 passes). Every other level 1 item passes, the code-interpreter checks and the pairwise fault combinations included.
 - Level 2 (parents): PR 562 (03a6cc0e8): parents 110 of 110 and the byte-exact carry 20 of 20 pass there.
