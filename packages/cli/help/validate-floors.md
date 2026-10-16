@@ -27,12 +27,14 @@ Two commands use the floors:
 The floors at the time of writing, from `validate floors` at the repository root:
 
 ```text
-Floors (validators/floors.json): judges = 7 (ladder version 1), map = 8 (ladder version 2), stats = 7 (ladder version 2), system = 9 (ladder version 5).
+Floors (validators/floors.json): judges = 20 (ladder version 2), map = 8 (ladder version 2), stats = 7 (ladder version 2), system = 9 (ladder version 5).
 ```
 
-`estate` and `generator` have no floor. The `judges` floor of 7 belongs to ladder version 1, and the
-registered judges ladder is version 2, so it is history and not enforced: a judges run prints
-`The floor 7 belongs to ladder version 1; version 2 has no floor yet.`
+`estate` and `generator` have no floor. The `judges` floor of 20 belongs to ladder version 2, the
+registered judges ladder, and is enforced. The earlier floor of 7 belonged to ladder version 1; the file
+keeps it under `history.judges`, and it is not enforced. A run prints a line such as
+`The floor 7 belongs to ladder version 1; version 2 has no floor yet.` only when the file holds a floor for an
+older ladder version than the registered one; no component does so at present.
 
 ## When to use it
 
@@ -101,8 +103,8 @@ Every option of `driftbench validate`, for reference (the topic named in the las
   ```json
   {
     "version": 2,
-    "ladderVersion": { "judges": 1, "map": 2, "stats": 2, "system": 5 },
-    "floors": { "judges": 7, "map": 8, "stats": 7, "system": 9 },
+    "ladderVersion": { "judges": 2, "map": 2, "stats": 2, "system": 5 },
+    "floors": { "judges": 20, "map": 8, "stats": 7, "system": 9 },
     "evidence": {
       "system": { "level": 9, "seeds": ["1", "2", "3", "20", "hidden"], "hiddenSeed": 88145333,
                   "head": "<the commit the hidden seed came from>", "ladderVersion": 5 }
