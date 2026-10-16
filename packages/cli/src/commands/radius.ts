@@ -13,6 +13,7 @@ import { textTable as table } from '@agent-nexus/driftbench-report';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { loadValidSpecs } from './campaign';
+import { registerRadiusLocalize } from './radius-localize';
 import { registerRadiusAuto } from './radius-prompt';
 import { readRegistry, registerRadiusSections } from './radius-sections';
 
@@ -53,6 +54,7 @@ export function registerRadiusCommand(program: Command, io: Io, setExit: (code: 
     });
   registerRadiusAuto(radius, io, setExit);
   registerRadiusSections(radius, io, setExit);
+  registerRadiusLocalize(radius, io, setExit);
 }
 
 export async function radiusCommand(paths: string[], options: RadiusCommandOptions, io: Io): Promise<number> {
