@@ -1,3 +1,4 @@
+import { runtimeLoaded } from '@agent-nexus/driftbench-adapters';
 import { someCall } from '@agent-nexus/driftbench-checks';
 import type { CheckContext, ToolCall } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
@@ -78,6 +79,54 @@ describe('an estate obligation to open a missing reference', () => {
     expect(then.someCalls).toEqual([]);
     expect(then.references).toEqual([]);
     expect(then.gaps[0]?.marker).toBe(MARKERS.existingFile);
+  });
+
+  it.each(['~/CLAUDE.md', '/outside/CLAUDE.md', '../CLAUDE.md'])(
+    'checks the boundary before the runtime-loaded filename exemption: %s',
+    (path) => {
+      const atom: EstateAtom = {
+        ...reference,
+        fields: { path, external: true, exists: false },
+        evidence: [{ type: 'tool_called', label: 'Read', input: { file_path: { contains: path } } }],
+      };
+      const then = thenOf([atom], 'positive', {
+        ...ctx,
+        root: '/estate',
+        loaded: runtimeLoaded('claude-code'),
+      });
+      expect(then.someCalls).toEqual([]);
+      expect(then.gaps).toMatchObject([{ marker: MARKERS.existingFile, path }]);
+    },
+  );
+
+  it('keeps automatic reads exempt only when the named file is held', () => {
+    const path = 'CLAUDE.md';
+    const atom: EstateAtom = {
+      ...reference,
+      fields: { path },
+      evidence: [{ type: 'tool_called', label: 'Read', input: { file_path: { contains: path } } }],
+    };
+    const loaded = runtimeLoaded('claude-code');
+    const held = thenOf([atom], 'positive', { ...ctx, loaded });
+    expect(held.someCalls).toEqual([]);
+    expect(held.gaps).toEqual([]);
+    expect(held.needs).toEqual([]);
+    const missing = thenOf([atom], 'positive', { ...ctx, loaded, files: new Set() });
+    expect(missing.someCalls).toHaveLength(1);
+    expect(missing.needs).toMatchObject([{ path, blocking: false }]);
+  });
+
+  it('does not let a same-named root file stand in for a canonical missing reference', () => {
+    const path = '.claude/skills/report/rules/archive-policy.txt';
+    const atom: EstateAtom = {
+      ...reference,
+      fields: { path, exists: false },
+      evidence: [{ type: 'tool_called', label: 'Read', input: { file_path: { contains: path } } }],
+    };
+    const then = thenOf([atom], 'positive', { ...ctx, files: new Set(['archive-policy.txt']) });
+    expect(then.references).toEqual([]);
+    expect(then.someCalls).toHaveLength(1);
+    expect(then.needs).toMatchObject([{ path, blocking: false }]);
   });
 
   it('accepts an absolute internal path only when the original root contains it', () => {

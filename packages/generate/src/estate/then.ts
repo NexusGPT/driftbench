@@ -208,8 +208,8 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       return;
     case 'tool_called':
       if (hasInput(evidence.input)) {
-        if (loadedRead(evidence.label, evidence.input, ctx)) return;
         if (missingRead(then, atom, evidence.label, evidence.input, ctx, evidence.min ?? 1)) return;
+        if (loadedRead(evidence.label, evidence.input, ctx)) return;
         if (someCall(then, evidence.label, evidence.input, evidence.min ?? 1)) return;
         if (ctx.customChecks.has('some_call')) {
           addSomeCall(then, {
@@ -742,8 +742,12 @@ function missingRead(
     gap(then, MARKERS.existingFile, atom, `${value} is outside the estate`, value);
     return true;
   }
+  const declared = atom.fields?.path;
+  const canonical =
+    atom.kind === 'reference' && typeof declared === 'string' && estatePath(declared, ctx.root) === path;
   for (const file of ctx.files) {
-    if (file === path || file.endsWith(`/${path}`) || path.endsWith(`/${file}`)) return false;
+    if (file === path || (!canonical && (file.endsWith(`/${path}`) || path.endsWith(`/${file}`))))
+      return false;
   }
   if (ctx.customChecks.has('some_call')) {
     const key = ['file_path', 'path', 'notebook_path'].find((key) => key in input) as string;

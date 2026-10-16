@@ -526,6 +526,8 @@ Every missing Read target is recorded with its `path` in `metadata.estate.needs`
 
 Reference atoms retain the named spelling in `fields.writtenPath` alongside the resolved `fields.path`. For older maps without that field, generation derives the relative spelling from the declaring file.
 
+A canonical reference is held only when its exact estate-relative file is held; another file with the same name does not replace it. Missing-file and external-path checks precede the runtime-loaded-file exemption, which applies to held files.
+
 The files of the estate copy are listed from the map's `root`. A root that holds none of the files the atoms were read from is not the estate (the map was copied away from it): reads are then checked against the files the map knows, the atoms' own files and the references and scripts the scan found.
 
 Focus coverage counts distinct asks and situation cells. Repeated rows with the same ask and cell do not replace additional mutation opportunities. Additional identical focus variants are omitted.
