@@ -112,6 +112,9 @@ export type RegistryRow = {
   verdict?: string;
   /** Its rollout or enforcement state, when the registry writes one. */
   state?: string;
+  /** What the registry says this check means, verbatim, independent of rule-label links. */
+  description?: string;
+  descriptionAt?: Located;
   /** `catalogue` for a row the reader made from a catalogue entry; absent for a registry row. */
   origin?: 'catalogue';
   at: Located;

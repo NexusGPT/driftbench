@@ -1,6 +1,7 @@
 import { basename, posix } from 'node:path';
 import nlp from 'compromise/two';
 import type { Atom, AtomKind, EvidencePredicate } from '../schema';
+import { guardRuleSources } from './guard-rules';
 import type { EstateFile, GuardDecl, ProseChunk, RawEstate, RegistryRow } from './reader';
 import {
   blankFences,
@@ -249,6 +250,15 @@ export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
     const name = guardName(guard);
     const row = registryRowOf(guard, raw.registry);
     const rows = registryRowsOf(guard, raw.registry).filter((entry) => entry.origin !== 'catalogue');
+    const script = guard.script ? files.get(guard.script) : undefined;
+    const ruleSources = [
+      ...(script ? guardRuleSources(script) : []),
+      ...registryRowsOf(guard, raw.registry).flatMap((entry) =>
+        entry.description
+          ? [{ ...(entry.descriptionAt ?? entry.at), kind: 'registry', text: entry.description }]
+          : [],
+      ),
+    ];
     builder.add({
       kind: 'guard',
       title: `${guard.event}${guard.matcher ? ` ${guard.matcher}` : ''} guard ${name}`,
@@ -260,6 +270,21 @@ export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
         command: guard.command,
         anchored: guard.anchored,
         scope: guard.scope,
+        ...(ruleSources.length > 0
+          ? {
+              ruleText: [...new Set(ruleSources.map((source) => source.text))].join('\n'),
+              ruleSources,
+              rules: registryRowsOf(guard, raw.registry)
+                .filter((entry) => entry.description)
+                .map((entry) => ({
+                  id: entry.id,
+                  description: entry.description,
+                  ...(entry.verdict ? { verdict: entry.verdict } : {}),
+                  ...(entry.state ? { state: entry.state } : {}),
+                  source: entry.descriptionAt ?? entry.at,
+                })),
+            }
+          : {}),
         ...(guard.matcher ? { matcher: guard.matcher } : {}),
         ...(guard.script ? { script: guard.script, scriptExists: files.has(guard.script) } : {}),
         ...(guard.dispatcher ? { dispatcher: guard.dispatcher } : {}),
@@ -1439,7 +1464,77 @@ const GATE_FORMS: Array<{
   read: number;
   act: number;
   prose?: boolean;
+  positiveAct?: boolean;
+  loaded?: boolean;
 }> = [
+  {
+    form: 'requires-loaded',
+    pattern: new RegExp(
+      String.raw`^(.+?)\s+requires\s+(?:that\s+)?${TARGET}\s+(?:(?:to\s+)?be\s+)?(?:loaded|read)$`,
+      'i',
+    ),
+    head: [],
+    read: 2,
+    act: 1,
+    positiveAct: true,
+    loaded: true,
+  },
+  {
+    form: 'requires-reading',
+    pattern: new RegExp(String.raw`^(.+?)\s+requires\s+(?:you\s+to\s+read|reading)\s+${TARGET}$`, 'i'),
+    head: [],
+    read: 2,
+    act: 1,
+    positiveAct: true,
+  },
+  {
+    form: 'context-read-first',
+    pattern: new RegExp(
+      String.raw`^(?:to|for|when|if)\s+(.+?)\s*[:,]\s*(.*?)\bread\s+${TARGET}\s+first$`,
+      'i',
+    ),
+    head: [2],
+    read: 3,
+    act: 1,
+    positiveAct: true,
+  },
+  {
+    form: 'read-first-context',
+    pattern: new RegExp(String.raw`^(.*?)\bread\s+${TARGET}\s+first\s+(?:when|for)\s+(.+)$`, 'i'),
+    head: [1],
+    read: 2,
+    act: 3,
+  },
+  {
+    form: 'not-until-loaded',
+    pattern: new RegExp(
+      String.raw`^(.*?)\b${NEGATIVE}\s+(.+?)\s+until\s+${TARGET}\s+(?:is\s+|has\s+been\s+)(?:loaded|read)$`,
+      'i',
+    ),
+    head: [1],
+    read: 3,
+    act: 2,
+    loaded: true,
+  },
+  {
+    form: 'before-required-loaded',
+    pattern: new RegExp(
+      String.raw`^(.*?)\bbefore\s+([^,:]+?)\s*[:,]\s*${TARGET}\s+(?:must|shall)\s+be\s+(?:loaded|read)$`,
+      'i',
+    ),
+    head: [1],
+    read: 3,
+    act: 2,
+    loaded: true,
+  },
+  {
+    form: 'before-read',
+    pattern: new RegExp(String.raw`^(.*?)\bbefore\s+([^,:]+?)\s+(?:please\s+)?read\s+${TARGET}$`, 'i'),
+    head: [1],
+    read: 3,
+    act: 2,
+    positiveAct: true,
+  },
   {
     form: 'before-colon-read',
     pattern: new RegExp(String.raw`^(.*?)\bbefore\s+([^:]+?)\s*:\s*(.*?)\bread\s+(${TOKEN}|.+)$`, 'i'),
@@ -1612,28 +1707,59 @@ function gateTarget(raw: string, spans: readonly string[], prose: boolean): stri
   return prose ? unmask(text, spans).replace(/[.,:;!?]+$/, '') : '';
 }
 
+const GATE_HEADINGS = new WeakMap<EstateFile, Array<{ text: string; line: number }>>();
+const READ_FIRST_ONLY = new RegExp(String.raw`^(.*?)\bread\s+${TARGET}\s+first$`, 'i');
+
+function gateHeadings(source: EstateFile | undefined): Array<{ text: string; line: number }> {
+  if (!source) return [];
+  const held = GATE_HEADINGS.get(source);
+  if (held) return held;
+  const headings = linesOf(blankFences(source.text)).flatMap((line) => {
+    const match = /^#{1,6}\s+(.+)$/.exec(line.text);
+    return match ? [{ text: (match[1] ?? '').replace(/[*`]/g, '').trim(), line: line.line }] : [];
+  });
+  GATE_HEADINGS.set(source, headings);
+  return headings;
+}
+
 function gateAtoms(
   chunk: ProseChunk,
   files: ReadonlyMap<string, EstateFile>,
   raw: RawEstate,
   builder: AtomBuilder,
 ): void {
+  const source = files.get(chunk.file);
+  const headings = gateHeadings(source);
+  let headingIndex = -1;
   for (const line of chunkLines(chunk, files.get(chunk.file))) {
     const { text, spans } = maskLine(line.text);
-    for (const clause of gateClauses(text)) {
-      for (const { form, pattern, head, read, act, prose } of GATE_FORMS) {
+    while (headings[headingIndex + 1] && (headings[headingIndex + 1]?.line ?? 0) < line.line) headingIndex++;
+    for (const original of gateClauses(text)) {
+      const heading = headings[headingIndex];
+      const contextual =
+        heading && READ_FIRST_ONLY.test(original) && !original.includes('?') && isAct(heading.text);
+      const clause = contextual ? `${original}, then ${heading.text}` : original;
+      for (const { form, pattern, head, read, act, prose, positiveAct, loaded } of GATE_FORMS) {
         const match = pattern.exec(clause);
         if (!match) continue;
         if (!head.every((group) => directiveHead(unmask(match[group] ?? '', spans)))) continue;
-        const target = gateTarget(match[read] ?? '', spans, prose === true);
+        const target = gateTarget(match[read] ?? '', spans, prose === true || loaded === true);
         const named = namedPaths(`Read ${target}`)[0];
         const first = named ?? target.replace(/[`*"'\u201C\u201D]/g, '').trim();
         const trigger = unmask(match[act] ?? '', spans)
           .replace(/[`*]/g, '')
           .trim();
-        if (first === '' || trigger === '' || !isAct(trigger)) continue;
+        // A condition scopes an obligation; it is not the act the read must precede.
+        const scoped = /^(?:if|when|whenever|unless)\b[^,]+,\s*(.+)$/i.exec(trigger);
+        const action = scoped?.[1] ?? trigger;
+        if (first === '' || trigger === '' || !isAct(action)) continue;
+        // Negation of the requirement sits at the predicate boundary, not in its object
+        // ("editing optional metadata requires …" still requires the read).
+        if (positiveAct && /\b(?:not|never|optional|optionally|[a-z]+n't)\s*$/i.test(action)) continue;
         // A file is a path the reference tokenizer accepts (a code span may hold spaces), else one bare word.
         const isFile = /\.[A-Za-z0-9]+$/.test(first) && (named !== undefined || !/\s/.test(first));
+        const skill = loaded ? raw.skills.find((skill) => skill.name === first) : undefined;
+        if (loaded && !isFile && !skill) continue;
         const located = isFile
           ? locateNamed(first, chunk.file, files, {
               bases: raw.bases ?? [],
@@ -1644,24 +1770,39 @@ function gateAtoms(
             })
           : undefined;
         const path = located?.path;
-        const before = isFile ? raw.labels.read : raw.labels.shell;
-        const after = actLabel(trigger, raw);
+        const before = skill ? `skill:${skill.name}` : isFile ? raw.labels.read : raw.labels.shell;
+        const after = actLabel(action, raw);
         const evidence: EvidencePredicate[] = [
           { type: 'ordered', before, after },
-          path
-            ? { type: 'tool_called', label: raw.labels.read, input: { file_path: { contains: path } } }
-            : { type: 'tool_called', label: raw.labels.shell, input: { command: { contains: first } } },
+          skill
+            ? { type: 'skill_loaded', name: skill.name }
+            : path
+              ? { type: 'tool_called', label: raw.labels.read, input: { file_path: { contains: path } } }
+              : { type: 'tool_called', label: raw.labels.shell, input: { command: { contains: first } } },
         ];
         builder.add({
           kind: 'gate',
           title: `Read ${first} before ${trigger}`,
-          at: { file: chunk.file, startLine: line.line, endLine: line.line, quote: line.quote },
+          at:
+            contextual && source && heading
+              ? {
+                  file: chunk.file,
+                  startLine: heading.line,
+                  endLine: line.line,
+                  quote: source.text
+                    .split('\n')
+                    .slice(heading.line - 1, line.line)
+                    .join('\n')
+                    .trim(),
+                }
+              : { file: chunk.file, startLine: line.line, endLine: line.line, quote: line.quote },
           evidence,
-          situation: trigger,
+          situation: /^(?:if|when|whenever|unless)\b[^,]+,/i.test(clause) ? unmask(clause, spans) : trigger,
           fields: {
             form,
             first,
             trigger,
+            ...(skill ? { skill: skill.name } : {}),
             ...(path ? { path } : {}),
             ...(located?.via === 'alias' || located?.via === 'suffix' ? { resolvedBy: located.via } : {}),
             ...(located?.candidates ? { candidates: located.candidates } : {}),
@@ -1724,6 +1865,8 @@ function isAct(trigger: string): boolean {
   // "anything", "something": a pronoun, not an -ing form.
   if (ACT_VERBS.has(first) || (first.length > 5 && first.endsWith('ing') && !first.endsWith('thing')))
     return true;
+  // Grammar admits new imperative verbs without growing an estate-specific action vocabulary.
+  if (nlp(words.join(' ')).termList()[0]?.tags?.has('Imperative')) return true;
   // "every ticket edit", "each change": an act named as a noun after a quantifier.
   return ['every', 'each', 'any'].includes(first) && words.slice(1).some((word) => ACT_VERBS.has(word));
 }
