@@ -254,6 +254,7 @@ export function anthropicAdapter(options: AnthropicAdapterOptions): AgentAdapter
       // The stop reason of each model call, in order: `max_tokens` on the last one means a cut reply.
       const observed = observedOf(segments, usage, latencyMs, `the ${options.model} agent`, {
         raw: { stopReasons },
+        ...(history.normalizations.length > 0 ? { historyNormalizations: history.normalizations } : {}),
       });
       recordPayloads(state, turn.index, observed.toolCalls, sideEffects);
       return observed;
