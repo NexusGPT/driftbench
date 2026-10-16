@@ -16,8 +16,16 @@ async function gates(lines: string[]) {
   });
   try {
     const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    // One gate holds every file the sentence names: the first and the ones that join it.
     return map.atoms.flatMap((atom) =>
-      atom.kind === 'gate' ? [{ quote: atom.provenance.quote, first: String(atom.fields?.first) }] : [],
+      atom.kind === 'gate'
+        ? [String(atom.fields?.first), ...((atom.fields?.also as string[] | undefined) ?? [])].map(
+            (first) => ({
+              quote: atom.provenance.quote,
+              first,
+            }),
+          )
+        : [],
     );
   } finally {
     await rm(root, { recursive: true, force: true });

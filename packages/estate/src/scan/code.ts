@@ -1817,15 +1817,16 @@ function gateAtoms(
         // ("editing optional metadata requires …" still requires the read).
         if (positiveAct && /\b(?:not|never|optional|optionally|[a-z]+n't)\s*$/i.test(action)) continue;
         const after = actLabel(act_ ? action : (eventHead(action) ?? action), raw);
-        const emit = (readText: string, structure: boolean): boolean => {
+        // What a piece of text to read stands for: a file (located), a declared skill, or a shell step.
+        const resolveRead = (readText: string, structure: boolean) => {
           const target = gateTarget(readText, spans, structure);
           const named = namedPaths(`Read ${target}`)[0];
           const first = named ?? target.replace(/[`*"'\u201C\u201D]/g, '').trim();
-          if (first === '') return false;
+          if (first === '') return undefined;
           // A file is a path the reference tokenizer accepts (a code span may hold spaces), else one bare word.
           const isFile = /\.[A-Za-z0-9]+$/.test(first) && (named !== undefined || !/\s/.test(first));
           const skill = loaded ? raw.skills.find((skill) => skill.name === first) : undefined;
-          if (loaded && !isFile && !skill) return false;
+          if (loaded && !isFile && !skill) return undefined;
           const located = isFile
             ? locateNamed(first, chunk.file, files, {
                 bases: raw.bases ?? [],
@@ -1835,17 +1836,24 @@ function gateAtoms(
                 externals: raw.externals ?? [],
               })
             : undefined;
-          const path = located?.path;
+          return { first, isFile, skill, located, path: located?.path };
+        };
+        const required = (read: NonNullable<ReturnType<typeof resolveRead>>): EvidencePredicate =>
+          read.skill
+            ? { type: 'skill_loaded', name: read.skill.name }
+            : read.path
+              ? { type: 'tool_called', label: raw.labels.read, input: { file_path: { contains: read.path } } }
+              : {
+                  type: 'tool_called',
+                  label: raw.labels.shell,
+                  input: { command: { contains: read.first } },
+                };
+        const emit = (readText: string, structure: boolean): Atom | undefined => {
+          const read = resolveRead(readText, structure);
+          if (!read) return undefined;
+          const { first, isFile, skill, located, path } = read;
           const before = skill ? `skill:${skill.name}` : isFile ? raw.labels.read : raw.labels.shell;
-          const evidence: EvidencePredicate[] = [
-            { type: 'ordered', before, after },
-            skill
-              ? { type: 'skill_loaded', name: skill.name }
-              : path
-                ? { type: 'tool_called', label: raw.labels.read, input: { file_path: { contains: path } } }
-                : { type: 'tool_called', label: raw.labels.shell, input: { command: { contains: first } } },
-          ];
-          builder.add({
+          return builder.add({
             kind: 'gate',
             title: `Read ${first} before ${trigger}`,
             at:
@@ -1861,7 +1869,7 @@ function gateAtoms(
                       .trim(),
                   }
                 : { file: chunk.file, startLine: line.line, endLine: line.line, quote: line.quote },
-            evidence,
+            evidence: [{ type: 'ordered', before, after }, required(read)],
             situation: /^(?:if|when|whenever|unless)\b[^,]+,/i.test(clause) ? unmask(clause, spans) : trigger,
             fields: {
               form,
@@ -1874,11 +1882,22 @@ function gateAtoms(
               ...(located?.via === 'external' ? { external: true } : {}),
             },
           });
+        };
+        const gate = emit(match[read] ?? '', prose === true || loaded === true);
+        if (!gate) continue;
+        // More things to read before the same act join the one gate: it is one ordering with several
+        // required reads, not one rule per file.
+        const join = (more: string): boolean => {
+          const extraRead = resolveRead(more, false);
+          if (!extraRead) return false;
+          gate.evidence.push(required(extraRead));
+          const fields = gate.fields ?? {};
+          const also = Array.isArray(fields.also) ? (fields.also as string[]) : [];
+          gate.fields = { ...fields, also: [...also, extraRead.first] };
           return true;
         };
-        if (!emit(match[read] ?? '', prose === true || loaded === true)) continue;
-        for (const item of extra) emit(item, false);
-        added = (more) => emit(more, false);
+        for (const item of extra) join(item);
+        added = join;
         break;
       }
       if (added) previous = added;
