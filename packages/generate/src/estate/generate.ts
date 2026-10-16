@@ -32,7 +32,7 @@ import {
   type EstatePlanRow,
   type InputIssue,
 } from './inputs';
-import { compilePredicate } from './predicates';
+import { compilePredicate, isCompiledPredicate } from './predicates';
 import { STATIC_DIR, STATIC_TEST_TYPES, type StaticTest, staticCheckOf } from './static';
 import { ordered, runOrder, sortedKeys, totalsFor } from './summary';
 import { MARKER_NAMES, MARKERS, type Marker, stageModel } from './then';
@@ -484,7 +484,7 @@ export function outputRulesOf(atoms: readonly EstateAtom[]): string[] {
   for (const atom of atoms) {
     if (atom.kind !== 'register' || !atom.approved) continue;
     for (const evidence of atom.evidence) {
-      if (evidence.type !== 'custom') continue;
+      if (evidence.type !== 'custom' || !isCompiledPredicate(evidence.name)) continue;
       for (const pattern of compilePredicate(evidence.name, evidence.options)?.mustNot ?? [])
         out.add(pattern);
     }

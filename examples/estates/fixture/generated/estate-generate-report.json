@@ -26,6 +26,7 @@
   "options": {
     "seed": 1,
     "checks": [
+      "absence",
       "grounded_values",
       "guard_finished",
       "guard_message",

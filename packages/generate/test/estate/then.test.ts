@@ -418,13 +418,13 @@ describe('the estate checks the runner registers, and custom predicates compiled
     expect(currency.test('Total 1,250.00 EUR')).toBe(false);
   });
 
-  it('reads a forbidden command under each name a model gives it, the command in contains, regex or command', () => {
+  it('lowers the documented command compatibility aliases to input-scoped tool absence', () => {
     const calls = (name: string, options: Record<string, unknown>) =>
       thenOf([custom(name, options)], 'positive', full).someCalls;
     expect(calls('command_absent', { command: 'rm -rf build' })).toEqual([
       { label: 'Bash', input: { command: { contains: 'rm -rf build' } }, count: 0 },
     ]);
-    expect(calls('command_forbidden', { regex: '^npm publish' })).toEqual([
+    expect(calls('command_not_run', { regex: '^npm publish' })).toEqual([
       { label: 'Bash', input: { command: { regex: '^npm publish' } }, count: 0 },
     ]);
     // No command named: nothing to compile, so the rule is judged or waits.

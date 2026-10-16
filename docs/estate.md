@@ -68,7 +68,7 @@ An atom is one place where the estate says what the agent must do, with a quote 
 | Hazard | a passage of the estate that names a runtime hazard (compaction, a new session) | code | recovery after the event |
 | Invariant (static) | the size ceiling of the standing instructions, no orphan file, anchored guard paths, a complete check registry | code | a property of the estate's files, no run |
 
-Every atom carries: an id (`kind.scope.slug`, stable and valid as a space value id), its kind, its title, its provenance (file, line span, quote, and a SHA-256 hash of file, span and quote), `producedBy` (code or model), its role (axis or detail), `approved`, the situation it applies in, its evidence predicates (typed: `skill_loaded`, `skill_not_loaded`, `guard`, `tool_called` with input fields, `tool_not_called`, `ordered`, `stage_reached`, `workspace`, `artifact`, `text`, `static`, `custom`), and its enforcement: the guards that already check it. Empty enforcement means "trusted", which is a finding of its own.
+Every atom carries: an id (`kind.scope.slug`, stable and valid as a space value id), its kind, its title, its provenance (file, line span, quote, and a SHA-256 hash of file, span and quote), `producedBy` (code or model), its role (axis or detail), `approved`, the situation it applies in, its evidence predicates (typed: `skill_loaded`, `skill_not_loaded`, `guard`, `tool_called` with input fields, `tool_not_called`, `reference_not_read`, `subagent_not_dispatched`, `guard_not_fired`, `stage_not_reached`, `artifact_not_created`, `file_not_written`, `ordered`, `stage_reached`, `workspace`, `artifact`, `text`, `static`, `custom`), and its enforcement: the guards that already check it. Empty enforcement means "trusted", which is a finding of its own.
 
 A guard's evidence carries the verdict of its check registry row. A guard with no row has evidence with no verdict: any verdict counts, as in the guards check.
 
@@ -488,10 +488,32 @@ How a row becomes a spec:
 | `custom` no_delete_under | `rules.custom.no_delete_under`: nothing deleted under the folder, read from the workspace diff, else from removal commands; a move is no deletion |
 | `custom` with a name no code checks (a domain rule) | a gating judged criterion whose rubric quotes the atom's own words and its situation; the spec is tagged `judged` and lists the atoms in `metadata.estate.judged`. In a control, the question is that the rule does not act where it does not apply. `--no-judge` leaves it `needs-registered-check` |
 | `custom` permission | `rules.custom.permission`: deny, no call the rule covers; allow or declared, a covered call none refused; ask stays a gap |
-| `custom` with a name the generator compiles | `command_not_run`, `command_absent`, `command_forbidden` (the command in `contains`, `regex` or `command`) to some_call, no Bash call whose command matches; `max_characters`, `max_questions`, `no_secret_in_reply`, `currency_after_amount`, `stopped_and_confirmed` to `must_not` (and `execution.max_commands: 0`); `json_only`, `asks_for`, `route_table` to `must`; `same_language_as_user` to `lang`; `confirmed_before_send`, `asks_again_on_loose_yes` to `safety.confirm_before: [send]` |
+| `custom` with a name the generator compiles | `command_not_run`, `command_absent` are compatibility aliases lowered to `tool_not_called` on Bash with a command input assertion; `max_characters`, `max_questions`, `no_secret_in_reply`, `currency_after_amount`, `stopped_and_confirmed` to `must_not` (and `execution.max_commands: 0`); `json_only`, `asks_for`, `route_table` to `must`; `same_language_as_user` to `lang`; `confirmed_before_send`, `asks_again_on_loose_yes` to `safety.confirm_before: [send]` |
+
+### Typed absence predicates
+
+Absence is a typed family in `EvidencePredicate`, not a guess from a model's choice of words. These predicates forbid an observation within the tested block. Each compiles to a machine check. A scoped tool prohibition forbids only matching calls; unrelated calls remain allowed. Failed attempts still count as calls.
+
+| Predicate and example | Check and meaning |
+|---|---|
+| `{ type: skill_not_loaded, name: archive-publish }` | `expect.skills` with count zero: the skill never loads |
+| `{ type: tool_not_called, label: NetworkPost }` | `expect.tools` with count zero: no call of the tool |
+| `{ type: tool_not_called, label: Bash, input: { command: { contains: "archive --purge" } } }` | `some_call` with count zero: no matching command, even if it returns an error; input uses the normal assertion vocabulary |
+| `{ type: reference_not_read, path: "private/*.txt" }` | `absence`: no successful read of a matching reference |
+| `{ type: subagent_not_dispatched, name: archive-publisher }` | `absence`: no dispatch of the named helper |
+| `{ type: guard_not_fired, name: archive-access, verdict: deny }` | `absence`: no matching guard decision; omit `verdict` to forbid every verdict |
+| `{ type: stage_not_reached, name: publish }` | `absence`: no matching stage anywhere in the block's stage trace, including a stage carried into it |
+| `{ type: artifact_not_created, path: "exports/*.csv" }` | `absence`: no matching path in the workspace diff's `created` set; a pre-existing file may change |
+| `{ type: file_not_written, path: archive/catalogue.csv }` | `absence`: no matching path in either `created` or `changed`; deletions are separate |
+
+Path predicates use the check package's glob rules and normalize path separators. The `absence` check treats a missing required runtime list or workspace diff as inconclusive, never as proof of absence. Existing skill and tool checks keep their trace contracts. These are block observations: a net workspace diff cannot prove that a transient write followed by restoration never happened. Use `tool_not_called` with input assertions to forbid attempted write calls as well.
+
+`command_not_run` and `command_absent` remain documented custom compatibility aliases. Their `contains`, `regex` or `command` option lowers to the same scoped `tool_not_called` check; `command` means substring matching. New estates should use the typed form above. `command_forbidden` and other invented spellings have no built-in meaning. Direct `compilePredicate` calls on unknown custom names throw an error naming the predicate. Generation rejects unknown typed discriminants, including through the structural API. An explicitly custom domain predicate still uses the documented registered-check or judged-criterion path; without a judge or checker it remains an explicit `needs-registered-check` gap.
+
+Absence is not automatically inverted in an outside-trigger control. Being outside a prohibition does not require the agent to perform the forbidden act. Such controls retain a judged rule or `needs-negation`.
 
 * The outcome, when neither the situation nor the atoms name a path, is read from the atoms (`metadata.estate.outcome`): nothing changes (`others_untouched`) for a negative control, a denied tool, a guard that denies or blocks, or a row whose skills and helpers may use no writing tool; otherwise nothing is deleted (`deleted: []`). `--no-fallback` turns this off.
-* Invariant and setting rows are static tests: JSON under `static/<test type>/`, run by `driftbench estate static <suite>/static --estate <root>` on the original or a mutant copy. An invariant passes when it still holds on the files; a setting when the settings still declare its key and value. The replay and live runners register `some_call`, `hazard_recovery`, `permission`, `grounded_values`, `max_words`, `no_delete_under` and `stage_seen` next to `ordered`.
+* Invariant and setting rows are static tests: JSON under `static/<test type>/`, run by `driftbench estate static <suite>/static --estate <root>` on the original or a mutant copy. An invariant passes when it still holds on the files; a setting when the settings still declare its key and value. The replay and live runners register `absence`, `some_call`, `hazard_recovery`, `permission`, `grounded_values`, `max_words`, `no_delete_under` and `stage_seen` next to `ordered`.
 * `--focus <file>` (atom ids, one per line) orders `run-order.txt`, the list of complete specs: rows naming a focus atom first, then rows naming a guard, a gate or an invariant, then the rest. The report counts the complete specs per focus atom and names the gaps of the ones with none.
 
 * Negative controls (`outside_trigger`, `route_near_miss`, `guard_negative`): skills count 0, guard count 0, tool count 0, required words moved to `must_not`.

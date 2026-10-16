@@ -11,6 +11,7 @@ import { checkAssertion } from '../support/assert';
 import { countAllows, describeCount } from '../support/count';
 import { classifyCommand, classifyTool } from '../support/operations';
 import { isRecord, plural, show } from '../support/values';
+import { absence } from './absence';
 import type { CustomCheckFunction } from './custom';
 
 /**
@@ -676,6 +677,7 @@ export const guardFinished: CustomCheckFunction = (ctx, options) => {
 
 /** The checks by the names the estate generator writes under `rules.custom`. */
 export const ESTATE_CHECKS: Readonly<Record<string, CustomCheckFunction>> = {
+  absence,
   grounded_values: groundedValues,
   guard_finished: guardFinished,
   guard_message: guardMessage,

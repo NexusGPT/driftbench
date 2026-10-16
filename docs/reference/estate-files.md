@@ -101,6 +101,12 @@ Write one of these forms.
 * a mapping with `type: guard`, with the fields below
 * a mapping with `type: tool_called`, with the fields below
 * a mapping with `type: tool_not_called`, with the fields below
+* a mapping with `type: reference_not_read`, with the fields below
+* a mapping with `type: subagent_not_dispatched`, with the fields below
+* a mapping with `type: guard_not_fired`, with the fields below
+* a mapping with `type: stage_not_reached`, with the fields below
+* a mapping with `type: artifact_not_created`, with the fields below
+* a mapping with `type: file_not_written`, with the fields below
 * a mapping with `type: ordered`, with the fields below
 * a mapping with `type: stage_reached`, with the fields below
 * a mapping with `type: workspace`, with the fields below
@@ -148,6 +154,50 @@ With `type: tool_not_called`:
 |---|---|---|---|---|
 | `type` | `tool_not_called` | yes |  | This form holds when the agent never calls the tool. |
 | `label` | string, not empty | yes |  | The tool label that must not appear in the trace. |
+| `input` | map of string to any value | no |  | Only forbid calls matching these input assertions; without it, forbid every call. |
+
+With `type: reference_not_read`:
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `type` | `reference_not_read` | yes |  | No successful read of this path or glob in the block. |
+| `path` | string, not empty | yes |  |  |
+
+With `type: subagent_not_dispatched`:
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `type` | `subagent_not_dispatched` | yes |  | No dispatch of this helper in the block. |
+| `name` | string, not empty | yes |  |  |
+
+With `type: guard_not_fired`:
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `type` | `guard_not_fired` | yes |  | No firing of this guard in the block. |
+| `name` | string, not empty | yes |  |  |
+| `verdict` | string, not empty | no |  | Only forbid this verdict; without it, forbid every firing. |
+
+With `type: stage_not_reached`:
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `type` | `stage_not_reached` | yes |  | This stage never appears in the block. |
+| `name` | string, not empty | yes |  |  |
+
+With `type: artifact_not_created`:
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `type` | `artifact_not_created` | yes |  | The workspace diff lists no creation of this path or glob. |
+| `path` | string, not empty | yes |  |  |
+
+With `type: file_not_written`:
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `type` | `file_not_written` | yes |  | The workspace diff lists no creation or change of this path or glob. |
+| `path` | string, not empty | yes |  |  |
 
 With `type: ordered`:
 
