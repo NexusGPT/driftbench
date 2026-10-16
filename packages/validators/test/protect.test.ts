@@ -1,3 +1,4 @@
+import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { parse } from 'yaml';
@@ -36,14 +37,60 @@ describe('protectedChanges', () => {
   });
 });
 
+const TRAIN_CONDITION = "github.event_name == 'push' || startsWith(github.head_ref, 'train/')";
+
+/** Conditions and steps must keep the complete validators on every train and main push. */
+function assertTrainValidators(workflow: ReturnType<typeof parse>) {
+  expect(Object.keys(workflow.on).sort()).toEqual(['pull_request', 'push']);
+  expect(workflow.on.pull_request).toBeDefined();
+  expect(workflow.on.push.branches).toContain('main');
+  for (const trigger of [workflow.on.pull_request, workflow.on.push]) {
+    expect(trigger.paths).toBeUndefined();
+    expect(trigger['paths-ignore']).toBeUndefined();
+  }
+  for (const id of ['ladders', 'system-full']) {
+    const job = workflow.jobs[id];
+    expect(job.if).toBe(TRAIN_CONDITION);
+    for (const step of job.steps) expect(step.if).toBeUndefined();
+  }
+  const commands = workflow.jobs.ladders.steps.flatMap((step: { run?: string }) => step.run ?? []);
+  expect(commands).toContain('pnpm driftbench validate all --seeds 1..3 --hidden --check-floor');
+  expect(commands).toContain('pnpm driftbench validate all --check-handover');
+  const system = workflow.jobs['system-full'].steps
+    .map((step: { run?: string }) => step.run ?? '')
+    .join('\n');
+  expect(system).toContain('pnpm driftbench validate system --seeds 1..3 --hidden --all-levels');
+  expect(system).toContain('test "$status" -eq 11');
+}
+
 describe('the validators workflow', () => {
   const workflow = parse(readFileSync(WORKFLOW, 'utf8'));
   const runs = (job: string): string[] =>
     (workflow.jobs[job].steps as { run?: string }[]).flatMap((step) => (step.run ? [step.run] : []));
-  it('runs every validator on seeds 1 to 3 and the hidden seed with the floors enforced, on push and pull request', () => {
-    expect(Object.keys(workflow.on).sort()).toEqual(['pull_request', 'push']);
-    expect(runs('ladders')).toContain('pnpm driftbench validate all --seeds 1..3 --hidden --check-floor');
-    expect(runs('ladders')).toContain('pnpm driftbench validate all --check-handover');
+  it('runs all registered validators in full on every train PR and main push, without path filters', () => {
+    assertTrainValidators(workflow);
+  });
+  it('rejects an extra trigger such as pull_request_target', () => {
+    const changed = structuredClone(workflow);
+    changed.on.pull_request_target = {};
+    expect(() => assertTrainValidators(changed)).toThrow();
+  });
+  it('rejects removing the train condition', () => {
+    const changed = structuredClone(workflow);
+    changed.jobs.ladders.if = "github.event_name == 'push'";
+    expect(() => assertTrainValidators(changed)).toThrow();
+  });
+  it('rejects path-filtering a ladder job or its execution step', () => {
+    const jobFiltered = structuredClone(workflow);
+    jobFiltered.jobs.ladders.if += " && needs.changes.outputs.validators == 'true'";
+    expect(() => assertTrainValidators(jobFiltered)).toThrow();
+    const stepFiltered = structuredClone(workflow);
+    stepFiltered.jobs.ladders.steps.find((step: { run?: string }) => step.run?.includes('--check-floor')).if =
+      "needs.changes.outputs.validators == 'true'";
+    expect(() => assertTrainValidators(stepFiltered)).toThrow();
+    const workflowFiltered = structuredClone(workflow);
+    workflowFiltered.on.pull_request.paths = ['packages/validators/**'];
+    expect(() => assertTrainValidators(workflowFiltered)).toThrow();
   });
   it('checks every pull request for protected changes with the full history', () => {
     expect(workflow.jobs.protect.if).toBe("github.event_name == 'pull_request'");
@@ -51,6 +98,81 @@ describe('the validators workflow', () => {
     expect(runs('protect')).toContain(
       'pnpm driftbench validate protect --branch "$HEAD_REF" --base "origin/$BASE_REF"',
     );
+  });
+});
+
+describe('merge train enforcement', () => {
+  const workflow = parse(readFileSync(new URL('../../../.github/workflows/ci.yml', import.meta.url), 'utf8'));
+  it('keeps every heavy CI job on trains and main, with no path filters', () => {
+    expect(Object.keys(workflow.on).sort()).toEqual(['pull_request', 'push']);
+    expect(workflow.on.pull_request).toBeDefined();
+    expect(workflow.on.push.branches).toContain('main');
+    for (const trigger of [workflow.on.pull_request, workflow.on.push]) {
+      expect(trigger.paths).toBeUndefined();
+      expect(trigger['paths-ignore']).toBeUndefined();
+    }
+    for (const id of [
+      'bench',
+      'research-replay',
+      'build',
+      'python',
+      'comparison-replay',
+      'viewer-journey',
+      'guard',
+    ]) {
+      expect(workflow.jobs[id].if).toBe(TRAIN_CONDITION);
+      for (const step of workflow.jobs[id].steps) {
+        // A step condition may only keep artifacts after a failure; it may never skip work.
+        if (step.if !== undefined) expect(step.if).toBe('always()');
+      }
+    }
+    expect(workflow.jobs.build.strategy.matrix.node).toEqual([22, 24]);
+    expect(workflow.jobs.python.strategy.matrix.python).toEqual(['3.11', '3.12']);
+  });
+  it('rejects a pull_request_target trigger and a skipped step on a heavy job', () => {
+    const target = structuredClone(workflow);
+    target.on.pull_request_target = {};
+    expect(Object.keys(target.on).sort()).not.toEqual(['pull_request', 'push']);
+    const skipped = structuredClone(workflow);
+    skipped.jobs.build.steps[skipped.jobs.build.steps.length - 1].if = "github.event_name == 'push'";
+    expect(
+      skipped.jobs.build.steps.every(
+        (step: { if?: string }) => step.if === undefined || step.if === 'always()',
+      ),
+    ).toBe(false);
+  });
+  it('declares train gate as required and fails ordinary PRs with the merge instruction', () => {
+    const job = workflow.jobs['train-gate'];
+    expect(job.name).toBe('train gate');
+    expect(job.if).toBeUndefined();
+    const policy = readFileSync(new URL('../../../CONTRIBUTING.md', import.meta.url), 'utf8');
+    expect(policy).toContain('`train gate` must be required in branch protection');
+    const command = job.steps.find((step: { run?: string }) => step.run).run;
+    for (const [event, head, expected] of [
+      ['pull_request', 'train/ci-speed', 0],
+      ['push', '', 0],
+      ['pull_request', 'fix/ordinary', 1],
+      ['pull_request', 'train-lookalike', 1],
+    ] as const) {
+      const result = spawnSync('bash', ['-c', command], {
+        encoding: 'utf8',
+        env: { ...process.env, EVENT_NAME: event, HEAD_REF: head },
+      });
+      expect(result.status).toBe(expected);
+      if (expected === 1) expect(result.stdout).toContain('Merge through a train (train/<n>)');
+    }
+  });
+  it('runs a bounded fast check on every PR with full diff history and affected tests', () => {
+    const job = workflow.jobs['pr-fast'];
+    expect(job.name).toBe('pr fast');
+    expect(job.if).toBe("github.event_name == 'pull_request'");
+    expect(job['timeout-minutes']).toBe(8);
+    expect(job.steps[0].with['fetch-depth']).toBe(0);
+    const commands = job.steps.flatMap((step: { run?: string }) => step.run ?? []);
+    expect(commands).toContain('pnpm lint');
+    expect(commands).toContain('pnpm typecheck');
+    expect(commands).toContain('node tools/structure/api-surface.mjs --build --check');
+    expect(commands).toContain('pnpm test --maxWorkers=2 --changed origin/main --passWithNoTests');
   });
 });
 
@@ -102,7 +224,7 @@ describe('the benchmark workflows', () => {
     const runs = workflow.jobs.bench.steps.flatMap((step: { run?: string }) => step.run ?? []);
     expect(runs).toContain('node tools/bench-lint.mjs');
     expect(runs).toContain('node --import tsx benchmarks/cli.ts replay --slice all --check-floor');
-    expect(Object.keys(workflow.on).sort()).toEqual(['pull_request', 'push']);
+    expect(Object.keys(workflow.on)).toEqual(expect.arrayContaining(['pull_request', 'push']));
     expect(workflow.permissions).toEqual({ contents: 'read' });
   });
 
