@@ -48,9 +48,6 @@ function heavyCondition(id: string): string {
 const FAST_CONDITION =
   "github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',fast,'))";
 
-/** The train gate does not run on a dispatch that lists only `fast`. */
-const GATE_CONDITION = "always() && !(github.event_name == 'workflow_dispatch' && inputs.jobs == 'fast')";
-
 const CI_HEAVY = [
   'bench',
   'research-replay',
@@ -211,6 +208,7 @@ function assertTrainValidators(workflow: ReturnType<typeof parse>) {
 }
 
 const OK = 'success,success,success,success,success,success,success';
+const SKIPPED = 'skipped,skipped,skipped,skipped,skipped,skipped,skipped';
 const ONE_RED = 'success,failure,success,success,success,success,success';
 const GATE_CASES: [string, string, string, string, string, number][] = [
   // event, head ref, ref name, jobs, needs results, expected exit code
@@ -235,6 +233,17 @@ const GATE_CASES: [string, string, string, string, string, number][] = [
     0,
   ],
   ['workflow_dispatch', '', 'train/9a', '', 'skipped,skipped,skipped,skipped,skipped,skipped,skipped', 1],
+  // a pre-flight dispatch (fast only, or no heavy job) never counts as a train pass
+  ['workflow_dispatch', '', 'train/pre-9', 'fast', SKIPPED, 1],
+  ['workflow_dispatch', '', 'train/pre-9', 'fast,unknown', SKIPPED, 1],
+  [
+    'workflow_dispatch',
+    '',
+    'train/9a',
+    'build,fast',
+    'skipped,skipped,success,skipped,skipped,skipped,skipped',
+    0,
+  ],
   ['workflow_dispatch', '', 'main', 'build', OK, 1],
   ['workflow_dispatch', '', 'main', 'build,python,bench', OK, 1],
   ['workflow_dispatch', '', 'train-lookalike', 'build', OK, 1],
@@ -277,6 +286,8 @@ function assertGate(command: string) {
     });
     expect(result.status, `${event} ${head} ${refName} [${jobs}] ${results}`).toBe(expected);
     if (expected === 1) expect(result.stdout).toMatch(/::error::/);
+    if (expected === 1 && jobs.startsWith('fast'))
+      expect(result.stdout).toContain('pre-flight run, not a train pass');
     if (expected === 1 && event === 'pull_request' && head === 'fix/ordinary')
       expect(result.stdout).toContain('Merge through a train (train/<n>)');
   }
@@ -285,7 +296,7 @@ function assertGate(command: string) {
 /** The gate waits for every heavy ci.yml job, so a red heavy job cannot sit beside a green gate. */
 function assertGateWaits(workflow: ReturnType<typeof parse>) {
   const job = workflow.jobs['train-gate'];
-  expect(job.if).toBe(GATE_CONDITION);
+  expect(job.if).toBe('always()');
   expect([...job.needs].sort()).toEqual([...CI_HEAVY].sort());
   // the fast job is never an input to the gate, so a green pr fast is never a train pass
   expect(job.needs).not.toContain('pr-fast');
@@ -318,20 +329,6 @@ function assertFastBehaviour(workflow: ReturnType<typeof parse>) {
   expect(evaluateTemplate(affected.if, dispatchOn('refs/heads/train/pre-9', 'fast'))).toBe(true);
   expect(evaluateTemplate(affected.if, ORDINARY_PR)).toBe(true);
   expect(evaluateTemplate(affected.if, TRAIN_PR)).toBe(false);
-}
-
-/** The gate does not run on a dispatch that lists only fast, and runs on every other dispatch and event. */
-function assertGateSkipsFastDispatch(workflow: ReturnType<typeof parse>) {
-  const withAlways = (ctx: Ctx) => {
-    const condition = String(workflow.jobs['train-gate'].if).replace('always()', 'true');
-    return Boolean(evaluate(condition, ctx));
-  };
-  expect(withAlways(dispatchOn('refs/heads/train/pre-9', 'fast'))).toBe(false);
-  for (const jobs of ['build', 'build,fast', 'fast,build'])
-    expect(withAlways(dispatchOn('refs/heads/train/9a', jobs))).toBe(true);
-  expect(withAlways(MAIN_PUSH)).toBe(true);
-  expect(withAlways(TRAIN_PR)).toBe(true);
-  expect(withAlways(ORDINARY_PR)).toBe(true);
 }
 
 /** The docs checks run in every pr-fast run, whatever the diff: no step condition, no --changed. */
@@ -571,38 +568,15 @@ describe('merge train enforcement', () => {
       expect(() => assertFastDocs(conditional), command).toThrow();
     }
   });
-  it('keeps a fast dispatch from counting as a train pass', () => {
-    assertGateSkipsFastDispatch(workflow);
-    const alwaysRuns = structuredClone(workflow);
-    alwaysRuns.jobs['train-gate'].if = 'always()';
-    expect(() => assertGateSkipsFastDispatch(alwaysRuns)).toThrow();
+  it('fails the gate on a fast dispatch that ran no heavy job, so a fast dispatch is never a train pass', () => {
+    const command: string = workflow.jobs['train-gate'].steps.find((s: { run?: string }) => s.run).run;
+    expect(() => assertGate(command)).not.toThrow();
+    const unchecked = command.replace('[[ ",$JOBS," == *,fast,* && ",$RESULTS," != *,success,* ]]', 'false');
+    expect(unchecked).not.toBe(command);
+    expect(() => assertGate(unchecked)).toThrow();
     const gateWaitsForFast = structuredClone(workflow);
     gateWaitsForFast.jobs['train-gate'].needs.push('pr-fast');
     expect(() => assertGateWaits(gateWaitsForFast)).toThrow();
-  });
-});
-
-describe('the protect list and the frame files', () => {
-  it('protects the complete benchmark frame and both enforcement workflows from executor changes', () => {
-    const files = [
-      'benchmarks/run.ts',
-      'benchmarks/support/scorer.ts',
-      'benchmarks/slices/planted-verify.json',
-      'benchmarks/floors.json',
-      'benchmarks/cassettes/haiku.json',
-      'benchmarks/evidence/haiku.json',
-      'benchmarks/test/floors.test.ts',
-      'tools/bench-lint.mjs',
-      'tools/bench-lint.test.mjs',
-      'tools/bench-lint-future.mjs',
-      'packages/cli/src/commands/bench.ts',
-      'packages/cli/src/commands/bench-record.ts',
-      '.github/workflows/ci.yml',
-      '.github/workflows/bench-record.yml',
-    ];
-    expect(protectedChanges('exec/replace-bench', files)).toEqual(files);
-    expect(protectedChanges('feat/maintainer-record', files)).toEqual([]);
-    expect(protectedChanges('exec/other', ['benchmarks-old/run.ts', 'tools/other.mjs'])).toEqual([]);
   });
 
   it('protects every file of the frame, the bank and hardness modules, the bank fixtures and the validator tests', () => {

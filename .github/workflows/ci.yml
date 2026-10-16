@@ -67,8 +67,7 @@ jobs:
 
   train-gate:
     name: train gate
-    # A dispatch that lists only the fast job is a pre-flight check, never a train pass: the gate does not run.
-    if: always() && !(github.event_name == 'workflow_dispatch' && inputs.jobs == 'fast')
+    if: always()
     needs: [bench, research-replay, build, python, comparison-replay, viewer-journey, guard]
     runs-on: ubuntu-latest
     steps:
@@ -90,6 +89,11 @@ jobs:
             fi
             if [ -z "$JOBS" ]; then
               echo '::error::A dispatch must list the jobs it runs'
+              exit 1
+            fi
+            # A dispatch that lists fast but ran no heavy job is a pre-flight run, never a train pass.
+            if [[ ",$JOBS," == *,fast,* && ",$RESULTS," != *,success,* ]]; then
+              echo '::error::pre-flight run, not a train pass'
               exit 1
             fi
           elif [ "$EVENT_NAME" != push ] && ! { [ "$EVENT_NAME" = pull_request ] && [[ "$HEAD_REF" == train/* ]]; }; then
