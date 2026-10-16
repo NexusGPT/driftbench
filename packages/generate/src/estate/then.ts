@@ -258,12 +258,22 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       return;
     }
     case 'stage_reached':
-      // A step allowed at any point is reached when it shows once in the block, wherever.
-      // So is a stage of a step list with no single closing stage to order it against.
-      if (
-        (ctx.stages.anytime.has(evidence.name) || ctx.stages.closing === undefined) &&
-        ctx.customChecks.has('stage_seen')
-      ) {
+      // A step allowed at any point is never required, and no order can place it: what a run must still show
+      // is the flow around it closing on its closing step.
+      if (ctx.stages.anytime.has(evidence.name)) {
+        if (ctx.stages.closing !== undefined) then.stage = ctx.stages.closing;
+        else
+          gap(
+            then,
+            MARKERS.stageReach,
+            atom,
+            `${evidence.name} may come at any step and is not required; the step list has no single closing stage to check the flow on`,
+          );
+        return;
+      }
+      // A stage of a step list with no single closing stage to order it against is reached when it shows once
+      // in the block, wherever.
+      if (ctx.stages.closing === undefined && ctx.customChecks.has('stage_seen')) {
         then.custom.stage_seen = { name: evidence.name, block: 0 };
         return;
       }

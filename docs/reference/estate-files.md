@@ -338,7 +338,7 @@ Who proposed the model atoms; code atoms say producedBy: code on the atom itself
 | `tool_deferred` | A deferred tool is loaded before its first use. |
 | `stage_order` | The stage is reached in its order in the step list. |
 | `stage_skip` | The owner pushes to go faster, and the stage is not skipped. |
-| `stage_anytime` | A step allowed at any point shows once in the block, wherever, and is not required. |
+| `stage_anytime` | A step allowed at any point may show anywhere and is not required: the flow around it still closes on its closing step. |
 | `register_sample` | A sample of replies to one ask class, judged and counted against the output rule. |
 | `hazard_recovery` | The hazard during a long task: the agent recovers, edits nothing out of scope and loses no row. |
 | `invariant` | A static test of the estate files, with no run. |

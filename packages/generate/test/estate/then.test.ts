@@ -681,12 +681,20 @@ describe('ordered pairs between two calls of one tool, and a step allowed at any
     expect(thenOf([gate], 'positive', runner).gaps.map((entry) => entry.marker)).toEqual([MARKERS.anchor]);
   });
 
-  it('checks that a step allowed at any point was reached at least once, when the runner registers stage_seen', () => {
+  it('never requires a step allowed at any point: the flow around it still closes on its closing step', () => {
     const note = stage('note', [], true);
     const then = thenOf([note], 'positive', runner);
     expect(then.gaps).toEqual([]);
-    expect(then.custom).toEqual({ stage_seen: { name: 'note', block: 0 } });
-    expect(thenOf([note], 'positive', ctx).gaps.map((entry) => entry.marker)).toEqual([MARKERS.stageReach]);
+    expect(then.custom).toEqual({});
+    expect(then.stage).toBe('report');
+    // With two closing steps there is no flow to check it on: a gap, with or without stage_seen.
+    const open: ThenContext = {
+      ...runner,
+      stages: stageModel([stage('a', ['b', 'c']), stage('b', []), stage('c', []), stage('jot', [], true)]),
+    };
+    expect(thenOf([stage('jot', [], true)], 'positive', open).gaps.map((entry) => entry.marker)).toEqual([
+      MARKERS.stageReach,
+    ]);
   });
 });
 
