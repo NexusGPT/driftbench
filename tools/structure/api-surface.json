@@ -434,6 +434,7 @@
       "GramOptions": "type",
       "GramVector": "type",
       "GuardExpect": "value",
+      "HistoryNormalization": "value",
       "ImportError": "type",
       "ImportResult": "type",
       "ImportedSpec": "type",

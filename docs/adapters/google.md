@@ -52,6 +52,10 @@ The model's content goes back unchanged within the block, so a Gemini 3 signed f
 
 Contents of the same role in a row merge into one. Function names keep their dots: the API accepts letters, digits, underscore, dot, colon and dash, 128 at most. A call without an id gets one for its segments and goes back without one.
 
+Empty text-only turns are omitted without adding placeholder text, as on the Anthropic wire. `Observed.historyNormalizations` records `google`, the original role and the zero-based history index for each omission. The neutral session history stays intact, and JSON, HTML and JUnit reports show the difference on passing and failing blocks. All carried text and tool records remain subject to exact read-back checks. See the [observation schema reference](../reference/observed.md#history-normalization).
+
+Adapter versions and model-request bytes are unchanged. Cached observations recorded before this change carry no normalization note until they are rerun.
+
 ## What `send` returns
 
 * Text parts are text segments. Thought parts (`thought: true`) are reasoning and add no segment. Each `functionCall` is a tool call, followed by its result.

@@ -1,7 +1,22 @@
-import type { BlockStatus } from '@agent-nexus/driftbench-core';
+import type { BlockStatus, HistoryNormalization } from '@agent-nexus/driftbench-core';
 import type { CarriedSummary } from './data';
 import type { Estimate } from './estimate';
 import type { SuiteHeadline } from './headline';
+
+/** A visible wire difference, without inserting a warning into the agent's reply. */
+export function historyNormalizationText(entry: HistoryNormalization): string {
+  return `${entry.wire} wire omitted empty ${entry.role} turn at history index ${entry.historyIndex} (zero-based)`;
+}
+
+/** No markup when absent, so legacy reports retain their exact bytes. */
+export function historyNormalizationsHtml(entries: readonly HistoryNormalization[] | undefined): string {
+  return (entries ?? [])
+    .map(
+      (entry) =>
+        `<p class="history-normalization">History normalization: ${esc(historyNormalizationText(entry))}</p>`,
+    )
+    .join('');
+}
 
 /** Escapes text for HTML element content and attribute values. */
 export function esc(text: string): string {
