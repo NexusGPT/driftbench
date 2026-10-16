@@ -1,4 +1,5 @@
 export {
+  ReferenceIndex,
   analyzeGraph,
   buildGraph,
   declaredLabels,

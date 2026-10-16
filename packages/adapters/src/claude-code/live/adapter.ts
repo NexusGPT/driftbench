@@ -98,6 +98,8 @@ export type ClaudeCodeLiveOptions = {
   estateRoot: string;
   /** What of the estate root is copied. Default: CLAUDE.md, CLAUDE.local.md, .claude and .mcp.json, those present. */
   estateFiles?: readonly string[];
+  /** Physical sources for selected overlay files, keyed by estate-relative destination. */
+  estateFileSources?: ReadonlyMap<string, string>;
   /** A workspace seed written before the Given's own workspace. */
   workspace?: Workspace;
   /** The operations of a spec that names no session state. Default: a fresh session. */
@@ -229,7 +231,12 @@ export function claudeCodeLiveAdapter(options: ClaudeCodeLiveOptions): AgentAdap
         });
       let stateFolder: string | undefined;
       try {
-        await copyEstate(options.estateRoot, options.estateFiles ?? DEFAULT_ESTATE_FILES, folderOf(sandbox));
+        await copyEstate(
+          options.estateRoot,
+          options.estateFiles ?? DEFAULT_ESTATE_FILES,
+          folderOf(sandbox),
+          options.estateFileSources,
+        );
         if (options.workspace !== undefined) await sandbox.seed(options.workspace);
         if (given.world.workspace !== undefined) await sandbox.seed(given.world.workspace);
         await ensureCommand(sandbox, options.command);
@@ -610,13 +617,18 @@ function pinOf(given: ResolvedGiven, pins: readonly string[] | undefined): strin
  * links are followed: the copy holds real files and never a link, so nothing the runner or the agent writes
  * in the copy reaches the estate it came from. A link left in the copy refuses the open.
  */
-async function copyEstate(root: string, names: readonly string[], folder: string): Promise<void> {
+async function copyEstate(
+  root: string,
+  names: readonly string[],
+  folder: string,
+  sources?: ReadonlyMap<string, string>,
+): Promise<void> {
   const info = await stat(root).catch(() => undefined);
   if (!info?.isDirectory()) throw new AgentFailure(`the estate root ${root} is not a folder`);
   let copied = 0;
   // Sixteen copies at a time: an estate of thousands of small files is bound by the file system's latency.
   await eachLimited(names, 16, async (name) => {
-    const source = join(root, name);
+    const source = sources?.get(name) ?? join(root, name);
     if ((await stat(source).catch(() => undefined)) === undefined) return;
     // A copy-on-write clone where the file system has one, else a plain copy; never a hard link.
     await mkdir(dirname(join(folder, name)), { recursive: true });

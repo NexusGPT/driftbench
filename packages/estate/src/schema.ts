@@ -231,6 +231,10 @@ export const EstateMap = z.strictObject({
   readAt: z.string().min(1).describe('ISO time the scan read the estate.'),
   atoms: z.array(Atom).describe('Every atom the scan read from the estate.'),
   edges: z.array(Edge).describe('The edges of the estate graph, decided by code.'),
+  userSkills: z
+    .union([z.string(), z.literal(false)])
+    .optional()
+    .describe('The selected user skill folder, or false to disable the user layer'),
   space: z.string().optional().describe('Path of the exported space map of the situation axes'),
   ignore: z
     .array(z.string().min(1))

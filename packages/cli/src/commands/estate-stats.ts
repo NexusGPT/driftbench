@@ -15,10 +15,11 @@ import {
 import { StaticTest } from '@agent-nexus/driftbench-generate';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import type { Command } from 'commander';
+import { show, writeOut } from '../files';
 import type { Io } from '../io';
 import { alignReplaySpecs, replayChecks, replaySessionFor, type SessionEntry } from './replay';
 
-type Options = { map: string; plan: string; specs: string; sessions?: string; json?: boolean };
+type Options = { map: string; plan: string; specs: string; sessions?: string; json?: boolean; out?: string };
 type CompleteTest = { atoms: string[]; planRow?: string; cell?: Record<string, string>; loaded?: LoadedSpec };
 type SessionEvidence = { entry: SessionEntry; passedBlocks: Set<number>; followed: Set<string> };
 type GuardDrift = { guard: string; decisions: number; denies: number; denyRate: number };
@@ -33,6 +34,7 @@ export function registerEstateStatsCommand(estate: Command, io: Io, setExit: (co
     .requiredOption('--plan <plan>', 'the plan made from that map')
     .requiredOption('--specs <dir>', 'the generated suite, or its complete specs folder')
     .option('--sessions <dir>', 'recorded transcripts and their decision logs and step feeds')
+    .option('--out <file>', 'write the full report here (default: <plan>.stats.json)')
     .option('--json', 'print the report as JSON')
     .action(async (options: Options) => {
       setExit(await estateStatsCommand(options, io));
@@ -88,8 +90,13 @@ export async function estateStatsCommand(options: Options, io: Io): Promise<numb
       atoms: map.atoms.filter((atom) => atom.approved && !REACH_KINDS.has(atom.kind)).length,
     };
     const report = { coverage, reach, reachNotObservable, decay, drift };
+    const out = resolve(io.cwd, options.out ?? `${options.plan.replace(/\.ya?ml$/i, '')}.stats.json`);
+    if ([options.map, options.plan].some((input) => resolve(io.cwd, input) === out))
+      throw new Error('the report output must differ from the map and plan');
+    if ((!options.json || options.out) && !(await writeOut(out, `${JSON.stringify(report, null, 2)}\n`, io))) return 2;
     if (options.json) io.out(`${JSON.stringify(report, null, 2)}\n`);
     else {
+      io.out(`Full report: ${show(out, io)}\n`);
       io.out('Kind  atoms  tested  enforced\n');
       for (const [kind, count] of Object.entries(coverage.kinds))
         io.out(`${kind}  ${count.atoms}  ${count.tested}  ${count.enforced}\n`);
@@ -183,13 +190,23 @@ function coverageOf(map: EstateMap, plan: Plan, tests: CompleteTest[]) {
   const testedCells = new Set(
     tests.filter((t) => t.cell !== undefined).map((t) => cellKey({ atomIds: t.atoms, cell: t.cell ?? {} })),
   );
+  const testSets = tests.map((test) => new Set(test.atoms));
+  const testsByAtom = new Map<string, number[]>();
+  testSets.forEach((ids, index) => {
+    for (const id of ids) {
+      const entries = testsByAtom.get(id);
+      if (entries) entries.push(index);
+      else testsByAtom.set(id, [index]);
+    }
+  });
   const edges = map.edges.filter((e) => ['route', 'reference', 'dispatch', 'next'].includes(e.kind));
   return {
     kinds,
     cells: { covered: [...allCells].filter((c) => testedCells.has(c)).length, total: allCells.size },
     edges: {
-      covered: edges.filter((e) => tests.some((t) => t.atoms.includes(e.from) && t.atoms.includes(e.to)))
-        .length,
+      covered: edges.filter((e) =>
+        (testsByAtom.get(e.from) ?? []).some((index) => testSets[index]?.has(e.to)),
+      ).length,
       total: edges.length,
     },
   };

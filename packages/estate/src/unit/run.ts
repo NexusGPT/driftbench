@@ -920,13 +920,14 @@ async function readConfig(root: string): Promise<Record<string, unknown>> {
 /** A copy of the files the reader lists, cloned where the file system can, never linked to the source. */
 async function copyListed(root: string, to: string, reader: EstateReader): Promise<void> {
   const files = reader.listFiles ? await reader.listFiles(root) : [];
+  const sources = await reader.fileSources?.(root);
   let next = 0;
   await Promise.all(
     Array.from({ length: Math.min(16, files.length) }, async () => {
       while (next < files.length) {
         const file = files[next++] as string;
         await mkdir(dirname(join(to, file)), { recursive: true });
-        await copyFile(join(root, file), join(to, file), constants.COPYFILE_FICLONE);
+        await copyFile(sources?.get(file) ?? join(root, file), join(to, file), constants.COPYFILE_FICLONE);
       }
     }),
   );

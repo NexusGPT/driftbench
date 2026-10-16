@@ -1,6 +1,7 @@
 import type { ModelPort } from '@agent-nexus/driftbench-generate';
 import { analyzeGraph, type GraphAnalysis } from '../graph/analyze';
 import { buildGraph } from '../graph/edges';
+import { ReferenceIndex } from '../graph/references';
 import { DEFAULT_STANDING_CEILING, invariantAtoms, measureInvariants, scanAtoms } from '../scan/invariants';
 import type { ChunkRun, ProseRefusal } from '../scan/prose';
 import type { EstateReader, RawEstate } from '../scan/reader';
@@ -58,6 +59,12 @@ export async function scanEstate(input: ScanEstateInput): Promise<ScanEstateResu
     );
     if (spans.length > 0) atom.fields = { ...atom.fields, spans };
   }
+  const references = new ReferenceIndex(builder.atoms);
+  for (const atom of builder.atoms) {
+    if (atom.kind !== 'reference') continue;
+    const owner = references.ownerOf(atom);
+    atom.fields = { ...atom.fields, owner: owner?.id ?? 'estate' };
+  }
   const graph = buildGraph(builder.atoms, raw);
   const byId = new Map(builder.atoms.map((atom) => [atom.id, atom]));
   for (const [guard, entries] of graph.enforces) {
@@ -91,6 +98,7 @@ export async function scanEstate(input: ScanEstateInput): Promise<ScanEstateResu
   const map: EstateMap = {
     version: 1,
     runtime: raw.runtime,
+    ...(raw.userSkills !== undefined ? { userSkills: raw.userSkills } : {}),
     root: input.rootLabel ?? '.',
     readAt: at,
     atoms,

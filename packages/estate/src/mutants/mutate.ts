@@ -76,14 +76,15 @@ export async function copyEstate(
   map: EstateMap,
   names: readonly string[] = ESTATE_COPY_FILES,
 ): Promise<string[]> {
-  const reader = readerFor(map.runtime, { ignore: map.ignore ?? [] });
+  const reader = readerFor(map.runtime, { ignore: map.ignore ?? [], userSkills: map.userSkills });
   const listed = reader?.listFiles ? await reader.listFiles(root) : undefined;
+  const sources = await reader?.fileSources?.(root);
   const copied: string[] = [];
   if (listed) {
     const files = [...new Set([...listed, ...map.atoms.map((atom) => atom.provenance.file)])].sort();
     // Sixteen copies at a time: an estate of thousands of small files is bound by the file system's latency.
     await eachLimited(files, 16, async (file) => {
-      const source = join(root, file);
+      const source = sources?.get(file) ?? join(root, file);
       if (!(await stat(source).catch(() => undefined))?.isFile()) return;
       await mkdir(dirname(join(to, file)), { recursive: true });
       await copyFile(source, join(to, file), constants.COPYFILE_FICLONE);

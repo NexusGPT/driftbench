@@ -48,7 +48,7 @@ describe('driftbench estate plan', () => {
     expect(result.out).toContain('Unenforced: 54 approved rules no guard enforces.');
     expect(result.out).toContain('Cells with no approved phrase: 1430 of 1430.');
     expect(result.out).toContain('Edges with no journey: 7.');
-    expect(result.out).toContain('The map has no phrase bank yet');
+    expect(result.out).toContain('Full edge details: plan.summary.json.');
     const summary = JSON.parse(await readFile(join(root, 'plan.summary.json'), 'utf8'));
     expect(summary.coveringArraySize).toBe(1197);
     expect(summary.uncoveredEdges).toHaveLength(7);

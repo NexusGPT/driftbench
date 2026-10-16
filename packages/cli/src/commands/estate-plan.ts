@@ -154,13 +154,13 @@ export function planReport(plan: Plan, details: PlanDetails, out: string, summar
   lines.push(`  Unenforced: ${summary.unenforcedAtoms.length} approved rules no guard enforces.`);
   lines.push(`  Cells with no approved phrase: ${summary.cellsWithoutPhrase} of ${summary.cells}.`);
   lines.push(`  Edges with no journey: ${summary.edgesWithoutJourney}.`);
-  for (const edge of details.uncoveredEdges)
-    lines.push(`    ${edge.from} ${edge.kind} ${edge.to}: ${edge.reason}`);
+  lines.push(`  Full edge details: ${summaryOut}.`);
   if (details.droppedConstraints > 0) {
     lines.push(`  Dropped ${details.droppedConstraints} constraints that name target atoms of two kinds.`);
   }
-  for (const change of details.adjusted) lines.push(`  Row ${change.row}: ${change.reason}.`);
-  for (const note of details.notes) lines.push(`  ${note}`);
+  lines.push(
+    `  Adjusted rows: ${details.adjusted.length}; notes: ${details.notes.length} (see ${summaryOut}).`,
+  );
   lines.push(
     `Next: driftbench estate plan approve ${out} --all, or strike rows with --row <id> --strike`,
     '',

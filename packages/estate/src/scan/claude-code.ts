@@ -1,5 +1,6 @@
 import { readdir, readFile, realpath, stat } from 'node:fs/promises';
-import { basename, join, posix } from 'node:path';
+import { homedir } from 'node:os';
+import { basename, join, posix, resolve } from 'node:path';
 import { parse as parseYaml } from 'yaml';
 import { chunkLines, fileNames, guardName, locateNamed, namedPaths, positiveMention } from './code';
 import type {
@@ -109,6 +110,8 @@ export const ESTATE_CONFIG = 'driftbench.estate.yaml';
 export type ClaudeCodeReaderOptions = {
   /** The size budget of one prose chunk, in characters. Default `DEFAULT_CHUNK_CHARACTERS`. */
   chunkCharacters?: number;
+  /** User skill folder. False disables it; tests default off, ordinary scans use ~/.claude/skills. */
+  userSkills?: string | false;
   /** More globs to skip, beside the defaults and the estate configuration's `ignore:` list. */
   ignore?: readonly string[];
 };
@@ -151,11 +154,16 @@ export function ignoreRule(pattern: string): IgnoreRule {
 export class ClaudeCodeReader implements EstateReader {
   readonly runtime = 'claude-code';
   private readonly budget: number;
+  private readonly userSkills: string | false;
   private readonly ignore: readonly string[];
 
   constructor(options: ClaudeCodeReaderOptions = {}) {
     this.budget = Math.max(1, options.chunkCharacters ?? DEFAULT_CHUNK_CHARACTERS);
     this.ignore = options.ignore ?? [];
+    this.userSkills =
+      options.userSkills ??
+      process.env.DRIFTBENCH_USER_SKILLS ??
+      (process.env.NODE_ENV === 'test' || process.env.VITEST ? false : join(homedir(), '.claude', 'skills'));
   }
 
   /**
@@ -181,6 +189,12 @@ export class ClaudeCodeReader implements EstateReader {
         ...rootReferences,
       ]),
     ].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+  }
+
+  async fileSources(root: string): Promise<ReadonlyMap<string, string>> {
+    if (this.userSkills === false) return new Map();
+    const raw = await this.read(root);
+    return new Map(raw.files.flatMap((file) => (file.sourcePath ? [[file.path, file.sourcePath]] : [])));
   }
 
   private async ignoreOf(
@@ -224,8 +238,47 @@ export class ClaudeCodeReader implements EstateReader {
       } else files.push({ path, text, ...classify(path, text) });
     }
 
+    // Overlay only user skills not shadowed by a project name or folder. The selected files retain
+    // runtime-relative destinations; physical sources are explicit so copied estates cannot escape.
+    if (this.userSkills !== false) {
+      const userRoot = resolve(root, this.userSkills);
+      if (userRoot !== resolve(root, '.claude/skills')) {
+        const userPaths = await walk(userRoot, '', notes, ignored);
+        const userFiles = await readBatch(userPaths, async (local) => {
+          const path = posix.join('.claude/skills', local);
+          const sourcePath = join(userRoot, local);
+          const text = (await readFile(sourcePath, 'utf8')).replace(/^\uFEFF/, '');
+          return { path, text, ...classify(path, text), sourcePath, layer: 'user' as const };
+        });
+        const projectNames = new Set(
+          files
+            .filter((file) => file.kind === 'skill')
+            .flatMap((file) => {
+              const name = readFrontmatter(file.text).fields.name;
+              return [posix.basename(posix.dirname(file.path)), ...(typeof name === 'string' ? [name] : [])];
+            }),
+        );
+        const shadowed = new Set(
+          userFiles
+            .filter((file) => file.kind === 'skill')
+            .flatMap((file) => {
+              const name = readFrontmatter(file.text).fields.name;
+              const folder = file.path.split('/')[2] ?? '';
+              return projectNames.has(folder) || (typeof name === 'string' && projectNames.has(name))
+                ? [folder]
+                : [];
+            }),
+        );
+        const projectPaths = new Set(files.map((file) => file.path));
+        for (const file of userFiles) {
+          if (!shadowed.has(file.path.split('/')[2] ?? '') && !projectPaths.has(file.path)) files.push(file);
+        }
+      }
+    }
+
     const estate: RawEstate = {
       runtime: this.runtime,
+      userSkills: this.userSkills === false ? false : resolve(root, this.userSkills),
       labels: { read: 'Read', edit: 'Edit', write: 'Write', shell: 'Bash', dispatch: 'Agent' },
       files,
       skills: [],
@@ -1204,7 +1257,7 @@ function readSkill(file: EstateFile, estate: RawEstate, budget: number): void {
     folder: posix.dirname(file.path),
     at: nameAt(file, frontmatter, name),
     tools: listAt(file, frontmatter, 'allowed-tools', fields['allowed-tools']),
-    fields: withoutHooks(fields),
+    fields: { ...withoutHooks(fields), ...(file.layer ? { layer: file.layer } : {}) },
     body: { startLine: frontmatter.bodyLine, endLine: lastLine(file.text) },
   };
   const description = valueAt(file, frontmatter, 'description', fields.description);

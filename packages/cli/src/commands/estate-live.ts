@@ -262,6 +262,7 @@ export async function estateRunCommand(
   const notes: string[] = [];
   let pins: string[] = [];
   let mapIgnore: readonly string[] = [];
+  let userSkills: string | false | undefined;
   if (options.map !== undefined) {
     const loaded = await loadEstateMap(resolve(io.cwd, options.map), mapCacheOptions());
     if (!loaded.ok) {
@@ -278,6 +279,7 @@ export async function estateRunCommand(
     }
     pins = [loaded.map.hash];
     mapIgnore = loaded.map.ignore ?? [];
+    userSkills = loaded.map.userSkills;
     // A mutant folder with its own map: the specs were generated from the original, so its hash stays a
     // pin beside the mutant's (as without --map); a spec of any other map still fails.
     const mutant = await readMutant(root);
@@ -381,12 +383,14 @@ export async function estateRunCommand(
     });
     // The files a run copies, listed once for every spec: what the runtime may load, never an ignored folder
     // (node_modules, test runs), which made each spec's copy as large as the whole estate folder.
-    const lister = readerFor(options.runtime, { ignore: mapIgnore });
+    const lister = readerFor(options.runtime, { ignore: mapIgnore, userSkills });
     const estateFiles = lister?.listFiles ? await lister.listFiles(root) : undefined;
+    const estateFileSources = await lister?.fileSources?.(root);
     for (const entry of specs) {
       const adapter = claudeCodeLiveAdapter({
         command: commandPath,
         estateRoot: root,
+        ...(estateFileSources ? { estateFileSources } : {}),
         ...(estateFiles === undefined ? {} : { estateFiles }),
         provider: localProvider(),
         pins,
@@ -624,9 +628,11 @@ export async function estateMutateCommand(
 
 /** The atoms whose quote is not at its span in the estate, as messages. */
 async function driftOf(root: string, map: EstateMap): Promise<string[]> {
+  const reader = readerFor(map.runtime, { ignore: map.ignore ?? [], userSkills: map.userSkills });
+  const sources = await reader?.fileSources?.(root);
   const texts = new Map<string, string>();
   for (const file of new Set(map.atoms.map((atom) => atom.provenance.file))) {
-    const text = await readFile(join(root, file), 'utf8').catch(() => undefined);
+    const text = await readFile(sources?.get(file) ?? join(root, file), 'utf8').catch(() => undefined);
     if (text !== undefined) texts.set(file, text);
   }
   if ((await stat(root).catch(() => undefined)) === undefined) return [`${root} does not exist`];

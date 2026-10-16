@@ -207,6 +207,12 @@ Next: driftbench estate lint _captures/docs3/estate/map-nomodel.yaml; driftbench
 
 The map is YAML with a header on how to approve it, `producedBy` per atom and, for the map, the model family and model that split the prose. The loader recomputes every provenance hash and the map hash, so a map whose quote or span was edited is refused; `approved` and `role` may be edited by hand.
 
+### Project and user skill layers
+
+Ordinary Claude Code scans read project skills and the user folder `~/.claude/skills`. Select another user folder with `estate scan --user-skills <dir>`, `DRIFTBENCH_USER_SKILLS`, or `new ClaudeCodeReader({ userSkills: directory })`. Explicit reader options take precedence over the environment. `--no-user-skills` or `{ userSkills: false }` disables this layer. Tests default to disabled unless an option or the environment explicitly selects a folder.
+
+Project skills take precedence when a project and user skill declare the same name or occupy the same skill folder. The whole shadowed user skill is excluded, including its references and scripts. A selected user skill appears at its effective `.claude/skills/<folder>/` path, with `layer: user` on its declaration. The map records the user-folder selection so lint and generated runs use that selection again. Copies take user files from their recorded physical sources into estate-relative destinations, without escaping the run copy or modifying the user folder.
+
 ### The estate configuration file
 
 An estate may hold `driftbench.estate.yaml` at its root. The scan and the unit runner read it; every key is optional.
@@ -255,7 +261,7 @@ Edges, decided by code:
 | Edge | From, to |
 |---|---|
 | route | a route atom to the skill or helper it loads |
-| reference | a skill or helper to a file its body names, and to each file those files name in turn (a chain read once per skill or helper; a shared file keeps every owner; a file in the skill folder that nothing names has no owner) |
+| reference | a skill or helper definition to each citation stated directly in that definition. A reference atom records the direct file edge in its provenance file and `fields.from` to `fields.path`; nested citations are stored once, without owner-to-descendant closure edges |
 | script | a skill to a script it ships |
 | dispatch | a skill or helper to a helper its body names; by an imperative or obligation clause whose object or recipient is a known helper (quoted or plain). Predicate vocabulary is open; grammatical parts of speech distinguish actions from mentions. The helper name must end its noun phrase: a possessive, path suffix or following noun does not name that helper. Dispatch uses the gate clause boundaries and negation scope: prohibitions, optional acts, quoted examples, historical descriptions and noun phrases create no dispatch edge. Transfer objects are noun phrases ending at the recipient preposition; their determiners, possessives, quantities, modifiers and coordination do not restrict dispatch. Coordinated helper targets inherit the same directive and polarity |
 | enforces | a guard to a rule it checks |
@@ -274,6 +280,10 @@ Edges, decided by code:
 | Inventory, logistics and transport units | aircraft, asset, batch, box, bus, carriage, carton, compartment, component, consignment, container, device, flight, item, label, lot, model, module, package, pallet, parcel, product, route, shipment, train, trip, truck, unit, vehicle, vessel |
 | Addressable software and data entities | branch, build, checkpoint, dataset, job, node, project, queue, release, repository, tab, widget |
 
+
+Reference ownership and reach are separate. `fields.owner` is the id of the skill whose folder contains the citing file, the helper whose definition contains it, or `estate` for estate-wide files. Reading another skill's guide does not transfer ownership. An unread sibling still belongs to its skill but is not reachable until a citation names it.
+
+For transitive queries, construct `new ReferenceIndex(map.atoms)` from `@agent-nexus/driftbench-estate` and call `reachableFrom(unitId)`. It returns citation atom ids reached through direct file paths. The index stores direct adjacency once; each query walks it with a visited-file set, including cross-skill links, shared guides and cycles. It never stores every owner's reachable set in the map. The standing-instruction analysis follows the same citation paths.
 
 The graph answers what code can walk:
 
@@ -452,6 +462,8 @@ The written plan and summary are byte for byte the committed `examples/estates/f
 * A cell is a distinct pair of atoms and situation values over the rows. The plan reads no phrase bank, so every cell counts as a cell with no approved phrase.
 * `spaceHash` in the plan is the content hash of the space map used, derived from the map or given with `--space`.
 * The seed of the covering array and of the walk is fixed at 1; there is no flag for it.
+
+Console output is a bounded count summary. The complete uncovered-edge list, row adjustments and notes remain in `<plan>.summary.json`; growing these lists does not grow the console report. The captured output above predates this summary-only presentation.
 
 Approving or striking rows edits the status in place, keeping the layout. `weight` is edited by hand in the file (the loader validates it); there is no flag for it. A new plan over an existing one needs `--force` and loses the approvals in it.
 
@@ -838,7 +850,7 @@ Not built yet:
 driftbench estate stats --map <map> --plan <plan> --specs <dir> [--sessions <dir>] --json
 ```
 
-`--map` is the approved map, `--plan` the plan made from it, `--specs` the folder `estate generate` wrote (its `specs/`, `static/` and `incomplete/` folders), `--sessions` a folder of recorded sessions. It prints one JSON object:
+`--map` is the approved map, `--plan` the plan made from it, `--specs` the folder `estate generate` wrote (its `specs/`, `static/` and `incomplete/` folders), `--sessions` a folder of recorded sessions. The default console prints counts and writes the full report beside the plan as `<plan>.stats.json`; `--out <file>` selects another destination. Explicit `--json` prints the full machine-readable object instead, and writes a file only when `--out` is supplied:
 
 ```json
 {

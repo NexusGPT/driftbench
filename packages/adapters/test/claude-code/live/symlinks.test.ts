@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { cp, lstat, readdir, readFile, rm, symlink } from 'node:fs/promises';
+import { cp, lstat, mkdir, readdir, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { AgentFailure } from '@agent-nexus/driftbench-core';
 import { localProvider } from '@agent-nexus/driftbench-sandbox';
@@ -87,6 +87,35 @@ describe('a symlinked estate in the live runner', () => {
     await adapter.close(session);
     expect(await readFile(join(copy, 'CLAUDE.md'), 'utf8')).toBe('# Another estate\n');
     expect(await tree(real)).toEqual(before);
+  });
+
+  it('copies a selected user skill into an estate-relative destination without writing through', async () => {
+    const work = await scratch();
+    cleanups.push(work.done);
+    const userFile = join(work.dir, 'user-skills', 'SKILL.md');
+    await mkdir(join(work.dir, 'user-skills'), { recursive: true });
+    await writeFile(userFile, '# User skill\n');
+    const destination = '.claude/skills/user-review/SKILL.md';
+    const adapter = claudeCodeLiveAdapter({
+      command: FAKE,
+      estateRoot: ESTATE,
+      estateFiles: ['CLAUDE.md', destination],
+      estateFileSources: new Map([[destination, userFile]]),
+      provider: localProvider({ dir: join(work.dir, 'sandboxes') }),
+      keep: true,
+      stateDir: join(work.dir, 'state'),
+      env: { ...FAKE_RECORDINGS, FAKE_CALLS: work.calls },
+      pins: [MAP_HASH],
+      config: 'isolated',
+    });
+    const session = await adapter.open(givenOf());
+    cleanups.push(() => adapter.close(session));
+    const [folder] = await readdir(join(work.dir, 'sandboxes'));
+    const copy = join(work.dir, 'sandboxes', folder ?? '');
+    expect(await links(copy)).toEqual([]);
+    expect(await readFile(join(copy, destination), 'utf8')).toBe('# User skill\n');
+    await writeFile(join(copy, destination), '# Changed only in the run copy\n');
+    expect(await readFile(userFile, 'utf8')).toBe('# User skill\n');
   });
 
   it('refuses a planted file whose path leaves the copy through a link', async () => {

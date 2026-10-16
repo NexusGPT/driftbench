@@ -22,7 +22,14 @@ export const FILE_KINDS = [
 export type FileKind = (typeof FILE_KINDS)[number];
 
 /** One file of the estate. `owner` names the skill a skill file belongs to. */
-export type EstateFile = { path: string; kind: FileKind; text: string; owner?: string };
+export type EstateFile = {
+  path: string;
+  kind: FileKind;
+  text: string;
+  owner?: string;
+  layer?: 'project' | 'user';
+  sourcePath?: string;
+};
 
 /** A value read from a declaration, with the passage it was read from. */
 export type Read<T> = { value: T; at: Located };
@@ -154,6 +161,7 @@ export type ToolLabels = { read: string; edit: string; write: string; shell: str
 
 export type RawEstate = {
   runtime: string;
+  userSkills?: string | false;
   labels: ToolLabels;
   files: EstateFile[];
   skills: SkillDecl[];
@@ -193,4 +201,6 @@ export interface EstateReader {
   read(root: string): Promise<RawEstate>;
   /** The files a copy of the estate needs, relative to `root`: what the runtime may load, ignored paths left out. */
   listFiles?(root: string): Promise<string[]>;
+  /** Physical sources for files overlaid from another skill layer. Destinations stay estate-relative. */
+  fileSources?(root: string): Promise<ReadonlyMap<string, string>>;
 }

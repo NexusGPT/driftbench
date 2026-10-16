@@ -1,3 +1,4 @@
+import { ReferenceIndex } from '../graph/references';
 import type { Atom, AtomKind, Edge, EstateMap, PlanRow, TestType } from '../schema';
 
 /**
@@ -298,13 +299,18 @@ function owners(atoms: readonly Atom[], edges: readonly Edge[]): Map<string, str
     if (atom.kind === 'skill' || atom.kind === 'subagent') unitOfFile.set(atom.provenance.file, atom.id);
   }
   for (const edge of edges) {
-    if (edge.kind === 'route' || edge.kind === 'reference' || edge.kind === 'script') {
+    if (edge.kind === 'route' || edge.kind === 'script') {
       const unit = edge.kind === 'route' ? edge.to : edge.from;
       const atom = edge.kind === 'route' ? edge.from : edge.to;
       if (!out.has(atom)) out.set(atom, unit);
     }
   }
+  const references = new ReferenceIndex(atoms);
   for (const atom of atoms) {
+    if (atom.kind === 'reference') {
+      const owner = references.ownerOf(atom);
+      if (owner) out.set(atom.id, owner.id);
+    }
     if (out.has(atom.id) || atom.kind === 'skill' || atom.kind === 'subagent') continue;
     if (!['instruction', 'gate', 'register', 'hazard', 'reference'].includes(atom.kind)) continue;
     const unit = unitOfFile.get(atom.provenance.file);

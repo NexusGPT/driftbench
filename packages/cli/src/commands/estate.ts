@@ -37,6 +37,7 @@ import { mapCacheOptions } from './map-cache';
 export type EstateScanOptions = {
   /** More globs to skip, beside the defaults and the estate configuration. Repeatable. */
   ignore?: string[];
+  userSkills?: string | false;
   runtime?: string;
   out?: string;
   replay?: string;
@@ -69,6 +70,8 @@ export function registerEstateCommand(program: Command, io: Io, setExit: (code: 
     .argument('<root>', 'the estate folder (for claude-code, the project that holds CLAUDE.md and .claude/)')
     .option('--runtime <name>', `the runtime that reads the estate: ${RUNTIMES.join(', ')}`, 'claude-code')
     .option('--out <file>', 'where to write the map (YAML)')
+    .option('--user-skills <dir>', 'read this user skill folder beside project skills; project names win')
+    .option('--no-user-skills', 'do not read the user skill layer')
     .option('--replay <file>', 'replay recorded answers instead of calling a model')
     .option('--no-model', 'read the structured atoms only; no prose atom')
     .option('--provider <name>', 'anthropic or openai (default: the first whose key is set)')
@@ -140,7 +143,12 @@ export async function estateScanCommand(
     return 2;
   }
   const runtime = options.runtime ?? 'claude-code';
-  const reader = readerFor(runtime, { ignore: options.ignore ?? [] });
+  const reader = readerFor(runtime, {
+    ignore: options.ignore ?? [],
+    ...(typeof options.userSkills === 'string' || options.userSkills === false
+      ? { userSkills: options.userSkills }
+      : {}),
+  });
   if (!reader) {
     io.err(`error: unknown runtime "${runtime}": use ${RUNTIMES.join(', ')}\n`);
     return 2;
@@ -289,7 +297,7 @@ export async function estateLintCommand(
   }
   // The scan's own ignore list comes with the map, so lint reads the same files.
   const ignore = [...new Set([...(loaded.map.ignore ?? []), ...(options.ignore ?? [])])];
-  const reader = readerFor(loaded.map.runtime, { ignore });
+  const reader = readerFor(loaded.map.runtime, { ignore, userSkills: loaded.map.userSkills });
   if (!reader) {
     io.err(`The map was read by the runtime "${loaded.map.runtime}", which this driftbench cannot read.\n`);
     return 2;

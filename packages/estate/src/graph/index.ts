@@ -1,3 +1,4 @@
+export { ReferenceIndex } from './references';
 export { analyzeGraph, type GraphAnalysis, targetOf } from './analyze';
 export {
   buildGraph,

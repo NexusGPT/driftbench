@@ -1,4 +1,4 @@
-import { ClaudeCodeReader } from './claude-code';
+import { ClaudeCodeReader, type ClaudeCodeReaderOptions } from './claude-code';
 import type { EstateReader } from './reader';
 
 export {
@@ -102,9 +102,6 @@ export {
 export const RUNTIMES = ['claude-code'] as const;
 
 /** A reader for a runtime, or undefined for a runtime the scanner does not know. */
-export function readerFor(
-  runtime: string,
-  options: { ignore?: readonly string[] } = {},
-): EstateReader | undefined {
+export function readerFor(runtime: string, options: ClaudeCodeReaderOptions = {}): EstateReader | undefined {
   return runtime === 'claude-code' ? new ClaudeCodeReader(options) : undefined;
 }
