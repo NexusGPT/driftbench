@@ -949,9 +949,12 @@ function explicitTableRequest(value: string): boolean {
   if (noun < 0) return false;
   // A second unlinked predicate after the nominal group signals a noun-headed relative
   // description ("guide the crew consult"), not an imperative with an object.
-  return !object
-    .slice(noun + 1)
-    .some((term) => term.tags?.has('Verb') && !term.tags.has('Gerund') && !term.tags.has('PastTense'));
+  return !object.slice(noun + 1).some((term) => {
+    if (term.tags?.has('Verb')) return true;
+    // A postnominal participial homograph may be tagged as an adjective in isolation.
+    // An expressed-subject context supplies independent verbal evidence.
+    return term.tags?.has('Adjective') && nlp(`they ${term.text}`).termList()[1]?.tags?.has('Verb');
+  });
 }
 
 /** Opaque uncertainty notation is unresolved; ordinary inventory prose is never flagged by default. */

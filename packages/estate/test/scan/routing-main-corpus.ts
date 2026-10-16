@@ -28,6 +28,23 @@ const t = (
 });
 export const mainRoutingCorpus: MainRouteCase[] = [
   t(
+    'reverse nominal guide with past relative predicate',
+    ['Resource', 'Description'],
+    [['`tidal-review`', 'guide the technicians used during certification']],
+  ),
+  t(
+    'reverse nominal guide with progressive relative predicate',
+    ['Resource', 'Description'],
+    [['`tidal-review`', 'guide the technicians were consulting during calibration']],
+  ),
+  t(
+    'reverse imperative with prenominal participle',
+    ['Resource', 'Request'],
+    [['`tidal-review`', 'Inspect the damaged valves']],
+    [['Inspect the damaged valves', 'tidal-review']],
+  ),
+
+  t(
     'repeated short nominal labels stay inventory',
     ['Resource', 'Category'],
     [
