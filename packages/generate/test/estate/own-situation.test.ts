@@ -184,7 +184,7 @@ describe('equivalence and missing-piece reports', () => {
     const two = gate('gate.repeated');
     const result = suite([one, two, unit], [row(one.id), row(two.id)]);
     expect(result.specs).toHaveLength(1);
-    expect(result.specs[0]?.atoms).toEqual([one.id, two.id]);
+    expect(result.specs[0]?.atoms).toEqual([one.id, unit.id, two.id]);
     expect(result.report.equivalence).toMatchObject({
       collapsed: 1,
       groups: [{ count: 2, rows: [one.id, two.id] }],

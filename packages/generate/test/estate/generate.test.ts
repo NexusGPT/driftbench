@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { parseSpecText, type Spec } from '@agent-nexus/driftbench-core';
 import { beforeAll, describe, expect, it } from 'vitest';
+import { estateOwners, taskAtoms } from '../../src/estate/context';
 import {
   type EstateGenerateInput,
   type EstateGenerateResult,
@@ -222,7 +223,8 @@ describe('estate generate on the Northwind fixture and the hand plan', () => {
       'estate.p02.weekly-skill-skipped': 'pass',
       'estate.p02.weekly-gate-violated': 'fail',
       'estate.p03.weekly-clean': 'pass',
-      'estate.p03.weekly-skill-skipped': 'pass',
+      // The rule belongs to weekly-report, whose required skill the session skips.
+      'estate.p03.weekly-skill-skipped': 'fail',
       'estate.p03.weekly-gate-violated': 'pass',
       'estate.p04.weekly-clean': 'pass',
       'estate.p04.weekly-skill-skipped': 'pass',
@@ -413,12 +415,22 @@ describe('the record and the seed', () => {
   it('records atoms, plan row, cell, seeder, seed and map hash on every spec', () => {
     const result = generateEstateSuite(input, { seed: 7, paths: HAND_PATHS });
     const rows = new Map(input.plan.rows.map((row) => [row.id, row]));
+    const atoms = new Map(input.map.atoms.map((atom) => [atom.id, atom]));
+    const owners = estateOwners(input.map.atoms, input.map.edges);
     for (const spec of specs(result).values()) {
       const record = estate(spec);
       const row = rows.get(String(record.planRow));
       expect(row, spec.id).toBeDefined();
       expect(record).toMatchObject({
-        atoms: row?.atomIds,
+        atoms: taskAtoms(
+          (row?.atomIds ?? []).map((id) => {
+            const atom = atoms.get(id);
+            if (!atom) throw new Error(`missing atom ${id}`);
+            return atom;
+          }),
+          atoms,
+          owners,
+        ).map((atom) => atom.id),
         planRow: row?.id,
         cell: row?.cell,
         seeder: 'estate',

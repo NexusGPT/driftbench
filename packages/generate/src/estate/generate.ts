@@ -3,7 +3,7 @@ import { checkSpec, type Issue, stringifyBlockYaml } from '@agent-nexus/driftben
 import type { GeneratedFile } from '../enumerate/generate';
 import { formatJson } from '../enumerate/json';
 import { build, buildRow, situationOfRow, specId, uniqueId, useOf } from './build-row';
-import { estateOwners } from './context';
+import { estateOwners, taskAtoms } from './context';
 import { equivalenceKey } from './equivalence';
 import {
   type Built,
@@ -139,6 +139,22 @@ export function generateEstateSuite(
   options: EstateGenerateOptions,
 ): EstateGenerateResult {
   checkEstateInputs(input);
+  const lookup = new Map(input.map.atoms.map((atom) => [atom.id, atom]));
+  const owners = estateOwners(input.map.atoms, input.map.edges);
+  input = {
+    ...input,
+    plan: {
+      ...input.plan,
+      rows: input.plan.rows.map((row) => ({
+        ...row,
+        atomIds: taskAtoms(
+          row.atomIds.map((id) => lookup.get(id) as EstateAtom),
+          lookup,
+          owners,
+        ).map((atom) => atom.id),
+      })),
+    },
+  };
   const seed = options.seed ?? ESTATE_DEFAULT_SEED;
   const checks = [...(options.customChecks ?? REPLAY_CUSTOM_CHECKS)].sort();
   const ctx: Context = {
@@ -147,7 +163,7 @@ export function generateEstateSuite(
     bank: input.bank,
     ...(input.sessions ? { sessions: input.sessions } : {}),
     seed,
-    owners: estateOwners(input.map.atoms, input.map.edges),
+    owners,
     paths: options.paths,
     fallback: options.fallback ?? true,
     judge: options.judge ?? true,

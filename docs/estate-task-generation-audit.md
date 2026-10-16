@@ -101,3 +101,27 @@ Current plan and suite byte snapshots hash the complete rendered outputs.
 The older example output tree stays as its historical capture.
 
 Validator comparison: pending the paired all-level, all-required-seed measurements.
+
+## Real-estate follow-up: folder ownership
+
+The private measurement of `bb1444c09` does not reproduce the synthetic result:
+complete share is 39.4%, and the owner's sample grades one meaningful, four partial and five meaningless.
+Those figures are supplied by the owner; the private estate is unavailable to this implementation.
+The synthetic result above establishes structural mechanics only, not general meaningfulness.
+
+The cause is an ownership precedence error: direct reference links are navigation links, yet the first
+linking skill was allowed to override the reference target's folder. A stale plan could also retain that
+unrelated skill while generation appended the correct one. A broadly applicable skill then supplied
+the ask for unrelated files.
+
+The correction uses target-folder ownership for references, repairs stale row membership and metadata,
+and extracts the governed action from the source clause before considering the owning skill's purpose.
+Unowned shared references receive no borrowed task. Bare prerequisite titles do not become asks.
+Incomplete specs remain separate and carry their reasons; equivalence grouping cannot conceal them.
+
+The new independent regression input has 24 skills and 288 references, all deliberately linked from
+an unrelated catalogue skill. It checks every reference's owner membership and all 288 distinct asks, not a sample. Additional
+cases cover missing trigger fields, alternate clause forms, unowned references and stale plan metadata.
+The previous synthetic input lacks this hostile cross-link pattern, which explains the missing coverage.
+
+Private remeasurement of the correction is pending.

@@ -20,7 +20,7 @@ import {
   type Plan,
   parsePlanText,
 } from '@agent-nexus/driftbench-estate';
-import { StaticTest } from '@agent-nexus/driftbench-generate';
+import { estateOwners, StaticTest, taskAtoms } from '@agent-nexus/driftbench-generate';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
@@ -128,7 +128,7 @@ async function completeTests(folder: string, map: EstateMap, plan: Plan): Promis
     const staticRoot = join(folder, 'static');
     if ((await stat(staticRoot).catch(() => undefined))?.isDirectory()) roots.push(staticRoot);
   }
-  const rows = new Map(plan.rows.map((row) => [row.id, row]));
+  const rows = new Map(ownedRows(map, plan).map((row) => [row.id, row]));
   const tests: CompleteTest[] = [];
   for (const root of roots)
     for (const file of await filesOf(root)) {
@@ -209,6 +209,19 @@ export function decayOf(
   });
 }
 
+function ownedRows(map: EstateMap, plan: Plan): Plan['rows'] {
+  const atoms = new Map(map.atoms.map((atom) => [atom.id, atom]));
+  const owners = estateOwners(map.atoms, map.edges);
+  return plan.rows.map((row) => ({
+    ...row,
+    atomIds: taskAtoms(
+      row.atomIds.map((id) => atoms.get(id) as Atom),
+      atoms,
+      owners,
+    ).map((atom) => atom.id),
+  }));
+}
+
 function coverageOf(map: EstateMap, plan: Plan, tests: CompleteTest[]) {
   const tested = new Set(tests.flatMap((t) => t.atoms));
   const kinds = Object.fromEntries(
@@ -224,7 +237,7 @@ function coverageOf(map: EstateMap, plan: Plan, tests: CompleteTest[]) {
       ];
     }),
   );
-  const allCells = new Set(plan.rows.map(cellKey));
+  const allCells = new Set(ownedRows(map, plan).map(cellKey));
   const testedCells = new Set(
     tests.filter((t) => t.cell !== undefined).map((t) => cellKey({ atomIds: t.atoms, cell: t.cell ?? {} })),
   );

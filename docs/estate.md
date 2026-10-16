@@ -577,10 +577,14 @@ A fallback ask starts with the atom's own governed action. A gate uses its trigg
 A reference uses the action in its read-when clause. An actionable rule situation precedes a
 unit's broad description. The ask leaves the prerequisite and expected skill for the agent to discover.
 
-Both contract and covering-array rows retain the owning task. Ownership follows direct route,
-reference and script links, the unit's source file, and the longest declared skill folder containing
-the rule or named reference. A standing gate can therefore use the skill whose reference it gates.
-Ambiguous owners stay unresolved. Target-only older plans receive the same task context during generation.
+Both contract and covering-array rows retain the owning task. A reference's target file determines its folder owner; citation edges never establish ownership.
+Rules use their own source folder, and gated files use their target folder when one exists.
+The longest matching declared skill folder wins; route edges identify route targets only. A standing gate can therefore use the skill whose reference it gates.
+Ambiguous and unowned targets stay unresolved. Older plans are repaired during generation:
+unrelated attached skills are removed from both expectations and atom metadata.
+A shared file outside every skill folder never borrows the first citing skill's task.
+The task in a source prerequisite clause is used even when the extracted trigger field is absent.
+A bare read-prerequisite title is never converted into a self-answering user ask.
 
 A guard may carry optional `fields.ruleText` and `fields.ruleSources`.
 The governed action in that text precedes a generic tool matcher. Documented source quotes or

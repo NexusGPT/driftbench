@@ -3,88 +3,91 @@ import type { EstateAtom } from './inputs';
 type Link = { from: string; to: string; kind: string };
 
 /**
- * Resolve the task owner from declared unit files and direct graph links. A standing gate can name a
- * reference belonging to another unit; the longest declared folder wins, never map order or an id slug.
- * Shared references keep their explicitly linked owner; ambiguous folder ties supply no guessed owner.
+ * Folder ownership is authoritative. Citation edges describe navigation, never file ownership:
+ * a widely cited document must not inherit the first citing skill's task.
  */
 export function estateOwners(atoms: readonly EstateAtom[], edges: readonly Link[] = []): Map<string, string> {
   const units = atoms.filter((atom) => atom.kind === 'skill' || atom.kind === 'subagent');
   const byId = new Map(atoms.map((atom) => [atom.id, atom]));
-  const unitIds = new Set(units.map((atom) => atom.id));
   const owners = new Map<string, string>();
-  for (const edge of edges) {
-    if (edge.kind === 'route' && unitIds.has(edge.to)) owners.set(edge.from, edge.to);
+  const ownerOfFile = (file: string | undefined): string | undefined => {
+    if (!file) return undefined;
+    const path = file.replaceAll('\\', '/').replace(/^\.\//, '');
+    const exact = units.filter((unit) => unit.provenance?.file === path);
+    if (exact.length === 1) return exact[0]?.id;
+    const candidates = units
+      .filter((unit) => {
+        const source = unit.provenance?.file;
+        if (unit.kind !== 'skill' || !source?.includes('/')) return false;
+        return path.startsWith(source.slice(0, source.lastIndexOf('/') + 1));
+      })
+      .sort(
+        (a, b) => (b.provenance?.file?.lastIndexOf('/') ?? 0) - (a.provenance?.file?.lastIndexOf('/') ?? 0),
+      );
+    const first = candidates[0],
+      second = candidates[1];
     if (
-      (edge.kind === 'reference' || edge.kind === 'script') &&
-      unitIds.has(edge.from) &&
-      !owners.has(edge.to)
+      first &&
+      (!second || first.provenance?.file?.lastIndexOf('/') !== second.provenance?.file?.lastIndexOf('/'))
     )
-      owners.set(edge.to, edge.from);
-  }
+      return first.id;
+    return undefined;
+  };
   for (const atom of atoms) {
-    if (unitIds.has(atom.id) || owners.has(atom.id)) continue;
-    const file = atom.provenance?.file;
-    const exact = units.filter((unit) => file !== undefined && unit.provenance?.file === file);
-    if (exact.length === 1 && exact[0]) {
-      owners.set(atom.id, exact[0].id);
+    if (atom.kind === 'skill' || atom.kind === 'subagent') continue;
+    if (atom.kind === 'route') {
+      const targets = new Set(
+        edges
+          .filter((edge) => edge.kind === 'route' && edge.from === atom.id)
+          .map((edge) => edge.to)
+          .filter((id) => units.some((unit) => unit.id === id)),
+      );
+      const named = units.filter((unit) => unit.fields?.name === atom.fields?.target);
+      if (targets.size === 1) owners.set(atom.id, [...targets][0] as string);
+      else if (named.length === 1 && named[0]) owners.set(atom.id, named[0].id);
       continue;
     }
-    // A unit's declared path, not its name, establishes a folder boundary.
-    const paths = [
-      file,
-      ...Object.values(atom.fields ?? {}).filter((value): value is string => typeof value === 'string'),
-    ];
-    let best: EstateAtom | undefined;
-    let depth = -1;
-    let tied = false;
-    for (const unit of units) {
-      const unitFile = unit.provenance?.file;
-      if (unit.kind !== 'skill' || !unitFile?.includes('/')) continue; // a top-level helper owns its file, never the whole estate
-      const folder = unitFile.slice(0, unitFile.lastIndexOf('/'));
-      if (!paths.some((path) => path?.startsWith(`${folder}/`))) continue;
-      if (folder.length > depth) {
-        best = unit;
-        depth = folder.length;
-        tied = false;
-      } else if (folder.length === depth) tied = true;
-    }
-    if (best && !tied) owners.set(atom.id, best.id);
-    // A route's target is a declared name; a name is only usable when unique.
-    if (!owners.has(atom.id) && atom.kind === 'route') {
-      const target = atom.fields?.target;
-      const named = units.filter((unit) => unit.fields?.name === target);
-      if (target && named.length === 1 && named[0]) owners.set(atom.id, named[0].id);
-    }
+    // A reference is owned by its target file, not the document that happens to cite it.
+    // Gate prerequisites and scripts have explicit target paths too.
+    const target = ['reference', 'gate', 'script'].includes(atom.kind)
+      ? typeof atom.fields?.path === 'string'
+        ? atom.fields.path
+        : typeof atom.fields?.first === 'string'
+          ? atom.fields.first
+          : undefined
+      : undefined;
+    const owner =
+      (target ? ownerOfFile(target) : undefined) ??
+      (atom.kind === 'reference' && target ? undefined : ownerOfFile(atom.provenance?.file));
+    if (owner) owners.set(atom.id, owner);
   }
-  // A guard serves the situation of its enforced rule, not the folder of its settings file.
   for (const guard of atoms.filter((atom) => atom.kind === 'guard')) {
-    const candidates = new Set<string>();
-    for (const id of guardRuleIds(guard, byId)) {
-      const owner = owners.get(id);
-      if (owner) candidates.add(owner);
-    }
+    const candidates = new Set(
+      guardRuleIds(guard, byId)
+        .map((id) => owners.get(id))
+        .filter((id): id is string => id !== undefined),
+    );
     const [owner] = candidates;
     if (candidates.size === 1 && owner) owners.set(guard.id, owner);
   }
   return owners;
 }
 
-/** Add the owning task to a target-only row without pulling unrelated rules into its assertions. */
+/** Repair stale row context as well as target-only rows. Never retain an unrelated attached unit. */
 export function taskAtoms(
   atoms: readonly EstateAtom[],
   lookup: ReadonlyMap<string, EstateAtom>,
   owners: ReadonlyMap<string, string>,
 ): EstateAtom[] {
-  const result = [...atoms];
-  const ids = new Set(atoms.map((atom) => atom.id));
-  for (const atom of atoms) {
-    const owner = owners.get(atom.id);
-    const unit = owner ? lookup.get(owner) : undefined;
-    if (unit && !ids.has(unit.id)) {
-      ids.add(unit.id);
-      result.push(unit);
-    }
-  }
+  const head = atoms[0];
+  if (!head) return [];
+  const owner = owners.get(head.id);
+  const scoped = head.provenance?.file !== undefined && !['route', 'skill', 'subagent'].includes(head.kind);
+  const result = scoped
+    ? atoms.filter((atom) => !['skill', 'subagent'].includes(atom.kind) || atom.id === owner)
+    : [...atoms];
+  const unit = owner ? lookup.get(owner) : undefined;
+  if (unit && !result.some((atom) => atom.id === unit.id)) result.push(unit);
   return result;
 }
 

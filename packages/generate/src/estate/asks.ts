@@ -211,11 +211,18 @@ export function actOf(
     const guarded = guardAct(head, lookup);
     if (guarded) return { act: guarded.act, source: guarded.source };
   }
-  // A gate's action is more specific than its unit's broad purpose. It is the work under test, not
-  // the prerequisite we expect the agent to discover. Never make the prerequisite itself the ask.
+  // The source clause is authoritative, including when extracted trigger metadata is stale.
+  if (head && ['gate', 'reference', 'instruction'].includes(head.kind)) {
+    for (const text of [head.provenance?.quote, head.title]) {
+      if (!text) continue;
+      const task = governedAction(text);
+      if (task) return { act: task, source: `${head.id} (governed clause)` };
+    }
+  }
+  // Extracted trigger metadata supplies the work when the source clause is not understood.
   if (head?.kind === 'gate') {
     const trigger = typeof head.fields?.trigger === 'string' ? head.fields.trigger : undefined;
-    const task = trigger ? actionTask(trigger) : undefined;
+    const task = trigger ? actionTask(trigger, true) : undefined;
     if (task) return { act: task, source: `${head.id} (trigger)` };
   }
   // A declared actionable situation belongs to the rule itself. A bare condition remains context.
@@ -270,7 +277,12 @@ export function actOf(
   // A situation says when a rule applies, never what to do: "handle this for me: the invoice is not in
   // EUR" names no task, so it rides only with a task another atom gives. A guard's title is its event and
   // its name ("Stop guard R34-DUE"), never an act.
-  const title = head?.kind === 'guard' ? '' : plain(head?.title ?? '');
+  const rawTitle = plain(head?.title ?? '');
+  const prerequisiteTitle =
+    head &&
+    ['gate', 'reference'].includes(head.kind) &&
+    /^(?:read|load|consult|review|check)\b/i.test(rawTitle);
+  const title = head?.kind === 'guard' || prerequisiteTitle ? '' : rawTitle;
   const task = title.includes(': ') ? title.slice(title.indexOf(': ') + 2) : title;
   // A rule that forbids an act ("Never paste a credential"): the ask is the act it forbids.
   const forbidden = /^(?:never|do not|don't|no one may|you must not)\s+(.+)$/i.exec(task)?.[1];
@@ -284,14 +296,36 @@ export function actOf(
   };
 }
 
+/** Extract the work governed by a prerequisite; the read/load itself is never the user's task. */
+function governedAction(text: string): string | undefined {
+  const clean = text.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').replace(/\*\*|__|`/g, '');
+  const patterns = [
+    /\bbefore\s+(.+?)[,:]\s*(?:(?:you|the agent)\s+)?(?:(?:must|should)\s+)?(?:read|load|consult|review|check)\b/i,
+    /\b(?:read|load|consult|review|check)\b.+?\bbefore\s+(.+?)(?:[.!?](?:\s|$)|$)/i,
+    /\b(?:read|load|consult|review|check)\b.+?\bfirst[,;]\s*then\s+(.+?)(?:[.!?](?:\s|$)|$)/i,
+    /^(?:do not|never)\s+(.+?)\s+(?:until|without)\b/i,
+    /^(.+?)\s+only after\s+(?:reading|loading|consulting)\b/i,
+  ];
+  for (const pattern of patterns) {
+    const found = pattern.exec(clean)?.[1];
+    const task = found ? actionTask(found, true) : undefined;
+    if (task) return task;
+  }
+  return undefined;
+}
+
 /**
  * Turn an action clause into an owner's task. Derive participles from the same verb vocabulary used
  * for imperative descriptions; identifiers and file paths never supply a task. Conditions remain
  * conditions unless they contain an explicit acting verb and object.
  */
-function actionTask(text: string): string | undefined {
+function actionTask(text: string, governed = false): string | undefined {
   const clause = clauseOf(plain(text))
     .replace(/^(?:before|when|while|after|on)\s+/i, '')
+    .replace(
+      /^(?:you\s+(?:(?:can|must|should)\s+)?|the agent\s+(?:can|must|should)\s+|(?:any|each|every)\s+(?=\w+ing\b))/i,
+      '',
+    )
     .replace(
       /^(?:(?:the\s+)?(?:user|owner)\s+(?:asks|wants)\s+(?:you\s+)?to|you\s+(?:are|must|can))\s+/i,
       '',
@@ -310,7 +344,13 @@ function actionTask(text: string): string | undefined {
         `${verb.replace(/ie$/, 'y')}ing`,
       ].includes(lowerFirst),
     );
-    if (!base) return undefined;
+    if (!base) {
+      // A prerequisite clause already identifies the governed work. Preserve an unfamiliar gerund
+      // verbatim rather than replacing that work with a broad unit task or inventing a lemma.
+      if (governed && /^[a-z]+ing$/.test(lowerFirst) && rest.length > 0 && askable(clause) === undefined)
+        return `help me with ${clause}`;
+      return undefined;
+    }
     lead = base;
   } else lead = imperative(first);
   const task = [lead, ...rest].join(' ');
@@ -342,6 +382,8 @@ function toolAct(tool: EstateAtom): string | undefined {
  * generated test still measures whether the agent discovers them. Unsupported prose remains a gap.
  */
 function guardedTask(text: string): string | undefined {
+  const governed = governedAction(text);
+  if (governed) return governed;
   for (const clause of text.split(/\n|(?<=[.!?])\s+/)) {
     const clean = plain(clause);
     const before = /\bbefore\s+(.+?)(?:[:,]\s*|\s+)(?:(?:you\s+)?(?:must\s+)?read|load|check|verify)\b/i.exec(
