@@ -49,7 +49,8 @@
     "zod": "^4.6.5",
     "yaml": "^2.9.1",
     "@agent-nexus/driftbench-generate": "workspace:*",
-    "@agent-nexus/driftbench-sandbox": "workspace:*"
+    "@agent-nexus/driftbench-sandbox": "workspace:*",
+    "compromise": "14.18.0"
   },
   "publishConfig": {
     "access": "public",
