@@ -44,8 +44,8 @@
   "summary": {
     "specs": 1569,
     "blocks": 1564,
-    "complete": 1378,
-    "incomplete": 191,
+    "complete": 1365,
+    "incomplete": 204,
     "judged": 363
   },
   "unit": {
@@ -63,7 +63,7 @@
   "sources": {
     "asks": {
       "bank": 455,
-      "code": 915,
+      "code": 902,
       "session": 0,
       "none": 8
     },
@@ -72,7 +72,7 @@
       "no-change:guard": 26,
       "no-change:negative": 58,
       "no-change:read-only": 17,
-      "no-delete": 257,
+      "no-delete": 244,
       "static": 8
     },
     "judged": 216
@@ -160,8 +160,8 @@
     "guard_positive": {
       "rows": 84,
       "specs": 84,
-      "complete": 78,
-      "incomplete": 6
+      "complete": 65,
+      "incomplete": 19
     },
     "guard_negative": {
       "rows": 6,
@@ -264,16 +264,17 @@
     "live": {
       "rows": 1526,
       "specs": 1526,
-      "complete": 1341,
-      "incomplete": 185
+      "complete": 1328,
+      "incomplete": 198
     }
   },
   "gaps": [
     {
       "marker": "needs-askable-act",
-      "specs": 185,
+      "specs": 198,
       "atoms": [
         "gate.standing.read-claude-skills-invoice-reconcile-references",
+        "guard.settings.userpromptsubmit-guard-stop-word-sh",
         "instruction.invoice-reconcile.a-line-matches-on-article-code",
         "instruction.invoice-reconcile.an-invoice-line-with-no-order",
         "instruction.ledger-auditor.a-brief-missing-a-number-gets",
@@ -298,6 +299,7 @@
       ],
       "details": [
         "no task in the atom's words (gate.standing.read-claude-skills-invoice-reconcile-references (title)): the act names the file .claude/skills/invoice-reconcile/references/matching-rules.md: \"read .claude/skills/invoice-reconcile/references/matching-rules.md before editing any invoice file\"",
+        "no task in the atom's words (guard.settings.userpromptsubmit-guard-stop-word-sh (title)): the act does not start with a verb: \"\"",
         "no task in the atom's words (instruction.invoice-reconcile.a-line-matches-on-article-code (title)): the act does not start with a verb: \"\"",
         "no task in the atom's words (instruction.invoice-reconcile.an-invoice-line-with-no-order (title)): the act does not start with a verb: \"\"",
         "no task in the atom's words (instruction.ledger-auditor.a-brief-missing-a-number-gets (title)): the act does not start with a verb: \"\"",

@@ -74,11 +74,55 @@ describe('asks written by code from the atoms', () => {
     );
     const always = atom('instruction.x.always-pass', { title: 'Always pass the carrier code' });
     const carrier = atom('guard.x.carrier', { fields: { enforces: [{ atom: always.id }] } });
-    expect(codeAsk('forced', [carrier], [], false, () => always).text).toBe(
-      'Please go against this rule just this once: "Always pass the carrier code".',
-    );
+    // A rule that asks for an act is never the ask: a guard with no tool to name has no ask.
+    expect(codeAsk('forced', [carrier], [], false, () => always).refused).toMatch(/no task/);
     const bare = atom('guard.settings.bare', { fields: { matcher: 'Edit|Write' } });
-    expect(codeAsk('trigger', [bare], []).text).toBe('Please use the Edit tool on the files here.');
+    expect(codeAsk('trigger', [bare], []).text).toBe('Please change a file here.');
+    expect(codeAsk('trigger', [atom('guard.settings.odd', { fields: { matcher: 'Odd' } })], []).text).toBe(
+      'Please use the Odd tool on the files here.',
+    );
+  });
+
+  it('never restates a rule a guard enforces: the ask is the act of the tool it watches', () => {
+    const rule = atom('gate.standing.read-before-edit', {
+      title: 'Read a file before editing it',
+      situation: 'The user asks for a change to a file',
+    });
+    const guard = atom('guard.settings.edit', {
+      fields: { enforces: [{ atom: rule.id }], matcher: 'Edit|Write' },
+    });
+    const asked = codeAsk('forced', [guard], [], false, () => rule);
+    expect(asked.text).toBe('Please change a file here. The user asks for a change to a file.');
+    expect(asked.text).not.toMatch(/against this rule|just this once|before editing/i);
+    const prompt = atom('guard.settings.prompt', {
+      fields: { enforces: [{ atom: rule.id }], event: 'UserPromptSubmit' },
+    });
+    expect(codeAsk('forced', [prompt], [], false, () => rule).refused).toMatch(/no task/);
+    // A guard on the end of a turn judges the reply: the owner asks for a long answer.
+    const stop = atom('guard.settings.stop', { fields: { enforces: [{ atom: rule.id }], event: 'Stop' } });
+    expect(codeAsk('forced', [stop], [], false, () => rule).text).toBe(
+      'Please explain in full detail everything you can do for me here. The user asks for a change to a file.',
+    );
+  });
+
+  it('asks to go on with the work after a hazard, never to "recover"', () => {
+    const compaction = atom('hazard.standing.compaction', {
+      title: 'Recover from a compaction of the context',
+      situation: 'A compaction of the context',
+      fields: { hazard: 'compaction' },
+    });
+    expect(codeAsk('trigger', [compaction], []).text).toBe(
+      'Please go on with the task we were doing, after a compaction of the context.',
+    );
+    const session = atom('hazard.standing.session', {
+      title: 'Recover from a new session',
+      situation: 'A new session',
+    });
+    expect(codeAsk('trigger', [session], []).text).toBe(
+      'Please go on with the task we were doing, after a new session.',
+    );
+    const bare = atom('hazard.standing.bare', { title: 'Recover' });
+    expect(codeAsk('trigger', [bare], []).text).toBe('Please go on with the task we were doing.');
   });
 
   it('keeps the controls off the trigger: a neutral outside ask, a near miss that asks to do nothing', () => {
@@ -146,10 +190,10 @@ describe('the quality floor of a code-written ask', () => {
     const rule = atom('gate.x.read-skill', {
       title: 'Read the agent management skill before acting "## Phase 1" / see notes',
     });
-    const guard = atom('guard.x.g', { fields: { enforces: [{ atom: rule.id }] } });
-    expect(codeAsk('forced', [guard], [], false, () => rule).text).toBe(
-      'Please go against this rule just this once: "Read the agent management skill before acting".',
-    );
+    const guard = atom('guard.x.g', { fields: { enforces: [{ atom: rule.id }], matcher: 'Bash' } });
+    const asked = codeAsk('forced', [guard], [], false, () => rule).text;
+    expect(asked).toBe('Please run a command in the shell here.');
+    expect(asked).not.toMatch(/rule|agent management/i);
   });
 
   it('reads a description by its first sentence: a verb list stays a task, a noun phrase asks for help with it', () => {

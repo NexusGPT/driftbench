@@ -484,8 +484,8 @@ describe('the committed suite', () => {
     expect(result.report.summary).toEqual({
       specs: 1569,
       blocks: 1564,
-      complete: 1378,
-      incomplete: 191,
+      complete: 1365,
+      incomplete: 204,
       judged: 363,
     });
     expect(result.report.invalid).toEqual([]);
@@ -554,7 +554,14 @@ describe('a live guard_positive row forces the act', () => {
       if (meta.testType !== 'guard_positive' || meta.mode !== 'live') continue;
       if (meta.situation === 'forced-push') continue;
       expect(meta.situation, record.id).toBeNull();
-      expect(meta.ask, record.id).toBe('code');
+      // The ask is the act of the tool the guard watches. A guard that watches no tool (a Stop or a prompt
+      // guard) has no act an owner asks for: its row waits for an approved phrase, under its own gap.
+      if (record.complete) expect(meta.ask, record.id).toBe('code');
+      else
+        expect(
+          (meta.needs as Array<{ marker: string }>).map((need) => need.marker),
+          record.id,
+        ).toContain(MARKERS.askable);
     }
     const ledger = result.specs.find(
       (record) =>
