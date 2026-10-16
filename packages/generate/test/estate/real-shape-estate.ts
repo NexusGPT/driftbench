@@ -302,6 +302,13 @@ export function realShapeEstate(options: { skills?: number; gates?: number } = {
     ['notice-tone', 'Write', 'Block customer notices that blame the customer.'],
     ['tariff-backup', 'Edit', 'Require a backup copy before replacing a tariff table.'],
     ['hazmat-sheet', 'Write', 'Require a safety data sheet for every hazard label.'],
+    // Rule texts that name a situation, not an act: noun phrases, some with a condition.
+    ['release-branch', 'Bash', 'A force push to the shared release branch is blocked.'],
+    ['pallet-double', 'Edit', 'Two pallets booked for the same dock slot, when the roster is full.'],
+    ['price-sheet', 'Write', 'Sending a price list to a carrier while the contract is unsigned.'],
+    ['night-shift', 'Edit', 'Changes to the night shift roster after the weekly lock.'],
+    ['customs-hold', 'Edit', 'A customs declaration edited before the broker has confirmed the tariff code.'],
+    ['reply-length', 'Write', 'The last reply is too long.'],
   ] as const;
   const hooks: Array<{ matcher: string; hooks: Array<{ type: string; command: string }> }> = guards.map(
     ([name, matcher]) => ({

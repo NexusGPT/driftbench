@@ -195,3 +195,15 @@ The 186 changed asks are of two kinds. A description is asked as its work ("Plea
 against delivery receipts before a payment run.", not the same sentence with the pointer and the purpose clause
 attached). A table reference is asked as the moment its row states ("Please check carrier invoice lines.") where
 before all references of a skill shared the skill's one sentence.
+
+## Guard rule texts that name a situation
+
+The same estate gets six more guards whose rule text is a noun phrase (some with a condition, one a bare
+condition). Same input on `5391ac0b9` and after this change: complete 5,693 to 5,715 of 5,753;
+`guard_positive` 84 to 98 of 128, each other guard type 12 to 14 of 16 (the two guards left are the bare
+condition and a phrase cut off after a participle: both stay incomplete with the reason).
+The ask for a situation guard goes from the "no approved phrase" gap to "Please help me with a force push to the
+shared release branch." and, for its negative control, to a request about what applies to that situation without
+changing anything. A guard that named an act with a trailing condition ("send a price list to a carrier while the
+contract is unsigned") now asks the act alone. The registry-trace gap of script-less guards is unchanged: a live
+trace names the script, never the check inside it.

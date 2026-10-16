@@ -241,7 +241,7 @@ export function actOf(
     if (guarded) return { act: guarded.act, source: guarded.source };
     // A rule that names its subject but no act ("Block writes of reports outside the reports folder") is
     // still the guard's own rule: the ask is for help with that subject.
-    const topic = ruleTopic(head.fields.ruleText);
+    const topic = ruleTopic(head.fields.ruleText) ?? situationPhrase(head.fields.ruleText);
     if (topic && askable(`help me with ${topic}`) === undefined)
       return { act: `help me with ${topic}`, source: `${head.id} (ruleText)` };
   }
@@ -397,7 +397,7 @@ function actionTask(text: string, governed = false): string | undefined {
   if (!base) {
     // A prerequisite clause already identifies the governed work. Preserve an unfamiliar gerund
     // verbatim rather than replacing that work with a broad unit task or inventing a lemma.
-    if (governed && /^[a-z]+ing$/.test(lowerFirst) && rest.length > 0 && askable(clause) === undefined)
+    if (governed && openingGerund(lowerFirst) && rest.length > 0 && askable(clause) === undefined)
       return `help me with ${clause}`;
     return undefined;
   }
@@ -450,15 +450,99 @@ export function ruleTopic(ruleText: string): string | undefined {
   return letterWords(topic) >= 2 && situationProblem(topic) === undefined ? topic : undefined;
 }
 
+/** The sentences of a documented rule: one per line and per sentence end. */
+function ruleSentences(ruleText: string): string[] {
+  return ruleText
+    .split('\n')
+    .flatMap((line) => line.split(/(?<!\b(?:e\.g|i\.e|vs|etc))[.;]\s+/i))
+    .map((sentence) => plain(sentence))
+    .filter((sentence) => sentence !== '');
+}
+
+/** Words that open a condition in a rule sentence. */
+const CONNECTIVE = '(?:when|whenever|while|if|after|before|until|unless|without|upon)';
+
 /**
- * The act a documented rule guards, when its subject names it after a connective: "a review note before
- * editing a ledger entry" guards "edit a ledger entry". The directive that opens the rule is removed first.
+ * The act a documented rule guards. A rule names its act as the opening gerund ("Deploying to production
+ * without a tag") or after a connective ("A review note before editing a pricing entry"). A condition that
+ * is no act ("when the last reply is too long") gives none.
  */
+function sentenceAct(sentence: string): string | undefined {
+  const text = sentence.replace(DIRECTIVE, '');
+  const found = new RegExp(`(?:^|\\s)${CONNECTIVE}\\s+(.+)$`, 'i').exec(text);
+  const lead = found ? text.slice(0, found.index) : text;
+  const clause = found?.[1];
+  // Only a gerund opens an act in a noun-phrase rule: "Uploads of customer lists" is a plural noun.
+  for (const candidate of [openingGerund(lead) ? lead : undefined, clause]) {
+    const task = candidate ? actionTask(candidate.split(/[,;]\s/)[0] ?? candidate, true) : undefined;
+    if (task) return task;
+  }
+  return undefined;
+}
+
+/** Whether a phrase opens with a gerund: "Deploying ...", never "Nothing ..." or "Morning ...". */
+function openingGerund(phrase: string): boolean {
+  const first = /^[A-Za-z]+/.exec(phrase)?.[0] ?? '';
+  return (
+    /^[A-Za-z]{3,}ing$/.test(first) &&
+    !/^(?:no|any|every|some)thing$|^(?:morning|evening|ceiling|king|string|spring|thing)$/i.test(first)
+  );
+}
+
 function connectiveAct(ruleText: string): string | undefined {
-  const topic = ruleTopic(ruleText);
-  const guarded =
-    topic === undefined ? undefined : /\b(?:before|without|unless|until|after)\s+(.+)$/i.exec(topic)?.[1];
-  return guarded === undefined ? undefined : actionTask(guarded, true);
+  for (const sentence of ruleSentences(ruleText)) {
+    const act = sentenceAct(sentence);
+    if (act) return act;
+  }
+  return undefined;
+}
+
+const STATEMENT_OPENERS: ReadonlySet<string> = new Set(
+  'nothing nobody none never not always it they we you he she there here nor'.split(' '),
+);
+
+const DETERMINERS: ReadonlySet<string> = new Set(
+  'a an the this that these those any each every some all no one two its their our your his her'.split(' '),
+);
+
+/**
+ * The situation a documented rule describes, as a noun phrase: "A force push to the main branch is blocked" gives
+ * "a force push to the main branch". The phrase stops at a copula, a modal or a connective, needs three words
+ * beyond its determiners, and is no hook description ("Warns the owner ...": a third-person verb and its object).
+ */
+export function situationPhrase(ruleText: string): string | undefined {
+  for (const sentence of ruleSentences(ruleText)) {
+    const head =
+      sentence
+        .replace(DIRECTIVE, '')
+        .split(
+          new RegExp(
+            `\\s+(?:is|are|was|were|must|should|shall|will|can|may|needs?|has|have|gets?|stays?|means?)\\b|[,;:]\\s|\\s${CONNECTIVE}\\s`,
+            'i',
+          ),
+        )[0] ?? '';
+    const words = head.split(/\s+/).filter((word) => word !== '');
+    const [first = '', second = ''] = words.map((word) => word.toLowerCase());
+    if (
+      /^[a-z]{3,}s$/.test(first) &&
+      !/ss$|us$|is$/.test(first) &&
+      (DETERMINERS.has(second) || PREPOSITIONS.has(second))
+    )
+      continue;
+    // A pronoun or a negation opens a statement ("Nothing leaves the building"), not a situation.
+    if (STATEMENT_OPENERS.has(first)) continue;
+    const content = words.filter(
+      (word) =>
+        !DETERMINERS.has(word.toLowerCase()) &&
+        !PREPOSITIONS.has(word.toLowerCase()) &&
+        /\p{L}{2,}/u.test(word),
+    );
+    // A phrase cut off at a connective right after a participle ("a declaration edited") is left dangling.
+    const dangling = head.length < sentence.length && /\b\w{3,}(?:ed|en)$/i.test(head);
+    if (content.length < 3 || dangling || situationProblem(head) !== undefined) continue;
+    return lower(head);
+  }
+  return undefined;
 }
 
 /**
@@ -478,7 +562,7 @@ function guardNearMiss(guard: EstateAtom, lookup: (id: string) => EstateAtom | u
     };
   }
   const ruleText = typeof guard.fields?.ruleText === 'string' ? guard.fields.ruleText : undefined;
-  const topic = ruleText ? ruleTopic(ruleText) : undefined;
+  const topic = ruleText ? (ruleTopic(ruleText) ?? situationPhrase(ruleText)) : undefined;
   if (topic) {
     return {
       text: `Without changing anything, tell me in one sentence what applies here to ${topic}.`,
@@ -517,7 +601,7 @@ function guardedTask(text: string): string | undefined {
     if (asked && askable(asked) === undefined) return asked;
     // An ordinary task description is useful; a read directive would reveal the expected answer.
     if (!/^(?:read|load|check|verify|block|deny|require|ensure)\b/i.test(clean)) {
-      const task = actionTask(clean.split(/;\s/)[0] ?? clean);
+      const task = sentenceAct(clean) ?? actionTask(clean.split(/;\s/)[0] ?? clean);
       if (task) return task;
     }
   }

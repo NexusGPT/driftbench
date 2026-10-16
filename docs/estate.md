@@ -620,6 +620,17 @@ outside the shared drive") is asked as help with that subject.
 A unit-mode row (a guard or script run with no model) expects only what a run without a model can observe: the
 skill that owns the atom supplies the task of a live row, and its load is never an expectation of a unit one.
 
+A guard's rule text is more often a noun phrase naming a situation than a verb phrase naming an act. The
+guarded act is then the opening gerund ("Deploying to production without a tag" guards deploying to
+production) or the gerund after a connective (when, while, if, before, after, until, unless, without, upon:
+"A signed quote before sending the offer" guards sending the offer); every sentence of the text is tried. A
+condition that is no act ("when the last reply is too long") gives none. When no act is named, the
+situation is the ask: the phrase before the first copula, modal, comma or connective ("A force push to the
+shared branch is blocked" asks for help with a force push to the shared branch), if it holds three words
+beyond determiners and prepositions, does not open with a pronoun or a negation, is not a hook description (a
+third-person verb and its object), and is not cut off right after a participle. The ask reads only the guard's own rule
+text: no registry state name or severity is read into it.
+
 A `guard_negative` row asks for a harmless near miss of the guard's own rule: without changing anything, what
 it would mean to do the governed act, or what applies to the subject of the documented rule. Each guard gets
 the request of its own rule. A guard that documents no rule and enforces none stays incomplete: no

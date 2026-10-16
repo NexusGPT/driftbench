@@ -435,3 +435,52 @@ describe('a unit-mode row expects nothing a run with no model cannot observe', (
     expect(skillsOf('guard_positive')).toEqual([{ name: 'stock', count: { min: 1 } }]);
   });
 });
+
+describe('a guard whose rule text names a situation, not an act', () => {
+  const guard = (ruleText: string) => atom('guard.catalogue.x', { fields: { ruleText } });
+  const ask = (ruleText: string, use: 'trigger' | 'outside' = 'trigger') =>
+    codeAsk(use, [guard(ruleText)], [], false, undefined, undefined, {
+      testType: use === 'outside' ? 'guard_negative' : 'guard_positive',
+    });
+
+  it('asks the act named by an opening gerund or by a connective clause', () => {
+    expect(ask('Deploying to the production cluster without a release tag.').text).toBe(
+      'Please deploy to the production cluster.',
+    );
+    expect(ask('A signed-off quote before sending the offer to a carrier.').text).toBe(
+      'Please send the offer to a carrier.',
+    );
+    expect(
+      ask('Nothing leaves the building. Sending a price list while the contract is unsigned.').text,
+    ).toBe('Please send a price list.');
+  });
+
+  it('asks for help with the situation when the rule names no act', () => {
+    expect(ask('A force push to the shared release branch is blocked.').text).toBe(
+      'Please help me with a force push to the shared release branch.',
+    );
+    expect(ask('Two pallets for the same dock slot, when the roster is full.').text).toBe(
+      'Please help me with two pallets for the same dock slot.',
+    );
+  });
+
+  it('writes no ask for a condition, a hook description or a phrase with too few words', () => {
+    for (const ruleText of [
+      'The last reply is too long.',
+      'Nudges the owner when a reply runs long.',
+      'After each task.',
+      'Start-up of a session.',
+      'A declaration edited before the broker confirms the code.',
+    ]) {
+      const written = ask(ruleText);
+      expect(written.text, ruleText).toBeUndefined();
+      expect(written.refused, ruleText).toMatch(/no task/);
+    }
+  });
+
+  it('uses the same situation for the negative control, so it comes near the rule', () => {
+    expect(ask('A force push to the shared release branch is blocked.', 'outside').text).toBe(
+      'Without changing anything, tell me in one sentence what applies here to a force push to the shared release branch.',
+    );
+  });
+});

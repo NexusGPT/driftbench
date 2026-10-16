@@ -112,7 +112,7 @@ describe('tasks from the atom being tested', () => {
       ruleText: 'Read the publication policy before editing the author biography.',
     };
     expect(codeAsk('forced', [guard], []).text).toBe('Please edit the author biography.');
-    guard.fields = { ...guard.fields, ruleText: 'A policy with no described task.' };
+    guard.fields = { ...guard.fields, ruleText: 'The publication is late.' };
     expect(codeAsk('trigger', [guard], []).text).toBeUndefined();
   });
   it.each(['trigger', 'forced'] as const)(
