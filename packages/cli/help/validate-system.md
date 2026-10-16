@@ -1,6 +1,6 @@
 ---
 title: The system validator
-summary: What `driftbench validate system` measures across the whole evaluation chain, its 11 levels and 2385 items, and how to read a failing item.
+summary: What `driftbench validate system` measures across the whole evaluation chain, its 11 levels and 2388 items, and how to read a failing item.
 commands:
   - validate
 see_also:
@@ -34,9 +34,9 @@ The ladder (version 5), from `driftbench validate system`:
 
 | Level | Id | Name | Items | Families |
 |---|---|---|---|---|
-| 1 | `records` | records stored, resumed and budgeted | 501 | store-roundtrip, resume-budget, combo-store-file, combo-store-memory, claim-spec, store-stress, breaker-datasets, breaker-cli, breaker-tools, breaker2-viewer, robust-concurrency, robust-resume, robust-transfer, robust-version |
+| 1 | `records` | records stored, resumed and budgeted | 502 | store-roundtrip, resume-budget, combo-store-file, combo-store-memory, claim-spec, store-stress, breaker-datasets, breaker-cli, breaker-tools, breaker2-viewer, robust-concurrency, robust-resume, robust-transfer, robust-version |
 | 2 | `fault-reach` | a planted fault reaches the right block and check | 154 | fault-position-mode, fault-adapter, fault-multi, fault-perturbed, claim-adapters |
-| 3 | `precision` | clean, hostile and failing agents read right | 345 | clean-shapes, hostile-inputs, failure-handling, claim-checks, claim-adapters, breaker-checks |
+| 3 | `precision` | clean, hostile and failing agents read right | 347 | clean-shapes, hostile-inputs, failure-handling, claim-checks, claim-adapters, breaker-checks |
 | 4 | `drift-class` | drift class of every failing block | 74 | drift-class, claim-concepts |
 | 5 | `run-fields` | every field of the run record | 84 | run-fields, claim-spec, claim-concepts |
 | 6 | `recovery` | recovery record of every perturbed run | 74 | recovery, claim-concepts |
@@ -46,7 +46,7 @@ The ladder (version 5), from `driftbench validate system`:
 | 10 | `command-line` | command-line exit codes and output fields | 867 | claim-cli, claim-cli-flags, the breaker families, the exits families, cli-documented |
 | 11 | `scale` | scale: the same answers at ten and a hundred times the size | 76 | scale |
 
-2385 items in all. The floor is 9 for ladder version 5: CI fails when a seed stops below level 9.
+2388 items in all. The floor is 9 for ladder version 5: CI fails when a seed stops below level 9.
 
 ## When to use it
 
