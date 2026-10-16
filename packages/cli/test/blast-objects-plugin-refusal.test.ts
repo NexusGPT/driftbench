@@ -50,6 +50,9 @@ describe('blast 448: a plugin refused part way leaves the object registry as it 
     await writeFile(join(dir, 'plugin.mjs'), PLUGIN);
     await writeFile(join(dir, 'objects', 'leak.yaml'), OBJECT);
     await writeFile(join(dir, 'a.yaml'), 'id: a\nblocks:\n  - user: hi\n    expect: { must: [ok] }\n');
+    // The shipped kinds register on first use, so one plain run comes before the baseline is read.
+    const warm = await run(['spec', 'validate', 'a.yaml'], dir);
+    expect(warm.code, warm.err).toBe(0);
     const kinds = objectRegistry.kinds().length;
     const shipped = objectRegistry.shipped().length;
 
