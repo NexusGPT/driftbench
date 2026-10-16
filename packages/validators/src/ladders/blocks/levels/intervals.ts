@@ -10,7 +10,9 @@ import {
   SHOP,
   scriptedAdapter,
 } from '../harness';
+import { KINDS, type Kind, plantedAgent, token } from '../kinds';
 import { type BlocksProduct, need } from '../product';
+import { recipe } from '../recipe';
 import {
   type Count,
   effectiveReference,
@@ -134,10 +136,14 @@ function goldenSpecs(
     const bike = pick(rng, SHOP.bikes);
     bikes.push(bike);
     raws.push({
-      id: `blocks-golden-${golden}-${seed}`,
+      id: `spec-${token(seed, `${tag}#golden#${golden}`)}`,
       channel: 'chat',
       blocks: [
-        { id: 'book', user: `[${tag}:${golden}] Book the ${bike} for me.`, expect: { must: ['booked'] } },
+        {
+          id: 'book',
+          user: `[${token(seed, tag)}:${golden}] Book the ${bike} for me.`,
+          expect: { must: ['booked'] },
+        },
       ],
       ...(endState ? { end_state: { source: 'tool:booking.create', mode: 'subset', expect: { bike } } } : {}),
     });
@@ -580,5 +586,258 @@ function passRateItems(): BankItem[] {
 
 /** Level 3 of the blocks bank. */
 export function intervalItems(): BankItem[] {
-  return [...effectiveItems(), ...headlineItems(), ...treeItems(), ...endStateItems(), ...passRateItems()];
+  return [
+    ...effectiveItems(),
+    ...headlineItems(),
+    ...treeItems(),
+    ...endStateItems(),
+    ...passRateItems(),
+    ...coverageItems(),
+    ...noisyItems(),
+  ];
+}
+
+/** A draw from Gamma(shape, 1) (Marsaglia and Tsang), from the seeded generator. */
+function gamma(rng: Rng, shape: number): number {
+  if (shape < 1) return gamma(rng, shape + 1) * rng() ** (1 / shape);
+  const d = shape - 1 / 3;
+  const c = 1 / Math.sqrt(9 * d);
+  for (;;) {
+    let x: number;
+    let v: number;
+    do {
+      const u1 = rng() || 1e-12;
+      const u2 = rng();
+      x = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+      v = 1 + c * x;
+    } while (v <= 0);
+    v = v * v * v;
+    const u = rng();
+    if (u < 1 - 0.0331 * x ** 4 || Math.log(u) < 0.5 * x * x + d * (1 - v + Math.log(v))) return d * v;
+  }
+}
+
+function beta(rng: Rng, a: number, b: number): number {
+  const x = gamma(rng, a);
+  return x / (x + gamma(rng, b));
+}
+
+const baseCache = new Map<string, { pass: RunRecord[]; fail: RunRecord[] }>();
+
+/** One passing and one failing real run of each of `goldens` planted single-block specs of `kind`, cached. */
+async function baseRecords(
+  product: BlocksProduct,
+  seed: number,
+  kind: Kind,
+  wanted: number,
+  scratch: string,
+) {
+  // The most goldens any item asks for are built once per seed and kind; an item takes the first `wanted`.
+  const goldens = 16;
+  const key = `${product.name}:${seed}:${kind}`;
+  const cached = baseCache.get(key);
+  if (cached) return { pass: cached.pass.slice(0, wanted), fail: cached.fail.slice(0, wanted) };
+  const pass: RunRecord[] = [];
+  const failing: RunRecord[] = [];
+  for (let g = 0; g < goldens; g += 1) {
+    for (const fate of ['pass', 'fail'] as const) {
+      const r = recipe(seed, `coverage#${kind}#${g}`, kind, [{ fate }]);
+      const record = await run(product, r.raw, plantedAgent(product, kind, r.actions, { scratch }).adapter);
+      (fate === 'pass' ? pass : failing).push(record);
+    }
+  }
+  const built = { pass, fail: failing };
+  if (baseCache.size > 4) baseCache.clear();
+  baseCache.set(key, built);
+  return { pass: pass.slice(0, wanted), fail: failing.slice(0, wanted) };
+}
+
+type Estimator = {
+  id: string;
+  /** The coverage an interval of this kind holds, less a margin for the draws: below it, the interval is too narrow. */
+  floor: number;
+  interval(product: BlocksProduct, runs: RunRecord[]): Interval | undefined;
+};
+
+const ESTIMATORS: Estimator[] = [
+  {
+    id: 'headline',
+    floor: 0.88,
+    interval: (product, runs) =>
+      need<(r: RunRecord[], t: (x: RunRecord) => string) => Interval | undefined>(
+        product.report,
+        'report',
+        'suiteHeadline',
+      )(runs, (record) => record.specId),
+  },
+  {
+    id: 'pass-rate-criterion',
+    floor: 0.86,
+    interval: (product, runs) => {
+      const evaluate = need<(data: unknown, criteria: unknown[]) => { interval?: Interval }[]>(
+        product.report,
+        'report',
+        'evaluateAggregates',
+      );
+      const builtIn = need<{ passRate: (threshold?: number) => unknown }>(
+        product.report,
+        'report',
+        'BUILT_IN_AGGREGATES',
+      );
+      return evaluate({ campaign: {}, specs: new Map(), runs }, [builtIn.passRate(0.5)])[0]?.interval;
+    },
+  },
+  {
+    id: 'wilson-effective',
+    floor: 0.84,
+    interval: (product, runs) => {
+      const groups = new Map<string, { n: number; k: number }>();
+      const runOutcome = need<(r: RunRecord) => string>(product.core, 'core', 'runOutcome');
+      for (const record of runs) {
+        const g = groups.get(record.specId) ?? { n: 0, k: 0 };
+        g.n += 1;
+        if (runOutcome(record) === 'pass') g.k += 1;
+        groups.set(record.specId, g);
+      }
+      return need<(c: { n: number; k: number }[], o: unknown) => Interval>(
+        product.stats,
+        'stats',
+        'wilsonEffective',
+      )([...groups.values()], { quantile: 'z' });
+    },
+  },
+];
+
+/** Campaigns drawn per coverage item. */
+export const COVERAGE_DRAWS = 200;
+
+/**
+ * Coverage of a planted true rate. Each draw plants a population mean mu: every golden's own rate is drawn from a
+ * Beta around mu (concentration kappa), every repeat passes or fails by that rate (a noisy agent with a planted
+ * failure rate), and the runs are real runs of planted specs of the kind, one passing and one failing record per
+ * golden reused across repeats. Over the draws, the share of intervals that hold mu must reach the estimator's floor.
+ */
+function coverageItems(): BankItem[] {
+  const items: BankItem[] = [];
+  for (const kind of KINDS) {
+    for (const estimator of ESTIMATORS) {
+      for (const mu of [0.6, 0.85]) {
+        for (const kappa of [2, 8]) {
+          for (const goldens of [8, 16]) {
+            const id = `intervals/coverage/${kind}/${estimator.id}/mu${mu}/k${kappa}/g${goldens}`;
+            items.push({
+              id,
+              family: `intervals-coverage-${kind}`,
+              tier: Math.min(5, (kappa === 2 ? 4 : 3) + (goldens === 8 ? 1 : 0)) as Tier,
+              level: 9,
+              component:
+                estimator.id === 'headline'
+                  ? HEADLINE
+                  : estimator.id === 'pass-rate-criterion'
+                    ? AGGREGATE
+                    : EFFECTIVE,
+              title: `over ${COVERAGE_DRAWS} campaigns of ${goldens} goldens of a ${kind} agent whose golden rates spread around ${mu} (concentration ${kappa}), the ${estimator.id.replace(/-/g, ' ')} interval holds the planted rate at least ${estimator.floor} of the time`,
+              cause: `The ${estimator.id.replace(/-/g, ' ')} interval accounts for the spread between goldens, so it covers the planted rate (concentration ${kappa}).`,
+              check: async ({ seed, scratch, product }) => {
+                const rng = rngFor(seed, id);
+                const base = await baseRecords(product, seed, kind, goldens, scratch);
+                let covered = 0;
+                let computed = 0;
+                for (let draw = 0; draw < COVERAGE_DRAWS; draw += 1) {
+                  const runs: RunRecord[] = [];
+                  for (let g = 0; g < goldens; g += 1) {
+                    const rate = beta(rng, mu * kappa, (1 - mu) * kappa);
+                    for (let repeat = 0; repeat < 4; repeat += 1) {
+                      const source = (rng() < rate ? base.pass : base.fail)[g] as RunRecord;
+                      runs.push({ ...source, repeat, runId: `d${draw}-g${g}-r${repeat}` });
+                    }
+                  }
+                  const interval = estimator.interval(product, runs);
+                  if (!interval) continue;
+                  computed += 1;
+                  if (interval.lower <= mu && mu <= interval.upper) covered += 1;
+                }
+                const share = computed === 0 ? 0 : covered / computed;
+                return computed === COVERAGE_DRAWS && share >= estimator.floor
+                  ? PASS
+                  : fail(
+                      `the ${estimator.id} interval should hold the planted rate ${mu} in at least ${estimator.floor} of ${COVERAGE_DRAWS} campaigns; it held it in ${covered} of ${computed} (${share.toFixed(3)})`,
+                    );
+              },
+            });
+          }
+        }
+      }
+    }
+  }
+  return items;
+}
+
+/**
+ * The noisy agent: each turn breaks with a planted rate, and the harness records which. The product must read
+ * exactly those runs as failures and count them so in its tallies and rates: no more, no fewer.
+ */
+function noisyItems(): BankItem[] {
+  const items: BankItem[] = [];
+  for (const kind of KINDS) {
+    for (const rate of [0.1, 0.3, 0.5]) {
+      for (const goldens of [2, 4]) {
+        for (const repeats of kind === 'code' ? [2] : [3, 6]) {
+          const id = `intervals/noisy/${kind}/rate${rate}/g${goldens}/r${repeats}`;
+          items.push({
+            id,
+            family: 'intervals-noisy',
+            tier: (rate === 0.5 ? 3 : 2) as Tier,
+            level: 9,
+            component: HEADLINE,
+            title: `a noisy ${kind} agent that breaks each turn at rate ${rate}, over ${goldens} goldens of ${repeats} repeats: every broken run reads fail, every other pass, and the pass rate counts exactly the unbroken runs`,
+            cause: `The run verdicts and the pass rate read exactly the turns a noisy ${kind} agent broke.`,
+            check: async ({ seed, scratch, product }) => {
+              const rng = rngFor(seed, id);
+              const runs: RunRecord[] = [];
+              const brokenRuns: boolean[] = [];
+              for (let g = 0; g < goldens; g += 1) {
+                const r = recipe(seed, `${id}#${g}`, kind, [{ fate: 'pass' }]);
+                for (let repeat = 0; repeat < repeats; repeat += 1) {
+                  const broken: string[] = [];
+                  const agent = plantedAgent(product, kind, r.actions, {
+                    scratch,
+                    noisy: { rate, rng, broken },
+                  });
+                  runs.push(await run(product, r.raw, agent.adapter, { repeat }));
+                  brokenRuns.push(broken.length > 0);
+                }
+              }
+              const runOutcome = need<(record: RunRecord) => string>(product.core, 'core', 'runOutcome');
+              for (const [i, record] of runs.entries()) {
+                const want = brokenRuns[i] ? 'fail' : 'pass';
+                if (runOutcome(record) !== want)
+                  return fail(
+                    `run ${i} should read ${want}: the noisy agent ${brokenRuns[i] ? 'broke' : 'did not break'} its turn; got ${runOutcome(record)}`,
+                  );
+              }
+              const passes = brokenRuns.filter((b) => !b).length;
+              const [result] = need<
+                (data: unknown, criteria: unknown[]) => { value?: number; interval?: { n: number } }[]
+              >(
+                product.report,
+                'report',
+                'evaluateAggregates',
+              )({ campaign: {}, specs: new Map(), runs }, [
+                need<{ passRate: (t?: number) => unknown }>(
+                  product.report,
+                  'report',
+                  'BUILT_IN_AGGREGATES',
+                ).passRate(0.5),
+              ]);
+              return result?.value !== undefined && Math.abs(result.value - passes / runs.length) < 1e-12
+                ? PASS
+                : fail(`the pass rate should be ${passes} of ${runs.length}; got ${result?.value}`);
+            },
+          });
+        }
+      }
+    }
+  }
+  return items;
 }

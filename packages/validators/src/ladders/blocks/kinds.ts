@@ -78,7 +78,8 @@ export function plantedAgent(
   options: {
     scratch: string;
     capabilities?: Capabilities;
-    noisy?: { rate: number; rng: Rng };
+    /** A noisy agent: each turn breaks with probability `rate`; the markers it broke are pushed to `broken`. */
+    noisy?: { rate: number; rng: Rng; broken?: string[] };
     keep?: boolean;
   },
 ): Planted {
@@ -93,7 +94,7 @@ export function plantedAgent(
       (turn) => {
         const found = pick(turn.user);
         if (!found) throw new Error('the planted agent has no action for this turn');
-        const action = noisy(found.action, options.noisy);
+        const action = noisy(found.action, options.noisy, found.marker);
         return observed(action.reply, action.calls ?? [], action.stage);
       },
       { log, ...(options.capabilities ? { capabilities: options.capabilities } : {}) },
@@ -111,7 +112,7 @@ export function plantedAgent(
   const logPath = join(folder, 'delivered.jsonl');
   const markers: Record<string, unknown> = {};
   for (const [marker, action] of actions) {
-    const played = noisy(action, options.noisy);
+    const played = noisy(action, options.noisy, marker);
     markers[marker] = {
       reply: played.reply,
       files: played.files ?? [],
@@ -169,8 +170,13 @@ export function plantedAgent(
 }
 
 /** A noisy agent: with probability `rate` a passing action drops its last word of the reply and its first file. */
-function noisy(action: Action, noise: { rate: number; rng: Rng } | undefined): Action {
+function noisy(
+  action: Action,
+  noise: { rate: number; rng: Rng; broken?: string[] } | undefined,
+  marker: string,
+): Action {
   if (!noise || noise.rng() >= noise.rate) return action;
+  noise.broken?.push(marker);
   return { ...action, reply: action.reply.replace(/\S+$/, ''), files: (action.files ?? []).slice(1) };
 }
 
