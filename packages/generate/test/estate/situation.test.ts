@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { findSituation } from '../../src/estate/build-row';
+import { findSituation, situationOfRow } from '../../src/estate/build-row';
 import type { EstateAtom, PhraseBank } from '../../src/estate/inputs';
 
 /** A bakery estate: two skills whose hurried situations both list a standing gate about one of them. */
@@ -51,5 +51,83 @@ describe('the situation of a row', () => {
   it('still takes the situation that holds more of the row atoms first', () => {
     const both = { atomIds: ['gate.standing.oven', 'gate.icing'], cell: {} };
     expect(findSituation(BANK, 'pressure', both, ATOMS)?.id).toBe('ice-pressure');
+  });
+});
+
+describe('an atom no situation lists', () => {
+  const rule: EstateAtom = {
+    id: 'instruction.proof.never-skip-the-proof',
+    kind: 'instruction',
+    title: 'Never skip the proof',
+    approved: true,
+    evidence: [],
+    provenance: { quote: 'Never skip the proof.', file: '.claude/skills/bake/SKILL.md' },
+  };
+  const guard: EstateAtom = {
+    id: 'guard.proof',
+    kind: 'guard',
+    title: 'PreToolUse Bash guard proof.sh',
+    approved: true,
+    evidence: [],
+    fields: { name: 'proof.sh', enforces: [{ atom: rule.id, by: 'id' }] },
+    provenance: { quote: 'proof.sh', file: '.claude/settings.json' },
+  };
+  const tool = (id: string, file: string): EstateAtom => ({
+    id,
+    kind: 'tool',
+    title: id,
+    approved: true,
+    evidence: [],
+    fields: { effect: 'allow' },
+    provenance: { quote: id, file },
+  });
+  const atoms = new Map(
+    [
+      rule,
+      guard,
+      tool('tool.settings.allow-read', '.claude/settings.json'),
+      tool('tool.settings.allow-grep', '.claude/settings.json'),
+      tool('tool.settings.allow-glob', '.claude/settings.json'),
+    ].map((entry) => [entry.id, entry]),
+  );
+  const bank = {
+    situations: [
+      {
+        id: 'bake-task',
+        title: 'baking',
+        use: 'trigger',
+        atoms: [rule.id],
+        phrases: [phrase('Bake two loaves for the morning.')],
+      },
+      {
+        id: 'stock-task',
+        title: 'stock',
+        use: 'trigger',
+        atoms: ['tool.settings.allow-read', 'tool.settings.allow-grep'],
+        phrases: [phrase('Count the flour sacks in the store.')],
+      },
+    ],
+    workspaces: [],
+  } as unknown as PhraseBank;
+  const rowOf = (id: string) => ({
+    id: `row.${id}`,
+    atomIds: [id],
+    cell: {},
+    testType: 'x',
+    mode: 'live',
+    status: 'approved' as const,
+  });
+
+  it('is a guard asked where a rule it enforces is set off', () => {
+    expect(situationOfRow({ bank, atoms }, 'trigger', rowOf(guard.id), guard)?.id).toBe('bake-task');
+  });
+
+  it('is a tool rule asked where most rules of its file are', () => {
+    const glob = atoms.get('tool.settings.allow-glob');
+    expect(situationOfRow({ bank, atoms }, 'trigger', rowOf('tool.settings.allow-glob'), glob)?.id).toBe(
+      'stock-task',
+    );
+    // Any other atom no situation lists stays without one, for an approved phrase to fill.
+    expect(situationOfRow({ bank, atoms }, 'trigger', rowOf('instruction.none'), undefined)).toBeUndefined();
   });
 });

@@ -61,18 +61,17 @@
   },
   "sources": {
     "asks": {
-      "bank": 433,
-      "code": 920,
+      "bank": 448,
+      "code": 905,
       "session": 0,
       "none": 8
     },
     "outcomes": {
-      "bank": 981,
-      "no-change:denied": 2,
-      "no-change:guard": 27,
+      "bank": 996,
+      "no-change:guard": 26,
       "no-change:negative": 58,
       "no-change:read-only": 17,
-      "no-delete": 268,
+      "no-delete": 256,
       "static": 8
     },
     "judged": 201
@@ -347,6 +346,8 @@
       "details": [
         "no recorded session of force-push",
         "no recorded session of invoice-file-edit",
+        "no recorded session of open-items",
+        "no recorded session of shipment-late",
         "no recorded session of stop-word",
         "no recorded session of this situation"
       ]
