@@ -241,4 +241,39 @@ describe('unassigned stays in the machine denominator and outside the agent-attr
     expect(summary?.unassigned).toBe(1);
     expect(summary?.blocks).toMatchObject({ failing: 2, credited: 1, unassigned: 1, agent: 0 });
   });
+
+  const unrun = (status: 'not_run' | 'blocked'): RunResult['blocks'][number] =>
+    ({ index: 1, pass: false, status, verdicts: [] }) as unknown as RunResult['blocks'][number];
+
+  it('a block not run or blocked is no failure of the agent, and is counted apart', () => {
+    expect(blockOutcome(unrun('not_run'), [])).toBe('pass');
+    expect(blockOutcome(unrun('blocked'), [])).toBe('pass');
+    const runs = [
+      [block(true, []), unrun('not_run')],
+      [block(true, []), unrun('blocked')],
+      [block(false, ['a']), unrun('blocked')],
+    ].map((blocks, i) => ({ runId: `r${i}`, status: 'completed', blocks }) as unknown as RunResult);
+    const data = { runs } as unknown as CampaignData;
+    const summary = attributionOf(data, {
+      diagnoses: { r2: { 0: [{ verdictRef: 'a', disposition: 'agent' }] } },
+    });
+    // Only the one failed block fails; the not run and the blocked blocks never enter the failing count.
+    expect(summary?.blocks).toMatchObject({ failing: 1, agent: 1, notRun: 1, blocked: 2 });
+    expect(attributionText(summary).join('\n')).toContain(
+      'Not measured, so not failures: 1 not run, 2 blocked.',
+    );
+    expect(attributionZone(summary)).toContain('Not measured, so not failures: 1 not run, 2 blocked.');
+  });
+
+  it('names no unmeasured blocks when every block was measured', () => {
+    const runs = [
+      { runId: 'r0', status: 'completed', blocks: [block(false, ['a'])] } as unknown as RunResult,
+    ];
+    const summary = attributionOf({ runs } as unknown as CampaignData, {
+      diagnoses: { r0: { 0: [{ verdictRef: 'a', disposition: 'agent' }] } },
+    });
+    expect(summary?.blocks).toMatchObject({ notRun: 0, blocked: 0 });
+    expect(attributionText(summary).join('\n')).not.toContain('Not measured');
+    expect(attributionZone(summary)).not.toContain('Not measured');
+  });
 });

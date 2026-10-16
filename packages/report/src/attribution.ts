@@ -71,6 +71,10 @@ export type AttributionSummary = {
     excluded: number;
     credited: number;
     unassigned: number;
+    /** Blocks never sent: no measurement, so neither a failure nor a pass. Counted apart so they never vanish. */
+    notRun: number;
+    /** Blocks not run because an ancestor they depend on failed. Counted apart, as `notRun` is. */
+    blocked: number;
   };
   fixes: ReportFix[];
   /** The objects that are not a shipped default, as `kind:id`: a non-default rule scored these runs. */
@@ -173,7 +177,16 @@ export function attributionOf(
   let agentPass = 0;
   let decided = 0;
   let unassigned = 0;
-  const blocks = { failing: 0, agent: 0, setup: 0, excluded: 0, credited: 0, unassigned: 0 };
+  const blocks = {
+    failing: 0,
+    agent: 0,
+    setup: 0,
+    excluded: 0,
+    credited: 0,
+    unassigned: 0,
+    notRun: 0,
+    blocked: 0,
+  };
   const objects = new Map<string, ReportObject>();
   for (const object of options.objects ?? []) objects.set(objectKey(object), object);
   for (const run of runs) {
@@ -182,10 +195,12 @@ export function attributionOf(
       for (const object of (block as Block).resolved?.objects ?? []) objects.set(objectKey(object), object);
       const diagnoses = blockDiagnoses(run, block, options);
       const own = blockOutcome(block, diagnoses);
-      if (blockStatus(block) === 'fail') {
+      const status = blockStatus(block);
+      if (status === 'fail') {
         blocks.failing += 1;
         blocks[blockDisposition(block, diagnoses, own)] += 1;
-      }
+      } else if (status === 'not_run') blocks.notRun += 1;
+      else if (status === 'blocked') blocks.blocked += 1;
       if (own === 'fail') outcome = 'fail';
       else if (own === 'unassigned' && outcome === 'pass') outcome = 'unassigned';
     }
@@ -218,6 +233,13 @@ export function attributionOf(
       .map(showObject)
       .sort(),
   };
+}
+
+/** The blocks that were not measured, named apart from the failures; empty when every block was. */
+export function unmeasuredText(b: { notRun: number; blocked: number }): string {
+  const parts = [b.notRun > 0 ? `${b.notRun} not run` : '', b.blocked > 0 ? `${b.blocked} blocked` : ''];
+  const named = parts.filter(Boolean);
+  return named.length === 0 ? '' : ` Not measured, so not failures: ${named.join(', ')}.`;
 }
 
 /** The denominator is explicit beside every agent-attributed score, including counts-only scores. */

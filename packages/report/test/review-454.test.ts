@@ -100,6 +100,8 @@ describe('PR 454 review regressions', () => {
       excluded: 0,
       credited: 0,
       unassigned: 1,
+      notRun: 0,
+      blocked: 0,
     });
     expect(result?.unassigned).toBe(1);
     expect(
