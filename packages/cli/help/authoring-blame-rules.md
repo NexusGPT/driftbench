@@ -17,12 +17,16 @@ A failing verdict says that a block failed. Two rule files answer what to do abo
 * `policy/placement:default` says where the fix goes (`fix_location`, `fix_target`), in which form (`fix_forms`),
   and which local copies a shared fix replaces (`remove_copies`). It holds 13 items.
 
-Both are data files in `packages/checks/objects/policy/`. Each item has an `id`, a `title`, a `when` condition, an
-`effect` and an `impl`, the code that writes the result. Some items also have typed `params`.
+Both are TypeScript data in `packages/checks/src/blame/shipped.ts`. The checks package registers them as shipped
+objects. A reviewed YAML copy of each is in `packages/checks/objects/policy/` for reading; the published package does
+not include that folder. A project file extends a shipped policy by its id. Each item has an `id`, a `title`, a `when`
+condition, an `effect` and an `impl`, the code that writes the result. Some items also have typed `params`.
 
-How blame decides: the items are tried in order, and the first enabled item whose `when` holds writes the
-attribution. The last item, `unassigned`, holds always. How placement decides: the items not marked additive are
-tried in order and the first that holds places the fix; then every additive item that holds adds to it.
+How blame decides: the items are tried in order. The first enabled item whose `when` holds writes the attribution.
+The last item, `unassigned`, holds always.
+
+How placement decides: the items not marked additive are tried in order. The first that holds places the fix. Then
+every additive item that holds adds to it.
 
 A `when` condition reads evidence names (see `authoring-evidence-names`), never raw records:
 
