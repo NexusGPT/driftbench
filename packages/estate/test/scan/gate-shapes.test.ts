@@ -56,21 +56,11 @@ describe('layouts of a read-before rule', () => {
       ['recipes/dough.md', 'shop/pricing/rates.md'],
     ],
     [
-      'a label and a read with no target',
-      'KITCHEN RULE -- read before the FIRST oven setting of a shift.',
-      ['CLAUDE.md'],
-    ],
-    [
       'a read written as a call',
       'Use `Read(recipes/dough.md)` BEFORE shaping any loaf (the dough rules change by season).',
       ['recipes/dough.md'],
     ],
     ['"this" before a clause', '!! Read this BEFORE the bakery opens. !!', ['CLAUDE.md']],
-    [
-      'a read with no target before a list',
-      '!! Read BEFORE naming a special, "the soup of the day", and a discount. !!',
-      ['CLAUDE.md'],
-    ],
     [
       'a trigger that holds the word read, then a coordinated read',
       'Before your FIRST read of the freezer log: run `date` in code, and read the price table in `shop/pricing/rates.md`.',
@@ -123,6 +113,26 @@ describe('layouts of a read-before rule', () => {
   it('loads a skill only when it is one', async () => {
     expect(await gatesOf('Load the weather page before any bake.')).toEqual([]);
     expect((await gatesOf('Load `oven-log` before any bake.')).map(everything)).toEqual([['oven-log']]);
+  });
+});
+
+describe('a read with no object gates only through "this" or one path that follows', () => {
+  it.each([
+    '!! Read BEFORE naming a special, "the soup of the day", and a discount. !!',
+    'Read before any change.',
+    'Title line\nRead before any change.',
+    'READ BEFORE YOU WRITE',
+    '### Rule: Read before you write',
+    '| Read before editing |',
+    'Read BEFORE the bakery opens.',
+    'KITCHEN RULE -- read before the FIRST oven setting of a shift.',
+  ])('gives no gate for %s', async (block) => {
+    expect(await gatesOf(block)).toEqual([]);
+  });
+
+  it('gives no gate for a read whose target is only a slot', async () => {
+    expect(await gatesOf('Before shaping a loaf, read `<file>`.')).toEqual([]);
+    expect(await gatesOf('Before shaping a loaf: read <path>.')).toEqual([]);
   });
 });
 

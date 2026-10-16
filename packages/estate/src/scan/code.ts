@@ -2151,13 +2151,12 @@ function gateAtoms(
               // A bare "read before X" may be followed by a sentence that names what to read.
               if (bareRead) {
                 const later = [...new Set(line.next.flatMap((text) => namedPaths(text)))];
-                // Several documents named after it: which one is meant is not said, so nothing is gated.
-                if (later.length > 1) return undefined;
-                if (later.length === 1) {
-                  self = false;
-                  first = later[0] ?? first;
-                  fromName = true;
-                }
+                // The file itself is the target only when the sentence says "this"; a bare "Read before X" names
+                // nothing, unless the lines right after it name exactly one document.
+                if (later.length !== 1) return undefined;
+                self = false;
+                first = later[0] ?? first;
+                fromName = true;
               }
             } else if (found) {
               first = found.name;
