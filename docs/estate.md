@@ -227,7 +227,7 @@ An estate may hold `driftbench.estate.yaml` at its root, or at `.claude/driftben
 
 A helper executor and the fixtures of a script, as the unit runner reads them (`helpers` and `scripts` keys; YAML anchors may share one executor):
 
-```yaml
+```text
 helpers:
   route-planner:
     command: [python3, .claude/stand-in-helper.py]
