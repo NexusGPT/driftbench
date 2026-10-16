@@ -5,10 +5,16 @@
 <!-- level-table:start -->
 | Seed | Level |
 |---|---|
-| 1 | 2 |
-| 2 | 2 |
-| 3 | 2 |
+| 1 | 0 |
+| 2 | 0 |
+| 3 | 0 |
 | hidden | 0 |
+| 4 | 0 |
+| 5 | 0 |
+| 6 | 0 |
+| 7 | 0 |
+| 8 | 0 |
+| 1009 | 0 |
 <!-- level-table:end -->
 
 Iteration 46, source c1ac480c04ed2c7c44cb957a283d631be379ef0f plus the change recorded in this journal row. Hidden seed 250293324, derived from that head.

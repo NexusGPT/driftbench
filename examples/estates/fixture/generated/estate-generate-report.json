@@ -51,7 +51,7 @@
     "tests": 26,
     "guards": 6,
     "scripts": 2,
-    "cases": 54,
+    "cases": 57,
     "checks": {
       "tested": 0,
       "needsTrigger": 0,

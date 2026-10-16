@@ -55,3 +55,16 @@ metadata:
     ask: code
     askFrom: register.standing.replies-under-1-200-characters (enforced by guard.settings.stop-guard-reply-length-py)
     outcome: no-delete
+    unit:
+      target:
+        kind: guard
+        name: reply-length.py
+        event: Stop
+        command: python3 "$CLAUDE_PROJECT_DIR"/.claude/guards/reply-length.py
+      cases:
+        - id: case-01
+          payload:
+            stop_hook_active: false
+            last_reply: Keep every reply under 1,200 characters unless the user asks for detail.
+          material: Keep every reply under 1,200 characters unless the user asks for detail.
+      budgetMs: 60000
