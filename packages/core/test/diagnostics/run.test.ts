@@ -162,6 +162,21 @@ describe('a diagnostic', () => {
     ]);
   });
 
+  it('records the blame and placement policies only on a block a diagnostic ran on', async () => {
+    const keys = (result: RunResult) =>
+      result.blocks.map((block) => block.resolved?.objects.map((entry) => entry.key));
+    // No diagnostic is used: neither policy influenced the record, so neither is listed.
+    expect(keys(await run(root, 'specs/without.yaml'))).toEqual([
+      ['value_check', 'check_set'],
+      ['value_check', 'check_set'],
+    ]);
+    // A diagnostic is used: the policies it reads are listed, on every block it is used on.
+    expect(keys(await run(root, 'specs/with.yaml'))).toEqual([
+      ['value_check', 'blame', 'placement', 'check_set', 'diagnostics'],
+      ['value_check', 'blame', 'placement', 'check_set', 'diagnostics'],
+    ]);
+  });
+
   it('fires a trigger on the verdict it names only: a step that always writes stays silent elsewhere', async () => {
     const result = await run(root, 'specs/noted.yaml');
     expect(
