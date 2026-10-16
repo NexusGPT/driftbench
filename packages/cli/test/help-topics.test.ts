@@ -319,6 +319,110 @@ describe('every command is covered by a help topic', () => {
   }
 });
 
+/** The text of one `##` section of a topic body, heading excluded. */
+function section(body: string, name: string): string {
+  const start = body.indexOf(`## ${name}\n`);
+  if (start === -1) return '';
+  const end = body.indexOf('\n## ', start + 1);
+  return body.slice(start + name.length + 4, end === -1 ? undefined : end);
+}
+
+describe('the red-team start topic matches the CLI', () => {
+  const topic = TOPICS.find((each) => each.id === 'redteam-overview');
+  const RED_TEAM = [
+    'attack',
+    'perturb',
+    'redteam run',
+    'redteam plugins',
+    'redteam generate',
+    'redteam grade',
+  ];
+
+  it('covers the six red-team commands', () => {
+    expect(topic?.commands).toEqual(RED_TEAM);
+  });
+
+  it('names every option of each command under its own heading', async () => {
+    const program = fullProgram(
+      await Promise.all(COMMAND_MODULES.map((module) => module.load())),
+      capture(),
+      () => {},
+    );
+    const options = section(topic?.body ?? '', 'Commands and every option');
+    for (const path of RED_TEAM) {
+      const command = path
+        .split(' ')
+        .reduce<Command | undefined>((at, name) => at?.commands.find((sub) => sub.name() === name), program);
+      expect(command, path).toBeDefined();
+      const start = options.indexOf(`### ${path}\n`);
+      expect(start, `### ${path}`).toBeGreaterThan(-1);
+      const end = options.indexOf('\n### ', start + 1);
+      const own = options.slice(start, end === -1 ? undefined : end);
+      for (const option of command?.options ?? []) {
+        expect(own, `${path} ${option.long}`).toContain(`\`${option.long}`);
+      }
+    }
+  });
+
+  it('gives each command its exit codes', () => {
+    const outputs = section(topic?.body ?? '', 'Outputs and how to read them');
+    for (const path of RED_TEAM) expect(outputs, path).toContain(`| \`${path}\` |`);
+  });
+
+  /** A row of the Common errors table: the command, the start of its stderr, its exit code. */
+  const rows = [
+    ...section(topic?.body ?? '', 'Common errors').matchAll(
+      /^\| `(driftbench [^`]+)` \| `([^`]+)` \| (\d+) \|/gm,
+    ),
+  ].map((match) => ({ line: match[1] as string, message: match[2] as string, exit: Number(match[3]) }));
+
+  it('lists errors of every red-team command', () => {
+    expect(rows.length).toBeGreaterThanOrEqual(20);
+    for (const path of RED_TEAM) {
+      expect(
+        rows.some((row) => row.line.startsWith(`driftbench ${path} `)),
+        path,
+      ).toBe(true);
+    }
+  });
+
+  it('prints each listed error with its exit code, and writes nothing', async () => {
+    const scratch = mkdtempSync(join(tmpdir(), 'driftbench-help-redteam-errors-'));
+    // A row with --model or --judge must stop on the missing key, never reach a paid model.
+    const keys = ['ANTHROPIC_API_KEY', 'OPENAI_API_KEY', 'GEMINI_API_KEY', 'GOOGLE_API_KEY'];
+    const saved = Object.fromEntries(keys.map((key) => [key, process.env[key]]));
+    try {
+      for (const key of keys) delete process.env[key];
+      symlinkSync(join(ROOT, 'examples'), join(scratch, 'examples'));
+      symlinkSync(join(ROOT, 'packages'), join(scratch, 'packages'));
+      const before = repositoryState();
+      for (const row of rows) {
+        const io = capture(scratch);
+        const code = await inScratch(scratch, () => main(words(row.line).slice(1), io));
+        expect(code, `${row.line}\n${io.stderr()}`).toBe(row.exit);
+        expect(io.stderr(), row.line).toContain(row.message);
+      }
+      expect(repositoryState(), 'an error row wrote into the repository').toBe(before);
+      expect(readdirSync(scratch).sort(), 'an error row wrote a file').toEqual(['examples', 'packages']);
+    } finally {
+      for (const key of keys) {
+        if (saved[key] === undefined) delete process.env[key];
+        else process.env[key] = saved[key];
+      }
+      rmSync(scratch, { recursive: true, force: true });
+    }
+  }, 300_000);
+
+  it('is named by the red-team recipe, which runs the redteam commands', () => {
+    const recipe = TOPICS.find((each) => each.id === 'recipes-red-team-an-agent');
+    expect(recipe?.see_also).toContain('redteam-overview');
+    for (const path of ['redteam run', 'redteam generate', 'redteam grade']) {
+      expect(recipe?.commands, path).toContain(path);
+      expect(section(recipe?.body ?? '', 'Steps'), path).toContain(`driftbench ${path} `);
+    }
+  });
+});
+
 /**
  * One step of a worked example, in document order: a driftbench command run through `main`, a shell line of
  * a `sh setup` block run with bash, or a file a block with `file=<path>` in its info string writes.
