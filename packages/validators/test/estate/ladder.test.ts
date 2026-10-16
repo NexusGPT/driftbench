@@ -1,6 +1,7 @@
 import { toEstateSpaceMap } from '@agent-nexus/driftbench-estate';
 import { describe, expect, it, vi } from 'vitest';
 import { runLadder } from '../../src/index';
+import { plantedOf } from '../../src/ladders/estate/bank/relevance-typed';
 import {
   allowedPairs,
   atomLevel,
@@ -17,7 +18,7 @@ import {
   specLevel,
   standingFamily,
 } from '../../src/ladders/estate/index';
-import { exclusionJustified } from '../../src/ladders/estate/levels';
+import { exclusionJustifier } from '../../src/ladders/estate/levels';
 
 /** The seed 1 run with one part replaced: a fault planted in the component a level watches. */
 async function planted(change: (run: EstateRun) => EstateRun): Promise<EstateRun> {
@@ -178,9 +179,9 @@ describe('the estate ladder', { timeout: 120_000 }, () => {
 
   it('counts a declared exclusion only where the validator\u2019s relevance table justifies it', async () => {
     const run = await estateRun(1);
-    const atoms = new Map(run.scanned.map.atoms.map((atom) => [atom.id, atom]));
+    const accepts = exclusionJustifier(run.scanned.map, plantedOf(run));
     const declared = run.plan.details.relevanceConstraints ?? [];
-    const justified = declared.filter((constraint) => exclusionJustified(constraint.forbid, atoms));
+    const justified = declared.filter((constraint) => accepts(constraint.forbid));
     expect(declared.length).toBeGreaterThan(justified.length);
     expect(justified.length).toBeGreaterThan(0);
     const only = (relevanceConstraints: typeof declared) =>

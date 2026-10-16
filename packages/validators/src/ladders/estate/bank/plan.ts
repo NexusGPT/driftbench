@@ -10,7 +10,7 @@ import type { SpaceMap } from '@agent-nexus/driftbench-space';
 import { requiredRows } from '../levels';
 import { estateRun } from '../pipeline';
 import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
-import { RELEVANCE } from './relevance-table';
+import { judgeRelevance, plantedOf, RELATION_TITLE, RELEVANCE } from './relevance-typed';
 
 /**
  * Three plan families on the generated estate of each seed.
@@ -23,9 +23,14 @@ import { RELEVANCE } from './relevance-table';
  * with constraints of two and three values, a constraint on a target atom, a value no cell can take, one
  * value dimensions and wide dimensions. The oracle enumerates every allowed tuple.
  *
- * plan.relevance: a situation value is crossed only with atoms it can act on: a dead helper or running
- * helpers only with helpers and the routes to them, a stale tracker only with stages, a language switch only
- * with output rules and instructions, a tool failure only with tools, scripts, guards and helpers.
+ * plan.relevance: a situation value is crossed only with the atoms it can act on, judged from typed data and no
+ * word of the estate (relevance-typed.ts): the kind of an atom, the type of its evidence predicates, the kinds of
+ * its edges, its typed fields and what the hidden estate planted for a standing rule. Each situation has one
+ * narrow relation (a helper, a declared tool, a read of outside data, a call with a retry contract, a gate, a rule
+ * planted for a hazard or a stop, a guard on the prompt, a route). The atoms that hold it are the situation's
+ * identified targets; a crossing with any other atom is wrong, and no relation allows an atom that the kind list
+ * of the previous oracle rejected. When no atom holds the relation, no atom applies and any crossing is wrong. A
+ * plan that crosses every situation with every atom fails all 20 items.
  */
 
 const CONTRACT = 'packages/estate/src/plan/contract.ts';
@@ -678,10 +683,10 @@ export function planRelevanceFamily(): Family {
     family,
     3,
     PAIRWISE,
-    RELEVANCE.map(({ key, tier, title, kinds }) => ({
+    RELEVANCE.map(({ key, tier, title, relation }) => ({
       key,
       tier,
-      title: `${title} is crossed only with ${kinds.join(', ')} atoms`,
+      title: `${title} is crossed only with atoms that hold ${RELATION_TITLE[relation]}; with none, it is crossed with no atom`,
     })),
   );
   return {
@@ -691,25 +696,14 @@ export function planRelevanceFamily(): Family {
     items,
     async evaluate(seed) {
       const run = await estateRun(seed);
-      const kindOf = new Map(run.scanned.map.atoms.map((atom) => [atom.id, atom]));
+      const planted = plantedOf(run);
+      const rows = run.plan.plan.rows.filter((candidate) => candidate.id.startsWith('pairwise.'));
       const out = new Map<string, ItemResult>();
       for (const rule of RELEVANCE) {
-        const wrong: string[] = [];
-        for (const row of run.plan.plan.rows.filter((candidate) => candidate.id.startsWith('pairwise.'))) {
-          if (row.cell[rule.dimension] !== rule.value) continue;
-          const atom = kindOf.get(row.atomIds[0] as string);
-          if (!atom) continue;
-          const helperRoute =
-            rule.helperRoutes && atom.kind === 'route' && atom.fields?.targetKind === 'subagent';
-          if (!rule.kinds.includes(atom.kind) && !helperRoute) wrong.push(`${row.id} (${atom.kind})`);
-        }
-        out.set(`${family}.${rule.key}`, {
-          pass: wrong.length === 0,
-          detail:
-            wrong.length === 0
-              ? 'holds'
-              : `${wrong.length} rows cross it with atoms it cannot act on: ${wrong.slice(0, 3).join(', ')}`,
-        });
+        const crossings = rows
+          .filter((row) => row.cell[rule.dimension] === rule.value)
+          .map((row) => ({ row: row.id, atom: row.atomIds[0] as string }));
+        out.set(`${family}.${rule.key}`, judgeRelevance(rule.relation, run.scanned.map, crossings, planted));
       }
       return out;
     },

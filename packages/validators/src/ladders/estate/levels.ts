@@ -9,7 +9,7 @@ import {
   toEstateSpaceMap,
 } from '@agent-nexus/driftbench-estate';
 import type { Item, Measure } from '../../ladder';
-import { RELEVANCE } from './bank/relevance-table';
+import { type Planted, plantedOf, RELEVANCE, type Relation, targetsOf } from './bank/relevance-typed';
 import { componentOfKind, componentOfMarker, ESTATE_COMPONENTS } from './components';
 import { follow } from './follower';
 import type { HiddenEstate } from './hidden';
@@ -249,22 +249,39 @@ export function allowedPairs(
   return out;
 }
 
-/** Whether the validator's relevance table justifies a declared exclusion of one situation value and one target. */
-export function exclusionJustified(
-  forbid: Readonly<Record<string, string>>,
-  atoms: ReadonlyMap<string, { kind: string; fields?: Record<string, unknown> }>,
-): boolean {
-  const entries = Object.entries(forbid);
-  const situation = entries.filter(([dimension]) => !dimension.startsWith('atoms.'));
-  const target = entries.filter(([dimension]) => dimension.startsWith('atoms.'));
-  if (situation.length !== 1 || target.length !== 1) return false;
-  const [dimension, value] = situation[0] as [string, string];
-  const rule = RELEVANCE.find((row) => row.dimension === dimension && row.value === value);
-  const atom = atoms.get((target[0] as [string, string])[1]);
-  if (!rule || !atom) return false;
-  const helperRoute =
-    rule.helperRoutes === true && atom.kind === 'route' && atom.fields?.targetKind === 'subagent';
-  return !rule.kinds.includes(atom.kind) && !helperRoute;
+/**
+ * Whether the validator's relevance table justifies a declared exclusion. The table (bank/relevance-typed.ts) gives
+ * each situation value one relation to the atoms it can act on, judged from the kind, typed evidence and typed fields
+ * of an atom and from what the hidden estate planted: it is the one source of truth for plan.relevance and for this
+ * level. An exclusion is justified only when it forbids one situation value with one target atom that does not hold
+ * the value's relation. Any other declared exclusion (a situation against a situation, a value the table holds no row
+ * for, a target the table makes relevant) leaves its pairs owed.
+ */
+export function exclusionJustifier(
+  map: Pick<EstateMap, 'atoms' | 'edges'>,
+  planted: ReadonlyMap<string, Planted> = new Map(),
+): (forbid: Readonly<Record<string, string>>) => boolean {
+  const known = new Set(map.atoms.map((atom) => atom.id));
+  const targets = new Map<Relation, Set<string>>();
+  const of = (relation: Relation) => {
+    let found = targets.get(relation);
+    if (!found) {
+      found = targetsOf(relation, map, planted);
+      targets.set(relation, found);
+    }
+    return found;
+  };
+  return (forbid) => {
+    const entries = Object.entries(forbid);
+    const situation = entries.filter(([dimension]) => !dimension.startsWith('atoms.'));
+    const target = entries.filter(([dimension]) => dimension.startsWith('atoms.'));
+    if (situation.length !== 1 || target.length !== 1) return false;
+    const [dimension, value] = situation[0] as [string, string];
+    const atom = (target[0] as [string, string])[1];
+    const rule = RELEVANCE.find((row) => row.dimension === dimension && row.value === value);
+    if (!rule || !known.has(atom)) return false;
+    return !of(rule.relation).has(atom);
+  };
 }
 
 /** Level 3: every allowed pair is in a row of the plan, and every approved atom has its mandatory rows. */
@@ -285,9 +302,9 @@ export function planLevel(run: EstateRun): Measure {
   // when the validator's own table of what a situation value can act on justifies it: one situation value against
   // one target atom whose kind the table says the value cannot act on. Any other declared exclusion (a situation
   // against a situation, a value the table holds no row for, a target the table makes relevant) leaves its pairs owed.
-  const atomById = new Map(map.atoms.map((atom) => [atom.id, atom]));
+  const justified = exclusionJustifier(map, plantedOf(run));
   const proposed = (run.plan.details.relevanceConstraints ?? []).filter((constraint) =>
-    exclusionJustified(constraint.forbid, atomById),
+    justified(constraint.forbid),
   );
   const constraints = [...space.constraints, ...proposed].map((constraint) => {
     const forbid: Record<string, string> = {};
