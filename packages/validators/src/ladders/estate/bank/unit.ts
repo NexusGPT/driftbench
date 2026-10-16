@@ -178,6 +178,34 @@ const CELLS: Cell[] = [
 /** One guard run as `estate unit` reports it (docs/estate.md section 6). */
 type Reported = { guard?: string; event?: string; decision?: string; message?: string; ms?: number };
 
+/**
+ * A kill is a spec that passes on the original estate and fails on the variant. A spec already red on the
+ * original is an invalid test, never a kill: the variant did not turn it red.
+ */
+export function killVerdict(
+  specs: readonly { id: string }[],
+  original: ReadonlyMap<string, boolean>,
+  variant: ReadonlyMap<string, boolean>,
+  name: string,
+): { valid: number; killed: boolean; detail: string } {
+  const valid = specs.filter((spec) => original.get(spec.id) === true);
+  const killed = valid.some((spec) => variant.get(spec.id) === false);
+  return {
+    valid: valid.length,
+    killed,
+    detail:
+      valid.length === 0
+        ? `invalid tests: none of the ${specs.length} unit specs passes on the original estate, so a red spec on the ${name} variant proves nothing`
+        : killed
+          ? 'holds'
+          : `the ${valid.length} unit specs green on the original stay green on the ${name} variant`,
+  };
+}
+
+/** The variants judged by a kill: a spec green on the original that turns red. */
+const wantsOriginal = (cell: Cell): boolean =>
+  !(cell.variant === 'green' || cell.variant === 'script-green' || cell.variant === 'helper-green');
+
 function unitRun(
   estate: string,
   specs: readonly SuiteSpec[],
@@ -318,7 +346,20 @@ export function unitFamily(): Family {
             continue;
           }
           const green = specs.every((spec) => verdicts.get(spec.id) === true);
-          const red = specs.some((spec) => verdicts.get(spec.id) === false);
+          // A kill is a spec that passes on the original estate and fails on the variant. A spec that is already
+          // red on the original is an invalid test, never a kill: the variant did not turn it red.
+          const original = wantsOriginal(cell) ? unitRun(FIXTURE, specs) : undefined;
+          if (original?.error) {
+            out.set(`${family}.${cell.key}`, { pass: false, detail: original.error });
+            continue;
+          }
+          const kill = original ? killVerdict(specs, original.verdicts, verdicts, cell.variant) : undefined;
+          if (kill && kill.valid === 0) {
+            out.set(`${family}.${cell.key}`, { pass: false, detail: kill.detail });
+            continue;
+          }
+          const red = kill?.killed === true;
+          const stays = kill?.detail ?? '';
           const wantsGreen =
             cell.variant === 'green' || cell.variant === 'script-green' || cell.variant === 'helper-green';
           out.set(
@@ -332,10 +373,7 @@ export function unitFamily(): Family {
                   }
               : red
                 ? { pass: true, detail: 'holds' }
-                : {
-                    pass: false,
-                    detail: `the ${specs.length} unit specs stay green on the ${cell.variant} variant`,
-                  },
+                : { pass: false, detail: stays },
           );
         }
       } finally {
