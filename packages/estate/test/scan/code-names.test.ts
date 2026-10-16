@@ -207,6 +207,45 @@ describe('counter-examples and fill-in values are not live references', () => {
   });
 });
 
+describe('a path the sentence says to write is not a prerequisite', () => {
+  it('skips an absent path after a write verb and keeps one after a read verb', async () => {
+    const { result } = await lint({
+      'CLAUDE.md':
+        '# Rules\nSave the summary to `workspace/clients/summary.md` after the call.\nWrite a note into `workspace/notes/today.html`.\nRead `.claude/missing-one.md` first, then write `out/report.md`.\nSee `.claude/missing-two.md` and generate `out/other.md` from `.claude/missing-three.md`.\n',
+    });
+    const missing = result.findings.filter((finding) => finding.code === 'MISSING_REFERENCE');
+    expect(
+      missing.map((finding) => finding.message.replace(/^CLAUDE\.md:\d+ names /, '').split(',')[0]),
+    ).toEqual(['.claude/missing-one.md', '.claude/missing-two.md', '.claude/missing-three.md']);
+  });
+});
+
+describe('a relative path in a single-file unit that starts outside the estate points out', () => {
+  const files = {
+    'CLAUDE.md': '# Rules\nDispatch the `filer` agent.\n',
+    '.claude/agents/filer.md':
+      '---\nname: filer\ndescription: Files notes.\n---\n# Filer\nFile the note under `workspace-root/clients/summary.md` and render `workspace-root/clients/card.html`.\n',
+  };
+
+  it('reports an EXTERNAL path for a helper, not a missing file', async () => {
+    const { result } = await lint(files);
+    expect(result.counts.MISSING_REFERENCE).toBe(0);
+    expect(result.counts.EXTERNAL).toBe(2);
+  });
+
+  it('keeps a first folder the estate holds, a dotted path and a skill citation as missing files', async () => {
+    const { result } = await lint({
+      ...files,
+      '.claude/agents/filer.md':
+        '---\nname: filer\ndescription: Files notes.\n---\n# Filer\nRead `.claude/refs/gone.md` and `.claude/skills/pack/references/gone.md`.\n',
+      '.claude/skills/pack/SKILL.md':
+        '---\nname: pack\ndescription: Packs.\n---\n# Pack\nRead `references/gone.md` first.\n',
+    });
+    expect(result.counts.MISSING_REFERENCE).toBe(3);
+    expect(result.counts.EXTERNAL).toBe(0);
+  });
+});
+
 describe('reach by dispatch', () => {
   it('reaches a helper dispatched from a live skill', async () => {
     const { result } = await lint({
@@ -236,5 +275,20 @@ describe('a sentence is not a path', () => {
     });
     const hazard = map.atoms.find((atom) => atom.kind === 'hazard');
     expect(hazard?.provenance.quote).toContain('✗ ignore the repeated guard nudges');
+  });
+});
+
+describe('a verb inside a file name is not a verb', () => {
+  it('keeps an absent path a reference when a write-verb word only appears in another file name', async () => {
+    const { result } = await lint({
+      'CLAUDE.md':
+        '# Rules\nThe index `.claude/create-notes.md` lists `.claude/missing-one.md` for the team.\n',
+    });
+    expect(
+      result.findings
+        .filter((finding) => finding.code === 'MISSING_REFERENCE')
+        .map((f) => f.message)
+        .join(' '),
+    ).toContain('missing-one.md');
   });
 });

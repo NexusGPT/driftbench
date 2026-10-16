@@ -43,6 +43,12 @@ A changelog, history, journal, archive or fixture is a record or a store: nothin
 - A path that a script writes or creates (an open for writing, a redirect, `touch`, `mkdir`, a copy or move to it, directly or through a constant assigned the path) is a file the runtime makes: a marker, a state file, a log. A sentence that names it does not describe a broken link. A script that only reads a path proves nothing about it, so a missing file it reads stays a finding, and a registry or settings literal counts as nothing. Separately, a file that a named script holds as a literal counts as named and reached with the script. A script nothing names legitimises nothing, and a lone file name matches only as a whole path.
 - A sentence read as a path (a quoted run of words, or a segment longer than a file name can be) names no file.
 
+## Write destinations and infrastructure scripts
+
+- A path that does not exist, named in a clause whose nearest verb is a write verb (write, save, create, generate, produce, export, upload, store, emit), is something the work makes, not a prerequisite to find. It produces no reference. File names and quoted text in the clause are not read as verbs. A read verb nearer to the path (read, open, load, see, consult, check, follow, use, from) keeps it a reference. An existing path is a reference either way.
+- A relative path in a helper agent whose first folder the estate holds nowhere (not at the root, not in `.claude`) points into the project or a mounted workspace, not at a sibling of the helper. It is external information (`EXTERNAL`), never a missing file. Skills, standing instructions and memory keep their relative paths as concrete.
+- A guard script is infrastructure, not a check, when its command hands it another estate script as an argument (a launcher), when it runs other guard scripts, or when it is a long-lived process (it binds and listens on a socket or runs a server loop, or it runs an unbounded loop together with sleeping, signal handling or detaching from its parent). The check registry needs no row for it. A command that hands the script only data (a configuration file) does not make it a launcher.
+
 ## Reproducible synthetic measurement
 
 The hand-written estate in `packages/estate/test/scan/document-role-estate.ts` contains each navigation role, mixed example and operational sections, placeholder paths, an ignored fixture path, three concrete missing live references, and one real recovery hazard. It contains no private estate text or validator fixture strings.

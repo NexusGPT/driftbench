@@ -1060,6 +1060,49 @@ function skippedOf(raw: RawEstate): Set<string> {
   return built;
 }
 
+const FOLDERS = new WeakMap<RawEstate, Set<string>>();
+/** Whether a relative path with a folder starts in a folder the estate does not hold at its root or in `.claude`. */
+function outsideEstate(raw: RawEstate, files: ReadonlyMap<string, EstateFile>, written: string): boolean {
+  const clean = posix.normalize(written.replace(/^\.\//, ''));
+  const parts = clean.split('/');
+  if (parts.length < 2 || clean.startsWith('.') || clean.startsWith('/') || clean.startsWith('~'))
+    return false;
+  let folders = FOLDERS.get(raw);
+  if (!folders) {
+    folders = new Set<string>();
+    for (const path of files.keys()) {
+      const segments = path.split('/');
+      if (segments.length > 1) folders.add(segments[0] as string);
+      if (segments[0] === '.claude' && segments.length > 2) folders.add(segments[1] as string);
+    }
+    for (const base of raw.bases ?? []) for (const part of base.split('/')) folders.add(part);
+    FOLDERS.set(raw, folders);
+  }
+  return !folders.has(parts[0] as string);
+}
+
+const WRITE_VERB =
+  /\b(?:writ(?:e|es|ing)|sav(?:e|es|ing)|creat(?:e|es|ing)|generat(?:e|es|ing)|produc(?:e|es|ing)|export(?:s|ing)?|upload(?:s|ing)?|stor(?:e|es|ing)|emit(?:s|ting)?)\b/gi;
+const READ_VERB =
+  /\b(?:read|reads|reading|open|opens|load|loads|see|consult|check|checks|follow|follows|use|uses|review|refer|cat|fetch|source|per|from)\b/gi;
+
+/** Whether the nearest verb before a path in its own clause makes the path something to produce. */
+export function writeDestination(line: string, start: number): boolean {
+  // File names and quoted text are not verbs: only the words around them decide.
+  const clause =
+    line
+      .slice(0, start)
+      .replace(/`[^`]*`|"[^"]*"|'[^']*'|\S*[./\\]\S*/g, ' ')
+      .split(/[;:!?]|\.(?=\s|$)/)
+      .pop() ?? '';
+  const last = (pattern: RegExp) => {
+    let at = -1;
+    for (const match of clause.matchAll(pattern)) at = match.index ?? at;
+    return at;
+  };
+  return last(WRITE_VERB) > last(READ_VERB);
+}
+
 function referenceAtoms(
   chunk: ProseChunk,
   files: ReadonlyMap<string, EstateFile>,
@@ -1107,16 +1150,26 @@ function referenceAtoms(
       const identifier = !pathReference(named);
       // Declared unit identifiers resolve without naming an absent file.
       if (identifier && (routeNames(raw).skills.has(named) || routeNames(raw).helpers.has(named))) continue;
-      const located = locateNamed(named, chunk.file, files, {
+      let located = locateNamed(named, chunk.file, files, {
         bases: raw.bases ?? [],
         skipped,
         aliases: raw.aliases ?? {},
         byName: names(raw, files),
         externals: raw.externals ?? [],
       });
+      const source = files.get(chunk.file);
+      // A helper is one file in no folder of its own, and its work runs in a project or a mounted workspace, so
+      // its relative path names that, not a sibling. A first folder the estate does not hold points out.
+      if (
+        located.via === 'none' &&
+        !located.candidates &&
+        source &&
+        source.kind === 'subagent' &&
+        outsideEstate(raw, files, named)
+      )
+        located = { path: posix.normalize(named.replace(/^\.\//, '')), via: 'external' };
       const path = located.path;
       const target = files.get(path);
-      const source = files.get(chunk.file);
       // A routing link loads the declared skill; it does not separately order a read of its definition.
       if (
         source &&
@@ -1127,6 +1180,8 @@ function referenceAtoms(
       )
         continue;
       const isSkipped = target === undefined && (skipped.has(path) || ignoredReference(raw, path));
+      // A path the sentence says to write, save or create is made by the work, not a prerequisite to find.
+      if (target === undefined && !isSkipped && writeDestination(line.text, reference.start)) continue;
       // A name without a separator that resolves nowhere has no place. Quoted, backticked or linked with an
       // extension, it designates a file beside its source and is concrete; a loose word, or a name with no
       // extension, is information only.

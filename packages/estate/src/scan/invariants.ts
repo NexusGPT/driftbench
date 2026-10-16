@@ -1,9 +1,11 @@
+import { posix } from 'node:path';
 import type { ModelPort } from '@agent-nexus/driftbench-generate';
 import type { Atom } from '../schema';
 import { AtomBuilder, codeAtoms, guardName } from './code';
+import { codeNames, longLived } from './code-names';
 import { isNormative, normativeEstate, unloadedByDesign } from './document-roles';
 import { type ChunkRun, type ProseRefusal, runChunk } from './prose';
-import type { EstateFile, RawEstate } from './reader';
+import type { EstateFile, GuardDecl, RawEstate } from './reader';
 import { type Located, linesOf } from './text';
 
 /**
@@ -76,6 +78,40 @@ export type InvariantState = {
   rowsWithoutGuard: string[];
 };
 
+/** Guard scripts that launch other guards or run as long-lived processes. */
+function infrastructureScripts(raw: RawEstate): Set<string> {
+  const guardScripts = new Set(
+    raw.guards.flatMap((guard) => (!guard.check && guard.script ? [guard.script] : [])),
+  );
+  const named = codeNames(raw).links;
+  const paths = new Set(raw.files.map((file) => file.path));
+  // A command that hands another estate script to the script it runs wraps it: the script is a launcher.
+  const wraps = (guard: GuardDecl): boolean => {
+    for (const word of guard.command.split(/\s+/).slice(1)) {
+      const clean = word
+        .replace(/^["']|["']$/g, '')
+        .replace(/^\$\{?CLAUDE_PROJECT_DIR\}?\/?/, '')
+        .replace(/^\.\//, '');
+      if (!/\.(?:py|sh|bash|zsh|js|mjs|cjs|ts|rb|pl)$/i.test(clean)) continue;
+      const found = [clean, posix.join(posix.dirname(guard.script ?? ''), clean)].map((p) =>
+        posix.normalize(p),
+      );
+      if (found.some((path) => path !== guard.script && paths.has(path))) return true;
+    }
+    return false;
+  };
+  const launchers = new Set(
+    raw.guards.flatMap((guard) => (!guard.check && guard.script && wraps(guard) ? [guard.script] : [])),
+  );
+  const texts = new Map(raw.files.map((file) => [file.path, file.text]));
+  const found = new Set<string>();
+  for (const script of guardScripts) {
+    const others = (named.get(script) ?? []).filter((path) => path !== script && guardScripts.has(path));
+    if (launchers.has(script) || others.length > 0 || longLived(texts.get(script) ?? '')) found.add(script);
+  }
+  return found;
+}
+
 /** Measures what the files alone decide. Orphans come from the graph and are passed in. */
 export function measureInvariants(
   raw: RawEstate,
@@ -87,7 +123,13 @@ export function measureInvariants(
   );
   const names = new Set(raw.guards.map((guard) => guardName(guard)));
   // A catalogue check is listed by its catalogue; the registry is asked to list the guards the runtime runs.
-  const runtime = new Set(raw.guards.filter((guard) => !guard.check).map((guard) => guardName(guard)));
+  // A launcher (it runs other guards) or a long-lived process is infrastructure, not a check: no row lists it.
+  const infrastructure = infrastructureScripts(raw);
+  const runtime = new Set(
+    raw.guards
+      .filter((guard) => !guard.check && !(guard.script && infrastructure.has(guard.script)))
+      .map((guard) => guardName(guard)),
+  );
   const listed = raw.registry.filter((row) => row.origin !== 'catalogue');
   const rows = new Set(listed.map((row) => row.guard.split('/').pop() ?? row.guard));
   return {

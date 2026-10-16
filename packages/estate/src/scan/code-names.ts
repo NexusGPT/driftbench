@@ -149,3 +149,22 @@ export function runtimeProduct(raw: RawEstate, path: string): boolean {
   for (const literal of literals) if (literal.endsWith(`/${sentence}`)) return true;
   return false;
 }
+
+/**
+ * Whether a script source is a long-lived process rather than a check that answers and exits: it serves (it
+ * listens on a socket it binds or accepts on, or runs a server loop), or it runs an unbounded loop together
+ * with sleeping, signal handling or detaching from its parent.
+ */
+export function longLived(text: string): boolean {
+  const serves =
+    /\.listen\(/.test(text) && /\.(?:bind|accept)\(|\bcreateServer\(|\bstart_server\(/.test(text);
+  const unbounded =
+    /\bwhile\s*(?:\(\s*)?(?:True|true|1)\s*(?:\))?\s*(?::|\{|;|do\b)|\bfor\s*\(\s*;\s*;\s*\)|\bloop\s*\{/.test(
+      text,
+    );
+  const staying =
+    /\b(?:sleep|serve_forever|signal\.(?:signal|pause)|setsid|start_new_session|os\.fork|daemon(?:ize)?|run_forever)\b/.test(
+      text,
+    );
+  return serves || /\bserve_forever\b|\brun_forever\b/.test(text) || (unbounded && staying);
+}
