@@ -219,3 +219,14 @@ request that names the tool the guard watches. On the synthetic estate each of t
 complete of 21; `guard_negative` (14) and `guard_positive` (98) are unchanged, because those two do read their ask.
 A hook rule text of the form "before X, have the agent check Y" now asks X alone, and "refill a prescription"
 passes the act floor: an article counts as a word of the act.
+
+## Guards asked through the tool they watch
+
+The real estate rejected the guard asks built from hook prose twice: hook texts describe mechanics, so a phrase cut
+from them reads as a broken sentence. The guard ask is now the act of the tool the guard watches, with the strict
+situation of the rule text as context, and prose replaces it only when it has the strict shape of an act or of a
+situation (see the estate page). Synthetic estate, the 14 hook texts of fictional wording, same input before and
+after: complete 5,738 to 5,794 of 5,815. Guard asks go from phrases cut out of the prose ("Please help me with
+writes of shipping labels outside the labels folder.") to "Please change a file here." with the situation as context
+when it is strict ("This involves a time window on every route stop."). The cost is variety: guard negative controls
+that had a phrase of their own now share the tool act, which is why they are marked as a near miss of the tool.

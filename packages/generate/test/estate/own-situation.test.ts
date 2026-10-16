@@ -112,7 +112,10 @@ describe('tasks from the atom being tested', () => {
       ruleText: 'Read the publication policy before editing the author biography.',
     };
     expect(codeAsk('forced', [guard], []).text).toBe('Please edit the author biography.');
+    // A bare condition names no act and no situation; with a tool to name, the tool act is the ask.
     guard.fields = { ...guard.fields, ruleText: 'The publication is late.' };
+    expect(codeAsk('trigger', [guard], []).text).toBe('Please run a command in the shell here.');
+    delete guard.fields.matcher;
     expect(codeAsk('trigger', [guard], []).text).toBeUndefined();
   });
   it.each(['trigger', 'forced'] as const)(

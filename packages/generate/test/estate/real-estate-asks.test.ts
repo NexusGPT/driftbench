@@ -267,7 +267,7 @@ describe('the negative control of a guard comes near its own rule and breaks not
   it('asks about the subject of a rule that names no act', () => {
     const ask = codeAsk(
       'outside',
-      [guard({ ruleText: 'Block uploads of customer lists outside the shared drive.' })],
+      [guard({ ruleText: 'Block the uploads of customer lists outside the shared drive.' })],
       [],
       false,
       undefined,
@@ -275,7 +275,7 @@ describe('the negative control of a guard comes near its own rule and breaks not
       { testType: 'guard_negative' },
     );
     expect(ask.text).toBe(
-      'Without changing anything, tell me in one sentence what applies here to uploads of customer lists outside the shared drive.',
+      'Without changing anything, tell me in one sentence what applies here to the uploads of customer lists outside the shared drive.',
     );
     expect(ruleTopic('Block uploads of customer lists outside the shared drive.')).toBe(
       'uploads of customer lists outside the shared drive',
@@ -585,5 +585,47 @@ describe('follow-ups of the review', () => {
     expect(
       codeAsk('trigger', [guard], [], false, undefined, undefined, { testType: 'guard_positive' }).text,
     ).toBe('Please edit a pricing entry.');
+  });
+});
+
+describe('a guard is asked through the tool it watches, and prose only when it has a strict shape', () => {
+  const guard = (fields: Record<string, unknown>) => atom('guard.catalogue.x', { fields });
+  const ask = (fields: Record<string, unknown>, testType = 'guard_positive') =>
+    codeAsk('trigger', [guard(fields)], [], false, undefined, undefined, { testType }).text;
+
+  it('asks the act of the tool for hook prose that describes mechanics or fragments', () => {
+    for (const ruleText of [
+      'The source bytes read now.',
+      'Enforcing: waits a backoff.',
+      'Calls of ANY tool (Edit, Write) are logged.',
+      'As a hook it never blocks anything.',
+      'Process reads each feed ONCE.',
+    ]) {
+      expect(ask({ ruleText, matcher: 'Bash' }), ruleText).toBe('Please run a command in the shell here.');
+    }
+  });
+
+  it('carries the strict situation of the rule text as context of the tool act', () => {
+    expect(ask({ ruleText: 'A force push to the shared release branch is blocked.', matcher: 'Bash' })).toBe(
+      'Please run a command in the shell here. This involves a force push to the shared release branch.',
+    );
+  });
+
+  it('keeps a strict act of the prose as the ask, whatever the tool', () => {
+    expect(ask({ ruleText: 'A signed quote before sending the offer to a carrier.', matcher: 'Bash' })).toBe(
+      'Please send the offer to a carrier.',
+    );
+  });
+
+  it('writes no ask for a guard that watches no tool and has no strict shape in its prose', () => {
+    expect(ask({ ruleText: 'The source bytes read now.', event: 'UserPromptSubmit' })).toBeUndefined();
+    expect(ask({ ruleText: 'Enforcing: waits a backoff.' })).toBeUndefined();
+  });
+
+  it('never describes the hook in a situation', () => {
+    expect(ask({ ruleText: 'A guard for the shipment tracker is registered.' })).toBeUndefined();
+    expect(
+      ask({ ruleText: 'An Edit or a Write on a file the session has not read is blocked.' }),
+    ).toBeUndefined();
   });
 });

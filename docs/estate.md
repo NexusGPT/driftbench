@@ -634,43 +634,38 @@ A declared tool can use the owning helper's own situation when its permission is
 The task in a source prerequisite clause is used even when the extracted trigger field is absent.
 A bare read-prerequisite title is never converted into a self-answering user ask.
 
-A guard may carry optional `fields.ruleText` and `fields.ruleSources`.
-The governed action in that text precedes a generic tool matcher. Documented source quotes or
-containing line spans can link it to an existing rule's approved triggering situation.
-Unsupported prose supplies no invented task. A replay row still needs its recorded session.
-A rule text that opens with a directive and names an act after a connective ("Require a review note before
-editing a pricing entry") guards that act; one that names only a subject ("Block uploads of customer lists
-outside the shared drive") is asked as help with that subject.
+A guard may carry optional `fields.ruleText` and `fields.ruleSources`. Hook prose describes mechanics far
+more often than it names an act, so the ask that sets a guard off is the act of the tool the guard watches
+("change a file here" for Edit and Write, "run a command in the shell here" for Bash, "open a file here" for
+Read; a request for a full answer for a guard on the end of a turn), with the strict situation of the rule text
+as context ("This involves ..."). A phrase of the prose replaces the tool act only when it has a strict shape:
 
-A sentence of a guard's rule text that says how the hook works (it reads stdin or JSON, prints to stdout or stderr,
-exits with a code) is skipped: it names no act and no situation. The unit that owns a gate or a reference supplies
-the task of the ask, but its load is an expectation only when the rule is written in the unit's own files: a
-standing gate to read a file in a skill's folder does not require the skill.
+* an act: a verb of the list (a hyphenated verb ends on one), then an object, three to ten words, no colon,
+  parenthesis, quotation, pronoun or relative word, no subject before the verb, no adverb or function word at
+  the end. It comes from the opening gerund ("Deploying to production without a tag"), the gerund after a
+  connective (when, while, if, before, after, until, unless, without, upon), or a rule the guard enforces;
+* a situation: a noun phrase that opens with a determiner or a number, ends on a content word (no adverb of
+  time, no participle), holds no pronoun, relative word or parenthesis, names no hook machinery (guard, hook,
+  check, script, handler, registry), and has no clause cut off inside it.
 
-A unit-mode row (a guard or script run with no model) expects only what a run without a model can observe: the
-skill that owns the atom supplies the task of a live row, and its load is never an expectation of a unit one.
+Sentences about how the hook works (stdin, JSON, exit codes) are skipped, and a verb in the third person
+followed by of, on or about is a plural noun ("Calls of any tool"), never a verb. A guard that watches no tool
+(a guard on the user's prompt) and has no strict prose has no ask: it stays incomplete. A replay row still needs
+its recorded session. The ask reads only the guard's own rule text and matcher: no registry state name or
+severity is read into it. A rule a guard enforces gives its forbidden act when that act is strict, else its
+trigger, else the tool act; a rule that restates itself ("go against this rule") is never the ask.
 
-A guard's rule text is more often a noun phrase naming a situation than a verb phrase naming an act. The
-guarded act is then the opening gerund ("Deploying to production without a tag" guards deploying to
-production) or the gerund after a connective (when, while, if, before, after, until, unless, without, upon:
-"A signed quote before sending the offer" guards sending the offer); every sentence of the text is tried. A
-condition that is no act ("when the last reply is too long") gives none. When no act is named, the
-situation is the ask: the phrase before the first copula, modal, comma or connective ("A force push to the
-shared branch is blocked" asks for help with a force push to the shared branch), if it holds three words
-beyond determiners and prepositions, does not open with a pronoun or a negation, is not a hook description (a
-third-person verb and its object), and is not cut off right after a participle. It is a noun phrase, not a
-clause pasted from a sentence: it does not open with a conjunction, a subordinator or a preposition, holds no
-pronoun or relative word ("the file it compiles", "no command that changes ..."), no parenthesis and no more than
-twelve words, ends on a content word, and has no subject before its verb ("Process reads each feed once"). A
-verb in the third person followed by of, on or about is a plural noun ("Calls of any tool", "Notes on the
-carrier"), never a verb. The ask reads only the guard's own rule
-text: no registry state name or severity is read into it.
+The unit that owns a gate or a reference supplies the task of the ask, but its load is an expectation only when
+the rule is written in the unit's own files: a standing gate to read a file in a skill's folder does not require the
+skill. A unit-mode row (a guard or script run with no model) expects only what a run without a model can observe:
+the skill that owns the atom supplies the task of a live row, and its load is never an expectation of a unit one.
 
 A `guard_negative` row asks for a harmless near miss of the guard's own rule: without changing anything, what
-it would mean to do the governed act, or what applies to the situation the documented rule names. Each guard gets
-the request of its own rule. A guard with no documented rule is asked as a call of the tool it watches; a guard
-with a rule text that gives neither an act nor a situation stays incomplete. No estate-wide request stands in
-for either. The three types that run a guard directly with no model (`guard_hostile`, `guard_speed`,
+it would mean to do the strict act of the rule, what applies to its strict situation, or what it would mean to
+use the tool the guard watches. A guard on the end of a turn, which has no tool, and a guard with no strict
+prose stay incomplete. No estate-wide request stands in for either.
+
+The three types that run a guard directly with no model (`guard_hostile`, `guard_speed`,
 `guard_register`) never read their ask: it is a fixed request that names the tool the guard watches ("Please make
 one Edit or Write call in this workspace."), or the next step of the task when it watches none. No other type gets it.
 

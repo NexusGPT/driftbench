@@ -58,10 +58,10 @@ describe('asks written by code from the atoms', () => {
     const guard = atom('guard.settings.block', {
       fields: { enforces: [{ atom: rule.id }], matcher: 'Bash' },
     });
-    // "force push" is two words: under the floor, so no ask is written for it.
-    expect(
-      codeAsk('trigger', [guard], [], false, (id) => (id === rule.id ? rule : undefined)).refused,
-    ).toMatch(/no task/);
+    // "force push" is two words, under the floor of a prose act: the ask is the act of the tool the guard watches.
+    expect(codeAsk('trigger', [guard], [], false, (id) => (id === rule.id ? rule : undefined)).text).toBe(
+      'Please run a command in the shell here.',
+    );
     const both = atom('guard.settings.both', {
       fields: { enforces: [{ atom: rule.id }], description: 'Use when the user asks to push code.' },
     });
@@ -78,7 +78,7 @@ describe('asks written by code from the atoms', () => {
     // A rule that asks for an act is never the ask: a guard with no tool to name has no ask.
     expect(codeAsk('forced', [carrier], [], false, () => always).refused).toMatch(/no task/);
     const bare = atom('guard.settings.bare', { fields: { matcher: 'Edit|Write' } });
-    expect(codeAsk('trigger', [bare], []).text).toBe('Please use the Edit tool on the files here.');
+    expect(codeAsk('trigger', [bare], []).text).toBe('Please change a file here.');
   });
 
   it('never restates a rule a guard enforces: the ask is the act of the tool it watches', () => {

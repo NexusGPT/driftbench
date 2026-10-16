@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Without changing anything, tell me in one sentence what it would mean to read a file before editing it.
+      user: Without changing anything, tell me in one sentence what it would mean to change a file here.
     expect:
       guards:
         - name: read-before-edit.py

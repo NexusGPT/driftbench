@@ -44,8 +44,8 @@
   "summary": {
     "specs": 1562,
     "blocks": 1557,
-    "complete": 1538,
-    "incomplete": 24,
+    "complete": 1537,
+    "incomplete": 25,
     "judged": 464
   },
   "incomplete": [
@@ -166,6 +166,18 @@
           "marker": "needs-recorded-session",
           "atom": "guard.settings.stop-guard-reply-length-py",
           "detail": "no recorded session of open-items"
+        }
+      ]
+    },
+    {
+      "spec": "estate.guard_negative.guard.settings.stop-guard-reply-length-py",
+      "path": "incomplete/unit/guard_negative/estate.guard_negative.guard.settings.stop-guard-reply-length-py.yaml",
+      "row": "guard_negative.guard.settings.stop-guard-reply-length-py",
+      "reasons": [
+        {
+          "marker": "needs-askable-act",
+          "atom": "guard.settings.stop-guard-reply-length-py",
+          "detail": "no task in the atom's words (guard.settings.stop-guard-reply-length-py (rule)): the guard documents no rule or watched act to come near"
         }
       ]
     },
@@ -422,10 +434,10 @@
     ]
   },
   "quality": {
-    "completeShare": 0.9846350832266325,
-    "askedTests": 1530,
-    "distinctAsks": 131,
-    "distinctAsksPer100": 8.562091503267974
+    "completeShare": 0.9839948783610756,
+    "askedTests": 1529,
+    "distinctAsks": 130,
+    "distinctAsksPer100": 8.502289077828646
   },
   "unit": {
     "tests": 26,
@@ -442,14 +454,14 @@
   "sources": {
     "asks": {
       "bank": 443,
-      "code": 1087,
+      "code": 1086,
       "session": 0,
       "none": 8
     },
     "outcomes": {
       "bank": 992,
       "no-change:guard": 26,
-      "no-change:negative": 58,
+      "no-change:negative": 57,
       "no-change:read-only": 83,
       "no-delete": 371,
       "static": 8
@@ -545,8 +557,8 @@
     "guard_negative": {
       "rows": 6,
       "specs": 6,
-      "complete": 6,
-      "incomplete": 0
+      "complete": 5,
+      "incomplete": 1
     },
     "guard_hostile": {
       "rows": 6,
@@ -637,8 +649,8 @@
     "unit": {
       "rows": 37,
       "specs": 37,
-      "complete": 37,
-      "incomplete": 0
+      "complete": 36,
+      "incomplete": 1
     },
     "live": {
       "rows": 1526,
@@ -650,14 +662,16 @@
   "gaps": [
     {
       "marker": "needs-askable-act",
-      "specs": 18,
+      "specs": 19,
       "atoms": [
+        "guard.settings.stop-guard-reply-length-py",
         "instruction.standing.read-the-memory-index-at-the",
         "reference.memory-memory.read-supplier-languages-md",
         "reference.standing.read-claude-memory-memory-md",
         "reference.standing.read-claude-steps-json"
       ],
       "details": [
+        "no task in the atom's words (guard.settings.stop-guard-reply-length-py (rule)): the guard documents no rule or watched act to come near",
         "no task in the atom's words (instruction.standing.read-the-memory-index-at-the (title)): the atom's words: it describes the unit, and names no task the user wants done",
         "no task in the atom's words (reference.memory-memory.read-supplier-languages-md (title)): the act does not start with a verb: \"\"",
         "no task in the atom's words (reference.standing.read-claude-memory-memory-md (title)): the act does not start with a verb: \"\"",

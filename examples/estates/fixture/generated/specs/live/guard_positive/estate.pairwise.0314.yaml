@@ -25,7 +25,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please keep every reply under 1,200 characters unless the user asks for detail.
+      user: Please explain in full detail everything you can do for me here.
     expect:
       guards:
         - name: reply-length.py
@@ -63,5 +63,5 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: guard.settings.stop-guard-reply-length-py (ruleText)
+    askFrom: register.standing.replies-under-1-200-characters (enforced by guard.settings.stop-guard-reply-length-py)
     outcome: no-delete

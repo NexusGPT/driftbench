@@ -14,7 +14,6 @@ specs/unit/guard_negative/estate.guard_negative.guard.settings.userpromptsubmit-
 specs/unit/guard_hostile/estate.guard_hostile.guard.settings.userpromptsubmit-guard-stop-word-sh.yaml
 specs/unit/guard_speed/estate.guard_speed.guard.settings.userpromptsubmit-guard-stop-word-sh.yaml
 specs/unit/guard_register/estate.guard_register.guard.settings.userpromptsubmit-guard-stop-word-sh.yaml
-specs/unit/guard_negative/estate.guard_negative.guard.settings.stop-guard-reply-length-py.yaml
 specs/unit/guard_hostile/estate.guard_hostile.guard.settings.stop-guard-reply-length-py.yaml
 specs/unit/guard_speed/estate.guard_speed.guard.settings.stop-guard-reply-length-py.yaml
 specs/unit/guard_register/estate.guard_register.guard.settings.stop-guard-reply-length-py.yaml
