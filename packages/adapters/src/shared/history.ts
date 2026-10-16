@@ -1,5 +1,14 @@
-import type { Message } from '@agent-nexus/driftbench-core';
+import type { HistoryNormalization, Message } from '@agent-nexus/driftbench-core';
 import { historyOutput } from '../anthropic/common';
+
+/** Record empty turns a block-based wire omits, without replacing them with invented model text. */
+export function emptyTurnNormalizations(history: readonly Message[], wire: string): HistoryNormalization[] {
+  return history.flatMap((message, historyIndex) =>
+    message.content === '' && (message.role !== 'assistant' || (message.tool_calls?.length ?? 0) === 0)
+      ? [{ wire, historyIndex, role: message.role, kind: 'omitted-empty-turn' as const }]
+      : [],
+  );
+}
 
 /**
  * The tool history compiler: one pass over a history that pairs each recorded call with its result and gives

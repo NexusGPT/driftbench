@@ -765,15 +765,21 @@ async function liveClient(
   const J = await import('@agent-nexus/driftbench-judges');
   const { env } = context;
   switch (spec.kind) {
+    // The Claude judge of runs and calibration runs the product default policy (createDefaultJudge).
     case 'claude': {
       const script = /\.(c|m)?js$/.test(context.claudePath);
-      return J.createClaudeCliJudge({
+      return J.createDefaultJudge({
+        provider: 'claude-cli',
+        id: `claude-${spec.model}`,
         model: spec.model,
         env: { ...env, CLAUDE_JUDGE_MODEL: spec.model },
         ...(script
           ? { command: process.execPath, commandArgs: [context.claudePath] }
           : { command: context.claudePath }),
-        ...(context.budget === undefined ? {} : { maxBudgetUsd: context.budget }),
+        // The whole budget caps this client across routing, solves and comparisons; each call reserves at most 0.1.
+        ...(context.budget === undefined
+          ? {}
+          : { maxBudgetUsd: Math.min(0.1, context.budget), spendCapUsd: context.budget }),
       });
     }
     case 'openai':
