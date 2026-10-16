@@ -10,11 +10,13 @@ import {
   descriptive,
   eventHead,
   exampleOrHistory,
+  headPhrase,
   isEvent,
   isUrl,
   lineParts,
   OPEN_TOKEN,
   optionalQualifier,
+  ownWriting,
   plainClause,
   selfReference,
   splitAddition,
@@ -922,16 +924,16 @@ export function locateNamed(
   if (!clean.includes('/')) {
     const local = posix.normalize(posix.join(posix.dirname(from), clean));
     if (known(local)) return { path: local, via: 'place' };
+    // `Read SKILL.md` in a skill's own files means that skill's file, not one inside a folder below this one.
+    if (options.within) {
+      const inSkill = posix.join(options.within, clean);
+      if (known(inSkill)) return { path: inSkill, via: 'place' };
+    }
     const folder = posix.dirname(from);
     if (folder !== '.') {
       const hits = (byName.get(clean) ?? []).filter((candidate) => candidate.startsWith(`${folder}/`));
       if (hits.length === 1) return { path: hits[0] as string, via: 'suffix' };
       if (hits.length > 1) return { path: local, via: 'none', candidates: [...hits].sort() };
-    }
-    // `Read SKILL.md` in a skill's own files means that skill's file, not another skill's.
-    if (options.within) {
-      const inSkill = posix.join(options.within, clean);
-      if (known(inSkill)) return { path: inSkill, via: 'place' };
     }
   }
   const placed = resolveNamed(path, from, files, options.bases ?? [], skipped);
@@ -1889,12 +1891,15 @@ function gateAtoms(
           continue;
         // "The day before X, read Y": a point in time ahead of X, not an order between two acts.
         if (form.startsWith('before-') && timeOffset(unmask(match[head[0] ?? 0] ?? '', spans))) continue;
-        const trigger = unmask(match[act] ?? '', spans)
+        const written = unmask(match[act] ?? '', spans)
           .replace(/[`*]/g, '')
           .trim();
         // A condition scopes an obligation; it is not the act the read must precede.
-        const scoped = /^(?:if|when|whenever|unless)\b[^,]+,\s*(.+)$/i.exec(trigger);
-        const action = scoped?.[1] ?? trigger;
+        const scoped = /^(?:if|when|whenever|unless)\b[^,]+,\s*(.+)$/i.exec(written);
+        // What follows the act ("..., then run the check", ": the rules differ", " \u2014 never skip") is a remark.
+        const cut = (text: string) => (text.split(/\s*(?:[,;:]|\s[\u2014\u2013]\s)/)[0] ?? text).trim();
+        const action = cut(scoped?.[1] ?? written);
+        const trigger = scoped ? written : action;
         // A question asks and a dated entry records; neither directs the agent.
         if (trigger === '' || trigger.includes('?') || dated(trigger)) continue;
         // An act, or an event the read comes before: "any query", "the second query", "your first action".
@@ -1914,8 +1919,8 @@ function gateAtoms(
             target = referents[0] ?? '';
             free = false;
           }
-          // A web address and a topic ("read up on X") are no reference.
-          if (isUrl(target) || (free && topicPhrase(target))) return undefined;
+          // A web address, a topic ("read up on X") and one's own writing ("read the sentence back") are no reference.
+          if (isUrl(target) || (free && (topicPhrase(target) || ownWriting(target)))) return undefined;
           const named = namedPaths(`Read ${target}`)[0];
           let first = named ?? target.replace(/[`*"'\u201C\u201D]/g, '').trim();
           let declared: string | undefined;
@@ -1923,7 +1928,9 @@ function gateAtoms(
           let self = false;
           let unresolved: string | undefined;
           if (free && named === undefined) {
-            const found = selfReference(target) ? undefined : namedReference(target, files, raw);
+            // A relative clause says which one; the name is the head of the phrase.
+            const phrase = headPhrase(target);
+            const found = selfReference(target) ? undefined : namedReference(phrase, files, raw);
             if (selfReference(target)) {
               // "Read this": the document the rule stands in.
               self = true;
@@ -1934,11 +1941,11 @@ function gateAtoms(
               fromName = true;
             } else {
               // A section, a state or a part named by role: kept, with what it is, never given a file name.
-              const kind = loaded ? undefined : unresolvedKind(target);
+              const kind = loaded ? undefined : unresolvedKind(phrase);
               if (!kind) return undefined;
               unresolved = kind;
               // The name ends at a parenthesis, a comma, a dash or a semicolon.
-              first = (target.split(/\s*\(|\s[\u2014\u2013]\s|[,;]/)[0] ?? target).trim();
+              first = (phrase.split(/\s*\(|\s[\u2014\u2013]\s|[,;]/)[0] ?? phrase).trim();
             }
           } else if (!free && /<[^<>\s][^<>]*>|\{[^{}]+\}|\$\{?[A-Za-z_]|\*/.test(target)) {
             // A path with a slot in it (`regions/<slug>/RULES.md`) names a family of files.

@@ -360,6 +360,8 @@ export function unresolvedKind(phrase: string): 'section' | 'state' | 'role' | u
   const text = (phrase.split(/\s*\(|\s[\u2014\u2013]\s|[,;]/)[0] ?? phrase).trim();
   const first = (text.split(/\s+/)[0] ?? '').toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
   if (text === '' || INDEFINITE.has(first)) return undefined;
+  // One token that is a letter and a number ("P3", "R5", "\u00a74") is a label of a section or a rule.
+  if (/^(?:[A-Za-z]{1,3}\d+(?:\.\d+)*|\u00a7\s?\d+(?:\.\d+)*)$/.test(text)) return 'section';
   const content = contentWords(text);
   if (content.length === 0) return undefined;
   // A label: a single capital letter or a number after a noun ("Plan C", "Phase 3", "section 4").
@@ -408,4 +410,21 @@ export function plainClause(clause: string): string {
       new RegExp(String.raw`\b(?:the|this|that)\s+(${ITEM})\s+(?:file|document|doc|page|note)\b`, 'gi'),
       '$1',
     );
+}
+
+/** The head of a noun phrase: what stands before a relative clause ("the ONE guide that OWNS that kind"). */
+export function headPhrase(phrase: string): string {
+  return (phrase.split(/\s+(?:that|which|who|whom|whose|where)\b/i)[0] ?? phrase).trim();
+}
+
+/** Reading back what the agent wrote itself is no read of a document: "read the sentence back", "your own reply". */
+export function ownWriting(phrase: string): boolean {
+  const text = phrase.trim().toLowerCase();
+  return (
+    /\b(?:back|aloud)\b(?![-\w])/.test(text) ||
+    /\b(?:again|twice)$/.test(text) ||
+    /^(?:your|my|our)\s+(?:own\s+)?(?:output|reply|answer|draft|message|response|writing|text|work|code|edit|changes?)\b/.test(
+      text,
+    )
+  );
 }
