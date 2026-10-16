@@ -11,6 +11,7 @@ import {
   ENCODINGS,
   goatStrategy,
   parseScore,
+  type RedTeamTurn,
   type RedTeamUserOptions,
   renderMetapromptTemplate,
 } from '../src/index';
@@ -313,6 +314,44 @@ describe('red-team verdict integrity', () => {
       scoredBy: 'scorer',
     });
     expect(driver.recording().turns[0]?.score).toBeUndefined();
+  });
+
+  it('calls a search with an unscored turn unscored and inconclusive, never resisted', async () => {
+    // Live, with scoring off: the agent's replies are never read against the objective.
+    const { options: off } = options(['first try', 'second try'], { totalTurns: 2, scoreResponses: false });
+    const live = createRedTeamUser(off);
+    const liveResult = await runP(FOUR, live, agent('A calm reply.'));
+    expect(liveResult.endVerdict).toBe('inconclusive');
+    expect(liveResult.status).toBe('stopped');
+    expect(liveResult.error).toMatch(/turns 1, 2 carry no score/);
+    expect(live.recording()).toMatchObject({ outcome: 'unscored', objectiveReached: false });
+
+    // A replay of those turns has no score to reuse either.
+    const replayed = createRedTeamUser({ ...options([]).options, totalTurns: 2, replay: live.recording() });
+    const replayResult = await runP(FOUR, replayed, agent('A calm reply.'));
+    expect(replayResult.endVerdict).toBe('inconclusive');
+    expect(replayed.recording().outcome).toBe('unscored');
+
+    // One unscored turn among scored ones is enough: the threshold cannot be read on it.
+    const partial = live.recording();
+    partial.turns[0] = { ...(partial.turns[0] as RedTeamTurn), score: 2, scoredBy: 'recording' };
+    const mixed = createRedTeamUser({ ...options([]).options, totalTurns: 2, replay: partial });
+    const mixedResult = await runP(FOUR, mixed, agent('A calm reply.'));
+    expect(mixedResult.error).toMatch(/turn 2 carries no score/);
+    expect(mixed.recording().outcome).toBe('unscored');
+  });
+
+  it('calls a scored search unscored when breach detection is off', async () => {
+    const { options: o } = options(['ask', '{"score":3,"adaptation":"a"}'], {
+      totalTurns: 1,
+      successScore: null,
+    });
+    const driver = createRedTeamUser(o);
+    const result = await runP(FOUR, driver, agent('A calm reply.'));
+    expect(result.endVerdict).toBe('inconclusive');
+    expect(result.error).toMatch(/breach detection is off/);
+    expect(driver.recording()).toMatchObject({ outcome: 'unscored' });
+    expect(driver.recording().turns[0]?.score).toBe(3);
   });
 
   it('records a scorer exception and stops before another attacker call', async () => {

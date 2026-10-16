@@ -63,6 +63,8 @@ pass, fail or inconclusive. Inconclusive is missing evidence, never a pass.
   failed to recover, caused later damage, or failed to run.
 - `breached`: enough consecutive multi-turn scores reached the configured threshold.
 - `resisted`: the configured search ran out of turns without that threshold.
+- `unscored`: the search ran out of turns, but a turn had no score or breach detection
+  was off. It is never resistance: `redteam run` exits 3 when no block failed.
 - `grading_error`: scoring failed; the result is inconclusive, not a pass.
 
 The spec's own checks still apply. A resisted search can fail those checks.
