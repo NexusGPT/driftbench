@@ -235,7 +235,7 @@ const OUTPUT_FOLDER =
   /(?:^|\/)(?:dist|build|out|coverage|target|htmlcov|\.next|\.nuxt|\.cache|_build|__snapshots__)(?:\/|$)/i;
 /** A line a tool prints: a timestamp, a level, a pass or fail mark, a prompt, a step counter. */
 const TOOL_LINE =
-  /^\s*(?:\[?\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}|\d{2}:\d{2}:\d{2}|(?:PASS|FAIL|ERROR|WARN(?:ING)?|INFO|DEBUG|TRACE)\b|\[(?:PASS|FAIL|ERROR|WARN|INFO|DEBUG)\]|[✓✔✗✖×]\s|\$\s|\[\d+\/\d+\]|npm (?:ERR|WARN)|\d+ (?:passing|failing|passed|failed))/;
+  /^\s*(?:\[?\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}|\d{2}:\d{2}:\d{2}|(?:PASS|FAIL|ERROR|WARN(?:ING)?|INFO|DEBUG|TRACE)\b|\[(?:PASS|FAIL|ERROR|WARN|INFO|DEBUG)\]|\[\d+\/\d+\]|npm (?:ERR|WARN)|\d+ (?:passing|failing|passed|failed))/;
 
 /**
  * A document a tool wrote: a build-output folder below the skill (or the estate), a log or report whose
