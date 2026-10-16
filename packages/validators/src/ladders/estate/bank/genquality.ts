@@ -7,8 +7,8 @@ import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
 /**
  * Generation quality on the Northwind fixture's generated suite (seed-free, judged once):
  *
- * gen.task: every first ask of a complete spec holds a task: a task verb, not negated, followed by its
- * object. A rule restated as an ask ("Please do this: never guess a status") or a bare condition ("Please
+ * gen.task: every first ask of a complete spec holds a task: an imperative clause (its head is a verb, not
+ * negated, not a function word) followed by its object, or a question about something. A rule restated as an ask ("Please do this: never guess a status") or a bare condition ("Please
  * handle this for me: the invoice is not in EUR") holds none. One item per test type.
  *
  * gen.reads: no complete spec expects a Read of a file the estate lacks. One item per test type.
@@ -47,53 +47,166 @@ const TEST_TYPES = [
   'journey',
 ] as const;
 
-const TASK_VERBS = new Set(
-  `add answer archive audit book build cancel change chase check clean close compare correct count create delete
-  draft email explain file fill find fix forward get give go handle list look make match merge move open order pay plan
-  prepare price print put reconcile record refund remove rename reply report reschedule review run say schedule send
-  set show sort summarise summarize tell track triage update write`
+/**
+ * Words that open a request without being its verb: politeness, sequencing and manner adverbs, and the frames
+ * "can you", "I need you to". They are skipped before the clause's head is read.
+ */
+const OPENERS = new Set(
+  `please kindly just now then and also so ok okay first next again still even simply finally immediately quickly carefully once`
     .split(/\s+/)
     .filter(Boolean),
 );
-const SKIP = new Set([
-  'a',
-  'an',
-  'the',
-  'this',
-  'that',
-  'my',
-  'our',
-  'me',
-  'us',
-  'it',
-  'up',
-  'out',
-  'in',
-  'through',
+const FRAMES = [
+  /^(can|could|would|will)\s+you\s+/i,
+  /^(i|we)\s+(need|want)\s+you\s+to\s+/i,
+  /^(i|we)\s*(?:'d|would)\s+like\s+you\s+to\s+/i,
+  /^go\s+ahead\s+and\s+/i,
+  /^let'?s\s+/i,
+];
+/**
+ * Closed classes that cannot head an imperative: articles and determiners, pronouns, auxiliaries and modals,
+ * conjunctions and prepositions, quantifiers, wh-words, frequency adverbs (a rule: "always read ...") and greetings. A clause opening with one is a statement,
+ * a condition or a fragment, not a request.
+ */
+const NOT_A_HEAD = new Set(
+  `a an the this that these those my our your his her its their i we you he she it they there here is are was were
+  be been being am does did has have had will would shall should must may might can could if when unless while
+  because since although whenever whether before after until as of for to in on at by from with without about into
+  over under but or nor yet every each all any some none who whom whose which what where why how hello hi hey
+  always usually often sometimes generally typically normally thanks thank yes sorry welcome`
+    .split(/\s+/)
+    .filter(Boolean),
+);
+const NEGATIONS = new Set([
+  'never',
+  'not',
+  'no',
+  "don't",
+  'dont',
+  'cannot',
+  "can't",
+  "won't",
+  "shouldn't",
+  "mustn't",
 ]);
-/** A code template that restates a rule, a condition or a refusal instead of asking for work. */
-const TEMPLATES = [/^"?(please|could you)\s+(do|handle)\s+this(\s+for\s+me)?:/i, /go against this rule/i];
+/** A clause that is only a command to the session itself ("stop") needs no object. */
+const SESSION_CONTROL = new Set(
+  'stop wait pause resume continue cancel undo retry abort halt quit'.split(' '),
+);
+/** Particles and articles that follow a verb without being its object ("fill in", "go through"). */
+const SKIP = new Set(
+  'a an the this that my our me us it up out in through on off over down back for against about with to at'.split(
+    ' ',
+  ),
+);
+/** What a request may refer to without saying it: the task is then whatever follows the colon. */
+const DEFERS = new Set(
+  `this that it these those the following rule rules instruction instructions policy me us for against just once
+  now`
+    .split(/\s+/)
+    .filter(Boolean),
+);
 const QUESTION = /^(where|what|which|when|who|how|why|is|are|does|do|can|could|has)\b.*\?/i;
 
-/**
- * Whether an ask holds a task: no rule template, and either a question about something or a task verb, not
- * negated, with its object after it (articles and phrasal particles skipped).
- */
-export function holdsTask(ask: string): boolean {
-  const text = ask.trim().replace(/^"|"$/g, '');
-  if (TEMPLATES.some((template) => template.test(text))) return false;
-  if (QUESTION.test(text)) return true;
-  const words = text
+type Segment = { text: string; delimiter: string };
+
+/** Clauses with the mark that ended each: a colon after a request that names no task defers to what follows. */
+function segments(text: string): Segment[] {
+  return [...text.matchAll(/([^.;:!?,\n]+)([.;:!?,\n]|$)/g)].map((match) => ({
+    text: (match[1] ?? '').trim(),
+    delimiter: match[2] ?? '',
+  }));
+}
+
+/** "always" opens a request only after a request frame ("please always pass ..."); alone it states a rule. */
+const STANDING_MANNER = new Set(['always', 'usually']);
+
+/** The clause's words after its openers and frames, lower-cased. */
+function wordsOf(clause: string): string[] {
+  let rest = clause.trim();
+  let requesting = false;
+  for (let changed = true; changed; ) {
+    changed = false;
+    for (const frame of FRAMES) {
+      const next = rest.replace(frame, '');
+      if (next !== rest) {
+        rest = next;
+        requesting = true;
+        changed = true;
+      }
+    }
+    const [first = '', ...others] = rest.split(/\s+/);
+    const word = first.toLowerCase();
+    if (OPENERS.has(word) || (requesting && STANDING_MANNER.has(word))) {
+      if (word === 'please' || word === 'kindly') requesting = true;
+      rest = others.join(' ');
+      changed = true;
+    }
+  }
+  return rest
     .toLowerCase()
     .replace(/[^a-z0-9\s'/.-]/g, ' ')
     .split(/\s+/)
     .filter(Boolean);
-  return words.some((word, index) => {
-    if (!TASK_VERBS.has(word) || ['never', 'not', "don't", 'no'].includes(words[index - 1] ?? ''))
-      return false;
-    const object = words.slice(index + 1).find((next) => !SKIP.has(next));
-    return object !== undefined && object.length > 1;
-  });
+}
+
+const FINITE = new Set('is are was were must should shall will'.split(' '));
+/** Words that open a subordinate clause: a finite verb after one belongs to it, not to the clause's head. */
+const SUBORDINATORS = new Set(
+  `that which who whom whose if when where what how why unless while because since until whether so as then and or but
+  to`
+    .split(/\s+/)
+    .filter(Boolean),
+);
+
+/** Whether the words after a head carry a finite verb of their own before any subordinate clause: a statement. */
+function isStatement(rest: string[]): boolean {
+  for (const word of rest) {
+    if (SUBORDINATORS.has(word)) return false;
+    if (FINITE.has(word)) return true;
+  }
+  return false;
+}
+
+/** Whether a clause is an imperative with a task; 'defer' when it asks for a task it does not name. */
+function judgeClause(clause: string, delimiter: string): boolean | 'defer' {
+  const words = wordsOf(clause);
+  const [head, ...rest] = words;
+  if (head === undefined || NEGATIONS.has(head) || NOT_A_HEAD.has(head)) return false;
+  if (head === 'do' && NEGATIONS.has(rest[0] ?? '')) return false;
+  if (isStatement(rest)) return false;
+  const object = rest.filter((word) => !SKIP.has(word));
+  if (delimiter === ':' && rest.length > 0 && object.every((word) => DEFERS.has(word))) return 'defer';
+  if (object.length === 0) return rest.length === 0 && SESSION_CONTROL.has(head);
+  return !object.every((word) => DEFERS.has(word)) && object.some((word) => word.length > 1);
+}
+
+/**
+ * Whether an ask holds a task: a question about something, or an imperative clause (its head is not negated and
+ * not a function word) with an object after it. A request that only points at its task ("do this:", "go against
+ * this rule:") is judged by the text after the colon; quoted text is a mention, not a request, and is not read.
+ */
+export function holdsTask(ask: string): boolean {
+  const text = ask
+    .trim()
+    .replace(/^"|"$/g, '')
+    .replace(/"[^"]*"|\u201c[^\u201d]*\u201d/g, ' ');
+  // A bracketed note is a marker the generator leaves where it has no ask to write, never an ask.
+  if (/^\[[\s\S]*\]$/.test(text)) return false;
+  if (QUESTION.test(text)) return true;
+  const parts = segments(text);
+  for (const [index, part] of parts.entries()) {
+    const verdict = judgeClause(part.text, part.delimiter);
+    if (verdict === 'defer')
+      return holdsTask(
+        parts
+          .slice(index + 1)
+          .map((next) => `${next.text}${next.delimiter}`)
+          .join(' '),
+      );
+    if (verdict) return true;
+  }
+  return false;
 }
 
 function firstAsk(spec: FixtureSuite['specs'][number]): string | undefined {

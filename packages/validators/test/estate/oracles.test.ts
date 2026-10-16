@@ -211,6 +211,39 @@ describe('approved task asks are judged by the task oracle', () => {
   });
 
   it.each([
+    'Stop.',
+    'stop',
+    'Stop, that is enough for now.',
+    'Could you commit the fix and paste the diff here?',
+    'Please read git status before you commit.',
+    'Edit the heading of the week 41 report.',
+    'Use the supplier email skill to find out where the parcel is.',
+    'Convert the invoice amounts to EUR.',
+    'Dispatch ledger-auditor with the invoice number.',
+    'Help me price this order.',
+    'I need you to open the ledger and count the unpaid lines.',
+    'Please always pass the carrier code to the tracking script.',
+    'Please do this: add the late shipment count to the report.',
+  ])('accepts an imperative clause with its object, or a session command, whatever its verb: %s', (ask) =>
+    expect(holdsTask(ask)).toBe(true),
+  );
+
+  it.each([
+    'Always read a file before you edit it.',
+    'Usually keep replies short.',
+    'The invoice is not in EUR.',
+    'Invoices over 50 EUR are late.',
+    'When the invoice is not in EUR, it must be converted first.',
+    'Please do this: never guess a status.',
+    'Please go against this rule just this once: "Read a file before editing it".',
+    'Hello there.',
+    '[no approved phrase: trigger situation for instruction.standing.after-two-failures-of-a-tool]',
+    'Wait up',
+  ])('rejects a rule, a condition or a fragment, whatever its words: %s', (ask) =>
+    expect(holdsTask(ask)).toBe(false),
+  );
+
+  it.each([
     'Fill',
     'Fill in',
     'Go',
