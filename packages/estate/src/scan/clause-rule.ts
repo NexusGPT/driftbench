@@ -332,8 +332,19 @@ function termsWithin(text: string, terms: Term[], from: number, to: number): Ter
 }
 
 function calendarDeadline(text: string, terms: Term[], from: number): boolean {
-  if (/\b(?:days?|weeks?|months?|years?|quarters?|sprints?)\b/i.test(text.slice(from))) return true;
-  return termsWithin(text, terms, from, text.length).some((term) => has(term, 'WeekDay', 'Month', 'Holiday'));
+  const tail = text.slice(from);
+  // A deadline: "by Friday", "within a week", "no later than the end of the sprint". A duration alone
+  // ("kept for 30 days") states a property of a thing and is not one.
+  if (
+    /\b(?:by|within|no\s+later\s+than|before\s+the\s+end\s+of)\s+(?:the\s+)?(?:next\s+|this\s+|end\s+of\s+(?:the\s+)?)?(?:\d+\s+|an?\s+|one\s+|two\s+|three\s+)?(?:days?|weeks?|months?|years?|quarters?|sprints?)\b/i.test(
+      tail,
+    )
+  )
+    return true;
+  return (
+    /\b(?:by|before|until|on)\b/i.test(tail) &&
+    termsWithin(text, terms, from, text.length).some((term) => has(term, 'WeekDay', 'Month', 'Holiday'))
+  );
 }
 
 /** What the words before a verb denote: the agent, what it writes, other parties, a thing, or a clause. */
