@@ -313,6 +313,46 @@ export const routingRoleCorpus: RouteCase[] = [
     table: '| Handler | Event |\n|---|---|\n| load `refund-flow`, then load `receipt-check` | money back |',
     routes: [...refund, ['money back', 'receipt-check', 'skill']],
   },
+  {
+    name: 'owner mentioned in request header',
+    table: '| Requests from the task owner | Skill |\n|---|---|\n| money back | `refund-flow` |',
+    routes: refund,
+  },
+  {
+    name: 'authorship mentioned in topic header',
+    table: '| Questions about authorship | Handler |\n|---|---|\n| check a receipt | `receipt-auditor` |',
+    routes: audit,
+  },
+  {
+    name: 'dates mentioned in request header',
+    table: '| Questions about dates | Skill |\n|---|---|\n| money back | `refund-flow` |',
+    routes: refund,
+  },
+  {
+    name: 'updated request class',
+    table: '| Recently updated requests | Skill |\n|---|---|\n| money back | `refund-flow` |',
+    routes: refund,
+  },
+  {
+    name: 'status checks are a request class',
+    table: '| Status checks | Handler |\n|---|---|\n| check a receipt | `receipt-auditor` |',
+    routes: audit,
+  },
+  {
+    name: 'publication requests reversed',
+    table: '| Skill | Publication requests |\n|---|---|\n| `refund-flow` | money back |',
+    routes: refund,
+  },
+  {
+    name: 'ownership prepositional relation',
+    table: '| Owner of the playbook | Skill |\n|---|---|\n| Avery | `refund-flow` |',
+    routes: [],
+  },
+  {
+    name: 'timestamp question',
+    table: '| Skill | When was it added |\n|---|---|\n| `refund-flow` | `receipt-auditor` |',
+    routes: [],
+  },
 ];
 export const routingRoleDeclarations = {
   '.claude/skills/refund-flow/SKILL.md': '---\nname: refund-flow\n---\n',

@@ -751,20 +751,24 @@ function routeTargets(
 }
 
 /**
- * Metadata describes a unit or a record, rather than work to send to it. Match the relationship
- * anywhere in the noun phrase: "task owner" is ownership and "when added" is chronology, even
- * though their first words could introduce a request. These roles exclude both source and target
- * columns; no vocabulary of permitted request headers is required.
+ * Metadata names an attribute or a provenance relation, rather than work to send to a unit.
+ * Read the head noun before prepositional complements: "task owner" and "owner of the task"
+ * describe ownership, while "requests from the task owner" describes requests. Relative
+ * provenance and timestamp questions likewise describe records. Request headers need no
+ * vocabulary of permitted words, and mentioning a metadata word does not exclude them.
  */
 function routeMetadata(header: string): boolean {
+  const head = header.split(/\b(?:of|for|from|about|on|in|by|with)\b/i)[0]?.trim() ?? '';
   return (
-    /\b(?:owners?|ownership|custodians?|maintainers?|authors?|authorship|maintain(?:s|ed|ing)?|wrote|written|authored)\b/i.test(
-      header,
+    /\b(?:owners?|ownership|custodians?|maintainers?|authors?|authorship|dates?|timestamps?|versions?|notes?|comments?|remarks?|publications?|licen[cs]es?|status)$/i.test(
+      head,
     ) ||
-    /\b(?:date|dates|timestamp|timestamps|added|created|updated|modified|published|version|versions)\b/i.test(
+    /^(?:who\s+)?(?:wrote|writes|authored|maintains|owns)\b/i.test(header) ||
+    /^(?:maintained|written|authored|created|added|updated|modified|published)\s+by\b/i.test(header) ||
+    /\b(?:they|we|you)\s+(?:maintain|own|wrote|authored)\s*(?:it)?$/i.test(header) ||
+    /^(?:when|date|time)\s+(?:(?:was|is)\s+it\s+|it\s+(?:was|is)\s+)?(?:added|created|updated|modified|published)(?:\s+(?:at|on|by)\b.*)?$/i.test(
       header,
-    ) ||
-    /\b(?:notes?|comments?|remarks?|publications?|licen[cs]es?|status)\b/i.test(header)
+    )
   );
 }
 
