@@ -1,8 +1,10 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { stringify } from 'yaml';
-import { between, list, pick, type Rng, rngFor, SHOP, shuffled } from '../harness';
-import type { BlocksProduct } from '../product';
+import { between, list, pick, type Rng, rngFor, run, SHOP, shuffled, statusOf } from '../harness';
+import { type Action, KINDS, plantedAgent, token } from '../kinds';
+import { type BlocksProduct, need } from '../product';
+import { BASIC, recipe } from '../recipe';
 import { type BankItem, expectAll, fail, PASS, type Tier } from '../types';
 
 /**
@@ -432,5 +434,149 @@ async function planCells(
 
 /** Level 10 of the blocks bank. */
 export function personaItems(): BankItem[] {
-  return [...loaderItems(), ...cellItems()];
+  return [...loaderItems(), ...cellItems(), ...playItems()];
+}
+
+/** The style each fictional persona writes in: the words around the block's marker in its recorded answers. */
+const STYLES = [
+  { id: 'terse', say: (marker: string) => `${marker} ok, go.` },
+  {
+    id: 'chatty',
+    say: (marker: string) =>
+      `${marker} Hello again! I hope your day is going well, could you please go ahead with this one?`,
+  },
+  { id: 'pushy', say: (marker: string) => `${marker} Just do it now, I am in a hurry.` },
+];
+
+type PlayPattern = {
+  id: string;
+  tier: Tier;
+  failing(personas: number, blocks: number, rng: Rng): number[][];
+};
+
+const PLAY_PATTERNS: PlayPattern[] = [
+  { id: 'none-fails', tier: 2, failing: (k) => Array.from({ length: k }, () => []) },
+  {
+    id: 'one-persona-fails-one-block',
+    tier: 3,
+    failing: (k, n, rng) => Array.from({ length: k }, (_, p) => (p === 0 ? [between(rng, 0, n - 1)] : [])),
+  },
+  // A persona that changes the failing block, and so the failing section: each persona fails another block.
+  {
+    id: 'each-persona-fails-another-block',
+    tier: 4,
+    failing: (k, n) => Array.from({ length: k }, (_, p) => [p % n]),
+  },
+  {
+    id: 'one-persona-fails-all',
+    tier: 4,
+    failing: (k, n) => Array.from({ length: k }, (_, p) => (p === k - 1 ? [...Array(n).keys()] : [])),
+  },
+];
+
+/**
+ * One test played by different simulated users (the simulated driver of the users package, with recorded answers:
+ * no model call). Every persona plays the same spec; its recorded answers carry the block's marker and a persona tag,
+ * and the planted agent fails a block only for the personas planted to fail it. Each persona's run must read the
+ * planted verdicts, send the persona's words (not the spec's), and keep the other personas' results apart.
+ */
+function playItems(): BankItem[] {
+  const items: BankItem[] = [];
+  for (const kind of KINDS) {
+    for (const k of [2, 3]) {
+      for (const pattern of PLAY_PATTERNS) {
+        for (const n of kind === 'code' ? [3] : [3, 5]) {
+          const id = `personas/play/${kind}/${k}/${pattern.id}/${n}`;
+          items.push({
+            id,
+            family: 'personas-play',
+            tier: Math.min(5, pattern.tier + (kind === 'code' ? 1 : 0)) as Tier,
+            level: 8,
+            component: 'packages/users/src/simulated.ts',
+            title: `a ${kind} test of ${n} blocks played by ${k} recorded personas (${pattern.id.replace(/-/g, ' ')}) reads each persona's planted verdicts and sends each persona's own words`,
+            cause:
+              pattern.id === 'each-persona-fails-another-block'
+                ? `The same ${kind} test played by another persona fails another block: each persona's run keeps its own failing block.`
+                : `The simulated user plays a ${kind} test from a persona's recorded answers, and the run reads the agent's verdict on each.`,
+            check: async ({ seed, scratch, product }) => {
+              const rng = rngFor(seed, id);
+              const failing = pattern.failing(k, n, rng);
+              const base = recipe(
+                seed,
+                id,
+                kind,
+                Array.from({ length: n }, () => ({ fate: 'pass' as const })),
+              );
+              const createSimulatedUser = need<(options: Record<string, unknown>) => unknown>(
+                product.users,
+                'users',
+                'createSimulatedUser',
+              );
+              const userRecordingPort = need<(recording: Record<string, unknown>) => unknown>(
+                product.users,
+                'users',
+                'userRecordingPort',
+              );
+              for (let p = 0; p < k; p += 1) {
+                const style = STYLES[p % STYLES.length] as (typeof STYLES)[number];
+                const tag = token(seed, `${id}#persona#${p}`, 5);
+                const actions = new Map<string, Action>();
+                const answers: string[] = [];
+                for (const [i, block] of base.blocks.entries()) {
+                  const marker = `${block.marker}-${tag}`;
+                  answers.push(style.say(marker));
+                  const passing = base.actions.get(block.marker) as Action;
+                  actions.set(
+                    marker,
+                    failing[p]?.includes(i) ? BASIC[kind].apply(passing, block, rng) : passing,
+                  );
+                }
+                const driver = createSimulatedUser({
+                  persona: `A fictional ${style.id} Larkspur Cycles customer.`,
+                  goal: 'Rent a bike for the weekend.',
+                  facts: {},
+                  revealWhenAsked: {},
+                  stopToken: '###STOP###',
+                  port: userRecordingPort({
+                    family: 'hand-written',
+                    model: 'recorded for the blocks bank',
+                    persona: tag,
+                    answers,
+                  }),
+                  agentFamily: 'none',
+                  judgeFamilies: [],
+                });
+                const agent = plantedAgent(product, kind, actions, { scratch });
+                const record = await run(product, base.raw, agent.adapter, { driver });
+                const sent = agent.delivered().map((each) => each.marker);
+                for (const [i, block] of base.blocks.entries()) {
+                  const got = record.blocks.find((each) => each.blockId === block.id);
+                  const want = failing[p]?.includes(i) ? 'fail' : 'pass';
+                  if (!got)
+                    return fail(
+                      `${block.id} should run for persona ${style.id}: the run holds no such block`,
+                    );
+                  const status = statusOf(product, got);
+                  if (status !== want)
+                    return fail(
+                      `${block.id} played by persona ${style.id} should ${want}: ${want === 'fail' ? 'the agent breaks it only for this persona' : 'the agent meets it for this persona'}; got ${status}`,
+                    );
+                  if (!sent.includes(`${block.marker}-${tag}`))
+                    return fail(
+                      `${block.id} should reach the agent in persona ${style.id}'s words; the agent never received them`,
+                    );
+                  if (!(got as { realized?: unknown }).realized)
+                    return fail(
+                      `${block.id} should record that the persona's words, not the spec's, were sent (realized); it records none`,
+                    );
+                }
+              }
+              return PASS;
+            },
+          });
+        }
+      }
+    }
+  }
+  return items;
 }

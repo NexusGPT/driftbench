@@ -254,6 +254,8 @@ export async function run(
     campaignId?: string;
     target?: Record<string, unknown>;
     cache?: unknown;
+    /** A user driver in place of the scripted one: a simulated user, for instance. */
+    driver?: unknown;
   } = {},
 ): Promise<RunRecord> {
   const spec = load(product, raw);
@@ -267,7 +269,7 @@ export async function run(
   const defaultReaders = need<() => unknown>(product.artifacts, 'artifacts', 'defaultReaders');
   return runSpec(spec, {
     adapter,
-    driver: createScriptedDriver(),
+    driver: options.driver ?? createScriptedDriver(),
     checks: defaultChecks(),
     artifacts: defaultReaders(),
     mode: options.mode ?? 'F',
