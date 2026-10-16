@@ -2,6 +2,7 @@ import type { ModelPort } from '@agent-nexus/driftbench-generate';
 import type { Atom } from '../schema';
 import { proseCandidates } from './candidates';
 import { AtomBuilder, codeAtoms, guardName } from './code';
+import { isNormative, normativeEstate, unloadedByDesign } from './document-roles';
 import { type ChunkRun, type ProseRefusal, runChunk } from './prose';
 import { type ProseCache, type ProseEstimate, proseCacheKey } from './prose-cache';
 import type { EstateFile, RawEstate } from './reader';
@@ -53,6 +54,7 @@ export type ScanAtoms = {
 
 /** Code atoms first, in a fixed order, then each prose chunk through the model when a port is given. */
 export async function scanAtoms(raw: RawEstate, options: ScanAtomsOptions = {}): Promise<ScanAtoms> {
+  raw = normativeEstate(raw);
   const files = new Map(raw.files.map((file) => [file.path, file]));
   const builder = new AtomBuilder(files);
   codeAtoms(raw, builder);
@@ -110,6 +112,9 @@ export function measureInvariants(
   orphans: readonly string[],
   ceiling: number,
 ): InvariantState {
+  const navigation = new Set(
+    raw.files.filter((file) => unloadedByDesign(raw, file)).map((file) => file.path),
+  );
   const names = new Set(raw.guards.map((guard) => guardName(guard)));
   // A catalogue check is listed by its catalogue; the registry is asked to list the guards the runtime runs.
   const runtime = new Set(raw.guards.filter((guard) => !guard.check).map((guard) => guardName(guard)));
@@ -118,7 +123,7 @@ export function measureInvariants(
   return {
     ceiling,
     standingCharacters: standingFiles(raw).reduce((sum, file) => sum + characters(file.text), 0),
-    orphans: [...orphans],
+    orphans: orphans.filter((path) => !navigation.has(path)),
     unanchored: raw.guards.filter((guard) => guard.script && !guard.anchored).map((guard) => guard.command),
     guardsWithoutRow: listed.length === 0 ? [] : [...runtime].filter((name) => !rows.has(name)).sort(),
     rowsWithoutGuard: raw.registry
@@ -128,7 +133,9 @@ export function measureInvariants(
 }
 
 export function standingFiles(raw: RawEstate): EstateFile[] {
-  return raw.files.filter((file) => file.kind === 'standing' || file.kind === 'memory');
+  return raw.files.filter(
+    (file) => isNormative(file) && (file.kind === 'standing' || file.kind === 'memory'),
+  );
 }
 
 /** Adds the invariant atoms, each anchored on the file the property is about. */
@@ -176,7 +183,7 @@ export function invariantAtoms(raw: RawEstate, builder: AtomBuilder, state: Inva
       }),
     );
   }
-  const registry = raw.files.find((file) => file.kind === 'registry');
+  const registry = raw.files.find((file) => isNormative(file) && file.kind === 'registry');
   if (registry) {
     added.push(
       builder.add({

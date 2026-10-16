@@ -1,6 +1,7 @@
 import type { Atom } from '../schema';
 import { clauseRule, NORMATIVE_HEADING, type Rule, type RuleContext } from './clause-rule';
 import type { AtomBuilder } from './code';
+import { documentInfo } from './document-roles';
 import type { ProseChunk, RawEstate } from './reader';
 import { lineAt, quoteWithin, readFrontmatter } from './text';
 
@@ -32,7 +33,10 @@ export function proseCandidates(
     if (!['standing', 'memory', 'skill', 'skill_file', 'subagent'].includes(file.kind)) continue;
     // Only prose is read for rules, and never another project's documentation.
     if (file.kind === 'skill_file' && !/\.(?:md|markdown|mdx|txt)$/i.test(file.path)) continue;
-    if (isThirdParty(file, manifests) || isBuildOutput(file)) continue;
+    // A changelog, history, journal, template, example, fixture or archive states no rule of the estate.
+    if (documentInfo(file).role !== 'normative') continue;
+    if (isThirdParty(file, manifests)) continue;
+    if (isBuildOutput(file)) continue;
     const resolvedHere = answeredByFile.get(file.path) ?? [];
     if (resolvedHere.length > 0 && !pendingFiles.has(file.path)) continue;
     try {
@@ -100,6 +104,7 @@ function candidatesOfFile(
   const body = readFrontmatter(file.text);
   const lines = file.text.split('\n');
   const visible = normativeLines(lines, body.bodyLine);
+  const sections = documentInfo(file).sections ?? [];
   const occupied = new OccupiedLines(builder.atomsOf(file.path));
   // A bare instruction ("Read X first.") that code already reads as a reference, script, route or hazard
   // is that atom's own sentence, not a second rule.
@@ -131,6 +136,9 @@ function candidatesOfFile(
       // An indexed lookup: counting line breaks from the top of the block makes a long block quadratic.
       const startLine = block.startLine + lineAt(block.original, offset) - 1;
       const endLine = startLine + countNewlines(quote);
+      // A history, example or template section inside a live document is just as little a rule.
+      if (sections.some((section) => startLine >= section.startLine && startLine <= section.endLine))
+        continue;
       let rule: Rule | undefined;
       try {
         const normative = NORMATIVE_HEADING.test(block.heading);
@@ -231,8 +239,7 @@ function isThirdParty(file: RawEstate['files'][number], manifests: ReadonlySet<s
 /** A quote this short rarely carries a rule's condition or object: proposed with low confidence. */
 const SHORT_QUOTE = 25;
 
-const OUTPUT_FOLDER =
-  /(?:^|\/)(?:dist|build|out|coverage|target|htmlcov|\.next|\.nuxt|\.cache|_build|__snapshots__)(?:\/|$)/i;
+const OUTPUT_FOLDER = /(?:^|\/)(?:dist|coverage|htmlcov|\.next|\.nuxt|_build|__snapshots__)(?:\/|$)/i;
 /** A line a tool prints: a timestamp, a level, a pass or fail mark, a prompt, a step counter. */
 const TOOL_LINE =
   /^\s*(?:\[?\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}|\d{2}:\d{2}:\d{2}|(?:PASS|FAIL|ERROR|WARN(?:ING)?|INFO|DEBUG|TRACE)\b|\[(?:PASS|FAIL|ERROR|WARN|INFO|DEBUG)\]|\[\d+\/\d+\]|npm (?:ERR|WARN)|\d+ (?:passing|failing|passed|failed))/;
@@ -279,8 +286,8 @@ const SKIPPED_BLOCK = new RegExp(
     '^[^\\n]{0,30}\\((?:wrong|bad|incorrect|don\\u2019t|do not)\\)',
     '^not\\s*:',
     '^(?:wrong|bad|incorrect|invalid|anti-?patterns?|counter-?examples?|bad\\s+examples?|wrong\\s+examples?)\\b[^:—–\\n]{0,20}[:—–]',
-    '^[\\[(]?(?:\\d{4}-\\d{2}(?:-\\d{2})?|\\d{1,2}/\\d{1,2}/\\d{2,4}|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\\.?\\s+\\d{1,4}|\\d{1,2}\\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\\.?|v?\\d+\\.\\d+(?:\\.\\d+)?)[)\\]]?\\s*[:—–-]',
-    '^(?:user|customer|client|human|assistant|agent|bot|claude|q|a)\\s*:',
+    '^[\\[(]?(?:\\d{4}-\\d{2}(?:-\\d{2})?|\\d{1,2}/\\d{1,2}/\\d{2,4}|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\\.?\\s+\\d{1,4}|\\d{1,2}\\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\\.?|v\\d+\\.\\d+(?:\\.\\d+)?|\\d+\\.\\d+\\.\\d+)[)\\]]?\\s*[:—–-]',
+    '^(?:user|customer|client|human|assistant|agent|bot|claude)\\s*:',
   ].join('|'),
   'iu',
 );
@@ -395,8 +402,11 @@ function normativeLines(lines: string[], bodyStart: number): Block[] {
     // A quotation never outlives its paragraph, so one stray quotation mark (5" pipe) cannot hide the file.
     if (!current || list) quotation = undefined;
     // Quoted and inline-code payloads cannot supply modalities or verbs.
+    // An inline code span stands where a name or a command stands in the sentence ("Never `git push --force`"):
+    // it keeps its length and becomes one opaque word, so it can be the act's word but supplies no modal.
+    line = line.replace(/`+[^`\n]*`+/g, (span) => 'x'.repeat(span.length));
     line = line.replace(
-      /`+[^`]*`+|(?<!\w)'[^'\n]+'(?!\w)|‘[^’\n]*’|«[^»\n]*»|‹[^›\n]*›|„[^“”\n]*[“”]|「[^」\n]*」|『[^』\n]*』/g,
+      /(?<!\w)'[^'\n]+'(?!\w)|‘[^’\n]*’|«[^»\n]*»|‹[^›\n]*›|„[^“”\n]*[“”]|「[^」\n]*」|『[^』\n]*』/g,
       blank,
     );
     let unquoted = '';

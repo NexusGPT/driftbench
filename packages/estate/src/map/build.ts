@@ -1,6 +1,8 @@
 import type { ModelPort } from '@agent-nexus/driftbench-generate';
 import { analyzeGraph, type GraphAnalysis } from '../graph/analyze';
 import { buildGraph } from '../graph/edges';
+import { navigationNames } from '../scan/code';
+import { documentInfo, normativeEstate, unloadedByDesign } from '../scan/document-roles';
 import { DEFAULT_STANDING_CEILING, invariantAtoms, measureInvariants, scanAtoms } from '../scan/invariants';
 import type { ChunkRun, ProseRefusal } from '../scan/prose';
 import type { ProseCache, ProseEstimate } from '../scan/prose-cache';
@@ -42,7 +44,7 @@ export type ScanEstateResult = {
 };
 
 export async function scanEstate(input: ScanEstateInput): Promise<ScanEstateResult> {
-  const raw = await input.reader.read(input.root);
+  const raw = normativeEstate(await input.reader.read(input.root));
   const scanned = await scanAtoms(raw, {
     ...(input.port ? { port: input.port } : {}),
     ...(input.cache ? { cache: input.cache } : {}),
@@ -73,13 +75,25 @@ export async function scanEstate(input: ScanEstateInput): Promise<ScanEstateResu
       if (rule && !rule.enforcement.includes(guard)) rule.enforcement.push(guard);
     }
   }
-  const before = analyzeGraph(builder.atoms, graph.edges, raw.files);
+  const navigation = new Set(
+    raw.files.filter((file) => unloadedByDesign(raw, file)).map((file) => file.path),
+  );
+  const documented = navigationNames(raw);
+  const analyze = () => {
+    const result = analyzeGraph(builder.atoms, graph.edges, raw.files, documented);
+    return {
+      ...result,
+      orphans: result.orphans.filter((path) => !navigation.has(path)),
+      unreachableFiles: result.unreachableFiles.filter((path) => !navigation.has(path)),
+    };
+  };
+  const before = analyze();
   invariantAtoms(
     raw,
     builder,
     measureInvariants(raw, before.orphans, input.ceiling ?? DEFAULT_STANDING_CEILING),
   );
-  const analysis = analyzeGraph(builder.atoms, graph.edges, raw.files);
+  const analysis = analyze();
 
   const texts = new Map(raw.files.map((file) => [file.path, file.text]));
   for (const atom of builder.atoms) {
@@ -99,6 +113,7 @@ export async function scanEstate(input: ScanEstateInput): Promise<ScanEstateResu
     root: input.rootLabel ?? '.',
     readAt: at,
     atoms,
+    documents: raw.files.map(documentInfo),
     edges: graph.edges,
     ...(raw.ignored?.chosen && raw.ignored.chosen.length > 0 ? { ignore: raw.ignored.chosen } : {}),
     ...(input.port

@@ -27,7 +27,7 @@ export type RuleContext = {
 
 /** A heading that introduces rules: there, "every X does Y" governs, elsewhere it describes. */
 export const NORMATIVE_HEADING =
-  /\b(?:rules?|constraints?|requirements?|guidelines?|polic(?:y|ies)|principles?|standards?|conventions?|instructions?|invariants?|gotchas?|checklists?|discipline|contract|obligations?|protocols?|norms?|boundaries|guardrails?|must|never|always|do\s+not|don['’]?ts?|dos)\b/i;
+  /\b(?:rules?|constraints?|requirements?|guidelines?|polic(?:y|ies)|principles?|standards?|conventions?|instructions?|invariants?|gotchas?|checklists?|discipline|contract|obligations?|protocols?|norms?|boundaries|guardrails?|styles?|formats?|formatting|tone|voice|output|outputs|writing|communication|replies|responses|must|never|always|do\s+not|don['’]?ts?|dos)\b/i;
 
 type Term = { text: string; tags: string[] };
 type Parsed = ReturnType<typeof nlp>;
@@ -182,9 +182,9 @@ const MARKER =
   /\b(?:(?<strong>must|shall|should|ought\s+to|(?:need|needs|has|have)\s+to|(?:is|are)\s+(?:required|expected)\s+to)(?:\s+(?<mod>not|never|always))?|(?<weak>never|always|(?:do|does)\s+not|(?:don|doesn|mustn|shouldn|can|won)['’]t|cannot|may\s+not))\b/i;
 const BOUNDARY = /[,;:–—]|\s-\s|\b(?:and|but|then)\b/gi;
 const PAST_CUES =
-  /\b(?:previously|formerly|originally|used\s+to|no\s+longer|anymore|last\s+(?:week|month|year|sprint|quarter|time)|yesterday|\d+\s+(?:days?|weeks?|months?|years?)\s+ago|until\s+now|back\s+then|(?:the\s+)?(?:old|former|previous|earlier)\s+(?:rules?|polic(?:y|ies)|versions?|way)|in\s+(?:19|20)\d{2}|(?:19|20)\d{2}-\d{2}(?:-\d{2})?)\b/i;
+  /\b(?:(?:previously|formerly|originally)(?!\s+\p{L}+ed\b)|used\s+to|no\s+longer|anymore|last\s+(?:week|month|year|sprint|quarter|time)|yesterday|\d+\s+(?:days?|weeks?|months?|years?)\s+ago|until\s+now|back\s+then|(?:the\s+)?(?:old|former|previous|earlier)\s+(?:rules?|polic(?:y|ies)|versions?|way))\b/iu;
 /** Every word that can open or carry a rule, so a sentence without one needs no parse unless it is an imperative. */
-const PLACEHOLDER = /<<<|>>>|\{\{|\}\}|\$\{|\b(?:TODO|TBD|FIXME|XXX)\b/;
+const PLACEHOLDER = /<<<|>>>|\{\{|\}\}|\$\{|^\W*(?:TODO|TBD|FIXME|XXX)\b|\b(?:TODO|TBD|FIXME|XXX)\s*[:：]/;
 const CUES =
   /\b(?:must|shall|should|ought|needs?|has\s+to|have\s+to|required|expected|never|always|do\s+not|does\s+not|don['’]t|doesn['’]t|cannot|can['’]t|mustn['’]t|shouldn['’]t|won['’]t|may\s+not|only|unless|until|before|after|once|when|whenever|if|at\s+most|no\s+more\s+than|up\s+to|every|each)\b/i;
 /** Function words (articles, pronouns, prepositions, conjunctions, auxiliaries) never open an imperative. */
@@ -214,11 +214,16 @@ export function clauseRule(source: string, context: RuleContext): Rule | undefin
     .trim();
   if (!whole || whole.length > 1500 || whole.includes('?')) return;
   // A lead-in that ends in a colon introduces what follows; it is no rule of its own.
-  if (/[:：]$/.test(whole)) return;
+  let lead = whole;
+  if (/[:：]$/.test(whole)) {
+    // "You must do the following:" carries its modal; "What X should generate:" and "Examples:" only label.
+    lead = whole.replace(/[:：]$/, '').trim();
+    if (!MARKER.test(lead) || /^(?:what|which|how|when|where|who|why|if|for|in|on|as)\b/i.test(lead)) return;
+  }
   // A log entry or an account of the past is not a rule, whatever label it carries.
   if (PAST_CUES.test(whole) || PAST_ENTRY.test(whole)) return;
   // "Step 1 — Do X", "Rule: never Y": the label is a heading, its continuation can be a rule.
-  const text = withoutLabel(whole);
+  const text = withoutLabel(lead);
   if (!text) return;
   // A sentence with no cue word that opens with a function word cannot be an instruction: skip the parser.
   if (!CUES.test(text) && (NOT_AN_INSTRUCTION_START.test(text) || !mayOpenAnInstruction(text))) return;
@@ -232,9 +237,20 @@ export function clauseRule(source: string, context: RuleContext): Rule | undefin
   if (marker) {
     const lead = text.slice(0, marker.index);
     // Words about words, quotation or speech are not rules about the agent.
-    if (/\b(?:word|phrase|example|sample|quotation)\b/i.test(lead)) return;
+    if (/\b(?:the|this|that|a)\s+(?:word|phrase|quotation|example|sample)s?\s*$/i.test(lead)) return;
+    // "The example reads: never ...": a noun and a reporting verb before a colon introduce somebody's words.
+    if (/^[\p{L} ]{3,40}\b(?:reads?|says?|said|states?|means?|shows?|quotes?|notes?)\s*[:：]/iu.test(lead))
+      return;
     const found = markerRule(text, terms, marker, lead, imperativeLed, context);
     if (found) return found;
+    return;
+  }
+  const restriction = /^only\s+(.+?)\s+(?:may|can|are\s+allowed\s+to|is\s+allowed\s+to)\s+\S/i.exec(text);
+  if (restriction) {
+    const who = restriction[1] ?? '';
+    const kind = subjectKind(who, termsWithin(text, terms, 5, 5 + who.length), context);
+    if (kind === 'self' || kind === 'output' || kind === 'thing')
+      return { subject: who, polarity: 'obligation', form: 'restriction' };
     return;
   }
   const bound = /^(?:at\s+most|no\s+more\s+than|a\s+maximum\s+of|up\s+to)\s+(.+)$/i.exec(text);
@@ -250,7 +266,8 @@ export function clauseRule(source: string, context: RuleContext): Rule | undefin
   if (quantified) return quantifiedRule(text, parsed, terms, context);
   const conditional = conditionalRule(text, terms, imperativeLed, context);
   if (conditional) return conditional;
-  if (imperativeLed && (elidedObject(terms) || tooBare(terms))) return;
+  if (imperativeLed && (elidedObject(terms) || tooBare(terms) || triggerIdiom(terms) || titleLike(terms)))
+    return;
   if (imperativeLed)
     return withPartial({ subject: 'agent', polarity: 'obligation', form: 'imperative' }, text);
   return declaredOutput(text, parsed, terms, context);
@@ -274,6 +291,15 @@ function markerRule(
   // "If you never X, Y happens": a marker inside a subordinate clause states a case, not a rule.
   if (subjectWords.some((word) => SUBORDINATORS.has(word))) return;
   const strong = marker.groups?.strong !== undefined;
+  // "cannot", "can't", "won't" state what a thing is able or likely to do. Said to the reader ("You can't push
+  // to main") they are a rule; said of anything else ("The sandbox cannot reach the network") they describe.
+  if (
+    !strong &&
+    /^(?:cannot|can['’]t|won['’]t)$/i.test(marker[0]) &&
+    subjectWords.length > 0 &&
+    !subjectWords.some((word) => /^(?:you|your|we|our|i)$/.test(word))
+  )
+    return;
   const negated = !!marker.groups?.mod && /not|never/i.test(marker.groups.mod);
   const prohibition = negated || (!strong && !/^always$/i.test(marker[0]));
   const afterMarker = text.slice(marker.index + marker[0].length);
@@ -286,7 +312,25 @@ function markerRule(
   const after = termsWithin(text, terms, text.length - tail.length, text.length).find(
     (term) => !has(term, 'Negative', 'Adverb', 'Expression'),
   );
-  if (!(has(after, 'Verb') && !has(after, 'Modal')) && !actFollows(tail)) return;
+  // After "must" the next word is the act unless it is a function word ("must the ...", "must be" is a verb).
+  const strongAct =
+    (marker.groups?.strong !== undefined &&
+      !!after &&
+      !has(after, 'Determiner', 'Preposition', 'Conjunction', 'Pronoun', 'Value', 'Modal', 'Adjective') &&
+      !has(after, 'Noun', 'Singular', 'Plural')) ||
+    (marker.groups?.strong !== undefined && /^be$/i.test(after?.text ?? ''));
+  if (!strongAct && !(has(after, 'Verb') && !has(after, 'Modal')) && !actFollows(tail)) {
+    // "Quote the number in every reply, never a pasted label": after a comma, a contrast with no verb of its
+    // own ("never a pasted label") belongs to the instruction before it.
+    const main = lead.replace(/\s+$/, '');
+    const contrast =
+      /[,;—–]$/.test(main) &&
+      (imperativeLed ||
+        ['self', 'output'].includes(
+          subjectKind(main.slice(0, -1), termsWithin(text, terms, 0, main.length - 1), context),
+        ));
+    if (!contrast) return;
+  }
   // "The contract states that suppliers must ...": a modal in a complement clause reports somebody's words.
   // After a noun, "that" opens a relative clause ("tests that fail must ..."): a verb follows it.
   if (!imperativeLed) {
@@ -296,7 +340,8 @@ function markerRule(
   }
   if (subjectWords.length > 0 && !imperativeLed) {
     const kind = subjectKind(subjectText, subjectTerms, context);
-    if (kind === 'finite' || kind === 'others') return;
+    if (kind === 'finite') return;
+    if (kind === 'others') return;
     // An obligation with a calendar deadline ("by Friday", "within a week") is owed by people or teams: an
     // agent session works in minutes. The estate's own agents, skills and outputs are exempt.
     if (kind === 'thing' && calendarDeadline(text, terms, marker.index + marker[0].length)) return;
@@ -392,7 +437,15 @@ function subjectKind(
   // "The worker must ..." names a role the document may be addressing to the agent; "Workers must ..." and a
   // named person speak of other parties.
   const definite = before.some((term) => has(term, 'Determiner'));
-  if (OTHERS.has(word) || has(head, 'Person') || (has(head, 'Actor') && (has(head, 'Plural') || !definite)))
+  // "The user must confirm" and "The owner approves spend" name the agent's counterpart, whose step the agent
+  // waits for: that is the agent's own procedure. Plural or bare groups ("Users must ...") and people by name
+  // speak of others.
+  const counterpart = definite && !has(head, 'Plural') && OTHERS.has(word);
+  if (
+    (OTHERS.has(word) && !counterpart) ||
+    has(head, 'Person') ||
+    (has(head, 'Actor') && (has(head, 'Plural') || !definite) && !counterpart)
+  )
     return 'others';
   if (OUTPUT.has(word)) return 'output';
   return 'thing';
@@ -417,6 +470,8 @@ function quantifiedRule(text: string, parsed: Parsed, terms: Term[], context: Ru
   if (kind === 'finite' || kind === 'others') return;
   // A habit of things governs the agent only when it addresses the agent or the section holds rules.
   if (kind === 'thing' && !context.normative && !/\b(?:you|your|we|our|us)\b/i.test(text)) return;
+  // "Each helper has its own folder": a verb of possession or composition states what a thing is made of.
+  if (!context.normative && STATIVE.test(terms.find((term) => has(term, 'Verb'))?.text ?? '')) return;
   return { subject, polarity: 'obligation', form: 'quantified' };
 }
 
@@ -493,10 +548,19 @@ function declaredOutput(text: string, parsed: Parsed, terms: Term[], context: Ru
   // "Replies stay brief": the tagger may read the subject as a verb and the verb as a noun.
   if (
     verbAt < 0 &&
+    !has(terms[1], 'Plural') &&
     OUTPUT.has((terms[0]?.text ?? '').toLowerCase()) &&
     !has(terms[1], 'Determiner', 'Preposition', 'Conjunction')
   )
     verbAt = 1;
+  // Two present-tense verbs in a row ("Output files live"): the first is a noun the tagger misread.
+  if (
+    verbAt >= 1 &&
+    !has(terms[verbAt], 'Copula', 'Auxiliary') &&
+    has(terms[verbAt + 1], 'Verb') &&
+    !has(terms[verbAt + 1], 'Gerund', 'Participle', 'Passive', 'PastTense')
+  )
+    verbAt++;
   if (verbAt < 1) return;
   const subject = terms
     .slice(0, verbAt)
@@ -508,9 +572,28 @@ function declaredOutput(text: string, parsed: Parsed, terms: Term[], context: Ru
       text,
     );
   // "Replies stay brief": a generic plural (no article) states a norm; "the reply stays brief" may describe.
-  const generic = !terms.slice(0, verbAt).some((term) => has(term, 'Determiner', 'Possessive'));
-  if (!measured && !generic && !terms.some((term) => has(term, 'Adjective')) && !context.normative) return;
+  const generic =
+    verbAt === 1 &&
+    !terms.slice(0, verbAt).some((term) => has(term, 'Determiner', 'Possessive')) &&
+    !terms.some((term) => has(term, 'Date', 'Duration', 'WeekDay', 'Month'));
+  // An adjective right after the verb is the complement ("Replies stay brief"); one inside a noun phrase is not.
+  const complement =
+    has(terms[verbAt + 1], 'Adjective') ||
+    (has(terms[verbAt + 1], 'Adverb') && has(terms[verbAt + 2], 'Adjective'));
+  if (!measured && !generic && !complement && !context.normative) return;
   if (has(terms[verbAt], 'PastTense')) return;
+  // "Responses are streamed", "Replies are sent to the channel": a passive of what happens to an output
+  // describes a flow; a copula with an adjective or a noun ("Titles are short", "Summaries are bullet lists")
+  // sets a style.
+  if (
+    !measured &&
+    !context.normative &&
+    has(terms[verbAt], 'Copula', 'Auxiliary') &&
+    has(terms[verbAt + 1], 'Passive', 'PastTense', 'Participle') &&
+    !has(terms[verbAt + 1], 'Adjective')
+  )
+    return;
+  if (!context.normative && STATIVE.test(terms[verbAt]?.text ?? '')) return;
   return { subject, polarity: 'obligation', form: 'declared' };
 }
 
@@ -536,6 +619,50 @@ function isImperative(text: string, bare = false): boolean {
 const startsAsInstruction = (text: string) => imperativeStart(termsOf(nlp(text)));
 
 /** The sentence opens with a bare verb: an instruction to its reader, with no subject. */
+const STATIVE =
+  /^(?:has|have|owns?|contains?|belongs?|consists?|comprises?|equals?|exists?|means?|depends?|holds?)$/i;
+const CAUSATIVE = new Set([
+  'let',
+  'make',
+  'have',
+  'help',
+  'get',
+  'see',
+  'watch',
+  'hear',
+  'keep',
+  'leave',
+  'ensure',
+  'tell',
+  'ask',
+  'allow',
+  'require',
+]);
+
+/** From the word after `at`: a bare noun phrase (no article, possessive or pronoun) followed by a finite verb. */
+function compoundSubject(terms: Term[], at: number): boolean {
+  let index = at + 1;
+  if (!has(terms[index], 'Noun', 'Adjective') || has(terms[index], 'Pronoun', 'Determiner', 'Possessive'))
+    return false;
+  while (
+    has(terms[index], 'Noun', 'Adjective') &&
+    !has(terms[index], 'Pronoun', 'Determiner', 'Possessive') &&
+    !has(terms[index + 1], 'Verb')
+  )
+    index++;
+  const next = terms[index + 1];
+  if (!has(next, 'Verb') || has(next, 'Gerund', 'Participle', 'Modal')) return false;
+  // Prepositions the tagger sometimes reads as verbs ("Name files like notes") are not a predicate.
+  if (/^(?:like|as|per|via|than|plus|minus|versus|near|past|round|but|except)$/i.test(next?.text ?? ''))
+    return false;
+  // "Limit status updates to one paragraph": a verb-looking plural noun in -s that a preposition follows is the
+  // object of the first word, not a predicate ("Review comments land on the PR" has a base-form verb).
+  const word = (next?.text ?? '').toLowerCase();
+  if (/[^s]s$/.test(word) && has(terms[index + 2], 'Preposition', 'Particle', 'Conjunction')) return false;
+  // The word before the verb must be a noun for the pair to be a subject.
+  return has(terms[index], 'Noun');
+}
+
 function imperativeStart(terms: Term[]): boolean {
   let at = 0;
   while (
@@ -577,8 +704,10 @@ function imperativeStart(terms: Term[]): boolean {
     !has(first, 'Imperative')
   )
     return false;
-  // "Build artifacts are stored": a compound noun, then a finite verb.
-  if (has(second, 'Plural') && has(terms[at + 2], 'Copula', 'Auxiliary')) return false;
+  // "Build artifacts are stored", "Test results go to stdout", "Write access needs approval": a bare noun phrase
+  // and then a finite verb is a subject with its predicate, whatever the first word could be on its own. The
+  // verbs that take a bare noun and a verb ("Let users decide", "Make users sign in") are the exception.
+  if (!CAUSATIVE.has(word) && compoundSubject(terms, at)) return false;
   if (has(first, 'Imperative')) return true;
   if (has(first, 'Verb') && has(first, 'Infinitive')) return true;
   // A noun-tagged first word is an instruction when an article, pronoun, preposition, adverb, number or
@@ -602,7 +731,9 @@ function imperativeStart(terms: Term[]): boolean {
         'Particle',
         'Adjective',
         'QuestionWord',
-      )
+      ) &&
+      // An inline code span (kept as one opaque word) is the act's object: "Run `make test` before you commit".
+      !/^x{2,}$/.test(second?.text ?? '')
     )
       return false;
     for (const term of terms.slice(at + 1)) {
@@ -637,12 +768,20 @@ function withoutLabel(text: string): string {
   const found = /^([^.,;:!?()—–]{1,40}?)\s*(?:[—–]|\s-\s|:)\s+(.+)$/u.exec(text);
   if (!found) return text;
   const words = (found[1] ?? '').trim().split(/\s+/);
+  const colon = text
+    .slice((found[1] ?? '').length)
+    .trimStart()
+    .startsWith(':');
+  // A colon after at most three words that hold no modal or negation ("Facts first:") is a lead-in label.
   const label =
     words.length <= 3 &&
     (words.length === 1 ||
+      (colon && !CUES.test(found[1] ?? '') && !startsAsInstruction(found[1] ?? '')) ||
       /^\p{Lu}{2,}\b/u.test(words[0] ?? '') ||
       words.every((word) => /^[\p{Lu}\d]/u.test(word)));
-  if (!label) return text;
+  // "The example reads: never X" introduces somebody's words: the words before the colon stay.
+  if (!label || /\b(?:reads?|says?|said|states?|means?|quotes?|wrote|writes?)\b/i.test(found[1] ?? ''))
+    return text;
   const rest = (found[2] ?? '').trim();
   const prefix = (found[1] ?? '').trim();
   // A step or phase heading ("Step 1 — Discover the files") is a heading whatever follows it, and a title after
@@ -742,6 +881,53 @@ function firstSubordinate(terms: Term[], text: string): number {
       return found;
   }
   return text.length;
+}
+
+const TITLE_PREPOSITIONS = /^(?:for|of|from|about|to)$/i;
+const TITLE_PREPOSITIONS_WIDE = /^(?:for|of|from|about|on|to)$/i;
+
+/**
+ * "Release notes for v2.", "Answer to the second question.", "Link to the dashboard.": a noun phrase with
+ * its prepositional complement, which the tagger can read as a verb and its object. A noun first (by the
+ * tagger's own lexicon) and then "for/of/from/about/to", or a verb and a bare singular noun and then a
+ * preposition ("Test plan for ...", "Design notes on ..."), is a title.
+ */
+function titleLike(terms: Term[]): boolean {
+  // A title is short and holds no second verb; a longer or clausal line is an instruction.
+  if (
+    terms.some((term) =>
+      /^(?:when|whenever|if|unless|while|until|once|because|since|so)$/i.test(term.text),
+    ) ||
+    terms.length > 7 ||
+    terms.some((term, index) => index > 0 && has(term, 'Verb') && !has(term, 'Gerund', 'Participle'))
+  )
+    return false;
+  let at = 0;
+  while (has(terms[at], 'Adverb', 'Expression')) at++;
+  const first = (terms[at]?.text ?? '').toLowerCase().replace(/[^\p{L}'’-]/gu, '');
+  const lexical = LEXICON[first];
+  const second = terms[at + 1];
+  if (TITLE_PREPOSITIONS.test(second?.text ?? '') && (lexical === 'Singular' || lexical === 'Noun'))
+    return true;
+  if (
+    has(second, 'Noun') &&
+    !has(second, 'Plural', 'Determiner', 'Possessive', 'Pronoun') &&
+    TITLE_PREPOSITIONS_WIDE.test(terms[at + 2]?.text ?? '')
+  )
+    return true;
+  return false;
+}
+
+/**
+ * "Use when the user asks for X": the genre's way of saying when a skill applies. A verb that takes an
+ * object, followed by a condition with no object of its own, describes the trigger and tells no one to act.
+ */
+function triggerIdiom(terms: Term[]): boolean {
+  const first = (terms[0]?.text ?? '').toLowerCase();
+  return (
+    /^(?:use|apply|invoke|trigger|call|run|load|activate)$/.test(first) &&
+    /^(?:when|whenever|if)$/i.test(terms[1]?.text ?? '')
+  );
 }
 
 /**

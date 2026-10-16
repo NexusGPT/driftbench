@@ -6,6 +6,7 @@ import { estate } from '../support';
 import { buildCorpus, type CorpusItem } from './prose-corpus';
 import { buildHeldOutCorpus } from './prose-corpus-heldout';
 import { buildStyleCorpus } from './prose-corpus-style';
+import { buildTerseCorpus } from './prose-corpus-terse';
 
 type Stat = { total: number; found: number; flagged: number };
 
@@ -70,6 +71,9 @@ async function measure(items: CorpusItem[]): Promise<Record<string, Stat>> {
 }
 
 const rulesClasses = [
+  'code-span-rules',
+  'terse-rule',
+  'recovered',
   'imperative',
   'output-style',
   'only-when',
@@ -91,12 +95,18 @@ const never = [
   'placeholder',
   'checklist',
   'wrong-above',
+  'capability',
+  'title',
+  'terse-description',
+  'descriptive-statements',
+  'trigger-idiom',
 ];
 
 describe.each([
   ['the first corpus', buildCorpus, 0.95],
   ['the held-out corpus', buildHeldOutCorpus, 0.9],
   ['the style corpus', buildStyleCorpus, 0.95],
+  ['the terse corpus', buildTerseCorpus, 0.95],
 ])('rule grammar on %s', (_name, build, floor) => {
   it('finds the rules, refuses the look-alikes and flags fragments', async () => {
     const stats = await measure(build());

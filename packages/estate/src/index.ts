@@ -252,6 +252,8 @@ export {
 export {
   Atom,
   AtomKind,
+  DocumentInfo,
+  DocumentRole,
   Edge,
   EdgeKind,
   EstateMap,
