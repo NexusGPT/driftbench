@@ -3,6 +3,13 @@ import { ClaudeCodeReader, lintEstate, scanEstate, scriptOf } from '../../src/in
 import { estate, NOW } from '../support';
 import { CASES } from './cases';
 
+const SOURCE = 'import sys, runpy\nrunpy.run_path(sys.argv[1])\n';
+const SOURCES = new Map([
+  ['lib/dispatch.py', SOURCE],
+  ['.claude/hooks/lib/run.py', SOURCE],
+  ['hooks/hookrun.sh', '#!/bin/sh\nexec python3 "$1"\n'],
+]);
+
 const PATHS = new Set([
   '.claude/hooks/lib/run.py',
   '.claude/hooks/pretool.py',
@@ -28,7 +35,7 @@ describe('guard commands behind a prefix or a dispatcher', () => {
   });
 
   it('takes the last path argument that exists, from the root or the folders of the dispatcher', () => {
-    expect(scriptOf('ENV=1 python3 lib/dispatch.py guard.py', PATHS)).toEqual({
+    expect(scriptOf('ENV=1 python3 lib/dispatch.py guard.py', PATHS, SOURCES)).toEqual({
       script: 'lib/guard.py',
       anchored: false,
       dispatcher: 'lib/dispatch.py',
@@ -38,19 +45,22 @@ describe('guard commands behind a prefix or a dispatcher', () => {
       scriptOf(
         '[ "$Q" = "$PPID" ] || python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/lib/run.py pretool.py --fast',
         PATHS,
+        SOURCES,
       ),
     ).toEqual({
       script: '.claude/hooks/lib/pretool.py',
       anchored: true,
       dispatcher: '.claude/hooks/lib/run.py',
     });
-    expect(scriptOf('python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/lib/run.py stop.sh', PATHS)).toEqual({
+    expect(
+      scriptOf('python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/lib/run.py stop.sh', PATHS, SOURCES),
+    ).toEqual({
       script: '.claude/hooks/stop.sh',
       anchored: true,
       dispatcher: '.claude/hooks/lib/run.py',
     });
     // A target that exists nowhere is still the guard's script: the lint reports it missing.
-    expect(scriptOf('python3 lib/dispatch.py gone.py', PATHS)).toEqual({
+    expect(scriptOf('python3 lib/dispatch.py gone.py', PATHS, SOURCES)).toEqual({
       script: 'gone.py',
       anchored: false,
       dispatcher: 'lib/dispatch.py',
@@ -59,12 +69,14 @@ describe('guard commands behind a prefix or a dispatcher', () => {
 
   it('names the missing target of a dispatcher, and reads no target into a plain script argument', () => {
     const paths = new Set([...PATHS, 'tools/check.py', 'hooks/hookrun.sh']);
-    expect(scriptOf('python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/lib/run.py no-such-hook', paths)).toEqual({
+    expect(
+      scriptOf('python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/lib/run.py no-such-hook', paths, SOURCES),
+    ).toEqual({
       script: 'no-such-hook',
       anchored: true,
       dispatcher: '.claude/hooks/lib/run.py',
     });
-    expect(scriptOf('sh hooks/hookrun.sh lint_on_save --fast', paths)).toEqual({
+    expect(scriptOf('sh hooks/hookrun.sh lint_on_save --fast', paths, SOURCES)).toEqual({
       script: 'lint_on_save',
       anchored: false,
       dispatcher: 'hooks/hookrun.sh',
@@ -79,19 +91,25 @@ describe('guard commands behind a prefix or a dispatcher', () => {
       anchored: false,
     });
     // A script that is no dispatcher keeps its plain argument.
-    expect(scriptOf('python3 tools/check.py strict', paths)).toEqual({ script: 'tools/check.py', anchored: false });
+    expect(scriptOf('python3 tools/check.py strict', paths)).toEqual({
+      script: 'tools/check.py',
+      anchored: false,
+    });
   });
 
   it('lints a dispatched target that does not exist as a missing script', async () => {
     const root = await estate({
       'CLAUDE.md': '# Shop\n',
-      '.claude/hooks/lib/run.py': '#!/usr/bin/env python3\n',
+      '.claude/hooks/lib/run.py': SOURCE,
       '.claude/settings.json': JSON.stringify({
         hooks: {
           Stop: [
             {
               hooks: [
-                { type: 'command', command: 'python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/lib/run.py tidy-up' },
+                {
+                  type: 'command',
+                  command: 'python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/lib/run.py tidy-up',
+                },
               ],
             },
           ],
@@ -122,7 +140,7 @@ describe('guard commands behind a prefix or a dispatcher', () => {
           ],
         },
       }),
-      '.claude/hooks/lib/run.py': 'import sys\n',
+      '.claude/hooks/lib/run.py': SOURCE,
       '.claude/hooks/reply.py': 'import sys\n',
       '.claude/hooks/CHECK-REGISTRY.md': '| Id | Guard | Rules |\n|---|---|---|\n| H1 | reply.py | R1 |\n',
     });

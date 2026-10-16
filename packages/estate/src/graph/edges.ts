@@ -1,4 +1,13 @@
-import { chunkLines, guardName, positiveMention, registryRowOf, toolBase } from '../scan/code';
+import {
+  chunkLines,
+  directiveHead,
+  gateClauses,
+  guardName,
+  maskLine,
+  registryRowOf,
+  toolBase,
+  unmask,
+} from '../scan/code';
 import type { EstateFile, RawEstate } from '../scan/reader';
 import { labelOfLine, linesOf, plain } from '../scan/text';
 import type { Atom, Edge } from '../schema';
@@ -277,23 +286,43 @@ export function literals(text: string): string[] {
   return found;
 }
 
-/** A quoted helper mention, or an explicit dispatch act naming a whole unquoted helper name. */
+/** Dispatch shares the gate clause boundaries and negation scope. A plain name needs a verb head. */
 function dispatchesHelper(text: string, name: string): boolean {
   if (name === '') return false;
-  const verbs = ['dispatch', 'call', 'delegate', 'invoke'];
-  if (positiveMention(text, `\`${name}\``, verbs)) return true;
   const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const mentions = new RegExp(`(?<![\\w-])${escaped}(?![\\w-])`, 'g');
-  for (const match of text.matchAll(mentions)) {
-    const before = text.slice(0, match.index);
-    const clause = before.split(/[\n;!?]|\.(?=\s|$)|\b(?:but|until|instead)\b/i).at(-1) ?? '';
-    const act =
-      /\b(?:dispatch|call|delegate|invoke|spawn|launch|ask|hand(?:\s+(?:it|the\s+\w+))?(?:\s+(?:off|over))?\s+to)\s+(?:(?:the|to|helper|agent|subagent|named)\s+)*[`*]*$/i.exec(
-        clause,
-      );
-    if (!act) continue;
-    const prefix = clause.slice(0, act.index);
-    if (!/\b(?:never|do not|don['’]t|must not|should not)\s*$/i.test(prefix)) return true;
+  const mention = new RegExp(`(?<![\\w-])${escaped}(?![\\w-])`, 'g');
+  for (const line of text.split('\n')) {
+    const masked = maskLine(line);
+    for (const clause of gateClauses(masked.text)) {
+      // Reopen code spans, but keep quoted examples opaque.
+      const visible = unmask(clause, masked.spans).replace(/"[^"\n]+"|“[^”\n]+”/g, '');
+      for (const match of visible.matchAll(mention)) {
+        const before =
+          visible
+            .slice(0, match.index)
+            .replace(/[`*]/g, '')
+            .split(/\?|\b(?:but|until|instead)\b/i)
+            .at(-1) ?? '';
+        const act =
+          /\b(?:dispatch|call|invoke|spawn|launch|ask|use|have|let|(?:delegate|hand|send)(?:\s+(?:it|the\s+\w+))?(?:\s+(?:off|over))?(?:\s+to)?)\s+(?:(?:the|to|helper|agent|subagent|named)\s+)*$/i.exec(
+            before,
+          );
+        if (!directiveHead(before)) continue;
+        if (act && (!/^use\b/i.test(act[0]) || line.includes(`\`${name}\``))) {
+          const head = before.slice(0, act.index).trim();
+          // A verb starts an imperative, or follows a modal, infinitive or directive lead-in.
+          // A determiner+noun ("a call report") and historical declarative heads do neither.
+          const main = head.split(/[,:]/).at(-1)?.trim() ?? '';
+          if (
+            main === '' ||
+            /(?:\b(?:please|kindly|always|then|now)|\b(?:must|should|shall|can|could|may|will)|\b(?:remember|sure|essential)\s+to|\b(?:need|have)\s+to|\b[a-z]+ly|\byou)\s*$/i.test(
+              main,
+            )
+          )
+            return true;
+        }
+      }
+    }
   }
   return false;
 }
