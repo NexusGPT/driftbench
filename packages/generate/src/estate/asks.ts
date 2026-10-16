@@ -100,7 +100,8 @@ export function askable(act: string): string | undefined {
   const last = (tokens[tokens.length - 1] ?? '').toLowerCase().replace(/[,;:]+$/, '');
   if (DANGLING.has(last) || /^(?:e\.g|i\.e)\.?$/.test(last))
     return `the act is cut mid-sentence after "${last}": "${act}"`;
-  const words = tokens.filter((token) => /\p{L}{2,}/u.test(token)).length;
+  // A hyphenated compound is two words: "force-push a branch" is a verb and its object.
+  const words = tokens.flatMap((token) => token.split('-')).filter((part) => /\p{L}{2,}/u.test(part)).length;
   if (words < 3)
     return `the act has ${words} words of letters, fewer than a verb and its object need: "${act}"`;
   return undefined;
@@ -198,7 +199,8 @@ export function codeAsk(
  *
  * - The act: the asks a route, skill or helper names ("Use when the user asks to X"); a route's situation;
  *   a skill or helper description made imperative ("Sorts the inbox" gives "sort the inbox"); for a guard,
- *   the act a rule it enforces forbids ("Never force push" gives "force push"), else the tool it watches.
+ *   the act a rule it enforces forbids ("Never force push" gives "force push"), else the tool it watches;
+ *   for a gate, the act it guards (its trigger, when it starts with a verb).
  * - The context: the situation of the row's first atom when it is a rule, a gate trigger or a read-when
  *   line, so the ask both loads the unit and sets the rule off.
  */
@@ -242,6 +244,12 @@ export function actOf(
       described ??= `${atom.id} (description)`;
     }
   }
+  // A gate guards an act: that act, its trigger ("commit to git"), is the task; the gate's title ("Read the
+  // status before a commit") restates the rule, which the ask never does.
+  const trigger =
+    head?.kind === 'gate' && typeof head.fields?.trigger === 'string' ? plain(head.fields.trigger) : '';
+  if (trigger !== '' && verbLed(trigger))
+    return { act: taskOf(trigger), source: `${head?.id ?? 'row'} (trigger)` };
   // A situation says when a rule applies, never what to do: "handle this for me: the invoice is not in
   // EUR" names no task, so it rides only with a task another atom gives. A guard's title is its event and
   // its name ("Stop guard R34-DUE"), never an act.

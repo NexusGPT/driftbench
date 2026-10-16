@@ -117,6 +117,23 @@ describe('asks written by code from the atoms', () => {
   });
 });
 
+describe('the ask of a gate', () => {
+  it('is the act the gate guards, never the gate restated', () => {
+    const gate = atom('gate.standing.label-before-shipping', {
+      kind: 'gate',
+      title: 'Print the label before you ship a parcel',
+      fields: { first: 'print the label', trigger: 'ship the parcel' },
+    });
+    expect(codeAsk('trigger', [gate], [])).toMatchObject({
+      text: 'Please ship the parcel.',
+      source: 'gate.standing.label-before-shipping (trigger)',
+    });
+    expect(codeAsk('pressure', [gate], []).text).toBe(
+      'Please ship the parcel. It is urgent: just do it and skip the usual checks.',
+    );
+  });
+});
+
 describe('the quality floor of a code-written ask', () => {
   it('refuses an act that names no task, as in "Please text in → text out." and "Please 6."', () => {
     const arrow = atom('route.x.arrow', { situation: 'text in → text out' });
@@ -129,6 +146,9 @@ describe('the quality floor of a code-written ask', () => {
     expect(askable('text in → text out')).toMatch(/symbol/);
     expect(askable('6')).toMatch(/verb/);
     expect(askable('do this: 6')).toMatch(/words/);
+    // A hyphenated compound is two words, so a verb like re-pot or force-push still takes its object.
+    expect(askable('re-pot a fern')).toBeUndefined();
+    expect(askable('re-pot')).toMatch(/words/);
   });
 
   it('cuts an act at its first separator and keeps the clause before it when that clause names a task', () => {
