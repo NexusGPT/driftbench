@@ -800,7 +800,6 @@ const ROUTE_NAMES = new WeakMap<
     skills: Set<string>;
     helpers: Set<string>;
     definitions: Map<string, string>;
-    mentions: RegExp;
   }
 >();
 
@@ -811,15 +810,6 @@ function routeNames(raw: RawEstate) {
       skills: new Set(raw.skills.map((skill) => skill.name)),
       helpers: new Set(raw.subagents.map((helper) => helper.name)),
       definitions: new Map(raw.skills.map((skill) => [skill.file, skill.name])),
-      mentions: new RegExp(
-        `(?<![\\w-])/?(${
-          [...new Set([...raw.skills, ...raw.subagents].map((unit) => unit.name))]
-            .sort((a, b) => b.length - a.length)
-            .map((name) => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-            .join('|') || '(?!)'
-        })(?![\\w-])`,
-        'g',
-      ),
     };
     ROUTE_NAMES.set(raw, index);
   }
@@ -870,124 +860,123 @@ function routeTargets(
   return [...targets.values()];
 }
 
-/** Cell roles are grammatical evidence, not a vocabulary of table headings. */
-type RouteCell = 'request' | 'attribute' | 'fragment';
-const ROUTE_CELL_CACHE = new Map<string, RouteCell>();
-
-function routeCell(value: string): RouteCell {
-  const cached = ROUTE_CELL_CACHE.get(value);
-  if (cached) return cached;
-  const role = readRouteCell(value);
-  // Bound the lexical cache independently of how many estates a server reads.
-  if (ROUTE_CELL_CACHE.size >= 4096) ROUTE_CELL_CACHE.clear();
-  ROUTE_CELL_CACHE.set(value, role);
-  return role;
+/** Linguistic entity evidence only; prose length never makes a value into a request. */
+const TABLE_ENTITY_CACHE = new Map<string, boolean>();
+let TABLE_LANGUAGES: Set<string> | undefined;
+function tableAttribute(value: string): boolean {
+  const text = value.replace(/[`*]/g, '').trim();
+  const cached = TABLE_ENTITY_CACHE.get(text);
+  if (cached !== undefined) return cached;
+  if (!TABLE_LANGUAGES) {
+    // CLDR supplies language names. No estate header/value vocabulary is maintained here.
+    const display = new Intl.DisplayNames(['en'], { type: 'language', fallback: 'none' });
+    TABLE_LANGUAGES = new Set();
+    for (let first = 97; first <= 122; first++)
+      for (let second = 97; second <= 122; second++) {
+        const name = display.of(String.fromCharCode(first, second));
+        if (name) TABLE_LANGUAGES.add(name.toLocaleLowerCase());
+      }
+  }
+  const terms = nlp(text).termList();
+  const attribute =
+    !text ||
+    /^(?:v?\d[\d.,:/T+-]*(?:\s+\S+)?|\p{Sc}\s*\d+(?:[.,]\d+)*)$/u.test(text) ||
+    /^(?:https?:\/\/|[.~]?\/|[\w.-]+\/)[^\s]*$/.test(text) ||
+    TABLE_LANGUAGES.has(text.toLocaleLowerCase()) ||
+    (terms.length > 0 &&
+      terms.every(
+        (term) =>
+          term.tags?.has('Person') ||
+          term.tags?.has('Date') ||
+          term.tags?.has('Value') ||
+          term.tags?.has('Unit'),
+      ));
+  if (TABLE_ENTITY_CACHE.size >= 4096) TABLE_ENTITY_CACHE.clear();
+  TABLE_ENTITY_CACHE.set(text, attribute);
+  return attribute;
 }
 
-function readRouteCell(value: string): RouteCell {
-  const text = value
-    .replace(/[`*]/g, '')
-    .replace(/^['"“]|['"”]$/g, '')
-    .trim();
-  if (!text) return 'fragment';
-  // Paths, quantities, dates, code-only lists and scalar categories are attribute values.
-  // They do not become requests because a table happens to contain a skill name.
-  if (
-    /^(?:https?:\/\/|[.~]?\/|[\w.-]+\/|[^\s@]+@)[^\s]*$/.test(text) ||
-    /^v?\d+(?:[.:-]\d+)*(?:\s*[^\s]+)?$/.test(text) ||
-    /^[\p{Sc}]\s*\d+(?:[.,]\d+)*$/u.test(text) ||
-    /^(?:\s*`[^`]+`\s*[,;/&+]?\s*)+$/.test(value)
+/** Reversing main's order requires a positive request construction, not merely descriptive prose. */
+function explicitTableRequest(value: string): boolean {
+  const text = value.replace(/[`*]/g, '').trim();
+  if (tableAttribute(text) || /\[[^\]]+\]\([^)]*\)/.test(text)) return false;
+  const terms = nlp(text).termList();
+  let first = 0;
+  while (
+    terms[first]?.normal === 'to' ||
+    terms[first]?.tags?.has('Adverb') ||
+    terms[first]?.tags?.has('Expression')
   )
-    return 'attribute';
-  const grammar = text.replace(/^(?:\p{Extended_Pictographic}|\uFE0F|\s)+/u, '');
-  const terms = nlp(grammar).termList();
-  const words = [...new Intl.Segmenter(undefined, { granularity: 'word' }).segment(grammar)].filter(
-    (segment) => segment.isWordLike,
-  ).length;
-  if (words < 2) return 'attribute';
-  if (terms.every((term) => term.tags?.has('Date') || term.tags?.has('Value') || term.tags?.has('Unit')))
-    return 'attribute';
+    first++;
+  const head = terms[first];
+  const object = terms.slice(first + 1);
+  const directive =
+    head?.tags?.has('Infinitive') ||
+    head?.tags?.has('Imperative') ||
+    (head?.tags?.has('Noun') && !head.tags.has('ProperNoun'));
+  // A bare directive head followed by a determiner-object is a transitive request frame.
   if (
-    /^\p{Lu}[\p{L}’'-]+(?:\s+\p{Lu}[\p{L}’'-]+){1,2}$/u.test(text) &&
-    !terms.some((term) => term.tags?.has('Verb'))
+    directive &&
+    object[0]?.tags?.has('Determiner') &&
+    object.slice(1).some((term) => term.tags?.has('Noun'))
   )
-    return 'attribute';
-  if (/[,;]\s*\S/.test(text) && text.split(/[,;]/).every((part) => !/\s/.test(part.trim())))
-    return 'attribute';
-
-  // Grammar may strengthen a decision, but a language-specific tagger is never a gate.
-  // Distinct free multi-word phrases also describe requests in languages it cannot parse.
-  return words >= 2 ? 'request' : 'fragment';
+    return true;
+  return (
+    /\?$/.test(text) &&
+    terms.some((term) => term.tags?.has('QuestionWord') || term.tags?.has('Modal')) &&
+    terms.some((term) => term.normal === 'you')
+  );
 }
 
-/** A unit used as the subject of a descriptive clause is a mention, not a target designation. */
-function tableRouteTargets(
+/** Opaque uncertainty notation is unresolved; ordinary inventory prose is never flagged by default. */
+function unresolvedTableCell(value: string): boolean {
+  return /^\?{2,}$/.test(value.trim());
+}
+
+const TABLE_TARGET_NAMES = new WeakMap<RawEstate, RegExp>();
+function tableTargets(
   cell: string,
   file: EstateFile,
   files: ReadonlyMap<string, EstateFile>,
   raw: RawEstate,
 ) {
-  const targets = routeTargets(cell, file, files, raw);
-  const index = routeNames(raw);
-  for (const match of cell.matchAll(index.mentions)) {
-    const target = match[1];
-    if (!target || targets.some((entry) => entry.target === target) || cell.includes(`\`${target}\``))
-      continue;
-    // A plain name inside a sentence needs designation syntax: a terminal object or an
-    // explicit unit noun. Otherwise an ordinary word that is also a skill can be incidental.
-    const before = cell.slice(0, match.index).replace(/[*]/g, '').trim();
-    const after = cell
-      .slice((match.index ?? 0) + match[0].length)
-      .replace(/[*]/g, '')
-      .trim();
-    if (before && !/^[.!]*$/.test(after) && !/^(?:skill|agent|helper)\b/i.test(after)) continue;
-    targets.push({ target, isSkill: index.skills.has(target) });
-  }
-  if (!targets.length || targets.some((target) => target.definition)) return targets;
+  // Preserve main's extraction of every quoted target and every target column. Extend spelling only.
   const plain = cell.replace(/[`*]/g, '').trim();
-  const first = targets
-    .map((target) => ({ target, at: plain.indexOf(target.target) }))
-    .filter((entry) => entry.at >= 0)
-    .sort((a, b) => a.at - b.at)[0];
-  if (!first) return [];
-  const prefix = plain.slice(0, first.at).replace(/\/$/, '').trim();
-  if (prefix && !/^(?:the)$/i.test(prefix)) {
-    const terms = nlp(prefix).termList();
-    return terms.some((term) => term.tags?.has('Negative') || term.normal === 'never') ? [] : targets;
+  const descriptive = (target: string) => {
+    const after = plain.slice(plain.indexOf(target) + target.length).trim();
+    const terms = nlp(after).termList();
+    // A copular/passive predicate describes the named unit; it does not designate its use.
+    return terms[0]?.tags?.has('Copula') && terms.slice(1).some((term) => term.tags?.has('Verb'));
+  };
+  const found = routeTargets(cell, file, files, raw).filter(
+    (target) => target.definition || !descriptive(target.target),
+  );
+  const { skills, helpers } = routeNames(raw);
+  let names = TABLE_TARGET_NAMES.get(raw);
+  if (!names) {
+    const alternatives = [...new Set([...skills, ...helpers])]
+      .sort((a, b) => b.length - a.length)
+      .map((name) => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+      .join('|');
+    names = new RegExp(`(?<![\\w-])/?(${alternatives || '(?!)'})(?![\\w-])`, 'g');
+    TABLE_TARGET_NAMES.set(raw, names);
   }
-  const tail = plain
-    .slice(first.at + first.target.target.length)
-    .replace(/^\s+(?:skill|agent|helper)\b/i, '')
-    .trim();
-  if (!tail || /^[,;:()[\]—–→-]/.test(tail)) return targets;
-  const predicate = nlp(tail).termList()[0];
-  return !predicate?.tags?.has('Verb') || predicate.tags.has('Infinitive') ? targets : [];
-}
-
-/** Repeated short values identify categories; distinct free phrases identify requests. */
-function routeColumn(values: string[]): RouteCell {
-  const nonempty = values.filter((value) => value.trim() !== '');
-  if (!nonempty.length) return 'fragment';
-  const roles = nonempty.map(routeCell);
-  const counts = new Map<string, number>();
-  for (const value of nonempty) {
-    const key = value.replace(/[`*]/g, '').trim().toLowerCase();
-    counts.set(key, (counts.get(key) ?? 0) + 1);
-  }
-  // Repeated short labels are categorical evidence, including nominal phrases that an
-  // English tagger might also parse as verbs. A unique free phrase needs no English parse.
-  if (
-    nonempty.length > 1 &&
-    nonempty.every(
-      (value) =>
-        value.trim().split(/\s+/).length <= 4 &&
-        (counts.get(value.replace(/[`*]/g, '').trim().toLowerCase()) ?? 0) > 1,
+  for (const match of plain.matchAll(names)) {
+    const target = match[1];
+    if (!target || found.some((entry) => entry.target === target)) continue;
+    const before = plain.slice(0, match.index).trim();
+    const after = plain.slice((match.index ?? 0) + match[0].length);
+    const designation =
+      (!before && (!after.trim() || /^\s*[(—–,:;]/.test(after))) ||
+      /^\s+(?:skill|agent|helper)\b/.test(after);
+    if (
+      designation &&
+      !descriptive(target) &&
+      positiveMention(cell, target, ['load', 'use', 'dispatch', 'call'], true)
     )
-  )
-    return 'attribute';
-  if (roles.every((role) => role === 'attribute')) return 'attribute';
-  if (roles.every((role) => role === 'request')) return 'request';
-  return 'fragment';
+      found.push({ target, isSkill: skills.has(target) });
+  }
+  return found;
 }
 
 function ambiguousRouteTable(
@@ -1041,42 +1030,74 @@ function routeSources(
       .replace(/[`*]/g, '')
       .replace(/[.!]+$/, '')
       .trim();
+  // Main's table contract: an ask precedes one or more target columns. Keep that orientation
+  // for descriptive inventory text; reverse it only on explicit request evidence.
+  const names = routeNames(raw);
   for (const table of readTables(file.text)) {
-    const cells = table.rows.map((row) =>
-      table.header.map((_header, column) => tableRouteTargets(row.cells[column] ?? '', file, files, raw)),
+    const resolved = table.rows.map((row) => row.cells.map((cell) => tableTargets(cell, file, files, raw)));
+    const firstValues = table.rows.map((row) =>
+      (row.cells[0] ?? '').replace(/[`*]/g, '').trim().replace(/^\//, ''),
     );
-    const targetColumns = table.header.flatMap((_header, column) =>
-      cells.some((row) => (row[column]?.length ?? 0) > 0) ? [column] : [],
-    );
-    if (!targetColumns.length) continue;
-    const roles = table.header.map((_header, column) =>
-      routeColumn(table.rows.map((row) => row.cells[column] ?? '')),
-    );
-    const pairs = targetColumns.flatMap((target) =>
-      roles.flatMap((role, condition) =>
-        condition !== target && role === 'request' ? [{ target, condition }] : [],
-      ),
-    );
-    const conditions = new Set(pairs.map((pair) => pair.condition));
-    if (conditions.size === 1 && new Set(pairs.map((pair) => pair.target)).size === 1) {
-      const condition = pairs[0]?.condition;
-      if (condition === undefined) continue;
-      for (const [index, row] of table.rows.entries()) {
-        const ask = clean(row.cells[condition] ?? '');
-        if (!ask) continue;
-        for (const { target: column } of pairs)
-          for (const target of cells[index]?.[column] ?? []) {
-            add({ ...target, ask, line: row.line, quote: row.text, via: 'table' });
-          }
-      }
-    } else if (!roles.every((role) => role === 'attribute')) {
-      ambiguousRouteTable(
-        raw,
-        file,
-        table.headerLine,
-        table.rows.at(-1)?.line ?? table.headerLine,
-        cells.flat(2),
+    const firstIsUnit =
+      firstValues.some((value) => names.skills.has(value) || names.helpers.has(value)) &&
+      table.rows.every(
+        (row, index) =>
+          names.skills.has(firstValues[index] ?? '') ||
+          names.helpers.has(firstValues[index] ?? '') ||
+          /^\s*`[^ `]+`\s*$/.test(row.cells[0] ?? ''),
       );
+    if (firstIsUnit) {
+      const requestColumns = table.header.flatMap((_header, column) =>
+        column > 0 && table.rows.every((row) => explicitTableRequest(row.cells[column] ?? ''))
+          ? [column]
+          : [],
+      );
+      if (requestColumns.length === 1) {
+        const column = requestColumns[0] as number;
+        for (const [index, row] of table.rows.entries())
+          for (const target of resolved[index]?.[0] ?? [])
+            add({
+              ...target,
+              ask: row.cells[column]?.replace(/[`*]/g, '').trim() ?? '',
+              line: row.line,
+              quote: row.text,
+              via: 'table',
+            });
+      } else if (table.rows.some((row) => row.cells.slice(1).some(unresolvedTableCell))) {
+        ambiguousRouteTable(
+          raw,
+          file,
+          table.headerLine,
+          table.rows.at(-1)?.line ?? table.headerLine,
+          resolved.flat(2),
+        );
+      }
+      continue;
+    }
+    for (const [index, row] of table.rows.entries()) {
+      // Numeric/language/person fields are record coordinates. They cannot replace an ask.
+      const firstTarget =
+        resolved[index]?.findIndex((targets, column) => column > 0 && targets.length > 0) ?? -1;
+      if (firstTarget < 1) continue;
+      const condition = row.cells.findIndex(
+        (value, column) => column < firstTarget && !tableAttribute(value),
+      );
+      if (condition < 0) continue;
+      const value = row.cells[condition] ?? '';
+      if (unresolvedTableCell(value)) {
+        ambiguousRouteTable(
+          raw,
+          file,
+          table.headerLine,
+          table.rows.at(-1)?.line ?? table.headerLine,
+          resolved.flat(2),
+        );
+        continue;
+      }
+      const ask = value.replace(/[`*]/g, '').trim();
+      for (let column = condition + 1; column < row.cells.length; column++)
+        for (const target of resolved[index]?.[column] ?? [])
+          add({ ...target, ask, line: row.line, quote: row.text, via: 'table' });
     }
   }
   // Routing in prose and headings is read in the standing instructions, where routing lives; a skill body's

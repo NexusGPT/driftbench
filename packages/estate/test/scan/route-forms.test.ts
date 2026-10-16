@@ -73,7 +73,7 @@ describe('routing follows the role of the source text', () => {
     ['ownership without a routing header', '| Custodian | Library |\n|---|---|\n| Morgan | `parcel-plan` |'],
     [
       'a repeated publication category',
-      '| Publication | Package |\n|---|---|\n| Dispatch handbook | `parcel-plan` |\n| Dispatch handbook | `parcel-plan` |',
+      '| Package | Publication |\n|---|---|\n| `parcel-plan` | Dispatch handbook |\n| `parcel-plan` | Dispatch handbook |',
     ],
     [
       'a non-action column beside a request',
@@ -91,7 +91,7 @@ describe('routing follows the role of the source text', () => {
     );
   });
 
-  it('defers indistinguishable resource and author columns instead of guessing from their headers', async () => {
+  it('preserves main routing across multiple target columns without interpreting their headers', async () => {
     const root = await estate({
       [skill]: declaration,
       '.claude/skills/receipt-check/SKILL.md':
@@ -100,10 +100,12 @@ describe('routing follows the role of the source text', () => {
         '| Request | Skill you load | Who wrote it |\n|---|---|---|\n| arrange a pickup | `parcel-plan` | `receipt-check` |',
     });
     const { map, raw } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
-    expect(map.atoms.filter((atom) => atom.kind === 'route' && atom.provenance.file === 'CLAUDE.md')).toEqual(
-      [],
-    );
-    expect(raw.notes.some((note) => note.message.startsWith('Ambiguous routing table'))).toBe(true);
+    expect(
+      map.atoms
+        .filter((atom) => atom.kind === 'route' && atom.provenance.file === 'CLAUDE.md')
+        .map((atom) => atom.fields?.target),
+    ).toEqual(['parcel-plan', 'receipt-check']);
+    expect(raw.notes.some((note) => note.message.startsWith('Ambiguous routing table'))).toBe(false);
   });
 
   it('keeps an ordinary read of a skill definition as a reference', async () => {

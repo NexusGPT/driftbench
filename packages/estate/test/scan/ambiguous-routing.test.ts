@@ -4,8 +4,8 @@ import { ClaudeCodeReader, scanEstate } from '../../src/index';
 import { estate, NOW } from '../support';
 import { routingKindDeclarations } from './routing-kinds-corpus';
 
-const row = '| pier schedule mismatch | `cypress-check` |';
-const table = `| A | B |\n|---|---|\n${row}\n| internal | \`quay-plan\` |`;
+const row = '| ??? | `cypress-check` |';
+const table = `| A | B |\n|---|---|\n${row}`;
 function answer(quote = row, target = 'cypress-check', targetKind = 'skill') {
   return {
     kind: 'route',
@@ -39,11 +39,8 @@ describe('ambiguous routing tables are deferred to the model', () => {
     expect(raw.prose[0]?.ambiguousRouting).toMatchObject([
       {
         startLine: 1,
-        endLine: 4,
-        targets: [
-          { name: 'cypress-check', kind: 'skill' },
-          { name: 'quay-plan', kind: 'skill' },
-        ],
+        endLine: 3,
+        targets: [{ name: 'cypress-check', kind: 'skill' }],
       },
     ]);
   });

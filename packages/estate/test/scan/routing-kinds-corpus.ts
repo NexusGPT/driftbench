@@ -1,3 +1,4 @@
+/** Historical shape-first experiment, rejected by the blind audit. Current precision oracle: routing-main-corpus.ts. */
 /** Independent table KINDS. Every kind is exercised in both column directions and with renamed headers. */
 export type RoutingKind = {
   kind: string;
