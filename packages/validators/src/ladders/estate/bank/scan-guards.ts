@@ -1,5 +1,6 @@
 import { ANCHOR, ANCHOR_BARE, GUARDS_DIR, ROOT, STANDING } from '../layout';
 import { type GuardLine, namesFor, order, rule, writeSettings } from './common';
+import { DISPATCH_BY_ARGUMENT, DISPATCH_BY_FLAG, SUBCOMMAND_TOOL } from './dispatch-fixtures';
 import { type Family, itemsOf, type Tier } from './frame';
 import { fieldIs, PlantedEstate } from './planted';
 
@@ -306,7 +307,16 @@ type Command = {
   extension?: string;
   /** Files the form needs beside the target script. */
   extra?: (name: string) => Record<string, string>;
+  /**
+   * A second guard of the same estate whose argument is no script: a plain subcommand of a tool. The reader names
+   * the tool as the script and leaves the subcommand alone.
+   */
+  control?: { tool: string; command: string; text: string };
 };
+
+/** Each dispatcher form has a script of its own: a form shares no path, so none inherits another's source. */
+const DISPATCHER = (key: string) => `${ROOT}/hooks/lib/run-${key}.py`;
+const SUBCOMMAND_PATH = `${ROOT}/hooks/lib/cli.py`;
 
 const COMMANDS: Command[] = [
   {
@@ -457,37 +467,34 @@ const COMMANDS: Command[] = [
     key: 'dispatcher',
     tier: 4,
     title: 'a dispatcher script given the target name',
-    command: (_s, name) => `python3 ${ANCHOR}/${ROOT}/hooks/lib/run.py ${name}`,
+    command: (_s, name) => `python3 ${ANCHOR}/${DISPATCHER('dispatcher')} ${name}`,
     target: (_s, name) => `${ROOT}/hooks/${name}.py`,
     anchored: true,
-    extra: () => ({
-      [`${ROOT}/hooks/lib/run.py`]:
-        '#!/usr/bin/env python3\n"""Runs the hook named by its first argument."""\n',
-    }),
+    extra: () => ({ [DISPATCHER('dispatcher')]: DISPATCH_BY_ARGUMENT }),
+    control: {
+      tool: SUBCOMMAND_PATH,
+      command: `python3 ${ANCHOR}/${SUBCOMMAND_PATH} check`,
+      text: SUBCOMMAND_TOOL,
+    },
   },
   {
     key: 'dispatcher-with-prefix',
     tier: 5,
     title: 'a quiet-switch prefix and a dispatcher',
     command: (_s, name) =>
-      `[ "$QUIET_GUARDS" = "$PPID" ] || python3 ${ANCHOR}/${ROOT}/hooks/lib/run.py ${name}`,
+      `[ "$QUIET_GUARDS" = "$PPID" ] || python3 ${ANCHOR}/${DISPATCHER('dispatcher-with-prefix')} ${name}`,
     target: (_s, name) => `${ROOT}/hooks/${name}.py`,
     anchored: true,
-    extra: () => ({
-      [`${ROOT}/hooks/lib/run.py`]:
-        '#!/usr/bin/env python3\n"""Runs the hook named by its first argument."""\n',
-    }),
+    extra: () => ({ [DISPATCHER('dispatcher-with-prefix')]: DISPATCH_BY_ARGUMENT }),
   },
   {
     key: 'dispatcher-flag',
     tier: 5,
     title: 'a dispatcher given the target by a flag',
-    command: (_s, name) => `python3 ${ANCHOR}/${ROOT}/hooks/lib/run.py --hook ${name}`,
+    command: (_s, name) => `python3 ${ANCHOR}/${DISPATCHER('dispatcher-flag')} --hook ${name}`,
     target: (_s, name) => `${ROOT}/hooks/${name}.py`,
     anchored: true,
-    extra: () => ({
-      [`${ROOT}/hooks/lib/run.py`]: '#!/usr/bin/env python3\n"""Runs the hook named by --hook."""\n',
-    }),
+    extra: () => ({ [DISPATCHER('dispatcher-flag')]: DISPATCH_BY_FLAG }),
   },
   {
     key: 'home-path',
@@ -540,6 +547,19 @@ export function dispatcherFamily(): Family {
         });
         estate.check(owner, fieldIs(`${owner}:guard`, 'script', target));
         estate.check(owner, fieldIs(`${owner}:guard`, 'anchored', form.anchored));
+        if (form.control) {
+          estate.raw(form.control.tool, form.control.text, owner);
+          guards.push({
+            owner,
+            event: 'PreToolUse',
+            matcher: 'Bash',
+            command: form.control.command,
+            atoms: [
+              { hid: `${owner}:control`, kind: 'guard', key: form.control.tool.split('/').pop() as string },
+            ],
+          });
+          estate.check(owner, fieldIs(`${owner}:control`, 'script', form.control.tool));
+        }
       }
       writeSettings(estate, order(seed, family, guards));
       const scan = await estate.scan();

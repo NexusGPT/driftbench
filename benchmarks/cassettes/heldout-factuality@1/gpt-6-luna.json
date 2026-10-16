@@ -7,585 +7,731 @@
       "cls": "system2",
       "model": "gpt-6-luna",
       "cost": 10,
-      "settings": "{\"client\":\"openai-chat\",\"temperature\":0,\"maxTokens\":{\"normal\":1024,\"large\":4096},\"temperatureRetry\":\"drop on a 400 that names it\",\"responseFormat\":\"json_schema\",\"reasoning\":\"medium\"}"
+      "settings": "{\"client\":\"openai-chat\",\"temperature\":0,\"maxTokens\":{\"normal\":1024,\"large\":4096},\"temperatureRetry\":\"drop on a 400 that names it\",\"responseFormat\":\"json_schema\",\"reasoning\":\"medium\",\"reasoningTokens\":{\"low\":512,\"medium\":1024,\"high\":2048}}",
+      "dialect": "openai-json-schema",
+      "reasoning": "medium"
     }
   ],
   "entries": [
     {
       "judge": "gpt-6-luna",
-      "key": "5b1168cec3c2",
+      "key": "00506d010408",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees on the monthly price and weekend-access policy, but it says 41 GB while the reference says 40 GB, so it contains a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"41 GB\"},{\"source\":\"input.reference.txt\",\"quote\":\"includes 40 GB\"}],\"met\":false}]}",
-      "cost_usd": 0.00017510000000000003
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "d0abb855aaa2",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-101108 costs 569 credits per month, which agrees with the reference. It makes no claim about the included data or weekend access.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"569 credits per month.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101108 costs 569 credits per month\"}],\"met\":true}]}",
-      "cost_usd": 0.0001694
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "456ad470af1a",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-101127 costs 983 credits monthly, has 40 GB, and excludes weekend access, consistent with the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101127 costs 983 credits monthly, has 40 GB and excludes weekend access.\"}],\"met\":true}]}",
-      "cost_usd": 0.000157
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "34fda128dd74",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states 149 credits monthly, 40 GB, and no weekend access, which is consistent with the authorized record and contains no factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"149 credits monthly, 40 GB and no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101135 costs 149 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
-      "cost_usd": 0.000268
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "4c0699af7c36",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply must contain no fact contradicted by reference.txt. It gives Lumen-101127’s monthly cost as 984 credits, while the reference says 983 credits, so the reply disagrees with the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101127 costs 984 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101127 costs 983 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.00017
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "2ffef7c022a9",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply contradicts the reference on the included data amount: it says 41 GB, while the reference says 40 GB.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"41 GB\"},{\"source\":\"input.reference.txt\",\"quote\":\"includes 40 GB\"}],\"met\":false}]}",
-      "cost_usd": 0.00017210000000000004
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "91256eb0c25a",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees that the plan includes 40 GB and has no weekend access, but its price of 116 credits monthly contradicts the reference price of 115 credits per month.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101123 costs 115 credits per month, includes 40 GB, and excludes weekend access.\"},{\"source\":\"transcript.1\",\"quote\":\"116 credits monthly, 40 GB and no weekend access.\"}],\"met\":false}]}",
-      "cost_usd": 0.0002625
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "38e0bd9aa8e8",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the non-student pays 105 credits per month, but the reference says the monthly cost is 110 credits and the 5-credit discount applies only to students. The data and weekend-access statements are consistent; the price claim is a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 105 credits a month, receives 40 GB and no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101107 costs 110 credits per month, includes 40 GB, and excludes weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"A 5-credit discount applies only to students. The customer is not a student.\"}],\"met\":false}]}",
-      "cost_usd": 0.0002378
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "05db8009b8ee",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the plan costs 956 credits monthly, while reference.txt says it costs 955 credits per month. This is a factual disagreement, so the requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101103 costs 956 credits monthly, has 40 GB and excludes weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101103 costs 955 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.0001895
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "2aa10965427d",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says Lumen-101132 costs 545 credits per month, which agrees with the reference. It makes no conflicting claim about the other details.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"545 credits per month.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101132 costs 545 credits per month\"}],\"met\":true}]}",
-      "cost_usd": 0.0001584
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "26f5f71f6b9f",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply matches the reference on all stated facts: the monthly cost is 150 credits, the allowance is 40 GB, and weekend access is excluded.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101113 costs 150 credits monthly, with 40 GB and no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101113 costs 150 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
-      "cost_usd": 0.00019260000000000002
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "124aa39fba2f",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-101121 costs 407 credits per month, includes 40 GB, and has no weekend access. These claims agree with the reference; the French phrasing is a consistent paraphrase.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Le forfait coûte 407 crédits par mois, comprend 40 Go, sans weekend access.\"},{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-101121 costs 407 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001929
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "21b4ca96cbc1",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states the same price, monthly billing period, data allowance, and weekend-access exclusion as the reference, using equivalent wording and without factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101101 costs 283 credits monthly, with 40 GB and no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101101 costs 283 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
-      "cost_usd": 0.00018010000000000001
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "3b29f5480ab0",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-101115 costs 154 credits monthly, has 40 GB, and excludes weekend access, consistent with every fact about that plan in reference.txt.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101115 costs 154 credits monthly, has 40 GB and excludes weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101115 costs 154 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001765
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "4a7f80ece7d1",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-101120 costs 132 credits per month, which matches the reference. It makes no claim about included data or weekend access, so it does not contradict those facts.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"132 credits per month.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101120 costs 132 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001729
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "9444c15cf70a",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees that data is 40 GB and weekend access is excluded, but it gives the old price as current. The reference says the current price is 666 credits per month, so the reply contains a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The current price is 667 credits per month\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101116 costs 666 credits per month\"}],\"met\":false}]}",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply disagrees with the reference on the included data amount: it says 41 GB, while the reference says 40 GB. The price and weekend-access policy agree, but the contradicted fact means the reply does not contain only consistent facts.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"41 GB\"},{\"source\":\"input.reference.txt\",\"quote\":\"includes 40 GB\"}],\"met\":false}]}",
       "cost_usd": 0.0001972
     },
     {
       "judge": "gpt-6-luna",
-      "key": "bb8b0b0d8fa3",
+      "key": "c12538930d1b",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states the same price, data allowance, and weekend-access exclusion as reference.txt, with no factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101126 costs 862 credits monthly, with 40 GB. Weekend access is not included.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101126 costs 862 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001918
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees that the allowance is 40 GB and weekend access is excluded, but contradicts the reference on the monthly price: it says 105 credits, while the reference says 110 credits.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"pays 105 credits a month\"},{\"source\":\"input.reference.txt\",\"quote\":\"costs 110 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.0002124
     },
     {
       "judge": "gpt-6-luna",
-      "key": "e24851ad259b",
+      "key": "feaf3ac381c3",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees with the reference: 746 credits plus the mandatory 7-credit fee totals 753, and both state 40 GB and no weekend access.\",\"evidence\":[{\"source\":\"input/reference.txt\",\"quote\":\"base monthly charge 746 credits plus a mandatory 7-credit monthly service fee. Data 40 GB. No weekend access.\"},{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 753 credits. Data 40 GB. Weekend access excluded.\"}],\"met\":true}]}",
-      "cost_usd": 0.00019960000000000003
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "ac36ae162313",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that the non-student pays 818 credits monthly, receives 40 GB, and has no weekend access. These claims agree with the reference, which also says the customer is not a student; there is no factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 818 credits a month, receives 40 GB and no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101131 costs 818 credits per month, includes 40 GB, and excludes weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"The customer is not a student.\"}],\"met\":true}]}",
-      "cost_usd": 0.0002403
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "c414e4f3e046",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-101103 costs 955 credits monthly, includes 40 GB, and excludes weekend access, which is consistent with the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101103 costs 955 credits monthly, has 40 GB and excludes weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101103 costs 955 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001965
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "842f2934f933",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply disagrees with the reference on the monthly price: the reference says 149 credits, while the reply says 150. The data amount and weekend-access policy are consistent, but the price contradiction means the requirement is not satisfied.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101135 costs 149 credits per month\"},{\"source\":\"transcript.1\",\"quote\":\"150 credits monthly\"}],\"met\":false}]}",
-      "cost_usd": 0.0002795
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "5ec4adc0934b",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply’s monthly price of 473 credits is equivalent to the reference’s annual price of 5676 credits, and its 40 GB and no-weekend-access details agree with the reference.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101105 costs 5676 credits per year, includes 40 GB, and excludes weekend access.\"},{\"source\":\"transcript.1\",\"quote\":\"That is 473 credits per month, with 40 GB and no weekend access.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001894
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "68e3e5c3adfd",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the non-student pays 813 credits per month, but the reference states the price is 818 credits and the 5-credit discount applies only to students. This is a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 813 credits a month\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101131 costs 818 credits per month\"},{\"source\":\"input.reference.txt\",\"quote\":\"A 5-credit discount applies only to students.\"}],\"met\":false}]}",
-      "cost_usd": 0.0001873
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "677a587b73e0",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply contradicts the reference on the current price: it says 805 credits per month, while the reference gives the current price as 804. The data and weekend-access statements are consistent, but one contradicted fact fails the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The current price is 805 credits per month\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101128 costs 804 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.0001872
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "847b802522a8",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees on the 40 GB allowance and lack of weekend access, but contradicts the reference on the monthly price: it says 601 credits instead of 600.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"costs 601 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"costs 600 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.000203
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "379f6359f256",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states a monthly cost that contradicts the reference price.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"133 credits per month.\"},{\"source\":\"given\",\"quote\":\"Lumen-101120 costs 132 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.0001549
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "c67b2cf0f1af",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states a total monthly charge of 617 credits, consistent with the reference’s 610-credit base charge plus the mandatory 7-credit fee. Its 40 GB data and excluded weekend access also agree with the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 617 credits. Data 40 GB. Weekend access excluded.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101130: base monthly charge 610 credits plus a mandatory 7-credit monthly service fee. Data 40 GB. No weekend access.\"}],\"met\":true}]}",
-      "cost_usd": 0.00019310000000000003
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "a00563299673",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the monthly cost is 284 credits, contradicting the reference price of 283 credits. The other stated details agree, but this factual disagreement means the requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101101 costs 284 credits monthly, with 40 GB and no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101101 costs 283 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":false}]}",
-      "cost_usd": 0.00018210000000000004
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "3acfb7caf728",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply’s price of 213 credits per month is equivalent to the reference price of 2556 credits per year. It also matches the 40 GB allowance and says there is no weekend access, consistent with the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That is 213 credits per month, with 40 GB and no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101117 costs 2556 credits per year, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001964
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "23b4cc53cfd9",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the total monthly charge is 716 credits, but the reference specifies a 708-credit base charge plus a mandatory 7-credit fee, totaling 715 credits. This is a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 716 credits.\"},{\"source\":\"input.reference.txt\",\"quote\":\"base monthly charge 708 credits plus a mandatory 7-credit monthly service fee.\"}],\"met\":false}]}",
-      "cost_usd": 0.00018160000000000002
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "7f2ab7838ab2",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-101109 costs 168 credits per month, includes 40 GB, and has no weekend access. These facts agree with reference.txt; the French wording is a consistent paraphrase.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101109 costs 168 credits per month, includes 40 GB, and excludes weekend access.\"},{\"source\":\"transcript.1\",\"quote\":\"Le forfait coûte 168 crédits par mois, comprend 40 Go, sans weekend access.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001884
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "15a4b801ef0d",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply’s price of 411 credits per month is equivalent to the reference’s 4932 credits per year, and its 40 GB and no-weekend-access statements agree with the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That is 411 credits per month, with 40 GB and no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101129 costs 4932 credits per year, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001994
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "9aeac9e5ea17",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply's total of 715 credits matches the 708-credit base charge plus the mandatory 7-credit fee. Its 40 GB data and exclusion of weekend access also agree with the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 715 credits. Data 40 GB. Weekend access excluded.\"},{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-101118: base monthly charge 708 credits plus a mandatory 7-credit monthly service fee. Data 40 GB. No weekend access.\"}],\"met\":true}]}",
-      "cost_usd": 0.00022960000000000002
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "7fdc6e1a1d3b",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the monthly price is 369 credits, contradicting reference.txt, which says 368 credits. The data and weekend-access statements are consistent, but the price disagreement means the reply does not satisfy the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"369 crédits par mois\"},{\"source\":\"input.reference.txt\",\"quote\":\"costs 368 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.00018590000000000002
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "2bf5c6ae069c",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply correctly states 40 GB and no weekend access, but its price conflicts with the reference: 2556 credits per year is 213 credits per month, not 214.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101117 costs 2556 credits per year\"},{\"source\":\"transcript.1\",\"quote\":\"214 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.00018690000000000002
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "cfcd731825c2",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply matches the reference: it gives 501 credits monthly, 40 GB, and says weekend access is not included, equivalent to excluding it.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101114 costs 501 credits monthly, with 40 GB. Weekend access is not included.\"},{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-101114 costs 501 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001873
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "edd55de6b706",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the monthly cost is 151 credits, while the reference says it is 150 credits, so the reply contains a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101113 costs 151 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101113 costs 150 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.00018610000000000002
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "1f87f077c780",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The final reply states 921 credits per month, 40 GB, and no weekend access, consistent with every fact in reference.txt.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101134: 921 credits per month, 40 GB, no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101134 costs 921 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
-      "cost_usd": 0.00018060000000000003
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "d73584e23b46",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states 115 credits monthly, 40 GB, and no weekend access, which is consistent with the authorized record's price, data allowance, and exclusion of weekend access.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"115 credits monthly, 40 GB and no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101123 costs 115 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
-      "cost_usd": 0.0002655
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "026eb2f0cdb1",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply consistently states the monthly cost, included data, and weekend access policy from the reference, and correctly identifies the customer as a non-student. It contains no factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 110 credits a month, receives 40 GB and no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101107 costs 110 credits per month, includes 40 GB, and excludes weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"The customer is not a student.\"}],\"met\":true}]}",
-      "cost_usd": 0.0002168
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "761a56727fd6",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states a monthly cost of 570 credits, while reference.txt says the cost is 569 credits per month. This is a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"570 credits per month.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101108 costs 569 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.00017790000000000001
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "11d23d5b9fd3",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees on the 40 GB allowance and lack of weekend access, but its price claim conflicts with the reference: 412 credits per month annualizes to 4,944 credits, not 4,932 credits per year.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"412 credits per month, with 40 GB and no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101129 costs 4932 credits per year, includes 40 GB, and excludes weekend access.\"}],\"met\":false}]}",
-      "cost_usd": 0.0002374
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "e73d2853b65c",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the non-student pays 408 credits a month, but the reference says Lumen-101119 costs 413 credits per month and the discount applies only to students. This is a factual disagreement; the data and weekend-access claims are consistent.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 408 credits a month\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101119 costs 413 credits per month\"},{\"source\":\"input.reference.txt\",\"quote\":\"A 5-credit discount applies only to students. The customer is not a student.\"}],\"met\":false}]}",
-      "cost_usd": 0.00021930000000000002
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "08976499649c",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that the non-student pays 413 credits monthly, receives 40 GB, and has no weekend access. Each claim is consistent with reference.txt; it makes no contradictory factual claim.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 413 credits a month, receives 40 GB and no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101119 costs 413 credits per month, includes 40 GB, and excludes weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"The customer is not a student.\"}],\"met\":true}]}",
-      "cost_usd": 0.00021730000000000002
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "1e518ffec205",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply’s claims match the current-version facts in reference.txt: 666 credits per month, 40 GB, and no weekend access. It contains no factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The current price is 666 credits per month, data 40 GB, no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101116 costs 666 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
-      "cost_usd": 0.0002017
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "0cbb82013c0c",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees that the plan includes 40 GB and has no weekend access, but contradicts the reference on the monthly price: it says 770 credits rather than 769.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101124 costs 769 credits per month\"},{\"source\":\"transcript.1\",\"quote\":\"Lumen-101124 costs 770 credits monthly\"}],\"met\":false}]}",
-      "cost_usd": 0.0001715
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "320f94967ad5",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply correctly states the data allowance and weekend policy, but its total monthly charge of 618 credits disagrees with the reference: 610 plus 7 is 617 credits.\",\"evidence\":[{\"source\":\"input/reference.txt\",\"quote\":\"base monthly charge 610 credits plus a mandatory 7-credit monthly service fee.\"},{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 618 credits.\"}],\"met\":false}]}",
-      "cost_usd": 0.00019310000000000003
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "98394dbceb7d",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states the current price is 804 credits per month, the data amount is 40 GB, and there is no weekend access, matching the reference facts with no disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The current price is 804 credits per month, data 40 GB, no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101128 costs 804 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001982
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "43910d0c8e8c",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-101122 costs 612 credits per month, includes 40 GB, and has no weekend access, matching the reference without factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101122: 612 credits per month, 40 GB, no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101122 costs 612 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
-      "cost_usd": 0.00018660000000000004
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "345f2858acdb",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-101102 costs 119 credits monthly, includes 40 GB, and does not include weekend access, consistent with the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101102 costs 119 credits monthly, with 40 GB. Weekend access is not included.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101102 costs 119 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001833
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "820baa890714",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The final reply gives the same monthly cost and data allowance as the reference, and “no weekend access” agrees with the reference’s statement that weekend access is excluded.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101110: 628 credits per month, 40 GB, no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101110 costs 628 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
-      "cost_usd": 0.00017910000000000002
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "53ea18710d06",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-101115 costs 155 credits monthly, while the reference says it costs 154 credits per month. This is a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101115 costs 155 credits monthly, has 40 GB and excludes weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101115 costs 154 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.0001735
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "ed5389423a2b",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-101136 costs 600 credits monthly, includes 40 GB, and has no weekend access. These claims are consistent with the reference; the remaining text does not contradict it.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101136 costs 600 credits monthly, with 40 GB and no weekend access.\"}],\"met\":true}]}",
-      "cost_usd": 0.000209
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "f23c61ba21cf",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees with the reference on 40 GB and no weekend access, but contradicts the authorized monthly price: it says 237 credits, while the reference says 236 credits.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"237 credits monthly, 40 GB and no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101111 costs 236 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":false}]}",
-      "cost_usd": 0.0002625
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "64a4f0c61a65",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that the plan costs 368 credits per month, includes 40 GB, and has no weekend access, consistent with the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Le forfait coûte 368 crédits par mois, comprend 40 Go, sans weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101133 costs 368 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
-      "cost_usd": 0.0001864
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "780635ccc074",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply disagrees with the reference on the included data amount: it says 41 GB, while the reference says 40 GB. Therefore, it contains a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"41 GB\"},{\"source\":\"input.reference.txt\",\"quote\":\"includes 40 GB\"}],\"met\":false}]}",
-      "cost_usd": 0.00017460000000000002
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "be2ae2d508a6",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the current price is 235 credits per month, but the reference says the current price is 234. The data amount and weekend-access policy agree, but this price contradiction means the reply does not meet the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The current price is 235 credits per month\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101104 costs 234 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.00018869999999999998
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "cf51200c7521",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply contradicts the reference on weekend access: it says access is included, while the reference says it is excluded.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Weekend access is included.\"},{\"source\":\"input.reference.txt\",\"quote\":\"excludes weekend access.\"}],\"met\":false}]}",
-      "cost_usd": 0.00018519999999999998
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "518f800631b4",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply disagrees with the reference on the monthly price: it says 408 credits, while the reference says 407. Therefore, the reply does not contain no factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Le forfait coûte 408 crédits par mois\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101121 costs 407 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.0001654
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "fe5de39e6219",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply disagrees with the reference on the monthly price: it says 169 credits, while the reference says 168. The data amount and weekend policy are consistent, but this contradicted fact means the requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"169 crédits par mois\"},{\"source\":\"input.reference.txt\",\"quote\":\"168 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.00018140000000000002
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "b7528eb20486",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees on the price and data allowance, but says weekend access is included, contradicting the reference that it is excluded.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Weekend access is included.\"},{\"source\":\"input/reference.txt\",\"quote\":\"excludes weekend access.\"}],\"met\":false}]}",
-      "cost_usd": 0.00016419999999999998
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "0b6955b1001f",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply’s claims about monthly price, data allowance, and weekend access match reference.txt. The additional category statement does not contradict any fact in the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101124 costs 769 credits monthly, with 40 GB and no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101124 costs 769 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
-      "cost_usd": 0.000217
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "02a29fcbb438",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply correctly states the monthly price and data amount, but it says weekend access is included, contradicting the reference that weekend access is excluded.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Weekend access is included.\"},{\"source\":\"input.reference.txt\",\"quote\":\"excludes weekend access.\"}],\"met\":false}]}",
-      "cost_usd": 0.00016769999999999998
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "d44573e7829f",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The final reply states the current price is 234 credits per month, includes 40 GB of data, and has no weekend access, all consistent with reference.txt.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The current price is 234 credits per month, data 40 GB, no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101104 costs 234 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
-      "cost_usd": 0.0002017
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "8a401e342997",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply disagrees with the reference on price: it says 797 credits monthly, while the reference says 796 credits per month. The matching data and weekend-access details do not remove that contradiction.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101125 costs 797 credits monthly, with 40 GB and no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101125 costs 796 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":false}]}",
-      "cost_usd": 0.00018010000000000001
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "eb94497ce1eb",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply contradicts reference.txt on the monthly price: it says 199 credits, while the reference says 198 credits. The data allowance and weekend-access policy are consistent, but the price contradiction means the requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101112 costs 199 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101112 costs 198 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.000203
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "728fb5312dab",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply gives the correct 40 GB and no-weekend-access details, but its price of 474 credits per month conflicts with the reference price of 5676 credits per year (equivalent to 473 per month).\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"474 credits per month\"},{\"source\":\"input/reference.txt\",\"quote\":\"costs 5676 credits per year\"}],\"met\":false}]}",
-      "cost_usd": 0.00019590000000000002
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "e938d2f3c01c",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states a total monthly charge of 754 credits, but the reference gives a base charge of 746 credits plus a mandatory 7-credit fee, totaling 753 credits. This is a factual disagreement, so the requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 754 credits.\"},{\"source\":\"input.reference.txt\",\"quote\":\"base monthly charge 746 credits plus a mandatory 7-credit monthly service fee.\"}],\"met\":false}]}",
-      "cost_usd": 0.0001901
-    },
-    {
-      "judge": "gpt-6-luna",
-      "key": "62ff8df154f9",
-      "criterion": "factuality_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The final reply states that Lumen-101125 costs 796 credits monthly, includes 40 GB, and has no weekend access. These facts are consistent with the reference; no factual disagreement is present.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101125 costs 796 credits monthly, with 40 GB and no weekend access.\"},{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-101125 costs 796 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply contradicts the reference on the monthly price: it says 984 credits, while the reference says 983 credits. Therefore, the reply contains a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101127 costs 984 credits monthly\"},{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-101127 costs 983 credits per month\"}],\"met\":false}]}",
       "cost_usd": 0.00019210000000000003
     },
     {
       "judge": "gpt-6-luna",
-      "key": "d76b8cbd5e22",
+      "key": "7992ef7932c8",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says Lumen-101112 costs 198 credits monthly, includes 40 GB, and has no weekend access, matching the reference. Its additional statement about category C does not contradict any fact stated in the reference.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101112 costs 198 credits per month, includes 40 GB, and excludes weekend access.\"},{\"source\":\"transcript.1\",\"quote\":\"Lumen-101112 costs 198 credits monthly, with 40 GB and no weekend access.\"},{\"source\":\"transcript.1\",\"quote\":\"the correct category is C.\"}],\"met\":true}]}",
-      "cost_usd": 0.0002465
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply contradicts the authorized record on price: it says 116 credits monthly, while the record says 115 credits per month. The data amount and weekend-access policy agree, but any contradicted fact fails the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"116 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101123 costs 115 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00027810000000000004
     },
     {
       "judge": "gpt-6-luna",
-      "key": "59016a346017",
+      "key": "958ba906b462",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the monthly cost is 546 credits, contradicting the reference, which says 545 credits per month.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"546 credits per month.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101132 costs 545 credits per month\"}],\"met\":false}]}",
-      "cost_usd": 0.00017140000000000002
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The final reply states 149 credits monthly, 40 GB, and no weekend access. These agree with the authorized record’s price, data allowance, and weekend-access exclusion; no factual disagreement is present.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"CURRENT AUTHORIZED RECORD: Lumen-101135 costs 149 credits per month, includes 40 GB, and excludes weekend access.\"},{\"source\":\"transcript.1\",\"quote\":\"149 credits monthly, 40 GB and no weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002811
     },
     {
       "judge": "gpt-6-luna",
-      "key": "07aad885dc3c",
+      "key": "eabe4f20cd51",
       "criterion": "factuality_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-101111 costs 236 credits monthly, includes 40 GB, and has no weekend access. These claims agree with the current authorized record; there is no factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"236 credits monthly, 40 GB and no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"CURRENT AUTHORIZED RECORD: Lumen-101111 costs 236 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
-      "cost_usd": 0.0003155
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply contradicts the reference on the included data allowance: it says 41 GB, while the reference says 40 GB. Therefore, the reply contains a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"41 GB\"},{\"source\":\"input.reference.txt\",\"quote\":\"includes 40 GB\"}],\"met\":false}]}",
+      "cost_usd": 0.00018419999999999998
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "54c9dc8c3f55",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says Lumen-101103 costs 956 credits monthly, but reference.txt states it costs 955 credits per month. This is a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101103 costs 956 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101103 costs 955 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00019060000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "b447e82f4cdb",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-101108 costs 569 credits per month, which matches the reference. It makes no claim that conflicts with the reference; omitting the data allowance and weekend-access details is a consistent subset.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"569 credits per month.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101108 costs 569 credits per month\"}],\"met\":true}]}",
+      "cost_usd": 0.0001955
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "58df6e985fe6",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-101127 costs 983 credits monthly, has 40 GB, and excludes weekend access; these facts agree with reference.txt.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101127 costs 983 credits monthly, has 40 GB and excludes weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101127 costs 983 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00020410000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "b5750e2ef007",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states the same monthly price, data allowance, and weekend-access exclusion as reference.txt, with no factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Le forfait coûte 407 crédits par mois, comprend 40 Go, sans weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101121 costs 407 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "f95e500aae05",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply matches the reference: it gives the same price and data allowance, and “no weekend access” is equivalent to “excludes weekend access.” No factual disagreement is present.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101113 costs 150 credits monthly, with 40 GB and no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101113 costs 150 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002237
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "4f50e2dace7d",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-101132 costs 545 credits per month, which agrees with the reference. It makes no claim about the other plan details.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"545 credits per month.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101132 costs 545 credits per month\"}],\"met\":true}]}",
+      "cost_usd": 0.000194
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "21423d5bd56f",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-101115 costs 154 credits monthly, includes 40 GB, and excludes weekend access, matching the reference facts with no disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101115 costs 154 credits monthly, has 40 GB and excludes weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101115 costs 154 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00020360000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "ad87ee9f03a1",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-101101 costs 283 credits monthly, includes 40 GB, and has no weekend access. These facts agree with reference.txt, which gives 283 credits per month, includes 40 GB, and excludes weekend access.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101101 costs 283 credits monthly, with 40 GB and no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101101 costs 283 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00020769999999999998
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "56a081419ca0",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply contradicts the reference on the current monthly price: it says 667 credits, while the reference says the current price is 666. The data amount and weekend-access policy agree, but the price disagreement means the reply is not fully consistent.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The current price is 667 credits per month\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101116 costs 666 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00019830000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "523d7463f435",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states only the monthly cost, which matches reference.txt; it makes no conflicting claim about the included data or weekend access.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"132 credits per month.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101120 costs 132 credits per month\"}],\"met\":true}]}",
+      "cost_usd": 0.0001905
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "5cbc8ecb3a74",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-101126 costs 862 credits monthly, includes 40 GB, and does not include weekend access, matching the reference with no factual disagreement.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101126 costs 862 credits per month, includes 40 GB, and excludes weekend access.\"},{\"source\":\"transcript.1\",\"quote\":\"Lumen-101126 costs 862 credits monthly, with 40 GB. Weekend access is not included.\"}],\"met\":true}]}",
+      "cost_usd": 0.00021140000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "a55676474d17",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply matches the reference on the monthly price, included data, and lack of weekend access. Its statement that the customer is a non-student is also consistent with the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 818 credits a month, receives 40 GB and no weekend access.\"},{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-101131 costs 818 credits per month, includes 40 GB, and excludes weekend access.\"},{\"source\":\"input/reference.txt\",\"quote\":\"The customer is not a student.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002389
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "fdca2a41195e",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply’s total monthly charge of 753 credits matches the reference’s 746-credit base charge plus the mandatory 7-credit fee. Its 40 GB data amount and statement that weekend access is excluded also agree with the reference; there is no factual disagreement.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"base monthly charge 746 credits plus a mandatory 7-credit monthly service fee. Data 40 GB. No weekend access.\"},{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 753 credits. Data 40 GB. Weekend access excluded.\"}],\"met\":true}]}",
+      "cost_usd": 0.00022219999999999998
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "2682c12ebcae",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the current price is 805 credits per month, but reference.txt gives the current price as 804 credits per month. That is a factual disagreement, so the requirement is not met.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The current price is 805 credits per month\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101128 costs 804 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.0001923
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "6cb8f98279d1",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-101103 costs 955 credits monthly, includes 40 GB, and excludes weekend access. These facts agree with reference.txt; there is no factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101103 costs 955 credits monthly, has 40 GB and excludes weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101103 costs 955 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00020960000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "17befdab1593",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply contradicts the current authorized record on price: it says 150 credits monthly, while the record says 149 credits per month. The data amount and weekend policy agree, but the price disagreement means the reply is not factually consistent.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"150 credits monthly, 40 GB and no weekend access.\"},{\"source\":\"input_data File reference.txt\",\"quote\":\"Lumen-101135 costs 149 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.0002816
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "6d52260a9db3",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says Lumen-101136 costs 601 credits monthly, while reference.txt says it costs 600 credits per month. This is a factual disagreement, so the requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101136 costs 601 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101136 costs 600 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00018460000000000001
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "0ab256b3e22f",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states 473 credits per month, equivalent to 5676 credits per year, and matches the reference on 40 GB and no weekend access. It contains no factual disagreement.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101105 costs 5676 credits per year, includes 40 GB, and excludes weekend access.\"},{\"source\":\"transcript.1\",\"quote\":\"That is 473 credits per month, with 40 GB and no weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.000202
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "ce766446cc55",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the non-student pays 813 credits per month, but the reference says the price is 818 credits per month and the discount applies only to students. That price is a factual disagreement; the data amount and weekend policy agree.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 813 credits a month\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101131 costs 818 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.0002174
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "6a9903689286",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the cost is 133 credits per month, while reference.txt says it is 132 credits per month. These values disagree.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"133 credits per month.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101120 costs 132 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.0001795
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "3cd38107a9c3",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply is factually consistent with the reference: 213 credits per month equals 2556 credits per year, and the data allowance and weekend-access policy match.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101117 costs 2556 credits per year, includes 40 GB, and excludes weekend access.\"},{\"source\":\"transcript.1\",\"quote\":\"That is 213 credits per month, with 40 GB and no weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.000209
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "d97085529c9d",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the plan costs 168 credits per month, includes 40 GB, and has no weekend access. These facts agree with reference.txt; the French wording is an equivalent paraphrase.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Le forfait coûte 168 crédits par mois, comprend 40 Go, sans weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101109 costs 168 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002205
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "e2d9ecc1d2dd",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply’s stated total of 617 credits follows from the 610-credit base charge plus the mandatory 7-credit monthly fee. Its 40 GB data allowance and exclusion of weekend access also agree with the reference.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"base monthly charge 610 credits plus a mandatory 7-credit monthly service fee. Data 40 GB. No weekend access.\"},{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 617 credits. Data 40 GB. Weekend access excluded.\"}],\"met\":true}]}",
+      "cost_usd": 0.00021769999999999998
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "5ef5e4dcaa9f",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the monthly price is 284 credits, but reference.txt says it is 283 credits per month, so the reply contains a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101101 costs 284 credits monthly\"},{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-101101 costs 283 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00018769999999999998
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "8c16db9e1285",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees with the reference on all stated facts: the monthly total is 715 credits (708 plus the mandatory 7-credit fee), data is 40 GB, and weekend access is excluded.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"base monthly charge 708 credits plus a mandatory 7-credit monthly service fee. Data 40 GB. No weekend access.\"},{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 715 credits. Data 40 GB. Weekend access excluded.\"}],\"met\":true}]}",
+      "cost_usd": 0.00021769999999999998
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "b57cb6f87c56",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states a total monthly charge of 716 credits, but the reference gives a 708-credit base charge plus a mandatory 7-credit fee, totaling 715 credits. The data amount and weekend-access policy agree, but the price contradiction means the reply does not contain no factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 716 credits.\"},{\"source\":\"input.reference.txt\",\"quote\":\"base monthly charge 708 credits plus a mandatory 7-credit monthly service fee.\"}],\"met\":false}]}",
+      "cost_usd": 0.00021869999999999998
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "8a2c4b311003",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply’s 411 credits per month equals 4932 credits per year, and its 40 GB and no-weekend-access claims match the reference. There is no factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That is 411 credits per month, with 40 GB and no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101129 costs 4932 credits per year, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002115
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "64931c2e9d85",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply disagrees with the reference on the monthly price: it says 369 credits, while the reference says 368. The data amount and weekend-access policy are consistent, but the price contradiction means the reply does not meet the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"369 crédits par mois\"},{\"source\":\"input.reference.txt\",\"quote\":\"368 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.0001895
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "88d6e348f62c",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees that the plan includes 40 GB and has no weekend access, but its price of 214 credits per month does not equal the reference price of 2556 credits per year (214 × 12 = 2568). This is a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"214 credits per month, with 40 GB and no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101117 costs 2556 credits per year, includes 40 GB, and excludes weekend access.\"}],\"met\":false}]}",
+      "cost_usd": 0.000216
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "1bc11d37d020",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply contradicts the reference on the monthly price: it says 151 credits, while the reference says 150. The matching data amount and weekend policy do not remove that disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"costs 151 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"costs 150 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.0001802
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "48ec7b3ac82f",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply matches the reference: it states 501 credits monthly and 40 GB, and says weekend access is not included, consistent with the reference’s exclusion.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101114 costs 501 credits per month, includes 40 GB, and excludes weekend access.\"},{\"source\":\"transcript.1\",\"quote\":\"Lumen-101114 costs 501 credits monthly, with 40 GB. Weekend access is not included.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001999
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "dd038da98910",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states the same monthly price and data allowance as the reference, and “no weekend access” is equivalent to excluding weekend access. It contains no factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101134: 921 credits per month, 40 GB, no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101134 costs 921 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00019869999999999998
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "5bfbf9390a37",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply disagrees with the reference on the price: 412 credits per month is 4,944 credits per year, not 4,932. Its statements about 40 GB and no weekend access agree, but the contradicted price means the reply does not contain only consistent facts.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101129 costs 4932 credits per year\"},{\"source\":\"transcript.1\",\"quote\":\"412 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.0002305
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "92525e8bdb98",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply contradicts the reference on price: the reference says the plan costs 413 credits per month, while the reply says the non-student pays 408 credits a month. The data allowance and weekend-access policy agree, but the contradicted price means the requirement is not satisfied.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101119 costs 413 credits per month\"},{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 408 credits a month\"}],\"met\":false}]}",
+      "cost_usd": 0.0001999
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "5dfe95a9ad99",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply’s price, data allowance, and weekend-access policy match the current authorized record; it contains no factual disagreement with the reference.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"CURRENT AUTHORIZED RECORD: Lumen-101123 costs 115 credits per month, includes 40 GB, and excludes weekend access.\"},{\"source\":\"transcript.1\",\"quote\":\"115 credits monthly, 40 GB and no weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.0003086
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "0ad863fbb727",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that the non-student pays 110 credits monthly, gets 40 GB, and has no weekend access. These facts agree with the reference; it makes no contradicted factual claim.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 110 credits a month, receives 40 GB and no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101107 costs 110 credits per month, includes 40 GB, and excludes weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"The customer is not a student.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002529
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "cc51b56b82ff",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the monthly cost is 570 credits, contradicting reference.txt, which says it is 569 credits per month.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"570 credits per month.\"},{\"source\":\"input_data/reference.txt\",\"quote\":\"Lumen-101108 costs 569 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.000174
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "8922865f1c1f",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that the non-student pays 413 credits a month, receives 40 GB, and has no weekend access. These facts agree with reference.txt; it makes no contradicted factual claim.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The non-student pays 413 credits a month, receives 40 GB and no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101119 costs 413 credits per month, includes 40 GB, and excludes weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"The customer is not a student.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002149
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "0274779e326c",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states the current price as 666 credits per month, data as 40 GB, and no weekend access, matching the current-version facts in the reference. It contains no factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The current price is 666 credits per month, data 40 GB, no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101116 costs 666 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00021580000000000001
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "47f682ae9fb2",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the plan costs 770 credits monthly, but the reference says 769 credits per month. This is a factual disagreement, so the requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101124 costs 770 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101124 costs 769 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00018860000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "729026d57eaf",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply agrees that data is 40 GB and weekend access is excluded, but its stated total monthly charge of 618 credits contradicts the reference’s 610-credit base charge plus 7-credit monthly fee, which totals 617 credits.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"base monthly charge 610 credits plus a mandatory 7-credit monthly service fee.\"},{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 618 credits.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "b8a36aec1afc",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The final reply states the current price is 804 credits per month, the data allowance is 40 GB, and there is no weekend access; these facts agree with the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The current price is 804 credits per month, data 40 GB, no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101128 costs 804 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002018
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "13674e6de7c5",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply matches the reference: 119 credits monthly is equivalent to 119 credits per month, it includes 40 GB, and weekend access is not included.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101102 costs 119 credits monthly, with 40 GB. Weekend access is not included.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101102 costs 119 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00020690000000000001
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "0e249f58a845",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-101136 costs 600 credits monthly, includes 40 GB, and has no weekend access. These facts agree with reference.txt; the added text does not make a contradictory factual claim.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101136 costs 600 credits monthly, with 40 GB and no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101136 costs 600 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00021210000000000003
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "1dde90ed0971",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-101122 costs 612 credits per month, includes 40 GB, and has no weekend access, matching the reference without factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101122: 612 credits per month, 40 GB, no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101122 costs 612 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001927
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "0a1227146e8d",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply contradicts the reference on the monthly price: it says 155 credits, while the reference says 154 credits per month. Therefore, it contains a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101115 costs 155 credits monthly\"},{\"source\":\"input/reference.txt\",\"quote\":\"Lumen-101115 costs 154 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00018710000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "75d8eaecc057",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply contradicts the current authorized record on price: it says 237 credits monthly, while the record says 236 credits per month. The matching data amount and weekend policy do not remove that disagreement.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101111 costs 236 credits per month, includes 40 GB, and excludes weekend access.\"},{\"source\":\"transcript.1\",\"quote\":\"237 credits monthly, 40 GB and no weekend access.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002811
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "c42a4549a1fb",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-101110 costs 628 credits per month, includes 40 GB, and has no weekend access, matching the reference without factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101110: 628 credits per month, 40 GB, no weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.0001827
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "449865321dd0",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states 368 credits per month, includes 40 GB, and says weekend access is excluded, consistent with the reference.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Le forfait coûte 368 crédits par mois, comprend 40 Go, sans weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101133 costs 368 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002005
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "1a3bb6563f17",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply correctly states the monthly price and data allowance, but says weekend access is included, contradicting the reference that it is excluded.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Weekend access is included.\"},{\"source\":\"input/reference.txt\",\"quote\":\"excludes weekend access.\"}],\"met\":false}]}",
+      "cost_usd": 0.0001773
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "aa5d996cfc96",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply disagrees with the reference on the included data allowance: it says 41 GB, while the reference says 40 GB. This contradiction means the reply does not contain only consistent facts.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"41 GB\"},{\"source\":\"input.reference.txt\",\"quote\":\"includes 40 GB\"}],\"met\":false}]}",
+      "cost_usd": 0.0001827
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "be678ba1efe0",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the current price is 235 credits per month, but the reference says the current version costs 234 credits per month. This is a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The current price is 235 credits per month\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101104 costs 234 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00019930000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "61cd0068c956",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states that Lumen-101124 costs 769 credits monthly, includes 40 GB, and has no weekend access, matching the reference facts without disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101124 costs 769 credits monthly, with 40 GB and no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101124 costs 769 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002046
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "8e4f70ed9dff",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply contradicts the reference on the monthly price: it says 169 credits, while the reference says 168. The data allowance and weekend-access policy are consistent, but any contradicted fact fails the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"169 crédits par mois\"}],\"met\":false}]}",
+      "cost_usd": 0.000176
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "56eadc9f95ab",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the monthly cost is 408 credits, contradicting reference.txt, which gives 407 credits per month. The reply’s other stated details agree with the reference, but this contradiction means the requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"408 crédits par mois\"},{\"source\":\"input.reference.txt\",\"quote\":\"costs 407 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.0002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "79dea388ddaf",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply contradicts the reference on weekend access: the reference says weekend access is excluded, while the reply says it is included.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"excludes weekend access.\"},{\"source\":\"transcript.1\",\"quote\":\"Weekend access is included.\"}],\"met\":false}]}",
+      "cost_usd": 0.0001818
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "1e1ad3332c5b",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states the current price is 234 credits per month, includes 40 GB of data, and has no weekend access. These facts agree with reference.txt; it makes no factual disagreement.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101104 costs 234 credits per month, includes 40 GB, and excludes weekend access.\"},{\"source\":\"transcript.1\",\"quote\":\"The current price is 234 credits per month, data 40 GB, no weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00019930000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "7cd8b260f8bf",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says 474 credits per month, which equals 5,688 credits per year and contradicts the reference price of 5,676 credits per year. The data and weekend-access facts agree, but this price disagreement means the reply does not satisfy the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"474 credits per month\"},{\"source\":\"input.reference.txt\",\"quote\":\"costs 5676 credits per year\"}],\"met\":false}]}",
+      "cost_usd": 0.000211
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "569fb10b0df0",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply correctly states the monthly price and data allowance, but contradicts the reference on weekend access: it says access is included, while the reference says it is excluded.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Weekend access is included.\"},{\"source\":\"input.reference.txt\",\"quote\":\"excludes weekend access.\"}],\"met\":false}]}",
+      "cost_usd": 0.0001788
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "b0f868c1f365",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply says the monthly price is 199 credits, while reference.txt says it is 198 credits. That is a factual disagreement, so the requirement is not satisfied.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101112 costs 199 credits monthly\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101112 costs 198 credits per month\"}],\"met\":false}]}",
+      "cost_usd": 0.00020910000000000001
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "1117270ab5fc",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states a price of 797 credits monthly, which contradicts the reference price of 796 credits per month. The matching data amount and weekend-access policy do not remove this factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101125 costs 797 credits monthly, with 40 GB and no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101125 costs 796 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002027
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "a48005c136a9",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The final reply states the same monthly price, data allowance, and weekend-access policy as reference.txt; it contains no factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101125 costs 796 credits monthly, with 40 GB and no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101125 costs 796 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002017
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "5fa508ffe2f4",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states a total monthly charge of 754 credits, but the reference gives a 746-credit base charge plus a mandatory 7-credit fee, totaling 753 credits. This is a factual disagreement; the data and weekend-access statements agree with the reference.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"base monthly charge 746 credits plus a mandatory 7-credit monthly service fee.\"},{\"source\":\"transcript.1\",\"quote\":\"Total monthly charge 754 credits.\"}],\"met\":false}]}",
+      "cost_usd": 0.0002017
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "eedc9b22d196",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The final reply states that Lumen-101112 costs 198 credits monthly, includes 40 GB, and has no weekend access. These facts agree with reference.txt; the extra embedded text does not add a factual disagreement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-101112 costs 198 credits monthly, with 40 GB and no weekend access.\"},{\"source\":\"input.reference.txt\",\"quote\":\"Lumen-101112 costs 198 credits per month, includes 40 GB, and excludes weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.00020610000000000002
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "f1a871d9393e",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply’s price, data allowance, and weekend-access policy agree with the current authorized record; it contains no factual disagreement with the reference.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"CURRENT AUTHORIZED RECORD: Lumen-101111 costs 236 credits per month, includes 40 GB, and excludes weekend access.\"},{\"source\":\"transcript.1\",\"quote\":\"236 credits monthly, 40 GB and no weekend access.\"}],\"met\":true}]}",
+      "cost_usd": 0.0002996
+    },
+    {
+      "judge": "gpt-6-luna",
+      "key": "5d331017f277",
+      "criterion": "factuality_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"factuality_hard\",\"reasoning\":\"The reply states a monthly cost of 546 credits, while the reference states 545 credits per month, so the reply contradicts the reference.\",\"evidence\":[{\"source\":\"input.reference.txt\",\"quote\":\"costs 545 credits per month\"},{\"source\":\"transcript.1\",\"quote\":\"546 credits per month.\"}],\"met\":false}]}",
+      "cost_usd": 0.000174
     }
   ]
 }
