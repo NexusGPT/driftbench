@@ -1,8 +1,10 @@
 import { basename, posix } from 'node:path';
 import nlp from 'compromise';
 import type { Atom, AtomKind, EvidencePredicate } from '../schema';
+import { isNormative, maskIllustrativePrefixes, normativeEstate } from './document-roles';
 import { guardRuleSources } from './guard-rules';
 import type { EstateFile, GuardDecl, ProseChunk, RawEstate, RegistryRow } from './reader';
+import { ignoredReference } from './reference-role';
 import {
   blankFences,
   type Located,
@@ -186,6 +188,7 @@ export function registryRowOf(guard: GuardDecl, registry: readonly RegistryRow[]
 
 /** Every atom code reads, in a fixed order, so ids are the same on every run. */
 export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
+  raw = normativeEstate(raw);
   const files = new Map(raw.files.map((file) => [file.path, file]));
   const { labels } = raw;
   const dispatch = (name: string): EvidencePredicate => ({
@@ -384,7 +387,7 @@ export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
   const skillRoots = new Set(raw.skills.map((skill) => posix.normalize(skill.folder)));
   const folderFiles = new Map<string, EstateFile[]>();
   for (const file of raw.files) {
-    if (file.kind !== 'skill_file') continue;
+    if (file.kind !== 'skill_file' || !isNormative(file)) continue;
     let folder = posix.dirname(posix.normalize(file.path));
     while (!skillRoots.has(folder)) {
       const parent = posix.dirname(folder);
@@ -1086,7 +1089,7 @@ function referenceAtoms(
           ?.some((route) => route.definition === path)
       )
         continue;
-      const isSkipped = target === undefined && skipped.has(path);
+      const isSkipped = target === undefined && (skipped.has(path) || ignoredReference(raw, path));
       if (!target && !isSkipped && !DOCUMENT.test(path)) continue;
       if (target && (target.kind === 'guard_script' || SCRIPT.test(path))) continue;
       builder.add({
@@ -1097,7 +1100,10 @@ function referenceAtoms(
         situation: line.text,
         fields: {
           path,
-          exists: target !== undefined || isSkipped,
+          ...(located.via === 'none' && !located.candidates && !named.includes('/')
+            ? { written: named, unresolved: true }
+            : {}),
+          exists: target !== undefined || skipped.has(path),
           readWhen: line.text,
           from: chunk.file,
           ...(isSkipped ? { ignored: true } : {}),
@@ -2320,9 +2326,9 @@ function maskedChunkLines(
         ? readFrontmatter(source.text).bodyLine
         : 1;
       const original = source.text.split('\n');
-      lines = blankFences(original.map((line, index) => (index < body - 1 ? '' : line)).join('\n')).split(
-        '\n',
-      );
+      lines = maskIllustrativePrefixes(
+        blankFences(original.map((line, index) => (index < body - 1 ? '' : line)).join('\n')),
+      ).split('\n');
       MASKED_PROSE.set(source, lines);
     }
     masked = lines.slice(chunk.startLine - 1, chunk.endLine).join('\n');
