@@ -198,3 +198,5 @@ jobs:
             fi
           fi
           "$dir/gitleaks" detect --redact -v --exit-code=2 --config .gitleaks.toml --log-opts="$range"
+          # Planted bypass cases: every one must stay reported, every real recording hash must pass.
+          node tools/guard/gitleaks-cases.mjs "$dir/gitleaks"

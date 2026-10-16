@@ -80,11 +80,14 @@ export {
   type CliOverrides,
   checkSpecObjects,
   clearObjectContexts,
+  cliPatch,
   type ExplainRow,
   explainObject,
   explainRows,
   type ImplDef,
   type ItemOperations,
+  initializeShippedObjects,
+  itemApplies,
   itemOf,
   type KindDef,
   type LayerUses,
@@ -100,15 +103,18 @@ export {
   PROJECT_OBJECTS_DIR,
   parseCliOverrides,
   parseObjectText,
+  type RegistrySnapshot,
   type ResolvedItem,
   type ResolvedObject,
   resolveBlockObjects,
+  type ScopeEvidence,
   SUITE_OBJECTS_DIR,
   shippedObjectContext,
   specUsesObjects,
   USES_FILE,
   type UsedObject,
 } from './objects';
+export { bindObjectContext, objectContextOfSpec } from './objects/context';
 export {
   ALLOWED_VERSION_TRANSITION_FIELDS,
   type AuditVerdict,
@@ -271,6 +277,7 @@ export {
   withRetry,
   wrapEndState,
 } from './runner';
+export { applyRealizedTextPolicy, realizedTextOf } from './runner/realized-text';
 export {
   Assertion,
   Budget,
@@ -291,6 +298,7 @@ export {
 export { CampaignConfig, CampaignRetryConfig } from './schema/config';
 export { parameterSchema, unsupportedSchemaKeywords } from './schema/json-schema';
 export {
+  AppliesTo,
   Envelope,
   ImplRef,
   Item,
@@ -358,6 +366,7 @@ export {
   SafetyExpect,
   SimilarityExpect,
   SkillExpect,
+  SPEC_SCHEMA_VERSION,
   Spec,
   Stimulus,
   SubagentExpect,

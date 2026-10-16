@@ -224,6 +224,7 @@ Every problem has a stable code, so tools and tests can branch on it. An error m
 | Code | Level | Meaning |
 |---|---|---|
 | `SPEC_PARSE` | error | the file cannot be read, or it is not valid YAML or JSON |
+| `SPEC_SCHEMA_VERSION` | error | `schema_version` names a spec format newer than this driftbench reads: upgrade driftbench |
 | `SPEC_NOT_OBJECT` | error | the file does not hold one mapping at the top level |
 | `SPEC_ALIAS_CONFLICT` | error | a shorthand and its long form are both set: `ledger_seed` with `given.ledger`, or `workspace_seed` with `given.world.workspace` |
 | `BLOCK_STIMULUS_MISSING` | error | a block has none of `user`, `burst` and `when` |
@@ -277,7 +278,7 @@ These commands run specs on a target. Each has its options, its output and its e
 
 ```
 driftbench campaign plan <paths...> [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--baseline-rate <rate>] [--rho <rho>] [--store <file>] [--config <file>] [--json]
-driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>] [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--agent-version <label>] [--change <manifest> --from <campaign> [--audit <n>] [--audit-seed <n>] [--max-carry <n>] [--max-age <days>] [--block-reruns]] [--record-end-state-snapshots] [--campaign <id>] [--store <file>] [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--driver scripted|simulated] [--persona <file>]... [--recording <file>]... [--model] [--agent-family <family>] [--judge-family <family>]... [judge flags] [run check flags] [--config <file>] [--json]
+driftbench campaign run [paths...] [--dataset <ref>] [--prompt <ref>] [--target <adapter[:agent]>]... [--route <tag=target>]... [--mode <modes>] [--repeats <n>] [--agent-version <label>] [--change <manifest> --from <campaign> [--audit <n>] [--audit-seed <n>] [--max-carry <n>] [--max-age <days>] [--block-reruns]] [--record-end-state-snapshots] [--record-realized-text] [--campaign <id>] [--store <file>] [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--driver scripted|simulated] [--persona <file>]... [--recording <file>]... [--model] [--agent-family <family>] [--judge-family <family>]... [judge flags] [run check flags] [--config <file>] [--json]
 driftbench campaign resume [campaignId] --store <file> [--no-cache] [--concurrency <n>] [--budget-usd <usd>] [--process-command <command>] [--retry-attempts <n>] [--retry-base-ms <ms>] [--retry-max-ms <ms>] [--json]
 driftbench campaign status [campaignId] --store <file> [--detail] [--json]
 driftbench campaign export <campaignId> --store <file> --out <dir>
@@ -312,6 +313,7 @@ driftbench smoke <spec> [--target <adapter[:agent]>] [--runs <n>] [--json]
 | `--max-age <days>` | with `--change`: the most days since a carried result was measured (default 7) |
 | `--block-reruns` | with `--change` in mode T: send only the blocks a change can affect and keep the other stored blocks of a cell; see [mode T block reruns](../concepts/blast-radius.md#mode-t-block-reruns) |
 | `--record-end-state-snapshots` | store the raw end-state values each mode T block reads, so a later `--block-reruns` can rerun cells with `end_state` in part; the values may be sensitive |
+| `--record-realized-text` | store the text a driver sent where it differs from the spec (a simulated user, a red-team attacker) as `realized.text`; off, each such block keeps only its hash; the text may be private |
 | `--campaign <id>` | the campaign id; without it, one is made from the content and the clock |
 | `--dataset <ref>` | `run` only: run the specs of this dataset version of the store and record it in the campaign; needs `--store`. See [datasets](../datasets.md) |
 | `--prompt <ref>` | `run` only: the agent runs with this prompt version of the store, a single text file: every target carries it in `target.prompt`, and the campaign records it; give it once; needs `--store`. Each adapter page says how the text reaches the agent |
@@ -1396,6 +1398,8 @@ driftbench compare --rank <campaigns...> --store <db> [--mode <modes>] [--json]
 
 `report` writes the scorecard of a stored campaign as one HTML file, with no script and no external asset: every metric with its interval, the compare diff with `--baseline`, the spread view, the pilot report with `--pilot`, and the per-block drilldown. `--junit` also writes JUnit XML. `--aggregate` (repeatable) scores a campaign-level criterion over every run, such as `pass-rate:>=0.8` or `broken-share:<=0.2`, and prints each result; see [campaign-level criteria](../aggregates.md). `--config <file>` names the project config whose `aggregates:` it also scores; default `driftbench.yaml` in the working folder. `--withhold-incomplete` withholds the pass^k and pass@k value of a line with incomplete runs, instead of reporting it with the range of its missing outcomes; see [statistics](../concepts/statistics.md). Exit 0 when written, 2 on bad input. The [example scorecards](../scorecards.md) were written by it.
 
+On the command line `report` prints, per mode, the suite headline: `Suite pass rate, mode F: 70.0% [35.4%, 88.2%] (hierarchical 95% interval); 6 goldens, n_eff 7.0 runs (design effect 3.87), detectable drop 66.4 points at 80% power.` It is the mean over goldens with the hierarchical Beta-Bernoulli interval, then the effective runs, the smallest drop two suites like it detect and the share of runs that did not complete. A rate over clustered runs elsewhere on the page prints its `n_eff` and design effect beside the Wilson interval. See [statistics](../concepts/statistics.md#the-suite-headline).
+
 `compare` pairs the goldens both campaigns ran and gives the non-inferiority verdict: McNemar on the all-pass flag, Wilcoxon on drift counts, the paired effect with its interval, Benjamini-Hochberg across criteria. Per criterion and for the all-pass flag it also prints three planning numbers: the floor (the smallest margin its goldens can show when nothing changed), the drop its goldens detect at 80% power, and the goldens a 10 point margin needs. Exit 0 non-inferior, 1 regressed or not shown non-inferior, 2 on bad input. The rule is on the [statistics](../concepts/statistics.md#the-campaign-verdict) page. The [reports README](../../examples/acme/reports/README.md) gives the commands and their output on the Acme campaigns.
 
 `compare`, `ci` and `report` share one rule and these options:
@@ -1409,6 +1413,8 @@ driftbench compare --rank <campaigns...> --store <db> [--mode <modes>] [--json]
 New flags always gate, and so does an underpowered criterion whose regression Benjamini-Hochberg keeps.
 
 `compare --pairwise <criterion.yaml>` also judges, for every block both campaigns ran, which of the two replies better meets one criterion. The criterion file holds a `name` and a `rubric`, and optionally `pass` and `fail`. `--pairwise-judge` picks the provider judge, `openai` by default; its key is read from the environment. `--pairwise-reference <file>` asks which reply matches the reference answer in the file better, instead of which reply is better; see [judges](../concepts/judges.md#factual-audit-and-ledger-recovery). Each pair is judged twice, in both orders, so a judge that favours a position is caught: the printed line counts the baseline and candidate wins, the ties, the calls whose two orders disagreed, and the calls where the judge chose a position. A judge that gives no answer fails the command with its reason. The pairwise line never changes the exit code.
+
+Pairs must share the same verifiable sent text. Identical stored `realized.text` is used as the user message. Hash-only blocks use the authored text only when its hash matches; different hashes or unavailable sent text skip the pair. Text output counts these as "different stimulus", and JSON exposes the count as `pairwise.differentStimulus`. Each side uses its own pinned spec, including the block's recorded spec position.
 
 The pairwise call takes these settings. Each is checked before any call; a contradiction exits 2 and names the flag to drop. With none, the requests and the printed line are as above.
 

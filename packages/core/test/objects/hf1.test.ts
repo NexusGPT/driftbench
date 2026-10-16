@@ -53,6 +53,8 @@ function keysDigest(spec: Spec, specHash: string): string {
 
 type Loaded = { file: string; bytes: Buffer; spec: Spec; hash: string };
 const loaded: Loaded[] = [];
+/** Every example file the loader refused, with its first error: a baseline spec among them fails HF1. */
+const refused = new Map<string, string>();
 let files = 0;
 
 beforeAll(async () => {
@@ -64,7 +66,14 @@ beforeAll(async () => {
     const result = parseSpecText(bytes.toString('utf8'), format, path, {
       objects: () => objectContextFor(path),
     });
-    if (!result.ok) continue;
+    if (!result.ok) {
+      const first = result.errors[0];
+      refused.set(
+        relative(ROOT, path).split('\\').join('/'),
+        `${first?.code ?? ''} ${first?.path ?? ''}: ${first?.message ?? ''}`,
+      );
+      continue;
+    }
     loaded.push({
       file: relative(ROOT, path).split('\\').join('/'),
       bytes,
@@ -81,13 +90,22 @@ describe('HF1: backward compatibility over examples/', () => {
       .filter((line) => line !== '' && !line.startsWith('#'))
       .map((line) => line.split('\t') as [string, string, string, string, string]);
     expect(rows.length).toBe(2351);
+    expect(rows.reduce((sum, row) => sum + Number(row[4]), 0)).toBe(4453);
     const byFile = new Map(loaded.map((entry) => [entry.file, entry]));
+    // Every spec main loaded still loads: a refusal of any of them fails here with its path and its error.
+    const lost = rows
+      .filter(([file]) => !byFile.has(file))
+      .map(([file]) => `${file}: ${refused.get(file) ?? 'no longer found under examples/'}`);
+    expect(lost).toEqual([]);
+    expect(rows.filter(([file]) => byFile.has(file)).length).toBe(2351);
     let compared = 0;
     let blocks = 0;
     const changed: string[] = [];
     for (const [file, fileSha, hash, keys, count] of rows) {
       const now = byFile.get(file);
       if (!now || sha(now.bytes) !== fileSha) continue;
+      if (now.spec.blocks.length !== Number(count))
+        changed.push(`${file}: ${count} blocks -> ${now.spec.blocks.length}`);
       compared += 1;
       blocks += Number(count);
       if (now.hash !== hash) changed.push(`${file}: spec hash ${hash} -> ${now.hash}`);

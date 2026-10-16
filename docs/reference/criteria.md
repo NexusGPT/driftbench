@@ -127,6 +127,7 @@ A summary of the block's Given, as the judge reads it.
 | `given` | [LabelledBlock given](#labelledblock-given) | no |  | A summary of the block's Given, as the judge reads it. |
 | `id` | string, not empty | yes |  | The id of the block; a new label for the same id replaces the old one. |
 | `label` | `pass` or `fail` | yes |  | The human's verdict on the criterion: pass or fail. |
+| `flags` | list of `sent text not stored` | no |  | Labels with unavailable sent text are excluded from calibration. |
 | `anchor` | [AnnotationAnchor](#annotationanchor) | no |  | The element of the block the label is about; absent: the whole block. |
 
 ## LabelledBlock given
