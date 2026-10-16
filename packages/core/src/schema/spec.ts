@@ -115,6 +115,12 @@ export const SkillExpect = z
   .describe('One expected skill.');
 export type SkillExpect = z.infer<typeof SkillExpect>;
 
+/**
+ * The verdicts of a guard that acts on what it watches: a tool call denied or put to the owner, a turn or a
+ * prompt blocked, the agent warned or nudged. Any other verdict (allow) is the guard looking on.
+ */
+export const GUARD_INTERVENTIONS: readonly string[] = ['deny', 'block', 'ask', 'warn', 'nudge'];
+
 /** A runtime check that fired during the block: a hook, a guardrail, a policy. The adapter maps the runtime's own names. */
 export const GuardExpect = z
   .strictObject({

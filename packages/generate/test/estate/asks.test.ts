@@ -106,8 +106,15 @@ describe('asks written by code from the atoms', () => {
     expect(actOf([atom('invariant.x', { title: 'Run the tests after each edit' })]).act).toBe(
       'run the tests after each edit',
     );
+    // The owner asks for the task the tool serves, never for the tool.
     expect(actOf([atom('tool.allow-read', { kind: 'tool', fields: { rule: 'Read' } })]).act).toBe(
-      'use the Read tool on the files here',
+      'show me what a file here says',
+    );
+    expect(actOf([atom('tool.allow-grep', { kind: 'tool', fields: { rule: 'Grep(./notes/**)' } })]).act).toBe(
+      'find where a word appears in the files under ./notes',
+    );
+    expect(actOf([atom('tool.allow-x', { kind: 'tool', fields: { rule: 'Plot' } })]).act).toBe(
+      'use the Plot tool on the files here',
     );
     expect(actOf([atom('tool.deny-rm', { kind: 'tool', fields: { rule: 'Bash(rm -rf:*)' } })]).act).toBe(
       'run rm -rf in the shell here',

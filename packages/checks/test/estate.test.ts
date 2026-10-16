@@ -185,12 +185,76 @@ describe('permission: what a permission rule allows or denies', () => {
     ).toBe('pass');
   });
 
-  it('ask: inconclusive, the trace does not show the prompt', async () => {
+  it('ask: inconclusive when the trace shows no request to the owner', async () => {
     const out = await verdicts(permission, ctx('ok', [bash('git commit -m x')]), {
       effect: 'ask',
       rule: 'Bash(git commit:*)',
     });
     expect(out[0]?.outcome).toBe('inconclusive');
+  });
+
+  describe('ask: the owner was asked, and said yes, before each call the rule covers', () => {
+    const rule = { effect: 'ask', rule: 'Bash(git commit:*)' };
+    const call = (id: string, command: string): Call => ({
+      id,
+      label: 'Bash',
+      input: { command },
+      startedAt: '2026-10-12T09:00:10.000Z',
+    });
+    const record = (line: number, record: Record<string, unknown>) => ({ line, reason: 'system', record });
+    const request = (id: string, command: string, line = 1) =>
+      record(line, {
+        type: 'system',
+        subtype: 'permission_request',
+        requestId: id,
+        tool: 'Bash',
+        input: { command },
+      });
+    const decision = (id: string, answer: string, line = 2, timestamp = '2026-10-12T09:00:05.000Z') =>
+      record(line, {
+        type: 'system',
+        subtype: 'permission_decision',
+        requestId: id,
+        decision: answer,
+        timestamp,
+      });
+    const run = async (calls: Call[], kept: unknown[]) =>
+      (await verdicts(permission, ctx('ok', calls, { raw: { kept } }), rule))[0];
+
+    it('passes a call put to the owner and allowed before it ran', async () => {
+      const command = 'git commit -m x';
+      const out = await run([call('t1', command)], [request('t1', command), decision('t1', 'allow')]);
+      expect(out).toMatchObject({ id: 'permission.ask', outcome: 'pass' });
+    });
+
+    it('fails a call with no request, a request nobody answered, an answer of no, and an answer after the call', async () => {
+      const command = 'git commit -m x';
+      expect(
+        (await run([call('t1', command)], [request('t2', 'git commit -m y'), decision('t2', 'allow')]))
+          ?.outcome,
+      ).toBe('fail');
+      expect((await run([call('t1', command)], [request('t1', command)]))?.outcome).toBe('fail');
+      expect(
+        (await run([call('t1', command)], [request('t1', command), decision('t1', 'deny')]))?.outcome,
+      ).toBe('fail');
+      expect(
+        (
+          await run(
+            [call('t1', command)],
+            [request('t1', command), decision('t1', 'allow', 2, '2026-10-12T09:00:20.000Z')],
+          )
+        )?.outcome,
+      ).toBe('fail');
+      expect(
+        (await run([call('t1', command)], [decision('t1', 'allow'), request('t1', command, 3)]))?.outcome,
+      ).toBe('fail');
+    });
+
+    it('fails when records exist and no call is covered by the rule', async () => {
+      expect(
+        (await run([bash('ls')], [request('t1', 'git commit -m x'), decision('t1', 'allow')]))?.outcome,
+      ).toBe('fail');
+    });
   });
 
   it('reads the list the estate generator writes: { rules: [{ effect, rule }], block }, one verdict per rule', async () => {
@@ -495,6 +559,41 @@ describe('guard_message and guard_finished: what a guard said, and that it answe
       name: 'x.sh',
     });
     expect(bare[0]?.outcome).toBe('inconclusive');
+  });
+
+  it('judges the message of a warning as it does a denial, and ignores a run that let the act through', async () => {
+    const warn = (stderr: string): Run => ({
+      name: 'length.py',
+      verdict: 'warn',
+      stdout: '',
+      stderr,
+      exitCode: 0,
+    });
+    const options = { name: 'length.py', mustNot: ['[\\s\\S]{20}'] };
+    const good = await verdicts(guardMessage, ctx('ok', [], guards([warn('Too long.')])), options);
+    expect(Object.fromEntries(good.map((v) => [v.id, v.outcome]))).toEqual({
+      'guard_message.present': 'pass',
+      'guard_message.rules': 'pass',
+    });
+    const silent = await verdicts(guardMessage, ctx('ok', [], guards([warn('')])), options);
+    expect(silent.find((v) => v.id === 'guard_message.present')?.outcome).toBe('fail');
+    const nudged = await verdicts(
+      guardMessage,
+      ctx('ok', [], guards([{ ...warn('Stop noted.'), name: 'stop.sh', verdict: 'nudge' }])),
+      { name: 'stop.sh' },
+    );
+    expect(nudged[0]?.outcome).toBe('pass');
+    // An allow beside a warning is not a run that intervened; a verdict outside the vocabulary is none either.
+    const mixed = await verdicts(
+      guardMessage,
+      ctx('ok', [], guards([{ ...warn(''), verdict: 'allow' }, warn('Too long.')])),
+      { name: 'length.py' },
+    );
+    expect(mixed[0]?.outcome).toBe('pass');
+    const other = await verdicts(guardMessage, ctx('ok', [], guards([{ ...warn('x'), verdict: 'maybe' }])), {
+      name: 'length.py',
+    });
+    expect(other[0]?.outcome).toBe('inconclusive');
   });
 
   it('guard_finished: every run answered, none stopped; inconclusive when the guard never ran', async () => {

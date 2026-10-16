@@ -186,27 +186,25 @@ describe('driftbench estate generate', () => {
     expect(missing.err).toMatch(/the phrase bank cannot be read or is invalid/);
   });
 
-  it('leaves replay rows waiting for a recorded session when no session index is found', async () => {
+  it('runs replay rows live when no session index is found, and leaves them waiting with --no-fallback', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'estate-generate-'));
     await copyFile(MAP, join(dir, 'approved.yaml'));
     await copyFile(join(FIXTURE, 'phrases.yaml'), join(dir, 'phrases.yaml'));
-    const result = await run([
-      'estate',
-      'generate',
-      '--map',
-      join(dir, 'approved.yaml'),
-      '--plan',
-      PLAN,
-      '--out',
-      join(dir, 'out'),
-      '--json',
-    ]);
-    expect(result.code).toBe(1);
-    const report = JSON.parse(result.out);
+    const args = ['estate', 'generate', '--map', join(dir, 'approved.yaml'), '--plan', PLAN, '--json'];
+    const live = await run([...args, '--out', join(dir, 'out')]);
+    expect(live.code).toBe(0);
+    const report = JSON.parse(live.out);
     expect(report.sessions).toBeNull();
-    expect(report.perMode.replay).toEqual({ rows: 4, specs: 4, complete: 0, incomplete: 4 });
+    expect(report.perMode.replay).toEqual({ rows: 4, specs: 0, complete: 0, incomplete: 0 });
+    expect(report.gaps.find((entry: { marker: string }) => entry.marker === 'needs-recorded-session')).toBe(
+      undefined,
+    );
+    const strict = await run([...args, '--out', join(dir, 'strict'), '--no-fallback']);
+    expect(strict.code).toBe(1);
+    const waiting = JSON.parse(strict.out);
+    expect(waiting.perMode.replay).toEqual({ rows: 4, specs: 4, complete: 0, incomplete: 4 });
     expect(
-      report.gaps.find((entry: { marker: string }) => entry.marker === 'needs-recorded-session').specs,
+      waiting.gaps.find((entry: { marker: string }) => entry.marker === 'needs-recorded-session').specs,
     ).toBe(4);
   });
 

@@ -7,6 +7,7 @@ import type {
   SubagentExpect,
   ToolExpect,
 } from '@agent-nexus/driftbench-core';
+import { GUARD_INTERVENTIONS } from '@agent-nexus/driftbench-core';
 import { type EstateAtom, type EstateEvidence, EVIDENCE_TYPES } from './inputs';
 import { literal } from './literal';
 import {
@@ -135,6 +136,8 @@ export type StageModel = {
 };
 
 export type ThenContext = {
+  /** The atoms of the map by id: a declared tool finds the skill or helper that declares it. */
+  atoms?: ReadonlyMap<string, EstateAtom>;
   stages: StageModel;
   /** Skill names of the estate, so an ordered end can name a skill load. */
   skills: ReadonlySet<string>;
@@ -343,9 +346,13 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       if (evidence.name === 'permission' && ctx.customChecks.has('permission')) {
         const effect = evidence.options?.effect;
         const rule = evidence.options?.rule;
-        if (typeof rule === 'string' && (effect === 'allow' || effect === 'declared' || effect === 'deny')) {
+        if (
+          typeof rule === 'string' &&
+          (effect === 'allow' || effect === 'declared' || effect === 'deny' || effect === 'ask')
+        ) {
           const known = (then.custom.permission?.rules ?? []) as unknown[];
           then.custom.permission = { rules: [...known, { effect, rule }], block: 0 };
+          if (effect === 'declared') declaredBy(then, atom, ctx);
           return;
         }
         gap(
@@ -386,6 +393,24 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
   }
 }
 
+/**
+ * A tool a skill or a helper declares is only in force while that unit works: the unit that declares it, found
+ * by the file it is declared in, must be loaded (a skill) or dispatched (a helper) in the block.
+ */
+function declaredBy(then: ThenParts, tool: EstateAtom, ctx: ThenContext): void {
+  const file = tool.provenance?.file;
+  if (file === undefined || ctx.atoms === undefined) return;
+  for (const owner of ctx.atoms.values()) {
+    if (owner.provenance?.file !== file) continue;
+    const name = owner.fields?.name;
+    if (typeof name !== 'string') continue;
+    if (owner.kind === 'skill') addSkill(then, { name, count: { min: 1 } });
+    else if (owner.kind === 'subagent' && !then.subagents.some((known) => known.name === name)) {
+      then.subagents.push({ name, count: { min: 1 } });
+    }
+  }
+}
+
 function negative(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, ctx: ThenContext): void {
   switch (evidence.type) {
     case 'skill_loaded':
@@ -393,11 +418,11 @@ function negative(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       return;
     case 'guard':
       if (untraced(then, atom, evidence.name, ctx)) return;
-      addGuard(then, {
-        name: evidence.name,
-        ...(evidence.verdict === undefined ? {} : { verdict: evidence.verdict }),
-        count: 0,
-      });
+      // A guard runs on every matching event and answers allow: a guard whose verdict the atom does not
+      // name is silent in a control when it never intervenes, not when it does not run.
+      for (const verdict of evidence.verdict === undefined ? GUARD_INTERVENTIONS : [evidence.verdict]) {
+        addGuard(then, { name: evidence.name, verdict, count: 0 });
+      }
       return;
     case 'tool_called':
       if (hasInput(evidence.input)) {

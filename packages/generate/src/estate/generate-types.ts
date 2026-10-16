@@ -134,8 +134,9 @@ export type EstateGenerateOptions = {
   judge?: boolean;
   /**
    * The files of the estate, relative to its root, as the runtime's reader lists them (what a run copies).
-   * Successful reads are expected only of these files; a missing file gets an attempted-call check.
-   * Default: the files the map knows (atom files, references and scripts that exist).
+   * Successful reads are expected only of these files or of a file the map knows (atom files, references and
+   * scripts that exist), so a listing of a moved or partial folder never hides a file the map recorded; a
+   * missing file gets an attempted-call check.
    */
   files?: readonly string[];
   /**
@@ -239,4 +240,6 @@ export type Built = {
   judgedAtoms: string[];
   session?: SessionEntry;
   expect?: 'pass' | 'fail';
+  /** The mode the spec runs in when it is not its row's: a replay row with no recorded session runs live. */
+  mode?: string;
 };

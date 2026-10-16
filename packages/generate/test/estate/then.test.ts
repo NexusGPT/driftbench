@@ -372,13 +372,10 @@ describe('the estate checks the runner registers, and custom predicates compiled
         kind: 'tool',
       },
     );
-    expect(thenOf([ask], 'positive', full).gaps).toEqual([
-      {
-        marker: MARKERS.registered,
-        atom: 'tool.q',
-        detail: 'permission ask: the trace does not show the prompt',
-      },
-    ]);
+    expect(thenOf([ask], 'positive', full)).toMatchObject({
+      gaps: [],
+      custom: { permission: { rules: [{ effect: 'ask', rule: 'Bash(git commit:*)' }], block: 0 } },
+    });
   });
 
   it('compiles the custom predicates it knows into must, must_not, lang, safety and execution', () => {

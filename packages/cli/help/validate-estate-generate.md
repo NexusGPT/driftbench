@@ -122,7 +122,7 @@ The gap markers:
 | `needs-stage-reach-check` | a stage reachable at any time, or no single closing stage |
 | `needs-static-runner` | a static property no static check knows |
 | `needs-negation` | a negative control whose predicate has no inverse |
-| `needs-recorded-session` | a replay row whose situation no recorded session holds |
+| `needs-recorded-session` | a replay row whose situation no recorded session holds, with `--no-fallback` (otherwise the row runs live) |
 | `needs-guard-trace` | a check that runs inside another guard's script |
 | `needs-guard-timing`, `needs-guard-message-check` | the speed or the message of a guard |
 | `needs-derivable-then` | a row with no Then code can derive |

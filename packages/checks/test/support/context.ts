@@ -11,7 +11,14 @@ import type {
 } from '@agent-nexus/driftbench-core';
 
 /** A tool call as a test writes it; ids default to call-1, call-2 in order. */
-export type Call = { label: string; input?: unknown; output?: unknown; error?: string; id?: string };
+export type Call = {
+  label: string;
+  input?: unknown;
+  output?: unknown;
+  error?: string;
+  id?: string;
+  startedAt?: string;
+};
 
 /**
  * A hand-built Observed: each call as a tool_call segment and its tool_result, then the reply as one text
@@ -22,6 +29,7 @@ export function observed(text: string, calls: Call[] = [], extra: Partial<Observ
     id: call.id ?? `call-${index + 1}`,
     label: call.label,
     input: call.input ?? {},
+    ...(call.startedAt === undefined ? {} : { startedAt: call.startedAt }),
     ...(call.error === undefined ? { output: call.output ?? null } : { error: call.error }),
   }));
   const segments: Segment[] = toolCalls.flatMap((call): Segment[] => [

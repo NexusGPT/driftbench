@@ -2,8 +2,8 @@
 
 import type { CriterionDef } from '@agent-nexus/driftbench-core';
 import { DEVIATION_EXPECTED } from '../seed/deviation';
-import { rngFor, shuffle } from '../seed/random';
-import { codeAsk, DEVIATION_ASKS } from './asks';
+import { pick, rngFor, shuffle } from '../seed/random';
+import { codeAsk, DEVIATION_ASKS, writtenIn } from './asks';
 import {
   type AskSource,
   type Built,
@@ -45,11 +45,153 @@ export function useOf(row: Pick<EstatePlanRow, 'testType' | 'mode'>): SituationU
   return SITUATION_OF[row.testType] ?? 'none';
 }
 
+/**
+ * The situation a row is asked in. With the fallback off, only the bank's own situation of the row's use;
+ * with it on, the first the bank holds of these, in this order:
+ *
+ * 1. a situation of the row's atom (a live guard row with no `forced` situation takes a `trigger` one: its
+ *    approved phrase reaches the guard all the same, and beats an ask written by code);
+ * 2. a situation of an atom that works the same passage of the estate: a rule a guard enforces (working that
+ *    situation sets the rule off, and the guard with it), an atom read from the same quoted passage, a
+ *    reference to the same file;
+ * 3. for an atom that holds in every session, whatever the task (a standing read at the start of a session),
+ *    a `trigger` situation of any route of the estate: any task sets it off.
+ */
+export function situationOf(
+  bank: PhraseBank,
+  row: EstatePlanRow,
+  atoms: ReadonlyMap<string, EstateAtom> = new Map(),
+  seed = 1,
+  fallback = true,
+): Situation | undefined {
+  const use = useOf(row);
+  if (use === 'none') return undefined;
+  const head = atoms.get(row.atomIds[0] ?? '');
+  const own = findSituation(bank, use, row);
+  // With the fallback off, a row waits for the situation it needs, as the bank names it.
+  if (own || !fallback) return own;
+  const uses: SituationUse[] = use === 'forced' ? ['forced', 'trigger'] : [use];
+  for (const candidate of uses) {
+    const found = findSituation(bank, candidate, row);
+    if (found) return found;
+  }
+  if (head === undefined) return undefined;
+  for (const id of relatedClosure(head, atoms)) {
+    for (const candidate of uses) {
+      const found = findSituation(bank, candidate, { ...row, atomIds: [id] });
+      if (found) return found;
+    }
+  }
+  // A hazard strikes whatever task is under way; a standing atom holds for every task.
+  return uses.includes('trigger') && (head.kind === 'hazard' || everySession(head))
+    ? anyTask(bank, row, atoms, seed)
+    : undefined;
+}
+
+/** The atoms related to an atom, then those related to them, nearest first (two steps are enough to join a passage to its file). */
+function relatedClosure(head: EstateAtom, atoms: ReadonlyMap<string, EstateAtom>): string[] {
+  const seen = new Set<string>([head.id]);
+  let frontier: EstateAtom[] = [head];
+  const out: string[] = [];
+  for (let step = 0; step < 2; step += 1) {
+    const next: EstateAtom[] = [];
+    for (const atom of frontier) {
+      for (const id of relatedIds(atom, atoms)) {
+        const found = atoms.get(id);
+        if (seen.has(id) || found === undefined) continue;
+        seen.add(id);
+        out.push(id);
+        next.push(found);
+      }
+    }
+    frontier = next;
+  }
+  return out;
+}
+
+/** Atoms that work the same passage as an atom: the rules a guard enforces, the atoms of one quoted passage, the references to one file, the skill or helper it is written in. */
+function relatedIds(head: EstateAtom, atoms: ReadonlyMap<string, EstateAtom>): string[] {
+  const out: string[] = [];
+  if (head.kind === 'guard') {
+    const list = Array.isArray(head.fields?.enforces) ? (head.fields.enforces as unknown[]) : [];
+    for (const entry of list) {
+      const id = typeof entry === 'object' && entry !== null ? (entry as { atom?: unknown }).atom : entry;
+      if (typeof id === 'string') out.push(id);
+    }
+  }
+  const quote = head.provenance?.quote;
+  const path = head.kind === 'reference' ? head.fields?.path : undefined;
+  for (const other of atoms.values()) {
+    if (other.id === head.id) continue;
+    const samePassage =
+      quote !== undefined &&
+      other.provenance?.quote === quote &&
+      other.provenance.file === head.provenance?.file;
+    const otherPath = other.kind === 'reference' ? other.fields?.path : undefined;
+    const sameFile =
+      typeof path === 'string' &&
+      typeof otherPath === 'string' &&
+      (otherPath === path || otherPath.endsWith(`/${path}`) || path.endsWith(`/${otherPath}`));
+    if (samePassage || sameFile) out.push(other.id);
+  }
+  // The skill or helper the atom is written in: working its task works the atom.
+  for (const other of atoms.values()) if (writtenIn(head, other)) out.push(other.id);
+  return out;
+}
+
+/** Whether an atom holds in every session or for every task, whatever the ask: its passage says so. */
+const EVERY_SESSION =
+  /\b(?:every|each|any)\s+(?:session|task|turn|conversation)\b|\b(?:start|beginning)\s+of\s+(?:a|an|every|each|the)\s+(?:session|task|conversation)\b|\bsession\s+(?:starts|begins)\b/i;
+function everySession(atom: EstateAtom): boolean {
+  const words = [atom.situation, atom.fields?.readWhen].filter(
+    (text): text is string => typeof text === 'string',
+  );
+  return words.some((text) => EVERY_SESSION.test(text));
+}
+
+/** A `trigger` situation of a route of the estate, the seed's pick: any task sets a standing atom off. */
+function anyTask(
+  bank: PhraseBank,
+  row: EstatePlanRow,
+  atoms: ReadonlyMap<string, EstateAtom>,
+  seed: number,
+): Situation | undefined {
+  const tasks = bank.situations.filter(
+    (situation) =>
+      situation.use === 'trigger' &&
+      situation.phrases.some((phrase) => phrase.approved) &&
+      situation.atoms.some((id) => atoms.get(id)?.kind === 'route') &&
+      !Object.entries(situation.cell ?? {}).some(
+        ([key, value]) => row.cell[key] !== undefined && row.cell[key] !== value,
+      ),
+  );
+  return pick(rngFor(seed, `estate:any-task:${row.atomIds[0] ?? ''}`), tasks);
+}
+
+/**
+ * An approved phrase for a control with no `outside` situation of its own: one the bank holds for another atom's
+ * outside situation. It asks something just outside what that atom does, so it sets off none of these atoms.
+ */
+function outsideOf(
+  bank: PhraseBank,
+  atoms: readonly EstateAtom[],
+  seed: number,
+): { phrase: BankPhrase; situation: string } | undefined {
+  const own = new Set(atoms.map((atom) => atom.id));
+  const choices = bank.situations
+    .filter((situation) => situation.use === 'outside' && !situation.atoms.some((id) => own.has(id)))
+    .flatMap((situation) =>
+      situation.phrases
+        .filter((phrase) => phrase.approved)
+        .map((phrase) => ({ phrase, situation: situation.id })),
+    );
+  return pick(rngFor(seed, `estate:outside:${atoms[0]?.id ?? ''}`), choices);
+}
+
 /** The specs of one row: one, or one per recorded session of its situation for a replay row. */
 export function buildRow(row: EstatePlanRow, ctx: Context, used: Set<string>): Built[] {
   const atoms = row.atomIds.map((id) => ctx.atoms.get(id) as EstateAtom);
-  const use = useOf(row);
-  const situation = use === 'none' ? undefined : findSituation(ctx.bank, use, row);
+  const situation = situationOf(ctx.bank, row, ctx.atoms, ctx.seed, ctx.fallback);
   // The k positive asks of a route (`route_positive.<route>.<n>`) each take their own phrasing.
   const nth = row.testType === 'route_positive' ? /\.(\d+)$/.exec(row.id)?.[1] : undefined;
   const variant = nth !== undefined && Number(nth) > 1 ? Number(nth) - 1 : undefined;
@@ -57,8 +199,23 @@ export function buildRow(row: EstatePlanRow, ctx: Context, used: Set<string>): B
   const sessions = situation
     ? (ctx.sessions?.sessions ?? []).filter((session) => session.situation === situation.id)
     : [];
-  if (sessions.length === 0) return [build(row, atoms, ctx, used, situation, undefined, true)];
-  return sessions.map((session) => build(row, atoms, ctx, used, situation, session));
+  if (sessions.length > 0) return sessions.map((session) => build(row, atoms, ctx, used, situation, session));
+  if (!ctx.fallback) return [build(row, atoms, ctx, used, situation, undefined, true)];
+  // No recorded session to replay: the same row runs live, asked with an approved phrase of its situation,
+  // so the obligation is tested now and a recorded session can take over from it later.
+  const live: EstatePlanRow = { ...row, mode: 'live' };
+  const built = build(
+    live,
+    atoms,
+    ctx,
+    used,
+    situationOf(ctx.bank, live, ctx.atoms, ctx.seed, ctx.fallback),
+    undefined,
+    false,
+  );
+  const meta = (built.spec.metadata as { estate: Record<string, unknown> }).estate;
+  meta.plannedMode = row.mode;
+  return [{ ...built, mode: 'live' }];
 }
 
 export function build(
@@ -139,13 +296,19 @@ export function build(
         };
       } else phraseIndex = situation.phrases.indexOf(phrase);
     }
-    if (missing && ctx.fallback) {
+    const borrowed =
+      missing && ctx.fallback && use === 'outside' ? outsideOf(ctx.bank, atoms, ctx.seed) : undefined;
+    if (borrowed) {
+      phrase = borrowed.phrase;
+      phraseIndex = undefined;
+      askFrom = `${borrowed.situation} (an outside phrase of another atom)`;
+    } else if (missing && ctx.fallback) {
       const written = codeAsk(
         use,
         atoms,
         ctx.units,
         row.testType === 'twin',
-        (id) => ctx.atoms.get(id),
+        Object.assign((id: string) => ctx.atoms.get(id), { all: () => ctx.atoms.values() }),
         variant,
       );
       if (written.text === undefined) {

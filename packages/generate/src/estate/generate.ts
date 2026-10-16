@@ -3,7 +3,7 @@ import { type Issue, parseSpecText } from '@agent-nexus/driftbench-core';
 import { stringify } from 'yaml';
 import type { GeneratedFile } from '../enumerate/generate';
 import { formatJson } from '../enumerate/json';
-import { build, buildRow, findSituation, specId, uniqueId, useOf } from './build-row';
+import { build, buildRow, situationOf, specId, uniqueId } from './build-row';
 import {
   type Built,
   type Context,
@@ -65,7 +65,7 @@ import { CHECK_GAP, UNIT_DIR, UNIT_TEST_TYPES, type UnitTest, unitTestOf } from 
  * a focus atom, then those of guards, gates and invariants, then the rest.
  */
 
-export { findSituation, specId, useOf } from './build-row';
+export { findSituation, situationOf, specId, useOf } from './build-row';
 export {
   type AskSource,
   ESTATE_COMPLETE_DIR,
@@ -149,7 +149,9 @@ export function generateEstateSuite(
     paths: options.paths,
     fallback: options.fallback ?? true,
     judge: options.judge ?? true,
-    files: new Set(options.files ?? mapFiles(input.map)),
+    // A folder listing and the map each know files the other lacks: a listing of a moved or partial folder
+    // misses files the map read, and a map misses the files no atom names.
+    files: new Set([...(options.files ?? []), ...mapFiles(input.map)]),
     ...(loadedOf(options, input.map.runtime) ? { loaded: loadedOf(options, input.map.runtime) } : {}),
     units: [
       ...new Set(
@@ -203,15 +205,16 @@ export function generateEstateSuite(
     const unexpected = loaded.warnings.filter((warning) => !explained(warning, markers));
     if (unexpected.length > 0) lint.push({ id: built.id, warnings: unexpected });
     const folder = complete ? ESTATE_COMPLETE_DIR : ESTATE_INCOMPLETE_DIR;
+    const mode = built.mode ?? row.mode;
     // By mode first, so a replay run takes `specs/replay` and nothing else.
-    const path = `${folder}/${row.mode}/${row.testType}/${built.id}.yaml`;
+    const path = `${folder}/${mode}/${row.testType}/${built.id}.yaml`;
     files.push({ path, text });
     records.push({
       id: built.id,
       path,
       row: row.variantOf ?? row.id,
       testType: row.testType,
-      mode: row.mode,
+      mode,
       complete,
       markers,
       atoms: row.atomIds,
@@ -311,7 +314,9 @@ export function generateEstateSuite(
       }
       continue;
     }
-    for (const built of buildRow(row, ctx, used)) emit(built, row, totalsType, totalsMode);
+    for (const built of buildRow(row, ctx, used)) {
+      emit(built, row, totalsType, built.mode === undefined ? totalsMode : totalsFor(perMode, built.mode));
+    }
   }
 
   // Focus atoms: variants of their rows, another ask and another situation each, until FOCUS_MIN complete
@@ -338,8 +343,7 @@ export function generateEstateSuite(
           variantOf: row.id,
         };
         const atoms = varied.atomIds.map((id) => ctx.atoms.get(id) as EstateAtom);
-        const use = useOf(varied);
-        const situation = use === 'none' ? undefined : findSituation(ctx.bank, use, varied);
+        const situation = situationOf(ctx.bank, varied, ctx.atoms, ctx.seed, ctx.fallback);
         const built = build(varied, atoms, ctx, used, situation, undefined, false, variant);
         if (built.gaps.length === 0 && focusCases.get(atom)?.has(focusCaseKey(built, varied))) continue;
         emit(built, varied, totalsFor(perTestType, row.testType), totalsFor(perMode, row.mode));

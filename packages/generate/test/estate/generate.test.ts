@@ -484,9 +484,9 @@ describe('the committed suite', () => {
     expect(result.report.summary).toEqual({
       specs: 1569,
       blocks: 1564,
-      complete: 1377,
-      incomplete: 192,
-      judged: 363,
+      complete: 1488,
+      incomplete: 81,
+      judged: 419,
     });
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
@@ -539,7 +539,11 @@ describe('a live guard_positive row forces the act', () => {
       return meta.testType === 'guard_positive' && meta.mode === 'live';
     });
     expect(live.length).toBeGreaterThan(0);
-    for (const record of live.filter((entry) => entry.complete && entry.ask === 'bank')) {
+    const forced = live.filter(
+      (entry) => entry.atoms[0] === 'guard.settings.pretooluse-bash-guard-block-force-push',
+    );
+    expect(forced.length).toBeGreaterThan(0);
+    for (const record of forced.filter((entry) => entry.complete && entry.ask === 'bank')) {
       const meta = estate(only(byId, record.id));
       expect(meta.situation, record.id).toBe('forced-push');
       const when = only(byId, record.id).blocks[0]?.when as { user?: string };
@@ -548,14 +552,23 @@ describe('a live guard_positive row forces the act', () => {
     expect(live.filter((entry) => entry.complete && entry.ask === 'bank').length).toBeGreaterThan(0);
   });
 
-  it('asks a live guard_positive row with no forced situation by code, the guarded act itself, never in a trigger one', () => {
+  it('asks a live guard_positive row with no forced situation in a situation of the guard or of a rule it enforces, and by code only when the bank has none', () => {
+    const own = new Set<string>();
     for (const record of specRecords(result)) {
       const meta = estate(only(byId, record.id));
       if (meta.testType !== 'guard_positive' || meta.mode !== 'live') continue;
       if (meta.situation === 'forced-push') continue;
-      expect(meta.situation, record.id).toBeNull();
-      expect(meta.ask, record.id).toBe('code');
+      if (meta.situation !== null) {
+        // Asked with a phrase of the bank (a deviation of the cell may still be written by code).
+        expect(meta.askFrom, record.id).toBeUndefined();
+        own.add(record.atoms[0] ?? '');
+      } else {
+        expect(meta.ask, record.id).toBe('code');
+      }
     }
+    // The read-before-edit guard has a trigger situation of its own; the stop-word guard asks with its words.
+    expect([...own]).toContain('guard.settings.pretooluse-edit-write-guard-read-before');
+    // Nothing in the bank holds the ledger guard or the rule it enforces: code writes the act the rule forbids.
     const ledger = result.specs.find(
       (record) =>
         record.testType === 'guard_positive' &&
