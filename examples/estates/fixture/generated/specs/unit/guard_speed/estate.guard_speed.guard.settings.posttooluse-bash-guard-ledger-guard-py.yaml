@@ -27,6 +27,7 @@ blocks:
     expect:
       guards:
         - name: ledger-guard.py
+          verdict: warn
           count:
             min: 1
       workspace:

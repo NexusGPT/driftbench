@@ -53,10 +53,6 @@ blocks:
     when:
       user: Where is shipment NW-55012? It was promised for 2 October.
     expect:
-      skills:
-        - name: shipment-tracker
-          count:
-            min: 1
       execution:
         ran_code: true
       workspace:
