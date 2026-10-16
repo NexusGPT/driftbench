@@ -573,11 +573,21 @@ export function holdsTask(ask: string, context: TaskContext = {}): boolean {
 }
 
 /** The phrase a read-before rule governs, from the rule's own clause, in the four forms of docs/estate.md. */
+/** The nouns that label a rule when a number follows them. */
+const LABEL_NOUNS = ['rule', 'step', 'policy', 'section', 'item', 'clause', 'article'];
+
+const LABEL = new RegExp(
+  `^(?:(?:${LABEL_NOUNS.join('|')})\\s+[A-Za-z]{0,3}\\d+(?:\\.\\d+)*[.:)]?|[A-Za-z]{0,3}\\d+(?:\\.\\d+)*[.:)])\\**\\s+`,
+  'i',
+);
+
 function governedPhrase(quote: string): string | undefined {
   const text = quote
     .replace(/^[\s!*#>-]+|[\s!*]+$/g, '')
-    // A rule label in front of the clause ("R5.", "A1:", "3)", "Rule 5.", "Step 2:", bold or not) is no part of it.
-    .replace(/^(?:(?:[A-Za-z]+\s+)?[A-Za-z]{0,3}\d+)[.:)]\**\s+/, '')
+    // A rule label in front of the clause is no part of it: a code or number ("R5.", "A1:", "3)", "4.2."), or a label
+    // noun with a number ("Rule 5.", "Step 2:", "Section 4.2"), bold or not. Any other word before a number is part of
+    // the clause ("Read 5: tickets", "Send 3. invoices").
+    .replace(LABEL, '')
     .replace(/`[^`]*`/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();

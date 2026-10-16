@@ -65,6 +65,38 @@ describe('a read-before ask performs the act its rule governs', () => {
     expect(performsGoverned('Please edit the shipment note.', quote), quote).toBe(false);
   });
 
+  it.each([
+    'Section 4.2 Before editing any invoice file: Read `references/rules.md`.',
+    'Section 4.2. Before editing any invoice file: Read `references/rules.md`.',
+    '4.2) Before editing any invoice file, Read `references/rules.md`.',
+    'Article 3.1: Do not edit any invoice file until you have read `references/rules.md`.',
+    'Policy 7 Before editing any invoice file: Read `references/rules.md`.',
+    '**Clause 2.4.1** Before editing any invoice file: Read `references/rules.md`.',
+    'Item 9) Do not edit any invoice file until you have read `references/rules.md`.',
+  ])('strips a label noun with a number, decimals included: %s', (quote) => {
+    expect(performsGoverned('Please edit any invoice file.', quote), quote).toBe(true);
+    expect(performsGoverned('Please delete any invoice file.', quote), quote).toBe(false);
+  });
+
+  // The words before the number are part of the clause here, not a label: stripping them would leave a clause that
+  // names no act, and every ask would pass.
+  it.each([
+    ['Read 5: tickets requires a reviewer.', 'Please read the tickets.', 'Please delete the tickets.'],
+    [
+      'Send 3. the invoices requires a signed order.',
+      'Please send the invoices.',
+      'Please delete the invoices.',
+    ],
+    [
+      'Edit 2) invoice files requires a reviewer.',
+      'Please edit the invoice files.',
+      'Please delete the invoice files.',
+    ],
+  ])('keeps the words before a number that are no label noun: %s', (quote, accepted, refused) => {
+    expect(performsGoverned(accepted, quote), quote).toBe(true);
+    expect(performsGoverned(refused, quote), quote).toBe(false);
+  });
+
   it('holds an ask to nothing when the clause names no act and object', () => {
     expect(performsGoverned('Anything at all.', 'Read `a.md` first.')).toBe(true);
   });
