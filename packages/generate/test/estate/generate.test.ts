@@ -565,7 +565,7 @@ describe('a live guard_positive row forces the act', () => {
         record.atoms[0] === 'guard.settings.posttooluse-bash-guard-ledger-guard-py',
     );
     const when = ledger ? (only(byId, ledger.id).blocks[0]?.when as { user?: string }) : undefined;
-    expect(when?.user).toBe('Please delete a ledger file.');
+    expect(when?.user).toBe('Please delete a file under ledger/.');
   });
 
   it('leaves a live guard_positive row with no forced situation incomplete with no fallback', async () => {

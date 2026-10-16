@@ -229,16 +229,27 @@ describe('the quality floor of a code-written ask', () => {
     expect(codeAsk('trigger', [keeper], []).text).toBe(
       'Please keep the delivery board current so a session, compaction, or restart can resume it.',
     );
-    const reads = [
-      'Comes back the wrong size: Read references/sizes.md. The fit rules, the size traps.',
+    // A read-when line names its file, so only a clause apart from the file rides in the ask as its situation.
+    const skill = atom('skill.x.tracker', {
+      fields: { name: 'tracker', description: 'Track a shipment and report its status.' },
+    });
+    const sizes = atom('reference.x.sizes', {
+      fields: {
+        readWhen: 'Comes back the wrong size: Read references/sizes.md. The fit rules, the size traps.',
+      },
+    });
+    expect(codeAsk('trigger', [sizes, skill], []).text).toBe(
+      'Please track a shipment and report its status. Comes back the wrong size.',
+    );
+    // A line that is only a command or a file listing leaves the unit's own task, with no situation.
+    for (const readWhen of [
       'Look the carrier up with carrier lookup <trackingId> --format json.',
-    ];
-    for (const readWhen of reads) {
+      '`references/sizes.md`: size definitions',
+    ]) {
       const reference = atom('reference.x.sizes', { fields: { readWhen } });
-      const skill = atom('skill.x.tracker', {
-        fields: { name: 'tracker', description: 'Track a shipment and report its status.' },
-      });
-      expect(codeAsk('trigger', [reference, skill], []).refused, readWhen).toMatch(/situation/);
+      expect(codeAsk('trigger', [reference, skill], []).text, readWhen).toBe(
+        'Please track a shipment and report its status.',
+      );
     }
   });
 

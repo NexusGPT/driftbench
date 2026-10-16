@@ -577,12 +577,28 @@ A fallback ask starts with the atom's own governed action. A gate uses its trigg
 A reference uses the action in its read-when clause. An actionable rule situation precedes a
 unit's broad description. The ask leaves the prerequisite and expected skill for the agent to discover.
 
+An atom that gives no task of its own takes the purpose of the unit that owns it, never a default of the
+estate. The purpose is the unit's description, then the requests of the routing rows that load the unit.
+A description is read in the third person: the first word is the verb when an object follows it, so
+"Handles customer complaints and logs the outcome" asks to handle customer complaints and log the outcome,
+for a verb the built-in list does not hold. A verb that states what a unit holds ("Holds", "Provides"), a
+noun followed by a function word ("Rules for ...") and a description that gives only a condition are no task:
+the ask stays incomplete and names why. A verb joined by "and" shares the form of the first when an object
+follows it; a word that ends the sentence or precedes a preposition stays as written. A read-when line that
+only lists its file ("`references/fields.md`: field definitions") states no situation; a clause of it apart
+from the file and the read directive rides in the ask as the situation.
+
 Both contract and covering-array rows retain the owning task. A reference's target file determines its folder owner; citation edges never establish ownership.
 Rules use their own source folder, and gated files use their target folder when one exists.
 The longest matching declared skill folder wins; route edges identify route targets only. A standing gate can therefore use the skill whose reference it gates.
 Ambiguous and unowned targets stay unresolved. Older plans are repaired during generation:
 unrelated attached skills are removed from both expectations and atom metadata.
-A shared file outside every skill folder never borrows the first citing skill's task.
+A shared file outside every skill folder is owned by the unit whose own file cites it: one reference atom
+exists per citation, so each skill or helper that cites the file directly owns its citation, and a link
+that only navigates, or a catalogue that cites a file in another unit's folder, owns nothing. A file cited
+only from the standing instructions has no owner and borrows no task. A prerequisite (reference or gate)
+owned by a helper asks for the work to be handed to a helper ("Please have a helper agent audit the ledger
+extract"), so the order applies only when the dispatch happens.
 Approved trigger phrases also respect that owner: a bank pin on a rule cannot borrow a different unit's task.
 A declared tool can use the owning helper's own situation when its permission is listed under unrelated tasks.
 The task in a source prerequisite clause is used even when the extracted trigger field is absent.
@@ -592,6 +608,25 @@ A guard may carry optional `fields.ruleText` and `fields.ruleSources`.
 The governed action in that text precedes a generic tool matcher. Documented source quotes or
 containing line spans can link it to an existing rule's approved triggering situation.
 Unsupported prose supplies no invented task. A replay row still needs its recorded session.
+A rule text that opens with a directive and names an act after a connective ("Require a review note before
+editing a pricing entry") guards that act; one that names only a subject ("Block uploads of customer lists
+outside the shared drive") is asked as help with that subject.
+
+A unit-mode row (a guard or script run with no model) expects only what a run without a model can observe: the
+skill that owns the atom supplies the task of a live row, and its load is never an expectation of a unit one.
+
+A `guard_negative` row asks for a harmless near miss of the guard's own rule: without changing anything, what
+it would mean to do the governed act, or what applies to the subject of the documented rule. Each guard gets
+the request of its own rule. A guard that documents no rule and enforces none stays incomplete: no
+estate-wide request stands in for it.
+
+A map may record `documents`: each file's authority (`normative`, or a navigation role such as `example`,
+`template`, `history`, `changelog`, `journal`, `fixture`, `archive`). A reference whose target is a
+navigation document is a place to look and gets no `read_when` row, no journey edge and no covering-array
+target; the plan notes how many. A prerequisite to read such a file stays a gate. `estate stats` leaves
+those references out of the coverage counts and reports their number. A plan made before the map recorded
+roles still lists the row; generation writes it incomplete with that reason. A map without `documents`
+changes nothing: no file name is read as a role.
 
 Complete tests with exactly equal rule semantics, asks, inputs, expectations, judge rubrics,
 run mode, test type and non-target situation values share one representative.

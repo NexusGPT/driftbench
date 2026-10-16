@@ -1,5 +1,10 @@
 import { contentHash } from '@agent-nexus/driftbench-core';
-import { estateOwners, Feasibility } from '@agent-nexus/driftbench-generate';
+import {
+  estateOwners,
+  Feasibility,
+  navigationFiles,
+  navigationReference,
+} from '@agent-nexus/driftbench-generate';
 import { compileSpace, gridSize, type SpaceMap } from '@agent-nexus/driftbench-space';
 import { toEstateSpaceMap } from '../map/space';
 import { AtomKind, type EstateMap, type Plan, type PlanRow, TestType } from '../schema';
@@ -120,6 +125,13 @@ export function buildPlan(map: EstateMap, options: PlanOptions = {}): PlanResult
     },
   };
   const notes = [PHRASE_NOTE, ...inferred.notes];
+  const navigation = navigationFiles(map.documents);
+  const navigational = approved.filter((atom) => navigationReference(atom, navigation)).length;
+  if (navigational > 0) {
+    notes.push(
+      `${navigational} reference${navigational === 1 ? '' : 's'} to documents the map records as navigation only (examples, templates, histories) give no test.`,
+    );
+  }
   if (pairwise.covered < pairwise.allowed) {
     notes.push(
       `The covering array stopped at ${pairwise.cells.length} rows with ${pairwise.allowed - pairwise.covered} t-tuples uncovered: raise the row limit.`,

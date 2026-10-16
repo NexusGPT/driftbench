@@ -20,7 +20,13 @@ import {
   type Plan,
   parsePlanText,
 } from '@agent-nexus/driftbench-estate';
-import { estateOwners, StaticTest, taskAtoms } from '@agent-nexus/driftbench-generate';
+import {
+  estateOwners,
+  navigationFiles,
+  navigationReference,
+  StaticTest,
+  taskAtoms,
+} from '@agent-nexus/driftbench-generate';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import type { Command } from 'commander';
 import type { Io } from '../io';
@@ -105,6 +111,10 @@ export async function estateStatsCommand(options: Options, io: Io): Promise<numb
       io.out(
         `Cells: ${coverage.cells.covered}/${coverage.cells.total}; edges: ${coverage.edges.covered}/${coverage.edges.total}\n`,
       );
+      if (coverage.navigationReferences !== undefined)
+        io.out(
+          `${coverage.navigationReferences} references to navigation-only documents have no test by design.\n`,
+        );
       io.out(`${reachNotObservable.atoms} atoms: reach is not observable.\n`);
       io.out(
         `${reach.length} atom reach rows; ${decay.length} block rows; ${drift.guards.length} guard rates.\n`,
@@ -224,9 +234,15 @@ function ownedRows(map: EstateMap, plan: Plan): Plan['rows'] {
 
 function coverageOf(map: EstateMap, plan: Plan, tests: CompleteTest[]) {
   const tested = new Set(tests.flatMap((t) => t.atoms));
+  // A reference to an example, a template or a history is a place to look and has no test by design: it
+  // is neither a gap in the coverage nor an edge to cover.
+  const navigation = navigationFiles(map.documents);
+  const skipped = new Set(
+    map.atoms.filter((atom) => navigationReference(atom, navigation)).map((atom) => atom.id),
+  );
   const kinds = Object.fromEntries(
     AtomKind.options.map((kind) => {
-      const atoms = map.atoms.filter((a) => a.approved && a.kind === kind);
+      const atoms = map.atoms.filter((a) => a.approved && a.kind === kind && !skipped.has(a.id));
       return [
         kind,
         {
@@ -241,9 +257,15 @@ function coverageOf(map: EstateMap, plan: Plan, tests: CompleteTest[]) {
   const testedCells = new Set(
     tests.filter((t) => t.cell !== undefined).map((t) => cellKey({ atomIds: t.atoms, cell: t.cell ?? {} })),
   );
-  const edges = map.edges.filter((e) => ['route', 'reference', 'dispatch', 'next'].includes(e.kind));
+  const edges = map.edges.filter(
+    (e) =>
+      ['route', 'reference', 'dispatch', 'next'].includes(e.kind) &&
+      !skipped.has(e.to) &&
+      !skipped.has(e.from),
+  );
   return {
     kinds,
+    ...(skipped.size > 0 ? { navigationReferences: skipped.size } : {}),
     cells: { covered: [...allCells].filter((c) => testedCells.has(c)).length, total: allCells.size },
     edges: {
       covered: edges.filter((e) => tests.some((t) => t.atoms.includes(e.from) && t.atoms.includes(e.to)))

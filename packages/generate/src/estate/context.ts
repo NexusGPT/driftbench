@@ -1,4 +1,4 @@
-import type { EstateAtom } from './inputs';
+import type { EstateAtom, EstateDocument } from './inputs';
 
 type Link = { from: string; to: string; kind: string };
 
@@ -47,7 +47,9 @@ export function estateOwners(atoms: readonly EstateAtom[], edges: readonly Link[
       else if (named.length === 1 && named[0]) owners.set(atom.id, named[0].id);
       continue;
     }
-    // A reference is owned by its target file, not the document that happens to cite it.
+    // A reference is owned by the unit whose folder holds its target file. A target outside every unit
+    // folder (a shared document) is owned by the unit whose own file cites it: one reference atom exists
+    // per citation, so this is the direct citation. Edges are navigation and never decide ownership.
     // Gate prerequisites and scripts have explicit target paths too.
     const target = ['reference', 'gate', 'script'].includes(atom.kind)
       ? typeof atom.fields?.path === 'string'
@@ -56,9 +58,7 @@ export function estateOwners(atoms: readonly EstateAtom[], edges: readonly Link[
           ? atom.fields.first
           : undefined
       : undefined;
-    const owner =
-      (target ? ownerOfFile(target) : undefined) ??
-      (atom.kind === 'reference' && target ? undefined : ownerOfFile(atom.provenance?.file));
+    const owner = (target ? ownerOfFile(target) : undefined) ?? ownerOfFile(atom.provenance?.file);
     if (owner) owners.set(atom.id, owner);
   }
   for (const guard of atoms.filter((atom) => atom.kind === 'guard')) {
@@ -116,4 +116,42 @@ export function guardRuleIds(guard: EstateAtom, atoms: ReadonlyMap<string, Estat
     }
   }
   return [...new Set(ids)];
+}
+
+/**
+ * The files the map records as navigation only: an example, a template, a fixture, a history. A map without
+ * document roles (an older map) records none, and nothing is guessed from a file name.
+ */
+export function navigationFiles(documents: readonly EstateDocument[] | undefined): ReadonlySet<string> {
+  return new Set(
+    (documents ?? []).filter((document) => document.role !== 'normative').map((document) => document.path),
+  );
+}
+
+/**
+ * A reference whose target is a navigation document. Reading an example or a placeholder is not a behaviour
+ * the estate demands, so it gives no test: the document is a place to look, never a rule. A prerequisite
+ * (a gate) to read such a file stays a real order and is not a reference in this sense.
+ */
+export function navigationReference(atom: EstateAtom, navigation: ReadonlySet<string>): boolean {
+  if (atom.kind !== 'reference' || navigation.size === 0) return false;
+  const path = atom.fields?.path;
+  return typeof path === 'string' && navigation.has(path.replaceAll('\\', '/').replace(/^\.\//, ''));
+}
+
+/** The route atoms that name each unit, by unit atom id: the requests that load it. */
+export function unitRoutes(
+  atoms: readonly EstateAtom[],
+  edges: ReadonlyArray<Link> = [],
+): Map<string, EstateAtom[]> {
+  const byId = new Map(atoms.map((atom) => [atom.id, atom]));
+  const routes = new Map<string, EstateAtom[]>();
+  for (const edge of edges) {
+    if (edge.kind !== 'route') continue;
+    const route = byId.get(edge.from);
+    const unit = byId.get(edge.to);
+    if (route?.kind !== 'route' || !unit || (unit.kind !== 'skill' && unit.kind !== 'subagent')) continue;
+    routes.set(unit.id, [...(routes.get(unit.id) ?? []), route]);
+  }
+  return routes;
 }

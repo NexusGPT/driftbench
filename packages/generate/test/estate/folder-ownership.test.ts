@@ -100,9 +100,30 @@ it.each([
   expect(parsed.spec.blocks[0]?.when).toEqual({ user: `Please ${action}.` });
 });
 
-it('an unowned shared reference never borrows a globally linked task or hides its gaps by grouping', () => {
-  const first = reference('reference.shared-one', 'shared/policy.md');
-  const second = reference('reference.shared-two', 'shared/policy.md');
+it('a shared reference takes the task of the unit that cites it directly, never one that only links to it', () => {
+  // The edges link the catalogue and the shipping unit to the shared file; only the file of the atom's own
+  // citation decides.
+  const fromShipping = reference('reference.shared-one', 'shared/policy.md');
+  fromShipping.provenance = { file: shipping.provenance?.file, quote: 'Read shared/policy.md.' };
+  const suite = run([hub, shipping, fromShipping], [row(fromShipping.id)]);
+  expect(suite.report.summary.complete).toBe(1);
+  expect(suite.specs[0]?.atoms).toEqual([fromShipping.id, shipping.id]);
+  const file = suite.files.find((entry) => entry.path.endsWith('.yaml'));
+  const parsed = parseSpecText(file?.text ?? '', 'yaml', file?.path ?? '');
+  if (!parsed.ok) throw new Error(JSON.stringify(parsed.errors));
+  expect(parsed.spec.blocks[0]?.when).toEqual({
+    user: 'Please track delayed parcels for the dispatch centre. When a carrier update arrives.',
+  });
+});
+
+it('a shared reference cited from no unit borrows no linked task and hides no gap by grouping', () => {
+  const standing = (id: string): EstateAtom => {
+    const ref = reference(id, 'shared/policy.md');
+    ref.provenance = { file: 'CLAUDE.md', quote: 'Read shared/policy.md.' };
+    return ref;
+  };
+  const first = standing('reference.shared-one');
+  const second = standing('reference.shared-two');
   const suite = run([hub, shipping, first, second], [row(first.id), row(second.id)]);
   expect(suite.report.summary.complete).toBe(0);
   expect(suite.report.incomplete).toHaveLength(2);

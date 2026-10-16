@@ -4,7 +4,7 @@ import type { CriterionDef } from '@agent-nexus/driftbench-core';
 import { DEVIATION_EXPECTED } from '../seed/deviation';
 import { rngFor, shuffle } from '../seed/random';
 import { codeAsk, DEVIATION_ASKS } from './asks';
-import { guardRuleIds, taskAtoms } from './context';
+import { guardRuleIds, navigationReference, taskAtoms } from './context';
 import {
   type AskSource,
   type Built,
@@ -147,7 +147,12 @@ export function build(
 ): Built {
   const use = useOf(row);
   const polarity = NEGATIVE_TESTS.has(row.testType) ? 'negative' : 'positive';
-  const own = row.testType === 'contract_alone' ? atoms.filter((atom) => atom.kind !== 'subagent') : atoms;
+  // A unit run uses no model, so it cannot observe the load of the skill or helper that owns the atom under
+  // test: that owner supplies the task of a live row, never an expectation of a unit one.
+  const own =
+    row.mode === 'unit' || row.testType === 'contract_alone'
+      ? atoms.filter((atom) => atom.kind !== 'subagent' && (row.mode !== 'unit' || atom.kind !== 'skill'))
+      : atoms;
   const then = thenOf(own, polarity, { ...ctx, live: row.mode === 'live' });
   const first = atoms[0] as EstateAtom;
 
@@ -179,6 +184,16 @@ export function build(
   }
   if (noSession) {
     gap(then, MARKERS.session, first, `no recorded session of ${situation?.id ?? 'this situation'}`);
+  }
+  // A plan made before the map recorded document roles can still hold a read test of an example or a
+  // template. Such a document is a place to look, never a rule: the row stays visible and incomplete.
+  if (navigationReference(first, ctx.navigation)) {
+    gap(
+      then,
+      MARKERS.askable,
+      first,
+      `no test: ${first.id} reads a navigation-only document (an example, template or history), which holds no rule`,
+    );
   }
   if (then.ordered.length > 0 && !ctx.customChecks.has('ordered')) {
     gap(then, MARKERS.registered, first, 'ordered');
@@ -221,6 +236,7 @@ export function build(
         row.testType === 'twin',
         (id) => ctx.atoms.get(id),
         variant,
+        { testType: row.testType, routesOf: (id) => ctx.routes.get(id) ?? [] },
       );
       if (written.text === undefined) {
         // Never a nonsense ask: the row waits for an approved phrase, under its own gap.

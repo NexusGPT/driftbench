@@ -1,4 +1,4 @@
-import { estateOwners } from '@agent-nexus/driftbench-generate';
+import { estateOwners, navigationFiles, navigationReference } from '@agent-nexus/driftbench-generate';
 import type { Atom, AtomKind, Edge, EstateMap, PlanRow, TestType } from '../schema';
 
 /**
@@ -113,7 +113,8 @@ export type DraftRow = {
 
 /**
  * The mandatory rows of every approved atom, grouped by kind in the order of `AtomKind`, then in map
- * order. Rows of one atom follow the order of its contract.
+ * order. Rows of one atom follow the order of its contract. A reference to a document the map records as
+ * navigation only (an example, a template, a history) has no row.
  */
 export function contractRows(
   map: EstateMap,
@@ -124,10 +125,13 @@ export function contractRows(
   const approved = new Set(atoms.map((atom) => atom.id));
   const edges = map.edges.filter((edge) => approved.has(edge.from) && approved.has(edge.to));
   const ownerOf = estateOwners(atoms, edges);
+  const navigation = navigationFiles(map.documents);
   const routed = new Set(edges.filter((edge) => edge.kind === 'route').map((edge) => edge.to));
   const rows: DraftRow[] = [];
   for (const kind of kinds) {
     for (const atom of atoms.filter((candidate) => candidate.kind === kind)) {
+      // A reference to an example, a template or a history is a place to look, never a rule to test.
+      if (navigationReference(atom, navigation)) continue;
       const owner = ownerOf.get(atom.id);
       const ids = owner ? [atom.id, owner] : [atom.id];
       const target = { [targetDimension(kind)]: atom.id };

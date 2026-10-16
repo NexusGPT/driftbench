@@ -68,11 +68,19 @@ export type EstateAtom = {
   provenance?: { quote: string; file?: string; startLine?: number; endLine?: number };
 };
 
+/**
+ * The authority of a document the scan read: `normative` text states live rules; every other role
+ * (a changelog, a history, a journal, a template, an example, a fixture, an archive) is navigation only.
+ */
+export type EstateDocument = { path: string; role: string };
+
 export type EstateMapInput = {
   runtime: string;
   hash: string;
   atoms: EstateAtom[];
   edges?: Array<{ from: string; to: string; kind: string }>;
+  /** Document authority, when the map records it; absent in older maps. */
+  documents?: EstateDocument[];
 };
 
 export type EstatePlanRow = {
