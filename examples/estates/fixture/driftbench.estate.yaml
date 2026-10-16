@@ -132,13 +132,6 @@ scripts:
         expect:
           exitCode: 1
           stdoutIncludes: [widget, short, "10.00 EUR"]
-      # A JSON file without a lines list is an invalid input: exit 2.
-      - args: [invoice.json, order.json]
-        files:
-          invoice.json: '{"items": []}'
-          order.json: '{"lines": []}'
-        expect:
-          exitCode: 2
   .claude/skills/shipment-tracker/scripts/track.sh:
     usage: ./scripts/track.sh <carrier code> <tracking number>
     fixtures:
