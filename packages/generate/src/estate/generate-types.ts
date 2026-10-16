@@ -155,11 +155,12 @@ export type EstateReport = {
   sessions: { path: string; sessions: number } | null;
   options: { seed: number; checks: string[]; fallback: boolean; judge: boolean };
   summary: { specs: number; blocks: number; complete: number; incomplete: number; judged: number };
-  /** Unit tests (unit/): guards and scripts run directly, with no model; the rows with none, and why. */
+  /** Unit tests (unit/): guards, scripts and helpers run directly, with no model; the rows with none, and why. */
   unit: {
     tests: number;
     guards: number;
     scripts: number;
+    helpers: number;
     cases: number;
     /** Catalogue checks: tested through their host hook, or a gap for want of a trigger or a host. */
     checks: { tested: number; needsTrigger: number; needsHost: number };
