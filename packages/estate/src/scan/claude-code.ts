@@ -236,14 +236,26 @@ export class ClaudeCodeReader implements EstateReader {
     }
     // Keep declarations intact and report name collisions in one pass per read.
     const skillsByName = new Map<string, string>();
+    const duplicated = new Set<string>();
     for (const skill of estate.skills) {
       const earlier = skillsByName.get(skill.name);
       if (earlier !== undefined) {
+        duplicated.add(skill.name);
         estate.notes.push({
           file: skill.file,
           message: `duplicate skill name ${skill.name}: also declared in ${earlier}`,
         });
       } else skillsByName.set(skill.name, skill.file);
+    }
+    // A skill is its declared name; the folder only holds it. The files of a skill are owned by that name, so
+    // a folder renamed with the name kept leaves every atom id as it was. A name two skills declare keeps the
+    // folder, so their ids stay apart.
+    for (const skill of estate.skills) {
+      if (duplicated.has(skill.name)) continue;
+      for (const file of files) {
+        if ((file.kind === 'skill' || file.kind === 'skill_file') && file.path.startsWith(`${skill.folder}/`))
+          file.owner = skill.name;
+      }
     }
     await readRootReferences(root, estate, ignored, budget);
     // The registry comes last: a row names its guard by a script, a check id or an id the script holds,
@@ -1003,7 +1015,9 @@ function scriptFrom(
     if (last === undefined || last === first.script) {
       // A dispatcher whose target name matches no file still names that target: the guard runs nothing.
       const target = paths.has(first.script) ? dispatchedName(first.script, segment, runs) : undefined;
-      return target === undefined ? first : { script: target, anchored: first.anchored, dispatcher: first.script };
+      return target === undefined
+        ? first
+        : { script: target, anchored: first.anchored, dispatcher: first.script };
     }
     return {
       script: last,

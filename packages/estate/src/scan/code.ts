@@ -357,7 +357,7 @@ function scriptAtoms(
     .filter((chunk) => chunk.file === definition)
     .flatMap((chunk) => chunkLines(chunk, files.get(definition)));
   for (const file of raw.files) {
-    if (file.kind !== 'skill_file' || file.owner !== skill) continue;
+    if (file.kind !== 'skill_file' || !file.path.startsWith(`${folder}/`)) continue;
     const relative = posix.relative(folder, file.path);
     if (!SCRIPT.test(file.path) && !relative.startsWith('scripts/')) continue;
     const name = basename(file.path);

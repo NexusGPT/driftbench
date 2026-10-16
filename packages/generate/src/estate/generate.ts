@@ -1,6 +1,5 @@
 import { runtimeLoaded } from '@agent-nexus/driftbench-adapters';
-import { type Issue, parseSpecText } from '@agent-nexus/driftbench-core';
-import { stringify } from 'yaml';
+import { checkSpec, type Issue, stringifyBlockYaml } from '@agent-nexus/driftbench-core';
 import type { GeneratedFile } from '../enumerate/generate';
 import { formatJson } from '../enumerate/json';
 import { build, buildRow, findSituation, specId, uniqueId, useOf } from './build-row';
@@ -192,7 +191,8 @@ export function generateEstateSuite(
     const markers = [...new Set(built.gaps.map((entry) => entry.marker))].sort() as Marker[];
     const complete = markers.length === 0;
     const text = specText(built, row, ctx, markers);
-    const loaded = parseSpecText(text, 'yaml', built.id);
+    // The text is the writer's rendering of this object, so the object is what is checked (as enumerate does).
+    const loaded = checkSpec(built.spec, built.id);
     if (!loaded.ok) {
       invalid.push({ id: built.id, errors: loaded.errors });
       return;
@@ -450,7 +450,7 @@ function specText(built: Built, row: EstatePlanRow, ctx: Context, markers: reado
   if (markers.length > 0) {
     header.push(`# Not runnable yet: ${markers.join(', ')} (see metadata.estate.needs).`);
   }
-  const body = stringify(built.spec, { lineWidth: 0, aliasDuplicateObjects: false });
+  const body = stringifyBlockYaml(built.spec);
   return `${header.join('\n')}\n${body}`;
 }
 

@@ -317,6 +317,7 @@ export {
   WorkspaceExpect,
 } from './schema/spec';
 export * as script from './script';
+export { stringifyBlockYaml } from './spec/block-yaml';
 export { anyGlobMatches, globMatches } from './spec/glob';
 export { canonicalJson, cloneJson, contentHash } from './spec/hash';
 export { error, type Issue, type IssueCode, IssueCodes, warning } from './spec/issues';
