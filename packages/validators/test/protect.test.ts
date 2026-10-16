@@ -41,6 +41,7 @@ const TRAIN_CONDITION = "github.event_name == 'push' || startsWith(github.head_r
 
 /** Conditions and steps must keep the complete validators on every train and main push. */
 function assertTrainValidators(workflow: ReturnType<typeof parse>) {
+  expect(Object.keys(workflow.on).sort()).toEqual(['pull_request', 'push']);
   expect(workflow.on.pull_request).toBeDefined();
   expect(workflow.on.push.branches).toContain('main');
   for (const trigger of [workflow.on.pull_request, workflow.on.push]) {
@@ -68,6 +69,11 @@ describe('the validators workflow', () => {
     (workflow.jobs[job].steps as { run?: string }[]).flatMap((step) => (step.run ? [step.run] : []));
   it('runs all registered validators in full on every train PR and main push, without path filters', () => {
     assertTrainValidators(workflow);
+  });
+  it('rejects an extra trigger such as pull_request_target', () => {
+    const changed = structuredClone(workflow);
+    changed.on.pull_request_target = {};
+    expect(() => assertTrainValidators(changed)).toThrow();
   });
   it('rejects removing the train condition', () => {
     const changed = structuredClone(workflow);
@@ -98,6 +104,7 @@ describe('the validators workflow', () => {
 describe('merge train enforcement', () => {
   const workflow = parse(readFileSync(new URL('../../../.github/workflows/ci.yml', import.meta.url), 'utf8'));
   it('keeps every heavy CI job on trains and main, with no path filters', () => {
+    expect(Object.keys(workflow.on).sort()).toEqual(['pull_request', 'push']);
     expect(workflow.on.pull_request).toBeDefined();
     expect(workflow.on.push.branches).toContain('main');
     for (const trigger of [workflow.on.pull_request, workflow.on.push]) {
@@ -114,9 +121,23 @@ describe('merge train enforcement', () => {
       'guard',
     ]) {
       expect(workflow.jobs[id].if).toBe(TRAIN_CONDITION);
+      for (const step of workflow.jobs[id].steps) {
+        // A step condition may only keep artifacts after a failure; it may never skip work.
+        if (step.if !== undefined) expect(step.if).toBe('always()');
+      }
     }
     expect(workflow.jobs.build.strategy.matrix.node).toEqual([22, 24]);
     expect(workflow.jobs.python.strategy.matrix.python).toEqual(['3.11', '3.12']);
+  });
+  it('rejects a pull_request_target trigger and a skipped step on a heavy job', () => {
+    const target = structuredClone(workflow);
+    target.on.pull_request_target = {};
+    expect(Object.keys(target.on).sort()).not.toEqual(['pull_request', 'push']);
+    const skipped = structuredClone(workflow);
+    skipped.jobs.build.steps[skipped.jobs.build.steps.length - 1].if = "github.event_name == 'push'";
+    expect(
+      skipped.jobs.build.steps.every((step: { if?: string }) => step.if === undefined || step.if === 'always()'),
+    ).toBe(false);
   });
   it('declares train gate as required and fails ordinary PRs with the merge instruction', () => {
     const job = workflow.jobs['train-gate'];
