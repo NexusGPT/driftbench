@@ -114,9 +114,15 @@ describe('HF4: re-score without the agent', () => {
       rescored += result.blocks.length;
       const verdicts = result.blocks.flatMap((block) => block.verdicts);
       expect(verdicts.some((verdict) => verdict.name === 'must')).toBe(false);
-      for (const verdict of verdicts) expect(verdict.by?.object).toMatch(/^check-set:acme@/);
+      for (const verdict of verdicts) {
+        expect(verdict.by?.object).toMatch(
+          verdict.name === 'tools' && verdict.valueCheck?.length
+            ? /^policy\/value-check:default@/
+            : /^check-set:acme@/,
+        );
+      }
       for (const block of result.blocks) {
-        expect(block.resolved?.objects).toEqual([
+        expect(block.resolved?.objects.filter((entry) => entry.key === 'check_set')).toEqual([
           { key: 'check_set', kind: 'check-set', id: 'acme', hash: expect.any(String), setAt: 'project' },
         ]);
         expect(block.rejudged?.criteria).toEqual([]);
@@ -161,7 +167,9 @@ describe('HF4: re-score without the agent', () => {
     const prepared = prepareRescore(loaded.spec, next, run, options(adapter));
     const result = await rescoreRun(prepared, defaultChecks(), objectContextFor(loaded.path));
     expect(result.blocks.flatMap((b) => b.verdicts).some((v) => v.name === 'pii')).toBe(false);
-    expect(result.blocks[0]?.resolved?.objects[0]?.setAt).toBe('spec');
+    expect(result.blocks[0]?.resolved?.objects.find((entry) => entry.key === 'check_set')?.setAt).toBe(
+      'spec',
+    );
     expect(adapter.calls.send).toBe(sent);
   });
 });

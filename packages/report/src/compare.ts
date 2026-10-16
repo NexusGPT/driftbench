@@ -216,7 +216,7 @@ export function compareCampaigns(
   for (const [unit, b] of left) {
     const copy = carriedUnits.get(unit);
     if (copy?.carried) {
-      unpaired.push({ unit, reason: carriedReason(copy.carried) });
+      unpaired.push({ unit, reason: carriedReason(copy.carried, copy.rejudged) });
       continue;
     }
     const c = right.get(unit);
@@ -242,7 +242,8 @@ export function compareCampaigns(
   }
   for (const unit of right.keys()) if (!left.has(unit)) unpaired.push({ unit, reason: 'candidate only' });
   for (const [unit, copy] of carriedUnits) {
-    if (!left.has(unit) && copy.carried) unpaired.push({ unit, reason: carriedReason(copy.carried) });
+    if (!left.has(unit) && copy.carried)
+      unpaired.push({ unit, reason: carriedReason(copy.carried, copy.rejudged) });
   }
   if (pairs.length === 0) throw new RangeError('compare: the two campaigns share no golden in a shared mode');
 
@@ -389,7 +390,9 @@ function newcombe(effect: { estimate: number; lower: number; upper: number; n: n
 }
 
 /** Why a carried unit is not paired, with where its result comes from. */
-function carriedReason(carried: NonNullable<RunResult['carried']>): string {
+function carriedReason(carried: NonNullable<RunResult['carried']>, rejudged?: RunResult['rejudged']): string {
+  if (rejudged?.criteria.length === 0)
+    return `Re-scored; observations from ${rejudged.fromCampaign}; not a new measurement`;
   const version = carried.agentVersion === undefined ? '' : `, agent version ${carried.agentVersion}`;
   const campaigns = `${carried.age.campaigns} ${carried.age.campaigns === 1 ? 'campaign' : 'campaigns'}`;
   return `carried from ${carried.fromCampaign}${version}, age ${campaigns}: not a new measurement`;
@@ -444,8 +447,15 @@ function unitEntries(
   return out;
 }
 
+/**
+ * One unit's side of the compare. A criterion with any gating verdict passes when every gating verdict of it
+ * passes: a non-gating verdict of the same family (a score such as `tools.argument_accuracy`, a lint on the test
+ * such as `tools.<label>.input.<field>.unstated_format`) never fails it. A criterion with only non-gating
+ * verdicts passes when all of them pass.
+ */
 function sideOf(runs: readonly RunResult[], flagFamilies: readonly string[]): UnitSide {
   const criteria = new Map<string, { pass: boolean; gating: boolean }>();
+  const folds = new Map<string, { gatingPass: boolean; anyPass: boolean }>();
   const flags = new Set<string>();
   for (const run of runs) {
     for (const block of run.blocks) {
@@ -453,10 +463,15 @@ function sideOf(runs: readonly RunResult[], flagFamilies: readonly string[]): Un
         if (verdict.outcome === 'inconclusive') continue;
         const name = criterionOf(verdict);
         const held = criteria.get(name) ?? { pass: true, gating: false };
-        criteria.set(name, {
-          pass: held.pass && verdict.outcome === 'pass',
-          gating: held.gating || verdict.gating,
-        });
+        const fold = folds.get(name) ?? { gatingPass: true, anyPass: true };
+        const passed = verdict.outcome === 'pass';
+        const next = {
+          gatingPass: fold.gatingPass && (!verdict.gating || passed),
+          anyPass: fold.anyPass && passed,
+        };
+        folds.set(name, next);
+        const gating = held.gating || verdict.gating;
+        criteria.set(name, { pass: gating ? next.gatingPass : next.anyPass, gating });
         if (verdict.gating && verdict.outcome === 'fail' && flagFamilies.includes(verdict.name)) {
           flags.add(verdict.name);
         }
@@ -464,6 +479,7 @@ function sideOf(runs: readonly RunResult[], flagFamilies: readonly string[]): Un
     }
     if (run.endState && !run.endState.match) {
       const held = criteria.get('end_state') ?? { pass: true, gating: true };
+      folds.set('end_state', { gatingPass: false, anyPass: false });
       criteria.set('end_state', { pass: false, gating: held.gating });
     }
   }

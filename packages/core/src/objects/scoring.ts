@@ -5,7 +5,7 @@ import type { By, ResolvedObjects, Verdict } from '../schema/run';
 import { Verdict as VerdictSchema } from '../schema/run';
 import { contentHash } from '../spec/hash';
 import type { UsedObject } from './layers';
-import { objectRegistry, type ResolvedObject } from './resolve';
+import type { ObjectRegistry, ResolvedObject } from './resolve';
 import type { ResolvedItem } from './rules';
 
 /** The params schema of an implementation that takes none: an item that sets any is refused. */
@@ -13,7 +13,13 @@ export const NoParams = z.strictObject({});
 
 /** The verdicts the runner writes itself, beside the checks': the flow family and the ledger family. */
 export const RUNNER_ITEMS = { flow: 'builtin:runner/flow', ledger: 'builtin:runner/ledger' } as const;
-for (const impl of Object.values(RUNNER_ITEMS)) objectRegistry.registerImpl(impl, { params: NoParams });
+
+/** Registers runner implementations during explicit core initialization. Safe after registry restore. */
+export function registerRunnerObjects(registry: ObjectRegistry): void {
+  for (const impl of Object.values(RUNNER_ITEMS)) {
+    if (!registry.impl(impl)) registry.registerImpl(impl, { params: NoParams });
+  }
+}
 
 /** The implementation name a check-set item of a shipped check carries: `builtin:check/<check name>`. */
 export const checkImpl = (name: string) => `builtin:check/${name}`;
@@ -88,9 +94,18 @@ export function scoringPlan(checks: readonly Check[], object: ResolvedObject | u
   };
 }
 
-/** Writes `by` on every verdict; a verdict's own `by` is replaced, so the stamp names what really ran. */
+/** A value decision names its policy rung; ordinary verdicts name the check-set item that ran. */
+function decidingBy(verdict: Verdict, by: By): By {
+  return verdict.name === 'tools' &&
+    verdict.valueCheck?.length &&
+    verdict.by?.object.startsWith('policy/value-check:')
+    ? verdict.by
+    : by;
+}
+
+/** Stamps the execution while retaining the tools check's more specific value-policy decision. */
 export function stamp(verdicts: readonly Verdict[], by: By): Verdict[] {
-  return verdicts.map((verdict) => ({ ...verdict, by }));
+  return verdicts.map((verdict) => ({ ...verdict, by: decidingBy(verdict, by) }));
 }
 
 /**
@@ -120,7 +135,7 @@ export async function applyScoringPlan(plan: ScoringPlan, ctx: CheckContext): Pr
     for (const verdict of produced) {
       const parsed = VerdictSchema.safeParse(verdict);
       if (parsed.success) {
-        verdicts.push({ ...parsed.data, by });
+        verdicts.push({ ...parsed.data, by: decidingBy(parsed.data, by) });
       } else {
         const issue = parsed.error.issues[0];
         verdicts.push({

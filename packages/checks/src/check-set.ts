@@ -73,5 +73,13 @@ export const DEFAULT_CHECK_SET = {
   ],
 };
 
-for (const name of SHIPPED_CHECKS) objectRegistry.registerImpl(checkImpl(name), { params: NoParams });
-objectRegistry.registerShipped(DEFAULT_CHECK_SET, '@agent-nexus/driftbench-checks check-set:default');
+/** Registers the shipped check set after core initialization. Safe after registry restore. */
+export function registerCheckSet(): void {
+  for (const name of SHIPPED_CHECKS) {
+    const impl = checkImpl(name);
+    if (!objectRegistry.impl(impl)) objectRegistry.registerImpl(impl, { params: NoParams });
+  }
+  if (!objectRegistry.snapshot().shipped.has('check-set:default')) {
+    objectRegistry.registerShipped(DEFAULT_CHECK_SET, '@agent-nexus/driftbench-checks check-set:default');
+  }
+}

@@ -42,6 +42,7 @@ The loader rewrites these forms before it validates a spec.
 * [ToolExpect](#toolexpect)
 * [Count](#count)
 * [Assertion](#assertion)
+* [CompareMode](#comparemode)
 * [ToolsOfferedExpect](#toolsofferedexpect)
 * [Expect rouge_l](#expect-rouge_l)
 * [Expect bleu](#expect-bleu)
@@ -67,6 +68,7 @@ The loader rewrites these forms before it validates a spec.
 * [Uses](#uses)
 * [ObjectRef](#objectref)
 * [ItemPatch](#itempatch)
+* [AppliesTo](#appliesto)
 * [Spec end](#spec-end)
 * [Rules](#rules)
 * [EndState](#endstate)
@@ -84,6 +86,7 @@ One golden conversation, or one task for a code agent, written as a succession o
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
+| `schema_version` | integer, 1 to 1 | no |  | The spec format version the spec is written for. A driftbench that reads a lower version refuses the spec and says to upgrade. Absent means version 1. |
 | `id` | string matching `^[A-Za-z0-9][A-Za-z0-9._-]*$` | yes |  | The spec id: letters, digits, dots, underscores and hyphens. |
 | `version` | string | no |  | A free label. The content hash, not this label, is the cache key. |
 | `kind` | `conversation` or `task` | yes | `conversation`, set by the loader | conversation or task. The loader sets conversation when it is absent. |
@@ -380,6 +383,7 @@ One expected tool call.
 | `count` | [Count](#count) | no |  | How many calls are expected. 0 means the tool must not be called. |
 | `input` | map of string to [Assertion](#assertion) | no |  | Assertions on the arguments, by argument name. |
 | `input_closed` | boolean | no |  | True requires every call input to be an object with only the top-level keys named in input. An absent input allows no keys. False or absent leaves other keys allowed. |
+| `compare` | [CompareMode](#comparemode) or map of string to [CompareMode](#comparemode) | no |  | How the input values are compared: one mode for every argument, or a mode by argument name. Absent means auto: the value-check rungs decide whether a value that differs from the gold names the same thing. |
 
 ## Count
 
@@ -416,6 +420,19 @@ Write one of these forms.
 | `nonempty` | `true` | Present and not empty. |
 | `absent` | `true` | Absent. |
 | `subset` | map of string to JSON value | Holds at least these keys with these values. |
+
+## CompareMode
+
+How one value is compared: auto, a rung name, or exact with its reason.
+
+Write one of these forms.
+
+* one of `auto`, `outcome`, `contract`, `as_given`, `same_referent`
+* a mapping with exactly one of the keys below
+
+| Key | Type | Description |
+|---|---|---|
+| `exact` | string, not empty | Why the writing itself is the requirement, in one line. |
 
 ## ToolsOfferedExpect
 
@@ -668,8 +685,19 @@ An operation on one item of the parent object, or a new item with add: true.
 | `params` | map of string to any value | no |  | Params to set: maps merge, lists replace, +key appends, -key removes. |
 | `impl` | string matching `^(builtin\|plugin):\S+$` | no |  | Another implementation for the same rule. |
 | `cites` | string | no |  | A source for the reader. |
+| `applies_to` | [AppliesTo](#appliesto) | no |  | Where the rule applies: maps merge, lists replace. |
 | `before` | string matching `^[A-Za-z0-9][A-Za-z0-9._-]*$` | no |  | Moves the item just before this one. |
 | `after` | string matching `^[A-Za-z0-9][A-Za-z0-9._-]*$` | no |  | Moves the item just after this one. |
+
+## AppliesTo
+
+Where an item applies: skills, tools or unit patterns. Absent means everywhere.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `skills` | list of strings, each not empty | no |  | Skill names the evidence must name one of. |
+| `tools` | list of strings, each not empty | no |  | Tool labels the failing call must have one of. |
+| `units` | list of strings, each not empty | no |  | Unit patterns, such as R#41/*, a unit must match one of. |
 
 ## Spec end
 

@@ -82,11 +82,14 @@ export {
   checkImpl,
   checkSpecObjects,
   clearObjectContexts,
+  cliPatch,
   type ExplainRow,
   explainObject,
   explainRows,
   type ImplDef,
   type ItemOperations,
+  initializeShippedObjects,
+  itemApplies,
   itemOf,
   type KindDef,
   type LayerUses,
@@ -103,11 +106,13 @@ export {
   PROJECT_OBJECTS_DIR,
   parseCliOverrides,
   parseObjectText,
+  type RegistrySnapshot,
   type ResolvedItem,
   type ResolvedObject,
   RUNNER_ITEMS,
   resolveBlockObjects,
   resolvedRecord,
+  type ScopeEvidence,
   type ScoringPlan,
   SUITE_OBJECTS_DIR,
   scoringPlan,
@@ -117,6 +122,7 @@ export {
   USES_FILE,
   type UsedObject,
 } from './objects';
+export { bindObjectContext, objectContextOfSpec } from './objects/context';
 export {
   ALLOWED_VERSION_TRANSITION_FIELDS,
   type AuditVerdict,
@@ -283,6 +289,7 @@ export {
   withRetry,
   wrapEndState,
 } from './runner';
+export { rescoreCarriedRun } from './runner/carried-scoring';
 export {
   Assertion,
   Budget,
@@ -303,6 +310,7 @@ export {
 export { CampaignConfig, CampaignRetryConfig } from './schema/config';
 export { parameterSchema, unsupportedSchemaKeywords } from './schema/json-schema';
 export {
+  AppliesTo,
   Envelope,
   ImplRef,
   Item,
@@ -352,6 +360,7 @@ export {
   Block,
   BlockSpec,
   CardExpect,
+  CompareMode,
   CriterionDef,
   EndState,
   EndStateSpec,
@@ -373,6 +382,7 @@ export {
   SafetyExpect,
   SimilarityExpect,
   SkillExpect,
+  SPEC_SCHEMA_VERSION,
   Spec,
   Stimulus,
   SubagentExpect,

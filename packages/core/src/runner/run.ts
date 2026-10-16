@@ -1,17 +1,14 @@
 import type { AdapterCapabilities, AgentAdapter, Session, Turn } from '../contracts/adapter';
 import type { ArtifactReaderRegistry } from '../contracts/artifacts';
-import { type CheckContext, type CheckSet, machineVerdict } from '../contracts/check';
+import type { CheckSet } from '../contracts/check';
 import type { DriverStep, UserDriver } from '../contracts/driver';
 import { copyHistory, freezeMessage } from '../contracts/history';
 import type { Store } from '../contracts/store';
 import { gateToolCalls, type ToolRule } from '../contracts/tool-policy';
-import {
-  type ObjectContext,
-  resolveBlockObjects,
-  shippedObjectContext,
-  type UsedObject,
-} from '../objects/layers';
-import { applyScoringPlan, resolvedRecord, type ScoringPlan, scoringPlan, stamp } from '../objects/scoring';
+import { bindObjectContext, objectContextOfSpec } from '../objects/context';
+import { checkSpecObjects } from '../objects/index';
+import { type ObjectContext, resolveBlockObjects, shippedObjectContext } from '../objects/layers';
+import { scoringPlan } from '../objects/scoring';
 import { type BlockReuse, planBlockRerun } from '../radius/blocks';
 import { collectRetries, type RetryPolicy, retryPolicy } from '../retry';
 import type { Message, TargetRef, WorldState } from '../schema/common';
@@ -22,7 +19,6 @@ import {
   type RunEvent,
   type RunMode,
   RunResult,
-  Verdict,
 } from '../schema/run';
 import type { BlockSpec, EndState, Expect, GivenOverride, Spec, Stimulus } from '../schema/spec';
 import { cloneJson, contentHash } from '../spec/hash';
@@ -35,9 +31,13 @@ import {
   unwrapEndState,
   wrapEndState,
 } from './cache';
-import { recheckCarriedEndState } from './carried-end-state';
+import {
+  type BlockScoring,
+  blockNeedsArtifactReplay,
+  rescoreCarriedBlock,
+  scoreBlockObservation,
+} from './carried-scoring';
 import { cellId } from './cell';
-import { driftOf } from './drift';
 import { composeStates, type EndStateSnapshot, endStateSnapshot, snapshotValues } from './end-state-snapshot';
 import {
   addFacts,
@@ -48,12 +48,11 @@ import {
   resolveGiven,
   stimulusMessages,
 } from './given';
-import { describeContradiction, ledgerVerdicts } from './ledger';
 import { preflightTargetPrices, priceObserved, TokenPriceError, TokenPrices } from './pricing';
 import { captureArtifacts, provenanceDigest, provenanceHash, runProvenance } from './provenance';
 import { type RecoveryOptions, recoveryOf } from './recovery';
 import { CallFailure, describeError, type RetryOptions, retryLayer, withRetry } from './retry';
-import { canonicalPreviousStage, flowVerdicts, readStage, stageSignatures } from './stages';
+import { canonicalPreviousStage, stageSignatures } from './stages';
 import { succession } from './succession';
 
 /**
@@ -76,6 +75,11 @@ export type RunOptions = {
   recordProvenance?: boolean;
   /** Opt in: raw adapter end-state values are stored like observations, and may contain sensitive data. */
   recordEndStateSnapshots?: boolean;
+  /**
+   * Opt in: a block whose driver sent other text than the spec wrote keeps that text (`realized.text`), not
+   * only its hash. What a driver writes may be private.
+   */
+  recordRealizedText?: boolean;
   /** Execute only these spec blocks; supported in independent mode T only. */
   blocks?: ReadonlySet<number>;
   blockReuse?: BlockReuse;
@@ -86,7 +90,7 @@ export type RunOptions = {
   checks: CheckSet;
   /**
    * The objects each block resolves its `uses` against (`objectContextFor(specPath)` for a spec read from a
-   * file). Absent: the shipped objects only. Every verdict is stamped with the check-set item that produced it,
+   * file). Absent: the context carried by the loaded spec, then shipped objects. Every verdict is stamped with the check-set item that produced it,
    * and every block records the objects it resolved to.
    */
   objects?: ObjectContext;
@@ -151,13 +155,18 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
   if (options.store && options.campaignId === undefined) {
     throw new Error('runSpec: a store needs a campaignId to file the run under');
   }
+  const objects = options.objects ?? objectContextOfSpec(spec) ?? shippedObjectContext();
+  spec = bindObjectContext({ ...spec }, objects);
+  const objectErrors = checkSpecObjects(spec, objects);
+  if (objectErrors.length)
+    throw new RunnerError(objectErrors.map((issue) => `${issue.code}: ${issue.message}`).join('; '));
   const now = options.now ?? (() => new Date());
   const specHash = contentHash(spec);
   // The cache key leaves out the spec's version label and its scoring-only `uses` (cacheSpecHash).
   const cacheSpecHash = cacheSpecHashOf(spec);
   const target = options.target ?? spec.target ?? { adapter: options.adapter.id };
   // Every block's objects resolve before any call reaches the adapter: a reference that cannot resolve fails here.
-  const objectContext = options.objects ?? shippedObjectContext();
+  const objectContext = objects;
   const scoring = new Map<number, BlockScoring>();
   const scoringOf = (blockIndex: number): BlockScoring => {
     let known = scoring.get(blockIndex);
@@ -203,6 +212,13 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
         throw new RunnerError('the block subset omits part of the radius');
       selectedBlocks = options.blocks ?? reuse.indices;
       carriedBlocks = new Map([...reuse.carried].filter(([i]) => !selectedBlocks?.has(i)));
+      // A carried block can only use stored evidence. Artifact bytes are not in the run record.
+      // Expand the selected subset instead of turning a previous pass into a missing-workspace failure.
+      for (const [index, block] of carriedBlocks) {
+        if (!blockNeedsArtifactReplay(spec.blocks[index], block)) continue;
+        selectedBlocks = new Set([...selectedBlocks, index]);
+        carriedBlocks.delete(index);
+      }
     }
   }
   if (options.blocks && endState !== undefined && !carriedBlocks && options.blocks.size < spec.blocks.length)
@@ -230,6 +246,7 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
     blockRerunReason,
     carriedBlocks,
     recordEndStateSnapshots: options.recordEndStateSnapshots === true,
+    recordRealizedText: options.recordRealizedText === true,
     spec,
     specHash,
     cacheSpecHash,
@@ -290,14 +307,12 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
   return parsed;
 }
 
-/** What one block is scored with: the objects it resolved to, and the plan that applies its check set. */
-type BlockScoring = { used: UsedObject[]; plan: ScoringPlan };
-
 type RunContext = {
   selectedBlocks: ReadonlySet<number> | undefined;
   blockRerunReason: string | undefined;
   carriedBlocks: Map<number, BlockResult> | undefined;
   recordEndStateSnapshots: boolean;
+  recordRealizedText: boolean;
   prices: TokenPrices | undefined;
   requireTokenPrices: boolean;
   provenance: RunResult['provenance'];
@@ -335,6 +350,26 @@ type RunContext = {
   signatures: Map<string, Set<string>>;
   recovery: RecoveryOptions;
 };
+
+/**
+ * The text the driver sent, when it differs from the text the spec block wrote: its hash, and the text
+ * itself when the run asked for it. The text is the user messages the agent received, joined by newlines.
+ * Only the text counts: the same text sent in another form (an injection instead of a user turn) records
+ * nothing, since `injected` and the stimulus hash say that. A scripted run sends what the spec wrote and
+ * records nothing.
+ */
+function realizedOf(planned: PlannedStep, withText: boolean): { realized?: { hash: string; text?: string } } {
+  const sent = stimulusText(planned.stimulus);
+  if (sent === stimulusText(planned.block.when)) return {};
+  return { realized: { hash: provenanceHash(sent), ...(withText ? { text: sent } : {}) } };
+}
+
+/** The user messages a stimulus sends, joined by newlines. */
+function stimulusText(stimulus: Stimulus): string {
+  return stimulusMessages(stimulus)
+    .map((message) => message.content)
+    .join('\n');
+}
 
 /** One step of the driver, resolved against the spec. */
 type PlannedStep = {
@@ -422,12 +457,13 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
             }
           }
           blocks.push(
-            await recheckCarriedEndState(
+            await rescoreCarriedBlock(
               kept,
               spec,
               run.target,
-              run.scoringOf(step.blockIndex).plan,
-              composed ? endStateValue(run.endState, sources, composed) : undefined,
+              run.scoringOf(step.blockIndex),
+              planned.lastSpecBlock && composed ? endStateValue(run.endState, sources, composed) : undefined,
+              run.artifacts,
             ),
           );
         }
@@ -548,46 +584,42 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         ? captureArtifacts({ observed, readArtifact: channel.readArtifact() })
         : undefined;
       const scored = run.scoringOf(step.kind === 'block' ? step.blockIndex : -1);
-      const verdicts = await applyScoringPlan(scored.plan, {
-        spec,
-        mode: run.mode,
-        blockIndex: position,
-        block: planned.block,
-        stimulus: planned.stimulus,
-        expect: planned.expect,
-        given,
-        observed,
-        // A teacher-forced block is an independent sample: no earlier block of the run is its history.
-        history: run.mode === 'T' ? [] : [...blocks],
-        ledger: facts.ledger,
-        endState,
-        artifacts: run.artifacts,
-        readArtifact: capture ? capture.readArtifact : channel.readArtifact(),
-      });
-      // The stage reached: the runtime's, else the step classifier's. Before the block: in T the stage the
-      // spec expects of the blocks before it, in F and P the stage the run's previous block reached.
       const previous =
         run.mode === 'T' && step.kind === 'block'
           ? canonicalPreviousStage(spec, step.blockIndex)
           : blocks.at(-1)?.stageObserved;
-      const reading = readStage(spec, observed, {
-        mode: run.mode,
-        history: run.mode === 'T' ? [] : blocks,
-        previous,
-        signatures: run.signatures,
-      });
-      const { flow: flowBy, ledger: ledgerBy } = scored.plan.runner;
-      const flow = flowBy ? stamp(flowVerdicts(spec, planned.expect, reading, previous), flowBy) : [];
       users.push(...userMessagesOf(user));
       usersBlock = step.kind === 'block' ? step.blockIndex : Number.NaN;
-      const ledger = ledgerVerdicts(facts.ledger, observed, users);
-      const all = [...verdicts, ...flow, ...(ledgerBy ? stamp(ledger.verdicts, ledgerBy) : [])];
-      const resolved = resolvedRecord(scored.used);
-      const contradictions = [...facts.contradictions, ...ledger.contradictions.map(describeContradiction)];
+      const scoringResult = await scoreBlockObservation(
+        {
+          spec,
+          mode: run.mode,
+          blockIndex: position,
+          block: planned.block,
+          stimulus: planned.stimulus,
+          expect: planned.expect,
+          given,
+          observed,
+          // A teacher-forced block is an independent sample: no earlier block of the run is its history.
+          history: run.mode === 'T' ? [] : [...blocks],
+          ledger: facts.ledger,
+          endState,
+          artifacts: run.artifacts,
+          readArtifact: capture ? capture.readArtifact : channel.readArtifact(),
+        },
+        scored,
+        {
+          previous,
+          signatures: run.signatures,
+          users,
+          contradictions: facts.contradictions,
+        },
+      );
       const block = {
         index: position,
         ...(planned.blockId !== undefined ? { blockId: planned.blockId } : {}),
         ...(planned.injected ? { injected: true } : {}),
+        ...realizedOf(planned, run.recordRealizedText),
         ...(capture
           ? {
               provenance: {
@@ -602,12 +634,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         givenHash: given.hash,
         cacheKey: key,
         observed,
-        verdicts: all,
-        ...(resolved ? { resolved } : {}),
-        ...(reading !== undefined ? { stageObserved: reading.stage } : {}),
-        ledgerCheck: { ok: contradictions.length === 0, contradictions },
-        drift: driftOf(all),
-        pass: all.every((verdict) => !verdict.gating || verdict.outcome === 'pass'),
+        ...scoringResult,
       };
       blocks.push(block);
       run.onEvent?.({ type: 'block_end', index: position, pass: block.pass, at: new Date().toISOString() });
