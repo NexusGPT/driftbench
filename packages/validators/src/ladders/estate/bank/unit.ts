@@ -175,6 +175,19 @@ const CELLS: Cell[] = [
   ]),
 ];
 
+/**
+ * The verdict per test from the `runs` of `estate unit --json`: only a row that names its test and carries a boolean
+ * `pass` counts. A row without one is left out, never read as red: a kill is a test that fails, not a row that is
+ * missing a field.
+ */
+export function passRows(runs: unknown): Map<string, boolean> {
+  const out = new Map<string, boolean>();
+  if (!Array.isArray(runs)) return out;
+  for (const row of runs as Array<Record<string, unknown>>)
+    if (typeof row?.spec === 'string' && typeof row.pass === 'boolean') out.set(row.spec, row.pass);
+  return out;
+}
+
 /** One guard run as `estate unit` reports it (docs/estate.md section 6). */
 type Reported = { guard?: string; event?: string; decision?: string; message?: string; ms?: number };
 
@@ -223,10 +236,7 @@ function unitRun(
       runs?: Array<{ spec: string; pass: boolean }>;
       guards?: Reported[];
     };
-    return {
-      verdicts: new Map((json.runs ?? []).map((run) => [run.spec, run.pass === true])),
-      guards: json.guards ?? [],
-    };
+    return { verdicts: passRows(json.runs), guards: json.guards ?? [] };
   } catch {
     return { verdicts: new Map(), guards: [], error: `estate unit printed no JSON (exit ${result.code})` };
   }
