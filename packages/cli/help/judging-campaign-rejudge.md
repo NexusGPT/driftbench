@@ -179,8 +179,8 @@ driftbench campaign rejudge rescore/specs/plan-upgrade.yaml --from acme-full --c
 
 ```text
 $ driftbench campaign rejudge rescore/specs/plan-upgrade.yaml --from acme-full --campaign acme-quiet --store rescore/runs.db --use check-set/quiet
-Campaign acme-quiet: 5 blocks re-scored under check-set/quiet; 0 agent calls, 0 judge calls.
 Re-scored; observations from acme-full.
+Campaign acme-quiet: 5 blocks re-scored under check-set/quiet; 0 agent calls, 0 judge calls.
 (exit 0)
 $ driftbench campaign rejudge rescore/specs/plan-upgrade.yaml --from acme-full --campaign acme-refused --store rescore/runs.db --use run-profile/fast
 run-profile is agent-facing: a change to it changes what the agent receives; rerun the agent in a full campaign.
