@@ -1,5 +1,3 @@
-import { registerBlameObjects } from './blame/objects';
-
 export * as blame from './blame';
 /**
  * Machine checks. Each check reads one part of what a block expected and what was observed, and returns
@@ -98,6 +96,5 @@ export { type SchemaIssue, validateStrict } from './support/schema';
 
 // The shipped policy/blame and policy/placement objects join the object registry when the package loads, as
 // every package registers its builtins: a project object can then extend them by id.
-registerBlameObjects();
 
 export const packageName = '@agent-nexus/driftbench-checks';
