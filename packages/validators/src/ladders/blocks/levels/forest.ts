@@ -311,12 +311,21 @@ function codeExportItems(): BankItem[] {
     ): {
       parent: Partial<Action>;
       childGiven?: Record<string, unknown>;
+      /** What the child does and expects, beside running one command. */
+      child?: Partial<Action>;
+      childExpect?: Record<string, unknown>;
       judge: (got: Got) => string | undefined;
     };
   };
   type Got = {
     childFiles?: Record<string, string>;
-    child?: { status?: string; notRun?: { kind?: string } };
+    child?: {
+      status?: string;
+      pass?: boolean;
+      notRun?: { kind?: string };
+      verdicts?: { id: string; outcome: string }[];
+      observed?: { workspaceDiff?: { created: string[]; changed: string[]; deleted: string[] } };
+    };
     grandchild?: { status?: string; blocked?: { by: string; root: string } };
     ids: string[];
   };
@@ -425,6 +434,71 @@ function codeExportItems(): BankItem[] {
       }),
     },
     {
+      id: 'child-diff-from-inherited',
+      cause:
+        "A child's workspace diff starts from the workspace it inherited: its ancestors' files are neither created nor changed by it.",
+      title: "a child that adds one file next to its parent's lists only that file as created",
+      tier: 3,
+      variants: 5,
+      plant: (seed, id) => {
+        const parentFile = `out/${token(seed, `${id}#p`)}.txt`;
+        const childFile = `out/${token(seed, `${id}#c`)}.txt`;
+        return {
+          parent: { files: [{ path: parentFile, format: 'txt', data: 'parent\n' }] },
+          child: { files: [{ path: childFile, format: 'txt', data: 'child\n' }] },
+          judge: (got) => {
+            const diff = got.child?.observed?.workspaceDiff;
+            if (!diff)
+              return `${got.ids[1]} should record its workspace diff; ${got.child?.status === 'not_run' ? `it was not run (${got.child.notRun?.kind})` : 'it records none'}`;
+            const all = [...diff.created, ...diff.changed, ...diff.deleted];
+            return diff.created.join(',') === childFile && all.length === 1
+              ? undefined
+              : `${got.ids[1]} should list only ${childFile} as created; its diff is created ${list(diff.created)}, changed ${list(diff.changed)}, deleted ${list(diff.deleted)}`;
+          },
+        };
+      },
+    },
+    {
+      id: 'child-checks-inherited',
+      cause: "A child's checks read the workspace it inherited: a file its parent wrote is there to judge.",
+      title: 'a child whose artifact check reads the file its parent wrote passes that check',
+      tier: 3,
+      variants: 5,
+      plant: (seed, id, rng) => {
+        const days = between(rng, 2, 40);
+        const parentFile = `out/${token(seed, `${id}#p`)}.csv`;
+        return {
+          parent: {
+            files: [
+              {
+                path: parentFile,
+                format: 'csv',
+                data: [
+                  ['bike', 'days'],
+                  ['Fern 3', days],
+                ],
+              },
+            ],
+          },
+          childExpect: {
+            artifacts: [
+              {
+                path: parentFile,
+                kind: 'csv',
+                checks: [{ value: { column: 'days', row: 2, equals: days } }],
+              },
+            ],
+          },
+          judge: (got) => {
+            const failing = (got.child?.verdicts ?? []).filter((v) => v.outcome !== 'pass').map((v) => v.id);
+            if (!got.child?.pass || got.child.status === 'not_run' || failing.length > 0)
+              return `${got.ids[1]} should pass its check on ${parentFile}, which its parent wrote; got ${got.child?.status}${failing.length > 0 ? ` failing ${list(failing)}` : ''}`;
+            return undefined;
+          },
+        };
+      },
+    },
+    {
       id: 'own-workspace-replaces',
       cause:
         "A child's own world.workspace replaces the inherited workspace whole: none of the parent's files carry.",
@@ -484,7 +558,7 @@ function codeExportItems(): BankItem[] {
               user: `${m[i]} Step ${i + 1}.`,
               ...(i > 0 ? { parent: b[i - 1] } : {}),
               ...(i === 1 && planted.childGiven ? { given: planted.childGiven } : {}),
-              expect: { execution: { ran_code: true } },
+              expect: { execution: { ran_code: true }, ...(i === 1 ? (planted.childExpect ?? {}) : {}) },
             })),
           };
           const actions = new Map<string, Action>(
@@ -492,7 +566,7 @@ function codeExportItems(): BankItem[] {
               marker,
               {
                 reply: 'Done.',
-                ...(i === 0 ? planted.parent : {}),
+                ...(i === 0 ? planted.parent : i === 1 ? (planted.child ?? {}) : {}),
                 commands: [{ command: 'python step.py', exitCode: 0 }],
               } as Action,
             ]),
