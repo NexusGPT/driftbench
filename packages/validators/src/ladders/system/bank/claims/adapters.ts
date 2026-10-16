@@ -102,6 +102,14 @@ function adapterItem(spec: Spec): BankItem {
 }
 
 /**
+ * The newer schema versions a refusal item writes: the version the seed draws above the current one (as the item
+ * always did, never replaced), and the next version, added on every seed.
+ */
+export function newerSchemas(seed: number): number[] {
+  return [...new Set([SCHEMA_VERSION + 1 + (seed % 4), SCHEMA_VERSION + 1])];
+}
+
+/**
  * The store schema that brought the block verdicts not_run and blocked: a floor, never a fixed number. A store
  * that holds one must be stamped at least this, so a driftbench older than the verdicts refuses it.
  */
@@ -3733,10 +3741,8 @@ await store.close();
         'errors.ts SCHEMA_VERSION: a database written by a newer schema is refused at open, and left as it was',
       cause: 'openStore refuses a database of a newer schema version without touching it',
       async check(ctx) {
-        // Above the store's current schema, whatever its number: on every seed the next version, and a version
-        // a few beyond that the seed picks.
         const checks: Array<[boolean, string]> = [];
-        for (const newer of [SCHEMA_VERSION + 1, SCHEMA_VERSION + 2 + (ctx.seed % 4)]) {
+        for (const newer of newerSchemas(ctx.seed)) {
           const { path } = await seededFile(ctx, `newer-schema-${newer}`);
           editByHand(path, `PRAGMA user_version = ${newer}`);
           const code = await codeOf(async () => {
@@ -3863,8 +3869,7 @@ await store.close();
       cause: 'readCampaignBundle refuses a bundle of a newer schema version',
       async check(ctx) {
         const checks: Array<[boolean, string]> = [];
-        // On every seed the next version, and a version a few beyond that the seed picks.
-        for (const newer of [SCHEMA_VERSION + 1, SCHEMA_VERSION + 2 + (ctx.seed % 4)]) {
+        for (const newer of newerSchemas(ctx.seed)) {
           const { path, dir } = await seededFile(ctx, `bundle-newer-${newer}`);
           const folder = await withStore(path, (store) => store.exportCampaign('c-1', join(dir, 'export')));
           const manifestPath = join(folder, 'manifest.json');
