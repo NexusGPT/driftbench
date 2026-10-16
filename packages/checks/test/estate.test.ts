@@ -219,6 +219,7 @@ describe('permission: what a permission rule allows or denies', () => {
 
   it('lists the estate checks by the names the estate generator writes', () => {
     expect(Object.keys(ESTATE_CHECKS).sort()).toEqual([
+      'absence',
       'grounded_values',
       'guard_finished',
       'guard_message',

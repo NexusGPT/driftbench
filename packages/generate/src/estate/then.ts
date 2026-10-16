@@ -7,9 +7,15 @@ import type {
   SubagentExpect,
   ToolExpect,
 } from '@agent-nexus/driftbench-core';
-import type { EstateAtom, EstateEvidence } from './inputs';
+import { type EstateAtom, type EstateEvidence, EVIDENCE_TYPES } from './inputs';
 import { literal } from './literal';
-import { compilePredicate } from './predicates';
+import {
+  ABSENCE_PREDICATES,
+  type AbsenceEvidence,
+  compilePredicate,
+  compileToolAbsence,
+  isCompiledPredicate,
+} from './predicates';
 
 export { literal };
 
@@ -176,6 +182,9 @@ export function thenOf(atoms: readonly EstateAtom[], polarity: Polarity, ctx: Th
   const then = emptyThen();
   for (const atom of atoms) {
     for (const evidence of atom.evidence) {
+      if (!Object.hasOwn(EVIDENCE_TYPES, evidence.type)) {
+        throw new Error(`Unknown estate evidence predicate "${evidence.type}" in atom ${atom.id}`);
+      }
       if (polarity === 'positive') positive(then, atom, evidence, ctx);
       else negative(then, atom, evidence, ctx);
     }
@@ -185,6 +194,15 @@ export function thenOf(atoms: readonly EstateAtom[], polarity: Polarity, ctx: Th
 }
 
 function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, ctx: ThenContext): void {
+  if (ABSENCE_PREDICATES.includes(evidence.type as AbsenceEvidence['type'])) {
+    if (!ctx.customChecks.has('absence')) {
+      gap(then, MARKERS.registered, atom, `${evidence.type} requires the absence check`);
+      return;
+    }
+    const predicates = (then.custom.absence?.predicates ?? []) as AbsenceEvidence[];
+    then.custom.absence = { predicates: [...predicates, evidence], block: 0 };
+    return;
+  }
   switch (evidence.type) {
     case 'skill_loaded':
       addSkill(then, { name: evidence.name, count: { min: evidence.min ?? 1 } });
@@ -219,6 +237,12 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       addTool(then, { label: evidence.label, count: { min: evidence.min ?? 1 } });
       return;
     case 'tool_not_called':
+      if (hasInput(evidence.input)) {
+        if (ctx.customChecks.has('some_call')) {
+          for (const call of compileToolAbsence(evidence).someCalls ?? []) addSomeCall(then, call);
+        } else gap(then, MARKERS.someCall, atom, `no ${evidence.label} call with ${show(evidence.input)}`);
+        return;
+      }
       addTool(then, { label: evidence.label, count: 0 });
       // A setting that denies the whole tool takes it off the offered list: the deny shows without a call.
       if (atom.kind === 'tool' && atom.fields?.effect === 'deny' && atom.fields.rule === evidence.label) {
@@ -333,7 +357,9 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
         return;
       }
       {
-        const compiled = compilePredicate(evidence.name, evidence.options);
+        const compiled = isCompiledPredicate(evidence.name)
+          ? compilePredicate(evidence.name, evidence.options)
+          : undefined;
         if (compiled && (!compiled.someCalls || ctx.customChecks.has('some_call'))) {
           for (const pattern of compiled.must ?? []) addUnique(then.must, pattern);
           for (const pattern of compiled.mustNot ?? []) addUnique(then.mustNot, pattern);
@@ -355,6 +381,8 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       }
       gap(then, MARKERS.registered, atom, evidence.name);
       return;
+    default:
+      throw new Error(`Unknown estate evidence predicate "${evidence.type}" in atom ${atom.id}`);
   }
 }
 
@@ -392,7 +420,7 @@ function negative(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       return;
     case 'custom':
       if (
-        compilePredicate(evidence.name, evidence.options) !== undefined ||
+        isCompiledPredicate(evidence.name) ||
         evidence.name === 'hazard_recovery' ||
         evidence.name === 'grounded_values' ||
         evidence.name === 'max_words' ||
