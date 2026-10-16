@@ -1,3 +1,4 @@
+import { posix } from 'node:path';
 import { canonicalJson } from '@agent-nexus/driftbench-core';
 import { shortQuote } from '@agent-nexus/driftbench-generate';
 import { z } from 'zod';
@@ -14,6 +15,10 @@ import { type Atom, AtomKind, Edge, type EstateMap } from '../schema';
  * An atom with the same hash whose other fields differ (evidence, enforcement, situation, title, role, kind
  * fields) is restated: its tests are regenerated. Approval alone is not a change. Edges are compared as
  * `from kind to` triples.
+ *
+ * A skill or helper whose folder or file was renamed while its `name` was kept is the same unit: each atom of
+ * its old file that reappears in the renamed file, of the same kind with the same quote (white space aside),
+ * is renamed, not removed and added. Its id changed with the folder, so its tests are regenerated; none retires.
  */
 
 export const AtomPlace = z.strictObject({
@@ -57,6 +62,16 @@ export const AtomMove = z.strictObject({
   to: AtomPlace,
 });
 export type AtomMove = z.infer<typeof AtomMove>;
+
+export const AtomRenamed = z.strictObject({
+  from: z.string().min(1).describe('The id in the old map'),
+  to: z.string().min(1).describe('The id in the new map'),
+  kind: AtomKind,
+  title: z.string().min(1),
+  fromFile: z.string().min(1),
+  toFile: z.string().min(1),
+});
+export type AtomRenamed = z.infer<typeof AtomRenamed>;
 
 export const AtomRestated = z.strictObject({
   id: z.string().min(1),
@@ -106,6 +121,7 @@ export const EstateDiff = z.strictObject({
     changed: z.array(AtomChange),
     moved: z.array(AtomMove),
     restated: z.array(AtomRestated),
+    renamed: z.array(AtomRenamed).optional().describe('Atoms of a skill or helper renamed with its name kept'),
   }),
   edges: z.strictObject({ added: z.array(Edge), removed: z.array(Edge) }),
   guards: z
@@ -119,6 +135,7 @@ export const EstateDiff = z.strictObject({
     semantic: z.number().int().min(0),
     moved: z.number().int().min(0),
     restated: z.number().int().min(0),
+    renamed: z.number().int().min(0).optional(),
     unchanged: z.number().int().min(0),
     edgesAdded: z.number().int().min(0),
     edgesRemoved: z.number().int().min(0),
@@ -150,8 +167,14 @@ export function diffEstateMaps(before: EstateMap, after: EstateMap, options: Dif
   const old = new Map(before.atoms.map((atom) => [atom.id, atom]));
   const next = new Map(after.atoms.map((atom) => [atom.id, atom]));
 
-  const added = after.atoms.filter((atom) => !old.has(atom.id)).map(diffAtom);
-  const removed = before.atoms.filter((atom) => !next.has(atom.id)).map(diffAtom);
+  const renamed = renamedAtoms(
+    before.atoms.filter((atom) => !next.has(atom.id)),
+    after.atoms.filter((atom) => !old.has(atom.id)),
+  );
+  const renamedFrom = new Set(renamed.map((entry) => entry.from));
+  const renamedTo = new Set(renamed.map((entry) => entry.to));
+  const added = after.atoms.filter((atom) => !old.has(atom.id) && !renamedTo.has(atom.id)).map(diffAtom);
+  const removed = before.atoms.filter((atom) => !next.has(atom.id) && !renamedFrom.has(atom.id)).map(diffAtom);
   const changed: AtomChange[] = [];
   const moved: AtomMove[] = [];
   const restated: AtomRestated[] = [];
@@ -200,7 +223,7 @@ export function diffEstateMaps(before: EstateMap, after: EstateMap, options: Dif
     version: 1,
     old: stamp(before, options.oldPath),
     new: stamp(after, options.newPath),
-    atoms: { added, removed, changed, moved, restated },
+    atoms: { added, removed, changed, moved, restated, ...(renamed.length > 0 ? { renamed } : {}) },
     edges: { added: edgesAdded, removed: edgesRemoved },
     ...(options.guards === undefined ? {} : { guards: options.guards }),
     summary: {
@@ -210,6 +233,7 @@ export function diffEstateMaps(before: EstateMap, after: EstateMap, options: Dif
       semantic: changed.filter((entry) => entry.change === 'semantic').length,
       moved: moved.length,
       restated: restated.length,
+      ...(renamed.length > 0 ? { renamed: renamed.length } : {}),
       unchanged,
       edgesAdded: edgesAdded.length,
       edgesRemoved: edgesRemoved.length,
@@ -285,6 +309,10 @@ export function renderEstateDiff(diff: EstateDiff): string {
       lines.push(`  > ${entry.id} ${where(entry.from)} to ${to}`);
     }
   }
+  if ((diff.atoms.renamed ?? []).length > 0) {
+    lines.push('Renamed with their skill or helper, name kept:');
+    for (const entry of diff.atoms.renamed ?? []) lines.push(`  = ${entry.from} to ${entry.to}`);
+  }
   if (diff.atoms.restated.length > 0) {
     lines.push('Restated, same quote:');
     for (const entry of diff.atoms.restated) lines.push(`  * ${entry.id}: ${entry.fields.join(', ')}`);
@@ -315,6 +343,58 @@ function byEdge(a: Edge, b: Edge): number {
   const left = edgeKey(a);
   const right = edgeKey(b);
   return left < right ? -1 : left > right ? 1 : 0;
+}
+
+/**
+ * Atoms of a unit renamed with its name kept. A skill or helper atom that left and one that arrived with the
+ * same kind and the same `name` field give a renamed place (old folder to new, or old file to new for a
+ * helper file); every gone atom of that place pairs with the arrived atom of the same kind and quote (white
+ * space aside) at the matching path, in line order.
+ */
+function renamedAtoms(gone: readonly Atom[], arrived: readonly Atom[]): AtomRenamed[] {
+  const nameOf = (atom: Atom) => (typeof atom.fields?.name === 'string' ? atom.fields.name : undefined);
+  const places = new Map<string, string>();
+  for (const unit of gone.filter((atom) => atom.kind === 'skill' || atom.kind === 'subagent')) {
+    const name = nameOf(unit);
+    if (name === undefined) continue;
+    const twins = arrived.filter((atom) => atom.kind === unit.kind && nameOf(atom) === name);
+    const twin = twins.length === 1 ? twins[0] : undefined;
+    if (!twin || twin.provenance.file === unit.provenance.file) continue;
+    const from = unit.kind === 'skill' ? posix.dirname(unit.provenance.file) : unit.provenance.file;
+    const to = unit.kind === 'skill' ? posix.dirname(twin.provenance.file) : twin.provenance.file;
+    places.set(from, to);
+  }
+  if (places.size === 0) return [];
+  const moved = (file: string): string | undefined => {
+    for (const [from, to] of places) {
+      if (file === from) return to;
+      if (file.startsWith(`${from}/`)) return `${to}${file.slice(from.length)}`;
+    }
+    return undefined;
+  };
+  const open = [...arrived].sort((a, b) => a.provenance.startLine - b.provenance.startLine);
+  const out: AtomRenamed[] = [];
+  for (const atom of [...gone].sort((a, b) => a.provenance.startLine - b.provenance.startLine)) {
+    const file = moved(atom.provenance.file);
+    if (file === undefined) continue;
+    const at = open.findIndex(
+      (candidate) =>
+        candidate.kind === atom.kind &&
+        candidate.provenance.file === file &&
+        normaliseQuote(candidate.provenance.quote) === normaliseQuote(atom.provenance.quote),
+    );
+    if (at < 0) continue;
+    const [twin] = open.splice(at, 1) as [Atom];
+    out.push({
+      from: atom.id,
+      to: twin.id,
+      kind: twin.kind,
+      title: twin.title,
+      fromFile: atom.provenance.file,
+      toFile: twin.provenance.file,
+    });
+  }
+  return out;
 }
 
 function changedFields(before: Atom, after: Atom): string[] {

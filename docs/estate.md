@@ -821,6 +821,8 @@ Atoms match by id. An atom whose provenance hash changed is one of three things:
 
 An atom with the same hash whose evidence, enforcement, situation, title, role or kind fields differ is restated: its tests are regenerated. Approval alone is never a change. Edges compare as `from kind to`.
 
+A skill or helper renamed with its `name` kept (its folder or file moved) is the same unit: each atom of the old place that reappears at the new place, with the same kind and quote (white space aside), is listed as renamed, not as removed and added. Its id carries the folder, so its tests are regenerated under the new id (`estate impact` gives the reason `renamed`); none retires and none is new. A rename that also changes the `name` is a removal and an addition.
+
 The diff of the Northwind estate against its second version, with the guard state of the first version named:
 
 ```

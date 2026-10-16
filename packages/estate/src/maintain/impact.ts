@@ -17,7 +17,9 @@ import { Regression, regressionNeeds, renderRegression } from './regression';
  * - re-approve: every atom whose meaning changed (a semantic change); its phrasings wait for a person;
  * - retire: every test whose atoms are all removed, with the reason `atom <id> removed` written into the
  *   spec's metadata as `retired` (on `--write`);
- * - new: every added atom no live test names; its tests are generated and wait for approval.
+ * - new: every added atom no live test names; its tests are generated and wait for approval;
+ * - renamed: an atom of a skill or helper renamed with its name kept: its tests are regenerated under its new
+ *   id, none retires and the atom is not new.
  * A moved atom (the same quote at another span) and an atom whose quote changed in white space only touch
  * no test: a change reruns only what it can affect. A spec already carrying `metadata.retired`
  * is not a live test: it is counted and left alone.
@@ -82,7 +84,7 @@ export async function loadEstateTests(dir: string): Promise<LoadedTests> {
   return errors.length > 0 ? { ok: false, errors } : { ok: true, tests, others };
 }
 
-export const RegenerateWhy = z.enum(['whitespace', 'semantic', 'restated', 'removed', 'guard_state']);
+export const RegenerateWhy = z.enum(['whitespace', 'semantic', 'restated', 'removed', 'guard_state', 'renamed']);
 export type RegenerateWhy = z.infer<typeof RegenerateWhy>;
 
 export const ImpactReport = z.strictObject({
@@ -174,6 +176,7 @@ export function estateImpact(
     else if (change.fields.length > 0) why.set(change.id, 'restated');
   }
   for (const entry of diff.atoms.restated) if (!why.has(entry.id)) why.set(entry.id, 'restated');
+  for (const entry of diff.atoms.renamed ?? []) if (!why.has(entry.from)) why.set(entry.from, 'renamed');
   const removed = new Set(diff.atoms.removed.map((atom) => atom.id));
   for (const id of removed) why.set(id, 'removed');
   for (const entry of diff.guards ?? []) {
@@ -333,6 +336,7 @@ const WHY: Record<RegenerateWhy, string> = {
   restated: 'restated',
   removed: 'removed',
   guard_state: 'guard state',
+  renamed: 'renamed with its unit',
 };
 
 /** The impact as lines a person reads. */
