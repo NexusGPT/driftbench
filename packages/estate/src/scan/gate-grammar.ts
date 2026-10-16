@@ -392,9 +392,14 @@ export function unresolvedKind(phrase: string): 'section' | 'state' | 'role' | u
   if (/^(?:state|status)$/i.test(content.at(-1) ?? '')) return 'state';
   // A part named by role must say it is a document: a word for what a rule, a standard or a checklist is
   // written in. "the whole thread", "the customer's last email" name a thing of the conversation.
-  return content.some((word) => DOCUMENT_NOUNS.has(word.toLowerCase().replace(/['\u2019]s$/, '')))
-    ? 'role'
-    : undefined;
+  if (content.some((word) => DOCUMENT_NOUNS.has(word.toLowerCase().replace(/['\u2019]s$/, ''))))
+    return 'role';
+  // A name written with capitals inside the phrase ("the Foundation scorecard", "the Handover") is a document's name.
+  const words = text.split(/\s+/);
+  const named =
+    words.slice(1).some((word) => /^[A-Z][a-z]{2,}/.test(word) || /^[A-Z]{3,}$/.test(word)) &&
+    !/\b(?:thread|message|email|ticket|conversation|reply|answer|question)\b/i.test(text);
+  return named ? 'role' : undefined;
 }
 
 /**
@@ -449,6 +454,42 @@ export function ownWriting(phrase: string): boolean {
 const DOCUMENT_NOUNS = new Set([
   'guide',
   'guides',
+  'brief',
+  'contract',
+  'schema',
+  'register',
+  'registry',
+  'catalogue',
+  'catalog',
+  'recipe',
+  'workflow',
+  'blueprint',
+  'taxonomy',
+  'ledger',
+  'matrix',
+  'plan',
+  'prd',
+  'scorecard',
+  'index',
+  'table',
+  'sheet',
+  'journal',
+  'diary',
+  'changelog',
+  'tracker',
+  'inventory',
+  'canon',
+  'lexicon',
+  'dictionary',
+  'map',
+  'roadmap',
+  'requirements',
+  'constraints',
+  'principles',
+  'heuristics',
+  'rubrics',
+  'scoreboard',
+  'gate',
   'guideline',
   'guidelines',
   'standard',
@@ -484,7 +525,6 @@ const DOCUMENT_NOUNS = new Set([
   'instructions',
   'convention',
   'conventions',
-  'gate',
   'gates',
   'appendix',
 ]);
