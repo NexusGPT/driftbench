@@ -806,7 +806,7 @@ A block passes when every gating verdict passes, the flow and ledger verdicts in
 
 The run starts from the spec's `given`: its ledger, world and vars. A block's own `given` merges into them from that block on: tools, store keys, fixtures, variables and facts by name, the later value winning, and a later workspace replacing the earlier one whole. The world of an injected perturbation merges the same way.
 
-A block's `given.prefix` ends the open session: the next send opens a new one, whose history is that prefix. The block's `given.origin`, when it writes one, holds from that block until a block writes another prefix.
+A block's `given.prefix` ends the open session: the next send opens a new one, whose history is that prefix. The block's `given.origin`, when it writes one, holds from that block until a block writes another prefix. It covers the messages that prefix holds, not the turns a run or a mode T replay adds after them: the resolved Given carries their count as `originLength`. It stays out of the Given hash, since the spec the hash covers already decides it, but the block cache key reads the whole resolved Given, so it is part of that key: an adapter can act on it (crewai does), and a cache entry stands for what the adapter received.
 
 In mode T every block opens its own session from its canonical Given: the ledger, world and vars the spec writes up to that block, and a prefix of the earlier blocks as the spec writes them. On an adapter with a sandbox, a block that writes no `given.world.workspace` of its own keeps the session of the block before, with the canonical prefix as its history, so a task step finds the files the step before made. See [run modes](concepts/run-modes.md#teacher-forced).
 

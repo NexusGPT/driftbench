@@ -3,7 +3,8 @@
  * database or reading a bundle written by a newer version fails with a clear error; an older database is
  * upgraded on open. Schema 3 adds no table: its run records may hold the block verdicts not_run and blocked
  * (`status`, `notRun`, `blocked`) and the resolution fields (`by`, `resolved`, `diagnoses`), which an older
- * driftbench cannot read.
+ * driftbench cannot read. The tables are created with IF NOT EXISTS and created on every open, so a store at
+ * this version gains a table a later build added without a new version number.
  */
 export const SCHEMA_VERSION = 3;
 
