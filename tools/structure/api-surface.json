@@ -427,6 +427,7 @@
       "Expect": "value",
       "FlowCoverage": "type",
       "FlowId": "value",
+      "GUARD_INTERVENTIONS": "value",
       "Given": "value",
       "GivenDefaults": "value",
       "GivenLayers": "type",
