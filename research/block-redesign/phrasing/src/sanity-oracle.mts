@@ -36,7 +36,7 @@ for (const def of BLOCKS) {
     // Surface forms an agent may legitimately write for this field.
     const forms =
       field.kind === 'phone'
-        ? [...Object.values(slot.forms), '+12025550' + slot.value.slice(-3), slot.value.replace(/\s/g, '')]
+        ? [...Object.values(slot.forms), '+' + slot.value.replace(/\D/g, ''), slot.value.replace(/\s/g, '')]
         : field.kind === 'address' && field.mode === 'contains'
           ? [field.gold, field.gold.replace('Avenue', 'Ave').replace('Lane', 'Ln'), field.gold.toLowerCase()]
           : Object.values(slot.forms);
