@@ -8,8 +8,8 @@
     292269655
   ],
   "summary": {
-    "enumerated": 1746,
-    "killed": 1511,
+    "enumerated": 1754,
+    "killed": 1519,
     "equivalent": 235,
     "survived": 0,
     "equivalenceByReasonClass": {
@@ -19,8 +19,8 @@
     },
     "byProvenance": {
       "product": {
-        "enumerated": 1643,
-        "killed": 1426,
+        "enumerated": 1639,
+        "killed": 1422,
         "equivalent": 217,
         "survived": 0,
         "equivalenceByReasonClass": {
@@ -30,8 +30,8 @@
         }
       },
       "reference": {
-        "enumerated": 103,
-        "killed": 85,
+        "enumerated": 115,
+        "killed": 97,
         "equivalent": 18,
         "survived": 0,
         "equivalenceByReasonClass": {
@@ -71,8 +71,8 @@
     },
     {
       "item": "gen.complete.hazard_recovery-hazard-after-compaction",
-      "sites": 28,
-      "killed": 24,
+      "sites": 36,
+      "killed": 32,
       "equivalent": 4,
       "survived": 0
     },
@@ -5278,7 +5278,7 @@
       "spec": "estate.hazard_recovery.hazard.standing.recover-from-a-compaction-of-the",
       "path": "rules.custom.hazard_recovery",
       "kind": "check",
-      "provenance": "product",
+      "provenance": "reference",
       "compiler": [
         "packages/generate/src/estate/build-row.ts#customOf",
         "packages/generate/src/estate/then.ts#positive",
@@ -5331,15 +5331,53 @@
       "reasonClass": "single-block-scope",
       "equivalenceProof": {
         "pass": true,
-        "inputs": 1987,
-        "comparisons": 3974,
+        "inputs": 1983,
+        "comparisons": 3966,
         "evaluators": [
           "production",
           "bounded-reference"
         ],
-        "inputDigest": "8823178a7bc78aa8f81a9f9d8fcab2922a75e0e3375d98ca13f7b615a68c73e0",
+        "inputDigest": "49c238109b1dc82ddc8f0538e02da696a21649d9159cc8dbacc591e3a301e72f",
         "differences": []
       }
+    },
+    {
+      "seed": 1,
+      "item": "gen.complete.hazard_recovery-hazard-after-compaction",
+      "spec": "estate.hazard_recovery.hazard.standing.recover-from-a-compaction-of-the",
+      "path": "rules.custom.hazard_recovery.reread",
+      "kind": "field",
+      "provenance": "reference",
+      "compiler": [
+        "packages/generate/src/estate/build-row.ts#customOf",
+        "packages/generate/src/estate/then.ts#positive",
+        "packages/generate/src/estate/then.ts#negative"
+      ],
+      "verdict": "killed",
+      "control": true,
+      "mutant": false,
+      "restored": true,
+      "schema": "valid",
+      "reason": "1 of 1: estate.hazard_recovery.hazard.standing.recover-from-a-compaction-of-the: component control failed 0.custom.hazard_recovery.reread.0.after-event"
+    },
+    {
+      "seed": 1,
+      "item": "gen.complete.hazard_recovery-hazard-after-compaction",
+      "spec": "estate.hazard_recovery.hazard.standing.recover-from-a-compaction-of-the",
+      "path": "rules.custom.hazard_recovery.reread.0",
+      "kind": "entry",
+      "provenance": "reference",
+      "compiler": [
+        "packages/generate/src/estate/build-row.ts#customOf",
+        "packages/generate/src/estate/then.ts#positive",
+        "packages/generate/src/estate/then.ts#negative"
+      ],
+      "verdict": "killed",
+      "control": true,
+      "mutant": false,
+      "restored": true,
+      "schema": "valid",
+      "reason": "1 of 1: estate.hazard_recovery.hazard.standing.recover-from-a-compaction-of-the: component control failed 0.custom.hazard_recovery.reread.0.after-event"
     },
     {
       "seed": 1,
@@ -14038,7 +14076,7 @@
       "spec": "estate.hazard_recovery.hazard.standing.recover-from-a-compaction-of-the",
       "path": "rules.custom.hazard_recovery",
       "kind": "check",
-      "provenance": "product",
+      "provenance": "reference",
       "compiler": [
         "packages/generate/src/estate/build-row.ts#customOf",
         "packages/generate/src/estate/then.ts#positive",
@@ -14091,15 +14129,53 @@
       "reasonClass": "single-block-scope",
       "equivalenceProof": {
         "pass": true,
-        "inputs": 1987,
-        "comparisons": 3974,
+        "inputs": 1983,
+        "comparisons": 3966,
         "evaluators": [
           "production",
           "bounded-reference"
         ],
-        "inputDigest": "507d09cbae6ffe26ee9ed8241708a996b7be040038c1d31dfe16c928b18fffea",
+        "inputDigest": "c5ebfe9d6ea2ec09a63f6c88123e4e8998e4af64280c0b55654562342ad0b62a",
         "differences": []
       }
+    },
+    {
+      "seed": 2,
+      "item": "gen.complete.hazard_recovery-hazard-after-compaction",
+      "spec": "estate.hazard_recovery.hazard.standing.recover-from-a-compaction-of-the",
+      "path": "rules.custom.hazard_recovery.reread",
+      "kind": "field",
+      "provenance": "reference",
+      "compiler": [
+        "packages/generate/src/estate/build-row.ts#customOf",
+        "packages/generate/src/estate/then.ts#positive",
+        "packages/generate/src/estate/then.ts#negative"
+      ],
+      "verdict": "killed",
+      "control": true,
+      "mutant": false,
+      "restored": true,
+      "schema": "valid",
+      "reason": "1 of 1: estate.hazard_recovery.hazard.standing.recover-from-a-compaction-of-the: component control failed 0.custom.hazard_recovery.reread.0.after-event"
+    },
+    {
+      "seed": 2,
+      "item": "gen.complete.hazard_recovery-hazard-after-compaction",
+      "spec": "estate.hazard_recovery.hazard.standing.recover-from-a-compaction-of-the",
+      "path": "rules.custom.hazard_recovery.reread.0",
+      "kind": "entry",
+      "provenance": "reference",
+      "compiler": [
+        "packages/generate/src/estate/build-row.ts#customOf",
+        "packages/generate/src/estate/then.ts#positive",
+        "packages/generate/src/estate/then.ts#negative"
+      ],
+      "verdict": "killed",
+      "control": true,
+      "mutant": false,
+      "restored": true,
+      "schema": "valid",
+      "reason": "1 of 1: estate.hazard_recovery.hazard.standing.recover-from-a-compaction-of-the: component control failed 0.custom.hazard_recovery.reread.0.after-event"
     },
     {
       "seed": 2,
@@ -23010,7 +23086,7 @@
       "spec": "estate.hazard_recovery.hazard.standing.recover-from-a-compaction-of-the",
       "path": "rules.custom.hazard_recovery",
       "kind": "check",
-      "provenance": "product",
+      "provenance": "reference",
       "compiler": [
         "packages/generate/src/estate/build-row.ts#customOf",
         "packages/generate/src/estate/then.ts#positive",
@@ -23063,15 +23139,53 @@
       "reasonClass": "single-block-scope",
       "equivalenceProof": {
         "pass": true,
-        "inputs": 1987,
-        "comparisons": 3974,
+        "inputs": 1983,
+        "comparisons": 3966,
         "evaluators": [
           "production",
           "bounded-reference"
         ],
-        "inputDigest": "bc4f060789d3524e969c55905bf3dda0ca3e5d775fa30d5cbdcc3885160802d1",
+        "inputDigest": "76025c26d5a2db2198c92d7344bad099697daf9f62e64554be7a70f0b8a13071",
         "differences": []
       }
+    },
+    {
+      "seed": 3,
+      "item": "gen.complete.hazard_recovery-hazard-after-compaction",
+      "spec": "estate.hazard_recovery.hazard.standing.recover-from-a-compaction-of-the",
+      "path": "rules.custom.hazard_recovery.reread",
+      "kind": "field",
+      "provenance": "reference",
+      "compiler": [
+        "packages/generate/src/estate/build-row.ts#customOf",
+        "packages/generate/src/estate/then.ts#positive",
+        "packages/generate/src/estate/then.ts#negative"
+      ],
+      "verdict": "killed",
+      "control": true,
+      "mutant": false,
+      "restored": true,
+      "schema": "valid",
+      "reason": "1 of 1: estate.hazard_recovery.hazard.standing.recover-from-a-compaction-of-the: component control failed 0.custom.hazard_recovery.reread.0.after-event"
+    },
+    {
+      "seed": 3,
+      "item": "gen.complete.hazard_recovery-hazard-after-compaction",
+      "spec": "estate.hazard_recovery.hazard.standing.recover-from-a-compaction-of-the",
+      "path": "rules.custom.hazard_recovery.reread.0",
+      "kind": "entry",
+      "provenance": "reference",
+      "compiler": [
+        "packages/generate/src/estate/build-row.ts#customOf",
+        "packages/generate/src/estate/then.ts#positive",
+        "packages/generate/src/estate/then.ts#negative"
+      ],
+      "verdict": "killed",
+      "control": true,
+      "mutant": false,
+      "restored": true,
+      "schema": "valid",
+      "reason": "1 of 1: estate.hazard_recovery.hazard.standing.recover-from-a-compaction-of-the: component control failed 0.custom.hazard_recovery.reread.0.after-event"
     },
     {
       "seed": 3,
@@ -31589,7 +31703,7 @@
       "spec": "estate.hazard_recovery.hazard.standing.recover-from-a-compaction-of-the",
       "path": "rules.custom.hazard_recovery",
       "kind": "check",
-      "provenance": "product",
+      "provenance": "reference",
       "compiler": [
         "packages/generate/src/estate/build-row.ts#customOf",
         "packages/generate/src/estate/then.ts#positive",
@@ -31642,15 +31756,53 @@
       "reasonClass": "single-block-scope",
       "equivalenceProof": {
         "pass": true,
-        "inputs": 1987,
-        "comparisons": 3974,
+        "inputs": 1983,
+        "comparisons": 3966,
         "evaluators": [
           "production",
           "bounded-reference"
         ],
-        "inputDigest": "0e8b5c08382f3fa9abf74ee84acddfcd3ef2bc5cdfd3b01f24606ff3d9a69704",
+        "inputDigest": "3b14d435f4d2c2ec60bc58ffb9b2644674bd6d1aa7272c13b7b812ba029c5f17",
         "differences": []
       }
+    },
+    {
+      "seed": 292269655,
+      "item": "gen.complete.hazard_recovery-hazard-after-compaction",
+      "spec": "estate.hazard_recovery.hazard.standing.recover-from-a-compaction-of-the",
+      "path": "rules.custom.hazard_recovery.reread",
+      "kind": "field",
+      "provenance": "reference",
+      "compiler": [
+        "packages/generate/src/estate/build-row.ts#customOf",
+        "packages/generate/src/estate/then.ts#positive",
+        "packages/generate/src/estate/then.ts#negative"
+      ],
+      "verdict": "killed",
+      "control": true,
+      "mutant": false,
+      "restored": true,
+      "schema": "valid",
+      "reason": "1 of 1: estate.hazard_recovery.hazard.standing.recover-from-a-compaction-of-the: component control failed 0.custom.hazard_recovery.reread.0.after-event"
+    },
+    {
+      "seed": 292269655,
+      "item": "gen.complete.hazard_recovery-hazard-after-compaction",
+      "spec": "estate.hazard_recovery.hazard.standing.recover-from-a-compaction-of-the",
+      "path": "rules.custom.hazard_recovery.reread.0",
+      "kind": "entry",
+      "provenance": "reference",
+      "compiler": [
+        "packages/generate/src/estate/build-row.ts#customOf",
+        "packages/generate/src/estate/then.ts#positive",
+        "packages/generate/src/estate/then.ts#negative"
+      ],
+      "verdict": "killed",
+      "control": true,
+      "mutant": false,
+      "restored": true,
+      "schema": "valid",
+      "reason": "1 of 1: estate.hazard_recovery.hazard.standing.recover-from-a-compaction-of-the: component control failed 0.custom.hazard_recovery.reread.0.after-event"
     },
     {
       "seed": 292269655,

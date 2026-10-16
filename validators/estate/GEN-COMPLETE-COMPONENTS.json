@@ -142,7 +142,7 @@
   {
     "item": "gen.complete.hazard_recovery-hazard-after-compaction",
     "specs": 1,
-    "components": 993,
+    "components": 991,
     "gaps": [],
     "clauses": [
       "0.expect.workspace.evidence.diff",
@@ -189,9 +189,7 @@
       "0.custom.hazard_recovery.event.selector.prefix",
       "0.custom.hazard_recovery.event.selector.substring",
       "0.custom.hazard_recovery.event.selector.truncated",
-      "0.custom.hazard_recovery.resumed.call_or_text",
-      "0.custom.hazard_recovery.resumed.single-call",
-      "0.custom.hazard_recovery.resumed.only-text",
+      "0.custom.hazard_recovery.reread.0.after-event",
       "0.custom.hazard_recovery.every.collateral.ignores-null-marker",
       "0.custom.hazard_recovery.collateral.unknown-tool-input.null",
       "0.custom.hazard_recovery.every.collateral.input-record-type",

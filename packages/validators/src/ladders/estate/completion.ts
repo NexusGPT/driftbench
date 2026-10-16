@@ -494,7 +494,11 @@ export function completionComponents(spec: Spec): ComponentInventory {
             o.text = 'Fixture recovery continues.';
             o.segments = [];
           });
-        } else gap('resumed.implied-by-reread:isolated-violation-impossible');
+        }
+        // With a reread named, resuming is not a separate demand: every reread is a call after the hazard, so the
+        // only trace that breaks "calls or text after the hazard" (none) breaks each reread as well. The reread
+        // clauses below carry it, and each is falsified alone.
+
         for (const [at, path] of strings(opts.reread).entries())
           add(`reread.${at}.after-event`, (o) => {
             const n = from(o);

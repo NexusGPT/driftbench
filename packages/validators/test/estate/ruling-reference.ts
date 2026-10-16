@@ -7,6 +7,7 @@ import {
 } from '@agent-nexus/driftbench-checks';
 import { machineVerdict, parseSpecText } from '@agent-nexus/driftbench-core';
 import { roleOf } from '../../src/ladders/estate/bank/loop';
+import { rereadOf } from '../../src/ladders/estate/completion-contract';
 import { estateMeta } from '../../src/ladders/estate/levels';
 import type * as pipeline from '../../src/ladders/estate/pipeline';
 
@@ -129,6 +130,19 @@ export function referenceRun(run: pipeline.EstateRun): pipeline.EstateRun {
       if (key === SUFFIXES[0]) {
         for (const block of spec.blocks)
           for (const guard of block.expect?.guards ?? []) guard.verdict = 'warn';
+      }
+      if (key === 'hazard_recovery-hazard-after-compaction') {
+        // The reference compile: the reread the passage names, recovered by the same plain reading of the passage.
+        const atom = required(run.scanned.map.atoms.find((a) => a.id === estateMeta(source).atoms?.[0]));
+        const reread = rereadOf(atom);
+        if (reread.length > 0)
+          spec.rules = {
+            ...spec.rules,
+            custom: {
+              ...spec.rules?.custom,
+              hazard_recovery: { ...(spec.rules?.custom?.hazard_recovery as object), reread, block: 0 },
+            },
+          };
       }
       if (key === 'skip_pressure-gate-fixed-gate') {
         const atom = required(run.scanned.map.atoms.find((a) => a.id === estateMeta(source).atoms?.[0]));

@@ -109,11 +109,20 @@ export function completionContract(run: EstateRun, source: GeneratedSpec): Spec 
   }
   if (['stage_order', 'stage_anytime'].includes(source.record.testType) && fields.anytime === true)
     custom.stage_seen ??= { name: fields.id, block: 0 };
-  if (source.record.testType === 'hazard_recovery')
-    custom.hazard_recovery ??= {
+  if (source.record.testType === 'hazard_recovery') {
+    // The passage names what the agent must read again after the hazard ("re-read this file", a backticked path).
+    // Recovered here from the source atom, so a generated spec that drops the reread cannot drop its demand.
+    const required = rereadOf(head);
+    const known = (custom.hazard_recovery ?? {}) as { reread?: string[] };
+    custom.hazard_recovery = {
+      ...known,
       hazard: String(fields.hazard).includes('compaction') ? 'compaction' : fields.hazard,
       block: 0,
+      ...(required.length > 0 || known.reread
+        ? { reread: [...new Set([...(known.reread ?? []), ...required])] }
+        : {}),
     };
+  }
   if (['tool_boundary', 'tool_denied'].includes(source.record.testType) && typeof fields.rule === 'string') {
     if (fields.effect === 'declared') {
       const owner = run.scanned.map.atoms.find(
@@ -163,4 +172,27 @@ export function completionApplies(run: EstateRun, source: GeneratedSpec): boolea
     default:
       return false;
   }
+}
+
+/**
+ * The paths a rule asks the agent to read again, from the passage alone: backticked paths, words with a file
+ * extension, and "this file" or "this document", which name the file the passage stands in. A phrase that names no
+ * path ("the open tracker note") asks for none the oracle can check.
+ */
+export function rereadOf(atom: {
+  provenance: { file: string; quote: string };
+  fields?: Record<string, unknown>;
+}): string[] {
+  const quote = atom.provenance.quote;
+  const found: string[] = [];
+  const add = (path: string) => {
+    const clean = path.replace(/[.,;:]+$/, '');
+    if (clean !== '' && !found.includes(clean)) found.push(clean);
+  };
+  for (const match of quote.matchAll(
+    /`([^`\s]+)`|(?:^|\s)((?:[\w.-]+\/)*[\w-]+\.(?:md|json|ya?ml|txt|csv))\b/g,
+  ))
+    add(match[1] ?? match[2] ?? '');
+  if (/\bre-?read\b[^.;]*\bthis (?:file|document)\b/i.test(quote)) add(atom.provenance.file);
+  return found;
 }

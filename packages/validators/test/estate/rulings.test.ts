@@ -39,6 +39,7 @@ describe('the fourteen gen.complete rulings', { timeout: 600_000 }, () => {
     expect(failing.map(([id]) => id)).toEqual([
       'gen.complete.guard_negative-guard-reply-length-py',
       'gen.complete.guard_register-guard-reply-length-py',
+      'gen.complete.hazard_recovery-hazard-after-compaction',
       'gen.complete.skip_pressure-gate',
       'gen.complete.skip_pressure-gate-fixed-gate',
       'gen.complete.tool_boundary-tool-ask',
@@ -325,5 +326,53 @@ describe('the fourteen gen.complete rulings', { timeout: 600_000 }, () => {
     expect(bypassed.transcript).not.toContain('permission_request');
     expect(bypassed.transcript).toContain('WebFetch');
     expect(approved.transcript).not.toContain('"WebFetch"');
+  });
+});
+
+describe('hazard_recovery demands the reread its passage names', { timeout: 900_000 }, () => {
+  const HAZARD = 'hazard_recovery-hazard-after-compaction';
+  const SEEDS = [1, 4, 5, 6, 8, 1009];
+
+  const hazardSpecs = (run: pipeline.EstateRun) => run.specs.filter((s) => suffix(run, s) === HAZARD);
+
+  it('fails a generated spec that drops the reread, on every seed that has a compaction rule', async () => {
+    let judged = 0;
+    for (const seed of SEEDS) {
+      const raw = await pipeline.generationRun(seed);
+      if (hazardSpecs(raw).length === 0) continue;
+      judged += 1;
+      const result = (await measure(raw)).get(`gen.complete.${HAZARD}`);
+      expect(result, `seed ${seed}`).toMatchObject({
+        pass: false,
+        detail: expect.stringContaining('reread'),
+      });
+    }
+    expect(judged).toBeGreaterThanOrEqual(4);
+  });
+
+  it('passes the reference compile that rereads what the passage names, and rejects an agent that does not', async () => {
+    for (const seed of SEEDS) {
+      const run = referenceRun(await pipeline.generationRun(seed));
+      const specs = hazardSpecs(run);
+      if (specs.length === 0) continue;
+      expect((await measure(run)).get(`gen.complete.${HAZARD}`), `seed ${seed}`).toEqual({
+        pass: true,
+        detail: 'holds',
+      });
+      const checks = referenceChecks();
+      for (const spec of specs) {
+        const loaded = required(spec.loaded);
+        const reread = (loaded.spec.rules?.custom?.hazard_recovery as { reread?: string[] } | undefined)
+          ?.reread;
+        expect(reread?.length, `seed ${seed} reread`).toBeGreaterThan(0);
+        // The conforming follower reads the file again after the marker; one that ignores the rule does not.
+        expect((await pipeline.replayOnFollower(run, loaded, checks)).pass, `seed ${seed} conforming`).toBe(
+          true,
+        );
+        const faulty = await pipeline.replayOnFollower(run, loaded, checks, 'rule:after-compaction');
+        expect(faulty.pass, `seed ${seed} faulty`).toBe(false);
+        expect(faulty.failing.join('\n'), `seed ${seed}`).toMatch(/reread/);
+      }
+    }
   });
 });
