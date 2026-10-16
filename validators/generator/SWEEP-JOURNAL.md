@@ -120,3 +120,14 @@ The next entry records completed seed results or the final bank result. No unmea
 - Product measurement, main's real generation: the old logic fails D8 on seeds 1 to 12, 14 to 16, 18, 20 and the hidden seed. The new item fails no `sequence.stages.*` item on these seeds or on 1001 and 1002. The product places no probe at a ruled-out stage.
 - Sweep: `diff.feasible.<seeder>` also reads written constraints only, in the permissive direction. On seed 2, 39 blocks sit in an impossible-only cell, all from seeder `cover`, which no `diff.feasible` item reads. That item stays unchanged and needs its own ruling. The baseline suite's goal detour also reads written constraints only; it is not an item.
 - Evidence: [sequence-impossible-pairs.json](evidence/sequence-impossible-pairs.json). No items, thresholds, fault agents, fixtures, floors or hidden-seed rules are removed or lowered.
+
+## 2026-10-16: PR 523 delta, removability preserves map obligations
+
+- Base: 9e562f7948b1a04393717d151f7c876d701c3cb2. The owner holds PR 523 for a new contradiction: deleting public seed-1 gen-phrase-002#b3-value loses the only approved returned-value phrase, changing phrases.data-out from 12/12 to 11/12.
+- Ruling: preserve every previously satisfied individual structural map obligation, including approved phrase/carrier use, and every passing aggregate structural check. Reuse the ordinary bank predicates through a shared observer. Already-failing aggregate coverage cannot hide another lost member; allocation counts can change while their thresholds remain satisfied.
+- Red first: the exact phrase case and partial-already-missing case both return true where removability must be false; a genuine duplicate control passes. A recorder-disabling mutation then makes four structural controls fail while both unchanged-verdict and duplicate-witness controls pass.
+- Controls include the hand-written parcel phrase map and fresh public seeds 1009, 2027, 4093 and 8191. A sole approved output request is retained; adding a real duplicate makes it removable. Existing prefix, temporal-fault, persona-context, world-carrier, task-family, slot, sequence and invariance controls remain in scope.
+- Deletion normalizes block placement metadata, removes perturbations targeting the deleted block and shifts later targets. Existing reference, retained vectors and causal fault-instance kill checks remain in force. No product code changes or item removals. Thresholds, floors, fixtures and hidden-seed rules remain unchanged. No full ladder or bank score is claimed.
+- Verification details and source fingerprints: [delta evidence](evidence/minimality-map-obligations.json). The prior PASS does not cover this delta; independent review is required.
+
+- Final focused verification: 146 tests pass across 10 files; focused TypeScript, Biome and whitespace checks pass. Historical levels are unchanged.
