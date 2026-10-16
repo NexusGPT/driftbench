@@ -49,7 +49,7 @@ driftbench judge calibrate --criteria <dir> --labels <dir> --out <file> (--casse
 | `--claude-command <path>` | The `claude` command to run for `--claude` judges. | `claude` |
 | `--record <file>` | Save every live answer, with its cost, as a cassette to replay later. | none |
 | `--spend-cap-usd <usd>` | Stop calling live judges once their calls have cost this much in all. Later calls give no answer. A positive number. | no cap |
-| `--cascade` | The first judge answers everything. The others answer only where the first judge is unsure (inconclusive, or a score between 0.2 and 0.8). They also answer where the first judge disagrees with the truth (the fixture's side or the label). Writes the cascade report as JSON to `--out`. Needs at least two judges. With `--cascade`, `--mode`, `--assign` and `--agent-family` are not used. | off |
+| `--cascade` | The first judge answers everything. The others answer an item in two cases only. The first judge is unsure of it (inconclusive, or a score between 0.2 and 0.8). Or the first judge disagrees with the truth (the fixture's side or the label). Writes the cascade report as JSON to `--out`. Needs at least two judges. With `--cascade`, `--mode`, `--assign` and `--agent-family` are not used. | off |
 | `--assign <rule>` | `council`: three judges at the bar in one class own the criterion, the cheapest first. `cheapest`: the one cheapest judge at the bar owns it alone. | `council` |
 | `--only <criterion>` | Calibrate only this criterion. Repeat for several. | every criterion |
 | `--repeats <n>` | How many times each judge answers each fixture. A whole number from 1. | `3` |

@@ -43,7 +43,7 @@ What driftbench removes by itself:
 * Each sandbox (a temporary workspace folder) when its run closes. The command line has no flag to keep one; code can pass `keep: true` to `processAdapter`.
 * The campaign's folder, `driftbench-sandboxes-<random>` under the system temporary folder (`$TMPDIR` on macOS, usually `/tmp` on Linux). It goes when `campaign run` or `campaign resume` ends normally or on an error.
 * Every command a sandbox runs, with everything it started (its process group). It goes when it exits, when it passes its timeout (10 minutes by default, exit 124), and at process exit.
-* On SIGINT or SIGTERM: the open sandbox folders and the running process groups. Also any process whose command line names one of them or whose working folder is inside one. So a daemon that left its process group is found too.
+* On SIGINT or SIGTERM: the open sandbox folders and the running process groups. Also any process whose command line names one of those folders or whose working folder is inside one. So a daemon that left its process group is found too.
 
 ## Inputs
 

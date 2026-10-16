@@ -1,6 +1,6 @@
 ---
 title: The judge council
-summary: "How several judges vote on one criterion. It uses two classes, three seats per class, and a majority. A split gets a re-judge by the other class, then a last round with a larger token budget. It has an optional cascade from the cheapest judge and optional vote weights. It produces the judge.<name> verdict."
+summary: "How several judges vote on one criterion. It uses two classes, three seats per class, and a majority. A split gets a re-judge by the other class. If it is still split, a last round runs with a larger token budget. It has an optional cascade from the cheapest judge and optional vote weights. It produces the judge.<name> verdict."
 commands:
   - judge run
 see_also:

@@ -20,7 +20,7 @@ An agent does more than reply. Its runtime moves through stages, loads skills an
 ## When to use it
 
 * A conversation agent must reach a stage of the flow: `stage`, `stage_reported`.
-* A code or task agent must load a skill, respect a guard, read a reference file or dispatch a helper. It must also run code, change only some files, and avoid destructive acts. The checks are `skills`, `guards`, `references`, `subagents`, `execution`, `workspace`, `safety`.
+* A code or task agent can be asked to load a skill, respect a guard, read a reference file, dispatch a helper, run code, change only some files, and avoid destructive acts. The checks are `skills`, `guards`, `references`, `subagents`, `execution`, `workspace`, `safety`.
 * A produced file must hold the right content: `artifacts`.
 * Limits on steps, cost and time: `budget`.
 * The world after the run must hold a result (an order placed with the right fields, or nothing submitted): `end_state`.

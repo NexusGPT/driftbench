@@ -70,7 +70,7 @@ In the printed summary:
 - `Actual axis-map coverage (written complete specs): pairs <a> of <b>; triples <c> of <d>.` What the suite you got covers. This is the number to read first.
 - `Candidate t-wise array (before the total cap): covering array of <rows> rows over <k> dimensions, <x> of <y> allowed t-tuples (<share>); <n> pairs no path reaches are left out.` The array itself, before any cap.
 - `Candidate budget array (before the total cap), budget <n>: <n> cells of <pool> allowed, pairs covered <x> of <y> (<share>), max deviation from fair share <d>.` In budget mode instead.
-- `Spec cap <n>: <w> of <c> candidate specs written; <p> structural, fault and incomplete specs protected.`. When the cap cost tuples, `Coverage lost: see spec_cap.coverage[].lost.` follows.
+- `Spec cap <n>: <w> of <c> candidate specs written; <p> structural, fault and incomplete specs protected.` When the cap cost tuples, `Coverage lost: see spec_cap.coverage[].lost.` follows.
 - `Seed <s>, t = <t>.`
 
 In `generate-report.json`:

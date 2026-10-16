@@ -61,7 +61,7 @@ driftbench campaign resume [campaignId] --store <file> [--no-cache] [--concurren
 * A cell that was in flight has no stored run: `status` shows it `pending`, and `resume` runs it.
 * Each block an adapter answered is written to the cache as soon as it is observed (for adapters without a sandbox). When `resume` runs that cell again, the blocks the cache holds are read back. The first block it does not hold goes to the adapter, which opens a session from the history so far. For an agent that keeps no state between blocks, the resumed run gives the same verdicts as an uninterrupted one. For an agent with state (a record it wrote), the state of the finished blocks is not recreated. The resumed run sees the agent as it is at the resume.
 * A run in a sandbox (a `process` target) is never cached: an interrupted sandboxed cell runs again from its first block.
-* On Ctrl-C (SIGINT) or SIGTERM, the CLI kills the process groups of the commands it started. It removes its open sandbox folders before it exits (topic running-cleanup). A SIGKILL skips that sweep.
+* On Ctrl-C (SIGINT) or SIGTERM, the CLI kills the process groups of the commands it started. It also removes its open sandbox folders, then exits (topic running-cleanup). A SIGKILL skips that sweep.
 * Each stored run keeps its events (block start, model call, tool call, retry, block end, run end) on its record. The viewer reads them as a timeline. From code, `eventLogSink(path)` of `@agent-nexus/driftbench-core` appends each event to a JSON-lines file as it happens. `readEventLog(path)` reads it back and skips a line cut short by a kill.
 
 ## Outputs and how to read them

@@ -25,7 +25,7 @@ Every block the agent answers is written to a cache, keyed by everything that we
 * To make an interrupted campaign cheaper to finish: `resume` reads back the blocks already answered.
 * Turn it off (`--no-cache`) when you want fresh samples from the same agent, for example to measure variance.
 * Separate it (`--agent-version`, `--cache-suite`) whenever the agent behind a target name changes: the key cannot see a change inside the agent.
-* Not for sandboxed agents. A run on an adapter with a sandbox (`process` targets, code-interpreter agents) is never cached nor replayed. A replay has no workspace for the artifact checks to open.
+* Not for sandboxed agents. A run on an adapter with a sandbox (`process` targets, code-interpreter agents) is never cached nor replayed, because a replay has no workspace for the artifact checks to open.
 
 ## Commands and every option
 

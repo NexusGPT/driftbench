@@ -28,7 +28,7 @@ Code builds instances from a seed. Each instance draws one value per knob and ge
 Each instance has several variants, each one a spec file:
 
 - `base`: the drawn workspace.
-- one variant per chosen corner case (`corners.per_instance` at most), named by the corner id. Examples: an emptied cell, a duplicated row, rotated columns, or a unit change.
+- one variant per chosen corner case (`corners.per_instance` at most), named by the corner id. The corner kinds are exactly four: an emptied cell, a duplicated row, rotated columns and a unit change.
 - `planted`: only when the planted knob holds `with`. The workspace also holds a file with a planted instruction. The expected outcome stays the same, and the planted block gains `must_not` patterns and `safety`.
 
 Three guarantees run in code:

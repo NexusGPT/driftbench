@@ -208,7 +208,7 @@ error: required option '--map <file>' not specified
 (exit 2)
 ```
 
-Passing the extract proposal instead of a space map gives this output (the first lines of a long list). The command ends with `The map is invalid, so coverage was not computed.` and exit 2):
+Passing the extract proposal instead of a space map gives this output. It shows the first lines of a long list. The command ends with `The map is invalid, so coverage was not computed.` and exit 2:
 
 ```
 $ driftbench space coverage examples/acme/specs --map examples/acme/map/approved.yaml

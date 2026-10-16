@@ -127,7 +127,7 @@ Top level:
 
 A dimension: `id` (lowercase, `^[a-z][a-z0-9_.-]*$`), `title` and `kind` (`stage`, `behaviour`, `deviation`, `persona`, `channel`, `data`, `task`). A dimension also has `role` (`axis` or `detail`), `produced_by` (`code` or `model`), `approved` (boolean) and `values` (at least 1).
 
-A value: `id`, `title`, `evidence: { source, quote }` (quote at most 1000 characters, copied word for word from the source) and `produced_by`. Optional: `approved` (overrides the dimension's flag), `weight` (0 to 1) and `required`. A rule adds `polarity` (`must` or `must_not`), `when` and `unless` (the cell it applies in, as dimension to list of value ids). A rule also takes `limit` (most times per conversation), `within: { minutes }` and `priority: first`.
+A value: `id`, `title`, `evidence: { source, quote }` (quote at most 1000 characters, copied word for word from the source) and `produced_by`. Optional: `approved` (overrides the dimension's flag), `weight` (0 to 1) and `required`. A rule also takes optional `polarity` (`must` or `must_not`), `when` and `unless` (the cell it applies in, as dimension to list of value ids). It also takes optional `limit` (most times per conversation), `within: { minutes }` and `priority: first`.
 
 A constraint: `forbid` (dimension to value), `reason`, `evidence`, `produced_by`, `approved`.
 

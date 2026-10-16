@@ -90,7 +90,7 @@ The arguments above. `expect` objects take the keys of a block's `expect` in the
 
 ## Worked example
 
-A script needs a TypeScript runner and the package. In your own project, install `@agent-nexus/driftbench-core` and `tsx`. Use a scratch folder beside a clone of the repository. The folder holds `packages` as a link. In that folder, a `tsconfig.json` maps the package name to its source instead:
+A script needs a TypeScript runner and the package. In your own project, install `@agent-nexus/driftbench-core` and `tsx`. Or work in a scratch folder beside a clone of the repository. The folder holds `packages` as a link, and a `tsconfig.json` there maps the package name to its source:
 
 ```json file=tsconfig.json
 {

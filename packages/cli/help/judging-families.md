@@ -134,6 +134,6 @@ the simulated user runs on the hand-written family, a family of the judges: refu
 * `judge run: judge <id> is from the <family> family, the family of the agent under test: refused` (exit 2). Use judges of other families, or correct `--agent-family`.
 * `judge run: the agent family is not set: use none for an agent that is not a model` (exit 2). `--agent-family` was empty.
 * `Left out, same family as the agent: ...` with nothing assigned (exit 0 when nothing is gating). Every judge shares the agent's family; add judges of other families.
-* `Name the model family of <target> with --agent-family (none for an agent that is not a model): the simulated user must run on another one.`. Exit 2. The target is not one the build knows; name its family.
+* `Name the model family of <target> with --agent-family (none for an agent that is not a model): the simulated user must run on another one.` It exits 2. The target is not one the build knows; name its family.
 * `the simulated user runs on the <family> family, the family of the agent under test: refused` or `..., a family of the judges: refused`. Exit 2. Run the user on a model of a third family.
 * `the model port names no family ("unknown"): ...` (exit 2). The user model's port must name a known family.

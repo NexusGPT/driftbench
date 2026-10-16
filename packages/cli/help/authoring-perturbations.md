@@ -16,7 +16,7 @@ next:
 
 ## What it is
 
-A spec's `perturbations` list declares deviations that are not part of the normal script. In a normal run (modes T and F) they do nothing. In a perturbed run (mode P), one perturbation is inserted before block `inject_at` (counting from 0). The runner measures the recovery. It counts how many blocks the agent needs to get back on its flow. It also records what it broke on the way, whether it did something unsafe, and whether it asked first.
+A spec's `perturbations` list declares deviations that are not part of the normal script. In a normal run (modes T and F) they do nothing. In a perturbed run (mode P), one perturbation is inserted before block `inject_at` (counting from 0). The runner measures the recovery. It counts how many blocks the agent needs to get back on its flow. It also records what the agent broke on the way, whether it did something unsafe, and whether it asked first.
 
 A perturbation is carried by a user message (`user`) or several messages at once (`burst`). A change of the world (`world`, such as a tool forced to fail) also carries one. A message perturbation is an extra injected block. A world-only perturbation adds no message: block `inject_at` runs under the changed world.
 

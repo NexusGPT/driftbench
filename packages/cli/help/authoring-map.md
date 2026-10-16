@@ -37,7 +37,7 @@ A spec is cut into events: one per block and one per perturbation. A spec covers
 
 | Kind | Placed from | Per |
 |---|---|---|
-| `stage` | a block's `expect.stage`. A deviation (an injection block or a perturbation) places on the stage the conversation has reached when it arrives. That stage is the `expect.stage` of the nearest earlier block that has one. Else it is its own `expect.stage`. For a perturbation it is then its `recovery.stage_after` | event |
+| `stage` | a block's `expect.stage`. A deviation (an injection block or a perturbation) places on the stage the conversation has reached when it arrives. That stage is the `expect.stage` of the nearest earlier block that has one. If there is none, it is the deviation's own `expect.stage`. For a perturbation it is then its `recovery.stage_after` | event |
 | `deviation` | an injection block's or a perturbation's `class`; any other block carries no deviation | event |
 | `behaviour` | every id in the spec's `covers` | spec |
 | `channel` | the spec's `channel` | spec |
@@ -178,7 +178,7 @@ prior:
 
 ## Outputs and how to read them
 
-`space declare` prints `Wrote <file>: <d> dimensions, <c> cells, <k> constraints.`. The file opens with two comment lines, writes each value and each `forbid` on one line, and is ready to edit.
+`space declare` prints `Wrote <file>: <d> dimensions, <c> cells, <k> constraints.` The file opens with two comment lines, writes each value and each `forbid` on one line, and is ready to edit.
 
 The cell count is the full grid (the product of the value counts), before constraints. `space coverage` and `space complete` show the allowed cells.
 
