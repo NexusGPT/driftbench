@@ -17,6 +17,7 @@ import {
   compileToolAbsence,
   isCompiledPredicate,
 } from './predicates';
+import { recoveryAction } from './recovery';
 
 export { literal };
 
@@ -326,9 +327,27 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
         }
       }
       if (evidence.name === 'hazard_recovery' && ctx.customChecks.has('hazard_recovery')) {
+        const recovery = recoveryAction(atom);
+        const declared = evidence.options ?? {};
+        const reread = [
+          ...new Set([
+            ...(Array.isArray(declared.reread)
+              ? declared.reread.filter(
+                  (path): path is string => typeof path === 'string' && path.trim() !== '',
+                )
+              : []),
+            ...recovery.reread,
+          ]),
+        ];
+        const calls = [...(Array.isArray(declared.calls) ? declared.calls : []), ...recovery.calls];
+        const retry = declared.retry === true || recovery.retry;
+        // Only the actions the estate states stay: an empty path or a call counted zero demands nothing.
+        const { reread: _reread, calls: _calls, retry: _retry, ...rest } = declared;
         then.custom.hazard_recovery = {
-          ...(evidence.options ?? {}),
-          ...(heldPaths(atom, ctx).length > 0 ? { reread: heldPaths(atom, ctx) } : {}),
+          ...rest,
+          ...(reread.length > 0 ? { reread } : {}),
+          ...(calls.length > 0 ? { calls } : {}),
+          ...(retry ? { retry: true } : {}),
           block: 0,
         };
         return;
@@ -672,17 +691,6 @@ function addCriterion(then: ThenParts, atom: EstateAtom): void {
 
 function addSomeCall(then: ThenParts, call: SomeCall): void {
   if (!then.someCalls.some((known) => same(known, call))) then.someCalls.push(call);
-}
-
-/** The paths an atom's passage names that the estate holds (all of them when no file list is known). */
-function heldPaths(atom: EstateAtom, ctx: ThenContext): string[] {
-  const files = ctx.files;
-  if (!files) return pathsOf(atom);
-  return pathsOf(atom).filter((path) => {
-    const clean = path.replace(/^\.?\/+/, '');
-    for (const file of files) if (file === clean || file.endsWith(`/${clean}`)) return true;
-    return false;
-  });
 }
 
 /** Paths an atom's passage names: in backticks, or a word with a slash or a file extension. */
