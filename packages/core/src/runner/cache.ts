@@ -4,6 +4,7 @@ import type { TargetRef } from '../schema/common';
 import type { Observed, ResolvedGiven } from '../schema/run';
 import type { Expect, Spec, Stimulus } from '../schema/spec';
 import { canonicalJson, contentHash, sha256OfJsonWithList } from '../spec/hash';
+import { specIdentity } from '../spec/identity';
 import { isPlainObject } from '../spec/normalize';
 
 /** Where the runner keeps observed blocks. A Store is one; tests pass a map. */
@@ -37,15 +38,17 @@ export type BlockKeyParts = {
  * them re-scores the stored observations and never reruns the agent. A spec with none of them hashes as before.
  */
 export function cacheSpecHash(spec: Spec): string {
-  const { version: _version, uses: _uses, ...unlabelled } = spec;
+  const { version: _version, uses: _uses, ...unlabelled } = specIdentity(spec);
   const scoring =
-    spec.blocks.some((block) => block.uses !== undefined || writesCompare(block.expect)) ||
-    (spec.perturbations ?? []).some((perturbation) => writesCompare(perturbation.expect));
+    unlabelled.blocks.some((block) => block.uses !== undefined || writesCompare(block.expect)) ||
+    (unlabelled.perturbations ?? []).some((perturbation) => writesCompare(perturbation.expect));
   if (!scoring) return contentHash(unlabelled);
   return contentHash({
     ...unlabelled,
-    blocks: spec.blocks.map(({ uses: _blockUses, ...block }) => withoutCompare(block)),
-    ...(spec.perturbations === undefined ? {} : { perturbations: spec.perturbations.map(withoutCompare) }),
+    blocks: unlabelled.blocks.map(({ uses: _blockUses, ...block }) => withoutCompare(block)),
+    ...(unlabelled.perturbations === undefined
+      ? {}
+      : { perturbations: unlabelled.perturbations.map(withoutCompare) }),
   });
 }
 
