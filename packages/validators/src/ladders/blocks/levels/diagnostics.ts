@@ -10,9 +10,22 @@ import {
   scriptedAdapter,
   statusOf,
 } from '../harness';
+import { plantedAgent } from '../kinds';
 import { type BlocksProduct, need } from '../product';
+import { type BlockPlan, recipe } from '../recipe';
 import { type BankItem, expectAll, fail, PASS, type Tier } from '../types';
-import { at, type Plan, plantedSpec, replyFor } from './verdicts';
+
+type Plan = BlockPlan;
+
+/** n passing blocks, those at `positions` with `key` set. */
+const at = (n: number, positions: readonly number[], key: 'fail' | 'stub'): BlockPlan[] =>
+  Array.from({ length: n }, (_, i) =>
+    positions.includes(i)
+      ? key === 'fail'
+        ? { fate: 'fail' }
+        : { fate: 'pass', stub: true }
+      : { fate: 'pass' },
+  );
 
 /**
  * Level 6: diagnostics (PRs 445 to 454). A diagnosis explains a failure after the checks and never changes a
@@ -42,19 +55,12 @@ async function plantedRun(
   plans: Plan[],
   toolStubs: boolean,
 ): Promise<RunRecord> {
-  const { raw, texts, codes } = plantedSpec(seed, tag, plans);
-  return run(
-    product,
-    raw,
-    scriptedAdapter(
-      product,
-      replyFor(plans, texts, codes),
-      toolStubs ? {} : { capabilities: { toolStubs: false } },
-    ),
-    {
-      repeat: 0,
-    },
-  );
+  const r = recipe(seed, tag, 'normal', plans);
+  const agent = plantedAgent(product, 'normal', r.actions, {
+    scratch: '',
+    ...(toolStubs ? {} : { capabilities: { toolStubs: false } }),
+  });
+  return run(product, r.raw, agent.adapter, { repeat: 0 });
 }
 
 const failingIds = (block: RunRecord['blocks'][number]) =>
@@ -192,7 +198,7 @@ async function plantedRuns(
     const failing = [...Array(n).keys()].filter(() => rng() < 0.45);
     let plans = at(n, failing, 'fail');
     const notRun = mix.notRun && rng() < 0.3;
-    if (notRun) plans = plans.map((plan, i) => (i === n - 1 ? { ...plan, stub: true, fail: false } : plan));
+    if (notRun) plans = plans.map((plan, i) => (i === n - 1 ? { ...plan, stub: true, fate: 'pass' } : plan));
     const record = await plantedRun(product, seed, `${id}/${index}`, plans, !notRun);
     (record as { runId?: string }).runId ??= `run-${index}`;
     const dispositions = new Map<number, Disposition>();
@@ -457,9 +463,9 @@ function invarianceItems(): BankItem[] {
           const rng = rngFor(seed, id);
           const n = between(rng, 3, 5);
           const plans = shape.plan(n);
-          const { raw, texts, codes } = plantedSpec(seed, id, plans);
+          const { raw, actions } = recipe(seed, id, 'normal', plans);
           const withDiagnostics: RawSpec = { ...raw, uses: { diagnostics: set } };
-          const adapter = () => scriptedAdapter(product, replyFor(plans, texts, codes));
+          const adapter = () => plantedAgent(product, 'normal', actions, { scratch: '' }).adapter;
           const plain = await run(product, raw, adapter());
           const diagnosed = await run(product, withDiagnostics, adapter());
           const project = (record: RunRecord) =>

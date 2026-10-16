@@ -1,7 +1,9 @@
 import * as adapters from '@agent-nexus/driftbench-adapters';
+import * as artifacts from '@agent-nexus/driftbench-artifacts';
 import * as checks from '@agent-nexus/driftbench-checks';
 import * as core from '@agent-nexus/driftbench-core';
 import * as report from '@agent-nexus/driftbench-report';
+import * as sandbox from '@agent-nexus/driftbench-sandbox';
 import * as stats from '@agent-nexus/driftbench-stats';
 import * as store from '@agent-nexus/driftbench-store';
 import * as users from '@agent-nexus/driftbench-users';
@@ -28,6 +30,8 @@ export type BlocksProduct = {
   users: Module;
   adapters: Module;
   store: Module;
+  sandbox: Module;
+  artifacts: Module;
   /** The command line `driftbench <argv>`, run in this process with `cwd` as its working folder. */
   cli(argv: readonly string[], cwd: string): Promise<CliResult>;
 };
@@ -76,6 +80,8 @@ export function realProduct(): BlocksProduct {
     users: users as Module,
     adapters: adapters as Module,
     store: store as Module,
+    sandbox: sandbox as Module,
+    artifacts: artifacts as Module,
     cli: realCli,
   };
 }
@@ -89,6 +95,8 @@ export type ProductPatch = {
   users?: Record<string, unknown>;
   adapters?: Record<string, unknown>;
   store?: Record<string, unknown>;
+  sandbox?: Record<string, unknown>;
+  artifacts?: Record<string, unknown>;
   cli?: BlocksProduct['cli'];
 };
 
@@ -103,6 +111,8 @@ export function patched(base: BlocksProduct, patch: ProductPatch): BlocksProduct
     users: { ...base.users, ...patch.users },
     adapters: { ...base.adapters, ...patch.adapters },
     store: { ...base.store, ...patch.store },
+    sandbox: { ...base.sandbox, ...patch.sandbox },
+    artifacts: { ...base.artifacts, ...patch.artifacts },
     cli: patch.cli ?? base.cli,
   };
 }

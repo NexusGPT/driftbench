@@ -264,10 +264,12 @@ export async function run(
   );
   const createScriptedDriver = need<() => unknown>(product.users, 'users', 'createScriptedDriver');
   const defaultChecks = need<() => unknown>(product.checks, 'checks', 'defaultChecks');
+  const defaultReaders = need<() => unknown>(product.artifacts, 'artifacts', 'defaultReaders');
   return runSpec(spec, {
     adapter,
     driver: createScriptedDriver(),
     checks: defaultChecks(),
+    artifacts: defaultReaders(),
     mode: options.mode ?? 'F',
     repeat: options.repeat ?? 0,
     ...(options.store ? { store: options.store, campaignId: options.campaignId ?? 'blocks' } : {}),
