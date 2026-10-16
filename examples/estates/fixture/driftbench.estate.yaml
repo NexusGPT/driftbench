@@ -215,8 +215,32 @@ scripts:
         expect:
           exitCode: 2
           stdout: ""
-      # A shipment the table does not list exits 1 and prints nothing on standard output.
+      # A listed shipment prints its table line, exactly one line, and exits 0. The carrier code and the whole
+      # tracking number must match: the same number under another carrier is another shipment, and a carrier code
+      # that ends with the asked one is another carrier.
       - args: [NWX, "123"]
+        expect:
+          exitCode: 0
+          stdout: "NWX 123 sorted-at-depot 2026-03-04"
+      - args: [DLV, "123"]
+        expect:
+          exitCode: 0
+          stdout: "DLV 123 out-for-delivery 2026-03-06"
+      - args: [XDLV, "123"]
+        expect:
+          exitCode: 0
+          stdout: "XDLV 123 held-at-customs 2026-03-09"
+      # A shipment the table does not list exits 1 and prints nothing on standard output: a number that only
+      # starts like a listed one, a carrier that holds no such number, a number nobody lists.
+      - args: [NWX, "12"]
+        expect:
+          exitCode: 1
+          stdout: ""
+      - args: [XDLV, "1234"]
+        expect:
+          exitCode: 1
+          stdout: ""
+      - args: [NWX, "999"]
         expect:
           exitCode: 1
           stdout: ""

@@ -227,6 +227,36 @@ describe('the fixture gives each script a usage line and fixtures that a fake ca
       'shipment-tracker/scripts/track.sh',
       (t) => t.replace('exit 2', 'exit 1'),
     ],
+    [
+      'track: the carrier code is ignored',
+      ['sh'],
+      'shipment-tracker/scripts/track.sh',
+      (t) => t.replace('"^$1 $2 "', '"^[A-Z]* $2 "'),
+    ],
+    [
+      'track: the line anchor is removed',
+      ['sh'],
+      'shipment-tracker/scripts/track.sh',
+      (t) => t.replace('"^$1 $2 "', '"$1 $2 "'),
+    ],
+    [
+      'track: a tracking number matches by its start',
+      ['sh'],
+      'shipment-tracker/scripts/track.sh',
+      (t) => t.replace('"^$1 $2 "', '"^$1 $2"'),
+    ],
+    [
+      'track: an unlisted shipment exits 0',
+      ['sh'],
+      'shipment-tracker/scripts/track.sh',
+      (t) => t.replace('exit 1; }', 'exit 0; }'),
+    ],
+    [
+      'track: the table is read from the working folder',
+      ['sh'],
+      'shipment-tracker/scripts/track.sh',
+      (t) => t.replace('"$(dirname "$0")/shipments.txt"', 'shipments.txt'),
+    ],
   ];
 
   it.each(MUTANTS)('turns %s red', async (_label, interpreter, tail, mutate) => {
@@ -238,6 +268,10 @@ describe('the fixture gives each script a usage line and fixtures that a fake ca
     const mutant = join(dir, tail.split('/').at(-1) as string);
     await writeFile(mutant, text);
     await chmod(mutant, 0o755);
+    // The data a script keeps beside it travels with the mutant.
+    for (const sibling of await readdir(dirname(join(FIXTURE, path))))
+      if (sibling.endsWith('.txt'))
+        await writeFile(join(dir, sibling), await readFile(join(FIXTURE, dirname(path), sibling)));
     const results = await Promise.all(
       ((await config()).scripts[path]?.fixtures ?? []).map(async (fixture) =>
         problems(fixture, await runFixture([...interpreter], mutant, fixture)),

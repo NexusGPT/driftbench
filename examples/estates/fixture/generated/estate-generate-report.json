@@ -3,13 +3,13 @@
   "map": {
     "path": "../approved.yaml",
     "runtime": "claude-code",
-    "hash": "be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10",
-    "atoms": 125
+    "hash": "e48ea73788c2fb36e8def0b10b39a3551139beb107f54959237f272c2aa7ba41",
+    "atoms": 126
   },
   "plan": {
     "path": "../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml",
-    "rows": 1568,
-    "approved": 1568,
+    "rows": 1569,
+    "approved": 1569,
     "proposed": 0,
     "struck": 0
   },
@@ -41,10 +41,10 @@
     "judge": true
   },
   "summary": {
-    "specs": 1568,
-    "blocks": 1563,
+    "specs": 1569,
+    "blocks": 1564,
     "complete": 1360,
-    "incomplete": 208,
+    "incomplete": 209,
     "judged": 348
   },
   "unit": {
@@ -128,10 +128,10 @@
       "incomplete": 0
     },
     "read_when": {
-      "rows": 9,
-      "specs": 9,
+      "rows": 10,
+      "specs": 10,
       "complete": 1,
-      "incomplete": 8
+      "incomplete": 9
     },
     "script_fixture": {
       "rows": 2,
@@ -262,16 +262,16 @@
       "incomplete": 0
     },
     "live": {
-      "rows": 1525,
-      "specs": 1525,
+      "rows": 1526,
+      "specs": 1526,
       "complete": 1323,
-      "incomplete": 202
+      "incomplete": 203
     }
   },
   "gaps": [
     {
       "marker": "needs-askable-act",
-      "specs": 185,
+      "specs": 186,
       "atoms": [
         "gate.standing.read-claude-skills-invoice-reconcile-references",
         "instruction.invoice-reconcile.a-line-matches-on-article-code",
@@ -289,6 +289,7 @@
         "reference.invoice-reconcile.read-references-currency-table-md",
         "reference.invoice-reconcile.read-references-matching-rules-md",
         "reference.memory-memory.read-supplier-languages-md",
+        "reference.shipment-tracker.read-data-shipments-txt",
         "reference.standing.read-claude-memory-memory-md",
         "reference.standing.read-claude-skills-invoice-reconcile-references",
         "reference.standing.read-claude-steps-json",
@@ -317,6 +318,7 @@
         "no task in the atom's words (register.route-planner.the-plan-is-a-table-of (title)): the act does not start with a verb: \"\"",
         "no usable situation (skill.invoice-reconcile.skill-invoice-reconcile (asks it names)): the situation names the file references/currency-table.md: \"When the invoice is not in EUR, read references/currency-table.md to convert every amount\"",
         "no usable situation (skill.invoice-reconcile.skill-invoice-reconcile (asks it names)): the situation names the file references/matching-rules.md: \"Read references/matching-rules.md before matching any line\"",
+        "no usable situation (skill.shipment-tracker.skill-shipment-tracker (asks it names)): the situation names the file data/shipments.txt: \"The local carrier table is data/shipments.txt\"",
         "no usable situation (skill.supplier-email.skill-supplier-email (asks it names)): the situation names the file .claude/memory/supplier-languages.md: \"Write in the supplier's language, as listed in .claude/memory/supplier-languages.md\"",
         "no usable situation (skill.weekly-report.skill-weekly-report (asks it names)): the situation names the file References/kpi-definitions.md: \"References/kpi-definitions.md when a number needs a definition\""
       ]

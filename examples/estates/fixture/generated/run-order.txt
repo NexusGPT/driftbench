@@ -495,9 +495,9 @@ specs/live/journey/estate.journey.03.yaml
 specs/live/journey/estate.journey.04.yaml
 specs/live/journey/estate.journey.05.yaml
 specs/live/journey/estate.journey.06.yaml
+specs/live/journey/estate.journey.07.yaml
 specs/live/journey/estate.journey.08.yaml
 specs/live/journey/estate.journey.09.yaml
-specs/live/journey/estate.journey.10.yaml
 specs/live/obligation/estate.pairwise.0005.yaml
 specs/live/obligation/estate.pairwise.0006.yaml
 specs/live/obligation/estate.pairwise.0007.yaml

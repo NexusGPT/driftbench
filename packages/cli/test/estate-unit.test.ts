@@ -72,7 +72,8 @@ describe('driftbench estate unit on the Northwind suite', () => {
       message: 'Never run git push --force on any branch.',
       ms: expect.any(Number),
     });
-    // The two scripts declare no fixture: each runs its two minimal fixtures, recorded on the original.
+    // The suite holds two minimal fixtures per script, recorded on the original: a usage error, then a call whose
+    // values the script's table lists (the carrier table lists NWX 123, so the lookup exits 0).
     expect(
       contract.scripts.map((entry: { script: string; exit: number }) => [
         entry.script.split('/').pop(),
@@ -82,7 +83,7 @@ describe('driftbench estate unit on the Northwind suite', () => {
       ['reconcile.py', 2],
       ['reconcile.py', 0],
       ['track.sh', 2],
-      ['track.sh', 1],
+      ['track.sh', 0],
     ]);
 
     const mutant = join(dir, 'mutant');

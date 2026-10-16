@@ -58,11 +58,11 @@ describe('driftbench estate scan', () => {
     expect(result.err).toBe('');
     expect(result.code).toBe(0);
     expect(result.out).toContain(
-      'Wrote map.yaml: 125 atoms (68 read by code and approved, 57 split from prose by the model and waiting for approval), 54 edges.',
+      'Wrote map.yaml: 126 atoms (69 read by code and approved, 57 split from prose by the model and waiting for approval), 55 edges.',
     );
     expect(result.out).toMatch(/instruction\s+43 {2}\(43 by the model\)/);
     expect(result.out).toContain(
-      'Prose: 14 chunks, 6775 characters (standing 1, memory 2, skill bodies 4, skill files 4, helper bodies 3).',
+      'Prose: 14 chunks, 6825 characters (standing 1, memory 2, skill bodies 4, skill files 4, helper bodies 3).',
     );
     expect(result.out).not.toContain('Unanswered prose chunks');
     expect(result.out).toContain('Refused: none.');
@@ -84,7 +84,7 @@ describe('driftbench estate scan', () => {
     );
     expect(result.code).toBe(0);
     expect(result.out).toContain('No model call: structured atoms only (--no-model).');
-    expect(result.out).toContain('Unanswered prose chunks (no model call): 14, 6775 characters.');
+    expect(result.out).toContain('Unanswered prose chunks (no model call): 14, 6825 characters.');
     expect(result.out).toContain(
       '    .claude/skills/invoice-reconcile/references/matching-rules.md  261 characters\n',
     );
@@ -240,14 +240,14 @@ describe('driftbench estate lint, approve and map', () => {
 
     const pending = await run(['estate', 'approve', 'map.yaml'], root);
     expect(pending.code).toBe(0);
-    expect(pending.out).toContain('map.yaml: 57 of 125 atoms wait for approval.');
+    expect(pending.out).toContain('map.yaml: 57 of 126 atoms wait for approval.');
     const kind = await run(
       ['estate', 'approve', 'map.yaml', '--kind', 'register', '--to', 'registers.yaml'],
       root,
     );
     expect(kind.out).toBe('Approved 10 atoms in registers.yaml; 0 were already approved.\n');
     const all = await run(['estate', 'approve', 'registers.yaml', '--all', '--to', 'approved.yaml'], root);
-    expect(all.out).toBe('Approved 47 atoms in approved.yaml; 78 were already approved.\n');
+    expect(all.out).toBe('Approved 47 atoms in approved.yaml; 79 were already approved.\n');
     expect((await run(['estate', 'approve', 'map.yaml', '--kind', 'rule'], root)).code).toBe(1);
     expect((await run(['estate', 'approve', 'map.yaml', '--all', '--kind', 'gate'], root)).code).toBe(2);
     expect(
