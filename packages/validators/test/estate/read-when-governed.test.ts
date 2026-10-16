@@ -35,6 +35,18 @@ describe('a read-before ask performs the act its rule governs', () => {
     }
   });
 
+  it.each([
+    '- **R5.** Before editing any invoice file: Read `references/rules.md`.',
+    '**R5.** Before editing any invoice file, Read `references/rules.md`.',
+    '5. Before editing any invoice file: Read `references/rules.md`.',
+    'A1: Read `references/rules.md` before editing any invoice file.',
+    '- **R12.** Do not edit any invoice file until you have read `references/rules.md`.',
+  ])('reads the clause behind a rule label: %s', (quote) => {
+    expect(performsGoverned('Please edit any invoice file.', quote)).toBe(true);
+    expect(performsGoverned('Please delete any invoice file.', quote)).toBe(false);
+    expect(performsGoverned('Please edit the shipment note.', quote)).toBe(false);
+  });
+
   it('holds an ask to nothing when the clause names no act and object', () => {
     expect(performsGoverned('Anything at all.', 'Read `a.md` first.')).toBe(true);
   });
