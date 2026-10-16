@@ -277,7 +277,7 @@ blocks:
 - **Why no other framework does it.** The seven tools we read score a whole scenario, test row, conversation, sample, dataset item or trace. See row 1 of our [comparison](docs/comparison.md#where-driftbench-is-ahead). A verdict per step needs each step to carry its own starting point and expected result. The block stores both.
 - **Measured impact.** On the Acme sales assistant, dropping a coverage check fails 86 conversations containing 413 blocks. A conversation score marks all 413 blocks; driftbench marks the 86 that fail. For eight of nine planted faults, failing blocks account for 18 to 40 percent of the blocks in failed conversations. Sources: [gate-report.json](examples/acme/gated/gate-report.json) and [chart-facts.csv](docs/assets/data/chart-facts.csv). [How we measured](docs/comparison/methods.md#blocks-a-failure-you-can-diagnose). The [fault study](https://github.com/achammah/driftbench/pull/441) tests the suggested fix. Changing the tool description removed 86 coverage lookup failures in 249 runs; 29 exact assertion failures remained.
 
-<sub>Counts cover 195 conversations and 861 blocks. The ninth fault, a wrong language, fails all 826 blocks in the 171 failed conversations. On its way: source links ([#423](https://github.com/achammah/driftbench/pull/423), [#429](https://github.com/achammah/driftbench/pull/429), [#433](https://github.com/achammah/driftbench/pull/433)); parents ([#416](https://github.com/achammah/driftbench/pull/416)). Parent blocks have research results; their integration is not built. Rule files and verdict stamps are on their way ([#443](https://github.com/achammah/driftbench/pull/443), [#449](https://github.com/achammah/driftbench/pull/449)). The fault finder is on its way ([#447](https://github.com/achammah/driftbench/pull/447), [#451](https://github.com/achammah/driftbench/pull/451), [#453](https://github.com/achammah/driftbench/pull/453)).</sub>
+<sub>Counts cover 195 conversations and 861 blocks. The ninth fault, a wrong language, fails all 826 blocks in the 171 failed conversations. Block links to prompt sections, advisory selection and ranking by them are on main ([#423](https://github.com/achammah/driftbench/pull/423), [#429](https://github.com/achammah/driftbench/pull/429), [#433](https://github.com/achammah/driftbench/pull/433)). Parent blocks are on their way ([#562](https://github.com/achammah/driftbench/pull/562)); their research is in [#416](https://github.com/achammah/driftbench/pull/416). Rule files and verdict stamps are on their way ([#443](https://github.com/achammah/driftbench/pull/443), [#449](https://github.com/achammah/driftbench/pull/449)). The fault finder is on its way ([#447](https://github.com/achammah/driftbench/pull/447), [#451](https://github.com/achammah/driftbench/pull/451), [#453](https://github.com/achammah/driftbench/pull/453)).</sub>
 
 <details><summary>See it in YAML</summary>
 
@@ -316,34 +316,74 @@ blocks:
 - **Why no other framework does it.** A trace records what the agent did. Tracing a failure to instructions also needs links from tests to their sources. Our [comparison](docs/comparison.md) covers test units and traces, but does not establish exclusivity for source diagnosis.
 - **Measured impact.** In the [fault study](https://github.com/achammah/driftbench/pull/441), automatic evidence agreed with the reference classification on 182 of 182 runs. Changing the tool description reduced coverage lookup failures from 86 of 249 runs to 0; 29 exact assertion failures remained. The [prompt study](https://github.com/achammah/driftbench/pull/421) found 12 of 26 sections with no mutant that failed a test, exposing gaps to investigate.
 
-<sub>Source tracing is on its way ([#423](https://github.com/achammah/driftbench/pull/423), [#429](https://github.com/achammah/driftbench/pull/429), [#433](https://github.com/achammah/driftbench/pull/433)). Fault finding is on its way ([#447](https://github.com/achammah/driftbench/pull/447), [#451](https://github.com/achammah/driftbench/pull/451), [#453](https://github.com/achammah/driftbench/pull/453)). Prompt ranking operates on sections; other file locations need recorded provenance. The figure illustrates the intended combined view. The reference classification was scripted and hand checked; it was not an independent human study. The registered ranking method failed its comparison, so these results do not establish ranking accuracy.</sub>
+<sub>Block links to prompt sections, advisory selection and section ranking are on main ([#423](https://github.com/achammah/driftbench/pull/423), [#429](https://github.com/achammah/driftbench/pull/429), [#433](https://github.com/achammah/driftbench/pull/433)). Fault finding is on its way ([#447](https://github.com/achammah/driftbench/pull/447), [#451](https://github.com/achammah/driftbench/pull/451), [#453](https://github.com/achammah/driftbench/pull/453)). Prompt ranking operates on sections; other file locations need recorded provenance. The figure illustrates the intended combined view. The reference classification was scripted and hand checked; it was not an independent human study. The registered ranking method failed its comparison, so these results do not establish ranking accuracy.</sub>
 
 <details><summary>See it in YAML</summary>
 
-Source links ship in [PR 423](https://github.com/achammah/driftbench/pull/423).
-Main can already check which file a task agent reads and let a judge compare the reply with that file.
-This is a source check, not a link to a prompt line.
+Block links to prompt sections are on main ([#423](https://github.com/achammah/driftbench/pull/423)), with advisory selection by section ([#429](https://github.com/achammah/driftbench/pull/429)) and ranking of suspect sections ([#433](https://github.com/achammah/driftbench/pull/433)).
+A section registry gives each part of the prompt a stable id. A block names the section it tests in `metadata.links`.
+The first line of each file below names it; in the prompt, that line is not part of the file.
+`driftbench radius sections init acme-sales.md --id acme-sales --prompt-version v1` writes a first registry from the headings.
+`driftbench radius sections check acme-sales.sections.yaml --prompt acme-sales.md` checks the registry against the prompt, and `driftbench spec lint recap.spec.yaml --sections acme-sales.sections.yaml` checks that each link names a section the registry holds.
+`driftbench radius recap.spec.yaml --change <manifest> --sections acme-sales.sections.yaml` prints the blocks a changed section would select; it skips none.
+
+```markdown
+# file: acme-sales.md
+## Persona
+You are the Acme sales assistant. Keep replies short.
+
+## Recap
+Before any order, read the plan back and wait for the customer to say yes.
+
+## Ordering
+Call order.create only after the customer confirms the recap.
+```
 
 ```yaml
-# file: source.spec.yaml
-id: acme-policy-source
-kind: task # A task agent can read workspace files
-given:
-  world:
-    workspace:
-      files:
-        policy.md: Acme refunds take two days. # Seed the source file
-criteria:
-  - name: follows_policy # Name used by the block
-    rubric: Does the reply match policy.md?
-    inputs: [policy.md] # The judge reads this workspace file
+# file: acme-sales.sections.yaml
+prompt_id: acme-sales # Links name the prompt by this id
+version: v1 # The prompt version this registry describes
+text_sha256: 78a2f546c385ca7e3a1637a99f2b6da8ba91b19f6f8d0f1502640f4de392431c # The whole prompt
+sections:
+  - id: persona
+    scope: global # Can reach every block
+    span: { start: 0, end: 64 } # UTF-16 offsets, end exclusive
+    sha256: 6bc3159bf2fa1ea7b7c4fad45e63333f1f6f67db8e81e6fda09398997fdc857d
+    anchor: { quote: You are the Acme sales assistant. }
+  - id: recap
+    scope: local # Reaches only the blocks linked to it
+    span: { start: 66, end: 149 }
+    sha256: 090a90b44e9ff9cefb975ad7ad1ddcafb29cfa2829d5c69e85d72a76c4c816e5
+    anchor: { quote: read the plan back and wait }
+  - id: ordering
+    scope: local
+    span: { start: 151, end: 224 }
+    sha256: b16dc92a19f3df482deed18f8a8fc481770b78a570d0fdf38e5ffc7edeb11a11
+    anchor: { quote: Call order.create only after }
+    references: [recap] # A change to recap can change how this reads
+```
+
+```yaml
+# file: recap.spec.yaml
+id: acme-recap-linked
+target: { adapter: function, agent: acme-sales } # The demo agent
 blocks:
-  - when: { user: Read policy.md and explain Acme refunds. }
+  - id: recap
+    given:
+      ledger: { plan: Acme Mobile L }
+    when: { user: 'That plan, please.' }
     expect:
-      references:
-        - { path: policy.md, count: 1 } # Require a recorded read
-      workspace: { others_untouched: true } # Leave other workspace files alone
-      criteria: [follows_policy@gating] # Judge against the source
+      must: [CONFIRM] # Read the plan back first
+      tools:
+        - { label: order.create, count: 0 } # No order yet
+metadata:
+  links: # Kept out of the spec hash
+    - block: recap # The block above
+      to: { kind: prompt_section, prompt: acme-sales, section: recap } # Section id in the registry
+      relation: verifies # This block tests that rule
+      status: declared # Written by an author, not yet proved by a mutant
+      created_by: author
+      at_version: v1 # The prompt version linked
 ```
 
 </details>
@@ -368,7 +408,7 @@ blocks:
 
 <details><summary>See it in YAML</summary>
 
-Basic simulated users ship on main. Numeric behaviour draws ship in [PR 418](https://github.com/achammah/driftbench/pull/418).
+Basic simulated users ship on main. Numeric behaviour draws are coming in [#418](https://github.com/achammah/driftbench/pull/418).
 The persona file points to the spec through `spec`. Main has no block `persona` key.
 Select this file with `driftbench simulate refund.spec.yaml --persona sam.persona.yaml --model --agent-family none`.
 The model option makes paid calls; `--agent-family none` applies to the scripted Acme demo.
@@ -413,12 +453,14 @@ blocks: # One exchange per entry
 - **Why no other framework does it.** A list of conversation turns does not itself declare which test depends on which starting state. Parent links make that dependency explicit. Our [comparison](docs/comparison.md) does not establish exclusivity for parent state or inherited failure counts.
 - **Measured impact.** In the [parent study](https://github.com/achammah/driftbench/pull/416), grouping inherited failures reduced root count error to 8.4, against 38.2 with flat linked counting. That result is a simulation on the Acme parent tree. On a live test agent, isolation checks caught 8 of 8 eligible planted dependencies and flagged 0 of 9 negative controls.
 
-<sub>Parent state sharing and blocked children are on their way ([#416](https://github.com/achammah/driftbench/pull/416), [#428](https://github.com/achammah/driftbench/pull/428)). The research does not implement parent execution in the package. Independent flaky failures can still inflate the root count. The isolation study tests conversation history; finer dependencies on stored facts or tool state remain untested.</sub>
+<sub>Parent state sharing is on its way ([#562](https://github.com/achammah/driftbench/pull/562); research in [#416](https://github.com/achammah/driftbench/pull/416)). The blocked verdict is on main ([#428](https://github.com/achammah/driftbench/pull/428)). The research does not implement parent execution in the package. Independent flaky failures can still inflate the root count. The isolation study tests conversation history; finer dependencies on stored facts or tool state remain untested.</sub>
 
 <details><summary>See it in YAML</summary>
 
-Parent execution is not integrated. [PR 416](https://github.com/achammah/driftbench/pull/416) contains the parent study, not a runnable parent schema.
-Main accepts an authored history through `given.prefix`. This does not run a parent or block a child after a parent failure.
+Parent blocks are coming in [#562](https://github.com/achammah/driftbench/pull/562). The parent study is [#416](https://github.com/achammah/driftbench/pull/416).
+On main, a block starts from a history written in `given.prefix`. It does not run a parent.
+A fact the agent learnt from a tool goes in that history as a recorded call with its `output`, not as a sentence of the assistant.
+The `blocked` verdict is on main ([#428](https://github.com/achammah/driftbench/pull/428)): a blocked block is left out of every pass rate and counted beside it. Parents are what will produce it.
 
 ```yaml
 # file: recap.spec.yaml
@@ -430,11 +472,15 @@ blocks:
       origin: authored # This history is written here, not a parent result
       prefix: # Starting conversation for this block
         - { role: user, content: Show me Acme plans. }
-        - { role: assistant, content: Acme Mobile L has unlimited data. }
+        - role: assistant
+          content: Acme Mobile L has unlimited data.
+          tool_calls: # Tool history: the lookup as a record, with its result
+            - { id: call-1, label: catalog.search, input: { category: mobile }, output: { plans: [Acme Mobile L] } }
     when: { user: 'That plan, please.' }
     expect:
       must: [CONFIRM] # Require confirmation before ordering
       tools:
+        - { label: catalog.search, count: 0 } # The plan is already known
         - { label: order.create, count: 0 } # No order yet
 ```
 
@@ -460,7 +506,7 @@ blocks:
 
 <details><summary>See it in YAML</summary>
 
-Tool replay value checks ship in [PR 459](https://github.com/achammah/driftbench/pull/459).
+Tool replay value checks are coming in [#459](https://github.com/achammah/driftbench/pull/459).
 On main, `one_of` can accept a known list of spellings. It does not ask the tool whether they mean the same thing.
 
 ```yaml
@@ -499,7 +545,7 @@ blocks:
 
 <details><summary>See it in YAML</summary>
 
-Rule objects, rule files and layers ship in [PR 443](https://github.com/achammah/driftbench/pull/443).
+Rule objects, rule files and layers are coming in [#443](https://github.com/achammah/driftbench/pull/443).
 Main keeps the policy inline under `rules`; it has no rule-file reference.
 Here the policy forbids ordering throughout the run, and the block requires a recap.
 
@@ -539,6 +585,7 @@ blocks:
 
 The change file is a separate input to `driftbench radius recap.spec.yaml --change recap.change.yaml`.
 The matching key is `expect.stage`, declared in the spec's `stages` list.
+A change can also name a prompt section (`kind: prompt_section`, [#429](https://github.com/achammah/driftbench/pull/429)); that selection is advisory, so the whole suite runs.
 
 ```yaml
 # file: recap.change.yaml
@@ -629,8 +676,8 @@ The persona file below selects the spec. Save both files together.
 Run `driftbench simulate refund.spec.yaml --persona sam.persona.yaml --model --agent-family none` to use the simulated customer.
 This makes model calls. Judging needs a configured judge; the criterion declaration alone does not create one.
 
-Live parent state has no YAML integration yet ([parent study, PR 416](https://github.com/achammah/driftbench/pull/416)).
-Rule-file references ship in [PR 443](https://github.com/achammah/driftbench/pull/443), and tool replay values ship in [PR 459](https://github.com/achammah/driftbench/pull/459).
+Parent blocks are coming in [#562](https://github.com/achammah/driftbench/pull/562).
+Rule-file references are coming in [#443](https://github.com/achammah/driftbench/pull/443), and tool replay values in [#459](https://github.com/achammah/driftbench/pull/459).
 Those keys are not accepted on main, so this example uses the supported forms below.
 The uncertainty panel is wired in code with `createEscalation`, not YAML.
 
@@ -819,6 +866,75 @@ A Given can hold the conversation before the block, tool calls included. A past 
     tools: [{ label: notify_sales, count: 0 }]   # it must not file the request twice
 ```
 
+<details><summary>See it in TypeScript</summary>
+
+A block whose Given the target cannot apply is `not_run`, never a fail ([#428](https://github.com/achammah/driftbench/pull/428)). A `prefix` needs an adapter that declares `seedPrefix`.
+Here the same Acme spec runs on a function agent, then on a copy of it that declares it cannot start from a history.
+Save both files together and run `npx tsx not-run.ts`.
+
+```yaml
+# file: callback.spec.yaml
+id: acme-callback-reference
+target: { adapter: function, agent: acme-sales } # The demo agent
+blocks:
+  - id: reference
+    given:
+      origin: recorded # Copied from a real run
+      prefix:
+        - { role: user, content: Can someone from Acme call me back about fiber? }
+        - role: assistant
+          content: Done, an Acme advisor will call you today.
+          tool_calls: # The earlier call, with the result the tool returned
+            - { id: call-1, label: notify_sales, input: { topic: fiber }, output: { ref: LD-4471 } }
+    when: { user: What is my callback reference? }
+    expect:
+      must: [LD-4471] # Read from the recorded result
+      tools:
+        - { label: notify_sales, count: 0 } # Do not file the request twice
+```
+
+```ts
+// file: not-run.ts
+import { fileURLToPath } from 'node:url';
+import { functionAdapter } from '@agent-nexus/driftbench-adapters';
+import { defaultChecks } from '@agent-nexus/driftbench-checks';
+import { blockStatus, loadSpecFile, runOutcome, runSpec, skipReason } from '@agent-nexus/driftbench-core';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
+
+// A stand-in Acme agent that reads the reference from its history.
+const text = 'Your Acme callback reference is LD-4471.';
+const seeds = functionAdapter({
+  respond: () => ({ segments: [{ type: 'text', text }], text, toolCalls: [], cost: { usd: 0 }, latencyMs: 0 }),
+});
+// The same agent behind a target that cannot start from a written history.
+const noSeed = { ...seeds, capabilities: () => ({ ...seeds.capabilities(), seedPrefix: false }) };
+
+const loaded = await loadSpecFile(fileURLToPath(new URL('callback.spec.yaml', import.meta.url)));
+if (!loaded.ok) throw new Error('the spec is invalid');
+for (const adapter of [seeds, noSeed]) {
+  const run = await runSpec(loaded.spec, {
+    adapter,
+    driver: createScriptedDriver(),
+    checks: defaultChecks(),
+    mode: 'F',
+    repeat: 0,
+  });
+  const [block] = run.blocks;
+  if (!block) throw new Error('the run has no block');
+  console.log(`seedPrefix ${adapter.capabilities().seedPrefix}: block ${blockStatus(block)}, run ${runOutcome(run)}`);
+  const reason = skipReason(block);
+  if (reason) console.log(`  ${reason}`);
+}
+```
+
+```
+seedPrefix true: block pass, run pass
+seedPrefix false: block not_run, run not_run
+  not run (unsupported, check capability): expected the adapter applies a prefix (seedPrefix); got function declares seedPrefix false: the agent would never see it
+```
+
+</details>
+
 <a href=".github/readme/kinds-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/kinds-dark.png">
@@ -941,6 +1057,47 @@ An agent can pass every step on its own and still fail the whole conversation. R
 
 One run proves little. Every rate comes with its interval, comparisons are paired on the same conversations, and a difference smaller than the run-to-run spread is reported as noise. Before a campaign spends anything, driftbench prints the smallest effect it can detect. → [statistics](docs/concepts/statistics.md)
 
+<details><summary>See it in TypeScript</summary>
+
+Honest intervals are on main ([#425](https://github.com/achammah/driftbench/pull/425), [#426](https://github.com/achammah/driftbench/pull/426), [#528](https://github.com/achammah/driftbench/pull/528)).
+Repeats of one conversation move together, so they are not independent runs.
+`wilsonEffective` gives the interval of a pooled rate over clustered runs, and `hierarchicalBetaBinomial` the suite headline. Here on six Acme goldens (one spec, one target, one mode each).
+Run `npx tsx headline.ts`.
+
+```ts
+// file: headline.ts
+import { hierarchicalBetaBinomial, wilson, wilsonEffective } from '@agent-nexus/driftbench-stats';
+
+// Six goldens: k of n runs passed in each.
+const goldens = [
+  { n: 5, k: 5 },
+  { n: 5, k: 5 },
+  { n: 5, k: 4 },
+  { n: 5, k: 0 },
+  { n: 5, k: 2 },
+  { n: 2, k: 2 },
+];
+const pct = (x: number) => `${(100 * x).toFixed(1)}%`;
+const show = (i: { estimate: number; lower: number; upper: number }) =>
+  `${pct(i.estimate)} [${pct(i.lower)}, ${pct(i.upper)}]`;
+
+// Too narrow: 18 of 27 runs read as independent samples.
+console.log(`Naive Wilson:    ${show(wilson(18, 27))}`);
+// The runs a rate over goldens is worth, once the spread between goldens is measured.
+const runs = wilsonEffective(goldens);
+console.log(`Wilson on n_eff: ${show(runs)}, n_eff ${runs.effectiveN.toFixed(1)}`);
+// The suite headline: the mean over goldens, each golden weighing the same.
+console.log(`Hierarchical:    ${show(hierarchicalBetaBinomial(goldens))}`);
+```
+
+```
+Naive Wilson:    66.7% [47.8%, 81.4%]
+Wilson on n_eff: 66.7% [24.7%, 92.4%], n_eff 7.0
+Hierarchical:    70.0% [35.4%, 88.2%]
+```
+
+</details>
+
 <a href=".github/readme/perturbed-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/perturbed-dark.png">
@@ -977,7 +1134,7 @@ The verdict names the block, the stage and the check, with the evidence. The fau
 
 The fix maps to the blocks it can affect through their declared dependencies. driftbench reruns affected blocks and any steps that inherit their state. It carries the other results from the last run. When it cannot tell what the change touches, it reruns everything. The gate decides again, and the nightly run still covers everything. Source links advise which blocks to run; they do not skip tests. See [blast radius](#blast-radius-rerun-only-what-a-change-touches).
 
-<sub>Source links are on their way ([#423](https://github.com/achammah/driftbench/pull/423), [#429](https://github.com/achammah/driftbench/pull/429)).</sub>
+<sub>Block links to prompt sections and advisory selection by them are on main ([#423](https://github.com/achammah/driftbench/pull/423), [#429](https://github.com/achammah/driftbench/pull/429)).</sub>
 
 Concepts in the docs: [block](docs/concepts/block.md) · [Given, When, Then](docs/concepts/given-when-then.md) · [run modes](docs/concepts/run-modes.md) · [judges](docs/concepts/judges.md) · [statistics](docs/concepts/statistics.md)
 
