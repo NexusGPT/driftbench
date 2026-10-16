@@ -1,5 +1,6 @@
 import type { Message } from '@agent-nexus/driftbench-core';
-import { historyOutput, type WireNames } from '../anthropic/common';
+import type { WireNames } from '../anthropic/common';
+import { HistoryCompiler } from '../shared/history';
 
 /**
  * The slice of the Gemini API the adapter speaks, mirrored from `@google/genai` 2.28.0
@@ -85,6 +86,9 @@ export function toGoogleContents(
     else contents.push({ role, parts: [...parts] });
   };
   const text = (value: string): GooglePart[] => (value === '' ? [] : [{ text: value }]);
+  // Gemini pairs a response with its call by name and order; an id travels only when one was recorded, and a
+  // recorded id that repeats one of the same turn is replaced, as on every wire.
+  const compiler = new HistoryCompiler({ fallback: (n) => `call_h${n}`, fillMissing: false });
 
   for (const message of history) {
     if (message.role === 'system') {
@@ -95,7 +99,7 @@ export function toGoogleContents(
       push('user', text(message.content));
       continue;
     }
-    const recorded = message.tool_calls ?? [];
+    const recorded = compiler.calls(message);
     if (recorded.length > 0) {
       push(
         'model',
@@ -113,7 +117,8 @@ export function toGoogleContents(
           functionResponse: {
             ...(call.id === undefined ? {} : { id: call.id }),
             name: names.wire(call.label),
-            response: call.error !== undefined ? { error: call.error } : { output: historyOutput(call) },
+            response:
+              call.result.kind === 'error' ? { error: call.result.message } : { output: call.result.value },
           },
         })),
       );
