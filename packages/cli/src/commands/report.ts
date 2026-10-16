@@ -6,12 +6,14 @@ import {
   type CampaignData,
   carriedLines,
   criterionRepeatsText,
+  headlineText,
   MIN_GOLDENS,
   type PilotReport,
   ReportInputError,
   readPilotReport,
   renderHtml,
   renderJunit,
+  unscoredRuns,
 } from '@agent-nexus/driftbench-report';
 import type { Command } from 'commander';
 import { criteriaFromConfig } from '../aggregate-config';
@@ -202,9 +204,10 @@ export async function reportCommand(
   } else {
     const c = card.campaign;
     io.out(
-      `Campaign ${c.campaignId}: ${c.runs} runs, ${c.passing} pass, ${c.failing} fail, ${c.broken} did not complete.\n`,
+      `Campaign ${c.campaignId}: ${c.runs} runs, ${c.passing} pass, ${c.failing} fail, ${unscoredRuns(c)}${c.broken} did not complete.\n`,
     );
     for (const line of carriedLines(card.carried)) io.out(`${line}\n`);
+    for (const mode of card.modes) if (mode.headline) io.out(`${headlineText(mode.mode, mode.headline)}\n`);
     for (const line of criterionRepeatsText(card.criterionRepeats)) io.out(`${line}\n`);
     if (card.compare) {
       io.out(

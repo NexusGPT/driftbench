@@ -37,6 +37,7 @@ export const IssueCodes = [
   'OBJECT_ORDER_INVALID',
   'OBJECT_IMPL_UNKNOWN',
   'OBJECT_PARAMS_INVALID',
+  'SPEC_SCHEMA_VERSION',
 ] as const;
 
 export type IssueCode = (typeof IssueCodes)[number] | `SCHEMA_${string}`;
