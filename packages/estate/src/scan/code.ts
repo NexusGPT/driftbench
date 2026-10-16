@@ -896,65 +896,86 @@ function tableAttribute(value: string): boolean {
   return attribute;
 }
 
-/** Reversing main's order requires a positive request construction, not merely descriptive prose. */
-function explicitTableRequest(value: string): boolean {
-  const text = value.replace(/[`*]/g, '').trim();
-  if (tableAttribute(text) || /\[[^\]]+\]\([^)]*\)/.test(text)) return false;
-  const terms = nlp(text.toLowerCase()).termList();
-  // A conditional clause needs an expressed subject before its predicate. A passive
-  // fragment such as a temporal installation note supplies no such subject.
-  if (/^(?:if|unless|when|whenever)\b/i.test(text)) {
+type TableColumnRole = 'request' | 'attribute' | 'description' | 'unresolved';
+
+/**
+ * Infer a column's role before reading any route. A target column and a request column must
+ * describe the same relation throughout the table. One descriptive/attribute row vetoes the
+ * entire column; a majority cannot turn the remaining inventory records into instructions.
+ * No header vocabulary or occurrence of a temporal word supplies request evidence.
+ */
+function tableColumnRole(values: string[], forward: boolean): TableColumnRole {
+  if (!values.length) return 'attribute';
+  if (values.every(unresolvedTableCell)) return 'unresolved';
+  if (values.some(tableAttribute)) return 'attribute';
+  const parsed = values.map((value) => {
+    const text = value.replace(/[`*]/g, '').trim();
+    const terms = nlp(text.toLowerCase()).termList();
+    const condition = /^(?:if|unless|when|whenever)\b/i.test(text);
     const predicate = terms.findIndex((term) => term.tags?.has('Verb'));
-    return (
+    const conditional =
+      condition &&
       predicate > 1 &&
-      terms.slice(1, predicate).some((term) => term.tags?.has('Noun') || term.tags?.has('Pronoun'))
-    );
-  }
-  if (
-    /\?$/.test(text) &&
-    terms.some((term) => term.tags?.has('QuestionWord') || term.tags?.has('Modal')) &&
-    terms.some((term) => term.normal === 'you')
-  )
-    return true;
-  let first = 0;
-  while (
-    terms[first]?.normal === 'to' ||
-    terms[first]?.tags?.has('Adverb') ||
-    terms[first]?.tags?.has('Expression')
-  )
-    first++;
-  const head = terms[first];
-  if (!head) return false;
-  // Test the lexical head in infinitival context to resolve ordinary adjective/noun-verb
-  // homographs without declaring every noun before "the" to be a command.
-  const phrase = terms
-    .slice(first)
-    .map((term) => term.text)
-    .join(' ');
-  const infinitive = nlp(`to ${phrase}`).termList()[1];
-  const directive =
-    head.tags?.has('Infinitive') ||
-    head.tags?.has('Imperative') ||
-    (infinitive?.normal === head.normal && infinitive.tags?.has('Infinitive'));
-  if (!directive) return false;
-  const tail = terms.slice(first + 1);
-  const clause = tail.findIndex(
-    (term) =>
-      term.tags?.has('Connector') ||
-      term.tags?.has('Condition') ||
-      /^(?:that|which|who|whom|whose)$/.test(term.normal ?? ''),
-  );
-  const object = clause < 0 ? tail : tail.slice(0, clause);
-  const noun = object.findIndex((term) => term.tags?.has('Noun') || term.tags?.has('Pronoun'));
-  if (noun < 0) return false;
-  // A second unlinked predicate after the nominal group signals a noun-headed relative
-  // description ("guide the crew consult"), not an imperative with an object.
-  return !object.slice(noun + 1).some((term) => {
-    if (term.tags?.has('Verb')) return true;
-    // A postnominal participial homograph may be tagged as an adjective in isolation.
-    // An expressed-subject context supplies independent verbal evidence.
-    return term.tags?.has('Adjective') && nlp(`they ${term.text}`).termList()[1]?.tags?.has('Verb');
+      terms.slice(1, predicate).some((term) => term.tags?.has('Noun') || term.tags?.has('Pronoun'));
+    const question =
+      /\?$/.test(text) &&
+      terms.some((term) => term.tags?.has('QuestionWord') || term.tags?.has('Modal')) &&
+      terms.some((term) => term.normal === 'you');
+    let first = 0;
+    while (
+      terms[first]?.normal === 'to' ||
+      terms[first]?.tags?.has('Adverb') ||
+      (terms[first]?.tags?.has('Expression') && !/[:;]/.test(terms[first]?.post ?? ''))
+    )
+      first++;
+    const head = terms[first];
+    const tail = terms.slice(first + 1);
+    // Inspect only the principal object phrase, never a verb buried in a modifier.
+    const boundary = tail.findIndex((term) => term.tags?.has('Connector'));
+    const object = boundary < 0 ? tail : tail.slice(0, boundary);
+    const noun = object.findIndex((term) => term.tags?.has('Noun') || term.tags?.has('Pronoun'));
+    const secondaryPredicate = object.slice(noun + 1).some((term) => {
+      if (term.tags?.has('Verb')) return true;
+      return term.tags?.has('Adjective') && nlp(`they ${term.text}`).termList()[1]?.tags?.has('Verb');
+    });
+    const lexical = head ? nlp(`to ${head.text}`).termList()[1] : undefined;
+    const verbal = head?.tags?.has('Infinitive') || head?.tags?.has('Imperative');
+    const nominalHead = head && (nlp(head.text).has('%Noun|Verb%') || nlp(head.text).has('%Actor|Verb%'));
+    // Bare homographs can name an act in a simple object phrase. Appended nominal
+    // modifiers cannot supply request evidence through an infinitival probe.
+    const simpleObject = boundary < 0 || object.some((term) => term.tags?.has('Determiner'));
+    const imperative =
+      noun >= 0 &&
+      !secondaryPredicate &&
+      (verbal || (simpleObject && lexical?.normal === head?.normal && lexical?.tags?.has('Infinitive'))) &&
+      (simpleObject || (!head?.tags?.has('Noun') && !nominalHead));
+    return {
+      text,
+      terms,
+      request: !/\[[^\]]+\]\([^)]*\)/.test(text) && (conditional || question || (!condition && imperative)),
+    };
   });
+  // Repeated bare labels form an attribute domain, even when a homograph can be a verb.
+  const counts = new Map<string, number>();
+  for (const row of parsed) counts.set(row.text.toLowerCase(), (counts.get(row.text.toLowerCase()) ?? 0) + 1);
+  if (
+    !forward &&
+    parsed.length > 1 &&
+    parsed.every(
+      ({ text, terms }) =>
+        (counts.get(text.toLowerCase()) ?? 0) > 1 &&
+        terms.length <= 4 &&
+        !terms.some(
+          (term) => term.tags?.has('Determiner') || term.tags?.has('Pronoun') || term.tags?.has('Condition'),
+        ),
+    )
+  )
+    return 'attribute';
+  if (parsed.every((row) => row.request)) return 'request';
+  // Preserve main's leading situation column, including nominal topics and non-English
+  // requests. Compatibility applies to the whole column, never a reversed inventory.
+  if (forward && parsed.every((row) => !unresolvedTableCell(row.text))) return 'request';
+  return 'description';
 }
 
 /** Opaque uncertainty notation is unresolved; ordinary inventory prose is never flagged by default. */
@@ -1047,59 +1068,26 @@ function routeSources(
       .replace(/[`*]/g, '')
       .replace(/[.!]+$/, '')
       .trim();
-  // Main's table contract: an ask precedes one or more target columns. Keep that orientation
-  // for descriptive inventory text; reverse it only on explicit request evidence.
-  const names = routeNames(raw);
+  // Resolve column roles once per table, before emitting any row.
   for (const table of readTables(file.text)) {
+    if (!table.rows.length) continue;
     const resolved = table.rows.map((row) => row.cells.map((cell) => tableTargets(cell, file, files, raw)));
-    const firstValues = table.rows.map((row) =>
-      (row.cells[0] ?? '').replace(/[`*]/g, '').trim().replace(/^\//, ''),
+    const columns = table.header.map((_header, column) => table.rows.map((row) => row.cells[column] ?? ''));
+    const targetColumns = table.header.flatMap((_header, column) =>
+      resolved.some((row) => (row[column]?.length ?? 0) > 0) ? [column] : [],
     );
-    const firstIsUnit =
-      firstValues.some((value) => names.skills.has(value) || names.helpers.has(value)) &&
-      table.rows.every(
-        (row, index) =>
-          names.skills.has(firstValues[index] ?? '') ||
-          names.helpers.has(firstValues[index] ?? '') ||
-          /^\s*`[^ `]+`\s*$/.test(row.cells[0] ?? ''),
-      );
-    if (firstIsUnit) {
-      const requestColumns = table.header.flatMap((_header, column) => {
-        if (column === 0) return [];
-        const values = table.rows.map((row) => (row.cells[column] ?? '').replace(/[`*]/g, '').trim());
-        // Repeated bare labels supply categorical evidence. Do not reverse main's direction
-        // on an ambiguous short label; a determined object or clause can resolve that ambiguity.
-        const counts = new Map<string, number>();
-        for (const value of values)
-          counts.set(value.toLowerCase(), (counts.get(value.toLowerCase()) ?? 0) + 1);
-        const repeatedLabels =
-          values.length > 1 &&
-          values.every((value) => {
-            const terms = nlp(value.toLowerCase()).termList();
-            return (
-              terms.length <= 4 &&
-              terms.some((term) => term.tags?.has('Noun')) &&
-              !terms.some(
-                (term) =>
-                  term.tags?.has('Determiner') || term.tags?.has('Pronoun') || term.tags?.has('Condition'),
-              ) &&
-              (counts.get(value.toLowerCase()) ?? 0) > 1
-            );
-          });
-        return !repeatedLabels && values.every(explicitTableRequest) ? [column] : [];
-      });
-      if (requestColumns.length === 1) {
-        const column = requestColumns[0] as number;
-        for (const [index, row] of table.rows.entries())
-          for (const target of resolved[index]?.[0] ?? [])
-            add({
-              ...target,
-              ask: row.cells[column]?.replace(/[`*]/g, '').trim() ?? '',
-              line: row.line,
-              quote: row.text,
-              via: 'table',
-            });
-      } else if (table.rows.some((row) => row.cells.slice(1).some(unresolvedTableCell))) {
+    if (!targetColumns.length) continue;
+    // A resource identity at the left denotes inventory unless an entire companion
+    // column positively supplies requests. Links to other resources remain metadata.
+    const firstTarget = Math.min(...targetColumns);
+    const roles = columns.map((values, column) =>
+      targetColumns.includes(column) ? 'target' : tableColumnRole(values, column < firstTarget),
+    );
+    const requests = roles.flatMap((role, column) => (role === 'request' ? [column] : []));
+    const leading = requests.filter((column) => column < firstTarget);
+    const request = leading[0] ?? (requests.length === 1 ? requests[0] : undefined);
+    if (request === undefined) {
+      if (!roles.includes('description') && roles.includes('unresolved'))
         ambiguousRouteTable(
           raw,
           file,
@@ -1107,34 +1095,20 @@ function routeSources(
           table.rows.at(-1)?.line ?? table.headerLine,
           resolved.flat(2),
         );
-      }
       continue;
     }
-    for (const [index, row] of table.rows.entries()) {
-      // Numeric/language/person fields are record coordinates. They cannot replace an ask.
-      const firstTarget =
-        resolved[index]?.findIndex((targets, column) => column > 0 && targets.length > 0) ?? -1;
-      if (firstTarget < 1) continue;
-      const condition = row.cells.findIndex(
-        (value, column) => column < firstTarget && !tableAttribute(value),
-      );
-      if (condition < 0) continue;
-      const value = row.cells[condition] ?? '';
-      if (unresolvedTableCell(value)) {
-        ambiguousRouteTable(
-          raw,
-          file,
-          table.headerLine,
-          table.rows.at(-1)?.line ?? table.headerLine,
-          resolved.flat(2),
-        );
-        continue;
-      }
-      const ask = value.replace(/[`*]/g, '').trim();
-      for (let column = condition + 1; column < row.cells.length; column++)
+    const targets = targetColumns;
+    if (!targets.length) continue;
+    for (const [index, row] of table.rows.entries())
+      for (const column of targets)
         for (const target of resolved[index]?.[column] ?? [])
-          add({ ...target, ask, line: row.line, quote: row.text, via: 'table' });
-    }
+          add({
+            ...target,
+            ask: row.cells[request]?.replace(/[`*]/g, '').trim() ?? '',
+            line: row.line,
+            quote: row.text,
+            via: 'table',
+          });
   }
   // Routing in prose and headings is read in the standing instructions, where routing lives; a skill body's
   // "when X, dispatch Y" is a step of that skill, not the routing of an ask.

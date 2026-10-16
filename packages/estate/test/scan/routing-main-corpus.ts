@@ -28,6 +28,268 @@ const t = (
 });
 export const mainRoutingCorpus: MainRouteCase[] = [
   t(
+    'coordinate before resource-first request',
+    ['Index', 'Resource', 'Request'],
+    [
+      ['51', '`tidal-review`', 'Inspect valves'],
+      ['72', '`grove-map`', 'Calibrate gauges'],
+    ],
+    [
+      ['Inspect valves', 'tidal-review'],
+      ['Calibrate gauges', 'grove-map'],
+    ],
+  ),
+  t(
+    'annotated resource before request',
+    ['Resource', 'Request'],
+    [['`tidal-review` is selected for this work', 'Inspect valves']],
+    [['Inspect valves', 'tidal-review']],
+  ),
+  t(
+    'main repeated terse leading requests',
+    ['Request', 'Resource'],
+    [
+      ['Count crates', '`tidal-review`'],
+      ['Count crates', '`grove-map`'],
+    ],
+    [
+      ['Count crates', 'tidal-review'],
+      ['Count crates', 'grove-map'],
+    ],
+  ),
+
+  t(
+    'adversarial inventory: time-bearing nominal chronicles',
+    ['Component', 'Chronicle'],
+    [
+      ['`tidal-review`', 'Release log assembled after the morning rehearsal'],
+      ['`grove-map`', 'Field notes captured before the evening shutdown'],
+    ],
+  ),
+  t(
+    'adversarial inventory: passive catalogue entries',
+    ['Component', 'Description'],
+    [
+      ['`tidal-review`', 'Was assembled from the retired meter interface'],
+      ['`grove-map`', 'Has been retained for historical comparison'],
+    ],
+  ),
+  t(
+    'adversarial inventory: gerund feature descriptions',
+    ['Component', 'Description'],
+    [
+      ['`tidal-review`', 'Tracking the weekly calibration history'],
+      ['`grove-map`', 'Mapping the annual expansion of the orchard'],
+    ],
+  ),
+  t(
+    'adversarial inventory: nominal infinitive complement',
+    ['Component', 'Description'],
+    [
+      ['`tidal-review`', 'A reference to inspect the hinge alignment'],
+      ['`grove-map`', 'A template to reconcile the crate totals'],
+    ],
+  ),
+  t(
+    'adversarial inventory: embedded quoted imperatives',
+    ['Component', 'Description'],
+    [
+      ['`tidal-review`', 'The manual says “Inspect every rivet” before assembly'],
+      ['`grove-map`', 'The worksheet says “Count all pallets” at dispatch'],
+    ],
+  ),
+  t(
+    'adversarial inventory: nominal colon instructions',
+    ['Component', 'Description'],
+    [
+      ['`tidal-review`', 'Reminder: inspect the intake valves'],
+      ['`grove-map`', 'Example: calculate the covered area'],
+    ],
+  ),
+  t(
+    'adversarial inventory: relative time fragments',
+    ['Component', 'Description'],
+    [
+      ['`tidal-review`', 'Records of when the pressure seal was replaced'],
+      ['`grove-map`', 'A snapshot from when the fence was rebuilt'],
+    ],
+  ),
+  t(
+    'adversarial inventory: past participial prose',
+    ['Component', 'Description'],
+    [
+      ['`tidal-review`', 'Prepared during the overnight commissioning exercise'],
+      ['`grove-map`', 'Adapted after the winter survey campaign'],
+    ],
+  ),
+  t(
+    'adversarial inventory: passive single row',
+    ['Component', 'Description'],
+    [['`tidal-review`', 'Is selected by the workshop coordinator each morning']],
+  ),
+  t(
+    'adversarial inventory: temporal single row',
+    ['Component', 'Description'],
+    [['`tidal-review`', 'Daily reference material for the late maintenance window']],
+  ),
+  t(
+    'adversarial inventory: imperative inside single description',
+    ['Component', 'Description'],
+    [['`tidal-review`', 'A placard bearing the instruction “Measure wall thickness”']],
+  ),
+  t(
+    'adversarial inventory: nominal run history single',
+    ['Component', 'Description'],
+    [['`tidal-review`', 'Run history from the first autumn deployment']],
+  ),
+  t(
+    'adversarial inventory: nominal review evidence',
+    ['Component', 'Description'],
+    [
+      ['`tidal-review`', 'Review evidence collected after the morning inspection'],
+      ['`grove-map`', 'Audit records preserved before the shift handover'],
+    ],
+  ),
+  t(
+    'adversarial inventory: nominal dispatch description',
+    ['Component', 'Description'],
+    [
+      ['`tidal-review`', 'Dispatch history from the overnight batch'],
+      ['`grove-map`', 'Release history from the weekend rehearsal'],
+    ],
+  ),
+  t(
+    'adversarial inventory: object headed explanatory paragraphs',
+    ['Component', 'Description'],
+    [
+      ['`tidal-review`', 'The reference includes a checklist to inspect the hinges'],
+      ['`grove-map`', 'The atlas includes instructions to calculate parcel areas'],
+    ],
+  ),
+  t(
+    'adversarial inventory: subject headed functionality',
+    ['Component', 'Description'],
+    [
+      ['`tidal-review`', 'This component inspects the stored sensor packets'],
+      ['`grove-map`', 'This helper compares the archived geometry bundles'],
+    ],
+  ),
+  t(
+    'adversarial inventory: conditional adjunct inside description',
+    ['Component', 'Description'],
+    [
+      ['`tidal-review`', 'A handbook consulted when a sensor reports drift'],
+      ['`grove-map`', 'A directory opened if the map projection is missing'],
+    ],
+  ),
+  t(
+    'adversarial inventory: provenance with embedded commands',
+    ['Component', 'Description'],
+    [
+      ['`tidal-review`', 'Copied from a worksheet titled “Inspect the solder joints”'],
+      ['`grove-map`', 'Imported from a guide titled “Audit the parcel records”'],
+    ],
+  ),
+  t(
+    'adversarial inventory: time adverb plus nominal',
+    ['Component', 'Description'],
+    [
+      ['`tidal-review`', 'Previously a support package for weekend inspections'],
+      ['`grove-map`', 'Initially a geometry appendix for spring surveys'],
+    ],
+  ),
+  t(
+    'adversarial inventory: descriptive future tense',
+    ['Component', 'Description'],
+    [
+      ['`tidal-review`', 'Will be replaced after the next calibration cycle'],
+      ['`grove-map`', 'Will remain available until the archive migration'],
+    ],
+  ),
+  t(
+    'adversarial inventory: description and imperative mixed',
+    ['Component', 'Details'],
+    [
+      ['`tidal-review`', 'Inspect the inlet pressure'],
+      ['`grove-map`', 'A legacy reference from the pump workshop'],
+    ],
+  ),
+  t(
+    'adversarial inventory: imperative and passive mixed',
+    ['Component', 'Details'],
+    [
+      ['`tidal-review`', 'Count the shipping containers'],
+      ['`grove-map`', 'Was introduced during the depot expansion'],
+    ],
+  ),
+  t(
+    'adversarial inventory: condition and description mixed',
+    ['Component', 'Details'],
+    [
+      ['`tidal-review`', 'If a pressure gauge is cracked'],
+      ['`grove-map`', 'Documentation retained after the evening shutdown'],
+    ],
+  ),
+  t(
+    'adversarial inventory: majority imperative still mixed',
+    ['Component', 'Details'],
+    [
+      ['`tidal-review`', 'Inspect the brass couplings'],
+      ['`grove-map`', 'Count the spare sensors'],
+      ['`sound-reader`', 'A small reference compiled for depot staff'],
+    ],
+  ),
+  t(
+    'adversarial inventory: majority conditions still mixed',
+    ['Component', 'Details'],
+    [
+      ['`tidal-review`', 'When a gasket has failed'],
+      ['`grove-map`', 'If a calibration record is missing'],
+      ['`sound-reader`', 'The archive mirrors a retired handbook'],
+    ],
+  ),
+  t(
+    'adversarial inventory: unknown quoted inventory identifier',
+    ['Component', 'Description'],
+    [
+      ['`tidal-review`', 'A retired reference with the instruction “Inspect valves”'],
+      ['`grove-map`', 'A seasonal appendix copied before the survey'],
+    ],
+  ),
+  t(
+    'adversarial inventory: dependency with time clause',
+    ['Component', 'Dependency'],
+    [
+      ['`tidal-review`', 'Requires an index rebuilt after the morning export'],
+      ['`grove-map`', 'Relies on a catalog generated before nightly backup'],
+    ],
+  ),
+  t(
+    'adversarial inventory: cost description with imperative example',
+    ['Component', 'Accounting'],
+    [
+      ['`tidal-review`', 'The invoice labels the work “Inspect valves”'],
+      ['`grove-map`', 'The budget calls the task “Measure boundaries”'],
+    ],
+  ),
+  t(
+    'adversarial inventory: link with descriptive imperative label',
+    ['Component', 'Reference'],
+    [
+      ['`tidal-review`', '[Inspect the sample sheets](manuals/sheets.md) for historical examples'],
+      ['`grove-map`', '[Audit the plot records](manuals/plots.md) for worked examples'],
+    ],
+  ),
+  t(
+    'adversarial inventory: nominal compound with temporal tail',
+    ['Component', 'Description'],
+    [
+      ['`tidal-review`', 'Support documentation for the late shift'],
+      ['`grove-map`', 'Training material for the morning induction'],
+    ],
+  ),
+
+  t(
     'reverse nominal guide with past relative predicate',
     ['Resource', 'Description'],
     [['`tidal-review`', 'guide the technicians used during certification']],
