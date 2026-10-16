@@ -782,7 +782,7 @@ function noisyItems(): BankItem[] {
   for (const kind of KINDS) {
     for (const rate of [0.1, 0.3, 0.5]) {
       for (const goldens of [2, 4]) {
-        for (const repeats of kind === 'code' ? [2] : [3, 6]) {
+        for (const repeats of kind === 'code' ? [2, 3] : [3, 6]) {
           const id = `intervals/noisy/${kind}/rate${rate}/g${goldens}/r${repeats}`;
           items.push({
             id,

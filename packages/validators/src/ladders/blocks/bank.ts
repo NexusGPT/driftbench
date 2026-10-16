@@ -108,7 +108,9 @@ export async function levelMeasure(
         tier: item.tier,
         cause: item.cause,
         pass: result.pass,
-        ...(result.pass ? {} : { detail: `asks: ${item.title}. found: ${result.detail}` }),
+        ...(result.pass
+          ? {}
+          : { detail: `asks: ${item.title}. found: ${result.detail}. Fix: ${item.cause}` }),
       });
     }
     return bankMeasure(entries, 'blocks');

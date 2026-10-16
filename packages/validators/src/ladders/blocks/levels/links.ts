@@ -358,7 +358,7 @@ function hashItems(): BankItem[] {
         const id = `links/hash/${kind}/${variant.id}/${compare}`;
         items.push({
           id,
-          family: `links-hash-${kind}`,
+          family: 'links-hash',
           tier: Math.min(5, variant.tier + (kind === 'code' ? 1 : 0)) as Tier,
           level: 6,
           component: IDENTITY,

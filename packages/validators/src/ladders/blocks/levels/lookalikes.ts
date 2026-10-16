@@ -329,7 +329,7 @@ function codePairItems(): BankItem[] {
     const id = `diagnostics/lookalike/code/${pair.symptom}/${pair.a}-vs-${pair.b}`;
     return {
       id,
-      family: 'diagnostics-lookalike-code',
+      family: 'diagnostics-lookalike',
       tier: pair.tier,
       level: 5,
       component: b.blame.item === 'env_failure' || a.blame.item === 'env_failure' ? EVIDENCE : ATTRIBUTE,
@@ -456,7 +456,7 @@ function normalPairItems(): BankItem[] {
       const id = `diagnostics/lookalike/normal/${pair.id}/${variant}`;
       items.push({
         id,
-        family: 'diagnostics-lookalike-normal',
+        family: 'diagnostics-lookalike',
         tier: pair.tier,
         level: 5,
         component: VALUE_EVIDENCE,

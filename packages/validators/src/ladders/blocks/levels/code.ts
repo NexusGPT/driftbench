@@ -396,7 +396,10 @@ const CASES: ArtifactCase[] = [
       return {
         file,
         checks: [{ contains: `Renter: ${who}` }, { not_contains: 'TODO' }],
-        planted: { file: { ...file, data: { paragraphs: ['Rental agreement', 'Renter: unknown'] } }, breaks: 0 },
+        planted: {
+          file: { ...file, data: { paragraphs: ['Rental agreement', 'Renter: unknown'] } },
+          breaks: 0,
+        },
       };
     },
   },

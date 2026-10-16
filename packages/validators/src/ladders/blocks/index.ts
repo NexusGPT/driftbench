@@ -9,7 +9,7 @@ export { type BlocksProduct, Missing, maybe, need, type ProductPatch, patched, r
 export { BANK_LEVELS, type BankItem, type ItemContext, type ItemResult } from './types';
 
 /** The version of the blocks ladder (docs/validators.md section 12.5: floors are per ladder version). */
-export const BLOCKS_LADDER_VERSION = 1;
+export const BLOCKS_LADDER_VERSION = 2;
 
 export type BlocksLadderOptions = {
   /** Replaces the bank: tests run a few items. */

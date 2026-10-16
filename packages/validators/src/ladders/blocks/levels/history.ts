@@ -16,6 +16,7 @@ import {
   scriptedAdapter,
   statusOf,
 } from '../harness';
+import { token } from '../kinds';
 import { need } from '../product';
 import { type BankItem, expectAll, fail, PASS, type Tier } from '../types';
 
@@ -117,7 +118,7 @@ function recordItems(): BankItem[] {
             const { prefix, ref } = history(rng, seed, id, shape);
             const texts = Array.from(
               { length: n },
-              (_, index) => `[${id}:${index}] What is my booking reference?`,
+              (_, index) => `[${token(seed, id)}:${index}] What is my booking reference?`,
             );
             const blocks = texts.map((text, index) => ({
               id: `b${index}`,
@@ -198,7 +199,7 @@ function originSpec(
   const { prefix } = history(rng, seed, tag, SHAPES[0] as Shape);
   const texts = Array.from(
     { length: n },
-    (_, index) => `[${tag}:${index}] Is the ${pick(rng, SHOP.bikes)} free?`,
+    (_, index) => `[${token(seed, tag)}:${index}] Is the ${pick(rng, SHOP.bikes)} free?`,
   );
   const raw: RawSpec = {
     id: `blocks-origin-${seed}`,
@@ -273,7 +274,7 @@ function originItems(): BankItem[] {
           const at =
             position === 'first' ? 0 : position === 'last' ? n - 1 : between(rng, 1, Math.max(1, n - 2));
           const blocks = Array.from({ length: n }, (_, index) => ({
-            user: `[${id}:${index}] Hello`,
+            user: `[${token(seed, id)}:${index}] Hello`,
             ...(index === at ? { given: { origin } } : {}),
             expect: { must: ['Hello'] },
           }));
@@ -426,7 +427,7 @@ function lintItems(): BankItem[] {
           const n = between(rng, 2, 4);
           const at = n - 1;
           const blocks = Array.from({ length: n }, (_, index) => ({
-            user: `[${id}:${index}] Which bike is booked?`,
+            user: `[${token(seed, id)}:${index}] Which bike is booked?`,
             ...(index === at ? { given: { prefix } } : {}),
             expect: {
               ...(source === 'earlier-ledger-add' && index === 0
@@ -526,7 +527,7 @@ function worldItems(): BankItem[] {
                   ([at], setIndex) => at === index && !(level === 'spec' && setIndex === 0),
                 );
                 return {
-                  user: `[${id}:${index}] Check the fleet.`,
+                  user: `[${token(seed, id)}:${index}] Check the fleet.`,
                   ...(setHere >= 0 ? { given: { world: { tools: forced(setHere) } } } : {}),
                   expect: { must: ['fleet'] },
                 };
@@ -547,7 +548,7 @@ function worldItems(): BankItem[] {
                 plan.sets.forEach(([, tool], setIndex) => {
                   if (from(setIndex) <= index) want[tool] = forced(setIndex)[tool];
                 });
-                const turn = log.turns.find((each) => each.user.includes(`[${id}:${index}]`));
+                const turn = log.turns.find((each) => each.user.includes(`[${token(seed, id)}:${index}]`));
                 if (!turn) return fail(`the agent never received block ${index}`);
                 const got = (turn.world.tools ?? {}) as Record<string, unknown>;
                 const wantKeys = Object.keys(want).sort();

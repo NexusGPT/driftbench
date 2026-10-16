@@ -205,7 +205,7 @@ function stateItems(): BankItem[] {
         const id = `parents/state/${kind}/${shape.id}/${view}`;
         items.push({
           id,
-          family: `parents-state-${kind}`,
+          family: 'parents-state',
           tier: Math.min(5, shape.tier + (view === 'ancestor-files' ? 2 : 1)) as Tier,
           level: 2,
           component: view === 'ancestor-files' ? SANDBOX : RUNNER,

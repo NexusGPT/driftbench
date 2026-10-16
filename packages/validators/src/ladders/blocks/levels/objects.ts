@@ -765,7 +765,7 @@ function stampItems(): BankItem[] {
       const id = `objects/stamps/${place.id}/${shape}`;
       items.push({
         id,
-        family: 'objects-stamps-normal',
+        family: 'objects-stamps',
         tier: (place.id === 'shipped'
           ? 2
           : shape === 'extra-call' || shape === 'missing-call'
@@ -892,7 +892,7 @@ function codeStampItems(): BankItem[] {
       const id = `objects/stamps/code/${place.id}/${fate}`;
       items.push({
         id,
-        family: 'objects-stamps-code',
+        family: 'objects-stamps',
         tier: (place.id === 'shipped' ? 3 : 4) as Tier,
         level: 3,
         component: STAMPS,

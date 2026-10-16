@@ -805,4 +805,78 @@ export const CHEATERS: readonly Cheater[] = [
         },
       }),
   },
+  {
+    // Reads every file it can reach and the spec for a verdict or a cause; finding none (the truth stays in the
+    // item), it falls back on what a cheat falls back on: every block passes, no agent call.
+    name: 'read-the-recipe',
+    levels: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    make: (base) =>
+      patched(base, {
+        name: 'read-the-recipe',
+        core: {
+          runSpec: async (input: Record<string, unknown>) => {
+            const blocks = (input.blocks as { id?: string }[]) ?? [];
+            return {
+              runId: 'recipe',
+              specId: input.id,
+              specHash: 'recipe',
+              target: { adapter: 'function' },
+              mode: 'F',
+              repeat: 0,
+              status: 'completed',
+              blocks: blocks.map((block, index) => ({
+                index,
+                blockId: block.id,
+                givenHash: 'recipe',
+                observed: { segments: [], text: '', toolCalls: [], cost: {}, latencyMs: 0 },
+                verdicts: [],
+                ledgerCheck: { ok: true, contradictions: [] },
+                drift: [],
+                pass: true,
+              })),
+            };
+          },
+          ...constant('pass'),
+        },
+        report: {
+          suiteHeadline: () => undefined,
+          attributionOf: () => undefined,
+          evaluateAggregates: () => [{}],
+        },
+        checks: {
+          runLadder: async () => ({ outcome: 'pass', rung: 'identity', evidence: '', names: {}, tried: [] }),
+        },
+        cli: exitOnly(0),
+      }),
+  },
+  {
+    // Decides from names: a block, a spec or a turn whose words say fail, stub, parent or block reads so.
+    name: 'echo-the-spec-name',
+    levels: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    make: (base) =>
+      patched(base, {
+        name: 'echo-the-spec-name',
+        core: {
+          runSpec: mapRuns(base, (run, input) => {
+            const blocks = (input.blocks as { id?: string; user?: string; when?: { user?: string } }[]) ?? [];
+            const named = (index: number) =>
+              `${input.id ?? ''} ${blocks[index]?.id ?? ''} ${blocks[index]?.user ?? blocks[index]?.when?.user ?? ''}`;
+            return {
+              ...run,
+              blocks: run.blocks.map((block) => {
+                const words = named(block.index);
+                const status = /fail|wrong|bad|broken|error/i.test(words)
+                  ? 'fail'
+                  : /stub|not.?run/i.test(words)
+                    ? 'not_run'
+                    : /parent|blocked/i.test(words)
+                      ? 'blocked'
+                      : 'pass';
+                return forceStatus(status as 'pass')({ ...run, blocks: [block] }).blocks[0] as Block;
+              }),
+            };
+          }),
+        },
+      }),
+  },
 ];
