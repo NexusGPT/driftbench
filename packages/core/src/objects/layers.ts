@@ -232,10 +232,7 @@ export function resolveBlockObjects(
   context: ObjectContext,
   options: { explicitOnly?: boolean } = {},
 ): UsedObject[] {
-  // Validate every named target before kind-specific branches can skip it, including unselected objects.
-  // The flags that reach one object are applied together and its combined params are validated once, as
-  // applySets does: the named flags of the object and the kind-only flags of its kind that name one of its
-  // items, in the order given. Flags that are valid together are never refused one at a time.
+  // Every named target must exist, before kind-specific branches can skip it, including unselected objects.
   const namedTargets = new Map<string, { kind: string; id: string }>();
   for (const set of context.cli?.set ?? []) {
     if (set.id === undefined || /^\([a-z]+\)$/.test(set.id)) continue;
@@ -248,20 +245,12 @@ export function resolveBlockObjects(
     }
     namedTargets.set(`${set.kind}:${set.id}`, { kind: set.kind, id: set.id });
   }
-  for (const { kind, id } of namedTargets.values()) {
-    const target = context.store.resolve(kind, id);
-    const itemIds = new Set(target.items.map((item) => item.id));
-    const reaches = (set: { path: string }) =>
-      [...itemIds].some((item) => set.path === item || set.path.startsWith(`${item}.`));
-    const sets = (context.cli?.set ?? []).filter(
-      (set) => set.kind === kind && (set.id === id || (set.id === undefined && reaches(set))),
-    );
-    context.store.resolveCli(
-      target,
-      sets.map((set) => cliPatch(target, set)),
-    );
-  }
+  // The objects that took their flags: every flag an object receives is applied together and its combined
+  // params are validated once. The object a kind selects receives its named flags and the kind-only flags of
+  // its kind, in the order given.
+  const applied = new Set<string>();
   const applySets = (object: ResolvedObject): ResolvedObject => {
+    applied.add(`${object.kind}:${object.id}`);
     const sets = (context.cli?.set ?? []).filter(
       (set) => set.kind === object.kind && (set.id === undefined || set.id === object.id),
     );
@@ -327,6 +316,18 @@ export function resolveBlockObjects(
     }
     object = applySets(object);
     out.push({ key, setAt: reference?.setAt ?? 'shipped', place: reference?.place ?? '', object });
+  }
+  // A named object this block does not select is never used, so it takes only the flags that name it; it is
+  // still validated, so a mistake in a flag for an unselected object is refused.
+  for (const { kind, id } of namedTargets.values()) {
+    if (applied.has(`${kind}:${id}`)) continue;
+    const target = context.store.resolve(kind, id);
+    context.store.resolveCli(
+      target,
+      (context.cli?.set ?? [])
+        .filter((set) => set.kind === kind && set.id === id)
+        .map((set) => cliPatch(target, set)),
+    );
   }
   return out;
 }
