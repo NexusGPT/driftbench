@@ -1842,6 +1842,42 @@ function withoutHeadings(clause: string, spans: readonly string[]): string {
   });
 }
 
+const TERMS = new WeakMap<ReadonlyMap<string, EstateFile>, string[]>();
+
+/**
+ * Whether the estate itself defines a term: the words of a read target appear together in a heading, in a
+ * bold term or in a file name of the estate. A document or a part the estate names is a read target; a
+ * thing nobody defined ("the whole thread") is not.
+ */
+function definedTerm(words: string[], files: ReadonlyMap<string, EstateFile>): boolean {
+  let terms = TERMS.get(files);
+  if (!terms) {
+    terms = [];
+    for (const [path, file] of files) {
+      terms.push(
+        basename(path)
+          .replace(/\.[^.]+$/, '')
+          .toLowerCase()
+          .replace(/[-_]+/g, ' '),
+      );
+      if (!/\.(?:md|mdx|markdown|txt|rst)$/i.test(path)) continue;
+      for (const line of file.text.split('\n')) {
+        const heading = /^#{1,6}\s+(.+)$/.exec(line)?.[1];
+        if (heading) terms.push(heading.toLowerCase().replace(/[*`_]/g, ''));
+        for (const bold of line.matchAll(/\*\*([^*]{3,60})\*\*/g)) terms.push((bold[1] ?? '').toLowerCase());
+      }
+    }
+    TERMS.set(files, terms);
+  }
+  const wanted = words.map((word) => word.toLowerCase()).filter((word) => word.length > 2);
+  if (wanted.length === 0) return false;
+  return terms.some((term) =>
+    wanted.every((word) =>
+      new RegExp(`(?:^|[^\\p{L}])${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'u').test(term),
+    ),
+  );
+}
+
 const STEMS = new WeakMap<ReadonlyMap<string, EstateFile>, Map<string, string[]>>();
 const NAMED_DOCUMENT = /\.(?:md|mdx|markdown|txt|rst)$/i;
 
@@ -2077,7 +2113,7 @@ function gateAtoms(
               fromName = true;
             } else {
               // A section, a state or a part named by role: kept, with what it is, never given a file name.
-              const kind = loaded ? undefined : unresolvedKind(phrase);
+              const kind = loaded ? undefined : unresolvedKind(phrase, (words) => definedTerm(words, files));
               if (!kind) return undefined;
               unresolved = kind;
               // The name ends at a parenthesis, a comma, a dash or a semicolon.

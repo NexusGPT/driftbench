@@ -368,7 +368,10 @@ export function selfReference(phrase: string): boolean {
  * quantifier or a question word ("everything", "whatever applies", "what the user asked"), that has no content
  * word, or that is one bare noun ("the file", "the docs", "the code") points at nothing in particular: none.
  */
-export function unresolvedKind(phrase: string): 'section' | 'state' | 'role' | undefined {
+export function unresolvedKind(
+  phrase: string,
+  defined?: (words: string[]) => boolean,
+): 'section' | 'state' | 'role' | undefined {
   const text = (phrase.split(/\s*\(|\s[\u2014\u2013]\s|[,;]/)[0] ?? phrase).trim();
   const first = (text.split(/\s+/)[0] ?? '').toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
   if (text === '' || INDEFINITE.has(first)) return undefined;
@@ -405,9 +408,8 @@ export function unresolvedKind(phrase: string): 'section' | 'state' | 'role' | u
     .slice(1)
     .some((word) => /^[A-Z][a-z]{2,}/.test(word) || /^[A-Z]{3,}$/.test(word));
   if (capitals) return 'role';
-  // Else a phrase of several words names a part of something, unless it names material of the conversation or
-  // of the work in progress ("the whole thread", "the customer's last email", "the error output").
-  return lower.some((word) => TRANSIENT_NOUNS.has(word)) ? undefined : 'role';
+  // Else the estate itself must define the term: a heading, a bold term or a file name that holds these words.
+  return defined?.(lower) ? 'role' : undefined;
 }
 
 /**
@@ -576,63 +578,6 @@ export function folderRead(phrase: string, folders: (path: string) => boolean): 
   if (path === '' || /\s/.test(path)) return undefined;
   return path.endsWith('/') || folders(path) ? path : undefined;
 }
-
-/**
- * Material of the conversation or of the work in progress. Reading it is part of doing the work, not the
- * read-before rule of a document: "read the whole thread before you reply".
- */
-const TRANSIENT_NOUNS = new Set([
-  'thread',
-  'message',
-  'messages',
-  'email',
-  'emails',
-  'mail',
-  'conversation',
-  'chat',
-  'ticket',
-  'reply',
-  'replies',
-  'answer',
-  'answers',
-  'question',
-  'questions',
-  'request',
-  'requests',
-  'response',
-  'responses',
-  'comment',
-  'comments',
-  'transcript',
-  'diff',
-  'error',
-  'errors',
-  'output',
-  'trace',
-  'stacktrace',
-  'result',
-  'results',
-  'data',
-  'input',
-  'code',
-  'test',
-  'tests',
-  'history',
-  'context',
-  'draft',
-  'sentence',
-  'paragraph',
-  'text',
-  'prompt',
-  'issue',
-  'customer',
-  'user',
-  'order',
-  'invoice',
-  'report',
-  'log',
-  'logs',
-]);
 
 /**
  * A clause that says something happens: a subject with a determiner and a present-tense verb ("the shop
