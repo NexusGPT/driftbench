@@ -252,9 +252,7 @@ specs/live/twin/estate.twin.instruction.standing.after-two-failures-of-a-tool.ya
 specs/live/obligation/estate.obligation.instruction.standing.report-only-numbers-read-during-the.yaml
 specs/live/outside_trigger/estate.outside_trigger.instruction.standing.report-only-numbers-read-during-the.yaml
 specs/live/twin/estate.twin.instruction.standing.report-only-numbers-read-during-the.yaml
-specs/live/obligation/estate.obligation.instruction.standing.read-the-memory-index-at-the.yaml
 specs/live/outside_trigger/estate.outside_trigger.instruction.standing.read-the-memory-index-at-the.yaml
-specs/live/twin/estate.twin.instruction.standing.read-the-memory-index-at-the.yaml
 specs/live/obligation/estate.obligation.instruction.inbox-triager.a-message-that-fits-no-folder.yaml
 specs/live/outside_trigger/estate.outside_trigger.instruction.inbox-triager.a-message-that-fits-no-folder.yaml
 specs/live/twin/estate.twin.instruction.inbox-triager.a-message-that-fits-no-folder.yaml
@@ -586,7 +584,6 @@ specs/live/register_sample/estate.pairwise.0066.yaml
 specs/live/obligation/estate.pairwise.0067.yaml
 specs/live/register_sample/estate.pairwise.0068.yaml
 specs/live/register_sample/estate.pairwise.0069.yaml
-specs/live/obligation/estate.pairwise.0070.yaml
 specs/live/register_sample/estate.pairwise.0071.yaml
 specs/live/route_positive/estate.pairwise.0072.yaml
 specs/live/obligation/estate.pairwise.0074.yaml
@@ -614,7 +611,6 @@ specs/live/obligation/estate.pairwise.0098.yaml
 specs/live/obligation/estate.pairwise.0099.yaml
 specs/live/obligation/estate.pairwise.0100.yaml
 specs/live/obligation/estate.pairwise.0101.yaml
-specs/live/obligation/estate.pairwise.0102.yaml
 specs/live/obligation/estate.pairwise.0103.yaml
 specs/live/obligation/estate.pairwise.0104.yaml
 specs/live/obligation/estate.pairwise.0105.yaml
@@ -682,7 +678,6 @@ specs/live/obligation/estate.pairwise.0176.yaml
 specs/live/obligation/estate.pairwise.0177.yaml
 specs/live/obligation/estate.pairwise.0178.yaml
 specs/live/obligation/estate.pairwise.0179.yaml
-specs/live/obligation/estate.pairwise.0180.yaml
 specs/live/obligation/estate.pairwise.0181.yaml
 specs/live/obligation/estate.pairwise.0182.yaml
 specs/live/obligation/estate.pairwise.0183.yaml
@@ -814,7 +809,6 @@ specs/live/obligation/estate.pairwise.0334.yaml
 specs/live/obligation/estate.pairwise.0335.yaml
 specs/live/obligation/estate.pairwise.0336.yaml
 specs/live/obligation/estate.pairwise.0337.yaml
-specs/live/obligation/estate.pairwise.0338.yaml
 specs/live/obligation/estate.pairwise.0339.yaml
 specs/live/obligation/estate.pairwise.0340.yaml
 specs/live/obligation/estate.pairwise.0341.yaml
@@ -882,7 +876,6 @@ specs/live/obligation/estate.pairwise.0413.yaml
 specs/live/obligation/estate.pairwise.0414.yaml
 specs/live/obligation/estate.pairwise.0415.yaml
 specs/live/obligation/estate.pairwise.0416.yaml
-specs/live/obligation/estate.pairwise.0417.yaml
 specs/live/obligation/estate.pairwise.0418.yaml
 specs/live/obligation/estate.pairwise.0419.yaml
 specs/live/obligation/estate.pairwise.0420.yaml
@@ -950,7 +943,6 @@ specs/live/obligation/estate.pairwise.0494.yaml
 specs/live/obligation/estate.pairwise.0495.yaml
 specs/live/obligation/estate.pairwise.0496.yaml
 specs/live/obligation/estate.pairwise.0497.yaml
-specs/live/obligation/estate.pairwise.0498.yaml
 specs/live/obligation/estate.pairwise.0499.yaml
 specs/live/obligation/estate.pairwise.0500.yaml
 specs/live/obligation/estate.pairwise.0501.yaml
@@ -1018,7 +1010,6 @@ specs/live/obligation/estate.pairwise.0572.yaml
 specs/live/obligation/estate.pairwise.0573.yaml
 specs/live/obligation/estate.pairwise.0574.yaml
 specs/live/obligation/estate.pairwise.0575.yaml
-specs/live/obligation/estate.pairwise.0576.yaml
 specs/live/obligation/estate.pairwise.0577.yaml
 specs/live/obligation/estate.pairwise.0578.yaml
 specs/live/obligation/estate.pairwise.0579.yaml
@@ -1125,7 +1116,6 @@ specs/live/route_positive/estate.pairwise.0697.yaml
 specs/live/stage_order/estate.pairwise.0699.yaml
 specs/live/obligation/estate.pairwise.0700.yaml
 specs/live/obligation/estate.pairwise.0701.yaml
-specs/live/obligation/estate.pairwise.0702.yaml
 specs/live/obligation/estate.pairwise.0703.yaml
 specs/live/obligation/estate.pairwise.0704.yaml
 specs/live/route_positive/estate.pairwise.0706.yaml
@@ -1215,7 +1205,6 @@ specs/live/obligation/estate.pairwise.0807.yaml
 specs/live/obligation/estate.pairwise.0808.yaml
 specs/live/obligation/estate.pairwise.0809.yaml
 specs/live/obligation/estate.pairwise.0810.yaml
-specs/live/obligation/estate.pairwise.0811.yaml
 specs/live/obligation/estate.pairwise.0812.yaml
 specs/live/obligation/estate.pairwise.0813.yaml
 specs/live/obligation/estate.pairwise.0814.yaml
@@ -1297,7 +1286,6 @@ specs/live/obligation/estate.pairwise.0907.yaml
 specs/live/obligation/estate.pairwise.0908.yaml
 specs/live/obligation/estate.pairwise.0909.yaml
 specs/live/obligation/estate.pairwise.0910.yaml
-specs/live/obligation/estate.pairwise.0911.yaml
 specs/live/obligation/estate.pairwise.0912.yaml
 specs/live/obligation/estate.pairwise.0913.yaml
 specs/live/obligation/estate.pairwise.0914.yaml
@@ -1395,7 +1383,6 @@ specs/live/obligation/estate.pairwise.1023.yaml
 specs/live/obligation/estate.pairwise.1024.yaml
 specs/live/obligation/estate.pairwise.1025.yaml
 specs/live/obligation/estate.pairwise.1026.yaml
-specs/live/obligation/estate.pairwise.1027.yaml
 specs/live/obligation/estate.pairwise.1028.yaml
 specs/live/obligation/estate.pairwise.1029.yaml
 specs/live/obligation/estate.pairwise.1030.yaml
@@ -1454,7 +1441,6 @@ specs/live/register_sample/estate.pairwise.1096.yaml
 specs/live/obligation/estate.pairwise.1097.yaml
 specs/live/obligation/estate.pairwise.1098.yaml
 specs/live/obligation/estate.pairwise.1099.yaml
-specs/live/obligation/estate.pairwise.1100.yaml
 specs/live/obligation/estate.pairwise.1101.yaml
 specs/live/obligation/estate.pairwise.1102.yaml
 specs/live/obligation/estate.pairwise.1103.yaml
@@ -1521,7 +1507,6 @@ specs/live/obligation/estate.pairwise.1168.yaml
 specs/live/obligation/estate.pairwise.1169.yaml
 specs/live/obligation/estate.pairwise.1170.yaml
 specs/live/obligation/estate.pairwise.1171.yaml
-specs/live/obligation/estate.pairwise.1172.yaml
 specs/live/obligation/estate.pairwise.1173.yaml
 specs/live/obligation/estate.pairwise.1174.yaml
 specs/live/obligation/estate.pairwise.1175.yaml
