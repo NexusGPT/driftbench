@@ -2086,10 +2086,12 @@ function gateAtoms(
         // A question asks and a dated entry records; neither directs the agent.
         if (trigger === '' || trigger.includes('?') || dated(trigger)) continue;
         // A template with a slot in angle brackets ("Before <act>: read <file>") describes the syntax.
-        const slot = /<[^<>\n]+>/;
-        const shown = unmask(match[read] ?? '', spans).replace(/`[^`]*`/g, '');
-        // A slot in the target is a template unless the target is still a path ("regions/<slug>/RULES.md").
-        if (slot.test(written) || (slot.test(shown) && !/[/\\]|\.[A-Za-z0-9]+\b/.test(shown))) continue;
+        // A template names the syntax: its act or its target is nothing but a slot ("Before <act>: read <file>").
+        const wholeSlot = /^(?:an?\s+|the\s+|any\s+)?<[^<>\n]+>$/;
+        const shown = unmask(match[read] ?? '', spans)
+          .replace(/[`*"'.]/g, '')
+          .trim();
+        if (wholeSlot.test(written.replace(/[`*]/g, '').trim()) || wholeSlot.test(shown)) continue;
         // An act, or an event the read comes before: "any query", "the second query", "your first action".
         const act_ = isAct(action, form.startsWith('not-'));
         if (!act_ && !isEvent(action) && !clauseEvent(action)) continue;
