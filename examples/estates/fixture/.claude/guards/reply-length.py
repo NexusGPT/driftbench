@@ -4,7 +4,7 @@ import json
 import sys
 
 event = json.load(sys.stdin)
-reply = event.get("last_reply", "")
+reply = event.get("last_assistant_message", "")
 if len(reply) > 1200:
     print("Keep every reply under 1,200 characters unless the user asks for detail.", file=sys.stderr)
     sys.exit(2)

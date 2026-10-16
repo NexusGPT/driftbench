@@ -101,6 +101,20 @@ function adapterItem(spec: Spec): BankItem {
   return { id: `claim/adapters/${spec.slug}`, family: ADAPTERS_FAMILY, ...without(spec) };
 }
 
+/**
+ * The newer schema versions a refusal item writes: the version the seed draws above the current one (as the item
+ * always did, never replaced), and the next version, added on every seed.
+ */
+export function newerSchemas(seed: number): number[] {
+  return [...new Set([SCHEMA_VERSION + 1 + (seed % 4), SCHEMA_VERSION + 1])];
+}
+
+/**
+ * The store schema that brought the block verdicts not_run and blocked: a floor, never a fixed number. A store
+ * that holds one must be stamped at least this, so a driftbench older than the verdicts refuses it.
+ */
+const VERDICT_SCHEMA = 3;
+
 function storeItem(spec: Spec): BankItem {
   return { id: `claim/adapters/store-${spec.slug}`, family: STORE_FAMILY, ...without(spec) };
 }
@@ -3727,17 +3741,84 @@ await store.close();
         'errors.ts SCHEMA_VERSION: a database written by a newer schema is refused at open, and left as it was',
       cause: 'openStore refuses a database of a newer schema version without touching it',
       async check(ctx) {
-        const { path } = await seededFile(ctx, 'newer-schema');
-        // Above the store's current schema, whatever its number: the next version first, then a few beyond.
-        const newer = SCHEMA_VERSION + 1 + (ctx.seed % 4);
-        editByHand(path, `PRAGMA user_version = ${newer}`);
-        const code = await codeOf(async () => {
-          openStore(path);
+        const checks: Array<[boolean, string]> = [];
+        for (const newer of newerSchemas(ctx.seed)) {
+          const { path } = await seededFile(ctx, `newer-schema-${newer}`);
+          editByHand(path, `PRAGMA user_version = ${newer}`);
+          const code = await codeOf(async () => {
+            openStore(path);
+          });
+          const after = Number(readByHand(path, 'PRAGMA user_version')?.user_version);
+          checks.push(
+            [
+              code === 'StoreError SCHEMA_VERSION',
+              `version ${newer}: expected StoreError SCHEMA_VERSION, got ${code}`,
+            ],
+            [after === newer, `version ${newer}: expected the version left at ${newer}, got ${after}`],
+          );
+        }
+        return expectAll(checks);
+      },
+    }),
+    storeItem({
+      slug: 'schema-holds-block-verdicts',
+      tier: 1,
+      level: 1,
+      component: STORE,
+      source: 'contract',
+      title:
+        'packages/store/src/schema.ts: the store schema is at least the version that brought the block verdicts not_run and blocked (3), so an older driftbench refuses a store that holds one',
+      cause:
+        'SCHEMA_VERSION is at or above the version that introduced not_run and blocked, in the file and in a bundle',
+      async check(ctx) {
+        const { path, run, dir } = await seededFile(ctx, 'verdict-schema');
+        // A run whose last block was not run: the record an older reader cannot hold.
+        const last = run.blocks.length - 1;
+        const unsent = {
+          ...run,
+          runId: `${run.runId}-unsent`,
+          blocks: run.blocks.map((block, index) =>
+            index === last
+              ? {
+                  ...block,
+                  verdicts: [],
+                  drift: [],
+                  pass: false,
+                  status: 'not_run' as const,
+                  notRun: {
+                    kind: 'unsupported' as const,
+                    layer: '5 world',
+                    check: 'capability',
+                    expected: 'e',
+                    got: 'g',
+                  },
+                }
+              : block,
+          ),
+        };
+        const back = await withStore(path, async (store) => {
+          await store.putRun('c-1', unsent);
+          return store.getRun(unsent.runId, 'c-1');
         });
-        const after = Number(readByHand(path, 'PRAGMA user_version')?.user_version);
+        const folder = await withStore(path, (store) => store.exportCampaign('c-1', join(dir, 'export')));
+        const manifest = JSON.parse(readFileSync(join(folder, 'manifest.json'), 'utf8')) as {
+          schemaVersion?: unknown;
+        };
+        const file = Number(readByHand(path, 'PRAGMA user_version')?.user_version);
         return expectAll([
-          [code === 'StoreError SCHEMA_VERSION', `expected StoreError SCHEMA_VERSION, got ${code}`],
-          [after === newer, `expected the version left at ${newer}, got ${after}`],
+          [
+            SCHEMA_VERSION >= VERDICT_SCHEMA,
+            `expected SCHEMA_VERSION at least ${VERDICT_SCHEMA}, got ${SCHEMA_VERSION}`,
+          ],
+          [file >= VERDICT_SCHEMA, `expected the file at schema ${VERDICT_SCHEMA} or above, got ${file}`],
+          [
+            Number(manifest.schemaVersion) >= VERDICT_SCHEMA,
+            `expected the bundle at schema ${VERDICT_SCHEMA} or above, got ${show(manifest.schemaVersion)}`,
+          ],
+          [
+            back?.blocks[last]?.status === 'not_run',
+            `expected the block read back not_run, got ${show(back?.blocks[last]?.status)}`,
+          ],
         ]);
       },
     }),
@@ -3787,19 +3868,28 @@ await store.close();
         'errors.ts SCHEMA_VERSION: a bundle whose manifest names a newer schema version is refused on import',
       cause: 'readCampaignBundle refuses a bundle of a newer schema version',
       async check(ctx) {
-        const { path, dir } = await seededFile(ctx, 'bundle-newer');
-        const folder = await withStore(path, (store) => store.exportCampaign('c-1', join(dir, 'export')));
-        const manifestPath = join(folder, 'manifest.json');
-        const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as Record<string, unknown>;
-        const newer = SCHEMA_VERSION + 1 + (ctx.seed % 4);
-        writeFileSync(manifestPath, JSON.stringify({ ...manifest, schemaVersion: newer }));
-        const target = join(dir, 'target.sqlite');
-        const code = await codeOf(withStore(target, (store) => store.importCampaign(folder)));
-        const left = await withStore(target, (store) => store.listCampaigns());
-        return expectAll([
-          [code === 'StoreError SCHEMA_VERSION', `expected StoreError SCHEMA_VERSION, got ${code}`],
-          [left.length === 0, `expected nothing imported, found ${left.length} campaign(s)`],
-        ]);
+        const checks: Array<[boolean, string]> = [];
+        for (const newer of newerSchemas(ctx.seed)) {
+          const { path, dir } = await seededFile(ctx, `bundle-newer-${newer}`);
+          const folder = await withStore(path, (store) => store.exportCampaign('c-1', join(dir, 'export')));
+          const manifestPath = join(folder, 'manifest.json');
+          const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as Record<string, unknown>;
+          writeFileSync(manifestPath, JSON.stringify({ ...manifest, schemaVersion: newer }));
+          const target = join(dir, 'target.sqlite');
+          const code = await codeOf(withStore(target, (store) => store.importCampaign(folder)));
+          const left = await withStore(target, (store) => store.listCampaigns());
+          checks.push(
+            [
+              code === 'StoreError SCHEMA_VERSION',
+              `version ${newer}: expected StoreError SCHEMA_VERSION, got ${code}`,
+            ],
+            [
+              left.length === 0,
+              `version ${newer}: expected nothing imported, found ${left.length} campaign(s)`,
+            ],
+          );
+        }
+        return expectAll(checks);
       },
     }),
     storeItem({
