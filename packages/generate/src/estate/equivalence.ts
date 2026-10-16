@@ -40,6 +40,9 @@ export function equivalenceKey(built: Built, row: EstatePlanRow, head: EstateAto
         fields: head.fields,
       },
       execution,
+      // A journey is the ordered walk of its atoms: a different path never merges, even when each step
+      // checks the same things, since the edge between two steps belongs to that path alone.
+      path: row.testType === 'journey' ? row.atomIds : undefined,
       // Replay alignment and unit target identity are executable inputs, not incidental provenance.
       session: built.session,
       unit: (built.spec.metadata as { estate?: { unit?: unknown } })?.estate?.unit,

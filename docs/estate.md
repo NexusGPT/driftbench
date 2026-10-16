@@ -632,6 +632,7 @@ Complete tests with exactly equal rule semantics, asks, inputs, expectations, ju
 run mode, test type and non-target situation values share one representative.
 Generated criterion identifiers may differ; their full rubrics and flags must remain equal.
 Different prerequisite paths, actions, event cells, unit targets or replay alignments stay separate.
+A journey is keyed by its ordered atom path: two journeys that walk different paths never merge, so every walked edge keeps its own spec.
 The representative retains every source atom in `metadata.estate.atoms` and records
 `metadata.estate.equivalence: { count, planRows }`.
 The count describes represented source tests. The report lists each group's source rows and atoms.
