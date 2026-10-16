@@ -81,8 +81,8 @@
     "system": {
       "level": 11,
       "seeds": ["1", "2", "3", "hidden"],
-      "hiddenSeed": 470054606,
-      "head": "1bf5348efd811a57a1e0ea1862f6eee3f48404bb",
+      "hiddenSeed": 108252356,
+      "head": "06648a8421848d1b2149f983ba08f55ce1c6cab9",
       "ladderVersion": 5
     }
   },

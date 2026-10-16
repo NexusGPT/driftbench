@@ -14,7 +14,7 @@
           "level": 1,
           "id": "records",
           "name": "records stored, resumed and budgeted",
-          "metric": "items passing / items, 501 items (store-roundtrip, resume-budget, combo-store-file, combo-store-memory, claim-spec, store-stress, breaker-datasets, breaker-cli, breaker-tools, breaker2-viewer, robust-concurrency, robust-resume, robust-transfer, robust-version)",
+          "metric": "items passing / items, 502 items (store-roundtrip, resume-budget, combo-store-file, combo-store-memory, claim-spec, store-stress, breaker-datasets, breaker-cli, breaker-tools, breaker2-viewer, robust-concurrency, robust-resume, robust-transfer, robust-version)",
           "threshold": 1,
           "direction": "atLeast",
           "observed": 1,
@@ -36,7 +36,7 @@
           "level": 3,
           "id": "precision",
           "name": "clean, hostile and failing agents read right",
-          "metric": "items passing / items, 345 items (clean-shapes, hostile-inputs, failure-handling, claim-checks, claim-adapters, breaker-checks)",
+          "metric": "items passing / items, 347 items (clean-shapes, hostile-inputs, failure-handling, claim-checks, claim-adapters, breaker-checks)",
           "threshold": 1,
           "direction": "atLeast",
           "observed": 1,
@@ -144,7 +144,7 @@
           "level": 1,
           "id": "records",
           "name": "records stored, resumed and budgeted",
-          "metric": "items passing / items, 501 items (store-roundtrip, resume-budget, combo-store-file, combo-store-memory, claim-spec, store-stress, breaker-datasets, breaker-cli, breaker-tools, breaker2-viewer, robust-concurrency, robust-resume, robust-transfer, robust-version)",
+          "metric": "items passing / items, 502 items (store-roundtrip, resume-budget, combo-store-file, combo-store-memory, claim-spec, store-stress, breaker-datasets, breaker-cli, breaker-tools, breaker2-viewer, robust-concurrency, robust-resume, robust-transfer, robust-version)",
           "threshold": 1,
           "direction": "atLeast",
           "observed": 1,
@@ -166,7 +166,7 @@
           "level": 3,
           "id": "precision",
           "name": "clean, hostile and failing agents read right",
-          "metric": "items passing / items, 345 items (clean-shapes, hostile-inputs, failure-handling, claim-checks, claim-adapters, breaker-checks)",
+          "metric": "items passing / items, 347 items (clean-shapes, hostile-inputs, failure-handling, claim-checks, claim-adapters, breaker-checks)",
           "threshold": 1,
           "direction": "atLeast",
           "observed": 1,
@@ -274,7 +274,7 @@
           "level": 1,
           "id": "records",
           "name": "records stored, resumed and budgeted",
-          "metric": "items passing / items, 501 items (store-roundtrip, resume-budget, combo-store-file, combo-store-memory, claim-spec, store-stress, breaker-datasets, breaker-cli, breaker-tools, breaker2-viewer, robust-concurrency, robust-resume, robust-transfer, robust-version)",
+          "metric": "items passing / items, 502 items (store-roundtrip, resume-budget, combo-store-file, combo-store-memory, claim-spec, store-stress, breaker-datasets, breaker-cli, breaker-tools, breaker2-viewer, robust-concurrency, robust-resume, robust-transfer, robust-version)",
           "threshold": 1,
           "direction": "atLeast",
           "observed": 1,
@@ -296,7 +296,7 @@
           "level": 3,
           "id": "precision",
           "name": "clean, hostile and failing agents read right",
-          "metric": "items passing / items, 345 items (clean-shapes, hostile-inputs, failure-handling, claim-checks, claim-adapters, breaker-checks)",
+          "metric": "items passing / items, 347 items (clean-shapes, hostile-inputs, failure-handling, claim-checks, claim-adapters, breaker-checks)",
           "threshold": 1,
           "direction": "atLeast",
           "observed": 1,
@@ -395,7 +395,7 @@
       "failing": null
     },
     {
-      "seed": 470054606,
+      "seed": 108252356,
       "hidden": true,
       "level": 11,
       "top": 11,
@@ -404,7 +404,7 @@
           "level": 1,
           "id": "records",
           "name": "records stored, resumed and budgeted",
-          "metric": "items passing / items, 501 items (store-roundtrip, resume-budget, combo-store-file, combo-store-memory, claim-spec, store-stress, breaker-datasets, breaker-cli, breaker-tools, breaker2-viewer, robust-concurrency, robust-resume, robust-transfer, robust-version)",
+          "metric": "items passing / items, 502 items (store-roundtrip, resume-budget, combo-store-file, combo-store-memory, claim-spec, store-stress, breaker-datasets, breaker-cli, breaker-tools, breaker2-viewer, robust-concurrency, robust-resume, robust-transfer, robust-version)",
           "threshold": 1,
           "direction": "atLeast",
           "observed": 1,
@@ -426,7 +426,7 @@
           "level": 3,
           "id": "precision",
           "name": "clean, hostile and failing agents read right",
-          "metric": "items passing / items, 345 items (clean-shapes, hostile-inputs, failure-handling, claim-checks, claim-adapters, breaker-checks)",
+          "metric": "items passing / items, 347 items (clean-shapes, hostile-inputs, failure-handling, claim-checks, claim-adapters, breaker-checks)",
           "threshold": 1,
           "direction": "atLeast",
           "observed": 1,
@@ -526,14 +526,15 @@
     }
   ],
   "hiddenSeed": {
-    "seed": 470054606,
+    "seed": 108252356,
     "source": "head",
-    "head": "1bf5348efd811a57a1e0ea1862f6eee3f48404bb"
+    "head": "06648a8421848d1b2149f983ba08f55ce1c6cab9"
   },
   "measurement": {
-    "command": "pnpm driftbench validate system --seeds 1..3 --hidden --json",
+    "command": "pnpm driftbench validate system --seeds 1..3 --hidden --all-levels --json",
     "completedSeeds": 4,
     "totalSeeds": 4,
-    "mainHead": "1bf5348efd811a57a1e0ea1862f6eee3f48404bb"
+    "ci": "validators workflow, job \"system all 11 levels\", run 38933066101 on branch train/floor-evidence-532 at 06648a8421848d1b2149f983ba08f55ce1c6cab9",
+    "tree": "main e2e4aef970207a166e347c5592f65c675eb97155 plus a workflow change that keeps this json; no validator, bank or product file differs"
   }
 }

@@ -106,7 +106,7 @@ Every option of `driftbench validate`, for reference (the topic named in the las
     "ladderVersion": { "judges": 2, "map": 2, "stats": 2, "system": 5 },
     "floors": { "judges": 20, "map": 8, "stats": 7, "system": 11 },
     "evidence": {
-      "system": { "level": 11, "seeds": ["1", "2", "3", "hidden"], "hiddenSeed": 470054606,
+      "system": { "level": 11, "seeds": ["1", "2", "3", "hidden"], "hiddenSeed": 108252356,
                   "head": "<the commit the hidden seed came from>", "ladderVersion": 5 }
     },
     "history": {
