@@ -26,10 +26,11 @@ import { judgeRelevance, type Planted, type Relation } from './relevance-typed';
  * plan.relevance: a situation value is crossed only with the atoms it can act on, judged from typed data and no
  * word of the estate (relevance-typed.ts): the kind of an atom, the type of its evidence predicates, the kinds of
  * its edges, its typed fields and what the hidden estate planted for a standing rule. Each situation has one
- * relation (a helper dispatched or running, a tool called, a step reached, a reply written, a permission to ask,
- * a hazard of the runtime, a stop, a guard on the prompt, a route taken). The atoms that hold it are the
- * situation's identified targets; a crossing with any other atom is wrong. When no atom holds the relation, no
- * atom applies and any crossing is wrong. A plan that crosses every situation with every atom fails all 20 items.
+ * narrow relation (a helper, a declared tool, a read of outside data, a call with a retry contract, a gate, a rule
+ * planted for a hazard or a stop, a guard on the prompt, a route). The atoms that hold it are the situation's
+ * identified targets; a crossing with any other atom is wrong, and no relation allows an atom that the kind list
+ * of the previous oracle rejected. When no atom holds the relation, no atom applies and any crossing is wrong. A
+ * plan that crosses every situation with every atom fails all 20 items.
  */
 
 const CONTRACT = 'packages/estate/src/plan/contract.ts';
@@ -740,7 +741,7 @@ const RELEVANCE: Relevance[] = [
     dimension: 'deviation',
     value: 'D6_instruction_in_data',
     title: 'an instruction in the data',
-    relation: 'tool',
+    relation: 'data',
   },
   {
     key: 'loose-confirmation',
@@ -756,7 +757,7 @@ const RELEVANCE: Relevance[] = [
     dimension: 'estate_hazard',
     value: 'rate_wave',
     title: 'a wave of rate limits',
-    relation: 'tool',
+    relation: 'rate',
   },
   {
     key: 'process-restart',
@@ -796,7 +797,7 @@ const RELEVANCE: Relevance[] = [
     dimension: 'session_state',
     value: 'resumed',
     title: 'a resumed session',
-    relation: 'stop',
+    relation: 'stoprule',
   },
   {
     key: 'stop-signal',
@@ -850,16 +851,19 @@ const RELEVANCE: Relevance[] = [
 
 /** What each relation says in an item title. */
 const RELATION_TITLE: Record<Relation, string> = {
-  helper: 'a helper, a dispatch of one, or a unit that reaches either',
-  tool: 'a tool call, an order of calls, or a unit that reaches one',
+  helper: 'a helper or the route to one',
+  tool: 'a tool, a script, a guard, a unit that declares tools, or the route to one',
   stage: 'a step of the flow',
-  output: 'a reply: an output rule or a text predicate',
-  confirmation: 'a permission that asks',
-  restart: 'the restart hazard',
-  compaction: 'the compaction hazard',
-  stop: 'a stop',
+  output: 'an output rule or a rule with a text predicate',
+  data: 'a read of outside data, or a guard on a tool result',
+  confirmation: 'a gate',
+  rate: 'a script, a helper, a tool or a rule that calls a service or a helper',
+  restart: 'a rule planted for the restart hazard',
+  compaction: 'a rule planted for the compaction hazard',
+  stoprule: 'a rule planted for a stop',
+  stop: 'a rule planted for a stop, or a guard on the prompt event',
   prompt: 'a guard on the prompt event',
-  routing: 'a route or the unit it opens',
+  routing: 'a route or the skill it opens',
 };
 
 /** What the hidden estate planted for each standing rule, by the id of the scanned atom matched to the rule or its hazard. */

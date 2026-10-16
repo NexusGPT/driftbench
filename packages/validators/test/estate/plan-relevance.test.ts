@@ -58,7 +58,7 @@ type Case = {
   dimension: string;
   value: string;
   relation: Relation;
-  /** The identified target, of a kind the old kind lists excluded, with the edges and the planted data that make it one. */
+  /** The identified target, with the edges and the planted data that make it one. */
   target?: { atoms: Atom[]; edges?: EstateMap['edges']; planted?: Planted };
 };
 
@@ -68,13 +68,7 @@ const CASES: Case[] = [
     dimension: 'estate_hazard',
     value: 'dead_helper',
     relation: 'helper',
-    target: {
-      atoms: [
-        atom('t', 'instruction', 'Handle the exposure number.', {
-          evidence: [{ type: 'tool_called', label: 'Agent' }],
-        }),
-      ],
-    },
+    target: { atoms: [atom('t', 'subagent', 'name: analyst')] },
   },
   {
     key: 'helpers-running',
@@ -82,8 +76,8 @@ const CASES: Case[] = [
     value: 'helpers_running',
     relation: 'helper',
     target: {
-      atoms: [atom('t', 'skill', 'Run the nightly exposure plan.'), atom('h', 'subagent', 'name: analyst')],
-      edges: [{ from: 't', to: 'h', kind: 'dispatch' }],
+      atoms: [atom('r', 'route', '| observe | analyst |'), atom('t', 'subagent', 'name: analyst')],
+      edges: [{ from: 'r', to: 't', kind: 'route' }],
     },
   },
   {
@@ -91,22 +85,14 @@ const CASES: Case[] = [
     dimension: 'estate_hazard',
     value: 'stale_tracker',
     relation: 'stage',
-    target: {
-      atoms: [
-        atom('t', 'instruction', 'Keep the lens cover clean.', {
-          evidence: [{ type: 'stage_reached', name: 'note' }],
-        }),
-      ],
-    },
+    target: { atoms: [atom('t', 'stage', 'Report')] },
   },
   {
     key: 'language-switch',
     dimension: 'deviation',
     value: 'D5_language_switch',
     relation: 'output',
-    target: {
-      atoms: [atom('t', 'gate', 'Close the dome.', { evidence: [{ type: 'text', lang: 'EN' }] })],
-    },
+    target: { atoms: [atom('t', 'register', 'Lead with the result.')] },
   },
   {
     key: 'owner-language-switch',
@@ -114,7 +100,7 @@ const CASES: Case[] = [
     value: 'language_switch',
     relation: 'output',
     target: {
-      atoms: [atom('t', 'stage', 'Close the dome.', { evidence: [{ type: 'text', must: ['done'] }] })],
+      atoms: [atom('t', 'instruction', 'Close the dome.', { evidence: [{ type: 'text', must: ['done'] }] })],
     },
   },
   {
@@ -122,27 +108,16 @@ const CASES: Case[] = [
     dimension: 'deviation',
     value: 'D8_tool_failure',
     relation: 'tool',
-    target: {
-      atoms: [
-        atom('t', 'gate', 'Calibrate the mirror.', {
-          evidence: [
-            { type: 'tool_called', label: 'Read' },
-            { type: 'ordered', before: 'Read', after: 'Edit' },
-          ],
-        }),
-      ],
-    },
+    target: { atoms: [atom('t', 'skill', 'name: calibrate', { fields: { tools: ['Read', 'Edit'] } })] },
   },
   {
     key: 'instruction-in-data',
     dimension: 'deviation',
     value: 'D6_instruction_in_data',
-    relation: 'tool',
+    relation: 'data',
     target: {
       atoms: [
-        atom('t', 'instruction', 'Summarise the night.', {
-          evidence: [{ type: 'tool_called', label: 'Read' }],
-        }),
+        atom('t', 'gate', 'Calibrate the mirror.', { evidence: [{ type: 'tool_called', label: 'Read' }] }),
       ],
     },
   },
@@ -151,52 +126,48 @@ const CASES: Case[] = [
     dimension: 'deviation',
     value: 'D4_loose_confirmation',
     relation: 'confirmation',
-    target: { atoms: [atom('t', 'tool', 'Bash(dome:*)', { fields: { effect: 'ask' } })] },
+    target: { atoms: [atom('t', 'gate', 'Open the dome.')] },
   },
   {
     key: 'rate-wave',
     dimension: 'estate_hazard',
     value: 'rate_wave',
-    relation: 'tool',
-    target: {
-      atoms: [
-        atom('t', 'skill', 'Fetch the catalogue.', { evidence: [{ type: 'tool_called', label: 'Bash' }] }),
-      ],
-    },
+    relation: 'rate',
+    target: { atoms: [atom('t', 'tool', 'WebFetch(*)', { fields: { tool: 'WebFetch', effect: 'allow' } })] },
   },
   {
     key: 'process-restart',
     dimension: 'estate_hazard',
     value: 'process_restart',
     relation: 'restart',
-    target: { atoms: [atom('t', 'hazard', 'Hazard.', { fields: { hazard: 'restart' } })] },
+    target: { atoms: [atom('t', 'instruction', 'Restore it.')], planted: { hazard: 'restart' } },
   },
   {
     key: 'compaction',
     dimension: 'estate_hazard',
     value: 'compaction_mid_task',
     relation: 'compaction',
-    target: { atoms: [atom('t', 'hazard', 'Hazard.', { fields: { hazard: 'compaction' } })] },
+    target: { atoms: [atom('t', 'gate', 'Reload the log.')], planted: { hazard: 'compaction' } },
   },
   {
     key: 'after-compaction',
     dimension: 'session_state',
     value: 'after_compaction',
     relation: 'compaction',
-    target: { atoms: [atom('t', 'instruction', 'Reload the log.')], planted: { hazard: 'compaction' } },
+    target: { atoms: [atom('t', 'instruction', 'Reload the log.')], planted: { scope: 'compaction' } },
   },
   {
     key: 'after-restart',
     dimension: 'session_state',
     value: 'after_restart',
     relation: 'restart',
-    target: { atoms: [atom('t', 'skill', 'Restore the calibration.')], planted: { scope: 'restart' } },
+    target: { atoms: [atom('t', 'gate', 'Restore the calibration.')], planted: { scope: 'restart' } },
   },
   {
     key: 'resumed',
     dimension: 'session_state',
     value: 'resumed',
-    relation: 'stop',
+    relation: 'stoprule',
     target: { atoms: [atom('t', 'instruction', 'Carry on.')], planted: { scope: 'stop' } },
   },
   {
@@ -204,14 +175,17 @@ const CASES: Case[] = [
     dimension: 'owner_signal',
     value: 'stop',
     relation: 'stop',
-    target: { atoms: [atom('t', 'skill', 'Halt the exposure.')], planted: { behaviour: 'stop_on_word' } },
+    target: {
+      atoms: [atom('t', 'instruction', 'Halt the exposure.')],
+      planted: { behaviour: 'stop_on_word' },
+    },
   },
   {
     key: 'no-questions',
     dimension: 'owner_signal',
     value: 'no_questions',
     relation: 'confirmation',
-    target: { atoms: [atom('t', 'tool', 'Bash(dome:*)', { fields: { effect: 'ask' } })] },
+    target: { atoms: [atom('t', 'gate', 'Open the dome.')] },
   },
   {
     key: 'goal-shift',
@@ -368,105 +342,215 @@ describe('plan.relevance judges each of its 20 situations from typed data, with 
 });
 
 describe('the typed relations', () => {
-  it('a helper: the helper, a call of the Agent tool, and the units that reach either by a route or a dispatch', () => {
+  const ids = (relation: Relation, map: ReturnType<typeof mapOf>, planted?: ReadonlyMap<string, Planted>) =>
+    [...targetsOf(relation, map, planted)].sort();
+
+  it('a helper: the helper and the route that opens it, not a unit that dispatches or calls one', () => {
     const map = mapOf(
       [
         atom('r', 'route', DECOY_WORDS),
         atom('s', 'skill', DECOY_WORDS),
         atom('h', 'subagent', DECOY_WORDS),
         atom('i', 'instruction', DECOY_WORDS, { evidence: [{ type: 'tool_called', label: 'Agent' }] }),
-        atom('s2', 'skill', DECOY_WORDS),
-        atom('o', 'instruction', DECOY_WORDS),
-        atom('x', 'script', DECOY_WORDS),
-        atom('k', 'skill', DECOY_WORDS),
+        atom('d', 'skill', DECOY_WORDS),
       ],
       [
-        { from: 'r', to: 's', kind: 'route' },
-        { from: 's', to: 'h', kind: 'dispatch' },
-        { from: 's2', to: 'i', kind: 'route' },
-        { from: 'k', to: 'x', kind: 'script' },
+        { from: 'r', to: 'h', kind: 'route' },
+        { from: 'd', to: 'h', kind: 'dispatch' },
       ],
     );
-    expect([...targetsOf('helper', map)].sort()).toEqual(['h', 'i', 'r', 's', 's2']);
+    expect(ids('helper', map)).toEqual(['h', 'r']);
   });
 
-  it('a tool call: a tool config, a script, a guard, a typed call or order, and what reaches one', () => {
+  it('a tool: a tool, a script, a guard, a unit that declares tools and the route to it; a gate that calls Read is not', () => {
     const map = mapOf(
       [
-        atom('a', 'instruction', DECOY_WORDS, {
-          evidence: [{ type: 'ordered', before: 'Read', after: 'Edit' }],
-        }),
-        atom('b', 'instruction', DECOY_WORDS, {
-          evidence: [{ type: 'ordered', before: 'verify', after: 'report' }],
-        }),
-        atom('c', 'skill', DECOY_WORDS),
+        atom('a', 'gate', DECOY_WORDS, { evidence: [{ type: 'ordered', before: 'Read', after: 'Edit' }] }),
+        atom('b', 'instruction', DECOY_WORDS, { evidence: [{ type: 'tool_called', label: 'Bash' }] }),
+        atom('c', 'skill', DECOY_WORDS, { fields: { tools: ['Read'] } }),
+        atom('c2', 'skill', DECOY_WORDS, { fields: { tools: [] } }),
         atom('d', 'script', DECOY_WORDS),
-        atom('e', 'register', DECOY_WORDS, { evidence: [{ type: 'tool_not_called', label: 'Bash' }] }),
-        atom('f', 'stage', DECOY_WORDS),
+        atom('e', 'guard', DECOY_WORDS),
+        atom('r', 'route', DECOY_WORDS),
+        atom('f', 'reference', DECOY_WORDS),
       ],
-      [{ from: 'c', to: 'd', kind: 'script' }],
+      [
+        { from: 'r', to: 'c', kind: 'route' },
+        { from: 'c2', to: 'f', kind: 'reference' },
+      ],
     );
-    // An order is typed evidence whether its ends are tools or not: the evidence type decides, not the labels.
-    expect([...targetsOf('tool', map)].sort()).toEqual(['a', 'b', 'c', 'd', 'e']);
+    expect(ids('tool', map)).toEqual(['c', 'd', 'e', 'r']);
   });
 
-  it('a reply: an output rule, a text predicate; a stage or an instruction whose words speak of a reply is neither', () => {
+  it('outside data: a read, a search or a fetch by a rule, and a guard on a tool result; a Bash call is not', () => {
+    const map = mapOf([
+      atom('a', 'gate', 'x', { evidence: [{ type: 'tool_called', label: 'Read' }] }),
+      atom('b', 'instruction', 'x', { evidence: [{ type: 'tool_called', label: 'WebFetch' }] }),
+      atom('c', 'instruction', 'x', { evidence: [{ type: 'tool_called', label: 'Bash' }] }),
+      atom('d', 'guard', 'x', { fields: { event: 'PostToolUse' } }),
+      atom('e', 'guard', 'x', { fields: { event: 'PreToolUse' } }),
+      atom('f', 'reference', 'x', { evidence: [{ type: 'tool_called', label: 'Read' }] }),
+      atom('g', 'tool', 'Read(*)', { fields: { tool: 'Read' } }),
+    ]);
+    expect(ids('data', map)).toEqual(['a', 'b', 'd']);
+  });
+
+  it('a retry contract: a script, a helper, a tool that calls a service, a rule that calls one', () => {
+    const map = mapOf([
+      atom('a', 'script', 'x'),
+      atom('b', 'subagent', 'x'),
+      atom('c', 'tool', 'x', { fields: { tool: 'WebFetch' } }),
+      atom('d', 'tool', 'x', { fields: { tool: 'Read' } }),
+      atom('e', 'instruction', 'x', { evidence: [{ type: 'tool_called', label: 'Agent' }] }),
+      atom('f', 'instruction', 'x', { evidence: [{ type: 'tool_called', label: 'Read' }] }),
+      atom('g', 'route', 'x'),
+    ]);
+    expect(ids('rate', map)).toEqual(['a', 'b', 'c', 'e']);
+  });
+
+  it('a reply: an output rule, and a rule with a text predicate; a stage or a gate with one is not', () => {
     const map = mapOf([
       atom('a', 'register', 'x'),
-      atom('b', 'gate', 'x', { evidence: [{ type: 'text', mustNot: ['simply'] }] }),
-      atom('c', 'stage', 'Tell the user what changed.'),
-      atom('d', 'instruction', 'Answer in the language of the user.'),
+      atom('b', 'instruction', 'x', { evidence: [{ type: 'text', mustNot: ['simply'] }] }),
+      atom('c', 'stage', 'Tell the user what changed.', { evidence: [{ type: 'text', must: ['x'] }] }),
+      atom('d', 'gate', 'x', { evidence: [{ type: 'text', must: ['x'] }] }),
+      atom('e', 'instruction', 'Answer in the language of the user.'),
     ]);
-    expect([...targetsOf('output', map)].sort()).toEqual(['a', 'b']);
+    expect(ids('output', map)).toEqual(['a', 'b']);
   });
 
-  it('a hazard: the hazard atom of that id and the rule the hidden estate planted for it', () => {
+  it('a hazard: a rule planted for it, never the hazard atom or a rule that only speaks of it', () => {
     const map = mapOf([
       atom('a', 'hazard', 'x', { fields: { hazard: 'compaction' } }),
-      atom('b', 'hazard', 'x', { fields: { hazard: 'restart' } }),
       atom('c', 'instruction', 'After a compaction, reload the log.'),
-      atom('d', 'instruction', 'After a restart, reload the log.'),
+      atom('d', 'instruction', 'x'),
+      atom('e', 'gate', 'x'),
+      atom('f', 'skill', 'x'),
     ]);
-    const planted = new Map<string, Planted>([['d', { hazard: 'restart' }]]);
-    expect([...targetsOf('compaction', map, planted)]).toEqual(['a']);
-    expect([...targetsOf('restart', map, planted)].sort()).toEqual(['b', 'd']);
+    const planted = new Map<string, Planted>([
+      ['a', { hazard: 'compaction' }],
+      ['d', { hazard: 'compaction' }],
+      ['e', { scope: 'compaction' }],
+      ['f', { hazard: 'compaction' }],
+    ]);
+    expect(ids('compaction', map, planted)).toEqual(['d', 'e']);
+    expect(ids('restart', map, planted)).toEqual([]);
   });
 
-  it('a stop: a rule planted for it, a guard on the prompt event; a guard on a tool event is not', () => {
+  it('a stop: an instruction planted for it; with the guard on the prompt event for stop, not for a stop rule alone', () => {
     const map = mapOf([
       atom('a', 'guard', 'x', { fields: { event: 'UserPromptSubmit' } }),
       atom('b', 'guard', 'x', { fields: { event: 'PreToolUse' } }),
       atom('c', 'instruction', 'On stop, stop all work.'),
       atom('d', 'instruction', 'x'),
+      atom('e', 'stage', 'x'),
     ]);
-    const planted = new Map<string, Planted>([['d', { scope: 'stop' }]]);
-    expect([...targetsOf('stop', map, planted)].sort()).toEqual(['a', 'd']);
-  });
-
-  it('a route: the route and the unit it opens, not a unit of the same kind no route opens', () => {
-    const map = mapOf(
-      [atom('r', 'route', 'x'), atom('s', 'skill', 'x'), atom('t', 'skill', 'x')],
-      [{ from: 'r', to: 's', kind: 'route' }],
-    );
-    expect([...targetsOf('routing', map)].sort()).toEqual(['r', 's']);
-  });
-
-  it('a guard on the prompt: a guard on the prompt event, not one on a tool event', () => {
-    const map = mapOf([
-      atom('a', 'guard', 'x', { fields: { event: 'UserPromptSubmit' } }),
-      atom('b', 'guard', 'x', { fields: { event: 'PreToolUse' } }),
-      atom('c', 'instruction', 'Answer when the user says hello.'),
+    const planted = new Map<string, Planted>([
+      ['d', { scope: 'stop' }],
+      ['e', { scope: 'stop' }],
     ]);
-    expect([...targetsOf('prompt', map)]).toEqual(['a']);
+    expect(ids('stoprule', map, planted)).toEqual(['d']);
+    expect(ids('stop', map, planted)).toEqual(['a', 'd']);
+    expect(ids('prompt', map, planted)).toEqual(['a']);
   });
 
-  it('a confirmation: a permission that asks, not one that allows', () => {
+  it('a confirmation: a gate, not a permission that asks nor an instruction that speaks of a yes', () => {
     const map = mapOf([
       atom('a', 'tool', 'x', { fields: { effect: 'ask' } }),
-      atom('b', 'tool', 'x', { fields: { effect: 'allow' } }),
-      atom('c', 'gate', 'Show the draft and get an explicit yes.'),
+      atom('b', 'gate', 'Show the draft and get an explicit yes.'),
+      atom('c', 'instruction', 'Get an explicit yes.'),
     ]);
-    expect([...targetsOf('confirmation', map)]).toEqual(['a']);
+    expect(ids('confirmation', map)).toEqual(['b']);
+  });
+
+  it('a route: the route and the skill it opens, not a helper it opens nor a skill no route opens', () => {
+    const map = mapOf(
+      [
+        atom('r', 'route', 'x'),
+        atom('s', 'skill', 'x'),
+        atom('t', 'skill', 'x'),
+        atom('r2', 'route', 'x'),
+        atom('h', 'subagent', 'x'),
+      ],
+      [
+        { from: 'r', to: 's', kind: 'route' },
+        { from: 'r2', to: 'h', kind: 'route' },
+      ],
+    );
+    expect(ids('routing', map)).toEqual(['r', 'r2', 's']);
+  });
+});
+
+/** The kinds the previous oracle allowed for each situation, and the routes to a helper it also allowed: the baseline no relation may exceed. */
+const MAIN_KINDS: Record<string, readonly string[]> = {
+  'dead-helper': ['subagent'],
+  'helpers-running': ['subagent'],
+  'stale-tracker': ['stage'],
+  'language-switch': ['register', 'instruction'],
+  'owner-language-switch': ['register', 'instruction'],
+  'tool-failure': ['tool', 'script', 'guard', 'subagent', 'skill', 'route'],
+  'instruction-in-data': ['instruction', 'gate', 'guard', 'register'],
+  'loose-confirmation': ['instruction', 'gate', 'guard'],
+  'rate-wave': ['tool', 'script', 'subagent', 'instruction', 'stage'],
+  'process-restart': ['stage', 'subagent', 'instruction', 'gate'],
+  compaction: ['instruction', 'gate', 'register', 'stage', 'skill', 'route'],
+  'after-compaction': ['instruction', 'gate', 'register', 'stage', 'skill', 'route'],
+  'after-restart': ['stage', 'subagent', 'instruction', 'gate'],
+  resumed: ['stage', 'instruction', 'gate', 'skill', 'route'],
+  'stop-signal': ['instruction', 'stage', 'subagent', 'guard'],
+  'no-questions': ['instruction', 'gate', 'register'],
+  'goal-shift': ['route', 'skill', 'stage', 'instruction'],
+  'off-topic': ['route', 'skill', 'instruction', 'register', 'stage'],
+  'out-of-scope': ['route', 'skill', 'subagent', 'instruction'],
+  'silence-burst': ['instruction', 'register', 'guard', 'subagent'],
+};
+const MAIN_HELPER_ROUTES = new Set(['dead-helper', 'helpers-running']);
+
+describe('no situation allows an atom the previous oracle rejected', () => {
+  // Atoms of every kind carrying every typed attribute a relation reads, planted for every hazard and stop.
+  const RICH: Array<Partial<Atom>> = [
+    {
+      evidence: [
+        { type: 'tool_called', label: 'Read' },
+        { type: 'tool_called', label: 'WebFetch' },
+        { type: 'tool_called', label: 'Agent' },
+        { type: 'tool_called', label: 'Bash' },
+        { type: 'ordered', before: 'Read', after: 'Edit' },
+        { type: 'text', must: ['x'] },
+        { type: 'stage_reached', name: 'note' },
+      ],
+      fields: { tools: ['Read'], tool: 'WebFetch', effect: 'ask', hazard: 'restart', targetKind: 'subagent' },
+    },
+    { fields: { event: 'UserPromptSubmit' } },
+    { fields: { event: 'PostToolUse' } },
+  ];
+  const rich = KINDS.flatMap((kind) =>
+    RICH.map((extra, index) => atom(`${kind}.${index}`, kind, DECOY_WORDS, extra)),
+  );
+  const edges: EstateMap['edges'] = rich
+    .filter((a) => a.kind === 'route')
+    .flatMap((route) =>
+      rich
+        .filter((a) => ['skill', 'subagent', 'script', 'guard', 'tool', 'stage'].includes(a.kind))
+        .map((target) => ({ from: route.id, to: target.id, kind: 'route' as const })),
+    );
+  const planted = new Map<string, Planted>(
+    rich.map((a) => [a.id, { hazard: 'restart', scope: 'stop', behaviour: 'stop_on_word' }]),
+  );
+
+  it.each(CASES.map((c) => [c.key, c.relation] as const))('%s', (key, relation) => {
+    const allowedKinds = new Set(MAIN_KINDS[key]);
+    const byId = new Map(rich.map((a) => [a.id, a]));
+    const targets = [...targetsOf(relation, mapOf(rich, edges), planted)];
+    const tooMany = targets.filter((id) => {
+      const kind = byId.get(id)?.kind as string;
+      if (allowedKinds.has(kind)) return false;
+      // The previous oracle also allowed a route whose target is a helper.
+      return !(MAIN_HELPER_ROUTES.has(key) && kind === 'route');
+    });
+    expect(tooMany, key).toEqual([]);
+    // Planted for the restart hazard on every atom, a compaction relation holds none of them.
+    if (relation === 'compaction') expect(targets).toEqual([]);
   });
 });
 
@@ -537,7 +621,7 @@ describe('plan.relevance on the generated estate', { timeout: 600_000 }, () => {
     }
   });
 
-  it('crosses a real helper-dispatching instruction with a dead helper and rejects a real register with it', async () => {
+  it('crosses a real helper with a dead helper and rejects a real helper-dispatching instruction and a real register with it', async () => {
     const run = await pipeline.estateRun(1);
     const dispatcher = run.scanned.map.atoms.find(
       (a) =>
@@ -567,8 +651,11 @@ describe('plan.relevance on the generated estate', { timeout: 600_000 }, () => {
         },
       },
     });
+    const helper = run.scanned.map.atoms.find((a) => a.kind === 'subagent');
+    if (!helper) throw new Error('the estate holds no helper');
     for (const [atomId, pass] of [
-      [dispatcher.id, true],
+      [helper.id, true],
+      [dispatcher.id, false],
       [register.id, false],
     ] as const) {
       const mock = vi.spyOn(pipeline, 'estateRun').mockResolvedValue(planted(atomId));

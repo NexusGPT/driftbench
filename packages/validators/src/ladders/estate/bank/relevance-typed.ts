@@ -29,103 +29,109 @@ export type Relation =
   | 'tool'
   | 'stage'
   | 'output'
+  | 'data'
   | 'confirmation'
+  | 'rate'
   | 'restart'
   | 'compaction'
+  | 'stoprule'
   | 'stop'
   | 'prompt'
   | 'routing';
 
-/** The edges a relation follows from an atom to the atoms it reaches, transitively. */
-const REACH: Partial<Record<Relation, readonly string[]>> = {
-  helper: ['route', 'dispatch'],
-  tool: ['route', 'dispatch', 'reference', 'script', 'enforces'],
-};
+/** The tools that bring outside data into a run: what an instruction planted in data would arrive through. */
+const DATA_TOOLS = new Set(['Read', 'Grep', 'Glob', 'WebFetch', 'WebSearch']);
+/** The tools that call a service or a helper, where a rate limit or a retry contract applies. */
+const RATE_TOOLS = new Set(['Agent', 'Task', 'WebFetch', 'WebSearch', 'Bash']);
 
-const TOOL_KINDS: readonly AtomKind[] = ['tool', 'script', 'guard'];
-const TOOL_EVIDENCE = new Set(['tool_called', 'tool_not_called', 'ordered']);
-
-/** The kinds that hold a relation by what they are, whatever their evidence. */
+/** The kinds that hold a relation by what they are, whatever their evidence and fields. */
 export const IDENTITY: Record<Relation, readonly AtomKind[]> = {
   helper: ['subagent'],
-  tool: TOOL_KINDS,
+  tool: ['tool', 'script', 'guard'],
   stage: ['stage'],
   output: ['register'],
-  confirmation: [],
+  data: [],
+  confirmation: ['gate'],
+  rate: ['script', 'subagent'],
   restart: [],
   compaction: [],
+  stoprule: [],
   stop: [],
   prompt: [],
   routing: ['route'],
 };
 
-const calls = (atom: Atom, label: string) =>
-  atom.evidence.some((item) => item.type === 'tool_called' && item.label === label);
+const called = (atom: Atom, labels: ReadonlySet<string>) =>
+  atom.evidence.some((item) => item.type === 'tool_called' && labels.has(item.label));
 
-/** Whether the atom holds the relation itself, from its kind, its typed evidence, its typed fields or what was planted. */
+/**
+ * Whether the atom holds the relation itself, from its kind, its typed evidence, its typed fields or what was planted.
+ * A relation is narrow: it names the typed fact the situation tests (an outside-data tool, a retry contract, a stop
+ * rule), not every atom that touches a tool, so it never allows an atom a coarser reading of the situation would not.
+ */
 function holds(relation: Relation, atom: Atom, planted: Planted | undefined): boolean {
   const field = (name: string) => atom.fields?.[name];
+  const kind = atom.kind;
+  if (IDENTITY[relation].includes(kind)) return true;
   switch (relation) {
-    case 'helper':
-      return atom.kind === 'subagent' || calls(atom, 'Agent');
     case 'tool':
-      return TOOL_KINDS.includes(atom.kind) || atom.evidence.some((item) => TOOL_EVIDENCE.has(item.type));
-    case 'stage':
-      return atom.kind === 'stage' || atom.evidence.some((item) => item.type === 'stage_reached');
+      // A unit that declares tools holds the failure of one of them.
+      return (
+        (kind === 'skill' || kind === 'subagent') &&
+        Array.isArray(field('tools')) &&
+        (field('tools') as unknown[]).length > 0
+      );
     case 'output':
-      return atom.kind === 'register' || atom.evidence.some((item) => item.type === 'text');
-    case 'confirmation':
-      return atom.kind === 'tool' && field('effect') === 'ask';
+      return kind === 'instruction' && atom.evidence.some((item) => item.type === 'text');
+    case 'data':
+      return (
+        ((kind === 'instruction' || kind === 'gate') && called(atom, DATA_TOOLS)) ||
+        (kind === 'guard' && field('event') === 'PostToolUse')
+      );
+    case 'rate':
+      return (
+        (kind === 'tool' && RATE_TOOLS.has(String(field('tool')))) ||
+        (kind === 'instruction' && called(atom, RATE_TOOLS))
+      );
     case 'restart':
     case 'compaction': {
       const hazard = relation === 'restart' ? 'restart' : 'compaction';
       return (
-        (atom.kind === 'hazard' && field('hazard') === hazard) ||
-        planted?.hazard === hazard ||
-        planted?.scope === hazard
+        (kind === 'instruction' || kind === 'gate') &&
+        (planted?.hazard === hazard || planted?.scope === hazard)
       );
     }
+    case 'stoprule':
+      return kind === 'instruction' && (planted?.scope === 'stop' || planted?.behaviour === 'stop_on_word');
     case 'stop':
-      return (
-        planted?.scope === 'stop' ||
-        planted?.behaviour === 'stop_on_word' ||
-        (atom.kind === 'guard' && field('event') === 'UserPromptSubmit')
-      );
+      return holds('stoprule', atom, planted) || holds('prompt', atom, planted);
     case 'prompt':
-      return atom.kind === 'guard' && field('event') === 'UserPromptSubmit';
-    case 'routing':
-      return atom.kind === 'route';
+      return kind === 'guard' && field('event') === 'UserPromptSubmit';
+    default:
+      return false;
   }
 }
 
 /**
- * The identified targets of a relation: the atoms that hold it, and for a relation that follows edges (a helper
- * dispatched by a skill, a tool called by a script a skill runs), the atoms that reach one that does.
+ * The identified targets of a relation: the atoms that hold it, and the routes that open one (a route to a helper, a
+ * route to a skill that declares the tools, a route and the skill it opens). Nothing is reached beyond one route edge.
  */
 export function targetsOf(
   relation: Relation,
   map: Pick<EstateMap, 'atoms' | 'edges'>,
   planted: ReadonlyMap<string, Planted> = new Map(),
 ): Set<string> {
+  const byId = new Map(map.atoms.map((atom) => [atom.id, atom]));
   const own = new Set(
     map.atoms.filter((atom) => holds(relation, atom, planted.get(atom.id))).map((atom) => atom.id),
   );
   const out = new Set(own);
-  const follow = REACH[relation];
-  if (follow) {
-    // Walk the graph backwards from the atoms that hold the relation: whatever points at one reaches it.
-    for (let grew = true; grew; ) {
-      grew = false;
-      for (const edge of map.edges)
-        if (follow.includes(edge.kind) && out.has(edge.to) && !out.has(edge.from)) {
-          out.add(edge.from);
-          grew = true;
-        }
-    }
-  }
-  // A route also holds the unit it opens: a turn that leaves the routed task acts on both.
+  if (relation === 'helper' || relation === 'tool')
+    for (const edge of map.edges) if (edge.kind === 'route' && own.has(edge.to)) out.add(edge.from);
   if (relation === 'routing')
-    for (const edge of map.edges) if (edge.kind === 'route' && own.has(edge.from)) out.add(edge.to);
+    for (const edge of map.edges)
+      if (edge.kind === 'route' && own.has(edge.from) && byId.get(edge.to)?.kind === 'skill')
+        out.add(edge.to);
   return out;
 }
 
