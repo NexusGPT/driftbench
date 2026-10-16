@@ -79,6 +79,19 @@ The next entry records completed seed results or the final bank result. No unmea
 - The owner directs PR 174 to merge only after green CI, then requests the full 21-seed sweep with two workers and load logging. The owner assigns protected changes to an independent maintainer on `fix/generator-validator-contracts`; import from main only after that PR merges. No protection exception or branch rename is used.
 
 
+## 2026-10-15: maintainer D8 retry-contract ruling
+
+- Base: `9f14f170b452dc8bd718749f833225ab977dcee3`, fetched from origin/main. The changes since the reported `14034c6ca` affect the system HTTP validator, not this generator contract.
+- Ruling: render D8 read-tool recovery as `count: 2`, the initial failed call plus the one retry already required by the prompt. A maximum alone permits skipping the retry. Changing the advancing mutant to over-retry would replace the existing fault with one already covered by `D8.retry-many` and let a weak generated Then pass.
+- Red first: the new regression on base records 23 failed, 2 passed. On seeds 1 and 3, a Then copied from the old rendered recovery passes recovery and fails adequacy; a Then requiring exactly two calls passes adequacy and fails recovery. The observed self-loop text, stage and call inputs match; call multiplicity differs.
+- Green: 54 tests pass across the D8 regression, hidden-map pins, rendered contract, follower and fault-fidelity files. The regression spans visible seeds 1–20 and base-commit hidden seed 669949872. It also rejects weakening the Then back to `max: 2`, catches excess retries and exercises an ordinary transition.
+- Actual generated-suite measurements: seed 1 adequacy changes from 8 missed first changes out of 23 to 0/23; seed 3 changes from 6/18 to 0/18. The recovery item passes before and after on both seeds. Both original items and their thresholds remain unchanged.
+- Updated the canonical seed-1 approved YAML and hidden JSON; the byte-for-byte rendered-map test passes. Product source, follower, mutants, floors and hidden-seed derivation are untouched.
+- Partial measurement only: no new ladder level or bank score is inferred. The executor journal and its level table retain their historical measurements. Evidence: [d8-retry-contract.json](evidence/d8-retry-contract.json).
+- Product obligation: every generated D8 read-tool failure block must require exactly two calls, the pending stage and the failure report, including self-loop failures.
+
+- Validation: focused Biome and diff whitespace checks pass. Typecheck passes with only the test importing sparse-excluded `comparisons/langfuse` omitted; the ordinary full typecheck reports that missing import and its two dependent implicit-any errors.
+
 ## 2026-10-15: maintainer semantic invariance pairing (PR 510)
 
 - Base: `779d61573f6e92d995241be6aad515bdc28f3b9e`, the existing PR head. The auditor shows that renaming a block hides a wrong expectation while a separate clean pair still satisfies pair existence.
