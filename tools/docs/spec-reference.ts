@@ -259,7 +259,9 @@ function scalarParts(node: Node): { base: string; rules: string[] } | undefined 
     else if (min === 1) rules.push('not empty');
     else if (min !== undefined) rules.push(`at least ${min} characters`);
     else if (max !== undefined) rules.push(`at most ${max} characters`);
-    if (typeof node.pattern === 'string') rules.push(`matching ${code(node.pattern)}`);
+    // A base64 string is named as such, not by the long pattern that checks it.
+    if (node.contentEncoding === 'base64' || node.format === 'base64') rules.push('base64');
+    else if (typeof node.pattern === 'string') rules.push(`matching ${code(node.pattern)}`);
     return { base: 'string', rules };
   }
   if (node.type === 'integer' || node.type === 'number') {

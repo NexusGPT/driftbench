@@ -61,6 +61,8 @@ export type ProcessAdapterOptions = {
   provider: SandboxProvider;
   /** Leaves each sandbox on disk after close, for inspection. */
   keep?: boolean;
+  /** The most bytes a parent block's workspace export may hold, all files together. Default 50 MB. */
+  exportMaxBytes?: number;
   /** The docker image, when it differs from the provider's. */
   image?: string;
   /** How the stimulus text reaches the agent: on stdin (default), or in a file named on the command line. */
@@ -92,8 +94,8 @@ type ProcessState = {
 };
 
 const DEFAULT_TIMEOUT_MS = 10 * 60 * 1000;
-/** The most bytes a parent block's exported workspace may hold, all files together. */
-const EXPORT_MAX_BYTES = 10 * 1024 * 1024;
+/** The most bytes a parent block's exported workspace may hold by default, all files together. */
+const EXPORT_MAX_BYTES = 50 * 1024 * 1024;
 /** A protocol file larger than this is skipped and named in raw. */
 const PROTOCOL_MAX_BYTES = 10 * 1024 * 1024;
 /** How many protocol errors raw keeps. */
@@ -274,8 +276,9 @@ export function processAdapter(options: ProcessAdapterOptions): ProcessAdapter {
 
     /**
      * The end state of a parent block: its world and variables, the workspace replaced by the files the agent
-     * left, read whole. The protocol files stay out. A file that is not UTF-8 text, or a workspace past
-     * EXPORT_MAX_BYTES, cannot travel in a Given: the export fails, and the runner marks the children not run.
+     * left, byte for byte. UTF-8 text goes in `files`, any other file (an xlsx, a pdf, an image) in `binary`
+     * as base64. The protocol files stay out. A workspace past `exportMaxBytes` fails the export, and the
+     * runner marks the children not run with the reason.
      */
     async snapshotGiven(session: Session) {
       const state = stateOf(session);
@@ -283,24 +286,29 @@ export function processAdapter(options: ProcessAdapterOptions): ProcessAdapter {
       const snapshot = withoutControl(await state.sandbox.snapshot());
       const paths = Object.keys(snapshot.files).sort(compare);
       const total = paths.reduce((sum, path) => sum + (snapshot.files[path]?.bytes ?? 0), 0);
-      if (total > EXPORT_MAX_BYTES) {
-        throw new Error(
-          `the workspace holds ${total} bytes, more than the export bound of ${EXPORT_MAX_BYTES}`,
-        );
+      const bound = options.exportMaxBytes ?? EXPORT_MAX_BYTES;
+      if (total > bound) {
+        throw new Error(`the workspace holds ${total} bytes, more than the export bound of ${bound}`);
       }
-      const decoder = new TextDecoder('utf-8', { fatal: true });
+      // Fatal and BOM-keeping: a file read as text writes back the very bytes it was read from.
+      const decoder = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true });
       const files: Record<string, string> = {};
+      const binary: Record<string, string> = {};
       for (const path of paths) {
-        const bytes = await state.sandbox.readFile(path, EXPORT_MAX_BYTES);
+        const bytes = await state.sandbox.readFile(path, bound);
         try {
           files[path] = decoder.decode(bytes);
         } catch {
-          throw new Error(`${path} is not UTF-8 text, so the workspace cannot be exported`);
+          binary[path] = Buffer.from(bytes).toString('base64');
         }
       }
       const { workspace: _seeded, ...world } = state.world;
+      const workspace = {
+        ...(Object.keys(files).length === 0 ? {} : { files }),
+        ...(Object.keys(binary).length === 0 ? {} : { binary }),
+      };
       return {
-        world: structuredClone({ ...world, ...(paths.length === 0 ? {} : { workspace: { files } }) }),
+        world: structuredClone({ ...world, ...(paths.length === 0 ? {} : { workspace }) }),
         vars: structuredClone(state.vars),
       };
     },
@@ -395,9 +403,18 @@ function workspaceDelta(seeded: Workspace | undefined, next: Workspace): Workspa
     const known = seeded?.files !== undefined && Object.hasOwn(seeded.files, path);
     if (!known || seeded?.files?.[path] !== content) files[path] = content;
   }
+  const binary: Record<string, string> = {};
+  for (const [path, content] of Object.entries(next.binary ?? {})) {
+    if (seeded?.binary?.[path] !== content) binary[path] = content;
+  }
   const from = next.from !== undefined && next.from !== seeded?.from ? next.from : undefined;
-  if (from === undefined && Object.keys(files).length === 0) return undefined;
-  return { ...(from === undefined ? {} : { from }), ...(Object.keys(files).length === 0 ? {} : { files }) };
+  if (from === undefined && Object.keys(files).length === 0 && Object.keys(binary).length === 0)
+    return undefined;
+  return {
+    ...(from === undefined ? {} : { from }),
+    ...(Object.keys(files).length === 0 ? {} : { files }),
+    ...(Object.keys(binary).length === 0 ? {} : { binary }),
+  };
 }
 
 function withoutControl(snapshot: WorkspaceSnapshot): WorkspaceSnapshot {
