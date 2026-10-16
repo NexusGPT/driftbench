@@ -1,251 +1,443 @@
-import type { Atom, EstateMap } from '@agent-nexus/driftbench-estate';
+import type { Atom, AtomKind, EstateMap } from '@agent-nexus/driftbench-estate';
 import { describe, expect, it, vi } from 'vitest';
 import { planRelevanceFamily } from '../../src/ladders/estate/bank/plan';
-import { type Signal, showsSignal } from '../../src/ladders/estate/bank/relevance-signals';
+import {
+  IDENTITY,
+  judgeRelevance,
+  type Planted,
+  type Relation,
+  targetsOf,
+} from '../../src/ladders/estate/bank/relevance-typed';
 import * as pipeline from '../../src/ladders/estate/pipeline';
 
-function atom(
-  id: string,
-  kind: Atom['kind'],
-  quote: string,
-  evidence: Atom['evidence'],
-  extra: Partial<Atom> = {},
-): Atom {
+// Hand-written observatory estates. Every atom is invented for these tests: none is a bank or generated-estate phrase,
+// and the oracle must read none of their words, so each decoy says in words what a lexical reader would take for a
+// relation while its typed data says nothing.
+
+const KINDS: AtomKind[] = [
+  'instruction',
+  'gate',
+  'route',
+  'skill',
+  'reference',
+  'script',
+  'subagent',
+  'guard',
+  'tool',
+  'setting',
+  'stage',
+  'register',
+  'hazard',
+  'invariant',
+];
+
+function atom(id: string, kind: AtomKind, quote: string, extra: Partial<Atom> = {}): Atom {
   return {
     id,
     kind,
     title: quote,
-    provenance: { file: extra.provenance?.file ?? 'CLAUDE.md', startLine: 1, endLine: 1, quote, hash: id },
+    provenance: { file: 'OBSERVATORY.md', startLine: 1, endLine: 1, quote, hash: id },
     producedBy: 'code',
     role: 'axis',
     approved: true,
-    evidence,
+    evidence: [{ type: 'custom', name: 'observatory_policy' }],
     enforcement: [],
     ...extra,
   } as Atom;
 }
 
-const REPAIR = '.claude/skills/repair-ticket/SKILL.md';
-const call = (label: string): Atom['evidence'] => [{ type: 'tool_called', label }];
-const text: Atom['evidence'] = [{ type: 'custom', name: 'x' }];
+const mapOf = (atoms: Atom[], edges: EstateMap['edges'] = []) => ({ atoms, edges });
 
-/** A small hand-written estate: a skill that dispatches a helper and closes a ticket once it is confirmed. */
-const ATOMS = {
-  helper: atom('subagent.auditor', 'subagent', 'name: auditor', call('Agent'), {
-    provenance: {
-      file: '.claude/agents/auditor.md',
-      startLine: 1,
-      endLine: 1,
-      quote: 'name: auditor',
-      hash: 'h',
-    },
-  }),
-  dispatch: atom(
-    'instruction.repair.dispatch',
-    'instruction',
-    'When the part is new, dispatch the `auditor` agent.',
-    call('Agent'),
-    { provenance: { file: REPAIR, startLine: 9, endLine: 9, quote: 'dispatch', hash: 'd' } },
-  ),
-  runScript: atom('instruction.repair.run', 'instruction', 'Run `python3 scripts/list.py`.', call('Bash'), {
-    provenance: { file: REPAIR, startLine: 11, endLine: 11, quote: 'run', hash: 'r' },
-  }),
-  readBeforeEdit: atom('gate.standing.read', 'gate', 'Read a file before you edit it.', [
-    { type: 'ordered', before: 'Read', after: 'Edit' },
-  ]),
-  stageOrder: atom('gate.standing.verify', 'gate', 'Never report done before verify passed.', [
-    { type: 'ordered', before: 'verify', after: 'report' },
-  ]),
-  helperRule: atom(
-    'instruction.standing.helpers',
-    'instruction',
-    'After a restart, check which helpers are still running.',
-    [{ type: 'custom', name: 'helper_state' }],
-  ),
-  skill: atom(
-    'skill.repair',
-    'skill',
-    'name: repair-ticket',
-    [{ type: 'skill_loaded', name: 'repair-ticket' }],
-    {
-      provenance: { file: REPAIR, startLine: 2, endLine: 2, quote: 'name: repair-ticket', hash: 's' },
-      fields: { description: 'Close a repair ticket once the repair is confirmed.' },
-    },
-  ),
-  route: atom(
-    'route.standing.repair',
-    'route',
-    '| close a repair ticket | `repair-ticket` |',
-    [{ type: 'skill_loaded', name: 'repair-ticket' }],
-    { fields: { targetKind: 'skill' } },
-  ),
-  otherSkill: atom(
-    'skill.shipments',
-    'skill',
-    'name: shipment-update',
-    [{ type: 'skill_loaded', name: 'shipment-update' }],
-    {
-      provenance: {
-        file: '.claude/skills/shipment-update/SKILL.md',
-        startLine: 2,
-        endLine: 2,
-        quote: 'name: shipment-update',
-        hash: 'o',
-      },
-      fields: { description: 'Update the status of a shipment from the carrier record.' },
-    },
-  ),
-  otherRoute: atom(
-    'route.standing.shipments',
-    'route',
-    '| update a shipment | `shipment-update` |',
-    [{ type: 'skill_loaded', name: 'shipment-update' }],
-    { fields: { targetKind: 'skill' } },
-  ),
-  reportStage: atom('stage.steps.report', 'stage', 'Tell the user what changed and what is next', [
-    { type: 'stage_reached', name: 'report' },
-  ]),
-  noteStage: atom('stage.steps.note', 'stage', 'Write a tracker note', [
-    { type: 'stage_reached', name: 'note' },
-  ]),
-  verifyStage: atom('stage.steps.verify', 'stage', 'Run the check that proves the change', [
-    { type: 'stage_reached', name: 'verify' },
-  ]),
-  supplierRule: atom(
-    'instruction.standing.supplier',
-    'instruction',
-    'Answer the supplier in their language.',
-    text,
-  ),
-  register: atom('register.standing.lead', 'register', 'Lead with the result in the first line.', text),
+/** Words a lexical reader takes for a relation, on an atom whose typed data holds none. */
+const DECOY_WORDS =
+  'Dispatch the helper, call a tool, tell the user in their language, require confirmation once, restart, compact, stop.';
+const decoy = (kind: AtomKind) => atom(`decoy.${kind}`, kind, DECOY_WORDS);
+
+type Case = {
+  key: string;
+  dimension: string;
+  value: string;
+  relation: Relation;
+  /** The identified target, of a kind the old kind lists excluded, with the edges and the planted data that make it one. */
+  target?: { atoms: Atom[]; edges?: EstateMap['edges']; planted?: Planted };
 };
 
-const MAP = {
-  version: 1,
-  runtime: 'claude-code',
-  root: '.',
-  readAt: 'now',
-  atoms: Object.values(ATOMS),
-  edges: [
-    { from: ATOMS.route.id, to: ATOMS.skill.id, kind: 'route' },
-    { from: ATOMS.otherRoute.id, to: ATOMS.otherSkill.id, kind: 'route' },
-  ],
-  hash: 'x',
-} as unknown as EstateMap;
+const CASES: Case[] = [
+  {
+    key: 'dead-helper',
+    dimension: 'estate_hazard',
+    value: 'dead_helper',
+    relation: 'helper',
+    target: {
+      atoms: [
+        atom('t', 'instruction', 'Handle the exposure number.', {
+          evidence: [{ type: 'tool_called', label: 'Agent' }],
+        }),
+      ],
+    },
+  },
+  {
+    key: 'helpers-running',
+    dimension: 'session_state',
+    value: 'helpers_running',
+    relation: 'helper',
+    target: {
+      atoms: [atom('t', 'skill', 'Run the nightly exposure plan.'), atom('h', 'subagent', 'name: analyst')],
+      edges: [{ from: 't', to: 'h', kind: 'dispatch' }],
+    },
+  },
+  {
+    key: 'stale-tracker',
+    dimension: 'estate_hazard',
+    value: 'stale_tracker',
+    relation: 'stage',
+    target: {
+      atoms: [
+        atom('t', 'instruction', 'Keep the lens cover clean.', {
+          evidence: [{ type: 'stage_reached', name: 'note' }],
+        }),
+      ],
+    },
+  },
+  {
+    key: 'language-switch',
+    dimension: 'deviation',
+    value: 'D5_language_switch',
+    relation: 'output',
+    target: {
+      atoms: [atom('t', 'gate', 'Close the dome.', { evidence: [{ type: 'text', lang: 'EN' }] })],
+    },
+  },
+  {
+    key: 'owner-language-switch',
+    dimension: 'owner_signal',
+    value: 'language_switch',
+    relation: 'output',
+    target: {
+      atoms: [atom('t', 'stage', 'Close the dome.', { evidence: [{ type: 'text', must: ['done'] }] })],
+    },
+  },
+  {
+    key: 'tool-failure',
+    dimension: 'deviation',
+    value: 'D8_tool_failure',
+    relation: 'tool',
+    target: {
+      atoms: [
+        atom('t', 'gate', 'Calibrate the mirror.', {
+          evidence: [
+            { type: 'tool_called', label: 'Read' },
+            { type: 'ordered', before: 'Read', after: 'Edit' },
+          ],
+        }),
+      ],
+    },
+  },
+  { key: 'instruction-in-data', dimension: 'deviation', value: 'D6_instruction_in_data', relation: 'none' },
+  {
+    key: 'loose-confirmation',
+    dimension: 'deviation',
+    value: 'D4_loose_confirmation',
+    relation: 'confirmation',
+    target: { atoms: [atom('t', 'tool', 'Bash(dome:*)', { fields: { effect: 'ask' } })] },
+  },
+  { key: 'rate-wave', dimension: 'estate_hazard', value: 'rate_wave', relation: 'none' },
+  {
+    key: 'process-restart',
+    dimension: 'estate_hazard',
+    value: 'process_restart',
+    relation: 'restart',
+    target: { atoms: [atom('t', 'hazard', 'Hazard.', { fields: { hazard: 'restart' } })] },
+  },
+  {
+    key: 'compaction',
+    dimension: 'estate_hazard',
+    value: 'compaction_mid_task',
+    relation: 'compaction',
+    target: { atoms: [atom('t', 'hazard', 'Hazard.', { fields: { hazard: 'compaction' } })] },
+  },
+  {
+    key: 'after-compaction',
+    dimension: 'session_state',
+    value: 'after_compaction',
+    relation: 'compaction',
+    target: { atoms: [atom('t', 'instruction', 'Reload the log.')], planted: { hazard: 'compaction' } },
+  },
+  {
+    key: 'after-restart',
+    dimension: 'session_state',
+    value: 'after_restart',
+    relation: 'restart',
+    target: { atoms: [atom('t', 'skill', 'Restore the calibration.')], planted: { scope: 'restart' } },
+  },
+  { key: 'resumed', dimension: 'session_state', value: 'resumed', relation: 'none' },
+  {
+    key: 'stop-signal',
+    dimension: 'owner_signal',
+    value: 'stop',
+    relation: 'stop',
+    target: { atoms: [atom('t', 'skill', 'Halt the exposure.')], planted: { behaviour: 'stop_on_word' } },
+  },
+  { key: 'no-questions', dimension: 'owner_signal', value: 'no_questions', relation: 'none' },
+  { key: 'goal-shift', dimension: 'deviation', value: 'D2_goal_shift', relation: 'none' },
+  { key: 'off-topic', dimension: 'deviation', value: 'D1_off_topic', relation: 'none' },
+  { key: 'out-of-scope', dimension: 'deviation', value: 'D9_out_of_scope', relation: 'none' },
+  { key: 'silence-burst', dimension: 'deviation', value: 'D7_silence_or_burst', relation: 'none' },
+];
 
-const shows = (signal: Signal, name: keyof typeof ATOMS) => showsSignal(signal, ATOMS[name], MAP);
+/** A run holding only what the item reads: the map, the planted standing rules, and the pairwise rows. */
+function fakeRun(
+  map: ReturnType<typeof mapOf>,
+  rows: Array<{ atom: string; dimension: string; value: string }>,
+  planted: Planted = {},
+  plantedOn?: string,
+) {
+  const hidOf = new Map<string, string>();
+  const rules: unknown[] = [];
+  if (plantedOn !== undefined && Object.keys(planted).length > 0) {
+    hidOf.set(plantedOn, 'rule:planted');
+    rules.push({
+      hid: 'rule:planted',
+      scope: planted.scope ?? 'always',
+      behaviour: { type: planted.behaviour ?? 'none' },
+      ...(planted.hazard ? { hazard: planted.hazard } : {}),
+    });
+  }
+  return {
+    estate: { rules },
+    scanned: { map, match: { hidOf } },
+    plan: {
+      plan: {
+        rows: rows.map((row, index) => ({
+          id: `pairwise.${index}`,
+          atomIds: [row.atom],
+          cell: { [row.dimension]: row.value },
+        })),
+      },
+    },
+  } as unknown as pipeline.EstateRun;
+}
 
-describe('what an atom shows about the situations it can act on', () => {
-  it('helper activity: a helper, a dispatch, a mention of helpers, and the skill and route that lead to one', () => {
-    for (const name of ['helper', 'dispatch', 'helperRule', 'skill', 'route'] as const)
-      expect(shows('helper-activity', name), name).toBe(true);
-    for (const name of [
-      'register',
-      'noteStage',
-      'runScript',
-      'readBeforeEdit',
-      'otherSkill',
-      'otherRoute',
-    ] as const)
-      expect(shows('helper-activity', name), name).toBe(false);
+async function verdict(
+  key: string,
+  map: ReturnType<typeof mapOf>,
+  rows: Array<{ atom: string; dimension: string; value: string }>,
+  planted?: Planted,
+  plantedOn?: string,
+) {
+  const mock = vi.spyOn(pipeline, 'estateRun').mockResolvedValue(fakeRun(map, rows, planted, plantedOn));
+  try {
+    return (await planRelevanceFamily().evaluate(1)).get(`plan.relevance.${key}`) as {
+      pass: boolean;
+      detail: string;
+    };
+  } finally {
+    mock.mockRestore();
+  }
+}
+
+describe('plan.relevance judges each of its 20 situations from typed data, with no word of the estate read', () => {
+  it('has the 20 items', () => {
+    expect(planRelevanceFamily().items.map((item) => item.id)).toHaveLength(20);
+    expect(CASES.map((c) => `plan.relevance.${c.key}`).sort()).toEqual(
+      planRelevanceFamily()
+        .items.map((item) => item.id)
+        .sort(),
+    );
   });
 
-  it('a tool call: a call of a tool, an order between tool calls, and the units that reach one', () => {
-    for (const name of ['dispatch', 'runScript', 'readBeforeEdit', 'skill', 'route'] as const)
-      expect(shows('tool-call', name), name).toBe(true);
-    // An order between stages is no tool call; neither is a rule shown only in words, nor a step.
-    for (const name of ['stageOrder', 'register', 'helperRule', 'noteStage', 'otherSkill'] as const)
-      expect(shows('tool-call', name), name).toBe(false);
-  });
+  describe.each(CASES)('$key', ({ key, dimension, value, relation, target }) => {
+    const cross = (...ids: string[]) => ids.map((atomId) => ({ atom: atomId, dimension, value }));
 
-  it('output to a person: a step that tells the user, not one that writes a note', () => {
-    for (const name of ['reportStage', 'supplierRule'] as const)
-      expect(shows('output-to-person', name), name).toBe(true);
-    for (const name of ['noteStage', 'verifyStage', 'runScript', 'helper'] as const)
-      expect(shows('output-to-person', name), name).toBe(false);
-  });
+    if (target) {
+      const plantedOn = target.planted ? 't' : undefined;
 
-  it('a confirmation: a skill whose words condition on it and the route that opens it, not another skill', () => {
-    for (const name of ['skill', 'route'] as const) expect(shows('confirmation', name), name).toBe(true);
-    for (const name of ['otherSkill', 'otherRoute', 'register', 'reportStage'] as const)
-      expect(shows('confirmation', name), name).toBe(false);
+      it('accepts a crossing with an identified target of a kind the old kind list excluded', async () => {
+        const map = mapOf([...target.atoms, decoy('instruction')], target.edges);
+        const out = await verdict(key, map, cross('t'), target.planted, plantedOn);
+        expect(out, out.detail).toMatchObject({ pass: true });
+      });
+
+      it.each(KINDS.filter((kind) => !IDENTITY[relation].includes(kind)))(
+        'rejects a crossing with a %s that holds no relation, whatever its words say',
+        async (kind) => {
+          const map = mapOf([...target.atoms, decoy(kind)], target.edges);
+          const out = await verdict(key, map, cross('t', `decoy.${kind}`), target.planted, plantedOn);
+          expect(out.pass).toBe(false);
+          expect(out.detail).toContain(`decoy.${kind}`);
+        },
+      );
+
+      it('rejects a plan that never crosses the situation with a target', async () => {
+        const map = mapOf([...target.atoms, decoy('instruction')], target.edges);
+        const out = await verdict(key, map, cross('decoy.instruction'), target.planted, plantedOn);
+        expect(out.pass).toBe(false);
+      });
+    }
+
+    it('keeps an unresolved situation in the plan: any crossing holds, an empty plan fails', async () => {
+      // No atom holds the relation, whatever its kind and words say.
+      const lonely = KINDS.filter((kind) => !IDENTITY[relation].includes(kind)).map(decoy);
+      const map = mapOf(lonely);
+      const some = await verdict(key, map, cross(...lonely.map((a) => a.id)));
+      expect(some, some.detail).toMatchObject({ pass: true });
+      expect(some.detail).toContain('unresolved');
+      const none = await verdict(key, map, []);
+      expect(none.pass).toBe(false);
+    });
   });
 });
 
-describe('plan.relevance on the generated estate with a row planted', { timeout: 300_000 }, () => {
-  async function verdicts(plant: (run: pipeline.EstateRun) => pipeline.EstateRun['plan']['plan']['rows']) {
-    const run = await pipeline.estateRun(1);
-    const clone = structuredClone(run.plan);
-    clone.plan.rows = plant(run);
-    const mock = vi.spyOn(pipeline, 'estateRun').mockResolvedValue({ ...run, plan: clone });
-    try {
-      return await planRelevanceFamily().evaluate(1);
-    } finally {
-      mock.mockRestore();
-    }
-  }
-
-  /** Only the pairwise rows that cross one situation value with one atom, so the item judges that cell alone. */
-  function cell(run: pipeline.EstateRun, dimension: string, value: string, atomId: string) {
-    const base = run.plan.plan.rows.find((row) => row.id.startsWith('pairwise.'));
-    if (!base) throw new Error('no pairwise row');
-    return [
-      { ...structuredClone(base), id: 'pairwise.planted', atomIds: [atomId], cell: { [dimension]: value } },
-    ];
-  }
-
-  const find = (run: pipeline.EstateRun, test: (atom: Atom) => boolean) => {
-    const found = run.scanned.map.atoms.find(test);
-    if (!found) throw new Error('no such atom');
-    return found;
-  };
-
-  it('keeps an instruction that dispatches a helper with a dead helper, and the report stage with a language switch', async () => {
-    const out = await verdicts((run) => [
-      ...cell(
-        run,
-        'estate_hazard',
-        'dead_helper',
-        find(
-          run,
-          (a) =>
-            a.kind === 'instruction' &&
-            a.evidence.some((e) => e.type === 'tool_called' && e.label === 'Agent'),
-        ).id,
-      ),
-    ]);
-    expect(out.get('plan.relevance.dead-helper')).toEqual({ pass: true, detail: 'holds' });
-    const lang = await verdicts((run) =>
-      cell(
-        run,
-        'deviation',
-        'D5_language_switch',
-        find(run, (a) => a.kind === 'stage' && /tell the user/i.test(a.provenance.quote)).id,
-      ),
+describe('the typed relations', () => {
+  it('a helper: the helper, a call of the Agent tool, and the units that reach either by a route or a dispatch', () => {
+    const map = mapOf(
+      [
+        atom('r', 'route', DECOY_WORDS),
+        atom('s', 'skill', DECOY_WORDS),
+        atom('h', 'subagent', DECOY_WORDS),
+        atom('i', 'instruction', DECOY_WORDS, { evidence: [{ type: 'tool_called', label: 'Agent' }] }),
+        atom('s2', 'skill', DECOY_WORDS),
+        atom('o', 'instruction', DECOY_WORDS),
+        atom('x', 'script', DECOY_WORDS),
+        atom('k', 'skill', DECOY_WORDS),
+      ],
+      [
+        { from: 'r', to: 's', kind: 'route' },
+        { from: 's', to: 'h', kind: 'dispatch' },
+        { from: 's2', to: 'i', kind: 'route' },
+        { from: 'k', to: 'x', kind: 'script' },
+      ],
     );
-    expect(lang.get('plan.relevance.language-switch')).toEqual({ pass: true, detail: 'holds' });
+    expect([...targetsOf('helper', map)].sort()).toEqual(['h', 'i', 'r', 's', 's2']);
   });
 
-  it('still excludes an atom that shows nothing: a register with a dead helper, a note step with a language switch', async () => {
-    const dead = await verdicts((run) =>
-      cell(run, 'estate_hazard', 'dead_helper', find(run, (a) => a.kind === 'register').id),
+  it('a tool call: a tool config, a script, a guard, a typed call or order, and what reaches one', () => {
+    const map = mapOf(
+      [
+        atom('a', 'instruction', DECOY_WORDS, {
+          evidence: [{ type: 'ordered', before: 'Read', after: 'Edit' }],
+        }),
+        atom('b', 'instruction', DECOY_WORDS, {
+          evidence: [{ type: 'ordered', before: 'verify', after: 'report' }],
+        }),
+        atom('c', 'skill', DECOY_WORDS),
+        atom('d', 'script', DECOY_WORDS),
+        atom('e', 'register', DECOY_WORDS, { evidence: [{ type: 'tool_not_called', label: 'Bash' }] }),
+        atom('f', 'stage', DECOY_WORDS),
+      ],
+      [{ from: 'c', to: 'd', kind: 'script' }],
     );
-    expect(dead.get('plan.relevance.dead-helper')).toMatchObject({
+    // An order is typed evidence whether its ends are tools or not: the evidence type decides, not the labels.
+    expect([...targetsOf('tool', map)].sort()).toEqual(['a', 'b', 'c', 'd', 'e']);
+  });
+
+  it('a reply: an output rule, a text predicate; a stage or an instruction whose words speak of a reply is neither', () => {
+    const map = mapOf([
+      atom('a', 'register', 'x'),
+      atom('b', 'gate', 'x', { evidence: [{ type: 'text', mustNot: ['simply'] }] }),
+      atom('c', 'stage', 'Tell the user what changed.'),
+      atom('d', 'instruction', 'Answer in the language of the user.'),
+    ]);
+    expect([...targetsOf('output', map)].sort()).toEqual(['a', 'b']);
+  });
+
+  it('a hazard: the hazard atom of that id and the rule the hidden estate planted for it', () => {
+    const map = mapOf([
+      atom('a', 'hazard', 'x', { fields: { hazard: 'compaction' } }),
+      atom('b', 'hazard', 'x', { fields: { hazard: 'restart' } }),
+      atom('c', 'instruction', 'After a compaction, reload the log.'),
+      atom('d', 'instruction', 'After a restart, reload the log.'),
+    ]);
+    const planted = new Map<string, Planted>([['d', { hazard: 'restart' }]]);
+    expect([...targetsOf('compaction', map, planted)]).toEqual(['a']);
+    expect([...targetsOf('restart', map, planted)].sort()).toEqual(['b', 'd']);
+  });
+
+  it('a stop: a rule planted for it, a guard on the prompt event; a guard on a tool event is not', () => {
+    const map = mapOf([
+      atom('a', 'guard', 'x', { fields: { event: 'UserPromptSubmit' } }),
+      atom('b', 'guard', 'x', { fields: { event: 'PreToolUse' } }),
+      atom('c', 'instruction', 'On stop, stop all work.'),
+      atom('d', 'instruction', 'x'),
+    ]);
+    const planted = new Map<string, Planted>([['d', { scope: 'stop' }]]);
+    expect([...targetsOf('stop', map, planted)].sort()).toEqual(['a', 'd']);
+  });
+
+  it('a confirmation: a permission that asks, not one that allows', () => {
+    const map = mapOf([
+      atom('a', 'tool', 'x', { fields: { effect: 'ask' } }),
+      atom('b', 'tool', 'x', { fields: { effect: 'allow' } }),
+      atom('c', 'gate', 'Show the draft and get an explicit yes.'),
+    ]);
+    expect([...targetsOf('confirmation', map)]).toEqual(['a']);
+  });
+});
+
+describe('an unresolved situation is judged by the contract, not by a kind', () => {
+  it('passes a crossing of every kind when no atom holds the relation, and fails when the plan dropped it', () => {
+    const atoms = KINDS.map(decoy);
+    const map = mapOf(atoms);
+    const crossings = atoms.map((a, index) => ({ row: `pairwise.${index}`, atom: a.id }));
+    expect(judgeRelevance('none', map, crossings)).toMatchObject({ pass: true });
+    expect(judgeRelevance('none', map, [])).toMatchObject({ pass: false });
+    // A crossing with an atom the map does not hold is no crossing.
+    expect(judgeRelevance('none', map, [{ row: 'pairwise.0', atom: 'ghost' }])).toMatchObject({
       pass: false,
-      detail: expect.stringContaining('1 rows cross it with atoms it cannot act on'),
     });
-    const lang = await verdicts((run) =>
-      cell(
-        run,
-        'deviation',
-        'D5_language_switch',
-        find(run, (a) => a.kind === 'stage' && /tracker note/i.test(a.provenance.quote)).id,
-      ),
+  });
+});
+
+describe('plan.relevance on the generated estate', { timeout: 600_000 }, () => {
+  it('judges the real plan of seeds 1 and 2: 20 items, each with a verdict and a detail', async () => {
+    for (const seed of [1, 2]) {
+      const verdicts = await planRelevanceFamily().evaluate(seed);
+      expect(verdicts.size, `seed ${seed}`).toBe(20);
+      for (const [id, result] of verdicts) expect(typeof result.detail, id).toBe('string');
+    }
+  });
+
+  it('crosses a real helper-dispatching instruction with a dead helper and rejects a real register with it', async () => {
+    const run = await pipeline.estateRun(1);
+    const dispatcher = run.scanned.map.atoms.find(
+      (a) =>
+        a.kind === 'instruction' && a.evidence.some((e) => e.type === 'tool_called' && e.label === 'Agent'),
     );
-    expect(lang.get('plan.relevance.language-switch')).toMatchObject({ pass: false });
-    const tool = await verdicts((run) =>
-      cell(run, 'deviation', 'D8_tool_failure', find(run, (a) => a.kind === 'stage').id),
-    );
-    expect(tool.get('plan.relevance.tool-failure')).toMatchObject({ pass: false });
+    const register = run.scanned.map.atoms.find((a) => a.kind === 'register');
+    if (!dispatcher || !register) throw new Error('the estate holds no dispatching instruction or register');
+    const base = run.plan.plan.rows.find((row) => row.id.startsWith('pairwise.'));
+    if (!base) throw new Error('no pairwise row');
+    const planted = (atomId: string) => ({
+      ...run,
+      plan: {
+        ...run.plan,
+        plan: {
+          ...run.plan.plan,
+          rows: [
+            {
+              ...structuredClone(base),
+              id: 'pairwise.planted',
+              atomIds: [atomId],
+              cell: { estate_hazard: 'dead_helper' },
+            },
+            ...run.plan.plan.rows.filter(
+              (row) => row.id.startsWith('pairwise.') && row.cell.estate_hazard !== 'dead_helper',
+            ),
+          ],
+        },
+      },
+    });
+    for (const [atomId, pass] of [
+      [dispatcher.id, true],
+      [register.id, false],
+    ] as const) {
+      const mock = vi.spyOn(pipeline, 'estateRun').mockResolvedValue(planted(atomId));
+      try {
+        const out = (await planRelevanceFamily().evaluate(1)).get('plan.relevance.dead-helper');
+        expect(out?.pass, `${atomId}: ${out?.detail}`).toBe(pass);
+      } finally {
+        mock.mockRestore();
+      }
+    }
   });
 });
