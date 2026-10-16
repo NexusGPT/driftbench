@@ -9,6 +9,8 @@
  *
  * No model, no network, no clock in any file it writes: the same plan and instruction give the same bytes.
  */
+
+import { createHash } from 'node:crypto';
 import { appendFileSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { deflateRawSync } from 'node:zlib';
@@ -48,6 +50,7 @@ function write(file) {
     xlsx: () => xlsx(file.data.sheets),
     docx: () => docx(file.data.paragraphs),
     pdf: () => pdf(file.data.pages),
+    bytes: () => Buffer.from(String(file.data), 'base64'),
   }[file.format];
   if (!bytes) throw new Error(`unknown format ${file.format}`);
   writeFileSync(file.path, bytes());
@@ -255,7 +258,14 @@ function main() {
     const marker = Object.keys(plan.markers).find((each) => instruction.includes(each));
     appendFileSync(
       process.env.BLOCKS_AGENT_LOG,
-      `${JSON.stringify({ marker, history, files: listFiles('.') })}\n`,
+      `${JSON.stringify({
+        marker,
+        history,
+        files: listFiles('.'),
+        digests: Object.fromEntries(
+          listFiles('.').map((path) => [path, createHash('sha256').update(readFileSync(path)).digest('hex')]),
+        ),
+      })}\n`,
     );
   }
   for (const file of entry.files ?? []) write(file);

@@ -355,6 +355,8 @@ function hashItems(): BankItem[] {
   for (const kind of KINDS)
     for (const variant of variants) {
       for (const compare of ['none-vs-links', 'promoted'] as const) {
+        // One fix (links out of the identity): at most 24 items, so it never stands for more than its share.
+        if (kind === 'code' && compare === 'promoted' && variants.indexOf(variant) < 2) continue;
         const id = `links/hash/${kind}/${variant.id}/${compare}`;
         items.push({
           id,

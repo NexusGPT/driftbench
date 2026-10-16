@@ -37,7 +37,8 @@ export function token(seed: number, tag: string, length = 6): string {
 /** A file the code agent writes: its path relative to the workspace, its format and its content. */
 export type FileAction = {
   path: string;
-  format: 'csv' | 'json' | 'txt' | 'xlsx' | 'docx' | 'pdf';
+  /** `bytes`: `data` is the base64 of the exact bytes to write. */
+  format: 'csv' | 'json' | 'txt' | 'xlsx' | 'docx' | 'pdf' | 'bytes';
   data: unknown;
 };
 
@@ -60,7 +61,13 @@ let agents = 0;
 export const CODE_AGENT = fileURLToPath(new URL('./agents/code-agent.mjs', import.meta.url));
 
 /** One turn that reached the agent: its marker, the history it read and (CODE) the workspace files it saw. */
-export type Delivery = { marker: string | undefined; history: Seen[]; files?: string[] };
+/** What reached the agent on one turn; `digests` maps each workspace file it saw to the sha256 of its bytes. */
+export type Delivery = {
+  marker: string | undefined;
+  history: Seen[];
+  files?: string[];
+  digests?: Record<string, string>;
+};
 
 export type Planted = {
   adapter: Record<string, unknown>;
@@ -165,8 +172,18 @@ export function plantedAgent(
             .split('\n')
             .filter((line) => line.trim() !== '')
             .map((line) => {
-              const entry = JSON.parse(line) as { marker?: string; history?: Seen[]; files?: string[] };
-              return { marker: entry.marker, history: entry.history ?? [], files: entry.files ?? [] };
+              const entry = JSON.parse(line) as {
+                marker?: string;
+                history?: Seen[];
+                files?: string[];
+                digests?: Record<string, string>;
+              };
+              return {
+                marker: entry.marker,
+                history: entry.history ?? [],
+                files: entry.files ?? [],
+                digests: entry.digests ?? {},
+              };
             })
         : [],
   };

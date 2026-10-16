@@ -737,7 +737,7 @@ function coverageItems(): BankItem[] {
                     ? AGGREGATE
                     : EFFECTIVE,
               title: `over ${COVERAGE_DRAWS} campaigns of ${goldens} goldens of a ${kind} agent whose golden rates spread around ${mu} (concentration ${kappa}), the ${estimator.id.replace(/-/g, ' ')} interval holds the planted rate at least ${estimator.floor} of the time`,
-              cause: `The ${estimator.id.replace(/-/g, ' ')} interval accounts for the spread between goldens, so it covers the planted rate (concentration ${kappa}).`,
+              cause: `The ${estimator.id.replace(/-/g, ' ')} interval accounts for the spread between goldens, so it covers the planted rate.`,
               check: async ({ seed, scratch, product }) => {
                 const rng = rngFor(seed, id);
                 const base = await baseRecords(product, seed, kind, goldens, scratch);
@@ -791,7 +791,7 @@ function noisyItems(): BankItem[] {
             level: 9,
             component: HEADLINE,
             title: `a noisy ${kind} agent that breaks each turn at rate ${rate}, over ${goldens} goldens of ${repeats} repeats: every broken run reads fail, every other pass, and the pass rate counts exactly the unbroken runs`,
-            cause: `The run verdicts and the pass rate read exactly the turns a noisy ${kind} agent broke.`,
+            cause: 'The run verdicts and the pass rate read exactly the turns a noisy agent broke.',
             check: async ({ seed, scratch, product }) => {
               const rng = rngFor(seed, id);
               const runs: RunRecord[] = [];

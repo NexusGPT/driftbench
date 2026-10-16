@@ -496,8 +496,8 @@ function playItems(): BankItem[] {
             title: `a ${kind} test of ${n} blocks played by ${k} recorded personas (${pattern.id.replace(/-/g, ' ')}) reads each persona's planted verdicts and sends each persona's own words`,
             cause:
               pattern.id === 'each-persona-fails-another-block'
-                ? `The same ${kind} test played by another persona fails another block: each persona's run keeps its own failing block.`
-                : `The simulated user plays a ${kind} test from a persona's recorded answers, and the run reads the agent's verdict on each.`,
+                ? "The same test played by another persona fails another block: each persona's run keeps its own failing block."
+                : "The simulated user plays a test from a persona's recorded answers, and the run reads the agent's verdict on each.",
             check: async ({ seed, scratch, product }) => {
               const rng = rngFor(seed, id);
               const failing = pattern.failing(k, n, rng);

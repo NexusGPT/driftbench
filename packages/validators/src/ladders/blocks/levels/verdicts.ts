@@ -198,6 +198,36 @@ export async function play(
   return { record, deliveries, delivered: deliveries.map((each) => each.marker) };
 }
 
+/**
+ * The one fix an item of a pattern needs. Items of both kinds and both modes share it: the runner is one piece of
+ * code, so a kind or a mode is never a cause of its own.
+ */
+function patternCause(pattern: Pattern, capability: string): string {
+  if (capability === 'no-prefix')
+    return pattern.parents
+      ? "A child whose adapter cannot seed its ancestors' turns is not_run before it is sent, whatever its parent did."
+      : 'The capability check refuses a written prefix the adapter cannot seed, from the block that writes it on.';
+  switch (pattern.id) {
+    case 'chain-pass':
+      return 'The runner runs a spec with parent links as a forest, each child after its parent.';
+    case 'chain-parent-fails':
+    case 'chain-root-fails':
+      return 'A failed parent makes its descendants blocked, never sent, each by its own parent and rooted at the first failure.';
+    case 'chain-parent-not-run':
+      return 'A parent that is not run blocks its children, rooted at itself.';
+    case 'two-trees':
+      return 'A failure in one tree of parent links leaves the other trees running and passing.';
+    case 'all-pass':
+    case 'fail-first':
+    case 'fail-last':
+    case 'fail-middle':
+    case 'all-fail':
+      return 'The runner records a block as pass or fail from its gating verdicts alone, and a run fails on any failing block.';
+    default:
+      return 'The runner records not_run for a block its adapter cannot set up (a tool stub, a prefix) and still runs every other block.';
+  }
+}
+
 function patternItems(): BankItem[] {
   const items: BankItem[] = [];
   for (const kind of KINDS) {
@@ -211,6 +241,8 @@ function patternItems(): BankItem[] {
             pattern.id.startsWith('prefix')
           )
             continue;
+          // Without a prefix capability, only a block that needs one (a written prefix, a child) tests something new.
+          if (capability.id === 'no-prefix' && !pattern.parents && !pattern.id.startsWith('prefix')) continue;
           const id = `verdicts/${kind}/${capability.id}/${mode}/${pattern.id}`;
           items.push({
             id,
@@ -231,11 +263,7 @@ function patternItems(): BankItem[] {
                   ? PROCESS
                   : CAPABILITY,
             title: `a ${kind} agent planted as ${pattern.id} in mode ${mode} (${capability.id} adapter) reads pass, fail, not_run and blocked block by block, never sends a block not run or blocked, and reads the run by the documented rule`,
-            cause: pattern.parents
-              ? `A failed, unrun or blocked parent makes its children blocked, by the parent, rooted at the first cause (${kind} agent, mode ${mode}).`
-              : capability.id === 'native'
-                ? `The runner records each ${kind} block as pass, fail or not_run from its gating verdicts and the adapter's capabilities, in mode ${mode}.`
-                : `The capability check refuses a history the ${kind} adapter cannot seed, from the block that sets it on, in mode ${mode}.`,
+            cause: patternCause(pattern, capability.id),
             check: async ({ seed, scratch, product }) => {
               const rng = rngFor(seed, id);
               const n = between(rng, 3, kind === 'code' ? 4 : 6);
@@ -260,7 +288,7 @@ function tallyItems(): BankItem[] {
   const items: BankItem[] = [];
   for (const kind of KINDS) {
     for (const size of kind === 'code' ? [3, 5] : [3, 6, 10, 16]) {
-      for (const mix of ['scored-only', 'with-unscored'] as const) {
+      for (const mix of ['scored-only', 'with-not-run', 'with-blocked'] as const) {
         const id = `verdicts/tally/${kind}/${mix}/${size}`;
         items.push({
           id,
@@ -271,8 +299,10 @@ function tallyItems(): BankItem[] {
           title: `over ${size} runs of ${kind} agents (${mix}), countRuns tallies each verdict, unscoredText names the unscored runs, and the headline counts only pass and fail runs`,
           cause:
             mix === 'scored-only'
-              ? `countRuns tallies every ${kind} run by runOutcome.`
-              : `Every reader of a rate counts not_run and blocked ${kind} runs apart, never as passes or failures.`,
+              ? 'countRuns tallies every run by runOutcome.'
+              : mix === 'with-not-run'
+                ? 'A rate leaves not_run runs out of its count and unscoredText names them.'
+                : 'A rate leaves blocked runs out of its scored count: a run with a blocked block is neither a pass nor a failure.',
           check: async ({ seed, scratch, product }) => {
             const rng = rngFor(seed, id);
             const records: RunRecord[] = [];
@@ -280,7 +310,9 @@ function tallyItems(): BankItem[] {
             const pool = PATTERNS.filter((p) =>
               mix === 'scored-only'
                 ? !p.id.includes('stub') && !p.id.includes('not-run') && !p.parents
-                : true,
+                : mix === 'with-not-run'
+                  ? !p.parents
+                  : p.parents === true,
             );
             for (let index = 0; index < size; index += 1) {
               const pattern = pool[Math.floor(rng() * pool.length)] as Pattern;
@@ -400,8 +432,8 @@ function exitItems(): BankItem[] {
         title: `campaign run in mode ${mode} on planted specs (${exitCase.id.replace(/-/g, ' ')}) exits ${exitCase.exit} and prints the cells by verdict`,
         cause:
           exitCase.exit === 3
-            ? `campaign run exits 3 when no cell fails and a cell is not run (mode ${mode}).`
-            : `campaign run exits ${exitCase.exit} by the gate rule on its cells (mode ${mode}).`,
+            ? 'campaign run exits 3 when no cell fails and a cell is not run.'
+            : `campaign run exits ${exitCase.exit} by the gate rule on its cells.`,
         check: async ({ seed, scratch, product }) => {
           const dir = join(scratch, `exit-${token(seed, id)}`);
           mkdirSync(dir, { recursive: true });

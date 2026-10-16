@@ -334,7 +334,10 @@ function codePairItems(): BankItem[] {
       level: 5,
       component: b.blame.item === 'env_failure' || a.blame.item === 'env_failure' ? EVIDENCE : ATTRIBUTE,
       title: `two code blocks fail the same way (${pair.symptom.replace(/-/g, ' ')}), one ${a.id === 'claim' ? 'behind a reply that claims success' : 'with an honest reply'}, one ${b.id === 'honest' ? 'with an honest reply' : `with a ${b.id} error`}: blame names ${a.blame.item} for the first and ${b.blame.item} for the second`,
-      cause: `Blame separates a ${pair.symptom.replace(/-/g, ' ')} ${a.id === 'claim' ? 'claimed done' : 'reported honestly'} (${a.blame.item}) from one ${b.id === 'honest' ? 'reported honestly' : `caused by a ${b.id} error`} (${b.blame.item}).`,
+      cause:
+        b.id === 'honest'
+          ? 'Blame names I3_false_claim when the reply claims done while the artifact check fails, and leaves an honest failure unassigned.'
+          : `Blame names env_failure for a command that failed with a ${b.id} error, never the agent.`,
       check: async ({ seed, scratch, product }) => planted(product, seed, scratch, id, symptom, [a, b]),
     };
   });

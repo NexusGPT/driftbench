@@ -433,7 +433,7 @@ function artifactItems(): BankItem[] {
         level: 1,
         component: ARTIFACTS,
         title: `a code agent's ${artifactCase.id.replace(/-/g, ' ')} file ${fate === 'right' ? 'that holds the planted content passes every declared check' : 'with one planted defect fails exactly the check it breaks, read from the file itself'}`,
-        cause: `The artifacts check opens the ${artifactCase.id.split('-')[0]} file and judges its content (${artifactCase.id.replace(/-/g, ' ')}).`,
+        cause: `The artifacts check opens a written ${artifactCase.id.split('-')[0]} file and judges its content against each declared check.`,
         check: async ({ seed, scratch, product }) => {
           const rng = rngFor(seed, id);
           const path = `out/${token(seed, id)}`;
@@ -652,7 +652,9 @@ function diffItems(): BankItem[] {
         title: `a code agent that ${diffCase.id.replace(/-/g, ' ')} under ${folder} leaves exactly the planted workspace diff, and the workspace check fails exactly where the planted diff breaks the expectation`,
         cause: diffCase.id.startsWith('thousand')
           ? 'The process adapter diffs a workspace of 1,000 files exactly: created, changed and deleted.'
-          : `The workspace diff and check read the net change exactly (${diffCase.id.replace(/-/g, ' ')}).`,
+          : ['unexpected-change', 'unexpected-delete', 'missing-create'].includes(diffCase.id)
+            ? 'The workspace check fails exactly the expectation an unexpected, missing or deleted change breaks.'
+            : 'The workspace diff lists the net change: created, changed and deleted, and never a file rewritten with the same bytes.',
         check: async ({ seed, scratch, product }) => {
           const rng = rngFor(seed, id);
           const base = `${folder}/${token(seed, id)}`;
@@ -900,7 +902,11 @@ function exitItems(): BankItem[] {
         level: 1,
         component: EXECUTION,
         title: `a code agent whose run is ${exitCase.id.replace(/-/g, ' ')}${extra === 'with-file' ? ', beside a correct file' : ''}: the execution check reads the exit codes, never the reply, and fails exactly ${exitCase.failing.length === 0 ? 'nothing' : list(exitCase.failing)}`,
-        cause: `The execution check reads the agent process's exit code when it is non-zero, else the last command's (${exitCase.id.replace(/-/g, ' ')}).`,
+        cause: exitCase.id.includes('commands')
+          ? 'The execution check counts the commands the agent ran against max_commands.'
+          : exitCase.id === 'no-code-run' || exitCase.id === 'code-forbidden'
+            ? 'The execution check reads ran_code from the commands the agent ran, never from its reply.'
+            : "The execution check reads the agent process's exit code when it is non-zero, else the last command's, never the reply.",
         check: async ({ seed, scratch, product }) => {
           const path = `out/${token(seed, id)}.csv`;
           const files: FileAction[] =

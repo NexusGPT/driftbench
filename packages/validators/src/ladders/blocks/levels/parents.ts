@@ -141,10 +141,14 @@ function verdictItems(): BankItem[] {
           title: `a ${kind} agent in a ${shape.id.replace(/-/g, ' ')} forest${forward ? ' written out of order' : ''} where ${placement.id.replace(/-/g, ' ')} reads every block pass, fail, not_run or blocked (by its parent, rooted at the first cause), never sends a blocked block, and counts each cause once`,
           cause:
             placement.id === 'all-pass'
-              ? `The runner runs a ${kind} spec with parent links as a forest, each child after its parent.`
+              ? 'The runner runs a spec with parent links as a forest, each child after its parent.'
               : placement.id === 'parent-not-run'
-                ? `A parent that is not run blocks its ${kind} children, rooted at itself.`
-                : `A failed or blocked parent makes its ${kind} children blocked, by the parent, rooted at the first cause.`,
+                ? 'A parent that is not run blocks its children, rooted at itself.'
+                : placement.id === 'leaf-fails'
+                  ? 'A failing block with no children blocks nothing: every other block keeps its own verdict.'
+                  : placement.id === 'two-causes'
+                    ? 'A run counts each planted failure once: blocked descendants add no failure and keep their own root.'
+                    : 'A failed parent makes its descendants blocked, never sent, each by its own parent and rooted at the first failure.',
           check: async ({ seed, scratch, product }) => {
             const rng = rngFor(seed, id);
             const { plans, written } = forestPlans(rng, shape, placement, kind === 'code', forward);
@@ -213,7 +217,11 @@ function stateItems(): BankItem[] {
           cause:
             view === 'ancestor-files'
               ? "A code child starts from its parent's exported workspace: its ancestors' files, no sibling's."
-              : `A ${kind} child's history is its ancestors' recorded turns, in order, and no other block's.`,
+              : view === 'ancestors-in-order'
+                ? "A child's history holds its ancestors' replies, oldest first."
+                : view === 'no-sibling-history'
+                  ? "A child's history leaves out every block that is not its ancestor, even one run before it."
+                  : "A child's history holds each ancestor's user turn once.",
           check: async ({ seed, scratch, product }) => {
             const rng = rngFor(seed, id);
             const { plans } = forestPlans(rng, shape, PLACEMENTS[0] as Placement, kind === 'code', false);

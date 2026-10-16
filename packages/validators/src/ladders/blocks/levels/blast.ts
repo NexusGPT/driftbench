@@ -614,8 +614,8 @@ function codeItems(): BankItem[] {
           title: `a ${kind} change over ${size} code-agent task specs selects exactly the blocks whose Given or Then names it${mode === 'F' ? ', and every later block of the same run' : ''}`,
           cause:
             kind === 'fixture'
-              ? `radiusOf selects every block of a task spec whose seeded workspace holds the changed file (mode ${mode}).`
-              : `radiusOf selects the code blocks that expect the changed ${kind} (mode ${mode}).`,
+              ? 'radiusOf selects every block of a task spec whose seeded workspace holds the changed file.'
+              : `radiusOf selects the code blocks that expect the changed ${kind}.`,
           check: async ({ seed, product }) => {
             const rng = rngFor(seed, id);
             let plans = codeSuite(rng, size);
