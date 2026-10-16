@@ -22,22 +22,44 @@ const SANDBOX = 'packages/adapters/src/process/index.ts';
 type Shape = { id: string; tier: number; draw(rng: Rng, small: boolean): number[] };
 
 const SHAPES: Shape[] = [
-  { id: 'chain', tier: 1, draw: (rng, small) => Array.from({ length: between(rng, 3, small ? 4 : 6) }, (_, i) => i - 1) },
-  { id: 'star', tier: 1, draw: (rng, small) => Array.from({ length: between(rng, 3, small ? 4 : 6) }, (_, i) => (i === 0 ? -1 : 0)) },
+  {
+    id: 'chain',
+    tier: 1,
+    draw: (rng, small) => Array.from({ length: between(rng, 3, small ? 4 : 6) }, (_, i) => i - 1),
+  },
+  {
+    id: 'star',
+    tier: 1,
+    draw: (rng, small) =>
+      Array.from({ length: between(rng, 3, small ? 4 : 6) }, (_, i) => (i === 0 ? -1 : 0)),
+  },
   {
     id: 'two-roots',
     tier: 2,
     draw: (rng) => {
       const left = between(rng, 2, 3);
       const right = between(rng, 2, 3);
-      return [...Array.from({ length: left }, (_, i) => i - 1), ...Array.from({ length: right }, (_, i) => (i === 0 ? -1 : left + i - 1))];
+      return [
+        ...Array.from({ length: left }, (_, i) => i - 1),
+        ...Array.from({ length: right }, (_, i) => (i === 0 ? -1 : left + i - 1)),
+      ];
     },
   },
-  { id: 'random-tree', tier: 3, draw: (rng, small) => Array.from({ length: between(rng, 4, small ? 5 : 9) }, (_, i) => (i === 0 ? -1 : between(rng, 0, i - 1))) },
+  {
+    id: 'random-tree',
+    tier: 3,
+    draw: (rng, small) =>
+      Array.from({ length: between(rng, 4, small ? 5 : 9) }, (_, i) =>
+        i === 0 ? -1 : between(rng, 0, i - 1),
+      ),
+  },
   {
     id: 'random-forest',
     tier: 4,
-    draw: (rng, small) => Array.from({ length: between(rng, 5, small ? 6 : 10) }, (_, i) => (i === 0 || (i > 1 && rng() < 0.25) ? -1 : between(rng, 0, i - 1))),
+    draw: (rng, small) =>
+      Array.from({ length: between(rng, 5, small ? 6 : 10) }, (_, i) =>
+        i === 0 || (i > 1 && rng() < 0.25) ? -1 : between(rng, 0, i - 1),
+      ),
   },
 ];
 
@@ -45,13 +67,22 @@ const inner = (parents: readonly number[]) => parents.flatMap((_, i) => (parents
 const leaves = (parents: readonly number[]) => parents.flatMap((_, i) => (parents.includes(i) ? [] : [i]));
 const roots = (parents: readonly number[]) => parents.flatMap((p, i) => (p === -1 ? [i] : []));
 
-type Placement = { id: string; tier: number; plant(rng: Rng, parents: readonly number[]): Partial<BlockPlan>[] };
+type Placement = {
+  id: string;
+  tier: number;
+  plant(rng: Rng, parents: readonly number[]): Partial<BlockPlan>[];
+};
 
-const at = (parents: readonly number[], x: number, change: Partial<BlockPlan>) => parents.map((_, i) => (i === x ? change : {}));
+const at = (parents: readonly number[], x: number, change: Partial<BlockPlan>) =>
+  parents.map((_, i) => (i === x ? change : {}));
 
 const PLACEMENTS: Placement[] = [
   { id: 'all-pass', tier: 0, plant: (_rng, parents) => parents.map(() => ({})) },
-  { id: 'root-fails', tier: 0, plant: (rng, parents) => at(parents, pick(rng, roots(parents)), { fate: 'fail' }) },
+  {
+    id: 'root-fails',
+    tier: 0,
+    plant: (rng, parents) => at(parents, pick(rng, roots(parents)), { fate: 'fail' }),
+  },
   {
     id: 'inner-fails',
     tier: 1,
@@ -60,15 +91,25 @@ const PLACEMENTS: Placement[] = [
       return at(parents, pick(rng, candidates.length > 0 ? candidates : inner(parents)), { fate: 'fail' });
     },
   },
-  { id: 'leaf-fails', tier: 0, plant: (rng, parents) => at(parents, pick(rng, leaves(parents)), { fate: 'fail' }) },
+  {
+    id: 'leaf-fails',
+    tier: 0,
+    plant: (rng, parents) => at(parents, pick(rng, leaves(parents)), { fate: 'fail' }),
+  },
   // Undocumented combination: a parent that is not run (a Given layer its adapter cannot apply) blocks its children.
-  { id: 'parent-not-run', tier: 2, plant: (rng, parents) => at(parents, pick(rng, inner(parents)), { stub: true }) },
+  {
+    id: 'parent-not-run',
+    tier: 2,
+    plant: (rng, parents) => at(parents, pick(rng, inner(parents)), { stub: true }),
+  },
   {
     id: 'two-causes',
     tier: 2,
     plant: (rng, parents) => {
       const [a, b] = shuffled(rng, [...parents.keys()]);
-      return parents.map((_, i) => (i === a ? { fate: 'fail' } : i === b ? (rng() < 0.5 ? { fate: 'fail' } : { stub: true }) : {}));
+      return parents.map((_, i) =>
+        i === a ? { fate: 'fail' } : i === b ? (rng() < 0.5 ? { fate: 'fail' } : { stub: true }) : {},
+      );
     },
   },
 ];
@@ -77,7 +118,9 @@ const PLACEMENTS: Placement[] = [
 function forestPlans(rng: Rng, shape: Shape, placement: Placement, small: boolean, forward: boolean) {
   const parents = shape.draw(rng, small);
   const changes = placement.plant(rng, parents);
-  const plans: BlockPlan[] = parents.map((parent, i) => ({ fate: 'pass', ...(parent === -1 ? {} : { parent }), ...changes[i] }) as BlockPlan);
+  const plans: BlockPlan[] = parents.map(
+    (parent, i) => ({ fate: 'pass', ...(parent === -1 ? {} : { parent }), ...changes[i] }) as BlockPlan,
+  );
   return { plans, written: forward ? shuffled(rng, [...plans.keys()]) : [...plans.keys()] };
 }
 
@@ -119,13 +162,23 @@ function verdictItems(): BankItem[] {
             const { record, delivered } = await play(product, r, scratch, { off });
             const verdict = judge(product, r, record, truth, delivered);
             if (!verdict.pass) return verdict;
-            const countBlocks = need<(blocks: unknown[]) => Record<string, number>>(product.core, 'core', 'countBlocks');
+            const countBlocks = need<(blocks: unknown[]) => Record<string, number>>(
+              product.core,
+              'core',
+              'countBlocks',
+            );
             const counts = countBlocks(record.blocks);
             const causes = [...truth.values()].filter((each) => each.verdict === 'fail').length;
             const blocked = [...truth.values()].filter((each) => each.verdict === 'blocked').length;
             return expectAll([
-              [counts.fail === causes, `the run should count ${causes} failures, one per planted cause; got ${counts.fail}`],
-              [counts.blocked === blocked, `the run should count ${blocked} blocked blocks; got ${counts.blocked}`],
+              [
+                counts.fail === causes,
+                `the run should count ${causes} failures, one per planted cause; got ${counts.fail}`,
+              ],
+              [
+                counts.blocked === blocked,
+                `the run should count ${blocked} blocked blocks; got ${counts.blocked}`,
+              ],
             ]);
           },
         });
@@ -138,7 +191,12 @@ function verdictItems(): BankItem[] {
 /** A child starts from its ancestors' recorded end state, never a sibling's. */
 function stateItems(): BankItem[] {
   const items: BankItem[] = [];
-  const views = ['ancestors-in-order', 'no-sibling-history', 'ancestor-user-turns', 'ancestor-files'] as const;
+  const views = [
+    'ancestors-in-order',
+    'no-sibling-history',
+    'ancestor-user-turns',
+    'ancestor-files',
+  ] as const;
   for (const kind of KINDS) {
     for (const shape of SHAPES) {
       for (const view of views) {
@@ -151,7 +209,7 @@ function stateItems(): BankItem[] {
           tier: Math.min(5, shape.tier + (view === 'ancestor-files' ? 2 : 1)) as Tier,
           level: 2,
           component: view === 'ancestor-files' ? SANDBOX : RUNNER,
-          title: `in a ${shape.id.replace(/-/g, ' ')} forest of a ${kind} agent, each child ${view === 'ancestor-files' ? 'starts with the files its ancestors wrote and no other block\'s' : view === 'ancestors-in-order' ? 'holds its ancestors\' replies in order' : view === 'no-sibling-history' ? 'holds no reply of a block outside its ancestors' : 'holds each ancestor\'s user turn once, and no other block\'s'}`,
+          title: `in a ${shape.id.replace(/-/g, ' ')} forest of a ${kind} agent, each child ${view === 'ancestor-files' ? "starts with the files its ancestors wrote and no other block's" : view === 'ancestors-in-order' ? "holds its ancestors' replies in order" : view === 'no-sibling-history' ? 'holds no reply of a block outside its ancestors' : "holds each ancestor's user turn once, and no other block's"}`,
           cause:
             view === 'ancestor-files'
               ? "A code child starts from its parent's exported workspace: its ancestors' files, no sibling's."
@@ -164,7 +222,8 @@ function stateItems(): BankItem[] {
             const markers = r.blocks.map((block) => block.marker);
             for (const [i, block] of r.blocks.entries()) {
               const turns = deliveries.filter((each) => each.marker === block.marker);
-              if (turns.length !== 1) return fail(`${block.id} should reach the agent once; it reached it ${turns.length} times`);
+              if (turns.length !== 1)
+                return fail(`${block.id} should reach the agent once; it reached it ${turns.length} times`);
               const turn = turns[0] as (typeof deliveries)[number];
               const lineage: number[] = [];
               for (let p = plans[i]?.parent; p !== undefined; p = plans[p]?.parent) lineage.unshift(p);
@@ -172,21 +231,33 @@ function stateItems(): BankItem[] {
                 const want = lineage.map((a) => r.blocks[a]?.file?.path as string).sort();
                 const got = (turn.files ?? []).filter((path) => path.startsWith('out/')).sort();
                 if (got.join(',') !== want.join(','))
-                  return fail(`${block.id} should start with its ancestors' files ${list(want)}; it saw ${list(got)}`);
+                  return fail(
+                    `${block.id} should start with its ancestors' files ${list(want)}; it saw ${list(got)}`,
+                  );
                 continue;
               }
-              const users = turn.history.filter((m) => m.role === 'user').map((m) => markers.findIndex((marker) => m.content.includes(marker)));
+              const users = turn.history
+                .filter((m) => m.role === 'user')
+                .map((m) => markers.findIndex((marker) => m.content.includes(marker)));
               const before = users.slice(0, -1);
               if (view === 'ancestor-user-turns' || view === 'ancestors-in-order') {
                 if (before.join(',') !== lineage.join(','))
-                  return fail(`${block.id} should hold the turns of its ancestors ${list(lineage.map((a) => r.blocks[a]?.id))}; it holds ${list(before.map((b) => r.blocks[b]?.id ?? 'other'))}`);
+                  return fail(
+                    `${block.id} should hold the turns of its ancestors ${list(lineage.map((a) => r.blocks[a]?.id))}; it holds ${list(before.map((b) => r.blocks[b]?.id ?? 'other'))}`,
+                  );
                 if (view === 'ancestors-in-order') {
                   const replies = turn.history.filter((m) => m.role === 'assistant').length;
-                  if (replies !== lineage.length) return fail(`${block.id} should hold ${lineage.length} ancestor replies; it holds ${replies}`);
+                  if (replies !== lineage.length)
+                    return fail(
+                      `${block.id} should hold ${lineage.length} ancestor replies; it holds ${replies}`,
+                    );
                 }
               } else {
                 const stray = before.filter((b) => !lineage.includes(b));
-                if (stray.length > 0) return fail(`${block.id} should hold no turn outside its ancestors; it holds ${list(stray.map((b) => r.blocks[b]?.id ?? 'other'))}`);
+                if (stray.length > 0)
+                  return fail(
+                    `${block.id} should hold no turn outside its ancestors; it holds ${list(stray.map((b) => r.blocks[b]?.id ?? 'other'))}`,
+                  );
               }
             }
             return PASS;
@@ -219,13 +290,17 @@ function errorItems(): BankItem[] {
           level: 2,
           component: PARENTS,
           title: `a ${kind} spec of ${size} blocks whose parent links are ${errorCase.id.replace(/-/g, ' ')} ${errorCase.code ? `is refused with ${errorCase.code}` : 'loads'}`,
-          cause: errorCase.code ? `The loader refuses parent links that are ${errorCase.id.replace(/-/g, ' ')} with ${errorCase.code}.` : 'The loader accepts a parent written after its child.',
+          cause: errorCase.code
+            ? `The loader refuses parent links that are ${errorCase.id.replace(/-/g, ' ')} with ${errorCase.code}.`
+            : 'The loader accepts a parent written after its child.',
           check: async ({ seed, product }) => {
             const rng = rngFor(seed, id);
             const plans: BlockPlan[] = Array.from({ length: size }, () => ({ fate: 'pass' }));
             const r = recipe(seed, id, kind, plans);
             const ids = r.blocks.map((block) => block.id);
-            const parents: (string | undefined)[] = ids.map((_, i) => (i === 0 ? undefined : ids[between(rng, 0, i - 1)]));
+            const parents: (string | undefined)[] = ids.map((_, i) =>
+              i === 0 ? undefined : ids[between(rng, 0, i - 1)],
+            );
             const x = between(rng, 1, size - 1);
             if (errorCase.id === 'missing') parents[x] = token(seed, `${id}#gone`);
             if (errorCase.id === 'self') parents[x] = ids[x];
@@ -233,14 +308,23 @@ function errorItems(): BankItem[] {
               parents[0] = ids[x];
               parents[x] = ids[0];
             }
-            if (errorCase.id === 'long-cycle') for (let i = 0; i < size; i += 1) parents[i] = ids[(i + 1) % size];
-            const blocks = r.raw.blocks.map((block, i) => ({ ...block, ...(parents[i] ? { parent: parents[i] } : {}) }));
+            if (errorCase.id === 'long-cycle')
+              for (let i = 0; i < size; i += 1) parents[i] = ids[(i + 1) % size];
+            const blocks = r.raw.blocks.map((block, i) => ({
+              ...block,
+              ...(parents[i] ? { parent: parents[i] } : {}),
+            }));
             const ordered = errorCase.id === 'forward-reference' ? [...blocks].reverse() : blocks;
             const result = loadIssues(product, { ...r.raw, blocks: ordered });
-            if (errorCase.code === undefined) return result.ok ? PASS : fail(`a forward reference should load; the loader answered ${list(result.codes)}`);
+            if (errorCase.code === undefined)
+              return result.ok
+                ? PASS
+                : fail(`a forward reference should load; the loader answered ${list(result.codes)}`);
             return !result.ok && result.codes.includes(errorCase.code)
               ? PASS
-              : fail(`the spec should be refused with ${errorCase.code}; the loader answered ${result.ok ? 'ok' : list(result.codes)}`);
+              : fail(
+                  `the spec should be refused with ${errorCase.code}; the loader answered ${result.ok ? 'ok' : list(result.codes)}`,
+                );
           },
         });
       }
@@ -253,4 +337,3 @@ function errorItems(): BankItem[] {
 export function parentItems(): BankItem[] {
   return [...verdictItems(), ...stateItems(), ...errorItems()];
 }
-

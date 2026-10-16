@@ -75,7 +75,12 @@ export function plantedAgent(
   product: BlocksProduct,
   kind: Kind,
   actions: ReadonlyMap<string, Action>,
-  options: { scratch: string; capabilities?: Capabilities; noisy?: { rate: number; rng: Rng } },
+  options: {
+    scratch: string;
+    capabilities?: Capabilities;
+    noisy?: { rate: number; rng: Rng };
+    keep?: boolean;
+  },
 ): Planted {
   const pick = (text: string) => {
     for (const [marker, action] of actions) if (text.includes(marker)) return { marker, action };
@@ -134,6 +139,7 @@ export function plantedAgent(
     env: { BLOCKS_AGENT_PLAN: planPath, BLOCKS_AGENT_LOG: logPath },
     deterministic: true,
     timeoutMs: 60_000,
+    ...(options.keep ? { keep: true } : {}),
   });
   const off = options.capabilities;
   const base = adapter.capabilities as () => Record<string, boolean>;

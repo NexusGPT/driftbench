@@ -253,7 +253,10 @@ function main() {
       history = [];
     }
     const marker = Object.keys(plan.markers).find((each) => instruction.includes(each));
-    appendFileSync(process.env.BLOCKS_AGENT_LOG, `${JSON.stringify({ marker, history, files: listFiles('.') })}\n`);
+    appendFileSync(
+      process.env.BLOCKS_AGENT_LOG,
+      `${JSON.stringify({ marker, history, files: listFiles('.') })}\n`,
+    );
   }
   for (const file of entry.files ?? []) write(file);
   for (const command of entry.commands ?? []) record(process.env.DRIFTBENCH_COMMANDS_FILE, command);

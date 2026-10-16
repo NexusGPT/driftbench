@@ -1,5 +1,8 @@
-import { between, pick, type Rng, rngFor, SHOP } from '../harness';
-import { need } from '../product';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { between, pick, type RawSpec, type Rng, rngFor, run, SHOP } from '../harness';
+import { type FileAction, plantedAgent, token } from '../kinds';
+import { type BlocksProduct, need } from '../product';
 import { type BankItem, fail, PASS, type Tier } from '../types';
 
 /**
@@ -600,5 +603,332 @@ function givenItems(): BankItem[] {
 
 /** Level 5 of the blocks bank. */
 export function valueItems(): BankItem[] {
-  return [...identityItems(), ...outcomeItems(), ...contractItems(), ...givenItems()];
+  return [
+    ...identityItems(),
+    ...outcomeItems(),
+    ...contractItems(),
+    ...givenItems(),
+    ...recomputeItems(),
+    ...stateDiffItems(),
+  ];
+}
+
+/** A one-block CODE spec whose agent writes `files` and nothing else, its sandbox kept so the item can read them. */
+async function codeRun(
+  product: BlocksProduct,
+  seed: number,
+  scratch: string,
+  tag: string,
+  files: FileAction[],
+  extra: Record<string, unknown> = {},
+) {
+  const marker = token(seed, `${tag}#marker`, 8);
+  const raw: RawSpec = {
+    id: `spec-${token(seed, `${tag}#spec`)}`,
+    kind: 'task',
+    workspace_seed: {
+      files: {
+        'data/rentals.csv': 'bike,days\nFern 3,4\n',
+        ...((extra.seed as Record<string, string>) ?? {}),
+      },
+    },
+    blocks: [
+      {
+        id: token(seed, `${tag}#id`),
+        user: `${marker} Build the files.`,
+        expect: { execution: { exit_code: 0 } },
+      },
+    ],
+  };
+  const agent = plantedAgent(
+    product,
+    'code',
+    new Map([[marker, { reply: 'Done.', files, commands: [{ command: 'python make.py', exitCode: 0 }] }]]),
+    { scratch, keep: true },
+  );
+  const record = await run(product, raw, agent.adapter);
+  const block = record.blocks[0];
+  const observed = (block?.observed ?? {}) as {
+    sandbox?: { root?: string };
+    workspaceDiff?: { created: string[]; changed: string[]; deleted: string[] };
+  };
+  return { root: observed.sandbox?.root, diff: observed.workspaceDiff };
+}
+
+type FormulaCase = {
+  id: string;
+  tier: Tier;
+  produced(rng: Rng): string;
+  expected: string;
+  want: { outcome: string; rung: string };
+};
+
+const FORMULA_CASES: FormulaCase[] = [
+  {
+    id: 'same-formula',
+    tier: 1,
+    produced: () => 'C2*12',
+    expected: 'C2*12',
+    want: { outcome: 'pass', rung: 'rung1_recompute' },
+  },
+  {
+    id: 'reordered-formula',
+    tier: 2,
+    produced: () => '12*C2',
+    expected: 'C2*12',
+    want: { outcome: 'pass', rung: 'rung1_recompute' },
+  },
+  {
+    id: 'sum-of-range',
+    tier: 3,
+    produced: () => 'SUM(B2:C2)',
+    expected: 'B2+C2',
+    want: { outcome: 'pass', rung: 'rung1_recompute' },
+  },
+  {
+    id: 'off-by-one',
+    tier: 2,
+    produced: () => 'C2*12+1',
+    expected: 'C2*12',
+    want: { outcome: 'fail', rung: 'rung1_recompute' },
+  },
+  {
+    id: 'hard-coded-result',
+    tier: 4,
+    produced: () => 'HARD',
+    expected: 'C2*12',
+    want: { outcome: 'fail', rung: 'rung1_recompute' },
+  },
+  {
+    id: 'wrong-operand',
+    tier: 3,
+    produced: () => 'B2*12',
+    expected: 'C2*12',
+    want: { outcome: 'fail', rung: 'rung1_recompute' },
+  },
+  {
+    id: 'rounded-away',
+    tier: 4,
+    produced: () => 'ROUND(C2/7,0)',
+    expected: 'C2/7',
+    want: { outcome: 'fail', rung: 'rung1_recompute' },
+  },
+];
+
+/**
+ * CODE: a formula the code agent wrote into an xlsx cell, read back by the product's xlsx reader, decided by the
+ * recompute rung: the same computation on the given and on changed inputs passes, however it is written; a
+ * hard-coded result equal on the given inputs fails on changed ones.
+ */
+function recomputeItems(): BankItem[] {
+  const items: BankItem[] = [];
+  for (const formulaCase of FORMULA_CASES) {
+    for (const variant of ['small', 'large', 'negative']) {
+      const id = `values/recompute/code/${formulaCase.id}/${variant}`;
+      items.push({
+        id,
+        family: 'values-recompute-code',
+        tier: formulaCase.tier,
+        level: 4,
+        component:
+          formulaCase.want.rung === 'rung1_recompute'
+            ? 'packages/checks/src/value-check/recompute.ts'
+            : LADDER,
+        title: `a formula a code agent wrote into a workbook (${formulaCase.id.replace(/-/g, ' ')}, ${variant} inputs), read back from the file, is decided ${formulaCase.want.outcome} by ${formulaCase.want.rung}`,
+        cause:
+          formulaCase.want.rung === 'rung1_recompute'
+            ? `The recompute rung runs the produced and the gold computation on the given and changed inputs (${formulaCase.id.replace(/-/g, ' ')}).`
+            : 'The ladder passes a formula equal to the gold before any rung.',
+        check: async ({ seed, scratch, product }) => {
+          const rng = rngFor(seed, id);
+          const scale = variant === 'large' ? 10_000 : variant === 'negative' ? -50 : 10;
+          const b = between(rng, 1, 9) * scale;
+          const c = between(rng, 1, 9) * scale + 3;
+          const expectedValue = Number(
+            new Function('B2', 'C2', `return ${formulaCase.expected.replace('SUM(B2:C2)', '(B2+C2)')}`)(b, c),
+          );
+          const written =
+            formulaCase.produced(rng) === 'HARD' ? expectedValue : `=${formulaCase.produced(rng)}`;
+          const path = `out/${token(seed, `${id}#file`)}.xlsx`;
+          const { root } = await codeRun(product, seed, scratch, id, [
+            {
+              path,
+              format: 'xlsx',
+              data: {
+                sheets: [
+                  {
+                    name: 'Rentals',
+                    rows: [
+                      ['Bike', 'Base', 'Days', 'Total'],
+                      ['Fern 3', b, c, written],
+                    ],
+                  },
+                ],
+              },
+            },
+          ]);
+          if (!root) return fail('the kept sandbox names no folder: the workbook cannot be read back');
+          const readWorkbook = need<
+            (
+              bytes: Uint8Array,
+            ) => Promise<
+              { cell(row: number, column: number): { value: unknown; formula?: string } | undefined }[]
+            >
+          >(product.artifacts, 'artifacts', 'readWorkbook');
+          const sheets = await readWorkbook(readFileSync(join(root, path)));
+          const cell = sheets[0]?.cell(2, 4);
+          const produced =
+            cell?.formula !== undefined
+              ? { formula: cell.formula.replace(/^=/, '') }
+              : { value: cell?.value };
+          const result = await ladder(product)(
+            {
+              field: 'Total',
+              gold: `=${formulaCase.expected}`,
+              value: cell?.formula !== undefined ? `=${cell.formula.replace(/^=/, '')}` : cell?.value,
+              recompute: { produced, expected: { formula: formulaCase.expected }, inputs: { B2: b, C2: c } },
+            },
+            undefined,
+            {},
+          );
+          return judged(
+            result,
+            formulaCase.want,
+            `${JSON.stringify(produced)} against ${formulaCase.expected}`,
+          );
+        },
+      });
+    }
+  }
+  return items;
+}
+
+type DiffCase = {
+  id: string;
+  tier: Tier;
+  want: string;
+  build(
+    rng: Rng,
+    base: string,
+  ): { files: FileAction[]; expected: Record<string, string[]>; allowed?: string[] };
+};
+
+const DIFF_CASES: DiffCase[] = [
+  {
+    id: 'exact',
+    tier: 1,
+    want: 'pass',
+    build: (_r, base) => ({
+      files: [{ path: `${base}/a.csv`, format: 'csv', data: [['x'], [1]] }],
+      expected: { created: [`${base}/a.csv`] },
+    }),
+  },
+  {
+    id: 'extra-file',
+    tier: 2,
+    want: 'fail',
+    build: (_r, base) => ({
+      files: [
+        { path: `${base}/a.csv`, format: 'csv', data: [['x'], [1]] },
+        { path: `${base}/tmp.txt`, format: 'txt', data: 'scratch' },
+      ],
+      expected: { created: [`${base}/a.csv`] },
+    }),
+  },
+  {
+    id: 'missing-file',
+    tier: 2,
+    want: 'fail',
+    build: (_r, base) => ({ files: [], expected: { created: [`${base}/a.csv`] } }),
+  },
+  {
+    id: 'allowed-glob',
+    tier: 3,
+    want: 'pass',
+    build: (_r, base) => ({
+      files: [
+        { path: `${base}/a.csv`, format: 'csv', data: [['x'], [1]] },
+        { path: `${base}/logs/run.txt`, format: 'txt', data: 'ok' },
+      ],
+      expected: { created: [`${base}/a.csv`] },
+      allowed: [`${base}/logs/**`],
+    }),
+  },
+  {
+    id: 'changed-not-created',
+    tier: 4,
+    want: 'fail',
+    build: () => ({
+      files: [{ path: 'data/rentals.csv', format: 'txt', data: 'bike,days\nFern 3,5\n' }],
+      expected: { created: ['data/rentals.csv'] },
+    }),
+  },
+  {
+    id: 'changed-expected',
+    tier: 3,
+    want: 'pass',
+    build: () => ({
+      files: [{ path: 'data/rentals.csv', format: 'txt', data: 'bike,days\nFern 3,5\n' }],
+      expected: { changed: ['data/rentals.csv'] },
+    }),
+  },
+  {
+    id: 'many-files-one-extra',
+    tier: 5,
+    want: 'fail',
+    build: (rng, base) => {
+      const n = between(rng, 20, 40);
+      const files: FileAction[] = Array.from({ length: n }, (_, i) => ({
+        path: `${base}/part-${i}.json`,
+        format: 'json',
+        data: { i },
+      }));
+      return {
+        files: [...files, { path: `${base}/part-${n}.json`, format: 'json', data: { i: n } }],
+        expected: { created: files.map((file) => file.path) },
+      };
+    },
+  },
+];
+
+/** CODE: the state-diff rung on the workspace diff a real code run produced. */
+function stateDiffItems(): BankItem[] {
+  const items: BankItem[] = [];
+  for (const diffCase of DIFF_CASES) {
+    for (const folder of ['out', 'reports/2026', 'deep/a/b/c']) {
+      const id = `values/state-diff/code/${diffCase.id}/${folder.split('/').length}`;
+      items.push({
+        id,
+        family: 'values-state-diff-code',
+        tier: diffCase.tier,
+        level: 4,
+        component: 'packages/checks/src/value-check/state-diff.ts',
+        title: `the workspace a code agent left (${diffCase.id.replace(/-/g, ' ')}, under ${folder}) is decided ${diffCase.want} by the state-diff rung on the run's own diff`,
+        cause: `The state-diff rung compares the net workspace diff with the expected and allowed changes (${diffCase.id.replace(/-/g, ' ')}).`,
+        check: async ({ seed, scratch, product }) => {
+          const rng = rngFor(seed, id);
+          const base = `${folder}/${token(seed, id)}`;
+          const { files, expected, allowed } = diffCase.build(rng, base);
+          const { diff } = await codeRun(product, seed, scratch, id, files);
+          if (!diff) return fail('the run recorded no workspace diff');
+          const result = await ladder(product)(
+            {
+              field: 'workspace',
+              gold: expected,
+              value: diff,
+              stateDiff: { diff, expected, ...(allowed ? { allowed } : {}) },
+            },
+            undefined,
+            {},
+          );
+          return judged(
+            result,
+            { outcome: diffCase.want, rung: 'rung1_state_diff' },
+            `the diff ${JSON.stringify(diff).slice(0, 200)}`,
+          );
+        },
+      });
+    }
+  }
+  return items;
 }

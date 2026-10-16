@@ -307,7 +307,8 @@ export function settle(r: Recipe, plans: readonly BlockPlan[], setting: Setting)
     if (layers.some((at) => plans[at]?.stub === true) && !setting.toolStubs) return 'capability';
     return undefined;
   };
-  const own = (i: number): Truth['verdict'] => (why(i) !== undefined ? 'not_run' : plans[i]?.fate === 'fail' ? 'fail' : 'pass');
+  const own = (i: number): Truth['verdict'] =>
+    why(i) !== undefined ? 'not_run' : plans[i]?.fate === 'fail' ? 'fail' : 'pass';
   const out = new Map<string, Truth>();
   const verdicts: Truth['verdict'][] = [];
   const order = [...plans.keys()];

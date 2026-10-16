@@ -7,7 +7,6 @@ import {
   type RunRecord,
   rngFor,
   run,
-  scriptedAdapter,
   statusOf,
 } from '../harness';
 import { plantedAgent } from '../kinds';
