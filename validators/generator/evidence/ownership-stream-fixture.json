@@ -10,25 +10,15 @@
       "flows": [
         {
           "id": "new-request",
-          "behaviours": [
-            "B-001",
-            "B-004",
-            "B-005"
-          ]
+          "behaviours": ["B-001", "B-004", "B-005"]
         },
         {
           "id": "change-request",
-          "behaviours": [
-            "B-003",
-            "B-004"
-          ]
+          "behaviours": ["B-003", "B-004"]
         },
         {
           "id": "status-check",
-          "behaviours": [
-            "B-003",
-            "B-004"
-          ]
+          "behaviours": ["B-003", "B-004"]
         }
       ],
       "counts": {
@@ -54,26 +44,15 @@
       "flows": [
         {
           "id": "new-request",
-          "behaviours": [
-            "B-001",
-            "B-002",
-            "B-004",
-            "B-005"
-          ]
+          "behaviours": ["B-001", "B-002", "B-004", "B-005"]
         },
         {
           "id": "change-request",
-          "behaviours": [
-            "B-003",
-            "B-004"
-          ]
+          "behaviours": ["B-003", "B-004"]
         },
         {
           "id": "status-check",
-          "behaviours": [
-            "B-003",
-            "B-004"
-          ]
+          "behaviours": ["B-003", "B-004"]
         }
       ],
       "counts": {
