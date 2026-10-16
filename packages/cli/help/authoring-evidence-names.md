@@ -105,9 +105,9 @@ or a list. The names, grouped by what they describe:
 
 | Group | Names and their values |
 |---|---|
-| The value | `source` (user, agent_derived, prompt, tool_output, skill_file, workspace_file); `change` (verbatim, case_only, unit_converted, reformatted, altered); `contract` (tool, prompt, none, downstream, instruction, skill, error_seen); `contract_broken`; `outcome` (accepted_as_gold, failed, resolved_differently); `declared_format`; `downstream_need` (declared, none); `changed_inputs_fail`; `tool_output_wrong`; `stricter_rule_obeyed` |
+| The value | `source` (user, agent_derived, prompt, tool_output, skill_file, workspace_file). `change` (verbatim, case_only, unit_converted, reformatted, altered). `contract` (tool, prompt, none, downstream, instruction, skill, error_seen). `contract_broken`. `outcome` (accepted_as_gold, failed, resolved_differently). `declared_format`. `downstream_need` (declared, none). `changed_inputs_fail`. `tool_output_wrong`. `stricter_rule_obeyed` |
 | What happened next | `next_action` (asked_user, retried_canonical, gave_up, wrong_fact, continued, looped, recovered) |
-| The verdict | `verdict_check` (the check name); `verdict_kind` (machine, judge); `first_violation` (the id of the earliest failing gating verdict of the block, by the place of its act in the trace) |
+| The verdict | `verdict_check` (the check name). `verdict_kind` (machine, judge). `first_violation` (the id of the earliest failing gating verdict of the block, by the place of its act in the trace) |
 | The rule | `rule_atom`; `rule_home` (core, skill_body, skill_reference, skill_script, helper, guard, tool_schema, instruction, none); `rule_skill`; `rule_act`; `act_signature`; `rule_situational`; `rule_mechanical`; `rule_needed_by` (a number) |
 | Skills and references | `routed_skills`; `skill_loaded`; `skill_covers` (covered, not_covered, unknown); `rule_skill_routed` and `rule_in_context` (both derived from the other names);  `ref_exists`; `ref_forced`; `ref_depth` (a number); `ref_read` (none, partial, full) |
 | The trace | `guard_caught`; `tool_failed`; `tool_silent`; `env_error` (network, sandbox, package, timeout, none); `protected_changed`; `tests_fail_reverted`; `claim_contradicted`; `task_impossible`; `task_flagged` (judge class) |
