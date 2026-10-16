@@ -11,7 +11,7 @@ import type { Atom, AtomKind, EstateMap } from '@agent-nexus/driftbench-estate';
  * behaviour). No title, quote, situation or description is read.
  *
  * Each situation has one relation. The atoms that hold it are its identified targets. When no atom holds the
- * relation the situation is unresolved, and the documented contract applies: its combinations stay in the plan.
+ * relation, no atom applies and any crossing of the situation is wrong.
  */
 
 /** What a standing rule of the hidden estate plants, by the id of the scanned atom it was matched to. */
@@ -33,7 +33,8 @@ export type Relation =
   | 'restart'
   | 'compaction'
   | 'stop'
-  | 'none';
+  | 'prompt'
+  | 'routing';
 
 /** The edges a relation follows from an atom to the atoms it reaches, transitively. */
 const REACH: Partial<Record<Relation, readonly string[]>> = {
@@ -54,7 +55,8 @@ export const IDENTITY: Record<Relation, readonly AtomKind[]> = {
   restart: [],
   compaction: [],
   stop: [],
-  none: [],
+  prompt: [],
+  routing: ['route'],
 };
 
 const calls = (atom: Atom, label: string) =>
@@ -89,8 +91,10 @@ function holds(relation: Relation, atom: Atom, planted: Planted | undefined): bo
         planted?.behaviour === 'stop_on_word' ||
         (atom.kind === 'guard' && field('event') === 'UserPromptSubmit')
       );
-    case 'none':
-      return false;
+    case 'prompt':
+      return atom.kind === 'guard' && field('event') === 'UserPromptSubmit';
+    case 'routing':
+      return atom.kind === 'route';
   }
 }
 
@@ -119,6 +123,9 @@ export function targetsOf(
         }
     }
   }
+  // A route also holds the unit it opens: a turn that leaves the routed task acts on both.
+  if (relation === 'routing')
+    for (const edge of map.edges) if (edge.kind === 'route' && own.has(edge.from)) out.add(edge.to);
   return out;
 }
 
@@ -127,10 +134,10 @@ export type Crossing = { row: string; atom: string };
 export type RelevanceVerdict = { pass: boolean; detail: string };
 
 /**
- * The verdict on one situation: `crossings` are the rows of the plan that cross it with an atom, `ids` the atoms of the
- * map. With identified targets, a crossing with any other atom is wrong, and at least one crossing must be with a
- * target. With none the situation is unresolved: it must still be in the plan, crossed with something, because
- * a missing match never removes a situation (docs/estate.md, "Situation relevance in a proposed plan").
+ * The verdict on one situation: `crossings` are the rows of the plan that cross it with an atom. With identified
+ * targets, a crossing with any other atom is wrong, and at least one crossing must be with a target. With none, no
+ * atom applies and any crossing is wrong: the bank plants the typed fact each situation tests, and an estate that
+ * holds none gives the situation nothing to act on.
  */
 export function judgeRelevance(
   relation: Relation,
@@ -141,16 +148,17 @@ export function judgeRelevance(
   const known = new Set(map.atoms.map((atom) => atom.id));
   const rows = crossings.filter((crossing) => known.has(crossing.atom));
   const targets = targetsOf(relation, map, planted);
+  // No atom holds the relation: no atom applies, so any crossing is wrong. A plan with no row for the situation is not.
   if (targets.size === 0) {
     return rows.length > 0
       ? {
-          pass: true,
-          detail: `unresolved (no atom holds the relation); ${rows.length} rows keep it in the plan`,
-        }
-      : {
           pass: false,
-          detail: 'the plan holds no row of this situation, though no atom is known to be spared it',
-        };
+          detail: `no atom holds the relation, yet ${rows.length} rows cross it: ${rows
+            .slice(0, 3)
+            .map((crossing) => `${crossing.row} ${crossing.atom}`)
+            .join(', ')}`,
+        }
+      : { pass: true, detail: 'no atom applies and the plan holds no row of this situation' };
   }
   const wrong = rows.filter((crossing) => !targets.has(crossing.atom));
   if (wrong.length > 0) {

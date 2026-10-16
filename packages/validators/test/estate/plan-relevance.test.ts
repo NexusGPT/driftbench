@@ -133,7 +133,19 @@ const CASES: Case[] = [
       ],
     },
   },
-  { key: 'instruction-in-data', dimension: 'deviation', value: 'D6_instruction_in_data', relation: 'none' },
+  {
+    key: 'instruction-in-data',
+    dimension: 'deviation',
+    value: 'D6_instruction_in_data',
+    relation: 'tool',
+    target: {
+      atoms: [
+        atom('t', 'instruction', 'Summarise the night.', {
+          evidence: [{ type: 'tool_called', label: 'Read' }],
+        }),
+      ],
+    },
+  },
   {
     key: 'loose-confirmation',
     dimension: 'deviation',
@@ -141,7 +153,17 @@ const CASES: Case[] = [
     relation: 'confirmation',
     target: { atoms: [atom('t', 'tool', 'Bash(dome:*)', { fields: { effect: 'ask' } })] },
   },
-  { key: 'rate-wave', dimension: 'estate_hazard', value: 'rate_wave', relation: 'none' },
+  {
+    key: 'rate-wave',
+    dimension: 'estate_hazard',
+    value: 'rate_wave',
+    relation: 'tool',
+    target: {
+      atoms: [
+        atom('t', 'skill', 'Fetch the catalogue.', { evidence: [{ type: 'tool_called', label: 'Bash' }] }),
+      ],
+    },
+  },
   {
     key: 'process-restart',
     dimension: 'estate_hazard',
@@ -170,7 +192,13 @@ const CASES: Case[] = [
     relation: 'restart',
     target: { atoms: [atom('t', 'skill', 'Restore the calibration.')], planted: { scope: 'restart' } },
   },
-  { key: 'resumed', dimension: 'session_state', value: 'resumed', relation: 'none' },
+  {
+    key: 'resumed',
+    dimension: 'session_state',
+    value: 'resumed',
+    relation: 'stop',
+    target: { atoms: [atom('t', 'instruction', 'Carry on.')], planted: { scope: 'stop' } },
+  },
   {
     key: 'stop-signal',
     dimension: 'owner_signal',
@@ -178,11 +206,50 @@ const CASES: Case[] = [
     relation: 'stop',
     target: { atoms: [atom('t', 'skill', 'Halt the exposure.')], planted: { behaviour: 'stop_on_word' } },
   },
-  { key: 'no-questions', dimension: 'owner_signal', value: 'no_questions', relation: 'none' },
-  { key: 'goal-shift', dimension: 'deviation', value: 'D2_goal_shift', relation: 'none' },
-  { key: 'off-topic', dimension: 'deviation', value: 'D1_off_topic', relation: 'none' },
-  { key: 'out-of-scope', dimension: 'deviation', value: 'D9_out_of_scope', relation: 'none' },
-  { key: 'silence-burst', dimension: 'deviation', value: 'D7_silence_or_burst', relation: 'none' },
+  {
+    key: 'no-questions',
+    dimension: 'owner_signal',
+    value: 'no_questions',
+    relation: 'confirmation',
+    target: { atoms: [atom('t', 'tool', 'Bash(dome:*)', { fields: { effect: 'ask' } })] },
+  },
+  {
+    key: 'goal-shift',
+    dimension: 'deviation',
+    value: 'D2_goal_shift',
+    relation: 'routing',
+    target: {
+      atoms: [atom('r', 'route', '| observe | exposure |'), atom('t', 'skill', 'name: exposure')],
+      edges: [{ from: 'r', to: 't', kind: 'route' }],
+    },
+  },
+  {
+    key: 'off-topic',
+    dimension: 'deviation',
+    value: 'D1_off_topic',
+    relation: 'routing',
+    target: {
+      atoms: [atom('r', 'route', '| observe | exposure |'), atom('t', 'skill', 'name: exposure')],
+      edges: [{ from: 'r', to: 't', kind: 'route' }],
+    },
+  },
+  {
+    key: 'out-of-scope',
+    dimension: 'deviation',
+    value: 'D9_out_of_scope',
+    relation: 'routing',
+    target: {
+      atoms: [atom('r', 'route', '| observe | exposure |'), atom('t', 'skill', 'name: exposure')],
+      edges: [{ from: 'r', to: 't', kind: 'route' }],
+    },
+  },
+  {
+    key: 'silence-burst',
+    dimension: 'deviation',
+    value: 'D7_silence_or_burst',
+    relation: 'prompt',
+    target: { atoms: [atom('t', 'guard', 'stop-word.sh', { fields: { event: 'UserPromptSubmit' } })] },
+  },
 ];
 
 /** A run holding only what the item reads: the map, the planted standing rules, and the pairwise rows. */
@@ -275,15 +342,15 @@ describe('plan.relevance judges each of its 20 situations from typed data, with 
       });
     }
 
-    it('keeps an unresolved situation in the plan: any crossing holds, an empty plan fails', async () => {
+    it('gives an estate that holds no atom of the relation nothing to cross: any crossing is wrong, no row is not', async () => {
       // No atom holds the relation, whatever its kind and words say.
       const lonely = KINDS.filter((kind) => !IDENTITY[relation].includes(kind)).map(decoy);
       const map = mapOf(lonely);
       const some = await verdict(key, map, cross(...lonely.map((a) => a.id)));
-      expect(some, some.detail).toMatchObject({ pass: true });
-      expect(some.detail).toContain('unresolved');
+      expect(some.pass, some.detail).toBe(false);
+      expect(some.detail).toContain('no atom holds the relation');
       const none = await verdict(key, map, []);
-      expect(none.pass).toBe(false);
+      expect(none, none.detail).toMatchObject({ pass: true });
     });
   });
 });
@@ -364,6 +431,23 @@ describe('the typed relations', () => {
     expect([...targetsOf('stop', map, planted)].sort()).toEqual(['a', 'd']);
   });
 
+  it('a route: the route and the unit it opens, not a unit of the same kind no route opens', () => {
+    const map = mapOf(
+      [atom('r', 'route', 'x'), atom('s', 'skill', 'x'), atom('t', 'skill', 'x')],
+      [{ from: 'r', to: 's', kind: 'route' }],
+    );
+    expect([...targetsOf('routing', map)].sort()).toEqual(['r', 's']);
+  });
+
+  it('a guard on the prompt: a guard on the prompt event, not one on a tool event', () => {
+    const map = mapOf([
+      atom('a', 'guard', 'x', { fields: { event: 'UserPromptSubmit' } }),
+      atom('b', 'guard', 'x', { fields: { event: 'PreToolUse' } }),
+      atom('c', 'instruction', 'Answer when the user says hello.'),
+    ]);
+    expect([...targetsOf('prompt', map)]).toEqual(['a']);
+  });
+
   it('a confirmation: a permission that asks, not one that allows', () => {
     const map = mapOf([
       atom('a', 'tool', 'x', { fields: { effect: 'ask' } }),
@@ -374,17 +458,61 @@ describe('the typed relations', () => {
   });
 });
 
-describe('an unresolved situation is judged by the contract, not by a kind', () => {
-  it('passes a crossing of every kind when no atom holds the relation, and fails when the plan dropped it', () => {
-    const atoms = KINDS.map(decoy);
-    const map = mapOf(atoms);
-    const crossings = atoms.map((a, index) => ({ row: `pairwise.${index}`, atom: a.id }));
-    expect(judgeRelevance('none', map, crossings)).toMatchObject({ pass: true });
-    expect(judgeRelevance('none', map, [])).toMatchObject({ pass: false });
-    // A crossing with an atom the map does not hold is no crossing.
-    expect(judgeRelevance('none', map, [{ row: 'pairwise.0', atom: 'ghost' }])).toMatchObject({
-      pass: false,
-    });
+describe('a plan that crosses everything with everything fails all 20 items', { timeout: 600_000 }, () => {
+  const holders = [
+    atom('h.helper', 'subagent', 'name: analyst'),
+    atom('h.tool', 'script', 'scripts/run.py'),
+    atom('h.stage', 'stage', 'Report'),
+    atom('h.output', 'register', 'Lead with the result.'),
+    atom('h.ask', 'tool', 'Bash(dome:*)', { fields: { effect: 'ask' } }),
+    atom('h.restart', 'hazard', 'Hazard.', { fields: { hazard: 'restart' } }),
+    atom('h.compaction', 'hazard', 'Hazard.', { fields: { hazard: 'compaction' } }),
+    atom('h.stop', 'guard', 'stop-word.sh', { fields: { event: 'UserPromptSubmit' } }),
+    atom('h.route', 'route', '| observe | exposure |'),
+  ];
+  const everything = (atoms: Atom[]) =>
+    CASES.flatMap(({ dimension, value }) => atoms.map((a) => ({ atom: a.id, dimension, value })));
+
+  it('fails every item on an estate that holds a typed atom for each relation, decoys of every kind among them', async () => {
+    const atoms = [...holders, ...KINDS.map(decoy)];
+    const rows = everything(atoms);
+    for (const { key } of CASES) {
+      const out = await verdict(
+        key,
+        mapOf(atoms, [{ from: 'h.route', to: 'decoy.skill', kind: 'route' }]),
+        rows,
+        { hazard: 'compaction' },
+        'decoy.instruction',
+      );
+      expect(out.pass, `${key}: ${out.detail}`).toBe(false);
+    }
+  });
+
+  it('fails every item on an estate that holds almost no typed atom: no atom applies, so any crossing is wrong', async () => {
+    const atoms = KINDS.filter((kind) => !['stage', 'subagent', 'register', 'route'].includes(kind)).map(
+      decoy,
+    );
+    const rows = everything(atoms);
+    for (const { key } of CASES) {
+      const out = await verdict(key, mapOf(atoms), rows);
+      expect(out.pass, `${key}: ${out.detail}`).toBe(false);
+    }
+  });
+
+  it('judges the same plan on the real generated estate: the plan of the main planner fails every item whose relation an atom holds', async () => {
+    const run = await pipeline.estateRun(1);
+    const rows = run.plan.plan.rows.filter((row) => row.id.startsWith('pairwise.'));
+    const mock = vi.spyOn(pipeline, 'estateRun').mockResolvedValue(run);
+    try {
+      const out = await planRelevanceFamily().evaluate(1);
+      const crossed = CASES.filter(({ dimension, value }) =>
+        rows.some((row) => row.cell[dimension] === value),
+      );
+      expect(crossed.length).toBeGreaterThan(0);
+      for (const { key } of crossed) expect(out.get(`plan.relevance.${key}`)?.pass, key).toBe(false);
+    } finally {
+      mock.mockRestore();
+    }
   });
 });
 

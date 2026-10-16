@@ -27,9 +27,9 @@ import { judgeRelevance, type Planted, type Relation } from './relevance-typed';
  * word of the estate (relevance-typed.ts): the kind of an atom, the type of its evidence predicates, the kinds of
  * its edges, its typed fields and what the hidden estate planted for a standing rule. Each situation has one
  * relation (a helper dispatched or running, a tool called, a step reached, a reply written, a permission to ask,
- * a hazard of the runtime, a stop, a route taken). The atoms that hold it are the situation's identified targets;
- * a crossing with any other atom is wrong. A situation no atom holds is unresolved and stays in the plan, crossed
- * with something (docs/estate.md, "Situation relevance in a proposed plan"): a missing match never removes it.
+ * a hazard of the runtime, a stop, a guard on the prompt, a route taken). The atoms that hold it are the
+ * situation's identified targets; a crossing with any other atom is wrong. When no atom holds the relation, no
+ * atom applies and any crossing is wrong. A plan that crosses every situation with every atom fails all 20 items.
  */
 
 const CONTRACT = 'packages/estate/src/plan/contract.ts';
@@ -740,7 +740,7 @@ const RELEVANCE: Relevance[] = [
     dimension: 'deviation',
     value: 'D6_instruction_in_data',
     title: 'an instruction in the data',
-    relation: 'none',
+    relation: 'tool',
   },
   {
     key: 'loose-confirmation',
@@ -756,7 +756,7 @@ const RELEVANCE: Relevance[] = [
     dimension: 'estate_hazard',
     value: 'rate_wave',
     title: 'a wave of rate limits',
-    relation: 'none',
+    relation: 'tool',
   },
   {
     key: 'process-restart',
@@ -796,7 +796,7 @@ const RELEVANCE: Relevance[] = [
     dimension: 'session_state',
     value: 'resumed',
     title: 'a resumed session',
-    relation: 'none',
+    relation: 'stop',
   },
   {
     key: 'stop-signal',
@@ -812,7 +812,7 @@ const RELEVANCE: Relevance[] = [
     dimension: 'owner_signal',
     value: 'no_questions',
     title: 'the owner asking for no questions',
-    relation: 'none',
+    relation: 'confirmation',
   },
   {
     key: 'goal-shift',
@@ -820,7 +820,7 @@ const RELEVANCE: Relevance[] = [
     dimension: 'deviation',
     value: 'D2_goal_shift',
     title: 'a goal shift',
-    relation: 'none',
+    relation: 'routing',
   },
   {
     key: 'off-topic',
@@ -828,7 +828,7 @@ const RELEVANCE: Relevance[] = [
     dimension: 'deviation',
     value: 'D1_off_topic',
     title: 'an off-topic turn',
-    relation: 'none',
+    relation: 'routing',
   },
   {
     key: 'out-of-scope',
@@ -836,7 +836,7 @@ const RELEVANCE: Relevance[] = [
     dimension: 'deviation',
     value: 'D9_out_of_scope',
     title: 'an out-of-scope ask',
-    relation: 'none',
+    relation: 'routing',
   },
   {
     key: 'silence-burst',
@@ -844,7 +844,7 @@ const RELEVANCE: Relevance[] = [
     dimension: 'deviation',
     value: 'D7_silence_or_burst',
     title: 'silence or a burst',
-    relation: 'none',
+    relation: 'prompt',
   },
 ];
 
@@ -858,7 +858,8 @@ const RELATION_TITLE: Record<Relation, string> = {
   restart: 'the restart hazard',
   compaction: 'the compaction hazard',
   stop: 'a stop',
-  none: 'no typed relation',
+  prompt: 'a guard on the prompt event',
+  routing: 'a route or the unit it opens',
 };
 
 /** What the hidden estate planted for each standing rule, by the id of the scanned atom matched to the rule or its hazard. */
@@ -887,7 +888,7 @@ export function planRelevanceFamily(): Family {
     RELEVANCE.map(({ key, tier, title, relation }) => ({
       key,
       tier,
-      title: `${title} is crossed only with atoms that hold ${RELATION_TITLE[relation]}; with none, it stays in the plan`,
+      title: `${title} is crossed only with atoms that hold ${RELATION_TITLE[relation]}; with none, it is crossed with no atom`,
     })),
   );
   return {
