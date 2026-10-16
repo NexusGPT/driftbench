@@ -271,6 +271,17 @@ describe('opening a store', () => {
     expect(await store.getRun(stored.runId)).toStrictEqual(stored);
   });
 
+  it('adds a table the current schema holds to a store already at the current version', async () => {
+    const stored = await seed();
+    await store.close();
+    // A store a build wrote at this version before spec_objects existed: the version number says current.
+    raw.exec(`DROP TABLE spec_objects; PRAGMA user_version = ${SCHEMA_VERSION}`);
+    store = openStore(path);
+    expect(raw.prepare('PRAGMA user_version').get()?.user_version).toBe(SCHEMA_VERSION);
+    expect(raw.prepare('SELECT count(*) AS count FROM spec_objects').get()?.count).toBe(0);
+    expect(await store.getRun(stored.runId)).toStrictEqual(stored);
+  });
+
   it('upgrades every older schema to the current one, whatever the current number', async () => {
     // The tables each schema added (schema.ts): the registry came with 2; 3 added none.
     const added: Record<number, string[]> = { 2: ['versions', 'blobs'] };

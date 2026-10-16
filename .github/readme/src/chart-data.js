@@ -375,7 +375,7 @@ window.CHART_DATA = {
   "self-tests": {
     "kind": "single",
     "kicker": "Self-tests · cases built by code with a known answer",
-    "title": "7,454 planted-truth cases test driftbench itself.",
+    "title": "7,455 planted-truth cases test driftbench itself.",
     "key": [
       "holds a floor in CI",
       "no floor yet"
@@ -392,8 +392,8 @@ window.CHART_DATA = {
     "rows": [
       {
         "label": "Whole pipeline",
-        "value": 2384,
-        "text": "2,384",
+        "value": 2385,
+        "text": "2,385",
         "series": 0,
         "sub": "floor: level 9"
       },
@@ -423,7 +423,7 @@ window.CHART_DATA = {
         "value": 638,
         "text": "638",
         "series": 0,
-        "sub": "floor: level 7"
+        "sub": "floor: level 20"
       },
       {
         "label": "Map extraction",
