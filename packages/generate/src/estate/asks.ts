@@ -101,9 +101,10 @@ export function askable(act: string): string | undefined {
   if (DANGLING.has(last) || /^(?:e\.g|i\.e)\.?$/.test(last))
     return `the act is cut mid-sentence after "${last}": "${act}"`;
   // A hyphenated compound is two words ("force-push a branch" names a verb and its object).
+  // An article is a word of the act: "refill a prescription" is a verb, an article and an object.
   const words = tokens
     .flatMap((token) => token.split('-'))
-    .filter((token) => /\p{L}{2,}/u.test(token)).length;
+    .filter((token) => /\p{L}{2,}/u.test(token) || /^[Aa]$/.test(token)).length;
   if (words < 3)
     return `the act has ${words} words of letters, fewer than a verb and its object need: "${act}"`;
   return undefined;
@@ -124,6 +125,18 @@ export type AskContext = {
  */
 const PREREQUISITE_KINDS: ReadonlySet<string> = new Set(['reference', 'gate']);
 
+/** The test types that run a guard directly: the ask they carry is never read. */
+const UNUSED_ASK_TESTS: ReadonlySet<string> = new Set(['guard_hostile', 'guard_speed', 'guard_register']);
+
+/** A fixed request that names the tool a guard watches, or the next step when it watches none. */
+function neutralGuardAsk(guard: EstateAtom): string {
+  const matcher = typeof guard.fields?.matcher === 'string' ? guard.fields.matcher : '';
+  const tools = matcher.split('|').filter((tool) => /^[A-Z][A-Za-z]+$/.test(tool));
+  return tools.length > 0
+    ? `Please make one ${tools.join(' or ')} call in this workspace.`
+    : 'Please carry on with the next step of the task.';
+}
+
 /**
  * The ask for a row with no approved phrase. The estate's unit names are passed for the call sites; a misroute
  * never names a skill (an owner who names one instructs the agent, which is not a misroute).
@@ -137,6 +150,11 @@ export function codeAsk(
   variant?: number,
   context: AskContext = {},
 ): CodeAsk {
+  // A guard run on its own (hostile input, speed, message register) never reads the ask: the unit runner feeds
+  // the guard its payload. The spec format needs one, so a fixed request names the tool event the guard watches.
+  if (UNUSED_ASK_TESTS.has(context.testType ?? '') && atoms[0]?.kind === 'guard') {
+    return { text: neutralGuardAsk(atoms[0]), lang: 'en', source: 'neutral' };
+  }
   // A negative control of a guard asks for a harmless near miss of the rule the guard enforces.
   if (use === 'outside' && context.testType === 'guard_negative' && atoms[0]?.kind === 'guard') {
     return guardNearMiss(atoms[0], lookup ?? (() => undefined));
@@ -701,9 +719,10 @@ function guardedTask(text: string, guard = false): string | undefined {
   if (governed) return governed;
   for (const clause of text.split(/\n|(?<=[.!?])\s+/)) {
     const clean = plain(clause);
-    const before = /\bbefore\s+(.+?)(?:[:,]\s*|\s+)(?:(?:you\s+)?(?:must\s+)?read|load|check|verify)\b/i.exec(
-      clean,
-    )?.[1];
+    const before =
+      /\bbefore\s+([^,:;]+?)(?:[:,]\s*|\s+)(?:(?:you\s+)?(?:must\s+)?read|load|check|verify)\b/i.exec(
+        clean,
+      )?.[1];
     const after = /\b(?:read|load|check|verify)\b.+?\bbefore\s+(.+)/i.exec(clean)?.[1];
     const forbidden = /^(?:never|do not|don't|you must not)\s+(.+)/i.exec(clean)?.[1];
     const when = /\b(?:when|while)\s+(.+?)(?:[,;:]|$)/i.exec(clean)?.[1];
@@ -776,6 +795,23 @@ const STATIVE: ReadonlySet<string> = new Set(
   ),
 );
 
+const OPENING_DETERMINERS: ReadonlySet<string> = new Set([
+  'a',
+  'an',
+  'the',
+  'each',
+  'every',
+  'any',
+  'this',
+  'these',
+]);
+
+const LEAD_ADVERBS: ReadonlySet<string> = new Set(
+  'then also first next finally always only just later again once now here there else still even'.split(' '),
+);
+
+const IRREGULAR: Readonly<Record<string, string>> = { has: 'have', does: 'do' };
+
 const NOUN_LINK: ReadonlySet<string> = new Set(['of', 'on', 'about']);
 
 /** Endings of plural nouns no verb has: "analytics", "logistics", "utilities", "awareness". */
@@ -793,6 +829,23 @@ const PREPOSITIONS: ReadonlySet<string> = new Set(
  * -s followed by its object (never a function word, never another verb) is the verb of the sentence.
  */
 function thirdPerson(first: string, next: string | undefined, described = false): boolean {
+  // A word the verb list does not hold, in the base form, followed by an article and its object ("Refill a
+  // prescription") is the verb of an imperative description: a noun is not followed by an article.
+  if (
+    described &&
+    OPENING_DETERMINERS.has(bare(next)) &&
+    /^[a-z]{4,}$/.test(first) &&
+    !/ing$/.test(first) &&
+    !(KEEP.has(first) || STATIVE.has(first) || NOUN_ENDING.test(first)) &&
+    !(
+      FUNCTION_WORDS.has(first) ||
+      SUBORDINATORS.has(first) ||
+      PREPOSITIONS.has(first) ||
+      STATEMENT_OPENERS.has(first)
+    ) &&
+    !LEAD_ADVERBS.has(first)
+  )
+    return true;
   // "Calls of any tool", "Notes on the carrier": a verb in -s followed by of, on or about is a plural noun.
   if (/[^s]s$/.test(first) && VERBS.has(imperative(first))) return !NOUN_LINK.has(bare(next));
   // Only a unit's description is read this way. A hook's rule text ("Warns after a command ...", "Blocks a
@@ -999,7 +1052,7 @@ export function imperative(text: string): string {
   for (let i = 1; i < words.length; i++) {
     const before = words[i - 1] ?? '';
     const listed =
-      /,$/.test(before) || (/^(?:and|or)$/.test(before) && (/,$/.test(words[i - 2] ?? '') || described));
+      /,$/.test(before) || (/^(?:and|or|then)$/.test(before) && (/,$/.test(words[i - 2] ?? '') || described));
     if (!listed) continue;
     const word = words[i] ?? '';
     const stem = word.replace(/[,.;:]+$/, '');
@@ -1007,6 +1060,12 @@ export function imperative(text: string): string {
     const joined = !/,$/.test(before);
     const next = words[i + 1];
     if (joined && (next === undefined || PREPOSITIONS.has(bare(next)))) continue;
+    // The two irregular verbs of the third person: "approves a refill, then has the agent check it".
+    const irregular = IRREGULAR[stem.toLowerCase()];
+    if (joined && irregular !== undefined && next !== undefined) {
+      words[i] = word.replace(stem, irregular);
+      continue;
+    }
     if (base !== stem.toLowerCase() && VERBS.has(base) && stem === stem.toLowerCase())
       words[i] = word.replace(stem, base);
   }

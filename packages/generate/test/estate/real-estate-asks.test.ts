@@ -1,6 +1,6 @@
 import { parseSpecText } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
-import { actOf, codeAsk, imperative, OUTSIDE_ASK, ruleTopic } from '../../src/estate/asks';
+import { actOf, askable, codeAsk, imperative, OUTSIDE_ASK, ruleTopic } from '../../src/estate/asks';
 import { estateOwners, navigationFiles, navigationReference, unitRoutes } from '../../src/estate/context';
 import { generateEstateSuite } from '../../src/estate/generate';
 import { type EstateAtom, type EstatePlanRow, PhraseBank } from '../../src/estate/inputs';
@@ -523,5 +523,53 @@ describe('a guard whose rule text names a situation, not an act', () => {
     expect(ask('A force push to the shared release branch is blocked.', 'outside').text).toBe(
       'Without changing anything, tell me in one sentence what applies here to a force push to the shared release branch.',
     );
+  });
+});
+
+describe('follow-ups of the review', () => {
+  it('keeps the whole act of a "before" clause, which ends at its comma', () => {
+    const guard = atom('guard.catalogue.refill', {
+      fields: { ruleText: 'Before approving a refill, have the pharmacist agent check the dose.' },
+    });
+    expect(codeAsk('trigger', [guard], []).text).toBe('Please approve a refill.');
+  });
+
+  it('counts an article as a word of the act, and reads a base-form verb before an article', () => {
+    expect(askable('refill a prescription')).toBeUndefined();
+    expect(askable('refill')).toMatch(/fewer than a verb and its object/);
+    expect(codeAsk('trigger', [unit('x', 'Refill a prescription for a patient.')], []).text).toBe(
+      'Please refill a prescription for a patient.',
+    );
+    for (const description of [
+      'Rules for a patient.',
+      'Then the pharmacist signs.',
+      'Only the owner decides.',
+    ]) {
+      expect(codeAsk('trigger', [unit('x', description)], []).text, description).toBeUndefined();
+    }
+  });
+
+  it('puts the verb of the third person into the base form after "then"', () => {
+    expect(imperative('Approves a refill, then has the pharmacist agent verify the dose')).toBe(
+      'approve a refill, then have the pharmacist agent verify the dose',
+    );
+  });
+
+  it('gives a guard run on its own a fixed request naming its tool, and no other test type', () => {
+    const guard = atom('guard.settings.x', {
+      fields: { matcher: 'Edit|Write', ruleText: 'Require a review note before editing a pricing entry.' },
+    });
+    for (const testType of ['guard_hostile', 'guard_speed', 'guard_register']) {
+      const written = codeAsk('trigger', [guard], [], false, undefined, undefined, { testType });
+      expect(written.text, testType).toBe('Please make one Edit or Write call in this workspace.');
+      expect(written.source).toBe('neutral');
+    }
+    const bare = atom('guard.settings.y', { fields: { ruleText: 'Block uploads of customer lists.' } });
+    expect(
+      codeAsk('trigger', [bare], [], false, undefined, undefined, { testType: 'guard_hostile' }).text,
+    ).toBe('Please carry on with the next step of the task.');
+    expect(
+      codeAsk('trigger', [guard], [], false, undefined, undefined, { testType: 'guard_positive' }).text,
+    ).toBe('Please edit a pricing entry.');
   });
 });

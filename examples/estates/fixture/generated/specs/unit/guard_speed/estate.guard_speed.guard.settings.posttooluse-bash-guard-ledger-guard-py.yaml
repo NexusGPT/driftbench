@@ -23,7 +23,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please delete a file under ledger/.
+      user: Please make one Bash call in this workspace.
     expect:
       guards:
         - name: ledger-guard.py
@@ -54,7 +54,7 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: guard.settings.posttooluse-bash-guard-ledger-guard-py (ruleText)
+    askFrom: neutral
     outcome: no-delete
     unit:
       target:

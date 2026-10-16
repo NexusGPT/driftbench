@@ -662,9 +662,12 @@ carrier"), never a verb. The ask reads only the guard's own rule
 text: no registry state name or severity is read into it.
 
 A `guard_negative` row asks for a harmless near miss of the guard's own rule: without changing anything, what
-it would mean to do the governed act, or what applies to the subject of the documented rule. Each guard gets
-the request of its own rule. A guard that documents no rule and enforces none stays incomplete: no
-estate-wide request stands in for it.
+it would mean to do the governed act, or what applies to the situation the documented rule names. Each guard gets
+the request of its own rule. A guard with no documented rule is asked as a call of the tool it watches; a guard
+with a rule text that gives neither an act nor a situation stays incomplete. No estate-wide request stands in
+for either. The three types that run a guard directly with no model (`guard_hostile`, `guard_speed`,
+`guard_register`) never read their ask: it is a fixed request that names the tool the guard watches ("Please make
+one Edit or Write call in this workspace."), or the next step of the task when it watches none. No other type gets it.
 
 A map may record `documents`: each file's authority (`normative`, or a navigation role such as `example`,
 `template`, `history`, `changelog`, `journal`, `fixture`, `archive`). A reference whose target is a

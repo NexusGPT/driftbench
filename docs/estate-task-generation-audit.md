@@ -213,3 +213,9 @@ gains five such hook texts (a clause with a pronoun, a subordinate clause, a plu
 statement about the hook, a possessive phrase). On `89caebf58` each of them gave a complete guard test whose ask
 was a fragment ("Please help me with the bytecode of the file it compiles."); after the change those 44 guard
 rows stay incomplete with the reason, and no other row changes (complete 5,761 to 5,717 of 5,815).
+
+The unit-run guard types (`guard_hostile`, `guard_speed`, `guard_register`) read no ask, so they carry a fixed
+request that names the tool the guard watches. On the synthetic estate each of the three goes from 14 to 21
+complete of 21; `guard_negative` (14) and `guard_positive` (98) are unchanged, because those two do read their ask.
+A hook rule text of the form "before X, have the agent check Y" now asks X alone, and "refill a prescription"
+passes the act floor: an article counts as a word of the act.
