@@ -224,6 +224,14 @@ function unitRun(
   specs: readonly SuiteSpec[],
 ): { verdicts: Map<string, boolean>; guards: Reported[]; error?: string } {
   const result = cli(['estate', 'unit', ...specs.map((spec) => spec.path), '--estate', estate, '--json']);
+  // Exit 0 and 1 are verdicts (all pass, some fails); a higher code is an input error or a crash: whatever JSON it
+  // printed names no test as red, so no variant is killed by it.
+  if (result.code > 1)
+    return {
+      verdicts: new Map(),
+      guards: [],
+      error: `estate unit exited ${result.code}: ${result.out.trim().slice(0, 120)}`,
+    };
   const at = result.out.indexOf('{');
   if (at < 0)
     return {
