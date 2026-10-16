@@ -105,6 +105,9 @@ describe('driftbench ci with blocks not run', () => {
       );
       // The not-run spec is left out of the comparison: it never reads as a regression.
       expect(summary.regressed).not.toContain('acme-tool-failure · F');
+      // 0 regressed and 1 spec not run: the not-run verdict stands, exit 3.
+      expect(summary.regressed).toEqual([]);
+      expect(summary.notRun?.over).toEqual(['acme-tool-failure']);
     },
     SLOW,
   );
@@ -141,7 +144,9 @@ describe('driftbench ci with blocks not run', () => {
       expect(result.err).toBe('');
       expect(result.code).toBe(1);
       const summary = JSON.parse(await readFile(join(dir, 'both.json'), 'utf8')) as CiSummary;
-      expect(summary.regressed.length).toBeGreaterThan(0);
+      // 5 regressed and 1 spec not run: the regression wins, exit 1.
+      expect(summary.regressed).toHaveLength(5);
+      expect(summary.notRun?.over).toEqual(['acme-tool-failure']);
       expect(summary.verdict).not.toBe('not-run');
       expect(summary.exitCode).toBe(1);
       expect(summary.notRun?.over).toContain('acme-tool-failure');
