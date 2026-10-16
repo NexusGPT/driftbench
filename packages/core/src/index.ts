@@ -64,6 +64,7 @@ export {
   parseInventoryText,
   validateInventory,
 } from './coverage';
+export * as evidence from './evidence';
 export {
   type ImportError,
   type ImportedSpec,
