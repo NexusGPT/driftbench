@@ -2081,15 +2081,6 @@ function ablatedGeneration(
   return { ...generated, complete, loaded, first: files(generated.first), second: files(generated.second) };
 }
 
-/** The family a generated spec declares itself a variant of: its id and how many variants it needs. */
-function familyOf(spec: Spec): { family: string; of: number } | undefined {
-  const meta = (spec.metadata?.generated as { metamorphic?: { family?: unknown; of?: unknown } } | undefined)
-    ?.metamorphic;
-  return typeof meta?.family === 'string' && typeof meta.of === 'number'
-    ? { family: meta.family, of: meta.of }
-    : undefined;
-}
-
 /** A local duplicate is redundant only when deleting it preserves the executable remainder.
  * Cache each ablation across fault and seeder items. Reference dependence short-circuits the more
  * expensive agent replay; no block position, label or seeder is exempt by construction.
@@ -2103,15 +2094,6 @@ export function removable(data: SeedData, block: BlockRun): Promise<boolean> {
     const original = runs.blocks.filter((entry) => entry.spec === block.spec);
     if (original.some((entry) => entry.reference.some((outcome) => outcome !== 'pass'))) return false;
     const spec = removeBlock(source.spec, block.index);
-    // A metamorphic family is a relation across its variants. Deleting a variant's last block deletes the
-    // variant, and a family that keeps fewer variants than it declares no longer states its relation.
-    const declared = familyOf(source.spec);
-    if (declared && spec.blocks.length === 0) {
-      const kept = generated.complete.filter(
-        ({ spec: other }) => other.id !== source.spec.id && familyOf(other)?.family === declared.family,
-      ).length;
-      if (kept < declared.of) return false;
-    }
     let reduced: Runs = { blocks: [], faults: [], errors: [] };
     if (spec.blocks.length > 0) {
       const parsed = validateSpec(spec);

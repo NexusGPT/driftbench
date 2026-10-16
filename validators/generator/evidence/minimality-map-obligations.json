@@ -8,10 +8,10 @@
   ],
   "sourceSha256": {
     "packages/validators/src/ladders/generator/bank.ts": "f08ca39ad983803dcc3714dcece7ce98db9324ea1944e7a9e13275ab3b81a1d7",
-    "packages/validators/src/ladders/generator/bank2.ts": "9f181472899254abc7e846b4cc3fb1d03109f254b36b730f97af0cf041450445",
+    "packages/validators/src/ladders/generator/bank2.ts": "397be91258618d557d03c60437eddc6bc4bf668ff07a508eb279c9dbbcc054a6",
     "packages/validators/src/ladders/generator/bank3.ts": "812f62389a3aec715b74e387799f8cc20f743390535534178d93e8eea28690cf",
     "packages/validators/test/generator/minimality-phrase-obligations.test.ts": "9359147930482f681e6a1e01ae8d4b375644319e453ed3292724050c73dfc38b",
-    "packages/validators/test/generator/minimality-structural-obligations.test.ts": "44b9103cef21c0d91e6eebea8a11f5abb68d5805a373b82cc9e6b28e05f7411a"
+    "packages/validators/test/generator/minimality-structural-obligations.test.ts": "735fce61fc1a3f1aaba2d011e3f877a24f637c9d5ad88fc449ba510fa7c2ee7a"
   },
   "reportedContradiction": {
     "publicSeed": 1,

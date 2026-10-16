@@ -243,6 +243,6 @@ Product obligation: remove a duplicate only when the retained suite keeps every 
 
 The exact seed-1 regression, a hand-written parcel fixture, partial already-failing phrase coverage and fresh seeds 1009, 2027, 4093 and 8191 have positive and duplicate controls. See [delta evidence](evidence/minimality-map-obligations.json), [red-first output](evidence/minimality-map-obligations-red.txt) and [structural mutation control](evidence/minimality-structural-mutation-red.txt). This is a scoped oracle ruling; the historical journal and ladder level table are unchanged. Independent delta review is required.
 
-## Metamorphic variants in minimality: maintainer ruling (2026-10-16)
+## Metamorphic variants in minimality (2026-10-16)
 
-A metamorphic family is a relation across its variants. `removable` no longer treats a whole variant as a duplicate while the family would keep fewer variants than it declares. See [the journal](SWEEP-JOURNAL.md). No historical ladder level is updated by this scoped ruling.
+Family membership comes from the hidden map and the words said, never from the metadata a product writes. Each phrase the hidden map lists has its own witness obligation, which `removable` keeps, so a block that says the only instance of a phrasing is not removable and a copy is. A rule that trusted declared family metadata was reviewed and withdrawn. See [the journal](SWEEP-JOURNAL.md).

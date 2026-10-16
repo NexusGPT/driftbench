@@ -199,7 +199,7 @@ describe('minimality proves removability instead of treating shared setup as red
     });
   }
 
-  describe('a phrasing the hidden map needs for a family is not a removable duplicate', () => {
+  describe('a family of phrasings is decided by the hidden map and the words said, never by what a spec says about itself', () => {
     const PHRASES = ['The parcel is on the dock.', 'There is a parcel at the dock.'];
     const EDGE = 'dock-to-scanned';
     /**
@@ -235,7 +235,7 @@ describe('minimality proves removability instead of treating shared setup as red
       metamorphic: { family, variant: index + 1, of, relation: 'same observed outcome' },
     });
 
-    it('keeps every phrasing of a family the hidden map lists, whatever the metadata says', async () => {
+    it('keeps each phrasing the hidden map lists for a value, whatever the metadata says', async () => {
       for (const metadata of [declared, () => ({})]) {
         const data = await dataFor(said(PHRASES, metadata));
         expect((await data.runs()).blocks.every((block) => block.reference[0] === 'pass')).toBe(true);
@@ -270,12 +270,12 @@ describe('minimality proves removability instead of treating shared setup as red
       expect(await check(data)).toMatchObject({ pass: false });
     });
 
-    it('rejects a spec that repeats a phrasing the family already has', async () => {
+    it('rejects a spec that repeats a phrasing another spec already says', async () => {
       const data = await dataFor(said([...PHRASES, PHRASES[0] as string], declared));
       expect(await check(data)).toMatchObject({ pass: false });
     });
 
-    it('protects only a whole phrasing: a removable step inside a family spec is still rejected', async () => {
+    it('rejects a removable step inside a spec that carries forged family metadata', async () => {
       const generated = fixture(false, true);
       generated.hidden.phrases = [
         ...generated.hidden.phrases,
