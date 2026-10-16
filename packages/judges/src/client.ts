@@ -32,6 +32,8 @@ export interface JudgeClient {
   /** A client default; an explicit request reasoning setting takes precedence. */
   readonly reasoning?: ClientOptions['reasoning'];
   judge(request: JudgeRequest): Promise<JudgeResult>;
+  /** Own a complete comparison from the caller's original criterion and candidate replies. */
+  judgePair?(request: JudgeRequest): Promise<JudgeResult>;
   /** Own both supplied presentation orders as one comparison, preserving every request field. */
   judgeComparison?(ordered: JudgeRequest, swapped: JudgeRequest): Promise<JudgeResult>;
 }
