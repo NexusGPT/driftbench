@@ -17,9 +17,9 @@ that tests compare with the data:
 
 | Diagnostic | Scope | Steps | What it writes |
 |---|---|---|---|
-| `code-agent-liability` | block | `chain`, `evidence`, `attribute`, `place` | for each failing gating verdict: who made the mistake, how it counts, where the fix goes |
+| `code-agent-liability` | block | `chain`, `evidence`, `attribute`, `place` | for each failing gating verdict: `fault` (agent, skill, tool, test, env, setup), `disposition` (agent, shared, setup, excluded, credited, unassigned), `fix_location`, `fix_target`, `fix_action`, `fix_forms`, and the blame item and the placement item that decided it |
 | `value-mismatch` | block | `chain`, `evidence`, `attribute` | for each failing gating tools input verdict: outcome `unknown`, disposition `unassigned`, flag `lint:value_ladder_unavailable`. This diagnostic does not read the value check's record yet, so no blame item is applied |
-| `fix-plan` | campaign | `recurrence`, `replace`, `merge`, `rank` | one fix per target and action, ranked; a core fix lists the local copies it replaces |
+| `fix-plan` | campaign | `recurrence`, `replace`, `merge`, `rank` | one fix per target and action, ranked by the failing blocks it explains (the agent's first), then cost; a core fix that replaces local fixes lists them as copies to remove |
 | `liability-confirm` | campaign | `plan`, `run`, `store`, `rejudge` | the cheapest run that could change each open diagnosis, made only within its budget, then `code-agent-liability` again |
 | `flaky-block` | campaign | `disagreement` | blocks whose repeats both pass and fail, with their pass share |
 
@@ -31,6 +31,8 @@ The four steps of `code-agent-liability`:
    `docs/reference/blame.md`, "Evidence names").
 3. `attribute`: `policy/blame`, first match in order (see `docs/reference/blame.md`).
 4. `place`: `policy/placement`, with the recurrence known so far.
+
+Both policies are rule files too. Their items are listed in `docs/reference/blame.md`.
 
 A confirm run is the only part that may run an agent. It asks one question per open diagnosis: the skill forced
 into context, the rule repeated as a hint, or a reference agent. Its budget ships at 0 USD, so by default no
@@ -49,7 +51,9 @@ positive budget alone does not configure that service.
 ## When to use it
 
 * A block failed, and you need to know what to change. The answer is the test, the environment, a tool, a
-  skill, the agent's core prompt, or the model.
+  skill's description, body or layout, the agent's core prompt, or the model. The placement law decides where: a
+  mistake in one skill is fixed in that skill. The same mistake in two or more skills is fixed in the core prompt,
+  or in a guard when code can check it.
 * After a campaign, to get one ranked list of fixes. A mistake seen in two or more skills becomes one core fix,
   not several local ones.
 * When a diagnosis is `undecided`, to see which confirm run would settle it and what that run would cost.
