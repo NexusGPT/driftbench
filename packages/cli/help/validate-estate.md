@@ -1,6 +1,6 @@
 ---
 title: The estate validator
-summary: What `driftbench validate estate` measures on generated agent estates, its 7 levels and 1169 items, and how to read a failing estate item.
+summary: What `driftbench validate estate` measures on generated agent estates, its 7 levels and 1193 items, and how to read a failing estate item.
 commands:
   - validate
 see_also:
@@ -36,9 +36,9 @@ The ladder (version 1), from `driftbench validate estate`:
 | 4 | `generation` | generation | 270 | every class of test complete, valid, distinct and green on the rule follower |
 | 5 | `agent-mutants` | agent mutants | 74 | every atom deleted from the rule follower fails one of its generated tests |
 | 6 | `maintenance` | maintenance | 53 | every estate mutant gets the retirements, regenerations and re-approvals it should |
-| 7 | `scale` | scale | 20 | every stage at 250 to 5000 atoms within its time budget, its result right |
+| 7 | `scale` | scale | 44 | every stage at 250 to 5000 atoms within its time budget, its result right |
 
-1169 items in all. Family names start with what they test: `scan.*` (the reader), `blind.*` (items written
+1193 items in all. Family names start with what they test: `scan.*` (the reader), `blind.*` (items written
 by a breaker who had not read the code), `bench.defects`, `lint.*`, `plan.*`, `gen.*`, `kill.fake`,
 `mutant.agent`, `maintain.*`, `unit.runner`, `estate.determinism`, `estate.stats` and `scale`.
 
@@ -104,6 +104,15 @@ Every option of `driftbench validate`, for reference (the topic named in the las
   3, lint 1, plan 6, generate 6, impact 1) with a floor of 4000 ms. These are wall-clock times: run the
   family on a quiet machine. Other items carry their own budgets, such as 5000 ms for the hostile reader
   inputs.
+* Real size: the `scale-real` family runs the whole loop once on a synthetic estate of the size and shape of a large
+  working estate: about 6,900 files, 766 of them markdown, 10 MB of prose, a standing file of 148 KB with its rules
+  deep inside, 64 skills (a quarter nested in a group folder), 34 helper agents, 113 hooks behind one dispatcher, a
+  hook registry, an index citing thousands of files, and the changelogs, history logs, templates, examples and
+  fixtures an estate keeps. 5 items time the stages (the per-atom rate of the 5,000-atom tier applied to the files
+  and the prose, planting and reading back outside the clock) and 19 judge the result at the strictness of level 1:
+  every planted rule, gate, skill, reference and hook is found, nothing is a rule or a live finding that comes from a
+  document that is not a rule, a skill's references are its own, the plan prints a summary and not a line per edge,
+  generated asks differ, maintenance retires exactly the tests whose atoms left. It is judged once per run.
 
 ## Outputs and how to read them
 
@@ -118,7 +127,7 @@ then say what the code read and what it should have read. Typical readings:
 | `gen.*` | a spec incomplete, invalid, duplicated or red on the follower | `packages/generate/src/estate` |
 | `mutant.agent`, `kill.fake` | a deleted atom killed no test | the evidence predicate of that atom's tests |
 | `maintain.*` | a wrong retirement or a missed one | `packages/estate/src/maintain/impact.ts` |
-| `scale` | over budget, or a wrong result at size | the stage named |
+| `scale`, `scale-real` | over budget, or a wrong result at size | the stage named |
 
 Exit status: the level reached, 0 when level 1 fails.
 
