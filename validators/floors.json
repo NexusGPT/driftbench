@@ -1,21 +1,57 @@
 {
   "version": 2,
   "ladderVersion": {
+    "generator": 1,
     "judges": 2,
     "map": 2,
     "stats": 2,
     "system": 5
   },
   "floors": {
+    "generator": 12,
     "judges": 20,
     "map": 8,
     "stats": 7,
     "system": 9
   },
   "evidence": {
+    "generator": {
+      "level": 12,
+      "seeds": [
+        "1",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "2",
+        "20",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "hidden"
+      ],
+      "hiddenSeed": 597916017,
+      "head": "9ac9cb315cd931ca15f7db8064c2bbe30d4f5511",
+      "ladderVersion": 1
+    },
     "judges": {
       "level": 20,
-      "seeds": ["1", "2", "3", "hidden"],
+      "seeds": [
+        "1",
+        "2",
+        "3",
+        "hidden"
+      ],
       "hiddenSeed": 336760492,
       "head": "14034c6caf7b46117fea61cf00688380dc5ad8d6",
       "ladderVersion": 2
