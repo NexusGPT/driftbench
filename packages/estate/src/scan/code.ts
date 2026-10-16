@@ -329,7 +329,32 @@ export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
     });
   }
 
-  for (const skill of raw.skills) scriptAtoms(skill.name, skill.folder, skill.file, raw, files, builder);
+  // The files of each skill, by the folder that holds them: one pass, not one pass per skill.
+  const folderFiles = new Map<string, EstateFile[]>();
+  for (const file of raw.files) {
+    if (file.kind !== 'skill_file') continue;
+    const folder = file.path.split('/').slice(0, 3).join('/');
+    const held = folderFiles.get(folder);
+    if (held) held.push(file);
+    else folderFiles.set(folder, [file]);
+  }
+  const proseOf = new Map<string, ProseChunk[]>();
+  for (const chunk of raw.prose) {
+    const held = proseOf.get(chunk.file);
+    if (held) held.push(chunk);
+    else proseOf.set(chunk.file, [chunk]);
+  }
+  for (const skill of raw.skills)
+    scriptAtoms(
+      skill.name,
+      skill.folder,
+      skill.file,
+      folderFiles.get(skill.folder) ?? [],
+      proseOf.get(skill.file) ?? [],
+      raw,
+      files,
+      builder,
+    );
 
   const names = {
     skills: new Set(raw.skills.map((skill) => skill.name)),
@@ -348,16 +373,15 @@ function scriptAtoms(
   skill: string,
   folder: string,
   definition: string,
+  skillFiles: readonly EstateFile[],
+  bodyChunks: readonly ProseChunk[],
   raw: RawEstate,
   files: ReadonlyMap<string, EstateFile>,
   builder: AtomBuilder,
 ): void {
   // A long body may be cut into several chunks: the mention is looked for in each, in order.
-  const body = raw.prose
-    .filter((chunk) => chunk.file === definition)
-    .flatMap((chunk) => chunkLines(chunk, files.get(definition)));
-  for (const file of raw.files) {
-    if (file.kind !== 'skill_file' || !file.path.startsWith(`${folder}/`)) continue;
+  const body = bodyChunks.flatMap((chunk) => chunkLines(chunk, files.get(definition)));
+  for (const file of skillFiles) {
     const relative = posix.relative(folder, file.path);
     if (!SCRIPT.test(file.path) && !relative.startsWith('scripts/')) continue;
     const name = basename(file.path);

@@ -250,12 +250,13 @@ export class ClaudeCodeReader implements EstateReader {
     // A skill is its declared name; the folder only holds it. The files of a skill are owned by that name, so
     // a folder renamed with the name kept leaves every atom id as it was. A name two skills declare keeps the
     // folder, so their ids stay apart.
-    for (const skill of estate.skills) {
-      if (duplicated.has(skill.name)) continue;
-      for (const file of files) {
-        if ((file.kind === 'skill' || file.kind === 'skill_file') && file.path.startsWith(`${skill.folder}/`))
-          file.owner = skill.name;
-      }
+    const nameOf = new Map(
+      estate.skills.filter((skill) => !duplicated.has(skill.name)).map((skill) => [skill.folder, skill.name]),
+    );
+    for (const file of files) {
+      if (file.kind !== 'skill' && file.kind !== 'skill_file') continue;
+      const name = nameOf.get(file.path.split('/').slice(0, 3).join('/'));
+      if (name !== undefined) file.owner = name;
     }
     await readRootReferences(root, estate, ignored, budget);
     // The registry comes last: a row names its guard by a script, a check id or an id the script holds,
