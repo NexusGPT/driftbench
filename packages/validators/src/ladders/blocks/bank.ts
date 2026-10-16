@@ -52,6 +52,9 @@ export function bankProblems(items: readonly BankItem[]): string[] {
   for (const item of items) families.set(item.family, (families.get(item.family) ?? 0) + 1);
   for (const [family, count] of families)
     if (count < MIN_FAMILY) problems.push(`the family ${family} holds ${count} items, under ${MIN_FAMILY}`);
+  for (const item of items)
+    if (!Number.isInteger(item.tier) || item.tier < 1 || item.tier > 5)
+      problems.push(`the item ${item.id} has tier ${item.tier}; a tier is 1 to 5`);
   for (const tier of [1, 2, 3, 4, 5])
     if (!items.some((item) => item.tier === tier)) problems.push(`no item of tier ${tier}`);
   for (const level of BANK_LEVELS)

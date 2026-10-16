@@ -215,9 +215,12 @@ function patternItems(): BankItem[] {
           items.push({
             id,
             family: `verdicts-${kind}`,
-            tier: Math.min(
-              5,
-              pattern.tier + capability.tier + (mode === 'T' ? 1 : 0) + (kind === 'code' ? 1 : 0) - 1,
+            tier: Math.max(
+              1,
+              Math.min(
+                5,
+                pattern.tier + capability.tier + (mode === 'T' ? 1 : 0) + (kind === 'code' ? 1 : 0) - 1,
+              ),
             ) as Tier,
             level: 1,
             component: pattern.parents
