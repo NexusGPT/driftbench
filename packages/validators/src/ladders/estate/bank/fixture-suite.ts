@@ -31,6 +31,11 @@ export type FixtureSuite = {
   work: string;
   map: string;
   specs: SuiteSpec[];
+  /**
+   * The native unit tests (JSON records under unit/) `estate unit` reads. Kept apart from `specs`: the families that
+   * judge the generated core specs (generation quality, coverage, kills of live specs) must read nothing else.
+   */
+  natives: SuiteSpec[];
   report: { gaps?: Array<{ marker: string; specs: number; atoms: string[] }> };
 };
 
@@ -114,13 +119,14 @@ async function build(): Promise<FixtureSuite> {
   const natives = (await readdir(join(out, 'unit'), { withFileTypes: true, recursive: true }).catch(() => []))
     .filter((entry) => entry.isFile() && entry.name.endsWith('.json'))
     .map((entry) => join(entry.parentPath, entry.name));
+  const nativeSpecs: SuiteSpec[] = [];
   for (const path of natives.sort()) {
     const record = JSON.parse(await readFile(path, 'utf8')) as {
       id: string;
       atom?: string;
       testType?: string;
     };
-    specs.push({
+    nativeSpecs.push({
       path,
       id: record.id,
       atoms: record.atom ? [record.atom] : [],
@@ -133,7 +139,7 @@ async function build(): Promise<FixtureSuite> {
   const report = JSON.parse(
     await readFile(join(out, 'estate-generate-report.json'), 'utf8'),
   ) as FixtureSuite['report'];
-  return { work, map: join(work, 'approved.yaml'), specs, report };
+  return { work, map: join(work, 'approved.yaml'), specs, natives: nativeSpecs, report };
 }
 
 async function yamlFiles(folder: string): Promise<string[]> {

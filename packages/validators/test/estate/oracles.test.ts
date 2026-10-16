@@ -184,6 +184,7 @@ describe('approved task asks are judged by the task oracle', () => {
         work: ROOT,
         map: join(fixture.FIXTURE, 'approved.yaml'),
         specs: [spec],
+        natives: [],
         report: {},
       };
       const mock = vi.spyOn(fixture, 'fixtureSuite').mockResolvedValue(suite);
