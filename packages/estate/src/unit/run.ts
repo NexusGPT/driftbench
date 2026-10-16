@@ -1,9 +1,21 @@
 import { spawn } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { constants, existsSync } from 'node:fs';
-import { copyFile, mkdir, mkdtemp, readFile, realpath, rm, writeFile } from 'node:fs/promises';
+import {
+  copyFile,
+  lstat,
+  mkdir,
+  mkdtemp,
+  readdir,
+  readFile,
+  readlink,
+  realpath,
+  rm,
+  writeFile,
+} from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { homedir, tmpdir } from 'node:os';
-import { dirname, extname, join } from 'node:path';
+import { dirname, extname, join, relative } from 'node:path';
 import type { GuardCase, UnitDecision, UnitOutcome, UnitTest } from '@agent-nexus/driftbench-generate';
 import {
   reapFolder,
@@ -77,11 +89,23 @@ export type UnitRunOptions = {
   noSandbox?: boolean;
   /** How many tests run at once (1 by default). The results keep the order of the tests. */
   jobs?: number;
+  /** Report, for each observed case, the files its working folder gained, changed or lost. */
+  observeWorkspace?: boolean;
 };
 
 export type UnitRun = { results: UnitResult[]; sandbox: 'sandbox-exec' | 'none'; notes: string[] };
 
-type Exec = { exitCode: number; stdout: string; stderr: string; ms: number; timedOut: boolean };
+/** The files a case created, changed or deleted in its working folder, as paths relative to that folder. */
+export type WorkspaceDiff = { created: string[]; changed: string[]; deleted: string[] };
+
+type Exec = {
+  exitCode: number;
+  stdout: string;
+  stderr: string;
+  ms: number;
+  timedOut: boolean;
+  workspace?: WorkspaceDiff;
+};
 
 const CREDENTIAL_FOLDERS = [
   '.ssh',
@@ -149,7 +173,7 @@ async function withRunner<T>(
       !options.noSandbox && process.platform === 'darwin' && existsSync('/usr/bin/sandbox-exec');
     if (!sandbox)
       notes.push('no sandbox: the guards and scripts ran with the network and the home folder open');
-    const runner = { work, copy, sandbox, counter: 0 };
+    const runner = { work, copy, sandbox, counter: 0, workspace: options.observeWorkspace === true };
     const config = await readConfig(options.root);
     const value = await action(runner, raw, config);
     return { value, sandbox: sandbox ? 'sandbox-exec' : 'none', notes };
@@ -166,7 +190,13 @@ async function withRunner<T>(
 export type UnitObservation = {
   id: string;
   target: UnitTest['target'];
-  cases: Array<{ id: string; outcome: UnitOutcome; ms: number; timedOut: boolean }>;
+  cases: Array<{
+    id: string;
+    outcome: UnitOutcome;
+    ms: number;
+    timedOut: boolean;
+    workspace?: WorkspaceDiff;
+  }>;
   error?: string;
   declared?: boolean;
 };
@@ -205,6 +235,7 @@ export async function observeUnitTests(
               outcome: scriptOutcome(result),
               ms: result.ms,
               timedOut: result.timedOut,
+              ...(result.workspace ? { workspace: result.workspace } : {}),
             });
           }
         }
@@ -232,6 +263,7 @@ export async function observeUnitTests(
               outcome: outcomeOf(result),
               ms: result.ms,
               timedOut: result.timedOut,
+              ...(result.workspace ? { workspace: result.workspace } : {}),
             });
           }
       }
@@ -242,7 +274,7 @@ export async function observeUnitTests(
   return { observations: run.value, sandbox: run.sandbox, notes: run.notes };
 }
 
-type Runner = { work: string; copy: string; sandbox: boolean; counter: number };
+type Runner = { work: string; copy: string; sandbox: boolean; counter: number; workspace?: boolean };
 
 async function runGuardTest(
   test: UnitTest,
@@ -505,12 +537,8 @@ async function runGuard(
       payload.last_assistant_message = literalPayload ? reply : reply || 'ok';
     if (!literalPayload) delete payload.last_reply;
   }
-  return execute(
-    ['/bin/sh', '-c', guard.command],
-    `${JSON.stringify(payload)}\n`,
-    runner,
-    runner.copy,
-    timeoutMs,
+  return watched(runner, runner.copy, () =>
+    execute(['/bin/sh', '-c', guard.command], `${JSON.stringify(payload)}\n`, runner, runner.copy, timeoutMs),
   );
 }
 
@@ -721,17 +749,63 @@ async function runScript(path: string, fixture: GuardCase, runner: Runner): Prom
   const folder = join(runner.work, `case-${runner.counter}`);
   await writeFixtures(runner, folder, (fixture.payload.files ?? {}) as Record<string, unknown>);
   const args = Array.isArray(fixture.payload.args) ? fixture.payload.args.map(String) : [];
-  return execute(
-    [
-      ...(await interpreterFor(await estatePath(runner.copy, path))),
-      await estatePath(runner.copy, path),
-      ...args,
-    ],
-    typeof fixture.payload.stdin === 'string' ? fixture.payload.stdin : '',
-    runner,
-    folder,
-    60_000,
+  const argv = [
+    ...(await interpreterFor(await estatePath(runner.copy, path))),
+    await estatePath(runner.copy, path),
+    ...args,
+  ];
+  return watched(runner, folder, () =>
+    execute(
+      argv,
+      typeof fixture.payload.stdin === 'string' ? fixture.payload.stdin : '',
+      runner,
+      folder,
+      60_000,
+    ),
   );
+}
+
+/** A run with the working folder compared before and after, when the caller asked to observe it. */
+async function watched(runner: Runner, folder: string, run: () => Promise<Exec>): Promise<Exec> {
+  if (!runner.workspace) return run();
+  const before = await snapshot(folder);
+  const result = await run();
+  return { ...result, workspace: diffOf(before, await snapshot(folder)) };
+}
+
+/** Every file below a folder with a digest of its content; a link is its target, never followed. */
+async function snapshot(folder: string): Promise<Map<string, string>> {
+  const files = new Map<string, string>();
+  const visit = async (dir: string): Promise<void> => {
+    for (const entry of await readdir(dir, { withFileTypes: true }).catch(() => [])) {
+      const path = join(dir, entry.name);
+      const info = await lstat(path).catch(() => undefined);
+      if (!info) continue;
+      const name = relative(folder, path).split('\\').join('/');
+      if (info.isSymbolicLink()) files.set(name, `link:${await readlink(path).catch(() => '')}`);
+      else if (info.isDirectory()) await visit(path);
+      else if (info.isFile())
+        files.set(
+          name,
+          info.size > 1_000_000
+            ? `big:${info.size}:${info.mtimeMs}`
+            : createHash('sha256')
+                .update(await readFile(path).catch(() => ''))
+                .digest('hex'),
+        );
+    }
+  };
+  await visit(folder);
+  return files;
+}
+
+function diffOf(before: Map<string, string>, after: Map<string, string>): WorkspaceDiff {
+  const created = [...after.keys()].filter((name) => !before.has(name));
+  const changed = [...after.keys()].filter(
+    (name) => before.has(name) && before.get(name) !== after.get(name),
+  );
+  const deleted = [...before.keys()].filter((name) => !after.has(name));
+  return { created: created.sort(), changed: changed.sort(), deleted: deleted.sort() };
 }
 
 /**
