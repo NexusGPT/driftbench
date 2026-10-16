@@ -592,6 +592,131 @@ A reference atom whose file is missing therefore has no complete test: it is jud
 
 The files of the estate copy are listed from the map's `root`. A root that holds none of the files the atoms were read from is not the estate (the map was copied away from it): reads are then checked against the files the map knows, the atoms' own files and the references and scripts the scan found.
 
+### Task-specific asks and equivalent tests
+
+A fallback ask starts with the atom's own governed action. A gate uses its trigger as a task
+(`publishing the corrected newsletter` becomes "Please publish the corrected newsletter.").
+A reference uses the action in its read-when clause. An actionable rule situation precedes a
+unit's broad description. The ask leaves the prerequisite and expected skill for the agent to discover.
+
+An atom that gives no task of its own takes the purpose of the unit that owns it, never a default of the
+estate. The purpose is the unit's description, then the requests of the routing rows that load the unit.
+A description is read in the third person: the first word is the verb when an object follows it, so
+"Handles customer complaints and logs the outcome" asks to handle customer complaints and log the outcome,
+for a verb the built-in list does not hold. A verb that states what a unit holds ("Holds", "Provides"), a
+noun followed by a function word ("Rules for ...") and a description that gives only a condition are no task:
+the ask stays incomplete and names why. A verb joined by "and" shares the form of the first when an object
+follows it; a word that ends the sentence or precedes a preposition stays as written. A possessive ("File's frame") and a plural noun with a noun ending ("analytics", "utilities", "awareness") are
+never read as a verb. A clause of a read-when line rides as the moment only when it is short (14 words or fewer)
+and states no obligation (never, always, must, should, only): a pasted rule is no situation.
+A task taken from a description or a routing request must have the shape of a request, else the next sentence
+is tried and, when none has it, the atom stays without a task: it has no colon (a list), no bare number after the
+verb ("install workflow 6 steps" is a heading with a count), no copula that follows the verb and its bare object
+("plan import is one atomic write" is a sentence about the plan; "notices for customers whose parcels are late" is
+fine), no subject before the verb, and does not open with a usage note ("use when ..."). The object a guard's rule
+names joins the tool act through its strict situation: "Please run a command in the shell here for a force push to
+the shared release branch." 
+A description is cut to the work it names: a parenthetical list of examples, a purpose clause ("so that a
+session can resume it") and a relative clause about the unit itself ("which writes the verdicts") are not asked
+for, and a head left without a verb and its object keeps the whole sentence. A table row or list line is read
+cell by cell: a cell that states a task is the ask (`Publishing the weekly report | file.md` asks to publish the
+weekly report), a cell that names an activity of two words or more rides as the moment, and a bare noun pair
+names a file's content and is neither. A read-when line that
+only lists its file ("`references/fields.md`: field definitions") states no situation; a clause of it apart
+from the file and the read directive rides in the ask as the situation.
+
+Both contract and covering-array rows retain the owning task. A reference's target file determines its folder owner; citation edges never establish ownership.
+Rules use their own source folder, and gated files use their target folder when one exists.
+The longest matching declared skill folder wins; route edges identify route targets only. A standing gate can therefore use the skill whose reference it gates.
+Ambiguous and unowned targets stay unresolved. Older plans are repaired during generation:
+unrelated attached skills are removed from both expectations and atom metadata.
+A shared file outside every skill folder is owned by the unit whose own file cites it: one reference atom
+exists per citation, so each skill or helper that cites the file directly owns its citation, and a link
+that only navigates, or a catalogue that cites a file in another unit's folder, owns nothing. A file cited
+only from the standing instructions has no owner and borrows no task. A prerequisite (reference or gate)
+owned by a helper asks for the work to be handed to a helper ("Please have a helper agent audit the ledger
+extract"), so the order applies only when the dispatch happens.
+Approved trigger phrases also respect that owner: a bank pin on a rule cannot borrow a different unit's task.
+A declared tool can use the owning helper's own situation when its permission is listed under unrelated tasks.
+The task in a source prerequisite clause is used even when the extracted trigger field is absent.
+A bare read-prerequisite title is never converted into a self-answering user ask.
+
+A guard may carry optional `fields.ruleText` and `fields.ruleSources`. Hook prose describes mechanics far
+more often than it names an act, so the ask that sets a guard off is the act of the tool the guard watches
+("change a file here" for Edit and Write, "run a command in the shell here" for Bash, "open a file here" for
+Read; a request for a full answer for a guard on the end of a turn), with the strict situation of the rule text
+as context ("This involves ..."). A phrase of the prose replaces the tool act only when it has a strict shape:
+
+* an act: a verb of the list (a hyphenated verb ends on one), then an object, three to ten words, no colon,
+  parenthesis, quotation, pronoun or relative word, no subject before the verb, no adverb or function word at
+  the end. It comes from the opening gerund ("Deploying to production without a tag"), the gerund after a
+  connective (when, while, if, before, after, until, unless, without, upon), or a rule the guard enforces;
+* a situation: a noun phrase that opens with a determiner or a number, ends on a content word (no adverb of
+  time, no participle), holds no pronoun, relative word or parenthesis, names no hook machinery (guard, hook,
+  check, script, handler, registry), and has no clause cut off inside it.
+
+Sentences about how the hook works (stdin, JSON, exit codes) are skipped, and a verb in the third person
+followed by of, on or about is a plural noun ("Calls of any tool"), never a verb. A guard rule written as an imperative to the agent ("End every reply with ...") is a rule, never an ask, and an act
+with a condition inside it ("ask before an Edit of a policy file", "add a reminder when the owner types stop") is
+a rule too: both fall back to the tool act. The subject of a gate trigger ("you discharge a patient") is dropped
+and its act is asked ("discharge a patient"); a trigger is put in the context as "The task is to ..." when it is an
+act and as "This involves ..." when it is a gerund or a noun phrase. A read-when line that opens with a condition
+("When the owner asks about boarding, read refs/boarding.md") asks about the condition. A guard on the user's prompt is set off by what the owner writes, so its ask is the message: the situation of the
+rule it enforces says it ("The user says stop" asks `stop`), when the message has up to five words and holds no
+clause word. A guard that watches no tool and has no strict prose has no ask: it stays incomplete. A replay row still needs
+its recorded session. The ask reads only the guard's own rule text and matcher: no registry state name or
+severity is read into it. A rule a guard enforces gives its forbidden act when that act is strict, else its
+trigger, else the tool act; a rule that restates itself ("go against this rule") is never the ask.
+
+The unit that owns a gate or a reference supplies the task of the ask, but its load is an expectation only when
+the rule is written in the unit's own files: a standing gate to read a file in a skill's folder does not require the
+skill. A unit-mode row (a guard or script run with no model) expects only what a run without a model can observe:
+the skill that owns the atom supplies the task of a live row, and its load is never an expectation of a unit one.
+
+A `guard_negative` row asks for a harmless near miss of the guard's own rule: without changing anything, what
+it would mean to do the strict act of the rule, what applies to its strict situation, or what it would mean to
+use the tool the guard watches. A guard on the end of a turn, which has no tool, and a guard with no strict
+prose stay incomplete. No estate-wide request stands in for either.
+
+The three types that run a guard directly with no model (`guard_hostile`, `guard_speed`,
+`guard_register`) never read their ask: it is a fixed request that names the tool the guard watches ("Please make
+one Edit or Write call in this workspace."), or the next step of the task when it watches none. No other type gets it.
+
+A map may record `documents`: each file's authority (`normative`, or a navigation role such as `example`,
+`template`, `history`, `changelog`, `journal`, `fixture`, `archive`). A reference whose target is a
+navigation document is a place to look and gets no `read_when` row, no journey edge and no covering-array
+target; the plan notes how many. A prerequisite to read such a file stays a gate. `estate stats` leaves
+those references out of the coverage counts and reports their number. A plan made before the map recorded
+roles still lists the row; generation writes it incomplete with that reason. A map without `documents`
+changes nothing: no file name is read as a role.
+A reference to a file outside the estate root (reached through a link to another repository) enters no journey:
+the run's workspace does not hold the file, so a path through it cannot be walked. Its `read_when` row stays.
+
+Complete tests with exactly equal rule semantics, asks, inputs, expectations, judge rubrics,
+run mode, test type and non-target situation values share one representative.
+Generated criterion identifiers may differ; their full rubrics and flags must remain equal.
+Different prerequisite paths, actions, event cells, unit targets or replay alignments stay separate.
+A journey is keyed by its ordered atom path: two journeys that walk different paths never merge, so every walked edge keeps its own spec.
+The representative retains every source atom in `metadata.estate.atoms` and records
+`metadata.estate.equivalence: { count, planRows }`.
+The count describes represented source tests. The report lists each group's source rows and atoms.
+`estate stats` expands those rows into their original plan cells, without replaying the representative repeatedly.
+Struck source rows count no covered cell. Missing-piece notes with `blocking: false` remain advisory.
+
+The generation report includes `incomplete[]`: spec id, path, plan row and all
+`reasons: [{ marker, atom, detail }]`. Each missing piece keeps its existing reason code.
+Aggregate gap totals remain available. Missing sessions, unsupported checks and unusable tasks
+stay incomplete; grouping never turns an incomplete test into a complete one.
+
+`quality` reports structural complete share, complete asked tests, distinct first asks and distinct asks
+per hundred complete asked tests. Static tests have no ask and stay outside that denominator.
+Event variations can legitimately repeat a task, so compare primary rule tests separately from the full suite.
+
+The fictional scale audit and its paired measurements are in
+[the task-generation audit](estate-task-generation-audit.md).
+The Northwind command transcripts and example generated tree below retain their original captured version.
+Current plan and generation byte snapshots live beside their product tests; they hash every output byte.
+
 Focus coverage counts distinct asks and situation cells. Repeated rows with the same ask and cell do not replace additional mutation opportunities. Additional identical focus variants are omitted.
 
 Layout: `<specs|incomplete>/<mode>/<test type>/<id>.yaml`, so `driftbench replay --suite <out>/specs/replay` takes the replay specs alone.
