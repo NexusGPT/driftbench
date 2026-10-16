@@ -68,11 +68,11 @@ driftbench spec lint <paths...> [--json] [--strict] [--summaries]
 | `--strict` | off | treat warnings as failures: exit 1 on any warning, `GIVEN_UNMET` included |
 | `--summaries` | off | also warn with `GIVEN_SUMMARY_MISSING` when a workspace folder or a named session state has no summary |
 
-Exit codes: 0 when every spec is valid (warnings allowed), 1 when one is invalid or, with `--strict`, has a warning, 2 when no path is given. The other options and codes are in the topic authoring-spec-check.
+Exit codes: 0 when every spec is valid (warnings allowed). It is 1 when one spec is invalid, or has a warning with `--strict`. It is 2 when no path is given. The other options and codes are in the topic authoring-spec-check.
 
 ### In a run
 
-The verifier has no option of `campaign run` or any other command. It runs before each block, on every target. A Given error makes the block `not_run` with kind `given_unmet`; the cell is `not_run`, and the command exits 1.
+The verifier has no option of `campaign run` or any other command. It runs before each block, on every target. A Given error makes the block `not_run` with kind `given_unmet`; the cell is `not_run`, and the command exits 3.
 
 ## Inputs
 
@@ -242,7 +242,7 @@ Lint all three, then run the good one and the first broken one:
 ```sh
 driftbench spec lint out/authoring-given-checks
 driftbench campaign run out/authoring-given-checks/shared.yaml --no-cache --mode T,F
-driftbench campaign run out/authoring-given-checks/broken/wrong-message.yaml --no-cache # exit 1
+driftbench campaign run out/authoring-given-checks/broken/wrong-message.yaml --no-cache # exit 3
 ```
 
 ```text
@@ -266,7 +266,7 @@ Campaign c-04f55c0f1e54: 1 cell, 4 at a time. Checks: tools, tools_offered, forb
 - shared-wrong-message · function:acme-sales · F · repeat 0  not_run  block 0 not_run value_in_message
 1 cell: 0 pass, 0 fail, 1 not run, 0 failed. Spent $0.00.
 The runs are not kept: pass --store <file> to keep them.
-(exit 1)
+(exit 3)
 ```
 
 `spec lint` exits 0: the findings are warnings. `shared.yaml` lints clean and passes in both modes. `wrong-message.yaml` gets `GIVEN_UNMET` with check `value_in_message`, and its cell is `not_run`: the agent was never asked. `no-output.yaml` gets `GIVEN_UNMET` with check `tool_history_paired`. Fix it by recording what the tool returned in `output`, as `shared.yaml` does.
