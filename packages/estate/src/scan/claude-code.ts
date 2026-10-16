@@ -296,11 +296,24 @@ async function readRootReferences(
   budget: number,
 ): Promise<void> {
   const files = new Map(estate.files.map((file) => [file.path, file]));
-  let byName = fileNames(files);
+  const byName = fileNames(files);
   const skipped = new Set(ignored.paths);
   const tried = new Set<string>();
   const proseFiles = new Set(estate.prose.map((chunk) => chunk.file));
   const expanded = new Set<string>();
+  // Many lines name the same file: each path is looked up on disk once.
+  const isFile = new Map<string, Promise<boolean>>();
+  const fileAt = (path: string) => {
+    let known = isFile.get(path);
+    if (known === undefined) {
+      known = stat(join(root, path)).then(
+        (info) => info.isFile(),
+        () => false,
+      );
+      isFile.set(path, known);
+    }
+    return known;
+  };
   for (let index = 0; index < estate.prose.length; index++) {
     const chunk = estate.prose[index];
     if (!chunk) continue;
@@ -321,7 +334,7 @@ async function readRootReferences(
           local !== '..' &&
           !local.startsWith('../') &&
           !local.startsWith('/') &&
-          (await stat(join(root, local)).catch(() => undefined))?.isFile();
+          (await fileAt(local));
         if (localPlaceholder) files.set(local, { path: local, text: '', kind: 'other' });
         const placeholder = !name.includes('/') && !files.has(name);
         if (placeholder) files.set(name, { path: name, text: '', kind: 'other' });
@@ -366,7 +379,8 @@ async function readRootReferences(
           candidate = { path, text, kind: 'other' };
           estate.files.push(candidate);
           files.set(path, candidate);
-          byName = fileNames(files);
+          // The name gets a new list: a list of names is never changed in place once built.
+          byName.set(basename(path), [...(byName.get(basename(path)) ?? []), path]);
         }
         // An imported file is standing; a file code reads as structure (a registry, settings, a step list,
         // a guard, an alias table) is not sent again as prose.

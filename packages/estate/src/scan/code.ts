@@ -76,6 +76,9 @@ const SCRIPT = /\.(sh|bash|py|js|mjs|cjs|ts|rb|pl)$/i;
 export class AtomBuilder {
   readonly atoms: Atom[] = [];
   private readonly ids = new Set<string>();
+  /** Per base id, the lowest suffix that may be free: every suffix below it is taken, and ids are never freed. */
+  private readonly suffixes = new Map<string, number>();
+  private readonly byFile = new Map<string, Atom[]>();
 
   constructor(private readonly files: ReadonlyMap<string, EstateFile>) {}
 
@@ -115,7 +118,12 @@ export class AtomBuilder {
   }): Atom {
     const base = `${atom.kind}.${this.scopeOf(atom.at.file)}.${slug(atom.title)}`;
     let id = base;
-    for (let count = 2; this.ids.has(id); count++) id = `${base}-${count}`;
+    if (this.ids.has(id)) {
+      let count = this.suffixes.get(base) ?? 2;
+      while (this.ids.has(`${base}-${count}`)) count++;
+      id = `${base}-${count}`;
+      this.suffixes.set(base, count + 1);
+    }
     this.ids.add(id);
     const producedBy = atom.producedBy ?? 'code';
     const built: Atom = {
@@ -132,7 +140,15 @@ export class AtomBuilder {
       ...(atom.fields ? { fields: atom.fields } : {}),
     };
     this.atoms.push(built);
+    const inFile = this.byFile.get(built.provenance.file);
+    if (inFile) inFile.push(built);
+    else this.byFile.set(built.provenance.file, [built]);
     return built;
+  }
+
+  /** The atoms built on a file, in the order they were added. */
+  atomsOf(path: string): readonly Atom[] {
+    return this.byFile.get(path) ?? [];
   }
 }
 
@@ -646,11 +662,32 @@ export function locateNamed(
   const named = byName.get(segments[segments.length - 1] ?? '') ?? [];
   for (let start = 0; start < segments.length; start++) {
     const tail = segments.slice(start).join('/');
-    const hits = named.filter((candidate) => candidate === tail || candidate.endsWith(`/${tail}`));
+    const hits = endingIn(named, tail);
     if (hits.length === 1) return { path: hits[0] as string, via: 'suffix' };
     if (hits.length > 1) return { path: placed, via: 'none', candidates: [...hits].sort() };
   }
   return { path: placed, via: 'none' };
+}
+
+/**
+ * The files of one file name whose path is `tail` or ends with `/tail`. Many lines name the same path, and a
+ * name such as `SKILL.md` is shared by many files, so the answer is kept per list of files and per tail. The
+ * scanner gives a name a new list when it learns a new file; a list that grows in place drops what was kept.
+ */
+const ENDINGS = new WeakMap<readonly string[], { size: number; byTail: Map<string, string[]> }>();
+function endingIn(named: readonly string[], tail: string): string[] {
+  let kept = ENDINGS.get(named);
+  if (!kept || kept.size !== named.length) {
+    kept = { size: named.length, byTail: new Map() };
+    ENDINGS.set(named, kept);
+  }
+  const { byTail } = kept;
+  let hits = byTail.get(tail);
+  if (!hits) {
+    hits = named.filter((candidate) => candidate === tail || candidate.endsWith(`/${tail}`));
+    byTail.set(tail, hits);
+  }
+  return hits;
 }
 
 /** Every file of the estate (and every skipped file) by its file name. */
@@ -661,7 +698,9 @@ export function fileNames(
   const byName = new Map<string, string[]>();
   for (const path of [...files.keys(), ...skipped]) {
     const name = basename(path);
-    byName.set(name, [...(byName.get(name) ?? []), path]);
+    const paths = byName.get(name);
+    if (paths) paths.push(path);
+    else byName.set(name, [path]);
   }
   return byName;
 }
@@ -676,13 +715,23 @@ function names(raw: RawEstate, files: ReadonlyMap<string, EstateFile>): Map<stri
   return built;
 }
 
+/** The paths the reader skipped, as a set built once per estate read. */
+const SKIPPED = new WeakMap<RawEstate, Set<string>>();
+function skippedOf(raw: RawEstate): Set<string> {
+  const cached = SKIPPED.get(raw);
+  if (cached) return cached;
+  const built = new Set(raw.ignored?.paths ?? []);
+  SKIPPED.set(raw, built);
+  return built;
+}
+
 function referenceAtoms(
   chunk: ProseChunk,
   files: ReadonlyMap<string, EstateFile>,
   raw: RawEstate,
   builder: AtomBuilder,
 ): void {
-  const skipped = new Set(raw.ignored?.paths ?? []);
+  const skipped = skippedOf(raw);
   const standing = files.get(chunk.file)?.kind === 'standing';
   for (const line of chunkLines(chunk, files.get(chunk.file))) {
     // A standing line `@path` is an import: the runtime loads that file, so the agent reads nothing.
@@ -1220,7 +1269,7 @@ function gateAtoms(
         const located = isFile
           ? locateNamed(first, chunk.file, files, {
               bases: raw.bases ?? [],
-              skipped: new Set(raw.ignored?.paths ?? []),
+              skipped: skippedOf(raw),
               aliases: raw.aliases ?? {},
               byName: names(raw, files),
               externals: raw.externals ?? [],
@@ -1665,9 +1714,27 @@ function runtimeRateLimit(line: string): boolean {
   });
 }
 
-/** The non-blank lines of a chunk, numbered as lines of its file. */
+/**
+ * The non-blank lines of a chunk, numbered as lines of its file. The reader and every code pass read each
+ * chunk, so the lines are kept per chunk and source; a caller reads them and never changes them.
+ */
 const MASKED_PROSE = new WeakMap<EstateFile, string[]>();
+const CHUNK_LINES = new WeakMap<
+  ProseChunk,
+  { source: EstateFile | undefined; lines: Array<{ line: number; text: string; quote: string }> }
+>();
 export function chunkLines(
+  chunk: ProseChunk,
+  source?: EstateFile,
+): Array<{ line: number; text: string; quote: string }> {
+  const kept = CHUNK_LINES.get(chunk);
+  if (kept && kept.source === source) return kept.lines;
+  const lines = maskedChunkLines(chunk, source);
+  CHUNK_LINES.set(chunk, { source, lines });
+  return lines;
+}
+
+function maskedChunkLines(
   chunk: ProseChunk,
   source?: EstateFile,
 ): Array<{ line: number; text: string; quote: string }> {

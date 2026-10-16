@@ -170,14 +170,16 @@ export function acceptProse(
       });
       return;
     }
-    const same = builder.atoms.find(
-      (other) =>
-        other.kind === atom.kind &&
-        other.provenance.file === at.file &&
-        other.provenance.startLine <= at.endLine &&
-        at.startLine <= other.provenance.endLine &&
-        (other.producedBy === 'code' || foldQuote(other.provenance.quote) === folded),
-    );
+    const same = builder
+      .atomsOf(at.file)
+      .find(
+        (other) =>
+          other.kind === atom.kind &&
+          other.provenance.file === at.file &&
+          other.provenance.startLine <= at.endLine &&
+          at.startLine <= other.provenance.endLine &&
+          (other.producedBy === 'code' || foldQuote(other.provenance.quote) === folded),
+      );
     if (same) {
       duplicates.push(`${chunk.id}: ${named} repeats ${same.id}`);
       return;

@@ -59,11 +59,12 @@ export async function scanEstate(input: ScanEstateInput): Promise<ScanEstateResu
     if (spans.length > 0) atom.fields = { ...atom.fields, spans };
   }
   const graph = buildGraph(builder.atoms, raw);
+  const byId = new Map(builder.atoms.map((atom) => [atom.id, atom]));
   for (const [guard, entries] of graph.enforces) {
-    const atom = builder.atoms.find((candidate) => candidate.id === guard);
+    const atom = byId.get(guard);
     if (atom) atom.fields = { ...atom.fields, enforces: entries };
     for (const entry of entries) {
-      const rule = builder.atoms.find((candidate) => candidate.id === entry.atom);
+      const rule = byId.get(entry.atom);
       if (rule && !rule.enforcement.includes(guard)) rule.enforcement.push(guard);
     }
   }
