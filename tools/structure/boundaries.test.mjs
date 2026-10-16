@@ -13,6 +13,8 @@ const SCOPE = '@agent-nexus/driftbench';
 
 // Relative imports in src that leave their own package. Key: "<file> -> <specifier>".
 const CROSSING_ALLOWLIST = {
+  'packages/cli/src/commands/bench.ts -> ../../../../benchmarks/cli':
+    'driftbench bench runs the benchmark code of benchmarks/ in a repository checkout (--root names it); it loads on use, in three dynamic imports of one specifier, and the benchmark code is not part of the published CLI',
   'packages/adapters/src/contract.ts -> ../../../examples/acme/src/index':
     'the contract suite ships the reference agent it holds adapters to, bundled into the contract entry only',
   'packages/validators/src/ladders/system/bank/cli.ts -> ../../../../../cli/src/main':

@@ -197,7 +197,7 @@ export {
   type DefaultJudgeOptions,
 } from './default-judge';
 export { createEscalation, type EscalationConfig } from './escalation';
-export { type Grounding, groundEvidence } from './evidence';
+export { type EvidenceSpan, type Grounding, groundEvidence, groundEvidenceSpan } from './evidence';
 export { FACT_LEDGER_POINTWISE, FactLedgerAnswer, PointwiseFactLedgerAnswer } from './fact-audit';
 export { familyOfModel, normalizeFamily, sameFamily } from './family';
 export { findCycles } from './find-cycles';
