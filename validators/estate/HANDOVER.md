@@ -8,16 +8,16 @@
 | 1 | 2 |
 | 2 | 2 |
 | 3 | 2 |
-| hidden | 0 |
+| hidden | 2 |
 <!-- level-table:end -->
 
-Iteration 46, source c1ac480c04ed2c7c44cb957a283d631be379ef0f plus the change recorded in this journal row. Hidden seed 250293324, derived from that head.
+Iteration 49, source 75926fab51b0af64a64979a998b236741294576e plus the change recorded in this journal row. Hidden seed 973531115, derived from that head.
 | Seed | Reader passing / items |
 |---|---|
-| 1 | 636/641 |
-| 2 | 636/641 |
-| 3 | 636/641 |
-| hidden (250293324) | 636/641 |
+| 1 | 738/752 |
+| 2 | 738/752 |
+| 3 | 740/752 |
+| hidden (973531115) | 740/752 |
 
 Each fraction counts reader items passing on that seed, out of 641 reader items. Journal `passing` counts distinct evaluated item IDs passing every seed; it is not a sum of seed counts. The journal's per-level `metrics` use seed 1; its `perSeed` records achieved levels separately.
 
@@ -35,14 +35,24 @@ Owner rule: "make sure all the fixes are fixes that are TO THE FRAMEWORK in gene
 
 ## Open items
 
-- scan.decoys.changelog-reference: [scan.decoys, tier 4] code is not fooled: a file named in a change note is no reference: found reference reference.ticket-price-14oprfr.read-references-legacy-md at .claude/skills/ticket-price-14oprfr/SKILL.md:12, never planted
-- scan.decoys.form-number-label: [scan.decoys, tier 4] code is not fooled: a form number that reads like a rule label cites no rule: a form number cited a rule
-- scan.decoys.guard-message-overlap: [scan.decoys, tier 4] code is not fooled: a guard message that quotes part of a rule's words is no enforcement: the guard enforces a rule it only quotes in passing
-- scan.decoys.script-name-in-prose: [scan.decoys, tier 3] code is not fooled: a script's name mentioned in passing anchors no script on that line: missed script .claude/skills/recipe-pack-18xh08m/scripts/tally.py at .claude/skills/recipe-pack-18xh08m/SKILL.md:10; found script script.recipe-pack-18xh08m.script-scripts-tally-py at .claude/skills/recipe-pack-18xh08m/SKILL.md:9, never planted
-- scan.decoys.hazard-in-example-quote: [scan.decoys, tier 4] code is not fooled: a hazard word inside a quoted example is no hazard: found hazard hazard.menu-review-6c2zvj.recover-from-a-wave-of-rate at .claude/skills/menu-review-6c2zvj/SKILL.md:10, never planted
+- plan.relevance.dead-helper: [plan.relevance, tier 3] : [plan.relevance, tier 3] a dead helper is crossed only with subagent atoms: 14 rows cross it with atoms it cannot act on: pairwise.008 (route), pairwise.015 (route), pairwise.022 (instruction)
+- plan.relevance.helpers-running: [plan.relevance, tier 3] : [plan.relevance, tier 3] helpers running is crossed only with subagent atoms: 17 rows cross it with atoms it cannot act on: pairwise.002 (instruction), pairwise.021 (instruction), pairwise.025 (route)
+- plan.relevance.language-switch: [plan.relevance, tier 3] : [plan.relevance, tier 3] a language switch is crossed only with register, instruction atoms: 1 rows cross it with atoms it cannot act on: pairwise.050 (stage)
+- plan.relevance.owner-language-switch: [plan.relevance, tier 3] : [plan.relevance, tier 3] an owner switching language is crossed only with register, instruction atoms: 6 rows cross it with atoms it cannot act on: pairwise.058 (stage), pairwise.069 (stage), pairwise.099 (stage)
+- plan.relevance.tool-failure: [plan.relevance, tier 3] : [plan.relevance, tier 3] a tool failure is crossed only with tool, script, guard, subagent, skill, route atoms: 7 rows cross it with atoms it cannot act on: pairwise.090 (gate), pairwise.096 (gate), pairwise.144 (gate)
+- plan.relevance.instruction-in-data: [plan.relevance, tier 3] : [plan.relevance, tier 3] an instruction in the data is crossed only with instruction, gate, guard, register atoms: 14 rows cross it with atoms it cannot act on: pairwise.024 (stage), pairwise.045 (stage), pairwise.122 (skill)
+- plan.relevance.loose-confirmation: [plan.relevance, tier 3] : [plan.relevance, tier 3] a loose confirmation is crossed only with instruction, gate, guard atoms: 4 rows cross it with atoms it cannot act on: pairwise.013 (skill), pairwise.080 (route), pairwise.088 (route)
+- plan.relevance.rate-wave: [plan.relevance, tier 3] : [plan.relevance, tier 3] a wave of rate limits is crossed only with tool, script, subagent, instruction, stage atoms: 51 rows cross it with atoms it cannot act on: pairwise.011 (register), pairwise.013 (skill), pairwise.020 (gate)
+- plan.relevance.process-restart: [plan.relevance, tier 3] : [plan.relevance, tier 3] a process restart is crossed only with stage, subagent, instruction, gate atoms: 46 rows cross it with atoms it cannot act on: pairwise.004 (register), pairwise.018 (route), pairwise.025 (route)
+- plan.relevance.after-restart: [plan.relevance, tier 3] : [plan.relevance, tier 3] a session after a restart is crossed only with stage, subagent, instruction, gate atoms: 40 rows cross it with atoms it cannot act on: pairwise.004 (register), pairwise.015 (route), pairwise.032 (register)
+- plan.relevance.no-questions: [plan.relevance, tier 3] : [plan.relevance, tier 3] the owner asking for no questions is crossed only with instruction, gate, register atoms: 38 rows cross it with atoms it cannot act on: pairwise.018 (route), pairwise.025 (route), pairwise.033 (guard)
+- plan.relevance.goal-shift: [plan.relevance, tier 3] : [plan.relevance, tier 3] a goal shift is crossed only with route, skill, stage, instruction atoms: 1 rows cross it with atoms it cannot act on: pairwise.217 (gate)
+- plan.relevance.off-topic: [plan.relevance, tier 3] : [plan.relevance, tier 3] an off-topic turn is crossed only with route, skill, instruction, register, stage atoms: 7 rows cross it with atoms it cannot act on: pairwise.118 (gate), pairwise.123 (subagent), pairwise.124 (guard)
+- plan.relevance.silence-burst: [plan.relevance, tier 3] : [plan.relevance, tier 3] silence or a burst is crossed only with instruction, register, guard, subagent atoms: 7 rows cross it with atoms it cannot act on: pairwise.018 (route), pairwise.051 (route), pairwise.076 (route)
 
 ## Hypotheses tried
 
+Iteration 49: integration: one hazard-quotation mask passing both lanes' tests; level 2 on all seeds, bank unchanged.
 Iteration 46: plain-name helper dispatch. +1 on every seed: blind.edges.dispatch-plain-name.
 Iteration 45: reference chains owned by the reading skill. +1 on every seed: scan.reference-prose.chained.
 Iteration 44: routing read by role (tables of any header, links, slash commands, outer-pipe-less tables, standing directive lines, per-skill headings, owner tables rejected). +8 on every seed.

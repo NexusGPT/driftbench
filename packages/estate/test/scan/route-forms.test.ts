@@ -100,7 +100,7 @@ describe('routing follows the role of the source text', () => {
     expect(
       map.atoms
         .filter((atom) => atom.kind === 'route' && atom.provenance.file === 'CLAUDE.md')
-        .map((atom) => atom.fields.target),
+        .map((atom) => atom.fields?.target),
     ).toEqual(['parcel-plan']);
   });
 

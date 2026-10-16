@@ -1216,9 +1216,9 @@ function actLabel(act: string, raw: RawEstate): string {
 function hazardAtoms(chunk: ProseChunk, files: ReadonlyMap<string, EstateFile>, builder: AtomBuilder): void {
   if (!files.has(chunk.file)) return;
   for (const line of chunkLines(chunk, files.get(chunk.file))) {
+    const text = withoutHazardExamples(line.text);
     for (const hazard of HAZARDS) {
-      if (!hazard.pattern.test(line.text) || !runtimeHazard(hazard.id, line.text)) continue;
-      if (quotedSample(line.text, hazard.pattern)) continue;
+      if (!hazard.pattern.test(text) || !runtimeHazard(hazard.id, text)) continue;
       builder.add({
         kind: 'hazard',
         title: `Recover from ${hazard.title.toLowerCase()}`,
@@ -1232,18 +1232,41 @@ function hazardAtoms(chunk: ProseChunk, files: ReadonlyMap<string, EstateFile>, 
 }
 
 /**
- * A hazard named only inside a quotation that the line offers as a sample of how some text reads ("an error
- * reads like "rate limit exceeded""; "for example, `restart pending`") shows a format, not an event the agent
- * meets. The same quotation inside a condition ("if the API answers "rate limit exceeded", wait") is the event,
- * and stays a hazard, as does any hazard named outside the quotation.
+ * Quoting a sample does not make its words a runtime event: a quotation or code span the line presents as an
+ * illustration (an example, how a message reads or looks) is blanked before hazards are matched. A quoted label
+ * in a condition ("if the tool reports ...") or defined as a signal ("treat ... as a signal") stays.
  */
-function quotedSample(text: string, pattern: RegExp): boolean {
-  const outside = maskLine(text).text.replace(new RegExp(TOKEN, 'g'), ' ');
-  if (pattern.test(outside)) return false;
-  const sample =
-    /\b(?:reads?|looks?|(?:is|are)\s+written|appears?)\s+(?:like|as)\b|\bfor\s+(?:example|instance)\b|\be\.g\.|\bexamples?\s*:/i;
-  const condition = /\b(?:if|when|whenever|once|after|upon|unless|until|in\s+case)\b/i;
-  return sample.test(outside) && !condition.test(outside);
+function withoutHazardExamples(text: string): string {
+  return text.replace(
+    /`[^`\n]+`|"(?:\\.|[^"\\\n])*"|\u201C[^\u201D\n]*\u201D|(?<!\w)'(?:\\.|[^'\\\n])*'|\u2018[^\u2019\n]*\u2019/g,
+    (quote, offset: number) => {
+      const prefix =
+        text
+          .slice(0, offset)
+          .split(/[;!?]|\.(?=\s|$)/)
+          .at(-1) ?? '';
+      // Conditional instructions frequently quote the exact error that activates recovery.
+      if (/\b(?:if|when|after|once|upon)\b/i.test(prefix)) return quote;
+      const suffix = text.slice(offset + quote.length).split(/[;!?]|\.(?=\s|$)/)[0] ?? '';
+      // An imperative can define a quoted phrase as an operational signal without using "if".
+      const operation =
+        /^\s*(?:[-+*]\s+|\d+[.)]\s+)?(?:you\s+)?(?:(?:must|should|always)\s+)?(?:treat|interpret|recognize|recognise|regard|consider|take)\b/i.test(
+          prefix,
+        ) &&
+        /^\s+as\s+(?:(?:an?|the|your)\s+)?(?:runtime\s+)?(?:signal|trigger|condition|event|error|warning)\b/i.test(
+          suffix,
+        );
+      const effect =
+        /^\s+(?:means|signals|indicates|requires|triggers)\b/i.test(suffix) &&
+        !/\b(?:example|sample|quotation)\b/i.test(prefix);
+      if (operation || effect) return quote;
+      const illustrative =
+        /\b(?:example|instance|sample|phrase|literal)\b|\be\.g\.|\b(?:reads?|looks?|(?:is|are)\s+written|appears?)\s+(?:like|as)\b|\b(?:error|message|log)\s+(?:says|reads|shows)\b/i.test(
+          prefix,
+        ) || /^\s+is\s+(?:only\s+|just\s+)?an?\s+(?:example|sample|quotation)\b/i.test(suffix);
+      return illustrative ? ' '.repeat(quote.length) : quote;
+    },
+  );
 }
 
 /**
