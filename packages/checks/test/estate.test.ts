@@ -544,6 +544,36 @@ describe('guard_message and guard_finished: what a guard said, and that it answe
     expect(nudged[0]?.evidence).toContain('Did you mean to stop?');
   });
 
+  it('judges only the runs by which a guard acts: allow, a timeout and a verdict outside the vocabulary are no intervention', async () => {
+    for (const verdict of ['allow', 'timeout', 'WARN', 'warning', 'war', 'warn_extra', 'flag']) {
+      const out = await verdicts(
+        guardMessage,
+        ctx(
+          'ok',
+          [],
+          guards([{ name: 'tidy.py', verdict, stderr: 'Archive the file instead.', exitCode: 0 }]),
+        ),
+        { name: 'tidy.py' },
+      );
+      expect(
+        out.map((v) => [v.id, v.outcome]),
+        verdict,
+      ).toEqual([['guard_message.present', 'inconclusive']]);
+    }
+    for (const verdict of ['deny', 'block', 'warn', 'nudge']) {
+      const out = await verdicts(
+        guardMessage,
+        ctx(
+          'ok',
+          [],
+          guards([{ name: 'tidy.py', verdict, stderr: 'Archive the file instead.', exitCode: 0 }]),
+        ),
+        { name: 'tidy.py' },
+      );
+      expect(out[0]?.outcome, verdict).toBe('pass');
+    }
+  });
+
   it('guard_finished: every run answered, none stopped; inconclusive when the guard never ran', async () => {
     const ok = await verdicts(
       guardFinished,

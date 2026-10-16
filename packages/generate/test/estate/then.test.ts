@@ -274,6 +274,14 @@ describe('the negative control', () => {
     expect(then.must).toEqual([]);
   });
 
+  it('forbids every verdict by which a guard acts when the guard declares none, and keeps allow free', () => {
+    const then = thenOf([atom('g', [{ type: 'guard', name: 'tidy-reply.py' }])], 'negative', ctx);
+    expect(then.gaps).toEqual([]);
+    expect(then.guards).toEqual(
+      ['deny', 'block', 'warn', 'nudge'].map((verdict) => ({ name: 'tidy-reply.py', verdict, count: 0 })),
+    );
+  });
+
   it('never forbids a whole tool for an act that names its input, and names what has no inverse', () => {
     const then = thenOf(
       [
@@ -378,6 +386,39 @@ describe('the estate checks the runner registers, and custom predicates compiled
     expect(asked.custom).toEqual({
       permission: { rules: [{ effect: 'ask', rule: 'Bash(git commit:*)' }], block: 0 },
     });
+  });
+
+  it('adds the skill or helper that declares a tool to the Then of a declared tool rule, and no other unit', () => {
+    const declared = (id: string, file: string) =>
+      atom(id, [{ type: 'custom', name: 'permission', options: { effect: 'declared', rule: 'Edit' } }], {
+        kind: 'tool',
+        provenance: { quote: 'allowed-tools: Edit', file },
+      });
+    const unit = (kind: 'skill' | 'subagent', name: string, file: string) =>
+      atom(`${kind}.${name}`, [], { kind, fields: { name }, provenance: { quote: name, file } });
+    const atoms = new Map(
+      [
+        unit('skill', 'sea-charts', '.claude/skills/sea-charts/SKILL.md'),
+        unit('skill', 'tide-tables', '.claude/skills/tide-tables/SKILL.md'),
+        unit('subagent', 'harbour-scout', '.claude/agents/harbour-scout.md'),
+      ].map((entry) => [entry.id, entry]),
+    );
+    const inSkill = thenOf([declared('tool.a', '.claude/skills/sea-charts/SKILL.md')], 'positive', {
+      ...full,
+      atoms,
+    });
+    expect(inSkill.skills).toEqual([{ name: 'sea-charts', count: { min: 1 } }]);
+    expect(inSkill.subagents).toEqual([]);
+    const inHelper = thenOf([declared('tool.b', '.claude/agents/harbour-scout.md')], 'positive', {
+      ...full,
+      atoms,
+    });
+    expect(inHelper.subagents).toEqual([{ name: 'harbour-scout', count: { min: 1 } }]);
+    expect(inHelper.skills).toEqual([]);
+    // A tool rule of the settings file belongs to no unit, and an allow rule never names one.
+    expect(
+      thenOf([declared('tool.c', '.claude/settings.json')], 'positive', { ...full, atoms }).skills,
+    ).toEqual([]);
   });
 
   it('compiles the custom predicates it knows into must, must_not, lang, safety and execution', () => {
@@ -680,20 +721,34 @@ describe('ordered pairs between two calls of one tool, and a step allowed at any
     expect(thenOf([gate], 'positive', runner).gaps.map((entry) => entry.marker)).toEqual([MARKERS.anchor]);
   });
 
-  it('never requires a step allowed at any point: the flow around it still closes on its closing step', () => {
-    const note = stage('note', [], true);
-    const then = thenOf([note], 'positive', runner);
+  it('requires a step allowed at any point to show once, wherever, when the runner registers stage_seen', () => {
+    const then = thenOf([stage('note', [], true)], 'positive', runner);
+    expect(then.gaps).toEqual([]);
+    expect(then.custom).toEqual({ stage_seen: { name: 'note', block: 0 } });
+    expect(then.stage).toBeUndefined();
+    expect(then.ordered).toEqual([]);
+  });
+
+  it('does not require a step allowed at any point when the runner registers no stage_seen: the flow around it still closes on its closing step', () => {
+    const plain: ThenContext = { ...runner, customChecks: new Set(['ordered']) };
+    const then = thenOf([stage('note', [], true)], 'positive', plain);
     expect(then.gaps).toEqual([]);
     expect(then.custom).toEqual({});
     expect(then.stage).toBe('report');
-    // With two closing steps there is no flow to check it on: a gap, with or without stage_seen.
-    const open: ThenContext = {
-      ...runner,
-      stages: stageModel([stage('a', ['b', 'c']), stage('b', []), stage('c', []), stage('jot', [], true)]),
-    };
-    expect(thenOf([stage('jot', [], true)], 'positive', open).gaps.map((entry) => entry.marker)).toEqual([
-      MARKERS.stageReach,
+    // With two closing steps there is no flow to check it on: a gap without stage_seen, none with it.
+    const stages = stageModel([
+      stage('a', ['b', 'c']),
+      stage('b', []),
+      stage('c', []),
+      stage('jot', [], true),
     ]);
+    expect(
+      thenOf([stage('jot', [], true)], 'positive', { ...plain, stages }).gaps.map((entry) => entry.marker),
+    ).toEqual([MARKERS.stageReach]);
+    const seen = thenOf([stage('jot', [], true)], 'positive', { ...runner, stages });
+    expect(seen.gaps).toEqual([]);
+    expect(seen.custom).toEqual({ stage_seen: { name: 'jot', block: 0 } });
+    expect(seen.stage).toBeUndefined();
   });
 });
 

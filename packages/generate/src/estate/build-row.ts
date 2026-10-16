@@ -210,6 +210,7 @@ export function build(
         row.testType === 'twin',
         (id) => ctx.atoms.get(id),
         variant,
+        [...ctx.atoms.values()],
       );
       if (written.text === undefined) {
         // Never a nonsense ask: the row waits for an approved phrase, under its own gap.

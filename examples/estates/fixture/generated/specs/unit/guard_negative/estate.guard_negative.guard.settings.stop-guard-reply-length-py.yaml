@@ -29,6 +29,15 @@ blocks:
         - name: reply-length.py
           verdict: deny
           count: 0
+        - name: reply-length.py
+          verdict: block
+          count: 0
+        - name: reply-length.py
+          verdict: warn
+          count: 0
+        - name: reply-length.py
+          verdict: nudge
+          count: 0
       workspace:
         others_untouched: true
 metadata:
