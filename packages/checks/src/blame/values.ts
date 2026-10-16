@@ -162,26 +162,34 @@ export async function replayedValueFacts(
   verdict: Pick<Verdict, 'id' | 'valueCheck'>,
   policy: ValuePolicy,
   services: ValueServices,
-): Promise<evidence.ValueFact[]> {
+): Promise<{ facts: evidence.ValueFact[]; errors: string[] }> {
   const decisions = verdict.valueCheck ?? [];
   const facts = storedFacts({ observed: ctx.observed, expect: ctx.expect, policy }, verdict);
   const subject = inputSubject(ctx.expect, verdict.id);
   if (subject === undefined || !decisions.some((decision) => decision.rung === 'exact_fallback')) {
-    return failingFirst(facts);
+    return { facts: failingFirst(facts), errors: [] };
   }
   const names = { tool: subject.tool.label, field: subject.field };
   const again = new Map<string, evidence.ValueFact>();
+  const errors: string[] = [];
   for (const { call, leaves } of await replayInputValues(ctx, verdict.id, policy, services)) {
-    for (const leaf of leaves) again.set(`${call}|${leaf.path}`, replayedFact(names, call, leaf, policy));
+    for (const leaf of leaves) {
+      again.set(`${call}|${leaf.path}`, replayedFact(names, call, leaf, policy));
+      const failed = leaf.result.emits?.judge_error;
+      if (typeof failed === 'string') errors.push(failed);
+    }
   }
-  return failingFirst(
-    facts.map((fact, index) => {
-      const decision = decisions[index];
-      const redone =
-        decision?.rung === 'exact_fallback' ? again.get(`${decision.call}|${decision.path}`) : undefined;
-      return redone ?? fact;
-    }),
-  );
+  return {
+    facts: failingFirst(
+      facts.map((fact, index) => {
+        const decision = decisions[index];
+        const redone =
+          decision?.rung === 'exact_fallback' ? again.get(`${decision.call}|${decision.path}`) : undefined;
+        return redone ?? fact;
+      }),
+    ),
+    errors,
+  };
 }
 
 /** The tool definitions a spec declares, by tool label: `metadata.tool_schemas`. */

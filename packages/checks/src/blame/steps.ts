@@ -167,12 +167,15 @@ function blockStep(
           if (!verdict.gating || verdict.outcome !== 'fail') continue;
           if (evidence.verdictSubject(verdict.id).part !== 'input') continue;
           try {
-            values[verdict.id] = await replayedValueFacts(
+            const replayed = await replayedValueFacts(
               ctx.check,
               verdict,
               valuePolicy ?? DEFAULT_VALUE_POLICY,
               services.value,
             );
+            values[verdict.id] = replayed.facts;
+            // A judge that threw is swallowed by the ladder (the value stays inconclusive); report it.
+            for (const failure of replayed.errors) errors.push(`error:value_service_failed:${failure}`);
           } catch (cause) {
             errors.push(`error:value_service_failed:${describe(cause)}`);
           }

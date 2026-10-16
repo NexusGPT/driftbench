@@ -606,3 +606,43 @@ describe('a service that throws is reported, and the block keeps its diagnoses',
     expect(error?.summary).toContain('classifier unreachable');
   });
 });
+
+describe('a judge that throws is reported, not read as no decider', () => {
+  write({
+    'specs/judge-throws.yaml': [
+      'id: judge-throws',
+      'uses: { diagnostics: [value-mismatch] }',
+      'blocks:',
+      '  - user: Can the house on Summit, number eighty-eight, in Acmeville get fibre?',
+      '    expect:',
+      '      tools:',
+      '        - { label: coverage.check, input: { address: "88 Summit Avenue, Acmeville" } }',
+      '',
+    ].join('\n'),
+  });
+  let restore = () => {};
+  afterEach(() => restore());
+
+  it('keeps the attribution of the value and adds error:value_service_failed with the message', async () => {
+    restore = useBlameServices({
+      value: {
+        judge: {
+          model: 'scripted',
+          calibration: { falseAcceptance: 0, source: 'test script' },
+          complete: async () => {
+            throw new Error('judge endpoint down');
+          },
+        },
+      },
+    });
+    const result = await run('specs/judge-throws.yaml', {
+      toolCalls: [
+        { label: 'coverage.check', input: { address: '88 Summit Ave, Acmeville' }, output: { found: true } },
+      ],
+    });
+    const diagnoses = result.blocks[0]?.diagnoses ?? [];
+    expect(diagnoses.some((one) => one.verdictRef === 'tools.coverage.check.input.address')).toBe(true);
+    const error = diagnoses.find((one) => one.flags?.includes('error:value_service_failed'));
+    expect(error?.summary).toContain('judge endpoint down');
+  });
+});
