@@ -289,3 +289,13 @@ The generator's disk parity test imports the validator's mutable seed-5 hidden c
 The test now constructs its intended imbalance by adding approved off-topic phrases before generation, on public seeds 1 and 5 and fresh seed 1009. It keeps the assertion requiring balance files, summary/file-count equality and every non-report file's byte equality. No generator product source changes. The separate merge commit preserves both sides of the records. See [integration evidence](evidence/ownership-stream-fixture.json). Historical ladder measurements stay unchanged.
 
 Focused results: four disk parity cases and 42 ownership/pin tests pass. Disabling the balancing iterator through a temporary test spy makes all three explicit-imbalance cases fail. The spy is removed; product source is unchanged.
+## Feasibility and impossible pairs: maintainer ruling (2026-10-15)
+
+`diff.feasible.<seeder>` read only the written constraints, and only five seeders. A block in a cell no path of the hidden map can reach (`possible.ts`) passed, and blocks from the `cover` and `task` seeders were read by no item. The item now reads the hidden space map, the same map the coverage items read. It checks every seeder: `cover` and `task` have their own items, and `diff.feasible.unlisted` reads any seeder no item names. The bank grows from 2033 to 2036 items.
+
+Measured on main's product, `diff.feasible.cover` fails on every measured seed (1 to 20, the hidden seed and 1001 to 1010). `diff.feasible.twise` also fails on seeds 10 and 15. Two product causes, both against the generator's own model in `packages/generate/src/seed/possible.ts`:
+
+1. A cover spec pairs a behaviour with a flow that does not list it (seed 2: `gen-cover-001`, flow change-request, behaviour B-001). Every block inherits the pair: 6787 blocks across 31 seeds.
+2. The first move's block records the start stage it is said at (`assemble.ts`, `saidAt`), while both models place a move at the stage it reaches. It is flagged only where the behaviour's flows carry no first-turn class: 25 blocks on seeds 10 and 15.
+
+The product lane fixes these in `packages/generate`. Per-seed counts: [evidence](evidence/feasible-impossible-pairs.json) and [the journal](SWEEP-JOURNAL.md). No historical ladder level is updated by this scoped ruling.
