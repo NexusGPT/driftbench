@@ -16,6 +16,12 @@ on:
         description: Comma-separated job ids to run on a train/* branch, no spaces (for example build,python). A dispatch on any other branch runs nothing.
         required: true
         type: string
+      seeds:
+        description: For blocks-measure only. trial runs seeds 1 to 3 and the hidden seed in 3 jobs; full runs seeds 1 to 20 and the hidden seed in 10 jobs, for a gate measurement only.
+        required: false
+        default: trial
+        type: choice
+        options: [trial, full]
 
 permissions:
   contents: read
@@ -79,18 +85,10 @@ jobs:
     timeout-minutes: 300
     strategy:
       fail-fast: false
+      # Runners are shared: a trial round measures seeds 1 to 3 and the hidden seed in 3 jobs; only a gate
+      # measurement (seeds: full) runs the 20-seed sweep in 10 jobs.
       matrix:
-        include:
-          - { seeds: '1..2', hidden: true }
-          - { seeds: '3..4', hidden: false }
-          - { seeds: '5..6', hidden: false }
-          - { seeds: '7..8', hidden: false }
-          - { seeds: '9..10', hidden: false }
-          - { seeds: '11..12', hidden: false }
-          - { seeds: '13..14', hidden: false }
-          - { seeds: '15..16', hidden: false }
-          - { seeds: '17..18', hidden: false }
-          - { seeds: '19..20', hidden: false }
+        include: ${{ fromJSON(inputs.seeds == 'full' && '[{"seeds":"1..2","hidden":true},{"seeds":"3..4","hidden":false},{"seeds":"5..6","hidden":false},{"seeds":"7..8","hidden":false},{"seeds":"9..10","hidden":false},{"seeds":"11..12","hidden":false},{"seeds":"13..14","hidden":false},{"seeds":"15..16","hidden":false},{"seeds":"17..18","hidden":false},{"seeds":"19..20","hidden":false}]' || '[{"seeds":"1..1","hidden":false},{"seeds":"2..2","hidden":false},{"seeds":"3..3","hidden":true}]') }}
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
