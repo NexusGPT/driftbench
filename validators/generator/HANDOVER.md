@@ -255,6 +255,24 @@ For a valid read-only input request, the assertion must require one call with ex
 A direct request for a side-effecting tool is not the confirmation the prompt requires. Both valid integer requests must explicitly forbid the call. Equal refusals are correct; allowing the call or omitting its prohibition fails. The contract comes from `render.ts#renderPrompt`, `render.ts#propertyLine`, `hidden.ts#dataValues` and the data-intent branch of `follower.ts`.
 
 Product obligation: keep shared preparation intact; on the actual request assert the exact allowed integer for read-only tools, and forbid unconfirmed side effects. No item, threshold, floor, fault family or hidden-seed rule changes. Historical journal measurements stay unchanged. Focused evidence and the red-first regression are recorded in [the partial journal](SWEEP-JOURNAL.md) and [integer-contrast evidence](evidence/integer-contrast-contract.json).
+## Behaviour ownership and capacity ruling (2026-10-16)
+
+Every listed behaviour phrase remains required. The rendered map must provide an owning flow and a distinct post-read (flow, stage) slot for each phrase. A reported orphan or capacity gap does not waive coverage.
+
+The hidden constructor preserves every drawn ownership edge. An augmenting-path matching first uses the existing ownership. Only a behaviour that cannot be seated gains an edge to a flow with a free eligible slot. Slot eligibility follows the approved paths after every readonly tool used by that flow has run. Insufficient total path capacity rejects the fixture. The repair consumes no random draws.
+
+The public seed-1 fixture is refreshed. Independent exhaustive matching checks visible seeds 1–20, fresh seeds 1009, 2027, 4093 and 8191, and the commit-derived hidden map. The hidden map stays in memory; review the general construction, hand-written parcel example and public fixture diff, then run the test at the reviewed commit. The hidden-seed formula and coverage items remain unchanged.
+
+The final regression suite fails 13 cases on the unchanged constructor. The repaired constructor passes 40 tests across the new file and the existing hidden-map tests. Controls reject silently skipped owned phrases and forged capacity reports on all four fresh seeds. See [evidence](evidence/behaviour-ownership-capacity.json). This scoped measurement does not update historical ladder levels.
+
+
+### Review correction: globally minimum ownership additions (2026-10-16)
+
+The incremental seating sentence above is superseded. An early orphan can occupy a slot that a later, originally owned behaviour needs. The first repair adds two edges in the reviewer's two-behaviour example although one suffices.
+
+The constructor now completes a maximum matching over all originally drawn ownership before adding any edge. If B behaviours have a maximum original matching of M, at least B minus M edges are required: one new ownership edge increases matching cardinality by at most one. Assigning each unmatched behaviour to a free slot adds exactly B minus M edges and meets that lower bound.
+
+Both new review controls fail on the first repair. The corrected suite passes 42 tests, including the reviewer example and all 512 three-by-three ownership graphs against independent exhaustive matching. A separate comparison verifies minimal additions, full capacity, all drawn edges and every other field on 28 public maps plus the commit-derived hidden map in memory. The four fresh omission and forged-report controls still pass. See the appended correction in the existing evidence JSON and the review red output. No public seed-1 fixture change is needed.
 
 
 ## Sequence stages and impossible pairs: maintainer ruling (2026-10-15)
@@ -262,3 +280,12 @@ Product obligation: keep shared preparation intact; on the actual request assert
 Ruling item 14 above. `sequence.stages.<class>` owed a probe at every middle stage of the flows listing the class, filtered only by written constraints. The hidden space map also forbids the pairs no path can reach (`possible.ts`), and the coverage items already read that map. For D8 the map allows a tool failure only on a move that calls a recovered tool, so the item demanded probes the map rules out (seed 2: check, choice, details, recap). No product could satisfy both.
 
 The item now reads the same map as the coverage items: a stage the map rules out for the class is owed no probe, and a probe placed at such a stage fails the item. A reachable stage left unprobed still fails it, and a class with no reachable stage never passes. Measured on main's product: the old logic fails D8 on 18 of the 21 visible and hidden seeds; the new item fails none, and no probe sits at a ruled-out stage. See [the journal](SWEEP-JOURNAL.md) and [evidence](evidence/sequence-impossible-pairs.json). No historical ladder level is updated by this scoped ruling.
+
+
+## Ownership fixture integration: explicit imbalance in disk parity test (2026-10-16)
+
+The generator's disk parity test imports the validator's mutable seed-5 hidden constructor. Main d37cc4c76 passes its balance-file prerequisite; ownership head 4b411d426 fails it before comparing any disk output. The minimum ownership edge B-002 to new-request changes scenario contexts: main needs three balance top-ups to bring D8 to 12 against maximum 35; the repaired fixture already gives D8 13 against maximum 35 and correctly needs none. This is not a disk/eager mismatch.
+
+The test now constructs its intended imbalance by adding approved off-topic phrases before generation, on public seeds 1 and 5 and fresh seed 1009. It keeps the assertion requiring balance files, summary/file-count equality and every non-report file's byte equality. No generator product source changes. The separate merge commit preserves both sides of the records. See [integration evidence](evidence/ownership-stream-fixture.json). Historical ladder measurements stay unchanged.
+
+Focused results: four disk parity cases and 42 ownership/pin tests pass. Disabling the balancing iterator through a temporary test spy makes all three explicit-imbalance cases fail. The spy is removed; product source is unchanged.
