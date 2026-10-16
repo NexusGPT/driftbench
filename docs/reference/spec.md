@@ -42,6 +42,7 @@ The loader rewrites these forms before it validates a spec.
 * [ToolExpect](#toolexpect)
 * [Count](#count)
 * [Assertion](#assertion)
+* [CompareMode](#comparemode)
 * [ToolsOfferedExpect](#toolsofferedexpect)
 * [Expect rouge_l](#expect-rouge_l)
 * [Expect bleu](#expect-bleu)
@@ -106,7 +107,7 @@ One golden conversation, or one task for a code agent, written as a succession o
 | `end_state` | [EndState](#endstate) | no |  | The expected end state of the world after the run. |
 | `perturbations` | list of [Perturbation](#perturbation) | no |  | Deviations to inject in perturbed mode. |
 | `uses` | [Uses](#uses) | no |  | The objects every block uses (policies, check set, diagnostics), by id or inline. Left out of the block cache key. |
-| `metadata` | map of string to any value | no |  | Free metadata. |
+| `metadata` | map of string to any value | no |  | Free metadata. `links` holds the links of the blocks to prompt sections, spec clauses and past turns; it and `provenance` stay out of the spec hash. |
 
 ## TargetRef
 
@@ -382,6 +383,7 @@ One expected tool call.
 | `count` | [Count](#count) | no |  | How many calls are expected. 0 means the tool must not be called. |
 | `input` | map of string to [Assertion](#assertion) | no |  | Assertions on the arguments, by argument name. |
 | `input_closed` | boolean | no |  | True requires every call input to be an object with only the top-level keys named in input. An absent input allows no keys. False or absent leaves other keys allowed. |
+| `compare` | [CompareMode](#comparemode) or map of string to [CompareMode](#comparemode) | no |  | How the input values are compared: one mode for every argument, or a mode by argument name. Absent means auto: the value-check rungs decide whether a value that differs from the gold names the same thing. |
 
 ## Count
 
@@ -418,6 +420,19 @@ Write one of these forms.
 | `nonempty` | `true` | Present and not empty. |
 | `absent` | `true` | Absent. |
 | `subset` | map of string to JSON value | Holds at least these keys with these values. |
+
+## CompareMode
+
+How one value is compared: auto, a rung name, or exact with its reason.
+
+Write one of these forms.
+
+* one of `auto`, `outcome`, `contract`, `as_given`, `same_referent`
+* a mapping with exactly one of the keys below
+
+| Key | Type | Description |
+|---|---|---|
+| `exact` | string, not empty | Why the writing itself is the requirement, in one line. |
 
 ## ToolsOfferedExpect
 
