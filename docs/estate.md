@@ -415,6 +415,13 @@ The default plan crosses each situation of the event axes (`session_state`, `own
 | prompt | silence or a burst, a limit word in the ask | guards on `UserPromptSubmit` |
 | routing | a goal shift, an off-topic turn, an out-of-scope ask | routes, and the skills they open |
 
+Why the values beyond the first twenty are placed where they are:
+- `hold` is a pause the owner asks for, like stop: the stop relation.
+- `keep_going` and a contradiction (`D3_contradiction`) are tests of what the agent does without a fresh yes or with two answers: the confirmation relation (gates).
+- `frustration` and the two exposure deviations (`D11_pii_leak`, `D12_prompt_extraction`) test what the agent says: the output relation.
+- `limit_word` is a word in the owner's prompt that a rule may react to: the prompt relation (guards on `UserPromptSubmit`).
+- `D10_return` is the owner coming back to a session that was left: the same relation as a resumed session.
+
 The baseline of each axis and an unperturbed long session remain available. Inferred constraints exclude a situation's combinations with every other target before the covering array runs, and coverage counts only tuples feasible under them. Mandatory contract rows and journeys keep their own obligations. A situation whose relation no atom of the estate holds has nothing to act on: it is crossed with no atom, and the summary says so in `notes`. Every value of the fixed axes (but the baseline of each) has a relation in this table, so none is crossed with every atom. A value of a space map the planner does not know keeps every combination. A rule that no typed fact places stays unplaced; declare the relevance in a space map. Supplying `--space` makes that space authoritative: its values and constraints are used without inferred exclusions. The summary exposes every inferred exclusion in `relevanceConstraints`. These are proposed rows, subject to approval like the rest of the plan.
 
 The captured Northwind example below uses the explicit full space exported by `estate map`; its counts precede inferred relevance.
