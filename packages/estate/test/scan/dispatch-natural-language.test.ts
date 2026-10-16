@@ -71,9 +71,39 @@ export const dispatchCorpus: Array<[string, boolean]> = [
   ['Never dispatch other, then report.', false],
   ['The dispatch report, then report, arrives tomorrow.', false],
   ['Dispatch other, but never call report.', false],
+  ['Hand the final count to the `report` agent.', true],
+  ["Hand our team's final corrected count to `report`.", true],
+  ['Hand Ada’s three annotated drafts to report.', true],
+  ['Hand 12 revised invoices to report.', true],
+  ['Hand the two unusually detailed blue folders to report.', true],
+  ['Hand my draft and its attachments to report.', true],
+  ['Hand the checks, notes, and invoices to report.', true],
+  ['Send both signed copies of the final count to report.', true],
+  ['Delegate your team’s remaining review work to report.', true],
+  ['Hand the final count over to report.', true],
+  ['Hand it off to report.', true],
+  ['Hand three revised drafts to other and report.', true],
+  ['Hand our updated count to other, then the report agent.', true],
+  ["Do not hand our team's final count to report.", false],
+  ['You cannot hand 12 revised invoices to report.', false],
+  ['Never hand my draft and its attachments to other and report.', false],
+  ['The hand report is part of our training material.', false],
 ];
 
 describe('dispatch clauses', () => {
+  it.each([
+    'Hand the final count to the `parcel-check` agent, then the `report` agent.',
+    'Hand our team’s 12 revised drafts to parcel-check and report.',
+    'Dispatch the `parcel-check` agent, then the `report` agent.',
+  ])('binds every coordinated helper: %s', async (sentence) => {
+    const root = await estate({
+      '.claude/skills/summarize/SKILL.md': `---\nname: summarize\ndescription: Summarize documents.\n---\n${sentence}\n`,
+      '.claude/agents/report.md': '---\nname: report\ndescription: Summarize documents.\n---\n',
+      '.claude/agents/parcel-check.md': '---\nname: parcel-check\ndescription: Review parcels.\n---\n',
+    });
+    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    expect(map.edges.filter((edge) => edge.kind === 'dispatch')).toHaveLength(2);
+  });
   it.each(dispatchCorpus)('%s => %s', async (sentence, expected) => {
     const root = await estate({
       '.claude/skills/summarize/SKILL.md': `---\nname: summarize\ndescription: Summarize documents.\n---\n${sentence}\n`,

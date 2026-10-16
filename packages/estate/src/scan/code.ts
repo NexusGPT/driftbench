@@ -1040,7 +1040,7 @@ export function unmask(text: string, spans: readonly string[]): string {
 }
 
 /** Cut a masked line into directive clauses; masked spans are never cut. */
-export function gateClauses(text: string): string[] {
+export function gateClauses(text: string, splitCoordinated = true): string[] {
   const clauses: string[] = [];
   let start = 0;
   for (let index = 0; index < text.length; index++) {
@@ -1060,7 +1060,7 @@ export function gateClauses(text: string): string[] {
   }
   clauses.push(text.slice(start));
   return clauses
-    .flatMap((clause) => clause.split(/,\s*(?:and|but)\s+(?=\S)/i))
+    .flatMap((clause) => (splitCoordinated ? clause.split(/,\s*(?:and|but)\s+(?=\S)/i) : [clause]))
     .map((clause) =>
       clause
         .replace(/\*\*/g, '')

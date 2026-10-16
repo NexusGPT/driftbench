@@ -298,7 +298,9 @@ function dispatchHead(head: string): boolean {
   );
 }
 
-const DISPATCH_ACT = String.raw`(?:dispatch|call|invoke|spawn|launch|ask|use|have|let|(?:delegate|hand|send)(?:\s+(?:it|(?:the|a|an)\s+[\w -]+?))?(?:\s+(?:off|over))?(?:\s+to)?)`;
+// A transfer's object is a noun phrase ending at the recipient preposition. Its internal words
+// (determiners, possessives, quantities, modifiers and coordination) do not determine dispatch.
+const DISPATCH_ACT = String.raw`(?:dispatch|call|invoke|spawn|launch|ask|use|have|let|delegate|(?:delegate|hand|send)(?:\s+.+?)?\s+to)`;
 const HELPER_ROLE = String.raw`(?:(?:the|to|helper|agent|subagent|named)\s+)*`;
 
 /** Dispatch shares gate clause boundaries and negation scope; coordinated targets inherit the directive. */
@@ -310,7 +312,9 @@ function dispatchesHelper(text: string, name: string): boolean {
   const inherited = new RegExp(`^(.*?)(?:,\\s*(?:then|and)\\s+|\\s+and\\s+)${HELPER_ROLE}$`, 'i');
   for (const line of text.split('\n')) {
     const masked = maskLine(line);
-    for (const clause of gateClauses(masked.text)) {
+    // A transfer object may itself contain ", and". Resolve coordination at the verb/target,
+    // after retaining the gate grammar's masked spans and sentence boundaries.
+    for (const clause of gateClauses(masked.text, false)) {
       const visible = unmask(clause, masked.spans).replace(/"[^"\n]+"|“[^”\n]+”/g, '');
       for (const match of visible.matchAll(mention)) {
         const before =
@@ -323,7 +327,12 @@ function dispatchesHelper(text: string, name: string): boolean {
         if (
           act &&
           (!/^use\b/i.test(act[0]) || line.includes(`\`${name}\``)) &&
-          dispatchHead(before.slice(0, act.index))
+          dispatchHead(
+            before
+              .slice(0, act.index)
+              .split(/,\s*(?:and|but)\s+/i)
+              .at(-1) ?? '',
+          )
         )
           return true;
         // "Dispatch A, then B" keeps the same verb and polarity for B.
