@@ -1,7 +1,9 @@
-import type { Spec } from '@agent-nexus/driftbench-core';
-import { observeUnitTests, type UnitRunOptions } from '@agent-nexus/driftbench-estate';
+import { defaultChecks, someCall } from '@agent-nexus/driftbench-checks';
+import type { CheckContext, Observed, Spec } from '@agent-nexus/driftbench-core';
+import { observeHelper, observeUnitTests, type UnitRunOptions } from '@agent-nexus/driftbench-estate';
 import { type UnitOutcome, UnitTest } from '@agent-nexus/driftbench-generate';
 import type { UnitContract } from './estate-unit';
+import { replayRegistry } from './replay';
 
 /** Executes only explicit operations. The user ask is never parsed into shell commands or hook payloads. */
 export async function runUnitSpecs(
@@ -32,7 +34,30 @@ export async function runUnitSpecs(
       continue;
     }
     if (operation?.target?.kind === 'subagent') {
-      invalid('a helper needs a configured executor; its prompt alone is not an executed test');
+      const target = operation.target;
+      if (typeof target.name !== 'string' || typeof target.file !== 'string') {
+        invalid('a helper operation needs its declared name and file');
+        finish();
+        continue;
+      }
+      const block = spec.blocks[0];
+      if (!block) throw new Error('unit spec has no block');
+      const when = block.when;
+      const task = 'user' in when ? when.user : 'burst' in when ? when.burst.join('\n') : when.injection.user;
+      const files = { ...spec.given?.world?.workspace?.files, ...block.given?.world?.workspace?.files };
+      const result = await observeHelper({ name: target.name, file: target.file }, task, files, options);
+      if (result.status === 'not-run') invalid(result.error ?? 'helper was not run');
+      else {
+        contract.helpers ??= [];
+        contract.helpers.push({
+          helper: target.name,
+          exit: result.exit,
+          ms: result.ms,
+          text: result.observed?.text ?? '',
+        });
+        if (result.error) failing.push(result.error);
+        if (result.observed) await evaluateHelper(spec, result.observed, failing, invalid);
+      }
       finish();
       continue;
     }
@@ -71,8 +96,29 @@ export async function runUnitSpecs(
         invalid('use case outcomes for guard processes; execution assertions describe script operations');
     }
     if (test.target.kind === 'script') {
+      for (const key of Object.keys(spec.blocks[0]?.expect ?? {}))
+        if (key !== 'execution') invalid(`unit script operations do not evaluate ${key} assertions`);
+      const some = spec.rules?.custom?.some_call;
+      if (some !== undefined) {
+        const container = some as { calls?: unknown };
+        const entries = container && Array.isArray(container.calls) ? container.calls : [some];
+        for (const value of entries) {
+          const call = value as { label?: unknown; input?: unknown } | null;
+          if (
+            call?.label !== 'Bash' ||
+            (call.input !== undefined &&
+              (typeof call.input !== 'object' ||
+                call.input === null ||
+                Array.isArray(call.input) ||
+                Object.keys(call.input).some((key) => key !== 'command')))
+          )
+            invalid(
+              'script some_call supports only observed Bash command inputs; internal tool calls are not traced',
+            );
+        }
+      }
       for (const key of Object.keys(spec.rules?.custom ?? {}))
-        invalid(`unit runner does not evaluate script custom check ${key}`);
+        if (key !== 'some_call') invalid(`unit runner does not evaluate script custom check ${key}`);
     }
     if (failing.length > 0) {
       finish();
@@ -80,6 +126,7 @@ export async function runUnitSpecs(
     }
     const run = await observeUnitTests([test], options);
     const observed = run.observations[0];
+    if (observed?.inputError) invalid(observed.inputError);
     if (observed?.error) failing.push(observed.error);
     if (!observed || (observed.cases.length === 0 && !observed.error))
       invalid('the unit operation executed no case');
@@ -130,9 +177,8 @@ export async function runUnitSpecs(
             continue;
           }
           assertions++;
-          const count = active.filter(
-            (o) => expect.verdict === undefined || verdictOf(o) === expect.verdict,
-          ).length;
+          const verdict = expect.verdict ?? 'deny';
+          const count = outcomes.filter((outcome) => verdictOf(outcome) === verdict).length;
           const wanted = expect.count;
           const holds =
             typeof wanted === 'number'
@@ -141,7 +187,7 @@ export async function runUnitSpecs(
                 (wanted?.max === undefined || count <= wanted.max);
           if (!holds)
             failing.push(
-              `${name}: ${count} matching guard decisions; expected ${JSON.stringify(wanted ?? { min: 1 })}${expect.verdict ? ` with verdict ${expect.verdict}` : ''}`,
+              `${name}: ${count} matching guard decisions; expected ${JSON.stringify(wanted ?? { min: 1 })} with verdict ${verdict}`,
             );
         }
       }
@@ -175,6 +221,30 @@ export async function runUnitSpecs(
       // A process merely starting is not an oracle: require a declared fixture or an explicit exit/output.
       const expects = spec.blocks.flatMap((b) => (b.expect?.execution ? [b.expect.execution] : []));
       const commands = observed?.cases ?? [];
+      if (spec.rules?.custom?.some_call !== undefined) {
+        if (commands.some((c) => !c.command)) invalid('the script trace holds no executed command');
+        else {
+          const observation: Observed = {
+            text: commands.map((c) => c.outcome.output ?? '').join('\n'),
+            segments: [],
+            cost: {},
+            latencyMs: commands.reduce((sum, c) => sum + c.ms, 0),
+            toolCalls: commands.map((c) => ({
+              label: 'Bash',
+              input: { command: c.command },
+              output: c.outcome.output,
+              ...(c.outcome.exitCode !== 0 ? { error: `exit ${c.outcome.exitCode}` } : {}),
+            })),
+          };
+          try {
+            const verdicts = await someCall(unitContext(spec, observation), spec.rules.custom.some_call);
+            for (const verdict of Array.isArray(verdicts) ? verdicts : [verdicts])
+              if (verdict.outcome !== 'pass') failing.push(verdict.evidence);
+          } catch (cause) {
+            invalid(`invalid some_call: ${cause instanceof Error ? cause.message : String(cause)}`);
+          }
+        }
+      }
       for (const expect of expects) {
         if (expect.ran_code !== undefined && expect.ran_code !== commands.length > 0)
           failing.push(`script ran_code differs from ${expect.ran_code}`);
@@ -193,4 +263,53 @@ export async function runUnitSpecs(
     finish();
   }
   return { ...contract, inputErrors };
+}
+
+function unitContext(spec: Spec, observed: Observed): CheckContext {
+  const block = spec.blocks[0];
+  if (!block) throw new Error('unit spec has no block');
+  return {
+    spec,
+    mode: 'T',
+    blockIndex: 0,
+    block,
+    expect: block.expect ?? {},
+    observed,
+    history: [],
+    ledger: {},
+    given: {
+      prefix: block.given?.prefix ?? [],
+      ledger: { ...spec.given?.ledger, ...block.given?.ledger },
+      world: { ...spec.given?.world, ...block.given?.world },
+      vars: { ...spec.given?.vars, ...block.given?.vars },
+      target: spec.target ?? { adapter: 'unit' },
+      hash: 'unit',
+    },
+  };
+}
+
+/** Reuse the machine checks; no helper assertion passes on prompt presence or a zero exit alone. */
+async function evaluateHelper(
+  spec: Spec,
+  observed: Observed,
+  failing: string[],
+  invalid: (s: string) => void,
+) {
+  const context = unitContext(spec, observed);
+  if ((context.expect.criteria?.length ?? 0) > 0 || (spec.criteria?.length ?? 0) > 0) {
+    invalid('helper criteria require a configured judge; unit execution evaluates machine checks');
+    return;
+  }
+  let count = 0;
+  for (const check of defaultChecks({ registry: replayRegistry() })) {
+    if (!check.applies(context)) continue;
+    const verdicts = await check.evaluate(context);
+    count += verdicts.length;
+    for (const verdict of verdicts) {
+      if (verdict.gating && verdict.outcome === 'fail') failing.push(verdict.evidence);
+      if (verdict.gating && (verdict.outcome === 'inconclusive' || verdict.outcome === 'not_applicable'))
+        invalid(verdict.evidence);
+    }
+  }
+  if (count === 0) invalid('helper spec declares no evaluated outcome assertion');
 }

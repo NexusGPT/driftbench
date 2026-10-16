@@ -145,15 +145,15 @@ export function build(
     for (const atom of atoms) stageOrder(then, atom, ctx.stages);
   }
   if (row.testType === 'guard_hostile') {
-    // A malformed payload: the guard answers with some verdict instead of failing.
-    then.guards = then.guards.map(({ verdict: _verdict, ...guard }) => ({ ...guard, count: { min: 1 } }));
+    // Hostile inputs retain the guard's declared effect; another verdict is no substitute.
+    then.guards = then.guards.map((guard) => ({ ...guard, count: { min: 1 } }));
   }
   // The guard answered in time, and said why it blocked in words that keep the estate's output rules: read
   // from the hook output the runtime reports (the guard record's stdout, stderr, exit code and outcome).
   const guardName = typeof first.fields?.name === 'string' ? first.fields.name : undefined;
   if (row.testType === 'guard_speed') {
     if (guardName && ctx.customChecks.has('guard_finished')) {
-      then.guards = then.guards.map(({ verdict: _verdict, ...guard }) => ({ ...guard, count: { min: 1 } }));
+      then.guards = then.guards.map((guard) => ({ ...guard, count: { min: 1 } }));
       then.custom.guard_finished = { name: guardName, block: 0 };
     } else gap(then, MARKERS.guardTiming, first, 'the runner registers no guard_finished check');
   }

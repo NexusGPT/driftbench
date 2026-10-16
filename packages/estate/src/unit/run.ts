@@ -3,7 +3,8 @@ import { constants, existsSync } from 'node:fs';
 import { copyFile, mkdir, mkdtemp, readFile, realpath, rm, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { homedir, tmpdir } from 'node:os';
-import { dirname, extname, join } from 'node:path';
+import { dirname, extname, join, resolve, sep } from 'node:path';
+import { Observed } from '@agent-nexus/driftbench-core';
 import type { GuardCase, UnitDecision, UnitOutcome, UnitTest } from '@agent-nexus/driftbench-generate';
 import {
   reapFolder,
@@ -13,6 +14,7 @@ import {
   untrackGroup,
 } from '@agent-nexus/driftbench-sandbox';
 import { parse as parseYaml } from 'yaml';
+import { z } from 'zod';
 import { guardName } from '../scan/code';
 import type { EstateReader, GuardDecl } from '../scan/reader';
 
@@ -53,6 +55,7 @@ export type UnitCaseResult = {
   pass: boolean;
   ms: number;
   detail: string;
+  command?: string;
 };
 
 export type UnitResult = {
@@ -80,7 +83,15 @@ export type UnitRunOptions = {
 
 export type UnitRun = { results: UnitResult[]; sandbox: 'sandbox-exec' | 'none'; notes: string[] };
 
-type Exec = { exitCode: number; stdout: string; stderr: string; ms: number; timedOut: boolean };
+type Exec = {
+  exitCode: number;
+  stdout: string;
+  stderr: string;
+  ms: number;
+  timedOut: boolean;
+  command?: string;
+  spawnError?: string;
+};
 
 const CREDENTIAL_FOLDERS = [
   '.ssh',
@@ -165,9 +176,10 @@ async function withRunner<T>(
 export type UnitObservation = {
   id: string;
   target: UnitTest['target'];
-  cases: Array<{ id: string; outcome: UnitOutcome; ms: number; timedOut: boolean }>;
+  cases: Array<{ id: string; outcome: UnitOutcome; ms: number; timedOut: boolean; command?: string }>;
   error?: string;
   declared?: boolean;
+  inputError?: string;
 };
 
 export async function observeUnitTests(
@@ -186,7 +198,7 @@ export async function observeUnitTests(
         }
         // Declared fixtures have their own independent oracle; use the normal script runner for them.
         const scripts = config.scripts as Record<string, unknown> | undefined;
-        if (Array.isArray(scripts?.[test.target.path])) {
+        if (scripts?.[test.target.path] !== undefined) {
           observed.declared = true;
           const result = await runScriptTest(test, config, runner, false);
           observed.cases = result.cases.map((entry) => ({
@@ -194,8 +206,10 @@ export async function observeUnitTests(
             outcome: entry.outcome,
             ms: entry.ms,
             timedOut: entry.outcome.message === 'timed out',
+            command: entry.command,
           }));
-          if (result.status !== 'pass') observed.error = result.detail;
+          if (result.status === 'unrecorded') observed.inputError = result.detail;
+          else if (result.status !== 'pass') observed.error = result.detail;
         } else {
           for (const fixture of test.cases) {
             const result = await runScript(test.target.path, fixture, runner);
@@ -204,6 +218,7 @@ export async function observeUnitTests(
               outcome: scriptOutcome(result),
               ms: result.ms,
               timedOut: result.timedOut,
+              command: result.command,
             });
           }
         }
@@ -231,6 +246,7 @@ export async function observeUnitTests(
               outcome: outcomeOf(result),
               ms: result.ms,
               timedOut: result.timedOut,
+              command: result.command,
             });
           }
       }
@@ -525,8 +541,19 @@ async function runScriptTest(
     return { ...base, status: 'fail', detail: `the estate no longer holds ${path}`, cases: [] };
   }
   const scripts = config.scripts as Record<string, unknown> | undefined;
-  const declared = scripts?.[path];
-  if (!Array.isArray(declared) || declared.length === 0) return runRecordedScript(test, path, runner, record);
+  const declaration = scripts?.[path];
+  if (declaration === undefined) return runRecordedScript(test, path, runner, record);
+  const contract = ScriptFixtures.safeParse(
+    Array.isArray(declaration) ? declaration : (declaration as { fixtures?: unknown })?.fixtures,
+  );
+  if (!contract.success)
+    return {
+      ...base,
+      status: 'unrecorded',
+      detail: `invalid script contract for ${path}: ${contract.error.issues[0]?.message}`,
+      cases: [],
+    };
+  const declared = contract.data;
   const cases: UnitCaseResult[] = [];
   for (const [index, fixture] of declared.entries()) {
     const entry = (fixture ?? {}) as Record<string, unknown>;
@@ -548,6 +575,7 @@ async function runScriptTest(
       60_000,
     );
     const problems: string[] = [];
+    if (run.timedOut) problems.push('timed out');
     const wantedExit = typeof expect.exitCode === 'number' ? expect.exitCode : 0;
     if (run.exitCode !== wantedExit) problems.push(`exit ${run.exitCode} where ${wantedExit} is declared`);
     if (typeof expect.stdout === 'string' && run.stdout.trim() !== expect.stdout.trim())
@@ -558,12 +586,14 @@ async function runScriptTest(
       decision: run.exitCode === 0 ? 'allow' : 'error',
       exitCode: run.exitCode,
       ...(run.stdout.trim() ? { output: run.stdout.trim() } : {}),
+      ...(run.timedOut ? { message: 'timed out' } : {}),
     };
     cases.push({
       case: `fixture-${index + 1}`,
       material: args.join(' '),
       outcome,
       pass: problems.length === 0,
+      command: run.command,
       ms: run.ms,
       detail: problems.length === 0 ? 'as declared' : problems.join('; '),
     });
@@ -871,8 +901,10 @@ async function execute(
         exitCode: 127,
         stdout,
         stderr: `${stderr}${error.message}`,
+        spawnError: error.message,
         ms: performance.now() - started,
         timedOut,
+        command: argv.map(shellWord).join(' '),
       });
     });
     child.on('exit', killGroup);
@@ -885,6 +917,7 @@ async function execute(
         stderr: neutral(stderr, runner.work),
         ms: Math.round(performance.now() - started),
         timedOut,
+        command: argv.map(shellWord).join(' '),
       });
     });
   });
@@ -931,4 +964,122 @@ async function copyListed(root: string, to: string, reader: EstateReader): Promi
     }),
   );
   await mkdir(to, { recursive: true });
+}
+
+/** Declared script fixtures are independent oracles, not a guess from a successful process start. */
+const ScriptFixtures = z
+  .array(
+    z.object({
+      args: z.array(z.string()).optional(),
+      stdin: z.string().optional(),
+      files: z.record(z.string(), z.string()).optional(),
+      expect: z
+        .object({
+          exitCode: z.number().int().optional(),
+          stdout: z.string().optional(),
+          stdoutIncludes: z.array(z.string().min(1)).min(1).optional(),
+        })
+        .refine(
+          (e) => e.exitCode !== undefined || e.stdout !== undefined || e.stdoutIncludes !== undefined,
+          'declare an expected exitCode, stdout or stdoutIncludes',
+        ),
+    }),
+  )
+  .min(1);
+
+function shellWord(word: string): string {
+  return /^[\w./:=@+-]+$/.test(word) ? word : `'${word.replace(/'/g, "'\\''")}'`;
+}
+
+export type HelperObservation =
+  | { status: 'not-run'; error: string }
+  | { status: 'failed'; error: string; exit: number; ms: number; observed?: undefined }
+  | { status: 'executed'; observed: Observed; exit: number; ms: number; error?: undefined };
+
+/** Execute the helper's current body with the estate's explicitly declared local runtime. */
+export async function observeHelper(
+  target: { name: string; file: string },
+  task: string,
+  files: Record<string, string>,
+  options: UnitRunOptions,
+): Promise<HelperObservation> {
+  try {
+    const result = await withRunner(options, async (runner, _raw, config): Promise<HelperObservation> => {
+      const declaration = (config.helpers as Record<string, unknown> | undefined)?.[target.name];
+      const executor = z
+        .strictObject({
+          command: z.array(z.string().min(1)).min(1),
+          timeoutMs: z.number().int().positive().default(60000),
+        })
+        .safeParse(declaration);
+      if (!executor.success)
+        return {
+          status: 'not-run',
+          error: 'a helper needs a configured executor in driftbench.estate.yaml helpers',
+        };
+      const path = safeUnitPath(runner.copy, target.file);
+      const source = await readFile(path, 'utf8');
+      const header = /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/.exec(source);
+      const frontmatter = header ? parseYaml(header[1] ?? '') : {};
+      const body = header ? source.slice(header[0].length) : source;
+      if (!task.trim()) return { status: 'not-run', error: 'the helper has no task' };
+      for (const [name, text] of Object.entries(files)) {
+        const file = safeUnitPath(runner.copy, name);
+        if (
+          file.startsWith(join(runner.copy, '.claude') + sep) ||
+          file === join(runner.copy, ESTATE_CONFIG_FILE)
+        )
+          return { status: 'not-run', error: 'helper workspace fixtures cannot replace runtime files' };
+        await mkdir(dirname(file), { recursive: true });
+        await writeFile(file, text);
+      }
+      const execution = await execute(
+        executor.data.command,
+        `${JSON.stringify({ name: target.name, systemPrompt: body, frontmatter, task })}\n`,
+        runner,
+        runner.copy,
+        executor.data.timeoutMs,
+      );
+      if (execution.spawnError)
+        return { status: 'not-run', error: `helper executor could not start: ${execution.spawnError}` };
+      const stamp = { exit: execution.exitCode, ms: execution.ms };
+      if (execution.timedOut || execution.exitCode !== 0)
+        return {
+          status: 'failed',
+          ...stamp,
+          error: execution.timedOut
+            ? 'helper executor timed out'
+            : `helper executor exited ${execution.exitCode}: ${execution.stderr}`,
+        };
+      let value: unknown;
+      try {
+        value = JSON.parse(execution.stdout);
+      } catch {
+        return { status: 'failed', ...stamp, error: 'helper executor returned invalid JSON' };
+      }
+      // The protocol requires actual reply and tool-call observations; metadata is supplied by this runner.
+      const observed = Observed.omit({ cost: true, latencyMs: true }).safeParse(value);
+      if (!observed.success)
+        return {
+          status: 'failed',
+          ...stamp,
+          error: `invalid helper observations: ${observed.error.issues[0]?.message}`,
+        };
+      return {
+        status: 'executed',
+        ...stamp,
+        observed: { ...observed.data, cost: {}, latencyMs: execution.ms },
+      };
+    });
+    return result.value;
+  } catch (cause) {
+    return { status: 'not-run', error: cause instanceof Error ? cause.message : String(cause) };
+  }
+}
+
+/** A fixture or target must stay inside the disposable unit workspace. */
+function safeUnitPath(root: string, name: string): string {
+  const path = resolve(root, name);
+  if (!path.startsWith(root + sep)) throw new Error(`unit path escapes its workspace: ${name}`);
+  return path;
 }

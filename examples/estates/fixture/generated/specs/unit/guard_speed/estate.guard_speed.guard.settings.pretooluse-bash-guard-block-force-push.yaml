@@ -54,6 +54,7 @@ blocks:
     expect:
       guards:
         - name: block-force-push.sh
+          verdict: deny
           count:
             min: 1
       workspace:
