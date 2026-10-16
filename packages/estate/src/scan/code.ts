@@ -2020,7 +2020,12 @@ function gateAtoms(
       .replace(/^\s*(?:>\s*)*(?:[-*+]\s+|\d+[.)]\s+)?/, '')
       .replace(/[\s!\u203C*_`]+/g, ' ')
       .trim();
-    const titleLine = headingLine || (plain.split(' ').length <= 6 && !/[.:;?!)]$/.test(plain));
+    const titleLine =
+      headingLine ||
+      (plain.split(' ').length <= 6 &&
+        !/[.:;?!)]$/.test(plain) &&
+        // A title is in capitals or in title case; a sentence has lower-case words.
+        (plain === plain.toUpperCase() || plain.split(' ').every((word) => /^[A-Z0-9]/.test(word))));
     // The last gate of this line: a clause that only adds things to read ("and with it `b.md`") joins it.
     let previous: ((read: string) => boolean) | undefined;
     let carriedHead: string | undefined;

@@ -29,7 +29,6 @@ describe('titles and column headers are no rule', () => {
     '**READ BEFORE YOU WRITE**',
     'READ BEFORE YOU WRITE',
     '> READ BEFORE TOUCHING THE OVEN',
-    '- Read this before baking',
     '## Read this before you bake',
   ])('gives no gate for %s', async (line) => {
     expect(await gates(line)).toEqual([]);
@@ -38,6 +37,10 @@ describe('titles and column headers are no rule', () => {
   it('gives no gate for a column title above a separator row', async () => {
     const table = ['| Kind | Read before shaping |', '|---|---|', '| bread | rye |'].join('\n');
     expect(await gates(table)).toEqual([]);
+  });
+
+  it('reads a short list item that is a sentence', async () => {
+    expect(await gates('- Read this before baking')).toHaveLength(1);
   });
 
   it('still reads a sentence under the same heading', async () => {
