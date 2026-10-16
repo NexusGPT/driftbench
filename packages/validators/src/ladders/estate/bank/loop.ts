@@ -253,16 +253,19 @@ const NO_ASK = new Set(['invariant', 'setting']);
 /**
  * Whether the bank holds too few approved phrases for a plan row, from the row's atoms alone: the situations of
  * the row's use that hold its first atom (pins of the cell respected) and the approved phrases of the best one.
- * A row needs one approved phrase; a twin needs two. No such situation, or a live guard test (instructed by a
- * `forced` situation the bank does not hold), means the bank is short.
+ * A row needs one approved phrase; a twin needs two. No such situation means the bank is short. A live
+ * guard_positive row is asked in a `forced` situation, looked up the same way.
  */
 function bankIsShort(
   run: EstateRun,
   row: { atomIds: string[]; cell: Record<string, string>; testType: string; mode: string },
 ): boolean {
   if (NO_ASK.has(row.testType)) return false;
-  if (row.testType === 'guard_positive' && row.mode === 'live') return true;
-  const use = USE_OF_TEST[row.testType] ?? 'trigger';
+  // A live guard test is asked in a `forced` situation, found like any other: no early allowance.
+  const use =
+    row.testType === 'guard_positive' && row.mode === 'live'
+      ? 'forced'
+      : (USE_OF_TEST[row.testType] ?? 'trigger');
   const head = row.atomIds[0];
   let best: { atoms: string[]; approved: number } | undefined;
   let score = -1;

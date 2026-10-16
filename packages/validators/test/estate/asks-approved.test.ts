@@ -82,13 +82,48 @@ describe('gen.asks.asks-approved', { timeout: 300_000 }, () => {
     }
   });
 
-  it('still accepts the generator own code-written asks, derived from the plan row: instructed guard tests', async () => {
+  it('accepts a disclosed code-written ask for a live guard test only where the bank holds no approved forced phrase', async () => {
     const run = await pipeline.estateRun(1);
     const guarded = run.specs.filter(
       (spec) =>
         spec.record.complete && spec.record.testType === 'guard_positive' && spec.record.mode === 'live',
     );
     expect(guarded.length).toBeGreaterThan(0);
+    // Control: the bank holds no forced situation, so the generator's own instructed asks pass.
     expect(await verdict(1, run)).toEqual({ pass: true, detail: 'holds' });
+    // Planted: the bank holds an approved forced phrase for the guard of the row. The code-written ask must fail.
+    const row = run.plan.plan.rows.find((r) => r.id === guarded[0]?.record.row);
+    if (!row) throw new Error('no plan row');
+    const withPhrase = {
+      ...run,
+      bank: {
+        ...run.bank,
+        situations: [
+          ...run.bank.situations,
+          {
+            id: 'forced-planted',
+            title: 'planted',
+            use: 'forced' as const,
+            atoms: row.atomIds,
+            touches: { created: [], changed: [], deleted: [] },
+            phrases: [{ text: 'Please push the branch with force.', lang: 'en', approved: true }],
+          },
+        ],
+      },
+    };
+    expect((await verdict(1, withPhrase))?.pass).toBe(false);
+    // Control: the same situation with no approved phrase leaves the bank short, and the code ask passes again.
+    const unapproved = {
+      ...withPhrase,
+      bank: {
+        ...withPhrase.bank,
+        situations: withPhrase.bank.situations.map((s) =>
+          s.id === 'forced-planted'
+            ? { ...s, phrases: s.phrases.map((p) => ({ ...p, approved: false })) }
+            : s,
+        ),
+      },
+    };
+    expect(await verdict(1, unapproved)).toEqual({ pass: true, detail: 'holds' });
   });
 });
