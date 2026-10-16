@@ -98,7 +98,8 @@ export function processAdapter(options: ProcessAdapterOptions): ProcessAdapter {
   const mode = options.stimulus ?? 'stdin';
   const capabilities: AdapterCapabilities = {
     variants: false,
-    seedPrefix: false,
+    // The agent receives the session history, the prefix included, in driftbench-history.json.
+    seedPrefix: true,
     toolStubs: false,
     trace: false,
     sandbox: true,

@@ -1,14 +1,19 @@
 import { z } from 'zod';
 import { inconclusive, type JudgeRequest, type JudgeResult } from './contract';
-import { groundEvidence, groundEvidenceSpan } from './evidence';
+import { type EvidenceSpan, groundEvidence, groundEvidenceSpan, textContainsQuote } from './evidence';
 
 export type CriterionRequirement = { readonly id: string; readonly requirement: string };
 /**
- * Decoder identity is separate from the unchanged model-facing prompt. The default stays strict
- * version 1, so default requests keep their bytes, keys and verdicts. Version 2 is opt-in.
+ * Decoder identity is separate from the model-facing prompt. Versions 2 and 3 drop an ungrounded
+ * string quote while preserving the check's met value. Version 1 is the strict decoder, selectable
+ * by name: any ungrounded quote voids the ledger. A version 1 recording keeps its key under version 1.
+ * Version 3 is the default. It also grounds symbol-only span quotes in their exact named sources,
+ * reads input source labels such as `input/<path>`, and grounds a tool event's supplied name in that
+ * event's source (see groundEvidenceSpan). A span that only quotes
+ * the criterion is dropped and counted in criterionQuotesDropped; a met check still needs grounded evidence.
  */
-export const CRITERION_DECODER_VERSION = 1;
-export type CriterionDecoderVersion = 1 | 2;
+export const CRITERION_DECODER_VERSION = 3;
+export type CriterionDecoderVersion = 1 | 2 | 3;
 
 /** The caller owns the requirement set; an unsplit criterion is one complete requirement. */
 export function requirementsFor(request: JudgeRequest): readonly CriterionRequirement[] {
@@ -74,10 +79,12 @@ export function parseCriterionLedger(value: unknown, request: JudgeRequest, raw:
     known = { ...value, checks };
   }
   const diagnostics = ignoredRequirementIds.length ? { ignoredRequirementIds } : {};
+  let criterionQuotesDropped = 0;
   const invalid = (why: string): JudgeResult => ({
     raw,
     unparsed: true,
     ...diagnostics,
+    ...(criterionQuotesDropped ? { criterionQuotesDropped } : {}),
     answer: inconclusive(`invalid criterion ledger: ${why}`),
   });
   const parsed = CriterionLedger.safeParse(known);
@@ -88,7 +95,27 @@ export function parseCriterionLedger(value: unknown, request: JudgeRequest, raw:
   const missing = expected.filter((r) => !checks.some((check) => check.id === r.id)).map((r) => r.id);
   if (missing.length) return invalid(`missing requirement ids: ${missing.join(', ')}`);
   let evidenceUnverified = 0;
+  const decoder = request.criterionDecoderVersion ?? CRITERION_DECODER_VERSION;
+  const spanOptions = {
+    symbolQuotes: decoder === 3,
+    inputSpellings: decoder === 3,
+    toolNames: decoder === 3,
+  };
   for (const check of checks) {
+    if (decoder === 3 && Array.isArray(check.evidence)) {
+      // The criterion is not data: a span that only quotes it counts as no evidence.
+      const requirement = expected.find((r) => r.id === check.id)?.requirement ?? '';
+      const spans: EvidenceSpan[] = check.evidence;
+      const kept = spans.filter(
+        (span) =>
+          !quotesCriterion(request, requirement, span) ||
+          groundEvidenceSpan(request, span, spanOptions).grounded,
+      );
+      if (kept.length < spans.length) {
+        criterionQuotesDropped += spans.length - kept.length;
+        check.evidence = kept.length ? (kept as typeof check.evidence) : null;
+      }
+    }
     if (check.met === true && check.evidence === null)
       return invalid('a met requirement needs grounded evidence');
     if (
@@ -96,9 +123,9 @@ export function parseCriterionLedger(value: unknown, request: JudgeRequest, raw:
       !(typeof check.evidence === 'string'
         ? groundEvidence(request, { outcome: 'inconclusive', reasoning: '', evidence: check.evidence })
             .grounded
-        : check.evidence.every((span) => groundEvidenceSpan(request, span).grounded))
+        : check.evidence.every((span) => groundEvidenceSpan(request, span, spanOptions).grounded))
     ) {
-      if (request.criterionDecoderVersion !== 2 || typeof check.evidence !== 'string')
+      if (decoder === 1 || typeof check.evidence !== 'string')
         return invalid('the evidence quote is not in the supplied data');
       // Preserve the model's met value, but never present an unverified string as a quote.
       check.evidence = null;
@@ -122,6 +149,7 @@ export function parseCriterionLedger(value: unknown, request: JudgeRequest, raw:
     raw,
     checks,
     ...(evidenceUnverified ? { evidenceUnverified } : {}),
+    ...(criterionQuotesDropped ? { criterionQuotesDropped } : {}),
     ...diagnostics,
     answer: {
       outcome,
@@ -131,4 +159,12 @@ export function parseCriterionLedger(value: unknown, request: JudgeRequest, raw:
       ...(evidence === undefined ? {} : { evidence }),
     },
   };
+}
+
+/** A criterion quote with no claimed transcript source is not evidence of the submitted data. */
+function quotesCriterion(request: JudgeRequest, requirement: string, span: EvidenceSpan): boolean {
+  return (
+    !/^transcript\./.test(span.source) &&
+    [request.criterion.rubric, requirement].some((text) => textContainsQuote(text, span.quote))
+  );
 }

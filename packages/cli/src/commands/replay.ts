@@ -14,6 +14,7 @@ import {
   ESTATE_CHECKS,
 } from '@agent-nexus/driftbench-checks';
 import {
+  blocksOutcome,
   type Campaign,
   type Check,
   type CheckSet,
@@ -149,6 +150,8 @@ type ReplayLine = {
   runId: string;
   status: RunResult['status'];
   pass: boolean;
+  /** Set when no block failed but a block was not run or blocked: the spec is neither a pass nor a fail. */
+  outcome?: 'not_run' | 'blocked';
   failing: string[];
   error?: string;
 };
@@ -291,6 +294,9 @@ export async function replayCommand(
   await judge.save();
 
   const passed = lines.filter((line) => line.pass).length;
+  // A spec not run or blocked is neither a pass nor a fail: it is counted apart.
+  const unscored = lines.filter((line) => line.outcome !== undefined).length;
+  const failed = lines.length - passed - unscored;
   if (options.json) {
     io.out(
       `${JSON.stringify(
@@ -302,7 +308,8 @@ export async function replayCommand(
           judgeCostUsd: judge.spend.usd,
           runs: lines,
           passed,
-          failed: lines.length - passed,
+          failed,
+          ...(unscored > 0 ? { notRun: unscored } : {}),
         },
         null,
         2,
@@ -311,7 +318,7 @@ export async function replayCommand(
   } else {
     for (const note of aligned.notes) io.out(`note: ${note}\n`);
     for (const line of lines) {
-      const mark = line.status !== 'completed' ? '!' : line.pass ? '✓' : '✗';
+      const mark = line.status !== 'completed' ? '!' : line.pass ? '✓' : line.outcome ? '-' : '✗';
       io.out(
         `${mark} ${line.spec}  session ${line.session} from block ${line.fromBlock} (${line.aligned})\n`,
       );
@@ -319,7 +326,7 @@ export async function replayCommand(
       if (line.failing.length > 0) io.out(`    failing: ${line.failing.join(', ')}\n`);
     }
     io.out(
-      `${lines.length} spec${lines.length === 1 ? '' : 's'} replayed: ${passed} pass, ${lines.length - passed} fail. Judge ${judge.label}, ${judge.spend.usd.toFixed(4)} USD. Campaign ${campaignId}${storePath === undefined ? ' (in memory)' : ''}.\n`,
+      `${lines.length} spec${lines.length === 1 ? '' : 's'} replayed: ${passed} pass, ${failed} fail${unscored > 0 ? `, ${unscored} not run or blocked` : ''}. Judge ${judge.label}, ${judge.spend.usd.toFixed(4)} USD. Campaign ${campaignId}${storePath === undefined ? ' (in memory)' : ''}.\n`,
     );
   }
   return passed === lines.length ? 0 : 1;
@@ -545,8 +552,15 @@ function lineOf(alignment: Alignment, run: RunResult): ReplayLine {
           `block ${block.index}: ${verdict.id}${verdict.outcome === 'inconclusive' ? ' (inconclusive)' : ''}`,
       ),
   );
-  const pass =
-    run.status === 'completed' && run.blocks.every((block) => block.pass) && run.endState?.match !== false;
+  const outcome = blocksOutcome(run);
+  const pass = outcome === 'pass';
+  const skipped = run.blocks.flatMap((block) =>
+    block.notRun
+      ? [`block ${block.index}: not run (${block.notRun.check}: ${block.notRun.got})`]
+      : block.blocked
+        ? [`block ${block.index}: blocked by ${block.blocked.by}`]
+        : [],
+  );
   return {
     spec: run.specId,
     session: alignment.entry.name,
@@ -555,7 +569,8 @@ function lineOf(alignment: Alignment, run: RunResult): ReplayLine {
     runId: run.runId,
     status: run.status,
     pass,
-    failing,
+    ...(outcome === 'not_run' || outcome === 'blocked' ? { outcome } : {}),
+    failing: [...failing, ...skipped],
     ...(run.error === undefined ? {} : { error: run.error }),
   };
 }

@@ -242,3 +242,57 @@ it.each([false, true])('rejudge copies obey the destination text policy (%s)', a
   const copiedAgain = await rejudgeRun({ ...prepared, source: stripped }, judge, () => 0, true);
   expect(copiedAgain.blocks.every((block) => block.realized?.text === undefined)).toBe(true);
 });
+
+it('re-judges the scored block of a run whose later blocks were not run, and leaves those as they were', async () => {
+  const forced = specOf({
+    ...original,
+    id: 'acme-quote-forced',
+    blocks: [
+      original.blocks[0],
+      {
+        when: { user: 'Check the lookup.' },
+        given: { world: { tools: { lookup: { result: { ok: true } } } } },
+        expect: { must: ['ok'], ledger_add: { checked: true } },
+      },
+      { when: { user: 'Thanks.' }, expect: { must: ['ok'] } },
+    ],
+  });
+  const forcedChanged = {
+    ...forced,
+    criteria: forced.criteria?.map((c) =>
+      c.name === 'price' ? { ...c, rubric: 'The price must be 12.' } : c,
+    ),
+  };
+  // The echo adapter has no toolStubs: blocks 1 and 2 are not run.
+  const run = await runSpec(forced, {
+    adapter: echoAdapter(),
+    driver: createScriptedDriver(),
+    checks: [],
+    mode: 'F',
+    repeat: 0,
+    target,
+    recordProvenance: true,
+    now: () => new Date('2026-10-13T00:00:00Z'),
+  });
+  expect(run.blocks.map((b) => b.status)).toEqual([undefined, 'not_run', 'not_run']);
+  const prepared = prepareRejudge(forced, forcedChanged as Spec, run, options);
+  const judged: number[] = [];
+  const result = await rejudgeRun(
+    prepared,
+    {
+      name: 'judge',
+      applies: () => true,
+      evaluate: (ctx) => {
+        judged.push(ctx.blockIndex);
+        return [
+          { id: 'judge.price', kind: 'judge', name: 'price', gating: true, outcome: 'pass', evidence: 'ok' },
+        ];
+      },
+    },
+    () => 0,
+  );
+  expect(judged).toEqual([0]);
+  expect(result.blocks.map((b) => b.status)).toEqual([undefined, 'not_run', 'not_run']);
+  expect(result.blocks[0]?.rejudged?.criteria).toEqual(['price']);
+  expect(result.blocks[1]?.pass).toBe(false);
+});
