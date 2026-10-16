@@ -8,8 +8,8 @@
   },
   "plan": {
     "path": "../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml",
-    "rows": 1568,
-    "approved": 1568,
+    "rows": 1300,
+    "approved": 1300,
     "proposed": 0,
     "struck": 0
   },
@@ -41,11 +41,11 @@
     "judge": true
   },
   "summary": {
-    "specs": 1568,
-    "blocks": 1563,
-    "complete": 1375,
-    "incomplete": 193,
-    "judged": 348
+    "specs": 1300,
+    "blocks": 1298,
+    "complete": 1122,
+    "incomplete": 178,
+    "judged": 309
   },
   "unit": {
     "tests": 26,
@@ -61,29 +61,29 @@
   },
   "sources": {
     "asks": {
-      "bank": 438,
-      "code": 929,
+      "bank": 360,
+      "code": 754,
       "session": 0,
       "none": 8
     },
     "outcomes": {
-      "bank": 995,
+      "bank": 782,
       "no-change:denied": 2,
-      "no-change:guard": 27,
+      "no-change:guard": 19,
       "no-change:negative": 58,
       "no-change:read-only": 17,
-      "no-delete": 268,
+      "no-delete": 236,
       "static": 8
     },
-    "judged": 201
+    "judged": 190
   },
   "focus": null,
   "perTestType": {
     "obligation": {
-      "rows": 603,
-      "specs": 603,
-      "complete": 447,
-      "incomplete": 156
+      "rows": 559,
+      "specs": 559,
+      "complete": 413,
+      "incomplete": 146
     },
     "outside_trigger": {
       "rows": 43,
@@ -98,21 +98,21 @@
       "incomplete": 7
     },
     "ordered_pair": {
-      "rows": 112,
-      "specs": 112,
-      "complete": 112,
+      "rows": 64,
+      "specs": 64,
+      "complete": 64,
       "incomplete": 0
     },
     "skip_pressure": {
       "rows": 8,
       "specs": 8,
-      "complete": 7,
-      "incomplete": 1
+      "complete": 8,
+      "incomplete": 0
     },
     "route_positive": {
-      "rows": 260,
-      "specs": 260,
-      "complete": 260,
+      "rows": 192,
+      "specs": 192,
+      "complete": 192,
       "incomplete": 0
     },
     "route_near_miss": {
@@ -140,9 +140,9 @@
       "incomplete": 0
     },
     "dispatch": {
-      "rows": 42,
-      "specs": 42,
-      "complete": 42,
+      "rows": 28,
+      "specs": 28,
+      "complete": 28,
       "incomplete": 0
     },
     "contract_alone": {
@@ -158,9 +158,9 @@
       "incomplete": 0
     },
     "guard_positive": {
-      "rows": 84,
-      "specs": 84,
-      "complete": 78,
+      "rows": 60,
+      "specs": 60,
+      "complete": 54,
       "incomplete": 6
     },
     "guard_negative": {
@@ -200,9 +200,9 @@
       "incomplete": 0
     },
     "stage_order": {
-      "rows": 69,
-      "specs": 69,
-      "complete": 69,
+      "rows": 39,
+      "specs": 39,
+      "complete": 39,
       "incomplete": 0
     },
     "stage_skip": {
@@ -218,10 +218,10 @@
       "incomplete": 0
     },
     "register_sample": {
-      "rows": 200,
-      "specs": 200,
-      "complete": 187,
-      "incomplete": 13
+      "rows": 160,
+      "specs": 160,
+      "complete": 151,
+      "incomplete": 9
     },
     "hazard_recovery": {
       "rows": 2,
@@ -262,18 +262,17 @@
       "incomplete": 0
     },
     "live": {
-      "rows": 1525,
-      "specs": 1525,
-      "complete": 1338,
-      "incomplete": 187
+      "rows": 1257,
+      "specs": 1257,
+      "complete": 1085,
+      "incomplete": 172
     }
   },
   "gaps": [
     {
       "marker": "needs-askable-act",
-      "specs": 185,
+      "specs": 170,
       "atoms": [
-        "gate.standing.read-claude-skills-invoice-reconcile-references",
         "instruction.invoice-reconcile.a-line-matches-on-article-code",
         "instruction.invoice-reconcile.an-invoice-line-with-no-order",
         "instruction.ledger-auditor.a-brief-missing-a-number-gets",
@@ -297,7 +296,6 @@
         "register.route-planner.the-plan-is-a-table-of"
       ],
       "details": [
-        "no task in the atom's words (gate.standing.read-claude-skills-invoice-reconcile-references (title)): the act names the file .claude/skills/invoice-reconcile/references/matching-rules.md: \"read .claude/skills/invoice-reconcile/references/matching-rules.md before editing any invoice file\"",
         "no task in the atom's words (instruction.invoice-reconcile.a-line-matches-on-article-code (title)): the act does not start with a verb: \"\"",
         "no task in the atom's words (instruction.invoice-reconcile.an-invoice-line-with-no-order (title)): the act does not start with a verb: \"\"",
         "no task in the atom's words (instruction.ledger-auditor.a-brief-missing-a-number-gets (title)): the act does not start with a verb: \"\"",

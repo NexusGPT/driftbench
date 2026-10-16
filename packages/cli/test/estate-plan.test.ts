@@ -38,7 +38,7 @@ describe('driftbench estate plan', () => {
     expect(result.err).toBe('');
     expect(result.code).toBe(0);
     expect(result.out).toContain(
-      'Wrote plan.yaml: 1568 rows (361 from the contract, 10 journeys, 1197 pairwise), all proposed. Summary in plan.summary.json.',
+      'Wrote plan.yaml: 1300 rows (361 from the contract, 10 journeys, 929 pairwise), all proposed. Summary in plan.summary.json.',
     );
     expect(result.out).toContain('Covering array: 1197 rows, t = 2, 5092 of 5092 allowed 2-tuples covered');
     expect(result.out).toContain('the full grid of 2531567001600 cells is never enumerated');
@@ -120,7 +120,7 @@ describe('driftbench estate plan approve', () => {
     const root = await folder();
     expect((await run(['estate', 'plan', 'approved.yaml', '--out', 'plan.yaml'], root)).code).toBe(0);
     const list = await run(['estate', 'plan', 'approve', 'plan.yaml'], root);
-    expect(list.out).toContain('plan.yaml: 1568 rows, 1568 proposed, 0 approved, 0 struck.');
+    expect(list.out).toContain('plan.yaml: 1300 rows, 1300 proposed, 0 approved, 0 struck.');
     const strike = await run(
       ['estate', 'plan', 'approve', 'plan.yaml', '--row', 'journey.01', '--strike'],
       root,
@@ -130,7 +130,7 @@ describe('driftbench estate plan approve', () => {
     const all = await run(['estate', 'plan', 'approve', 'plan.yaml', '--all'], root);
     expect(all.out).toContain('Approved 1567 rows in plan.yaml');
     const after = await run(['estate', 'plan', 'approve', 'plan.yaml'], root);
-    expect(after.out).toContain('1568 rows, 0 proposed, 1567 approved, 1 struck.');
+    expect(after.out).toContain('1300 rows, 0 proposed, 1299 approved, 1 struck.');
     const before = await readFile(join(root, 'plan.yaml'), 'utf8');
     const again = await run(['estate', 'plan', 'approve', 'plan.yaml', '--out', 'plan2.yaml', '--all'], root);
     expect(again.code).toBe(0);
@@ -166,7 +166,7 @@ describe('driftbench estate plan approve', () => {
     );
     expect(result.err).toBe('');
     expect(result.code).toBe(0);
-    expect(result.out).toContain('Approved 1568 rows in plan.approved.yaml');
+    expect(result.out).toContain('Approved 1300 rows in plan.approved.yaml');
     expect(await readFile(join(root, 'plan.yaml'), 'utf8')).toBe(before);
     const written = await readFile(join(root, 'plan.approved.yaml'), 'utf8');
     const rowsApproved = before

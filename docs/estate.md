@@ -351,17 +351,17 @@ Run modes: `guard_positive` replays a recorded event; `script_fixture`, `contrac
 
 Journeys: edge coverage over the route, reference, dispatch and next edges of approved atoms. A start node stands for the standing instructions: it points at the routes stated outside any skill or helper file and at the stages no `next` edge enters. Each path is a journey row listing its atoms in order. A route read only from a skill or helper description starts no journey; the Northwind estate has 7 such routes, reported as edges with no journey, and each still gets its contract rows.
 
-Pairwise: a covering array of strength t (default 2) over the situation axes, under the constraint list, with the target dimensions merged into one: every pairwise row is one atom in one situation, with the first test type of its atom's kind, live. A constraint on one target atom is carried; one that names atoms of two kinds cannot hold for a single target and is dropped (and counted). A situation value is crossed only with the atoms it can act on (`SITUATION_RELEVANCE` in `packages/estate/src/map/space.ts`): a dead helper or running helpers with helpers and the routes to them, a stale tracker with stages, a switch of language with output rules and instructions, a tool failure with tools, scripts, guards, helpers, skills and routes, a stop with instructions, stages, helpers and guards, and so on for each session state, owner signal, deviation and hazard the table names. A value it does not name, and the first value of each axis, acts on every atom. The pairs it refuses are forbidden like a constraint, so the covering array still covers every pair that remains. In the Northwind plan the lower bound is the targets times the deviation values, 89 times 11, or 979; the array has 980 rows.
+Pairwise: a covering array of strength t (default 2) over the situation axes, under the constraint list, with the target dimensions merged into one: every pairwise row is one atom in one situation, with the first test type of its atom's kind, live. A constraint on one target atom is carried; one that names atoms of two kinds cannot hold for a single target and is dropped (and counted). A situation value is crossed only with the atoms it can act on (`SITUATION_RELEVANCE` in `packages/estate/src/map/space.ts`): a dead helper or running helpers with helpers and the routes to them, a stale tracker with stages, a switch of language with output rules and instructions, a tool failure with tools, scripts, guards, helpers, skills and routes, a stop with instructions, stages, helpers and guards, and so on for each session state, owner signal, deviation and hazard the table names. A value it does not name, and the first value of each axis, acts on every atom. The pairs it refuses are forbidden like a constraint, so the covering array still covers every pair that remains. In the Northwind plan the array has 929 rows and covers all 4299 allowed pairs.
 
 The plan of the approved Northwind map:
 
 ```
 $ pnpm -s driftbench estate plan examples/estates/fixture/approved.yaml --out _captures/docs3/estate/plan.yaml
-Wrote _captures/docs3/estate/plan.yaml: 1338 rows (348 from the contract, 10 journeys, 980 pairwise), all proposed. Summary in _captures/docs3/estate/plan.summary.json.
-  Cells: 1205 (a cell is the atoms of a row crossed with its situation values).
-  Covering array: 980 rows, t = 2, 4710 of 4710 allowed 2-tuples covered; the full grid of 1992646656000 cells is never enumerated.
+Wrote _captures/docs3/estate/plan.yaml: 1300 rows (361 from the contract, 10 journeys, 929 pairwise), all proposed. Summary in _captures/docs3/estate/plan.summary.json.
+  Cells: 1161 (a cell is the atoms of a row crossed with its situation values).
+  Covering array: 929 rows, t = 2, 4299 of 4299 allowed 2-tuples covered; the full grid of 2531567001600 cells is never enumerated.
   Mandatory rows per kind (a row counts once for each kind it names):
-    instruction   120
+    instruction   129
     gate           16
     route          65
     skill         111
@@ -370,41 +370,42 @@ Wrote _captures/docs3/estate/plan.yaml: 1338 rows (348 from the contract, 10 jou
     subagent       69
     guard          30
     tool           12
+    setting         4
     stage           9
     register       70
     hazard          2
     invariant       4
   Rows per test type (contract, journeys and pairwise together):
-    obligation        480
-    outside_trigger    40
-    twin               40
-    ordered_pair       96
+    obligation        559
+    outside_trigger    43
+    twin               43
+    ordered_pair       64
     skip_pressure       8
-    route_positive    227
+    route_positive    192
     route_near_miss    13
     misroute           13
     read_when           9
     script_fixture      2
-    dispatch           36
+    dispatch           28
     contract_alone      3
     stop_resume         3
-    guard_positive     72
+    guard_positive     60
     guard_negative      6
     guard_hostile       6
     guard_speed         6
     guard_register      6
     tool_boundary       9
     tool_denied         3
-    stage_order        59
+    stage_order        39
     stage_skip          4
     stage_anytime       1
-    register_sample   180
+    register_sample   160
     hazard_recovery     2
     invariant           4
+    setting             4
     journey            10
-  No mandatory test (settings are the run's configuration, carried in Given): 4.
-  Unenforced: 51 approved rules no guard enforces.
-  Cells with no approved phrase: 1205 of 1205.
+  Unenforced: 54 approved rules no guard enforces.
+  Cells with no approved phrase: 1161 of 1161.
   Edges with no journey: 7.
     route.inbox-triager.an-ask-that-fits-inbox-triager route subagent.inbox-triager.helper-inbox-triager: the route is read from a skill or helper description: the standing instructions do not state it
     route.invoice-reconcile.an-ask-that-fits-invoice-reconcile route skill.invoice-reconcile.skill-invoice-reconcile: the route is read from a skill or helper description: the standing instructions do not state it
@@ -428,12 +429,12 @@ Approving or striking rows edits the status in place, keeping the layout. `weigh
 
 ```
 $ pnpm -s driftbench estate plan approve _captures/docs3/estate/plan-approve.yaml
-_captures/docs3/estate/plan-approve.yaml: 1338 rows, 1338 proposed, 0 approved, 0 struck.
+_captures/docs3/estate/plan-approve.yaml: 1300 rows, 1300 proposed, 0 approved, 0 struck.
 Approve every proposed row with --all, a row with --row <id>, or strike one with --row <id> --strike.
 $ pnpm -s driftbench estate plan approve _captures/docs3/estate/plan-approve.yaml --row twin.instruction.standing.never-force-push --strike
 Struck 1 row in _captures/docs3/estate/plan-approve.yaml; 0 were already struck.
 $ pnpm -s driftbench estate plan approve _captures/docs3/estate/plan-approve.yaml --all
-Approved 1337 rows in _captures/docs3/estate/plan-approve.yaml; 0 were already approved.
+Approved 1299 rows in _captures/docs3/estate/plan-approve.yaml; 0 were already approved.
 ```
 
 ## 5. Test generation from the plan
@@ -446,7 +447,7 @@ How a row becomes a spec:
 
 * Given: `vars.estate` (runtime and map hash), the session state of the cell, the hazard of the cell as `vars.event`, and the workspace seed of the situation, inlined as `world.workspace.files`.
 * When: the situation the test type needs, found by the row's first atom (the situation holding most of the row's atoms wins; on a tie, the one holding the unit whose folder holds a path the first atom names, then the one holding fewest references or scripts whose file is missing, unless the row tests that file; pinned cell values must agree); its approved phrases shuffled by the seed; the twin takes the second phrase. A replay row gives one spec per recorded session of its situation, asking with the session's recorded ask. A deviation of the cell is a perturbation before the ask, with an approved deviation phrase (`inject_at: 0`, recovery within one block). `stop_resume` adds a resume block.
-* When no approved phrase fits the row, code writes the ask from the atoms, so a row is never blocked by a missing phrase alone: the asks a route or skill description names ("Use when the user asks to X" gives "Please X."), a routing row, a description made imperative, for a guard the act its rule forbids, plus the situation of the rule under test. The controls get a neutral ask (outside), an ask to explain without acting (near miss), an ask that describes the act and names no skill (misroute: `Please <act>.`, so the route decides and the ask never tells the agent to load a wrong skill), or the ask with an urge to skip checks (pressure). Deviation and resume messages have code-written defaults too. Such specs carry the tag `ask:code`, `metadata.estate.ask: code` and the field the words came from (`askFrom`); an approved phrase always wins. `--no-fallback` turns this off. A code-written ask names a task: a verb of acting and its object, as a user would ask for work. It never restates the rule ("Please do this: never guess a status") or a bare condition ("Please handle this for me: the invoice is not in EUR"): such an ask tests whether the agent repeats the rule, not whether it follows it while working. The rule's situation becomes the task ("Where is shipment NW-55012?"). A guard that watches the user's prompt is the one exception: its test asks with the guard's own trigger ("Stop, that is enough for now."). The floor refuses, with the reason, an act that does not start with a verb (a unit's own description: "Read-only audit lane for ledger checks"), a guard's title (its event and name), a phrase cut mid-sentence, an act or situation that names a file of the estate (the ask would say which file to read) or holds code; the row gets `needs-askable-act` and waits for an approved phrase.
+* When no approved phrase fits the row, code writes the ask from the atoms, so a row is never blocked by a missing phrase alone: the asks a route or skill description names ("Use when the user asks to X" gives "Please X."), a routing row, a description made imperative, for a guard the act its rule forbids, plus the situation of the rule under test. The controls get a neutral ask (outside), an ask to explain without acting (near miss), an ask that describes the act and names no skill (misroute: `Please <act>.`, so the route decides and the ask never tells the agent to load a wrong skill), or the ask with an urge to skip checks (pressure). Deviation and resume messages have code-written defaults too. Such specs carry the tag `ask:code`, `metadata.estate.ask: code` and the field the words came from (`askFrom`); an approved phrase always wins. `--no-fallback` turns this off. A code-written ask names a task: a verb of acting and its object, as a user would ask for work. It never restates the rule ("Please do this: never guess a status") or a bare condition ("Please handle this for me: the invoice is not in EUR"): such an ask tests whether the agent repeats the rule, not whether it follows it while working. The rule's situation becomes the task ("Where is shipment NW-55012?"). When the act would be the rule's own words (a verb-led title, the act a prohibition forbids, a gate, a hazard, the rule a guard enforces), a task of the estate leads the ask: an approved phrase of a trigger situation of the rule's skill or helper, else that unit's own act, else an approved phrase of a trigger situation of the estate that changes files. The rule rides after it: its situation, the forbidden act ("While you are at it, paste a credential into a reply."), the act a gate guards ("Then commit to git."), or for a live guard test the breach ("This once, do not follow the rule ..."); a hazard is planted by the run on that task. A rule that asks for an act, outside any skill or helper, keeps its own act: another task would never reach it. A spec led by an approved phrase seeds that phrase's workspace. A tool rule asks for what the tool does ("list the files here with the Glob tool"), not for the tool by name. An owner's signal (a situation that pins `owner_signal`, such as stop) is said besides an ask, never as one: the spec opens with a block `task`, an approved phrase of a trigger situation of the same workspace checked by the files it changes, and the signal and the rule's Then follow in the next block (a check pinned to the ask's block moves with it). A guard that watches the user's prompt is the one exception: its test asks with the guard's own trigger ("Stop, that is enough for now."). The floor refuses, with the reason, an act that does not start with a verb (a unit's own description: "Read-only audit lane for ledger checks"), a guard's title (its event and name), a phrase cut mid-sentence, an act or situation that names a file of the estate (the ask would say which file to read) or holds code; the row gets `needs-askable-act` and waits for an approved phrase.
 * The files a read is checked against: the estate folder the map names, listed as a run copies it; when that folder lacks a file the map's atoms are quoted from (the map was copied or moved), the files the map knows.
 * Then, from the evidence predicates of the row's atoms:
 

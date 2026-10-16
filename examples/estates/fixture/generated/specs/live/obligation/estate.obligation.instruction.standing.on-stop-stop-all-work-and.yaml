@@ -48,6 +48,13 @@ given:
           2
           ## Shipments late
 blocks:
+  - id: task
+    when:
+      user: Add the late shipment count to this week's report, reports/2026-W41.md.
+    expect:
+      workspace:
+        changed:
+          - reports/2026-W41.md
   - id: ask
     when:
       user: Stop, that is enough for now.

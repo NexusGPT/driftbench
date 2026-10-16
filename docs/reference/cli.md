@@ -1122,7 +1122,7 @@ examples/estates/fixture/approved.yaml: estate at examples/estates/fixture, 122 
 
 ```
 $ pnpm -s driftbench estate plan approve examples/estates/fixture/plan.yaml
-examples/estates/fixture/plan.yaml: 1338 rows, 1338 proposed, 0 approved, 0 struck.
+examples/estates/fixture/plan.yaml: 1300 rows, 1300 proposed, 0 approved, 0 struck.
 Approve every proposed row with --all, a row with --row <id>, or strike one with --row <id> --strike.
 ```
 

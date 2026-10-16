@@ -23,7 +23,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please use the Edit tool on the files here.
+      user: Please fix a typo in one of the files here with the Edit tool.
     expect:
       workspace:
         deleted: []

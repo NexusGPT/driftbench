@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please help me with a delivery, a tracking number or a late shipment. The user gives no tracking number.
+      user: Please look into a delivery, a tracking number or a late shipment. The user gives no tracking number.
     expect:
       skills:
         - name: shipment-tracker

@@ -32,7 +32,7 @@ criteria:
 blocks:
   - id: ask
     when:
-      user: Could you help me with a delivery, a tracking number or a late shipment? The carrier answers with an error. Thanks.
+      user: Could you look into a delivery, a tracking number or a late shipment? The carrier answers with an error. Thanks.
     expect:
       skills:
         - name: shipment-tracker
