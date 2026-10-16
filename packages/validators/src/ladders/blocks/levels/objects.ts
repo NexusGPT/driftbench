@@ -546,7 +546,8 @@ const CLI_CASES: CliCase[] = [
     setup: (dir, p, seed) => {
       writeProject(dir, p, seed);
       const specPath = join(dir, 'ghost.yaml');
-      writeFileSync(specPath, stringify(toolSpec(seed, 'ghost', { block: p(['ghost-set', 'vanished']) })));
+      // The spec layer names the object, so the block explained (b0) is one that names it.
+      writeFileSync(specPath, stringify(toolSpec(seed, 'ghost', { spec: p(['ghost-set', 'vanished']) })));
       return { args: ['explain', 'check-set', '--at', `${specPath}#b0`] };
     },
   },

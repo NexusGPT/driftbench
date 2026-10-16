@@ -27,6 +27,7 @@ const NONE: Blame = { item: 'unassigned', disposition: 'unassigned', fixAction: 
 const R1: Blame = { item: 'R1', disposition: 'agent', fixAction: 'strengthen_rule' };
 const R2: Blame = { item: 'R2', disposition: 'agent', fixAction: 'copy_given_values' };
 const R3: Blame = { item: 'R3', disposition: 'shared', fixAction: 'state_contract' };
+const R2B: Blame = { item: 'R2b', disposition: 'agent', fixAction: 'add_rule_or_model' };
 
 /** A CODE symptom: what the block expects of its file, and the action that breaks it. */
 type Symptom = {
@@ -446,7 +447,20 @@ const ENUM: NormalCause = {
   }),
 };
 
+const DERIVED: NormalCause = {
+  id: 'derived',
+  blame: R2B,
+  why: 'the agent built the value itself, from nothing the user or a file gave, and it differs from gold',
+  build: (gold) => ({
+    user: 'Find the booking I made last week, please.',
+    value: `${gold.split('@')[0]}-guess`,
+    error: 'no booking with that reference',
+  }),
+};
+
 NORMAL_PAIRS.push(
+  { id: 'altered-vs-derived', tier: 5, a: ALTERED, b: DERIVED },
+  { id: 'derived-vs-verbatim', tier: 5, a: DERIVED, b: VERBATIM },
   { id: 'altered-vs-verbatim', tier: 4, a: ALTERED, b: VERBATIM },
   { id: 'enum-vs-verbatim', tier: 5, a: ENUM, b: VERBATIM },
   { id: 'altered-vs-enum', tier: 5, a: ALTERED, b: ENUM },

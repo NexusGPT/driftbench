@@ -5,6 +5,7 @@ import { type BankEntry, bankMeasure, type Measure } from '../../ladder';
 import { blastItems } from './levels/blast';
 import { carryBankItems } from './levels/carry';
 import { codeItems } from './levels/code';
+import { comboItems } from './levels/combos';
 import { diagnosticItems } from './levels/diagnostics';
 import { historyItems } from './levels/history';
 import { intervalItems } from './levels/intervals';
@@ -27,6 +28,7 @@ export function blocksBank(): BankItem[] {
     ...verdictItems(),
     ...codeItems(),
     ...carryBankItems(),
+    ...comboItems(),
     ...historyItems(),
     ...intervalItems(),
     ...objectItems(),
