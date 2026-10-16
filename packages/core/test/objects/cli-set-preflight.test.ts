@@ -105,3 +105,73 @@ it.each([
 ])('still refuses a final combination that breaks the schema (%s)', (_, flags) => {
   expect(() => resolveBlockObjects(oneBlock, 0, rangeContext(flags))).toThrow(/lo must not exceed hi/);
 });
+
+const NAMED_LO = 'check-set/default#range.lo=5';
+const NAMED_HI = 'check-set/default#range.hi=8';
+const KIND_LO = 'check-set#range.lo=5';
+const KIND_HI = 'check-set#range.hi=8';
+
+it.each([
+  ['named only', [NAMED_LO, NAMED_HI]],
+  ['named only, other order', [NAMED_HI, NAMED_LO]],
+  ['kind-only only', [KIND_LO, KIND_HI]],
+  ['kind-only only, other order', [KIND_HI, KIND_LO]],
+  ['named lo, kind-only hi', [NAMED_LO, KIND_HI]],
+  ['kind-only hi, named lo', [KIND_HI, NAMED_LO]],
+  ['kind-only lo, named hi', [KIND_LO, NAMED_HI]],
+  ['named hi, kind-only lo', [NAMED_HI, KIND_LO]],
+])(
+  'combines named and kind-only --set flags of one selected object before validating it (%s)',
+  (_, flags) => {
+    expect(resolveBlockObjects(oneBlock, 0, rangeContext(flags))[0]?.object.items[0]?.params).toEqual({
+      lo: 5,
+      hi: 8,
+    });
+  },
+);
+
+it.each([
+  ['named lo, kind-only hi', ['check-set/default#range.lo=9', KIND_HI]],
+  ['kind-only hi, named lo', [KIND_HI, 'check-set/default#range.lo=9']],
+  ['kind-only lo, named hi', ['check-set#range.lo=9', NAMED_HI]],
+])('still refuses an invalid final combination of mixed forms (%s)', (_, flags) => {
+  expect(() => resolveBlockObjects(oneBlock, 0, rangeContext(flags))).toThrow(/lo must not exceed hi/);
+});
+
+it('keeps the flags of one object from reaching another', () => {
+  const context = rangeContext([]);
+  context.store.add(
+    {
+      kind: 'check-set',
+      id: 'other',
+      items: [{ id: 'range', title: 'Range', impl: 'builtin:test/range', params: { lo: 2, hi: 4 } }],
+    },
+    'project',
+    { path: 'other.yaml' },
+  );
+  // A named flag for `other` changes only `other`; the kind-only flag reaches every object of the kind.
+  context.cli = parseCliOverrides([], ['check-set/other#range.lo=6', KIND_HI], context.store.registry);
+  expect(resolveBlockObjects(oneBlock, 0, context)[0]?.object.items[0]?.params).toEqual({ lo: 1, hi: 8 });
+  context.cli = parseCliOverrides(
+    ['check-set/other'],
+    ['check-set/other#range.lo=6', KIND_HI],
+    context.store.registry,
+  );
+  expect(resolveBlockObjects(oneBlock, 0, context)[0]?.object.items[0]?.params).toEqual({ lo: 6, hi: 8 });
+});
+
+it('does not apply a kind-only flag to a named object that has no such item', () => {
+  const context = rangeContext([]);
+  context.store.add(
+    {
+      kind: 'check-set',
+      id: 'other',
+      items: [{ id: 'solo', title: 'Solo', impl: 'builtin:test/range', params: { lo: 2, hi: 4 } }],
+    },
+    'project',
+    { path: 'other.yaml' },
+  );
+  // `range.hi` names no item of `other`: only the selected default takes it, and `other` is validated alone.
+  context.cli = parseCliOverrides([], ['check-set/other#solo.lo=3', KIND_HI], context.store.registry);
+  expect(resolveBlockObjects(oneBlock, 0, context)[0]?.object.items[0]?.params).toEqual({ lo: 1, hi: 8 });
+});

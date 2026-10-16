@@ -233,10 +233,10 @@ export function resolveBlockObjects(
   options: { explicitOnly?: boolean } = {},
 ): UsedObject[] {
   // Validate every named target before kind-specific branches can skip it, including unselected objects.
-  // Every flag of one object is applied first and the combined params are validated once, as applySets does:
-  // flags that are valid together are never refused one at a time.
-  type CliSet = NonNullable<ObjectContext['cli']>['set'][number];
-  const named = new Map<string, CliSet[]>();
+  // The flags that reach one object are applied together and its combined params are validated once, as
+  // applySets does: the named flags of the object and the kind-only flags of its kind that name one of its
+  // items, in the order given. Flags that are valid together are never refused one at a time.
+  const namedTargets = new Map<string, { kind: string; id: string }>();
   for (const set of context.cli?.set ?? []) {
     if (set.id === undefined || /^\([a-z]+\)$/.test(set.id)) continue;
     if (!context.store.has(set.kind, set.id)) {
@@ -246,13 +246,16 @@ export function resolveBlockObjects(
         `--set ${set.flag}`,
       );
     }
-    const key = `${set.kind}:${set.id}`;
-    named.set(key, [...(named.get(key) ?? []), set]);
+    namedTargets.set(`${set.kind}:${set.id}`, { kind: set.kind, id: set.id });
   }
-  for (const sets of named.values()) {
-    const [first] = sets;
-    if (!first || first.id === undefined) continue;
-    const target = context.store.resolve(first.kind, first.id);
+  for (const { kind, id } of namedTargets.values()) {
+    const target = context.store.resolve(kind, id);
+    const itemIds = new Set(target.items.map((item) => item.id));
+    const reaches = (set: { path: string }) =>
+      [...itemIds].some((item) => set.path === item || set.path.startsWith(`${item}.`));
+    const sets = (context.cli?.set ?? []).filter(
+      (set) => set.kind === kind && (set.id === id || (set.id === undefined && reaches(set))),
+    );
     context.store.resolveCli(
       target,
       sets.map((set) => cliPatch(target, set)),
