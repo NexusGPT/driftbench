@@ -85,3 +85,20 @@ describe('stray punctuation stays inside its paragraph', () => {
     expect(raw.notes.filter((note) => note.message.startsWith('Prose candidate skipped'))).toHaveLength(1);
   });
 });
+
+describe('instructions that have lost their object', () => {
+  it.each(['Read before any change.', 'Review before each merge.'])(
+    'does not propose a bare verb with only a time phrase: %s',
+    async (text) => {
+      expect((await candidates(`# Notes\n\n${text}\n`)).atoms).toEqual([]);
+    },
+  );
+  it.each(['Ask before you delete the branch.', 'Read the changelog before any change.'])(
+    'proposes an instruction with its own object or clause: %s',
+    async (text) => {
+      expect((await candidates(`# Notes\n\n${text}\n`)).atoms.map((atom) => atom.provenance.quote)).toEqual([
+        text,
+      ]);
+    },
+  );
+});

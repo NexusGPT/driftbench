@@ -237,6 +237,7 @@ export function clauseRule(source: string, context: RuleContext): Rule | undefin
   if (quantified) return quantifiedRule(text, parsed, terms, context);
   const conditional = conditionalRule(text, terms, imperativeLed, context);
   if (conditional) return conditional;
+  if (imperativeLed && elidedObject(terms)) return;
   if (imperativeLed)
     return withPartial({ subject: 'agent', polarity: 'obligation', form: 'imperative' }, text);
   return declaredOutput(text, parsed, terms, context);
@@ -269,6 +270,13 @@ function markerRule(
     (term) => !has(term, 'Negative', 'Adverb', 'Expression'),
   );
   if (!(has(after, 'Verb') && !has(after, 'Modal')) && !actFollows(tail)) return;
+  // "The contract states that suppliers must ...": a modal in a complement clause reports somebody's words.
+  // After a noun, "that" opens a relative clause ("tests that fail must ..."): a verb follows it.
+  if (!imperativeLed) {
+    const that = subjectTerms.findIndex((term) => /^that$/i.test(term.text));
+    const next = subjectTerms[that + 1];
+    if (that > 0 && next && has(next, 'Noun', 'Determiner', 'Pronoun') && !has(next, 'Verb')) return;
+  }
   if (subjectWords.length > 0 && !imperativeLed) {
     const kind = subjectKind(subjectText, subjectTerms, context);
     if (kind === 'finite' || kind === 'others') return;
@@ -282,7 +290,7 @@ function markerRule(
     return;
   return withPartial(
     {
-      subject: subjectText || 'agent',
+      subject: subjectText.replace(/^.*\bthat\s+/i, '') || 'agent',
       polarity: prohibition ? 'prohibition' : 'obligation',
       form: strong ? 'modal' : /^always$/i.test(marker[0]) ? 'universal' : 'negative',
     },
@@ -627,6 +635,27 @@ function firstSubordinate(terms: Term[], text: string): number {
       return found;
   }
   return text.length;
+}
+
+/**
+ * "Read before any change": a bare verb whose only complement is a time phrase has lost its object, so it
+ * cannot stand alone as a rule (its object is in the sentence it was cut from). A time clause with a verb
+ * of its own ("Ask before you delete") is complete.
+ */
+function elidedObject(terms: Term[]): boolean {
+  let at = 0;
+  while (
+    has(terms[at], 'Adverb', 'Expression') ||
+    /^(?:please|kindly|just|simply|also|then|first|next|finally|now)$/i.test(terms[at]?.text ?? '')
+  )
+    at++;
+  const rest = terms.slice(at + 1);
+  const first = rest.find((term) => !has(term, 'Adverb'));
+  return (
+    !!first &&
+    /^(?:before|after|during|until|prior)$/i.test(first.text) &&
+    !rest.some((term, index) => index > 0 && has(term, 'Verb', 'Pronoun') && !has(term, 'Gerund'))
+  );
 }
 
 /** Mark a clause whose act has only a pronoun for an object: its referent is in an earlier sentence. */
