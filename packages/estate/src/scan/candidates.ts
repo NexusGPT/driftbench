@@ -366,10 +366,21 @@ function normativeLines(lines: string[], bodyStart: number): Block[] {
       continue;
     }
     if (skipping) continue;
-    if (WRONG_MARK.test(original) || CHECKLIST.test(original)) {
+    if (CHECKLIST.test(original)) {
       skipping = true;
       current = undefined;
       continue;
+    }
+    // A mark that says the example is wrong: at the start of the line the whole item is the example; after
+    // a rule on the same line it only hides what follows it.
+    const wrong = WRONG_MARK.exec(original);
+    if (wrong) {
+      if (original.slice(0, wrong.index).replace(/^\s*(?:[-+*]|\d+[.)])?\s*[*_]*/, '').length < 3) {
+        skipping = true;
+        current = undefined;
+        continue;
+      }
+      line = line.slice(0, wrong.index) + blank(line.slice(wrong.index));
     }
     if (WRONG_LABEL.test(original.trim())) {
       labelled = 'armed';

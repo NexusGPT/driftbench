@@ -184,7 +184,7 @@ const BOUNDARY = /[,;:–—]|\s-\s|\b(?:and|but|then)\b/gi;
 const PAST_CUES =
   /\b(?:previously|formerly|originally|used\s+to|no\s+longer|anymore|last\s+(?:week|month|year|sprint|quarter|time)|yesterday|\d+\s+(?:days?|weeks?|months?|years?)\s+ago|until\s+now|back\s+then|(?:the\s+)?(?:old|former|previous|earlier)\s+(?:rules?|polic(?:y|ies)|versions?|way)|in\s+(?:19|20)\d{2}|(?:19|20)\d{2}-\d{2}(?:-\d{2})?)\b/i;
 /** Every word that can open or carry a rule, so a sentence without one needs no parse unless it is an imperative. */
-const PLACEHOLDER = /<<<|>>>|<[A-Za-z_][^<>\n]{0,40}>|\{\{|\}\}|\$\{|\b(?:TODO|TBD|FIXME|XXX)\b|…|\.{3}/;
+const PLACEHOLDER = /<<<|>>>|\{\{|\}\}|\$\{|\b(?:TODO|TBD|FIXME|XXX)\b/;
 const CUES =
   /\b(?:must|shall|should|ought|needs?|has\s+to|have\s+to|required|expected|never|always|do\s+not|does\s+not|don['’]t|doesn['’]t|cannot|can['’]t|mustn['’]t|shouldn['’]t|won['’]t|may\s+not|only|unless|until|before|after|once|when|whenever|if|at\s+most|no\s+more\s+than|up\s+to|every|each)\b/i;
 /** Function words (articles, pronouns, prepositions, conjunctions, auxiliaries) never open an imperative. */
@@ -212,7 +212,7 @@ export function clauseRule(source: string, context: RuleContext): Rule | undefin
     .replace(/\([^)]*\)|\[[^\]]*\]|\{[^}]*\}/g, blank)
     .replace(/\s+/g, ' ')
     .trim();
-  if (!whole || whole.length > 600 || whole.includes('?')) return;
+  if (!whole || whole.length > 1500 || whole.includes('?')) return;
   // A lead-in that ends in a colon introduces what follows; it is no rule of its own.
   if (/[:：]$/.test(whole)) return;
   // A log entry or an account of the past is not a rule, whatever label it carries.
@@ -562,7 +562,6 @@ function imperativeStart(terms: Term[]): boolean {
       'Possessive',
       'Modal',
       'Copula',
-      'PastTense',
       'Participle',
       'Acronym',
       'Url',
@@ -571,6 +570,7 @@ function imperativeStart(terms: Term[]): boolean {
     )
   )
     return false;
+  if (has(first, 'PastTense') && !has(first, 'Infinitive', 'Imperative')) return false;
   const second = terms[at + 1];
   if (
     /^(?:of|is|are|was|were|has|have|had|does|did|will|can)$/i.test(second?.text ?? '') &&
@@ -650,7 +650,8 @@ function withoutLabel(text: string): string {
   const dash = /[—–]|\s-\s/.test(text.slice(prefix.length, prefix.length + 4));
   if (
     dash &&
-    (/^(?:step|phase|part|stage|round|item|section|chapter|\d)/i.test(prefix) || !/[.!)]$/.test(rest))
+    (/^(?:step|phase|part|stage|round|item|section|chapter|\d)/i.test(prefix) ||
+      (!/[.!)]$/.test(rest) && !CUES.test(rest)))
   )
     return '';
   return rest;
@@ -660,11 +661,13 @@ function withoutLabel(text: string): string {
 function mayOpenAnInstruction(text: string): boolean {
   const first = /^\W*([\p{L}][\p{L}'’-]*)/u.exec(text)?.[1]?.toLowerCase();
   if (!first) return false;
-  if (text.split(' ').length > 30) return false;
+  if (text.split(' ').length > 80) return false;
   // An output noun can open a statement about the agent's own output ("Replies stay brief").
   if (OUTPUT.has(first) || OPENERS.has(first)) return true;
-  if (/(?:ing|ed)$/.test(first) || (/s$/.test(first) && !/ss$/.test(first))) return false;
   const tag = LEXICON[first];
+  if (tag === 'Infinitive') return true;
+  if (/(?:ing|ed)$/.test(first) || (/s$/.test(first) && !/ss$/.test(first) && tag !== undefined))
+    return false;
   return (
     tag === undefined || ['Infinitive', 'Singular', 'Verb', 'Noun', 'Adjective', 'Uncountable'].includes(tag)
   );
@@ -712,7 +715,7 @@ function describesThePast(text: string, terms: Term[]): boolean {
     // user wrote in") or a negated auxiliary ("what you did not run").
     if (
       !imperativeFirst &&
-      at <= 5 &&
+      at <= 2 &&
       has(term, 'Verb') &&
       has(term, 'PastTense') &&
       !has(term, 'Passive', 'Participle', 'Adjective', 'Gerund') &&

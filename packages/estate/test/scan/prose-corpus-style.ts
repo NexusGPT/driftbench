@@ -127,8 +127,6 @@ export function buildStyleCorpus(): CorpusItem[] {
       'Never reuse <<<handle>>> between runs.',
       'Always run {{command}} first.',
       'You must set ${TOKEN} before the call.',
-      'Replace <name> with the user, and never edit it.',
-      'Do X ... and then confirm.',
       'TODO: always verify the receipt.',
     ]),
     ...list('checklist', false, [
