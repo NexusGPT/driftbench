@@ -33,7 +33,7 @@ import {
   type RenderedMap,
   renderMap,
 } from './render';
-import { type ScaleReport, scaleReport } from './scale';
+import { SCALE_GROWTH_BOUND, type ScaleGrowth, type ScaleReport, scaleReport } from './scale';
 
 /**
  * The item bank of the generator validator (docs/validators.md section 12). An item is one capability the
@@ -124,6 +124,7 @@ export class SeedData {
     readonly seed: number,
     readonly parts: GeneratorParts,
     private readonly scale: (factor: number) => Promise<ScaleReport>,
+    private readonly growth?: () => Promise<ScaleGrowth>,
   ) {}
 
   /** A value computed once per seed, shared by every item that reads it. */
@@ -174,6 +175,24 @@ export class SeedData {
 
   scaled(factor: number): Promise<ScaleReport> {
     return this.scale(factor);
+  }
+
+  /** The growth of the cost between two sizes (scale.ts); a run that supplies none is an error, never a pass. */
+  grown(): Promise<ScaleGrowth> {
+    return this.growth
+      ? this.growth()
+      : Promise.resolve({
+          seed: this.seed,
+          low: 0,
+          high: 0,
+          rounds: 0,
+          bound: SCALE_GROWTH_BOUND,
+          error: 'no growth measurement was supplied to this run',
+          lowMs: [],
+          highMs: [],
+          ratios: [],
+          ratio: Number.POSITIVE_INFINITY,
+        });
   }
 }
 
@@ -2159,6 +2178,21 @@ function scaleItems(): BankItem[] {
       `${r.followerPass} of ${r.followerTotal} machine blocks pass the follower`,
     ]);
   }
+  items.push({
+    id: 'scale.growth.linear',
+    family: 'scale',
+    tier: 4,
+    level: 'scale',
+    component: C.generate,
+    async check(data) {
+      const growth = await data.grown();
+      if (growth.error) return verdict(false, growth.error);
+      return verdict(
+        growth.ratio <= growth.bound,
+        `the cost per behaviour grew ${growth.ratio.toFixed(2)} times between ${growth.low} and ${growth.high} times the behaviours, best of ${growth.rounds} back-to-back rounds (${growth.ratios.map((ratio) => ratio.toFixed(2)).join(', ')}); the bound is ${growth.bound}`,
+      );
+    },
+  });
   return items;
 }
 

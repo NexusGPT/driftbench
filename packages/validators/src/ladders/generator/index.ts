@@ -1,7 +1,7 @@
 import { bankMeasure, defineLadder, type Ladder, type Measure } from '../../ladder';
 import { BANK_LEVELS, type BankItem, bankItems, SeedData, type Tier, type Verdict } from './bank';
 import type { GeneratorParts } from './measure';
-import { type ScaleReport, scaleReport } from './scale';
+import { type ScaleGrowth, type ScaleReport, scaleGrowth, scaleReport } from './scale';
 
 export { acmeItems, acmeRun } from './acme';
 export {
@@ -58,7 +58,15 @@ export {
   runContext,
 } from './measure';
 export * from './render';
-export { SCALE_BUDGET_MS, type ScaleReport, scaledSpec, scaleReport } from './scale';
+export {
+  SCALE_BUDGET_MS,
+  SCALE_GROWTH_BOUND,
+  type ScaleGrowth,
+  type ScaleReport,
+  scaledSpec,
+  scaleGrowth,
+  scaleReport,
+} from './scale';
 
 /**
  * The generator validator (docs/validators.md sections 3 and 12): do generated tests catch what they claim?
@@ -118,13 +126,15 @@ export type GeneratorLadderOptions = GeneratorParts & {
 
 /**
  * The generator ladder: one level per bank level, threshold 1.0. Each seed's data is built once per ladder
- * run. The scale runs are seed-independent in cost and run once per ladder, on the first seed asked.
+ * run. The scale runs and the growth run are seed-independent in cost and run once per ladder, on the first
+ * seed asked.
  */
 export function generatorLadder(options: GeneratorLadderOptions = {}): Ladder {
   const items = options.items ?? bankItems();
   const data = new Map<number, SeedData>();
   const scales = new Map<number, Promise<ScaleReport>>();
   let scaleSeed: number | undefined;
+  let growing: Promise<ScaleGrowth> | undefined;
   const scale = (seed: number) => (factor: number) => {
     scaleSeed ??= seed;
     let found = scales.get(factor);
@@ -134,10 +144,15 @@ export function generatorLadder(options: GeneratorLadderOptions = {}): Ladder {
     }
     return found;
   };
+  const growth = (seed: number) => () => {
+    scaleSeed ??= seed;
+    growing ??= scaleGrowth(scaleSeed);
+    return growing;
+  };
   const dataFor = (seed: number) => {
     let found = data.get(seed);
     if (!found) {
-      found = new SeedData(seed, options, scale(seed));
+      found = new SeedData(seed, options, scale(seed), growth(seed));
       data.set(seed, found);
     }
     return found;
@@ -179,10 +194,15 @@ export async function evaluateBank(
     }
     return found;
   };
+  let growing: Promise<ScaleGrowth> | undefined;
+  const growth = () => {
+    growing ??= scaleGrowth(first);
+    return growing;
+  };
   const failedOn = new Map<string, number[]>();
   const details = new Map<string, string>();
   for (const seed of seeds) {
-    const results = await evaluate(items, new SeedData(seed, options, scale));
+    const results = await evaluate(items, new SeedData(seed, options, scale, growth));
     for (const { item, verdict } of results) {
       if (!verdict.pass) {
         failedOn.set(item.id, [...(failedOn.get(item.id) ?? []), seed]);

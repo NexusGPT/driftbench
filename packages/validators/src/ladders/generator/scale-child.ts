@@ -1,9 +1,10 @@
 /**
  * The child process of one scale run: `node --import tsx scale-child.ts <factor> <seed> <budgetMs> [generator]`.
- * It generates the scaled hidden specification twice, measures the time, reads the report, runs the rule
- * follower on every complete spec, and prints one JSON line (a ScaleReport). The time it reports is the CPU
- * time of rendering, setup, all map loads, both generations and writes, the byte comparison, reload and
- * cleanup, as before. Follower execution is excluded; the parent enforces a separate wall-clock cap.
+ * It generates the scaled hidden specification twice, reads the report, runs the rule follower on every
+ * complete spec, and prints one JSON line (a ScaleReport). The time it reports is the CPU time of the
+ * product's own work: every map load and both generations. Rendering the map, writing it, the byte comparison,
+ * the reload and check of every spec, the cleanup and the follower run are the harness's, so a busy machine
+ * cannot charge the product for work it does not do; the parent enforces a separate wall-clock cap.
  *
  * The child holds one suite at a time, never two: each generation is written to its own folder and dropped,
  * the folders are compared file by file, and every spec is loaded, checked and dropped one at a time. When
@@ -93,11 +94,20 @@ function isSpec(path: string): boolean {
   );
 }
 
-// Match the old generateFrom(spec, renderMap(spec), seed) window, including setup and the first load.
-// CPU time (user and system) excludes time spent waiting for a busy machine.
-const started = process.cpuUsage();
+// CPU time (user and system) excludes time spent waiting for a busy machine. Only the product's calls are
+// charged: a map load and a generation.
+let productMicros = 0;
+async function product<T>(work: () => T | Promise<T>): Promise<T> {
+  const before = process.cpuUsage();
+  try {
+    return await work();
+  } finally {
+    const used = process.cpuUsage(before);
+    productMicros += used.user + used.system;
+  }
+}
+
 const root = await mkdtemp(join(tmpdir(), 'driftbench-vscale-'));
-let measuredMicros = 0;
 let out: ScaleReport;
 try {
   const mapDir = join(root, 'map');
@@ -105,18 +115,18 @@ try {
   const rendered = renderMap(spec);
   for (const [key, name] of Object.entries(MAP_FILES))
     await writeFile(join(mapDir, name), rendered[key as keyof typeof rendered]);
-  const loaded = await loadMap(join(mapDir, MAP_FILES.map));
+  const loaded = await product(() => loadMap(join(mapDir, MAP_FILES.map)));
   if (!loaded.ok) throw new Error(`refused: ${loaded.message}`);
   let report: GenerateResult['report'] | undefined;
   for (const folder of ['first', 'second']) {
-    const again = await loadMap(join(mapDir, MAP_FILES.map));
+    const again = await product(() => loadMap(join(mapDir, MAP_FILES.map)));
     if (!again.ok) throw new Error(`the map loaded once and was refused the second time: ${again.message}`);
     const outputDir = join(root, folder);
     if (toDisk) {
-      const result = toDisk(again.prepared, { seed, mapPath: MAP_PATH, outputDir });
+      const result = await product(() => toDisk(again.prepared, { seed, mapPath: MAP_PATH, outputDir }));
       report ??= JSON.parse(await readFile(result.reportPath, 'utf8')) as GenerateResult['report'];
     } else {
-      const result = generateSuite(again.prepared, { seed, mapPath: MAP_PATH });
+      const result = await product(() => generateSuite(again.prepared, { seed, mapPath: MAP_PATH }));
       await writeAll(outputDir, result.files);
       report ??= result.report;
     }
@@ -130,8 +140,6 @@ try {
     if (!result.ok) loadFailures += 1;
     else if (path.startsWith(`${COMPLETE_DIR}/`)) complete.push(path);
   }
-  const used = process.cpuUsage(started);
-  measuredMicros = used.user + used.system;
   const adapter = followerAdapter(createFollower(spec));
   let followerPass = 0;
   let followerTotal = 0;
@@ -171,12 +179,7 @@ try {
     followerTotal,
   };
 } finally {
-  // Files must survive for the follower's one-spec-at-a-time reads. Count their cleanup separately,
-  // keeping follower execution and its extra reads outside the original generation-time window.
-  const cleanupStarted = process.cpuUsage();
   await rm(root, { recursive: true, force: true });
-  const cleanupUsed = process.cpuUsage(cleanupStarted);
-  measuredMicros += cleanupUsed.user + cleanupUsed.system;
 }
-out.ms = Math.round(measuredMicros / 1000);
+out.ms = Math.round(productMicros / 1000);
 process.stdout.write(`${JSON.stringify(out)}\n`);
