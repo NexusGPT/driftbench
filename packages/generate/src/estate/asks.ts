@@ -214,10 +214,19 @@ export function codeAsk(
       const head = atoms[0];
       const guarded = head?.kind === 'guard' ? guardAct(head, lookup ?? (() => undefined)) : undefined;
       if (guarded) {
-        const words = guarded.breach ?? clauseOf(guarded.act);
+        // A rule that asks for an act is never the ask: an ask that repeats the rule tests the agent's memory
+        // of it. The ask is the act of the tool the guard watches, else none.
+        if (guarded.forced === null)
+          return {
+            lang: 'en',
+            source: guarded.source,
+            refused: `no task in the atom's words (${guarded.source}): the rule asks for an act, and the guard watches no tool whose use an owner can ask for`,
+          };
+        const words = guarded.forced?.act ?? guarded.breach ?? clauseOf(guarded.act);
         const refused = refuse(words, guarded.source);
         if (refused) return refused;
-        return { text: `Please ${words}.`, lang: 'en', source: guarded.source };
+        const about = guarded.forced?.context ? ` ${guarded.forced.context}.` : '';
+        return { text: `Please ${words}.${about}`, lang: 'en', source: guarded.source };
       }
       const refused = refuse(clause, source);
       if (refused) return refused;
@@ -296,6 +305,15 @@ export function actOf(
   if (head?.kind === 'guard') {
     const guarded = guardAct(head, lookup);
     if (guarded) return { act: guarded.act, source: guarded.source };
+  }
+  // A hazard is something that happens to the session (a compaction, a new session), never a request: the
+  // owner's words just carry the work on, after it.
+  if (head?.kind === 'hazard') {
+    const happened = head.situation ? lower(plain(head.situation)) : '';
+    return {
+      act: `go on with the task we were doing${happened ? `, after ${happened}` : ''}`,
+      source: `${head.id} (hazard)`,
+    };
   }
   if (head?.kind === 'tool') {
     const tooled = toolAct(head);
@@ -822,11 +840,49 @@ function referenceSituation(readWhen: string): string | undefined {
   return undefined;
 }
 
+/** What a user asks for to make a tool of Claude Code run: the act the tool performs, in a user's words. */
+const TOOL_ACTS: Readonly<Record<string, string>> = {
+  Edit: 'change a file here',
+  MultiEdit: 'change a file here',
+  Write: 'change a file here',
+  NotebookEdit: 'change a notebook here',
+  Bash: 'run a command in the shell here',
+  Read: 'open a file here',
+  Glob: 'look for a file here',
+  Grep: 'look for a file here',
+  WebFetch: 'look up a page on the web',
+  WebSearch: 'look something up on the web',
+};
+
+/**
+ * The ask that sets off a guard enforcing a rule that asks for an act: the act of the tool the guard matches,
+ * with the rule's situation as context; for a guard on the end of a turn, a request for a full answer. Null
+ * when the guard watches no tool (a guard on the user's prompt): no request of the owner reaches it.
+ */
+function forcedAct(guard: EstateAtom, rule: EstateAtom): { act: string; context?: string } | null {
+  const context = contextOf(rule);
+  const matcher = typeof guard.fields?.matcher === 'string' ? guard.fields.matcher.split('|')[0] : undefined;
+  if (matcher && /^[A-Z][A-Za-z]+$/.test(matcher))
+    return {
+      act: TOOL_ACTS[matcher] ?? `use the ${matcher} tool on the files here`,
+      ...(context ? { context } : {}),
+    };
+  const event = typeof guard.fields?.event === 'string' ? guard.fields.event : undefined;
+  if (event === 'Stop' || event === 'SubagentStop')
+    return {
+      act: 'explain in full detail everything you can do for me here',
+      ...(context ? { context } : {}),
+    };
+  return null;
+}
+
 /** The act a guard watches for: what a rule it enforces forbids, else a call of the tool it matches. */
 function guardAct(
   guard: EstateAtom,
   lookup: (id: string) => EstateAtom | undefined,
-): { act: string; source: string; breach?: string } | undefined {
+):
+  | { act: string; source: string; breach?: string; forced?: { act: string; context?: string } | null }
+  | undefined {
   const ruleText = typeof guard.fields?.ruleText === 'string' ? guard.fields.ruleText : undefined;
   if (ruleText) {
     const governed = guardedTask(ruleText) ?? connectiveAct(ruleText);
@@ -842,12 +898,12 @@ function guardAct(
     if (forbidden?.[1]) return { act: lower(firstClause(forbidden[1])), source };
     const governed = typeof rule.fields?.trigger === 'string' ? actionTask(rule.fields.trigger) : undefined;
     if (governed) return { act: governed, source, breach: `${governed} without the required prerequisite` };
-    // A rule that asks for an act: breaking it is the guarded act.
-    const breach = `go against this rule just this once: "${clauseOf(plain(rule.title))}"`;
+    // A rule that asks for an act: the guarded act is the use of the tool the guard watches.
+    const forced = forcedAct(guard, rule);
     const situation = rule.situation ? clauseOf(plain(rule.situation)) : '';
     if (letterWords(situation) >= 3)
-      return { act: `handle this for me: ${lower(situation)}`, source, breach };
-    return { act: imperative(plain(rule.title)), source, breach };
+      return { act: `handle this for me: ${lower(situation)}`, source, forced };
+    return { act: imperative(plain(rule.title)), source, forced };
   }
   // Documented prose that gives no task must not be hidden by a generic call of the matcher.
   if (ruleText) return undefined;
