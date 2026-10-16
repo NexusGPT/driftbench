@@ -64,7 +64,7 @@ export function observed(text: string, calls: readonly Call[] = [], stage?: stri
     const id = `call-${index}`;
     segments.push({ type: 'tool_call', id, label: call.label, input: call.input ?? {} });
     if (call.error !== undefined) {
-      segments.push({ type: 'tool_result', id, label: call.label, error: call.error });
+      segments.push({ type: 'tool_result', id, label: call.label, output: null, error: call.error });
       toolCalls.push({ id, label: call.label, input: call.input ?? {}, error: call.error });
     } else {
       segments.push({ type: 'tool_result', id, label: call.label, output: call.output ?? { ok: true } });
