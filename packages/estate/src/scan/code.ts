@@ -795,9 +795,9 @@ function routeDesignation(cell: string, targets: ReturnType<typeof routeTargets>
   );
 }
 
-/** Dates and identifiers alone describe a record, not a request, even under an opaque header. */
+/** An ISO calendar stamp is record metadata even under an opaque header; numeric request codes are not. */
 function routeRecordValue(value: string): boolean {
-  return /^(?:\d+(?:[./:-]\d+)*|\d{4}-\d{2}-\d{2}(?:T\S+)?|[^\s@]+@[^\s@]+\.[^\s@]+)$/.test(value);
+  return /^\d{4}-\d{2}-\d{2}(?:T\S+)?$/.test(value);
 }
 
 /** Routing is defined by a condition and an action, never by a name appearing in an arbitrary table. */

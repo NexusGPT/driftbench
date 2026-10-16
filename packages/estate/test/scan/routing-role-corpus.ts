@@ -263,6 +263,16 @@ export const routingRoleCorpus: RouteCase[] = [
     table: '| Problem | Skill |\n|---|---|\n| `receipt-auditor` fails to read the receipt | `refund-flow` |',
     routes: [['receipt-auditor fails to read the receipt', 'refund-flow', 'skill']],
   },
+  {
+    name: 'numeric request class',
+    table: '| Error code | Handler |\n|---|---|\n| 404 | `receipt-auditor` |',
+    routes: [['404', 'receipt-auditor', 'subagent']],
+  },
+  {
+    name: 'recipient request class',
+    table: '| Destination | Skill |\n|---|---|\n| returns@example.invalid | `refund-flow` |',
+    routes: [['returns@example.invalid', 'refund-flow', 'skill']],
+  },
 ];
 export const routingRoleDeclarations = {
   '.claude/skills/refund-flow/SKILL.md': '---\nname: refund-flow\n---\n',
