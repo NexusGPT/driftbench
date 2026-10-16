@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ClaudeCodeReader, citationsByFile, filesReached, scanEstate } from '../src/index';
+import { buildPlan, ClaudeCodeReader, citationsByFile, filesReached, scanEstate } from '../src/index';
 import { estate, NOW } from './support';
 
 const definition = (name: string, body: string) =>
@@ -137,5 +137,48 @@ describe('a unit stores an edge for each citation in a file it owns, and no more
     });
     expect(result.references).toHaveLength(2);
     expect(result.edges).toEqual([{ owner: 'parcels', from: skill, target: notes }]);
+  });
+});
+
+describe('a unit that cites its own file ends the walk', () => {
+  const skillFile = '.claude/skills/self/SKILL.md';
+  it('a skill that reads its own definition file', async () => {
+    const result = await referenceEdges({ [skillFile]: definition('self', 'Read `SKILL.md` again.') });
+    expect(result.references).toHaveLength(1);
+    expect(filesReached(skillFile, citationsByFile(result.atoms))).toEqual([]);
+  });
+  it('a helper that reads its own definition file', async () => {
+    const helper = '.claude/agents/mirror.md';
+    const result = await referenceEdges({
+      [helper]: definition('mirror', 'Read `.claude/agents/mirror.md`.'),
+    });
+    expect(filesReached(helper, citationsByFile(result.atoms))).toEqual([]);
+  });
+  it('a skill and a bundled file that read each other', async () => {
+    const other = '.claude/skills/self/references/back.md';
+    const result = await referenceEdges({
+      [skillFile]: definition('self', 'Read `references/back.md`.'),
+      [other]: '# Back\nRead `../SKILL.md`.\n',
+    });
+    expect(result.edges.length).toBeLessThanOrEqual(2);
+    expect(filesReached(skillFile, citationsByFile(result.atoms))).toEqual([other]);
+  });
+  it('the plan of each of these estates finishes', async () => {
+    const helper = '.claude/agents/mirror.md';
+    const other = '.claude/skills/self/references/back.md';
+    const estates: Array<Record<string, string>> = [
+      { [skillFile]: definition('self', 'Read `SKILL.md` again.') },
+      { [helper]: definition('mirror', 'Read `.claude/agents/mirror.md`.') },
+      {
+        [skillFile]: definition('self', 'Read `references/back.md`.'),
+        [other]: '# Back\nRead `../SKILL.md`.\n',
+      },
+    ];
+    for (const files of estates) {
+      const root = await estate(files);
+      const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+      const approved = { ...map, atoms: map.atoms.map((atom) => ({ ...atom, approved: true })) };
+      expect(buildPlan(approved).plan.rows.length).toBeGreaterThan(0);
+    }
   });
 });

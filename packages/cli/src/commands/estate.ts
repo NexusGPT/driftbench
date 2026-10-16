@@ -37,8 +37,8 @@ import { mapCacheOptions } from './map-cache';
 export type EstateScanOptions = {
   /** More globs to skip, beside the defaults and the estate configuration. Repeatable. */
   ignore?: string[];
-  /** The folder of the user-level skill layer; false with --no-user-skills. */
-  userSkills?: string | false;
+  /** The folder of the user-level skill layer. Without it (or the configuration's `userSkills:`) none is read. */
+  userSkills?: string;
   runtime?: string;
   out?: string;
   replay?: string;
@@ -51,7 +51,7 @@ export type EstateScanOptions = {
 
 const USER_SKILLS_FLAG = '--user-skills <folder>';
 const USER_SKILLS_HELP =
-  "read the user-level skill layer from this folder instead of the current user's ~/.claude/skills; a project skill wins a name clash";
+  'also read the user-level skill layer from this folder, such as ~/.claude/skills; none is read without it; a project skill wins a name clash';
 
 export type EstateDeps = {
   /** The model to call instead of the one the environment configures. Tests pass a fake. */
@@ -81,7 +81,6 @@ export function registerEstateCommand(program: Command, io: Io, setExit: (code: 
     .option('--ceiling <characters>', 'the size ceiling of the standing instructions', '40000')
     .option('--ignore <glob>', 'skip the paths this glob matches, beside the defaults; repeat it', collect)
     .option(USER_SKILLS_FLAG, USER_SKILLS_HELP)
-    .option('--no-user-skills', 'read no user-level skill layer')
     .option('--force', 'replace an existing map; the approvals in it are lost')
     .action(async (root: string, options: EstateScanOptions) => {
       setExit(await estateScanCommand(root, options, io));
@@ -96,12 +95,9 @@ export function registerEstateCommand(program: Command, io: Io, setExit: (code: 
     .option('--ceiling <characters>', 'the size ceiling of the standing instructions', '40000')
     .option('--ignore <glob>', 'skip the paths this glob matches, as the scan did; repeat it', collect)
     .option(USER_SKILLS_FLAG, USER_SKILLS_HELP)
-    .option('--no-user-skills', 'read no user-level skill layer (a map scanned without one says so)')
-    .action(
-      async (path: string, options: { ceiling?: string; ignore?: string[]; userSkills?: string | false }) => {
-        setExit(await estateLintCommand(path, options, io));
-      },
-    );
+    .action(async (path: string, options: { ceiling?: string; ignore?: string[]; userSkills?: string }) => {
+      setExit(await estateLintCommand(path, options, io));
+    });
 
   estate
     .command('approve')
@@ -267,7 +263,7 @@ function scanReport(result: ScanEstateResult, out: string, io: Io): string {
     lines.push(`  ${note.file}: ${note.message}`);
   lines.push(...ignoredLines(result));
   const layer = result.raw.userLayer;
-  if (layer && !layer.off && layer.read.length + layer.shadowed.length > 0) {
+  if (layer && layer.read.length + layer.shadowed.length > 0) {
     lines.push(
       `  User skill layer: ${layer.read.length} ${plural(layer.read.length, 'skill', 'skills')} read; ${layer.shadowed.length} left out because a skill of the same name comes first.`,
     );
@@ -293,7 +289,7 @@ function scanReport(result: ScanEstateResult, out: string, io: Io): string {
 /** Exit 0 clean (unenforced atoms alone are reported, not failed), 1 on findings or an invalid map, 2 when the map or the estate cannot be read. */
 export async function estateLintCommand(
   path: string,
-  options: { ceiling?: string; ignore?: string[]; userSkills?: string | false },
+  options: { ceiling?: string; ignore?: string[]; userSkills?: string },
   io: Io,
 ): Promise<number> {
   const ceiling = parseCeiling(options.ceiling, io);
@@ -310,11 +306,10 @@ export async function estateLintCommand(
   }
   // The scan's own ignore list comes with the map, so lint reads the same files.
   const ignore = [...new Set([...(loaded.map.ignore ?? []), ...(options.ignore ?? [])])];
-  // A map scanned without the user layer is linted without it; otherwise the layer is read where it lies today.
-  const userSkills = options.userSkills ?? (loaded.map.userSkills === false ? false : undefined);
+  // A map scanned with a user layer is linted with it: the folder comes again from --user-skills or the configuration.
   const reader = readerFor(loaded.map.runtime, {
     ignore,
-    ...(userSkills !== undefined ? { userSkills } : {}),
+    ...(options.userSkills !== undefined ? { userSkills: options.userSkills } : {}),
   });
   if (!reader) {
     io.err(`The map was read by the runtime "${loaded.map.runtime}", which this driftbench cannot read.\n`);
@@ -326,6 +321,12 @@ export async function estateLintCommand(
     return 2;
   }
   const raw = await reader.read(root);
+  if (loaded.map.userSkills === true && raw.userLayer === undefined) {
+    io.err(
+      'The map was scanned with a user-level skill layer: pass --user-skills <folder> (or set userSkills in the estate configuration) so lint reads it again.\n',
+    );
+    return 2;
+  }
   const result = lintEstate(loaded.map, raw, { ceiling });
   const lines = [`${show(file, io)}: estate at ${show(root, io)}, ${loaded.map.atoms.length} atoms.`];
   const shown = result.findings.filter((finding) => !INFORMATION.has(finding.code));

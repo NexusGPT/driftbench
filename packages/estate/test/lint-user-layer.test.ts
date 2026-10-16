@@ -23,6 +23,10 @@ async function home(files: Record<string, string>): Promise<string> {
 const skill = (name: string, body: string) =>
   `---\nname: ${name}\ndescription: Handle the ${name} chores. Use when the user asks for the ${name} chores.\n---\n\n${body}`;
 
+/** The reader that reads the user layer of the current test's home folder: the layer is opt-in. */
+const layered = () =>
+  new ClaudeCodeReader({ userSkills: join(process.env.HOME as string, '.claude/skills') });
+
 describe('the lint reports on the project, not on the user-level skill layer', () => {
   it('lists the orphans and unreachable files of the project and none of the layer', async () => {
     process.env.HOME = await home({
@@ -35,7 +39,11 @@ describe('the lint reports on the project, not on the user-level skill layer', (
       '.claude/skills/dock-roster/SKILL.md': skill('dock-roster', '# Roster\n'),
       '.claude/skills/dock-roster/assets/loose.md': '# A file nothing names\n',
     });
-    const { map, raw } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const { map, raw } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader({ userSkills: join(process.env.HOME as string, '.claude/skills') }),
+      now: NOW,
+    });
     expect(map.atoms.some((atom) => atom.provenance.file.startsWith('~/'))).toBe(true);
     const lint = lintEstate(map, raw);
     expect(lint.findings.map((finding) => [finding.code, finding.subject])).toEqual([
@@ -50,7 +58,11 @@ describe('the lint reports on the project, not on the user-level skill layer', (
       '.claude/skills/pier-notes/assets/loose.md': '# A file nothing names\n',
     });
     const root = await estate({ 'CLAUDE.md': '# Standing\n' });
-    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const { map } = await scanEstate({
+      root,
+      reader: new ClaudeCodeReader({ userSkills: join(process.env.HOME as string, '.claude/skills') }),
+      now: NOW,
+    });
     const orphans = map.atoms.find((atom) => atom.fields?.check === 'no_orphans');
     expect(orphans?.fields?.orphans).toEqual([]);
     expect(orphans?.fields?.holds).toBe(true);

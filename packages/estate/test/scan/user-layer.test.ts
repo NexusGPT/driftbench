@@ -28,7 +28,11 @@ afterEach(() => {
   else process.env.HOME = saved;
 });
 
-async function scan(files: Record<string, string>, reader = new ClaudeCodeReader()) {
+/** The reader that reads the user layer of the current test's home folder: the layer is opt-in. */
+const layered = () =>
+  new ClaudeCodeReader({ userSkills: join(process.env.HOME as string, '.claude/skills') });
+
+async function scan(files: Record<string, string>, reader = layered()) {
   const root = await estate(files);
   return { root, ...(await scanEstate({ root, reader, now: NOW })) };
 }
@@ -39,7 +43,7 @@ const skillNames = (map: { atoms: Array<{ kind: string; fields?: Record<string, 
     .sort();
 
 describe('the user-level skill layer is a second skill layer', () => {
-  it('reads the skills of the current user from the default folder, beside the project skills', async () => {
+  it('reads the skills of the folder it is given, beside the project skills', async () => {
     process.env.HOME = await home({
       '.claude/skills/pier-notes/SKILL.md': skill('pier-notes'),
       '.claude/skills/pier-notes/references/tides.md': '# Tides\n',
@@ -81,7 +85,7 @@ describe('the user-level skill layer is a second skill layer', () => {
       { '.claude/skills/own/SKILL.md': skill('own') },
       { '.claude/skills/dock-roster': join(project, '.claude/skills/dock-roster') },
     );
-    const { map, raw } = await scanEstate({ root: project, reader: new ClaudeCodeReader(), now: NOW });
+    const { map, raw } = await scanEstate({ root: project, reader: layered(), now: NOW });
     expect(skillNames(map)).toEqual(['dock-roster', 'own']);
     expect(raw.userLayer).toEqual({ read: ['own'], shadowed: [] });
     expect(raw.notes.filter((note) => note.message.includes('duplicate'))).toEqual([]);
@@ -142,33 +146,57 @@ describe('the folder of the user layer is configurable', () => {
     expect(skillNames(map)).toEqual(['elsewhere']);
   });
 
-  it('reads none when the reader is told to, and the map says so', async () => {
-    process.env.HOME = await home({ '.claude/skills/in-home/SKILL.md': skill('in-home') });
-    const { map, raw } = await scan(
-      { 'CLAUDE.md': '# Standing\n' },
-      new ClaudeCodeReader({ userSkills: false }),
-    );
-    expect(skillNames(map)).toEqual([]);
-    expect(raw.userLayer).toEqual({ read: [], shadowed: [], off: true });
-    expect(map.userSkills).toBe(false);
-  });
-
-  it('reads the folder the estate configuration names, relative to the estate, or none', async () => {
-    process.env.HOME = await home({ '.claude/skills/in-home/SKILL.md': skill('in-home') });
-    const named = await scan({
-      'driftbench.estate.yaml': 'userSkills: team-skills\n',
-      'team-skills/shared-one/SKILL.md': skill('shared-one'),
-    });
-    expect(skillNames(named.map)).toEqual(['shared-one']);
-    const none = await scan({ 'driftbench.estate.yaml': 'userSkills: false\n' });
-    expect(skillNames(none.map)).toEqual([]);
-    expect(none.map.userSkills).toBe(false);
-  });
-
-  it('notes a folder that was named and cannot be read, and stays silent about a missing home layer', async () => {
+  it('reads no home folder by default: a populated home gives the same map as an empty one', async () => {
+    const files = {
+      'CLAUDE.md': '# Standing\n\nAlways answer in plain words.\n',
+      '.claude/skills/dock-roster/SKILL.md': skill('dock-roster'),
+    };
     process.env.HOME = await mkdtemp(join(tmpdir(), 'driftbench-empty-home-'));
-    const quiet = await scan({ 'CLAUDE.md': '# Standing\n' });
-    expect(quiet.raw.notes.filter((note) => note.file.startsWith('~'))).toEqual([]);
+    const empty = await scan(files, new ClaudeCodeReader());
+    process.env.HOME = await home({
+      '.claude/skills/pier-notes/SKILL.md': skill('pier-notes'),
+      '.claude/skills/tide-chart/SKILL.md': skill('tide-chart'),
+    });
+    const populated = await scan(files, new ClaudeCodeReader());
+    expect(populated.map.atoms).toEqual(empty.map.atoms);
+    expect(populated.map.edges).toEqual(empty.map.edges);
+    expect(populated.map.hash).toBe(empty.map.hash);
+    expect(populated.raw.userLayer).toBeUndefined();
+    expect(populated.map.userSkills).toBeUndefined();
+    expect(skillNames(populated.map)).toEqual(['dock-roster']);
+  });
+
+  it('records in the map that a layer was read', async () => {
+    process.env.HOME = await home({ '.claude/skills/in-home/SKILL.md': skill('in-home') });
+    const { map } = await scan({ 'CLAUDE.md': '# Standing\n' });
+    expect(map.userSkills).toBe(true);
+  });
+
+  it('reads the folder the estate configuration names, relative to the estate', async () => {
+    process.env.HOME = await home({ '.claude/skills/in-home/SKILL.md': skill('in-home') });
+    const named = await scan(
+      {
+        'driftbench.estate.yaml': 'userSkills: team-skills\n',
+        'team-skills/shared-one/SKILL.md': skill('shared-one'),
+      },
+      new ClaudeCodeReader(),
+    );
+    expect(skillNames(named.map)).toEqual(['shared-one']);
+    expect(named.map.userSkills).toBe(true);
+  });
+
+  it('notes a configuration value that is not a folder and reads no layer', async () => {
+    process.env.HOME = await home({ '.claude/skills/in-home/SKILL.md': skill('in-home') });
+    const bad = await scan({ 'driftbench.estate.yaml': 'userSkills: false\n' }, new ClaudeCodeReader());
+    expect(skillNames(bad.map)).toEqual([]);
+    expect(bad.raw.notes).toContainEqual({
+      file: 'driftbench.estate.yaml',
+      message: expect.stringContaining('userSkills'),
+    });
+  });
+
+  it('notes a folder that was named and cannot be read', async () => {
+    process.env.HOME = await mkdtemp(join(tmpdir(), 'driftbench-empty-home-'));
     const named = await scan(
       { 'CLAUDE.md': '# Standing\n' },
       new ClaudeCodeReader({ userSkills: join(tmpdir(), 'driftbench-no-such-folder') }),
@@ -182,7 +210,7 @@ describe('the folder of the user layer is configurable', () => {
   it('keeps the layer out of the files a copy of the project needs', async () => {
     process.env.HOME = await home({ '.claude/skills/pier-notes/SKILL.md': skill('pier-notes') });
     const root = await estate({ '.claude/skills/dock-roster/SKILL.md': skill('dock-roster') });
-    const listed = await new ClaudeCodeReader().listFiles(root);
+    const listed = await layered().listFiles(root);
     expect(listed).toContain('.claude/skills/dock-roster/SKILL.md');
     expect(listed.filter((path) => path.startsWith('~'))).toEqual([]);
   });

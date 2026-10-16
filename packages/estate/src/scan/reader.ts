@@ -195,9 +195,9 @@ export type RawEstate = {
   followedLinks?: string[];
   /**
    * The user-level skill layer: the skills read from it, those left out because a project skill has the same
-   * name, and `off` when the reader was told to read none (the map records it, so lint reads none either).
+   * name. Absent when the reader was given no user skill folder.
    */
-  userLayer?: { read: string[]; shadowed: string[]; off?: true };
+  userLayer?: { read: string[]; shadowed: string[] };
   /** What the reader skipped: each glob with the files it matched, and the paths of those files. */
   ignored?: {
     patterns: Array<{ pattern: string; files: number }>;

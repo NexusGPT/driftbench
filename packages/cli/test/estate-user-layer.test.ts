@@ -37,58 +37,51 @@ afterEach(() => {
   else process.env.HOME = saved;
 });
 
-describe('driftbench estate scan and lint read the user-level skill layer', () => {
-  it('reads the skills of the current user by default, and says how many', async () => {
-    process.env.HOME = await folder({ '.claude/skills/pier-notes/SKILL.md': skill('pier-notes') });
+describe('driftbench estate scan and lint read the user-level skill layer only when asked', () => {
+  it('reads no home folder by default: a populated HOME leaves the map unchanged', async () => {
     const root = await folder({ '.claude/skills/dock-roster/SKILL.md': skill('dock-roster') });
-    const scanned = await run(['estate', 'scan', root, '--no-model', '--out', join(root, 'map.yaml')], root);
-    expect(scanned.code).toBe(0);
-    expect(scanned.out).toContain('User skill layer: 1 skill read; 0 left out');
-    const map = await readFile(join(root, 'map.yaml'), 'utf8');
-    expect(map).toContain('~/.claude/skills/pier-notes/SKILL.md');
-    expect(map).not.toContain('userSkills');
-    // Lint reports on the project: the files of the layer are never orphans or unreachable.
-    const linted = await run(['estate', 'lint', join(root, 'map.yaml')], root);
-    expect(linted.out).toContain('.claude/skills/dock-roster/SKILL.md: no route');
-    expect(linted.out).not.toContain('~/.claude');
+    process.env.HOME = await folder({});
+    const empty = await run(['estate', 'scan', root, '--no-model', '--out', join(root, 'a.yaml')], root);
+    process.env.HOME = await folder({ '.claude/skills/pier-notes/SKILL.md': skill('pier-notes') });
+    const populated = await run(['estate', 'scan', root, '--no-model', '--out', join(root, 'b.yaml')], root);
+    expect(empty.code).toBe(0);
+    expect(populated.code).toBe(0);
+    expect(populated.out).not.toContain('User skill layer');
+    const [a, b] = await Promise.all([
+      readFile(join(root, 'a.yaml'), 'utf8'),
+      readFile(join(root, 'b.yaml'), 'utf8'),
+    ]);
+    expect(b.replace(/readAt:.*/, '')).toBe(a.replace(/readAt:.*/, ''));
+    expect(b).not.toContain('pier-notes');
+    expect(b).not.toContain('userSkills');
   }, 60_000);
 
-  it('reads the folder --user-skills names, and none with --no-user-skills, which the map records', async () => {
+  it('reads the folder --user-skills names, records it, and lint asks for the folder again', async () => {
     process.env.HOME = await folder({ '.claude/skills/pier-notes/SKILL.md': skill('pier-notes') });
     const team = await folder({ 'shared/tide-chart/SKILL.md': skill('tide-chart') });
     const root = await folder({ '.claude/skills/dock-roster/SKILL.md': skill('dock-roster') });
+    const layer = join(team, 'shared');
 
-    const named = await run(
-      [
-        'estate',
-        'scan',
-        root,
-        '--no-model',
-        '--user-skills',
-        join(team, 'shared'),
-        '--out',
-        join(root, 'named.yaml'),
-      ],
+    const scanned = await run(
+      ['estate', 'scan', root, '--no-model', '--user-skills', layer, '--out', join(root, 'map.yaml')],
       root,
     );
-    expect(named.code).toBe(0);
-    const namedMap = await readFile(join(root, 'named.yaml'), 'utf8');
-    expect(namedMap).toContain('~/.claude/skills/tide-chart/SKILL.md');
-    expect(namedMap).not.toContain('pier-notes');
-    expect(namedMap).not.toContain(team);
+    expect(scanned.code).toBe(0);
+    expect(scanned.out).toContain('User skill layer: 1 skill read; 0 left out');
+    const map = await readFile(join(root, 'map.yaml'), 'utf8');
+    expect(map).toContain('~/.claude/skills/tide-chart/SKILL.md');
+    expect(map).toContain('userSkills: true');
+    expect(map).not.toContain('pier-notes');
+    expect(map).not.toContain(team);
 
-    const none = await run(
-      ['estate', 'scan', root, '--no-model', '--no-user-skills', '--out', join(root, 'none.yaml')],
-      root,
-    );
-    expect(none.code).toBe(0);
-    expect(none.out).not.toContain('User skill layer');
-    const noneMap = await readFile(join(root, 'none.yaml'), 'utf8');
-    expect(noneMap).toContain('userSkills: false');
-    expect(noneMap).not.toContain('pier-notes');
+    // Lint reports on the project: the files of the layer are never orphans or unreachable.
+    const linted = await run(['estate', 'lint', join(root, 'map.yaml'), '--user-skills', layer], root);
+    expect(linted.out).toContain('.claude/skills/dock-roster/SKILL.md: no route');
+    expect(linted.out).not.toContain('~/.claude');
 
-    // Lint reads the estate as the scan did: no layer for the map that says none, whatever the home folder holds.
-    const linted = await run(['estate', 'lint', join(root, 'none.yaml')], root);
-    expect(linted.out).not.toContain('pier-notes');
+    // Without the folder the layer's atoms cannot be checked: lint says so and does not guess a home folder.
+    const unasked = await run(['estate', 'lint', join(root, 'map.yaml')], root);
+    expect(unasked.code).toBe(2);
+    expect(unasked.err).toContain('--user-skills <folder>');
   }, 60_000);
 });

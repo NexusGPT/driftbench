@@ -11,8 +11,7 @@
     "examples/*/test/**/*.ts",
     "tools/docs/**/*.ts",
     "tools/browser/**/*.ts",
-    "vitest.config.ts",
-    "vitest.setup.ts"
+    "vitest.config.ts"
   ],
   "exclude": ["examples/judge-benchmarks"]
 }
