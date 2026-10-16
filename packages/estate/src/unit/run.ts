@@ -13,6 +13,7 @@ import {
   untrackGroup,
 } from '@agent-nexus/driftbench-sandbox';
 import { parse as parseYaml } from 'yaml';
+import { estatePath } from '../paths';
 import { guardName } from '../scan/code';
 import type { EstateReader, GuardDecl } from '../scan/reader';
 
@@ -179,7 +180,7 @@ export async function observeUnitTests(
     for (const test of tests) {
       const observed: UnitObservation = { id: test.id, target: test.target, cases: [] };
       if (test.target.kind === 'script') {
-        if (!existsSync(join(runner.copy, test.target.path))) {
+        if (!existsSync(await estatePath(runner.copy, test.target.path))) {
           observed.error = `the estate no longer holds ${test.target.path}`;
           observations.push(observed);
           continue;
@@ -462,8 +463,9 @@ async function runGuard(
   runner.counter += 1;
   const number = runner.counter;
   const folder = join(runner.work, `case-${number}`);
+  await estatePath(runner.work, `case-${number}`);
   await mkdir(folder, { recursive: true });
-  const transcript = join(folder, 'transcript.jsonl');
+  const transcript = await estatePath(folder, 'transcript.jsonl');
   const reply =
     literalPayload && typeof unitCase.payload.last_assistant_message === 'string'
       ? unitCase.payload.last_assistant_message
@@ -521,7 +523,7 @@ async function runScriptTest(
   const base = { id: test.id, testType: test.testType, atom: test.atom };
   if (test.target.kind !== 'script') throw new Error('not a script test');
   const path = test.target.path;
-  if (!existsSync(join(runner.copy, path))) {
+  if (!existsSync(await estatePath(runner.copy, path))) {
     return { ...base, status: 'fail', detail: `the estate no longer holds ${path}`, cases: [] };
   }
   const scripts = config.scripts as Record<string, unknown> | undefined;
@@ -534,14 +536,13 @@ async function runScriptTest(
     const expect = (entry.expect ?? {}) as Record<string, unknown>;
     runner.counter += 1;
     const folder = join(runner.work, `case-${runner.counter}`);
-    await mkdir(folder, { recursive: true });
-    const files = (entry.files ?? {}) as Record<string, unknown>;
-    for (const [name, text] of Object.entries(files)) {
-      await mkdir(dirname(join(folder, name)), { recursive: true });
-      await writeFile(join(folder, name), String(text));
-    }
+    await writeFixtures(runner, folder, (entry.files ?? {}) as Record<string, unknown>);
     const run = await execute(
-      [...(await interpreterFor(join(runner.copy, path))), join(runner.copy, path), ...args],
+      [
+        ...(await interpreterFor(await estatePath(runner.copy, path))),
+        await estatePath(runner.copy, path),
+        ...args,
+      ],
       typeof entry.stdin === 'string' ? entry.stdin : '',
       runner,
       folder,
@@ -601,7 +602,7 @@ async function runRecordedScript(
         cases: [],
       };
     }
-    fixtures = casesFromSource(await readFile(join(runner.copy, path), 'utf8'));
+    fixtures = casesFromSource(await readFile(await estatePath(runner.copy, path), 'utf8'));
   }
   if (!record && test.recordedOn === undefined) {
     return {
@@ -718,15 +719,14 @@ function scriptOutcome(run: Exec): UnitOutcome {
 async function runScript(path: string, fixture: GuardCase, runner: Runner): Promise<Exec> {
   runner.counter += 1;
   const folder = join(runner.work, `case-${runner.counter}`);
-  await mkdir(folder, { recursive: true });
-  const files = (fixture.payload.files ?? {}) as Record<string, unknown>;
-  for (const [name, text] of Object.entries(files)) {
-    await mkdir(dirname(join(folder, name)), { recursive: true });
-    await writeFile(join(folder, name), String(text));
-  }
+  await writeFixtures(runner, folder, (fixture.payload.files ?? {}) as Record<string, unknown>);
   const args = Array.isArray(fixture.payload.args) ? fixture.payload.args.map(String) : [];
   return execute(
-    [...(await interpreterFor(join(runner.copy, path))), join(runner.copy, path), ...args],
+    [
+      ...(await interpreterFor(await estatePath(runner.copy, path))),
+      await estatePath(runner.copy, path),
+      ...args,
+    ],
     typeof fixture.payload.stdin === 'string' ? fixture.payload.stdin : '',
     runner,
     folder,
@@ -820,7 +820,7 @@ async function execute(
   cwd: string,
   timeoutMs: number,
 ): Promise<Exec> {
-  const home = join(runner.work, 'home');
+  const home = await estatePath(runner.work, 'home');
   await mkdir(home, { recursive: true });
   const env: Record<string, string> = {
     PATH: process.env.PATH ?? '/usr/bin:/bin',
@@ -907,7 +907,7 @@ export function neutral(text: string, work: string): string {
 
 /** The estate configuration, when the estate has one. */
 async function readConfig(root: string): Promise<Record<string, unknown>> {
-  const text = await readFile(join(root, ESTATE_CONFIG_FILE), 'utf8').catch(() => undefined);
+  const text = await readFile(await estatePath(root, ESTATE_CONFIG_FILE), 'utf8').catch(() => undefined);
   if (text === undefined) return {};
   try {
     const parsed: unknown = parseYaml(text);
@@ -920,15 +920,32 @@ async function readConfig(root: string): Promise<Record<string, unknown>> {
 /** A copy of the files the reader lists, cloned where the file system can, never linked to the source. */
 async function copyListed(root: string, to: string, reader: EstateReader): Promise<void> {
   const files = reader.listFiles ? await reader.listFiles(root) : [];
-  let next = 0;
-  await Promise.all(
-    Array.from({ length: Math.min(16, files.length) }, async () => {
-      while (next < files.length) {
-        const file = files[next++] as string;
-        await mkdir(dirname(join(to, file)), { recursive: true });
-        await copyFile(join(root, file), join(to, file), constants.COPYFILE_FICLONE);
-      }
-    }),
+  // Validate the entire copy before creating any destination.
+  const paths = await Promise.all(
+    files.map(async (file) => ({
+      source: await estatePath(root, file),
+      target: await estatePath(to, file),
+    })),
   );
+  for (const { source, target } of paths) {
+    await mkdir(dirname(target), { recursive: true });
+    await copyFile(source, target, constants.COPYFILE_FICLONE);
+  }
   await mkdir(to, { recursive: true });
+}
+
+/** No fixture content is written until every name and existing symlink has passed validation. */
+async function writeFixtures(runner: Runner, folder: string, files: Record<string, unknown>): Promise<void> {
+  await estatePath(runner.work, folder.slice(runner.work.length + 1));
+  const paths = await Promise.all(
+    Object.entries(files).map(async ([name, text]) => ({
+      path: await estatePath(folder, name),
+      text: String(text),
+    })),
+  );
+  await mkdir(folder, { recursive: true });
+  for (const { path, text } of paths) {
+    await mkdir(dirname(path), { recursive: true });
+    await writeFile(path, text, { flag: 'wx' });
+  }
 }

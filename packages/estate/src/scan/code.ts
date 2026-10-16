@@ -1,5 +1,5 @@
 import { basename, posix } from 'node:path';
-import nlp from 'compromise/two';
+import nlp from 'compromise';
 import type { Atom, AtomKind, EvidencePredicate } from '../schema';
 import { guardRuleSources } from './guard-rules';
 import type { EstateFile, GuardDecl, ProseChunk, RawEstate, RegistryRow } from './reader';
@@ -801,6 +801,20 @@ function pastFile(clauses: readonly ReferenceClause[]): Set<NamedReference> {
   return past;
 }
 
+// Lexical polarity, rather than sentence templates: syntax supplies tense, auxiliaries and scope.
+const PROHIBITION_VERBS = new Set([
+  'forbid',
+  'prohibit',
+  'disallow',
+  'ban',
+  'bar',
+  'prevent',
+  'avoid',
+  'refrain',
+]);
+const PROHIBITION_STATES = new Set(['unable', 'inaccessible', 'refrain']);
+const OMISSION_VERBS = new Set(['forget', 'fail', 'omit']);
+
 /** Whether at least one mention requires the act, rather than forbidding it in its own clause. */
 export function positiveMention(
   text: string,
@@ -809,18 +823,37 @@ export function positiveMention(
   bareNever = false,
 ): boolean {
   if (name === '') return false;
-  const forbidden = new RegExp(
-    `\\b(?:never|do not|don['’]t|must not|should not)\\s+(?:${verbs.join('|')})\\b[^.;!?]*$`,
-    'i',
+  const actions = new Set(
+    verbs.flatMap((verb) => [verb, `${verb}s`, `${verb}es`, `${verb}ing`, `${verb}ed`]),
   );
   let offset = text.indexOf(name);
   while (offset >= 0) {
-    const prefix =
-      text
-        .slice(0, offset)
-        .split(/[\n;!?]|\.(?=\s|$)|\b(?:but|until|instead)\b/i)
-        .at(-1) ?? '';
-    if (!forbidden.test(prefix) && !(bareNever && /\bnever\s*[`*]*$/i.test(prefix))) return true;
+    // Substitute the path so dots and punctuation in filenames cannot create sentence boundaries.
+    const marker = 'estatefilemarker';
+    const marked = text.slice(0, offset) + marker + text.slice(offset + name.length);
+    const clause =
+      nlp(marked.replace(/[\n;]/g, '. '))
+        .clauses()
+        .splitBefore('(and|or) (#Verb|#Negative)')
+        .out('array')
+        .find((part: string) => part.includes(marker)) ?? marked;
+    const parsed = nlp(clause.replace(/[‘’]/g, "'"));
+    const terms = parsed.termList();
+    const hasAction = terms.some((term) => actions.has(term.normal));
+    if (!hasAction && !bareNever) return true;
+    // Polarity belongs to the governing clause, including auxiliaries, passive prohibitions and
+    // intervening adverbs. A semantic verb lexicon supplements the parser's grammatical negatives.
+    const predicates = parsed.verbs().json() as Array<{ verb?: { infinitive?: string; negative?: boolean } }>;
+    const prohibits =
+      predicates.some(
+        ({ verb }) =>
+          (verb?.infinitive ?? '').split(' ').some((word) => PROHIBITION_VERBS.has(word)) && !verb?.negative,
+      ) || terms.some((term) => PROHIBITION_STATES.has(term.normal));
+    const negatives = predicates.filter(({ verb }) => verb?.negative);
+    const reminder =
+      negatives.length > 0 && negatives.every(({ verb }) => OMISSION_VERBS.has(verb?.infinitive ?? ''));
+    const negative = terms.some((term) => term.tags?.has('Negative') || term.normal === 'no');
+    if (!prohibits && (!negative || reminder)) return true;
     offset = text.indexOf(name, offset + name.length);
   }
   return false;
@@ -866,7 +899,7 @@ export type NamedTarget = {
 export function isExternal(path: string, externals: readonly string[] = []): boolean {
   const clean = path.replace(/^\.\//, '');
   if (clean.startsWith('~/') || clean.startsWith('/')) return true;
-  return externals.some((root) => clean.startsWith(root.endsWith('/') ? root : `${root}/`));
+  return externals.some((root) => clean === root || clean.startsWith(root.endsWith('/') ? root : `${root}/`));
 }
 
 /**
@@ -907,6 +940,7 @@ export function locateNamed(
   if (known(placed)) return { path: placed, via: 'place' };
   // A path written as outside the estate is not looked for by its ending: it names the outside, as written.
   if (isExternal(clean, options.externals ?? [])) return { path: clean, via: 'external' };
+  if (isExternal(placed, options.externals ?? [])) return { path: placed, via: 'external' };
   const [head, ...rest] = clean.split('/');
   const folders = head !== undefined && rest.length > 0 ? (options.aliases?.[head] ?? []) : [];
   for (const folder of folders) {
@@ -1002,18 +1036,21 @@ function referenceAtoms(
     const positive = new Set<NamedReference>();
     const parsed = new Set<NamedReference>();
     for (const clause of clauses) {
-      const mayForbid = clause.tokens.some((token) => /^(?:never|not|don['’]t)$/.test(token.word));
-      let prefix = '';
       for (const token of clause.tokens) {
         for (const reference of token.references ?? []) {
+          // Other occurrences of this filename must retain their own grammatical roles.
+          const context = clause.tokens
+            .map((part) =>
+              part.references?.includes(reference)
+                ? reference.spelling
+                : part.references
+                  ? 'otherdocument'
+                  : part.word,
+            )
+            .join(' ');
           parsed.add(reference);
-          if (
-            !mayForbid ||
-            positiveMention(`${prefix}${reference.spelling}`, reference.spelling, ['read', 'open', 'load'])
-          )
-            positive.add(reference);
+          if (positiveMention(context, reference.spelling, ['read', 'open', 'load'])) positive.add(reference);
         }
-        prefix += `${token.word} `;
       }
     }
     for (const reference of references) {

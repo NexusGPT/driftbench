@@ -145,8 +145,8 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
   for (const rule of rules) {
     const own = labels.get(rule.id);
     const quote = rule.provenance.quote;
-    for (const match of quote.matchAll(/\b([A-Z]{1,3})#?(\d{1,3})\b/g)) {
-      const label = `${match[1]}${match[2]}`;
+    for (const match of quote.matchAll(/\b([A-Z]{1,3})#?(\d{1,3})\b/gi)) {
+      const label = `${match[1]}${match[2]}`.toUpperCase();
       if (label === own) continue;
       if (
         !match[0].includes('#') &&
