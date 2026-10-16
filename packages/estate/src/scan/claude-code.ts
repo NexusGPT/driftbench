@@ -289,11 +289,14 @@ export class ClaudeCodeReader implements EstateReader {
     await readRootReferences(root, estate, ignored, budget);
     // The registry comes last: a row names its guard by a script, a check id or an id the script holds,
     // so every guard is known before a row is matched to one.
-    const catalogues = files.filter((file) => file.kind === 'registry' && catalogueEntries(file.text));
+    const registries = files.filter(
+      (file) => file.kind === 'registry' || structuredRegistry(file.text, file.path),
+    );
+    const catalogues = registries.filter((file) => catalogueEntries(file.text));
     for (const file of catalogues) readCatalogue(file, estate);
     const registryPaths = new Set(files.map((file) => file.path));
     for (const file of files) {
-      if (file.kind === 'registry' && !catalogues.includes(file)) readRegistry(file, estate, registryPaths);
+      if (registries.includes(file) && !catalogues.includes(file)) readRegistry(file, estate, registryPaths);
     }
     const scripts = new Set(estate.guards.flatMap((guard) => (guard.script ? [guard.script] : [])));
     for (const file of files) if (scripts.has(file.path)) file.kind = 'guard_script';
@@ -697,6 +700,7 @@ function classify(path: string, text: string): { kind: FileKind; owner?: string 
     return { kind: 'registry' };
   if (/\.(jsonc?|ya?ml)$/.test(path) && isStepList(text, path)) return { kind: 'step_list' };
   if (path.endsWith('.json') && catalogueEntries(text) !== undefined) return { kind: 'registry' };
+  if (/\.(jsonc?|ya?ml)$/.test(path) && structuredRegistry(text, path)) return { kind: 'registry' };
   return { kind: 'other' };
 }
 
@@ -1258,7 +1262,8 @@ const COLUMNS = {
   watches: /^(fires when|fires on|watches|watch|triggers?)$/i,
   event: /^events?$/i,
   verdict: /^(verdict|mode)$/i,
-  state: /^(rollout|status|state)$/i,
+  state: /^(rollout|status|state|enforcement)$/i,
+  description: /^(description|meaning|purpose|summary|what it (?:checks|does)|check description)$/i,
 } as const;
 
 /** A row id: one token with a digit in it, such as `G6`, `AW4` or `check-12`. */
@@ -1288,7 +1293,7 @@ function noteFrontmatter(
 }
 
 function readRegistry(file: EstateFile, estate: RawEstate, paths: ReadonlySet<string>): void {
-  if (/\.(json|ya?ml)$/.test(file.path)) {
+  if (/\.(jsonc?|ya?ml)$/.test(file.path)) {
     readJsonRegistry(file, estate, paths);
     return;
   }
@@ -1310,6 +1315,7 @@ function readRegistry(file: EstateFile, estate: RawEstate, paths: ReadonlySet<st
     const event = column(COLUMNS.event);
     const verdict = column(COLUMNS.verdict);
     const state = column(COLUMNS.state);
+    const description = column(COLUMNS.description);
     for (const row of table.rows) {
       const cell = (index: number) => (index >= 0 ? strip(row.cells[index] ?? '') : '');
       const ids = idsOf(row.cells[id] ?? '');
@@ -1337,6 +1343,11 @@ function readRegistry(file: EstateFile, estate: RawEstate, paths: ReadonlySet<st
         if (cell(event) !== '') entry.event = cell(event);
         if (cell(verdict) !== '') entry.verdict = cell(verdict);
         if (cell(state) !== '') entry.state = cell(state);
+        const ruleText = [description, watches]
+          .map((index) => (index >= 0 ? (row.cells[index] ?? '').trim() : ''))
+          .filter(Boolean)
+          .join('\n');
+        if (ruleText !== '') entry.description = ruleText;
         estate.registry.push(entry);
       }
     }
@@ -1514,6 +1525,11 @@ function readCatalogue(file: EstateFile, estate: RawEstate): void {
       at,
       origin: 'catalogue',
     };
+    const description = list(entry.description ?? entry.meaning ?? entry.watches).join('\n');
+    if (description) {
+      row.description = description;
+      row.descriptionAt = descriptionLocation(file, description, at);
+    }
     if (text(entry.event) !== undefined) row.event = guard.event;
     const verdict = text(entry.verdict);
     if (verdict !== undefined) row.verdict = verdict;
@@ -1623,8 +1639,60 @@ function registryEntries(value: unknown): RegistryEntry[] {
     const guard = [row.guard, row.script, row.check, row.hook, row.file, row.path, row.command].some(
       (candidate) => typeof candidate === 'string',
     );
-    return guard ? [{ row, key }] : [];
+    const described = typeof (row.description ?? row.meaning ?? row.purpose) === 'string';
+    return guard || described ? [{ row, key }] : [];
   });
+}
+
+/** Content identifies check registries, independent of their filename. */
+function structuredRegistry(text: string, path: string): boolean {
+  const enforcement = /^(?:enforc(?:e|ing)|observ(?:e|ing)|warn(?:ing)?|off|disabled|block(?:ing)?)$/i;
+  if (/\.(?:md|markdown)$/.test(path)) {
+    return readTables(text).some((table) => {
+      const headers = table.header.map(strip);
+      const state = headers.findIndex((header) => COLUMNS.state.test(header));
+      return (
+        headers.some((header) => COLUMNS.id.test(header)) &&
+        headers.some((header) => COLUMNS.description.test(header) || COLUMNS.watches.test(header)) &&
+        (headers.some((header) => COLUMNS.guard.test(header) || COLUMNS.verdict.test(header)) ||
+          (state >= 0 &&
+            table.rows.length > 0 &&
+            table.rows.every((row) => enforcement.test(strip(row.cells[state] ?? '')))))
+      );
+    });
+  }
+  if (!/\.(?:jsonc?|ya?ml)$/.test(path)) return false;
+  try {
+    const rows = registryEntries(parseData(text, path));
+    return (
+      rows.length > 0 &&
+      rows.every(
+        ({ row, key }) =>
+          (typeof row.id === 'string' || key !== undefined) &&
+          [row.description, row.meaning, row.purpose, row.verdict, row.enforces, row.rules].some(
+            (value) => value !== undefined,
+          ) &&
+          ([row.guard, row.script, row.hook, row.command, row.verdict].some((value) => value !== undefined) ||
+            enforcement.test(String(row.state ?? row.status ?? row.enforcement ?? ''))),
+      )
+    );
+  } catch {
+    return false;
+  }
+}
+
+/** A description's own line span, rather than the id line that anchors its registry entry. */
+function descriptionLocation(file: EstateFile, text: string, fallback: Located): Located {
+  const found = seek(file, /\.ya?ml$/.test(file.path) ? text : JSON.stringify(text), { at: 0 });
+  if (!found) return fallback;
+  return {
+    ...found,
+    quote: file.text
+      .split('\n')
+      .slice(found.startLine - 1, found.endLine)
+      .join('\n')
+      .trim(),
+  };
 }
 
 function readJsonRegistry(file: EstateFile, estate: RawEstate, paths: ReadonlySet<string>): void {
@@ -1636,6 +1704,8 @@ function readJsonRegistry(file: EstateFile, estate: RawEstate, paths: ReadonlySe
     return;
   }
   const rows = registryEntries(json);
+  const sources = new Map(estate.files.map((source) => [source.path, source.text]));
+  const known = knownGuards(estate);
   const cursor = { at: 0 };
   for (const { row, key, event } of rows) {
     const id = typeof row.id === 'string' ? row.id : key;
@@ -1644,14 +1714,18 @@ function readJsonRegistry(file: EstateFile, estate: RawEstate, paths: ReadonlySe
       (key) => typeof row[key] === 'string',
     );
     const named = field === undefined ? undefined : row[field];
-    if (typeof named !== 'string') continue;
+    const implicit =
+      typeof named !== 'string' ? (checkGuard(id, estate) ?? scriptHolding(id, estate, known)) : undefined;
     const guard =
-      field === 'command' ? guardName({ command: named, ...scriptOf(named, paths) }) : basename(named);
-    const found = seekPattern(
-      file,
-      key !== undefined ? new RegExp(`${escapeRegex(JSON.stringify(key))}\\s*:`) : keyValue('id', id),
-      cursor,
-    );
+      typeof named !== 'string'
+        ? (implicit ?? id)
+        : field === 'command'
+          ? guardName({
+              command: named,
+              ...scriptOf(named, paths, sources),
+            })
+          : basename(named);
+    const found = seekPattern(file, key !== undefined ? stepMapKey(key) : keyValue('id', id), cursor);
     if (!found) continue;
     const listed = row.enforces ?? row.rules ?? row.gates;
     const entry: RegistryRow = {
@@ -1663,6 +1737,13 @@ function readJsonRegistry(file: EstateFile, estate: RawEstate, paths: ReadonlySe
     if (typeof row.event === 'string') entry.event = row.event;
     else if (event !== undefined) entry.event = event;
     if (typeof row.verdict === 'string') entry.verdict = row.verdict;
+    const state = row.state ?? row.status ?? row.mode ?? row.enforcement;
+    if (typeof state === 'string') entry.state = state;
+    const description = row.description ?? row.meaning ?? row.purpose ?? row.summary ?? row.watches;
+    if (typeof description === 'string' && description.trim() !== '') {
+      entry.description = description;
+      entry.descriptionAt = descriptionLocation(file, description, found);
+    }
     estate.registry.push(entry);
   }
 }

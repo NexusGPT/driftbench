@@ -482,7 +482,7 @@ function documentedTarget(source: string, actual: readonly string[]): string | u
   const selector = '(?:first\\s+(?:positional\\s+)?argument|argument\\s+\\d+|--[\\w-]+)';
   const relation = new RegExp(
     `${role}\\s+(?:(?:that\\s+is|is)\\s+)?(?:\\w+(?:ed|en)\\s+)?(?:by|from|with|using|via|as)\\s+(?:(?:the|its)\\s+)?(${selector})` +
-      `|(${selector})\\s+(?:is|names?|identifies?|selects?|specifies?)\\s+(?:(?:the|a|an)\\s+)?${role}`,
+      `|(${selector})\\s+(?:(?:argument|option|parameter)\\s+)?(?:is|names?|identifies?|selects?|specifies?)\\s+(?:(?:the|a|an)\\s+)?${role}`,
     'i',
   );
   for (const sentence of text.split(/[\n.!?]/)) {
