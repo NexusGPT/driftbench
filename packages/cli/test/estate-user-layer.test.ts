@@ -47,9 +47,10 @@ describe('driftbench estate scan and lint read the user-level skill layer', () =
     const map = await readFile(join(root, 'map.yaml'), 'utf8');
     expect(map).toContain('~/.claude/skills/pier-notes/SKILL.md');
     expect(map).not.toContain('userSkills');
-    // Lint reads the layer again where it lies, and its findings name the files of the layer.
+    // Lint reports on the project: the files of the layer are never orphans or unreachable.
     const linted = await run(['estate', 'lint', join(root, 'map.yaml')], root);
-    expect(linted.out).toContain('~/.claude/skills/pier-notes/SKILL.md');
+    expect(linted.out).toContain('.claude/skills/dock-roster/SKILL.md: no route');
+    expect(linted.out).not.toContain('~/.claude');
   }, 60_000);
 
   it('reads the folder --user-skills names, and none with --no-user-skills, which the map records', async () => {
