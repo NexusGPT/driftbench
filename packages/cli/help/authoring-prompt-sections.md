@@ -1,6 +1,6 @@
 ---
 title: Prompt sections and block links
-summary: 'Give the sections of a prompt stable ids in a section registry, find them again in the next prompt version, and link blocks to the sections they test, without changing any spec hash.'
+summary: 'Give the sections of a prompt stable ids in a section registry, find them again in the next prompt version, link blocks to the sections they test without changing any spec hash, and see which blocks selection by those links would run (advisory only).'
 commands:
   - radius sections init
   - radius sections check
@@ -46,6 +46,15 @@ A target is a `prompt_section`, a `spec_clause` (`spec`, `clause`, optional `sha
 `metadata.links` and `metadata.provenance` stay out of the spec hash. A link added, promoted or refuted never changes the hash, a run id, a cache key, a carry or a rejudge. A spec without them hashes exactly as before.
 
 **Re-anchoring** finds each section again in the next version of the prompt. In order: the same text found once (`same_hash`); else the anchor quote found once, with the old text at the same distance from it (`quote`); else the prefix, quote and suffix window found once, the same way (`window`); else the section is `stale`. A section is only ever placed where its text hashes as before, so an edit inside a section makes it stale: it is never anchored to the wrong text. Text that changed outside every section, whitespace aside, is reported, because it can reach any block.
+
+**Advisory section selection.** `radius sections reanchor --change-out` writes a change manifest: one `prompt_section` change (`<prompt-id>#<section-id>`) per stale or reordered section, and one global `prompt` change when text changed outside every section. `radius <specs> --change <manifest> --sections <registries>` then prints which blocks selection by section links would run:
+
+- every block linked (by a link that is not `refuted`) to a changed section, or to a section that references, overrides or duplicates one, transitively;
+- every block with no link to the changed prompt, and every block with a stale link (a stale status, a section the registry lacks, or a stale section);
+- every later block of the same conversation (the same spec), and the blocks of every spec whose first block starts from a selected parent block (`given.parent: <spec>#<block>`) once parents exist;
+- every block, when a changed section is `global`, is in no registry, or its prompt has no registry.
+
+It is a report, never a filter. A `prompt_section` change makes the radius the whole suite, so `campaign run --change`, `ci --change` and block reruns run every block. On the H7 mutation suite (30 sections, 37 blocks, 9,690 runs), declared links alone missed a block a mutant flipped in 3 of 90 single-section mutants (Wilson 95% upper bound 9.3%) and in 9 of 110 with two-section mutants; the forward closure brings that to 2 of 90 and 4 of 110 at a selection ratio of 0.23. Selection may skip blocks only after links verified by mutation pass that gate below 5%, two-section mutants included.
 
 **Anthropic Citations** count `start_char_index` and `end_char_index` in code points, not UTF-16 units: on a text with two emoji before the cited sentence the API gave 23 where UTF-16 gives 25. Any citation pointer is converted before it is compared with a span (`codePointToUtf16`, `citationSpan` and `sectionOfCitation` in `@agent-nexus/driftbench-core`). A prompt sent as a custom-content document with one block per section (`sectionDocument`) needs no offset: the citation's block index names the section.
 
@@ -105,6 +114,7 @@ Re-anchors the registry of the old prompt on the new one, by the rule in What it
 | `--prompt <old> <new>` (required) | The old and new prompt files, in that order. | none |
 | `--to-version <version>` (required) | The version of the new prompt, written into the new registry. | none |
 | `--out <file>` | Write the registry of the new prompt here: found sections at their new spans, stale sections kept with `stale: true` and their old span. | not written |
+| `--change-out <file>` | Write the change manifest of the edit, from the registry's version to `--to-version`: a `prompt_section` change per stale or reordered section, a global `prompt` change per change outside every section. Give it to `radius --sections`. | not written |
 | `--json` | Print `{sections, outside, reordered}`. | off |
 
 Exit 0 when every section was found again in order and nothing changed outside them; 1 when a section is stale, a change lies outside every section, or sections changed order; 2 on bad input, or when the registry does not describe the old prompt.
@@ -136,6 +146,8 @@ sections:
 - Specs with `metadata.links`, checked by `spec validate` (shape, and the block they name) and by `spec lint --sections` (the target section).
 
 ## Outputs and how to read them
+
+`radius --sections` adds, after the radius, `Advisory section selection (<changes>)`, the sections the closure adds, `Would run <n> of <m> blocks (<d> by links, <f> forward) and would skip <k>`, and one row per spec with a selected block: its count, its first selected block and the links that drove it (`link:<prompt>#<section> (<status>)`, `no-links:<prompt>`, `stale-link:<prompt>#<section>`). A forward block reads `after <block>` or `via <spec>#<block>`. `Every block would run: <reason>` when a change is global or unknown. See authoring-blast-radius for `--explain` and `--json`.
 
 `radius sections init` prints the registry as YAML, or writes it, and says how many sections it found on stderr.
 
@@ -174,6 +186,38 @@ acme-sales v2: 30 sections match the prompt; 1 stale: language.
 ```
 
 The language rule was edited, so `language` is stale and every block linked to it reads its link as stale. The other sections moved by the six added characters and kept their ids.
+
+Now loosen the confirmation rule, write the change manifest, and ask what selection by section links would run on the three linked Acme specs of `examples/acme/prompts/linked`:
+
+```sh setup
+sed 's/A loose yes such as "sure", "ok" or "go ahead" is not enough/A loose yes such as "sure" or "ok" is enough/' examples/acme/prompts/acme-sales.md > acme-sales-v3.md
+```
+
+```sh
+driftbench radius sections reanchor examples/acme/prompts/acme-sales.sections.yaml --prompt examples/acme/prompts/acme-sales.md acme-sales-v3.md --to-version v3 --change-out confirm.yaml # exit 1
+driftbench spec lint examples/acme/prompts/linked --sections examples/acme/prompts/acme-sales.sections.yaml
+driftbench radius examples/acme/prompts/linked --change confirm.yaml --sections examples/acme/prompts/acme-sales.sections.yaml # exit 1
+```
+
+```text
+acme-sales v1 to v3: 23 kept, 6 moved, 1 stale.
+  stale explicit_confirm: the anchor is found but the section text changed: edited inside
+Every link to a stale section reads as stale until its span is declared again.
+✓ examples/acme/prompts/linked/order-confirm.yaml  acme-linked-order-confirm · 4 blocks · hash de277b6a3f34
+✓ examples/acme/prompts/linked/porting.yaml  acme-linked-porting · 2 blocks · hash f16b77f69d2e
+✓ examples/acme/prompts/linked/store-hours.yaml  acme-linked-store-hours · 1 block · hash b716ddfaac6a
+Checked 3 specs: 3 valid, 0 invalid, 0 warnings.
+Blast radius of v1 to v3 (manifest 41cd2968d159): prompt_section:acme-sales#explicit_confirm.
+3 specs, 7 blocks.
+The radius is the whole suite: prompt_section:acme-sales#explicit_confirm: section selection is advisory until links are verified by mutation: the whole suite runs. Nothing can be carried.
+Advisory section selection (acme-sales#explicit_confirm): nothing is skipped, the whole suite runs until links are verified by mutation.
+  With references, overrides and duplicates: acme-sales#upgrade_order, acme-sales#order_failure.
+  Would run 3 of 7 blocks (2 by links, 1 forward) and would skip 4: 57.1% of the suite.
+  spec                       blocks  from       links that drove it
+  acme-linked-order-confirm  3 of 4  loose-yes  link:acme-sales#explicit_confirm (declared)
+```
+
+`upgrade_order` and `order_failure` refer to the confirmation rule, so blocks linked to them would run too. `details` of the order spec is linked to `recap` and `new_customer_details` only and comes before the changed block, so selection would skip it; `confirm` is linked to the changed section and `thanks` follows a selected block. The radius stays the whole suite.
 
 ## Common errors
 
