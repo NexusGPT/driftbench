@@ -11,6 +11,7 @@ see_also:
   - authoring-blocks
   - authoring-spec-format
   - authoring-perturbations
+  - running-tool-history
 next:
   - authoring-script-api
 ---
@@ -76,7 +77,7 @@ What the agent receives of the prefix depends on the adapter, as its source code
 
 A prefix needs the `seedPrefix` capability, which every adapter above has except `nexus` and live Claude Code. On those a block with a prefix (and, in modes F and P, every block after it) is `not_run`, and so is every mode T block after the first, whose canonical history (the blocks before, as the spec writes them) the agent would never see. Such a block is `not_run` with kind `unsupported` and check `capability`: it is not sent, and it is neither a pass nor a fail (see running-outcomes). `world.tools` applies only on adapters with the `toolStubs` capability: `function`, `anthropic`, `google`, `vercel-ai`, `litellm`, and `http` when its options turn it on; on the others a block with a forced tool result is `not_run` the same way.
 
-An adapter that sends the history to a model sends each tool call of the prefix as that model's own tool call and tool result records, with ids that pair them, never as text. The crewai adapter takes history as text inputs, so with its default inputs it refuses a prefix whose tool calls the spec states as a record (`origin: recorded` or `authored`) rather than let the crew read them as prose. A canonical prefix (mode T) runs as before.
+An adapter that sends the history to a model sends each tool call of the prefix as that model's own tool call and tool result records, with ids that pair them, never as text. The crewai adapter takes history as text inputs, so with its default inputs it refuses a prefix whose tool calls the spec states as a record (`origin: recorded` or `authored`) rather than let the crew read them as prose. A canonical prefix (mode T) runs as before. Topic running-tool-history gives the records per adapter, the id rules and a worked example.
 
 ## When to use it
 
