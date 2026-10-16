@@ -255,7 +255,7 @@ const CASES: Case[] = [
 /** A run holding only what the item reads: the map, the planted standing rules, and the pairwise rows. */
 function fakeRun(
   map: ReturnType<typeof mapOf>,
-  rows: Array<{ atom: string; dimension: string; value: string }>,
+  rows: Array<{ atom?: string; dimension: string; value: string }>,
   planted: Planted = {},
   plantedOn?: string,
 ) {
@@ -277,7 +277,7 @@ function fakeRun(
       plan: {
         rows: rows.map((row, index) => ({
           id: `pairwise.${index}`,
-          atomIds: [row.atom],
+          atomIds: row.atom === undefined ? [] : [row.atom],
           cell: { [row.dimension]: row.value },
         })),
       },
@@ -288,7 +288,7 @@ function fakeRun(
 async function verdict(
   key: string,
   map: ReturnType<typeof mapOf>,
-  rows: Array<{ atom: string; dimension: string; value: string }>,
+  rows: Array<{ atom?: string; dimension: string; value: string }>,
   planted?: Planted,
   plantedOn?: string,
 ) {
@@ -341,6 +341,18 @@ describe('plan.relevance judges each of its 20 situations from typed data, with 
         expect(out.pass).toBe(false);
       });
     }
+
+    it('passes a plan that keeps the situation as an unresolved row with no atom: it carries no crossings', async () => {
+      const lonely = KINDS.filter((kind) => !IDENTITY[relation].includes(kind)).map(decoy);
+      const out = await verdict(key, mapOf(lonely), [{ dimension, value }]);
+      expect(out, out.detail).toMatchObject({ pass: true });
+      // The same unresolved row beside one crossing of any atom fails: crossing any atom is wrong.
+      const crossed = await verdict(key, mapOf(lonely), [
+        { dimension, value },
+        ...cross('decoy.instruction'),
+      ]);
+      expect(crossed.pass).toBe(false);
+    });
 
     it('gives an estate that holds no atom of the relation nothing to cross: any crossing is wrong, no row is not', async () => {
       // No atom holds the relation, whatever its kind and words say.
