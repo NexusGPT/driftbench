@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { type BankEntry, bankMeasure, type Measure } from '../../ladder';
 import { blastItems } from './levels/blast';
+import { codeItems } from './levels/code';
 import { diagnosticItems } from './levels/diagnostics';
 import { historyItems } from './levels/history';
 import { intervalItems } from './levels/intervals';
@@ -23,6 +24,7 @@ export const MIN_FAMILY = 20;
 export function blocksBank(): BankItem[] {
   const items = [
     ...verdictItems(),
+    ...codeItems(),
     ...historyItems(),
     ...intervalItems(),
     ...objectItems(),

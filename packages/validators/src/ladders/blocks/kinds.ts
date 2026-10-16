@@ -50,6 +50,8 @@ export type Action = {
   exit?: number;
   stderr?: string;
   stage?: string;
+  /** CODE: paths the agent deletes, relative to the workspace. */
+  deletes?: string[];
 };
 
 /** How many code agents this process planted: each gets its own folder of the scratch space. */
@@ -116,6 +118,7 @@ export function plantedAgent(
     markers[marker] = {
       reply: played.reply,
       files: played.files ?? [],
+      deletes: played.deletes ?? [],
       commands: played.commands ?? [],
       exit: played.exit ?? 0,
       ...(played.stderr ? { stderr: played.stderr } : {}),
