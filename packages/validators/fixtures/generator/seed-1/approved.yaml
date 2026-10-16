@@ -1825,8 +1825,7 @@ relations:
     must: [ not answering ]
     tools:
       - tool: lookup_record
-        count:
-          max: 2
+        count: 2
     evidence:
       source: ./prompt.md
       quote: A failed read-only tool gets one retry; a side-effecting tool none; report the failure honestly and stay on the step.
