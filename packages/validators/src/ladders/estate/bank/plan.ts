@@ -10,7 +10,7 @@ import type { SpaceMap } from '@agent-nexus/driftbench-space';
 import { requiredRows } from '../levels';
 import { type EstateRun, estateRun } from '../pipeline';
 import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
-import { judgeRelevance, type Planted, type Relation } from './relevance-typed';
+import { judgeTargets, plantedTargets, type Relation, type Truth } from './relevance-planted';
 
 /**
  * Three plan families on the generated estate of each seed.
@@ -677,7 +677,7 @@ export function planPairsFamily(): Family {
 
 // plan.relevance -------------------------------------------------------------------------------------------
 
-type Relevance = {
+export type Relevance = {
   key: string;
   tier: Tier;
   dimension: string;
@@ -686,7 +686,7 @@ type Relevance = {
   relation: Relation;
 };
 
-const RELEVANCE: Relevance[] = [
+export const RELEVANCE: Relevance[] = [
   {
     key: 'dead-helper',
     tier: 3,
@@ -866,21 +866,45 @@ const RELATION_TITLE: Record<Relation, string> = {
   routing: 'a route or the skill it opens',
 };
 
-/** What the hidden estate planted for each standing rule, by the id of the scanned atom matched to the rule or its hazard. */
-function plantedOf(run: EstateRun): Map<string, Planted> {
-  const rules = new Map(run.estate.rules.map((rule) => [rule.hid, rule]));
-  const out = new Map<string, Planted>();
-  for (const atom of run.scanned.map.atoms) {
-    const hid = run.scanned.match.hidOf.get(atom.id);
-    const rule = hid === undefined ? undefined : rules.get(hid.startsWith('hazard:') ? hid.slice(7) : hid);
-    if (rule)
-      out.set(atom.id, {
-        ...(rule.hazard ? { hazard: rule.hazard } : {}),
-        scope: rule.scope,
-        behaviour: rule.behaviour.type,
-      });
+/** What the generator planted, in the terms of the oracle: read from the hidden estate and what it rendered, never the scan. */
+export function truthOf(run: EstateRun): Truth {
+  const standing = new Map(run.estate.rules.map((rule) => [rule.hid, rule]));
+  // The evidence the generator recorded for each prose line (a standing rule, or a line of a skill or a helper), found
+  // by the file and the line the renderer wrote the atom on.
+  const answers = (
+    run.rendered.recording as unknown as {
+      answers?: Record<string, { atoms?: Array<Record<string, unknown>> }>;
+    }
+  ).answers;
+  const rules: Array<Truth['rules'][number]> = [];
+  for (const atom of run.rendered.atoms) {
+    if (atom.kind !== 'instruction' && atom.kind !== 'gate' && atom.kind !== 'register') continue;
+    const entry = (answers?.[atom.file]?.atoms ?? []).find(
+      (e) => e.line === atom.line && e.kind === atom.kind,
+    );
+    const rule = standing.get(atom.hid);
+    rules.push({
+      hid: atom.hid,
+      kind: atom.kind,
+      ...(rule?.hazard ? { hazard: rule.hazard } : {}),
+      ...(rule ? { scope: rule.scope } : {}),
+      evidence: ((entry?.evidence as Array<Record<string, unknown>> | undefined) ?? []).map((e) => ({
+        type: String(e.type),
+        ...(typeof e.label === 'string' ? { label: e.label } : {}),
+        ...(typeof e.before === 'string' ? { before: e.before } : {}),
+      })),
+    });
   }
-  return out;
+  return {
+    atoms: run.rendered.atoms.map((atom) => ({ hid: atom.hid, kind: atom.kind })),
+    edges: run.rendered.edges,
+    rules,
+    guards: run.estate.guards.map((guard) => ({ hid: guard.hid, event: guard.event })),
+    declaresTools: [
+      ...run.estate.skills.map((skill) => skill.hid),
+      ...run.estate.helpers.map((helper) => helper.hid),
+    ],
+  };
 }
 
 export function planRelevanceFamily(): Family {
@@ -902,14 +926,21 @@ export function planRelevanceFamily(): Family {
     items,
     async evaluate(seed) {
       const run = await estateRun(seed);
-      const planted = plantedOf(run);
+      const truth = truthOf(run);
+      // The scan only turns a planted hidden id into the id of the atom it found for it.
+      const scannedOf = (hids: Set<string>) =>
+        new Set([...hids].flatMap((hid) => run.scanned.match.idOf.get(hid) ?? []));
+      const known = new Map(run.scanned.map.atoms.map((atom) => [atom.id, atom.kind as string]));
       const rows = run.plan.plan.rows.filter((candidate) => candidate.id.startsWith('pairwise.'));
       const out = new Map<string, ItemResult>();
       for (const rule of RELEVANCE) {
         const crossings = rows
           .filter((row) => row.cell[rule.dimension] === rule.value)
           .map((row) => ({ row: row.id, atom: row.atomIds[0] as string }));
-        out.set(`${family}.${rule.key}`, judgeRelevance(rule.relation, run.scanned.map, crossings, planted));
+        out.set(
+          `${family}.${rule.key}`,
+          judgeTargets(scannedOf(plantedTargets(rule.relation, truth)), known, crossings),
+        );
       }
       return out;
     },
