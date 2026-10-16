@@ -88,7 +88,7 @@ metadata:
     situation: ledger-auditor-brief
     phrase: null
     ask: code
-    askFrom: subagent.ledger-auditor.helper-ledger-auditor (description)
+    askFrom: subagent.ledger-auditor.helper-ledger-auditor (the unit of instruction.ledger-auditor.look-for-double-payments-and-unapplied)
     outcome: bank
     judged:
       - instruction.ledger-auditor.look-for-double-payments-and-unapplied

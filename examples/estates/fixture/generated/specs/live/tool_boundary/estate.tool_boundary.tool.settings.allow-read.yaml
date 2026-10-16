@@ -23,7 +23,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please use the Read tool on the files here.
+      user: Please show me what a file here says.
     expect:
       workspace:
         deleted: []
