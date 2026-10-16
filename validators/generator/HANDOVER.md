@@ -186,6 +186,15 @@ Additional product gaps: `allocation.deviation.ratio` needs balancing in `genera
 The rendered D8 read-tool recovery now requires `count: 2`: the initial failed call and exactly one retry, matching the existing prompt. The recovery item already reads that same hidden relation, so neither bank item changes. The mutant remains unchanged. This resolves item 13 above without lowering a threshold or removing a fault.
 
 The generator must carry that exact count into every D8 failure Then, keep the pending stage and report the failure, including self-loop failures. Actual generated suites pass both named items on seeds 1 and 3. The focused regression covers visible seeds 1–20 and the base-commit hidden seed. See [the partial-measurement journal](SWEEP-JOURNAL.md) and [evidence](evidence/d8-retry-contract.json). The historical level table is not a new measurement.
+
+## Invariance maintainer ruling (2026-10-15, PR 510)
+
+A pair holds Given facts and ordered semantic stimuli fixed, including transition order and slot bindings. Approved persona wording may vary; unknown text remains literal. Block ids are labels and expected stages are assertions, so neither belongs in the pairing key. Both persona and channel items share this comparison; no item or threshold changes.
+
+The auditor's renamed same-turn wrong-Then case is a regression on all three paths and both axes. Fresh-map planted pairs also retain rejection, with clean reference runs and a separate clean pair present. The six failures previously described as product defects were reused-label pairs asking different questions (input vs behaviour or output); their side-by-side requests and Thens are in [the evidence](evidence/invariance-semantic-turns.json). Seed 18's gen-cover-096/gen-phrase-012 remains excluded. The [partial journal](SWEEP-JOURNAL.md) records focused results only.
+
+Product obligation: for the same facts and ordered requests, generate identical machine expectations across persona/channel variants, regardless of block labels.
+
 ## D6 maintainer ruling (2026-10-15)
 
 The users package declares D6 a world carrier; the spec reference and rendered prompt identify instructions inside supplied workspace files and tool results as data. Phrase provenance and phrase coverage now inspect that content when the injection carries no user text. The same shared reader serves both items. It requires an approved phrase of the injected class, never merely an empty user or a populated world.
