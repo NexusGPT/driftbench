@@ -79,6 +79,19 @@ The next entry records completed seed results or the final bank result. No unmea
 - The owner directs PR 174 to merge only after green CI, then requests the full 21-seed sweep with two workers and load logging. The owner assigns protected changes to an independent maintainer on `fix/generator-validator-contracts`; import from main only after that PR merges. No protection exception or branch rename is used.
 
 
+## 2026-10-15: maintainer D8 retry-contract ruling
+
+- Base: `9f14f170b452dc8bd718749f833225ab977dcee3`, fetched from origin/main. The changes since the reported `14034c6ca` affect the system HTTP validator, not this generator contract.
+- Ruling: render D8 read-tool recovery as `count: 2`, the initial failed call plus the one retry already required by the prompt. A maximum alone permits skipping the retry. Changing the advancing mutant to over-retry would replace the existing fault with one already covered by `D8.retry-many` and let a weak generated Then pass.
+- Red first: the new regression on base records 23 failed, 2 passed. On seeds 1 and 3, a Then copied from the old rendered recovery passes recovery and fails adequacy; a Then requiring exactly two calls passes adequacy and fails recovery. The observed self-loop text, stage and call inputs match; call multiplicity differs.
+- Green: 54 tests pass across the D8 regression, hidden-map pins, rendered contract, follower and fault-fidelity files. The regression spans visible seeds 1–20 and base-commit hidden seed 669949872. It also rejects weakening the Then back to `max: 2`, catches excess retries and exercises an ordinary transition.
+- Actual generated-suite measurements: seed 1 adequacy changes from 8 missed first changes out of 23 to 0/23; seed 3 changes from 6/18 to 0/18. The recovery item passes before and after on both seeds. Both original items and their thresholds remain unchanged.
+- Updated the canonical seed-1 approved YAML and hidden JSON; the byte-for-byte rendered-map test passes. Product source, follower, mutants, floors and hidden-seed derivation are untouched.
+- Partial measurement only: no new ladder level or bank score is inferred. The executor journal and its level table retain their historical measurements. Evidence: [d8-retry-contract.json](evidence/d8-retry-contract.json).
+- Product obligation: every generated D8 read-tool failure block must require exactly two calls, the pending stage and the failure report, including self-loop failures.
+
+- Validation: focused Biome and diff whitespace checks pass. Typecheck passes with only the test importing sparse-excluded `comparisons/langfuse` omitted; the ordinary full typecheck reports that missing import and its two dependent implicit-any errors.
+
 ## 2026-10-15: maintainer semantic invariance pairing (PR 510)
 
 - Base: `779d61573f6e92d995241be6aad515bdc28f3b9e`, the existing PR head. The auditor shows that renaming a block hides a wrong expectation while a separate clean pair still satisfies pair existence.
@@ -99,6 +112,17 @@ The next entry records completed seed results or the final bank result. No unmea
 - Focused lint, whitespace, handover and sparse typecheck pass; the sparse typecheck omits only the unrelated test importing excluded comparisons/langfuse. No full ladder or bank score is claimed; the historical executor journal and level table remain unchanged.
 - Evidence: [d6-world-carrier-contract.json](evidence/d6-world-carrier-contract.json). No items, thresholds, fault agents, fixtures, floors or hidden-seed rules are removed or lowered.
 - Product obligation: put every approved D6 instruction in the injected world file/tool-result content, leave injection.user empty, and retain checks that catch both obedience faults.
+
+
+## 2026-10-16: maintainer integer-contrast request scope
+
+- Base: `119802811739d45a85c3dda5d3402a5cd31bce2c`, origin/main. The reported counterexample is seed 1 at `3b12d6f13c15e0fe09f8dac1be72029768936e02`: preparatory minimum calls occur in both read/list partitions, while both write requests correctly defer.
+- Ruling: measure every block whose approved data-value stimulus requests the partition. Require exactly one read-only call with that exact integer. Require explicit zero calls for a direct side-effect request, which supplies no CONFIRM. Shared setup and zero-call guards are not contrast values. Cell metadata and block ids never identify the measured request.
+- Red first: 12 tests fail and 3 pass on the unchanged base. These include the false rejection of correct shared preparation and false acceptance of missing/wrong/permissive assertions when unrelated calls differ. A further red-first case proves exact JSON and singleton numeric assertions must retain their declared equality semantics.
+- Green: 26 tests pass across integer contrast and the adjacent invariance-context file. All six integer items pass on fresh seeds 1009, 2027, 4093 and 8191. Every block of every generated scenario carrying those integer requests passes the real reference.
+- The product mutation is injected at the generator seam, before files are loaded: it copies schema-minimum inputs instead of honoring explicit valid integer requests. All four read/list contrast items fail on each fresh seed. No product source file is modified. Negative controls also reject an unconfirmed write call, a missing prohibition and a clean duplicate hiding a wrong assertion.
+- Focused typecheck passes. Evidence: [integer-contrast-contract.json](evidence/integer-contrast-contract.json), [red-first output](evidence/integer-contrast-red-first.txt). No item, threshold, floor, fault family, fixture pin or hidden-seed rule changes; no full ladder or bank score is claimed. Historical journal rows and the level table stay unchanged.
+- Product obligation: preserve shared preparation, assert the exact requested valid read-only integer on its request, and forbid an unconfirmed side effect for both values.
 
 
 ## 2026-10-15: maintainer ruling on sequence stages and impossible pairs

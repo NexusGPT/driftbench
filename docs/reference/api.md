@@ -2,6 +2,8 @@
 
 The public API is the set of names exported by each entry in a package's `exports` map. This includes `@agent-nexus/driftbench-adapters/contract`. Files outside that map are internal and may change in any release.
 
+Core exports the `HistoryNormalization` schema and type for the optional `Observed.historyNormalizations` field. See the [observation schema reference](observed.md#history-normalization) for the recorded wire differences and report behavior.
+
 ## The frozen list
 
 [`tools/structure/api-surface.json`](https://github.com/achammah/driftbench/blob/main/tools/structure/api-surface.json) records names per entry: `value` for an actual JavaScript export, `type` for a declaration-only name. Main entries use package keys such as `adapters`; subpaths use keys such as `adapters/contract`.

@@ -6,7 +6,7 @@ import re
 import sys
 
 event = json.load(sys.stdin)
-reply = event.get("last_reply", "")
+reply = event.get("last_assistant_message", "")
 if re.search(r"refund\b.*\b(by|on|before)\b.*\d", reply, re.IGNORECASE):
     print("Never promise the user a refund date; the carrier sets it.", file=sys.stderr)
     sys.exit(2)
