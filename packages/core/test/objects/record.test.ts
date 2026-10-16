@@ -164,6 +164,8 @@ describe('every verdict carries by', () => {
             block.resolved?.objects.map((entry) => [entry.key, entry.kind, entry.id, entry.setAt]),
           ).toEqual([
             ['value_check', 'policy/value-check', 'default', 'shipped'],
+            ['blame', 'policy/blame', 'default', 'shipped'],
+            ['placement', 'policy/placement', 'default', 'shipped'],
             ['check_set', 'check-set', 'default', 'shipped'],
           ]);
           for (const verdict of block.verdicts) {
@@ -267,6 +269,14 @@ describe('the check set chooses the checks', () => {
       {
         key: 'value_check',
         kind: 'policy/value-check',
+        id: 'default',
+        hash: expect.any(String),
+        setAt: 'shipped',
+      },
+      { key: 'blame', kind: 'policy/blame', id: 'default', hash: expect.any(String), setAt: 'shipped' },
+      {
+        key: 'placement',
+        kind: 'policy/placement',
         id: 'default',
         hash: expect.any(String),
         setAt: 'shipped',
