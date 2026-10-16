@@ -1,8 +1,8 @@
-import type { RunResult } from '@agent-nexus/driftbench-core';
+import { blockStatus, isScored, type RunResult } from '@agent-nexus/driftbench-core';
 
 /**
  * `diagnostic/flaky-block` (config_framework.md 2.7): a block whose repeats disagree. For each spec, target, mode
- * and block, the repeats' machine pass is counted; a block that both passed and failed is flagged, with its pass
+ * and block, the repeats' machine pass is counted (a block not run or blocked is no repeat); a block that both passed and failed is flagged, with its pass
  * share. Blame reads one run per home as a possible flake for the same reason (min_runs_per_home).
  */
 
@@ -26,6 +26,7 @@ export function flakyBlocks(runs: readonly RunResult[], minRepeats = 2): FlakyBl
   for (const run of runs) {
     const target = [run.target.adapter, run.target.agent, run.target.variant].filter(Boolean).join(':');
     for (const block of run.blocks) {
+      if (!isScored(block)) continue;
       const key = `${run.specId}\u0000${target}\u0000${run.mode}\u0000${block.index}`;
       const cell = cells.get(key) ?? {
         spec: run.specId,
@@ -34,7 +35,7 @@ export function flakyBlocks(runs: readonly RunResult[], minRepeats = 2): FlakyBl
         block: block.index,
         outcomes: [],
       };
-      cell.outcomes.push(block.pass);
+      cell.outcomes.push(blockStatus(block) === 'pass');
       cells.set(key, cell);
     }
   }
