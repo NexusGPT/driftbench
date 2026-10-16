@@ -131,3 +131,12 @@ The next entry records completed seed results or the final bank result. No unmea
 - Product measurement, main's real generation: the old logic fails D8 on seeds 1 to 12, 14 to 16, 18, 20 and the hidden seed. The new item fails no `sequence.stages.*` item on these seeds or on 1001 and 1002. The product places no probe at a ruled-out stage.
 - Sweep: `diff.feasible.<seeder>` also reads written constraints only, in the permissive direction. On seed 2, 39 blocks sit in an impossible-only cell, all from seeder `cover`, which no `diff.feasible` item reads. That item stays unchanged and needs its own ruling. The baseline suite's goal detour also reads written constraints only; it is not an item.
 - Evidence: [sequence-impossible-pairs.json](evidence/sequence-impossible-pairs.json). No items, thresholds, fault agents, fixtures, floors or hidden-seed rules are removed or lowered.
+
+
+## Ownership fixture integration: explicit imbalance in disk parity test (2026-10-16)
+
+The generator's disk parity test imports the validator's mutable seed-5 hidden constructor. Main d37cc4c76 passes its balance-file prerequisite; ownership head 4b411d426 fails it before comparing any disk output. The minimum ownership edge B-002 to new-request changes scenario contexts: main needs three balance top-ups to bring D8 to 12 against maximum 35; the repaired fixture already gives D8 13 against maximum 35 and correctly needs none. This is not a disk/eager mismatch.
+
+The test now constructs its intended imbalance by adding approved off-topic phrases before generation, on public seeds 1 and 5 and fresh seed 1009. It keeps the assertion requiring balance files, summary/file-count equality and every non-report file's byte equality. No generator product source changes. The separate merge commit preserves both sides of the records. See [integration evidence](evidence/ownership-stream-fixture.json). Historical ladder measurements stay unchanged.
+
+Focused results: four disk parity cases and 42 ownership/pin tests pass. Disabling the balancing iterator through a temporary test spy makes all three explicit-imbalance cases fail. The spy is removed; product source is unchanged.
