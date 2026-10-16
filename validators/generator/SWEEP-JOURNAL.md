@@ -79,6 +79,16 @@ The next entry records completed seed results or the final bank result. No unmea
 - The owner directs PR 174 to merge only after green CI, then requests the full 21-seed sweep with two workers and load logging. The owner assigns protected changes to an independent maintainer on `fix/generator-validator-contracts`; import from main only after that PR merges. No protection exception or branch rename is used.
 
 
+## 2026-10-15: maintainer semantic invariance pairing (PR 510)
+
+- Base: `779d61573f6e92d995241be6aad515bdc28f3b9e`, the existing PR head. The auditor shows that renaming a block hides a wrong expectation while a separate clean pair still satisfies pair existence.
+- Ruling: Given and ordered When define the comparison; Then is the value tested. Approved phrase intents, stage transitions and slot bindings supply meaning. Persona introductions normalize; unknown wording stays literal. Neither block ids nor expected stages can separate a pair. Actual initial/per-turn facts and language remain fixed.
+- Red first: 39 cases fail on the base, including the auditor's same-turn/wrong-Then reproducer on all three paths and both axes. Green: 111 tests pass across five files. All 24 hand-built planted true pairs across fresh seeds 1009, 2027, 4093 and 8191 pass the real reference and reject the wrong Then despite opaque ids and a separate clean pair. Another 24 planted mutations of real generated walks on those seeds also fail, while the original walks pass the reference.
+- Generation-only measurement: all six invariance items pass on visible seeds 1–20 and base-derived hidden seed 7802775. Arbitrarily renaming every block leaves every verdict unchanged. The six formerly failing items are three different-request pairs, each scored on both axes: seed 3 input-value vs behaviour; seeds 5/18 input-value vs returned-value. The actual requests and complete final-block Thens are in the evidence and PR body.
+- The seed-18 gen-cover-096/gen-phrase-012 false pair remains excluded. Controls preserve transition order, bound values, burst boundaries, world/prefix facts and literal unknown requests; a changed expected stage never creates a new pair.
+- Scope: no product changes, items removed, thresholds lowered, fault agents changed or fixture pins changed. No ladder level is inferred and the historical executor journal/level table stays unchanged. Evidence: [invariance-semantic-turns.json](evidence/invariance-semantic-turns.json).
+- Product obligation: for the same facts and ordered requests, generate identical machine expectations across persona/channel variants, regardless of block labels.
+
 ## 2026-10-15: maintainer D6 world-carrier phrase contract
 
 - Base: `5354503afed4cccfafdc43bd3988316aaa555c3d`, origin/main; separate from the D8 branch. Contract sources are the D6 definition in `docs/reference/spec.md`, the users package carrier registry, the WorldState schema and the existing hidden prompt.

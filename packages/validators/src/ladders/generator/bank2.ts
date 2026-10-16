@@ -1,6 +1,6 @@
-import type { Spec } from '@agent-nexus/driftbench-core';
+import { canonicalJson, type Spec } from '@agent-nexus/driftbench-core';
 import type { BankItem, SeedData, Tier, Verdict } from './bank';
-import { DEVIATION_POOL, type HiddenSpec, type ToolRole } from './hidden';
+import { DEVIATION_POOL, type HiddenSpec, readTurn, type ToolRole } from './hidden';
 import type { Generation } from './measure';
 
 /**
@@ -442,7 +442,45 @@ function allocationItems(): BankItem[] {
 
 // contrast ------------------------------------------------------------------------------------------------
 
-/** The machine expectations of a spec's blocks, as text: what two specs are compared on. */
+/**
+ * An invariance pair holds the initial facts and ordered stimuli fixed. Approved phrases supply their
+ * meaning and bound values; persona introductions alone may vary. Transition intents carry the stage
+ * sequence, never an expected stage (a wrong Then must not split its own pair). Unknown wording stays
+ * literal. Block ids and generation labels are bookkeeping, not conversational input.
+ */
+export function heldFixed(spec: Spec, hidden: HiddenSpec): string {
+  const message = (text: string): unknown => {
+    const turn = readTurn(hidden, text);
+    if (!turn) return { text };
+    const { intent, slots } = turn;
+    if (intent.kind === 'persona') return { intent: { kind: 'persona' }, slots };
+    if (intent.kind === 'transition') {
+      const edge = hidden.transitions.find((edge) => edge.id === intent.edge);
+      if (edge) return { intent: { kind: 'transition', from: edge.from, to: edge.to }, slots };
+    }
+    return { intent, slots };
+  };
+  return canonicalJson({
+    data: Object.entries(cellOf(spec))
+      .filter(([key]) => key.includes('.in.') || key.includes('.out.'))
+      .sort(),
+    given: spec.given,
+    lang: spec.lang,
+    turns: spec.blocks.map((block) => ({
+      given: block.given,
+      when: !block.when
+        ? undefined
+        : 'user' in block.when
+          ? { user: message(block.when.user) }
+          : 'burst' in block.when
+            ? { burst: block.when.burst.map(message) }
+            : { injection: { class: block.when.injection.class, user: message(block.when.injection.user) } },
+    })),
+  });
+}
+
+/** The machine expectations of a spec's blocks: what an invariance pair is compared on. */
+
 function thens(spec: Spec): string {
   return JSON.stringify(spec.blocks.map((block) => ({ ...block.expect, criteria: undefined })));
 }
@@ -552,13 +590,9 @@ function contrastItems(): BankItem[] {
         async check(data) {
           const generated = await data.generated();
           const specs = walking(generated, path).filter((spec) => probes(spec).length === 0);
-          // Invariance varies persona/channel while holding all input and returned data fixed.
-          const slots = (spec: Spec) =>
-            JSON.stringify(
-              Object.entries(cellOf(spec))
-                .filter(([key]) => key.includes('.in.') || key.includes('.out.'))
-                .sort(),
-            );
+          // Invariance varies persona/channel while holding all input and returned data and the turns fixed.
+          const keys = new Map(specs.map((spec) => [spec, heldFixed(spec, generated.hidden)]));
+          const slots = (spec: Spec) => keys.get(spec);
           const pair = specs.some((left) =>
             specs.some((right) => personaOf(left) !== personaOf(right) && slots(left) === slots(right)),
           );
@@ -610,13 +644,9 @@ function contrastItems(): BankItem[] {
         async check(data) {
           const generated = await data.generated();
           const specs = walking(generated, path).filter((spec) => probes(spec).length === 0);
-          // Invariance varies persona/channel while holding all input and returned data fixed.
-          const slots = (spec: Spec) =>
-            JSON.stringify(
-              Object.entries(cellOf(spec))
-                .filter(([key]) => key.includes('.in.') || key.includes('.out.'))
-                .sort(),
-            );
+          // Invariance varies persona/channel while holding all input and returned data and the turns fixed.
+          const keys = new Map(specs.map((spec) => [spec, heldFixed(spec, generated.hidden)]));
+          const slots = (spec: Spec) => keys.get(spec);
           const pair = specs.some((left) =>
             specs.some((right) => left.channel !== right.channel && slots(left) === slots(right)),
           );

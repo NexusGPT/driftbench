@@ -108,10 +108,11 @@ The printed summary, line by line:
 - `Coverage on the axis map at t = <t>: complete specs ..., all specs ...`, plus one entry per `--baseline`.
 - With `--spec-cap`: `Spec cap <n>: <w> of <c> candidate specs written; <p> ... protected.`
 - `Values with no approved phrase (<n>): ...`: approve a phrase for each to make its block complete.
+- `Approved phrases no walk could say (<n>), listed under no_phrase:` each phrase with the first reason. The report's `no_phrase` entry holds it under `unsaid` with every reason.
 - `Specs with a block the map supports no machine Then for (<n>), in incomplete/: ...` then `Most frequent reasons`. Each names the relation or value the map lacks.
 - `Wrote <n> files to <dir>.`
 
-`generate-report.json` keys: `generator`, `map` (path, agent, version, hash, counts), `options`, `summary` (`specs`, `blocks`, `complete`, `incomplete`), `seeders` (per seeder, with `cut`), `graph`. More keys: `twise` (`t`, `dimensions`, `rows`, `allowed`, `covered`, `share`, `unreachable`), `boundary`, `deviation`, `metamorphic`, `cover` (with `unbuilt`), `constraints`, `no_phrase`, `no_then`. Then `coverage` (`actual` with every uncovered tuple, `t`, `allowed`, `complete`, `all`, `measures`, and `baseline` when given), `invalid`, `lint`. The report also has `budget` and `spec_cap` when used.
+`generate-report.json` keys: `generator`, `map` (path, agent, version, hash, counts), `options`, `summary` (`specs`, `blocks`, `complete`, `incomplete`), `seeders` (per seeder, with `cut`), `graph`. More keys: `twise` (`t`, `dimensions`, `rows`, `allowed`, `covered`, `share`, `unreachable`), `boundary`, `deviation`, `metamorphic`, `cover` (with `unbuilt`), `constraints`, `no_phrase` (with `unsaid` for an approved phrase no walk could say), `no_then`. Then `coverage` (`actual` with every uncovered tuple, `t`, `allowed`, `complete`, `all`, `measures`, and `baseline` when given), `invalid`, `lint`. The report also has `budget` and `spec_cap` when used.
 
 With `--model`, `generate` also writes `<out>/proposed/`. It holds `candidates/` (the valid proposals), `gated/` (the gate's output on them) and `proposals.json`. It also prints these lines:
 

@@ -12,6 +12,10 @@ import type { HiddenSituation } from './situations';
  * helper with the brief fields, reads a file before editing it, walks the step list in order, keeps the
  * output rules in its reply, and the guards it runs into give the verdicts the estate declares.
  *
+ * A session opens with the init record a runtime writes: the tools it offers, which are its standard tools
+ * less every tool a bare deny rule of the settings names (a rule with a pattern, as in `Bash(rm -rf:*)`,
+ * keeps the tool offered). Deleting a deny rule offers the tool again.
+ *
  * An agent mutant is the follower with one atom deleted: every act that atom asks for is dropped (an act
  * several atoms ask for is dropped with any of them), an order the atom imposes is reversed, and what the
  * atom forbids happens. The follower knows the asks of its situations and nothing of any test.
@@ -20,6 +24,20 @@ import type { HiddenSituation } from './situations';
 const BASE = Date.parse('2026-10-12T09:00:00.000Z');
 const BLOCK_MS = 600_000;
 const SESSION = '00000000-0000-4000-8000-00000000e57a';
+
+/** The tools a runtime offers before any setting denies one. */
+const RUNTIME_TOOLS = [
+  'Agent',
+  'Bash',
+  'Edit',
+  'Glob',
+  'Grep',
+  'Read',
+  'Skill',
+  'Write',
+  'WebFetch',
+  'WebSearch',
+];
 
 type Call = {
   label: string;
@@ -58,6 +76,20 @@ export function follow(
     uuid += 1;
     return `follower-${String(uuid).padStart(4, '0')}`;
   };
+  const denied = estate.permissions.deny.filter((rule) => !rule.includes('(') && !cut(`tool:deny:${rule}`));
+  records.push({
+    parentUuid: null,
+    isSidechain: false,
+    userType: 'external',
+    cwd,
+    sessionId: SESSION,
+    version: '2.0.0',
+    type: 'system',
+    subtype: 'init',
+    uuid: 'follower-init',
+    timestamp: new Date(BASE).toISOString(),
+    tools: RUNTIME_TOOLS.filter((tool) => !denied.includes(tool)),
+  });
   asks.forEach((ask, blockIndex) => {
     const situation = situations.find((candidate) => candidate.phrases.includes(ask));
     let clock = BASE + blockIndex * BLOCK_MS;
