@@ -1,0 +1,95 @@
+{
+  "items": 536,
+  "v7Correct": 421,
+  "v7Accuracy": 0.7854477611940298,
+  "v7Predictions": {
+    "pass": 161,
+    "fail": 374,
+    "inconclusive": 1
+  },
+  "comparisons": [
+    {
+      "comparator": "promptfoo",
+      "v7": 421,
+      "comparatorCorrect": 412,
+      "wins": 36,
+      "losses": 27,
+      "p": 0.31350305329645284,
+      "holm": 0.31350305329645284,
+      "verdict": "TIE",
+      "holmFamily": "peers (5)"
+    },
+    {
+      "comparator": "deepeval",
+      "v7": 421,
+      "comparatorCorrect": 323,
+      "wins": 114,
+      "losses": 16,
+      "p": 2.0703656210246182e-19,
+      "holm": 1.035182810512309e-18,
+      "verdict": "WIN",
+      "holmFamily": "peers (5)"
+    },
+    {
+      "comparator": "inspect",
+      "v7": 421,
+      "comparatorCorrect": 410,
+      "wins": 28,
+      "losses": 17,
+      "p": 0.1351564508456704,
+      "holm": 0.2703129016913408,
+      "verdict": "TIE",
+      "holmFamily": "peers (5)"
+    },
+    {
+      "comparator": "langfuse",
+      "v7": 421,
+      "comparatorCorrect": 406,
+      "wins": 37,
+      "losses": 22,
+      "p": 0.06744461190078899,
+      "holm": 0.20233383570236696,
+      "verdict": "TIE",
+      "holmFamily": "peers (5)"
+    },
+    {
+      "comparator": "langwatch",
+      "v7": 421,
+      "comparatorCorrect": 403,
+      "wins": 38,
+      "losses": 20,
+      "p": 0.024746035842440797,
+      "holm": 0.09898414336976319,
+      "verdict": "TIE",
+      "holmFamily": "peers (5)"
+    },
+    {
+      "comparator": "shipped-default",
+      "v7": 421,
+      "comparatorCorrect": 288,
+      "wins": 143,
+      "losses": 10,
+      "p": 2.698577465882623e-31,
+      "holm": 5.397154931765246e-31,
+      "verdict": "WIN",
+      "holmFamily": "secondary (2)"
+    },
+    {
+      "comparator": "driftbench-v5",
+      "v7": 421,
+      "comparatorCorrect": 422,
+      "wins": 20,
+      "losses": 21,
+      "p": 1.0,
+      "holm": 1,
+      "verdict": "TIE",
+      "holmFamily": "secondary (2)"
+    }
+  ],
+  "conditions": {
+    "1 zero LOSS among peers": true,
+    "2 primary vs promptfoo in our favour, exact p<0.05": false,
+    "3 at least 3 of 5 peers WIN": false,
+    "4 every MM-Eval and hard-row cell WIN": "N/A"
+  }
+}

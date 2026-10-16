@@ -1,5 +1,5 @@
-import type { Message } from '@agent-nexus/driftbench-core';
-import { HistoryCompiler } from '../shared';
+import type { HistoryNormalization, Message } from '@agent-nexus/driftbench-core';
+import { emptyTurnNormalizations, HistoryCompiler } from '../shared';
 import { outputText, type WireNames } from './common';
 
 /**
@@ -77,11 +77,12 @@ const ID_CHARS = /[^a-zA-Z0-9_-]/g;
  *   text, when there is one.
  * - Messages of the same role in a row merge into one, so roles alternate as the API expects; a user
  *   message keeps its `tool_result` blocks first.
+ * - Empty text-only turns are omitted and recorded in `normalizations`; no placeholder reaches the model.
  */
 export function toAnthropicMessages(
   history: readonly Message[],
   names: WireNames,
-): { messages: AnthropicMessageParam[]; system: string[] } {
+): { messages: AnthropicMessageParam[]; system: string[]; normalizations: HistoryNormalization[] } {
   const system: string[] = [];
   const messages: { role: 'user' | 'assistant'; content: AnthropicBlockParam[] }[] = [];
   const compiler = new HistoryCompiler({ fallback: (n) => `toolu_h${n}`, count: 'every', clean: toolUseId });
@@ -134,7 +135,7 @@ export function toAnthropicMessages(
     }
     push('assistant', text(message.content));
   }
-  return { messages, system };
+  return { messages, system, normalizations: emptyTurnNormalizations(history, 'anthropic') };
 }
 
 /** A recorded call id as a tool use id the API accepts. */

@@ -28,16 +28,15 @@ The matrix counts what each tool's public docs or source show, one cited page pe
 
 ## The judge on hard cases
 
-* Same model on both sides (Claude Haiku 5.5), same cases, labels fixed before the run, each tool's own default prompt copied unchanged. The driftbench side is the judge that ships, not a candidate.
-* The cases are fictional and built to be hard: near misses, paraphrases, long distractors. They share construction templates, so the intervals describe these sets, not every agent.
-* "Ahead" and "behind" mean the two 95 percent Wilson intervals do not overlap. "Level" means they overlap.
-* Goal success (promptfoo) and task completion (DeepEval) give both judges the same evidence. With each tool's default inputs the other tools score 36 and 44 of 72.
-* The Langfuse set was already known when this judge version was measured. The Langfuse side uses the best of the template's two reported settings.
-* On DeepEval, strict G-Eval and knowledge retention are charted from a fresh set of 480 cases each (seed 20261114, frozen before any call). Strict G-Eval: 474 against 451 with the opt-in setting `response-relevance`, exact paired p 0.00012 (Holm over the two rows 0.00023). Knowledge retention, shipped judge: 480 against 477, p 0.25, after the 9 calls that had timed out were called again with the same frozen settings; the intervals overlap. The earlier 72-case rows (65 against 70, 68 against 69) used the judge frozen at 12801e1. See [comparisons/deepeval/lead](../../comparisons/deepeval/lead/README.md).
-* The fact ledger of PR 163 has not been measured on the Inspect set. Its strict mode, which also demands a matching quote, abstains on more than half of its replay cases.
-* The candidate judge that scores 60 of 60 on three Inspect rows is not the default.
-* The README charts the DeepEval, promptfoo and Langfuse sets. On the Inspect set the shipped judge scores 59 against 59, 48 against 57, 48 against 59 and 49 against 60, of 60: behind on two of four tests. The rows are on the [Inspect page](inspect.md).
-* Reproduce from recorded answers, with no model call: `python3 comparisons/promptfoo/hard/score.py`, and the replay commands in [comparisons/deepeval/hard](../../comparisons/deepeval/hard/README.md), [comparisons/langfuse/hard](../../comparisons/langfuse/hard/README.md) and [comparisons/inspect/hard](../../comparisons/inspect/hard/README.md).
+* The README rows use the preregistered [default-on-v7 run](../../comparisons/default-on/readme-v7/RESULT.md): 2,700 returned items, 15 datasets, 18 rows. Shared datasets supply more than one row. The model is Claude Haiku 5.5, and the peer answers and case labels remain the recorded ones.
+* v7 calls `createDefaultJudge` over the Anthropic Messages API. Earlier driftbench rows used `claude -p` with old prompts; knowledge retention mostly used the Messages API. The transport difference is part of the comparison, so gains cannot be attributed to prompts alone.
+* The cases are fictional and built to be hard: near misses, paraphrases and long distractors. They share construction templates, so intervals describe these sets. The earlier runs and the Langfuse set were already known before this v7 run; this is a rerun on the recorded items, not a new unseen population.
+* Most standings use separate Wilson 95% intervals: lead or deficit when they do not overlap, close otherwise. G-Eval strict and knowledge retention instead use exact paired tests, Holm over those two rows. G-Eval strict is 479/480 against 451/480 (Holm p 1.15484e-7); retention is 1,271/1,272 against 1,272/1,272 (Holm p 1).
+* Inconclusive answers count wrong and remain in the score denominator. They leave the peer paired tests: one on retention, one on reference correctness and four on grader panel. The complete item list and secondary tests appear in `ANALYSIS.json`.
+* G-Eval strict retains the preregistered explicit `response-relevance` setting. Other README rows use the v7 default. The shipped-judge lead chart excludes that explicit-setting row.
+* The Inspect rows are QA 58/60, fact 58/60, panel 54/60 and borderline 60/60, against recorded peer scores 57, 59, 59 and 60. All are close under the README rule. Grader panel drops from the earlier driftbench score of 59/60; the secondary comparison records one fixed case and six broken cases, including four inconclusive answers.
+* The cost chart uses v7's recorded USD per 100 cases against the recorded peer spend. The run totals USD 1.5335619, counting shared datasets once. No peer is rerun.
+* Reproduce without model calls using the commands in [RESULT.md](../../comparisons/default-on/readme-v7/RESULT.md). The chart generator recomputes intervals, checks the registered population and standing, and reads costs from the same analysis.
 
 ## Public benchmarks, against promptfoo
 
@@ -61,7 +60,7 @@ The numbers of every model, one table per benchmark, are on the [detail page](be
 
 ## What a judgement costs
 
-Recorded model spend per 100 held-out cases, Claude Haiku 5.5 on both sides, one run. Cost is not accuracy: on three of the Inspect rows the cheaper judge is also the less accurate one. On the Langfuse row driftbench costs slightly more.
+Recorded model spend per 100 held-out cases, Claude Haiku 5.5 on both sides. The driftbench side uses the v7 Messages API run; peers retain their earlier recorded spend. v7 costs less on the Inspect panel and borderline rows, but the grader panel scores 54/60 against 59/60. On model-graded QA and fact, v7 costs more. Langfuse rounds to USD 0.052 per 100 cases on both sides. Cost is not accuracy.
 
 ## driftbench tests itself
 
