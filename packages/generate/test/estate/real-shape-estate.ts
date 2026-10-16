@@ -29,13 +29,13 @@ export const UNITS: readonly Unit[] = [
   },
   {
     name: 'pickup-planner',
-    description: 'Schedules courier pickups for the warehouse docks.',
+    description: 'Schedule courier pickups 4 steps. Use when the docks are busy.',
     verb: 'scheduling',
     object: 'courier pickups',
   },
   {
     name: 'damage-claims',
-    description: 'Files damage claims with carriers and tracks their outcome.',
+    description: 'Damage claim intake is ONE atomic write. Files claims with carriers.',
     verb: 'filing',
     object: 'damage claims',
   },

@@ -311,7 +311,7 @@ export function actOf(
   }
   // A route's own situation is narrower than an attached unit's catch-all description.
   if (head?.kind === 'route' && head.situation) {
-    const task = askedTo(head.situation) ?? actionTask(head.situation);
+    const task = requestTask(head.situation);
     if (task) return { act: task, source: `${head.id} (situation)` };
   }
   const context = head ? contextOf(head) : undefined;
@@ -341,16 +341,16 @@ export function actOf(
   let described: string | undefined;
   for (const atom of atoms) {
     if (atom.kind === 'route' && atom.situation) {
-      const sentence = workOf(firstSentence(atom.situation));
-      if (verbLed(sentence, true)) return withContext(taskOf(sentence, true), `${atom.id} (situation)`);
+      const task = firstWork(atom.situation);
+      if (task) return withContext(task, `${atom.id} (situation)`);
       described ??= `${atom.id} (situation)`;
     }
   }
   for (const atom of atoms) {
     const description = typeof atom.fields?.description === 'string' ? atom.fields.description : undefined;
     if ((atom.kind === 'skill' || atom.kind === 'subagent') && description) {
-      const sentence = workOf(firstSentence(description));
-      if (verbLed(sentence, true)) return withContext(taskOf(sentence, true), `${atom.id} (description)`);
+      const task = firstWork(description);
+      if (task) return withContext(task, `${atom.id} (description)`);
       described ??= `${atom.id} (description)`;
     }
   }
@@ -551,8 +551,50 @@ function toolAct(tool: EstateAtom): string | undefined {
  * ("when the invoice is late") or a noun phrase is no request and gives nothing.
  */
 function requestTask(text: string): string | undefined {
-  return askedTo(text) ?? actionTask(text);
+  const task = askedTo(text) ?? actionTask(workOf(firstSentence(text)));
+  return task !== undefined && workable(task) ? task : undefined;
 }
+
+/**
+ * Whether a task taken from a description is a request an owner makes, not a heading or a statement: no list
+ * mark (a colon), no bare number ("install workflow 6 steps" is a heading with a count), no copula
+ * ("plan import is one atomic write" is a sentence about the plan), no subject before the verb.
+ */
+/** The first sentence of a description that is a request: a heading or a statement before it is passed over. */
+function firstWork(text: string): string | undefined {
+  const sentences = plain(text).split(/(?<!\b(?:e\.g|i\.e|vs|etc))[.;]\s+/i);
+  for (const sentence of sentences) {
+    const work = workOf(firstSentence(sentence));
+    if (!verbLed(work, true)) continue;
+    const task = taskOf(work, true);
+    if (workable(task)) return task;
+  }
+  return undefined;
+}
+
+export function workable(task: string): boolean {
+  const words = task.split(/\s+/).filter((word) => word !== '');
+  const lowered = words.map((word) => word.toLowerCase().replace(/[^a-z0-9']/g, ''));
+  if (task.includes(':')) return false;
+  // "Use when building a workflow" is a usage note, not a request.
+  if (SUBORDINATORS.has(lowered[1] ?? '')) return false;
+  if (lowered.slice(1).some((word) => /^\d+$/.test(word))) return false;
+  // A copula right after the verb and its bare object makes a statement; one inside a phrase that a preposition
+  // or a relative word opened ("notices for customers whose parcels are late") belongs to that phrase.
+  const copula = lowered.findIndex((word, index) => index > 0 && COPULAS.has(word));
+  if (
+    copula > 0 &&
+    !lowered
+      .slice(0, copula)
+      .some((word) => PREPOSITIONS.has(word) || CLAUSE_WORDS.has(word) || INTERROGATIVES.has(word))
+  )
+    return false;
+  return !subjectVerb(task);
+}
+
+const INTERROGATIVES: ReadonlySet<string> = new Set(['how', 'what', 'where', 'when', 'why', 'whether']);
+
+const COPULAS: ReadonlySet<string> = new Set(['is', 'are', 'was', 'were', 'am']);
 
 /** Words a rule text starts with when it states what a guard demands or stops. */
 const DIRECTIVE =
@@ -1155,7 +1197,13 @@ function guardAct(
   }
   const situation = ruleText ? strictSituation(ruleText) : undefined;
   const tool = forcedAct(guard, undefined, situation);
-  if (tool) return { act: tool.act, source: `${guard.id} (tool)`, forced: tool };
+  if (tool) {
+    // The object the rule names (from its strict situation) joins the act: "run a command in the shell here for
+    // a force push to the shared branch".
+    const object = situation && !tool.act.startsWith('explain') ? `${tool.act} for ${situation}` : tool.act;
+    const fused = { act: askable(object) === undefined ? object : tool.act };
+    return { act: fused.act, source: `${guard.id} (tool)`, forced: fused };
+  }
   if (situation && askable(`help me with ${situation}`) === undefined)
     return { act: `help me with ${situation}`, source: `${guard.id} (ruleText)` };
   return undefined;

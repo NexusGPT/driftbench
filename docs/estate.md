@@ -609,6 +609,13 @@ the ask stays incomplete and names why. A verb joined by "and" shares the form o
 follows it; a word that ends the sentence or precedes a preposition stays as written. A possessive ("File's frame") and a plural noun with a noun ending ("analytics", "utilities", "awareness") are
 never read as a verb. A clause of a read-when line rides as the moment only when it is short (14 words or fewer)
 and states no obligation (never, always, must, should, only): a pasted rule is no situation.
+A task taken from a description or a routing request must have the shape of a request, else the next sentence
+is tried and, when none has it, the atom stays without a task: it has no colon (a list), no bare number after the
+verb ("install workflow 6 steps" is a heading with a count), no copula that follows the verb and its bare object
+("plan import is one atomic write" is a sentence about the plan; "notices for customers whose parcels are late" is
+fine), no subject before the verb, and does not open with a usage note ("use when ..."). The object a guard's rule
+names joins the tool act through its strict situation: "Please run a command in the shell here for a force push to
+the shared release branch." 
 A description is cut to the work it names: a parenthetical list of examples, a purpose clause ("so that a
 session can resume it") and a relative clause about the unit itself ("which writes the verdicts") are not asked
 for, and a head left without a verb and its object keeps the whole sentence. A table row or list line is read

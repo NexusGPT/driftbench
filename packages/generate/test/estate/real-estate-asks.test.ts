@@ -604,9 +604,9 @@ describe('a guard is asked through the tool it watches, and prose only when it h
     }
   });
 
-  it('carries the strict situation of the rule text as context of the tool act', () => {
+  it('joins the strict situation of the rule text to the tool act, so the object it names is asked', () => {
     expect(ask({ ruleText: 'A force push to the shared release branch is blocked.', matcher: 'Bash' })).toBe(
-      'Please run a command in the shell here. This involves a force push to the shared release branch.',
+      'Please run a command in the shell here for a force push to the shared release branch.',
     );
   });
 
@@ -715,4 +715,55 @@ it('does not read the exception of a rule ("unless the user asks for detail") as
   expect(codeAsk('trigger', [guard], []).text).toBe(
     'Please explain in full detail everything you can do for me here.',
   );
+});
+
+describe('a description gives its work only in the shape of a request', () => {
+  const ask = (description: string) => codeAsk('trigger', [unit('x', description)], []);
+
+  it('rejects a heading with a count, a sentence with a copula and a list after a colon', () => {
+    for (const description of [
+      'Install workflow 6 steps. Use when building a workflow.',
+      'Plan import is ONE atomic write.',
+      'Manages workspaces: mount, list, create.',
+      'Review the 3 stages and the checklist.',
+    ]) {
+      const written = ask(description);
+      expect(written.text, description).toBeUndefined();
+      expect(written.refused, description).toMatch(/describes the unit/);
+    }
+  });
+
+  it('passes over a heading or a statement and takes the first sentence that is a request', () => {
+    expect(ask('Plan import is ONE atomic write. Files damage claims with carriers.').text).toBe(
+      'Please file damage claims with carriers.',
+    );
+    expect(ask('Install workflow 6 steps. Use when building a workflow.').refused).toMatch(
+      /describes the unit/,
+    );
+  });
+
+  it('keeps a request with a spelled count or an object', () => {
+    expect(ask('Install a workflow in six steps.').text).toBe('Please install a workflow in six steps.');
+    expect(ask('Install the connector for the harbour office.').text).toBe(
+      'Please install the connector for the harbour office.',
+    );
+  });
+
+  it('rejects the same fragments in a routing request, and falls back to the unit that carries the route', () => {
+    const route = atom('route.standing.install', { situation: 'Install workflow 6 steps' });
+    expect(codeAsk('trigger', [route], []).refused).toMatch(/describes the unit/);
+  });
+
+  it('adds the object a guard rule names to the tool act, and nothing from a hook sentence', () => {
+    const named = atom('guard.settings.push', {
+      fields: { matcher: 'Bash', ruleText: 'A force push to the shared release branch is blocked.' },
+    });
+    expect(codeAsk('trigger', [named], []).text).toBe(
+      'Please run a command in the shell here for a force push to the shared release branch.',
+    );
+    const mechanics = atom('guard.settings.plumbing', {
+      fields: { matcher: 'Bash', ruleText: 'Reads the tool call as JSON on stdin; exits 2 to block it.' },
+    });
+    expect(codeAsk('trigger', [mechanics], []).text).toBe('Please run a command in the shell here.');
+  });
 });
