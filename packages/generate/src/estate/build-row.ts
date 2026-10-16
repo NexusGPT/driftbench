@@ -45,11 +45,74 @@ export function useOf(row: Pick<EstatePlanRow, 'testType' | 'mode'>): SituationU
   return SITUATION_OF[row.testType] ?? 'none';
 }
 
+/**
+ * The triggering situation of a row. A guard no situation lists is set off where a rule it enforces is: the situations
+ * of the rules it cites (registry or id) are tried, then those it repeats the words of, each as the row's
+ * first atom. A tool rule no situation lists holds over any task that uses the tool: it is asked in the
+ * situation that lists most of the rules read from the same file (the settings, or the skill that declares
+ * the tool).
+ */
+export function situationOfRow(
+  ctx: Pick<Context, 'bank' | 'atoms'>,
+  use: SituationUse,
+  row: EstatePlanRow,
+  head: EstateAtom | undefined,
+): Situation | undefined {
+  const own = findSituation(ctx.bank, use, row, ctx.atoms);
+  // An outside situation of one rule does not certify a control of every rule the guard enforces.
+  if (own || use !== 'trigger') return own;
+  if (head?.kind === 'tool' && use === 'trigger') return siblingSituation(ctx, use, row, head);
+  if (head?.kind !== 'guard') return own;
+  const links = Array.isArray(head.fields?.enforces)
+    ? (head.fields.enforces as Array<{ atom?: unknown; by?: unknown }>).filter(
+        (entry): entry is { atom: string; by?: unknown } => typeof entry.atom === 'string',
+      )
+    : [];
+  const ordered = [
+    ...links.filter((link) => link.by === 'registry' || link.by === 'id'),
+    ...links.filter((link) => link.by !== 'registry' && link.by !== 'id'),
+  ];
+  for (const link of ordered) {
+    const found = findSituation(
+      ctx.bank,
+      use,
+      { ...row, atomIds: [link.atom, ...row.atomIds.slice(1)] },
+      ctx.atoms,
+    );
+    if (found) return found;
+  }
+  return undefined;
+}
+
+/** The situation of the use that lists most atoms read from the file the head atom is read from. */
+function siblingSituation(
+  ctx: Pick<Context, 'bank' | 'atoms'>,
+  use: SituationUse,
+  row: EstatePlanRow,
+  head: EstateAtom,
+): Situation | undefined {
+  const file = head.provenance?.file;
+  if (!file) return undefined;
+  let best: Situation | undefined;
+  let most = 0;
+  for (const situation of ctx.bank.situations) {
+    if (situation.use !== use) continue;
+    const pins = Object.entries(situation.cell ?? {});
+    if (pins.some(([key, value]) => row.cell[key] !== undefined && row.cell[key] !== value)) continue;
+    const siblings = situation.atoms.filter((id) => ctx.atoms.get(id)?.provenance?.file === file).length;
+    if (siblings > most) {
+      best = situation;
+      most = siblings;
+    }
+  }
+  return best;
+}
+
 /** The specs of one row: one, or one per recorded session of its situation for a replay row. */
 export function buildRow(row: EstatePlanRow, ctx: Context, used: Set<string>): Built[] {
   const atoms = row.atomIds.map((id) => ctx.atoms.get(id) as EstateAtom);
   const use = useOf(row);
-  const situation = use === 'none' ? undefined : findSituation(ctx.bank, use, row, ctx.atoms);
+  const situation = use === 'none' ? undefined : situationOfRow(ctx, use, row, atoms[0]);
   // The k positive asks of a route (`route_positive.<route>.<n>`) each take their own phrasing.
   const nth = row.testType === 'route_positive' ? /\.(\d+)$/.exec(row.id)?.[1] : undefined;
   const variant = nth !== undefined && Number(nth) > 1 ? Number(nth) - 1 : undefined;

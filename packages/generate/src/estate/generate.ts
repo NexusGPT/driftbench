@@ -3,7 +3,7 @@ import { type Issue, parseSpecText } from '@agent-nexus/driftbench-core';
 import { stringify } from 'yaml';
 import type { GeneratedFile } from '../enumerate/generate';
 import { formatJson } from '../enumerate/json';
-import { build, buildRow, findSituation, specId, uniqueId, useOf } from './build-row';
+import { build, buildRow, situationOfRow, specId, uniqueId, useOf } from './build-row';
 import {
   type Built,
   type Context,
@@ -339,7 +339,7 @@ export function generateEstateSuite(
         };
         const atoms = varied.atomIds.map((id) => ctx.atoms.get(id) as EstateAtom);
         const use = useOf(varied);
-        const situation = use === 'none' ? undefined : findSituation(ctx.bank, use, varied, ctx.atoms);
+        const situation = use === 'none' ? undefined : situationOfRow(ctx, use, varied, atoms[0]);
         const built = build(varied, atoms, ctx, used, situation, undefined, false, variant);
         if (built.gaps.length === 0 && focusCases.get(atom)?.has(focusCaseKey(built, varied))) continue;
         emit(built, varied, totalsFor(perTestType, row.testType), totalsFor(perMode, row.mode));
