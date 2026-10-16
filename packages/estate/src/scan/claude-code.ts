@@ -2034,7 +2034,6 @@ async function localPath(root: string, file: string, notes: ReadNote[]): Promise
   } catch (cause) {
     // A name no file system can hold (a sentence read as a path) names no file.
     if ((cause as NodeJS.ErrnoException)?.code === 'ENAMETOOLONG') return undefined;
-    if ((cause as NodeJS.ErrnoException)?.code === 'ENAMETOOLONG') return undefined;
     if (!(cause instanceof EstatePathError)) throw cause;
     if (!notes.some((note) => note.file === file && note.message === EXTERNAL_NOTE))
       notes.push({ file, message: EXTERNAL_NOTE });

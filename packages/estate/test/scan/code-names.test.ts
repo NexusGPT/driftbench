@@ -50,7 +50,8 @@ describe('files that code and registries name', () => {
     const { result } = await lint({
       'CLAUDE.md': '# Rules\nRead `.claude/guide.md`.\n',
       '.claude/settings.json': settings,
-      '.claude/hooks/gate.py': 'MARKER = ".claude/hooks/state/compacted.json"\n',
+      '.claude/hooks/gate.py':
+        'MARKER = ".claude/hooks/state/compacted.json"\nopen(MARKER, "w").write("1")\n',
       '.claude/guide.md':
         '# Guide\nAfter a restart, read `.claude/hooks/state/compacted.json`.\nRead `.claude/hooks/state/never-made.md`.\n',
     });
@@ -84,6 +85,53 @@ describe('files that code and registries name', () => {
   });
 });
 
+describe('only a script that writes a path makes it a runtime product', () => {
+  const guide = (path: string) => ({
+    'CLAUDE.md': '# Rules\nRead `.claude/guide.md`.\n',
+    '.claude/settings.json': settings,
+    '.claude/guide.md': `# Guide\nRead \`${path}\` before editing.\n`,
+  });
+
+  it('keeps a missing file a finding when a script only reads it', async () => {
+    for (const script of [
+      'text = open(".claude/setup.md").read()\n',
+      'text = open(".claude/setup.md", "r").read()\n',
+      'SETUP = ".claude/setup.md"\nprint(open(SETUP).read())\n',
+      'const text = fs.readFileSync(".claude/setup.md", "utf8");\n',
+    ]) {
+      const { result } = await lint({ ...guide('.claude/setup.md'), '.claude/hooks/gate.py': script });
+      expect(result.counts.MISSING_REFERENCE).toBe(1);
+    }
+    const shell = await lint({
+      ...guide('.claude/setup.md'),
+      '.claude/hooks/gate.sh': '#!/bin/sh\ncat ".claude/setup.md"\n',
+    });
+    expect(shell.result.counts.MISSING_REFERENCE).toBe(1);
+  });
+
+  it('treats a path a script writes or creates, directly or through a constant, as made at run time', async () => {
+    for (const [name, script] of [
+      ['gate.py', 'open(".claude/made.md", "w").write("x")\n'],
+      ['gate.py', 'import pathlib\nSTATE = ".claude/made.md"\npathlib.Path(STATE).write_text("x")\n'],
+      ['gate.py', 'import os\nos.makedirs(".claude/made.md")\n'],
+      ['gate.js', 'fs.writeFileSync(".claude/made.md", "x");\n'],
+      ['gate.sh', '#!/bin/sh\necho 1 > ".claude/made.md"\n'],
+      ['gate.sh', '#!/bin/sh\nF=.claude/made.md\ntouch "$F"\n'],
+    ] as const) {
+      const { result } = await lint({ ...guide('.claude/made.md'), [`.claude/hooks/${name}`]: script });
+      expect(result.counts.MISSING_REFERENCE).toBe(0);
+    }
+  });
+
+  it('does not count a registry or settings literal as written', async () => {
+    const { result } = await lint({
+      ...guide('.claude/made.md'),
+      '.claude/hooks/CATALOGUE.json': JSON.stringify({ checks: [{ id: 'C1', marker: '.claude/made.md' }] }),
+    });
+    expect(result.counts.MISSING_REFERENCE).toBe(1);
+  });
+});
+
 describe('counter-examples and fill-in values are not live references', () => {
   it('blanks a wrong example up to its right counterpart and keeps the live part of the line', async () => {
     const { map, result } = await lint({
@@ -96,6 +144,51 @@ describe('counter-examples and fill-in values are not live references', () => {
       '.claude/live.md',
       '.claude/live.md',
     ]);
+  });
+
+  it('keeps live rules whose sentence uses wrong, bad, incorrect or a multiplication sign', async () => {
+    const { map, result } = await lint({
+      'CLAUDE.md': [
+        '# Rules',
+        'If the quantity is wrong: read `.claude/a1.md` before you edit the order.',
+        'When a review is bad: read `.claude/a2.md` before you reply.',
+        'If the total is incorrect: read `.claude/a3.md` before you send the invoice.',
+        'Scale every recipe by 2 × 3, then read `.claude/a4.md` before you print it.',
+        'If the count is wrong: read `.claude/a5.md` before you edit the list.',
+        '',
+      ].join('\n'),
+      '.claude/a1.md': '#\n',
+      '.claude/a2.md': '#\n',
+      '.claude/a3.md': '#\n',
+      '.claude/a4.md': '#\n',
+      '.claude/a5.md': '#\n',
+    });
+    const read = map.atoms
+      .filter((atom) => atom.kind === 'gate')
+      .map((atom) => String(atom.fields?.path ?? atom.title));
+    expect(read.join(' ')).toMatch(/a1/);
+    expect(read.join(' ')).toMatch(/a2/);
+    expect(read.join(' ')).toMatch(/a3/);
+    expect(read.join(' ')).toMatch(/a4/);
+    expect(read.join(' ')).toMatch(/a5/);
+    expect(result.counts.ORPHAN).toBe(0);
+  });
+
+  it('still blanks a counter-example that opens a line, a list item or a table cell', async () => {
+    const { map } = await lint({
+      'CLAUDE.md': [
+        '# Rules',
+        'Wrong: read `.claude/never1.md` before you edit. Right: read `.claude/live.md` before you edit.',
+        '- ✗ read `.claude/never2.md` first → ✓ read `.claude/live.md` first.',
+        '> × read `.claude/never3.md` before you edit',
+        '| ✗ read `.claude/never4.md` | ✓ read `.claude/live.md` |',
+        '',
+      ].join('\n'),
+      '.claude/live.md': '#\n',
+    });
+    const paths = map.atoms.filter((atom) => atom.kind === 'reference').map((atom) => atom.fields?.path);
+    expect(paths.filter((path) => String(path).includes('never'))).toEqual([]);
+    expect(paths.filter((path) => path === '.claude/live.md').length).toBeGreaterThanOrEqual(3);
   });
 
   it('treats a block after a standalone wrong marker as an example', async () => {

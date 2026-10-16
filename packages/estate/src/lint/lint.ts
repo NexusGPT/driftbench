@@ -103,7 +103,7 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
     const atom = byId.get(id);
     const path = String(atom?.fields?.path ?? '');
     if (atom?.fields?.ignored === true || ignoredReference(raw, path) || placeholderPath(path)) continue;
-    // Code or a registry names the path: the runtime creates it, so a sentence about it is no broken link.
+    // A script writes or creates the path: the runtime makes it, so a sentence about it is no broken link.
     if (atom && atom.fields?.external !== true && !atom.fields?.candidates && runtimeProduct(raw, path))
       continue;
     if (atom?.fields?.external === true) {

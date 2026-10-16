@@ -73,7 +73,7 @@ export function analyzeGraph(
   files: readonly EstateFile[],
   /** Files documented by navigation-only documents: named, though they never make a file reachable. */
   navigation: ReadonlySet<string> = new Set(),
-  /** Files that code and registries name: a code file that is reached reaches the files it names. */
+  /** Files that code names: a code file that is reached reaches the files it names. */
   codeLinks: ReadonlyMap<string, readonly string[]> = new Map(),
 ): GraphAnalysis {
   const kinds = new Map(files.map((file) => [file.path, file.kind]));
