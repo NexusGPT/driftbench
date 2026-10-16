@@ -48,6 +48,9 @@ function heavyCondition(id: string): string {
 const FAST_CONDITION =
   "github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/train/') && contains(format(',{0},', inputs.jobs), ',fast,'))";
 
+/** The fast job's limit: 20 minutes on a dispatch, 8 on a pull request. */
+const FAST_TIMEOUT = "${{ github.event_name == 'workflow_dispatch' && 20 || 8 }}";
+
 const CI_HEAVY = [
   'bench',
   'research-replay',
@@ -538,7 +541,12 @@ describe('merge train enforcement', () => {
     const job = workflow.jobs['pr-fast'];
     expect(job.name).toBe('pr fast');
     expect(job.if).toBe(FAST_CONDITION);
-    expect(job['timeout-minutes']).toBe(8);
+    // 8 minutes on a pull request, 20 on a pre-flight dispatch, where the affected tests cover a whole PR
+    expect(job['timeout-minutes']).toBe(FAST_TIMEOUT);
+    const limit = (ctx: Ctx) => evaluateTemplate(job['timeout-minutes'], ctx);
+    expect(limit(ORDINARY_PR)).toBe(8);
+    expect(limit(TRAIN_PR)).toBe(8);
+    expect(limit(dispatchOn('refs/heads/train/pre-9', 'fast'))).toBe(20);
     expect(job.steps[0].with['fetch-depth']).toBe(0);
     const commands = job.steps.flatMap((step: { run?: string }) => step.run ?? '');
     expect(commands).toContain('pnpm lint');
@@ -568,6 +576,21 @@ describe('merge train enforcement', () => {
     const pullOnly = structuredClone(workflow);
     pullOnly.jobs['pr-fast'].if = "github.event_name == 'pull_request'";
     expect(() => assertFastBehaviour(pullOnly)).toThrow();
+  });
+  it('gives the fast job 20 minutes on a dispatch and 8 on a pull request', () => {
+    const job = workflow.jobs['pr-fast'];
+    const limit = (w: ReturnType<typeof parse>, ctx: Ctx) =>
+      evaluateTemplate(w.jobs['pr-fast']['timeout-minutes'], ctx);
+    const dispatch = dispatchOn('refs/heads/train/pre-9', 'fast');
+    expect(limit(workflow, dispatch)).toBe(20);
+    expect(limit(workflow, ORDINARY_PR)).toBe(8);
+    expect(job['timeout-minutes']).toBe(FAST_TIMEOUT);
+    const flat = structuredClone(workflow);
+    flat.jobs['pr-fast']['timeout-minutes'] = 8;
+    expect(limit(flat, dispatch)).not.toBe(20);
+    const wide = structuredClone(workflow);
+    wide.jobs['pr-fast']['timeout-minutes'] = 20;
+    expect(limit(wide, ORDINARY_PR)).not.toBe(8);
   });
   it('compares the affected tests with origin/main on a dispatch, as on a pull request', () => {
     const affected = workflow.jobs['pr-fast'].steps.find(
