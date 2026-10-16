@@ -1,3 +1,4 @@
+/** Historical examples from the rejected header-role design. Superseded as an oracle by routing-kinds-corpus.ts. */
 /** Hand-written tables, independent of validator fixtures. Expected tuples are ask, target, kind. */
 export type RouteCase = { name: string; table: string; routes: Array<[string, string, string]> };
 const refund: Array<[string, string, string]> = [['money back', 'refund-flow', 'skill']];

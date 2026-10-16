@@ -1,4 +1,5 @@
 import { basename, posix } from 'node:path';
+import nlp from 'compromise/two';
 import type { Atom, AtomKind, EvidencePredicate } from '../schema';
 import type { EstateFile, GuardDecl, ProseChunk, RawEstate, RegistryRow } from './reader';
 import {
@@ -799,6 +800,7 @@ const ROUTE_NAMES = new WeakMap<
     skills: Set<string>;
     helpers: Set<string>;
     definitions: Map<string, string>;
+    mentions: RegExp;
   }
 >();
 
@@ -809,6 +811,15 @@ function routeNames(raw: RawEstate) {
       skills: new Set(raw.skills.map((skill) => skill.name)),
       helpers: new Set(raw.subagents.map((helper) => helper.name)),
       definitions: new Map(raw.skills.map((skill) => [skill.file, skill.name])),
+      mentions: new RegExp(
+        `(?<![\\w-])/?(${
+          [...new Set([...raw.skills, ...raw.subagents].map((unit) => unit.name))]
+            .sort((a, b) => b.length - a.length)
+            .map((name) => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+            .join('|') || '(?!)'
+        })(?![\\w-])`,
+        'g',
+      ),
     };
     ROUTE_NAMES.set(raw, index);
   }
@@ -859,58 +870,151 @@ function routeTargets(
   return [...targets.values()];
 }
 
-/**
- * Metadata names an attribute or a provenance relation, rather than work to send to a unit.
- * Read the head noun before prepositional complements: "task owner" and "owner of the task"
- * describe ownership, while "requests from the task owner" describes requests. Relative
- * provenance and timestamp questions likewise describe records. Request headers need no
- * vocabulary of permitted words, and mentioning a metadata word does not exclude them.
- */
-function routeMetadata(header: string): boolean {
-  const head = header.split(/\b(?:of|for|from|about|on|in|by|with)\b/i)[0]?.trim() ?? '';
-  return (
-    /\b(?:owners?|ownership|custodians?|maintainers?|authors?|authorship|dates?|timestamps?|versions?|notes?|comments?|remarks?|publications?|licen[cs]es?|status)$/i.test(
-      head,
-    ) ||
-    /^(?:who\s+)?(?:wrote|writes|authored|maintains|owns)\b/i.test(header) ||
-    /^(?:maintained|written|authored|created|added|updated|modified|published)\s+by\b/i.test(header) ||
-    /\b(?:they|we|you)\s+(?:maintain|own|wrote|authored)\s*(?:it)?$/i.test(header) ||
-    /^(?:when|date|time)\s+(?:(?:was|is)\s+it\s+|it\s+(?:was|is)\s+)?(?:added|created|updated|modified|published)(?:\s+(?:at|on|by)\b.*)?$/i.test(
-      header,
-    )
-  );
+/** Cell roles are grammatical evidence, not a vocabulary of table headings. */
+type RouteCell = 'request' | 'attribute' | 'fragment';
+const ROUTE_CELL_CACHE = new Map<string, RouteCell>();
+
+function routeCell(value: string): RouteCell {
+  const cached = ROUTE_CELL_CACHE.get(value);
+  if (cached) return cached;
+  const role = readRouteCell(value);
+  // Bound the lexical cache independently of how many estates a server reads.
+  if (ROUTE_CELL_CACHE.size >= 4096) ROUTE_CELL_CACHE.clear();
+  ROUTE_CELL_CACHE.set(value, role);
+  return role;
 }
 
-/**
- * A target column is evidenced by a cell designating a declared unit, not by the header spelling
- * or by a unit merely mentioned inside a request. Normalise links and decoration, then recognise
- * a designation (optionally a load/dispatch command or a list of units).
- */
-function routeDesignation(cell: string, targets: ReturnType<typeof routeTargets>): boolean {
-  if (!targets.length) return false;
-  let text = cell.replace(/[`*]/g, '').trim();
-  for (const target of targets) {
-    if (target.definition) {
-      text = text.replace(/\[[^\]]+\]\([^)]*\)/g, target.target);
-    }
-    const escaped = target.target.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    text = text.replace(new RegExp(`(?<![\\w-])/?${escaped}(?![\\w-])`, 'g'), '@');
-  }
-  // A designated unit can be followed by a prerequisite or an explanation. A request such as
-  // "`auditor` fails to read receipts" is still descriptive prose, not a designation.
+function readRouteCell(value: string): RouteCell {
+  const text = value
+    .replace(/[`*]/g, '')
+    .replace(/^['"“]|['"”]$/g, '')
+    .trim();
+  if (!text) return 'fragment';
+  // Paths, quantities, dates, code-only lists and scalar categories are attribute values.
+  // They do not become requests because a table happens to contain a skill name.
   if (
-    /^(?:(?:please|always)\s+)*(?:load|use|invoke|dispatch|call)\s+(?:the\s+)?@(?=\s|[.!,:;(]|$)/i.test(text)
+    /^(?:https?:\/\/|[.~]?\/|[\w.-]+\/|[^\s@]+@)[^\s]*$/.test(text) ||
+    /^v?\d+(?:[.:-]\d+)*(?:\s*[^\s]+)?$/.test(text) ||
+    /^[\p{Sc}]\s*\d+(?:[.,]\d+)*$/u.test(text) ||
+    /^(?:\s*`[^`]+`\s*[,;/&+]?\s*)+$/.test(value)
   )
-    return true;
-  if (/^(?:the\s+)?@(?:\s+(?:skill|agent|helper))?\s*(?:→|->|[:;(])/.test(text)) return true;
-  return /^(?:(?:please|always)\s+)*(?:(?:load|use|invoke|dispatch|call)\s+)?(?:the\s+)?@(?:\s+(?:skill|agent|helper))?(?:\s*(?:(?:[,;]\s*)?(?:and|or)(?:\s+then)?|[,;]?\s*(?:then|followed\s+by)|[,;/&+→]|->)\s*(?:the\s+)?@(?:\s+(?:skill|agent|helper))?)*[.!]?$/i.test(
-    text,
-  );
+    return 'attribute';
+  const grammar = text.replace(/^(?:\p{Extended_Pictographic}|\uFE0F|\s)+/u, '');
+  const terms = nlp(grammar).termList();
+  const words = [...new Intl.Segmenter(undefined, { granularity: 'word' }).segment(grammar)].filter(
+    (segment) => segment.isWordLike,
+  ).length;
+  if (words < 2) return 'attribute';
+  if (terms.every((term) => term.tags?.has('Date') || term.tags?.has('Value') || term.tags?.has('Unit')))
+    return 'attribute';
+  if (
+    /^\p{Lu}[\p{L}’'-]+(?:\s+\p{Lu}[\p{L}’'-]+){1,2}$/u.test(text) &&
+    !terms.some((term) => term.tags?.has('Verb'))
+  )
+    return 'attribute';
+  if (/[,;]\s*\S/.test(text) && text.split(/[,;]/).every((part) => !/\s/.test(part.trim())))
+    return 'attribute';
+
+  // Grammar may strengthen a decision, but a language-specific tagger is never a gate.
+  // Distinct free multi-word phrases also describe requests in languages it cannot parse.
+  return words >= 2 ? 'request' : 'fragment';
 }
 
-/** An ISO calendar stamp is record metadata even under an opaque header; numeric request codes are not. */
-function routeRecordValue(value: string): boolean {
-  return /^\d{4}-\d{2}-\d{2}(?:T\S+)?$/.test(value);
+/** A unit used as the subject of a descriptive clause is a mention, not a target designation. */
+function tableRouteTargets(
+  cell: string,
+  file: EstateFile,
+  files: ReadonlyMap<string, EstateFile>,
+  raw: RawEstate,
+) {
+  const targets = routeTargets(cell, file, files, raw);
+  const index = routeNames(raw);
+  for (const match of cell.matchAll(index.mentions)) {
+    const target = match[1];
+    if (!target || targets.some((entry) => entry.target === target) || cell.includes(`\`${target}\``))
+      continue;
+    // A plain name inside a sentence needs designation syntax: a terminal object or an
+    // explicit unit noun. Otherwise an ordinary word that is also a skill can be incidental.
+    const before = cell.slice(0, match.index).replace(/[*]/g, '').trim();
+    const after = cell
+      .slice((match.index ?? 0) + match[0].length)
+      .replace(/[*]/g, '')
+      .trim();
+    if (before && !/^[.!]*$/.test(after) && !/^(?:skill|agent|helper)\b/i.test(after)) continue;
+    targets.push({ target, isSkill: index.skills.has(target) });
+  }
+  if (!targets.length || targets.some((target) => target.definition)) return targets;
+  const plain = cell.replace(/[`*]/g, '').trim();
+  const first = targets
+    .map((target) => ({ target, at: plain.indexOf(target.target) }))
+    .filter((entry) => entry.at >= 0)
+    .sort((a, b) => a.at - b.at)[0];
+  if (!first) return [];
+  const prefix = plain.slice(0, first.at).replace(/\/$/, '').trim();
+  if (prefix && !/^(?:the)$/i.test(prefix)) {
+    const terms = nlp(prefix).termList();
+    return terms.some((term) => term.tags?.has('Negative') || term.normal === 'never') ? [] : targets;
+  }
+  const tail = plain
+    .slice(first.at + first.target.target.length)
+    .replace(/^\s+(?:skill|agent|helper)\b/i, '')
+    .trim();
+  if (!tail || /^[,;:()[\]—–→-]/.test(tail)) return targets;
+  const predicate = nlp(tail).termList()[0];
+  return !predicate?.tags?.has('Verb') || predicate.tags.has('Infinitive') ? targets : [];
+}
+
+/** Repeated short values identify categories; distinct free phrases identify requests. */
+function routeColumn(values: string[]): RouteCell {
+  const nonempty = values.filter((value) => value.trim() !== '');
+  if (!nonempty.length) return 'fragment';
+  const roles = nonempty.map(routeCell);
+  const counts = new Map<string, number>();
+  for (const value of nonempty) {
+    const key = value.replace(/[`*]/g, '').trim().toLowerCase();
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+  // Repeated short labels are categorical evidence, including nominal phrases that an
+  // English tagger might also parse as verbs. A unique free phrase needs no English parse.
+  if (
+    nonempty.length > 1 &&
+    nonempty.every(
+      (value) =>
+        value.trim().split(/\s+/).length <= 4 &&
+        (counts.get(value.replace(/[`*]/g, '').trim().toLowerCase()) ?? 0) > 1,
+    )
+  )
+    return 'attribute';
+  if (roles.every((role) => role === 'attribute')) return 'attribute';
+  if (roles.every((role) => role === 'request')) return 'request';
+  return 'fragment';
+}
+
+function ambiguousRouteTable(
+  raw: RawEstate,
+  file: EstateFile,
+  startLine: number,
+  endLine: number,
+  targets: Array<{ target: string; isSkill: boolean }>,
+): void {
+  const message = `Ambiguous routing table at lines ${startLine}-${endLine}: cell content does not decide request versus inventory; model review required.`;
+  if (!raw.notes.some((note) => note.file === file.path && note.message === message))
+    raw.notes.push({ file: file.path, message });
+  const candidates = [
+    ...new Map(
+      targets.map((target) => [
+        `${target.isSkill}:${target.target}`,
+        { name: target.target, kind: target.isSkill ? ('skill' as const) : ('subagent' as const) },
+      ]),
+    ).values(),
+  ];
+  for (const chunk of raw.prose) {
+    if (chunk.file !== file.path || chunk.endLine < startLine || chunk.startLine > endLine) continue;
+    chunk.ambiguousRouting ??= [];
+    const entries = chunk.ambiguousRouting;
+    if (!entries.some((entry) => entry.startLine === startLine))
+      entries.push({ startLine, endLine, targets: candidates, dispatch: raw.labels.dispatch });
+  }
 }
 
 /** Routing is defined by a condition and an action, never by a name appearing in an arbitrary table. */
@@ -938,37 +1042,41 @@ function routeSources(
       .replace(/[.!]+$/, '')
       .trim();
   for (const table of readTables(file.text)) {
-    const headers = table.header.map(clean);
     const cells = table.rows.map((row) =>
-      headers.map((_header, column) => routeTargets(row.cells[column] ?? '', file, files, raw)),
+      table.header.map((_header, column) => tableRouteTargets(row.cells[column] ?? '', file, files, raw)),
     );
-    const actions = headers.flatMap((header, column) =>
-      !routeMetadata(header) &&
-      table.rows.some((row, index) => routeDesignation(row.cells[column] ?? '', cells[index]?.[column] ?? []))
-        ? [column]
-        : [],
+    const targetColumns = table.header.flatMap((_header, column) =>
+      cells.some((row) => (row[column]?.length ?? 0) > 0) ? [column] : [],
     );
-    // Resolve the target role from actual declarations first. The remaining descriptive column
-    // supplies the request in either direction; metadata and bare unit labels cannot supply it.
-    const condition = headers.findIndex(
-      (header, column) =>
-        !routeMetadata(header) &&
-        !actions.includes(column) &&
-        !/^(?:skills?|agents?|helpers?|targets?|handlers?)$/i.test(header) &&
-        table.rows.some((row) => {
-          const value = clean(row.cells[column] ?? '');
-          return value !== '' && !routeRecordValue(value);
-        }),
+    if (!targetColumns.length) continue;
+    const roles = table.header.map((_header, column) =>
+      routeColumn(table.rows.map((row) => row.cells[column] ?? '')),
     );
-    if (condition < 0 || !actions.length) continue;
-    for (const [index, row] of table.rows.entries()) {
-      const ask = clean(row.cells[condition] ?? '');
-      if (!ask || routeRecordValue(ask)) continue;
-      for (const action of actions) {
-        for (const target of cells[index]?.[action] ?? []) {
-          add({ ...target, ask, line: row.line, quote: row.text, via: 'table' });
-        }
+    const pairs = targetColumns.flatMap((target) =>
+      roles.flatMap((role, condition) =>
+        condition !== target && role === 'request' ? [{ target, condition }] : [],
+      ),
+    );
+    const conditions = new Set(pairs.map((pair) => pair.condition));
+    if (conditions.size === 1 && new Set(pairs.map((pair) => pair.target)).size === 1) {
+      const condition = pairs[0]?.condition;
+      if (condition === undefined) continue;
+      for (const [index, row] of table.rows.entries()) {
+        const ask = clean(row.cells[condition] ?? '');
+        if (!ask) continue;
+        for (const { target: column } of pairs)
+          for (const target of cells[index]?.[column] ?? []) {
+            add({ ...target, ask, line: row.line, quote: row.text, via: 'table' });
+          }
       }
+    } else if (!roles.every((role) => role === 'attribute')) {
+      ambiguousRouteTable(
+        raw,
+        file,
+        table.headerLine,
+        table.rows.at(-1)?.line ?? table.headerLine,
+        cells.flat(2),
+      );
     }
   }
   // Routing in prose and headings is read in the standing instructions, where routing lives; a skill body's

@@ -131,7 +131,20 @@ export type StepDecl = {
 };
 
 /** A passage of prose a model splits into atoms: the body of an instruction file. */
-export type ProseChunk = { id: string; file: string; startLine: number; endLine: number; text: string };
+export type ProseChunk = {
+  id: string;
+  file: string;
+  startLine: number;
+  endLine: number;
+  text: string;
+  /** Tables code cannot classify: the model must decide, rather than inherit a guessed route. */
+  ambiguousRouting?: Array<{
+    startLine: number;
+    endLine: number;
+    targets: Array<{ name: string; kind: 'skill' | 'subagent' }>;
+    dispatch: string;
+  }>;
+};
 
 /** A problem a reader met: a file it could not parse, a declaration with a missing field. */
 export type ReadNote = { file: string; message: string };

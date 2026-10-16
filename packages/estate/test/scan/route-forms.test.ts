@@ -71,10 +71,13 @@ describe('routing follows the role of the source text', () => {
 
   it.each([
     ['ownership without a routing header', '| Custodian | Library |\n|---|---|\n| Morgan | `parcel-plan` |'],
-    ['an unrelated catalogue', '| Publication | Package |\n|---|---|\n| Dispatch handbook | `parcel-plan` |'],
+    [
+      'a repeated publication category',
+      '| Publication | Package |\n|---|---|\n| Dispatch handbook | `parcel-plan` |\n| Dispatch handbook | `parcel-plan` |',
+    ],
     [
       'a non-action column beside a request',
-      '| Request | Who wrote it |\n|---|---|\n| arrange a pickup | `parcel-plan` |',
+      '| Request | Who wrote it |\n|---|---|\n| arrange a pickup | Morgan |',
     ],
     [
       'a non-action column beside a load',
@@ -88,7 +91,7 @@ describe('routing follows the role of the source text', () => {
     );
   });
 
-  it('reads only the action column when a request also names an author', async () => {
+  it('defers indistinguishable resource and author columns instead of guessing from their headers', async () => {
     const root = await estate({
       [skill]: declaration,
       '.claude/skills/receipt-check/SKILL.md':
@@ -96,12 +99,11 @@ describe('routing follows the role of the source text', () => {
       'CLAUDE.md':
         '| Request | Skill you load | Who wrote it |\n|---|---|---|\n| arrange a pickup | `parcel-plan` | `receipt-check` |',
     });
-    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
-    expect(
-      map.atoms
-        .filter((atom) => atom.kind === 'route' && atom.provenance.file === 'CLAUDE.md')
-        .map((atom) => atom.fields?.target),
-    ).toEqual(['parcel-plan']);
+    const { map, raw } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    expect(map.atoms.filter((atom) => atom.kind === 'route' && atom.provenance.file === 'CLAUDE.md')).toEqual(
+      [],
+    );
+    expect(raw.notes.some((note) => note.message.startsWith('Ambiguous routing table'))).toBe(true);
   });
 
   it('keeps an ordinary read of a skill definition as a reference', async () => {
