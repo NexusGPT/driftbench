@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { type EstateMap, loadEstateMap } from '@agent-nexus/driftbench-estate';
 import { cli } from './bench';
-import { FIXTURE, fixtureSuite, runOnFake } from './fixture-suite';
+import { FIXTURE, fixtureSuite, machineFailure, runOnFake, runOnFakeDetailed } from './fixture-suite';
 import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
 
 /**
@@ -141,12 +141,17 @@ async function judge(
       pass: false,
       detail: `estate mutate refused the ${cell.op} of ${atom}: ${made.out.trim().slice(0, 140)}`,
     };
-  const verdicts = runOnFake(
+  const verdicts = runOnFakeDetailed(
     mutant,
     green.map((spec) => spec.path),
     join(mutant, 'runs.db'),
   );
-  const red = green.filter((spec) => verdicts.get(spec.id) === false);
+  // Red is a run that reached its end and failed a check the evidence decides: not a run that broke off, and
+  // not a judged criterion, which the stand-in judge cannot decide.
+  const red = green.filter((spec) => {
+    const run = verdicts.get(spec.id);
+    return run?.completed === true && !run.pass && run.failing.some(machineFailure);
+  });
   return red.length > 0
     ? { pass: true, detail: `${red[0]?.id} turns red` }
     : {

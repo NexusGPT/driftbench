@@ -114,8 +114,8 @@
       "needs_then": 0,
       "cut": false,
       "measures": {
-        "hill_q0": 307,
-        "pielou": 0.908794265294,
+        "hill_q0": 306,
+        "pielou": 0.908766113161,
         "machine_then_share": 1,
         "judged_only_blocks": 0
       }
@@ -3942,6 +3942,18 @@
       "value": "not-given",
       "blocks": 1,
       "specs": ["gen-boundary-085"]
+    },
+    {
+      "dimension": "flow",
+      "value": "price-sheet",
+      "blocks": 0,
+      "specs": [],
+      "unsaid": [
+        {
+          "text": "Build the price sheet from catalog.csv, one sheet per category.",
+          "reasons": ["no approved path walks the flow price-sheet"]
+        }
+      ]
     }
   ],
   "no_then": [
@@ -9778,13 +9790,13 @@
       "chao_coverage": 0.9873171242382525,
       "chao1": 998.0178279408511,
       "hill_q0": 708,
-      "hill_q1": 300.684864459138,
-      "hill_q2": 188.22134190339236,
-      "pielou": 0.869502684199,
+      "hill_q1": 300.676199087735,
+      "hill_q2": 188.18397648886298,
+      "pielou": 0.869498292665,
       "t3_share": 0.7204724409448819,
       "t3_allowed": 4064,
       "weighted_share": 0.999999999999909,
-      "effective_sample_size": 218.7317337159303,
+      "effective_sample_size": 218.73289934805663,
       "required_covered": 10,
       "required_total": 10,
       "axis_behaviour": 14,

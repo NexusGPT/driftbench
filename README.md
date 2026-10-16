@@ -31,7 +31,7 @@
 driftbench is an open-source evaluation framework for AI agents: chat agents, and agents that write code and files. You describe a conversation or a task as a list of **blocks**. A block is one user message, everything the agent does in reply, and what must be true afterwards. driftbench runs the blocks against your agent, checks each one, and reports every rate with its interval.
 
 - **A failure has an address.** A failing run names the block, the check and the evidence, such as `block 1 forbidden.order.create`.
-- **You are told when a score is noise.** Every rate carries a 95% interval, and the gate says how many test conversations your suite needs before it can show anything.
+- **You are told when a score is noise.** Every rate carries a 95% interval, and the gate says how many test conversations your suite needs before it can show anything. Repeats of one conversation are not independent runs, so a rate over them is read through its design effect (Wilson on the effective sample), and the headline of a suite is the mean over conversations with a hierarchical interval. See [statistics](docs/concepts/statistics.md#the-suite-headline).
 - **The tests are not written by hand.** Code generates them from a map of what the agent can face, and counts what they cover.
 - **The evaluator is tested too.** driftbench checks its own scores on cases where the right answer is known.
 
@@ -139,7 +139,7 @@ Next: [evaluate your own agent](#evaluate-your-own-agent), [add a judge](#add-a-
 
 ## What makes it different
 
-Four ideas lead. Each one changes what you learn when a test fails, and what it costs to find out.
+Nine ideas lead. Each one changes what you learn when a test fails, and what it costs to find out.
 
 ### Tests written by code
 
@@ -156,43 +156,131 @@ Four ideas lead. Each one changes what you learn when a test fails, and what it 
 - **Why it matters.** You know what your tests cover, and a test is kept only if it catches a bug planted on purpose. You stop paying for tests that cannot catch anything.
 - **Impact.** On our example agent, every pair of settings is covered with 5.8 times fewer tests than all the combinations. [How we measured](docs/comparison/methods.md#tests-written-by-code)
 
-### Blocks: see which step failed
+### Blocks: test each step and find the fix
 
 <a href=".github/readme/blocks-diff-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/blocks-diff-dark.png">
-    <img alt="A sales conversation with a bug. Other tools: one score for the whole conversation, seven steps, fail, and you read the transcript to find which step broke. driftbench: a verdict for every step. Number, offer and details pass; recap and order fail; the two closing steps pass. Expected: read the order back to the customer. Got: placed the order without a recap." src=".github/readme/blocks-diff-light.png" width="100%">
+    <img alt="A sales conversation, with a verdict on each step. Number, offer and details pass; recap and order fail; both closing steps pass. The recap block opens below. Given: the customer has chosen a plan. When: the customer says, That plan, please. Then: read the order back and wait for confirmation. Got: the agent placed the order. The parent is the details block, whose end state supplies the starting point. The persona is an impatient customer who gives short replies. Source links point to the prompt's recap section, the spec's confirmation clause and a past conversation turn. The deciding rule says no order call at this step. The verdict is fail, and the rule lives in a file the reader can change. This is an illustration; the note below lists the parts on their way." src=".github/readme/blocks-diff-light.png" width="100%">
   </picture>
 </a>
-<p align="center"><sub>A recorded run: an agent with a bug that skips the order recap.</sub></p>
+<p align="center"><sub>The order recap as a block, with its starting point, customer, sources and deciding rule. An illustration.</sub></p>
 
+**Each step carries its starting point, expected result and source, so a failed test points to the rule and the place to fix.**
 
-**See which step failed, and why, instead of reading a whole transcript.**
+- **What it is.** A block is one step with its own starting point (Given), user turn (When) and expected result (Then). A simulated person, called a persona, can play it. A parent block can supply its starting point from that parent's end state. Links point to the prompt lines and spec clauses it tests, or the past conversation turn it came from. Every verdict names the rule that decided it, and you can change any rule in a file. The fault finder reads the evidence to name who is at fault and where to fix it. It leaves the check's verdict unchanged.
+- **Why no other framework does it.** The seven tools we read score a whole scenario, test row, conversation, sample, dataset item or trace. See row 1 of our [comparison](docs/comparison.md#where-driftbench-is-ahead). A verdict per step needs each step to carry its own starting point and expected result. The block stores both.
+- **Measured impact.** On the Acme sales assistant, dropping a coverage check fails 86 conversations containing 413 blocks. A conversation score marks all 413 blocks; driftbench marks the 86 that fail. For eight of nine planted faults, failing blocks account for 18 to 40 percent of the blocks in failed conversations. Sources: [gate-report.json](examples/acme/gated/gate-report.json) and [chart-facts.csv](docs/assets/data/chart-facts.csv). [How we measured](docs/comparison/methods.md#blocks-a-failure-you-can-diagnose). The [fault study](https://github.com/achammah/driftbench/pull/441) tests the suggested fix. Changing the tool description removed 86 coverage lookup failures in 249 runs; 29 exact assertion failures remained.
 
-- **What it is.** A conversation is split into steps, which driftbench calls blocks. Each block has its own starting point and its own expected result, so each block passes or fails on its own. The report names the block, the check and the evidence.
-- **Why no other framework does it.** The seven tools we read score a whole scenario, test row, conversation, sample, dataset item or trace (row 1 of our [comparison](docs/comparison.md#where-driftbench-is-ahead)). A verdict per step needs every step to carry its own starting point and expected result, and the driftbench spec format is built that way.
-- **Measured impact.** On the Acme sales assistant, the fault that drops a coverage check fails 86 conversations that hold 413 blocks. A whole-conversation score marks all 413 blocks; driftbench marks the 86 that fail. For eight of the nine planted faults, the failing blocks are 18 to 40 percent of the blocks of the conversations that fail. Sources: [gate-report.json](examples/acme/gated/gate-report.json) and every count in [chart-facts.csv](docs/assets/data/chart-facts.csv). [How we measured](docs/comparison/methods.md#blocks-a-failure-you-can-diagnose)
+<sub>Counts cover 195 conversations and 861 blocks. The ninth fault, a wrong language, fails all 826 blocks in the 171 failed conversations. On its way: source links ([#423](https://github.com/achammah/driftbench/pull/423), [#429](https://github.com/achammah/driftbench/pull/429), [#433](https://github.com/achammah/driftbench/pull/433)); parents ([#416](https://github.com/achammah/driftbench/pull/416)). Parent blocks have research results; their integration is not built. Rule files and verdict stamps are on their way ([#443](https://github.com/achammah/driftbench/pull/443), [#449](https://github.com/achammah/driftbench/pull/449)). The fault finder is on its way ([#447](https://github.com/achammah/driftbench/pull/447), [#451](https://github.com/achammah/driftbench/pull/451), [#453](https://github.com/achammah/driftbench/pull/453)).</sub>
 
-<sub>Counts are over the 195 conversations and 861 blocks of the gated Acme suite. The ninth fault, a wrong language, fails 826 of the 861 blocks: every block of the 171 conversations that fail.</sub>
+### Trace the source: find the line to inspect
+
+<a href=".github/readme/block-sources-light.png">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/block-sources-dark.png">
+    <img alt="A fictional Acme order test fails because the agent places an order without a recap. Arrows connect the failed block to three source excerpts. Prompt line 18 says, Place the order when the customer picks a plan. Skill file checkout.md line 8 says, Read the order back. Tool description order.create line 3 says, Creates the chosen order. The test checks spec clause 4, Wait for customer confirmation. A ranked list repeats each suspect's location and line text, with prompt line 18 first. The ranking is illustrative and does not establish the cause." src=".github/readme/block-sources-light.png" width="100%">
+  </picture>
+</a>
+<p align="center"><sub>A fictional Acme prompt, skill and tool description. The highlighted line is the first place to inspect.</sub></p>
+
+**Follow a failed step to its source passage, with the leading suspects and their text beside the verdict.**
+
+- **What it is.** You link a block to the prompt passage or spec clause it tests. Recorded file and line locations can also point to a skill rule or tool description. The report shows the location and quoted text when that evidence exists. The fault finder ranks likely fixes; the prompt ranking orders suspect sections from the blocks that pass and fail. A suspect is a place to inspect, not proof of the cause.
+- **Why no other framework does it.** A trace records what the agent did. Tracing a failure to instructions also needs links from tests to their sources. Our [comparison](docs/comparison.md) covers test units and traces, but does not establish exclusivity for source diagnosis.
+- **Measured impact.** In the [fault study](https://github.com/achammah/driftbench/pull/441), automatic evidence agreed with the reference classification on 182 of 182 runs. Changing the tool description reduced coverage lookup failures from 86 of 249 runs to 0; 29 exact assertion failures remained. The [prompt study](https://github.com/achammah/driftbench/pull/421) found 12 of 26 sections with no mutant that failed a test, exposing gaps to investigate.
+
+<sub>Source tracing is on its way ([#423](https://github.com/achammah/driftbench/pull/423), [#429](https://github.com/achammah/driftbench/pull/429), [#433](https://github.com/achammah/driftbench/pull/433)). Fault finding is on its way ([#447](https://github.com/achammah/driftbench/pull/447), [#451](https://github.com/achammah/driftbench/pull/451), [#453](https://github.com/achammah/driftbench/pull/453)). Prompt ranking operates on sections; other file locations need recorded provenance. The figure illustrates the intended combined view. The reference classification was scripted and hand checked; it was not an independent human study. The registered ranking method failed its comparison, so these results do not establish ranking accuracy.</sub>
+
+### Personas: play one test as different customers
+
+<a href=".github/readme/block-personas-light.png">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/block-personas-dark.png">
+    <img alt="One recap test runs with terse, chatty and pushy customers. Illustrative turns contain 3, 9 and 5 words. H10 measured short turns at 38.2% for humans, 38.0% for the engine and 2.0% for prompting. A persona without the required account receives not_run. The HF10 grid found no persona effect on the test agent." src=".github/readme/block-personas-light.png" width="100%">
+  </picture>
+</a>
+<p align="center"><sub>The test stays the same while the customer changes. Behaviour comes from numeric draws outside the language model.</sub></p>
+
+**Run the same test with terse, chatty and pushy customers, and see whether the agent handles them differently.**
+
+- **What it is.** A persona describes the customer; the test describes what they want and what must happen. Numbers control behaviours such as short replies and questions. The engine draws those behaviours, then the model writes the message. A persona that cannot play the test is refused with a reason. The grid compares results and reports when no effect appears.
+- **Why no other framework does it.** [Simulated users appear in other tools](docs/comparison.md); they are not unique to driftbench. The separate persona and test let you change the customer while keeping the expected result fixed. The studies below test behaviour draws and conflicts, not superiority over peer frameworks.
+- **Measured impact.** In the [human simulation study](https://github.com/achammah/driftbench/pull/418), the engine produced short turns 38.0 percent of the time. Human dialogues had 38.2 percent; prompting alone had 2.0 percent. In the [persona study](https://github.com/achammah/driftbench/pull/444), negating a language rule flipped 10 of 11 French cells and 0 of 11 English cells. The loader refused all 30 planted conflicts and none of 30 clean cases. The original grid flag failed its control. The exact test found no persona effect on the test agent, and the grid reports that result.
+
+<sub>Persona integration is on its way ([#418](https://github.com/achammah/driftbench/pull/418), [#444](https://github.com/achammah/driftbench/pull/444)). Basic simulated users already ship. The human reference is crowd workers playing support scenarios. The grid study covers one agent and 20 blocks; different customer styles did not produce different pass rates.</sub>
+
+### Parent blocks: share the start and count the cause once
+
+<a href=".github/readme/block-parents-light.png">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/block-parents-dark.png">
+    <img alt="The details block passes and supplies the recap block's starting state. The recap fails because the agent skips confirmation. Its order and receipt children are blocked. An independent opening hours test passes. The report counts one failure." src=".github/readme/block-parents-light.png" width="100%">
+  </picture>
+</a>
+<p align="center"><sub>A child starts where its parent ended. A failed parent blocks its children; an independent test keeps its result.</sub></p>
+
+**Reuse an opening across tests and count an inherited failure once, instead of blaming every later step.**
+
+- **What it is.** A parent block supplies its end state as a child's starting point. Several tests can share that opening. If the parent fails, its children show as blocked. They do not add copies of the same failure. Independent failures stay separate. An isolation check tests whether a child needs state from its parent.
+- **Why no other framework does it.** A list of conversation turns does not itself declare which test depends on which starting state. Parent links make that dependency explicit. Our [comparison](docs/comparison.md) does not establish exclusivity for parent state or inherited failure counts.
+- **Measured impact.** In the [parent study](https://github.com/achammah/driftbench/pull/416), grouping inherited failures reduced root count error to 8.4, against 38.2 with flat linked counting. That result is a simulation on the Acme parent tree. On a live test agent, isolation checks caught 8 of 8 eligible planted dependencies and flagged 0 of 9 negative controls.
+
+<sub>Parent state sharing and blocked children are on their way ([#416](https://github.com/achammah/driftbench/pull/416), [#428](https://github.com/achammah/driftbench/pull/428)). The research does not implement parent execution in the package. Independent flaky failures can still inflate the root count. The isolation study tests conversation history; finer dependencies on stored facts or tool state remain untested.</sub>
+
+### Value checks: ask the tool what the value means
+
+<a href=".github/readme/block-values-light.png">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/block-values-dark.png">
+    <img alt="Two phone formats, +1 202 555 0131 and +12025550131, enter an illustrative lookup tool. Matching records pass; unresolved values continue to another check. A note explains that storing a number cannot establish equality. Acme measurements show 59 of 116 format disputes settled by the tool." src=".github/readme/block-values-light.png" width="100%">
+  </picture>
+</a>
+<p align="center"><sub>A tool that resolves both values can settle the comparison. A tool that only stores them cannot.</sub></p>
+
+**Accept equivalent values when the tool confirms them, and keep unresolved differences open for the next check.**
+
+- **What it is.** The check tries the agent's value and the expected value with the tool. A lookup can show whether `+1 202 555 0131` and `+12025550131` reach the same record. Matching strings alone cannot answer that. If the tool only stores a value, the comparison moves to the next check. Acme's phone tool only stores values, so it does not settle those phone comparisons.
+- **Why no other framework does it.** The [value study](https://github.com/achammah/driftbench/pull/441) compares this method with exact matching and a normaliser. It does not establish exclusivity across frameworks. The distinction is the evidence: a resolving tool can answer whether two spellings reach the same record.
+- **Measured impact.** The tool settled 59 of 116 format disputes. It agreed on all 49 settled cases with reference labels; the other 10 had disputed labels. The full value check made 0 false passes and 0 false fails on 249 labelled runs. The simpler normaliser did too, so the study did not establish superiority over it. Source: [value study](https://github.com/achammah/driftbench/pull/441).
+
+<sub>The value check is on its way ([#459](https://github.com/achammah/driftbench/pull/459)). Tool replay requires a configured replayer; unresolved values stay inconclusive. The phone lookup in the figure is fictional. The measured tool results concern the Acme tools; no resolving phone lookup ran in that study.</sub>
+
+### Rule files: change the rule and score the run again
+
+<a href=".github/readme/block-rules-light.png">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/block-rules-dark.png">
+    <img alt="Default rules feed an editable project rule file. The order timing rule prohibits an order call at this step. The failed verdict names that rule and records the agent's order. Stored runs receive the changed scoring rule with zero agent calls. Default rules preserve every verdict across 259 recorded runs." src=".github/readme/block-rules-light.png" width="100%">
+  </picture>
+</a>
+<p align="center"><sub>Your rule file supplies the decision. The verdict names the rule and its configuration layer when a stored run is scored again.</sub></p>
+
+**Change how a result is scored, inspect the rule behind each verdict, and reuse the recorded agent response.**
+
+- **What it is.** Rules live in files with named items. Your file extends the defaults and changes the items you choose. Every verdict names its deciding rule and configuration layer. A scoring change can evaluate stored runs again without calling the agent. A change to what the agent receives requires another run.
+- **Why no other framework does it.** Our [comparison](docs/comparison.md) covers checks, judges and cached calls. It does not compare editable rule files or verdict stamps. Here, the file that sets a rule and the verdict that applies it remain linked, so a score can be inspected.
+- **Measured impact.** The [framework prototype](https://github.com/achammah/driftbench/pull/437) changed 0 of 2,351 existing spec hashes. Its default rules changed 0 verdicts across 259 stored runs. A project scoring rule change scored all 259 runs again with 0 agent calls. A model change required 777 adapter calls on those runs.
+
+<sub>Rule files and verdict stamps are on their way ([#443](https://github.com/achammah/driftbench/pull/443), [#449](https://github.com/achammah/driftbench/pull/449)). The compatibility and scoring results come from a prototype. One override also changed 36 aggregate verdicts outside its target, so the study did not prove isolated rule changes.</sub>
 
 ### Blast radius: rerun only what a change touches
 
 <a href=".github/readme/blast-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/blast-dark.png">
-    <img alt="One change, to the order recap, and four test conversations drawn step by step. The steps that use the recap are lit, and so are the steps after them. One conversation has no recap and is skipped, its earlier result kept. This change: 30 percent of the tests skipped, same failures found." src=".github/readme/blast-light.png" width="100%">
+    <img alt="A fictional Acme prompt has one edited line, line 18: Read the order back and wait for confirmation. Lines 17 and 19 stay unchanged. Arrows connect the edited line to recap blocks in three test conversations. Those linked blocks glow blue. Steps that inherit their state are also selected. A fourth conversation has no linked block; its results are kept from the last run. A legend separates linked tests, inherited state and kept results. This is an illustration of the intended source selection; source links currently advise selection and do not skip tests." src=".github/readme/blast-light.png" width="100%">
   </picture>
 </a>
-<p align="center"><sub>A change reruns the steps that use what changed, and the steps after them.</sub></p>
+<p align="center"><sub>Edit one prompt line, follow its links to the tests, and keep the other results. Fictional Acme example.</sub></p>
 
+**See which tests an edited prompt line can affect, then rerun the declared blast radius and keep the other results.**
 
-**Change one part of your agent and rerun only the tests it can affect, so a pull request pays for what it can break.**
+- **What it is.** Every block says what it uses. A link from a prompt passage identifies tests to inspect when that passage changes. Source links advise selection; they do not yet skip tests. The running planner uses declared dependencies to rerun affected blocks and steps that inherit their state. It keeps the other results from the last run. When it cannot tell, it reruns everything. The nightly run still covers everything.
+- **Why no other framework does it.** LangWatch Scenario and Inspect cache model calls; promptfoo and DeepEval document part of a cache. See row 22 of our [comparison](docs/comparison.md). A cache replays a call that has not changed. Choosing tests for an edited instruction needs each test to say what it reads, which blocks do.
+- **Measured impact.** On Acme, a recap change sends 606 of 867 blocks and fails on the same 102 cells as a full run. That sends about 30 percent fewer blocks. For a tool input change, each block runs alone. The radius sends 86 of 867 blocks, 90.1 percent fewer; the same 86 blocks fail as in a full run. A change to the price sheet task family skips 95.9 percent. The reply language rule affects every block, so it skips none. A fault outside the declared change is caught by the audit, which then sends all 867 blocks. Sources: [blast-radius.md](docs/concepts/blast-radius.md), [radius-carry.test.ts](packages/cli/test/radius-carry.test.ts), [radius-blocks-acme.test.ts](packages/cli/test/radius-blocks-acme.test.ts), [contained.test.ts](examples/acme/test/radius/contained.test.ts). [How we measured](docs/comparison/methods.md#blast-radius-rerun-only-what-a-change-touches). Separately, the [prompt study](https://github.com/achammah/driftbench/pull/421) selected 19.9 percent of the suite on average, but missed failures for 3 of 90 mutants. Those are selection results, not shipped rerun savings.
 
-- **What it is.** Every block says what it uses. When you change one part of your agent, driftbench reruns the blocks that use it and keeps the other results from the last run. When it cannot tell, it reruns everything. The nightly run still covers everything.
-- **Why no other framework does it.** LangWatch Scenario and Inspect cache model calls, and promptfoo and DeepEval document part of a cache (row 22 of our [comparison](docs/comparison.md)). A cache replays a call that has not changed. Choosing the tests a change can affect needs each test to say what it reads, which blocks do.
-- **Measured impact.** On the Acme example, for a change to the recap, a radius run sends 606 of 867 blocks and fails on the same 102 cells as a full run. For a change to one tool's input, where each block runs on its own, it sends 86 of 867 blocks, 90.1 percent fewer, and the same 86 blocks fail as in a full run. A change to the price sheet task family skips 95.9 percent. A change that every block depends on, the reply language rule, skips none, and the radius says so. A fault planted outside the declared change is caught by the audit, which then sends all 867 blocks. Sources: [blast-radius.md](docs/concepts/blast-radius.md), [radius-carry.test.ts](packages/cli/test/radius-carry.test.ts), [radius-blocks-acme.test.ts](packages/cli/test/radius-blocks-acme.test.ts), [contained.test.ts](examples/acme/test/radius/contained.test.ts). [How we measured](docs/comparison/methods.md#blast-radius-rerun-only-what-a-change-touches)
-
-<sub>The planner counts 861 scored blocks; a run also sends six blocks that are not scored, which is why a run reports 867. Without end-state snapshots the second change sends 376 of 867. The radius holds when the change you declare lists everything that changed; the audit samples cells to check that, and a sample can miss. `driftbench radius` and `campaign run --change` are on main.</sub>
+<sub>The planner counts 861 scored blocks. A run also sends six unscored blocks, giving 867. Without end state snapshots, the tool input change sends 376 of 867. The declared change must cover everything that changed. The audit samples cells and can miss a fault. `driftbench radius` and `campaign run --change` are on main. Source selection is on its way ([#423](https://github.com/achammah/driftbench/pull/423), [#429](https://github.com/achammah/driftbench/pull/429), [#433](https://github.com/achammah/driftbench/pull/433)). The prompt study missed failures for 8.2 percent of mutants when changes touching two sections were included.</sub>
 
 ### Mixture of Judges: the right judge for each answer
 
@@ -240,7 +328,7 @@ Four ideas lead. Each one changes what you learn when a test fails, and what it 
 </a>
 
 **Write and generate tests**
-- [Specs](docs/reference/spec.md): one conversation or one task as YAML blocks, each with a Given, a When and a Then.
+- [Specs](docs/reference/spec.md): one conversation or task as blocks. Each carries a starting point (Given), a user turn (When) and an expected result (Then).
 - [Generated tests](docs/generating.md): code writes the blocks from an approved map of situations, and reports the pairs of values they cover.
 - [Tests from production](docs/traces.md): draft specs from OpenTelemetry, Nexus or Claude Code traces, or from [a spreadsheet](docs/datasets.md).
 
@@ -253,6 +341,9 @@ Four ideas lead. Each one changes what you learn when a test fails, and what it 
 - [37 machine checks](docs/reference/checks.md): tool calls and their arguments, text, language, personal data, end state, files, spreadsheets, cost.
 - [Judges](docs/concepts/judges.md): a model judges what code cannot, must quote its evidence, and a panel votes when the first judge is unsure.
 - [Hand labels](docs/viewer.md): label blocks in a local viewer and measure each judge against them.
+- [Block rules and fault finding](#blocks-test-each-step-and-find-the-fix): trace a verdict to its rule file and a failure to its fix.
+
+<sub>Rule files and fault finding are on their way ([#443](https://github.com/achammah/driftbench/pull/443), [#449](https://github.com/achammah/driftbench/pull/449), [#447](https://github.com/achammah/driftbench/pull/447), [#451](https://github.com/achammah/driftbench/pull/451), [#453](https://github.com/achammah/driftbench/pull/453)).</sub>
 
 **Measure variance**
 - [Intervals on every rate](docs/concepts/statistics.md), repeats, and the share of runs that pass every time.
@@ -473,14 +564,17 @@ An agent can pass every step on its own and still fail the whole conversation. R
 <a href=".github/readme/council-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/council-dark.png">
-    <img alt="How a verdict is reached. First, rules checked by code: tools, text, language, personal data, end state; a rule that fails is final. Then three fast judges, which answer one yes or no question, or three expert judges, models from different labs that reason it through. The majority of three wins; a split goes to the other kind of judge; an unsure answer is judged again and never counted. Below, a judge earns its place: two examples, one bad and one good; it tells them apart 3 times out of 3; it agrees with your own labels; then it judges, and ties go to the fast judge." src=".github/readme/council-light.png" width="100%">
+    <img alt="How a verdict is reached. First, rules checked by code: tools, text, language, personal data, end state; a rule that fails is final. Then three fast judges, which answer one yes or no question, or three expert judges, models from different labs that reason it through. The majority of three wins; a split goes to the other kind of judge; an unsure answer is judged again and never counted. A judge earns its place by telling a bad example from a good one 3 times out of 3. It must agree with your labels. Ties go to the fast judge." src=".github/readme/council-light.png" width="100%">
   </picture>
 </a>
-<p align="center"><sub>Rules first, then fast or expert judges, each one tested before it may judge.</sub></p>
+<p align="center"><sub>Rules first, then fast or expert judges, each one tested to earn its place.</sub></p>
 
 - **Machine checks first.** Code checks everything code can check. A machine fail is final.
-- **Earned on evidence.** A judge owns a criterion only if it separates a failing transcript from a clean one 3 times out of 3 and agrees with hand labels at a kappa of 0.8 or more.
+- **Earned on evidence.** A judge must separate a failing transcript from a clean one 3 times out of 3. It must also agree with hand labels at a kappa of 0.8 or more.
 - **Strict verdicts.** Majority of three. A split goes to the other class of judge. An inconclusive answer is judged again and never counted. A judge never shares the agent's model family.
+- **Rules you can inspect.** Every verdict names its deciding rule. You can change that rule in a file and score the stored run again.
+
+<sub>Rule files and verdict stamps are on their way ([#443](https://github.com/achammah/driftbench/pull/443), [#449](https://github.com/achammah/driftbench/pull/449)).</sub>
 
 → [judges](docs/concepts/judges.md)
 
@@ -516,11 +610,15 @@ The gate turns all of this into an exit code: parity, regression, or not enough 
 
 ### Fixing the block that failed
 
-The verdict names the block, the stage and the check, with the evidence. You fix that part of the agent, not the whole prompt.
+The verdict names the block, the stage and the check, with the evidence. The fault finder reads that evidence and names who is at fault and where the fix belongs. A failed tool call can point to the tool description; a missing order recap can point to the prompt. The diagnosis never changes a failed check into a pass.
+
+<sub>The fault finder is on its way ([#447](https://github.com/achammah/driftbench/pull/447), [#451](https://github.com/achammah/driftbench/pull/451), [#453](https://github.com/achammah/driftbench/pull/453)).</sub>
 
 ### Rerunning the blast radius
 
-The fix maps to the blocks it can affect. driftbench reruns those and carries the rest from the last run, then the gate decides again. The nightly run still covers everything. See [blast radius](#blast-radius-rerun-only-what-a-change-touches).
+The fix maps to the blocks it can affect through their declared dependencies. driftbench reruns affected blocks and any steps that inherit their state. It carries the other results from the last run. When it cannot tell what the change touches, it reruns everything. The gate decides again, and the nightly run still covers everything. Source links advise which blocks to run; they do not skip tests. See [blast radius](#blast-radius-rerun-only-what-a-change-touches).
+
+<sub>Source links are on their way ([#423](https://github.com/achammah/driftbench/pull/423), [#429](https://github.com/achammah/driftbench/pull/429)).</sub>
 
 Concepts in the docs: [block](docs/concepts/block.md) · [Given, When, Then](docs/concepts/given-when-then.md) · [run modes](docs/concepts/run-modes.md) · [judges](docs/concepts/judges.md) · [statistics](docs/concepts/statistics.md)
 
@@ -537,7 +635,7 @@ From code, wrap your agent in an adapter. Save this as `run.mjs` and run `node r
 ```js
 import { functionAdapter } from '@agent-nexus/driftbench-adapters';
 import { defaultChecks } from '@agent-nexus/driftbench-checks';
-import { loadSpecFile, runSpec } from '@agent-nexus/driftbench-core';
+import { blockStatus, loadSpecFile, runOutcome, runSpec } from '@agent-nexus/driftbench-core';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 
 // Your agent: any async function from the conversation so far to a reply.
@@ -574,8 +672,8 @@ const run = await runSpec(loaded.spec, {
   mode: 'F',
   repeat: 0,
 });
-for (const block of run.blocks) console.log(`block ${block.index}: ${block.pass ? 'pass' : 'fail'}`);
-process.exit(run.blocks.every((block) => block.pass) ? 0 : 1);
+for (const block of run.blocks) console.log(`block ${block.index}: ${blockStatus(block)}`);
+process.exit(runOutcome(run) === 'pass' ? 0 : 1);
 ```
 
 ```
@@ -854,32 +952,27 @@ A panel that sees only the unsure cases lifts the MM-Eval score from 89.49 to 91
 
 <sub>MM-Eval is a public benchmark for judges. Only 48 items went to the panel, and cost per 100 items rose from $0.2471 to $0.2646.</sub>
 
+<!-- readme-v7:start -->
 ### The shipped judge against DeepEval
 
 <a href=".github/readme/judge-leads-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/judge-leads-dark.png">
-    <img alt="Held-out judge tests where driftbench's shipped judge beats DeepEval's default metric beyond the 95% interval, of 72 cases each. Hallucination 71 against 36. Faithfulness 71 against 36. Turn relevancy 65 against 36. Completeness 70 against 46. Role adherence 72 against 63." src=".github/readme/judge-leads-light.png" width="100%">
+    <img alt="default-on-v7 against the recorded DeepEval default. Turn relevancy: 72 against 36 of 72, lead. Hallucination: 72 against 36 of 72, lead. Faithfulness: 72 against 36 of 72, lead. Completeness: 72 against 46 of 72, lead. Role adherence: 72 against 63 of 72, lead." src=".github/readme/judge-leads-light.png" width="100%">
   </picture>
 </a>
 <p align="center"><sub><a href="docs/comparison/methods.md#the-judge-on-hard-cases">How we measured</a></sub></p>
 
-On hallucination, faithfulness, turn relevancy, completeness and role adherence, the judge that ships today scores higher than DeepEval 4.2.8's default metric, by more than the 95% margin.
-
-<sub>Held-out cases, same model on both sides.</sub>
+On hallucination, faithfulness, turn relevancy, completeness and role adherence, default-on-v7 scores above DeepEval beyond the separate 95% intervals.
 
 ### Hard cases, framework by framework
 
-The shipped judge against each framework's own default judge. Bars show the cases judged correctly.
-
-<sub>Held-out hard cases, Claude Haiku 5.5 on both sides.</sub>
-
-On DeepEval, G-Eval strict uses 480 fresh cases and the opt-in setting `response-relevance` ([how](comparisons/deepeval/lead/README.md)). Knowledge retention uses 1,272 fresh cases: 1,270 against 1,272, level by the exact paired test ([how](comparisons/deepeval/lead/power/REPORT.md)).
+The v7 run returns 2,700 items across 18 rows on Claude Haiku 5.5. Peers keep their recorded answers. Earlier driftbench rows used `claude -p` with old prompts (knowledge retention mostly used the Messages API); v7 uses `createDefaultJudge` over the Anthropic Messages API. The transport difference is part of this comparison.
 
 <a href=".github/readme/hard-deepeval-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/hard-deepeval-dark.png">
-    <img alt="DeepEval hard cases, cases correct, driftbench against DeepEval default. Of 72: Hallucination 71 against 36. Faithfulness 71 against 36. Turn relevancy 65 against 36. Completeness 70 against 46. Role adherence 72 against 63. DAG 65 against 65. Task completion 72 against 72. Of 480 fresh cases: G-Eval strict 474 against 451, with the opt-in setting response-relevance. Of 1272 fresh cases: Knowledge retention 1270 against 1272, level. Two driftbench answers are inconclusive; exact paired p = 1 on 1270 complete pairs." src=".github/readme/hard-deepeval-light.png" width="100%">
+    <img alt="default-on-v7 against the recorded deepeval default. Turn relevancy: 72 against 36 of 72, lead. Hallucination: 72 against 36 of 72, lead. Faithfulness: 72 against 36 of 72, lead. Completeness: 72 against 46 of 72, lead. Role adherence: 72 against 63 of 72, lead. DAG, one node: 72 against 65 of 72, close. G-Eval, strict: 479 against 451 of 480, lead. Task completion: 72 against 72 of 72, close. Knowledge retention: 1271 against 1272 of 1272, close." src=".github/readme/hard-deepeval-light.png" width="100%">
   </picture>
 </a>
 <p align="center"><sub><a href="docs/comparison/methods.md#the-judge-on-hard-cases">How we measured</a></sub></p>
@@ -887,7 +980,7 @@ On DeepEval, G-Eval strict uses 480 fresh cases and the opt-in setting `response
 <a href=".github/readme/hard-promptfoo-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/hard-promptfoo-dark.png">
-    <img alt="promptfoo hard cases, cases correct of 72, driftbench against promptfoo default. LLM rubric 71 against 69. Personal data 72 against 71. Goal success 72 against 71. Factuality 70 against 70." src=".github/readme/hard-promptfoo-light.png" width="100%">
+    <img alt="default-on-v7 against the recorded promptfoo default. LLM rubric: 72 against 69 of 72, close. Factuality: 72 against 70 of 72, close. Personal data: 72 against 71 of 72, close. Goal success: 72 against 71 of 72, close." src=".github/readme/hard-promptfoo-light.png" width="100%">
   </picture>
 </a>
 <p align="center"><sub><a href="docs/comparison/methods.md#the-judge-on-hard-cases">How we measured</a></sub></p>
@@ -895,12 +988,38 @@ On DeepEval, G-Eval strict uses 480 fresh cases and the opt-in setting `response
 <a href=".github/readme/hard-langfuse-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/hard-langfuse-dark.png">
-    <img alt="Langfuse hard cases, cases correct of 120, driftbench against the Langfuse Correctness template: 116 against 115." src=".github/readme/hard-langfuse-light.png" width="100%">
+    <img alt="default-on-v7 against the recorded langfuse default. Reference correctness: 119 against 115 of 120, close." src=".github/readme/hard-langfuse-light.png" width="100%">
   </picture>
 </a>
 <p align="center"><sub><a href="docs/comparison/methods.md#the-judge-on-hard-cases">How we measured</a></sub></p>
 
-Every result, test by test and tool by tool: [how we measured](docs/comparison/methods.md) and the [per-tool pages](docs/comparison/index.md).
+| Judge row | Cases | driftbench v7 correct | Recorded peer correct | Standing |
+|---|---:|---:|---:|---|
+| Turn relevancy | 72 | 72 | 36 | lead |
+| DAG, one node | 72 | 72 | 65 | close |
+| Role adherence | 72 | 72 | 63 | lead |
+| Completeness | 72 | 72 | 46 | lead |
+| Hallucination | 72 | 72 | 36 | lead |
+| Faithfulness | 72 | 72 | 36 | lead |
+| Task completion | 72 | 72 | 72 | close |
+| G-Eval strict * | 480 | 479 | 451 | lead |
+| Knowledge retention | 1,272 | 1,271 | 1,272 | close |
+| LLM rubric | 72 | 72 | 69 | close |
+| Factuality | 72 | 72 | 70 | close |
+| Personal data | 72 | 72 | 71 | close |
+| Goal success | 72 | 72 | 71 | close |
+| Reference correctness | 120 | 119 | 115 | close |
+| Model-graded QA | 60 | 58 | 57 | close |
+| Model-graded fact | 60 | 58 | 59 | close |
+| Grader panel | 60 | 54 | 59 | close |
+| Panel, borderline | 60 | 60 | 60 | close |
+
+* G-Eval strict retains the explicit `response-relevance` setting. G-Eval strict and knowledge retention use exact paired tests, Holm over those two rows. Other standings use separate Wilson 95% intervals. Close means no separation under that rule.
+
+Inconclusive answers count wrong (Knowledge retention: 1; Reference correctness: 1; Grader panel: 4). They stay in the score denominator and leave the peer paired tests. Grader panel falls from 59 to 54 correct against the earlier driftbench answers; this is included in the secondary analysis.
+
+[Results, analysis and reproduction](comparisons/default-on/readme-v7/RESULT.md). Historical public benchmark rows below retain their recorded judge versions and settings.
+<!-- readme-v7:end -->
 
 ### The numbers
 
@@ -952,12 +1071,12 @@ paired-test noise. The exclusion is a post-review correction using recorded deci
 <a href=".github/readme/judge-cost-light.png">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/readme/judge-cost-dark.png">
-    <img alt="Recorded cost in US dollars per 100 judged cases, driftbench's shipped judge against the other tool's default. Inspect grader panel: 0.076 against 0.138. Inspect panel on borderline cases: 0.078 against 0.125. Inspect model-graded QA: 0.048 against 0.062. Inspect model-graded fact: 0.048 against 0.060. Langfuse Correctness template: 0.054 against 0.052." src=".github/readme/judge-cost-light.png" width="100%">
+    <img alt="Recorded USD per 100 cases, default-on-v7 over the Messages API against the recorded peer. Inspect, grader panel: 0.065 against 0.138. Inspect, panel on borderline cases: 0.067 against 0.125. Langfuse, Correctness template: 0.052 against 0.052. Inspect, model-graded QA: 0.073 against 0.062. Inspect, model-graded fact: 0.073 against 0.060." src=".github/readme/judge-cost-light.png" width="100%">
   </picture>
 </a>
 <p align="center"><sub><a href="docs/comparison/methods.md#what-a-judgement-costs">How we measured</a></sub></p>
 
-On Inspect's grader panel, driftbench spends $0.076 per 100 judged cases where the default spends $0.138, at the same score, 59 of 60.
+On Inspect's grader panel, default-on-v7 spends $0.065 per 100 cases against $0.138, and scores 54 of 60 against 59. Lower cost does not establish equal accuracy.
 
 ## How it compares
 

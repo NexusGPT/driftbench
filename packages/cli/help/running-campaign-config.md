@@ -63,7 +63,7 @@ The rules:
 * What to run comes from one place: the paths or `--dataset` of the command line when it gives any, else the file's `specs` and `dataset`.
 * Paths in the file (`specs`, `store`, personas, recordings) are read from the working folder, as the same paths on the command line are, not from the folder of the config file.
 * `campaign plan` takes only the keys it has a flag for: `targets`, `routes`, `modes`, `repeats`, `budget_usd` and `store`. Its spec paths stay on the command line.
-* The settings of a single run are never in the file: `--campaign`, `--change`, `--from`, `--audit`, `--audit-seed`, `--max-carry`, `--max-age`, `--block-reruns`, `--record-end-state-snapshots`, `--prices` and `--json`.
+* The settings of a single run are never in the file: `--campaign`, `--change`, `--from`, `--audit`, `--audit-seed`, `--max-carry`, `--max-age`, `--block-reruns`, `--record-end-state-snapshots`, `--record-realized-text`, `--prices` and `--json`.
 * `campaign resume` does not read `campaign:`: a stored campaign keeps its own cells. It reads `prices:` of `driftbench.yaml` in the working folder.
 * An unknown key under `campaign:`, or a value that does not fit, exits 2 and names it, such as `campaign.repeats`.
 

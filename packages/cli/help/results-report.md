@@ -86,8 +86,10 @@ Standard output, without `--json`:
 * `Against baseline <id>: <verdict>, margin <m> points.` with `--baseline`. The verdict is
   `non-inferior`, `regressed` or `unproven`, as `driftbench compare` decides it.
 * One `aggregate` line per criterion: `passes`, `fails` or `no runs`, the value against the threshold,
-  the Wilson 95% interval over the runs, and `decided` or `undecided: <n> runs at this rate would decide
-  it`.
+  the 95% interval of the rate, and `decided` or `undecided`. Over several goldens the interval is the Wilson
+  interval on the effective runs, printed with the goldens, the design effect and the effective runs, and an
+  undecided line says how many goldens like these (and how many runs) would decide it. With one golden it is
+  the plain Wilson interval over the runs.
 * `Wrote <files>.`
 
 The HTML file is described in `results-scorecard`: an overview, three zones (pass rate charts, tests,
@@ -118,6 +120,9 @@ The first report, on the clean campaign:
 $ driftbench report c-base --store acme.db --out acme.html --junit acme-junit.xml
 Margin auto: 14.5 points, the smallest half point at which the baseline compared with itself is non-inferior (set by the all-pass flag, 14.3 points).
 Campaign c-base: 46 runs, 46 pass, 0 fail, 0 did not complete.
+Suite pass rate, mode T: 100.0% [65.3%, 100.0%] (hierarchical 95% interval); 6 goldens, n_eff 6.0 runs (every run agrees, so each golden counts once), detectable drop 71.7 points at 80% power.
+Suite pass rate, mode F: 100.0% [65.3%, 100.0%] (hierarchical 95% interval); 6 goldens, n_eff 6.0 runs (every run agrees, so each golden counts once), detectable drop 71.7 points at 80% power.
+Suite pass rate, mode P: 100.0% [78.5%, 100.0%] (hierarchical 95% interval); 11 goldens, n_eff 11.0 runs (every run agrees, so each golden counts once), detectable drop 50.6 points at 80% power.
 Wrote acme.html and acme-junit.xml.
 ```
 
@@ -128,8 +133,11 @@ against `c-base`, and scores the config's `pass-rate:>=0.8`:
 $ driftbench report --store acme.db --baseline c-base --config examples/acme/ci/campaign.yaml --max-runs 20 --out x3.html
 Margin auto: 14.5 points, the smallest half point at which the baseline compared with itself is non-inferior (set by the all-pass flag, 14.3 points).
 Campaign c-8d7db66d5e8a: 46 runs, 20 pass, 26 fail, 0 did not complete.
+Suite pass rate, mode T: 50.0% [18.7%, 81.3%] (hierarchical 95% interval); 6 goldens, n_eff 5.0 runs (design effect 2.40), no drop detectable at 80% power.
+Suite pass rate, mode F: 50.0% [18.7%, 81.3%] (hierarchical 95% interval); 6 goldens, n_eff 5.0 runs (design effect 2.40), no drop detectable at 80% power.
+Suite pass rate, mode P: 36.4% [14.7%, 64.0%] (hierarchical 95% interval); 11 goldens, n_eff 10.0 runs (design effect 2.20), no drop detectable at 80% power.
 Against baseline c-base: regressed, margin 14.5 points.
-aggregate pass-rate >= 0.8: fails (0.43478260869565216 >= 0.8, Wilson 95% interval 0.302 to 0.578 over 46 runs, decided)
+aggregate pass-rate >= 0.8: fails (0.43478260869565216 >= 0.8, Wilson 95% interval on the effective runs 0.245 to 0.646 over 46 runs in 23 goldens (design effect 2.09, 22.0 effective runs), decided)
 Wrote x3.html.
 ```
 
@@ -139,6 +147,9 @@ The fault fails 26 of 46 runs, so the pass rate is 0.43 and the aggregate fails,
 ```text
 $ driftbench report c-base --store acme.db --out c-base.html --withhold-incomplete --spread-mode F --min-goldens 10 --margin 20
 Campaign c-base: 46 runs, 46 pass, 0 fail, 0 did not complete.
+Suite pass rate, mode T: 100.0% [65.3%, 100.0%] (hierarchical 95% interval); 6 goldens, n_eff 6.0 runs (every run agrees, so each golden counts once), detectable drop 71.7 points at 80% power.
+Suite pass rate, mode F: 100.0% [65.3%, 100.0%] (hierarchical 95% interval); 6 goldens, n_eff 6.0 runs (every run agrees, so each golden counts once), detectable drop 71.7 points at 80% power.
+Suite pass rate, mode P: 100.0% [78.5%, 100.0%] (hierarchical 95% interval); 11 goldens, n_eff 11.0 runs (every run agrees, so each golden counts once), detectable drop 50.6 points at 80% power.
 Wrote c-base.html.
 ```
 

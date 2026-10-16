@@ -28,6 +28,10 @@ export const IssueCodes = [
   'NORMALISE_INVALID',
   'SLOT_FIELD_NO_RULE',
   'SURFACE_FORM_UNAPPROVED',
+  'SPEC_SCHEMA_VERSION',
+  'LINK_BLOCK_UNKNOWN',
+  'LINK_TARGET_UNKNOWN',
+  'LINK_STALE',
 ] as const;
 
 export type IssueCode = (typeof IssueCodes)[number] | `SCHEMA_${string}`;

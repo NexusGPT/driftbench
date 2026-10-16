@@ -1,11 +1,10 @@
 {
-  "source": "Generator v4 with one run per directly requested tool call, one reply per user turn (reply_count), restated slots and phrase cover specs, and a normalise rule on each phone, email and address it compares",
   "mapHash": "7a022d4e1380",
   "hashes": {
-    "pairwise": "5c03826390290b0563b931988a81102636c9bc037762136c1baec202769f2ec1",
-    "budget-20": "5c8824aa902f73c7c9c1365850c71ec54e4b6902b5423dc8f81c6fb2aa893a31",
-    "budget-50": "e38a0042d8b338fdd56038cd885b83eceeccb0f5836e1595c6855d477d4c2b6b",
-    "budget-100": "7506ef160ee0f97dda0edbb7a9ec4d4fd9ff2e2b08e708ec0e21c08f00c7e1fa",
-    "budget-200": "f1b6e5f3510a202db03945ae60635fbbb407d39e0f02d5854418bd274bed3771"
+    "pairwise": "183e4b824e9c28be8e4c66f52a8e2cb0ec1281e45204548ba518a4f9a301c5cb",
+    "budget-20": "1a8c6fa57f4e3db2a33593e76ea2310d0c26ef65f8641b7df5c3a4f84f315d47",
+    "budget-50": "cc0c178affa6e65e2b478d7914f3be926746da3154688842630f605a847164f6",
+    "budget-100": "1f81dd51bc2e20b1a63c4cef00e25fe776a25fa2b3eafc6c43028f5d3184dc56",
+    "budget-200": "daf60ad31cd593fa1e69fd066ec7852eb87ab2e3799c1995f2ba5d561170f400"
   }
 }

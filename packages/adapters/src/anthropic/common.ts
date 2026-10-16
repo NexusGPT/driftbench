@@ -346,7 +346,7 @@ export function observedOf(
   usage: Usage,
   latencyMs: number,
   source: string,
-  extra: Partial<Pick<Observed, 'runtime' | 'raw'>> = {},
+  extra: Partial<Pick<Observed, 'runtime' | 'raw' | 'historyNormalizations'>> = {},
 ): Observed {
   return parseObserved(
     {
@@ -367,6 +367,19 @@ export function observedOf(
  */
 export function outputText(output: unknown): string {
   return typeof output === 'string' ? output : JSON.stringify(output ?? null);
+}
+
+/**
+ * What a model is told for a history call that recorded neither an output nor an error. A teacher-forced
+ * prefix holds such a call when the spec's world forces no result for its tool; sending `null` would tell
+ * the model that the call returned nothing, which no one recorded.
+ */
+export const UNRECORDED_RESULT =
+  'Not recorded: this earlier call comes from a replayed conversation that states the call, with only the arguments it fixes, and not what it returned.';
+
+/** The output of a history call that is not an error: its recorded output, or the note that none was recorded. */
+export function historyOutput(call: { output?: unknown }): unknown {
+  return call.output === undefined ? UNRECORDED_RESULT : call.output;
 }
 
 /**

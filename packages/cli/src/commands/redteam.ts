@@ -1,6 +1,6 @@
 import { access, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
-import { runSpec } from '@agent-nexus/driftbench-core';
+import { blocksOutcome, runOutcome, runSpec } from '@agent-nexus/driftbench-core';
 import { FakeModelPort, portFromEnv } from '@agent-nexus/driftbench-generate';
 import {
   createAnthropicJudge,
@@ -240,13 +240,11 @@ async function gradeRedteam(
   if (o.record)
     await writeFile(resolve(io.cwd, o.record), `${JSON.stringify(cassette, null, 2)}\n`, { flag: 'wx' });
   const judged = run.blocks.flatMap((block) => block.verdicts.filter((v) => v.kind === 'judge'));
-  const passed =
-    run.status === 'completed' && run.blocks.length > 0 && run.blocks.every((block) => block.pass);
-  if (o.json) io.out(`${JSON.stringify({ specId: entry.spec.id, target, passed, run }, null, 2)}\n`);
+  const outcome = blocksOutcome(run);
+  const passed = outcome === 'pass';
+  if (o.json) io.out(`${JSON.stringify({ specId: entry.spec.id, target, passed, outcome, run }, null, 2)}\n`);
   else {
-    io.out(
-      `Graded ${entry.spec.id} with judge ${judge.id}: ${run.status}; ${passed ? 'pass' : 'not passed'}.\n`,
-    );
+    io.out(`Graded ${entry.spec.id} with judge ${judge.id}: ${run.status}; ${outcomeWord(outcome)}.\n`);
     for (const line of textTable([
       ['criterion', 'gating', 'outcome', 'reasoning'],
       ...judged.map((v) => [
@@ -353,16 +351,15 @@ async function runRedteam(path: string, o: RunOptions, io: Io, deps: CampaignDep
   const recording = driver.recording();
   if (o.record)
     await writeFile(resolve(io.cwd, o.record), `${JSON.stringify(recording, null, 2)}\n`, { flag: 'wx' });
-  const passed =
-    run.status === 'completed' &&
-    run.endVerdict === 'success' &&
-    run.blocks.length > 0 &&
-    run.blocks.every((b) => b.pass);
+  const outcome = run.endVerdict === undefined ? 'fail' : runOutcome(run);
+  const passed = outcome === 'pass';
   if (o.json)
-    io.out(`${JSON.stringify({ specId: entry.spec.id, target, passed, run, recording }, null, 2)}\n`);
+    io.out(
+      `${JSON.stringify({ specId: entry.spec.id, target, passed, outcome, run, recording }, null, 2)}\n`,
+    );
   else {
     io.out(
-      `Red-team ${strategy}: ${recording.outcome ?? 'incomplete'}. ${run.status}; ${passed ? 'pass' : 'not passed'}.\n`,
+      `Red-team ${strategy}: ${recording.outcome ?? 'incomplete'}. ${run.status}; ${outcomeWord(outcome)}.\n`,
     );
     for (const line of textTable([
       ['turn', 'phase', 'score', 'techniques', 'sent'],
@@ -379,6 +376,17 @@ async function runRedteam(path: string, o: RunOptions, io: Io, deps: CampaignDep
     if (o.record) io.out(`Recording written to ${resolve(io.cwd, o.record)}.\n`);
   }
   return passed ? 0 : 1;
+}
+
+/** A run's outcome in words: a run with a block not run or blocked is neither a pass nor a fail. */
+function outcomeWord(outcome: ReturnType<typeof runOutcome>): string {
+  return outcome === 'pass'
+    ? 'pass'
+    : outcome === 'not_run'
+      ? 'not run (a block was not sent)'
+      : outcome === 'blocked'
+        ? 'blocked (a block was not sent)'
+        : 'not passed';
 }
 
 async function generateRedteam(id: string, o: GenerateOptions, io: Io, deps: CampaignDeps): Promise<number> {

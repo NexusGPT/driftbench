@@ -33,6 +33,10 @@ An error the argument parser reports always exits 2. `--help` and `--version` ex
 where a folder must go, a missing file a command must read) exits 2 with the reason, never a stack trace.
 One exception: a spec path that does not exist is reported as an invalid spec, `SPEC_PARSE`, and exits 1.
 
+One rule for the commands that gate a pipeline (`ci`, `campaign run`, `campaign resume`, `campaign rejudge`,
+`family verify`): when nothing failed but something was not run or blocked, they exit 3. Not run is no pass and
+no failure of the agent. `redteam` keeps 1: its result is an attack outcome.
+
 Commands with their own codes:
 
 | Command | 0 | 1 | 2 | Other |
@@ -40,11 +44,14 @@ Commands with their own codes:
 | `spec validate`, `spec lint` | every spec valid (`lint --strict`: and no warning) | a spec invalid, none found, or a warning under `--strict` | usage | |
 | `spec coverage` | every behaviour and flow deviation covered | a gap | usage | |
 | `campaign plan` | the plan printed | | bad input | |
-| `campaign run`, `campaign resume` | every cell passes | a cell fails, failed or was stopped, the budget included | bad input | |
+| `campaign run`, `campaign resume` | every cell passes | a cell fails, failed or was stopped, the budget included | bad input | 3: no cell failed but a cell was not run or blocked (a Given the target cannot apply) |
 | `campaign status` | every cell passes | any other state | bad input, unknown campaign, empty store | |
 | `smoke` | transcripts identical, every run completed | transcripts differ, or a run did not complete | bad input | |
 | `report` | written | | bad input | |
-| `compare`, `ci` | non-inferior (parity) | regressed, or not shown non-inferior | bad input | |
+| `compare` | non-inferior (parity) | regressed, or not shown non-inferior | bad input | |
+| `ci` | non-inferior (parity) | regressed, not shown non-inferior, incomplete, a failing aggregate, a radius miss | bad input | 3: a gating spec had blocks not run (a Given the target cannot apply) beyond `--max-not-run` |
+| `campaign rejudge` | every re-judged run passes | a run fails, or a gating result is inconclusive | bad input | 3: no run fails but a block was not run or blocked (the summary names each with its reason) |
+| `family verify` | the reference passes every spec | the reference fails one, or one is invalid | bad input | 3: none fails but the reference could not run one (a block not run: unverified, counted apart, not shipped) |
 | `monitor` | no shift | two of the three detectors alarm | bad input | |
 | `validate` | | | | the level reached, 0 to 63: the lowest over seeds of the highest level passed, 0 when level 1 fails; `all` exits with the lowest level of every validator; an input error exits 64. With `--check-floor`: 1 when below the floor, else 0 |
 | `view` | | | bad input | runs until stopped |

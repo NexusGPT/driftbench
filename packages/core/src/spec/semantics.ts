@@ -2,6 +2,7 @@ import { normaliseProblem } from '../runner/normalise';
 import type { Assertion, Count, NormaliseMap } from '../schema/common';
 import type { Expect, Spec } from '../schema/spec';
 import { error, type Issue } from './issues';
+import { isPlainObject } from './normalize';
 
 const CRITERION_REF = /^([A-Za-z0-9][A-Za-z0-9_.-]*)(@gating)?$/;
 
@@ -162,6 +163,26 @@ export function checkSemantics(spec: Spec): Issue[] {
     }
     checkNormalise(endState.normalise, endState.expect, base.replace(/expect$/, 'normalise'), issues);
   });
+
+  const links = spec.metadata?.links;
+  if (Array.isArray(links)) {
+    links.forEach((link: unknown, index) => {
+      const block = isPlainObject(link) ? link.block : undefined;
+      const known =
+        block === undefined ||
+        (typeof block === 'number' && block < spec.blocks.length) ||
+        (typeof block === 'string' && blockIds.has(block));
+      if (!known) {
+        issues.push(
+          error(
+            'LINK_BLOCK_UNKNOWN',
+            `metadata.links.${index}.block`,
+            `the link names block ${JSON.stringify(block)}, which the spec does not have`,
+          ),
+        );
+      }
+    });
+  }
 
   return issues;
 }

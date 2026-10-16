@@ -70,11 +70,20 @@ export type AnnotationAnchor = z.infer<typeof AnnotationAnchor>;
 export const LabelledBlock = CriterionFixture.extend({
   id: z.string().min(1).describe('The id of the block; a new label for the same id replaces the old one.'),
   label: z.enum(['pass', 'fail']).describe("The human's verdict on the criterion: pass or fail."),
+  flags: z
+    .array(z.literal('sent text not stored'))
+    .optional()
+    .describe('Labels with unavailable sent text are excluded from calibration.'),
   anchor: AnnotationAnchor.optional().describe(
     'The element of the block the label is about; absent: the whole block.',
   ),
 });
 export type LabelledBlock = z.infer<typeof LabelledBlock>;
+
+/** A saved annotation can remain useful to a reviewer even when its stimulus cannot train a judge. */
+export function calibrationEligible(block: LabelledBlock): boolean {
+  return !block.flags?.includes('sent text not stored');
+}
 
 /**
  * Why an anchor does not point at an element of its block, or undefined when it does or has none. A span
@@ -203,20 +212,26 @@ export async function loadLabels(dir: string): Promise<LabelsLoad> {
       const problem = anchorProblem(block);
       if (problem !== undefined) issues.push({ path, message: `block ${block.id}: ${problem}` });
     }
-    const kinds = new Set(file.blocks.map((block) => block.label));
+    const usable = file.blocks.filter(calibrationEligible);
+    const kinds = new Set(usable.map((block) => block.label));
     if (kinds.size < 2) {
       issues.push({
         path,
-        message: `every block is labelled ${[...kinds][0]}: a criterion needs a pass and a fail label`,
+        message:
+          kinds.size === 0
+            ? 'no calibration labels: sent text not stored'
+            : `every block is labelled ${[...kinds][0]}: a criterion needs a pass and a fail label`,
       });
     }
-    labels.set(file.criterion, file.blocks);
+    labels.set(file.criterion, usable);
   }
   return { labels, issues };
 }
 
 /** The request a labelled block sends, as a fixture would. */
 export function labelRequest(criterion: LoadedCriterion, block: LabelledBlock): JudgeRequest {
+  if (!calibrationEligible(block))
+    throw new Error(`${block.id}: sent text not stored; excluded from calibration`);
   const base = fixtureRequest(criterion, 'pass');
   return withCriterionSettings(
     {
@@ -385,7 +400,7 @@ export async function calibrate(config: CalibrationConfig): Promise<CalibrationR
   let costIncompleteCalls = 0;
 
   for (const criterion of config.criteria) {
-    const blocks = config.labels.get(criterion.def.name) ?? [];
+    const blocks = (config.labels.get(criterion.def.name) ?? []).filter(calibrationEligible);
     const rows: JudgeCalibration[] = [];
     // Units for alpha: the pass fixture, the fail fixture, then each labelled block; one row per judge.
     const matrix: (JudgeOutcome | null)[][] = [];
@@ -511,11 +526,19 @@ async function answer(
     let result = await judge.judge({ ...request, budget: 'normal' });
     counter.spentUsd += result.costUsd ?? 0;
     if (unpriced(result)) counter.costIncomplete += 1;
+    if (result.defaultJudge?.failure) {
+      counter.errors += 1;
+      return 'inconclusive';
+    }
     if (result.unparsed) {
       counter.calls += 1;
       result = await judge.judge({ ...request, budget: 'large' });
       counter.spentUsd += result.costUsd ?? 0;
       if (unpriced(result)) counter.costIncomplete += 1;
+      if (result.defaultJudge?.failure) {
+        counter.errors += 1;
+        return 'inconclusive';
+      }
     }
     return result.unparsed ? 'inconclusive' : result.answer.outcome;
   } catch (cause) {
