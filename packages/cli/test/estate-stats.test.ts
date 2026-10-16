@@ -24,6 +24,52 @@ async function run(argv: string[]) {
 }
 
 describe('estate stats uses the documented report contract', () => {
+  it.each([
+    { title: 'no needs', needs: [], tested: 1 },
+    { title: 'an unmarked need', needs: [{ marker: 'needs-existing-file' }], tested: 0 },
+    { title: 'an explicit blocking need', needs: [{ blocking: true }], tested: 0 },
+    { title: 'a nonblocking need', needs: [{ blocking: false }], tested: 1 },
+    { title: 'only nonblocking needs', needs: [{ blocking: false }, { blocking: false }], tested: 1 },
+    { title: 'mixed needs', needs: [{ blocking: false }, { marker: 'needs-existing-file' }], tested: 0 },
+    { title: 'an unmarked null entry', needs: [null], tested: 0 },
+  ])(
+    'counts a test with $title according to its blocking status',
+    async ({ needs, tested }) => {
+      const dir = await mkdtemp(join(tmpdir(), 'estate-stats-needs-'));
+      const loaded = await loadEstateMap(join(FIXTURE, 'approved.yaml'));
+      if (!loaded.ok) throw new Error('fixture map');
+      const reference = loaded.map.atoms.find((atom) => atom.approved && atom.kind === 'reference');
+      if (!reference) throw new Error('fixture reference');
+      await writeFile(
+        join(dir, 'read-policy.yaml'),
+        [
+          'id: read-policy',
+          'kind: task',
+          'metadata:',
+          `  estate: ${JSON.stringify({ atoms: [reference.id], needs })}`,
+          'blocks:',
+          '  - user: Review the policy.',
+          '',
+        ].join('\n'),
+      );
+      const result = await run([
+        'estate',
+        'stats',
+        '--map',
+        join(FIXTURE, 'approved.yaml'),
+        '--plan',
+        join(FIXTURE, 'plan.yaml'),
+        '--specs',
+        dir,
+        '--json',
+      ]);
+      expect(result.err).toBe('');
+      expect(result.code).toBe(0);
+      expect(JSON.parse(result.out).coverage.kinds.reference.tested).toBe(tested);
+    },
+    30_000,
+  );
+
   it('reports approved atoms, tested and enforced separately, with no sessions invented', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'estate-stats-'));
     const specs = join(dir, 'empty');

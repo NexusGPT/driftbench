@@ -522,7 +522,7 @@ When an ordered obligation names a domain operation with no tool, skill or stage
 
 A missing internal reference still permits a Read attempt, which returns an error. When `some_call` is registered, a declared `tool_called Read` obligation checks that attempt only for a non-external path inside the estate root. It accepts the estate-relative path or the spelling written in the declaring skill when that spelling resolves to the same file. External references and paths escaping the root keep the `needs-existing-file` gap, including home-relative and absolute paths outside the root. Existing references still use the successful-read check.
 
-Every missing Read target is recorded with its `path` in `metadata.estate.needs`. An internal target checked by its attempted call has `blocking: false`: its spec can pass, but the broken reference stays visible. Listing the folder and reporting the missing file does not satisfy a declared Read obligation. A passing attempt proves no successful read or file content.
+Every missing Read target is recorded with its `path` in `metadata.estate.needs`. An internal target checked by its attempted call has `blocking: false`: its spec can pass, but the broken reference stays visible. Estate statistics counts specs with only nonblocking needs as complete tests; unmarked needs remain blocking. Listing the folder and reporting the missing file does not satisfy a declared Read obligation. A passing attempt proves no successful read or file content.
 
 Reference atoms retain the named spelling in `fields.writtenPath` alongside the resolved `fields.path`. For older maps without that field, generation derives the relative spelling from the declaring file.
 

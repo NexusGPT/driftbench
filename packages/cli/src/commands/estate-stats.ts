@@ -134,7 +134,8 @@ async function completeTests(folder: string, map: EstateMap, plan: Plan): Promis
         const loaded = await loadSpecFile(file);
         if (!loaded.ok) throw new Error(`${file}: ${loaded.errors.map((e) => e.message).join('; ')}`);
         const metadata = record(loaded.spec.metadata?.estate);
-        if (Array.isArray(metadata.needs) && metadata.needs.length > 0) continue;
+        if (Array.isArray(metadata.needs) && metadata.needs.some((need) => record(need).blocking !== false))
+          continue;
         if (loaded.spec.metadata?.retired !== undefined) continue;
         if (typeof metadata.mapHash === 'string' && metadata.mapHash !== map.hash)
           throw new Error(`${file}: a spec is made from another map`);
