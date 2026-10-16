@@ -1726,6 +1726,8 @@ export function directiveHead(head: string): boolean {
     .map((segment) => segment.trim());
   const main = segments.pop() ?? '';
   if (SUBORDINATE.test(main) || NEGATED.test(main)) return false;
+  // A relative clause ("..., which reads X before ...") describes a thing; it does not direct.
+  if (/\b(?:that|which|who|whose)$/.test(main)) return false;
   // A leading condition ("If no objection is raised,") may hold a negation of its own; any other lead-in may not.
   return segments.every((segment) => SUBORDINATE.test(segment) || !NEGATED.test(segment));
 }
@@ -2005,6 +2007,20 @@ function gateAtoms(
     while (headings[headingIndex + 1] && (headings[headingIndex + 1]?.line ?? 0) < line.line) headingIndex++;
     // A line that says the read is optional gives no gate.
     if (optionalQualifier(text)) continue;
+    // A column title ("| Kind | Read before X |" above a separator row) names a column, not a rule.
+    const written = sourceLines[line.line - 1] ?? '';
+    if (
+      /^\s*\|/.test(written) &&
+      /^\s*\|?\s*:?-{2,}:?\s*(?:\|\s*:?-{2,}:?\s*)*\|?\s*$/.test(sourceLines[line.endLine] ?? '')
+    )
+      continue;
+    // A heading or a short line with no sentence end is a title: it names a topic, it directs nobody.
+    const headingLine = /^\s*#{1,6}\s/.test(written);
+    const plain = line.text
+      .replace(/^\s*(?:>\s*)*(?:[-*+]\s+|\d+[.)]\s+)?/, '')
+      .replace(/[\s!\u203C*_`]+/g, ' ')
+      .trim();
+    const titleLine = headingLine || (plain.split(' ').length <= 6 && !/[.:;?!)]$/.test(plain));
     // The last gate of this line: a clause that only adds things to read ("and with it `b.md`") joins it.
     let previous: ((read: string) => boolean) | undefined;
     let carriedHead: string | undefined;
@@ -2031,6 +2047,8 @@ function gateAtoms(
         if (!match) continue;
         // "Read carefully before X" names no document: the bare form needs the verb right before "before".
         if (bare && !/\bread\s+(?:first\s+)?(?:before|prior\s+to)\b/i.test(stressed)) continue;
+        // A title ("READ BEFORE YOU WRITE") names a topic; it is no sentence that names nothing to read.
+        if (bare && titleLine) continue;
         // A skill called in code ahead of the read ("Before X: `skill` and read Y") is itself required.
         const leadSkills: string[] = [];
         if (
@@ -2062,6 +2080,11 @@ function gateAtoms(
         const trigger = scoped ? written : action;
         // A question asks and a dated entry records; neither directs the agent.
         if (trigger === '' || trigger.includes('?') || dated(trigger)) continue;
+        // A template with a slot in angle brackets ("Before <act>: read <file>") describes the syntax.
+        const slot = /<[^<>\n]+>/;
+        const shown = unmask(match[read] ?? '', spans).replace(/`[^`]*`/g, '');
+        // A slot in the target is a template unless the target is still a path ("regions/<slug>/RULES.md").
+        if (slot.test(written) || (slot.test(shown) && !/[/\\]|\.[A-Za-z0-9]+\b/.test(shown))) continue;
         // An act, or an event the read comes before: "any query", "the second query", "your first action".
         const act_ = isAct(action, form.startsWith('not-'));
         if (!act_ && !isEvent(action) && !clauseEvent(action)) continue;
@@ -2114,12 +2137,15 @@ function gateAtoms(
             const phrase = headPhrase(target);
             const found = selfReference(target) ? undefined : namedReference(phrase, files, raw);
             if (selfReference(target)) {
-              // "Read this": the document the rule stands in.
+              // "Read this": the document the rule stands in. A heading or title has no "this" to point at.
+              if (titleLine) return undefined;
               self = true;
               first = basename(chunk.file);
               // A bare "read before X" may be followed by a sentence that names what to read.
               if (bareRead) {
                 const later = [...new Set(line.next.flatMap((text) => namedPaths(text)))];
+                // Several documents named after it: which one is meant is not said, so nothing is gated.
+                if (later.length > 1) return undefined;
                 if (later.length === 1) {
                   self = false;
                   first = later[0] ?? first;
@@ -2162,6 +2188,19 @@ function gateAtoms(
               ? raw.skills.find((skill) => skill.name === (declared ?? first))
               : undefined;
           if (loaded && !isFile && !skill) return undefined;
+          // A bare file name that fits several files (`SKILL.md`) and none beside the naming file points at no one file.
+          if (isFile && !self && !/\//.test(first) && !unresolved) {
+            const here = locateNamed(first, chunk.file, files, {
+              bases: raw.bases ?? [],
+              skipped: skippedOf(raw),
+              aliases: raw.aliases ?? {},
+              byName: names(raw, files),
+              externals: raw.externals ?? [],
+              ...(within ? { within } : {}),
+            });
+            if (here.candidates && !here.path.startsWith(`${posix.dirname(chunk.file)}/`))
+              unresolved = 'ambiguous';
+          }
           // A loaded thing is a skill or a file, never a section or a role.
           if (viaLoad && !skill && !(isFile && !unresolved)) return undefined;
           const located =
@@ -2180,7 +2219,13 @@ function gateAtoms(
             isFile,
             skill,
             located,
-            path: self ? chunk.file : folder ? folder : located?.path,
+            path: self
+              ? chunk.file
+              : folder
+                ? folder
+                : unresolved === 'ambiguous'
+                  ? undefined
+                  : located?.path,
             self,
             unresolved,
             section,
