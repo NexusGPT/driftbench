@@ -137,7 +137,8 @@ function writeSuite(
       mkdirSync(parent, { recursive: true });
       lastDirectory = parent;
     }
-    writeFileSync(target, text, { flag: 'wx' });
+    // Explicit UTF-8 keeps strings on Node's native write path; byte fixtures stay unchanged.
+    writeFileSync(target, text, { flag: 'wx', encoding: 'utf8' });
     fileCount += 1;
   };
   const balance = new DeviationBalance(prepared);
