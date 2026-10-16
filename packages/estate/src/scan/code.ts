@@ -393,7 +393,7 @@ function namesToRun(text: string, name: string, relative: string): boolean {
 }
 
 /** A path and its spelling in the source, before notation is normalized. */
-type NamedReference = { path: string; spelling: string };
+type NamedReference = { path: string; spelling: string; start: number; end: number };
 
 /** Paths a line names, sharing one tokenizer with reference provenance and negation checks. */
 export function namedPaths(line: string): string[] {
@@ -403,7 +403,12 @@ export function namedPaths(line: string): string[] {
 function namedReferences(line: string): NamedReference[] {
   const found: NamedReference[] = [];
   const claimed: Array<[number, number]> = [];
-  const take = (match: RegExpMatchArray, token: string | undefined, wiki = false) => {
+  const take = (
+    match: RegExpMatchArray,
+    token: string | undefined,
+    wiki = false,
+    length = match[0].length,
+  ) => {
     const start = match.index ?? 0;
     if (claimed.some(([from, to]) => start >= from && start < to)) return;
     claimed.push([start, start + match[0].length]);
@@ -425,7 +430,7 @@ function namedReferences(line: string): NamedReference[] {
       !/\.[A-Za-z0-9]+$/.test(path)
     )
       return;
-    found.push({ path, spelling });
+    found.push({ path, spelling, start, end: start + length });
   };
   for (const match of line.matchAll(/`([^`\n]+)`/g)) take(match, match[1]);
   for (const match of line.matchAll(/\[[^\]\n]*\]\((?:<([^>\n]+)>|([^\s)]+))(?:\s+"[^"]*")?\)/g))
@@ -440,31 +445,225 @@ function namedReferences(line: string): NamedReference[] {
   for (const match of line.matchAll(/[^\s`"'<>()[\],;!]+/g)) {
     if (!match[0].includes('.')) continue;
     if (!match[0].startsWith('@') && (match.index ?? 0) < directiveEnd) continue;
-    take(match, match[0].replace(/[.:]+$/, ''));
+    const token = match[0].replace(/[.:]+$/, '');
+    take(match, token, false, token.length);
   }
   return found;
 }
 
+type ReferenceToken = { word: string; references?: NamedReference[] };
+type ReferenceClause = { tokens: ReferenceToken[]; coordinated: boolean };
+const HISTORY_VERB = /^(?:removed|deleted|dropped|retired|deprecated|renamed|moved|replaced|superseded)$/;
+const HISTORY_AUX = /^(?:was|were|is|are|be|been|being|has|have|had|got|gets?|getting)$/;
+const PASSIVE_AUX = /^(?:was|were|is|are|be|been|being|got|gets?|getting)$/;
+const HISTORY_ADVERB = /^(?:already|just|still|[a-z]+ly)$/;
+const REFERENCE_ACT = /^(?:read|reading|open|opening|load|loading|see|seeing|consult|consulting|use|using)$/;
+const HISTORY_UNCERTAIN = /^(?:not|never|no|cannot|can't|could|may|might|must|should|will|would|if|unless)$/;
+const PHRASE_BOUNDARY =
+  /^(?:with|by|to|into|onto|from|in|on|at|for|as|after|before|about|of|over|under|through|during|until|since|while|whereas|and|or|but|then)$/;
+
+/** Predicate evidence used only to separate clauses, never to classify an unknown noun as a verb. */
+function referencePredicate(token: ReferenceToken | undefined): boolean {
+  return (
+    token !== undefined &&
+    !token.references &&
+    (HISTORY_VERB.test(token.word) ||
+      HISTORY_AUX.test(token.word) ||
+      REFERENCE_ACT.test(token.word) ||
+      /^(?:[a-z]+ed|[a-z]+ing|kept)$/.test(token.word))
+  );
+}
+
 /**
- * Whether a line names a file only as history: the clause naming it reports, in the past tense, that the file
- * was removed, renamed, moved or replaced ("Version 2 removed `legacy.md`", "`old.md` was deleted"), and no
- * word of that clause asks for a read. In "renamed `a.md` to `b.md`" only the old name is history; the name
- * after to, into, by or with is the file as it is now.
+ * Tokenize reference occurrences before punctuation: dots in filenames and words inside quotations never
+ * delimit a clause. Overlapping markup (a code span in a link) shares the enclosing mention's role.
  */
-function pastFile(text: string, spelling: string): boolean {
-  const { text: masked, spans } = maskLine(text);
-  for (const clause of masked.split(/[;!?]|\.(?=\s|$)/)) {
-    const verb = /\b(?:removed|deleted|dropped|retired|deprecated|renamed|moved|replaced|superseded)\b/i.exec(
-      clause,
-    );
-    if (!verb || /\b(?:read|open|load|see|consult|use)\b/i.test(clause)) continue;
-    const after = clause.slice(verb.index + verb[0].length);
-    const current = /\b(?:to|into|by|with)\b/i.exec(after);
-    const past = clause.slice(0, verb.index + verb[0].length + (current ? current.index : after.length));
-    if (namedReferences(unmask(past, spans)).some((reference) => reference.spelling === spelling))
-      return true;
+function referenceClauses(text: string, references: readonly NamedReference[]): ReferenceClause[] {
+  const groups: Array<{ start: number; end: number; references: NamedReference[] }> = [];
+  for (const reference of [...references].sort((a, b) => a.start - b.start || b.end - a.end)) {
+    const previous = groups.at(-1);
+    if (previous && reference.start < previous.end) {
+      previous.end = Math.max(previous.end, reference.end);
+      previous.references.push(reference);
+    } else groups.push({ start: reference.start, end: reference.end, references: [reference] });
   }
-  return false;
+  let masked = '';
+  let end = 0;
+  for (const [index, group] of groups.entries()) {
+    masked += `${text.slice(end, group.start)}\uE100${index}\uE101`;
+    end = group.end;
+  }
+  masked += text.slice(end);
+  const protectedText = maskLine(masked).text;
+  const clauses: ReferenceClause[] = [];
+  let tokens: ReferenceToken[] = [];
+  let coordinated = false;
+  const flush = (nextCoordinated: boolean) => {
+    if (tokens.length) clauses.push({ tokens, coordinated });
+    tokens = [];
+    coordinated = nextCoordinated;
+  };
+  const lexed = [...protectedText.matchAll(/\uE100(\d+)\uE101|[A-Za-z]+(?:['’][A-Za-z]+)?|[,;.!?:]|\n/g)].map(
+    (match) =>
+      match[1] === undefined
+        ? { word: match[0].toLowerCase() }
+        : { word: match[0], references: groups[Number(match[1])]?.references },
+  );
+  for (const [index, token] of lexed.entries()) {
+    if (/^[;.!?\n]$/.test(token.word)) {
+      flush(false);
+      continue;
+    }
+    if (
+      token.word === ':' &&
+      tokens.every((part) => !part.references && /^(?:version|v|changelog|changes)$/.test(part.word))
+    ) {
+      flush(false);
+      continue;
+    }
+    if (!tokens.length && /^(?:and|or|but|then|while|whereas)$/.test(token.word)) continue;
+    if (/^(?:,|and|or|but|then|while|whereas)$/.test(token.word)) {
+      let next = index + 1;
+      if (/^(?:and|or|but|then)$/.test(lexed[next]?.word ?? '')) next++;
+      const rest = lexed.slice(next);
+      const predicate = referencePredicate(rest[0]);
+      const newSubject = rest.some(
+        (part, at) =>
+          (HISTORY_AUX.test(part.word) || HISTORY_VERB.test(part.word)) &&
+          filePhrase(rest.slice(0, at), true).length > 0,
+      );
+      const pronounSubject = /^(?:we|you|they|he|she|it|i)$/.test(rest[0]?.word ?? '');
+      // A comma/and between file nouns is an enumeration until a preceding predicate establishes a
+      // separate clause: "a, b and c were removed", versus "read a, b was removed".
+      if (
+        predicate ||
+        pronounSubject ||
+        (newSubject && (tokens.some(referencePredicate) || !filePhrase(tokens, true).length))
+      ) {
+        flush(true);
+        continue;
+      }
+    }
+    tokens.push(token);
+  }
+  flush(false);
+  return clauses;
+}
+
+/** A direct file noun phrase, optionally enumerated; a prepositional complement is a different role. */
+function filePhrase(tokens: readonly ReferenceToken[], whole: boolean): ReferenceToken[] {
+  const first = tokens.findIndex((token) => token.references);
+  if (first < 0) return [];
+  const nominal = (prefix: readonly ReferenceToken[]) =>
+    prefix.every(
+      (token) =>
+        !token.references &&
+        /^[a-z]+$/.test(token.word) &&
+        !PHRASE_BOUNDARY.test(token.word) &&
+        !HISTORY_AUX.test(token.word) &&
+        !REFERENCE_ACT.test(token.word) &&
+        !/^(?:we|you|they|he|she|it|i|kept)$/.test(token.word),
+    );
+  if (!nominal(tokens.slice(0, first))) return [];
+  const initial = tokens[first];
+  if (!initial) return [];
+  const found: ReferenceToken[] = [initial];
+  let end = first + 1;
+  while (end < tokens.length) {
+    let next = end;
+    while (/^(?:,|and|or)$/.test(tokens[next]?.word ?? '')) next++;
+    if (next === end) break;
+    let file = next;
+    while (
+      file < tokens.length &&
+      !tokens[file]?.references &&
+      /^[a-z]+$/.test(tokens[file]?.word ?? '') &&
+      !referencePredicate(tokens[file]) &&
+      !PHRASE_BOUNDARY.test(tokens[file]?.word ?? '')
+    )
+      file++;
+    if (!tokens[file]?.references || !nominal(tokens.slice(next, file))) break;
+    const nextFile = tokens[file];
+    if (!nextFile) break;
+    found.push(nextFile);
+    end = file + 1;
+  }
+  return whole && tokens.slice(end).some((token) => !/^(?:,|and|or)$/.test(token.word)) ? [] : found;
+}
+
+/** A stated actor, or the omitted actor of a changelog entry; unknown predicates stay references. */
+function historyActor(tokens: readonly ReferenceToken[]): boolean {
+  let end = tokens.length;
+  while (HISTORY_AUX.test(tokens[end - 1]?.word ?? '') || HISTORY_ADVERB.test(tokens[end - 1]?.word ?? ''))
+    end--;
+  const subject = tokens.slice(0, end);
+  if (!subject.length || filePhrase(subject, true).length) return true;
+  const words = subject.map((token) => token.word);
+  if (words.length === 1 && /^(?:we|you|they|he|she|it|i|version|v)$/.test(words[0] ?? '')) return true;
+  if (
+    subject.some((token) => token.references || referencePredicate(token) || PHRASE_BOUNDARY.test(token.word))
+  )
+    return false;
+  return (
+    /s$/.test(words.at(-1) ?? '') ||
+    (words.length > 1 &&
+      /^(?:the|a|an|our|your|their|his|her|my|this|that|these|those|each|every)$/.test(words[0] ?? ''))
+  );
+}
+
+/**
+ * Completed transitive history marks an active object's occurrence or a passive subject's occurrence.
+ * Replacement subjects and by/with/to complements stay current. Unknown roles stay references. An
+ * auxiliary may be shared across coordinated passive clauses, but not across sentence boundaries.
+ */
+function pastFile(clauses: readonly ReferenceClause[]): Set<NamedReference> {
+  const past = new Set<NamedReference>();
+  let passiveBefore = false;
+  for (const clause of clauses) {
+    if (!clause.coordinated) passiveBefore = false;
+    const tokens = clause.tokens;
+    const passive = tokens.some((token) => !token.references && PASSIVE_AUX.test(token.word));
+    for (let verb = 0; verb < tokens.length; verb++) {
+      if (tokens[verb]?.references || !HISTORY_VERB.test(tokens[verb]?.word ?? '')) continue;
+      if (
+        !tokens
+          .slice(0, verb)
+          .some(
+            (token) =>
+              !token.references && (HISTORY_UNCERTAIN.test(token.word) || /n['’]t$/.test(token.word)),
+          )
+      ) {
+        const before = tokens.slice(0, verb);
+        let subjectEnd = before.length;
+        while (HISTORY_ADVERB.test(before[subjectEnd - 1]?.word ?? '')) subjectEnd--;
+        const hasAuxiliary = PASSIVE_AUX.test(before[subjectEnd - 1]?.word ?? '');
+        if (hasAuxiliary) {
+          while (
+            HISTORY_AUX.test(before[subjectEnd - 1]?.word ?? '') ||
+            HISTORY_ADVERB.test(before[subjectEnd - 1]?.word ?? '')
+          )
+            subjectEnd--;
+        }
+        const objects = filePhrase(tokens.slice(verb + 1), false);
+        const subjects = filePhrase(before.slice(0, subjectEnd), true);
+        const adjectival =
+          !hasAuxiliary &&
+          /^(?:a|an|the|this|that|these|those|its|their|our|your|my|his|her)$/.test(
+            before[subjectEnd - 1]?.word ?? '',
+          );
+        const affected = hasAuxiliary
+          ? subjects
+          : passiveBefore && subjects.length && !objects.length
+            ? subjects
+            : adjectival || !historyActor(before)
+              ? []
+              : objects;
+        for (const token of affected) for (const reference of token.references ?? []) past.add(reference);
+      }
+    }
+    passiveBefore = passive;
+  }
+  return past;
 }
 
 /** Whether at least one mention requires the act, rather than forbidding it in its own clause. */
@@ -628,9 +827,36 @@ function referenceAtoms(
   for (const line of chunkLines(chunk, files.get(chunk.file))) {
     // A standing line `@path` is an import: the runtime loads that file, so the agent reads nothing.
     if (standing && /^@\S+$/.test(line.text.trim())) continue;
-    for (const { path: named, spelling } of namedReferences(line.text)) {
-      if (!positiveMention(line.text, spelling, ['read', 'open', 'load'])) continue;
-      if (pastFile(line.text, spelling)) continue;
+    const references = namedReferences(line.text);
+    if (!references.length) continue;
+    const clauses = referenceClauses(line.text, references);
+    const past = pastFile(clauses);
+    const positive = new Set<NamedReference>();
+    const parsed = new Set<NamedReference>();
+    for (const clause of clauses) {
+      const mayForbid = clause.tokens.some((token) => /^(?:never|not|don['’]t)$/.test(token.word));
+      let prefix = '';
+      for (const token of clause.tokens) {
+        for (const reference of token.references ?? []) {
+          parsed.add(reference);
+          if (
+            !mayForbid ||
+            positiveMention(`${prefix}${reference.spelling}`, reference.spelling, ['read', 'open', 'load'])
+          )
+            positive.add(reference);
+        }
+        prefix += `${token.word} `;
+      }
+    }
+    for (const reference of references) {
+      const { path: named, spelling } = reference;
+      if (past.has(reference)) continue;
+      if (
+        parsed.has(reference)
+          ? !positive.has(reference)
+          : !positiveMention(line.text, spelling, ['read', 'open', 'load'])
+      )
+        continue;
       const located = locateNamed(named, chunk.file, files, {
         bases: raw.bases ?? [],
         skipped,

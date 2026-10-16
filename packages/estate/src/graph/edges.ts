@@ -147,7 +147,11 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
     for (const match of quote.matchAll(/\b([A-Z]{1,3})#?(\d{1,3})\b/g)) {
       const label = `${match[1]}${match[2]}`;
       if (label === own) continue;
-      if (!match[0].includes('#') && designates(quote.slice(0, match.index))) continue;
+      if (
+        !match[0].includes('#') &&
+        designates(quote.slice(0, match.index), quote.slice(match.index + match[0].length))
+      )
+        continue;
       for (const cited of withLabel(label)) add(rule.id, cited.id, 'cites');
     }
   }
@@ -211,17 +215,190 @@ function repeats(quote: string, literal: string): boolean {
   return true;
 }
 
-/**
- * Entity nouns commonly followed by identifiers. This is a lexical category, not an inference that any
- * unknown content word must be a noun: "agents follow R1" remains a citation. Unlisted words keep
- * the citation to the existing rule. A hash citation is explicit and bypasses this entity-label check.
- */
-const ENTITY_DESIGNATOR =
-  /\b(?:accounts?|appendi(?:x|ces)|articles?|batch(?:es)?|buildings?|chapters?|columns?|diagrams?|documents?|editions?|entries|entry|equations?|exhibits?|figures?|floors?|forms?|invoices?|items?|lines?|models?|orders?|pages?|paragraphs?|plates?|plots?|records?|releases?|revisions?|rooms?|rows?|sections?|shelves|shelf|tables?|tickets?|units?|versions?|volumes?|cases?)\s+$/i;
+/** Identifier-bearing entity classes, independent of a particular estate's subject domain. */
+const ENTITY_DESIGNATORS = new Set([
+  // Publications, records and their addressable parts.
+  'agreement',
+  'appendix',
+  'article',
+  'attachment',
+  'bulletin',
+  'chapter',
+  'column',
+  'contract',
+  'declaration',
+  'diagram',
+  'document',
+  'edition',
+  'entry',
+  'equation',
+  'exhibit',
+  'field',
+  'figure',
+  'form',
+  'letter',
+  'line',
+  'memo',
+  'page',
+  'paragraph',
+  'plate',
+  'plot',
+  'publication',
+  'record',
+  'report',
+  'revision',
+  'section',
+  'table',
+  'version',
+  'volume',
+  // Transactions, credentials and administrative records.
+  'account',
+  'application',
+  'badge',
+  'bill',
+  'booking',
+  'case',
+  'certificate',
+  'claim',
+  'credential',
+  'credit',
+  'debit',
+  'invoice',
+  'license',
+  'order',
+  'passport',
+  'payment',
+  'permit',
+  'purchase',
+  'receipt',
+  'refund',
+  'registration',
+  'reservation',
+  'ticket',
+  'transaction',
+  'voucher',
+  'warrant',
+  // Physical locations and storage positions.
+  'address',
+  'aisle',
+  'apartment',
+  'bay',
+  'booth',
+  'building',
+  'cabin',
+  'cell',
+  'counter',
+  'desk',
+  'dock',
+  'door',
+  'floor',
+  'hall',
+  'hangar',
+  'locker',
+  'office',
+  'platform',
+  'port',
+  'rack',
+  'room',
+  'row',
+  'seat',
+  'shelf',
+  'site',
+  'stall',
+  'station',
+  'terminal',
+  'warehouse',
+  'zone',
+  // Inventory, logistics and transport units.
+  'aircraft',
+  'asset',
+  'batch',
+  'box',
+  'bus',
+  'carriage',
+  'carton',
+  'compartment',
+  'component',
+  'consignment',
+  'container',
+  'device',
+  'flight',
+  'item',
+  'label',
+  'lot',
+  'model',
+  'module',
+  'package',
+  'pallet',
+  'parcel',
+  'product',
+  'route',
+  'shipment',
+  'train',
+  'trip',
+  'truck',
+  'unit',
+  'vehicle',
+  'vessel',
+  // Addressable software and data entities.
+  'branch',
+  'build',
+  'checkpoint',
+  'dataset',
+  'job',
+  'node',
+  'project',
+  'queue',
+  'release',
+  'repository',
+  'tab',
+  'widget',
+]);
+const ENTITY_PLURALS: Record<string, string> = { appendices: 'appendix', entries: 'entry', shelves: 'shelf' };
 
-/** A bare label directly after an entity-designator noun names that entity, not a rule. */
-function designates(before: string): boolean {
-  return ENTITY_DESIGNATOR.test(before.replace(/[*_`]/g, ''));
+/**
+ * A known entity noun identifies its adjacent bare label. Clear verb contexts (a pronoun/modal before
+ * it, or a simple plural subject) retain the citation; lexical noun/verb ambiguity is not a reason to
+ * drop an edge. At clause start, a finite predicate after the label establishes an entity subject.
+ */
+function designates(before: string, after: string): boolean {
+  const tail = before.replace(/[*_`]/g, '');
+  const match = /\b([A-Za-z]+)\s+$/.exec(tail);
+  if (!match?.[1]) return false;
+  const word = match[1].toLowerCase();
+  const singulars = [
+    word,
+    ENTITY_PLURALS[word] ?? '',
+    word.replace(/s$/, ''),
+    word.replace(/es$/, ''),
+    word.replace(/ies$/, 'y'),
+  ];
+  if (!singulars.some((noun) => ENTITY_DESIGNATORS.has(noun))) return false;
+  const prefix =
+    tail
+      .slice(0, match.index)
+      .split(/[.;!?:]/)
+      .at(-1)
+      ?.trim() ?? '';
+  if (!prefix) return /^\s*[*_`]*\s*(?:is|are|was|were|has|have|had|must|should|will|can)\b/i.test(after);
+  if (
+    /\b(?:i|you|we|they|he|she|it|who|do|does|did|can|could|may|might|must|shall|should|will|would|to|not|please|always|never|then)\s*$/i.test(
+      prefix,
+    )
+  )
+    return false;
+  if (/^(?:(?:all|both|some|the|our|your|their|these|those|when|if)\s+)*[A-Za-z]+s$/i.test(prefix))
+    return false;
+  const simpleSubject = /^(?:(?:the|a|an|our|your|their|each|every|this|that)\s+)?[A-Za-z]+$/i.test(prefix);
+  if (
+    simpleSubject &&
+    !/^(?:a|an|the|this|that|these|those|each|every|any|some|all|both|no|its|our|your|their|his|her|my)$/i.test(
+      prefix,
+    ) &&
+    (!ENTITY_DESIGNATORS.has(word) || /\b(?:people|staff|personnel|police|children|men|women)$/i.test(prefix))
+  )
+    return false;
+  return true;
 }
 
 /** Labels a guard source declares: `Enforces: R3, R5` in a comment or a docstring. */
