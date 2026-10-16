@@ -169,6 +169,24 @@ type ScopeInput = {
 };
 
 /**
+ * What makes two diagnoses one finding: the verdict, the rule that decided it and its flags, whichever diagnostic
+ * or step wrote it. Two diagnostics that attribute the same verdict the same way write it once, and so does a
+ * flagged note such as an error. A note with neither a rule nor a flag says what its own step saw, so it is one
+ * finding only with the same diagnostic, step and words.
+ */
+function sameFinding(diagnosis: Diagnosis): string {
+  const flags = [...(diagnosis.flags ?? [])].sort();
+  const decided = diagnosis.rule !== undefined || flags.length > 0;
+  return JSON.stringify([
+    diagnosis.verdictRef ?? null,
+    diagnosis.rule ?? null,
+    flags,
+    ...(diagnosis.rule === undefined ? [diagnosis.summary] : []),
+    ...(decided ? [] : [diagnosis.diagnostic, diagnosis.step ?? null]),
+  ]);
+}
+
+/**
  * Runs the diagnostics of one scope, in order, each step in its diagnostic's item order. A diagnostic of another
  * scope is left out; one fires on its `when` over the verdicts in scope; a disabled step is left out; a step of
  * cost class `run` or `model` runs only while the budget lasts, and is counted in `skippedForBudget` otherwise. A
@@ -183,6 +201,7 @@ async function runScope(
   const diagnoses: Diagnosis[] = [];
   let left = budget.runs ?? 0;
   let skippedForBudget = 0;
+  const seen = new Set<string>();
   for (const diagnostic of diagnostics) {
     if (
       scopeOf(diagnostic) !== scope ||
@@ -232,7 +251,12 @@ async function runScope(
         own.push(stamp({ summary: `the step threw ${describeError(cause)}` }));
       }
     }
-    diagnoses.push(...own);
+    for (const diagnosis of own) {
+      const key = sameFinding(diagnosis);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      diagnoses.push(diagnosis);
+    }
   }
   return { diagnoses, skippedForBudget };
 }

@@ -981,3 +981,50 @@ describe('rules that come from the estate map, read from a spec that names its a
     ).toBe('core_rule_caught');
   });
 });
+
+describe('a verdict is diagnosed once when two diagnostics are listed', () => {
+  write({
+    'specs/dedupe-both.yaml': [
+      'id: dedupe-both',
+      'uses: { diagnostics: [code-agent-liability, value-mismatch] }',
+      'blocks:',
+      '  - user: Port my number, 202 555 0150.',
+      '    expect:',
+      '      task_impossible: true',
+      '      must: ["done"]',
+      '      tools:',
+      '        - { label: port.start, input: { number: "+12025550150" } }',
+      '',
+    ].join('\n'),
+  });
+  let restore = () => {};
+  afterEach(() => restore());
+  const wrote = {
+    toolCalls: [{ label: 'port.start', input: { number: '+1 (202) 555-0150' }, output: { ok: true } }],
+  };
+
+  it('writes each verdict and rule once, and each error flag once', async () => {
+    restore = useBlameServices({
+      value: {
+        judge: {
+          model: 'scripted',
+          calibration: { falseAcceptance: 0, source: 'test script' },
+          complete: async () => {
+            throw new Error('judge endpoint down');
+          },
+        },
+      },
+      reply: () => {
+        throw new Error('classifier unreachable');
+      },
+    });
+    const result = await run('specs/dedupe-both.yaml', { ...wrote, text: 'Porting.' });
+    const diagnoses = result.blocks[0]?.diagnoses ?? [];
+    const keys = diagnoses.map((one) => `${one.verdictRef}|${one.rule}|${(one.flags ?? []).join(',')}`);
+    expect(new Set(keys).size).toBe(keys.length);
+    for (const flag of ['error:reply_reader_failed', 'error:value_service_failed']) {
+      expect(diagnoses.filter((one) => one.flags?.includes(flag))).toHaveLength(1);
+    }
+    expect(diagnoses.filter((one) => one.verdictRef === 'tools.port.start.input.number')).toHaveLength(1);
+  });
+});
