@@ -96,3 +96,23 @@ it('passes expect.workspace when the diff matches what the script did', async ()
   expect(result.runs[0]?.failing).toEqual([]);
   expect(result.runs[0]?.pass).toBe(true);
 });
+
+it('evaluates expect.workspace on a script that has declared fixtures', async () => {
+  const root = await estate({
+    'CLAUDE.md': '# Fictional parcels\n',
+    '.claude/make.sh': '#!/bin/sh\nprintf parcel > parcel.txt\n',
+    '.claude/driftbench.estate.yaml': JSON.stringify({
+      scripts: { '.claude/make.sh': [{ expect: { exitCode: 0 } }] },
+    }),
+  });
+  const run = (workspace: unknown) =>
+    runUnitSpecs([scriptSpec('make.sh', workspace)], {
+      root,
+      reader: new ClaudeCodeReader(),
+      noSandbox: true,
+    });
+  expect((await run({ created: ['parcel.txt'], others_untouched: true })).runs[0]?.pass).toBe(true);
+  const stray = await run({ others_untouched: true });
+  expect(stray.inputErrors).toEqual([]);
+  expect(stray.runs[0]?.failing.join('\n')).toMatch(/parcel\.txt \(created\)/);
+});

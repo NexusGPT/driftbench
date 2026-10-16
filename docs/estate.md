@@ -215,7 +215,7 @@ The map is YAML with a header on how to approve it, `producedBy` per atom and, f
 
 ### The estate configuration file
 
-An estate may hold `driftbench.estate.yaml` at its root. The scan and the unit runner read it; every key is optional.
+An estate may hold `driftbench.estate.yaml` at its root, or at `.claude/driftbench.estate.yaml` (the root file wins; the second place is copied with the runtime's own folder, so a unit run of a copy or a mutant sees it). The scan and the unit runner read it; every key is optional. Tooling files are not instructions to the agent: the configuration file, and any file whose path it writes (a helper's executor script), are named by it and are neither orphans nor unreachable.
 
 | Key | Read by | Holds |
 |---|---|---|
@@ -224,6 +224,23 @@ An estate may hold `driftbench.estate.yaml` at its root. The scan and the unit r
 | `aliases` | `estate scan` | a map from an alias, such as `REF`, to the folder or folders it stands for, relative to the root: `REF/a/b.md` then reads as `<folder>/a/b.md` |
 | `helpers` | `estate unit` | per helper name, a local executor `command` argument array and optional positive `timeoutMs`; the unit runner sends the current body and task on stdin |
 | `scripts` | `estate unit` | per script path, a fixture list or `{ usage, fixtures }` contract: `args`, `stdin`, `files` (name to text, written in a fresh working folder) and `expect` (`exitCode`, default 0; `stdout`; `stdoutIncludes`, a list) |
+
+A helper executor and the fixtures of a script, as the unit runner reads them (`helpers` and `scripts` keys; YAML anchors may share one executor):
+
+```yaml
+helpers:
+  route-planner:
+    command: [python3, .claude/stand-in-helper.py]
+    timeoutMs: 10000
+scripts:
+  .claude/skills/shipment-tracker/scripts/track.sh:
+    usage: track.sh <carrier code> <tracking number>
+    fixtures:
+      - args: []
+        expect: { exitCode: 2 }
+```
+
+For a helper, the runner compares the copy's files before and after the executor runs and supplies that `workspaceDiff` when the executor reports none, so `expect.workspace` is decided on what the run changed. The same holds for the files a declared script fixture writes in its case folder.
 
 A key with the wrong shape is reported as a note of the scan and left out. [`examples/estates/reader-cases/driftbench.estate.yaml`](../examples/estates/reader-cases/driftbench.estate.yaml) uses `ignore`, `externals` and `scripts`.
 

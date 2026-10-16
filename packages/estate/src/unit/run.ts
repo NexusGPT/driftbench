@@ -69,6 +69,7 @@ export type UnitCaseResult = {
   ms: number;
   detail: string;
   command?: string;
+  workspace?: WorkspaceDiff;
 };
 
 export type UnitResult = {
@@ -233,6 +234,7 @@ export async function observeUnitTests(
             ms: entry.ms,
             timedOut: entry.outcome.message === 'timed out',
             command: entry.command,
+            ...(entry.workspace ? { workspace: entry.workspace } : {}),
           }));
           if (result.status === 'unrecorded') observed.inputError = result.detail;
           else if (result.status !== 'pass') observed.error = result.detail;
@@ -587,16 +589,13 @@ async function runScriptTest(
     runner.counter += 1;
     const folder = join(runner.work, `case-${runner.counter}`);
     await writeFixtures(runner, folder, (entry.files ?? {}) as Record<string, unknown>);
-    const run = await execute(
-      [
-        ...(await interpreterFor(await estatePath(runner.copy, path))),
-        await estatePath(runner.copy, path),
-        ...args,
-      ],
-      typeof entry.stdin === 'string' ? entry.stdin : '',
-      runner,
-      folder,
-      60_000,
+    const argv = [
+      ...(await interpreterFor(await estatePath(runner.copy, path))),
+      await estatePath(runner.copy, path),
+      ...args,
+    ];
+    const run = await watched(runner, folder, () =>
+      execute(argv, typeof entry.stdin === 'string' ? entry.stdin : '', runner, folder, 60_000),
     );
     const problems: string[] = [];
     if (run.timedOut) problems.push('timed out');
@@ -620,6 +619,7 @@ async function runScriptTest(
       command: run.command,
       ms: run.ms,
       detail: problems.length === 0 ? 'as declared' : problems.join('; '),
+      ...(run.workspace ? { workspace: run.workspace } : {}),
     });
   }
   const failed = cases.filter((entry) => !entry.pass);
@@ -1007,9 +1007,16 @@ export function neutral(text: string, work: string): string {
     .replace(/\$RUN\/case-\d+/g, '$RUN/case');
 }
 
+/** Where the estate configuration lives: the root, else inside the runtime's own folder (the root file wins). */
+export const ESTATE_CONFIG_PLACES: readonly string[] = [ESTATE_CONFIG_FILE, `.claude/${ESTATE_CONFIG_FILE}`];
+
 /** The estate configuration, when the estate has one. */
 async function readConfig(root: string): Promise<Record<string, unknown>> {
-  const text = await readFile(await estatePath(root, ESTATE_CONFIG_FILE), 'utf8').catch(() => undefined);
+  let text: string | undefined;
+  for (const place of ESTATE_CONFIG_PLACES) {
+    text = await readFile(await estatePath(root, place), 'utf8').catch(() => undefined);
+    if (text !== undefined) break;
+  }
   if (text === undefined) return {};
   try {
     const parsed: unknown = parseYaml(text);
@@ -1127,6 +1134,7 @@ export async function observeHelper(
         await mkdir(dirname(file), { recursive: true });
         await writeFile(file, text);
       }
+      const before = await snapshot(runner.copy);
       const execution = await execute(
         executor.data.command,
         `${JSON.stringify({ name: target.name, systemPrompt: body, frontmatter, task })}\n`,
@@ -1134,6 +1142,7 @@ export async function observeHelper(
         runner.copy,
         executor.data.timeoutMs,
       );
+      const workspaceDiff = diffOf(before, await snapshot(runner.copy));
       if (execution.spawnError)
         return { status: 'not-run', error: `helper executor could not start: ${execution.spawnError}` };
       const stamp = { exit: execution.exitCode, ms: execution.ms };
@@ -1162,7 +1171,8 @@ export async function observeHelper(
       return {
         status: 'executed',
         ...stamp,
-        observed: { ...observed.data, cost: {}, latencyMs: execution.ms },
+        // The runner watched the copy itself: a diff the executor did not report is the one it saw.
+        observed: { workspaceDiff, ...observed.data, cost: {}, latencyMs: execution.ms },
       };
     });
     return result.value;

@@ -505,14 +505,20 @@ async function present(root: string, names: readonly string[], notes: ReadNote[]
  */
 async function readConfig(root: string, notes: ReadNote[]): Promise<EstateConfig> {
   const config: EstateConfig = { ignore: [], aliases: {} };
-  const text = await readFile(join(root, ESTATE_CONFIG), 'utf8').catch(() => undefined);
+  let text: string | undefined;
+  let place = ESTATE_CONFIG;
+  for (const candidate of [ESTATE_CONFIG, `.claude/${ESTATE_CONFIG}`]) {
+    text = await readFile(join(root, candidate), 'utf8').catch(() => undefined);
+    place = candidate;
+    if (text !== undefined) break;
+  }
   if (text === undefined) return config;
   let parsed: unknown;
   try {
     parsed = parseYaml(text);
   } catch (cause) {
     const message = cause instanceof Error ? (cause.message.split('\n')[0] ?? '') : String(cause);
-    notes.push({ file: ESTATE_CONFIG, message: `not YAML: ${message}` });
+    notes.push({ file: place, message: `not YAML: ${message}` });
     return config;
   }
   if (!isRecord(parsed)) return config;
