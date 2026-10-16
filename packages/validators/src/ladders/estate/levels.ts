@@ -9,6 +9,7 @@ import {
   toEstateSpaceMap,
 } from '@agent-nexus/driftbench-estate';
 import type { Item, Measure } from '../../ladder';
+import { RELEVANCE } from './bank/relevance-table';
 import { componentOfKind, componentOfMarker, ESTATE_COMPONENTS } from './components';
 import { follow } from './follower';
 import type { HiddenEstate } from './hidden';
@@ -248,6 +249,24 @@ export function allowedPairs(
   return out;
 }
 
+/** Whether the validator's relevance table justifies a declared exclusion of one situation value and one target. */
+export function exclusionJustified(
+  forbid: Readonly<Record<string, string>>,
+  atoms: ReadonlyMap<string, { kind: string; fields?: Record<string, unknown> }>,
+): boolean {
+  const entries = Object.entries(forbid);
+  const situation = entries.filter(([dimension]) => !dimension.startsWith('atoms.'));
+  const target = entries.filter(([dimension]) => dimension.startsWith('atoms.'));
+  if (situation.length !== 1 || target.length !== 1) return false;
+  const [dimension, value] = situation[0] as [string, string];
+  const rule = RELEVANCE.find((row) => row.dimension === dimension && row.value === value);
+  const atom = atoms.get((target[0] as [string, string])[1]);
+  if (!rule || !atom) return false;
+  const helperRoute =
+    rule.helperRoutes === true && atom.kind === 'route' && atom.fields?.targetKind === 'subagent';
+  return !rule.kinds.includes(atom.kind) && !helperRoute;
+}
+
 /** Level 3: every allowed pair is in a row of the plan, and every approved atom has its mandatory rows. */
 export function planLevel(run: EstateRun): Measure {
   const map = run.scanned.map;
@@ -262,9 +281,14 @@ export function planLevel(run: EstateRun): Measure {
     { id: 'target', values: targets.flatMap((dimension) => dimension.values.map((value) => value.id)) },
   ];
   // The plan proposes its own exclusions from the estate's text (docs/estate.md, "Situation relevance in a proposed
-  // plan"): coverage counts the tuples feasible under them, and under the map's constraints. Whether an exclusion
-  // is right is judged by plan.relevance, not here; a value left with no feasible tuple at all is judged here.
-  const proposed = run.plan.details.relevanceConstraints ?? [];
+  // plan"), and coverage counts the tuples feasible under them. A declared exclusion lowers what the plan owes only
+  // when the validator's own table of what a situation value can act on justifies it: one situation value against
+  // one target atom whose kind the table says the value cannot act on. Any other declared exclusion (a situation
+  // against a situation, a value the table holds no row for, a target the table makes relevant) leaves its pairs owed.
+  const atomById = new Map(map.atoms.map((atom) => [atom.id, atom]));
+  const proposed = (run.plan.details.relevanceConstraints ?? []).filter((constraint) =>
+    exclusionJustified(constraint.forbid, atomById),
+  );
   const constraints = [...space.constraints, ...proposed].map((constraint) => {
     const forbid: Record<string, string> = {};
     for (const [dimension, value] of Object.entries(constraint.forbid)) {
@@ -283,24 +307,6 @@ export function planLevel(run: EstateRun): Measure {
     for (const a of ids) for (const b of ids) if (a !== b) covered.add(`${a}=${cell[a]}|${b}=${cell[b]}`);
   }
   const items: Item[] = [];
-  // A missing match never removes a whole situation to obtain vacuous coverage: every value of a situation axis
-  // still appears in a tuple the plan must cover.
-  const inPairs = new Set<string>();
-  for (const [da, va, db, vb] of pairs) {
-    inPairs.add(`${da}=${va}`);
-    inPairs.add(`${db}=${vb}`);
-  }
-  for (const dimension of situations) {
-    for (const value of dimension.values) {
-      if (!inPairs.has(`${dimension.id}=${value.id}`)) {
-        items.push({
-          id: `situation-removed:${dimension.id}=${value.id}`,
-          component: ESTATE_COMPONENTS.pairwise,
-          detail: `${dimension.id}=${value.id} is in no tuple the plan must cover: its exclusions leave it no target`,
-        });
-      }
-    }
-  }
   let pairsCovered = 0;
   const missing: string[] = [];
   for (const [da, va, db, vb] of pairs) {
@@ -344,7 +350,6 @@ export function planLevel(run: EstateRun): Measure {
   const ratios = [
     pairs.length === 0 ? 1 : pairsCovered / pairs.length,
     required === 0 ? 1 : present / required,
-    ...(items.some((item) => item.id.startsWith('situation-removed:')) ? [0] : []),
   ];
   return { value: Math.min(...ratios), items };
 }
