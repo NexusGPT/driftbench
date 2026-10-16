@@ -74,6 +74,53 @@ describe('parent blocks', () => {
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.errors.some((issue) => issue.code === code)).toBe(true);
   });
+  it.each([
+    [
+      'given.world',
+      { given: { world: { workspace: { files: { 'a.csv': 'x' }, binary: { 'a.csv': 'eA==' } } } } },
+    ],
+    [
+      'blocks.0.given.world',
+      {
+        blocks: [
+          {
+            user: 'a',
+            given: { world: { workspace: { files: { 'a.csv': 'x' }, binary: { 'a.csv': 'eA==' } } } },
+          },
+        ],
+      },
+    ],
+    [
+      'perturbations.0.world',
+      {
+        perturbations: [
+          {
+            id: 'p',
+            class: 'D8_tool_failure',
+            inject_at: 0,
+            world: { workspace: { files: { 'a.csv': 'x' }, binary: { 'a.csv': 'eA==' } } },
+          },
+        ],
+      },
+    ],
+  ])('refuses a workspace path in both files and binary at %s', (at, part) => {
+    const result = validateSpec({ id: 'twice', blocks: [{ user: 'a' }], ...part });
+    expect(result.ok).toBe(false);
+    if (!result.ok)
+      expect(result.errors.find((issue) => issue.code === 'WORKSPACE_PATH_TWICE')?.path).toBe(
+        `${at}.workspace.binary.a.csv`,
+      );
+    const apart = validateSpec({
+      id: 'apart',
+      blocks: [
+        {
+          user: 'a',
+          given: { world: { workspace: { files: { 'a.csv': 'x' }, binary: { 'b.png': 'eA==' } } } },
+        },
+      ],
+    });
+    expect(apart.ok ? [] : apart.errors).toEqual([]);
+  });
   it.each(['F', 'T', 'P'] as const)(
     '%s inherits recorded history, calls, world, facts and variables without repeating the parent',
     async (mode) => {

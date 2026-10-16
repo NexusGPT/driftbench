@@ -1,4 +1,4 @@
-import type { Assertion, Count } from '../schema/common';
+import type { Assertion, Count, WorldState } from '../schema/common';
 import type { BlockSpec, Expect, Spec } from '../schema/spec';
 import { error, type Issue } from './issues';
 import { parentOrder } from './parents';
@@ -39,6 +39,13 @@ type Context = {
 /** Rules a schema cannot express. Every issue returned is an error. */
 export function checkSemantics(spec: Spec): Issue[] {
   const issues: Issue[] = parentOrder(spec).issues;
+  checkWorkspace(spec.given?.world, 'given.world', issues);
+  spec.blocks.forEach((block, index) => {
+    checkWorkspace(block.given?.world, `blocks.${index}.given.world`, issues);
+  });
+  spec.perturbations?.forEach((perturbation, index) => {
+    checkWorkspace(perturbation.world, `perturbations.${index}.world`, issues);
+  });
 
   const defined = spec.criteria ? new Set<string>() : undefined;
   spec.criteria?.forEach((criterion, index) => {
@@ -350,4 +357,20 @@ function parentFact(spec: Spec, index: number, fact: string): boolean {
     at = block?.parent === undefined ? undefined : ids.get(block.parent);
   }
   return false;
+}
+
+/** A path written both as text and as bytes is ambiguous: refused, never resolved one way or the other. */
+function checkWorkspace(world: WorldState | undefined, at: string, issues: Issue[]): void {
+  const files = world?.workspace?.files ?? {};
+  for (const path of Object.keys(world?.workspace?.binary ?? {})) {
+    if (Object.hasOwn(files, path)) {
+      issues.push(
+        error(
+          'WORKSPACE_PATH_TWICE',
+          `${at}.workspace.binary.${path}`,
+          `workspace path "${path}" is in both files and binary`,
+        ),
+      );
+    }
+  }
 }
