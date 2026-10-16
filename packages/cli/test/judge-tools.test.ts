@@ -196,8 +196,13 @@ describe('driftbench judge cassette inspect', () => {
     ]);
     expect(code).toBe(0);
     const report = JSON.parse(out);
-    expect(report.entries).toBe(76);
-    expect(report.judges.map((j: { id: string }) => j.id)).toContain('jev-a');
+    // The counts and the judge ids come from the cassette file itself, not from names fixed in this test.
+    const cassette = await loadCassette(join(ROOT, COUNCIL));
+    expect(cassette.entries.length).toBeGreaterThan(0);
+    expect(report.entries).toBe(cassette.entries.length);
+    expect(report.judges.map((j: { id: string }) => j.id).sort()).toEqual(
+      cassette.judges.map((j: { id: string }) => j.id).sort(),
+    );
     // Every entry of the shipped council cassette is a request of the Acme folder: the key of a player is rebuilt exactly.
     expect(report.coverage.stale).toBe(0);
     for (const row of report.coverage.criteria)
@@ -258,7 +263,9 @@ describe('driftbench judge cassette rekey', () => {
     const after = await run(['judge', 'run', '--criteria', changed, '--cassette', out]);
     expect(after.code).toBe(0);
     expect(after.out).toContain('12 of 12 criteria separated');
-    expect((await loadCassette(out)).entries).toHaveLength(76);
+    expect((await loadCassette(out)).entries).toHaveLength(
+      (await loadCassette(join(ROOT, COUNCIL))).entries.length,
+    );
   });
 
   it('refuses, and writes nothing, when the change touches what the judge reads', async () => {
@@ -281,7 +288,15 @@ describe('driftbench judge cassette rekey', () => {
       out,
     ]);
     expect(rekey.code).toBe(1);
-    expect(rekey.out).toContain('refused  plain_language pass fixture, judge jev-a: the user prompt changes');
+    // One refusal line for every judge of the cassette that answered this criterion.
+    const judges = (await loadCassette(join(ROOT, COUNCIL))).entries
+      .filter((entry) => entry.criterion === 'plain_language')
+      .map((entry) => entry.judge);
+    expect(new Set(judges).size).toBeGreaterThan(0);
+    for (const judge of new Set(judges))
+      expect(rekey.out).toContain(
+        `refused  plain_language pass fixture, judge ${judge}: the user prompt changes`,
+      );
     expect(rekey.out).toContain('Nothing written');
     await expect(readFile(out, 'utf8')).rejects.toThrow();
   });
