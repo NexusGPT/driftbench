@@ -156,6 +156,111 @@ Nine ideas lead. Each one changes what you learn when a test fails, and what it 
 - **Why it matters.** You know what your tests cover, and a test is kept only if it catches a bug planted on purpose. You stop paying for tests that cannot catch anything.
 - **Impact.** On our example agent, every pair of settings is covered with 5.8 times fewer tests than all the combinations. [How we measured](docs/comparison/methods.md#tests-written-by-code)
 
+<details><summary>See it in YAML</summary>
+
+The generator reads an approved map with source quotes. This small map declares a refund flow and its stages.
+Save the files together. Run `driftbench generate --map approved.map.yaml --out generated --t 2`.
+[Full generation guide](docs/generating.md).
+
+```text
+# file: prompt.md
+Acme explains refunds from question to answer. The answer includes refund. Customers ask: How do Acme refunds work?
+```
+
+```yaml
+# file: approved.map.yaml
+version: 1 # Map format
+agent: acme # The demo agent
+produced_by: { family: code, model: hand-authored, at: '2026-01-01T00:00:00Z' } # Demo provenance
+sources:
+  - { kind: prompt, path: prompt.md } # File quoted below
+dimensions:
+  - id: flow # Flow ids used by path relations
+    title: Acme requests
+    kind: behaviour # Values become spec covers
+    role: axis # Cross this with the stages
+    produced_by: code
+    approved: true # The demo owner accepts this entry
+    values:
+      - id: refund # Behaviour id used by the spec
+        title: Explain refunds
+        evidence: { source: prompt.md, quote: Acme explains refunds from question to answer. }
+        produced_by: code
+  - id: stage # Steps in the conversation
+    title: Acme stages
+    kind: stage # Values become expect.stage
+    role: axis
+    produced_by: code
+    approved: true
+    values:
+      - id: question # Starting stage
+        title: Question
+        evidence: { source: prompt.md, quote: Acme explains refunds from question to answer. }
+        produced_by: code
+      - id: answer # Resulting stage
+        title: Answer
+        evidence: { source: prompt.md, quote: Acme explains refunds from question to answer. }
+        produced_by: code
+  - id: stage_transition # Edge used by the stage graph
+    title: Acme moves
+    kind: behaviour
+    role: detail # Vary this inside a flow
+    produced_by: code
+    approved: true
+    values:
+      - id: question-to-answer # Connect the two stage ids
+        title: Answer the refund question
+        evidence: { source: prompt.md, quote: Acme explains refunds from question to answer. }
+        produced_by: code
+constraints: [] # No forbidden combinations
+phrases:
+  - dimension: flow # Axis above
+    value: refund # Value above
+    text: How do Acme refunds work? # User turn
+    lang: en
+    produced_by: code
+    approved: true
+  - dimension: stage_transition # Words for the graph move
+    value: question-to-answer # Edge above
+    text: How do Acme refunds work?
+    lang: en
+    produced_by: code
+    approved: true
+relations:
+  - kind: path # Stage order to generate
+    id: refund-answer
+    flow: refund # Flow value above
+    stages: [question, answer] # One move between stages
+    evidence: { source: prompt.md, quote: Acme explains refunds from question to answer. }
+    produced_by: code
+    approved: true
+  - kind: states # Derive a machine check from the source
+    subject: { dimension: flow, value: refund } # The flow above
+    stage: question # Turn that leaves this stage
+    must: [refund] # Required reply text
+    evidence: { source: prompt.md, quote: The answer includes refund. }
+    produced_by: code
+    approved: true
+```
+
+A block for that flow uses `covers` to name the map entry and `expect.stage` to name the result.
+The map is a generator input, not a spec include.
+
+```yaml
+# file: refund.spec.yaml
+id: acme-refund
+target: { adapter: function, agent: acme-sales } # The demo agent
+covers: [refund] # Behaviour id in approved.map.yaml
+stages: [question, answer] # Stage ids in the map
+blocks:
+  - when: { user: How do Acme refunds work? } # The chosen phrase
+    expect:
+      stage: answer # Stage reached by this turn
+      must: [refund] # Check this exchange
+```
+
+</details>
+
 ### Blocks: test each step and find the fix
 
 <a href=".github/readme/blocks-diff-light.png">
@@ -173,6 +278,27 @@ Nine ideas lead. Each one changes what you learn when a test fails, and what it 
 - **Measured impact.** On the Acme sales assistant, dropping a coverage check fails 86 conversations containing 413 blocks. A conversation score marks all 413 blocks; driftbench marks the 86 that fail. For eight of nine planted faults, failing blocks account for 18 to 40 percent of the blocks in failed conversations. Sources: [gate-report.json](examples/acme/gated/gate-report.json) and [chart-facts.csv](docs/assets/data/chart-facts.csv). [How we measured](docs/comparison/methods.md#blocks-a-failure-you-can-diagnose). The [fault study](https://github.com/achammah/driftbench/pull/441) tests the suggested fix. Changing the tool description removed 86 coverage lookup failures in 249 runs; 29 exact assertion failures remained.
 
 <sub>Counts cover 195 conversations and 861 blocks. The ninth fault, a wrong language, fails all 826 blocks in the 171 failed conversations. On its way: source links ([#423](https://github.com/achammah/driftbench/pull/423), [#429](https://github.com/achammah/driftbench/pull/429), [#433](https://github.com/achammah/driftbench/pull/433)); parents ([#416](https://github.com/achammah/driftbench/pull/416)). Parent blocks have research results; their integration is not built. Rule files and verdict stamps are on their way ([#443](https://github.com/achammah/driftbench/pull/443), [#449](https://github.com/achammah/driftbench/pull/449)). The fault finder is on its way ([#447](https://github.com/achammah/driftbench/pull/447), [#451](https://github.com/achammah/driftbench/pull/451), [#453](https://github.com/achammah/driftbench/pull/453)).</sub>
+
+<details><summary>See it in YAML</summary>
+
+The starting facts, user message and checks belong to the same block.
+
+```yaml
+# file: recap.spec.yaml
+id: acme-recap
+target: { adapter: function, agent: acme-sales } # The demo agent
+blocks:
+  - id: recap # Address of this step
+    given:
+      ledger: { plan: Acme Mobile L } # Given: known facts
+    when: { user: 'That plan, please.' } # When: this user turn
+    expect: # Then: required result
+      must: [CONFIRM] # Ask for confirmation
+      tools:
+        - { label: order.create, count: 0 } # Do not order yet
+```
+
+</details>
 
 ### Trace the source: find the line to inspect
 
@@ -192,6 +318,36 @@ Nine ideas lead. Each one changes what you learn when a test fails, and what it 
 
 <sub>Source tracing is on its way ([#423](https://github.com/achammah/driftbench/pull/423), [#429](https://github.com/achammah/driftbench/pull/429), [#433](https://github.com/achammah/driftbench/pull/433)). Fault finding is on its way ([#447](https://github.com/achammah/driftbench/pull/447), [#451](https://github.com/achammah/driftbench/pull/451), [#453](https://github.com/achammah/driftbench/pull/453)). Prompt ranking operates on sections; other file locations need recorded provenance. The figure illustrates the intended combined view. The reference classification was scripted and hand checked; it was not an independent human study. The registered ranking method failed its comparison, so these results do not establish ranking accuracy.</sub>
 
+<details><summary>See it in YAML</summary>
+
+Source links ship in [PR 423](https://github.com/achammah/driftbench/pull/423).
+Main can already check which file a task agent reads and let a judge compare the reply with that file.
+This is a source check, not a link to a prompt line.
+
+```yaml
+# file: source.spec.yaml
+id: acme-policy-source
+kind: task # A task agent can read workspace files
+given:
+  world:
+    workspace:
+      files:
+        policy.md: Acme refunds take two days. # Seed the source file
+criteria:
+  - name: follows_policy # Name used by the block
+    rubric: Does the reply match policy.md?
+    inputs: [policy.md] # The judge reads this workspace file
+blocks:
+  - when: { user: Read policy.md and explain Acme refunds. }
+    expect:
+      references:
+        - { path: policy.md, count: 1 } # Require a recorded read
+      workspace: { others_untouched: true } # Leave other workspace files alone
+      criteria: [follows_policy@gating] # Judge against the source
+```
+
+</details>
+
 ### Personas: play one test as different customers
 
 <a href=".github/readme/block-personas-light.png">
@@ -209,6 +365,37 @@ Nine ideas lead. Each one changes what you learn when a test fails, and what it 
 - **Measured impact.** In the [human simulation study](https://github.com/achammah/driftbench/pull/418), the engine produced short turns 38.0 percent of the time. Human dialogues had 38.2 percent; prompting alone had 2.0 percent. In the [persona study](https://github.com/achammah/driftbench/pull/444), negating a language rule flipped 10 of 11 French cells and 0 of 11 English cells. The loader refused all 30 planted conflicts and none of 30 clean cases. The original grid flag failed its control. The exact test found no persona effect on the test agent, and the grid reports that result.
 
 <sub>Persona integration is on its way ([#418](https://github.com/achammah/driftbench/pull/418), [#444](https://github.com/achammah/driftbench/pull/444)). Basic simulated users already ship. The human reference is crowd workers playing support scenarios. The grid study covers one agent and 20 blocks; different customer styles did not produce different pass rates.</sub>
+
+<details><summary>See it in YAML</summary>
+
+Basic simulated users ship on main. Numeric behaviour draws ship in [PR 418](https://github.com/achammah/driftbench/pull/418).
+The persona file points to the spec through `spec`. Main has no block `persona` key.
+Select this file with `driftbench simulate refund.spec.yaml --persona sam.persona.yaml --model --agent-family none`.
+The model option makes paid calls; `--agent-family none` applies to the scripted Acme demo.
+
+```yaml
+# file: sam.persona.yaml
+id: sam
+name: Sam
+persona: A busy Acme customer who writes short replies. # Character
+goal: Ask Acme for a refund. # What Sam wants
+facts: {} # No private facts for this test
+reveal_when_asked: {} # No facts to unlock
+stop_token: '###STOP###' # End the simulated conversation
+spec: refund.spec.yaml # The spec this persona plays
+```
+
+```yaml
+# file: refund.spec.yaml
+id: acme-refund
+target: { adapter: function, agent: acme-sales } # The demo agent
+blocks: # One exchange per entry
+  - when: { user: How do Acme refunds work? } # Script hint for Sam
+    expect:
+      must: [refund] # Check the visible reply
+```
+
+</details>
 
 ### Parent blocks: share the start and count the cause once
 
@@ -228,6 +415,31 @@ Nine ideas lead. Each one changes what you learn when a test fails, and what it 
 
 <sub>Parent state sharing and blocked children are on their way ([#416](https://github.com/achammah/driftbench/pull/416), [#428](https://github.com/achammah/driftbench/pull/428)). The research does not implement parent execution in the package. Independent flaky failures can still inflate the root count. The isolation study tests conversation history; finer dependencies on stored facts or tool state remain untested.</sub>
 
+<details><summary>See it in YAML</summary>
+
+Parent execution is not integrated. [PR 416](https://github.com/achammah/driftbench/pull/416) contains the parent study, not a runnable parent schema.
+Main accepts an authored history through `given.prefix`. This does not run a parent or block a child after a parent failure.
+
+```yaml
+# file: recap.spec.yaml
+id: acme-recap-with-history
+target: { adapter: function, agent: acme-sales } # The demo agent
+blocks:
+  - id: recap
+    given:
+      origin: authored # This history is written here, not a parent result
+      prefix: # Starting conversation for this block
+        - { role: user, content: Show me Acme plans. }
+        - { role: assistant, content: Acme Mobile L has unlimited data. }
+    when: { user: 'That plan, please.' }
+    expect:
+      must: [CONFIRM] # Require confirmation before ordering
+      tools:
+        - { label: order.create, count: 0 } # No order yet
+```
+
+</details>
+
 ### Value checks: ask the tool what the value means
 
 <a href=".github/readme/block-values-light.png">
@@ -245,6 +457,27 @@ Nine ideas lead. Each one changes what you learn when a test fails, and what it 
 - **Measured impact.** The tool settled 59 of 116 format disputes. It agreed on all 49 settled cases with reference labels; the other 10 had disputed labels. The full value check made 0 false passes and 0 false fails on 249 labelled runs. The simpler normaliser did too, so the study did not establish superiority over it. Source: [value study](https://github.com/achammah/driftbench/pull/441).
 
 <sub>The value check is on its way ([#459](https://github.com/achammah/driftbench/pull/459)). Tool replay requires a configured replayer; unresolved values stay inconclusive. The phone lookup in the figure is fictional. The measured tool results concern the Acme tools; no resolving phone lookup ran in that study.</sub>
+
+<details><summary>See it in YAML</summary>
+
+Tool replay value checks ship in [PR 459](https://github.com/achammah/driftbench/pull/459).
+On main, `one_of` can accept a known list of spellings. It does not ask the tool whether they mean the same thing.
+
+```yaml
+# file: phone.spec.yaml
+id: acme-phone-spellings
+blocks:
+  - when: { user: Ask Acme to call me on +1 202 555 0131. }
+    expect:
+      tools:
+        - label: callback.create # Call whose input is checked
+          count: 1 # Exactly one call
+          input:
+            phone:
+              one_of: ['+1 202 555 0131', '+12025550131'] # Accepted spellings
+```
+
+</details>
 
 ### Rule files: change the rule and score the run again
 
@@ -264,6 +497,26 @@ Nine ideas lead. Each one changes what you learn when a test fails, and what it 
 
 <sub>Rule files and verdict stamps are on their way ([#443](https://github.com/achammah/driftbench/pull/443), [#449](https://github.com/achammah/driftbench/pull/449)). The compatibility and scoring results come from a prototype. One override also changed 36 aggregate verdicts outside its target, so the study did not prove isolated rule changes.</sub>
 
+<details><summary>See it in YAML</summary>
+
+Rule objects, rule files and layers ship in [PR 443](https://github.com/achammah/driftbench/pull/443).
+Main keeps the policy inline under `rules`; it has no rule-file reference.
+Here the policy forbids ordering throughout the run, and the block requires a recap.
+
+```yaml
+# file: recap.spec.yaml
+id: acme-recap-policy
+rules: # Policy for every block in this spec
+  forbidden_tools: [order.create] # No order call in this test
+  one_message_per_turn: true # One visible reply per turn
+blocks:
+  - when: { user: Tell me the Acme plan details before I decide. }
+    expect:
+      must: [CONFIRM] # Block check beside the conversation policy
+```
+
+</details>
+
 ### Blast radius: rerun only what a change touches
 
 <a href=".github/readme/blast-light.png">
@@ -281,6 +534,33 @@ Nine ideas lead. Each one changes what you learn when a test fails, and what it 
 - **Measured impact.** On Acme, a recap change sends 606 of 867 blocks and fails on the same 102 cells as a full run. That sends about 30 percent fewer blocks. For a tool input change, each block runs alone. The radius sends 86 of 867 blocks, 90.1 percent fewer; the same 86 blocks fail as in a full run. A change to the price sheet task family skips 95.9 percent. The reply language rule affects every block, so it skips none. A fault outside the declared change is caught by the audit, which then sends all 867 blocks. Sources: [blast-radius.md](docs/concepts/blast-radius.md), [radius-carry.test.ts](packages/cli/test/radius-carry.test.ts), [radius-blocks-acme.test.ts](packages/cli/test/radius-blocks-acme.test.ts), [contained.test.ts](examples/acme/test/radius/contained.test.ts). [How we measured](docs/comparison/methods.md#blast-radius-rerun-only-what-a-change-touches). Separately, the [prompt study](https://github.com/achammah/driftbench/pull/421) selected 19.9 percent of the suite on average, but missed failures for 3 of 90 mutants. Those are selection results, not shipped rerun savings.
 
 <sub>The planner counts 861 scored blocks. A run also sends six unscored blocks, giving 867. Without end state snapshots, the tool input change sends 376 of 867. The declared change must cover everything that changed. The audit samples cells and can miss a fault. `driftbench radius` and `campaign run --change` are on main. Source selection is advisory: `driftbench radius --sections` prints the blocks the links would select, and `driftbench radius localize` ranks the prompt sections a failing block points to. Nothing is skipped by it. See [prompt sections](docs/concepts/blast-radius.md#prompt-sections-and-block-links). The prompt study missed failures for 8.2 percent of mutants when changes touching two sections were included.</sub>
+
+<details><summary>See it in YAML</summary>
+
+The change file is a separate input to `driftbench radius recap.spec.yaml --change recap.change.yaml`.
+The matching key is `expect.stage`, declared in the spec's `stages` list.
+
+```yaml
+# file: recap.change.yaml
+from: acme-v1 # Stored agent version
+to: acme-v2 # Changed agent version
+changes:
+  - kind: stage # Select by stage dependency
+    id: recap # Same stage as the block below
+```
+
+```yaml
+# file: recap.spec.yaml
+id: acme-recap-radius
+stages: [recap] # Stage catalogue
+blocks:
+  - when: { user: Read back the Acme plan before ordering. }
+    expect:
+      stage: recap # Dependency selected by recap.change.yaml
+      must: [CONFIRM] # What this step must say
+```
+
+</details>
 
 ### Mixture of Judges: the right judge for each answer
 
@@ -301,6 +581,28 @@ Nine ideas lead. Each one changes what you learn when a test fails, and what it 
 
 <sub>On JudgeBench and MM-Eval the differences are within the 95% intervals. On writing, a rule that picks the longer reply scores 69.7 on the sealed pairs. MoJ runs today from the research harness, on the package's opt-in escalation API (`createEscalation`).</sub>
 
+<details><summary>See it in YAML</summary>
+
+Main YAML defines criteria and selects their judge class.
+The block references the criterion by name through `expect.criteria`.
+The uncertainty panel uses the code API `createEscalation`; there is no panel YAML key.
+[Panel wiring in code](docs/concepts/judges.md#label-blind-escalation).
+
+```yaml
+# file: judged.spec.yaml
+id: acme-judged-recap
+criteria: # Questions for the configured judge
+  - name: confirms_first # Name used by the block
+    rubric: Does the reply ask for confirmation before placing the Acme order?
+    judge_class: auto # Let calibration choose the class
+blocks:
+  - when: { user: 'That Acme plan, please.' }
+    expect:
+      criteria: [confirms_first@gating] # A judged fail fails this block
+```
+
+</details>
+
 ### More that ships
 
 <a href=".github/readme/innovations-light.png">
@@ -317,6 +619,63 @@ Nine ideas lead. Each one changes what you learn when a test fails, and what it 
 - **Code agents.** The same steps check the files a code agent leaves behind: spreadsheet cells, documents, the workspace. None of the six code-agent benchmarks in our [comparison](docs/comparison.md#code-agent-benchmarks) grades office files in the pages read. → [code agents](docs/estate.md)
 - **An attacker that adapts.** A simulated user picks each next move from the agent's last reply. → [attacker](docs/attack.md)
 - **Replay for free.** A recorded run replays with no model call, so CI costs nothing. LangWatch and Inspect cache model calls (row 22); driftbench replays whole runs. → [replay](docs/estate.md#replay-built)
+
+**One combined example on main**
+
+<details><summary>See it in YAML</summary>
+
+This Acme block combines an authored starting history, an inline policy, an accepted value list and a judged criterion.
+The persona file below selects the spec. Save both files together.
+Run `driftbench simulate refund.spec.yaml --persona sam.persona.yaml --model --agent-family none` to use the simulated customer.
+This makes model calls. Judging needs a configured judge; the criterion declaration alone does not create one.
+
+Live parent state has no YAML integration yet ([parent study, PR 416](https://github.com/achammah/driftbench/pull/416)).
+Rule-file references ship in [PR 443](https://github.com/achammah/driftbench/pull/443), and tool replay values ship in [PR 459](https://github.com/achammah/driftbench/pull/459).
+Those keys are not accepted on main, so this example uses the supported forms below.
+The uncertainty panel is wired in code with `createEscalation`, not YAML.
+
+```yaml
+# file: refund.spec.yaml
+id: acme-combined
+target: { adapter: function, agent: acme-sales } # The demo agent
+rules: # Inline policy, not a rule-file include
+  forbidden_tools: [order.create] # A refund request must not place an order
+criteria:
+  - name: explains_refund # Criterion referenced by the block
+    rubric: Does the reply explain how to request an Acme refund?
+    judge_class: auto # Let calibration choose the judge class
+blocks:
+  - id: refund # This block's address
+    given:
+      origin: authored # This is written history, not a live parent result
+      prefix: # Starting point, held apart from the user turn
+        - { role: user, content: I have an Acme order. }
+        - { role: assistant, content: How can I help with your order? }
+    when: { user: Ask Acme to call me on +1 202 555 0131 about a refund. }
+    expect:
+      must: [refund] # Machine check on the reply
+      tools:
+        - label: callback.create # Tool input to check
+          count: 1
+          input:
+            phone:
+              one_of: ['+1 202 555 0131', '+12025550131'] # Accepted spellings
+      criteria: [explains_refund@gating] # Judge this block too
+```
+
+```yaml
+# file: sam.persona.yaml
+id: sam
+name: Sam
+persona: A busy Acme customer who writes short replies. # Character
+goal: Ask Acme for a refund. # What Sam wants
+facts: {} # No private facts for this test
+reveal_when_asked: {} # No facts to unlock
+stop_token: '###STOP###' # End the simulated conversation
+spec: refund.spec.yaml # The spec this persona plays
+```
+
+</details>
 
 ## What it does
 
