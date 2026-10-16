@@ -1,4 +1,4 @@
-import { mkdir, symlink } from 'node:fs/promises';
+import { mkdir, realpath, symlink } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { expect, it } from 'vitest';
 import { ClaudeCodeReader, scanEstate } from '../../src/index';
@@ -33,6 +33,23 @@ it('still follows a skills folder that the layout links to a shared library outs
   const root = await estate({ 'CLAUDE.md': '# Parcels\n' });
   await mkdir(join(root, '.claude'), { recursive: true });
   await symlink(outside, join(root, '.claude', 'skills'));
+  const reader = new ClaudeCodeReader();
+  const raw = await reader.read(root);
+  expect(raw.files.map((file) => file.path)).toContain('.claude/skills/parcels/SKILL.md');
+  expect(raw.followedLinks).toEqual([{ path: '.claude/skills', realPath: await realpath(outside) }]);
+  const { map } = await scanEstate({ root, reader, now: NOW });
+  expect(map.followedLinks).toEqual(raw.followedLinks);
+});
+
+it('records no followed link for a link that stays inside the estate', async () => {
+  const root = await estate({
+    'CLAUDE.md': '# Parcels\n',
+    'library/parcels/SKILL.md':
+      '---\nname: fictional-parcels\ndescription: Weighs parcels.\n---\nWeigh each parcel.\n',
+  });
+  await mkdir(join(root, '.claude'), { recursive: true });
+  await symlink(join(root, 'library'), join(root, '.claude', 'skills'));
   const raw = await new ClaudeCodeReader().read(root);
   expect(raw.files.map((file) => file.path)).toContain('.claude/skills/parcels/SKILL.md');
+  expect(raw.followedLinks).toEqual([]);
 });

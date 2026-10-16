@@ -48,3 +48,35 @@ it.each(requirements)('still reads and cites a file that a double negative requi
   const { raw } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
   expect(raw.files.map((file) => file.path)).toContain('rules.txt');
 });
+
+const plainReads = [
+  'Read',
+  'Always read',
+  'Please read',
+  'Open',
+  'You must read',
+  'Before you start, read',
+  'You should open',
+  'First load',
+  'When asked for a price, read',
+  'Make sure you read',
+];
+it.each(plainReads)('reads and cites a file that a plain instruction requires: %s', async (wording) => {
+  const root = await estate({
+    'CLAUDE.md': `# Fictional parcel\n${wording} \`rules.txt\`.\n`,
+    'rules.txt': 'FICTIONAL PARCEL RULES\n',
+  });
+  const { raw } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+  expect(raw.files.map((file) => file.path)).toContain('rules.txt');
+});
+
+it('keeps a reference that a skill reads under a never-without-reading gate', async () => {
+  const root = await estate({
+    'CLAUDE.md': '# Fictional parcel\n',
+    '.claude/skills/shelf-check/SKILL.md':
+      '---\nname: shelf-check\ndescription: Checks shelves.\n---\nNever mark a shelf as checked without reading `references/rules.md`.\n',
+    '.claude/skills/shelf-check/references/rules.md': '# Rules\nCount every box.\n',
+  });
+  const { raw } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+  expect(raw.files.map((file) => file.path)).toContain('.claude/skills/shelf-check/references/rules.md');
+});
