@@ -1,6 +1,6 @@
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -31,11 +31,16 @@ function violations(value, forbiddenHashes) {
         visit(entry);
       }
     } else if (typeof item === 'string') {
-      if (/anthropic[-_](?:organization|workspace)[-_]id|\borg[-_][A-Za-z0-9]{16,}/i.test(item))
+      if (/anthropic[-_ ]?(?:organization|workspace)[-_ ]?id|\borg[-_][A-Za-z0-9]{16,}/i.test(item))
         found.push('organization identifier pattern');
       if (providerId.test(item)) found.push('provider request/message identifier');
       for (const match of item.matchAll(uuid))
-        if (forbiddenHashes.includes(sha256(match[0]))) found.push('redacted transport identifier');
+        if (
+          [match[0], match[0].toLowerCase(), match[0].toUpperCase()].some((value) =>
+            forbiddenHashes.includes(sha256(value)),
+          )
+        )
+          found.push('redacted transport identifier');
       if (/^\s*[{[]/.test(item)) {
         let parsed;
         try {
@@ -82,10 +87,15 @@ describe('published README result transport metadata', () => {
     expect(violations({ raw: JSON.stringify({ value: fictional }) }, forbidden)).toContain(
       'redacted transport identifier',
     );
+    expect(violations(fictional.toUpperCase(), forbidden)).toContain('redacted transport identifier');
     expect(violations({ raw: JSON.stringify({ usage: { input_tokens: 10 } }) }, forbidden)).toEqual([]);
   });
 
   it('matches every redacted chunk checksum, size and line count', () => {
+    const published = readdirSync(join(directory, 'results'))
+      .filter((name) => name.endsWith('.jsonl'))
+      .sort();
+    expect(chunks.map((chunk) => chunk.file).sort()).toEqual(published);
     for (const chunk of chunks) {
       expect(sha256(chunk.data), chunk.file).toBe(chunk.sha256);
       expect(chunk.data.length, chunk.file).toBe(chunk.bytes);
