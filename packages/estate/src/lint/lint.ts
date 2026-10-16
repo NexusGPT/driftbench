@@ -1,6 +1,7 @@
 import { analyzeGraph } from '../graph/analyze';
 import { quoteDrift } from '../map/file';
-import { isNormative, normativeEstate, normativeRanges } from '../scan/document-roles';
+import { navigationNames } from '../scan/code';
+import { normativeEstate, normativeRanges, unloadedByDesign } from '../scan/document-roles';
 import { DEFAULT_STANDING_CEILING, measureInvariants, standingFiles } from '../scan/invariants';
 import type { RawEstate, RegistryRow } from '../scan/reader';
 import { ignoredReference, placeholderPath, unresolvedReference } from '../scan/reference-role';
@@ -63,6 +64,8 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
   const files = new Map(raw.files.map((file) => [file.path, file]));
   const atoms = map.atoms.filter((atom) => {
     if (ignoredReference(raw, atom.provenance.file)) return false;
+    // A skill's script is owned by the skill's folder, whatever role its own text has: it states no rule.
+    if (atom.kind === 'script') return true;
     const file = files.get(atom.provenance.file);
     if (!file) return true;
     return normativeRanges(file, atom.provenance.startLine, atom.provenance.endLine).length > 0;
@@ -73,13 +76,13 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
     findings.push({ code: 'QUOTE_DRIFT', subject: drift.path, message: drift.message });
   }
 
-  const analysis = analyzeGraph(atoms, map.edges, raw.files);
+  const analysis = analyzeGraph(atoms, map.edges, raw.files, navigationNames(raw));
   // Findings look atoms up by id: the first atom of each id, as a search from the start would find it.
   const byId = new Map<string, Atom>();
   for (const atom of atoms) if (!byId.has(atom.id)) byId.set(atom.id, atom);
   for (const path of analysis.orphans) {
     const file = files.get(path);
-    if (file && !isNormative(file)) continue;
+    if (file && unloadedByDesign(raw, file)) continue;
     findings.push({
       code: 'ORPHAN',
       subject: path,
@@ -88,7 +91,7 @@ export function lintEstate(map: EstateMap, raw: RawEstate, options: LintOptions 
   }
   for (const path of analysis.unreachableFiles) {
     const file = files.get(path);
-    if (file && !isNormative(file)) continue;
+    if (file && unloadedByDesign(raw, file)) continue;
     findings.push({
       code: 'UNREACHABLE',
       subject: path,

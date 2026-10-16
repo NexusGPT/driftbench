@@ -25,11 +25,20 @@ Non-normative documents remain navigation targets. Their bodies supply no declar
 
 ## Missing, unresolved and illustrative targets
 
-A concrete path that does not exist remains `MISSING_REFERENCE`. A bare name with no resolution becomes informational `UNRESOLVED_REFERENCE`: the scan has not established where it belongs. Ambiguous names retain `AMBIGUOUS_REFERENCE` with their candidates. Placeholders and illustrative examples do not establish missing files. A path excluded by an ignore rule is not a broken live dependency, even if no physical fixture currently exists at that path.
+A path with a separator names a place, resolved relative to the live document that names it. If it does not exist, it is a `MISSING_REFERENCE` only when its extension names a document or script type (the same list the scan has always used); a pair such as `read/write`, a ratio, a version or a dotted name carries no evidence that a file was meant, and produces no reference. A filename with an extension that is quoted, backticked or linked designates a file beside its source: absent, it is a `MISSING_REFERENCE`. A name with no separator and no extension, or a loose word, that resolves to no file, skill or helper becomes informational `UNRESOLVED_REFERENCE`: the scan has not established where it belongs. A name explicitly designated by a read, open or load directive as a skill, helper, agent or identifier is retained for this check. An existing file of any extension still resolves. Ambiguous names retain `AMBIGUOUS_REFERENCE` with their candidates. Placeholders and illustrative examples do not establish missing files. A path excluded by an ignore rule is not a broken live dependency, even if no physical fixture currently exists at that path.
+
+## Orphan and unreachable files
+
+A changelog, history, journal, archive or fixture is a record or a store: nothing is expected to load it, so it is not an orphan or unreachable defect. A role never hides a live finding, though:
+
+- A file inside the folder of a live skill is that skill's material. It stays a finding when nothing names it, whatever its role, and the skill's scripts keep their ownership atoms even in a folder such as `examples`.
+- A template or an example exists to be read when a live document sends the reader to it. One that no live document names or reaches is still an orphan.
+- A file the runtime loads by its place (standing instructions, memory, settings, a skill or helper definition, the check registry) is never exempt: its own text cannot hide it.
+- A navigation document (a changelog, a history, an example) still documents the files it points at: such a file counts as named, not as an orphan. The link never makes the file reachable and creates no atom, rule or missing-file finding.
 
 ## Reproducible synthetic measurement
 
-The hand-written estate in `packages/estate/test/scan/document-role-estate.ts` contains each navigation role, mixed example and operational sections, placeholder paths, an ignored fixture path, an unresolved name, two concrete missing live references, and one real recovery hazard. It contains no private estate text or validator fixture strings.
+The hand-written estate in `packages/estate/test/scan/document-role-estate.ts` contains each navigation role, mixed example and operational sections, placeholder paths, an ignored fixture path, three concrete missing live references, and one real recovery hazard. It contains no private estate text or validator fixture strings.
 
 Precision counts correct failing lint findings over all failing lint findings. Hazard precision counts the real recovery hazard over all hazard atoms. Informational findings do not count as failures. The role tests also check preservation of real read gates, map serialization, arbitrary log and form titles, and live procedures containing dates and variables.
 
@@ -47,7 +56,7 @@ Measured on the same synthetic input against base `a91598b5e153dc9c734188abc4027
 
 | Metric | Before | After | Retained truth |
 |---|---|---|---|
-| Failing lint precision | 2/16 (12.5%) | 2/2 (100%) | Both concrete missing live references |
+| Failing lint precision | 3/16 (18.75%) | 3/3 (100%) | All three concrete missing live references |
 | Hazard precision | 1/8 (12.5%) | 1/1 (100%) | The live compaction recovery rule |
 
 These are constructed-estate measurements, not a private-estate remeasurement.

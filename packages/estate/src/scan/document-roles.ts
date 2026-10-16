@@ -159,6 +159,48 @@ export function isNormative(file: EstateFile): boolean {
   return documentInfo(file).role === 'normative';
 }
 
+/** The live declared unit (skill) whose folder holds a path: the unit that owns the file. */
+export function owningUnit(raw: Pick<RawEstate, 'skills'>, path: string): string | undefined {
+  const roots = new Set(raw.skills.map((skill) => posix.normalize(skill.folder)));
+  let folder = posix.dirname(path);
+  while (folder !== posix.dirname(folder)) {
+    if (roots.has(folder)) return folder;
+    folder = posix.dirname(folder);
+  }
+  return undefined;
+}
+
+const LOADED_BY_PLACE: ReadonlySet<EstateFile['kind']> = new Set([
+  'standing',
+  'memory',
+  'settings',
+  'skill',
+  'subagent',
+  'registry',
+]);
+
+/** Records and stores: nothing is expected to load them, so being named by no live document is no defect. */
+const UNLOADED_BY_DESIGN: ReadonlySet<DocumentRole> = new Set([
+  'changelog',
+  'history',
+  'journal',
+  'archive',
+  'fixture',
+]);
+/**
+ * Whether being unnamed or unreachable is expected. A role never hides a defect that a live owner makes:
+ * a template or an example exists to be read when a live document sends the reader to it, and any file
+ * inside the folder of a live skill is that skill's material, so it stays a finding when nothing names it.
+ * A file the runtime loads by its place (standing instructions, memory, settings, a skill or helper
+ * definition, the check registry) is never exempt: a document's own role cannot hide it. Only a record or
+ * store outside every live unit is exempt.
+ */
+export function unloadedByDesign(raw: Pick<RawEstate, 'skills'>, file: EstateFile): boolean {
+  // The runtime loads these kinds by their place: what a document says about itself cannot exempt them.
+  if (LOADED_BY_PLACE.has(file.kind)) return false;
+  return UNLOADED_BY_DESIGN.has(documentInfo(file).role) && owningUnit(raw, file.path) === undefined;
+}
+
 /** Inclusive line intervals for live text; original text and provenance offsets remain untouched. */
 export function normativeRanges(
   file: EstateFile,
@@ -195,15 +237,7 @@ export function maskIllustrativePrefixes(text: string): string {
 
 /** Apply the same authority boundary to readers of any runtime, including supplied raw estates. */
 export function normativeEstate(raw: RawEstate): RawEstate {
-  const roots = new Set(raw.skills.map((skill) => posix.normalize(skill.folder)));
-  const unitOf = (path: string) => {
-    let folder = posix.dirname(path);
-    while (folder !== posix.dirname(folder)) {
-      if (roots.has(folder)) return folder;
-      folder = posix.dirname(folder);
-    }
-    return undefined;
-  };
+  const unitOf = (path: string) => owningUnit(raw, path);
   const files = new Map(
     raw.files.map((file) => {
       file.document ??= classifyDocument(file, unitOf(file.path));

@@ -70,6 +70,8 @@ export function analyzeGraph(
   atoms: readonly Atom[],
   edges: readonly Edge[],
   files: readonly EstateFile[],
+  /** Files documented by navigation-only documents: named, though they never make a file reachable. */
+  navigation: ReadonlySet<string> = new Set(),
 ): GraphAnalysis {
   const kinds = new Map(files.map((file) => [file.path, file.kind]));
   const byId = new Map(atoms.map((atom) => [atom.id, atom]));
@@ -114,6 +116,8 @@ export function analyzeGraph(
   for (const atom of atoms) {
     for (const path of pathsOf(atom)) if (kinds.has(path)) namedFiles.add(path);
   }
+
+  for (const path of navigation) if (kinds.has(path)) namedFiles.add(path);
 
   const orphans = files.filter((file) => !namedFiles.has(file.path)).map((file) => file.path);
   const orphanSet = new Set(orphans);

@@ -1,7 +1,7 @@
 import type { ModelPort } from '@agent-nexus/driftbench-generate';
 import type { Atom } from '../schema';
 import { AtomBuilder, codeAtoms, guardName } from './code';
-import { isNormative, normativeEstate } from './document-roles';
+import { isNormative, normativeEstate, unloadedByDesign } from './document-roles';
 import { type ChunkRun, type ProseRefusal, runChunk } from './prose';
 import type { EstateFile, RawEstate } from './reader';
 import { type Located, linesOf } from './text';
@@ -82,7 +82,9 @@ export function measureInvariants(
   orphans: readonly string[],
   ceiling: number,
 ): InvariantState {
-  const navigation = new Set(raw.files.filter((file) => !isNormative(file)).map((file) => file.path));
+  const navigation = new Set(
+    raw.files.filter((file) => unloadedByDesign(raw, file)).map((file) => file.path),
+  );
   const names = new Set(raw.guards.map((guard) => guardName(guard)));
   // A catalogue check is listed by its catalogue; the registry is asked to list the guards the runtime runs.
   const runtime = new Set(raw.guards.filter((guard) => !guard.check).map((guard) => guardName(guard)));
