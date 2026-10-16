@@ -26,7 +26,7 @@ A spec or a block names the objects it uses under `uses`. An object can be found
 
 Every refusal is a load error, never a silent skip. That holds for an unknown item or object, a loop of parents, a wrong order, a missing implementation and a parameter of the wrong type.
 
-In this release, objects are read and checked when a spec loads, and `uses` enters the spec hash. No run reads them yet: a `check_set` named under `uses` does not change which checks run. No object and no implementation is shipped yet, so a rule file can only enable an item whose implementation a plugin provides (see running-plugins).
+In this release, objects are read and checked when a spec loads, and `uses` enters the spec hash. A run reads them: a `check_set` named under `uses` decides which checks run (see running-check-sets). Driftbench ships a `default` object for some kinds, such as `check-set:default` and `policy/value-check:default`. An enabled item needs an implementation that a builtin or a plugin provides (see running-plugins).
 
 ### The kinds
 
@@ -240,7 +240,7 @@ An object's identity is the hash of its resolved content: its kind, its params a
 
 ## Worked example
 
-A project holds a root object and a child that extends it. Some specs use them, by id and inline; others break one rule each. The rule files are written first, then checked. No model is called. Every item of `base` is disabled, because this release ships no implementation: an enabled item needs one.
+A project holds a root object and a child that extends it. Some specs use them, by id and inline; others break one rule each. The rule files are written first, then checked. No model is called. Every item of `base` is disabled: an enabled item needs an implementation that a builtin or a plugin provides.
 
 ```yaml file=driftbench.yaml
 # The project config. The project rule files are read from driftbench/ beside it.
