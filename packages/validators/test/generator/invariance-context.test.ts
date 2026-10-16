@@ -159,11 +159,27 @@ describe('invariance holds the turns fixed too', () => {
 
   it('seed 18: two specs of new-request-full with the same values and other turns are no pair', async () => {
     const generated = await generation(18);
-    const spec = (id: string) => required(generated.complete.find((entry) => entry.spec.id === id)).spec;
-    const cover = spec('gen-cover-096');
-    const phrase = spec('gen-phrase-012');
     const data = (value: string) => (JSON.parse(value) as { data: unknown }).data;
-    expect(data(heldFixed(cover, generated.hidden))).toEqual(data(heldFixed(phrase, generated.hidden)));
-    expect(heldFixed(cover, generated.hidden)).not.toBe(heldFixed(phrase, generated.hidden));
+    // Any two specs of the path that hold the same values and say other turns: found, not named, so a change
+    // of the drawn suite cannot move the evidence.
+    const walks = generated.complete.filter((entry) =>
+      /Path new-request-full of /.test(entry.spec.title ?? ''),
+    );
+    const held = walks.map((entry) => heldFixed(entry.spec, generated.hidden));
+    const pairs = walks.flatMap((_, left) =>
+      walks
+        .slice(left + 1)
+        .map((__, offset) => [left, left + 1 + offset] as const)
+        .filter(
+          ([a, b]) =>
+            JSON.stringify(data(held[a] as string)) === JSON.stringify(data(held[b] as string)) &&
+            held[a] !== held[b],
+        ),
+    );
+    expect(pairs.length).toBeGreaterThan(0);
+    for (const [a, b] of pairs.slice(0, 5)) {
+      expect(data(held[a] as string)).toEqual(data(held[b] as string));
+      expect(held[a]).not.toBe(held[b]);
+    }
   }, 300_000);
 });

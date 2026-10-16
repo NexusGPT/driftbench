@@ -248,3 +248,7 @@ The generator's disk parity test imports the validator's mutable seed-5 hidden c
 The test now constructs its intended imbalance by adding approved off-topic phrases before generation, on public seeds 1 and 5 and fresh seed 1009. It keeps the assertion requiring balance files, summary/file-count equality and every non-report file's byte equality. No generator product source changes. The separate merge commit preserves both sides of the records. See [integration evidence](evidence/ownership-stream-fixture.json). Historical ladder measurements stay unchanged.
 
 Focused results: four disk parity cases and 42 ownership/pin tests pass. Disabling the balancing iterator through a temporary test spy makes all three explicit-imbalance cases fail. The spy is removed; product source is unchanged.
+
+## Behaviours no owner can exercise: maintainer ruling (2026-10-16)
+
+A behaviour is exercised by a conversation of a flow that owns it, so one owner must call its tool and recover its class. The hidden constructor now adds one owner where none can (`behaviour-exercise.ts`), before the capacity pass. Open: five behaviours name a tool no flow calls (`list_options` on a five-stage map). See [the journal](SWEEP-JOURNAL.md).

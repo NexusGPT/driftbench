@@ -34,7 +34,7 @@ describe('a behaviour has an owner that can exercise it', () => {
     ensureBehavioursExercisable(world, new Map<string, Exercise>([['label', { tool: 'stamp' }]]));
     expect(owners(world, 'label')).toEqual(['outbound', 'returns']);
     expect(world.flows.map((flow) => flow.behaviours)).toEqual([
-      ['greet', 'weigh'],
+      ['weigh', 'greet'],
       ['crate', 'label'],
       ['label'],
     ]);
