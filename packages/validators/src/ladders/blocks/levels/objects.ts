@@ -16,7 +16,9 @@ import {
   scriptedAdapter,
   shuffled,
 } from '../harness';
+import { KINDS, type Kind, plantedAgent, token } from '../kinds';
 import { type BlocksProduct, need } from '../product';
+import { recipe } from '../recipe';
 import { type BankItem, expectAll, fail, PASS, type Tier } from '../types';
 
 /**
@@ -40,6 +42,12 @@ const STAMPS = 'packages/core/src/runner/run.ts';
 /** Items of check-set:default the overrides draw from: checks every block of this level can produce. */
 export const CHECK_SET_ITEMS = ['tools', 'forbidden', 'must', 'must_not', 'stage', 'lang'] as const;
 
+/** The check-set items each kind's blocks produce verdicts for, the overrides draw from these. */
+export const KIND_ITEMS: Record<Kind, readonly string[]> = {
+  normal: CHECK_SET_ITEMS,
+  code: ['artifacts', 'workspace', 'execution', 'safety', 'skills', 'guards'],
+};
+
 /** Every item id of the shipped check-set:default, in its order, as the product's checks package exports it. */
 function shippedOrder(product: BlocksProduct): string[] {
   const set = need<{ items: { id: string }[]; order?: string[] }>(
@@ -60,34 +68,38 @@ type Override = {
     p: <T>(items: readonly T[]) => T,
     rng: Rng,
     order: readonly string[],
+    pool: readonly string[],
   ): { ref: unknown; code: string | undefined };
 };
 
 const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-const others = (item: string) => CHECK_SET_ITEMS.filter((each) => each !== item);
+const others = (item: string, pool: readonly string[]) => pool.filter((each) => each !== item);
 
 const OVERRIDES: Override[] = [
   {
     id: 'disable-an-item',
     tier: 1,
-    build: (p) => ({
-      ref: { extends: 'default', items: [{ id: p(CHECK_SET_ITEMS), enabled: false }] },
+    build: (p, _rng, _order, pool) => ({
+      ref: { extends: 'default', items: [{ id: p(pool), enabled: false }] },
       code: undefined,
     }),
   },
   {
     id: 'move-before',
     tier: 2,
-    build: (p) => {
-      const item = p(CHECK_SET_ITEMS);
-      return { ref: { extends: 'default', items: [{ id: item, before: p(others(item)) }] }, code: undefined };
+    build: (p, _rng, _order, pool) => {
+      const item = p(pool);
+      return {
+        ref: { extends: 'default', items: [{ id: item, before: p(others(item, pool)) }] },
+        code: undefined,
+      };
     },
   },
   {
     id: 'order-permutation',
     tier: 2,
-    build: (_p, rng, order) => ({
+    build: (_p, rng, order, _pool) => ({
       ref: { extends: 'default', order: shuffled(rng, order) },
       code: undefined,
     }),
@@ -95,8 +107,8 @@ const OVERRIDES: Override[] = [
   {
     id: 'unknown-item-typo',
     tier: 1,
-    build: (p) => {
-      const item = p(CHECK_SET_ITEMS);
+    build: (p, _rng, _order, pool) => {
+      const item = p(pool);
       const typo = p([item.toUpperCase(), `${item}s`, item.slice(0, -1), `${item}.count`]);
       return {
         ref: { extends: 'default', items: [{ id: typo, enabled: false }] },
@@ -107,7 +119,7 @@ const OVERRIDES: Override[] = [
   {
     id: 'unknown-item-new',
     tier: 2,
-    build: (p) => ({
+    build: (p, _rng, _order, _pool) => ({
       ref: {
         extends: 'default',
         items: [{ id: p(['latency', 'retry_budget', 'R3', 'tools.count']), enabled: true }],
@@ -118,7 +130,7 @@ const OVERRIDES: Override[] = [
   {
     id: 'add-incomplete',
     tier: 3,
-    build: (p) => ({
+    build: (p, _rng, _order, _pool) => ({
       ref: {
         extends: 'default',
         items: [{ id: p(['extra_check', 'slow_reply']), add: true, title: 'A new check' }],
@@ -129,8 +141,8 @@ const OVERRIDES: Override[] = [
   {
     id: 'add-existing',
     tier: 3,
-    build: (p) => {
-      const item = p(CHECK_SET_ITEMS);
+    build: (p, _rng, _order, pool) => {
+      const item = p(pool);
       return {
         ref: {
           extends: 'default',
@@ -152,10 +164,10 @@ const OVERRIDES: Override[] = [
   {
     id: 'order-and-move',
     tier: 4,
-    build: (p, _rng, order) => {
-      const item = p(CHECK_SET_ITEMS);
+    build: (p, _rng, order, pool) => {
+      const item = p(pool);
       return {
-        ref: { extends: 'default', order: [...order], items: [{ id: item, after: p(others(item)) }] },
+        ref: { extends: 'default', order: [...order], items: [{ id: item, after: p(others(item, pool)) }] },
         code: 'OBJECT_ORDER_INVALID',
       };
     },
@@ -163,8 +175,8 @@ const OVERRIDES: Override[] = [
   {
     id: 'order-missing-an-item',
     tier: 4,
-    build: (p, _rng, order) => {
-      const dropped = p(CHECK_SET_ITEMS);
+    build: (p, _rng, order, pool) => {
+      const dropped = p(pool);
       return {
         ref: { extends: 'default', order: order.filter((item) => item !== dropped) },
         code: 'OBJECT_ORDER_INVALID',
@@ -174,10 +186,10 @@ const OVERRIDES: Override[] = [
   {
     id: 'unknown-impl',
     tier: 3,
-    build: (p) => ({
+    build: (p, _rng, _order, pool) => ({
       ref: {
         extends: 'default',
-        items: [{ id: p(CHECK_SET_ITEMS), impl: p(['builtin:check/nope', 'builtin:checks/tools-count']) }],
+        items: [{ id: p(pool), impl: p(['builtin:check/nope', 'builtin:checks/tools-count']) }],
       },
       code: 'OBJECT_IMPL_UNKNOWN',
     }),
@@ -185,12 +197,18 @@ const OVERRIDES: Override[] = [
   {
     id: 'unknown-object',
     tier: 1,
-    build: (p) => ({ ref: p(['no-such-set', 'defaults', 'Default']), code: 'OBJECT_UNKNOWN' }),
+    build: (p, _rng, _order, _pool) => ({
+      ref: p(['no-such-set', 'defaults', 'Default']),
+      code: 'OBJECT_UNKNOWN',
+    }),
   },
   {
     id: 'unknown-parent',
     tier: 2,
-    build: (p) => ({ ref: { extends: p(['missing', 'default2']), items: [] }, code: 'OBJECT_UNKNOWN' }),
+    build: (p, _rng, _order, _pool) => ({
+      ref: { extends: p(['missing', 'default2']), items: [] },
+      code: 'OBJECT_UNKNOWN',
+    }),
   },
 ];
 
@@ -198,12 +216,12 @@ function toolSpec(seed: number, tag: string, uses: { spec?: unknown; block?: unk
   const rng = rngFor(seed, `${tag}#spec`);
   const n = between(rng, 2, 3);
   return {
-    id: `blocks-objects-${seed}`,
+    id: `spec-${token(seed, `${tag}#spec`)}`,
     channel: 'chat',
     ...(uses.spec === undefined ? {} : { uses: { check_set: uses.spec } }),
     blocks: Array.from({ length: n }, (_, index) => ({
       id: `b${index}`,
-      user: `[${tag}:${index}] Is the ${pick(rng, SHOP.bikes)} free?`,
+      user: `[${token(seed, tag)}:${index}] Is the ${pick(rng, SHOP.bikes)} free?`,
       ...(index === n - 1 && uses.block !== undefined ? { uses: { check_set: uses.block } } : {}),
       expect: {
         must: ['free'],
@@ -216,54 +234,78 @@ function toolSpec(seed: number, tag: string, uses: { spec?: unknown; block?: unk
   };
 }
 
+/**
+ * A planted spec of `kind` with `uses` at the spec or on its last block. NORMAL blocks also expect a tool never
+ * called (a `forbidden` verdict); CODE blocks also cap destructive operations (a `safety` verdict).
+ */
+function objectSpec(seed: number, tag: string, kind: Kind, uses: { spec?: unknown; block?: unknown }) {
+  const r = recipe(seed, tag, kind, [
+    { fate: 'pass' },
+    { fate: 'pass' },
+    { fate: kind === 'code' ? 'pass' : 'fail' },
+  ]);
+  const raw: RawSpec = structuredClone(r.raw);
+  if (uses.spec !== undefined) raw.uses = { check_set: uses.spec };
+  raw.blocks.forEach((block, index) => {
+    const expect = block.expect as Record<string, unknown>;
+    if (kind === 'normal') (expect.tools as unknown[]).push({ label: 'payment.charge', count: 0 });
+    else expect.safety = { max_destructive_ops: 0 };
+    if (index === raw.blocks.length - 1 && uses.block !== undefined) block.uses = { check_set: uses.block };
+  });
+  return { raw, r };
+}
+
 function loaderItems(): BankItem[] {
   const items: BankItem[] = [];
-  for (const override of OVERRIDES) {
-    for (const place of ['spec', 'block'] as const) {
-      const id = `objects/loader/${override.id}/${place}`;
-      const sample = override.build(
-        (xs) => xs[0] as never,
-        () => 0,
-        [...CHECK_SET_ITEMS],
-      );
-      items.push({
-        id,
-        family: 'objects-loader',
-        tier: override.tier,
-        level: 3,
-        component:
-          sample.code === undefined
-            ? LOADER
-            : sample.code.includes('ORDER') || sample.code.includes('ITEM')
-              ? RULES
-              : RESOLVE,
-        title: `a ${place}-level uses.check_set that ${override.id.replace(/-/g, ' ')} ${sample.code === undefined ? 'loads' : `is refused with ${sample.code}`}`,
-        cause:
-          sample.code === undefined
-            ? 'The loader resolves spec and block uses against the shipped objects.'
-            : `The loader's resolve pass refuses ${override.id.replace(/-/g, ' ')} with ${sample.code}.`,
-        check: async ({ seed, product }) => {
-          const rng = rngFor(seed, id);
-          const { ref, code } = override.build(
-            (xs) => pick(rng, xs),
-            rng,
-            override.id.startsWith('order') ? shippedOrder(product) : [],
-          );
-          const raw = toolSpec(seed, id, place === 'spec' ? { spec: ref } : { block: ref });
-          const result = loadIssues(product, raw);
-          if (code === undefined)
-            return result.ok
+  for (const kind of KINDS)
+    for (const override of OVERRIDES) {
+      for (const place of ['spec', 'block'] as const) {
+        const id = `objects/loader/${kind}/${override.id}/${place}`;
+        const sample = override.build(
+          (xs) => xs[0] as never,
+          () => 0,
+          [...KIND_ITEMS[kind]],
+          KIND_ITEMS[kind],
+        );
+        items.push({
+          id,
+          family: `objects-loader-${kind}`,
+          tier: Math.min(5, override.tier + (kind === 'code' ? 1 : 0)) as Tier,
+          level: 3,
+          component:
+            sample.code === undefined
+              ? LOADER
+              : sample.code.includes('ORDER') || sample.code.includes('ITEM')
+                ? RULES
+                : RESOLVE,
+          title: `a ${place}-level uses.check_set on a ${kind} spec that ${override.id.replace(/-/g, ' ')} ${sample.code === undefined ? 'loads' : `is refused with ${sample.code}`}`,
+          cause:
+            sample.code === undefined
+              ? 'The loader resolves spec and block uses against the shipped objects.'
+              : `The loader's resolve pass refuses ${override.id.replace(/-/g, ' ')} with ${sample.code}.`,
+          check: async ({ seed, product }) => {
+            const rng = rngFor(seed, id);
+            const { ref, code } = override.build(
+              (xs) => pick(rng, xs),
+              rng,
+              override.id.startsWith('order') ? shippedOrder(product) : [],
+              KIND_ITEMS[kind],
+            );
+            const { raw } = objectSpec(seed, id, kind, place === 'spec' ? { spec: ref } : { block: ref });
+            const result = loadIssues(product, raw);
+            if (code === undefined)
+              return result.ok
+                ? PASS
+                : fail(`the loader refused ${JSON.stringify(ref)}: ${list(result.codes)}`);
+            return !result.ok && result.codes.includes(code)
               ? PASS
-              : fail(`the loader refused ${JSON.stringify(ref)}: ${list(result.codes)}`);
-          return !result.ok && result.codes.includes(code)
-            ? PASS
-            : fail(
-                `the loader answered ${result.ok ? 'ok' : list(result.codes)} on ${JSON.stringify(ref)}, expected ${code}`,
-              );
-        },
-      });
+              : fail(
+                  `the override ${JSON.stringify(ref)} should be refused with ${code}; the loader answered ${result.ok ? 'ok' : list(result.codes)}`,
+                );
+          },
+        });
+      }
     }
-  }
   return items;
 }
 
@@ -285,44 +327,42 @@ function hashItems(): BankItem[] {
     { id: 'both', uses: (ref: unknown) => ({ spec: 'default', block: ref }) },
     { id: 'named-default', uses: () => ({ spec: 'default' }) },
   ];
-  return places.map((place) => {
-    const id = `objects/hash/${place.id}`;
-    return {
-      id,
-      family: 'objects-loader',
-      tier: 3 as Tier,
-      level: 3,
-      component: LOADER,
-      title: `a ${place.id} uses changes the spec hash and leaves every block cache key as it was`,
-      cause: 'uses is part of the spec hash and is left out of the block cache key.',
-      check: async ({ seed, product }) => {
-        const ref = { extends: 'default', items: [{ id: 'lang', enabled: false }] };
-        const behave = (turn: { user: string }) =>
-          observed('It is free.', [
-            {
-              label: 'bikes.lookup',
-              input: { day: Number(/:(\d+)\]/.exec(turn.user)?.[1] ?? 0) + 1 },
-              output: { free: true },
-            },
+  return KINDS.flatMap((kind) =>
+    places.map((place) => {
+      const id = `objects/hash/${kind}/${place.id}`;
+      return {
+        id,
+        family: `objects-loader-${kind}`,
+        tier: 3 as Tier,
+        level: 3,
+        component: LOADER,
+        title: `a ${place.id} uses on a ${kind} spec changes the spec hash and leaves every block cache key as it was`,
+        cause: 'uses is part of the spec hash and is left out of the block cache key.',
+        check: async ({ seed, scratch, product }) => {
+          const ref = {
+            extends: 'default',
+            items: [{ id: kind === 'code' ? 'skills' : 'lang', enabled: false }],
+          };
+          const plain = objectSpec(seed, id, kind, {});
+          const tailored = objectSpec(seed, id, kind, place.uses(ref));
+          const cache = memoryCache();
+          const agent = () => plantedAgent(product, kind, plain.r.actions, { scratch }).adapter;
+          const a = await run(product, plain.raw, agent(), { cache });
+          const b = await run(product, tailored.raw, agent(), { cache });
+          const keysA = a.blocks.map((block) => (block as { cacheKey?: string }).cacheKey);
+          const keysB = b.blocks.map((block) => (block as { cacheKey?: string }).cacheKey);
+          return expectAll([
+            [a.specHash !== b.specHash, 'the spec hash is the same with and without uses'],
+            [keysA.every((key) => key !== undefined), 'a block records no cache key'],
+            [
+              keysA.join(',') === keysB.join(','),
+              `uses changed the block cache keys: ${list(keysA, 3)} against ${list(keysB, 3)}`,
+            ],
           ]);
-        const plain = toolSpec(seed, id, {});
-        const tailored = toolSpec(seed, id, place.uses(ref));
-        const cache = memoryCache();
-        const a = await run(product, plain, scriptedAdapter(product, behave), { cache });
-        const b = await run(product, tailored, scriptedAdapter(product, behave), { cache });
-        const keysA = a.blocks.map((block) => (block as { cacheKey?: string }).cacheKey);
-        const keysB = b.blocks.map((block) => (block as { cacheKey?: string }).cacheKey);
-        return expectAll([
-          [a.specHash !== b.specHash, 'the spec hash is the same with and without uses'],
-          [keysA.every((key) => key !== undefined), 'a block records no cache key'],
-          [
-            keysA.join(',') === keysB.join(','),
-            `uses changed the block cache keys: ${list(keysA, 3)} against ${list(keysB, 3)}`,
-          ],
-        ]);
-      },
-    };
-  });
+        },
+      };
+    }),
+  );
 }
 
 type CliCase = {
@@ -353,7 +393,7 @@ function writeProject(dir: string, p: <T>(items: readonly T[]) => T, seed: numbe
   writeFileSync(join(dir, 'driftbench.yaml'), stringify({ objects: [projectObject(objectId, item)] }));
   writeFileSync(
     join(dir, 'driftbench', 'check-set', `${fileId}.yaml`),
-    stringify(projectObject(fileId, p(others(item)))),
+    stringify(projectObject(fileId, p(others(item, CHECK_SET_ITEMS)))),
   );
   const spec = toolSpec(seed, `cli-${objectId}`, { block: objectId });
   const specPath = join(dir, 'spec.yaml');
@@ -725,7 +765,7 @@ function stampItems(): BankItem[] {
       const id = `objects/stamps/${place.id}/${shape}`;
       items.push({
         id,
-        family: 'objects-stamps',
+        family: 'objects-stamps-normal',
         tier: (place.id === 'shipped'
           ? 2
           : shape === 'extra-call' || shape === 'missing-call'
@@ -834,7 +874,102 @@ function stampItems(): BankItem[] {
   return items;
 }
 
-/** Level 4 of the blocks bank. */
+/**
+ * The stamps of a CODE agent's verdicts: the check set from the shipped, spec or block layer retitles the
+ * `artifacts` item and disables `safety`. The tailored item names its layer and a tailored object, the disabled
+ * check gives no verdict, and a block the tailoring does not reach keeps the shipped stamp.
+ */
+function codeStampItems(): BankItem[] {
+  const items: BankItem[] = [];
+  const places = [
+    { id: 'shipped', layer: 'shipped', uses: () => ({}) },
+    { id: 'spec', layer: 'spec', uses: (ref: unknown) => ({ spec: ref }) },
+    { id: 'block', layer: 'block', uses: (ref: unknown) => ({ block: ref }) },
+  ];
+  const fates = ['all-pass', 'last-fails', 'first-fails', 'missing-file'] as const;
+  for (const place of places) {
+    for (const fate of fates) {
+      const id = `objects/stamps/code/${place.id}/${fate}`;
+      items.push({
+        id,
+        family: 'objects-stamps-code',
+        tier: (place.id === 'shipped' ? 3 : 4) as Tier,
+        level: 3,
+        component: STAMPS,
+        title: `on code blocks (${fate.replace(/-/g, ' ')}) scored with the check set of the ${place.id} layer, every verdict names its object, its item, its builtin implementation and the layer that set the item`,
+        cause:
+          place.id === 'shipped'
+            ? 'Every verdict of a code block names the check-set item and layer that produced it (Verdict.by).'
+            : `Verdict.by of a code block names the ${place.layer} layer for an item that ${place.id} uses changes.`,
+        check: async ({ seed, scratch, product }) => {
+          const rng = rngFor(seed, id);
+          const ref = {
+            extends: 'default',
+            items: [
+              { id: 'artifacts', title: `Files for ${pick(rng, SHOP.customers)}` },
+              { id: 'safety', enabled: false },
+            ],
+          };
+          const { raw, r } = objectSpec(seed, id, 'code', place.uses(ref));
+          const last = raw.blocks.length - 1;
+          if (fate !== 'all-pass') {
+            const at = fate === 'first-fails' ? 0 : last;
+            const block = r.blocks[at];
+            const action = r.actions.get(block?.marker as string);
+            if (action)
+              r.actions.set(
+                block?.marker as string,
+                fate === 'missing-file'
+                  ? { ...action, files: [] }
+                  : { ...action, commands: [{ command: 'python make.py', exitCode: 2 }] },
+              );
+          }
+          const agent = plantedAgent(product, 'code', r.actions, { scratch });
+          const record: RunRecord = await run(product, raw, agent.adapter);
+          const byId = new Map(raw.blocks.map((block, index) => [block.id, index]));
+          const tailored = new Set<string>();
+          const shipped = new Set<string>();
+          for (const block of record.blocks) {
+            const index = byId.get(block.blockId) ?? block.index;
+            const governed = place.id !== 'shipped' && (place.id === 'spec' || index === last);
+            for (const verdict of block.verdicts) {
+              const by = verdict.by as Stamp | undefined;
+              const check = checkOf(verdict as { id: string; name?: string });
+              if (!by)
+                return fail(
+                  `the verdict ${verdict.id} of ${block.blockId} should name its producer; it names none`,
+                );
+              if (!/^check-set:[^@]+@[0-9a-f]{8}$/.test(by.object ?? '')) continue;
+              if (by.item !== check)
+                return fail(`the verdict ${verdict.id} should name the item ${check}; it names ${by.item}`);
+              if (governed && check === 'safety')
+                return fail(
+                  `${block.blockId} should give no safety verdict: the check set disables it; it gave ${verdict.id}`,
+                );
+              const want = governed && check === 'artifacts' ? place.layer : 'shipped';
+              if (by.layer !== want)
+                return fail(
+                  `the verdict ${verdict.id} of ${block.blockId} should name the layer ${want}; it names ${by.layer}`,
+                );
+              (governed ? tailored : shipped).add(by.object as string);
+            }
+          }
+          if (place.id === 'shipped')
+            return [...shipped].every((object) => object.startsWith('check-set:default@'))
+              ? PASS
+              : fail(`the shipped check set should be check-set:default@<hash8>; got ${list([...shipped])}`);
+          return tailored.size === 1 &&
+            ![...tailored].some((object) => object.startsWith('check-set:default@'))
+            ? PASS
+            : fail(`the tailored blocks should name one tailored object; they name ${list([...tailored])}`);
+        },
+      });
+    }
+  }
+  return items;
+}
+
+/** Level 3 of the blocks bank. */
 export function objectItems(): BankItem[] {
-  return [...loaderItems(), ...hashItems(), ...cliItems(), ...stampItems()];
+  return [...loaderItems(), ...hashItems(), ...cliItems(), ...stampItems(), ...codeStampItems()];
 }
