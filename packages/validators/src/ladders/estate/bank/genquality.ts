@@ -48,8 +48,8 @@ const TEST_TYPES = [
 ] as const;
 
 /**
- * Words that open a request without being its verb: politeness, sequencing and manner adverbs, and the frames
- * "can you", "I need you to". They are skipped before the clause's head is read.
+ * Words that open a request without being its verb: politeness, sequencing and manner adverbs. They are skipped
+ * before the clause's head is read; the frames "can you", "I need you to" and "please" make the clause a request.
  */
 const OPENERS = new Set(
   `please kindly just now then and also so ok okay first next again still even simply finally immediately quickly carefully once`
@@ -62,18 +62,19 @@ const FRAMES = [
   /^(i|we)\s*(?:'d|would)\s+like\s+you\s+to\s+/i,
   /^go\s+ahead\s+and\s+/i,
   /^let'?s\s+/i,
+  /^right\s+now[,\s]+/i,
 ];
 /**
  * Closed classes that cannot head an imperative: articles and determiners, pronouns, auxiliaries and modals,
- * conjunctions and prepositions, quantifiers, wh-words, frequency adverbs (a rule: "always read ...") and greetings. A clause opening with one is a statement,
- * a condition or a fragment, not a request.
+ * conjunctions and prepositions, quantifiers, wh-words, focus and frequency adverbs (a rule: "always read ...")
+ * and greetings. A clause opening with one is a statement, a condition or a fragment, not a request.
  */
 const NOT_A_HEAD = new Set(
   `a an the this that these those my our your his her its their i we you he she it they there here is are was were
   be been being am does did has have had will would shall should must may might can could if when unless while
   because since although whenever whether before after until as of for to in on at by from with without about into
-  over under but or nor yet every each all any some none who whom whose which what where why how hello hi hey
-  always usually often sometimes generally typically normally thanks thank yes sorry welcome`
+  over under but or nor yet every each all any some none who whom whose which what where why how only even also
+  always usually often sometimes generally typically normally todo tbd hello hi hey thanks thank yes sorry welcome`
     .split(/\s+/)
     .filter(Boolean),
 );
@@ -108,49 +109,90 @@ const DEFERS = new Set(
 );
 const QUESTION = /^(where|what|which|when|who|how|why|is|are|does|do|can|could|has)\b.*\?/i;
 
+/**
+ * What a bare verb is followed by. A word that takes a determiner, a pronoun or a verb particle right after it
+ * is a verb: "escalate the order", "pick it up", "go through inbox/". A noun that opens a statement is followed
+ * by another noun or a finite verb ("supplier orders arrive late"), never by these.
+ */
+const COMPLEMENT = new Set(
+  `a an the this that these those my our your its their his her all each every any some both another other me us
+  you it them him up out off down back through into onto about against around along across`
+    .split(/\s+/)
+    .filter(Boolean),
+);
+/** A path, a file name or a reference code (INV-1004) right after the head: its object. A bare number is not. */
+const OBJECT_SHAPE = /^(?:[a-z0-9._-]+\/|[a-z0-9_-]+\.[a-z0-9]{1,5}$|[a-z]{2,}-\d+$)/i;
+/**
+ * Base-form verbs of work that take a bare noun as object ("send invoices", "dispatch ledger-auditor"). A verb
+ * followed by a determiner needs no entry here; this list serves only the undetermined object, and an unknown
+ * verb with one is refused rather than guessed.
+ */
+const BASE_VERBS = new Set(
+  `add answer approve archive ask carry force assign attach audit book build call cancel change chase check clean close commit
+  compare compile confirm convert copy correct count create deliver delete describe dispatch download draft edit
+  email enter escalate explain export extract file fill find fix flag forward generate get give go handle help
+  import insert invite join list load log look make mark match merge move note notify open order pack pay
+  paste pick plan post prepare price print process publish pull push put read rebuild recalculate recompute
+  reconcile record recover refund refresh register reject release remind remove rename reopen reorder repeat reply
+  report request reschedule reset resolve restore retry review rotate route run save say schedule scan search
+  select send separate set share ship show sign sort split start submit summarise summarize swap sync tag tell
+  track transfer translate trigger triage try unlock update upload use validate verify view watch write`
+    .split(/\s+/)
+    .filter(Boolean),
+);
+/** A marker left where a value was not filled in, or a note that stands for an ask. */
+const PLACEHOLDER =
+  /<[^>]*>|\{\{[^}]*\}\}|\b(?:task|ask|request|text) (?:goes|omitted|here)\b|\b(?:tbd|todo|lorem)\b/i;
+/** A standing condition restated: "... when none is given", "... if the invoice is not in EUR". */
+const CONDITIONAL_RESTATEMENT =
+  /\b(?:when|whenever|if|unless)\s+(?:none|no|any|there|it|they|the|a|an|you)\b[^.;:!?]*\b(?:is|are|was|were|has|have|isn't|aren't|given|missing)\b/i;
+const QUOTE_TOKEN = 'quotedrule';
+
 type Segment = { text: string; delimiter: string };
 
 /** Clauses with the mark that ended each: a colon after a request that names no task defers to what follows. */
 function segments(text: string): Segment[] {
-  return [...text.matchAll(/([^.;:!?,\n]+)([.;:!?,\n]|$)/g)].map((match) => ({
+  return [...text.matchAll(/((?:[^.;:!?,\n]|\.(?!\s|$))+)(\.(?=\s|$)|[;:!?,\n]|$)/g)].map((match) => ({
     text: (match[1] ?? '').trim(),
     delimiter: match[2] ?? '',
   }));
 }
 
-/** "always" opens a request only after a request frame ("please always pass ..."); alone it states a rule. */
-const STANDING_MANNER = new Set(['always', 'usually']);
-
-/** The clause's words after its openers and frames, lower-cased. */
-function wordsOf(clause: string): string[] {
+/** The clause's words after its openers and frames, lower-cased, and whether a frame made it a request. */
+function wordsOf(clause: string): { words: string[]; requested: boolean } {
   let rest = clause.trim();
-  let requesting = false;
+  let requested = false;
   for (let changed = true; changed; ) {
     changed = false;
     for (const frame of FRAMES) {
       const next = rest.replace(frame, '');
       if (next !== rest) {
         rest = next;
-        requesting = true;
+        requested = true;
         changed = true;
       }
     }
     const [first = '', ...others] = rest.split(/\s+/);
     const word = first.toLowerCase();
-    if (OPENERS.has(word) || (requesting && STANDING_MANNER.has(word))) {
-      if (word === 'please' || word === 'kindly') requesting = true;
+    if (OPENERS.has(word)) {
+      if (word === 'please' || word === 'kindly') requested = true;
       rest = others.join(' ');
       changed = true;
     }
   }
-  return rest
+  const words = rest
     .toLowerCase()
     .replace(/[^a-z0-9\s'/.-]/g, ' ')
     .split(/\s+/)
     .filter(Boolean);
+  return { words, requested };
 }
 
-const FINITE = new Set('is are was were must should shall will'.split(' '));
+const FINITE = new Set(
+  `is are was were must should shall will await arrive remain require appear stay exist contain include`.split(
+    ' ',
+  ),
+);
 /** Words that open a subordinate clause: a finite verb after one belongs to it, not to the clause's head. */
 const SUBORDINATORS = new Set(
   `that which who whom whose if when where what how why unless while because since until whether so as then and or but
@@ -168,42 +210,78 @@ function isStatement(rest: string[]): boolean {
   return false;
 }
 
+/** Whether the head is a verb in an imperative: a known base verb, or a word that takes an object's first word. */
+function isImperativeHead(head: string, rest: string[]): boolean {
+  if (BASE_VERBS.has(head)) return true;
+  const next = rest[0];
+  return next !== undefined && (COMPLEMENT.has(next) || OBJECT_SHAPE.test(next));
+}
+
+/** A short noun phrase before a colon labels a field ("invoice status:"); a longer clause introduces its content. */
+function isLabel(rest: string[]): boolean {
+  return rest.length <= 2;
+}
+
+/** Prepositions that may open a clause whose verb comes later: "in invoices/INV-1.json set the note field". */
+const FRONTED = new Set('in on at for with within during under over by from'.split(' '));
+
+/** The verb of a clause opened by a preposition: a base verb within the first few words, with an object. */
+function frontedTask(words: string[]): boolean {
+  for (let at = 1; at < Math.min(5, words.length); at += 1) {
+    const verb = words[at] as string;
+    if (BASE_VERBS.has(verb) && words.slice(at + 1).some((word) => !SKIP.has(word) && word.length > 1))
+      return true;
+  }
+  return false;
+}
+
 /** Whether a clause is an imperative with a task; 'defer' when it asks for a task it does not name. */
 function judgeClause(clause: string, delimiter: string): boolean | 'defer' {
-  const words = wordsOf(clause);
+  const { words, requested } = wordsOf(clause);
   const [head, ...rest] = words;
+  if (head !== undefined && FRONTED.has(head) && !requested) return frontedTask(words);
   if (head === undefined || NEGATIONS.has(head) || NOT_A_HEAD.has(head)) return false;
   if (head === 'do' && NEGATIONS.has(rest[0] ?? '')) return false;
-  if (isStatement(rest)) return false;
+  if (!requested && isStatement(rest)) return false;
+  if (!requested && !SESSION_CONTROL.has(head) && !isImperativeHead(head, rest)) return false;
   const object = rest.filter((word) => !SKIP.has(word));
-  if (delimiter === ':' && rest.length > 0 && object.every((word) => DEFERS.has(word))) return 'defer';
+  if (delimiter === ':' && rest.length > 0) {
+    // A colon after a request that names no task defers to what follows; after a short noun phrase it labels a
+    // field ("invoice status:"); after a longer clause it introduces the clause's content.
+    if (object.every((word) => DEFERS.has(word))) return 'defer';
+    if (isLabel(rest)) return false;
+  }
   if (object.length === 0) return rest.length === 0 && SESSION_CONTROL.has(head);
   return !object.every((word) => DEFERS.has(word)) && object.some((word) => word.length > 1);
 }
 
 /**
- * Whether an ask holds a task: a question about something, or an imperative clause (its head is not negated and
- * not a function word) with an object after it. A request that only points at its task ("do this:", "go against
- * this rule:") is judged by the text after the colon; quoted text is a mention, not a request, and is not read.
+ * Whether an ask holds a task: a question about something, or an imperative request with an object. An
+ * imperative is a clause that opens with a request frame ("please", "could you", "I need you to") or with a verb
+ * (a known base verb, or a word followed by a determiner, pronoun, particle or path: a noun opening a statement
+ * is followed by another noun or a finite verb). A clause that states a fact, a rule, a standing condition or a
+ * status, a fragment, a placeholder and a note do not hold one. A request that only points at its task ("do
+ * this:", "go against this rule:") is judged by the text after the colon; a quoted rule after it is the object
+ * of the request and holds the task, while a sentence that is only the rule does not.
  */
 export function holdsTask(ask: string): boolean {
-  const text = ask
-    .trim()
-    .replace(/^"|"$/g, '')
-    .replace(/"[^"]*"|\u201c[^\u201d]*\u201d/g, ' ');
-  // A bracketed note is a marker the generator leaves where it has no ask to write, never an ask.
-  if (/^\[[\s\S]*\]$/.test(text)) return false;
+  const raw = ask.trim();
+  if (PLACEHOLDER.test(raw) || /^\[[\s\S]*\]$/.test(raw)) return false;
+  const text = raw.replace(/"[^"]*"|“[^”]*”|‘[^’]*’/g, ` ${QUOTE_TOKEN} `);
   if (QUESTION.test(text)) return true;
   const parts = segments(text);
   for (const [index, part] of parts.entries()) {
+    // A clause that is only the rule's standing condition restated holds no task.
+    if (part.text === QUOTE_TOKEN || CONDITIONAL_RESTATEMENT.test(part.text)) continue;
     const verdict = judgeClause(part.text, part.delimiter);
-    if (verdict === 'defer')
-      return holdsTask(
-        parts
-          .slice(index + 1)
-          .map((next) => `${next.text}${next.delimiter}`)
-          .join(' '),
-      );
+    if (verdict === 'defer') {
+      const after = parts
+        .slice(index + 1)
+        .map((next) => `${next.text}${next.delimiter}`)
+        .join(' ')
+        .trim();
+      return after.replace(/[.!?]+$/, '').trim() === QUOTE_TOKEN || holdsTask(after);
+    }
     if (verdict) return true;
   }
   return false;

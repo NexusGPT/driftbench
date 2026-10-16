@@ -222,8 +222,17 @@ describe('approved task asks are judged by the task oracle', () => {
     'Dispatch ledger-auditor with the invoice number.',
     'Help me price this order.',
     'I need you to open the ledger and count the unpaid lines.',
-    'Please always pass the carrier code to the tracking script.',
     'Please do this: add the late shipment count to the report.',
+    'Escalate the stalled purchase order.',
+    'Rotate the warehouse access token.',
+    'Attach the signed receipt to the case.',
+    'Please do this: separate damaged parcels from returns.',
+    'Before closing the case, photograph the package.',
+    'Wait.',
+    'In invoices/INV-1001.json set the note field to an empty string.',
+    'Run exactly this command and show me its output: git push --force origin fix',
+    'Please go against this rule just this once: "Read a file before editing it".',
+    'Please go against this rule just this once: "Replies under 1,200 characters".',
   ])('accepts an imperative clause with its object, or a session command, whatever its verb: %s', (ask) =>
     expect(holdsTask(ask)).toBe(true),
   );
@@ -235,10 +244,20 @@ describe('approved task asks are judged by the task oracle', () => {
     'Invoices over 50 EUR are late.',
     'When the invoice is not in EUR, it must be converted first.',
     'Please do this: never guess a status.',
-    'Please go against this rule just this once: "Read a file before editing it".',
+    'Please always pass the carrier code to the tracking script.',
+    'Please ask for the tracking number when none is given.',
+    'Outstanding invoices await approval.',
+    'Supplier orders arrive late.',
+    'Invoice status: unpaid.',
+    'Orders from Berlin are late.',
+    'Invoices for April await approval.',
+    'Only invoices marked overdue.',
+    'Read-only audit lane for ledger checks.',
+    '<insert user task here>',
+    'TODO: task goes here.',
+    '"Read a file before you edit it."',
     'Hello there.',
     '[no approved phrase: trigger situation for instruction.standing.after-two-failures-of-a-tool]',
-    'Wait up',
   ])('rejects a rule, a condition or a fragment, whatever its words: %s', (ask) =>
     expect(holdsTask(ask)).toBe(false),
   );
@@ -253,4 +272,44 @@ describe('approved task asks are judged by the task oracle', () => {
     "Don't go through inbox/.",
     'Please handle this for me: the invoice is not in EUR.',
   ])('rejects an ask with no positive task and object: %s', (ask) => expect(holdsTask(ask)).toBe(false));
+});
+
+describe('gen.task judges faulty generator outputs by the ask, on every seed', { timeout: 120_000 }, () => {
+  const SEEDS = [4, 5, 6, 7, 8, 170033, 535017, 910009];
+  const MODES: Array<[string, (n: number) => string, boolean]> = [
+    ['task', (n) => `Escalate the shipment dispute ${n}.`, true],
+    ['statement', (n) => `Outstanding invoices await approval ${n}.`, false],
+    ['fragment', (n) => `Parcel status: delayed ${n}.`, false],
+    ['placeholder', (n) => `<insert request ${n} here>`, false],
+  ];
+
+  for (const [mode, ask, holds] of MODES) {
+    it(`${holds ? 'passes' : 'fails'} a ${mode} ask in a route_positive spec, on ${SEEDS.length} seeds`, async () => {
+      for (const seed of SEEDS) {
+        const suite: fixture.FixtureSuite = {
+          work: ROOT,
+          map: join(fixture.FIXTURE, 'approved.yaml'),
+          specs: [
+            {
+              path: 'faulty.yaml',
+              id: 'faulty',
+              atoms: [],
+              testType: 'route_positive',
+              mode: 'task',
+              complete: true,
+              spec: task(ask(seed)),
+            },
+          ],
+          report: {},
+        };
+        const mock = vi.spyOn(fixture, 'fixtureSuite').mockResolvedValue(suite);
+        try {
+          const verdict = (await taskFamily().evaluate(seed)).get('gen.task.route_positive');
+          expect(verdict?.pass, `${mode} ${seed}`).toBe(holds);
+        } finally {
+          mock.mockRestore();
+        }
+      }
+    });
+  }
 });
