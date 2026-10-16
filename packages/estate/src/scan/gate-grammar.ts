@@ -60,6 +60,9 @@ export function eventHead(phrase: string): string | undefined {
   if (pronoun >= 0) return words.slice(pronoun).join(' ');
   const first = bare(words[0]);
   let at: number;
+  // A numbered stage of a procedure: "step 3 of ANY loaf bake".
+  if (/^(?:step|phase|stage|round|pass|part)$/.test(first) && /^\d+$/.test(bare(words[1])))
+    return words.slice(2).join(' ') || undefined;
   if (QUANTIFIERS.has(first)) at = 1;
   else {
     // Determiners, possessives ("your", "the agent's") and adverbs ("very") may stand before the ordinal.
@@ -273,6 +276,8 @@ function mainOf(head: string): string {
  * "Our editors usually read X"), or a permission or suggestion ("You may read", "It is fine to read").
  */
 export function descriptive(head: string): boolean {
+  // A label in capitals ("KITCHEN RULE --") names the rule; it is no subject.
+  if (/^[A-Z0-9#&/'.() -]+[\u2014\u2013-]*$/.test(mainOf(head).trim()) && /[A-Z]{2}/.test(head)) return false;
   // A rule label ("R12 —", "Rule 3:", "Step 2.") numbers the sentence; it is no subject.
   const main = mainOf(head)
     .replace(/^(?:[A-Za-z]+\s+)?[A-Z]*#?\d+[a-z]?\s*[\u2014\u2013:.)-]*\s*/, '')
@@ -628,3 +633,35 @@ const TRANSIENT_NOUNS = new Set([
   'log',
   'logs',
 ]);
+
+/**
+ * A clause that says something happens: a subject with a determiner and a present-tense verb ("the shop
+ * opens", "the market closes"). A read comes before it like it comes before an act. A bare noun phrase
+ * ("this release", "the audit last year") is no event.
+ */
+export function clauseEvent(phrase: string): boolean {
+  const terms: Array<{ text: string; tags: string[] }> = nlp(phrase.trim()).json()[0]?.terms ?? [];
+  const first = terms[0]?.tags ?? [];
+  if (!(first.includes('Determiner') || first.includes('Possessive'))) return false;
+  return terms.some((term, index) => {
+    const next = terms[index + 1];
+    return (
+      index > 0 &&
+      term.tags.includes('Noun') &&
+      next !== undefined &&
+      next.tags.includes('Verb') &&
+      next.tags.includes('PresentTense') &&
+      !next.tags.includes('Noun') &&
+      !next.tags.includes('Gerund')
+    );
+  });
+}
+
+/** A coordinated clause that starts with a read verb and so belongs to the "Before X:" clause before it. */
+export const BARE_READ_CLAUSE = /^(?:(?:and|then|also|plus)\s+)*(?:read|load)\b/i;
+/** The "Before X:" head of a clause whose own part after the colon holds no read. */
+export function beforeHead(clause: string): string | undefined {
+  const match = /\b((?:before|prior\s+to)\s+[^:]+?):\s*([^]*)$/i.exec(clause);
+  if (!match) return undefined;
+  return /\b(?:read|load)\b/i.test(match[2] ?? '') ? undefined : `${match[1]}:`;
+}
