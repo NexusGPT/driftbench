@@ -8,9 +8,15 @@ type Loaded = {
   metadata?: { estate?: Record<string, unknown> };
 };
 
-/** The run of a seed with the first complete spec of a test type changed by `edit`. */
-async function changed(testType: string, edit: (spec: Loaded) => void): Promise<pipeline.EstateRun> {
-  const run = await pipeline.estateRun(1);
+const UNAPPROVED = 'Kindly sort out the pending supplier matters.';
+
+/** The run of a seed with the first complete spec of a test type, asked with a bank phrase, changed by `edit`. */
+async function changed(
+  seed: number,
+  testType: string,
+  edit: (spec: Loaded) => void,
+): Promise<pipeline.EstateRun> {
+  const run = await pipeline.estateRun(seed);
   const specs = structuredClone(run.specs);
   const target = specs.find(
     (spec) =>
@@ -23,56 +29,66 @@ async function changed(testType: string, edit: (spec: Loaded) => void): Promise<
   return { ...run, specs };
 }
 
-async function verdict(run: pipeline.EstateRun) {
+async function verdict(seed: number, run: pipeline.EstateRun) {
   const mock = vi.spyOn(pipeline, 'estateRun').mockResolvedValue(run);
   try {
-    return (await genAsksFamily().evaluate(1)).get('gen.asks.asks-approved');
+    return (await genAsksFamily().evaluate(seed)).get('gen.asks.asks-approved');
   } finally {
     mock.mockRestore();
   }
 }
 
+/** A generator that swaps an approved ask for an unapproved one and covers it up with metadata. */
+const forge = (extra: Record<string, unknown>) => (spec: Loaded) => {
+  if (spec.blocks[0]?.when) spec.blocks[0].when.user = UNAPPROVED;
+  spec.tags = [...(spec.tags ?? []), 'ask:code'];
+  if (spec.metadata?.estate)
+    Object.assign(spec.metadata.estate, { ask: 'code', askFrom: 'a description', ...extra });
+};
+
 describe('gen.asks.asks-approved', { timeout: 300_000 }, () => {
   it('holds on the generated estate: approved phrases, and code-written asks that say so', async () => {
-    expect(await verdict(await pipeline.estateRun(1))).toEqual({ pass: true, detail: 'holds' });
+    for (const seed of [1, 4, 5])
+      expect(await verdict(seed, await pipeline.estateRun(seed))).toEqual({ pass: true, detail: 'holds' });
   });
 
-  it('fails a complete spec that asks a phrase nobody approved and does not say it wrote the ask', async () => {
-    const run = await changed('route_positive', (spec) => {
-      if (spec.blocks[0]?.when) spec.blocks[0].when.user = 'Kindly sort out the pending supplier matters.';
+  it('fails an invented ask that does not say it was written by code', async () => {
+    const run = await changed(1, 'route_positive', (spec) => {
+      if (spec.blocks[0]?.when) spec.blocks[0].when.user = UNAPPROVED;
     });
-    expect(await verdict(run)).toMatchObject({
+    expect(await verdict(1, run)).toMatchObject({
       pass: false,
       detail: expect.stringContaining('1 complete specs ask an unapproved phrase'),
     });
   });
 
   it('fails a code-written ask that names no source of its words', async () => {
-    const run = await changed('route_positive', (spec) => {
-      if (spec.blocks[0]?.when) spec.blocks[0].when.user = 'Kindly sort out the pending supplier matters.';
+    const run = await changed(1, 'route_positive', (spec) => {
+      if (spec.blocks[0]?.when) spec.blocks[0].when.user = UNAPPROVED;
       spec.tags = [...(spec.tags ?? []), 'ask:code'];
       if (spec.metadata?.estate) spec.metadata.estate.ask = 'code';
     });
-    expect((await verdict(run))?.pass).toBe(false);
+    expect((await verdict(1, run))?.pass).toBe(false);
   });
 
-  it('fails a code-written ask where the bank holds an approved phrase, since an approved phrase always wins', async () => {
-    const run = await changed('route_positive', (spec) => {
-      if (spec.blocks[0]?.when) spec.blocks[0].when.user = 'Kindly sort out the pending supplier matters.';
-      spec.tags = [...(spec.tags ?? []), 'ask:code'];
-      if (spec.metadata?.estate)
-        Object.assign(spec.metadata.estate, { ask: 'code', askFrom: 'a description' });
-    });
-    expect((await verdict(run))?.pass).toBe(false);
+  it('fails a forged code-written ask whatever the generated spec says about its own situation', async () => {
+    for (const seed of [1, 4, 5]) {
+      const keeps = await changed(seed, 'route_positive', forge({}));
+      expect((await verdict(seed, keeps))?.pass, `true situation, seed ${seed}`).toBe(false);
+      const erased = await changed(seed, 'route_positive', forge({ situation: null }));
+      expect((await verdict(seed, erased))?.pass, `erased situation, seed ${seed}`).toBe(false);
+      const forged = await changed(seed, 'route_positive', forge({ situation: 'no-such-situation' }));
+      expect((await verdict(seed, forged))?.pass, `forged situation, seed ${seed}`).toBe(false);
+    }
   });
 
-  it('accepts the same code-written ask where the row has no situation to take an approved phrase from', async () => {
-    const run = await changed('route_positive', (spec) => {
-      if (spec.blocks[0]?.when) spec.blocks[0].when.user = 'Kindly sort out the pending supplier matters.';
-      spec.tags = [...(spec.tags ?? []), 'ask:code'];
-      if (spec.metadata?.estate)
-        Object.assign(spec.metadata.estate, { ask: 'code', askFrom: 'a description', situation: null });
-    });
-    expect((await verdict(run))?.pass).toBe(true);
+  it('still accepts the generator own code-written asks, derived from the plan row: instructed guard tests', async () => {
+    const run = await pipeline.estateRun(1);
+    const guarded = run.specs.filter(
+      (spec) =>
+        spec.record.complete && spec.record.testType === 'guard_positive' && spec.record.mode === 'live',
+    );
+    expect(guarded.length).toBeGreaterThan(0);
+    expect(await verdict(1, run)).toEqual({ pass: true, detail: 'holds' });
   });
 });
