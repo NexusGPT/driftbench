@@ -77,3 +77,36 @@ The next entry records completed seed results or the final bank result. No unmea
 - The recorded benchmark parent and child are absent after the plugin crash. Only the 1x and 10x after measurements complete; the 100x comparison, cap-limit probe and cap assays produce no completed result. No sweep was started. No interrupted result counts as evidence.
 - Replay recheck on `a7fb2452`: 22 tests pass across the current-block stage and replay cache regression files. The repair is already committed in `9abeb25c` and `42fb7c3b`; no duplicate fix is applied.
 - The owner directs PR 174 to merge only after green CI, then requests the full 21-seed sweep with two workers and load logging. The owner assigns protected changes to an independent maintainer on `fix/generator-validator-contracts`; import from main only after that PR merges. No protection exception or branch rename is used.
+
+
+## 2026-10-15: maintainer semantic invariance pairing (PR 510)
+
+- Base: `779d61573f6e92d995241be6aad515bdc28f3b9e`, the existing PR head. The auditor shows that renaming a block hides a wrong expectation while a separate clean pair still satisfies pair existence.
+- Ruling: Given and ordered When define the comparison; Then is the value tested. Approved phrase intents, stage transitions and slot bindings supply meaning. Persona introductions normalize; unknown wording stays literal. Neither block ids nor expected stages can separate a pair. Actual initial/per-turn facts and language remain fixed.
+- Red first: 39 cases fail on the base, including the auditor's same-turn/wrong-Then reproducer on all three paths and both axes. Green: 111 tests pass across five files. All 24 hand-built planted true pairs across fresh seeds 1009, 2027, 4093 and 8191 pass the real reference and reject the wrong Then despite opaque ids and a separate clean pair. Another 24 planted mutations of real generated walks on those seeds also fail, while the original walks pass the reference.
+- Generation-only measurement: all six invariance items pass on visible seeds 1–20 and base-derived hidden seed 7802775. Arbitrarily renaming every block leaves every verdict unchanged. The six formerly failing items are three different-request pairs, each scored on both axes: seed 3 input-value vs behaviour; seeds 5/18 input-value vs returned-value. The actual requests and complete final-block Thens are in the evidence and PR body.
+- The seed-18 gen-cover-096/gen-phrase-012 false pair remains excluded. Controls preserve transition order, bound values, burst boundaries, world/prefix facts and literal unknown requests; a changed expected stage never creates a new pair.
+- Scope: no product changes, items removed, thresholds lowered, fault agents changed or fixture pins changed. No ladder level is inferred and the historical executor journal/level table stays unchanged. Evidence: [invariance-semantic-turns.json](evidence/invariance-semantic-turns.json).
+- Product obligation: for the same facts and ordered requests, generate identical machine expectations across persona/channel variants, regardless of block labels.
+
+## 2026-10-15: maintainer D6 world-carrier phrase contract
+
+- Base: `5354503afed4cccfafdc43bd3988316aaa555c3d`, origin/main; separate from the D8 branch. Contract sources are the D6 definition in `docs/reference/spec.md`, the users package carrier registry, the WorldState schema and the existing hidden prompt.
+- Ruling: a world-carried phrase is proven by the injected workspace-file/tool-result content. Both `diff.phrases.filled` and `phrases.D6_instruction_in_data` use the same carrier-aware reader. Its class and wording come from the registry and map, never seed IDs or fixture filenames.
+- Red first: 25 failed, 11 passed. The existing world-instruction regression now includes differential and phrase coverage; those reject the valid world-only instruction while both fault items and the carrier item pass.
+- Green: 44 focused tests pass across four files, including visible seeds 1–20 and base-derived hidden seed 399034490. Negative controls reject missing/empty worlds, invented text, wrong-class phrases, filenames/JSON keys, metadata, background Given and store/fixture/error fields. Removing behavioural assertions still leaves both fault items failing.
+- Supplied product report: seed 2 falls to level 1 because differential rejects 24 empty user fields. A local reproduction relocates the main-generated suite's D6 text into world content in memory: all five affected provenance/coverage/carrier/fault items pass, with no reference block failures. Product files are unchanged; the parked product implementation and its passing real-run log were read only.
+- Focused lint, whitespace, handover and sparse typecheck pass; the sparse typecheck omits only the unrelated test importing excluded comparisons/langfuse. No full ladder or bank score is claimed; the historical executor journal and level table remain unchanged.
+- Evidence: [d6-world-carrier-contract.json](evidence/d6-world-carrier-contract.json). No items, thresholds, fault agents, fixtures, floors or hidden-seed rules are removed or lowered.
+- Product obligation: put every approved D6 instruction in the injected world file/tool-result content, leave injection.user empty, and retain checks that catch both obedience faults.
+
+
+## 2026-10-15: maintainer ruling on sequence stages and impossible pairs
+
+- Base: `0137e2d25f4a98918d4498de555c729e41c2b1de`, origin/main. Contract sources: `possible.ts` (impossiblePairs), `render.ts` (hiddenSpaceMap carries written constraints and impossible pairs), the coverage items that read that map.
+- Ruling: `sequence.stages.<class>` owes probes only at the middle stages the hidden space map allows for the class. A probe at a stage the map rules out fails the item. The same map serves the coverage items.
+- Red first: 3 failed, 2 passed in `packages/validators/test/generator/sequence-stages.test.ts`. The base item fails a suite that probes every reachable stage (36 D8 cases over visible, hidden and fresh seeds) and passes a probe at a ruled-out stage.
+- Green: 23 tests pass across four files. Covered seeds: visible 1 to 20, the base hidden seed 21439762 and fresh seeds 1001 to 1020. Planted guards: dropping one reachable stage fails and names it; a probe at a ruled-out stage, or only there, fails; a class with no reachable stage never passes.
+- Product measurement, main's real generation: the old logic fails D8 on seeds 1 to 12, 14 to 16, 18, 20 and the hidden seed. The new item fails no `sequence.stages.*` item on these seeds or on 1001 and 1002. The product places no probe at a ruled-out stage.
+- Sweep: `diff.feasible.<seeder>` also reads written constraints only, in the permissive direction. On seed 2, 39 blocks sit in an impossible-only cell, all from seeder `cover`, which no `diff.feasible` item reads. That item stays unchanged and needs its own ruling. The baseline suite's goal detour also reads written constraints only; it is not an item.
+- Evidence: [sequence-impossible-pairs.json](evidence/sequence-impossible-pairs.json). No items, thresholds, fault agents, fixtures, floors or hidden-seed rules are removed or lowered.

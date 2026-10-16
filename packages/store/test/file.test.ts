@@ -271,6 +271,56 @@ describe('opening a store', () => {
     expect(await store.getRun(stored.runId)).toStrictEqual(stored);
   });
 
+  it('adds a table the current schema holds to a store already at the current version', async () => {
+    const stored = await seed();
+    await store.close();
+    // A store a build wrote at this version before spec_objects existed: the version number says current.
+    raw.exec(`DROP TABLE spec_objects; PRAGMA user_version = ${SCHEMA_VERSION}`);
+    store = openStore(path);
+    expect(raw.prepare('PRAGMA user_version').get()?.user_version).toBe(SCHEMA_VERSION);
+    expect(raw.prepare('SELECT count(*) AS count FROM spec_objects').get()?.count).toBe(0);
+    expect(await store.getRun(stored.runId)).toStrictEqual(stored);
+  });
+
+  it('opens a store that holds every table of the current schema while another connection holds the write lock', async () => {
+    await seed();
+    await store.close();
+    // An open that took a write lock to run the schema again would wait here, then fail as locked.
+    raw.exec('BEGIN IMMEDIATE');
+    try {
+      const started = Date.now();
+      store = openStore(path);
+      expect(Date.now() - started).toBeLessThan(2000);
+      await store.close();
+    } finally {
+      raw.exec('ROLLBACK');
+    }
+    store = openStore(path);
+  });
+
+  it('upgrades every older schema to the current one, whatever the current number', async () => {
+    // The tables each schema added (schema.ts): the registry came with 2; 3 added none.
+    const added: Record<number, string[]> = { 2: ['versions', 'blobs'] };
+    for (let version = 1; version < SCHEMA_VERSION; version += 1) {
+      const stored = await seed();
+      await store.close();
+      const dropped = Object.entries(added)
+        .filter(([since]) => Number(since) > version)
+        .flatMap(([, tables]) => tables);
+      raw.exec(
+        [...dropped.map((table) => `DROP TABLE ${table}`), `PRAGMA user_version = ${version}`].join('; '),
+      );
+      store = openStore(path);
+      expect(raw.prepare('PRAGMA user_version').get()?.user_version, `from schema ${version}`).toBe(
+        SCHEMA_VERSION,
+      );
+      expect(await store.getRun(stored.runId), `from schema ${version}`).toStrictEqual(stored);
+      await store.pushVersion('dataset', `from-${version}`, [
+        { path: 'a.yaml', bytes: new TextEncoder().encode('a\n') },
+      ]);
+    }
+  });
+
   it('refuses a file that is not a database', async () => {
     const text = join(dir, 'notes.db');
     await writeFile(text, 'Acme Telecom meeting notes, not a database.\n'.repeat(20));
