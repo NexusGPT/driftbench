@@ -103,6 +103,7 @@ function settingOf(kind: Kind, off: Capabilities, mode: 'F' | 'T', parents: bool
     parents,
     seedPrefix: caps.seedPrefix && off.seedPrefix !== false,
     toolStubs: caps.toolStubs && off.toolStubs !== false,
+    snapshot: caps.snapshot,
   };
 }
 
@@ -147,12 +148,19 @@ export function judge(
       return fail(`${block.id} should reach the agent once: ${why}; it reached it ${sent} times`);
     if (want.verdict === 'not_run') {
       const reason = skipReason(got) ?? '';
-      if (got.notRun?.check !== 'capability' || got.notRun.kind !== 'unsupported')
-        return fail(
-          `${block.id} should be not_run by the capability check, kind unsupported; got ${got.notRun?.kind}/${got.notRun?.check}`,
-        );
-      if (!reason.startsWith('not run (unsupported, check capability)'))
-        return fail(`${block.id} skip reason "${reason}"`);
+      if (want.notRun === 'snapshot') {
+        if (got.notRun?.kind !== 'unsupported')
+          return fail(
+            `${block.id} should be not_run, kind unsupported: its parent's sandbox exports no end state; got ${got.notRun?.kind}/${got.notRun?.check}`,
+          );
+      } else {
+        if (got.notRun?.check !== 'capability' || got.notRun.kind !== 'unsupported')
+          return fail(
+            `${block.id} should be not_run by the capability check, kind unsupported; got ${got.notRun?.kind}/${got.notRun?.check}`,
+          );
+        if (!reason.startsWith('not run (unsupported, check capability)'))
+          return fail(`${block.id} skip reason "${reason}"`);
+      }
     }
     if (want.verdict === 'blocked' && (got.blocked?.by !== want.blockedBy || got.blocked?.root !== want.root))
       return fail(

@@ -57,6 +57,8 @@ export type Truth = {
   /** For a blocked block: the parent that blocks it and the first cause above it. */
   blockedBy?: string;
   root?: string;
+  /** For a block not run: the capability check refused a layer, or the parent's end state could not be exported. */
+  notRun?: 'capability' | 'snapshot';
 };
 
 export type Recipe = {
@@ -265,12 +267,20 @@ export function recipe(
 }
 
 /** What the run is: its mode, and the layers the planted adapter cannot apply. */
-export type Setting = { mode: 'F' | 'T'; seedPrefix: boolean; toolStubs: boolean; parents: boolean };
+export type Setting = {
+  mode: 'F' | 'T';
+  seedPrefix: boolean;
+  toolStubs: boolean;
+  parents: boolean;
+  /** The adapter exports a block's end state (`snapshotGiven`), so a child can start from it. */
+  snapshot: boolean;
+};
 
 /** The adapter capabilities of each kind: the function adapter applies both layers; the process adapter, no tool stub. */
-export const KIND_CAPS: Record<Kind, { seedPrefix: boolean; toolStubs: boolean }> = {
-  normal: { seedPrefix: true, toolStubs: true },
-  code: { seedPrefix: true, toolStubs: false },
+export const KIND_CAPS: Record<Kind, { seedPrefix: boolean; toolStubs: boolean; snapshot: boolean }> = {
+  normal: { seedPrefix: true, toolStubs: true, snapshot: true },
+  // The process adapter stubs no tool, and its sandbox exports no end state: a child of a code block is not run.
+  code: { seedPrefix: true, toolStubs: false, snapshot: false },
 };
 
 /**
@@ -286,15 +296,18 @@ export function settle(r: Recipe, plans: readonly BlockPlan[], setting: Setting)
     for (let p = plans[i]?.parent; p !== undefined; p = plans[p]?.parent) out.unshift(p);
     return out;
   };
-  const own = (i: number): Truth['verdict'] => {
+  // A seeded child starts from its parent's history in every mode; without parents, mode T builds the history.
+  const why = (i: number): 'capability' | 'snapshot' | undefined => {
     const above = lineage(i);
     const layers = [...above, i];
     const prefixWritten = layers.some((at) => plans[at]?.prefix === true);
-    const history = prefixWritten || (setting.mode === 'T' && (setting.parents ? above.length > 0 : i > 0));
-    if (history && !setting.seedPrefix) return 'not_run';
-    if (layers.some((at) => plans[at]?.stub === true) && !setting.toolStubs) return 'not_run';
-    return plans[i]?.fate === 'fail' ? 'fail' : 'pass';
+    const history = prefixWritten || (setting.parents ? above.length > 0 : setting.mode === 'T' && i > 0);
+    if (setting.parents && above.length > 0 && !setting.snapshot) return 'snapshot';
+    if (history && !setting.seedPrefix) return 'capability';
+    if (layers.some((at) => plans[at]?.stub === true) && !setting.toolStubs) return 'capability';
+    return undefined;
   };
+  const own = (i: number): Truth['verdict'] => (why(i) !== undefined ? 'not_run' : plans[i]?.fate === 'fail' ? 'fail' : 'pass');
   const out = new Map<string, Truth>();
   const verdicts: Truth['verdict'][] = [];
   const order = [...plans.keys()];
