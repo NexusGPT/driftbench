@@ -1,3 +1,4 @@
+import { toEstateSpaceMap } from '@agent-nexus/driftbench-estate';
 import { describe, expect, it, vi } from 'vitest';
 import { runLadder } from '../../src/index';
 import {
@@ -172,6 +173,52 @@ describe('the estate ladder', { timeout: 120_000 }, () => {
     expect(noTwin.items.find((item) => item.id.endsWith(':twin'))?.component).toBe(
       'packages/estate/src/plan/contract.ts',
     );
+  });
+
+  it('counts the pairs the plan leaves feasible by its recorded relevance exclusions, and no others', async () => {
+    const run = await estateRun(1);
+    const recorded = run.plan.details.relevanceConstraints ?? [];
+    expect(recorded.length).toBeGreaterThan(0);
+    // The exclusions are what justifies the pairs no row covers: without them those pairs are owed again.
+    const unexplained = planLevel({
+      ...run,
+      plan: { ...run.plan, details: { ...run.plan.details, relevanceConstraints: [] } },
+    });
+    expect(unexplained.value).toBeLessThan(1);
+    expect(unexplained.items[0]?.id).toBe('pairs-uncovered');
+    // A pair the exclusions keep feasible and no row covers is still owed.
+    const rows = run.plan.plan.rows.filter((row) => !row.id.startsWith('pairwise.'));
+    const owed = planLevel({ ...run, plan: { ...run.plan, plan: { ...run.plan.plan, rows } } });
+    expect(owed.items[0]?.id).toBe('pairs-uncovered');
+  });
+
+  it('fails level 3 when exclusions leave a whole situation value no target', async () => {
+    const run = await estateRun(1);
+    const space = toEstateSpaceMap(run.scanned.map);
+    const targets = space.dimensions
+      .filter((dimension) => dimension.id.startsWith('atoms.'))
+      .flatMap((dimension) =>
+        dimension.values.map((value) => ({ dimension: dimension.id, value: value.id })),
+      );
+    const axis = space.dimensions.find((dimension) => dimension.id === 'owner_signal');
+    const value = axis?.values.at(-1)?.id as string;
+    // A product that "finds" no target relevant to a value, for every target, and so drops the value from the plan.
+    const lying = targets.map((target) => ({
+      forbid: { owner_signal: value, [target.dimension]: target.value },
+      reason: 'nothing in the estate speaks of it',
+    }));
+    const verdict = planLevel({
+      ...run,
+      plan: {
+        ...run.plan,
+        details: {
+          ...run.plan.details,
+          relevanceConstraints: [...(run.plan.details.relevanceConstraints ?? []), ...lying],
+        },
+      },
+    });
+    expect(verdict.value).toBe(0);
+    expect(verdict.items.map((item) => item.id)).toContain(`situation-removed:owner_signal=${value}`);
   });
 
   it('fails a complete spec whose expectation the rule follower does not meet, and a spec that does not load', async () => {

@@ -208,17 +208,29 @@ export function allowedPairs(
   dimensions: readonly Dimension[],
   constraints: ReadonlyArray<Record<string, string>>,
 ): Array<[string, string, string, string]> {
+  // A constraint is looked up under its first dimension and value: a cell is checked against the constraints of
+  // the values it holds, not against every constraint (the plan proposes hundreds).
+  const byEntry = new Map<string, Array<Array<[string, string]>>>();
+  for (const forbid of constraints) {
+    const entries = Object.entries(forbid);
+    const first = entries[0];
+    if (!first) continue;
+    const key = `${first[0]}=${first[1]}`;
+    byEntry.set(key, [...(byEntry.get(key) ?? []), entries]);
+  }
   const forbids = (cell: Record<string, string>) =>
-    constraints.some((forbid) =>
-      Object.entries(forbid).every(([dimension, value]) => cell[dimension] === value),
+    Object.entries(cell).some(([dimension, value]) =>
+      (byEntry.get(`${dimension}=${value}`) ?? []).some((entries) =>
+        entries.every(([name, wanted]) => cell[name] === wanted),
+      ),
     );
+  // The dimension with the most values is chosen first: a cell that no target can complete fails at once.
+  const order = [...dimensions].sort((a, b) => b.values.length - a.values.length);
   const extends_ = (cell: Record<string, string>, from: number): boolean => {
     if (forbids(cell)) return false;
-    const next = dimensions.findIndex(
-      (dimension, index) => index >= from && cell[dimension.id] === undefined,
-    );
+    const next = order.findIndex((dimension, index) => index >= from && cell[dimension.id] === undefined);
     if (next < 0) return true;
-    const dimension = dimensions[next] as Dimension;
+    const dimension = order[next] as Dimension;
     return dimension.values.some((value) => extends_({ ...cell, [dimension.id]: value }, next + 1));
   };
   const out: Array<[string, string, string, string]> = [];
@@ -249,7 +261,11 @@ export function planLevel(run: EstateRun): Measure {
     })),
     { id: 'target', values: targets.flatMap((dimension) => dimension.values.map((value) => value.id)) },
   ];
-  const constraints = space.constraints.map((constraint) => {
+  // The plan proposes its own exclusions from the estate's text (docs/estate.md, "Situation relevance in a proposed
+  // plan"): coverage counts the tuples feasible under them, and under the map's constraints. Whether an exclusion
+  // is right is judged by plan.relevance, not here; a value left with no feasible tuple at all is judged here.
+  const proposed = run.plan.details.relevanceConstraints ?? [];
+  const constraints = [...space.constraints, ...proposed].map((constraint) => {
     const forbid: Record<string, string> = {};
     for (const [dimension, value] of Object.entries(constraint.forbid)) {
       forbid[dimension.startsWith('atoms.') ? 'target' : dimension] = value;
@@ -267,6 +283,24 @@ export function planLevel(run: EstateRun): Measure {
     for (const a of ids) for (const b of ids) if (a !== b) covered.add(`${a}=${cell[a]}|${b}=${cell[b]}`);
   }
   const items: Item[] = [];
+  // A missing match never removes a whole situation to obtain vacuous coverage: every value of a situation axis
+  // still appears in a tuple the plan must cover.
+  const inPairs = new Set<string>();
+  for (const [da, va, db, vb] of pairs) {
+    inPairs.add(`${da}=${va}`);
+    inPairs.add(`${db}=${vb}`);
+  }
+  for (const dimension of situations) {
+    for (const value of dimension.values) {
+      if (!inPairs.has(`${dimension.id}=${value.id}`)) {
+        items.push({
+          id: `situation-removed:${dimension.id}=${value.id}`,
+          component: ESTATE_COMPONENTS.pairwise,
+          detail: `${dimension.id}=${value.id} is in no tuple the plan must cover: its exclusions leave it no target`,
+        });
+      }
+    }
+  }
   let pairsCovered = 0;
   const missing: string[] = [];
   for (const [da, va, db, vb] of pairs) {
@@ -310,6 +344,7 @@ export function planLevel(run: EstateRun): Measure {
   const ratios = [
     pairs.length === 0 ? 1 : pairsCovered / pairs.length,
     required === 0 ? 1 : present / required,
+    ...(items.some((item) => item.id.startsWith('situation-removed:')) ? [0] : []),
   ];
   return { value: Math.min(...ratios), items };
 }
