@@ -61,12 +61,7 @@ describe('blast stamps: default parity with main over every Acme conversation', 
         withoutLatency(before),
       );
       for (const block of run.blocks) {
-        expect(block.resolved?.objects.map((entry) => entry.id)).toEqual([
-          'default',
-          'default',
-          'default',
-          'default',
-        ]);
+        expect(block.resolved?.objects.map((entry) => entry.id)).toEqual(['default', 'default']);
         for (const verdict of block.verdicts) {
           verdicts += 1;
           expect(verdict.by?.layer).toBe('shipped');
