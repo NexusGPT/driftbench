@@ -44,8 +44,8 @@
   "summary": {
     "specs": 1569,
     "blocks": 1564,
-    "complete": 1539,
-    "incomplete": 30,
+    "complete": 1538,
+    "incomplete": 31,
     "judged": 464
   },
   "unit": {
@@ -63,13 +63,13 @@
   },
   "sources": {
     "asks": {
-      "bank": 455,
+      "bank": 454,
       "code": 1076,
       "session": 0,
       "none": 8
     },
     "outcomes": {
-      "bank": 1013,
+      "bank": 1012,
       "no-change:guard": 26,
       "no-change:negative": 58,
       "no-change:read-only": 17,
@@ -245,8 +245,8 @@
     "journey": {
       "rows": 11,
       "specs": 11,
-      "complete": 11,
-      "incomplete": 0
+      "complete": 10,
+      "incomplete": 1
     }
   },
   "perMode": {
@@ -265,8 +265,8 @@
     "live": {
       "rows": 1526,
       "specs": 1526,
-      "complete": 1502,
-      "incomplete": 24
+      "complete": 1501,
+      "incomplete": 25
     }
   },
   "gaps": [
@@ -297,6 +297,12 @@
         "no usable situation (skill.supplier-email.skill-supplier-email (asks it names)): the situation names the file .claude/memory/supplier-languages.md: \"Write in the supplier's language, as listed in .claude/memory/supplier-languages.md\"",
         "no usable situation (skill.weekly-report.skill-weekly-report (asks it names)): the situation names the file References/kpi-definitions.md: \"References/kpi-definitions.md when a number needs a definition\""
       ]
+    },
+    {
+      "marker": "needs-existing-file",
+      "specs": 2,
+      "atoms": ["reference.weekly-report.read-references-kpi-definitions-md"],
+      "details": [".claude/skills/weekly-report/references/kpi-definitions.md is no file of the estate"]
     },
     {
       "marker": "needs-recorded-session",

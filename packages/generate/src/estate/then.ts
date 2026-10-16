@@ -225,7 +225,7 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
     case 'tool_called':
       if (hasInput(evidence.input)) {
         if (loadedRead(evidence.label, evidence.input, ctx)) return;
-        if (missingRead(then, atom, evidence.label, evidence.input, ctx, evidence.min ?? 1)) return;
+        if (missingRead(then, atom, evidence.label, evidence.input, ctx)) return;
         if (someCall(then, evidence.label, evidence.input, evidence.min ?? 1)) return;
         if (ctx.customChecks.has('some_call')) {
           addSomeCall(then, {
@@ -788,10 +788,10 @@ function loadedRead(label: string, input: Record<string, unknown>, ctx: ThenCont
 }
 
 /**
- * A file the estate does not hold cannot be read successfully, but the declared Read call can still be
- * attempted and return a file-not-found error. Check that attempt with some_call, not references (which
- * counts only successful reads). Without that checker the row keeps its needs-existing-file gap.
- * True when it is such a read. A path matches a file when one ends with the other.
+ * A spec expects a Read only of a file the estate holds. A file the estate does not hold is the estate's defect (the
+ * lint code MISSING_REFERENCE), not a test to write: an attempt to read what is not there tests nothing the estate
+ * says, so the row waits on `needs-existing-file`, whatever checks the runner registers. True when it is such a read.
+ * A path matches a file when one ends with the other.
  */
 function missingRead(
   then: ThenParts,
@@ -799,7 +799,6 @@ function missingRead(
   label: string,
   input: Record<string, unknown>,
   ctx: ThenContext,
-  min: number,
 ): boolean {
   if (label !== 'Read' || !ctx.files) return false;
   const value = textOf(input.file_path ?? input.path ?? input.notebook_path);
@@ -807,10 +806,6 @@ function missingRead(
   const path = value.replace(/^\.?\/+/, '');
   for (const file of ctx.files) {
     if (file === path || file.endsWith(`/${path}`) || path.endsWith(`/${file}`)) return false;
-  }
-  if (ctx.customChecks.has('some_call')) {
-    addSomeCall(then, { label, input, count: { min } });
-    return true;
   }
   gap(then, MARKERS.existingFile, atom, `${path} is no file of the estate`);
   return true;
