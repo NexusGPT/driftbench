@@ -16,6 +16,7 @@ import {
   compileToolAbsence,
   isCompiledPredicate,
 } from './predicates';
+import { recoveryAction } from './recovery';
 
 export { literal };
 
@@ -71,6 +72,7 @@ export const MARKERS = {
   askable: 'needs-askable-act',
   existingFile: 'needs-existing-file',
   guardTrace: 'needs-guard-trace',
+  recoveryAction: 'needs-recovery-action',
 } as const;
 export type Marker = (typeof MARKERS)[keyof typeof MARKERS];
 export const MARKER_NAMES: ReadonlySet<string> = new Set(Object.values(MARKERS));
@@ -318,9 +320,52 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
         }
       }
       if (evidence.name === 'hazard_recovery' && ctx.customChecks.has('hazard_recovery')) {
+        const recovery = recoveryAction(atom);
+        const declared = evidence.options ?? {};
+        const reread = [
+          ...new Set([
+            ...(Array.isArray(declared.reread)
+              ? declared.reread.filter(
+                  (path): path is string => typeof path === 'string' && path.trim() !== '',
+                )
+              : []),
+            ...recovery.reread,
+          ]),
+        ];
+        const calls = [...(Array.isArray(declared.calls) ? declared.calls : []), ...recovery.calls];
+        const retry = declared.retry === true || recovery.retry;
+        const requiredCall = calls.some((call) => {
+          if (
+            typeof call !== 'object' ||
+            call === null ||
+            !('label' in call) ||
+            typeof call.label !== 'string' ||
+            !call.label.trim()
+          )
+            return false;
+          const count = 'count' in call ? call.count : undefined;
+          return (
+            count === undefined ||
+            (typeof count === 'number' && count > 0) ||
+            (typeof count === 'object' &&
+              count !== null &&
+              'min' in count &&
+              typeof count.min === 'number' &&
+              count.min > 0)
+          );
+        });
+        if (reread.length === 0 && !requiredCall && !retry)
+          gap(
+            then,
+            MARKERS.recoveryAction,
+            atom,
+            'the source names no concrete recovery read, command or failed-request retry',
+          );
         then.custom.hazard_recovery = {
-          ...(evidence.options ?? {}),
-          ...(heldPaths(atom, ctx).length > 0 ? { reread: heldPaths(atom, ctx) } : {}),
+          ...declared,
+          ...(reread.length > 0 ? { reread } : {}),
+          ...(calls.length > 0 ? { calls } : {}),
+          ...(retry ? { retry: true } : {}),
           block: 0,
         };
         return;
@@ -642,17 +687,6 @@ function addCriterion(then: ThenParts, atom: EstateAtom): void {
 
 function addSomeCall(then: ThenParts, call: SomeCall): void {
   if (!then.someCalls.some((known) => same(known, call))) then.someCalls.push(call);
-}
-
-/** The paths an atom's passage names that the estate holds (all of them when no file list is known). */
-function heldPaths(atom: EstateAtom, ctx: ThenContext): string[] {
-  const files = ctx.files;
-  if (!files) return pathsOf(atom);
-  return pathsOf(atom).filter((path) => {
-    const clean = path.replace(/^\.?\/+/, '');
-    for (const file of files) if (file === clean || file.endsWith(`/${clean}`)) return true;
-    return false;
-  });
 }
 
 /** Paths an atom's passage names: in backticks, or a word with a slash or a file extension. */
