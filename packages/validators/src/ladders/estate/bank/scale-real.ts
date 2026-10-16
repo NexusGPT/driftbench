@@ -59,6 +59,7 @@ export type Measured = {
   impactMs: number;
   lintOnDocuments: { findings: number; examples: string[] };
   lintDefects: { planted: number; found: number; missed: string[] };
+  lintFalse: { findings: number; examples: string[] };
   planConsoleLines: number;
   gateTests: { complete: number; distinctAsks: number };
   removed: number;
@@ -159,11 +160,14 @@ const RESULTS: Result[] = [
   {
     key: 'lint-finds-defects',
     tier: 3,
-    title: 'the lint finds each step of a skill that cites a file the estate does not hold',
+    title:
+      'the lint finds each step of a skill that cites a file the estate does not hold, and reports no more false missing references than were planted',
     component: COMPONENTS.lint as string,
     judge: (m) =>
       m.lintDefects.planted > 0 && m.lintDefects.found === m.lintDefects.planted
-        ? undefined
+        ? m.lintFalse.findings <= m.lintDefects.planted
+          ? undefined
+          : `${m.lintFalse.findings} findings of a missing or ambiguous reference on citations of files the estate holds, against ${m.lintDefects.planted} planted defects, such as ${m.lintFalse.examples.join('; ')}`
         : `found ${m.lintDefects.found} of ${m.lintDefects.planted} planted missing references, such as ${m.lintDefects.missed.join('; ')}`,
   },
   {

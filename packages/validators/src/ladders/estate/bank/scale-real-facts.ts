@@ -208,6 +208,25 @@ export function readFacts(map: EstateMap, truth: RealTruth): RealFacts {
 
 type LintLike = { code: string; subject?: string; message?: string };
 
+/** The lint codes that say a citation names a file or a script the estate does not hold, or cannot tell which. */
+const LIVE_CODES = new Set(['MISSING_REFERENCE', 'MISSING_SCRIPT', 'AMBIGUOUS_REFERENCE']);
+
+/**
+ * The line count of what the plan command printed, or -1 when the scan or the plan did not succeed: both commands
+ * must exit 0 and the plan and its summary must exist. An error line is not a summary, whatever its length.
+ */
+export function planConsole(run: {
+  scanCode: number;
+  planCode: number;
+  planWritten: boolean;
+  summaryWritten: boolean;
+  out: string;
+}): number {
+  return run.scanCode === 0 && run.planCode === 0 && run.planWritten && run.summaryWritten
+    ? run.out.split('\n').length
+    : -1;
+}
+
 /**
  * What the lint did with the planted estate, read from the structured fields of each finding and never from how its
  * message is worded: findings that take a document that is not a rule for a live one (a missing reference or script
@@ -219,13 +238,19 @@ export function lintFacts(
 ): {
   onDocuments: { findings: number; examples: string[] };
   defects: { planted: number; found: number; missed: string[] };
+  /** Live-reference findings that name no planted defect and sit on no document that is not a rule: false. */
+  falseLive: { findings: number; examples: string[] };
   total: number;
 } {
   const mentions = (finding: LintLike, path: string) => JSON.stringify(finding).includes(path);
   const live = findings.filter(
+    (finding) => LIVE_CODES.has(finding.code) && truth.nonNormative.some((path) => mentions(finding, path)),
+  );
+  const falseLive = findings.filter(
     (finding) =>
-      (finding.code === 'MISSING_REFERENCE' || finding.code === 'MISSING_SCRIPT') &&
-      truth.nonNormative.some((path) => mentions(finding, path)),
+      LIVE_CODES.has(finding.code) &&
+      !truth.defects.some((defect) => mentions(finding, defect.path)) &&
+      !truth.nonNormative.some((path) => mentions(finding, path)),
   );
   const missed = truth.defects.filter(
     (defect) =>
@@ -240,6 +265,10 @@ export function lintFacts(
       planted: truth.defects.length,
       found: truth.defects.length - missed.length,
       missed: missed.slice(0, 3).map((defect) => defect.path),
+    },
+    falseLive: {
+      findings: falseLive.length,
+      examples: falseLive.slice(0, 3).map((f) => `${f.code} ${f.subject ?? ''}`),
     },
     total: findings.filter((finding) => finding.code !== 'UNENFORCED').length,
   };

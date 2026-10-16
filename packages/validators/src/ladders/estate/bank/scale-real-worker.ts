@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { mkdir, mkdtemp, rm, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -15,7 +16,7 @@ import { RUNTIME } from '../layout';
 import { writeEstate } from '../pipeline';
 import { cli } from './bench';
 import { realEstate } from './scale-real-estate';
-import { lintFacts, readFacts } from './scale-real-facts';
+import { lintFacts, planConsole, readFacts } from './scale-real-facts';
 
 /**
  * Runs the whole estate loop once on a real-size estate and prints one JSON line: the time each stage takes (the
@@ -74,6 +75,7 @@ async function main(): Promise<void> {
     out.lintOnDocuments = facts.onDocuments;
     out.lintDefects = facts.defects;
     out.lintFindings = facts.total;
+    out.lintFalse = facts.falseLive;
 
     started = Date.now();
     const built = buildPlan(map);
@@ -84,7 +86,13 @@ async function main(): Promise<void> {
     try {
       const scanned = cli(['estate', 'scan', root, '--no-model', '--out', join(work, 'map.yaml')]);
       const planOut = cli(['estate', 'plan', join(work, 'map.yaml'), '--out', join(work, 'plan.yaml')]);
-      out.planConsoleLines = scanned.code > 1 || planOut.code > 1 ? -1 : planOut.out.split('\n').length;
+      out.planConsoleLines = planConsole({
+        scanCode: scanned.code,
+        planCode: planOut.code,
+        planWritten: existsSync(join(work, 'plan.yaml')),
+        summaryWritten: existsSync(join(work, 'plan.summary.json')),
+        out: planOut.out,
+      });
     } finally {
       await rm(work, { recursive: true, force: true });
     }

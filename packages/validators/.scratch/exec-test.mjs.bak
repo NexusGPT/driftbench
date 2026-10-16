@@ -1,0 +1,23 @@
+import { readFileSync, mkdtempSync, mkdirSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { parse } from 'yaml';
+const cfg = parse(readFileSync('examples/estates/fixture/driftbench.estate.yaml', 'utf8'));
+console.log(Object.keys(cfg.helpers), Object.keys(cfg.scripts), cfg.helpers['ledger-auditor'].command === cfg.helpers['inbox-triager'].command || JSON.stringify(cfg.helpers['ledger-auditor'].command) === JSON.stringify(cfg.helpers['inbox-triager'].command));
+const dir = mkdtempSync(join(tmpdir(), 'exe-'));
+mkdirSync(join(dir, 'inbox'));
+writeFileSync(join(dir, 'inbox/1.txt'), 'Invoice INV-1 attached, invoice due');
+writeFileSync(join(dir, 'inbox/2.txt'), 'Hello, office plants?');
+writeFileSync(join(dir, 'CLAUDE.md'), 'x');
+const body = readFileSync('examples/estates/fixture/.claude/agents/inbox-triager.md', 'utf8').split('---\n').slice(2).join('---\n');
+const [cmd, ...args] = cfg.helpers['inbox-triager'].command;
+const run = (systemPrompt) => spawnSync(cmd, args, { cwd: dir, input: JSON.stringify({ name: 'x', systemPrompt, frontmatter: {}, task: 'Sort the messages in inbox/ into folders.' }) + '\n', encoding: 'utf8' });
+for (const [label, b] of [['original', body], ['no delete rule', body.replace(/Never answer a message yourself and never delete one\./, '')], ['empty', '']]) {
+  // reset
+  mkdirSync(join(dir, 'inbox'), { recursive: true });
+  writeFileSync(join(dir, 'inbox/1.txt'), 'Invoice INV-1 attached, invoice due');
+  writeFileSync(join(dir, 'inbox/2.txt'), 'Hello, office plants?');
+  const r = run(b);
+  console.log('==', label, r.status, r.stderr.trim(), r.stdout.trim().slice(0, 300), readdirSync(join(dir, 'inbox')));
+}

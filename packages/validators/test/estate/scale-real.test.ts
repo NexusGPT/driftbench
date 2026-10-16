@@ -2,7 +2,7 @@ import type { Atom, EstateMap } from '@agent-nexus/driftbench-estate';
 import { describe, expect, it } from 'vitest';
 import { judgeReal, type Measured, realBudgetMs, realUnits } from '../../src/ladders/estate/bank/scale-real';
 import { realEstate } from '../../src/ladders/estate/bank/scale-real-estate';
-import { lintFacts, readFacts } from '../../src/ladders/estate/bank/scale-real-facts';
+import { lintFacts, planConsole, readFacts } from '../../src/ladders/estate/bank/scale-real-facts';
 
 const RULE_WORDS = /\b(must|never|always|only when|before|first|requires)\b/i;
 
@@ -221,6 +221,7 @@ describe('the items of the real-size tier', () => {
     impactMs: 100,
     lintOnDocuments: { findings: 0, examples: [] },
     lintDefects: { planted: 5, found: 5, missed: [] },
+    lintFalse: { findings: 0, examples: [] },
     planConsoleLines: 60,
     gateTests: { complete: 100, distinctAsks: 95 },
     removed: 1,
@@ -302,6 +303,12 @@ describe('the items of the real-size tier', () => {
     const vacuous = fine();
     vacuous.lintDefects = { planted: 5, found: 0, missed: ['x'] };
     expect(failing(vacuous)).toEqual(['scale-real.lint-finds-defects']);
+    const flooded = fine();
+    flooded.lintFalse = { findings: 465, examples: ['MISSING_REFERENCE a'] };
+    expect(failing(flooded)).toEqual(['scale-real.lint-finds-defects']);
+    const bounded = fine();
+    bounded.lintFalse = { findings: 5, examples: [] };
+    expect(failing(bounded)).toEqual([]);
     const user = fine();
     user.facts.user = { expected: 14, found: 9, missed: ['u'], duplicates: ['p'], trashRead: ['t'] };
     expect(failing(user).sort()).toEqual([
@@ -408,5 +415,44 @@ describe('the planted estate precision and user layer', () => {
     expect(facts.user.trashRead).toEqual([truth.user.trash[0]]);
     const missing = { ...map, atoms: map.atoms.filter((a) => a.id !== `skill.${truth.user.found[0]}`) };
     expect(readFacts(missing, truth).user.missed).toEqual([truth.user.found[0]]);
+  });
+});
+
+describe('the lint precision and the plan console', () => {
+  const { truth } = realEstate(1, { scale: 0.1 });
+  const doc = truth.nonNormative[0] as string;
+  const defect = truth.defects[0]?.path as string;
+
+  it('counts a missing or ambiguous reference that names no planted defect and no document that is not a rule', () => {
+    const planted = { code: 'MISSING_REFERENCE', subject: 's', message: `${defect} is missing` };
+    const onDocument = { code: 'MISSING_REFERENCE', subject: doc, message: 'x' };
+    const flood = Array.from({ length: 465 }, (_, index) => ({
+      code: 'MISSING_REFERENCE',
+      subject: `skills/s${index}/SKILL.md`,
+      message: `references/r${index}.md is missing`,
+    }));
+    const ambiguous = { code: 'AMBIGUOUS_REFERENCE', subject: 'skills/a/SKILL.md', message: 'which one?' };
+    expect(lintFacts([planted], truth).falseLive.findings).toBe(0);
+    expect(lintFacts([planted, onDocument], truth).falseLive.findings).toBe(0);
+    expect(lintFacts([planted, ...flood], truth).falseLive.findings).toBe(465);
+    expect(lintFacts([planted, ambiguous], truth).falseLive.findings).toBe(1);
+    expect(lintFacts([{ code: 'ORPHAN', subject: 'x', message: 'x' }], truth).falseLive.findings).toBe(0);
+    // A lint that reports every citation as missing still finds the planted defect: it is the precision that fails.
+    expect(lintFacts([planted, ...flood], truth).defects.found).toBe(1);
+  });
+
+  it('counts an ambiguous reference on a document that is not a rule as a live finding', () => {
+    const ambiguous = [{ code: 'AMBIGUOUS_REFERENCE', subject: doc, message: 'which one?' }];
+    expect(lintFacts(ambiguous, truth).onDocuments.findings).toBe(1);
+  });
+
+  it('reads the console only when the scan and the plan exit 0 and both files are written', () => {
+    const ok = { scanCode: 0, planCode: 0, planWritten: true, summaryWritten: true, out: 'a\nb\nc' };
+    expect(planConsole(ok)).toBe(3);
+    expect(planConsole({ ...ok, planCode: 1, out: 'error: invalid map' })).toBe(-1);
+    expect(planConsole({ ...ok, scanCode: 1 })).toBe(-1);
+    expect(planConsole({ ...ok, planCode: -1 })).toBe(-1);
+    expect(planConsole({ ...ok, planWritten: false })).toBe(-1);
+    expect(planConsole({ ...ok, summaryWritten: false })).toBe(-1);
   });
 });
