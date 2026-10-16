@@ -1849,7 +1849,11 @@ const TERMS = new WeakMap<ReadonlyMap<string, EstateFile>, string[]>();
  * bold term or in a file name of the estate. A document or a part the estate names is a read target; a
  * thing nobody defined ("the whole thread") is not.
  */
-function definedTerm(words: string[], files: ReadonlyMap<string, EstateFile>): boolean {
+function definedTerm(
+  words: string[],
+  files: ReadonlyMap<string, EstateFile>,
+  declared: readonly string[] = [],
+): boolean {
   let terms = TERMS.get(files);
   if (!terms) {
     terms = [];
@@ -1879,7 +1883,9 @@ function definedTerm(words: string[], files: ReadonlyMap<string, EstateFile>): b
   }
   const wanted = words.map((word) => word.toLowerCase()).filter((word) => word.length > 2);
   if (wanted.length === 0) return false;
-  return terms.some((term) =>
+  // A declared skill or helper is a term the estate defines.
+  const names = declared.map((name) => name.toLowerCase().replace(/[-_]+/g, ' '));
+  return [...terms, ...names].some((term) =>
     wanted.every((word) =>
       new RegExp(`(?:^|[^\\p{L}])${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'u').test(term),
     ),
@@ -2121,7 +2127,14 @@ function gateAtoms(
               fromName = true;
             } else {
               // A section, a state or a part named by role: kept, with what it is, never given a file name.
-              const kind = loaded ? undefined : unresolvedKind(phrase, (words) => definedTerm(words, files));
+              const kind = loaded
+                ? undefined
+                : unresolvedKind(phrase, (words) =>
+                    definedTerm(words, files, [
+                      ...raw.skills.map((skill) => skill.name),
+                      ...raw.subagents.map((helper) => helper.name),
+                    ]),
+                  );
               if (!kind) return undefined;
               unresolved = kind;
               // The name ends at a parenthesis, a comma, a dash or a semicolon.
