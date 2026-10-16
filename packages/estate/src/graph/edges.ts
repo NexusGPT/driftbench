@@ -211,35 +211,17 @@ function repeats(quote: string, literal: string): boolean {
   return true;
 }
 
-/** Function words, pronouns, modals and adverbs: a word before a label that never heads a noun phrase. */
-const LEAD =
-  /^(?:a|an|the|this|that|these|those|each|every|any|some|no|its|their|our|your|my|his|her|as|per|under|see|cf|and|or|nor|but|of|to|with|by|from|in|on|at|for|than|like|unlike|after|before|until|when|if|unless|also|then|still|only|just|first|now|again|please|always|never|not|do|does|did|you|we|they|it|he|she|i|can|could|may|might|must|shall|should|will|would|is|are|was|were|be|been)$/i;
-/** Words after which a noun phrase opens: determiners, and prepositions other than the infinitive "to". */
-const NOUN_OPENER =
-  /^(?:a|an|the|this|that|these|those|each|every|any|some|no|its|their|our|your|my|his|her|of|with|by|from|in|on|at|for|into|onto|under|per)$/i;
-/** Nouns that name a rule: "rule R5" cites R5. */
-const RULE_NOUN =
-  /^(?:rules?|gates?|instructions?|principles?|guidelines?|polic(?:y|ies)|requirements?|constraints?)$/i;
-
 /**
- * Whether a bare label (no `#`) names some other thing than a rule: it follows a noun it designates, as in
- * "tax form R1", "the room B2" or "Keep Form R1". The word before the label is that noun when it is a content
- * word (no function word, no verb ending in -s, -ed or -ing, no rule noun) and the word before it opens a noun
- * phrase: a determiner, a preposition ("on form R5") or another content word. After a pronoun, a modal, an
- * adverb, a conjunction or "to" the word is a verb, so "you must follow R1", "always obey R1", "Obey R1" and
- * "as R1 asks" cite R1.
+ * Entity nouns commonly followed by identifiers. This is a lexical category, not an inference that any
+ * unknown content word must be a noun: "agents follow R1" remains a citation. Unlisted words keep
+ * the citation to the existing rule. A hash citation is explicit and bypasses this entity-label check.
  */
+const ENTITY_DESIGNATOR =
+  /\b(?:accounts?|appendi(?:x|ces)|articles?|batch(?:es)?|buildings?|chapters?|columns?|diagrams?|documents?|editions?|entries|entry|equations?|exhibits?|figures?|floors?|forms?|invoices?|items?|lines?|models?|orders?|pages?|paragraphs?|plates?|plots?|records?|releases?|revisions?|rooms?|rows?|sections?|shelves|shelf|tables?|tickets?|units?|versions?|volumes?|cases?)\s+$/i;
+
+/** A bare label directly after an entity-designator noun names that entity, not a rule. */
 function designates(before: string): boolean {
-  const tail = before.replace(/[*_`]/g, '').trimEnd();
-  const word = /(?:^|\s)([A-Za-z]+)$/.exec(tail)?.[1];
-  if (!word || tail.length === before.replace(/[*_`]/g, '').length || LEAD.test(word) || RULE_NOUN.test(word))
-    return false;
-  if (/(?:[^s]s|ed|ing)$/i.test(word)) return false;
-  const rest = tail.slice(0, tail.length - word.length);
-  const previous = /([A-Za-z]+)\s+$/.exec(rest)?.[1];
-  if (!previous) return false;
-  if (NOUN_OPENER.test(previous)) return true;
-  return !LEAD.test(previous) && !/ly$/i.test(previous);
+  return ENTITY_DESIGNATOR.test(before.replace(/[*_`]/g, ''));
 }
 
 /** Labels a guard source declares: `Enforces: R3, R5` in a comment or a docstring. */
