@@ -646,7 +646,14 @@ export function hiddenSpec(seed: number): HiddenSpec {
   const extraIds = new Set(extras.map((edge) => `${edge.from}-to-${edge.to}`));
   const hasEdge = (id: string) => extraIds.has(id);
 
-  const behaviourRows = shuffled(rng, BEHAVIOUR_BANK).slice(0, between(rng, HIDDEN_SHAPE.behaviours));
+  // A behaviour that names a tool is drawn only where the map stages that tool: with no stage no flow calls
+  // it, and the behaviour could never be exercised. The shuffle and the count are drawn as before, so a map
+  // that stages every tool is unchanged.
+  const staged = (row: { tool?: string }) =>
+    row.tool === undefined || tools.some((tool) => tool.name === row.tool && tool.stage !== undefined);
+  const behaviourRows = shuffled(rng, BEHAVIOUR_BANK)
+    .filter(staged)
+    .slice(0, between(rng, HIDDEN_SHAPE.behaviours));
   const behaviours: HiddenBehaviour[] = behaviourRows.map((row, index) => ({
     id: `B-${String(index + 1).padStart(3, '0')}`,
     title: row.title,

@@ -251,4 +251,6 @@ Focused results: four disk parity cases and 42 ownership/pin tests pass. Disabli
 
 ## Behaviours no owner can exercise: maintainer ruling (2026-10-16)
 
-A behaviour is exercised by a conversation of a flow that owns it, so one owner must call its tool and recover its class. The hidden constructor now adds one owner where none can (`behaviour-exercise.ts`), before the capacity pass. Open: five behaviours name a tool no flow calls (`list_options` on a five-stage map). See [the journal](SWEEP-JOURNAL.md).
+A behaviour is exercised by a conversation of a flow that owns it, so one owner must call its tool and recover its class. The hidden constructor now adds one owner where none can (`behaviour-exercise.ts`), before the capacity pass. See [the journal](SWEEP-JOURNAL.md).
+
+Resolved: a behaviour that names a tool is drawn only where the map stages that tool, so the five `behaviour.list.exercised` items no longer owe an impossible cell.
