@@ -77,7 +77,7 @@ export type ProcessAdapterOptions = {
 };
 
 /** A process adapter always reads produced files, for the artifact checks. */
-export type ProcessAdapter = AgentAdapter & Required<Pick<AgentAdapter, 'readArtifact'>>;
+export type ProcessAdapter = AgentAdapter & Required<Pick<AgentAdapter, 'readArtifact' | 'snapshotGiven'>>;
 
 type Workspace = NonNullable<WorldState['workspace']>;
 
@@ -85,10 +85,15 @@ type ProcessState = {
   sandbox: Sandbox;
   /** The workspace of the Given last written into the sandbox. */
   seeded: Workspace | undefined;
+  /** The world and variables of the last block sent, which a parent block's export carries on. */
+  world: WorldState;
+  vars: Record<string, unknown>;
   closed: boolean;
 };
 
 const DEFAULT_TIMEOUT_MS = 10 * 60 * 1000;
+/** The most bytes a parent block's exported workspace may hold, all files together. */
+const EXPORT_MAX_BYTES = 10 * 1024 * 1024;
 /** A protocol file larger than this is skipped and named in raw. */
 const PROTOCOL_MAX_BYTES = 10 * 1024 * 1024;
 /** How many protocol errors raw keeps. */
@@ -137,7 +142,13 @@ export function processAdapter(options: ProcessAdapterOptions): ProcessAdapter {
         await sandbox.destroy().catch(() => undefined);
         throw error;
       }
-      const state: ProcessState = { sandbox, seeded: workspace, closed: false };
+      const state: ProcessState = {
+        sandbox,
+        seeded: workspace,
+        world: given.world,
+        vars: given.vars,
+        closed: false,
+      };
       return {
         id: randomUUID(),
         adapter: 'process',
@@ -155,6 +166,8 @@ export function processAdapter(options: ProcessAdapterOptions): ProcessAdapter {
       if (state.closed) throw new Error('the process session is closed');
       const { sandbox } = state;
       const text = stimulusText(turn.stimulus);
+      state.world = turn.given.world;
+      state.vars = turn.given.vars;
 
       // The world of this block: a perturbation or a teacher-forced Given can add or change seeded files.
       const workspace = turn.given.world.workspace;
@@ -257,6 +270,39 @@ export function processAdapter(options: ProcessAdapterOptions): ProcessAdapter {
       const state = stateOf(session);
       if (state.closed) throw new Error('the process session is closed');
       return state.sandbox.readFile(path);
+    },
+
+    /**
+     * The end state of a parent block: its world and variables, the workspace replaced by the files the agent
+     * left, read whole. The protocol files stay out. A file that is not UTF-8 text, or a workspace past
+     * EXPORT_MAX_BYTES, cannot travel in a Given: the export fails, and the runner marks the children not run.
+     */
+    async snapshotGiven(session: Session) {
+      const state = stateOf(session);
+      if (state.closed) throw new Error('the process session is closed');
+      const snapshot = withoutControl(await state.sandbox.snapshot());
+      const paths = Object.keys(snapshot.files).sort(compare);
+      const total = paths.reduce((sum, path) => sum + (snapshot.files[path]?.bytes ?? 0), 0);
+      if (total > EXPORT_MAX_BYTES) {
+        throw new Error(
+          `the workspace holds ${total} bytes, more than the export bound of ${EXPORT_MAX_BYTES}`,
+        );
+      }
+      const decoder = new TextDecoder('utf-8', { fatal: true });
+      const files: Record<string, string> = {};
+      for (const path of paths) {
+        const bytes = await state.sandbox.readFile(path, EXPORT_MAX_BYTES);
+        try {
+          files[path] = decoder.decode(bytes);
+        } catch {
+          throw new Error(`${path} is not UTF-8 text, so the workspace cannot be exported`);
+        }
+      }
+      const { workspace: _seeded, ...world } = state.world;
+      return {
+        world: structuredClone({ ...world, ...(paths.length === 0 ? {} : { workspace: { files } }) }),
+        vars: structuredClone(state.vars),
+      };
     },
 
     /** Removes the sandbox, unless the adapter keeps it. Safe to call twice. */

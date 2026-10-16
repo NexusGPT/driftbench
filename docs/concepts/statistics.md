@@ -217,3 +217,7 @@ A set of specs, or of real conversations, is a sample of the situations an agent
 ## Helpers
 
 The package also exports the pieces the functions above are built on: `mean`, `quantile`, `quantileSorted` (type 7 quantiles), `sampleVariance`, `mulberry32` (the seeded generator), `zFor`, `Z95`, `normalCdf`, `normalSf`, `normalQuantile`, `chiSquareSf`, `binomialCdf`, `betaQuantile`, `incompleteBeta`, `logGamma`, `erfc` and `kolmogorovSf`.
+
+### Parent-linked suites
+
+For a spec with `parent` links, the headline reads the recorded forest: each root and its descendants contribute one outcome per repeat. A tree fails when one of its measured blocks fails; blocked descendants add no repeated failures. A tree containing an unrun block and no failure is left out. Repeats of a root are grouped together for the Phase 4 hierarchical Beta-Bernoulli interval, and every root tree weighs the same. Independent roots in the same spec form separate trees. JSON marks this headline with `unit: tree-run`; its `runs` and `n` count those tree outcomes. Specs without parent links keep the existing golden-level grouping. Run-level pass rates and CI gates retain their existing unit.

@@ -18,6 +18,7 @@ import {
 } from '@agent-nexus/driftbench-core';
 import { bootstrapCI } from '@agent-nexus/driftbench-stats';
 import { type AggregateCriterion, type AggregateResult, evaluateAggregates } from './aggregate';
+import { parentCauses } from './causes';
 import { type CompareResult, compareCampaigns } from './compare';
 import {
   blocksWithSpec,
@@ -73,6 +74,8 @@ export type ScorecardOptions = {
 export type ToolCall = { label: string; input?: unknown; output?: unknown; error?: string };
 
 export type BlockDetail = {
+  blockId?: string;
+  parent?: string;
   carried?: NonNullable<RunResult['blocks'][number]['carried']>;
   rejudged?: NonNullable<RunResult['blocks'][number]['rejudged']>;
   index: number;
@@ -113,6 +116,7 @@ export type BlockDetail = {
 };
 
 export type RunDetail = {
+  causes?: ReturnType<typeof parentCauses>;
   runId: string;
   specId: string;
   title?: string;
@@ -321,6 +325,7 @@ export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
   const perturbation = spec?.perturbations?.find((entry) => entry.id === run.perturbationId);
   return {
     runId: run.runId,
+    ...(run.blocks.some((block) => block.parent !== undefined) ? { causes: parentCauses(run) } : {}),
     specId: run.specId,
     ...optional('title', spec?.title),
     target: showTarget(run.target),
@@ -364,6 +369,8 @@ export function runDetailOf(data: CampaignData, run: RunResult): RunDetail {
         specBlock === undefined ? perturbation?.expect?.stage : spec?.blocks[specBlock]?.expect?.stage;
       return {
         index: result.index,
+        ...(result.specIndex === undefined ? {} : optional('blockId', result.blockId)),
+        ...optional('parent', result.parent),
         ...optional('carried', result.carried),
         ...optional('rejudged', result.rejudged),
         ...optional('specBlock', specBlock),

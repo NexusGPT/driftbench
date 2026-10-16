@@ -1,6 +1,7 @@
 import type { Assertion, Count } from '../schema/common';
-import type { Expect, Spec } from '../schema/spec';
+import type { BlockSpec, Expect, Spec } from '../schema/spec';
 import { error, type Issue } from './issues';
+import { parentOrder } from './parents';
 
 const CRITERION_REF = /^([A-Za-z0-9][A-Za-z0-9_.-]*)(@gating)?$/;
 
@@ -37,7 +38,7 @@ type Context = {
 
 /** Rules a schema cannot express. Every issue returned is an error. */
 export function checkSemantics(spec: Spec): Issue[] {
-  const issues: Issue[] = [];
+  const issues: Issue[] = parentOrder(spec).issues;
 
   const defined = spec.criteria ? new Set<string>() : undefined;
   spec.criteria?.forEach((criterion, index) => {
@@ -84,7 +85,10 @@ export function checkSemantics(spec: Spec): Issue[] {
       checkRetention(
         block.expect,
         `blocks.${index}.expect`,
-        (fact) => (facts.block.get(fact) ?? Infinity) <= index,
+        (fact) =>
+          spec.blocks.some((entry) => entry.parent !== undefined)
+            ? parentFact(spec, index, fact)
+            : (facts.block.get(fact) ?? Infinity) <= index,
         issues,
       );
   });
@@ -327,4 +331,23 @@ function checkRetention(
       if (problem) issues.push(error('REGEX_INVALID', `${at}.ask`, problem));
     }
   });
+}
+
+/** A linked block can retain only default, own Given, or ancestor facts. */
+function parentFact(spec: Spec, index: number, fact: string): boolean {
+  if (Object.hasOwn(spec.given?.ledger ?? {}, fact)) return true;
+  const ids = new Map(spec.blocks.map((block, at) => [block.id, at]));
+  const seen = new Set<number>();
+  let at: number | undefined = index;
+  while (at !== undefined && !seen.has(at)) {
+    seen.add(at);
+    const block: BlockSpec | undefined = spec.blocks[at];
+    if (
+      Object.hasOwn(block?.given?.ledger ?? {}, fact) ||
+      (at !== index && Object.hasOwn(block?.expect?.ledger_add ?? {}, fact))
+    )
+      return true;
+    at = block?.parent === undefined ? undefined : ids.get(block.parent);
+  }
+  return false;
 }

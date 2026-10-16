@@ -93,6 +93,8 @@ export const VALUE_LINES: Record<string, Record<string, string>> = {
 
 /** Text printed under a section heading, for the sections whose values describe behaviour. */
 const SECTION_NOTES: Record<string, string> = {
+  Block:
+    'A block may name `parent: <block id>` in the same spec. The runner starts it from that parent’s recorded end state, then applies its own Given. Dependencies run first; missing parents and cycles are errors. A failed or unrun parent blocks descendants, which the report lists under the original cause. See [parent blocks](../concepts/given-when-then.md#parent-blocks) and the [Acme example](../../examples/acme/parents/README.md).',
   DeviationClass:
     'Used by `when.injection.class` and `perturbations[].class`. Mode P runs them with the perturbing driver, and `driftbench perturb` runs one. See [recovery](../concepts/recovery.md).',
   DriftClass:
