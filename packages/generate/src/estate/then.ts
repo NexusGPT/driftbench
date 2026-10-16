@@ -1,3 +1,4 @@
+import { posix } from 'node:path';
 import type {
   ArtifactExpect,
   CriterionDef,
@@ -69,7 +70,7 @@ export const MARKERS = {
 export type Marker = (typeof MARKERS)[keyof typeof MARKERS];
 export const MARKER_NAMES: ReadonlySet<string> = new Set(Object.values(MARKERS));
 
-export type Gap = { marker: Marker; atom: string; detail: string };
+export type Gap = { marker: Marker; atom: string; detail: string; path?: string };
 
 /** `key`: the two calls name the same value in that input field (`file_path`: the file read is the one edited). */
 export type OrderedPair = { before: string; after: string; key?: string };
@@ -115,6 +116,8 @@ export type ThenParts = {
   ordered: OrderedPair[];
   criteria: CriterionDef[];
   gaps: Gap[];
+  /** Broken estate dependencies that an attempted-call check can test without blocking the spec. */
+  needs: Array<Gap & { path: string; blocking: false }>;
 };
 
 /** The step list of the estate, read from its stage atoms. */
@@ -138,6 +141,8 @@ export type ThenContext = {
   judge?: boolean;
   /** The files of the estate, relative to its root: a read is expected only of one of them. */
   files?: ReadonlySet<string>;
+  /** The original estate root, for deciding whether an absolute path belongs to its copy. */
+  root?: string;
   /** True for a live row: the runtime's own trace is all there is, no decision log the estate writes. */
   live?: boolean;
   /** Files the runtime loads by itself (no Read call ever shows it): a read of one is never expected. */
@@ -168,6 +173,7 @@ export function emptyThen(): ThenParts {
     ordered: [],
     criteria: [],
     gaps: [],
+    needs: [],
   };
 }
 
@@ -650,10 +656,16 @@ export function addWorkspace(then: ThenParts, parts: WorkspaceParts): void {
   then.workspace = into;
 }
 
-export function gap(then: ThenParts, marker: Marker, atom: EstateAtom | string, detail: string): void {
+export function gap(
+  then: ThenParts,
+  marker: Marker,
+  atom: EstateAtom | string,
+  detail: string,
+  path?: string,
+): void {
   const id = typeof atom === 'string' ? atom : atom.id;
   if (!then.gaps.some((known) => known.marker === marker && known.atom === id && known.detail === detail)) {
-    then.gaps.push({ marker, atom: id, detail });
+    then.gaps.push({ marker, atom: id, detail, ...(path === undefined ? {} : { path }) });
   }
 }
 
@@ -711,10 +723,8 @@ function loadedRead(label: string, input: Record<string, unknown>, ctx: ThenCont
 }
 
 /**
- * A file the estate does not hold cannot be read successfully, but the declared Read call can still be
- * attempted and return a file-not-found error. Check that attempt with some_call, not references (which
- * counts only successful reads). Without that checker the row keeps its needs-existing-file gap.
- * True when it is such a read. A path matches a file when one ends with the other.
+ * A missing internal file permits a Read attempt, including its error. An external or escaping path
+ * stays a gap: the estate copy cannot supply it. Successful attempts still record the broken dependency.
  */
 function missingRead(
   then: ThenParts,
@@ -727,16 +737,53 @@ function missingRead(
   if (label !== 'Read' || !ctx.files) return false;
   const value = textOf(input.file_path ?? input.path ?? input.notebook_path);
   if (value === undefined) return false;
-  const path = value.replace(/^\.?\/+/, '');
+  const path = estatePath(value, ctx.root);
+  if (atom.fields?.external === true || path === undefined) {
+    gap(then, MARKERS.existingFile, atom, `${value} is outside the estate`, value);
+    return true;
+  }
   for (const file of ctx.files) {
     if (file === path || file.endsWith(`/${path}`) || path.endsWith(`/${file}`)) return false;
   }
   if (ctx.customChecks.has('some_call')) {
-    addSomeCall(then, { label, input, count: { min } });
+    const key = ['file_path', 'path', 'notebook_path'].find((key) => key in input) as string;
+    const from = atom.fields?.from ?? atom.provenance?.file;
+    const written = atom.fields?.writtenPath;
+    const paths = new Set([path]);
+    // Older maps have no writtenPath: the declaring file still supplies the relative spelling.
+    const relative = typeof from === 'string' ? posix.relative(posix.dirname(from), path) : undefined;
+    if (typeof written === 'string' && typeof from === 'string') {
+      if (estatePath(posix.join(posix.dirname(from), written), ctx.root) === path) paths.add(written);
+    } else if (relative) paths.add(relative);
+    const assertion =
+      paths.size === 1
+        ? { contains: path }
+        : {
+            regex: [...paths].map((path) => path.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'),
+          };
+    addSomeCall(then, { label, input: { ...input, [key]: assertion }, count: { min } });
+    then.needs.push({
+      marker: MARKERS.existingFile,
+      atom: atom.id,
+      path,
+      detail: `${path} is no file of the estate; only its Read attempt is checked`,
+      blocking: false,
+    });
     return true;
   }
-  gap(then, MARKERS.existingFile, atom, `${path} is no file of the estate`);
+  gap(then, MARKERS.existingFile, atom, `${path} is no file of the estate`, path);
   return true;
+}
+
+/** A normalized path inside the estate root; never expand a home directory or accept an escape. */
+function estatePath(value: string, root?: string): string | undefined {
+  if (value.startsWith('~/')) return undefined;
+  let path = posix.normalize(value);
+  if (posix.isAbsolute(path)) {
+    if (!root || !posix.isAbsolute(root)) return undefined;
+    path = posix.relative(root, path);
+  }
+  return path === '..' || path.startsWith('../') || path === '.' ? undefined : path;
 }
 
 /**

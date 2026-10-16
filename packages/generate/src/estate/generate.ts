@@ -142,6 +142,7 @@ export function generateEstateSuite(
   const checks = [...(options.customChecks ?? REPLAY_CUSTOM_CHECKS)].sort();
   const ctx: Context = {
     map: input.map,
+    root: input.map.root,
     atoms: new Map(input.map.atoms.map((atom) => [atom.id, atom])),
     bank: input.bank,
     ...(input.sessions ? { sessions: input.sessions } : {}),

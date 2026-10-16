@@ -69,7 +69,7 @@ rules:
         - label: Read
           input:
             file_path:
-              contains: .claude/skills/weekly-report/references/kpi-definitions.md
+              regex: \.claude/skills/weekly-report/references/kpi-definitions\.md|references/kpi-definitions\.md
           count:
             min: 1
           block: 0
@@ -92,3 +92,9 @@ metadata:
     phrase: 1
     ask: bank
     outcome: bank
+    needs:
+      - marker: needs-existing-file
+        atom: reference.weekly-report.read-references-kpi-definitions-md
+        path: .claude/skills/weekly-report/references/kpi-definitions.md
+        detail: .claude/skills/weekly-report/references/kpi-definitions.md is no file of the estate; only its Read attempt is checked
+        blocking: false

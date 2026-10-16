@@ -198,9 +198,9 @@ describe('estate generate on the Northwind fixture and the hand plan', () => {
   it('keeps every gap out of the complete suite, with its marker in the spec and the report', () => {
     for (const record of specRecords(result)) {
       const spec = only(byId, record.id);
-      const needs = (estate(spec).needs ?? []) as Array<{ marker: string }>;
+      const needs = (estate(spec).needs ?? []) as Array<{ marker: string; blocking?: boolean }>;
       expect(record.path.startsWith(record.complete ? 'specs/' : 'incomplete/'), record.id).toBe(true);
-      expect(needs.length === 0, record.id).toBe(record.complete);
+      expect(needs.filter((need) => need.blocking !== false).length === 0, record.id).toBe(record.complete);
       if (!record.complete) {
         expect(spec.criteria).toBeUndefined();
         expect(spec.blocks[0]?.expect?.criteria).toEqual(record.markers);

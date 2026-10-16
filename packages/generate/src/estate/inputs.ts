@@ -40,7 +40,7 @@ export type EstateAtom = {
   provenance?: { quote: string; file?: string };
 };
 
-export type EstateMapInput = { runtime: string; hash: string; atoms: EstateAtom[] };
+export type EstateMapInput = { runtime: string; hash: string; atoms: EstateAtom[]; root?: string };
 
 export type EstatePlanRow = {
   id: string;

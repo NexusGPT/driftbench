@@ -56,4 +56,70 @@ describe('an estate obligation to open a missing reference', () => {
     const then = thenOf([reference], 'positive', { ...ctx, customChecks: new Set() });
     expect(then.gaps.map((gap) => gap.marker)).toEqual([MARKERS.existingFile]);
   });
+
+  it.each(['~/team-notes.txt', '/outside/team-notes.txt', '../team-notes.txt', 'rules/../../team-notes.txt'])(
+    'keeps a gap for a target outside the estate: %s',
+    (path) => {
+      const atom = {
+        ...reference,
+        evidence: [{ type: 'tool_called' as const, label: 'Read', input: { file_path: { contains: path } } }],
+      };
+      const then = thenOf([atom], 'positive', { ...ctx, root: '/estate' });
+      expect(then.someCalls).toEqual([]);
+      expect(then.gaps).toMatchObject([{ marker: MARKERS.existingFile, path }]);
+    },
+  );
+
+  it('never mistakes an external reference for a held file with the same suffix', () => {
+    const then = thenOf([{ ...reference, fields: { ...reference.fields, external: true } }], 'positive', {
+      ...ctx,
+      files: new Set(['rules/archive-policy.txt']),
+    });
+    expect(then.someCalls).toEqual([]);
+    expect(then.references).toEqual([]);
+    expect(then.gaps[0]?.marker).toBe(MARKERS.existingFile);
+  });
+
+  it('accepts an absolute internal path only when the original root contains it', () => {
+    const atom = {
+      ...reference,
+      evidence: [
+        {
+          type: 'tool_called' as const,
+          label: 'Read',
+          input: { file_path: { contains: '/estate/rules/archive-policy.txt' } },
+        },
+      ],
+    };
+    expect(thenOf([atom], 'positive', { ...ctx, root: '/estate' }).someCalls).toMatchObject([
+      { input: { file_path: { contains: 'rules/archive-policy.txt' } } },
+    ]);
+    expect(thenOf([atom], 'positive', { ...ctx, root: '/estate-other' }).gaps[0]?.marker).toBe(
+      MARKERS.existingFile,
+    );
+  });
+
+  it('supports old maps, escapes pattern characters, and preserves the required call count', async () => {
+    const path = '.claude/skills/report/rules/archive(approved)+.txt';
+    const atom: EstateAtom = {
+      ...reference,
+      provenance: { file: '.claude/skills/report/SKILL.md', quote: '' },
+      evidence: [{ type: 'tool_called', label: 'Read', min: 2, input: { file_path: { contains: path } } }],
+    };
+    const then = thenOf([atom], 'positive', ctx);
+    const check = async (paths: string[]) => {
+      const result = await someCall(
+        {
+          blockIndex: 0,
+          observed: { toolCalls: paths.map((path) => read(path, 'missing')) },
+        } as CheckContext,
+        { calls: then.someCalls },
+      );
+      return (Array.isArray(result) ? result : [result])[0]?.outcome;
+    };
+    expect(await check([path, 'rules/archive(approved)+.txt'])).toBe('pass');
+    expect(await check([path])).toBe('fail');
+    expect(await check(['rules/archiveapproved.txt', 'rules/archiveapproved.txt'])).toBe('fail');
+    expect(then.needs).toMatchObject([{ path, blocking: false }]);
+  });
 });

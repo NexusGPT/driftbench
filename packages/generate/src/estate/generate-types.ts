@@ -133,7 +133,8 @@ export type EstateGenerateOptions = {
   judge?: boolean;
   /**
    * The files of the estate, relative to its root, as the runtime's reader lists them (what a run copies).
-   * Successful reads are expected only of these files; a missing file gets an attempted-call check.
+   * Successful reads are expected only of these files. Missing internal files get attempted-call checks;
+   * external paths keep a gap. Both retain the broken dependency in spec metadata.
    * Default: the files the map knows (atom files, references and scripts that exist).
    */
   files?: readonly string[];

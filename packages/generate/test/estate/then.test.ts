@@ -734,6 +734,7 @@ describe('a read of a file the estate does not hold', () => {
         marker: MARKERS.existingFile,
         atom: 'reference.x',
         detail: 'references/kpi-definitions.md is no file of the estate',
+        path: 'references/kpi-definitions.md',
       },
     ]);
   });

@@ -660,6 +660,7 @@ function referenceAtoms(
         situation: line.text,
         fields: {
           path,
+          writtenPath: named,
           exists: target !== undefined || isSkipped,
           readWhen: line.text,
           from: chunk.file,

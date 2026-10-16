@@ -40,7 +40,7 @@ rules:
         - label: Read
           input:
             file_path:
-              contains: .claude/skills/weekly-report/references/kpi-definitions.md
+              regex: \.claude/skills/weekly-report/references/kpi-definitions\.md|references/kpi-definitions\.md
           count:
             min: 1
           block: 0
@@ -66,3 +66,8 @@ metadata:
       - marker: needs-askable-act
         atom: reference.weekly-report.read-references-kpi-definitions-md
         detail: 'no usable situation (skill.weekly-report.skill-weekly-report (asks it names)): the situation names the file References/kpi-definitions.md: "References/kpi-definitions.md when a number needs a definition"'
+      - marker: needs-existing-file
+        atom: reference.weekly-report.read-references-kpi-definitions-md
+        path: .claude/skills/weekly-report/references/kpi-definitions.md
+        detail: .claude/skills/weekly-report/references/kpi-definitions.md is no file of the estate; only its Read attempt is checked
+        blocking: false

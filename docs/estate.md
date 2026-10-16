@@ -516,11 +516,15 @@ How a row becomes a spec:
 | `needs-guard-message-check` | the message a guard gives |
 | `needs-derivable-then` | a row with no Then code can derive |
 | `needs-askable-act` | no approved phrase, and the atoms' words give no task the floor accepts |
-| `needs-existing-file` | a Read of a file the estate copy does not hold, with no registered `some_call` checker to verify the attempt |
+| `needs-existing-file` | a Read outside the estate root, an external reference, or a missing internal file with no registered `some_call` checker |
 
 When an ordered obligation names a domain operation with no tool, skill or stage anchor, a configured judge checks the order against the full source rule. Machine checks for named reads remain in place. Without a judge the row retains `needs-ordered-anchor`.
 
-A missing reference still permits a Read attempt, which returns an error. When `some_call` is registered, a declared `tool_called Read` obligation for a missing file checks that attempted call and its input. It does not expect a successful read or invented file content. Existing references still use the successful-read check.
+A missing internal reference still permits a Read attempt, which returns an error. When `some_call` is registered, a declared `tool_called Read` obligation checks that attempt only for a non-external path inside the estate root. It accepts the estate-relative path or the spelling written in the declaring skill when that spelling resolves to the same file. External references and paths escaping the root keep the `needs-existing-file` gap, including home-relative and absolute paths outside the root. Existing references still use the successful-read check.
+
+Every missing Read target is recorded with its `path` in `metadata.estate.needs`. An internal target checked by its attempted call has `blocking: false`: its spec can pass, but the broken reference stays visible. Listing the folder and reporting the missing file does not satisfy a declared Read obligation. A passing attempt proves no successful read or file content.
+
+Reference atoms retain the named spelling in `fields.writtenPath` alongside the resolved `fields.path`. For older maps without that field, generation derives the relative spelling from the declaring file.
 
 The files of the estate copy are listed from the map's `root`. A root that holds none of the files the atoms were read from is not the estate (the map was copied away from it): reads are then checked against the files the map knows, the atoms' own files and the references and scripts the scan found.
 

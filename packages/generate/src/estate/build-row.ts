@@ -327,14 +327,10 @@ export function build(
         ...(unit !== undefined && typeof unit !== 'string' ? { unit } : {}),
         ...(then.judged.length > 0 ? { judged: then.judged } : {}),
         ...(session ? { session: session.name, expect: expectRun } : {}),
-        ...(complete
+        ...(then.gaps.length + then.needs.length === 0
           ? {}
           : {
-              needs: then.gaps.map((entry) => ({
-                marker: entry.marker,
-                atom: entry.atom,
-                detail: entry.detail,
-              })),
+              needs: [...then.gaps, ...then.needs],
             }),
       },
       ...(session ? { replay: { session: session.name, from_block: session.from_block } } : {}),
