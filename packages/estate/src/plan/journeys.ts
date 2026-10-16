@@ -51,9 +51,13 @@ export const JOURNEY_DEFAULTS: JourneyOptions = { seed: 1, maxLength: 16, maxPat
 export function planJourneys(map: EstateMap, options: JourneyOptions = JOURNEY_DEFAULTS): JourneyResult {
   const atoms = map.atoms.filter((atom) => atom.approved);
   const navigation = navigationFiles(map.documents);
-  // A journey walks the rules an ask can reach; a reference to an example or a template adds no rule.
+  // A journey walks the rules an ask can reach; a reference to an example or a template adds no rule, and a
+  // reference to a file outside the estate (another repository, reached by a link) cannot be walked: the run's
+  // workspace does not hold it.
   const approved = new Set(
-    atoms.filter((atom) => !navigationReference(atom, navigation)).map((atom) => atom.id),
+    atoms
+      .filter((atom) => !navigationReference(atom, navigation) && atom.fields?.external !== true)
+      .map((atom) => atom.id),
   );
   const edges = map.edges.filter(
     (edge) => JOURNEY_EDGE_KINDS.has(edge.kind) && approved.has(edge.from) && approved.has(edge.to),

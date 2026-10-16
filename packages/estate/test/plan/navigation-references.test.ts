@@ -1,6 +1,6 @@
 import { rm } from 'node:fs/promises';
 import { expect, it } from 'vitest';
-import { buildPlan, ClaudeCodeReader, scanEstate } from '../../src/index';
+import { buildPlan, ClaudeCodeReader, planJourneys, scanEstate } from '../../src/index';
 import { estate, NOW } from '../support';
 
 const files = {
@@ -84,6 +84,41 @@ it('keeps a prerequisite to read a template: only a read-when reference is a pla
     expect(plan.rows.some((row) => row.testType === 'ordered_pair' && row.atomIds[0] === gate?.id)).toBe(
       true,
     );
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+}, 30_000);
+
+it('walks no journey into a document outside the estate, and still tests the read itself', async () => {
+  const root = await estate({
+    'CLAUDE.md': '# Harbour office\n',
+    '.claude/skills/berths/SKILL.md': [
+      '---',
+      'name: berths',
+      'description: Assigns ships to berths for the harbour office.',
+      '---',
+      '# Berths',
+      'Read references/tide-limits.md when assigning a deep-draught ship.',
+      '',
+    ].join('\n'),
+    '.claude/skills/berths/references/tide-limits.md': '# Tide limits\nDraught limits per tide.\n',
+  });
+  try {
+    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const reference = map.atoms.find((atom) => atom.kind === 'reference');
+    expect(reference).toBeDefined();
+    const external = {
+      ...map,
+      atoms: map.atoms.map((atom) =>
+        atom.id === reference?.id ? { ...atom, fields: { ...atom.fields, external: true } } : atom,
+      ),
+    };
+    const inside = planJourneys(map);
+    const outside = planJourneys(external);
+    expect(inside.edges.some((edge) => edge.to === reference?.id)).toBe(true);
+    expect(outside.edges.some((edge) => edge.to === reference?.id)).toBe(false);
+    expect(outside.journeys.flatMap((journey) => journey.atomIds)).not.toContain(reference?.id);
+    expect(buildPlan(external).plan.rows.some((row) => row.testType === 'read_when')).toBe(true);
   } finally {
     await rm(root, { recursive: true, force: true });
   }

@@ -627,6 +627,8 @@ target; the plan notes how many. A prerequisite to read such a file stays a gate
 those references out of the coverage counts and reports their number. A plan made before the map recorded
 roles still lists the row; generation writes it incomplete with that reason. A map without `documents`
 changes nothing: no file name is read as a role.
+A reference to a file outside the estate root (reached through a link to another repository) enters no journey:
+the run's workspace does not hold the file, so a path through it cannot be walked. Its `read_when` row stays.
 
 Complete tests with exactly equal rule semantics, asks, inputs, expectations, judge rubrics,
 run mode, test type and non-target situation values share one representative.
