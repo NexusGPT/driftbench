@@ -286,15 +286,31 @@ export function literals(text: string): string[] {
   return found;
 }
 
-/** Dispatch shares the gate clause boundaries and negation scope. A plain name needs a verb head. */
+/** A directive head uses the gate polarity/scope check, then a verb's imperative or modal grammar. */
+function dispatchHead(head: string): boolean {
+  if (!directiveHead(head)) return false;
+  const main = head.split(/[,:]/).at(-1)?.trim() ?? '';
+  return (
+    main === '' ||
+    /(?:\b(?:please|kindly|always|then|now)|\b(?:must|should|shall|can|could|may|will)|\b(?:remember|sure|essential|need|have)\s+to|\b[a-z]+ly|\byou)\s*$/i.test(
+      main,
+    )
+  );
+}
+
+const DISPATCH_ACT = String.raw`(?:dispatch|call|invoke|spawn|launch|ask|use|have|let|(?:delegate|hand|send)(?:\s+(?:it|(?:the|a|an)\s+[\w -]+?))?(?:\s+(?:off|over))?(?:\s+to)?)`;
+const HELPER_ROLE = String.raw`(?:(?:the|to|helper|agent|subagent|named)\s+)*`;
+
+/** Dispatch shares gate clause boundaries and negation scope; coordinated targets inherit the directive. */
 function dispatchesHelper(text: string, name: string): boolean {
   if (name === '') return false;
   const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const mention = new RegExp(`(?<![\\w-])${escaped}(?![\\w-])`, 'g');
+  const direct = new RegExp(`\\b${DISPATCH_ACT}\\s+${HELPER_ROLE}$`, 'i');
+  const inherited = new RegExp(`^(.*?)(?:,\\s*(?:then|and)\\s+|\\s+and\\s+)${HELPER_ROLE}$`, 'i');
   for (const line of text.split('\n')) {
     const masked = maskLine(line);
     for (const clause of gateClauses(masked.text)) {
-      // Reopen code spans, but keep quoted examples opaque.
       const visible = unmask(clause, masked.spans).replace(/"[^"\n]+"|“[^”\n]+”/g, '');
       for (const match of visible.matchAll(mention)) {
         const before =
@@ -303,23 +319,18 @@ function dispatchesHelper(text: string, name: string): boolean {
             .replace(/[`*]/g, '')
             .split(/\?|\b(?:but|until|instead)\b/i)
             .at(-1) ?? '';
-        const act =
-          /\b(?:dispatch|call|invoke|spawn|launch|ask|use|have|let|(?:delegate|hand|send)(?:\s+(?:it|the\s+\w+))?(?:\s+(?:off|over))?(?:\s+to)?)\s+(?:(?:the|to|helper|agent|subagent|named)\s+)*$/i.exec(
-            before,
-          );
-        if (!directiveHead(before)) continue;
-        if (act && (!/^use\b/i.test(act[0]) || line.includes(`\`${name}\``))) {
-          const head = before.slice(0, act.index).trim();
-          // A verb starts an imperative, or follows a modal, infinitive or directive lead-in.
-          // A determiner+noun ("a call report") and historical declarative heads do neither.
-          const main = head.split(/[,:]/).at(-1)?.trim() ?? '';
-          if (
-            main === '' ||
-            /(?:\b(?:please|kindly|always|then|now)|\b(?:must|should|shall|can|could|may|will)|\b(?:remember|sure|essential)\s+to|\b(?:need|have)\s+to|\b[a-z]+ly|\byou)\s*$/i.test(
-              main,
-            )
-          )
-            return true;
+        const act = direct.exec(before);
+        if (
+          act &&
+          (!/^use\b/i.test(act[0]) || line.includes(`\`${name}\``)) &&
+          dispatchHead(before.slice(0, act.index))
+        )
+          return true;
+        // "Dispatch A, then B" keeps the same verb and polarity for B.
+        const previous = inherited.exec(before)?.[1];
+        if (previous !== undefined) {
+          const verb = new RegExp(`\\b${DISPATCH_ACT}\\b`, 'i').exec(previous);
+          if (verb && dispatchHead(previous.slice(0, verb.index))) return true;
         }
       }
     }

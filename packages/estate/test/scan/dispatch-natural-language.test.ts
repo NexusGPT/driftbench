@@ -65,6 +65,12 @@ export const dispatchCorpus: Array<[string, boolean]> = [
   ['Never directly call `report`.', false],
   ['You cannot have `report` summarize this.', false],
   ['Do not send the draft to `report`.', false],
+  ['Hand the final draft to the `report` agent.', true],
+  ['Dispatch the `other` agent, then the `report` agent.', true],
+  ['Call other and report.', true],
+  ['Never dispatch other, then report.', false],
+  ['The dispatch report, then report, arrives tomorrow.', false],
+  ['Dispatch other, but never call report.', false],
 ];
 
 describe('dispatch clauses', () => {
