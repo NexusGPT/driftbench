@@ -1,6 +1,6 @@
-import type { RunResult } from '@agent-nexus/driftbench-core';
+import { type RunResult, runOutcome } from '@agent-nexus/driftbench-core';
 import { hierarchicalBetaBinomial, mde } from '@agent-nexus/driftbench-stats';
-import { groupBy, runPassed } from './data';
+import { groupBy, runPassed, scoredRuns } from './data';
 import type { Estimate } from './estimate';
 
 /** The power the detectable drop is read at: the same 80% the comparison prints (PLANNING_POWER in compare). */
@@ -17,9 +17,9 @@ export const HEADLINE_POWER = 0.8;
  */
 export type SuiteHeadline = Estimate & {
   method: 'hierarchical' | 'none';
-  /** The trees: goldens with at least one run. */
+  /** The trees: goldens with at least one scored run. */
   trees: number;
-  /** Runs in all trees. */
+  /** Scored runs in all trees: a run not run or blocked (no block failed) is no measurement and is left out. */
   runs: number;
   /** The pass rate over all runs pooled, each run counting once. Differs from `estimate` when trees have unequal repeats. */
   pooledRate: number;
@@ -30,14 +30,12 @@ export type SuiteHeadline = Estimate & {
   degenerate: boolean;
   /** The smallest drop in the tree-level rate two suites like this one detect at 80% power; null when none is. */
   detectableDrop: number | null;
-  /** Shares of the runs that did not give a verdict. `blocked` and `notRun` are 0 until a run carries that status. */
+  /**
+   * Shares of every run of the suite: `incomplete` did not complete (scored, as a fail); `blocked` and `notRun`
+   * had a block not sent and no failure, so they are out of the rate.
+   */
   shares: { incomplete: number; blocked: number; notRun: number };
 };
-
-/** The status of a run as text, so a status a later schema adds (`blocked`, `not_run`) counts without a type change. */
-function statusOf(run: RunResult): string {
-  return String((run as { status: unknown }).status);
-}
 
 /**
  * The independent runs the mean over trees is worth: n_eff = p (1 - p) / variance, with p the mean of the tree
@@ -67,18 +65,23 @@ function meanEffective(counts: readonly { n: number; k: number }[], p: number, r
   return { effective, designEffect: runs / effective, degenerate };
 }
 
-/** The suite headline of runs, grouped into trees by `treeOf`. Undefined with no run. */
+/**
+ * The suite headline of runs, grouped into trees by `treeOf`, over the scored runs (pass or fail). Undefined
+ * with no scored run.
+ */
 export function suiteHeadline(
-  runs: readonly RunResult[],
+  all: readonly RunResult[],
   treeOf: (run: RunResult) => string,
 ): SuiteHeadline | undefined {
+  const runs = scoredRuns(all);
   if (runs.length === 0) return undefined;
   const groups = [...groupBy(runs, treeOf).values()];
   const counts = groups.map((group) => ({ n: group.length, k: group.filter(runPassed).length }));
+  const outcomes = all.map((run) => runOutcome(run));
   const shares = {
-    incomplete: runs.filter((run) => statusOf(run) !== 'completed').length / runs.length,
-    blocked: runs.filter((run) => statusOf(run) === 'blocked').length / runs.length,
-    notRun: runs.filter((run) => statusOf(run) === 'not_run').length / runs.length,
+    incomplete: all.filter((run) => run.status !== 'completed').length / all.length,
+    blocked: outcomes.filter((outcome) => outcome === 'blocked').length / all.length,
+    notRun: outcomes.filter((outcome) => outcome === 'not_run').length / all.length,
   };
   const pooled = counts.reduce((sum, c) => sum + c.k, 0) / runs.length;
   const base = { trees: groups.length, runs: runs.length, shares, pooledRate: pooled };

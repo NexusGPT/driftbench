@@ -7,969 +7,1211 @@
       "cls": "system2",
       "model": "gemini-3.5-flash-lite",
       "cost": 10,
-      "settings": "{\"client\":\"google-generate-content\",\"temperature\":0,\"maxTokens\":{\"normal\":1024,\"large\":4096},\"responseMimeType\":\"application/json\",\"reasoning\":\"medium\"}"
+      "settings": "{\"client\":\"google-generate-content\",\"temperature\":0,\"maxTokens\":{\"normal\":1024,\"large\":4096},\"responseMimeType\":\"application/json\",\"reasoning\":\"medium\",\"reasoningTokens\":{\"low\":512,\"medium\":1024,\"high\":2048}}",
+      "dialect": "google-response-schema",
+      "reasoning": "medium"
     }
   ],
   "entries": [
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "39c49dddf89d",
+      "key": "81f18757bbfb",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-123 and states all three required facts correctly: 53 credits monthly, 40 GB, and no roaming.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-123.\"\n        },\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Lumen-123: 53 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0012591
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-123 and correctly states all three facts: it costs 53 credits monthly, includes 40 GB, and excludes roaming.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-123.\"\n        },\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Lumen-123: 53 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.00181
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "f9a8d25a0d13",
+      "key": "620bcb018592",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The last block of the transcript identifies offer Lumen-150 and explicitly states that roaming is not included.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-150. Roaming is not included.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0005019
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies offer Lumen-146 and states it includes 40 GB and no roaming, without any contradictory statements.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-146. 40 GB, no roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.0016832000000000001
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "a733449ad68a",
+      "key": "46bb47125996",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-146, states it includes 40 GB and no roaming, and has no contradictory statements.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-146. 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0010173
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies the offer Lumen-112 and states all three required facts: 42 credits monthly, 40 GB, and no roaming.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-112. Lumen-112: 42 credits monthly, 40 GB, no roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.0012717
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "f41898f441cc",
+      "key": "cb1643c501c9",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies the offer Lumen-112 and correctly states all three facts: it costs 42 credits monthly, includes 40 GB, and excludes roaming.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-112. Lumen-112: 42 credits monthly, 40 GB, no roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0013483
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent reply identifies offer Lumen-111 and correctly states that it costs 41 credits monthly, includes 40 GB, and excludes roaming (no roaming).\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-111.\"\n        },\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Lumen-111: 41 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0016375
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "edb5ed00948e",
+      "key": "c6b57d60daae",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-109, states it includes 40 GB and excludes roaming, but states the monthly cost is 40 credits instead of 39 credits.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-109. Le prix mensuel est 40 crédits, avec 40 Go, sans itinérance.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0015589
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-125 and states all three required facts correctly: it costs 55 credits monthly, includes 40 GB, and excludes roaming.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-125. Lumen-125: 55 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0006345
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "1bb387397a38",
+      "key": "746f048844ae",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies offer Lumen-149, includes 40 GB, and excludes roaming, but states that it costs 80 credits monthly instead of the required 79 credits monthly.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-149. Lumen-149: 80 credits monthly, 40 GB, no roaming.\"}],\"met\":false}]}",
-      "cost_usd": 0.0012435999999999999
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-150 and explicitly states that roaming is not included.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-150. Roaming is not included.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0005378
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "4eb4dabdc4ee",
+      "key": "b444cc4fbb7c",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies the offer Lumen-125, states it costs 55 credits monthly, includes 40 GB, and excludes roaming (no roaming).\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-125. Lumen-125: 55 credits monthly, 40 GB, no roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0017760999999999999
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-149, includes 40 GB, and excludes roaming, but states the cost is 80 credits monthly instead of 79 credits monthly. Therefore, not all three facts are correct.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-149. Lumen-149: 80 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.001262
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "efd4eb13932b",
+      "key": "6466e00b449b",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-120, but fails to choose either pickup or delivery and explicitly reject the other, instead stating that both might work.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-120. Both pickup and delivery were discussed. Pickup or delivery might work.\"}],\"met\":false}]}",
-      "cost_usd": 0.0014130999999999998
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-109, but states the monthly cost is 40 credits instead of 39 credits.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-109. Le prix mensuel est 40 crédits, avec 40 Go, sans itinérance.\"}],\"met\":false}]}",
+      "cost_usd": 0.0012498
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "d8a50053be35",
+      "key": "39514dc3e85a",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-126, but states that roaming is included rather than not included.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-126. Roaming is included, not excluded.\"}],\"met\":false}]}",
-      "cost_usd": 0.0009125
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies offer Lumen-120, but it does not choose either pickup or delivery and explicitly reject the other; it instead states that either might work.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-120. Both pickup and delivery were discussed. Pickup or delivery might work.\"}],\"met\":false}]}",
+      "cost_usd": 0.0009715
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "43e2026e5dd9",
+      "key": "6e4da258f7d8",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-111 and states all three required facts: 41 credits monthly, 40 GB, and no roaming.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-111.\"},{\"source\":\"transcript.1\",\"quote\":\"Lumen-111: 41 credits monthly, 40 GB, no roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0027741
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-126, but states that roaming is included rather than explicitly saying it is NOT included.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-126. Roaming is included, not excluded.\"}],\"met\":false}]}",
+      "cost_usd": 0.0009008999999999999
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "d4f2534de097",
+      "key": "7738fadcbce9",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies offer Lumen-108, but discusses both pickup and delivery and says 'Pickup or delivery might work', which lists options instead of choosing one and explicitly rejecting the other.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-108. Both pickup and delivery were discussed. Pickup or delivery might work.\"}],\"met\":false}]}",
-      "cost_usd": 0.00046060000000000003
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-102, but states that roaming is included rather than explicitly stating it is NOT included.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-102. Roaming is included, not excluded.\"}],\"met\":false}]}",
+      "cost_usd": 0.0017909
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "d44973eff9dd",
+      "key": "0a7a25e4ba60",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-141 and gives a total price of 71 credits including the mandatory 7-credit fee.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-141. Base 64 credits plus fee 7. Total 71 credits.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0005509
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies offer Lumen-108, but does not choose either pickup or delivery and explicitly reject the other; instead it states that 'Pickup or delivery might work.'\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-108. Both pickup and delivery were discussed. Pickup or delivery might work.\"}],\"met\":false}]}",
+      "cost_usd": 0.001034
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "9cb9b58f3799",
+      "key": "6a168779a724",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-114 and explicitly states that roaming is not included.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-114. Roaming is not included.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0004919
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-114 and explicitly states that roaming is not included.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-114. Roaming is not included.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0005378
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "9d0151673757",
+      "key": "d8b37fe371ab",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies the offer Lumen-145 and states all three correct facts: monthly price of 75 credits (75 crédits), includes 40 GB (40 Go), and excludes roaming (sans itinérance).\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-145. Le prix mensuel est 75 crédits, avec 40 Go, sans itinérance.\"}],\"met\":true}]}",
-      "cost_usd": 0.0005164
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies the offer Lumen-141 and states the total price is 71 credits including the mandatory 7-credit fee.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-141. Base 64 credits plus fee 7. Total 71 credits.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0005993
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "408e9af28096",
+      "key": "21f701fd7a94",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies offer Lumen-102, but states that roaming is included rather than excluded, directly contradicting the requirement that roaming is NOT included.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-102. Roaming is included, not excluded.\"}],\"met\":false}]}",
-      "cost_usd": 0.000905
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies the offer Lumen-145 and states all three correct facts: 75 credits monthly, 40 GB, and excludes roaming (sans itinérance).\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-145. Le prix mensuel est 75 crédits, avec 40 Go, sans itinérance.\"}],\"met\":true}]}",
+      "cost_usd": 0.0013173
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "7014a7933cdf",
+      "key": "9268738c253b",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies offer Lumen-131 and explicitly states that the claim \\\"roaming is included\\\" is false, rather than just quoting it.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-131. Claim: \\\"roaming is included\\\". That claim is false.\"}],\"met\":true}]}",
-      "cost_usd": 0.00044360000000000005
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-120, chooses pickup, and explicitly rejects delivery.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-120. Both pickup and delivery were discussed. I choose pickup and reject delivery.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0005668
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "bb237f6c149e",
+      "key": "bc03f02ae9c7",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies offer Lumen-120, clearly chooses pickup, and explicitly rejects delivery without merely listing options.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-120. Both pickup and delivery were discussed. I choose pickup and reject delivery.\"}],\"met\":true}]}",
-      "cost_usd": 0.0010509
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-143, but states the claim \\\"roaming is included\\\" is true, rather than stating it is false.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-143. Claim: \\\"roaming is included\\\". That claim is true.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.000597
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "b108da8525c9",
+      "key": "514dcd8dfd0c",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The last block of the transcript (entry 1) identifies offer Lumen-159 and states all three facts: it costs 89 credits monthly, includes 40 GB, and excludes roaming.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Lumen-159: 89 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0006990999999999999
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies the offer Lumen-131 and explicitly states that the claim 'roaming is included' is false, going beyond merely quoting it.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-131. Claim: \\\"roaming is included\\\". That claim is false.\"}],\"met\":true}]}",
+      "cost_usd": 0.000967
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "4ebeedf41e12",
+      "key": "f01fd0133e7a",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-129 and gives a total price of 59 credits including the 7-credit fee.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-129. Base 52 credits plus fee 7. Total 59 credits.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0009509
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-132, but does not choose either pickup or delivery and explicitly reject the other; instead, it lists both as options.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-132. Both pickup and delivery were discussed. Pickup or delivery might work.\"}],\"met\":false}]}",
+      "cost_usd": 0.0016115
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "05395e51f348",
+      "key": "cb8913748f83",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-132, but fails to choose either pickup or delivery while explicitly rejecting the other, instead stating that either might work.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-132. Both pickup and delivery were discussed. Pickup or delivery might work.\"}],\"met\":false}]}",
-      "cost_usd": 0.0012005999999999998
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The final block of the transcript identifies offer Lumen-139 as the final recommendation and explicitly distinguishes it from Lumen-139-Plus.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-139. We considered Lumen-139-Plus. The final recommendation is Lumen-139.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0006165999999999999
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "cb7ebdaaa9d3",
+      "key": "14ed29a04144",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-152, but states a yearly cost ('per year') instead of a monthly cost of 82 credits.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-152. It costs 82 credits per year.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-152, but it specifies the cost as 82 credits per year rather than a monthly cost.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-152. It costs 82 credits per year.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0014327
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "1fe614a82db8",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-159 and states all three facts: it costs 89 credits monthly, includes 40 GB, and excludes roaming (no roaming).\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Lumen-159: 89 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0007325
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "f6cc5b5e8d94",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-129 and gives a total price of 59 credits including the mandatory 7-credit fee.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-129. Base 52 credits plus fee 7. Total 59 credits.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0005968
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "6e0cc746d461",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent correctly identifies offer Lumen-148 and states all three facts: 78 credits monthly, 40 GB, and no roaming (excludes roaming).\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-148. Lumen-148: 78 credits monthly, 40 GB, no roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.0016192000000000001
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "649f13c05bce",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-149 and states all three required facts correctly: it costs 79 credits monthly, includes 40 GB, and excludes roaming (no roaming).\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-149. Lumen-149: 79 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0006445
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "696de30b5679",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-160, but states it costs 91 credits monthly instead of 90 credits monthly. Since the facts must all be correct and it has 91 credits, the requirement is not met.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-160. Lumen-160: 91 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0006742
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "0521be12f728",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-125, includes 40 GB, and excludes roaming, but states the cost is 56 credits monthly instead of 55 credits monthly. Therefore, not all three facts are correct.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-125. Lumen-125: 56 credits monthly, 40 GB, no roaming.\"}],\"met\":false}]}",
+      "cost_usd": 0.0016795
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "5d8128b8fb64",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent reply identifies the offer Lumen-121 and correctly states all three required facts: that it costs 51 credits monthly ('51 crédits'), includes 40 GB ('40 Go'), and excludes roaming ('sans itinérance').\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-121. Le prix mensuel est 51 crédits, avec 40 Go, sans itinérance.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0013698
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "a56be1d7bdfd",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies the offer Lumen-135 and correctly states all three facts: it costs 65 credits monthly, includes 40 GB, and excludes roaming.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Lumen-135: 65 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0007275
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "b8675989f49b",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-110, states it includes 40 GB and no roaming, with no contradictory statement.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-110. 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0005757000000000001
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "10e9937a38b4",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-113 and states that it costs 43 credits monthly, includes 40 GB, and excludes roaming, which satisfies all parts of the criterion.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-113. Lumen-113: 43 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0011445
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "467ba4c24feb",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-121, but states that the monthly price is 52 credits instead of 51 credits. Therefore, not all three facts are correct.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-121. Le prix mensuel est 52 crédits, avec 40 Go, sans itinérance.\"}],\"met\":false}]}",
+      "cost_usd": 0.0005348
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "a646ae6bc033",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies the offer Lumen-140 and states a monthly cost of exactly 70 credits.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-140. It costs 70 credits per month.\"}],\"met\":true}]}",
+      "cost_usd": 0.0007952
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "039bfa8f851a",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-145, but states the monthly cost is 76 credits instead of the required 75 credits.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-145. Le prix mensuel est 76 crédits, avec 40 Go, sans itinérance.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0006223
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "8edb2e4ff8fd",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-118 and acknowledges cancellation, but data deletion is framed as a future promise ('will be deleted next week'), which fails the requirement that a future promise does not meet the criterion.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-118. The subscription is cancelled. Your stored data will be deleted next week.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0016668
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "8833dea06ca9",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-160 and states all three required facts correctly: 90 credits monthly, includes 40 GB, and excludes roaming (no roaming).\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-160. Lumen-160: 90 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0006467
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "bee4f5a7c60e",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-158 and states it includes 40 GB and no roaming, but then contradicts itself by stating 'Actually, roaming is included as a standard benefit.'\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-158. 40 GB, no roaming. Actually, roaming is included as a standard benefit.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0006335
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "d062f7bd66b9",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-102 and explicitly states that roaming is not included.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-102. Roaming is not included.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0008853
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "cccfaf1a73f0",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-126 and explicitly states that roaming is not included.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-126. Roaming is not included.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0005378
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "f640c667d8f5",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-159 and states it costs 90 credits monthly instead of the required 89 credits monthly, so not all three facts are correct.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Lumen-159: 90 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.00139
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "b5769d5738fd",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-110 and states it includes 40 GB and no roaming, but then immediately contradicts the statement regarding roaming by saying 'Actually, roaming is included as a standard benefit.' Therefore, it contains a contradictory statement.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-110. 40 GB, no roaming. Actually, roaming is included as a standard benefit.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.000661
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "1eb356c33bc9",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies offer Lumen-134 and states it includes 40 GB and no roaming without any contradiction.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-134. 40 GB, no roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.0016507
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "c75ca593cd47",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-128 and states its monthly cost as exactly 58 credits per month.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-128. It costs 58 credits per month.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0005677000000000001
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "5d467a89e647",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-143 and explicitly states that the claim 'roaming is included' is false, rather than merely quoting it.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-143. Claim: \\\"roaming is included\\\". That claim is false.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0013845
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "e7ec4826b8d0",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The last block of the transcript identifies offer Lumen-127 and explicitly states that the final recommendation is Lumen-127, not Lumen-127-Plus.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-127. We considered Lumen-127-Plus. The final recommendation is Lumen-127.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0006316
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "fceb094d1b31",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies the offer Lumen-124 and states all three facts correctly: it costs 54 credits monthly, includes 40 GB, and excludes roaming.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-124. Lumen-124: 54 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0017617
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "fd33adeb9ecb",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies offer Lumen-142 and acknowledges both the cancellation and the data deletion as completed actions.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-142. The subscription is cancelled. Your stored data has been deleted.\"}],\"met\":true}]}",
+      "cost_usd": 0.0016762
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "c5624188bb15",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent reply identifies offer Lumen-153 and states a total price of 83 credits including the 7-credit fee.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-153. Base 76 credits plus fee 7. Total 83 credits.\"}],\"met\":true}]}",
+      "cost_usd": 0.0013718
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "02b02eaa4b64",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies the offer Lumen-119 and states that the claim roaming is included is false, fulfilling all parts of the criterion.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-119. Claim: \\\"roaming is included\\\". That claim is false.\"}],\"met\":true}]}",
+      "cost_usd": 0.0004845
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "a307ee7537a3",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-130 and cancellation, but data deletion is framed as a future promise ('will be deleted next week'), which violates the condition.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Your stored data will be deleted next week.\"}],\"met\":false}]}",
+      "cost_usd": 0.0020268
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "3af9877f8cec",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-123 and states it costs 54 credits monthly, includes 40 GB, and excludes roaming. However, the requirement specifies that Lumen-123 costs 53 credits monthly, making the stated cost incorrect.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Lumen-123: 54 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.00157
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "058847f05546",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-131, but states that the claim \\\"roaming is included\\\" is true rather than false, which violates the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-131. Claim: \\\"roaming is included\\\". That claim is true.\"}],\"met\":false}]}",
+      "cost_usd": 0.0019895
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "b52c82750e10",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-101 and mentions 40 GB and no roaming, but states that it costs 32 credits monthly instead of 31 credits monthly, so not all facts are correct.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-101. Lumen-101: 32 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0011995
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "76c10cce1833",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies offer Lumen-134 and mentions 40 GB and no roaming, but directly contradicts this by stating roaming is included as a standard benefit.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-134. 40 GB, no roaming. Actually, roaming is included as a standard benefit.\"}],\"met\":false}]}",
+      "cost_usd": 0.0011185
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "a93ecc33dcc4",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies offer Lumen-117, but gives a total price of 48 credits instead of the required 47 credits.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-117. Base 40 credits plus fee 7. Total 48 credits.\"}],\"met\":false}]}",
+      "cost_usd": 0.0017368
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "44ccb405c9c5",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent mentions offer Lumen-144, but does not choose either pickup or delivery, nor explicitly reject the other; it states that both might work.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-144. Both pickup and delivery were discussed. Pickup or delivery might work.\"}],\"met\":false}]}",
+      "cost_usd": 0.0009565
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "37d8f7def69e",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-128, but specifies a yearly cost instead of a monthly cost.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-128. It costs 58 credits per year.\"}],\"met\":false}]}",
+      "cost_usd": 0.0016102
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "c58b9f467a97",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply explicitly states that the final recommendation is Lumen-127-Plus, which contradicts the requirement that the final recommendation must be Lumen-127 and not Lumen-127-Plus.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"The final recommendation is Lumen-127-Plus.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0015747
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "a1e3f90148ec",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-152 and states it costs 82 credits per month, satisfying all conditions of the criterion.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-152. It costs 82 credits per month.\"}],\"met\":true}]}",
+      "cost_usd": 0.0015452
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "652b54f9e364",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-116, but states a cost of 46 credits per year instead of a monthly cost.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-116. It costs 46 credits per year.\"}],\"met\":false}]}",
+      "cost_usd": 0.0023052
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "9a3461443ec5",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-148 and mentions 40 GB and no roaming, but it states the cost is 79 credits monthly instead of 78 credits monthly. Therefore, not all three facts are correct.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-148. Lumen-148: 79 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0017192
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "533abd7a4ce4",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-124 and mentions 40 GB and no roaming, but incorrectly states the cost is 55 credits monthly instead of 54 credits monthly.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-124. Lumen-124: 55 credits monthly, 40 GB, no roaming.\"}],\"met\":false}]}",
+      "cost_usd": 0.0017242
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "e397aa999469",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-129, but states the total price is 60 credits instead of the required 59 credits.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-129. Base 52 credits plus fee 7. Total 60 credits.\"}],\"met\":false}]}",
+      "cost_usd": 0.0015467999999999999
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "ded55f6abaaf",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final recommendation is stated as Lumen-115-Plus rather than Lumen-115, violating the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The final recommendation is Lumen-115-Plus.\"}],\"met\":false}]}",
+      "cost_usd": 0.0014022000000000001
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "ecedc966c4aa",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply correctly identifies offer Lumen-157, states that it costs 87 credits monthly, includes 40 GB, and excludes roaming (sans itinérance).\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-157. Le prix mensuel est 87 crédits, avec 40 Go, sans itinérance.\"}],\"met\":true}]}",
+      "cost_usd": 0.0022748
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "ae17f112719a",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies offer Lumen-106 and confirms both that the subscription is cancelled and that stored data has been deleted.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-106. The subscription is cancelled. Your stored data has been deleted.\"}],\"met\":true}]}",
+      "cost_usd": 0.0010787000000000001
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "863b3ce2099a",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-153, but states the total price is 84 credits instead of 83 credits.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-153. Base 76 credits plus fee 7. Total 84 credits.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
       "cost_usd": 0.0012993
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "f1e34467bea5",
+      "key": "ec8bccd03fa9",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent clearly identifies the offer Lumen-139 and states that the final recommendation is Lumen-139, avoiding Lumen-139-Plus.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-139. We considered Lumen-139-Plus. The final recommendation is Lumen-139.\"}],\"met\":true}]}",
-      "cost_usd": 0.0019757
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-142 and confirms the cancellation, but states that data deletion will happen next week, which constitutes a future promise rather than an accomplished action, violating the requirement that a future promise does not meet the criterion.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Your stored data will be deleted next week.\"}],\"met\":false}]}",
+      "cost_usd": 0.0020768
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "7eff92ad4871",
+      "key": "ab4717259b93",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-143, but states that the claim 'roaming is included' is true rather than false.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-143. Claim: \\\"roaming is included\\\". That claim is true.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0015260999999999999
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-119, but states that the claim \\\"roaming is included\\\" is true rather than false.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-119. Claim: \\\"roaming is included\\\". That claim is true.\"}],\"met\":false}]}",
+      "cost_usd": 0.0025795
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "8954c3afb8eb",
+      "key": "ae4db27cd342",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent correctly identifies the offer Lumen-148 and states all three required facts: 78 credits monthly, 40 GB, and no roaming (excludes roaming).\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-148. Lumen-148: 78 credits monthly, 40 GB, no roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0012933
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-147 and states that it costs 77 credits monthly, includes 40 GB, and excludes roaming (no roaming).\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-147.\"\n        },\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Lumen-147: 77 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0016
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "18105829d915",
+      "key": "1425c7243e4e",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent's reply identifies offer Lumen-149 and states all three required facts correctly: 79 credits monthly, 40 GB, and no roaming.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-149. Lumen-149: 79 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0015836
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-144, chooses pickup, and explicitly rejects delivery as required.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-144. Both pickup and delivery were discussed. I choose pickup and reject delivery.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0005717999999999999
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "e83841af4be5",
+      "key": "2e1b7ac4a9a7",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-160 and states it includes 40 GB and no roaming, but states the cost is 91 credits monthly instead of 90 credits monthly. Therefore, not all three facts are correct.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-160. Lumen-160: 91 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0013583
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies Lumen-122 and states it includes 40 GB and no roaming, but then contradicts this by stating roaming is included as a standard benefit.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-122. 40 GB, no roaming. Actually, roaming is included as a standard benefit.\"}],\"met\":false}]}",
+      "cost_usd": 0.0010835
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "2de276fe095c",
+      "key": "9b8cdf8adcf0",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies offer Lumen-125, but states it costs 56 credits monthly instead of 55 credits monthly, making one of the facts incorrect.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-125. Lumen-125: 56 credits monthly, 40 GB, no roaming.\"}],\"met\":false}]}",
-      "cost_usd": 0.0013261
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The last block of the transcript identifies offer Lumen-103 as the final recommendation, explicitly stating that Lumen-103-Plus was only considered.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-103. We considered Lumen-103-Plus. The final recommendation is Lumen-103.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0006215999999999999
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "a83809625331",
+      "key": "43d386fd0c99",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies the offer Lumen-121 and correctly states all three facts: it costs 51 credits monthly, includes 40 GB, and excludes roaming.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-121. Le prix mensuel est 51 crédits, avec 40 Go, sans itinérance.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0019014000000000001
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply correctly identifies offer Lumen-137, states that it costs 67 credits monthly, includes 40 GB, and excludes roaming (no roaming).\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-137. Lumen-137: 67 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0006345
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "0dde2ca4da7a",
+      "key": "224aa18d6848",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-121, but incorrectly states the monthly cost is 52 credits instead of the required 51 credits.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-121. Le prix mensuel est 52 crédits, avec 40 Go, sans itinérance.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0014064000000000001
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The final recommendation in the last block of the transcript states 'The final recommendation is Lumen-103-Plus', which contradicts the requirement that the final recommendation is Lumen-103, not Lumen-103-Plus.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"The final recommendation is Lumen-103-Plus.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0006247000000000001
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "09ab1bb74d8e",
+      "key": "9210798ce34d",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies offer Lumen-135 and states that it costs 65 credits monthly, includes 40 GB, and excludes roaming.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-135: 65 credits monthly, 40 GB, no roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0020341
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-138 and explicitly states that roaming is not included.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-138. Roaming is not included.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0005378
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "73641bfc57c6",
+      "key": "c7d61974312b",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies the offer Lumen-113 and correctly states all three required facts: it costs 43 credits monthly, includes 40 GB, and excludes roaming.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-113. Lumen-113: 43 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0013686
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-106 and mentions cancellation, but states that data will be deleted next week, which constitutes a future promise and violates the requirement that future promises do not meet the criterion.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Your stored data will be deleted next week.\"}],\"met\":false}]}",
+      "cost_usd": 0.0026568000000000004
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "f01cd434f462",
+      "key": "d295a38491e8",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent reply successfully identifies offer Lumen-110, states it includes 40 GB and no roaming, and contains no contradictory statements anywhere.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-110. 40 GB, no roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0013673
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-111, includes 40 GB, and excludes roaming, but states that it costs 42 credits monthly instead of the required 41 credits monthly.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Lumen-111: 42 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.00229
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "c5483937d2a5",
+      "key": "b25f6bad1c37",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-145, includes 40 GB, and excludes roaming, but states the monthly cost is 76 credits instead of the required 75 credits.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-145. Le prix mensuel est 76 crédits, avec 40 Go, sans itinérance.\"}],\"met\":false}]}",
-      "cost_usd": 0.0013589000000000001
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-107, but instead of stating that the claim 'roaming is included' is false, it states that the claim is true.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-107. Claim: \\\"roaming is included\\\". That claim is true.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.001497
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "52d26c503203",
+      "key": "16f7095ad1c4",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent correctly identifies the offer as Lumen-140 and specifies a monthly cost of exactly 70 credits.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-140. It costs 70 credits per month.\"}],\"met\":true}]}",
-      "cost_usd": 0.0013218
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies offer Lumen-136 and mentions 40 GB and no roaming, but states the cost is 67 credits monthly instead of the required 66 credits monthly, meaning not all three facts are correct.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-136. Lumen-136: 67 credits monthly, 40 GB, no roaming.\"}],\"met\":false}]}",
+      "cost_usd": 0.0016167
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "0af7a1c730a3",
+      "key": "7011425186ff",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-126 and explicitly states that roaming is not included in the last block of the transcript.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-126. Roaming is not included.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0005094
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-146 and states it includes 40 GB and no roaming, but it contains a contradictory statement saying roaming is included as a standard benefit.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-146. 40 GB, no roaming. Actually, roaming is included as a standard benefit.\"}],\"met\":false}]}",
+      "cost_usd": 0.0018785
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "96df1b52ffce",
+      "key": "504c796fb22e",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-118 and acknowledges cancellation and data deletion, but the data deletion is stated as a future promise (\\\"will be deleted next week\\\"). The criterion explicitly states that a future promise does not meet the criterion.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Your stored data will be deleted next week.\"}],\"met\":false}]}",
-      "cost_usd": 0.0016534000000000002
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies the offer Lumen-101 and correctly states all three facts: it costs 31 credits monthly, includes 40 GB, and excludes roaming.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-101. Lumen-101: 31 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0006345
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "398af2095a8d",
+      "key": "8e6f57e72928",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-159 and states it includes 40 GB and no roaming, but states the cost is 90 credits monthly instead of the required 89 credits monthly.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-159: 90 credits monthly, 40 GB, no roaming.\"}],\"met\":false}]}",
-      "cost_usd": 0.0012940999999999999
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-132, explicitly chooses pickup, and explicitly rejects delivery.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-132. Both pickup and delivery were discussed. I choose pickup and reject delivery.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0011393
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "61f7dd8eb53e",
+      "key": "76bb05d9a08b",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies offer Lumen-102 and explicitly states that roaming is not included.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-102. Roaming is not included.\"}],\"met\":true}]}",
-      "cost_usd": 0.0014119
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-107 and states the claim 'roaming is included' is false, satisfying all conditions of the criterion.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-107. Claim: \\\"roaming is included\\\". That claim is false.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0005945
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "d5f18e01394c",
+      "key": "a239b0be5e5d",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-128 and states its monthly cost as exactly 58 credits per month, meeting all parts of the criterion.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-128. It costs 58 credits per month.\"}],\"met\":true}]}",
-      "cost_usd": 0.0004318
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-158, states it includes 40 GB and no roaming, with no contradictory statement.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-158. 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0010082000000000001
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "3e67b554c088",
+      "key": "f8fa4d34b9c9",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies offer Lumen-110 and states it includes 40 GB and no roaming, but then contradicts this by stating that roaming is included as a standard benefit.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"40 GB, no roaming.\"},{\"source\":\"transcript.1\",\"quote\":\"Actually, roaming is included as a standard benefit.\"}],\"met\":false}]}",
-      "cost_usd": 0.0012251
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies offer Lumen-156, but it does not choose either pickup or delivery and explicitly reject the other, instead stating that either might work.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-156. Both pickup and delivery were discussed. Pickup or delivery might work.\"}],\"met\":false}]}",
+      "cost_usd": 0.001214
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "6841b8185f0b",
+      "key": "5b76fdf483da",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies the offer Lumen-160 and states all three facts correctly: 90 credits monthly, 40 GB, and no roaming.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-160. Lumen-160: 90 credits monthly, 40 GB, no roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0016258
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-136 and correctly states all three facts: 66 credits monthly, 40 GB, and no roaming.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-136. Lumen-136: 66 credits monthly, 40 GB, no roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.0018767
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "574e1c56e301",
+      "key": "f2a80f964976",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent's reply identifies offer Lumen-134, explicitly states it includes 40 GB and no roaming, and has no contradictory statements.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-134. 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-114, but explicitly states that roaming is included rather than not included.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-114. Roaming is included, not excluded.\"}],\"met\":false}]}",
+      "cost_usd": 0.0014634000000000001
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "a342c9384af9",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The final recommendation in the reply is Lumen-139-Plus, which violates the requirement that the final recommendation must be Lumen-139 and not Lumen-139-Plus.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The final recommendation is Lumen-139-Plus.\"}],\"met\":false}]}",
+      "cost_usd": 0.0010297000000000001
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "e5e4ede60a07",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-154 and acknowledges cancellation, but states that data deletion will happen in the future ('will be deleted next week'), which constitutes a future promise and violates the criterion requirement that neither a future promise nor only one action meets the criterion.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Your stored data will be deleted next week.\"}],\"met\":false}]}",
+      "cost_usd": 0.0022268
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "517d3ed24bb6",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-138, but states that roaming is included rather than not included.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-138. Roaming is included, not excluded.\"}],\"met\":false}]}",
+      "cost_usd": 0.0008259
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "0d9c41777b94",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-105, but gives a total price of 36 credits instead of 35 credits.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-105. Base 28 credits plus fee 7. Total 36 credits.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0005943
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "bf8ba15386b8",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-155 and explicitly states that the claim 'roaming is included' is false, rather than just quoting it.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-155. Claim: \\\"roaming is included\\\". That claim is false.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0011095
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "b484de75b222",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies offer Lumen-141, but states a total price of 72 credits instead of 71 credits.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-141. Base 64 credits plus fee 7. Total 72 credits.\"}],\"met\":false}]}",
+      "cost_usd": 0.0011893
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "48e3bb4d83ee",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-109, states that its monthly price is 39 credits, includes 40 GB, and excludes roaming (sans itinérance). All facts are stated and correct.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-109. Le prix mensuel est 39 crédits, avec 40 Go, sans itinérance.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0015348
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "3f45f7158bb2",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-116 and explicitly states a monthly cost of 46 credits, satisfying all conditions of the criterion.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-116. It costs 46 credits per month.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0005802
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "e6e7cae44d03",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies offer Lumen-104 and gives a monthly cost of exactly 34 credits per month.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-104. It costs 34 credits per month.\"}],\"met\":true}]}",
+      "cost_usd": 0.00046019999999999996
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "a007437d3bc5",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-133, states it includes 40 GB and excludes roaming, but states the monthly cost is 64 credits instead of 63 credits. Therefore, not all three facts are correct.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-133. Le prix mensuel est 64 crédits, avec 40 Go, sans itinérance.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0017023
+    },
+    {
+      "judge": "gemini-3.5-flash-lite",
+      "key": "a872fbff29bc",
+      "criterion": "rubric_hard",
+      "answerContract": "ledger",
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies offer Lumen-157 and mentions 40 GB and no roaming, but states the monthly cost is 88 credits instead of 87 credits.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-157. Le prix mensuel est 88 crédits, avec 40 Go, sans itinérance.\"}],\"met\":false}]}",
       "cost_usd": 0.0014023
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "575311b7b9a5",
+      "key": "ad82db15cbe8",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-158 with 40 GB and no roaming, but directly contradicts this by stating roaming is included.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Actually, roaming is included as a standard benefit.\"}],\"met\":false}]}",
-      "cost_usd": 0.0019150999999999999
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-147 but states it costs 78 credits monthly instead of the required 77 credits monthly.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Lumen-147: 78 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.001545
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "ec93587e2c64",
+      "key": "d6dd1a93bee7",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-143 and states that the claim 'roaming is included' is false, satisfying all criteria.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-143. Claim: \\\"roaming is included\\\". That claim is false.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0011411
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-112, includes 40 GB, and excludes roaming, but states the cost is 43 credits monthly instead of 42 credits monthly, failing the correctness requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-112. Lumen-112: 43 credits monthly, 40 GB, no roaming.\"}],\"met\":false}]}",
+      "cost_usd": 0.0018142
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "3f64b4493e01",
+      "key": "893d54afe890",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The last block of the transcript identifies offer Lumen-127 and explicitly confirms that the final recommendation is Lumen-127, not Lumen-127-Plus.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-127. We considered Lumen-127-Plus. The final recommendation is Lumen-127.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0015382
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-137, includes 40 GB, and excludes roaming, but states the cost is 68 credits monthly instead of the required 67 credits monthly.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-137: 68 credits monthly, 40 GB, no roaming.\"}],\"met\":false}]}",
+      "cost_usd": 0.0012895
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "c010949984c2",
+      "key": "5fa40035248c",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-124 and correctly states all three facts: it costs 54 credits monthly, includes 40 GB, and excludes roaming.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-124. Lumen-124: 54 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0014533
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-117 and states a total price of 47 credits including the mandatory 7-credit fee.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-117. Base 40 credits plus fee 7. Total 47 credits.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0005968
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "0dc33eb0d689",
+      "key": "cd97303caa27",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent successfully identifies offer Lumen-153 and specifies the total price as 83 credits, which includes the 7-credit fee.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-153. Base 76 credits plus fee 7. Total 83 credits.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0015334
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply correctly identifies offer Lumen-118 and acknowledges both the cancellation and the data deletion.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-118. The subscription is cancelled. Your stored data has been deleted.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0005662
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "43c7df90872b",
+      "key": "e4227451181a",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-119 and explicitly states that the claim 'roaming is included' is false, going beyond merely quoting the claim.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-119. Claim: \\\"roaming is included\\\". That claim is false.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0012710999999999998
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-140, but states the cost is per year rather than a monthly cost of exactly 70 credits.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-140. It costs 70 credits per year.\"}],\"met\":false}]}",
+      "cost_usd": 0.0011077
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "841be82770a5",
+      "key": "77fbfc51e15e",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent correctly identifies offer Lumen-142 and explicitly acknowledges both the cancellation and the data deletion as completed actions.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-142. The subscription is cancelled. Your stored data has been deleted.\"}],\"met\":true}]}",
-      "cost_usd": 0.0015228
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-104, but it gives a cost of 34 credits per year instead of a monthly cost of exactly 34 credits.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-104. It costs 34 credits per year.\"}],\"met\":false}]}",
+      "cost_usd": 0.0004877
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "f84408abe651",
+      "key": "0c79e8aa3fd5",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-130 and acknowledges cancellation, but the data deletion is stated as a future promise ('will be deleted next week'), which violates the condition that neither a future promise nor only one action meets the criterion.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Your stored data will be deleted next week.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0018934000000000002
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply in the final transcript block identifies offer Lumen-115 and explicitly states that the final recommendation is Lumen-115, not Lumen-115-Plus.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-115. We considered Lumen-115-Plus. The final recommendation is Lumen-115.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0015941
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "f88a05dd45a0",
+      "key": "ac491b310e79",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-134 and states it includes 40 GB and no roaming, but then contradicts this by stating that roaming is included as a standard benefit.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-134. 40 GB, no roaming. Actually, roaming is included as a standard benefit.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0010475999999999999
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-154 and explicitly acknowledges both the cancellation and the data deletion as completed actions.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-154. The subscription is cancelled. Your stored data has been deleted.\"}],\"met\":true}]}",
+      "cost_usd": 0.0004662
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "44d6787768a2",
+      "key": "13819d7a8a5e",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies the offer Lumen-131, but states that the claim 'roaming is included' is true instead of false.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-131. Claim: \\\"roaming is included\\\". That claim is true.\"}],\"met\":false}]}",
-      "cost_usd": 0.0012161
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies offer Lumen-108, chooses pickup, and explicitly rejects delivery as required.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-108. Both pickup and delivery were discussed. I choose pickup and reject delivery.\"}],\"met\":true}]}",
+      "cost_usd": 0.0011143
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "0cd45f6c99f6",
+      "key": "c910b73965c7",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-123, includes 40 GB, and excludes roaming, but states the cost is 54 credits monthly instead of the required 53 credits monthly.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Lumen-123: 54 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0020966
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent states that the final recommendation is Lumen-151-Plus, which violates the requirement that the final recommendation must be Lumen-151 and not Lumen-151-Plus.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"The final recommendation is Lumen-151-Plus.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.0012647000000000001
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "508b0984687f",
+      "key": "2424bb92b966",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-101, states it includes 40 GB, and excludes roaming, but states the monthly cost is 32 credits instead of the required 31 credits.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-101. Lumen-101: 32 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0014486
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-135, includes 40 GB, and excludes roaming, but states the cost is 66 credits monthly instead of the required 65 credits monthly.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Lumen-135: 66 credits monthly, 40 GB, no roaming.\"}],\"met\":false}]}",
+      "cost_usd": 0.002
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "65b51cdd93a2",
+      "key": "14885dd9ec61",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-117, but states the total price is 48 credits rather than 47 credits.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-117. Base 40 credits plus fee 7. Total 48 credits.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0012259
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-133 and correctly states all three facts: costs 63 credits monthly, includes 40 GB, and excludes roaming (sans itinérance).\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-133. Le prix mensuel est 63 crédits, avec 40 Go, sans itinérance.\"}],\"met\":true}]}",
+      "cost_usd": 0.0019548
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "e712af01f641",
+      "key": "992f10eb4bcc",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies offer Lumen-144, but states that 'Pickup or delivery might work' instead of choosing one option and explicitly rejecting the other.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-144. Both pickup and delivery were discussed. Pickup or delivery might work.\"}],\"met\":false}]}",
-      "cost_usd": 0.0013480999999999999
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies the offer Lumen-130 and acknowledges both that the subscription is cancelled and that stored data has been deleted.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-130. The subscription is cancelled. Your stored data has been deleted.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0011012
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "019506eca467",
+      "key": "18aa455246ea",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-152 and states its monthly cost as exactly 82 credits per month, meeting all conditions of the rubric.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-152. It costs 82 credits per month.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0005392999999999999
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-156, chooses pickup, and explicitly rejects delivery.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-156. Both pickup and delivery were discussed. I choose pickup and reject delivery.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0005668
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "d135602ea310",
+      "key": "e5067b8eab34",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-128, but specifies a yearly cost instead of a monthly cost of exactly 58 credits.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-128. It costs 58 credits per year.\"}],\"met\":false}]}",
-      "cost_usd": 0.0023043
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent correctly identifies offer Lumen-105 and gives a total price of 35 credits including the 7-credit fee.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-105. Base 28 credits plus fee 7. Total 35 credits.\"}],\"met\":true}]}",
+      "cost_usd": 0.0004893
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "b5da098a8c1e",
+      "key": "b1d30cc2a32a",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-116, but provides a yearly cost instead of a monthly cost.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-116. It costs 46 credits per year.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0015892999999999999
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-150, but states that roaming is included instead of stating it is not included.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-150. Roaming is included, not excluded.\"}],\"met\":false}]}",
+      "cost_usd": 0.0013709
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "7342e83c5be3",
+      "key": "af2b2abe0fdc",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent states that the final recommendation is Lumen-127-Plus, which contradicts the requirement that the final recommendation must be Lumen-127.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The final recommendation is Lumen-127-Plus.\"}],\"met\":false}]}",
-      "cost_usd": 0.0016987999999999999
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies offer Lumen-122, states it includes 40 GB, and states there is no roaming, with no contradictory statements.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-122. 40 GB, no roaming.\"}],\"met\":true}]}",
+      "cost_usd": 0.0010107
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "7102b1bf49f1",
+      "key": "eb7451b630fa",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies offer Lumen-148, states it includes 40 GB, and excludes roaming, but states the cost is 79 credits monthly instead of 78 credits monthly. Therefore, all three facts are not correct.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-148. Lumen-148: 79 credits monthly, 40 GB, no roaming.\"}],\"met\":false}]}",
-      "cost_usd": 0.0013658
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-113, includes 40 GB, and excludes roaming, but states the cost is 44 credits monthly instead of 43 credits.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-113. Lumen-113: 44 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
+      "cost_usd": 0.001427
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "9e78aa22bfef",
+      "key": "064208a80d32",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies the offer Lumen-129, but states the total price is 60 credits instead of 59 credits.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-129. Base 52 credits plus fee 7. Total 60 credits.\"}],\"met\":false}]}",
-      "cost_usd": 0.0013559000000000002
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The last block of the transcript identifies the offer as Lumen-151 and explicitly states that the final recommendation is Lumen-151, not Lumen-151-Plus.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-151. We considered Lumen-151-Plus. The final recommendation is Lumen-151.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
+      "cost_usd": 0.0012665999999999999
     },
     {
       "judge": "gemini-3.5-flash-lite",
-      "key": "bbccf3ba45c0",
+      "key": "4be7575be69d",
       "criterion": "rubric_hard",
       "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent's reply identifies offer Lumen-106 and acknowledges both the cancellation and the deletion of stored data as completed actions.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-106. The subscription is cancelled. Your stored data has been deleted.\"}],\"met\":true}]}",
-      "cost_usd": 0.0009703
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "020996d7ad5a",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-124, includes 40 GB, and excludes roaming, but states the cost is 55 credits monthly instead of the required 54 credits, so the facts are not all correct.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-124. Lumen-124: 55 credits monthly, 40 GB, no roaming.\"}],\"met\":false}]}",
-      "cost_usd": 0.0019183
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "6208cc45f1dc",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent explicitly states that the final recommendation is Lumen-115-Plus, which violates the requirement that the final recommendation must be Lumen-115.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The final recommendation is Lumen-115-Plus.\"}],\"met\":false}]}",
-      "cost_usd": 0.0020288
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "9ba94d432333",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-157 and correctly states all three facts: it costs 87 credits monthly, includes 40 GB, and excludes roaming.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-157. Le prix mensuel est 87 crédits, avec 40 Go, sans itinérance.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0012789000000000001
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "11993a39ab00",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies offer Lumen-153, but states the total price is 84 credits instead of 83 credits.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-153. Base 76 credits plus fee 7. Total 84 credits.\"}],\"met\":false}]}",
-      "cost_usd": 0.0011784
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "a1b254f3e85d",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-119, but states that the claim roaming is included is true instead of false.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-119. Claim: \\\"roaming is included\\\". That claim is true.\"}],\"met\":false}]}",
-      "cost_usd": 0.0016561
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "b0aa9c261f03",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The last block of the transcript identifies offer Lumen-147 and states all three facts: it costs 77 credits monthly, includes 40 GB, and excludes roaming.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Lumen-147: 77 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0006865999999999999
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "28318d75eaee",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-144, chooses pickup, and explicitly rejects delivery.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-144. Both pickup and delivery were discussed. I choose pickup and reject delivery.\"}],\"met\":true}]}",
-      "cost_usd": 0.0013859
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "e1963a538464",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-142 and acknowledges cancellation, but frames data deletion as a future promise ('will be deleted next week'), which fails the requirement.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Your stored data will be deleted next week.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0019784
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "c61c8348d1c4",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent's reply identifies offer Lumen-138 and explicitly states that roaming is not included.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-138. Roaming is not included.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0009569
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "7a569eaeb0b5",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply states that the final recommendation is Lumen-103-Plus instead of Lumen-103.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"The final recommendation is Lumen-103-Plus.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0011888
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "0abbdd672c6d",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies the offer Lumen-137 and correctly states all three required facts: that it costs 67 credits monthly, includes 40 GB, and excludes roaming.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-137. Lumen-137: 67 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0014310999999999998
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "54084a0d63f8",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-122 and states it includes 40 GB and no roaming, but then contradicts the statement regarding roaming.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Actually, roaming is included as a standard benefit.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0013926
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "8d0c9d1eedbe",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent clearly identifies the offer as Lumen-103 and explicitly states that the final recommendation is Lumen-103 rather than Lumen-103-Plus.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-103. We considered Lumen-103-Plus. The final recommendation is Lumen-103.\"}],\"met\":true}]}",
-      "cost_usd": 0.0014582
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "a36d368b0181",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-106 and confirms the subscription is cancelled, but states that data 'will be deleted next week', which is a future promise and violates the requirement that a future promise does not meet the criterion.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Your stored data will be deleted next week.\"}],\"met\":false}]}",
-      "cost_usd": 0.0023959000000000003
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "ea3364883758",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-111, states it includes 40 GB and excludes roaming, but states it costs 42 credits monthly instead of 41 credits monthly.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Lumen-111: 42 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0014915999999999998
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "05753c2d05c2",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The last block of the transcript identifies offer Lumen-158, states it includes 40 GB and no roaming, and has no contradictory statements.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-158. 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0005423
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "b743c76f5025",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The last block of the transcript identifies offer Lumen-132, chooses pickup, and explicitly rejects delivery.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-132. Both pickup and delivery were discussed. I choose pickup and reject delivery.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0005309
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "96ebfb3a0700",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-156, but fails to choose either pickup or delivery while explicitly rejecting the other, instead stating that both might work.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-156. Both pickup and delivery were discussed. Pickup or delivery might work.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0012905999999999998
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "a3c8400a6a47",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies offer Lumen-146 and states it includes 40 GB and no roaming, but immediately contradicts this statement by saying roaming is included.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-146. 40 GB, no roaming. Actually, roaming is included as a standard benefit.\"}],\"met\":false}]}",
-      "cost_usd": 0.0015876
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "477cc6b31523",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-107, but states that the claim roaming is included is true instead of false.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"That claim is true.\"}],\"met\":false}]}",
-      "cost_usd": 0.0014111
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "ec2e3fa1333c",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies the offer as Lumen-107, mentions the claim 'roaming is included', and explicitly states that the claim is false rather than just quoting it.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-107. Claim: \\\"roaming is included\\\". That claim is false.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0012385999999999999
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "4e830166d063",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-136, includes 40 GB, and excludes roaming, but states the cost is 67 credits monthly instead of the required 66 credits monthly.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-136. Lumen-136: 67 credits monthly, 40 GB, no roaming.\"}],\"met\":false}]}",
-      "cost_usd": 0.0019708
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "eec7a998466f",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent correctly identifies the offer Lumen-136 and states all three required facts: 66 credits monthly, 40 GB, and no roaming.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-136. Lumen-136: 66 credits monthly, 40 GB, no roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0013358
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "cb48e4f28c91",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies the offer Lumen-101 and correctly states all three facts: it costs 31 credits monthly, includes 40 GB, and excludes roaming.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-101. Lumen-101: 31 credits monthly, 40 GB, no roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0018386
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "30d6465a69b7",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent reply identifies offer Lumen-114, but explicitly states that roaming is included rather than NOT included.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-114. Roaming is included, not excluded.\"}],\"met\":false}]}",
-      "cost_usd": 0.001325
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "02d92ebb6021",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-105, but gives a total price of 36 credits instead of 35 credits.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-105. Base 28 credits plus fee 7. Total 36 credits.\"}],\"met\":false}]}",
-      "cost_usd": 0.0013884000000000001
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "8044db8d5649",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent states that the final recommendation is Lumen-139-Plus instead of Lumen-139, violating the requirement.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"The final recommendation is Lumen-139-Plus.\"}],\"met\":false}]}",
-      "cost_usd": 0.0014537999999999999
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "1fc7eb5afc92",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies offer Lumen-155 and explicitly denies the claim 'roaming is included' by stating it is false rather than merely quoting it.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-155. Claim: \\\"roaming is included\\\". That claim is false.\"}],\"met\":true}]}",
-      "cost_usd": 0.0013761
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "253c0531b71a",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-138, but it states that roaming is included rather than explicitly stating that roaming is NOT included.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-138. Roaming is included, not excluded.\"}],\"met\":false}]}",
-      "cost_usd": 0.0021575
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "160b85579c61",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply successfully identifies the offer Lumen-109, states that it costs 39 credits monthly ('39 crédits'), includes 40 GB ('40 Go'), and excludes roaming ('sans itinérance').\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-109. Le prix mensuel est 39 crédits, avec 40 Go, sans itinérance.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0013264000000000001
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "07e2ffa8462b",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies the offer as Lumen-104 and specifies its monthly cost as exactly 34 credits per month, satisfying all parts of the criterion.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-104. It costs 34 credits per month.\"}],\"met\":true}]}",
-      "cost_usd": 0.0012318
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "a6b2b22d3455",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent correctly identifies the offer Lumen-116 and states its monthly cost as exactly 46 credits per month.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-116. It costs 46 credits per month.\"}],\"met\":true}]}",
-      "cost_usd": 0.0016343
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "c6522990e877",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-154 and acknowledges both cancellation and data deletion, but the data deletion is framed as a future promise ('will be deleted next week'). The criterion explicitly states that neither a future promise nor only one action meets the criterion.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Your stored data will be deleted next week.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0025109
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "ccf021a6afd6",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-147, includes 40 GB, and excludes roaming, but states the monthly cost is 78 credits instead of the required 77 credits.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Lumen-147: 78 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0016016
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "613fa211901a",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-141, but states the total price is 72 credits instead of 71 credits.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-141. Base 64 credits plus fee 7. Total 72 credits.\"}],\"met\":false}]}",
-      "cost_usd": 0.0019309000000000002
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "82cec8a7fc35",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies offer Lumen-133 and mentions 40 GB and excludes roaming, but states the monthly cost is 64 credits instead of the required 63 credits.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-133. Le prix mensuel est 64 crédits, avec 40 Go, sans itinérance.\"}],\"met\":false}]}",
-      "cost_usd": 0.0016989000000000001
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "1808735cd878",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent reply identifies offer Lumen-117 and states the total price is 47 credits including the mandatory 7-credit fee.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-117. Base 40 credits plus fee 7. Total 47 credits.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0005534
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "6f5d2944aec0",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-157, includes 40 GB, and excludes roaming, but states that the monthly price is 88 credits instead of 87 credits, making the facts incorrect.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-157. Le prix mensuel est 88 crédits, avec 40 Go, sans itinérance.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0015739
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "d0a9a127d5f8",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-112, includes 40 GB, and excludes roaming, but states the cost is 43 credits monthly instead of 42 credits monthly.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-112. Lumen-112: 43 credits monthly, 40 GB, no roaming.\"}],\"met\":false}]}",
-      "cost_usd": 0.0016382999999999999
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "8f099428fcdf",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent's reply identifies offer Lumen-118 and acknowledges both the cancellation and data deletion as completed actions.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-118. The subscription is cancelled. Your stored data has been deleted.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0011853
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "d80cfb4c80a6",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-154 and explicitly acknowledges both cancellation and data deletion without being a future promise.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-154. The subscription is cancelled. Your stored data has been deleted.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0005277999999999999
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "664aefba1557",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-137, includes 40 GB, and excludes roaming, but states the cost is 68 credits monthly instead of 67 credits monthly. Therefore, not all three facts are correct.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-137. Lumen-137: 68 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0015711
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "ee614c2650b5",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-108, chooses pickup, and explicitly rejects delivery as required by the criterion.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-108. Both pickup and delivery were discussed. I choose pickup and reject delivery.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0005334
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "49d4c7026e7c",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The reply identifies offer Lumen-104, but specifies the cost is per year instead of monthly.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-104. It costs 34 credits per year.\"}],\"met\":false}]}",
-      "cost_usd": 0.0013518
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "7fa854bcbab5",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent's reply identifies offer Lumen-115 and explicitly states that the final recommendation is Lumen-115, satisfying all conditions of the criterion.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-115. We considered Lumen-115-Plus. The final recommendation is Lumen-115.\"}],\"met\":true}]}",
-      "cost_usd": 0.0012882
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "ccae179a1db7",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-135, but states it costs 66 credits monthly instead of the required 65 credits monthly. Therefore, the facts are not all correct.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Lumen-135: 66 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0006890999999999999
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "e957e223410d",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The reply identifies offer Lumen-140, but specifies a cost of 70 credits per year rather than a monthly cost of 70 credits.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-140. It costs 70 credits per year.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0014768
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "c6d2f6bcc667",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-156, chooses pickup, and explicitly rejects delivery.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-156. Both pickup and delivery were discussed. I choose pickup and reject delivery.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0005209
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "056bda98fb19",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent correctly identifies offer Lumen-105 and provides a total price of 35 credits including the 7-credit fee.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-105. Base 28 credits plus fee 7. Total 35 credits.\"}],\"met\":true}]}",
-      "cost_usd": 0.0004434
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "5de278d742e0",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies the offer Lumen-130 and explicitly acknowledges both that the subscription is cancelled and that stored data has been deleted.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-130. The subscription is cancelled. Your stored data has been deleted.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0010903
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "b8cc73a1b6fe",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies the offer Lumen-133, states that it costs 63 credits monthly, includes 40 GB, and excludes roaming (sans itinérance), satisfying all parts of the criterion correctly.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-133. Le prix mensuel est 63 crédits, avec 40 Go, sans itinérance.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0015214
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "6bfca6c61d3d",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-150, but explicitly states that roaming is included rather than not included.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-150. Roaming is included, not excluded.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.001085
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "a4606b227b59",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent explicitly states that the final recommendation is Lumen-151-Plus, failing the requirement that the final recommendation must be Lumen-151 and not Lumen-151-Plus.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"The final recommendation is Lumen-151-Plus.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0013088
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "f45178c62bfe",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent reply identifies offer Lumen-122, states it includes 40 GB and no roaming, with no contradictory statements anywhere in the text.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-122. 40 GB, no roaming.\"}],\"met\":true}]}",
-      "cost_usd": 0.0014098
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "e12175597393",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent's reply identifies offer Lumen-151 and states that the final recommendation is Lumen-151, not Lumen-151-Plus.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-151. We considered Lumen-151-Plus. The final recommendation is Lumen-151.\"\n        }\n      ],\n      \"met\": true\n    }\n  ]\n}",
-      "cost_usd": 0.0016382
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "24132470ba50",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies offer Lumen-155, but states the claim is true rather than stating it is false.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-155. Claim: \\\"roaming is included\\\". That claim is true.\"}],\"met\":false}]}",
-      "cost_usd": 0.0014061
-    },
-    {
-      "judge": "gemini-3.5-flash-lite",
-      "key": "43287b2e1bd9",
-      "criterion": "rubric_hard",
-      "answerContract": "ledger",
-      "raw": "{\n  \"checks\": [\n    {\n      \"id\": \"rubric_hard\",\n      \"reasoning\": \"The agent identifies offer Lumen-113, includes 40 GB, and excludes roaming, but states the cost is 44 credits monthly instead of 43 credits monthly. Therefore, all three facts are not correct.\",\n      \"evidence\": [\n        {\n          \"source\": \"transcript.1\",\n          \"quote\": \"Offer Lumen-113. Lumen-113: 44 credits monthly, 40 GB, no roaming.\"\n        }\n      ],\n      \"met\": false\n    }\n  ]\n}",
-      "cost_usd": 0.0015110999999999998
+      "criterionDecoderVersion": 3,
+      "criterionPromptVersion": 2,
+      "raw": "{\"checks\":[{\"id\":\"rubric_hard\",\"reasoning\":\"The agent identifies offer Lumen-155, but states the claim \\\"roaming is included\\\" is true, rather than stating it is false.\",\"evidence\":[{\"source\":\"transcript.1\",\"quote\":\"Offer Lumen-155. Claim: \\\"roaming is included\\\". That claim is true.\"}],\"met\":false}]}",
+      "cost_usd": 0.0004895
     }
   ]
 }

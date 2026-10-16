@@ -12,8 +12,8 @@ import {
   calibrateCascade,
   cassettePlayers,
   councilAssignment,
-  createClaudeCliJudge,
   createCouncil,
+  createDefaultJudge,
   criteriaJudge,
   DEFAULT_REPEATS,
   emptyCassette,
@@ -512,8 +512,12 @@ export async function judgeCalibrateCommand(options: JudgeCalibrateOptions, io: 
       ? cassettePlayers(await loadCassette(resolve(io.cwd, options.cassette))).map(settings)
       : [];
     const spend = { usd: 0 };
+    const spendLedger = { spentUsd: 0, reservedUsd: 0, costIncomplete: false };
     for (const model of live) {
-      let client: JudgeClient = createClaudeCliJudge({
+      let client: JudgeClient = createDefaultJudge({
+        provider: 'claude-cli',
+        id: `claude-${process.env.CLAUDE_JUDGE_MODEL?.trim() || model}`,
+        ...(cap === undefined ? {} : { maxBudgetUsd: Math.min(0.1, cap), spendCapUsd: cap, spendLedger }),
         model,
         ...(options.claudeCommand ? { command: options.claudeCommand } : {}),
       });

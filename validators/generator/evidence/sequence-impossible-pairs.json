@@ -1,0 +1,284 @@
+{
+  "base": "0137e2d25f4a98918d4498de555c729e41c2b1de",
+  "scope": "sequence.stages.<class> items against the hidden space map's impossible pairs; scoped measurement only",
+  "contractSources": [
+    "packages/validators/src/ladders/generator/possible.ts (impossiblePairs, said: D8 only on a move calling a recovered tool)",
+    "packages/validators/src/ladders/generator/render.ts (hiddenSpaceMap: written constraints plus impossiblePairs)",
+    "packages/validators/src/ladders/generator/bank.ts (cover.* items read hiddenSpaceMap)"
+  ],
+  "redFirst": {
+    "failed": 3,
+    "passed": 2,
+    "command": "pnpm exec vitest run packages/validators/test/generator/sequence-stages.test.ts",
+    "failingTests": [
+      "seed 2: D8 is owed no probe at the stages possible.ts rules out",
+      "passes a suite probing every reachable stage (36 D8 failures over visible, hidden and fresh seeds)",
+      "fails a suite that ignores the impossible pairs (base passes a probe at a ruled-out stage)"
+    ]
+  },
+  "green": {
+    "passed": 23,
+    "files": 4,
+    "visibleSeeds": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+    "freshSeeds": [
+      1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1009, 1010, 1011, 1012, 1013, 1014, 1015, 1016, 1017,
+      1018, 1019, 1020
+    ],
+    "baseHiddenSeed": 21439762
+  },
+  "productMeasurement": {
+    "note": "Real generation of main's product on each seed. baseFailing replicates the base item's logic (written constraints only); newFailing is the patched item; demandedButRuledOut lists stages the base item owed that the map rules out; probedAtRuledOut lists probes the product places at a ruled-out stage.",
+    "seeds": [
+      {
+        "seed": 1,
+        "complete": 469,
+        "baseFailing": ["D8_tool_failure: never probed choice, details, recap"],
+        "newFailing": [],
+        "demandedButRuledOut": ["D8_tool_failure@choice", "D8_tool_failure@details", "D8_tool_failure@recap"],
+        "probedAtRuledOut": []
+      },
+      {
+        "seed": 2,
+        "complete": 344,
+        "baseFailing": ["D8_tool_failure: never probed check, choice, details, recap"],
+        "newFailing": [],
+        "demandedButRuledOut": [
+          "D8_tool_failure@check",
+          "D8_tool_failure@choice",
+          "D8_tool_failure@details",
+          "D8_tool_failure@recap"
+        ],
+        "probedAtRuledOut": []
+      },
+      {
+        "seed": 3,
+        "complete": 357,
+        "baseFailing": ["D8_tool_failure: never probed recap"],
+        "newFailing": [],
+        "demandedButRuledOut": ["D8_tool_failure@recap"],
+        "probedAtRuledOut": []
+      },
+      {
+        "seed": 4,
+        "complete": 456,
+        "baseFailing": ["D8_tool_failure: never probed choice, details"],
+        "newFailing": [],
+        "demandedButRuledOut": ["D8_tool_failure@choice", "D8_tool_failure@details"],
+        "probedAtRuledOut": []
+      },
+      {
+        "seed": 5,
+        "complete": 372,
+        "baseFailing": ["D8_tool_failure: never probed check, choice, details"],
+        "newFailing": [],
+        "demandedButRuledOut": ["D8_tool_failure@check", "D8_tool_failure@choice", "D8_tool_failure@details"],
+        "probedAtRuledOut": []
+      },
+      {
+        "seed": 6,
+        "complete": 271,
+        "baseFailing": ["D8_tool_failure: never probed check, recap"],
+        "newFailing": [],
+        "demandedButRuledOut": ["D8_tool_failure@check", "D8_tool_failure@recap"],
+        "probedAtRuledOut": []
+      },
+      {
+        "seed": 7,
+        "complete": 319,
+        "baseFailing": ["D8_tool_failure: never probed choice, details, recap"],
+        "newFailing": [],
+        "demandedButRuledOut": ["D8_tool_failure@choice", "D8_tool_failure@details", "D8_tool_failure@recap"],
+        "probedAtRuledOut": []
+      },
+      {
+        "seed": 8,
+        "complete": 330,
+        "baseFailing": ["D8_tool_failure: never probed check, choice, details, recap"],
+        "newFailing": [],
+        "demandedButRuledOut": [
+          "D8_tool_failure@check",
+          "D8_tool_failure@choice",
+          "D8_tool_failure@details",
+          "D8_tool_failure@recap"
+        ],
+        "probedAtRuledOut": []
+      },
+      {
+        "seed": 9,
+        "complete": 461,
+        "baseFailing": ["D8_tool_failure: never probed check, choice, details, recap"],
+        "newFailing": [],
+        "demandedButRuledOut": [
+          "D8_tool_failure@check",
+          "D8_tool_failure@choice",
+          "D8_tool_failure@details",
+          "D8_tool_failure@recap"
+        ],
+        "probedAtRuledOut": []
+      },
+      {
+        "seed": 10,
+        "complete": 434,
+        "baseFailing": ["D8_tool_failure: never probed check, choice, details, recap"],
+        "newFailing": [],
+        "demandedButRuledOut": [
+          "D8_tool_failure@check",
+          "D8_tool_failure@choice",
+          "D8_tool_failure@details",
+          "D8_tool_failure@recap"
+        ],
+        "probedAtRuledOut": []
+      },
+      {
+        "seed": 11,
+        "complete": 361,
+        "baseFailing": ["D8_tool_failure: never probed check, choice, details, recap"],
+        "newFailing": [],
+        "demandedButRuledOut": [
+          "D8_tool_failure@check",
+          "D8_tool_failure@choice",
+          "D8_tool_failure@details",
+          "D8_tool_failure@recap"
+        ],
+        "probedAtRuledOut": []
+      },
+      {
+        "seed": 12,
+        "complete": 445,
+        "baseFailing": ["D8_tool_failure: never probed check, choice, details, recap"],
+        "newFailing": [],
+        "demandedButRuledOut": [
+          "D8_tool_failure@check",
+          "D8_tool_failure@choice",
+          "D8_tool_failure@details",
+          "D8_tool_failure@recap"
+        ],
+        "probedAtRuledOut": []
+      },
+      {
+        "seed": 13,
+        "complete": 350,
+        "baseFailing": [],
+        "newFailing": [],
+        "demandedButRuledOut": [],
+        "probedAtRuledOut": []
+      },
+      {
+        "seed": 14,
+        "complete": 305,
+        "baseFailing": ["D8_tool_failure: never probed check, choice, recap"],
+        "newFailing": [],
+        "demandedButRuledOut": ["D8_tool_failure@check", "D8_tool_failure@choice", "D8_tool_failure@recap"],
+        "probedAtRuledOut": []
+      },
+      {
+        "seed": 15,
+        "complete": 365,
+        "baseFailing": ["D8_tool_failure: never probed check, choice, details, recap"],
+        "newFailing": [],
+        "demandedButRuledOut": [
+          "D8_tool_failure@check",
+          "D8_tool_failure@choice",
+          "D8_tool_failure@details",
+          "D8_tool_failure@recap"
+        ],
+        "probedAtRuledOut": []
+      },
+      {
+        "seed": 16,
+        "complete": 369,
+        "baseFailing": ["D8_tool_failure: never probed check, recap"],
+        "newFailing": [],
+        "demandedButRuledOut": ["D8_tool_failure@check", "D8_tool_failure@recap"],
+        "probedAtRuledOut": []
+      },
+      {
+        "seed": 17,
+        "complete": 273,
+        "baseFailing": [],
+        "newFailing": [],
+        "demandedButRuledOut": [],
+        "probedAtRuledOut": []
+      },
+      {
+        "seed": 18,
+        "complete": 384,
+        "baseFailing": ["D8_tool_failure: never probed check, recap"],
+        "newFailing": [],
+        "demandedButRuledOut": ["D8_tool_failure@check", "D8_tool_failure@recap"],
+        "probedAtRuledOut": []
+      },
+      {
+        "seed": 19,
+        "complete": 262,
+        "baseFailing": [],
+        "newFailing": [],
+        "demandedButRuledOut": [],
+        "probedAtRuledOut": []
+      },
+      {
+        "seed": 20,
+        "complete": 394,
+        "baseFailing": ["D8_tool_failure: never probed check, choice, details, recap"],
+        "newFailing": [],
+        "demandedButRuledOut": [
+          "D8_tool_failure@check",
+          "D8_tool_failure@choice",
+          "D8_tool_failure@details",
+          "D8_tool_failure@recap"
+        ],
+        "probedAtRuledOut": []
+      },
+      {
+        "seed": 1001,
+        "complete": 324,
+        "baseFailing": ["D8_tool_failure: never probed check, choice, recap"],
+        "newFailing": [],
+        "demandedButRuledOut": ["D8_tool_failure@check", "D8_tool_failure@choice", "D8_tool_failure@recap"],
+        "probedAtRuledOut": []
+      },
+      {
+        "seed": 1002,
+        "complete": 325,
+        "baseFailing": ["D8_tool_failure: never probed check, choice, recap"],
+        "newFailing": [],
+        "demandedButRuledOut": ["D8_tool_failure@check", "D8_tool_failure@choice", "D8_tool_failure@recap"],
+        "probedAtRuledOut": []
+      },
+      {
+        "seed": 21439762,
+        "complete": 281,
+        "baseFailing": ["D8_tool_failure: never probed check"],
+        "newFailing": [],
+        "demandedButRuledOut": ["D8_tool_failure@check"],
+        "probedAtRuledOut": []
+      }
+    ]
+  },
+  "sweep": {
+    "readsWrittenConstraintsOnly": [
+      {
+        "items": "sequence.stages.<class> (bank2.ts allowed)",
+        "direction": "demands probes at map-impossible stages",
+        "action": "fixed here"
+      },
+      {
+        "items": "diff.feasible.<seeder> (bank.ts forbidden)",
+        "direction": "permissive: would not flag a block in a map-impossible cell",
+        "action": "not changed; on seed 2 the only blocks in an impossible-only cell (39) come from seeder 'cover', which no diff.feasible item reads; a separate ruling"
+      },
+      {
+        "items": "baseline.ts hand-written suite (not an item)",
+        "direction": "places a detour probe at the goal checked against written constraints only",
+        "action": "not changed"
+      }
+    ],
+    "alreadyReadTheMap": [
+      "cover.pair.*",
+      "cover.triple.*",
+      "cover.required.*",
+      "differential t-wise items via allowedCells (hiddenSpaceMap)"
+    ],
+    "noConstraintRead": ["sequence.after.*", "sequence.through.*", "paths.<id>.probes", "allocation.*"]
+  }
+}

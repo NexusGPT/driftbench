@@ -1,5 +1,5 @@
 import type { ClusterCount } from '@agent-nexus/driftbench-stats';
-import { type CampaignData, groupBy, lineKey, runPassed } from './data';
+import { type CampaignData, groupBy, lineKey, runPassed, scoredRuns } from './data';
 import { clusterRate, type IntervalMethod, rate } from './estimate';
 
 /**
@@ -189,19 +189,20 @@ export function evaluateAggregates(
 
 /** The counts of the built-in criteria: successes and total runs, and the same counts by golden. */
 function countsOf(
-  data: CampaignData,
+  runs: readonly CampaignData['runs'][number][],
   success: (run: CampaignData['runs'][number]) => boolean,
 ): { k: number; n: number; clusters: ClusterCount[] } {
-  const clusters = [...groupBy(data.runs, lineKey).values()].map((group) => ({
+  const clusters = [...groupBy(runs, lineKey).values()].map((group) => ({
     n: group.length,
     k: group.filter(success).length,
   }));
-  return { k: data.runs.filter(success).length, n: data.runs.length, clusters };
+  return { k: runs.filter(success).length, n: runs.length, clusters };
 }
 
 const COUNTS: Record<string, (data: CampaignData) => { k: number; n: number; clusters: ClusterCount[] }> = {
-  'pass-rate': (data) => countsOf(data, (run) => runPassed(run)),
-  'broken-share': (data) => countsOf(data, (run) => run.status !== 'completed'),
+  // A run neither passed nor failed (a block not run or blocked) is left out of the rate.
+  'pass-rate': (data) => countsOf(scoredRuns(data.runs), (run) => runPassed(run)),
+  'broken-share': (data) => countsOf(data.runs, (run) => run.status !== 'completed'),
 };
 
 function criterionOf(name: string, direction: 'at-least' | 'at-most', threshold: number): AggregateCriterion {
@@ -219,7 +220,10 @@ function criterionOf(name: string, direction: 'at-least' | 'at-most', threshold:
 }
 
 export const BUILT_IN_AGGREGATES = {
-  /** Share of all runs that pass (completed, every block passing, end state matched). Default threshold 0.5. */
+  /**
+   * Share of the runs that pass (completed, every block passing, end state matched), over the runs that passed
+   * or failed: a run with a block not run or blocked, and no failure, is left out. Default threshold 0.5.
+   */
   passRate: (threshold = 0.5): AggregateCriterion => criterionOf('pass-rate', 'at-least', threshold),
   /** Share of runs that did not complete (failed or stopped). Passes at or below the threshold. */
   brokenShare: (threshold: number): AggregateCriterion => criterionOf('broken-share', 'at-most', threshold),

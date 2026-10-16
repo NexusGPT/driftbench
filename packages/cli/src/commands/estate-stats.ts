@@ -2,7 +2,15 @@ import { readdir, readFile, stat } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { readSession, replayAdapter } from '@agent-nexus/driftbench-adapters';
 import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
-import { type LoadedSpec, loadSpecFile, type Observed, runSpec } from '@agent-nexus/driftbench-core';
+import {
+  blockStatus,
+  blocksOutcome,
+  isScored,
+  type LoadedSpec,
+  loadSpecFile,
+  type Observed,
+  runSpec,
+} from '@agent-nexus/driftbench-core';
 import {
   type Atom,
   AtomKind,
@@ -20,7 +28,13 @@ import { alignReplaySpecs, replayChecks, replaySessionFor, type SessionEntry } f
 
 type Options = { map: string; plan: string; specs: string; sessions?: string; json?: boolean };
 type CompleteTest = { atoms: string[]; planRow?: string; cell?: Record<string, string>; loaded?: LoadedSpec };
-type SessionEvidence = { entry: SessionEntry; passedBlocks: Set<number>; followed: Set<string> };
+export type SessionEvidence = {
+  entry: SessionEntry;
+  passedBlocks: Set<number>;
+  /** Blocks every observation of which was not run or blocked: no measurement, out of the decay rate. */
+  unscoredBlocks: Set<number>;
+  followed: Set<string>;
+};
 type GuardDrift = { guard: string; decisions: number; denies: number; denyRate: number };
 const REACH_KINDS = new Set(['skill', 'reference', 'guard', 'subagent']);
 
@@ -76,12 +90,7 @@ export async function estateStatsCommand(options: Options, io: Io): Promise<numb
                   ),
               ).length,
             }));
-    const most = Math.max(0, ...sessions.map((s) => s.entry.session.blocks.length));
-    const decay = Array.from({ length: most }, (_, block) => {
-      const present = sessions.filter((s) => s.entry.session.blocks.length > block);
-      const passes = present.filter((s) => s.passedBlocks.has(block)).length;
-      return { block, runs: present.length, passRate: passes / present.length };
-    });
+    const decay = decayOf(sessions);
     const drift = { guards: corpus === undefined ? [] : await guardDrift(corpus) };
     const reachNotObservable = {
       status: 'not observable',
@@ -163,6 +172,23 @@ async function filesOf(folder: string): Promise<string[]> {
   return files;
 }
 
+/**
+ * The pass rate per block position over the sessions that reach it, leaving out a session whose block there was
+ * only ever not run or blocked: it is no measurement.
+ */
+export function decayOf(
+  sessions: readonly SessionEvidence[],
+): { block: number; runs: number; passRate: number }[] {
+  const most = Math.max(0, ...sessions.map((s) => s.entry.session.blocks.length));
+  return Array.from({ length: most }, (_, block) => {
+    const present = sessions.filter(
+      (s) => s.entry.session.blocks.length > block && !s.unscoredBlocks.has(block),
+    );
+    const passes = present.filter((s) => s.passedBlocks.has(block)).length;
+    return { block, runs: present.length, passRate: present.length === 0 ? 0 : passes / present.length };
+  });
+}
+
 function coverageOf(map: EstateMap, plan: Plan, tests: CompleteTest[]) {
   const tested = new Set(tests.flatMap((t) => t.atoms));
   const kinds = Object.fromEntries(
@@ -238,6 +264,7 @@ async function sessionEvidence(folder: string, tests: CompleteTest[], io: Io): P
   );
   if (!aligned) throw new Error(errors.join('; '));
   const verdicts = new Map<string, Map<number, boolean[]>>();
+  const unscored = new Map<string, Set<number>>();
   const followed = new Map<string, Map<string, boolean[]>>();
   const checks = replayChecks();
   for (const alignment of aligned.alignments) {
@@ -257,19 +284,23 @@ async function sessionEvidence(folder: string, tests: CompleteTest[], io: Io): P
     });
     const mine = verdicts.get(alignment.entry.name) ?? new Map<number, boolean[]>();
     verdicts.set(alignment.entry.name, mine);
+    const skipped = unscored.get(alignment.entry.name) ?? new Set<number>();
+    unscored.set(alignment.entry.name, skipped);
     for (const block of result.blocks) {
       const index = block.index + alignment.fromBlock;
+      // A block not run or blocked is no measurement of the agent: it joins no rate.
+      if (!isScored(block)) {
+        skipped.add(index);
+        continue;
+      }
       const values = mine.get(index) ?? [];
-      values.push(result.status === 'completed' && block.pass);
+      values.push(result.status === 'completed' && blockStatus(block) === 'pass');
       mine.set(index, values);
     }
     const atoms = record(alignment.spec.spec.metadata?.estate).atoms;
-    if (Array.isArray(atoms)) {
-      const passed =
-        result.status === 'completed' &&
-        result.blocks.length > 0 &&
-        result.blocks.every((b) => b.pass) &&
-        result.endState?.match !== false;
+    const outcome = blocksOutcome(result);
+    if (Array.isArray(atoms) && outcome !== 'not_run' && outcome !== 'blocked') {
+      const passed = outcome === 'pass';
       const mine = followed.get(alignment.entry.name) ?? new Map<string, boolean[]>();
       for (const atom of atoms)
         if (typeof atom === 'string') {
@@ -286,6 +317,11 @@ async function sessionEvidence(folder: string, tests: CompleteTest[], io: Io): P
       [...(verdicts.get(entry.name) ?? [])]
         .filter(([, values]) => values.length > 0 && values.every(Boolean))
         .map(([index]) => index),
+    ),
+    unscoredBlocks: new Set(
+      [...(unscored.get(entry.name) ?? [])].filter(
+        (index) => !(verdicts.get(entry.name)?.get(index)?.length ?? 0),
+      ),
     ),
     followed: new Set(
       [...(followed.get(entry.name) ?? [])]
