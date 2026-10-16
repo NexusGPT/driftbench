@@ -91,3 +91,46 @@ describe('a part named by role is a gate only when it is a written source', () =
     expect(await gates([line])).toEqual([line]);
   });
 });
+
+const SK = '.claude/skills/bakery/SKILL.md';
+const HEAD = '---\nname: bakery\ndescription: Bakery\n---\n';
+
+describe('a role target gates only with evidence the estate defines it', () => {
+  async function withFiles(line: string, extra: Record<string, string>) {
+    const root = await estate({ 'CLAUDE.md': `${line}\n`, ...extra });
+    try {
+      const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+      return map.atoms.filter((atom) => atom.kind === 'gate');
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  }
+
+  it('gives no gate for a multi-word target the estate never defines', async () => {
+    expect(
+      await withFiles('Read the delivery windows before you reply.', {
+        [SK]: '---\nname: bakery\ndescription: Bakery\n---\n# Notes\n',
+      }),
+    ).toEqual([]);
+  });
+
+  it.each([
+    ['a heading', { [SK]: `${HEAD}# Notes\n\n## Delivery windows\n\nNine to five.\n` }],
+    ['a bold term', { [SK]: `${HEAD}The **delivery windows** are fixed.\n` }],
+    ['a quoted term', { [SK]: `${HEAD}We call these "delivery windows" everywhere.\n` }],
+    ['a definition line', { [SK]: `${HEAD}Delivery windows: nine to five.\n` }],
+  ])('gives a role gate when %s defines it', async (_name, extra) => {
+    const gates = await withFiles('Read the delivery windows before you reply.', extra);
+    expect(gates).toHaveLength(1);
+    expect(gates[0]?.fields?.unresolved).toBe('role');
+  });
+
+  it('resolves to the file when a file is named after it', async () => {
+    const gates = await withFiles('Read the delivery windows before you reply.', {
+      [SK]: `${HEAD}See \`references/delivery-windows.md\`.\n`,
+      '.claude/skills/bakery/references/delivery-windows.md': '# x\n',
+    });
+    expect(gates).toHaveLength(1);
+    expect(gates[0]?.fields?.first).toBe('delivery-windows.md');
+  });
+});
