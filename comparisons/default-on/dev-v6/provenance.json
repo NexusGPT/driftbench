@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "originalSourceBytes": {
+    "originalManifest": {
+      "basename": "datasets.json",
+      "sha256": "2a30744f4370ef0c9926ad21074dd04be5c848fd6beedbb5d9927349a23d459f"
+    },
+    "supplementalManifest": {
+      "basename": "latest-dev-datasets.json",
+      "sha256": "b99f4a93d75449e251b83eda24241e9a1e67118cc4d6713e954bc9c9e297780d"
+    },
+    "sidecar": {
+      "basename": "latest-dev-comparators.json",
+      "sha256": "33fb331b267997ad2178506aff65b670453a3750aac9b0d70613a5064d9ad1dc"
+    },
+    "familyPlan": {
+      "basename": "family-plan-v6.json",
+      "sha256": "371bd657653b5f6ed0a3a1a5587aeab54575ad2344579126e763756232992b73"
+    },
+    "combinedReport": {
+      "basename": "COMBINED.json",
+      "sha256": "1a355dd459fde0c083e13715e9776de80b9246ecd3f676cb4e989ca0d38b52f0"
+    },
+    "originalFreeze": {
+      "basename": "freeze.json",
+      "sha256": "03b4d24cc10b712fbac024f4ad9f46ddab32b0ad975a57dc5fb6052f4388621a"
+    },
+    "supplementalFreeze": {
+      "basename": "freeze.json",
+      "sha256": "d72856636104496936bcdf30f48926303f7f36fdf9d80eb8212350830dbe094c"
+    }
+  },
+  "originalFreezeNormalizedHashes": {
+    "original": "630719b46290c35b1a9f2f3959e1c8c03bb8130244ca5d4f1969743158022803",
+    "supplemental": "5a315de92aa6440bea02952eb6b6703b6a781f60f970c270369551cea4b1f64f"
+  },
+  "commonOriginalConfigSha256": "9c4e291cda575c67e62b3f548d170d0474eac713f3c63e21f80ba4d72ac4c322",
+  "inputIdentityIndexSha256": {
+    "original": "098d459f86604b5138f36311264da3b5cd9e0278fff4a0d61f2dcba8a23bec66",
+    "supplemental": "4fe07d92aedef22b4f783025e7b4de194feff177a9fc52953d39996d3c02b0b5"
+  },
+  "archivedFullInputPayloadSha256": {
+    "original": "effccb4a70791bcb8fd5b0166100034820206818596769f21cf2f9f061e076e9",
+    "supplemental": "395cc68c65efac71a568a7bebe0be709732aaa28846d8d11ab37593bc6ea2dba"
+  },
+  "publishedFileSha256": {
+    "README.md": "7b5f9f4ae37c160c34713c57d6f682841a37cd5d7ef9f489aa27cbfb71cba595",
+    "RECOMPUTE.py": "b0e6c33176d97dc0f46efaa7a3fb5b4028e27c32f36ad188b89066dc71bbe05e",
+    "comparator-sidecar.json.gz": "74353a1b1c562e5f3791cb0782e604f74de7d854b6b317a110e8a5fd732c3771",
+    "decisions.json.gz": "edc83ea6fb6cefe17a92afbea2791b0c7f183329132b9cb29196b1333028e000",
+    "family-plan.json": "371bd657653b5f6ed0a3a1a5587aeab54575ad2344579126e763756232992b73",
+    "historical-decisions.json.gz": "9efc769634e70bbd059331325197721f98f7868b9fa48cd71c9cdaef50b2c4bf",
+    "input-index-original.json.gz": "05cba92ca85e388c07fbb20225f63c7916a075da124a96271377467a600fcaca",
+    "input-index-supplemental.json.gz": "f230075ea9d3cb178096f96c32bb9aae54a0deb850372e69435a6417c2866709",
+    "public-freezes.json": "f0dff1b52274a2abfea9d43a842e5b6d3a2586189f2d902ee71aa36b5960e49c",
+    "report-combined.py": "4d05400a658f327709bfeeb9d7d0c48382d7763824a4a11747e3145914e27413",
+    "report.json": "bec23f43f91b1a0ce1930abe149edfa182f1c37dc92164a5c5006f35833ea4b8",
+    "report.md": "455c1afcdee58a5fae1a24da488fe018376140e6f429a952eecbfb7903398588"
+  },
+  "historicalQualification": "unverified historical (lane report)",
+  "originalAndPublishedHashesDistinct": true,
+  "configurationProof": "Publisher compared all original freeze fields except datasetsSha256. RECOMPUTE compares published projections; original hashes reference archived private originals."
+}
