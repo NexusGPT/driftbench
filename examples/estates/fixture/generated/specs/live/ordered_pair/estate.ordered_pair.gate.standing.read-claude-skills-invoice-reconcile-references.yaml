@@ -26,10 +26,6 @@ blocks:
     when:
       user: Please edit any invoice file.
     expect:
-      skills:
-        - name: invoice-reconcile
-          count:
-            min: 1
       references:
         - path: "**/.claude/skills/invoice-reconcile/references/matching-rules.md"
           count:

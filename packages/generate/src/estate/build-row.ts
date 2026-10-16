@@ -115,6 +115,18 @@ function siblingSituation(
   return best;
 }
 
+/** Atom kinds whose rule may be written outside the unit that owns the file they gate. */
+const PREREQUISITE_HEADS: ReadonlySet<string> = new Set(['gate', 'reference']);
+
+/** Whether a rule written in `file` is part of the unit: a skill holds its folder, a helper its own file. */
+function unitHolds(unit: EstateAtom, file: string | undefined): boolean {
+  const home = unit.provenance?.file;
+  if (file === undefined || home === undefined) return true;
+  if (unit.kind === 'subagent') return file === home;
+  const folder = home.slice(0, home.lastIndexOf('/') + 1);
+  return file === home || (folder !== '' && file.startsWith(folder));
+}
+
 /** The specs of one row: one, or one per recorded session of its situation for a replay row. */
 export function buildRow(row: EstatePlanRow, ctx: Context, used: Set<string>): Built[] {
   const atoms = taskAtoms(
@@ -149,10 +161,22 @@ export function build(
   const polarity = NEGATIVE_TESTS.has(row.testType) ? 'negative' : 'positive';
   // A unit run uses no model, so it cannot observe the load of the skill or helper that owns the atom under
   // test: that owner supplies the task of a live row, never an expectation of a unit one.
-  const own =
+  const scoped =
     row.mode === 'unit' || row.testType === 'contract_alone'
       ? atoms.filter((atom) => atom.kind !== 'subagent' && (row.mode !== 'unit' || atom.kind !== 'skill'))
       : atoms;
+  // The unit that owns a prerequisite supplies the task of the ask. Its load is expected only when the rule is
+  // written in the unit's own files: a standing gate to read a file in a skill's folder does not require the skill.
+  const first0 = atoms[0];
+  const own =
+    first0 && PREREQUISITE_HEADS.has(first0.kind)
+      ? scoped.filter(
+          (atom) =>
+            atom === first0 ||
+            !['skill', 'subagent'].includes(atom.kind) ||
+            unitHolds(atom, first0.provenance?.file),
+        )
+      : scoped;
   const then = thenOf(own, polarity, { ...ctx, live: row.mode === 'live' });
   const first = atoms[0] as EstateAtom;
 

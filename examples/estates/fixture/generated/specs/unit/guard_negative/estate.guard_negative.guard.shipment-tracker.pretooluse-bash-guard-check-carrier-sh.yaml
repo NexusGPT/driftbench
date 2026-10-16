@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Without changing anything, tell me in one sentence what it would mean to read the tool call as JSON on stdin.
+      user: Without changing anything, tell me in one sentence what it would mean to always pass the carrier code to the tracking script.
     expect:
       guards:
         - name: check-carrier.sh
@@ -50,7 +50,7 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh (ruleText)
+    askFrom: instruction.shipment-tracker.always-pass-the-carrier-code-to (enforced by guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh)
     outcome: no-change:negative
     unit:
       target:

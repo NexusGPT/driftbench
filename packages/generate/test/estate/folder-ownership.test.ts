@@ -74,7 +74,8 @@ it('the target folder overrides a wrong citing skill, including stale plan metad
   expect(parsed.spec.blocks[0]?.when).toEqual({
     user: 'Please track delayed parcels for the dispatch centre. When a carrier update arrives.',
   });
-  expect(parsed.spec.blocks[0]?.expect?.skills).toEqual([{ name: 'shipping', count: { min: 1 } }]);
+  // The rule is written in the catalogue's file: the shipping skill supplies the task, but its load is not required.
+  expect(parsed.spec.blocks[0]?.expect?.skills).toBeUndefined();
   expect((parsed.spec.metadata?.estate as { atoms?: string[] } | undefined)?.atoms).not.toContain(hub.id);
 });
 
@@ -114,6 +115,8 @@ it('a shared reference takes the task of the unit that cites it directly, never 
   expect(parsed.spec.blocks[0]?.when).toEqual({
     user: 'Please track delayed parcels for the dispatch centre. When a carrier update arrives.',
   });
+  // Written in the unit's own file, the same reference does require the unit.
+  expect(parsed.spec.blocks[0]?.expect?.skills).toEqual([{ name: 'shipping', count: { min: 1 } }]);
 });
 
 it('a shared reference cited from no unit borrows no linked task and hides no gap by grouping', () => {

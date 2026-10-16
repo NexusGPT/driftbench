@@ -549,6 +549,20 @@ describe('follow-ups of the review', () => {
     }
   });
 
+  it('skips a sentence about how the hook works when it reads the rule text', () => {
+    const guard = atom('guard.catalogue.tracker', {
+      fields: {
+        ruleText:
+          'Reads the tool call as JSON on stdin; exits 2 with a message to block it.\nA call to the tracker needs a carrier code before sending the request.',
+      },
+    });
+    expect(codeAsk('trigger', [guard], []).text).toBe('Please send the request.');
+    const onlyMechanics = atom('guard.catalogue.plumbing', {
+      fields: { ruleText: 'Reads the tool call as JSON on stdin; exits 2 with a message to block it.' },
+    });
+    expect(codeAsk('trigger', [onlyMechanics], []).text).toBeUndefined();
+  });
+
   it('puts the verb of the third person into the base form after "then"', () => {
     expect(imperative('Approves a refill, then has the pharmacist agent verify the dose')).toBe(
       'approve a refill, then have the pharmacist agent verify the dose',

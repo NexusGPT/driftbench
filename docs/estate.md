@@ -642,6 +642,11 @@ A rule text that opens with a directive and names an act after a connective ("Re
 editing a pricing entry") guards that act; one that names only a subject ("Block uploads of customer lists
 outside the shared drive") is asked as help with that subject.
 
+A sentence of a guard's rule text that says how the hook works (it reads stdin or JSON, prints to stdout or stderr,
+exits with a code) is skipped: it names no act and no situation. The unit that owns a gate or a reference supplies
+the task of the ask, but its load is an expectation only when the rule is written in the unit's own files: a
+standing gate to read a file in a skill's folder does not require the skill.
+
 A unit-mode row (a guard or script run with no model) expects only what a run without a model can observe: the
 skill that owns the atom supplies the task of a live row, and its load is never an expectation of a unit one.
 

@@ -547,13 +547,20 @@ export function ruleTopic(ruleText: string): string | undefined {
   return letterWords(topic) >= 2 && situationProblem(topic) === undefined ? topic : undefined;
 }
 
+/**
+ * A sentence about how a hook works, not about what it guards: it reads stdin or JSON, prints to stdout or
+ * stderr, exits with a code, takes arguments. No owner asks for any of it.
+ */
+const MECHANICS =
+  /\b(?:stdin|stdout|stderr|json|yaml|argv|payload|exit(?:s|ed)?\s+(?:code\s+)?\d|exit code|return code|environment variable|env var|regex|regular expression)\b/i;
+
 /** The sentences of a documented rule: one per line and per sentence end. */
 function ruleSentences(ruleText: string): string[] {
   return ruleText
     .split('\n')
     .flatMap((line) => line.split(/(?<!\b(?:e\.g|i\.e|vs|etc))[.;]\s+/i))
     .map((sentence) => plain(sentence))
-    .filter((sentence) => sentence !== '');
+    .filter((sentence) => sentence !== '' && !MECHANICS.test(sentence));
 }
 
 /** Words that open a condition in a rule sentence. */
@@ -719,6 +726,7 @@ function guardedTask(text: string, guard = false): string | undefined {
   if (governed) return governed;
   for (const clause of text.split(/\n|(?<=[.!?])\s+/)) {
     const clean = plain(clause);
+    if (guard && MECHANICS.test(clean)) continue;
     const before =
       /\bbefore\s+([^,:;]+?)(?:[:,]\s*|\s+)(?:(?:you\s+)?(?:must\s+)?read|load|check|verify)\b/i.exec(
         clean,
