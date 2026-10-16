@@ -1,3 +1,4 @@
+import { parameterSchema } from '../schema/json-schema';
 import { callSucceeded, readPaths } from './reads';
 import {
   asText,
@@ -135,7 +136,7 @@ function schemaNode(input: EvidenceInput): Record<string, unknown> | undefined {
   const tool = subjectTool(input);
   const field = subjectField(input);
   if (tool === undefined || field === undefined) return undefined;
-  let node = input.toolSchemas?.[tool] as Record<string, unknown> | undefined;
+  let node = parameterSchema(input.toolSchemas?.[tool]) as Record<string, unknown> | undefined;
   for (const key of [field, ...(fact(input)?.path ?? [])]) {
     const props = node?.properties as Record<string, unknown> | undefined;
     node = props?.[key] as Record<string, unknown> | undefined;

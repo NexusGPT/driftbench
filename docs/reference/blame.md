@@ -49,7 +49,7 @@ Every name is computed once by one provider, from what the run, the estate map, 
 | `tool_silent` | static | boolean | exit 0 or no error, with output that lacks what the tool's own usage text promises |
 | `tool_output_wrong` | static | boolean | a value the agent reported that came from a tool output (not from the user or a file), and that differs from gold |
 | `env_error` | static | network, sandbox, package, timeout, none | a classifier over stderr, the output of failed commands and tool errors; the first class that matches, in the order timeout, network, package, sandbox |
-| `protected_changed` | static | boolean | a path of the block's protected list changed or deleted in the net workspace diff |
+| `protected_changed` | static | boolean | a path of the block's `expect.protected` list changed or deleted in the net workspace diff |
 | `tests_fail_reverted` | static | boolean | the stored sandbox re-execution with the agent's test edits reverted (no agent call) |
 | `changed_inputs_fail` | static | boolean | the recompute rung: passes on the seed, fails on changed inputs |
 | `claim_contradicted` | static | boolean | claims in the reply against the run: tests said to pass while the last test command failed; a file said saved that the diff and the artifacts lack; done while an artifact check failed |
