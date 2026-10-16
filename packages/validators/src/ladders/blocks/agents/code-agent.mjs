@@ -11,7 +11,15 @@
  */
 
 import { createHash } from 'node:crypto';
-import { appendFileSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  appendFileSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from 'node:fs';
 import { dirname } from 'node:path';
 import { deflateRawSync } from 'node:zlib';
 
@@ -270,6 +278,10 @@ function main() {
   }
   for (const file of entry.files ?? []) write(file);
   for (const path of entry.deletes ?? []) rmSync(path, { force: true });
+  for (const link of entry.links ?? []) {
+    mkdirSync(dirname(link.path), { recursive: true });
+    symlinkSync(link.target, link.path);
+  }
   for (const command of entry.commands ?? []) record(process.env.DRIFTBENCH_COMMANDS_FILE, command);
   for (const event of entry.runtime ?? []) record(process.env.DRIFTBENCH_RUNTIME_FILE, event);
   if (entry.reply) process.stdout.write(`${entry.reply}\n`);

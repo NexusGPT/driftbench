@@ -53,6 +53,8 @@ export type Action = {
   stage?: string;
   /** CODE: paths the agent deletes, relative to the workspace. */
   deletes?: string[];
+  /** CODE: symbolic links the agent makes, `path` pointing at `target` (relative to the link's folder or absolute). */
+  links?: { path: string; target: string }[];
 };
 
 /** How many code agents this process planted: each gets its own folder of the scratch space. */
@@ -90,6 +92,10 @@ export function plantedAgent(
     /** A noisy agent: each turn breaks with probability `rate`; the markers it broke are pushed to `broken`. */
     noisy?: { rate: number; rng: Rng; broken?: string[] };
     keep?: boolean;
+    /** CODE: the process adapter's export bound for a parent's workspace, in bytes. */
+    exportMaxBytes?: number;
+    /** CODE: the adapter without its snapshotGiven hook, as an adapter with a sandbox and no export would be. */
+    noSnapshot?: boolean;
   },
 ): Planted {
   const pick = (text: string) => {
@@ -126,6 +132,7 @@ export function plantedAgent(
       reply: played.reply,
       files: played.files ?? [],
       deletes: played.deletes ?? [],
+      links: played.links ?? [],
       commands: played.commands ?? [],
       exit: played.exit ?? 0,
       ...(played.stderr ? { stderr: played.stderr } : {}),
@@ -151,7 +158,9 @@ export function plantedAgent(
     deterministic: true,
     timeoutMs: 60_000,
     ...(options.keep ? { keep: true } : {}),
+    ...(options.exportMaxBytes !== undefined ? { exportMaxBytes: options.exportMaxBytes } : {}),
   });
+  if (options.noSnapshot) delete adapter.snapshotGiven;
   const off = options.capabilities;
   const base = adapter.capabilities as () => Record<string, boolean>;
   const shaped = off

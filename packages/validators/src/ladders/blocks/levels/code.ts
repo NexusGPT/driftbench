@@ -697,27 +697,27 @@ function diffItems(): BankItem[] {
 function isolationItems(): BankItem[] {
   const items: BankItem[] = [];
   const escapes = ['sibling', 'parent', 'two-up', 'absolute-scratch'] as const;
-  for (const escape of escapes) {
+  for (const route of escapes) {
     for (const alsoInside of [false, true]) {
       for (const format of ['txt', 'json', 'csv'] as const) {
-        const id = `code/isolation/${escape}/${alsoInside ? 'with-inside-file' : 'only-outside'}/${format}`;
+        const id = `code/isolation/${route}/${alsoInside ? 'with-inside-file' : 'only-outside'}/${format}`;
         items.push({
           id,
           family: 'code-isolation',
-          tier: (escape === 'absolute-scratch' ? 4 : 3) as Tier,
+          tier: (route === 'absolute-scratch' ? 4 : 3) as Tier,
           level: 1,
           component: PROCESS,
-          title: `a code agent that writes a ${format} file outside its workspace (${escape.replace(/-/g, ' ')})${alsoInside ? ' and one inside' : ''}: the outside file is in no diff and no artifact, the inside one is, and the block reports a local sandbox of weak isolation`,
+          title: `a code agent that writes a ${format} file outside its workspace (${route.replace(/-/g, ' ')})${alsoInside ? ' and one inside' : ''}: the outside file is in no diff and no artifact, the inside one is, and the block reports a local sandbox of weak isolation`,
           cause:
             'The process adapter snapshots only the workspace and records the sandbox isolation on every block.',
           check: async ({ seed, scratch, product }) => {
-            const name = `escape-${token(seed, id)}.${format}`;
+            const name = `route-${token(seed, id)}.${format}`;
             const outside =
-              escape === 'sibling'
+              route === 'sibling'
                 ? `../${name}`
-                : escape === 'parent'
+                : route === 'parent'
                   ? `../../${name}`
-                  : escape === 'two-up'
+                  : route === 'two-up'
                     ? `../../../${name}`
                     : join(scratch, name);
             const inside = `out/${token(seed, `${id}#inside`)}.${format}`;

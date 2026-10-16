@@ -258,6 +258,9 @@ function carryItems(): BankItem[] {
             });
             const markers = Array.from({ length: depth + 1 }, (_, i) => token(seed, `${id}#m${i}`, 8));
             const ids = markers.map((_, i) => token(seed, `${id}#b${i}`));
+            const other = token(seed, `${id}#other`, 8);
+            const otherId = token(seed, `${id}#bo`);
+            const actions = new Map<string, Action>();
             const writes: FileAction[] = planted.map((file) => ({
               path: file.path,
               format: 'bytes',
@@ -267,14 +270,22 @@ function carryItems(): BankItem[] {
               id: `spec-${token(seed, `${id}#spec`)}`,
               kind: 'task',
               workspace_seed: { files: { 'data/notes.txt': 'notes\n' } },
-              blocks: markers.map((marker, i) => ({
-                id: ids[i],
-                user: `${marker} ${i === 0 ? 'Write the file.' : 'Use the file.'}`,
-                ...(i === 0 ? {} : { parent: ids[i - 1] }),
-                expect: { execution: { ran_code: true } },
-              })),
+              blocks: [
+                ...markers.map((marker, i) => ({
+                  id: ids[i],
+                  user: `${marker} ${i === 0 ? 'Write the file.' : 'Use the file.'}`,
+                  ...(i === 0 ? {} : { parent: ids[i - 1] }),
+                  expect: { execution: { ran_code: true } },
+                })),
+                // A second root, written after the chain: it starts at the spec defaults, never with the chain's files.
+                { id: otherId, user: `${other} Look around.`, expect: { execution: { ran_code: true } } },
+              ],
             };
-            const actions = new Map<string, Action>(
+            actions.set(other, {
+              reply: 'Nothing to do.',
+              commands: [{ command: 'python look.py', exitCode: 0 }],
+            });
+            for (const [marker, action] of new Map<string, Action>(
               markers.map((marker, i) => [
                 marker,
                 {
@@ -283,7 +294,8 @@ function carryItems(): BankItem[] {
                   commands: [{ command: 'python step.py', exitCode: 0 }],
                 },
               ]),
-            );
+            ))
+              actions.set(marker, action);
             let played: Awaited<ReturnType<typeof playSpec>>;
             try {
               played = await playSpec(product, scratch, raw, actions);
@@ -304,6 +316,15 @@ function carryItems(): BankItem[] {
                 `${ids[depth]} should start with ${file.path} as its ancestor wrote it (sha256 ${sha(file.bytes).slice(0, 12)}); ${got ? `it held other bytes (${got.slice(0, 12)})` : `it ${block?.status === 'not_run' ? `was not run (${block.notRun?.reason ?? ''} ${block.notRun?.detail ?? ''})`.trim() : 'never saw the file'}`}`,
               );
             }
+            const root = played.turns.find((turn) => turn.marker === other);
+            if (!root) return fail(`${otherId}, a second root, should run; the agent never received it`);
+            const leaked = planted
+              .filter((file) => root.digests[file.path] !== undefined)
+              .map((file) => file.path);
+            if (leaked.length > 0)
+              return fail(
+                `${otherId}, a second root, should start at the spec defaults; it saw ${list(leaked)}, written by another tree`,
+              );
             return PASS;
           },
         });

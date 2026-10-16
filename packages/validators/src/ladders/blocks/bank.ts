@@ -7,6 +7,7 @@ import { carryBankItems } from './levels/carry';
 import { codeItems } from './levels/code';
 import { comboItems } from './levels/combos';
 import { diagnosticItems } from './levels/diagnostics';
+import { forestItems } from './levels/forest';
 import { historyItems } from './levels/history';
 import { intervalItems } from './levels/intervals';
 import { linkItems } from './levels/links';
@@ -29,6 +30,7 @@ export function blocksBank(): BankItem[] {
     ...codeItems(),
     ...carryBankItems(),
     ...comboItems(),
+    ...forestItems(),
     ...historyItems(),
     ...intervalItems(),
     ...objectItems(),
