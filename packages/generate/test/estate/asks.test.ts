@@ -156,7 +156,7 @@ describe('the title of a rule is never the ask: the ask is the work the rule app
     expect(out.source).toBe('skill.harbour.skill (asks it names)');
   });
 
-  it('asks the work of the route nearest a standing rule, the first route when it shares no word', () => {
+  it('asks the work of the route nearest a standing rule, and nothing when no route shares a word', () => {
     const shared = atom('instruction.standing.quay-fees', {
       title: 'Quote the fee of a quay in euros',
       provenance: { quote: 'x', file: 'CLAUDE.md' },
@@ -166,7 +166,9 @@ describe('the title of a rule is never the ask: the ask is the work the rule app
       title: 'Greet the harbour master first',
       provenance: { quote: 'x', file: 'CLAUDE.md' },
     });
-    expect(ask([none]).text).toBe('Please read the tide table for a port.');
+    // A rule that shares no word with any route has no work: the first route is no default for it.
+    expect(ask([none]).text).toBeUndefined();
+    expect(ask([none]).refused).toMatch(/no task/);
   });
 
   it('asks what the trigger of a gate names, and refuses a rule when no route gives work', () => {
@@ -203,7 +205,11 @@ describe('the title of a rule is never the ask: the ask is the work the rule app
       title: 'Check the harbour log before you answer',
       provenance: { quote: 'x', file: 'CLAUDE.md' },
     });
-    expect(ask([standing]).text).toBe('Please read the tide table for a port.');
+    const tides = atom('instruction.standing.tide-first', {
+      title: 'Check the tide before you answer',
+      provenance: { quote: 'x', file: 'CLAUDE.md' },
+    });
+    expect(ask([tides]).text).toBe('Please read the tide table for a port.');
     const bare = atom('instruction.standing.log', { title: 'Log every mooring change in the harbour book' });
     expect(codeAsk('trigger', [bare], []).refused).toMatch(/no task/);
   });

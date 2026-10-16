@@ -321,8 +321,8 @@ function significant(text: string): Set<string> {
 }
 
 /**
- * The work of the route that shares most words with a rule, the first route when it shares none: a rule of the
- * standing instructions holds over any work, and a route names work a user asks for.
+ * The work of the route that shares most words with a rule: a rule of the standing instructions holds over any
+ * work, and a route names work a user asks for. None when no route shares a word with the rule.
  */
 function routeFor(estate: readonly EstateAtom[], ruleText: string): { act: string; id: string } | undefined {
   const own = significant(ruleText);
@@ -333,7 +333,8 @@ function routeFor(estate: readonly EstateAtom[], ruleText: string): { act: strin
     const task = taskOf(firstSentence(route.situation));
     if (!verbLed(task) || askable(task) !== undefined) continue;
     const shared = [...significant(route.situation)].filter((word) => own.has(word)).length;
-    if (shared > score) {
+    // A route that shares no word with the rule is no work of it: the first route is an estate-wide default.
+    if (shared > 0 && shared > score) {
       best = { act: task, id: route.id };
       score = shared;
     }
