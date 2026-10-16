@@ -46,11 +46,11 @@ Nothing else changes. Spec hashes, block cache keys and cassettes stay as they w
 - Read `by` to know which rule scored a verdict, before you trust a published number.
 - Compare `resolved.hash` across two runs: equal means they were scored by the same checks.
 - Turn a check off for one spec or one block with an inline `uses.check_set`. For example, stop a `must` check from gating while you rewrite it.
+- Share one check set between specs: write it as `driftbench/check-set/<id>.yaml` that extends `default`, and name its id under `uses.check_set`. `spec validate` and `campaign run` both read it.
 
 When not to use it:
 
 - Do not disable a check to make a failing block pass in a published campaign. The stamp records it, and a reader sees that the checks differ.
-- In this release, do not put a check set in a project file and name it from a spec. `campaign run` cannot read it yet: see Common errors.
 
 ## Commands and every option
 
@@ -164,7 +164,5 @@ The first spec fails on `must.0`. The second passes: its check set has no `must`
 
 ## Common errors
 
-* `uses.check_set  OBJECT_UNKNOWN  spec <id>: uses.check_set: unknown object check-set:default; searched layers shipped, project, suite, spec, block, cli` from `spec validate`: in this release the spec commands do not load the shipped check set. `campaign run` accepts the same spec.
-* `StoreError: store: putSpec refused an invalid spec: uses.check_set: ... unknown object check-set:<id>` from `campaign run`, with a stack trace: the spec names a check set from a project file under `driftbench/check-set/`. A run cannot read a project check set in this release. Write the object inline in the spec's or the block's `uses`.
 * `uses.check_set  OBJECT_ITEM_UNKNOWN  spec <id>: uses.check_set: unknown item <item> in check-set:(spec) (uses.check_set.items.0); the parent check-set:default holds tools, tools_offered, ...`, then `Fix the invalid specs first: nothing ran.` from `campaign run` (exit 2): an item id that is not a check name. Use a name from the default, or `flow` or `ledger`.
 * No `by` in a record: the record was written before this release. Old records still load; they have no stamps.
