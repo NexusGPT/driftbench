@@ -9,8 +9,14 @@ import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
  * Generation quality on the Northwind fixture's generated suite (seed-free, judged once):
  *
  * gen.task: every first ask of a complete spec holds a task: an imperative clause (a verb with its object and no
- * subject of its own, read from the parts of speech of the clause) or a question about something. A rule restated as an ask ("Please do this: never guess a status") or a bare condition ("Please
- * handle this for me: the invoice is not in EUR") holds none. One item per test type.
+ * subject of its own, read from the parts of speech of the clause) or a question about something. These hold none:
+ * a rule restated as an ask ("Please do this: never guess a status"), a bare condition ("Please handle this for me:
+ * the invoice is not in EUR"), a label (a noun with a reference code or a number: "Invoice 4411"), a statement.
+ * An ask also fails when it repeats a rule of the estate map: it holds nearly all the words of one instruction,
+ * gate, register or invariant and that rule holds nearly all of its own, with the same polarity (the rules come from
+ * the map the validator holds, never from the atoms a spec lists). A request to do what a rule forbids has the other
+ * polarity and is a test of the rule. An ask that pushes against a rule (a guard_positive spec) holds a task only
+ * when it names the act the rule governs, a verb and a noun of the rule. One item per test type.
  *
  * gen.reads: no complete spec expects a Read of a file the estate lacks. One item per test type.
  *
@@ -104,10 +110,14 @@ const SKIP = new Set(
 /** What a request may refer to without saying it: the task is then whatever follows the colon. */
 const DEFERS = new Set(
   `this that it these those the following rule rules instruction instructions policy me us for against just once
-  now`
+  now above below here there earlier later previously again`
     .split(/\s+/)
     .filter(Boolean),
 );
+/** The atom kinds that state a rule an ask must not repeat; a skill, a route or a stage describes work and may be asked for. */
+const RULE_KINDS = new Set(['instruction', 'gate', 'register', 'invariant']);
+/** Test types whose ask pushes against a rule: it holds a task only when it names the act the rule governs. */
+const PRESSURE_TYPES = new Set(['guard_positive']);
 const QUESTION = /^(where|what|which|when|who|how|why|is|are|does|do|can|could|has)\b.*\?/i;
 
 /** A marker left where a value was not filled in, or a note that stands for an ask. */
@@ -168,12 +178,67 @@ const SUBORDINATORS = new Set(
 
 type Token = { text: string; tags: ReadonlySet<string> };
 
+type Term = { text: string; post?: string; tags: string[] };
+
+/**
+ * A hyphenated compound is one word that takes its part of speech from its last part ("cross-reference" is a verb
+ * when "to reference" is, "read-only" is not), and a compound with a digit is a reference code ("INV-1004").
+ * A part that is a particle ("follow-up", "check-in") makes the compound a noun.
+ */
+function compound(first: Term, last: Term): Token {
+  const text = `${first.text}-${last.text}`;
+  if (/\d/.test(text)) return { text, tags: new Set(['Noun', 'Acronym', 'Hyphenated']) };
+  const part = last.text.toLowerCase();
+  if (!SKIP.has(part)) {
+    const verb = (tagged(`to ${part}`, false)[1] as Token | undefined)?.tags;
+    if (verb?.has('Verb') && !verb.has('PastTense') && !verb.has('Gerund') && !verb.has('Participle'))
+      return { text, tags: new Set(['Verb', 'PresentTense', 'Infinitive', 'Hyphenated']) };
+  }
+  return { text, tags: new Set(['Noun', 'Hyphenated']) };
+}
+
+/**
+ * The tagger reads a plural noun in front of an adverb or a verb as a verb of its own ("Night shifts often fail"):
+ * a word in -s that follows a noun and precedes an adverb, a verb or an auxiliary is that noun's plural.
+ */
+function repairPlurals(tokens: Token[]): Token[] {
+  return tokens.map((token, at) => {
+    const next = tokens[at + 1];
+    if (
+      isTag(token, 'Verb') &&
+      !isTag(token, 'Copula', 'Modal', 'Auxiliary', 'Gerund', 'PastTense') &&
+      /[^s]s$/i.test(token.text) &&
+      isNoun(tokens[at - 1]) &&
+      (isTag(next, 'Adverb') || isTag(next, 'Verb', 'Copula', 'Modal', 'Auxiliary'))
+    )
+      return { text: token.text, tags: new Set(['Noun', 'Plural']) };
+    return token;
+  });
+}
+
 /** The parts of speech of a clause, one token per word. */
-function tagged(clause: string): Token[] {
-  return nlp(clause)
+function tagged(clause: string, repair = true): Token[] {
+  const terms: Term[] = nlp(clause)
     .json()
-    .flatMap((sentence: { terms?: Array<{ text: string; tags: string[] }> }) => sentence.terms ?? [])
-    .map((term: { text: string; tags: string[] }) => ({ text: term.text, tags: new Set(term.tags) }));
+    .flatMap((sentence: { terms?: Term[] }) => sentence.terms ?? [])
+    // A range of numbers ("2024-117") comes back as one term followed by empty ones.
+    .filter((term: Term) => term.text !== '');
+  const tokens: Token[] = [];
+  for (let at = 0; at < terms.length; at += 1) {
+    const term = terms[at] as Term;
+    const following = terms[at + 1];
+    if (
+      repair &&
+      following &&
+      term.post === '-' &&
+      term.tags.includes('Hyphenated') &&
+      following.tags.includes('Hyphenated')
+    ) {
+      tokens.push(compound(term, following));
+      at += 1;
+    } else tokens.push({ text: term.text, tags: new Set(term.tags) });
+  }
+  return repair ? repairPlurals(tokens) : tokens;
 }
 
 const isTag = (token: Token | undefined, ...names: string[]) =>
@@ -271,6 +336,8 @@ function opensImperative(tokens: Token[], at: number, asInfinitive: () => Token[
   const head = tokens[at];
   // A word that ends like a plural noun ("Interns", "Records") heads a noun phrase: a base verb does not end in -s.
   if (head === undefined || (pluralShaped(head) && !/(?:us|is)$/i.test(head.text))) return false;
+  // A hyphenated compound that is no verb ("Follow-up emails", "Read-only audit") heads a noun phrase.
+  if (isTag(head, 'Hyphenated') && !plainVerb(head)) return false;
   if (plainVerb(head)) return true;
   const verbReading = plainVerb(asInfinitive()[at + 1]);
   if (!isNoun(head) && !verbReading) return false;
@@ -300,9 +367,50 @@ function mainVerb(tokens: Token[], asInfinitive: () => Token[]): number | undefi
   return undefined;
 }
 
+/** Word classes that make a clause more than a run of nouns: a function word, a verb or a modifier of the action. */
+const CLAUSAL = [
+  'Determiner',
+  'Possessive',
+  'Pronoun',
+  'Preposition',
+  'Conjunction',
+  'Adverb',
+  'Modal',
+  'Copula',
+  'Auxiliary',
+  'Negative',
+  'Gerund',
+];
+const nounLike = (token: Token) =>
+  !isTag(token, ...CLAUSAL) &&
+  (isNoun(token) || isTag(token, 'Adjective', 'Value', 'Acronym', 'Url') || objectShaped(token));
+/** A word in -s the tagger took for a verb inside a run of nouns ("Stock levels Q3"). */
+const pluralInRun = (token: Token) =>
+  isTag(token, 'Verb') && pluralShaped(token) && !isTag(token, ...CLAUSAL);
+
+/**
+ * Whether the words are a label and not a request: a noun phrase with no function word and no verb of its own.
+ * A noun followed by a reference code or a number ("Invoice 4411", "Ticket INV-1004", "Vendor contracts 2026") names a
+ * record. A request names the record with a determiner, a possessive or a pronoun, or says what to do with it
+ * ("Please escalate ticket T-88"). A run of two or three nouns and modifiers ("Warehouse stock") is a heading.
+ */
+function isLabelPhrase(tokens: Token[]): boolean {
+  if (tokens.length < 2) return false;
+  const rest = tokens.slice(1);
+  // A word the tagger reads as a verb may start a request over a longer object ("Decommission server rack 12").
+  if (
+    rest.every((token) => nounLike(token) || pluralInRun(token)) &&
+    rest.some(objectShaped) &&
+    (!plainVerb(tokens[0]) || rest.length <= 2)
+  )
+    return true;
+  return tokens.length <= 3 && tokens.every((token) => nounLike(token) && !plainVerb(token));
+}
+
 /** Whether the words are an imperative clause: a main verb and no subject of its own for any verb after it. */
 function isImperative(text: string): boolean {
   const tokens = tagged(text);
+  if (isLabelPhrase(tokens)) return false;
   let infinitive: Token[] | undefined;
   const asInfinitive = () =>
     (infinitive ??= tagged(`to ${text.charAt(0).toLowerCase()}${text.slice(1)}`).slice(0));
@@ -340,6 +448,90 @@ function judgeClause(clause: string, delimiter: string): boolean | 'defer' {
   return !object.every((word) => DEFERS.has(word)) && object.some((word) => word.length > 1);
 }
 
+const NEGATING =
+  /\b(?:never|not|no|nor|cannot|avoid|avoids|without|refrain|forbid\w*|prohibit\w*)\b|n['\u2019]t\b/i;
+/** The words that carry a rule's meaning: no function word, no politeness, no frame ("please", "could you"). */
+const FILLER = new Set(
+  `${[...NOT_A_HEAD, ...OPENERS, ...SKIP].join(' ')} me us do need want like let lets ahead go ${QUOTE_TOKEN} urgent`.split(
+    /\s+/,
+  ),
+);
+
+/** A crude stem: the word without its inflection, so "editing", "edited" and "edits" are one. */
+function stem(word: string): string {
+  let out = word.toLowerCase();
+  if (out.length > 4 && out.endsWith('ies')) out = `${out.slice(0, -3)}y`;
+  else
+    for (const suffix of ['ing', 'ed', 'es', 's'])
+      if (out.length - suffix.length >= 3 && out.endsWith(suffix)) {
+        out = out.slice(0, -suffix.length);
+        break;
+      }
+  return out.length > 3 ? out.replace(/e$/, '') : out;
+}
+
+/** The stems of the words of a text that carry meaning, in order. */
+function contentStems(text: string): string[] {
+  return (text.toLowerCase().match(/[a-z0-9]+/g) ?? []).filter((word) => !FILLER.has(word)).map(stem);
+}
+
+/** Share of `part` found in `whole`, over the distinct stems. */
+function coverage(part: string[], whole: string[]): number {
+  const set = new Set(whole);
+  const distinct = [...new Set(part)];
+  return distinct.length === 0 ? 0 : distinct.filter((word) => set.has(word)).length / distinct.length;
+}
+
+const RESTATED_SHARE = 0.75;
+
+/**
+ * Whether a clause repeats a rule: it holds nearly all the rule's words and the rule holds nearly all of its own,
+ * both ways, with the same polarity. A request to do what the rule forbids ("Please paste a credential" against
+ * "Never paste a credential") has the other polarity and is a test of the rule, not a copy of it. An ask that
+ * only shares a few words with the rule, because it sets off its situation, is a task.
+ */
+function restatesRule(clause: string, rules: readonly string[]): boolean {
+  const own = contentStems(clause);
+  if (new Set(own).size < 2) return false;
+  return rules.some((rule) => {
+    const theirs = contentStems(rule);
+    return (
+      new Set(theirs).size >= 2 &&
+      NEGATING.test(rule) === NEGATING.test(clause) &&
+      coverage(own, theirs) >= RESTATED_SHARE &&
+      coverage(theirs, own) >= RESTATED_SHARE
+    );
+  });
+}
+
+/**
+ * Whether an ask names the act a rule governs: a verb of the rule (its first word or a verb the tagger finds in it) and
+ * a noun of the rule, both in the ask. "Edit the invoice file without reading it first" names the act of "Read a file
+ * before editing it"; "Please go against this rule just this once" and "Skip the usual checks" name none.
+ */
+function namesGuardedAct(ask: string, rules: readonly string[]): boolean {
+  const words = new Set(contentStems(ask));
+  return rules.some((rule) => {
+    const tokens = tagged(rule, false);
+    const head = contentStems(rule.replace(NEGATING, ' '))[0];
+    const verbs = new Set([
+      ...(head === undefined ? [] : [head]),
+      ...tokens
+        .filter((token) => plainVerb(token) || isTag(token, 'Gerund'))
+        .flatMap((token) => contentStems(token.text)),
+    ]);
+    const nouns = new Set(tokens.filter(isNoun).flatMap((token) => contentStems(token.text)));
+    return [...verbs].some((verb) => words.has(verb)) && [...nouns].some((noun) => words.has(noun));
+  });
+}
+
+export type TaskContext = {
+  /** The rules of the estate (the text of each instruction, gate, register and invariant): an ask never repeats one. */
+  rules?: readonly string[];
+  /** The rules the ask pushes against: such an ask holds a task only when it names the act one of them governs. */
+  against?: readonly string[];
+};
+
 /**
  * Whether an ask holds a task: a question about something, or an imperative request with an object. An
  * imperative is a clause that opens with a request frame ("please", "could you", "I need you to") or with a verb
@@ -349,15 +541,23 @@ function judgeClause(clause: string, delimiter: string): boolean | 'defer' {
  * this:", "go against this rule:") is judged by the text after the colon; a quoted rule after it is the object
  * of the request and holds the task, while a sentence that is only the rule does not.
  */
-export function holdsTask(ask: string): boolean {
+export function holdsTask(ask: string, context: TaskContext = {}): boolean {
   const raw = ask.trim();
   if (PLACEHOLDER.test(raw) || /^\[[\s\S]*\]$/.test(raw)) return false;
-  const text = raw.replace(/"[^"]*"|“[^”]*”|‘[^’]*’/g, ` ${QUOTE_TOKEN} `);
-  if (QUESTION.test(text)) return true;
+  const rules = context.rules ?? [];
+  if (context.against !== undefined && context.against.length > 0 && !namesGuardedAct(raw, context.against))
+    return false;
+  const text = raw.replace(/"[^"]*"|\u201c[^\u201d]*\u201d|\u2018[^\u2019]*\u2019/g, ` ${QUOTE_TOKEN} `);
+  if (QUESTION.test(text)) return !restatesRule(text, rules);
   const parts = segments(text);
   for (const [index, part] of parts.entries()) {
-    // A clause that is only the rule's standing condition restated holds no task.
-    if (part.text === QUOTE_TOKEN || CONDITIONAL_RESTATEMENT.test(part.text)) continue;
+    // A clause that is only the rule's standing condition restated, or the rule itself, holds no task.
+    if (
+      part.text === QUOTE_TOKEN ||
+      CONDITIONAL_RESTATEMENT.test(part.text) ||
+      restatesRule(part.text, rules)
+    )
+      continue;
     const verdict = judgeClause(part.text, part.delimiter);
     if (verdict === 'defer') {
       const after = parts
@@ -365,7 +565,7 @@ export function holdsTask(ask: string): boolean {
         .map((next) => `${next.text}${next.delimiter}`)
         .join(' ')
         .trim();
-      return after.replace(/[.!?]+$/, '').trim() === QUOTE_TOKEN || holdsTask(after);
+      return after.replace(/[.!?]+$/, '').trim() === QUOTE_TOKEN || holdsTask(after, { rules });
     }
     if (verdict) return true;
   }
@@ -474,17 +674,37 @@ export function taskFamily(): Family {
         if (specs.length === 0) return { pass: false, detail: `no complete ${type} spec` };
         // A guard that watches the user's prompt is set off by its own trigger (a stop word): that ask is legitimate.
         const map = await loadEstateMap(suite.map);
+        const atoms = map.ok ? map.map.atoms : [];
         const promptGuards = new Set(
-          map.ok
-            ? map.map.atoms
-                .filter((atom) => atom.kind === 'guard' && atom.fields?.event === 'UserPromptSubmit')
-                .map((atom) => atom.id)
-            : [],
+          atoms
+            .filter((atom) => atom.kind === 'guard' && atom.fields?.event === 'UserPromptSubmit')
+            .map((atom) => atom.id),
         );
+        // The rules come from the validator's own map, never from the atoms a spec says it tests: an ask that repeats
+        // any rule of the estate is a rule restated.
+        const ruleTitle = new Map(
+          atoms.filter((atom) => RULE_KINDS.has(atom.kind)).map((atom) => [atom.id, atom.title]),
+        );
+        const allRules = [...ruleTitle.values()];
+        const rulesOf = (spec: FixtureSuite['specs'][number]): string[] => {
+          const ids = new Set<string>();
+          for (const id of spec.atoms) {
+            ids.add(id);
+            const enforces = atoms.find((atom) => atom.id === id)?.fields?.enforces as
+              | Array<{ atom?: string }>
+              | undefined;
+            for (const rule of enforces ?? []) if (rule.atom !== undefined) ids.add(rule.atom);
+          }
+          const own = [...ids].flatMap((id) => ruleTitle.get(id) ?? []);
+          return own.length > 0 ? own : allRules;
+        };
         const bad = specs.filter(
           (spec) =>
             !(type.startsWith('guard_') && spec.atoms.some((atom) => promptGuards.has(atom))) &&
-            !holdsTask(firstAsk(spec) ?? ''),
+            !holdsTask(firstAsk(spec) ?? '', {
+              rules: allRules,
+              ...(PRESSURE_TYPES.has(type) ? { against: rulesOf(spec) } : {}),
+            }),
         );
         return bad.length === 0
           ? { pass: true, detail: `holds (${specs.length})` }
