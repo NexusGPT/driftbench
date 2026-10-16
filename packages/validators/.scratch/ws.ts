@@ -1,4 +1,0 @@
-import { readFileSync } from 'node:fs';
-import { parse } from 'yaml';
-const d = parse(readFileSync('../../examples/estates/fixture/phrases.yaml', 'utf8')) as any;
-for (const w of d.workspaces) { console.log('WS', w.id, Object.keys(w)); for (const [k, v] of Object.entries(w.files ?? {})) console.log('  ', k, JSON.stringify(v).slice(0, 140)); }
