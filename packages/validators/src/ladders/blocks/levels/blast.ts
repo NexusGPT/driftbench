@@ -4,6 +4,7 @@ import { stringify } from 'yaml';
 import { between, list, load, pick, type RawSpec, type Rng, rngFor, shuffled } from '../harness';
 import { type BlocksProduct, need } from '../product';
 import { type BankItem, expectAll, fail, PASS, type Tier } from '../types';
+import { cpuBest } from './links';
 
 /**
  * Level 9: blast radius (docs/concepts/blast-radius.md). A suite of hand-written specs that declare
@@ -34,6 +35,11 @@ type BlockPlan = {
 };
 type SpecPlan = {
   id: string;
+  /** CODE: a task spec that seeds its workspace with `fixtures` and expects a file per block. */
+  kind?: 'normal' | 'code';
+  fixtures?: string[];
+  /** The parent of each block, by index, -1 for a root: the spec is a forest. */
+  parents?: number[];
   blocks: BlockPlan[];
   cap?: string;
   forbid?: string;
@@ -83,6 +89,37 @@ function suite(
 
 function rawOf(plan: SpecPlan, seed: number): RawSpec {
   const usesCriteria = plan.blocks.some((block) => block.criterion !== undefined);
+  if (plan.kind === 'code') {
+    return {
+      id: `${plan.id}-${seed}`,
+      kind: 'task',
+      stages: [...STAGES],
+      metadata: { depends: { atoms: ['larkspur-core'] } },
+      workspace_seed: {
+        files: Object.fromEntries((plan.fixtures ?? []).map((path) => [path, 'bike,days\nFern 3,4\n'])),
+      },
+      ...(usesCriteria
+        ? {
+            criteria: CRITERIA.map((name) => ({
+              name,
+              rubric: `Is the reply ${name.replace('_', ' ')}?`,
+              fail: 'It is not.',
+              pass: 'It is.',
+            })),
+          }
+        : {}),
+      blocks: plan.blocks.map((block, i) => ({
+        id: `b${i}`,
+        ...(plan.parents && (plan.parents[i] ?? -1) >= 0 ? { parent: `b${plan.parents[i]}` } : {}),
+        user: `[${plan.id}:${i}] Write the summary file.`,
+        expect: {
+          artifacts: [{ path: `out/${plan.id}-${i}.csv`, kind: 'csv', checks: [{ rows: { min: 1 } }] }],
+          ...(block.stage ? { stage: block.stage } : {}),
+          ...(block.criterion ? { criteria: [block.criterion] } : {}),
+        },
+      })),
+    };
+  }
   return {
     id: `${plan.id}-${seed}`,
     channel: 'chat',
@@ -111,6 +148,7 @@ function rawOf(plan: SpecPlan, seed: number): RawSpec {
       : {}),
     blocks: plan.blocks.map((block, i) => ({
       id: `b${i}`,
+      ...(plan.parents && (plan.parents[i] ?? -1) >= 0 ? { parent: `b${plan.parents[i]}` } : {}),
       user: `[${plan.id}:${i}] I would like a bike.`,
       ...(block.forced ? { given: { world: { tools: { [READ_TOOL]: { result: { ok: true } } } } } } : {}),
       expect: {
@@ -140,6 +178,8 @@ function direct(plan: SpecPlan, i: number, change: Change): boolean {
   const forcedHere = plan.blocks.slice(0, i + 1).some((each) => each.forced);
   if (change.kind === 'stage') return block.stage === change.id;
   if (change.kind === 'criterion') return block.criterion === change.id;
+  // A workspace file the spec seeds is in the Given of every block of the spec.
+  if (change.kind === 'fixture') return (plan.fixtures ?? []).includes(change.id as string);
   // A spec rule holds on every block of a spec whose rules carry it.
   if (change.kind === 'rule')
     return (
@@ -163,14 +203,25 @@ function direct(plan: SpecPlan, i: number, change: Change): boolean {
   );
 }
 
-/** The documented radius: direct blocks, and in mode F every later block of the same spec. */
+/**
+ * The documented radius: direct blocks, and in mode F every later block of the same spec. In a forest, the
+ * descendants of a direct block, in every mode, wherever they are written.
+ */
 function expectedStates(plans: readonly SpecPlan[], change: Change, mode: 'F' | 'T'): string[][] {
   return plans.map((plan) => {
     const hits = plan.blocks.map((_, i) => direct(plan, i, change));
+    if (plan.parents) {
+      const parents = plan.parents;
+      const below = (i: number): boolean => {
+        for (let p = parents[i] ?? -1; p >= 0; p = parents[p] ?? -1) if (hits[p]) return true;
+        return false;
+      };
+      return hits.map((hit, i) => (hit ? 'direct' : below(i) ? 'forward' : 'out'));
+    }
     const first = hits.indexOf(true);
-    return hits.map((hit, i) =>
-      hit ? 'direct' : mode === 'F' && first >= 0 && i > first ? 'forward' : 'out',
-    );
+    // A task step in a sandbox keeps the workspace the step before left: in mode T too, the later steps follow.
+    const follows = mode === 'F' || plan.kind === 'code';
+    return hits.map((hit, i) => (hit ? 'direct' : follows && first >= 0 && i > first ? 'forward' : 'out'));
   });
 }
 
@@ -522,5 +573,216 @@ function cliItems(): BankItem[] {
 
 /** Level 9 of the blocks bank. */
 export function blastItems(): BankItem[] {
-  return [...directItems(), ...wholeItems(), ...cliItems()];
+  return [...directItems(), ...wholeItems(), ...cliItems(), ...codeItems(), ...chainItems(), ...scaleItems()];
+}
+
+const INPUTS = ['data/rentals.csv', 'data/fleet.csv', 'data/rates.csv', 'data/returns.csv'] as const;
+
+/** A seeded suite of CODE specs: each seeds one or two input files and expects one file per block. */
+function codeSuite(rng: Rng, size: number): SpecPlan[] {
+  return Array.from({ length: size }, (_, s) => ({
+    id: `task-${s}`,
+    kind: 'code' as const,
+    fixtures: shuffled(rng, INPUTS).slice(0, between(rng, 1, 2)),
+    blocks: Array.from({ length: between(rng, 2, 4) }, () => ({
+      tools: [],
+      ...(rng() < 0.4 ? { stage: pick(rng, STAGES) } : {}),
+      ...(rng() < 0.3 ? { criterion: pick(rng, CRITERIA) } : {}),
+      forced: false,
+    })),
+    endState: false,
+    depends: true,
+  }));
+}
+
+/** CODE suites: a changed input file reaches exactly the specs that seed it; a stage or a criterion, its blocks. */
+function codeItems(): BankItem[] {
+  const items: BankItem[] = [];
+  for (const kind of ['fixture', 'stage', 'criterion'] as const) {
+    for (const mode of ['F', 'T'] as const) {
+      for (const size of [2, 4, 7, 12]) {
+        const id = `blast/code/${kind}/${mode}/${size}`;
+        items.push({
+          id,
+          family: 'blast-code',
+          tier: Math.min(
+            5,
+            (kind === 'fixture' ? 2 : 1) + (size >= 7 ? 1 : 0) + (mode === 'F' ? 1 : 0),
+          ) as Tier,
+          level: 7,
+          component: DEPENDS,
+          title: `a ${kind} change over ${size} code-agent task specs selects exactly the blocks whose Given or Then names it${mode === 'F' ? ', and every later block of the same run' : ''}`,
+          cause:
+            kind === 'fixture'
+              ? `radiusOf selects every block of a task spec whose seeded workspace holds the changed file (mode ${mode}).`
+              : `radiusOf selects the code blocks that expect the changed ${kind} (mode ${mode}).`,
+          check: async ({ seed, product }) => {
+            const rng = rngFor(seed, id);
+            let plans = codeSuite(rng, size);
+            const draw = (): Change | undefined =>
+              kind === 'fixture' ? { kind, id: pick(rng, INPUTS) } : drawChange(rng, plans, kind);
+            let change = draw();
+            const narrowEnough = (c: Change | undefined) =>
+              c !== undefined &&
+              expectedStates(plans, c, mode).flat().includes('direct') &&
+              expectedStates(plans, c, mode).flat().includes('out');
+            for (let tries = 0; !narrowEnough(change) && tries < 40; tries += 1) {
+              plans = codeSuite(rng, size);
+              change = draw();
+            }
+            if (!change || !narrowEnough(change))
+              return fail('the seed drew no suite with a change narrower than the suite');
+            return compare(radiusOf(product, seed, plans, change, [mode]), plans, change, mode);
+          },
+        });
+      }
+    }
+  }
+  return items;
+}
+
+/**
+ * Undocumented combination: a 10-deep chain of parent blocks inside the blast radius, written in order, reversed
+ * or shuffled, beside an unrelated spec. A change that reaches the block at depth d puts its every descendant in the
+ * radius, in every mode, wherever the YAML writes it, and nothing above it.
+ */
+function chainItems(): BankItem[] {
+  const items: BankItem[] = [];
+  for (const depth of [0, 3, 6, 9]) {
+    for (const mode of ['F', 'T'] as const) {
+      for (const order of ['in-order', 'reversed', 'shuffled'] as const) {
+        const id = `blast/chain/depth-${depth}/${mode}/${order}`;
+        items.push({
+          id,
+          family: 'blast-parents',
+          tier: Math.min(5, 3 + (order === 'in-order' ? 0 : 1) + (depth === 0 ? 0 : 1)) as Tier,
+          level: 7,
+          component: RADIUS,
+          title: `a change reaching depth ${depth} of a 10-deep chain of parent blocks (${order}, mode ${mode}) selects that block and its ${10 - depth} descendants, nothing above it, and nothing in an unrelated spec`,
+          cause:
+            'A change that reaches a parent block puts all its descendants in the radius, in every mode, wherever they are written.',
+          check: async ({ seed, product }) => {
+            const rng = rngFor(seed, id);
+            const n = 11;
+            const tool = pick(rng, LISTED);
+            const blocks: BlockPlan[] = Array.from({ length: n }, (_, i) => ({
+              tools: i === depth ? [{ label: tool, count: 1, input: false }] : [],
+              forced: false,
+            }));
+            const order0 = [...Array(n).keys()];
+            const written =
+              order === 'in-order'
+                ? order0
+                : order === 'reversed'
+                  ? [...order0].reverse()
+                  : shuffled(rng, order0);
+            const chain: SpecPlan = {
+              id: 'chain-0',
+              blocks: written.map((i) => blocks[i] as BlockPlan),
+              parents: written.map((i) => (i === 0 ? -1 : written.indexOf(i - 1))),
+              endState: false,
+              depends: true,
+            };
+            const other: SpecPlan = {
+              id: 'other-0',
+              blocks: [
+                {
+                  tools: [
+                    {
+                      label: pick(
+                        rng,
+                        LISTED.filter((l) => l !== tool),
+                      ),
+                      count: 1,
+                      input: false,
+                    },
+                  ],
+                  forced: false,
+                },
+                { tools: [], forced: false },
+              ],
+              endState: false,
+              depends: true,
+            };
+            const plans = [chain, other];
+            const change: Change = { kind: 'tool', id: tool, part: 'input' };
+            return compare(radiusOf(product, seed, plans, change, [mode]), plans, change, mode);
+          },
+        });
+      }
+    }
+  }
+  return items;
+}
+
+/** The CPU budget of radiusOf on a suite, in milliseconds, best of 3: linear in the blocks. */
+export const RADIUS_CPU_MS = { 1000: 400, 2500: 1000, 5000: 2000 } as const;
+
+const scaleSuites = new Map<string, { plans: SpecPlan[]; specs: { spec: unknown; hash: string }[] }>();
+
+/** Real size: suites of 1,000 to 5,000 blocks, the radius exact and within its CPU budget. */
+function scaleItems(): BankItem[] {
+  const items: BankItem[] = [];
+  const kinds = [
+    { kind: 'tool', part: 'input' },
+    { kind: 'tool', part: 'result' },
+    { kind: 'stage' },
+    { kind: 'criterion' },
+  ] as const;
+  for (const blocks of [1000, 2500, 5000] as const) {
+    for (const entry of kinds) {
+      for (const mode of ['F', 'T'] as const) {
+        const label = 'part' in entry ? `${entry.kind}-${entry.part}` : entry.kind;
+        const id = `blast/scale/${blocks}/${label}/${mode}`;
+        items.push({
+          id,
+          family: 'blast-scale',
+          tier: (blocks === 5000 ? 5 : blocks === 2500 ? 4 : 3) as Tier,
+          level: 7,
+          component: RADIUS,
+          title: `on a suite of ${blocks} blocks, a ${label} change gets exactly the documented radius in mode ${mode} within ${RADIUS_CPU_MS[blocks]} ms of CPU, best of 3`,
+          cause: `radiusOf stays exact and linear on ${blocks} blocks: ${RADIUS_CPU_MS[blocks]} ms of CPU.`,
+          check: async ({ seed, product }) => {
+            const key = `${seed}:${blocks}`;
+            let built = scaleSuites.get(key);
+            if (!built) {
+              const rng = rngFor(seed, `scale#${blocks}`);
+              const plans = suite(rng, Math.round(blocks / 4.5));
+              const contentHash = need<(value: unknown) => string>(product.core, 'core', 'contentHash');
+              const specs = plans.map((plan) => {
+                const spec = load(product, rawOf(plan, seed));
+                return { spec, hash: contentHash(spec) };
+              });
+              built = { plans, specs };
+              scaleSuites.clear();
+              scaleSuites.set(key, built);
+            }
+            const rng = rngFor(seed, id);
+            const change = drawChange(rng, built.plans, entry.kind, 'part' in entry ? entry.part : undefined);
+            if (!change) return fail('the suite declares no such change');
+            const radius = need<(specs: unknown[], manifest: unknown, options: unknown) => Report>(
+              product.core,
+              'core',
+              'radiusOf',
+            );
+            const { ms, result } = await cpuBest(3, async () =>
+              radius(
+                built.specs,
+                { from: 'larkspur-v1', to: 'larkspur-v2', changes: [change] },
+                { modes: [mode] },
+              ),
+            );
+            const exact = compare(result, built.plans, change, mode);
+            if (!exact.pass) return exact;
+            return ms <= RADIUS_CPU_MS[blocks]
+              ? PASS
+              : fail(
+                  `radiusOf on ${blocks} blocks should take at most ${RADIUS_CPU_MS[blocks]} ms of CPU; it took ${ms.toFixed(0)} ms (best of 3)`,
+                );
+          },
+        });
+      }
+    }
+  }
+  return items;
 }

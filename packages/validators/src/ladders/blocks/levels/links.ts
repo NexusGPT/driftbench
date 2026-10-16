@@ -572,7 +572,12 @@ function localizeItems(): BankItem[] {
                   });
                 raws.push(
                   plantedRecipe
-                    ? { ...plantedRecipe.raw, id: `spec-${token(seed, `${id}#${s}`)}`, metadata: { links }, blocks }
+                    ? {
+                        ...plantedRecipe.raw,
+                        id: `spec-${token(seed, `${id}#${s}`)}`,
+                        metadata: { links },
+                        blocks,
+                      }
                     : {
                         id: `spec-${token(seed, `${id}#${s}`)}`,
                         channel: 'chat',
