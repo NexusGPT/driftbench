@@ -1216,8 +1216,12 @@ function routeTargets(
   return [...targets.values()];
 }
 
-/** Cell roles are grammatical evidence, not a vocabulary of table headings. */
-type RouteCell = 'request' | 'attribute' | 'fragment';
+/**
+ * Cell roles are grammatical evidence, not a vocabulary of table headings. A `limit` states what a unit does
+ * not do ("Cannot book a berth", "Never use for payments"): it says when not to use the unit, so no route
+ * comes from it.
+ */
+type RouteCell = 'request' | 'attribute' | 'fragment' | 'limit';
 const ROUTE_CELL_CACHE = new Map<string, RouteCell>();
 
 function routeCell(value: string): RouteCell {
@@ -1229,6 +1233,19 @@ function routeCell(value: string): RouteCell {
   ROUTE_CELL_CACHE.set(value, role);
   return role;
 }
+
+/** The first words of a prohibition addressed to the reader, as opposed to a statement about the unit. */
+const IMPERATIVE_LEADS = new Set([
+  'do',
+  "don't",
+  'never',
+  'must',
+  "mustn't",
+  'should',
+  "shouldn't",
+  'shall',
+  'please',
+]);
 
 function readRouteCell(value: string): RouteCell {
   const text = value
@@ -1260,6 +1277,13 @@ function readRouteCell(value: string): RouteCell {
     return 'attribute';
   if (/[,;]\s*\S/.test(text) && text.split(/[,;]/).every((part) => !/\s/.test(part.trim())))
     return 'attribute';
+  // A declarative negation that opens the cell ("Cannot ...", "Does not ...", "Won't ...", "Not for ...") negates
+  // what the cell says about the unit. An imperative prohibition ("Do not ...", "Never ...") is a rule addressed to
+  // the agent, which a table may bind to a unit, and a negation further in ("a tide that has not come in")
+  // belongs to the situation described.
+  const lead = terms.slice(0, 2);
+  if (lead.some((term) => term.tags?.has('Negative')) && !IMPERATIVE_LEADS.has(lead[0]?.normal ?? ''))
+    return 'limit';
 
   // Grammar may strengthen a decision, but a language-specific tagger is never a gate.
   // Distinct free multi-word phrases also describe requests in languages it cannot parse.
@@ -1310,11 +1334,19 @@ function tableRouteTargets(
   return !predicate?.tags?.has('Verb') || predicate.tags.has('Infinitive') ? targets : [];
 }
 
-/** Repeated short values identify categories; distinct free phrases identify requests. */
-function routeColumn(values: string[]): RouteCell {
-  const nonempty = values.filter((value) => value.trim() !== '');
-  if (!nonempty.length) return 'fragment';
-  const roles = nonempty.map(routeCell);
+/**
+ * Repeated short values identify categories; distinct free phrases identify requests. A column whose header
+ * holds a negation ("It cannot do", "Does not handle"), or whose cells mostly open with one, states limits.
+ * A limit cell in another column is left out of its reading.
+ */
+function routeColumn(values: string[], header = ''): RouteCell {
+  const filled = values.filter((value) => value.trim() !== '');
+  if (!filled.length) return 'fragment';
+  const roles = filled.map(routeCell);
+  const limits = roles.filter((role) => role === 'limit').length;
+  if (limits * 2 > filled.length || statesNegation(header)) return 'limit';
+  const nonempty = filled.filter((_value, index) => roles[index] !== 'limit');
+  const kept = roles.filter((role) => role !== 'limit');
   const counts = new Map<string, number>();
   for (const value of nonempty) {
     const key = value.replace(/[`*]/g, '').trim().toLowerCase();
@@ -1331,9 +1363,20 @@ function routeColumn(values: string[]): RouteCell {
     )
   )
     return 'attribute';
-  if (roles.every((role) => role === 'attribute')) return 'attribute';
-  if (roles.every((role) => role === 'request')) return 'request';
+  if (kept.every((role) => role === 'attribute')) return 'attribute';
+  if (kept.every((role) => role === 'request')) return 'request';
   return 'fragment';
+}
+
+/** Whether a heading holds a negation anywhere: "It cannot do", "Does not handle", "Never use it for". */
+function statesNegation(heading: string): boolean {
+  const text = heading.replace(/[`*]/g, '').trim();
+  return (
+    text !== '' &&
+    nlp(text)
+      .termList()
+      .some((term) => term.tags?.has('Negative'))
+  );
 }
 
 function ambiguousRouteTable(
@@ -1395,8 +1438,11 @@ function routeSources(
       cells.some((row) => (row[column]?.length ?? 0) > 0) ? [column] : [],
     );
     if (!targetColumns.length) continue;
-    const roles = table.header.map((_header, column) =>
-      routeColumn(table.rows.map((row) => row.cells[column] ?? '')),
+    const roles = table.header.map((header, column) =>
+      routeColumn(
+        table.rows.map((row) => row.cells[column] ?? ''),
+        header,
+      ),
     );
     const pairs = targetColumns.flatMap((target) =>
       roles.flatMap((role, condition) =>
@@ -1409,13 +1455,13 @@ function routeSources(
       if (condition === undefined) continue;
       for (const [index, row] of table.rows.entries()) {
         const ask = clean(row.cells[condition] ?? '');
-        if (!ask) continue;
+        if (!ask || routeCell(row.cells[condition] ?? '') === 'limit') continue;
         for (const { target: column } of pairs)
           for (const target of cells[index]?.[column] ?? []) {
             add({ ...target, ask, line: row.line, quote: row.text, via: 'table' });
           }
       }
-    } else if (!roles.every((role) => role === 'attribute')) {
+    } else if (!roles.every((role) => role === 'attribute' || role === 'limit')) {
       ambiguousRouteTable(
         raw,
         file,
