@@ -532,7 +532,7 @@ function localizeItems(): BankItem[] {
                   (_, i) =>
                     i === failAt || (localizeCase.id === 'inherited-decoy' && failAt >= 0 && i > failAt),
                 );
-                const planted =
+                const plantedRecipe =
                   kind === 'code'
                     ? recipe(
                         seed,
@@ -541,9 +541,9 @@ function localizeItems(): BankItem[] {
                         failing.map((f) => ({ fate: f ? ('fail' as const) : ('pass' as const) })),
                       )
                     : undefined;
-                if (planted) recipes.push(planted);
-                const blocks = planted
-                  ? planted.raw.blocks.map((block, i) => ({ ...block, id: `b${i}` }))
+                if (plantedRecipe) recipes.push(plantedRecipe);
+                const blocks = plantedRecipe
+                  ? plantedRecipe.raw.blocks.map((block, i) => ({ ...block, id: `b${i}` }))
                   : Array.from({ length: n }, (_, i) => ({
                       id: `b${i}`,
                       user: `[${token(seed, id)}:${s}:${i}] Question ${i}.`,
@@ -571,8 +571,8 @@ function localizeItems(): BankItem[] {
                     status: 'declared',
                   });
                 raws.push(
-                  planted
-                    ? { ...planted.raw, id: `spec-${token(seed, `${id}#${s}`)}`, metadata: { links }, blocks }
+                  plantedRecipe
+                    ? { ...plantedRecipe.raw, id: `spec-${token(seed, `${id}#${s}`)}`, metadata: { links }, blocks }
                     : {
                         id: `spec-${token(seed, `${id}#${s}`)}`,
                         channel: 'chat',
@@ -616,12 +616,12 @@ function localizeItems(): BankItem[] {
                   createdAt: '2026-10-16T00:00:00.000Z',
                 });
                 for (const [s, raw] of raws.entries()) {
-                  const planted = recipes[s];
-                  if (planted) {
+                  const plantedRecipe = recipes[s];
+                  if (plantedRecipe) {
                     await run(
                       product,
                       raw,
-                      plantedAgent(product, 'code', planted.actions, { scratch }).adapter,
+                      plantedAgent(product, 'code', plantedRecipe.actions, { scratch }).adapter,
                       { store, campaignId: 'c-localize' },
                     );
                     continue;
