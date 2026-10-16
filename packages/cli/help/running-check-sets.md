@@ -153,14 +153,14 @@ node show-stamps.mjs out/quiet-run
 
 ```text
 $ node show-stamps.mjs out/quiet-run
-resolved: {"objects":[{"key":"check_set","kind":"check-set","id":"(spec)","hash":"a44a5554127e","setAt":"spec"}],"hash":"b011d8ac45cf"}
+resolved: {"objects":[{"key":"value_check","kind":"policy/value-check","id":"default","hash":"cf50456318b2","setAt":"shipped"},{"key":"check_set","kind":"check-set","id":"(spec)","hash":"a44a5554127e","setAt":"spec"}],"hash":"bc14245e424d"}
 must verdicts: 0
 pii.iban: {"object":"check-set:(spec)@a44a5554","item":"pii","impl":"builtin:check/pii","layer":"shipped"}
 pii.national_number: {"object":"check-set:(spec)@a44a5554","item":"pii","impl":"builtin:check/pii","layer":"shipped"}
 (exit 0)
 ```
 
-The first spec fails on `must.0`. The second passes: its check set has no `must` item, so the block has no `must` verdict. Its `resolved` record names the inline object, set at the spec layer, and each verdict names the item that ran it.
+The first spec fails on `must.0`. The second passes: its check set has no `must` item, so the block has no `must` verdict. Its `resolved` record names two objects: the shipped value-check policy, which this block records too, and the inline check set, set at the spec layer. Each verdict names the item that ran it.
 
 ## Common errors
 

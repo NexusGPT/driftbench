@@ -335,7 +335,7 @@ blocks:
 ```yaml file=specs/bad/no-impl.yaml
 id: bad-no-impl
 uses:
-  value_check: { extends: base, items: [{ id: exact, enabled: true }] }
+  value_check: { extends: base, items: [{ id: digits, enabled: true }] }
 blocks:
   - user: Hi.
     expect: { must: ['Acme'] }
@@ -386,7 +386,7 @@ Checked 2 specs: 2 valid, 0 invalid, 0 warnings.
 (exit 0)
 $ driftbench spec validate specs/bad
 ✗ specs/bad/no-impl.yaml
-    uses.value_check  OBJECT_IMPL_UNKNOWN  spec bad-no-impl: uses.value_check: policy/value-check:(spec): item exact names builtin:value-check/exact, which no builtin or plugin provides (uses.value_check.items.0)
+    uses.value_check  OBJECT_IMPL_UNKNOWN  spec bad-no-impl: uses.value_check: policy/value-check:(spec): item digits names builtin:value-check/digits, which no builtin or plugin provides (uses.value_check.items.0)
 ✗ specs/bad/order-and-move.yaml
     uses.value_check  OBJECT_ORDER_INVALID  spec bad-order-and-move: uses.value_check: policy/value-check:(spec): the file sets order and also moves exact with before or after; use one or the other
 ✗ specs/bad/unknown-item.yaml
@@ -402,7 +402,7 @@ Checked 1 spec: 0 valid, 1 invalid, 0 warnings.
 (exit 1)
 ```
 
-The first two specs are valid, and `spec validate` skips the `_driftbench` folder. The spec hash of `upgrade-with-rules` records its `uses`; its block cache keys are the ones it would have without `uses`. Each bad spec names its problem, with the parent's items where an item is unknown. The `broken` project fails its plain spec, because its only rule file belongs at `policy/blame/team.yaml`.
+The first two specs are valid, and `spec validate` skips the `_driftbench` folder. The spec hash of `upgrade-with-rules` records its `uses`; its block cache keys are the ones it would have without `uses`. Each bad spec names its problem, with the parent's items where an item is unknown. The `broken` project fails its plain spec, because its only rule file belongs at `policy/blame/team.yaml`. The wrong-path message names the rule file by its absolute path; the output above shows it relative to the working folder.
 
 ## Common errors
 
