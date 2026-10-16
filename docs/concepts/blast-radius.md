@@ -289,6 +289,14 @@ rule for each changed region, followed by block dependency reasons. No fuzzy mat
 
 Always use the agent versions your campaigns record. Without explicit version flags, `auto` uses the text content hashes; these need not equal a prompt registry's hash. The learned dependency table and automatic estate-diff ingestion remain separate work. Existing estate atom manifests continue to work.
 
+## Prompt sections and block links
+
+A prompt can carry a section registry, `prompts/<prompt-id>.sections.yaml`, that names each of its sections by a stable id with its span (UTF-16 code units, the unit of the quotes above), the SHA-256 of its text, an anchor quote, a scope (`global` or `local`) and its `references`, `overrides` and `duplicates`. The Acme example keeps one for its 30-section prompt in `examples/acme/prompts/`. `radius sections init` writes a first registry from the headings, `radius sections check` checks it against the prompt, and `radius sections reanchor` finds every section again in the next version: same text, then the unique quote, then the prefix and suffix window, else `stale`. A section is only placed where its text hashes as before, so an edit inside it makes it stale and it is never anchored to the wrong text; text that changed outside every section is reported.
+
+A block names the sections it tests in the spec's `metadata.links`, each link with a status: `declared`, `attributed`, `verified`, `refuted` or `stale`. `metadata.links` and `metadata.provenance` stay out of the spec hash, so a link added or promoted never changes a run id or a cache key and never invalidates a carry or a rejudge. `spec lint --sections <registries>` checks that every link names a section its registry holds.
+
+Anthropic Citations give `start_char_index` and `end_char_index` in code points. On a text with two emoji before the cited sentence the API gave 23 where UTF-16 gives 25, so an imported citation is converted (`codePointToUtf16`, `citationSpan`) before it is compared with a span.
+
 ## Execution provenance
 
 New CLI campaigns store an optional execution stamp. Each block records SHA-256 hashes of the actual
@@ -401,12 +409,14 @@ The final command exits 1 and prints:
 
 ```text
 Campaign acme-rejudged: 2 blocks re-judged, 3 carried; 0 agent calls. Judge cost 0.0030 USD.
+Runs: 0 pass, 1 fail.
 ```
 
 A paid judge requires `--judge-budget <usd>`. The budget guard is the existing run-judge guard.
 Exit 0 means the resulting campaign passes, 1 means a gating result fails or is inconclusive,
-and 2 means the inputs or reuse proof were refused. `--json` emits the campaign ids, carried
-and re-judged block counts, zero agent calls and judge spend.
+2 means the inputs or reuse proof were refused, and 3 means no run fails but a block was not run or
+blocked (left as it was, named with its reason). `--json` emits the campaign ids, carried and
+re-judged block counts, the blocks not run, the runs by verdict, zero agent calls and judge spend.
 
 ## Mode T block reruns
 

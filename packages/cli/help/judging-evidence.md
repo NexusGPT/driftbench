@@ -13,7 +13,7 @@ next:
 
 ## What it is
 
-A judge must show where its verdict comes from. The default judge returns, for each requirement, a list of evidence spans `{ source, quote }`. Code checks every quote against the data the judge received. A quote that is not in its named source is ungrounded, and under the default decoder (version 1) one ungrounded span makes the whole answer unparseable, so the verdict is inconclusive. A judge can therefore never pass a criterion on an invented quote.
+A judge must show where its verdict comes from. The default judge returns, for each requirement, a list of evidence spans `{ source, quote }`. Code checks every quote against the data the judge received. A quote that is not in its named source is ungrounded, and under the default decoder (version 3) an ungrounded data span makes the whole answer unparseable, so the verdict is inconclusive. An invented data span cannot produce a pass; the older single-string form follows the separate rule below.
 
 Grounding proves presence only: the quoted text appears in the data. It does not prove that the judge read it correctly, that `met` is right, or that the quote supports the verdict.
 
@@ -25,7 +25,7 @@ Grounding proves presence only: the quoted text appears in the data. It does not
 
 ## Commands and every option
 
-No command option changes the grounding rules. Every command that judges applies them: `judge run`, `judge calibrate`, `replay --judge`, `estate run --judge`, `pnpm bench replay`, and `compare --pairwise-judge` (for the named-winner quote, see `judging-pairwise`). The decoder version is a library request field, `criterionDecoderVersion`, 1 by default (see `judging-default-judge`).
+No command option changes the grounding rules. Every command that judges applies them: `judge run`, `judge calibrate`, `replay --judge`, `estate run --judge`, `pnpm bench replay`, and `compare --pairwise-judge` (for the named-winner quote, see `judging-pairwise`). The decoder version is a library request field, `criterionDecoderVersion`, 3 by default. Specs and criteria files expose `decoder_version: 1` or `2`; unset uses version 3 (see `judging-default-judge`).
 
 ## Inputs
 
@@ -47,7 +47,7 @@ The matching rules (`groundEvidence` and the span checker):
 * One pair of quotes around the whole quote is stripped.
 * The quote must be found on word boundaries: a fragment of a word does not ground.
 * Parts split by `...` must each be found, in order, in one place.
-* A quote of the rubric, a role name alone, a tool name alone, an empty quote, or a quote with no letter or digit is never grounded.
+* A quote of the rubric alone is not data evidence. Decoder 3 drops criterion-only spans; a `met: true` check still needs grounded evidence afterward. An empty quote or a role name alone never grounds. Decoder 3 accepts a tool event's supplied name and symbol-only quotes only in their named source; versions 1 and 2 reject those span forms.
 * One exception: `{}` or `[]` grounds only in a place whose whole text is that same empty container. It is how a check cites an empty file.
 * A quote may start with the entry's rendered role prefix, such as `[agent]`, but then the role must be that entry's real role.
 * Separate quotations go in separate spans. A pipe-joined quotation is never split or guessed.
@@ -58,8 +58,9 @@ Without a span source (the older single string `evidence`), the quote is searche
 
 `groundEvidence(request, answer)` returns `{ grounded, where }`, where `where` is the first place that holds the quote. In a judge result:
 
-* Decoder version 1 (default): an ungrounded span makes the ledger invalid; the reasoning starts `invalid criterion ledger:` and the result is `unparsed`, so inconclusive.
-* Decoder version 2 (opt-in, code only): an ungrounded string quote becomes `evidence: null` with `grounded: false` on its check; the check keeps its `met`; `evidenceUnverified` counts them. An ungrounded span list stays invalid under both versions.
+* Decoder version 1 (historical, selected explicitly): an ungrounded span makes the ledger invalid; the reasoning starts `invalid criterion ledger:` and the result is `unparsed`, so inconclusive.
+* Decoder version 2 (historical, selected explicitly): an ungrounded string quote becomes `evidence: null` with `grounded: false` on its check; the check keeps its `met`; `evidenceUnverified` counts them. An ungrounded span list stays invalid under versions 1 and 2.
+* Decoder version 3 (default): the same single-string rule as version 2, plus source-local symbol quotes, input source aliases such as `input/<path>`, tool-event names and the criterion-only span drop rule. Other ungrounded data spans remain invalid.
 * The public `answer.evidence` is the first grounded quote, as a string.
 
 ## Worked example

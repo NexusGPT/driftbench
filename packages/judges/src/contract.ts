@@ -4,7 +4,7 @@ import type { Assessment, RubricScores } from './assessment';
 import type { ClaudeThinkingRecovery } from './clients/claude-cli';
 import type { ConformanceAudit } from './conformance';
 import type { CriterionCheck, CriterionDecoderVersion, CriterionRequirement } from './criterion-ledger';
-import type { CriterionPromptVersion } from './criterion-prompt-v2';
+import type { CriterionPromptVersion } from './criterion-prompt-version';
 import type { FactLedgerAnswer, PointwiseFactLedgerAnswer } from './fact-audit';
 import type { LedgerParseStep, PairLedger } from './pair-ledger-contract';
 import type { ResponseRelevanceAnswer } from './response-relevance';
@@ -41,6 +41,17 @@ export type Budget = 'normal' | 'large';
 /** The token budgets behind the two budget names, for clients that take a token limit. */
 export const MAX_TOKENS: Readonly<Record<Budget, number>> = { normal: 1024, large: 4096 };
 
+/**
+ * Room a reasoning judge gets on top of its budget, by reasoning level. A reasoning model spends its thinking
+ * from the same output limit as its answer, so without this room the thinking can use up the answer's budget
+ * and the answer is cut. Clients that send a reasoning level add this room to the token limit.
+ */
+export const REASONING_TOKENS: Readonly<Record<'low' | 'medium' | 'high', number>> = {
+  low: 512,
+  medium: 1024,
+  high: 2048,
+};
+
 /** One line of a transcript slice. Tool entries carry the tool name. */
 export const TranscriptEntry = z.strictObject({
   role: z
@@ -67,9 +78,9 @@ export type JudgeRequest = {
   readonly referenceDisagreement?: boolean;
   /** Previous model-facing prompt and parser, for exact replay of existing scores. Default ledger. */
   readonly answerContract?: 'ledger' | 'legacy';
-  /** Default-ledger decoder. Default 1: strict quote rejection. Opt-in 2 nulls an ungrounded string quote. */
+  /** Default-ledger decoder. Default 2 nulls an ungrounded string quote and keeps met. 1 is the strict decoder: it voids the ledger. */
   readonly criterionDecoderVersion?: CriterionDecoderVersion;
-  /** Default-ledger system prompt. Default 1. Opt-in 2 adds exact-identifier, stated-facts and stated-scope rules. */
+  /** Default-ledger system prompt. Default 2. 1 is the earlier prompt, without the exact-identifier, stated-facts and named-record rules. */
   readonly criterionPromptVersion?: CriterionPromptVersion;
   /** Provider output dialect and explicit reasoning setting for pair ledgers. */
   readonly dialect?: string;
@@ -120,6 +131,14 @@ export type ComparisonResult = {
 
 /** What a client returns: the answer, the raw text it came from, and whether that text parsed. */
 export type JudgeResult = {
+  /** Audit of the shipped task router and every provider completion, including routing cost. */
+  readonly defaultJudge?: {
+    readonly version: string;
+    readonly route: string;
+    readonly receipts: readonly import('./clients/transport').DialectCompletion[];
+    /** Terminal no-answer cause. Denied reservations start no provider request and must not be re-asked. */
+    readonly failure?: { readonly kind: 'budget' | 'provider' | 'config'; readonly message: string };
+  };
   readonly thinkingRecovery?: ClaudeThinkingRecovery;
   readonly retryReceipts?: readonly import('./clients/claude-errors').ClaudeRetryReceipt[];
   /** Every Claude CLI process started for this answer, recovery and retries included. */
@@ -152,6 +171,8 @@ export type JudgeResult = {
   readonly checks?: readonly CriterionCheck[];
   /** Number of ungrounded evidence strings nulled without changing their met values. */
   readonly evidenceUnverified?: number;
+  /** Decoder 3 spans dropped because they quote only the criterion, not the supplied data. */
+  readonly criterionQuotesDropped?: number;
   /** Model-invented criterion ids or rubric names, ignored in scoring and retained for diagnostics. */
   readonly ignoredRequirementIds?: readonly string[];
   readonly referenceAgreement?: {
