@@ -19,15 +19,18 @@ given:
     estate:
       runtime: claude-code
       map_hash: be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10
+stages:
+  - plan
+  - do
+  - verify
+  - report
+  - note
 blocks:
   - id: ask
     when:
       user: "[no approved phrase: trigger situation for reference.standing.read-claude-steps-json]"
     expect:
-      references:
-        - path: "**/.claude/steps.json"
-          count:
-            min: 1
+      stage: report
       workspace:
         deleted: []
       criteria:

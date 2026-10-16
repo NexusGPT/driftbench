@@ -43,8 +43,8 @@
   "summary": {
     "specs": 1568,
     "blocks": 1563,
-    "complete": 1360,
-    "incomplete": 208,
+    "complete": 1361,
+    "incomplete": 207,
     "judged": 348
   },
   "unit": {
@@ -62,7 +62,7 @@
   "sources": {
     "asks": {
       "bank": 433,
-      "code": 919,
+      "code": 920,
       "session": 0,
       "none": 8
     },
@@ -72,7 +72,7 @@
       "no-change:guard": 27,
       "no-change:negative": 58,
       "no-change:read-only": 17,
-      "no-delete": 267,
+      "no-delete": 268,
       "static": 8
     },
     "judged": 201
@@ -190,8 +190,8 @@
     "tool_boundary": {
       "rows": 9,
       "specs": 9,
-      "complete": 8,
-      "incomplete": 1
+      "complete": 9,
+      "incomplete": 0
     },
     "tool_denied": {
       "rows": 3,
@@ -264,8 +264,8 @@
     "live": {
       "rows": 1525,
       "specs": 1525,
-      "complete": 1323,
-      "incomplete": 202
+      "complete": 1324,
+      "incomplete": 201
     }
   },
   "gaps": [
@@ -350,12 +350,6 @@
         "no recorded session of stop-word",
         "no recorded session of this situation"
       ]
-    },
-    {
-      "marker": "needs-registered-check",
-      "specs": 1,
-      "atoms": ["tool.settings.ask-bash-git-commit"],
-      "details": ["permission ask: the trace does not show the prompt"]
     }
   ],
   "replay": [],

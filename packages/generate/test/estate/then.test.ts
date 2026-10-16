@@ -375,13 +375,12 @@ describe('the estate checks the runner registers, and custom predicates compiled
         kind: 'tool',
       },
     );
-    expect(thenOf([ask], 'positive', full).gaps).toEqual([
-      {
-        marker: MARKERS.registered,
-        atom: 'tool.q',
-        detail: 'permission ask: the trace does not show the prompt',
-      },
-    ]);
+    // An ask rule is checked too: a call it covers that ran is undecided, one held for the owner keeps it.
+    const asked = thenOf([ask], 'positive', full);
+    expect(asked.gaps).toEqual([]);
+    expect(asked.custom).toEqual({
+      permission: { rules: [{ effect: 'ask', rule: 'Bash(git commit:*)' }], block: 0 },
+    });
   });
 
   it('compiles the custom predicates it knows into must, must_not, lang, safety and execution', () => {
@@ -580,6 +579,30 @@ describe('ordered pairs between two calls of one tool, and a step allowed at any
     };
     expect(thenOf([stage('jot', [], true)], 'positive', open).gaps.map((entry) => entry.marker)).toEqual([
       MARKERS.stageReach,
+    ]);
+  });
+});
+
+describe('a reference to the step list', () => {
+  it('is followed by following the steps: the flow closes on its closing stage, no Read of the file', () => {
+    const steps = [stage('sow', ['water']), stage('water', [])].map((entry) => ({
+      ...entry,
+      provenance: { quote: '{', file: 'ops/flow.json' },
+    }));
+    const flow: ThenContext = { ...ctx, stages: stageModel(steps) };
+    const ref = atom('reference.standing.flow', [
+      { type: 'tool_called', label: 'Read', input: { file_path: { contains: 'ops/flow.json' } } },
+    ]);
+    const then = thenOf([ref], 'positive', flow);
+    expect(then.gaps).toEqual([]);
+    expect(then.stage).toBe('water');
+    expect(then.references).toEqual([]);
+    // Any other file is still a Read to expect.
+    const other = atom('reference.standing.seeds', [
+      { type: 'tool_called', label: 'Read', input: { file_path: { contains: 'ops/seeds.md' } } },
+    ]);
+    expect(thenOf([other], 'positive', flow).references).toEqual([
+      { path: '**/ops/seeds.md', count: { min: 1 } },
     ]);
   });
 });

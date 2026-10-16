@@ -328,7 +328,7 @@ export function generateEstateSuite(
         };
         const atoms = varied.atomIds.map((id) => ctx.atoms.get(id) as EstateAtom);
         const use = useOf(varied);
-        const situation = use === 'none' ? undefined : findSituation(ctx.bank, use, varied);
+        const situation = use === 'none' ? undefined : findSituation(ctx.bank, use, varied, ctx.atoms);
         const built = build(varied, atoms, ctx, used, situation, undefined, false, variant);
         emit(built, varied, totalsFor(perTestType, row.testType), totalsFor(perMode, row.mode));
       }

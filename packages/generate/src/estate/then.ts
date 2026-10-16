@@ -29,7 +29,7 @@ export { literal };
  * | workspace, artifact | `expect.workspace`, `expect.artifacts` |
  * | text | `expect.must`, `expect.must_not` (the words as literal text), `expect.lang` |
  * | tool_called with any other input, when `some_call` is registered | `rules.custom.some_call` |
- * | custom grounded_values, hazard_recovery, permission (allow, declared, deny) | the registered check |
+ * | custom grounded_values, hazard_recovery, permission (allow, declared, deny, ask) | the registered check |
  * | custom with a name `predicates.ts` compiles | must, must_not, lang, safety, execution |
  * | custom on a register atom | a judged criterion whose rubric is the atom's title, not gating |
  *
@@ -124,6 +124,8 @@ export type StageModel = {
   closing?: string;
   /** The immediate dominator of each stage reached from the start: the stage every path passes last. */
   idom: ReadonlyMap<string, string>;
+  /** The files the step list is read from. Absent in a model built before it was kept. */
+  files?: ReadonlySet<string>;
 };
 
 export type ThenContext = {
@@ -201,6 +203,7 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
     case 'tool_called':
       if (hasInput(evidence.input)) {
         if (loadedRead(evidence.label, evidence.input, ctx)) return;
+        if (stepListRead(then, atom, evidence.label, evidence.input, ctx)) return;
         if (missingRead(then, atom, evidence.label, evidence.input, ctx)) return;
         if (someCall(then, evidence.label, evidence.input, evidence.min ?? 1)) return;
         if (ctx.customChecks.has('some_call')) {
@@ -323,7 +326,10 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       if (evidence.name === 'permission' && ctx.customChecks.has('permission')) {
         const effect = evidence.options?.effect;
         const rule = evidence.options?.rule;
-        if (typeof rule === 'string' && (effect === 'allow' || effect === 'declared' || effect === 'deny')) {
+        if (
+          typeof rule === 'string' &&
+          (effect === 'allow' || effect === 'declared' || effect === 'deny' || effect === 'ask')
+        ) {
           const known = (then.custom.permission?.rules ?? []) as unknown[];
           then.custom.permission = { rules: [...known, { effect, rule }], block: 0 };
           return;
@@ -515,11 +521,17 @@ export function stageModel(atoms: readonly EstateAtom[]): StageModel {
       if (immediate !== undefined) idom.set(stage.id, immediate);
     }
   }
+  const files = new Set(
+    atoms
+      .filter((atom) => atom.kind === 'stage' && typeof atom.provenance?.file === 'string')
+      .map((atom) => atom.provenance?.file as string),
+  );
   return {
     ids,
     anytime,
     ...(closings.length === 1 ? { closing: closings[0] as string } : {}),
     idom,
+    files,
   };
 }
 
@@ -691,6 +703,31 @@ function loadedRead(label: string, input: Record<string, unknown>, ctx: ThenCont
   if (label !== 'Read' || !ctx.loaded) return false;
   const value = textOf(input.file_path ?? input.path ?? input.notebook_path);
   return value !== undefined && ctx.loaded(value.replace(/^\.?\/+/, ''));
+}
+
+/**
+ * A Read of the file the step list is read from: following the steps is what the reference asks, and the
+ * runtime's step feed shows it, so the flow closing on its closing stage is expected, never a Read of the
+ * file. True when it is such a read; with no single closing stage, a gap.
+ */
+function stepListRead(
+  then: ThenParts,
+  atom: EstateAtom,
+  label: string,
+  input: Record<string, unknown>,
+  ctx: ThenContext,
+): boolean {
+  if (label !== 'Read' || !ctx.stages.files || ctx.stages.files.size === 0) return false;
+  const value = textOf(input.file_path ?? input.path ?? input.notebook_path);
+  if (value === undefined) return false;
+  const path = value.replace(/^\.?\/+/, '');
+  const steps = [...ctx.stages.files].some(
+    (file) => file === path || file.endsWith(`/${path}`) || path.endsWith(`/${file}`),
+  );
+  if (!steps) return false;
+  if (ctx.stages.closing !== undefined) then.stage = ctx.stages.closing;
+  else gap(then, MARKERS.stageReach, atom, `${path} is the step list, which has no single closing stage`);
+  return true;
 }
 
 /**

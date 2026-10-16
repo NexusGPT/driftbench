@@ -49,7 +49,7 @@ export function useOf(row: Pick<EstatePlanRow, 'testType' | 'mode'>): SituationU
 export function buildRow(row: EstatePlanRow, ctx: Context, used: Set<string>): Built[] {
   const atoms = row.atomIds.map((id) => ctx.atoms.get(id) as EstateAtom);
   const use = useOf(row);
-  const situation = use === 'none' ? undefined : findSituation(ctx.bank, use, row);
+  const situation = use === 'none' ? undefined : findSituation(ctx.bank, use, row, ctx.atoms);
   // The k positive asks of a route (`route_positive.<route>.<n>`) each take their own phrasing.
   const nth = row.testType === 'route_positive' ? /\.(\d+)$/.exec(row.id)?.[1] : undefined;
   const variant = nth !== undefined && Number(nth) > 1 ? Number(nth) - 1 : undefined;
@@ -193,7 +193,7 @@ export function build(
     { id: 'ask', when: { user: phrase?.text ?? placeholder }, expect: expectOf(then, true) },
   ];
   if (row.testType === 'stop_resume') {
-    const resume = findSituation(ctx.bank, 'resume', row);
+    const resume = findSituation(ctx.bank, 'resume', row, ctx.atoms);
     const order = resume
       ? shuffle(
           rngFor(ctx.seed, `estate:${resume.id}`),
@@ -412,28 +412,62 @@ function stageOrder(then: ThenParts, atom: EstateAtom, stages: StageModel): void
 
 /**
  * The situation of a row: a situation of the right use whose atoms hold the row's first atom and whose
- * pinned cell values agree with the row; among them the one that holds most of the row's atoms, then the
- * first in the bank.
+ * pinned cell values agree with the row; among them the one that holds most of the row's atoms, then the one
+ * nearest the files the first atom names (its atoms read from the deepest folder those files share: a rule
+ * about a skill's reference is asked in that skill's situation), then the first in the bank.
  */
 export function findSituation(
   bank: PhraseBank,
   use: SituationUse,
   row: Pick<EstatePlanRow, 'atomIds' | 'cell'>,
+  atoms?: ReadonlyMap<string, EstateAtom>,
 ): Situation | undefined {
   const head = row.atomIds[0];
+  const homes = head !== undefined && atoms ? foldersNamedBy(atoms.get(head)) : [];
   let best: Situation | undefined;
   let score = -1;
+  let near = -1;
   for (const situation of bank.situations) {
     if (situation.use !== use || head === undefined || !situation.atoms.includes(head)) continue;
     const pins = Object.entries(situation.cell ?? {});
     if (pins.some(([key, value]) => row.cell[key] !== undefined && row.cell[key] !== value)) continue;
     const held = row.atomIds.filter((id) => situation.atoms.includes(id)).length;
-    if (held > score) {
+    const closeness = atoms ? nearness(situation, homes, atoms) : 0;
+    if (held > score || (held === score && closeness > near)) {
       best = situation;
       score = held;
+      near = closeness;
     }
   }
   return best;
+}
+
+/** The folders of the files an atom names in its fields (a gate's reference, a script's path), as segments. */
+function foldersNamedBy(atom: EstateAtom | undefined): string[][] {
+  if (!atom) return [];
+  return Object.values(atom.fields ?? {})
+    .filter((value): value is string => typeof value === 'string' && /^[\w.~-]+(\/[\w.~-]+)+$/.test(value))
+    .map((path) => path.split('/').slice(0, -1));
+}
+
+/** How deep a folder the situation's own atoms share with the folders the head atom names. */
+function nearness(
+  situation: Situation,
+  homes: readonly string[][],
+  atoms: ReadonlyMap<string, EstateAtom>,
+): number {
+  let deepest = 0;
+  for (const id of situation.atoms) {
+    const file = atoms.get(id)?.provenance?.file;
+    if (!file) continue;
+    const folder = file.split('/').slice(0, -1);
+    for (const home of homes) {
+      let shared = 0;
+      while (shared < folder.length && shared < home.length && folder[shared] === home[shared]) shared += 1;
+      deepest = Math.max(deepest, shared);
+    }
+  }
+  return deepest;
 }
 
 /**

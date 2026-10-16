@@ -162,10 +162,12 @@ describe('permission: what a permission rule allows or denies', () => {
     ).toBe('fail');
   });
 
-  it('allow: a call the rule covers runs, and none is refused for permission', async () => {
+  it('allow: every call the rule covers runs, none refused for permission; a rule that allows asks for no call', async () => {
     const rule = { effect: 'allow', rule: 'Bash(python3 *)' };
     expect((await verdicts(permission, ctx('ok', [bash('python3 x.py')]), rule))[0]?.outcome).toBe('pass');
-    expect((await verdicts(permission, ctx('ok', [bash('ls')]), rule))[0]?.outcome).toBe('fail');
+    const none = (await verdicts(permission, ctx('ok', [bash('ls')]), rule))[0];
+    expect(none?.outcome).toBe('pass');
+    expect(none?.evidence).toBe('no call Bash(python3 *) covers in this block, so none was refused');
     expect(
       (
         await verdicts(
@@ -185,12 +187,21 @@ describe('permission: what a permission rule allows or denies', () => {
     ).toBe('pass');
   });
 
-  it('ask: inconclusive, the trace does not show the prompt', async () => {
-    const out = await verdicts(permission, ctx('ok', [bash('git commit -m x')]), {
-      effect: 'ask',
-      rule: 'Bash(git commit:*)',
-    });
+  it('ask: a call that ran is inconclusive, the trace does not show the prompt; one held for the owner passes', async () => {
+    const rule = { effect: 'ask', rule: 'Bash(git commit:*)' };
+    const out = await verdicts(permission, ctx('ok', [bash('git commit -m x')]), rule);
     expect(out[0]?.outcome).toBe('inconclusive');
+    const held = await verdicts(
+      permission,
+      ctx('ok', [bash('git commit -m x', 'This command requires approval: permission needed')]),
+      rule,
+    );
+    expect(held[0]?.outcome).toBe('pass');
+    const none = await verdicts(permission, ctx('ok', [bash('git status')]), rule);
+    expect(none[0]).toMatchObject({
+      outcome: 'pass',
+      evidence: 'no call Bash(git commit:*) covers in this block, so none needed the owner',
+    });
   });
 
   it('reads the list the estate generator writes: { rules: [{ effect, rule }], block }, one verdict per rule', async () => {
@@ -489,12 +500,11 @@ describe('guard_message and guard_finished: what a guard said, and that it answe
       ctx('ok', [], guards([{ name: 'x.sh', verdict: 'allow', exitCode: 0 }])),
       { name: 'x.sh' },
     );
-    expect(allowed[0]).toMatchObject({ outcome: 'inconclusive', gating: false });
+    expect(allowed[0]?.outcome).toBe('inconclusive');
     const bare = await verdicts(guardMessage, ctx('ok', [], guards([{ name: 'x.sh', verdict: 'deny' }])), {
       name: 'x.sh',
     });
-    // A recording without hook output cannot show the message: noted, never what fails the spec.
-    expect(bare[0]).toMatchObject({ outcome: 'inconclusive', gating: false });
+    expect(bare[0]?.outcome).toBe('inconclusive');
   });
 
   it('judges the message of a guard that acts without blocking: a warning on stderr, context on stdout', async () => {
