@@ -104,9 +104,9 @@ Every option of `driftbench validate`, for reference (the topic named in the las
   {
     "version": 2,
     "ladderVersion": { "judges": 2, "map": 2, "stats": 2, "system": 5 },
-    "floors": { "judges": 20, "map": 8, "stats": 7, "system": 9 },
+    "floors": { "judges": 20, "map": 8, "stats": 7, "system": 11 },
     "evidence": {
-      "system": { "level": 9, "seeds": ["1", "2", "3", "20", "hidden"], "hiddenSeed": 88145333,
+      "system": { "level": 11, "seeds": ["1", "2", "3", "hidden"], "hiddenSeed": 470054606,
                   "head": "<the commit the hidden seed came from>", "ladderVersion": 5 }
     },
     "history": {
@@ -115,9 +115,9 @@ Every option of `driftbench validate`, for reference (the topic named in the las
   }
   ```
 
-  (Shortened: the real `seeds` lists run 1 to 20 and every evidence entry carries `seeds`, `hiddenSeed`
-  and `head`.) `history` keeps, per component, the floors of earlier ladder versions, oldest first. A
-  format version 1 file (no `ladderVersion`) is read as ladder version 1 throughout.
+  (Shortened: every evidence entry carries `seeds`, `hiddenSeed` and `head`.) `history` keeps, per
+  component, the floors of earlier ladder versions, oldest first. A format version 1 file (no
+  `ladderVersion`) is read as ladder version 1 throughout.
 * For `--raise`, the evidence file: the `--json` output of one run of the named component (or of an `all`
   run that includes it), of the same ladder version and ladder size, on at least one visible seed and the
   hidden seed of a real commit (not the 7777777 fallback), reaching the level on every seed. Make it with
