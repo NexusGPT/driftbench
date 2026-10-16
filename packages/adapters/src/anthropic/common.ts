@@ -346,7 +346,7 @@ export function observedOf(
   usage: Usage,
   latencyMs: number,
   source: string,
-  extra: Partial<Pick<Observed, 'runtime' | 'raw'>> = {},
+  extra: Partial<Pick<Observed, 'runtime' | 'raw' | 'historyNormalizations'>> = {},
 ): Observed {
   return parseObserved(
     {
