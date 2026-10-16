@@ -584,7 +584,12 @@ A description is read in the third person: the first word is the verb when an ob
 for a verb the built-in list does not hold. A verb that states what a unit holds ("Holds", "Provides"), a
 noun followed by a function word ("Rules for ...") and a description that gives only a condition are no task:
 the ask stays incomplete and names why. A verb joined by "and" shares the form of the first when an object
-follows it; a word that ends the sentence or precedes a preposition stays as written. A read-when line that
+follows it; a word that ends the sentence or precedes a preposition stays as written. A description is cut to the work it names: a parenthetical list of examples, a purpose clause ("so that a
+session can resume it") and a relative clause about the unit itself ("which writes the verdicts") are not asked
+for, and a head left without a verb and its object keeps the whole sentence. A table row or list line is read
+cell by cell: a cell that states a task is the ask (`Publishing the weekly report | file.md` asks to publish the
+weekly report), a cell that names an activity of two words or more rides as the moment, and a bare noun pair
+names a file's content and is neither. A read-when line that
 only lists its file ("`references/fields.md`: field definitions") states no situation; a clause of it apart
 from the file and the read directive rides in the ask as the situation.
 

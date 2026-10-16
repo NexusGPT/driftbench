@@ -167,6 +167,8 @@ export const UNITS: readonly Unit[] = [
   },
 ];
 
+const MOMENTS = ['Preparing', 'Checking', 'Closing out'] as const;
+
 /** Helper agents of the estate. Each is a single file that cites shared documents. */
 export const HELPERS = [
   {
@@ -207,10 +209,15 @@ export function realShapeEstate(options: { skills?: number; gates?: number } = {
   const routes: string[] = [];
   for (const [index, unit] of UNITS.slice(0, count).entries()) {
     const home = `.claude/skills/${unit.name}`;
+    // Every third description carries what a real one does: examples in brackets and a purpose clause.
+    const description =
+      index % 3 === 0
+        ? `${unit.description.replace(/\.$/, '')} (see the desk wiki for examples) so that the next shift starts clean.`
+        : unit.description;
     const lines = [
       '---',
       `name: ${unit.name}`,
-      `description: ${unit.description}`,
+      `description: ${description}`,
       '---',
       `# ${unit.name}\n`,
       '## Gates\n',
@@ -228,7 +235,7 @@ export function realShapeEstate(options: { skills?: number; gates?: number } = {
     // References listed with no task in their words: a table row and bullets with a label only.
     lines.push('| Topic | File |', '|---|---|');
     for (let ref = 0; ref < 3; ref++) {
-      lines.push(`| ${unit.name} table ${ref + 1} | \`references/table-${ref}.md\` |`);
+      lines.push(`| ${MOMENTS[ref]} ${unit.object} | \`references/table-${ref}.md\` |`);
       files[`${home}/references/table-${ref}.md`] = `# Table ${ref}\nReference values for ${unit.name}.\n`;
     }
     lines.push(

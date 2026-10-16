@@ -184,3 +184,14 @@ watch) and one route whose request reads "help with building dock rosters". The 
 versions are a verb left in the third person ("compare two tariff tables and reports changed rates").
 
 The synthetic sample shows the mechanics. It does not claim the private estate's distribution.
+
+## Route and read-before asks as the work a user would say
+
+`real-shape-estate.ts` gives every third description what real ones carry (a bracketed pointer to examples and a
+purpose clause) and gives each table reference a moment cell ("Preparing ...", "Checking ...", "Closing out ...").
+Measured with the same audit entry point on the head before this change (`551bb0888`) and after, same input:
+complete 5,670 of 5,680 in both; distinct first asks 883 to 923 (15.6 to 16.3 per 100 complete asked tests).
+The 186 changed asks are of two kinds. A description is asked as its work ("Please reconcile carrier invoices
+against delivery receipts before a payment run.", not the same sentence with the pointer and the purpose clause
+attached). A table reference is asked as the moment its row states ("Please check carrier invoice lines.") where
+before all references of a skill shared the skill's one sentence.

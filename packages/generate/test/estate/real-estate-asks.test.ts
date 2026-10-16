@@ -48,6 +48,45 @@ describe('the unit that owns an atom supplies the task when the atom has none', 
     }
   });
 
+  it('asks for the work a description names, not its examples, its purpose or its own behaviour', () => {
+    const cases: Array<[string, string]> = [
+      [
+        'Reconciles carrier invoices (paper, EDI, portal exports) against delivery receipts so that a payment run starts clean.',
+        'Please reconcile carrier invoices against delivery receipts.',
+      ],
+      [
+        'Plans courier pickups for the docks, which writes a verdict file per run.',
+        'Please plan courier pickups for the docks.',
+      ],
+      [
+        'Files damage claims with carriers (see the claims folder).',
+        'Please file damage claims with carriers.',
+      ],
+      // A head that would be left without a verb and its object keeps the whole sentence.
+      ['Audits it so that nothing leaks.', 'Please audit it so that nothing leaks.'],
+    ];
+    for (const [description, ask] of cases) {
+      expect(codeAsk('trigger', [unit('x', description)], []).text, description).toBe(ask);
+    }
+  });
+
+  it('takes the moment of a read-when table row from its own cell, and the task from a cell that states one', () => {
+    const owner = unit('apps', 'Builds and deploys hosted apps for the office.');
+    const row = (readWhen: string) => atom('reference.apps.x', { fields: { readWhen } });
+    // A cell that is a task is the ask itself.
+    expect(codeAsk('trigger', [row('Publishing the weekly report | `refs/db.md`'), owner], []).text).toBe(
+      'Please publish the weekly report.',
+    );
+    // An activity of two words rides as the moment; the unit's work stays the task.
+    expect(codeAsk('trigger', [row('Designing screens | `refs/ux.md`'), owner], []).text).toBe(
+      'Please build and deploy hosted apps for the office. Designing screens.',
+    );
+    // A noun pair names the content of a file, not a moment.
+    expect(codeAsk('trigger', [row('`refs/ux.md` | layout rules'), owner], []).text).toBe(
+      'Please build and deploy hosted apps for the office.',
+    );
+  });
+
   it('reads the route request of a unit in the third person as well', () => {
     const route = atom('route.x.ledger', {
       situation: 'Checks a ledger extract for duplicate payments and returns findings.',

@@ -219,15 +219,16 @@ describe('the quality floor of a code-written ask', () => {
     expect(askable('handle this for me: every task follows the steps in .claude/steps.json')).toMatch(
       /names the file/,
     );
-    // A list in a description is kept whole, never cut at ", or" into "so a session, compaction".
+    // A list inside the work is kept whole, never cut at ", or"; the purpose clause after it is no part of the ask.
     const keeper = atom('skill.x.keeper', {
       fields: {
         name: 'keeper',
-        description: 'Keep the delivery board current so a session, compaction, or restart can resume it.',
+        description:
+          'Keep the delivery board, the van list, or the stop notes current so a session can resume it.',
       },
     });
     expect(codeAsk('trigger', [keeper], []).text).toBe(
-      'Please keep the delivery board current so a session, compaction, or restart can resume it.',
+      'Please keep the delivery board, the van list, or the stop notes current.',
     );
     // A read-when line names its file, so only a clause apart from the file rides in the ask as its situation.
     const skill = atom('skill.x.tracker', {

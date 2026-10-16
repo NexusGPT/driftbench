@@ -265,7 +265,12 @@ export function actOf(
     if (task) return { act: task, source: `${head.id} (situation)` };
   }
   if (head?.kind === 'reference' && typeof head.fields?.readWhen === 'string') {
-    const task = guardedTask(head.fields.readWhen);
+    // A table row or a list line holds the moment and the file in separate cells: each cell is read alone.
+    let task: string | undefined;
+    for (const cell of head.fields.readWhen.split(/\s*\|\s*/)) {
+      task = guardedTask(cell);
+      if (task) break;
+    }
     if (task) return { act: task, source: `${head.id} (readWhen)` };
   }
   // A route's own situation is narrower than an attached unit's catch-all description.
@@ -295,7 +300,7 @@ export function actOf(
   let described: string | undefined;
   for (const atom of atoms) {
     if (atom.kind === 'route' && atom.situation) {
-      const sentence = firstSentence(atom.situation);
+      const sentence = workOf(firstSentence(atom.situation));
       if (verbLed(sentence, true)) return withContext(taskOf(sentence, true), `${atom.id} (situation)`);
       described ??= `${atom.id} (situation)`;
     }
@@ -303,7 +308,7 @@ export function actOf(
   for (const atom of atoms) {
     const description = typeof atom.fields?.description === 'string' ? atom.fields.description : undefined;
     if ((atom.kind === 'skill' || atom.kind === 'subagent') && description) {
-      const sentence = firstSentence(description);
+      const sentence = workOf(firstSentence(description));
       if (verbLed(sentence, true)) return withContext(taskOf(sentence, true), `${atom.id} (description)`);
       described ??= `${atom.id} (description)`;
     }
@@ -628,7 +633,11 @@ function contextOf(atom: EstateAtom): string | undefined {
 function referenceSituation(readWhen: string): string | undefined {
   for (const clause of plain(readWhen).split(/\s*(?:\||;|:|\u2014|\u2013|\s-\s|\.\s)\s*/)) {
     const text = plain(clause);
-    if (letterWords(text) < 3 || /^(?:read|see|open|load|consult)\b/i.test(text)) continue;
+    if (/^(?:read|see|open|load|consult)\b/i.test(text)) continue;
+    // A moment of two words is enough when it names an activity ("Designing hosted screens"): a bare noun
+    // pair ("field definitions") names a file's content, not a moment.
+    const moment = letterWords(text) >= 2 && /^[A-Za-z]+ing\b/.test(text);
+    if (letterWords(text) < 3 && !moment) continue;
     if (situationProblem(text) === undefined) return text;
   }
   return undefined;
@@ -681,6 +690,23 @@ function firstSentence(text: string): string {
   );
   const clause = second?.index !== undefined ? sentence.slice(0, second.index) : sentence;
   return letterWords(clause) >= 3 ? clause : sentence;
+}
+
+/**
+ * The work a description names, as a user would put the request. A description carries more than the work:
+ * a parenthetical list of examples, a purpose clause ("so that a session can resume it"), a relative clause
+ * about the unit itself ("which writes the verdicts"). None of them is asked for, and a user says none of
+ * them. They are cut when the head keeps a verb and its object (three words of letters); a sentence whose head
+ * would be shorter is kept whole.
+ */
+export function workOf(sentence: string): string {
+  const open = sentence.replace(/\s*\([^()]*\)/g, '');
+  const head =
+    open.split(
+      /,?\s+(?:so that|so|in order to|to ensure|to keep|which|that lets|that allows|allowing|enabling|for use by)\s/i,
+    )[0] ?? open;
+  const cut = letterWords(head) >= 3 ? head : open;
+  return letterWords(cut) >= 3 ? cut : sentence;
 }
 
 /**
