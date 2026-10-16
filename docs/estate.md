@@ -1072,7 +1072,7 @@ Explicit task payloads retain their declared keys and empty values; the runtime 
 
 A helper executor is an explicitly configured local runtime. The runner never selects one from a helper's description or infers execution from a nonempty prompt. Its command runs inside the copied estate, with the unit sandbox, isolated home, process-group cleanup and timeout. The configuration names the executable and each argument separately; shell syntax requires an explicit shell command. Local stand-ins must perform the task on its inputs, rather than print a success verdict.
 
-```yaml
+```text
 helpers:
   labeler:
     command: [python3, .claude/execute-labels.py]
