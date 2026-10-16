@@ -19,6 +19,9 @@ const SEED = 1;
 
 const behavioursAt = (factor: number) => scaledSpec(SEED, factor).behaviours.length;
 const charged = (shape: string, factor: number) => Math.round(costOf(shape, behavioursAt(factor)));
+// Every map load costs this many milliseconds of fake CPU per behaviour, and is the product's.
+const LOAD_PER_BEHAVIOUR = 700;
+const loading = (factor: number) => LOAD_PER_BEHAVIOUR * behavioursAt(factor);
 
 async function withEnv<T>(env: Record<string, string>, run: () => Promise<T>): Promise<T> {
   const before = Object.fromEntries(Object.keys(env).map((key) => [key, process.env[key]]));
@@ -34,8 +37,9 @@ async function withEnv<T>(env: Record<string, string>, run: () => Promise<T>): P
 }
 
 function grown(shape: string): Promise<ScaleGrowth> {
-  return withEnv({ METERED_SHAPE: shape }, () =>
-    scaleGrowth(SEED, { factors: FACTORS, rounds: 3, generator: METERED }),
+  return withEnv(
+    { METERED_SHAPE: shape, METERED_HARNESS_MS: '10000000', METERED_LOAD_MS: `${LOAD_PER_BEHAVIOUR}` },
+    () => scaleGrowth(SEED, { factors: FACTORS, rounds: 3, generator: METERED }),
   );
 }
 
@@ -62,8 +66,11 @@ describe('the growth of the cost between two sizes, in one process', () => {
     const report = await grown('linear');
     expect(report.error).toBeUndefined();
     expect([report.low, report.high, report.rounds]).toEqual([2, 20, 3]);
-    expect(report.lowMs).toEqual([charged('linear', 2), charged('linear', 2), charged('linear', 2)]);
-    expect(report.highMs).toEqual([charged('linear', 20), charged('linear', 20), charged('linear', 20)]);
+    // One map load and one generation per timed size; the harness's cleanup (10,000,000 ms each) is out.
+    const low = charged('linear', 2) + loading(2);
+    const high = charged('linear', 20) + loading(20);
+    expect(report.lowMs).toEqual([low, low, low]);
+    expect(report.highMs).toEqual([high, high, high]);
     // Ten times the behaviours cost ten times the time: the growth is 1.
     for (const ratio of report.ratios) expect(ratio).toBeCloseTo(1, 6);
     expect(report.ratio).toBe(Math.min(...report.ratios));
@@ -74,26 +81,34 @@ describe('the growth of the cost between two sizes, in one process', () => {
     const noisy = await grown('noisy');
     expect(noisy.error).toBeUndefined();
     // Round 1 pays three times at the low size, round 3 three times at the high size, round 2 nothing.
-    expect(noisy.ratios[0]).toBeCloseTo(1 / 3, 6);
-    expect(noisy.ratios[1]).toBeCloseTo(1, 6);
-    expect(noisy.ratios[2]).toBeCloseTo(3, 6);
-    expect(noisy.ratio).toBeCloseTo(1 / 3, 6);
-    expect(Math.max(...noisy.ratios)).toBeGreaterThan(SCALE_GROWTH_BOUND);
+    const growth = (low: number, high: number) => high / low / (behavioursAt(20) / behavioursAt(2));
+    const low = charged('linear', 2);
+    const high = charged('linear', 20);
+    const quiet = growth(low + loading(2), high + loading(20));
+    expect(noisy.ratios[0]).toBeCloseTo(growth(3 * low + loading(2), high + loading(20)), 6);
+    expect(noisy.ratios[1]).toBeCloseTo(quiet, 6);
+    expect(noisy.ratios[2]).toBeCloseTo(growth(low + loading(2), 3 * high + loading(20)), 6);
+    expect(noisy.ratio).toBeCloseTo(noisy.ratios[0] as number, 6);
+    expect(noisy.ratios[0]).toBeLessThan(quiet);
+    expect(noisy.ratios[2]).toBeGreaterThan(SCALE_GROWTH_BOUND);
   }, 180_000);
 
   it('leaves a product that is twice as slow at every size to the absolute caps: its shape is linear', async () => {
     const slow = await grown('slow');
     expect(slow.error).toBeUndefined();
-    expect(slow.lowMs[0]).toBe(2 * charged('linear', 2));
-    expect(slow.highMs[0]).toBe(2 * charged('linear', 20));
+    expect(slow.lowMs[0]).toBe(2 * charged('linear', 2) + loading(2));
+    expect(slow.highMs[0]).toBe(2 * charged('linear', 20) + loading(20));
     expect(slow.ratio).toBeCloseTo(1, 6);
   }, 180_000);
 
   it('refuses a quadratic product: the cost per behaviour grows with the behaviours', async () => {
     const quadratic = await grown('quadratic');
     expect(quadratic.error).toBeUndefined();
-    // 20 over 2 is ten times the behaviours; a quadratic cost is a hundred times the time, ten times the cost per behaviour.
-    expect(quadratic.ratio).toBeCloseTo(10, 6);
+    // 20 over 2 is ten times the behaviours; a quadratic cost is a hundred times the time, ten times the cost
+    // per behaviour, less the share of the map load, which is linear.
+    const low = charged('quadratic', 2) + loading(2);
+    const high = charged('quadratic', 20) + loading(20);
+    expect(quadratic.ratio).toBeCloseTo(high / low / (behavioursAt(20) / behavioursAt(2)), 6);
     expect(quadratic.ratio).toBeGreaterThan(SCALE_GROWTH_BOUND);
   }, 180_000);
 
@@ -151,11 +166,17 @@ describe('the scale items', () => {
 });
 
 describe('the scale time window holds the product only', () => {
-  // One real generation of seed 1 at the base size, on the fake meter. The harness (the child's cleanup) is
+  // Two real generations of seed 1 at the base size, on the fake meter. The harness (the child's cleanup) is
   // charged a hundred times the product's CPU, far above any cap: it is not the product's.
   const run = (shape: string, budget: number): Promise<ScaleReport> =>
-    withEnv({ METERED_SHAPE: shape, METERED_REAL: '1', METERED_HARNESS_MS: '10000000' }, () =>
-      scaleReport(1, SEED, budget, { generator: METERED }),
+    withEnv(
+      {
+        METERED_SHAPE: shape,
+        METERED_REAL: '1',
+        METERED_HARNESS_MS: '10000000',
+        METERED_LOAD_MS: `${LOAD_PER_BEHAVIOUR}`,
+      },
+      () => scaleReport(1, SEED, budget, { generator: METERED }),
     );
 
   it('charges the map loads and the generations, never the harness, and passes its caps', async () => {
@@ -163,8 +184,8 @@ describe('the scale time window holds the product only', () => {
     const report = await run('linear', 5 * cost);
     expect(report.error).toBeUndefined();
     expect(report).toMatchObject({ invalid: 0, bytesSame: true, graphOk: true });
-    // Two generations, nothing else: the cleanup is out.
-    expect(report.ms).toBe(2 * cost);
+    // Three map loads and two generations, nothing else: the cleanup is out.
+    expect(report.ms).toBe(2 * cost + 3 * loading(1));
     const verdict = await item('scale.100x.time').check(dataWith(report));
     expect(verdict.pass, verdict.detail).toBe(true);
   }, 240_000);
@@ -173,7 +194,7 @@ describe('the scale time window holds the product only', () => {
     const cost = charged('linear', 1);
     const report = await run('slow', 5 * cost);
     expect(report.error).toBeUndefined();
-    expect(report.ms).toBe(2 * 2 * cost);
+    expect(report.ms).toBe(2 * 2 * cost + 3 * loading(1));
     const verdict = await item('scale.100x.time').check(dataWith(report));
     expect(verdict.pass).toBe(false);
     expect(verdict.detail).toContain(`${report.ms} ms`);

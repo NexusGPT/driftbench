@@ -2,6 +2,7 @@ import { rmSync } from 'node:fs';
 import { createRequire, syncBuiltinESMExports } from 'node:module';
 import type { PreparedMap } from '@agent-nexus/driftbench-generate';
 import * as generator from '@agent-nexus/driftbench-generate';
+import { loadApprovedMap as realLoadApprovedMap } from '@agent-nexus/driftbench-generate';
 import { costOf } from './metered-cost';
 
 /**
@@ -13,6 +14,7 @@ import { costOf } from './metered-cost';
  * - METERED_SHAPE: the cost of one generation as a function of the behaviours the map holds (metered-cost.ts).
  * - METERED_REAL=1: the product also does its real work, so the child can read its report and suites.
  * - METERED_HARNESS_MS: the fake CPU the harness's own cleanup (`rm` of the child's folder) costs.
+ * - METERED_LOAD_MS: the fake CPU every map load costs per behaviour of the map; the load is the product's.
  */
 
 let user = 100_000;
@@ -41,6 +43,16 @@ if (harness > 0) {
   syncBuiltinESMExports();
 }
 
+export const loadApprovedMap: typeof realLoadApprovedMap = async (path) => {
+  const loaded = await realLoadApprovedMap(path);
+  if (loaded.ok) advance(Number(process.env.METERED_LOAD_MS ?? 0) * behavioursOf(loaded.prepared));
+  return loaded;
+};
+
+function behavioursOf(prepared: PreparedMap): number {
+  return prepared.axisMap.dimensions.find((dimension) => dimension.kind === 'behaviour')?.values.length ?? 0;
+}
+
 // The generations of this child so far, from 0: the untimed warm-up, then a low and a high size per round.
 let calls = 0;
 const DISTURBED = [1, 6];
@@ -49,8 +61,7 @@ export function generateSuiteToDisk(
   prepared: PreparedMap,
   options: { seed: number; mapPath: string; outputDir: string },
 ): { reportPath: string } {
-  const behaviours =
-    prepared.axisMap.dimensions.find((dimension) => dimension.kind === 'behaviour')?.values.length ?? 0;
+  const behaviours = behavioursOf(prepared);
   // `noisy` is the linear product on a machine that disturbs single generations: the generations numbered
   // 1 (the low size of round 1) and 6 (the high size of round 3) cost three times as much; the rest cost 1.
   const shape = process.env.METERED_SHAPE ?? 'linear';
