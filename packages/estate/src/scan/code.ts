@@ -908,6 +908,9 @@ function tableColumnRole(values: string[], forward: boolean): TableColumnRole {
   if (!values.length) return 'attribute';
   if (values.every(unresolvedTableCell)) return 'unresolved';
   if (values.some(tableAttribute)) return 'attribute';
+  // Main's leading situation role includes nominal and non-English topics. Establish
+  // that positional role once for the column; do not parse each row as an English command.
+  if (forward) return values.some(unresolvedTableCell) ? 'description' : 'request';
   const parsed = values.map((value) => {
     const text = value.replace(/[`*]/g, '').trim();
     const terms = nlp(text.toLowerCase()).termList();
@@ -959,7 +962,6 @@ function tableColumnRole(values: string[], forward: boolean): TableColumnRole {
   const counts = new Map<string, number>();
   for (const row of parsed) counts.set(row.text.toLowerCase(), (counts.get(row.text.toLowerCase()) ?? 0) + 1);
   if (
-    !forward &&
     parsed.length > 1 &&
     parsed.every(
       ({ text, terms }) =>
@@ -972,9 +974,6 @@ function tableColumnRole(values: string[], forward: boolean): TableColumnRole {
   )
     return 'attribute';
   if (parsed.every((row) => row.request)) return 'request';
-  // Preserve main's leading situation column, including nominal topics and non-English
-  // requests. Compatibility applies to the whole column, never a reversed inventory.
-  if (forward && parsed.every((row) => !unresolvedTableCell(row.text))) return 'request';
   return 'description';
 }
 
