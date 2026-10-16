@@ -82,6 +82,57 @@ describe('gen.asks.asks-approved', { timeout: 300_000 }, () => {
     }
   });
 
+  /** A complete spec whose ask the generator wrote from the atoms because the bank is short: a true disclosure. */
+  async function donorOf(seed: number) {
+    const run = await pipeline.estateRun(seed);
+    const donor = run.specs.find(
+      (spec) =>
+        spec.record.complete &&
+        (spec.loaded?.spec.metadata?.estate as { ask?: string } | undefined)?.ask === 'code',
+    );
+    if (!donor) throw new Error('no complete spec with a code-written ask');
+    return { run, row: donor.record.row };
+  }
+
+  it('fails a forged code-written ask that claims the plan row of a true disclosure', async () => {
+    for (const seed of [1, 2]) {
+      const { run, row } = await donorOf(seed);
+      expect(await verdict(seed, run), `control, seed ${seed}`).toEqual({ pass: true, detail: 'holds' });
+      const specs = structuredClone(run.specs);
+      const target = specs.find(
+        (spec) =>
+          spec.record.complete &&
+          spec.record.testType === 'route_positive' &&
+          (spec.loaded?.spec.metadata?.estate as { ask?: string } | undefined)?.ask === 'bank',
+      );
+      if (!target?.loaded) throw new Error('no route_positive spec asked with a bank phrase');
+      forge({})(target.loaded.spec as unknown as Loaded);
+      // The generator reports another row than the one the spec says it is.
+      target.record.row = row;
+      expect((await verdict(seed, { ...run, specs }))?.pass, `row of a donor, seed ${seed}`).toBe(false);
+    }
+  });
+
+  it('fails an extra cloned spec that carries an invented ask and the row of a true disclosure', async () => {
+    for (const seed of [1, 2]) {
+      const { run, row } = await donorOf(seed);
+      const specs = structuredClone(run.specs);
+      const source = specs.find(
+        (spec) =>
+          spec.record.complete &&
+          spec.record.testType === 'route_positive' &&
+          (spec.loaded?.spec.metadata?.estate as { ask?: string } | undefined)?.ask === 'bank',
+      );
+      if (!source?.loaded) throw new Error('no route_positive spec asked with a bank phrase');
+      const clone = structuredClone(source);
+      clone.record = { ...clone.record, id: `${clone.record.id}.clone`, row };
+      forge({})(clone.loaded?.spec as unknown as Loaded);
+      expect((await verdict(seed, { ...run, specs: [...specs, clone] }))?.pass, `clone, seed ${seed}`).toBe(
+        false,
+      );
+    }
+  });
+
   it('accepts a disclosed code-written ask for a live guard test only where the bank holds no approved forced phrase', async () => {
     const run = await pipeline.estateRun(1);
     const guarded = run.specs.filter(

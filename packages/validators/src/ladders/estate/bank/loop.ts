@@ -638,6 +638,18 @@ const ASKS: AskCheck[] = [
           return false;
         const row = rows.get(v.spec.record.row) ?? rows.get(v.spec.record.row.replace(/\.\d+$/, ''));
         if (!row) return false;
+        // The row the generator reports is bookkeeping it writes itself: the spec must say the same about itself
+        // (its plan row, its atoms, its test type and the test tag), else the allowance does not apply.
+        const own = estateMeta(v.spec) as { planRow?: unknown; atoms?: unknown; testType?: unknown };
+        const atoms = Array.isArray(own.atoms) ? (own.atoms as unknown[]) : [];
+        if (
+          own.planRow !== row.id ||
+          own.testType !== row.testType ||
+          atoms.length !== row.atomIds.length ||
+          !row.atomIds.every((id) => atoms.includes(id)) ||
+          !(Array.isArray(spec?.tags) && spec.tags.includes(`test:${row.testType}`))
+        )
+          return false;
         return bankIsShort(run, row);
       };
       const bad = all.filter(
