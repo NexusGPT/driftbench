@@ -117,8 +117,9 @@ export function codeAsk(
   twin = false,
   lookup?: (id: string) => EstateAtom | undefined,
   variant?: number,
+  ownerOf?: (atom: EstateAtom) => EstateAtom | undefined,
 ): CodeAsk {
-  const found = actOf(atoms, lookup);
+  const found = actOf(atoms, lookup, ownerOf);
   // A separator ends the task: "review the registry · weekly" asks to review the registry.
   const act = clauseOf(found.act);
   const source = found.source;
@@ -205,6 +206,7 @@ export function codeAsk(
 export function actOf(
   atoms: readonly EstateAtom[],
   lookup: (id: string) => EstateAtom | undefined = () => undefined,
+  ownerOf: (atom: EstateAtom) => EstateAtom | undefined = () => undefined,
 ): { act: string; context?: string; source: string; describes?: boolean } {
   const head = atoms[0];
   const context = head ? contextOf(head) : undefined;
@@ -246,7 +248,21 @@ export function actOf(
   // EUR" names no task, so it rides only with a task another atom gives. A guard's title is its event and
   // its name ("Stop guard R34-DUE"), never an act.
   const title = head?.kind === 'guard' ? '' : plain(head?.title ?? '');
-  const task = title.includes(': ') ? title.slice(title.indexOf(': ') + 2) : title;
+  const whole = title.includes(': ') ? title.slice(title.indexOf(': ') + 2) : title;
+  // A title that ends on the condition it applies in ("Ask for the tracking number when none is given")
+  // restates the rule, which is what the agent does, never what a user asks for. The unit that carries the
+  // rule gives the ask that reaches it; without one, the clause before the condition is the act.
+  const conditional = CONDITION_TAIL.exec(whole);
+  if (head && conditional?.[1] && verbLed(whole)) {
+    const owner = ownerOf(head);
+    const description = typeof owner?.fields?.description === 'string' ? owner.fields.description : undefined;
+    for (const text of [owner?.situation, description]) {
+      const asked = text === undefined ? undefined : askedTo(text);
+      if (asked) return withContext(asked, `${owner?.id} (asks it names)`);
+    }
+  }
+  const headClause = conditional?.[1]?.replace(/\s+only$/i, '');
+  const task = headClause && verbLed(headClause) ? headClause : whole;
   // A rule that forbids an act ("Never paste a credential"): the ask is the act it forbids.
   const forbidden = /^(?:never|do not|don't|no one may|you must not)\s+(.+)$/i.exec(task)?.[1];
   if (forbidden && verbLed(forbidden))
@@ -257,6 +273,25 @@ export function actOf(
     source: described ?? `${head?.id ?? 'row'} (title)`,
     ...(described ? { describes: true } : {}),
   };
+}
+
+/** The trailing condition of a rule title: "... when none is given", "... unless the user asks". */
+const CONDITION_TAIL = /^(.*?\S)\s+(?:when|whenever|if|unless|once|until|as soon as)\s+\S.*$/i;
+
+/**
+ * The skill or helper a rule is read from: a helper file holds its own rules, a skill folder holds the rules of
+ * its files. Undefined for a rule of the standing instructions or of a settings file.
+ */
+export function owningUnit(atoms: Iterable<EstateAtom>, rule: EstateAtom): EstateAtom | undefined {
+  const file = rule.provenance?.file;
+  if (file === undefined) return undefined;
+  for (const unit of atoms) {
+    const home = unit.provenance?.file;
+    if ((unit.kind !== 'skill' && unit.kind !== 'subagent') || home === undefined) continue;
+    const folder = unit.kind === 'skill' ? home.slice(0, Math.max(0, home.lastIndexOf('/') + 1)) : undefined;
+    if (home === file || (folder !== undefined && folder !== '' && file.startsWith(folder))) return unit;
+  }
+  return undefined;
 }
 
 /** The act a tool rule covers: "Bash(git status)" gives "run git status here", "Read" a call of Read. */

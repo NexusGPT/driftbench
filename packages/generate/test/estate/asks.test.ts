@@ -7,6 +7,7 @@ import {
   codeAsk,
   imperative,
   OUTSIDE_ASK,
+  owningUnit,
   plain,
   situationProblem,
 } from '../../src/estate/asks';
@@ -114,6 +115,65 @@ describe('asks written by code from the atoms', () => {
     );
     expect(plain('- **R5.** Before editing: Read `a/b.md`.')).toBe('Before editing: Read a/b.md');
     expect(plain('1. Read references/rules.md first.')).toBe('Read references/rules.md first');
+  });
+});
+
+describe('a rule that ends on its own condition is no ask', () => {
+  const harbour = atom('skill.harbour.skill', {
+    kind: 'skill',
+    fields: {
+      name: 'harbour',
+      description: 'Plans berths. Use when the user asks about a berth or a mooring.',
+    },
+    provenance: { quote: 'name: harbour', file: '.claude/skills/harbour/SKILL.md' },
+  });
+  const rule = (extra: Partial<EstateAtom> = {}) =>
+    atom('instruction.harbour.ask-for-the-vessel-name', {
+      title: 'Ask for the vessel name when none is given',
+      situation: 'The user gives no vessel name',
+      provenance: {
+        quote: 'Ask for the vessel name when none is given.',
+        file: '.claude/skills/harbour/SKILL.md',
+      },
+      ...extra,
+    });
+  const owner = (atoms: EstateAtom[]) => (found: EstateAtom) => owningUnit(atoms, found);
+
+  it('asks what the unit that carries the rule is for, and sets the rule off with its situation', () => {
+    const out = codeAsk('trigger', [rule()], [], false, undefined, undefined, owner([harbour]));
+    expect(out.text).toBe('Please help me with a berth or a mooring. The user gives no vessel name.');
+    expect(out.source).toBe('skill.harbour.skill (asks it names)');
+  });
+
+  it('cuts the condition from the act when no unit carries the rule', () => {
+    const standing = rule({ provenance: { quote: 'x', file: 'CLAUDE.md' } });
+    const out = codeAsk('trigger', [standing], [], false, undefined, undefined, owner([harbour]));
+    expect(out.text).toBe('Please ask for the vessel name.');
+    const only = atom('instruction.standing.report', {
+      title: 'Report a tide height only when you read it in a gauge',
+    });
+    expect(codeAsk('trigger', [only], []).text).toBe('Please report a tide height.');
+  });
+
+  it('leaves a title with no condition alone, and a helper owns only its own file', () => {
+    const plain = atom('instruction.harbour.log', { title: 'Log every mooring change in the harbour book' });
+    expect(codeAsk('trigger', [plain], [], false, undefined, undefined, owner([harbour])).text).toBe(
+      'Please log every mooring change in the harbour book.',
+    );
+    const helper = atom('subagent.scout.helper', {
+      kind: 'subagent',
+      fields: { name: 'scout', description: 'Scouts channels.' },
+      provenance: { quote: 'name: scout', file: '.claude/agents/scout.md' },
+    });
+    const inSkill = rule();
+    expect(owningUnit([helper, harbour], inSkill)?.id).toBe('skill.harbour.skill');
+    expect(owningUnit([helper], inSkill)).toBeUndefined();
+    expect(
+      owningUnit(
+        [helper],
+        atom('instruction.scout.r', { provenance: { quote: 'r', file: '.claude/agents/scout.md' } }),
+      )?.id,
+    ).toBe('subagent.scout.helper');
   });
 });
 

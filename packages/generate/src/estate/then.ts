@@ -1,11 +1,12 @@
-import type {
-  ArtifactExpect,
-  CriterionDef,
-  GuardExpect,
-  ReferenceExpect,
-  SkillExpect,
-  SubagentExpect,
-  ToolExpect,
+import {
+  type ArtifactExpect,
+  type CriterionDef,
+  GUARD_INTERVENTIONS,
+  type GuardExpect,
+  type ReferenceExpect,
+  type SkillExpect,
+  type SubagentExpect,
+  type ToolExpect,
 } from '@agent-nexus/driftbench-core';
 import { type EstateAtom, type EstateEvidence, EVIDENCE_TYPES } from './inputs';
 import { literal } from './literal';
@@ -144,6 +145,8 @@ export type ThenContext = {
   judge?: boolean;
   /** The files of the estate, relative to its root: a read is expected only of one of them. */
   files?: ReadonlySet<string>;
+  /** The atoms of the estate by id, so a rule can find the unit it is read from. */
+  atoms?: ReadonlyMap<string, EstateAtom>;
   /** True for a live row: the runtime's own trace is all there is, no decision log the estate writes. */
   live?: boolean;
   /** Files the runtime loads by itself (no Read call ever shows it): a read of one is never expected. */
@@ -258,9 +261,14 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       return;
     }
     case 'stage_reached':
-      // A step allowed at any point is never required, and no order can place it: what a run must still show
-      // is the flow around it closing on its closing step.
+      // A step allowed at any point has no place in the order, so it is reached when the runtime reports it once
+      // in the block, wherever: a run that drops the step then fails. Without that check, the flow around it
+      // still closes on its closing step.
       if (ctx.stages.anytime.has(evidence.name)) {
+        if (ctx.customChecks.has('stage_seen')) {
+          then.custom.stage_seen = { name: evidence.name, block: 0 };
+          return;
+        }
         if (ctx.stages.closing !== undefined) then.stage = ctx.stages.closing;
         else
           gap(
@@ -359,6 +367,8 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
         ) {
           const known = (then.custom.permission?.rules ?? []) as unknown[];
           then.custom.permission = { rules: [...known, { effect, rule }], block: 0 };
+          // A declared tool is allowed while the unit that declares it is at work: the run shows that unit.
+          if (effect === 'declared') declaringUnit(then, atom, ctx);
           return;
         }
         gap(
@@ -407,8 +417,10 @@ function negative(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
     case 'guard':
       if (untraced(then, atom, evidence.name, ctx)) return;
       // A guard runs on every event it watches and logs `allow` when it lets the act through: a control
-      // forbids the guard's act, its declared verdict, else a block.
-      addGuard(then, { name: evidence.name, verdict: evidence.verdict ?? 'deny', count: 0 });
+      // forbids the guard's act, by its declared verdict. A guard with no declared verdict may stop the act or
+      // only warn, so the control forbids every verdict by which a guard acts, and `allow` stays free.
+      for (const verdict of evidence.verdict === undefined ? GUARD_INTERVENTIONS : [evidence.verdict])
+        addGuard(then, { name: evidence.name, verdict, count: 0 });
       return;
     case 'tool_called':
       if (hasInput(evidence.input)) {
@@ -452,6 +464,24 @@ function negative(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       return;
     default:
       noInverse(then, atom, `${evidence.type} has no negative control`, ctx);
+  }
+}
+
+/**
+ * The skill or helper that declares a tool, read from the file the tool rule is read from, joins the Then: the
+ * run must load the skill or dispatch the helper, since only then does the declaration apply.
+ */
+function declaringUnit(then: ThenParts, atom: EstateAtom, ctx: ThenContext): void {
+  const file = atom.provenance?.file;
+  if (file === undefined || ctx.atoms === undefined) return;
+  for (const owner of ctx.atoms.values()) {
+    if ((owner.kind !== 'skill' && owner.kind !== 'subagent') || owner.provenance?.file !== file) continue;
+    const name = owner.fields?.name;
+    if (typeof name !== 'string' || name === '') continue;
+    if (owner.kind === 'skill') addSkill(then, { name, count: { min: 1 } });
+    else if (!then.subagents.some((known) => known.name === name))
+      then.subagents.push({ name, count: { min: 1 } });
+    return;
   }
 }
 

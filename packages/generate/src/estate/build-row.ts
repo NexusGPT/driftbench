@@ -3,7 +3,7 @@
 import type { CriterionDef } from '@agent-nexus/driftbench-core';
 import { DEVIATION_EXPECTED } from '../seed/deviation';
 import { rngFor, shuffle } from '../seed/random';
-import { codeAsk, DEVIATION_ASKS } from './asks';
+import { codeAsk, DEVIATION_ASKS, owningUnit } from './asks';
 import {
   type AskSource,
   type Built,
@@ -210,6 +210,7 @@ export function build(
         row.testType === 'twin',
         (id) => ctx.atoms.get(id),
         variant,
+        (rule) => owningUnit(ctx.atoms.values(), rule),
       );
       if (written.text === undefined) {
         // Never a nonsense ask: the row waits for an approved phrase, under its own gap.
