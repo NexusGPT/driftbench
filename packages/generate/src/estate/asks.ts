@@ -6,9 +6,9 @@ import type { EstateAtom, SituationUse } from './inputs';
  * Every spec that carries one says so (tag `ask:code`, `metadata.estate.ask: code`), so a person can tell a
  * reviewed ask from a written one and replace it later by approving phrases.
  *
- * The words come from the atom itself, in this order: the asks a route or skill description names ("Use
- * when the user asks to X"), the situation of the atom, the trigger of a gate, the read-when line of a
- * reference, then the title. Each use of a situation has its own template:
+ * Specific governed actions come first: a gate trigger, an actionable rule situation, a reference's
+ * read-when action, a route's own request or a guard's documented rule. A unit's purpose supplies task
+ * context when the rule gives only a condition. Approved phrases always take precedence. Each use of a situation has its own template:
  *
  *   trigger    "Please <act>."                       twin: "Could you <act>? Thanks."
  *   outside    a neutral question no trigger of the estate covers, asking to change nothing
@@ -207,6 +207,31 @@ export function actOf(
   lookup: (id: string) => EstateAtom | undefined = () => undefined,
 ): { act: string; context?: string; source: string; describes?: boolean } {
   const head = atoms[0];
+  if (head?.kind === 'guard' && typeof head.fields?.ruleText === 'string') {
+    const guarded = guardAct(head, lookup);
+    if (guarded) return { act: guarded.act, source: guarded.source };
+  }
+  // A gate's action is more specific than its unit's broad purpose. It is the work under test, not
+  // the prerequisite we expect the agent to discover. Never make the prerequisite itself the ask.
+  if (head?.kind === 'gate') {
+    const trigger = typeof head.fields?.trigger === 'string' ? head.fields.trigger : undefined;
+    const task = trigger ? actionTask(trigger) : undefined;
+    if (task) return { act: task, source: `${head.id} (trigger)` };
+  }
+  // A declared actionable situation belongs to the rule itself. A bare condition remains context.
+  if (head && !['skill', 'subagent', 'route', 'guard'].includes(head.kind) && head.situation) {
+    const task = actionTask(head.situation);
+    if (task) return { act: task, source: `${head.id} (situation)` };
+  }
+  if (head?.kind === 'reference' && typeof head.fields?.readWhen === 'string') {
+    const task = guardedTask(head.fields.readWhen);
+    if (task) return { act: task, source: `${head.id} (readWhen)` };
+  }
+  // A route's own situation is narrower than an attached unit's catch-all description.
+  if (head?.kind === 'route' && head.situation) {
+    const task = askedTo(head.situation) ?? actionTask(head.situation);
+    if (task) return { act: task, source: `${head.id} (situation)` };
+  }
   const context = head ? contextOf(head) : undefined;
   const withContext = (act: string, source: string) => ({ act, ...(context ? { context } : {}), source });
   for (const atom of atoms) {
@@ -259,6 +284,39 @@ export function actOf(
   };
 }
 
+/**
+ * Turn an action clause into an owner's task. Derive participles from the same verb vocabulary used
+ * for imperative descriptions; identifiers and file paths never supply a task. Conditions remain
+ * conditions unless they contain an explicit acting verb and object.
+ */
+function actionTask(text: string): string | undefined {
+  const clause = clauseOf(plain(text))
+    .replace(/^(?:before|when|while|after|on)\s+/i, '')
+    .replace(
+      /^(?:(?:the\s+)?(?:user|owner)\s+(?:asks|wants)\s+(?:you\s+)?to|you\s+(?:are|must|can))\s+/i,
+      '',
+    );
+  const asked = askedTo(clause);
+  if (asked && askable(asked) === undefined) return asked;
+  const [first = '', ...rest] = clause.split(/\s+/);
+  const lowerFirst = first.toLowerCase();
+  let lead = lowerFirst;
+  if (!verbLed(clause)) {
+    const base = [...VERBS].find((verb) =>
+      [
+        `${verb}ing`,
+        `${verb.replace(/e$/, '')}ing`,
+        `${verb}${verb.at(-1)}ing`,
+        `${verb.replace(/ie$/, 'y')}ing`,
+      ].includes(lowerFirst),
+    );
+    if (!base) return undefined;
+    lead = base;
+  } else lead = imperative(first);
+  const task = [lead, ...rest].join(' ');
+  return askable(task) === undefined ? task : undefined;
+}
+
 /** The act a tool rule covers: "Bash(git status)" gives "run git status here", "Read" a call of Read. */
 function toolAct(tool: EstateAtom): string | undefined {
   const rule =
@@ -276,6 +334,34 @@ function toolAct(tool: EstateAtom): string | undefined {
   const scoped = /^([A-Z][A-Za-z]+)\((.+)\)$/.exec(rule);
   const path = scoped?.[2]?.replace(/(?:\/\*\*|\/\*|:\*)$/, '');
   if (scoped && path) return `use the ${scoped[1]} tool on a file under ${path}`;
+  return undefined;
+}
+
+/**
+ * A hook's rule text names its governed act. Read prerequisites stay out of the user's ask, so the
+ * generated test still measures whether the agent discovers them. Unsupported prose remains a gap.
+ */
+function guardedTask(text: string): string | undefined {
+  for (const clause of text.split(/\n|(?<=[.!?])\s+/)) {
+    const clean = plain(clause);
+    const before = /\bbefore\s+(.+?)(?:[:,]\s*|\s+)(?:(?:you\s+)?(?:must\s+)?read|load|check|verify)\b/i.exec(
+      clean,
+    )?.[1];
+    const after = /\b(?:read|load|check|verify)\b.+?\bbefore\s+(.+)/i.exec(clean)?.[1];
+    const forbidden = /^(?:never|do not|don't|you must not)\s+(.+)/i.exec(clean)?.[1];
+    const when = /\b(?:when|while)\s+(.+?)(?:[,;:]|$)/i.exec(clean)?.[1];
+    for (const candidate of [before, after, forbidden, when]) {
+      const task = candidate ? actionTask(candidate) : undefined;
+      if (task) return task;
+    }
+    const asked = askedTo(clean);
+    if (asked && askable(asked) === undefined) return asked;
+    // An ordinary task description is useful; a read directive would reveal the expected answer.
+    if (!/^(?:read|load|check|verify|block|deny|require|ensure)\b/i.test(clean)) {
+      const task = actionTask(clean);
+      if (task) return task;
+    }
+  }
   return undefined;
 }
 
@@ -339,6 +425,11 @@ function guardAct(
   guard: EstateAtom,
   lookup: (id: string) => EstateAtom | undefined,
 ): { act: string; source: string; breach?: string } | undefined {
+  const ruleText = typeof guard.fields?.ruleText === 'string' ? guard.fields.ruleText : undefined;
+  if (ruleText) {
+    const governed = guardedTask(ruleText);
+    if (governed) return { act: governed, source: `${guard.id} (ruleText)` };
+  }
   const enforces = Array.isArray(guard.fields?.enforces) ? (guard.fields.enforces as unknown[]) : [];
   for (const entry of enforces) {
     const id = typeof entry === 'object' && entry !== null ? (entry as { atom?: unknown }).atom : entry;
@@ -347,6 +438,8 @@ function guardAct(
     const forbidden = /^(?:never|do not|don't|no one may|you must not)\s+(.+)$/i.exec(plain(rule.title));
     const source = `${rule.id} (enforced by ${guard.id})`;
     if (forbidden?.[1]) return { act: lower(firstClause(forbidden[1])), source };
+    const governed = typeof rule.fields?.trigger === 'string' ? actionTask(rule.fields.trigger) : undefined;
+    if (governed) return { act: governed, source, breach: `${governed} without the required prerequisite` };
     // A rule that asks for an act: breaking it is the guarded act.
     const breach = `go against this rule just this once: "${clauseOf(plain(rule.title))}"`;
     const situation = rule.situation ? clauseOf(plain(rule.situation)) : '';
@@ -354,6 +447,8 @@ function guardAct(
       return { act: `handle this for me: ${lower(situation)}`, source, breach };
     return { act: imperative(plain(rule.title)), source, breach };
   }
+  // Documented prose that gives no task must not be hidden by a generic call of the matcher.
+  if (ruleText) return undefined;
   const matcher = typeof guard.fields?.matcher === 'string' ? guard.fields.matcher.split('|')[0] : undefined;
   if (matcher && /^[A-Z][A-Za-z]+$/.test(matcher)) {
     return { act: `use the ${matcher} tool on the files here`, source: `${guard.id} (matcher)` };

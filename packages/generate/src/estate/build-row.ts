@@ -4,6 +4,7 @@ import type { CriterionDef } from '@agent-nexus/driftbench-core';
 import { DEVIATION_EXPECTED } from '../seed/deviation';
 import { rngFor, shuffle } from '../seed/random';
 import { codeAsk, DEVIATION_ASKS } from './asks';
+import { guardRuleIds, taskAtoms } from './context';
 import {
   type AskSource,
   type Built,
@@ -60,7 +61,7 @@ export function situationOfRow(
 ): Situation | undefined {
   const own = findSituation(ctx.bank, use, row, ctx.atoms);
   // An outside situation of one rule does not certify a control of every rule the guard enforces.
-  if (own || use !== 'trigger') return own;
+  if (own || (use !== 'trigger' && use !== 'forced')) return own;
   if (head?.kind === 'tool' && use === 'trigger') return siblingSituation(ctx, use, row, head);
   if (head?.kind !== 'guard') return own;
   const links = Array.isArray(head.fields?.enforces)
@@ -72,7 +73,8 @@ export function situationOfRow(
     ...links.filter((link) => link.by === 'registry' || link.by === 'id'),
     ...links.filter((link) => link.by !== 'registry' && link.by !== 'id'),
   ];
-  for (const link of ordered) {
+  const sourced = guardRuleIds(head, ctx.atoms).filter((id) => !ordered.some((link) => link.atom === id));
+  for (const link of [...ordered, ...sourced.map((atom) => ({ atom }))]) {
     const found = findSituation(
       ctx.bank,
       use,
@@ -110,7 +112,11 @@ function siblingSituation(
 
 /** The specs of one row: one, or one per recorded session of its situation for a replay row. */
 export function buildRow(row: EstatePlanRow, ctx: Context, used: Set<string>): Built[] {
-  const atoms = row.atomIds.map((id) => ctx.atoms.get(id) as EstateAtom);
+  const atoms = taskAtoms(
+    row.atomIds.map((id) => ctx.atoms.get(id) as EstateAtom),
+    ctx.atoms,
+    ctx.owners,
+  );
   const use = useOf(row);
   const situation = use === 'none' ? undefined : situationOfRow(ctx, use, row, atoms[0]);
   // The k positive asks of a route (`route_positive.<route>.<n>`) each take their own phrasing.

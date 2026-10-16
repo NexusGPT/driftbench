@@ -1,5 +1,5 @@
 import { contentHash } from '@agent-nexus/driftbench-core';
-import { Feasibility } from '@agent-nexus/driftbench-generate';
+import { estateOwners, Feasibility } from '@agent-nexus/driftbench-generate';
 import { compileSpace, gridSize, type SpaceMap } from '@agent-nexus/driftbench-space';
 import { toEstateSpaceMap } from '../map/space';
 import { AtomKind, type EstateMap, type Plan, type PlanRow, TestType } from '../schema';
@@ -242,13 +242,18 @@ function journeyRowsOf(result: JourneyResult): PlanRow[] {
 
 function pairwiseRowsOf(map: EstateMap, result: PairwiseResult): PlanRow[] {
   const kindOf = new Map(map.atoms.map((atom) => [atom.id, atom.kind]));
+  const owners = estateOwners(
+    map.atoms.filter((atom) => atom.approved),
+    map.edges,
+  );
   const width = String(result.cells.length).length;
   return result.cells.map((cell, index) => {
     const kind = kindOf.get(cell.atom);
     const testType = (kind && PRIMARY_TYPE[kind]) ?? 'obligation';
+    const owner = owners.get(cell.atom);
     return {
       id: `pairwise.${String(index + 1).padStart(width, '0')}`,
-      atomIds: [cell.atom],
+      atomIds: owner ? [cell.atom, owner] : [cell.atom],
       cell: { ...cell.situation, [cell.dimension]: cell.atom },
       testType,
       mode: 'live',

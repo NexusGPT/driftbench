@@ -144,17 +144,36 @@ async function completeTests(folder: string, map: EstateMap, plan: Plan): Promis
         const loaded = await loadSpecFile(file);
         if (!loaded.ok) throw new Error(`${file}: ${loaded.errors.map((e) => e.message).join('; ')}`);
         const metadata = record(loaded.spec.metadata?.estate);
-        if (Array.isArray(metadata.needs) && metadata.needs.length > 0) continue;
+        if (Array.isArray(metadata.needs) && metadata.needs.some((need) => record(need).blocking !== false))
+          continue;
         if (loaded.spec.metadata?.retired !== undefined) continue;
         if (typeof metadata.mapHash === 'string' && metadata.mapHash !== map.hash)
           throw new Error(`${file}: a spec is made from another map`);
         const planRow = typeof metadata.planRow === 'string' ? metadata.planRow : undefined;
-        if (planRow !== undefined && rows.get(planRow)?.status === 'struck') continue;
         const atoms = Array.isArray(metadata.atoms)
           ? metadata.atoms.filter((a): a is string => typeof a === 'string')
           : [];
-        const cell = stringRecord(metadata.cell);
-        tests.push({ atoms, planRow, ...(cell ? { cell } : {}), loaded });
+        const equivalent = record(metadata.equivalence).planRows;
+        if (Array.isArray(equivalent) && equivalent.length > 0) {
+          // One execution can represent several exact tests. Recover cells from the authoritative plan,
+          // and retain only one loaded spec so replay never executes the same representative N times.
+          let active = 0;
+          for (const id of new Set(equivalent)) {
+            const source = typeof id === 'string' ? rows.get(id) : undefined;
+            if (!source)
+              throw new Error(`${file}: an equivalent source row is not in the plan: ${String(id)}`);
+            if (source.status === 'struck') continue;
+            if (!source.atomIds.every((id) => atoms.includes(id)))
+              throw new Error(`${file}: equivalent row ${source.id} names an atom the spec does not cover`);
+            tests.push({ atoms: source.atomIds, planRow: source.id, cell: source.cell });
+            active += 1;
+          }
+          if (active > 0) tests.push({ atoms, planRow, loaded });
+        } else {
+          if (planRow !== undefined && rows.get(planRow)?.status === 'struck') continue;
+          const cell = stringRecord(metadata.cell);
+          tests.push({ atoms, planRow, ...(cell ? { cell } : {}), loaded });
+        }
       }
     }
   return tests;

@@ -1,0 +1,10 @@
+{
+  "sha256": "1e32fa453fa3a08267702fe0fffdc9bcd911eca555983f88956828e8aa917c5d",
+  "summary": {
+    "specs": 1562,
+    "blocks": 1557,
+    "complete": 1469,
+    "incomplete": 93,
+    "judged": 419
+  }
+}

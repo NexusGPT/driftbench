@@ -65,10 +65,15 @@ export type EstateAtom = {
   evidence: EstateEvidence[];
   fields?: Record<string, unknown>;
   /** The passage the atom is read from; the generator reads the paths a hazard passage names from it. */
-  provenance?: { quote: string; file?: string };
+  provenance?: { quote: string; file?: string; startLine?: number; endLine?: number };
 };
 
-export type EstateMapInput = { runtime: string; hash: string; atoms: EstateAtom[] };
+export type EstateMapInput = {
+  runtime: string;
+  hash: string;
+  atoms: EstateAtom[];
+  edges?: Array<{ from: string; to: string; kind: string }>;
+};
 
 export type EstatePlanRow = {
   id: string;

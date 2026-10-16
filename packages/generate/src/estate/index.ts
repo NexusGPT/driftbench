@@ -13,6 +13,7 @@ export {
   RESUME_ASK,
   situationProblem,
 } from './asks';
+export { estateOwners, taskAtoms } from './context';
 export { type ReadYaml, readEstateYaml, type YamlSchema } from './files';
 export {
   type AskSource,

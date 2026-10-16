@@ -570,6 +570,47 @@ A missing reference still permits a Read attempt, which returns an error. When `
 
 The files of the estate copy are listed from the map's `root`. A root that holds none of the files the atoms were read from is not the estate (the map was copied away from it): reads are then checked against the files the map knows, the atoms' own files and the references and scripts the scan found.
 
+### Task-specific asks and equivalent tests
+
+A fallback ask starts with the atom's own governed action. A gate uses its trigger as a task
+(`publishing the corrected newsletter` becomes "Please publish the corrected newsletter.").
+A reference uses the action in its read-when clause. An actionable rule situation precedes a
+unit's broad description. The ask leaves the prerequisite and expected skill for the agent to discover.
+
+Both contract and covering-array rows retain the owning task. Ownership follows direct route,
+reference and script links, the unit's source file, and the longest declared skill folder containing
+the rule or named reference. A standing gate can therefore use the skill whose reference it gates.
+Ambiguous owners stay unresolved. Target-only older plans receive the same task context during generation.
+
+A guard may carry optional `fields.ruleText` and `fields.ruleSources`.
+The governed action in that text precedes a generic tool matcher. Documented source quotes or
+containing line spans can link it to an existing rule's approved triggering situation.
+Unsupported prose supplies no invented task. A replay row still needs its recorded session.
+
+Complete tests with exactly equal rule semantics, asks, inputs, expectations, judge rubrics,
+run mode, test type and non-target situation values share one representative.
+Generated criterion identifiers may differ; their full rubrics and flags must remain equal.
+Different prerequisite paths, actions, event cells, unit targets or replay alignments stay separate.
+The representative retains every source atom in `metadata.estate.atoms` and records
+`metadata.estate.equivalence: { count, planRows }`.
+The count describes represented source tests. The report lists each group's source rows and atoms.
+`estate stats` expands those rows into their original plan cells, without replaying the representative repeatedly.
+Struck source rows count no covered cell. Missing-piece notes with `blocking: false` remain advisory.
+
+The generation report includes `incomplete[]`: spec id, path, plan row and all
+`reasons: [{ marker, atom, detail }]`. Each missing piece keeps its existing reason code.
+Aggregate gap totals remain available. Missing sessions, unsupported checks and unusable tasks
+stay incomplete; grouping never turns an incomplete test into a complete one.
+
+`quality` reports structural complete share, complete asked tests, distinct first asks and distinct asks
+per hundred complete asked tests. Static tests have no ask and stay outside that denominator.
+Event variations can legitimately repeat a task, so compare primary rule tests separately from the full suite.
+
+The fictional scale audit and its paired measurements are in
+[the task-generation audit](estate-task-generation-audit.md).
+The Northwind command transcripts and example generated tree below retain their original captured version.
+Current plan and generation byte snapshots live beside their product tests; they hash every output byte.
+
 Focus coverage counts distinct asks and situation cells. Repeated rows with the same ask and cell do not replace additional mutation opportunities. Additional identical focus variants are omitted.
 
 Layout: `<specs|incomplete>/<mode>/<test type>/<id>.yaml`, so `driftbench replay --suite <out>/specs/replay` takes the replay specs alone.
