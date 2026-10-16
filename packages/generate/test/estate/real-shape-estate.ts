@@ -309,6 +309,13 @@ export function realShapeEstate(options: { skills?: number; gates?: number } = {
     ['night-shift', 'Edit', 'Changes to the night shift roster after the weekly lock.'],
     ['customs-hold', 'Edit', 'A customs declaration edited before the broker has confirmed the tariff code.'],
     ['reply-length', 'Write', 'The last reply is too long.'],
+    // Shapes of a real estate's hook texts that read as broken sentences once cut: a clause with a pronoun, a
+    // subordinate clause, a plural noun with a parenthesis, a statement about the hook, a possessive phrase.
+    ['bytecode-cache', 'Write', 'The bytecode of the file it compiles is never cached.'],
+    ['hook-clause', 'Edit', 'As a hook it never blocks anything the owner asked for.'],
+    ['any-call', 'Bash', 'Calls of ANY tool (Edit, Write) are logged to the journal.'],
+    ['feed-once', 'Write', 'Process reads each feed ONCE, never twice.'],
+    ['carrier-notes', 'Edit', "Notes on the carrier's cutoff are kept in the shared sheet."],
   ] as const;
   const hooks: Array<{ matcher: string; hooks: Array<{ type: string; command: string }> }> = guards.map(
     ([name, matcher]) => ({

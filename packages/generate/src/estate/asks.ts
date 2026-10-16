@@ -568,6 +568,20 @@ function openingGerund(phrase: string): boolean {
   );
 }
 
+/**
+ * Whether a phrase reads as a sentence with a subject: its second word is a verb in the third person and its
+ * first is neither a determiner nor itself a verb in the third person ("process reads each feed").
+ */
+function subjectVerb(phrase: string): boolean {
+  const [first = '', second = ''] = phrase.split(/\s+/).map((word) => word.toLowerCase());
+  return (
+    /^[a-z]{3,}s$/.test(second) &&
+    (VERBS.has(imperative(second)) || STATIVE.has(second)) &&
+    !DETERMINERS.has(first) &&
+    !/[^sui]s$/.test(first)
+  );
+}
+
 function connectiveAct(ruleText: string): string | undefined {
   for (const sentence of ruleSentences(ruleText)) {
     const act = sentenceAct(sentence);
@@ -578,6 +592,19 @@ function connectiveAct(ruleText: string): string | undefined {
 
 const STATEMENT_OPENERS: ReadonlySet<string> = new Set(
   'nothing nobody none never not always it they we you he she there here nor'.split(' '),
+);
+
+const SUBORDINATORS: ReadonlySet<string> = new Set(
+  'as if when while after before since because although though once unless until whereas where whether so than then'.split(
+    ' ',
+  ),
+);
+
+/** Pronouns and relative words: a phrase that holds one is a clause pasted from a sentence. */
+const CLAUSE_WORDS: ReadonlySet<string> = new Set(
+  "it its it's they them their we us our you your he him his she her this that these those which who whom whose what whatever whenever".split(
+    ' ',
+  ),
 );
 
 const DETERMINERS: ReadonlySet<string> = new Set(
@@ -596,12 +623,14 @@ export function situationPhrase(ruleText: string): string | undefined {
         .replace(DIRECTIVE, '')
         .split(
           new RegExp(
-            `\\s+(?:is|are|was|were|must|should|shall|will|can|may|needs?|has|have|gets?|stays?|means?)\\b|[,;:]\\s|\\s${CONNECTIVE}\\s`,
+            `\\s+(?:is|are|was|were|must|should|shall|will|would|could|might|can|may|needs?|has|have|gets?|stays?|means?)\\b|[,;:]\\s|\\s${CONNECTIVE}\\s`,
             'i',
           ),
         )[0] ?? '';
     const words = head.split(/\s+/).filter((word) => word !== '');
-    const [first = '', second = ''] = words.map((word) => word.toLowerCase());
+    const lowered = words.map((word) => word.toLowerCase().replace(/[^a-z]/g, ''));
+    const [first = '', second = ''] = lowered;
+    const last = lowered.at(-1) ?? '';
     if (
       /^[a-z]{3,}s$/.test(first) &&
       !/ss$|us$|is$/.test(first) &&
@@ -610,6 +639,13 @@ export function situationPhrase(ruleText: string): string | undefined {
       continue;
     // A pronoun or a negation opens a statement ("Nothing leaves the building"), not a situation.
     if (STATEMENT_OPENERS.has(first)) continue;
+    // A clause, not a noun phrase: it opens with a conjunction or a preposition ("as a hook it never ..."), holds
+    // a pronoun or a relative clause ("the file it compiles", "no command that changes ..."), ends on a function
+    // word or carries a parenthesis.
+    if (SUBORDINATORS.has(first) || PREPOSITIONS.has(first) || subjectVerb(head)) continue;
+    if (lowered.some((word) => CLAUSE_WORDS.has(word))) continue;
+    if (FUNCTION_WORDS.has(last) || PREPOSITIONS.has(last) || DETERMINERS.has(last)) continue;
+    if (/[()[\]{}"]/.test(head) || words.length > 12) continue;
     const content = words.filter(
       (word) =>
         !DETERMINERS.has(word.toLowerCase()) &&
@@ -660,7 +696,7 @@ function guardNearMiss(guard: EstateAtom, lookup: (id: string) => EstateAtom | u
  * A hook's rule text names its governed act. Read prerequisites stay out of the user's ask, so the
  * generated test still measures whether the agent discovers them. Unsupported prose remains a gap.
  */
-function guardedTask(text: string): string | undefined {
+function guardedTask(text: string, guard = false): string | undefined {
   const governed = governedAction(text);
   if (governed) return governed;
   for (const clause of text.split(/\n|(?<=[.!?])\s+/)) {
@@ -681,7 +717,8 @@ function guardedTask(text: string): string | undefined {
     // An ordinary task description is useful; a read directive would reveal the expected answer.
     if (!/^(?:read|load|check|verify|block|deny|require|ensure)\b/i.test(clean)) {
       const task = sentenceAct(clean) ?? actionTask(clean.split(/;\s/)[0] ?? clean);
-      if (task) return task;
+      // A hook's own sentence ("Process reads each feed once") has a subject and a verb, not a verb and an object.
+      if (task && !(guard && subjectVerb(task))) return task;
     }
   }
   return undefined;
@@ -739,6 +776,8 @@ const STATIVE: ReadonlySet<string> = new Set(
   ),
 );
 
+const NOUN_LINK: ReadonlySet<string> = new Set(['of', 'on', 'about']);
+
 /** Endings of plural nouns no verb has: "analytics", "logistics", "utilities", "awareness". */
 const NOUN_ENDING = /(?:ics|ities|ness|nesses)$/;
 
@@ -754,7 +793,8 @@ const PREPOSITIONS: ReadonlySet<string> = new Set(
  * -s followed by its object (never a function word, never another verb) is the verb of the sentence.
  */
 function thirdPerson(first: string, next: string | undefined, described = false): boolean {
-  if (/[^s]s$/.test(first) && VERBS.has(imperative(first))) return true;
+  // "Calls of any tool", "Notes on the carrier": a verb in -s followed by of, on or about is a plural noun.
+  if (/[^s]s$/.test(first) && VERBS.has(imperative(first))) return !NOUN_LINK.has(bare(next));
   // Only a unit's description is read this way. A hook's rule text ("Warns after a command ...", "Blocks a
   // force push") says what the guard does, which is no task for the owner to ask.
   if (
@@ -829,7 +869,7 @@ function guardAct(
 ): { act: string; source: string; breach?: string } | undefined {
   const ruleText = typeof guard.fields?.ruleText === 'string' ? guard.fields.ruleText : undefined;
   if (ruleText) {
-    const governed = guardedTask(ruleText) ?? connectiveAct(ruleText);
+    const governed = guardedTask(ruleText, true) ?? connectiveAct(ruleText);
     if (governed) return { act: governed, source: `${guard.id} (ruleText)` };
   }
   const enforces = Array.isArray(guard.fields?.enforces) ? (guard.fields.enforces as unknown[]) : [];

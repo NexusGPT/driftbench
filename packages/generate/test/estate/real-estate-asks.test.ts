@@ -503,6 +503,22 @@ describe('a guard whose rule text names a situation, not an act', () => {
     }
   });
 
+  it('writes no ask from a clause pasted out of a sentence, a statement about the hook, or a noun in disguise', () => {
+    for (const ruleText of [
+      'The bytecode of the file it compiles is never cached.',
+      'As a hook it never blocks anything.',
+      'Calls of ANY tool (Edit, Write) are logged.',
+      'Process reads each feed ONCE, never twice.',
+      "Notes on the carrier's cutoff are kept.",
+      'No command that changes what anyone else would read.',
+      'A pallet moved with the roster of the dock they.',
+    ]) {
+      const written = ask(ruleText);
+      expect(written.text, ruleText).toBeUndefined();
+      expect(written.refused, ruleText).toMatch(/no task/);
+    }
+  });
+
   it('uses the same situation for the negative control, so it comes near the rule', () => {
     expect(ask('A force push to the shared release branch is blocked.', 'outside').text).toBe(
       'Without changing anything, tell me in one sentence what applies here to a force push to the shared release branch.',

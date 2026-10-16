@@ -653,7 +653,12 @@ condition that is no act ("when the last reply is too long") gives none. When no
 situation is the ask: the phrase before the first copula, modal, comma or connective ("A force push to the
 shared branch is blocked" asks for help with a force push to the shared branch), if it holds three words
 beyond determiners and prepositions, does not open with a pronoun or a negation, is not a hook description (a
-third-person verb and its object), and is not cut off right after a participle. The ask reads only the guard's own rule
+third-person verb and its object), and is not cut off right after a participle. It is a noun phrase, not a
+clause pasted from a sentence: it does not open with a conjunction, a subordinator or a preposition, holds no
+pronoun or relative word ("the file it compiles", "no command that changes ..."), no parenthesis and no more than
+twelve words, ends on a content word, and has no subject before its verb ("Process reads each feed once"). A
+verb in the third person followed by of, on or about is a plural noun ("Calls of any tool", "Notes on the
+carrier"), never a verb. The ask reads only the guard's own rule
 text: no registry state name or severity is read into it.
 
 A `guard_negative` row asks for a harmless near miss of the guard's own rule: without changing anything, what

@@ -207,3 +207,9 @@ shared release branch." and, for its negative control, to a request about what a
 changing anything. A guard that named an act with a trailing condition ("send a price list to a carrier while the
 contract is unsigned") now asks the act alone. The registry-trace gap of script-less guards is unchanged: a live
 trace names the script, never the check inside it.
+
+The real estate showed that a phrase cut from a hook text can read as a broken sentence. The synthetic estate
+gains five such hook texts (a clause with a pronoun, a subordinate clause, a plural noun with a parenthesis, a
+statement about the hook, a possessive phrase). On `89caebf58` each of them gave a complete guard test whose ask
+was a fragment ("Please help me with the bytecode of the file it compiles."); after the change those 44 guard
+rows stay incomplete with the reason, and no other row changes (complete 5,761 to 5,717 of 5,815).
