@@ -279,7 +279,7 @@ export function unitFamily(): Family {
         // section 6): copy them, record, and check every variant against the recorded copies.
         const recorded = join(work, 'recorded');
         await mkdir(recorded, { recursive: true });
-        const natives = suite.specs.filter((spec) => spec.mode === 'native-unit');
+        const natives = suite.natives;
         const copies = new Map<string, SuiteSpec>();
         for (const spec of natives) {
           const path = join(recorded, `${spec.id}.json`);
