@@ -230,3 +230,13 @@ after: complete 5,738 to 5,794 of 5,815. Guard asks go from phrases cut out of t
 writes of shipping labels outside the labels folder.") to "Please change a file here." with the situation as context
 when it is strict ("This involves a time window on every route stop."). The cost is variety: guard negative controls
 that had a phrase of their own now share the tool act, which is why they are marked as a near miss of the tool.
+
+## Fragments of a description
+
+The real estate showed a heading with a count ("install workflow 6 steps") and a sentence about the unit ("plan
+import is one atomic write") opening hundreds of read tests, because the description fallback took them as an act.
+The synthetic estate gains two such descriptions (a heading with a count, a statement followed by a real request).
+Same input before and after: a description is read sentence by sentence and only a request is kept, so the unit with
+a statement first asks its real request, and the unit with only a heading stays without an ask (incomplete, with the
+reason) instead of asking the heading. The 336960b81 asks that kept a bracketed pointer and a purpose clause in a
+route request are cut to the work as well.

@@ -127,7 +127,6 @@ describe('the unit that owns an atom supplies the task when the atom has none', 
     const row = (readWhen: string) => atom('reference.stock.x', { fields: { readWhen } });
     for (const readWhen of [
       'The yard office has to confirm every dock slot of the week in writing with the dock lead and the carrier desk and the roster owner | `refs/a.md`',
-      'You must always close the count with the yard office | `refs/a.md`',
     ]) {
       expect(codeAsk('trigger', [row(readWhen), owner], []).text, readWhen).toBe(
         'Please count stock in the aisles.',
@@ -605,9 +604,9 @@ describe('a guard is asked through the tool it watches, and prose only when it h
     }
   });
 
-  it('carries the strict situation of the rule text as context of the tool act', () => {
+  it('joins the strict situation of the rule text to the tool act, so the object it names is asked', () => {
     expect(ask({ ruleText: 'A force push to the shared release branch is blocked.', matcher: 'Bash' })).toBe(
-      'Please run a command in the shell here. This involves a force push to the shared release branch.',
+      'Please run a command in the shell here for a force push to the shared release branch.',
     );
   });
 
@@ -627,5 +626,171 @@ describe('a guard is asked through the tool it watches, and prose only when it h
     expect(
       ask({ ruleText: 'An Edit or a Write on a file the session has not read is blocked.' }),
     ).toBeUndefined();
+  });
+});
+
+describe('the review of the guard and gate asks: no broken sentence from a pronoun, an imperative or a condition', () => {
+  const clinic = unit('clinic', 'Handles patient discharge and prescriptions for the clinic.');
+  const gate = (trigger: string) => atom('gate.clinic.x', { fields: { trigger } });
+  const guard = (fields: Record<string, unknown>) => atom('guard.catalogue.x', { fields });
+
+  it('drops the subject of a gate trigger and asks its act', () => {
+    for (const [trigger, ask] of [
+      ['you discharge a patient', 'Please discharge a patient.'],
+      ['the agent must prescribe a drug', 'Please prescribe a drug.'],
+      ['you need to refund a payment', 'Please refund a payment.'],
+    ]) {
+      expect(codeAsk('trigger', [gate(trigger as string), clinic], []).text, trigger).toBe(ask);
+    }
+    // A clause that is no act ("you are about to ...") is dropped with its auxiliary, never pasted.
+    expect(codeAsk('trigger', [gate('you are about to refund a payment'), clinic], []).text).toBe(
+      'Please refund a payment.',
+    );
+    expect(codeAsk('trigger', [gate('you were away'), clinic], []).text).toBe(
+      'Please handle patient discharge and prescriptions for the clinic.',
+    );
+  });
+
+  it('puts a gate trigger that is an act in the context as a task, never as "this involves <imperative>"', () => {
+    const rule = atom('gate.clinic.y', {
+      situation: 'Before you discharge a patient',
+      fields: { trigger: 'you discharge a patient', readWhen: 'x' },
+    });
+    const text = codeAsk('trigger', [rule, clinic], []).text ?? '';
+    expect(text).not.toMatch(/involves discharge|involves you/);
+  });
+
+  it('never pastes a guard rule written as an imperative, nor an act with a condition inside it', () => {
+    expect(ask('End every reply with the clinic phone line.', 'Stop')).toBe(
+      'Please explain in full detail everything you can do for me here.',
+    );
+    expect(ask('Nudges when a reply lacks the phone line', 'Stop')).toBe(
+      'Please explain in full detail everything you can do for me here.',
+    );
+    expect(
+      codeAsk('trigger', [guard({ ruleText: 'Ask before an Edit of a policy file.', matcher: 'Edit' })], [])
+        .text,
+    ).toBe('Please change a file here.');
+    expect(
+      codeAsk(
+        'trigger',
+        [guard({ ruleText: 'Add a reminder when the owner types stop.', event: 'UserPromptSubmit' })],
+        [],
+      ).text,
+    ).toBeUndefined();
+  });
+
+  it('asks about the subject of a conditional reference, not the unit description alone', () => {
+    const reference = atom('reference.clinic.boarding', {
+      fields: { readWhen: 'When the owner asks about boarding, read refs/boarding.md' },
+    });
+    expect(codeAsk('trigger', [reference, clinic], []).text).toBe('Please help me with boarding.');
+    const quiet = atom('reference.clinic.hours', {
+      fields: { readWhen: 'If a visit runs past closing time, read refs/hours.md' },
+    });
+    expect(codeAsk('trigger', [quiet, clinic], []).text).toBe(
+      'Please handle patient discharge and prescriptions for the clinic. If a visit runs past closing time.',
+    );
+  });
+
+  it('asks the act of "Never <act> without reading <file>" on any rule kind', () => {
+    for (const kind of ['instruction', 'gate']) {
+      const rule = atom(`${kind}.clinic.dosage`, {
+        title: 'Never answer a dosage question without reading refs/dosage.md',
+      });
+      expect(codeAsk('trigger', [rule, clinic], []).text, kind).toBe('Please answer a dosage question.');
+    }
+  });
+});
+
+function ask(ruleText: string, event: string): string | undefined {
+  const guard = atom('guard.catalogue.reply', { fields: { ruleText, event } });
+  return codeAsk('trigger', [guard], []).text;
+}
+
+it('does not read the exception of a rule ("unless the user asks for detail") as the act it guards', () => {
+  const guard = atom('guard.catalogue.length', {
+    fields: { ruleText: 'Keep every reply short unless the user asks for detail.', event: 'Stop' },
+  });
+  expect(codeAsk('trigger', [guard], []).text).toBe(
+    'Please explain in full detail everything you can do for me here.',
+  );
+});
+
+describe('a description gives its work only in the shape of a request', () => {
+  const ask = (description: string) => codeAsk('trigger', [unit('x', description)], []);
+
+  it('rejects a heading with a count, a sentence with a copula and a list after a colon', () => {
+    for (const description of [
+      'Install workflow 6 steps. Use when building a workflow.',
+      'Plan import is ONE atomic write.',
+      'Manages workspaces: mount, list, create.',
+      'Review the 3 stages and the checklist.',
+    ]) {
+      const written = ask(description);
+      expect(written.text, description).toBeUndefined();
+      expect(written.refused, description).toMatch(/describes the unit/);
+    }
+  });
+
+  it('passes over a heading or a statement and takes the first sentence that is a request', () => {
+    expect(ask('Plan import is ONE atomic write. Files damage claims with carriers.').text).toBe(
+      'Please file damage claims with carriers.',
+    );
+    expect(ask('Install workflow 6 steps. Use when building a workflow.').refused).toMatch(
+      /describes the unit/,
+    );
+  });
+
+  it('keeps a request with a spelled count or an object', () => {
+    expect(ask('Install a workflow in six steps.').text).toBe('Please install a workflow in six steps.');
+    expect(ask('Install the connector for the harbour office.').text).toBe(
+      'Please install the connector for the harbour office.',
+    );
+  });
+
+  it('rejects the same fragments in a routing request, and falls back to the unit that carries the route', () => {
+    const route = atom('route.standing.install', { situation: 'Install workflow 6 steps' });
+    expect(codeAsk('trigger', [route], []).refused).toMatch(/describes the unit/);
+  });
+
+  it('adds the object a guard rule names to the tool act, and nothing from a hook sentence', () => {
+    const named = atom('guard.settings.push', {
+      fields: { matcher: 'Bash', ruleText: 'A force push to the shared release branch is blocked.' },
+    });
+    expect(codeAsk('trigger', [named], []).text).toBe(
+      'Please run a command in the shell here for a force push to the shared release branch.',
+    );
+    const mechanics = atom('guard.settings.plumbing', {
+      fields: { matcher: 'Bash', ruleText: 'Reads the tool call as JSON on stdin; exits 2 to block it.' },
+    });
+    expect(codeAsk('trigger', [mechanics], []).text).toBe('Please run a command in the shell here.');
+  });
+});
+
+describe('a guard on the user prompt is set off by the message the rule says the owner writes', () => {
+  const rule = (situation: string) =>
+    atom('instruction.clinic.halt', { title: 'Halt on request', situation });
+  const guard = atom('guard.catalogue.halt', {
+    fields: { event: 'UserPromptSubmit', enforces: [{ atom: 'instruction.clinic.halt' }] },
+  });
+  const askFor = (situation: string, use: 'trigger' | 'forced' = 'forced') =>
+    codeAsk(use, [guard], [], false, (id) =>
+      id === 'instruction.clinic.halt' ? rule(situation) : undefined,
+    );
+
+  it('asks the message itself, in a live and a replayed row', () => {
+    expect(askFor('The owner types stop').text).toBe('stop');
+    expect(askFor('The user says "hold on"', 'trigger').text).toBe('hold on');
+  });
+
+  it('writes no ask when the situation names no short message', () => {
+    for (const situation of [
+      'The owner is away',
+      'The user says what they want after the nurse has checked in with the pharmacist',
+      'A late shipment',
+    ]) {
+      expect(askFor(situation).text, situation).toBeUndefined();
+    }
   });
 });

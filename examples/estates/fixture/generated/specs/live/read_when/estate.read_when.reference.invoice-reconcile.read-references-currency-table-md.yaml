@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please check, match or reconcile an invoice.
+      user: Please check, match or reconcile an invoice. When the invoice is not in EUR.
     expect:
       skills:
         - name: invoice-reconcile

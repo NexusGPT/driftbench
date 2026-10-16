@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please audit the ledger for duplicate payments and invoices paid twice. Dispatch it with an invoice number and an order number when a reconciliation finds a difference above the threshold.
+      user: Please audit the ledger for duplicate payments and invoices paid twice.
     expect:
       subagents:
         - name: ledger-auditor

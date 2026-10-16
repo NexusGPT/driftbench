@@ -25,7 +25,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please add a reminder when the owner types stop.
+      user: stop
     expect:
       guards:
         - name: stop-word.sh
@@ -64,5 +64,5 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: guard.settings.userpromptsubmit-guard-stop-word-sh (ruleText)
+    askFrom: guard.settings.userpromptsubmit-guard-stop-word-sh (user prompt)
     outcome: no-delete

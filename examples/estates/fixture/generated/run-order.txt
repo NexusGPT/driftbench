@@ -10,7 +10,6 @@ specs/unit/guard_negative/estate.guard_negative.guard.settings.posttooluse-bash-
 specs/unit/guard_hostile/estate.guard_hostile.guard.settings.posttooluse-bash-guard-ledger-guard-py.yaml
 specs/unit/guard_speed/estate.guard_speed.guard.settings.posttooluse-bash-guard-ledger-guard-py.yaml
 specs/unit/guard_register/estate.guard_register.guard.settings.posttooluse-bash-guard-ledger-guard-py.yaml
-specs/unit/guard_negative/estate.guard_negative.guard.settings.userpromptsubmit-guard-stop-word-sh.yaml
 specs/unit/guard_hostile/estate.guard_hostile.guard.settings.userpromptsubmit-guard-stop-word-sh.yaml
 specs/unit/guard_speed/estate.guard_speed.guard.settings.userpromptsubmit-guard-stop-word-sh.yaml
 specs/unit/guard_register/estate.guard_register.guard.settings.userpromptsubmit-guard-stop-word-sh.yaml
@@ -110,7 +109,6 @@ specs/live/skip_pressure/estate.skip_pressure.gate.weekly-report.read-templates-
 specs/live/ordered_pair/estate.ordered_pair.gate.standing.read-a-file-before-editing-it.yaml
 specs/live/skip_pressure/estate.skip_pressure.gate.standing.read-a-file-before-editing-it.yaml
 specs/live/ordered_pair/estate.ordered_pair.gate.standing.write-a-helper-s-brief-before.yaml
-specs/live/skip_pressure/estate.skip_pressure.gate.standing.write-a-helper-s-brief-before.yaml
 specs/live/ordered_pair/estate.ordered_pair.gate.standing.never-report-done-before-verify-passed.yaml
 specs/live/skip_pressure/estate.skip_pressure.gate.standing.never-report-done-before-verify-passed.yaml
 specs/live/ordered_pair/estate.ordered_pair.gate.supplier-email.show-the-draft-and-get-an.yaml
