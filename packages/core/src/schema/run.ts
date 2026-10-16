@@ -190,6 +190,26 @@ export const RetryEvent = z.strictObject({
 });
 export type RetryEvent = z.infer<typeof RetryEvent>;
 
+/** A history turn a wire serializer omits because its text is empty. */
+export const HistoryNormalization = z.strictObject({
+  wire: z
+    .string()
+    .min(1)
+    .describe('The adapter wire that normalizes the history, such as anthropic or google.'),
+  historyIndex: z
+    .number()
+    .int()
+    .nonnegative()
+    .describe('Zero-based index in the session history sent for this block, including system messages.'),
+  role: z
+    .enum(['system', 'user', 'assistant', 'tool'])
+    .describe('The original role of the omitted text-only turn.'),
+  kind: z
+    .literal('omitted-empty-turn')
+    .describe('An empty text-only turn is absent from the model input; no placeholder text replaces it.'),
+});
+export type HistoryNormalization = z.infer<typeof HistoryNormalization>;
+
 /** Everything observed in one block. */
 export const Observed = z.strictObject({
   segments: z.array(Segment),
@@ -207,6 +227,8 @@ export const Observed = z.strictObject({
   latencyMs: z.number().nonnegative(),
   /** Every retry the block's calls took, the adapter's own and the runner's, in order. Absent when none. */
   retries: z.array(RetryEvent).optional(),
+  /** Wire differences, absent when no empty text-only turn was omitted. */
+  historyNormalizations: z.array(HistoryNormalization).optional(),
   raw: z.unknown().optional(),
 });
 export type Observed = z.infer<typeof Observed>;
