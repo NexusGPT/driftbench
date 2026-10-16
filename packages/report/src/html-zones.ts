@@ -11,6 +11,7 @@ import {
   count,
   esc,
   fixed,
+  historyNormalizationsHtml,
   json,
   pct,
   pValue,
@@ -660,7 +661,7 @@ function blockView(block: BlockDetail): string {
   const reason = unscoredReason(block);
   return `<div class="blk${{ pass: '', fail: ' bad', not_run: ' skip', blocked: ' skip' }[blockStatus(block)]}">
 <p class="bh"><span class="kicker">Block ${block.index}${block.specBlock === undefined ? ' · injected' : ''}</span>${stage}${chipOf(blockStatus(block))}</p>
-${note}${reason === undefined ? '' : `<p class="stage">${esc(reason)}</p>`}${block.stimulus === undefined ? '' : `<p class="who">${block.realized === undefined ? 'User' : 'User, as written'}</p><p class="msg user">${esc(block.stimulus)}</p>`}${block.realized === undefined ? '' : `<p class="who">User, as sent</p><p class="msg user">${esc(block.realized.text ?? notStored(block.realized.hash))}</p>`}
+${note}${historyNormalizationsHtml(block.historyNormalizations)}${reason === undefined ? '' : `<p class="stage">${esc(reason)}</p>`}${block.stimulus === undefined ? '' : `<p class="who">${block.realized === undefined ? 'User' : 'User, as written'}</p><p class="msg user">${esc(block.stimulus)}</p>`}${block.realized === undefined ? '' : `<p class="who">User, as sent</p><p class="msg user">${esc(block.realized.text ?? notStored(block.realized.hash))}</p>`}
 <p class="who r">Agent · ${esc(fixed(block.latencyMs, 0))} ms</p><p class="msg agent">${esc(block.text || '(no text)')}</p>
 ${tools}${block.drift.length > 0 ? `<p class="stage">drift ${esc(block.drift.join(', '))}</p>` : ''}${shown.map(verdictRow).join('')}${passed.length > 0 ? `<details class="fold"><summary>${ICON_CHEV}${count(passed.length, 'machine check')} passed</summary><p class="ids">${passed.map((v) => esc(v.id)).join(', ')}</p></details>` : ''}
 </div>`;
