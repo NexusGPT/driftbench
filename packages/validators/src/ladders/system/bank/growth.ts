@@ -387,18 +387,21 @@ export async function measureGrowth(
   return { sizes, visits, time, result: found.length === 0 ? PASS : fail(found.join('; ')) };
 }
 
-/** The CPU time one sample of the smaller size must cover, in milliseconds: a sample below it is noise. */
+/** The CPU time that the single runs of the smaller size must cover together, in milliseconds. */
 export const MIN_SAMPLE_MS = 50;
 
-/** The most runs of the smaller size in one sample. */
-export const MAX_SAMPLE_RUNS = 4096;
+/** The smaller time is read as at least this, in milliseconds: the floor of the old measure, unchanged. */
+export const SMALLEST_TIME_MS = 1;
 
-/** The samples taken at each size; the verdict reads the best of them. */
+/** The most single runs of the smaller size. */
+export const MAX_SAMPLE_RUNS = 64;
+
+/** The single runs of each size that the verdict reads the best of, at the fewest. */
 export const TIME_SAMPLES = 3;
 
 export type TimeGrowth = {
   sizes: { ten: number; hundred: number };
-  /** `ten` is the best sample of the smaller size, per run; `runs` is how many runs a sample held. */
+  /** `ten` and `hundred` are the best single run of each size; `runs` is how many runs of the smaller size were timed. */
   time: { ten: number; hundred: number; growth: number; bound: number; runs: number; pass: boolean };
   result: ItemResult;
 };
@@ -407,12 +410,14 @@ export type TimeGrowth = {
  * The growth in time of a subject that is not a history: the best CPU time at a hundred times `base` over
  * the best at ten times, on the clock of the process.
  *
- * Both sizes take the best of TIME_SAMPLES samples, interleaved. A sample of the larger size is one run. A
- * sample of the smaller size is as many runs as it takes to cover MIN_SAMPLE_MS of CPU time, divided by
- * their number, so a run of 2 ms is read to the precision of 50 ms and not of the clock tick and the first
- * garbage collection. The sizes stay the bank's: some subjects (the spec loader) have no practical size at
- * which one run of the smaller size takes 50 ms and the larger one still runs. The bound is the caller's,
- * and a quadratic run is a hundred times, however the samples fall.
+ * Every sample is one run, never a loop of runs: a loop of the smaller size would keep the heap warm and
+ * make allocation-heavy code look cheaper than a single run, which would lower the growth it reads. The
+ * smaller size takes single runs until the best of at least TIME_SAMPLES is read and the runs together
+ * cover MIN_SAMPLE_MS of CPU time, up to MAX_SAMPLE_RUNS: a run of 2 ms is then read over 25 runs, not 3,
+ * and more runs only ever lower the best case of the smaller size, which raises the growth. The larger size
+ * takes the best of TIME_SAMPLES single runs, interleaved with the first of the smaller size, which removes
+ * the load of the machine from it. The sizes, the bound and the 1 ms floor of the smaller time are the
+ * old measure's, kept as they were: a run under 1 ms is read as 1 ms, as before.
  */
 export async function measureTimeGrowth(
   run: (size: number) => Promise<unknown>,
@@ -423,23 +428,24 @@ export async function measureTimeGrowth(
   const clock = options.clock ?? cpuClock;
   const minSample = options.minSampleMs ?? MIN_SAMPLE_MS;
   const samples = options.samples ?? TIME_SAMPLES;
-  const batch = async (size: number, runs: number): Promise<number> => {
+  const once = async (size: number): Promise<number> => {
     const started = clock();
-    for (let again = 0; again < runs; again += 1) await run(size);
+    await run(size);
     return clock() - started;
   };
 
-  // Warm-up, not read: doubling batches until one covers the minimum sample, which also sets the runs.
-  let runs = 1;
-  while ((await batch(sizes.ten, runs)) < minSample && runs < MAX_SAMPLE_RUNS) runs *= 2;
-
   let bestTen = Number.POSITIVE_INFINITY;
   let bestHundred = Number.POSITIVE_INFINITY;
-  for (let sample = 0; sample < samples; sample += 1) {
-    bestTen = Math.min(bestTen, (await batch(sizes.ten, runs)) / runs);
-    bestHundred = Math.min(bestHundred, await batch(sizes.hundred, 1));
+  let covered = 0;
+  let runs = 0;
+  while (runs < samples || (covered < minSample && runs < MAX_SAMPLE_RUNS)) {
+    const took = await once(sizes.ten);
+    bestTen = Math.min(bestTen, took);
+    covered += took;
+    runs += 1;
+    if (runs <= samples) bestHundred = Math.min(bestHundred, await once(sizes.hundred));
   }
-  const growth = bestHundred / Math.max(bestTen, 0.01);
+  const growth = bestHundred / Math.max(bestTen, SMALLEST_TIME_MS);
   const pass = growth <= options.timeBound;
   return {
     sizes,
@@ -447,8 +453,8 @@ export async function measureTimeGrowth(
     result: pass
       ? PASS
       : fail(
-          `best CPU time ${bestTen.toFixed(2)} ms per run at ${sizes.ten} (${runs} runs per sample), ` +
-            `${bestHundred.toFixed(1)} ms at ${sizes.hundred}: ${growth.toFixed(1)} times, the bound is ${options.timeBound}`,
+          `best CPU time ${bestTen.toFixed(2)} ms at ${sizes.ten} (best of ${runs} runs), ` +
+            `${bestHundred.toFixed(1)} ms at ${sizes.hundred} (best of ${samples}): ${growth.toFixed(1)} times, the bound is ${options.timeBound}`,
         ),
   };
 }
