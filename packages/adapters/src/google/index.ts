@@ -60,7 +60,7 @@ export type {
  * up to a step cap. Thought parts are reasoning, never customer-visible text, and are left out of the text.
  */
 
-export const GOOGLE_ADAPTER_VERSION = '0.1.0';
+export const GOOGLE_ADAPTER_VERSION = '0.1.1';
 
 export type GoogleAdapterOptions = RetryOption & {
   /** The client. The adapter calls `client.models.generateContent(params)` and nothing else. */

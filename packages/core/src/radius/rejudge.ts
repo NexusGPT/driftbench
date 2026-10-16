@@ -15,7 +15,9 @@ import {
   stimulusMessages,
 } from '../runner/given';
 import { provenanceHash } from '../runner/provenance';
+import { applyRealizedTextPolicy } from '../runner/realized-text';
 import { succession } from '../runner/succession';
+import { isScored } from '../runner/verdicts';
 import type { Message } from '../schema/common';
 import { type BlockResult, type Campaign, type RunResult, Verdict } from '../schema/run';
 import type { Spec } from '../schema/spec';
@@ -204,6 +206,7 @@ export async function rejudgeRun(
   spent: () => number,
   objects?: ObjectContext,
   diagnosticBudget: DiagnosticBudget = {},
+  recordRealizedText = false,
 ): Promise<RunResult> {
   const { source, contexts, stamp, carried } = prepared;
   const context = objects ?? objectContextOfSpec(prepared.spec) ?? shippedObjectContext();
@@ -234,7 +237,8 @@ export async function rejudgeRun(
       };
     };
     const selected = (ctx.expect.criteria ?? []).map((ref) => parseCriterionRef(ref)?.name ?? ref);
-    if (!selected.length) {
+    // A block not run or blocked holds no observation to judge: it stays as it was, never a pass.
+    if (!selected.length || !isScored(original)) {
       const { rejudged: _previousJudge, ...unchanged } = clean;
       blocks.push(await refresh({ ...unchanged, carried }));
       continue;
@@ -288,5 +292,8 @@ export async function rejudgeRun(
   if (diagnostic.diagnoses.length) updated.diagnoses = diagnostic.diagnoses;
   if (diagnostic.skippedForBudget) updated.skippedForBudget = diagnostic.skippedForBudget;
   updated.cost = spent() - before;
-  return updated;
+  return applyRealizedTextPolicy(updated, recordRealizedText, {
+    fromRun: source.runId,
+    fromCampaign: stamp.fromCampaign,
+  });
 }

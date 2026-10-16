@@ -8171,7 +8171,7 @@
       "level": 3,
       "source": "contract",
       "component": "packages/adapters/src/http/index.ts",
-      "cause": "httpAdapter versions itself by a hash of its url"
+      "cause": "httpAdapter combines its exported version with the content hash of its url, stably per url and distinctly across urls"
     },
     {
       "id": "claim/adapters/http/request-fields",

@@ -1,4 +1,11 @@
-import { type DriverStep, runSpec, type Stimulus, type UserDriver } from '@agent-nexus/driftbench-core';
+import {
+  blockStatus,
+  type DriverStep,
+  isScored,
+  runSpec,
+  type Stimulus,
+  type UserDriver,
+} from '@agent-nexus/driftbench-core';
 import { portFromEnv } from '@agent-nexus/driftbench-generate';
 import type { Command } from 'commander';
 import type { Io } from '../io';
@@ -145,7 +152,9 @@ export async function simulateCommand(
   });
   if (!ended && result.error) ended = result.error;
   const revealed = (driver as RecordedDriver).revealed();
-  const passed = result.blocks.filter((block) => block.pass).length;
+  const passed = result.blocks.filter((block) => blockStatus(block) === 'pass').length;
+  // A block not run or blocked is no pass (ok stays false) and no failure: it is counted apart.
+  const unscored = result.blocks.filter((block) => !isScored(block)).length;
   const ok = result.status === 'completed' && passed === result.blocks.length && result.blocks.length > 0;
 
   if (options.json) {
@@ -164,7 +173,8 @@ export async function simulateCommand(
             user: said[index] ?? null,
             agent: block.observed.text,
             stage: block.stageObserved ?? null,
-            pass: block.pass,
+            pass: blockStatus(block) === 'pass',
+            ...(isScored(block) ? {} : { status: blockStatus(block) }),
           })),
         },
         null,
@@ -178,11 +188,13 @@ export async function simulateCommand(
     result.blocks.forEach((block, index) => {
       io.out(`  ${block.index}  user   ${oneLine(said[index] ?? '')}\n`);
       io.out(`  ${block.index}  agent  ${oneLine(block.observed.text)}\n`);
-      io.out(`     ${block.stageObserved ?? '-'}  ${block.pass ? '✓' : '✗'}\n`);
+      io.out(
+        `     ${block.stageObserved ?? '-'}  ${{ pass: '✓', fail: '✗', not_run: '- not run', blocked: '- blocked' }[blockStatus(block)]}\n`,
+      );
     });
     io.out(`Facts given, each once asked: ${revealed.length > 0 ? revealed.join(', ') : 'none'}.\n`);
     io.out(
-      `${ok ? '✓' : '✗'} ${passed} of ${result.blocks.length} blocks pass. The run ended: ${ended || result.status}.\n`,
+      `${ok ? '✓' : '✗'} ${passed} of ${result.blocks.length - unscored} blocks pass${unscored > 0 ? `, ${unscored} not run or blocked` : ''}. The run ended: ${ended || result.status}.\n`,
     );
   }
   return ok ? 0 : 1;
