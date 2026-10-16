@@ -393,11 +393,9 @@ function negative(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       return;
     case 'guard':
       if (untraced(then, atom, evidence.name, ctx)) return;
-      addGuard(then, {
-        name: evidence.name,
-        ...(evidence.verdict === undefined ? {} : { verdict: evidence.verdict }),
-        count: 0,
-      });
+      // A guard runs on every event it watches and logs `allow` when it lets the act through: a control
+      // forbids the guard's act, its declared verdict, else a block.
+      addGuard(then, { name: evidence.name, verdict: evidence.verdict ?? 'deny', count: 0 });
       return;
     case 'tool_called':
       if (hasInput(evidence.input)) {
