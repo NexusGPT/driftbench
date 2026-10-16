@@ -12,7 +12,7 @@ Measured 2026-10-15: unchanged main `14034c6ca` and product `4170c016e` both rea
 
 ## Floor
 
-9, ladder version 5, in `validators/floors.json`. No floor changed.
+11, ladder version 5 (the top of the ladder), in `validators/floors.json`. Raised from 9 after `validate system --seeds 1..3 --hidden --json` on main `1bf5348ef` reached 11 of 11 on seeds 1, 2, 3 and the hidden seed 470054606 (evidence: `validators/system/floor-v5-evidence.json`).
 
 ## Open items
 
