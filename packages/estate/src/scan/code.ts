@@ -349,34 +349,142 @@ export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
   }
 }
 
-/** The script file a command runs: after assignments, exec and env, and an interpreter with its flags. */
-function commandExecutable(command: string): string | undefined {
-  const words =
-    command
-      .match(/"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\S+/g)
-      ?.map((word) => word.replace(/^["']|["']$/g, '')) ?? [];
-  while (words[0] === 'exec' || words[0] === 'env' || /^[A-Za-z_]\w*=/.test(words[0] ?? '')) words.shift();
-  const executable = words.shift();
-  if (
-    !/^(?:python(?:\d+(?:\.\d+)*)?|node|bash|sh|zsh|ruby|perl|deno|bun|tsx)$/.test(basename(executable ?? ''))
-  )
-    return executable;
-  while (words[0]?.startsWith('-')) {
-    // Inline interpreter programs are not script-file invocations.
-    if (['-c', '-e', '--eval', '-m'].includes(words[0])) return undefined;
-    words.shift();
+type ScriptCommand = { words: string[]; after: string };
+
+/** Shell words keep quoted/escaped operators literal; only unquoted operators separate commands. */
+function scriptCommands(command: string): ScriptCommand[] {
+  const commands: ScriptCommand[] = [];
+  let words: string[] = [];
+  let word = '';
+  let started = false;
+  let quote = '';
+  const finishWord = () => {
+    if (started) words.push(word);
+    word = '';
+    started = false;
+  };
+  for (let index = 0; index < command.length; index++) {
+    const char = command[index] ?? '';
+    if (char === '\\' && quote !== "'") {
+      word += command[++index] ?? '';
+      started = true;
+    } else if (quote) {
+      if (char === quote) quote = '';
+      else word += char;
+    } else if (char === '"' || char === "'") {
+      quote = char;
+      started = true;
+    } else if (/\s/.test(char)) finishWord();
+    else if (char === '#' && !started) break;
+    else if ((char === '>' || char === '<') && command[index + 1] === '&') {
+      // A descriptor redirect (2>&1, >&file) is not a command separator.
+      word += `${char}&`;
+      started = true;
+      index++;
+    } else if (char === ';' || char === '|' || char === '&') {
+      finishWord();
+      let after = char;
+      if (command[index + 1] === char || (char === '|' && command[index + 1] === '&'))
+        after += command[++index];
+      commands.push({ words, after });
+      words = [];
+    } else {
+      word += char;
+      started = true;
+    }
   }
-  return words.shift();
+  if (quote) return []; // An incomplete quoted command supplies no reliable executable.
+  finishWord();
+  commands.push({ words, after: '' });
+  return commands;
 }
 
-function scriptInvocation(text: string, name: string): boolean {
+/** Unwrap execution syntax, never a script's own arguments or a data utility's operands. */
+function commandExecutable(input: readonly string[]): string | undefined {
+  const words = [...input];
+  while (words.length > 0) {
+    if (/^[A-Za-z_]\w*=/.test(words[0] ?? '')) {
+      words.shift();
+      continue;
+    }
+    const executable = words.shift() ?? '';
+    const tool = basename(executable);
+    if (tool === 'exec' || tool === 'env') {
+      while (words[0]?.startsWith('-')) {
+        const option = words.shift();
+        if (tool === 'env' && (option === '-u' || option === '--unset')) words.shift();
+      }
+      continue;
+    }
+    if (SCRIPT.test(executable)) return executable;
+    // These utilities read or print operands; a word "run" is data, not a launcher subcommand.
+    if (/^(?:cat|head|tail|grep|rg|sed|awk|echo|printf|tee)$/.test(tool)) return undefined;
+    if (/^(?:python(?:\d+(?:\.\d+)*)?|node|bash|sh|zsh|ruby|perl|deno|bun|tsx)$/.test(tool)) {
+      while (words[0]?.startsWith('-')) {
+        const option = words.shift() ?? '';
+        // Inline programs and modules do not run the following script-file operand.
+        if (/^(?:-[cem]|--eval)(?:=|$)/.test(option)) return undefined;
+      }
+      // Some runtimes also use the run-subcommand shape (e.g. deno run file.ts).
+      if (/^(?:run|exec|execute)$/.test(words[0] ?? '')) {
+        words.shift();
+        while (words[0]?.startsWith('-')) words.shift();
+        continue;
+      }
+      return words.shift();
+    }
+    // The grammar is tool + execution subcommand + command, independent of vendor names.
+    // Boolean/equals-form launcher options may surround the execution subcommand.
+    while (words[0]?.startsWith('-')) words.shift();
+    if (/^(?:run|exec|execute)$/.test(words[0] ?? '')) {
+      words.shift();
+      while (words[0]?.startsWith('-')) words.shift();
+      continue;
+    }
+    return executable;
+  }
+  return undefined;
+}
+
+/** Every command gets its shell folder; cd in a pipeline or a failed-cd branch changes no parent folder. */
+function commandInvokes(command: string, path: string, folder: string): boolean {
+  let cwd: string | undefined = folder;
+  let changedFolder = false;
+  let previous = '';
+  for (const { words: written, after } of scriptCommands(command)) {
+    const words = [...written];
+    while (/^[A-Za-z_]\w*=/.test(words[0] ?? '')) words.shift();
+    if (words[0] === 'cd') {
+      changedFolder = true;
+      if (previous !== '|' && previous !== '|&' && !['|', '|&', '||', '&'].includes(after)) {
+        const target = words[1] === '--' ? words[2] : words[1];
+        cwd =
+          target && !/[$`~]/.test(target) && !posix.isAbsolute(target) && cwd !== undefined
+            ? posix.normalize(posix.join(cwd, target))
+            : undefined;
+      }
+    } else {
+      const executable = commandExecutable(words);
+      if (executable && !/[$`~]/.test(executable) && !posix.isAbsolute(executable)) {
+        if (!changedFolder && !executable.includes('/') && executable === basename(path)) return true;
+        if (cwd !== undefined && posix.normalize(posix.join(cwd, executable)) === path) return true;
+        if (!changedFolder && posix.normalize(executable) === path) return true;
+      }
+    }
+    previous = after;
+  }
+  return false;
+}
+
+function scriptInvocation(text: string, path: string, folder: string): boolean {
+  const name = basename(path);
   // Punctuation inside quoted commands belongs to the command, not the enclosing prose.
   const masked = text.replace(/`[^`]*`|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/g, (part) =>
     ' '.repeat(part.length),
   );
   const clauses: string[] = [];
   let start = 0;
-  for (const match of masked.matchAll(/[;,]|[.!?](?=\s|$)|\b(?:and\s+)?then\b/gi)) {
+  for (const match of masked.matchAll(/[,]|[.!?](?=\s|$)|\b(?:and\s+)?then\b/gi)) {
     clauses.push(text.slice(start, match.index));
     start = match.index + match[0].length;
   }
@@ -405,15 +513,15 @@ function scriptInvocation(text: string, name: string): boolean {
     const spans = directive ? [...command.matchAll(/`([^`]+)`/g)].map((span) => span[1] ?? '') : [];
     const span = /^`([^`]+)`/.exec(command);
     if (!directive && span && span[0].length !== command.length) continue;
-    if (
-      !directive &&
-      !span &&
-      !/[/]/.test(command.split(/\s+/)[0] ?? '') &&
-      !/^(?:exec|env|python[\d.]*|node|bash|sh|zsh|ruby|perl|deno|bun|tsx)\s/.test(command)
-    )
-      continue;
+    if (!directive && /^(?:never|do not|don't|must not|should not)\b/i.test(command)) continue;
+    if (!directive && !span) {
+      const words = scriptCommands(command)[0]?.words ?? [];
+      while (/^[A-Za-z_]\w*=/.test(words[0] ?? '')) words.shift();
+      const executable = commandExecutable(words);
+      if (!words[0]?.includes('/') && words[0] !== 'cd' && (!executable || executable === words[0])) continue;
+    }
     for (const written of spans.length > 0 ? spans : [span?.[1] ?? command]) {
-      if (basename(commandExecutable(written) ?? '') === name) return true;
+      if (commandInvokes(written, path, folder)) return true;
     }
   }
   return false;
@@ -437,7 +545,7 @@ function scriptAtoms(
     const relative = posix.relative(folder, file.path);
     if (!SCRIPT.test(file.path) && !relative.startsWith('scripts/')) continue;
     const name = basename(file.path);
-    const mention = body.find((line) => scriptInvocation(line.text, name));
+    const mention = body.find((line) => scriptInvocation(line.text, file.path, folder));
     const at: Located = mention
       ? { file: definition, startLine: mention.line, endLine: mention.line, quote: mention.quote }
       : firstLine(file);
