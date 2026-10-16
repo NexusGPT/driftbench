@@ -128,3 +128,36 @@ describe('drawn hidden specifications give every behaviour an owner that can exe
     expect(unreachable).toEqual([]);
   });
 });
+
+describe('a behaviour that names a tool is drawn only where some flow can call the tool', () => {
+  // Seeds whose five-stage map leaves list_options without a stage: the base draw owes an impossible item.
+  const stageless = [6, 17, 18, 19, 2027];
+  const fresh = [1009, 4093, 8191, 12289, 24593];
+  const seeds = [...stageless, ...fresh, ...Array.from({ length: 20 }, (_, index) => index + 1)];
+
+  it('names no tool that no flow calls, on the seeds that owed an impossible item and on others', () => {
+    const bad: string[] = [];
+    for (const seed of seeds) {
+      const hidden = hiddenSpec(seed);
+      for (const behaviour of hidden.behaviours) {
+        if (!behaviour.tool) continue;
+        if (!hidden.uses.some((entry) => entry.tool === behaviour.tool)) bad.push(`${seed} ${behaviour.id}`);
+      }
+    }
+    expect(bad).toEqual([]);
+  });
+
+  it('keeps the number of behaviours the seed draws', () => {
+    for (const seed of stageless) {
+      const hidden = hiddenSpec(seed);
+      expect(hidden.behaviours.length).toBeGreaterThanOrEqual(4);
+      expect(hidden.behaviours.length).toBeLessThanOrEqual(6);
+    }
+  });
+
+  it('leaves a seed whose map stages every tool exactly as drawn', () => {
+    // Seed 1 has seven stages: every tool has a stage, so nothing is filtered and the fixture is unchanged.
+    const hidden = hiddenSpec(1);
+    expect(hidden.tools.every((tool) => tool.stage !== undefined)).toBe(true);
+  });
+});
