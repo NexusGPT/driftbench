@@ -233,6 +233,10 @@ export function resolveBlockObjects(
   options: { explicitOnly?: boolean } = {},
 ): UsedObject[] {
   // Validate every named target before kind-specific branches can skip it, including unselected objects.
+  // Every flag of one object is applied first and the combined params are validated once, as applySets does:
+  // flags that are valid together are never refused one at a time.
+  type CliSet = NonNullable<ObjectContext['cli']>['set'][number];
+  const named = new Map<string, CliSet[]>();
   for (const set of context.cli?.set ?? []) {
     if (set.id === undefined || /^\([a-z]+\)$/.test(set.id)) continue;
     if (!context.store.has(set.kind, set.id)) {
@@ -242,8 +246,17 @@ export function resolveBlockObjects(
         `--set ${set.flag}`,
       );
     }
-    const target = context.store.resolve(set.kind, set.id);
-    context.store.resolveCli(target, [cliPatch(target, set)]);
+    const key = `${set.kind}:${set.id}`;
+    named.set(key, [...(named.get(key) ?? []), set]);
+  }
+  for (const sets of named.values()) {
+    const [first] = sets;
+    if (!first || first.id === undefined) continue;
+    const target = context.store.resolve(first.kind, first.id);
+    context.store.resolveCli(
+      target,
+      sets.map((set) => cliPatch(target, set)),
+    );
   }
   const applySets = (object: ResolvedObject): ResolvedObject => {
     const sets = (context.cli?.set ?? []).filter(

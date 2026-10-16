@@ -4,6 +4,7 @@ import {
   BUILTIN_KINDS,
   checkSpecObjects,
   ObjectRegistry,
+  ObjectStore,
   parseCliOverrides,
   resolveBlockObjects,
   shippedObjectContext,
@@ -62,4 +63,45 @@ it('still validates an implicit default item during the explicit preflight', () 
   if (!loaded.ok) throw new Error(JSON.stringify(loaded.errors));
   const spec = loaded.spec;
   expect(checkSpecObjects(spec, context)).toEqual([expect.objectContaining({ code: 'OBJECT_ITEM_UNKNOWN' })]);
+});
+
+function rangeContext(flags: string[]) {
+  const registry = new ObjectRegistry();
+  for (const kind of BUILTIN_KINDS) registry.registerKind(kind);
+  registry.registerImpl('builtin:test/range', {
+    params: z.strictObject({ lo: z.number(), hi: z.number() }).refine((p) => p.lo <= p.hi, {
+      message: 'lo must not exceed hi',
+    }),
+  });
+  registry.registerShipped(
+    {
+      kind: 'check-set',
+      id: 'default',
+      items: [{ id: 'range', title: 'Range', impl: 'builtin:test/range', params: { lo: 1, hi: 3 } }],
+    },
+    'range',
+  );
+  return {
+    store: new ObjectStore(registry),
+    uses: [],
+    problems: [],
+    cli: parseCliOverrides([], flags, registry),
+  };
+}
+const oneBlock = { blocks: [{ when: { user: 'hello' } }] };
+
+it.each([
+  ['kind-only', ['check-set#range.lo=5', 'check-set#range.hi=8']],
+  ['named', ['check-set/default#range.lo=5', 'check-set/default#range.hi=8']],
+  ['named, in the other order', ['check-set/default#range.hi=8', 'check-set/default#range.lo=5']],
+])('combines every --set flag of an object before validating its params (%s)', (_, flags) => {
+  const params = resolveBlockObjects(oneBlock, 0, rangeContext(flags))[0]?.object.items[0]?.params;
+  expect(params).toEqual({ lo: 5, hi: 8 });
+});
+
+it.each([
+  ['kind-only', ['check-set#range.lo=9', 'check-set#range.hi=8']],
+  ['named', ['check-set/default#range.lo=9', 'check-set/default#range.hi=8']],
+])('still refuses a final combination that breaks the schema (%s)', (_, flags) => {
+  expect(() => resolveBlockObjects(oneBlock, 0, rangeContext(flags))).toThrow(/lo must not exceed hi/);
 });
