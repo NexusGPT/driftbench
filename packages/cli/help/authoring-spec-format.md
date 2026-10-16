@@ -63,6 +63,7 @@ YAML is parsed with unique keys: a key written twice in one mapping is a `SPEC_P
 
 | Key | Type | Required | Default | Meaning |
 |---|---|---|---|---|
+| `schema_version` | whole number, 1 | no | 1 | The spec format the spec is written for. A driftbench that reads a lower version refuses the spec with `SPEC_SCHEMA_VERSION` and says to upgrade, instead of reporting its newer keys as unknown. Written, it is part of the spec and its hash. |
 | `id` | string matching `^[A-Za-z0-9][A-Za-z0-9._-]*$` | yes | none | The spec id. Run ids and reports use it. |
 | `version` | string | no | none | A free label. The content hash, not this label, is the cache key. Quote numbers: `version: '1'`. |
 | `kind` | `conversation` or `task` | no | `conversation` | A conversation with a chat agent, or a task for a code agent in a workspace. |
@@ -170,7 +171,7 @@ Free, with these keys read by tools:
 
 | Key | Written or read by |
 |---|---|
-| `tool_schemas` | read by the `schema_strict` check and by `extract --tools`: tool name to its JSON Schema. Unsupported schema keywords are errors. |
+| `tool_schemas` | read by the `schema_strict` check, by `extract --tools`, and by the value check of `tools` (a field's `pattern`, `enum` or `const` is its stated contract; the tool's and the field's `description` are what the same-referent judge reads): tool name to its JSON Schema. Unsupported schema keywords are errors. |
 | `depends` | read by `radius`: what each block depends on. See authoring-blast-radius. |
 | `generated`, `gate`, `family`, `imported`, `estate`, `retired`, `pilot` | written by `generate`, `gate`, `family instances`, `import`, `estate`; do not edit by hand. |
 

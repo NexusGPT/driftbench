@@ -241,6 +241,21 @@ export const Verdict = z.strictObject({
   evidence: z.string(),
   reasoning: z.string().optional(),
   judge: z.strictObject({ cls: z.enum(['system1', 'system2']), votes: z.array(Vote) }).optional(),
+  /**
+   * The value-check rungs that decided a tool argument, one entry per value a rung decided: the call (from 1),
+   * the value's path, the rung (a policy item id, or `exact_fallback`) and its outcome. Absent when every value
+   * equalled the gold or the assertion compares as written. No default, so records without it are unchanged.
+   */
+  valueCheck: z
+    .array(
+      z.strictObject({
+        call: z.number().int().min(1),
+        path: z.string().min(1),
+        rung: z.string().min(1),
+        outcome: Outcome,
+      }),
+    )
+    .optional(),
   /** What produced the verdict: the object, its item, the implementation and the layer. Absent on older records. */
   by: By.optional(),
 });
@@ -316,6 +331,17 @@ export const BlockResult = z.strictObject({
   index: z.number().int().min(0),
   blockId: z.string().optional(),
   injected: z.boolean().optional(),
+  /**
+   * Present when the text the driver sent differs from the text the spec block wrote (a simulated user, a
+   * red-team attacker). The sent text is the user messages the agent received, joined by newlines; `hash`
+   * is its SHA-256 (of its canonical JSON). `text` holds it only when the run asked for it
+   * (`recordRealizedText`): what a driver writes may be private, so by default only the hash is kept. Only
+   * the text is compared; a change of form alone (the same text as an injection) is in `injected`. Absent
+   * means the authored text was sent. The provenance digest covers it.
+   */
+  realized: z
+    .strictObject({ hash: z.string().regex(/^[0-9a-f]{64}$/), text: z.string().optional() })
+    .optional(),
   givenHash: z.string().min(1),
   /** The key the block's observed record is cached under: what a replay looked up. */
   cacheKey: z.string().min(1).optional(),

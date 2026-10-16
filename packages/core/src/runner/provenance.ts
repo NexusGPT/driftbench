@@ -81,10 +81,12 @@ export function runProvenance(options: RunOptions): NonNullable<RunResult['prove
 export function provenanceDigest(run: Pick<RunResult, 'provenance' | 'blocks'>): string {
   return provenanceHash({
     run: run.provenance,
-    blocks: run.blocks.map(({ index, blockId, injected, givenHash, provenance }) => ({
+    // `realized` joins only when present, so the digest of a block without it is the one it always was.
+    blocks: run.blocks.map(({ index, blockId, injected, realized, givenHash, provenance }) => ({
       index,
       blockId,
       injected,
+      ...(realized === undefined ? {} : { realized }),
       givenHash,
       provenance,
     })),

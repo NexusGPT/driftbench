@@ -26,7 +26,7 @@ Each spec also gets its content hash: the first 12 hex characters of the SHA-256
 
 Checks run in four layers, and a later layer runs only when the earlier ones pass:
 
-1. Parse and shorthand rewrite (`SPEC_PARSE`, `SPEC_NOT_OBJECT`, `SPEC_ALIAS_CONFLICT`, `BLOCK_STIMULUS_*`).
+1. Parse, the format version and shorthand rewrite (`SPEC_PARSE`, `SPEC_SCHEMA_VERSION`, `SPEC_NOT_OBJECT`, `SPEC_ALIAS_CONFLICT`, `BLOCK_STIMULUS_*`).
 2. The schema (`SCHEMA_*`).
 3. The semantic rules (every other error code but `OBJECT_*`).
 4. The rule files (`OBJECT_*`). Each object the spec names is resolved against the rule files its folder sees, and so is each object a `uses.yaml` above it names. This layer runs only when something names an object, or when a rule file above the spec is broken. See authoring-rule-files.
@@ -97,6 +97,7 @@ The path in a spec is dotted, counting from 0: `blocks.2.expect.tools.0.label` i
 | Code | Level | Meaning |
 |---|---|---|
 | `SPEC_PARSE` | error | the file cannot be read, does not exist, is not valid YAML or JSON, or repeats a key |
+| `SPEC_SCHEMA_VERSION` | error | `schema_version` names a spec format newer than this driftbench reads: upgrade driftbench. Reported alone, before the keys of the newer format read as unknown |
 | `SPEC_NOT_OBJECT` | error | the file does not hold one mapping at the top level |
 | `SPEC_ALIAS_CONFLICT` | error | a shorthand and its long form are both set: `ledger_seed` with `given.ledger`, or `workspace_seed` with `given.world.workspace` |
 | `BLOCK_STIMULUS_MISSING` | error | a block has none of `user`, `burst` and `when` |

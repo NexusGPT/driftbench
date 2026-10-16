@@ -88,6 +88,7 @@ export {
   explainRows,
   type ImplDef,
   type ItemOperations,
+  initializeShippedObjects,
   itemApplies,
   itemOf,
   type KindDef,
@@ -121,6 +122,7 @@ export {
   USES_FILE,
   type UsedObject,
 } from './objects';
+export { bindObjectContext, objectContextOfSpec } from './objects/context';
 export {
   ALLOWED_VERSION_TRANSITION_FIELDS,
   type AuditVerdict,
@@ -283,6 +285,7 @@ export {
   withRetry,
   wrapEndState,
 } from './runner';
+export { rescoreCarriedRun } from './runner/carried-scoring';
 export {
   Assertion,
   Budget,
@@ -353,6 +356,7 @@ export {
   Block,
   BlockSpec,
   CardExpect,
+  CompareMode,
   CriterionDef,
   EndState,
   EndStateSpec,
@@ -374,6 +378,7 @@ export {
   SafetyExpect,
   SimilarityExpect,
   SkillExpect,
+  SPEC_SCHEMA_VERSION,
   Spec,
   Stimulus,
   SubagentExpect,

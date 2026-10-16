@@ -5,6 +5,7 @@ import { Envelope, Item, ItemPatch, LAYERS, type Layer, type ObjectRef } from '.
 import { contentHash } from '../spec/hash';
 import { isPlainObject } from '../spec/normalize';
 import { applyItemOperations, mergeFields, ObjectError, type ResolvedItem } from './rules';
+import { registerRunnerObjects } from './scoring';
 
 /** What a kind declares: whether it is agent-facing, what its files hold beyond the envelope. */
 export type KindDef = {
@@ -36,7 +37,7 @@ export type RegistrySnapshot = {
 };
 
 /**
- * The kinds, implementations and shipped objects a process knows. Packages register their builtins on import;
+ * The kinds, implementations and shipped objects a process knows. Entry points explicitly initialize shipped definitions;
  * a plugin registers its own. A name registered twice is refused, so no registration replaces another: an
  * override is an object that extends a shipped one, never a second registration of it.
  */
@@ -167,7 +168,11 @@ export const BUILTIN_KINDS: readonly KindDef[] = [
 
 /** The registry every loader uses unless it is given another one. */
 export const objectRegistry = new ObjectRegistry();
-for (const def of BUILTIN_KINDS) objectRegistry.registerKind(def);
+/** Initialize the shared kind vocabulary before resolving objects. Safe across plugin snapshots. */
+export function initializeShippedObjects(): void {
+  for (const def of BUILTIN_KINDS) if (!objectRegistry.kind(def.kind)) objectRegistry.registerKind(def);
+  registerRunnerObjects(objectRegistry);
+}
 
 /** An object once its `extends` chain and every layer are applied. */
 export type ResolvedObject = {
@@ -255,6 +260,7 @@ export class ObjectStore {
   #resolved = new WeakMap<Entry, ResolvedObject>();
 
   constructor(registry: ObjectRegistry = objectRegistry) {
+    if (registry === objectRegistry) initializeShippedObjects();
     this.registry = registry;
     for (const { raw, path } of registry.shipped()) this.add(raw, 'shipped', { path });
   }

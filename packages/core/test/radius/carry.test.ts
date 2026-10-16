@@ -261,3 +261,22 @@ describe('planRadiusCampaign', () => {
     expect(plan([stored('order', 'v1'), stored('faq', 'v1')], { maxCarry: 0 }).carried).toEqual([]);
   });
 });
+
+it('refuses stale resolved objects unless the caller commits to rescoring observations', () => {
+  const source = stored('faq', 'v1');
+  const objects = [
+    { key: 'check_set', kind: 'check-set', id: 'previous', hash: 'previous-hash', setAt: 'project' },
+  ] as const;
+  const block = source.blocks[0];
+  if (!block) throw new Error('fixture block missing');
+  block.resolved = { objects: [...objects], hash: contentHash(objects) };
+  const refused = plan([source]);
+  expect(refused.carried).toEqual([]);
+  expect(refused.refused[0]?.reason).toMatch(/resolved objects differ/);
+  const rescoring = plan([source], { rescoreObservations: true });
+  expect(rescoring.carried).toHaveLength(1);
+  expect(rescoring.carried[0]?.needsRescore).toBe(true);
+  const carried = rescoring.carried[0];
+  if (!carried) throw new Error('expected a rescoring candidate');
+  expect(() => carriedRun(carried)).toThrow(/must be re-scored/);
+});
