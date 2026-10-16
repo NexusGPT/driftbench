@@ -470,6 +470,7 @@ How a row becomes a spec:
 | `ordered` whose first act names a path | the earlier end holds that path (`Read~references/rules.md` before `Edit`), so a read of another file does not stand in for it; when the later act takes the object by a pronoun ("read a file before you edit it"), the pair adds `key: file_path`: the same file |
 | `ordered` whose later act is prose ("before matching any line") | the act stands for the unit's work: the earlier act comes before every `Bash`, `Edit`, `MultiEdit`, `Write` and `NotebookEdit` call |
 | `tool_called` Read of the step list's own file | `expect.stage` on the closing stage: the runtime reports the steps it walks, not a read of the list |
+| `guard` in a `guard_register` row | `rules.custom.guard_message`: every run of the guard that took effect (it blocked, asked, warned or nudged) gave a message, and the message keeps the output rules; a guard that never blocks is judged on its warning or nudge |
 | `guard` in a control, on an event of every turn (Stop, UserPromptSubmit) with no verdict of its own | `expect.guards` with count 0 for the verdicts `deny` and `block`: the guard runs every turn, so its control is that it does not block |
 | `custom` command_absent, command_not_run | `rules.custom.some_call`: no Bash call whose command holds the named command |
 | `stage_reached` on a step allowed at any point | `rules.custom.stage_seen`: the stage shows once in the block, wherever; not applicable when the runtime reports no stages (no stage record, so nothing to judge) |

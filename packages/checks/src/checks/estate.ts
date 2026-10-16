@@ -26,7 +26,8 @@ import type { CustomCheckFunction } from './custom';
  * - `max_words`: a word limit on a named part of the reply: a draft, or the whole reply.
  * - `no_delete_under`: nothing deleted under a folder.
  * - `stage_seen`: a step allowed at any point was reached at least once.
- * - `guard_message`: a guard that blocked said why, and the message keeps the output rules.
+ * - `guard_message`: a guard that took effect (blocked, asked, warned or nudged) said why, and the message
+ *   keeps the output rules.
  * - `guard_finished`: every run of a guard answered within its time.
  */
 
@@ -579,22 +580,29 @@ function messageOf(run: GuardRun): string | undefined {
   return stderr !== '' ? stderr : stdout;
 }
 
+/** A guard run that took no effect: it let the act through and said nothing to act on. */
+const NO_EFFECT = /^(allow|approve|approved|pass|ok|none|continue)$/i;
+
 /**
- * `{ name, mustNot?, block? }`. Every run of the guard that blocked (deny or block) gives a message, and
- * each message keeps the output rules: no pattern of `mustNot` matches it. Inconclusive when the guard did
- * not block in the block, or the runtime reports no output for it.
+ * `{ name, mustNot?, block? }`. Every run of the guard that took effect (it blocked, asked, warned or nudged:
+ * any verdict but allow, and not a stopped run) gives a message, and each message keeps the output rules: no
+ * pattern of `mustNot` matches it. A guard that never blocks speaks by warning or nudging, so its message is
+ * judged the same way. Inconclusive when the guard took no effect in the block, or the runtime reports no
+ * output for it.
  */
 export const guardMessage: CustomCheckFunction = (ctx, options) => {
   if (!isRecord(options) || typeof options.name !== 'string') throw new Error('guard_message needs { name }');
   if (typeof options.block === 'number' && options.block !== ctx.blockIndex) return [];
-  const blocked = runsOf(ctx, options.name).filter((run) => /^(deny|block)$/i.test(run.verdict));
+  const blocked = runsOf(ctx, options.name).filter(
+    (run) => !NO_EFFECT.test(run.verdict) && !STOPPED.test(run.verdict),
+  );
   if (blocked.length === 0) {
     return [
       machineVerdict(
         'guard_message',
         'present',
         'inconclusive',
-        `${options.name} did not block in this block`,
+        `${options.name} took no effect in this block`,
       ),
     ];
   }
@@ -616,8 +624,8 @@ export const guardMessage: CustomCheckFunction = (ctx, options) => {
       'present',
       given.length === blocked.length ? 'pass' : 'fail',
       given.length === blocked.length
-        ? `${plural(blocked.length, 'blocking run')} of ${options.name}, each with a message: ${given.map((m) => JSON.stringify(m)).join('; ')}`
-        : `${blocked.length - given.length} of ${plural(blocked.length, 'blocking run')} of ${options.name} gave no message`,
+        ? `${plural(blocked.length, 'run')} of ${options.name} taking effect, each with a message: ${given.map((m) => JSON.stringify(m)).join('; ')}`
+        : `${blocked.length - given.length} of ${plural(blocked.length, 'run')} of ${options.name} taking effect gave no message`,
     ),
   ];
   const patterns = Array.isArray(options.mustNot)

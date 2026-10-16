@@ -496,6 +496,28 @@ describe('guard_message and guard_finished: what a guard said, and that it answe
     expect(bare[0]?.outcome).toBe('inconclusive');
   });
 
+  it('judges the message of a guard that warns or nudges, never of one that allowed or was stopped', async () => {
+    const options = { name: 'pantry-log.py' };
+    const warned = await verdicts(
+      guardMessage,
+      ctx('ok', [], guards([{ name: 'pantry-log.py', verdict: 'warn', stderr: 'log the flour you used', exitCode: 1 }])),
+      options,
+    );
+    expect(warned[0]).toMatchObject({ outcome: 'pass' });
+    const nudged = await verdicts(
+      guardMessage,
+      ctx('ok', [], guards([{ name: 'pantry-log.py', verdict: 'nudge', stdout: '', stderr: '', exitCode: 0 }])),
+      options,
+    );
+    expect(nudged[0]?.outcome).toBe('fail');
+    const stopped = await verdicts(
+      guardMessage,
+      ctx('ok', [], guards([{ name: 'pantry-log.py', verdict: 'timeout', stderr: 'killed' }])),
+      options,
+    );
+    expect(stopped[0]?.outcome).toBe('inconclusive');
+  });
+
   it('guard_finished: every run answered, none stopped; inconclusive when the guard never ran', async () => {
     const ok = await verdicts(
       guardFinished,
