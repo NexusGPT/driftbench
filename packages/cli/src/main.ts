@@ -1,4 +1,4 @@
-import { initializeShippedObjects } from '@agent-nexus/driftbench-core';
+import { initializeShippedObjects } from '@agent-nexus/driftbench-checks';
 import { Command, CommanderError, Help } from 'commander';
 import { COMMAND_HELP, COMMAND_MODULES, type Register } from './command-index';
 import type { CampaignDeps } from './commands/campaign';
