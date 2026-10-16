@@ -1,0 +1,272 @@
+{
+  "title": "default-on-v7 on the README judge rows, preregistered before any call",
+  "declaredAt": "2026-10-15T16:58:46.398027+00:00",
+  "owner": "\"ok run the new benchmark\" (relayed by the lead, 2026-10-15)",
+  "product": {
+    "commit": "f1e520bbd",
+    "policy": "default-on-v7",
+    "note": "packages/judges/src and packages/core/src at f1e520bbd (PR 371 head); the run imports that tree through createDefaultJudge"
+  },
+  "runFreeze": "e31bc227147d93ef78e33b41b763df7605d259f25518b86be932a9662cf5439b",
+  "transport": "The earlier README rows used claude -p (Claude CLI, --model haiku) with prompts from pinned old judge versions (DeepEval hard e1d3a4910, DeepEval fresh and power d44740112 with knowledge retention mostly on the Messages API, promptfoo c07c705, Langfuse 8195902dd, Inspect 40aab095). This run uses createDefaultJudge over the Anthropic Messages API. Same model (claude-haiku-5-5) and same items, so the transport difference is part of the comparison.",
+  "population": {
+    "datasets": 15,
+    "calledItems": 2700,
+    "rows": 18,
+    "manifestSha256": "c3f837dba8f0793afda9e32f0e3530cd100c873f58e91b38f94d3e828af1b346",
+    "builders": {
+      "builders/build-deepeval.mts": "4b72382e33815be3ffc1b3fab9e44fd0472d5b6b2e603edb544ea51c770b5fdd",
+      "builders/build-promptfoo-langfuse.mts": "6afda867306c81b009dfe47517f3c7e610e6331192f2993a876337cd5ead732b",
+      "builders/build-inspect.mts": "e4c5253f47b235a98fdbe0865c6bcd4244fab4958c9e5b544d5989ab3a0f4f4d"
+    },
+    "combiner": "combine.py",
+    "equivalence": "Each request, rendered with the pinned buildPrompt the original run used, equals the recorded prompt or request hash: 2112 of 2112 DeepEval, 408 of 408 promptfoo and Langfuse, 240 of 240 Inspect (builders/CHECKS-*.json). Recorded per-case totals equal the README counts on 18 of 18 rows.",
+    "sharedItems": "Model-graded QA and fact share one dataset (fact ids map to qa ids); duplicate requests inside a dataset are called once per item id.",
+    "scripts": {
+      "combine.py": "d631e49f8805e9a729b19edd9c60e6e64b661d4c4c8ed81c46d5d4ca4c12745c",
+      "analyze.py": "02ac661774627afdeb65db63e24cc902f745659d12360e31eb44cc4e2c3b6a79",
+      "offline_check.py": "f9c8cc74cfbdfe0ab4d46e6cb48e939763c15a9eeeb0b9b26cbda56e3b413fb4",
+      "bench_spend_import.py": "6f59dc08a5b681ae15640134d6c9ae889684e42274c2558a0d9525550fd93cdc"
+    }
+  },
+  "rows": [
+    {
+      "row": "Turn relevancy",
+      "lane": "deepeval",
+      "dataset": "deepeval-heldout-relevancy",
+      "n": 72,
+      "recordedEarlierJudge": 65,
+      "recordedPeer": 36,
+      "peerSource": "comparisons/deepeval/hard/baseline-heldout.json"
+    },
+    {
+      "row": "DAG, one node",
+      "lane": "deepeval",
+      "dataset": "deepeval-heldout-relevancy",
+      "n": 72,
+      "recordedEarlierJudge": 65,
+      "recordedPeer": 65,
+      "peerSource": "comparisons/deepeval/hard/baseline-heldout.json"
+    },
+    {
+      "row": "Role adherence",
+      "lane": "deepeval",
+      "dataset": "deepeval-heldout-role",
+      "n": 72,
+      "recordedEarlierJudge": 72,
+      "recordedPeer": 63,
+      "peerSource": "comparisons/deepeval/hard/baseline-heldout.json"
+    },
+    {
+      "row": "Completeness",
+      "lane": "deepeval",
+      "dataset": "deepeval-heldout-completeness",
+      "n": 72,
+      "recordedEarlierJudge": 70,
+      "recordedPeer": 46,
+      "peerSource": "comparisons/deepeval/hard/baseline-heldout.json"
+    },
+    {
+      "row": "Hallucination",
+      "lane": "deepeval",
+      "dataset": "deepeval-heldout-grounding",
+      "n": 72,
+      "recordedEarlierJudge": 71,
+      "recordedPeer": 36,
+      "peerSource": "comparisons/deepeval/hard/baseline-heldout.json"
+    },
+    {
+      "row": "Faithfulness",
+      "lane": "deepeval",
+      "dataset": "deepeval-heldout-grounding",
+      "n": 72,
+      "recordedEarlierJudge": 71,
+      "recordedPeer": 36,
+      "peerSource": "comparisons/deepeval/hard/baseline-heldout.json"
+    },
+    {
+      "row": "Task completion",
+      "lane": "deepeval",
+      "dataset": "deepeval-heldout-task-receipts",
+      "n": 72,
+      "recordedEarlierJudge": 72,
+      "recordedPeer": 72,
+      "peerSource": "comparisons/deepeval/hard/baseline-task-receipts-heldout.json"
+    },
+    {
+      "row": "G-Eval strict",
+      "lane": "deepeval",
+      "dataset": "deepeval-fresh-relevancy-response-relevance",
+      "n": 480,
+      "recordedEarlierJudge": 474,
+      "recordedPeer": 451,
+      "peerSource": "comparisons/deepeval/lead/fresh-retry.json",
+      "setting": "response-relevance (opt-in)"
+    },
+    {
+      "row": "Knowledge retention",
+      "lane": "deepeval",
+      "dataset": "deepeval-power-knowledge",
+      "n": 1272,
+      "recordedEarlierJudge": 1270,
+      "recordedPeer": 1272,
+      "peerSource": "comparisons/deepeval/lead/power/api/retry/results.json"
+    },
+    {
+      "row": "LLM rubric",
+      "lane": "promptfoo-langfuse",
+      "dataset": "promptfoo-heldout-rubric",
+      "n": 72,
+      "recordedEarlierJudge": 71,
+      "recordedPeer": 69,
+      "peerSource": "comparisons/promptfoo/hard/recorded/heldout-rubric-peer.json"
+    },
+    {
+      "row": "Factuality",
+      "lane": "promptfoo-langfuse",
+      "dataset": "promptfoo-heldout-factuality",
+      "n": 72,
+      "recordedEarlierJudge": 70,
+      "recordedPeer": 70,
+      "peerSource": "comparisons/promptfoo/hard/recorded/heldout-factuality-peer.json"
+    },
+    {
+      "row": "Personal data",
+      "lane": "promptfoo-langfuse",
+      "dataset": "promptfoo-heldout-pii",
+      "n": 72,
+      "recordedEarlierJudge": 72,
+      "recordedPeer": 71,
+      "peerSource": "comparisons/promptfoo/hard/recorded/heldout-pii-peer.json"
+    },
+    {
+      "row": "Goal success",
+      "lane": "promptfoo-langfuse",
+      "dataset": "promptfoo-heldout-goal",
+      "n": 72,
+      "recordedEarlierJudge": 72,
+      "recordedPeer": 71,
+      "peerSource": "comparisons/promptfoo/hard/recorded/heldout-goal-peer-full-state.json"
+    },
+    {
+      "row": "Reference correctness",
+      "lane": "promptfoo-langfuse",
+      "dataset": "langfuse-heldout-reference-correctness",
+      "n": 120,
+      "recordedEarlierJudge": 116,
+      "recordedPeer": 115,
+      "peerSource": "comparisons/langfuse/hard/heldout-scores.json"
+    },
+    {
+      "row": "Model-graded QA",
+      "lane": "inspect",
+      "dataset": "inspect-heldout-qa-fact",
+      "n": 60,
+      "recordedEarlierJudge": 48,
+      "recordedPeer": 57,
+      "peerSource": "comparisons/inspect/hard/summary.json rows[row=qa].records.heldout.theirs (same results as comparisons/inspect/hard/qa-heldout-theirs.json)"
+    },
+    {
+      "row": "Model-graded fact",
+      "lane": "inspect",
+      "dataset": "inspect-heldout-qa-fact",
+      "n": 60,
+      "recordedEarlierJudge": 48,
+      "recordedPeer": 59,
+      "peerSource": "comparisons/inspect/hard/summary.json rows[row=fact].records.heldout.theirs (same results as comparisons/inspect/hard/fact-heldout-theirs.json)"
+    },
+    {
+      "row": "Grader panel",
+      "lane": "inspect",
+      "dataset": "inspect-heldout-panel",
+      "n": 60,
+      "recordedEarlierJudge": 59,
+      "recordedPeer": 59,
+      "peerSource": "comparisons/inspect/hard/summary.json rows[row=panel].records.heldout.theirs (same results as comparisons/inspect/hard/panel-heldout-theirs.json)"
+    },
+    {
+      "row": "Panel, borderline",
+      "lane": "inspect",
+      "dataset": "inspect-heldout-borderline",
+      "n": 60,
+      "recordedEarlierJudge": 49,
+      "recordedPeer": 60,
+      "peerSource": "comparisons/inspect/hard/summary.json rows[row=borderline].records.heldout.theirs (same results as comparisons/inspect/hard/borderline-heldout-theirs.json)"
+    }
+  ],
+  "model": "claude-haiku-5-5, Anthropic Messages API, unchanged default-on runtime settings of the frozen driver",
+  "variant": "new only (default-on-v7). The earlier judge is not re-run; its recorded per-case answers are the secondary comparison.",
+  "driver": {
+    "file": "scratchpad default-on/measure-api-v7.mts",
+    "sha256": "71093857780a5235008410aa7996351b81c6a604291b0d1194706db90d9f6bac",
+    "sharedMeterSha256": "49121ef3d97aaa948504e181cfbe4a522133a332edd71748c0945e43177c65fd",
+    "environment": "run from the driver folder; its node_modules links to packages/judges/node_modules of the same worktree (not part of the freeze)"
+  },
+  "endpoint": "One verdict per item; correct when it equals the case label. Inconclusive, blocked, truncated, refused or missing verdicts count wrong. Labels as recorded, no relabeling.",
+  "primaryAnalysis": "The README rule (tools/readme-charts.mjs judgeRows): G-Eval strict and Knowledge retention use the exact two-sided paired test on discordant pairs against the recorded DeepEval answers, Holm over these two rows, lead or deficit when Holm p <= 0.05 and the counts differ, else close; a pair without a v7 verdict is excluded from the paired test and reported. Every other row: Wilson 95 percent intervals of v7 and the recorded peer, lead when the v7 lower bound exceeds the peer upper bound, deficit when the reverse, else close.",
+  "secondaryAnalysis": {
+    "v7VsPeer": "exact paired test per row, Holm over all 18 rows (diagnostic, not the README standing)",
+    "v7VsEarlierJudge": "exact paired test per row against the recorded earlier driftbench answers, Holm over all 18 rows",
+    "cost": "recorded v7 USD per 100 judged cases per row, for the judge-cost chart rows (Inspect 4, Langfuse 1)"
+  },
+  "analysisScript": "analyze.py (this folder)",
+  "offlineCheck": "offline_check.py: two items per dataset through the frozen driver with a fake Messages API and analyze.py; 30 of 30 returned, 18 rows scored",
+  "budget": "Inside the 75 USD default-judge cap, enforced by the shared meter; the bench re-record spend (3.859459 USD, 5,394 calls) is imported as a prior ledger (bench_spend_import.py) so the hard stop holds across both. Estimate 3 to 8 USD.",
+  "rerunPolicy": "One execution. Items interrupted by transport failure rerun under the same freeze (no verdict existed). No returned verdict is rerun; no item is excluded; results are reported as they come.",
+  "readme": "README charts are regenerated from these results only after PR 371 merges.",
+  "amendments": [
+    {
+      "declaredAt": "2026-10-15T18:27:58.589215+00:00",
+      "beforeAnyCall": true,
+      "reason": "Independent review of 1ca27b67e (FAIL) found two analysis defects, and the recorder fix changed one product file. No model call of this run had been made.",
+      "changes": [
+        "Paired tests use only pass or fail verdicts. A returned inconclusive answer has no verdict: it counts wrong in the score and is excluded from the pairs (reviewer finding: analyze.py paired inconclusive answers, so replaying the recorded knowledge retention answers gave 1272 pairs, p 0.5, instead of the recorded 1270, p 1). Replaying the recorded G-Eval strict answers under this rule gives 479 pairs, p 3.856e-05; the recorded row counted its one unparsed answer as a wrong verdict in the pairs (480 pairs, p 1.168e-04). Both are lead.",
+        "The run cost total counts each dataset once; rows that share a dataset (relevancy, grounding, Inspect QA and fact) no longer add its cost twice (reviewer finding: a synthetic 1 USD per item run reported 2,844 instead of 2,700).",
+        "Product commit 897b7380e: packages/judges/src differs from f1e520bbd only in index.ts, which exports outputRoom for the bench recorder. createDefaultJudge is unchanged. New run freeze below.",
+        "The bench spend import covers both bench runs (4.570911 USD, 7,192 calls), file bench-rerecord-import-2.jsonl."
+      ],
+      "product": {
+        "commit": "897b7380e",
+        "policy": "default-on-v7"
+      },
+      "runFreeze": "419763055031f02ac9c0b04b1d160cd4b50e1f82bb070717255f2c5fde5c6f7c",
+      "benchSpendImportSha256": "6e9133e61fc456b3ea69967fb2a3561fd4449946b7e69177264399f76abf9825",
+      "scripts": {
+        "analyze.py": "b6d8fc2fd99b5d99846aeec4aeadedbaa199de21ca41ae2ff939b0e925402b7b",
+        "offline_check.py": "df8ba8c84cfeb8f160dca6729b3e612c9c3b87028250ddddf9dae8386996f6cc",
+        "test_analyze.py": "53082dbebf2bbbd8b724d45a8841bb0930099bd00d50e63c4cddadfb9db13e52",
+        "combine.py": "d631e49f8805e9a729b19edd9c60e6e64b661d4c4c8ed81c46d5d4ca4c12745c",
+        "bench_spend_import.py": "6f59dc08a5b681ae15640134d6c9ae889684e42274c2558a0d9525550fd93cdc"
+      },
+      "tests": "test_analyze.py: retention replays to 1270 pairs, p 1; G-Eval to 479 pairs; shared cost counted once; a failed result counts wrong and leaves the pairs. Each test fails on its mutant. offline_check.py: 30 of 30 returned, 18 rows."
+    },
+    {
+      "declaredAt": "2026-10-15T20:06:01.490440+00:00",
+      "beforeAnyCall": true,
+      "reason": "Merge of main (5354503af) into the PR changes the product tree the run freezes: packages/judges/src calibration.ts and cascade.ts, and 7 files in packages/core/src (radius, runner provenance and realized text, run schema). No model call of this run had been made.",
+      "changes": [
+        "Product commit 01801f6f5 (merge); packages/judges/src and packages/core/src are unchanged by the later commits up to the push head. The direct modules of createDefaultJudge import neither calibration.ts nor cascade.ts.",
+        "New run freeze below; manifest, driver, analysis and budget unchanged."
+      ],
+      "product": {
+        "commit": "01801f6f5",
+        "policy": "default-on-v7"
+      },
+      "runFreeze": "18804d90fb66a8ae1fb007fa28244d28945ceb75dd9a0905437a30760782fb33"
+    },
+    {
+      "declaredAt": "2026-10-15T22:25:05.548189+00:00",
+      "beforeAnyCall": true,
+      "reason": "The stale-default docs fix changes two description strings in packages/core/src/schema/spec.ts, inside the frozen product tree. A later merge of main (1bf5348ef) changes neither packages/judges/src nor packages/core/src. No model call of this run had been made.",
+      "changes": [
+        "Product commit eb2e61214. Only the prompt_version and decoder_version descriptions differ from 01801f6f5; no judge code changes.",
+        "New run freeze below; manifest, driver, analysis and budget unchanged."
+      ],
+      "product": {
+        "commit": "eb2e61214",
+        "policy": "default-on-v7"
+      },
+      "runFreeze": "dcefaf5cd24416b9e618152ad2e3b19ed76d3f5a2ba4009d7d707272bc08d35c"
+    }
+  ]
+}

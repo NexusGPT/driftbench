@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { parseJudgeText } from '../src/assessment';
 import type { JudgeRequest } from '../src/contract';
 import { groundEvidenceSpan } from '../src/evidence';
-import { buildPrompt, PROMPT_FINGERPRINT } from '../src/prompt';
+import { buildPrompt, CRITERION_PROMPT_V1_FINGERPRINT } from '../src/prompt';
 
 const request: JudgeRequest = {
   criterion: { name: 'c', rubric: 'The reply agrees with reference.txt.' },
@@ -83,8 +83,8 @@ describe('input source aliases', () => {
       where: 'input.docs/reference.txt',
     });
   });
-  it('keeps the prompt and fingerprint unchanged', () => {
-    expect(PROMPT_FINGERPRINT).toBe('398673b792c1');
+  it('keeps the version 1 fingerprint unchanged', () => {
+    expect(CRITERION_PROMPT_V1_FINGERPRINT).toBe('398673b792c1');
     expect(buildPrompt(request).system).toContain('input.<file path>');
   });
 });

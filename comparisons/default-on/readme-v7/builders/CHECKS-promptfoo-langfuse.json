@@ -1,0 +1,122 @@
+{
+  "repo": "/private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/wt-371c",
+  "head": "f1e520bbd4bc12582cc0ce1b966fd7e3dd504f97",
+  "worktree_clean_for_read_paths": true,
+  "equivalence": {
+    "promptfoo-heldout-rubric": {
+      "pinned_commit": "c07c705cbd0275ec2c59ca8119fab09a539179e5",
+      "n": 72,
+      "prompt_equals_stored_prompts_file": 72,
+      "prompt_equals_recorded_call_prompt": 72,
+      "key_equals_recorded_request_sha256": 72,
+      "request_shape_ok": 72,
+      "gold_equals_recorded_truth": 72,
+      "identical": "72 of 72 identical"
+    },
+    "promptfoo-heldout-factuality": {
+      "pinned_commit": "c07c705cbd0275ec2c59ca8119fab09a539179e5",
+      "n": 72,
+      "prompt_equals_stored_prompts_file": 72,
+      "prompt_equals_recorded_call_prompt": 72,
+      "key_equals_recorded_request_sha256": 72,
+      "request_shape_ok": 72,
+      "gold_equals_recorded_truth": 72,
+      "identical": "72 of 72 identical"
+    },
+    "promptfoo-heldout-pii": {
+      "pinned_commit": "c07c705cbd0275ec2c59ca8119fab09a539179e5",
+      "n": 72,
+      "prompt_equals_stored_prompts_file": 72,
+      "prompt_equals_recorded_call_prompt": 72,
+      "key_equals_recorded_request_sha256": 72,
+      "request_shape_ok": 72,
+      "gold_equals_recorded_truth": 72,
+      "identical": "72 of 72 identical"
+    },
+    "promptfoo-heldout-goal": {
+      "pinned_commit": "c07c705cbd0275ec2c59ca8119fab09a539179e5",
+      "n": 72,
+      "prompt_equals_stored_prompts_file": 72,
+      "prompt_equals_recorded_call_prompt": 72,
+      "key_equals_recorded_request_sha256": 72,
+      "request_shape_ok": 72,
+      "gold_equals_recorded_truth": 72,
+      "identical": "72 of 72 identical"
+    },
+    "langfuse-heldout-reference-correctness": {
+      "pinned_commit": "8195902dd20c84267f85feba268c17868e00dfbe",
+      "n": 120,
+      "rebuilt_request_equals_stored_request": 120,
+      "prompt_equals_stored_prompts_file": 120,
+      "prompt_equals_recorded_call_prompt": 120,
+      "key_equals_recorded_request_sha256": 120,
+      "request_shape_ok": 120,
+      "gold_equals_recorded_label": 120,
+      "identical": "120 of 120 identical"
+    }
+  },
+  "totals": {
+    "LLM rubric": {
+      "n": 72,
+      "recorded_n": 72,
+      "n_ok": true,
+      "peer_sum": 69,
+      "recorded_theirs": 69,
+      "peer_ok": true,
+      "ours_sum": 71,
+      "recorded_ours": 71,
+      "ours_ok": true
+    },
+    "Factuality": {
+      "n": 72,
+      "recorded_n": 72,
+      "n_ok": true,
+      "peer_sum": 70,
+      "recorded_theirs": 70,
+      "peer_ok": true,
+      "ours_sum": 70,
+      "recorded_ours": 70,
+      "ours_ok": true
+    },
+    "Personal data": {
+      "n": 72,
+      "recorded_n": 72,
+      "n_ok": true,
+      "peer_sum": 71,
+      "recorded_theirs": 71,
+      "peer_ok": true,
+      "ours_sum": 72,
+      "recorded_ours": 72,
+      "ours_ok": true
+    },
+    "Goal success": {
+      "n": 72,
+      "recorded_n": 72,
+      "n_ok": true,
+      "peer_sum": 71,
+      "recorded_theirs": 71,
+      "peer_ok": true,
+      "ours_sum": 72,
+      "recorded_ours": 72,
+      "ours_ok": true
+    },
+    "Reference correctness": {
+      "n": 120,
+      "recorded_n": 120,
+      "n_ok": true,
+      "peer_sum": 115,
+      "recorded_theirs": 115,
+      "peer_ok": true,
+      "ours_sum": 116,
+      "recorded_ours": 116,
+      "ours_ok": true
+    }
+  },
+  "request_shape": {},
+  "summary": {
+    "equivalence": "408 of 408 identical (pinned buildPrompt vs recorded call prompt; also vs stored prompt file and request hash, per dataset)",
+    "totals": "5 of 5 rows match recorded ours, theirs and n",
+    "mismatches": 0
+  },
+  "mismatches": []
+}

@@ -1,0 +1,86 @@
+{
+  "lane": "inspect",
+  "source": {
+    "repo": "SP/wt-371c",
+    "commit": "f1e520bbd4bc12582cc0ce1b966fd7e3dd504f97",
+    "readFrom": "git show HEAD:<path>",
+    "dirtyInputs": "none"
+  },
+  "pinnedBuildPrompt": {
+    "commit": "40aab09551e1b8702d576d3f28b63b12848cf572",
+    "file": "packages/judges/src/prompt.ts",
+    "sha256": "b916144fa5fadaa37a7adb7f0f7ea04d8e2a73ac7478504f0697d1b52f8f8b7e",
+    "equalsMainSnapshot": true,
+    "coreShim": "@driftbench/core resolved to packages/core/src/spec/hash.ts at the pinned commit (contentHash only; not used by buildPrompt)"
+  },
+  "recordings": {
+    "parts": [
+      "part-0000.jsonl",
+      "part-0001.jsonl",
+      "part-0002.jsonl",
+      "part-0003.jsonl",
+      "part-0004.jsonl",
+      "part-0005.jsonl"
+    ],
+    "partHashesEqualCallsManifest": true,
+    "lines": 7611
+  },
+  "inputs": [
+    "qa-heldout.json: sha256 equals heldout-freeze.json and records.heldout.{ours,theirs}.setSha256; summary.json results equal qa-heldout-{ours,theirs}.json",
+    "fact-heldout.json: sha256 equals heldout-freeze.json and records.heldout.{ours,theirs}.setSha256; summary.json results equal fact-heldout-{ours,theirs}.json",
+    "panel-heldout.json: sha256 equals heldout-freeze.json and records.heldout.{ours,theirs}.setSha256; summary.json results equal panel-heldout-{ours,theirs}.json",
+    "borderline-heldout.json: sha256 equals heldout-freeze.json and records.heldout.{ours,theirs}.setSha256; summary.json results equal borderline-heldout-{ours,theirs}.json"
+  ],
+  "equivalence": {
+    "qa": {
+      "requestHashes": "60 of 60 identical",
+      "recordedPrompts": "60 of 60 identical"
+    },
+    "fact": {
+      "requestHashes": "60 of 60 identical",
+      "recordedPrompts": "60 of 60 identical"
+    },
+    "panel": {
+      "requestHashes": "180 of 180 identical",
+      "recordedPrompts": "180 of 180 identical"
+    },
+    "borderline": {
+      "requestHashes": "180 of 180 identical",
+      "recordedPrompts": "180 of 180 identical"
+    }
+  },
+  "totals": {
+    "qa": {
+      "peer": "57 == recorded theirs 57: true",
+      "ours": "48 == recorded ours 48: true",
+      "readmeChart": "chart-data.js \"Model-graded QA\" bars 48 / 57 (driftbench / Inspect) == 48 / 57: true"
+    },
+    "fact": {
+      "peer": "59 == recorded theirs 59: true",
+      "ours": "48 == recorded ours 48: true",
+      "readmeChart": "chart-data.js \"Model-graded fact\" bars 48 / 59 (driftbench / Inspect) == 48 / 59: true"
+    },
+    "panel": {
+      "peer": "59 == recorded theirs 59: true",
+      "ours": "59 == recorded ours 59: true",
+      "readmeChart": "chart-data.js \"Grader panel\" bars 59 / 59 (driftbench / Inspect) == 59 / 59: true"
+    },
+    "borderline": {
+      "peer": "60 == recorded theirs 60: true",
+      "ours": "49 == recorded ours 49: true",
+      "readmeChart": "chart-data.js \"Panel, borderline\" bars 49 / 60 (driftbench / Inspect) == 49 / 60: true"
+    }
+  },
+  "requestShapeCurrent": {
+    "qa": "60 of 60 accepted",
+    "fact": "60 of 60 accepted",
+    "panel": "60 of 60 accepted",
+    "borderline": "60 of 60 accepted"
+  },
+  "qaFactShared": "60 of 60 fact cases have the same driftbench request_sha256 and outcome as their qa twin",
+  "crossDatasetDuplicateRequests": [
+    "inspect-heldout-borderline/heldout-20261013-borderline-near-number-0-23 (gold pass) has the same request as inspect-heldout-panel/heldout-20261013-panel-care_redirect-0-23 (gold pass)"
+  ],
+  "mismatches": [],
+  "manifestSha256": "895c1593cc4b18899c9f4a9e8863ac7ff1775395c88d967f6656c467d497422c"
+}

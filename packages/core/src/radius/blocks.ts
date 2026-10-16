@@ -1,6 +1,7 @@
 import { runProvenance } from '../runner/provenance';
 import { applyBlockRealizedTextPolicy } from '../runner/realized-text';
 import type { RunOptions } from '../runner/run';
+import { blockStatus } from '../runner/verdicts';
 import type { BlockResult, Campaign, RunResult } from '../schema/run';
 import type { Spec } from '../schema/spec';
 import { contentHash } from '../spec/hash';
@@ -33,7 +34,7 @@ export function planBlockRerun(
     source.endState?.match === false ||
     source.status !== 'completed' ||
     source.blocks.length !== spec.blocks.length ||
-    source.blocks.some((b) => !b.pass || !b.provenance)
+    source.blocks.some((b) => blockStatus(b) !== 'pass' || !b.provenance)
   )
     return fail('the baseline is incomplete, failing or lacks block provenance');
   if (source.rejudged) return fail('a re-judged baseline requires a full agent measurement');
