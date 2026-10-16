@@ -1,4 +1,4 @@
-import type { RunResult } from '@agent-nexus/driftbench-core';
+import { blockStatus, type RunResult } from '@agent-nexus/driftbench-core';
 import type { CampaignData } from './data';
 import { runPassed } from './data';
 import { type Rate, rate } from './estimate';
@@ -93,12 +93,13 @@ export function blockDiagnoses(
   return (block as Block).diagnoses ?? options.diagnoses?.[run.runId]?.[block.index] ?? [];
 }
 
-/** How a block counts for the agent: its machine pass stands; a failing block passes when every failure is set aside. */
+/** How a block counts for the agent: its machine pass stands (a block not run or blocked counts as a pass); a failing block passes when every failure is set aside. */
 export function blockOutcome(
   block: RunResult['blocks'][number],
   diagnoses: readonly ReportDiagnosis[],
 ): BlockOutcome {
-  if (block.pass) return 'pass';
+  // A block not run or blocked is not a failure of the agent.
+  if (blockStatus(block) !== 'fail') return 'pass';
   const failing = block.verdicts.filter((verdict) => verdict.gating && verdict.outcome !== 'pass');
   let unassigned = false;
   for (const verdict of failing) {
@@ -181,7 +182,7 @@ export function attributionOf(
       for (const object of (block as Block).resolved?.objects ?? []) objects.set(objectKey(object), object);
       const diagnoses = blockDiagnoses(run, block, options);
       const own = blockOutcome(block, diagnoses);
-      if (!block.pass) {
+      if (blockStatus(block) === 'fail') {
         blocks.failing += 1;
         blocks[blockDisposition(block, diagnoses, own)] += 1;
       }
