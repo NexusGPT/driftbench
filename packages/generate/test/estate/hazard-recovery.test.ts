@@ -140,12 +140,13 @@ describe('handwritten archive hazards assert recovery, not a generic continuatio
     expect(spec.rules?.custom?.hazard_recovery).toMatchObject({ reread: ['notes/archive.index.CFG'] });
   });
   it('does not treat an empty path or zero required calls as a recovery obligation', () => {
-    expect(
-      generate('restart', 'Resume safely.', 1, {
-        reread: [''],
-        calls: [{ label: 'Read', input: {}, count: 0 }],
-      }).generated.specs[0]?.complete,
-    ).toBe(false);
+    const { generated, spec } = generate('restart', 'Resume safely.', 1, {
+      reread: [''],
+      calls: [{ label: 'Read', input: {}, count: 0 }],
+    });
+    expect(generated.specs[0]?.complete).toBe(true);
+    const options = spec.rules?.custom?.hazard_recovery as Record<string, unknown>;
+    expect(options.reread).toBeUndefined();
   });
   for (const sample of samples) {
     it(sample.kind, async () => {
@@ -173,10 +174,14 @@ describe('handwritten archive hazards assert recovery, not a generic continuatio
         ).toBe(true);
       }
     });
-    it(`${sample.kind} has a counted gap when its contract names no assertable recovery`, () => {
-      const { generated } = generate(sample.kind, 'Recover appropriately when interrupted.');
-      expect(generated.specs[0]?.complete).toBe(false);
-      expect(generated.report.gaps.some((g) => g.marker === 'needs-recovery-action')).toBe(true);
+    it(`${sample.kind} keeps the generic recovery expectation when its contract names no assertable action`, () => {
+      const { generated, spec } = generate(sample.kind, 'Recover appropriately when interrupted.');
+      expect(generated.specs[0]?.complete).toBe(true);
+      expect(generated.report.gaps.some((g) => g.marker.startsWith('needs-recovery'))).toBe(false);
+      const options = spec.rules?.custom?.hazard_recovery as Record<string, unknown>;
+      expect(options.reread).toBeUndefined();
+      expect(options.calls).toBeUndefined();
+      expect(options.retry).toBeUndefined();
     });
   }
   for (const quote of [
@@ -186,7 +191,12 @@ describe('handwritten archive hazards assert recovery, not a generic continuatio
     'After restart, the retry policy mentions `notes/context.md`.',
   ])
     it(`does not invent a required action from: ${quote}`, () => {
-      expect(generate('restart', quote).generated.specs[0]?.complete).toBe(false);
+      const { generated, spec } = generate('restart', quote);
+      expect(generated.specs[0]?.complete).toBe(true);
+      const options = spec.rules?.custom?.hazard_recovery as Record<string, unknown>;
+      expect(options.reread).toBeUndefined();
+      expect(options.calls).toBeUndefined();
+      expect(options.retry).toBeUndefined();
     });
   it('does not accept a different input as retrying the failed request', async () => {
     const { spec } = generate('rate_wave', 'After a rate limit, retry the failed request.');

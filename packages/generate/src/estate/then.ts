@@ -72,7 +72,6 @@ export const MARKERS = {
   askable: 'needs-askable-act',
   existingFile: 'needs-existing-file',
   guardTrace: 'needs-guard-trace',
-  recoveryAction: 'needs-recovery-action',
 } as const;
 export type Marker = (typeof MARKERS)[keyof typeof MARKERS];
 export const MARKER_NAMES: ReadonlySet<string> = new Set(Object.values(MARKERS));
@@ -334,35 +333,10 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
         ];
         const calls = [...(Array.isArray(declared.calls) ? declared.calls : []), ...recovery.calls];
         const retry = declared.retry === true || recovery.retry;
-        const requiredCall = calls.some((call) => {
-          if (
-            typeof call !== 'object' ||
-            call === null ||
-            !('label' in call) ||
-            typeof call.label !== 'string' ||
-            !call.label.trim()
-          )
-            return false;
-          const count = 'count' in call ? call.count : undefined;
-          return (
-            count === undefined ||
-            (typeof count === 'number' && count > 0) ||
-            (typeof count === 'object' &&
-              count !== null &&
-              'min' in count &&
-              typeof count.min === 'number' &&
-              count.min > 0)
-          );
-        });
-        if (reread.length === 0 && !requiredCall && !retry)
-          gap(
-            then,
-            MARKERS.recoveryAction,
-            atom,
-            'the source names no concrete recovery read, command or failed-request retry',
-          );
+        // Only the actions the estate states stay: an empty path or a call counted zero demands nothing.
+        const { reread: _reread, calls: _calls, retry: _retry, ...rest } = declared;
         then.custom.hazard_recovery = {
-          ...declared,
+          ...rest,
           ...(reread.length > 0 ? { reread } : {}),
           ...(calls.length > 0 ? { calls } : {}),
           ...(retry ? { retry: true } : {}),
