@@ -1,28 +1,16 @@
 import { mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { expect, it, vi } from 'vitest';
-
-vi.mock('compromise/two', async (importOriginal) => {
-  const real = await importOriginal<typeof import('compromise/two')>();
-  return {
-    ...real,
-    default: (text: string) => {
-      if (text === 'The helper must trigger a parser failure.')
-        throw new Error('injected sentence parser failure');
-      return real.default(text);
-    },
-  };
-});
-
 import { loadEstateMap } from '@agent-nexus/driftbench-estate';
+import { expect, it } from 'vitest';
 import { estateScanCommand } from '../src/commands/estate';
 
-it('counts a sentence parser failure, writes the map, and continues to later sentences', async () => {
+it('counts a clause it cannot place, writes the map, and continues to later clauses', async () => {
   const root = await mkdtemp(join(tmpdir(), 'prose-failure-'));
+  // The first clause ends in a backslash that escapes the quotation mark after it: no quote can be found.
   await writeFile(
     join(root, 'CLAUDE.md'),
-    'The helper must trigger a parser failure.\n\nThe helper must validate the manifest.\n',
+    'Always \\"x verify the receipt.\n\nThe helper must validate the manifest.\n',
   );
   let output = '';
   const io = {
@@ -36,7 +24,7 @@ it('counts a sentence parser failure, writes the map, and continues to later sen
   };
   expect(await estateScanCommand('.', { model: false, out: 'map.yaml' }, io)).toBe(0);
   expect(output).toContain('Code-found prose candidates skipped: 1.');
-  expect(output).toContain('injected sentence parser failure');
+  expect(output).toContain('the quote cannot be found at its lines');
   const loaded = await loadEstateMap(join(root, 'map.yaml'));
   expect(
     loaded.ok &&

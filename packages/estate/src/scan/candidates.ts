@@ -2,7 +2,7 @@ import nlp from 'compromise/two';
 import type { Atom } from '../schema';
 import type { AtomBuilder } from './code';
 import type { ProseChunk, RawEstate } from './reader';
-import { readFrontmatter } from './text';
+import { lineAt, quoteAtSpan, readFrontmatter } from './text';
 
 /** Conservative English clause proposals. These are evidence for review, never approved rules. */
 export function proseCandidates(
@@ -15,94 +15,153 @@ export function proseCandidates(
   const pendingFiles = new Set(
     raw.prose.filter((chunk) => !answered.has(chunk.id)).map((chunk) => chunk.file),
   );
-  const answeredFiles = new Set(resolved.map((chunk) => chunk.file));
+  const answeredByFile = new Map<string, ProseChunk[]>();
+  for (const chunk of resolved)
+    answeredByFile.set(chunk.file, [...(answeredByFile.get(chunk.file) ?? []), chunk]);
   for (const file of raw.files) {
     if (!['standing', 'memory', 'skill', 'skill_file', 'subagent'].includes(file.kind)) continue;
-    if (answeredFiles.has(file.path) && !pendingFiles.has(file.path)) continue;
-    const body = readFrontmatter(file.text);
-    const lines = file.text.split('\n');
-    const visible = normativeLines(lines, body.bodyLine);
-    for (const block of visible) {
-      // Segment the masked text, retaining original offsets, including soft line wraps.
-      for (const segment of proseClauses(block.masked.replace(/\n/g, ' '))) {
-        const text = segment.segment.trim();
-        if (!text || text.includes('?')) continue;
-        const leading = segment.segment.length - segment.segment.trimStart().length;
-        const offset = segment.index + leading;
-        const quote = block.original.slice(offset, segment.index + segment.segment.trimEnd().length);
-        if (!quote.trim()) continue;
-        const startLine = block.startLine + countNewlines(block.original.slice(0, offset));
-        const endLine = startLine + countNewlines(quote);
-        let rule: Rule | undefined;
-        try {
-          rule = clauseRule(text);
-        } catch (cause) {
-          raw.notes.push({
-            file: file.path,
-            message: `Prose candidate skipped at lines ${startLine}-${endLine}: ${cause instanceof Error ? cause.message : String(cause)}`,
-          });
-          continue;
-        }
-        if (!rule) continue;
-        // A successfully answered model chunk supersedes the cheaper candidate pass for its source span.
-        if (
-          resolved.some(
-            (chunk) => chunk.file === file.path && chunk.startLine <= startLine && endLine <= chunk.endLine,
-          )
-        )
-          continue;
-        // A structured or model rule already occupying this passage is more informative.
-        if (
-          builder
-            .atomsOf(file.path)
-            .some(
-              (atom) =>
-                ['instruction', 'gate', 'register'].includes(atom.kind) &&
-                atom.provenance.startLine <= endLine &&
-                startLine <= atom.provenance.endLine &&
-                (atom.kind === 'gate'
-                  ? rule.form === 'conditional' || ruleText(atom.provenance.quote) === ruleText(quote)
-                  : atom.provenance.quote.includes(quote.trim())),
-            )
-        )
-          continue;
-        const helper = raw.subagents.find((agent) => agent.file === file.path);
-        const scope = helper ? 'helper' : file.owner ? 'skill' : 'estate';
-        const owner = helper?.name ?? file.owner;
-        const kind =
-          /\b(?:reply|replies|response|responses|answer|answers|sentences?|paragraphs?|words|characters|tone|language|format)\b/i.test(
-            rule.subject,
-          ) ||
-          /^(?:always\s+|never\s+|do\s+not\s+)?(?:answer|reply|respond)\b/i.test(text) ||
-          /\bmust\s+(?:not\s+)?(?:answer|reply|respond)\b/i.test(text)
-            ? 'register'
-            : 'instruction';
-        added.push(
-          builder.add({
-            kind,
-            title: quote.trim().replace(/\s+/g, ' '),
-            at: { file: file.path, startLine, endLine, quote },
-            approved: false,
-            evidence: [{ type: 'custom', name: 'prose_candidate', options: { reviewRequired: true } }],
-            fields: {
-              candidate: true,
-              extraction: 'code-found',
-              scope,
-              ...(owner ? { owner } : {}),
-              polarity: rule.polarity,
-              subject: rule.subject,
-              form: rule.form,
-            },
-          }),
-        );
-      }
+    const resolvedHere = answeredByFile.get(file.path) ?? [];
+    if (resolvedHere.length > 0 && !pendingFiles.has(file.path)) continue;
+    try {
+      candidatesOfFile(raw, builder, file, resolvedHere, added);
+    } catch (cause) {
+      // One unreadable file never costs the rest of the scan; the scan summary counts what was skipped.
+      raw.notes.push({
+        file: file.path,
+        message: `Prose candidate skipped for the whole file: ${cause instanceof Error ? cause.message : String(cause)}`,
+      });
     }
   }
   return added;
 }
 
+/** The atoms of one file that may already say what a clause says, found by line span without a rescan. */
+class OccupiedLines {
+  private readonly sorted: Atom[];
+  private readonly reach: number[] = [];
+  private readonly mine: Atom[] = [];
+  constructor(existing: readonly Atom[]) {
+    this.sorted = existing
+      .filter((atom) => ['instruction', 'gate', 'register'].includes(atom.kind))
+      .sort((a, b) => a.provenance.startLine - b.provenance.startLine);
+    let reach = 0;
+    for (const atom of this.sorted) {
+      reach = Math.max(reach, atom.provenance.endLine);
+      this.reach.push(reach);
+    }
+  }
+  /** Candidates are added in reading order, so each ends at or after the one before it. */
+  record(atom: Atom): void {
+    this.mine.push(atom);
+  }
+  some(startLine: number, endLine: number, test: (atom: Atom) => boolean): boolean {
+    let low = 0;
+    let high = this.sorted.length;
+    while (low < high) {
+      const middle = (low + high) >> 1;
+      if ((this.sorted[middle] as Atom).provenance.startLine <= endLine) low = middle + 1;
+      else high = middle;
+    }
+    for (let at = low - 1; at >= 0 && (this.reach[at] as number) >= startLine; at--) {
+      const atom = this.sorted[at] as Atom;
+      if (atom.provenance.endLine >= startLine && test(atom)) return true;
+    }
+    for (let at = this.mine.length - 1; at >= 0; at--) {
+      const atom = this.mine[at] as Atom;
+      if (atom.provenance.endLine < startLine) break;
+      if (atom.provenance.startLine <= endLine && test(atom)) return true;
+    }
+    return false;
+  }
+}
+
+function candidatesOfFile(
+  raw: RawEstate,
+  builder: AtomBuilder,
+  file: RawEstate['files'][number],
+  resolved: readonly ProseChunk[],
+  added: Atom[],
+): void {
+  const body = readFrontmatter(file.text);
+  const lines = file.text.split('\n');
+  const visible = normativeLines(lines, body.bodyLine);
+  const occupied = new OccupiedLines(builder.atomsOf(file.path));
+  const helper = raw.subagents.find((agent) => agent.file === file.path);
+  const scope = helper ? 'helper' : file.owner ? 'skill' : 'estate';
+  const owner = helper?.name ?? file.owner;
+  for (const block of visible) {
+    // Segment the masked text, retaining original offsets, including soft line wraps.
+    for (const segment of proseClauses(block.masked.replace(/\n/g, ' '))) {
+      const text = segment.segment.trim();
+      if (!text || text.includes('?')) continue;
+      const leading = segment.segment.length - segment.segment.trimStart().length;
+      const offset = segment.index + leading;
+      const quote = block.original.slice(offset, segment.index + segment.segment.trimEnd().length);
+      if (!quote.trim()) continue;
+      // An indexed lookup: counting line breaks from the top of the block makes a long block quadratic.
+      const startLine = block.startLine + lineAt(block.original, offset) - 1;
+      const endLine = startLine + countNewlines(quote);
+      let rule: Rule | undefined;
+      try {
+        rule = clauseRule(text);
+        // The map accepts only a quote the extractor's own check finds at its lines (a quote ending in an
+        // escaping backslash does not survive that check), so a clause whose quote fails it is not proposed.
+        if (rule && !quoteAtSpan(file.text, { file: file.path, startLine, endLine, quote }))
+          throw new Error('the quote cannot be found at its lines');
+      } catch (cause) {
+        raw.notes.push({
+          file: file.path,
+          message: `Prose candidate skipped at lines ${startLine}-${endLine}: ${cause instanceof Error ? cause.message : String(cause)}`,
+        });
+        continue;
+      }
+      if (!rule) continue;
+      const form = rule.form;
+      // A successfully answered model chunk supersedes the cheaper candidate pass for its source span.
+      if (resolved.some((chunk) => chunk.startLine <= startLine && endLine <= chunk.endLine)) continue;
+      // A structured or model rule already occupying this passage is more informative.
+      if (
+        occupied.some(startLine, endLine, (atom) =>
+          atom.kind === 'gate'
+            ? form === 'conditional' || ruleText(atom.provenance.quote) === ruleText(quote)
+            : atom.provenance.quote.includes(quote.trim()),
+        )
+      )
+        continue;
+      const kind =
+        /\b(?:reply|replies|response|responses|answer|answers|sentences?|paragraphs?|words|characters|tone|language|format)\b/i.test(
+          rule.subject,
+        ) ||
+        /^(?:always\s+|never\s+|do\s+not\s+)?(?:answer|reply|respond)\b/i.test(text) ||
+        /\bmust\s+(?:not\s+)?(?:answer|reply|respond)\b/i.test(text)
+          ? 'register'
+          : 'instruction';
+      const atom = builder.add({
+        kind,
+        title: quote.trim().replace(/\s+/g, ' '),
+        at: { file: file.path, startLine, endLine, quote },
+        approved: false,
+        evidence: [{ type: 'custom', name: 'prose_candidate', options: { reviewRequired: true } }],
+        fields: {
+          candidate: true,
+          extraction: 'code-found',
+          scope,
+          ...(owner ? { owner } : {}),
+          polarity: rule.polarity,
+          subject: rule.subject,
+          form,
+        },
+      });
+      occupied.record(atom);
+      added.push(atom);
+    }
+  }
+}
+
 function countNewlines(text: string): number {
-  return text.split('\n').length - 1;
+  let count = 0;
+  for (let at = text.indexOf('\n'); at >= 0; at = text.indexOf('\n', at + 1)) count++;
+  return count;
 }
 const blank = (text: string) => text.replace(/[^\n]/g, ' ');
 
@@ -167,6 +226,9 @@ function normativeLines(lines: string[], bodyStart: number): Block[] {
       current = undefined;
       continue;
     }
+    // A quotation never outlives its paragraph, so one stray quotation mark (5" pipe) cannot hide the file.
+    const list = /^\s*(?:[-+*]|\d+[.)])\s/.test(original);
+    if (!current || list) quotation = undefined;
     // Quoted and inline-code payloads cannot supply modalities or verbs.
     line = line.replace(/`+[^`]*`+|(?<!\w)'[^'\n]+'(?!\w)|‘[^’\n]*’/g, blank);
     let unquoted = '';
@@ -191,7 +253,6 @@ function normativeLines(lines: string[], bodyStart: number): Block[] {
     line = line.replace(/[*_]/g, ' ');
     const prefix = /^\s*(?:[-+*]\s+|\d+[.)]\s+)?(?:R#?\d+\s*[:.-]\s*)?/.exec(line)?.[0] ?? '';
     line = ' '.repeat(prefix.length) + line.slice(prefix.length);
-    const list = /^\s*(?:[-+*]|\d+[.)])\s/.test(original);
     if (!current || list) {
       current = { original, masked: line, startLine: i + 1 };
       blocks.push(current);
@@ -261,6 +322,10 @@ function clauseRule(source: string): Rule | undefined {
     const subject = text.slice(0, token.index).replace(/\s+/g, ' ').trim();
     return { subject, polarity: 'obligation', form: 'quantified' };
   }
+  if (quantified) {
+    const subject = passiveSubject(text, parsed);
+    if (subject) return { subject, polarity: 'obligation', form: 'quantified' };
+  }
   const conditional = /^(?:before|only\s+when)\s+(.+?)[,:]\s*(.+)$/i.exec(text);
   if (
     conditional &&
@@ -271,6 +336,35 @@ function clauseRule(source: string): Rule | undefined {
   if (/\bonly\s+when\b/i.test(text) && parsed.has('^#Verb'))
     return { subject: 'agent', polarity: 'obligation', form: 'conditional' };
   return;
+}
+
+/**
+ * The subject of a present passive ("Every run is logged"): a present-tense auxiliary directly followed by a
+ * passive participle. The auxiliary's tense is read from the tagger on a neutral frame, because inside a
+ * passive it is tagged only as an auxiliary. Past ("was logged"), perfect ("has been logged"), progressive
+ * and modal ("will be logged") chains are statements of fact, not rules.
+ */
+function passiveSubject(text: string, parsed: ReturnType<typeof nlp>): string | undefined {
+  const terms = (parsed.json()[0]?.terms ?? []) as Array<{ text: string; tags: string[] }>;
+  let from = 0;
+  for (let at = 1; at < terms.length - 1; at++) {
+    const term = terms[at] as { text: string; tags: string[] };
+    const found = text.indexOf(term.text, from);
+    if (found < 0) return;
+    from = found + term.text.length;
+    if (!term.tags.includes('Auxiliary')) continue;
+    const participle = terms[at + 1] as { tags: string[] };
+    if (participle.tags.includes('Auxiliary') || !participle.tags.includes('Passive')) return;
+    if (!probeTags(term.text).includes('PresentTense')) return;
+    const subject = text.slice(0, found).replace(/\s+/g, ' ').trim();
+    return subject.split(/\s+/).length > 1 ? subject : undefined;
+  }
+  return;
+}
+
+function probeTags(word: string): string[] {
+  const probe = (nlp(`It ${word} done.`).json()[0]?.terms ?? []) as Array<{ tags: string[] }>;
+  return probe[1]?.tags ?? [];
 }
 
 /** Supply an overt subject/modal to disambiguate a bare imperative, without a verb vocabulary. */
