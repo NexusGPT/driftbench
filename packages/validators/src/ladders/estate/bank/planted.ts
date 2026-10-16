@@ -191,7 +191,7 @@ export class PlantedEstate {
         const at = join(absolute(parent === '.' ? '' : this.physical(parent)), posix.basename(link.path));
         const target = absolute(link.target);
         await mkdir(dirname(at), { recursive: true });
-        await symlink(link.absolute ? target : relative(dirname(at), target), at);
+        await symlink(link.absolute ? target : relative(dirname(at), target) || '.', at);
       }
       const port = truthPort(this.answers);
       const reader = readerFor(RUNTIME);

@@ -67,7 +67,7 @@ A tool that reports a failure should return `{ "error": "..." }`. The SDK's defa
 
 ## Capabilities
 
-`seedPrefix` is on: the agent receives the whole history, prefix included. `toolStubs` is off: the SDK runs the agent's own tools, so a forced result in `world.tools` does not reach them. `endState` is on when `sideEffects` is given. `deterministic` is as declared. `variants`, `trace` and `sandbox` are off.
+`seedPrefix` is on: the agent receives the whole history, prefix included. `toolStubs` is off: the SDK runs the agent's own tools, so a block with a forced result in `world.tools` is `not_run`. `endState` is on when `sideEffects` is given. `deterministic` is as declared. `variants`, `trace` and `sandbox` are off.
 
 ## End state
 

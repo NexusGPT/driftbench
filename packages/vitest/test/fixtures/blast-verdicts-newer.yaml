@@ -1,0 +1,6 @@
+# Fictional data only. A spec written for a spec format this driftbench does not read.
+schema_version: 2
+id: blast-verdicts-newer
+future_key: { x: 1 }
+blocks:
+  - user: Hi

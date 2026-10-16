@@ -742,6 +742,8 @@ exit 0
 
 `family review --write` writes a pending review with the current hashes, unless a current signed one exists.
 
+A column asked as a formula is checked by its formula on every row: the formula the oracle names, with any spaces around its operators. A formula of one multiplication or one addition of two operands, each a cell reference or a number, also passes with its operands swapped, so `=12*C2` passes where the oracle names `=C2*12`; `=12*C3` and `=13*C2` still fail. Any other formula, such as one with a comparison, a power or a function, keeps the order the oracle names.
+
 Limits today:
 
 * A column asked as a value is checked by its value only: the reader vocabulary has no check that a cell holds no formula, so a formula with the right cached result passes.
@@ -772,7 +774,7 @@ A map hands a flow to a family with a `task_family` relation. A family that writ
   quote: "title: Add a summary sheet to the existing workbook and leave every other file untouched"
 ```
 
-`generate` builds `--tasks <n>` instances per relation from the seed (default 8) and writes every variant to `specs/task/`. Relations on one family share its draws: instances are drawn in order, and each goes to the relations whose `instances` its knobs meet. The family's oracle wrote each Then; the task seeder only places the spec: the values of `holds` become its tags, and a planted variant also declares its planted file as a perturbation of the relation's class at the first block, with that block's Then. A variant whose workspace holds a file that is not text, such as the existing workbook, is written to a folder beside its spec, `specs/task/.seed-<spec id>/`, which its `workspace_seed.from` names from the folder `generate` runs in. A relation whose family's phrases are not approved, whose review is missing, invalid or stale, whose `instances` names a knob the family lacks, or that gets no instance is refused with its reason, and the refusal counts as a defect (exit 1). The gate runs task specs on the code agent with `--route flow:price-sheet=process:acme-ops`; `campaign` and `ci` take the same `--route`.
+`generate` builds `--tasks <n>` instances per relation from the seed (default 8) and writes every variant to `specs/task/`. Relations on one family share its draws: instances are drawn in order, and each goes to the relations whose `instances` its knobs meet. The family's oracle wrote each Then; the task seeder only places the spec: the values of `holds` become its tags, the spec holds the map's reply rule (`rules.one_message_per_turn` unless the map's `reply_count` is `any`) as every generated spec does, and a planted variant also declares its planted file as a perturbation of the relation's class at the first block, with that block's Then. A variant whose workspace holds a file that is not text, such as the existing workbook, is written to a folder beside its spec, `specs/task/.seed-<spec id>/`, which its `workspace_seed.from` names from the folder `generate` runs in. A relation whose family's phrases are not approved, whose review is missing, invalid or stale, whose `instances` names a knob the family lacks, or that gets no instance is refused with its reason, and the refusal counts as a defect (exit 1). The gate runs task specs on the code agent with `--route flow:price-sheet=process:acme-ops`; `campaign` and `ci` take the same `--route`.
 
 ## The variance pilot
 
