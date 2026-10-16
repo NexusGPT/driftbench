@@ -5,7 +5,6 @@ commands:
   - spec validate
   - spec lint
   - spec coverage
-  - campaign run
 see_also:
   - authoring-blocks
   - authoring-prefixes
