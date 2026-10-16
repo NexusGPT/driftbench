@@ -156,28 +156,40 @@ function blockStep(
       const valueObject = ctx.objects.find((one) => one.object.kind === 'policy/value-check')?.object;
       const valuePolicy = valueObject === undefined ? undefined : valuePolicyOf(valueObject);
       const services = blameServices();
-      // A value the check compared exactly (no decider was configured) is decided again with the services the
-      // caller gave the diagnostics; the other values keep the decisions the check stored.
+      // The services belong to the block, not to a diagnostic: every diagnostic that attributes a verdict
+      // decides it the same way, so the result does not depend on which one runs first. A value the check
+      // compared exactly (no decider was configured) is decided again with the value services; the other
+      // values keep the decisions the check stored. A service that throws is reported and read as unknown.
+      const errors: string[] = [];
       const values: Record<string, readonly evidence.ValueFact[]> = {};
-      if (valueMode && services.value !== undefined) {
+      if (services.value !== undefined) {
         for (const verdict of ctx.verdicts) {
           if (!verdict.gating || verdict.outcome !== 'fail') continue;
           if (evidence.verdictSubject(verdict.id).part !== 'input') continue;
-          values[verdict.id] = await replayedValueFacts(
-            ctx.check,
-            verdict,
-            valuePolicy ?? DEFAULT_VALUE_POLICY,
-            services.value,
-          );
+          try {
+            values[verdict.id] = await replayedValueFacts(
+              ctx.check,
+              verdict,
+              valuePolicy ?? DEFAULT_VALUE_POLICY,
+              services.value,
+            );
+          } catch (cause) {
+            errors.push(`error:value_service_failed:${describe(cause)}`);
+          }
         }
       }
-      const reply =
-        services.reply === undefined
-          ? undefined
-          : await services.reply({
-              ...(sentUser(ctx.check) === undefined ? {} : { user: sentUser(ctx.check) as string }),
-              reply: ctx.check.observed.text,
-            });
+      let reply: evidence.ReplyReading | undefined;
+      if (services.reply !== undefined) {
+        try {
+          const user = sentUser(ctx.check);
+          reply = await services.reply({
+            ...(user === undefined ? {} : { user }),
+            reply: ctx.check.observed.text,
+          });
+        } catch (cause) {
+          errors.push(`error:reply_reader_failed:${describe(cause)}`);
+        }
+      }
       const tools = (ctx.check.expect?.tools ?? [])
         .filter((tool) => tool.count !== 0)
         .map((tool) => tool.label);
@@ -198,8 +210,23 @@ function blockStep(
       const diagnoses = valueMode
         ? result.diagnoses.filter((one) => evidence.verdictSubject(one.verdict_ref).part === 'input')
         : result.diagnoses;
-      return diagnoses.map(toStepOutput);
+      return [...diagnoses.map(toStepOutput), ...errors.map(errorOutput)];
     },
+  };
+}
+
+function describe(cause: unknown): string {
+  return cause instanceof Error ? `${cause.name}: ${cause.message}` : String(cause);
+}
+
+/** A failed service as a diagnosis without a verdict: the block keeps every other diagnosis. */
+function errorOutput(flag: string): StepOutput {
+  const [, kind = 'service_failed', ...rest] = flag.split(':');
+  const what = kind === 'reply_reader_failed' ? 'the reply reader' : 'the value service';
+  return {
+    summary: `${what} threw ${rest.join(':')}; the reading is unknown and the rules that need it did not match`,
+    flags: [`error:${kind}`],
+    confidence: 'undecided',
   };
 }
 

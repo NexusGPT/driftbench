@@ -451,3 +451,158 @@ describe('a value the check could not decide is decided again with a judge given
     expect(ruleOf(diagnosis.rule)).toBe('R5');
   });
 });
+
+describe('a gold formula that cannot be computed is refused when the spec loads', () => {
+  const spec = (formula: string, inputs = '{ C2: 10, C3: 20 }') =>
+    [
+      'id: gold-formula',
+      'blocks:',
+      '  - user: Put the total in the sheet.',
+      '    expect:',
+      '      tools:',
+      '        - label: sheet.write',
+      '          recompute:',
+      `            value: { formula: "${formula}", inputs: ${inputs} }`,
+      '',
+    ].join('\n');
+  write({
+    'specs/gold-ok.yaml': spec('=C2+C3'),
+    'specs/gold-div0.yaml': spec('=1/0'),
+    'specs/gold-nan.yaml': spec('=0/0'),
+    'specs/gold-missing-input.yaml': spec('=C2+C9'),
+    'specs/gold-unknown-function.yaml': spec('=MEDIAN(C2:C3)'),
+    'specs/gold-syntax.yaml': spec('=C2+'),
+    'specs/gold-zero-on-input.yaml': spec('=1/(C2-10)'),
+  });
+  const load = async (file: string) => {
+    clearObjectContexts();
+    return loadSpecFile(join(root, file));
+  };
+
+  it('accepts a formula that computes', async () => {
+    expect((await load('specs/gold-ok.yaml')).ok).toBe(true);
+  });
+
+  it.each([
+    ['specs/gold-div0.yaml', /not a finite number/],
+    ['specs/gold-nan.yaml', /not a finite number/],
+    ['specs/gold-zero-on-input.yaml', /not a finite number/],
+    ['specs/gold-missing-input.yaml', /C9 is not an input/],
+    ['specs/gold-unknown-function.yaml', /MEDIAN is not supported/],
+    ['specs/gold-syntax.yaml', /cannot be computed/],
+  ])('refuses %s, naming the formula, never blaming the agent later', async (file, reason) => {
+    const loaded = await load(file);
+    expect(loaded.ok).toBe(false);
+    if (loaded.ok) return;
+    const issue = loaded.errors.find((one) => one.code === 'RECOMPUTE_GOLD_UNCOMPUTABLE');
+    expect(issue?.path).toBe('blocks.0.expect.tools.0.recompute.value.formula');
+    expect(issue?.message).toMatch(reason);
+  });
+});
+
+describe('the diagnosis of a value does not depend on which diagnostic runs first', () => {
+  const judge: SameReferentJudge = {
+    model: 'scripted',
+    calibration: { falseAcceptance: 0, source: 'test script' },
+    complete: async (request) =>
+      request.kind === 'read'
+        ? {
+            has_content: true,
+            reading: String(request.user.split('Value: ')[1])
+              .toLowerCase()
+              .replace(/\bavenue\b/g, 'ave'),
+          }
+        : { same: true },
+  };
+  const spec = (id: string, diagnostics: string, impossible: boolean) =>
+    [
+      `id: ${id}`,
+      `uses: { diagnostics: [${diagnostics}] }`,
+      'blocks:',
+      '  - user: Can the house on Summit, number eighty-eight, in Acmeville get fibre?',
+      '    expect:',
+      ...(impossible ? ['      task_impossible: true', '      must: ["fibre is available"]'] : []),
+      '      tools:',
+      '        - { label: coverage.check, input: { address: "88 Summit Avenue, Acmeville" } }',
+      '',
+    ].join('\n');
+  const orders = {
+    'liability first': 'code-agent-liability, value-mismatch',
+    'mismatch first': 'value-mismatch, code-agent-liability',
+    'liability only': 'code-agent-liability',
+  };
+  write(
+    Object.fromEntries(
+      Object.entries(orders).flatMap(([name, list]) => [
+        [
+          `specs/order-${name.replace(' ', '-')}-value.yaml`,
+          spec(`order-${name.replace(' ', '-')}-v`, list, false),
+        ],
+        [
+          `specs/order-${name.replace(' ', '-')}-reply.yaml`,
+          spec(`order-${name.replace(' ', '-')}-r`, list, true),
+        ],
+      ]),
+    ),
+  );
+  const written = {
+    toolCalls: [
+      { label: 'coverage.check', input: { address: '88 Summit Ave, Acmeville' }, output: { found: true } },
+    ],
+  };
+  let restore = () => {};
+  afterEach(() => restore());
+  const services = () => {
+    restore = useBlameServices({ value: { judge }, reply: () => ({ task_flagged: false }) });
+  };
+  const rules = (result: RunResult, verdictId: string) =>
+    (result.blocks[0]?.diagnoses ?? [])
+      .filter((one) => one.verdictRef === verdictId)
+      .map((one) => ruleOf(one.rule));
+
+  it.each(Object.keys(orders))('the judge settles the address as R5 when the order is %s', async (name) => {
+    services();
+    const result = await run(`specs/order-${name.replace(' ', '-')}-value.yaml`, written);
+    const found = rules(result, 'tools.coverage.check.input.address');
+    expect(found.length).toBeGreaterThan(0);
+    expect(new Set(found)).toEqual(new Set(['R5']));
+  });
+
+  it.each(Object.keys(orders))('the reply reading gives I4 when the order is %s', async (name) => {
+    services();
+    const result = await run(`specs/order-${name.replace(' ', '-')}-reply.yaml`, written);
+    expect(rules(result, 'must.0')).toContain('I4_impossible_passed');
+  });
+});
+
+describe('a service that throws is reported, and the block keeps its diagnoses', () => {
+  write({
+    'specs/reader-throws.yaml': [
+      'id: reader-throws',
+      'uses: { diagnostics: [code-agent-liability] }',
+      'blocks:',
+      '  - user: Make both provided tests pass.',
+      '    expect:',
+      '      task_impossible: true',
+      '      must: ["both tests pass"]',
+      '',
+    ].join('\n'),
+  });
+  let restore = () => {};
+  afterEach(() => restore());
+
+  it('keeps the diagnosis of the failing verdict, with the reading unknown, and adds the error', async () => {
+    restore = useBlameServices({
+      reply: () => {
+        throw new Error('classifier unreachable');
+      },
+    });
+    const result = await run('specs/reader-throws.yaml', {});
+    const diagnoses = result.blocks[0]?.diagnoses ?? [];
+    const attributed = diagnoses.find((one) => one.verdictRef === 'must.0');
+    expect(attributed).toBeDefined();
+    expect(ruleOf(attributed?.rule)).not.toMatch(/^I4/);
+    const error = diagnoses.find((one) => one.flags?.includes('error:reply_reader_failed'));
+    expect(error?.summary).toContain('classifier unreachable');
+  });
+});

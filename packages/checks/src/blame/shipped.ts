@@ -141,6 +141,7 @@ export const SHIPPED_OBJECTS = {
         when: {
           outcome: 'accepted_as_gold',
           contract: 'none',
+          downstream_need: { not: 'declared' },
           verdict_kind: 'machine',
         },
         effect: {
@@ -673,7 +674,6 @@ export const SHIPPED_OBJECTS = {
       'I3_false_claim',
       'I4b_impossible_flagged',
       'I4_impossible_passed',
-      'R5b',
       'R5',
       'confirm_missing_rule',
       'test_reference_fails',
@@ -697,6 +697,7 @@ export const SHIPPED_OBJECTS = {
       'core_rule_caught',
       'R7',
       'R1',
+      'R5b',
       'R2b',
       'unassigned',
     ],

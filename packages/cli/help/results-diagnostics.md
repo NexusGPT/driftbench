@@ -76,6 +76,8 @@ The CLI makes no model call, so four rules cannot match from a CLI run alone. A 
 | `R5`, `R5b` | `value: { judge }` | the check compared the value exactly because no judge was configured; the diagnostic asks the judge again, and a pass means the test demanded a form nobody states |
 | `I4`, `I4b` | `reply: (turn) => { task_flagged }` | whether the agent stopped and said the task is impossible is a reading of the reply, made by a classifier or a judge you own |
 
+The services belong to the block, not to a diagnostic: `code-agent-liability` and `value-mismatch` decide a verdict the same way, in any order. A service that throws does not drop the block's diagnoses: the reading stays unknown, the rules that need it do not match, and one more diagnosis, flagged `error:reply_reader_failed` or `error:value_service_failed`, names the error.
+
 Every other rule reads the stored run, the spec and the estate map only.
 
 ## Outputs and how to read them
