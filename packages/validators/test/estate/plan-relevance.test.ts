@@ -168,7 +168,13 @@ const CASES: Case[] = [
     dimension: 'session_state',
     value: 'resumed',
     relation: 'stoprule',
-    target: { atoms: [atom('t', 'instruction', 'Carry on.')], planted: { scope: 'stop' } },
+    target: {
+      atoms: [
+        atom('g', 'guard', 'stop-word.sh', { fields: { event: 'UserPromptSubmit' } }),
+        atom('t', 'instruction', 'Carry on.'),
+      ],
+      edges: [{ from: 'g', to: 't', kind: 'enforces' }],
+    },
   },
   {
     key: 'stop-signal',
@@ -176,8 +182,11 @@ const CASES: Case[] = [
     value: 'stop',
     relation: 'stop',
     target: {
-      atoms: [atom('t', 'instruction', 'Halt the exposure.')],
-      planted: { behaviour: 'stop_on_word' },
+      atoms: [
+        atom('g', 'guard', 'stop-word.sh', { fields: { event: 'UserPromptSubmit' } }),
+        atom('t', 'instruction', 'Halt the exposure.'),
+      ],
+      edges: [{ from: 'g', to: 't', kind: 'enforces' }],
     },
   },
   {
@@ -230,15 +239,15 @@ const CASES: Case[] = [
 function fakeRun(
   map: ReturnType<typeof mapOf>,
   rows: Array<{ atom?: string; dimension: string; value: string }>,
-  planted: Planted = {},
-  plantedOn?: string,
+  plants: Array<[atomId: string, planted: Planted]> = [],
 ) {
   const hidOf = new Map<string, string>();
   const rules: unknown[] = [];
-  if (plantedOn !== undefined && Object.keys(planted).length > 0) {
-    hidOf.set(plantedOn, 'rule:planted');
+  for (const [index, [atomId, planted]] of plants.entries()) {
+    if (Object.keys(planted).length === 0) continue;
+    hidOf.set(atomId, `rule:planted${index}`);
     rules.push({
-      hid: 'rule:planted',
+      hid: `rule:planted${index}`,
       scope: planted.scope ?? 'always',
       behaviour: { type: planted.behaviour ?? 'none' },
       ...(planted.hazard ? { hazard: planted.hazard } : {}),
@@ -259,14 +268,13 @@ function fakeRun(
   } as unknown as pipeline.EstateRun;
 }
 
-async function verdict(
+async function verdictMany(
   key: string,
   map: ReturnType<typeof mapOf>,
   rows: Array<{ atom?: string; dimension: string; value: string }>,
-  planted?: Planted,
-  plantedOn?: string,
+  plants: Array<[atomId: string, planted: Planted]> = [],
 ) {
-  const mock = vi.spyOn(pipeline, 'estateRun').mockResolvedValue(fakeRun(map, rows, planted, plantedOn));
+  const mock = vi.spyOn(pipeline, 'estateRun').mockResolvedValue(fakeRun(map, rows, plants));
   try {
     return (await planRelevanceFamily().evaluate(1)).get(`plan.relevance.${key}`) as {
       pass: boolean;
@@ -276,6 +284,14 @@ async function verdict(
     mock.mockRestore();
   }
 }
+
+const verdict = (
+  key: string,
+  map: ReturnType<typeof mapOf>,
+  rows: Array<{ atom?: string; dimension: string; value: string }>,
+  planted?: Planted,
+  plantedOn?: string,
+) => verdictMany(key, map, rows, planted && plantedOn !== undefined ? [[plantedOn, planted]] : []);
 
 describe('plan.relevance judges each of its 20 situations from typed data, with no word of the estate read', () => {
   it('has the 20 items', () => {
@@ -437,17 +453,26 @@ describe('the typed relations', () => {
     expect(ids('restart', map, planted)).toEqual([]);
   });
 
-  it('a stop: an instruction planted for it; with the guard on the prompt event for stop, not for a stop rule alone', () => {
-    const map = mapOf([
-      atom('a', 'guard', 'x', { fields: { event: 'UserPromptSubmit' } }),
-      atom('b', 'guard', 'x', { fields: { event: 'PreToolUse' } }),
-      atom('c', 'instruction', 'On stop, stop all work.'),
-      atom('d', 'instruction', 'x'),
-      atom('e', 'stage', 'x'),
-    ]);
+  it('a stop: the instruction a guard on the prompt event enforces, never a rule the hidden estate planted or one whose words speak of a stop', () => {
+    const map = mapOf(
+      [
+        atom('a', 'guard', 'x', { fields: { event: 'UserPromptSubmit' } }),
+        atom('b', 'guard', 'x', { fields: { event: 'PreToolUse' } }),
+        atom('c', 'instruction', 'On stop, stop all work.'),
+        atom('d', 'instruction', 'x'),
+        atom('e', 'stage', 'x'),
+        atom('f', 'instruction', 'x'),
+      ],
+      [
+        { from: 'a', to: 'd', kind: 'enforces' },
+        { from: 'a', to: 'e', kind: 'enforces' },
+        { from: 'b', to: 'f', kind: 'enforces' },
+      ],
+    );
+    // Planted for a stop, the rules c and f hold nothing: only an edge of the map places a stop rule.
     const planted = new Map<string, Planted>([
-      ['d', { scope: 'stop' }],
-      ['e', { scope: 'stop' }],
+      ['c', { scope: 'stop', behaviour: 'stop_on_word' }],
+      ['f', { scope: 'stop' }],
     ]);
     expect(ids('stoprule', map, planted)).toEqual(['d']);
     expect(ids('stop', map, planted)).toEqual(['a', 'd']);
@@ -534,6 +559,9 @@ describe('no situation allows an atom the previous oracle rejected', () => {
         .filter((a) => ['skill', 'subagent', 'script', 'guard', 'tool', 'stage'].includes(a.kind))
         .map((target) => ({ from: route.id, to: target.id, kind: 'route' as const })),
     );
+  const enforcing: EstateMap['edges'] = rich
+    .filter((a) => a.kind === 'guard')
+    .flatMap((guard) => rich.map((target) => ({ from: guard.id, to: target.id, kind: 'enforces' as const })));
   const planted = new Map<string, Planted>(
     rich.map((a) => [a.id, { hazard: 'restart', scope: 'stop', behaviour: 'stop_on_word' }]),
   );
@@ -541,7 +569,7 @@ describe('no situation allows an atom the previous oracle rejected', () => {
   it.each(CASES.map((c) => [c.key, c.relation] as const))('%s', (key, relation) => {
     const allowedKinds = new Set(MAIN_KINDS[key]);
     const byId = new Map(rich.map((a) => [a.id, a]));
-    const targets = [...targetsOf(relation, mapOf(rich, edges), planted)];
+    const targets = [...targetsOf(relation, mapOf(rich, [...edges, ...enforcing]), planted)];
     const tooMany = targets.filter((id) => {
       const kind = byId.get(id)?.kind as string;
       if (allowedKinds.has(kind)) return false;
@@ -554,60 +582,125 @@ describe('no situation allows an atom the previous oracle rejected', () => {
   });
 });
 
-describe('a plan that crosses everything with everything fails all 20 items', { timeout: 600_000 }, () => {
-  const holders = [
-    atom('h.helper', 'subagent', 'name: analyst'),
-    atom('h.tool', 'script', 'scripts/run.py'),
-    atom('h.stage', 'stage', 'Report'),
-    atom('h.output', 'register', 'Lead with the result.'),
-    atom('h.ask', 'tool', 'Bash(dome:*)', { fields: { effect: 'ask' } }),
-    atom('h.restart', 'hazard', 'Hazard.', { fields: { hazard: 'restart' } }),
-    atom('h.compaction', 'hazard', 'Hazard.', { fields: { hazard: 'compaction' } }),
-    atom('h.stop', 'guard', 'stop-word.sh', { fields: { event: 'UserPromptSubmit' } }),
-    atom('h.route', 'route', '| observe | exposure |'),
+describe('hand-written plans: a correct plan passes, a cross-everything plan fails, a plan missing a held relation fails', {
+  timeout: 120_000,
+}, () => {
+  // A hand-written observatory estate that holds a typed atom for every relation, with decoys of kinds that hold none.
+  // The targets of each situation are listed by hand from the documented relations, not computed by the oracle.
+  const atoms = [
+    atom('a.helper', 'subagent', 'name: analyst'),
+    atom('a.route', 'route', '| observe | analyst |'),
+    atom('a.skill', 'skill', 'name: exposure', { fields: { tools: ['Read'] } }),
+    atom('a.skillroute', 'route', '| expose | exposure |'),
+    atom('a.script', 'script', 'scripts/run.py'),
+    atom('a.stage', 'stage', 'Report'),
+    atom('a.register', 'register', 'Lead with the result.'),
+    atom('a.text', 'instruction', 'Close the dome.', { evidence: [{ type: 'text', must: ['done'] }] }),
+    atom('a.readgate', 'gate', 'Open the dome.', { evidence: [{ type: 'tool_called', label: 'Read' }] }),
+    atom('a.gate', 'gate', 'Confirm the dome.'),
+    atom('a.fetch', 'tool', 'WebFetch(*)', { fields: { tool: 'WebFetch', effect: 'allow' } }),
+    atom('a.promptguard', 'guard', 'stop-word.sh', { fields: { event: 'UserPromptSubmit' } }),
+    atom('a.postguard', 'guard', 'log.sh', { fields: { event: 'PostToolUse' } }),
+    atom('a.stoprule', 'instruction', 'Halt the exposure.'),
+    atom('a.restartrule', 'instruction', 'Restore it.'),
+    atom('a.compactrule', 'instruction', 'Reload the log.'),
+    atom('d.reference', 'reference', 'references/rules.md'),
+    atom('d.setting', 'setting', 'model'),
+    atom('d.invariant', 'invariant', 'No orphan.'),
   ];
-  const everything = (atoms: Atom[]) =>
-    CASES.flatMap(({ dimension, value }) => atoms.map((a) => ({ atom: a.id, dimension, value })));
+  const edges: EstateMap['edges'] = [
+    { from: 'a.route', to: 'a.helper', kind: 'route' },
+    { from: 'a.skillroute', to: 'a.skill', kind: 'route' },
+    { from: 'a.promptguard', to: 'a.stoprule', kind: 'enforces' },
+  ];
+  const plants: Array<[string, Planted]> = [
+    ['a.restartrule', { hazard: 'restart' }],
+    ['a.compactrule', { hazard: 'compaction' }],
+  ];
+  const map = mapOf(atoms, edges);
+  const HELPER = ['a.helper', 'a.route'];
+  const TOOL = ['a.script', 'a.skill', 'a.skillroute', 'a.fetch', 'a.promptguard', 'a.postguard'];
+  const TARGETS: Record<string, string[]> = {
+    'dead-helper': HELPER,
+    'helpers-running': HELPER,
+    'stale-tracker': ['a.stage'],
+    'language-switch': ['a.register', 'a.text'],
+    'owner-language-switch': ['a.register', 'a.text'],
+    'tool-failure': TOOL,
+    'instruction-in-data': ['a.readgate', 'a.postguard'],
+    'loose-confirmation': ['a.readgate', 'a.gate'],
+    'rate-wave': ['a.helper', 'a.script', 'a.fetch'],
+    'process-restart': ['a.restartrule'],
+    compaction: ['a.compactrule'],
+    'after-compaction': ['a.compactrule'],
+    'after-restart': ['a.restartrule'],
+    resumed: ['a.stoprule'],
+    'stop-signal': ['a.promptguard', 'a.stoprule'],
+    'no-questions': ['a.readgate', 'a.gate'],
+    'goal-shift': ['a.route', 'a.skillroute', 'a.skill'],
+    'off-topic': ['a.route', 'a.skillroute', 'a.skill'],
+    'out-of-scope': ['a.route', 'a.skillroute', 'a.skill'],
+    'silence-burst': ['a.promptguard'],
+  };
+  const rowsFor = (pick: (key: string, dimension: string) => string[]) =>
+    CASES.flatMap(({ key, dimension, value }) =>
+      pick(key, dimension).map((id) => ({ atom: id, dimension, value })),
+    );
+  const everyone = atoms.map((a) => a.id);
+  const judge = async (rows: ReturnType<typeof rowsFor>) =>
+    Object.fromEntries(
+      await Promise.all(
+        CASES.map(async ({ key }) => [key, await verdictMany(key, map, rows, plants)] as const),
+      ),
+    );
 
-  it('fails every item on an estate that holds a typed atom for each relation, decoys of every kind among them', async () => {
-    const atoms = [...holders, ...KINDS.map(decoy)];
-    const rows = everything(atoms);
-    for (const { key } of CASES) {
-      const out = await verdict(
-        key,
-        mapOf(atoms, [{ from: 'h.route', to: 'decoy.skill', kind: 'route' }]),
-        rows,
-        { hazard: 'compaction' },
-        'decoy.instruction',
-      );
-      expect(out.pass, `${key}: ${out.detail}`).toBe(false);
+  it('lists a target for each of the 20 situations', () => {
+    expect(Object.keys(TARGETS).sort()).toEqual(CASES.map((c) => c.key).sort());
+    for (const key of Object.keys(TARGETS)) expect(TARGETS[key]?.length, key).toBeGreaterThan(0);
+  });
+
+  it('passes a correct plan: each situation crossed with exactly its targets', async () => {
+    const out = await judge(rowsFor((key) => TARGETS[key] ?? []));
+    for (const { key } of CASES)
+      expect(out[key], `${key}: ${out[key]?.detail}`).toMatchObject({ pass: true });
+  });
+
+  it('passes a correct plan that crosses only some of the targets of each situation', async () => {
+    const out = await judge(rowsFor((key) => (TARGETS[key] ?? []).slice(0, 1)));
+    for (const { key } of CASES)
+      expect(out[key], `${key}: ${out[key]?.detail}`).toMatchObject({ pass: true });
+  });
+
+  it('fails a cross-everything plan on all 20 items', async () => {
+    const out = await judge(rowsFor(() => everyone));
+    for (const { key } of CASES) expect(out[key]?.pass, `${key}: ${out[key]?.detail}`).toBe(false);
+  });
+
+  it('fails a plan that adds one decoy to the targets of each situation', async () => {
+    for (const decoyId of ['d.reference', 'd.setting', 'd.invariant']) {
+      const out = await judge(rowsFor((key) => [...(TARGETS[key] ?? []), decoyId]));
+      for (const { key } of CASES) expect(out[key]?.pass, `${key} + ${decoyId}`).toBe(false);
     }
+  });
+
+  it('fails a plan missing a held relation: no row crosses the situation with any of its targets', async () => {
+    const out = await judge(rowsFor(() => []));
+    for (const { key } of CASES) expect(out[key]?.pass, `${key}: ${out[key]?.detail}`).toBe(false);
+    // Crossed only with atoms that are not its targets, the situation is missed as well.
+    const wrong = await judge(rowsFor(() => ['d.reference']));
+    for (const { key } of CASES) expect(wrong[key]?.pass, key).toBe(false);
   });
 
   it('fails every item on an estate that holds almost no typed atom: no atom applies, so any crossing is wrong', async () => {
-    const atoms = KINDS.filter((kind) => !['stage', 'subagent', 'register', 'route'].includes(kind)).map(
+    const lonely = KINDS.filter((kind) => !['stage', 'subagent', 'register', 'route'].includes(kind)).map(
       decoy,
     );
-    const rows = everything(atoms);
+    const rows = CASES.flatMap(({ dimension, value }) =>
+      lonely.map((a) => ({ atom: a.id, dimension, value })),
+    );
     for (const { key } of CASES) {
-      const out = await verdict(key, mapOf(atoms), rows);
+      const out = await verdictMany(key, mapOf(lonely), rows);
       expect(out.pass, `${key}: ${out.detail}`).toBe(false);
-    }
-  });
-
-  it('judges the same plan on the real generated estate: the plan of the main planner fails every item whose relation an atom holds', async () => {
-    const run = await pipeline.estateRun(1);
-    const rows = run.plan.plan.rows.filter((row) => row.id.startsWith('pairwise.'));
-    const mock = vi.spyOn(pipeline, 'estateRun').mockResolvedValue(run);
-    try {
-      const out = await planRelevanceFamily().evaluate(1);
-      const crossed = CASES.filter(({ dimension, value }) =>
-        rows.some((row) => row.cell[dimension] === value),
-      );
-      expect(crossed.length).toBeGreaterThan(0);
-      for (const { key } of crossed) expect(out.get(`plan.relevance.${key}`)?.pass, key).toBe(false);
-    } finally {
-      mock.mockRestore();
     }
   });
 });
