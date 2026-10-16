@@ -19,7 +19,7 @@ import { storeAcmeCampaign } from './support';
 /**
  * The second score on the scorecard and the run page (codeagent_equivalence_blame.md E5), on the stored Acme
  * campaign with the x3 fault: the diagnoses come from the shipped blame and placement files, the fix list from
- * the fix plan. The machine pass rate never changes; the machine rate includes all completed runs, while the agent-attributed rate excludes unassigned runs.
+ * the fix plan. The machine pass rate never changes; the machine rate counts the runs that passed or failed, while the agent-attributed rate excludes unassigned runs.
  */
 
 let fault: CampaignData;
@@ -259,10 +259,58 @@ describe('unassigned stays in the machine denominator and outside the agent-attr
     });
     // Only the one failed block fails; the not run and the blocked blocks never enter the failing count.
     expect(summary?.blocks).toMatchObject({ failing: 1, agent: 1, notRun: 1, blocked: 2 });
+    expect(attributionText(summary).join('\n')).toContain('blocks: 1 not run, 2 blocked');
+    expect(attributionZone(summary)).toContain('blocks: 1 not run, 2 blocked');
+  });
+
+  it('leaves a run with a block not run or blocked and no failure out of both rates, and counts it apart', () => {
+    // 2 clean runs, 4 runs whose only non-passing block was not run, 1 run blocked, 1 run that failed.
+    const clean = (id: string) =>
+      ({ runId: id, status: 'completed', blocks: [block(true, [])] }) as unknown as RunResult;
+    const unmeasured = (id: string, status: 'not_run' | 'blocked') =>
+      ({
+        runId: id,
+        status: 'completed',
+        blocks: [block(true, []), unrun(status)],
+      }) as unknown as RunResult;
+    const failed = { runId: 'f', status: 'completed', blocks: [block(false, ['a'])] } as unknown as RunResult;
+    const runs = [
+      clean('c0'),
+      clean('c1'),
+      unmeasured('n0', 'not_run'),
+      unmeasured('n1', 'not_run'),
+      unmeasured('n2', 'not_run'),
+      unmeasured('n3', 'not_run'),
+      unmeasured('b0', 'blocked'),
+      failed,
+    ];
+    const summary = attributionOf({ runs } as unknown as CampaignData, {
+      diagnoses: { f: { 0: [{ verdictRef: 'a', disposition: 'agent' }] } },
+    });
+    // The scored runs are the 2 clean ones and the failed one: 2 of 3 on both rates.
+    expect(summary?.machine).toMatchObject({ k: 2, n: 3 });
+    expect(summary?.agent).toMatchObject({ k: 2, n: 3 });
+    expect(summary?.unassigned).toBe(0);
+    expect(summary?.unmeasuredRuns).toEqual({ notRun: 4, blocked: 1 });
     expect(attributionText(summary).join('\n')).toContain(
-      'Not measured, so not failures: 1 not run, 2 blocked.',
+      'runs left out of both rates: 4 not run, 1 blocked',
     );
-    expect(attributionZone(summary)).toContain('Not measured, so not failures: 1 not run, 2 blocked.');
+    expect(attributionZone(summary)).toContain('runs left out of both rates: 4 not run, 1 blocked');
+  });
+
+  it('with only unmeasured runs there is no rate, only the counts', () => {
+    const runs = [0, 1].map(
+      (i) =>
+        ({
+          runId: `n${i}`,
+          status: 'completed',
+          blocks: [unrun('not_run')],
+        }) as unknown as RunResult,
+    );
+    const summary = attributionOf({ runs } as unknown as CampaignData, { fixes: [] });
+    expect(summary?.machine).toBeUndefined();
+    expect(summary?.agent).toMatchObject({ k: 0, n: 0 });
+    expect(summary?.unmeasuredRuns).toEqual({ notRun: 2, blocked: 0 });
   });
 
   it('names no unmeasured blocks when every block was measured', () => {
@@ -273,6 +321,7 @@ describe('unassigned stays in the machine denominator and outside the agent-attr
       diagnoses: { r0: { 0: [{ verdictRef: 'a', disposition: 'agent' }] } },
     });
     expect(summary?.blocks).toMatchObject({ notRun: 0, blocked: 0 });
+    expect(summary?.unmeasuredRuns).toEqual({ notRun: 0, blocked: 0 });
     expect(attributionText(summary).join('\n')).not.toContain('Not measured');
     expect(attributionZone(summary)).not.toContain('Not measured');
   });

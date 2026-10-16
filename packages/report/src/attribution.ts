@@ -1,6 +1,6 @@
-import { blockStatus, type RunResult } from '@agent-nexus/driftbench-core';
+import { blockStatus, type RunResult, runOutcome } from '@agent-nexus/driftbench-core';
 import type { CampaignData } from './data';
-import { runPassed } from './data';
+import { runPassed, scoredRuns } from './data';
 import { type Rate, rate } from './estimate';
 
 /**
@@ -8,7 +8,8 @@ import { type Rate, rate } from './estimate';
  * pass rate counts a run as passed when every failing gating verdict of every block has a diagnosis whose
  * disposition is setup, excluded or credited. A run with a failure no rule attributed (`unassigned`, or no
  * diagnosis) and none of the agent's is shown apart and excluded from the agent-attributed rate.
- * The machine rate includes all completed runs, including unassigned runs.
+ * The machine rate counts every run that passed or failed, unassigned runs included. A run with a block not run
+ * or blocked and no failure is in neither rate and is counted apart (`unmeasuredRuns`).
  */
 
 /** A diagnosis as the report reads it: the fields of a block's diagnoses that the scores and the fix list use. */
@@ -54,7 +55,7 @@ export type AttributionOptions = {
 export type BlockOutcome = 'pass' | 'fail' | 'unassigned';
 
 export type AttributionSummary = {
-  /** Runs passing their machine checks, over every completed run. Undefined with no completed run. */
+  /** Runs passing their machine checks, over the scored runs. Undefined with no scored run. */
   machine: Rate | undefined;
   /**
    * Assigned passing/total runs. Counts always remain, including zero assigned runs.
@@ -63,6 +64,11 @@ export type AttributionSummary = {
   agent: Rate | Pick<Rate, 'k' | 'n'>;
   /** Runs left out of the agent-attributed rate: a failure no rule attributed, and none of the agent's. */
   unassigned: number;
+  /**
+   * Completed runs with a block not run or blocked and no failure: neither passed nor failed, so they are in
+   * neither rate, numerator or denominator, and are counted here so they never vanish.
+   */
+  unmeasuredRuns: { notRun: number; blocked: number };
   /** Failing blocks by disposition of their root diagnoses, the first that counts against the agent winning. */
   blocks: {
     failing: number;
@@ -171,7 +177,16 @@ export function attributionOf(
   data: CampaignData,
   options: AttributionOptions = {},
 ): AttributionSummary | undefined {
-  const runs = data.runs.filter((run) => run.status === 'completed');
+  const completed = data.runs.filter((run) => run.status === 'completed');
+  // A rate counts the runs that passed or failed (scoredRuns); the others are counted apart.
+  const runs = scoredRuns(completed);
+  const scored = new Set<RunResult>(runs);
+  const unmeasuredRuns = { notRun: 0, blocked: 0 };
+  for (const run of completed) {
+    const outcome = runOutcome(run);
+    if (outcome === 'not_run') unmeasuredRuns.notRun += 1;
+    else if (outcome === 'blocked') unmeasuredRuns.blocked += 1;
+  }
   const any = runs.some((run) => run.blocks.some((block) => blockDiagnoses(run, block, options).length > 0));
   if (!any && options.fixes === undefined) return undefined;
   let agentPass = 0;
@@ -189,7 +204,7 @@ export function attributionOf(
   };
   const objects = new Map<string, ReportObject>();
   for (const object of options.objects ?? []) objects.set(objectKey(object), object);
-  for (const run of runs) {
+  for (const run of completed) {
     let outcome: BlockOutcome = 'pass';
     for (const block of run.blocks) {
       for (const object of (block as Block).resolved?.objects ?? []) objects.set(objectKey(object), object);
@@ -204,6 +219,8 @@ export function attributionOf(
       if (own === 'fail') outcome = 'fail';
       else if (own === 'unassigned' && outcome === 'pass') outcome = 'unassigned';
     }
+    // A run neither passed nor failed is in no rate; its blocks were counted above.
+    if (!scored.has(run)) continue;
     // A run that fails outside its blocks (its end state, its end verdict) has no block diagnosis to read.
     if (
       outcome === 'pass' &&
@@ -226,6 +243,7 @@ export function attributionOf(
         ? { k: agentPass, n: decided }
         : (rate(agentPass, decided) ?? { k: agentPass, n: decided }),
     unassigned,
+    unmeasuredRuns,
     blocks,
     fixes: [...(options.fixes ?? [])],
     nonDefault: [...objects.values()]
@@ -235,11 +253,23 @@ export function attributionOf(
   };
 }
 
-/** The blocks that were not measured, named apart from the failures; empty when every block was. */
-export function unmeasuredText(b: { notRun: number; blocked: number }): string {
-  const parts = [b.notRun > 0 ? `${b.notRun} not run` : '', b.blocked > 0 ? `${b.blocked} blocked` : ''];
-  const named = parts.filter(Boolean);
-  return named.length === 0 ? '' : ` Not measured, so not failures: ${named.join(', ')}.`;
+/**
+ * What was not measured, named apart from the failures: the runs and the blocks not run or blocked. Empty when
+ * everything was measured. The runs are in neither rate.
+ */
+export function unmeasuredText(b: {
+  notRun: number;
+  blocked: number;
+  runs?: { notRun: number; blocked: number };
+}): string {
+  const part = (notRun: number, blocked: number) =>
+    [notRun > 0 ? `${notRun} not run` : '', blocked > 0 ? `${blocked} blocked` : '']
+      .filter(Boolean)
+      .join(', ');
+  const runs = b.runs ? part(b.runs.notRun, b.runs.blocked) : '';
+  const blocks = part(b.notRun, b.blocked);
+  if (runs === '' && blocks === '') return '';
+  return ` Not measured, so not failures${runs === '' ? '' : `; runs left out of both rates: ${runs}`}${blocks === '' ? '' : `; blocks: ${blocks}`}.`;
 }
 
 /** The denominator is explicit beside every agent-attributed score, including counts-only scores. */

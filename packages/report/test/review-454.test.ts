@@ -148,7 +148,7 @@ describe('PR 454 review regressions', () => {
     expect(result?.agent).toMatchObject({ k: 2, n: 2 });
     expect(result?.unassigned).toBe(1);
     for (const rendered of [attributionZone(result), attributionText(result).join('\n')]) {
-      expect(rendered).toContain('all completed runs');
+      expect(rendered).toContain('runs that passed or failed');
       expect(rendered).toContain('excluded from the agent-attributed rate');
       expect(rendered).not.toContain('neither rate');
     }

@@ -86,7 +86,9 @@ The agent-attributed score always names its denominator: for example, `20 of 20 
 unassigned`. When unassigned runs outnumber assigned failed runs, HTML and text show counts without any
 percentage or interval. JSON keeps the assigned counts (`agent.k`, `agent.n`) and `unassigned`, and omits
 the agent estimate and interval fields. With no assigned runs the counts are 0 of 0. The machine rate still
-includes every completed run.
+includes every run that passed or failed, unassigned runs among them. A run with a block not run or
+blocked and no failure is in neither rate: JSON keeps it in `unmeasuredRuns` (`notRun`, `blocked`) and the
+text and HTML reports name it.
 
 ## Worked example
 
