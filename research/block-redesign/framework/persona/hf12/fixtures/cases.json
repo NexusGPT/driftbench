@@ -1135,7 +1135,7 @@
      "account_id": "ACC4770",
      "email": "odile.brandes@example.com",
      "has_account": true,
-     "phone": "+3225550142"
+     "phone": "+12025550142"
     },
     "expertise": {
      "level": "intermediate"
@@ -1187,7 +1187,7 @@
       "holds": [
        {
         "slot": "phone",
-        "value": "+3225550177",
+        "value": "+12025550177",
         "reveal": "proactive"
        }
       ],
@@ -6362,7 +6362,7 @@
      "account_id": "ACC6398",
      "email": "dara.quillan@example.com",
      "has_account": true,
-     "phone": "+3225550118"
+     "phone": "+12025550118"
     },
     "expertise": {
      "level": "intermediate"
@@ -6413,7 +6413,7 @@
       "holds": [
        {
         "slot": "phone",
-        "value": "+3225550199",
+        "value": "+12025550199",
         "reveal": "on_request"
        }
       ],

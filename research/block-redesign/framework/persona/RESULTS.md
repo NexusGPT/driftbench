@@ -123,3 +123,5 @@ Reading and limits:
   author resolved (recorded in its report): a child that omits `personas` is checked against the
   inherited set; an absent `has_account` counts as false; `requires: {}` means no requirement. The loader
   read the schema the same way. These belong in the design note as explicit rules.
+
+- Stored data note: four persona phone values in `hf12/fixtures/cases.json` were written in Belgian format. The leak guard reads such numbers as real, so they now read `+12025550142`, `+12025550177`, `+12025550118` and `+12025550199`, inside the fictional range. The loader never reads the format of a phone. `run.py` gives a byte-identical `hf12/results.json` before and after the change.
