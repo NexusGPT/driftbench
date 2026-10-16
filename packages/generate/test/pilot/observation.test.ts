@@ -81,4 +81,23 @@ describe('observationOf', () => {
     expect(planted?.planted).toBeCloseTo(0.05, 12);
     expect(planted?.pass).toBe(false);
   });
+
+  it('gives no observation for a run with a block not run and no failure: it is no measurement', () => {
+    const base = run([{ verdicts: [['must', 'pass']] }, { verdicts: [] }]);
+    const notRun: RunResult = {
+      ...base,
+      blocks: base.blocks.map((block, index) =>
+        index === 1
+          ? {
+              ...block,
+              pass: false,
+              status: 'not_run',
+              notRun: { kind: 'unsupported', layer: '5 world', check: 'capability', expected: 'e', got: 'g' },
+            }
+          : block,
+      ),
+    };
+    expect(observationOf(notRun, FACTORS)).toBeUndefined();
+    expect(observationOf(base, FACTORS)?.pass).toBe(true);
+  });
 });

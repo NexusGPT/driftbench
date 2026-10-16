@@ -12,7 +12,8 @@ export type ExtractedAnswer = {
 /** Last explicitly marked final answer. A missing or incomplete marker leaves the response intact. */
 export function extractFinalAnswer(response: string): ExtractedAnswer | undefined {
   const candidates: ExtractedAnswer[] = [];
-  const pattern = /\\boxed\{|(?:final\s+answer\s*(?:\*\*)?\s*[:=]|the\s+answer\s+is\b\s*[:=]?)\s*/gi;
+  const pattern =
+    /\\boxed\{|(?:final\s+answer\s*(?:is\b\s*)?(?:\*\*)?\s*[:=]|the\s+answer\s+is\b\s*[:=]?)\s*/gi;
   for (const match of response.matchAll(pattern)) {
     const start = match.index;
     const from = start + match[0].length;
