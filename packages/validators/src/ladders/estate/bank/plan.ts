@@ -10,6 +10,7 @@ import type { SpaceMap } from '@agent-nexus/driftbench-space';
 import { requiredRows } from '../levels';
 import { estateRun } from '../pipeline';
 import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
+import { type Signal, showsSignal } from './relevance-signals';
 
 /**
  * Three plan families on the generated estate of each seed.
@@ -23,8 +24,10 @@ import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
  * value dimensions and wide dimensions. The oracle enumerates every allowed tuple.
  *
  * plan.relevance: a situation value is crossed only with atoms it can act on: a dead helper or running
- * helpers only with helpers and the routes to them, a stale tracker only with stages, a language switch only
- * with output rules and instructions, a tool failure only with tools, scripts, guards and helpers.
+ * helpers only with helpers, the routes to them and the atoms that dispatch one, a stale tracker only with
+ * stages, a language switch only with output rules, instructions and steps that tell a person something, a
+ * tool failure only with tools, scripts, guards, helpers and the atoms that call a tool, a loose confirmation
+ * only with rules and the units whose words condition on a confirmation (relevance-signals.ts).
  */
 
 const CONTRACT = 'packages/estate/src/plan/contract.ts';
@@ -679,6 +682,8 @@ type Relevance = {
   title: string;
   kinds: string[];
   helperRoutes?: boolean;
+  /** Atoms of other kinds whose own text or evidence shows they can act on the situation. */
+  signal?: Signal;
 };
 
 const RELEVANCE: Relevance[] = [
@@ -690,6 +695,7 @@ const RELEVANCE: Relevance[] = [
     title: 'a dead helper',
     kinds: ['subagent'],
     helperRoutes: true,
+    signal: 'helper-activity',
   },
   {
     key: 'helpers-running',
@@ -699,6 +705,7 @@ const RELEVANCE: Relevance[] = [
     title: 'helpers running',
     kinds: ['subagent'],
     helperRoutes: true,
+    signal: 'helper-activity',
   },
   {
     key: 'stale-tracker',
@@ -715,6 +722,7 @@ const RELEVANCE: Relevance[] = [
     value: 'D5_language_switch',
     title: 'a language switch',
     kinds: ['register', 'instruction'],
+    signal: 'output-to-person',
   },
   {
     key: 'owner-language-switch',
@@ -723,6 +731,7 @@ const RELEVANCE: Relevance[] = [
     value: 'language_switch',
     title: 'an owner switching language',
     kinds: ['register', 'instruction'],
+    signal: 'output-to-person',
   },
   {
     key: 'tool-failure',
@@ -731,6 +740,7 @@ const RELEVANCE: Relevance[] = [
     value: 'D8_tool_failure',
     title: 'a tool failure',
     kinds: ['tool', 'script', 'guard', 'subagent', 'skill', 'route'],
+    signal: 'tool-call',
   },
   {
     key: 'instruction-in-data',
@@ -747,6 +757,7 @@ const RELEVANCE: Relevance[] = [
     value: 'D4_loose_confirmation',
     title: 'a loose confirmation',
     kinds: ['instruction', 'gate', 'guard'],
+    signal: 'confirmation',
   },
   {
     key: 'rate-wave',
@@ -852,10 +863,10 @@ export function planRelevanceFamily(): Family {
     family,
     3,
     PAIRWISE,
-    RELEVANCE.map(({ key, tier, title, kinds }) => ({
+    RELEVANCE.map(({ key, tier, title, kinds, signal }) => ({
       key,
       tier,
-      title: `${title} is crossed only with ${kinds.join(', ')} atoms`,
+      title: `${title} is crossed only with ${kinds.join(', ')} atoms${signal ? ` and atoms whose own text or evidence shows ${signal}` : ''}`,
     })),
   );
   return {
@@ -875,7 +886,9 @@ export function planRelevanceFamily(): Family {
           if (!atom) continue;
           const helperRoute =
             rule.helperRoutes && atom.kind === 'route' && atom.fields?.targetKind === 'subagent';
-          if (!rule.kinds.includes(atom.kind) && !helperRoute) wrong.push(`${row.id} (${atom.kind})`);
+          const shown = rule.signal !== undefined && showsSignal(rule.signal, atom, run.scanned.map);
+          if (!rule.kinds.includes(atom.kind) && !helperRoute && !shown)
+            wrong.push(`${row.id} (${atom.kind})`);
         }
         out.set(`${family}.${rule.key}`, {
           pass: wrong.length === 0,
