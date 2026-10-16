@@ -37,3 +37,4 @@ export {
 } from './generate';
 export { formatJson } from './json';
 export { loadApprovedMap, type MapLoad } from './load';
+export { type GenerateDiskOptions, type GenerateDiskResult, generateSuiteToDisk } from './stream';

@@ -12,6 +12,9 @@ import {
   MUTATION_SCORE,
   matchAtoms,
   renderEstate,
+  replayChecks,
+  replayOnFollower,
+  specVerdicts,
 } from '../../src/ladders/estate/index';
 import { estateMeta } from '../../src/ladders/estate/levels';
 
@@ -42,12 +45,12 @@ describe('agent mutants (level 5)', { timeout: 120_000 }, () => {
     const of = (kind: string) => mutants.filter((mutant) => mutant.kind === kind);
     expect(of('skill').length).toBeGreaterThan(0);
     expect(of('skill').every((mutant) => mutant.killed)).toBe(true);
-    // The deny rule and the keyless gate are product gaps the bank names (mutant.agent.tool-deny-bare and
-    // mutant.agent.gate-read-before-edit). This test does not ask the product to keep them: a mutant is killed,
-    // or it lives and carries one of the two reasons a living mutant can have.
+    // The deny rule is judged on the offered tools its session records: deleting the rule offers WebFetch again.
     const deny = mutants.find((mutant) => mutant.atom === 'tool.settings.deny-webfetch');
-    expect(deny).toBeDefined();
-    if (!deny?.killed) expect(deny?.reason).toMatch(/wait for |complete tests ran on the follower/);
+    expect(deny?.killed).toBe(true);
+    // The keyless gate is a product gap the bank names (mutant.agent.gate-read-before-edit). This test does not
+    // ask the product to keep it: a mutant is killed, or it lives and carries one of the two reasons a living
+    // mutant can have.
     expect(mutants.find((mutant) => mutant.atom === 'instruction.standing.never-call-webfetch')?.killed).toBe(
       true,
     );
@@ -63,6 +66,67 @@ describe('agent mutants (level 5)', { timeout: 120_000 }, () => {
     }
     expect(of('script').length).toBeGreaterThan(0);
     expect(of('script').every((mutant) => mutant.killed && mutant.tests.length > 0)).toBe(true);
+  });
+
+  it('kills a follower that skips a read two atoms ask for, by the read its tests expect', async () => {
+    for (const seed of [1, 2, 3]) {
+      const run = await estateRun(seed);
+      const mutants = await agentMutants(run);
+      // A reference mutant with complete tests on the follower: the follower reads each file once, so skipping
+      // the read is a real difference, whichever of the atoms that name the file is deleted.
+      const judged = mutants.filter(
+        (mutant) =>
+          mutant.kind === 'reference' && !mutant.equivalent && !mutant.reason?.startsWith('no complete test'),
+      );
+      expect(judged.length, `seed ${seed}`).toBeGreaterThan(0);
+      expect(
+        judged.filter((mutant) => !mutant.killed).map((mutant) => mutant.atom),
+        `seed ${seed}`,
+      ).toEqual([]);
+      const standing = judged.filter((mutant) => mutant.atom.startsWith('reference.standing.'));
+      expect(standing.length, `seed ${seed}`).toBeGreaterThan(0);
+      // The kill is the expected read going missing, not an artefact of the follower reading twice.
+      const checks = replayChecks();
+      for (const mutant of standing) {
+        const hid = run.scanned.match.hidOf.get(mutant.atom) as string;
+        const green = (await specVerdicts(run)).filter(
+          (verdict) =>
+            (estateMeta(verdict.spec).atoms ?? []).includes(mutant.atom) && verdict.follower?.pass === true,
+        );
+        const outcomes = await Promise.all(
+          green.flatMap((verdict) =>
+            verdict.spec.loaded ? [replayOnFollower(run, verdict.spec.loaded, checks, hid)] : [],
+          ),
+        );
+        expect(outcomes.flatMap((outcome) => outcome.failing).join('\n')).toMatch(
+          /read 0 times, expected at least 1/,
+        );
+      }
+    }
+  });
+
+  it('kills a follower whose runtime offers a tool the settings deny, by the offered tools its tests expect', async () => {
+    for (const seed of [1, 2, 3]) {
+      const run = await estateRun(seed);
+      const deny = (await agentMutants(run)).find((mutant) => mutant.atom === 'tool.settings.deny-webfetch');
+      expect(deny?.tests.length, `seed ${seed}`).toBeGreaterThan(0);
+      expect(deny?.killed, `seed ${seed}`).toBe(true);
+      const hid = run.scanned.match.hidOf.get('tool.settings.deny-webfetch') as string;
+      const checks = replayChecks();
+      const green = (await specVerdicts(run)).filter(
+        (verdict) =>
+          (estateMeta(verdict.spec).atoms ?? []).includes('tool.settings.deny-webfetch') &&
+          verdict.follower?.pass === true,
+      );
+      expect(green.length, `seed ${seed}`).toBeGreaterThan(0);
+      for (const verdict of green) {
+        const loaded = verdict.spec.loaded as NonNullable<typeof verdict.spec.loaded>;
+        // The original follower passes (it is green); the one that offers WebFetch fails on the offered tools.
+        const outcome = await replayOnFollower(run, loaded, checks, hid);
+        expect(outcome.pass).toBe(false);
+        expect(outcome.failing.join('\n')).toMatch(/tools_offered\.exclude\.WebFetch.*WebFetch was offered/);
+      }
+    }
   });
 
   it('scores each kind and names the living mutants of a kind below the bar', async () => {

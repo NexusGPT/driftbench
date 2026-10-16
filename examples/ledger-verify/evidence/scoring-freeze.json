@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "at": "2026-10-13T08:56:59.852740+00:00",
+  "authorization": "Report two scores per contestant, both pre-declared now in the freeze record before TEST scoring: (a) strict, where any output-limit hit is an error; (b) product-final, the verdict each product actually returns to a user, including its own built-in fallback. Same rule for both contestants. The headline is (a).",
+  "runtime": "2869d4d1f750545a2c7d",
+  "sealedTestItems": 221,
+  "primary": "strict",
+  "strict": "For each contestant and item, any confirmed output-limit completion used by its execution makes the item an error (wrong), even if a later fallback returns a verdict. Other missing or unparsed final verdicts remain errors. No returned answer is retried.",
+  "productFinal": "Use the untouched final per-item verdict returned by the frozen product runner, including its built-in fallback. Other missing or unparsed final verdicts remain errors.",
+  "symmetric": true,
+  "labels": [
+    "official",
+    "unchanged 23-correction audited sensitivity"
+  ],
+  "limitEvidence": [
+    "API completion metadata truncated=true or finishReason length/MAX_TOKENS/max_tokens",
+    "Native CLI JSON result explicitly reports the output-token maximum was exceeded"
+  ],
+  "attribution": "Reconstruct each recorded request fingerprint by free replay of frozen prompt functions. Join provider receipts to contestant, item and step. Reused limited outputs affect every consuming item.",
+  "counts": "Separate per-model and per-contestant columns: number of observed completion envelopes hitting an output limit and number of affected items, with TEST and all-phase counts kept separate. Native internal retries are not inferred from aggregate num_turns.",
+  "unknownCauses": "Do not infer output-limit hits from generic historical errors or timeouts. Report unclassified errors separately.",
+  "statistics": "Apply the frozen exact McNemar, Wilson rates and request-cluster bootstrap to both score variants. The headline strict endpoint is supplied for the prespecified 18-cell Holm family; product-final is secondary.",
+  "testStartedAtDeclaration": false,
+  "sourceHashes": {
+    "examples/judge-benchmarks/src/run.ts": "41d295290938673a96c796be95391ef2a6b1b71039145d3a18cfcc77507dfed0",
+    "examples/judge-benchmarks/src/contestants.ts": "7f6c6e9a3ab8b7f6ff49ce5b032fce1bfd6c8d5e04e1c949444d0110d040f43a",
+    "examples/ledger-verify/stats.py": "53aa9de5e9c869e3dce17e597ba8fa7efe0a022861b99f7fd60f48d6ad3ad3ac"
+  },
+  "coverage": "Known output-limit, parse and exhausted no-answer errors are measured outcomes and remain in the denominator. A stopped execution is provisional; valid-verdict coverage is reported separately.",
+  "implementationFrozenAt": "2026-10-13T09:17:02.885632+00:00",
+  "implementationHashes": {
+    "examples/ledger-verify/output_limits.py": "e497c931f8a4f395cd5edb9d3bf7ec8250b334d358d758d605cb3a23dfa2d8c6",
+    "examples/ledger-verify/trace-requests.ts": "72e5253798d6d3b23f7a866a51b450027b23ce71fe240d775b3709d5318dd33e",
+    "examples/ledger-verify/summarize.py": "1cd18ffa8da398404528c3ffd71c351c6f67248e67b2110cd612789168dcf840",
+    "examples/ledger-verify/render_report.py": "4d3ff1f0af4cbe204d81b7e3822484764748e5b0ad5ab7d31b641288d825b550",
+    "examples/ledger-verify/test_output_limits.py": "7fa2fcdcb82a720af7d78f6de052a6ee6d6cb347d545bac35b4a148c7b3cb726"
+  },
+  "costAccounting": "Known native error fees are included in the affected contestant unique-prompt cost. Unknown charges are disclosed separately, including a conservative budget hold.",
+  "costAccountingFrozenAt": "2026-10-13T09:06:16.729905+00:00",
+  "nativeLimitCaveat": "Native truncated=true can indicate a turn or budget limit; only explicit output-token evidence counts as an output-limit error.",
+  "pacingAmendment": {
+    "at": "2026-10-13T09:27:36.280118+00:00",
+    "runtime": "ee96e47757aa837860fe",
+    "change": "Stable recording namespace preserved across runtime pacing change. Scoring rules unchanged."
+  },
+  "runtimePolicyFinalizedAt": "2026-10-13T09:34:20.523734+00:00",
+  "tableRenderingFinalizedAt": "2026-10-13T09:55:10.427140+00:00"
+}

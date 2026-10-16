@@ -144,6 +144,7 @@ export {
   outcomeFromProbability,
   parseAnswerText,
   parseAnswerValue,
+  REASONING_TOKENS,
   repairAnswerText,
   TranscriptEntry,
 } from './contract';
@@ -187,7 +188,14 @@ export {
   CRITERION_PROMPT_V2_RULES,
   CRITERION_PROMPT_VERSION,
   type CriterionPromptVersion,
-} from './criterion-prompt-v2';
+} from './criterion-prompt-version';
+export { criteriaJudge, criterionJudge, withCriterionSettings } from './criterion-settings';
+export {
+  createDefaultJudge,
+  DEFAULT_JUDGE_POLICY,
+  type DefaultJudgeClient,
+  type DefaultJudgeOptions,
+} from './default-judge';
 export { createEscalation, type EscalationConfig } from './escalation';
 export { type Grounding, groundEvidence } from './evidence';
 export { FACT_LEDGER_POINTWISE, FactLedgerAnswer, PointwiseFactLedgerAnswer } from './fact-audit';
@@ -202,6 +210,20 @@ export {
   SYSTEM_PROMPT as LEGACY_SYSTEM_PROMPT,
 } from './legacy-prompt';
 export { type LintIssue, lintCriterion } from './lint';
+export {
+  applyLongStructured,
+  isStructured,
+  PAIR_PREFERENCES,
+  type PairPreference,
+  type PreferenceResult,
+} from './long-structured';
+export {
+  type DefaultJudgeRequest,
+  normalizeJudgeRequest,
+  type ParsedRecord,
+  parseRenderedRecord,
+} from './normalize-record';
+export { outputRoom } from './output-room';
 export {
   canonicalPairOrder,
   judgePairLedger,
@@ -256,6 +278,7 @@ export { judgePersonalData, type PersonalDataVerdict, PII_CRITERION } from './pi
 export {
   ANSWER_CONTRACT,
   buildPrompt,
+  CRITERION_PROMPT_V1_FINGERPRINT,
   CRITERION_PROMPT_V2_FINGERPRINT,
   DATA_RULE,
   DATA_TAGS,
@@ -272,6 +295,7 @@ export {
   renderTranscript,
   renderUser,
   SYSTEM_PROMPT,
+  SYSTEM_PROMPT_V1,
   SYSTEM_PROMPT_V2,
   SYSTEM1_QUESTION,
 } from './prompt';
@@ -317,3 +341,6 @@ export {
   type VerificationOptions,
   withVerification,
 } from './verification';
+export { verifyAnswer } from './verify-answer';
+export { type PanelOutcome, type PanelVote, weightedPanel } from './weighted-panel';
+export { BETTER_PIECE_V1, explicitRequestRows, writingRequirementsV1 } from './writing-requirements';

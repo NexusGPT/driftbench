@@ -75,15 +75,30 @@ export function coveringArray(
   rng: Rng,
   maxRows: number,
 ): CoveringArray {
+  const rows: number[][] = [];
+  const result = visitCoveringArray(feasibility, sizes, dimensions, t, rng, maxRows, (row) => rows.push(row));
+  return { ...result, rows };
+}
+
+/** The same choices as coveringArray, releasing each emitted row instead of retaining the array. */
+export function visitCoveringArray(
+  feasibility: AllowedCheck,
+  sizes: readonly number[],
+  dimensions: readonly number[],
+  t: number,
+  rng: Rng,
+  maxRows: number,
+  emit: (row: number[]) => void,
+): Omit<CoveringArray, 'rows'> & { rows: number } {
   const tuples = allowedTuples(feasibility, sizes, dimensions, t);
   const uncovered = new Set(tuples.map((tuple) => tupleKey(tuple.dimensions, tuple.values)));
-  const rows: number[][] = [];
+  let rows = 0;
   const subsetsWith = (dimension: number, chosen: number[]): number[][] =>
     combinations(chosen.length, t - 1).map((subset) =>
       [...subset.map((index) => chosen[index] as number), dimension].sort((a, b) => a - b),
     );
   for (const seed of tuples) {
-    if (rows.length >= maxRows || uncovered.size === 0) break;
+    if (rows >= maxRows || uncovered.size === 0) break;
     if (!uncovered.has(tupleKey(seed.dimensions, seed.values))) continue;
     const row = sizes.map(() => -1);
     seed.dimensions.forEach((dimension, index) => {
@@ -131,7 +146,8 @@ export function coveringArray(
         ),
       );
     }
-    rows.push(row);
+    rows += 1;
+    emit(row);
   }
   return {
     t,

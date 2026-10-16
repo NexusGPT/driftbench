@@ -45,7 +45,7 @@ The agent's tools run live when it generates. Point every tool with a side effec
 
 ## How a session runs
 
-* `open` creates a golden conversation for `target.agent` on `target.deployment`, under the variant: `POST /prompt-eval/golden-conversations`. The session id is the conversation id. The history starts as a copy of the prefix, the runner's record; the platform conversation holds no turn of it.
+* `open` creates a golden conversation for `target.agent` on `target.deployment`, under the variant: `POST /prompt-eval/golden-conversations`. The session id is the conversation id. The history starts as a fresh array of the shared frozen prefix messages, the runner's record; the platform conversation holds no turn of it.
 * `send` posts each user message of the block (`POST .../turns/user`), generates the agent's turn (`POST .../generate`), and accepts it (`POST .../accept`) so the next block builds on it. It returns the generate view: the turn's tool calls with their outputs, then its final text. A send the runner retries for the same block resumes where it stopped: a user turn already posted is not posted again, and a generated turn is accepted without a second generate.
 * `trace` reads the same turn whole from the platform's tracing, through the emulator session the generate opened. Each generation of the turn adds its reply text, then each tool call it asked for, followed by the call's result. The generation's cost, tokens and duration sit on its first segment. The block's cost is their sum, and its latency the span from the first start to the last end. The adapter waits while a trace is in progress or a generation is pending or running, polling every `pollIntervalMs`, and fails with `AdapterTransportError` after `traceWaitMs`.
 * `close` deletes the golden conversation, unless `keepConversations` is set. A conversation already gone counts as deleted. The emulator sessions a generate opens are left to the platform.
@@ -71,7 +71,7 @@ A call of `send_message` or `display_html` adds a `card` segment of that name af
 
 ## Capabilities
 
-`variants`, `trace` and `endState` are on. `seedPrefix` is off: the public API cannot store an agent turn without generating it, and generating runs the tools live, so the agent never sees a spec's prefix. `toolStubs` is off: the platform cannot force a tool result, so `world.tools` does not reach the agent. `deterministic` and `sandbox` are off.
+`variants`, `trace` and `endState` are on. `seedPrefix` is off: the public API cannot store an agent turn without generating it, and generating runs the tools live, so the agent could never see a spec's prefix: a block with one is `not_run`. `toolStubs` is off: the platform cannot force a tool result, so a block with a forced result in `world.tools` is `not_run` too. `deterministic` and `sandbox` are off.
 
 The version is `0.1.0+` and a hash of the base URL.
 

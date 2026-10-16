@@ -1,3 +1,4 @@
+import { blockStatus } from '../runner/verdicts';
 import type { RunResult } from '../schema/run';
 import type { CarriedCell } from './carry';
 
@@ -24,7 +25,11 @@ function mulberry32(seed: number): () => number {
  * Draws `n` of the cells about to be carried, without replacement. The draw depends on the seed and on
  * the cells, taken in the order of their cell ids, never on the order the plan lists them in.
  */
-export function auditSample(carried: readonly CarriedCell[], n: number, seed: number): CarriedCell[] {
+export function auditSample<T extends Pick<CarriedCell, 'cell'>>(
+  carried: readonly T[],
+  n: number,
+  seed: number,
+): T[] {
   if (!Number.isInteger(n) || n < 0)
     throw new RangeError(`auditSample: n must be a whole number of at least 0, got ${n}`);
   const pool = [...carried].sort((a, b) => a.cell.cellId.localeCompare(b.cell.cellId));
@@ -33,8 +38,8 @@ export function auditSample(carried: readonly CarriedCell[], n: number, seed: nu
   const take = Math.min(n, pool.length);
   for (let index = 0; index < take; index++) {
     const pick = index + Math.floor(rng() * (pool.length - index));
-    const held = pool[index] as CarriedCell;
-    pool[index] = pool[pick] as CarriedCell;
+    const held = pool[index] as T;
+    pool[index] = pool[pick] as T;
     pool[pick] = held;
   }
   return pool.slice(0, take);
@@ -75,10 +80,9 @@ export function auditVerdict(fresh: RunResult, carried: RunResult): AuditVerdict
         );
       }
     }
-    if (now.pass !== before.pass && !differing.some((line) => line.startsWith(`block ${before.index} `))) {
-      differing.push(
-        `block ${before.index}: ${before.pass ? 'pass' : 'fail'} then ${now.pass ? 'pass' : 'fail'}`,
-      );
+    const [statusBefore, statusNow] = [blockStatus(before), blockStatus(now)];
+    if (statusBefore !== statusNow && !differing.some((line) => line.startsWith(`block ${before.index} `))) {
+      differing.push(`block ${before.index}: ${statusBefore} then ${statusNow}`);
     }
   }
   if (fresh.endState?.match !== carried.endState?.match) {

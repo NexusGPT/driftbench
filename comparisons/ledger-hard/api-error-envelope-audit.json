@@ -1,0 +1,42 @@
+{
+  "created": "2026-10-13T14:10:15.216379+00:00",
+  "rule": "terminal_reason=api_error and zero input/output/cache tokens in a nested provider envelope",
+  "sources": {
+    "calls.jsonl": {
+      "sha256": "efbc92b5754f7626d51f99788ea5d818a636f122a9fb5e81927480e9e332a10a",
+      "records": 6560
+    },
+    "dialect/calls.jsonl": {
+      "sha256": "13f1b355359ebc50964415c861f6cb3958281aaec947fc12ed975723abf64948",
+      "records": 9578
+    },
+    "flash-lite/primary/calls.jsonl": {
+      "sha256": "e36cbcc3dc5f7e2f1ac40aeefebd86ec122c832f122bf6a17f8a2946a169102d",
+      "records": 3280
+    },
+    "flash-lite/dialect/calls.jsonl": {
+      "sha256": "928bf05406686d8994f79775882e47dd840fe5eaa42ed2153e4f1ee8128096b9",
+      "records": 3280
+    }
+  },
+  "by_model": {
+    "gpt-6-luna": {
+      "records": 6560,
+      "matching_records": 0,
+      "counted_as_usable_answer": 0
+    },
+    "haiku": {
+      "records": 6560,
+      "matching_records": 0,
+      "counted_as_usable_answer": 0
+    },
+    "gemini-3.5-flash-lite": {
+      "records": 6560,
+      "matching_records": 0,
+      "counted_as_usable_answer": 0
+    }
+  },
+  "affected": [],
+  "matching_record_count": 0,
+  "earlier_journals_modified": false
+}

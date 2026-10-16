@@ -2,12 +2,15 @@ import type { AdapterCapabilities, AgentAdapter, Session, Turn } from '../contra
 import type { ArtifactReaderRegistry } from '../contracts/artifacts';
 import { type CheckContext, type CheckSet, machineVerdict } from '../contracts/check';
 import type { DriverStep, UserDriver } from '../contracts/driver';
+import { copyHistory, freezeMessage } from '../contracts/history';
 import type { Store } from '../contracts/store';
 import { gateToolCalls, type ToolRule } from '../contracts/tool-policy';
+import { type BlockReuse, planBlockRerun } from '../radius/blocks';
 import { collectRetries, type RetryPolicy, retryPolicy } from '../retry';
 import type { Message, TargetRef, WorldState } from '../schema/common';
 import {
   type BlockResult,
+  type NotRun,
   Observed,
   type RetryEvent,
   type RunEvent,
@@ -19,14 +22,18 @@ import type { BlockSpec, EndState, Expect, GivenOverride, Spec, Stimulus } from 
 import { cloneJson, contentHash } from '../spec/hash';
 import { compareEndState, type EndStateMatch } from './assertion';
 import { blockCacheKey, endStateCacheKey, type ObservedCache, unwrapEndState, wrapEndState } from './cache';
+import { capabilityGap } from './capability';
+import { recheckCarriedEndState } from './carried-end-state';
 import { cellId } from './cell';
 import { driftOf } from './drift';
+import { composeStates, type EndStateSnapshot, endStateSnapshot, snapshotValues } from './end-state-snapshot';
 import {
   addFacts,
   assistantMessage,
   canonicalGiven,
   enterBlock,
   initialGiven,
+  type RunningGiven,
   resolveGiven,
   stimulusMessages,
 } from './given';
@@ -37,6 +44,7 @@ import { type RecoveryOptions, recoveryOf } from './recovery';
 import { CallFailure, describeError, type RetryOptions, retryLayer, withRetry } from './retry';
 import { canonicalPreviousStage, flowVerdicts, readStage, stageSignatures } from './stages';
 import { succession } from './succession';
+import { blockStatus, isScored } from './verdicts';
 
 /**
  * What the runner reports as it runs, in order: a block starting, each tool call the adapter recorded, each retry a block took,
@@ -56,6 +64,16 @@ export type RunOptions = {
   recordEvents?: boolean;
   /** Add execution provenance to records. Off for standalone runs unless requested. */
   recordProvenance?: boolean;
+  /** Opt in: raw adapter end-state values are stored like observations, and may contain sensitive data. */
+  recordEndStateSnapshots?: boolean;
+  /**
+   * Opt in: a block whose driver sent other text than the spec wrote keeps that text (`realized.text`), not
+   * only its hash. What a driver writes may be private.
+   */
+  recordRealizedText?: boolean;
+  /** Execute only these spec blocks; supported in independent mode T only. */
+  blocks?: ReadonlySet<number>;
+  blockReuse?: BlockReuse;
   adapter: AgentAdapter;
   /** Decides each block's stimulus. The scripted driver of `@agent-nexus/driftbench-users` replays the spec's blocks. */
   driver: UserDriver;
@@ -135,9 +153,34 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
   // the Acme light runner and the end_state check do; phase 3 decides what a perturbed run should leave.
   const endState = options.mode === 'P' ? undefined : spec.end_state;
   const capabilities = options.adapter.capabilities();
+  if (options.blocks && options.mode !== 'T') throw new RunnerError('block subsets require mode T');
+  if (options.blocks && capabilities.sandbox) throw new RunnerError('a sandbox requires a full cell rerun');
+  if (
+    options.blocks &&
+    (options.driver.id !== 'scripted' ||
+      [...options.blocks].some((i) => !Number.isInteger(i) || i < 0 || i >= spec.blocks.length))
+  )
+    throw new RunnerError('block subsets require the scripted driver and valid block indices');
+  let selectedBlocks = options.blocks;
+  let blockRerunReason: string | undefined;
+  let carriedBlocks: Map<number, BlockResult> | undefined;
+  if (options.blockReuse) {
+    const reuse = planBlockRerun(spec, { ...options, target }, options.blockReuse, now());
+    if ('reason' in reuse) {
+      if (options.blocks) throw new RunnerError(reuse.reason);
+      blockRerunReason = reuse.reason;
+    } else {
+      if (options.blocks && [...reuse.indices].some((i) => !options.blocks?.has(i)))
+        throw new RunnerError('the block subset omits part of the radius');
+      selectedBlocks = options.blocks ?? reuse.indices;
+      carriedBlocks = new Map([...reuse.carried].filter(([i]) => !selectedBlocks?.has(i)));
+    }
+  }
+  if (options.blocks && endState !== undefined && !carriedBlocks && options.blocks.size < spec.blocks.length)
+    throw new RunnerError('end state cannot be recomposed: full cell rerun');
   // A run in a sandbox is neither replayed nor cached: a replay opens no workspace, so the artifact
   // checks could not read the files its blocks made. It goes live every time.
-  const cache = capabilities.sandbox ? undefined : options.cache;
+  const cache = capabilities.sandbox || selectedBlocks ? undefined : options.cache;
   // The events go to the observer as they happen, and to the record when asked for.
   const recorded: RunEvent[] | undefined = options.recordEvents ? [] : undefined;
   const reportEvent =
@@ -150,7 +193,15 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
   const run: RunContext = {
     prices,
     requireTokenPrices: options.requireTokenPrices === true,
-    provenance: options.recordProvenance ? runProvenance({ ...options, target }) : undefined,
+    provenance:
+      options.recordProvenance || options.recordEndStateSnapshots
+        ? runProvenance({ ...options, target })
+        : undefined,
+    selectedBlocks,
+    blockRerunReason,
+    carriedBlocks,
+    recordEndStateSnapshots: options.recordEndStateSnapshots === true,
+    recordRealizedText: options.recordRealizedText === true,
     spec,
     specHash,
     cacheSpecHash,
@@ -211,6 +262,11 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
 }
 
 type RunContext = {
+  selectedBlocks: ReadonlySet<number> | undefined;
+  blockRerunReason: string | undefined;
+  carriedBlocks: Map<number, BlockResult> | undefined;
+  recordEndStateSnapshots: boolean;
+  recordRealizedText: boolean;
   prices: TokenPrices | undefined;
   requireTokenPrices: boolean;
   provenance: RunResult['provenance'];
@@ -246,6 +302,26 @@ type RunContext = {
   signatures: Map<string, Set<string>>;
   recovery: RecoveryOptions;
 };
+
+/**
+ * The text the driver sent, when it differs from the text the spec block wrote: its hash, and the text
+ * itself when the run asked for it. The text is the user messages the agent received, joined by newlines.
+ * Only the text counts: the same text sent in another form (an injection instead of a user turn) records
+ * nothing, since `injected` and the stimulus hash say that. A scripted run sends what the spec wrote and
+ * records nothing.
+ */
+function realizedOf(planned: PlannedStep, withText: boolean): { realized?: { hash: string; text?: string } } {
+  const sent = stimulusText(planned.stimulus);
+  if (sent === stimulusText(planned.block.when)) return {};
+  return { realized: { hash: provenanceHash(sent), ...(withText ? { text: sent } : {}) } };
+}
+
+/** The user messages a stimulus sends, joined by newlines. */
+function stimulusText(stimulus: Stimulus): string {
+  return stimulusMessages(stimulus)
+    .map((message) => message.content)
+    .join('\n');
+}
 
 /** One step of the driver, resolved against the spec. */
 type PlannedStep = {
@@ -302,6 +378,8 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
   let status: RunResult['status'] = 'completed';
   let endVerdict: RunResult['endVerdict'];
   let error: string | undefined;
+  /** F and P: a prefix the spec wrote at a block run so far; the session holds it from there on. */
+  let prefixWritten = false;
 
   try {
     for (let position = 0; ; position++) {
@@ -322,6 +400,28 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       const planned = planStep(spec, step);
       if (step.kind === 'block') nextBlock = step.blockIndex + 1;
 
+      if (run.selectedBlocks && step.kind === 'block' && !run.selectedBlocks.has(step.blockIndex)) {
+        const kept = run.carriedBlocks?.get(step.blockIndex);
+        if (kept) {
+          if (kept.provenance?.endState) {
+            const read = snapshotValues(kept.provenance.endState, sources);
+            if (read) {
+              composed = composeStates(sources, composed, read);
+              endRead = { states: composed, afterBlock: position };
+            }
+          }
+          blocks.push(
+            await recheckCarriedEndState(
+              kept,
+              spec,
+              run.target,
+              run.checks,
+              composed ? endStateValue(run.endState, sources, composed) : undefined,
+            ),
+          );
+        }
+        continue;
+      }
       if (run.mode === 'T') {
         if (step.kind !== 'block') {
           throw new RunnerError(
@@ -350,12 +450,77 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         state = enterBlock(state, planned.given, planned.world);
         if (planned.given?.prefix) {
           await channel.restart();
-          history = structuredClone(planned.given.prefix);
+          history = copyHistory(planned.given.prefix);
           users = userMessagesOf(history);
+          prefixWritten = planned.given.prefix.length > 0;
         }
       }
-      const user = stimulusMessages(planned.stimulus);
       const given = resolveGiven(state, history, run.target);
+      // The capability check: a layer the adapter cannot apply makes the block not_run, never a silent drop.
+      const notRun = capabilityGap(run.adapter.id, run.capabilities, {
+        // In mode T the block starts from the canonical history: the latest written prefix, then the blocks
+        // after it; in F and P from the prefix the spec wrote, the session holding the agent's own turns.
+        ...(run.mode === 'T'
+          ? history.length === 0
+            ? {}
+            : {
+                prefix: latestPrefixWritten(spec, step.kind === 'block' ? step.blockIndex : position)
+                  ? ('authored' as const)
+                  : ('canonical' as const),
+              }
+          : prefixWritten
+            ? { prefix: 'authored' as const }
+            : {}),
+        world: state.world,
+      });
+      if (notRun) {
+        const specIndex = step.kind === 'block' ? step.blockIndex : step.beforeBlock;
+        const ledger = addFacts(state.ledger, planned.expect.ledger_add).ledger;
+        blocks.push(
+          notRunBlock(run, position, planned, { givenHash: given.hash, specIndex, ledger }, notRun),
+        );
+        if (run.mode === 'T') continue;
+        // In F and P the free conversation cannot go past a block it did not run: every later spec block is
+        // not run either, and the driver is not asked for more steps.
+        // Each later block is stamped as a run reconstructs it (a re-judge checks the stamps): the blocks before
+        // it with their user messages and an empty reply, and the facts their ledger_add establishes.
+        const from = step.kind === 'block' ? step.blockIndex + 1 : nextBlock;
+        let laterState: RunningGiven = { ...state, ledger };
+        let laterHistory = copyHistory(history, [
+          ...stimulusMessages(planned.stimulus),
+          assistantMessage(NOT_SENT),
+        ]);
+        for (let index = from; index < spec.blocks.length; index++) {
+          const later = planStep(spec, {
+            kind: 'block',
+            blockIndex: index,
+            stimulus: (spec.blocks[index] as BlockSpec).when,
+          });
+          laterState = enterBlock(laterState, later.given);
+          if (later.given?.prefix) laterHistory = copyHistory(later.given.prefix);
+          const laterHash = resolveGiven(laterState, laterHistory, run.target).hash;
+          const laterLedger = addFacts(laterState.ledger, later.expect.ledger_add).ledger;
+          laterState = { ...laterState, ledger: laterLedger };
+          laterHistory = copyHistory(laterHistory, [
+            ...stimulusMessages(later.stimulus),
+            assistantMessage(NOT_SENT),
+          ]);
+          blocks.push(
+            notRunBlock(
+              run,
+              blocks.length,
+              later,
+              { givenHash: laterHash, specIndex: index, ledger: laterLedger },
+              {
+                ...notRun,
+                got: `block ${position} was not run, so the conversation cannot reach this block: ${notRun.got}`,
+              },
+            ),
+          );
+        }
+        break;
+      }
+      const user = stimulusMessages(planned.stimulus).map(freezeMessage);
       const turn: Turn = {
         index: position,
         stimulus: planned.stimulus,
@@ -412,16 +577,18 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
       for (let r = 0; r < (observed.retries?.length ?? 0); r += 1) {
         run.onEvent?.({ type: 'retry', index: position, at: new Date().toISOString() });
       }
-      history = [...history, ...cloneJson(user), cloneJson(assistantMessage(observed))];
+      history = copyHistory(history, [...user, cloneJson(assistantMessage(observed))]);
       lastKey = key;
 
       const facts = addFacts(state.ledger, planned.expect.ledger_add);
       state = { ...state, ledger: facts.ledger };
 
+      let snapshot: EndStateSnapshot | undefined;
       let endState: unknown;
       if (sources.length > 0 && (planned.lastSpecBlock || run.mode === 'T')) {
         const read = await channel.endState(sources, key);
         if (read.kind === 'miss') return undefined;
+        if (run.recordEndStateSnapshots && run.mode === 'T') snapshot = endStateSnapshot(sources, read);
         if (read.kind === 'read') {
           // A read covers what the open session recorded since it opened, so it joins what came before.
           const states = run.mode === 'T' ? composeStates(sources, sessionBase, read.states) : read.states;
@@ -439,6 +606,7 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         mode: run.mode,
         blockIndex: position,
         block: planned.block,
+        stimulus: planned.stimulus,
         expect: planned.expect,
         given,
         observed,
@@ -471,12 +639,14 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         index: position,
         ...(planned.blockId !== undefined ? { blockId: planned.blockId } : {}),
         ...(planned.injected ? { injected: true } : {}),
+        ...realizedOf(planned, run.recordRealizedText),
         ...(capture
           ? {
               provenance: {
                 specIndex: step.kind === 'block' ? step.blockIndex : step.beforeBlock,
                 stimulusHash: provenanceHash(planned.stimulus),
                 ledgerHash: provenanceHash(facts.ledger),
+                ...(snapshot ? { endState: snapshot } : {}),
                 artifacts: capture.artifacts,
               },
             }
@@ -491,7 +661,12 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         pass: all.every((verdict) => !verdict.gating || verdict.outcome === 'pass'),
       };
       blocks.push(block);
-      run.onEvent?.({ type: 'block_end', index: position, pass: block.pass, at: new Date().toISOString() });
+      run.onEvent?.({
+        type: 'block_end',
+        index: position,
+        pass: blockStatus(block) === 'pass',
+        at: new Date().toISOString(),
+      });
     }
   } catch (cause) {
     if (cause instanceof TokenPriceError) {
@@ -508,7 +683,11 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
   // after the last spec block when no block ran after it, else a read now. A read that cannot happen fails
   // the end state and says why.
   let endState: EndStateMatch | undefined;
-  if (run.endState !== undefined) {
+  // The value read, kept in the run so a later reader compares end states without reading them again.
+  let value: unknown;
+  // A run with a block that was not run never reached its end: its end state is not compared, so a setup
+  // gap never reads as a failure of the agent.
+  if (run.endState !== undefined && blocks.every(isScored)) {
     let states = endRead?.afterBlock === blocks.length - 1 ? endRead.states : undefined;
     let unreadable = 'no block ran, so no session was open to read from';
     if (!states && lastKey !== undefined) {
@@ -522,8 +701,10 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         unreadable = cause instanceof CallFailure ? cause.message : describeError(cause);
       }
     }
+    const read = states ? endStateValue(run.endState, sources, states) : undefined;
+    if (states) value = read ?? null;
     endState = states
-      ? compareEndState(run.endState, endStateValue(run.endState, sources, states))
+      ? compareEndState(run.endState, read)
       : {
           match: false,
           diff: sources.map((source) => ({
@@ -548,6 +729,19 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
           provenanceDigest: provenanceDigest({ provenance: run.provenance, blocks }),
         }
       : {}),
+    ...(run.selectedBlocks || run.blockRerunReason
+      ? {
+          blockRerun: {
+            selected: [...(run.selectedBlocks ?? blocks.map((b) => b.index))].sort((a, b) => a - b),
+            downstreamNotRerun: [...(run.carriedBlocks?.keys() ?? [])].filter(
+              (i) => i > Math.min(...(run.selectedBlocks ?? [])),
+            ),
+            reason:
+              run.blockRerunReason ??
+              'Mode T blocks start from their canonical Given; downstream replies are not used as inputs. F and P require full conversation reruns.',
+          },
+        }
+      : {}),
     runId: run.runId,
     specId: spec.id,
     specHash: run.specHash,
@@ -562,8 +756,9 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
     succession: succession(blocks),
     ...(recovery ? { recovery } : {}),
     ...(endState ? { endState } : {}),
-    cost: blocks.reduce((sum, block) => sum + blockCost(block.observed), 0),
-    latencyMs: blocks.reduce((sum, block) => sum + block.observed.latencyMs, 0),
+    ...(value !== undefined ? { endStateValue: value } : {}),
+    cost: blocks.reduce((sum, block) => sum + (block.carried ? 0 : blockCost(block.observed)), 0),
+    latencyMs: blocks.reduce((sum, block) => sum + (block.carried ? 0 : block.observed.latencyMs), 0),
     startedAt: run.startedAt,
     finishedAt: run.now().toISOString(),
     cacheHit: channel.replay,
@@ -571,19 +766,63 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
 }
 
 /**
- * The end state of a teacher-forced run after one more block: for each source, the value this block's
- * session read when it recorded one (not undefined, not null), else the value so far; for `*`, the lists
- * joined in block order.
+ * Mode T: whether the history block `index` starts from holds a prefix the spec wrote. The latest block up to
+ * this one that writes `given.prefix` sets the history; an empty prefix clears it.
  */
-function composeStates(sources: string[], before: unknown[] | undefined, read: unknown[]): unknown[] {
-  return sources.map((source, index) => {
-    const earlier = before?.[index];
-    const now = read[index];
-    if (source === '*') {
-      return [...(Array.isArray(earlier) ? earlier : []), ...(Array.isArray(now) ? now : [])];
-    }
-    return now === undefined || now === null ? earlier : now;
+function latestPrefixWritten(spec: Spec, index: number): boolean {
+  for (let at = index; at >= 0; at--) {
+    const prefix = spec.blocks[at]?.given?.prefix;
+    if (prefix !== undefined) return prefix.length > 0;
+  }
+  return false;
+}
+
+/** The Observed of a block that was never sent: nothing happened, at no cost. */
+const NOT_SENT: Observed = { segments: [], text: '', toolCalls: [], cost: {}, latencyMs: 0 };
+
+/**
+ * A block that was never sent: nothing observed, no verdict, never a pass. Reports its start and end. With
+ * provenance, it carries the same block stamp as a block that ran (spec index, stimulus and ledger hashes, no
+ * artifact), so a run that holds it can still be re-judged on its other blocks.
+ */
+function notRunBlock(
+  run: RunContext,
+  position: number,
+  planned: PlannedStep,
+  stamp: { givenHash: string; specIndex: number; ledger: Record<string, unknown> },
+  notRun: NotRun,
+): BlockResult {
+  run.onEvent?.({ type: 'block_start', index: position, at: new Date().toISOString() });
+  run.onEvent?.({
+    type: 'block_end',
+    index: position,
+    pass: false,
+    status: 'not_run',
+    at: new Date().toISOString(),
   });
+  return {
+    index: position,
+    ...(planned.blockId !== undefined ? { blockId: planned.blockId } : {}),
+    ...(planned.injected ? { injected: true } : {}),
+    ...(run.provenance
+      ? {
+          provenance: {
+            specIndex: stamp.specIndex,
+            stimulusHash: provenanceHash(planned.stimulus),
+            ledgerHash: provenanceHash(stamp.ledger),
+            artifacts: [],
+          },
+        }
+      : {}),
+    givenHash: stamp.givenHash,
+    observed: { ...NOT_SENT, segments: [], toolCalls: [], cost: {} },
+    verdicts: [],
+    ledgerCheck: { ok: true, contradictions: [] },
+    drift: [],
+    pass: false,
+    status: 'not_run',
+    notRun,
+  };
 }
 
 /** The sources to read for a spec's `end_state`: `*` for `none`, each mapping's source once otherwise. */
@@ -740,7 +979,7 @@ function liveChannel(run: RunContext): Channel {
     restart: closeSession,
     reseat(prefix) {
       if (!session) return false;
-      session.history = structuredClone([...prefix]);
+      session.history = copyHistory(prefix);
       return true;
     },
     async observe(turn, user, key) {
@@ -748,7 +987,7 @@ function liveChannel(run: RunContext): Channel {
       const { value: answer, retries } = await collectRetries(async () => {
         if (!session) session = await call(`open on block ${turn.index}`, () => adapter.open(turn.given));
         const current = session;
-        current.history.push(...structuredClone(user));
+        current.history.push(...user);
         let sent: unknown = await call(`send on block ${turn.index}`, () => adapter.send(current, turn));
         const trace = adapter.trace;
         if (run.capabilities.trace && trace) {
@@ -766,7 +1005,7 @@ function liveChannel(run: RunContext): Channel {
           `the adapter's Observed for block ${turn.index} does not match the schema as JSON: ${issue?.path.join('.') || '(root)'} ${issue?.message ?? ''}`.trim(),
         );
       }
-      current.history.push(assistantMessage(parsed.data));
+      current.history.push(freezeMessage(cloneJson(assistantMessage(parsed.data))));
       // The cache keeps the block without its retries: a replay retries nothing.
       const { retries: _spent, ...kept } = parsed.data;
       await remember(key, kept);

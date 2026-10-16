@@ -2,8 +2,9 @@ import type { Spec } from '@agent-nexus/driftbench-core';
 import { coverage, type SpaceCoverage } from '@agent-nexus/driftbench-space';
 import type { BankItem, SeedData, Tier, Verdict } from './bank';
 import { FAULT_CLASSES } from './faults';
-import { DEVIATION_POOL, type HiddenSpec, phrasePattern } from './hidden';
+import { DEVIATION_POOL, type HiddenSpec } from './hidden';
 import type { Generation } from './measure';
+import { matchesPhrase, phraseStimulus } from './phrase-stimulus';
 import { hiddenInventory } from './render';
 
 /**
@@ -151,10 +152,18 @@ function phraseUse(
   generated: Generation,
   select: (phrase: HiddenSpec['phrases'][number]) => boolean,
 ): { used: number; total: number; missing: string[] } {
-  const said = turns(generated);
+  const stimuli = generated.complete.flatMap(({ spec }) => spec.blocks.map(phraseStimulus));
   const wanted = generated.hidden.phrases.filter(select);
   const missing = wanted
-    .filter((phrase) => !said.some((text) => phrasePattern(phrase.text).test(text.trim())))
+    .filter(
+      (phrase) =>
+        !stimuli.some((stimulus) =>
+          matchesPhrase(
+            stimulus.carrier === 'user' ? { ...stimulus, text: stimulus.text.trim() } : stimulus,
+            phrase,
+          ),
+        ),
+    )
     .map((phrase) => phrase.text);
   return { used: wanted.length - missing.length, total: wanted.length, missing };
 }
@@ -247,9 +256,14 @@ function phraseItems(): BankItem[] {
   items.push(
     item('phrases.slot-values', 3, 'packages/generate/src/seed/relations.ts#fillText', (generated) => {
       const said = turns(generated).join('\n');
+      // The value as a word of a turn: not inside a longer word, and at the end of a sentence too ("set to east.").
+      const says = (value: unknown) =>
+        new RegExp(
+          `(?<![A-Za-z0-9_-])${String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![A-Za-z0-9_-])`,
+        ).test(said);
       const missing = generated.hidden.data
         .filter((value) => value.binds !== undefined)
-        .filter((value) => !said.includes(` ${String(value.value)} `))
+        .filter((value) => !says(value.value))
         .map((value) => value.id);
       return verdict(
         missing.length === 0,

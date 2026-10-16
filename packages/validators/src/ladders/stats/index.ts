@@ -40,7 +40,10 @@ export {
   plantShares,
   SHARE_LEVELS,
   SHARES_COMPONENT,
+  SHARES_LEVEL_MISSES,
+  SHARES_NESTED_MISSES,
   SHARES_RECOVERY,
+  SHARES_STREAM,
   type SharesDataset,
   sharesLevel,
 } from './shares';

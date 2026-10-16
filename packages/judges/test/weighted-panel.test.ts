@@ -44,3 +44,10 @@ describe('weightedPanel', () => {
     expect(weightedPanel([vote('a', 'pass')], {})).toBe('split');
   });
 });
+
+describe('the package index', () => {
+  it('exports weightedPanel, as the judges page says', async () => {
+    const index: Record<string, unknown> = await import('../src/index');
+    expect(index.weightedPanel).toBe(weightedPanel);
+  });
+});

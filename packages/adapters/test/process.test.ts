@@ -139,7 +139,7 @@ describe('the process adapter', () => {
     expect(adapter.id).toBe('process');
     expect(adapter.capabilities()).toEqual({
       variants: false,
-      seedPrefix: false,
+      seedPrefix: true,
       toolStubs: false,
       trace: false,
       sandbox: true,
@@ -225,12 +225,17 @@ describe('the process adapter', () => {
     expect(observed.text).toBe('answer R-1\n');
   });
 
-  it('copies the prefix into the session history: an edit of the history never reaches the Given', async () => {
+  it('shares a frozen prefix in its own history array', async () => {
     const { open } = setup();
-    const from = { ...given(), prefix: [{ role: 'user' as const, content: 'earlier' }] };
+    const from = { ...given(), prefix: [Object.freeze({ role: 'user' as const, content: 'earlier' })] };
     const session = await open(from);
     const first = session.history[0];
-    if (first) first.content = 'edited in the session';
+    expect(first).toBe(from.prefix[0]);
+    expect(() => {
+      if (first) first.content = 'edited in the session';
+    }).toThrow(TypeError);
+    session.history.push({ role: 'user', content: 'another' });
+    expect(from.prefix).toHaveLength(1);
     expect(from.prefix[0]?.content).toBe('earlier');
   });
 

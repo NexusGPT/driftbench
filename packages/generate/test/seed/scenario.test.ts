@@ -5,8 +5,8 @@ import type { Pick } from '../../src/seed/assemble';
 import { TOOL_FAILURE_ERROR } from '../../src/seed/deviation';
 import { type PreparedMap, prepareMap, type ToolSchema } from '../../src/seed/map';
 import { rngFor } from '../../src/seed/random';
-import { fillText, recoveryFor } from '../../src/seed/relations';
-import { buildScenario } from '../../src/seed/scenario';
+import { fillText, recoveryFor, slotsIn } from '../../src/seed/relations';
+import { buildScenario, indexDimensions, indexPathValues } from '../../src/seed/scenario';
 import { ZED_TOOLS, zedProposal } from '../enumerate/support';
 
 /**
@@ -290,7 +290,7 @@ describe('buildScenario', () => {
     });
   });
 
-  it('fails a tool in the Given of the turn that calls it, expects the recovery, and stops there', () => {
+  it('fails a tool in the Given of the turn that calls it, expects the recovery, then says the turn again', () => {
     const prepared = prepare();
     const built = buildScenario(prepared, rngFor(1, 't'), {
       path: path(prepared, 'balance-found'),
@@ -298,7 +298,17 @@ describe('buildScenario', () => {
       probe: { classId: 'D8_tool_failure' },
     });
     if (!built.ok) throw new Error(built.reason);
-    expect(built.blocks).toHaveLength(2);
+    // The recovery stays at verify: the user says the turn again, the tool answers, and the walk goes on.
+    expect(built.blocks).toHaveLength(3);
+    expect(built.blocks[2]).toMatchObject({
+      id: 'b3-verify-to-help',
+      stimulus: built.blocks[1]?.stimulus,
+    });
+    expect(built.blocks[2]?.tools?.find((call) => call.label === 'lookup')).toMatchObject({
+      count: 1,
+      input: { account: '4' },
+    });
+    expect(built.blocks[2]?.given?.world?.tools?.lookup?.error).toBeUndefined();
     expect(built.blocks[1]).toMatchObject({
       id: 'b2-D8_tool_failure',
       injection: 'D8_tool_failure',
@@ -311,7 +321,7 @@ describe('buildScenario', () => {
     expect(built.probe).toEqual({ classId: 'D8_tool_failure', stage: 'verify', tool: 'lookup' });
   });
 
-  it('stops the conversation at the failing turn, and expects no call after the failing tool in it', () => {
+  it('expects no call after the failing tool in the failing turn, then walks on from the turn said again', () => {
     const prepared = prepare((draft) => {
       draft.phrases.push(phrase('stage_transition', 'help-to-verify', 'One more question about {account}.'));
       draft.relations?.push(
@@ -350,12 +360,19 @@ describe('buildScenario', () => {
       probe: { classId: 'D8_tool_failure' },
     });
     if (!failed.ok) throw new Error(failed.reason);
-    // The lookup fails at verify: the turn never reaches notify, and the third turn is never said.
-    expect(failed.blocks).toHaveLength(2);
+    // The lookup fails at verify: that turn never reaches notify. Said again, it calls both, then the walk
+    // goes on to its third turn.
+    expect(failed.blocks.map((block) => block.id)).toEqual([
+      'b1-greet-to-verify',
+      'b2-D8_tool_failure',
+      'b3-verify-to-help',
+      'b4-help-to-verify',
+    ]);
     expect(failed.blocks[1]?.tools).toEqual([
-      { label: 'lookup', count: 2, input: { account: '4' } },
+      { label: 'lookup', count: 2, input: { account: '4' }, input_closed: true },
       { label: 'notify', count: 0 },
     ]);
+    expect(failed.blocks[2]?.tools).toEqual(walked.blocks[1]?.tools);
   });
 
   it('forces one phrasing where its value is said, and draws everything else the same', () => {
@@ -568,7 +585,8 @@ describe('pilot iteration 6: a tool failure carries the words of its recovery', 
       probe: { classId: 'D8_tool_failure' },
     });
     if (!built.ok) throw new Error(built.reason);
-    expect(built.blocks.at(-1)?.must).toEqual(['not available']);
+    const failing = built.blocks.find((block) => block.injection === 'D8_tool_failure');
+    expect(failing?.must).toEqual(['not available']);
   });
 });
 
@@ -636,22 +654,28 @@ describe('pilot iteration 9: a clean walk declares a perturbation for mode P', (
       fixed: [],
     });
     if (!built.ok) throw new Error(built.reason);
-    expect(built.perturbations).toEqual([
-      {
-        id: 'p1-D1_off_topic',
-        class: 'D1_off_topic',
-        inject_at: 1,
-        user: 'Are you open on Sunday?',
-        expect: {
-          stage: 'verify',
-          stage_reported: true,
-          tools: [{ label: 'lookup', count: 0 }],
-          must: ['open Sunday', 'a.b'],
-          lang: 'EN',
-        },
-        recovery: { within_blocks: 0, stage_after: 'verify' },
+    expect(built.perturbations?.[0]).toEqual({
+      id: 'p1-D1_off_topic',
+      class: 'D1_off_topic',
+      inject_at: 1,
+      user: 'Are you open on Sunday?',
+      expect: {
+        stage: 'verify',
+        stage_reported: true,
+        tools: [{ label: 'lookup', count: 0 }],
+        must: ['open Sunday', 'a.b'],
+        lang: 'EN',
       },
-    ]);
+      recovery: { within_blocks: 0, stage_after: 'verify' },
+    });
+    // The turn that calls the lookup also fails it in perturbed mode, with the recovery as its Then.
+    expect(built.perturbations?.[1]).toMatchObject({
+      id: 'p2-D8_tool_failure',
+      class: 'D8_tool_failure',
+      inject_at: 1,
+      world: { tools: { lookup: { error: TOOL_FAILURE_ERROR } } },
+      recovery: { within_blocks: 0, stage_after: 'verify' },
+    });
     // The walk itself is unchanged: the end state still holds after the perturbation.
     expect(built.endState).toEqual({ source: 'tool:lookup', mode: 'subset', expect: { account: '4' } });
   });
@@ -1107,4 +1131,36 @@ describe('approved reply requirements', () => {
     const refused = buildScenario(bad, rngFor(1, 't'), { path: path(bad, 'balance-found'), fixed: [] });
     expect(refused).toMatchObject({ ok: false, reason: expect.stringContaining('unbound_fact') });
   });
+});
+
+it('keeps slot discovery independent of caller mutation, bindings and bounded cache eviction', () => {
+  const text = '{a} and {b} and {a}';
+  slotsIn(text).push('changed');
+  expect(slotsIn(text)).toEqual(['a', 'b', 'a']);
+  expect(fillText(text, { a: 'one', b: 'two' })).toEqual({ ok: true, value: 'one and two and one' });
+  expect(fillText(text, { a: 'new' })).toEqual({ ok: false, missing: ['b'] });
+  for (let index = 0; index < 3000; index += 1) expect(slotsIn(`text-${index} {x}`)).toEqual(['x']);
+  expect(slotsIn(text)).toEqual(['a', 'b', 'a']);
+});
+
+it('preserves scenario choices and RNG draws with generation-local path indices', () => {
+  const prepared = prepare();
+  const found = path(prepared, 'balance-found');
+  found.when = { account_state: ['found', 'missing', 'found', 'unknown'] };
+  const pathValues = indexPathValues(prepared);
+  const dimensionIndex = indexDimensions(prepared);
+  for (let seed = 1; seed <= 30; seed += 1)
+    for (const candidate of prepared.relations.paths) {
+      const first = rngFor(seed, 'indexed');
+      const second = rngFor(seed, 'indexed');
+      const request = { path: candidate, fixed: [] };
+      const plain = buildScenario(prepared, first, request);
+      const indexed = buildScenario(prepared, second, {
+        ...request,
+        dimensionIndex,
+        pathValues: pathValues.get(candidate),
+      });
+      expect(indexed).toEqual(plain);
+      expect(second()).toBe(first());
+    }
 });

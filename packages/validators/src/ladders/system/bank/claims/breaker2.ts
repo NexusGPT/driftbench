@@ -9,6 +9,8 @@ import { join } from 'node:path';
 import { loadSpecFile } from '@agent-nexus/driftbench-core';
 import { AUTO_MARGIN_WARN } from '@agent-nexus/driftbench-report';
 import { nonInferiority } from '@agent-nexus/driftbench-stats';
+import { parse as parseYaml } from 'yaml';
+import { z } from 'zod';
 import { gateContract, goldenContract, goldenCount } from '../current-contracts';
 import { type BankItem, expectAll, fail, type Tier } from '../types';
 import { readmeClaims } from './report';
@@ -384,11 +386,14 @@ async function withViewer(
 async function http(
   base: string,
   path: string,
-  init?: { method?: string; form?: Record<string, string> },
+  init?: { method?: string; form?: Record<string, string>; headers?: Record<string, string> },
 ): Promise<{ status: number; text: string; loc: string | null; csp: string | null }> {
   const r = await fetch(base + path, {
     method: init?.method ?? (init?.form ? 'POST' : 'GET'),
-    headers: init?.form ? { 'content-type': 'application/x-www-form-urlencoded' } : undefined,
+    headers: {
+      ...(init?.form ? { 'content-type': 'application/x-www-form-urlencoded' } : {}),
+      ...init?.headers,
+    },
     body: init?.form ? new URLSearchParams(init.form).toString() : undefined,
     redirect: 'manual',
   });
@@ -2713,40 +2718,74 @@ function freshLabels(f: Judged): string {
   return join(f.dir, `labels-${++viewSeq}`);
 }
 
-function readLabels(
-  labels: string,
-  criterion: string,
-): {
-  labelled_by: string;
-  blocks: { id: string; label: string; note?: string; transcript?: { role: string; text: string }[] }[];
-} | null {
+// docs/viewer.md, "Labelling a block": validate the YAML keys, independently of the product reader.
+const viewerLabelFile = z.object({
+  criterion: z.string(),
+  labelled_by: z.string(),
+  blocks: z.array(
+    z.object({
+      id: z.string(),
+      label: z.enum(['pass', 'fail']),
+      note: z.string().optional(),
+      transcript: z.array(
+        z
+          .object({
+            role: z.enum(['user', 'agent', 'tool_call', 'tool_result']),
+            text: z.string(),
+            tool: z.string().optional(),
+          })
+          .refine(
+            (turn) =>
+              (turn.role !== 'tool_call' && turn.role !== 'tool_result') || typeof turn.tool === 'string',
+          ),
+      ),
+    }),
+  ),
+});
+
+function readLabels(labels: string, criterion: string): z.infer<typeof viewerLabelFile> | null {
   const f = join(labels, `${criterion}.yaml`);
   if (!existsSync(f)) return null;
-  // The label file is plain YAML of a known small shape; read it by lines.
-  const text = readFileSync(f, 'utf8');
-  const out = {
-    labelled_by: /^labelled_by: (.*)$/m.exec(text)?.[1] ?? '',
-    blocks: [] as {
-      id: string;
-      label: string;
-      note?: string;
-      transcript?: { role: string; text: string }[];
-    }[],
-  };
-  for (const chunk of text.split(/\n {2}- /).slice(1)) {
-    const id = /(?:^|\n)\s*id: (\S+)/.exec(chunk)?.[1] ?? '';
-    const label = /(?:^|\n)\s*label: (\S+)/.exec(chunk)?.[1] ?? '';
-    const note = /(?:^|\n)\s*note: (.*)/.exec(chunk)?.[1];
-    const tr = [...chunk.matchAll(/- role: (\w+)\n\s+text: (.*)/g)].map((m) => ({
-      role: m[1] as string,
-      text: m[2] as string,
-    }));
-    out.blocks.push({ id, label, note, transcript: tr });
-  }
-  return out;
+  const parsed = viewerLabelFile.safeParse(parseYaml(readFileSync(f, 'utf8')));
+  return parsed.success ? parsed.data : null;
 }
 
-const post = (base: string, path: string, form: Record<string, string>) => http(base, path, { form });
+/** Read the current page, as a reviewer does. Older viewers have no hidden token. */
+async function labelForm(base: string, form: Record<string, string>): Promise<Record<string, string>> {
+  const page = await http(
+    base,
+    `/campaign/${encodeURIComponent(form.campaign as string)}/run/${encodeURIComponent(form.run as string)}`,
+  );
+  if (page.status !== 200) throw new Error(`expected the label page, got ${page.status}`);
+  const label = /<form\b[^>]*action=["']\/labels["'][^>]*>[\s\S]*?<\/form>/i.exec(page.text)?.[0];
+  if (!label) throw new Error('the page has no label form');
+  const tokenInput = [...label.matchAll(/<input\b[^>]*>/gi)].find((match) =>
+    /\bname=["']csrf["']/i.test(match[0]),
+  )?.[0];
+  if (!tokenInput) return { ...form };
+  const csrf = /\bvalue=["']([^"']*)["']/i.exec(tokenInput)?.[1];
+  if (csrf === undefined) throw new Error('the csrf input has no value');
+  return { ...form, csrf };
+}
+
+async function postLabelForm(base: string, form: Record<string, string>) {
+  return http(base, '/labels', {
+    form: await labelForm(base, form),
+    headers: { Origin: new URL(base).origin },
+  });
+}
+
+/** Take a queue item through the queue page: its hidden token and the page's own Origin. */
+async function postQueueAssign(base: string, form: Record<string, string>) {
+  const page = await http(base, '/queue');
+  if (page.status !== 200) throw new Error(`expected the queue page, got ${page.status}`);
+  const csrf = viewerForms(page.text, '/queue', base).find((x) => x.method === 'post' && x.fields.csrf)
+    ?.fields.csrf;
+  return http(base, '/queue/assign', {
+    form: csrf === undefined ? form : { ...form, csrf },
+    headers: { Origin: new URL(base).origin },
+  });
+}
 
 add(
   FV,
@@ -3094,7 +3133,7 @@ add(
     let saved = 0;
     await withViewer(['--store', f.store, '--port', '0', '--labels', labels], f.dir, async (base) => {
       saved = (
-        await post(base, '/labels', {
+        await postLabelForm(base, {
           campaign: 'q1',
           run: f.runIds[0] as string,
           block: '1',
@@ -3108,6 +3147,12 @@ add(
     const b = l?.blocks[0];
     return expectAll([
       [saved === 303, `expected a 303 redirect, got ${saved}`],
+      [
+        l?.criterion === 'polite' &&
+          l.labelled_by === 'a reviewer, in driftbench view' &&
+          l.blocks.length === 1,
+        "expected YAML keys criterion (polite), labelled_by (the default), and blocks (one labelled block), with id, label, note, transcript and each turn's role/text and tool on tool turns",
+      ],
       [
         b?.id === `${f.runIds[0]}.b1` && b?.label === 'fail' && b?.note === 'Too curt.',
         `expected id ${f.runIds[0]}.b1 fail "Too curt.", got ${JSON.stringify(b)}`,
@@ -3145,12 +3190,12 @@ add(
     await withViewer(
       ['--store', f.store, '--port', '0', '--labels', l1],
       f.dir,
-      async (b) => void (await post(b, '/labels', form)),
+      async (b) => void (await postLabelForm(b, form)),
     );
     await withViewer(
       ['--store', f.store, '--port', '0', '--labels', l2, '--labelled-by', 'Rae Example'],
       f.dir,
-      async (b) => void (await post(b, '/labels', form)),
+      async (b) => void (await postLabelForm(b, form)),
     );
     return expectAll([
       [
@@ -3183,7 +3228,7 @@ add(
       ['--store', f.store, '--port', '0', '--labels', labels, '--labelled-by', 'First Reviewer'],
       f.dir,
       async (b) => {
-        await post(b, '/labels', {
+        await postLabelForm(b, {
           campaign: 'q1',
           run,
           block: '0',
@@ -3191,7 +3236,7 @@ add(
           label: 'pass',
           note: 'a',
         });
-        await post(b, '/labels', {
+        await postLabelForm(b, {
           campaign: 'q1',
           run,
           block: '1',
@@ -3205,7 +3250,7 @@ add(
       ['--store', f.store, '--port', '0', '--labels', labels, '--labelled-by', 'Second Reviewer'],
       f.dir,
       async (b) => {
-        await post(b, '/labels', {
+        await postLabelForm(b, {
           campaign: 'q1',
           run,
           block: '0',
@@ -3229,6 +3274,457 @@ add(
   },
 );
 
+// These helpers belong to the write-protection item, not the other viewer contracts.
+function viewerHtmlText(value: string): string {
+  return value.replace(/&(#x[\da-f]+|#\d+|amp|quot|apos|lt|gt);/gi, (_, entity: string) => {
+    if (entity.startsWith('#')) {
+      return String.fromCodePoint(
+        entity[1]?.toLowerCase() === 'x' ? Number.parseInt(entity.slice(2), 16) : Number(entity.slice(1)),
+      );
+    }
+    return ({ amp: '&', quot: '"', apos: "'", lt: '<', gt: '>' } as Record<string, string>)[entity] ?? entity;
+  });
+}
+
+function viewerAttributes(tag: string): Record<string, string> {
+  return Object.fromEntries(
+    [...tag.matchAll(/\s([\w-]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+)))?/g)].map((match) => [
+      (match[1] as string).toLowerCase(),
+      viewerHtmlText(match[2] ?? match[3] ?? match[4] ?? ''),
+    ]),
+  );
+}
+
+type ViewerForm = {
+  page: string;
+  index: number;
+  action: string;
+  method: string;
+  fields: Record<string, string>;
+};
+
+/** Submit the generated HTML controls, choosing the first offered radio when none is checked. */
+function viewerForms(html: string, page: string, base: string): ViewerForm[] {
+  return [...html.matchAll(/<form\b[^>]*>([\s\S]*?)<\/form>/gi)].map((match, index) => {
+    const attrs = viewerAttributes(match[0].slice(0, match[0].indexOf('>') + 1));
+    const action = new URL(attrs.action ?? page, base + page);
+    if (action.origin !== base) throw new Error('viewer form action must stay on its own origin');
+    const fields: Record<string, string> = {};
+    const body = match[1] as string;
+    for (const input of body.matchAll(/<input\b[^>]*>/gi)) {
+      const a = viewerAttributes(input[0]);
+      if (!a.name || 'disabled' in a || ['submit', 'button', 'reset', 'file'].includes(a.type ?? ''))
+        continue;
+      if (a.type === 'checkbox' && !('checked' in a)) continue;
+      if (a.type === 'radio' && a.name in fields && !('checked' in a)) continue;
+      fields[a.name] = a.value ?? (a.type === 'checkbox' ? 'on' : '');
+    }
+    for (const select of body.matchAll(/<select\b[^>]*>([\s\S]*?)<\/select>/gi)) {
+      const a = viewerAttributes(select[0].slice(0, select[0].indexOf('>') + 1));
+      if (!a.name || 'disabled' in a) continue;
+      const options = [...(select[1] as string).matchAll(/<option\b[^>]*>([\s\S]*?)<\/option>/gi)]
+        .map((option) => ({
+          attrs: viewerAttributes(option[0].slice(0, option[0].indexOf('>') + 1)),
+          text: viewerHtmlText(option[1] as string),
+        }))
+        .filter((option) => !('disabled' in option.attrs));
+      const selected = options.find((option) => 'selected' in option.attrs) ?? options[0];
+      if (selected) fields[a.name] = selected.attrs.value ?? selected.text;
+    }
+    for (const textarea of body.matchAll(/<textarea\b[^>]*>([\s\S]*?)<\/textarea>/gi)) {
+      const a = viewerAttributes(textarea[0].slice(0, textarea[0].indexOf('>') + 1));
+      if (a.name && !('disabled' in a)) fields[a.name] = viewerHtmlText(textarea[1] as string);
+    }
+    return {
+      page,
+      index,
+      action: action.pathname + action.search,
+      method: (attrs.method ?? 'get').toLowerCase(),
+      fields,
+    };
+  });
+}
+
+/**
+ * Crawl every linked viewer page, including GET-form destinations. Read every POST form and group by
+ * action, not a maintained route list. A write route added to a viewer page joins the matrix without
+ * editing this item. server.ts at PR 298 serves index, compare, keys, queue, campaign and run pages;
+ * navigation plus campaign/run links reach all of them. Seed the queue so its Take forms are present.
+ */
+async function viewerWriteForms(base: string): Promise<Map<string, ViewerForm[]>> {
+  const pending = ['/'];
+  const visited = new Set<string>();
+  const routes = new Map<string, ViewerForm[]>();
+  const enqueue = (href: string, from: string) => {
+    const url = new URL(href, base + from);
+    if (url.origin !== base) return;
+    url.hash = '';
+    url.searchParams.sort();
+    const path = url.pathname + url.search;
+    if (!visited.has(path) && !pending.includes(path)) pending.push(path);
+  };
+  while (pending.length > 0) {
+    const page = pending.shift() as string;
+    visited.add(page);
+    if (visited.size > 1000) throw new Error('viewer page crawl did not converge');
+    const response = await http(base, page);
+    if (response.status !== 200) throw new Error(`viewer page ${page}: expected 200, got ${response.status}`);
+    for (const link of response.text.matchAll(/<a\b[^>]*>/gi)) {
+      const href = viewerAttributes(link[0]).href;
+      if (href !== undefined) enqueue(href, page);
+    }
+    for (const form of viewerForms(response.text, page, base)) {
+      if (form.method === 'post') {
+        const forms = routes.get(form.action) ?? [];
+        forms.push(form);
+        routes.set(form.action, forms);
+      } else if (form.method === 'get') {
+        const url = new URL(form.action, base);
+        url.search = new URLSearchParams(form.fields).toString();
+        enqueue(url.href, page);
+      } else throw new Error(`unsupported page form method: ${form.method}`);
+    }
+  }
+  if (routes.size === 0) throw new Error('viewer crawl found no POST forms');
+  return routes;
+}
+
+/** Exact names and bytes, recursively: includes queue.json, labels, and unexpected temporary files. */
+function viewerFilesSnapshot(path: string): string {
+  if (!existsSync(path)) return 'absent';
+  return JSON.stringify(
+    readdirSync(path, { withFileTypes: true })
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map((entry) => [
+        entry.name,
+        entry.isDirectory()
+          ? viewerFilesSnapshot(join(path, entry.name))
+          : readFileSync(join(path, entry.name)).toString('base64'),
+      ]),
+  );
+}
+
+add(
+  FV,
+  'label-write-requires-token-and-origin',
+  3,
+  1,
+  'adversarial',
+  'driftbench view',
+  `${QVW} (every form write route: exact Host, own Origin or Referer fallback, body token, POST only, fresh 64-hex token at each start)`,
+  'every discovered write route obeys all runtime HTTP methods and the Host, origin and token matrix; tokens are 64 hex characters and change across identical starts',
+  async (ctx) => {
+    const { METHODS, request } = await import('node:http');
+    const { startViewer } = await import('../../../../../../cli/src/view/server');
+    const f = await judged(ctx.scratch);
+    const checks: [boolean, string][] = [];
+    const fixture = freshLabels(f);
+    const created = await cli(
+      ['queue', 'create', '--store', f.store, '--campaign', 'q1', '--labels', fixture],
+      f.dir,
+    );
+    if (created.code !== 0) return fail(`queue fixture failed: ${created.err}`);
+    const queue = readFileSync(join(fixture, 'queue.json'), 'utf8');
+    // Start the real server directly: each case still gets a fresh viewer and labels folder,
+    // without CLI signal handlers or readiness polling for every runtime HTTP method.
+    const isolatedViewer = async (labels: string, body: (base: string) => Promise<void>, port = '0') => {
+      const viewer = await startViewer({ store: f.store, labels, port: Number(port) });
+      try {
+        await body(viewer.url);
+      } finally {
+        await viewer.close();
+      }
+    };
+    let routes = new Map<string, ViewerForm[]>();
+    await isolatedViewer(fixture, async (base) => {
+      routes = await viewerWriteForms(base);
+    });
+    if (routes.size === 0) return fail('viewer discovery found no write routes');
+    type OriginKind = 'own' | 'foreign' | 'absent' | 'near-userinfo' | 'near-suffix' | 'near-null';
+    type RefererKind = 'own' | 'foreign' | 'absent' | 'malformed' | 'near-userinfo' | 'near-path';
+    const matrix = [...routes.values()].flatMap((forms) =>
+      METHODS.flatMap((method) =>
+        (['own', 'foreign', 'different-port'] as const).flatMap((host) =>
+          (['own', 'foreign', 'absent'] as OriginKind[]).flatMap((origin) =>
+            (['own', 'foreign', 'absent', 'malformed'] as RefererKind[]).flatMap((referer) =>
+              (['body', 'missing', 'wrong', 'query-only', 'header-only'] as const).map((token) => ({
+                form: forms[Math.abs(ctx.seed) % forms.length] as ViewerForm,
+                method,
+                host,
+                origin,
+                referer,
+                token,
+              })),
+            ),
+          ),
+        ),
+      ),
+    );
+    // Near-miss origins look like the viewer's own address but name another site. A valid page form with
+    // a correct token and the exact Host must still be refused with 403 for each of them.
+    const nearMisses: [OriginKind, RefererKind][] = [
+      ['near-userinfo', 'absent'],
+      ['near-suffix', 'absent'],
+      ['near-null', 'absent'],
+      ['absent', 'near-userinfo'],
+      ['absent', 'near-path'],
+    ];
+    const nearCases = [...routes.values()].flatMap((forms) =>
+      nearMisses.map(([origin, referer]) => ({
+        form: forms[Math.abs(ctx.seed) % forms.length] as ViewerForm,
+        method: 'POST',
+        host: 'own' as const,
+        origin,
+        referer,
+        token: 'body' as const,
+      })),
+    );
+    // The token is read only for POST. Every other method keeps the token that the page supplies, plus one
+    // trusted request with the token missing: the method check must answer 405 before any token check.
+    const cases = [
+      ...matrix.filter(
+        (c) =>
+          c.method === 'POST' ||
+          c.token === 'body' ||
+          (c.token === 'missing' && c.host === 'own' && c.origin === 'own' && c.referer === 'absent'),
+      ),
+      ...nearCases,
+    ];
+    for (const { form: source, method, host, origin, referer, token } of cases) {
+      // docs/viewer.md: "Requests must use the exact `127.0.0.1:<port>` address printed at startup."
+      // "Other Host headers are refused to block DNS rebinding."
+      // "Writes also require the viewer's own Origin, or a same-origin Referer when Origin is absent,
+      // and a hidden form token generated at each start."
+      // "Rejected requests return HTTP 403 with a plain message and write nothing."
+      // "The write routes (`/labels` and `/queue/assign`) accept POST only; after the Host and origin
+      // checks, PUT, DELETE, PATCH, HEAD and OPTIONS return HTTP 405 and write nothing."
+      // "GET returns HTTP 404, TRACE returns HTTP 405, and Node closes CONNECT without an HTTP
+      // response before it reaches the viewer's request handler." All other non-POST methods must
+      // also return 405 after the guards. GET, HEAD and OPTIONS are reads, so skip the origin guard.
+      // Origin takes precedence over Referer. Non-POST bodies are never token-checked or written.
+      const trusted = host === 'own' && (origin === 'own' || (origin === 'absent' && referer === 'own'));
+      const expected =
+        method === 'CONNECT'
+          ? undefined
+          : host !== 'own'
+            ? 403
+            : method === 'GET'
+              ? 404
+              : method === 'HEAD' || method === 'OPTIONS'
+                ? 405
+                : !trusted
+                  ? 403
+                  : method !== 'POST'
+                    ? 405
+                    : token === 'body'
+                      ? 303
+                      : 403;
+      const context = `${method} ${source.action}, Host=${host}, Origin=${origin}, Referer=${referer}, token=${token}`;
+      const labels = freshLabels(f);
+      put(join(labels, 'queue.json'), queue);
+      // A pre-existing label also has to survive refusals, not merely remain absent.
+      put(
+        join(labels, 'preserved.yaml'),
+        'criterion: preserved\nlabelled_by: Fictional Reviewer\nblocks: []\n',
+      );
+      const before = viewerFilesSnapshot(labels);
+      let status: number | undefined;
+      let submitted: Record<string, string> = {};
+      await isolatedViewer(labels, async (base) => {
+        const page = await http(base, source.page);
+        if (page.status !== 200) throw new Error(`form page: expected 200, got ${page.status}`);
+        const live = viewerForms(page.text, source.page, base)[source.index];
+        if (!live || live.action !== source.action || live.method !== 'post') {
+          throw new Error(`discovered form changed at ${source.page}`);
+        }
+        const form = { ...live.fields };
+        submitted = { ...form };
+        const csrf = form.csrf ?? '';
+        checks.push([csrf.length > 0, `${context}: page form must supply a csrf token`]);
+        if (token !== 'body') delete form.csrf;
+        if (token === 'wrong') form.csrf = `${csrf}-wrong`;
+        const url = new URL(source.action, base);
+        if (token === 'query-only') url.searchParams.set('csrf', csrf);
+        const address = new URL(base);
+        const otherPort = Number(address.port) === 65535 ? 1 : Number(address.port) + 1;
+        const headers: Record<string, string> = {
+          'content-type': 'application/x-www-form-urlencoded',
+          Host:
+            host === 'own'
+              ? address.host
+              : host === 'foreign'
+                ? 'foreign.example'
+                : `${address.hostname}:${otherPort}`,
+        };
+        if (origin !== 'absent') {
+          headers.Origin =
+            origin === 'own'
+              ? base
+              : origin === 'near-userinfo'
+                ? `http://${address.host}@foreign.example`
+                : origin === 'near-suffix'
+                  ? `${base}.foreign.example`
+                  : origin === 'near-null'
+                    ? 'null'
+                    : 'https://foreign.example';
+        }
+        if (referer !== 'absent') {
+          headers.Referer =
+            referer === 'own'
+              ? base + source.page
+              : referer === 'foreign'
+                ? 'https://foreign.example/review'
+                : referer === 'near-userinfo'
+                  ? `http://${address.host}@foreign.example/review`
+                  : referer === 'near-path'
+                    ? `https://foreign.example/${base}/review`
+                    : 'not a URL';
+        }
+        if (token === 'header-only') headers['X-CSRF-Token'] = csrf;
+        // node:http preserves an explicit Host; fetch may replace it. Send a body for every method.
+        const body = new URLSearchParams(form).toString();
+        headers['content-length'] = String(Buffer.byteLength(body));
+        status = await new Promise<number | undefined>((resolve, reject) => {
+          const req = request(url, { method, headers }, (res) => {
+            res.on('error', reject);
+            res.on('end', () => resolve(res.statusCode ?? 0));
+            res.resume();
+          });
+          req.on('connect', (res, socket) => {
+            socket.destroy();
+            resolve(res.statusCode);
+          });
+          req.on('error', (error: NodeJS.ErrnoException) => {
+            if (method === 'CONNECT' && error.code === 'ECONNRESET') resolve(undefined);
+            else reject(error);
+          });
+          req.end(body);
+        });
+      });
+      const after = viewerFilesSnapshot(labels);
+      checks.push([
+        status === expected,
+        `${context}: expected ${expected ?? 'connection closed without HTTP response'}, got ${status ?? 'connection closed without HTTP response'}`,
+      ]);
+      if (expected === 303) {
+        checks.push([after !== before, `${context}: expected a persisted write from the valid page form`]);
+        if ('label' in submitted && 'run' in submitted && 'block' in submitted) {
+          const saved = readLabels(labels, submitted.criterion as string);
+          checks.push([
+            saved !== null &&
+              saved.criterion === submitted.criterion &&
+              saved.blocks.length === 1 &&
+              saved.blocks[0]?.id === `${submitted.run}.b${submitted.block}` &&
+              saved.blocks[0]?.label === submitted.label,
+            `${context}: expected the submitted label under the documented YAML keys`,
+          ]);
+        } else if ('id' in submitted && 'criterion' in submitted) {
+          const saved = JSON.parse(readFileSync(join(labels, 'queue.json'), 'utf8')) as {
+            entries: { id: string; criterion: string; state: string; assignee?: string }[];
+          };
+          checks.push([
+            saved.entries.some(
+              (entry) =>
+                entry.id === submitted.id &&
+                entry.criterion === submitted.criterion &&
+                entry.state === 'assigned' &&
+                entry.assignee === 'a reviewer, in driftbench view',
+            ),
+            `${context}: expected the submitted queue item assigned to the viewer`,
+          ]);
+        }
+      } else {
+        checks.push([after === before, `${context}: refused request changed labels or queue.json`]);
+      }
+    }
+    // docs/viewer.md: "a hidden form token generated at each start" and
+    // "Reload an old form after restarting the viewer."
+    // Hold these public inputs identical: start options, cwd, store, labels folder, reviewer and fixed port.
+    // Different tokens rule out a token derived solely from those inputs. Length is encoding capacity,
+    // not proof of cryptographic entropy. docs/viewer.md: "The token is 32 random bytes from the
+    // system's cryptographic generator (64 hex characters), generated at each start and never
+    // written to disk; an old token is refused after a restart."
+    for (const forms of routes.values()) {
+      const source = forms[Math.abs(ctx.seed) % forms.length] as ViewerForm;
+      const labels = freshLabels(f);
+      put(join(labels, 'queue.json'), queue);
+      put(
+        join(labels, 'preserved.yaml'),
+        'criterion: preserved\nlabelled_by: Fictional Reviewer\nblocks: []\n',
+      );
+      const before = viewerFilesSnapshot(labels);
+      let port = '0';
+      // Discover a free local port, then use that exact argument for both measured starts.
+      await isolatedViewer(labels, async (base) => {
+        port = new URL(base).port;
+      });
+      const readForm = async (base: string) => {
+        const page = await http(base, source.page);
+        if (page.status !== 200) throw new Error(`restart form page: expected 200, got ${page.status}`);
+        const form = viewerForms(page.text, source.page, base)[source.index];
+        if (!form || form.action !== source.action || form.method !== 'post') {
+          throw new Error(`restart form changed at ${source.page}`);
+        }
+        return form.fields;
+      };
+      let oldToken = '';
+      await isolatedViewer(
+        labels,
+        async (base) => {
+          oldToken = (await readForm(base)).csrf ?? '';
+          checks.push([
+            /^[a-f\d]{64}$/i.test(oldToken),
+            `${source.action}: first-start token must contain exactly 64 hex characters`,
+          ]);
+        },
+        port,
+      );
+      checks.push([
+        viewerFilesSnapshot(labels) === before,
+        `${source.action}: reading the first-start form changed persisted state`,
+      ]);
+      await isolatedViewer(
+        labels,
+        async (base) => {
+          const form = await readForm(base);
+          const currentToken = form.csrf ?? '';
+          checks.push(
+            [
+              /^[a-f\d]{64}$/i.test(currentToken),
+              `${source.action}: second-start token must contain exactly 64 hex characters`,
+            ],
+            [
+              oldToken !== currentToken,
+              `${source.action}: identical public arguments must not reproduce the token across starts`,
+            ],
+          );
+          const stale = await http(base, source.action, {
+            form: { ...form, csrf: oldToken },
+            headers: { Origin: base },
+          });
+          checks.push(
+            [
+              stale.status === 403,
+              `${source.action}: old token after same-port restart expected 403, got ${stale.status}`,
+            ],
+            [
+              viewerFilesSnapshot(labels) === before,
+              `${source.action}: old token after restart changed labels or queue.json`,
+            ],
+          );
+        },
+        port,
+      );
+      checks.push([
+        viewerFilesSnapshot(labels) === before,
+        `${source.action}: restart refusal did not preserve persisted state`,
+      ]);
+    }
+    const failures = checks.filter(([pass]) => !pass).map(([, detail]) => detail);
+    return expectAll([[failures.length === 0, failures.join('; ')]]);
+  },
+);
+
 add(
   FV,
   'label-saved-notice-and-counts',
@@ -3245,7 +3741,7 @@ add(
     let after = '';
     let two = '';
     await withViewer(['--store', f.store, '--port', '0', '--labels', labels], f.dir, async (b) => {
-      const r = await post(b, '/labels', {
+      const r = await postLabelForm(b, {
         campaign: 'q1',
         run,
         block: '0',
@@ -3256,7 +3752,7 @@ add(
       after = (await http(b, (r.loc ?? '').replace(/#.*/, ''))).text
         .replace(/<[^>]+>/g, ' ')
         .replace(/\s+/g, ' ');
-      await post(b, '/labels', {
+      await postLabelForm(b, {
         campaign: 'q1',
         run,
         block: '1',
@@ -3302,7 +3798,7 @@ add(
       for (const c of ['../escape', 'a/b', '..', 'x\\y'])
         sts.push(
           (
-            await post(b, '/labels', {
+            await postLabelForm(b, {
               campaign: 'q1',
               run: f.runIds[0] as string,
               block: '0',
@@ -3339,7 +3835,7 @@ add(
     await withViewer(['--store', f.store, '--port', '0', '--labels', labels], f.dir, async (b) => {
       sts.push(
         (
-          await post(b, '/labels', {
+          await postLabelForm(b, {
             campaign: 'q1',
             run: f.runIds[0] as string,
             block: '99',
@@ -3351,7 +3847,7 @@ add(
       );
       sts.push(
         (
-          await post(b, '/labels', {
+          await postLabelForm(b, {
             campaign: 'q1',
             run: f.runIds[0] as string,
             block: '0',
@@ -3538,7 +4034,7 @@ add(
     const f = await judged(ctx.scratch);
     const labels = freshLabels(f);
     await withViewer(['--store', f.store, '--port', '0', '--labels', labels], f.dir, async (b) => {
-      await post(b, '/labels', {
+      await postLabelForm(b, {
         campaign: 'q1',
         run: f.runIds[0] as string,
         block: '0',
@@ -3640,8 +4136,8 @@ add(
       ['--store', f.store, '--port', '0', '--labels', labels, '--labelled-by', 'Tess'],
       f.dir,
       async (b) => {
-        taken = (await post(b, '/queue/assign', { criterion: 'polite', id })).status;
-        await post(b, '/labels', {
+        taken = (await postQueueAssign(b, { criterion: 'polite', id })).status;
+        await postLabelForm(b, {
           campaign: 'q1',
           run: f.runIds[0] as string,
           block: '1',
@@ -3691,7 +4187,7 @@ add(
       f.dir,
       async (b) => {
         st = (
-          await post(b, '/labels', {
+          await postLabelForm(b, {
             campaign: 'q1',
             run: f.runIds[0] as string,
             block: '0',
@@ -3734,7 +4230,7 @@ add(
       ['--store', f.store, '--port', '0', '--labels', labels, '--labelled-by', 'Tess'],
       f.dir,
       async (b) => {
-        st = (await post(b, '/queue/assign', { criterion: 'polite', id })).status;
+        st = (await postQueueAssign(b, { criterion: 'polite', id })).status;
       },
     );
     const l = await cli(['queue', 'list', '--labels', labels], f.dir);

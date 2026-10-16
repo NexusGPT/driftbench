@@ -1,0 +1,19 @@
+{
+  "at": "2026-10-13T12:12:17.130732+00:00",
+  "sourceHashes": {
+    "examples/ledger-verify/lite/stats.py": "e3b432ef0f285bba201b01ec86224e6837f50ae972072d81b001f0fdf5753907",
+    "examples/ledger-verify/lite/output_limits.py": "9576df54f44ab5ac0f5e019c150f8ee9c982b439204033fb147b73dd39ea8fd2",
+    "examples/ledger-verify/lite/summarize.py": "fe7e5493ae10b1fddcb72329b7d02b989b277173710f946d39cbca7229d72040",
+    "examples/ledger-verify/lite/check-replays.py": "ad9a2596a01c9406223c5db59b2fa3156ff8433e5b39f54176bd14261059f3f1",
+    "examples/ledger-verify/lite-trace-requests.ts": "79cfed1cf4e0bc28d2bfc4a76b1b0c3cc78c1ca0f92a4f1df40350c393aec12b"
+  },
+  "identicalScoringFunctions": {
+    "wilson": "1c494c764d88a5e9491a0966fe25b95c19b9c6cca9b1a95eedbb6756ecab5e14",
+    "exact_mcnemar": "1b1a5ea0d1037dfb274c2feb627ea66b85afccb5b3ed18d7c0a9573edaea6280",
+    "compare": "666eff566064fbdbfe3e5542ea6db15fe5f2caba457ec2e5e7e94b9fcc36820c",
+    "limit_reason": "e8b18c15f56ce8a2540b3d86e0687c02670c99469edb852186a0b5f60a78bc1d",
+    "strict_decisions": "934e3d67b6cea8d0b7c0912f605f41dddc339bb5593bc6e7c83dfb3083681d54"
+  },
+  "change": "Only model allowlist, paths and offline output location differ; frozen comparison and limit algorithms are identical.",
+  "testHasStarted": false
+}

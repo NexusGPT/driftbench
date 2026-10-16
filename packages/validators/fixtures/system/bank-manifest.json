@@ -3341,6 +3341,15 @@
       "cause": "openStore refuses a database of a newer schema version without touching it"
     },
     {
+      "id": "claim/adapters/store-schema-holds-block-verdicts",
+      "family": "store-stress",
+      "tier": 1,
+      "level": 1,
+      "source": "contract",
+      "component": "packages/store/src/store.ts",
+      "cause": "SCHEMA_VERSION is at or above the version that introduced not_run and blocked, in the file and in a bundle"
+    },
+    {
       "id": "claim/adapters/store-older-schema-upgraded",
       "family": "store-stress",
       "tier": 2,
@@ -3690,6 +3699,15 @@
       "source": "contract",
       "component": "driftbench view",
       "cause": "driftbench view: a second label on one block replaces it and leaves the other block and labelled_by alone"
+    },
+    {
+      "id": "breaker2/viewer/label-write-requires-token-and-origin",
+      "family": "breaker2-viewer",
+      "tier": 3,
+      "level": 1,
+      "source": "adversarial",
+      "component": "driftbench view",
+      "cause": "driftbench view: every discovered write route obeys all runtime HTTP methods and the Host, origin and token matrix; tokens are 64 hex characters and change across identical starts"
     },
     {
       "id": "breaker2/viewer/label-path-traversal",
@@ -4301,7 +4319,7 @@
       "level": 1,
       "source": "contract",
       "component": "packages/store/src/schema.ts",
-      "cause": "openStore upgrades a schema 1 store to schema 2 on open"
+      "cause": "openStore upgrades a schema 1 store to the current schema on open"
     },
     {
       "id": "robust/version/schema-1-campaign",
@@ -8054,7 +8072,7 @@
       "level": 3,
       "source": "contract",
       "component": "packages/adapters/src/function/index.ts",
-      "cause": "functionAdapter.open starts the session history as a copy of the prefix"
+      "cause": "functionAdapter.open protects handed-over messages from caller writes"
     },
     {
       "id": "claim/adapters/function/receives-history",
@@ -8081,7 +8099,7 @@
       "level": 3,
       "source": "adversarial",
       "component": "packages/adapters/src/function/index.ts",
-      "cause": "functionAdapter.send hands the agent copies of the history, world and vars"
+      "cause": "functionAdapter.send protects message contents and isolates each turn from agent writes"
     },
     {
       "id": "claim/adapters/function/create-per-session",
@@ -8162,7 +8180,7 @@
       "level": 3,
       "source": "contract",
       "component": "packages/adapters/src/http/index.ts",
-      "cause": "httpAdapter versions itself by a hash of its url"
+      "cause": "httpAdapter combines its exported version with the content hash of its url, stably per url and distinctly across urls"
     },
     {
       "id": "claim/adapters/http/request-fields",
@@ -8567,7 +8585,25 @@
       "level": 3,
       "source": "differential",
       "component": "packages/adapters/src/process/index.ts",
-      "cause": "processAdapter.open copies the prefix messages into the session history"
+      "cause": "processAdapter protects host messages at handoff and isolates child history edits"
+    },
+    {
+      "id": "claim/adapters/capability/tool-stubs-not-run",
+      "family": "claim-adapters",
+      "tier": 2,
+      "level": 3,
+      "source": "contract",
+      "component": "packages/core/src/runner/run.ts",
+      "cause": "runSpec runs the capability check before it sends a block"
+    },
+    {
+      "id": "claim/adapters/capability/tool-stubs-declared-runs",
+      "family": "claim-adapters",
+      "tier": 1,
+      "level": 3,
+      "source": "contract",
+      "component": "packages/core/src/runner/run.ts",
+      "cause": "the capability check passes a layer the adapter declares it applies"
     },
     {
       "id": "breaker/checks/must-second-pattern-index-1",

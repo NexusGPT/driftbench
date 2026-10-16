@@ -1,0 +1,14 @@
+{
+  "verified_on": "2026-10-13",
+  "source": "https://ai.google.dev/gemini-api/docs/pricing",
+  "guide": "https://ai.google.dev/gemini-api/docs/generate-content/whats-new-gemini-3.6",
+  "model": "gemini-3.5-flash-lite",
+  "tier": "Standard paid synchronous text",
+  "usd_per_million": {
+    "input": 0.3,
+    "cached_input": 0.03,
+    "output_including_thinking": 2.5
+  },
+  "reasoning_documentation": "medium supported; provider default minimal",
+  "explicit_cache_storage": "Not used; no cache resource is created"
+}

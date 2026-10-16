@@ -4,6 +4,7 @@ import {
   type Count,
   globMatches,
   machineVerdict,
+  sentStimulus,
   type Verdict,
 } from '@agent-nexus/driftbench-core';
 import { checkAssertion } from '../support/assert';
@@ -327,12 +328,16 @@ type Values = {
   numberKeys: Set<string>;
 };
 
-/** What the run saw: the user's messages up to this block, and every tool result and error so far. */
+/**
+ * What the run saw: the messages the agent received before this block (the Given prefix, which holds every
+ * user turn the run sent, injected ones included), this block's ask as sent, and every tool result and error
+ * so far. It reads the turns sent, never the spec's blocks: a driver may rewrite a block, and in mode P an
+ * injected turn shifts the runtime block index past the spec index.
+ */
 function seenText(ctx: CheckContext): string {
   const parts: string[] = [];
   for (const message of ctx.given.prefix ?? []) parts.push(JSON.stringify(message));
-  for (const block of ctx.spec.blocks.slice(0, ctx.blockIndex + 1)) parts.push(JSON.stringify(block.when));
-  for (const perturbation of ctx.spec.perturbations ?? []) parts.push(JSON.stringify(perturbation));
+  parts.push(JSON.stringify(sentStimulus(ctx)));
   for (const block of [...ctx.history.map((entry) => entry.observed), ctx.observed]) {
     for (const call of block.toolCalls) {
       if (call.output !== undefined) {

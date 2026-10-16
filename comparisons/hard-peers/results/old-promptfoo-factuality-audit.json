@@ -1,0 +1,874 @@
+{
+  "competitor": "promptfoo",
+  "row": "factuality",
+  "contestant": "audit",
+  "model": "haiku",
+  "items": 72,
+  "complete": 72,
+  "results": [
+    {
+      "id": "heldout-factuality.001",
+      "kind": "partly-right",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "b9319cf48fe2eeb264c30927f7fd0eafa4fe5e2bf1b3f827954c505a65134c6c"
+      ],
+      "costUsd": 0.0004681
+    },
+    {
+      "id": "heldout-factuality.002",
+      "kind": "conditional",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "337bb7e2f9286d869e637fbe57d9724e6e3fb7680cdc228689db1009d5a9946c"
+      ],
+      "costUsd": 0.0005678
+    },
+    {
+      "id": "heldout-factuality.003",
+      "kind": "entity-distractor",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "ff769b1c0548838b7f217f1b78d3e3f0a92917a37f97b38a618c99e85c96c937"
+      ],
+      "costUsd": 0.0005207
+    },
+    {
+      "id": "heldout-factuality.004",
+      "kind": "long-context",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "bed18448b1b3bba317bd7d837764a5c2fb47069d44c19a18fa4e6e6d90f11b47"
+      ],
+      "costUsd": 0.0006935000000000001
+    },
+    {
+      "id": "heldout-factuality.005",
+      "kind": "long-context",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "d14c4390aee3bde9872bf33893b208aa1af54fd32ab33148d055ef16555764c6"
+      ],
+      "costUsd": 0.0007235
+    },
+    {
+      "id": "heldout-factuality.006",
+      "kind": "partly-right",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "56d527c335060283014bc81e9c7dcbe6452b3a50bdf630afdbd7f5c209359874"
+      ],
+      "costUsd": 0.0005235999999999999
+    },
+    {
+      "id": "heldout-factuality.007",
+      "kind": "entity-distractor",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "8fd24c4c58b300c4a66211f244a2e3611fb85b588aa463090745698d4936cdb7"
+      ],
+      "costUsd": 0.0005227
+    },
+    {
+      "id": "heldout-factuality.008",
+      "kind": "consistent-subset",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "6d28312b3920458a2c15b1287fb87cc559595f31d7f304d07b32289baed14d83"
+      ],
+      "costUsd": 0.0004288
+    },
+    {
+      "id": "heldout-factuality.009",
+      "kind": "entity-distractor",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "b28de63a079f32ede00366c654c6155ab49b0d3a58f4f02f834fbec751903dfe"
+      ],
+      "costUsd": 0.0006477
+    },
+    {
+      "id": "heldout-factuality.010",
+      "kind": "cross-language",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "d4c251a5ae1e6934bcc033a617ef4eab68bf06c47e1a038213d9dddc5a254edb"
+      ],
+      "costUsd": 0.0005922
+    },
+    {
+      "id": "heldout-factuality.011",
+      "kind": "near-number",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "3a3127e5fe87ec7f659edc4ca3d6fe995a4564d6a816812dd491580dd86e0ea4"
+      ],
+      "costUsd": 0.000485
+    },
+    {
+      "id": "heldout-factuality.012",
+      "kind": "consistent-subset",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "29acb810e6343136c2d15b21536c95692e210aaba18372547803f42cb782e075"
+      ],
+      "costUsd": 0.00044280000000000003
+    },
+    {
+      "id": "heldout-factuality.013",
+      "kind": "entity-distractor",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "2cd47fa6a5e57811f2c8087615e8362a0e4aad3b82ec5984ebc033b052369e6c"
+      ],
+      "costUsd": 0.0005302
+    },
+    {
+      "id": "heldout-factuality.014",
+      "kind": "near-number",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "718e9be7e1bc96c404d0202b5a643a7cf2d6a5a34854b3c4d411afd8e58fd604"
+      ],
+      "costUsd": 0.0004865
+    },
+    {
+      "id": "heldout-factuality.015",
+      "kind": "temporal",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "eae7396e7ed2d90940e52e518804df2fd631623d020153711882c3156cfa327b"
+      ],
+      "costUsd": 0.0005474
+    },
+    {
+      "id": "heldout-factuality.016",
+      "kind": "consistent-subset",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "59620b2d5631d0007b7b8e9eec976ac5c79f4685e352c95af9e9fb041de6c13f"
+      ],
+      "costUsd": 0.0004793
+    },
+    {
+      "id": "heldout-factuality.017",
+      "kind": "negation",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "e1cb1ed461634edd8f2bf654ad05fe7b61bb3e27c24efbf5816ed9b27deebd0c"
+      ],
+      "costUsd": 0.0005123
+    },
+    {
+      "id": "heldout-factuality.018",
+      "kind": "conditional",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "0a5d2cdcc3a2f677f949f45e25149d539bcb5bd0881a2a094c22570ec44e9e6d"
+      ],
+      "costUsd": 0.0006363
+    },
+    {
+      "id": "heldout-factuality.019",
+      "kind": "arithmetic",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "97f552d17803be3e9ee483da9d5c0b2cfcc41c001da7ae0dbd595f119a5b292e"
+      ],
+      "costUsd": 0.0005185
+    },
+    {
+      "id": "heldout-factuality.020",
+      "kind": "temporal",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "93326f6bdc54287203aa41e8f10fec12f396670194a49ff53cc2de0fe7f22ee8"
+      ],
+      "costUsd": 0.0004674
+    },
+    {
+      "id": "heldout-factuality.021",
+      "kind": "entity-distractor",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "3dc3079bd3c35090508412a2bbe88d2b743d8c3e928a7d9c3020bfeb04dfc496"
+      ],
+      "costUsd": 0.0006187
+    },
+    {
+      "id": "heldout-factuality.022",
+      "kind": "long-context",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "42d5877f060de4b1c0752d573afc793a2645ee29d6815625fc77ca5c4bd04252"
+      ],
+      "costUsd": 0.0006895
+    },
+    {
+      "id": "heldout-factuality.023",
+      "kind": "judge-injection",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "83d100eae0e44649977a96d0ef00fff937a286d16f6829725a91f50a269209db"
+      ],
+      "costUsd": 0.00047940000000000005
+    },
+    {
+      "id": "heldout-factuality.024",
+      "kind": "unit-conversion",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "02e73b92a652443869b279641c09d0cec06e6810751042e7fb871a5896ac6953"
+      ],
+      "costUsd": 0.0005212000000000001
+    },
+    {
+      "id": "heldout-factuality.025",
+      "kind": "conditional",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "c9c895d784cbf95abf932c5746a7b501e85fd352611ce12c491c88dcee7437af"
+      ],
+      "costUsd": 0.0005543
+    },
+    {
+      "id": "heldout-factuality.026",
+      "kind": "consistent-subset",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "ef77a33c3382415de9c48c9f88a23cf126054dac303c0af41b8cf5ff850c4678"
+      ],
+      "costUsd": 0.0004953000000000001
+    },
+    {
+      "id": "heldout-factuality.027",
+      "kind": "unit-conversion",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "5756cda50d45bdd519f14d2d01be0699cf07ffb5ef8f4a28515fddc23ae7176d"
+      ],
+      "costUsd": 0.0005137
+    },
+    {
+      "id": "heldout-factuality.028",
+      "kind": "cross-language",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "7111116bb1cd5c1741c66f9ee6fa0a26e9e0c0e9b70af2a44dc0f9834a7291d4"
+      ],
+      "costUsd": 0.0005122
+    },
+    {
+      "id": "heldout-factuality.029",
+      "kind": "arithmetic",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "651084643c507ec8e770c2e3609bee1a0d5790de57f554e02172e50d57f44d3e"
+      ],
+      "costUsd": 0.000526
+    },
+    {
+      "id": "heldout-factuality.030",
+      "kind": "near-number",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "c4f7fa4a9654a38ac2425529917c0a4b39659cbb2ebc9c8c05554c720b23ba9a"
+      ],
+      "costUsd": 0.0004775
+    },
+    {
+      "id": "heldout-factuality.031",
+      "kind": "arithmetic",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "3d8147d9958fce57ac34166d5d76376e1961ef6d1292a917b668015ae7c0605b"
+      ],
+      "costUsd": 0.000531
+    },
+    {
+      "id": "heldout-factuality.032",
+      "kind": "arithmetic",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "7307a1cfccb3a45db7c17cb693e3bfc5b14be69d360639c10e5737ff94ed0789"
+      ],
+      "costUsd": 0.0005690000000000001
+    },
+    {
+      "id": "heldout-factuality.033",
+      "kind": "unit-conversion",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "9ffbb8ce7a4300068b0d3395863074626b89ad7b04b2242fee1a10d54e9b44f0"
+      ],
+      "costUsd": 0.0005337
+    },
+    {
+      "id": "heldout-factuality.034",
+      "kind": "cross-language",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "9fd02d0d9d79463be776ba8152a7829dbe6aef1f1ae48e12ea5c27d71aae2597"
+      ],
+      "costUsd": 0.0004257
+    },
+    {
+      "id": "heldout-factuality.035",
+      "kind": "unit-conversion",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "ee4385bb395c59ff7f7d67b4e488cdaa739702bf13e6f949d2c0da89b20664ce"
+      ],
+      "costUsd": 0.0005077
+    },
+    {
+      "id": "heldout-factuality.036",
+      "kind": "near-number",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "992ba03e97885bf0a20aeb14bc135425fcba52a3503f6ed368ffed4316cffa63"
+      ],
+      "costUsd": 0.000535
+    },
+    {
+      "id": "heldout-factuality.037",
+      "kind": "negation",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "b8c1fc4efcca79743b0aaa8db563d74b00ec8bded029462137f24065d0055f6e"
+      ],
+      "costUsd": 0.0005008
+    },
+    {
+      "id": "heldout-factuality.038",
+      "kind": "partly-right",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "9503489daa0875dc397ba7ae6b9056e4f00f40c69bde462312acbc62240bcf3b"
+      ],
+      "costUsd": 0.0005031
+    },
+    {
+      "id": "heldout-factuality.039",
+      "kind": "unit-conversion",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "138fbeaee0bc26e3ac9e30ee0e1dd81808ad0eb3b35f972ec2e6c32fadccac70"
+      ],
+      "costUsd": 0.00039020000000000005
+    },
+    {
+      "id": "heldout-factuality.040",
+      "kind": "conditional",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "57665a42a53a8351a288e3d33ab07fb7850e40f971da6eefbb5d2aaadce583b7"
+      ],
+      "costUsd": 0.0006203000000000001
+    },
+    {
+      "id": "heldout-factuality.041",
+      "kind": "long-context",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "674d4bc3d9a8f0f7ef56d87e3592f9f34228f68d0e4ac7ecd52a4861a66d0959"
+      ],
+      "costUsd": 0.0007965000000000001
+    },
+    {
+      "id": "heldout-factuality.042",
+      "kind": "conditional",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "fba961aaf5774b1575797175682ca1f9ffac2f71d1802ff48050430d32f8c7d1"
+      ],
+      "costUsd": 0.0006143
+    },
+    {
+      "id": "heldout-factuality.043",
+      "kind": "consistent-subset",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "eeab7b760ef50baf091d95bfb822401d47e1f30a2c77a698cd1e15d1f376f07a"
+      ],
+      "costUsd": 0.0005448
+    },
+    {
+      "id": "heldout-factuality.044",
+      "kind": "conditional",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "5a09d719dd355903da60f21af8309574db124c723171c8c2d003e76d6190df65"
+      ],
+      "costUsd": 0.0005688000000000001
+    },
+    {
+      "id": "heldout-factuality.045",
+      "kind": "temporal",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "80cdf5a550adc37a30bb9e8106f1599691bff90ef933e524a9f59eedc1725bfe"
+      ],
+      "costUsd": 0.0005244000000000001
+    },
+    {
+      "id": "heldout-factuality.046",
+      "kind": "judge-injection",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "90b2ce68eaa2c2afdd2fb4a6684681321688c1c947dd100561ab61ddee8e1523"
+      ],
+      "costUsd": 0.0004939
+    },
+    {
+      "id": "heldout-factuality.047",
+      "kind": "arithmetic",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "9f493bc485f7b0a2d8f072b19875cced1a0f023d917564e7326b008c46985199"
+      ],
+      "costUsd": 0.0005575
+    },
+    {
+      "id": "heldout-factuality.048",
+      "kind": "temporal",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "9e7690d1de920d479d55f485ee5df7e45e6bd4f87acab92629c2adc02ec4946f"
+      ],
+      "costUsd": 0.0005569
+    },
+    {
+      "id": "heldout-factuality.049",
+      "kind": "negation",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "24e8fca90afcbb6692d099787e5be01b4402e1763d32844b8c09f2e4786c0ba8"
+      ],
+      "costUsd": 0.0004403
+    },
+    {
+      "id": "heldout-factuality.050",
+      "kind": "judge-injection",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "1d78d68ac4ee3da0646f9d14b0a62d61b5c6385820ca921ec1d9293e45cffaa4"
+      ],
+      "costUsd": 0.0006994
+    },
+    {
+      "id": "heldout-factuality.051",
+      "kind": "partly-right",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "10c05a0c87d3235fccaac4596919539bc8555bdfdd891c20d658a0346f2830ac"
+      ],
+      "costUsd": 0.0005521
+    },
+    {
+      "id": "heldout-factuality.052",
+      "kind": "entity-distractor",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "03173275785490b6b6c72b4fc6adecea2b143107cc044044ebbe11980e7dd697"
+      ],
+      "costUsd": 0.0004997000000000001
+    },
+    {
+      "id": "heldout-factuality.053",
+      "kind": "long-context",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "cb85b4585f9574dec26703b50c1212ea422fb017ab07dcb05353965f07a85b75"
+      ],
+      "costUsd": 0.0006405
+    },
+    {
+      "id": "heldout-factuality.054",
+      "kind": "partly-right",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "50c225090448d12502d6c91f1c42ee647b3300c9d3442cccc120ebae58f6133b"
+      ],
+      "costUsd": 0.0004906
+    },
+    {
+      "id": "heldout-factuality.055",
+      "kind": "cross-language",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "05ef421e81e8587520f99b6d1594fd27582c9800a98ed188bf76e9c0ea0fa55c"
+      ],
+      "costUsd": 0.0005367
+    },
+    {
+      "id": "heldout-factuality.056",
+      "kind": "negation",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "808f6f356f3e8a0a80dd0ed4591b44f3fa3804c6844e298fcfbe7a3503875a21"
+      ],
+      "costUsd": 0.0004322
+    },
+    {
+      "id": "heldout-factuality.057",
+      "kind": "partly-right",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "480f8c34f2ce06a521de1a99b471ca1ad47295970d95dbd4d758d7386f466755"
+      ],
+      "costUsd": 0.00048059999999999997
+    },
+    {
+      "id": "heldout-factuality.058",
+      "kind": "temporal",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "acfb2172fe65ef7267c4544e1c3ac3840a657e79cf67a4d478f4097557d3ff65"
+      ],
+      "costUsd": 0.0004849
+    },
+    {
+      "id": "heldout-factuality.059",
+      "kind": "judge-injection",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "6d2caf1ea5b07f7060e741962ea47623dd1ef5374eceb92e78486d8359f09d78"
+      ],
+      "costUsd": 0.0007129
+    },
+    {
+      "id": "heldout-factuality.060",
+      "kind": "cross-language",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "0a5bb3c3ce4744aaeaaae2e98ae70bde8513f31e4f216eb639151a7f54fbb078"
+      ],
+      "costUsd": 0.0005152
+    },
+    {
+      "id": "heldout-factuality.061",
+      "kind": "cross-language",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "43629a391521d2562a8900fa1abdb8bed0ed6d5b9bf61294f960611ad0c7c7e8"
+      ],
+      "costUsd": 0.00044169999999999995
+    },
+    {
+      "id": "heldout-factuality.062",
+      "kind": "negation",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "63fa4268b40d376d0abc75523f3d3348a1fd3b4b93b870bb63f2a688e0eccd3b"
+      ],
+      "costUsd": 0.0004407
+    },
+    {
+      "id": "heldout-factuality.063",
+      "kind": "temporal",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "04670c81a322ee9868f018479fad63bdb3835720555271e4319c4a5734b25ab3"
+      ],
+      "costUsd": 0.0005384
+    },
+    {
+      "id": "heldout-factuality.064",
+      "kind": "unit-conversion",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "cd2ab6f711127cbc5f4217ace1685e6d50e08067aefe16b1184b34b8a5318bfc"
+      ],
+      "costUsd": 0.0005222
+    },
+    {
+      "id": "heldout-factuality.065",
+      "kind": "negation",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "898cf0c4aba2dc09983d91355703aa7e7e983c3b17843b79f17161cd2c534118"
+      ],
+      "costUsd": 0.0004297
+    },
+    {
+      "id": "heldout-factuality.066",
+      "kind": "judge-injection",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "98125a59ef66626f8af8792ee96b7793ae290a3455877173708ddd08aa998902"
+      ],
+      "costUsd": 0.0005369000000000001
+    },
+    {
+      "id": "heldout-factuality.067",
+      "kind": "near-number",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "dd2507d010aeeb1896fcb1ff13a802da972ebae5b0e94e9277924bd05f2fb6b6"
+      ],
+      "costUsd": 0.000482
+    },
+    {
+      "id": "heldout-factuality.068",
+      "kind": "near-number",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "b64cdccfd639ee96732e8b2bbf6a93805565a8209adb0530045d32947d5b86a1"
+      ],
+      "costUsd": 0.0004940000000000001
+    },
+    {
+      "id": "heldout-factuality.069",
+      "kind": "arithmetic",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "1586c068f2f23c25896002bdb58d55a234a48eea00741ac95fad421945d221b0"
+      ],
+      "costUsd": 0.0005625000000000001
+    },
+    {
+      "id": "heldout-factuality.070",
+      "kind": "judge-injection",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "c587f9d9bc0501166a075786f5e1de60b0c462984600dd5233ed482a207b6f4b"
+      ],
+      "costUsd": 0.0007349000000000001
+    },
+    {
+      "id": "heldout-factuality.071",
+      "kind": "long-context",
+      "truth": true,
+      "complete": true,
+      "outcome": "pass",
+      "unparsed": false,
+      "keys": [
+        "c5319889597933f6bc0d2c488a9c57632c64cbd0d4c4318ade9833edb6ae0591"
+      ],
+      "costUsd": 0.00074
+    },
+    {
+      "id": "heldout-factuality.072",
+      "kind": "consistent-subset",
+      "truth": false,
+      "complete": true,
+      "outcome": "fail",
+      "unparsed": false,
+      "keys": [
+        "55aba50e06dd1c2a045e0ec47bee94e050ef53c1356df6ee114a3fed207a797f"
+      ],
+      "costUsd": 0.0005283
+    }
+  ]
+}

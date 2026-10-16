@@ -1,0 +1,178 @@
+[
+  {
+    "name": "deepresearch_bench.jsonl",
+    "path": "data_standardized/deepresearch_bench.jsonl",
+    "sha": "c50fb7bb7e919b5e01b3b223f07d1270c4329578",
+    "size": 8673532,
+    "url": "https://api.github.com/repos/cjj826/LongJudgeBench/contents/data_standardized/deepresearch_bench.jsonl?ref=main",
+    "html_url": "https://github.com/cjj826/LongJudgeBench/blob/main/data_standardized/deepresearch_bench.jsonl",
+    "git_url": "https://api.github.com/repos/cjj826/LongJudgeBench/git/blobs/c50fb7bb7e919b5e01b3b223f07d1270c4329578",
+    "download_url": "https://raw.githubusercontent.com/cjj826/LongJudgeBench/main/data_standardized/deepresearch_bench.jsonl",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/cjj826/LongJudgeBench/contents/data_standardized/deepresearch_bench.jsonl?ref=main",
+      "git": "https://api.github.com/repos/cjj826/LongJudgeBench/git/blobs/c50fb7bb7e919b5e01b3b223f07d1270c4329578",
+      "html": "https://github.com/cjj826/LongJudgeBench/blob/main/data_standardized/deepresearch_bench.jsonl"
+    }
+  },
+  {
+    "name": "deepresearch_bench_criteria.jsonl",
+    "path": "data_standardized/deepresearch_bench_criteria.jsonl",
+    "sha": "5ca6e03d8f6f4364f1497e6b4795f2aea935597e",
+    "size": 321335,
+    "url": "https://api.github.com/repos/cjj826/LongJudgeBench/contents/data_standardized/deepresearch_bench_criteria.jsonl?ref=main",
+    "html_url": "https://github.com/cjj826/LongJudgeBench/blob/main/data_standardized/deepresearch_bench_criteria.jsonl",
+    "git_url": "https://api.github.com/repos/cjj826/LongJudgeBench/git/blobs/5ca6e03d8f6f4364f1497e6b4795f2aea935597e",
+    "download_url": "https://raw.githubusercontent.com/cjj826/LongJudgeBench/main/data_standardized/deepresearch_bench_criteria.jsonl",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/cjj826/LongJudgeBench/contents/data_standardized/deepresearch_bench_criteria.jsonl?ref=main",
+      "git": "https://api.github.com/repos/cjj826/LongJudgeBench/git/blobs/5ca6e03d8f6f4364f1497e6b4795f2aea935597e",
+      "html": "https://github.com/cjj826/LongJudgeBench/blob/main/data_standardized/deepresearch_bench_criteria.jsonl"
+    }
+  },
+  {
+    "name": "deepresearch_bench_reference.jsonl",
+    "path": "data_standardized/deepresearch_bench_reference.jsonl",
+    "sha": "09ba0596a125e4bb9d720031659b980e153cbef4",
+    "size": 2596676,
+    "url": "https://api.github.com/repos/cjj826/LongJudgeBench/contents/data_standardized/deepresearch_bench_reference.jsonl?ref=main",
+    "html_url": "https://github.com/cjj826/LongJudgeBench/blob/main/data_standardized/deepresearch_bench_reference.jsonl",
+    "git_url": "https://api.github.com/repos/cjj826/LongJudgeBench/git/blobs/09ba0596a125e4bb9d720031659b980e153cbef4",
+    "download_url": "https://raw.githubusercontent.com/cjj826/LongJudgeBench/main/data_standardized/deepresearch_bench_reference.jsonl",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/cjj826/LongJudgeBench/contents/data_standardized/deepresearch_bench_reference.jsonl?ref=main",
+      "git": "https://api.github.com/repos/cjj826/LongJudgeBench/git/blobs/09ba0596a125e4bb9d720031659b980e153cbef4",
+      "html": "https://github.com/cjj826/LongJudgeBench/blob/main/data_standardized/deepresearch_bench_reference.jsonl"
+    }
+  },
+  {
+    "name": "ma.jsonl",
+    "path": "data_standardized/ma.jsonl",
+    "sha": "607fc213d332fe29f643c11a28d4df40f4c1c061",
+    "size": 4116655,
+    "url": "https://api.github.com/repos/cjj826/LongJudgeBench/contents/data_standardized/ma.jsonl?ref=main",
+    "html_url": "https://github.com/cjj826/LongJudgeBench/blob/main/data_standardized/ma.jsonl",
+    "git_url": "https://api.github.com/repos/cjj826/LongJudgeBench/git/blobs/607fc213d332fe29f643c11a28d4df40f4c1c061",
+    "download_url": "https://raw.githubusercontent.com/cjj826/LongJudgeBench/main/data_standardized/ma.jsonl",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/cjj826/LongJudgeBench/contents/data_standardized/ma.jsonl?ref=main",
+      "git": "https://api.github.com/repos/cjj826/LongJudgeBench/git/blobs/607fc213d332fe29f643c11a28d4df40f4c1c061",
+      "html": "https://github.com/cjj826/LongJudgeBench/blob/main/data_standardized/ma.jsonl"
+    }
+  },
+  {
+    "name": "ma_reference.jsonl",
+    "path": "data_standardized/ma_reference.jsonl",
+    "sha": "1cdc6305e43daa0d73e06df4f1892606bd27c5a1",
+    "size": 145872,
+    "url": "https://api.github.com/repos/cjj826/LongJudgeBench/contents/data_standardized/ma_reference.jsonl?ref=main",
+    "html_url": "https://github.com/cjj826/LongJudgeBench/blob/main/data_standardized/ma_reference.jsonl",
+    "git_url": "https://api.github.com/repos/cjj826/LongJudgeBench/git/blobs/1cdc6305e43daa0d73e06df4f1892606bd27c5a1",
+    "download_url": "https://raw.githubusercontent.com/cjj826/LongJudgeBench/main/data_standardized/ma_reference.jsonl",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/cjj826/LongJudgeBench/contents/data_standardized/ma_reference.jsonl?ref=main",
+      "git": "https://api.github.com/repos/cjj826/LongJudgeBench/git/blobs/1cdc6305e43daa0d73e06df4f1892606bd27c5a1",
+      "html": "https://github.com/cjj826/LongJudgeBench/blob/main/data_standardized/ma_reference.jsonl"
+    }
+  },
+  {
+    "name": "realdr.jsonl",
+    "path": "data_standardized/realdr.jsonl",
+    "sha": "9012d3a1cedd580c65f9d1b5b268f6c9f04a4796",
+    "size": 21187213,
+    "url": "https://api.github.com/repos/cjj826/LongJudgeBench/contents/data_standardized/realdr.jsonl?ref=main",
+    "html_url": "https://github.com/cjj826/LongJudgeBench/blob/main/data_standardized/realdr.jsonl",
+    "git_url": "https://api.github.com/repos/cjj826/LongJudgeBench/git/blobs/9012d3a1cedd580c65f9d1b5b268f6c9f04a4796",
+    "download_url": "https://raw.githubusercontent.com/cjj826/LongJudgeBench/main/data_standardized/realdr.jsonl",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/cjj826/LongJudgeBench/contents/data_standardized/realdr.jsonl?ref=main",
+      "git": "https://api.github.com/repos/cjj826/LongJudgeBench/git/blobs/9012d3a1cedd580c65f9d1b5b268f6c9f04a4796",
+      "html": "https://github.com/cjj826/LongJudgeBench/blob/main/data_standardized/realdr.jsonl"
+    }
+  },
+  {
+    "name": "realdr_reference.jsonl",
+    "path": "data_standardized/realdr_reference.jsonl",
+    "sha": "ea06df452810c50fd0ebc03f5f8aaed182efee2d",
+    "size": 2160229,
+    "url": "https://api.github.com/repos/cjj826/LongJudgeBench/contents/data_standardized/realdr_reference.jsonl?ref=main",
+    "html_url": "https://github.com/cjj826/LongJudgeBench/blob/main/data_standardized/realdr_reference.jsonl",
+    "git_url": "https://api.github.com/repos/cjj826/LongJudgeBench/git/blobs/ea06df452810c50fd0ebc03f5f8aaed182efee2d",
+    "download_url": "https://raw.githubusercontent.com/cjj826/LongJudgeBench/main/data_standardized/realdr_reference.jsonl",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/cjj826/LongJudgeBench/contents/data_standardized/realdr_reference.jsonl?ref=main",
+      "git": "https://api.github.com/repos/cjj826/LongJudgeBench/git/blobs/ea06df452810c50fd0ebc03f5f8aaed182efee2d",
+      "html": "https://github.com/cjj826/LongJudgeBench/blob/main/data_standardized/realdr_reference.jsonl"
+    }
+  },
+  {
+    "name": "surge.jsonl",
+    "path": "data_standardized/surge.jsonl",
+    "sha": "e56507e9227cf810ff977934aed077822058c1ec",
+    "size": 26607004,
+    "url": "https://api.github.com/repos/cjj826/LongJudgeBench/contents/data_standardized/surge.jsonl?ref=main",
+    "html_url": "https://github.com/cjj826/LongJudgeBench/blob/main/data_standardized/surge.jsonl",
+    "git_url": "https://api.github.com/repos/cjj826/LongJudgeBench/git/blobs/e56507e9227cf810ff977934aed077822058c1ec",
+    "download_url": "https://raw.githubusercontent.com/cjj826/LongJudgeBench/main/data_standardized/surge.jsonl",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/cjj826/LongJudgeBench/contents/data_standardized/surge.jsonl?ref=main",
+      "git": "https://api.github.com/repos/cjj826/LongJudgeBench/git/blobs/e56507e9227cf810ff977934aed077822058c1ec",
+      "html": "https://github.com/cjj826/LongJudgeBench/blob/main/data_standardized/surge.jsonl"
+    }
+  },
+  {
+    "name": "verify_bench_hard.jsonl",
+    "path": "data_standardized/verify_bench_hard.jsonl",
+    "sha": "15b83decfa254612b6812151c5f07eacb9d2e236",
+    "size": 3891573,
+    "url": "https://api.github.com/repos/cjj826/LongJudgeBench/contents/data_standardized/verify_bench_hard.jsonl?ref=main",
+    "html_url": "https://github.com/cjj826/LongJudgeBench/blob/main/data_standardized/verify_bench_hard.jsonl",
+    "git_url": "https://api.github.com/repos/cjj826/LongJudgeBench/git/blobs/15b83decfa254612b6812151c5f07eacb9d2e236",
+    "download_url": "https://raw.githubusercontent.com/cjj826/LongJudgeBench/main/data_standardized/verify_bench_hard.jsonl",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/cjj826/LongJudgeBench/contents/data_standardized/verify_bench_hard.jsonl?ref=main",
+      "git": "https://api.github.com/repos/cjj826/LongJudgeBench/git/blobs/15b83decfa254612b6812151c5f07eacb9d2e236",
+      "html": "https://github.com/cjj826/LongJudgeBench/blob/main/data_standardized/verify_bench_hard.jsonl"
+    }
+  },
+  {
+    "name": "verify_bench_hard_reference.jsonl",
+    "path": "data_standardized/verify_bench_hard_reference.jsonl",
+    "sha": "f3727e4ad714850d6e8d7c08dabd28a8576e89a6",
+    "size": 1340284,
+    "url": "https://api.github.com/repos/cjj826/LongJudgeBench/contents/data_standardized/verify_bench_hard_reference.jsonl?ref=main",
+    "html_url": "https://github.com/cjj826/LongJudgeBench/blob/main/data_standardized/verify_bench_hard_reference.jsonl",
+    "git_url": "https://api.github.com/repos/cjj826/LongJudgeBench/git/blobs/f3727e4ad714850d6e8d7c08dabd28a8576e89a6",
+    "download_url": "https://raw.githubusercontent.com/cjj826/LongJudgeBench/main/data_standardized/verify_bench_hard_reference.jsonl",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/cjj826/LongJudgeBench/contents/data_standardized/verify_bench_hard_reference.jsonl?ref=main",
+      "git": "https://api.github.com/repos/cjj826/LongJudgeBench/git/blobs/f3727e4ad714850d6e8d7c08dabd28a8576e89a6",
+      "html": "https://github.com/cjj826/LongJudgeBench/blob/main/data_standardized/verify_bench_hard_reference.jsonl"
+    }
+  },
+  {
+    "name": "wp_bench.jsonl",
+    "path": "data_standardized/wp_bench.jsonl",
+    "sha": "4aaf56f61cfcce329eeb67e5870e01a492e30876",
+    "size": 6563378,
+    "url": "https://api.github.com/repos/cjj826/LongJudgeBench/contents/data_standardized/wp_bench.jsonl?ref=main",
+    "html_url": "https://github.com/cjj826/LongJudgeBench/blob/main/data_standardized/wp_bench.jsonl",
+    "git_url": "https://api.github.com/repos/cjj826/LongJudgeBench/git/blobs/4aaf56f61cfcce329eeb67e5870e01a492e30876",
+    "download_url": "https://raw.githubusercontent.com/cjj826/LongJudgeBench/main/data_standardized/wp_bench.jsonl",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/cjj826/LongJudgeBench/contents/data_standardized/wp_bench.jsonl?ref=main",
+      "git": "https://api.github.com/repos/cjj826/LongJudgeBench/git/blobs/4aaf56f61cfcce329eeb67e5870e01a492e30876",
+      "html": "https://github.com/cjj826/LongJudgeBench/blob/main/data_standardized/wp_bench.jsonl"
+    }
+  }
+]

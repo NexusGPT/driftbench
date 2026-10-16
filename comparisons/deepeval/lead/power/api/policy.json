@@ -1,0 +1,51 @@
+{
+  "timestamp": "2026-10-14T10:57:04.843039+00:00",
+  "authority": "Owner: Resume now, on the API; claude-haiku-5-5 for both sides, same prompts/settings; parity 7 completed plus 23 pilot cases; finish 1272; concurrency up to 16; retry 429/5xx; usage cost.",
+  "transport": "POST https://api.anthropic.com/v1/messages",
+  "model": "claude-haiku-5-5",
+  "api_version": "2023-06-01",
+  "max_tokens": 32768,
+  "defaults": "No temperature, top_p, thinking, effort, tools, cache_control or beta override. The original CLI did not set these in its command. CLI-internal defaults/envelope are not asserted identical to API defaults.",
+  "prompts": "Byte-identical renderer/metric system and user strings, no wrapper additions. One user message and top-level system.",
+  "settings": {
+    "relevancy": "response-relevance",
+    "knowledge": "default"
+  },
+  "concurrency": {
+    "parity": 16,
+    "main": 16,
+    "timeout_retry": 3
+  },
+  "parity": {
+    "completed": 7,
+    "pilot": 23,
+    "sample_seed": 20261215,
+    "selection": "random.sample of id-sorted earlier 480; selected before calls",
+    "replacement": false
+  },
+  "preservation": "Seven completed confirmation cases retained. All successful recorded stages replay. Parity is separate; matching fresh parity stages may replay without rebilling. Pilot requests forbidden in confirmation.",
+  "retry": "429 and 5xx: same body, exponential backoff plus jitter, honor Retry-After, at most 8 attempts. Genuine timeout: one post-main retry at concurrency 3. No valid-answer retry. Missing is not a verdict.",
+  "budget_usd": 10,
+  "per_inflight_reservation_usd": 0.05,
+  "canceled_cli_attempts": 6,
+  "canceled_cli_cost_reservation_usd": 0.3,
+  "pricing_per_million_usd": {
+    "input": 0.1,
+    "output": 0.5,
+    "cache_write_5m": 0.125,
+    "cache_write_1h": 0.2,
+    "cache_read": 0.01,
+    "over_100k_multiplier": 5
+  },
+  "pricing_source": "https://platform.claude.com/docs/en/about-claude/pricing",
+  "request_source": "https://platform.claude.com/docs/en/api/messages/create",
+  "files": {
+    "comparisons/deepeval/lead/power_api.py": "68675f38c310ed40db5b1641a5613d1b0a301ff81628807ebbcbd94f4e7a0b16",
+    "comparisons/deepeval/lead/power/api/checkpoint.json": "940eead9b643c3f22258a0bda241baecb77e9919ca3341211ff5af5ed7c2a820",
+    "comparisons/deepeval/lead/power/api/parity-cases.json": "ac41ade46a7090d5e188ddb4fc5edd9ad5618ccce4cbba32718dcfef8cb98bc3",
+    "comparisons/deepeval/lead/power/api/parity-reference.json": "5bb72b4ec4846b20bf673739f0e6ace1096dfe206e67a00b832c6d7275867fa2",
+    "comparisons/deepeval/lead/power/calls.jsonl": "93b30fd08188e3c7efa2d72d7db67e333c6b54e361a10e0520ec6f1e01359253",
+    "comparisons/deepeval/lead/power/reservations.jsonl": "22f60210dbab5bdfa4674c0913f0c083804b6bf9007b2c535bc012a1b55d6357",
+    "comparisons/deepeval/lead/power/resume-reservations.jsonl": "6fae570658566d9ff4cd310d10239a4997503482ee5d9b7c74184e7cf68369dd"
+  }
+}

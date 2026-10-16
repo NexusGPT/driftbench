@@ -1,0 +1,100 @@
+version: 1
+id: record-export
+title: Export a record
+description: "The change-request flow also offers a code task: open the request,
+  then save the record from input.json as exports/record.json, state its path,
+  and leave every other file untouched."
+target:
+  adapter: function
+  agent: hidden-1
+spec:
+  channel: web
+  lang: EN
+  stages:
+    - intake
+  tags:
+    - flow:change-request
+  covers:
+    - B-003
+oracle: oracle.mjs
+review: review.yaml
+knobs:
+  wording:
+    class: style
+    values:
+      - plain
+wording_knob: wording
+tables:
+  record:
+    rows: 1
+    columns:
+      - name: agent
+        gen:
+          template: hidden-1
+files:
+  - path: input.json
+    json:
+      table: record
+      columns:
+        - agent
+      root: records
+corners:
+  per_instance: 0
+  kinds:
+    - id: duplicate-record
+      duplicate_row:
+        table: record
+phrases:
+  - id: open
+    approved: true
+    text: Hello, I would like to start a new request.
+  - id: save
+    approved: true
+    text: Save the record as exports/record.json.
+blocks:
+  - id: open
+    stage: intake
+    parts:
+      - phrases:
+          - open
+    expect:
+      lang: EN
+      stage_reported: true
+      tools:
+        - label: lookup_record
+          count: 0
+        - label: list_options
+          count: 0
+        - label: submit_request
+          count: 0
+      must_not:
+        - "Step [0-9]+:"
+        - "lookup record says "
+        - "list options says "
+        - "submit request says "
+      must:
+        - Which item is the request about\?
+  - id: save
+    stage: intake
+    parts:
+      - phrases:
+          - save
+    expect:
+      lang: EN
+      stage_reported: true
+      tools:
+        - label: lookup_record
+          count: 0
+        - label: list_options
+          count: 0
+        - label: submit_request
+          count: 0
+      must_not:
+        - "Step [0-9]+:"
+        - "lookup record says "
+        - "list options says "
+        - "submit request says "
+checks:
+  json:
+    - subset
+others_untouched: true

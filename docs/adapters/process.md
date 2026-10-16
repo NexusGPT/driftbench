@@ -143,6 +143,7 @@ Bounds, so a runaway agent cannot exhaust the run:
 
 * Standard output and standard error are each cut at 10 MiB, and the record says so.
 * A command is killed after its timeout, 10 minutes by default, with everything it started. Its exit code is then 124. A command killed by a signal exits with 128 plus the signal number.
+* A child that left the command's process group (it started its own session) is found by its working folder after the command ends. Linux reads this from `/proc` at once. macOS has no `/proc`: the sweep runs `ps` and `lsof` after the exit, so on a heavily loaded host a child that wakes within about half a second of the exit may run before it is ended.
 * A file read returns at most 100 MiB.
 * A snapshot stops past 20,000 files, 32 folder levels or 1 GiB hashed. It never enters `node_modules` or `.git`.
 
@@ -160,7 +161,7 @@ Bounds, so a runaway agent cannot exhaust the run:
 
 ## Capabilities
 
-`sandbox` is on, and so is `readArtifact`. `deterministic` is as declared. `variants`, `seedPrefix`, `toolStubs`, `trace` and `endState` are off: the adapter reads no end state, so a task checks its outcome through `artifacts`, `workspace` and `execution`. The version is `0.1.0`.
+`sandbox` is on, and so is `readArtifact`. `seedPrefix` is on: the agent receives the session history, the prefix included (and in mode T the canonical history), in `driftbench-history.json`. `deterministic` is as declared. `variants`, `toolStubs`, `trace` and `endState` are off: the adapter reads no end state, so a task checks its outcome through `artifacts`, `workspace` and `execution`. The version is `0.1.0`.
 
 ## Target
 
@@ -170,4 +171,4 @@ target:
   agent: office-agent
 ```
 
-The adapter reads no field of the target: the command and its arguments are set in code. The command line reaches one process target, `process:acme-ops`: the Acme ops agent (`examples/acme/ops/agent.mjs`), run by the CLI's own Node.js in a local sandbox, one temporary folder per run, declared deterministic. Any other process agent is used from code. See [running](../running.md#runspec).
+The adapter takes its command and arguments from its configuration. The CLI includes `process:acme-ops`: the Acme ops agent (`examples/acme/ops/agent.mjs`), run by the CLI's own Node.js in a local sandbox, one temporary folder per run, declared deterministic. For another process agent, pass `--target process:my-agent --process-command '["python3","/absolute/path/to/agent.py"]'` to `campaign run`, or set that process target in the spec. `campaign resume` and `ci` also accept `--process-command`. The command runs in the sandbox workspace, so use absolute script paths. The command does not override the built-in `process:acme-ops` target. See [running](../running.md#runspec).

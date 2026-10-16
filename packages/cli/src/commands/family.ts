@@ -1,4 +1,4 @@
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile, stat, writeFile } from 'node:fs/promises';
 import { isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { defaultReaders } from '@agent-nexus/driftbench-artifacts';
 import {
@@ -188,7 +188,8 @@ export async function familyInstancesCommand(
 
 /**
  * Exit 0 when the reference passes every spec under the folder; 1 when it fails one, or one is invalid
- * (each listed: an oracle or a reference defect, never shipped); 2 on bad input: no adapter for the
+ * (each listed: an oracle or a reference defect, never shipped); 3 when none fails but the reference could not
+ * run one (a block not run: unverified, counted apart, never shipped); 2 on bad input: no adapter for the
  * reference, no spec under the folder, a bad number.
  */
 export async function familyVerifyCommand(
@@ -202,12 +203,24 @@ export async function familyVerifyCommand(
     io.err(`${concurrency}\n`);
     return 2;
   }
+  const root = resolve(io.cwd, dir);
+  try {
+    if (!(await stat(root)).isDirectory()) {
+      io.err(`Family path is not a folder: ${display(root, io)}.\n`);
+      return 2;
+    }
+  } catch (cause) {
+    if ((cause as NodeJS.ErrnoException).code !== 'ENOENT') throw cause;
+    io.err(
+      `Family folder does not exist: ${display(root, io)}. Write instances with driftbench family instances first.\n`,
+    );
+    return 2;
+  }
   const target = parseTarget(options.reference);
   const adapter = await resolveAdapter(target, () => deps.adapterFor(target), io);
   if (!adapter) {
     return 2;
   }
-  const root = resolve(io.cwd, dir);
   const report = await verifyInstances(root, {
     adapter,
     target,
@@ -234,7 +247,9 @@ export async function familyVerifyCommand(
         io.out(`  ✓ ${result.file}\n`);
         continue;
       }
-      io.out(`  ✗ ${result.file}  ${result.state}${result.error ? `: ${result.error}` : ''}\n`);
+      io.out(
+        `  ${result.state === 'not_run' ? '-' : '✗'} ${result.file}  ${result.state === 'not_run' ? 'not run' : result.state}${result.error ? `: ${result.error}` : ''}\n`,
+      );
       for (const failing of result.failing.slice(0, 8)) {
         io.out(
           `      block ${failing.block}${failing.blockId ? ` (${failing.blockId})` : ''} ${failing.id}: ${failing.evidence}\n`,
@@ -242,21 +257,31 @@ export async function familyVerifyCommand(
       }
       if (result.failing.length > 8) io.out(`      and ${result.failing.length - 8} more\n`);
     }
-    if (report.rejected.length === 0) {
+    const unverified = report.unverified ?? [];
+    if (report.rejected.length === 0 && unverified.length === 0) {
       io.out(
         `✓ The reference passes all ${report.specs} specs: ${report.shipped.length} instances may ship.\n`,
       );
+    } else if (report.rejected.length === 0) {
+      io.out(
+        `- The reference could not run ${unverified.length} instances (a block not run: a Given it cannot apply), so they are not verified and not shipped: ${unverified.join(', ')}. ${report.shipped.length} instances pass every variant.\n`,
+      );
     } else {
       io.out(
-        `✗ The reference fails ${report.specs - report.passed} of ${report.specs} specs. Each is an oracle or a reference defect: one of the two is wrong about the task. These instances are not shipped: ${report.rejected.join(', ')}.\n`,
+        `✗ The reference fails ${report.results.filter((result) => result.state !== 'pass' && result.state !== 'not_run').length} of ${report.specs} specs. Each is an oracle or a reference defect: one of the two is wrong about the task. These instances are not shipped: ${report.rejected.join(', ')}.\n`,
       );
       if (report.shipped.length > 0)
         io.out(`  ${report.shipped.length} instances pass every variant: ${report.shipped.join(', ')}.\n`);
+      if (unverified.length > 0)
+        io.out(
+          `  ${unverified.length} instances could not be run by the reference: ${unverified.join(', ')}.\n`,
+        );
     }
     if (pending) io.out(`${pending}\n`);
     io.out(`Wrote ${display(join(root, VERIFY_REPORT_NAME), io)}.\n`);
   }
-  return report.rejected.length === 0 ? 0 : 1;
+  // 1 when the reference fails an instance; 3 when none fails but one could not be run (never shipped either).
+  return report.rejected.length > 0 ? 1 : (report.unverified ?? []).length > 0 ? 3 : 0;
 }
 
 /** A line when the instances were built while the family review was pending: release waits for it too. */

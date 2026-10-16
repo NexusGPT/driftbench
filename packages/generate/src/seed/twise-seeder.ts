@@ -3,6 +3,7 @@
 import { NONE } from '@agent-nexus/driftbench-space';
 import type { Pick, SpecDraft } from './assemble';
 import { enumerateCells, selectBudget, slicedLhs } from './budget';
+import { draftOutput } from './draft-output';
 import { Feasibility } from './feasible';
 import { dimensionId, type PreparedMap, valueId } from './map';
 import { impossibleConstraints } from './possible';
@@ -18,7 +19,7 @@ import {
   scenarioDraft,
   withReasons,
 } from './seed-drafts';
-import { type AllowedCheck, coveringArray } from './twise';
+import { type AllowedCheck, coveringArray, visitCoveringArray } from './twise';
 
 // The t-wise covering array ----------------------------------------------------------------------------
 
@@ -77,45 +78,58 @@ export function rowDrafts(
   cells: readonly (readonly Pick[])[],
   label: string,
 ): SpecDraft[] {
-  return cells.map((cell, index) => {
-    const id = `gen-twise-${pad(index + 1)}`;
-    const title = `${label} row ${index + 1} of ${cells.length}`;
-    if (!hasPaths(prepared)) return carrierDraft(prepared, context, id, 'twise', title, [...cell]);
-    const behaviour = cell
-      .filter(
-        ([dimension]) =>
-          prepared.axes.has(dimension) && prepared.space.dimensions[dimension]?.kind === 'behaviour',
-      )
-      .map(([dimension, value]) => valueId(prepared, dimension, value))[0];
-    const flows = behaviour === undefined ? [] : flowsOfBehaviour(prepared, behaviour);
-    const paths = prepared.relations.paths.filter((path) => flows.includes(path.flow));
-    const probe = probeOf(prepared, cell);
-    const fixed = cell.filter(([dimension]) => dimension !== prepared.deviation);
-    // The behaviour's own paths first; when none of them builds (no path, or its flows give no recovery
-    // from the row's deviation), a path of another flow keeps the row's cell complete.
-    const own = preferring(paths, behaviour);
-    const elsewhere = prepared.relations.paths.filter((path) => !flows.includes(path.flow));
-    const built = scenarioDraft(
-      prepared,
-      context,
-      id,
-      'twise',
-      title,
-      fixed,
-      { preferred: own.preferred, others: [...own.others, ...elsewhere] },
-      { ...(probe ? { probe } : {}) },
-    );
-    if ('draft' in built) {
-      const deviation = cell.find(([dimension]) => dimension === prepared.deviation);
-      if (deviation) built.draft.cell.push(deviation);
-      return built.draft;
-    }
-    const reasons =
-      paths.length === 0
-        ? [`no approved path belongs to a flow of ${behaviour ?? 'the row'} (${flows.join(', ') || 'none'})`]
-        : built.reasons;
-    return withReasons(carrierDraft(prepared, context, id, 'twise', title, [...cell]), reasons);
+  const output = draftOutput(context);
+  cells.forEach((cell, index) => {
+    output.push(rowDraft(prepared, context, cell, index, cells.length, label));
   });
+  return output.drafts;
+}
+
+function rowDraft(
+  prepared: PreparedMap,
+  context: SeedContext,
+  cell: readonly Pick[],
+  index: number,
+  total: number,
+  label: string,
+): SpecDraft {
+  const id = `gen-twise-${pad(index + 1)}`;
+  const title = `${label} row ${index + 1} of ${total}`;
+  if (!hasPaths(prepared)) return carrierDraft(prepared, context, id, 'twise', title, [...cell]);
+  const behaviour = cell
+    .filter(
+      ([dimension]) =>
+        prepared.axes.has(dimension) && prepared.space.dimensions[dimension]?.kind === 'behaviour',
+    )
+    .map(([dimension, value]) => valueId(prepared, dimension, value))[0];
+  const flows = behaviour === undefined ? [] : flowsOfBehaviour(prepared, behaviour);
+  const paths = prepared.relations.paths.filter((path) => flows.includes(path.flow));
+  const probe = probeOf(prepared, cell);
+  const fixed = cell.filter(([dimension]) => dimension !== prepared.deviation);
+  // The behaviour's own paths first; when none of them builds (no path, or its flows give no recovery
+  // from the row's deviation), a path of another flow keeps the row's cell complete.
+  const own = preferring(paths, behaviour);
+  const elsewhere = prepared.relations.paths.filter((path) => !flows.includes(path.flow));
+  const built = scenarioDraft(
+    prepared,
+    context,
+    id,
+    'twise',
+    title,
+    fixed,
+    { preferred: own.preferred, others: [...own.others, ...elsewhere] },
+    { ...(probe ? { probe } : {}) },
+  );
+  if ('draft' in built) {
+    const deviation = cell.find(([dimension]) => dimension === prepared.deviation);
+    if (deviation) built.draft.cell.push(deviation);
+    return built.draft;
+  }
+  const reasons =
+    paths.length === 0
+      ? [`no approved path belongs to a flow of ${behaviour ?? 'the row'} (${flows.join(', ') || 'none'})`]
+      : built.reasons;
+  return withReasons(carrierDraft(prepared, context, id, 'twise', title, [...cell]), reasons);
 }
 
 /** The conversation's cell of each row: the twise dimensions, the task axes held at their `none`. */
@@ -146,15 +160,25 @@ export function twiseSeeder(
 ): { drafts: SpecDraft[]; summary: TwiseSummary } {
   const { dimensions, sizes, allowed } = conversationOf(prepared);
   const t = Math.min(context.t, dimensions.length);
-  const array = coveringArray(allowed, sizes, dimensions, t, rngFor(context.seed, 'twise'), context.max);
-  const cells = array.rows.map((row) =>
-    dimensions.map((dimension): Pick => [dimension, row[dimension] ?? 0]),
-  );
-  const drafts = rowDrafts(prepared, context, cells, 't-wise');
+  const spool = context.rows;
+  const array = spool
+    ? visitCoveringArray(allowed, sizes, dimensions, t, rngFor(context.seed, 'twise'), context.max, (row) =>
+        spool.push(row),
+      )
+    : coveringArray(allowed, sizes, dimensions, t, rngFor(context.seed, 'twise'), context.max);
+  const count = typeof array.rows === 'number' ? array.rows : array.rows.length;
+  const output = draftOutput(context);
+  let index = 0;
+  for (const row of spool ?? (array.rows as number[][])) {
+    const cell = dimensions.map((dimension): Pick => [dimension, row[dimension] ?? 0]);
+    output.push(rowDraft(prepared, context, cell, index, count, 't-wise'));
+    index += 1;
+  }
+  const drafts = output.drafts;
   const summary: TwiseSummary = {
     t,
     dimensions: dimensions.map((dimension) => dimensionId(prepared, dimension)),
-    rows: array.rows.length,
+    rows: count,
     allowed: array.allowed,
     covered: array.covered,
     share: array.allowed === 0 ? 0 : array.covered / array.allowed,

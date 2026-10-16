@@ -1,6 +1,6 @@
 /** What the seeders share: the seed context, scenario and carrier drafts, the context axes and the world of a cell. */
 
-import type { PerturbationSpec, WorldState } from '@agent-nexus/driftbench-core';
+import type { PerturbationSpec } from '@agent-nexus/driftbench-core';
 import { NONE } from '@agent-nexus/driftbench-space';
 import type { PathRelation, ProposalPhrase } from '../extract/proposal';
 import {
@@ -20,12 +20,30 @@ import {
   TOOL_FAILURE_ERROR,
 } from './deviation';
 import type { Edge, StageGraph } from './graph';
-import { dimensionId, type PreparedMap, partitionOf, phraseKey, valueId } from './map';
+import { dimensionId, type PreparedMap, phraseKey, valueId } from './map';
 import { pick, type Rng, rngFor, shuffle, streamSeed } from './random';
 import { buildScenario, type ProbeRequest, type ScenarioRequest } from './scenario';
-import { toolAnswer } from './values';
+import { worldFor } from './world';
 
-export type SeedContext = { seed: number; t: number; max: number };
+export { worldFor } from './world';
+
+export type SeedContext = {
+  seed: number;
+  t: number;
+  max: number;
+  /** Generation-local path indices, shared by seeders of the same immutable map snapshot. */
+  pathValues?: ReadonlyMap<PathRelation, ReadonlyMap<string, readonly number[]>>;
+  dimensionIndex?: ReadonlyMap<string, number>;
+  /** Consume each completed draft immediately instead of retaining the seeder output. */
+  emit?: (draft: SpecDraft) => void;
+  /** Replayable disk rows: their final count keeps the existing "row X of N" titles exact. */
+  rows?: { length: number; push(row: number[]): void; [Symbol.iterator](): Iterator<number[]> };
+  /**
+   * Specs placed so far on each value of the context axes (a channel, a persona), by dimension then value.
+   * A walk whose context is free takes the allowed value placed on least, so the suite spreads over them.
+   */
+  usage?: Map<number, Map<number, number>>;
+};
 
 /** The most edges in one graph path: a path is one spec, and a reader follows it block by block. */
 export const MAX_PATH_LENGTH = 12;
@@ -67,6 +85,10 @@ export function scenarioDraft(
     force?: ProposalPhrase;
     rngLabel?: string;
     turn?: ScenarioRequest['turn'];
+    aside?: ScenarioRequest['aside'];
+    before?: ScenarioRequest['before'];
+    perturbEvery?: boolean;
+    perturb?: ScenarioRequest['perturb'];
   } = {},
 ): PathTry {
   const rng = rngFor(context.seed, options.rngLabel ?? id);
@@ -76,9 +98,15 @@ export function scenarioDraft(
     const built = buildScenario(prepared, rng, {
       path,
       fixed,
+      pathValues: context.pathValues?.get(path),
+      dimensionIndex: context.dimensionIndex,
       ...(options.probe ? { probe: options.probe } : {}),
       ...(options.force ? { force: options.force } : {}),
       ...(options.turn ? { turn: options.turn } : {}),
+      ...(options.aside ? { aside: options.aside } : {}),
+      ...(options.before ? { before: options.before } : {}),
+      ...(options.perturbEvery ? { perturbEvery: true } : {}),
+      ...(options.perturb ? { perturb: options.perturb } : {}),
     });
     if (!built.ok) {
       reasons.push(built.reason);
@@ -96,7 +124,19 @@ export function scenarioDraft(
                 : prepared.space.dimensions[prepared.stage as number]?.index.get(block.stage);
             return at === undefined ? [] : [[prepared.stage as number, at]];
           });
-    const cell = [...built.cell, ...contextAxes(prepared, built.cell, rng, reached)];
+    // A metamorphic family keeps its draws: its variants must differ in the one value the family varies.
+    context.usage ??= new Map();
+    const usage = seeder === 'metamorphic' ? undefined : context.usage;
+    const cell = [...built.cell, ...contextAxes(prepared, built.cell, rng, reached, usage)];
+    if (usage) {
+      for (const [dimension, value] of cell) {
+        if (!CONTEXT_KINDS.has(prepared.space.dimensions[dimension]?.kind ?? '')) continue;
+        if (!prepared.axes.has(dimension)) continue;
+        const placed = usage.get(dimension) ?? new Map<number, number>();
+        placed.set(value, (placed.get(value) ?? 0) + 1);
+        usage.set(dimension, placed);
+      }
+    }
     const behaviours = cell.filter(
       ([dimension]) =>
         prepared.space.dimensions[dimension]?.kind === 'behaviour' && dimension !== prepared.transition,
@@ -221,6 +261,7 @@ export function contextAxes(
   fixed: readonly Pick[],
   rng: Rng,
   reached: readonly Pick[] = [],
+  usage?: ReadonlyMap<number, ReadonlyMap<number, number>>,
 ): Pick[] {
   // One value per dimension is fixed; a second value of the same dimension (a spec covering two flows)
   // must stay allowed with the draw, like a stage the spec reaches.
@@ -248,21 +289,43 @@ export function contextAxes(
     if (dimension?.kind === 'task' && empty !== undefined && !base.some(([at]) => at === index))
       base.push([index, empty]);
   }
+  const otherBases = also.map((entry) => base.filter(([at]) => at !== entry[0]));
+  const axes = [...prepared.axes]
+    .sort((a, b) => a - b)
+    .filter((index) => CONTEXT_KINDS.has(prepared.space.dimensions[index]?.kind ?? ''))
+    .filter((index) => !base.some(([at]) => at === index));
+  const fits = (candidate: readonly Pick[]) => {
+    if (!prepared.feasibility.allowed([...base, ...candidate])) return false;
+    for (let index = 0; index < also.length; index += 1) {
+      const entry = also[index] as Pick;
+      if (!prepared.feasibility.allowed([...(otherBases[index] as Pick[]), ...candidate, entry]))
+        return false;
+    }
+    return true;
+  };
   for (let attempt = 0; attempt < 5; attempt += 1) {
     const full = prepared.feasibility.complete(base, rng);
     if (!full) return [];
-    const picks: Pick[] = [...prepared.axes]
-      .sort((a, b) => a - b)
-      .filter((index) => CONTEXT_KINDS.has(prepared.space.dimensions[index]?.kind ?? ''))
-      .filter((index) => !base.some(([at]) => at === index))
-      .map((index) => [index, full[index] ?? 0]);
-    if (
-      also.every((entry) =>
-        prepared.feasibility.allowed([...base.filter(([at]) => at !== entry[0]), ...picks, entry]),
-      )
-    ) {
-      return picks;
+    const picks: Pick[] = axes.map((index) => [index, full[index] ?? 0]);
+    if (!fits(picks)) continue;
+    if (usage) {
+      // The draw stands unless another allowed value of the axis has been placed on less: then that one.
+      for (let at = 0; at < picks.length; at += 1) {
+        const original = picks[at] as Pick;
+        const [index, drawn] = original;
+        const placed = usage.get(index);
+        let best = drawn;
+        const values = prepared.space.dimensions[index]?.values ?? [];
+        for (let value = 0; value < values.length; value += 1) {
+          if (values[value]?.id === NONE || (placed?.get(value) ?? 0) >= (placed?.get(best) ?? 0)) continue;
+          picks[at] = [index, value];
+          if (fits(picks)) best = value;
+          picks[at] = original;
+        }
+        picks[at] = [index, best];
+      }
     }
+    return picks;
   }
   return [];
 }
@@ -418,51 +481,6 @@ function failingTool(prepared: PreparedMap, rng: Rng, cell: Pick[]): string | un
   );
 }
 
-/** The tool answers a cell's output values state, as `world.tools.<tool>.result`. */
-export function worldFor(
-  prepared: PreparedMap,
-  cell: readonly Pick[],
-  options: { useBindings?: boolean } = {},
-): { world?: WorldState; unsupported: string[] } {
-  const byTool = new Map<
-    string,
-    Array<{ path: string[]; schema: Record<string, unknown>; partition: string; bindings?: string[] }>
-  >();
-  for (const [dimension, value] of cell) {
-    const found = prepared.toolDimensions.get(dimension);
-    if (found?.direction !== 'out') continue;
-    const partition = partitionOf(dimensionId(prepared, dimension), valueId(prepared, dimension, value));
-    byTool.set(found.tool.name, [
-      ...(byTool.get(found.tool.name) ?? []),
-      {
-        path: found.path,
-        schema: found.schema,
-        partition,
-        ...(options.useBindings
-          ? {
-              bindings: Object.values(
-                prepared.relations.binds.get(
-                  `${dimensionId(prepared, dimension)}=${valueId(prepared, dimension, value)}`,
-                ) ?? {},
-              ),
-            }
-          : {}),
-      },
-    ]);
-  }
-  if (byTool.size === 0) return { unsupported: [] };
-  const tools: NonNullable<WorldState['tools']> = {};
-  const unsupported: string[] = [];
-  for (const tool of prepared.tools) {
-    const partitions = byTool.get(tool.name);
-    if (!partitions) continue;
-    const answer = toolAnswer(tool, partitions);
-    tools[tool.name] = { result: answer.answer as never };
-    unsupported.push(...answer.unsupported.map((entry) => `${tool.name}.out.${entry}`));
-  }
-  return { world: { tools }, unsupported };
-}
-
 /**
  * One scenario aimed at one allowed cell of the axis map (a pair or a triple of values) that no complete spec
  * covers. Every value of the cell is fixed in the scenario's cell except the stage and the deviation: a
@@ -566,6 +584,26 @@ export function coverDraft(
       return built;
     }
     reasons.push(...built.reasons);
+  }
+  // A class said on the first turn whose recovery stays there is no block (an idle reply passes it): a clean
+  // walk in the cell declares it as its perturbation instead, and a perturbed run checks the recovery.
+  const start = stage !== undefined && paths.length > 0 && paths.every((path) => path.stages[0] === stage);
+  if (start && stage !== undefined) {
+    for (const { classId, extra } of attempts) {
+      if (classId === undefined) continue;
+      const built = scenarioDraft(
+        prepared,
+        context,
+        id,
+        'cover',
+        `Cell ${key}`,
+        [...fixed, ...extra],
+        preferring(paths, behaviour),
+        { perturb: { classId, stage } },
+      );
+      if ('draft' in built) return built;
+      reasons.push(...built.reasons);
+    }
   }
   if (paths.length === 0) reasons.push(`no approved path passes the stage ${stage}`);
   return { reasons: reasons.length > 0 ? reasons : [`no approved path fits the cell ${key}`] };

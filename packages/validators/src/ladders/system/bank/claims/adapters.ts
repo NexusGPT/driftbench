@@ -14,17 +14,24 @@ import {
 } from 'node:fs';
 import { join, resolve } from 'node:path';
 import type * as Sqlite from 'node:sqlite';
-import { functionAdapter, httpAdapter, processAdapter } from '@agent-nexus/driftbench-adapters';
+import {
+  functionAdapter,
+  HTTP_ADAPTER_VERSION,
+  httpAdapter,
+  processAdapter,
+} from '@agent-nexus/driftbench-adapters';
 import {
   AdapterTransportError,
   type AgentAdapter,
   AgentFailure,
   type Campaign,
   canonicalJson,
+  contentHash,
   type Message,
   type Observed,
   type ResolvedGiven,
   type RunResult,
+  runSpec,
   type Session,
   type Stimulus,
   type TargetRef,
@@ -33,7 +40,14 @@ import {
   type WorldState,
 } from '@agent-nexus/driftbench-core';
 import { localProvider } from '@agent-nexus/driftbench-sandbox';
-import { BLOCK_METRIC, openStore, type SqliteStore, StoreError } from '@agent-nexus/driftbench-store';
+import {
+  BLOCK_METRIC,
+  openStore,
+  SCHEMA_VERSION,
+  type SqliteStore,
+  StoreError,
+} from '@agent-nexus/driftbench-store';
+import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { type BankItem, expectAll, fail, type ItemContext, type ItemResult, PASS, type Tier } from '../types';
 import { behavioursFor, plantedFlow, runScenario } from '../world';
 
@@ -86,6 +100,20 @@ type Spec = {
 function adapterItem(spec: Spec): BankItem {
   return { id: `claim/adapters/${spec.slug}`, family: ADAPTERS_FAMILY, ...without(spec) };
 }
+
+/**
+ * The newer schema versions a refusal item writes: the version the seed draws above the current one (as the item
+ * always did, never replaced), and the next version, added on every seed.
+ */
+export function newerSchemas(seed: number): number[] {
+  return [...new Set([SCHEMA_VERSION + 1 + (seed % 4), SCHEMA_VERSION + 1])];
+}
+
+/**
+ * The store schema that brought the block verdicts not_run and blocked: a floor, never a fixed number. A store
+ * that holds one must be stamped at least this, so a driftbench older than the verdicts refuses it.
+ */
+const VERDICT_SCHEMA = 3;
 
 function storeItem(spec: Spec): BankItem {
   return { id: `claim/adapters/store-${spec.slug}`, family: STORE_FAMILY, ...without(spec) };
@@ -253,34 +281,58 @@ function functionItems(): BankItem[] {
       component: FN,
       source: 'contract',
       title:
-        'index.md "The contract suite": open carries the adapter, the target and the Given, and its history is a copy of the prefix',
-      cause: 'functionAdapter.open starts the session history as a copy of the prefix',
+        'function.md "What the agent receives": open preserves the prefix and rejects writes into handed-over messages without changing history or Given',
+      cause: 'functionAdapter.open protects handed-over messages from caller writes',
       async check({ seed }) {
+        // Deliberately unfrozen: direct callers receive the same protection as the runner.
         const prefix: Message[] = [
           { role: 'user', content: `Earlier question ${code(seed)}` },
           { role: 'assistant', content: 'Earlier answer' },
         ];
         const given = givenOf({ prefix });
+        const prefixBefore = JSON.stringify(prefix);
+        const givenBefore = JSON.stringify(given);
         const adapter = functionAdapter({ respond: () => textObserved('x') });
         const session = await adapter.open(given);
-        const before = canonicalJson(session.history);
-        (given.prefix[0] as Message).content = 'changed after open';
-        return expectAll([
-          [session.adapter === 'function', `expected session.adapter function, got ${session.adapter}`],
-          [same(session.target, TARGET), `expected the target ${show(TARGET)}, got ${show(session.target)}`],
-          [session.given === given || same(session.given, given), 'expected the session to carry the Given'],
-          [
-            before ===
-              canonicalJson(
-                prefix.map((m, i) => (i === 0 ? { ...m, content: `Earlier question ${code(seed)}` } : m)),
-              ),
-            `expected the history to equal the prefix at open, got ${before}`,
-          ],
-          [
-            canonicalJson(session.history) === before,
-            `expected the history to stay as it was when the prefix changed after open, got ${show(session.history)}`,
-          ],
-        ]);
+        try {
+          const historyBefore = JSON.stringify(session.history);
+          const callerError = await caught(async () => {
+            (prefix[0] as Message).content = 'changed after open';
+          });
+          const sessionError = await caught(async () => {
+            (session.history[1] as Message).content = 'changed through session';
+          });
+          return expectAll([
+            [session.adapter === 'function', `expected session.adapter function, got ${session.adapter}`],
+            [
+              same(session.target, TARGET),
+              `expected the target ${show(TARGET)}, got ${show(session.target)}`,
+            ],
+            [
+              session.given === given || same(session.given, given),
+              'expected the session to carry the Given',
+            ],
+            [
+              historyBefore === prefixBefore,
+              `expected history to equal the prefix at open, got ${historyBefore}`,
+            ],
+            [
+              JSON.stringify(session.history) === historyBefore,
+              'a caller write changed session history bytes',
+            ],
+            [JSON.stringify(given) === givenBefore, 'a caller write changed Given bytes'],
+            [
+              callerError instanceof TypeError,
+              `expected a caller message write to throw TypeError, got ${kindOf(callerError)}`,
+            ],
+            [
+              sessionError instanceof TypeError,
+              `expected a session message write to throw TypeError, got ${kindOf(sessionError)}`,
+            ],
+          ]);
+        } finally {
+          await adapter.close(session);
+        }
       },
     }),
     adapterItem({
@@ -345,34 +397,89 @@ function functionItems(): BankItem[] {
       component: FN,
       source: 'adversarial',
       title:
-        'function.md "What the agent receives": every argument is a copy, so an agent that mutates them changes neither the session nor the Given',
-      cause: 'functionAdapter.send hands the agent copies of the history, world and vars',
+        'function.md "What the agent receives": message writes fail loudly, history and Given stay byte-identical, and each turn receives private arrays, world and vars',
+      cause: 'functionAdapter.send protects message contents and isolates each turn from agent writes',
       async check({ seed }) {
-        const given = givenOf({ world: { fixtures: { code: code(seed) } }, vars: { channel: 'chat' } });
+        const given = givenOf({
+          prefix: [
+            {
+              role: 'assistant',
+              content: 'Earlier call',
+              tool_calls: [{ label: 'records.lookup', input: { code: code(seed) } }],
+            },
+          ],
+          world: { fixtures: { code: code(seed) } },
+          vars: { preferences: { channel: 'chat' } },
+        });
+        const views: string[] = [];
+        const inputs: string[] = [];
+        const arrays: Message[][] = [];
+        const reachedMessageWrite: boolean[] = [];
+        let attempt = 0;
         const adapter = functionAdapter({
           respond: (messages, world, vars) => {
+            views.push(JSON.stringify(messages));
+            inputs.push(JSON.stringify([world, vars]));
+            arrays.push(messages);
+            const newest = messages.at(-1) as Message;
+            const earlier = messages[0] as Message;
+            // These writes must succeed on private per-turn containers, even when the
+            // following message write aborts the turn. Nested values must be private too.
             messages.push({ role: 'assistant', content: 'smuggled' });
-            (messages[0] as Message).content = 'rewritten';
-            (world as Record<string, unknown>).fixtures = { code: 'R-0000' };
-            vars.channel = 'hijacked';
+            messages[0] = { role: 'user', content: 'replaced only in the agent array' };
+            (world.fixtures as Record<string, unknown>).code = 'R-0000';
+            (vars.preferences as Record<string, unknown>).channel = 'hijacked';
+            const calls = earlier.tool_calls;
+            if (!calls?.[0]) throw new Error('the agent did not receive the planted tool call');
+            reachedMessageWrite[attempt] = true;
+            if (attempt === 0) newest.content = 'rewritten';
+            else if (attempt === 1) {
+              (calls[0].input as Record<string, unknown>).code = 'rewritten nested input';
+            } else calls.push({ label: 'smuggled' });
             return textObserved('ok');
           },
         });
         const session = await adapter.open(given);
-        session.history.push({ role: 'user', content: `Hi ${code(seed)}` });
-        const historyBefore = canonicalJson(session.history);
-        const givenBefore = canonicalJson(given);
-        await adapter.send(session, { index: 0, stimulus: { user: `Hi ${code(seed)}` }, given });
-        return expectAll([
-          [
-            canonicalJson(session.history) === historyBefore,
-            `expected the history unchanged by the agent, got ${show(session.history)}`,
-          ],
-          [
-            canonicalJson(given) === givenBefore,
-            `expected the Given unchanged by the agent, got ${show(given)}`,
-          ],
-        ]);
+        const givenBefore = JSON.stringify(given);
+        const inputsBefore = JSON.stringify([given.world, given.vars]);
+        const checks: Array<readonly [boolean, string]> = [];
+        try {
+          for (attempt = 0; attempt < 3; attempt += 1) {
+            const user = `Hi ${code(seed)} turn ${attempt}`;
+            // No runner and no fixture freeze: send must protect a directly appended message.
+            session.history.push({ role: 'user', content: user });
+            const historyBefore = JSON.stringify(session.history);
+            const retainedBefore = arrays.map((messages) => JSON.stringify(messages));
+            const error = await caught(adapter.send(session, { index: attempt, stimulus: { user }, given }));
+            checks.push(
+              [
+                JSON.stringify(session.history) === historyBefore,
+                `turn ${attempt}: an agent write changed history bytes`,
+              ],
+              [JSON.stringify(given) === givenBefore, `turn ${attempt}: an agent write changed Given bytes`],
+              [
+                views[attempt] === historyBefore,
+                `turn ${attempt}: a prior turn changed the next history view`,
+              ],
+              [inputs[attempt] === inputsBefore, `turn ${attempt}: a prior turn changed world or vars`],
+              [
+                reachedMessageWrite[attempt] === true,
+                `turn ${attempt}: private array, world or vars writes were blocked`,
+              ],
+              [
+                error instanceof AgentFailure && error.cause instanceof TypeError,
+                `turn ${attempt}: expected AgentFailure caused by TypeError for the message write, got ${kindOf(error)}`,
+              ],
+              [
+                retainedBefore.every((before, i) => JSON.stringify(arrays[i]) === before),
+                `turn ${attempt}: a later turn changed an earlier agent array`,
+              ],
+            );
+          }
+          return expectAll(checks);
+        } finally {
+          await adapter.close(session);
+        }
       },
     }),
     adapterItem({
@@ -774,15 +881,20 @@ function httpItems(): BankItem[] {
       component: HTTP,
       source: 'contract',
       title:
-        'http.md "Capabilities and version": the version is 0.1.0+ and a hash of url, so two endpoints never share a cache entry',
-      cause: 'httpAdapter versions itself by a hash of its url',
+        'http.md "Capabilities and version": the version is <adapter version>+<hash of url>, stable for one url and distinct for different urls',
+      cause:
+        'httpAdapter combines its exported version with the content hash of its url, stably per url and distinctly across urls',
       async check({ seed }) {
         const make = (url: string) => httpAdapter({ url, fetch: fakeFetch(() => json({})).fetch }).version;
-        const a = make(`http://a.example.org/turn/${seed}`);
-        const a2 = make(`http://a.example.org/turn/${seed}`);
-        const b = make(`http://b.example.org/turn/${seed}`);
+        const urlA = `http://a.example.org/turn/${seed}`;
+        const urlB = `http://b.example.org/turn/${seed}`;
+        const a = make(urlA);
+        const a2 = make(urlA);
+        const b = make(urlB);
+        const expected = (url: string) => `${HTTP_ADAPTER_VERSION}+${contentHash(url)}`;
         return expectAll([
-          [/^0\.1\.0\+[0-9a-f]{6,}$/.test(a), `expected a version 0.1.0+<hash>, got ${a}`],
+          [a === expected(urlA), `expected version ${expected(urlA)} for ${urlA}, got ${a}`],
+          [b === expected(urlB), `expected version ${expected(urlB)} for ${urlB}, got ${b}`],
           [a === a2, `expected one url to give one version, got ${a} and ${a2}`],
           [a !== b, `expected two urls to give two versions, both gave ${a}`],
         ]);
@@ -1587,7 +1699,7 @@ function processItems(): BankItem[] {
       component: PROC,
       source: 'contract',
       title:
-        'process.md "Capabilities": sandbox and readArtifact on, deterministic as declared, variants, seedPrefix, toolStubs, trace and endState off, version 0.1.0',
+        'process.md "Capabilities": sandbox, readArtifact and seedPrefix (the history file) on, deterministic as declared, variants, toolStubs, trace and endState off, version 0.1.0',
       cause: 'processAdapter declares its capabilities and version as the process page documents',
       async check({ scratch }) {
         const adapter = processAdapter({
@@ -1597,7 +1709,7 @@ function processItems(): BankItem[] {
         });
         const want = {
           variants: false,
-          seedPrefix: false,
+          seedPrefix: true,
           toolStubs: false,
           trace: false,
           sandbox: true,
@@ -2664,27 +2776,96 @@ fs.writeFileSync('src/a${ctx.seed}.js', '3');`;
       component: PROC,
       source: 'differential',
       title:
-        'index.md "The contract suite": the session history is a copy of the prefix (the function and http adapters copy it deeply; the process session must not share message objects with the Given)',
-      cause: 'processAdapter.open copies the prefix messages into the session history',
+        'process.md "How a block runs": handed-over host messages reject writes, and child edits of serialised history cannot change host history or another turn',
+      cause: 'processAdapter protects host messages at handoff and isolates child history edits',
       async check(ctx) {
-        const dir = folderFor(ctx, 'history-copy');
-        const adapter = processAdapter({
-          command: process.execPath,
-          provider: localProvider({ dir: join(dir, 'sandboxes') }),
-        });
         const prefix: Message[] = [{ role: 'user', content: `Earlier ${code(ctx.seed)}` }];
-        const given = givenOf({ prefix });
-        const session = await adapter.open(given);
-        try {
-          (session.history[0] as Message).content = 'edited in the session';
-          return given.prefix[0]?.content === `Earlier ${code(ctx.seed)}`
-            ? PASS
-            : fail(
-                `expected the Given prefix untouched by an edit of the session history, it now reads ${show(given.prefix[0]?.content)}`,
+        const prefixBefore = JSON.stringify(prefix);
+        const body = `
+const file = process.env.DRIFTBENCH_HISTORY_FILE;
+const messages = JSON.parse(fs.readFileSync(file, 'utf8'));
+const before = JSON.stringify(messages);
+messages[0].content = 'edited in the child';
+messages.push({ role: 'assistant', content: 'smuggled' });
+fs.writeFileSync(file, JSON.stringify(messages));
+process.stdout.write(JSON.stringify({ before, after: fs.readFileSync(file, 'utf8') }));`;
+        return withProcess(
+          ctx,
+          'history-copy',
+          body,
+          {},
+          async ({ adapter, session }) => {
+            const givenBefore = JSON.stringify(session.given);
+            const historyAtOpen = JSON.stringify(session.history);
+            const callerError = await caught(async () => {
+              (prefix[0] as Message).content = 'edited by the caller';
+            });
+            const sessionError = await caught(async () => {
+              (session.history[0] as Message).content = 'edited in the session';
+            });
+            const checks: Array<readonly [boolean, string]> = [
+              [historyAtOpen === prefixBefore, 'expected history to equal the prefix at open'],
+              [
+                JSON.stringify(session.history) === historyAtOpen,
+                'a host write changed session history bytes',
+              ],
+              [JSON.stringify(session.given) === givenBefore, 'a host write changed Given bytes'],
+              [
+                callerError instanceof TypeError,
+                `expected a caller message write to throw TypeError, got ${kindOf(callerError)}`,
+              ],
+              [
+                sessionError instanceof TypeError,
+                `expected a session message write to throw TypeError, got ${kindOf(sessionError)}`,
+              ],
+            ];
+            for (let index = 0; index < 2; index += 1) {
+              const user = `Now ${code(ctx.seed)} turn ${index}`;
+              const message: Message = { role: 'user', content: user };
+              session.history.push(message);
+              const historyBefore = JSON.stringify(session.history);
+              const observed = await adapter.send(session, {
+                index,
+                stimulus: { user },
+                given: session.given,
+              });
+              const child = JSON.parse(observed.text) as { before: string; after: string };
+              const expectedEdit = JSON.parse(historyBefore) as Message[];
+              (expectedEdit[0] as Message).content = 'edited in the child';
+              expectedEdit.push({ role: 'assistant', content: 'smuggled' });
+              checks.push(
+                [child.before === historyBefore, `turn ${index}: the child received a changed history view`],
+                [
+                  child.after === JSON.stringify(expectedEdit),
+                  `turn ${index}: the child did not perform its serialised history edit`,
+                ],
+                [
+                  JSON.stringify(session.history) === historyBefore,
+                  `turn ${index}: the child changed host history bytes`,
+                ],
+                [
+                  JSON.stringify(session.given) === givenBefore,
+                  `turn ${index}: the child changed Given bytes`,
+                ],
               );
-        } finally {
-          await adapter.close(session);
-        }
+              const lateError = await caught(async () => {
+                message.content = 'edited after send';
+              });
+              checks.push(
+                [
+                  JSON.stringify(session.history) === historyBefore,
+                  `turn ${index}: a late caller write changed history bytes`,
+                ],
+                [
+                  lateError instanceof TypeError,
+                  `turn ${index}: expected a handed-over message write to throw TypeError, got ${kindOf(lateError)}`,
+                ],
+              );
+            }
+            return expectAll(checks);
+          },
+          { prefix },
+        );
       },
     }),
   );
@@ -3560,16 +3741,84 @@ await store.close();
         'errors.ts SCHEMA_VERSION: a database written by a newer schema is refused at open, and left as it was',
       cause: 'openStore refuses a database of a newer schema version without touching it',
       async check(ctx) {
-        const { path } = await seededFile(ctx, 'newer-schema');
-        const newer = 3 + (ctx.seed % 4);
-        editByHand(path, `PRAGMA user_version = ${newer}`);
-        const code = await codeOf(async () => {
-          openStore(path);
+        const checks: Array<[boolean, string]> = [];
+        for (const newer of newerSchemas(ctx.seed)) {
+          const { path } = await seededFile(ctx, `newer-schema-${newer}`);
+          editByHand(path, `PRAGMA user_version = ${newer}`);
+          const code = await codeOf(async () => {
+            openStore(path);
+          });
+          const after = Number(readByHand(path, 'PRAGMA user_version')?.user_version);
+          checks.push(
+            [
+              code === 'StoreError SCHEMA_VERSION',
+              `version ${newer}: expected StoreError SCHEMA_VERSION, got ${code}`,
+            ],
+            [after === newer, `version ${newer}: expected the version left at ${newer}, got ${after}`],
+          );
+        }
+        return expectAll(checks);
+      },
+    }),
+    storeItem({
+      slug: 'schema-holds-block-verdicts',
+      tier: 1,
+      level: 1,
+      component: STORE,
+      source: 'contract',
+      title:
+        'packages/store/src/schema.ts: the store schema is at least the version that brought the block verdicts not_run and blocked (3), so an older driftbench refuses a store that holds one',
+      cause:
+        'SCHEMA_VERSION is at or above the version that introduced not_run and blocked, in the file and in a bundle',
+      async check(ctx) {
+        const { path, run, dir } = await seededFile(ctx, 'verdict-schema');
+        // A run whose last block was not run: the record an older reader cannot hold.
+        const last = run.blocks.length - 1;
+        const unsent = {
+          ...run,
+          runId: `${run.runId}-unsent`,
+          blocks: run.blocks.map((block, index) =>
+            index === last
+              ? {
+                  ...block,
+                  verdicts: [],
+                  drift: [],
+                  pass: false,
+                  status: 'not_run' as const,
+                  notRun: {
+                    kind: 'unsupported' as const,
+                    layer: '5 world',
+                    check: 'capability',
+                    expected: 'e',
+                    got: 'g',
+                  },
+                }
+              : block,
+          ),
+        };
+        const back = await withStore(path, async (store) => {
+          await store.putRun('c-1', unsent);
+          return store.getRun(unsent.runId, 'c-1');
         });
-        const after = Number(readByHand(path, 'PRAGMA user_version')?.user_version);
+        const folder = await withStore(path, (store) => store.exportCampaign('c-1', join(dir, 'export')));
+        const manifest = JSON.parse(readFileSync(join(folder, 'manifest.json'), 'utf8')) as {
+          schemaVersion?: unknown;
+        };
+        const file = Number(readByHand(path, 'PRAGMA user_version')?.user_version);
         return expectAll([
-          [code === 'StoreError SCHEMA_VERSION', `expected StoreError SCHEMA_VERSION, got ${code}`],
-          [after === newer, `expected the version left at ${newer}, got ${after}`],
+          [
+            SCHEMA_VERSION >= VERDICT_SCHEMA,
+            `expected SCHEMA_VERSION at least ${VERDICT_SCHEMA}, got ${SCHEMA_VERSION}`,
+          ],
+          [file >= VERDICT_SCHEMA, `expected the file at schema ${VERDICT_SCHEMA} or above, got ${file}`],
+          [
+            Number(manifest.schemaVersion) >= VERDICT_SCHEMA,
+            `expected the bundle at schema ${VERDICT_SCHEMA} or above, got ${show(manifest.schemaVersion)}`,
+          ],
+          [
+            back?.blocks[last]?.status === 'not_run',
+            `expected the block read back not_run, got ${show(back?.blocks[last]?.status)}`,
+          ],
         ]);
       },
     }),
@@ -3602,7 +3851,10 @@ await store.close();
         const after = Number(readByHand(path, 'PRAGMA user_version')?.user_version);
         return expectAll([
           [code === 'no error', `expected the upgraded store to work, got ${code}`],
-          [after === 2, `expected schema version 2 after the upgrade, got ${after}`],
+          [
+            after === SCHEMA_VERSION,
+            `expected schema version ${SCHEMA_VERSION} (the current schema) after the upgrade, got ${after}`,
+          ],
         ]);
       },
     }),
@@ -3616,18 +3868,28 @@ await store.close();
         'errors.ts SCHEMA_VERSION: a bundle whose manifest names a newer schema version is refused on import',
       cause: 'readCampaignBundle refuses a bundle of a newer schema version',
       async check(ctx) {
-        const { path, dir } = await seededFile(ctx, 'bundle-newer');
-        const folder = await withStore(path, (store) => store.exportCampaign('c-1', join(dir, 'export')));
-        const manifestPath = join(folder, 'manifest.json');
-        const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as Record<string, unknown>;
-        writeFileSync(manifestPath, JSON.stringify({ ...manifest, schemaVersion: 9 }));
-        const target = join(dir, 'target.sqlite');
-        const code = await codeOf(withStore(target, (store) => store.importCampaign(folder)));
-        const left = await withStore(target, (store) => store.listCampaigns());
-        return expectAll([
-          [code === 'StoreError SCHEMA_VERSION', `expected StoreError SCHEMA_VERSION, got ${code}`],
-          [left.length === 0, `expected nothing imported, found ${left.length} campaign(s)`],
-        ]);
+        const checks: Array<[boolean, string]> = [];
+        for (const newer of newerSchemas(ctx.seed)) {
+          const { path, dir } = await seededFile(ctx, `bundle-newer-${newer}`);
+          const folder = await withStore(path, (store) => store.exportCampaign('c-1', join(dir, 'export')));
+          const manifestPath = join(folder, 'manifest.json');
+          const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as Record<string, unknown>;
+          writeFileSync(manifestPath, JSON.stringify({ ...manifest, schemaVersion: newer }));
+          const target = join(dir, 'target.sqlite');
+          const code = await codeOf(withStore(target, (store) => store.importCampaign(folder)));
+          const left = await withStore(target, (store) => store.listCampaigns());
+          checks.push(
+            [
+              code === 'StoreError SCHEMA_VERSION',
+              `version ${newer}: expected StoreError SCHEMA_VERSION, got ${code}`,
+            ],
+            [
+              left.length === 0,
+              `version ${newer}: expected nothing imported, found ${left.length} campaign(s)`,
+            ],
+          );
+        }
+        return expectAll(checks);
       },
     }),
     storeItem({
@@ -4014,8 +4276,95 @@ await store.close();
 }
 
 /** The claims of this page: the function, http and process adapters, and the store under stress. */
+/* ------------------------------------------------------------------------------------------------ */
+/* The capability check (index.md "Capabilities")                                                   */
+/* ------------------------------------------------------------------------------------------------ */
+
+const RUNNER = 'packages/core/src/runner/run.ts';
+
+/** A spec whose Given forces a tool result from block 0 on, and has two blocks. */
+function forcedToolSpec(seed: number) {
+  const code = `R-${String(2000 + (seed % 7000)).padStart(4, '0')}`;
+  const result = validateSpec({
+    id: `forced-tool-${seed}`,
+    given: { world: { tools: { lookup: { result: { code } } } } },
+    blocks: [
+      { user: `Look up ${code}`, expect: { must: ['ok'] } },
+      { user: 'And again', expect: { must: ['ok'] } },
+    ],
+  });
+  if (!result.ok) throw new Error(`the item's spec is invalid: ${JSON.stringify(result.errors)}`);
+  return result.spec;
+}
+
+function capabilityItems(): BankItem[] {
+  return [
+    adapterItem({
+      slug: 'capability/tool-stubs-not-run',
+      tier: 2,
+      level: 3,
+      component: RUNNER,
+      source: 'contract',
+      title:
+        'index.md "Capabilities": a forced tool result in world.tools on an adapter without toolStubs gives not_run: unsupported, check capability, and the block is never sent',
+      cause: 'runSpec runs the capability check before it sends a block',
+      async check({ seed }) {
+        const fake = fakeFetch(() => json(textObserved('ok')));
+        const adapter = httpAdapter({ url: URL_TURN, fetch: fake.fetch });
+        const run = await runSpec(forcedToolSpec(seed), {
+          adapter,
+          driver: createScriptedDriver(),
+          checks: [],
+          mode: 'F',
+          repeat: 0,
+        });
+        const statuses = run.blocks.map((block) => block.status ?? (block.pass ? 'pass' : 'fail'));
+        const first = run.blocks[0]?.notRun;
+        return expectAll([
+          [fake.calls.length === 0, `expected no POST, got ${fake.calls.length}`],
+          [statuses.join(',') === 'not_run,not_run', `expected not_run,not_run, got ${statuses.join(',')}`],
+          [run.blocks.every((block) => block.pass === false), 'expected pass false on every block not run'],
+          [
+            first?.kind === 'unsupported' && first.check === 'capability' && first.layer === '5 world',
+            `expected kind unsupported, check capability, layer 5 world, got ${show(first)}`,
+          ],
+          [run.endState === undefined, 'expected no end state compared on a run with a block not run'],
+        ]);
+      },
+    }),
+    adapterItem({
+      slug: 'capability/tool-stubs-declared-runs',
+      tier: 1,
+      level: 3,
+      component: RUNNER,
+      source: 'contract',
+      title:
+        'index.md "Capabilities": the same spec on an http adapter that declares toolStubs runs every block, with no status',
+      cause: 'the capability check passes a layer the adapter declares it applies',
+      async check({ seed }) {
+        const fake = fakeFetch(() => json(textObserved('ok')));
+        const adapter = httpAdapter({ url: URL_TURN, fetch: fake.fetch, capabilities: { toolStubs: true } });
+        const run = await runSpec(forcedToolSpec(seed), {
+          adapter,
+          driver: createScriptedDriver(),
+          checks: [],
+          mode: 'F',
+          repeat: 0,
+        });
+        return expectAll([
+          [fake.calls.length === 2, `expected two POSTs, got ${fake.calls.length}`],
+          [
+            run.blocks.every((block) => block.status === undefined && block.notRun === undefined),
+            `expected no status, got ${show(run.blocks.map((block) => block.status))}`,
+          ],
+        ]);
+      },
+    }),
+  ];
+}
+
 export function adaptersItems(): BankItem[] {
-  return [...functionItems(), ...httpItems(), ...processItems(), ...storeItems()];
+  return [...functionItems(), ...httpItems(), ...processItems(), ...capabilityItems(), ...storeItems()];
 }
 
 export type { ItemResult };

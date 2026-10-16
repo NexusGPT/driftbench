@@ -1,8 +1,14 @@
-import { createHash } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import { readdir } from 'node:fs/promises';
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { basename, extname } from 'node:path';
-import type { Campaign, RunResult, Spec, Store } from '@agent-nexus/driftbench-core';
+import {
+  type Campaign,
+  type RunResult,
+  realizedTextOf,
+  type Spec,
+  type Store,
+} from '@agent-nexus/driftbench-core';
 import {
   type AnnotationAnchor,
   agreementOf,
@@ -28,6 +34,7 @@ import {
   renderRun,
   runDetailOf,
   runPassed,
+  scoredRuns,
 } from '@agent-nexus/driftbench-report';
 import { openStore } from '@agent-nexus/driftbench-store';
 
@@ -77,23 +84,38 @@ class HttpError extends Error {
 export async function startViewer(options: ViewerOptions): Promise<Viewer> {
   const store = openStore(options.store);
   const labelledBy = options.labelledBy ?? 'a reviewer, in driftbench view';
+  const csrf = randomBytes(32).toString('hex');
   const cache = new Map<string, { runs: number; html: string }>();
 
   const handle = async (request: IncomingMessage, response: ServerResponse): Promise<void> => {
-    const url = new URL(request.url ?? '/', `http://${HOST}`);
+    const authority = `${HOST}:${request.socket.localPort}`;
+    const origin = `http://${authority}`;
+    if (request.headers.host !== authority) throw new HttpError(403, 'Forbidden: untrusted Host.');
+    if (!['GET', 'HEAD', 'OPTIONS'].includes(request.method ?? '')) {
+      let source = request.headers.origin;
+      if (source === undefined && request.headers.referer !== undefined) {
+        try {
+          source = new URL(request.headers.referer).origin;
+        } catch {
+          throw new HttpError(403, 'Forbidden: invalid Referer.');
+        }
+      }
+      if (source !== origin) throw new HttpError(403, 'Forbidden: untrusted origin.');
+    }
+    const fields = request.method === 'POST' ? new URLSearchParams(await readBody(request)) : undefined;
+    if (fields && fields.get('csrf') !== csrf) throw new HttpError(403, 'Forbidden: invalid form token.');
+    const url = new URL(request.url ?? '/', origin);
     const parts = url.pathname
       .split('/')
       .filter((part) => part !== '')
       .map(decodeURIComponent);
-    if (request.method === 'POST' && url.pathname === '/labels') {
-      const fields = new URLSearchParams(await readBody(request));
+    if (fields && url.pathname === '/labels') {
       const location = await saveFromForm(store, options.labels, labelledBy, fields, options.scales ?? {});
       response.writeHead(303, { location });
       response.end();
       return;
     }
-    if (request.method === 'POST' && url.pathname === '/queue/assign') {
-      const fields = new URLSearchParams(await readBody(request));
+    if (fields && url.pathname === '/queue/assign') {
       const criterion = fields.get('criterion') ?? '';
       const id = fields.get('id') ?? '';
       try {
@@ -113,7 +135,7 @@ export async function startViewer(options: ViewerOptions): Promise<Viewer> {
     if (parts[0] === 'queue' && parts.length === 1)
       return send(
         response,
-        await queuePage(options.labels, labelledBy),
+        await queuePage(options.labels, labelledBy, csrf),
         200,
         scriptHashOf(QUEUE_KEYS_SCRIPT),
       );
@@ -137,7 +159,7 @@ export async function startViewer(options: ViewerOptions): Promise<Viewer> {
       if (!run) throw new HttpError(404, `No run ${parts[3]} in campaign ${parts[1]}.`);
       return send(
         response,
-        await runPage(data, run, options.labels, url.searchParams.get('saved')),
+        await runPage(data, run, options.labels, url.searchParams.get('saved'), csrf),
         200,
         scriptHashOf(LABEL_KEYS_SCRIPT),
       );
@@ -151,6 +173,14 @@ export async function startViewer(options: ViewerOptions): Promise<Viewer> {
       const message = cause instanceof Error ? cause.message : String(cause);
       if (response.headersSent) {
         response.end();
+        return;
+      }
+      if (status === 403) {
+        response.writeHead(status, {
+          'content-type': 'text/plain; charset=utf-8',
+          'cache-control': 'no-store',
+        });
+        response.end(message);
         return;
       }
       send(response, errorPage(status, message), status);
@@ -200,10 +230,12 @@ export const QUEUE_KEYS_SCRIPT = `(function () {
 function send(response: ServerResponse, html: string, status = 200, scriptHash?: string): void {
   response.writeHead(status, {
     'content-type': 'text/html; charset=utf-8',
-    // Nothing loads from anywhere: no external script, style, image or font. Forms post to this server.
+    // Nothing loads from anywhere: no external script, style, image or font. The scorecard's font faces are
+    // embedded in the page as data. Forms post to this server.
     'content-security-policy': [
       "default-src 'none'",
       "style-src 'unsafe-inline'",
+      'font-src data:',
       ...(scriptHash === undefined ? [] : [`script-src 'sha256-${scriptHash}'`]),
       "form-action 'self'",
       "base-uri 'none'",
@@ -329,7 +361,7 @@ function scriptHashOf(text: string): string {
   return createHash('sha256').update(text).digest('base64');
 }
 
-async function queuePage(labelsDir: string, reviewer: string): Promise<string> {
+async function queuePage(labelsDir: string, reviewer: string, csrf: string): Promise<string> {
   const queue = await readQueue(labelsDir);
   const agreement = agreementOf(queue);
   const agreementLine =
@@ -340,7 +372,7 @@ async function queuePage(labelsDir: string, reviewer: string): Promise<string> {
     const block = `${runPath(entry.campaign, entry.runId)}#block-${entry.index}`;
     const action =
       entry.state === 'open'
-        ? `<form method="post" action="/queue/assign"><input type="hidden" name="criterion" value="${esc(entry.criterion)}"><input type="hidden" name="id" value="${esc(entry.id)}"><button type="submit">Take</button></form>`
+        ? `<form method="post" action="/queue/assign"><input type="hidden" name="csrf" value="${csrf}"><input type="hidden" name="criterion" value="${esc(entry.criterion)}"><input type="hidden" name="id" value="${esc(entry.id)}"><button type="submit">Take</button></form>`
         : entry.state === 'assigned' && entry.assignee === reviewer
           ? `<a href="${esc(block)}">Label it</a>`
           : entry.state === 'done'
@@ -358,20 +390,31 @@ async function queuePage(labelsDir: string, reviewer: string): Promise<string> {
   ]);
 }
 
+/** Runs that pass, fail, or neither, for the index: a run not run or blocked is in its own column. */
+export function passingAndFailing(runs: readonly RunResult[]): {
+  passing: number;
+  failing: number;
+  unscored: number;
+} {
+  const passing = runs.filter(runPassed).length;
+  const scored = scoredRuns(runs).length;
+  return { passing, failing: scored - passing, unscored: runs.length - scored };
+}
+
 async function indexPage(store: Store): Promise<string> {
   const campaigns = await store.listCampaigns();
   const rows: string[] = [];
   for (const campaign of campaigns) {
     const data = await loadCampaign(store, campaign.campaignId);
-    const passing = data.runs.filter(runPassed).length;
+    const { passing, failing, unscored } = passingAndFailing(data.runs);
     rows.push(
-      `<tr><td class="mono"><a href="/campaign/${encodeURIComponent(campaign.campaignId)}">${esc(campaign.campaignId)}</a></td><td>${esc(campaign.createdAt)}</td><td>${esc(campaign.modes.join(', '))}</td><td class="num">${campaign.specs.length}</td><td class="num">${data.runs.length} runs</td><td class="num">${passing}</td><td class="num">${data.runs.length - passing}</td></tr>`,
+      `<tr><td class="mono"><a href="/campaign/${encodeURIComponent(campaign.campaignId)}">${esc(campaign.campaignId)}</a></td><td>${esc(campaign.createdAt)}</td><td>${esc(campaign.modes.join(', '))}</td><td class="num">${campaign.specs.length}</td><td class="num">${data.runs.length} runs</td><td class="num">${unscored}</td><td class="num">${passing}</td><td class="num">${failing}</td></tr>`,
     );
   }
   const body =
     rows.length === 0
       ? '<p class="muted">The store holds no campaign. Run one with driftbench campaign run.</p>'
-      : `<div class="table-wrap"><table><caption>Campaigns, newest first</caption><thead><tr><th scope="col">campaign</th><th scope="col">created</th><th scope="col">modes</th><th scope="col">specs</th><th scope="col">runs</th><th scope="col">passing</th><th scope="col">not passing</th></tr></thead><tbody>${rows.join('\n')}</tbody></table></div>`;
+      : `<div class="table-wrap"><table><caption>Campaigns, newest first</caption><thead><tr><th scope="col">campaign</th><th scope="col">created</th><th scope="col">modes</th><th scope="col">specs</th><th scope="col">runs</th><th scope="col">not run or blocked</th><th scope="col">passing</th><th scope="col">failing</th></tr></thead><tbody>${rows.join('\n')}</tbody></table></div>`;
   return renderPage('driftbench view', [
     nav(),
     `<section id="campaigns"><h2>Campaigns</h2><p>Open a campaign for its scorecard and its runs; open a run to label its blocks. Compare two campaigns paired on the goldens both ran.</p>${body}</section>`,
@@ -416,7 +459,7 @@ async function comparePage(store: Store, url: URL): Promise<string> {
   return renderPage(`Compare ${candidate} with ${baseline}`, [nav(), form, renderCompare(result)]);
 }
 
-type HeldLabel = { criterion: string; label: string; note?: string };
+type HeldLabel = { criterion: string; label: string; note?: string; flags?: LabelledBlock['flags'] };
 
 /** Every label in the labels folder, by block id. */
 async function labelsById(dir: string): Promise<Map<string, HeldLabel[]>> {
@@ -439,7 +482,12 @@ async function labelsById(dir: string): Promise<Map<string, HeldLabel[]>> {
     }
     for (const block of blocks) {
       const list = out.get(block.id) ?? [];
-      list.push({ criterion, label: block.label, ...(block.note === undefined ? {} : { note: block.note }) });
+      list.push({
+        criterion,
+        label: block.label,
+        ...(block.flags === undefined ? {} : { flags: block.flags }),
+        ...(block.note === undefined ? {} : { note: block.note }),
+      });
       out.set(block.id, list);
     }
   }
@@ -464,6 +512,7 @@ async function runPage(
   run: RunResult,
   labelsDir: string,
   saved: string | null,
+  csrf: string,
 ): Promise<string> {
   const detail = runDetailOf(data, run);
   const spec = data.specs.get(`${run.specId}@${run.specHash}`)?.spec;
@@ -475,7 +524,7 @@ async function runPage(
     const shown = existing
       .map(
         (entry) =>
-          `<li class="mono">${esc(entry.criterion)}: ${esc(entry.label)}${entry.note ? `. ${esc(entry.note)}` : ''}</li>`,
+          `<li class="mono">${esc(entry.criterion)}: ${esc(entry.label)}${entry.note ? `. ${esc(entry.note)}` : ''}${entry.flags?.includes('sent text not stored') ? '. Sent text not stored; excluded from calibration' : ''}</li>`,
       )
       .join('');
     const criterionField =
@@ -488,6 +537,7 @@ async function runPage(
       .map((option) => `<option value="${esc(option.value)}">${esc(option.label)}</option>`)
       .join('')}</select></label>`;
     return `<div class="labels"><p class="label">Your label for this block${existing.length > 0 ? `, ${existing.length} saved` : ''}</p>${shown ? `<ul>${shown}</ul>` : ''}<form method="post" action="/labels">
+<input type="hidden" name="csrf" value="${csrf}">
 <input type="hidden" name="campaign" value="${esc(campaignId)}"><input type="hidden" name="run" value="${esc(run.runId)}"><input type="hidden" name="block" value="${block.index}">
 ${criterionField}
 ${anchorField}
@@ -501,6 +551,7 @@ ${anchorField}
   const tally = new Map<string, { pass: number; fail: number }>();
   for (const list of held.values()) {
     for (const entry of list) {
+      if (entry.flags?.includes('sent text not stored')) continue;
       const count = tally.get(entry.criterion) ?? { pass: 0, fail: 0 };
       if (entry.label === 'pass') count.pass += 1;
       else count.fail += 1;
@@ -526,8 +577,9 @@ ${anchorField}
 /** Saves the label a form posted and returns where the browser goes next. */
 /** The transcript a label judges: the stimulus, each tool call with its result, then the reply. */
 function transcriptOf(block: BlockDetail) {
+  const text = realizedTextOf(block.authoredText, block.realized);
   return [
-    ...(block.stimulus === undefined ? [] : [{ role: 'user' as const, text: block.stimulus }]),
+    ...(text === undefined ? [] : [{ role: 'user' as const, text }]),
     ...block.toolCalls.flatMap((call) => [
       { role: 'tool_call' as const, text: JSON.stringify(call.input ?? null), tool: call.label },
       ...(call.output === undefined && call.error === undefined
@@ -645,22 +697,7 @@ async function saveFromForm(
   if (offered.length > 0 && !offered.includes(criterion)) {
     throw new HttpError(400, `The block offers the criteria ${offered.join(', ')}, not ${criterion}.`);
   }
-  const transcript = [
-    ...(block.stimulus === undefined ? [] : [{ role: 'user' as const, text: block.stimulus }]),
-    ...block.toolCalls.flatMap((call) => [
-      { role: 'tool_call' as const, text: JSON.stringify(call.input ?? null), tool: call.label },
-      ...(call.output === undefined && call.error === undefined
-        ? []
-        : [
-            {
-              role: 'tool_result' as const,
-              text: call.error ?? JSON.stringify(call.output),
-              tool: call.label,
-            },
-          ]),
-    ]),
-    { role: 'agent' as const, text: block.text },
-  ];
+  const transcript = transcriptOf(block);
   const picked = fields.get('anchor') ?? 'none';
   let anchor: AnnotationAnchor | undefined;
   if (picked !== 'none') {
@@ -679,6 +716,9 @@ async function saveFromForm(
     label,
     ...(note === '' ? {} : { note }),
     transcript,
+    ...(block.realized !== undefined && realizedTextOf(block.authoredText, block.realized) === undefined
+      ? { flags: ['sent text not stored' as const] }
+      : {}),
     ...(anchor === undefined ? {} : { anchor }),
   };
   const queue = await readQueue(labelsDir);

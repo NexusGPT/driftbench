@@ -30,4 +30,4 @@ driftbench ci --specs specs/ --target function:my-agent --baseline <store>  # ex
 
 ## License
 
-Apache-2.0
+MIT

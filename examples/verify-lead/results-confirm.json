@@ -1,0 +1,61 @@
+{
+  "split": "confirm",
+  "driftbench": {
+    "contestant": "driftbench-v5",
+    "correct": 429,
+    "n": 544,
+    "missing": 0
+  },
+  "peers": [
+    {
+      "peer": "promptfoo",
+      "correct": 420,
+      "wins": 40,
+      "losses": 31,
+      "p": 0.3424709984198679,
+      "missing": 1,
+      "holm": 0.3424709984198679,
+      "verdict": "tie"
+    },
+    {
+      "peer": "deepeval",
+      "correct": 331,
+      "wins": 113,
+      "losses": 15,
+      "p": 8.930153081103964e-20,
+      "missing": 40,
+      "holm": 4.465076540551982e-19,
+      "verdict": "win"
+    },
+    {
+      "peer": "inspect",
+      "correct": 418,
+      "wins": 32,
+      "losses": 21,
+      "p": 0.16897782228771874,
+      "missing": 0,
+      "holm": 0.3379556445754375,
+      "verdict": "tie"
+    },
+    {
+      "peer": "langfuse",
+      "correct": 413,
+      "wins": 40,
+      "losses": 24,
+      "p": 0.05994118956699923,
+      "missing": 0,
+      "holm": 0.1798235687009977,
+      "verdict": "tie"
+    },
+    {
+      "peer": "langwatch",
+      "correct": 409,
+      "wins": 42,
+      "losses": 22,
+      "p": 0.01685819004428113,
+      "missing": 1,
+      "holm": 0.06743276017712452,
+      "verdict": "tie"
+    }
+  ]
+}

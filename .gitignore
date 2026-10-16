@@ -39,7 +39,7 @@ bower_components
 build/Release
 
 # Dependency directories
-node_modules/
+node_modules
 jspm_packages/
 
 # Snowpack dependency directory (https://snowpack.dev/)
@@ -161,6 +161,9 @@ __pycache__/
 *.egg-info/
 .venv/
 
+# Verify execution temporary directories; short path for Unix sockets.
+/.tmp/
+
 # Local benchmark recording checkpoints; complete cassettes and evidence are committed.
 .bench-run/
 benchmarks/**/*.partial.json
@@ -168,3 +171,4 @@ benchmarks/**/*.tmp
 
 # Reader-first local run state
 .reader-first/
+examples/all-peers-public/data/*/items.json

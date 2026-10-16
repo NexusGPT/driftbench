@@ -1,0 +1,109 @@
+{
+  "at": "2026-10-13T09:35:01.786208+00:00",
+  "authorization": "Stop Gemini, fix the 402 handling, release only proven rejection holds, then run Haiku and gpt-6-luna through noise and the sealed TEST. Gemini resumes missing-only after the owner tops up.",
+  "released": [
+    {
+      "id": "1cc9b48c-3cc4-41a2-8dba-a5f3cb90a4c1",
+      "heldUsd": 1.0,
+      "evidence": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent answered 402: Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. "
+    },
+    {
+      "id": "cf9d62a3-b410-4249-9200-f5fddd4f7b3b",
+      "heldUsd": 1.0,
+      "evidence": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent answered 402: Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. "
+    },
+    {
+      "id": "d4057e76-cac5-4c7c-a875-569d2c386bd1",
+      "heldUsd": 1.0,
+      "evidence": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent answered 402: Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. "
+    },
+    {
+      "id": "69dd5c8c-d81f-4d2c-84b2-99c2f135efd2",
+      "heldUsd": 1.0,
+      "evidence": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent answered 402: Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. "
+    },
+    {
+      "id": "b8a5935b-171f-4b81-9c96-9b2147225fff",
+      "heldUsd": 1.0,
+      "evidence": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent answered 402: Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. "
+    },
+    {
+      "id": "cc45bbee-61df-4b0c-8b6a-4282876570c0",
+      "heldUsd": 1.0,
+      "evidence": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent answered 402: Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. "
+    },
+    {
+      "id": "9e36bd70-d8b5-428d-ba01-0cabda1d3d98",
+      "heldUsd": 1.0,
+      "evidence": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent answered 402: Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. "
+    },
+    {
+      "id": "457ab074-9bc5-4b66-940b-2f45a9f3b404",
+      "heldUsd": 1.0,
+      "evidence": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent answered 402: Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. "
+    },
+    {
+      "id": "995536b9-7913-4489-9574-5df6b3819ff6",
+      "heldUsd": 1.0,
+      "evidence": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent answered 402: Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. "
+    },
+    {
+      "id": "50229beb-33b0-4b35-97c9-5d910ff9c135",
+      "heldUsd": 1.0,
+      "evidence": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent answered 402: Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. "
+    },
+    {
+      "id": "cf411c36-c93e-490b-8fe9-3bc29f091bb4",
+      "heldUsd": 1.0,
+      "evidence": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent answered 402: Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. "
+    },
+    {
+      "id": "14835ee8-5281-46fa-9a08-8db33d41df03",
+      "heldUsd": 1.0,
+      "evidence": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent answered 402: Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. "
+    },
+    {
+      "id": "0aa61957-294f-41a1-a1bf-63196131cba5",
+      "heldUsd": 1.0,
+      "evidence": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent answered 402: Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. "
+    },
+    {
+      "id": "5959eb06-546b-4402-8f65-071a1ccdafad",
+      "heldUsd": 1.0,
+      "evidence": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent answered 402: Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. "
+    },
+    {
+      "id": "1843f9b7-549b-42f3-8978-ce1db6615a74",
+      "heldUsd": 1.0,
+      "evidence": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent answered 402: Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. "
+    },
+    {
+      "id": "e938e523-6948-41e7-add2-239ee5b346fc",
+      "heldUsd": 1.0,
+      "evidence": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent answered 402: Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. "
+    },
+    {
+      "id": "59cfb2f1-c765-418b-87fd-dbf60ac2b018",
+      "heldUsd": 1.0,
+      "evidence": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent answered 402: Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. "
+    },
+    {
+      "id": "f7a43d3d-0ccb-433a-bdbc-909a2e9ea5e6",
+      "heldUsd": 1.0,
+      "evidence": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent answered 402: Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. "
+    },
+    {
+      "id": "97622c61-d96b-488b-8e3a-ea25479a9e43",
+      "heldUsd": 1.0,
+      "evidence": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent answered 402: Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. "
+    },
+    {
+      "id": "ea7496b2-dd8c-4cff-9689-6480b6aac299",
+      "heldUsd": 1.0,
+      "evidence": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent answered 402: Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. "
+    }
+  ],
+  "releasedUsd": 20.0,
+  "unknownNetworkHoldsPreserved": true,
+  "geminiState": "Stopped; waiting for owner credit replenishment"
+}

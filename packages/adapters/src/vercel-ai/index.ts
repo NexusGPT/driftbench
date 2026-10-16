@@ -2,6 +2,7 @@ import {
   type AdapterCapabilities,
   type AgentAdapter,
   AgentFailure,
+  copyHistory,
   decideToolRule,
   deniesCall,
   isPlainObject,
@@ -32,6 +33,7 @@ import {
   ToolLabels,
   vendorError,
 } from '../anthropic/common';
+import { HistoryCompiler } from '../shared/history';
 
 /**
  * The vercel-ai adapter: an agent built with the Vercel AI SDK, run by an injected `generateText` (the
@@ -50,7 +52,7 @@ import {
  * The shapes match the `ai` package 7.0.137 (`generateText`, `ModelMessage`, language model `doGenerate`).
  */
 
-export const VERCEL_AI_ADAPTER_VERSION = '0.1.0';
+export const VERCEL_AI_ADAPTER_VERSION = '0.1.1';
 
 /** A tool as the SDK takes it: `tool({ description, inputSchema, execute })` is a plain object. */
 export type VercelToolLike = Record<string, unknown> & {
@@ -135,6 +137,8 @@ export function vercelAiAdapter(options: VercelAiAdapterOptions): AgentAdapter {
     capabilities: () => ({ ...capabilities }),
 
     async open(given: ResolvedGiven) {
+      // Validate and freeze before user-supplied setup receives the Given.
+      copyHistory(given.prefix);
       const tools = typeof options.tools === 'function' ? options.tools(given) : (options.tools ?? {});
       return openSession(id, given, {
         kind: 'vercel-ai',
@@ -145,12 +149,13 @@ export function vercelAiAdapter(options: VercelAiAdapterOptions): AgentAdapter {
     },
 
     async send(session: Session, turn: Turn) {
+      const history = copyHistory(session.history);
       const state = ownState<VercelState>(session, id, 'vercel-ai');
       const policy = policyOf(turn, session, options);
       const cap = stepCap(maxSteps, turn.budget?.steps);
       const system = [
         options.system ?? '',
-        ...session.history.filter((m) => m.role === 'system').map((m) => m.content),
+        ...history.filter((m) => m.role === 'system').map((m) => m.content),
       ]
         .filter((part) => part !== '')
         .join('\n\n');
@@ -160,7 +165,7 @@ export function vercelAiAdapter(options: VercelAiAdapterOptions): AgentAdapter {
         result = await options.generateText({
           model: retriedModel(options.model, policy, options, turn.index),
           ...(system === '' ? {} : { system }),
-          messages: toModelMessages(session.history, labels),
+          messages: toModelMessages(history, labels),
           ...(Object.keys(state.tools).length === 0
             ? {}
             : { tools: stubbed(state.tools, labels, turn, options.toolPolicy) }),
@@ -277,35 +282,34 @@ function stubbed(
  */
 export function toModelMessages(history: readonly Message[], labels: ToolLabels): ModelMessageLike[] {
   const out: ModelMessageLike[] = [];
-  let unnamed = 0;
+  const compiler = new HistoryCompiler({ fallback: (n) => `call_h${n}` });
   for (const message of history) {
     if (message.role === 'system') continue;
     if (message.role === 'user' || message.role === 'tool') {
       out.push({ role: 'user', content: message.content });
       continue;
     }
-    const recorded = message.tool_calls ?? [];
+    const recorded = compiler.calls(message);
     if (recorded.length > 0) {
-      const ids = recorded.map((call) => call.id ?? `call_h${++unnamed}`);
       out.push({
         role: 'assistant',
-        content: recorded.map((call, index) => ({
+        content: recorded.map((call) => ({
           type: 'tool-call' as const,
-          toolCallId: ids[index] as string,
+          toolCallId: call.id as string,
           toolName: labels.name(call.label),
           input: call.input ?? {},
         })),
       });
       out.push({
         role: 'tool',
-        content: recorded.map((call, index) => ({
+        content: recorded.map((call) => ({
           type: 'tool-result' as const,
-          toolCallId: ids[index] as string,
+          toolCallId: call.id as string,
           toolName: labels.name(call.label),
           output:
-            call.error !== undefined
-              ? { type: 'error-text' as const, value: call.error }
-              : { type: 'json' as const, value: call.output ?? null },
+            call.result.kind === 'error'
+              ? { type: 'error-text' as const, value: call.result.message }
+              : { type: 'json' as const, value: call.result.value },
         })),
       });
     }

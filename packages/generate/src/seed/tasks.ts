@@ -21,6 +21,7 @@ import type { PreparedMap } from './map';
  *
  * - the values every instance holds (`holds`) become the spec's tags, as a generated spec carries its
  *   persona, data and task values;
+ * - the spec holds the map's reply rule (`reply_count`), one reply per user turn unless the map says any;
  * - a planted variant, whose workspace holds an instruction in a file, also declares that file as a
  *   perturbation of the class the relation names, at the first block, with the first block's Then: the
  *   space places the class there, and a perturbed run applies the same workspace.
@@ -44,7 +45,14 @@ export function taskSpecs(
   inputs: readonly TaskInput[],
   run: RunIdentity,
 ): Array<{ id: string; spec: Record<string, unknown>; seed?: SeedFiles }> {
-  const out: Array<{ id: string; spec: Record<string, unknown>; seed?: SeedFiles }> = [];
+  return [...streamTaskSpecs(prepared, inputs, run)];
+}
+
+export function* streamTaskSpecs(
+  prepared: PreparedMap,
+  inputs: readonly TaskInput[],
+  run: RunIdentity,
+): Generator<{ id: string; spec: Record<string, unknown>; seed?: SeedFiles }> {
   for (const { relation, variants } of inputs) {
     const tags: string[] = [];
     for (const [dimensionId, values] of Object.entries(relation.holds ?? {})) {
@@ -57,6 +65,12 @@ export function taskSpecs(
       const spec: Record<string, unknown> = { ...variant.spec };
       const own = (spec.tags as string[] | undefined) ?? [];
       spec.tags = [...own, ...tags.filter((tag) => !own.includes(tag))];
+      // One reply per user turn unless the map says otherwise (`reply_count`), as on every generated spec.
+      if (prepared.relations.repliesPerTurn === 'one')
+        spec.rules = {
+          ...((spec.rules as Record<string, unknown> | undefined) ?? {}),
+          one_message_per_turn: true,
+        };
       if (variant.planted && planted) {
         const blocks = (spec.blocks as Array<{ expect?: Record<string, unknown> }> | undefined) ?? [];
         const files = (spec.workspace_seed as { files?: Record<string, string> } | undefined)?.files;
@@ -85,10 +99,9 @@ export function taskSpecs(
           family: relation.family,
         },
       };
-      out.push({ id: String(spec.id), spec, ...(variant.seed ? { seed: variant.seed } : {}) });
+      yield { id: String(spec.id), spec, ...(variant.seed ? { seed: variant.seed } : {}) };
     }
   }
-  return out;
 }
 
 /** How many instances, per relation asked for, are drawn at most while a relation waits for its own. */

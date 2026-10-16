@@ -5,6 +5,7 @@ import {
   Budget,
   Count,
   DeviationClass,
+  GivenOrigin,
   Lang,
   Message,
   Pattern,
@@ -65,6 +66,9 @@ export const GivenOverride = z
       .array(Message)
       .optional()
       .describe('The messages before this block. Lets the block start without replaying the ones before.'),
+    origin: GivenOrigin.optional().describe(
+      'Where the prefix comes from: authored, recorded or canonical. Only with a prefix on the same block. It enters the Given hash.',
+    ),
     ledger: z
       .record(z.string(), z.unknown())
       .optional()
@@ -602,14 +606,158 @@ export const CriterionDef = z
       .describe(
         'How the verdicts across the repeats of one spec become one verdict: mode, median, or at_least:<k>.',
       ),
+    prompt_version: z
+      .union([z.literal(1), z.literal(2)])
+      .optional()
+      .describe(
+        'The criterion prompt rules the judge reads. 2, the default, adds the exact-identifier, stated-facts and stated-scope rules; 1 is the earlier rule set, to replay answers recorded with it.',
+      ),
+    decoder_version: z
+      .union([z.literal(1), z.literal(2)])
+      .optional()
+      .describe(
+        'How a criterion ledger answer is read. Unset, the default reader drops an ungrounded quote and keeps the verdict; 1 rejects an ungrounded quote; 2 drops the quote and keeps the verdict.',
+      ),
+    answer_contract: z
+      .enum(['ledger', 'legacy'])
+      .optional()
+      .describe(
+        'ledger, the default, or legacy: the earlier prompt and parser, to replay scores recorded with them.',
+      ),
+    assessment: z
+      .enum(['response-relevance', 'conformance', 'answer-audit', 'fact-ledger'])
+      .optional()
+      .describe(
+        'An assessment kind in place of the criterion ledger: response-relevance (the reply answers the latest ask), conformance (to reference), answer-audit (the submitted answer, optionally against reference), or fact-ledger (every fact of reference in the reply).',
+      ),
+    reference: z
+      .string()
+      .optional()
+      .describe(
+        'The reference answer an assessment reads: needed by conformance (may be empty) and fact-ledger, optional for answer-audit.',
+      ),
+    grounding: z
+      .literal('strict')
+      .optional()
+      .describe('fact-ledger only: strict refuses reference or reply text that is not a source quote.'),
+    requirements: z
+      .array(
+        z.strictObject({
+          id: z.string().min(1).describe('The requirement id the judge answers under.'),
+          requirement: z.string().min(1).describe('What the requirement asks.'),
+        }),
+      )
+      .min(1)
+      .optional()
+      .describe(
+        'The rubric split into requirements the judge checks one by one. Absent: one requirement, the whole rubric.',
+      ),
+    items: z
+      .array(
+        z.strictObject({
+          name: z.string().min(1).describe('The item name, unique in the criterion.'),
+          rubric: z.string().min(1).describe('What the item requires.'),
+          weight: z.number().positive().optional().describe('The item weight. Default 1.'),
+          hard: z.boolean().optional().describe('True: the criterion fails when this item is not met.'),
+        }),
+      )
+      .min(1)
+      .optional()
+      .describe(
+        'Rubric items, each scored 0 to 4 by the judge; the weighted score decides the verdict against threshold.',
+      ),
+    threshold: z
+      .number()
+      .min(0)
+      .max(1)
+      .optional()
+      .describe('With items: the weighted fraction a pass needs, from 0 to 1. Default 1.'),
+    repeat: z
+      .number()
+      .int()
+      .min(1)
+      .max(20)
+      .optional()
+      .describe(
+        'How many times the judge answers the same request; the verdict holds only when every answer agrees, else inconclusive. Not the spec repeats (see repeat_reducer).',
+      ),
+    per_turn: z
+      .boolean()
+      .optional()
+      .describe(
+        'True judges the transcript one customer turn at a time; any failing turn fails the criterion.',
+      ),
+  })
+  .superRefine((criterion, ctx) => {
+    const issue = (path: string, message: string) => ctx.addIssue({ code: 'custom', path: [path], message });
+    const kind = criterion.assessment;
+    if (kind === 'conformance' && (criterion.pass !== undefined || criterion.fail !== undefined))
+      issue(
+        'assessment',
+        'assessment conformance reads only the rubric: put the pass and fail conditions in it and drop pass and fail',
+      );
+    if (kind === 'conformance' && criterion.scope === 'block')
+      issue(
+        'scope',
+        'assessment conformance judges the whole supplied transcript: drop scope block, or use scope conversation',
+      );
+    if (kind === 'conformance' && criterion.reference === undefined)
+      issue('reference', 'assessment conformance needs reference (an empty string is allowed)');
+    if (kind === 'fact-ledger' && !criterion.reference?.trim())
+      issue('reference', 'assessment fact-ledger needs a nonempty reference');
+    if (kind === 'answer-audit' && criterion.reference !== undefined && !criterion.reference.trim())
+      issue('reference', 'assessment answer-audit needs a nonempty reference when one is given');
+    if (criterion.reference !== undefined && (kind === undefined || kind === 'response-relevance'))
+      issue('reference', 'reference is read only by assessment conformance, fact-ledger or answer-audit');
+    if (criterion.grounding !== undefined && kind !== 'fact-ledger')
+      issue('grounding', 'grounding is for assessment fact-ledger only');
+    if (kind !== undefined && criterion.inputs !== undefined)
+      issue('inputs', `assessment ${kind} reads the transcript only: remove inputs`);
+    if ((kind !== undefined || criterion.items !== undefined) && criterion.answer_contract === 'legacy')
+      issue('answer_contract', 'the legacy answer contract reads no assessment or items: drop one');
+    if (criterion.items !== undefined && kind !== undefined)
+      issue('items', `items score a rubric: they cannot be combined with assessment ${kind}`);
+    if (criterion.requirements !== undefined && (kind !== undefined || criterion.items !== undefined))
+      issue('requirements', 'requirements split the criterion ledger: drop assessment and items');
+    if (criterion.threshold !== undefined && criterion.items === undefined)
+      issue('threshold', 'threshold needs items');
+    const names = new Set<string>();
+    for (const item of criterion.items ?? []) {
+      if (names.has(item.name)) issue('items', `item ${item.name} appears twice: names must be unique`);
+      names.add(item.name);
+    }
+    const ids = new Set<string>();
+    for (const requirement of criterion.requirements ?? []) {
+      if (ids.has(requirement.id))
+        issue('requirements', `requirement ${requirement.id} appears twice: ids must be unique`);
+      ids.add(requirement.id);
+    }
+    if (criterion.repeat !== undefined && criterion.per_turn === true)
+      issue('repeat', 'repeat and per_turn cannot be combined: choose one');
   })
   .describe(
     'A judged criterion. Blocks reference it by name, with @gating when a fail fails the conversation.',
   );
 export type CriterionDef = z.infer<typeof CriterionDef>;
 
+/**
+ * The spec format version this driftbench reads, and the highest a spec may declare in `schema_version`. A
+ * release that adds a key a reader must understand raises it, so an older driftbench refuses such a spec
+ * with an "upgrade driftbench" message instead of an unknown-key error.
+ */
+export const SPEC_SCHEMA_VERSION = 1;
+
 export const Spec = z
   .strictObject({
+    schema_version: z
+      .number()
+      .int()
+      .min(1)
+      .max(SPEC_SCHEMA_VERSION)
+      .optional()
+      .describe(
+        'The spec format version the spec is written for. A driftbench that reads a lower version refuses the spec and says to upgrade. Absent means version 1.',
+      ),
     id: z
       .string()
       .regex(/^[A-Za-z0-9][A-Za-z0-9._-]*$/)

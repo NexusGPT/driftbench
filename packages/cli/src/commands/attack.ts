@@ -1,6 +1,6 @@
 import { existsSync, statSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 import { portFromEnv } from '@agent-nexus/driftbench-generate';
 import { textTable as table } from '@agent-nexus/driftbench-report';
 import {
@@ -16,6 +16,7 @@ import {
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { optionNumber } from '../number';
+import { noStageWarning, summaryLine, totalOf } from '../reply-checks';
 import {
   type CampaignDeps,
   defaultDeps,
@@ -199,6 +200,24 @@ export async function attackCommand(
     await writeFile(resolve(io.cwd, options.record), `${JSON.stringify(result.recording, null, 2)}\n`);
   }
 
+  const checked = result.rounds.flatMap((round) => (round.replyChecks ? [round.replyChecks] : []));
+  const sum = totalOf(checked);
+  const packName = pack ? shownPack(io, options.pack, entry.path) : undefined;
+  const warning =
+    packName === undefined
+      ? undefined
+      : noStageWarning(
+          sum,
+          checked,
+          packName,
+          entry.spec.id,
+          result.rounds.flatMap((round) =>
+            round.replyChecks?.notApplicable.some((skipped) => skipped.reason === 'no stage')
+              ? [round.injectAt]
+              : [],
+          ),
+        );
+
   if (options.json) {
     io.out(
       `${JSON.stringify(
@@ -207,12 +226,16 @@ export async function attackCommand(
           target,
           seed: result.recording.seed,
           findings: result.findings,
+          replyChecks: { ...sum, summary: summaryLine(sum) ?? null },
+          complete: sum.noStage === 0,
+          warnings: warning === undefined ? [] : [warning],
           rounds: result.rounds.map((round) => ({
             round: round.round,
             class: round.class,
             injectAt: round.injectAt,
             cue: round.cue,
             phrasing: round.phrasing,
+            ...(round.replyChecks ? { replyChecks: round.replyChecks } : {}),
             runId: round.runId,
             status: round.status,
             recovery: round.recovery ?? null,
@@ -253,9 +276,20 @@ export async function attackCommand(
       io.out(`${line}\n`);
     }
     io.out(`Findings: ${result.findings} of ${result.rounds.length} attacks.\n`);
+    const line = summaryLine(sum);
+    if (line) io.out(`${line}\n`);
+    if (warning) io.err(`${warning}\n`);
     if (options.record !== undefined) io.out(`Recording written to ${resolve(io.cwd, options.record)}.\n`);
   }
   return result.findings > 0 ? 1 : 0;
+}
+
+/** The pack folder as the user gave it, or the folder found above the spec. */
+function shownPack(io: Io, given: string | undefined, specPath: string): string {
+  const dir = given === undefined ? findPack(specPath) : resolve(io.cwd, given);
+  if (dir === undefined) return 'the red-team pack';
+  const rel = relative(io.cwd, dir);
+  return rel === '' || rel.startsWith('..') ? dir : rel;
 }
 
 function findPack(specPath: string): string | undefined {

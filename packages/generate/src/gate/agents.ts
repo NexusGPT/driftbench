@@ -5,6 +5,7 @@ import {
   type ArtifactReaderRegistry,
   type CheckSet,
   canonicalJson,
+  isScored,
   type Message,
   type Observed,
   type RunResult,
@@ -113,7 +114,12 @@ function lastUserText(messages: Message[]): string {
 
 /** Imports a fault set: a module, or a folder whose index module exports `faults`. */
 export async function importFaultSet(path: string): Promise<FaultSet> {
-  const module: unknown = await import(pathToFileURL(path).href);
+  const url = pathToFileURL(path).href;
+  // Fault sets are often authored as TypeScript with extensionless local imports.
+  // Load their dependency graph the same way from the installed CLI and from source.
+  const module: unknown = /\.[cm]?tsx?$/.test(path)
+    ? await (await import('tsx/esm/api')).tsImport(url, import.meta.url)
+    : await import(url);
   const faults = (module as { faults?: unknown }).faults;
   if (!Array.isArray(faults)) throw new Error(`${path} exports no list named faults`);
   const seen = new Set<string>();
@@ -212,6 +218,12 @@ export function blockOutcome(run: RunResult, index: number): BlockOutcome {
   if (verdicts.some((verdict) => verdict.outcome === 'fail')) return 'fail';
   if (verdicts.length === 0 || verdicts.some((verdict) => verdict.outcome !== 'pass')) return 'unjudged';
   return 'pass';
+}
+
+/** True when the runner did not send block `index` (not_run or blocked): the run measured nothing there. */
+export function blockNotRun(run: RunResult, index: number): boolean {
+  const block = run.blocks.find((entry) => entry.index === index);
+  return block !== undefined && !isScored(block);
 }
 
 /** The failing gating verdict ids of block `index`'s Then, for the report. */

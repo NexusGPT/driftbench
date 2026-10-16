@@ -485,7 +485,9 @@ describe('the end state', () => {
       plan_id: 'mobile-l',
     });
     expect(adapter.calls.endState).toBe(1);
+    // The run keeps the value read, so a later reader compares end states without reading them again.
     expect(run.endState).toEqual({ match: true, diff: [] });
+    expect(run.endStateValue).toEqual({ type: 'upgrade', customer_id: 'cust-001', plan_id: 'mobile-l' });
   });
 
   it('reports a diff per field, and every unexpected field in exact mode', async () => {
@@ -506,6 +508,7 @@ describe('the end state', () => {
         { field: 'customer_id', expected: { absent: true }, observed: 'cust-001' },
       ],
     });
+    expect(run.endStateValue).toEqual({ type: 'upgrade', customer_id: 'cust-001', plan_id: 'mobile-l' });
   });
 
   it('reads every source of a list and names fields by source', async () => {
@@ -533,6 +536,10 @@ describe('the end state', () => {
       match: false,
       diff: [{ field: 'tool:notify_sales.reason', expected: { nonempty: true }, observed: { absent: true } }],
     });
+    expect(run.endStateValue).toEqual({
+      'tool:order.create': { type: 'upgrade', customer_id: 'cust-001', plan_id: 'mobile-l' },
+      'tool:notify_sales': undefined,
+    });
   });
 
   it('reads source * for end_state none: an empty list passes, a recorded payload fails', async () => {
@@ -548,6 +555,7 @@ describe('the end state', () => {
     expect(quiet.calls.endState).toBe(1);
     expect(watch.seen.at(-1)?.endState).toEqual([]);
     expect(run.endState).toEqual({ match: true, diff: [] });
+    expect(run.endStateValue).toEqual([]);
 
     const ordered = await runSpec(
       { ...acmeSpec(loaded, 'acme-plan-upgrade'), end_state: 'none' },
@@ -566,6 +574,9 @@ describe('the end state', () => {
         },
       ],
     });
+    expect(ordered.endStateValue).toEqual([
+      { tool: 'order.create', input: { type: 'upgrade', customer_id: 'cust-001', plan_id: 'mobile-l' } },
+    ]);
   });
 
   it('gives one diff entry per payload found under end_state none', async () => {
@@ -836,6 +847,8 @@ describe('failures', () => {
         { field: 'plan_id', expected: 'mobile-l', observed: { absent: true } },
       ],
     });
+    // Read, and nothing was recorded: null, unlike an end state no read reached (no value).
+    expect(run.endStateValue).toBeNull();
   });
 
   it('carries an end state that says why when no block ran', async () => {
@@ -1040,7 +1053,10 @@ describe('injected blocks', () => {
       next: () => steps.shift() ?? { kind: 'stop', reason: 'empty' },
     };
     const watch = spy();
-    await runSpec(spec, { adapter: echoAdapter(), driver: scripted, checks: [watch], mode: 'P', repeat: 0 });
+    // Forced tool results need toolStubs: on an adapter without it the blocks are not run.
+    const echo = echoAdapter();
+    const adapter = { ...echo, capabilities: () => ({ ...echo.capabilities(), toolStubs: true }) };
+    await runSpec(spec, { adapter, driver: scripted, checks: [watch], mode: 'P', repeat: 0 });
     expect(watch.seen.map((ctx) => ctx.given.world.tools?.lookup)).toEqual([
       { result: { ok: true } },
       { error: 'timeout' },
