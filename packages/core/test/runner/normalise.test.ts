@@ -26,8 +26,8 @@ describe('normaliseSlot', () => {
     ['phone_e164', '(202) 555-0131', '+12025550131', '1'],
     ['phone_e164', '202.555.0131', '+12025550131', '1'],
     ['phone_e164', '1 202 555 0131', '+12025550131', '1'],
-    ['phone_e164', '0044 20 7946 0958', '+442079460958', '1'],
-    ['phone_e164', '020 7946 0958', '+442079460958', '44'],
+    ['phone_e164', '0044 20 794', '+4420794', '1'],
+    ['phone_e164', '020 794', '+4420794', '44'],
     ['phone_e164', '(202) 555-0131', '2025550131'],
     ['email_lower', ' <mailto:Sam.Rivera@Example.COM>. ', 'sam.rivera@example.com'],
     ['email_lower', 'SAM.RIVERA@EXAMPLE.COM', 'sam.rivera@example.com'],
@@ -267,7 +267,7 @@ describe('spec lint for slot fields', () => {
     expect(
       slotRules({
         number: '+12025550150',
-        customer: { subset: { phone: '+44 20 7946 0958', email: 'Jo@Example.com', name: 'Jo' } },
+        customer: { subset: { phone: '+44 20 794', email: 'Jo@Example.com', name: 'Jo' } },
         address: { one_of: ['14 Harbor Road, Acmeville', '88 Summit Avenue, Acmeville'] },
         reason: 'callback',
         address_id: 'addr-101',
