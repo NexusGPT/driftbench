@@ -19,6 +19,7 @@ import type {
   StepDecl,
   SubagentDecl,
 } from './reader';
+import { dispatchedScript } from './script-dispatch';
 import { keyLine, type Located, lineAt, linesOf, readFrontmatter, readTables } from './text';
 
 /**
@@ -1005,9 +1006,8 @@ const OPERATORS = new Set(['||', '&&', ';', '|', '&']);
  * command is cut at `||`, `&&`, `;` and `|`; in each part, environment assignments (`ENV=1`) and an `env`
  * wrapper are passed over and an interpreter (`python3`) runs the path after its flags. A part whose program
  * is not a path (a shell test such as `[ "$X" = 1 ]`, `echo`) runs no script. The first part that runs a
- * path gives the script. With source or documented usage proving dispatch, the wrapper is seen through: among that part's path
- * arguments, the last one that exists is the script (tried from the root, then from the folder of each
- * earlier path and the folders above it), and the path the shell runs is kept as the dispatcher.
+ * path gives the script. With source or documented usage proving dispatch, the argument-derived executed path is resolved
+ * from the root, the wrapper's folder and its ancestors; the shell's entry script is kept as dispatcher.
  */
 export function scriptOf(
   command: string,
@@ -1099,93 +1099,12 @@ function dispatcherSource(script: string, sources?: ReadonlyMap<string, string>)
   return usage.join('\n');
 }
 
-/**
- * Recognize a first argument flowing into an executed file, directly or through local assignments.
- * These are static syntax patterns, not an execution of the estate. Unknown code stays the outer script.
- * A usage contract can also explicitly identify the first positional argument as an executed script file.
- */
-function dispatchesArgument(source: string): boolean {
-  const argument = /(?:sys\.argv\s*\[\s*1\s*\]|process\.argv\s*\[\s*2\s*\]|\$\{?1\}?|ARGV\s*\[\s*0\s*\])/;
-  const tainted = new Set<string>();
-  const depends = (expression: string): boolean => {
-    let value = expression.replace(argument, '\uE002');
-    for (const name of tainted) value = value.replace(new RegExp(`\\b${name}\\b`, 'g'), '\uE002');
-    // A selector chooses a mapped value; it is not the path value itself.
-    return value.includes('\uE002') && !/\[\s*\uE002/.test(value);
-  };
-  const uncommented = source
-    .split('\n')
-    .filter((line) => !/^\s*(?:#|\/\/)/.test(line))
-    .join('\n');
-  // Python/JS examples in literals are data. Shell double quotes still interpolate positional values.
-  const code = /^#![^\n]*\b(?:ba|z|da|k)?sh\b/.test(source)
-    ? uncommented
-    : uncommented.replace(/"""[\s\S]*?"""|'''[\s\S]*?'''|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/g, (literal) =>
-        /^['"](?:python3?|node|bash|sh|ruby)['"]$/.test(literal) ? literal : '""',
-      );
-  const assignments = [
-    ...code.matchAll(/(?:^|[;\n])\s*(?:(?:const|let|var)\s+)?([A-Za-z_]\w*)\s*=\s*([^;\n]+)/g),
-  ];
-  for (const match of assignments) {
-    const name = match[1] ?? '';
-    if (depends(match[2] ?? '')) tainted.add(name);
-    else tainted.delete(name);
-  }
-  // Single file execution APIs: only the path argument, never their data/options arguments.
-  for (const match of code.matchAll(
-    /(?:runpy\.run_path|execFileSync|execFile|spawnSync|spawn|os\.execv)\s*\(\s*([^,;\n]+)/g,
-  )) {
-    if (depends(match[1] ?? '')) return true;
-  }
-  // Python subprocess argv: argv[0] is a file or an interpreter, argv[1] its file argument.
-  for (const match of code.matchAll(
-    /subprocess\.(?:run|call|Popen|check_call|check_output)\s*\(\s*\[([^\n]+)/g,
-  )) {
-    const args = match[1] ?? '';
-    if (/^\s*(?:sys\.executable|['"](?:python3?|node|bash|sh|ruby)['"])\s*,/.test(args)) {
-      if (depends(args.replace(/^[^,]+,/, '').split(',')[0] ?? '')) return true;
-    } else if (depends(args.split(',')[0] ?? '')) return true;
-  }
-  // Shell command position, optionally after an interpreter. An echo of "$1" is not execution.
-  for (const line of code.split('\n')) {
-    const command =
-      /(?:^|[;&|])\s*(?:(?:exec\s+|source\s+|\.\s+)(?:(?:python3?|node|bash|sh|ruby)\s+)?|(?:python3?|node|bash|sh|ruby)\s+)(.+)/.exec(
-        line,
-      );
-    if (command && depends((command[1] ?? '').split(/\s+(?=(?:[^"']|["'][^"']*["'])*$)/)[0] ?? ''))
-      return true;
-  }
-  return documentedArgument(source) === 'first';
-}
-
-/** Usage statements identify a file argument by its position or by an option, never by script naming. */
-function documentedArgument(source: string): string | undefined {
-  for (const line of source.split('\n')) {
-    const prose = line.replace(/^\s*(?:#|\/\/|\*|["'])+\s*/, '');
-    const usage =
-      /^(?:(?:this|the)\s+(?:script|program)\s+)?(?:runs?|executes?|dispatches?)\s+(?:the\s+)?(?:script(?:\s+file)?|hook|file)\b(.+)/i.exec(
-        prose,
-      );
-    if (!usage) continue;
-    if (/\b(?:first\s+(?:positional\s+)?argument|argument\s+1)\b/i.test(usage[1] ?? '')) return 'first';
-    const flag = /\b(?:by|with|using)\s+(--[\w-]+)/.exec(usage[1] ?? '');
-    if (flag) return flag[1];
-  }
-  return undefined;
-}
-
-/** A positional argument names a dispatched script only when source or usage proves that role. */
+/** The command arguments name files only when source or usage proves their execution role. */
 function dispatchedName(segment: readonly string[], runs: string, source?: string): string | undefined {
   if (source === undefined) return undefined;
-  const documented = documentedArgument(source);
-  if (!dispatchesArgument(source) && documented === undefined) return undefined;
   const words = segment.map((token) => token.replace(/["']/g, ''));
-  const index =
-    documented !== undefined && documented !== 'first' ? words.indexOf(documented) : words.indexOf(runs);
-  const word = index < 0 ? undefined : words[index + 1];
-  if (word === undefined || word.startsWith('-')) return undefined;
-  if (word.includes('/') || SCRIPT_EXTENSION.test(word)) return word;
-  return /^[A-Za-z][\w.-]*$/.test(word) ? word : undefined;
+  const index = words.indexOf(runs);
+  return index < 0 ? undefined : dispatchedScript(source, words.slice(index + 1));
 }
 
 /** A command line cut into parts, retaining the operator that follows each part. */
@@ -1631,7 +1550,7 @@ function scriptIn(
     // After a dispatcher, a bare word may name its target script without the extension.
     const bare = !named && found !== undefined && /^[\w.-]+$/.test(token);
     if (!named && !bare) continue;
-    const names = bare ? DISPATCH_EXTENSIONS.map((extension) => `${token}${extension}`) : [token];
+    const names = bare ? [token, ...DISPATCH_EXTENSIONS.map((extension) => `${token}${extension}`)] : [token];
     const searchBases = workingDirectoryFirst && anchorOf(unquoted).anchored ? [''] : bases;
     const hit = searchBases
       .flatMap((base) => names.map((name) => posix.normalize(posix.join(base, name))))
