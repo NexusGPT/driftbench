@@ -79,7 +79,7 @@ it('a generated negative guard control accepts allow and rejects deny without a 
   if (!parsed.ok) throw new Error('the generated control does not parse');
   const block = parsed.spec.blocks[0];
   if (!block) throw new Error('the generated control has no block');
-  async function replayDecision(verdict: string) {
+  const replayDecision = async (verdict: string) => {
     const context: CheckContext = {
       spec: parsed.spec,
       mode: 'F',
@@ -106,7 +106,7 @@ it('a generated negative guard control accepts allow and rejects deny without a 
       ledger: {},
     };
     return (await guards.evaluate(context)).map((result) => result.outcome);
-  }
+  };
   const allowed = await run();
   expect(allowed.code).toBe(0);
   expect(allowed.result.guards[0]?.decision).toBe('allow');
