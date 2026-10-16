@@ -64,10 +64,14 @@ export function generateSuiteToDisk(
   const behaviours = behavioursOf(prepared);
   // `noisy` is the linear product on a machine that disturbs single generations: the generations numbered
   // 1 (the low size of round 1) and 6 (the high size of round 3) cost three times as much; the rest cost 1.
+  // `quadratic-inflated-low` is the quadratic product whose low size of round 1 (generation 1) costs five
+  // times as much, as under a burst of load.
   const shape = process.env.METERED_SHAPE ?? 'linear';
   const disturbed = shape === 'noisy' && DISTURBED.includes(calls);
+  const inflated = shape === 'quadratic-inflated-low' && calls === 1;
+  const base = shape === 'noisy' ? 'linear' : shape === 'quadratic-inflated-low' ? 'quadratic' : shape;
   calls += 1;
-  advance(costOf(shape === 'noisy' ? 'linear' : shape, behaviours) * (disturbed ? 3 : 1));
+  advance(costOf(base, behaviours) * (disturbed ? 3 : inflated ? 5 : 1));
   if (process.env.METERED_REAL === '1')
     return (
       (generator as Record<string, unknown>).generateSuiteToDisk as (

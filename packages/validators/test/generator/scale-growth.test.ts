@@ -77,7 +77,7 @@ describe('the growth of the cost between two sizes, in one process', () => {
     expect(report.bound).toBe(SCALE_GROWTH_BOUND);
   }, 180_000);
 
-  it('judges the best of the rounds: a disturbed low size or high size does not decide', async () => {
+  it('judges the fastest high time over the fastest low time: a disturbed size does not decide', async () => {
     const noisy = await grown('noisy');
     expect(noisy.error).toBeUndefined();
     // Round 1 pays three times at the low size, round 3 three times at the high size, round 2 nothing.
@@ -88,9 +88,28 @@ describe('the growth of the cost between two sizes, in one process', () => {
     expect(noisy.ratios[0]).toBeCloseTo(growth(3 * low + loading(2), high + loading(20)), 6);
     expect(noisy.ratios[1]).toBeCloseTo(quiet, 6);
     expect(noisy.ratios[2]).toBeCloseTo(growth(low + loading(2), 3 * high + loading(20)), 6);
-    expect(noisy.ratio).toBeCloseTo(noisy.ratios[0] as number, 6);
+    // The judged growth compares the fastest high time with the fastest low time: a disturbed size never decides.
+    expect(noisy.ratio).toBeCloseTo(quiet, 6);
     expect(noisy.ratios[0]).toBeLessThan(quiet);
     expect(noisy.ratios[2]).toBeGreaterThan(SCALE_GROWTH_BOUND);
+  }, 180_000);
+
+  it('refuses a quadratic product whose low size is inflated by load in one round', async () => {
+    const inflated = await grown('quadratic-inflated-low');
+    expect(inflated.error).toBeUndefined();
+    const low = charged('quadratic', 2) + loading(2);
+    const high = charged('quadratic', 20) + loading(20);
+    const quiet = high / low / (behavioursAt(20) / behavioursAt(2));
+    // Round 1 paid five times at the low size: its own ratio looks like a linear product.
+    expect(inflated.ratios[0]).toBeCloseTo(
+      high / (5 * charged('quadratic', 2) + loading(2)) / (behavioursAt(20) / behavioursAt(2)),
+      6,
+    );
+    expect(inflated.ratios[0]).toBeLessThan(SCALE_GROWTH_BOUND);
+    // The judged growth compares the fastest high time with the fastest low time, so the inflated round
+    // cannot make the product pass.
+    expect(inflated.ratio).toBeCloseTo(quiet, 6);
+    expect(inflated.ratio).toBeGreaterThan(SCALE_GROWTH_BOUND);
   }, 180_000);
 
   it('leaves a product that is twice as slow at every size to the absolute caps: its shape is linear', async () => {
