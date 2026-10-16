@@ -91,11 +91,24 @@ jobs:
               echo '::error::A dispatch must list the jobs it runs'
               exit 1
             fi
-            # A dispatch that lists fast but ran no heavy job is a pre-flight run, never a train pass.
-            if [[ ",$JOBS," == *,fast,* && ",$RESULTS," != *,success,* ]]; then
-              echo '::error::pre-flight run, not a train pass'
+            # GitHub matches the list without regard to case, so the gate lowercases it before it reads it.
+            jobs_lc="$(printf '%s' "$JOBS" | tr '[:upper:]' '[:lower:]')"
+            # A dispatch counts only if at least one heavy job ran and passed. One that lists fast and ran no heavy job is a pre-flight run.
+            if [[ ",$RESULTS," != *,success,* ]]; then
+              if [[ ",$jobs_lc," == *,fast,* ]]; then
+                echo '::error::pre-flight run, not a train pass'
+              else
+                echo '::error::A dispatch must run at least one heavy job'
+              fi
               exit 1
             fi
+            # Every id in the list must be a job id, so a misspelt id cannot hide a skipped job.
+            for id in ${jobs_lc//,/ }; do
+              case ",bench,research-replay,build,python,comparison-replay,viewer-journey,guard,fast," in
+                *",$id,"*) ;;
+                *) echo "::error::Unknown job id in the dispatch list: $id"; exit 1 ;;
+              esac
+            done
           elif [ "$EVENT_NAME" != push ] && ! { [ "$EVENT_NAME" = pull_request ] && [[ "$HEAD_REF" == train/* ]]; }; then
             echo '::error::Merge through a train (train/<n>)'
             exit 1

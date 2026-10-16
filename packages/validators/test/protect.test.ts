@@ -233,9 +233,31 @@ const GATE_CASES: [string, string, string, string, string, number][] = [
     0,
   ],
   ['workflow_dispatch', '', 'train/9a', '', 'skipped,skipped,skipped,skipped,skipped,skipped,skipped', 1],
+  ['workflow_dispatch', '', 'train/9a', '', OK, 1],
   // a pre-flight dispatch (fast only, or no heavy job) never counts as a train pass
   ['workflow_dispatch', '', 'train/pre-9', 'fast', SKIPPED, 1],
   ['workflow_dispatch', '', 'train/pre-9', 'fast,unknown', SKIPPED, 1],
+  // the list is matched without regard to case, as GitHub matches it
+  ['workflow_dispatch', '', 'train/pre-9', 'FAST', SKIPPED, 1],
+  ['workflow_dispatch', '', 'train/pre-9', 'Fast', SKIPPED, 1],
+  // a list that names no real job runs nothing, so it never counts
+  ['workflow_dispatch', '', 'train/9a', 'nonsense', SKIPPED, 1],
+  [
+    'workflow_dispatch',
+    '',
+    'train/9a',
+    'build,nonsense',
+    'skipped,skipped,success,skipped,skipped,skipped,skipped',
+    1,
+  ],
+  [
+    'workflow_dispatch',
+    '',
+    'train/9a',
+    'BUILD',
+    'skipped,skipped,success,skipped,skipped,skipped,skipped',
+    0,
+  ],
   [
     'workflow_dispatch',
     '',
@@ -286,7 +308,7 @@ function assertGate(command: string) {
     });
     expect(result.status, `${event} ${head} ${refName} [${jobs}] ${results}`).toBe(expected);
     if (expected === 1) expect(result.stdout).toMatch(/::error::/);
-    if (expected === 1 && jobs.startsWith('fast'))
+    if (expected === 1 && event === 'workflow_dispatch' && /^fast/i.test(jobs) && results === SKIPPED)
       expect(result.stdout).toContain('pre-flight run, not a train pass');
     if (expected === 1 && event === 'pull_request' && head === 'fix/ordinary')
       expect(result.stdout).toContain('Merge through a train (train/<n>)');
@@ -311,7 +333,7 @@ function assertFastBehaviour(workflow: ReturnType<typeof parse>) {
   expect(fast(ORDINARY_PR)).toBe(true);
   expect(fast(TRAIN_PR)).toBe(true);
   expect(fast(MAIN_PUSH)).toBe(false);
-  for (const jobs of ['fast', 'build,fast', 'fast,build'])
+  for (const jobs of ['fast', 'FAST', 'Fast', 'build,fast', 'fast,build'])
     expect(fast(dispatchOn('refs/heads/train/pre-9', jobs))).toBe(true);
   for (const jobs of ['', 'build', 'fast-docs', 'xfast', 'fastx,build'])
     expect(fast(dispatchOn('refs/heads/train/pre-9', jobs))).toBe(false);
@@ -568,15 +590,45 @@ describe('merge train enforcement', () => {
       expect(() => assertFastDocs(conditional), command).toThrow();
     }
   });
-  it('fails the gate on a fast dispatch that ran no heavy job, so a fast dispatch is never a train pass', () => {
+  it('fails the gate on a dispatch that ran no heavy job or names an unknown job, in any letter case', () => {
     const command: string = workflow.jobs['train-gate'].steps.find((s: { run?: string }) => s.run).run;
     expect(() => assertGate(command)).not.toThrow();
-    const unchecked = command.replace('[[ ",$JOBS," == *,fast,* && ",$RESULTS," != *,success,* ]]', 'false');
-    expect(unchecked).not.toBe(command);
-    expect(() => assertGate(unchecked)).toThrow();
+    const noSuccessCheck = command.replace('[[ ",$RESULTS," != *,success,* ]]', 'false');
+    expect(noSuccessCheck).not.toBe(command);
+    expect(() => assertGate(noSuccessCheck)).toThrow();
+    const noLowercase = command.replace("tr '[:upper:]' '[:lower:]'", 'cat');
+    expect(noLowercase).not.toBe(command);
+    expect(() => assertGate(noLowercase)).toThrow();
+    const noIdCheck = command.replace('for id in ${jobs_lc//,/ }; do', 'for id in; do');
+    expect(noIdCheck).not.toBe(command);
+    expect(() => assertGate(noIdCheck)).toThrow();
     const gateWaitsForFast = structuredClone(workflow);
     gateWaitsForFast.jobs['train-gate'].needs.push('pr-fast');
     expect(() => assertGateWaits(gateWaitsForFast)).toThrow();
+  });
+});
+
+describe('the protect list and the frame files', () => {
+  it('protects the complete benchmark frame and both enforcement workflows from executor changes', () => {
+    const files = [
+      'benchmarks/run.ts',
+      'benchmarks/support/scorer.ts',
+      'benchmarks/slices/planted-verify.json',
+      'benchmarks/floors.json',
+      'benchmarks/cassettes/haiku.json',
+      'benchmarks/evidence/haiku.json',
+      'benchmarks/test/floors.test.ts',
+      'tools/bench-lint.mjs',
+      'tools/bench-lint.test.mjs',
+      'tools/bench-lint-future.mjs',
+      'packages/cli/src/commands/bench.ts',
+      'packages/cli/src/commands/bench-record.ts',
+      '.github/workflows/ci.yml',
+      '.github/workflows/bench-record.yml',
+    ];
+    expect(protectedChanges('exec/replace-bench', files)).toEqual(files);
+    expect(protectedChanges('feat/maintainer-record', files)).toEqual([]);
+    expect(protectedChanges('exec/other', ['benchmarks-old/run.ts', 'tools/other.mjs'])).toEqual([]);
   });
 
   it('protects every file of the frame, the bank and hardness modules, the bank fixtures and the validator tests', () => {
