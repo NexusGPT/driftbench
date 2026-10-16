@@ -42,7 +42,7 @@ The separate secondary peer tests, also Holm over 18 rows, remain diagnostic; th
 ## Committed output and reproduction
 
 * `manifest.json` is the unchanged analysis input manifest, SHA-256 `c3f837dba8f0793afda9e32f0e3530cd100c873f58e91b38f94d3e828af1b346`, matching the preregistration.
-* `results/001.jsonl` through `results/014.jsonl` preserve all lines of `run-e/results.jsonl` byte for byte. Each file is below the leak guard's 10 MiB limit. `results/manifest.json` records each file's SHA-256, bytes and line count and the combined digest `e03233a116b7a6d486a733cebc034d500a1f80c40e8f2c9d3e35c896f192677f`.
+* `results/001.jsonl` through `results/014.jsonl` preserve all 2,700 judged records after transport-metadata redaction. Each file is below the leak guard's 10 MiB limit. `results/manifest.json` records each redacted file's SHA-256, bytes and line count and the combined redacted digest `5ae7c979889e48dc17555fe0bd851cbbc9c286526eb86715b52af17c41319624`. The unredacted source digest is `e03233a116b7a6d486a733cebc034d500a1f80c40e8f2c9d3e35c896f192677f`; the unredacted source is not published.
 * `ANALYSIS.json` is the output of the committed `analyze.py`; `RESULT.md` reports every row, including the panel decline. No credentials, operator emails, raw-cache files or calls log are included.
 * The owner's finish instruction authorizes updating the README on PR 371 before merge, superseding the preregistration's publication timing. The run and analysis rules remain unchanged.
 
@@ -56,3 +56,11 @@ node tools/guard/guard.mjs comparisons/default-on/readme-v7
 ```
 
 Compare the parsed analysis JSON with `ANALYSIS.json` (formatting may differ). Charts and README rows read that committed analysis through `tools/readme-charts.mjs`. Historical public benchmark rows retain their recorded judge versions and settings.
+
+## Transport-metadata redaction
+
+The publication decodes JSON nested in raw receipt strings and removes each complete response `headers` block. It also removes request identifier fields and provider message/request identifiers. The redacted output removes 3,277 header blocks and 6,554 provider identifier fields. No organization or workspace identifier value is included in this report or the guard; the guard compares fingerprints without revealing the values.
+
+Judgments, predictions, labels, costs, usage and analytical fields remain unchanged. `analyze.py` on the redacted chunks reproduces every field of `ANALYSIS.json`; the committed analysis is unchanged. `tools/guard/readme-results.test.mjs` checks every chunk, nested JSON strings, identifier patterns and fingerprints, checksums, sizes, line counts and complete analysis reproduction. Synthetic negative cases prove the guard rejects those metadata forms.
+
+The unredacted-source SHA-256 above identifies the original recording for provenance. Chunk and combined-output hashes now identify the redacted publication, so the original byte-for-byte publication claim no longer applies.
