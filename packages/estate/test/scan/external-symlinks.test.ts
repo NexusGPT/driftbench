@@ -36,7 +36,8 @@ it('still follows a skills folder that the layout links to a shared library outs
   const reader = new ClaudeCodeReader();
   const raw = await reader.read(root);
   expect(raw.files.map((file) => file.path)).toContain('.claude/skills/parcels/SKILL.md');
-  expect(raw.followedLinks).toEqual([{ path: '.claude/skills', realPath: await realpath(outside) }]);
+  expect(raw.followedLinks).toEqual(['.claude/skills']);
+  expect(JSON.stringify(raw.followedLinks)).not.toContain(await realpath(outside));
   const { map } = await scanEstate({ root, reader, now: NOW });
   expect(map.followedLinks).toEqual(raw.followedLinks);
 });
@@ -52,4 +53,31 @@ it('records no followed link for a link that stays inside the estate', async () 
   const raw = await new ClaudeCodeReader().read(root);
   expect(raw.files.map((file) => file.path)).toContain('.claude/skills/parcels/SKILL.md');
   expect(raw.followedLinks).toEqual([]);
+});
+
+it('does not walk a root link outside .claude that no standing file names, and its CLAUDE.md never reaches prose', async () => {
+  const outside = await estate({ 'CLAUDE.md': 'SENTINEL_NESTED_OTHERPROJECT instructions\n' });
+  const root = await estate({ 'CLAUDE.md': '# Parcels\n' });
+  await symlink(outside, join(root, 'ext'));
+  const reader = new ClaudeCodeReader();
+  const raw = await reader.read(root);
+  expect(raw.files.map((file) => file.path)).toEqual(['CLAUDE.md']);
+  expect(raw.prose.map((chunk) => chunk.file)).not.toContain('ext/CLAUDE.md');
+  expect(JSON.stringify(raw)).not.toContain('SENTINEL_NESTED_OTHERPROJECT');
+  expect(raw.followedLinks).toEqual([]);
+  expect(await reader.listFiles(root)).toEqual(['CLAUDE.md']);
+});
+
+it('lists only the links it read, never one it merely saw, and no host path', async () => {
+  const outside = await estate({
+    'secret.md': 'FICTIONAL\n',
+    'parcels/SKILL.md': '---\nname: p\ndescription: d\n---\nWeigh.\n',
+  });
+  const root = await estate({ 'CLAUDE.md': '# Parcels\nRead `guide.md` first.\n' });
+  await symlink(join(outside, 'secret.md'), join(root, 'guide.md'));
+  await mkdir(join(root, '.claude'), { recursive: true });
+  await symlink(join(outside, 'parcels'), join(root, '.claude', 'skills'));
+  await symlink(join(outside, 'nowhere'), join(root, '.claude', 'dangling'));
+  const raw = await new ClaudeCodeReader().read(root);
+  expect(raw.followedLinks).toEqual(['.claude/skills']);
 });

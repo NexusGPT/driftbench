@@ -82,7 +82,7 @@ Not read yet: MCP server files, deferred tools and plugin folders. A runtime haz
 
 The scanner has one interface, the estate reader: it returns the files with their kinds and the declarations parsed from them, each with the exact passage it was read from. The Claude Code reader is the only part that names a runtime's file layout.
 
-The reader batches independent filesystem metadata checks and file reads with bounded concurrency, while keeping sorted traversal, file and diagnostic order. It carries canonical directory paths through ordinary descendants, resolves symbolic links at their boundaries (links in the layout, such as a skills folder shared from a library, are followed; a file that a standing file only names and whose real path lies outside the estate root is an external reference: it is noted and never read), and reuses each link target's metadata for its size check. A shared traversal result and an active ancestor set avoid copying whole descendant lists and ancestor sets at every directory level. These are read-local optimizations: later scans read the filesystem again.
+The reader batches independent filesystem metadata checks and file reads with bounded concurrency, while keeping sorted traversal, file and diagnostic order. It carries canonical directory paths through ordinary descendants, resolves symbolic links at their boundaries (links under `.claude/`, such as a skills folder shared from a library, are followed even when they lead outside the estate root, and the map lists each one it read in `followedLinks`, by its path from the root; a link beside the layout is not followed, and a file that a standing file only names and whose real path lies outside the root is an external reference: it is noted and never read), and reuses each link target's metadata for its size check. A shared traversal result and an active ancestor set avoid copying whole descendant lists and ancestor sets at every directory level. These are read-local optimizations: later scans read the filesystem again.
 
 Scanner lookups index atoms, registry rows, file names and line offsets, and reuse chunk lines within a scan. These indexes preserve atom IDs, source spans, candidate order and lint findings; each scan reads its files anew.
 
@@ -215,7 +215,7 @@ The map is YAML with a header on how to approve it, `producedBy` per atom and, f
 
 ### The estate configuration file
 
-An estate may hold `driftbench.estate.yaml` at its root. The scan and the unit runner read it; every key is optional.
+An estate may hold `driftbench.estate.yaml` at its root, or at `.claude/driftbench.estate.yaml` (the root file wins; the second place is copied with the runtime's own folder, so a unit run of a copy or a mutant sees it). The scan and the unit runner read it; every key is optional. Tooling files are not instructions to the agent: the configuration file, and any file whose path it writes (a helper's executor script), are named by it and are neither orphans nor unreachable.
 
 | Key | Read by | Holds |
 |---|---|---|
@@ -224,6 +224,23 @@ An estate may hold `driftbench.estate.yaml` at its root. The scan and the unit r
 | `aliases` | `estate scan` | a map from an alias, such as `REF`, to the folder or folders it stands for, relative to the root: `REF/a/b.md` then reads as `<folder>/a/b.md` |
 | `helpers` | `estate unit` | per helper name, a local executor `command` argument array and optional positive `timeoutMs`; the unit runner sends the current body and task on stdin |
 | `scripts` | `estate unit` | per script path, a fixture list or `{ usage, fixtures }` contract: `args`, `stdin`, `files` (name to text, written in a fresh working folder) and `expect` (`exitCode`, default 0; `stdout`; `stdoutIncludes`, a list) |
+
+A helper executor and the fixtures of a script, as the unit runner reads them (`helpers` and `scripts` keys; YAML anchors may share one executor):
+
+```yaml
+helpers:
+  route-planner:
+    command: [python3, .claude/stand-in-helper.py]
+    timeoutMs: 10000
+scripts:
+  .claude/skills/shipment-tracker/scripts/track.sh:
+    usage: track.sh <carrier code> <tracking number>
+    fixtures:
+      - args: []
+        expect: { exitCode: 2 }
+```
+
+For a helper, the runner compares the copy's files before and after the executor runs and supplies that `workspaceDiff` when the executor reports none, so `expect.workspace` is decided on what the run changed. The same holds for the files a declared script fixture writes in its case folder.
 
 A key with the wrong shape is reported as a note of the scan and left out. [`examples/estates/reader-cases/driftbench.estate.yaml`](../examples/estates/reader-cases/driftbench.estate.yaml) uses `ignore`, `externals` and `scripts`.
 
@@ -1090,6 +1107,8 @@ scripts:
 The helper process receives one JSON line with `name`, `systemPrompt` (the current body without YAML frontmatter), `frontmatter` and `task` (the unit block's user message). Workspace files from the spec are planted in the copy; they cannot replace `.claude/` or configuration files. The executor returns a JSON object with `text`, `segments` and `toolCalls`, plus any observed runtime traces, executions or workspace diff in the core `Observed` format. Cost and latency fields are supplied by the runner. The executor must report actual observations. Machine checks evaluate the task assertions against them; zero process exit alone does not pass a helper test. Missing observations, unavailable executors and unreadable helper files are reported explicitly. An empty body still reaches the executor; only actual execution and its observations determine the result. Judged criteria require a judge and do not pass an offline unit run. Successful executions also report `helpers` entries with the helper name, process exit, measured milliseconds and text.
 
 Script fixture expectations are independent contracts written from the public usage, documented exit codes and declared outputs. Neither the runner nor generation derives an expected result from implementation source. Each configured fixture needs an explicit exit or output assertion; a usage line without expectations is not an oracle. Output-only expectations retain the documented default exit code of zero. The runner accepts both the existing fixture list and the `{ usage, fixtures }` form above, validates them before execution, and checks every fixture. `some_call` reads only actual command invocations (interpreter, script path and arguments); it cannot establish that a script performed an internal tool action. Unsupported custom checks and absent oracles report an input error, never a successful mutant kill.
+
+A hand-written guard expectation without a `verdict` counts a blocking decision (deny or ask) when it requires a firing, and also a warning (a nonzero exit other than 2) when it bounds firings, such as a count of 0 or a `max`; a message-only nudge is neither. A guard that only warns therefore fails "no firing".
 
 Generated guard expectations retain their declared verdict for hostile and speed tests as well as positive and negative tests. With no declared verdict, a positive firing means an actual denial. Text-event guards enforcing a declared `max_characters` predicate receive a positive payload above that boundary and a separate neutral control. Boundary synthesis uses the map's evidence, never implementation literals, and is bounded by `MAX_BOUNDARY_CHARACTERS` in the generator.
 

@@ -240,7 +240,7 @@ export class ClaudeCodeReader implements EstateReader {
       registry: [],
       steps: [],
       prose: [],
-      notes: notes.filter((note) => !note.message.startsWith(FOLLOWED_NOTE)),
+      notes: notes.filter((note) => note.message !== FOLLOWED_NOTE),
       followedLinks: followedLinks(notes),
       bases: ['.claude', '.claude/skills'],
       ignored: {
@@ -462,7 +462,8 @@ async function nestedStanding(
       // The regular layout walk already owns this tree and the root standing files.
       if (folder === '' && (entry.name === '.claude' || STANDING.has(path))) continue;
       if (ignored.rules.some((rule) => rule.test(path))) continue;
-      if (entry.isSymbolicLink()) await noteFollowed(root, path, notes);
+      // Beside the layout, a link that leaves the estate is not followed: no standing file names it.
+      if (entry.isSymbolicLink() && (await localPath(root, path, notes)) === undefined) continue;
       const linked = entry.isSymbolicLink() ? await stat(join(root, path)).catch(() => undefined) : undefined;
       if (entry.isDirectory() || linked?.isDirectory()) {
         await nestedStanding(
@@ -505,14 +506,20 @@ async function present(root: string, names: readonly string[], notes: ReadNote[]
  */
 async function readConfig(root: string, notes: ReadNote[]): Promise<EstateConfig> {
   const config: EstateConfig = { ignore: [], aliases: {} };
-  const text = await readFile(join(root, ESTATE_CONFIG), 'utf8').catch(() => undefined);
+  let text: string | undefined;
+  let place = ESTATE_CONFIG;
+  for (const candidate of [ESTATE_CONFIG, `.claude/${ESTATE_CONFIG}`]) {
+    text = await readFile(join(root, candidate), 'utf8').catch(() => undefined);
+    place = candidate;
+    if (text !== undefined) break;
+  }
   if (text === undefined) return config;
   let parsed: unknown;
   try {
     parsed = parseYaml(text);
   } catch (cause) {
     const message = cause instanceof Error ? (cause.message.split('\n')[0] ?? '') : String(cause);
-    notes.push({ file: ESTATE_CONFIG, message: `not YAML: ${message}` });
+    notes.push({ file: place, message: `not YAML: ${message}` });
     return config;
   }
   if (!isRecord(parsed)) return config;
@@ -663,7 +670,6 @@ async function walk(
     const inspected = await readBatch(ordered, async (entry) => {
       const path = posix.join(folder, entry.name);
       const by = ignoredBy ?? ignored.rules.find((rule) => rule.test(path))?.pattern;
-      if (entry.isSymbolicLink() && by === undefined) await noteFollowed(root, path, notes);
       const info = entry.isSymbolicLink()
         ? await stat(join(root, path)).catch(() => undefined)
         : entry.isFile() && by === undefined
@@ -679,6 +685,7 @@ async function walk(
       const folderEntry = entry.isDirectory() || info?.isDirectory();
       const fileEntry = entry.isFile() || info?.isFile();
       if (folderEntry) {
+        if (entry.isSymbolicLink() && by === undefined) await noteFollowed(root, path, notes);
         await walk(
           root,
           path,
@@ -697,7 +704,10 @@ async function walk(
         if (info.size > MAX_FILE_BYTES) {
           notes.push({ file: path, message: 'skipped: larger than 1 MB' });
           large?.push(path);
-        } else found.push(path);
+        } else {
+          found.push(path);
+          if (entry.isSymbolicLink()) await noteFollowed(root, path, notes);
+        }
       }
     }
     return found;
@@ -2027,7 +2037,7 @@ async function localPath(root: string, file: string, notes: ReadNote[]): Promise
   }
 }
 
-const FOLLOWED_NOTE = 'followed-link: ';
+const FOLLOWED_NOTE = 'followed-link';
 
 /** Record a structural link whose real path lies outside the estate root; the link is read, as the layout asks. */
 async function noteFollowed(root: string, file: string, notes: ReadNote[]): Promise<void> {
@@ -2040,13 +2050,13 @@ async function noteFollowed(root: string, file: string, notes: ReadNote[]): Prom
   if (real === undefined || base === undefined) return;
   const tail = relative(base, real);
   if (tail !== '..' && !tail.startsWith(`..${sep}`) && !isAbsolute(tail)) return;
-  if (!notes.some((note) => note.file === file && note.message.startsWith(FOLLOWED_NOTE)))
-    notes.push({ file, message: `${FOLLOWED_NOTE}${real}` });
+  if (!notes.some((note) => note.file === file && note.message === FOLLOWED_NOTE))
+    notes.push({ file, message: FOLLOWED_NOTE });
 }
 
-function followedLinks(notes: readonly ReadNote[]): Array<{ path: string; realPath: string }> {
+function followedLinks(notes: readonly ReadNote[]): string[] {
   return notes
-    .filter((note) => note.message.startsWith(FOLLOWED_NOTE))
-    .map((note) => ({ path: note.file, realPath: note.message.slice(FOLLOWED_NOTE.length) }))
-    .sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
+    .filter((note) => note.message === FOLLOWED_NOTE)
+    .map((note) => note.file)
+    .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
 }
