@@ -161,4 +161,88 @@ describe('the fixture gives each script a usage line and fixtures that a fake ca
       ).toBe(true);
     }
   });
+
+  /** Breaks of the contract one at a time: each is a script the fixtures must turn red. */
+  const MUTANTS: Array<[string, readonly string[], string, (text: string) => string]> = [
+    [
+      'reconcile: tolerance 0.05 to 0.5',
+      ['python3'],
+      'invoice-reconcile/scripts/reconcile.py',
+      (t) => t.replace('Decimal("0.05")', 'Decimal("0.5")'),
+    ],
+    [
+      'reconcile: tolerance 0.05 to 0.001',
+      ['python3'],
+      'invoice-reconcile/scripts/reconcile.py',
+      (t) => t.replace('Decimal("0.05")', 'Decimal("0.001")'),
+    ],
+    [
+      'reconcile: abs() removed from the price comparison',
+      ['python3'],
+      'invoice-reconcile/scripts/reconcile.py',
+      (t) => t.replace('abs(got[1] - want[1]) < ROUNDING', '(got[1] - want[1]) < ROUNDING'),
+    ],
+    [
+      'reconcile: < to <= at the tolerance',
+      ['python3'],
+      'invoice-reconcile/scripts/reconcile.py',
+      (t) => t.replace('< ROUNDING', '<= ROUNDING'),
+    ],
+    [
+      'reconcile: quantity ignored',
+      ['python3'],
+      'invoice-reconcile/scripts/reconcile.py',
+      (t) => t.replace('got[0] == want[0] and ', ''),
+    ],
+    [
+      'reconcile: a differing line exits 0',
+      ['python3'],
+      'invoice-reconcile/scripts/reconcile.py',
+      (t) => t.replace('return 1 if differs else 0', 'return 0'),
+    ],
+    [
+      'reconcile: over and short swapped',
+      ['python3'],
+      'invoice-reconcile/scripts/reconcile.py',
+      (t) => t.replace('("over" if difference > 0 else "short")', '("short" if difference > 0 else "over")'),
+    ],
+    [
+      'reconcile: the JSON shape check removed',
+      ['python3'],
+      'invoice-reconcile/scripts/reconcile.py',
+      (t) =>
+        t
+          .replace('not isinstance(data.get("lines"), list)', 'False')
+          .replace('or not isinstance(data.get("lines"), list)', 'or False'),
+    ],
+    [
+      'track: three arguments accepted',
+      ['sh'],
+      'shipment-tracker/scripts/track.sh',
+      (t) => t.replace('-ne 2', '-lt 2'),
+    ],
+    [
+      'track: usage error exits 1',
+      ['sh'],
+      'shipment-tracker/scripts/track.sh',
+      (t) => t.replace('exit 2', 'exit 1'),
+    ],
+  ];
+
+  it.each(MUTANTS)('turns %s red', async (_label, interpreter, tail, mutate) => {
+    const path = `.claude/skills/${tail}`;
+    const original = await readFile(join(FIXTURE, path), 'utf8');
+    const text = mutate(original);
+    expect(text, 'the mutation changed the script').not.toBe(original);
+    const dir = await scratch();
+    const mutant = join(dir, tail.split('/').at(-1) as string);
+    await writeFile(mutant, text);
+    await chmod(mutant, 0o755);
+    const results = await Promise.all(
+      ((await config()).scripts[path]?.fixtures ?? []).map(async (fixture) =>
+        problems(fixture, await runFixture([...interpreter], mutant, fixture)),
+      ),
+    );
+    expect(results.some((found) => found.length > 0)).toBe(true);
+  });
 });

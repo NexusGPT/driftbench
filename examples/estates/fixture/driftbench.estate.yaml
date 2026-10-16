@@ -132,6 +132,73 @@ scripts:
         expect:
           exitCode: 1
           stdoutIncludes: [widget, short, "10.00 EUR"]
+      # Equal quantities match only when the unit prices differ by less than 0.05 EUR, whichever price is higher. A
+      # difference of 0.04 on either side matches; exactly 0.05 and 0.20 on either side do not, and the line is over
+      # when the invoice price is above the order's and short when it is below.
+      - args: [invoice.csv, order.csv]
+        files:
+          invoice.csv: "article,quantity,unit_price\nwidget,1,10.04\n"
+          order.csv: "article,quantity,unit_price\nwidget,1,10.00\n"
+        expect:
+          exitCode: 0
+          stdoutIncludes: [widget, matched]
+      - args: [invoice.csv, order.csv]
+        files:
+          invoice.csv: "article,quantity,unit_price\nwidget,1,9.96\n"
+          order.csv: "article,quantity,unit_price\nwidget,1,10.00\n"
+        expect:
+          exitCode: 0
+          stdoutIncludes: [widget, matched]
+      - args: [invoice.csv, order.csv]
+        files:
+          invoice.csv: "article,quantity,unit_price\nwidget,1,10.05\n"
+          order.csv: "article,quantity,unit_price\nwidget,1,10.00\n"
+        expect:
+          exitCode: 1
+          stdoutIncludes: [widget, over, "0.05 EUR"]
+      - args: [invoice.csv, order.csv]
+        files:
+          invoice.csv: "article,quantity,unit_price\nwidget,1,9.95\n"
+          order.csv: "article,quantity,unit_price\nwidget,1,10.00\n"
+        expect:
+          exitCode: 1
+          stdoutIncludes: [widget, short, "-0.05 EUR"]
+      - args: [invoice.csv, order.csv]
+        files:
+          invoice.csv: "article,quantity,unit_price\nwidget,2,10.20\n"
+          order.csv: "article,quantity,unit_price\nwidget,2,10.00\n"
+        expect:
+          exitCode: 1
+          stdoutIncludes: [widget, over, "0.40 EUR"]
+      - args: [invoice.csv, order.csv]
+        files:
+          invoice.csv: "article,quantity,unit_price\nwidget,2,9.80\n"
+          order.csv: "article,quantity,unit_price\nwidget,2,10.00\n"
+        expect:
+          exitCode: 1
+          stdoutIncludes: [widget, short, "-0.40 EUR"]
+      # An article only one side holds differs: the missing side counts as quantity 0.
+      - args: [invoice.csv, order.csv]
+        files:
+          invoice.csv: "article,quantity,unit_price\nwidget,1,10.00\n"
+          order.csv: "article,quantity,unit_price\nwidget,1,10.00\ngadget,1,5.00\n"
+        expect:
+          exitCode: 1
+          stdoutIncludes: [gadget, short, "-5.00 EUR"]
+      # A JSON file holds a list of lines under "lines"; without one the input is invalid: exit 2.
+      - args: [invoice.json, order.json]
+        files:
+          invoice.json: '{"lines": [{"article": "widget", "quantity": 1, "unit_price": "10.00"}]}'
+          order.json: '{"lines": [{"article": "widget", "quantity": 1, "unit_price": "10.00"}]}'
+        expect:
+          exitCode: 0
+          stdoutIncludes: [widget, matched]
+      - args: [invoice.json, order.json]
+        files:
+          invoice.json: '{"items": []}'
+          order.json: '{"lines": []}'
+        expect:
+          exitCode: 2
   .claude/skills/shipment-tracker/scripts/track.sh:
     usage: ./scripts/track.sh <carrier code> <tracking number>
     fixtures:
@@ -141,6 +208,10 @@ scripts:
           exitCode: 2
           stdout: ""
       - args: [NWX]
+        expect:
+          exitCode: 2
+          stdout: ""
+      - args: [NWX, "123", extra]
         expect:
           exitCode: 2
           stdout: ""
