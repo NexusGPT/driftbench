@@ -261,6 +261,7 @@ export function googleAdapter(options: GoogleAdapterOptions): AgentAdapter {
       // The finish reason of each model call, in order: `MAX_TOKENS` on the last one means a cut reply.
       const observed = observedOf(segments, usage, latencyMs, `the ${options.model} agent`, {
         raw: { finishReasons },
+        ...(history.normalizations.length > 0 ? { historyNormalizations: history.normalizations } : {}),
       });
       recordPayloads(state, turn.index, observed.toolCalls, sideEffects);
       return observed;
