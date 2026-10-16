@@ -173,6 +173,10 @@ describe('merge train enforcement', () => {
     expect(commands).toContain('pnpm typecheck');
     expect(commands).toContain('node tools/structure/api-surface.mjs --build --check');
     expect(commands).toContain('pnpm test --maxWorkers=2 --changed origin/main --passWithNoTests');
+    // On a train the affected-tests step is skipped, because the build jobs run the full suite there.
+    const affected = job.steps.find((step: { name?: string }) => step.name === 'Tests affected by this PR');
+    expect(affected.if).toBe("${{ !startsWith(github.head_ref, 'train/') }}");
+    for (const id of ['build']) expect(workflow.jobs[id].if).toBe(TRAIN_CONDITION);
   });
 });
 

@@ -43,7 +43,10 @@ jobs:
       - run: node tools/structure/api-surface.mjs --build --check
       - name: CLI smoke
         run: node packages/cli/dist/bin.js --version
+      # A merge train runs the full test suite in its build jobs, so the affected-tests subset here
+      # would only repeat it and overrun this job's time limit.
       - name: Tests affected by this PR
+        if: ${{ !startsWith(github.head_ref, 'train/') }}
         run: pnpm test --maxWorkers=2 --changed origin/main --passWithNoTests
 
   train-gate:
