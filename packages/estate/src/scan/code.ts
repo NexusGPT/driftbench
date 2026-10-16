@@ -1734,7 +1734,9 @@ function gateAtoms(
   for (const line of chunkLines(chunk, files.get(chunk.file))) {
     const { text, spans } = maskLine(line.text);
     while (headings[headingIndex + 1] && (headings[headingIndex + 1]?.line ?? 0) < line.line) headingIndex++;
-    for (const original of gateClauses(text)) {
+    for (const decorated of gateClauses(text)) {
+      // Attention punctuation is decoration; neither its presence nor its absence establishes order.
+      const original = decorated.replace(/^[!‼]+\s*|\s*[!‼]+$/g, '');
       const heading = headings[headingIndex];
       const contextual =
         heading && READ_FIRST_ONLY.test(original) && !original.includes('?') && isAct(heading.text);

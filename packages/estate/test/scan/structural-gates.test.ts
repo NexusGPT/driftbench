@@ -175,3 +175,20 @@ it('keeps negation and optionality inside the action separate from the prerequis
     await rm(root, { recursive: true, force: true });
   }
 });
+
+it.each([
+  '!! Before editing the index read policy.md !!',
+  '‼ Editing the index requires policy.md loaded ‼',
+  '!! When editing the index, read policy.md first !!',
+])('treats attention punctuation as decoration: %s', async (rule) => {
+  const root = await estate({ 'CLAUDE.md': rule, 'policy.md': '# Policy\n' });
+  try {
+    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    const gates = map.atoms.filter((atom) => atom.kind === 'gate');
+    expect(gates).toHaveLength(1);
+    expect(gates[0]?.fields?.path).toBe('policy.md');
+    expect(gates[0]?.provenance.quote).toBe(rule);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
