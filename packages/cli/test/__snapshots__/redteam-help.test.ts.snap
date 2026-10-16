@@ -1377,10 +1377,26 @@ Shipped fixtures, all hand-written and fictional, in \`packages/cli/test/fixture
 
 ### Environment
 
-Only \`--model\` and \`--judge\` read model keys. Without a key they stop with exit 2 before any call.
-\`--model\` reads \`ANTHROPIC_API_KEY\`, or \`OPENAI_API_KEY\` with \`OPENAI_MODEL\`.
-\`--judge anthropic\` reads \`ANTHROPIC_API_KEY\`, \`--judge openai\` reads \`OPENAI_API_KEY\`.
-\`--judge google\` reads \`GEMINI_API_KEY\` or \`GOOGLE_API_KEY\`. \`driftbench help core-configuration\` lists the rest.
+Only \`--model\` and \`--judge\` read model variables. These are names only: never write a key into a spec or a file.
+A missing required variable stops the command with exit 2, before any model call.
+
+\`--model\` (on \`attack\`, \`redteam run\` and \`redteam generate\`) uses Anthropic when \`ANTHROPIC_API_KEY\` is set:
+
+| Provider | Required | Optional |
+|---|---|---|
+| Anthropic | \`ANTHROPIC_API_KEY\` | \`ANTHROPIC_MODEL\`, \`ANTHROPIC_BASE_URL\` |
+| OpenAI, used only when no Anthropic key is set | \`OPENAI_API_KEY\`, \`OPENAI_MODEL\` | \`OPENAI_BASE_URL\` |
+
+\`redteam grade --judge <provider>\` needs a key and a judge model. The judge model has no default.
+
+| \`--judge\` | Key, required | Judge model, required | Base URL, optional |
+|---|---|---|---|
+| \`anthropic\` | \`ANTHROPIC_API_KEY\` | \`ANTHROPIC_JUDGE_MODEL\` | \`ANTHROPIC_BASE_URL\` |
+| \`openai\` | \`OPENAI_API_KEY\` | \`OPENAI_JUDGE_MODEL\` | \`OPENAI_BASE_URL\` |
+| \`google\` | \`GEMINI_API_KEY\` or \`GOOGLE_API_KEY\` | \`GOOGLE_JUDGE_MODEL\` | \`GOOGLE_BASE_URL\` |
+
+\`ANTHROPIC_MODEL\` and \`OPENAI_MODEL\` never choose the judge model. \`driftbench help core-configuration\` lists every variable.
+
 The attacker's model family must differ from the agent's and from every judge's.
 A judge's model family must differ from the agent's. A collision exits 2 before any model call.
 
@@ -1504,6 +1520,8 @@ For a real verdict, run once with \`--model\` or \`--judge\` and \`--record\`, t
 ## Common errors
 
 Each row is a real command and the start of what it prints on stderr.
+A row that starts with \`NAME=value\` sets those variables for that command only.
+Its keys are fictional and its base URL is a closed local port, so nothing leaves the machine.
 
 | Command | Message | Exit | Fix |
 |---|---|---|---|
@@ -1529,12 +1547,19 @@ Each row is a real command and the start of what it prints on stderr.
 | \`driftbench redteam grade examples/acme/specs/conversations/plan-upgrade.yaml\` | \`Give --judge <provider> or --cassette <file>, exactly one.\` | 2 | Add one judge source. |
 | \`driftbench redteam grade examples/acme/specs/conversations/plan-upgrade.yaml --cassette packages/cli/test/fixtures/redteam-grade.cassette.json --record new.cassette.json\` | \`--record needs --judge.\` | 2 | Record only from a live \`--judge\`. |
 | \`driftbench redteam grade examples/acme/specs/conversations/plan-upgrade.yaml --judge foo\` | \`--judge takes anthropic, openai, google, not "foo".\` | 2 | Pick one of the three providers. |
+| \`driftbench redteam grade examples/acme/specs/conversations/plan-upgrade.yaml --judge anthropic\` | \`ANTHROPIC_API_KEY is not set\` | 2 | Set the key, or replay a \`--cassette\`. |
 | \`driftbench redteam grade examples/acme/specs/conversations/plan-upgrade.yaml --judge openai\` | \`OPENAI_API_KEY is not set\` | 2 | Set the key, or replay a \`--cassette\`. |
+| \`driftbench redteam grade examples/acme/specs/conversations/plan-upgrade.yaml --judge google\` | \`GEMINI_API_KEY is not set (nor GOOGLE_API_KEY)\` | 2 | Set one of the two keys, or replay a \`--cassette\`. |
+| \`ANTHROPIC_API_KEY=fictional-not-a-key ANTHROPIC_BASE_URL=http://127.0.0.1:9 driftbench redteam grade examples/acme/specs/conversations/plan-upgrade.yaml --judge anthropic\` | \`ANTHROPIC_JUDGE_MODEL is not set and no model was given\` | 2 | Set \`ANTHROPIC_JUDGE_MODEL\` to the judge model name. |
+| \`OPENAI_API_KEY=fictional-not-a-key OPENAI_MODEL=fictional-model OPENAI_BASE_URL=http://127.0.0.1:9 driftbench redteam grade examples/acme/specs/conversations/plan-upgrade.yaml --judge openai\` | \`OPENAI_JUDGE_MODEL is not set and no model was given\` | 2 | Set \`OPENAI_JUDGE_MODEL\`. \`OPENAI_MODEL\` does not choose the judge. |
+| \`GEMINI_API_KEY=fictional-not-a-key GOOGLE_BASE_URL=http://127.0.0.1:9 driftbench redteam grade examples/acme/specs/conversations/plan-upgrade.yaml --judge google\` | \`GOOGLE_JUDGE_MODEL is not set and no model was given\` | 2 | Set \`GOOGLE_JUDGE_MODEL\`. |
+| \`OPENAI_API_KEY=fictional-not-a-key OPENAI_BASE_URL=http://127.0.0.1:9 driftbench redteam generate hijacking --purpose "Fictional Acme assistant" --model --agent-family none --out new.spec.json\` | \`OPENAI_MODEL is not set: name the model the server should run\` | 2 | With only an OpenAI key, set \`OPENAI_MODEL\`. |
 | \`driftbench redteam grade examples/acme/specs/conversations/plan-upgrade.yaml --cassette packages/cli/test/fixtures/redteam-grade.cassette.json --judge-id other\` | \`the cassette lists no judge "other"\` | 2 | Give an \`id\` from the cassette's \`judges\`. |
 
 Traps that exit 0 or 1 with no error message:
 
 - \`grade\` reports \`inconclusive\` when the cassette has no answer for this exact reply. Record a new cassette.
+- \`grade --judge\` reports \`inconclusive\`, exit 1, when the judge cannot be reached, such as at a wrong base URL.
 - \`redteam run --replay\` reuses old scores. It never grades a changed agent again.
 - \`attack --record\` overwrites an existing file. \`redteam run\`, \`generate\` and \`grade\` refuse one.
 - A run whose scores never reach the threshold reports \`resisted\`, even when no turn was scored.
