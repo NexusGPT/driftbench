@@ -41,13 +41,22 @@ if (harness > 0) {
   syncBuiltinESMExports();
 }
 
+// The generations of this child so far, from 0: the untimed warm-up, then a low and a high size per round.
+let calls = 0;
+const DISTURBED = [1, 6];
+
 export function generateSuiteToDisk(
   prepared: PreparedMap,
   options: { seed: number; mapPath: string; outputDir: string },
 ): { reportPath: string } {
   const behaviours =
     prepared.axisMap.dimensions.find((dimension) => dimension.kind === 'behaviour')?.values.length ?? 0;
-  advance(costOf(process.env.METERED_SHAPE ?? 'linear', behaviours));
+  // `noisy` is the linear product on a machine that disturbs single generations: the generations numbered
+  // 1 (the low size of round 1) and 6 (the high size of round 3) cost three times as much; the rest cost 1.
+  const shape = process.env.METERED_SHAPE ?? 'linear';
+  const disturbed = shape === 'noisy' && DISTURBED.includes(calls);
+  calls += 1;
+  advance(costOf(shape === 'noisy' ? 'linear' : shape, behaviours) * (disturbed ? 3 : 1));
   if (process.env.METERED_REAL === '1')
     return (
       (generator as Record<string, unknown>).generateSuiteToDisk as (

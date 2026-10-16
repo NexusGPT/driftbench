@@ -70,6 +70,17 @@ describe('the growth of the cost between two sizes, in one process', () => {
     expect(report.bound).toBe(SCALE_GROWTH_BOUND);
   }, 180_000);
 
+  it('judges the best of the rounds: a disturbed low size or high size does not decide', async () => {
+    const noisy = await grown('noisy');
+    expect(noisy.error).toBeUndefined();
+    // Round 1 pays three times at the low size, round 3 three times at the high size, round 2 nothing.
+    expect(noisy.ratios[0]).toBeCloseTo(1 / 3, 6);
+    expect(noisy.ratios[1]).toBeCloseTo(1, 6);
+    expect(noisy.ratios[2]).toBeCloseTo(3, 6);
+    expect(noisy.ratio).toBeCloseTo(1 / 3, 6);
+    expect(Math.max(...noisy.ratios)).toBeGreaterThan(SCALE_GROWTH_BOUND);
+  }, 180_000);
+
   it('leaves a product that is twice as slow at every size to the absolute caps: its shape is linear', async () => {
     const slow = await grown('slow');
     expect(slow.error).toBeUndefined();
