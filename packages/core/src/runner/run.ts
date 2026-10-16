@@ -392,7 +392,7 @@ function givenGaps(spec: Spec): Map<number, NotRun> {
   let world: NotRun | undefined;
   spec.blocks.forEach((block, index) => {
     if (block.given?.prefix !== undefined) history = undefined;
-    for (const finding of findings.filter((entry) => entry.block === index)) {
+    for (const finding of findings.filter((found) => found.block === index)) {
       if (finding.layer === '5 world') world ??= strip(finding);
       else history ??= strip(finding);
     }
