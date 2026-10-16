@@ -81,12 +81,12 @@ function setUp(db: DatabaseSync, path: string): void {
       `the store at ${path} has schema version ${version}; this version of driftbench reads ${SCHEMA_VERSION} and older`,
     );
   }
-  if (version < SCHEMA_VERSION) {
-    transaction(db, () => {
-      db.exec(SCHEMA_SQL);
-      db.exec(`PRAGMA user_version = ${SCHEMA_VERSION}`);
-    });
-  }
+  // Every statement of SCHEMA_SQL is idempotent, so it runs on each open: a store already at this version
+  // that was written before a table of the current schema existed gains the table, with no second bump.
+  transaction(db, () => {
+    db.exec(SCHEMA_SQL);
+    if (version < SCHEMA_VERSION) db.exec(`PRAGMA user_version = ${SCHEMA_VERSION}`);
+  });
 }
 
 /** Closes a database that failed to set up. The setup error is the one the caller reports. */
@@ -201,6 +201,9 @@ export class SqliteStore implements Store {
   private readonly db: DatabaseSync;
   private readonly sql: ReturnType<typeof statements>;
   private closed = false;
+  // Run writes need only this policy. Keep one validated row, not the full campaign per run.
+  // Compare the current database bytes on every write so other connections' changes are still checked.
+  private runCampaignPolicy?: { id: string; json: string; realizedText: boolean };
 
   constructor(db: DatabaseSync, path: string) {
     this.db = db;
@@ -635,6 +638,7 @@ export class SqliteStore implements Store {
   async close(): Promise<void> {
     if (this.closed) return;
     this.closed = true;
+    this.runCampaignPolicy = undefined;
     this.db.close();
   }
 
@@ -682,11 +686,18 @@ export class SqliteStore implements Store {
         `putRun: campaign ${campaignId} is not in the store; put the campaign before its runs`,
       );
     }
-    const campaign = readCampaign(campaignRow);
-    const { blocks, ...summary } = applyRealizedTextPolicy(
-      parsed.data,
-      campaign.provenance?.realizedText === true,
-    );
+    const campaignJson = text(campaignRow, 'json', `the campaigns row ${campaignId}`);
+    let policy = this.runCampaignPolicy;
+    if (policy?.id !== campaignId || policy.json !== campaignJson) {
+      const campaign = readCampaign(campaignRow);
+      policy = {
+        id: campaignId,
+        json: campaignJson,
+        realizedText: campaign.provenance?.realizedText === true,
+      };
+      this.runCampaignPolicy = policy;
+    }
+    const { blocks, ...summary } = applyRealizedTextPolicy(parsed.data, policy.realizedText);
     const what = `run ${summary.runId}`;
     let previous = -1;
     for (const block of blocks) {

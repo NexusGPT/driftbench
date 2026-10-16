@@ -1,13 +1,6 @@
 import { isPlainObject, type Message, type Segment } from '@agent-nexus/driftbench-core';
-import {
-  errorOf,
-  historyOutput,
-  outputText,
-  readToolText,
-  type ToolLabels,
-  type ToolOutcome,
-} from '../anthropic/common';
-import { contentText, parseArguments } from '../shared';
+import { errorOf, outputText, readToolText, type ToolLabels, type ToolOutcome } from '../anthropic/common';
+import { contentText, HistoryCompiler, parseArguments } from '../shared';
 
 /**
  * The slice of the OpenAI Agents SDK the adapter speaks, mirrored from `@openai/agents` 0.20.0: a runner
@@ -72,7 +65,7 @@ export type RunnerLike = {
  */
 export function toInputItems(history: readonly Message[], labels: ToolLabels): AgentInputItemLike[] {
   const items: AgentInputItemLike[] = [];
-  let unnamed = 0;
+  const compiler = new HistoryCompiler({ fallback: (n) => `call_h${n}` });
   for (const message of history) {
     if (message.role === 'user' || message.role === 'tool') {
       items.push({ role: 'user', content: message.content });
@@ -82,8 +75,8 @@ export function toInputItems(history: readonly Message[], labels: ToolLabels): A
       items.push({ role: 'system', content: message.content });
       continue;
     }
-    for (const call of message.tool_calls ?? []) {
-      const callId = call.id ?? `call_h${++unnamed}`;
+    for (const call of compiler.calls(message)) {
+      const callId = call.id as string;
       items.push({
         type: 'function_call',
         callId,
@@ -92,7 +85,9 @@ export function toInputItems(history: readonly Message[], labels: ToolLabels): A
         status: 'completed',
       });
       const text =
-        call.error !== undefined ? JSON.stringify({ error: call.error }) : outputText(historyOutput(call));
+        call.result.kind === 'error'
+          ? JSON.stringify({ error: call.result.message })
+          : outputText(call.result.value);
       items.push({
         type: 'function_call_result',
         callId,
