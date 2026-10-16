@@ -118,16 +118,17 @@ describe('layouts of a read-before rule', () => {
 
 describe('a read with no object gates only through "this" or one path that follows', () => {
   it.each([
-    '!! Read BEFORE naming a special, "the soup of the day", and a discount. !!',
     'Read before any change.',
     'Title line\nRead before any change.',
     'READ BEFORE YOU WRITE',
     '### Rule: Read before you write',
     '| Read before editing |',
-    'Read BEFORE the bakery opens.',
     'After a restart, read this file again before you bake anything.',
     'Read this file again before you touch the oven.',
-    'KITCHEN RULE -- read before the FIRST oven setting of a shift.',
+    'Read <name>.md before baking.',
+    'Before baking, read `<name>.md`.',
+    'Read before the first loaf of the day.',
+    'Read before any change.\nSee `recipes/dough.md`.',
   ])('gives no gate for %s', async (block) => {
     expect(await gatesOf(block)).toEqual([]);
   });
@@ -135,6 +136,25 @@ describe('a read with no object gates only through "this" or one path that follo
   it('gives no gate for a read whose target is only a slot', async () => {
     expect(await gatesOf('Before shaping a loaf, read `<file>`.')).toEqual([]);
     expect(await gatesOf('Before shaping a loaf: read <path>.')).toEqual([]);
+  });
+});
+
+describe('a bare read gates only when the line carries a rule marker', () => {
+  it.each([
+    ['a banner', '!! Read BEFORE naming a special, "the soup of the day", and a discount. !!'],
+    ['bold', '**Read before the first loaf.**'],
+    ['capitals', 'You MUST READ before the first loaf.'],
+    ['BEFORE in capitals', 'Read BEFORE the bakery opens.'],
+    ['a capitalised label', 'KITCHEN RULE -- read before the FIRST oven setting of a shift.'],
+  ])('gates the file itself through %s', async (_name, block) => {
+    const gates = await gatesOf(block);
+    expect(gates).toHaveLength(1);
+    expect(gates[0]?.fields).toMatchObject({ self: true, path: 'CLAUDE.md' });
+  });
+
+  it('takes the one path after a marked bare read', async () => {
+    const [gate] = await gatesOf('!! Read BEFORE the first loaf !!\nThe rules are in `recipes/dough.md`.');
+    expect(gate?.fields).toMatchObject({ first: 'recipes/dough.md' });
   });
 });
 

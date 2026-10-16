@@ -2020,6 +2020,11 @@ function gateAtoms(
       .replace(/^\s*(?:>\s*)*(?:[-*+]\s+|\d+[.)]\s+)?/, '')
       .replace(/[\s!\u203C*_`]+/g, ' ')
       .trim();
+    const rawLine = `${written} ${line.text}`;
+    const ruleMarker =
+      /!!|\u203C|\*\*|__[^_]/.test(rawLine) ||
+      /\b(?:READ|BEFORE)\b/.test(line.text) ||
+      /^\s*(?:[-*>\s]*)[A-Z][A-Z0-9 ]{2,}\s*(?:--|[\u2014\u2013:])/.test(line.text);
     const titleLine =
       headingLine ||
       (plain.split(' ').length <= 6 &&
@@ -2087,9 +2092,10 @@ function gateAtoms(
         if (trigger === '' || trigger.includes('?') || dated(trigger)) continue;
         // A template with a slot in angle brackets ("Before <act>: read <file>") describes the syntax.
         // A template names the syntax: its act or its target is nothing but a slot ("Before <act>: read <file>").
-        const wholeSlot = /^(?:an?\s+|the\s+|any\s+)?<[^<>\n]+>$/;
+        const wholeSlot = /^(?:an?\s+|the\s+|any\s+)?<[^<>\n]+>(?:\.[A-Za-z0-9]+)?$/;
         const shown = unmask(match[read] ?? '', spans)
-          .replace(/[`*"'.]/g, '')
+          .replace(/[`*"']/g, '')
+          .replace(/\.$/, '')
           .trim();
         if (wholeSlot.test(written.replace(/[`*]/g, '').trim()) || wholeSlot.test(shown)) continue;
         // An act, or an event the read comes before: "any query", "the second query", "your first action".
@@ -2151,12 +2157,15 @@ function gateAtoms(
               // A bare "read before X" may be followed by a sentence that names what to read.
               if (bareRead) {
                 const later = [...new Set(line.next.flatMap((text) => namedPaths(text)))];
-                // The file itself is the target only when the sentence says "this"; a bare "Read before X" names
-                // nothing, unless the lines right after it name exactly one document.
-                if (later.length !== 1) return undefined;
-                self = false;
-                first = later[0] ?? first;
-                fromName = true;
+                // A plain sentence ("Read before any change.") names nothing and gives no gate. A line that
+                // carries a rule marker (a banner, bold, READ or BEFORE in capitals, a capitalised label)
+                // is a rule: it names the one document right after it, else the file it stands in.
+                if (!ruleMarker || later.length > 1) return undefined;
+                if (later.length === 1) {
+                  self = false;
+                  first = later[0] ?? first;
+                  fromName = true;
+                }
               }
             } else if (found) {
               first = found.name;
