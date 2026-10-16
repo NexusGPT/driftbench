@@ -280,3 +280,35 @@ it('refuses stale resolved objects unless the caller commits to rescoring observ
   if (!carried) throw new Error('expected a rescoring candidate');
   expect(() => carriedRun(carried)).toThrow(/must be re-scored/);
 });
+
+it.each([false, true])('whole-run copies follow the new realized-text opt-in (%s)', (record) => {
+  const source = stored('faq', 'v1');
+  if (!source.blocks[0]) throw new Error('missing source block');
+  source.blocks[0].realized = { hash: provenanceHash('private'), text: 'private' };
+  source.provenanceDigest = provenanceDigest(source);
+  const entry = plan([source]).carried[0];
+  if (!entry) throw new Error('missing carry plan');
+  expect(entry).toBeDefined();
+  const copied = carriedRun(entry, record);
+  expect(copied.blocks[0]?.realized).toEqual({
+    hash: provenanceHash('private'),
+    ...(record ? { text: 'private' } : {}),
+  });
+  expect(copied.provenanceDigest).toBe(provenanceDigest(copied));
+  if (!record) {
+    expect(copied.realizedTextStripped).toEqual({
+      fromRun: source.runId,
+      fromCampaign: entry.sourceCampaign,
+    });
+    expect(copied.blocks[0]?.realizedTextStripped).toEqual(copied.realizedTextStripped);
+    const tampered = structuredClone(copied);
+    tampered.realizedTextStripped = { ...tampered.realizedTextStripped, fromRun: 'forged' };
+    expect(provenanceDigest(tampered)).not.toBe(copied.provenanceDigest);
+  }
+  expect(source.blocks[0]?.realized?.text).toBe('private');
+  const hashOnly = carriedRun(entry);
+  const next = carriedRun({ ...entry, source: hashOnly }, true);
+  expect(next.blocks[0]?.realized).not.toHaveProperty('text');
+  expect(next.realizedTextStripped).toEqual(hashOnly.realizedTextStripped);
+  expect(next.provenanceDigest).toBe(provenanceDigest(next));
+});

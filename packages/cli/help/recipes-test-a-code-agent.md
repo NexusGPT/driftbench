@@ -240,6 +240,7 @@ driftbench report --store ops.db --out ops.html
 Margin auto: 23.0 points, the smallest half point at which the baseline compared with itself is non-inferior (set by the all-pass flag, 22.8 points).
 Warning: this suite cannot show parity under 15 points (the all-pass flag needs 22.8 points); about 22 goldens would.
 Campaign c-c65149678bf9: 13 runs, 13 pass, 0 fail, 0 did not complete.
+Suite pass rate, mode F: 100.0% [76.8%, 100.0%] (hierarchical 95% interval); 13 goldens, n_eff 13.0 runs (every run agrees, so each golden counts once), detectable drop 46.7 points at 80% power.
 Wrote ops.html.
 ```
 
@@ -284,5 +285,6 @@ commands behind them: resume it with the same `--process-command`.
   review with the current hashes, for a person to sign.
 * `family instances` exits 1: the family or its oracle has a defect, or a style knob changes the expected
   outcome; nothing is written.
+* `family verify` exits 3: no spec fails, but the reference could not run one (a block not run, such as a forced tool result on an adapter without `toolStubs`). The spec is listed with the check that refused it; run the reference on an adapter that can apply that Given.
 * `family verify` exits 1: the reference fails a spec or a spec is invalid. Each is listed; fix the oracle
   or the reference before you score an agent on that instance.

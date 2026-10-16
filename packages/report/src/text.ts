@@ -1,7 +1,8 @@
 import { type AttributionSummary, assignedRunCounts } from './attribution';
 import { type CompareResult, PLANNING_MARGIN, PLANNING_POWER } from './compare';
 import type { Rate } from './estimate';
-import { carriedLines, count, fixed, interval, pct, points, pValue } from './format';
+import { carriedLines, count, fixed, headlineNote, interval, pct, points, pValue } from './format';
+import type { SuiteHeadline } from './headline';
 import type { CriterionRepeat } from './repeats';
 
 /** Pads every column but the last to its widest cell, two spaces apart, indented by two. */
@@ -106,6 +107,12 @@ export function compareText(result: CompareResult): string {
     lines.push('', 'Not paired:');
     lines.push(...textTable(result.unpaired.map((entry) => [entry.unit, entry.reason])));
   }
+  if (result.excluded) {
+    lines.push('', 'Runs left out of a pair (a block not run or blocked, no failure):');
+    lines.push(
+      ...textTable(result.excluded.map((entry) => [entry.unit, entry.side, count(entry.runs, 'run')])),
+    );
+  }
   lines.push('', `Verdict: ${VERDICT[result.verdict]}.`);
   for (const reason of result.reasons) lines.push(`  ${reason}`);
   return `${lines.join('\n')}\n`;
@@ -163,4 +170,13 @@ export function attributionText(summary: AttributionSummary | undefined): string
     );
   }
   return lines;
+}
+
+/**
+ * The suite headline of one mode as a line for the command line: the mean over goldens, its interval and the
+ * method, then what stands behind it (see headlineNote).
+ */
+export function headlineText(mode: string, headline: SuiteHeadline): string {
+  const method = headline.method === 'hierarchical' ? 'hierarchical 95% interval' : 'one golden';
+  return `Suite pass rate, mode ${mode}: ${pct(headline.estimate)} ${interval(headline, pct)} (${method}); ${headlineNote(headline)}.`;
 }

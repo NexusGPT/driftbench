@@ -336,8 +336,9 @@ driftbench smoke <spec> [--target <adapter[:agent]>] [--runs <n>] [--json]
 | Exit code | When |
 |---|---|
 | 0 | `plan`: the plan printed. `run`, `resume`, `status`: every cell passes. `smoke`: the transcripts are identical |
-| 1 | `run`, `resume`, `status`: a cell fails, failed, or was stopped. `smoke`: the transcripts differ, or a run fails |
+| 1 | `run`, `resume`: a cell fails, failed, or was stopped. `status`: any cell that does not pass, not run and blocked included. `smoke`: the transcripts differ, or a run fails |
 | 2 | bad input: an unknown target, an invalid spec or none found, a bad number, a store that cannot be opened |
+| 3 | `run`, `resume`: no cell failed, but a cell was not run or blocked (a Given the target cannot apply), as `ci` does |
 
 ## Judge flags
 
@@ -1025,6 +1026,7 @@ Review: signed by owner on 2026-10-13.
 | 0 | every instance is written | the reference passes every spec under the folder | a signed review holds for the family as it is |
 | 1 | the family or its oracle has a defect (an oracle that fails or answers outside the format, an invalid spec, a style knob that changes the expected outcome); nothing written | the reference fails a spec, or a spec is invalid; each is listed and never shipped | a person still has to sign |
 | 2 | bad input: an invalid family, an unapproved phrase, a missing, invalid or stale review, a bad number, an earlier output without `--force` | bad input: no adapter for the reference, no spec under the folder, a bad number | bad input, or an invalid review file |
+| 3 | | none fails, but the reference could not run one (a block not run): unverified, listed apart, never shipped | |
 
 ## `driftbench estate`
 
@@ -1398,6 +1400,8 @@ driftbench compare --rank <campaigns...> --store <db> [--mode <modes>] [--json]
 
 `report` writes the scorecard of a stored campaign as one HTML file, with no script and no external asset: every metric with its interval, the compare diff with `--baseline`, the spread view, the pilot report with `--pilot`, and the per-block drilldown. `--junit` also writes JUnit XML. `--aggregate` (repeatable) scores a campaign-level criterion over every run, such as `pass-rate:>=0.8` or `broken-share:<=0.2`, and prints each result; see [campaign-level criteria](../aggregates.md). `--config <file>` names the project config whose `aggregates:` it also scores; default `driftbench.yaml` in the working folder. `--withhold-incomplete` withholds the pass^k and pass@k value of a line with incomplete runs, instead of reporting it with the range of its missing outcomes; see [statistics](../concepts/statistics.md). Exit 0 when written, 2 on bad input. The [example scorecards](../scorecards.md) were written by it.
 
+On the command line `report` prints, per mode, the suite headline: `Suite pass rate, mode F: 70.0% [35.4%, 88.2%] (hierarchical 95% interval); 6 goldens, n_eff 7.0 runs (design effect 3.87), detectable drop 66.4 points at 80% power.` It is the mean over goldens with the hierarchical Beta-Bernoulli interval, then the effective runs, the smallest drop two suites like it detect and the share of runs that did not complete. A rate over clustered runs elsewhere on the page prints its `n_eff` and design effect beside the Wilson interval. See [statistics](../concepts/statistics.md#the-suite-headline).
+
 `compare` pairs the goldens both campaigns ran and gives the non-inferiority verdict: McNemar on the all-pass flag, Wilcoxon on drift counts, the paired effect with its interval, Benjamini-Hochberg across criteria. Per criterion and for the all-pass flag it also prints three planning numbers: the floor (the smallest margin its goldens can show when nothing changed), the drop its goldens detect at 80% power, and the goldens a 10 point margin needs. Exit 0 non-inferior, 1 regressed or not shown non-inferior, 2 on bad input. The rule is on the [statistics](../concepts/statistics.md#the-campaign-verdict) page. The [reports README](../../examples/acme/reports/README.md) gives the commands and their output on the Acme campaigns.
 
 `compare`, `ci` and `report` share one rule and these options:
@@ -1411,6 +1415,8 @@ driftbench compare --rank <campaigns...> --store <db> [--mode <modes>] [--json]
 New flags always gate, and so does an underpowered criterion whose regression Benjamini-Hochberg keeps.
 
 `compare --pairwise <criterion.yaml>` also judges, for every block both campaigns ran, which of the two replies better meets one criterion. The criterion file holds a `name` and a `rubric`, and optionally `pass` and `fail`. `--pairwise-judge` picks the provider judge, `openai` by default; its key is read from the environment. `--pairwise-reference <file>` asks which reply matches the reference answer in the file better, instead of which reply is better; see [judges](../concepts/judges.md#factual-audit-and-ledger-recovery). Each pair is judged twice, in both orders, so a judge that favours a position is caught: the printed line counts the baseline and candidate wins, the ties, the calls whose two orders disagreed, and the calls where the judge chose a position. A judge that gives no answer fails the command with its reason. The pairwise line never changes the exit code.
+
+Pairs must share the same verifiable sent text. Identical stored `realized.text` is used as the user message. Hash-only blocks use the authored text only when its hash matches; different hashes or unavailable sent text skip the pair. Text output counts these as "different stimulus", and JSON exposes the count as `pairwise.differentStimulus`. Each side uses its own pinned spec, including the block's recorded spec position.
 
 The pairwise call takes these settings. Each is checked before any call; a contradiction exits 2 and names the flag to drop. With none, the requests and the printed line are as above.
 
@@ -1430,7 +1436,7 @@ With a setting, the printed line names it, such as `Pairwise (ledger): ...`, and
 ## `driftbench ci`
 
 ```
-driftbench ci --specs <path> --target <adapter[:agent]> --baseline <campaign|store> --store <file> [--margin <points|auto>] [--min-goldens <n>] [--strict] [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--faults <path>] [--route <tag=target>]... [--process-command <command>] [--flag <family>]... [--aggregate <name:op threshold>]... [--out <file>] [--cache] [--concurrency <n>] [--change <manifest>] [--agent-version <label>] [--audit <n>] [--audit-seed <n>] [--max-carry <n>] [--max-age <days>] [judge flags] [run check flags] [--json]
+driftbench ci --specs <path> --target <adapter[:agent]> --baseline <campaign|store> --store <file> [--margin <points|auto>] [--min-goldens <n>] [--strict] [--mode <modes>] [--repeats <n>] [--budget-usd <usd>] [--faults <path>] [--route <tag=target>]... [--process-command <command>] [--flag <family>]... [--aggregate <name:op threshold>]... [--out <file>] [--cache] [--concurrency <n>] [--change <manifest>] [--agent-version <label>] [--audit <n>] [--audit-seed <n>] [--max-carry <n>] [--max-age <days>] [--max-not-run <share>] [judge flags] [run check flags] [--json]
 ```
 
 The [judge flags](#judge-flags) reach the candidate run.
@@ -1453,6 +1459,7 @@ Runs the specs on a candidate target, then compares the new campaign with a base
 | `regressed` | `regression` | 1 | evidence of a drop: a new flag, a criterion the false discovery rate control keeps, or the all-pass McNemar test below 0.05 with more goldens regressed than improved |
 | `unproven` | `not-shown-non-inferior` | 1 | no evidence of a drop, but an interval is wider than the margin; this means too few goldens, never a regression |
 | none | `incomplete` | 1 | a candidate cell did not run (stopped by the budget, or pending) |
+| none | `not-run` | 3 | a spec of the candidate has more of its blocks not run (a Given the target cannot apply, see [running](../running.md#outcomes)) than `--max-not-run` allows, default 0. Not-run units are left out of the comparison and listed |
 
 Measured 2026-10-12 on the Acme golden suite (10 goldens) with the defaults:
 

@@ -226,6 +226,8 @@ Recovery, per perturbed run: the block injected, the blocks until it passed at i
   acme-order-loose-confirmation  order-service-down  D8_tool_failure         0       3            0      immediate  0           yes          no
   ...
 Campaign c-d64d48945f71: 17 runs, 17 pass, 0 fail, 0 did not complete.
+Suite pass rate, mode F: 100.0% [59.0%, 100.0%] (hierarchical 95% interval); 6 goldens, n_eff 6.0 runs (every run agrees, so each golden counts once), detectable drop 72.7 points at 80% power.
+Suite pass rate, mode P: 100.0% [73.5%, 100.0%] (hierarchical 95% interval); 11 goldens, n_eff 11.0 runs (every run agrees, so each golden counts once), detectable drop 52.2 points at 80% power.
 Wrote redteam.html.
 ```
 

@@ -13,6 +13,7 @@ import {
 import {
   addUsage,
   closeOpenCalls,
+  historyOutput,
   measureOnce,
   newUsage,
   observedOf,
@@ -42,7 +43,7 @@ import { PYDANTIC_AI_BRIDGE } from './bridge-source';
  * The shapes match pydantic-ai 2.55.0 (`ModelMessagesTypeAdapter`, `result.new_messages_json()`).
  */
 
-export const PYDANTIC_AI_ADAPTER_VERSION = '0.1.0';
+export const PYDANTIC_AI_ADAPTER_VERSION = '0.1.1';
 
 export type PydanticAiAdapterOptions = {
   /** The agent, as `<module>:<name>`: an Agent, or a function that returns one. */
@@ -209,7 +210,7 @@ export function toPydanticMessages(history: readonly Message[], labels: ToolLabe
           : {
               part_kind: 'tool-return',
               tool_name: labels.name(call.label),
-              content: call.output ?? null,
+              content: historyOutput(call),
               tool_call_id: ids[index],
             },
       ),
