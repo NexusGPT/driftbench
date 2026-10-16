@@ -6,6 +6,7 @@ import { provenanceDigest, provenanceHash } from '@agent-nexus/driftbench-core';
 import { openStore } from '@agent-nexus/driftbench-store';
 import { expect, it } from 'vitest';
 import { main } from '../src/index';
+import { routedJudge } from './support/routed-judge';
 
 const root = fileURLToPath(new URL('../../../', import.meta.url));
 it.each([false, true])(
@@ -69,6 +70,7 @@ it.each([false, true])(
         join(dir, 'change.yaml'),
         'from: v1\nto: v1\nchanges:\n  - {kind: criterion, id: quote}\n',
       );
+      const fake = await routedJudge(dir);
       const args = [
         'campaign',
         'rejudge',
@@ -84,7 +86,7 @@ it.each([false, true])(
         '--judge',
         'claude:haiku',
         '--judge-command',
-        join(root, 'examples/estates/fixture/live/fake/judge.cjs'),
+        fake.command,
       ];
       if (record) args.push('--record-realized-text');
       const judged = await cli([...args, '--json']);
@@ -94,12 +96,21 @@ it.each([false, true])(
         agentCalls: 0,
         rejudged: 1,
         carried: 1,
-        judgeCostUsd: 0.0015,
+        judgeCostUsd: 0.003,
       });
       const db = openStore(path);
       const [before] = await db.listRuns({ campaignId: 'base' });
       const [after] = await db.listRuns({ campaignId: 'judged' });
-      expect(after?.cost).toBeCloseTo(0.0015);
+      expect(after?.cost).toBeCloseTo(0.003);
+      expect(
+        (await readFile(fake.receipts, 'utf8'))
+          .trim()
+          .split('\n')
+          .map((line) => JSON.parse(line)),
+      ).toEqual([
+        { route: true, budget: null, cost: 0.0015 },
+        { route: false, budget: null, cost: 0.0015 },
+      ]);
       expect((await db.getCampaign('judged'))?.provenance?.realizedText).toBe(record ? true : undefined);
       for (const block of after?.blocks ?? []) {
         expect(block.realized).toEqual({

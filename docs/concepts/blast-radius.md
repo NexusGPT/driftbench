@@ -401,12 +401,14 @@ The final command exits 1 and prints:
 
 ```text
 Campaign acme-rejudged: 2 blocks re-judged, 3 carried; 0 agent calls. Judge cost 0.0030 USD.
+Runs: 0 pass, 1 fail.
 ```
 
 A paid judge requires `--judge-budget <usd>`. The budget guard is the existing run-judge guard.
 Exit 0 means the resulting campaign passes, 1 means a gating result fails or is inconclusive,
-and 2 means the inputs or reuse proof were refused. `--json` emits the campaign ids, carried
-and re-judged block counts, zero agent calls and judge spend.
+2 means the inputs or reuse proof were refused, and 3 means no run fails but a block was not run or
+blocked (left as it was, named with its reason). `--json` emits the campaign ids, carried and
+re-judged block counts, the blocks not run, the runs by verdict, zero agent calls and judge spend.
 
 ## Mode T block reruns
 
