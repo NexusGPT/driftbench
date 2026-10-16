@@ -800,11 +800,18 @@ export function coverageFamily(): Family {
         const absent = atoms.filter(
           (atom) => kind === 'reference' && !held.has(String(atom.fields?.path ?? '').replace(/^\.\//, '')),
         );
-        const unmarked = absent.filter((atom) => !waiting.has(atom.id));
+        // The generator may judge a Read of a missing file in one of two ways (docs/estate.md section 5): the row waits
+        // on `needs-existing-file`, or a complete spec checks that the Read is attempted (a some_call check). A
+        // reference with neither is a reference nothing judges.
+        const unmarked = absent.filter(
+          (atom) =>
+            !waiting.has(atom.id) &&
+            !suite.specs.some((spec) => spec.complete && spec.atoms.includes(atom.id)),
+        );
         if (unmarked.length > 0)
           return {
             pass: false,
-            detail: `${unmarked.length} of ${absent.length} references to a missing file are not marked needs-existing-file, such as ${unmarked[0]?.id}`,
+            detail: `${unmarked.length} of ${absent.length} references to a missing file are neither marked needs-existing-file nor named by a complete spec, such as ${unmarked[0]?.id}`,
           };
         const short = atoms
           .filter((atom) => !absent.includes(atom))

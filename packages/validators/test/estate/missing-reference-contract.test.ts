@@ -53,7 +53,7 @@ describe('a Read of a file the estate does not hold (docs/estate.md section 5, n
     };
     expect(await one(unmarked)).toMatchObject({
       pass: false,
-      detail: expect.stringContaining('not marked needs-existing-file'),
+      detail: expect.stringContaining('neither marked needs-existing-file'),
     });
     // Planted: every complete spec of the references that exist is dropped; the item is red for them.
     const dropped = {
@@ -185,5 +185,36 @@ describe('a Read of a file the estate does not hold (docs/estate.md section 5, n
     expect(await one((line) => line.replace('exists: true', 'exists: false'))).toEqual(real);
     // The committed map says the missing reference is present: it is still judged by its marker.
     expect(await one((line) => line.replace('exists: false', 'exists: true'))).toEqual(real);
+  });
+
+  it('accepts a missing reference judged by a complete spec instead of the marker, and still fails one judged by neither', async () => {
+    const suite = await fixture.fixtureSuite();
+    const waiting = (suite.report.gaps ?? []).find((gap) => gap.marker === 'needs-existing-file');
+    const missing = waiting?.atoms[0];
+    if (!missing || !suite.specs[0]) throw new Error('the fixture has no missing reference');
+    const one = async (planted: typeof suite) => {
+      const mock = vi.spyOn(fixture, 'fixtureSuite').mockResolvedValue(planted);
+      try {
+        return (await coverageFamily().evaluate(1)).get('gen.coverage.one-per-reference');
+      } finally {
+        mock.mockRestore();
+      }
+    };
+    const noMarker = {
+      ...suite,
+      report: {
+        ...suite.report,
+        gaps: (suite.report.gaps ?? []).filter((gap) => gap.marker !== 'needs-existing-file'),
+      },
+    };
+    // Judged by neither: the item fails and names the reference.
+    expect(await one(noMarker)).toMatchObject({
+      pass: false,
+      detail: expect.stringContaining(missing),
+    });
+    // Judged by a complete spec that checks the attempted Read: no complaint about the missing reference.
+    const spec = { ...structuredClone(suite.specs[0]), atoms: [missing], complete: true };
+    const judged = await one({ ...noMarker, specs: [...suite.specs, spec] });
+    expect(judged?.detail ?? '').not.toContain(missing);
   });
 });
