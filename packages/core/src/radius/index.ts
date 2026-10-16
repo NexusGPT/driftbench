@@ -53,6 +53,16 @@ export {
   sectionLinkStatus,
   specLinks,
 } from './links';
+export {
+  type Localization,
+  type LocalizeCampaign,
+  type LocalizeRow,
+  type LocalizeRun,
+  localizeRows,
+  localizeRuns,
+  ochiaiLocalize,
+  type SectionSuspicion,
+} from './localize';
 export { type PromptAnchor, promptChangeManifest } from './prompt';
 export {
   ALLOWED_VERSION_TRANSITION_FIELDS,

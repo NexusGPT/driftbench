@@ -53,6 +53,9 @@ the radius stays the whole suite and every block runs. On the H7 mutation suite,
 missed a block a mutant flipped in 3 of 90 single-section mutants and 9 of 110 with two-section ones;
 with the forward closure, 2 of 90 and 4 of 110.
 
+`radius localize` reads a stored campaign and ranks the local sections whose linked blocks failed, with
+inherited failures dropped (authoring-prompt-sections).
+
 The radius per run mode:
 
 * **Direct**: blocks whose dependencies name a change.
