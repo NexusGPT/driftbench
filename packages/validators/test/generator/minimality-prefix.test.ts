@@ -199,6 +199,63 @@ describe('minimality proves removability instead of treating shared setup as red
     });
   }
 
+  describe('a variant a metamorphic family declares is not a removable duplicate', () => {
+    /** Two one-block specs with the same test; the metadata says whether they are variants of one family. */
+    function variants(member: (index: number) => Record<string, unknown> | undefined): Generation {
+      const generated = fixture();
+      const first = required(generated.complete[0]);
+      first.spec.blocks = [required(first.spec.blocks[0])];
+      delete first.spec.perturbations;
+      delete first.spec.end_state;
+      first.spec.id = 'phrasing-1';
+      const second = structuredClone(first);
+      second.spec.id = 'phrasing-2';
+      [first, second].forEach((entry, index) => {
+        const family = member(index);
+        entry.spec.metadata = {
+          generated: { seeder: 'metamorphic', ...(family ? { metamorphic: family } : {}) },
+        };
+      });
+      generated.complete = [first, second];
+      generated.loaded = [first, second];
+      return generated;
+    }
+    const family = (index: number, of: number) => ({
+      family: 'phrasings-of-one-request',
+      variant: index + 1,
+      of,
+      relation: 'same observed outcome',
+    });
+
+    it('keeps the variants a family declares, however equal their tests are', async () => {
+      const data = await dataFor(variants((index) => family(index, 2)));
+      expect((await data.runs()).blocks.every((block) => block.reference[0] === 'pass')).toBe(true);
+      const result = await check(data);
+      expect(result.pass, result.detail).toBe(true);
+    });
+
+    it('still rejects the same two specs when no family declares them', async () => {
+      const data = await dataFor(variants(() => undefined));
+      expect(await check(data)).toMatchObject({ pass: false });
+    });
+
+    it('still rejects a variant the family declares beyond its count', async () => {
+      const generated = variants((index) => family(index, 1));
+      const data = await dataFor(generated);
+      expect(await check(data)).toMatchObject({ pass: false });
+    });
+
+    it('still rejects a plain duplicate of a variant that is not in the family', async () => {
+      const generated = variants((index) => family(index, 2));
+      const stranger = structuredClone(required(generated.complete[0]));
+      stranger.spec.id = 'phrasing-3';
+      stranger.spec.metadata = { generated: { seeder: 'metamorphic' } };
+      generated.complete.push(stranger);
+      generated.loaded.push(stranger);
+      expect(await check(await dataFor(generated))).toMatchObject({ pass: false });
+    });
+  });
+
   it('does not pass an empty fault-killing set', async () => {
     const generated = fixture();
     for (const { spec } of generated.complete) for (const block of spec.blocks) delete block.expect;
