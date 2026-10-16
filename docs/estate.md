@@ -917,7 +917,7 @@ The state of the first Northwind version sits in `examples/estates/fixture-v2/ma
 
 ### What it does to the tests: `estate impact`
 
-Specs index by `metadata.estate.atoms` (a list of atom ids, as `estate generate` writes them). A spec without `metadata.estate` is counted as other. A spec with any `metadata.retired` value, a key beside `metadata.estate`, is no longer live. The lists:
+Specs index by `metadata.estate.atoms` (a list of atom ids, as `estate generate` writes them). A spec without `metadata.estate` is counted as other. A spec with any `metadata.retired` value, a key beside `metadata.estate`, is no longer live. A static test record under the folder (an invariant or setting check `estate generate` writes as JSON) indexes by its one `atom` and retires like a spec: `--write` sets its `retired` field, and `estate stats` leaves a retired record out. The lists:
 
 * regenerate: every test with a semantic, restated or guard-state atom, or with a removed atom while other atoms remain, with the reason per atom; a change of white space alone touches no test (the respaced supplier rule leaves `northwind-supplier-yes` untouched);
 * re-approve: every semantic change, with its tests;

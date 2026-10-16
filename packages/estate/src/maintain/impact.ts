@@ -1,7 +1,7 @@
-import { readFile, stat, writeFile } from 'node:fs/promises';
-import { relative } from 'node:path';
+import { readdir, readFile, stat, writeFile } from 'node:fs/promises';
+import { join, relative } from 'node:path';
 import { findSpecFiles, isPlainObject, loadSpecFile, parseSpecText } from '@agent-nexus/driftbench-core';
-import { shortQuote } from '@agent-nexus/driftbench-generate';
+import { shortQuote, StaticTest } from '@agent-nexus/driftbench-generate';
 import { parseDocument } from 'yaml';
 import { z } from 'zod';
 import { AtomKind } from '../schema';
@@ -11,7 +11,8 @@ import { Regression, regressionNeeds, renderRegression } from './regression';
 
 /**
  * The impact of an estate diff on the tests written for the estate. Tests index by atom id: a spec names the
- * atoms it covers under `metadata.estate.atoms`. For the diff:
+ * atoms it covers under `metadata.estate.atoms`, a static test (an invariant or setting record `estate
+ * generate` writes as JSON) the one atom it checks. For the diff:
  * - regenerate: every test that names an atom whose meaning changed (semantic), a restated atom, or a
  *   removed atom while it still names others; the generator writes it again;
  * - re-approve: every atom whose meaning changed (a semantic change); its phrasings wait for a person;
@@ -38,11 +39,16 @@ export type EstateTest = {
   atoms: string[];
   /** The retirement reason, when the spec already carries one. */
   retired?: string;
+  /** A static test record (JSON), not a spec: its retirement is written as its `retired` field. */
+  static?: boolean;
 };
 
 export type LoadedTests = { ok: true; tests: EstateTest[]; others: number } | { ok: false; errors: string[] };
 
-/** Reads every spec under a folder; the specs with `metadata.estate.atoms` are the estate tests. */
+/**
+ * Reads every spec under a folder, and every static test record (a `*.json` that is a static test); the
+ * specs with `metadata.estate.atoms` and the static tests are the estate tests.
+ */
 export async function loadEstateTests(dir: string): Promise<LoadedTests> {
   const info = await stat(dir).catch(() => undefined);
   if (!info?.isDirectory()) return { ok: false, errors: [`${dir} is not a folder`] };
@@ -81,7 +87,42 @@ export async function loadEstateTests(dir: string): Promise<LoadedTests> {
       ...(retired === undefined ? {} : { retired }),
     });
   }
+  for (const path of await jsonRecords(dir)) {
+    let raw: unknown;
+    try {
+      raw = JSON.parse(await readFile(path, 'utf8'));
+    } catch {
+      continue;
+    }
+    const parsed = StaticTest.safeParse(raw);
+    if (!parsed.success) continue;
+    tests.push({
+      id: parsed.data.id,
+      path,
+      file: relative(dir, path),
+      atoms: [parsed.data.atom],
+      static: true,
+      ...(parsed.data.retired === undefined ? {} : { retired: parsed.data.retired }),
+    });
+  }
   return errors.length > 0 ? { ok: false, errors } : { ok: true, tests, others };
+}
+
+/** The `.json` files under a folder that are no spec files (`.spec.json`): candidate static test records. */
+async function jsonRecords(dir: string): Promise<string[]> {
+  const entries = await readdir(dir, { withFileTypes: true, recursive: true }).catch(() => []);
+  return entries
+    .filter(
+      (entry) =>
+        entry.isFile() &&
+        entry.name.endsWith('.json') &&
+        !entry.name.endsWith('.spec.json') &&
+        !relative(dir, entry.parentPath)
+          .split(/[\\/]/)
+          .some((part) => part.startsWith('.') || part === 'node_modules'),
+    )
+    .map((entry) => join(entry.parentPath, entry.name))
+    .sort();
 }
 
 export const RegenerateWhy = z.enum(['whitespace', 'semantic', 'restated', 'removed', 'guard_state', 'renamed']);
@@ -298,6 +339,13 @@ export async function writeRetirements(
     }
     try {
       const text = await readFile(test.path, 'utf8');
+      if (test.static) {
+        const record = JSON.parse(text) as Record<string, unknown>;
+        await writeFile(test.path, `${JSON.stringify({ ...record, retired: entry.reason }, null, 2)}\n`);
+        entry.state = 'written';
+        results.push({ file: entry.file, ok: true });
+        continue;
+      }
       const doc = parseDocument(text, { uniqueKeys: true });
       const current: unknown = doc.toJS();
       const metadata = isPlainObject(current) ? current.metadata : undefined;

@@ -237,3 +237,54 @@ describe('loadEstateTests and writeRetirements', () => {
     expect(missing.ok).toBe(false);
   });
 });
+
+describe('static test records in the impact', () => {
+  const record = (id: string, atomId: string, key: string) =>
+    JSON.stringify(
+      {
+        id,
+        planRow: `setting.${atomId}`,
+        testType: 'setting',
+        atom: atomId,
+        title: `Setting ${key}`,
+        check: { kind: 'setting', key },
+        mapHash: 'bakery-map',
+      },
+      null,
+      2,
+    );
+
+  it('indexes a static test by its atom, retires it when its atom leaves and writes the reason into it', async () => {
+    const root = await estate({
+      'suite/specs/proof.yaml': spec('t-proof', ['instruction.standing.proof']),
+      'suite/static/setting/oven.json': record('s-oven', 'setting.settings.env-oven-temp', 'env.OVEN_TEMP'),
+      'suite/static/setting/flour.json': record('s-flour', 'setting.settings.env-flour', 'env.FLOUR'),
+      'suite/estate-generate-report.json': '{ "summary": {} }',
+    });
+    const dir = join(root, 'suite');
+    const loaded = await loadEstateTests(dir);
+    if (!loaded.ok) throw new Error(loaded.errors.join('\n'));
+    expect(loaded.tests.map((entry) => [entry.id, entry.atoms, entry.static === true])).toEqual([
+      ['t-proof', ['instruction.standing.proof'], false],
+      ['s-flour', ['setting.settings.env-flour'], true],
+      ['s-oven', ['setting.settings.env-oven-temp'], true],
+    ]);
+    const before = estateMap([
+      atom('instruction.standing.proof', 'Proof the dough overnight.'),
+      atom('setting.settings.env-oven-temp', '"OVEN_TEMP": "220"', { kind: 'setting', file: '.claude/settings.json' }),
+      atom('setting.settings.env-flour', '"FLOUR": "rye"', { kind: 'setting', file: '.claude/settings.json', line: 2 }),
+    ]);
+    const after = estateMap(before.atoms.filter((entry) => entry.id !== 'setting.settings.env-oven-temp'));
+    const report = estateImpact(diffEstateMaps(before, after), loaded.tests);
+    expect(report.retire.map((entry) => entry.test)).toEqual(['s-oven']);
+    expect(await writeRetirements(report, loaded.tests)).toEqual([
+      { file: 'static/setting/oven.json', ok: true },
+    ]);
+    const written = JSON.parse(await readFile(join(dir, 'static/setting/oven.json'), 'utf8'));
+    expect(written.retired).toBe('atom setting.settings.env-oven-temp removed');
+    const again = await loadEstateTests(dir);
+    expect(again.ok && again.tests.find((entry) => entry.id === 's-oven')?.retired).toBe(
+      'atom setting.settings.env-oven-temp removed',
+    );
+  });
+});

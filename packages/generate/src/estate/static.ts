@@ -24,6 +24,8 @@ export const StaticTest = z.strictObject({
   title: z.string().min(1),
   check: StaticCheck,
   mapHash: z.string().min(1),
+  /** The retirement reason `estate impact --write` gives when the test's atom left the estate. */
+  retired: z.string().min(1).optional(),
 });
 export type StaticTest = z.infer<typeof StaticTest>;
 
