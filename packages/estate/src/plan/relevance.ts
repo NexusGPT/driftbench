@@ -1,4 +1,5 @@
 import type { SpaceMap } from '@agent-nexus/driftbench-space';
+import nlp from 'compromise/two';
 import type { Atom, EstateMap } from '../schema';
 
 /**
@@ -13,7 +14,7 @@ const EVENT_AXES = new Set(['session_state', 'owner_signal', 'deviation', 'estat
 // Grammatical and contextual words do not identify what an event acts on. Keep domain words unchanged.
 const CONTEXT = new Set(
   `a an the of in on at to for from with without by and or not no when while after
-before during then every any each all it its this that these those is are was were be been being as
+before during then once every any each all it its this that these those is are was were be been being as
 has have had can could may might must should shall will would do does did you your we our they their
 new long explicit middle mid process session task runtime owner user turn event switch switches
 run running open happens arrives`.split(/\s+/),
@@ -26,6 +27,27 @@ function words(text: string): Set<string> {
       .map((word) => word.replace(/(?:ations?|ions?|ing|ed|es|s)$/u, '').replace(/e$/u, ''))
       .filter((word) => word.length > 2),
   );
+}
+
+/** The event's object supplies its subject; a shared act or trailing time clause does not. */
+function eventSubjects(title: string): Set<string> {
+  // Keep leading temporal events ("After a restart"), but not a trailing timing qualification.
+  const main = title.replace(/\s+(?:after|before|when|while|until|once)\b.*$/iu, '');
+  type Term = { text: string; tags: string[] };
+  const terms: Term[] = nlp(main)
+    .json()
+    .flatMap((sentence: { terms: Term[] }) => sentence.terms);
+  // A finite actor/verb clause with a determiner-led object: replacing a detector is not
+  // relevant to every rule that replaces something else. POS tags keep actors and verbs open-ended.
+  const predicate = terms.findIndex(
+    (term, index) =>
+      term.tags.includes('Verb') &&
+      !term.tags.includes('Gerund') &&
+      !term.tags.includes('Participle') &&
+      terms[index + 1]?.tags.includes('Determiner') &&
+      terms.slice(0, index).some((actor) => actor.tags.includes('Actor') || actor.tags.includes('Pronoun')),
+  );
+  return words((predicate < 0 ? terms : terms.slice(predicate + 1)).map((term) => term.text).join(' '));
 }
 
 function prose(atom: Atom): string {
@@ -100,7 +122,7 @@ export function situationSpace(map: EstateMap, space: SpaceMap): { space: SpaceM
     for (const [index, value] of dimension.values.entries()) {
       // The first value is the axis's baseline, and long is an unperturbed session as well.
       if (index === 0 || (dimension.id === 'session_state' && value.id === 'long')) continue;
-      const subject = words(value.title);
+      const subject = eventSubjects(value.title);
       if (subject.size === 0) continue;
       const relevant = new Set(
         targets.flatMap((target) =>
