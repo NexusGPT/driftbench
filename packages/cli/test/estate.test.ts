@@ -41,6 +41,21 @@ async function fixtureCopy(): Promise<string> {
 }
 
 describe('driftbench estate scan', () => {
+  it('reports an ambiguous table without inventing an automatic route', async () => {
+    const root = await fixtureCopy();
+    await writeFile(
+      join(root, 'CLAUDE.md'),
+      '| A | B |\n|---|---|\n| Inspect the crate seals | `invoice-reconcile` |\n| internal | `invoice-reconcile` |',
+    );
+    const result = await run(['estate', 'scan', '.', '--no-model', '--out', 'map.yaml'], root);
+    expect(result.code).toBe(0);
+    expect(result.out).toContain('CLAUDE.md: Ambiguous routing table');
+    const loaded = await loadEstateMap(join(root, 'map.yaml'));
+    expect(
+      loaded.ok && loaded.map.atoms.filter((atom) => atom.kind === 'route' && atom.fields?.via === 'table'),
+    ).toEqual([]);
+  });
+
   it('refuses an unknown --provider before any model call, and writes nothing', async () => {
     const root = await fixtureCopy();
     const result = await run(['estate', 'scan', '.', '--out', 'map.yaml', '--provider', 'bogus'], root);
@@ -62,7 +77,7 @@ describe('driftbench estate scan', () => {
     );
     expect(result.out).toMatch(/instruction\s+43 {2}\(43 by the model\)/);
     expect(result.out).toContain(
-      'Prose: 14 chunks, 6825 characters (standing 1, memory 2, skill bodies 4, skill files 4, helper bodies 3).',
+      'Prose: 15 chunks, 6961 characters (standing 1, memory 2, skill bodies 4, skill files 5, helper bodies 3).',
     );
     expect(result.out).not.toContain('Unanswered prose chunks');
     expect(result.out).toContain('Refused: none.');
@@ -84,7 +99,7 @@ describe('driftbench estate scan', () => {
     );
     expect(result.code).toBe(0);
     expect(result.out).toContain('No model call: structured atoms only (--no-model).');
-    expect(result.out).toContain('Unanswered prose chunks (no model call): 14, 6825 characters.');
+    expect(result.out).toContain('Unanswered prose chunks (no model call): 15, 6961 characters.');
     expect(result.out).toContain(
       '    .claude/skills/invoice-reconcile/references/matching-rules.md  261 characters\n',
     );
@@ -118,7 +133,7 @@ describe('driftbench estate scan', () => {
     const root = await fixtureCopy();
     const { io, output } = capture(root);
     const port = new FakeModelPort(
-      Array.from({ length: 14 }, () => (request) => {
+      Array.from({ length: 15 }, () => (request) => {
         const chunk = /^CHUNK: (.+)$/m.exec(request.user)?.[1] ?? '';
         return JSON.stringify({ chunk, atoms: [] });
       }),
@@ -129,8 +144,8 @@ describe('driftbench estate scan', () => {
       now: () => new Date('2026-10-11T00:00:00.000Z'),
     });
     expect(code).toBe(0);
-    expect(port.requests).toHaveLength(14);
-    expect(output.out).toContain('Model fake fake-model: 14 prose chunks, 14 calls.');
+    expect(port.requests).toHaveLength(15);
+    expect(output.out).toContain('Model fake fake-model: 15 prose chunks, 15 calls.');
     const loaded = await loadEstateMap(join(root, 'map.yaml'));
     expect(loaded.ok && loaded.map.producedBy).toEqual({
       family: 'fake',

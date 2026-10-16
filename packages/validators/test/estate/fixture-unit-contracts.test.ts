@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { chmod, mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -255,7 +256,7 @@ describe('the fixture gives each script a usage line and fixtures that a fake ca
       'track: the table is read from the working folder',
       ['sh'],
       'shipment-tracker/scripts/track.sh',
-      (t) => t.replace('"$(dirname "$0")/shipments.txt"', 'shipments.txt'),
+      (t) => t.replace('"$(dirname "$0")/../data/shipments.txt"', 'shipments.txt'),
     ],
   ];
 
@@ -265,13 +266,17 @@ describe('the fixture gives each script a usage line and fixtures that a fake ca
     const text = mutate(original);
     expect(text, 'the mutation changed the script').not.toBe(original);
     const dir = await scratch();
-    const mutant = join(dir, tail.split('/').at(-1) as string);
+    // The mutant sits in a scripts folder of its own, with the data folder the script keeps beside it.
+    await mkdir(join(dir, 'scripts'));
+    const mutant = join(dir, 'scripts', tail.split('/').at(-1) as string);
     await writeFile(mutant, text);
     await chmod(mutant, 0o755);
-    // The data a script keeps beside it travels with the mutant.
-    for (const sibling of await readdir(dirname(join(FIXTURE, path))))
-      if (sibling.endsWith('.txt'))
-        await writeFile(join(dir, sibling), await readFile(join(FIXTURE, dirname(path), sibling)));
+    const skill = dirname(dirname(join(FIXTURE, path)));
+    if (existsSync(join(skill, 'data'))) {
+      await mkdir(join(dir, 'data'));
+      for (const name of await readdir(join(skill, 'data')))
+        await writeFile(join(dir, 'data', name), await readFile(join(skill, 'data', name)));
+    }
     const results = await Promise.all(
       ((await config()).scripts[path]?.fixtures ?? []).map(async (fixture) =>
         problems(fixture, await runFixture([...interpreter], mutant, fixture)),
