@@ -4,6 +4,7 @@ All notable changes to driftbench are listed here. The format follows [Keep a Ch
 
 ## [Unreleased]
 
+* The `tools` check collects what the user wrote only when a value-check rung reads it, once for the block, where it collected it for every block whether or not a value differed. A long run no longer does work per block that grows with the run: the message visits of the `flow-blocks` growth items go from 56.5 and 50.4 times to 10.0 and 10.1 times from 40 to 400 blocks (linear is 10). No verdict changes.
 * Checks export `initializeShippedObjects` for entry points to register the value-check policy explicitly before loading specs. The shared core object context carries project policies through execution and storage.
 
 * Every `--set` flag that names one object (`<kind>/<id>#...`) is applied before the object's params are validated, once, as a kind-only `--set` already was. Two flags that are valid together, such as a `lo` and a `hi` whose schema requires `lo <= hi`, no longer fail one at a time; a final combination that breaks the schema still fails.
