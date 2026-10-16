@@ -7,8 +7,39 @@ Rewritten by the executor every iteration (docs/validators.md section 10). A str
 <!-- level-table:start -->
 | Seed | Level |
 |---|---|
-| 1 | 8 |
+| 1 | 12 |
+| 2 | 12 |
+| 3 | 12 |
+| 4 | 12 |
+| 5 | 12 |
+| 6 | 12 |
+| 7 | 12 |
+| 8 | 12 |
+| 9 | 12 |
+| 10 | 12 |
+| 11 | 12 |
+| 12 | 12 |
+| 13 | 12 |
+| 14 | 12 |
+| 15 | 12 |
+| 16 | 12 |
+| 17 | 12 |
+| 18 | 12 |
+| 19 | 12 |
+| 20 | 12 |
+| hidden | 12 |
 <!-- level-table:end -->
+
+Journal row 21, measured on GitHub Actions run 38937471773 at main `9ac9cb315` (hidden seed 597916017): level 12 on every one of the 21 seeds. 1972 of 2033 bank items pass on every seed (score 0.970); 61 fail. Every failing item, its seeds and its first detail: [evidence/sweep-9ac9cb315.json](evidence/sweep-9ac9cb315.json). The measurement before it (run 38716014335 at main `79725ad8b`) had level 8 as its minimum, so the level rose by 4. The first failing level is 13, modes. The sections below that describe levels 5 to 9 are the history before this row.
+
+| First failing items at row 21 | Seeds | Owner and where it is described |
+|---|---|---|
+| `mode.P.X2.slot-first` (level 13) | all 21 | Open items, item 3 |
+| `perturbation.carrier.D6_instruction_in_data` (level 13) | all 21 | Open items, item 15, and the D6 maintainer ruling below |
+| `allocation.stage.ratio` (21 seeds), `evenness` (15), `hill1` (11) | see left | Open items, item 7 |
+| `allocation.deviation.ratio` | 3 | Open item the product can still fix |
+| `scale.100x.time` | 6 | CPU budget of 60 s on the Actions runner; passed on 15 seeds of the same run |
+| `minimal.*` (54 items) | 17 or 21 | Open items, item 4 |
 
 V4 gate measurement: seed 1 reaches level 8. Counts by level 1 through 9: 25/25, 25/25, 26/26, 25/25, 25/25, 22/22, 30/30, 30/30, 17/20. Levels 10 through 22 were not run. The scoped measured bank is 225/228, not a replacement for the historical all-seed total. Gate-only checks on seeds 2 and 3 each pass 22/22; their full ladders were not rerun. Evidence: `.exec/gate-ladder-s1.json`, `.exec/gate-structured-s2.json`, `.exec/gate-structured-s3.json`. No full sweep is authorized on the loaded host.
 
@@ -47,7 +78,7 @@ Per level, items passing on every seed:
 
 ## Floor
 
-`validators/floors.json` holds no floor for the generator. The measured level is 5 on every seed. A floor of 5 on ladder version 2 can be set once pull request 306 is on main: it goes through a maintainer branch (`fix/generator-floor`) and an independent review, with the sweep of that main commit as its evidence. The executor does not edit the file.
+`validators/floors.json`: generator 12, ladder version 1, raised in its own commit with the 21-seed run of journal row 21 as evidence (every seed at 12 or more). CI (`validate all --seeds 1..3 --hidden --check-floor`) enforces it on seeds 1 to 3 and the hidden seed of every commit. The floor never goes down.
 
 ## What this executor changed
 
@@ -71,6 +102,8 @@ Product code only, in `packages/generate/src/seed`. One cause per commit, each w
 `worldFor` moved to `seed/world.ts` so `scenario.ts` can build a tool's answer without an import cycle. The Acme fixtures, the budget pin (`packages/generate/test/enumerate/fixtures/budget-categorical.json`), the pinned counts and the two generate transcripts (`docs/generating.md`, `docs/reference/cli.md`) are regenerated: 504 files, 332 complete specs, 24 cover specs. README.md lines 154 and 437 still say 508 files; README is outside the executor's scope.
 
 ## Open items
+
+The numbered diagnosis below dates from before journal row 21. Items 1, 2, 5, 6, 8 to 14 and 16 to 19 no longer fail at row 21 (see the table above); items 3, 4, 7 and 15 still do.
 
 Every open item is an item to rule on, a decision for the owner or one product item still open; the last two have their own sections below.
 
@@ -117,9 +150,9 @@ Tried and rejected:
 
 ## Next actions
 
-1. Take the rulings on items 1 to 19 to the maintainer. Item 1 alone holds every seed at level 5.
-2. After pull request 306 merges, a maintainer sets the generator floor at 5 (`fix/generator-floor`).
-3. Fix `allocation.deviation.ratio` (above), then re-run the sweep.
+1. Fix `mode.P.X2.slot-first` and `perturbation.carrier.D6_instruction_in_data`, the first failing items of level 13 on every seed (Open items 3 and 15).
+2. Take the rulings on the remaining items of Open items to the maintainer; item 7 (`allocation.stage.*`) and item 4 (`minimal.*`) hold levels 16 and 18.
+3. Re-sweep main on Actions after each of these lands, append the next journal row, and raise the floor to the new minimum in its own commit.
 
 ## Pitfalls
 
@@ -139,6 +172,8 @@ pnpm -s driftbench validate generator --journal .exec/row.json
 ```
 
 Run the sweep in a second worktree at a fixed commit: each seed's child reads the source when it starts, so an edit during a sweep mixes two versions.
+
+An Actions sweep (no local sweep on the shared host): one job per seed (`--seed N --all-levels --json`, and `--hidden --seeds 1..1` for the hidden seed) from a scratch branch that holds the measured commit plus one commit with only the workflow file; each job checks out `HEAD^`, so the hidden seed is the measured commit's. Delete the branch afterwards. `node --import tsx packages/validators/src/ladders/generator/sweep-summary.ts <summary.json> <job>/out.json...` merges the reports into the `bank-run.ts` summary: it reads each seed from a report's `seeds` and each failure from the seeds its entry names, and keeps a seed that two jobs measured once. The reports' seeds, with the hidden job's `hiddenSeed`, are the `--evidence` of `validate floors --raise`. The run of row 21 took 1 hour 38 minutes from creation to its last job (GitHub timestamps).
 
 ## Tools
 

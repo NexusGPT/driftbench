@@ -401,8 +401,8 @@ window.CHART_DATA = {
         "label": "Test generator",
         "value": 2033,
         "text": "2,033",
-        "series": 1,
-        "sub": "no floor yet"
+        "series": 0,
+        "sub": "floor: level 12"
       },
       {
         "label": "Code-agent estates",
