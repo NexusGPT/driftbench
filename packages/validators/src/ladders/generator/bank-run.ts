@@ -15,7 +15,7 @@ import { findRoot } from '../../root';
 import { hiddenSeed } from '../../seeds';
 import { BANK_LEVELS, bankItems, bankShape, causeOf, SeedData } from './bank';
 import { evaluate } from './index';
-import { type ScaleReport, scaleReport } from './scale';
+import { type ScaleGrowth, type ScaleReport, scaleGrowth, scaleReport } from './scale';
 
 type SeedResult = {
   seed: number;
@@ -76,8 +76,10 @@ async function parent(args: string[]): Promise<void> {
     }
   });
   const scales: ScaleReport[] = [];
+  let growth: ScaleGrowth | undefined;
   const scaling = (async () => {
     for (const factor of [10, 100]) scales.push(await scaleReport(factor, seeds[0] ?? 1));
+    growth = await scaleGrowth(seeds[0] ?? 1);
   })();
   await Promise.all([...workers, scaling]);
   const perSeed = files.map((file) => JSON.parse(readFileSync(file, 'utf8')) as SeedResult);
@@ -86,6 +88,7 @@ async function parent(args: string[]): Promise<void> {
     seeds[0] ?? 1,
     {},
     async (factor) => scales.find((report) => report.factor === factor) as ScaleReport,
+    async () => growth as ScaleGrowth,
   );
   const scaleResults = await evaluate(items.filter(inParent), scaleData);
   const summary = items.map((item) => {
