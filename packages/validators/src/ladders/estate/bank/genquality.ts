@@ -1,14 +1,15 @@
 import { existsSync, readdirSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { loadEstateMap } from '@agent-nexus/driftbench-estate';
+import nlp from 'compromise/two';
 import { FIXTURE, type FixtureSuite, fixtureSuite } from './fixture-suite';
 import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
 
 /**
  * Generation quality on the Northwind fixture's generated suite (seed-free, judged once):
  *
- * gen.task: every first ask of a complete spec holds a task: an imperative clause (its head is a verb, not
- * negated, not a function word) followed by its object, or a question about something. A rule restated as an ask ("Please do this: never guess a status") or a bare condition ("Please
+ * gen.task: every first ask of a complete spec holds a task: an imperative clause (a verb with its object and no
+ * subject of its own, read from the parts of speech of the clause) or a question about something. A rule restated as an ask ("Please do this: never guess a status") or a bare condition ("Please
  * handle this for me: the invoice is not in EUR") holds none. One item per test type.
  *
  * gen.reads: no complete spec expects a Read of a file the estate lacks. One item per test type.
@@ -109,37 +110,6 @@ const DEFERS = new Set(
 );
 const QUESTION = /^(where|what|which|when|who|how|why|is|are|does|do|can|could|has)\b.*\?/i;
 
-/**
- * What a bare verb is followed by. A word that takes a determiner, a pronoun or a verb particle right after it
- * is a verb: "escalate the order", "pick it up", "go through inbox/". A noun that opens a statement is followed
- * by another noun or a finite verb ("supplier orders arrive late"), never by these.
- */
-const COMPLEMENT = new Set(
-  `a an the this that these those my our your its their his her all each every any some both another other me us
-  you it them him up out off down back through into onto about against around along across`
-    .split(/\s+/)
-    .filter(Boolean),
-);
-/** A path, a file name or a reference code (INV-1004) right after the head: its object. A bare number is not. */
-const OBJECT_SHAPE = /^(?:[a-z0-9._-]+\/|[a-z0-9_-]+\.[a-z0-9]{1,5}$|[a-z]{2,}-\d+$)/i;
-/**
- * Base-form verbs of work that take a bare noun as object ("send invoices", "dispatch ledger-auditor"). A verb
- * followed by a determiner needs no entry here; this list serves only the undetermined object, and an unknown
- * verb with one is refused rather than guessed.
- */
-const BASE_VERBS = new Set(
-  `add answer approve archive ask carry force assign attach audit book build call cancel change chase check clean close commit
-  compare compile confirm convert copy correct count create deliver delete describe dispatch download draft edit
-  email enter escalate explain export extract file fill find fix flag forward generate get give go handle help
-  import insert invite join list load log look make mark match merge move note notify open order pack pay
-  paste pick plan post prepare price print process publish pull push put read rebuild recalculate recompute
-  reconcile record recover refund refresh register reject release remind remove rename reopen reorder repeat reply
-  report request reschedule reset resolve restore retry review rotate route run save say schedule scan search
-  select send separate set share ship show sign sort split start submit summarise summarize swap sync tag tell
-  track transfer translate trigger triage try unlock update upload use validate verify view watch write`
-    .split(/\s+/)
-    .filter(Boolean),
-);
 /** A marker left where a value was not filled in, or a note that stands for an ask. */
 const PLACEHOLDER =
   /<[^>]*>|\{\{[^}]*\}\}|\b(?:task|ask|request|text) (?:goes|omitted|here)\b|\b(?:tbd|todo|lorem)\b/i;
@@ -159,7 +129,7 @@ function segments(text: string): Segment[] {
 }
 
 /** The clause's words after its openers and frames, lower-cased, and whether a frame made it a request. */
-function wordsOf(clause: string): { words: string[]; requested: boolean } {
+function wordsOf(clause: string): { words: string[]; requested: boolean; text: string } {
   let rest = clause.trim();
   let requested = false;
   for (let changed = true; changed; ) {
@@ -185,15 +155,10 @@ function wordsOf(clause: string): { words: string[]; requested: boolean } {
     .replace(/[^a-z0-9\s'/.-]/g, ' ')
     .split(/\s+/)
     .filter(Boolean);
-  return { words, requested };
+  return { words, requested, text: rest.trim() };
 }
 
-const FINITE = new Set(
-  `is are was were must should shall will await arrive remain require appear stay exist contain include`.split(
-    ' ',
-  ),
-);
-/** Words that open a subordinate clause: a finite verb after one belongs to it, not to the clause's head. */
+/** Words that open a subordinate clause: a verb after one belongs to it, not to the clause's own head. */
 const SUBORDINATORS = new Set(
   `that which who whom whose if when where what how why unless while because since until whether so as then and or but
   to`
@@ -201,20 +166,148 @@ const SUBORDINATORS = new Set(
     .filter(Boolean),
 );
 
-/** Whether the words after a head carry a finite verb of their own before any subordinate clause: a statement. */
-function isStatement(rest: string[]): boolean {
-  for (const word of rest) {
-    if (SUBORDINATORS.has(word)) return false;
-    if (FINITE.has(word)) return true;
+type Token = { text: string; tags: ReadonlySet<string> };
+
+/** The parts of speech of a clause, one token per word. */
+function tagged(clause: string): Token[] {
+  return nlp(clause)
+    .json()
+    .flatMap((sentence: { terms?: Array<{ text: string; tags: string[] }> }) => sentence.terms ?? [])
+    .map((term: { text: string; tags: string[] }) => ({ text: term.text, tags: new Set(term.tags) }));
+}
+
+const isTag = (token: Token | undefined, ...names: string[]) =>
+  token !== undefined && names.some((name) => token.tags.has(name));
+const isNoun = (token: Token | undefined) =>
+  isTag(token, 'Noun', 'ProperNoun', 'Acronym') && !isTag(token, 'Pronoun', 'Possessive');
+const isPlural = (token: Token | undefined) =>
+  isNoun(token) && (isTag(token, 'Plural') || /[^s]s$/i.test(token?.text ?? ''));
+/** A verb the tagger took from a noun phrase ("the five messages", "stalled purchase"): its neighbour is a modifier. */
+const modifiedVerb = (before: Token | undefined) =>
+  isTag(before, 'Determiner', 'Possessive', 'Adjective', 'Value', 'Preposition');
+const plainVerb = (token: Token | undefined) =>
+  isTag(token, 'Verb') && !isTag(token, 'Copula', 'Modal', 'Auxiliary', 'Gerund');
+
+/**
+ * Whether a bare plural noun heads the phrase that ends at `end`, through a modifying phrase ("orders over 5000 EUR"):
+ * the subject of a verb that follows the phrase.
+ */
+function pluralHeadsPhrase(tokens: Token[], end: number, from: number): boolean {
+  let modified = false;
+  for (let at = end; at >= from; at -= 1) {
+    const token = tokens[at] as Token;
+    if (isTag(token, 'Preposition')) modified = true;
+    else if (isPlural(token) && !isTag(tokens[at - 1], 'Determiner', 'Possessive')) return modified;
+    else if (!isTag(token, 'Noun', 'ProperNoun', 'Acronym', 'Value', 'Adjective', 'Determiner', 'Possessive'))
+      return false;
   }
   return false;
 }
 
-/** Whether the head is a verb in an imperative: a known base verb, or a word that takes an object's first word. */
-function isImperativeHead(head: string, rest: string[]): boolean {
-  if (BASE_VERBS.has(head)) return true;
-  const next = rest[0];
-  return next !== undefined && (COMPLEMENT.has(next) || OBJECT_SHAPE.test(next));
+/**
+ * Whether the clause states something: a finite verb with a subject of its own in the clause's main part. A copula,
+ * modal or auxiliary after a noun, a base-form verb after a plural noun ("receipts confirm"), or a past-tense verb
+ * with an object after a noun ("receipts confirmed delivery") has a subject. A past participle that modifies a noun
+ * ("invoices paid twice") and a verb after a determined noun ("make sure the invoice is paid", an embedded clause)
+ * do not. Nothing after a subordinator counts: it belongs to that clause.
+ */
+function hasSubject(tokens: Token[], from: number): boolean {
+  for (let at = from; at < tokens.length; at += 1) {
+    const token = tokens[at] as Token;
+    if (SUBORDINATORS.has(token.text.toLowerCase())) return false;
+    if (!isTag(token, 'Verb') || isTag(token, 'Gerund') || modifiedVerb(tokens[at - 1])) continue;
+    // A verb with no noun before it in the run has no subject here ("tell me", "and finish it").
+    let previous = at - 1;
+    while (isTag(tokens[previous], 'Adverb', 'Negative')) previous -= 1;
+    const subject = tokens[previous];
+    if (!isNoun(subject)) continue;
+    // The noun phrase ends at the subject: a determiner or possessive before it makes the clause an embedded one.
+    let start = previous;
+    while (isTag(tokens[start - 1], 'Noun', 'ProperNoun', 'Acronym', 'Adjective', 'Value')) start -= 1;
+    if (isTag(tokens[start - 1], 'Determiner', 'Possessive')) continue;
+    if (isTag(token, 'Copula', 'Modal', 'Auxiliary')) return true;
+    if (isTag(token, 'PastTense')) {
+      if (isTag(tokens[at + 1], 'Determiner', 'Noun', 'ProperNoun', 'Pronoun', 'Possessive', 'Value'))
+        return true;
+      continue;
+    }
+    if (!/[^s]s$/i.test(token.text) && (isPlural(subject) || pluralHeadsPhrase(tokens, previous, from)))
+      return true;
+  }
+  return false;
+}
+
+/** A word that ends like a plural noun ("receipts", "quotes"), not like a base verb or a word in -ss. */
+const pluralShaped = (token: Token | undefined) => /[^s]s$/i.test(token?.text ?? '');
+/** A reference code, a path or a number right after the head: its object ("INV-1004", "inbox/", "NW-55020"). */
+const objectShaped = (token: Token | undefined) =>
+  isTag(token, 'Acronym', 'Value', 'Url') || /[\d/]/.test(token?.text ?? '');
+
+/**
+ * Whether the tokens from `at` open a noun phrase that can be the object of a verb in front of it: a determiner,
+ * possessive, number, modifier, pronoun or reference code, or a run of nouns that ends in a plural ("supplier
+ * quotes", "contacts"). A single singular noun after a word ("Sales report for October") is a compound, not an object.
+ */
+function opensObject(tokens: Token[], at: number): boolean {
+  const next = tokens[at];
+  if (isTag(next, 'Determiner', 'Possessive', 'Value', 'Adjective', 'Pronoun') || objectShaped(next))
+    return true;
+  let end = at;
+  while (
+    isTag(tokens[end], 'Noun', 'ProperNoun', 'Acronym', 'Verb') &&
+    !isTag(tokens[end], 'Copula', 'Modal')
+  )
+    end += 1;
+  return end > at && pluralShaped(tokens[end - 1]);
+}
+
+/**
+ * The word an imperative opens with. A verb in the clause as it stands, or a verb once the clause is read as an
+ * infinitive ("to force push the branch"), or a word the tagger took for a noun and that opens an object. A word that
+ * ends like a plural noun ("Records from the inspection") heads a noun phrase, not an imperative. Without a verb
+ * reading, a noun phrase with no object ("Sales report for October") is not a request.
+ */
+function opensImperative(tokens: Token[], at: number, asInfinitive: () => Token[]): boolean {
+  const head = tokens[at];
+  // A word that ends like a plural noun ("Interns", "Records") heads a noun phrase: a base verb does not end in -s.
+  if (head === undefined || (pluralShaped(head) && !/(?:us|is)$/i.test(head.text))) return false;
+  if (plainVerb(head)) return true;
+  const verbReading = plainVerb(asInfinitive()[at + 1]);
+  if (!isNoun(head) && !verbReading) return false;
+  const next = tokens[at + 1];
+  // "Force push the branch": a verb reading of the head, followed by a second verb that takes an object.
+  if (verbReading && plainVerb(next) && opensObject(tokens, at + 2)) return true;
+  return (
+    opensObject(tokens, at + 1) ||
+    (verbReading && !isTag(next, 'Preposition', 'Conjunction') && next !== undefined)
+  );
+}
+
+/**
+ * Where the main verb of an imperative is: the clause's first word, or the first verb after a fronted phrase that
+ * names no determined noun ("In invoices/INV-1.json set the note field"). Undefined when the clause opens with no verb.
+ */
+function mainVerb(tokens: Token[], asInfinitive: () => Token[]): number | undefined {
+  let at = 0;
+  while (isTag(tokens[at], 'Adverb') && !isTag(tokens[at], 'Verb')) at += 1;
+  if (!isTag(tokens[at], 'Preposition')) return opensImperative(tokens, at, asInfinitive) ? at : undefined;
+  for (let next = at + 1; next < tokens.length; next += 1) {
+    const token = tokens[next] as Token;
+    // A determined noun phrase after the preposition makes the rest a clause with a subject of its own.
+    if (isTag(token, 'Determiner', 'Possessive')) return undefined;
+    if (plainVerb(token) && !modifiedVerb(tokens[next - 1])) return next;
+  }
+  return undefined;
+}
+
+/** Whether the words are an imperative clause: a main verb and no subject of its own for any verb after it. */
+function isImperative(text: string): boolean {
+  const tokens = tagged(text);
+  let infinitive: Token[] | undefined;
+  const asInfinitive = () =>
+    (infinitive ??= tagged(`to ${text.charAt(0).toLowerCase()}${text.slice(1)}`).slice(0));
+  const verb = mainVerb(tokens, asInfinitive);
+  return verb !== undefined && !hasSubject(tokens, verb + 1);
 }
 
 /** A short noun phrase before a colon labels a field ("invoice status:"); a longer clause introduces its content. */
@@ -222,28 +315,20 @@ function isLabel(rest: string[]): boolean {
   return rest.length <= 2;
 }
 
-/** Prepositions that may open a clause whose verb comes later: "in invoices/INV-1.json set the note field". */
+/** Prepositions that may open a clause whose verb comes later. */
 const FRONTED = new Set('in on at for with within during under over by from'.split(' '));
-
-/** The verb of a clause opened by a preposition: a base verb within the first few words, with an object. */
-function frontedTask(words: string[]): boolean {
-  for (let at = 1; at < Math.min(5, words.length); at += 1) {
-    const verb = words[at] as string;
-    if (BASE_VERBS.has(verb) && words.slice(at + 1).some((word) => !SKIP.has(word) && word.length > 1))
-      return true;
-  }
-  return false;
-}
 
 /** Whether a clause is an imperative with a task; 'defer' when it asks for a task it does not name. */
 function judgeClause(clause: string, delimiter: string): boolean | 'defer' {
-  const { words, requested } = wordsOf(clause);
+  const { words, requested, text } = wordsOf(clause);
   const [head, ...rest] = words;
-  if (head !== undefined && FRONTED.has(head) && !requested) return frontedTask(words);
-  if (head === undefined || NEGATIONS.has(head) || NOT_A_HEAD.has(head)) return false;
+  if (head === undefined || NEGATIONS.has(head)) return false;
+  // A clause that opens with a function word is a statement, a condition or a fragment; only a preposition may front
+  // an imperative ("In invoices/INV-1.json set the note field").
+  if (NOT_A_HEAD.has(head) && !(FRONTED.has(head) && !requested)) return false;
   if (head === 'do' && NEGATIONS.has(rest[0] ?? '')) return false;
-  if (!requested && isStatement(rest)) return false;
-  if (!requested && !SESSION_CONTROL.has(head) && !isImperativeHead(head, rest)) return false;
+  // Unless a frame or "please" makes it a request, the clause must be an imperative: a main verb and no subject.
+  if (!requested && !(SESSION_CONTROL.has(head) && rest.length === 0) && !isImperative(text)) return false;
   const object = rest.filter((word) => !SKIP.has(word));
   if (delimiter === ':' && rest.length > 0) {
     // A colon after a request that names no task defers to what follows; after a short noun phrase it labels a
