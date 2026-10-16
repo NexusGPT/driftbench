@@ -190,7 +190,7 @@ export const RetryEvent = z.strictObject({
 });
 export type RetryEvent = z.infer<typeof RetryEvent>;
 
-/** A history turn omitted by a wire that cannot carry empty text blocks. */
+/** A history turn a wire serializer omits because its text is empty. */
 export const HistoryNormalization = z.strictObject({
   wire: z
     .string()

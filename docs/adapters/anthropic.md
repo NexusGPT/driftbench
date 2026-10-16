@@ -64,7 +64,7 @@ The answer's own content goes back unchanged within the block, thinking blocks i
 
 Messages of the same role in a row merge into one, so roles alternate as the API expects. A recorded call with no id gets one.
 
-Empty text-only turns are omitted because this wire sends nonempty text blocks. No placeholder text replaces them. The neutral session history stays intact. `Observed.historyNormalizations` records each omitted turn's wire, original role and zero-based history index. The JSON drilldown, HTML reports and JUnit output show the difference, even when the block passes. Read-back stays exact for all carried text and tool records. See the [observation schema reference](../reference/observed.md#history-normalization).
+Empty text-only turns are omitted because this wire sends nonempty text blocks. No placeholder text replaces them. The neutral session history stays intact. `Observed.historyNormalizations` records each omitted turn's wire, original role and zero-based history index. HTML and JUnit reports show one summary line per block, such as `3 empty turns not sent on anthropic`; JSON retains the per-index detail, even when the block passes. Read-back stays exact for all carried text and tool records. See the [observation schema reference](../reference/observed.md#history-normalization).
 
 For example, user `Hello.`, assistant `Ready.`, user `""`, assistant `Still ready.` sends one user text block and two assistant text blocks. The empty user turn is recorded as `anthropic`, history index `2`, `omitted-empty-turn`. Both assistant texts remain, in order.
 

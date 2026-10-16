@@ -81,6 +81,28 @@ describe('empty text turns on block-based wires', () => {
       );
     });
 
+    it(`${wire}: sends whitespace-only text unchanged on the wire`, () => {
+      for (const content of [' ', '\t', '\n', ' \t\n ']) {
+        for (const role of ['system', 'user', 'assistant', 'tool'] as const) {
+          const input: Message[] = [
+            { role: 'user', content: 'Hello.' },
+            { role: 'assistant', content: 'Ready.' },
+            { role, content },
+            { role: 'user', content: 'After.' },
+          ];
+          const rendered = render(input);
+          expect(rendered.normalizations).toEqual([]);
+          expect(rendered.system).toEqual(role === 'system' ? [content] : []);
+          expect(readText(rendered)).toEqual([
+            { role: 'user', content: 'Hello.' },
+            { role: 'assistant', content: 'Ready.' },
+            ...(role === 'system' ? [] : [{ role: role === 'tool' ? 'user' : role, content }]),
+            { role: 'user', content: 'After.' },
+          ]);
+        }
+      }
+    });
+
     it(`${wire}: exposes the difference on the observation and preserves the session history`, async () => {
       const adapter =
         wire === 'anthropic'
@@ -114,6 +136,17 @@ describe('empty text turns on block-based wires', () => {
       expect(session.history).toEqual(history);
       expect(observed.text).toBe('Answer.');
       await adapter.close(session);
+
+      // Absence is a serialization contract: an empty array would change legacy bytes and hashes.
+      const cleanGiven = { ...given, prefix: history.filter((message) => message.content !== '') };
+      const cleanSession = await adapter.open(cleanGiven);
+      const cleanObserved = await adapter.send(cleanSession, {
+        index: 0,
+        stimulus: { user: 'Hello.' },
+        given: cleanGiven,
+      });
+      expect(cleanObserved).not.toHaveProperty('historyNormalizations');
+      await adapter.close(cleanSession);
     });
   }
 });

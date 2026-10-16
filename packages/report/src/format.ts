@@ -3,19 +3,19 @@ import type { CarriedSummary } from './data';
 import type { Estimate } from './estimate';
 import type { SuiteHeadline } from './headline';
 
-/** A visible wire difference, without inserting a warning into the agent's reply. */
-export function historyNormalizationText(entry: HistoryNormalization): string {
-  return `${entry.wire} wire omitted empty ${entry.role} turn at history index ${entry.historyIndex} (zero-based)`;
+/** One compact line per block; the observation and JSON drilldown retain the per-index records. */
+export function historyNormalizationsText(entries: readonly HistoryNormalization[] | undefined): string {
+  const counts = new Map<string, number>();
+  for (const entry of entries ?? []) counts.set(entry.wire, (counts.get(entry.wire) ?? 0) + 1);
+  return [...counts]
+    .map(([wire, count]) => `${count} empty ${count === 1 ? 'turn' : 'turns'} not sent on ${wire}`)
+    .join('; ');
 }
 
 /** No markup when absent, so legacy reports retain their exact bytes. */
 export function historyNormalizationsHtml(entries: readonly HistoryNormalization[] | undefined): string {
-  return (entries ?? [])
-    .map(
-      (entry) =>
-        `<p class="history-normalization">History normalization: ${esc(historyNormalizationText(entry))}</p>`,
-    )
-    .join('');
+  const summary = historyNormalizationsText(entries);
+  return summary === '' ? '' : `<p class="history-normalization">${esc(summary)}</p>`;
 }
 
 /** Escapes text for HTML element content and attribute values. */

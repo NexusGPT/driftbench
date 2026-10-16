@@ -15,6 +15,6 @@ The [`Observed` schema](https://github.com/achammah/driftbench/blob/main/package
 
 The field is absent when no turn is omitted. A tool-only assistant turn still carries its tool calls and is not an omitted turn. Whitespace is text and is not omitted.
 
-The report's JSON drilldown, both HTML block views and JUnit `system-out` show the wire and history index of each omission, including on passing blocks. The read-back contract remains exact for every turn the wire carries; an omitted nonempty turn fails the contract.
+Both HTML block views and JUnit `system-out` show one summary line per block, such as `3 empty turns not sent on anthropic`, including on passing blocks. A block with more than one wire lists each wire's count on the same line. The observation and JSON drilldown retain every original role and history index. The read-back contract remains exact for every turn the wire carries; an omitted nonempty turn fails the contract.
 
 This optional field has no default. Observations without it retain their serialized bytes and hashes; existing bundles and committed examples are unchanged. Adapter versions stay unchanged because the model-request bytes are unchanged. Cached observations recorded before this change carry no normalization note until they are rerun.
