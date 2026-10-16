@@ -236,6 +236,10 @@ export const EstateMap = z.strictObject({
     .array(z.string().min(1))
     .optional()
     .describe('Globs the scan skipped beside the runtime defaults; lint reads the estate with them again'),
+  userSkills: z
+    .literal(false)
+    .optional()
+    .describe('false when the scan read no user-level skill layer; lint then reads none either'),
   followedLinks: z
     .array(z.string().min(1))
     .optional()

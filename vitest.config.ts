@@ -48,5 +48,6 @@ export default defineConfig({
       'tools/**/*.test.ts',
     ],
     environment: 'node',
+    setupFiles: ['./vitest.setup.ts'],
   },
 });

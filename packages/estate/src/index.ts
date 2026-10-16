@@ -188,6 +188,7 @@ export {
   ignoreRule,
   invariantAtoms,
   isExternal,
+  isUserLayerPath,
   keyLine,
   type Located,
   labelOfLine,
@@ -243,6 +244,7 @@ export {
   type ToolLabels,
   tolerantFields,
   toolBase,
+  USER_LAYER,
 } from './scan';
 export {
   Atom,
