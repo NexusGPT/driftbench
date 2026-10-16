@@ -659,6 +659,47 @@ function seedFreeFamily(
 const ofType = (suite: FixtureSuite, type: string) =>
   suite.specs.filter((spec) => spec.complete && spec.testType === type);
 
+/**
+ * The words that set a guard on the prompt off: the quoted words of the rules the guard enforces ("When the user says
+ * "stop", ..." gives stop). Read from the quotes of the enforced atoms in the map, never from the spec under test.
+ */
+export function triggersOfGuard(
+  guard: { fields?: Record<string, unknown> },
+  atoms: ReadonlyArray<{ id: string; provenance: { quote: string } }>,
+): string[] {
+  const enforced = new Set(
+    ((guard.fields?.enforces as Array<{ atom?: string }> | undefined) ?? []).flatMap((entry) =>
+      entry.atom === undefined ? [] : [entry.atom],
+    ),
+  );
+  return [
+    ...new Set(
+      atoms
+        .filter((atom) => enforced.has(atom.id))
+        .flatMap((atom) => [
+          ...atom.provenance.quote.matchAll(/"([^"]{1,40})"|\u201c([^\u201d]{1,40})\u201d/g),
+        ])
+        .map((match) => (match[1] ?? match[2] ?? '').trim().toLowerCase())
+        .filter((word) => word !== ''),
+    ),
+  ];
+}
+
+/**
+ * Whether an ask is the trigger of a guard on the prompt event itself: the trigger word or phrase alone, or at the head
+ * of the ask, set off by punctuation ("stop", "Stop, that is enough for now."). Anything else is no trigger and goes
+ * through the task predicate like any other ask.
+ */
+export function isOwnTrigger(ask: string, triggers: readonly string[]): boolean {
+  const text = ask.trim().toLowerCase();
+  if (PLACEHOLDER.test(text)) return false;
+  return triggers.some((trigger) => {
+    if (!text.startsWith(trigger)) return false;
+    const rest = text.slice(trigger.length);
+    return /^[\s]*$/.test(rest.replace(/[.!?]+$/, '')) || /^[,;:!.?]\s*\S/.test(rest);
+  });
+}
+
 export function taskFamily(): Family {
   return seedFreeFamily(
     'gen.task',
@@ -672,13 +713,13 @@ export function taskFamily(): Family {
       async judge(suite) {
         const specs = ofType(suite, type);
         if (specs.length === 0) return { pass: false, detail: `no complete ${type} spec` };
-        // A guard that watches the user's prompt is set off by its own trigger (a stop word): that ask is legitimate.
+        // A guard that watches the user's prompt is set off by its own trigger (a stop word): only that ask is exempt.
         const map = await loadEstateMap(suite.map);
         const atoms = map.ok ? map.map.atoms : [];
-        const promptGuards = new Set(
+        const promptGuards = new Map(
           atoms
             .filter((atom) => atom.kind === 'guard' && atom.fields?.event === 'UserPromptSubmit')
-            .map((atom) => atom.id),
+            .map((atom) => [atom.id, atom] as const),
         );
         // The rules come from the validator's own map, never from the atoms a spec says it tests: an ask that repeats
         // any rule of the estate is a rule restated.
@@ -700,7 +741,16 @@ export function taskFamily(): Family {
         };
         const bad = specs.filter(
           (spec) =>
-            !(type.startsWith('guard_') && spec.atoms.some((atom) => promptGuards.has(atom))) &&
+            !(
+              type.startsWith('guard_') &&
+              isOwnTrigger(
+                firstAsk(spec) ?? '',
+                spec.atoms.flatMap((id) => {
+                  const guard = promptGuards.get(id);
+                  return guard ? triggersOfGuard(guard, atoms) : [];
+                }),
+              )
+            ) &&
             !holdsTask(firstAsk(spec) ?? '', {
               rules: allRules,
               ...(PRESSURE_TYPES.has(type) ? { against: rulesOf(spec) } : {}),
