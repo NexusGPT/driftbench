@@ -40,7 +40,7 @@ describe('kill.fake script cells are judged by the script_fixture unit test', { 
     const { suite, scripts, work, cell, map } = await setup();
     expect(scripts.length).toBeGreaterThanOrEqual(2);
     for (const index of [0, 1]) {
-      const result = await judgeScript(cell(index), scripts[index] as string, suite.specs, map, work);
+      const result = await judgeScript(cell(index), scripts[index] as string, suite.natives, map, work);
       expect(result, scripts[index]).toMatchObject({ pass: true });
     }
   });
@@ -55,18 +55,50 @@ describe('kill.fake script cells are judged by the script_fixture unit test', { 
       }
       return actual.cli(args, cwd);
     });
-    const result = await judgeScript(cell(0), scripts[0] as string, suite.specs, map, work);
+    const result = await judgeScript(cell(0), scripts[0] as string, suite.natives, map, work);
     expect(result.pass).toBe(false);
     expect(result.detail).toMatch(/stay green|mutate refused/);
   });
 
   it('fails when no script_fixture unit test names the script', async () => {
-    const { suite, scripts, work, cell, map } = await setup();
-    const without = suite.specs.filter((spec) => spec.mode !== 'native-unit');
-    const result = await judgeScript(cell(0), scripts[0] as string, without, map, work);
+    const { scripts, work, cell, map } = await setup();
+    const result = await judgeScript(cell(0), scripts[0] as string, [], map, work);
     expect(result).toMatchObject({
       pass: false,
       detail: expect.stringContaining('no script_fixture unit test'),
     });
   });
+});
+
+describe('a kill needs a valid parsed result of a run that happened', { timeout: 600_000 }, () => {
+  // What `estate unit` printed on the mutant, in four ways that are no result.
+  const BROKEN: Array<[string, { code: number; out: string }]> = [
+    ['an empty run list', { code: 0, out: '{"runs":[],"guards":[],"scripts":[]}' }],
+    ['no JSON at all', { code: 0, out: 'Segmentation fault' }],
+    ['a usage error', { code: 2, out: 'error: unknown option --estate' }],
+    ['rows without a pass field', { code: 1, out: '{"runs":[{"spec":"x","failing":["boom"]}]}' }],
+  ];
+
+  for (const [name, printed] of BROKEN) {
+    it(`does not turn ${name} on the mutant into a kill`, async () => {
+      const { suite, scripts, work, actual, cell, map } = await setup();
+      vi.mocked(bench.cli).mockImplementation((args, cwd) => {
+        const at = args.indexOf('--estate');
+        const root = at < 0 ? '' : String(args[at + 1]);
+        // The unit run on the mutant copy (not on the original estate, not the recording) prints nothing usable.
+        if (
+          args[0] === 'estate' &&
+          args[1] === 'unit' &&
+          root !== '' &&
+          root !== FIXTURE &&
+          !args.includes('--record')
+        )
+          return printed;
+        return actual.cli(args, cwd);
+      });
+      const result = await judgeScript(cell(0), scripts[0] as string, suite.natives, map, work);
+      expect(result.pass, name).toBe(false);
+      expect(result.detail, name).toMatch(/invalid run|stay green/);
+    });
+  }
 });

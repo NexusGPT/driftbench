@@ -87,7 +87,15 @@ export function killFamily(): Family {
         for (const cell of CELLS) {
           out.set(
             `${family}.${keyOf(cell)}`,
-            await judge(cell, map.map, suite.specs, join(FIXTURE, 'approved.yaml'), work, originalVerdict),
+            await judge(
+              cell,
+              map.map,
+              suite.specs,
+              suite.natives,
+              join(FIXTURE, 'approved.yaml'),
+              work,
+              originalVerdict,
+            ),
           );
         }
       } finally {
@@ -102,6 +110,7 @@ async function judge(
   cell: Cell,
   estate: EstateMap,
   specs: Awaited<ReturnType<typeof fixtureSuite>>['specs'],
+  natives: Awaited<ReturnType<typeof fixtureSuite>>['natives'],
   map: string,
   work: string,
   original: Map<string, boolean>,
@@ -115,7 +124,7 @@ async function judge(
   // original or a mutant copy. They never have a live spec, so they are judged by their static tests.
   if (cell.kind === 'invariant') return judgeInvariant(estate, specs, work);
   if (cell.kind === 'setting') return judgeStatic(cell, atom, specs, map, work);
-  if (cell.kind === 'script') return judgeScript(cell, atom, specs, map, work);
+  if (cell.kind === 'script') return judgeScript(cell, atom, natives, map, work);
   const same = equivalent(cell, atom, estate);
   if (same) return { pass: true, detail: `not judged, an equivalent mutant: ${same}` };
   const naming = specs.filter((spec) => spec.complete && spec.mode === 'live' && spec.atoms.includes(atom));
@@ -193,11 +202,11 @@ export function equivalent(cell: Cell, atomId: string, estate: EstateMap): strin
 export async function judgeScript(
   cell: Cell,
   atom: string,
-  specs: Awaited<ReturnType<typeof fixtureSuite>>['specs'],
+  natives: Awaited<ReturnType<typeof fixtureSuite>>['natives'],
   map: string,
   work: string,
 ): Promise<ItemResult> {
-  const tests = specs.filter((spec) => spec.mode === 'native-unit' && spec.atoms.includes(atom));
+  const tests = natives.filter((spec) => spec.atoms.includes(atom));
   if (tests.length === 0) return { pass: false, detail: `no script_fixture unit test names ${atom}` };
   const folder = join(work, `recorded-${cell.kind}-${cell.index}`);
   await mkdir(folder, { recursive: true });
@@ -229,10 +238,18 @@ export async function judgeScript(
     recorded.map((test) => test.path),
     mutant,
   );
+  // A kill needs a valid, parsed result of a run that happened: a test with no row, a row without a boolean pass, no
+  // JSON, or a usage error is invalid. Only the valid rows enter the comparison, so an invalid one is never a kill.
+  const valid = recorded.filter((test) => original.has(test.id) && after.has(test.id));
+  if (valid.length === 0)
+    return {
+      pass: false,
+      detail: `invalid run: no test of ${atom} gave a parsed result on both the original and the ${cell.op} mutant`,
+    };
   const verdict = killVerdict(
-    recorded,
-    new Map(recorded.map((test) => [test.id, original.get(test.id) === true])),
-    new Map(recorded.map((test) => [test.id, after.get(test.id) === true])),
+    valid,
+    new Map(valid.map((test) => [test.id, original.get(test.id) as boolean])),
+    new Map(valid.map((test) => [test.id, after.get(test.id) as boolean])),
     `${cell.op} mutant of ${atom}`,
   );
   return verdict.killed
@@ -240,19 +257,33 @@ export async function judgeScript(
     : { pass: false, detail: verdict.detail };
 }
 
-/** The pass flag per test id that `estate unit` prints for tests on an estate root. */
-function verdictsOf(paths: readonly string[], root: string): Map<string, boolean> {
-  const run = cli(['estate', 'unit', ...paths, '--estate', root, '--json']);
-  const at = run.out.indexOf('{');
+/**
+ * The pass flag per test id that `estate unit` printed, for the rows that are valid: the command exited 0 or 1, printed
+ * JSON with a `runs` list, and the row names the test and carries a boolean `pass` that is not the "nothing recorded"
+ * refusal. Anything else leaves the test out, and an absent test is never read as red.
+ */
+export function validRows(result: { code: number; out: string }): Map<string, boolean> {
   const out = new Map<string, boolean>();
+  if (result.code > 1) return out;
+  const at = result.out.indexOf('{');
   if (at < 0) return out;
   try {
-    const json = JSON.parse(run.out.slice(at)) as { runs?: Array<{ spec: string; pass: boolean }> };
-    for (const entry of json.runs ?? []) out.set(entry.spec, entry.pass === true);
+    const json = JSON.parse(result.out.slice(at)) as { runs?: unknown };
+    if (!Array.isArray(json.runs)) return out;
+    for (const entry of json.runs as Array<Record<string, unknown>>) {
+      if (typeof entry?.spec !== 'string' || typeof entry.pass !== 'boolean') continue;
+      const failing = Array.isArray(entry.failing) ? entry.failing.map(String).join(' ') : '';
+      if (/no outcome recorded|not a unit test|No unit test found/.test(failing)) continue;
+      out.set(entry.spec, entry.pass);
+    }
   } catch {
-    // No JSON: every test counts as not passing.
+    // Not JSON: no valid row.
   }
   return out;
+}
+
+function verdictsOf(paths: readonly string[], root: string): Map<string, boolean> {
+  return validRows(cli(['estate', 'unit', ...paths, '--estate', root, '--json']));
 }
 
 /** A setting cell: a static test naming the atom passes on the original and fails on the mutant. */
