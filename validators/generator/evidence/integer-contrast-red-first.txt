@@ -1,0 +1,149 @@
+Initial main oracle (unmodified base):
+
+ RUN  v5.0.3 /private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/sol-gen-maint/wt
+
+ ❯ packages/validators/test/generator/integer-contrast.test.ts (15 tests | 12 failed) 79ms
+   ❯ integer contrast follows the requested value, not preparatory calls (15)
+     × read: correct request assertions pass despite shared setup and zero-call guards 23ms
+     × list: correct request assertions pass despite shared setup and zero-call guards 3ms
+     × write: correct request assertions pass despite shared setup and zero-call guards 1ms
+     × rejects missing-input even when unrelated calls distinguish the suites 1ms
+     × rejects wrong-number even when unrelated calls distinguish the suites 1ms
+     × rejects string-number even when unrelated calls distinguish the suites 1ms
+     × rejects range even when unrelated calls distinguish the suites 1ms
+     × rejects missing-count even when unrelated calls distinguish the suites 1ms
+     × rejects no-call even when unrelated calls distinguish the suites 1ms
+     × rejects absent even when unrelated calls distinguish the suites 1ms
+     × rejects fake-stimulus even when unrelated calls distinguish the suites 38ms
+     × reads the approved stimulus without trusting cell metadata or block labels 2ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 12 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/validators/test/generator/integer-contrast.test.ts > integer contrast follows the requested value, not preparatory calls > read: correct request assertions pass despite shared setup and zero-call guards
+ FAIL  packages/validators/test/generator/integer-contrast.test.ts > integer contrast follows the requested value, not preparatory calls > list: correct request assertions pass despite shared setup and zero-call guards
+ FAIL  packages/validators/test/generator/integer-contrast.test.ts > integer contrast follows the requested value, not preparatory calls > write: correct request assertions pass despite shared setup and zero-call guards
+AssertionError: expected { pass: false, …(1) } to match object { pass: true }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "pass": true,
++   "pass": false,
+  }
+
+ ❯ packages/validators/test/generator/integer-contrast.test.ts:63:52
+     61|       const generated = fixture(role);
+     62|       for (const pair of ['at-minimum-above-minimum', 'below-maximum-a…
+     63|         expect(await check(generated, role, pair)).toMatchObject({ pas…
+       |                                                    ^
+     64|     });
+     65|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯
+
+ FAIL  packages/validators/test/generator/integer-contrast.test.ts > integer contrast follows the requested value, not preparatory calls > rejects missing-input even when unrelated calls distinguish the suites
+ FAIL  packages/validators/test/generator/integer-contrast.test.ts > integer contrast follows the requested value, not preparatory calls > rejects wrong-number even when unrelated calls distinguish the suites
+ FAIL  packages/validators/test/generator/integer-contrast.test.ts > integer contrast follows the requested value, not preparatory calls > rejects string-number even when unrelated calls distinguish the suites
+ FAIL  packages/validators/test/generator/integer-contrast.test.ts > integer contrast follows the requested value, not preparatory calls > rejects range even when unrelated calls distinguish the suites
+ FAIL  packages/validators/test/generator/integer-contrast.test.ts > integer contrast follows the requested value, not preparatory calls > rejects missing-count even when unrelated calls distinguish the suites
+ FAIL  packages/validators/test/generator/integer-contrast.test.ts > integer contrast follows the requested value, not preparatory calls > rejects no-call even when unrelated calls distinguish the suites
+ FAIL  packages/validators/test/generator/integer-contrast.test.ts > integer contrast follows the requested value, not preparatory calls > rejects absent even when unrelated calls distinguish the suites
+ FAIL  packages/validators/test/generator/integer-contrast.test.ts > integer contrast follows the requested value, not preparatory calls > rejects fake-stimulus even when unrelated calls distinguish the suites
+AssertionError: expected { pass: true, …(1) } to match object { pass: false }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "pass": false,
++   "pass": true,
+  }
+
+ ❯ packages/validators/test/generator/integer-contrast.test.ts:83:38
+     81|       if (mutant === 'absent') specimen.blocks.pop();
+     82|       if (mutant === 'fake-stimulus') block.when = { user: 'Unrelated …
+     83|       expect(await check(generated)).toMatchObject({ pass: false });
+       |                                      ^
+     84|     });
+     85|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯
+
+ FAIL  packages/validators/test/generator/integer-contrast.test.ts > integer contrast follows the requested value, not preparatory calls > reads the approved stimulus without trusting cell metadata or block labels
+AssertionError: expected { pass: false, …(1) } to match object { pass: true }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "pass": true,
++   "pass": false,
+  }
+
+ ❯ packages/validators/test/generator/integer-contrast.test.ts:109:36
+    107|       for (const [i, block] of loaded.spec.blocks.entries()) block.id …
+    108|     }
+    109|     expect(await check(generated)).toMatchObject({ pass: true });
+       |                                    ^
+    110|   });
+    111| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  12 failed | 3 passed (15)
+   Start at  00:54:50
+   Duration  14.53s (transform 92%, import 7%, tests 1%)
+
+  Transform  transforming modules took 12.55s · 92% of tracked time, re-done on every run
+             persist transforms across runs with fsModuleCache: true
+             learn more: https://vitest.dev/guide/improving-performance#caching-between-reruns
+
+
+Exact JSON forms before their support:
+
+ RUN  v5.0.3 /private/tmp/claude-501/-Users-assem-Documents-Doc-Assem-Claude-Code-nexus/649588d0-8d65-49cb-8d78-47b071cd71cb/scratchpad/sol-gen-maint/wt
+
+ ❯ packages/validators/test/generator/integer-contrast.test.ts (20 tests | 1 failed | 19 skipped) 20ms
+   ❯ integer contrast follows the requested value, not preparatory calls (16)
+     × accepts exact JSON assertions and singleton choices with an exact call range 19ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/validators/test/generator/integer-contrast.test.ts > integer contrast follows the requested value, not preparatory calls > accepts exact JSON assertions and singleton choices with an exact call range
+AssertionError: expected { pass: false, …(1) } to match object { pass: true }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "pass": true,
++   "pass": false,
+  }
+
+ ❯ packages/validators/test/generator/integer-contrast.test.ts:170:36
+    168|       assertion.count = { min: 1, max: 1 };
+    169|     }
+    170|     expect(await check(generated)).toMatchObject({ pass: true });
+       |                                    ^
+    171|     expect(await check(generated, 'read', 'below-maximum-at-maximum'))…
+    172|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 19 skipped (20)
+   Start at  00:59:35
+   Duration  13.30s (transform 94%, import 6%)
+
+  Transform  transforming modules took 12.14s · 94% of tracked time, re-done on every run
+             persist transforms across runs with fsModuleCache: true
+             learn more: https://vitest.dev/guide/improving-performance#caching-between-reruns
+

@@ -285,5 +285,6 @@ commands behind them: resume it with the same `--process-command`.
   review with the current hashes, for a person to sign.
 * `family instances` exits 1: the family or its oracle has a defect, or a style knob changes the expected
   outcome; nothing is written.
+* `family verify` exits 3: no spec fails, but the reference could not run one (a block not run, such as a forced tool result on an adapter without `toolStubs`). The spec is listed with the check that refused it; run the reference on an adapter that can apply that Given.
 * `family verify` exits 1: the reference fails a spec or a spec is invalid. Each is listed; fix the oracle
   or the reference before you score an agent on that instance.
