@@ -1,11 +1,10 @@
 ---
 title: Spec file format
-summary: 'A spec is one YAML or JSON file that describes one golden conversation or one code-agent task as a list of blocks; read this before you write or edit any spec.'
+summary: 'A spec is one YAML or JSON file that describes one golden conversation or one code-agent task as a list of blocks. Read this before you write or edit any spec.'
 commands:
   - spec validate
   - spec lint
   - spec coverage
-  - campaign run
 see_also:
   - authoring-blocks
   - authoring-prefixes
@@ -13,6 +12,7 @@ see_also:
   - authoring-spec-check
   - authoring-script-api
   - authoring-inventory
+  - authoring-rule-files
 next:
   - authoring-blocks
 ---
@@ -24,7 +24,7 @@ A spec is a test for an agent. One spec file holds one mapping. The mapping desc
 - one golden conversation (`kind: conversation`, the default), or
 - one task for a code agent that works in a workspace (`kind: task`).
 
-The core of a spec is `blocks`: a list of steps in order. Each block sends one stimulus to the agent and checks what the agent did. Around the blocks, the spec declares the agent to run (`target`), the starting state (`given`), the stage names (`stages`), the judged criteria (`criteria`), rules for the whole run (`rules`), the expected final state (`end_state`), and the deviations a perturbed run injects (`perturbations`).
+The core of a spec is `blocks`: a list of steps in order. Each block sends one stimulus to the agent and checks what the agent did. Around the blocks, the spec declares more. It names the agent to run (`target`) and the starting state (`given`). It lists the stage names (`stages`) and the judged criteria (`criteria`). It holds rules for the whole run (`rules`) and the expected final state (`end_state`). It also lists the deviations a perturbed run injects (`perturbations`).
 
 Every command that reads specs parses, normalises and validates them the same way. Unknown keys are errors at every level.
 
@@ -170,13 +170,13 @@ Free, with these keys read by tools:
 
 | Key | Written or read by |
 |---|---|
-| `tool_schemas` | read by the `schema_strict` check, by `extract --tools`, and by the value check of `tools` (a field's `pattern`, `enum` or `const` is its stated contract; the tool's and the field's `description` are what the same-referent judge reads): tool name to its JSON Schema. Unsupported schema keywords are errors. |
+| `tool_schemas` | read by the `schema_strict` check, by `extract --tools`, and by the value check of `tools`. A field's `pattern`, `enum` or `const` is its stated contract. The tool's and the field's `description` are what the same-referent judge reads. It maps a tool name to its JSON Schema. Unsupported schema keywords are errors. |
 | `depends` | read by `radius`: what each block depends on. See authoring-blast-radius. |
 | `generated`, `gate`, `family`, `imported`, `estate`, `retired`, `pilot` | written by `generate`, `gate`, `family instances`, `import`, `estate`; do not edit by hand. |
 
 ### `uses`
 
-Every rule driftbench applies is an object: a kind (`policy/blame`, `policy/value-check`, `check-set`, `diagnostic`, ...), an id, an optional parent it `extends`, and items, each one rule. `uses` names the objects a spec or a block runs with. Each key is optional and has no default: a spec without `uses` loads, hashes and replays exactly as before.
+Every rule driftbench applies is an object. It has a kind (`policy/blame`, `policy/value-check`, `check-set`, `diagnostic`, ...), an id, an optional parent it `extends`, and items, each one rule. `uses` names the objects a spec or a block runs with. Each key is optional. A key no layer sets resolves to the shipped `default` of its kind, when one exists. A spec without `uses` loads and hashes as before.
 
 | Key | Kind it names |
 |---|---|
@@ -191,9 +191,9 @@ Every rule driftbench applies is an object: a kind (`policy/blame`, `policy/valu
 | `judges` | `judge-council` |
 | `diagnostics` | a list of `diagnostic` ids |
 
-A value is an id, such as `blame: acme`, or an inline object that extends one: `value_check: { extends: default, items: [{ id: rung3_same_referent, params: { repeats: 5 } }] }`. An item operation names an item of the parent and sets fields (`params` maps merge, lists replace, `+key: [values]` appends, `-key: [values]` removes); `enabled: false` disables it; `add: true` with `title`, `when`, `effect` and `impl` adds one; `before` or `after` moves it, or `order` lists every enabled item once. An item may carry `applies_to: { skills, tools, units }`: it then fires only when the evidence names one of those skills or tools, or a unit matching one of the unit patterns (`R#41/*`); without it, everywhere.
+A value is an id, such as `blame: acme`, or an inline object that extends one: `value_check: { extends: default, items: [{ id: rung3_same_referent, params: { repeats: 5 } }] }`. An item operation names an item of the parent and sets fields. `params` maps merge, lists replace, `+key: [values]` appends, and `-key: [values]` removes. `enabled: false` disables the item. `add: true` with `title`, `when`, `effect` and `impl` adds one. `before` or `after` moves it, or `order` lists every enabled item once. An item may carry `applies_to: { skills, tools, units }`. It then fires only when the evidence names one of those skills or tools, or a unit matching one of the unit patterns (`R#41/*`). Without it, the item fires everywhere.
 
-Where an id is looked up, weakest first: the shipped objects; the project, files `driftbench/<kind>/<id>.yaml` beside `driftbench.yaml` and its `objects:` list; each `_driftbench/<kind>/<id>.yaml` suite folder from the project down to the spec, a nearer one stronger. A `uses.yaml` in a `driftbench/` or `_driftbench/` folder sets `uses` for the specs below it. A block's key replaces the spec's, which replaces the suite's and the project's.
+Where an id is looked up, weakest first: the shipped objects, then the project, then the suite folders. The project is the files `driftbench/<kind>/<id>.yaml` beside `driftbench.yaml` and its `objects:` list. The suite folders are each `_driftbench/<kind>/<id>.yaml` from the project down to the spec, and a nearer one is stronger. A `uses.yaml` in a `driftbench/` or `_driftbench/` folder sets `uses` for the specs below it. A block's key replaces the spec's, which replaces the suite's and the project's.
 
 A diagnostic (`uses.diagnostics`) runs after a block's checks and writes diagnoses on the block; it never changes a verdict or `pass`. Its file holds `scope` (`block` by default, `run` for once over a whole run, `campaign` for once over every run), `when` (`always: true`, or `any_verdict: { name, outcome, id_contains, gating }`, or `any_diagnosis: { diagnostic, step, disposition, confidence }`), `reads` (the kinds it reads), `output`, `cost`, and `steps`, each naming a registered diagnostic step. A step of cost class `run` or `model` runs only within the diagnostic budget, 0 by default, and is counted in the block's `skippedForBudget` otherwise. With no `uses.diagnostics` at any layer, the shipped diagnostics marked `default: true` run; `diagnostics: []` runs none.
 
@@ -201,9 +201,11 @@ Trigger fields are optional. Every filter within one trigger must match the same
 
 A step may supply `by` to identify the policy rule that decided its result. That attribution is preserved, and `via` records the executing diagnostic step. Without an explicit `by`, the execution stamp remains in `by` and `via` is absent. Diagnostic `cost.model_calls` and `cost.agent_runs` accept only `none`, `conditional`, or `always`; numeric `0` is invalid. These declarations do not replace the step budget.
 
-Every kind `uses` names is scoring-only: `uses` stays out of the block cache key and the re-judge compatibility hash, so changing it never reruns the agent. The spec hash does record it.
+Every kind `uses` names is scoring-only. `uses` stays out of the block cache key and the re-judge compatibility hash, so changing it never reruns the agent. The spec hash does record it.
 
-The loader resolves every object a layer names. An unknown object, an unknown item, an `extends` cycle, an order that is not a permutation, a missing implementation or params of the wrong type is a load error naming the spec, the block, the kind and the id.
+The loader resolves every object a layer names. These are load errors: an unknown object, an unknown item, an `extends` cycle, a bad order, a missing implementation, and params of the wrong type. A bad order is one that is not a permutation. Each error names the spec, the block, the kind and the id.
+
+In this release a run reads two of these kinds. `check_set` chooses the checks that score a block (topic running-check-sets), and `value_check` decides tool input values (topic judging-check-tools). The shipped `default` of each is used when no layer sets the key. The other kinds are checked at load and recorded in the spec hash, and no run reads them yet. How to write a rule file, every operation and every `OBJECT_*` error: see authoring-rule-files.
 
 ### A minimal valid spec
 
@@ -225,7 +227,7 @@ A spec file produces nothing by itself. Each command prints its own result:
 
 ## Worked example
 
-The Acme example holds one spec of each kind: `examples/acme/specs/conversations/plan-upgrade.yaml` (a conversation on `function:acme-sales`) and `examples/acme/specs/tasks/price-sheet.yaml` (a task on `process:acme-ops`, with `workspace_seed`, artifacts and a workspace diff). Validate the seven Acme specs, then run one of each kind on the targets they name; both agents are deterministic and free:
+The Acme example holds one spec of each kind. `examples/acme/specs/conversations/plan-upgrade.yaml` is a conversation on `function:acme-sales`. `examples/acme/specs/tasks/price-sheet.yaml` is a task on `process:acme-ops`, with `workspace_seed`, artifacts and a workspace diff. Validate the seven Acme specs, then run one of each kind on the targets they name. Both agents are deterministic and free:
 
 ```sh
 driftbench spec validate examples/acme/specs
