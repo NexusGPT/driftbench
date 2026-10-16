@@ -23,6 +23,11 @@ describe('routing follows the role of the source text', () => {
     ],
     ['task header', '| Task | Skill |\n|---|---|\n| arrange a pickup | `parcel-plan` |', 3],
     [
+      'explicit action with a subject header',
+      '| Subject | Load |\n|---|---|\n| arrange a pickup | `parcel-plan` |',
+      3,
+    ],
+    [
       'condition header in the second column',
       '| Skill | If the user asks to |\n|---|---|\n| parcel-plan | arrange a pickup |',
       3,
@@ -62,6 +67,41 @@ describe('routing follows the role of the source text', () => {
     expect(map.atoms.filter((atom) => atom.kind === 'route' && atom.provenance.file === 'CLAUDE.md')).toEqual(
       [],
     );
+  });
+
+  it.each([
+    ['ownership without a routing header', '| Custodian | Library |\n|---|---|\n| Morgan | `parcel-plan` |'],
+    ['an unrelated catalogue', '| Publication | Package |\n|---|---|\n| Dispatch handbook | `parcel-plan` |'],
+    [
+      'a non-action column beside a request',
+      '| Request | Who wrote it |\n|---|---|\n| arrange a pickup | `parcel-plan` |',
+    ],
+    [
+      'a non-action column beside a load',
+      '| Who wrote it | Skill you load |\n|---|---|\n| `parcel-plan` | nothing |',
+    ],
+  ])('ignores %s', async (_label, text) => {
+    const root = await estate({ [skill]: declaration, 'CLAUDE.md': text });
+    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    expect(map.atoms.filter((atom) => atom.kind === 'route' && atom.provenance.file === 'CLAUDE.md')).toEqual(
+      [],
+    );
+  });
+
+  it('reads only the action column when a request also names an author', async () => {
+    const root = await estate({
+      [skill]: declaration,
+      '.claude/skills/receipt-check/SKILL.md':
+        '---\nname: receipt-check\ndescription: Check receipts.\n---\n',
+      'CLAUDE.md':
+        '| Request | Skill you load | Who wrote it |\n|---|---|---|\n| arrange a pickup | `parcel-plan` | `receipt-check` |',
+    });
+    const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+    expect(
+      map.atoms
+        .filter((atom) => atom.kind === 'route' && atom.provenance.file === 'CLAUDE.md')
+        .map((atom) => atom.fields?.target),
+    ).toEqual(['parcel-plan']);
   });
 
   it('keeps an ordinary read of a skill definition as a reference', async () => {

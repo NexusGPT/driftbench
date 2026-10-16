@@ -143,6 +143,77 @@ export function materialOf(quote: string): string[] {
   return [...new Set(found)];
 }
 
+/** Words and marks that make a clause show the right way to act: its spans are the form the rule asks for. */
+const OBLIGES = /\b(always|must|should|as in|e\.g\.|for example)\b|✓|\bRIGHT\b/i;
+
+/** The shell command of an act on a path, by the verb a rule names it with. */
+const ACT_COMMANDS: Record<string, string> = {
+  delete: 'rm',
+  remove: 'rm',
+  erase: 'rm',
+  move: 'mv',
+  rename: 'mv',
+  copy: 'cp',
+  read: 'cat',
+  open: 'cat',
+  list: 'ls',
+};
+
+/** One clause of a rule quote: whether it forbids or asks for a form, its act verb and its spans. */
+type Clause = { forbids: boolean; obliges: boolean; act?: string; spans: string[] };
+
+/** The clauses of a rule quote, split as `materialOf` splits them, with the spans each holds. */
+export function clausesOf(quote: string): Clause[] {
+  const spans: string[] = [];
+  const masked = quote.replace(
+    /`([^`]+)`|"([^"]{3,})"/g,
+    (_, code: string | undefined, phrase: string | undefined) => {
+      spans.push(code ?? phrase ?? '');
+      return `${spans.length - 1}`;
+    },
+  );
+  return masked.split(/(?<=[.!?])\s+|\n|;|·|(?=✓)/).map((clause) => {
+    const words = clause.replace(/\d+/g, ' ');
+    const act = words
+      .toLowerCase()
+      .split(/[^a-z]+/)
+      .find((word) => ACT_COMMANDS[word] !== undefined);
+    return {
+      forbids: FORBIDS.test(words),
+      obliges: OBLIGES.test(words),
+      ...(act !== undefined ? { act } : {}),
+      spans: [...clause.matchAll(/(\d+)/g)]
+        .map((match) => spans[Number(match[1])] ?? '')
+        .filter((span) => span.trim() !== ''),
+    };
+  });
+}
+
+/**
+ * The acts that break an obligation a command line shows ("Always pass the carrier code, as in
+ * `./track.sh NWX 123`"): the command line with each of its arguments left out in turn. A span of one word
+ * shows no arguments and gives none.
+ */
+export function brokenForms(example: string): string[] {
+  const tokens = example.trim().split(/\s+/);
+  if (tokens.length < 2) return [];
+  return tokens.slice(1).map((_, index) => tokens.filter((__, at) => at !== index + 1).join(' '));
+}
+
+/**
+ * A path a Bash guard watches is no command: the act the rule forbids on it is. `ledger/` in "never delete a
+ * file under `ledger/`" gives `rm ledger/`. A span that already reads as a command line, or a clause with no
+ * act verb, is sent as it is.
+ */
+function bashForm(span: string, act: string | undefined): string {
+  const command = act === undefined ? undefined : ACT_COMMANDS[act];
+  const path = /^[\w.~/-]+$/.test(span) && (span.includes('/') || /\.[A-Za-z0-9]+$/.test(span));
+  if (command === undefined || !path) return span;
+  return command === 'mv' || command === 'cp'
+    ? `${command} ${span} ${span.replace(/\/$/, '')}.bak`
+    : `${command} ${span}`;
+}
+
 /** The tool input a tool takes, carrying one piece of material. */
 export function toolInput(tool: string, material: string): Record<string, unknown> {
   const looksLikePath = /^[\w./~-]+\.[A-Za-z0-9]+$/.test(material) || material.includes('/');
@@ -231,6 +302,97 @@ export function unitTestOf(
   // A catalogue check is run by a hook, not by a command of its own: it is tested by sending its trigger to
   // that hook. Without a trigger or a host hook it is a counted gap, not a test.
   if (fields.scope === 'catalogue') return checkTestOf(row, atom, atoms, base);
+  const built = guardRunOf(testType, atom, atoms);
+  return typeof built === 'string' ? built : { ...base, ...built };
+}
+
+/**
+ * The run a unit-mode spec carries in `metadata.estate.unit`, so `estate unit` can run the spec with no model
+ * and judge its own Then: the guard with the payloads its test type sends, the script with its minimal
+ * fixtures, or the helper whose agent file the runtime would serve.
+ */
+export const SpecUnit = z.strictObject({
+  target: z.discriminatedUnion('kind', [
+    z.strictObject({
+      kind: z.literal('guard'),
+      name: z.string().min(1),
+      event: z.string().min(1),
+      matcher: z.string().optional(),
+      command: z.string().min(1),
+      timeout: z.number().positive().optional(),
+      /** The verdict the estate declares for the guard (deny, warn, nudge, ...), when it declares one. */
+      verdict: z.string().optional(),
+    }),
+    z.strictObject({ kind: z.literal('script'), path: z.string().min(1), skill: z.string().optional() }),
+    z.strictObject({ kind: z.literal('subagent'), name: z.string().min(1), file: z.string().min(1) }),
+  ]),
+  cases: z.array(GuardCase).default([]),
+  /** The most a guard run may take, in milliseconds: its declared timeout (60 s by default). */
+  budgetMs: z.number().int().positive().optional(),
+});
+export type SpecUnit = z.infer<typeof SpecUnit>;
+
+/** The test types a unit-mode spec runs with: the payloads each sends. */
+const SPEC_CASES: Record<string, UnitTest['testType']> = {
+  guard_positive: 'guard_positive',
+  guard_register: 'guard_positive',
+  guard_speed: 'guard_speed',
+  guard_negative: 'guard_negative',
+  guard_hostile: 'guard_hostile',
+};
+
+/** The unit run of a unit-mode spec, or the reason it has none. */
+export function specUnitOf(
+  row: Pick<EstatePlanRow, 'testType'>,
+  atoms: readonly EstateAtom[],
+  all: ReadonlyMap<string, EstateAtom>,
+): SpecUnit | string {
+  const head = atoms[0];
+  if (!head) return 'the row names no atom';
+  if (row.testType === 'script_fixture') {
+    const path = head.fields?.path;
+    if (typeof path !== 'string' || path === '') return `${head.id} names no script path`;
+    const skill = head.fields?.skill;
+    return {
+      target: { kind: 'script', path, ...(typeof skill === 'string' ? { skill } : {}) },
+      cases: scriptCases(head.provenance?.quote ?? '', path),
+    };
+  }
+  if (row.testType === 'contract_alone') {
+    const helper = atoms.find((atom) => atom.kind === 'subagent');
+    const name = helper?.fields?.name;
+    const file = helper?.provenance?.file;
+    if (typeof name !== 'string' || typeof file !== 'string')
+      return 'the row names no helper with an agent file';
+    return { target: { kind: 'subagent', name, file }, cases: [] };
+  }
+  const testType = SPEC_CASES[row.testType];
+  if (testType === undefined) return `${row.testType} has no unit run`;
+  if (head.fields?.scope === 'catalogue') return `${head.id} is a check its host hook runs`;
+  const built = guardRunOf(testType, head, all, true);
+  if (typeof built === 'string') return built;
+  const declared = head.evidence.find((entry) => entry.type === 'guard')?.verdict;
+  const target = built.target;
+  if (target.kind !== 'guard') return `${head.id} is no guard`;
+  const { check: _check, ...guard } = target;
+  return {
+    target: { ...guard, ...(declared !== undefined ? { verdict: declared } : {}) },
+    cases: built.cases,
+    budgetMs: Math.round((guard.timeout ?? 60) * 1000),
+  };
+}
+
+/**
+ * The target and the cases of a guard for a test type. `withPlain` puts the forbidden material itself before
+ * its hostile forms, so a hostile run also shows the guard catching the plain act.
+ */
+function guardRunOf(
+  testType: UnitTest['testType'],
+  atom: EstateAtom,
+  atoms: ReadonlyMap<string, EstateAtom>,
+  withPlain = false,
+): Pick<UnitTest, 'target' | 'cases' | 'budgetMs'> | string {
+  const fields = atom.fields ?? {};
   const name = fields.name;
   const event = fields.event;
   const command = fields.command;
@@ -262,25 +424,48 @@ export function unitTestOf(
   // only a text event (a prompt, a reply) can carry: a tool never gets a sentence as its input.
   const cites = strong.length > 0;
   const textEvent = !TOOL_EVENTS.has(event);
-  const material = [
-    ...new Set(
-      enforced.flatMap((ruleId) => {
-        const rule = atoms.get(ruleId);
-        const quote = rule?.provenance?.quote ?? '';
-        const lineSpans = Array.isArray(rule?.fields?.spans)
-          ? (rule.fields.spans as unknown[]).filter((item): item is string => typeof item === 'string')
-          : [];
-        const quoteSpans = [...quote.matchAll(/`([^`]+)`/g)].map((match) => match[1] ?? '');
-        const spans = cites
-          ? [...lineSpans, ...quoteSpans]
-          : materialOf(quote).filter((item) => item !== quote.trim());
-        if (spans.length > 0) return spans;
-        return textEvent && quote.trim() !== '' ? materialOf(quote) : [];
-      }),
-    ),
-  ].filter((item) => item.trim() !== '');
+  // Material: what the rule forbids. A cited rule's spans in the clauses that forbid them, each with the act
+  // its clause names; a cited rule that only shows the right form (an obligation) gives that form as allowed
+  // material and the form with each argument left out as forbidden; a cited rule with neither gives every span
+  // of its source lines.
+  type Piece = { text: string; act?: string };
+  const allowed: string[] = [];
+  const pieces = enforced.flatMap((ruleId): Piece[] => {
+    const rule = atoms.get(ruleId);
+    const quote = rule?.provenance?.quote ?? '';
+    if (cites) {
+      const clauses = clausesOf(quote);
+      const forbidden = clauses
+        .filter((clause) => clause.forbids)
+        .flatMap((clause) =>
+          clause.spans.map((text) => ({ text, ...(clause.act !== undefined ? { act: clause.act } : {}) })),
+        );
+      if (forbidden.length > 0) return forbidden;
+      const shown = clauses.filter((clause) => clause.obliges).flatMap((clause) => clause.spans);
+      const broken = shown.flatMap(brokenForms);
+      if (broken.length > 0) {
+        allowed.push(...shown);
+        return broken.map((text) => ({ text }));
+      }
+      const lineSpans = Array.isArray(rule?.fields?.spans)
+        ? (rule.fields.spans as unknown[]).filter((item): item is string => typeof item === 'string')
+        : [];
+      const quoteSpans = [...quote.matchAll(/`([^`]+)`/g)].map((match) => match[1] ?? '');
+      const spans = [...lineSpans, ...quoteSpans];
+      if (spans.length > 0) return spans.map((text) => ({ text }));
+    } else {
+      const spans = materialOf(quote).filter((item) => item !== quote.trim());
+      if (spans.length > 0) return spans.map((text) => ({ text }));
+    }
+    return textEvent && quote.trim() !== '' ? materialOf(quote).map((text) => ({ text })) : [];
+  });
+  const formOf = (tool: string | undefined, piece: Piece) =>
+    tool === 'Bash' ? bashForm(piece.text, piece.act) : piece.text;
   const cases: GuardCase[] = [];
+  const seen = new Set<string>();
   const add = (tool: string | undefined, text: string) => {
+    if (text.trim() === '' || seen.has(`${tool}\u0000${text}`)) return;
+    seen.add(`${tool}\u0000${text}`);
     cases.push({
       id: `case-${String(cases.length + 1).padStart(2, '0')}`,
       payload: payloadOf(event, tool, text),
@@ -288,18 +473,24 @@ export function unitTestOf(
     });
   };
   if (testType === 'guard_negative') {
-    for (const tool of tools) add(tool, tool === undefined ? 'Done.' : (NEUTRAL[tool] ?? 'hello'));
-  } else {
-    if (material.length === 0) return `${atom.id} enforces no rule whose quote gives material for a payload`;
     for (const tool of tools) {
-      for (const text of material) {
-        if (testType === 'guard_hostile') for (const form of hostileForms(text)) add(tool, form);
-        else add(tool, text);
+      add(tool, tool === undefined ? 'Done.' : (NEUTRAL[tool] ?? 'hello'));
+      // The right form an obligation shows is let through as well.
+      for (const text of allowed) add(tool, text);
+    }
+  } else {
+    if (pieces.length === 0) return `${atom.id} enforces no rule whose quote gives material for a payload`;
+    for (const tool of tools) {
+      for (const piece of pieces) {
+        const text = formOf(tool, piece);
+        if (testType === 'guard_hostile') {
+          if (withPlain) add(tool, text);
+          for (const form of hostileForms(text)) add(tool, form);
+        } else add(tool, text);
       }
     }
   }
   return {
-    ...base,
     target,
     cases: testType === 'guard_speed' ? spreadOf(cases, SPEED_CASES) : cases,
     ...(testType === 'guard_speed' ? { budgetMs: Math.round((timeout ?? 60) * 1000) } : {}),

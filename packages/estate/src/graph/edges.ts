@@ -1,4 +1,13 @@
-import { chunkLines, guardName, positiveMention, registryRowOf, toolBase } from '../scan/code';
+import {
+  chunkLines,
+  directiveHead,
+  gateClauses,
+  guardName,
+  maskLine,
+  registryRowOf,
+  toolBase,
+  unmask,
+} from '../scan/code';
 import type { EstateFile, RawEstate } from '../scan/reader';
 import { labelOfLine, linesOf, plain } from '../scan/text';
 import type { Atom, Edge } from '../schema';
@@ -143,9 +152,11 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
     rules.filter((rule) => labels.get(rule.id) === label.replace('#', '').toUpperCase());
   for (const rule of rules) {
     const own = labels.get(rule.id);
-    for (const match of rule.provenance.quote.matchAll(/\b([A-Z]{1,3})#?(\d{1,3})\b/g)) {
+    const quote = rule.provenance.quote;
+    for (const match of quote.matchAll(/\b([A-Z]{1,3})#?(\d{1,3})\b/g)) {
       const label = `${match[1]}${match[2]}`;
       if (label === own) continue;
+      if (!match[0].includes('#') && designates(quote.slice(0, match.index))) continue;
       for (const cited of withLabel(label)) add(rule.id, cited.id, 'cites');
     }
   }
@@ -169,7 +180,7 @@ export function buildGraph(atoms: readonly Atom[], raw: RawEstate): Graph {
         for (const rule of withLabel(label)) take(rule, 'id');
       }
       for (const literal of literals(script.text)) {
-        for (const rule of rules) if (holds(rule.provenance.quote, literal)) take(rule, 'quote');
+        for (const rule of rules) if (repeats(rule.provenance.quote, literal)) take(rule, 'quote');
       }
     }
     for (const entry of found) add(guard.id, entry.atom, 'enforces');
@@ -185,6 +196,59 @@ function holds(quote: string, passage: string): boolean {
   const b = plain(passage);
   if (b.length < MIN_LITERAL || a.length < MIN_LITERAL) return a === b && a !== '';
   return a.includes(b) || b.includes(a);
+}
+
+/** A clause that sets when a rule applies: from its lead word to the next comma, colon or semicolon. */
+const CONDITION = /\b(?:when|whenever|if|unless|once|after|before|until|while|as soon as|in case)\b[^,:;]*/g;
+
+/**
+ * Whether a string of a guard's source repeats a rule. A registry row declares what it enforces, so any
+ * passage it quotes counts (`holds`); a string in the source is only circumstantial, so a part of the rule
+ * counts only when it reaches past the rule's condition. A message that quotes the condition alone ("the user
+ * asks to stop" of "When the user asks to stop, stop all work") repeats when the rule applies, not the rule.
+ */
+function repeats(quote: string, literal: string): boolean {
+  if (!holds(quote, literal)) return false;
+  const rule = plain(quote);
+  const part = plain(literal);
+  const at = rule.indexOf(part);
+  if (part.length >= rule.length || at < 0) return true;
+  for (const condition of rule.matchAll(CONDITION)) {
+    const start = condition.index ?? 0;
+    if (at >= start && at + part.length <= start + condition[0].length) return false;
+  }
+  return true;
+}
+
+/** Function words, pronouns, modals and adverbs: a word before a label that never heads a noun phrase. */
+const LEAD =
+  /^(?:a|an|the|this|that|these|those|each|every|any|some|no|its|their|our|your|my|his|her|as|per|under|see|cf|and|or|nor|but|of|to|with|by|from|in|on|at|for|than|like|unlike|after|before|until|when|if|unless|also|then|still|only|just|first|now|again|please|always|never|not|do|does|did|you|we|they|it|he|she|i|can|could|may|might|must|shall|should|will|would|is|are|was|were|be|been)$/i;
+/** Words after which a noun phrase opens: determiners, and prepositions other than the infinitive "to". */
+const NOUN_OPENER =
+  /^(?:a|an|the|this|that|these|those|each|every|any|some|no|its|their|our|your|my|his|her|of|with|by|from|in|on|at|for|into|onto|under|per)$/i;
+/** Nouns that name a rule: "rule R5" cites R5. */
+const RULE_NOUN =
+  /^(?:rules?|gates?|instructions?|principles?|guidelines?|polic(?:y|ies)|requirements?|constraints?)$/i;
+
+/**
+ * Whether a bare label (no `#`) names some other thing than a rule: it follows a noun it designates, as in
+ * "tax form R1", "the room B2" or "Keep Form R1". The word before the label is that noun when it is a content
+ * word (no function word, no verb ending in -s, -ed or -ing, no rule noun) and the word before it opens a noun
+ * phrase: a determiner, a preposition ("on form R5") or another content word. After a pronoun, a modal, an
+ * adverb, a conjunction or "to" the word is a verb, so "you must follow R1", "always obey R1", "Obey R1" and
+ * "as R1 asks" cite R1.
+ */
+function designates(before: string): boolean {
+  const tail = before.replace(/[*_`]/g, '').trimEnd();
+  const word = /(?:^|\s)([A-Za-z]+)$/.exec(tail)?.[1];
+  if (!word || tail.length === before.replace(/[*_`]/g, '').length || LEAD.test(word) || RULE_NOUN.test(word))
+    return false;
+  if (/(?:[^s]s|ed|ing)$/i.test(word)) return false;
+  const rest = tail.slice(0, tail.length - word.length);
+  const previous = /([A-Za-z]+)\s+$/.exec(rest)?.[1];
+  if (!previous) return false;
+  if (NOUN_OPENER.test(previous)) return true;
+  return !LEAD.test(previous) && !/ly$/i.test(previous);
 }
 
 /** Labels a guard source declares: `Enforces: R3, R5` in a comment or a docstring. */
@@ -222,23 +286,63 @@ export function literals(text: string): string[] {
   return found;
 }
 
-/** A quoted helper mention, or an explicit dispatch act naming a whole unquoted helper name. */
+/** A directive head uses the gate polarity/scope check, then a verb's imperative or modal grammar. */
+function dispatchHead(head: string): boolean {
+  if (!directiveHead(head)) return false;
+  const main = head.split(/[,:]/).at(-1)?.trim() ?? '';
+  return (
+    main === '' ||
+    /(?:\b(?:please|kindly|always|then|now)|\b(?:must|should|shall|can|could|may|will)|\b(?:remember|sure|essential|need|have)\s+to|\b[a-z]+ly|\byou)\s*$/i.test(
+      main,
+    )
+  );
+}
+
+// A transfer's object is a noun phrase ending at the recipient preposition. Its internal words
+// (determiners, possessives, quantities, modifiers and coordination) do not determine dispatch.
+const DISPATCH_ACT = String.raw`(?:dispatch|call|invoke|spawn|launch|ask|use|have|let|delegate|(?:delegate|hand|send)(?:\s+.+?)?\s+to)`;
+const HELPER_ROLE = String.raw`(?:(?:the|to|helper|agent|subagent|named)\s+)*`;
+
+/** Dispatch shares gate clause boundaries and negation scope; coordinated targets inherit the directive. */
 function dispatchesHelper(text: string, name: string): boolean {
   if (name === '') return false;
-  const verbs = ['dispatch', 'call', 'delegate', 'invoke'];
-  if (positiveMention(text, `\`${name}\``, verbs)) return true;
   const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const mentions = new RegExp(`(?<![\\w-])${escaped}(?![\\w-])`, 'g');
-  for (const match of text.matchAll(mentions)) {
-    const before = text.slice(0, match.index);
-    const clause = before.split(/[\n;!?]|\.(?=\s|$)|\b(?:but|until|instead)\b/i).at(-1) ?? '';
-    const act =
-      /\b(?:dispatch|call|delegate|invoke|spawn|launch|ask|hand(?:\s+(?:it|the\s+\w+))?(?:\s+(?:off|over))?\s+to)\s+(?:(?:the|to|helper|agent|subagent|named)\s+)*[`*]*$/i.exec(
-        clause,
-      );
-    if (!act) continue;
-    const prefix = clause.slice(0, act.index);
-    if (!/\b(?:never|do not|don['’]t|must not|should not)\s*$/i.test(prefix)) return true;
+  const mention = new RegExp(`(?<![\\w-])${escaped}(?![\\w-])`, 'g');
+  const direct = new RegExp(`\\b${DISPATCH_ACT}\\s+${HELPER_ROLE}$`, 'i');
+  const inherited = new RegExp(`^(.*?)(?:,\\s*(?:then|and)\\s+|\\s+and\\s+)${HELPER_ROLE}$`, 'i');
+  for (const line of text.split('\n')) {
+    const masked = maskLine(line);
+    // A transfer object may itself contain ", and". Resolve coordination at the verb/target,
+    // after retaining the gate grammar's masked spans and sentence boundaries.
+    for (const clause of gateClauses(masked.text, false)) {
+      const visible = unmask(clause, masked.spans).replace(/"[^"\n]+"|“[^”\n]+”/g, '');
+      for (const match of visible.matchAll(mention)) {
+        const before =
+          visible
+            .slice(0, match.index)
+            .replace(/[`*]/g, '')
+            .split(/\?|\b(?:but|until|instead)\b/i)
+            .at(-1) ?? '';
+        const act = direct.exec(before);
+        if (
+          act &&
+          (!/^use\b/i.test(act[0]) || line.includes(`\`${name}\``)) &&
+          dispatchHead(
+            before
+              .slice(0, act.index)
+              .split(/,\s*(?:and|but)\s+/i)
+              .at(-1) ?? '',
+          )
+        )
+          return true;
+        // "Dispatch A, then B" keeps the same verb and polarity for B.
+        const previous = inherited.exec(before)?.[1];
+        if (previous !== undefined) {
+          const verb = new RegExp(`\\b${DISPATCH_ACT}\\b`, 'i').exec(previous);
+          if (verb && dispatchHead(previous.slice(0, verb.index))) return true;
+        }
+      }
+    }
   }
   return false;
 }

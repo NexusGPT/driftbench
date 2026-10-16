@@ -60,3 +60,27 @@ metadata:
     ask: code
     askFrom: instruction.shipment-tracker.always-pass-the-carrier-code-to (enforced by guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh)
     outcome: no-delete
+    unit:
+      target:
+        kind: guard
+        name: check-carrier.sh
+        event: PreToolUse
+        command: $CLAUDE_PROJECT_DIR/.claude/skills/shipment-tracker/scripts/check-carrier.sh
+        matcher: Bash
+        verdict: deny
+      cases:
+        - id: case-01
+          payload:
+            tool_name: Bash
+            tool_input:
+              command: ./scripts/track.sh 123
+              description: unit test
+          material: ./scripts/track.sh 123
+        - id: case-02
+          payload:
+            tool_name: Bash
+            tool_input:
+              command: ./scripts/track.sh NWX
+              description: unit test
+          material: ./scripts/track.sh NWX
+      budgetMs: 60000

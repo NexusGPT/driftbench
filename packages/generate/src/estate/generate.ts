@@ -184,8 +184,11 @@ export function generateEstateSuite(
   const unitSeen = new Set<string>();
   const unitWritten: UnitTest[] = [];
   const unitSkipped: string[] = [];
+  const focusCases = new Map<string, Set<string>>();
   let blocks = 0;
   let judged = 0;
+  const focusCaseKey = (built: Built, row: EstatePlanRow): string =>
+    JSON.stringify([(built.spec.blocks as Array<{ when: unknown }>)[0]?.when, sortedKeys(row.cell)]);
 
   /** Writes one built spec: its file, its record, the totals of its row's test type and mode, its gaps. */
   const emit = (built: Built, row: EstatePlanRow, totalsType: Totals, totalsMode: Totals): void => {
@@ -218,6 +221,14 @@ export function generateEstateSuite(
       ...(built.session ? { session: built.session.name } : {}),
       ...(built.expect ? { expect: built.expect } : {}),
     });
+    if (complete) {
+      const key = focusCaseKey(built, row);
+      for (const atom of row.atomIds) {
+        const cases = focusCases.get(atom) ?? new Set<string>();
+        cases.add(key);
+        focusCases.set(atom, cases);
+      }
+    }
     if (built.session && built.expect && complete) {
       replay.push({ spec: built.id, session: built.session.name, planRow: row.id, expect: built.expect });
     }
@@ -306,7 +317,7 @@ export function generateEstateSuite(
   // Focus atoms: variants of their rows, another ask and another situation each, until FOCUS_MIN complete
   // specs name the atom (a mutant of it then has several chances to turn one red).
   for (const atom of options.focus ? [...new Set(options.focus)] : []) {
-    const doneOf = () => records.filter((record) => record.complete && record.atoms.includes(atom)).length;
+    const doneOf = () => focusCases.get(atom)?.size ?? 0;
     if (doneOf() >= FOCUS_MIN) continue;
     const rows = input.plan.rows.filter(
       (row) =>
@@ -330,6 +341,7 @@ export function generateEstateSuite(
         const use = useOf(varied);
         const situation = use === 'none' ? undefined : findSituation(ctx.bank, use, varied);
         const built = build(varied, atoms, ctx, used, situation, undefined, false, variant);
+        if (built.gaps.length === 0 && focusCases.get(atom)?.has(focusCaseKey(built, varied))) continue;
         emit(built, varied, totalsFor(perTestType, row.testType), totalsFor(perMode, row.mode));
       }
     }

@@ -133,8 +133,8 @@ export type EstateGenerateOptions = {
   judge?: boolean;
   /**
    * The files of the estate, relative to its root, as the runtime's reader lists them (what a run copies).
-   * A read is expected only of one of them. Default: the files the map knows (atom files, references and
-   * scripts that exist).
+   * Successful reads are expected only of these files; a missing file gets an attempted-call check.
+   * Default: the files the map knows (atom files, references and scripts that exist).
    */
   files?: readonly string[];
   /**

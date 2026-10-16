@@ -367,7 +367,9 @@ function scriptAtoms(
     const relative = posix.relative(folder, file.path);
     if (!SCRIPT.test(file.path) && !relative.startsWith('scripts/')) continue;
     const name = basename(file.path);
-    const mention = body.find((line) => line.text.includes(name));
+    const mention =
+      body.find((line) => namesToRun(line.text, name, relative)) ??
+      body.find((line) => line.text.includes(name));
     const at: Located = mention
       ? { file: definition, startLine: mention.line, endLine: mention.line, quote: mention.quote }
       : firstLine(file);
@@ -379,6 +381,21 @@ function scriptAtoms(
       fields: { path: file.path, skill, named: mention !== undefined },
     });
   }
+}
+
+/**
+ * Whether a body line names a script as something to run: inside a code span or a link, or by its path from
+ * the skill folder. A bare file name in running prose ("the old tally.py was slow") is a passing mention; the
+ * script anchors there only when no line names it to run.
+ */
+function namesToRun(text: string, name: string, relative: string): boolean {
+  if (relative.includes('/') && text.includes(relative)) return true;
+  for (const match of text.matchAll(/`([^`\n]+)`|\[[^\]\n]*\]\(([^)\n]+)\)/g)) {
+    const span = match[1] ?? match[2] ?? '';
+    if (new RegExp(`(?:^|[\\s/"'])${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:$|[\\s"'])`).test(span))
+      return true;
+  }
+  return false;
 }
 
 /** A path and its spelling in the source, before notation is normalized. */
@@ -432,6 +449,27 @@ function namedReferences(line: string): NamedReference[] {
     take(match, match[0].replace(/[.:]+$/, ''));
   }
   return found;
+}
+
+/**
+ * Whether a line names a file only as history: the clause naming it reports, in the past tense, that the file
+ * was removed, renamed, moved or replaced ("Version 2 removed `legacy.md`", "`old.md` was deleted"), and no
+ * word of that clause asks for a read. In "renamed `a.md` to `b.md`" only the old name is history; the name
+ * after to, into, by or with is the file as it is now.
+ */
+function pastFile(text: string, spelling: string): boolean {
+  const { text: masked, spans } = maskLine(text);
+  for (const clause of masked.split(/[;!?]|\.(?=\s|$)/)) {
+    const verb = /\b(?:removed|deleted|dropped|retired|deprecated|renamed|moved|replaced|superseded)\b/i.exec(
+      clause,
+    );
+    if (!verb || /\b(?:read|open|load|see|consult|use)\b/i.test(clause)) continue;
+    const after = clause.slice(verb.index + verb[0].length);
+    const current = /\b(?:to|into|by|with)\b/i.exec(after);
+    const past = clause.slice(0, verb.index + verb[0].length + (current ? current.index : after.length));
+    if (unmask(past, spans).includes(spelling)) return true;
+  }
+  return false;
 }
 
 /** Whether at least one mention requires the act, rather than forbidding it in its own clause. */
@@ -597,6 +635,7 @@ function referenceAtoms(
     if (standing && /^@\S+$/.test(line.text.trim())) continue;
     for (const { path: named, spelling } of namedReferences(line.text)) {
       if (!positiveMention(line.text, spelling, ['read', 'open', 'load'])) continue;
+      if (pastFile(line.text, spelling)) continue;
       const located = locateNamed(named, chunk.file, files, {
         bases: raw.bases ?? [],
         skipped,
@@ -717,15 +756,59 @@ function routeTargets(
   return [...targets.values()];
 }
 
-/** A routing table header that states the condition of an ask. */
-const ROUTE_CONDITION =
-  /^(?:when|use when|if|whenever|ask|asks|request|requests|trigger|triggers|condition|situation|intent|task|tasks|for|the user wants)\b/i;
-/** A column of people: who owns or maintains a skill is no ask. */
-const ROUTE_PEOPLE =
-  /^(?:owners?|maintainers?|maintained by|owned by|authors?|contacts?|team|people|person|assignees?|reviewers?)\b/i;
-/** A column of remarks names no target. */
-const ROUTE_NOTES =
-  /^(?:notes?|comments?|remarks?|descriptions?|details?|why|reasons?|see also|examples?)\b/i;
+/**
+ * Metadata names an attribute or a provenance relation, rather than work to send to a unit.
+ * Read the head noun before prepositional complements: "task owner" and "owner of the task"
+ * describe ownership, while "requests from the task owner" describes requests. Relative
+ * provenance and timestamp questions likewise describe records. Request headers need no
+ * vocabulary of permitted words, and mentioning a metadata word does not exclude them.
+ */
+function routeMetadata(header: string): boolean {
+  const head = header.split(/\b(?:of|for|from|about|on|in|by|with)\b/i)[0]?.trim() ?? '';
+  return (
+    /\b(?:owners?|ownership|custodians?|maintainers?|authors?|authorship|dates?|timestamps?|versions?|notes?|comments?|remarks?|publications?|licen[cs]es?|status)$/i.test(
+      head,
+    ) ||
+    /^(?:who\s+)?(?:wrote|writes|authored|maintains|owns)\b/i.test(header) ||
+    /^(?:maintained|written|authored|created|added|updated|modified|published)\s+by\b/i.test(header) ||
+    /\b(?:they|we|you)\s+(?:maintain|own|wrote|authored)\s*(?:it)?$/i.test(header) ||
+    /^(?:when|date|time)\s+(?:(?:was|is)\s+it\s+|it\s+(?:was|is)\s+)?(?:added|created|updated|modified|published)(?:\s+(?:at|on|by)\b.*)?$/i.test(
+      header,
+    )
+  );
+}
+
+/**
+ * A target column is evidenced by a cell designating a declared unit, not by the header spelling
+ * or by a unit merely mentioned inside a request. Normalise links and decoration, then recognise
+ * a designation (optionally a load/dispatch command or a list of units).
+ */
+function routeDesignation(cell: string, targets: ReturnType<typeof routeTargets>): boolean {
+  if (!targets.length) return false;
+  let text = cell.replace(/[`*]/g, '').trim();
+  for (const target of targets) {
+    if (target.definition) {
+      text = text.replace(/\[[^\]]+\]\([^)]*\)/g, target.target);
+    }
+    const escaped = target.target.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    text = text.replace(new RegExp(`(?<![\\w-])/?${escaped}(?![\\w-])`, 'g'), '@');
+  }
+  // A designated unit can be followed by a prerequisite or an explanation. A request such as
+  // "`auditor` fails to read receipts" is still descriptive prose, not a designation.
+  if (
+    /^(?:(?:please|always)\s+)*(?:load|use|invoke|dispatch|call)\s+(?:the\s+)?@(?=\s|[.!,:;(]|$)/i.test(text)
+  )
+    return true;
+  if (/^(?:the\s+)?@(?:\s+(?:skill|agent|helper))?\s*(?:→|->|[:;(])/.test(text)) return true;
+  return /^(?:(?:please|always)\s+)*(?:(?:load|use|invoke|dispatch|call)\s+)?(?:the\s+)?@(?:\s+(?:skill|agent|helper))?(?:\s*(?:(?:[,;]\s*)?(?:and|or)(?:\s+then)?|[,;]?\s*(?:then|followed\s+by)|[,;/&+→]|->)\s*(?:the\s+)?@(?:\s+(?:skill|agent|helper))?)*[.!]?$/i.test(
+    text,
+  );
+}
+
+/** An ISO calendar stamp is record metadata even under an opaque header; numeric request codes are not. */
+function routeRecordValue(value: string): boolean {
+  return /^\d{4}-\d{2}-\d{2}(?:T\S+)?$/.test(value);
+}
 
 /** Routing is defined by a condition and an action, never by a name appearing in an arbitrary table. */
 function routeSources(
@@ -753,19 +836,33 @@ function routeSources(
       .trim();
   for (const table of readTables(file.text)) {
     const headers = table.header.map(clean);
-    // The ask is the column whose header states a condition, else the first column; a column of people
-    // (owners, maintainers) is no ask, and a notes column names no target.
-    const conditional = headers.findIndex((header) => ROUTE_CONDITION.test(header));
-    const condition = conditional >= 0 ? conditional : 0;
-    if (ROUTE_PEOPLE.test(headers[condition] ?? '')) continue;
-    const actions = headers.flatMap((header, index) =>
-      index !== condition && !ROUTE_NOTES.test(header) ? [index] : [],
+    const cells = table.rows.map((row) =>
+      headers.map((_header, column) => routeTargets(row.cells[column] ?? '', file, files, raw)),
     );
-    for (const row of table.rows) {
+    const actions = headers.flatMap((header, column) =>
+      !routeMetadata(header) &&
+      table.rows.some((row, index) => routeDesignation(row.cells[column] ?? '', cells[index]?.[column] ?? []))
+        ? [column]
+        : [],
+    );
+    // Resolve the target role from actual declarations first. The remaining descriptive column
+    // supplies the request in either direction; metadata and bare unit labels cannot supply it.
+    const condition = headers.findIndex(
+      (header, column) =>
+        !routeMetadata(header) &&
+        !actions.includes(column) &&
+        !/^(?:skills?|agents?|helpers?|targets?|handlers?)$/i.test(header) &&
+        table.rows.some((row) => {
+          const value = clean(row.cells[column] ?? '');
+          return value !== '' && !routeRecordValue(value);
+        }),
+    );
+    if (condition < 0 || !actions.length) continue;
+    for (const [index, row] of table.rows.entries()) {
       const ask = clean(row.cells[condition] ?? '');
-      if (!ask) continue;
+      if (!ask || routeRecordValue(ask)) continue;
       for (const action of actions) {
-        for (const target of routeTargets(row.cells[action] ?? '', file, files, raw)) {
+        for (const target of cells[index]?.[action] ?? []) {
           add({ ...target, ask, line: row.line, quote: row.text, via: 'table' });
         }
       }
@@ -960,7 +1057,7 @@ const SUBORDINATE =
 const NEGATED = /\b(?:not|never|no|nor|neither|cannot|optional|optionally)\b|n't\b/;
 
 /** Whether the words before "read" make it a directive: no negation, and not itself a condition. */
-function directiveHead(head: string): boolean {
+export function directiveHead(head: string): boolean {
   const segments = head
     .toLowerCase()
     .replace(/[*_]/g, '')
@@ -975,7 +1072,7 @@ function directiveHead(head: string): boolean {
 type MaskedLine = { text: string; spans: string[] };
 
 /** Replace code spans, links and quotations with tokens; a code span around one plain word is emphasis. */
-function maskLine(line: string): MaskedLine {
+export function maskLine(line: string): MaskedLine {
   const spans: string[] = [];
   const token = (span: string) => `${OPEN_TOKEN}${spans.push(span) - 1}${CLOSE_TOKEN}`;
   const text = line
@@ -989,7 +1086,7 @@ function maskLine(line: string): MaskedLine {
   return { text, spans };
 }
 
-function unmask(text: string, spans: readonly string[]): string {
+export function unmask(text: string, spans: readonly string[]): string {
   let out = text;
   const pattern = new RegExp(TOKEN, 'g');
   // A link's text may hold a masked code span: unmask until no token is left.
@@ -1001,7 +1098,7 @@ function unmask(text: string, spans: readonly string[]): string {
 }
 
 /** Cut a masked line into directive clauses; masked spans are never cut. */
-function gateClauses(text: string): string[] {
+export function gateClauses(text: string, splitCoordinated = true): string[] {
   const clauses: string[] = [];
   let start = 0;
   for (let index = 0; index < text.length; index++) {
@@ -1021,7 +1118,7 @@ function gateClauses(text: string): string[] {
   }
   clauses.push(text.slice(start));
   return clauses
-    .flatMap((clause) => clause.split(/,\s*(?:and|but)\s+(?=\S)/i))
+    .flatMap((clause) => (splitCoordinated ? clause.split(/,\s*(?:and|but)\s+(?=\S)/i) : [clause]))
     .map((clause) =>
       clause
         .replace(/\*\*/g, '')
@@ -1177,8 +1274,9 @@ function actLabel(act: string, raw: RawEstate): string {
 function hazardAtoms(chunk: ProseChunk, files: ReadonlyMap<string, EstateFile>, builder: AtomBuilder): void {
   if (!files.has(chunk.file)) return;
   for (const line of chunkLines(chunk, files.get(chunk.file))) {
+    const text = withoutHazardExamples(line.text);
     for (const hazard of HAZARDS) {
-      if (!hazard.pattern.test(line.text) || !runtimeHazard(hazard.id, line.text)) continue;
+      if (!hazard.pattern.test(text) || !runtimeHazard(hazard.id, text)) continue;
       builder.add({
         kind: 'hazard',
         title: `Recover from ${hazard.title.toLowerCase()}`,
@@ -1192,12 +1290,53 @@ function hazardAtoms(chunk: ProseChunk, files: ReadonlyMap<string, EstateFile>, 
 }
 
 /**
+ * Quoting a sample does not make its words a runtime event: a quotation or code span the line presents as an
+ * illustration (an example, how a message reads or looks) is blanked before hazards are matched. A quoted label
+ * in a condition ("if the tool reports ...") or defined as a signal ("treat ... as a signal") stays.
+ */
+function operationalHazardQuote(prefix: string, suffix: string): boolean {
+  if (/\b(?:if|when|after|once|upon)\b/i.test(prefix)) return true;
+  const operation =
+    /^\s*(?:[-+*]\s+|\d+[.)]\s+)?(?:you\s+)?(?:(?:must|should|always)\s+)?(?:treat|interpret|recognize|recognise|regard|consider|take)\b/i.test(
+      prefix,
+    ) &&
+    /^\s+as\s+(?:(?:an?|the|your)\s+)?(?:runtime\s+)?(?:signal|trigger|condition|event|error|warning)\b/i.test(
+      suffix,
+    );
+  const effect =
+    /^\s+(?:means|signals|indicates|requires|triggers)\b/i.test(suffix) &&
+    !/\b(?:example|sample|quotation)\b/i.test(prefix);
+  return operation || effect;
+}
+
+function withoutHazardExamples(text: string): string {
+  return text.replace(
+    /`[^`\n]+`|"(?:\\.|[^"\\\n])*"|\u201C[^\u201D\n]*\u201D|(?<!\w)'(?:\\.|[^'\\\n])*'|\u2018[^\u2019\n]*\u2019/g,
+    (quote, offset: number) => {
+      const prefix =
+        text
+          .slice(0, offset)
+          .split(/[;!?]|\.(?=\s|$)/)
+          .at(-1) ?? '';
+      const suffix = text.slice(offset + quote.length).split(/[;!?]|\.(?=\s|$)/)[0] ?? '';
+      if (operationalHazardQuote(prefix, suffix)) return quote;
+      const illustrative =
+        /\b(?:example|instance|sample|phrase|literal)\b|\be\.g\.|\b(?:reads?|looks?|(?:is|are)\s+written|appears?)\s+(?:like|as)\b|\b(?:error|message|log)\s+(?:says|reads|shows)\b/i.test(
+          prefix,
+        ) || /^\s+is\s+(?:only\s+|just\s+)?an?\s+(?:example|sample|quotation)\b/i.test(suffix);
+      return illustrative ? ' '.repeat(quote.length) : quote;
+    },
+  );
+}
+
+/**
  * An event with no owner is about the runtime in an instruction estate. Explicit owners still matter:
  * equipment restarts, commercial rate limits, customer messages and course sessions are domain work,
  * not events that interrupt the assistant. Keep incoming notifications from helpers as runtime events.
  */
 function runtimeHazard(id: (typeof HAZARDS)[number]['id'], text: string): boolean {
   const line = text.replace(/[`*]/g, '').replace(/[‘’]/g, "'");
+  const eventLine = text.replace(/\*/g, '').replace(/[‘’]/g, "'");
   switch (id) {
     case 'compaction': {
       const runtime = line.replace(
@@ -1207,9 +1346,9 @@ function runtimeHazard(id: (typeof HAZARDS)[number]['id'], text: string): boolea
       return HAZARDS.find((hazard) => hazard.id === id)?.pattern.test(runtime) ?? false;
     }
     case 'restart':
-      return runtimeTransition(line, RESTART_EVENT, true);
+      return runtimeTransition(eventLine, RESTART_EVENT, true);
     case 'rate_wave':
-      return runtimeRateLimit(line);
+      return runtimeRateLimit(eventLine);
     case 'nudge_storm':
       // A nudge the agent receives (repeated nudges, a hook nudges the agent), never the agent nudging a
       // value of the work ("nudge the price up").
@@ -1230,7 +1369,7 @@ function runtimeHazard(id: (typeof HAZARDS)[number]['id'], text: string): boolea
     case 'session_boundary':
       // Resumption requires a named runtime participant: "resume" can also name a document. New-session forms
       // retain their existing behavior, independently of a resumption elsewhere on the same line.
-      if (RESUMPTION_EVENT.test(line) && runtimeTransition(line, RESUMPTION_EVENT, false)) return true;
+      if (RESUMPTION_EVENT.test(line) && runtimeTransition(eventLine, RESUMPTION_EVENT, false)) return true;
       return (
         SESSION_START_EVENT.test(line) &&
         !/\bsession\s+(?:of|for|in)\s+(?:the\s+|a\s+)?(?:training|course|class|workshop|lesson)\b/i.test(line)
@@ -1300,11 +1439,101 @@ function unownedEvent(subject: string): boolean {
   );
 }
 
+/** A reported message keeps its receiver or issuer even when its event words are quoted. */
+function messageDirection(before: string, after: string): boolean | undefined {
+  const verbs = [
+    ...before.matchAll(
+      /\b(gets?|got|receives?|received|hits?|hit|encounters?|encountered|returns?|returned|responds?|responded|answers?|answered|replies|replied|tells?|told|asks?|asked|instructs?|instructed)\b/gi,
+    ),
+  ];
+  const verb = verbs.at(-1);
+  if (!verb) return undefined;
+  if (/^(?:tell|told|ask|instruct)/i.test(verb[0]))
+    return runtimeParticipant(eventObject(before.slice((verb.index ?? 0) + verb[0].length)));
+  const actor = eventSubject(before.slice(0, verb.index));
+  if (/^(?:get|got|receive|hit|encounter)/i.test(verb[0])) return rateRecipient(actor);
+  const recipient = /^\s+(?:(?:is|was|gets?)\s+(?:returned|sent|shown)\s+)?(?:to|for)\s+(.+)/i.exec(after);
+  if (recipient) return rateRecipient(eventObject(recipient[1] ?? ''));
+  return !runtimeParticipant(actor) && !/^(?:our|my|your|we|i)\b/i.test(actor);
+}
+
+/** Example carriers name a message, not the participant undergoing the event in that message. */
+function eventIntroduction(before: string): string {
+  const example = /\b(?:such as|like|for example|e\.g\.)\s*$/i.exec(before);
+  if (!example) return before;
+  const head = before.slice(0, example.index).trim();
+  const report = [
+    ...head.matchAll(
+      /\b(?:gets?|got|receives?|received|hits?|hit|encounters?|encountered|returns?|returned|responds?|responded|answers?|answered|replies|replied|tells?|told|asks?|asked|instructs?|instructed)\b/gi,
+    ),
+  ].at(-1);
+  if (report) return `${head.slice(0, (report.index ?? 0) + report[0].length)} `;
+  // A bare carrier ("warnings such as ...") has no actor. A possessor or a larger clause stays.
+  return /^(?:(?:an?|the|these|those|some)\s+)?\w+$/i.test(head) || unownedEvent(head) ? '' : before;
+}
+
+/**
+ * Resolve an event inside a message against its own clause, while preserving explicit outer receivers
+ * and issuers. Parenthetical illustrations are adjuncts, not direct objects of an adjacent event.
+ * Descriptive quotations have already been removed by withoutHazardExamples.
+ */
+function eventContext(
+  line: string,
+  event: { 0: string; index?: number },
+): { before: string; after: string } | undefined {
+  const at = event.index ?? 0;
+  let before = line.slice(0, at);
+  let after = line.slice(at + event[0].length);
+  const spans = line.matchAll(
+    /`[^`\n]+`|"(?:\\.|[^"\\\n])*"|“[^”\n]*”|(?<!\w)'(?:\\.|[^'\\\n])*'|\([^()\n]*\)/g,
+  );
+  for (const span of spans) {
+    const start = span.index ?? 0;
+    if (start >= at || start + span[0].length <= at) continue;
+    const outerBefore = line.slice(0, start);
+    const outerAfter = line.slice(start + span[0].length);
+    const direction = messageDirection(outerBefore, outerAfter);
+    if (direction === false) return undefined;
+    const body = span[0].slice(1, -1);
+    const local = at - start - 1;
+    const innerBefore = body
+      .slice(0, local)
+      .replace(/^\s*(?:for example\b|e\.g\.|i\.e\.|say\b)\s*/i, '')
+      .replace(/["“”]/g, '');
+    const innerAfter = body.slice(local + event[0].length).replace(/["“”]/g, '');
+    if (unownedEvent(eventSubject(innerBefore))) {
+      before = eventIntroduction(`${outerBefore}${innerBefore}`);
+      after = `${innerAfter}${outerAfter}`;
+      // A quoted, unowned event in a reported message inherits its receiver, not the carrier noun.
+      if (
+        (direction === true || operationalHazardQuote(outerBefore, outerAfter)) &&
+        !/^(?:429s?)$/i.test(body.trim())
+      )
+        before = innerBefore;
+    } else if (
+      !outerBefore.trim() ||
+      direction !== undefined ||
+      operationalHazardQuote(outerBefore, outerAfter)
+    ) {
+      before = innerBefore;
+      after = innerAfter;
+    }
+    break;
+  }
+  if (/\b(?:such as|like|for example|e\.g\.)\s*$/i.test(before)) {
+    if (messageDirection(before, after) === false) return undefined;
+    before = eventIntroduction(before);
+  }
+  const aside = /\(\s*(?:for example\b|e\.g\.|i\.e\.|say\b|including\b)[^()]*\)/gi;
+  return { before: before.replace(aside, ' '), after: after.replace(aside, ' ') };
+}
+
 /** In a passive event the subject undergoes it; in an active transitive event the object does. */
 function runtimeTransition(line: string, eventPattern: RegExp, allowUnowned: boolean): boolean {
   return [...line.matchAll(new RegExp(eventPattern.source, 'gi'))].some((event) => {
-    const before = line.slice(0, event.index);
-    const after = line.slice((event.index ?? 0) + event[0].length);
+    const context = eventContext(line, event);
+    if (!context) return false;
+    const { before, after } = context;
     const subject = eventSubject(before);
     const passive =
       /ed$/i.test(event[0]) &&
@@ -1335,8 +1564,9 @@ function runtimeTransition(line: string, eventPattern: RegExp, allowUnowned: boo
  */
 function runtimeRateLimit(line: string): boolean {
   return [...line.matchAll(new RegExp(RATE_LIMIT_EVENT.source, 'gi'))].some((event) => {
-    const before = line.slice(0, event.index);
-    const after = line.slice((event.index ?? 0) + event[0].length);
+    const context = eventContext(line, event);
+    if (!context) return false;
+    const { before, after } = context;
     const receipt =
       /\b(?:gets?|got|receives?|received|hits?|hit|encounters?|encountered)\s+(?:(?:an?|the|[\w-]+'s)\s+)*(?:HTTP(?:\s+status)?\s+|status(?:\s+code)?\s+)?$/i.exec(
         before,

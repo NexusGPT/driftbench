@@ -25,6 +25,7 @@ export { literal };
  * | tool_called Read with a path (equal or contained) | `expect.references`, a glob ending in the path |
  * | tool_called Agent with a helper name | `expect.subagents` with a count |
  * | ordered | the ordered-pair custom check, `rules.custom.ordered` |
+ * | ordered from a Read | the Read of the file the gate names (`Read~<path>`), or of the file changed (`key`) |
  * | stage_reached | `expect.stage` on the closing stage, and an ordered pair when the stage is not the last |
  * | workspace, artifact | `expect.workspace`, `expect.artifacts` |
  * | text | `expect.must`, `expect.must_not` (the words as literal text), `expect.lang` |
@@ -39,7 +40,7 @@ export { literal };
  *   the atom asks for one call that matches (`needs-some-call-check`);
  * - a custom predicate no registered check runs (`needs-registered-check`);
  * - an ordered pair whose ends are not a tool label, a skill or a stage, or are the same label
- *   (`needs-ordered-anchor`);
+ *   (`needs-ordered-anchor` without a judge; otherwise the source rule is judged);
  * - a stage that can be reached at any time, or a step list with no single closing stage
  *   (`needs-stage-reach-check`);
  * - a static property of the estate files (`needs-static-runner`);
@@ -70,7 +71,8 @@ export const MARKER_NAMES: ReadonlySet<string> = new Set(Object.values(MARKERS))
 
 export type Gap = { marker: Marker; atom: string; detail: string };
 
-export type OrderedPair = { before: string; after: string };
+/** `key`: the two calls name the same value in that input field (`file_path`: the file read is the one edited). */
+export type OrderedPair = { before: string; after: string; key?: string };
 
 export type SomeCall = { label: string; input: Record<string, unknown>; count: 0 | { min: number } };
 
@@ -201,7 +203,7 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
     case 'tool_called':
       if (hasInput(evidence.input)) {
         if (loadedRead(evidence.label, evidence.input, ctx)) return;
-        if (missingRead(then, atom, evidence.label, evidence.input, ctx)) return;
+        if (missingRead(then, atom, evidence.label, evidence.input, ctx, evidence.min ?? 1)) return;
         if (someCall(then, evidence.label, evidence.input, evidence.min ?? 1)) return;
         if (ctx.customChecks.has('some_call')) {
           addSomeCall(then, {
@@ -224,9 +226,11 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       }
       return;
     case 'ordered': {
-      const pair = anchorPair(evidence.before, evidence.after, ctx, atom.fields);
-      if (typeof pair === 'string') gap(then, MARKERS.anchor, atom, pair);
-      else addPair(then, pair);
+      const pair = anchorPair(evidence.before, evidence.after, ctx, atom.fields, atom.provenance?.quote);
+      if (typeof pair === 'string') {
+        if (ctx.judge) judgeRule(then, atom, 'positive');
+        else gap(then, MARKERS.anchor, atom, pair);
+      } else addPair(then, pair);
       return;
     }
     case 'stage_reached':
@@ -271,8 +275,10 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
         if (evidence.name === 'ordered') {
           for (const raw of pairsOf(evidence.options)) {
             const pair = anchorPair(raw.before, raw.after, ctx);
-            if (typeof pair === 'string') gap(then, MARKERS.anchor, atom, pair);
-            else addPair(then, pair);
+            if (typeof pair === 'string') {
+              if (ctx.judge) judgeRule(then, atom, 'positive');
+              else gap(then, MARKERS.anchor, atom, pair);
+            } else addPair(then, pair);
           }
           return;
         }
@@ -410,15 +416,25 @@ function negative(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
   }
 }
 
+/** Tools that change a file named by `file_path`. */
+const FILE_EDITS = new Set(['Edit', 'MultiEdit', 'Write']);
+/** A gate whose change acts on what it read: "read a file before you edit it". */
+const SAME_OBJECT =
+  /\b(?:edit|change|modify|update|overwrite|rewrite|write)\w*\s+(?:it|them|that file|this file|the same file)\b/i;
+
 /**
  * An ordered pair in the names the ordered check reads: a tool label as is, `skill:<name>`, `stage:<name>`.
- * A string says why the pair cannot be anchored.
+ * A string says why the pair cannot be anchored. A Read end is what the gate reads: the file it names
+ * (`Read~<path>`, from the gate's `path` field), or, when it names none and its change acts on what it read
+ * ("read a file before you edit it"), the file of the change itself (`key: file_path`). Any Read before the
+ * change would let a gate whose own read went missing pass on another read.
  */
 export function anchorPair(
   before: string,
   after: string,
   ctx: ThenContext,
   fields?: Record<string, unknown>,
+  quote?: string,
 ): OrderedPair | string {
   const a = anchor(before, ctx);
   const b = anchor(after, ctx);
@@ -437,6 +453,11 @@ export function anchorPair(
   }
   if (a === b)
     return `${before} before ${after}: both ends are ${a}, so the pair cannot tell the two acts apart`;
+  if (a === 'Read') {
+    const path = typeof fields?.path === 'string' ? fields.path.trim().replace(/^\.?\/+/, '') : '';
+    if (path !== '') return { before: `Read~${path}`, after: b };
+    if (FILE_EDITS.has(b) && SAME_OBJECT.test(quote ?? '')) return { before: a, after: b, key: 'file_path' };
+  }
   return { before: a, after: b };
 }
 
@@ -610,7 +631,11 @@ export function pathsOf(atom: EstateAtom): string[] {
 }
 
 export function addPair(then: ThenParts, pair: OrderedPair): void {
-  if (!then.ordered.some((known) => known.before === pair.before && known.after === pair.after)) {
+  if (
+    !then.ordered.some(
+      (known) => known.before === pair.before && known.after === pair.after && known.key === pair.key,
+    )
+  ) {
     then.ordered.push(pair);
   }
 }
@@ -686,9 +711,10 @@ function loadedRead(label: string, input: Record<string, unknown>, ctx: ThenCont
 }
 
 /**
- * A Read of a file the estate does not hold: never expected (a run on a copy of the estate could not make
- * it); the row gets a needs-existing-file gap. True when it is such a read. A path matches a file of the
- * estate when one ends with the other.
+ * A file the estate does not hold cannot be read successfully, but the declared Read call can still be
+ * attempted and return a file-not-found error. Check that attempt with some_call, not references (which
+ * counts only successful reads). Without that checker the row keeps its needs-existing-file gap.
+ * True when it is such a read. A path matches a file when one ends with the other.
  */
 function missingRead(
   then: ThenParts,
@@ -696,6 +722,7 @@ function missingRead(
   label: string,
   input: Record<string, unknown>,
   ctx: ThenContext,
+  min: number,
 ): boolean {
   if (label !== 'Read' || !ctx.files) return false;
   const value = textOf(input.file_path ?? input.path ?? input.notebook_path);
@@ -703,6 +730,10 @@ function missingRead(
   const path = value.replace(/^\.?\/+/, '');
   for (const file of ctx.files) {
     if (file === path || file.endsWith(`/${path}`) || path.endsWith(`/${file}`)) return false;
+  }
+  if (ctx.customChecks.has('some_call')) {
+    addSomeCall(then, { label, input, count: { min } });
+    return true;
   }
   gap(then, MARKERS.existingFile, atom, `${path} is no file of the estate`);
   return true;

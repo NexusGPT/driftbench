@@ -38,6 +38,29 @@ import { keyLine, type Located, lineAt, linesOf, readFrontmatter, readTables } f
 const STANDING = new Set(['CLAUDE.md', '.claude/CLAUDE.md', 'CLAUDE.local.md']);
 const SETTINGS = new Set(['.claude/settings.json', '.claude/settings.local.json']);
 const MAX_FILE_BYTES = 1024 * 1024;
+
+/** Bound open files and queued filesystem work while retaining the caller's order. */
+async function readBatch<T, R>(values: readonly T[], read: (value: T) => Promise<R>): Promise<R[]> {
+  const results: R[] = [];
+  const pending = values.entries();
+  let failed = false;
+  await Promise.all(
+    Array.from({ length: Math.min(16, values.length) }, async () => {
+      while (!failed) {
+        const next = pending.next();
+        if (next.done) return;
+        const [index, value] = next.value;
+        try {
+          results[index] = await read(value);
+        } catch (cause) {
+          failed = true;
+          throw cause;
+        }
+      }
+    }),
+  );
+  return results;
+}
 const INTERPRETERS = new Set([
   'python',
   'python3',
@@ -186,9 +209,13 @@ export class ClaudeCodeReader implements EstateReader {
       ...(await nestedStanding(root, '', notes, ignored)),
     ];
     const files: EstateFile[] = [];
-    for (const path of paths) {
+    const loaded = await readBatch(paths, async (path) => ({
+      path,
+      text: await readFile(join(root, path), 'utf8'),
+    }));
+    for (const { path, text: source } of loaded) {
       // A byte order mark is not part of the text any reader quotes.
-      const text = (await readFile(join(root, path), 'utf8')).replace(/^\uFEFF/, '');
+      const text = source.replace(/^\uFEFF/, '');
       // An empty file holds no line to quote: it is kept as a file, read as no kind, and noted.
       if (text.trim() === '') {
         notes.push({ file: path, message: 'empty file: nothing to read' });
@@ -369,32 +396,45 @@ async function nestedStanding(
   folder: string,
   notes: ReadNote[],
   ignored: Ignored,
-  ancestors: ReadonlySet<string> = new Set(),
+  ancestors: Set<string> = new Set(),
+  canonical?: string,
+  found: string[] = [],
 ): Promise<string[]> {
-  const real = await realpath(join(root, folder)).catch(() => undefined);
+  const real = canonical ?? (await realpath(join(root, folder)).catch(() => undefined));
   if (!real) return [];
   if (ancestors.has(real)) {
     notes.push({ file: folder, message: 'skipped: a link back to a folder the walk is already inside' });
     return [];
   }
-  const inside = new Set(ancestors).add(real);
-  const entries = await readdir(join(root, folder), { withFileTypes: true }).catch(() => []);
-  const found: string[] = [];
-  for (const entry of entries.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))) {
-    const path = posix.join(folder, entry.name);
-    // The regular layout walk already owns this tree and the root standing files.
-    if (folder === '' && (entry.name === '.claude' || STANDING.has(path))) continue;
-    if (ignored.rules.some((rule) => rule.test(path))) continue;
-    const linked = entry.isSymbolicLink() ? await stat(join(root, path)).catch(() => undefined) : undefined;
-    if (entry.isDirectory() || linked?.isDirectory()) {
-      found.push(...(await nestedStanding(root, path, notes, ignored, inside)));
-    } else if (/^CLAUDE(?:\.local)?\.md$/.test(entry.name) && (entry.isFile() || linked?.isFile())) {
-      const info = linked ?? (await stat(join(root, path)));
-      if (info.size > MAX_FILE_BYTES) notes.push({ file: path, message: 'skipped: larger than 1 MB' });
-      else found.push(path);
+  ancestors.add(real);
+  try {
+    const entries = await readdir(join(root, folder), { withFileTypes: true }).catch(() => []);
+    for (const entry of entries.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))) {
+      const path = posix.join(folder, entry.name);
+      // The regular layout walk already owns this tree and the root standing files.
+      if (folder === '' && (entry.name === '.claude' || STANDING.has(path))) continue;
+      if (ignored.rules.some((rule) => rule.test(path))) continue;
+      const linked = entry.isSymbolicLink() ? await stat(join(root, path)).catch(() => undefined) : undefined;
+      if (entry.isDirectory() || linked?.isDirectory()) {
+        await nestedStanding(
+          root,
+          path,
+          notes,
+          ignored,
+          ancestors,
+          entry.isSymbolicLink() ? undefined : join(real, entry.name),
+          found,
+        );
+      } else if (/^CLAUDE(?:\.local)?\.md$/.test(entry.name) && (entry.isFile() || linked?.isFile())) {
+        const info = linked ?? (await stat(join(root, path)));
+        if (info.size > MAX_FILE_BYTES) notes.push({ file: path, message: 'skipped: larger than 1 MB' });
+        else found.push(path);
+      }
     }
+    return found;
+  } finally {
+    ancestors.delete(real);
   }
-  return found;
 }
 
 async function present(root: string, names: readonly string[]): Promise<string[]> {
@@ -549,11 +589,13 @@ async function walk(
   folder: string,
   notes: ReadNote[],
   ignored: Ignored,
-  ancestors: ReadonlySet<string> = new Set(),
+  ancestors: Set<string> = new Set(),
   ignoredBy?: string,
   large?: string[],
+  canonical?: string,
+  found: string[] = [],
 ): Promise<string[]> {
-  const real = await realpath(join(root, folder)).catch(() => undefined);
+  const real = canonical ?? (await realpath(join(root, folder)).catch(() => undefined));
   if (real === undefined) return [];
   if (ancestors.has(real)) {
     if (ignoredBy === undefined) {
@@ -561,37 +603,54 @@ async function walk(
     }
     return [];
   }
-  const inside = new Set(ancestors).add(real);
-  const entries = await readdir(join(root, folder), { withFileTypes: true }).catch(() => []);
-  const found: string[] = [];
-  for (const entry of [...entries].sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))) {
-    const path = posix.join(folder, entry.name);
-    const by = ignoredBy ?? ignored.rules.find((rule) => rule.test(path))?.pattern;
-    let folderEntry = entry.isDirectory();
-    let fileEntry = entry.isFile();
-    if (entry.isSymbolicLink()) {
-      const target = await stat(join(root, path)).catch(() => undefined);
-      if (!target) {
+  ancestors.add(real);
+  try {
+    const entries = await readdir(join(root, folder), { withFileTypes: true }).catch(() => []);
+    const ordered = [...entries].sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+    // Dirents already identify ordinary directories. Follow a link once; its stat also gives the size.
+    const inspected = await readBatch(ordered, async (entry) => {
+      const path = posix.join(folder, entry.name);
+      const by = ignoredBy ?? ignored.rules.find((rule) => rule.test(path))?.pattern;
+      const info = entry.isSymbolicLink()
+        ? await stat(join(root, path)).catch(() => undefined)
+        : entry.isFile() && by === undefined
+          ? await stat(join(root, path))
+          : undefined;
+      return { entry, path, by, info };
+    });
+    for (const { entry, path, by, info } of inspected) {
+      if (entry.isSymbolicLink() && !info) {
         if (by === undefined) notes.push({ file: path, message: 'skipped: a link that points at nothing' });
         continue;
       }
-      folderEntry = target.isDirectory();
-      fileEntry = target.isFile();
+      const folderEntry = entry.isDirectory() || info?.isDirectory();
+      const fileEntry = entry.isFile() || info?.isFile();
+      if (folderEntry) {
+        await walk(
+          root,
+          path,
+          notes,
+          ignored,
+          ancestors,
+          by,
+          large,
+          entry.isSymbolicLink() ? undefined : join(real, entry.name),
+          found,
+        );
+      } else if (fileEntry && by !== undefined) {
+        ignored.counts.set(by, (ignored.counts.get(by) ?? 0) + 1);
+        ignored.paths.push(path);
+      } else if (fileEntry && info) {
+        if (info.size > MAX_FILE_BYTES) {
+          notes.push({ file: path, message: 'skipped: larger than 1 MB' });
+          large?.push(path);
+        } else found.push(path);
+      }
     }
-    if (folderEntry) {
-      found.push(...(await walk(root, path, notes, ignored, inside, by, large)));
-    } else if (fileEntry && by !== undefined) {
-      ignored.counts.set(by, (ignored.counts.get(by) ?? 0) + 1);
-      ignored.paths.push(path);
-    } else if (fileEntry) {
-      const info = await stat(join(root, path));
-      if (info.size > MAX_FILE_BYTES) {
-        notes.push({ file: path, message: 'skipped: larger than 1 MB' });
-        large?.push(path);
-      } else found.push(path);
-    }
+    return found;
+  } finally {
+    ancestors.delete(real);
   }
-  return found;
 }
 
 function classify(path: string, text: string): { kind: FileKind; owner?: string } {
@@ -923,7 +982,11 @@ function readGuards(
           scope,
           at: found,
           ...(hook.type === 'command'
-            ? scriptOf(command, new Set(estate.files.map((entry) => entry.path)))
+            ? scriptOf(
+                command,
+                new Set(estate.files.map((entry) => entry.path)),
+                new Map(estate.files.map((entry) => [entry.path, entry.text])),
+              )
             : { anchored: false }),
         };
         if (matcher !== undefined) guard.matcher = matcher;
@@ -942,15 +1005,16 @@ const OPERATORS = new Set(['||', '&&', ';', '|', '&']);
  * command is cut at `||`, `&&`, `;` and `|`; in each part, environment assignments (`ENV=1`) and an `env`
  * wrapper are passed over and an interpreter (`python3`) runs the path after its flags. A part whose program
  * is not a path (a shell test such as `[ "$X" = 1 ]`, `echo`) runs no script. The first part that runs a
- * path gives the script. With the estate's files, a dispatcher is seen through: among that part's path
+ * path gives the script. With source or documented usage proving dispatch, the wrapper is seen through: among that part's path
  * arguments, the last one that exists is the script (tried from the root, then from the folder of each
  * earlier path and the folders above it), and the path the shell runs is kept as the dispatcher.
  */
 export function scriptOf(
   command: string,
   paths?: ReadonlySet<string>,
+  sources?: ReadonlyMap<string, string>,
 ): { script?: string; anchored: boolean; dispatcher?: string } {
-  return scriptFrom(command, paths, '', false);
+  return scriptFrom(command, paths, '', false, sources);
 }
 
 /** Carry a proven working directory into a command, including a shell's quoted command string. */
@@ -959,6 +1023,7 @@ function scriptFrom(
   paths: ReadonlySet<string> | undefined,
   directory: string,
   anchoredDirectory: boolean,
+  sources?: ReadonlyMap<string, string>,
 ): { script?: string; anchored: boolean; dispatcher?: string } {
   for (const { words: segment, after } of segments(command)) {
     const words = segment.map((word) => word.replace(/["']/g, ''));
@@ -986,7 +1051,7 @@ function scriptFrom(
         const quoted = segment[head + 2];
         if (quoted !== undefined) {
           const payload = /^(["']).*\1$/.test(quoted) ? quoted.slice(1, -1) : quoted;
-          const nested = scriptFrom(payload, paths, directory, anchoredDirectory);
+          const nested = scriptFrom(payload, paths, directory, anchoredDirectory, sources);
           if (nested.script !== undefined) return nested;
           continue;
         }
@@ -999,8 +1064,18 @@ function scriptFrom(
       ? relative
       : { script: posix.normalize(posix.join(directory, relative.script)), anchored: anchoredDirectory };
     if (!paths) return first;
-    const last = scriptIn(segment.join(' '), directory, paths, true);
-    if (last === undefined || last === first.script) return first;
+    const target = paths.has(first.script)
+      ? dispatchedName(segment, runs, dispatcherSource(first.script, sources))
+      : undefined;
+    // With source available, an argument is a file only when its data flows to an execution path.
+    if (target === undefined) return first;
+    const last = scriptIn(`${JSON.stringify(runs)} ${JSON.stringify(target)}`, directory, paths, true);
+    if (last === undefined || last === first.script) {
+      // A dispatcher whose target name matches no file still names that target: the guard runs nothing.
+      return target === undefined
+        ? first
+        : { script: anchorOf(target).script, anchored: first.anchored, dispatcher: first.script };
+    }
     return {
       script: last,
       anchored: first.anchored,
@@ -1008,6 +1083,109 @@ function scriptFrom(
     };
   }
   return { anchored: false };
+}
+
+/** Source plus usage paragraphs that explicitly name this script. Unrelated documentation is ignored. */
+function dispatcherSource(script: string, sources?: ReadonlyMap<string, string>): string | undefined {
+  const own = sources?.get(script);
+  if (own === undefined) return undefined;
+  const usage: string[] = [own];
+  for (const [path, text] of sources ?? []) {
+    if (!/\.(?:md|markdown|txt)$/.test(path)) continue;
+    for (const paragraph of text.split(/\n\s*\n/)) {
+      if (/\busage\s*:/i.test(paragraph) && paragraph.includes(script)) usage.push(paragraph);
+    }
+  }
+  return usage.join('\n');
+}
+
+/**
+ * Recognize a first argument flowing into an executed file, directly or through local assignments.
+ * These are static syntax patterns, not an execution of the estate. Unknown code stays the outer script.
+ * A usage contract can also explicitly identify the first positional argument as an executed script file.
+ */
+function dispatchesArgument(source: string): boolean {
+  const argument = /(?:sys\.argv\s*\[\s*1\s*\]|process\.argv\s*\[\s*2\s*\]|\$\{?1\}?|ARGV\s*\[\s*0\s*\])/;
+  const tainted = new Set<string>();
+  const depends = (expression: string): boolean => {
+    let value = expression.replace(argument, '\uE002');
+    for (const name of tainted) value = value.replace(new RegExp(`\\b${name}\\b`, 'g'), '\uE002');
+    // A selector chooses a mapped value; it is not the path value itself.
+    return value.includes('\uE002') && !/\[\s*\uE002/.test(value);
+  };
+  const uncommented = source
+    .split('\n')
+    .filter((line) => !/^\s*(?:#|\/\/)/.test(line))
+    .join('\n');
+  // Python/JS examples in literals are data. Shell double quotes still interpolate positional values.
+  const code = /^#![^\n]*\b(?:ba|z|da|k)?sh\b/.test(source)
+    ? uncommented
+    : uncommented.replace(/"""[\s\S]*?"""|'''[\s\S]*?'''|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/g, (literal) =>
+        /^['"](?:python3?|node|bash|sh|ruby)['"]$/.test(literal) ? literal : '""',
+      );
+  const assignments = [
+    ...code.matchAll(/(?:^|[;\n])\s*(?:(?:const|let|var)\s+)?([A-Za-z_]\w*)\s*=\s*([^;\n]+)/g),
+  ];
+  for (const match of assignments) {
+    const name = match[1] ?? '';
+    if (depends(match[2] ?? '')) tainted.add(name);
+    else tainted.delete(name);
+  }
+  // Single file execution APIs: only the path argument, never their data/options arguments.
+  for (const match of code.matchAll(
+    /(?:runpy\.run_path|execFileSync|execFile|spawnSync|spawn|os\.execv)\s*\(\s*([^,;\n]+)/g,
+  )) {
+    if (depends(match[1] ?? '')) return true;
+  }
+  // Python subprocess argv: argv[0] is a file or an interpreter, argv[1] its file argument.
+  for (const match of code.matchAll(
+    /subprocess\.(?:run|call|Popen|check_call|check_output)\s*\(\s*\[([^\n]+)/g,
+  )) {
+    const args = match[1] ?? '';
+    if (/^\s*(?:sys\.executable|['"](?:python3?|node|bash|sh|ruby)['"])\s*,/.test(args)) {
+      if (depends(args.replace(/^[^,]+,/, '').split(',')[0] ?? '')) return true;
+    } else if (depends(args.split(',')[0] ?? '')) return true;
+  }
+  // Shell command position, optionally after an interpreter. An echo of "$1" is not execution.
+  for (const line of code.split('\n')) {
+    const command =
+      /(?:^|[;&|])\s*(?:(?:exec\s+|source\s+|\.\s+)(?:(?:python3?|node|bash|sh|ruby)\s+)?|(?:python3?|node|bash|sh|ruby)\s+)(.+)/.exec(
+        line,
+      );
+    if (command && depends((command[1] ?? '').split(/\s+(?=(?:[^"']|["'][^"']*["'])*$)/)[0] ?? ''))
+      return true;
+  }
+  return documentedArgument(source) === 'first';
+}
+
+/** Usage statements identify a file argument by its position or by an option, never by script naming. */
+function documentedArgument(source: string): string | undefined {
+  for (const line of source.split('\n')) {
+    const prose = line.replace(/^\s*(?:#|\/\/|\*|["'])+\s*/, '');
+    const usage =
+      /^(?:(?:this|the)\s+(?:script|program)\s+)?(?:runs?|executes?|dispatches?)\s+(?:the\s+)?(?:script(?:\s+file)?|hook|file)\b(.+)/i.exec(
+        prose,
+      );
+    if (!usage) continue;
+    if (/\b(?:first\s+(?:positional\s+)?argument|argument\s+1)\b/i.test(usage[1] ?? '')) return 'first';
+    const flag = /\b(?:by|with|using)\s+(--[\w-]+)/.exec(usage[1] ?? '');
+    if (flag) return flag[1];
+  }
+  return undefined;
+}
+
+/** A positional argument names a dispatched script only when source or usage proves that role. */
+function dispatchedName(segment: readonly string[], runs: string, source?: string): string | undefined {
+  if (source === undefined) return undefined;
+  const documented = documentedArgument(source);
+  if (!dispatchesArgument(source) && documented === undefined) return undefined;
+  const words = segment.map((token) => token.replace(/["']/g, ''));
+  const index =
+    documented !== undefined && documented !== 'first' ? words.indexOf(documented) : words.indexOf(runs);
+  const word = index < 0 ? undefined : words[index + 1];
+  if (word === undefined || word.startsWith('-')) return undefined;
+  if (word.includes('/') || SCRIPT_EXTENSION.test(word)) return word;
+  return /^[A-Za-z][\w.-]*$/.test(word) ? word : undefined;
 }
 
 /** A command line cut into parts, retaining the operator that follows each part. */

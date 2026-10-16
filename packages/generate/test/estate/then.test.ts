@@ -1,3 +1,5 @@
+import { orderedCheck } from '@agent-nexus/driftbench-adapters';
+import type { CheckContext } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import type { EstateAtom, EstateEvidence } from '../../src/estate/inputs';
 import {
@@ -416,6 +418,19 @@ describe('the estate checks the runner registers, and custom predicates compiled
     expect(currency.test('Total 1,250.00 EUR')).toBe(false);
   });
 
+  it('reads a forbidden command under each name a model gives it, the command in contains, regex or command', () => {
+    const calls = (name: string, options: Record<string, unknown>) =>
+      thenOf([custom(name, options)], 'positive', full).someCalls;
+    expect(calls('command_absent', { command: 'rm -rf build' })).toEqual([
+      { label: 'Bash', input: { command: { contains: 'rm -rf build' } }, count: 0 },
+    ]);
+    expect(calls('command_forbidden', { regex: '^npm publish' })).toEqual([
+      { label: 'Bash', input: { command: { regex: '^npm publish' } }, count: 0 },
+    ]);
+    // No command named: nothing to compile, so the rule is judged or waits.
+    expect(calls('command_absent', {})).toEqual([]);
+  });
+
   it('runs grounded_values on the first block when the runner registers it, and leaves it a gap otherwise', () => {
     const then = thenOf([custom('grounded_values')], 'positive', full);
     expect(then.gaps).toEqual([]);
@@ -552,6 +567,110 @@ describe('ordered pairs between two calls of one tool, and a step allowed at any
     const then = thenOf([gate], 'positive', runner);
     expect(then.gaps).toEqual([]);
     expect(then.ordered).toEqual([{ before: 'Bash~git status', after: 'Bash~commit' }]);
+  });
+
+  it('anchors the Read of a gate on the file it names, or on the changed file when it names none', () => {
+    const named = atom('gate.depot.read-count-rules', [{ type: 'ordered', before: 'Read', after: 'Edit' }], {
+      kind: 'gate',
+      provenance: { quote: 'Read `references/count-rules.md` before you change any sheet.' },
+      fields: { first: 'references/count-rules.md', path: '.claude/skills/depot/references/count-rules.md' },
+    });
+    expect(thenOf([named], 'positive', runner).ordered).toEqual([
+      { before: 'Read~.claude/skills/depot/references/count-rules.md', after: 'Edit' },
+    ]);
+    const same = (quote: string, after = 'Edit') =>
+      thenOf(
+        [
+          atom('gate.depot.read-first', [{ type: 'ordered', before: 'Read', after }], {
+            kind: 'gate',
+            provenance: { quote },
+          }),
+        ],
+        'positive',
+        runner,
+      ).ordered;
+    expect(same('Always open a sheet and read it before you change it.')).toEqual([
+      { before: 'Read', after: 'Edit', key: 'file_path' },
+    ]);
+    expect(same('Read the file first, then overwrite it.', 'Write')).toEqual([
+      { before: 'Read', after: 'Write', key: 'file_path' },
+    ]);
+    // Nothing ties the read to the change: any read before it.
+    expect(same('Read the briefing before you edit anything.')).toEqual([{ before: 'Read', after: 'Edit' }]);
+  });
+
+  it('tells an agent that drops the gate read from one that keeps it, where any read would not', () => {
+    const verdict = (pairs: unknown, calls: Array<[string, string]>) => {
+      const observed = {
+        segments: [],
+        text: '',
+        toolCalls: calls.map(([label, file_path], index) => ({
+          id: `c${index}`,
+          label,
+          input: { file_path },
+        })),
+        cost: {},
+        latencyMs: 0,
+      };
+      const ctx = { blockIndex: 0, observed, history: [] } as unknown as CheckContext;
+      return orderedCheck(ctx, { pairs }).map((entry) => entry.outcome);
+    };
+    const named = atom('gate.depot.read-count-rules', [{ type: 'ordered', before: 'Read', after: 'Edit' }], {
+      kind: 'gate',
+      fields: { path: '.claude/skills/depot/references/count-rules.md' },
+    });
+    const rules = '/work/.claude/skills/depot/references/count-rules.md';
+    const sheet = '/work/sheets/shelf-b.md';
+    const pairs = thenOf([named], 'positive', runner).ordered;
+    // The follower reads the rules, then the sheet, then edits; its mutant reads the rules only after the edit.
+    expect(
+      verdict(pairs, [
+        ['Read', rules],
+        ['Read', sheet],
+        ['Edit', sheet],
+      ]),
+    ).toEqual(['pass']);
+    expect(
+      verdict(pairs, [
+        ['Read', sheet],
+        ['Edit', sheet],
+        ['Read', rules],
+      ]),
+    ).toEqual(['fail']);
+    expect(
+      verdict(
+        [{ before: 'Read', after: 'Edit' }],
+        [
+          ['Read', sheet],
+          ['Edit', sheet],
+          ['Read', rules],
+        ],
+      ),
+    ).toEqual(['pass']);
+    const keyed = thenOf(
+      [
+        atom('gate.depot.read-first', [{ type: 'ordered', before: 'Read', after: 'Edit' }], {
+          kind: 'gate',
+          provenance: { quote: 'Read a file before you edit it.' },
+        }),
+      ],
+      'positive',
+      runner,
+    ).ordered;
+    expect(
+      verdict(keyed, [
+        ['Read', rules],
+        ['Read', sheet],
+        ['Edit', sheet],
+      ]),
+    ).toEqual(['pass']);
+    expect(
+      verdict(keyed, [
+        ['Read', rules],
+        ['Edit', sheet],
+        ['Read', sheet],
+      ]),
+    ).toEqual(['fail']);
   });
 
   it('still names a gap for an end that is no act, such as matching any line', () => {
