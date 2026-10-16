@@ -10,7 +10,6 @@ export {
   type GraphAnalysis,
   labelOf,
   literals,
-  referenceOwners,
   sortEdges,
   targetOf,
 } from './graph';
@@ -249,6 +248,8 @@ export {
 export {
   Atom,
   AtomKind,
+  DocumentInfo,
+  DocumentRole,
   Edge,
   EdgeKind,
   EstateMap,

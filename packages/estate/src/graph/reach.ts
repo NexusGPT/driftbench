@@ -38,30 +38,3 @@ export function filesReached(start: string, citations: ReadonlyMap<string, reado
   }
   return reached.sort();
 }
-
-/**
- * The skill or helper each reference atom belongs to, for the atoms no stored edge places: the first unit, in
- * atom order, whose citations lead to the file the atom was read in. Each file is walked once however many
- * units cite it, so the cost is the size of the estate and not units times files.
- */
-export function referenceOwners(atoms: readonly Atom[]): Map<string, string> {
-  const citations = citationsByFile(atoms);
-  const owners = new Map<string, string>();
-  const claimed = new Set<string>();
-  for (const unit of atoms) {
-    if (unit.kind !== 'skill' && unit.kind !== 'subagent') continue;
-    const pending = [unit.provenance.file];
-    const own = unit.provenance.file;
-    for (let file = pending.pop(); file !== undefined; file = pending.pop()) {
-      // A file an earlier unit claimed leads only to files that unit claimed too. A unit's own file is always walked.
-      if (claimed.has(file) && file !== own) continue;
-      claimed.add(file);
-      for (const reference of citations.get(file) ?? []) {
-        if (!owners.has(reference.id)) owners.set(reference.id, unit.id);
-        const target = reference.fields?.path;
-        if (typeof target === 'string') pending.push(target);
-      }
-    }
-  }
-  return owners;
-}

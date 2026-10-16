@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ClaudeCodeReader, citationsByFile, filesReached, referenceOwners, scanEstate } from '../src/index';
+import { ClaudeCodeReader, citationsByFile, filesReached, scanEstate } from '../src/index';
 import { estate, NOW } from './support';
 
 const definition = (name: string, body: string) =>
@@ -44,7 +44,7 @@ describe('a unit stores an edge for each citation in a file it owns, and no more
     expect(result.edges).toHaveLength(2);
   });
 
-  it('does not store what a file outside its folder cites, and derives the owner when asked', async () => {
+  it('does not store what a file outside its folder cites', async () => {
     const helper = '.claude/agents/reviewer.md';
     const result = await referenceEdges({
       [helper]: definition('reviewer', 'Read `review-notes.md`.'),
@@ -53,9 +53,8 @@ describe('a unit stores an edge for each citation in a file it owns, and no more
     });
     expect(result.references).toHaveLength(2);
     expect(result.edges).toEqual([{ owner: 'reviewer', from: helper, target: 'review-notes.md' }]);
-    const nested = result.references.find((atom) => atom.provenance.file === 'review-notes.md');
-    const helperAtom = result.atoms.find((atom) => atom.kind === 'subagent');
-    expect(referenceOwners(result.atoms).get(nested?.id ?? '')).toBe(helperAtom?.id);
+    const citations = citationsByFile(result.atoms);
+    expect(filesReached(helper, citations)).toEqual(['review-details.md', 'review-notes.md']);
   });
 
   it('stores one edge for each citation of a unit however many files the cited file cites', async () => {
