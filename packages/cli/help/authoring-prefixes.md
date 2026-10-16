@@ -11,6 +11,7 @@ see_also:
   - authoring-blocks
   - authoring-spec-format
   - authoring-perturbations
+  - running-tool-history
 next:
   - authoring-script-api
 ---
@@ -69,12 +70,14 @@ What the agent receives of the prefix depends on the adapter, as its source code
 | `function`, `http`, `anthropic`, `openai-agents`, `vercel-ai`, `google`, `pydantic-ai`, `litellm` | the session history, the prefix included, passed with each turn |
 | `langgraph`, a graph with no checkpointer | the same: the whole history with each turn |
 | `langgraph`, a graph with a checkpointer | the prefix once, with the first turn. Each later turn sends only the new user messages: the graph keeps the rest on its thread |
-| `crewai` | by default, each kickoff receives `message`, `history` and `messages`. `message` joins all trailing user messages with newlines, including adjacent prefix messages. `history` joins the remaining earlier messages as `role: text`, separated by newlines. `messages` holds the full history as JSON, including the prefix. A custom `inputs` function replaces these defaults |
+| `crewai` | by default, each kickoff receives `message`, `history` and `messages`. `message` joins all trailing user messages with newlines, including adjacent prefix messages. `history` joins the remaining earlier messages as `role: text`, separated by newlines. `messages` holds the full history as JSON, including the prefix. A custom `inputs` function replaces these defaults. With the default inputs, a prefix whose tool calls the spec states as a record (`origin: recorded` or `authored`) is refused |
 | `process` | the session history, the prefix included, as a JSON array in the file `DRIFTBENCH_HISTORY_FILE` names, written before each block. The agent must read that file |
-| `nexus`, live Claude Code | nothing: these adapters send only the block's own user turn, so a prefix cannot set what the agent remembers |
+| `nexus`, live Claude Code | nothing: these adapters send only the block's own user turn and have no `seedPrefix` capability, so a block with a prefix is `not_run` (below) |
 | Claude Code replay | no agent runs: the adapter returns the recorded session, so a prefix changes nothing it returns |
 
-`world.tools` applies only on adapters with the `toolStubs` capability: `function`, `anthropic`, `google`, `vercel-ai`, `litellm`, and `http` when its options turn it on.
+A prefix needs the `seedPrefix` capability, which every adapter above has except `nexus` and live Claude Code. On those a block with a prefix (and, in modes F and P, every block after it) is `not_run`, and so is every mode T block after the first, whose canonical history (the blocks before, as the spec writes them) the agent would never see. Such a block is `not_run` with kind `unsupported` and check `capability`: it is not sent, and it is neither a pass nor a fail (see running-outcomes). `world.tools` applies only on adapters with the `toolStubs` capability: `function`, `anthropic`, `google`, `vercel-ai`, `litellm`, and `http` when its options turn it on; on the others a block with a forced tool result is `not_run` the same way.
+
+An adapter that sends the history to a model sends each tool call of the prefix as that model's own tool call and tool result records, with ids that pair them, never as text. The crewai adapter takes history as text inputs, so with its default inputs it refuses a prefix whose tool calls the spec states as a record (`origin: recorded` or `authored`) rather than let the crew read them as prose. A canonical prefix (mode T) runs as before. Topic running-tool-history gives the records per adapter, the id rules and a worked example.
 
 ## When to use it
 
@@ -487,12 +490,13 @@ PREFIX_PROSE_HISTORY  the assistant states <fact> (<value>) in prose, which no r
 | `ledger_seed  SPEC_ALIAS_CONFLICT  set \`ledger_seed\` or \`given.ledger\`, not both` | `ledger_seed` and `given.ledger` both set | keep one |
 | `PREFIX_PROSE_HISTORY`, a warning: its full text is above the table | a spec that names a tool, and an assistant message of a prefix that states a ledger value in prose | record the call with its `output` in `tool_calls`. Or keep the prose on purpose, and read the results as a different test |
 | `error: too many arguments for 'traces'. Expected 1 argument but got 2: ...` (exit 2) | two paths given to `import traces` | give one file, or a folder that holds them |
+| `crewai: the Given prefix (origin recorded) holds N recorded tool call(s), and a crew takes its history as text inputs, ...` | a prefix with tool calls and `origin: recorded` or `authored` on the crewai adapter, whose default inputs pass history as text | write those turns as blocks the crew runs, or pass `inputs` to the adapter; a canonical prefix (mode T) is not refused |
 
 Problems with no message:
 
 | Symptom | Cause | Fix |
 |---|---|---|
 | a block fails right after a prefix | a recorded `output` with a shape the real tool never returns | copy the output from a real run, or leave `output` out so the agent reads the tool again |
-| the prefix seems ignored on `nexus` or live Claude Code | these adapters send only the block's own user turn | write the earlier turns as blocks instead |
+| the block is `not_run`, check `capability` | the adapter has no `seedPrefix` capability (`nexus`, live Claude Code), so the agent could not receive the prefix, or in mode T the canonical history of the blocks before | write the earlier turns as blocks instead, or run on an adapter with `seedPrefix` |
 | the prefix seems ignored on `process` | the agent does not read `DRIFTBENCH_HISTORY_FILE` | read the history from that file in the agent |
 | two repeats of one block both call the agent | each repeat has its own cache key | expected: repeats are independent samples |

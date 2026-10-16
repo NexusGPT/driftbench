@@ -1,7 +1,7 @@
 import { resolve } from 'node:path';
 import { canonicalJson, type RunResult } from '@agent-nexus/driftbench-core';
 import { bradleyTerry, findCycles } from '@agent-nexus/driftbench-judges';
-import { type CampaignData, runPassed } from '@agent-nexus/driftbench-report';
+import { type CampaignData, runPassed, scoredRuns } from '@agent-nexus/driftbench-report';
 import type { Io } from '../io';
 import { noStoreAt } from '../store-path';
 import { loadReported, openReported, parseModes, type ReportDeps } from './compare';
@@ -38,25 +38,12 @@ export async function rankCommand(options: RankOptions, io: Io, deps: ReportDeps
       if (!loaded) return 2;
       campaigns.push(loaded);
     }
-    const outcomes: Map<string, boolean>[] = [];
-    for (const [index, campaign] of campaigns.entries()) {
-      const byUnit = new Map<string, boolean>();
-      const targets = new Map<string, string>();
-      for (const run of campaign.runs) {
-        if (modes && !modes.includes(run.mode)) continue;
-        const unit = unitOf(run);
-        const target = canonicalJson(run.target);
-        if (targets.has(unit) && targets.get(unit) !== target) {
-          io.err(
-            `campaign ${ids[index]} ran ${run.specId} on several targets: rank compares one target per campaign.\n`,
-          );
-          return 2;
-        }
-        targets.set(unit, target);
-        byUnit.set(unit, runPassed(run));
-      }
-      outcomes.push(byUnit);
+    const inputs = rankInputs(campaigns, ids, modes);
+    if ('error' in inputs) {
+      io.err(`${inputs.error}\n`);
+      return 2;
     }
+    const { outcomes, unscored } = inputs;
     const ranked = rankOutcomes(ids, outcomes);
     const { wins, ties, shared, cycles, order, unranked } = ranked;
     const n = ids.length;
@@ -70,6 +57,7 @@ export async function rankCommand(options: RankOptions, io: Io, deps: ReportDeps
             shared,
             ...(order === undefined ? { unranked } : { order }),
             cycles,
+            ...(unscored.some((count) => count > 0) ? { notRun: unscored } : {}),
           },
           null,
           2,
@@ -97,6 +85,11 @@ export async function rankCommand(options: RankOptions, io: Io, deps: ReportDeps
         .filter((cell) => cell !== undefined);
       io.out(`  ${ids[i]}: ${cells.join(', ')}\n`);
     }
+    if (unscored.some((count) => count > 0)) {
+      io.out(
+        `Left out, a block not run or blocked: ${ids.map((id, i) => `${id} ${unscored[i]}`).join(', ')} runs.\n`,
+      );
+    }
     io.out(
       cycles.length === 0
         ? 'No three-campaign cycle.\n'
@@ -106,6 +99,49 @@ export async function rankCommand(options: RankOptions, io: Io, deps: ReportDeps
   } finally {
     await store.close();
   }
+}
+
+/**
+ * Each campaign's outcome per unit (spec, mode, perturbation), and how many of its runs were left out as no
+ * outcome (a block not run or blocked, no failure). An error when a campaign runs a spec on several targets.
+ */
+export function rankInputs(
+  campaigns: readonly CampaignData[],
+  ids: readonly string[],
+  modes: readonly string[] | undefined,
+): { outcomes: Map<string, boolean>[]; unscored: number[] } | { error: string } {
+  const outcomes: Map<string, boolean>[] = [];
+  const unscored: number[] = [];
+  for (const [index, campaign] of campaigns.entries()) {
+    const byUnit = new Map<string, boolean>();
+    const targets = new Map<string, string>();
+    let left = 0;
+    for (const run of campaign.runs) {
+      if (modes && !modes.includes(run.mode)) continue;
+      const unit = unitOf(run);
+      const target = canonicalJson(run.target);
+      if (targets.has(unit) && targets.get(unit) !== target) {
+        return {
+          error: `campaign ${ids[index]} ran ${run.specId} on several targets: rank compares one target per campaign.`,
+        };
+      }
+      targets.set(unit, target);
+      const outcome = rankOutcome(run);
+      if (outcome !== undefined) byUnit.set(unit, outcome);
+      else left += 1;
+    }
+    outcomes.push(byUnit);
+    unscored.push(left);
+  }
+  return { outcomes, unscored };
+}
+
+/**
+ * A run's outcome for the ranking: passed or failed. A run neither passed nor failed (a block not run or
+ * blocked) is no outcome, so its unit is not shared with the other campaigns.
+ */
+export function rankOutcome(run: RunResult): boolean | undefined {
+  return scoredRuns([run]).length === 1 ? runPassed(run) : undefined;
 }
 
 function unitOf(run: RunResult): string {

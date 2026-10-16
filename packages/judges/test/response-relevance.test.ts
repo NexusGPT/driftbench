@@ -51,10 +51,12 @@ it('preserves frozen default and legacy prompt bytes and cache keys', () => {
     ],
   };
   const client = { cls: 'system2' as const, model: 'snapshot-model' };
-  expect(judges.PROMPT_FINGERPRINT).toBe('398673b792c1');
-  expect(contentHash(judges.SYSTEM_PROMPT)).toBe('ea4e88c65b4e');
-  expect(contentHash(judges.buildPrompt(input))).toBe('635b7b8e3235');
-  expect(judges.requestKey(input, client)).toBe('13887583ca47');
+  // Prompt version 1 and decoder version 1 are these frozen defaults, selectable by name.
+  const v1 = { ...input, criterionPromptVersion: 1 as const, criterionDecoderVersion: 1 as const };
+  expect(judges.CRITERION_PROMPT_V1_FINGERPRINT).toBe('398673b792c1');
+  expect(contentHash(judges.SYSTEM_PROMPT_V1)).toBe('ea4e88c65b4e');
+  expect(contentHash(judges.buildPrompt(v1))).toBe('635b7b8e3235');
+  expect(judges.requestKey(v1, client)).toBe('13887583ca47');
   expect(contentHash(judges.buildPrompt({ ...input, answerContract: 'legacy' }))).toBe('5f7bcef32f94');
   expect(judges.requestKey({ ...input, answerContract: 'legacy' }, client)).toBe('9d653d667451');
 });

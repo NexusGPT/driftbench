@@ -90,7 +90,7 @@ Each group below fails on every seed unless a seed list is given. For each, the 
 10. `fault.D4.no-reask` (seeds 1, 3, 6, 15, 17, 19, 20) and `adequacy.D4.no-reask` (18 seeds). The map's recovery pattern is `CONFIRM`; the recap question ("Reply CONFIRM to submit the request, or tell me what to change.") holds the word, and the fault still asks the pending question, so the pattern matches.
 11. `fault.X2.fact-invent` (the instance at done; seeds 1, 11, 14, 15). The invented fact is the write tool's own first output; on the turn that calls the tool the map's `must_not` names the other tools only, so a second statement of the same field passes.
 12. `adequacy.X4.double` (every seed) and `fault.X4.double` at a stage only flows without a nudge recovery reach (seeds 3, 9, 10, 14, 15, 16, 17). The map states one reply per turn for a nudge only (the D7 recovery).
-13. `adequacy.D8.advance` (seeds 1, 3, 4, 7, 13, 17, hidden). On a move that stays on its stage (check to check) an agent that advances after the failure ends on the same stage, and the recovery's count is `max: 2`, so one call passes.
+13. **Resolved by the D8 maintainer ruling below. Historical diagnosis:** `adequacy.D8.advance` (seeds 1, 3, 4, 7, 13, 17, hidden). On a move that stays on its stage (check to check) an agent that advances after the failure ends on the same stage, and the recovery's count is `max: 2`, so one call passes.
 14. `sequence.stages.D8_tool_failure` (17 seeds). The item asks for a tool failure at every middle stage of the flows; the map recovers from a failure of one tool, and the validator's own `possible.ts#said` allows the class only on a turn that calls that tool.
 15. `perturbation.carrier.D6_instruction_in_data`. The users package carries the class in the world; the follower reads a deviation in the user turn only, so a world carrier would leave every D6 fault unchanged.
 16. `mode.P.D2.ignore`. A perturbed run goes on with the walk, so a perturbation's recovery must stay; a goal shift that stays is said at its goal stage, where ignoring it changes nothing.
@@ -170,7 +170,7 @@ This supersedes the earlier claim that all 19 groups need rulings. Paths below a
 10. **fixture gap: maintainer**: `validators/src/ladders/generator/hidden.ts:399` requires `CONFIRM`, already present in the pending recap question; `faults.ts:562` only changes the recovery's said text.
 11. **fixture gap: maintainer**: `validators/src/ladders/generator/faults.ts:309` invents the actual write tool's default fact on a turn calling that tool; `render.ts:53` forbids only uncalled tools' facts.
 12. **fixture gap: maintainer**: `validators/src/ladders/generator/render.ts` and `hidden.ts` lack a global one-reply contract; only nudge recovery specifies it.
-13. **fixture gap: maintainer**: `validators/src/ladders/generator/faults.ts:652` advances on a self-loop to the same stage; `hidden.ts:411` permits one call with `max: 2`.
+13. **Resolved by the D8 maintainer ruling below. Historical fixture gap:** `validators/src/ladders/generator/faults.ts:652` advances on a self-loop to the same stage; `hidden.ts:411` permits one call with `max: 2`.
 14. **item defect**: `validators/src/ladders/generator/bank2.ts:290-295` requires every middle stage using only hidden constraints; `possible.ts:36-45` permits tool failure only on a move calling the failing tool.
 15. **fixture gap: maintainer**: `validators/src/ladders/generator/follower.ts:202,285` reads D6 from user text, not the world carrier required by `bank4.ts:159-163`.
 16. **product gap**: `generate/src/seed/scenario.ts:503-535` restricts declared perturbations to recoveries that stay. A clean prefix can end at a non-goal stage and append a terminal goal-shift perturbation with its approved recovery.
@@ -179,3 +179,44 @@ This supersedes the earlier claim that all 19 groups need rulings. Paths below a
 19. **fixture gap: maintainer**: `validators/src/ladders/generator/hidden.ts` and `possible.ts:48-51` permit seed 8's goal shift only at its goal, and disallow a non-staying terminal recovery.
 
 Additional product gaps: `allocation.deviation.ratio` needs balancing in `generate/src/seed/deviation-seeder.ts` after coverage; `scale.100x` needs a bounded-memory disk API in `generate/src/enumerate/`. Protected `measure.ts` retains both results, both file maps and reloaded specs; the maintainer will wire the new API into that harness.
+
+
+## D8 maintainer ruling (2026-10-15)
+
+The rendered D8 read-tool recovery now requires `count: 2`: the initial failed call and exactly one retry, matching the existing prompt. The recovery item already reads that same hidden relation, so neither bank item changes. The mutant remains unchanged. This resolves item 13 above without lowering a threshold or removing a fault.
+
+The generator must carry that exact count into every D8 failure Then, keep the pending stage and report the failure, including self-loop failures. Actual generated suites pass both named items on seeds 1 and 3. The focused regression covers visible seeds 1–20 and the base-commit hidden seed. See [the partial-measurement journal](SWEEP-JOURNAL.md) and [evidence](evidence/d8-retry-contract.json). The historical level table is not a new measurement.
+
+## Invariance maintainer ruling (2026-10-15, PR 510)
+
+A pair holds Given facts and ordered semantic stimuli fixed, including transition order and slot bindings. Approved persona wording may vary; unknown text remains literal. Block ids are labels and expected stages are assertions, so neither belongs in the pairing key. Both persona and channel items share this comparison; no item or threshold changes.
+
+The auditor's renamed same-turn wrong-Then case is a regression on all three paths and both axes. Fresh-map planted pairs also retain rejection, with clean reference runs and a separate clean pair present. The six failures previously described as product defects were reused-label pairs asking different questions (input vs behaviour or output); their side-by-side requests and Thens are in [the evidence](evidence/invariance-semantic-turns.json). Seed 18's gen-cover-096/gen-phrase-012 remains excluded. The [partial journal](SWEEP-JOURNAL.md) records focused results only.
+
+Product obligation: for the same facts and ordered requests, generate identical machine expectations across persona/channel variants, regardless of block labels.
+
+## D6 maintainer ruling (2026-10-15)
+
+The users package declares D6 a world carrier; the spec reference and rendered prompt identify instructions inside supplied workspace files and tool results as data. Phrase provenance and phrase coverage now inspect that content when the injection carries no user text. The same shared reader serves both items. It requires an approved phrase of the injected class, never merely an empty user or a populated world.
+
+The reader ignores filenames, object keys, metadata, background Given, store/fixtures and tool errors. Ordinary user/burst provenance remains exact; nonempty user text cannot borrow approval from the world. The carrier and behavioural fault items remain unchanged, so recording an approved phrase is not proof that the agent consumed it or that the suite caught obedience.
+
+Product obligation: put every approved D6 instruction in the injected world file/tool-result content, leave injection.user empty, and retain checks that catch both obedience faults. See [the partial journal](SWEEP-JOURNAL.md) and [evidence](evidence/d6-world-carrier-contract.json). No historical ladder level is updated by this scoped ruling.
+
+
+## Integer contrast maintainer ruling (2026-10-16)
+
+Integer contrast measures the block whose approved stimulus requests the partition's concrete value. It does not aggregate earlier calls, zero-call guards or labels from the enclosing scenario. The hidden data values and phrase intents identify that request independently of generated cell metadata or block ids.
+
+For a valid read-only input request, the assertion must require one call with exactly the requested integer. Bare numbers, exact JSON assertions and singleton numeric choices carry that same meaning. Every matching request block must satisfy the rule; a clean duplicate cannot hide an incorrect expectation. A missing request, missing assertion, optional call, copied default, wrong value or permissive choice fails.
+
+A direct request for a side-effecting tool is not the confirmation the prompt requires. Both valid integer requests must explicitly forbid the call. Equal refusals are correct; allowing the call or omitting its prohibition fails. The contract comes from `render.ts#renderPrompt`, `render.ts#propertyLine`, `hidden.ts#dataValues` and the data-intent branch of `follower.ts`.
+
+Product obligation: keep shared preparation intact; on the actual request assert the exact allowed integer for read-only tools, and forbid unconfirmed side effects. No item, threshold, floor, fault family or hidden-seed rule changes. Historical journal measurements stay unchanged. Focused evidence and the red-first regression are recorded in [the partial journal](SWEEP-JOURNAL.md) and [integer-contrast evidence](evidence/integer-contrast-contract.json).
+
+
+## Sequence stages and impossible pairs: maintainer ruling (2026-10-15)
+
+Ruling item 14 above. `sequence.stages.<class>` owed a probe at every middle stage of the flows listing the class, filtered only by written constraints. The hidden space map also forbids the pairs no path can reach (`possible.ts`), and the coverage items already read that map. For D8 the map allows a tool failure only on a move that calls a recovered tool, so the item demanded probes the map rules out (seed 2: check, choice, details, recap). No product could satisfy both.
+
+The item now reads the same map as the coverage items: a stage the map rules out for the class is owed no probe, and a probe placed at such a stage fails the item. A reachable stage left unprobed still fails it, and a class with no reachable stage never passes. Measured on main's product: the old logic fails D8 on 18 of the 21 visible and hidden seeds; the new item fails none, and no probe sits at a ruled-out stage. See [the journal](SWEEP-JOURNAL.md) and [evidence](evidence/sequence-impossible-pairs.json). No historical ladder level is updated by this scoped ruling.

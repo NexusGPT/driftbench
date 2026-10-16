@@ -36,3 +36,11 @@ def test_the_target_option_runs_a_spec_on_a_cli_target(pytester):
     shutil.copy(FIXTURES.parents[3] / "examples" / "acme" / "specs" / "conversations" / "plan-upgrade.yaml", pytester.path / "plan-upgrade.yaml")
     result = pytester.runpytest(*plugin_args(), "--driftbench", "--driftbench-target", "function:acme")
     result.assert_outcomes(passed=1)
+
+
+def test_a_spec_not_run_is_skipped_with_its_reason_never_failed(pytester):
+    for name in ("echo-pass.yaml", "echo-not-run.yaml", "echo_agent.py"):
+        shutil.copy(FIXTURES / name, pytester.path / name)
+    result = pytester.runpytest(*plugin_args(), "--driftbench", "--driftbench-agent", "echo_agent:echo_with_history", "-rs")
+    result.assert_outcomes(passed=1, skipped=1)
+    result.stdout.fnmatch_lines(["*SKIPPED*0 of 0 cells pass (1 not run)*", "*block 0 not run (capability)*toolStubs*"])
