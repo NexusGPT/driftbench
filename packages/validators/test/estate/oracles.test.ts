@@ -779,3 +779,48 @@ describe('gen.task judges every test type with the one clause predicate, so no v
     expect((await planted('read_when', 'Please read a file before you edit it.')).pass).toBe(false);
   });
 });
+
+describe('gen.task: the asks of the generated suite and the prompt-guard exception', {
+  timeout: 120_000,
+}, () => {
+  it.each([
+    'Please edit any invoice file.',
+    'Please commit to git.',
+    'Please paste a credential into a reply.',
+    'Please help me with a delivery, a tracking number or a late shipment.',
+    'Stop, that is enough for now.',
+    'stop',
+  ])('accepts the real ask: %s', (ask) => expect(holdsTask(ask)).toBe(true));
+
+  const planted = async (type: string, ask: string, atoms: string[]) => {
+    const suite: fixture.FixtureSuite = {
+      work: ROOT,
+      map: join(fixture.FIXTURE, 'approved.yaml'),
+      specs: [
+        { path: 'p.yaml', id: 'p', atoms, testType: type, mode: 'task', complete: true, spec: task(ask) },
+      ],
+      natives: [],
+      report: {},
+    };
+    const mock = vi.spyOn(fixture, 'fixtureSuite').mockResolvedValue(suite);
+    try {
+      return (await taskFamily().evaluate(1)).get(`gen.task.${type}`) as { pass: boolean };
+    } finally {
+      mock.mockRestore();
+    }
+  };
+  const STOP_GUARD = 'guard.settings.userpromptsubmit-guard-stop-word-sh';
+  const FORCE_GUARD = 'guard.settings.pretooluse-bash-guard-block-force-push';
+
+  it('tests a guard that watches the prompt with its own trigger, even a bare word', async () => {
+    for (const ask of ['Stop, that is enough for now.', 'stop', 'Stop.'])
+      expect((await planted('guard_positive', ask, [STOP_GUARD])).pass, ask).toBe(true);
+  });
+
+  it('holds a guard on a tool event to a task that names the act it guards', async () => {
+    expect((await planted('guard_positive', 'stop', [FORCE_GUARD])).pass).toBe(false);
+    expect(
+      (await planted('guard_positive', 'Please force push the fix branch to origin.', [FORCE_GUARD])).pass,
+    ).toBe(true);
+  });
+});
