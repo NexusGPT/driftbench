@@ -44,8 +44,8 @@
   "summary": {
     "specs": 1562,
     "blocks": 1557,
-    "complete": 1536,
-    "incomplete": 26,
+    "complete": 1535,
+    "incomplete": 27,
     "judged": 464
   },
   "incomplete": [
@@ -70,6 +70,18 @@
           "marker": "needs-askable-act",
           "atom": "instruction.standing.read-the-memory-index-at-the",
           "detail": "no task in the atom's words (instruction.standing.read-the-memory-index-at-the (title)): the atom's words: it describes the unit, and names no task the user wants done"
+        }
+      ]
+    },
+    {
+      "spec": "estate.skip_pressure.gate.standing.write-a-helper-s-brief-before",
+      "path": "incomplete/live/skip_pressure/estate.skip_pressure.gate.standing.write-a-helper-s-brief-before.yaml",
+      "row": "skip_pressure.gate.standing.write-a-helper-s-brief-before",
+      "reasons": [
+        {
+          "marker": "needs-askable-act",
+          "atom": "gate.standing.write-a-helper-s-brief-before",
+          "detail": "no task in the atom's words (gate.standing.write-a-helper-s-brief-before (title)): the atom's words: it describes the unit, and names no task the user wants done"
         }
       ]
     },
@@ -446,16 +458,17 @@
     ]
   },
   "quality": {
-    "completeShare": 0.9833546734955185,
-    "askedTests": 1528,
-    "distinctAsks": 129,
-    "distinctAsksPer100": 8.442408376963352
+    "completeShare": 0.9827144686299616,
+    "askedTests": 1527,
+    "distinctAsks": 128,
+    "distinctAsksPer100": 8.382449246889326
   },
   "unit": {
-    "tests": 26,
+    "tests": 29,
     "guards": 6,
     "scripts": 2,
-    "cases": 56,
+    "helpers": 3,
+    "cases": 59,
     "checks": {
       "tested": 0,
       "needsTrigger": 0,
@@ -466,7 +479,7 @@
   "sources": {
     "asks": {
       "bank": 443,
-      "code": 1085,
+      "code": 1084,
       "session": 0,
       "none": 8
     },
@@ -475,7 +488,7 @@
       "no-change:guard": 26,
       "no-change:negative": 56,
       "no-change:read-only": 83,
-      "no-delete": 371,
+      "no-delete": 370,
       "static": 8
     },
     "judged": 304
@@ -509,8 +522,8 @@
     "skip_pressure": {
       "rows": 8,
       "specs": 8,
-      "complete": 8,
-      "incomplete": 0
+      "complete": 7,
+      "incomplete": 1
     },
     "route_positive": {
       "rows": 260,
@@ -667,15 +680,16 @@
     "live": {
       "rows": 1526,
       "specs": 1519,
-      "complete": 1501,
-      "incomplete": 18
+      "complete": 1500,
+      "incomplete": 19
     }
   },
   "gaps": [
     {
       "marker": "needs-askable-act",
-      "specs": 20,
+      "specs": 21,
       "atoms": [
+        "gate.standing.write-a-helper-s-brief-before",
         "guard.settings.stop-guard-reply-length-py",
         "guard.settings.userpromptsubmit-guard-stop-word-sh",
         "instruction.standing.read-the-memory-index-at-the",
@@ -684,6 +698,7 @@
         "reference.standing.read-claude-steps-json"
       ],
       "details": [
+        "no task in the atom's words (gate.standing.write-a-helper-s-brief-before (title)): the atom's words: it describes the unit, and names no task the user wants done",
         "no task in the atom's words (guard.settings.stop-guard-reply-length-py (rule)): the guard documents no rule or watched act to come near",
         "no task in the atom's words (guard.settings.userpromptsubmit-guard-stop-word-sh (rule)): the guard documents no rule or watched act to come near",
         "no task in the atom's words (instruction.standing.read-the-memory-index-at-the (title)): the atom's words: it describes the unit, and names no task the user wants done",

@@ -211,6 +211,46 @@ describe('the title of a rule is never the ask: the ask is the work the rule app
       fields: { trigger: 'pay a berth fee' },
     });
     expect(ask([gate]).text).toBe('Please pay a berth fee.');
+    // A trigger that names its act as a gerund asks for the act: editing -> edit, writing -> write, committing -> commit.
+    for (const [trigger, asked] of [
+      ['editing any berth file', 'Please edit any berth file.'],
+      ['writing the harbour report', 'Please write the harbour report.'],
+      ['committing the berth plan', 'Please commit the berth plan.'],
+      ['the berth fee', undefined],
+    ] as const) {
+      const timed = atom('gate.standing.timed', {
+        kind: 'gate',
+        title: 'Read the log first',
+        fields: { trigger },
+      });
+      expect(ask([timed]).text, trigger).toBe(asked);
+    }
+    // A gate with no trigger field takes the act its own clause governs ("before you answer a vessel"); one whose
+    // clause names no act, and no unit that carries it, holds over no route's work: it waits for a phrase.
+    const bareGate = atom('gate.standing.log-first', {
+      kind: 'gate',
+      title: 'Read the harbour log before you answer a vessel',
+      provenance: { quote: 'x', file: 'CLAUDE.md' },
+    });
+    expect(ask([bareGate]).text).toBe('Please answer a vessel.');
+    const actless = atom('gate.standing.log-always', {
+      kind: 'gate',
+      title: 'Read the harbour log',
+      provenance: { quote: 'x', file: 'CLAUDE.md' },
+    });
+    expect(ask([actless]).text).toBeUndefined();
+    expect(ask([actless]).refused).toMatch(/no task/);
+    // A standing instruction takes the work of the route that shares a word with it, and of no unrelated route.
+    const standing = atom('instruction.standing.log-first', {
+      title: 'Check the tide table before you answer',
+      provenance: { quote: 'x', file: 'CLAUDE.md' },
+    });
+    expect(ask([standing]).text).toBe('Please read the tide table for a port.');
+    const unrelated = atom('instruction.standing.log-second', {
+      title: 'Check the harbour log before you answer',
+      provenance: { quote: 'x', file: 'CLAUDE.md' },
+    });
+    expect(ask([unrelated]).text).toBeUndefined();
     const bare = atom('instruction.standing.log', { title: 'Log every mooring change in the harbour book' });
     expect(codeAsk('trigger', [bare], []).refused).toMatch(/no task/);
   });

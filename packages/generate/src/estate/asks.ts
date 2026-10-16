@@ -387,15 +387,17 @@ export function actOf(
   // of the route whose words the rule shares, since a standing rule holds over any work.
   if (head && RULE_KINDS.has(head.kind)) {
     const trigger = typeof head.fields?.trigger === 'string' ? clauseOf(plain(head.fields.trigger)) : '';
-    if (head.kind === 'gate' && verbLed(trigger))
-      return { act: taskOf(trigger), source: `${head.id} (gate trigger)` };
+    const gated = head.kind === 'gate' ? imperativeOf(trigger) : undefined;
+    if (gated !== undefined) return { act: taskOf(gated), source: `${head.id} (gate trigger)` };
     const owner = owningUnit(estate, head);
     const description = typeof owner?.fields?.description === 'string' ? owner.fields.description : undefined;
     for (const text of [owner?.situation, description]) {
       const asked = text === undefined ? undefined : askedTo(text);
       if (asked) return withContext(asked, `${owner?.id} (asks it names)`);
     }
-    const route = routeFor(estate, `${head.title} ${head.situation ?? ''} ${trigger}`);
+    // A gate holds over the act it names: with no trigger and no unit that carries it, no route is its work.
+    const route =
+      head.kind === 'gate' ? undefined : routeFor(estate, `${head.title} ${head.situation ?? ''} ${trigger}`);
     if (route) return withContext(route.act, `${route.id} (route nearest the rule)`);
     return { act: '', source: `${head.id} (title)`, describes: true };
   }
@@ -423,6 +425,24 @@ function governedAction(text: string): string | undefined {
     if (task) return task;
   }
   return undefined;
+}
+
+/**
+ * A phrase that names an act as the request to do it: "commit to git" as it is, "editing any invoice file" as "edit
+ * any invoice file" (the gerund of a known verb, with its doubled consonant or lost final e restored). Undefined when
+ * the phrase opens with no act.
+ */
+function imperativeOf(phrase: string): string | undefined {
+  if (verbLed(phrase)) return phrase;
+  const [first = '', ...rest] = phrase.trim().split(/\s+/);
+  const word = first.toLowerCase();
+  if (!/^[a-z]{4,}ing$/.test(word)) return undefined;
+  const stem = word.slice(0, -3);
+  const doubled = /([^aeiou])\1$/.test(stem) ? stem.slice(0, -1) : undefined;
+  const base = [stem, `${stem}e`, doubled].find(
+    (candidate) => candidate !== undefined && VERBS.has(candidate),
+  );
+  return base === undefined ? undefined : [base, ...rest].join(' ');
 }
 
 /** The kinds whose title is a rule the agent follows, never a task a user asks for. */
