@@ -402,7 +402,7 @@ export function blockFlips(rows: readonly PilotObservation[]): BlockFlip[] {
     const first = variantRows[0] as PilotObservation;
     const width = Math.max(...variantRows.map((row) => row.blocks.length));
     for (let block = 0; block < width; block += 1) {
-      const seen = variantRows.filter((row) => row.blocks.length > block);
+      const seen = variantRows.filter((row) => row.blocks.length > block && !row.unscored?.includes(block));
       const r = seen.length;
       if (r < 2) continue;
       const k = seen.filter((row) => row.blocks[block]).length;

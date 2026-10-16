@@ -181,6 +181,14 @@ This supersedes the earlier claim that all 19 groups need rulings. Paths below a
 Additional product gaps: `allocation.deviation.ratio` needs balancing in `generate/src/seed/deviation-seeder.ts` after coverage; `scale.100x` needs a bounded-memory disk API in `generate/src/enumerate/`. Protected `measure.ts` retains both results, both file maps and reloaded specs; the maintainer will wire the new API into that harness.
 
 
+## Invariance maintainer ruling (2026-10-15, PR 510)
+
+A pair holds Given facts and ordered semantic stimuli fixed, including transition order and slot bindings. Approved persona wording may vary; unknown text remains literal. Block ids are labels and expected stages are assertions, so neither belongs in the pairing key. Both persona and channel items share this comparison; no item or threshold changes.
+
+The auditor's renamed same-turn wrong-Then case is a regression on all three paths and both axes. Fresh-map planted pairs also retain rejection, with clean reference runs and a separate clean pair present. The six failures previously described as product defects were reused-label pairs asking different questions (input vs behaviour or output); their side-by-side requests and Thens are in [the evidence](evidence/invariance-semantic-turns.json). Seed 18's gen-cover-096/gen-phrase-012 remains excluded. The [partial journal](SWEEP-JOURNAL.md) records focused results only.
+
+Product obligation: for the same facts and ordered requests, generate identical machine expectations across persona/channel variants, regardless of block labels.
+
 ## D6 maintainer ruling (2026-10-15)
 
 The users package declares D6 a world carrier; the spec reference and rendered prompt identify instructions inside supplied workspace files and tool results as data. Phrase provenance and phrase coverage now inspect that content when the injection carries no user text. The same shared reader serves both items. It requires an approved phrase of the injected class, never merely an empty user or a populated world.
@@ -199,3 +207,10 @@ The minimality oracle now deletes each candidate in an isolated copy. It first r
 Product obligation: retain the setup that makes later probes executable; remove duplicate probes only when their deletion preserves the retained tests and fault evidence. Duplicate standalone/terminal probes, removable nonterminal filler and a suite without fault-killing checks still fail. Existing persona-bound distinctions and the metamorphic-family exception remain unchanged. A repeated self-loop can still be genuinely redundant; this ruling does not promise that every old minimality failure disappears.
 
 See [the partial journal](SWEEP-JOURNAL.md), [dependent-prefix evidence](evidence/minimality-dependent-prefix.json) and [red-first output](evidence/minimality-red-first.txt). Historical journal rows and ladder levels stay unchanged.
+
+
+## Sequence stages and impossible pairs: maintainer ruling (2026-10-15)
+
+Ruling item 14 above. `sequence.stages.<class>` owed a probe at every middle stage of the flows listing the class, filtered only by written constraints. The hidden space map also forbids the pairs no path can reach (`possible.ts`), and the coverage items already read that map. For D8 the map allows a tool failure only on a move that calls a recovered tool, so the item demanded probes the map rules out (seed 2: check, choice, details, recap). No product could satisfy both.
+
+The item now reads the same map as the coverage items: a stage the map rules out for the class is owed no probe, and a probe placed at such a stage fails the item. A reachable stage left unprobed still fails it, and a class with no reachable stage never passes. Measured on main's product: the old logic fails D8 on 18 of the 21 visible and hidden seeds; the new item fails none, and no probe sits at a ruled-out stage. See [the journal](SWEEP-JOURNAL.md) and [evidence](evidence/sequence-impossible-pairs.json). No historical ladder level is updated by this scoped ruling.

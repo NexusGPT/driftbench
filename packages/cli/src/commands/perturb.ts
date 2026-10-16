@@ -1,6 +1,6 @@
 import { existsSync, statSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
-import { type RunResult, runSpec, type Spec } from '@agent-nexus/driftbench-core';
+import { blockStatus, isScored, type RunResult, runSpec, type Spec } from '@agent-nexus/driftbench-core';
 import {
   createPerturbingDriver,
   DEVIATIONS,
@@ -186,7 +186,8 @@ export async function perturbCommand(
               ...(block.blockId === undefined ? {} : { blockId: block.blockId }),
               injected: block.injected === true,
               stage: block.stageObserved ?? null,
-              pass: block.pass,
+              pass: blockStatus(block) === 'pass',
+              ...(isScored(block) ? {} : { status: blockStatus(block) }),
               failing: failing(block),
               text: block.observed.text,
             })),
@@ -232,9 +233,15 @@ function replyChecksOf(io: Io, spec: Spec, driver: PerturbingDriver) {
 function notMeasured(driver: PerturbingDriver, result: RunResult): string {
   if (!driver.perturbation.recovery)
     return `${driver.perturbation.id} sets no recovery, so it is run but not measured`;
-  const injected = result.blocks.some(
+  const injected = result.blocks.find(
     (block) => block.injected === true && block.blockId === driver.perturbation.id,
   );
+  // A block not run or blocked sends nothing: the deviation never reached the agent.
+  const skipped =
+    injected && !isScored(injected) ? injected : result.blocks.find((block) => !isScored(block));
+  if (skipped) {
+    return `the deviation ${driver.perturbation.id} never reached the agent: block ${skipped.index} was ${blockStatus(skipped) === 'blocked' ? 'blocked' : 'not run'}`;
+  }
   if (!injected) {
     return `the deviation ${driver.perturbation.id} never went in: the run ${result.status} after ${result.blocks.length} blocks`;
   }
@@ -300,6 +307,8 @@ function findPack(specPath: string): string | undefined {
 }
 
 function failing(block: RunResult['blocks'][number]): string[] {
+  if (block.notRun) return [`not run: ${block.notRun.check}, ${block.notRun.got}`];
+  if (block.blocked) return [`blocked by ${block.blocked.by}`];
   return block.verdicts
     .filter((verdict) => verdict.gating && verdict.outcome !== 'pass')
     .map((verdict) => verdict.id);
@@ -334,10 +343,11 @@ function printText(
     `Perturb: ${spec.id} on ${showTarget(target)}, mode P. ${def.code} ${def.title}: ${carried} (${origin}).\n`,
   );
   io.out(`Expected: ${def.expected}.\n`);
-  const passed = reference.blocks.filter((block) => block.pass).length;
+  const passed = reference.blocks.filter((block) => blockStatus(block) === 'pass').length;
+  const unscored = reference.blocks.filter((block) => !isScored(block)).length;
   io.out(
     reference.status === 'completed'
-      ? `Reference: the F run of the same spec, ${passed} of ${reference.blocks.length} blocks pass; collateral counts against it.\n`
+      ? `Reference: the F run of the same spec, ${passed} of ${reference.blocks.length - unscored} blocks pass${unscored > 0 ? ` (${unscored} not run or blocked)` : ''}; collateral counts against it.\n`
       : `Reference: the F run ${reference.status}, so collateral counts the blocks after the recovery that fail.\n`,
   );
   const rows = result.blocks.map((block) => [
@@ -346,7 +356,7 @@ function printText(
       ? `injected ${perturbation.id}`
       : (block.blockId ?? ''),
     block.stageObserved ?? '-',
-    block.pass ? '✓' : '✗',
+    { pass: '✓', fail: '✗', not_run: '-', blocked: '-' }[blockStatus(block)],
     failing(block).join(', '),
   ]);
   for (const line of table([['pos', 'block', 'stage', 'pass', 'failing'], ...rows])) io.out(`${line}\n`);
