@@ -1,6 +1,6 @@
 ---
 title: Diagnostics after the checks
-summary: 'A diagnostic is a rule file that runs after a block''s checks and writes diagnoses on it, never changing a verdict or pass; its format, uses.diagnostics, the budget and every diagnosis field.'
+summary: 'A diagnostic is a rule file that runs after a block''s checks and writes diagnoses on it. It never changes a verdict or pass. This topic gives its format, uses.diagnostics, the budget and every diagnosis field.'
 commands: []
 see_also:
   - running-check-sets
@@ -142,6 +142,8 @@ $ driftbench spec validate specs/diagnosed.yaml
 Checked 1 spec: 0 valid, 1 invalid, 0 warnings.
 (exit 1)
 ```
+
+The message names the rule file by its absolute path; the output above shows it relative to the working folder.
 
 A script registers the step, then runs the spec on a small echo agent, with no model call:
 
