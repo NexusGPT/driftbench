@@ -81,7 +81,7 @@ function effectiveItems(): BankItem[] {
         id,
         family: 'intervals-effective',
         tier: (g <= 3 ? 3 : rate.id.startsWith('all') ? 2 : g >= 25 ? 4 : 3) as Tier,
-        level: 3,
+        level: 9,
         component: EFFECTIVE,
         title: `wilsonEffective on ${g} seeded clusters (${rate.id} rate, ${quantile} quantile) equals the documented formula: pooled rate, n_eff, design effect and the Wilson interval on n_eff`,
         cause: rate.id.startsWith('all')
@@ -218,7 +218,7 @@ function headlineItems(): BankItem[] {
           id,
           family: 'intervals-headline',
           tier: (shape.id === 'unequal' ? 4 : goldens <= 3 ? 3 : 2) as Tier,
-          level: 3,
+          level: 9,
           component: HEADLINE,
           title: `the suite headline over ${goldens} goldens of real runs (${shape.id} repeats, ${rate.id}) groups the runs by golden: the mean over trees, the pooled rate, n_eff and the hierarchical interval of the planted counts`,
           cause:
@@ -278,7 +278,7 @@ function headlineItems(): BankItem[] {
     id: 'intervals/headline/documented-example',
     family: 'intervals-headline',
     tier: 2,
-    level: 3,
+    level: 9,
     component: HEADLINE,
     title:
       'the documented six goldens (5 of 5, 5 of 5, 4 of 5, 0 of 5, 2 of 5, 2 of 2), in a seeded order, give 70.0% [35.4%, 88.2%], n_eff 7.0 and design effect 3.87',
@@ -409,7 +409,7 @@ function treeItems(): BankItem[] {
         id,
         family: 'intervals-tree',
         tier: property.tier,
-        level: 3,
+        level: 9,
         component: HIERARCHICAL,
         title: `the hierarchical interval over ${trees} trees: ${property.title}`,
         cause: `hierarchicalBetaBinomial keeps its documented property: ${property.id.replace(/-/g, ' ')}.`,
@@ -443,7 +443,7 @@ function endStateItems(): BankItem[] {
           id,
           family: 'intervals-end-state',
           tier: (goldens === 1 || repeats.id === 'one-each' ? 2 : agreement === 'all-match' ? 4 : 3) as Tier,
-          level: 3,
+          level: 9,
           component: SCORECARD,
           title: `the scorecard's end-state rate over ${goldens} goldens (${repeats.id} runs, ${agreement}) is the rate over goldens of the planted end states: the counts and the interval of "A rate over goldens"`,
           cause:
@@ -527,7 +527,7 @@ function passRateItems(): BankItem[] {
         id,
         family: 'intervals-pass-rate',
         tier: (goldens === 1 || repeats.id === 'one-each' ? 2 : repeats.id === 'large' ? 4 : 3) as Tier,
-        level: 3,
+        level: 9,
         component: AGGREGATE,
         title: `the pass-rate gate criterion over ${goldens} goldens of real runs (${repeats.id} runs) prints the interval over goldens, and the plain Wilson interval where the runs are independent`,
         cause:

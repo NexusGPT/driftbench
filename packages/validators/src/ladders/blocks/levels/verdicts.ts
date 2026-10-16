@@ -194,7 +194,8 @@ export async function play(
     ...(options.repeat !== undefined ? { repeat: options.repeat } : {}),
     ...(options.store ? { store: options.store, campaignId: options.campaignId ?? 'c-blocks' } : {}),
   });
-  return { record, delivered: agent.delivered().map((each) => each.marker) };
+  const deliveries = agent.delivered();
+  return { record, deliveries, delivered: deliveries.map((each) => each.marker) };
 }
 
 function patternItems(): BankItem[] {

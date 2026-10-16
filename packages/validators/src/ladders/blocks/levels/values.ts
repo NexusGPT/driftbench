@@ -244,7 +244,7 @@ function outcomeItems(): BankItem[] {
         id,
         family: 'values-outcome',
         tier: outcomeCase.tier,
-        level: 5,
+        level: 4,
         component: outcomeCase.want.rung === 'rung1_outcome' ? OUTCOME : LADDER,
         title: `the ${spec.field} written into ${spec.tool} (${outcomeCase.id.replace(/-/g, ' ')}) is decided ${outcomeCase.want.outcome} by ${outcomeCase.want.rung}`,
         cause:
@@ -363,7 +363,7 @@ function identityItems(): BankItem[] {
         id,
         family: 'values-identity',
         tier: identityCase.tier,
-        level: 5,
+        level: 4,
         component: LADDER,
         title: `a ${identityCase.id.replace(/-/g, ' ')} value (${context.replace(/-/g, ' ')}) is ${identityCase.want.outcome === 'pass' ? 'passed' : 'failed'} on its own, before any rung`,
         cause:
@@ -462,7 +462,7 @@ function contractItems(): BankItem[] {
           id,
           family: 'values-contract',
           tier: Math.min(5, contractCase.tier + (nesting === 'nested' ? 1 : 0)) as Tier,
-          level: 5,
+          level: 4,
           component: contractCase.want.rung === 'rung2_contract' ? CONTRACT : LADDER,
           title: `a value against the tool's stated contract (${contractCase.id.replace(/-/g, ' ')}, ${nesting} field, ${context.replace(/-/g, ' ')}) is decided ${contractCase.want.outcome} by ${contractCase.want.rung}`,
           cause:
@@ -567,7 +567,7 @@ function givenItems(): BankItem[] {
         id,
         family: 'values-as-given',
         tier: givenCase.tier,
-        level: 5,
+        level: 4,
         component: givenCase.want.rung === 'rung2b_as_given' ? AS_GIVEN : LADDER,
         title: `a ${kind.id} the user or a file gave (${givenCase.id.replace(/-/g, ' ')}) is decided ${givenCase.want.outcome} by ${givenCase.want.rung}`,
         cause:

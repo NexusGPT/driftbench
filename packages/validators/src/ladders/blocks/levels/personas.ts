@@ -250,7 +250,7 @@ function loaderItems(): BankItem[] {
         id,
         family: 'personas-loader',
         tier: loadCase.tier,
-        level: 10,
+        level: 8,
         component: PERSONA_LOADER,
         title: `spec validate on a block played by ${count} personas (${loadCase.id.replace(/-/g, ' ')}) ${loadCase.refuses ? `is refused and names the class (${loadCase.refuses.source})` : 'loads'}`,
         cause: loadCase.refuses
@@ -321,7 +321,7 @@ function cellItems(): BankItem[] {
           id,
           family: 'personas-cells',
           tier: Math.min(5, shape.tier + (count === 3 ? 1 : 0)) as Tier,
-          level: 10,
+          level: 8,
           component: CAMPAIGN_PLAN,
           title: `campaign plan on a block played by ${count} personas that requires ${requirement.key} (${shape.id.replace(/-/g, ' ')}) plans one cell per persona and refuses only the incompatible ones as persona_incompatible on ${requirement.key}`,
           cause:
@@ -340,7 +340,7 @@ function cellItems(): BankItem[] {
       id,
       family: 'personas-cells',
       tier: 5,
-      level: 10,
+      level: 8,
       component: CAMPAIGN_PLAN,
       title: `a persona failing two requires keys of a block played by ${count} personas is refused once, naming the first failing key in the block's order`,
       cause:

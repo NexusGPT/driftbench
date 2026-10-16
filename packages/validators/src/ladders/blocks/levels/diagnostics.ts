@@ -237,7 +237,7 @@ function scoreItems(): BankItem[] {
         id,
         family: 'diagnostics-scores',
         tier: mix.tier,
-        level: 6,
+        level: 5,
         component: ATTRIBUTION,
         title: `over ${size} real runs whose failures carry ${mix.id.replace(/-/g, ' ')} dispositions, attributionOf gives the machine rate, the agent-attributed rate, the unassigned runs, the unmeasured runs and the failing blocks by disposition`,
         cause:
@@ -366,7 +366,7 @@ function badgeItems(): BankItem[] {
         id,
         family: 'diagnostics-badge',
         tier: objectCase.tier,
-        level: 6,
+        level: 5,
         component: ATTRIBUTION,
         title: `the report names the non-default objects (${objectCase.id.replace(/-/g, ' ')}) as sorted kind:id[@hash] once each, and ${ranked ? 'keeps the ranked fix list in order' : 'an empty fix list'}`,
         cause: ranked
@@ -454,7 +454,7 @@ function invarianceItems(): BankItem[] {
         id,
         family: 'diagnostics-invariance',
         tier: shape.tier,
-        level: 6,
+        level: 5,
         component: DIAGNOSTICS,
         title: `running the diagnostics ${set.join(' and ')} on a ${shape.id.replace(/-/g, ' ')} spec leaves every verdict and pass as it was, and every diagnosis names its diagnostic, a failing verdict of its block, and a documented disposition and confidence`,
         cause:

@@ -145,7 +145,7 @@ const pooled = (counts: readonly Count[]) => {
 export const CHEATERS: readonly Cheater[] = [
   {
     name: 'always-pass',
-    levels: [1, 2, 6, 7, 10],
+    levels: [1, 2, 5, 8],
     make: (base) =>
       patched(base, {
         name: 'always-pass',
@@ -159,7 +159,7 @@ export const CHEATERS: readonly Cheater[] = [
   },
   {
     name: 'always-fail',
-    levels: [1, 2, 7],
+    levels: [1, 2],
     make: (base) =>
       patched(base, {
         name: 'always-fail',
@@ -169,7 +169,7 @@ export const CHEATERS: readonly Cheater[] = [
   },
   {
     name: 'never-run',
-    levels: [1, 2, 7, 10],
+    levels: [1, 2, 8],
     make: (base) =>
       patched(base, {
         name: 'never-run',
@@ -179,7 +179,7 @@ export const CHEATERS: readonly Cheater[] = [
   },
   {
     name: 'everything-blocked',
-    levels: [1, 7],
+    levels: [1, 2],
     make: (base) =>
       patched(base, {
         name: 'everything-blocked',
@@ -189,13 +189,13 @@ export const CHEATERS: readonly Cheater[] = [
   },
   {
     name: 'prose-history',
-    levels: [2],
+    levels: [1],
     make: (base) =>
       patched(base, { name: 'prose-history', core: { runSpec: mapRuns(base, same, proseHistory) } }),
   },
   {
     name: 'origin-blind',
-    levels: [2],
+    levels: [1],
     make: (base) => {
       const validateSpec = need<(raw: unknown, path?: string) => Record<string, unknown>>(
         base.core,
@@ -214,12 +214,12 @@ export const CHEATERS: readonly Cheater[] = [
   },
   {
     name: 'lint-silent',
-    levels: [2],
+    levels: [1],
     make: (base) => patched(base, { name: 'lint-silent', core: { lintSpec: () => [] } }),
   },
   {
     name: 'lint-every-prefix',
-    levels: [2],
+    levels: [1],
     make: (base) =>
       patched(base, {
         name: 'lint-every-prefix',
@@ -244,7 +244,7 @@ export const CHEATERS: readonly Cheater[] = [
   },
   {
     name: 'world-first-only',
-    levels: [2],
+    levels: [1],
     make: (base) =>
       patched(base, {
         name: 'world-first-only',
@@ -263,7 +263,7 @@ export const CHEATERS: readonly Cheater[] = [
   },
   {
     name: 'plain-wilson',
-    levels: [3],
+    levels: [9],
     make: (base) =>
       patched(base, {
         name: 'plain-wilson',
@@ -303,7 +303,7 @@ export const CHEATERS: readonly Cheater[] = [
   },
   {
     name: 'loader-ignores-objects',
-    levels: [4],
+    levels: [3],
     make: (base) => {
       const validateSpec = need<(raw: unknown, path?: string) => Record<string, unknown>>(
         base.core,
@@ -325,7 +325,7 @@ export const CHEATERS: readonly Cheater[] = [
   },
   {
     name: 'stamps-always-shipped',
-    levels: [4],
+    levels: [3],
     make: (base) =>
       patched(base, {
         name: 'stamps-always-shipped',
@@ -353,7 +353,7 @@ export const CHEATERS: readonly Cheater[] = [
   },
   {
     name: 'value-exact-only',
-    levels: [5],
+    levels: [4],
     make: (base) =>
       patched(base, {
         name: 'value-exact-only',
@@ -371,7 +371,7 @@ export const CHEATERS: readonly Cheater[] = [
   },
   {
     name: 'value-always-equivalent',
-    levels: [5],
+    levels: [4],
     make: (base) =>
       patched(base, {
         name: 'value-always-equivalent',
@@ -388,7 +388,7 @@ export const CHEATERS: readonly Cheater[] = [
   },
   {
     name: 'blame-everything-on-the-agent',
-    levels: [6],
+    levels: [5],
     make: (base) => {
       const real = maybe<
         (data: unknown, options?: Record<string, unknown>) => Record<string, unknown> | undefined
@@ -424,7 +424,7 @@ export const CHEATERS: readonly Cheater[] = [
   },
   {
     name: 'diagnosis-passes-failures',
-    levels: [6],
+    levels: [5],
     make: (base) =>
       patched(base, {
         name: 'diagnosis-passes-failures',
@@ -440,7 +440,7 @@ export const CHEATERS: readonly Cheater[] = [
   },
   {
     name: 'parents-ignored',
-    levels: [7],
+    levels: [2],
     make: (base) => {
       const validateSpec = need<(raw: unknown, path?: string) => Record<string, unknown>>(
         base.core,
@@ -459,7 +459,7 @@ export const CHEATERS: readonly Cheater[] = [
   },
   {
     name: 'links-hashed',
-    levels: [8],
+    levels: [6],
     make: (base) => {
       const contentHash = need<(value: unknown) => string>(base.core, 'core', 'contentHash');
       // Links that enter the spec hash, and a localizer that ranks nothing.
@@ -483,7 +483,7 @@ export const CHEATERS: readonly Cheater[] = [
   },
   {
     name: 'radius-everything',
-    levels: [9],
+    levels: [7],
     make: (base) => {
       const radiusOf = need<
         (
@@ -520,7 +520,7 @@ export const CHEATERS: readonly Cheater[] = [
   },
   {
     name: 'radius-direct-only',
-    levels: [9],
+    levels: [7],
     make: (base) => {
       const radiusOf = need<
         (
@@ -558,7 +558,7 @@ export const CHEATERS: readonly Cheater[] = [
   },
   {
     name: 'one-cell-per-spec',
-    levels: [10],
+    levels: [8],
     make: (base) => {
       const validateSpec = need<(raw: unknown, path?: string) => Record<string, unknown>>(
         base.core,
@@ -578,7 +578,7 @@ export const CHEATERS: readonly Cheater[] = [
   },
   {
     name: 'history-stripped',
-    levels: [2, 7],
+    levels: [1, 2],
     make: (base) =>
       patched(base, {
         name: 'history-stripped',
@@ -587,7 +587,7 @@ export const CHEATERS: readonly Cheater[] = [
   },
   {
     name: 'interval-sloppy',
-    levels: [3],
+    levels: [9],
     make: (base) =>
       patched(base, {
         name: 'interval-sloppy',
@@ -613,7 +613,7 @@ export const CHEATERS: readonly Cheater[] = [
   },
   {
     name: 'end-state-dropped',
-    levels: [3],
+    levels: [9],
     make: (base) => {
       const build = need<(data: unknown) => Record<string, unknown>>(base.report, 'report', 'buildScorecard');
       return patched(base, {
@@ -627,7 +627,7 @@ export const CHEATERS: readonly Cheater[] = [
   },
   {
     name: 'loader-refuses-objects',
-    levels: [4, 6],
+    levels: [3, 5],
     make: (base) => {
       const validateSpec = need<(raw: unknown, path?: string) => Record<string, unknown>>(
         base.core,
@@ -656,7 +656,7 @@ export const CHEATERS: readonly Cheater[] = [
   },
   {
     name: 'stamps-missing',
-    levels: [4],
+    levels: [3],
     make: (base) =>
       patched(base, {
         name: 'stamps-missing',
@@ -673,7 +673,7 @@ export const CHEATERS: readonly Cheater[] = [
   },
   {
     name: 'badge-everything',
-    levels: [6],
+    levels: [5],
     make: (base) => {
       const real = maybe<
         (data: unknown, options?: Record<string, unknown>) => Record<string, unknown> | undefined
@@ -699,7 +699,7 @@ export const CHEATERS: readonly Cheater[] = [
   },
   {
     name: 'world-dropped',
-    levels: [2],
+    levels: [1],
     make: (base) =>
       patched(base, {
         name: 'world-dropped',
@@ -722,7 +722,7 @@ export const CHEATERS: readonly Cheater[] = [
   },
   {
     name: 'radius-accepts-anything',
-    levels: [9],
+    levels: [7],
     make: (base) =>
       patched(base, {
         name: 'radius-accepts-anything',
@@ -734,7 +734,7 @@ export const CHEATERS: readonly Cheater[] = [
   },
   {
     name: 'parents-forward-refused',
-    levels: [7],
+    levels: [2],
     make: (base) => {
       const validateSpec = need<(raw: unknown, path?: string) => Record<string, unknown>>(
         base.core,
@@ -771,7 +771,7 @@ export const CHEATERS: readonly Cheater[] = [
   },
   {
     name: 'links-unchecked',
-    levels: [8],
+    levels: [6],
     make: (base) => {
       const validateSpec = need<(raw: unknown, path?: string) => Record<string, unknown>>(
         base.core,
@@ -793,7 +793,7 @@ export const CHEATERS: readonly Cheater[] = [
   },
   {
     name: 'sections-always-stale',
-    levels: [8],
+    levels: [6],
     make: (base) =>
       patched(base, {
         name: 'sections-always-stale',

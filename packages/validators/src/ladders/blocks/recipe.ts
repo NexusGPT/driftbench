@@ -279,8 +279,8 @@ export type Setting = {
 /** The adapter capabilities of each kind: the function adapter applies both layers; the process adapter, no tool stub. */
 export const KIND_CAPS: Record<Kind, { seedPrefix: boolean; toolStubs: boolean; snapshot: boolean }> = {
   normal: { seedPrefix: true, toolStubs: true, snapshot: true },
-  // The process adapter stubs no tool, and its sandbox exports no end state: a child of a code block is not run.
-  code: { seedPrefix: true, toolStubs: false, snapshot: false },
+  // The process adapter stubs no tool; its sandbox exports its end state, workspace included, binary files too.
+  code: { seedPrefix: true, toolStubs: false, snapshot: true },
 };
 
 /**

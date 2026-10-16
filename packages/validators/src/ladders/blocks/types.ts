@@ -51,18 +51,13 @@ export function expectAll(conditions: ReadonlyArray<readonly [boolean, string]>)
 
 /** The levels of the blocks bank: one per capability of the redesign, in the order the redesign builds them. */
 export const BANK_LEVELS = [
-  { level: 1, id: 'verdicts', name: 'Given, When, Then and the four block verdicts' },
-  { level: 2, id: 'tool-history', name: 'tool history in the Given as real records' },
-  { level: 3, id: 'intervals', name: 'intervals grouped by golden and by tree, and the end-state rate' },
-  { level: 4, id: 'rule-objects', name: 'rules as objects: items, layers, resolve and the --set preflight' },
-  { level: 5, id: 'value-checks', name: 'value checks: ask the tool what a value means' },
-  { level: 6, id: 'diagnostics', name: 'diagnostics: blame, placement, two scores and the fix list' },
-  {
-    level: 7,
-    id: 'parents',
-    name: 'parent blocks: start from the end state, blocked, the cause counted once',
-  },
-  { level: 8, id: 'section-links', name: 'section links and localization' },
-  { level: 9, id: 'blast-radius', name: 'blast radius: exactly the blocks a change can affect' },
-  { level: 10, id: 'personas', name: 'personas: one test played by different simulated users' },
+  { level: 1, id: 'verdicts', name: 'verdicts: pass, fail, not_run and blocked, and the Given they read' },
+  { level: 2, id: 'parents', name: 'parents: blocked propagation, the cause counted once' },
+  { level: 3, id: 'rule-objects', name: 'rule files and objects: resolve and override refusals' },
+  { level: 4, id: 'value-checks', name: 'value checks: ask the tool what a value means' },
+  { level: 5, id: 'diagnostics', name: 'diagnostics: blame and the fix list' },
+  { level: 6, id: 'section-links', name: 'section links and localization' },
+  { level: 7, id: 'blast-radius', name: 'blast radius: zero misses, bounded over-selection' },
+  { level: 8, id: 'personas', name: 'personas: one test played by different simulated users' },
+  { level: 9, id: 'intervals', name: 'intervals: coverage of a planted true rate' },
 ] as const;

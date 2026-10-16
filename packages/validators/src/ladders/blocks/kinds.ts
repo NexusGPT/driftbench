@@ -57,7 +57,8 @@ let agents = 0;
 
 export const CODE_AGENT = fileURLToPath(new URL('./agents/code-agent.mjs', import.meta.url));
 
-export type Delivery = { marker: string | undefined; history: Seen[] };
+/** One turn that reached the agent: its marker, the history it read and (CODE) the workspace files it saw. */
+export type Delivery = { marker: string | undefined; history: Seen[]; files?: string[] };
 
 export type Planted = {
   adapter: Record<string, unknown>;
@@ -154,8 +155,8 @@ export function plantedAgent(
             .split('\n')
             .filter((line) => line.trim() !== '')
             .map((line) => {
-              const entry = JSON.parse(line) as { marker?: string; history?: Seen[] };
-              return { marker: entry.marker, history: entry.history ?? [] };
+              const entry = JSON.parse(line) as { marker?: string; history?: Seen[]; files?: string[] };
+              return { marker: entry.marker, history: entry.history ?? [], files: entry.files ?? [] };
             })
         : [],
   };

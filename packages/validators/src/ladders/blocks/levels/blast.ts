@@ -272,7 +272,7 @@ function directItems(): BankItem[] {
           id,
           family: entry.kind === 'tool' ? 'blast-tool' : 'blast-other-kinds',
           tier: Math.min(5, entry.tier + (size >= 7 ? 1 : 0) + (mode === 'F' ? 1 : 0)) as Tier,
-          level: 9,
+          level: 7,
           component: entry.kind === 'tool' ? DEPENDS : RADIUS,
           title: `a ${label.replace(/-/g, ' ')} change over ${size} seeded specs selects exactly the documented direct blocks, ${mode === 'F' ? 'and every later block of the same run as forward' : 'and nothing forward in mode T'}`,
           cause:
@@ -351,7 +351,7 @@ function wholeItems(): BankItem[] {
         id,
         family: 'blast-whole',
         tier: wholeCase.tier,
-        level: 9,
+        level: 7,
         component: RADIUS,
         title: wholeCase.unknownSpec
           ? `a spec with unknown dependencies (no metadata.depends, no generator record, no atoms) is in the radius of any change, every block, while the other specs keep the table`
@@ -468,7 +468,7 @@ function cliItems(): BankItem[] {
         id,
         family: 'blast-cli',
         tier: cliCase.tier,
-        level: 9,
+        level: 7,
         component: RADIUS_CLI,
         title: `driftbench radius over ${size} spec files with a ${cliCase.id.replace(/-/g, ' ')} manifest exits ${cliCase.exit}${cliCase.exit === 0 ? ', and --json lists the blocks radiusOf puts in' : ''}`,
         cause: `driftbench radius exits ${cliCase.exit} on ${cliCase.exit === 0 ? 'a radius smaller than the suite' : cliCase.exit === 1 ? 'the whole suite' : 'bad input'}.`,

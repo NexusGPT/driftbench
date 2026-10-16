@@ -9,7 +9,7 @@
  *
  * No model, no network, no clock in any file it writes: the same plan and instruction give the same bytes.
  */
-import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { appendFileSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { deflateRawSync } from 'node:zlib';
 
@@ -21,6 +21,18 @@ function readInstruction() {
   } catch {
     return '';
   }
+}
+
+/** The files of the workspace, relative, sorted, the protocol files left out. */
+function listFiles(dir) {
+  const out = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const path = dir === '.' ? entry.name : `${dir}/${entry.name}`;
+    if (entry.name.startsWith('driftbench-')) continue;
+    if (entry.isDirectory()) out.push(...listFiles(path));
+    else out.push(path);
+  }
+  return out.sort();
 }
 
 function record(path, line) {
@@ -241,7 +253,7 @@ function main() {
       history = [];
     }
     const marker = Object.keys(plan.markers).find((each) => instruction.includes(each));
-    appendFileSync(process.env.BLOCKS_AGENT_LOG, `${JSON.stringify({ marker, history })}\n`);
+    appendFileSync(process.env.BLOCKS_AGENT_LOG, `${JSON.stringify({ marker, history, files: listFiles('.') })}\n`);
   }
   for (const file of entry.files ?? []) write(file);
   for (const command of entry.commands ?? []) record(process.env.DRIFTBENCH_COMMANDS_FILE, command);

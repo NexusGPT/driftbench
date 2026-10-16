@@ -230,7 +230,7 @@ function loaderItems(): BankItem[] {
         id,
         family: 'objects-loader',
         tier: override.tier,
-        level: 4,
+        level: 3,
         component:
           sample.code === undefined
             ? LOADER
@@ -291,7 +291,7 @@ function hashItems(): BankItem[] {
       id,
       family: 'objects-loader',
       tier: 3 as Tier,
-      level: 4,
+      level: 3,
       component: LOADER,
       title: `a ${place.id} uses changes the spec hash and leaves every block cache key as it was`,
       cause: 'uses is part of the spec hash and is left out of the block cache key.',
@@ -659,7 +659,7 @@ function cliItems(): BankItem[] {
       id,
       family: 'objects-cli',
       tier: cliCase.tier,
-      level: 4,
+      level: 3,
       component: cliCase.id.startsWith('explain-set') ? LAYERS : OBJECT_CLI,
       title: `driftbench object ${cliCase.id.replace(/-/g, ' ')} exits ${cliCase.exit} and names what it read`,
       cause: cliCase.id.startsWith('explain-set')
@@ -731,7 +731,7 @@ function stampItems(): BankItem[] {
           : shape === 'extra-call' || shape === 'missing-call'
             ? 4
             : 3) as Tier,
-        level: 4,
+        level: 3,
         component: STAMPS,
         title: `on ${shape.replace(/-/g, ' ')} blocks scored with the check set of the ${place.id} layer, every verdict names its object as kind:id@hash8, its item, its builtin implementation and the layer that set the item`,
         cause:
