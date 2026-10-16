@@ -481,6 +481,11 @@ export function owningUnit(atoms: Iterable<EstateAtom>, rule: EstateAtom): Estat
  * conditions unless they contain an explicit acting verb and object.
  */
 function actionTask(text: string, governed = false): string | undefined {
+  // After a subject pronoun the next word is a finite verb in the base form, whatever the verb list holds:
+  // "you discharge a patient" asks to discharge a patient.
+  const pronounced = pronounAct(text);
+  if (pronounced) return pronounced;
+  if (SUBJECT_PRONOUN.test(clauseOf(plain(text)).replace(LEAD_CONNECTIVE, ''))) return undefined;
   const clause = clauseOf(plain(text))
     .replace(/^(?:before|when|while|after|on)\s+/i, '')
     .replace(
@@ -491,6 +496,8 @@ function actionTask(text: string, governed = false): string | undefined {
       /^(?:(?:the\s+)?(?:user|owner)\s+(?:asks|wants)\s+(?:you\s+)?to|you\s+(?:are|must|can))\s+/i,
       '',
     );
+  const about = /^(?:the\s+)?(?:user|owner)\s+asks\s+(?:about|for)\s+(.+)$/i.exec(clause)?.[1];
+  if (about && askable(`help me with ${about}`) === undefined) return `help me with ${lower(about)}`;
   const asked = askedTo(clause);
   if (asked && askable(asked) === undefined) return asked;
   // A verb-led clause is made imperative whole: the verbs it coordinates share the first one's form.
@@ -594,7 +601,9 @@ function sentenceAct(sentence: string): string | undefined {
   const lead = found ? text.slice(0, found.index) : text;
   const clause = found?.[1];
   // Only a gerund opens an act in a noun-phrase rule: "Uploads of customer lists" is a plural noun.
-  for (const candidate of [openingGerund(lead) ? lead : undefined, clause]) {
+  // After "unless" or "until" the clause is the exception that lifts the rule, never the guarded act.
+  const exception = found !== null && /^\s*(?:unless|until)\b/i.test(text.slice(found.index));
+  for (const candidate of [openingGerund(lead) ? lead : undefined, exception ? undefined : clause]) {
     const task = candidate ? actionTask(candidate.split(/[,;]\s/)[0] ?? candidate, true) : undefined;
     if (task) return task;
   }
@@ -767,11 +776,11 @@ function guardedTask(text: string, guard = false): string | undefined {
     }
     const asked = askedTo(clean);
     if (asked && askable(asked) === undefined) return asked;
-    // An ordinary task description is useful; a read directive would reveal the expected answer.
-    if (!/^(?:read|load|check|verify|block|deny|require|ensure)\b/i.test(clean)) {
+    // An ordinary task description is useful; a read directive would reveal the expected answer. A guard's own
+    // sentence written as an imperative ("End every reply with ...") is a rule for the agent, never the ask.
+    if (!guard && !/^(?:read|load|check|verify|block|deny|require|ensure)\b/i.test(clean)) {
       const task = sentenceAct(clean) ?? actionTask(clean.split(/;\s/)[0] ?? clean);
-      // A hook's own sentence ("Process reads each feed once") has a subject and a verb, not a verb and an object.
-      if (task && !(guard && subjectVerb(task))) return task;
+      if (task) return task;
     }
   }
   return undefined;
@@ -913,9 +922,15 @@ function letterWords(text: string): number {
 function contextOf(atom: EstateAtom): string | undefined {
   const fields = atom.fields ?? {};
   let text: string | undefined;
-  if (atom.kind === 'gate' && typeof fields.trigger === 'string')
-    text = `This involves ${lower(plain(fields.trigger))}`;
-  else if (atom.kind === 'reference' && typeof fields.readWhen === 'string')
+  if (atom.kind === 'gate' && typeof fields.trigger === 'string') {
+    // The subject of the trigger ("you discharge a patient") is dropped; a trigger that is an act reads as the
+    // task, a gerund or a noun phrase as what the work involves.
+    const trigger = lower(plain(fields.trigger).replace(SUBJECT_PRONOUN, ''));
+    const pronounced = pronounAct(fields.trigger);
+    if (SUBJECT_PRONOUN.test(plain(fields.trigger)) && !pronounced) return undefined;
+    text =
+      pronounced || verbLed(trigger) ? `The task is to ${pronounced ?? trigger}` : `This involves ${trigger}`;
+  } else if (atom.kind === 'reference' && typeof fields.readWhen === 'string')
     text = referenceSituation(fields.readWhen);
   else if (['instruction', 'gate', 'register', 'hazard'].includes(atom.kind) && atom.situation) {
     text = plain(atom.situation);
@@ -926,6 +941,33 @@ function contextOf(atom: EstateAtom): string | undefined {
   return `${text[0]?.toUpperCase()}${text.slice(1)}`;
 }
 
+const AUXILIARIES: ReadonlySet<string> = new Set(
+  'are is was were been being have has had does did will would shall should could might must cannot cant always never'.split(
+    ' ',
+  ),
+);
+
+const LEAD_CONNECTIVE = /^(?:before|when|while|after|on|once|if)\s+/i;
+
+/** The act that follows a subject pronoun ("you discharge a patient"), when the next word is a finite verb. */
+function pronounAct(text: string): string | undefined {
+  const clause = clauseOf(plain(text)).replace(LEAD_CONNECTIVE, '');
+  const subject = SUBJECT_PRONOUN.exec(clause);
+  if (!subject) return undefined;
+  const rest = clause.slice(subject[0].length);
+  const lead = (rest.split(/\s+/)[0] ?? '').toLowerCase();
+  return /^[a-z]{3,}$/.test(lead) &&
+    !/ing$/.test(lead) &&
+    !AUXILIARIES.has(lead) &&
+    askable(rest) === undefined
+    ? lower(rest)
+    : undefined;
+}
+
+/** A subject pronoun that opens a clause written to the agent. */
+const SUBJECT_PRONOUN =
+  /^(?:you|the agent|we|i)\s+(?:(?:can|must|should|may|will|need to|have to|are about to|are going to|are to|want to|plan to)\s+)?/i;
+
 /** Words that make a clause an obligation, not a moment. */
 const RULE_WORDS = /\b(?:never|always|must|should|shall|do not|don't|cannot|only)\b/i;
 
@@ -935,6 +977,18 @@ const RULE_WORDS = /\b(?:never|always|must|should|shall|do not|don't|cannot|only
  * is a bare listing ("`references/fields.md`: field definitions") states none.
  */
 function referenceSituation(readWhen: string): string | undefined {
+  // "When the owner asks about boarding, read refs/boarding.md": the condition is the moment, the read is not.
+  const condition =
+    /^((?:when|whenever|if|while|after|before|once)\b[^,]+),\s*(?:then\s+)?(?:read|see|open|load|consult)\b/i.exec(
+      plain(readWhen),
+    )?.[1];
+  if (
+    condition &&
+    letterWords(condition) >= 3 &&
+    situationProblem(condition) === undefined &&
+    !RULE_WORDS.test(condition)
+  )
+    return condition;
   for (const clause of plain(readWhen).split(/\s*(?:\||;|:|\u2014|\u2013|\s-\s|\.\s)\s*/)) {
     const text = plain(clause);
     if (/^(?:read|see|open|load|consult)\b/i.test(text)) continue;
@@ -1015,6 +1069,13 @@ function strictAct(act: string | undefined): string | undefined {
   const verb = (lowered[0] ?? '').split('-').at(-1) ?? '';
   if (!VERBS.has(verb) || STATIVE.has(verb)) return undefined;
   if (/[:()[\]{}"]/.test(act) || lowered.some((word) => CLAUSE_WORDS.has(word))) return undefined;
+  // An act with a condition inside it ("ask before an Edit of a policy file") is a rule, not a request.
+  if (
+    lowered
+      .slice(1)
+      .some((word) => SUBORDINATORS.has(word) || /^(?:without|upon|unless|until|before|after)$/.test(word))
+  )
+    return undefined;
   const last = lowered.at(-1) ?? '';
   if (TRAILING_WORDS.has(last) || FUNCTION_WORDS.has(last) || PREPOSITIONS.has(last) || DETERMINERS.has(last))
     return undefined;

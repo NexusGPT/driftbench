@@ -649,7 +649,12 @@ as context ("This involves ..."). A phrase of the prose replaces the tool act on
   check, script, handler, registry), and has no clause cut off inside it.
 
 Sentences about how the hook works (stdin, JSON, exit codes) are skipped, and a verb in the third person
-followed by of, on or about is a plural noun ("Calls of any tool"), never a verb. A guard that watches no tool
+followed by of, on or about is a plural noun ("Calls of any tool"), never a verb. A guard rule written as an imperative to the agent ("End every reply with ...") is a rule, never an ask, and an act
+with a condition inside it ("ask before an Edit of a policy file", "add a reminder when the owner types stop") is
+a rule too: both fall back to the tool act. The subject of a gate trigger ("you discharge a patient") is dropped
+and its act is asked ("discharge a patient"); a trigger is put in the context as "The task is to ..." when it is an
+act and as "This involves ..." when it is a gerund or a noun phrase. A read-when line that opens with a condition
+("When the owner asks about boarding, read refs/boarding.md") asks about the condition. A guard that watches no tool
 (a guard on the user's prompt) and has no strict prose has no ask: it stays incomplete. A replay row still needs
 its recorded session. The ask reads only the guard's own rule text and matcher: no registry state name or
 severity is read into it. A rule a guard enforces gives its forbidden act when that act is strict, else its
