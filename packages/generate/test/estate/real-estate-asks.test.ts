@@ -767,3 +767,30 @@ describe('a description gives its work only in the shape of a request', () => {
     expect(codeAsk('trigger', [mechanics], []).text).toBe('Please run a command in the shell here.');
   });
 });
+
+describe('a guard on the user prompt is set off by the message the rule says the owner writes', () => {
+  const rule = (situation: string) =>
+    atom('instruction.clinic.halt', { title: 'Halt on request', situation });
+  const guard = atom('guard.catalogue.halt', {
+    fields: { event: 'UserPromptSubmit', enforces: [{ atom: 'instruction.clinic.halt' }] },
+  });
+  const askFor = (situation: string, use: 'trigger' | 'forced' = 'forced') =>
+    codeAsk(use, [guard], [], false, (id) =>
+      id === 'instruction.clinic.halt' ? rule(situation) : undefined,
+    );
+
+  it('asks the message itself, in a live and a replayed row', () => {
+    expect(askFor('The owner types stop').text).toBe('stop');
+    expect(askFor('The user says "hold on"', 'trigger').text).toBe('hold on');
+  });
+
+  it('writes no ask when the situation names no short message', () => {
+    for (const situation of [
+      'The owner is away',
+      'The user says what they want after the nurse has checked in with the pharmacist',
+      'A late shipment',
+    ]) {
+      expect(askFor(situation).text, situation).toBeUndefined();
+    }
+  });
+});

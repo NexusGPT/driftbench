@@ -661,8 +661,9 @@ with a condition inside it ("ask before an Edit of a policy file", "add a remind
 a rule too: both fall back to the tool act. The subject of a gate trigger ("you discharge a patient") is dropped
 and its act is asked ("discharge a patient"); a trigger is put in the context as "The task is to ..." when it is an
 act and as "This involves ..." when it is a gerund or a noun phrase. A read-when line that opens with a condition
-("When the owner asks about boarding, read refs/boarding.md") asks about the condition. A guard that watches no tool
-(a guard on the user's prompt) and has no strict prose has no ask: it stays incomplete. A replay row still needs
+("When the owner asks about boarding, read refs/boarding.md") asks about the condition. A guard on the user's prompt is set off by what the owner writes, so its ask is the message: the situation of the
+rule it enforces says it ("The user says stop" asks `stop`), when the message has up to five words and holds no
+clause word. A guard that watches no tool and has no strict prose has no ask: it stays incomplete. A replay row still needs
 its recorded session. The ask reads only the guard's own rule text and matcher: no registry state name or
 severity is read into it. A rule a guard enforces gives its forbidden act when that act is strict, else its
 trigger, else the tool act; a rule that restates itself ("go against this rule") is never the ask.

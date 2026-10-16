@@ -159,6 +159,11 @@ export function codeAsk(
   if (use === 'outside' && context.testType === 'guard_negative' && atoms[0]?.kind === 'guard') {
     return guardNearMiss(atoms[0], lookup ?? (() => undefined));
   }
+  // A guard on the user's prompt is set off by the message itself, not by a request.
+  if ((use === 'trigger' || use === 'forced') && atoms[0]?.kind === 'guard') {
+    const message = guardAct(atoms[0], lookup ?? (() => undefined))?.forced?.message;
+    if (message) return { text: message, lang: 'en', source: `${atoms[0].id} (user prompt)` };
+  }
   const found = actOf(atoms, lookup, context.routesOf, context.estate);
   // A separator ends the task: "review the registry · weekly" asks to review the registry.
   const clause = clauseOf(found.act);
@@ -1068,7 +1073,14 @@ function forcedAct(
   guard: EstateAtom,
   rule?: EstateAtom,
   situation?: string,
-): { act: string; context?: string } | null {
+): { act: string; context?: string; message?: string } | null {
+  const event = typeof guard.fields?.event === 'string' ? guard.fields.event : undefined;
+  // A guard on the user's prompt is set off by what the owner writes: the situation says it ("The user says
+  // stop"), and the ask is that message.
+  if (event === 'UserPromptSubmit') {
+    const message = spokenMessage(rule?.situation ?? situation);
+    return message ? { act: `say "${message}"`, message } : null;
+  }
   const context = rule ? contextOf(rule) : situation ? `This involves ${situation}` : undefined;
   const matcher = typeof guard.fields?.matcher === 'string' ? guard.fields.matcher.split('|')[0] : undefined;
   if (matcher && /^[A-Z][A-Za-z]+$/.test(matcher))
@@ -1076,13 +1088,32 @@ function forcedAct(
       act: TOOL_ACTS[matcher] ?? `use the ${matcher} tool on the files here`,
       ...(context ? { context } : {}),
     };
-  const event = typeof guard.fields?.event === 'string' ? guard.fields.event : undefined;
   if (event === 'Stop' || event === 'SubagentStop')
     return {
       act: 'explain in full detail everything you can do for me here',
       ...(context ? { context } : {}),
     };
   return null;
+}
+
+/**
+ * The message a situation says the owner writes: "The user says stop", "the owner types \"go ahead\"". Short
+ * (up to five words), no clause word, never a sentence about something else.
+ */
+function spokenMessage(situation: string | undefined): string | undefined {
+  if (situation === undefined) return undefined;
+  const found =
+    /\b(?:says|types|writes|sends|enters|replies|answers with)\s+["\u201C']?([^"\u201D'.,;:]+?)["\u201D']?\s*$/i.exec(
+      plain(situation),
+    )?.[1];
+  const words = (found ?? '')
+    .trim()
+    .split(/\s+/)
+    .filter((word) => word !== '');
+  if (words.length === 0 || words.length > 5) return undefined;
+  if (words.some((word) => CLAUSE_WORDS.has(word.toLowerCase()) || SUBORDINATORS.has(word.toLowerCase())))
+    return undefined;
+  return words.join(' ');
 }
 
 /** Words an act or a situation never ends on: an adverb of time or place, a function word. */
@@ -1173,7 +1204,12 @@ function guardAct(
   guard: EstateAtom,
   lookup: (id: string) => EstateAtom | undefined,
 ):
-  | { act: string; source: string; breach?: string; forced?: { act: string; context?: string } | null }
+  | {
+      act: string;
+      source: string;
+      breach?: string;
+      forced?: { act: string; context?: string; message?: string } | null;
+    }
   | undefined {
   const ruleText = typeof guard.fields?.ruleText === 'string' ? guard.fields.ruleText : undefined;
   if (ruleText) {
