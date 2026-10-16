@@ -343,6 +343,76 @@ export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
   }
 }
 
+/** The script file a command runs: after assignments, exec and env, and an interpreter with its flags. */
+function commandExecutable(command: string): string | undefined {
+  const words =
+    command
+      .match(/"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\S+/g)
+      ?.map((word) => word.replace(/^["']|["']$/g, '')) ?? [];
+  while (words[0] === 'exec' || words[0] === 'env' || /^[A-Za-z_]\w*=/.test(words[0] ?? '')) words.shift();
+  const executable = words.shift();
+  if (
+    !/^(?:python(?:\d+(?:\.\d+)*)?|node|bash|sh|zsh|ruby|perl|deno|bun|tsx)$/.test(basename(executable ?? ''))
+  )
+    return executable;
+  while (words[0]?.startsWith('-')) {
+    // Inline interpreter programs are not script-file invocations.
+    if (['-c', '-e', '--eval', '-m'].includes(words[0])) return undefined;
+    words.shift();
+  }
+  return words.shift();
+}
+
+function scriptInvocation(text: string, name: string): boolean {
+  // Punctuation inside quoted commands belongs to the command, not the enclosing prose.
+  const masked = text.replace(/`[^`]*`|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/g, (part) =>
+    ' '.repeat(part.length),
+  );
+  const clauses: string[] = [];
+  let start = 0;
+  for (const match of masked.matchAll(/[;,]|[.!?](?=\s|$)|\b(?:and\s+)?then\b/gi)) {
+    clauses.push(text.slice(start, match.index));
+    start = match.index + match[0].length;
+  }
+  clauses.push(text.slice(start));
+  for (const clause of clauses) {
+    const clean = clause.trim().replace(/^[-+*]\s+|^\d+[.)]\s+/, '');
+    const directive =
+      /^(?:you\s+)?(?:(?:must|should|always|first|then|also|please)\s+)?(?:run|execute|invoke|call|use|launch|start)\s+(?:the\s+script\s+)?(.+)$/i.exec(
+        clean,
+      );
+    const argumentInstruction =
+      /^(?:you\s+)?(?:(?:must|should|always)\s+)?pass\b.+?\bto\s+(`[^`]+`|\S+)/i.exec(clean);
+    if (
+      argumentInstruction &&
+      basename((argumentInstruction[1] ?? '').replace(/[`.,;]+$/g, '').replace(/^`/, '')) === name
+    )
+      return true;
+    // A link to the script file points at it, unless the clause forbids it.
+    for (const link of clean.matchAll(/\]\(<?([^\s)>]+)>?(?:\s+"[^"]*")?\)/g)) {
+      const target = basename((link[1] ?? '').replace(/[#?].*$/, ''));
+      if (target === name && !/\b(?:never|do not|don't|must not|should not)\b/i.test(clean)) return true;
+    }
+    // With no imperative verb, accept a command only when it occupies the whole clause. After a verb,
+    // every code span is a command of that verb ("run `a` first and `b` last").
+    const command = directive?.[1] ?? clean;
+    const spans = directive ? [...command.matchAll(/`([^`]+)`/g)].map((span) => span[1] ?? '') : [];
+    const span = /^`([^`]+)`/.exec(command);
+    if (!directive && span && span[0].length !== command.length) continue;
+    if (
+      !directive &&
+      !span &&
+      !/[/]/.test(command.split(/\s+/)[0] ?? '') &&
+      !/^(?:exec|env|python[\d.]*|node|bash|sh|zsh|ruby|perl|deno|bun|tsx)\s/.test(command)
+    )
+      continue;
+    for (const written of spans.length > 0 ? spans : [span?.[1] ?? command]) {
+      if (basename(commandExecutable(written) ?? '') === name) return true;
+    }
+  }
+  return false;
+}
+
 /** One script atom per script file of a skill, anchored where the skill body names it, else in the script. */
 function scriptAtoms(
   skill: string,
@@ -361,9 +431,7 @@ function scriptAtoms(
     const relative = posix.relative(folder, file.path);
     if (!SCRIPT.test(file.path) && !relative.startsWith('scripts/')) continue;
     const name = basename(file.path);
-    const mention =
-      body.find((line) => namesToRun(line.text, name, relative)) ??
-      body.find((line) => line.text.includes(name));
+    const mention = body.find((line) => scriptInvocation(line.text, name));
     const at: Located = mention
       ? { file: definition, startLine: mention.line, endLine: mention.line, quote: mention.quote }
       : firstLine(file);
@@ -375,21 +443,6 @@ function scriptAtoms(
       fields: { path: file.path, skill, named: mention !== undefined },
     });
   }
-}
-
-/**
- * Whether a body line names a script as something to run: inside a code span or a link, or by its path from
- * the skill folder. A bare file name in running prose ("the old tally.py was slow") is a passing mention; the
- * script anchors there only when no line names it to run.
- */
-function namesToRun(text: string, name: string, relative: string): boolean {
-  if (relative.includes('/') && text.includes(relative)) return true;
-  for (const match of text.matchAll(/`([^`\n]+)`|\[[^\]\n]*\]\(([^)\n]+)\)/g)) {
-    const span = match[1] ?? match[2] ?? '';
-    if (new RegExp(`(?:^|[\\s/"'])${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:$|[\\s"'])`).test(span))
-      return true;
-  }
-  return false;
 }
 
 /** A path and its spelling in the source, before notation is normalized. */
