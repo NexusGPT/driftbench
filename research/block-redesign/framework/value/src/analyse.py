@@ -10,7 +10,7 @@ import random
 import sys
 from collections import Counter
 
-from common import DATA, ROOT, read_jsonl
+from common import DATA, ROOT, read_jsonl, read_text
 from oracle import SLOTS, TOOL_DECL, load_runs
 import ladder
 
@@ -133,7 +133,7 @@ def boot(items: list[str], by_item: dict[str, list[bool]], seed: int = 7007, n: 
 
 
 def hf7() -> dict:
-    items = {i["id"]: i for i in json.loads((DATA / "hf7_items.json").read_text())}
+    items = {i["id"]: i for i in json.loads(read_text(DATA / "hf7_items.json"))}
     rows = read_jsonl(DATA / "hf7_judgments.jsonl")
     out = {}
     for model in sorted({r["model"] for r in rows}):
@@ -226,6 +226,8 @@ if __name__ == "__main__":
         else:
             v = "SUPPORTED" + (" (part b INCONCLUSIVE: fewer than 5 base R6 failures)" if s["b"]["inconclusive"] else "")
         s["verdict"] = v
+        import hf9_secondary
+        s.update(hf9_secondary.secondary())  # secondary, outside the verdict; see hf9_secondary.py
         res["HF9"] = s
     path.write_text(json.dumps(res, indent=1, default=str))
     print(json.dumps({k: (v.get("verdict") if isinstance(v, dict) else None) for k, v in res.items() if k.startswith("HF")}, indent=1))

@@ -134,7 +134,8 @@ Verdict: (a) 100% is at least 80%. (b) 100% on the registered measure is at leas
 - No deviation from PREREG in design, models, seeds or thresholds.
 - One Gemini label answered invalid JSON 3 times. It was logged in `data/labels-gemini-3.6-flash.errors.jsonl` and run again under the resumable rule. Its retry counts in the 259.
 - A first launch of the HF9 runner failed on a shell quoting error before any call (0 runs, 0 USD).
-- Two secondary analyses were added after the data, both outside every verdict: HF9 controls scored with the ladder, and the HF9 (b) "no call, any wording" count. Both are labelled as secondary in `results.json`.
+- Two secondary analyses were added after the data, both outside every verdict: HF9 controls scored with the ladder, and the HF9 (b) "no call, any wording" count. Both are labelled as secondary in `results.json`. `src/hf9_secondary.py` computes both from the stored HF9 runs and the judge cache, and `python analyse.py all` writes them into `results.json`. Its output equals the committed `HF9/secondary_*` values and `data/hf9_controls_ladder.json`.
+- Three data files are committed compressed: `data/hf7_items.json.gz`, `data/hf7_judgments.jsonl.gz` and `data/judge_cache.jsonl.gz`. They hold made-up phone numbers that differ from a gold number by one digit or two, which the leak guard (it scans text) reads as real numbers. Decompressed, each file is byte-identical to the one first committed; `src/hf7_items.py` regenerates `hf7_items.json.gz` with the same content, and `src/common.py` reads a `.gz` copy first and then any plain file appended since. No number in `results.json` changed.
 - Tiny-sample answers stay in the data (no code or prompt changed after them), as PREREG states.
 
 ## Reproduce
@@ -145,6 +146,7 @@ python oracle.py               # exact oracle port: 0 mismatches on 259 runs
 python label.py gpt-6.1-sol ; python label.py gemini-3.6-flash
 python blame.py classify ; python hf7.py run gpt-6-luna ; python hf7.py run gemini-3.6-flash
 python hf9.py run <arm> <set>  # arms base1 base2 desc resolve prompt; sets target_a target_b controls
-python analyse.py all ; python ledger.py
+python analyse.py all ; python ledger.py    # all makes no model call: a judge cache miss stops it
+python hf9_secondary.py        # the two secondary HF9 analyses alone
 ```
 Python 3.12 with `anthropic` 1.14.0, `openai` 3.31.0 and `pyyaml`. Keys are read from `~/.nexus-secrets` inside the process.

@@ -10,7 +10,7 @@ import argparse
 import json
 from concurrent.futures import ThreadPoolExecutor
 
-from common import DATA, append_jsonl, read_jsonl
+from common import DATA, append_jsonl, read_jsonl, read_text
 from hf7_items import FIELDS
 from judges import read_first, side_by_side
 
@@ -19,7 +19,7 @@ REPEATS = 3
 
 
 def run(model: str, limit: int | None, workers: int) -> None:
-    items = json.loads((DATA / "hf7_items.json").read_text())
+    items = json.loads(read_text(DATA / "hf7_items.json"))
     if limit:
         items = items[:limit]
     done = {(r["model"], r["design"], r["item"], r["order"], r["repeat"]) for r in read_jsonl(OUT)}

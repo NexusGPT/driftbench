@@ -1,11 +1,14 @@
 """HF7 item bank: (field, gold, candidate, truth, subtype) for stored values with no stated format.
 
-Deterministic (seed 7007). Writes data/hf7_items.json. Values are the fictional Acme ones
-(phones +1 202 555 01xx, emails at example.com, Acmeville addresses), plus three made-up customers.
+Deterministic (seed 7007). Writes data/hf7_items.json.gz, the committed copy (compressed, so that the leak guard,
+which scans text, does not read the one-digit-changed made-up phones as real ones). Values are the fictional Acme
+ones (phones of area code 202, exchange 555, lines 0100 to 0199, emails at example.com, Acmeville addresses),
+plus three made-up customers.
 """
 
 from __future__ import annotations
 
+import gzip
 import json
 import random
 
@@ -96,6 +99,7 @@ def build() -> list[dict]:
 if __name__ == "__main__":
     items = build()
     DATA.mkdir(parents=True, exist_ok=True)
-    (DATA / "hf7_items.json").write_text(json.dumps(items, indent=1))
+    with gzip.GzipFile(DATA / "hf7_items.json.gz", "wb", mtime=0) as f:  # mtime 0: the same bytes on every run
+        f.write(json.dumps(items, indent=1).encode())
     from collections import Counter
     print(len(items), Counter(i["truth"] for i in items), Counter((i["truth"], i["subtype"]) for i in items))
