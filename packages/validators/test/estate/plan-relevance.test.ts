@@ -168,7 +168,13 @@ const CASES: Case[] = [
     dimension: 'session_state',
     value: 'resumed',
     relation: 'stoprule',
-    target: { atoms: [atom('t', 'instruction', 'Carry on.')], planted: { scope: 'stop' } },
+    target: {
+      atoms: [
+        atom('g', 'guard', 'stop-word.sh', { fields: { event: 'UserPromptSubmit' } }),
+        atom('t', 'instruction', 'Carry on.'),
+      ],
+      edges: [{ from: 'g', to: 't', kind: 'enforces' }],
+    },
   },
   {
     key: 'stop-signal',
@@ -176,8 +182,11 @@ const CASES: Case[] = [
     value: 'stop',
     relation: 'stop',
     target: {
-      atoms: [atom('t', 'instruction', 'Halt the exposure.')],
-      planted: { behaviour: 'stop_on_word' },
+      atoms: [
+        atom('g', 'guard', 'stop-word.sh', { fields: { event: 'UserPromptSubmit' } }),
+        atom('t', 'instruction', 'Halt the exposure.'),
+      ],
+      edges: [{ from: 'g', to: 't', kind: 'enforces' }],
     },
   },
   {
@@ -437,17 +446,26 @@ describe('the typed relations', () => {
     expect(ids('restart', map, planted)).toEqual([]);
   });
 
-  it('a stop: an instruction planted for it; with the guard on the prompt event for stop, not for a stop rule alone', () => {
-    const map = mapOf([
-      atom('a', 'guard', 'x', { fields: { event: 'UserPromptSubmit' } }),
-      atom('b', 'guard', 'x', { fields: { event: 'PreToolUse' } }),
-      atom('c', 'instruction', 'On stop, stop all work.'),
-      atom('d', 'instruction', 'x'),
-      atom('e', 'stage', 'x'),
-    ]);
+  it('a stop: the instruction a guard on the prompt event enforces, never a rule the hidden estate planted or one whose words speak of a stop', () => {
+    const map = mapOf(
+      [
+        atom('a', 'guard', 'x', { fields: { event: 'UserPromptSubmit' } }),
+        atom('b', 'guard', 'x', { fields: { event: 'PreToolUse' } }),
+        atom('c', 'instruction', 'On stop, stop all work.'),
+        atom('d', 'instruction', 'x'),
+        atom('e', 'stage', 'x'),
+        atom('f', 'instruction', 'x'),
+      ],
+      [
+        { from: 'a', to: 'd', kind: 'enforces' },
+        { from: 'a', to: 'e', kind: 'enforces' },
+        { from: 'b', to: 'f', kind: 'enforces' },
+      ],
+    );
+    // Planted for a stop, the rules c and f hold nothing: only an edge of the map places a stop rule.
     const planted = new Map<string, Planted>([
-      ['d', { scope: 'stop' }],
-      ['e', { scope: 'stop' }],
+      ['c', { scope: 'stop', behaviour: 'stop_on_word' }],
+      ['f', { scope: 'stop' }],
     ]);
     expect(ids('stoprule', map, planted)).toEqual(['d']);
     expect(ids('stop', map, planted)).toEqual(['a', 'd']);
@@ -534,6 +552,9 @@ describe('no situation allows an atom the previous oracle rejected', () => {
         .filter((a) => ['skill', 'subagent', 'script', 'guard', 'tool', 'stage'].includes(a.kind))
         .map((target) => ({ from: route.id, to: target.id, kind: 'route' as const })),
     );
+  const enforcing: EstateMap['edges'] = rich
+    .filter((a) => a.kind === 'guard')
+    .flatMap((guard) => rich.map((target) => ({ from: guard.id, to: target.id, kind: 'enforces' as const })));
   const planted = new Map<string, Planted>(
     rich.map((a) => [a.id, { hazard: 'restart', scope: 'stop', behaviour: 'stop_on_word' }]),
   );
@@ -541,7 +562,7 @@ describe('no situation allows an atom the previous oracle rejected', () => {
   it.each(CASES.map((c) => [c.key, c.relation] as const))('%s', (key, relation) => {
     const allowedKinds = new Set(MAIN_KINDS[key]);
     const byId = new Map(rich.map((a) => [a.id, a]));
-    const targets = [...targetsOf(relation, mapOf(rich, edges), planted)];
+    const targets = [...targetsOf(relation, mapOf(rich, [...edges, ...enforcing]), planted)];
     const tooMany = targets.filter((id) => {
       const kind = byId.get(id)?.kind as string;
       if (allowedKinds.has(kind)) return false;

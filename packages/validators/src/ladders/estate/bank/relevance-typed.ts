@@ -102,9 +102,10 @@ function holds(relation: Relation, atom: Atom, planted: Planted | undefined): bo
       );
     }
     case 'stoprule':
-      return kind === 'instruction' && (planted?.scope === 'stop' || planted?.behaviour === 'stop_on_word');
+      // Placed by an edge of the map (a guard on the prompt event enforces the instruction), in targetsOf.
+      return false;
     case 'stop':
-      return holds('stoprule', atom, planted) || holds('prompt', atom, planted);
+      return holds('prompt', atom, planted);
     case 'prompt':
       return kind === 'guard' && field('event') === 'UserPromptSubmit';
     default:
@@ -128,6 +129,16 @@ export function targetsOf(
   const out = new Set(own);
   if (relation === 'helper' || relation === 'tool')
     for (const edge of map.edges) if (edge.kind === 'route' && own.has(edge.to)) out.add(edge.from);
+  // A stop rule is an instruction a guard on the prompt event enforces: the map carries the enforces edge, so the
+  // oracle reads that typed fact and nothing the hidden estate planted or the words of the rule say.
+  if (relation === 'stoprule' || relation === 'stop') {
+    const prompt = new Set(
+      map.atoms.filter((atom) => holds('prompt', atom, undefined)).map((atom) => atom.id),
+    );
+    for (const edge of map.edges)
+      if (edge.kind === 'enforces' && prompt.has(edge.from) && byId.get(edge.to)?.kind === 'instruction')
+        out.add(edge.to);
+  }
   if (relation === 'routing')
     for (const edge of map.edges)
       if (edge.kind === 'route' && own.has(edge.from) && byId.get(edge.to)?.kind === 'skill')

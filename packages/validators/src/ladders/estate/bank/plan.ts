@@ -860,8 +860,8 @@ const RELATION_TITLE: Record<Relation, string> = {
   rate: 'a script, a helper, a tool or a rule that calls a service or a helper',
   restart: 'a rule planted for the restart hazard',
   compaction: 'a rule planted for the compaction hazard',
-  stoprule: 'a rule planted for a stop',
-  stop: 'a rule planted for a stop, or a guard on the prompt event',
+  stoprule: 'an instruction a guard on the prompt event enforces',
+  stop: 'a guard on the prompt event, or the instruction it enforces',
   prompt: 'a guard on the prompt event',
   routing: 'a route or the skill it opens',
 };
