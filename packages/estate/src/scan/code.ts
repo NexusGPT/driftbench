@@ -1802,7 +1802,11 @@ function gateTarget(raw: string, spans: readonly string[], prose: boolean): { te
   const word = /^\S+/.exec(text)?.[0] ?? '';
   if (/[/\\]|\.[A-Za-z0-9]+[.,:;!?)]*$/.test(word))
     return { text: word.replace(/[.,:;!?)]+$/, ''), free: false };
-  if (/^this\s+(?:file|document|doc|page|guide|note)[.,:;!?)]*$/i.test(text))
+  if (
+    /^this\s+(?:file|document|doc|page|guide|note)(?=[\s.,:;!?)]|$)(?!\s+(?:again|once\s+more|twice))/i.test(
+      text,
+    )
+  )
     return { text: 'this', free: true };
   if (/^(?:this|it|them|they|that|these|those)[.,:;!?)]*$/i.test(text))
     return { text: text.replace(/[.,:;!?)]+$/, '').toLowerCase(), free: true };

@@ -158,6 +158,19 @@ describe('a bare read gates only when the line carries a rule marker', () => {
   });
 });
 
+describe('"this file" with a qualifier', () => {
+  it.each([
+    'Read this file IN FULL before you bake.',
+    'Read this file carefully before you bake.',
+    'Before you bake, read this file first.',
+    'Before you bake, read this document FULLY.',
+  ])('still gates %s', async (block) => {
+    const gates = await gatesOf(block);
+    expect(gates).toHaveLength(1);
+    expect(gates[0]?.fields).toMatchObject({ self: true });
+  });
+});
+
 describe('sentences that are not gates', () => {
   it.each([
     'The banner syntax is "Before X: Read Y", where X is a placeholder for an act and Y for a file.',
