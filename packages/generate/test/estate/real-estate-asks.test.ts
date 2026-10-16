@@ -110,6 +110,31 @@ describe('the unit that owns an atom supplies the task when the atom has none', 
     }
   });
 
+  it('does not read a possessive or a plural noun with a noun ending as a verb', () => {
+    for (const description of [
+      "File's frame, exit 1.",
+      'Analytics response shapes for the dashboard.',
+      'Logistics partner contacts and escalation paths.',
+    ]) {
+      const ask = codeAsk('trigger', [unit('x', description)], []);
+      expect(ask.text, description).toBeUndefined();
+      expect(ask.refused, description).toMatch(/describes the unit/);
+    }
+  });
+
+  it('keeps a pasted rule or a long fragment out of the situation of a read-when line', () => {
+    const owner = unit('stock', 'Counts stock in the aisles.');
+    const row = (readWhen: string) => atom('reference.stock.x', { fields: { readWhen } });
+    for (const readWhen of [
+      'The yard office has to confirm every dock slot of the week in writing with the dock lead and the carrier desk and the roster owner | `refs/a.md`',
+      'You must always close the count with the yard office | `refs/a.md`',
+    ]) {
+      expect(codeAsk('trigger', [row(readWhen), owner], []).text, readWhen).toBe(
+        'Please count stock in the aisles.',
+      );
+    }
+  });
+
   it('does not turn a coordinated noun into a verb', () => {
     expect(imperative('Reconciles invoices and returns')).toBe('reconcile invoices and returns');
     expect(imperative('Reconciles invoices and returns for the depot')).toBe(

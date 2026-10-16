@@ -660,6 +660,9 @@ const STATIVE: ReadonlySet<string> = new Set(
   ),
 );
 
+/** Endings of plural nouns no verb has: "analytics", "logistics", "utilities", "awareness". */
+const NOUN_ENDING = /(?:ics|ities|ness|nesses)$/;
+
 const PREPOSITIONS: ReadonlySet<string> = new Set(
   'for of to in on at by with without from into onto over under about between through during per via'.split(
     ' ',
@@ -675,7 +678,13 @@ function thirdPerson(first: string, next: string | undefined, described = false)
   if (/[^s]s$/.test(first) && VERBS.has(imperative(first))) return true;
   // Only a unit's description is read this way. A hook's rule text ("Warns after a command ...", "Blocks a
   // force push") says what the guard does, which is no task for the owner to ask.
-  if (!described || !/^[a-z]{3,}(?:[^sui]s)$/.test(first) || KEEP.has(first) || STATIVE.has(first))
+  if (
+    !described ||
+    !/^[a-z]{3,}(?:[^sui]s)$/.test(first) ||
+    KEEP.has(first) ||
+    STATIVE.has(first) ||
+    NOUN_ENDING.test(first)
+  )
     return false;
   const after = bare(next);
   return after !== '' && !FUNCTION_WORDS.has(after) && !VERBS.has(after);
@@ -684,6 +693,8 @@ function thirdPerson(first: string, next: string | undefined, described = false)
 /** True when a sentence starts with a verb: a known one, or its third-person form. */
 function verbLed(sentence: string, described = false): boolean {
   const words = clauseOf(sentence).split(/\s+/);
+  // A possessive ("File's frame") is a noun, whatever its stem is.
+  if (/['\u2019]s?$/.test(words[0] ?? '')) return false;
   const first = bare(words[0]);
   return VERBS.has(first) || thirdPerson(first, words[1], described);
 }
@@ -709,6 +720,9 @@ function contextOf(atom: EstateAtom): string | undefined {
   return `${text[0]?.toUpperCase()}${text.slice(1)}`;
 }
 
+/** Words that make a clause an obligation, not a moment. */
+const RULE_WORDS = /\b(?:never|always|must|should|shall|do not|don't|cannot|only)\b/i;
+
 /**
  * The situation a reference's read-when line states apart from the file it names: the first clause that
  * holds neither a file nor code, is not itself a read directive, and has words of its own. A line that
@@ -718,6 +732,8 @@ function referenceSituation(readWhen: string): string | undefined {
   for (const clause of plain(readWhen).split(/\s*(?:\||;|:|\u2014|\u2013|\s-\s|\.\s)\s*/)) {
     const text = plain(clause);
     if (/^(?:read|see|open|load|consult)\b/i.test(text)) continue;
+    // A pasted rule or a long fragment is no situation: a moment is short and states no obligation.
+    if (letterWords(text) > 14 || RULE_WORDS.test(text)) continue;
     // A moment of two words is enough when it names an activity ("Designing hosted screens"): a bare noun
     // pair ("field definitions") names a file's content, not a moment.
     const moment = letterWords(text) >= 2 && /^[A-Za-z]+ing\b/.test(text);
@@ -801,6 +817,7 @@ export function taskOf(text: string, described = false): string {
   const sentence = clauseOf(text);
   const words = sentence.split(/\s+/);
   const first = bare(words[0]);
+  if (/['\u2019]s?$/.test(words[0] ?? '')) return sentence;
   if (VERBS.has(first) || (!KEEP.has(first) && thirdPerson(first, words[1], described)))
     return imperative(sentence);
   // A noun phrase describes the unit and names no task: left as it is, for the caller to refuse.
