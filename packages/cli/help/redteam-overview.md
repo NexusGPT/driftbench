@@ -1,6 +1,6 @@
 ---
 title: "Red-teaming: start here"
-summary: "What red-teaming in driftbench is, which of the six red-team commands to run, every option, the files read and written, a CI example with no model call, and each error with its exit code."
+summary: "Start here: driftbench red-teaming, which of six commands to run, every option, inputs, outputs, a no-model CI example, and errors with exit codes."
 commands: ["attack", "perturb", "redteam run", "redteam plugins", "redteam generate", "redteam grade"]
 see_also: ["redteam-attack", "redteam-crescendo", "redteam-goat", "redteam-plugins", "redteam-indirect", "recipes-red-team-an-agent", "authoring-deviation-classes", "core-exit-codes"]
 next: ["redteam-attack", "redteam-crescendo", "redteam-plugins"]
