@@ -398,13 +398,26 @@ Pairwise: a covering array of strength t (default 2) over the situation axes, un
 
 ### Situation relevance in a proposed plan
 
-The default plan derives target relevance from the estate's own behavioural text and evidence. It does not hold a situation-to-atom-kind whitelist. An instruction that calls a tool remains relevant to a tool failure. A dispatch instruction remains relevant to a helper event. A rule about the tracker remains relevant regardless of whether it is an instruction or a stage.
+The default plan crosses a situation only with the atoms it can act on, decided from typed facts and no word of the estate: the kind of an atom, the type of each predicate of its evidence, the kind of each edge of the graph, and the typed fields of an atom (the hazard a hazard atom names, the event of a guard, the tools a unit declares). A fixed table gives each value of the event axes (`session_state`, `owner_signal`, `deviation`, `estate_hazard`) one relation; the atoms that hold the relation are its targets:
 
-For the event axes (`session_state`, `owner_signal`, `deviation`, `estate_hazard`), the planner compares the subject words of each value's title with the atom's own quoted rule, situation or unit description. It normalizes English inflections and omits grammatical context, code spans and paths. Atom ids, file names and custom check names supply no relevance. Typed evidence supplies observable capabilities: a positive tool call supplies tools; a dispatch supplies helpers; a text predicate supplies language. Explicit reply and answer rules supply language even when checked by a custom predicate. Routes and dispatches inherit the contract of the unit they reach, transitively; unrelated neighbouring rules supply no context.
+| Relation | Situations | Atoms that hold it |
+|---|---|---|
+| helper | a dead helper; helpers running | a helper; a route to one |
+| tool | a tool failure | a tool, a script or a guard; a unit that declares tools; a route to one |
+| stage | a stale tracker | a stage |
+| output | a language switch; the owner switching language | a register; an instruction with a text predicate |
+| data | an instruction in the data | an instruction or gate that calls Read, Grep, Glob, WebFetch or WebSearch; a guard on PostToolUse |
+| confirmation | a loose confirmation; no questions | a gate |
+| rate | a wave of rate limits | a script or helper; a tool that calls a service or helper; an instruction that calls one |
+| restart, compaction | a process restart or a session after a restart; a compaction or a session after one | the instruction or gate on the same line as a hazard atom of that hazard |
+| stop rule | a resumed session | an instruction or gate that a guard on the prompt event enforces |
+| stop | the owner saying stop | the stop rules, and the guards on the prompt event |
+| prompt | silence or a burst | a guard on the prompt event |
+| routing | a goal shift; an off-topic turn; an out-of-scope ask | a route; the skill it opens |
 
-The baseline of each axis and an unperturbed long session remain available. When a situation has identified targets, inferred constraints exclude its combinations with other targets before the covering array runs. Coverage counts only tuples feasible under those constraints. Mandatory contract rows and journeys keep their own obligations. A situation with no identified target stays unresolved: its combinations remain in the plan, with an explicit note. A missing match never removes an entire situation to obtain vacuous coverage.
+The baseline of each axis, an unperturbed long session and every value the table does not name (an explicit go, a hold, frustration, a contradiction) are crossed with every atom. For a named value, inferred constraints exclude its combinations with the other atoms before the covering array runs, and coverage counts only the tuples feasible under them. A situation with no atom that holds its relation is crossed with no atom: the plan holds no row of it, and a note says so. Mandatory contract rows and journeys keep their own obligations. Atom ids, file names, titles, quotes and custom check names supply no relevance.
 
-This is a lexical proposal for review, not a proof of natural-language entailment. Synonyms and multilingual conditions may need declared relevance. Supplying `--space` makes that space authoritative: its values and constraints are used without inferred exclusions. The summary exposes every inferred exclusion in `relevanceConstraints` and explains unresolved situations in `notes`. These are proposed rows, subject to approval like the rest of the plan.
+This is a proposal for review. A relation the estate does not type (a stop rule no guard enforces, a restart rule with no hazard atom on its line) leaves the situation without a row, which a declared space can change. Supplying `--space` makes that space authoritative: its values and constraints are used without inferred exclusions. The summary exposes every inferred exclusion in `relevanceConstraints` and explains the situations left without a row in `notes`. These are proposed rows, subject to approval like the rest of the plan.
 
 The captured Northwind example below uses the explicit full space exported by `estate map`; its counts precede inferred relevance.
 
