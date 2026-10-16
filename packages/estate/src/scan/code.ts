@@ -461,7 +461,8 @@ function pastFile(text: string, spelling: string): boolean {
     const after = clause.slice(verb.index + verb[0].length);
     const current = /\b(?:to|into|by|with)\b/i.exec(after);
     const past = clause.slice(0, verb.index + verb[0].length + (current ? current.index : after.length));
-    if (unmask(past, spans).includes(spelling)) return true;
+    if (namedReferences(unmask(past, spans)).some((reference) => reference.spelling === spelling))
+      return true;
   }
   return false;
 }
