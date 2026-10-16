@@ -267,7 +267,7 @@ function inlineText(value: unknown): string | undefined {
     return text;
   }
   if (Array.isArray(value)) return value.length === 0 ? '[]' : undefined;
-  if (isPlain(value)) return Object.keys(value).length === 0 ? '{}' : undefined;
+  if (isPlain(value)) return hasDefinedValues(value) ? undefined : '{}';
   throw unsupported;
 }
 
@@ -275,6 +275,10 @@ function isPlain(value: unknown): value is Record<string, unknown> {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) return false;
   const prototype = Object.getPrototypeOf(value);
   return prototype === Object.prototype || prototype === null;
+}
+
+function hasDefinedValues(object: Record<string, unknown>): boolean {
+  return Object.keys(object).some((key) => object[key] !== undefined);
 }
 
 function writeMap(object: Record<string, unknown>, indent: string, first: string, lines: string[]): void {
@@ -311,10 +315,10 @@ function writeBlock(value: unknown, indent: string, lines: string[], first = ind
  * The YAML text of a value, as `stringify(value, { lineWidth: 0, aliasDuplicateObjects: false })` writes it.
  * Block maps and sequences of plain scalars, single-line quoted strings and ordinary numbers are written
  * directly; a value outside that (a multi-line string, a date, a key that needs quoting) is written by the
- * library, whole.
+ * library, whole. Undefined map values are omitted; maps left empty still serialize as `{}` at any depth.
  */
 export function stringifyBlockYaml(value: unknown): string {
-  if (Array.isArray(value) ? value.length > 0 : isPlain(value) && Object.keys(value).length > 0) {
+  if (Array.isArray(value) ? value.length > 0 : isPlain(value) && hasDefinedValues(value)) {
     try {
       const lines: string[] = [];
       writeBlock(value, '', lines);

@@ -165,7 +165,33 @@ describe('stringifyBlockYaml', () => {
     expect(stringifyBlockYaml(shape)).toBe(reference(shape));
   });
 
-  it('matches the library on random documents', () => {
+  it.each([
+    { name: 'root map', shape: { a: undefined }, text: '{}\n' },
+    { name: 'map value', shape: { a: { b: undefined } }, text: 'a: {}\n' },
+    { name: 'list item', shape: [{ a: undefined }], text: '- {}\n' },
+    { name: 'nested lists', shape: [[{ a: undefined }]], text: '- - {}\n' },
+    {
+      name: 'nested maps',
+      shape: { a: { b: { c: undefined }, d: undefined } },
+      text: 'a:\n  b: {}\n',
+    },
+    {
+      name: 'mixed lists and maps',
+      shape: { a: [{ b: [{ c: undefined }], d: undefined }, { e: undefined }] },
+      text: 'a:\n  - b:\n      - {}\n  - {}\n',
+    },
+    {
+      name: 'empty map before remaining list items',
+      shape: [{ a: undefined }, { b: 1, c: undefined }, []],
+      text: '- {}\n- b: 1\n- []\n',
+    },
+  ])('preserves an empty container after omitting undefined in a $name', ({ shape, text }) => {
+    expect(reference(shape)).toBe(text);
+    expect(stringifyBlockYaml(shape)).toBe(text);
+    expect(parse(stringifyBlockYaml(shape))).toStrictEqual(parse(reference(shape)));
+  });
+
+  it('matches the library on 3000 seeded random objects with undefined leaves', () => {
     let seed = 12345;
     const next = () => {
       seed = (seed * 1664525 + 1013904223) % 4294967296;
@@ -217,6 +243,7 @@ describe('stringifyBlockYaml', () => {
       if (pick < 0.8) return Math.floor(next() * 2000) - 1000;
       if (pick < 0.85) return Math.round(next() * 1000) / 8;
       if (pick < 0.9) return next() < 0.5;
+      if (pick < 0.95) return undefined;
       return null;
     };
     const make = (depth: number): unknown => {
@@ -230,8 +257,11 @@ describe('stringifyBlockYaml', () => {
       return object;
     };
     for (let index = 0; index < 3000; index += 1) {
-      const shape = { id: `case-${index}`, body: make(0) };
-      expect(stringifyBlockYaml(shape)).toBe(reference(shape));
+      const shape = { id: `case-${index}`, omitted: undefined, body: make(0) };
+      const text = stringifyBlockYaml(shape);
+      const expected = reference(shape);
+      expect(text).toBe(expected);
+      expect(parse(text)).toStrictEqual(parse(expected));
     }
   });
 });
