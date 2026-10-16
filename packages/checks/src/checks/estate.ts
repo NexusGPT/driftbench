@@ -27,7 +27,7 @@ import type { CustomCheckFunction } from './custom';
  * - `max_words`: a word limit on a named part of the reply: a draft, or the whole reply.
  * - `no_delete_under`: nothing deleted under a folder.
  * - `stage_seen`: a step allowed at any point was reached at least once.
- * - `guard_message`: a guard that blocked said why, and the message keeps the output rules.
+ * - `guard_message`: a guard that acted said why, and the message keeps the output rules.
  * - `guard_finished`: every run of a guard answered within its time.
  */
 
@@ -159,8 +159,11 @@ export const hazardRecovery: CustomCheckFunction = (ctx, options) => {
  * `{ effect, rule, block? }`, a rule as `Tool` or `Tool(pattern)`. A pattern ending in `:*` matches by
  * prefix; `*` matches any text. The pattern is read on the command, the file path or the URL of a call.
  * - deny: no call the rule covers, attempted or not.
- * - allow, declared: at least one call the rule covers, none refused for permission.
- * - ask: inconclusive; the trace does not show the prompt.
+ * - allow, declared: every call the rule covers ran, none refused for permission. A rule that allows a call
+ *   asks for none: a block with no call it covers keeps it.
+ * - ask: every call the rule covers went to the owner first. A call refused for permission was held for the
+ *   owner (a headless run cannot ask); a call that ran is inconclusive, since the trace does not show whether
+ *   the owner was asked and approved. A block with no call the rule covers keeps it.
  */
 export const permission: CustomCheckFunction = (ctx, options) => {
   // The estate generator writes `{ rules: [{ effect, rule }, ...], block }`: one verdict per rule, the block
@@ -203,23 +206,34 @@ function permissionRule(ctx: Parameters<CustomCheckFunction>[0], options: unknow
     ];
   }
   if (effect === 'ask') {
+    if (covered.length === refused.length) {
+      return [
+        machineVerdict(
+          'permission',
+          id,
+          'pass',
+          covered.length === 0
+            ? `no call ${rule} covers in this block, so none needed the owner`
+            : `${plural(covered.length, 'call')} ${rule} covers, each held for the owner`,
+        ),
+      ];
+    }
     return [
       machineVerdict(
         'permission',
         id,
         'inconclusive',
-        `${plural(covered.length, 'call')} ${rule} covers; the trace does not show whether the owner was asked`,
+        `${plural(covered.length - refused.length, 'call')} ${rule} covers ran; the trace does not show whether the owner was asked`,
       ),
     ];
   }
-  const ok = covered.length > 0 && refused.length === 0;
   return [
     machineVerdict(
       'permission',
       id,
-      ok ? 'pass' : 'fail',
+      refused.length === 0 ? 'pass' : 'fail',
       covered.length === 0
-        ? `no call ${rule} covers in this block`
+        ? `no call ${rule} covers in this block, so none was refused`
         : `${plural(covered.length, 'call')} ${rule} covers, ${refused.length} refused for permission`,
     ),
   ];
@@ -569,7 +583,12 @@ function messageOf(run: GuardRun): string | undefined {
       const output: unknown = JSON.parse(stdout);
       if (isRecord(output)) {
         const specific = isRecord(output.hookSpecificOutput) ? output.hookSpecificOutput : {};
-        const reason = specific.permissionDecisionReason ?? output.reason ?? output.systemMessage;
+        const reason =
+          specific.permissionDecisionReason ??
+          output.reason ??
+          output.systemMessage ??
+          specific.additionalContext ??
+          output.additionalContext;
         if (typeof reason === 'string') return reason.trim();
       }
     } catch {
@@ -580,23 +599,21 @@ function messageOf(run: GuardRun): string | undefined {
   return stderr !== '' ? stderr : stdout;
 }
 
+/** A verdict of a run that let the act through, or that did not answer: the guard told the agent nothing. */
+const SILENT = /^(allow|approve|ok|pass|error|timeout|timed_out|cancelled|canceled|no_response)$/i;
+
 /**
- * `{ name, mustNot?, block? }`. Every run of the guard that blocked (deny or block) gives a message, and
- * each message keeps the output rules: no pattern of `mustNot` matches it. Inconclusive when the guard did
- * not block in the block, or the runtime reports no output for it.
+ * `{ name, mustNot?, block? }`. Every run of the guard that acted (blocked, or answered with its own verdict
+ * such as warn or nudge) gives a message, and each message keeps the output rules: no pattern of `mustNot`
+ * matches it. Inconclusive when the guard did not act in the block, or the runtime reports no output for it.
  */
 export const guardMessage: CustomCheckFunction = (ctx, options) => {
   if (!isRecord(options) || typeof options.name !== 'string') throw new Error('guard_message needs { name }');
   if (typeof options.block === 'number' && options.block !== ctx.blockIndex) return [];
-  const blocked = runsOf(ctx, options.name).filter((run) => /^(deny|block)$/i.test(run.verdict));
+  const blocked = runsOf(ctx, options.name).filter((run) => !SILENT.test(run.verdict));
   if (blocked.length === 0) {
     return [
-      machineVerdict(
-        'guard_message',
-        'present',
-        'inconclusive',
-        `${options.name} did not block in this block`,
-      ),
+      machineVerdict('guard_message', 'present', 'inconclusive', `${options.name} did not act in this block`),
     ];
   }
   const messages = blocked.map(messageOf);
@@ -617,8 +634,8 @@ export const guardMessage: CustomCheckFunction = (ctx, options) => {
       'present',
       given.length === blocked.length ? 'pass' : 'fail',
       given.length === blocked.length
-        ? `${plural(blocked.length, 'blocking run')} of ${options.name}, each with a message: ${given.map((m) => JSON.stringify(m)).join('; ')}`
-        : `${blocked.length - given.length} of ${plural(blocked.length, 'blocking run')} of ${options.name} gave no message`,
+        ? `${plural(blocked.length, 'run')} of ${options.name} that acted, each with a message: ${given.map((m) => JSON.stringify(m)).join('; ')}`
+        : `${blocked.length - given.length} of ${plural(blocked.length, 'run')} of ${options.name} that acted gave no message`,
     ),
   ];
   const patterns = Array.isArray(options.mustNot)

@@ -372,13 +372,12 @@ describe('the estate checks the runner registers, and custom predicates compiled
         kind: 'tool',
       },
     );
-    expect(thenOf([ask], 'positive', full).gaps).toEqual([
-      {
-        marker: MARKERS.registered,
-        atom: 'tool.q',
-        detail: 'permission ask: the trace does not show the prompt',
-      },
-    ]);
+    // An ask rule is checked too: a call it covers that ran is undecided, one held for the owner keeps it.
+    const asked = thenOf([ask], 'positive', full);
+    expect(asked.gaps).toEqual([]);
+    expect(asked.custom).toEqual({
+      permission: { rules: [{ effect: 'ask', rule: 'Bash(git commit:*)' }], block: 0 },
+    });
   });
 
   it('compiles the custom predicates it knows into must, must_not, lang, safety and execution', () => {
@@ -815,5 +814,31 @@ describe('guards a live trace cannot name, and files the runtime loads itself', 
       '**/.claude/skills/x/references/rules.md',
     ]);
     expect(then.gaps).toEqual([]);
+  });
+});
+
+describe('a step list reference keeps its explicit read evidence', () => {
+  it('requires a Read unless the runtime certifies the file is auto-loaded', () => {
+    const path = 'process/packing.json';
+    const steps = [stage('pack', ['ship']), stage('ship', [])].map((entry) => ({
+      ...entry,
+      provenance: { quote: 'packing flow', file: path },
+    }));
+    const ref = atom('reference.parcel.flow', [
+      { type: 'tool_called', label: 'Read', input: { file_path: path } },
+    ]);
+    const flow: ThenContext = {
+      ...ctx,
+      stages: stageModel(steps),
+      files: new Set([path]),
+      loaded: () => false,
+    };
+    const then = thenOf([ref], 'positive', flow);
+    expect(then.gaps).toEqual([]);
+    expect(then.references).toEqual([{ path: '**/process/packing.json', count: { min: 1 } }]);
+    expect(then.stage).toBeUndefined();
+    const auto = thenOf([ref], 'positive', { ...flow, loaded: () => true });
+    expect(auto.references).toEqual([]);
+    expect(auto.stage).toBeUndefined();
   });
 });

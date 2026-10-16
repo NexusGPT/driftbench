@@ -36,7 +36,7 @@ export { literal };
  * | workspace, artifact | `expect.workspace`, `expect.artifacts` |
  * | text | `expect.must`, `expect.must_not` (the words as literal text), `expect.lang` |
  * | tool_called with any other input, when `some_call` is registered | `rules.custom.some_call` |
- * | custom grounded_values, hazard_recovery, permission (allow, declared, deny) | the registered check |
+ * | custom grounded_values, hazard_recovery, permission (allow, declared, deny, ask) | the registered check |
  * | custom with a name `predicates.ts` compiles | must, must_not, lang, safety, execution |
  * | custom on a register atom | a judged criterion whose rubric is the atom's title, not gating |
  *
@@ -353,7 +353,10 @@ function positive(then: ThenParts, atom: EstateAtom, evidence: EstateEvidence, c
       if (evidence.name === 'permission' && ctx.customChecks.has('permission')) {
         const effect = evidence.options?.effect;
         const rule = evidence.options?.rule;
-        if (typeof rule === 'string' && (effect === 'allow' || effect === 'declared' || effect === 'deny')) {
+        if (
+          typeof rule === 'string' &&
+          (effect === 'allow' || effect === 'declared' || effect === 'deny' || effect === 'ask')
+        ) {
           const known = (then.custom.permission?.rules ?? []) as unknown[];
           then.custom.permission = { rules: [...known, { effect, rule }], block: 0 };
           return;

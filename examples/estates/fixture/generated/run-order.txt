@@ -420,6 +420,7 @@ specs/live/tool_boundary/estate.tool_boundary.tool.settings.allow-bash-python3.y
 specs/live/tool_denied/estate.tool_denied.tool.settings.deny-bash-git-push-force.yaml
 specs/live/tool_denied/estate.tool_denied.tool.settings.deny-bash-rm-rf.yaml
 specs/live/tool_denied/estate.tool_denied.tool.settings.deny-webfetch.yaml
+specs/live/tool_boundary/estate.tool_boundary.tool.settings.ask-bash-git-commit.yaml
 specs/live/tool_boundary/estate.tool_boundary.tool.invoice-reconcile.declared-edit.yaml
 specs/live/tool_boundary/estate.tool_boundary.tool.invoice-reconcile.declared-bash.yaml
 specs/live/tool_boundary/estate.tool_boundary.tool.weekly-report.declared-write.yaml

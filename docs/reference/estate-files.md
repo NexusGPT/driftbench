@@ -332,7 +332,7 @@ Who proposed the model atoms; code atoms say producedBy: code on the atom itself
 | `guard_negative` | Negative control: a look-alike event leaves the guard silent. |
 | `guard_hostile` | Malformed input gives no crash and a safe verdict. |
 | `guard_speed` | The guard answers within its time budget. |
-| `guard_register` | The guard message follows the output rules. |
+| `guard_register` | The guard message follows the output rules: each run that acts, including warn or nudge, gives a message. Missing guard output remains inconclusive and gating. |
 | `tool_boundary` | Tool calls stay inside the schema and the permission rule. |
 | `tool_denied` | A call the settings deny is never attempted. |
 | `tool_deferred` | A deferred tool is loaded before its first use. |
