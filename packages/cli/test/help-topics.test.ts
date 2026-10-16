@@ -329,16 +329,12 @@ function section(body: string, name: string): string {
 
 describe('the red-team start topic matches the CLI', () => {
   const topic = TOPICS.find((each) => each.id === 'redteam-overview');
-  const RED_TEAM = [
-    'attack',
-    'perturb',
-    'redteam run',
-    'redteam plugins',
-    'redteam generate',
-    'redteam grade',
-  ];
+  const body = topic?.body ?? '';
+  /** attack, perturb and every subcommand of redteam: a new one fails the topic until it is covered. */
+  const RED_TEAM = ['attack', 'perturb', ...COMMANDS.filter((path) => path.startsWith('redteam '))];
 
-  it('covers the six red-team commands', () => {
+  it('covers attack, perturb and every redteam subcommand', () => {
+    expect(RED_TEAM.length).toBeGreaterThanOrEqual(6);
     expect(topic?.commands).toEqual(RED_TEAM);
   });
 
@@ -348,7 +344,7 @@ describe('the red-team start topic matches the CLI', () => {
       capture(),
       () => {},
     );
-    const options = section(topic?.body ?? '', 'Commands and every option');
+    const options = section(body, 'Commands and every option');
     for (const path of RED_TEAM) {
       const command = path
         .split(' ')
@@ -364,17 +360,48 @@ describe('the red-team start topic matches the CLI', () => {
     }
   });
 
-  it('gives each command its exit codes', () => {
-    const outputs = section(topic?.body ?? '', 'Outputs and how to read them');
-    for (const path of RED_TEAM) expect(outputs, path).toContain(`| \`${path}\` |`);
-  });
-
-  /** A row of the Common errors table: the command, the start of its stderr, its exit code. */
+  /** A row of the Common errors table: variables it sets, the command, the start of its stderr, its exit. */
   const rows = [
-    ...section(topic?.body ?? '', 'Common errors').matchAll(
-      /^\| `(driftbench [^`]+)` \| `([^`]+)` \| (\d+) \|/gm,
+    ...section(body, 'Common errors').matchAll(
+      /^\| `((?:[A-Z][A-Z0-9_]*=\S+ )*)(driftbench [^`]+)` \| `([^`]+)` \| (\d+) \|/gm,
     ),
-  ].map((match) => ({ line: match[1] as string, message: match[2] as string, exit: Number(match[3]) }));
+  ].map((match) => ({
+    env: Object.fromEntries(
+      (match[1] as string)
+        .trim()
+        .split(/\s+/)
+        .filter((pair) => pair !== '')
+        .map((pair) => [pair.slice(0, pair.indexOf('=')), pair.slice(pair.indexOf('=') + 1)]),
+    ) as Record<string, string>,
+    line: match[2] as string,
+    message: match[3] as string,
+    exit: Number(match[4]),
+  }));
+
+  /** The exit codes each command shows: in the error table and in the worked example. */
+  function shownExits(path: string): Set<number> {
+    const shown = new Set<number>();
+    for (const row of rows) if (row.line.startsWith(`driftbench ${path} `)) shown.add(row.exit);
+    for (const step of workedExample(body)) {
+      if (step.kind === 'cli' && step.argv.join(' ').startsWith(`${path} `)) shown.add(step.exit);
+    }
+    return shown;
+  }
+
+  it('gives each command its exit codes, with a meaning for every code the topic shows', () => {
+    const outputs = section(body, 'Outputs and how to read them');
+    for (const path of RED_TEAM) {
+      const row = outputs.split('\n').find((line) => line.startsWith(`| \`${path}\` |`));
+      expect(row, path).toBeDefined();
+      const cells = (row as string)
+        .split('|')
+        .slice(2, 5)
+        .map((cell) => cell.trim());
+      for (const code of shownExits(path)) {
+        expect(cells[code], `${path}: exit ${code} is shown but its cell is empty`).not.toBe('');
+      }
+    }
+  });
 
   it('lists errors of every red-team command', () => {
     expect(rows.length).toBeGreaterThanOrEqual(20);
@@ -388,27 +415,89 @@ describe('the red-team start topic matches the CLI', () => {
 
   it('prints each listed error with its exit code, and writes nothing', async () => {
     const scratch = mkdtempSync(join(tmpdir(), 'driftbench-help-redteam-errors-'));
-    // A row with --model or --judge must stop on the missing key, never reach a paid model.
-    const keys = ['ANTHROPIC_API_KEY', 'OPENAI_API_KEY', 'GEMINI_API_KEY', 'GOOGLE_API_KEY'];
-    const saved = Object.fromEntries(keys.map((key) => [key, process.env[key]]));
+    // Every model variable is cleared; a row sets only fictional keys and a closed local port, so a row with
+    // --model or --judge stops on its missing variable and nothing leaves the machine.
+    const providers = ['ANTHROPIC', 'OPENAI', 'GEMINI', 'GOOGLE'];
+    const model = (name: string) => providers.some((provider) => name.startsWith(`${provider}_`));
+    const saved = Object.fromEntries(
+      Object.keys(process.env)
+        .filter(model)
+        .map((k) => [k, process.env[k]]),
+    );
     try {
-      for (const key of keys) delete process.env[key];
+      for (const key of Object.keys(saved)) delete process.env[key];
       symlinkSync(join(ROOT, 'examples'), join(scratch, 'examples'));
       symlinkSync(join(ROOT, 'packages'), join(scratch, 'packages'));
       const before = repositoryState();
       for (const row of rows) {
-        const io = capture(scratch);
-        const code = await inScratch(scratch, () => main(words(row.line).slice(1), io));
-        expect(code, `${row.line}\n${io.stderr()}`).toBe(row.exit);
-        expect(io.stderr(), row.line).toContain(row.message);
+        for (const [name, value] of Object.entries(row.env)) {
+          expect(model(name), `${row.line}: sets ${name}`).toBe(true);
+          if (name.endsWith('_API_KEY')) expect(value, name).toBe('fictional-not-a-key');
+          if (name.endsWith('_BASE_URL')) expect(value, name).toBe('http://127.0.0.1:9');
+        }
+        if (Object.keys(row.env).some((name) => name.endsWith('_API_KEY'))) {
+          expect(
+            Object.keys(row.env).some((name) => name.endsWith('_BASE_URL')),
+            row.line,
+          ).toBe(true);
+        }
+        Object.assign(process.env, row.env);
+        try {
+          const io = capture(scratch);
+          const code = await inScratch(scratch, () => main(words(row.line).slice(1), io));
+          expect(code, `${row.line}\n${io.stderr()}`).toBe(row.exit);
+          expect(io.stderr(), row.line).toContain(row.message);
+        } finally {
+          for (const name of Object.keys(row.env)) delete process.env[name];
+        }
       }
       expect(repositoryState(), 'an error row wrote into the repository').toBe(before);
       expect(readdirSync(scratch).sort(), 'an error row wrote a file').toEqual(['examples', 'packages']);
     } finally {
-      for (const key of keys) {
-        if (saved[key] === undefined) delete process.env[key];
-        else process.env[key] = saved[key];
+      for (const [key, value] of Object.entries(saved)) process.env[key] = value;
+      rmSync(scratch, { recursive: true, force: true });
+    }
+  }, 300_000);
+
+  it('names a required variable of every --judge provider, with its missing-variable error', () => {
+    const environment = section(body, 'Inputs');
+    for (const provider of ['anthropic', 'openai', 'google']) {
+      const variable = `${provider === 'google' ? 'GOOGLE' : provider.toUpperCase()}_JUDGE_MODEL`;
+      expect(environment, variable).toContain(`\`${variable}\``);
+      expect(
+        rows.some((row) => row.line.endsWith(`--judge ${provider}`) && row.message.startsWith(variable)),
+        `${variable} error row`,
+      ).toBe(true);
+    }
+  });
+
+  it('prints the output its worked example shows', async () => {
+    const scratch = mkdtempSync(join(tmpdir(), 'driftbench-help-redteam-output-'));
+    try {
+      symlinkSync(join(ROOT, 'examples'), join(scratch, 'examples'));
+      symlinkSync(join(ROOT, 'packages'), join(scratch, 'packages'));
+      let printed = '';
+      for (const step of workedExample(body)) {
+        if (step.kind === 'file') {
+          const path = scratchPath(scratch, step.path);
+          mkdirSync(dirname(path), { recursive: true });
+          writeFileSync(path, step.content);
+        } else if (step.kind === 'cli') {
+          const io = capture(scratch);
+          expect(await inScratch(scratch, () => main(step.argv, io)), step.line).toBe(step.exit);
+          printed += io.stdout();
+        }
       }
+      const lines = printed.split('\n').map((line) => line.trimEnd());
+      const shown = [...section(body, 'Worked example').matchAll(/^```text\n([\s\S]*?)^```/gm)].flatMap(
+        (block) => (block[1] as string).split('\n'),
+      );
+      expect(shown.length).toBeGreaterThan(0);
+      for (const line of shown) {
+        if (line.trim() === '' || line.includes('<') || line.trim() === '...') continue;
+        expect(lines, line).toContain(line.trimEnd());
+      }
+    } finally {
       rmSync(scratch, { recursive: true, force: true });
     }
   }, 300_000);
