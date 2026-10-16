@@ -1,3 +1,4 @@
+import { blockStatus, isScored } from '../runner/verdicts';
 import type { RunResult } from '../schema/run';
 import type { Spec } from '../schema/spec';
 import { canonicalJson } from '../spec/hash';
@@ -230,11 +231,10 @@ export function localizeRuns(
     const group = canonicalJson([run.target, run.mode, run.repeat, run.perturbationId ?? null]);
     const verdicts = suite.get(group) ?? new Map<string, boolean>();
     for (const block of run.blocks) {
-      const status = (block as { status?: unknown }).status;
-      if (block.injected === true || (status !== undefined && status !== 'pass' && status !== 'fail'))
-        continue;
+      // A block not run or blocked is no measurement: it enters no row of the suite.
+      if (block.injected === true || !isScored(block)) continue;
       if (block.index >= spec.blocks.length) continue;
-      verdicts.set(blockKey(spec.id, blockName(spec, block.index)), !block.pass);
+      verdicts.set(blockKey(spec.id, blockName(spec, block.index)), blockStatus(block) === 'fail');
     }
     suite.set(group, verdicts);
   }
