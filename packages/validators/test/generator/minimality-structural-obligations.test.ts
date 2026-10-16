@@ -170,6 +170,33 @@ describe('minimality retains structural obligations from the coverage predicates
         output: [],
       },
     ];
+    // The measured block is the one whose approved data request asks for the partition's value.
+    const requested = [
+      ['at-minimum', 1],
+      ['above-minimum', 2],
+    ] as const;
+    generated.hidden.data = requested.map(([partition, value]) => ({
+      dimension,
+      id: `${dimension}.${partition}`,
+      tool: 'inspect',
+      direction: 'in' as const,
+      field: 'quantity',
+      partition,
+      title: `quantity ${partition}`,
+      value,
+      invalid: false,
+      quote: 'minimum: 1',
+    }));
+    generated.hidden.phrases = [
+      ...generated.hidden.phrases,
+      ...requested.map(([partition, value]) => ({
+        dimension,
+        value: `${dimension}.${partition}`,
+        text: `Inspect ${value} parcels.`,
+        lang: 'en',
+        intent: { kind: 'data' as const, value: `${dimension}.${partition}` },
+      })),
+    ];
     const ids = ['contrast.read.integer.at-minimum-above-minimum'];
     expect(
       (await snapshot(generated, ids)).obligations.has(

@@ -245,6 +245,14 @@ describe('minimality proves removability instead of treating shared setup as red
       expect(await check(data)).toMatchObject({ pass: false });
     });
 
+    it('still rejects a removable step inside a family variant: only a whole variant is protected', async () => {
+      const generated = fixture(false, true);
+      generated.complete.forEach((entry, index) => {
+        entry.spec.metadata = { generated: { seeder: 'graph', metamorphic: family(index, 2) } };
+      });
+      expect(await check(await dataFor(generated))).toMatchObject({ pass: false });
+    });
+
     it('still rejects a plain duplicate of a variant that is not in the family', async () => {
       const generated = variants((index) => family(index, 2));
       const stranger = structuredClone(required(generated.complete[0]));

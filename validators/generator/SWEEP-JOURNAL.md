@@ -154,3 +154,11 @@ The next entry records completed seed results or the final bank result. No unmea
 - Verification details and source fingerprints: [delta evidence](evidence/minimality-map-obligations.json). The prior PASS does not cover this delta; independent review is required.
 
 - Final focused verification: 146 tests pass across 10 files; focused TypeScript, Biome and whitespace checks pass. Historical levels are unchanged.
+
+## 2026-10-16: maintainer ruling on metamorphic family variants in minimality
+
+- Base: `6a39359c5` (PR 523 after its merge of main). Contract sources: `metamorphic-seeder.ts` (a family declares `metadata.generated.metamorphic = { family, variant, of }`), `bank.ts#removable`.
+- Reported by the generator climb: a one-block variant of a metamorphic family counts as a removable duplicate of its sibling variant, though a family needs its variants. Deleting the variant's only block deletes the variant; the `phrases.metamorphic` obligation stays satisfied by the sibling, which carries the same dimension value, so nothing was lost by the old predicate.
+- Ruling: `removable` returns false when deleting the block would delete a whole spec that is a variant of a family and the family would keep fewer variants than it declares (`of`). A removable step inside a variant, a plain duplicate and a variant beyond the declared count stay removable.
+- Red first: 1 of 4 new tests fails on the unchanged predicate (two equal one-block variants of a two-variant family fail `minimal.X3.stay` as removable); the other three are controls that pass before and after. Green: 16 tests in `minimality-prefix`, 54 across the five minimality, integer-contrast and sequence files. Mutants killed: `kept <= declared.of`. No item, threshold, floor or fault family changes.
+- Also: `minimality-structural-obligations.test.ts` "retains the sole input-contrast witness" failed on the merge of main into this PR, because main's integer-contrast item measures the block whose approved data request asks for the value, not cell metadata. The fixture now states the two approved requests; its assertions are unchanged.

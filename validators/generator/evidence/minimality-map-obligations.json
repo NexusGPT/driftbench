@@ -44,12 +44,7 @@
       "existingPhraseWorldTaskSlot": 40,
       "personaContext": 4
     },
-    "publicFreshSeeds": [
-      1009,
-      2027,
-      4093,
-      8191
-    ],
+    "publicFreshSeeds": [1009, 2027, 4093, 8191],
     "handWrittenInput": "Parcel/dock phrases; one sibling phrase already absent; sole request protected, actual duplicate removable",
     "negativeControls": [
       "Already-failing aggregate cannot hide another lost phrase",
