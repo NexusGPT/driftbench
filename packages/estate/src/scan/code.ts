@@ -6,14 +6,18 @@ import {
   collapseReads,
   continuation,
   dated,
+  descriptive,
   eventHead,
   exampleOrHistory,
   isEvent,
+  isUrl,
   OPEN_TOKEN,
+  optionalQualifier,
   splitAddition,
   TOKEN,
   tagsOf,
   timeOffset,
+  topicPhrase,
   withoutEmphasis,
 } from './gate-grammar';
 import { guardRuleSources } from './guard-rules';
@@ -1742,13 +1746,17 @@ export function gateClauses(text: string, splitCoordinated = true): string[] {
  * The thing to read: a masked span, else a path-like word, else (where the form allows) the words of the
  * clause, a step to run. A bare word such as "it" or "them" names nothing to read first.
  */
-function gateTarget(raw: string, spans: readonly string[], prose: boolean): string {
+function gateTarget(raw: string, spans: readonly string[], prose: boolean): { text: string; free: boolean } {
   const text = raw.trim();
   const span = new RegExp(`^${TOKEN}`).exec(text);
-  if (span) return unmask(span[0], spans);
+  if (span) return { text: unmask(span[0], spans), free: false };
   const word = /^\S+/.exec(text)?.[0] ?? '';
-  if (/[/\\]|\.[A-Za-z0-9]+[.,:;!?)]*$/.test(word)) return word.replace(/[.,:;!?)]+$/, '');
-  return prose ? unmask(text, spans).replace(/[.,:;!?]+$/, '') : '';
+  if (/[/\\]|\.[A-Za-z0-9]+[.,:;!?)]*$/.test(word))
+    return { text: word.replace(/[.,:;!?)]+$/, ''), free: false };
+  // Words of the clause: a reference only if they name a file or a skill of the estate.
+  return prose
+    ? { text: unmask(text, spans).replace(/[.,:;!?]+$/, ''), free: true }
+    : { text: '', free: false };
 }
 
 const GATE_HEADINGS = new WeakMap<EstateFile, Array<{ text: string; line: number }>>();
@@ -1766,6 +1774,63 @@ function gateHeadings(source: EstateFile | undefined): Array<{ text: string; lin
   return headings;
 }
 
+const STEMS = new WeakMap<ReadonlyMap<string, EstateFile>, Map<string, string[]>>();
+const NAMED_DOCUMENT = /\.(?:md|mdx|markdown|txt|rst)$/i;
+
+/**
+ * Words that name a document or skill of the estate: "the policy" for `policy.md`, "the editor skill" for
+ * the skill `editor`. Pronouns, determiners, adverbs and prepositions never name anything; of the rest, a
+ * word or two joined must be a declared skill or the file name of a document. An ambiguous name is not a
+ * reference: it resolves to a file only when one document carries it.
+ */
+function namedReference(
+  phrase: string,
+  files: ReadonlyMap<string, EstateFile>,
+  raw: RawEstate,
+): { name: string; skill?: string } | undefined {
+  let stems = STEMS.get(files);
+  if (!stems) {
+    stems = new Map();
+    for (const path of files.keys()) {
+      if (!NAMED_DOCUMENT.test(path)) continue;
+      const stem = basename(path)
+        .replace(/\.[^.]+$/, '')
+        .toLowerCase();
+      stems.set(stem, [...(stems.get(stem) ?? []), path]);
+    }
+    STEMS.set(files, stems);
+  }
+  const function_ = new Set([
+    'Determiner',
+    'Pronoun',
+    'Preposition',
+    'Conjunction',
+    'Connector',
+    'Adverb',
+    'Modal',
+    'Copula',
+    'Expression',
+  ]);
+  const words = phrase
+    .toLowerCase()
+    .split(/[^\p{L}\p{N}_-]+/u)
+    .filter((word) => word.length >= 3 && ![...tagsOf(word)].some((tag) => function_.has(tag)));
+  const names = words.flatMap((word, index) => {
+    const next = words[index + 1];
+    return [
+      ...(next ? [`${word} ${next}`, `${word}-${next}`, `${word}_${next}`, `${word}${next}`] : []),
+      word,
+    ];
+  });
+  for (const name of names) {
+    const skill = raw.skills.find((candidate) => candidate.name.toLowerCase() === name);
+    if (skill) return { name: skill.name, skill: skill.name };
+    const documents = stems.get(name);
+    if (documents?.length === 1) return { name: basename(documents[0] ?? '') };
+  }
+  return undefined;
+}
+
 function gateAtoms(
   chunk: ProseChunk,
   files: ReadonlyMap<string, EstateFile>,
@@ -1778,6 +1843,8 @@ function gateAtoms(
   for (const line of chunkLines(chunk, files.get(chunk.file))) {
     const { text, spans } = maskLine(line.text);
     while (headings[headingIndex + 1] && (headings[headingIndex + 1]?.line ?? 0) < line.line) headingIndex++;
+    // A line that says the read is optional gives no gate.
+    if (optionalQualifier(text)) continue;
     // The last gate of this line: a clause that only adds things to read ("and with it `b.md`") joins it.
     let previous: ((read: string) => boolean) | undefined;
     for (const decorated of gateClauses(text).flatMap(splitAddition)) {
@@ -1796,7 +1863,7 @@ function gateAtoms(
         if (
           !head.every((group) => {
             const lead = unmask(match[group] ?? '', spans);
-            return directiveHead(lead) && !exampleOrHistory(lead);
+            return directiveHead(lead) && !exampleOrHistory(lead) && !descriptive(lead);
           })
         )
           continue;
@@ -1819,13 +1886,26 @@ function gateAtoms(
         const after = actLabel(act_ ? action : (eventHead(action) ?? action), raw);
         // What a piece of text to read stands for: a file (located), a declared skill, or a shell step.
         const resolveRead = (readText: string, structure: boolean) => {
-          const target = gateTarget(readText, spans, structure);
+          const { text: target, free } = gateTarget(readText, spans, structure);
+          // A web address, a topic ("read up on X") and a pronoun or vague word are no reference.
+          if (isUrl(target) || (free && topicPhrase(target))) return undefined;
           const named = namedPaths(`Read ${target}`)[0];
-          const first = named ?? target.replace(/[`*"'\u201C\u201D]/g, '').trim();
+          let first = named ?? target.replace(/[`*"'\u201C\u201D]/g, '').trim();
+          let declared: string | undefined;
+          let fromName = false;
+          if (free && named === undefined) {
+            const found = namedReference(target, files, raw);
+            if (!found) return undefined;
+            first = found.name;
+            declared = found.skill;
+            fromName = true;
+          }
           if (first === '') return undefined;
           // A file is a path the reference tokenizer accepts (a code span may hold spaces), else one bare word.
-          const isFile = /\.[A-Za-z0-9]+$/.test(first) && (named !== undefined || !/\s/.test(first));
-          const skill = loaded ? raw.skills.find((skill) => skill.name === first) : undefined;
+          const isFile =
+            /\.[A-Za-z0-9]+$/.test(first) && (named !== undefined || fromName || !/\s/.test(first));
+          const skill =
+            loaded || declared ? raw.skills.find((skill) => skill.name === (declared ?? first)) : undefined;
           if (loaded && !isFile && !skill) return undefined;
           const located = isFile
             ? locateNamed(first, chunk.file, files, {

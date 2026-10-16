@@ -229,3 +229,56 @@ export function exampleOrHistory(head: string): boolean {
 export function dated(text: string): boolean {
   return ISO_DATE.test(text);
 }
+
+/** A web address is a document somewhere else, not a file of the estate. */
+export function isUrl(text: string): boolean {
+  return /(?:^|[\s<(["'`])(?:[a-z][a-z0-9+.-]*:\/\/|www\.|mailto:)/i.test(text);
+}
+
+/**
+ * A topic is learned about, not a document read: the phrasal verb "read up on X" and "read about X".
+ * The object of "read up on" or "read about" names a subject.
+ */
+export function topicPhrase(target: string): boolean {
+  return /^(?:up\b|(?:on|about)\b)/i.test(target.trim());
+}
+
+/** A sentence that says a read is not needed: "optional", "not required", "if you like". */
+const NOT_REQUIRED =
+  /\b(?:not|never|isn't|aren't)\s+(?:strictly\s+|really\s+)?(?:required|necessary|mandatory|needed|obligatory|compulsory)\b|\b(?:is|are|be|remains?|stays?)\s+(?:\w+ly\s+)?optional\b|\(\s*optional\s*\)|\bif\s+you\s+(?:like|want|wish|prefer|choose)\b|\bat\s+your\s+(?:option|discretion)\b/i;
+export function optionalQualifier(text: string): boolean {
+  return NOT_REQUIRED.test(text);
+}
+
+/** Permission and suggestion, as against obligation: "you may", "feel free to", "it is fine to", "consider". */
+const WEAK_MODAL = /\b(?:may|might|can|could)\b/i;
+const WEAK_LEAD =
+  /\b(?:feel\s+free|free\s+to|(?:fine|ok|okay|allowed|permitted|welcome|encouraged|nice|helpful|useful|wise)\s+to|helps?\s+to|it\s+helps|good\s+(?:practice|idea)|worth|consider(?:ing)?|optional(?:ly)?|if\s+you\s+(?:like|want|wish|prefer|choose))\b/i;
+
+/** The words that stand right in front of the verb: what follows the last comma or colon. */
+function mainOf(head: string): string {
+  return head.replace(/[*_]/g, '').split(/[,:]/).at(-1)?.trim() ?? '';
+}
+
+/**
+ * Whether the words right before "read" are a habit or a permission instead of an instruction to the agent:
+ * a subject that is not the reader and has no modal or directive predicate ("We read X", "Reviewers read X",
+ * "Our editors usually read X"), or a permission or suggestion ("You may read", "It is fine to read").
+ */
+export function descriptive(head: string): boolean {
+  const main = mainOf(head);
+  if (main === '') return false;
+  if (WEAK_MODAL.test(main) || WEAK_LEAD.test(main)) return true;
+  // "Nobody needs to read": a subject that denies the obligation.
+  if (/\b(?:nobody|no\s+one|none|nothing)\b/i.test(main)) return true;
+  const terms: Array<{ text: string; tags: string[] }> = nlp(main).json()[0]?.terms ?? [];
+  if (terms.length === 0) return false;
+  const tags = (term: { tags: string[] }) => new Set(term.tags);
+  // A verb, a modal or an infinitive marker gives the sentence an instruction ("We need to read", "Make sure you read").
+  if (terms.some((term) => tags(term).has('Verb') || tags(term).has('Modal'))) return false;
+  if (/\bto\b/i.test(main)) return false;
+  // A phrase that opens with a preposition is a lead-in ("For every draft"), not the subject.
+  const first = tags(terms[0] ?? { tags: [] });
+  if (first.has('Preposition') || first.has('Connector') || first.has('Conjunction')) return false;
+  return terms.some((term) => tags(term).has('Noun') && !/^(?:you|your|yours|yourself)$/i.test(term.text));
+}
