@@ -129,3 +129,58 @@ tool under an unrelated unit cannot supply its task. Declared tools can use thei
 approved situation when the bank omits the tool from that situation.
 
 Private remeasurement of the correction is pending.
+
+## Real-estate shapes: owning purpose, guard near misses, navigation documents
+
+The private measurement of `350cba9de` shows fewer complete tests than before (5,289 against 6,015),
+because the correction refused to borrow a task for atoms that have none. Four failure classes remain
+visible in the counts: atoms with no task fall back to an estate-wide request; a guard's negative control
+asks the same neutral question for every guard; a reference to an example file becomes a read test; and a
+reference owned by a helper or a shared folder is asked as the task of an unrelated skill.
+
+The fictional input is `packages/generate/test/estate/real-shape-estate.ts`: 26 skills with different purposes
+and 8 gates each, a catalogue skill that cites every shared document, 6 helper agents, 10 shared documents
+cited by several units, references that are only listed (a table row, a bullet with a label), numbered
+example outputs and a blank form beside each skill, and 10 hook guards (8 with the rule in a docstring,
+2 with only a tool matcher). It names no validator string, bank phrase or private estate text.
+
+```sh
+node --import tsx packages/generate/test/estate/real-shape-audit.ts /absolute/output.json [--no-documents]
+```
+
+The map records the example and template documents as navigation (as the scanner does once it classifies
+document roles); `--no-documents` runs the same input with a map of the older format. No model runs.
+
+| Measurement | Reader level 1 (`6c43ccdeb`) | Task-specific asks (`350cba9de`) | This change |
+|---|---:|---:|---:|
+| Emitted specifications | 5,797 | 5,717 | 5,576 |
+| Complete specifications | 1,715 (29.6%) | 5,152 (90.1%) | 5,566 (99.8%) |
+| Distinct first asks | 544 | 654 | 805 |
+| Distinct asks per 100 complete asked tests | 31.7 | 12.7 | 14.5 |
+| Most repeated ask, share of complete tests | 2.9% | 0.5% | 0.3% |
+| `guard_negative` distinct asks per 100 | 10 | 10 | 100 |
+| `read_when` specifications (complete) | 750 (63) | 750 (505) | 672 (672) |
+
+The 78 `read_when` rows that disappear are the references to example outputs and the blank form: the plan
+no longer lists them. The 10 specifications still incomplete are replay rows with no recorded session.
+The per-100 rate stays low because event variations of one gate deliberately repeat the same task. With a map
+of the older format (`--no-documents`) the same input gives 5,683 complete of 5,693 specifications, with 831
+distinct asks: the example files then keep their read tests.
+
+Author's hand-judged sample, not independent or blinded. It takes 28 rows evenly spaced over six test types
+(8 `read_when`, 5 `guard_negative`, 5 `ordered_pair`, 3 `dispatch`, 4 `route_positive`, 3 `misroute`) and reads the same
+row in the three versions. Good: the principal request names the governed action and its object and reveals
+no prerequisite. Partial: grammatical but generic. Meaningless: unrelated to the rule under test. No test: the
+row is incomplete.
+
+| Version | Good | Partial | Meaningless | No test |
+|---|---:|---:|---:|---:|
+| Reader level 1 | 9 | 2 | 5 | 12 |
+| Task-specific asks | 17 | 2 | 5 | 4 |
+| This change | 25 | 3 | 0 | 0 |
+
+The three partial rows in this change are two guards that document no rule (asked as a call of the tool they
+watch) and one route whose request reads "help with building dock rosters". The two partial rows of the earlier
+versions are a verb left in the third person ("compare two tariff tables and reports changed rates").
+
+The synthetic sample shows the mechanics. It does not claim the private estate's distribution.
