@@ -268,9 +268,17 @@ export async function runUnitSpecs(
             continue;
           }
           assertions++;
-          const verdict = expect.verdict ?? 'deny';
-          const count = outcomes.filter((outcome) => verdictOf(outcome) === verdict).length;
           const wanted = expect.count;
+          // No verdict: a required firing is a blocking decision (deny or ask); a bound on firings (a count
+          // of 0, a max) also counts a warning, so a guard that only warns does not pass "no firing".
+          const requires =
+            wanted === undefined || (typeof wanted === 'number' ? wanted > 0 : (wanted.min ?? 0) > 0);
+          const counted = (outcome: UnitOutcome) => {
+            const kind = verdictOf(outcome);
+            if (expect.verdict !== undefined) return kind === expect.verdict;
+            return kind === 'deny' || kind === 'ask' || (!requires && kind === 'warn');
+          };
+          const count = outcomes.filter(counted).length;
           const holds =
             typeof wanted === 'number'
               ? count === wanted
@@ -278,7 +286,7 @@ export async function runUnitSpecs(
                 (wanted?.max === undefined || count <= wanted.max);
           if (!holds)
             failing.push(
-              `${name}: ${count} matching guard decisions; expected ${JSON.stringify(wanted ?? { min: 1 })} with verdict ${verdict}`,
+              `${name}: ${count} matching guard decisions; expected ${JSON.stringify(wanted ?? { min: 1 })}${expect.verdict ? ` with verdict ${expect.verdict}` : ''}`,
             );
         }
       }
