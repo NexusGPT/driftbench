@@ -89,6 +89,14 @@ export function buildHeldOutCorpus(): CorpusItem[] {
     ...list('fragment', true, ['Don’t touch them.', 'Never reopen it.', 'Always redo this.'], {
       partial: true,
     }),
+    ...list('two-word', false, [
+      'Run tests.',
+      'Use this.',
+      'Fix bugs.',
+      'Read docs.',
+      'Ship it.',
+      'Check them.',
+    ]),
     ...list('descriptive', false, [
       'Each service owns its database.',
       'Every build produces an artifact.',
@@ -162,6 +170,23 @@ export function buildHeldOutCorpus(): CorpusItem[] {
       '    Always rebase.',
       '<!-- You must ship on Friday. -->',
     ]),
+    ...(
+      [
+        ['.claude/skills/ci/dist/CHANGES.md', `# Changes\n\n${vendor}\n`],
+        [
+          '.claude/skills/ci/references/job.md',
+          `# Job\n\n${Array.from({ length: 24 }, (_, n) => (n % 5 === 4 ? `ERROR: You must pass a token to step ${n}.` : `PASS step ${n} (${n}ms).`)).join('\n\n')}\n`,
+        ],
+      ] as Array<[string, string]>
+    ).map(
+      ([path, text]): CorpusItem => ({
+        cls: 'build-output',
+        positive: false,
+        text: 'unused',
+        path,
+        files: { [path]: text },
+      }),
+    ),
     ...(
       [
         ['.claude/skills/ci/vendor/lib/README.md', `# Lib\n\n${vendor}\n`],

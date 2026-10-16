@@ -58,7 +58,7 @@ async function measure(items: CorpusItem[]): Promise<Record<string, Stat>> {
   }
   for (const item of items) {
     if (!item.path) continue;
-    const entry = stat('vendored');
+    const entry = stat(item.cls);
     entry.total++;
     if (atoms.some((atom) => atom.provenance.file === item.path)) entry.found++;
   }
@@ -76,7 +76,16 @@ const rulesClasses = [
   'habit-in-rules-section',
 ];
 /** Look-alikes the grammar must never propose, whatever the wording. */
-const never = ['descriptive', 'history', 'hypothetical', 'wrong-example', 'structure', 'vendored'];
+const never = [
+  'descriptive',
+  'history',
+  'hypothetical',
+  'wrong-example',
+  'structure',
+  'vendored',
+  'build-output',
+  'two-word',
+];
 
 describe.each([
   ['the first corpus', buildCorpus, 0.95],

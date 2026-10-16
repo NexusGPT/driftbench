@@ -237,7 +237,7 @@ export function clauseRule(source: string, context: RuleContext): Rule | undefin
   if (quantified) return quantifiedRule(text, parsed, terms, context);
   const conditional = conditionalRule(text, terms, imperativeLed, context);
   if (conditional) return conditional;
-  if (imperativeLed && elidedObject(terms)) return;
+  if (imperativeLed && (elidedObject(terms) || tooBare(terms))) return;
   if (imperativeLed)
     return withPartial({ subject: 'agent', polarity: 'obligation', form: 'imperative' }, text);
   return declaredOutput(text, parsed, terms, context);
@@ -635,6 +635,21 @@ function firstSubordinate(terms: Term[], text: string): number {
       return found;
   }
   return text.length;
+}
+
+/**
+ * "Run tests." or "Use this.": a verb and one bare word say too little to be a rule of their own. An
+ * adjective completes an instruction ("Be concise."), a noun or pronoun does not.
+ */
+function tooBare(terms: Term[]): boolean {
+  let at = 0;
+  while (
+    has(terms[at], 'Adverb', 'Expression') ||
+    /^(?:please|kindly|just|simply|also|then|first|next|finally|now)$/i.test(terms[at]?.text ?? '')
+  )
+    at++;
+  const rest = terms.slice(at + 1);
+  return rest.length === 1 && !has(rest[0], 'Adjective');
 }
 
 /**

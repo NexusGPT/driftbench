@@ -32,7 +32,7 @@ export function proseCandidates(
     if (!['standing', 'memory', 'skill', 'skill_file', 'subagent'].includes(file.kind)) continue;
     // Only prose is read for rules, and never another project's documentation.
     if (file.kind === 'skill_file' && !/\.(?:md|markdown|mdx|txt)$/i.test(file.path)) continue;
-    if (isThirdParty(file, manifests)) continue;
+    if (isThirdParty(file, manifests) || isBuildOutput(file)) continue;
     const resolvedHere = answeredByFile.get(file.path) ?? [];
     if (resolvedHere.length > 0 && !pendingFiles.has(file.path)) continue;
     try {
@@ -191,7 +191,9 @@ function candidatesOfFile(
           subject: rule.subject,
           form,
           // The act's object is a pronoun for an earlier sentence: a reviewer must supply it.
-          ...(rule.partial ? { partial: true, confidence: 'low' } : {}),
+          ...(rule.partial || quote.trim().length < SHORT_QUOTE ? { confidence: 'low' } : {}),
+          ...(rule.partial ? { partial: true } : {}),
+          ...(quote.trim().length < SHORT_QUOTE ? { short: true } : {}),
         },
       });
       occupied.record(atom);
@@ -220,6 +222,32 @@ function isThirdParty(file: RawEstate['files'][number], manifests: ReadonlySet<s
   for (let depth = parts.length - 1; depth > 3; depth--)
     if (manifests.has(parts.slice(0, depth).join('/'))) return true;
   return false;
+}
+
+/** A quote this short rarely carries a rule's condition or object: proposed with low confidence. */
+const SHORT_QUOTE = 25;
+
+const OUTPUT_FOLDER =
+  /(?:^|\/)(?:dist|build|out|coverage|target|htmlcov|\.next|\.nuxt|\.cache|_build|__snapshots__)(?:\/|$)/i;
+/** A line a tool prints: a timestamp, a level, a pass or fail mark, a prompt, a step counter. */
+const TOOL_LINE =
+  /^\s*(?:\[?\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}|\d{2}:\d{2}:\d{2}|(?:PASS|FAIL|ERROR|WARN(?:ING)?|INFO|DEBUG|TRACE)\b|\[(?:PASS|FAIL|ERROR|WARN|INFO|DEBUG)\]|[✓✔✗✖×]\s|\$\s|\[\d+\/\d+\]|npm (?:ERR|WARN)|\d+ (?:passing|failing|passed|failed))/;
+
+/**
+ * A document a tool wrote: a build-output folder below the skill (or the estate), a log or report whose
+ * lines are mostly timestamps, levels and pass or fail marks, or terminal escapes. Its sentences are
+ * messages printed about a run, never rules for the agent.
+ */
+function isBuildOutput(file: RawEstate['files'][number]): boolean {
+  const parts = file.path.split('/');
+  const below = file.kind === 'skill_file' || file.kind === 'skill' ? parts.slice(3).join('/') : file.path;
+  if (OUTPUT_FOLDER.test(below)) return true;
+  if (file.text.includes('\u001b[')) return true;
+  const lines = file.text.split('\n').filter((line) => line.trim());
+  if (lines.length < 12) return false;
+  let tool = 0;
+  for (const line of lines) if (TOOL_LINE.test(line)) tool++;
+  return tool / lines.length >= 0.4;
 }
 
 function countNewlines(text: string): number {
