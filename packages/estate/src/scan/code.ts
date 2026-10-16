@@ -329,11 +329,20 @@ export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
     });
   }
 
-  // The files of each skill, by the folder that holds them: one pass, not one pass per skill.
+  // Index declared roots at any depth. The nearest ancestor owns a file, so nested skills keep
+  // their own scripts even when names or owner labels differ from folder names after a rename.
+  // Walk path ancestors with root lookups, never scan every skill for each file.
+  const skillRoots = new Set(raw.skills.map((skill) => posix.normalize(skill.folder)));
   const folderFiles = new Map<string, EstateFile[]>();
   for (const file of raw.files) {
     if (file.kind !== 'skill_file') continue;
-    const folder = file.path.split('/').slice(0, 3).join('/');
+    let folder = posix.dirname(posix.normalize(file.path));
+    while (!skillRoots.has(folder)) {
+      const parent = posix.dirname(folder);
+      if (parent === folder) break;
+      folder = parent;
+    }
+    if (!skillRoots.has(folder)) continue;
     const held = folderFiles.get(folder);
     if (held) held.push(file);
     else folderFiles.set(folder, [file]);
@@ -349,7 +358,7 @@ export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
       skill.name,
       skill.folder,
       skill.file,
-      folderFiles.get(skill.folder) ?? [],
+      folderFiles.get(posix.normalize(skill.folder)) ?? [],
       proseOf.get(skill.file) ?? [],
       raw,
       files,
