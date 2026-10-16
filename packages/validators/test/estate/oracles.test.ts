@@ -707,3 +707,75 @@ describe('gen.task compares the ask with the rules of the estate map', { timeout
     expect((await run('guard_positive', 'Please delete a ledger file.', [])).pass).toBe(true);
   });
 });
+
+describe('gen.task judges every test type with the one clause predicate, so no verb list decides', {
+  timeout: 120_000,
+}, () => {
+  // Everyday verbs, none held in a list: the verdict comes from the clause, so it is the same for a read_when spec
+  // as for any other type.
+  const VERBS = [
+    'edit',
+    'open',
+    'delete',
+    'rename',
+    'move',
+    'copy',
+    'save',
+    'update',
+    'modify',
+    'replace',
+    'fix',
+    'create',
+    'write',
+    'append',
+    'remove',
+    'overwrite',
+    'revise',
+    'format',
+    'merge',
+    'split',
+    'sort',
+    'review',
+    'upload',
+    'download',
+    'archive',
+    'translate',
+    'summarise',
+    'attach',
+    'proofread',
+    'redact',
+  ];
+  const planted = async (type: string, ask: string) => {
+    const suite: fixture.FixtureSuite = {
+      work: ROOT,
+      map: join(fixture.FIXTURE, 'approved.yaml'),
+      specs: [
+        { path: 'p.yaml', id: 'p', atoms: [], testType: type, mode: 'task', complete: true, spec: task(ask) },
+      ],
+      natives: [],
+      report: {},
+    };
+    const mock = vi.spyOn(fixture, 'fixtureSuite').mockResolvedValue(suite);
+    try {
+      return (await taskFamily().evaluate(1)).get(`gen.task.${type}`) as { pass: boolean };
+    } finally {
+      mock.mockRestore();
+    }
+  };
+
+  it.each(VERBS)(
+    'accepts "Please %s any invoice file." as a read_when ask and as an obligation ask',
+    async (verb) => {
+      const ask = `Please ${verb} any invoice file.`;
+      expect(holdsTask(ask)).toBe(true);
+      expect((await planted('read_when', ask)).pass).toBe(true);
+      expect((await planted('obligation', ask)).pass).toBe(true);
+    },
+  );
+
+  it('keeps the rejections for a read_when spec: a label, a statement, a rule restated', async () => {
+    expect((await planted('read_when', 'Invoice 4411')).pass).toBe(false);
+    expect((await planted('read_when', 'Supplier orders arrive late.')).pass).toBe(false);
+    expect((await planted('read_when', 'Please read a file before you edit it.')).pass).toBe(false);
+  });
+});
