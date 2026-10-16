@@ -1,4 +1,6 @@
-import { rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm, symlink } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
 import {
   buildPlan,
   diffEstateMaps,
@@ -11,8 +13,9 @@ import {
 import { generateEstateSuite, type PhraseBank } from '@agent-nexus/driftbench-generate';
 import { RUNTIME } from '../layout';
 import { writeEstate } from '../pipeline';
+import { cli } from './bench';
 import { realEstate } from './scale-real-estate';
-import { readFacts } from './scale-real-facts';
+import { lintFacts, readFacts } from './scale-real-facts';
 
 /**
  * Runs the whole estate loop once on a real-size estate and prints one JSON line: the time each stage takes (the
@@ -29,6 +32,16 @@ async function main(): Promise<void> {
   const scale = Number(scaleText);
   const planted = realEstate(seed, { scale });
   const root = await writeEstate(planted.files);
+  // The user-level skill layer lives in the home folder; the reader finds it through the platform's home.
+  const home = await writeEstate(planted.home.files);
+  for (const link of planted.home.links) {
+    const target = link.target.startsWith('project:')
+      ? join(root, link.target.slice(8))
+      : join(home, link.target);
+    await mkdir(dirname(join(home, link.path)), { recursive: true });
+    await symlink(target, join(home, link.path));
+  }
+  process.env.HOME = home;
   const reader = readerFor(RUNTIME);
   if (!reader) throw new Error('no reader');
   try {
@@ -57,31 +70,24 @@ async function main(): Promise<void> {
     started = Date.now();
     const lint = lintEstate(map, result.raw);
     out.lintMs = Date.now() - started;
-    const documents = new Set(planted.truth.nonNormative);
-    // A finding that takes a document that is not a rule for a live one: a reference or script it names that is missing.
-    const live = lint.findings.filter(
-      (finding) =>
-        (finding.code === 'MISSING_REFERENCE' || finding.code === 'MISSING_SCRIPT') &&
-        documents.has(String(finding.message?.split(':')[0] ?? '')),
-    );
-    out.lintOnDocuments = {
-      findings: live.length,
-      examples: live.slice(0, 3).map((f) => `${f.code} ${f.subject}`),
-    };
-    out.lintFindings = lint.findings.filter((finding) => finding.code !== 'UNENFORCED').length;
+    const facts = lintFacts(lint.findings, planted.truth);
+    out.lintOnDocuments = facts.onDocuments;
+    out.lintDefects = facts.defects;
+    out.lintFindings = facts.total;
 
     started = Date.now();
     const built = buildPlan(map);
     out.planMs = Date.now() - started;
     out.rows = built.plan.rows.length;
-    // The lines the plan command prints beyond its summary: one per edge no journey walks, per adjusted row, per note.
-    out.planConsoleLines =
-      built.details.uncoveredEdges.length +
-      built.details.adjusted.length +
-      built.details.notes.length +
-      Object.keys(built.plan.summary.perKind).length +
-      Object.keys(built.plan.summary.perTestType).length +
-      12;
+    // What the plan command prints, counted from its real output: the estate is scanned and planned by the command.
+    const work = await mkdtemp(join(tmpdir(), 'scale-real-cli-'));
+    try {
+      const scanned = cli(['estate', 'scan', root, '--no-model', '--out', join(work, 'map.yaml')]);
+      const planOut = cli(['estate', 'plan', join(work, 'map.yaml'), '--out', join(work, 'plan.yaml')]);
+      out.planConsoleLines = scanned.code > 1 || planOut.code > 1 ? -1 : planOut.out.split('\n').length;
+    } finally {
+      await rm(work, { recursive: true, force: true });
+    }
 
     const bank: PhraseBank = {
       version: 1,
@@ -126,14 +132,14 @@ async function main(): Promise<void> {
       const root2 = await writeEstate(changed);
       try {
         const second = await scanEstate({ root: root2, reader, now: NOW });
-        started = Date.now();
-        const diff = diffEstateMaps(map, second.map);
         const tests = map.atoms.map((atom, index) => ({
           id: `t${index}`,
           path: `t${index}.yaml`,
           file: `t${index}.yaml`,
           atoms: [atom.id],
         }));
+        started = Date.now();
+        const diff = diffEstateMaps(map, second.map);
         const impact = estateImpact(diff, tests);
         out.impactMs = Date.now() - started;
         out.removed = diff.atoms.removed.length;
@@ -145,6 +151,7 @@ async function main(): Promise<void> {
     process.stdout.write(`${JSON.stringify(out)}\n`);
   } finally {
     await rm(root, { recursive: true, force: true });
+    await rm(home, { recursive: true, force: true });
   }
 }
 

@@ -2,7 +2,7 @@ import type { Atom, EstateMap } from '@agent-nexus/driftbench-estate';
 import { describe, expect, it } from 'vitest';
 import { judgeReal, type Measured, realBudgetMs, realUnits } from '../../src/ladders/estate/bank/scale-real';
 import { realEstate } from '../../src/ladders/estate/bank/scale-real-estate';
-import { readFacts } from '../../src/ladders/estate/bank/scale-real-facts';
+import { lintFacts, readFacts } from '../../src/ladders/estate/bank/scale-real-facts';
 
 const RULE_WORDS = /\b(must|never|always|only when|before|first|requires)\b/i;
 
@@ -16,7 +16,8 @@ describe('the real-size estate', () => {
     expect(truth.standingBytes).toBeGreaterThan(140_000);
     expect(truth.standingBytes).toBeLessThan(160_000);
     expect(truth.skills).toHaveLength(64);
-    expect(truth.skills.filter((skill) => skill.nested)).toHaveLength(16);
+    // The real estate has no nested project skill: every skill folder sits directly under .claude/skills.
+    expect(truth.skills.every((skill) => /^\.claude\/skills\/[^/]+\/SKILL\.md$/.test(skill.file))).toBe(true);
     expect(truth.helpers).toHaveLength(34);
     expect(truth.guards).toHaveLength(113);
     expect(Object.keys(files)).toHaveLength(truth.files);
@@ -99,6 +100,13 @@ function perfectMap(seed: number): { map: EstateMap; truth: ReturnType<typeof re
         script: guard.script,
       }),
     );
+  // The user layer: a skill atom for each skill the layer holds, the project skills it links to counted already.
+  for (const name of truth.user.found)
+    atoms.push(
+      atom(`skill.${name}`, 'skill', `~/.claude/skills/${name}/SKILL.md`, 2, `name: ${name}`, { name }),
+    );
+  for (const skill of atoms.filter((a) => a.kind === 'skill' && !a.fields?.name))
+    skill.fields = { name: skill.id.slice(6) };
   return { map: { atoms, edges } as unknown as EstateMap, truth };
 }
 
@@ -112,6 +120,8 @@ describe('the facts read off a map against the planted truth', () => {
     expect(facts.references.found).toBe(facts.references.planted);
     expect(facts.foreignReferences.edges).toBe(0);
     expect(facts.nonNormative.ruleAtoms).toBe(0);
+    expect(facts.precision.onFiller).toBe(0);
+    expect(facts.user).toMatchObject({ found: truth.user.found.length, duplicates: [], trashRead: [] });
     expect(facts.guards).toMatchObject({ resolved: truth.guards.length, described: truth.guards.length });
   });
 
@@ -210,6 +220,7 @@ describe('the items of the real-size tier', () => {
     generateMs: 15000,
     impactMs: 100,
     lintOnDocuments: { findings: 0, examples: [] },
+    lintDefects: { planted: 5, found: 5, missed: [] },
     planConsoleLines: 60,
     gateTests: { complete: 100, distinctAsks: 95 },
     removed: 1,
@@ -229,6 +240,8 @@ describe('the items of the real-size tier', () => {
       skills: emptyCount,
       references: emptyCount,
       foreignReferences: { skills: 0, edges: 0, examples: [] },
+      precision: { atoms: 200, onFiller: 0, gatesOnFiller: 0, legit: 200, examples: [] },
+      user: { expected: 14, found: 14, missed: [], duplicates: [], trashRead: [] },
       nonNormative: { documents: 10, ruleAtoms: 0, examples: [] },
       guards: { planted: 113, resolved: 113, described: 113, missedTarget: [], missedText: [] },
     },
@@ -237,7 +250,7 @@ describe('the items of the real-size tier', () => {
     [...judgeReal(measured)].filter(([, r]) => !r.pass).map(([id]) => id);
 
   it('passes a product that finds everything within the budgets', () => {
-    expect(judgeReal(fine()).size).toBe(24);
+    expect(judgeReal(fine()).size).toBe(30);
     expect(failing(fine())).toEqual([]);
   });
 
@@ -274,9 +287,126 @@ describe('the items of the real-size tier', () => {
       'scale-real.gates-read-first',
       'scale-real.gates-requires-loaded',
     ]);
+    const flood = fine();
+    flood.facts.precision = {
+      atoms: 31_651,
+      onFiller: 31_000,
+      gatesOnFiller: 0,
+      legit: 200,
+      examples: ['a'],
+    };
+    expect(failing(flood)).toEqual(['scale-real.precision-rules']);
+    const gateFlood = fine();
+    gateFlood.facts.precision = { atoms: 5000, onFiller: 0, gatesOnFiller: 4000, legit: 200, examples: [] };
+    expect(failing(gateFlood)).toEqual(['scale-real.precision-gates']);
+    const vacuous = fine();
+    vacuous.lintDefects = { planted: 5, found: 0, missed: ['x'] };
+    expect(failing(vacuous)).toEqual(['scale-real.lint-finds-defects']);
+    const user = fine();
+    user.facts.user = { expected: 14, found: 9, missed: ['u'], duplicates: ['p'], trashRead: ['t'] };
+    expect(failing(user).sort()).toEqual([
+      'scale-real.user-layer-found',
+      'scale-real.user-layer-once',
+      'scale-real.user-layer-trash',
+    ]);
+    const brokenCli = fine();
+    brokenCli.planConsoleLines = -1;
+    expect(failing(brokenCli)).toEqual(['scale-real.plan-console']);
     const logs = fine();
     logs.lintOnDocuments = { findings: 4, examples: ['x'] };
     logs.facts.nonNormative.ruleAtoms = 2;
     expect(failing(logs).sort()).toEqual(['scale-real.roles-no-findings', 'scale-real.roles-no-rules']);
+  });
+});
+
+describe('the lint facts', () => {
+  const { truth } = realEstate(1, { scale: 0.1 });
+  const doc = truth.nonNormative[0] as string;
+  const defect = truth.defects[0]?.path as string;
+
+  it('count a finding on a document that is not a rule whatever its message says', () => {
+    const worded = [{ code: 'MISSING_REFERENCE', subject: 'reference.x', message: `names ${doc}` }];
+    const reworded = [{ code: 'MISSING_REFERENCE', subject: doc, message: 'a missing reference' }];
+    const bare = [{ code: 'MISSING_REFERENCE', subject: 'reference.x', message: 'no path here' }];
+    expect(lintFacts(worded, truth).onDocuments.findings).toBe(1);
+    expect(lintFacts(reworded, truth).onDocuments.findings).toBe(1);
+    expect(lintFacts(bare, truth).onDocuments.findings).toBe(0);
+  });
+
+  it('do not let a lint that returns nothing pass: the planted real defects must be found', () => {
+    expect(truth.defects.length).toBeGreaterThan(0);
+    expect(lintFacts([], truth).defects).toMatchObject({ planted: truth.defects.length, found: 0 });
+    const found = [{ code: 'MISSING_REFERENCE', subject: 's', message: `${defect} does not exist` }];
+    expect(lintFacts(found, truth).defects.found).toBe(1);
+  });
+});
+
+describe('the planted estate precision and user layer', () => {
+  it('plants real defects in normative files and the lines that state something to do', () => {
+    const { truth, files } = realEstate(3, { scale: 0.1 });
+    for (const defect of truth.defects) {
+      expect(files[defect.file]).toContain(defect.path);
+      expect(files[defect.path]).toBeUndefined();
+    }
+    for (const [file, lines] of Object.entries(truth.legit)) {
+      expect(lines.length, file).toBeGreaterThan(0);
+      for (const line of lines)
+        expect((files[file] as string).split('\n')[line - 1], `${file}:${line}`).not.toBe('');
+    }
+  });
+
+  it('plants the user layer as a large estate holds it: real folders, links, project links, a container, a trash', () => {
+    const { home, truth } = realEstate(4, { scale: 1 });
+    const layer = '.claude/skills';
+    expect(truth.user.found.length).toBe(5 + 5 + 4);
+    expect(truth.user.trash.length).toBe(3);
+    expect(truth.user.linkedToProject.length).toBe(26);
+    expect(home.links.filter((link) => link.target.startsWith('project:')).length).toBe(26);
+    expect(home.links.filter((link) => !link.target.startsWith('project:')).length).toBe(5);
+    expect(Object.keys(home.files).some((path) => path.startsWith(`${layer}/synced/`))).toBe(true);
+    expect(Object.keys(home.files).some((path) => path.startsWith(`${layer}/.trash/`))).toBe(true);
+    for (const name of truth.user.found)
+      expect(Object.values(home.files).some((text) => text.includes(`name: ${name}`))).toBe(true);
+  });
+
+  it('flags a rule or gate atom on every line of the normative files', () => {
+    const { map, truth } = perfectMap(1);
+    const flood = truth.skills.flatMap((skill) =>
+      Array.from({ length: 200 }, (_, at) => ({
+        ...(map.atoms.find((a) => a.kind === 'skill') as Atom),
+        id: `flood.${skill.name}.${at}`,
+        kind: 'instruction' as const,
+        provenance: { file: skill.file, startLine: 30 + at, endLine: 30 + at, quote: 'x', hash: String(at) },
+      })),
+    );
+    const facts = readFacts({ ...map, atoms: [...map.atoms, ...flood] }, truth);
+    expect(facts.precision.onFiller).toBe(flood.length);
+    expect(facts.precision.onFiller).toBeGreaterThan(facts.precision.legit);
+    const gates = flood.map((a) => ({ ...a, kind: 'gate' as const }));
+    expect(readFacts({ ...map, atoms: [...map.atoms, ...gates] }, truth).precision.gatesOnFiller).toBe(
+      gates.length,
+    );
+  });
+
+  it('counts a skill reached by a link twice, and a skill read from the trash', () => {
+    const { map, truth } = perfectMap(1);
+    const linked = truth.user.linkedToProject[0] as string;
+    const twice = {
+      ...map,
+      atoms: [
+        ...map.atoms,
+        { ...(map.atoms.find((a) => a.id === `skill.${linked}`) as Atom), id: 'skill.via-link' },
+        {
+          ...(map.atoms.find((a) => a.kind === 'skill') as Atom),
+          id: 'skill.trash',
+          fields: { name: truth.user.trash[0] },
+        },
+      ],
+    };
+    const facts = readFacts(twice, truth);
+    expect(facts.user.duplicates).toContain(linked);
+    expect(facts.user.trashRead).toEqual([truth.user.trash[0]]);
+    const missing = { ...map, atoms: map.atoms.filter((a) => a.id !== `skill.${truth.user.found[0]}`) };
+    expect(readFacts(missing, truth).user.missed).toEqual([truth.user.found[0]]);
   });
 });

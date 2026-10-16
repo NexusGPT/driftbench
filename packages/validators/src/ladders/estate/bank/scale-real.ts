@@ -58,6 +58,7 @@ export type Measured = {
   generateMs: number;
   impactMs: number;
   lintOnDocuments: { findings: number; examples: string[] };
+  lintDefects: { planted: number; found: number; missed: string[] };
   planConsoleLines: number;
   gateTests: { complete: number; distinctAsks: number };
   removed: number;
@@ -134,6 +135,69 @@ const RESULTS: Result[] = [
         : `${m.facts.foreignReferences.skills} skills reach ${m.facts.foreignReferences.edges} references of other skills: ${m.facts.foreignReferences.examples.join('; ')}`,
   },
   {
+    key: 'precision-rules',
+    tier: 4,
+    title:
+      'a rule atom sits on a line that states a rule, not on filler: false rule atoms are bounded by the planted ones',
+    component: COMPONENTS.rules as string,
+    judge: (m) =>
+      m.facts.precision.onFiller <= m.facts.precision.legit
+        ? undefined
+        : `${m.facts.precision.onFiller} rule atoms on lines that state nothing to do, against ${m.facts.precision.legit} lines that do, such as ${m.facts.precision.examples.join('; ')}`,
+  },
+  {
+    key: 'precision-gates',
+    tier: 4,
+    title:
+      'a gate atom sits on a read-before rule, not on filler: false gate atoms are bounded by the planted lines',
+    component: COMPONENTS.rules as string,
+    judge: (m) =>
+      m.facts.precision.gatesOnFiller <= m.facts.precision.legit
+        ? undefined
+        : `${m.facts.precision.gatesOnFiller} gate atoms on lines that state nothing to do, against ${m.facts.precision.legit} lines that do`,
+  },
+  {
+    key: 'lint-finds-defects',
+    tier: 3,
+    title: 'the lint finds each step of a skill that cites a file the estate does not hold',
+    component: COMPONENTS.lint as string,
+    judge: (m) =>
+      m.lintDefects.planted > 0 && m.lintDefects.found === m.lintDefects.planted
+        ? undefined
+        : `found ${m.lintDefects.found} of ${m.lintDefects.planted} planted missing references, such as ${m.lintDefects.missed.join('; ')}`,
+  },
+  {
+    key: 'user-layer-found',
+    tier: 4,
+    title:
+      'the user-level skill layer is read: its own folders, the links to folders elsewhere and the container of synced skills',
+    component: COMPONENTS.scan as string,
+    judge: (m) =>
+      m.facts.user.found === m.facts.user.expected
+        ? undefined
+        : `found ${m.facts.user.found} of ${m.facts.user.expected} skills of the user layer, such as ${m.facts.user.missed.join(', ')} not`,
+  },
+  {
+    key: 'user-layer-once',
+    tier: 4,
+    title: 'a skill reached twice (a link from the user layer into the project) is one skill',
+    component: COMPONENTS.graph as string,
+    judge: (m) =>
+      m.facts.user.duplicates.length === 0
+        ? undefined
+        : `${m.facts.user.duplicates.length} skills are counted twice, such as ${m.facts.user.duplicates.join(', ')}`,
+  },
+  {
+    key: 'user-layer-trash',
+    tier: 3,
+    title: 'the trash folder of the user layer is not read',
+    component: COMPONENTS.scan as string,
+    judge: (m) =>
+      m.facts.user.trashRead.length === 0
+        ? undefined
+        : `${m.facts.user.trashRead.length} skills of the trash folder are read, such as ${m.facts.user.trashRead.join(', ')}`,
+  },
+  {
     key: 'roles-no-rules',
     tier: 4,
     title: 'a changelog, history log, template, example or fixture yields no rule atom',
@@ -176,10 +240,14 @@ const RESULTS: Result[] = [
   {
     key: 'plan-console',
     tier: 3,
-    title: `the plan command prints a summary of at most ${MAX_CONSOLE_LINES} lines, never a line per edge`,
+    title: `the real plan command prints a summary of at most ${MAX_CONSOLE_LINES} lines, never a line per edge`,
     component: COMPONENTS.plan as string,
     judge: (m) =>
-      m.planConsoleLines <= MAX_CONSOLE_LINES ? undefined : `the plan prints ${m.planConsoleLines} lines`,
+      m.planConsoleLines >= 0 && m.planConsoleLines <= MAX_CONSOLE_LINES
+        ? undefined
+        : m.planConsoleLines < 0
+          ? 'the scan or the plan command failed'
+          : `the plan command prints ${m.planConsoleLines} lines`,
   },
   {
     key: 'generation-diversity',
@@ -289,7 +357,7 @@ export function scaleRealFamily(options: RealFamilyOptions = {}): Family {
     ...TIMED.map((stage) => ({
       key: `time-${stage}`,
       tier: 4 as Tier,
-      title: `${stage} on a real-size estate within the per-atom rate of the 5,000-atom tier applied to its files and prose, its own work timed`,
+      title: `${stage} on a real-size estate within the per-atom rate of the 5,000-atom tier applied to its units (one per file, 100 per megabyte of prose), its own work timed`,
       component: COMPONENTS[stage] as string,
     })),
     ...RESULTS.map(({ key, tier, title, component }) => ({ key, tier, title, component })),

@@ -17,6 +17,10 @@ export type RealFacts = {
   foreignReferences: { skills: number; edges: number; examples: string[] };
   /** Rule atoms and live-reference findings that come from documents that are not rules. */
   nonNormative: { documents: number; ruleAtoms: number; examples: string[] };
+  /** Rule and gate atoms on lines of normative markdown that state nothing to do: false by construction. */
+  precision: { atoms: number; onFiller: number; gatesOnFiller: number; legit: number; examples: string[] };
+  /** The user-level skill layer: each skill found, a skill reached twice counted once, the trash not read. */
+  user: { expected: number; found: number; missed: string[]; duplicates: string[]; trashRead: string[] };
   guards: {
     planted: number;
     resolved: number;
@@ -137,9 +141,51 @@ export function readFacts(map: EstateMap, truth: RealTruth): RealFacts {
     else missedText.push(guard.name);
   }
 
+  const documentSet = new Set(truth.nonNormative);
+  const legitLines = new Map(Object.entries(truth.legit).map(([file, lines]) => [file, new Set(lines)]));
+  const ruleAtoms = atoms.filter(
+    (atom) =>
+      RULE_KINDS.has(atom.kind) &&
+      atom.provenance.file.endsWith('.md') &&
+      !documentSet.has(atom.provenance.file),
+  );
+  const onFiller = ruleAtoms.filter((atom) => {
+    const lines = legitLines.get(atom.provenance.file);
+    if (!lines) return true;
+    for (let line = atom.provenance.startLine; line <= atom.provenance.endLine; line += 1)
+      if (lines.has(line)) return false;
+    return true;
+  });
+
+  const skillNames = atoms
+    .filter((atom) => atom.kind === 'skill')
+    .map((atom) => String(atom.fields?.name ?? ''));
+  const seen = new Map<string, number>();
+  for (const name of skillNames) if (name !== '') seen.set(name, (seen.get(name) ?? 0) + 1);
+  const userMissed = truth.user.found.filter((name) => !seen.has(name));
+
   return {
     rules,
     gates,
+    precision: {
+      atoms: ruleAtoms.length,
+      onFiller: onFiller.filter((atom) => atom.kind !== 'gate').length,
+      gatesOnFiller: onFiller.filter((atom) => atom.kind === 'gate').length,
+      legit: Object.values(truth.legit).reduce((sum, lines) => sum + lines.length, 0),
+      examples: onFiller
+        .slice(0, 3)
+        .map((atom) => `${atom.provenance.file}:${atom.provenance.startLine} ${atom.kind}`),
+    },
+    user: {
+      expected: truth.user.found.length,
+      found: truth.user.found.length - userMissed.length,
+      missed: userMissed.slice(0, 3),
+      duplicates: [...seen]
+        .filter(([, n]) => n > 1)
+        .map(([name]) => name)
+        .slice(0, 3),
+      trashRead: truth.user.trash.filter((name) => seen.has(name)),
+    },
     skills: tally(truth.skills.length, skillsMissed),
     references: tally(referencesPlanted, referencesMissed),
     foreignReferences: { skills: foreignSkills, edges: foreignEdges, examples: foreign },
@@ -157,5 +203,44 @@ export function readFacts(map: EstateMap, truth: RealTruth): RealFacts {
       missedTarget: missedTarget.slice(0, 3),
       missedText: missedText.slice(0, 3),
     },
+  };
+}
+
+type LintLike = { code: string; subject?: string; message?: string };
+
+/**
+ * What the lint did with the planted estate, read from the structured fields of each finding and never from how its
+ * message is worded: findings that take a document that is not a rule for a live one (a missing reference or script
+ * that it names), and the real defects planted in normative files that the lint found.
+ */
+export function lintFacts(
+  findings: readonly LintLike[],
+  truth: Pick<RealTruth, 'nonNormative' | 'defects'>,
+): {
+  onDocuments: { findings: number; examples: string[] };
+  defects: { planted: number; found: number; missed: string[] };
+  total: number;
+} {
+  const mentions = (finding: LintLike, path: string) => JSON.stringify(finding).includes(path);
+  const live = findings.filter(
+    (finding) =>
+      (finding.code === 'MISSING_REFERENCE' || finding.code === 'MISSING_SCRIPT') &&
+      truth.nonNormative.some((path) => mentions(finding, path)),
+  );
+  const missed = truth.defects.filter(
+    (defect) =>
+      !findings.some((finding) => finding.code === 'MISSING_REFERENCE' && mentions(finding, defect.path)),
+  );
+  return {
+    onDocuments: {
+      findings: live.length,
+      examples: live.slice(0, 3).map((f) => `${f.code} ${f.subject ?? ''}`),
+    },
+    defects: {
+      planted: truth.defects.length,
+      found: truth.defects.length - missed.length,
+      missed: missed.slice(0, 3).map((defect) => defect.path),
+    },
+    total: findings.filter((finding) => finding.code !== 'UNENFORCED').length,
   };
 }

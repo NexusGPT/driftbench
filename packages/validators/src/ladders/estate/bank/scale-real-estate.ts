@@ -4,7 +4,7 @@ import { ANCHOR, ROOT, SETTINGS, STANDING } from '../layout';
 /**
  * A real-size estate: the shape of a large working coding-agent estate, planted from counts. At scale 1 it holds
  * about 6,900 files of which 766 are markdown, some 10.7 MB of prose, a standing file of 148 KB with its rules
- * deep inside, 64 skills (a quarter of them nested in a group folder), 34 helper agents, 113 hook scripts run
+ * deep inside, 64 skills, 34 helper agents, 113 hook scripts run
  * through one dispatcher, a hook registry of 419 KB, and the documents an estate keeps that are not rules:
  * changelogs, history logs, templates, examples and fixtures. Every planted rule, gate, cross-reference and
  * guard is recorded in the truth the oracle reads. Names and wording come from the seed; no real estate is read.
@@ -42,7 +42,7 @@ export type RealTruth = {
   bytes: number;
   proseBytes: number;
   standingBytes: number;
-  skills: Array<{ name: string; file: string; nested: boolean; references: string[]; crossRefs: string[] }>;
+  skills: Array<{ name: string; file: string; references: string[]; crossRefs: string[] }>;
   helpers: Array<{ name: string; file: string }>;
   rules: PlantedRule[];
   gates: PlantedGate[];
@@ -53,7 +53,24 @@ export type RealTruth = {
   structuralAtoms: number;
   /** Files the index document cites: references that belong to no skill. */
   indexed: number;
+  /** Real defects in normative files: a skill step that cites a file the estate does not hold. */
+  defects: Array<{ file: string; path: string }>;
+  /**
+   * The lines of normative markdown that state something to do (a rule, a gate, a step, a citation): a rule or gate
+   * atom anywhere else sits on filler, which is rule-free by construction, and is false.
+   */
+  legit: Record<string, number[]>;
+  /** The user-level skill layer planted in the home folder (see RealHome). */
+  user: { found: string[]; trash: string[]; linkedToProject: string[] };
 };
+
+/**
+ * The user-level skill layer, `$HOME/.claude/skills`, as a large working estate holds it: real folders, symbolic links
+ * to folders elsewhere, many symbolic links into the project's own skills (the same skill reached twice), a container
+ * folder of synced skills one level deeper, and a trash folder. `links` target either a file of `files` (by path from
+ * the home folder) or a skill of the project (`project:<skill folder from the root>`).
+ */
+export type RealHome = { files: Record<string, string>; links: Array<{ path: string; target: string }> };
 
 const SUBJECTS = [
   'depot',
@@ -159,7 +176,7 @@ const NOUNS = [
 export function realEstate(
   seed: number,
   options: RealOptions = {},
-): { files: Record<string, string>; truth: RealTruth } {
+): { files: Record<string, string>; truth: RealTruth; home: RealHome } {
   const scale = options.scale ?? 1;
   const rng = rngFor(seed, 'bank-scale-real');
   const pool = paragraphPool(rng, 240);
@@ -178,6 +195,9 @@ export function realEstate(
     nonNormative: [],
     structuralAtoms: 0,
     indexed: 0,
+    defects: [],
+    legit: {},
+    user: { found: [], trash: [], linkedToProject: [] },
   };
   const count = (full: number, least = 1) => Math.max(least, Math.round(full * scale));
   const skillCount = count(64, 4);
@@ -191,17 +211,14 @@ export function realEstate(
   for (const doc of gateDocs)
     files[`docs/gates/${doc}.md`] = ['# Gate', '', ...filler(rng, pool, 1500)].join('\n');
 
-  // ---- Skills: a quarter of them nested in a group folder. -------------------------------------------------
+  // ---- Skills: all under .claude/skills, none nested (the real estate has none). -------------------------------------------------
   const skillNames: string[] = [];
   const folders: string[] = [];
   for (let index = 0; index < skillCount; index += 1) {
     const noun = pick(rng, NOUNS);
     const name = `${noun}-${index}`;
     skillNames.push(name);
-    const nested = index % 4 === 3;
-    const folder = nested
-      ? `${ROOT}/skills/group-${Math.floor(index / 16)}/${name}`
-      : `${ROOT}/skills/${name}`;
+    const folder = `${ROOT}/skills/${name}`;
     folders.push(folder);
     // Every skill holds references of the same names, as skills of an estate do: a reader that keys a reference by
     // its file name alone ties it to every skill.
@@ -232,6 +249,12 @@ export function realEstate(
       body.push(`4. For the figures of the neighbouring work, see \`${crossPath}\`.`);
       crossRefs.push(crossPath);
     }
+    // A real defect in a normative file: the last step cites a file the estate does not hold.
+    if (index < count(5, 1)) {
+      const missing = `${folder}/references/archived-${index}.md`;
+      body.push(`5. For an old case, open \`${missing}\`.`);
+      truth.defects.push({ file: `${folder}/SKILL.md`, path: missing });
+    }
     // One rule of the skill, in prose.
     const must = `Each ${noun} entry must carry the number of the ${noun} work ${index}.`;
     body.push('', must);
@@ -242,9 +265,12 @@ export function realEstate(
       text: must,
       core: `entry must carry the number of the ${noun} work ${index}`,
     });
+    truth.legit[`${folder}/SKILL.md`] = body.flatMap((line, at) =>
+      /^\d\. |\bmust\b/.test(line) ? [at + 1] : [],
+    );
     body.push('', ...filler(rng, pool, 1800));
     files[`${folder}/SKILL.md`] = body.join('\n');
-    truth.skills.push({ name, file: `${folder}/SKILL.md`, nested, references, crossRefs });
+    truth.skills.push({ name, file: `${folder}/SKILL.md`, references, crossRefs });
     references.forEach((reference, n) => {
       files[`${folder}/${reference}`] = reference.endsWith('.md')
         ? [`# Reference ${index}.${n}`, '', ...filler(rng, pool, 15000 + Math.floor(rng() * 10000))].join(
@@ -294,6 +320,7 @@ export function realEstate(
       text: never,
       core: `answer a ${subject} message yourself in helper ${index}`,
     });
+    truth.legit[path] = [text.length - 1];
     text.push(...filler(rng, pool, 900));
     files[path] = text.join('\n');
     truth.helpers.push({ name, file: path });
@@ -440,6 +467,9 @@ export function realEstate(
     cursor += paragraph.length + 2;
   }
   files[STANDING] = standing.join('\n');
+  truth.legit[STANDING] = [...truth.rules, ...truth.gates]
+    .filter((r) => r.file === STANDING)
+    .map((r) => r.line);
 
   // ---- Documents that are not rules. ----------------------------------------------------------------------
   files['CHANGELOG.md'] = [
@@ -507,6 +537,46 @@ export function realEstate(
   ].join('\n');
   truth.indexed = cited.length;
 
+  // ---- The user-level skill layer, in the home folder. ----------------------------------------------------------
+  const home: RealHome = { files: {}, links: [] };
+  const userSkill = (path: string, name: string) => {
+    home.files[`${path}/SKILL.md`] = [
+      '---',
+      `name: ${name}`,
+      `description: Handle the ${name} chores. Use when the user asks for the ${name} chores.`,
+      '---',
+      '',
+      `# ${name}`,
+      '',
+    ].join('\n');
+  };
+  const layer = '.claude/skills';
+  // Real folders of the layer.
+  for (let n = 0; n < count(5, 1); n += 1) {
+    userSkill(`${layer}/user-real-${n}`, `user-real-${n}`);
+    truth.user.found.push(`user-real-${n}`);
+  }
+  // Links to folders elsewhere: their skills are the layer's own.
+  for (let n = 0; n < count(5, 1); n += 1) {
+    userSkill(`.claude/shared/user-linked-${n}`, `user-linked-${n}`);
+    home.links.push({ path: `${layer}/user-linked-${n}`, target: `.claude/shared/user-linked-${n}` });
+    truth.user.found.push(`user-linked-${n}`);
+  }
+  // Links into the project's own skills: the same skill reached twice, counted once.
+  for (let n = 0; n < Math.min(count(26, 2), skillNames.length); n += 1) {
+    home.links.push({ path: `${layer}/project-${n}`, target: `project:${folders[n]}` });
+    truth.user.linkedToProject.push(skillNames[n] as string);
+  }
+  // A container of synced skills one level deeper is read; a trash folder is not.
+  for (let n = 0; n < count(4, 1); n += 1) {
+    userSkill(`${layer}/synced/user-synced-${n}`, `user-synced-${n}`);
+    truth.user.found.push(`user-synced-${n}`);
+  }
+  for (let n = 0; n < count(3, 1); n += 1) {
+    userSkill(`${layer}/.trash/user-trashed-${n}`, `user-trashed-${n}`);
+    truth.user.trash.push(`user-trashed-${n}`);
+  }
+
   truth.files = Object.keys(files).length;
   truth.markdown = Object.keys(files).filter((path) => path.endsWith('.md')).length;
   for (const [path, text] of Object.entries(files)) {
@@ -514,5 +584,5 @@ export function realEstate(
     if (path.endsWith('.md')) truth.proseBytes += text.length;
   }
   truth.standingBytes = files[STANDING]?.length ?? 0;
-  return { files, truth };
+  return { files, truth, home };
 }
