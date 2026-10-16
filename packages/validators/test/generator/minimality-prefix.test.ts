@@ -199,67 +199,94 @@ describe('minimality proves removability instead of treating shared setup as red
     });
   }
 
-  describe('a variant a metamorphic family declares is not a removable duplicate', () => {
-    /** Two one-block specs with the same test; the metadata says whether they are variants of one family. */
-    function variants(member: (index: number) => Record<string, unknown> | undefined): Generation {
+  describe('a phrasing the hidden map needs for a family is not a removable duplicate', () => {
+    const PHRASES = ['The parcel is on the dock.', 'There is a parcel at the dock.'];
+    const EDGE = 'dock-to-scanned';
+    /**
+     * One-block specs whose user turn is one of the phrasings the hidden map lists for the move to scanned.
+     * `metadata` is whatever the product wrote about a family: it must decide nothing.
+     */
+    function said(texts: string[], metadata: (index: number) => Record<string, unknown> = () => ({})) {
       const generated = fixture();
-      const first = required(generated.complete[0]);
-      first.spec.blocks = [required(first.spec.blocks[0])];
-      delete first.spec.perturbations;
-      delete first.spec.end_state;
-      first.spec.id = 'phrasing-1';
-      const second = structuredClone(first);
-      second.spec.id = 'phrasing-2';
-      [first, second].forEach((entry, index) => {
-        const family = member(index);
-        entry.spec.metadata = {
-          generated: { seeder: 'metamorphic', ...(family ? { metamorphic: family } : {}) },
-        };
+      generated.hidden.phrases = [
+        ...generated.hidden.phrases.filter((phrase) => phrase.value !== EDGE),
+        ...PHRASES.map((text) => ({
+          dimension: 'stage_transition',
+          value: EDGE,
+          text,
+          lang: 'en',
+          intent: { kind: 'transition' as const, edge: EDGE },
+        })),
+      ];
+      const specs = texts.map((text, index) => {
+        const entry = structuredClone(required(generated.complete[0]));
+        entry.spec.id = `phrasing-${index + 1}`;
+        entry.spec.blocks = [{ ...required(entry.spec.blocks[0]), when: { user: text } }];
+        delete entry.spec.perturbations;
+        delete entry.spec.end_state;
+        entry.spec.metadata = { generated: { seeder: 'metamorphic', ...metadata(index) } };
+        return entry;
       });
-      generated.complete = [first, second];
-      generated.loaded = [first, second];
+      generated.complete = specs;
+      generated.loaded = specs;
       return generated;
     }
-    const family = (index: number, of: number) => ({
-      family: 'phrasings-of-one-request',
-      variant: index + 1,
-      of,
-      relation: 'same observed outcome',
+    const declared = (index: number, of = 2, family = 'one-family') => ({
+      metamorphic: { family, variant: index + 1, of, relation: 'same observed outcome' },
     });
 
-    it('keeps the variants a family declares, however equal their tests are', async () => {
-      const data = await dataFor(variants((index) => family(index, 2)));
-      expect((await data.runs()).blocks.every((block) => block.reference[0] === 'pass')).toBe(true);
-      const result = await check(data);
-      expect(result.pass, result.detail).toBe(true);
+    it('keeps every phrasing of a family the hidden map lists, whatever the metadata says', async () => {
+      for (const metadata of [declared, () => ({})]) {
+        const data = await dataFor(said(PHRASES, metadata));
+        expect((await data.runs()).blocks.every((block) => block.reference[0] === 'pass')).toBe(true);
+        const result = await check(data);
+        expect(result.pass, result.detail).toBe(true);
+      }
     });
 
-    it('still rejects the same two specs when no family declares them', async () => {
-      const data = await dataFor(variants(() => undefined));
+    it('rejects two equal specs that both claim to be variant 1 of 2', async () => {
+      const data = await dataFor(said([PHRASES[0] as string, PHRASES[0] as string], () => declared(0)));
       expect(await check(data)).toMatchObject({ pass: false });
     });
 
-    it('still rejects a variant the family declares beyond its count', async () => {
-      const generated = variants((index) => family(index, 1));
-      const data = await dataFor(generated);
+    it('rejects two equal specs that declare different family ids', async () => {
+      const data = await dataFor(
+        said([PHRASES[0] as string, PHRASES[0] as string], (index) => declared(index, 2, `family-${index}`)),
+      );
       expect(await check(data)).toMatchObject({ pass: false });
     });
 
-    it('still rejects a removable step inside a family variant: only a whole variant is protected', async () => {
+    it('rejects two equal specs that declare a family of 99', async () => {
+      const data = await dataFor(
+        said([PHRASES[0] as string, PHRASES[0] as string], (index) => declared(index, 99)),
+      );
+      expect(await check(data)).toMatchObject({ pass: false });
+    });
+
+    it('rejects two equal specs that declare a family of one', async () => {
+      const data = await dataFor(
+        said([PHRASES[0] as string, PHRASES[0] as string], (index) => declared(index, 1)),
+      );
+      expect(await check(data)).toMatchObject({ pass: false });
+    });
+
+    it('rejects a spec that repeats a phrasing the family already has', async () => {
+      const data = await dataFor(said([...PHRASES, PHRASES[0] as string], declared));
+      expect(await check(data)).toMatchObject({ pass: false });
+    });
+
+    it('protects only a whole phrasing: a removable step inside a family spec is still rejected', async () => {
       const generated = fixture(false, true);
-      generated.complete.forEach((entry, index) => {
-        entry.spec.metadata = { generated: { seeder: 'graph', metamorphic: family(index, 2) } };
-      });
-      expect(await check(await dataFor(generated))).toMatchObject({ pass: false });
-    });
-
-    it('still rejects a plain duplicate of a variant that is not in the family', async () => {
-      const generated = variants((index) => family(index, 2));
-      const stranger = structuredClone(required(generated.complete[0]));
-      stranger.spec.id = 'phrasing-3';
-      stranger.spec.metadata = { generated: { seeder: 'metamorphic' } };
-      generated.complete.push(stranger);
-      generated.loaded.push(stranger);
+      generated.hidden.phrases = [
+        ...generated.hidden.phrases,
+        {
+          dimension: 'stage_transition',
+          value: 'dock-to-scanned',
+          text: 'Another way to say it.',
+          lang: 'en',
+          intent: { kind: 'transition' as const, edge: 'dock-to-scanned' },
+        },
+      ];
       expect(await check(await dataFor(generated))).toMatchObject({ pass: false });
     });
   });
