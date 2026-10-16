@@ -53,6 +53,21 @@ describe('the end state match of the scorecard', () => {
     expect(card.endState?.lower).toBe(rate(6, 8)?.lower);
   });
 
+  it('keeps the plain Wilson interval when every golden holds one run: the goldens are the runs', () => {
+    const singles = Array.from({ length: 12 }, (_, i) =>
+      run({ specId: `g${i}`, endState: { match: i < 8, diff: [] } }),
+    );
+    const card = buildScorecard(dataOf(singles));
+    expect(card.endState).toMatchObject({ method: 'wilson', k: 8, n: 12 });
+    expect(card.endState?.lower).toBe(rate(8, 12)?.lower);
+    expect(card.endState?.upper).toBe(rate(8, 12)?.upper);
+    const all = buildScorecard(
+      dataOf(singles.map((entry) => ({ ...entry, endState: { match: true, diff: [] } }))),
+    );
+    expect(all.endState).toMatchObject({ method: 'wilson', k: 12, n: 12 });
+    expect(all.endState?.lower).toBe(rate(12, 12)?.lower);
+  });
+
   it('has no end state match when no run compared one', () => {
     expect(buildScorecard(dataOf([run(), run({ repeat: 1 })])).endState).toBeUndefined();
   });

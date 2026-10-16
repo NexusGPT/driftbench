@@ -114,11 +114,13 @@ function allAgree(value: number, runs: number, g: number): Estimate {
  * The pass rate of runs grouped in clusters of `{ n, k }` (the goldens of a campaign: the repeats of one spec in
  * one mode), with the interval the report prints for a rate over clusters: the Wilson interval on the effective
  * number of runs (`wilson, design effect`), or each cluster counted once when every run agrees (`wilson, clusters`).
- * Undefined for fewer than two clusters: the spread between clusters cannot be measured, so no such interval exists.
+ * Undefined, so the caller keeps the plain Wilson interval of the runs, for fewer than two clusters (the spread
+ * between clusters cannot be measured) and when every cluster holds one run (the clusters are the runs, so the
+ * runs are independent evidence). Method: docs/concepts/statistics.md, "A rate over goldens".
  */
 export function clusterRate(counts: readonly ClusterCount[]): Estimate | undefined {
   const g = counts.length;
-  if (g < 2) return undefined;
+  if (g < 2 || counts.every((c) => c.n === 1)) return undefined;
   const runs = counts.reduce((sum, c) => sum + c.n, 0);
   const passes = counts.reduce((sum, c) => sum + c.k, 0);
   if (passes === 0 || passes === runs) return allAgree(passes === 0 ? 0 : 1, runs, g);

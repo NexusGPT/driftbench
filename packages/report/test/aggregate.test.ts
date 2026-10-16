@@ -193,6 +193,19 @@ describe('aggregate intervals over goldens', () => {
     });
   });
 
+  it('keeps the plain Wilson interval, and runs needed, when every golden holds one run', () => {
+    const clusters: Cluster[] = Array.from({ length: 10 }, (_, i) => [1, i < 9 ? 1 : 0]);
+    const [result] = evaluateAggregates(dataOf(goldens(clusters)), [BUILT_IN_AGGREGATES.passRate(0.95)]);
+    expect(result?.interval).toEqual({
+      lower: rate(9, 10)?.lower,
+      upper: rate(9, 10)?.upper,
+      n: 10,
+      method: 'wilson',
+    });
+    expect(result?.goldensNeeded).toBeUndefined();
+    expect(result?.runsNeeded).toBeGreaterThan(10);
+  });
+
   it('leaves the value, the verdict and the reason as they were', () => {
     const gate = REFERENCE.gate as Reference;
     const [result] = evaluateAggregates(dataOf(goldens(gate.clusters)), [BUILT_IN_AGGREGATES.passRate(0.8)]);
