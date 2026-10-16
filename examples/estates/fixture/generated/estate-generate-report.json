@@ -44,15 +44,16 @@
   "summary": {
     "specs": 1569,
     "blocks": 1564,
-    "complete": 1555,
-    "incomplete": 14,
+    "complete": 1554,
+    "incomplete": 15,
     "judged": 464
   },
   "unit": {
-    "tests": 26,
+    "tests": 29,
     "guards": 6,
     "scripts": 2,
-    "cases": 56,
+    "helpers": 3,
+    "cases": 59,
     "checks": {
       "tested": 0,
       "needsTrigger": 0,
@@ -63,7 +64,7 @@
   "sources": {
     "asks": {
       "bank": 455,
-      "code": 1092,
+      "code": 1091,
       "session": 0,
       "none": 8
     },
@@ -72,7 +73,7 @@
       "no-change:guard": 26,
       "no-change:negative": 58,
       "no-change:read-only": 17,
-      "no-delete": 433,
+      "no-delete": 432,
       "static": 8
     },
     "judged": 304
@@ -106,8 +107,8 @@
     "skip_pressure": {
       "rows": 8,
       "specs": 8,
-      "complete": 8,
-      "incomplete": 0
+      "complete": 7,
+      "incomplete": 1
     },
     "route_positive": {
       "rows": 260,
@@ -264,15 +265,16 @@
     "live": {
       "rows": 1526,
       "specs": 1526,
-      "complete": 1518,
-      "incomplete": 8
+      "complete": 1517,
+      "incomplete": 9
     }
   },
   "gaps": [
     {
       "marker": "needs-askable-act",
-      "specs": 8,
+      "specs": 9,
       "atoms": [
+        "gate.standing.write-a-helper-s-brief-before",
         "reference.invoice-reconcile.read-references-currency-table-md",
         "reference.invoice-reconcile.read-references-matching-rules-md",
         "reference.memory-memory.read-supplier-languages-md",
@@ -283,6 +285,7 @@
         "reference.weekly-report.read-references-kpi-definitions-md"
       ],
       "details": [
+        "no task in the atom's words (gate.standing.write-a-helper-s-brief-before (title)): the atom's words: it describes the unit, and names no task the user wants done",
         "no task in the atom's words (reference.memory-memory.read-supplier-languages-md (title)): the act names the file supplier-languages.md: \"read supplier-languages.md\"",
         "no task in the atom's words (reference.standing.read-claude-memory-memory-md (title)): the act names the file .claude/memory/MEMORY.md: \"read .claude/memory/MEMORY.md\"",
         "no task in the atom's words (reference.standing.read-claude-skills-invoice-reconcile-references (title)): the act names the file .claude/skills/invoice-reconcile/references/matching-rules.md: \"read .claude/skills/invoice-reconcile/references/matching-rules.md\"",
