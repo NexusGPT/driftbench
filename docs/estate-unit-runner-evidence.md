@@ -156,3 +156,61 @@ Every item in the original 41-item table passes except the 12 below. Each has th
 The reply-length guard actually checks a reply above its limit; its generated hostile/register/speed cases do not cross that limit. Fixing those inputs belongs to the generator owner. Its existing `max_characters` evidence can supply a declared boundary without reading implementation literals. No further generation change is made under the narrow inheritance approval.
 
 Helper execution needs an actual configured runtime and observations. Script correctness needs declared valid fixtures with expected exit/output and trace-backed support for the requested checks. No paid calls run.
+
+
+## Unqualified positive guard verdict correction
+
+Source base: `0af860096d4ae7ebe46ecfa3d6a03f188e646766`, branch `fix/estate-runner-positive-verdict`.
+
+The previous task runner treated an allowed decision with output or a reason as an active guard. An unqualified positive guard count could therefore pass without blocking. A negative control could reject a correct guard merely because its allowed answer had output.
+
+Unqualified guard counts now count actual blocking decisions. The process runner already maps exit 2 and runtime JSON block/deny decisions to `deny`; the task assertion defaults to that verdict. Explicit verdicts such as warn and nudge retain their own runtime meaning. No output is reinterpreted as a blocking decision.
+
+The independent archive-access estate in `packages/cli/test/estate-unit-positive-verdict.test.ts` supplies restricted and public requests to four handwritten guards. It uses no bank fixture, seed or implementation literal.
+
+| Guard | Restricted request | Public request |
+|---|---|---|
+| Allow-all, with JSON output and an allow reason | Fails the positive test | Passes the negative control |
+| Block-all | Passes the positive test | Fails the negative control |
+| Message-only, with plain stdout and exit 0 | Fails the positive test | Passes the negative control |
+| Correct, deny restricted and allow public with output | Passes the positive test | Passes the negative control |
+
+Before the product fix, three of these four regressions fail: allow-all and message-only falsely pass the positive test, and the correct guard falsely fails the negative control. The block-all regression passes before and after, proving the negative control rejects unconditional blocking. After the fix all four pass.
+
+Targeted verification runs this new file plus `packages/cli/test/estate-unit-spec.test.ts`, `packages/cli/test/estate-unit.test.ts`, `packages/estate/test/unit/run.test.ts` and `packages/estate/test/unit/declared-runtime.test.ts`: 35 tests pass. The existing explicit warn/nudge regressions pass. Biome and diff whitespace checks pass.
+
+
+### Assigned-bank measurement after the verdict correction
+
+The integrator's `.estate-negative-guard-generation.log` supplies the reported baseline of 26/41. A new direct `unitFamily()` / `levelMeasure` run measures 27/41 on seeds 1, 2, 3, hidden 185049673, 4, 5, 6, 7, 8 and 1009. No other level runs. This family is seed-free; its first result is reused across seeds. Runtime source is base `0af860096d4ae7ebe46ecfa3d6a03f188e646766` plus the verdict fix, SHA-256 `356c6fa8c2f70828ef6cdc967343f01f26fb2725341667cc1f9ae59c7131685f`.
+
+All three previously missed mutation items now pass: `unit.runner.allow-all-reply-length.py`, `unit.runner.block-all-reply-length.py`, and `unit.runner.message-reply-length.py`.
+
+Two previously green groups expose unqualified generated assertions for non-blocking guards: `unit.runner.green-ledger-guard.py` and `unit.runner.green-stop-word.sh`. Their hostile and speed specs omit `expect.guards[].verdict`, although their operation target metadata declares warn and nudge, respectively. Real executions confirm no blocking decisions. Their register specs explicitly assert warn/nudge and pass. Generation must qualify the expected effects; the runner does not turn an allowed runtime result into a denial.
+
+Exact generated specs needing qualification:
+- `estate.guard_hostile.guard.settings.posttooluse-bash-guard-ledger-guard-py`
+- `estate.guard_hostile.guard.settings.userpromptsubmit-guard-stop-word-sh`
+- `estate.guard_speed.guard.settings.posttooluse-bash-guard-ledger-guard-py`
+- `estate.guard_speed.guard.settings.userpromptsubmit-guard-stop-word-sh`
+
+The remaining 14 bank items have these causes, on every measured seed:
+
+| Item | Cause |
+|---|---|
+| `unit.runner.green-ledger-guard.py` | Generated hostile/speed guard expectations omit the declared warn verdict. |
+| `unit.runner.green-stop-word.sh` | Generated hostile/speed guard expectations omit the declared nudge verdict. |
+| `unit.runner.green-reply-length.py` | Generated reply payloads remain below the declared length limit; the guard does not block or emit its blocking message. |
+| `unit.runner.report-message-reply-length.py` | Generated reply payloads remain below the declared length limit; the guard does not block or emit its blocking message. |
+| `unit.runner.helper-green-inbox-triager` | No configured helper executor; prompt presence is no execution. |
+| `unit.runner.helper-broken-inbox-triager` | No configured helper executor; prompt presence is no execution. |
+| `unit.runner.helper-green-ledger-auditor` | No configured helper executor; prompt presence is no execution. |
+| `unit.runner.helper-broken-ledger-auditor` | No configured helper executor; prompt presence is no execution. |
+| `unit.runner.helper-green-route-planner` | No configured helper executor; prompt presence is no execution. |
+| `unit.runner.helper-broken-route-planner` | No configured helper executor; prompt presence is no execution. |
+| `unit.runner.script-green-reconcile.py` | Unsupported some_call and no independent exit/output oracle. |
+| `unit.runner.script-broken-reconcile.py` | Unsupported some_call and no independent exit/output oracle. |
+| `unit.runner.script-green-track.sh` | Unsupported some_call and no independent exit/output oracle. |
+| `unit.runner.script-broken-track.sh` | Unsupported some_call and no independent exit/output oracle. |
+
+No generator, fixture, validator, threshold or other-level code changes. The tests exercise real processes on an independent handwritten estate.

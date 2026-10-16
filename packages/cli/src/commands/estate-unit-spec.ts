@@ -130,9 +130,9 @@ export async function runUnitSpecs(
             continue;
           }
           assertions++;
-          const count = active.filter(
-            (o) => expect.verdict === undefined || verdictOf(o) === expect.verdict,
-          ).length;
+          // With no qualified verdict, a firing means the guard blocked. Output on an allow is no block.
+          const verdict = expect.verdict ?? 'deny';
+          const count = outcomes.filter((outcome) => verdictOf(outcome) === verdict).length;
           const wanted = expect.count;
           const holds =
             typeof wanted === 'number'
@@ -141,7 +141,7 @@ export async function runUnitSpecs(
                 (wanted?.max === undefined || count <= wanted.max);
           if (!holds)
             failing.push(
-              `${name}: ${count} matching guard decisions; expected ${JSON.stringify(wanted ?? { min: 1 })}${expect.verdict ? ` with verdict ${expect.verdict}` : ''}`,
+              `${name}: ${count} matching guard decisions; expected ${JSON.stringify(wanted ?? { min: 1 })} with verdict ${verdict}`,
             );
         }
       }
