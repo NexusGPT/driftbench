@@ -1,4 +1,4 @@
-import { chmod, cp, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { chmod, cp, mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { loadEstateMap } from '@agent-nexus/driftbench-estate';
@@ -247,6 +247,24 @@ export function unitFamily(): Family {
       const map = await loadEstateMap(suite.map);
       const work = await mkdtemp(join(tmpdir(), 'estate-unit-'));
       try {
+        // The native unit tests carry no outcome until one is recorded on the original estate (docs/estate.md
+        // section 6): copy them, record, and check every variant against the recorded copies.
+        const recorded = join(work, 'recorded');
+        await mkdir(recorded, { recursive: true });
+        const natives = suite.specs.filter((spec) => spec.mode === 'native-unit');
+        const copies = new Map<string, SuiteSpec>();
+        for (const spec of natives) {
+          const path = join(recorded, `${spec.id}.json`);
+          await cp(spec.path, path);
+          copies.set(spec.id, { ...spec, path });
+        }
+        const recording = cli(['estate', 'unit', recorded, '--estate', FIXTURE, '--record', '--json']);
+        const recordError =
+          natives.length === 0
+            ? 'the generated suite holds no native unit test'
+            : recording.code > 1
+              ? `estate unit --record exited ${recording.code}: ${recording.out.trim().slice(0, 140)}`
+              : undefined;
         for (const cell of CELLS) {
           const guard = GUARDS.find((candidate) => candidate.script === cell.target);
           const atoms = map.ok
@@ -260,9 +278,13 @@ export function unitFamily(): Family {
                 )
                 .map((atom) => atom.id)
             : [];
-          const specs = suite.specs.filter(
-            (spec) => spec.mode === 'unit' && spec.atoms.some((atom) => atoms.includes(atom)),
-          );
+          const specs = natives
+            .filter((spec) => spec.atoms.some((atom) => atoms.includes(atom)))
+            .map((spec) => copies.get(spec.id) as SuiteSpec);
+          if (recordError) {
+            out.set(`${family}.${cell.key}`, { pass: false, detail: recordError });
+            continue;
+          }
           if (specs.length === 0) {
             out.set(`${family}.${cell.key}`, {
               pass: false,
