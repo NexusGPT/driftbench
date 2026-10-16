@@ -211,6 +211,7 @@ driftbench report --store candidate.db --out candidate.html --junit junit.xml
 ```text
 Margin auto: 28.0 points, the smallest half point at which the baseline compared with itself is non-inferior (set by the all-pass flag, 27.8 points).
 Campaign c-71ad81ea18f6: 10 runs, 9 pass, 1 fail, 0 did not complete.
+Suite pass rate, mode F: 90.0% [58.7%, 97.8%] (hierarchical 95% interval); 10 goldens, n_eff 9.0 runs (design effect 1.11), detectable drop 60.6 points at 80% power.
 Wrote candidate.html and junit.xml.
 ```
 

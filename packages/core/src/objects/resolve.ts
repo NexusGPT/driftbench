@@ -36,7 +36,7 @@ export type RegistrySnapshot = {
 };
 
 /**
- * The kinds, implementations and shipped objects a process knows. Packages register their builtins on import;
+ * The kinds, implementations and shipped objects a process knows. Entry points explicitly initialize shipped definitions;
  * a plugin registers its own. A name registered twice is refused, so no registration replaces another: an
  * override is an object that extends a shipped one, never a second registration of it.
  */
@@ -167,7 +167,10 @@ export const BUILTIN_KINDS: readonly KindDef[] = [
 
 /** The registry every loader uses unless it is given another one. */
 export const objectRegistry = new ObjectRegistry();
-for (const def of BUILTIN_KINDS) objectRegistry.registerKind(def);
+/** Initialize the shared kind vocabulary before resolving objects. Safe across plugin snapshots. */
+export function initializeShippedObjects(): void {
+  for (const def of BUILTIN_KINDS) if (!objectRegistry.kind(def.kind)) objectRegistry.registerKind(def);
+}
 
 /** An object once its `extends` chain and every layer are applied. */
 export type ResolvedObject = {
@@ -255,6 +258,7 @@ export class ObjectStore {
   #resolved = new WeakMap<Entry, ResolvedObject>();
 
   constructor(registry: ObjectRegistry = objectRegistry) {
+    if (registry === objectRegistry) initializeShippedObjects();
     this.registry = registry;
     for (const { raw, path } of registry.shipped()) this.add(raw, 'shipped', { path });
   }
@@ -466,6 +470,7 @@ export class ObjectStore {
           params: patch.params ?? {},
           impl: patch.impl as string,
           ...(patch.cites === undefined ? {} : { cites: patch.cites }),
+          ...(patch.applies_to === undefined ? {} : { applies_to: patch.applies_to }),
           layer: entry.layer,
           from: entry.places[index] ?? entry.path,
         });

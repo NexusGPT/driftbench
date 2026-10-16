@@ -8,20 +8,22 @@ import type {
   ToolExpect,
   WorldState,
 } from '@agent-nexus/driftbench-core';
-import type { PathRelation, ProposalPhrase, Slots } from '../extract/proposal';
+import type { PathRelation, ProposalPhrase, Slots, UsesToolRelation } from '../extract/proposal';
 import type { BlockDraft, Pick, Stimulus } from './assemble';
 import { OPENING_CLASSES, TOOL_FAILURE, TOOL_FAILURE_ERROR } from './deviation';
-import { dimensionId, type PreparedMap, phraseKey, valueId } from './map';
+import { behaviourSubject, dimensionId, type PreparedMap, phraseKey, valueId } from './map';
 import { pick, type Rng } from './random';
 import {
   type Context,
   endState,
+  escapeRegExp,
   failureTools,
   fillText,
   matches,
   phraseFits,
   type Recovery,
   recoveryFor,
+  slotsIn,
   slotsOf,
   stageAfter,
   toolExpect,
@@ -68,6 +70,8 @@ export type ScenarioRequest = {
     stimulus: Stimulus;
     carries: Pick[];
     tools: ToolExpect[];
+    /** Behaviour calls, resolved against this turn's actual stage, cell and bound slots. */
+    usesTools?: readonly UsesToolRelation[];
     /**
      * A request that makes a call: the turn is said right after the walk's move that calls the tool, and the
      * call carries that move's arguments with `field` set to `value`, so every argument and the count hold.
@@ -197,6 +201,64 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       );
     cell.push([dimension, chosen]);
   }
+  // A behaviour phrase must exercise a declared call in a cell where it applies. Resolve every
+  // condition dimension before building the walk: contextAxes later fills only the remaining axes.
+  // This also lets conditional input bindings and flow assertions see the same values as the phrase.
+  if (request.turn?.usesTools?.length) {
+    const stage = path.stages[request.turn.at ?? 1];
+    const calls = request.turn.usesTools.filter(
+      (call) => call.stage === stage && (call.to === undefined || call.to === stage),
+    );
+    const keys = [...new Set(calls.flatMap((call) => Object.keys(call.when ?? {})))];
+    const stageKey = prepared.stage === undefined ? 'stage' : dimensionId(prepared, prepared.stage);
+    const fits = (picks: Pick[]) => {
+      if (!prepared.feasibility.allowed(picks)) return false;
+      return path.stages.slice(1).every((name) => {
+        const value = dimensions[prepared.stage ?? -1]?.index.get(name);
+        return (
+          prepared.stage === undefined ||
+          value === undefined ||
+          prepared.feasibility.allowed([
+            ...picks.filter(([at]) => at !== prepared.stage),
+            [prepared.stage, value],
+          ])
+        );
+      });
+    };
+    // Try each relation's condition, preserving map order. Backtrack across its allowed values;
+    // a condition can name any dimension, including detail dimensions that contextAxes does not draw.
+    const resolve = (call: UsesToolRelation, offset: number, picks: Pick[]): Pick[] | undefined => {
+      const key = keys[offset];
+      if (key === undefined) return picks;
+      const wanted = call.when?.[key];
+      if (key === stageKey)
+        return !wanted || (stage !== undefined && wanted.includes(stage))
+          ? resolve(call, offset + 1, picks)
+          : undefined;
+      const dimension = indexOf(key);
+      const own = held(picks, dimension);
+      if (own)
+        return !wanted || wanted.includes(valueId(prepared, dimension, own[1]))
+          ? resolve(call, offset + 1, picks)
+          : undefined;
+      const values = dimensions[dimension]?.values ?? [];
+      for (let value = 0; value < values.length; value += 1) {
+        if (wanted && !wanted.includes(valueId(prepared, dimension, value))) continue;
+        const next: Pick[] = [...picks, [dimension, value]];
+        if (!fits(next)) continue;
+        const resolved = resolve(call, offset + 1, next);
+        if (resolved) return resolved;
+      }
+      return undefined;
+    };
+    let resolved: Pick[] | undefined;
+    for (const call of calls) {
+      resolved = resolve(call, 0, cell);
+      if (resolved) break;
+    }
+    if (!resolved) return failedScenario(path, `no behaviour tool relation applies at ${stage}`);
+    cell.push(...resolved.slice(cell.length));
+  }
   if (!prepared.feasibility.allowed(cell))
     return failedScenario(path, 'the constraints forbid its values with this cell');
   // Every stage the walk reaches holds with the cell: a value the path states nothing about (a coverage
@@ -264,6 +326,62 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
       phraseFits(phrase, context, at),
     );
     return pick(rng, phrases);
+  };
+
+  /**
+   * The patterns a reply that ran `tool` must hold: those of the `states` relations holding at `stage` (the
+   * subject the cell holds, the `when` its values meet) that state a returned field of the tool, filled from
+   * the cell. A returned field no such relation states is read in the one form the map's `states` relations
+   * state every returned field in where they hold (`statedForm`), when they show one. `strict` refuses a relation that
+   * reads a slot the cell does not bind; otherwise that pattern is left out.
+   */
+  const reportOf = (
+    tool: string,
+    stage: string,
+    strict: boolean,
+  ): { ok: true; patterns: string[] } | { ok: false; reason: string } => {
+    const patterns: string[] = [];
+    const stating: string[] = [];
+    const read = new Set<string>();
+    const context = contextOf(stage);
+    for (const entry of relations.states) {
+      const subject =
+        entry.subject.dimension === 'flow'
+          ? entry.subject.value === path.flow
+          : context[entry.subject.dimension] === entry.subject.value;
+      if (!subject || !matches(entry.when, context)) continue;
+      for (const pattern of entry.must ?? []) {
+        const out = slotsOf(pattern).filter((slot) => {
+          const source = boundBy.get(slot);
+          const found = source ? prepared.toolDimensions.get(source[0]) : undefined;
+          return found?.direction === 'out' && found.tool.name === tool;
+        });
+        if (out.length === 0) continue;
+        const filled = fillText(pattern, slots, true);
+        if (!filled.ok) {
+          if (strict)
+            return {
+              ok: false,
+              reason: `the report of ${tool} reads unbound slots ${filled.missing.join(', ')}`,
+            };
+          continue;
+        }
+        for (const slot of out) read.add(slot);
+        if (!patterns.includes(filled.value)) patterns.push(filled.value);
+        stating.push(pattern);
+      }
+    }
+    for (const pattern of statedFields(prepared, path.flow, context, tool, read)) {
+      const filled = fillText(pattern, slots, true);
+      if (!filled.ok) continue;
+      if (!patterns.includes(filled.value)) patterns.push(filled.value);
+      stating.push(pattern);
+    }
+    // The Given answers with the values the reply states.
+    replyData.push(
+      ...sourcesOf(boundBy, stating).filter(([at]) => prepared.toolDimensions.get(at)?.direction === 'out'),
+    );
+    return { ok: true, patterns };
   };
 
   // A phrase probe goes in at a stage of the path, chosen before the walk: its phrase may bind a slot a later
@@ -362,39 +480,42 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     if (index === cutAt) break;
     if (request.turn && !request.turn.call && index === (request.turn.at ?? 1)) {
       freeBlock = request.turn.free ? blocks.length : undefined;
-      const reports: string[] = [];
-      // The relations that hold here, as a move's Then reads them: the subject the cell holds, the `when`
-      // its values meet (a channel-only reply rule stays on its channel).
-      const context = contextOf(path.stages[index] as string);
-      for (const entry of request.turn.report ? relations.states : []) {
-        const subject =
-          entry.subject.dimension === 'flow'
-            ? entry.subject.value === path.flow
-            : context[entry.subject.dimension] === entry.subject.value;
-        if (!subject || !matches(entry.when, context)) continue;
-        for (const pattern of entry.must ?? []) {
-          const out = slotsOf(pattern).some((slot) => {
-            const source = boundBy.get(slot);
-            const found = source ? prepared.toolDimensions.get(source[0]) : undefined;
-            return found?.direction === 'out' && found.tool.name === request.turn?.report;
-          });
-          if (!out) continue;
-          const filled = fillText(pattern, slots, true);
-          if (!filled.ok)
-            return failedScenario(
-              path,
-              `the report of ${request.turn.report} reads unbound slots ${filled.missing.join(', ')}`,
-            );
-          if (!reports.includes(filled.value)) reports.push(filled.value);
-        }
+      const stage = path.stages[index] as string;
+      const active = (request.turn.usesTools ?? []).filter(
+        (call) =>
+          call.stage === stage &&
+          (call.to === undefined || call.to === stage) &&
+          matches(call.when, contextOf(stage)),
+      );
+      if (request.turn.usesTools?.length && active.length === 0)
+        return failedScenario(path, `no behaviour tool relation applies at ${stage} in this cell`);
+      const tools = [...request.turn.tools];
+      const reports = new Set(request.turn.report ? [request.turn.report] : []);
+      const carries = [...request.turn.carries];
+      for (const call of active) {
+        const expected = toolExpect(call.tool, call.count ?? 1, call.input, slots);
+        if (!expected.ok)
+          return failedScenario(
+            path,
+            `${call.tool} at ${stage} reads unbound slots ${expected.missing.join(', ')}`,
+          );
+        tools.push(expected.value);
+        reports.add(call.tool);
+        carries.push(...sourcesOf(boundBy, call.input ?? {}));
+      }
+      const patterns: string[] = [];
+      for (const tool of reports) {
+        const report = reportOf(tool, stage, true);
+        if (!report.ok) return failedScenario(path, report.reason);
+        for (const pattern of report.patterns) if (!patterns.includes(pattern)) patterns.push(pattern);
       }
       blocks.push({
-        ...(reports.length > 0 ? { must: reports } : {}),
+        ...(patterns.length > 0 ? { must: patterns } : {}),
         id: `b${blocks.length + 1}-value`,
         stimulus: request.turn.stimulus,
-        stage: path.stages[index] as string,
-        carries: request.turn.carries,
-        tools: request.turn.tools,
+        stage,
+        carries: unique(carries),
+        tools,
         ...(lang === undefined ? {} : { lang }),
       });
       turnPlaced = true;
@@ -479,6 +600,8 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     const tools: ToolExpect[] = [];
     const ruled: Pick[] = [];
     for (const call of relations.usesTools) {
+      // A behaviour's call is made in that behaviour's own phrase turn, never on a move.
+      if (behaviourSubject(prepared, call.subject)) continue;
       const subject =
         call.subject.dimension === 'flow'
           ? call.subject.value === path.flow
@@ -591,6 +714,9 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     const asked = request.turn?.call;
     const made = asked ? tools.find((tool) => tool.label === asked.tool && calls(tool)) : undefined;
     if (request.turn && asked && made) {
+      // The run the user asks for answers from the same Given: its reply states the tool's returned fields.
+      const answered = reportOf(asked.tool, to, false);
+      if (!answered.ok) return failedScenario(path, answered.reason);
       blocks.push({
         id: `b${blocks.length + 1}-value`,
         stimulus: request.turn.stimulus,
@@ -600,6 +726,7 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
           { ...made, input: { ...made.input, [asked.field]: asked.value } },
           ...request.turn.tools.filter((tool) => tool.label !== asked.tool),
         ],
+        ...(answered.patterns.length > 0 ? { must: answered.patterns } : {}),
         ...(lang === undefined ? {} : { lang }),
       });
       turnPlaced = true;
@@ -617,7 +744,10 @@ export function buildScenario(prepared: PreparedMap, rng: Rng, request: Scenario
     return failedScenario(path, `the path has no stage ${request.turn.at ?? 1} moves after its start`);
 
   let placed: Built['probe'];
-  let truncated = turnPlaced || cutAt !== undefined;
+  // A turn said after the walk's last move cuts nothing: the walk still reaches its end and checks its end state.
+  const afterLastMove =
+    request.turn !== undefined && !request.turn.call && (request.turn.at ?? 1) === path.stages.length - 1;
+  let truncated = (turnPlaced && !afterLastMove) || cutAt !== undefined;
   // The answer a tool gives once it works again: the bound values the replies state, else its defaults.
   if (probe && probe.classId === TOOL_FAILURE) {
     const failed = toolFailure(prepared, rng, path, blocks, cell, probe, (tool) =>
@@ -1082,9 +1212,94 @@ function filledWords(patterns: string[], slots: Slots): string[] | undefined {
   return out;
 }
 
+/** Each top-level returned field of a tool the map binds a slot for: the tool, the field and the slot. */
+function returnedFields(prepared: PreparedMap): Array<{ tool: string; field: string; slot: string }> {
+  const out: Array<{ tool: string; field: string; slot: string }> = [];
+  for (const [dimension, found] of prepared.toolDimensions) {
+    if (found.direction !== 'out' || found.path.length !== 1) continue;
+    const field = found.path[0] as string;
+    const values = prepared.space.dimensions[dimension]?.values ?? [];
+    const slots = new Set<string>();
+    for (let value = 0; value < values.length; value += 1) {
+      const bound = prepared.relations.binds.get(
+        `${dimensionId(prepared, dimension)}=${valueId(prepared, dimension, value)}`,
+      );
+      for (const slot of Object.keys(bound ?? {})) slots.add(slot);
+    }
+    for (const slot of slots) out.push({ tool: found.tool.name, field, slot });
+  }
+  return out;
+}
+
 function answering(prepared: PreparedMap, replyData: Pick[], tool: string): ToolAnswer {
   const bound = worldFor(prepared, unique(replyData), { useBindings: true }).world?.tools?.[tool];
   if (bound) return bound;
   const schema = prepared.tools.find((entry) => entry.name === tool);
   return { result: (schema ? toolAnswer(schema, []).answer : {}) as never };
+}
+
+const TOOL_MARK = '\u0000';
+const FIELD_MARK = '\u0001';
+const VALUE_MARK = '\u0002';
+
+/**
+ * The one form the map's `states` relations state a returned field in, with the tool's label (its name with
+ * spaces), the field's name and its value marked: "lookup record says found is {lookup_record_out_found}\."
+ * gives "<tool> says <field> is <value>\.". Read from every `must` pattern that states one returned field and
+ * nothing else, of a relation whose conditions hold in the spec: its subject (the spec's `flow`, or a value
+ * `context` holds) and its `when`. Null when those patterns hold no form or more than one, or when no second
+ * tool states its fields in that form anywhere in the map (one tool shows no form a second tool shares).
+ */
+function statedForm(prepared: PreparedMap, flow: string, context: Context): string | null {
+  const bySlot = new Map(returnedFields(prepared).map((entry) => [entry.slot, entry]));
+  const holding = new Set<string>();
+  const toolsOf = new Map<string, Set<string>>();
+  for (const entry of prepared.relations.states) {
+    const subject =
+      entry.subject.dimension === 'flow'
+        ? entry.subject.value === flow
+        : context[entry.subject.dimension] === entry.subject.value;
+    const holds = subject && matches(entry.when, context);
+    for (const pattern of entry.must ?? []) {
+      const read = slotsIn(pattern);
+      const field = read.length === 1 ? bySlot.get(read[0] as string) : undefined;
+      if (!field) continue;
+      const label = escapeRegExp(field.tool.replace(/_/g, ' '));
+      const marked = pattern.split(`{${field.slot}}`);
+      if (marked.length !== 2) continue;
+      const parts = marked.map((part) => part.split(label));
+      if (parts.flat().length !== 3) continue;
+      const withTool = parts.map((part) => part.join(TOOL_MARK)).join(VALUE_MARK);
+      const named = withTool.split(field.field);
+      if (named.length !== 2) continue;
+      const form = named.join(FIELD_MARK);
+      if (holds) holding.add(form);
+      toolsOf.set(form, new Set([...(toolsOf.get(form) ?? []), field.tool]));
+    }
+  }
+  const form = holding.size === 1 ? ([...holding][0] as string) : undefined;
+  return form !== undefined && (toolsOf.get(form)?.size ?? 0) >= 2 ? form : null;
+}
+
+/**
+ * The patterns, in the one form of the relations that hold in `context`, of the returned fields of `tool`
+ * whose slot is not in `read`.
+ */
+function statedFields(
+  prepared: PreparedMap,
+  flow: string,
+  context: Context,
+  tool: string,
+  read: ReadonlySet<string>,
+): string[] {
+  const form = statedForm(prepared, flow, context);
+  if (form === null) return [];
+  return returnedFields(prepared)
+    .filter((entry) => entry.tool === tool && !read.has(entry.slot))
+    .map((entry) =>
+      form
+        .replace(TOOL_MARK, escapeRegExp(tool.replace(/_/g, ' ')))
+        .replace(FIELD_MARK, escapeRegExp(entry.field))
+        .replace(VALUE_MARK, `{${entry.slot}}`),
+    );
 }

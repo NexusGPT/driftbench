@@ -2,7 +2,7 @@
 
 import { NONE } from '@agent-nexus/driftbench-space';
 import type { SpecDraft } from './assemble';
-import { dimensionId, type PreparedMap } from './map';
+import { behaviourSubject, dimensionId, type JsonSchema, type PreparedMap } from './map';
 import { slotsOf } from './relations';
 import { hasPaths, type SeedContext, scenarioDraft } from './seed-drafts';
 
@@ -11,7 +11,9 @@ import { hasPaths, type SeedContext, scenarioDraft } from './seed-drafts';
  * an approved phrase. Just before the move, the user asks for the tool with that value (the call carries the
  * move's arguments with it, the reply reports the returned fields); then the move's turn states the other
  * value and the move expects it: the latest value the user gave holds. An agent that keeps the value it
- * heard first fails the move.
+ * heard first fails the move. The stated value is never one slip away from the asked one in the schema (the
+ * next enum member or the first, the integer one either side) when another value is not, so an agent that keeps
+ * the first value and also slips once does not land on the latest value by chance.
  */
 export function restatedDrafts(prepared: PreparedMap, context: SeedContext, first: number): SpecDraft[] {
   if (!hasPaths(prepared)) return [];
@@ -28,7 +30,9 @@ export function restatedDrafts(prepared: PreparedMap, context: SeedContext, firs
     if (first + drafts.length >= context.max) break;
     // A side-effecting tool never runs on a request alone, and a move with no stated destination has no
     // phrase to read the slot from.
+    // A behaviour's call is made in its own phrase turn, never on a move to restate a slot in.
     if (sideEffecting.has(use.tool) || use.to === undefined || transition === undefined) continue;
+    if (behaviourSubject(prepared, use.subject)) continue;
     const move = prepared.phrasesOf.get(`${transition}=${use.stage}-to-${use.to}`) ?? [];
     for (const [field, assertion] of Object.entries(use.input ?? {})) {
       const slots = slotsOf(assertion);
@@ -56,12 +60,21 @@ export function restatedDrafts(prepared: PreparedMap, context: SeedContext, firs
             prepared.relations.binds.get(`${dimensionId(prepared, dimension)}=${value.id}`)?.[slot] !==
             undefined,
         );
-      const asked = values.find(({ value }) =>
+      const bound = (entry: (typeof values)[number]) =>
+        prepared.relations.binds.get(`${dimensionId(prepared, dimension)}=${entry.value.id}`)?.[slot];
+      const askable = values.filter(({ value }) =>
         (prepared.phrasesOf.get(`${dimensionId(prepared, dimension)}=${value.id}`) ?? []).some(
           (phrase) => slotsOf(phrase.text).length === 0,
         ),
       );
-      const stated = values.find((entry) => entry !== asked);
+      const schema = prepared.toolDimensions.get(dimension)?.schema ?? {};
+      const apart = askable.flatMap((candidate) => {
+        const near = oneSlipAway(schema, String(bound(candidate)));
+        const other = values.find((entry) => entry !== candidate && !near.has(String(bound(entry))));
+        return other ? [{ asked: candidate, stated: other }] : [];
+      })[0];
+      const asked = apart?.asked ?? askable[0];
+      const stated = apart?.stated ?? values.find((entry) => entry !== asked);
       if (!asked || !stated) continue;
       const phrase = (
         prepared.phrasesOf.get(`${dimensionId(prepared, dimension)}=${asked.value.id}`) ?? []
@@ -103,4 +116,23 @@ export function restatedDrafts(prepared: PreparedMap, context: SeedContext, firs
     }
   }
   return drafts;
+}
+
+/**
+ * The values one slip turns `value` into in its schema: the next enum member (the last wraps to the first) and
+ * the first member, or the integers one above and one below.
+ */
+function oneSlipAway(schema: JsonSchema, value: string): Set<string> {
+  const near = new Set<string>();
+  const members = Array.isArray(schema.enum) ? schema.enum.map(String) : undefined;
+  if (members && members.length > 0) {
+    const at = members.indexOf(value);
+    if (at >= 0) near.add(members[(at + 1) % members.length] as string);
+    near.add(members[0] as string);
+  } else if (schema.type === 'integer' && /^-?\d+$/.test(value)) {
+    near.add(String(Number(value) + 1));
+    near.add(String(Number(value) - 1));
+  }
+  near.delete(value);
+  return near;
 }

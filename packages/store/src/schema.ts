@@ -1,8 +1,13 @@
 /**
- * The version of the store's tables and of the export bundle. Opening a database or reading a bundle
- * written by a newer version fails with a clear error; an older database is upgraded on open.
+ * The version of the store's tables, of the run records they hold and of the export bundle. Opening a
+ * database or reading a bundle written by a newer version fails with a clear error; an older database is
+ * upgraded on open. Schema 3 adds no table: its run records may hold the block verdicts not_run and blocked
+ * (`status`, `notRun`, `blocked`) and the resolution fields (`by`, `resolved`, `diagnoses`), which an older
+ * driftbench cannot read. The tables are created with IF NOT EXISTS, so a store at
+ * this version gains a table a later build added without a new version number; the setup runs on an open only
+ * when a table or index it creates is missing.
  */
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 
 /**
  * The tables. Each row keeps its record as JSON; the plain columns are copies of record fields, kept
@@ -26,6 +31,14 @@ CREATE TABLE IF NOT EXISTS specs (
   yaml TEXT NOT NULL,
   created_at TEXT NOT NULL,
   PRIMARY KEY (id, hash)
+) STRICT;
+
+CREATE TABLE IF NOT EXISTS spec_objects (
+  spec_id TEXT NOT NULL,
+  spec_hash TEXT NOT NULL,
+  json TEXT NOT NULL,
+  PRIMARY KEY (spec_id, spec_hash),
+  FOREIGN KEY (spec_id, spec_hash) REFERENCES specs (id, hash) ON DELETE CASCADE
 ) STRICT;
 
 CREATE TABLE IF NOT EXISTS campaigns (
