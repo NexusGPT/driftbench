@@ -888,11 +888,18 @@ export function truthOf(run: EstateRun): Truth {
       kind: atom.kind,
       ...(rule?.hazard ? { hazard: rule.hazard } : {}),
       ...(rule ? { scope: rule.scope } : {}),
-      evidence: ((entry?.evidence as Array<Record<string, unknown>> | undefined) ?? []).map((e) => ({
-        type: String(e.type),
-        ...(typeof e.label === 'string' ? { label: e.label } : {}),
-        ...(typeof e.before === 'string' ? { before: e.before } : {}),
-      })),
+      evidence: [
+        ...((entry?.evidence as Array<Record<string, unknown>> | undefined) ?? []).map((e) => ({
+          type: String(e.type),
+          ...(typeof e.label === 'string' ? { label: e.label } : {}),
+        })),
+        // The renderer wrote a file to read on this line: the line asks for a Read of that file.
+        ...(run.rendered.atoms.some(
+          (other) => other.kind === 'reference' && other.file === atom.file && other.line === atom.line,
+        )
+          ? [{ type: 'tool_called', label: 'Read' }]
+          : []),
+      ],
     });
   }
   return {
