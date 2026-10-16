@@ -387,6 +387,72 @@ export async function measureGrowth(
   return { sizes, visits, time, result: found.length === 0 ? PASS : fail(found.join('; ')) };
 }
 
+/** The CPU time one sample of the smaller size must cover, in milliseconds: a sample below it is noise. */
+export const MIN_SAMPLE_MS = 50;
+
+/** The most runs of the smaller size in one sample. */
+export const MAX_SAMPLE_RUNS = 4096;
+
+/** The samples taken at each size; the verdict reads the best of them. */
+export const TIME_SAMPLES = 3;
+
+export type TimeGrowth = {
+  sizes: { ten: number; hundred: number };
+  /** `ten` is the best sample of the smaller size, per run; `runs` is how many runs a sample held. */
+  time: { ten: number; hundred: number; growth: number; bound: number; runs: number; pass: boolean };
+  result: ItemResult;
+};
+
+/**
+ * The growth in time of a subject that is not a history: the best CPU time at a hundred times `base` over
+ * the best at ten times, on the clock of the process.
+ *
+ * Both sizes take the best of TIME_SAMPLES samples, interleaved. A sample of the larger size is one run. A
+ * sample of the smaller size is as many runs as it takes to cover MIN_SAMPLE_MS of CPU time, divided by
+ * their number, so a run of 2 ms is read to the precision of 50 ms and not of the clock tick and the first
+ * garbage collection. The sizes stay the bank's: some subjects (the spec loader) have no practical size at
+ * which one run of the smaller size takes 50 ms and the larger one still runs. The bound is the caller's,
+ * and a quadratic run is a hundred times, however the samples fall.
+ */
+export async function measureTimeGrowth(
+  run: (size: number) => Promise<unknown>,
+  base: number,
+  options: { timeBound: number; clock?: () => number; minSampleMs?: number; samples?: number },
+): Promise<TimeGrowth> {
+  const sizes = { ten: base * 10, hundred: base * 100 };
+  const clock = options.clock ?? cpuClock;
+  const minSample = options.minSampleMs ?? MIN_SAMPLE_MS;
+  const samples = options.samples ?? TIME_SAMPLES;
+  const batch = async (size: number, runs: number): Promise<number> => {
+    const started = clock();
+    for (let again = 0; again < runs; again += 1) await run(size);
+    return clock() - started;
+  };
+
+  // Warm-up, not read: doubling batches until one covers the minimum sample, which also sets the runs.
+  let runs = 1;
+  while ((await batch(sizes.ten, runs)) < minSample && runs < MAX_SAMPLE_RUNS) runs *= 2;
+
+  let bestTen = Number.POSITIVE_INFINITY;
+  let bestHundred = Number.POSITIVE_INFINITY;
+  for (let sample = 0; sample < samples; sample += 1) {
+    bestTen = Math.min(bestTen, (await batch(sizes.ten, runs)) / runs);
+    bestHundred = Math.min(bestHundred, await batch(sizes.hundred, 1));
+  }
+  const growth = bestHundred / Math.max(bestTen, 0.01);
+  const pass = growth <= options.timeBound;
+  return {
+    sizes,
+    time: { ten: bestTen, hundred: bestHundred, growth, bound: options.timeBound, runs, pass },
+    result: pass
+      ? PASS
+      : fail(
+          `best CPU time ${bestTen.toFixed(2)} ms per run at ${sizes.ten} (${runs} runs per sample), ` +
+            `${bestHundred.toFixed(1)} ms at ${sizes.hundred}: ${growth.toFixed(1)} times, the bound is ${options.timeBound}`,
+        ),
+  };
+}
+
 /** The three largest entries of a tally, as `name count`. */
 function top(tally: Record<string, number>): string {
   const rows = Object.entries(tally)
