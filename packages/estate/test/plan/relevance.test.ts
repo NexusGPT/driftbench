@@ -52,6 +52,20 @@ const crossed = (map: EstateMap, dimension: string, value: string) =>
       .map((row) => row.atomIds[0]),
   );
 
+const DIMENSION_OF: Record<string, string> = Object.fromEntries([
+  ...['dead_helper', 'rate_wave', 'stale_tracker', 'process_restart', 'compaction_mid_task'].map((v) => [
+    v,
+    'estate_hazard',
+  ]),
+  ...['helpers_running', 'after_restart', 'after_compaction', 'resumed'].map((v) => [v, 'session_state']),
+  ...['language_switch', 'no_questions', 'stop', 'hold', 'keep_going', 'frustration', 'limit_word'].map(
+    (v) => [v, 'owner_signal'],
+  ),
+  ...Object.keys(RELATION_OF)
+    .filter((v) => v.startsWith('D'))
+    .map((v) => [v, 'deviation']),
+]);
+
 /** A harbour estate: every kind of atom a relation reads, each with the typed fact and none with a telling word. */
 function harbour(): EstateMap {
   return estate(
@@ -111,6 +125,76 @@ function harbour(): EstateMap {
   );
 }
 
+describe('review cases', () => {
+  const twoLines = () =>
+    estate([
+      atom('rule', {
+        kind: 'instruction',
+        file: 'POLICY.md',
+        line: 4,
+        evidence: [{ type: 'tool_called', label: 'Glob' }],
+      }),
+      atom('far', {
+        kind: 'instruction',
+        file: 'POLICY.md',
+        line: 9,
+        evidence: [{ type: 'tool_called', label: 'Glob' }],
+      }),
+      atom('other-file', {
+        kind: 'instruction',
+        file: 'OTHER.md',
+        line: 4,
+        evidence: [{ type: 'tool_called', label: 'Glob' }],
+      }),
+      atom('hazard', { kind: 'hazard', file: 'POLICY.md', line: 5, fields: { hazard: 'restart' } }),
+    ]);
+
+  it('places a rule written over two lines when its hazard atom sits on either line', () => {
+    const map = twoLines();
+    const rule = map.atoms.find((candidate) => candidate.id === 'rule') as Atom;
+    rule.provenance.endLine = 5;
+    expect([...targetsOf('restart', map)]).toEqual(['rule']);
+    rule.provenance.startLine = 3;
+    rule.provenance.endLine = 4;
+    expect([...targetsOf('restart', map)]).toEqual([]);
+    // A rule that only neighbours the hazard line, or lies in another file, is not placed.
+    rule.provenance.startLine = 4;
+    rule.provenance.endLine = 5;
+    (map.atoms.find((candidate) => candidate.id === 'hazard') as Atom).provenance.startLine = 6;
+    (map.atoms.find((candidate) => candidate.id === 'hazard') as Atom).provenance.endLine = 6;
+    expect([...targetsOf('restart', map)]).toEqual([]);
+  });
+
+  it('places a reply-language rule checked by the documented language predicate on a language switch', () => {
+    const map = estate([
+      atom('spoken', { kind: 'instruction', evidence: [{ type: 'custom', name: 'same_language_as_user' }] }),
+      atom('other', { kind: 'instruction', evidence: [{ type: 'custom', name: 'lab_ledger' }] }),
+    ]);
+    expect([...targetsOf('output', map)]).toEqual(['spoken']);
+  });
+
+  it('gives every value of the fixed axes a relation, and crosses none with every atom', () => {
+    const map = harbour();
+    const count = map.atoms.length;
+    const plan = buildPlan(map).plan.rows.filter((row) => row.id.startsWith('pairwise.'));
+    for (const [dimension, value] of [
+      ['owner_signal', 'hold'],
+      ['owner_signal', 'keep_going'],
+      ['owner_signal', 'frustration'],
+      ['owner_signal', 'limit_word'],
+      ['deviation', 'D3_contradiction'],
+      ['deviation', 'D10_return'],
+      ['deviation', 'D11_pii_leak'],
+      ['deviation', 'D12_prompt_extraction'],
+    ] as const) {
+      expect(RELATION_OF[value], value).toBeDefined();
+      const seen = new Set(plan.filter((row) => row.cell[dimension] === value).map((row) => row.atomIds[0]));
+      expect(seen.size, value).toBeGreaterThan(0);
+      expect(seen.size, value).toBeLessThan(count);
+    }
+  });
+});
+
 describe('situation relevance reads the typed facts of the map', () => {
   it.each([
     ['helper', ['pilot', 'route-pilot']],
@@ -133,19 +217,7 @@ describe('situation relevance reads the typed facts of the map', () => {
   it('crosses each fixed-axis situation with the atoms of its relation and with no other atom', () => {
     const map = harbour();
     for (const [value, relation] of Object.entries(RELATION_OF)) {
-      const dimension = [
-        'dead_helper',
-        'rate_wave',
-        'stale_tracker',
-        'process_restart',
-        'compaction_mid_task',
-      ].includes(value)
-        ? 'estate_hazard'
-        : ['helpers_running', 'after_restart', 'after_compaction', 'resumed'].includes(value)
-          ? 'session_state'
-          : ['language_switch', 'no_questions', 'stop'].includes(value)
-            ? 'owner_signal'
-            : 'deviation';
+      const dimension = DIMENSION_OF[value] as string;
       const allowed = targetsOf(relation, map);
       const seen = crossed(map, dimension, value);
       expect(
@@ -180,7 +252,31 @@ describe('situation relevance reads the typed facts of the map', () => {
 
   it('keeps every combination of a value that names no relation, and leaves a supplied space authoritative', () => {
     const map = harbour();
-    expect(crossed(map, 'deviation', 'D3_contradiction').size).toBeGreaterThan(5);
+    const unknown: SpaceMap = {
+      version: 'lab',
+      agent: 'lab',
+      dimensions: [
+        {
+          id: 'deviation',
+          kind: 'deviation',
+          title: 'Deviation',
+          values: [
+            { id: 'none', title: 'None' },
+            { id: 'X1_tide_surge', title: 'A tide surge' },
+          ],
+        },
+        {
+          id: 'atoms.instruction',
+          kind: 'behaviour',
+          title: 'Rules',
+          values: [{ id: 'reader', title: 'Read' }],
+        },
+      ],
+      constraints: [],
+      prior: { kind: 'declared' },
+    };
+    // A value the planner has no relation for is the owner's own: nothing is excluded.
+    expect(situationSpace(map, unknown).space.constraints).toEqual([]);
     const space: SpaceMap = {
       version: 'lab',
       agent: 'lab',

@@ -405,17 +405,17 @@ The default plan crosses each situation of the event axes (`session_state`, `own
 | helper | a dead helper, helpers running | helpers, and the routes to them |
 | tool | a tool failure | tool rules, scripts, guards, units that declare tools, and the routes to those units |
 | stage | a stale tracker | steps of the step list |
-| output | a language switch of the deviation or of the owner | output rules, and instructions with a text predicate |
+| output | a language switch of the deviation or of the owner; frustration; a leak of personal data; an extraction of the instructions | output rules, and instructions with a text predicate or the language predicate `same_language_as_user` |
 | data | an instruction in the data | instructions and gates that call Read, Grep, Glob, WebFetch or WebSearch; guards on `PostToolUse` |
-| confirmation | a loose confirmation, no questions | gates |
+| confirmation | a loose confirmation, no questions, keep going, a contradiction | gates |
 | rate | a wave of rate limits | scripts, helpers, tool rules for Agent, Task, WebFetch, WebSearch or Bash, instructions that call those tools |
-| restart, compaction | a process restart, a session after a restart; a compaction mid-task, a session after a compaction | instructions and gates read from a passage that a hazard atom of that hazard names |
-| stop rule | a resumed session | instructions that a guard on `UserPromptSubmit` enforces |
-| stop | the owner saying stop | the stop rules, and guards on `UserPromptSubmit` |
-| prompt | silence or a burst | guards on `UserPromptSubmit` |
+| restart, compaction | a process restart, a session after a restart; a compaction mid-task, a session after a compaction | instructions and gates read from a passage that shares a line with the passage of a hazard atom of that hazard, so a rule written over two lines is placed |
+| stop rule | a resumed session, a return after an absence | instructions that a guard on `UserPromptSubmit` enforces |
+| stop | the owner saying stop, the owner saying hold | the stop rules, and guards on `UserPromptSubmit` |
+| prompt | silence or a burst, a limit word in the ask | guards on `UserPromptSubmit` |
 | routing | a goal shift, an off-topic turn, an out-of-scope ask | routes, and the skills they open |
 
-The baseline of each axis and an unperturbed long session remain available. Inferred constraints exclude a situation's combinations with every other target before the covering array runs, and coverage counts only tuples feasible under them. Mandatory contract rows and journeys keep their own obligations. A situation whose relation no atom of the estate holds has nothing to act on: it is crossed with no atom, and the summary says so in `notes`. A value outside the fixed axes keeps every combination. A rule that no typed fact places stays unplaced; declare the relevance in a space map. Supplying `--space` makes that space authoritative: its values and constraints are used without inferred exclusions. The summary exposes every inferred exclusion in `relevanceConstraints`. These are proposed rows, subject to approval like the rest of the plan.
+The baseline of each axis and an unperturbed long session remain available. Inferred constraints exclude a situation's combinations with every other target before the covering array runs, and coverage counts only tuples feasible under them. Mandatory contract rows and journeys keep their own obligations. A situation whose relation no atom of the estate holds has nothing to act on: it is crossed with no atom, and the summary says so in `notes`. Every value of the fixed axes (but the baseline of each) has a relation in this table, so none is crossed with every atom. A value of a space map the planner does not know keeps every combination. A rule that no typed fact places stays unplaced; declare the relevance in a space map. Supplying `--space` makes that space authoritative: its values and constraints are used without inferred exclusions. The summary exposes every inferred exclusion in `relevanceConstraints`. These are proposed rows, subject to approval like the rest of the plan.
 
 The captured Northwind example below uses the explicit full space exported by `estate map`; its counts precede inferred relevance.
 

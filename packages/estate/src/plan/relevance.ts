@@ -53,6 +53,14 @@ export const RELATION_OF: Readonly<Record<string, Relation>> = {
   D1_off_topic: 'routing',
   D9_out_of_scope: 'routing',
   D7_silence_or_burst: 'prompt',
+  hold: 'stop',
+  keep_going: 'confirmation',
+  frustration: 'output',
+  limit_word: 'prompt',
+  D3_contradiction: 'confirmation',
+  D10_return: 'stoprule',
+  D11_pii_leak: 'output',
+  D12_prompt_extraction: 'output',
 };
 
 const EVENT_AXES = new Set(['session_state', 'owner_signal', 'deviation', 'estate_hazard']);
@@ -61,6 +69,9 @@ const EVENT_AXES = new Set(['session_state', 'owner_signal', 'deviation', 'estat
 const DATA_TOOLS: ReadonlySet<string> = new Set(['Read', 'Grep', 'Glob', 'WebFetch', 'WebSearch']);
 /** The tools that call a service or a helper, where a rate limit or a retry contract applies. */
 const RATE_TOOLS: ReadonlySet<string> = new Set(['Agent', 'Task', 'WebFetch', 'WebSearch', 'Bash']);
+
+/** The custom predicates the estate documents as a check of the language of the reply. */
+const LANGUAGE_PREDICATES: ReadonlySet<string> = new Set(['same_language_as_user']);
 
 /** The kinds that hold a relation by what they are, whatever their evidence and fields. */
 const IDENTITY: Readonly<Record<Relation, readonly AtomKind[]>> = {
@@ -82,24 +93,32 @@ const IDENTITY: Readonly<Record<Relation, readonly AtomKind[]>> = {
 const calls = (atom: Atom, labels: ReadonlySet<string>): boolean =>
   atom.evidence.some((item) => item.type === 'tool_called' && labels.has(item.label));
 
-/** The passage an atom was read from, as a key: the file and its line span. */
-const passageOf = (atom: Atom): string =>
-  `${atom.provenance.file}:${atom.provenance.startLine}-${atom.provenance.endLine}`;
+type Span = { file: string; start: number; end: number };
+
+/** The passage an atom was read from: its file and its line span. */
+const spanOf = (atom: Atom): Span => ({
+  file: atom.provenance.file,
+  start: atom.provenance.startLine,
+  end: atom.provenance.endLine,
+});
+
+/** Whether two passages of one file share a line: a rule written over two lines shares a line with its hazard. */
+const overlaps = (a: Span, b: Span): boolean => a.file === b.file && a.start <= b.end && b.start <= a.end;
 
 type Context = {
   /** The passages that name each runtime hazard (hazard atoms carry the hazard id). */
-  hazardPassages: ReadonlyMap<string, ReadonlySet<string>>;
+  hazardPassages: ReadonlyMap<string, readonly Span[]>;
   /** The rules a guard on the user's prompt enforces. */
   promptEnforced: ReadonlySet<string>;
 };
 
 function contextOf(map: EstateMap): Context {
   const byId = new Map(map.atoms.map((atom) => [atom.id, atom]));
-  const hazardPassages = new Map<string, Set<string>>();
+  const hazardPassages = new Map<string, Span[]>();
   for (const atom of map.atoms) {
     const hazard = atom.kind === 'hazard' ? atom.fields?.hazard : undefined;
     if (typeof hazard !== 'string') continue;
-    hazardPassages.set(hazard, (hazardPassages.get(hazard) ?? new Set()).add(passageOf(atom)));
+    hazardPassages.set(hazard, [...(hazardPassages.get(hazard) ?? []), spanOf(atom)]);
   }
   const promptEnforced = new Set<string>();
   for (const edge of map.edges)
@@ -122,7 +141,13 @@ function holds(relation: Relation, atom: Atom, context: Context): boolean {
         (field('tools') as unknown[]).length > 0
       );
     case 'output':
-      return atom.kind === 'instruction' && atom.evidence.some((item) => item.type === 'text');
+      // A rule about the reply: a text predicate, or the predicate the estate documents for the language of the reply.
+      return (
+        atom.kind === 'instruction' &&
+        atom.evidence.some(
+          (item) => item.type === 'text' || (item.type === 'custom' && LANGUAGE_PREDICATES.has(item.name)),
+        )
+      );
     case 'data':
       return (rule && calls(atom, DATA_TOOLS)) || (atom.kind === 'guard' && field('event') === 'PostToolUse');
     case 'rate':
@@ -133,7 +158,9 @@ function holds(relation: Relation, atom: Atom, context: Context): boolean {
     case 'restart':
     case 'compaction':
       // A rule stated in the passage that names the hazard.
-      return rule && (context.hazardPassages.get(relation)?.has(passageOf(atom)) ?? false);
+      return (
+        rule && (context.hazardPassages.get(relation)?.some((span) => overlaps(span, spanOf(atom))) ?? false)
+      );
     case 'stoprule':
       // A rule that a guard on the user's prompt enforces.
       return atom.kind === 'instruction' && context.promptEnforced.has(atom.id);
