@@ -3,7 +3,7 @@
   "old": {
     "path": "examples/estates/fixture/approved.yaml",
     "runtime": "claude-code",
-    "readAt": "2026-10-11T21:30:25.533Z",
+    "readAt": "2026-10-16T05:04:02.549Z",
     "hash": "be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10",
     "atoms": 125,
     "edges": 54
