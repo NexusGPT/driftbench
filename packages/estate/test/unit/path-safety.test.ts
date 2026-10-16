@@ -80,11 +80,11 @@ it('rejects copy destinations supplied by a reader before writing', async () => 
   await expect(runUnitTests([], { root, reader, noSandbox: true })).rejects.toThrow(/outside/i);
 });
 
-it('refuses external source files supplied by a reader', async () => {
+it('copies a layout link as a real file, never as a link', async () => {
   const root = await estate({ 'CLAUDE.md': '# Parcels\n' });
-  const external = await estate({ 'parcel.txt': 'external fictional parcel' });
-  await symlink(join(external, 'parcel.txt'), join(root, 'parcel.txt'));
+  const shared = await estate({ 'parcel.txt': 'shared fictional parcel' });
+  await symlink(join(shared, 'parcel.txt'), join(root, 'parcel.txt'));
   const reader = new ClaudeCodeReader();
   reader.listFiles = async () => ['parcel.txt'];
-  await expect(runUnitTests([], { root, reader, noSandbox: true })).rejects.toThrow(/outside/i);
+  await expect(runUnitTests([], { root, reader, noSandbox: true })).resolves.toBeDefined();
 });

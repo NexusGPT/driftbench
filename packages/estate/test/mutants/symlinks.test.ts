@@ -66,11 +66,10 @@ async function links(dir: string): Promise<string[]> {
 
 /** A real folder holding CLAUDE.md and .claude/skills, and an estate whose CLAUDE.md and .claude/skills link to it. */
 async function linkedEstate(): Promise<{ real: string; estate: string }> {
-  const estate = await temp('estate-linked-');
-  const real = join(estate, 'shared');
-  await mkdir(real);
+  const real = await temp('estate-real-');
   await cp(join(FIXTURE, 'CLAUDE.md'), join(real, 'CLAUDE.md'));
   await cp(join(FIXTURE, '.claude', 'skills'), join(real, 'skills'), { recursive: true });
+  const estate = await temp('estate-linked-');
   await cp(join(FIXTURE, '.claude'), join(estate, '.claude'), { recursive: true });
   await rm(join(estate, '.claude', 'skills'), { recursive: true });
   await symlink(join(real, 'skills'), join(estate, '.claude', 'skills'));

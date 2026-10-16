@@ -402,3 +402,48 @@ describe('the run a unit-mode spec carries', () => {
     expect(specUnitOf({ testType: 'obligation' }, [watched], nursery)).toBe('obligation has no unit run');
   });
 });
+
+it('uses declared reply boundaries for positive payloads and keeps negative payloads below them', () => {
+  const limit: EstateAtom = {
+    ...rule('limit', 'Keep replies short.'),
+    kind: 'register',
+    evidence: [{ type: 'custom', name: 'max_characters', options: { max: 37 } }],
+  };
+  const g = guard({ event: 'Stop', enforces: [{ atom: 'limit', by: 'registry' }] });
+  const atoms = new Map([['limit', limit]]);
+  for (const testType of ['guard_positive', 'guard_speed', 'guard_hostile', 'guard_register']) {
+    const result = specUnitOf({ testType }, [g], atoms);
+    expect(typeof result).toBe('object');
+    if (typeof result === 'string') throw new Error(result);
+    expect(result.cases.some((c) => String(c.payload.last_reply).length > 37)).toBe(true);
+  }
+  const negative = specUnitOf({ testType: 'guard_negative' }, [g], atoms);
+  if (typeof negative === 'string') throw new Error(negative);
+  expect(negative.cases.every((c) => String(c.payload.last_reply).length <= 37)).toBe(true);
+});
+
+it('reports an unsupported declared reply boundary instead of substituting a short rule quote', () => {
+  const limit: EstateAtom = {
+    ...rule('large-limit', 'Keep replies short.'),
+    evidence: [{ type: 'custom', name: 'max_characters', options: { max: 1000000 } }],
+  };
+  const result = specUnitOf(
+    { testType: 'guard_positive' },
+    [guard({ event: 'Stop', enforces: [{ atom: limit.id, by: 'id' }] })],
+    new Map([[limit.id, limit]]),
+  );
+  expect(result).toContain('outside the supported payload size');
+});
+
+it('can exercise a zero-character limit with a truly empty negative reply', () => {
+  const limit: EstateAtom = {
+    ...rule('zero-limit', 'No reply text.'),
+    evidence: [{ type: 'custom', name: 'max_characters', options: { max: 0 } }],
+  };
+  const result = specUnitOf(
+    { testType: 'guard_negative' },
+    [guard({ event: 'Stop', enforces: [{ atom: limit.id, by: 'id' }] })],
+    new Map([[limit.id, limit]]),
+  );
+  expect(typeof result !== 'string' && result.cases[0]?.payload.last_reply).toBe('');
+});
