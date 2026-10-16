@@ -37,7 +37,8 @@ export const DEFAULT_ROLE: Record<AtomKind, 'axis' | 'detail'> = {
 };
 
 /** Event words propose a hazard; the local subject/object decides whether the agent undergoes it. */
-const RESTART_EVENT = /\b(?:restart|reboot)(?:s|ed|ing)?\b/i;
+// A compound adjective or identifier is not an event verb or noun.
+const RESTART_EVENT = /(?<![\w-])(?:restart|reboot)(?:s|ed|ing)?(?![\w-])/i;
 const RESUMPTION_EVENT =
   /\bresum(?:e[sd]?|ing)\b|\bpick(?:s|ed)? up where (?:you|we|it|the agent) left off\b/i;
 const SESSION_START_EVENT = /\b(start of (every|each|a) session|new session|session start)/i;
@@ -1428,7 +1429,7 @@ function eventSubject(before: string): string {
     before.split(/[.;,:!?]|\b(?:if|when|after|before|once|unless|while|and|or|but|then)\b/i).at(-1) ?? '';
   return clause
     .trim()
-    .replace(/^(?:on|upon|following|during|at)\s+/i, '')
+    .replace(/^(?:on|upon|following|during|at|should|would|could|did|does)\s+/i, '')
     .replace(
       /\s+(?:(?:is|are|am|was|were|be|been|being|has|have|had|gets?|got|will|would|can|could|may|might|must|should|shall|\w+ly)\s*)+$/i,
       '',
@@ -1443,12 +1444,14 @@ function eventObject(after: string): string {
       .trim()
       .replace(/^(?:\w+ly\s*)+/i, '')
       .split(
-        /[.;,:!?]|\b(?:if|when|after|before|once|unless|while|and|or|but|then|to|from|by|on|at|for|during|where|with)\b/i,
+        /[.;,:!?]|\b(?:if|when|after|before|once|unless|while|and|or|but|then|to|from|by|on|at|for|during|where|with|in|inside|outside|without|through|under|over|around|near|beneath|beside|behind|beyond|within|along|across|towards?|onto|into|upon|until|since|amid|among|between|despite)\b/i,
       )[0] ?? ''
   ).trim();
   const temporal =
     /^(?:the\s+)?(?:this|next|last|following|previous)\s+(?:morning|afternoon|evening|night|day|week|month|year)$|^(?:today|tomorrow|yesterday|tonight|overnight|again|later|earlier)$/i;
-  return temporal.test(object) ? '' : object;
+  // An object pronoun is complete before any following time, manner, or place adjunct.
+  const pronoun = /^(?:me|us|you|it|them|him|her)\b/i.exec(object);
+  return temporal.test(object) ? '' : (pronoun?.[0] ?? object);
 }
 
 function unownedEvent(subject: string): boolean {
@@ -1541,7 +1544,15 @@ function runtimeTransition(line: string, eventPattern: RegExp, allowUnowned: boo
     const passive =
       /ed$/i.test(event[0]) &&
       /\b(?:is|are|am|was|were|be|been|being|gets?|got)\b(?:\s+\w+ly)*\s*$/i.test(before);
-    const object = eventObject(after.replace(/^\s+of\s+/i, ' '));
+    const complement = after.replace(/^\s*\(\s*of\s+([^)]*)\)/i, ' $1').replace(/^\s+of\s+/i, ' ');
+    const candidate = eventObject(complement);
+    // Only a directly attached noun phrase supplies a restart target. Unclear complements are
+    // adjuncts: ownership falls back to the event's subject, never to a list of domain nouns.
+    const nounPhrase =
+      /^(?:(?:the|an?|this|that|these|those|my|your|our|its|their|his|her|own|some|each|every|any|all|both)\s+|(?:me|us|you|it|them|him|her)\b|[A-Z][\w'-]*\b)/.test(
+        candidate,
+      );
+    const object = nounPhrase || runtimeParticipant(candidate) ? candidate : '';
     // With no actor, plural "restarts" names events, not an imperative acting on the next phrase.
     if (/^(?:restart|reboot)s$/i.test(event[0]) && unownedEvent(subject))
       return /^\s+of\s+/i.test(after) ? runtimeParticipant(object) : true;

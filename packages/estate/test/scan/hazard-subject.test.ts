@@ -168,8 +168,41 @@ const syntaxCases: Array<[string, 'restart' | 'rate_wave', boolean]> = [
   ['When the reporting endpoint returns 429, retain your cursor and retry.', 'rate_wave', true],
 ];
 
+// Event complements: adjuncts describe the event; direct noun phrases identify its target.
+const adjunctCases: Array<[string, 'restart' | 'rate_wave', boolean]> = [
+  ['The operator ordered a reboot-proof cabinet for the exhibit.', 'restart', false],
+  ['A restart-free deployment is the goal of the design document.', 'restart', false],
+  ['The assistant documents a restarting-aware dashboard widget.', 'restart', false],
+  ['If the agent restarts mid-import, restore its saved checkpoint.', 'restart', true],
+  ['If Claude restarts halfway through a task, re-read the handover.', 'restart', true],
+  ['If the agent restarts in the middle of a task, re-read the plan.', 'restart', true],
+  ['If the session restarts without warning, reload the diary.', 'restart', true],
+  ['If the session restarts inside a long task, resume from the log.', 'restart', true],
+  ['If the agent restarts twice in a row, stop and report.', 'restart', true],
+  ['Should the agent restart during a task, reload the plan.', 'restart', true],
+  ['If the API rate-limits you in the middle of a run, wait.', 'rate_wave', true],
+  ['When your process reboots midway through an import, inspect pending work.', 'restart', true],
+  ['The assistant restarts around noon; restore its checkpoint.', 'restart', true],
+  ['Your session reboots without a prior signal; inspect the saved queue.', 'restart', true],
+  ['If the runtime restarts inside an isolated environment, recover its cursor.', 'restart', true],
+  ['When the assistant restarts quietly, inspect the pending jobs.', 'restart', true],
+  ['After your process reboots three times consecutively, report the failure.', 'restart', true],
+  ['Claude reboots partway through a build; recover its checklist.', 'restart', true],
+  ['Restart your own session in the background after recording a checkpoint.', 'restart', true],
+  ['The provider throttles you partway through an upload; retain your cursor.', 'rate_wave', true],
+  ['The device reboots halfway through its calibration.', 'restart', false],
+  ['The exhibit terminal restarts inside the gallery each evening.', 'restart', false],
+  ['A vending machine reboots without a warning light.', 'restart', false],
+  ['The assistant restarts the exhibit terminal in the gallery.', 'restart', false],
+  ['The supervisor restarts your agent inside the sandbox.', 'restart', true],
+  ['Restart the warehouse display without waiting for the assistant.', 'restart', false],
+  ['The provider throttles a browser extension in the middle of a download.', 'rate_wave', false],
+  ['Should the museum display reboot during opening hours, call its maintainer.', 'restart', false],
+  ['The kiosk restarts twice before its diagnostics finish.', 'restart', false],
+];
+
 describe('runtime hazard participants', () => {
-  it.each([...cases, ...syntaxCases])('%s (%s = %s)', async (text, hazard, expected) => {
+  it.each([...cases, ...syntaxCases, ...adjunctCases])('%s (%s = %s)', async (text, hazard, expected) => {
     const root = await estate({ 'CLAUDE.md': text });
     const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
     expect(map.atoms.some((atom) => atom.kind === 'hazard' && atom.fields?.hazard === hazard)).toBe(expected);
