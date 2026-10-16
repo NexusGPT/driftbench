@@ -13,6 +13,7 @@ import { plantedAgent } from '../kinds';
 import { type BlocksProduct, need } from '../product';
 import { type BlockPlan, recipe } from '../recipe';
 import { type BankItem, expectAll, fail, PASS, type Tier } from '../types';
+import { lookalikeItems } from './lookalikes';
 
 type Plan = BlockPlan;
 
@@ -509,7 +510,7 @@ function invarianceItems(): BankItem[] {
   return items;
 }
 
-/** Level 6 of the blocks bank. */
+/** Level 5 of the blocks bank. */
 export function diagnosticItems(): BankItem[] {
-  return [...scoreItems(), ...badgeItems(), ...invarianceItems()];
+  return [...lookalikeItems(), ...scoreItems(), ...badgeItems(), ...invarianceItems()];
 }
