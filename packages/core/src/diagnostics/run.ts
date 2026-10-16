@@ -5,6 +5,7 @@ import { type ObjectRegistry, objectRegistry, type ResolvedObject } from '../obj
 import { describeError } from '../runner/retry';
 import type { By, Diagnosis, RunResult, Verdict } from '../schema/run';
 import { Diagnosis as DiagnosisSchema } from '../schema/run';
+import type { Spec } from '../schema/spec';
 
 /**
  * Diagnostics: procedures that run after a block's checks, read its verdicts and what was observed, and write
@@ -42,6 +43,8 @@ export type DiagnosticStepContext = {
   readonly diagnoses?: readonly CampaignDiagnosis[];
   readonly verdicts: readonly Verdict[];
   readonly objects: readonly UsedObject[];
+  /** The spec a run of the campaign ran, when the campaign still holds it; campaign scope only. */
+  readonly specOf?: (run: RunResult) => Spec | undefined;
   readonly params: Readonly<Record<string, unknown>>;
   /** What the earlier steps of the same diagnostic wrote on this block. */
   readonly earlier: readonly Diagnosis[];
@@ -162,6 +165,7 @@ type ScopeInput = {
   runs?: readonly RunResult[];
   verdicts: readonly Verdict[];
   objects: readonly UsedObject[];
+  specOf?: (run: RunResult) => Spec | undefined;
 };
 
 /**
@@ -289,8 +293,14 @@ export function runCampaignDiagnostics(
   diagnostics: readonly ResolvedObject[],
   runs: readonly RunResult[],
   budget: DiagnosticBudget = {},
+  specOf?: (run: RunResult) => Spec | undefined,
 ): Promise<{ diagnoses: Diagnosis[]; skippedForBudget: number }> {
   const verdicts = runs.flatMap((run) => run.blocks.flatMap((block) => block.verdicts));
   const diagnoses = runs.flatMap(diagnosesOfRun);
-  return runScope('campaign', diagnostics, { runs, verdicts, diagnoses, objects: [] }, budget);
+  return runScope(
+    'campaign',
+    diagnostics,
+    { runs, verdicts, diagnoses, objects: [], ...(specOf === undefined ? {} : { specOf }) },
+    budget,
+  );
 }
