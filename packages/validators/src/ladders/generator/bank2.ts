@@ -2,6 +2,7 @@ import { canonicalJson, type Spec } from '@agent-nexus/driftbench-core';
 import type { BankItem, SeedData, Tier, Verdict } from './bank';
 import { DEVIATION_POOL, type HiddenSpec, readTurn, type ToolRole } from './hidden';
 import type { Generation } from './measure';
+import { hiddenSpaceMap } from './render';
 
 /**
  * The research and parity families of the generator bank (docs/validators.md section 12.2, items 1 to 3):
@@ -55,8 +56,12 @@ function probes(spec: Spec): string[] {
   );
 }
 
+/**
+ * A cell the hidden space map allows: no written constraint forbids it and some path of the map can reach
+ * it (possible.ts). The coverage level reads the same map, so no item asks for a cell the map rules out.
+ */
 function allowed(hidden: HiddenSpec, cell: Record<string, string>): boolean {
-  return !hidden.constraints.some((constraint) =>
+  return !hiddenSpaceMap(hidden).constraints.some((constraint) =>
     Object.entries(constraint.forbid).every(([dimension, value]) => cell[dimension] === value),
   );
 }
@@ -304,9 +309,11 @@ function sequenceItems(): BankItem[] {
             });
           }
           const missing = reachable.filter((stage) => !probedAt.has(stage));
+          // A probe at a stage the map rules out for the class tests a conversation that cannot happen.
+          const ruledOut = [...probedAt].filter((stage) => !allowed(hidden, { deviation: cls, stage }));
           return verdict(
-            reachable.length > 0 && missing.length === 0,
-            `stages where ${cls} can arrive but is never probed: ${missing.join(', ') || 'none'}`,
+            reachable.length > 0 && missing.length === 0 && ruledOut.length === 0,
+            `stages where ${cls} can arrive but is never probed: ${missing.join(', ') || 'none'}; stages the map rules out for ${cls} but probed: ${ruledOut.join(', ') || 'none'}`,
           );
         },
       },

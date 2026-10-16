@@ -99,3 +99,14 @@ The next entry records completed seed results or the final bank result. No unmea
 - Focused lint, whitespace, handover and sparse typecheck pass; the sparse typecheck omits only the unrelated test importing excluded comparisons/langfuse. No full ladder or bank score is claimed; the historical executor journal and level table remain unchanged.
 - Evidence: [d6-world-carrier-contract.json](evidence/d6-world-carrier-contract.json). No items, thresholds, fault agents, fixtures, floors or hidden-seed rules are removed or lowered.
 - Product obligation: put every approved D6 instruction in the injected world file/tool-result content, leave injection.user empty, and retain checks that catch both obedience faults.
+
+
+## 2026-10-15: maintainer ruling on sequence stages and impossible pairs
+
+- Base: `0137e2d25f4a98918d4498de555c729e41c2b1de`, origin/main. Contract sources: `possible.ts` (impossiblePairs), `render.ts` (hiddenSpaceMap carries written constraints and impossible pairs), the coverage items that read that map.
+- Ruling: `sequence.stages.<class>` owes probes only at the middle stages the hidden space map allows for the class. A probe at a stage the map rules out fails the item. The same map serves the coverage items.
+- Red first: 3 failed, 2 passed in `packages/validators/test/generator/sequence-stages.test.ts`. The base item fails a suite that probes every reachable stage (36 D8 cases over visible, hidden and fresh seeds) and passes a probe at a ruled-out stage.
+- Green: 23 tests pass across four files. Covered seeds: visible 1 to 20, the base hidden seed 21439762 and fresh seeds 1001 to 1020. Planted guards: dropping one reachable stage fails and names it; a probe at a ruled-out stage, or only there, fails; a class with no reachable stage never passes.
+- Product measurement, main's real generation: the old logic fails D8 on seeds 1 to 12, 14 to 16, 18, 20 and the hidden seed. The new item fails no `sequence.stages.*` item on these seeds or on 1001 and 1002. The product places no probe at a ruled-out stage.
+- Sweep: `diff.feasible.<seeder>` also reads written constraints only, in the permissive direction. On seed 2, 39 blocks sit in an impossible-only cell, all from seeder `cover`, which no `diff.feasible` item reads. That item stays unchanged and needs its own ruling. The baseline suite's goal detour also reads written constraints only; it is not an item.
+- Evidence: [sequence-impossible-pairs.json](evidence/sequence-impossible-pairs.json). No items, thresholds, fault agents, fixtures, floors or hidden-seed rules are removed or lowered.
