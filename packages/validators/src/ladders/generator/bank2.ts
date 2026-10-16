@@ -1,7 +1,9 @@
-import type { Spec } from '@agent-nexus/driftbench-core';
+import { type Assertion, canonicalJson, type Spec } from '@agent-nexus/driftbench-core';
+import { stimulusText } from '@agent-nexus/driftbench-generate';
 import type { BankItem, SeedData, Tier, Verdict } from './bank';
-import { DEVIATION_POOL, type HiddenSpec, type ToolRole } from './hidden';
+import { DEVIATION_POOL, type HiddenSpec, readTurn, type ToolRole } from './hidden';
 import type { Generation } from './measure';
+import { hiddenSpaceMap } from './render';
 
 /**
  * The research and parity families of the generator bank (docs/validators.md section 12.2, items 1 to 3):
@@ -31,6 +33,17 @@ function isZeroCount(count: unknown): boolean {
   const range = count as { max?: number } | undefined;
   return range?.max === 0;
 }
+
+/** Exact integer equality in each finite assertion form supported by the spec contract. */
+function assertsInteger(assertion: Assertion | undefined, value: unknown): boolean {
+  if (typeof value !== 'number' || !Number.isInteger(value)) return false;
+  if (assertion === value) return true;
+  if (assertion === null || typeof assertion !== 'object') return false;
+  if ('exact' in assertion) return assertion.exact === value;
+  if ('one_of' in assertion)
+    return assertion.one_of.length > 0 && assertion.one_of.every((entry) => entry === value);
+  return false;
+}
 const STAGE_UNION = ['opening', 'intake', 'check', 'choice', 'details', 'recap', 'done'];
 
 /** The path a generated spec walks, from the scenario title (`Path <id> of <flow>: ...`). */
@@ -55,8 +68,12 @@ function probes(spec: Spec): string[] {
   );
 }
 
+/**
+ * A cell the hidden space map allows: no written constraint forbids it and some path of the map can reach
+ * it (possible.ts). The coverage level reads the same map, so no item asks for a cell the map rules out.
+ */
 function allowed(hidden: HiddenSpec, cell: Record<string, string>): boolean {
-  return !hidden.constraints.some((constraint) =>
+  return !hiddenSpaceMap(hidden).constraints.some((constraint) =>
     Object.entries(constraint.forbid).every(([dimension, value]) => cell[dimension] === value),
   );
 }
@@ -304,9 +321,11 @@ function sequenceItems(): BankItem[] {
             });
           }
           const missing = reachable.filter((stage) => !probedAt.has(stage));
+          // A probe at a stage the map rules out for the class tests a conversation that cannot happen.
+          const ruledOut = [...probedAt].filter((stage) => !allowed(hidden, { deviation: cls, stage }));
           return verdict(
-            reachable.length > 0 && missing.length === 0,
-            `stages where ${cls} can arrive but is never probed: ${missing.join(', ') || 'none'}`,
+            reachable.length > 0 && missing.length === 0 && ruledOut.length === 0,
+            `stages where ${cls} can arrive but is never probed: ${missing.join(', ') || 'none'}; stages the map rules out for ${cls} but probed: ${ruledOut.join(', ') || 'none'}`,
           );
         },
       },
@@ -442,7 +461,45 @@ function allocationItems(): BankItem[] {
 
 // contrast ------------------------------------------------------------------------------------------------
 
-/** The machine expectations of a spec's blocks, as text: what two specs are compared on. */
+/**
+ * An invariance pair holds the initial facts and ordered stimuli fixed. Approved phrases supply their
+ * meaning and bound values; persona introductions alone may vary. Transition intents carry the stage
+ * sequence, never an expected stage (a wrong Then must not split its own pair). Unknown wording stays
+ * literal. Block ids and generation labels are bookkeeping, not conversational input.
+ */
+export function heldFixed(spec: Spec, hidden: HiddenSpec): string {
+  const message = (text: string): unknown => {
+    const turn = readTurn(hidden, text);
+    if (!turn) return { text };
+    const { intent, slots } = turn;
+    if (intent.kind === 'persona') return { intent: { kind: 'persona' }, slots };
+    if (intent.kind === 'transition') {
+      const edge = hidden.transitions.find((edge) => edge.id === intent.edge);
+      if (edge) return { intent: { kind: 'transition', from: edge.from, to: edge.to }, slots };
+    }
+    return { intent, slots };
+  };
+  return canonicalJson({
+    data: Object.entries(cellOf(spec))
+      .filter(([key]) => key.includes('.in.') || key.includes('.out.'))
+      .sort(),
+    given: spec.given,
+    lang: spec.lang,
+    turns: spec.blocks.map((block) => ({
+      given: block.given,
+      when: !block.when
+        ? undefined
+        : 'user' in block.when
+          ? { user: message(block.when.user) }
+          : 'burst' in block.when
+            ? { burst: block.when.burst.map(message) }
+            : { injection: { class: block.when.injection.class, user: message(block.when.injection.user) } },
+    })),
+  });
+}
+
+/** The machine expectations of a spec's blocks: what an invariance pair is compared on. */
+
 function thens(spec: Spec): string {
   return JSON.stringify(spec.blocks.map((block) => ({ ...block.expect, criteria: undefined })));
 }
@@ -516,26 +573,48 @@ function contrastItems(): BankItem[] {
           const property = tool?.input[1];
           if (!tool || property?.type !== 'integer') return verdict(false, 'no integer input');
           const dimension = `${tool.name}.in.${property.name}`;
-          const inputs = (partition: string) =>
-            generated.complete
-              .filter(
-                ({ spec }) =>
-                  cellOf(spec)[dimension] === `${dimension}.${partition}` ||
-                  spec.blocks.some((block) => JSON.stringify(block).includes(`${dimension}.${partition}`)),
-              )
-              .flatMap(({ spec }) =>
-                spec.blocks.flatMap((block) =>
-                  (block.expect?.tools ?? [])
-                    .filter((entry) => entry.label === tool.name)
-                    .map((entry) => JSON.stringify(entry.input?.[property.name])),
-                ),
+          // The approved data request identifies the measured block. A scenario's earlier call may
+          // legitimately use the default on both sides; labels and cell metadata are not stimuli.
+          // Read-only requests must assert the exact requested integer and one call. A direct request
+          // to a side-effecting tool does not supply the required confirmation, so both values forbid
+          // the call. Equal refusals follow the contract; missing or permissive assertions do not.
+          const measured = [low, high].map((partition) => {
+            const value = generated.hidden.data.find((entry) => entry.id === `${dimension}.${partition}`);
+            const blocks = generated.complete.flatMap(({ spec }) =>
+              spec.blocks.filter((block) => {
+                const read = block.when && readTurn(generated.hidden, stimulusText(block.when));
+                return read?.intent.kind === 'data' && read.intent.value === value?.id;
+              }),
+            );
+            const wrong = blocks.filter((block) => {
+              const assertions = (block.expect?.tools ?? []).filter((entry) => entry.label === tool.name);
+              return (
+                assertions.length === 0 ||
+                assertions.some((entry) => {
+                  if (tool.sideEffect) return !isZeroCount(entry.count);
+                  const once =
+                    entry.count === 1 ||
+                    (typeof entry.count === 'object' && entry.count.min === 1 && entry.count.max === 1);
+                  return !once || !assertsInteger(entry.input?.[property.name], value?.value);
+                })
               );
-          const left = new Set(inputs(low));
-          const right = new Set(inputs(high));
-          const differ = left.size > 0 && right.size > 0 && [...left].some((value) => !right.has(value));
+            });
+            return {
+              partition,
+              value: value?.value,
+              present: value !== undefined && !value.invalid,
+              blocks: blocks.length,
+              wrong: wrong.length,
+            };
+          });
           return verdict(
-            differ,
-            `${property.name} ${low} is asserted as ${[...left].join(', ') || 'nothing'}, ${high} as ${[...right].join(', ') || 'nothing'}`,
+            measured.every((entry) => entry.present && entry.blocks > 0 && entry.wrong === 0),
+            measured
+              .map(
+                (entry) =>
+                  `${property.name} ${entry.partition} (${String(entry.value)}): ${entry.blocks} approved request blocks, ${entry.wrong} wrong assertions; expected ${tool.sideEffect ? 'no direct side-effect call' : 'one call with the exact requested integer'}`,
+              )
+              .join('; '),
           );
         },
       });
@@ -552,13 +631,9 @@ function contrastItems(): BankItem[] {
         async check(data) {
           const generated = await data.generated();
           const specs = walking(generated, path).filter((spec) => probes(spec).length === 0);
-          // Invariance varies persona/channel while holding all input and returned data fixed.
-          const slots = (spec: Spec) =>
-            JSON.stringify(
-              Object.entries(cellOf(spec))
-                .filter(([key]) => key.includes('.in.') || key.includes('.out.'))
-                .sort(),
-            );
+          // Invariance varies persona/channel while holding all input and returned data and the turns fixed.
+          const keys = new Map(specs.map((spec) => [spec, heldFixed(spec, generated.hidden)]));
+          const slots = (spec: Spec) => keys.get(spec);
           const pair = specs.some((left) =>
             specs.some((right) => personaOf(left) !== personaOf(right) && slots(left) === slots(right)),
           );
@@ -610,13 +685,9 @@ function contrastItems(): BankItem[] {
         async check(data) {
           const generated = await data.generated();
           const specs = walking(generated, path).filter((spec) => probes(spec).length === 0);
-          // Invariance varies persona/channel while holding all input and returned data fixed.
-          const slots = (spec: Spec) =>
-            JSON.stringify(
-              Object.entries(cellOf(spec))
-                .filter(([key]) => key.includes('.in.') || key.includes('.out.'))
-                .sort(),
-            );
+          // Invariance varies persona/channel while holding all input and returned data and the turns fixed.
+          const keys = new Map(specs.map((spec) => [spec, heldFixed(spec, generated.hidden)]));
+          const slots = (spec: Spec) => keys.get(spec);
           const pair = specs.some((left) =>
             specs.some((right) => left.channel !== right.channel && slots(left) === slots(right)),
           );

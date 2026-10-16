@@ -3,7 +3,7 @@
   "sourceCommit": "89425c88b12e5fd7516ed9cdbf6d37b9b0261595",
   "fixtureSha256": "7696b6c5660ac24290ae5bbee5891708aa3f67180404b046bd815f167c167d57",
   "systemSha256": "5ab527bec76758641fcfd13ebe7c576486ae145fb2cce183a25d9b2838621ca8",
-  "defaultPromptFingerprint": "398673b792c1",
+  "defaultPromptFingerprint": "b55396660b27",
   "liveCalls": 0,
   "slices": [
     {

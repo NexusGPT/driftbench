@@ -30,6 +30,9 @@ export const IssueCodes = [
   'GIVEN_CHAIN',
   'GIVEN_SUMMARY_MISSING',
   'GIVEN_CANONICAL_UNPAIRED',
+  'LINK_BLOCK_UNKNOWN',
+  'LINK_TARGET_UNKNOWN',
+  'LINK_STALE',
 ] as const;
 
 export type IssueCode = (typeof IssueCodes)[number] | `SCHEMA_${string}`;

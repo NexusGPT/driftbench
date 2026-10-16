@@ -1,8 +1,17 @@
 import { relative, resolve } from 'node:path';
-import { givenIssues, type Issue, type LoadResult, loadSpecs } from '@agent-nexus/driftbench-core';
+import {
+  checkSpecLinks,
+  givenIssues,
+  type Issue,
+  type LoadResult,
+  loadSpecs,
+  registriesByPrompt,
+  type SectionRegistry,
+} from '@agent-nexus/driftbench-core';
 import type { Command } from 'commander';
 import type { Io } from '../io';
 import { coverageCommand } from './coverage';
+import { readRegistry } from './radius-sections';
 
 export function registerSpecCommands(program: Command, io: Io, setExit: (code: number) => void): void {
   const spec = program.command('spec').description('Check spec files.');
@@ -26,9 +35,18 @@ export function registerSpecCommands(program: Command, io: Io, setExit: (code: n
       '--summaries',
       'also warn when a workspace folder (world.workspace.from) or a named session state has no summary',
     )
-    .action(async (paths: string[], options: { json?: boolean; strict?: boolean; summaries?: boolean }) => {
-      setExit(await lintCommand(paths, options, io));
-    });
+    .option(
+      '--sections <registries...>',
+      'section registries: check that every prompt-section link names a known, non-stale section',
+    )
+    .action(
+      async (
+        paths: string[],
+        options: { json?: boolean; strict?: boolean; summaries?: boolean; sections?: string[] },
+      ) => {
+        setExit(await lintCommand(paths, options, io));
+      },
+    );
 
   spec
     .command('coverage')
@@ -61,13 +79,24 @@ export async function validateCommand(paths: string[], options: { json?: boolean
 
 export async function lintCommand(
   paths: string[],
-  options: { json?: boolean; strict?: boolean; summaries?: boolean },
+  options: { json?: boolean; strict?: boolean; summaries?: boolean; sections?: string[] },
   io: Io,
 ): Promise<number> {
+  const registries: SectionRegistry[] = [];
+  for (const path of options.sections ?? []) {
+    const registry = await readRegistry(path, io);
+    if (!registry) return 2;
+    registries.push(registry);
+  }
+  const byPrompt = registriesByPrompt(registries);
+  if (!byPrompt.ok) {
+    for (const error of byPrompt.errors) io.err(`${error}\n`);
+    return 2;
+  }
   const loaded = await loadSpecs(paths.map((path) => resolve(io.cwd, path)));
   // The summary warnings are asked for: the loader leaves them out, so the specs that name a state or a folder
   // without one keep linting clean by default.
-  const results = options.summaries
+  const summarised = options.summaries
     ? loaded.map((result) =>
         result.ok
           ? {
@@ -82,6 +111,10 @@ export async function lintCommand(
           : result,
       )
     : loaded;
+  const results =
+    options.sections === undefined
+      ? summarised
+      : summarised.map((result) => withLinkIssues(result, byPrompt.byPrompt));
   if (options.json) {
     io.out(
       `${JSON.stringify(
@@ -97,6 +130,15 @@ export async function lintCommand(
   if (results.length === 0 || results.some((result) => !result.ok)) return 1;
   if (options.strict && results.some((result) => result.warnings.length > 0)) return 1;
   return 0;
+}
+
+/** Adds the link checks of `--sections`: an unknown section is an error, a stale link a warning. */
+function withLinkIssues(result: LoadResult, byPrompt: ReadonlyMap<string, SectionRegistry>): LoadResult {
+  if (!result.ok) return result;
+  const issues = checkSpecLinks(result.spec, byPrompt);
+  const errors = issues.filter((issue) => issue.level === 'error');
+  const warnings = [...result.warnings, ...issues.filter((issue) => issue.level === 'warning')];
+  return errors.length > 0 ? { ok: false, path: result.path, errors, warnings } : { ...result, warnings };
 }
 
 function render(result: LoadResult, io: Io, withWarnings: boolean): string {
