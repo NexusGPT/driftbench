@@ -102,3 +102,17 @@ describe('instructions that have lost their object', () => {
     },
   );
 });
+
+describe('clauses cut at an abbreviation', () => {
+  it.each([
+    'Format the output, e.g. never print raw JSON.',
+    'Name the branch after the ticket, i.e. always include the id.',
+    'Keep the list short, etc. you must stop at five.',
+  ])('does not propose the tail of a cut sentence: %s', async (text) => {
+    const { atoms } = await candidates(`# Notes\n\n${text}\n\nKeep replies short.\n`);
+    expect(atoms.map((atom) => atom.provenance.quote)).toEqual(
+      expect.arrayContaining(['Keep replies short.']),
+    );
+    expect(atoms.map((atom) => atom.provenance.quote).filter((quote) => /^[a-z]/.test(quote))).toEqual([]);
+  });
+});

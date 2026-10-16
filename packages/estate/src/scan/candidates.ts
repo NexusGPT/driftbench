@@ -2,7 +2,7 @@ import type { Atom } from '../schema';
 import { clauseRule, NORMATIVE_HEADING, type Rule, type RuleContext } from './clause-rule';
 import type { AtomBuilder } from './code';
 import type { ProseChunk, RawEstate } from './reader';
-import { lineAt, quoteAtSpan, readFrontmatter } from './text';
+import { lineAt, quoteWithin, readFrontmatter } from './text';
 
 /** Conservative English clause proposals. These are evidence for review, never approved rules. */
 export function proseCandidates(
@@ -124,6 +124,10 @@ function candidatesOfFile(
       const offset = segment.index + leading;
       const quote = block.original.slice(offset, segment.index + segment.segment.trimEnd().length);
       if (!quote.trim()) continue;
+      // A sentence that opens in lower case mid-block was cut at an abbreviation or a number ("e.g. use X"),
+      // and one that ends on an abbreviation was cut before its end: neither is a whole clause.
+      if (segment.opening && segment.index > 0 && /^\p{Ll}/u.test(text)) continue;
+      if (/\b(?:e\.g|i\.e|etc|vs|cf|approx|incl|no)\.$/i.test(text)) continue;
       // An indexed lookup: counting line breaks from the top of the block makes a long block quadratic.
       const startLine = block.startLine + lineAt(block.original, offset) - 1;
       const endLine = startLine + countNewlines(quote);
@@ -139,7 +143,7 @@ function candidatesOfFile(
         }
         // The map accepts only a quote the extractor's own check finds at its lines (a quote ending in an
         // escaping backslash does not survive that check), so a clause whose quote fails it is not proposed.
-        if (rule && !quoteAtSpan(file.text, { file: file.path, startLine, endLine, quote }))
+        if (rule && !quoteWithin(lines.slice(startLine - 1, endLine).join('\n'), quote))
           throw new Error('the quote cannot be found at its lines');
       } catch (cause) {
         raw.notes.push({
@@ -257,6 +261,14 @@ function countNewlines(text: string): number {
 }
 const blank = (text: string) => text.replace(/[^\n]/g, ' ');
 
+/** A mark that says the example is wrong, anywhere on its line. */
+const WRONG_MARK = /[✗✘❌]|\((?:wrong|bad|incorrect)\)|\bWRONG\b/;
+/** A checklist item ("[ ] Run the tests") is a to-do, not a rule. */
+const CHECKLIST = /^\s*(?:[-+*]\s+)?\[[ xX]\]\s/;
+/** A line that only says what follows is wrong. */
+const WRONG_LABEL =
+  /^[*_]*(?:wrong|bad|incorrect|invalid|anti-?patterns?|counter-?examples?|(?:bad|wrong|incorrect)\s+examples?)\b[^.!?\n]{0,40}:[*_\s]*$/i;
+
 /**
  * The start of a paragraph or list item that is not the document's own rule: marked wrong or bad, a dated
  * entry of a log, or a line spoken by someone in a transcript.
@@ -264,6 +276,8 @@ const blank = (text: string) => text.replace(/[^\n]/g, ' ');
 const SKIPPED_BLOCK = new RegExp(
   [
     '^(?:[✗✘❌]|×\\s)',
+    '^[^\\n]{0,30}\\((?:wrong|bad|incorrect|don\\u2019t|do not)\\)',
+    '^not\\s*:',
     '^(?:wrong|bad|incorrect|invalid|anti-?patterns?|counter-?examples?|bad\\s+examples?|wrong\\s+examples?)\\b[^:—–\\n]{0,20}[:—–]',
     '^[\\[(]?(?:\\d{4}-\\d{2}(?:-\\d{2})?|\\d{1,2}/\\d{1,2}/\\d{2,4}|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\\.?\\s+\\d{1,4}|\\d{1,2}\\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\\.?|v?\\d+\\.\\d+(?:\\.\\d+)?)[)\\]]?\\s*[:—–-]',
     '^(?:user|customer|client|human|assistant|agent|bot|claude|q|a)\\s*:',
@@ -283,6 +297,7 @@ function normativeLines(lines: string[], bodyStart: number): Block[] {
   let heading = '';
   // A paragraph or list item the document marks as wrong, dated, or spoken by someone else is skipped whole.
   let skipping = false;
+  let labelled: 'armed' | 'in' | undefined;
   for (let i = bodyStart - 1; i < lines.length; i++) {
     const original = lines[i] ?? '';
     if (fence) {
@@ -325,7 +340,13 @@ function normativeLines(lines: string[], bodyStart: number): Block[] {
       heading = headed[2] ?? '';
       current = undefined;
       skipping = false;
+      labelled = undefined;
       continue;
+    }
+    if (labelled === 'in' && !line.trim()) {
+      // A blank line ends the example unless another list item follows it.
+      const next = lines.slice(i + 1).find((entry) => entry.trim());
+      if (!next || !/^\s*(?:[-+*]|\d+[.)])\s/.test(next)) labelled = undefined;
     }
     if (
       excludedLevel !== undefined ||
@@ -338,7 +359,23 @@ function normativeLines(lines: string[], bodyStart: number): Block[] {
     }
     const list = /^\s*(?:[-+*]|\d+[.)])\s/.test(original);
     if (list || !current) skipping = false;
+    // The line above an example says it is wrong ("**Wrong:**"): the paragraph or list that follows is the
+    // example, even across a blank line.
+    if (labelled) {
+      if (labelled === 'armed') labelled = 'in';
+      continue;
+    }
     if (skipping) continue;
+    if (WRONG_MARK.test(original) || CHECKLIST.test(original)) {
+      skipping = true;
+      current = undefined;
+      continue;
+    }
+    if (WRONG_LABEL.test(original.trim())) {
+      labelled = 'armed';
+      current = undefined;
+      continue;
+    }
     if (SKIPPED_BLOCK.test(original.replace(/^\s*(?:[-+*]\s+|\d+[.)]\s+)?[*_]*/, ''))) {
       skipping = true;
       current = undefined;
@@ -399,11 +436,15 @@ function ruleText(text: string): string {
 }
 
 const sentenceSegments = new Intl.Segmenter('en', { granularity: 'sentence' });
-function* proseClauses(text: string): Generator<{ segment: string; index: number }> {
+function* proseClauses(text: string): Generator<{ segment: string; index: number; opening: boolean }> {
   for (const sentence of sentenceSegments.segment(text)) {
     if (sentence.segment.includes('?')) continue;
     for (const clause of sentence.segment.matchAll(/[^;]+/g)) {
-      yield { segment: clause[0], index: sentence.index + (clause.index ?? 0) };
+      yield {
+        segment: clause[0],
+        index: sentence.index + (clause.index ?? 0),
+        opening: (clause.index ?? 0) === 0,
+      };
     }
   }
 }

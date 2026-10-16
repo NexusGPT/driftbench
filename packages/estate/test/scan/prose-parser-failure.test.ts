@@ -1,13 +1,19 @@
 import { expect, it, vi } from 'vitest';
 
 vi.mock('compromise/two', async (importOriginal) => {
-  const real = await importOriginal<{ default: (text: string) => unknown }>();
+  const real = await importOriginal<{
+    default: ((text: string) => unknown) & { model(): unknown };
+  }>();
   return {
     ...real,
-    default: (text: string) => {
-      if (text.includes('trigger a parser failure')) throw new Error('injected sentence parser failure');
-      return real.default(text);
-    },
+    // The parser function fails on one sentence; its other members (the lexicon model) stay the real ones.
+    default: Object.assign(
+      (text: string) => {
+        if (text.includes('trigger a parser failure')) throw new Error('injected sentence parser failure');
+        return real.default(text);
+      },
+      { model: () => real.default.model() },
+    ),
   };
 });
 

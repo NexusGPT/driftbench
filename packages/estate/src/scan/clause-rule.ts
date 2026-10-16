@@ -184,11 +184,14 @@ const BOUNDARY = /[,;:–—]|\s-\s|\b(?:and|but|then)\b/gi;
 const PAST_CUES =
   /\b(?:previously|formerly|originally|used\s+to|no\s+longer|anymore|last\s+(?:week|month|year|sprint|quarter|time)|yesterday|\d+\s+(?:days?|weeks?|months?|years?)\s+ago|until\s+now|back\s+then|(?:the\s+)?(?:old|former|previous|earlier)\s+(?:rules?|polic(?:y|ies)|versions?|way)|in\s+(?:19|20)\d{2}|(?:19|20)\d{2}-\d{2}(?:-\d{2})?)\b/i;
 /** Every word that can open or carry a rule, so a sentence without one needs no parse unless it is an imperative. */
+const PLACEHOLDER = /<<<|>>>|<[A-Za-z_][^<>\n]{0,40}>|\{\{|\}\}|\$\{|\b(?:TODO|TBD|FIXME|XXX)\b|…|\.{3}/;
 const CUES =
   /\b(?:must|shall|should|ought|needs?|has\s+to|have\s+to|required|expected|never|always|do\s+not|does\s+not|don['’]t|doesn['’]t|cannot|can['’]t|mustn['’]t|shouldn['’]t|won['’]t|may\s+not|only|unless|until|before|after|once|when|whenever|if|at\s+most|no\s+more\s+than|up\s+to|every|each)\b/i;
 /** Function words (articles, pronouns, prepositions, conjunctions, auxiliaries) never open an imperative. */
 const NOT_AN_INSTRUCTION_START =
   /^\W*(?:the|a|an|this|that|these|those|it|its|he|she|they|them|there|here|in|on|at|for|from|with|without|of|by|as|into|onto|over|under|about|between|through|during|within|across|per|via|and|or|but|nor|so|yet|because|since|while|although|though|is|are|was|were|been|being|am|has|have|had|does|did|will|would|can|could|may|might|what|which|who|whom|whose|why|how|some|any|all|most|many|much|few|several|both|either|neither|other|another|such|one|two|three|\d)\b/i;
+const LEXICON = (nlp as unknown as { model(): { one: { lexicon: Record<string, string> } } }).model().one
+  .lexicon;
 const FUNCTION_TAGS = [
   'Pronoun',
   'Determiner',
@@ -202,13 +205,23 @@ const FUNCTION_TAGS = [
 
 export function clauseRule(source: string, context: RuleContext): Rule | undefined {
   // Parenthetical payloads are opaque to clause grammar, while the original quote remains intact.
-  const text = source
+  // A template placeholder ("<<<name>>>", "{{x}}", "${var}", "<id>", "TODO", "...") stands for text that is not
+  // there yet: the clause is a pattern to fill, not a rule.
+  if (PLACEHOLDER.test(source)) return;
+  const whole = source
     .replace(/\([^)]*\)|\[[^\]]*\]|\{[^}]*\}/g, blank)
     .replace(/\s+/g, ' ')
     .trim();
-  if (!text || text.length > 600 || text.includes('?')) return;
+  if (!whole || whole.length > 600 || whole.includes('?')) return;
+  // A lead-in that ends in a colon introduces what follows; it is no rule of its own.
+  if (/[:：]$/.test(whole)) return;
+  // A log entry or an account of the past is not a rule, whatever label it carries.
+  if (PAST_CUES.test(whole) || PAST_ENTRY.test(whole)) return;
+  // "Step 1 — Do X", "Rule: never Y": the label is a heading, its continuation can be a rule.
+  const text = withoutLabel(whole);
+  if (!text) return;
   // A sentence with no cue word that opens with a function word cannot be an instruction: skip the parser.
-  if (!CUES.test(text) && NOT_AN_INSTRUCTION_START.test(text)) return;
+  if (!CUES.test(text) && (NOT_AN_INSTRUCTION_START.test(text) || !mayOpenAnInstruction(text))) return;
   const parsed = nlp(text);
   const terms = termsOf(parsed);
   if (terms.length < 2) return;
@@ -225,11 +238,11 @@ export function clauseRule(source: string, context: RuleContext): Rule | undefin
     return;
   }
   const bound = /^(?:at\s+most|no\s+more\s+than|a\s+maximum\s+of|up\s+to)\s+(.+)$/i.exec(text);
-  if (bound && parsed.has('#Value') && parsed.has('#Noun'))
+  if (bound && terms.some((term) => has(term, 'Value')) && terms.some((term) => has(term, 'Noun')))
     return { subject: bound[1] ?? '', polarity: 'obligation', form: 'bound' };
-  if (/\bat\s+most\b/i.test(text) && imperativeLed && parsed.has('#Value'))
+  if (/\bat\s+most\b/i.test(text) && imperativeLed && terms.some((term) => has(term, 'Value')))
     return {
-      subject: parsed.match('#Noun+').first().text() || 'agent',
+      subject: terms.find((term) => has(term, 'Noun'))?.text || 'agent',
       polarity: 'obligation',
       form: 'bound',
     };
@@ -263,10 +276,14 @@ function markerRule(
   const strong = marker.groups?.strong !== undefined;
   const negated = !!marker.groups?.mod && /not|never/i.test(marker.groups.mod);
   const prohibition = negated || (!strong && !/^always$/i.test(marker[0]));
-  const tail = text.slice(marker.index + marker[0].length).replace(/^[\s,]+/, '');
+  const afterMarker = text.slice(marker.index + marker[0].length);
+  // "Never, under any circumstances, share the key": an interjected phrase between commas is not the act.
+  const tail = (
+    /^\s*,/.test(afterMarker) ? afterMarker.replace(/^\s*,[^,]{1,50},\s*/, '') : afterMarker
+  ).replace(/^[\s,]+/, '');
   // The act is the first word after the marker: the sentence's own parse usually says it is a verb, so the
   // extra probe parse runs only when it does not.
-  const after = termsWithin(text, terms, marker.index + marker[0].length, text.length).find(
+  const after = termsWithin(text, terms, text.length - tail.length, text.length).find(
     (term) => !has(term, 'Negative', 'Adverb', 'Expression'),
   );
   if (!(has(after, 'Verb') && !has(after, 'Modal')) && !actFollows(tail)) return;
@@ -280,6 +297,9 @@ function markerRule(
   if (subjectWords.length > 0 && !imperativeLed) {
     const kind = subjectKind(subjectText, subjectTerms, context);
     if (kind === 'finite' || kind === 'others') return;
+    // An obligation with a calendar deadline ("by Friday", "within a week") is owed by people or teams: an
+    // agent session works in minutes. The estate's own agents, skills and outputs are exempt.
+    if (kind === 'thing' && calendarDeadline(text, terms, marker.index + marker[0].length)) return;
     // A bare habit ("the tool never retries") describes unless the section holds rules.
     if (!strong && kind === 'thing' && !context.normative) return;
   } else if (
@@ -311,6 +331,11 @@ function termsWithin(text: string, terms: Term[], from: number, to: number): Ter
   return out;
 }
 
+function calendarDeadline(text: string, terms: Term[], from: number): boolean {
+  if (/\b(?:days?|weeks?|months?|years?|quarters?|sprints?)\b/i.test(text.slice(from))) return true;
+  return termsWithin(text, terms, from, text.length).some((term) => has(term, 'WeekDay', 'Month', 'Holiday'));
+}
+
 /** What the words before a verb denote: the agent, what it writes, other parties, a thing, or a clause. */
 function subjectKind(
   subject: string,
@@ -321,16 +346,17 @@ function subjectKind(
   const before = relative >= 0 ? subjectTerms.slice(0, relative) : subjectTerms;
   // A finite verb ahead of the marker ("the contract states that ...") reports somebody's words. The first
   // word of a sentence is a noun the tagger may read as a verb ("Replies"), so only later words count.
-  if (
-    before.some(
-      (term, at) =>
-        at > 0 &&
-        has(term, 'Verb') &&
-        has(term, 'PresentTense', 'PastTense') &&
-        !has(term, 'Gerund', 'Participle', 'Adjective', 'Noun', 'Infinitive', 'Modal'),
-    )
-  )
-    return 'finite';
+  const reports = (at: number) => {
+    const term = before[at] as Term;
+    if (at === 0 || !has(term, 'Verb') || !has(term, 'PresentTense', 'PastTense')) return false;
+    if (has(term, 'Gerund', 'Participle', 'Adjective', 'Noun', 'Infinitive', 'Modal')) return false;
+    // A verb that ends the subject is a relative clause ("anything you write must"); one with words after it
+    // opens a report ("the contract states that ...", "the reviewer says the reply must ...").
+    const next = before[at + 1];
+    if (!next) return relative >= 0 && at === before.length - 1;
+    return !has(next, 'Preposition', 'Particle', 'Modal', 'Adverb');
+  };
+  if (before.some((_term, at) => reports(at))) return 'finite';
   // The head of the phrase is its last noun before a preposition or a participle.
   let head: Term | undefined;
   for (const [at, term] of before.entries()) {
@@ -365,12 +391,11 @@ function subjectKind(
 function quantifiedRule(text: string, parsed: Parsed, terms: Term[], context: RuleContext): Rule | undefined {
   // A present passive first: its auxiliary is the verb, whatever the tagger made of a noun before it.
   let subject: string | undefined = passiveSubject(text, terms);
-  if (!subject && parsed.has('#PresentTense')) {
-    const verb = (parsed.match('#Verb').out('array') as string[])
-      .map((token) => token.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '').trim())
-      .filter(Boolean)[0]
-      ?.split(/\s+/)[0]
-      ?.toLowerCase();
+  if (!subject && terms.some((term) => has(term, 'PresentTense'))) {
+    const verb = terms
+      .find((term) => has(term, 'Verb'))
+      ?.text.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '')
+      .toLowerCase();
     const token = [...text.matchAll(/[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu)].find(
       (entry) => entry[0].toLowerCase() === verb,
     );
@@ -425,7 +450,11 @@ function conditionalRule(
     );
   const comma = text.search(/[,:]/);
   const openingHasVerb = termsWithin(text, terms, 0, comma < 0 ? 0 : comma).some((term) => has(term, 'Verb'));
-  if (opening && (openingHasVerb || /^only\b/i.test(text)) && startsAsInstruction(opening[2] ?? ''))
+  const main = opening?.[2] ?? '';
+  const instruction =
+    startsAsInstruction(main) ||
+    (/^[\p{L}'’-]+[.!]?$/u.test(main) && isImperative(main.replace(/[.!]$/, ''), true));
+  if (opening && (openingHasVerb || /^only\b/i.test(text) || instruction) && instruction)
     return { subject: 'agent', polarity: 'obligation', form: 'conditional' };
   const restricted = /^only\s+(.+)$/i.exec(text);
   if (restricted && startsAsInstruction(restricted[1] ?? ''))
@@ -469,7 +498,7 @@ function declaredOutput(text: string, parsed: Parsed, terms: Term[], context: Ru
     );
   // "Replies stay brief": a generic plural (no article) states a norm; "the reply stays brief" may describe.
   const generic = !terms.slice(0, verbAt).some((term) => has(term, 'Determiner', 'Possessive'));
-  if (!measured && !generic && !parsed.has('#Adjective') && !context.normative) return;
+  if (!measured && !generic && !terms.some((term) => has(term, 'Adjective')) && !context.normative) return;
   if (has(terms[verbAt], 'PastTense')) return;
   return { subject, polarity: 'obligation', form: 'declared' };
 }
@@ -583,11 +612,71 @@ function imperativeStart(terms: Term[]): boolean {
   return false;
 }
 
+/** A log entry opens with a capitalised past form and a label: "Added: ...", "Changed in v2: ...". */
+const PAST_ENTRY = /^[\p{Lu}]\p{L}*ed\b[^:—–]{0,30}[:—–]/u;
+
+/**
+ * "Step 1 — ...", "Discover — ...", "Rule: ...": a heading or step label of at most three words (one word,
+ * or capitalised, or in capitals) before a dash or a colon. What follows it is the clause. A line that
+ * opens with a conditional word keeps its opening ("Before X: do Y").
+ */
+function withoutLabel(text: string): string {
+  if (/^(?:before|after|only|if|when|whenever|once|unless|until|while|because|since)\b/i.test(text))
+    return text;
+  const found = /^([^.,;:!?()—–]{1,40}?)\s*(?:[—–]|\s-\s|:)\s+(.+)$/u.exec(text);
+  if (!found) return text;
+  const words = (found[1] ?? '').trim().split(/\s+/);
+  const label =
+    words.length <= 3 &&
+    (words.length === 1 ||
+      /^\p{Lu}{2,}\b/u.test(words[0] ?? '') ||
+      words.every((word) => /^[\p{Lu}\d]/u.test(word)));
+  if (!label) return text;
+  const rest = (found[2] ?? '').trim();
+  const prefix = (found[1] ?? '').trim();
+  // A step or phase heading ("Step 1 — Discover the files") is a heading whatever follows it, and a title after
+  // a dash with no closing punctuation is a title, not a sentence. A colon label ("Rule: never X") is a lead-in.
+  const dash = /[—–]|\s-\s/.test(text.slice(prefix.length, prefix.length + 4));
+  if (
+    dash &&
+    (/^(?:step|phase|part|stage|round|item|section|chapter|\d)/i.test(prefix) || !/[.!)]$/.test(rest))
+  )
+    return '';
+  return rest;
+}
+
+/** First words that can start an instruction in the tagger's own lexicon (a noun or verb stem, or unknown). */
+function mayOpenAnInstruction(text: string): boolean {
+  const first = /^\W*([\p{L}][\p{L}'’-]*)/u.exec(text)?.[1]?.toLowerCase();
+  if (!first) return false;
+  if (text.split(' ').length > 30) return false;
+  // An output noun can open a statement about the agent's own output ("Replies stay brief").
+  if (OUTPUT.has(first) || OPENERS.has(first)) return true;
+  if (/(?:ing|ed)$/.test(first) || (/s$/.test(first) && !/ss$/.test(first))) return false;
+  const tag = LEXICON[first];
+  return (
+    tag === undefined || ['Infinitive', 'Singular', 'Verb', 'Noun', 'Adjective', 'Uncountable'].includes(tag)
+  );
+}
+
+/** Words that lead into an instruction without being one. */
+const OPENERS = new Set([
+  'please',
+  'kindly',
+  'first',
+  'then',
+  'also',
+  'next',
+  'finally',
+  'now',
+  'just',
+  'simply',
+  'always',
+  'never',
+]);
+
 /** History, a changelog entry, a reported decision or a past state: not a rule that holds now. */
 function describesThePast(text: string, terms: Term[]): boolean {
-  if (PAST_CUES.test(text)) return true;
-  // A log entry opens with a capitalised past form and a label: "Added: ...", "Changed in v2: ...".
-  if (/^[\p{Lu}]\p{L}*ed\b[^:—–]{0,30}[:—–]/u.test(text)) return true;
   const first = terms[0];
   if (
     has(first, 'PastTense') &&
@@ -596,6 +685,8 @@ function describesThePast(text: string, terms: Term[]): boolean {
   )
     return true;
   const marker = MARKER.exec(text)?.index ?? firstSubordinate(terms, text);
+  // "Explain what you changed": the past verb sits in a clause an instruction asks about.
+  const imperativeFirst = has(first, 'Imperative') || (has(first, 'Verb') && has(first, 'Infinitive'));
   let offset = 0;
   for (let at = 0; at < terms.length; at++) {
     const term = terms[at] as Term;
@@ -609,11 +700,13 @@ function describesThePast(text: string, terms: Term[]): boolean {
     // Only the main clause counts: a past verb late in the sentence is a relative clause ("the language the
     // user wrote in") or a negated auxiliary ("what you did not run").
     if (
+      !imperativeFirst &&
       at <= 5 &&
       has(term, 'Verb') &&
       has(term, 'PastTense') &&
       !has(term, 'Passive', 'Participle', 'Adjective', 'Gerund') &&
-      !has(terms[at + 1], 'Negative') &&
+      !has(terms[at + 1], 'Negative', 'Preposition', 'Modal') &&
+      offset < marker &&
       has(before, 'Noun', 'Pronoun')
     )
       return true;
@@ -669,7 +762,7 @@ function elidedObject(terms: Term[]): boolean {
   return (
     !!first &&
     /^(?:before|after|during|until|prior)$/i.test(first.text) &&
-    !rest.some((term, index) => index > 0 && has(term, 'Verb', 'Pronoun') && !has(term, 'Gerund'))
+    !rest.some((term, index) => index > 0 && has(term, 'Verb', 'Pronoun'))
   );
 }
 
