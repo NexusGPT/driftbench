@@ -14,19 +14,21 @@ describe('ordered step successors', () => {
       ],
     ],
     [
-      'then alias',
+      // Listed as start, finish, check: the listed order would give start -> finish, so only a reader
+      // that honours `then` gives start -> check -> finish.
+      'then alias, in an order that differs from the listed one',
       JSON.parse(
-        '[{"id":"start","then":["check"]},{"id":"check","then":"finish"},{"id":"finish","then":[]}]',
+        '[{"id":"start","then":["check"]},{"id":"finish","then":[]},{"id":"check","then":"finish"}]',
       ),
     ],
   ])('reads %s', async (_name, steps) => {
     const root = await estate({ '.claude/steps.json': JSON.stringify({ steps }, null, 2) });
     const raw = await new ClaudeCodeReader().read(root);
-    expect(raw.steps.map(({ id, next }) => ({ id, next }))).toEqual([
-      { id: 'start', next: ['check'] },
-      { id: 'check', next: ['finish'] },
-      { id: 'finish', next: [] },
-    ]);
+    expect(Object.fromEntries(raw.steps.map(({ id, next }) => [id, next]))).toEqual({
+      start: ['check'],
+      check: ['finish'],
+      finish: [],
+    });
   });
 
   it('preserves explicit terminal steps and does not infer across a declared graph', async () => {
