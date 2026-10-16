@@ -458,7 +458,9 @@ export function carrierOf(
   // A focus variant takes the next task of the estate, so its ask differs from the row it varies.
   const any = tasks.filter(touchesSome);
   const chosen = any[(variant ?? 0) % Math.max(1, any.length)];
-  return chosen ? pick(chosen) : undefined;
+  if (!chosen) return undefined;
+  const found = pick(chosen);
+  return unit ? found : { ...found, carrier: { ...found.carrier, standing: true } };
 }
 
 /**

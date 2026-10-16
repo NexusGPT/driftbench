@@ -356,6 +356,22 @@ describe('an ask never restates a rule: a task of the estate leads, the rule rid
     );
   });
 
+  it('carries a standing rule with a situation through any task of the estate, and keeps a bare one', () => {
+    const standing = { ...task, standing: true };
+    const opening = atom('instruction.standing.open-the-log', {
+      title: 'Open the bake log at the start of a shift',
+      situation: 'A shift starts',
+    });
+    expect(codeAsk('trigger', [opening], [], false, undefined, undefined, standing).text).toBe(
+      'Add the late shipment count to the report for week 41. A shift starts.',
+    );
+    // A standing rule with no situation of its own keeps its own act: no task sets it in play.
+    const bare = atom('instruction.standing.date-jars', { title: 'Write the date on every jar' });
+    expect(codeAsk('trigger', [bare], [], false, undefined, undefined, standing).text).toBe(
+      'Please write the date on every jar.',
+    );
+  });
+
   it('asks a hazard as the task it strikes, and a guard test breaks the rule inside a task', () => {
     const hazard = atom('hazard.standing.restart', { kind: 'hazard', title: 'Recover from a restart' });
     expect(codeAsk('trigger', [hazard], [], false, undefined, undefined, task).text).toBe(task.text);

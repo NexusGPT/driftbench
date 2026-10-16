@@ -31,7 +31,13 @@ import type { EstateAtom, SituationUse } from './inputs';
  * A task the estate handles, an ask leads with: an approved phrase as it is, or an act code words. `own`
  * when it is a task of the rule's own unit (skill or helper), whose rules it sets in play.
  */
-export type Carrier = { text: string; act?: string; own?: boolean };
+export type Carrier = {
+  text: string;
+  act?: string;
+  own?: boolean;
+  /** The rule sits in no skill or helper: the standing instructions set it in play for every task. */
+  standing?: boolean;
+};
 
 /** Other phrasings of a trigger ask, for the focus variants of a row: the same act, put another way. */
 export const TRIGGER_VARIANTS: ReadonlyArray<(act: string, context: string) => string> = [
@@ -315,10 +321,13 @@ function carriedAsk(
   const head = atoms[0];
   if (!head || !found.restates || (use !== 'trigger' && use !== 'pressure' && use !== 'forced')) return;
   // A rule that asks for an act and names no forbidden act, gate trigger or hazard is set in play only by a
-  // task of its own unit: another task would never reach it, so its own act stays the ask.
+  // task of its own unit: another task would never reach it, so its own act stays the ask. A standing rule
+  // with a situation ("at the start of a session") is in play for any task in that situation: a task of the
+  // estate carries it, with the situation.
   const trigger = typeof head.fields?.trigger === 'string' ? clauseOf(plain(head.fields.trigger)) : '';
   const triggered = head.kind === 'gate' && trigger !== '' && askable(trigger) === undefined;
-  if (found.restates === 'rule' && !triggered && head.kind !== 'hazard' && !carrier.own) return;
+  const situated = carrier.standing === true && askableContext(head) !== undefined;
+  if (found.restates === 'rule' && !triggered && head.kind !== 'hazard' && !carrier.own && !situated) return;
   const parts = [carrier.act !== undefined && twin ? `Could you ${carrier.act}?` : carrier.text];
   if (found.restates === 'forbidden') parts.push(`While you are at it, ${found.act}.`);
   else if (found.restates === 'guard') {
@@ -419,6 +428,12 @@ function letterWords(text: string): number {
 }
 
 /** The situation of a rule, the trigger of a gate, the read-when line of a reference, as a sentence. */
+/** The situation of a rule when it can ride in an ask (no file, no code, not cut mid-sentence). */
+function askableContext(atom: EstateAtom): string | undefined {
+  const context = contextOf(atom);
+  return context !== undefined && situationProblem(context) === undefined ? context : undefined;
+}
+
 function contextOf(atom: EstateAtom): string | undefined {
   const fields = atom.fields ?? {};
   let text: string | undefined;
