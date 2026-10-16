@@ -61,7 +61,7 @@ export type {
  * Each model call runs under the shared retry policy, with the client's own retries off (`maxRetries: 0`).
  */
 
-export const ANTHROPIC_ADAPTER_VERSION = '0.1.0';
+export const ANTHROPIC_ADAPTER_VERSION = '0.1.1';
 
 export type AnthropicAdapterOptions = RetryOption & {
   /** The client. The adapter calls `client.messages.create(body)` and nothing else. */

@@ -2,7 +2,7 @@
 
 import { NONE } from '@agent-nexus/driftbench-space';
 import type { SpecDraft } from './assemble';
-import { dimensionId, type JsonSchema, type PreparedMap } from './map';
+import { behaviourSubject, dimensionId, type JsonSchema, type PreparedMap } from './map';
 import { slotsOf } from './relations';
 import { hasPaths, type SeedContext, scenarioDraft } from './seed-drafts';
 
@@ -30,7 +30,9 @@ export function restatedDrafts(prepared: PreparedMap, context: SeedContext, firs
     if (first + drafts.length >= context.max) break;
     // A side-effecting tool never runs on a request alone, and a move with no stated destination has no
     // phrase to read the slot from.
+    // A behaviour's call is made in its own phrase turn, never on a move to restate a slot in.
     if (sideEffecting.has(use.tool) || use.to === undefined || transition === undefined) continue;
+    if (behaviourSubject(prepared, use.subject)) continue;
     const move = prepared.phrasesOf.get(`${transition}=${use.stage}-to-${use.to}`) ?? [];
     for (const [field, assertion] of Object.entries(use.input ?? {})) {
       const slots = slotsOf(assertion);

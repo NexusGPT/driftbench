@@ -517,7 +517,7 @@ describe('anthropic adapter', () => {
     });
     const session = await bare.open(given);
     await expect(bare.endState?.(session, '*')).rejects.toThrow(/names no sideEffects/);
-    expect(bare.version).toMatch(/^0\.1\.0\+/);
+    expect(bare.version).toMatch(/^0\.1\.1\+/);
     expect(anthropicAdapter({ client: fakeAnthropic(), model: 'other' }).version).not.toBe(bare.version);
     await bare.close(session);
     await bare.close(session);
