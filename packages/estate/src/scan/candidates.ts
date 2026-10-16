@@ -154,12 +154,17 @@ function candidatesOfFile(
       if (resolved.some((chunk) => chunk.startLine <= startLine && endLine <= chunk.endLine)) continue;
       // A structured or model rule already occupying this passage is more informative.
       if (
-        (form === 'imperative' ? covered : occupied).some(startLine, endLine, (atom) =>
-          form === 'imperative' && !['instruction', 'register', 'gate'].includes(atom.kind)
-            ? true
-            : atom.kind === 'gate'
-              ? form === 'conditional' || ruleText(atom.provenance.quote) === ruleText(quote)
-              : atom.provenance.quote.includes(quote.trim()),
+        (form === 'imperative' || form === 'conditional' ? covered : occupied).some(
+          startLine,
+          endLine,
+          (atom) =>
+            // A step that code reads as a reference, script, route or hazard is that atom's own sentence:
+            // one holds the other's words. A second rule on the same line holds neither.
+            !['instruction', 'register', 'gate'].includes(atom.kind)
+              ? sameWords(atom.provenance.quote, quote)
+              : atom.kind === 'gate'
+                ? form === 'conditional' || ruleText(atom.provenance.quote) === ruleText(quote)
+                : atom.provenance.quote.includes(quote.trim()),
         )
       )
         continue;
@@ -349,6 +354,13 @@ function normativeLines(lines: string[], bodyStart: number): Block[] {
     }
   }
   return blocks;
+}
+
+/** One passage holds the other's words, ignoring white space and list or rule labels. */
+function sameWords(a: string, b: string): boolean {
+  const left = ruleText(a);
+  const right = ruleText(b);
+  return left.includes(right) || right.includes(left);
 }
 
 function ruleText(text: string): string {
