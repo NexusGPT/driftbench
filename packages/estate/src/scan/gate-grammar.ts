@@ -392,14 +392,17 @@ export function unresolvedKind(phrase: string): 'section' | 'state' | 'role' | u
   if (/^(?:state|status)$/i.test(content.at(-1) ?? '')) return 'state';
   // A part named by role must say it is a document: a word for what a rule, a standard or a checklist is
   // written in. "the whole thread", "the customer's last email" name a thing of the conversation.
-  if (content.some((word) => DOCUMENT_NOUNS.has(word.toLowerCase().replace(/['\u2019]s$/, ''))))
-    return 'role';
+  const lower = content.map((word) => word.toLowerCase().replace(/['\u2019]s$/, ''));
+  if (lower.some((word) => DOCUMENT_NOUNS.has(word))) return 'role';
   // A name written with capitals inside the phrase ("the Foundation scorecard", "the Handover") is a document's name.
-  const words = text.split(/\s+/);
-  const named =
-    words.slice(1).some((word) => /^[A-Z][a-z]{2,}/.test(word) || /^[A-Z]{3,}$/.test(word)) &&
-    !/\b(?:thread|message|email|ticket|conversation|reply|answer|question)\b/i.test(text);
-  return named ? 'role' : undefined;
+  const capitals = text
+    .split(/\s+/)
+    .slice(1)
+    .some((word) => /^[A-Z][a-z]{2,}/.test(word) || /^[A-Z]{3,}$/.test(word));
+  if (capitals) return 'role';
+  // Else a phrase of several words names a part of something, unless it names material of the conversation or
+  // of the work in progress ("the whole thread", "the customer's last email", "the error output").
+  return lower.some((word) => TRANSIENT_NOUNS.has(word)) ? undefined : 'role';
 }
 
 /**
@@ -568,3 +571,60 @@ export function folderRead(phrase: string, folders: (path: string) => boolean): 
   if (path === '' || /\s/.test(path)) return undefined;
   return path.endsWith('/') || folders(path) ? path : undefined;
 }
+
+/**
+ * Material of the conversation or of the work in progress. Reading it is part of doing the work, not the
+ * read-before rule of a document: "read the whole thread before you reply".
+ */
+const TRANSIENT_NOUNS = new Set([
+  'thread',
+  'message',
+  'messages',
+  'email',
+  'emails',
+  'mail',
+  'conversation',
+  'chat',
+  'ticket',
+  'reply',
+  'replies',
+  'answer',
+  'answers',
+  'question',
+  'questions',
+  'request',
+  'requests',
+  'response',
+  'responses',
+  'comment',
+  'comments',
+  'transcript',
+  'diff',
+  'error',
+  'errors',
+  'output',
+  'trace',
+  'stacktrace',
+  'result',
+  'results',
+  'data',
+  'input',
+  'code',
+  'test',
+  'tests',
+  'history',
+  'context',
+  'draft',
+  'sentence',
+  'paragraph',
+  'text',
+  'prompt',
+  'issue',
+  'customer',
+  'user',
+  'order',
+  'invoice',
+  'report',
+  'log',
+  'logs',
+]);
