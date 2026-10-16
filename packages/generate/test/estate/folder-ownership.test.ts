@@ -28,7 +28,7 @@ const reference = (
   provenance: { file: hub.provenance?.file, quote },
   evidence: [{ type: 'tool_called', label: 'Read', input: { file_path: { equals: path } } }],
 });
-function run(atoms: EstateAtom[], rows: EstatePlanRow[]) {
+function run(atoms: EstateAtom[], rows: EstatePlanRow[], situations: PhraseBank['situations'] = []) {
   const edges = atoms
     .filter((atom) => atom.kind === 'reference')
     .flatMap((atom) => [
@@ -44,6 +44,7 @@ function run(atoms: EstateAtom[], rows: EstatePlanRow[]) {
         version: 1,
         estate: 'dispatch',
         mapHash: map.hash,
+        situations,
       }),
     },
     { paths: { map: 'map.yaml', plan: 'plan.yaml', phrases: 'phrases.yaml' } },
@@ -164,4 +165,78 @@ it('uses the source clause before stale extracted gate metadata', () => {
   const parsed = parseSpecText(file.text, 'yaml', file.path);
   if (!parsed.ok) throw new Error(JSON.stringify(parsed.errors));
   expect(parsed.spec.blocks[0]?.when).toEqual({ user: 'Please publish the delivery notice.' });
+});
+
+it('rejects an approved phrase belonging to a different skill despite an explicit reference pin', () => {
+  const ref = reference(
+    'reference.phrased',
+    undefined,
+    'Before editing the delivery label, read the carrier policy.',
+  );
+  const suite = run(
+    [hub, shipping, ref],
+    [row(ref.id)],
+    [
+      {
+        id: 'wrong-catalogue-task',
+        title: 'Catalogue task',
+        use: 'trigger',
+        atoms: [ref.id, hub.id],
+        phrases: [{ text: 'Prepare the annual catalogue.', lang: 'en', approved: true }],
+      },
+    ],
+  );
+  const file = suite.files.find((file) => file.path.endsWith('.yaml'));
+  if (!file) throw new Error('missing spec');
+  const parsed = parseSpecText(file.text, 'yaml', file.path);
+  if (!parsed.ok) throw new Error(JSON.stringify(parsed.errors));
+  expect(parsed.spec.blocks[0]?.when).toEqual({ user: 'Please edit the delivery label.' });
+});
+
+it('a declared tool uses its owning helper situation when other tasks list its permission', () => {
+  const helper = {
+    ...unit('dispatch-helper', 'Audit delivery manifests for missing parcels.'),
+    kind: 'subagent',
+    provenance: { file: 'agents/dispatch-helper.md', quote: 'Audit delivery manifests.' },
+    evidence: [
+      { type: 'tool_called', label: 'Agent', input: { subagent_type: { equals: 'dispatch-helper' } } },
+    ],
+  } as EstateAtom;
+  const tool: EstateAtom = {
+    id: 'tool.manifest-search',
+    kind: 'tool',
+    approved: true,
+    title: 'Allow Glob',
+    provenance: { file: helper.provenance?.file, quote: 'tools: Glob' },
+    fields: { rule: 'Glob', tool: 'Glob', effect: 'allow' },
+    evidence: [{ type: 'custom', name: 'permission', options: { effect: 'allow', rule: 'Glob' } }],
+  };
+  const suite = run(
+    [hub, helper, tool],
+    [{ ...row(tool.id), testType: 'tool_boundary' }],
+    [
+      {
+        id: 'catalogue',
+        title: 'Catalogue task',
+        use: 'trigger',
+        atoms: [hub.id, tool.id],
+        phrases: [{ text: 'Prepare the annual catalogue.', lang: 'en', approved: true }],
+      },
+      {
+        id: 'manifest-audit',
+        title: 'Audit task',
+        use: 'trigger',
+        atoms: [helper.id],
+        phrases: [{ text: 'Audit the delivery manifests for missing parcels.', lang: 'en', approved: true }],
+      },
+    ],
+  );
+  const file = suite.files.find((file) => file.path.endsWith('.yaml'));
+  if (!file) throw new Error('missing spec');
+  const parsed = parseSpecText(file.text, 'yaml', file.path);
+  if (!parsed.ok) throw new Error(JSON.stringify(parsed.errors));
+  expect(parsed.spec.blocks[0]?.when).toEqual({ user: 'Audit the delivery manifests for missing parcels.' });
+  expect(suite.specs[0]?.atoms).toEqual([tool.id, helper.id]);
+  expect(suite.report.summary.complete).toBe(1);
+  expect(suite.report.invalid).toEqual([]);
 });

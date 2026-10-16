@@ -62,7 +62,12 @@ export function situationOfRow(
   const own = findSituation(ctx.bank, use, row, ctx.atoms);
   // An outside situation of one rule does not certify a control of every rule the guard enforces.
   if (own || (use !== 'trigger' && use !== 'forced')) return own;
-  if (head?.kind === 'tool' && use === 'trigger') return siblingSituation(ctx, use, row, head);
+  if (head?.kind === 'tool' && use === 'trigger') {
+    const owner = row.atomIds.find((id) => ['skill', 'subagent'].includes(ctx.atoms.get(id)?.kind ?? ''));
+    // Declared tools belong to their unit's task, even when a bank lists their permission globally.
+    if (owner) return findSituation(ctx.bank, use, { ...row, atomIds: [owner] }, ctx.atoms);
+    return siblingSituation(ctx, use, row, head);
+  }
   if (head?.kind !== 'guard') return own;
   const links = Array.isArray(head.fields?.enforces)
     ? (head.fields.enforces as Array<{ atom?: unknown; by?: unknown }>).filter(
@@ -493,11 +498,21 @@ export function findSituation(
 ): Situation | undefined {
   const head = row.atomIds[0];
   const homes = head !== undefined && atoms ? foldersNamedBy(atoms.get(head)) : [];
+  const owner = row.atomIds.slice(1).find((id) => ['skill', 'subagent'].includes(atoms?.get(id)?.kind ?? ''));
   let best: Situation | undefined;
   let score = -1;
   let near = -1;
   for (const situation of bank.situations) {
     if (situation.use !== use || head === undefined || !situation.atoms.includes(head)) continue;
+    // A guard may enforce both standing and scoped rules; its documented trigger is not confined
+    // to the one scoped owner inferred from its enforcement links.
+    if (
+      owner &&
+      atoms?.get(head)?.kind !== 'guard' &&
+      ['trigger', 'forced', 'pressure'].includes(use) &&
+      !situation.atoms.includes(owner)
+    )
+      continue;
     const pins = Object.entries(situation.cell ?? {});
     if (pins.some(([key, value]) => row.cell[key] !== undefined && row.cell[key] !== value)) continue;
     const held = row.atomIds.filter((id) => situation.atoms.includes(id)).length;

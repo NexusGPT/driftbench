@@ -124,4 +124,8 @@ an unrelated catalogue skill. It checks every reference's owner membership and a
 cases cover missing trigger fields, alternate clause forms, unowned references and stale plan metadata.
 The previous synthetic input lacks this hostile cross-link pattern, which explains the missing coverage.
 
+Approved trigger-phrase selection applies the same owner boundary. A phrase that pins a reference or declared
+tool under an unrelated unit cannot supply its task. Declared tools can use their owning helper's own
+approved situation when the bank omits the tool from that situation.
+
 Private remeasurement of the correction is pending.

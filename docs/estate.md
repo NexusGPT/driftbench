@@ -583,6 +583,8 @@ The longest matching declared skill folder wins; route edges identify route targ
 Ambiguous and unowned targets stay unresolved. Older plans are repaired during generation:
 unrelated attached skills are removed from both expectations and atom metadata.
 A shared file outside every skill folder never borrows the first citing skill's task.
+Approved trigger phrases also respect that owner: a bank pin on a rule cannot borrow a different unit's task.
+A declared tool can use the owning helper's own situation when its permission is listed under unrelated tasks.
 The task in a source prerequisite clause is used even when the extracted trigger field is absent.
 A bare read-prerequisite title is never converted into a self-answering user ask.
 
