@@ -418,7 +418,7 @@ const ALTERED: NormalCause = {
   why: 'the agent changed the value the user gave',
   build: (gold) => ({
     user: `My email is ${gold}.`,
-    value: gold.replace('@', '.x@'),
+    value: `${gold}x`,
     error: 'no customer with that email',
   }),
 };
