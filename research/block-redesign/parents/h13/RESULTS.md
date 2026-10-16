@@ -64,4 +64,4 @@ By stem length (edges in the sample, with `manifest`):
 
 ## Stored data note
 
-The stand-in agent wrote one example number, a placeholder phone in the style of a US number with the 555 exchange, in three replies. The leak guard reads it as a real number outside the fictional range. The three occurrences in `results/arms.jsonl` and `results/arms-scored.jsonl` now read `+1 202 555 0123`. Nothing else changed: `rescore.ts` on the edited `arms.jsonl` gives a byte-identical `arms-scored.jsonl`, and `analyse.py` gives a byte-identical `results.json`.
+The stand-in agent wrote one example number, a placeholder phone in the style of a US number with the 555 exchange, in three places of two stored arms. The leak guard reads it as a real number outside the fictional range. The three occurrences in each of `results/arms.jsonl` and `results/arms-scored.jsonl` now read `+1 202 555 0123`. Nothing else changed: `rescore.ts` on the edited `arms.jsonl` gives a byte-identical `arms-scored.jsonl`, and `analyse.py` gives a byte-identical `results.json`.
