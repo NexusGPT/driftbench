@@ -1,6 +1,21 @@
 import { basename, posix } from 'node:path';
 import nlp from 'compromise/two';
 import type { Atom, AtomKind, EvidencePredicate } from '../schema';
+import {
+  CLOSE_TOKEN,
+  collapseReads,
+  continuation,
+  dated,
+  eventHead,
+  exampleOrHistory,
+  isEvent,
+  OPEN_TOKEN,
+  splitAddition,
+  TOKEN,
+  tagsOf,
+  timeOffset,
+  withoutEmphasis,
+} from './gate-grammar';
 import { guardRuleSources } from './guard-rules';
 import type { EstateFile, GuardDecl, ProseChunk, RawEstate, RegistryRow } from './reader';
 import {
@@ -1450,9 +1465,6 @@ function routeAtoms(
  * adverbial lead-in is kept, while a negated, optional or conditional head ("do not read", "you need not
  * read", "if you read") gives no gate.
  */
-const OPEN_TOKEN = '\uE000';
-const CLOSE_TOKEN = '\uE001';
-const TOKEN = String.raw`\uE000\d+\uE001`;
 /** What is read: one masked span, else the words up to the next form word. */
 const TARGET = String.raw`(${TOKEN}|\S+)`;
 const NEGATIVE = String.raw`(?:do\s+not|don't|never|must\s+not|mustn't|should\s+not|shouldn't|cannot|can't|may\s+not)`;
@@ -1490,7 +1502,7 @@ const GATE_FORMS: Array<{
   {
     form: 'context-read-first',
     pattern: new RegExp(
-      String.raw`^(?:to|for|when|if)\s+(.+?)\s*[:,]\s*(.*?)\bread\s+${TARGET}\s+first$`,
+      String.raw`^(?:to|for|when|whenever|if|(?:each|every|any)\s+time|the\s+(?:first|next)\s+time)\s+(.+?)\s*[:,]\s*(.*?)\bread\s+${TARGET}\s+first$`,
       'i',
     ),
     head: [2],
@@ -1517,6 +1529,27 @@ const GATE_FORMS: Array<{
     loaded: true,
   },
   {
+    form: 'until-read-no',
+    pattern: new RegExp(
+      String.raw`^until\s+(?:you\s+(?:have\s+|'ve\s+)?)?read\s+${TARGET}\s*[:,]\s*(.*?)\b${NEGATIVE}\s+(.+)$`,
+      'i',
+    ),
+    head: [2],
+    read: 1,
+    act: 3,
+  },
+  {
+    form: 'until-loaded-no',
+    pattern: new RegExp(
+      String.raw`^until\s+${TARGET}\s+(?:is\s+|has\s+been\s+)(?:loaded|read)\s*[:,]\s*(.*?)\b${NEGATIVE}\s+(.+)$`,
+      'i',
+    ),
+    head: [2],
+    read: 1,
+    act: 3,
+    loaded: true,
+  },
+  {
     form: 'before-required-loaded',
     pattern: new RegExp(
       String.raw`^(.*?)\bbefore\s+([^,:]+?)\s*[:,]\s*${TARGET}\s+(?:must|shall)\s+be\s+(?:loaded|read)$`,
@@ -1529,7 +1562,10 @@ const GATE_FORMS: Array<{
   },
   {
     form: 'before-read',
-    pattern: new RegExp(String.raw`^(.*?)\bbefore\s+([^,:]+?)\s+(?:please\s+)?read\s+${TARGET}$`, 'i'),
+    pattern: new RegExp(
+      String.raw`^(.*?)\b(?:before|prior\s+to)\s+([^,:]+?)\s+(?:please\s+)?read\s+${TARGET}$`,
+      'i',
+    ),
     head: [1],
     read: 3,
     act: 2,
@@ -1537,7 +1573,10 @@ const GATE_FORMS: Array<{
   },
   {
     form: 'before-colon-read',
-    pattern: new RegExp(String.raw`^(.*?)\bbefore\s+([^:]+?)\s*:\s*(.*?)\bread\s+(${TOKEN}|.+)$`, 'i'),
+    pattern: new RegExp(
+      String.raw`^(.*?)\b(?:before|prior\s+to)\s+([^:]+?)\s*:\s*(.*?)\bread\s+(${TOKEN}|.+)$`,
+      'i',
+    ),
     head: [1, 3],
     read: 4,
     act: 2,
@@ -1545,16 +1584,8 @@ const GATE_FORMS: Array<{
   },
   {
     form: 'before-comma-read',
-    pattern: new RegExp(String.raw`^(.*?)\bbefore\s+([^,:]+?)\s*,\s*(.*?)\bread\s+(${TOKEN}|.+)$`, 'i'),
-    head: [1, 3],
-    read: 4,
-    act: 2,
-    prose: true,
-  },
-  {
-    form: 'prior-to-read',
     pattern: new RegExp(
-      String.raw`^(.*?)\bprior\s+to\s+([^,:]+?)\s*[:,]\s*(.*?)\bread\s+(${TOKEN}|.+)$`,
+      String.raw`^(.*?)\b(?:before|prior\s+to)\s+([^,:]+?)\s*,\s*(.*?)\bread\s+(${TOKEN}|.+)$`,
       'i',
     ),
     head: [1, 3],
@@ -1570,8 +1601,21 @@ const GATE_FORMS: Array<{
     act: 3,
   },
   {
+    form: 'first-read-then',
+    pattern: new RegExp(
+      String.raw`^first,?\s+(?:please\s+)?read\s+${TARGET},?\s+(?:and\s+)?then\s+(.+)$`,
+      'i',
+    ),
+    head: [],
+    read: 1,
+    act: 2,
+  },
+  {
     form: 'read-before',
-    pattern: new RegExp(String.raw`^(.*?)\bread\s+${TARGET}(?:\s+first)?\s+before\s+(.+)$`, 'i'),
+    pattern: new RegExp(
+      String.raw`^(.*?)\bread\s+${TARGET}(?:\s+first)?,?\s+(?:before|prior\s+to)\s+(.+)$`,
+      'i',
+    ),
     head: [1],
     read: 2,
     act: 3,
@@ -1734,84 +1778,114 @@ function gateAtoms(
   for (const line of chunkLines(chunk, files.get(chunk.file))) {
     const { text, spans } = maskLine(line.text);
     while (headings[headingIndex + 1] && (headings[headingIndex + 1]?.line ?? 0) < line.line) headingIndex++;
-    for (const decorated of gateClauses(text)) {
+    // The last gate of this line: a clause that only adds things to read ("and with it `b.md`") joins it.
+    let previous: ((read: string) => boolean) | undefined;
+    for (const decorated of gateClauses(text).flatMap(splitAddition)) {
       // Attention punctuation is decoration; neither its presence nor its absence establishes order.
       const original = decorated.replace(/^[!‼]+\s*|\s*[!‼]+$/g, '');
       const heading = headings[headingIndex];
       const contextual =
         heading && READ_FIRST_ONLY.test(original) && !original.includes('?') && isAct(heading.text);
-      const clause = contextual ? `${original}, then ${heading.text}` : original;
+      const stressed = contextual ? `${original}, then ${heading.text}` : original;
+      // Emphasis adverbs ("FULLY") are taken out and a list of reads is cut to its first item.
+      const { clause, extra } = collapseReads(withoutEmphasis(stressed));
+      let added: ((read: string) => boolean) | undefined;
       for (const { form, pattern, head, read, act, prose, positiveAct, loaded } of GATE_FORMS) {
         const match = pattern.exec(clause);
         if (!match) continue;
-        if (!head.every((group) => directiveHead(unmask(match[group] ?? '', spans)))) continue;
-        const target = gateTarget(match[read] ?? '', spans, prose === true || loaded === true);
-        const named = namedPaths(`Read ${target}`)[0];
-        const first = named ?? target.replace(/[`*"'\u201C\u201D]/g, '').trim();
+        if (
+          !head.every((group) => {
+            const lead = unmask(match[group] ?? '', spans);
+            return directiveHead(lead) && !exampleOrHistory(lead);
+          })
+        )
+          continue;
+        // "The day before X, read Y": a point in time ahead of X, not an order between two acts.
+        if (form.startsWith('before-') && timeOffset(unmask(match[head[0] ?? 0] ?? '', spans))) continue;
         const trigger = unmask(match[act] ?? '', spans)
           .replace(/[`*]/g, '')
           .trim();
         // A condition scopes an obligation; it is not the act the read must precede.
         const scoped = /^(?:if|when|whenever|unless)\b[^,]+,\s*(.+)$/i.exec(trigger);
         const action = scoped?.[1] ?? trigger;
-        if (first === '' || trigger === '' || !isAct(action)) continue;
+        // A question asks and a dated entry records; neither directs the agent.
+        if (trigger === '' || trigger.includes('?') || dated(trigger)) continue;
+        // An act, or an event the read comes before: "any query", "the second query", "your first action".
+        const act_ = isAct(action);
+        if (!act_ && !isEvent(action)) continue;
         // Negation of the requirement sits at the predicate boundary, not in its object
         // ("editing optional metadata requires …" still requires the read).
         if (positiveAct && /\b(?:not|never|optional|optionally|[a-z]+n't)\s*$/i.test(action)) continue;
-        // A file is a path the reference tokenizer accepts (a code span may hold spaces), else one bare word.
-        const isFile = /\.[A-Za-z0-9]+$/.test(first) && (named !== undefined || !/\s/.test(first));
-        const skill = loaded ? raw.skills.find((skill) => skill.name === first) : undefined;
-        if (loaded && !isFile && !skill) continue;
-        const located = isFile
-          ? locateNamed(first, chunk.file, files, {
-              bases: raw.bases ?? [],
-              skipped: skippedOf(raw),
-              aliases: raw.aliases ?? {},
-              byName: names(raw, files),
-              externals: raw.externals ?? [],
-            })
-          : undefined;
-        const path = located?.path;
-        const before = skill ? `skill:${skill.name}` : isFile ? raw.labels.read : raw.labels.shell;
-        const after = actLabel(action, raw);
-        const evidence: EvidencePredicate[] = [
-          { type: 'ordered', before, after },
-          skill
-            ? { type: 'skill_loaded', name: skill.name }
-            : path
-              ? { type: 'tool_called', label: raw.labels.read, input: { file_path: { contains: path } } }
-              : { type: 'tool_called', label: raw.labels.shell, input: { command: { contains: first } } },
-        ];
-        builder.add({
-          kind: 'gate',
-          title: `Read ${first} before ${trigger}`,
-          at:
-            contextual && source && heading
-              ? {
-                  file: chunk.file,
-                  startLine: heading.line,
-                  endLine: line.line,
-                  quote: source.text
-                    .split('\n')
-                    .slice(heading.line - 1, line.line)
-                    .join('\n')
-                    .trim(),
-                }
-              : { file: chunk.file, startLine: line.line, endLine: line.line, quote: line.quote },
-          evidence,
-          situation: /^(?:if|when|whenever|unless)\b[^,]+,/i.test(clause) ? unmask(clause, spans) : trigger,
-          fields: {
-            form,
-            first,
-            trigger,
-            ...(skill ? { skill: skill.name } : {}),
-            ...(path ? { path } : {}),
-            ...(located?.via === 'alias' || located?.via === 'suffix' ? { resolvedBy: located.via } : {}),
-            ...(located?.candidates ? { candidates: located.candidates } : {}),
-            ...(located?.via === 'external' ? { external: true } : {}),
-          },
-        });
+        const after = actLabel(act_ ? action : (eventHead(action) ?? action), raw);
+        const emit = (readText: string, structure: boolean): boolean => {
+          const target = gateTarget(readText, spans, structure);
+          const named = namedPaths(`Read ${target}`)[0];
+          const first = named ?? target.replace(/[`*"'\u201C\u201D]/g, '').trim();
+          if (first === '') return false;
+          // A file is a path the reference tokenizer accepts (a code span may hold spaces), else one bare word.
+          const isFile = /\.[A-Za-z0-9]+$/.test(first) && (named !== undefined || !/\s/.test(first));
+          const skill = loaded ? raw.skills.find((skill) => skill.name === first) : undefined;
+          if (loaded && !isFile && !skill) return false;
+          const located = isFile
+            ? locateNamed(first, chunk.file, files, {
+                bases: raw.bases ?? [],
+                skipped: skippedOf(raw),
+                aliases: raw.aliases ?? {},
+                byName: names(raw, files),
+                externals: raw.externals ?? [],
+              })
+            : undefined;
+          const path = located?.path;
+          const before = skill ? `skill:${skill.name}` : isFile ? raw.labels.read : raw.labels.shell;
+          const evidence: EvidencePredicate[] = [
+            { type: 'ordered', before, after },
+            skill
+              ? { type: 'skill_loaded', name: skill.name }
+              : path
+                ? { type: 'tool_called', label: raw.labels.read, input: { file_path: { contains: path } } }
+                : { type: 'tool_called', label: raw.labels.shell, input: { command: { contains: first } } },
+          ];
+          builder.add({
+            kind: 'gate',
+            title: `Read ${first} before ${trigger}`,
+            at:
+              contextual && source && heading
+                ? {
+                    file: chunk.file,
+                    startLine: heading.line,
+                    endLine: line.line,
+                    quote: source.text
+                      .split('\n')
+                      .slice(heading.line - 1, line.line)
+                      .join('\n')
+                      .trim(),
+                  }
+                : { file: chunk.file, startLine: line.line, endLine: line.line, quote: line.quote },
+            evidence,
+            situation: /^(?:if|when|whenever|unless)\b[^,]+,/i.test(clause) ? unmask(clause, spans) : trigger,
+            fields: {
+              form,
+              first,
+              trigger,
+              ...(skill ? { skill: skill.name } : {}),
+              ...(path ? { path } : {}),
+              ...(located?.via === 'alias' || located?.via === 'suffix' ? { resolvedBy: located.via } : {}),
+              ...(located?.candidates ? { candidates: located.candidates } : {}),
+              ...(located?.via === 'external' ? { external: true } : {}),
+            },
+          });
+          return true;
+        };
+        if (!emit(match[read] ?? '', prose === true || loaded === true)) continue;
+        for (const item of extra) emit(item, false);
+        added = (more) => emit(more, false);
         break;
+      }
+      if (added) previous = added;
+      else {
+        const more = previous ? continuation(original) : undefined;
+        if (more) for (const item of more) previous?.(item);
+        else previous = undefined;
       }
     }
   }
@@ -1866,6 +1940,9 @@ function isAct(trigger: string): boolean {
   // An -ing form names an act in a gate (matching a line, posting a reply); else a verb of the list.
   // "anything", "something": a pronoun, not an -ing form.
   if (ACT_VERBS.has(first) || (first.length > 5 && first.endsWith('ing') && !first.endsWith('thing')))
+    return true;
+  // A gerund of any verb names an act too, short ones ("doing", "using") included; "being" and "having" only help another verb.
+  if (first.endsWith('ing') && !['being', 'having'].includes(first) && tagsOf(first).has('Gerund'))
     return true;
   // Grammar admits new imperative verbs without growing an estate-specific action vocabulary.
   if (nlp(words.join(' ')).termList()[0]?.tags?.has('Imperative')) return true;
