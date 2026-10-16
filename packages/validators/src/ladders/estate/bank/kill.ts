@@ -2,7 +2,7 @@ import { cp, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { type EstateMap, loadEstateMap } from '@agent-nexus/driftbench-estate';
-import { cli } from './bench';
+import { cli, jsonOut } from './bench';
 import { FIXTURE, fixtureSuite, machineFailure, runOnFake, runOnFakeDetailed } from './fixture-suite';
 import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
 
@@ -271,13 +271,7 @@ async function judgeInvariant(
 /** The pass flags `estate static` prints for the tests on an estate root; empty when it prints no JSON. */
 function staticVerdicts(tests: readonly string[], root: string): boolean[] {
   const run = cli(['estate', 'static', ...tests, '--estate', root, '--json']);
-  const at = run.out.indexOf('{');
-  if (at < 0) return [];
-  try {
-    return ((JSON.parse(run.out.slice(at)) as { results?: Array<{ pass: boolean }> }).results ?? []).map(
-      (result) => result.pass === true,
-    );
-  } catch {
-    return [];
-  }
+  return (jsonOut<{ results?: Array<{ pass: boolean }> }>(run)?.results ?? []).map(
+    (result) => result.pass === true,
+  );
 }

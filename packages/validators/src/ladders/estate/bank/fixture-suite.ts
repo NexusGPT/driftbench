@@ -2,7 +2,7 @@ import { cp, mkdtemp, readdir, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { loadSpecFile, type Spec } from '@agent-nexus/driftbench-core';
-import { cli, REPO } from './bench';
+import { cli, jsonOut, REPO } from './bench';
 
 /**
  * The generated suite of the Northwind fixture (examples/estates/fixture, fictional, written by hand), made
@@ -163,21 +163,16 @@ export function runOnFakeDetailed(
     '--json',
   ]);
   const verdicts = new Map<string, FakeVerdict>();
-  const at = result.out.indexOf('{');
-  if (at < 0) return verdicts;
-  try {
-    const json = JSON.parse(result.out.slice(at)) as {
-      runs?: Array<{ spec: string; status?: string; pass: boolean; failing?: string[] }>;
-    };
-    for (const run of json.runs ?? [])
-      verdicts.set(run.spec, {
-        pass: run.pass === true,
-        completed: run.status === 'completed',
-        failing: run.failing ?? [],
-      });
-  } catch {
-    // No JSON: every spec counts as not passing.
-  }
+  // No JSON on standard output: every spec counts as not passing.
+  const json = jsonOut<{
+    runs?: Array<{ spec: string; status?: string; pass: boolean; failing?: string[] }>;
+  }>(result);
+  for (const run of json?.runs ?? [])
+    verdicts.set(run.spec, {
+      pass: run.pass === true,
+      completed: run.status === 'completed',
+      failing: run.failing ?? [],
+    });
   return verdicts;
 }
 
