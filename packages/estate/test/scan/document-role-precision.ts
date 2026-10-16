@@ -14,7 +14,7 @@ export async function documentRolePrecision() {
     const defects = findings.filter(
       (finding) =>
         finding.code === 'MISSING_REFERENCE' &&
-        /references\/missing\.md|missing-live\/guide\.md/.test(finding.message),
+        /references\/missing\.md|missing-live\/guide\.md|\/unlocated\.md/.test(finding.message),
     );
     const hazards = map.atoms.filter((atom) => atom.kind === 'hazard');
     const realHazards = hazards.filter(

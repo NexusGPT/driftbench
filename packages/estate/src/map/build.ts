@@ -1,7 +1,9 @@
 import type { ModelPort } from '@agent-nexus/driftbench-generate';
 import { analyzeGraph, type GraphAnalysis } from '../graph/analyze';
 import { buildGraph } from '../graph/edges';
-import { documentInfo, isNormative, normativeEstate } from '../scan/document-roles';
+import { navigationNames } from '../scan/code';
+import { codeNames } from '../scan/code-names';
+import { documentInfo, normativeEstate, unloadedByDesign } from '../scan/document-roles';
 import { DEFAULT_STANDING_CEILING, invariantAtoms, measureInvariants, scanAtoms } from '../scan/invariants';
 import type { ChunkRun, ProseRefusal } from '../scan/prose';
 import type { EstateReader, RawEstate } from '../scan/reader';
@@ -69,9 +71,13 @@ export async function scanEstate(input: ScanEstateInput): Promise<ScanEstateResu
       if (rule && !rule.enforcement.includes(guard)) rule.enforcement.push(guard);
     }
   }
-  const navigation = new Set(raw.files.filter((file) => !isNormative(file)).map((file) => file.path));
+  const navigation = new Set(
+    raw.files.filter((file) => unloadedByDesign(raw, file)).map((file) => file.path),
+  );
+  const documented = navigationNames(raw);
+  const codeLinks = codeNames(raw).links;
   const analyze = () => {
-    const result = analyzeGraph(builder.atoms, graph.edges, raw.files);
+    const result = analyzeGraph(builder.atoms, graph.edges, raw.files, documented, codeLinks);
     return {
       ...result,
       orphans: result.orphans.filter((path) => !navigation.has(path)),

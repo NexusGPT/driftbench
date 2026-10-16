@@ -21,11 +21,27 @@ const HEADING_ROLE: ReadonlyArray<[RegExp, DocumentRole]> = [
   [/^(?:history|revision history|change history|audit log)(?:\s*[:(].*)?$/i, 'history'],
   [/^(?:journal|diary|work log|session log)(?:\b|$)/i, 'journal'],
   [/^(?:examples?|samples?|demonstrations?)(?:\b|$)/i, 'example'],
+  [
+    /^(?:anti-?patterns?|counter-?examples?|(?:wrong|bad|incorrect)\s+(?:examples?|patterns?|usage|practices?))(?:\b|$)/i,
+    'example',
+  ],
   [/^(?:templates?|skeletons?)(?:\b|$)/i, 'template'],
 ];
 function headingRole(title: string): DocumentRole | undefined {
   return HEADING_ROLE.find(([pattern]) => pattern.test(title))?.[1];
 }
+
+/**
+ * A counter-example is shown so that it is not followed. A marker (a cross, or a label such as wrong, bad or
+ * incorrect) opens it; a check mark or a label such as right, good or correct closes it on the same line.
+ */
+const WRONG_MARK = String.raw`(?:[✗✘❌×]|\b(?:wrong|bad|incorrect|anti-?pattern|counter-?example)\b\s*[:：])`;
+const RIGHT_MARK = String.raw`(?:[✓✔✅]|\b(?:right|good|correct|fixed|better)\b\s*[:：])`;
+/** A line holding only the marker: the counter-example is the block that follows. */
+const WRONG_STANDALONE = new RegExp(
+  String.raw`^\s*(?:>\s*)?(?:[-*+]\s+)?(?:\*\*|__)?${WRONG_MARK}(?:\*\*|__)?\s*$`,
+  'iu',
+);
 
 /** Classify before reading declarations. One incidental date or placeholder never changes authority. */
 export function classifyDocument(file: Pick<EstateFile, 'path' | 'text'>, unitFolder?: string): DocumentInfo {
@@ -112,11 +128,13 @@ export function classifyDocument(file: Pick<EstateFile, 'path' | 'text'>, unitFo
     if (
       !active &&
       !line.includes(';') &&
-      /^\s*(?:>\s*)?(?:[-*+]\s+)?(?:for example\b|e\.g\.(?:[\s,:]|$)|example\s*:)/i.test(line)
+      (/^\s*(?:>\s*)?(?:[-*+]\s+)?(?:for example\b|e\.g\.(?:[\s,:]|$)|example\s*:)/i.test(line) ||
+        WRONG_STANDALONE.test(line))
     ) {
-      const endLine = /^\s*(?:for example|e\.g\.|example)\s*[:,]?\s*$/i.test(line)
-        ? exampleBlockEnd(lines, index)
-        : index + 1;
+      const endLine =
+        /^\s*(?:for example|e\.g\.|example)\s*[:,]?\s*$/i.test(line) || WRONG_STANDALONE.test(line)
+          ? exampleBlockEnd(lines, index)
+          : index + 1;
       sections.push({ startLine: index + 1, endLine, role: 'example' });
       index = endLine - 1;
     }
@@ -159,6 +177,48 @@ export function isNormative(file: EstateFile): boolean {
   return documentInfo(file).role === 'normative';
 }
 
+/** The live declared unit (skill) whose folder holds a path: the unit that owns the file. */
+export function owningUnit(raw: Pick<RawEstate, 'skills'>, path: string): string | undefined {
+  const roots = new Set(raw.skills.map((skill) => posix.normalize(skill.folder)));
+  let folder = posix.dirname(path);
+  while (folder !== posix.dirname(folder)) {
+    if (roots.has(folder)) return folder;
+    folder = posix.dirname(folder);
+  }
+  return undefined;
+}
+
+const LOADED_BY_PLACE: ReadonlySet<EstateFile['kind']> = new Set([
+  'standing',
+  'memory',
+  'settings',
+  'skill',
+  'subagent',
+  'registry',
+]);
+
+/** Records and stores: nothing is expected to load them, so being named by no live document is no defect. */
+const UNLOADED_BY_DESIGN: ReadonlySet<DocumentRole> = new Set([
+  'changelog',
+  'history',
+  'journal',
+  'archive',
+  'fixture',
+]);
+/**
+ * Whether being unnamed or unreachable is expected. A role never hides a defect that a live owner makes:
+ * a template or an example exists to be read when a live document sends the reader to it, and any file
+ * inside the folder of a live skill is that skill's material, so it stays a finding when nothing names it.
+ * A file the runtime loads by its place (standing instructions, memory, settings, a skill or helper
+ * definition, the check registry) is never exempt: a document's own role cannot hide it. Only a record or
+ * store outside every live unit is exempt.
+ */
+export function unloadedByDesign(raw: Pick<RawEstate, 'skills'>, file: EstateFile): boolean {
+  // The runtime loads these kinds by their place: what a document says about itself cannot exempt them.
+  if (LOADED_BY_PLACE.has(file.kind)) return false;
+  return UNLOADED_BY_DESIGN.has(documentInfo(file).role) && owningUnit(raw, file.path) === undefined;
+}
+
 /** Inclusive line intervals for live text; original text and provenance offsets remain untouched. */
 export function normativeRanges(
   file: EstateFile,
@@ -178,10 +238,25 @@ export function normativeRanges(
   return ranges;
 }
 
+/** A counter-example span, from its marker to the matching right marker or the end of the line, is blanked. */
+function maskCounterExamples(line: string): string {
+  const opaque = line.replace(/`[^`]*`/g, (part) => ' '.repeat(part.length));
+  const wrong = new RegExp(WRONG_MARK, 'giu');
+  let out = line;
+  for (let found = wrong.exec(opaque); found; found = wrong.exec(opaque)) {
+    const right = new RegExp(RIGHT_MARK, 'iu').exec(opaque.slice(found.index + found[0].length));
+    const end = right ? found.index + found[0].length + right.index : line.length;
+    out = out.slice(0, found.index) + ' '.repeat(end - found.index) + out.slice(end);
+    wrong.lastIndex = end;
+  }
+  return out;
+}
+
 /** An illustrative prefix ends at an unquoted semicolon; the independent live clause stays visible. */
 export function maskIllustrativePrefixes(text: string): string {
   return text
     .split('\n')
+    .map((line) => maskCounterExamples(line))
     .map((line) => {
       if (!/^\s*(?:[-*+]\s+)?(?:for example\b|e\.g\.(?:[\s,:]|$)|example\s*:)/i.test(line)) return line;
       const opaque = line.replace(/`[^`]*`|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/g, (part) =>
@@ -195,15 +270,7 @@ export function maskIllustrativePrefixes(text: string): string {
 
 /** Apply the same authority boundary to readers of any runtime, including supplied raw estates. */
 export function normativeEstate(raw: RawEstate): RawEstate {
-  const roots = new Set(raw.skills.map((skill) => posix.normalize(skill.folder)));
-  const unitOf = (path: string) => {
-    let folder = posix.dirname(path);
-    while (folder !== posix.dirname(folder)) {
-      if (roots.has(folder)) return folder;
-      folder = posix.dirname(folder);
-    }
-    return undefined;
-  };
+  const unitOf = (path: string) => owningUnit(raw, path);
   const files = new Map(
     raw.files.map((file) => {
       file.document ??= classifyDocument(file, unitOf(file.path));

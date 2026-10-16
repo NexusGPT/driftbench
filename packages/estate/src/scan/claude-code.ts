@@ -5,6 +5,7 @@ import { EstatePathError, estatePath } from '../paths';
 import { chunkLines, fileNames, guardName, locateNamed, namedPaths, positiveMention } from './code';
 import { classifyDocument, isNormative, normativeRanges } from './document-roles';
 import { type IgnoreRule, ignoreRule } from './ignore';
+import { pathReference } from './reference-role';
 
 export { ignoreRule } from './ignore';
 
@@ -317,6 +318,7 @@ async function readRootReferences(
   const tried = new Set<string>();
   const proseFiles = new Set(estate.prose.map((chunk) => chunk.file));
   const expanded = new Set<string>();
+  const unitNames = new Set([...estate.skills, ...estate.subagents].map((unit) => unit.name));
   // Many lines name the same file: each path is looked up on disk once.
   const isFile = new Map<string, Promise<boolean>>();
   const fileAt = (path: string) => {
@@ -341,9 +343,9 @@ async function readRootReferences(
     for (const line of chunkLines(chunk, source)) {
       // A standing file's line `@path` imports that file into the standing instructions.
       const imported = source?.kind === 'standing' ? /^@([^\s]+)\s*$/.exec(line.text.trim())?.[1] : undefined;
-      const names = imported ? [imported] : namedPaths(line.text);
+      const names = imported ? [imported] : namedPaths(line.text, true);
       for (const name of names) {
-        if (!/\.(md|markdown|txt)$/i.test(name) || /^(?:\/|~\/|[a-z]+:)/i.test(name)) continue;
+        if (/^(?:\/|~\/|[a-z]+:)/i.test(name) || (!pathReference(name) && unitNames.has(name))) continue;
         if (!imported && !positiveMention(line.text, name, ['read', 'open', 'load'])) continue;
         // An unindexed root guide is a candidate only after the naming file's own subtree.
         const local = posix.normalize(posix.join(posix.dirname(chunk.file), name));
@@ -411,6 +413,8 @@ async function readRootReferences(
         // a guard, an alias table) is not sent again as prose.
         if (imported) candidate.kind = 'standing';
         else if (STRUCTURED_KINDS.has(candidate.kind) || definesAliases(candidate)) continue;
+        // Index every explicitly named existing file, but only prose documents supply rule text.
+        if (!imported && !/\.(md|markdown|txt)$/i.test(path)) continue;
         if (!isNormative(candidate) || proseFiles.has(path)) continue;
         const real = await realpath(join(root, path)).catch(() => undefined);
         // Two spellings of one file (a link, a relative path) may form a cycle; canonical identity bounds it.
@@ -2028,6 +2032,9 @@ async function localPath(root: string, file: string, notes: ReadNote[]): Promise
   try {
     return await estatePath(root, file);
   } catch (cause) {
+    // A name no file system can hold (a sentence read as a path) names no file.
+    if ((cause as NodeJS.ErrnoException)?.code === 'ENAMETOOLONG') return undefined;
+    if ((cause as NodeJS.ErrnoException)?.code === 'ENAMETOOLONG') return undefined;
     if (!(cause instanceof EstatePathError)) throw cause;
     if (!notes.some((note) => note.file === file && note.message === EXTERNAL_NOTE))
       notes.push({ file, message: EXTERNAL_NOTE });
