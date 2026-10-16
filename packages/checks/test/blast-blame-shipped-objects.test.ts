@@ -1,6 +1,6 @@
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { cpSync, existsSync, readFileSync, rmSync } from 'node:fs';
 import { extname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -13,29 +13,20 @@ import {
   resolveGiven,
   type Spec,
 } from '@agent-nexus/driftbench-core';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 // @ts-expect-error: a plain JavaScript module of the release tools, with no types.
 import { packFiles } from '../../../tools/release/check.mjs';
 import { blame } from '../src';
 
 /**
- * Blast radius of PR 447 on what ships: the policy/blame and policy/placement files are data under
- * `packages/checks/objects/`, read at import time by `registerBlameObjects`. They must be in the published
- * package, the built JavaScript must find them beside `dist/`, and registering them must change no example spec
- * hash and no block cache key.
+ * Blast radius of PR 447 on what ships: the policy/blame and policy/placement defaults are TypeScript data
+ * compiled into `dist/`, so the published package needs no `objects/` folder beside the built JavaScript. The
+ * built package must resolve both defaults on its own, and registering them must change no example spec hash
+ * and no block cache key.
  */
 
 const ROOT = fileURLToPath(new URL('../../..', import.meta.url));
 const CHECKS = join(ROOT, 'packages/checks');
-const SHIPPED = Object.values(blame.SHIPPED_OBJECT_FILES).map((file) => `objects/${file}`);
-
-describe('the published checks package', { timeout: 120_000 }, () => {
-  it('packs every shipped object file the registry reads at import', () => {
-    const pack = packFiles(CHECKS) as { files: string[] };
-    expect(SHIPPED.length).toBeGreaterThanOrEqual(2);
-    expect(SHIPPED.filter((file) => !pack.files.includes(file))).toEqual([]);
-  });
-});
 
 /** Builds the JavaScript of a package with its own tsup command, less the declarations, as built-validate does. */
 function buildJavaScript(name: string): void {
@@ -47,16 +38,30 @@ function buildJavaScript(name: string): void {
 }
 
 describe('the built checks package', () => {
+  const holder = join(CHECKS, `.blast-copy-${process.pid}`);
   beforeAll(() => {
     for (const name of ['stats', 'core', 'checks']) buildJavaScript(name);
   }, 300_000);
+  afterAll(() => {
+    rmSync(holder, { recursive: true, force: true });
+  });
 
-  it('loads with plain Node.js, finds objects/ beside dist/ and resolves both shipped defaults', () => {
+  it('packs the build and no object file, because the shipped policies are compiled into dist/', () => {
+    const pack = packFiles(CHECKS) as { files: string[] };
+    expect(pack.files).toContain('dist/index.js');
+    expect(pack.files.filter((file) => file.startsWith('objects/') || /\.ya?ml$/.test(file))).toEqual([]);
+  }, 120_000);
+
+  it('loads with plain Node.js from a copy of dist/ with no objects/ beside it and resolves both shipped defaults', () => {
+    // The holder sits inside the package so that the copy's imports still find node_modules. It has no objects/
+    // beside its dist/, where the earlier build looked for the shipped YAML files.
+    cpSync(join(CHECKS, 'dist'), join(holder, 'dist'), { recursive: true });
+    expect(existsSync(join(holder, 'objects'))).toBe(false);
     const script = [
-      `const checks = await import(${JSON.stringify(join(CHECKS, 'dist/index.js'))});`,
+      `const checks = await import(${JSON.stringify(join(holder, 'dist/index.js'))});`,
       'const blame = checks.blame.shippedPolicy("policy/blame");',
       'const placement = checks.blame.shippedPolicy("policy/placement");',
-      'console.log(JSON.stringify({ dir: checks.blame.objectsDir(), blame: blame.items.length, placement: placement.items.length }));',
+      'console.log(JSON.stringify({ blame: blame.items.length, placement: placement.items.length }));',
     ].join('\n');
     const run = spawnSync(process.execPath, ['--input-type=module', '-e', script], {
       cwd: ROOT,
@@ -64,10 +69,8 @@ describe('the built checks package', () => {
     });
     expect(run.stderr).toBe('');
     expect(run.status).toBe(0);
-    const out = JSON.parse(run.stdout) as { dir: string; blame: number; placement: number };
-    expect(out.dir).toBe(`${join(CHECKS, 'objects')}/`);
-    expect(out).toMatchObject({ blame: 32, placement: 13 });
-  });
+    expect(JSON.parse(run.stdout)).toEqual({ blame: 32, placement: 13 });
+  }, 120_000);
 });
 
 const sha = (text: string | Buffer) => createHash('sha256').update(text).digest('hex').slice(0, 16);
