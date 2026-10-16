@@ -353,7 +353,41 @@ export function codeAtoms(raw: RawEstate, builder: AtomBuilder): void {
     });
   }
 
-  for (const skill of raw.skills) scriptAtoms(skill.name, skill.folder, skill.file, raw, files, builder);
+  // Index declared roots at any depth. The nearest ancestor owns a file, so nested skills keep
+  // their own scripts even when names or owner labels differ from folder names after a rename.
+  // Walk path ancestors with root lookups, never scan every skill for each file.
+  const skillRoots = new Set(raw.skills.map((skill) => posix.normalize(skill.folder)));
+  const folderFiles = new Map<string, EstateFile[]>();
+  for (const file of raw.files) {
+    if (file.kind !== 'skill_file') continue;
+    let folder = posix.dirname(posix.normalize(file.path));
+    while (!skillRoots.has(folder)) {
+      const parent = posix.dirname(folder);
+      if (parent === folder) break;
+      folder = parent;
+    }
+    if (!skillRoots.has(folder)) continue;
+    const held = folderFiles.get(folder);
+    if (held) held.push(file);
+    else folderFiles.set(folder, [file]);
+  }
+  const proseOf = new Map<string, ProseChunk[]>();
+  for (const chunk of raw.prose) {
+    const held = proseOf.get(chunk.file);
+    if (held) held.push(chunk);
+    else proseOf.set(chunk.file, [chunk]);
+  }
+  for (const skill of raw.skills)
+    scriptAtoms(
+      skill.name,
+      skill.folder,
+      skill.file,
+      folderFiles.get(posix.normalize(skill.folder)) ?? [],
+      proseOf.get(skill.file) ?? [],
+      raw,
+      files,
+      builder,
+    );
 
   const names = {
     skills: new Set(raw.skills.map((skill) => skill.name)),
@@ -442,16 +476,15 @@ function scriptAtoms(
   skill: string,
   folder: string,
   definition: string,
+  skillFiles: readonly EstateFile[],
+  bodyChunks: readonly ProseChunk[],
   raw: RawEstate,
   files: ReadonlyMap<string, EstateFile>,
   builder: AtomBuilder,
 ): void {
   // A long body may be cut into several chunks: the mention is looked for in each, in order.
-  const body = raw.prose
-    .filter((chunk) => chunk.file === definition)
-    .flatMap((chunk) => chunkLines(chunk, files.get(definition)));
-  for (const file of raw.files) {
-    if (file.kind !== 'skill_file' || file.owner !== skill) continue;
+  const body = bodyChunks.flatMap((chunk) => chunkLines(chunk, files.get(definition)));
+  for (const file of skillFiles) {
     const relative = posix.relative(folder, file.path);
     if (!SCRIPT.test(file.path) && !relative.startsWith('scripts/')) continue;
     const name = basename(file.path);

@@ -68,7 +68,7 @@ An atom is one place where the estate says what the agent must do, with a quote 
 | Hazard | a passage of the estate that names a runtime hazard (compaction, a new session) | code | recovery after the event |
 | Invariant (static) | the size ceiling of the standing instructions, no orphan file, anchored guard paths, a complete check registry | code | a property of the estate's files, no run |
 
-Every atom carries: an id (`kind.scope.slug`, stable and valid as a space value id), its kind, its title, its provenance (file, line span, quote, and a SHA-256 hash of file, span and quote), `producedBy` (code or model), its role (axis or detail), `approved`, the situation it applies in, its evidence predicates (typed: `skill_loaded`, `skill_not_loaded`, `guard`, `tool_called` with input fields, `tool_not_called`, `reference_not_read`, `subagent_not_dispatched`, `guard_not_fired`, `stage_not_reached`, `artifact_not_created`, `file_not_written`, `ordered`, `stage_reached`, `workspace`, `artifact`, `text`, `static`, `custom`), and its enforcement: the guards that already check it. Empty enforcement means "trusted", which is a finding of its own.
+Every atom carries: an id (`kind.scope.slug`, stable and valid as a space value id; a skill's files take their scope from the skill's declared name, so a skill folder renamed with its name kept keeps every id, and two skills that declare one name keep their folder names as scopes), its kind, its title, its provenance (file, line span, quote, and a SHA-256 hash of file, span and quote), `producedBy` (code or model), its role (axis or detail), `approved`, the situation it applies in, its evidence predicates (typed: `skill_loaded`, `skill_not_loaded`, `guard`, `tool_called` with input fields, `tool_not_called`, `reference_not_read`, `subagent_not_dispatched`, `guard_not_fired`, `stage_not_reached`, `artifact_not_created`, `file_not_written`, `ordered`, `stage_reached`, `workspace`, `artifact`, `text`, `static`, `custom`), and its enforcement: the guards that already check it. Empty enforcement means "trusted", which is a finding of its own.
 
 A guard's evidence carries the verdict of its check registry row. A guard with no row has evidence with no verdict: any verdict counts, as in the guards check.
 
@@ -470,6 +470,8 @@ Approved 1337 rows in _captures/docs3/estate/plan-approve.yaml; 0 were already a
 `estate generate` turns each approved plan row into one or more task specs, by code only, with no model call. Proposed rows wait (listed, exit 1); struck rows are skipped. Inputs that do not fit together (a plan of another map, an unknown or unapproved atom, an unknown test type, a bank naming an unknown atom or another map hash, a session ask that is no approved phrase) exit 2 and write nothing.
 
 Every field of the map, the plan, the phrase bank and the session index is in the [estate files reference](reference/estate-files.md). Two inputs sit beside the map. The phrase bank (`phrases.yaml`) holds `situations`: the atoms a situation sets off, what it is for (trigger, outside, near miss, misroute, pressure, resume), the workspace it starts from (`workspace`, the id of one of the bank's `workspaces` seeds, each a map of file path to text), the paths its ask may touch (`touches`: `created`, `changed`, `deleted`; every other path stays untouched), and its phrases, each approved or not. The session index (`sessions/index.yaml`) names recorded sessions, their situation and ask, and the atoms each session breaks. The Northwind bank is written by hand as a stand-in for the real flow (a model proposes phrases, a person approves them): 26 situations, 50 approved phrases, five workspace seeds: the operations folder, an inbox, open orders with the vans, a supplier order, and an invoice that differs from its order by less than 0.05 EUR per unit. A judged rule needs its own data in the workspace before an ask can set it off: the inbox, routes, shipment log and supplier situations exist for that.
+
+Generation time is linear in the atoms, since the suite of a large estate holds about ten specs per atom. Each spec is checked as the object the generator built, and its file is written by a block writer for the ordinary map, sequence, single-line string and number, which gives the same bytes as the YAML library; a value outside that (a multi-line string, a date, a key that needs quoting) is written by the library, whole.
 
 How a row becomes a spec:
 
@@ -874,6 +876,8 @@ Atoms match by id. An atom whose provenance hash changed is one of three things:
 
 An atom with the same hash whose evidence, enforcement, situation, title, role or kind fields differ is restated: its tests are regenerated. Approval alone is never a change. Edges compare as `from kind to`.
 
+An atom id names the file the atom was read in, so a fact several files state once, such as a tool two helpers declare, changes its id when the file it was anchored in leaves. An atom that leaves under one id while an atom of the same kind, title, words and fields arrives under another is the same atom, renamed: it is listed under `renamed` (and counted in `summary.renamed`) instead of as removed and added, and its tests are regenerated against the new id, never retired. Both keys are absent when nothing was renamed.
+
 The diff of the Northwind estate against its second version, with the guard state of the first version named:
 
 ```
@@ -968,9 +972,9 @@ The state of the first Northwind version sits in `examples/estates/fixture-v2/ma
 
 ### What it does to the tests: `estate impact`
 
-Specs index by `metadata.estate.atoms` (a list of atom ids, as `estate generate` writes them). A spec without `metadata.estate` is counted as other. A spec with any `metadata.retired` value, a key beside `metadata.estate`, is no longer live. The lists:
+Specs index by `metadata.estate.atoms` (a list of atom ids, as `estate generate` writes them). A spec without `metadata.estate` is counted as other. A spec with any `metadata.retired` value, a key beside `metadata.estate`, is no longer live. The static tests `estate generate` writes under `static/` (an invariant or a setting, one JSON record each) are tests too: a record indexes by its `atom`, and a retirement is written as the record's own `retired` field, which `estate static` and `estate stats` then skip. A removed environment key therefore retires the test of its setting. The lists:
 
-* regenerate: every test with a semantic, restated or guard-state atom, or with a removed atom while other atoms remain, with the reason per atom; a change of white space alone touches no test (the respaced supplier rule leaves `northwind-supplier-yes` untouched);
+* regenerate: every test with a semantic, restated, renamed or guard-state atom, or with a removed atom while other atoms remain, with the reason per atom; a change of white space alone touches no test (the respaced supplier rule leaves `northwind-supplier-yes` untouched);
 * re-approve: every semantic change, with its tests;
 * retire: every test whose atoms are all removed, with the reason `atom <id> removed`;
 * new: added atoms no live test names.

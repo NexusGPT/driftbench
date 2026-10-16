@@ -264,14 +264,27 @@ export class ClaudeCodeReader implements EstateReader {
     }
     // Keep declarations intact and report name collisions in one pass per read.
     const skillsByName = new Map<string, string>();
+    const duplicated = new Set<string>();
     for (const skill of estate.skills) {
       const earlier = skillsByName.get(skill.name);
       if (earlier !== undefined) {
+        duplicated.add(skill.name);
         estate.notes.push({
           file: skill.file,
           message: `duplicate skill name ${skill.name}: also declared in ${earlier}`,
         });
       } else skillsByName.set(skill.name, skill.file);
+    }
+    // A skill is its declared name; the folder only holds it. The files of a skill are owned by that name, so
+    // a folder renamed with the name kept leaves every atom id as it was. A name two skills declare keeps the
+    // folder, so their ids stay apart.
+    const nameOf = new Map(
+      estate.skills.filter((skill) => !duplicated.has(skill.name)).map((skill) => [skill.folder, skill.name]),
+    );
+    for (const file of files) {
+      if (file.kind !== 'skill' && file.kind !== 'skill_file') continue;
+      const name = nameOf.get(file.path.split('/').slice(0, 3).join('/'));
+      if (name !== undefined) file.owner = name;
     }
     await readRootReferences(root, estate, ignored, budget);
     // The registry comes last: a row names its guard by a script, a check id or an id the script holds,
