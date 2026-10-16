@@ -1,6 +1,7 @@
 import { basename, posix } from 'node:path';
 import nlp from 'compromise/two';
 import type { Atom, AtomKind, EvidencePredicate } from '../schema';
+import { documentaryHazardClause, hazardLine } from './hazard-context';
 import type { EstateFile, GuardDecl, ProseChunk, RawEstate, RegistryRow } from './reader';
 import {
   blankFences,
@@ -53,7 +54,7 @@ export const HAZARDS = [
     id: 'compaction',
     title: 'A compaction of the context',
     pattern:
-      /\b(compactions?|compacted|auto-?compact)\b|\b(?:conversation|context) is summari[sz]ed\b|\bcontext window (?:fills? up|is full)\b/i,
+      /\b(compactions?|compacted|auto-?compact)\b|\b(?:conversation|context)(?:\s+of\s+[^,;.!?\n]+?)? is summari[sz]ed\b|\bcontext window (?:fills? up|is full)\b/i,
   },
   { id: 'restart', title: 'A process restart', pattern: RESTART_EVENT },
   {
@@ -1743,11 +1744,16 @@ function actLabel(act: string, raw: RawEstate): string {
 }
 
 function hazardAtoms(chunk: ProseChunk, files: ReadonlyMap<string, EstateFile>, builder: AtomBuilder): void {
-  if (!files.has(chunk.file)) return;
-  for (const line of chunkLines(chunk, files.get(chunk.file))) {
-    const text = withoutHazardExamples(line.text);
+  const source = files.get(chunk.file);
+  if (!source) return;
+  for (const line of chunkLines(chunk, source)) {
+    if (!HAZARDS.some((hazard) => hazard.pattern.test(line.text)) || !hazardLine(source, line.line)) continue;
+    const masked = maskLine(line.text);
+    const clauses = gateClauses(masked.text, false)
+      .map((clause) => withoutHazardExamples(unmask(clause, masked.spans)))
+      .filter((clause) => !documentaryHazardClause(clause));
     for (const hazard of HAZARDS) {
-      if (!hazard.pattern.test(text) || !runtimeHazard(hazard.id, text)) continue;
+      if (!clauses.some((text) => hazard.pattern.test(text) && runtimeHazard(hazard.id, text))) continue;
       builder.add({
         kind: 'hazard',
         title: `Recover from ${hazard.title.toLowerCase()}`,
@@ -1789,12 +1795,7 @@ function withoutHazardExamples(text: string): string {
           .at(-1) ?? '';
       const suffix = text.slice(offset + quote.length).split(/[;!?]|\.(?=\s|$)/)[0] ?? '';
       // Quoted content after a carrier is a sample unless grammar makes it an event to handle.
-      if (
-        !prefix.trim() ||
-        operationalHazardQuote(prefix, suffix) ||
-        messageDirection(prefix, suffix) === true
-      )
-        return quote;
+      if (operationalHazardQuote(prefix, suffix) || messageDirection(prefix, suffix) === true) return quote;
       return ' '.repeat(quote.length);
     },
   );
@@ -1816,14 +1817,15 @@ function withoutHazardExamples(text: string): string {
 function runtimeHazard(id: (typeof HAZARDS)[number]['id'], text: string): boolean {
   const line = text.replace(/[`*]/g, '').replace(/[‘’]/g, "'");
   const eventLine = text.replace(/\*/g, '').replace(/[‘’]/g, "'");
+  const pattern = HAZARDS.find((hazard) => hazard.id === id)?.pattern;
+  if (
+    pattern &&
+    [...line.matchAll(new RegExp(pattern.source, 'gi'))].every((event) => hazardModifier(line, event))
+  )
+    return false;
   switch (id) {
-    case 'compaction': {
-      const runtime = line.replace(
-        /\b(?:supplier|customer|client)(?:'s)?\s+(?:conversation|context)(?: window)? (?:is summari[sz]ed|fills? up|is full)\b/gi,
-        '',
-      );
-      return HAZARDS.find((hazard) => hazard.id === id)?.pattern.test(runtime) ?? false;
-    }
+    case 'compaction':
+      return runtimeCompaction(eventLine);
     case 'restart':
       return runtimeTransition(eventLine, RESTART_EVENT, true);
     case 'rate_wave':
@@ -1856,6 +1858,109 @@ function runtimeHazard(id: (typeof HAZARDS)[number]['id'], text: string): boolea
     default:
       return true;
   }
+}
+
+/** A hazard used as a noun modifier names a measurement or concept, not the event itself. */
+function hazardModifier(line: string, event: { 0: string; index?: number }): boolean {
+  const at = event.index ?? 0;
+  const after = line.slice(at + event[0].length);
+  if (/^[,;:.!?]/.test(after)) return false;
+  if (/^\s+per\s+\w+\s+(?:is|was|are|were)\b/i.test(after)) return true;
+  const next = /^\s+([a-z]+)\b/i.exec(after);
+  if (!next) return false;
+  const prefix = line.slice(0, at + event[0].length);
+  const doc = nlp(prefix + after);
+  const terms: Array<{ text: string; tags: string[]; pre: string; post: string }> = doc
+    .json()
+    .flatMap(
+      (sentence: { terms: Array<{ text: string; tags: string[]; pre: string; post: string }> }) =>
+        sentence.terms,
+    );
+  let offset = 0;
+  let eventTerm: { tags: string[]; post: string } | undefined;
+  for (const [index, term] of terms.entries()) {
+    const start = offset + term.pre.length;
+    if (start >= prefix.length) {
+      if (
+        !eventTerm?.tags.includes('Noun') ||
+        eventTerm.post.trim() ||
+        !term.tags.includes('Noun') ||
+        term.tags.some((tag) => ['Verb', 'Pronoun', 'Possessive'].includes(tag))
+      )
+        return false;
+      // A noun compound needs a following predicate of its own. Unknown verbs can be tagged nouns:
+      // "restart invalidates the cache" must not become a compound merely because of that guess.
+      let head = term.text;
+      for (const following of terms.slice(index + 1)) {
+        // A recovery/handling head states the response to the event, not a measured quantity.
+        if (following.tags.includes('Verb')) return !/^(?:recovery|handling)$/i.test(head);
+        if (following.tags.includes('Noun')) head = following.text;
+        if (
+          following.tags.some((tag) => ['Determiner', 'Connector', 'Pronoun', 'Possessive'].includes(tag)) ||
+          following.pre.trim()
+        )
+          return false;
+        if (following.post.trim()) return false;
+      }
+      return false;
+    }
+    if (start <= at && start + term.text.length >= at) eventTerm = term;
+    // Multiword names (rate limit, context window) end at their final term.
+    if (start < prefix.length && start + term.text.length >= prefix.length) eventTerm = term;
+    offset = start + term.text.length + term.post.length;
+  }
+  return false;
+}
+
+/** Compaction targets the runtime's context, not arbitrary data or an unrelated conversation. */
+function runtimeContext(phrase: string): boolean {
+  const possessed = /^(?:(?:the|a|an)\s+)?(?:context(?:\s+window)?|conversation)\s+of\s+(.+)$/i.exec(
+    phrase.trim(),
+  );
+  if (possessed) return runtimeParticipant(possessed[1] ?? '');
+  const entity = phrase.trim().replace(/\s+(?:context(?:\s+window)?|conversation)$/i, '');
+  if (entity === phrase.trim())
+    return /^(?:(?:the|a|an|our|your|my|own)\s+)*(?:context(?:\s+window)?|conversation)$/i.test(
+      phrase.trim(),
+    );
+  const owner = entity.replace(/'s$/i, '');
+  return /^(?:(?:the|a|an|our|your|my|own)\s*)*$/i.test(owner) || runtimeParticipant(owner);
+}
+
+function runtimeCompaction(line: string): boolean {
+  const pattern = HAZARDS[0].pattern;
+  return [...line.matchAll(new RegExp(pattern.source, 'gi'))].some((event) => {
+    if (hazardModifier(line, event)) return false;
+    const context = eventContext(line, event);
+    if (!context) return false;
+    const { before, after } = context;
+    const subject = eventSubject(before);
+    // These surface forms include the entity in the match; its possessor precedes it.
+    if (/^(?:conversation|context)\b/i.test(event[0])) {
+      const entity = event[0].replace(/\s+(?:is summari[sz]ed|fills? up|is full)$/i, '');
+      return runtimeContext(`${subject} ${entity}`);
+    }
+    const owner = /^\s+of\s+(.+)/i.exec(after);
+    if (owner)
+      return runtimeContext(eventObject(owner[1] ?? '')) || runtimeParticipant(eventObject(owner[1] ?? ''));
+    if (/compacted$/i.test(event[0])) {
+      const passive = /\b(?:is|are|was|were|be|been|being|gets?|got)\b(?:\s+\w+ly)*\s*$/i.test(before);
+      return passive || !eventObject(after) ? runtimeContext(subject) : runtimeContext(eventObject(after));
+    }
+    if (runtimeContext(subject) || runtimeParticipant(subject) || unownedEvent(subject)) return true;
+    // An unqualified event may be experienced: "Long runs see compactions".
+    const experience = /\b(?:see|sees|experience|experiences|undergo|undergoes)\s*$/i.exec(before);
+    if (!experience) return false;
+    const actor = eventSubject(before.slice(0, experience.index));
+    if (runtimeParticipant(actor) || /^(?:our|your|my)\s+runs$/i.test(actor)) return true;
+    const terms: Array<{ text: string; tags: string[] }> = nlp(actor)
+      .json()
+      .flatMap((sentence: { terms: Array<{ text: string; tags: string[] }> }) => sentence.terms);
+    return (
+      terms.at(-1)?.text.toLowerCase() === 'runs' &&
+      terms.slice(0, -1).every((term) => term.tags.includes('Adjective') || term.tags.includes('Determiner'))
+    );
+  });
 }
 
 /** The actor of an explicit call/use relationship, independent of the system's name. */
