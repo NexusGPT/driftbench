@@ -473,14 +473,13 @@ describe('the joint witness on hidden maps no item was written against', () => {
     for (const seed of fresh) {
       const hidden = hiddenSpec(seed);
       for (const probe of triplesOf(hidden)) {
-        const pairs = [
+        const pairs: Cell[] = [
           { behaviour: probe.behaviour, deviation: probe.deviation },
           { behaviour: probe.behaviour, stage: probe.stage },
           { deviation: probe.deviation, stage: probe.stage },
         ];
-        if (probe.possible)
-          for (const pair of pairs) expect(jointlyPossible(hidden, pair as Cell)).toBe(true);
-        else if (pairs.every((pair) => jointlyPossible(hidden, pair as Cell))) gaps += 1;
+        if (probe.possible) for (const pair of pairs) expect(jointlyPossible(hidden, pair)).toBe(true);
+        else if (pairs.every((pair) => jointlyPossible(hidden, pair))) gaps += 1;
       }
     }
     // The gap this work closes is real on drawn maps: triples whose pairs each have a position and whose three do not.

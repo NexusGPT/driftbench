@@ -7,7 +7,7 @@ import type {
   HiddenRecovery,
   HiddenSpec,
   HiddenTool,
-} from '../../src/ladders/generator/hidden';
+} from '../../../src/ladders/generator/hidden';
 
 /**
  * Hand-written hidden specifications for the joint-feasibility tests. None is drawn from a seed and none
