@@ -43,23 +43,67 @@ describe('measureTimeGrowth: sampling', () => {
     expect(growth.result).toEqual({ pass: true });
   });
 
-  it('takes the best of three single runs at the larger size, not the mean', async () => {
-    // The first two runs of the larger size are hit by load; the third is 20 ms.
-    const subject = fake((size, call) => (size === 1000 ? (call < 2 ? 190 : 20) : 2));
-    const growth = await measureTimeGrowth(subject.run, 10, options(subject));
-    expect(growth.time.hundred).toBe(20);
-    expect(growth.result).toEqual({ pass: true });
-  });
-
-  it('reads the larger size three times, and no more', async () => {
-    const subject = fake(() => 1);
+  it('reads the larger size once when it is within the bound', async () => {
+    const subject = fake((size) => (size === 1000 ? 20 : 2));
     let larger = 0;
     const counted = async (size: number) => {
       if (size === 1000) larger += 1;
       await subject.run(size);
     };
-    await measureTimeGrowth(counted, 10, options(subject));
-    expect(larger).toBe(3);
+    const growth = await measureTimeGrowth(counted, 10, options(subject));
+    expect(larger).toBe(1);
+    expect(growth.time.hundred).toBe(20);
+  });
+
+  it('reads the larger size a second time only when the first is over the bound, and keeps the best', async () => {
+    // The first run of the larger size is hit by load (190 ms is 95 times); the second is 20 ms.
+    const subject = fake((size, call) => (size === 1000 ? (call < 1 ? 190 : 20) : 2));
+    let larger = 0;
+    const counted = async (size: number) => {
+      if (size === 1000) larger += 1;
+      await subject.run(size);
+    };
+    const growth = await measureTimeGrowth(counted, 10, options(subject));
+    expect(larger).toBe(2);
+    expect(growth.time.hundred).toBe(20);
+    expect(growth.result).toEqual({ pass: true });
+  });
+
+  it('keeps the first larger run when the second is slower', async () => {
+    // 60 ms is 30 times, over the bound; the second run (190 ms) is worse. The verdict reads the best, 60 ms.
+    const subject = fake((size, call) => (size === 1000 ? (call < 1 ? 60 : 190) : 2));
+    const growth = await measureTimeGrowth(subject.run, 10, options(subject));
+    expect(growth.time.hundred).toBe(60);
+  });
+
+  it('never reads the larger size a third time, however slow it is', async () => {
+    const subject = fake((size, call) => (size === 1000 ? (call < 2 ? 190 : 20) : 2));
+    let larger = 0;
+    const counted = async (size: number) => {
+      if (size === 1000) larger += 1;
+      await subject.run(size);
+    };
+    const growth = await measureTimeGrowth(counted, 10, options(subject));
+    expect(larger).toBe(2);
+    expect(growth.time.hundred).toBe(190);
+    expect(growth.result.pass).toBe(false);
+  });
+
+  it('runs every run of the smaller size before any run of the larger size', async () => {
+    const order: number[] = [];
+    const subject = fake(() => 1);
+    await measureTimeGrowth(
+      async (size) => {
+        order.push(size);
+        await subject.run(size);
+      },
+      10,
+      options(subject),
+    );
+    const firstLarger = order.indexOf(1000);
+    expect(firstLarger).toBeGreaterThan(0);
+    expect(order.slice(0, firstLarger).every((size) => size === 100)).toBe(true);
+    expect(order.slice(firstLarger).every((size) => size === 1000)).toBe(true);
   });
 
   it('stops adding runs of the smaller size at the most', async () => {

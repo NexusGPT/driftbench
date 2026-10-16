@@ -80,7 +80,8 @@ type Subject = {
    * True for a subject whose size is the length of the history the agent is given. Its growth item reads
    * the growth measure of `growth.ts`: a count of message visits against the linear law, and the best CPU
    * time of many runs against GROWTH_BOUND. The other subjects take `measureTimeGrowth`: the best of single
-   * runs, three at the larger size and as many at the smaller size as cover 50 ms of CPU time.
+   * runs, as many at the smaller size as cover 50 ms of CPU time, then one at the larger size (two when the
+   * first is over the bound).
    */
   history?: boolean;
   run(seed: number, size: number): Promise<ItemResult>;

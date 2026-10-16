@@ -396,7 +396,7 @@ export const SMALLEST_TIME_MS = 1;
 /** The most single runs of the smaller size. */
 export const MAX_SAMPLE_RUNS = 64;
 
-/** The single runs of each size that the verdict reads the best of, at the fewest. */
+/** The fewest single runs of the smaller size. */
 export const TIME_SAMPLES = 3;
 
 export type TimeGrowth = {
@@ -412,12 +412,13 @@ export type TimeGrowth = {
  *
  * Every sample is one run, never a loop of runs: a loop of the smaller size would keep the heap warm and
  * make allocation-heavy code look cheaper than a single run, which would lower the growth it reads. The
- * smaller size takes single runs until the best of at least TIME_SAMPLES is read and the runs together
- * cover MIN_SAMPLE_MS of CPU time, up to MAX_SAMPLE_RUNS: a run of 2 ms is then read over 25 runs, not 3,
- * and more runs only ever lower the best case of the smaller size, which raises the growth. The larger size
- * takes the best of TIME_SAMPLES single runs, interleaved with the first of the smaller size, which removes
- * the load of the machine from it. The sizes, the bound and the 1 ms floor of the smaller time are the
- * old measure's, kept as they were: a run under 1 ms is read as 1 ms, as before.
+ * smaller size takes single runs until it has at least TIME_SAMPLES of them and together they cover
+ * MIN_SAMPLE_MS of CPU time, up to MAX_SAMPLE_RUNS: a run of 2 ms is read over 25 runs, not 3, and more
+ * runs only ever lower the best case of the smaller size, which raises the growth. All of them run before
+ * any run of the larger size, so the garbage of the larger runs cannot slow them. The larger size keeps the
+ * old rule: one run, and a second only when the first is over the bound, never a third. The second removes
+ * the load of the machine from a single sample, and the best of two is never above one. The bound, the
+ * sizes and the 1 ms floor of the smaller time are the old measure's, kept as they were.
  */
 export async function measureTimeGrowth(
   run: (size: number) => Promise<unknown>,
@@ -427,7 +428,7 @@ export async function measureTimeGrowth(
   const sizes = { ten: base * 10, hundred: base * 100 };
   const clock = options.clock ?? cpuClock;
   const minSample = options.minSampleMs ?? MIN_SAMPLE_MS;
-  const samples = options.samples ?? TIME_SAMPLES;
+  const fewest = options.samples ?? TIME_SAMPLES;
   const once = async (size: number): Promise<number> => {
     const started = clock();
     await run(size);
@@ -435,17 +436,18 @@ export async function measureTimeGrowth(
   };
 
   let bestTen = Number.POSITIVE_INFINITY;
-  let bestHundred = Number.POSITIVE_INFINITY;
   let covered = 0;
   let runs = 0;
-  while (runs < samples || (covered < minSample && runs < MAX_SAMPLE_RUNS)) {
+  while (runs < fewest || (covered < minSample && runs < MAX_SAMPLE_RUNS)) {
     const took = await once(sizes.ten);
     bestTen = Math.min(bestTen, took);
     covered += took;
     runs += 1;
-    if (runs <= samples) bestHundred = Math.min(bestHundred, await once(sizes.hundred));
   }
-  const growth = bestHundred / Math.max(bestTen, SMALLEST_TIME_MS);
+  const floor = Math.max(bestTen, SMALLEST_TIME_MS);
+  let bestHundred = await once(sizes.hundred);
+  if (bestHundred / floor > options.timeBound) bestHundred = Math.min(bestHundred, await once(sizes.hundred));
+  const growth = bestHundred / floor;
   const pass = growth <= options.timeBound;
   return {
     sizes,
@@ -454,7 +456,7 @@ export async function measureTimeGrowth(
       ? PASS
       : fail(
           `best CPU time ${bestTen.toFixed(2)} ms at ${sizes.ten} (best of ${runs} runs), ` +
-            `${bestHundred.toFixed(1)} ms at ${sizes.hundred} (best of ${samples}): ${growth.toFixed(1)} times, the bound is ${options.timeBound}`,
+            `${bestHundred.toFixed(1)} ms at ${sizes.hundred}: ${growth.toFixed(1)} times, the bound is ${options.timeBound}`,
         ),
   };
 }
