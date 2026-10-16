@@ -136,7 +136,9 @@ describe('merge train enforcement', () => {
     const skipped = structuredClone(workflow);
     skipped.jobs.build.steps[skipped.jobs.build.steps.length - 1].if = "github.event_name == 'push'";
     expect(
-      skipped.jobs.build.steps.every((step: { if?: string }) => step.if === undefined || step.if === 'always()'),
+      skipped.jobs.build.steps.every(
+        (step: { if?: string }) => step.if === undefined || step.if === 'always()',
+      ),
     ).toBe(false);
   });
   it('declares train gate as required and fails ordinary PRs with the merge instruction', () => {
