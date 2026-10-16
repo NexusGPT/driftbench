@@ -159,6 +159,7 @@ describe('literal winner passages survive presentation normalization', () => {
           const r: JudgeRequest = {
             criterion: { name: 'c', rubric: 'State the price.' },
             transcript: [entry],
+            criterionDecoderVersion: 1,
           };
           expect(groundEvidence(r, { outcome: 'pass', reasoning: 'r', evidence }).grounded).toBe(false);
           expect(

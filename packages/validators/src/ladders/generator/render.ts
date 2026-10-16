@@ -369,6 +369,22 @@ export function hiddenProposal(spec: HiddenSpec): Proposal {
       evidence: { source: prompt, quote: use.quote },
       ...common,
     })),
+    // A behaviour whose own text names its read tool runs it when asked, at any stage and
+    // without moving: a map built from that text states the call. A behaviour that never names its tool stays
+    // unlinked, so the map holds nothing the generator could not read from the inventory.
+    ...spec.behaviours.flatMap((behaviour) => {
+      const tool = spec.tools.find((entry) => entry.name === behaviour.tool);
+      if (!tool || tool.sideEffect || !behaviour.title.includes(tool.name)) return [];
+      return spec.stages.map((stage) => ({
+        kind: 'uses_tool' as const,
+        subject: { dimension: 'behaviour', value: behaviour.id },
+        tool: tool.name,
+        stage: stage.id,
+        to: stage.id,
+        evidence: { source: inventory, quote: `id: ${behaviour.id}\n    title: ${behaviour.title}` },
+        ...common,
+      }));
+    }),
     ...replyRules(spec).map((rule) => ({
       kind: 'states' as const,
       subject: { dimension: 'flow', value: rule.flow },

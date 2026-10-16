@@ -35,7 +35,7 @@ Three guarantees run in code:
 
 - The style invariant. `family instances` rebuilds every variant with each other allowed value of each `style` knob. If one rebuild changes any block expectation, nothing is written (exit 1).
 - The approval rule. A phrase with `approved: false` that a block, a text file or the planted variant uses blocks the build (exit 2).
-- The cheat() rule. `family verify` runs a reference build (a known-good agent) on every spec through the real runner and the machine checks. An instance the reference fails on any variant is an oracle or reference defect, and it is not shipped.
+- The cheat() rule. `family verify` runs a reference build (a known-good agent) on every spec through the real runner and the machine checks. An instance the reference fails on any variant is an oracle or reference defect, and it is not shipped. An instance the reference cannot run (a block `not_run`: a Given the reference's adapter cannot apply) is unverified: not shipped, counted apart and named with the block not run, never called a reference defect; `family verify` exits 3 when no instance fails but one could not be run.
 
 A space map can hand a flow to a family with a `task_family` relation. `driftbench generate` then builds the family's instances as the `task` seeder (see authoring-generate and authoring-map).
 
