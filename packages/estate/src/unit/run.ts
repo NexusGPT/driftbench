@@ -463,7 +463,11 @@ async function runHelperTest(test: UnitTest, options: UnitRunOptions): Promise<U
   const outcomeOfRun = (observation: HelperObservation): UnitOutcome =>
     observation.status === 'executed'
       ? { decision: 'allow', exitCode: 0, output: observation.observed.text.trim() }
-      : { decision: 'error', exitCode: observation.status === 'failed' ? observation.exit : 1, message: observation.error };
+      : {
+          decision: 'error',
+          exitCode: observation.status === 'failed' ? observation.exit : 1,
+          message: observation.error,
+        };
   const cases: UnitCaseResult[] = [];
   const recordedCases: GuardCase[] = [];
   for (const unitCase of test.cases) {

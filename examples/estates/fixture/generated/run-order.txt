@@ -111,7 +111,6 @@ specs/live/skip_pressure/estate.skip_pressure.gate.weekly-report.read-templates-
 specs/live/ordered_pair/estate.ordered_pair.gate.standing.read-a-file-before-editing-it.yaml
 specs/live/skip_pressure/estate.skip_pressure.gate.standing.read-a-file-before-editing-it.yaml
 specs/live/ordered_pair/estate.ordered_pair.gate.standing.write-a-helper-s-brief-before.yaml
-specs/live/skip_pressure/estate.skip_pressure.gate.standing.write-a-helper-s-brief-before.yaml
 specs/live/ordered_pair/estate.ordered_pair.gate.standing.never-report-done-before-verify-passed.yaml
 specs/live/skip_pressure/estate.skip_pressure.gate.standing.never-report-done-before-verify-passed.yaml
 specs/live/ordered_pair/estate.ordered_pair.gate.supplier-email.show-the-draft-and-get-an.yaml

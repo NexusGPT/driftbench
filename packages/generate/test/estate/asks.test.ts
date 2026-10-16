@@ -176,6 +176,34 @@ describe('the title of a rule is never the ask: the ask is the work the rule app
       fields: { trigger: 'pay a berth fee' },
     });
     expect(ask([gate]).text).toBe('Please pay a berth fee.');
+    // A trigger that names its act as a gerund asks for the act: editing -> edit, writing -> write, committing -> commit.
+    for (const [trigger, asked] of [
+      ['editing any berth file', 'Please edit any berth file.'],
+      ['writing the harbour report', 'Please write the harbour report.'],
+      ['committing the berth plan', 'Please commit the berth plan.'],
+      ['the berth fee', undefined],
+    ] as const) {
+      const timed = atom('gate.standing.timed', {
+        kind: 'gate',
+        title: 'Read the log first',
+        fields: { trigger },
+      });
+      expect(ask([timed]).text, trigger).toBe(asked);
+    }
+    // A gate with no trigger and no unit that carries it holds over no route's work: it waits for a phrase.
+    const bareGate = atom('gate.standing.log-first', {
+      kind: 'gate',
+      title: 'Read the harbour log before you answer a vessel',
+      provenance: { quote: 'x', file: 'CLAUDE.md' },
+    });
+    expect(ask([bareGate]).text).toBeUndefined();
+    expect(ask([bareGate]).refused).toMatch(/no task/);
+    // A standing instruction still takes the work of the nearest route.
+    const standing = atom('instruction.standing.log-first', {
+      title: 'Check the harbour log before you answer',
+      provenance: { quote: 'x', file: 'CLAUDE.md' },
+    });
+    expect(ask([standing]).text).toBe('Please read the tide table for a port.');
     const bare = atom('instruction.standing.log', { title: 'Log every mooring change in the harbour book' });
     expect(codeAsk('trigger', [bare], []).refused).toMatch(/no task/);
   });

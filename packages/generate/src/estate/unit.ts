@@ -305,7 +305,8 @@ export function helperUnitTestOf(
 ): UnitTest | string {
   const name = atom.fields?.name;
   const file = atom.provenance?.file;
-  if (typeof name !== 'string' || typeof file !== 'string') return `${atom.id} names no helper with an agent file`;
+  if (typeof name !== 'string' || typeof file !== 'string')
+    return `${atom.id} names no helper with an agent file`;
   if (run.task.trim() === '') return `${atom.id} has no task to run the helper on`;
   return {
     id,

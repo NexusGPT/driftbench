@@ -318,8 +318,9 @@ export function generateEstateSuite(
       const helper = row.testType === 'contract_alone' ? head : undefined;
       if (helper?.kind === 'subagent' && built.expect === undefined) {
         const when = (built.spec.blocks as Array<{ when?: { user?: unknown } }> | undefined)?.[0]?.when;
-        const seeded = (built.spec.given as { world?: { workspace?: { files?: Record<string, string> } } } | undefined)
-          ?.world?.workspace?.files;
+        const seeded = (
+          built.spec.given as { world?: { workspace?: { files?: Record<string, string> } } } | undefined
+        )?.world?.workspace?.files;
         const id = `unit.contract_alone.${helper.id}`;
         const test = helperUnitTestOf(
           helper,
