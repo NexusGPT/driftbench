@@ -2,6 +2,8 @@
 title: Read campaign results
 summary: What each cell state means (pass, fail, not_run, blocked, failed, stopped, pending), how to read a cell line, the failing list and the summary, the --json document of campaign run, resume and status, and the exit codes.
 commands:
+  - campaign run
+  - campaign resume
   - campaign status
 see_also:
   - running-campaign-run

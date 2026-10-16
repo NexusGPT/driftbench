@@ -65,8 +65,11 @@ The cell states and the exit code change; the options do not. A cell is `not_run
 | Exit | When |
 |---|---|
 | 0 | every cell passes |
-| 1 | a cell fails, is not run or blocked, failed or was stopped |
+| 1 | a cell fails, failed or was stopped |
 | 2 | bad input; nothing ran |
+| 3 | no cell failed, but a cell is not run or blocked |
+
+`campaign resume`, `campaign rejudge` and `family verify` follow the same rule: when nothing failed but something was not run, they exit 3.
 
 ### driftbench ci
 
@@ -163,7 +166,7 @@ The Acme tool-failure spec forces a result for `notify_sales` in `world.tools`. 
 
 ```sh
 driftbench campaign run examples/acme/specs/conversations/tool-failure.yaml --store nr.db --campaign baseline
-driftbench campaign run examples/acme/specs/conversations/tool-failure.yaml --target process:my-agent --process-command my-agent --mode T,F # exit 1
+driftbench campaign run examples/acme/specs/conversations/tool-failure.yaml --target process:my-agent --process-command my-agent --mode T,F # exit 3
 ```
 
 ```text
@@ -181,7 +184,7 @@ Not judged: 1 criterion in 3 blocks of 1 spec (honest_failure), 1 of them gating
 - acme-tool-failure · process:my-agent · F · repeat 0  not_run  block 0 not_run capability, block 1 not_run capability, block 2 not_run capability
 2 cells: 0 pass, 0 fail, 2 not run, 0 failed. Spent $0.00.
 The runs are not kept: pass --store <file> to keep them.
-(exit 1)
+(exit 3)
 ```
 
 The first run passes. In the second, every block of both cells is `not_run` with check `capability`: in T each block is checked alone, in F the run stops at block 0.
@@ -189,7 +192,7 @@ The first run passes. In the second, every block of both cells is `not_run` with
 The same run as JSON shows the reason of each block (the list of checks is cut short here):
 
 ```sh
-driftbench campaign run examples/acme/specs/conversations/tool-failure.yaml --target process:my-agent --process-command my-agent --json # exit 1
+driftbench campaign run examples/acme/specs/conversations/tool-failure.yaml --target process:my-agent --process-command my-agent --json # exit 3
 ```
 
 ```text
@@ -272,7 +275,7 @@ $ driftbench campaign run examples/acme/specs/conversations/tool-failure.yaml --
     "pending": 0
   }
 }
-(exit 1)
+(exit 3)
 ```
 
 `ci` with the default threshold fails with exit 3. With `--max-not-run 1`, no spec is over the threshold, and the comparison decides: no golden of the candidate was measured, so parity is not shown, exit 1. A share above 1 is bad input:
