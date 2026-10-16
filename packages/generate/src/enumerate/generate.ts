@@ -653,7 +653,9 @@ function measured(prepared: PreparedMap, specs: Spec[], t: number): MeasuredCove
 }
 
 /** Each removed pair/triple stays visible, including cells excluded through a missing completion. */
-function reachabilityReport(prepared: PreparedMap): NonNullable<GenerateReport['coverage']['reachability']> {
+export function reachabilityReport(
+  prepared: PreparedMap,
+): NonNullable<GenerateReport['coverage']['reachability']> {
   const reachability = prepared.reachability;
   if (!reachability) return { counts: [], excluded: [] };
   const before = { ...prepared, axisMap: reachability.before };
