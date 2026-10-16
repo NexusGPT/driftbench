@@ -206,7 +206,7 @@ The summary fields:
 |---|---|
 | `machine` | runs that pass their machine checks, over the runs that passed or failed: the rate of today, unchanged |
 | `agent` | runs that pass once setup, excluded and credited failures are set aside, over the runs a rule decided. With no such run it shows 0 of 0 |
-| `unassigned` | runs with a failure no rule attributed and none of the agent's: in neither rate |
+| `unassigned` | runs with a failure no rule attributed and none of the agent's: in the machine rate, out of the agent rate |
 | `unmeasuredRuns` | `notRun` and `blocked`: completed runs with no failure and a block that did not run. They are in neither rate |
 | `blocks` | failing blocks by disposition: `failing`, `agent`, `setup`, `excluded`, `credited`, `unassigned`. `notRun` and `blocked` count blocks that did not run: they are not failures |
 | `fixes` | the ranked fix list as given, each with `fixLocation`, `fixTarget`, `fixAction`, `blocks`, `agentBlocks`, and the copies it removes (`removeCopies`) or the fix that replaces it (`supersededBy`) |
