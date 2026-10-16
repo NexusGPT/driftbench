@@ -1,3 +1,4 @@
+import type { BlockStatus } from '@agent-nexus/driftbench-core';
 import type { CarriedSummary } from './data';
 import type { Estimate } from './estimate';
 import type { SuiteHeadline } from './headline';
@@ -110,4 +111,47 @@ export function carriedLines(summary: CarriedSummary | undefined): string[] {
     );
   }
   return lines;
+}
+
+/**
+ * The runs neither passed nor failed, as they follow the fail count: `2 not run, 1 blocked, `, each part
+ * only when above 0, the separator after each; the empty string when there is none.
+ */
+export function unscoredRuns(counts: { notRun?: number; blocked?: number }, separator = ', '): string {
+  const parts = [
+    ...(counts.notRun ? [`${counts.notRun} not run`] : []),
+    ...(counts.blocked ? [`${counts.blocked} blocked`] : []),
+  ];
+  return parts.map((part) => `${part}${separator}`).join('');
+}
+
+/**
+ * The verdict a run or a block shows: pass, fail, or one of the two that are neither. A block's status comes
+ * from `blockStatus`, a run's from `runDetailStatus`, never from a run's own `status` (completed, failed).
+ */
+export function verdictOf(status: BlockStatus): { cls: 'ok' | 'bad' | 'skip'; text: string } {
+  if (status === 'not_run') return { cls: 'skip', text: 'not run' };
+  if (status === 'blocked') return { cls: 'skip', text: 'blocked' };
+  return status === 'pass' ? { cls: 'ok', text: 'pass' } : { cls: 'bad', text: 'fail' };
+}
+
+/** The verdict of a run of the scorecard: its outcome when it was not run or blocked, else pass or fail. */
+export function runDetailStatus(run: { pass: boolean; outcome?: 'not_run' | 'blocked' }): BlockStatus {
+  return run.outcome ?? (run.pass ? 'pass' : 'fail');
+}
+
+/** Why a block was not run or blocked, in one sentence; undefined for a block that ran. */
+export function unscoredReason(block: {
+  notRun?: { kind: string; layer: string; check: string; expected: string; got: string };
+  blocked?: { by: string; root: string; reason?: string };
+}): string | undefined {
+  if (block.notRun) {
+    const n = block.notRun;
+    return `Not run (${n.kind}, check ${n.check}, layer ${n.layer}): expected ${n.expected}; got ${n.got}.`;
+  }
+  if (block.blocked) {
+    const b = block.blocked;
+    return `Blocked by ${b.by} (root ${b.root})${b.reason ? `: ${b.reason}` : ''}.`;
+  }
+  return undefined;
 }

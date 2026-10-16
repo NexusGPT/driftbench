@@ -1,4 +1,4 @@
-import type { RunResult, Store } from '@agent-nexus/driftbench-core';
+import { blocksOutcome, type RunResult, type Store } from '@agent-nexus/driftbench-core';
 import { z } from 'zod';
 
 /**
@@ -9,11 +9,21 @@ import { z } from 'zod';
  * compare and every run says so.
  */
 
-export const Flip = z.enum(['pass_to_pass', 'fail_to_pass', 'pass_to_fail', 'fail_to_fail', 'no_previous']);
+export const Flip = z.enum([
+  'pass_to_pass',
+  'fail_to_pass',
+  'pass_to_fail',
+  'fail_to_fail',
+  'no_previous',
+  'not_measured',
+]);
 export type Flip = z.infer<typeof Flip>;
 
-/** One spec on one session, as the replay reports it. */
-export type ReplayOutcome = { spec: string; session: string; pass: boolean };
+/**
+ * One spec on one session, as the replay reports it. `outcome` is set when no block failed but a block was
+ * not run or blocked: neither a pass nor a fail, so it is compared with nothing (`not_measured`).
+ */
+export type ReplayOutcome = { spec: string; session: string; pass: boolean; outcome?: 'not_run' | 'blocked' };
 
 export const Regression = z.strictObject({
   campaign: z.string().min(1).describe('The replay campaign this change ran'),
@@ -23,8 +33,8 @@ export const Regression = z.strictObject({
     z.strictObject({
       spec: z.string().min(1),
       session: z.string().min(1),
-      before: z.enum(['pass', 'fail']).nullable(),
-      after: z.enum(['pass', 'fail']),
+      before: z.enum(['pass', 'fail', 'not_run']).nullable(),
+      after: z.enum(['pass', 'fail', 'not_run']),
       flip: Flip,
     }),
   ),
@@ -34,19 +44,22 @@ export const Regression = z.strictObject({
     pass_to_fail: z.number().int().min(0),
     fail_to_fail: z.number().int().min(0),
     no_previous: z.number().int().min(0),
+    /** Runs not run or blocked on either side: never a pass_to_fail. Absent when 0. */
+    not_measured: z.number().int().min(0).optional(),
   }),
   notes: z.array(z.string()),
 });
 export type Regression = z.infer<typeof Regression>;
 
-const verdict = (pass: boolean): 'pass' | 'fail' => (pass ? 'pass' : 'fail');
+const verdict = (run: Pick<ReplayOutcome, 'pass' | 'outcome'>): 'pass' | 'fail' | 'not_run' =>
+  run.outcome !== undefined ? 'not_run' : run.pass ? 'pass' : 'fail';
 
 /** Each current run against the previous run of the same spec on the same session. */
 export function compareReplays(
   previous: readonly ReplayOutcome[] | undefined,
   current: readonly ReplayOutcome[],
 ): Pick<Regression, 'runs' | 'counts'> {
-  const before = new Map((previous ?? []).map((run) => [`${run.spec}\n${run.session}`, run.pass]));
+  const before = new Map((previous ?? []).map((run) => [`${run.spec}\n${run.session}`, verdict(run)]));
   const counts: Regression['counts'] = {
     pass_to_pass: 0,
     fail_to_pass: 0,
@@ -56,14 +69,21 @@ export function compareReplays(
   };
   const runs = current.map((run) => {
     const prior = before.get(`${run.spec}\n${run.session}`);
+    const after = verdict(run);
+    // A run not run or blocked on either side measured nothing: it is never a flip, only counted apart.
     const flip: Flip =
-      prior === undefined ? 'no_previous' : (`${verdict(prior)}_to_${verdict(run.pass)}` as Flip);
-    counts[flip]++;
+      prior === undefined
+        ? 'no_previous'
+        : prior === 'not_run' || after === 'not_run'
+          ? 'not_measured'
+          : (`${prior}_to_${after}` as Flip);
+    if (flip === 'not_measured') counts.not_measured = (counts.not_measured ?? 0) + 1;
+    else counts[flip]++;
     return {
       spec: run.spec,
       session: run.session,
-      before: prior === undefined ? null : verdict(prior),
-      after: verdict(run.pass),
+      before: prior ?? null,
+      after,
       flip,
     };
   });
@@ -72,9 +92,7 @@ export function compareReplays(
 
 /** A stored run's verdict, as the replay command reads it. */
 export function runPassed(run: RunResult): boolean {
-  return (
-    run.status === 'completed' && run.blocks.every((block) => block.pass) && run.endState?.match !== false
-  );
+  return blocksOutcome(run) === 'pass';
 }
 
 /**
@@ -89,11 +107,15 @@ export async function latestReplay(
   const runs = await store.listRuns({ campaignId: campaign.campaignId });
   return {
     campaignId: campaign.campaignId,
-    outcomes: runs.map((run) => ({
-      spec: run.specId,
-      session: run.target.agent ?? run.target.adapter,
-      pass: runPassed(run),
-    })),
+    outcomes: runs.map((run) => {
+      const outcome = blocksOutcome(run);
+      return {
+        spec: run.specId,
+        session: run.target.agent ?? run.target.adapter,
+        pass: runPassed(run),
+        ...(outcome === 'not_run' || outcome === 'blocked' ? { outcome } : {}),
+      };
+    }),
   };
 }
 
@@ -102,7 +124,7 @@ export function renderRegression(regression: Regression): string[] {
   const c = regression.counts;
   const lines = [
     `Replay of ${regression.runs.length} ${regression.runs.length === 1 ? 'run' : 'runs'}, campaign ${regression.campaign}, ${regression.previous === null ? (regression.store === null ? 'no store given: nothing to compare' : 'no earlier replay in the store: nothing to compare') : `against ${regression.previous}`}.`,
-    `  pass to pass ${c.pass_to_pass}, fail to pass ${c.fail_to_pass}, pass to fail ${c.pass_to_fail}, fail to fail ${c.fail_to_fail}, no previous ${c.no_previous}.`,
+    `  pass to pass ${c.pass_to_pass}, fail to pass ${c.fail_to_pass}, pass to fail ${c.pass_to_fail}, fail to fail ${c.fail_to_fail}, no previous ${c.no_previous}${c.not_measured ? `, not measured ${c.not_measured} (a block not run or blocked)` : ''}.`,
   ];
   for (const run of regression.runs) {
     if (run.flip === 'fail_to_pass' || run.flip === 'pass_to_fail') {

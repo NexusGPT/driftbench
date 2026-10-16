@@ -56,9 +56,9 @@ environment variable `DRIFTBENCH_BILLED_APPROVAL` is set to a non-empty value, t
 owner approved, together with the provider's key. Without it the ladder lists no live level and calls
 nothing. Never set it for an ordinary run: it spends money.
 
-Floors: the file holds a judges floor of 7 for ladder version 1. The registered ladder is version 2, so
-that floor is history and the run prints `The floor 7 belongs to ladder version 1; version 2 has no floor
-yet.`
+Floors: the file holds a judges floor of 20 for ladder version 2, the registered ladder, so a run below
+level 20 prints `BELOW THE FLOOR.` and `--check-floor` exits 1. The earlier floor of 7 belonged to ladder
+version 1; it is history under `history.judges` and is not enforced.
 
 ## When to use it
 
@@ -180,8 +180,7 @@ Level  Name                                                          Metric     
 20     the same operations at 10 and 100 times the input             items of scale passing / 26 items        >= 1       0.846154 FAIL (4)
 Level per seed: 1 = 19
 Level of the run: 19 of 20, the minimum over 1 seed.
-Floor: 0. At or above the floor.
-The floor 7 belongs to ladder version 1; version 2 has no floor yet.
+Floor: 20. BELOW THE FLOOR.
 Items of the first failing level:
   Seed 1, level 20 scale (the same operations at 10 and 100 times the input), 4 items:
     family scale (4):
@@ -202,5 +201,5 @@ not of a regression: re-run the ladder on a quiet machine before acting on a `sc
 | `scale` items fail on one run and pass on another | the items are timed; a loaded machine slows them | run on a quiet machine, with `DRIFTBENCH_JUDGES_SHARDS` unset |
 | an item fails with a timed-out detail | the item ran past the 120 second child limit, often an endless loop | look at the component named; a new child resumed at the next item |
 | a `live` level appears, or a run costs money | `DRIFTBENCH_BILLED_APPROVAL` is set in the environment | unset it; the live level needs an approved card |
-| `The floor 7 belongs to ladder version 1; version 2 has no floor yet.` | the floors file holds only the version 1 floor | not an error; the version 2 floor is raised with evidence (`validate-floors`) |
+| `Floor: 20. BELOW THE FLOOR.` on a run that reached 19 | a `scale` item timed out on a loaded machine, or a change broke a level | re-run on a quiet machine, then read the first failing item; never lower the floor |
 | an item you believe is wrong | the oracle disagrees with your reading | do not edit the bank; see `validate-mutants-and-rulings` |
