@@ -54,7 +54,7 @@ The block's turn is what the returned `messages` hold after the last user messag
 
 ## Capabilities
 
-`seedPrefix` is on. `toolStubs` is off: the graph runs its own tool node, so a forced result in `world.tools` does not reach it. `endState` is on when `sideEffects` is given or the graph has a checkpointer. `deterministic` is as declared. `variants`, `trace` and `sandbox` are off.
+`seedPrefix` is on. `toolStubs` is off: the graph runs its own tool node, so a block with a forced result in `world.tools` is `not_run`. `endState` is on when `sideEffects` is given or the graph has a checkpointer. `deterministic` is as declared. `variants`, `trace` and `sandbox` are off.
 
 A block's `budget.steps` is not mapped: a super-step is not a model call. `recursionLimit` is the graph's own cap.
 

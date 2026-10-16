@@ -67,6 +67,7 @@ The loader rewrites these forms before it validates a spec.
 * [Uses](#uses)
 * [ObjectRef](#objectref)
 * [ItemPatch](#itempatch)
+* [AppliesTo](#appliesto)
 * [Spec end](#spec-end)
 * [Rules](#rules)
 * [EndState](#endstate)
@@ -84,6 +85,7 @@ One golden conversation, or one task for a code agent, written as a succession o
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
+| `schema_version` | integer, 1 to 1 | no |  | The spec format version the spec is written for. A driftbench that reads a lower version refuses the spec and says to upgrade. Absent means version 1. |
 | `id` | string matching `^[A-Za-z0-9][A-Za-z0-9._-]*$` | yes |  | The spec id: letters, digits, dots, underscores and hyphens. |
 | `version` | string | no |  | A free label. The content hash, not this label, is the cache key. |
 | `kind` | `conversation` or `task` | yes | `conversation`, set by the loader | conversation or task. The loader sets conversation when it is absent. |
@@ -198,8 +200,8 @@ A judged criterion. Blocks reference it by name, with @gating when a fail fails 
 | `inputs` | list of strings, each not empty | no |  | Workspace files the judge reads beside the transcript, such as the source a produced file is compared against. Read from the seed the agent was given, else from the workspace. |
 | `judge_class` | one of `system1`, `system2`, `auto` | no |  | system1, system2, or auto: calibration assigns the class, ties go to system1. |
 | `repeat_reducer` | string matching `^(mode\|median\|at_least:[1-9][0-9]*)$` | no |  | How the verdicts across the repeats of one spec become one verdict: mode, median, or at_least:<k>. |
-| `prompt_version` | `1` or `2` | no |  | The criterion prompt rules the judge reads. 1, the default; 2 adds the exact-identifier, stated-facts and stated-scope rules. |
-| `decoder_version` | `1` or `2` | no |  | How a criterion ledger answer is read. 1, the default, rejects an ungrounded quote; 2 drops the quote and keeps the verdict. |
+| `prompt_version` | `1` or `2` | no |  | The criterion prompt rules the judge reads. 2, the default, adds the exact-identifier, stated-facts and stated-scope rules; 1 is the earlier rule set, to replay answers recorded with it. |
+| `decoder_version` | `1` or `2` | no |  | How a criterion ledger answer is read. Unset, the default reader drops an ungrounded quote and keeps the verdict; 1 rejects an ungrounded quote; 2 drops the quote and keeps the verdict. |
 | `answer_contract` | `ledger` or `legacy` | no |  | ledger, the default, or legacy: the earlier prompt and parser, to replay scores recorded with them. |
 | `assessment` | one of `response-relevance`, `conformance`, `answer-audit`, `fact-ledger` | no |  | An assessment kind in place of the criterion ledger: response-relevance (the reply answers the latest ask), conformance (to reference), answer-audit (the submitted answer, optionally against reference), or fact-ledger (every fact of reference in the reply). |
 | `reference` | string | no |  | The reference answer an assessment reads: needed by conformance (may be empty) and fact-ledger, optional for answer-audit. |
@@ -668,8 +670,19 @@ An operation on one item of the parent object, or a new item with add: true.
 | `params` | map of string to any value | no |  | Params to set: maps merge, lists replace, +key appends, -key removes. |
 | `impl` | string matching `^(builtin\|plugin):\S+$` | no |  | Another implementation for the same rule. |
 | `cites` | string | no |  | A source for the reader. |
+| `applies_to` | [AppliesTo](#appliesto) | no |  | Where the rule applies: maps merge, lists replace. |
 | `before` | string matching `^[A-Za-z0-9][A-Za-z0-9._-]*$` | no |  | Moves the item just before this one. |
 | `after` | string matching `^[A-Za-z0-9][A-Za-z0-9._-]*$` | no |  | Moves the item just after this one. |
+
+## AppliesTo
+
+Where an item applies: skills, tools or unit patterns. Absent means everywhere.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `skills` | list of strings, each not empty | no |  | Skill names the evidence must name one of. |
+| `tools` | list of strings, each not empty | no |  | Tool labels the failing call must have one of. |
+| `units` | list of strings, each not empty | no |  | Unit patterns, such as R#41/*, a unit must match one of. |
 
 ## Spec end
 

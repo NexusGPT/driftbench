@@ -1,4 +1,5 @@
 import {
+  initializeShippedObjects,
   type ObjectRegistry,
   ObjectStore,
   objectRegistry,
@@ -12,8 +13,12 @@ export { SHIPPED_OBJECTS } from './shipped';
 
 const registered = new WeakSet<ObjectRegistry>();
 
-/** Registers the blame and placement implementations and shipped objects once per registry. */
+/**
+ * Registers the blame and placement implementations and shipped objects once per registry. The shared kind
+ * vocabulary is initialised first, so a caller that never goes through the CLI's `main()` still finds its kinds.
+ */
 export function registerBlameObjects(registry: ObjectRegistry = objectRegistry): ObjectRegistry {
+  initializeShippedObjects();
   if (registered.has(registry)) return registry;
   for (const [name, impl] of Object.entries(BLAME_IMPLS)) {
     if (!registry.impl(name)) registry.registerImpl(name, { params: impl.params, summary: impl.summary });

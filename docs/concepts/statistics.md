@@ -73,10 +73,34 @@ A criterion can name a repeat reducer (`mode`, `median` or `at_least:<k>`). It r
 | `clopperPearson(k, n, alpha)` | the exact interval at level `1 - alpha`, from the beta quantile; `alpha` defaults to 0.05 |
 | `zeroFailureBound(p, alpha)` | the number of independent failure-free runs needed to claim a failure rate below `p` at confidence `1 - alpha`: 59 for 5 percent at 95 percent |
 | `bootstrapCI(values, { clusters, iterations, method, alpha, seed, statistic })` | a bootstrap interval that resamples whole clusters |
+| `wilsonEffective(clusters, { alpha, quantile })` | the pooled pass rate over clusters of `{ n, k }`, with the design effect, the effective blocks `n_eff` and the Wilson interval on `n_eff` |
+| `hierarchicalBetaBinomial(trees, { alpha })` | the hierarchical Beta-Bernoulli interval for the mean pass rate of a suite of trees of `{ n, k }` |
+| `simulateCoverage(cell, { reps, seed })` | the coverage and width of four intervals on simulated suites of one setting: the check that an interval keeps its promise |
 
 `bootstrapCI` takes one cluster key per value: every value of one conversation carries the conversation's key, so the blocks of a run are never treated as independent samples. Without keys every value is its own cluster. `iterations` defaults to 2000, `method` is `percentile` (the default) or `basic`, `alpha` defaults to 0.05, and `seed` defaults to 1: the same seed gives the same interval. `statistic` replaces the pooled mean with any function of the resampled values.
 
-The scorecard's pass rate over specs, with several repeats of each, does not use the percentile bootstrap: with five or six specs it holds the true rate in about 82 percent of draws. It prints the Wilson interval on the effective runs instead: the runs divided by the design effect that the spread of the spec rates implies, with the Student t quantile on the specs less one in place of z. On 6 specs of 5 repeats at `rho` 0.3 it holds the true rate in about 97 percent of draws, on 20 specs of 3 repeats in about 95 percent (planted designs, 4000 draws). Its method name in the report is `wilson, design effect`.
+The scorecard's pass rate over specs, with several repeats of each, does not use the percentile bootstrap: with five or six specs it holds the true rate in about 82 percent of draws. It prints the Wilson interval on the effective runs instead: the runs divided by the design effect that the spread of the spec rates implies, with the Student t quantile on the specs less one in place of z. On 6 specs of 5 repeats at `rho` 0.3 it holds the true rate in about 97 percent of draws, on 20 specs of 3 repeats in about 95 percent (planted designs, 4000 draws). Its method name in the report is `wilson, design effect`. `wilsonEffective` is that interval as a function: it takes the blocks passed and tried per cluster, prints the design effect and `n_eff` next to it, and takes `quantile: 'z'` for the normal form. When every block passes or every block fails the spread of the cluster rates is zero and tells nothing, so each cluster counts once (`degenerate` is true).
+
+### The suite headline
+
+A suite is clustered three ways: the repeats of one golden, the realisations of one class, and the children of one parent. For the headline of a whole suite the scorecard prints the **mean over trees** with the **hierarchical Beta-Bernoulli interval** (`hierarchicalBetaBinomial`). Each tree has its own pass rate, drawn from a Beta distribution around the suite's mean. The spread of those tree rates sets how far the blocks of one tree move together, so the interval widens when trees disagree and narrows when they agree. Every tree weighs the same, so a golden with ten repeats does not outvote one with two. The posterior is computed on a fixed grid: there is no sampling and no seed, and the same trees always give the same interval. The method name in the report is `hierarchical`.
+
+Beside the headline the scorecard prints `n_eff` (the runs the clustering is worth), the design effect, the smallest drop two suites like it detect at 80 percent power, and the share of runs that gave no verdict (did not complete, and `blocked` or `not_run` when a run carries those states). One golden has no spread to measure, so it prints no interval. The command line prints the same line per mode. For six goldens where 5 of 5, 5 of 5, 4 of 5, 0 of 5, 2 of 5 and 2 of 2 runs pass:
+
+```text
+Suite pass rate, mode F: 70.0% [35.4%, 88.2%] (hierarchical 95% interval); 6 goldens, n_eff 7.0 runs (design effect 3.87), detectable drop 66.4 points at 80% power.
+```
+
+Which interval to use:
+
+| Interval | For | Coverage on simulated suites |
+|---|---|---|
+| naive Wilson | independent units only; never a headline for clustered results | 73.9 percent |
+| Wilson on `n_eff`, normal quantile | interactive output | 91.3 percent |
+| Wilson on `n_eff`, Student t quantile | a rate of one block or one conversation in the report | 93.1 percent |
+| hierarchical | the suite headline and any published result | 95.3 percent |
+
+The coverage column is the share of simulated suites whose interval held the true mean (95 percent is the target), averaged over 24 cells of Bowyer, Aitchison and Ivanova's clustered model: 12 or 50 trees, tree sizes of 3 or the real sizes of the Acme parent forest, a true mean of 0.6 or 0.9, and a concentration of 0.5, 2 or 8 (strong to mild agreement inside a tree), with 400 simulated suites per cell. `simulateCoverage` runs one cell; the test `packages/stats/test/clustered.test.ts` runs the 24 in about three seconds and requires the naive interval under 80 percent, Wilson on `n_eff` at 90 percent or more and the hierarchical interval at 93 percent or more. On the research grid of 160 cells with 5,000 suites each, naive Wilson covered 73.5 percent and Wilson on `n_eff` (normal quantile) 91.0 percent; the hierarchical interval was run on 24 cells and covered 95.7 percent, 91.0 percent in its worst cell. A headline over few trees (under a dozen) is the least certain.
 
 ## Where results vary
 

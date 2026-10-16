@@ -19,6 +19,10 @@ goldens both ran, and decides whether the candidate is non-inferior to the basel
 
 * A golden is one spec in one mode (one perturbation in mode P), over every repeat. It passes when every
   repeat passes. Repeats are never counted as independent pairs.
+* Pairs are clustered by golden. The repeats of one golden collapse into one pass or fail before the
+  paired tests, so a golden with ten repeats counts once. The pass rate printed for each side is a rate
+  over goldens, not over runs. Where `report` prints a rate over clustered runs, it reads the design effect
+  from the same grouping (`results-statistics`).
 * A criterion is a machine verdict family (`must`, `tools`, `stage`, `forbidden`, ...) or one judged
   criterion. It passes in a golden when every decided occurrence over every repeat passes.
 * The verdict is one of three:

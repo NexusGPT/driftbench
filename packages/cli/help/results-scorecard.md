@@ -92,7 +92,9 @@ From top to bottom:
      turns, collateral), where a carried run came from, and any error.
    The page says how many runs the run limit left out.
 6. **All details.** Every table behind the numbers, each folded under its heading: Campaign facts,
-   Summary (tiles with intervals: runs passing and block accuracy per mode, end state match, tool F1,
+   Summary (tiles with intervals: the suite pass rate per mode, the mean over goldens with its hierarchical
+   interval, n_eff, the detectable drop and the share of runs without a verdict; runs passing and block
+   accuracy per mode, end state match, tool F1,
    immediate recovery, compounding index, cost and latency per block), Baseline and candidate (the full
    comparison: paired table, McNemar, Newcombe effect, Wilcoxon on drift, the criteria with
    Benjamini-Hochberg q, new flags, goldens that changed, goldens not paired), Reliability per golden
@@ -118,6 +120,9 @@ driftbench report --store acme.db --baseline c-base --out x3.html
 $ driftbench report c-base --store acme.db --pilot examples/acme/pilot/acme-random --by behaviour --out card.html
 Margin auto: 14.5 points, the smallest half point at which the baseline compared with itself is non-inferior (set by the all-pass flag, 14.3 points).
 Campaign c-base: 46 runs, 46 pass, 0 fail, 0 did not complete.
+Suite pass rate, mode T: 100.0% [65.3%, 100.0%] (hierarchical 95% interval); 6 goldens, n_eff 6.0 runs (every run agrees, so each golden counts once), detectable drop 71.7 points at 80% power.
+Suite pass rate, mode F: 100.0% [65.3%, 100.0%] (hierarchical 95% interval); 6 goldens, n_eff 6.0 runs (every run agrees, so each golden counts once), detectable drop 71.7 points at 80% power.
+Suite pass rate, mode P: 100.0% [78.5%, 100.0%] (hierarchical 95% interval); 11 goldens, n_eff 11.0 runs (every run agrees, so each golden counts once), detectable drop 50.6 points at 80% power.
 Wrote card.html.
 ```
 
@@ -127,6 +132,9 @@ The fault campaign read against `c-base`:
 $ driftbench report --store acme.db --baseline c-base --out x3.html
 Margin auto: 14.5 points, the smallest half point at which the baseline compared with itself is non-inferior (set by the all-pass flag, 14.3 points).
 Campaign c-fbe8e929332e: 46 runs, 20 pass, 26 fail, 0 did not complete.
+Suite pass rate, mode T: 50.0% [18.7%, 81.3%] (hierarchical 95% interval); 6 goldens, n_eff 5.0 runs (design effect 2.40), no drop detectable at 80% power.
+Suite pass rate, mode F: 50.0% [18.7%, 81.3%] (hierarchical 95% interval); 6 goldens, n_eff 5.0 runs (design effect 2.40), no drop detectable at 80% power.
+Suite pass rate, mode P: 36.4% [14.7%, 64.0%] (hierarchical 95% interval); 11 goldens, n_eff 10.0 runs (design effect 2.20), no drop detectable at 80% power.
 Against baseline c-base: regressed, margin 14.5 points.
 Wrote x3.html.
 ```

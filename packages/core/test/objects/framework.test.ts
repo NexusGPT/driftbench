@@ -8,7 +8,9 @@ import {
   blockCacheKey,
   cacheSpecHash,
   canonicalGiven,
+  cliPatch,
   explainObject,
+  itemApplies,
   itemOf,
   loadSpecFile,
   ObjectError,
@@ -28,6 +30,7 @@ import {
 } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
+import { initializeShippedObjects } from '../../src/objects';
 
 const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), '..', 'fixtures', 'framework');
 const PROTOTYPE = join(FIXTURES, 'objects');
@@ -366,7 +369,66 @@ describe('items', () => {
   it('refuses a key the kind does not hold: agent-facing is a property of the kind, not of a file', () => {
     const error = refusal(() => prototypeStore('shipped/run-profile/default.yaml'));
     expect(error.message).toContain('unknown key agent_facing');
+    initializeShippedObjects();
     expect(objectRegistry.kind('run-profile')?.agentFacing).toBe(true);
+  });
+});
+
+describe('applies_to', () => {
+  const store = () => {
+    const root = tempProject({
+      'scoped.yaml': [
+        'kind: check-set',
+        'id: scoped',
+        'extends: default',
+        'items:',
+        '  - id: tools.count',
+        '    applies_to: { skills: [refunds], tools: [refunds.create] }',
+        '  - id: tools.order',
+        '    applies_to: { units: ["R#41/*"] }',
+        '',
+      ].join('\n'),
+      'narrowed.yaml':
+        'kind: check-set\nid: narrowed\nextends: scoped\nitems:\n  - { id: tools.count, applies_to: { skills: [billing] } }\n',
+      'bad.yaml':
+        'kind: check-set\nid: bad\nextends: default\nitems:\n  - { id: tools.count, applies_to: { teams: [ops] } }\n',
+    });
+    const objects = prototypeStore();
+    for (const name of ['scoped', 'narrowed']) objects.addFile(join(root, `${name}.yaml`), 'project');
+    return Object.assign(objects, { badFile: join(root, 'bad.yaml') });
+  };
+
+  it('skips a scoped item on evidence that names none of its skills or tools, and fires on a match', () => {
+    const count = itemOf(store().resolve('check-set', 'scoped'), 'tools.count');
+    if (!count) throw new Error('tools.count');
+    expect(itemApplies(count, { skills: ['billing'] })).toBe(false);
+    expect(itemApplies(count, { skills: ['billing', 'refunds'] })).toBe(true);
+    expect(itemApplies(count, { tools: ['refunds.create'] })).toBe(true);
+    expect(itemApplies(count, {})).toBe(false);
+  });
+
+  it('matches units by glob, and applies everywhere without applies_to', () => {
+    const scoped = store().resolve('check-set', 'scoped');
+    const order = itemOf(scoped, 'tools.order');
+    if (!order) throw new Error('tools.order');
+    expect(itemApplies(order, { units: ['R#41/c3'] })).toBe(true);
+    expect(itemApplies(order, { units: ['R#4/c3', 'R#410'] })).toBe(false);
+    const plain = itemOf(scoped, 'forbidden.count0');
+    expect(plain && 'applies_to' in plain).toBe(false);
+    expect(plain && itemApplies(plain, {})).toBe(true);
+  });
+
+  it('merges a patch: maps merge, lists replace; and refuses an unknown key', () => {
+    const objects = store();
+    expect(itemOf(objects.resolve('check-set', 'narrowed'), 'tools.count')?.applies_to).toEqual({
+      skills: ['billing'],
+      tools: ['refunds.create'],
+    });
+    const error = refusal(() => objects.addFile(objects.badFile, 'project'));
+    expect(error.code).toBe('OBJECT_INVALID');
+    expect(error.message).toContain('teams');
+    // No default: the shipped default holds no applies_to, so its hash is what it was.
+    expect(objects.resolve('check-set', 'default').items.some((item) => 'applies_to' in item)).toBe(false);
   });
 });
 
@@ -687,6 +749,47 @@ describe('the command-line layer', () => {
     );
     expect(refusal(() => parseCliOverrides([], ['policy/blame.R3=1'], registry)).message).toContain(
       'expected <kind>[/<id>]#<item>.<param>=<value>',
+    );
+  });
+
+  it('splits --set at the longest item id of the object, since an item id may hold dots', () => {
+    const store = prototypeStore();
+    const object = store.resolve('check-set', 'default');
+    // `tools.count` is an item: the param is `limit`, never `count.limit` on an item `tools`.
+    expect(cliPatch(object, { path: 'tools.count.limit', value: 2, flag: 'f' })).toEqual({
+      id: 'tools.count',
+      params: { limit: 2 },
+    });
+    expect(cliPatch(object, { path: 'tools.order.a.b', value: true, flag: 'f' })).toEqual({
+      id: 'tools.order',
+      params: { a: { b: true } },
+    });
+    const none = refusal(() =>
+      cliPatch(object, { path: 'tools.counts.limit', value: 2, flag: 'check-set#tools.counts.limit=2' }),
+    );
+    expect(none.code).toBe('OBJECT_ITEM_UNKNOWN');
+    expect(none.message).toContain(`it holds ${object.items.map((item) => item.id).join(', ')}`);
+    // An item id with nothing after it names no param.
+    expect(refusal(() => cliPatch(object, { path: 'tools.count', value: 2, flag: 'f' })).code).toBe(
+      'OBJECT_ITEM_UNKNOWN',
+    );
+    const parsed = parseCliOverrides([], ['check-set#tools.count.limit=2'], store.registry);
+    expect(parsed.set).toEqual([
+      { kind: 'check-set', path: 'tools.count.limit', value: 2, flag: 'check-set#tools.count.limit=2' },
+    ]);
+  });
+
+  it('refuses --set on an object id no layer defines, naming the kind, the id and the layers', () => {
+    const spec = join(WORKED, 'project', 'specs', 'refund-late-order.yaml');
+    const registry = workedRegistry();
+    const context = objectContextFor(spec, registry);
+    const loaded = parseSpecText(readFileSync(spec, 'utf8'), 'yaml', spec, { objects: context });
+    if (!loaded.ok) throw new Error('worked spec');
+    const cli = parseCliOverrides([], ['policy/blame/missing#R3.recovery_ok=[gave_up]'], registry);
+    const error = refusal(() => resolveBlockObjects(loaded.spec, 0, { ...context, cli }));
+    expect(error.code).toBe('OBJECT_UNKNOWN');
+    expect(error.message).toBe(
+      '--set policy/blame/missing#R3.recovery_ok=[gave_up]: unknown object policy/blame:missing; searched layers shipped, project, suite, spec, block, cli',
     );
   });
 });

@@ -4,9 +4,10 @@ import { dirname, extname, join, resolve } from 'node:path';
 import { promisify } from 'node:util';
 import { parse as parseYaml } from 'yaml';
 import type { z } from 'zod';
+import { bindObjectContext, objectContextOfSpec } from '../objects/context';
 import { checkSpecObjects, specUsesObjects } from '../objects/index';
 import { type ObjectContext, objectContextFor, shippedObjectContext } from '../objects/layers';
-import type { Spec } from '../schema/spec';
+import { SPEC_SCHEMA_VERSION, type Spec } from '../schema/spec';
 import { parseBlockYaml } from './block-yaml';
 import { parseSpecSchema } from './compiled-schema';
 import { contentHash } from './hash';
@@ -29,7 +30,7 @@ export type LoadedSpec = Extract<LoadResult, { ok: true }>;
  * the objects visible from its folder; one given as text or a value, against the shipped objects only, unless
  * a context is given. A function is called only when the pass runs.
  */
-export type SpecLoadOptions = { objects?: ObjectContext | (() => ObjectContext) };
+export type SpecLoadOptions = { objects?: ObjectContext | (() => ObjectContext); resolveObjects?: boolean };
 
 /** Parses, normalises and validates spec text. Never throws on bad input. */
 export function parseSpecText(
@@ -72,6 +73,9 @@ export function checkSpec(
   path = '<inline>',
   options: SpecLoadOptions = {},
 ): SpecValidationResult {
+  // A spec written for a newer format is refused first, with the fix, before its newer keys read as unknown.
+  const newer = newerSchema(raw);
+  if (newer) return { ok: false, path, errors: [newer], warnings: [] };
   const normalized = normalizeSpec(raw);
   const errors = normalized.issues.filter((issue) => issue.level === 'error');
   const parsed = parseSpecSchema(normalized.value);
@@ -92,24 +96,43 @@ export function checkSpec(
   if (semantic.length > 0) return { ok: false, path, errors: semantic, warnings: [] };
 
   // Resolve: every object a layer names, against the objects visible from here (src/objects).
-  const objects = options.objects;
+  const objects =
+    options.resolveObjects === false
+      ? undefined
+      : (options.objects ?? (raw !== null && typeof raw === 'object' ? objectContextOfSpec(raw) : undefined));
   const context =
-    objects === undefined
-      ? specUsesObjects(parsed.data)
-        ? shippedObjectContext()
-        : undefined
-      : typeof objects === 'function'
-        ? objects()
-        : objects;
+    options.resolveObjects === false
+      ? undefined
+      : objects === undefined
+        ? specUsesObjects(parsed.data)
+          ? shippedObjectContext()
+          : undefined
+        : typeof objects === 'function'
+          ? objects()
+          : objects;
   const resolved = context === undefined ? [] : checkSpecObjects(parsed.data, context);
   if (resolved.length > 0) return { ok: false, path, errors: resolved, warnings: [] };
 
   return {
     ok: true,
     path,
-    spec: parsed.data,
+    spec: context === undefined ? parsed.data : bindObjectContext(parsed.data, context),
     warnings: lintSpec(parsed.data),
   };
+}
+
+/** The refusal of a spec whose `schema_version` is a whole number above the version this driftbench reads. */
+function newerSchema(raw: unknown): Issue | undefined {
+  if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) return undefined;
+  const version = (raw as { schema_version?: unknown }).schema_version;
+  if (typeof version !== 'number' || !Number.isInteger(version) || version <= SPEC_SCHEMA_VERSION) {
+    return undefined;
+  }
+  return error(
+    'SPEC_SCHEMA_VERSION',
+    'schema_version',
+    `the spec is written for spec format version ${version}; this driftbench reads version ${SPEC_SCHEMA_VERSION} and older: upgrade driftbench`,
+  );
 }
 
 /** Reads one file. `.json` is parsed as JSON, anything else as YAML. */

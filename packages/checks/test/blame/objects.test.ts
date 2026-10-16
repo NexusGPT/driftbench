@@ -1,4 +1,10 @@
-import { ObjectRegistry, ObjectStore, objectRegistry, parseObjectText } from '@agent-nexus/driftbench-core';
+import {
+  initializeShippedObjects,
+  ObjectRegistry,
+  ObjectStore,
+  objectRegistry,
+  parseObjectText,
+} from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import { blame } from '../../src';
 
@@ -9,6 +15,7 @@ import { blame } from '../../src';
  */
 
 function store(): ObjectStore {
+  initializeShippedObjects();
   const registry = new ObjectRegistry();
   for (const kind of objectRegistry.kinds()) registry.registerKind(kind);
   blame.registerBlameObjects(registry);
