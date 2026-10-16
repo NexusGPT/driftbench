@@ -81,12 +81,28 @@ function setUp(db: DatabaseSync, path: string): void {
       `the store at ${path} has schema version ${version}; this version of driftbench reads ${SCHEMA_VERSION} and older`,
     );
   }
-  // Every statement of SCHEMA_SQL is idempotent, so it runs on each open: a store already at this version
-  // that was written before a table of the current schema existed gains the table, with no second bump.
+  // Every statement of SCHEMA_SQL is idempotent. A store older than this version runs it; a store at this
+  // version runs it only when a table or index it creates is missing (one written before a table of the
+  // current schema existed), so an open that finds everything writes nothing and the version stays.
+  if (version >= SCHEMA_VERSION && schemaObjectsMissing(db).length === 0) return;
   transaction(db, () => {
     db.exec(SCHEMA_SQL);
     if (version < SCHEMA_VERSION) db.exec(`PRAGMA user_version = ${SCHEMA_VERSION}`);
   });
+}
+
+/** The tables and indexes SCHEMA_SQL creates that the database does not hold. */
+function schemaObjectsMissing(db: DatabaseSync): string[] {
+  const wanted = [...SCHEMA_SQL.matchAll(/CREATE (?:TABLE|INDEX) IF NOT EXISTS (\w+)/g)].map(
+    (match) => match[1] as string,
+  );
+  const held = new Set(
+    db
+      .prepare("SELECT name FROM sqlite_master WHERE type IN ('table', 'index')")
+      .all()
+      .map((row) => String(row.name)),
+  );
+  return wanted.filter((name) => !held.has(name));
 }
 
 /** Closes a database that failed to set up. The setup error is the one the caller reports. */
