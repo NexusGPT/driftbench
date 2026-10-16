@@ -46,12 +46,7 @@
     },
     "judges": {
       "level": 20,
-      "seeds": [
-        "1",
-        "2",
-        "3",
-        "hidden"
-      ],
+      "seeds": ["1", "2", "3", "hidden"],
       "hiddenSeed": 336760492,
       "head": "14034c6caf7b46117fea61cf00688380dc5ad8d6",
       "ladderVersion": 2
