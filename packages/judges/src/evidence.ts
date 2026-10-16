@@ -382,12 +382,108 @@ export function quoteContinuations(passage: string, quote: string): string[] {
 
 export type EvidenceSpan = { readonly source: string; readonly quote: string };
 
-/** A quote grounds only in the named source; frame metadata never counts as body evidence. */
-export function groundEvidenceSpan(request: JudgeRequest, span: EvidenceSpan): Grounding {
+/** Additional span grounding enabled by decoder 3; historical decoders omit these options. */
+export type SpanGrounding = {
+  readonly symbolQuotes?: boolean;
+  readonly inputSpellings?: boolean;
+  readonly toolNames?: boolean;
+};
+
+/** The fewest non-space characters a quote without any letter or digit needs. */
+const MIN_SYMBOL_QUOTE = 3;
+
+/** Compatibility forms, typographic quotes and runs of white space folded; case and markup are kept. */
+const symbolFold = (text: string): string =>
+  text.normalize('NFKC').replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/\s+/g, ' ').trim();
+
+/**
+ * A quote of symbols alone, such as a run of closing brackets, holds no letter or digit, so the word search
+ * never grounds it. With `symbolQuotes` it grounds when its exact folded text occurs in the source it names,
+ * with at least three non-space characters. The source is never swapped for another one.
+ */
+function quotesSymbols(text: string, quote: string): boolean {
+  const folded = symbolFold(quote);
+  return (
+    !/[\p{L}\p{N}]/u.test(folded) &&
+    folded.replace(/\s/g, '').length >= MIN_SYMBOL_QUOTE &&
+    symbolFold(text).includes(folded)
+  );
+}
+
+/** The text a span names, and the place it is reported as: a transcript entry, a data place or the sole input. */
+function namedSource(request: JudgeRequest, source: string): { text: string; where: string } | undefined {
+  const entryId = /^transcript\.(0|[1-9]\d*)$/.exec(source);
+  if (entryId) {
+    const entry = request.transcript[Number(entryId[1])];
+    return entry && { text: entry.text, where: source };
+  }
+  const place = dataPlaces(request).find(([where]) => where === source);
+  if (place) return { text: place[1], where: source };
+  const input = request.inputs?.length === 1 ? request.inputs[0] : undefined;
+  if (input && (source === input.path || ['reference', 'given', 'artifact'].includes(source)))
+    return { text: input.text, where: `input.${input.path}` };
+  return undefined;
+}
+
+/**
+ * The input a source label spells another way than `input.<path>`: `input/<path>`, `input_data/<path>`,
+ * `input <path>`, `input. <path>` or `input<path>` name the input with exactly that path, among any number of
+ * inputs. A bare `input`, `inputs` or `input_data` names the sole input. Otherwise the label names no input,
+ * and no input is guessed.
+ */
+function spelledInput(request: JudgeRequest, label: string): string | undefined {
+  const inputs = request.inputs ?? [];
+  if (dataPlaces(request).some(([where]) => where === label)) return undefined;
+  const spelling = /^inputs?(?:_data)?(?:\s*[/.:<\s]\s*(.*?)>?)?$/i.exec(label.trim());
+  if (!spelling) return undefined;
+  const path = spelling[1]?.trim();
+  const named = path ? inputs.filter((input) => input.path === path) : inputs;
+  return named.length === 1 ? `input.${named[0]?.path}` : undefined;
+}
+
+/** A tool event's supplied name is evidence of that event, never of another transcript entry. */
+function quotesToolName(tool: string, quote: string): boolean {
+  const name = fold(tool);
+  const given = fold(quote);
+  const unquote = (value: string): string =>
+    value.length >= 2 && (value[0] === '"' || value[0] === "'") && value.at(-1) === value[0]
+      ? value.slice(1, -1).trim()
+      : value;
+  // Only the field wrapper and a matching outer quote pair are presentation. Quotes and
+  // colons inside the supplied identifier remain data, including names such as order.o'reilly.
+  const frame = /^(?:tool|"tool"|'tool')\s*:\s*(.*)$/.exec(given);
+  return (
+    name.length > 0 &&
+    (given === name || unquote(given) === name || (frame !== null && unquote(frame[1] ?? '') === name))
+  );
+}
+
+/** A quote grounds only in its named source; toolNames also admits a tool event's exact name. */
+export function groundEvidenceSpan(
+  request: JudgeRequest,
+  span: EvidenceSpan,
+  options: SpanGrounding = {},
+): Grounding {
+  const spelled = options.inputSpellings ? spelledInput(request, span.source) : undefined;
+  const source = spelled ?? span.source;
+  const grounding = groundSpanWords(request, { ...span, source }, options.toolNames);
+  if (grounding.grounded || !options.symbolQuotes) return grounding;
+  const named = namedSource(request, source);
+  return named && quotesSymbols(named.text, span.quote) ? { grounded: true, where: named.where } : grounding;
+}
+
+function groundSpanWords(request: JudgeRequest, span: EvidenceSpan, toolNames = false): Grounding {
   const entryId = /^transcript\.(0|[1-9]\d*)$/.exec(span.source);
   if (entryId) {
     const entry = request.transcript[Number(entryId[1])];
     if (!entry) return { grounded: false };
+    if (
+      toolNames &&
+      (entry.role === 'tool_call' || entry.role === 'tool_result') &&
+      entry.tool &&
+      quotesToolName(entry.tool, span.quote)
+    )
+      return { grounded: true, where: span.source };
     const grounded = groundEvidence(
       { criterion: request.criterion, transcript: [entry] },
       { outcome: 'inconclusive', reasoning: '', evidence: span.quote },
