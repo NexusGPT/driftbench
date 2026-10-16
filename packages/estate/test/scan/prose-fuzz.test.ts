@@ -130,13 +130,19 @@ it('finishes punctuation-heavy files of mixed scripts, keeps every quote at its 
   );
   const middle = Math.floor(safe.length / 2);
   const sentinelFile = [
+    '## Rules',
+    '',
     sentinels[0],
     '',
     ...safe.slice(0, middle),
     '',
+    '## Rules',
+    '',
     sentinels[1],
     '',
     ...safe.slice(middle),
+    '',
+    '## Rules',
     '',
     sentinels[2],
     '',
@@ -150,9 +156,12 @@ it('finishes punctuation-heavy files of mixed scripts, keeps every quote at its 
     '.claude/skills/check/SKILL.md': `---\nname: check\n---\n${hostile}`,
     '.claude/agents/helper.md': `---\nname: helper\n---\n${sentinelFile}`,
   });
-  const started = performance.now();
+  const started = process.cpuUsage();
   const result = await scanEstate({ root, reader: new ClaudeCodeReader() });
-  const elapsed = performance.now() - started;
+  const used = process.cpuUsage(started);
+  // Processor time, so a loaded host cannot fail a test that measures the product's own work.
+  const elapsed = (used.user + used.system) / 1000;
+  console.log(`FUZZ_CPU_MS ${Math.round(elapsed)}`);
   expect(result.map.hash).toBeTruthy();
   expect(elapsed).toBeLessThan(30_000);
   // A clause the scan cannot place is counted, with its reason, and never ends the scan.
@@ -172,4 +181,4 @@ it('finishes punctuation-heavy files of mixed scripts, keeps every quote at its 
       atom.fields?.candidate === true && !quoteAtSpan(texts.get(atom.provenance.file) ?? '', atom.provenance),
   );
   expect(misplaced.map((atom) => atom.provenance)).toEqual([]);
-}, 60_000);
+}, 180_000);

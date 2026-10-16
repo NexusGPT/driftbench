@@ -27,6 +27,8 @@ it('finishes a large scan of punctuation-heavy prose and retains valid rules aft
     '`x+y`',
   ];
   const lines = [
+    '# Rules',
+    '',
     "Every command's failure (exit code + stderr) reaches you.",
     'Every run (exit 1) is logged.',
   ];

@@ -1,5 +1,5 @@
-import nlp from 'compromise/two';
 import type { Atom } from '../schema';
+import { clauseRule, NORMATIVE_HEADING, type Rule, type RuleContext } from './clause-rule';
 import type { AtomBuilder } from './code';
 import type { ProseChunk, RawEstate } from './reader';
 import { lineAt, quoteAtSpan, readFrontmatter } from './text';
@@ -15,15 +15,28 @@ export function proseCandidates(
   const pendingFiles = new Set(
     raw.prose.filter((chunk) => !answered.has(chunk.id)).map((chunk) => chunk.file),
   );
+  // Sentences the grammar has already refused, with digits collapsed: boilerplate repeats across a scan.
+  const noRule = new Set<string>();
   const answeredByFile = new Map<string, ProseChunk[]>();
+  const names = new Set(
+    [...raw.skills.map((skill) => skill.name), ...raw.subagents.map((agent) => agent.name)].map((name) =>
+      name.toLowerCase(),
+    ),
+  );
+  const manifests = new Set(
+    raw.files.filter((file) => MANIFESTS.test(file.path)).map((file) => file.path.replace(/\/[^/]*$/, '')),
+  );
   for (const chunk of resolved)
     answeredByFile.set(chunk.file, [...(answeredByFile.get(chunk.file) ?? []), chunk]);
   for (const file of raw.files) {
     if (!['standing', 'memory', 'skill', 'skill_file', 'subagent'].includes(file.kind)) continue;
+    // Only prose is read for rules, and never another project's documentation.
+    if (file.kind === 'skill_file' && !/\.(?:md|markdown|mdx|txt)$/i.test(file.path)) continue;
+    if (isThirdParty(file, manifests)) continue;
     const resolvedHere = answeredByFile.get(file.path) ?? [];
     if (resolvedHere.length > 0 && !pendingFiles.has(file.path)) continue;
     try {
-      candidatesOfFile(raw, builder, file, resolvedHere, added);
+      candidatesOfFile(raw, builder, file, resolvedHere, added, names, noRule);
     } catch (cause) {
       // One unreadable file never costs the rest of the scan; the scan summary counts what was skipped.
       raw.notes.push({
@@ -40,9 +53,9 @@ class OccupiedLines {
   private readonly sorted: Atom[];
   private readonly reach: number[] = [];
   private readonly mine: Atom[] = [];
-  constructor(existing: readonly Atom[]) {
+  constructor(existing: readonly Atom[], kinds: readonly string[] = ['instruction', 'gate', 'register']) {
     this.sorted = existing
-      .filter((atom) => ['instruction', 'gate', 'register'].includes(atom.kind))
+      .filter((atom) => kinds.includes(atom.kind))
       .sort((a, b) => a.provenance.startLine - b.provenance.startLine);
     let reach = 0;
     for (const atom of this.sorted) {
@@ -81,11 +94,24 @@ function candidatesOfFile(
   file: RawEstate['files'][number],
   resolved: readonly ProseChunk[],
   added: Atom[],
+  names: ReadonlySet<string>,
+  noRule: Set<string>,
 ): void {
   const body = readFrontmatter(file.text);
   const lines = file.text.split('\n');
   const visible = normativeLines(lines, body.bodyLine);
   const occupied = new OccupiedLines(builder.atomsOf(file.path));
+  // A bare instruction ("Read X first.") that code already reads as a reference, script, route or hazard
+  // is that atom's own sentence, not a second rule.
+  const covered = new OccupiedLines(builder.atomsOf(file.path), [
+    'reference',
+    'script',
+    'route',
+    'hazard',
+    'gate',
+    'instruction',
+    'register',
+  ]);
   const helper = raw.subagents.find((agent) => agent.file === file.path);
   const scope = helper ? 'helper' : file.owner ? 'skill' : 'estate';
   const owner = helper?.name ?? file.owner;
@@ -103,7 +129,14 @@ function candidatesOfFile(
       const endLine = startLine + countNewlines(quote);
       let rule: Rule | undefined;
       try {
-        rule = clauseRule(text);
+        const normative = NORMATIVE_HEADING.test(block.heading);
+        const key = `${normative ? 1 : 0}|${text.replace(/\d+/g, '#')}`;
+        if (noRule.has(key)) continue;
+        rule = clauseRule(text, { names, normative });
+        if (!rule) {
+          noRule.add(key);
+          continue;
+        }
         // The map accepts only a quote the extractor's own check finds at its lines (a quote ending in an
         // escaping backslash does not survive that check), so a clause whose quote fails it is not proposed.
         if (rule && !quoteAtSpan(file.text, { file: file.path, startLine, endLine, quote }))
@@ -121,10 +154,12 @@ function candidatesOfFile(
       if (resolved.some((chunk) => chunk.startLine <= startLine && endLine <= chunk.endLine)) continue;
       // A structured or model rule already occupying this passage is more informative.
       if (
-        occupied.some(startLine, endLine, (atom) =>
-          atom.kind === 'gate'
-            ? form === 'conditional' || ruleText(atom.provenance.quote) === ruleText(quote)
-            : atom.provenance.quote.includes(quote.trim()),
+        (form === 'imperative' ? covered : occupied).some(startLine, endLine, (atom) =>
+          form === 'imperative' && !['instruction', 'register', 'gate'].includes(atom.kind)
+            ? true
+            : atom.kind === 'gate'
+              ? form === 'conditional' || ruleText(atom.provenance.quote) === ruleText(quote)
+              : atom.provenance.quote.includes(quote.trim()),
         )
       )
         continue;
@@ -150,12 +185,36 @@ function candidatesOfFile(
           polarity: rule.polarity,
           subject: rule.subject,
           form,
+          // The act's object is a pronoun for an earlier sentence: a reviewer must supply it.
+          ...(rule.partial ? { partial: true, confidence: 'low' } : {}),
         },
       });
       occupied.record(atom);
+      covered.record(atom);
       added.push(atom);
     }
   }
+}
+
+const MANIFESTS =
+  /(?:^|\/)(?:package\.json|pyproject\.toml|setup\.py|Cargo\.toml|go\.mod|pom\.xml|build\.gradle|composer\.json|Gemfile|[^/]+\.gemspec)$/;
+const VENDOR_FOLDER =
+  /(?:^|\/)(?:node_modules|vendor|vendors|vendored|third[_-]?party|3rdparty|site-packages|bower_components)(?:\/|$)/i;
+const GENERATED = /@generated|\bdo not edit\b|\bauto-?generated\b|code generated by/i;
+
+/**
+ * Documentation that belongs to another project: a vendor folder, a folder that holds its own package
+ * manifest below the skill that carries it, or a file that says a tool generated it.
+ */
+function isThirdParty(file: RawEstate['files'][number], manifests: ReadonlySet<string>): boolean {
+  if (VENDOR_FOLDER.test(file.path) || /\.d\.ts$/.test(file.path)) return true;
+  if (GENERATED.test(file.text.slice(0, 400))) return true;
+  if (file.kind !== 'skill_file') return false;
+  const parts = file.path.split('/');
+  // Folders strictly between the skill's own folder (.claude/skills/<name>) and the file.
+  for (let depth = parts.length - 1; depth > 3; depth--)
+    if (manifests.has(parts.slice(0, depth).join('/'))) return true;
+  return false;
 }
 
 function countNewlines(text: string): number {
@@ -165,7 +224,21 @@ function countNewlines(text: string): number {
 }
 const blank = (text: string) => text.replace(/[^\n]/g, ' ');
 
-type Block = { original: string; masked: string; startLine: number };
+/**
+ * The start of a paragraph or list item that is not the document's own rule: marked wrong or bad, a dated
+ * entry of a log, or a line spoken by someone in a transcript.
+ */
+const SKIPPED_BLOCK = new RegExp(
+  [
+    '^(?:[✗✘❌]|×\\s)',
+    '^(?:wrong|bad|incorrect|invalid|anti-?patterns?|counter-?examples?|bad\\s+examples?|wrong\\s+examples?)\\b[^:—–\\n]{0,20}[:—–]',
+    '^[\\[(]?(?:\\d{4}-\\d{2}(?:-\\d{2})?|\\d{1,2}/\\d{1,2}/\\d{2,4}|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\\.?\\s+\\d{1,4}|\\d{1,2}\\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\\.?|v?\\d+\\.\\d+(?:\\.\\d+)?)[)\\]]?\\s*[:—–-]',
+    '^(?:user|customer|client|human|assistant|agent|bot|claude|q|a)\\s*:',
+  ].join('|'),
+  'iu',
+);
+
+type Block = { original: string; masked: string; startLine: number; heading: string };
 /** Markdown exclusion is applied to whole files, so a fence or example can cross a model chunk. */
 function normativeLines(lines: string[], bodyStart: number): Block[] {
   const blocks: Block[] = [];
@@ -174,6 +247,9 @@ function normativeLines(lines: string[], bodyStart: number): Block[] {
   let comment = false;
   let quotation: string | undefined;
   let excludedLevel: number | undefined;
+  let heading = '';
+  // A paragraph or list item the document marks as wrong, dated, or spoken by someone else is skipped whole.
+  let skipping = false;
   for (let i = bodyStart - 1; i < lines.length; i++) {
     const original = lines[i] ?? '';
     if (fence) {
@@ -200,21 +276,22 @@ function normativeLines(lines: string[], bodyStart: number): Block[] {
     }
     const underline = /^ {0,3}(=+|-+)\s*$/.exec(lines[i + 1] ?? '');
     const setext = line.trim() && underline;
-    const heading =
+    const headed =
       /^\s{0,3}(#{1,6})\s+(.+)/.exec(line) ??
       (setext ? ['', underline[1]?.startsWith('=') ? '#' : '##', line] : undefined);
     if (setext) i++;
 
-    if (heading) {
-      if (excludedLevel !== undefined && (heading[1] ?? '').length <= excludedLevel)
-        excludedLevel = undefined;
+    if (headed) {
+      if (excludedLevel !== undefined && (headed[1] ?? '').length <= excludedLevel) excludedLevel = undefined;
       if (
-        /\b(?:examples?|samples?|quotations?|history|changelog|templates?|fixtures?)\b/i.test(
-          heading[2] ?? '',
+        /\b(?:examples?|samples?|quotations?|history|changelog|templates?|fixtures?|anti-?patterns?|counter-?examples?|wrong|incorrect)\b/i.test(
+          headed[2] ?? '',
         )
       )
-        excludedLevel = (heading[1] ?? '').length;
+        excludedLevel = (headed[1] ?? '').length;
+      heading = headed[2] ?? '';
       current = undefined;
+      skipping = false;
       continue;
     }
     if (
@@ -226,11 +303,21 @@ function normativeLines(lines: string[], bodyStart: number): Block[] {
       current = undefined;
       continue;
     }
-    // A quotation never outlives its paragraph, so one stray quotation mark (5" pipe) cannot hide the file.
     const list = /^\s*(?:[-+*]|\d+[.)])\s/.test(original);
+    if (list || !current) skipping = false;
+    if (skipping) continue;
+    if (SKIPPED_BLOCK.test(original.replace(/^\s*(?:[-+*]\s+|\d+[.)]\s+)?[*_]*/, ''))) {
+      skipping = true;
+      current = undefined;
+      continue;
+    }
+    // A quotation never outlives its paragraph, so one stray quotation mark (5" pipe) cannot hide the file.
     if (!current || list) quotation = undefined;
     // Quoted and inline-code payloads cannot supply modalities or verbs.
-    line = line.replace(/`+[^`]*`+|(?<!\w)'[^'\n]+'(?!\w)|‘[^’\n]*’/g, blank);
+    line = line.replace(
+      /`+[^`]*`+|(?<!\w)'[^'\n]+'(?!\w)|‘[^’\n]*’|«[^»\n]*»|‹[^›\n]*›|„[^“”\n]*[“”]|「[^」\n]*」|『[^』\n]*』/g,
+      blank,
+    );
     let unquoted = '';
     for (const char of line) {
       if (quotation) {
@@ -254,7 +341,7 @@ function normativeLines(lines: string[], bodyStart: number): Block[] {
     const prefix = /^\s*(?:[-+*]\s+|\d+[.)]\s+)?(?:R#?\d+\s*[:.-]\s*)?/.exec(line)?.[0] ?? '';
     line = ' '.repeat(prefix.length) + line.slice(prefix.length);
     if (!current || list) {
-      current = { original, masked: line, startLine: i + 1 };
+      current = { original, masked: line, startLine: i + 1, heading };
       blocks.push(current);
     } else {
       current.original += `\n${original}`;
@@ -262,114 +349,6 @@ function normativeLines(lines: string[], bodyStart: number): Block[] {
     }
   }
   return blocks;
-}
-
-type Rule = { subject: string; polarity: 'obligation' | 'prohibition'; form: string };
-function clauseRule(source: string): Rule | undefined {
-  // Parenthetical payloads are opaque to clause grammar, while the original quote remains intact.
-  const text = source.replace(/\([^)]*\)|\[[^\]]*\]|\{[^}]*\}/g, blank);
-  // Fast prefilter for grammatical operators, before the POS parser visits long prose.
-  if (!/\b(?:must|never|always|only\s+when|do\s+not|before|at\s+most|every|each)\b/i.test(text)) return;
-  if (/\b(?:word|phrase|example|sample|quotation)\b/i.test(text.split(/\b(?:must|never|always)\b/i)[0] ?? ''))
-    return;
-  const parsed = nlp(text);
-  const verbs = (parsed.match('#Verb').out('array') as string[])
-    .map((token) => token.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '').trim())
-    .filter(Boolean);
-  const hasAct = verbs.length > 0;
-  const modal = /^(.*?)\bmust\s+((?:not|never)\s+)?(.+)$/i.exec(text);
-  if (
-    modal &&
-    hasAct &&
-    !/\b(?:said|says|wrote|writes|asked|asks|reads|means|word|phrase|example)\b/i.test(modal[1] ?? '')
-  ) {
-    return {
-      subject: (modal[1] ?? '').split(',').at(-1)?.trim() || 'agent',
-      polarity: modal[2] ? 'prohibition' : 'obligation',
-      form: 'modal',
-    };
-  }
-  const negative = /^(.*?)\b(never|do\s+not)\s+(.+)$/i.exec(text);
-  if (
-    negative &&
-    (hasAct || imperative(negative[3] ?? '')) &&
-    ((negative[1] ?? '').trim() === '' ||
-      nlp(negative[1] ?? '').has('#Noun') ||
-      /^(?:you|we|it)\s*$/i.test(negative[1] ?? ''))
-  ) {
-    if (nlp(negative[1] ?? '').has('#Verb')) return;
-    return { subject: (negative[1] ?? '').trim() || 'agent', polarity: 'prohibition', form: 'negative' };
-  }
-  const always = /^(.*?)\balways\s+(.+)$/i.exec(text);
-  if (always && (hasAct || imperative(always[2] ?? '')) && !nlp(always[1] ?? '').has('#Verb'))
-    return { subject: (always[1] ?? '').trim() || 'agent', polarity: 'obligation', form: 'universal' };
-  const bound = /^at\s+most\s+(.+)$/i.exec(text);
-  if (!bound && /\bat\s+most\b/i.test(text) && parsed.has('^#Verb') && parsed.has('#Value'))
-    return {
-      subject: parsed.match('#Noun+').first().text() || 'agent',
-      polarity: 'obligation',
-      form: 'bound',
-    };
-  if (bound && parsed.has('#Value') && parsed.has('#Noun'))
-    return { subject: bound[1] ?? '', polarity: 'obligation', form: 'bound' };
-  const quantified = /^(?:every|each)\s+(.+)$/i.exec(text);
-  if (quantified && parsed.has('#PresentTense')) {
-    const verb = (verbs[0] ?? '').split(/\s+/)[0]?.toLowerCase();
-    const token = [...text.matchAll(/[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu)].find(
-      (entry) => entry[0].toLowerCase() === verb,
-    );
-    if (!token || token.index <= 0) return;
-    const subject = text.slice(0, token.index).replace(/\s+/g, ' ').trim();
-    return { subject, polarity: 'obligation', form: 'quantified' };
-  }
-  if (quantified) {
-    const subject = passiveSubject(text, parsed);
-    if (subject) return { subject, polarity: 'obligation', form: 'quantified' };
-  }
-  const conditional = /^(?:before|only\s+when)\s+(.+?)[,:]\s*(.+)$/i.exec(text);
-  if (
-    conditional &&
-    (nlp(conditional[1] ?? '').has('#Verb') || /^only\s+when/i.test(text)) &&
-    (nlp(conditional[2] ?? '').has('^#Verb') || imperative(conditional[2] ?? ''))
-  )
-    return { subject: 'agent', polarity: 'obligation', form: 'conditional' };
-  if (/\bonly\s+when\b/i.test(text) && parsed.has('^#Verb'))
-    return { subject: 'agent', polarity: 'obligation', form: 'conditional' };
-  return;
-}
-
-/**
- * The subject of a present passive ("Every run is logged"): a present-tense auxiliary directly followed by a
- * passive participle. The auxiliary's tense is read from the tagger on a neutral frame, because inside a
- * passive it is tagged only as an auxiliary. Past ("was logged"), perfect ("has been logged"), progressive
- * and modal ("will be logged") chains are statements of fact, not rules.
- */
-function passiveSubject(text: string, parsed: ReturnType<typeof nlp>): string | undefined {
-  const terms = (parsed.json()[0]?.terms ?? []) as Array<{ text: string; tags: string[] }>;
-  let from = 0;
-  for (let at = 1; at < terms.length - 1; at++) {
-    const term = terms[at] as { text: string; tags: string[] };
-    const found = text.indexOf(term.text, from);
-    if (found < 0) return;
-    from = found + term.text.length;
-    if (!term.tags.includes('Auxiliary')) continue;
-    const participle = terms[at + 1] as { tags: string[] };
-    if (participle.tags.includes('Auxiliary') || !participle.tags.includes('Passive')) return;
-    if (!probeTags(term.text).includes('PresentTense')) return;
-    const subject = text.slice(0, found).replace(/\s+/g, ' ').trim();
-    return subject.split(/\s+/).length > 1 ? subject : undefined;
-  }
-  return;
-}
-
-function probeTags(word: string): string[] {
-  const probe = (nlp(`It ${word} done.`).json()[0]?.terms ?? []) as Array<{ tags: string[] }>;
-  return probe[1]?.tags ?? [];
-}
-
-/** Supply an overt subject/modal to disambiguate a bare imperative, without a verb vocabulary. */
-function imperative(text: string): boolean {
-  return nlp(`You must ${text}`).has('^#Pronoun #Modal #Verb');
 }
 
 function ruleText(text: string): string {

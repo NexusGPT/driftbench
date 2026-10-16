@@ -1,0 +1,11 @@
+import { mkdtemp, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { AtomBuilder, ClaudeCodeReader, codeAtoms, proseCandidates } from '../src/index.ts';
+const rules = Array.from({ length: 3000 }, (_, i) => `Item ${i} must keep its source.`);
+const root = await mkdtemp(join(tmpdir(), 'p-')); await writeFile(join(root, 'CLAUDE.md'), rules.join('\n\n') + '\n');
+const raw = await new ClaudeCodeReader().read(root);
+const b = new AtomBuilder(new Map(raw.files.map((f) => [f.path, f]))); codeAtoms(raw, b);
+const c0 = process.cpuUsage(); const t = performance.now();
+const atoms = proseCandidates(raw, b);
+console.log('atoms', atoms.length, 'wall', Math.round(performance.now() - t), 'cpu', Math.round((process.cpuUsage(c0).user + process.cpuUsage(c0).system) / 1000));
