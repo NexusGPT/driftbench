@@ -28,6 +28,156 @@ const t = (
 });
 export const mainRoutingCorpus: MainRouteCase[] = [
   t(
+    'repeated short nominal labels stay inventory',
+    ['Resource', 'Category'],
+    [
+      ['`tidal-review`', 'Test protocol'],
+      ['`grove-map`', 'Test protocol'],
+    ],
+  ),
+  t(
+    'repeated determined-object requests stay routes',
+    ['Resource', 'Request'],
+    [
+      ['`tidal-review`', 'Calibrate the gauges'],
+      ['`grove-map`', 'Calibrate the gauges'],
+    ],
+    [
+      ['Calibrate the gauges', 'tidal-review'],
+      ['Calibrate the gauges', 'grove-map'],
+    ],
+  ),
+
+  // Reviewed shapes: preserve main's selected targets regardless of trailing prose.
+  t(
+    'review skill with required suffix',
+    ['Request', 'Resource'],
+    [['Inspect a welded seam', '`tidal-review` is required for this request']],
+    [['Inspect a welded seam', 'tidal-review']],
+  ),
+  t(
+    'review helper with selected suffix',
+    ['Request', 'Resource'],
+    [['Inspect a welded seam', '`sound-reader` is selected for this request']],
+    [['Inspect a welded seam', 'sound-reader']],
+  ),
+  t(
+    'review passive primary plus fallback',
+    ['Request', 'Primary', 'Fallback'],
+    [['Inspect a welded seam', '`tidal-review` is used to check this weld', '`grove-map`']],
+    [
+      ['Inspect a welded seam', 'tidal-review'],
+      ['Inspect a welded seam', 'grove-map'],
+    ],
+  ),
+  t(
+    'review nominal description is no request',
+    ['Resource', 'Description'],
+    [['`tidal-review`', 'documentation the inspectors consult during audits']],
+  ),
+  t(
+    'review short imperative without determiner',
+    ['Resource', 'Request'],
+    [['`tidal-review`', 'Inspect valves']],
+    [['Inspect valves', 'tidal-review']],
+  ),
+  // Additional independent shapes, including noun/verb homographs with relative clauses.
+  t(
+    'selected skill with perfect passive',
+    ['Request', 'Resource'],
+    [['Validate the test coupon', '`tidal-review` has been selected by the planner']],
+    [['Validate the test coupon', 'tidal-review']],
+  ),
+  t(
+    'selected helper with past passive',
+    ['Request', 'Resource'],
+    [['Review the machining notes', '`sound-reader` was assigned to this work']],
+    [['Review the machining notes', 'sound-reader']],
+  ),
+  t(
+    'two selected units with passive annotations',
+    ['Request', 'Resources'],
+    [['Compare coupon measurements', '`tidal-review` is required; `grove-map` is consulted afterwards']],
+    [
+      ['Compare coupon measurements', 'tidal-review'],
+      ['Compare coupon measurements', 'grove-map'],
+    ],
+  ),
+  t(
+    'parenthesized passive explanation',
+    ['Request', 'Resource'],
+    [['Validate the test coupon', '`tidal-review` (this is selected after visual review)']],
+    [['Validate the test coupon', 'tidal-review']],
+  ),
+  t(
+    'reverse bare calibration imperative',
+    ['Resource', 'Request'],
+    [['`tidal-review`', 'Calibrate gauges']],
+    [['Calibrate gauges', 'tidal-review']],
+  ),
+  t(
+    'reverse bare replacement imperative',
+    ['Resource', 'Request'],
+    [['`tidal-review`', 'Replace seals']],
+    [['Replace seals', 'tidal-review']],
+  ),
+  t(
+    'reverse adjective homograph imperative',
+    ['Resource', 'Request'],
+    [['`tidal-review`', 'Clean filters']],
+    [['Clean filters', 'tidal-review']],
+  ),
+  t(
+    'reverse noun homograph imperative',
+    ['Resource', 'Request'],
+    [['`tidal-review`', 'Measure wall thickness']],
+    [['Measure wall thickness', 'tidal-review']],
+  ),
+  t(
+    'reverse nominal reference with relative predicate',
+    ['Resource', 'Description'],
+    [['`tidal-review`', 'reference the engineers use for traceability']],
+  ),
+  t(
+    'reverse nominal guide with relative predicate',
+    ['Resource', 'Description'],
+    [['`tidal-review`', 'guide the trainees consult before work']],
+  ),
+  t(
+    'reverse nominal report with relative predicate',
+    ['Resource', 'Description'],
+    [['`tidal-review`', 'report the machinists publish after inspection']],
+  ),
+  t(
+    'reverse descriptive noun with determiner complement',
+    ['Resource', 'Description'],
+    [['`tidal-review`', 'protocol the crew follows for inspection']],
+  ),
+  t(
+    'reverse temporal subordinate condition',
+    ['Resource', 'Condition'],
+    [['`tidal-review`', 'When a coupon has failed the pressure test']],
+    [['When a coupon has failed the pressure test', 'tidal-review']],
+  ),
+  t(
+    'reverse conditional damaged object',
+    ['Resource', 'Condition'],
+    [['`tidal-review`', 'If a gauge is damaged']],
+    [['If a gauge is damaged', 'tidal-review']],
+  ),
+  t(
+    'reverse exception condition',
+    ['Resource', 'Condition'],
+    [['`tidal-review`', 'Unless the enclosure is locked']],
+    [['Unless the enclosure is locked', 'tidal-review']],
+  ),
+  t(
+    'reverse passive temporal inventory phrase',
+    ['Resource', 'Description'],
+    [['`tidal-review`', 'When installed during scheduled maintenance']],
+  ),
+
+  t(
     'partially declared inventory',
     ['Component', 'Reference'],
     [

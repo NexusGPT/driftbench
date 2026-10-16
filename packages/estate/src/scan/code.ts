@@ -900,7 +900,22 @@ function tableAttribute(value: string): boolean {
 function explicitTableRequest(value: string): boolean {
   const text = value.replace(/[`*]/g, '').trim();
   if (tableAttribute(text) || /\[[^\]]+\]\([^)]*\)/.test(text)) return false;
-  const terms = nlp(text).termList();
+  const terms = nlp(text.toLowerCase()).termList();
+  // A conditional clause needs an expressed subject before its predicate. A passive
+  // fragment such as a temporal installation note supplies no such subject.
+  if (/^(?:if|unless|when|whenever)\b/i.test(text)) {
+    const predicate = terms.findIndex((term) => term.tags?.has('Verb'));
+    return (
+      predicate > 1 &&
+      terms.slice(1, predicate).some((term) => term.tags?.has('Noun') || term.tags?.has('Pronoun'))
+    );
+  }
+  if (
+    /\?$/.test(text) &&
+    terms.some((term) => term.tags?.has('QuestionWord') || term.tags?.has('Modal')) &&
+    terms.some((term) => term.normal === 'you')
+  )
+    return true;
   let first = 0;
   while (
     terms[first]?.normal === 'to' ||
@@ -909,23 +924,34 @@ function explicitTableRequest(value: string): boolean {
   )
     first++;
   const head = terms[first];
-  const object = terms.slice(first + 1);
+  if (!head) return false;
+  // Test the lexical head in infinitival context to resolve ordinary adjective/noun-verb
+  // homographs without declaring every noun before "the" to be a command.
+  const phrase = terms
+    .slice(first)
+    .map((term) => term.text)
+    .join(' ');
+  const infinitive = nlp(`to ${phrase}`).termList()[1];
   const directive =
-    head?.tags?.has('Infinitive') ||
-    head?.tags?.has('Imperative') ||
-    (head?.tags?.has('Noun') && !head.tags.has('ProperNoun'));
-  // A bare directive head followed by a determiner-object is a transitive request frame.
-  if (
-    directive &&
-    object[0]?.tags?.has('Determiner') &&
-    object.slice(1).some((term) => term.tags?.has('Noun'))
-  )
-    return true;
-  return (
-    /\?$/.test(text) &&
-    terms.some((term) => term.tags?.has('QuestionWord') || term.tags?.has('Modal')) &&
-    terms.some((term) => term.normal === 'you')
+    head.tags?.has('Infinitive') ||
+    head.tags?.has('Imperative') ||
+    (infinitive?.normal === head.normal && infinitive.tags?.has('Infinitive'));
+  if (!directive) return false;
+  const tail = terms.slice(first + 1);
+  const clause = tail.findIndex(
+    (term) =>
+      term.tags?.has('Connector') ||
+      term.tags?.has('Condition') ||
+      /^(?:that|which|who|whom|whose)$/.test(term.normal ?? ''),
   );
+  const object = clause < 0 ? tail : tail.slice(0, clause);
+  const noun = object.findIndex((term) => term.tags?.has('Noun') || term.tags?.has('Pronoun'));
+  if (noun < 0) return false;
+  // A second unlinked predicate after the nominal group signals a noun-headed relative
+  // description ("guide the crew consult"), not an imperative with an object.
+  return !object
+    .slice(noun + 1)
+    .some((term) => term.tags?.has('Verb') && !term.tags.has('Gerund') && !term.tags.has('PastTense'));
 }
 
 /** Opaque uncertainty notation is unresolved; ordinary inventory prose is never flagged by default. */
@@ -942,15 +968,7 @@ function tableTargets(
 ) {
   // Preserve main's extraction of every quoted target and every target column. Extend spelling only.
   const plain = cell.replace(/[`*]/g, '').trim();
-  const descriptive = (target: string) => {
-    const after = plain.slice(plain.indexOf(target) + target.length).trim();
-    const terms = nlp(after).termList();
-    // A copular/passive predicate describes the named unit; it does not designate its use.
-    return terms[0]?.tags?.has('Copula') && terms.slice(1).some((term) => term.tags?.has('Verb'));
-  };
-  const found = routeTargets(cell, file, files, raw).filter(
-    (target) => target.definition || !descriptive(target.target),
-  );
+  const found = routeTargets(cell, file, files, raw);
   const { skills, helpers } = routeNames(raw);
   let names = TABLE_TARGET_NAMES.get(raw);
   if (!names) {
@@ -969,11 +987,7 @@ function tableTargets(
     const designation =
       (!before && (!after.trim() || /^\s*[(—–,:;]/.test(after))) ||
       /^\s+(?:skill|agent|helper)\b/.test(after);
-    if (
-      designation &&
-      !descriptive(target) &&
-      positiveMention(cell, target, ['load', 'use', 'dispatch', 'call'], true)
-    )
+    if (designation && positiveMention(cell, target, ['load', 'use', 'dispatch', 'call'], true))
       found.push({ target, isSkill: skills.has(target) });
   }
   return found;
@@ -1047,11 +1061,30 @@ function routeSources(
           /^\s*`[^ `]+`\s*$/.test(row.cells[0] ?? ''),
       );
     if (firstIsUnit) {
-      const requestColumns = table.header.flatMap((_header, column) =>
-        column > 0 && table.rows.every((row) => explicitTableRequest(row.cells[column] ?? ''))
-          ? [column]
-          : [],
-      );
+      const requestColumns = table.header.flatMap((_header, column) => {
+        if (column === 0) return [];
+        const values = table.rows.map((row) => (row.cells[column] ?? '').replace(/[`*]/g, '').trim());
+        // Repeated bare labels supply categorical evidence. Do not reverse main's direction
+        // on an ambiguous short label; a determined object or clause can resolve that ambiguity.
+        const counts = new Map<string, number>();
+        for (const value of values)
+          counts.set(value.toLowerCase(), (counts.get(value.toLowerCase()) ?? 0) + 1);
+        const repeatedLabels =
+          values.length > 1 &&
+          values.every((value) => {
+            const terms = nlp(value.toLowerCase()).termList();
+            return (
+              terms.length <= 4 &&
+              terms.some((term) => term.tags?.has('Noun')) &&
+              !terms.some(
+                (term) =>
+                  term.tags?.has('Determiner') || term.tags?.has('Pronoun') || term.tags?.has('Condition'),
+              ) &&
+              (counts.get(value.toLowerCase()) ?? 0) > 1
+            );
+          });
+        return !repeatedLabels && values.every(explicitTableRequest) ? [column] : [];
+      });
       if (requestColumns.length === 1) {
         const column = requestColumns[0] as number;
         for (const [index, row] of table.rows.entries())

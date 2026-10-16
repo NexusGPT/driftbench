@@ -50,7 +50,7 @@ describe('routing follows the role of the source text', () => {
     expect(map.atoms.filter((atom) => atom.kind === 'reference')).toEqual([]);
   });
 
-  it('ignores names in owner and notes columns', async () => {
+  it('ignores person coordinates and preserves main targets with descriptive suffixes', async () => {
     const root = await estate({
       [skill]: declaration,
       'CLAUDE.md': [
@@ -64,9 +64,9 @@ describe('routing follows the role of the source text', () => {
       ].join('\n'),
     });
     const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
-    expect(map.atoms.filter((atom) => atom.kind === 'route' && atom.provenance.file === 'CLAUDE.md')).toEqual(
-      [],
-    );
+    expect(
+      map.atoms.filter((atom) => atom.kind === 'route' && atom.provenance.file === 'CLAUDE.md'),
+    ).toMatchObject([{ fields: { ask: 'schedule a meeting', target: 'parcel-plan' } }]);
   });
 
   it.each([
