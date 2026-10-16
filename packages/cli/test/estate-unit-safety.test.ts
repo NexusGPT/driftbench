@@ -96,3 +96,66 @@ it('passes expect.workspace when the diff matches what the script did', async ()
   expect(result.runs[0]?.failing).toEqual([]);
   expect(result.runs[0]?.pass).toBe(true);
 });
+
+it('evaluates expect.workspace on a script that has declared fixtures', async () => {
+  const root = await estate({
+    'CLAUDE.md': '# Fictional parcels\n',
+    '.claude/make.sh': '#!/bin/sh\nprintf parcel > parcel.txt\n',
+    '.claude/driftbench.estate.yaml': JSON.stringify({
+      scripts: { '.claude/make.sh': [{ expect: { exitCode: 0 } }] },
+    }),
+  });
+  const run = (workspace: unknown) =>
+    runUnitSpecs([scriptSpec('make.sh', workspace)], {
+      root,
+      reader: new ClaudeCodeReader(),
+      noSandbox: true,
+    });
+  expect((await run({ created: ['parcel.txt'], others_untouched: true })).runs[0]?.pass).toBe(true);
+  const stray = await run({ others_untouched: true });
+  expect(stray.inputErrors).toEqual([]);
+  expect(stray.runs[0]?.failing.join('\n')).toMatch(/parcel\.txt \(created\)/);
+});
+
+it('counts any firing, a warning included, when a guard expectation names no verdict', async () => {
+  const root = await estate({
+    'CLAUDE.md': '# Fictional parcels\n',
+    '.claude/warn.sh': '#!/bin/sh\ncat > /dev/null\necho "careful" >&2\nexit 1\n',
+    '.claude/settings.json': JSON.stringify({
+      hooks: { PreToolUse: [{ matcher: 'Bash', hooks: [{ type: 'command', command: '.claude/warn.sh' }] }] },
+    }),
+  });
+  const spec = {
+    id: 'warn',
+    title: 'Fictional guard',
+    kind: 'task',
+    target: { adapter: 'claude-code' },
+    blocks: [{ user: 'Weigh a parcel', expect: { guards: [{ name: 'warn.sh', count: { max: 0 } }] } }],
+    metadata: {
+      estate: {
+        mode: 'unit',
+        testType: 'guard_negative',
+        unit: {
+          target: {
+            kind: 'guard',
+            name: 'warn.sh',
+            event: 'PreToolUse',
+            matcher: 'Bash',
+            command: '.claude/warn.sh',
+          },
+          cases: [
+            {
+              id: 'sample',
+              material: 'parcel',
+              payload: { tool_name: 'Bash', tool_input: { command: 'ls' } },
+            },
+          ],
+        },
+      },
+    },
+  } as unknown as Spec;
+  const result = await runUnitSpecs([spec], { root, reader: new ClaudeCodeReader(), noSandbox: true });
+  expect(result.inputErrors).toEqual([]);
+  expect(result.runs[0]?.failing.join('\n')).toMatch(/1 matching guard decisions/);
+  expect(result.runs[0]?.pass).toBe(false);
+});

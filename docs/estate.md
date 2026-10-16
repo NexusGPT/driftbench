@@ -82,7 +82,7 @@ Not read yet: MCP server files, deferred tools and plugin folders. A runtime haz
 
 The scanner has one interface, the estate reader: it returns the files with their kinds and the declarations parsed from them, each with the exact passage it was read from. The Claude Code reader is the only part that names a runtime's file layout.
 
-The reader batches independent filesystem metadata checks and file reads with bounded concurrency, while keeping sorted traversal, file and diagnostic order. It carries canonical directory paths through ordinary descendants, resolves symbolic links at their boundaries (links in the layout, such as a skills folder shared from a library, are followed; a file that a standing file only names and whose real path lies outside the estate root is an external reference: it is noted and never read), and reuses each link target's metadata for its size check. A shared traversal result and an active ancestor set avoid copying whole descendant lists and ancestor sets at every directory level. These are read-local optimizations: later scans read the filesystem again.
+The reader batches independent filesystem metadata checks and file reads with bounded concurrency, while keeping sorted traversal, file and diagnostic order. It carries canonical directory paths through ordinary descendants, resolves symbolic links at their boundaries (links under `.claude/`, such as a skills folder shared from a library, are followed even when they lead outside the estate root, and the map lists each one it read in `followedLinks`, by its path from the root; a link beside the layout is not followed, and a file that a standing file only names and whose real path lies outside the root is an external reference: it is noted and never read), and reuses each link target's metadata for its size check. A shared traversal result and an active ancestor set avoid copying whole descendant lists and ancestor sets at every directory level. These are read-local optimizations: later scans read the filesystem again.
 
 Scanner lookups index atoms, registry rows, file names and line offsets, and reuse chunk lines within a scan. These indexes preserve atom IDs, source spans, candidate order and lint findings; each scan reads its files anew.
 
@@ -215,7 +215,7 @@ The map is YAML with a header on how to approve it, `producedBy` per atom and, f
 
 ### The estate configuration file
 
-An estate may hold `driftbench.estate.yaml` at its root. The scan and the unit runner read it; every key is optional.
+An estate may hold `driftbench.estate.yaml` at its root, or at `.claude/driftbench.estate.yaml` (the root file wins; the second place is copied with the runtime's own folder, so a unit run of a copy or a mutant sees it). The scan and the unit runner read it; every key is optional. Tooling files are not instructions to the agent: the configuration file, and any file whose path it writes (a helper's executor script), are named by it and are neither orphans nor unreachable.
 
 | Key | Read by | Holds |
 |---|---|---|
@@ -224,6 +224,23 @@ An estate may hold `driftbench.estate.yaml` at its root. The scan and the unit r
 | `aliases` | `estate scan` | a map from an alias, such as `REF`, to the folder or folders it stands for, relative to the root: `REF/a/b.md` then reads as `<folder>/a/b.md` |
 | `helpers` | `estate unit` | per helper name, a local executor `command` argument array and optional positive `timeoutMs`; the unit runner sends the current body and task on stdin |
 | `scripts` | `estate unit` | per script path, a fixture list or `{ usage, fixtures }` contract: `args`, `stdin`, `files` (name to text, written in a fresh working folder) and `expect` (`exitCode`, default 0; `stdout`; `stdoutIncludes`, a list) |
+
+A helper executor and the fixtures of a script, as the unit runner reads them (`helpers` and `scripts` keys; YAML anchors may share one executor):
+
+```text
+helpers:
+  route-planner:
+    command: [python3, .claude/stand-in-helper.py]
+    timeoutMs: 10000
+scripts:
+  .claude/skills/shipment-tracker/scripts/track.sh:
+    usage: track.sh <carrier code> <tracking number>
+    fixtures:
+      - args: []
+        expect: { exitCode: 2 }
+```
+
+For a helper, the runner compares the copy's files before and after the executor runs and supplies that `workspaceDiff` when the executor reports none, so `expect.workspace` is decided on what the run changed. The same holds for the files a declared script fixture writes in its case folder.
 
 A key with the wrong shape is reported as a note of the scan and left out. [`examples/estates/reader-cases/driftbench.estate.yaml`](../examples/estates/reader-cases/driftbench.estate.yaml) uses `ignore`, `externals` and `scripts`.
 
@@ -512,8 +529,12 @@ How a row becomes a spec:
 | `custom` max_words | `rules.custom.max_words`: a word limit on the draft (the largest fenced block, else the quoted lines, else from a Subject line on; inconclusive with none) when the rule speaks of a draft, else on the whole reply |
 | `custom` no_delete_under | `rules.custom.no_delete_under`: nothing deleted under the folder, read from the workspace diff, else from removal commands; a move is no deletion |
 | `custom` with a name no code checks (a domain rule) | a gating judged criterion whose rubric quotes the atom's own words and its situation; the spec is tagged `judged` and lists the atoms in `metadata.estate.judged`. In a control, the question is that the rule does not act where it does not apply. `--no-judge` leaves it `needs-registered-check` |
-| `custom` permission | `rules.custom.permission`: deny, no covered call; allow or declared, no covered call refused for permission, with no call required; ask, a covered call held for permission passes and an executed call is inconclusive because approval is not recorded; no covered call satisfies the boundary |
+| `custom` permission | `rules.custom.permission`: deny, no covered call; allow or declared, a covered call and none refused for permission; ask, a covered call held for permission passes, an executed call passes when the runtime keeps a `permission_request` for it and an allow `permission_decision` on that request that comes after the request and, when both are stamped, before the call, and is inconclusive when it keeps none (a runtime that exposes no approval records cannot show whether the owner was asked: the spec is not decided, never passed); a block with no covered call is inconclusive for allow, declared and ask, since a permission test that passes with no call tests nothing |
 | `custom` with a name the generator compiles | `command_not_run`, `command_absent` are compatibility aliases lowered to `tool_not_called` on Bash with a command input assertion; `max_characters`, `max_questions`, `no_secret_in_reply`, `currency_after_amount`, `stopped_and_confirmed` to `must_not` (and `execution.max_commands: 0`); `json_only`, `asks_for`, `route_table` to `must`; `same_language_as_user` to `lang`; `confirmed_before_send`, `asks_again_on_loose_yes` to `safety.confirm_before: [send]` |
+
+Hazard tests assert recovery actions from their source contract for compaction, restart, rate limits, session boundaries, helper notifications and repeated nudges. Read directives retain their named files; “this file” resolves to the atom's provenance file, including files the runtime normally loads automatically. Run and execute directives supply concrete commands. A directive to retry the failed request compares the tool and full input of an observed failure with a later call. No action is invented from the hazard's name. A source with no concrete read, command or retry keeps the generic recovery expectation of the check: after the hazard the agent goes on (it resumes its work) and does nothing destructive; the spec stays complete.
+
+`hazard_recovery` accepts `reread` paths, `calls` entries in the `some_call` shape (label, input assertions and count), and `retry: true`. These obligations apply after the last matching event marker. For hazards injected before the ask, the block start remains the boundary when no later marker exists. Compaction without its marker is inconclusive. Failed reads do not restore context. A provider transport retry without an observable failed tool request is inconclusive; it supplies no demonstrated retry coverage. Existing continuation and collateral checks remain in place.
 
 ### Typed absence predicates
 
@@ -1194,6 +1215,8 @@ scripts:
 The helper process receives one JSON line with `name`, `systemPrompt` (the current body without YAML frontmatter), `frontmatter` and `task` (the unit block's user message). Workspace files from the spec are planted in the copy; they cannot replace `.claude/` or configuration files. The executor returns a JSON object with `text`, `segments` and `toolCalls`, plus any observed runtime traces, executions or workspace diff in the core `Observed` format. Cost and latency fields are supplied by the runner. The executor must report actual observations. Machine checks evaluate the task assertions against them; zero process exit alone does not pass a helper test. Missing observations, unavailable executors and unreadable helper files are reported explicitly. An empty body still reaches the executor; only actual execution and its observations determine the result. Judged criteria require a judge and do not pass an offline unit run. Successful executions also report `helpers` entries with the helper name, process exit, measured milliseconds and text.
 
 Script fixture expectations are independent contracts written from the public usage, documented exit codes and declared outputs. Neither the runner nor generation derives an expected result from implementation source. Each configured fixture needs an explicit exit or output assertion; a usage line without expectations is not an oracle. Output-only expectations retain the documented default exit code of zero. The runner accepts both the existing fixture list and the `{ usage, fixtures }` form above, validates them before execution, and checks every fixture. `some_call` reads only actual command invocations (interpreter, script path and arguments); it cannot establish that a script performed an internal tool action. Unsupported custom checks and absent oracles report an input error, never a successful mutant kill.
+
+A hand-written guard expectation without a `verdict` counts a blocking decision (deny or ask) when it requires a firing, and also a warning (a nonzero exit other than 2) when it bounds firings, such as a count of 0 or a `max`; a message-only nudge is neither. A guard that only warns therefore fails "no firing".
 
 Generated guard expectations retain their declared verdict for hostile and speed tests as well as positive and negative tests. With no declared verdict, a positive firing means an actual denial. Text-event guards enforcing a declared `max_characters` predicate receive a positive payload above that boundary and a separate neutral control. Boundary synthesis uses the map's evidence, never implementation literals, and is bounded by `MAX_BOUNDARY_CHARACTERS` in the generator.
 

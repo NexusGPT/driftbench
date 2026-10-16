@@ -112,10 +112,15 @@ it('a generated negative guard control accepts allow and rejects deny without a 
   const allowed = await run();
   expect(allowed.code).toBe(0);
   expect(allowed.result.guards[0]?.decision).toBe('allow');
-  expect(await replayDecision(allowed.result.guards[0].decision)).toEqual(['pass']);
+  // The control now checks every intervention kind (deny, warn, nudge); an allow passes each of them.
+  const allowedOutcomes = await replayDecision(allowed.result.guards[0].decision);
+  expect(allowedOutcomes.length).toBeGreaterThan(0);
+  expect(new Set(allowedOutcomes)).toEqual(new Set(['pass']));
   await writeFile(script, '#!/bin/sh\necho "Archive is locked" >&2\nexit 2\n');
   const denied = await run();
   expect(denied.code).toBe(1);
   expect(denied.result.guards[0]?.decision).toBe('deny');
-  expect(await replayDecision(denied.result.guards[0].decision)).toEqual(['fail']);
+  const deniedOutcomes = await replayDecision(denied.result.guards[0].decision);
+  // Only the deny expectation fails; the warn and nudge expectations still hold.
+  expect(deniedOutcomes.filter((outcome) => outcome === 'fail')).toHaveLength(1);
 }, 30_000);

@@ -269,14 +269,11 @@ export const EstateMap = z.strictObject({
     .optional()
     .describe('Globs the scan skipped beside the runtime defaults; lint reads the estate with them again'),
   followedLinks: z
-    .array(
-      z.strictObject({
-        path: z.string().min(1).describe('The link, relative to the estate root.'),
-        realPath: z.string().min(1).describe('Where the link resolved when the scan read it.'),
-      }),
-    )
+    .array(z.string().min(1))
     .optional()
-    .describe('Structural symbolic links the scan followed to a real path outside the estate root'),
+    .describe(
+      'Links, relative to the estate root, that the scan read through to a real path outside the root',
+    ),
   producedBy: z
     .strictObject({
       family: z.string().min(1).describe('The model family that split the prose, `code` when no model ran'),
