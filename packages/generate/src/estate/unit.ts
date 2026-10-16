@@ -189,6 +189,54 @@ export function clausesOf(quote: string): Clause[] {
   });
 }
 
+/** The rules a guard cites, preferring explicit registry/id links over repeated source text. */
+export function guardRules(atom: EstateAtom, atoms: ReadonlyMap<string, EstateAtom>): EstateAtom[] {
+  const links = Array.isArray(atom.fields?.enforces)
+    ? (atom.fields.enforces as Array<{ atom?: unknown; by?: unknown }>).filter(
+        (entry): entry is { atom: string; by?: unknown } => typeof entry.atom === 'string',
+      )
+    : [];
+  const strong = links.filter((link) => link.by === 'registry' || link.by === 'id');
+  return (strong.length > 0 ? strong : links).flatMap((link) => {
+    const rule = atoms.get(link.atom);
+    return rule ? [rule] : [];
+  });
+}
+
+/**
+ * A live agent follows the constraints its guard enforces. The direct host probe supplies the forbidden
+ * payload; asking the agent to supply it would require a faithful agent to break its own contract.
+ * User-prompt guards instead observe the user's input, which the agent cannot prevent.
+ */
+export function guardedProhibitions(
+  atom: EstateAtom | undefined,
+  atoms: ReadonlyMap<string, EstateAtom>,
+): EstateAtom[] {
+  if (atom?.kind !== 'guard') return [];
+  const event = String(atom.fields?.event ?? '');
+  if (!TOOL_EVENTS.has(event) && event !== 'Stop' && event !== 'SubagentStop') return [];
+  const rules = guardRules(atom, atoms).filter((rule) => rule.approved);
+  return rules.some(
+    (rule) =>
+      rule.kind === 'gate' ||
+      clausesOf(rule.provenance?.quote ?? rule.title).some((clause) => clause.forbids) ||
+      rule.evidence.some((evidence) =>
+        [
+          'tool_not_called',
+          'skill_not_loaded',
+          'reference_not_read',
+          'subagent_not_dispatched',
+          'guard_not_fired',
+          'stage_not_reached',
+          'artifact_not_created',
+          'file_not_written',
+        ].includes(evidence.type),
+      ),
+  )
+    ? rules
+    : [];
+}
+
 /**
  * The acts that break an obligation a command line shows ("Always pass the carrier code, as in
  * `./track.sh NWX 123`"): the command line with each of its arguments left out in turn. A span of one word

@@ -32,13 +32,13 @@ import {
   type ThenParts,
   thenOf,
 } from './then';
-import { specUnitOf } from './unit';
+import { guardedProhibitions, specUnitOf } from './unit';
 
 /**
  * The situation a row is asked in. A live guard_positive row takes a `forced` situation, whose phrase
- * instructs the guarded act: whether the guard fires must not hang on the agent choosing a forbidden act
- * (the first real run saw the agent refuse it from the standing rules, and the guard never fired). A row
- * with no forced situation stays incomplete under the phrase marker.
+ * requests the guarded act. For a prohibition the live agent must refuse that act, leaving its guard
+ * silent; the native unit probe supplies the forbidden payload directly. A row with no forced situation
+ * stays incomplete under the phrase marker.
  */
 export function useOf(row: Pick<EstatePlanRow, 'testType' | 'mode'>): SituationUse | 'none' {
   if (row.testType === 'guard_positive' && row.mode === 'live') return 'forced';
@@ -136,9 +136,20 @@ export function build(
 ): Built {
   const use = useOf(row);
   const polarity = NEGATIVE_TESTS.has(row.testType) ? 'negative' : 'positive';
-  const own = row.testType === 'contract_alone' ? atoms.filter((atom) => atom.kind !== 'subagent') : atoms;
+  const prohibitions =
+    row.testType === 'guard_positive' && row.mode === 'live' ? guardedProhibitions(atoms[0], ctx.atoms) : [];
+  const own =
+    row.testType === 'contract_alone'
+      ? atoms.filter((atom) => atom.kind !== 'subagent')
+      : [...atoms, ...prohibitions.filter((rule) => !atoms.some((atom) => atom.id === rule.id))];
   const then = thenOf(own, polarity, { ...ctx, live: row.mode === 'live' });
   const first = atoms[0] as EstateAtom;
+  if (prohibitions.length > 0) {
+    const names = new Set(
+      first.evidence.filter((evidence) => evidence.type === 'guard').map((evidence) => evidence.name),
+    );
+    then.guards = then.guards.map((guard) => (names.has(guard.name) ? { ...guard, count: 0 } : guard));
+  }
 
   // Test types that add to or change what the atoms say.
   if (row.testType === 'stage_order' || row.testType === 'stage_skip') {
@@ -234,7 +245,7 @@ export function build(
   const named = then.workspace !== undefined || then.ranCode || then.artifacts.length > 0;
   if (outcome === 'none' && named) outcome = 'atoms';
   if (asks && !named && ctx.fallback) {
-    outcome = derivedOutcome(row, atoms, then);
+    outcome = derivedOutcome(row, atoms, then, prohibitions.length > 0);
   }
   if (asks && !then.workspace && !then.ranCode && then.artifacts.length === 0) {
     gap(
@@ -371,7 +382,10 @@ export function build(
     ...(perturbation ? { perturbations: [perturbation] } : {}),
     metadata: {
       estate: {
-        atoms: row.atomIds,
+        atoms: [
+          ...row.atomIds,
+          ...prohibitions.filter((atom) => !row.atomIds.includes(atom.id)).map((atom) => atom.id),
+        ],
         planRow: row.variantOf ?? row.id,
         ...(variant !== undefined ? { focusVariant: variant } : {}),
         cell: row.cell,
@@ -539,9 +553,14 @@ function nearness(
  * helper of the row is allowed only tools that cannot write. Otherwise nothing may be deleted: no task of a
  * row asks for a deletion it does not name. Returns the source recorded on the spec.
  */
-function derivedOutcome(row: EstatePlanRow, atoms: readonly EstateAtom[], then: ThenParts): string {
+function derivedOutcome(
+  row: EstatePlanRow,
+  atoms: readonly EstateAtom[],
+  then: ThenParts,
+  prohibition = false,
+): string {
   const blocked =
-    atoms.some((atom) => atom.kind === 'guard' && atom.evidence.some(denies)) &&
+    (prohibition || atoms.some((atom) => atom.kind === 'guard' && atom.evidence.some(denies))) &&
     (row.testType === 'guard_positive' || row.testType === 'guard_hostile');
   const units = atoms.filter(
     (atom) => (atom.kind === 'skill' || atom.kind === 'subagent') && Array.isArray(atom.fields?.tools),

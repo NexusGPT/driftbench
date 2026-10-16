@@ -30,10 +30,22 @@ blocks:
       guards:
         - name: read-before-edit.py
           verdict: deny
+          count: 0
+      references:
+        - path: "**/.claude/skills/invoice-reconcile/references/matching-rules.md"
           count:
             min: 1
       workspace:
         others_untouched: true
+rules:
+  custom:
+    ordered:
+      pairs:
+        - before: Read
+          after: Edit
+          key: file_path
+        - before: Read~.claude/skills/invoice-reconcile/references/matching-rules.md
+          after: Edit
 perturbations:
   - id: deviation-D8_tool_failure
     class: D8_tool_failure
@@ -45,6 +57,8 @@ metadata:
   estate:
     atoms:
       - guard.settings.pretooluse-edit-write-guard-read-before
+      - gate.standing.read-a-file-before-editing-it
+      - gate.standing.read-claude-skills-invoice-reconcile-references
     planRow: pairwise.0689
     cell:
       ask_class: operate

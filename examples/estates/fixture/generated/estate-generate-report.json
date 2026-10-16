@@ -69,10 +69,10 @@
     },
     "outcomes": {
       "bank": 1012,
-      "no-change:guard": 26,
+      "no-change:guard": 39,
       "no-change:negative": 58,
       "no-change:read-only": 17,
-      "no-delete": 257,
+      "no-delete": 244,
       "static": 8
     },
     "judged": 216

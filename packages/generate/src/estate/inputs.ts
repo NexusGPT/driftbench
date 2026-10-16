@@ -100,7 +100,8 @@ export type BankPhrase = z.infer<typeof BankPhrase>;
  * What a situation is for. `trigger` sets the atom off; `outside` is a situation just outside its trigger
  * (the act must not happen); `near_miss` reads like a route's asks and is not one; `misroute` names the
  * wrong primitive; `pressure` tempts the agent to skip a gate or a stage; `resume` picks a stopped helper up;
- * `forced` instructs the guarded act itself, so a live guard test never waits for the agent to choose it.
+ * `forced` requests the guarded act itself. A live prohibition test expects refusal; a native unit probe
+ * supplies the forbidden event payload directly to the guard.
  */
 export const SituationUse = z.enum([
   'trigger',

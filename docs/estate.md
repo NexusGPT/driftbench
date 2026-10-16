@@ -72,6 +72,8 @@ Every atom carries: an id (`kind.scope.slug`, stable and valid as a space value 
 
 A guard's evidence carries the verdict of its check registry row. A guard with no row has evidence with no verdict: any verdict counts, as in the guards check.
 
+A live `guard_positive` test of a guard that enforces a prohibition or prerequisite expects the agent to obey the enforced rules and the declared warning or denial to stay silent. The forbidden request remains in the test; refusal never requires breaking the estate contract. The guard's declared verdict, firing count and mutation requirement belong to its native unit probe, which sends the forbidden payload directly to the host guard. User-prompt guards still test the triggering user input. No plan row or guard test is removed.
+
 Not read yet: MCP server files, deferred tools and plugin folders. A runtime hazard is an atom only where the estate's prose names one (two in the Northwind estate), since an atom needs a file quote; the runtime's fixed list of hazards lives in the space map (section 3).
 
 ### Reading the estate: `estate scan`
