@@ -1,6 +1,8 @@
 import { mapSession, parseJsonl } from '@agent-nexus/driftbench-adapters';
 import { describe, expect, it } from 'vitest';
 import { drawEstate, follow, type HiddenEstate, situationsOf } from '../../src/ladders/estate/index';
+import { STANDING } from '../../src/ladders/estate/layout';
+import { fileHid } from '../../src/ladders/estate/render';
 
 /** An estate of seed 1 with its situations, and the follower's session for one ask, mapped. */
 function setup(seed = 1) {
@@ -130,6 +132,79 @@ describe('the estate rule follower', { timeout: 120_000 }, () => {
     expect(clean?.runtime?.guards?.map((entry) => entry.name).length).toBeGreaterThan(
       without(guard.hid)?.runtime?.guards?.length ?? 0,
     );
+  });
+});
+
+/** A skill task whose gate reference is also named by a standing line: one file, several atoms ask to read it. */
+function sharedGateReads() {
+  const found: Array<{ seed: number; estate: HiddenEstate; skill: HiddenEstate['skills'][0]; path: string }> =
+    [];
+  for (let seed = 1; seed <= 8; seed += 1) {
+    const estate = drawEstate(seed);
+    for (const rule of estate.rules) {
+      const skill = estate.skills.find((candidate) => candidate.topic.skill === rule.fixedGate?.skill);
+      if (skill && rule.fixedGate) found.push({ seed, estate, skill, path: rule.fixedGate.path });
+    }
+  }
+  return found;
+}
+
+describe('an act several atoms ask for, in the rule follower', { timeout: 120_000 }, () => {
+  const readsOf = (observed: { toolCalls: Array<{ label: string; input?: unknown }> } | undefined) =>
+    (observed?.toolCalls ?? []).map((call) => ({
+      label: call.label,
+      file: (call.input as { file_path?: string } | undefined)?.file_path ?? '',
+    }));
+
+  it('reads a file once when a skill gate and a standing line both ask for it', () => {
+    const found = sharedGateReads();
+    expect(found.length).toBeGreaterThan(0);
+    for (const { seed, estate, skill, path } of found) {
+      const { session, ask } = setup(seed);
+      const calls = readsOf(session([ask(`${skill.topic.skill}-task`)]).mapped.blocks[0]?.observed);
+      const reads = calls.filter((call) => call.label === 'Read' && call.file.endsWith(path));
+      expect(reads, `seed ${seed} ${path}`).toHaveLength(1);
+      expect(estate.rules.some((rule) => rule.fixedGate?.path === path)).toBe(true);
+    }
+  });
+
+  it('drops the read with the skill reference atom or with the standing reference atom that asks for it', () => {
+    for (const { seed, skill, path } of sharedGateReads()) {
+      const { session, ask } = setup(seed);
+      const task = [ask(`${skill.topic.skill}-task`)];
+      for (const hid of [
+        fileHid('ref', skill, `references/${skill.topic.gate.file}`),
+        `ref:${STANDING}:${path}`,
+      ]) {
+        const calls = readsOf(session(task, hid).mapped.blocks[0]?.observed);
+        expect(
+          calls.filter((call) => call.label === 'Read' && call.file.endsWith(path)),
+          `seed ${seed} without ${hid}`,
+        ).toEqual([]);
+      }
+    }
+  });
+
+  it('reads the file after the edit when any gate atom that orders it is the mutant, still once', () => {
+    for (const { seed, estate, skill, path } of sharedGateReads()) {
+      const { session, ask } = setup(seed);
+      const task = [ask(`${skill.topic.skill}-task`)];
+      const gates = [
+        `gate:${skill.topic.skill}`,
+        ...estate.rules.filter((rule) => rule.fixedGate?.path === path).map((rule) => rule.hid),
+      ];
+      for (const hid of gates) {
+        const calls = readsOf(session(task, hid).mapped.blocks[0]?.observed);
+        const edit = calls.findIndex((call) => call.label === 'Edit');
+        const gateReads = calls
+          .map((call, index) => ({ ...call, index }))
+          .filter((call) => call.label === 'Read' && call.file.endsWith(path));
+        expect(
+          gateReads.map((call) => call.index > edit),
+          `seed ${seed} without ${hid}`,
+        ).toEqual([true]);
+      }
+    }
   });
 });
 

@@ -1,7 +1,22 @@
-import type { BlockStatus } from '@agent-nexus/driftbench-core';
+import type { BlockStatus, HistoryNormalization } from '@agent-nexus/driftbench-core';
 import type { CarriedSummary } from './data';
 import type { Estimate } from './estimate';
 import type { SuiteHeadline } from './headline';
+
+/** One compact line per block; the observation and JSON drilldown retain the per-index records. */
+export function historyNormalizationsText(entries: readonly HistoryNormalization[] | undefined): string {
+  const counts = new Map<string, number>();
+  for (const entry of entries ?? []) counts.set(entry.wire, (counts.get(entry.wire) ?? 0) + 1);
+  return [...counts]
+    .map(([wire, count]) => `${count} empty ${count === 1 ? 'turn' : 'turns'} not sent on ${wire}`)
+    .join('; ');
+}
+
+/** No markup when absent, so legacy reports retain their exact bytes. */
+export function historyNormalizationsHtml(entries: readonly HistoryNormalization[] | undefined): string {
+  const summary = historyNormalizationsText(entries);
+  return summary === '' ? '' : `<p class="history-normalization">${esc(summary)}</p>`;
+}
 
 /** Escapes text for HTML element content and attribute values. */
 export function esc(text: string): string {

@@ -1,0 +1,102 @@
+{
+  "bench-current/fresh-reference/gpt-6-luna": {
+    "fresh-reference-034": "fail",
+    "fresh-reference-031": "fail",
+    "fresh-reference-106": "fail",
+    "fresh-reference-012": "fail",
+    "fresh-reference-066": "fail",
+    "fresh-reference-069": "pass",
+    "fresh-reference-024": "fail",
+    "fresh-reference-158": "fail",
+    "fresh-reference-192": "fail",
+    "fresh-reference-163": "fail",
+    "fresh-reference-127": "pass"
+  },
+  "bench-current/map-reference/gpt-6-luna": {
+    "map-langfuse-reference-111": "fail",
+    "map-langfuse-reference-047": "pass",
+    "map-langfuse-reference-108": "fail",
+    "map-langfuse-reference-185": "fail",
+    "map-langfuse-reference-079": "fail",
+    "map-langfuse-reference-096": "fail",
+    "map-langfuse-reference-164": "pass",
+    "map-langfuse-reference-090": "fail",
+    "map-langfuse-reference-046": "fail"
+  },
+  "bench-current/hard-factuality/gpt-6-luna": {
+    "factuality.002": "pass",
+    "factuality.016": "fail",
+    "factuality.019": "pass",
+    "factuality.024": "fail",
+    "factuality.023": "fail",
+    "factuality.031": "pass",
+    "factuality.057": "fail",
+    "factuality.056": "pass",
+    "factuality.058": "pass",
+    "factuality.072": "pass",
+    "factuality.075": "pass",
+    "factuality.087": "pass",
+    "factuality.100": "fail",
+    "factuality.098": "pass",
+    "factuality.102": "pass",
+    "factuality.103": "fail",
+    "factuality.113": "fail",
+    "factuality.116": "fail",
+    "factuality.119": "fail"
+  },
+  "bench-current/hard-pii/gpt-6-luna": {
+    "pii.003": "pass",
+    "pii.013": "pass",
+    "pii.017": "pass",
+    "pii.051": "pass",
+    "pii.078": "pass",
+    "pii.081": "pass"
+  },
+  "bench-current/hard-goal/gpt-6-luna": {
+    "goal.002": "pass",
+    "goal.009": "pass",
+    "goal.015": "fail",
+    "goal.041": "pass",
+    "goal.047": "fail",
+    "goal.044": "fail",
+    "goal.053": "pass",
+    "goal.067": "pass",
+    "goal.085": "pass",
+    "goal.096": "fail",
+    "goal.106": "fail"
+  },
+  "bench-current/heldout-factuality/gpt-6-luna": {
+    "heldout-factuality.010": "pass",
+    "heldout-factuality.019": "pass",
+    "heldout-factuality.031": "pass",
+    "heldout-factuality.037": "pass",
+    "heldout-factuality.047": "fail",
+    "heldout-factuality.062": "fail",
+    "heldout-factuality.064": "fail",
+    "heldout-factuality.068": "pass"
+  },
+  "bench-current/heldout-pii/gpt-6-luna": {
+    "heldout-pii.008": "pass",
+    "heldout-pii.014": "pass",
+    "heldout-pii.051": "pass",
+    "heldout-pii.062": "pass"
+  },
+  "bench-current/heldout-goal/gpt-6-luna": {
+    "heldout-goal.001": "pass",
+    "heldout-goal.011": "pass",
+    "heldout-goal.022": "fail",
+    "heldout-goal.024": "pass",
+    "heldout-goal.042": "fail",
+    "heldout-goal.036": "pass",
+    "heldout-goal.044": "fail",
+    "heldout-goal.054": "fail"
+  },
+  "bench-current/planted-verify/haiku": {
+    "verify-bank-070/clean": "pass"
+  },
+  "bench-current/planted-verify/gpt-6-luna": {
+    "verify-bank-040/clean": "pass",
+    "verify-bank-050/defect": "pass",
+    "verify-bank-060/clean": "pass"
+  }
+}

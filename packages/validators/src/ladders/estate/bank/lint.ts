@@ -1,5 +1,6 @@
 import { ANCHOR, GUARDS_DIR, helperFile, MEMORY, ROOT, STANDING, skillFile } from '../layout';
 import { anchored, type BodyLine, type GuardLine, namesFor, plantSkill, writeSettings } from './common';
+import { DISPATCH_BY_ARGUMENT, SUBCOMMAND_TOOL } from './dispatch-fixtures';
 import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
 import { PlantedEstate, type ScanOutcome } from './planted';
 
@@ -17,6 +18,24 @@ import { PlantedEstate, type ScanOutcome } from './planted';
  */
 
 const LINT = 'packages/estate/src/lint/lint.ts';
+
+const DISPATCHER = `${ROOT}/hooks/lib/run.py`;
+const SUBCOMMAND_TOOL_PATH = `${ROOT}/hooks/lib/cli.py`;
+
+/**
+ * A dispatcher that runs the hook its first argument names, and beside it a tool whose first argument is a plain
+ * subcommand of its own. The guard through the tool names the tool, never a file called `check`.
+ */
+function plantDispatchers(b: Build): void {
+  b.estate.raw(DISPATCHER, DISPATCH_BY_ARGUMENT, b.owner);
+  b.estate.raw(SUBCOMMAND_TOOL_PATH, SUBCOMMAND_TOOL, b.owner);
+  b.guards.push({
+    owner: b.owner,
+    event: 'Stop',
+    command: `python3 ${ANCHOR}/${SUBCOMMAND_TOOL_PATH} check`,
+    atoms: [],
+  });
+}
 
 type Expected = { code: string; subject?: string; atom?: string };
 type Build = {
@@ -331,11 +350,11 @@ const DEFECTS: Case[] = [
     title: 'a dispatcher naming a hook script that does not exist',
     plant: (b) => {
       skill(b, 'a');
-      b.estate.raw(`${ROOT}/hooks/lib/run.py`, '#!/usr/bin/env python3\n', b.owner);
+      plantDispatchers(b);
       b.guards.push({
         owner: b.owner,
         event: 'Stop',
-        command: `python3 ${ANCHOR}/${ROOT}/hooks/lib/run.py gone-hook`,
+        command: `python3 ${ANCHOR}/${DISPATCHER} gone-hook`,
         atoms: [],
       });
       return [{ code: 'MISSING_SCRIPT' }];
@@ -518,12 +537,12 @@ const CLEAN: Case[] = [
     title: 'a guard run by a dispatcher script',
     plant: (b) => {
       skill(b, 'a');
-      b.estate.raw(`${ROOT}/hooks/lib/run.py`, '#!/usr/bin/env python3\n', b.owner);
+      plantDispatchers(b);
       b.estate.raw(`${ROOT}/hooks/block-push.py`, '#!/usr/bin/env python3\n', b.owner);
       b.guards.push({
         owner: b.owner,
         event: 'Stop',
-        command: `python3 ${ANCHOR}/${ROOT}/hooks/lib/run.py block-push`,
+        command: `python3 ${ANCHOR}/${DISPATCHER} block-push`,
         atoms: [],
       });
       return [];

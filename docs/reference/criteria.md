@@ -44,8 +44,8 @@ A judged criterion. Blocks reference it by name, with @gating when a fail fails 
 | `inputs` | list of strings, each not empty | no |  | Workspace files the judge reads beside the transcript, such as the source a produced file is compared against. Read from the seed the agent was given, else from the workspace. |
 | `judge_class` | one of `system1`, `system2`, `auto` | no |  | system1, system2, or auto: calibration assigns the class, ties go to system1. |
 | `repeat_reducer` | string matching `^(mode\|median\|at_least:[1-9][0-9]*)$` | no |  | How the verdicts across the repeats of one spec become one verdict: mode, median, or at_least:<k>. |
-| `prompt_version` | `1` or `2` | no |  | The criterion prompt rules the judge reads. 1, the default; 2 adds the exact-identifier, stated-facts and stated-scope rules. |
-| `decoder_version` | `1` or `2` | no |  | How a criterion ledger answer is read. 1, the default, rejects an ungrounded quote; 2 drops the quote and keeps the verdict. |
+| `prompt_version` | `1` or `2` | no |  | The criterion prompt rules the judge reads. 2, the default, adds the exact-identifier, stated-facts and stated-scope rules; 1 is the earlier rule set, to replay answers recorded with it. |
+| `decoder_version` | `1` or `2` | no |  | How a criterion ledger answer is read. Unset, the default reader drops an ungrounded quote and keeps the verdict; 1 rejects an ungrounded quote; 2 drops the quote and keeps the verdict. |
 | `answer_contract` | `ledger` or `legacy` | no |  | ledger, the default, or legacy: the earlier prompt and parser, to replay scores recorded with them. |
 | `assessment` | one of `response-relevance`, `conformance`, `answer-audit`, `fact-ledger` | no |  | An assessment kind in place of the criterion ledger: response-relevance (the reply answers the latest ask), conformance (to reference), answer-audit (the submitted answer, optionally against reference), or fact-ledger (every fact of reference in the reply). |
 | `reference` | string | no |  | The reference answer an assessment reads: needed by conformance (may be empty) and fact-ledger, optional for answer-audit. |

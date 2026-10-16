@@ -336,6 +336,7 @@ export {
   CarriedFrom,
   Cost,
   ExecutionRecord,
+  HistoryNormalization,
   JudgeConfig,
   NotRun,
   Observed,

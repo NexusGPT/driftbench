@@ -68,6 +68,43 @@ describe('agent mutants (level 5)', { timeout: 120_000 }, () => {
     expect(of('script').every((mutant) => mutant.killed && mutant.tests.length > 0)).toBe(true);
   });
 
+  it('kills a follower that skips a read two atoms ask for, by the read its tests expect', async () => {
+    for (const seed of [1, 2, 3]) {
+      const run = await estateRun(seed);
+      const mutants = await agentMutants(run);
+      // A reference mutant with complete tests on the follower: the follower reads each file once, so skipping
+      // the read is a real difference, whichever of the atoms that name the file is deleted.
+      const judged = mutants.filter(
+        (mutant) =>
+          mutant.kind === 'reference' && !mutant.equivalent && !mutant.reason?.startsWith('no complete test'),
+      );
+      expect(judged.length, `seed ${seed}`).toBeGreaterThan(0);
+      expect(
+        judged.filter((mutant) => !mutant.killed).map((mutant) => mutant.atom),
+        `seed ${seed}`,
+      ).toEqual([]);
+      const standing = judged.filter((mutant) => mutant.atom.startsWith('reference.standing.'));
+      expect(standing.length, `seed ${seed}`).toBeGreaterThan(0);
+      // The kill is the expected read going missing, not an artefact of the follower reading twice.
+      const checks = replayChecks();
+      for (const mutant of standing) {
+        const hid = run.scanned.match.hidOf.get(mutant.atom) as string;
+        const green = (await specVerdicts(run)).filter(
+          (verdict) =>
+            (estateMeta(verdict.spec).atoms ?? []).includes(mutant.atom) && verdict.follower?.pass === true,
+        );
+        const outcomes = await Promise.all(
+          green.flatMap((verdict) =>
+            verdict.spec.loaded ? [replayOnFollower(run, verdict.spec.loaded, checks, hid)] : [],
+          ),
+        );
+        expect(outcomes.flatMap((outcome) => outcome.failing).join('\n')).toMatch(
+          /read 0 times, expected at least 1/,
+        );
+      }
+    }
+  });
+
   it('kills a follower whose runtime offers a tool the settings deny, by the offered tools its tests expect', async () => {
     for (const seed of [1, 2, 3]) {
       const run = await estateRun(seed);

@@ -1,5 +1,6 @@
 import { type RunResult, runOutcome } from '@agent-nexus/driftbench-core';
 import { type CampaignData, groupBy, runPassed, showTarget } from './data';
+import { historyNormalizationsText } from './format';
 
 /** A run that completed and failed: a measured failure, a JUnit failure. */
 function isFailure(run: RunResult): boolean {
@@ -83,6 +84,21 @@ export function renderJunit(data: CampaignData): string {
 }
 
 function testcase(run: RunResult): string[] {
+  const lines = testcaseResult(run);
+  const notes = run.blocks.flatMap((block) => {
+    const summary = historyNormalizationsText(block.observed.historyNormalizations);
+    return summary === '' ? [] : [`block ${block.index}: ${summary}`];
+  });
+  if (notes.length === 0) return lines;
+  if (lines.length === 1) {
+    lines[0] = (lines[0] as string).replace(/\/>$/, '>');
+    lines.push('    </testcase>');
+  }
+  lines.splice(lines.length - 1, 0, `      <system-out>${xml(notes.join('\n'))}</system-out>`);
+  return lines;
+}
+
+function testcaseResult(run: RunResult): string[] {
   const name = [
     showTarget(run.target),
     run.mode,
