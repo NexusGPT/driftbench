@@ -11,9 +11,11 @@ import {
   runSpec,
 } from '@agent-nexus/driftbench-core';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
-import { afterAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, describe, expect, it } from 'vitest';
+import { useBlameServices } from '../../src/blame';
 import { defaultChecks } from '../../src/defaults';
 import { initializeShippedObjects } from '../../src/initialize';
+import type { SameReferentJudge } from '../../src/value-check/judge';
 
 initializeShippedObjects();
 
@@ -243,5 +245,209 @@ describe('a change to a protected path is attributed to the agent', () => {
     expect(ruleOf(diagnosisOf(clean, 'must.0').rule)).not.toBe('I1_protected_edit');
     const unlisted = await run('specs/unprotected.yaml', edited(['tests/test_parser.py']));
     expect(ruleOf(diagnosisOf(unlisted, 'must.0').rule)).not.toBe('I1_protected_edit');
+  });
+});
+
+describe('an impossible task is credited when the agent says so, and charged when it passes anyway', () => {
+  write({
+    'specs/impossible.yaml': [
+      'id: impossible-task',
+      'uses: { diagnostics: [code-agent-liability] }',
+      'blocks:',
+      '  - user: Make both provided tests pass.',
+      '    expect:',
+      '      task_impossible: true',
+      '      must: ["both tests pass"]',
+      '',
+    ].join('\n'),
+  });
+  let restore = () => {};
+  afterEach(() => restore());
+  const reading = (task_flagged: boolean) => {
+    restore = useBlameServices({ reply: () => ({ task_flagged }) });
+  };
+
+  it('I4b: the agent stopped and said the tests conflict', async () => {
+    reading(true);
+    const diagnosis = diagnosisOf(await run('specs/impossible.yaml', {}), 'must.0');
+    expect(ruleOf(diagnosis.rule)).toBe('I4b_impossible_flagged');
+    expect(diagnosis.disposition).toBe('credited');
+  });
+
+  it('I4: the agent did not flag it', async () => {
+    reading(false);
+    const diagnosis = diagnosisOf(await run('specs/impossible.yaml', {}), 'must.0');
+    expect(ruleOf(diagnosis.rule)).toBe('I4_impossible_passed');
+    expect(diagnosis.disposition).toBe('agent');
+  });
+
+  it('neither fires without a reply reader: the reading of the reply is unknown', async () => {
+    const diagnosis = diagnosisOf(await run('specs/impossible.yaml', {}), 'must.0');
+    expect(ruleOf(diagnosis.rule)).not.toMatch(/^I4/);
+  });
+});
+
+describe('a computed value that is right only on the given inputs is special-casing', () => {
+  const sheet = (value: unknown) => ({
+    toolCalls: [{ label: 'sheet.write', input: { value }, output: { ok: true } }],
+  });
+  write({
+    'specs/recompute.yaml': [
+      'id: recompute-total',
+      'uses: { diagnostics: [code-agent-liability] }',
+      'blocks:',
+      '  - user: Put the total of C2 and C3 in the sheet.',
+      '    expect:',
+      '      tools:',
+      '        - label: sheet.write',
+      '          recompute:',
+      '            value: { formula: "=C2+C3", inputs: { C2: 10, C3: 20 } }',
+      '',
+    ].join('\n'),
+    'specs/both-keys.yaml': [
+      'id: both-keys',
+      'blocks:',
+      '  - user: Put the total in the sheet.',
+      '    expect:',
+      '      tools:',
+      '        - label: sheet.write',
+      '          input: { value: 30 }',
+      '          recompute:',
+      '            value: { formula: "=C2+C3", inputs: { C2: 10, C3: 20 } }',
+      '',
+    ].join('\n'),
+  });
+
+  it('I2: the number equals the total today and not once an input moves', async () => {
+    const result = await run('specs/recompute.yaml', sheet(30));
+    const verdict = result.blocks[0]?.verdicts.find((one) => one.id === 'tools.sheet.write.input.value');
+    expect(verdict?.valueCheck).toEqual([
+      { call: 1, path: 'value', rung: 'rung1_recompute', outcome: 'fail', changedInputsFail: true },
+    ]);
+    const diagnosis = diagnosisOf(result, 'tools.sheet.write.input.value');
+    expect(ruleOf(diagnosis.rule)).toBe('I2_special_case');
+    expect(diagnosis.disposition).toBe('agent');
+  });
+
+  it('passes a formula that computes the total on every input, and attributes a wrong formula elsewhere', async () => {
+    const right = await run('specs/recompute.yaml', sheet('=C3+C2'));
+    expect(right.blocks[0]?.pass).toBe(true);
+    const wrong = await run('specs/recompute.yaml', sheet('=C2+C3+1'));
+    expect(wrong.blocks[0]?.pass).toBe(false);
+    expect(ruleOf(diagnosisOf(wrong, 'tools.sheet.write.input.value').rule)).not.toBe('I2_special_case');
+  });
+
+  it('refuses an argument named in both input and recompute', async () => {
+    clearObjectContexts();
+    const loaded = await loadSpecFile(join(root, 'specs/both-keys.yaml'));
+    expect(loaded.ok).toBe(false);
+  });
+});
+
+describe('a value the check could not decide is decided again with a judge given to the diagnostic', () => {
+  /** A scripted judge: it reads "avenue" and "ave" as one street type and answers every compare call the same. */
+  const judge: SameReferentJudge = {
+    model: 'scripted',
+    calibration: { falseAcceptance: 0, source: 'test script' },
+    complete: async (request) =>
+      request.kind === 'read'
+        ? {
+            has_content: true,
+            reading: String(request.user.split('Value: ')[1])
+              .toLowerCase()
+              .replace(/\bavenue\b/g, 'ave'),
+          }
+        : { same: true },
+  };
+  const address = (spec: string, extra: string[] = []) =>
+    [
+      `id: ${spec}`,
+      'uses: { diagnostics: [value-mismatch] }',
+      'blocks:',
+      '  - user: Can the house on Summit, number eighty-eight, in Acmeville get fibre?',
+      '    expect:',
+      ...extra.map((line) => `      ${line}`),
+      '      tools:',
+      '        - { label: coverage.check, input: { address: "88 Summit Avenue, Acmeville" } }',
+      '',
+    ].join('\n');
+  write({
+    'specs/judged.yaml': address('judged'),
+    'specs/judged-downstream.yaml': address('judged-downstream', [
+      'downstream:',
+      '  - { tool: coverage.check, field: address, needs: full street type, declared_in: crm }',
+    ]),
+    'driftbench/policy/blame/acme.yaml': [
+      'kind: policy/blame',
+      'id: acme',
+      'extends: default',
+      'items:',
+      '  - id: R5b',
+      '    params: { downstream_consumers: [{ tool: coverage.check, field: address, needs: full street type }] }',
+      '',
+    ].join('\n'),
+    'specs/judged-project.yaml': address('judged-project').replace(
+      'uses: { diagnostics: [value-mismatch] }',
+      'uses: { blame: acme, diagnostics: [value-mismatch] }',
+    ),
+    'specs/judged-other-field.yaml': address('judged-other-field', [
+      'downstream:',
+      '  - { tool: coverage.check, field: phone, needs: e164 }',
+    ]),
+  });
+  const written = {
+    toolCalls: [
+      { label: 'coverage.check', input: { address: '88 Summit Ave, Acmeville' }, output: { found: true } },
+    ],
+  };
+  let restore = () => {};
+  afterEach(() => restore());
+
+  it('the check alone compares exactly, and the diagnostic then has no decider', async () => {
+    const result = await run('specs/judged.yaml', written);
+    const verdict = result.blocks[0]?.verdicts.find((one) => one.id === 'tools.coverage.check.input.address');
+    expect(verdict?.valueCheck?.[0]?.rung).toBe('exact_fallback');
+    const diagnosis = diagnosisOf(result, 'tools.coverage.check.input.address');
+    expect(ruleOf(diagnosis.rule)).not.toBe('R5');
+    expect(diagnosis.flags).not.toContain('lint:value_ladder_unavailable');
+  });
+
+  it('R5: the judge says the two writings name the same address, so the test demanded an unstated form', async () => {
+    restore = useBlameServices({ value: { judge } });
+    const diagnosis = diagnosisOf(
+      await run('specs/judged.yaml', written),
+      'tools.coverage.check.input.address',
+    );
+    expect(ruleOf(diagnosis.rule)).toBe('R5');
+    expect(diagnosis.disposition).toBe('credited');
+    expect(diagnosis.fault).toEqual(['test']);
+  });
+
+  it('R5b: the same, when a consumer of this argument is declared on the block', async () => {
+    restore = useBlameServices({ value: { judge } });
+    const diagnosis = diagnosisOf(
+      await run('specs/judged-downstream.yaml', written),
+      'tools.coverage.check.input.address',
+    );
+    expect(ruleOf(diagnosis.rule)).toBe('R5b');
+    expect(diagnosis.disposition).toBe('setup');
+  });
+
+  it('R5b: the same, when the project declares the consumer on its blame policy', async () => {
+    restore = useBlameServices({ value: { judge } });
+    const diagnosis = diagnosisOf(
+      await run('specs/judged-project.yaml', written),
+      'tools.coverage.check.input.address',
+    );
+    expect(ruleOf(diagnosis.rule)).toBe('R5b');
+  });
+
+  it('is still R5 when the declared consumer reads another argument', async () => {
+    restore = useBlameServices({ value: { judge } });
+    const diagnosis = diagnosisOf(
+      await run('specs/judged-other-field.yaml', written),
+      'tools.coverage.check.input.address',
+    );
+    expect(ruleOf(diagnosis.rule)).toBe('R5');
   });
 });

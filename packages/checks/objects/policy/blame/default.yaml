@@ -242,8 +242,8 @@ items:
     effect: { verdict: fail, disposition: unassigned, fault: [unknown], fix_location: unassigned, fix_action: review, place: fixed }
     impl: builtin:blame/unassigned
 order: [I1_protected_edit, I1b_tests_fail_reverted, I2_special_case, I3_false_claim, I4b_impossible_flagged,
-        I4_impossible_passed, R5, confirm_missing_rule, test_reference_fails, env_failure, confirm_model,
+        I4_impossible_passed, R5b, R5, confirm_missing_rule, test_reference_fails, env_failure, confirm_model,
         confirm_forced_load_fails, tool_silent_success, tool_output_contradicts_rule, R3, R2, R6,
         skill_reference_missing, rule_in_unrouted_skill, skill_not_loaded_uncovered, skill_not_loaded_covered,
         skill_not_loaded_undecided, skill_reference_unforced, skill_reference_forced_unread, R4,
-        skill_rule_ignored, core_rule_caught, R7, R1, R5b, R2b, unassigned]
+        skill_rule_ignored, core_rule_caught, R7, R1, R2b, unassigned]
