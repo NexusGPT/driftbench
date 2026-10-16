@@ -81,12 +81,12 @@ function setUp(db: DatabaseSync, path: string): void {
       `the store at ${path} has schema version ${version}; this version of driftbench reads ${SCHEMA_VERSION} and older`,
     );
   }
-  if (version < SCHEMA_VERSION) {
-    transaction(db, () => {
-      db.exec(SCHEMA_SQL);
-      db.exec(`PRAGMA user_version = ${SCHEMA_VERSION}`);
-    });
-  }
+  // Every statement of SCHEMA_SQL is idempotent, so it runs on each open: a store already at this version
+  // that was written before a table of the current schema existed gains the table, with no second bump.
+  transaction(db, () => {
+    db.exec(SCHEMA_SQL);
+    if (version < SCHEMA_VERSION) db.exec(`PRAGMA user_version = ${SCHEMA_VERSION}`);
+  });
 }
 
 /** Closes a database that failed to set up. The setup error is the one the caller reports. */
