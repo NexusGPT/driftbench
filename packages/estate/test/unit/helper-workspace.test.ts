@@ -25,6 +25,6 @@ it.each([
     {},
     { root, reader: new ClaudeCodeReader(), noSandbox: true },
   );
-  expect(result.status).toBe('executed');
-  expect(result.observed?.workspaceDiff).toEqual(diff);
+  if (result.status !== 'executed') throw new Error(`not executed: ${JSON.stringify(result)}`);
+  expect(result.observed.workspaceDiff).toEqual(diff);
 });
