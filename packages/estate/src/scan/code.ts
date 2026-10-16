@@ -1885,10 +1885,15 @@ function definedTerm(
   if (wanted.length === 0) return false;
   // A declared skill or helper is a term the estate defines.
   const names = declared.map((name) => name.toLowerCase().replace(/[-_]+/g, ' '));
-  return [...terms, ...names].some((term) =>
-    wanted.every((word) =>
-      new RegExp(`(?:^|[^\\p{L}])${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'u').test(term),
-    ),
+  // All the words appear together in one term; with three or more words, all but one.
+  const needed = wanted.length >= 3 ? wanted.length - 1 : wanted.length;
+  return [...terms, ...names].some(
+    (term) =>
+      wanted.filter((word) =>
+        new RegExp(`(?:^|[^\\p{L}])${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\p{L}])`, 'u').test(
+          term,
+        ),
+      ).length >= needed,
   );
 }
 
