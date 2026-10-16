@@ -576,15 +576,34 @@ const ASKS: AskCheck[] = [
   {
     key: 'asks-approved',
     tier: 1,
-    title: 'a complete spec asks only approved phrases',
+    title: 'a complete spec asks an approved phrase, or a disclosed code-written ask where none is approved',
+    // docs/estate.md section 5: an approved phrase always wins; when the bank holds none for the row, code writes
+    // the ask from the atoms, and the spec says so (tag `ask:code`, `metadata.estate.ask: code`, the field the
+    // words came from in `askFrom`). A twin needs two approved phrases; every other row needs one.
     check: (run, all) => {
       const approved = new Set(
         run.bank.situations.flatMap((s) => s.phrases.filter((p) => p.approved).map((p) => p.text)),
       );
-      const bad = all.filter(
-        (v) => v.complete && asksOfSpec(v).some((ask) => ask !== '' && !approved.has(ask)),
+      const approvedIn = new Map(
+        run.bank.situations.map((s) => [s.id, s.phrases.filter((p) => p.approved).length]),
       );
-      return bad.length === 0 ? undefined : `${bad.length} complete specs ask an unapproved phrase`;
+      const disclosed = (v: SpecVerdict): boolean => {
+        const spec = v.spec.loaded?.spec as { tags?: unknown } | undefined;
+        const meta = estateMeta(v.spec) as { ask?: unknown; askFrom?: unknown; situation?: unknown };
+        const tagged = Array.isArray(spec?.tags) && spec.tags.includes('ask:code');
+        if (!tagged || meta.ask !== 'code' || typeof meta.askFrom !== 'string' || meta.askFrom === '')
+          return false;
+        // An approved phrase always wins: a code-written ask stands in only where the bank is short.
+        const need = v.spec.record.testType === 'twin' ? 2 : 1;
+        const held = typeof meta.situation === 'string' ? (approvedIn.get(meta.situation) ?? 0) : 0;
+        return held < need;
+      };
+      const bad = all.filter(
+        (v) => v.complete && asksOfSpec(v).some((ask) => ask !== '' && !approved.has(ask)) && !disclosed(v),
+      );
+      return bad.length === 0
+        ? undefined
+        : `${bad.length} complete specs ask an unapproved phrase that is not a disclosed code-written ask`;
     },
   },
   {
