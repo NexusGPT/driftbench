@@ -1,9 +1,10 @@
 import { readdir, readFile, stat, writeFile } from 'node:fs/promises';
-import { join, relative } from 'node:path';
+import { dirname, join, relative } from 'node:path';
 import { findSpecFiles, isPlainObject, loadSpecFile, parseSpecText } from '@agent-nexus/driftbench-core';
 import { StaticTest, shortQuote } from '@agent-nexus/driftbench-generate';
 import { parseDocument } from 'yaml';
 import { z } from 'zod';
+import { estatePath } from '../paths';
 import { AtomKind } from '../schema';
 import { type EstateDiff, GuardMode } from './diff';
 import { guardNeed } from './guards';
@@ -36,6 +37,8 @@ export type EstateTest = {
   id: string;
   /** The spec file, as found. */
   path: string;
+  /** Explicit boundary retained for retirement writes. */
+  root?: string;
   /** The spec file relative to the tests folder. */
   file: string;
   atoms: string[];
@@ -66,8 +69,15 @@ export async function loadEstateTests(dir: string): Promise<LoadedTests> {
   let others = 0;
   for (const path of await jsonFilesUnder(dir)) {
     let raw: unknown;
+    let safe: string;
     try {
-      raw = JSON.parse(await readFile(path, 'utf8'));
+      safe = await estatePath(dir, relative(dir, path));
+    } catch (cause) {
+      errors.push(`${relative(dir, path)}: ${String(cause)}`);
+      continue;
+    }
+    try {
+      raw = JSON.parse(await readFile(safe, 'utf8'));
     } catch {
       continue;
     }
@@ -76,6 +86,7 @@ export async function loadEstateTests(dir: string): Promise<LoadedTests> {
     tests.push({
       id: record.data.id,
       path,
+      root: dir,
       file: relative(dir, path),
       atoms: [record.data.atom],
       ...(record.data.retired === undefined ? {} : { retired: record.data.retired }),
@@ -83,7 +94,14 @@ export async function loadEstateTests(dir: string): Promise<LoadedTests> {
   }
   for (const path of await findSpecFiles([dir])) {
     const file = relative(dir, path);
-    const loaded = await loadSpecFile(path);
+    let safe: string;
+    try {
+      safe = await estatePath(dir, file);
+    } catch (cause) {
+      errors.push(`${file}: ${String(cause)}`);
+      continue;
+    }
+    const loaded = await loadSpecFile(safe);
     if (!loaded.ok) {
       for (const issue of loaded.errors) {
         errors.push(`${file}: ${issue.code}${issue.path ? ` ${issue.path}` : ''}: ${issue.message}`);
@@ -108,6 +126,7 @@ export async function loadEstateTests(dir: string): Promise<LoadedTests> {
     tests.push({
       id: loaded.spec.id,
       path,
+      root: dir,
       file,
       atoms: meta.data.atoms,
       ...(retired === undefined ? {} : { retired }),
@@ -336,12 +355,13 @@ export async function writeRetirements(
       continue;
     }
     try {
-      const text = await readFile(test.path, 'utf8');
+      const path = await estatePath(
+        test.root ?? dirname(test.path),
+        test.root === undefined ? relative(dirname(test.path), test.path) : relative(test.root, test.path),
+      );
+      const text = await readFile(path, 'utf8');
       if (/\.json$/i.test(test.path) && StaticTest.safeParse(JSON.parse(text)).success) {
-        await writeFile(
-          test.path,
-          `${JSON.stringify({ ...JSON.parse(text), retired: entry.reason }, null, 2)}\n`,
-        );
+        await writeFile(path, `${JSON.stringify({ ...JSON.parse(text), retired: entry.reason }, null, 2)}\n`);
         entry.state = 'written';
         results.push({ file: entry.file, ok: true });
         continue;
@@ -364,7 +384,7 @@ export async function writeRetirements(
         });
         continue;
       }
-      await writeFile(test.path, next);
+      await writeFile(path, next);
       entry.state = 'written';
       results.push({ file: entry.file, ok: true });
     } catch (cause) {

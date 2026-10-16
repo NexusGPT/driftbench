@@ -65,6 +65,10 @@ export async function runUnitSpecs(
     }
     const test = parsed.data;
     for (const block of spec.blocks) {
+      // Fail closed as the schema grows: process outcomes provide no agent transcript or workspace diff.
+      for (const key of Object.keys(block.expect ?? {}))
+        if (key !== 'guards' && key !== 'execution')
+          invalid(`unit runner cannot evaluate expect.${key}; not_run`);
       if (test.target.kind === 'script' && (block.expect?.guards?.length ?? 0) > 0)
         invalid('a script operation does not execute guard assertions');
       if (test.target.kind === 'guard' && block.expect?.execution !== undefined)
@@ -78,7 +82,14 @@ export async function runUnitSpecs(
       finish();
       continue;
     }
-    const run = await observeUnitTests([test], options);
+    let run: Awaited<ReturnType<typeof observeUnitTests>>;
+    try {
+      run = await observeUnitTests([test], options);
+    } catch (cause) {
+      invalid(`unit operation not_run: ${cause instanceof Error ? cause.message : String(cause)}`);
+      finish();
+      continue;
+    }
     const observed = run.observations[0];
     if (observed?.error) failing.push(observed.error);
     if (!observed || (observed.cases.length === 0 && !observed.error))
