@@ -211,7 +211,13 @@ The map is YAML with a header on how to approve it, `producedBy` per atom and, f
 
 Ordinary Claude Code scans read project skills and the user folder `~/.claude/skills`. Select another user folder with `estate scan --user-skills <dir>`, `DRIFTBENCH_USER_SKILLS`, or `new ClaudeCodeReader({ userSkills: directory })`. Explicit reader options take precedence over the environment. `--no-user-skills` or `{ userSkills: false }` disables this layer. Tests default to disabled unless an option or the environment explicitly selects a folder.
 
-Project skills take precedence when a project and user skill declare the same name or occupy the same skill folder. The whole shadowed user skill is excluded, including its references and scripts. A selected user skill appears at its effective `.claude/skills/<folder>/` path, with `layer: user` on its declaration. The map records the user-folder selection so lint and generated runs use that selection again. Copies take user files from their recorded physical sources into estate-relative destinations, without escaping the run copy or modifying the user folder.
+Project skills take precedence when a project and user skill declare the same name or occupy the same skill folder. Folder names compare with folder names; declared names compare with declared names. A shadowed user skill is inactive. An explicit citation to one of its files still reads that file and its citation chain, under a separate `.claude/user-skills/` destination, without activating the shadowed skill.
+
+The user layer discovers skill folders inside containers at any depth. A folder containing `SKILL.md` defines the skill boundary; its descendants belong to that skill. Symbolic links to the same canonical definition count once, including user links into project skills. Ignored folders such as `.trash` are not traversed, including links into them. Project discovery retains its existing layout.
+
+A selected user skill appears at its effective `.claude/skills/<folder>/` path, with `layer: user` on its declaration. Absolute and `~/` citations bind to the corresponding selected source; `~/` uses the actual home directory. Reference evidence and statistics accept the logical copied path and its physical source aliases. The map records the user-folder selection so lint and generated runs use that selection again.
+
+Copies take user files from their physical sources into estate-relative destinations, without escaping the run copy or modifying the user folder. Assets above the prose size ceiling are copied too. File contents keep their original citations: copying does not rewrite absolute source paths embedded in prose or redirect runtime access to those paths.
 
 ### The estate configuration file
 

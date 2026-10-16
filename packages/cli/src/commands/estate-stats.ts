@@ -93,7 +93,8 @@ export async function estateStatsCommand(options: Options, io: Io): Promise<numb
     const out = resolve(io.cwd, options.out ?? `${options.plan.replace(/\.ya?ml$/i, '')}.stats.json`);
     if ([options.map, options.plan].some((input) => resolve(io.cwd, input) === out))
       throw new Error('the report output must differ from the map and plan');
-    if ((!options.json || options.out) && !(await writeOut(out, `${JSON.stringify(report, null, 2)}\n`, io))) return 2;
+    if ((!options.json || options.out) && !(await writeOut(out, `${JSON.stringify(report, null, 2)}\n`, io)))
+      return 2;
     if (options.json) io.out(`${JSON.stringify(report, null, 2)}\n`);
     else {
       io.out(`Full report: ${show(out, io)}\n`);
@@ -323,13 +324,21 @@ function reached(atom: Atom, blocks: readonly Observed[]): boolean {
   if (atom.kind === 'subagent')
     return blocks.some((b) => b.runtime?.subagents?.some((s) => s.name === fields.name));
   if (atom.kind === 'reference' && typeof fields.path === 'string') {
-    const path = fields.path;
+    const paths = [
+      fields.path,
+      ...(Array.isArray(fields.readPaths)
+        ? fields.readPaths.filter((path): path is string => typeof path === 'string')
+        : []),
+    ];
     return blocks.some((b) =>
       b.toolCalls.some(
         (c) =>
           c.label === 'Read' &&
           typeof record(c.input).file_path === 'string' &&
-          (record(c.input).file_path === path || String(record(c.input).file_path).endsWith(`/${path}`)),
+          paths.some(
+            (path) =>
+              record(c.input).file_path === path || String(record(c.input).file_path).endsWith(`/${path}`),
+          ),
       ),
     );
   }

@@ -29,6 +29,7 @@ export type EstateFile = {
   owner?: string;
   layer?: 'project' | 'user';
   sourcePath?: string;
+  sourcePaths?: string[];
 };
 
 /** A value read from a declaration, with the passage it was read from. */
@@ -162,6 +163,8 @@ export type ToolLabels = { read: string; edit: string; write: string; shell: str
 export type RawEstate = {
   runtime: string;
   userSkills?: string | false;
+  /** Physical overlay sources keyed by safe copy destination, including assets omitted from prose. */
+  fileSources?: Record<string, string>;
   labels: ToolLabels;
   files: EstateFile[];
   skills: SkillDecl[];

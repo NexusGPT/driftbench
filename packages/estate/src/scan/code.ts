@@ -2,6 +2,7 @@ import { basename, posix } from 'node:path';
 import nlp from 'compromise/two';
 import type { Atom, AtomKind, EvidencePredicate } from '../schema';
 import type { EstateFile, GuardDecl, ProseChunk, RawEstate, RegistryRow } from './reader';
+import { readAssertion, readPaths, sourceFileOf } from './source-paths';
 import {
   blankFences,
   type Located,
@@ -866,6 +867,8 @@ export function locateNamed(
   const skipped = options.skipped ?? new Set<string>();
   const known = (candidate: string) => files.has(candidate) || skipped.has(candidate);
   const clean = path.replace(/^\.\//, '');
+  const source = sourceFileOf(path, from, files);
+  if (source) return { path: source.path, via: 'place' };
   const byName = options.byName ?? fileNames(files);
   // A bare name belongs to the naming file's own folder and subtree before the estate root.
   if (!clean.includes('/')) {
@@ -1022,17 +1025,21 @@ function referenceAtoms(
       const isSkipped = target === undefined && skipped.has(path);
       if (!target && !isSkipped && !DOCUMENT.test(path)) continue;
       if (target && (target.kind === 'guard_script' || SCRIPT.test(path))) continue;
+      const aliases = readPaths(target, path);
       builder.add({
         kind: 'reference',
         title: `Read ${named}`,
         at: { file: chunk.file, startLine: line.line, endLine: line.line, quote: line.quote },
-        evidence: [{ type: 'tool_called', label: raw.labels.read, input: { file_path: { contains: path } } }],
+        evidence: [
+          { type: 'tool_called', label: raw.labels.read, input: { file_path: readAssertion(aliases) } },
+        ],
         situation: line.text,
         fields: {
           path,
           exists: target !== undefined || isSkipped,
           readWhen: line.text,
           from: chunk.file,
+          ...(aliases.length > 1 ? { readPaths: aliases } : {}),
           ...(isSkipped ? { ignored: true } : {}),
           ...(located.via === 'alias' || located.via === 'suffix' ? { resolvedBy: located.via } : {}),
           ...(located.candidates ? { candidates: located.candidates } : {}),

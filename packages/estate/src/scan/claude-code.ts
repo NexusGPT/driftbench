@@ -1,6 +1,6 @@
 import { readdir, readFile, realpath, stat } from 'node:fs/promises';
 import { homedir } from 'node:os';
-import { basename, join, posix, resolve } from 'node:path';
+import { basename, join, posix, relative, resolve } from 'node:path';
 import { parse as parseYaml } from 'yaml';
 import { chunkLines, fileNames, guardName, locateNamed, namedPaths, positiveMention } from './code';
 import type {
@@ -21,6 +21,7 @@ import type {
   SubagentDecl,
 } from './reader';
 import { dispatchedScript } from './script-dispatch';
+import { physicalName } from './source-paths';
 import { keyLine, type Located, lineAt, linesOf, readFrontmatter, readTables } from './text';
 
 /**
@@ -194,7 +195,7 @@ export class ClaudeCodeReader implements EstateReader {
   async fileSources(root: string): Promise<ReadonlyMap<string, string>> {
     if (this.userSkills === false) return new Map();
     const raw = await this.read(root);
-    return new Map(raw.files.flatMap((file) => (file.sourcePath ? [[file.path, file.sourcePath]] : [])));
+    return new Map(Object.entries(raw.fileSources ?? {}));
   }
 
   private async ignoreOf(
@@ -238,47 +239,147 @@ export class ClaudeCodeReader implements EstateReader {
       } else files.push({ path, text, ...classify(path, text) });
     }
 
-    // Overlay only user skills not shadowed by a project name or folder. The selected files retain
-    // runtime-relative destinations; physical sources are explicit so copied estates cannot escape.
-    if (this.userSkills !== false) {
-      const userRoot = resolve(root, this.userSkills);
-      if (userRoot !== resolve(root, '.claude/skills')) {
-        const userPaths = await walk(userRoot, '', notes, ignored);
-        const userFiles = await readBatch(userPaths, async (local) => {
-          const path = posix.join('.claude/skills', local);
-          const sourcePath = join(userRoot, local);
-          const text = (await readFile(sourcePath, 'utf8')).replace(/^\uFEFF/, '');
-          return { path, text, ...classify(path, text), sourcePath, layer: 'user' as const };
-        });
-        const projectNames = new Set(
-          files
-            .filter((file) => file.kind === 'skill')
-            .flatMap((file) => {
-              const name = readFrontmatter(file.text).fields.name;
-              return [posix.basename(posix.dirname(file.path)), ...(typeof name === 'string' ? [name] : [])];
-            }),
+    // Layer selection operates on declared units, not on container names. Canonical definition
+    // identities collapse folder symlinks to project skills and repeated aliases of a user skill.
+    const sourceCandidates = new Map<string, EstateFile>();
+    const fileSources: Record<string, string> = {};
+    const userRoot =
+      this.userSkills === false ? undefined : resolve(root, physicalName(this.userSkills) ?? this.userSkills);
+    if (userRoot && userRoot !== resolve(root, '.claude/skills')) {
+      const userNotes: ReadNote[] = [];
+      const large: string[] = [];
+      const userPaths = await walk(
+        userRoot,
+        '',
+        userNotes,
+        ignored,
+        new Set(),
+        undefined,
+        large,
+        undefined,
+        [],
+        true,
+      );
+      const roots = userPaths
+        .filter((path) => posix.basename(path) === 'SKILL.md')
+        .map((path) => posix.dirname(path))
+        .sort((a, b) => a.length - b.length || a.localeCompare(b))
+        .filter(
+          (folder, _index, all) =>
+            !all.some((parent) => parent !== folder && folder.startsWith(`${parent}/`)),
         );
-        const shadowed = new Set(
-          userFiles
-            .filter((file) => file.kind === 'skill')
-            .flatMap((file) => {
-              const name = readFrontmatter(file.text).fields.name;
-              const folder = file.path.split('/')[2] ?? '';
-              return projectNames.has(folder) || (typeof name === 'string' && projectNames.has(name))
-                ? [folder]
-                : [];
-            }),
-        );
-        const projectPaths = new Set(files.map((file) => file.path));
-        for (const file of userFiles) {
-          if (!shadowed.has(file.path.split('/')[2] ?? '') && !projectPaths.has(file.path)) files.push(file);
+      const rootOf = (local: string) => roots.find((folder) => local.startsWith(`${folder}/`));
+      const userFiles: EstateFile[] = await readBatch(userPaths, async (local) => {
+        const path = posix.join('.claude/skills', local);
+        const sourcePath = join(userRoot, local);
+        const text = (await readFile(sourcePath, 'utf8')).replace(/^\uFEFF/, '');
+        const folder = rootOf(local);
+        const classification: { kind: FileKind; owner?: string } = folder
+          ? {
+              kind: local === posix.join(folder, 'SKILL.md') ? 'skill' : 'skill_file',
+              owner: posix.basename(folder),
+            }
+          : { kind: 'other' };
+        return { path, text, ...classification, sourcePath, layer: 'user' as const };
+      });
+      const projectSkills = files.filter((file) => file.kind === 'skill');
+      const projectFolders = new Set(projectSkills.map((file) => posix.basename(posix.dirname(file.path))));
+      const projectNames = new Set(
+        projectSkills.map((file) => {
+          const name = readFrontmatter(file.text).fields.name;
+          return typeof name === 'string' ? name : (file.owner ?? '');
+        }),
+      );
+      const definitions = userFiles.filter((file) => file.kind === 'skill');
+      const shadowed = new Set(
+        definitions.flatMap((file) => {
+          const name = readFrontmatter(file.text).fields.name;
+          const local = file.path.slice('.claude/skills/'.length);
+          const folder = posix.dirname(local);
+          return projectFolders.has(posix.basename(folder)) ||
+            projectNames.has(typeof name === 'string' ? name : posix.basename(folder))
+            ? [folder]
+            : [];
+        }),
+      );
+      const logicalRoot = (local: string) =>
+        posix.join(shadowed.has(local) ? '.claude/user-skills' : '.claude/skills', local);
+      const origins = new Map<string, string>();
+      for (const file of projectSkills) {
+        const canonical = await realpath(join(root, file.path)).catch(() => undefined);
+        if (canonical) origins.set(canonical, posix.dirname(file.path));
+      }
+      const duplicates = new Map<string, string>();
+      for (const file of definitions) {
+        const localRoot = posix.dirname(file.path.slice('.claude/skills/'.length));
+        const canonical = await realpath(file.sourcePath as string).catch(() => undefined);
+        const earlier = canonical ? origins.get(canonical) : undefined;
+        if (earlier) duplicates.set(localRoot, earlier);
+        else if (canonical) origins.set(canonical, logicalRoot(localRoot));
+      }
+      const known = new Map(files.map((file) => [file.path, file]));
+      const register = (file: EstateFile, local: string, oversized = false) => {
+        const folder = rootOf(local);
+        const duplicate = folder ? duplicates.get(folder) : undefined;
+        if (duplicate && folder) {
+          const targetPath = posix.join(duplicate, posix.relative(folder, local));
+          const target = known.get(targetPath) ?? sourceCandidates.get(targetPath);
+          if (target && file.sourcePath) {
+            target.sourcePaths = [...new Set([...(target.sourcePaths ?? []), file.sourcePath])];
+            sourceCandidates.set(file.sourcePath, target);
+          }
+          return;
         }
+        // An active user definition owns its complete folder. Loose project files without a
+        // competing definition cannot describe different bytes from the ones copied for that unit.
+        const existing = known.get(file.path);
+        const hidden = folder !== undefined ? shadowed.has(folder) : existing !== undefined;
+        if (hidden) {
+          file.path = posix.join('.claude/user-skills', local);
+          file.kind = 'other';
+        } else {
+          if (existing) {
+            const index = files.indexOf(existing);
+            if (oversized) {
+              files.splice(index, 1);
+              known.delete(file.path);
+            } else {
+              files[index] = file;
+              known.set(file.path, file);
+            }
+          } else if (!oversized) {
+            files.push(file);
+            known.set(file.path, file);
+          }
+        }
+        if (!hidden && file.sourcePath) fileSources[file.path] = file.sourcePath;
+        sourceCandidates.set(file.path, file);
+        if (file.sourcePath) sourceCandidates.set(file.sourcePath, file);
+      };
+      for (const file of userFiles) register(file, file.path.slice('.claude/skills/'.length));
+      for (const local of large)
+        register(
+          {
+            path: posix.join('.claude/skills', local),
+            sourcePath: join(userRoot, local),
+            kind: 'other',
+            text: '',
+            layer: 'user',
+          },
+          local,
+          true,
+        );
+      for (const note of userNotes) {
+        const folder = rootOf(note.file);
+        if (!folder || (!shadowed.has(folder) && !duplicates.has(folder)))
+          notes.push({ ...note, file: posix.join('.claude/skills', note.file) });
       }
     }
 
     const estate: RawEstate = {
       runtime: this.runtime,
-      userSkills: this.userSkills === false ? false : resolve(root, this.userSkills),
+      userSkills: userRoot ?? false,
+      fileSources,
       labels: { read: 'Read', edit: 'Edit', write: 'Write', shell: 'Bash', dispatch: 'Agent' },
       files,
       skills: [],
@@ -334,12 +435,14 @@ export class ClaudeCodeReader implements EstateReader {
     const nameOf = new Map(
       estate.skills.filter((skill) => !duplicated.has(skill.name)).map((skill) => [skill.folder, skill.name]),
     );
+    const ownerFolders = [...nameOf.keys()].sort((a, b) => b.length - a.length);
     for (const file of files) {
       if (file.kind !== 'skill' && file.kind !== 'skill_file') continue;
-      const name = nameOf.get(file.path.split('/').slice(0, 3).join('/'));
+      const folder = ownerFolders.find((folder) => file.path.startsWith(`${folder}/`));
+      const name = folder ? nameOf.get(folder) : undefined;
       if (name !== undefined) file.owner = name;
     }
-    await readRootReferences(root, estate, ignored, budget);
+    await readRootReferences(root, estate, ignored, budget, sourceCandidates);
     // The registry comes last: a row names its guard by a script, a check id or an id the script holds,
     // so every guard is known before a row is matched to one.
     const catalogues = files.filter((file) => file.kind === 'registry' && catalogueEntries(file.text));
@@ -360,6 +463,7 @@ async function readRootReferences(
   estate: RawEstate,
   ignored: Ignored,
   budget: number,
+  sourceCandidates: ReadonlyMap<string, EstateFile> = new Map(),
 ): Promise<void> {
   const files = new Map(estate.files.map((file) => [file.path, file]));
   const byName = fileNames(files);
@@ -388,9 +492,30 @@ async function readRootReferences(
       // A standing file's line `@path` imports that file into the standing instructions.
       const imported = source?.kind === 'standing' ? /^@([^\s]+)\s*$/.exec(line.text.trim())?.[1] : undefined;
       const names = imported ? [imported] : namedPaths(line.text);
-      for (const name of names) {
-        if (!/\.(md|markdown|txt)$/i.test(name) || /^(?:\/|~\/|[a-z]+:)/i.test(name)) continue;
-        if (!imported && !positiveMention(line.text, name, ['read', 'open', 'load'])) continue;
+      for (const spelling of names) {
+        if (!imported && !positiveMention(line.text, spelling, ['read', 'open', 'load'])) continue;
+        const physical =
+          physicalName(spelling) ??
+          (source?.sourcePath ? resolve(posix.dirname(source.sourcePath), spelling) : undefined);
+        const localSource = sourceCandidates.get(
+          posix.normalize(posix.join(posix.dirname(chunk.file), spelling)),
+        );
+        const supplied = (physical ? sourceCandidates.get(physical) : undefined) ?? localSource;
+        if (supplied && !files.has(supplied.path)) {
+          estate.files.push(supplied);
+          files.set(supplied.path, supplied);
+          byName.set(basename(supplied.path), [
+            ...(byName.get(basename(supplied.path)) ?? []),
+            supplied.path,
+          ]);
+          if (supplied.sourcePath) {
+            estate.fileSources ??= {};
+            estate.fileSources[supplied.path] = supplied.sourcePath;
+          }
+        }
+        if (!/\.(md|markdown|txt)$/i.test(spelling)) continue;
+        if (/^(?:\/|~\/|[a-z]+:)/i.test(spelling) && !supplied) continue;
+        const name = supplied?.path ?? spelling;
         // An unindexed root guide is a candidate only after the naming file's own subtree.
         const local = posix.normalize(posix.join(posix.dirname(chunk.file), name));
         const localPlaceholder =
@@ -453,7 +578,7 @@ async function readRootReferences(
         if (imported) candidate.kind = 'standing';
         else if (STRUCTURED_KINDS.has(candidate.kind) || definesAliases(candidate)) continue;
         if (proseFiles.has(path)) continue;
-        const real = await realpath(join(root, path)).catch(() => undefined);
+        const real = await realpath(candidate.sourcePath ?? join(root, path)).catch(() => undefined);
         // Two spellings of one file (a link, a relative path) may form a cycle; canonical identity bounds it.
         if (real && expanded.has(real)) continue;
         if (real) expanded.add(real);
@@ -675,9 +800,15 @@ async function walk(
   large?: string[],
   canonical?: string,
   found: string[] = [],
+  skipIgnoredFolders = false,
 ): Promise<string[]> {
   const real = canonical ?? (await realpath(join(root, folder)).catch(() => undefined));
   if (real === undefined) return [];
+  if (
+    skipIgnoredFolders &&
+    ignored.rules.some((rule) => rule.test(relative(root, real).split('\\').join('/')))
+  )
+    return [];
   if (ancestors.has(real)) {
     if (ignoredBy === undefined) {
       notes.push({ file: folder, message: 'skipped: a link back to a folder the walk is already inside' });
@@ -692,11 +823,12 @@ async function walk(
     const inspected = await readBatch(ordered, async (entry) => {
       const path = posix.join(folder, entry.name);
       const by = ignoredBy ?? ignored.rules.find((rule) => rule.test(path))?.pattern;
-      const info = entry.isSymbolicLink()
-        ? await stat(join(root, path)).catch(() => undefined)
-        : entry.isFile() && by === undefined
-          ? await stat(join(root, path))
-          : undefined;
+      const info =
+        entry.isSymbolicLink() && !(skipIgnoredFolders && by !== undefined)
+          ? await stat(join(root, path)).catch(() => undefined)
+          : entry.isFile() && by === undefined
+            ? await stat(join(root, path))
+            : undefined;
       return { entry, path, by, info };
     });
     for (const { entry, path, by, info } of inspected) {
@@ -707,6 +839,7 @@ async function walk(
       const folderEntry = entry.isDirectory() || info?.isDirectory();
       const fileEntry = entry.isFile() || info?.isFile();
       if (folderEntry) {
+        if (skipIgnoredFolders && by !== undefined) continue;
         await walk(
           root,
           path,
@@ -717,11 +850,17 @@ async function walk(
           large,
           entry.isSymbolicLink() ? undefined : join(real, entry.name),
           found,
+          skipIgnoredFolders,
         );
       } else if (fileEntry && by !== undefined) {
         ignored.counts.set(by, (ignored.counts.get(by) ?? 0) + 1);
         ignored.paths.push(path);
       } else if (fileEntry && info) {
+        if (skipIgnoredFolders && entry.isSymbolicLink()) {
+          const target = await realpath(join(root, path)).catch(() => undefined);
+          if (target && ignored.rules.some((rule) => rule.test(relative(root, target).split('\\').join('/'))))
+            continue;
+        }
         if (info.size > MAX_FILE_BYTES) {
           notes.push({ file: path, message: 'skipped: larger than 1 MB' });
           large?.push(path);

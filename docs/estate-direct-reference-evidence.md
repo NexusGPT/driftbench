@@ -20,8 +20,10 @@ The opt-in benchmark lives in packages/estate/test/graph-reference-scale.test.ts
 
 ## Verification
 
-The graph, reader, contract, plan and stats checks pass: 56 tests, with the opt-in benchmark skipped in that run. All three adapter copy-isolation checks also pass outside the outer sandbox, including a selected user skill whose run-copy edit leaves the original unchanged. Scoped TypeScript compilation passes.
+The focused graph, reader, contract, plan and stats checks pass: 89 tests across 14 files, with the opt-in benchmark skipped. After adding the final canonical trash-file guard, the affected user, ignore and symlink checks pass again: 29 tests across three files. All three adapter copy-isolation checks also pass outside the outer sandbox, including a selected user skill whose run-copy edit leaves the original unchanged. Scoped TypeScript compilation passes.
 
-The all-level estate comparison runs from a frozen source snapshot, with the separately reviewed chained-reference oracle overlay. Immutable baseline captures are supplied by the integrator. The full per-item comparison is still running; no zero-loss claim is made here. The first partial comparison finds the existing wide-folder timing check over budget while its content assertions hold.
+User-layer regressions cover absolute and home references, separate folder/name precedence, oversized assets, explicitly cited shadowed guides, deep containers, canonical project/user aliases, and ignored directory/file aliases. Five initial cases fail before their fixes. Additional scan/copy collision and trash-file alias checks each fail before their fixes and pass afterward. Independent static review finds no remaining critical issue.
+
+The interrupted all-level estate comparison uses a frozen pre-follow-up source snapshot with the separately reviewed chained-reference oracle overlay. Immutable baseline captures are supplied by the integrator. Seed 1 has 440 compared items; three previously passing items exceed their time budgets while their content assertions hold: wide-folder scan 27,087 ms, long-routing-table scan 8,784 ms, and long-routing-table lint 5,121 ms, each against 5,000 ms. The full comparison is unfinished, and does not include the final user-layer follow-up. No zero-loss claim is made.
 
 The original baseline attempt from a changing worktree is discarded because child CLI invocations can read newer source. Source manifests cover the frozen comparison tree.

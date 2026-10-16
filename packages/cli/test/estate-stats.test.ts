@@ -2,7 +2,7 @@ import { copyFile, mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { loadEstateMap } from '@agent-nexus/driftbench-estate';
+import { ClaudeCodeReader, loadEstateMap, renderEstateMap, scanEstate } from '@agent-nexus/driftbench-estate';
 import { describe, expect, it } from 'vitest';
 import { type Io, main } from '../src/index';
 
@@ -24,6 +24,58 @@ async function run(argv: string[]) {
 }
 
 describe('estate stats uses the documented report contract', () => {
+  it('counts a physical user reference read against its logical map destination', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'estate-stats-user-'));
+    const user = join(dir, 'user');
+    await mkdir(join(user, 'parcels'), { recursive: true });
+    await mkdir(join(dir, 'specs'));
+    await mkdir(join(dir, 'sessions'));
+    const source = join(user, 'parcels/notes.md');
+    await writeFile(join(user, 'parcels/SKILL.md'), '---\nname: parcels\n---\nRead `notes.md`.');
+    await writeFile(source, '# Fictional parcel notes');
+    const { map } = await scanEstate({ root: dir, reader: new ClaudeCodeReader({ userSkills: user }) });
+    const reference = map.atoms.find((atom) => atom.kind === 'reference');
+    expect(reference?.fields?.path).toBe('.claude/skills/parcels/notes.md');
+    const mapPath = join(dir, 'map.yaml');
+    const planPath = join(dir, 'plan.yaml');
+    await writeFile(mapPath, renderEstateMap(map));
+    const planned = await run(['estate', 'plan', mapPath, '--out', planPath]);
+    expect(planned.err).toBe('');
+    expect(planned.code).toBe(0);
+    await writeFile(
+      join(dir, 'sessions/read.jsonl'),
+      [
+        { type: 'user', message: { role: 'user', content: 'Read the parcel guide.' } },
+        {
+          type: 'assistant',
+          message: {
+            role: 'assistant',
+            content: [{ type: 'tool_use', id: 'read-guide', name: 'Read', input: { file_path: source } }],
+          },
+        },
+      ]
+        .map((line) => JSON.stringify(line))
+        .join('\n'),
+    );
+    const result = await run([
+      'estate',
+      'stats',
+      '--map',
+      mapPath,
+      '--plan',
+      planPath,
+      '--specs',
+      join(dir, 'specs'),
+      '--sessions',
+      join(dir, 'sessions'),
+      '--json',
+    ]);
+    expect(result.err).toBe('');
+    expect(result.code).toBe(0);
+    const report = JSON.parse(result.out);
+    expect(report.reach.find((row: { atom: string }) => row.atom === reference?.id)?.reached).toBe(1);
+  });
+
   it('reports approved atoms, tested and enforced separately, with no sessions invented', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'estate-stats-'));
     const specs = join(dir, 'empty');
