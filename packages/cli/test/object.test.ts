@@ -185,6 +185,36 @@ describe('driftbench object explain', () => {
     });
   });
 
+  it('exits 1, as documented, when an object the spec names does not resolve, and 2 for a spec it cannot read', async () => {
+    const dir = await project();
+    const spec = (uses: string) =>
+      `id: names-nothing-real\nuses: { value_check: ${uses} }\nblocks:\n  - user: hello\n`;
+    await writeFile(join(dir, 'specs', 'unresolved.yaml'), spec('does-not-exist'));
+    const explained = await run(
+      ['object', 'explain', 'policy/value-check', '--at', 'specs/unresolved.yaml'],
+      dir,
+    );
+    expect(explained.code).toBe(1);
+    expect(explained.out).toBe('');
+    expect(explained.err).toContain('does-not-exist');
+    // The same spec through `object graph`, which documents the same exit.
+    const graphed = await run(['object', 'graph', 'specs/unresolved.yaml'], dir);
+    expect(graphed.code).toBe(1);
+    expect(graphed.err).toContain('does-not-exist');
+    // A spec that is not a spec, a missing file and a spec invalid for another reason stay input errors.
+    await writeFile(join(dir, 'specs', 'broken.yaml'), 'id: broken\nblocks: not-a-list\n');
+    expect(
+      (await run(['object', 'explain', 'policy/value-check', '--at', 'specs/broken.yaml'], dir)).code,
+    ).toBe(2);
+    expect(
+      (await run(['object', 'explain', 'policy/value-check', '--at', 'specs/missing.yaml'], dir)).code,
+    ).toBe(2);
+    // An unresolved object does not hide a block the spec lacks: that is still the input error.
+    expect(
+      (await run(['object', 'explain', 'policy/value-check', '--at', 'specs/unresolved.yaml#b9'], dir)).code,
+    ).toBe(2);
+  });
+
   it('refuses a block the spec does not hold, and a kind that does not exist', async () => {
     expect(
       await run(['object', 'explain', 'policy/value-check', '--at', 'specs/refund-late-order.yaml#b9']),

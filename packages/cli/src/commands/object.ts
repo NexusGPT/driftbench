@@ -1,5 +1,5 @@
 import { readFile, stat } from 'node:fs/promises';
-import { join, resolve, sep } from 'node:path';
+import { extname, join, resolve, sep } from 'node:path';
 import {
   type CliOverrides,
   clearObjectContexts,
@@ -15,6 +15,7 @@ import {
   PROJECT_OBJECTS_DIR,
   parseCliOverrides,
   parseObjectText,
+  parseSpecText,
   type ResolvedObject,
   resolveBlockObjects,
   type Spec,
@@ -315,18 +316,31 @@ function splitAt(at: string): { file: string; block?: string } {
   return hash <= 0 ? { file: at } : { file: at.slice(0, hash), block: at.slice(hash + 1) };
 }
 
-/** Loads a spec for the object commands; printed and undefined when it does not load. */
+/**
+ * Loads a spec for the object commands; printed and undefined when it does not load. A spec the loader refuses
+ * only because an object it names does not resolve still loads here, without that pass: the command then
+ * resolves the objects itself and reports the one that fails with exit 1, as the object commands document. A
+ * spec invalid for any other reason stays an input error.
+ */
 async function specAt(file: string, io: Io): Promise<{ spec: Spec; path: string } | undefined> {
   const path = resolve(io.cwd, file);
   clearObjectContexts();
   const loaded = await loadSpecFile(path);
-  if (!loaded.ok) {
-    io.err(`✗ ${show(path, io)}\n`);
-    for (const issue of loaded.errors)
-      io.err(`    ${issue.path || '(file)'}  ${issue.code}  ${describe(issue.message, io)}\n`);
-    return undefined;
+  if (loaded.ok) return { spec: loaded.spec, path };
+  if (loaded.errors.every((issue) => issue.code.startsWith('OBJECT_'))) {
+    const text = await readFile(path, 'utf8').catch(() => undefined);
+    const bare =
+      text === undefined
+        ? undefined
+        : parseSpecText(text, extname(path).toLowerCase() === '.json' ? 'json' : 'yaml', path, {
+            resolveObjects: false,
+          });
+    if (bare?.ok) return { spec: bare.spec, path };
   }
-  return { spec: loaded.spec, path };
+  io.err(`✗ ${show(path, io)}\n`);
+  for (const issue of loaded.errors)
+    io.err(`    ${issue.path || '(file)'}  ${issue.code}  ${describe(issue.message, io)}\n`);
+  return undefined;
 }
 
 function withOverrides(context: ObjectContext, options: Overrides): ObjectContext {
