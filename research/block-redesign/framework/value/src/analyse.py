@@ -10,7 +10,7 @@ import random
 import sys
 from collections import Counter
 
-from common import DATA, ROOT, read_jsonl, read_text
+from common import DATA, ROOT, read_jsonl
 from oracle import SLOTS, TOOL_DECL, load_runs
 import ladder
 
@@ -133,7 +133,7 @@ def boot(items: list[str], by_item: dict[str, list[bool]], seed: int = 7007, n: 
 
 
 def hf7() -> dict:
-    items = {i["id"]: i for i in json.loads(read_text(DATA / "hf7_items.json"))}
+    items = {i["id"]: i for i in json.loads((DATA / "hf7_items.json").read_text())}
     rows = read_jsonl(DATA / "hf7_judgments.jsonl")
     out = {}
     for model in sorted({r["model"] for r in rows}):

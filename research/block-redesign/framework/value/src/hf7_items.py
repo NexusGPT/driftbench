@@ -1,14 +1,13 @@
 """HF7 item bank: (field, gold, candidate, truth, subtype) for stored values with no stated format.
 
-Deterministic (seed 7007). Writes data/hf7_items.json.gz, the committed copy (compressed, so that the leak guard,
-which scans text, does not read the one-digit-changed made-up phones as real ones). Values are the fictional Acme
-ones (phones of area code 202, exchange 555, lines 0100 to 0199, emails at example.com, Acmeville addresses),
-plus three made-up customers.
+Deterministic (seed 7007). Writes data/hf7_items.json. Values are the fictional Acme ones (phones of area
+code 202, exchange 555, lines 0100 to 0199, emails at example.com, Acmeville addresses), plus three made-up
+customers. Every phone of the bank, near misses included, stays in lines 0100 to 0199: the two-digit near miss
+swaps the last two digits of the line, or, when they are equal, changes both.
 """
 
 from __future__ import annotations
 
-import gzip
 import json
 import random
 
@@ -55,8 +54,10 @@ def build() -> list[dict]:
         changed = d[:-1] + str((int(last) + 1) % 10)
         add("phone", g, rng.choice(phone_forms("+1" + changed)), "different", "one_digit_changed")
         tail = list(d[6:])
-        j = next(k for k in range(3) if tail[k] != tail[k + 1])
-        tail[j], tail[j + 1] = tail[j + 1], tail[j]
+        if tail[2] != tail[3]:
+            tail[2], tail[3] = tail[3], tail[2]
+        else:  # equal last digits: a swap changes nothing, so change both and stay in 0100-0199
+            tail[2], tail[3] = str((int(tail[3]) + 3) % 10), str((int(tail[3]) + 4) % 10)
         swapped = d[:6] + "".join(tail)
         add("phone", g, rng.choice(phone_forms("+1" + swapped)), "different", "two_digits_swapped")
         other = PHONES[(i + 1) % len(PHONES)]
@@ -99,7 +100,6 @@ def build() -> list[dict]:
 if __name__ == "__main__":
     items = build()
     DATA.mkdir(parents=True, exist_ok=True)
-    with gzip.GzipFile(DATA / "hf7_items.json.gz", "wb", mtime=0) as f:  # mtime 0: the same bytes on every run
-        f.write(json.dumps(items, indent=1).encode())
+    (DATA / "hf7_items.json").write_text(json.dumps(items, indent=1))
     from collections import Counter
     print(len(items), Counter(i["truth"] for i in items), Counter((i["truth"], i["subtype"]) for i in items))

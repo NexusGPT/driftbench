@@ -6,7 +6,6 @@ Every paid call appends one row to data/usage.jsonl; LEDGER.md is computed from 
 
 from __future__ import annotations
 
-import gzip
 import json
 import random
 import threading
@@ -151,19 +150,10 @@ def model_json(batch: str, model: str, system: str, user: str, seed: int) -> dic
     return openai_json(batch, model, system, user, seed)
 
 
-def read_text(path: Path) -> str:
-    """The text of `path`, or of `path` plus `.gz` when only the compressed copy is committed."""
-    gz = path.with_name(path.name + ".gz")
-    if path.exists():
-        return path.read_text()
-    return gzip.open(gz, "rt", encoding="utf-8").read() if gz.exists() else ""
-
-
 def read_jsonl(path: Path) -> list[dict]:
-    """Rows of `path`. A committed `path.gz` is read first, then rows appended to the plain file since."""
-    gz = path.with_name(path.name + ".gz")
-    text = (gzip.open(gz, "rt", encoding="utf-8").read() if gz.exists() else "") + (path.read_text() if path.exists() else "")
-    return [json.loads(l) for l in text.splitlines() if l.strip()]
+    if not path.exists():
+        return []
+    return [json.loads(l) for l in path.read_text().splitlines() if l.strip()]
 
 
 def append_jsonl(path: Path, row: dict) -> None:

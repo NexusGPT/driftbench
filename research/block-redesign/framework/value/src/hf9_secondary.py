@@ -3,7 +3,7 @@
 python hf9_secondary.py      prints both and writes data/hf9_controls_ladder.json
 
 1. secondary_controls_ladder: the 150 control jobs scored with the value-check ladder (ladder.py) instead of the
-   exact oracle. The rung 3 judge answers come from data/judge_cache.jsonl.gz; a missing answer stops the script
+   exact oracle. The rung 3 judge answers come from data/judge_cache.jsonl; a missing answer stops the script
    (it makes no model call).
 2. secondary_b_no_call_any_wording: in target B, the failing runs that make no coverage.check call at all,
    whatever the reply says, against the registered measure (no call and the reply asks for the town).
