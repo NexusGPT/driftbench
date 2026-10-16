@@ -273,8 +273,49 @@ export const routingRoleCorpus: RouteCase[] = [
     table: '| Destination | Skill |\n|---|---|\n| returns@example.invalid | `refund-flow` |',
     routes: [['returns@example.invalid', 'refund-flow', 'skill']],
   },
+  {
+    name: 'sequenced targets',
+    table: '| Topic | Skill |\n|---|---|\n| money back | `refund-flow` then `receipt-check` |',
+    routes: [...refund, ['money back', 'receipt-check', 'skill']],
+  },
+  {
+    name: 'coordinated targets',
+    table: '| Topic | Skill |\n|---|---|\n| money back | `refund-flow` and `receipt-check` |',
+    routes: [...refund, ['money back', 'receipt-check', 'skill']],
+  },
+  {
+    name: 'ordered conjunction',
+    table: '| Need | Playbook |\n|---|---|\n| money back | `refund-flow` and then `receipt-check` |',
+    routes: [...refund, ['money back', 'receipt-check', 'skill']],
+  },
+  {
+    name: 'comma conjunction',
+    table: '| Subject | Resolver |\n|---|---|\n| money back | `refund-flow`, and `receipt-check` |',
+    routes: [...refund, ['money back', 'receipt-check', 'skill']],
+  },
+  {
+    name: 'reversed target sequence',
+    table: '| Skill | Topic |\n|---|---|\n| `refund-flow` followed by `receipt-check` | money back |',
+    routes: [...refund, ['money back', 'receipt-check', 'skill']],
+  },
+  {
+    name: 'reversed comma sequence',
+    table: '| Playbook | Need |\n|---|---|\n| `refund-flow`, then `receipt-check` | money back |',
+    routes: [...refund, ['money back', 'receipt-check', 'skill']],
+  },
+  {
+    name: 'reversed target alternative',
+    table: '| Resolver | Problem |\n|---|---|\n| `refund-flow` or `receipt-check` | money back |',
+    routes: [...refund, ['money back', 'receipt-check', 'skill']],
+  },
+  {
+    name: 'reversed dispatch sequence',
+    table: '| Handler | Event |\n|---|---|\n| load `refund-flow`, then load `receipt-check` | money back |',
+    routes: [...refund, ['money back', 'receipt-check', 'skill']],
+  },
 ];
 export const routingRoleDeclarations = {
   '.claude/skills/refund-flow/SKILL.md': '---\nname: refund-flow\n---\n',
+  '.claude/skills/receipt-check/SKILL.md': '---\nname: receipt-check\n---\n',
   '.claude/agents/receipt-auditor.md': '---\nname: receipt-auditor\n---\n',
 };

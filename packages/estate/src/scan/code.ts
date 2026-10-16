@@ -790,7 +790,7 @@ function routeDesignation(cell: string, targets: ReturnType<typeof routeTargets>
   )
     return true;
   if (/^(?:the\s+)?@(?:\s+(?:skill|agent|helper))?\s*(?:→|->|[:;(])/.test(text)) return true;
-  return /^(?:(?:please|always)\s+)*(?:(?:load|use|invoke|dispatch|call)\s+)?(?:the\s+)?@(?:\s+(?:skill|agent|helper))?(?:\s*(?:,|;|\/|&|\+|and|or|→|->)\s*(?:the\s+)?@(?:\s+(?:skill|agent|helper))?)*[.!]?$/i.test(
+  return /^(?:(?:please|always)\s+)*(?:(?:load|use|invoke|dispatch|call)\s+)?(?:the\s+)?@(?:\s+(?:skill|agent|helper))?(?:\s*(?:(?:[,;]\s*)?(?:and|or)(?:\s+then)?|[,;]?\s*(?:then|followed\s+by)|[,;/&+→]|->)\s*(?:the\s+)?@(?:\s+(?:skill|agent|helper))?)*[.!]?$/i.test(
     text,
   );
 }
