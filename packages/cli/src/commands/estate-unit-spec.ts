@@ -1,7 +1,53 @@
 import type { Spec } from '@agent-nexus/driftbench-core';
-import { observeUnitTests, type UnitRunOptions } from '@agent-nexus/driftbench-estate';
+import { observeUnitTests, type UnitObservation, type UnitRunOptions } from '@agent-nexus/driftbench-estate';
 import { type UnitOutcome, UnitTest } from '@agent-nexus/driftbench-generate';
 import type { UnitContract } from './estate-unit';
+
+/** The expectation kinds a process run can decide: guard decisions, exit and commands, files in its folder. */
+const EVALUATED: ReadonlySet<string> = new Set(['guards', 'execution', 'workspace']);
+
+type WorkspaceDiff = NonNullable<UnitObservation['cases'][number]['workspace']>;
+
+type WorkspaceExpect = {
+  created?: string[];
+  changed?: string[];
+  deleted?: string[];
+  others_untouched?: boolean;
+};
+
+/** `expect.workspace` against the files the operation's cases created, changed or deleted in its folder. */
+function workspaceFailures(
+  expect: WorkspaceExpect,
+  cases: ReadonlyArray<{ workspace?: WorkspaceDiff }>,
+): string[] {
+  const seen: Record<'created' | 'changed' | 'deleted', Set<string>> = {
+    created: new Set(),
+    changed: new Set(),
+    deleted: new Set(),
+  };
+  for (const entry of cases)
+    for (const set of ['created', 'changed', 'deleted'] as const)
+      for (const path of entry.workspace?.[set] ?? []) seen[set].add(path);
+  const norm = (path: string) => path.replace(/^\.\//, '');
+  const failing: string[] = [];
+  const named = new Set<string>();
+  for (const set of ['created', 'changed', 'deleted'] as const) {
+    const wanted = expect[set]?.map(norm);
+    if (wanted === undefined) continue;
+    for (const path of wanted) named.add(path);
+    const observed = [...seen[set]];
+    if (wanted.length === 0 && observed.length > 0)
+      failing.push(`workspace ${set}: ${observed.join(', ')}; the block expects nothing ${set}`);
+    for (const path of wanted) if (!seen[set].has(path)) failing.push(`workspace: ${path} was not ${set}`);
+  }
+  if (expect.others_untouched === true) {
+    const others = (['created', 'changed', 'deleted'] as const).flatMap((set) =>
+      [...seen[set]].filter((path) => !named.has(path)).map((path) => `${path} (${set})`),
+    );
+    if (others.length > 0) failing.push(`workspace: other paths changed: ${others.join(', ')}`);
+  }
+  return failing;
+}
 
 /** Executes only explicit operations. The user ask is never parsed into shell commands or hook payloads. */
 export async function runUnitSpecs(
@@ -65,10 +111,9 @@ export async function runUnitSpecs(
     }
     const test = parsed.data;
     for (const block of spec.blocks) {
-      // Fail closed as the schema grows: process outcomes provide no agent transcript or workspace diff.
+      // Fail closed as the schema grows: a process run has no agent transcript, tool calls or stages.
       for (const key of Object.keys(block.expect ?? {}))
-        if (key !== 'guards' && key !== 'execution')
-          invalid(`unit runner cannot evaluate expect.${key}; not_run`);
+        if (!EVALUATED.has(key)) invalid(`unit runner cannot evaluate expect.${key}; not_run`);
       if (test.target.kind === 'script' && (block.expect?.guards?.length ?? 0) > 0)
         invalid('a script operation does not execute guard assertions');
       if (test.target.kind === 'guard' && block.expect?.execution !== undefined)
@@ -82,9 +127,10 @@ export async function runUnitSpecs(
       finish();
       continue;
     }
+    const wantsWorkspace = spec.blocks.some((block) => block.expect?.workspace !== undefined);
     let run: Awaited<ReturnType<typeof observeUnitTests>>;
     try {
-      run = await observeUnitTests([test], options);
+      run = await observeUnitTests([test], { ...options, observeWorkspace: wantsWorkspace });
     } catch (cause) {
       invalid(`unit operation not_run: ${cause instanceof Error ? cause.message : String(cause)}`);
       finish();
@@ -120,6 +166,17 @@ export async function runUnitSpecs(
           stdout: entry.outcome.output ?? '',
         });
       }
+    }
+    if (wantsWorkspace) {
+      const observedCases = observed?.cases ?? [];
+      if (observedCases.some((entry) => entry.workspace === undefined))
+        invalid(
+          'unit operation not_run: its cases report no workspace diff, so expect.workspace is not evaluated',
+        );
+      else
+        for (const block of spec.blocks)
+          if (block.expect?.workspace)
+            failing.push(...workspaceFailures(block.expect.workspace, observedCases));
     }
     if (test.target.kind === 'guard') {
       const name = test.target.name;
