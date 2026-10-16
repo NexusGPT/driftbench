@@ -1,0 +1,329 @@
+{
+  "version": 1,
+  "repoHead": "f1e520bbd4bc12582cc0ce1b966fd7e3dd504f97",
+  "generatedBy": "build.mts (no network, no model call)",
+  "manifestSha256": "936dc78a57ed92851a4c8b838d780cb60c29395d3715e5ccf693bfb6869f51e6",
+  "pins": [
+    {
+      "dataset": "deepeval-heldout-relevancy",
+      "renderCommit": "e1d3a49108f31ae47d52f4558d99749c038aa18e",
+      "buildPromptBlob": "dfe8130f8e2d0b421ba90302116d93a4f907fdc4",
+      "buildPromptLastChange": "e90cad597 2026-10-12 chore: checkpoint npm scope rename",
+      "criterionPath": "examples/criteria/relevancy.yaml",
+      "criterionBlob": "1a3a5e2559d69995cc27510b8b4ca37bf3020879",
+      "criterionLastChange": "301f4b321 2026-10-12 Relevancy criterion: a restated order that asks for confirmation answers an order request",
+      "storedPromptsLastChange": "e1d3a4910 2026-10-13 Preserve clarified corpora, redact operator identifiers and merge main",
+      "recordingLastChange": "a3e61f6b5 2026-10-13 Report original and pooled held-out judge measurements"
+    },
+    {
+      "dataset": "deepeval-heldout-role",
+      "renderCommit": "e1d3a49108f31ae47d52f4558d99749c038aa18e",
+      "buildPromptBlob": "dfe8130f8e2d0b421ba90302116d93a4f907fdc4",
+      "buildPromptLastChange": "e90cad597 2026-10-12 chore: checkpoint npm scope rename",
+      "criterionPath": "examples/criteria/role.yaml",
+      "criterionBlob": "1bf9fa34cda6781ebfc720fd1abd29099ba59b47",
+      "criterionLastChange": "57fd55b4c 2026-10-12 Catalogue: role, a judged criterion for a reply that stays in its role",
+      "storedPromptsLastChange": "e1d3a4910 2026-10-13 Preserve clarified corpora, redact operator identifiers and merge main",
+      "recordingLastChange": "a3e61f6b5 2026-10-13 Report original and pooled held-out judge measurements"
+    },
+    {
+      "dataset": "deepeval-heldout-completeness",
+      "renderCommit": "e1d3a49108f31ae47d52f4558d99749c038aa18e",
+      "buildPromptBlob": "dfe8130f8e2d0b421ba90302116d93a4f907fdc4",
+      "buildPromptLastChange": "e90cad597 2026-10-12 chore: checkpoint npm scope rename",
+      "criterionPath": "examples/criteria/conversation_completeness.yaml",
+      "criterionBlob": "8692c7238f45c410ecac7491074bf728e0cdcc5b",
+      "criterionLastChange": "0816a0420 2026-10-12 Catalogue: conversation_completeness, a judged criterion for requests left open",
+      "storedPromptsLastChange": "e1d3a4910 2026-10-13 Preserve clarified corpora, redact operator identifiers and merge main",
+      "recordingLastChange": "a3e61f6b5 2026-10-13 Report original and pooled held-out judge measurements"
+    },
+    {
+      "dataset": "deepeval-heldout-grounding",
+      "renderCommit": "e1d3a49108f31ae47d52f4558d99749c038aa18e",
+      "buildPromptBlob": "dfe8130f8e2d0b421ba90302116d93a4f907fdc4",
+      "buildPromptLastChange": "e90cad597 2026-10-12 chore: checkpoint npm scope rename",
+      "criterionPath": "examples/acme/criteria/no_invented_data.yaml",
+      "criterionBlob": "b50fba66fd0b3e944afd55ca20ce91eaa512258d",
+      "criterionLastChange": "a552953e0 2026-10-12 Judges: criteria name their workspace inputs, single-family councils, Claude costs by model",
+      "storedPromptsLastChange": "e1d3a4910 2026-10-13 Preserve clarified corpora, redact operator identifiers and merge main",
+      "recordingLastChange": "a3e61f6b5 2026-10-13 Report original and pooled held-out judge measurements"
+    },
+    {
+      "dataset": "deepeval-heldout-task-receipts",
+      "renderCommit": "e1d3a49108f31ae47d52f4558d99749c038aa18e",
+      "buildPromptBlob": "dfe8130f8e2d0b421ba90302116d93a4f907fdc4",
+      "buildPromptLastChange": "e90cad597 2026-10-12 chore: checkpoint npm scope rename",
+      "criterionPath": "examples/criteria/task_completion.yaml",
+      "criterionBlob": "9b67dc243ef9f9fc69e86b8e5d26c62ac6e055b3",
+      "criterionLastChange": "3383d3c62 2026-10-12 Tool order: an exact-order failure names the first call that leaves the expected sequence; catalogue: task_completion",
+      "storedPromptsLastChange": "06c6d8b43 2026-10-13 benchmark: add equal-evidence task receipt variants",
+      "recordingLastChange": "a3e61f6b5 2026-10-13 Report original and pooled held-out judge measurements",
+      "note": "Stored receipts prompts were written at 06c6d8b43, whose prompt.ts differs from the pin only in the core import specifier (@driftbench/core); its render.mts differs only in formatting and the default corpus."
+    },
+    {
+      "dataset": "deepeval-fresh-relevancy-response-relevance",
+      "renderCommit": "d4474011208d9d69923606cf858f37802ff0633e",
+      "buildPromptBlob": "03aec27d5d329c32521da8a5d0884c95e03c979b",
+      "buildPromptLastChange": "a2d02942a 2026-10-13 Merge origin/main into feat/judge-prompt-exact-scope",
+      "criterionPath": "examples/criteria/relevancy.yaml",
+      "criterionBlob": "1a3a5e2559d69995cc27510b8b4ca37bf3020879",
+      "criterionLastChange": "301f4b321 2026-10-12 Relevancy criterion: a restated order that asks for confirmation answers an order request",
+      "setting": "response-relevance",
+      "recordingLastChange": "b3cedf0d5 2026-10-14 DeepEval lead: retry the 9 timed-out calls with the frozen settings; neutral chart titles"
+    },
+    {
+      "dataset": "deepeval-power-knowledge",
+      "renderCommit": "d4474011208d9d69923606cf858f37802ff0633e",
+      "buildPromptBlob": "03aec27d5d329c32521da8a5d0884c95e03c979b",
+      "buildPromptLastChange": "a2d02942a 2026-10-13 Merge origin/main into feat/judge-prompt-exact-scope",
+      "criterionPath": "examples/criteria/knowledge_retention.yaml",
+      "criterionBlob": "b81ffe85cba864923774a7342c3d5e9e4cdd5b46",
+      "criterionLastChange": "54510bf82 2026-10-13 fix(judges): finalize retention boundaries and recording guards",
+      "setting": "default",
+      "recordingLastChange": "b175b8540 2026-10-14 Report powered retention confirmation as level with API evidence"
+    }
+  ],
+  "equivalence": {
+    "summary": "2112 of 2112 items: rendered request hash identical to the recorded driftbench request hash",
+    "details": [
+      {
+        "dataset": "deepeval-heldout-relevancy",
+        "renderCommit": "e1d3a49108f31ae47d52f4558d99749c038aa18e",
+        "storedPrompts": "comparisons/deepeval/hard/baseline-prompts-heldout.json",
+        "storedPromptsIdentical": "72 of 72 identical",
+        "storedPromptMismatches": [],
+        "recordedRequestHash": "comparisons/deepeval/hard/baseline-heldout.json rows[].ours.request_sha256s[0] (sha256 of json.dumps([\"haiku\", system, user]))",
+        "recordedRequestHashIdentical": "72 of 72 identical",
+        "recordedRequestHashMismatches": [],
+        "distinctRenderedRequests": 72,
+        "itemsSharingARequest": 0,
+        "sharedRequestGroupsWithConflictingGold": []
+      },
+      {
+        "dataset": "deepeval-heldout-role",
+        "renderCommit": "e1d3a49108f31ae47d52f4558d99749c038aa18e",
+        "storedPrompts": "comparisons/deepeval/hard/baseline-prompts-heldout.json",
+        "storedPromptsIdentical": "72 of 72 identical",
+        "storedPromptMismatches": [],
+        "recordedRequestHash": "comparisons/deepeval/hard/baseline-heldout.json rows[].ours.request_sha256s[0] (sha256 of json.dumps([\"haiku\", system, user]))",
+        "recordedRequestHashIdentical": "72 of 72 identical",
+        "recordedRequestHashMismatches": [],
+        "distinctRenderedRequests": 72,
+        "itemsSharingARequest": 0,
+        "sharedRequestGroupsWithConflictingGold": []
+      },
+      {
+        "dataset": "deepeval-heldout-completeness",
+        "renderCommit": "e1d3a49108f31ae47d52f4558d99749c038aa18e",
+        "storedPrompts": "comparisons/deepeval/hard/baseline-prompts-heldout.json",
+        "storedPromptsIdentical": "72 of 72 identical",
+        "storedPromptMismatches": [],
+        "recordedRequestHash": "comparisons/deepeval/hard/baseline-heldout.json rows[].ours.request_sha256s[0] (sha256 of json.dumps([\"haiku\", system, user]))",
+        "recordedRequestHashIdentical": "72 of 72 identical",
+        "recordedRequestHashMismatches": [],
+        "distinctRenderedRequests": 60,
+        "itemsSharingARequest": 18,
+        "sharedRequestGroupsWithConflictingGold": []
+      },
+      {
+        "dataset": "deepeval-heldout-grounding",
+        "renderCommit": "e1d3a49108f31ae47d52f4558d99749c038aa18e",
+        "storedPrompts": "comparisons/deepeval/hard/baseline-prompts-heldout.json",
+        "storedPromptsIdentical": "72 of 72 identical",
+        "storedPromptMismatches": [],
+        "recordedRequestHash": "comparisons/deepeval/hard/baseline-heldout.json rows[].ours.request_sha256s[0] (sha256 of json.dumps([\"haiku\", system, user]))",
+        "recordedRequestHashIdentical": "72 of 72 identical",
+        "recordedRequestHashMismatches": [],
+        "distinctRenderedRequests": 45,
+        "itemsSharingARequest": 33,
+        "sharedRequestGroupsWithConflictingGold": []
+      },
+      {
+        "dataset": "deepeval-heldout-task-receipts",
+        "renderCommit": "e1d3a49108f31ae47d52f4558d99749c038aa18e",
+        "storedPrompts": "comparisons/deepeval/hard/baseline-prompts-receipts-heldout.json",
+        "storedPromptsIdentical": "72 of 72 identical",
+        "storedPromptMismatches": [],
+        "recordedRequestHash": "comparisons/deepeval/hard/baseline-task-receipts-heldout.json rows[].ours.request_sha256s[0]",
+        "recordedRequestHashIdentical": "72 of 72 identical",
+        "recordedRequestHashMismatches": [],
+        "distinctRenderedRequests": 54,
+        "itemsSharingARequest": 27,
+        "sharedRequestGroupsWithConflictingGold": []
+      },
+      {
+        "dataset": "deepeval-fresh-relevancy-response-relevance",
+        "renderCommit": "d4474011208d9d69923606cf858f37802ff0633e",
+        "recordedRequestHash": "comparisons/deepeval/lead/fresh-retry.json rows[row=G-Eval strict].ours.request_sha256",
+        "recordedRequestHashIdentical": "480 of 480 identical",
+        "recordedRequestHashMismatches": [],
+        "distinctRenderedRequests": 480,
+        "itemsSharingARequest": 0,
+        "sharedRequestGroupsWithConflictingGold": []
+      },
+      {
+        "dataset": "deepeval-power-knowledge",
+        "renderCommit": "d4474011208d9d69923606cf858f37802ff0633e",
+        "recordedRequestHash": "comparisons/deepeval/lead/power/api/retry/results.json rows[].ours.request_sha256s[0]",
+        "recordedRequestHashIdentical": "1272 of 1272 identical",
+        "recordedRequestHashMismatches": [],
+        "distinctRenderedRequests": 1272,
+        "itemsSharingARequest": 0,
+        "sharedRequestGroupsWithConflictingGold": []
+      },
+      {
+        "dataset": "deepeval-power-knowledge",
+        "check": "power-freeze.json prompts_sha256 over all 1,272 rendered prompts",
+        "expected": "1f70d1543a6c08a46b132092a68a44d008fe07c541d028a77dd0bcb3f1571e70",
+        "actual": "1f70d1543a6c08a46b132092a68a44d008fe07c541d028a77dd0bcb3f1571e70",
+        "identical": true
+      },
+      {
+        "dataset": "deepeval-fresh-relevancy-response-relevance",
+        "check": "fresh-freeze.json driftbench_prompts_sha256 over 960 rendered prompts (480 relevancy + 480 fresh knowledge)",
+        "expected": "78bd17cd1886fc92af9619c33f6c7ffe3d9ea567db8371f442e2302c8db45b50",
+        "actual": "78bd17cd1886fc92af9619c33f6c7ffe3d9ea567db8371f442e2302c8db45b50",
+        "identical": true
+      },
+      {
+        "check": "packages/judges/src at d44740112 vs fresh-freeze.json state.package",
+        "files": 60,
+        "identical": "60 of 60 identical",
+        "mismatched": [],
+        "notInFreeze": []
+      },
+      {
+        "check": "alternative hard pins vs e1d3a4910",
+        "12801e1b9 (named in lead/README.md as the held-out freeze)": {
+          "criteriaIdentical": true,
+          "promptTsChangedLines": [
+            "-import { contentHash } from '@driftbench/core';",
+            "+import { contentHash } from '@agent-nexus/driftbench-core';"
+          ]
+        },
+        "06c6d8b43 (wrote baseline-prompts-receipts-heldout.json)": {
+          "criteriaIdentical": true,
+          "promptTsChangedLines": [
+            "-import { contentHash } from '@driftbench/core';",
+            "+import { contentHash } from '@agent-nexus/driftbench-core';"
+          ]
+        }
+      }
+    ]
+  },
+  "totals": {
+    "summary": "9 of 9 rows: sum(peerCorrect)==recorded theirs, sum(oldOursCorrect)==recorded ours, n==recorded n",
+    "details": [
+      {
+        "row": "Turn relevancy",
+        "n": 72,
+        "nMatchesRecorded": true,
+        "sumPeerCorrect": 36,
+        "recordedTheirs": 36,
+        "theirsOk": true,
+        "sumOldOursCorrect": 65,
+        "recordedOurs": 65,
+        "oursOk": true
+      },
+      {
+        "row": "DAG, one node",
+        "n": 72,
+        "nMatchesRecorded": true,
+        "sumPeerCorrect": 65,
+        "recordedTheirs": 65,
+        "theirsOk": true,
+        "sumOldOursCorrect": 65,
+        "recordedOurs": 65,
+        "oursOk": true
+      },
+      {
+        "row": "Role adherence",
+        "n": 72,
+        "nMatchesRecorded": true,
+        "sumPeerCorrect": 63,
+        "recordedTheirs": 63,
+        "theirsOk": true,
+        "sumOldOursCorrect": 72,
+        "recordedOurs": 72,
+        "oursOk": true
+      },
+      {
+        "row": "Completeness",
+        "n": 72,
+        "nMatchesRecorded": true,
+        "sumPeerCorrect": 46,
+        "recordedTheirs": 46,
+        "theirsOk": true,
+        "sumOldOursCorrect": 70,
+        "recordedOurs": 70,
+        "oursOk": true
+      },
+      {
+        "row": "Hallucination",
+        "n": 72,
+        "nMatchesRecorded": true,
+        "sumPeerCorrect": 36,
+        "recordedTheirs": 36,
+        "theirsOk": true,
+        "sumOldOursCorrect": 71,
+        "recordedOurs": 71,
+        "oursOk": true
+      },
+      {
+        "row": "Faithfulness",
+        "n": 72,
+        "nMatchesRecorded": true,
+        "sumPeerCorrect": 36,
+        "recordedTheirs": 36,
+        "theirsOk": true,
+        "sumOldOursCorrect": 71,
+        "recordedOurs": 71,
+        "oursOk": true
+      },
+      {
+        "row": "Task completion",
+        "n": 72,
+        "nMatchesRecorded": true,
+        "sumPeerCorrect": 72,
+        "recordedTheirs": 72,
+        "theirsOk": true,
+        "sumOldOursCorrect": 72,
+        "recordedOurs": 72,
+        "oursOk": true
+      },
+      {
+        "row": "G-Eval strict",
+        "n": 480,
+        "nMatchesRecorded": true,
+        "sumPeerCorrect": 451,
+        "recordedTheirs": 451,
+        "theirsOk": true,
+        "sumOldOursCorrect": 474,
+        "recordedOurs": 474,
+        "oursOk": true
+      },
+      {
+        "row": "Knowledge retention",
+        "n": 1272,
+        "nMatchesRecorded": true,
+        "sumPeerCorrect": 1272,
+        "recordedTheirs": 1272,
+        "theirsOk": true,
+        "sumOldOursCorrect": 1270,
+        "recordedOurs": 1270,
+        "oursOk": true
+      }
+    ]
+  },
+  "deviations": [
+    "Request construction is re-implemented in build.mts (hard/render.mts and lead/bridge.mts logic, same meaning), not by running those scripts; the hash equivalence above is the proof.",
+    "The pinned packages/{judges,core,stats,artifacts,checks}/src trees are extracted to .pinned/<commit>/ (git archive) and loaded with tsx tsconfig paths; third-party modules (zod, yaml) and the YAML parser come from the current repo node_modules. They only affect parsing, and the equivalence check covers the result.",
+    "Held-out hard pin is e1d3a4910 (last commit writing baseline-prompts-heldout.json, frozen in candidate-freeze.json). lead/README.md names 12801e1 for the same prompts; prompt.ts differs there only in the core import specifier and every criterion blob is identical, so the rendered text is the same.",
+    "Shared driftbench requests inside a dataset: completeness 60 distinct of 72, grounding 45 of 72, task receipts 54 of 72 (as baseline-*-scores.json ours_distinct_inputs). No shared group has conflicting gold. Every item id is kept, so n equals the README; the driver will call each item separately.",
+    "Knowledge retention: knowledge-other-person-7-b and knowledge-other-person-46-b have no driftbench verdict (invalid evidence references). They stay in the dataset, count not-correct in oldOursCorrect (sum 1270 = README), and are listed in excludedFromPairedTest for the paired test.",
+    "G-Eval strict: lead/fresh-scores.json \"run\" reads \"G-Eval strict\" because lead/score.py reuses the loop variable `name`; its counts come from fresh-retry.json (the default input), which matches 474/451, and fresh.json agrees on all 480 G-Eval predictions.",
+    "Hard rows count DeepEval by its is_successful() prediction (the README \"theirs\"), not baseline-heldout-scores.json strict_theirs (e.g. completeness 66, hallucination 65).",
+    "Transport of the originals: the held-out hard rows and G-Eval strict fresh ran through `claude -p --model haiku`; Knowledge retention ran 2585 of 2606 main calls on the Messages API with claude-haiku-5-5 and 21 on the CLI. The v7 driver uses the Messages API only.",
+    "Hallucination: one original driftbench answer was unparsed (ours_unparsed 1); it counts wrong in oldOursCorrect, as in the recorded score."
+  ]
+}

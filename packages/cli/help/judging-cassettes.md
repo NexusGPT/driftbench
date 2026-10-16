@@ -46,13 +46,13 @@ The file is JSON with exactly three keys:
 | Key | Meaning |
 |---|---|
 | `version` | Always `1`. |
-| `judges` | One entry per judge: `id` (unique), `family`, `cls` (`system1` or `system2`) and `cost` (relative, at least 0). Optional: `model`, `settings` (the client settings it was recorded with), `families`, `comparison`, `dialect` and `reasoning` (`low`, `medium` or `high`). |
-| `entries` | One entry per recorded call: `judge` (an id listed above) and `key` (12 lowercase hex characters). The entry holds one of three fields. `answer` is a structured answer, as a system 1 client builds it. `raw` is the model's text, parsed again at replay. `error` is a call that gave no answer. Optional: `criterion` (for a reader: the key decides the match), `answerContract` (`ledger` or `legacy`), `criterionDecoderVersion` (1 or 2) and `pairContract`. Other optional fields: `note`, `result`, `unparsedReason`, `cost_usd` (replayed as the call's cost) and `repaired`. |
+| `judges` | One entry per judge: `id` (unique), `family`, `cls` (`system1` or `system2`), `cost` (relative, at least 0), and optional `model`, `settings` (the client settings it was recorded with), `families`, `comparison`, `dialect`, `reasoning` (`low`, `medium` or `high`). |
+| `entries` | One entry per recorded call: `judge` (an id listed above), `key` (12 lowercase hex characters), and one of `answer` (a structured answer, as a system 1 client builds it), `raw` (the model's text, parsed again at replay) or `error` (a call that gave no answer). Optional: `criterion` (for a reader; the key decides the match), `answerContract` (`ledger` or `legacy`), `criterionDecoderVersion` (1, 2 or 3), `pairContract`, `note`, `result`, `unparsedReason`, `cost_usd` (replayed as the call's cost) and `repaired`. |
 
 The request key is a hash of:
 
-* The data: the criterion, the transcript, the artifact, the inputs, the Given, the reference and the large budget for a re-ask. When used, the data also holds the requirements, the assessment, the candidates, a custom system prompt and canonical presentation.
-* The prompt fingerprint of the contract in use. The default criterion ledger, legacy, criterion prompt version 2, response relevance, the pair ledger and others each have their own.
+* The data: the criterion, the transcript, the artifact, the inputs, the Given, the reference, the large budget for a re-ask, and, when used, the requirements, the assessment, the candidates, a custom system prompt and canonical presentation.
+* The prompt fingerprint of the contract in use: the default criterion ledger (prompt version 2), legacy, historical prompt version 1, response relevance and the pair ledger each have their own.
 * The client: its class, model and settings (for the claude command judge, its command flags).
 
 Replay rules:

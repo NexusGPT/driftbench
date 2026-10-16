@@ -2,6 +2,7 @@ import type { Store } from '../contracts/store';
 import type { PlannedCell } from '../runner/campaign';
 import { provenanceDigest } from '../runner/provenance';
 import { applyRealizedTextPolicy } from '../runner/realized-text';
+import { isScored } from '../runner/verdicts';
 import type { TargetRef } from '../schema/common';
 import type { Campaign, CampaignRadius, RunResult } from '../schema/run';
 import type { Spec } from '../schema/spec';
@@ -175,6 +176,11 @@ export function planRadiusCampaign(
     }
     if (source.status !== 'completed') {
       refuse(`its run in campaign ${baseline.campaignId} did not complete`);
+      continue;
+    }
+    // A block not run or blocked is no measurement to carry: the cell runs fresh, where it may now run.
+    if (!source.blocks.every(isScored)) {
+      refuse(`its run in campaign ${baseline.campaignId} has a block not run or blocked`);
       continue;
     }
     const sourceVersion = agentVersionOf(source);

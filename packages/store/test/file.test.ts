@@ -12,6 +12,7 @@ import {
   type SqliteStore,
   StoreError,
 } from '../src/index';
+import { SCHEMA_SQL, TABLES_BY_VERSION } from '../src/schema';
 import { campaign, observed, run, storeError, tempDir } from './fixtures';
 
 const ID = 'acme-2026-10-11';
@@ -247,6 +248,36 @@ describe('opening a store', () => {
       { path: 'acme-sales.md', bytes: new TextEncoder().encode('You are the Acme sales assistant.\n') },
     ]);
     expect(pushed.version.version).toBe(1);
+  });
+
+  it('lists every table SCHEMA_SQL creates under the version that added it, and every version', () => {
+    const created = [...SCHEMA_SQL.matchAll(/CREATE TABLE IF NOT EXISTS (\w+)/g)].map((match) => match[1]);
+    expect(Object.values(TABLES_BY_VERSION).flat().sort()).toEqual(created.sort());
+    expect(Object.keys(TABLES_BY_VERSION).map(Number)).toEqual(
+      Array.from({ length: SCHEMA_VERSION }, (_, index) => index + 1),
+    );
+  });
+
+  it('upgrades every older schema to the current one, whatever the current number', async () => {
+    for (let version = 1; version < SCHEMA_VERSION; version += 1) {
+      const stored = await seed();
+      await store.close();
+      // The tables the versions after this one added, from the schema's own list.
+      const dropped = Object.entries(TABLES_BY_VERSION)
+        .filter(([since]) => Number(since) > version)
+        .flatMap(([, tables]) => tables);
+      raw.exec(
+        [...dropped.map((table) => `DROP TABLE ${table}`), `PRAGMA user_version = ${version}`].join('; '),
+      );
+      store = openStore(path);
+      expect(raw.prepare('PRAGMA user_version').get()?.user_version, `from schema ${version}`).toBe(
+        SCHEMA_VERSION,
+      );
+      expect(await store.getRun(stored.runId), `from schema ${version}`).toStrictEqual(stored);
+      await store.pushVersion('dataset', `from-${version}`, [
+        { path: 'a.yaml', bytes: new TextEncoder().encode('a\n') },
+      ]);
+    }
   });
 
   it('refuses a file that is not a database', async () => {
