@@ -1051,7 +1051,7 @@ const SUBORDINATE =
 const NEGATED = /\b(?:not|never|no|nor|neither|cannot|optional|optionally)\b|n't\b/;
 
 /** Whether the words before "read" make it a directive: no negation, and not itself a condition. */
-function directiveHead(head: string): boolean {
+export function directiveHead(head: string): boolean {
   const segments = head
     .toLowerCase()
     .replace(/[*_]/g, '')
@@ -1066,7 +1066,7 @@ function directiveHead(head: string): boolean {
 type MaskedLine = { text: string; spans: string[] };
 
 /** Replace code spans, links and quotations with tokens; a code span around one plain word is emphasis. */
-function maskLine(line: string): MaskedLine {
+export function maskLine(line: string): MaskedLine {
   const spans: string[] = [];
   const token = (span: string) => `${OPEN_TOKEN}${spans.push(span) - 1}${CLOSE_TOKEN}`;
   const text = line
@@ -1080,7 +1080,7 @@ function maskLine(line: string): MaskedLine {
   return { text, spans };
 }
 
-function unmask(text: string, spans: readonly string[]): string {
+export function unmask(text: string, spans: readonly string[]): string {
   let out = text;
   const pattern = new RegExp(TOKEN, 'g');
   // A link's text may hold a masked code span: unmask until no token is left.
@@ -1092,7 +1092,7 @@ function unmask(text: string, spans: readonly string[]): string {
 }
 
 /** Cut a masked line into directive clauses; masked spans are never cut. */
-function gateClauses(text: string): string[] {
+export function gateClauses(text: string, splitCoordinated = true): string[] {
   const clauses: string[] = [];
   let start = 0;
   for (let index = 0; index < text.length; index++) {
@@ -1112,7 +1112,7 @@ function gateClauses(text: string): string[] {
   }
   clauses.push(text.slice(start));
   return clauses
-    .flatMap((clause) => clause.split(/,\s*(?:and|but)\s+(?=\S)/i))
+    .flatMap((clause) => (splitCoordinated ? clause.split(/,\s*(?:and|but)\s+(?=\S)/i) : [clause]))
     .map((clause) =>
       clause
         .replace(/\*\*/g, '')

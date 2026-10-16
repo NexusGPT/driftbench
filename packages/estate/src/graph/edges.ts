@@ -1,4 +1,13 @@
-import { chunkLines, guardName, positiveMention, registryRowOf, toolBase } from '../scan/code';
+import {
+  chunkLines,
+  directiveHead,
+  gateClauses,
+  guardName,
+  maskLine,
+  registryRowOf,
+  toolBase,
+  unmask,
+} from '../scan/code';
 import type { EstateFile, RawEstate } from '../scan/reader';
 import { labelOfLine, linesOf, plain } from '../scan/text';
 import type { Atom, Edge } from '../schema';
@@ -277,23 +286,63 @@ export function literals(text: string): string[] {
   return found;
 }
 
-/** A quoted helper mention, or an explicit dispatch act naming a whole unquoted helper name. */
+/** A directive head uses the gate polarity/scope check, then a verb's imperative or modal grammar. */
+function dispatchHead(head: string): boolean {
+  if (!directiveHead(head)) return false;
+  const main = head.split(/[,:]/).at(-1)?.trim() ?? '';
+  return (
+    main === '' ||
+    /(?:\b(?:please|kindly|always|then|now)|\b(?:must|should|shall|can|could|may|will)|\b(?:remember|sure|essential|need|have)\s+to|\b[a-z]+ly|\byou)\s*$/i.test(
+      main,
+    )
+  );
+}
+
+// A transfer's object is a noun phrase ending at the recipient preposition. Its internal words
+// (determiners, possessives, quantities, modifiers and coordination) do not determine dispatch.
+const DISPATCH_ACT = String.raw`(?:dispatch|call|invoke|spawn|launch|ask|use|have|let|delegate|(?:delegate|hand|send)(?:\s+.+?)?\s+to)`;
+const HELPER_ROLE = String.raw`(?:(?:the|to|helper|agent|subagent|named)\s+)*`;
+
+/** Dispatch shares gate clause boundaries and negation scope; coordinated targets inherit the directive. */
 function dispatchesHelper(text: string, name: string): boolean {
   if (name === '') return false;
-  const verbs = ['dispatch', 'call', 'delegate', 'invoke'];
-  if (positiveMention(text, `\`${name}\``, verbs)) return true;
   const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const mentions = new RegExp(`(?<![\\w-])${escaped}(?![\\w-])`, 'g');
-  for (const match of text.matchAll(mentions)) {
-    const before = text.slice(0, match.index);
-    const clause = before.split(/[\n;!?]|\.(?=\s|$)|\b(?:but|until|instead)\b/i).at(-1) ?? '';
-    const act =
-      /\b(?:dispatch|call|delegate|invoke|spawn|launch|ask|hand(?:\s+(?:it|the\s+\w+))?(?:\s+(?:off|over))?\s+to)\s+(?:(?:the|to|helper|agent|subagent|named)\s+)*[`*]*$/i.exec(
-        clause,
-      );
-    if (!act) continue;
-    const prefix = clause.slice(0, act.index);
-    if (!/\b(?:never|do not|don['’]t|must not|should not)\s*$/i.test(prefix)) return true;
+  const mention = new RegExp(`(?<![\\w-])${escaped}(?![\\w-])`, 'g');
+  const direct = new RegExp(`\\b${DISPATCH_ACT}\\s+${HELPER_ROLE}$`, 'i');
+  const inherited = new RegExp(`^(.*?)(?:,\\s*(?:then|and)\\s+|\\s+and\\s+)${HELPER_ROLE}$`, 'i');
+  for (const line of text.split('\n')) {
+    const masked = maskLine(line);
+    // A transfer object may itself contain ", and". Resolve coordination at the verb/target,
+    // after retaining the gate grammar's masked spans and sentence boundaries.
+    for (const clause of gateClauses(masked.text, false)) {
+      const visible = unmask(clause, masked.spans).replace(/"[^"\n]+"|“[^”\n]+”/g, '');
+      for (const match of visible.matchAll(mention)) {
+        const before =
+          visible
+            .slice(0, match.index)
+            .replace(/[`*]/g, '')
+            .split(/\?|\b(?:but|until|instead)\b/i)
+            .at(-1) ?? '';
+        const act = direct.exec(before);
+        if (
+          act &&
+          (!/^use\b/i.test(act[0]) || line.includes(`\`${name}\``)) &&
+          dispatchHead(
+            before
+              .slice(0, act.index)
+              .split(/,\s*(?:and|but)\s+/i)
+              .at(-1) ?? '',
+          )
+        )
+          return true;
+        // "Dispatch A, then B" keeps the same verb and polarity for B.
+        const previous = inherited.exec(before)?.[1];
+        if (previous !== undefined) {
+          const verb = new RegExp(`\\b${DISPATCH_ACT}\\b`, 'i').exec(previous);
+          if (verb && dispatchHead(previous.slice(0, verb.index))) return true;
+        }
+      }
+    }
   }
   return false;
 }

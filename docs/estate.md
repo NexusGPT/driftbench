@@ -253,7 +253,7 @@ Edges, decided by code:
 | route | a route atom to the skill or helper it loads |
 | reference | a skill or helper to a file its body names, and to each file those files name in turn (a chain read once per skill or helper; a shared file keeps every owner; a file in the skill folder that nothing names has no owner) |
 | script | a skill to a script it ships |
-| dispatch | a skill or helper to a helper its body names; by a quoted name anywhere, or by a plain name right after an act of handing work over (dispatch, call, delegate, invoke, spawn, launch, ask, hand off to), never after a prohibition and never as part of a longer name |
+| dispatch | a skill or helper to a helper its body names; by a directive naming a helper (quoted or plain) to hand work over (dispatch, call, delegate, invoke, spawn, launch, ask, hand off to). Dispatch uses the gate clause boundaries and negation scope: prohibitions, optional acts, quoted examples, historical descriptions and noun phrases create no dispatch edge. Transfer objects are noun phrases ending at the recipient preposition; their determiners, possessives, quantities, modifiers and coordination do not restrict dispatch. Coordinated helper targets inherit the same directive and polarity |
 | enforces | a guard to a rule it checks |
 | event | a guard to the event it runs on (an event node `event.<name>`, not an atom; the loader allows such an end on event edges only) |
 | allows | a skill or helper to a tool or skill it may use |
@@ -279,7 +279,7 @@ The graph answers what code can walk:
 | `OVERSIZE` | the standing instructions are over the ceiling, counted in Unicode characters (code points): an emoji is one character, never its bytes or UTF-16 units |
 | `UNANCHORED_GUARD` | a guard command finds its script from the working folder, not from an anchor |
 | `MISSING_REFERENCE` | a file a body names does not exist |
-| `MISSING_SCRIPT` | a guard command runs a script that does not exist; a dispatcher (a script in a `lib` folder, or named as a runner such as `run.py` or `hookrun.sh`) whose first argument names a target that no file is counts too |
+| `MISSING_SCRIPT` | a guard command runs a script that does not exist; a dispatcher whose source passes its first positional argument to an executed file path, or whose usage explicitly documents that role, also names a missing target. A folder or filename never establishes dispatch; ordinary subcommands remain arguments. The static reader recognizes direct argument access and local assignment chains into Python, Node and shell execution APIs; unknown code remains the outer script |
 | `REGISTRY_ROW` | a guard has no row in the check registry |
 | `REGISTRY_GUARD` | a registry row names a guard the estate does not run |
 | `QUOTE_DRIFT` | an atom's quote is no longer at its span: scan again |
