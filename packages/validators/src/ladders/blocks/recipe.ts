@@ -113,6 +113,41 @@ function codeFile(rng: Rng, seed: number, tag: string, index: number, value: num
   };
 }
 
+/** The bike a planted file is about. */
+function bikeOf(file: FileAction): string {
+  const data = file.data as Record<string, unknown> & {
+    sheets?: { rows: unknown[][] }[];
+    paragraphs?: string[];
+    pages?: string[];
+  };
+  if (file.format === 'xlsx') return String(data.sheets?.[0]?.rows[1]?.[0]);
+  if (file.format === 'csv') return String((file.data as unknown[][])[1]?.[0]);
+  if (file.format === 'json') return String(data.bike);
+  if (file.format === 'docx') return String(data.paragraphs?.[1]).replace(/ rented for .*/, '');
+  return String(data.pages?.[0])
+    .replace(/^Page 1 of the /, '')
+    .replace(/ report$/, '');
+}
+
+/**
+ * The file a CODE block asks for, in words a real agent could follow: everything its checks read is either in
+ * data/rentals.csv (the bike and its days) or in the instruction (the shape). The fake writes the same file.
+ */
+function shapeOf(file: FileAction, value: number): string {
+  if (file.format === 'xlsx')
+    return 'an xlsx workbook with a sheet Rentals (columns Bike and Days, then that row) and a sheet Notes';
+  if (file.format === 'csv')
+    return 'a CSV file with the header bike,days and one row: that bike and its days';
+  if (file.format === 'json') return 'a JSON object with the keys bike and days';
+  if (file.format === 'docx') return 'a Word document that says "<bike> rented for <days> days."';
+  return `a PDF report of ${(value % 4) + 1} pages about that bike`;
+}
+
+/** The rental data every block of a CODE recipe reads: one row per block, in block order. */
+function rentals(blocks: { file?: FileAction; value: number }[]): string {
+  return `bike,days\n${blocks.map((block) => `${bikeOf(block.file as FileAction)},${block.value}`).join('\n')}\n`;
+}
+
 /** The checks a CODE block declares on its file: the value at its planted place. */
 function fileChecks(file: FileAction, value: number): Record<string, unknown>[] {
   if (file.format === 'xlsx')
@@ -201,7 +236,14 @@ export function recipe(
       kind === 'normal'
         ? {
             reply: `Yes, it is free. Your hold code is ${block.code}.`,
-            calls: [{ label: 'bikes.lookup', input: { day: index + 1 }, output: { free: true } }],
+            // The lookup returns the hold code, so a real agent could state it: the fake says only what it was told.
+            calls: [
+              {
+                label: 'bikes.lookup',
+                input: { day: index + 1 },
+                output: { free: true, hold_code: block.code },
+              },
+            ],
           }
         : {
             reply: 'Done: the file is written.',
@@ -213,7 +255,7 @@ export function recipe(
     const user =
       kind === 'normal'
         ? `${block.marker} ${customer} asks whether the ${pick(rng, SHOP.bikes)} is free on day ${between(rng, 1, 28)}.`
-        : `${block.marker} Write ${block.file?.path} from the rental data.`;
+        : `${block.marker} From data/rentals.csv, take data row ${index + 1} and write ${block.file?.path}: ${shapeOf(block.file as FileAction, block.value)}.`;
     const expect =
       kind === 'normal'
         ? { must: [block.code], tools: [{ label: 'bikes.lookup', count: 1 }] }
@@ -250,7 +292,7 @@ export function recipe(
   const raw: RawSpec = {
     id: `spec-${token(seed, `${tag}#spec`)}`,
     ...(kind === 'code'
-      ? { kind: 'task', workspace_seed: { files: { 'data/rentals.csv': 'bike,days\nFern 3,4\n' } } }
+      ? { kind: 'task', workspace_seed: { files: { 'data/rentals.csv': rentals(blocks) } } }
       : { channel: 'chat', lang: 'EN' }),
     blocks: rawBlocks,
   };
