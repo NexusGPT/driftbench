@@ -12,6 +12,7 @@ tags:
   - test:obligation
   - mode:live
   - kind:instruction
+  - kind:skill
   - ask:code
 target:
   adapter: claude-code
@@ -24,14 +25,18 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please write in the supplier's language from the memory table.
+      user: Please write to a supplier, answer one, or chase a late delivery or a missing credit note.
     expect:
+      skills:
+        - name: supplier-email
+          count:
+            min: 1
       references:
         - path: "**/supplier-languages.md"
           count:
             min: 1
       workspace:
-        deleted: []
+        others_untouched: true
 perturbations:
   - id: deviation-D1_off_topic
     class: D1_off_topic
@@ -43,6 +48,7 @@ metadata:
   estate:
     atoms:
       - instruction.supplier-email.write-in-the-supplier-s-language
+      - skill.supplier-email.skill-supplier-email
     planRow: pairwise.0783
     cell:
       ask_class: change_estate
@@ -62,5 +68,5 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: instruction.supplier-email.write-in-the-supplier-s-language (title)
-    outcome: no-delete
+    askFrom: skill.supplier-email.skill-supplier-email (asks it names)
+    outcome: no-change:read-only

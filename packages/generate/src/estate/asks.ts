@@ -100,7 +100,10 @@ export function askable(act: string): string | undefined {
   const last = (tokens[tokens.length - 1] ?? '').toLowerCase().replace(/[,;:]+$/, '');
   if (DANGLING.has(last) || /^(?:e\.g|i\.e)\.?$/.test(last))
     return `the act is cut mid-sentence after "${last}": "${act}"`;
-  const words = tokens.filter((token) => /\p{L}{2,}/u.test(token)).length;
+  // A hyphenated compound is two words ("force-push a branch" names a verb and its object).
+  const words = tokens
+    .flatMap((token) => token.split('-'))
+    .filter((token) => /\p{L}{2,}/u.test(token)).length;
   if (words < 3)
     return `the act has ${words} words of letters, fewer than a verb and its object need: "${act}"`;
   return undefined;
@@ -109,6 +112,8 @@ export function askable(act: string): string | undefined {
 /** What a code-written ask may know about its row beyond the atoms: the test type and the estate's routes. */
 export type AskContext = {
   testType?: string;
+  /** Every atom of the estate, to find the unit or the route a rule belongs to. */
+  estate?: readonly EstateAtom[];
   /** The route atoms that name a unit, for a unit whose description gives no task. */
   routesOf?: (unitId: string) => readonly EstateAtom[];
 };
@@ -136,7 +141,7 @@ export function codeAsk(
   if (use === 'outside' && context.testType === 'guard_negative' && atoms[0]?.kind === 'guard') {
     return guardNearMiss(atoms[0], lookup ?? (() => undefined));
   }
-  const found = actOf(atoms, lookup, context.routesOf);
+  const found = actOf(atoms, lookup, context.routesOf, context.estate);
   // A separator ends the task: "review the registry · weekly" asks to review the registry.
   const clause = clauseOf(found.act);
   const source = found.source;
@@ -234,6 +239,7 @@ export function actOf(
   atoms: readonly EstateAtom[],
   lookup: (id: string) => EstateAtom | undefined = () => undefined,
   routesOf: (unitId: string) => readonly EstateAtom[] = () => [],
+  estate: readonly EstateAtom[] = [],
 ): { act: string; context?: string; source: string; describes?: boolean } {
   const head = atoms[0];
   if (head?.kind === 'guard' && typeof head.fields?.ruleText === 'string') {
@@ -335,6 +341,24 @@ export function actOf(
   const forbidden = /^(?:never|do not|don't|no one may|you must not)\s+(.+)$/i.exec(task)?.[1];
   if (forbidden && verbLed(forbidden))
     return { act: lower(firstClause(forbidden)), source: `${head?.id ?? 'row'} (title)` };
+  // The title of a rule is the rule: asking for it word for word tests whether the agent repeats the rule,
+  // never whether it follows it while working. A rule is set off by the work it applies to, so its ask is the
+  // work: what the trigger of a gate names, else what the unit that carries the rule is for, else the work
+  // of the route whose words the rule shares, since a standing rule holds over any work.
+  if (head && RULE_KINDS.has(head.kind)) {
+    const trigger = typeof head.fields?.trigger === 'string' ? clauseOf(plain(head.fields.trigger)) : '';
+    if (head.kind === 'gate' && verbLed(trigger))
+      return { act: taskOf(trigger), source: `${head.id} (gate trigger)` };
+    const owner = owningUnit(estate, head);
+    const description = typeof owner?.fields?.description === 'string' ? owner.fields.description : undefined;
+    for (const text of [owner?.situation, description]) {
+      const asked = text === undefined ? undefined : askedTo(text);
+      if (asked) return withContext(asked, `${owner?.id} (asks it names)`);
+    }
+    const route = routeFor(estate, `${head.title} ${head.situation ?? ''} ${trigger}`);
+    if (route) return withContext(route.act, `${route.id} (route nearest the rule)`);
+    return { act: '', source: `${head.id} (title)`, describes: true };
+  }
   if (verbLed(task)) return { act: taskOf(task), source: `${head?.id ?? 'row'} (title)` };
   return {
     act: '',
@@ -357,6 +381,61 @@ function governedAction(text: string): string | undefined {
     const found = pattern.exec(clean)?.[1];
     const task = found ? actionTask(found, true) : undefined;
     if (task) return task;
+  }
+  return undefined;
+}
+
+/** The kinds whose title is a rule the agent follows, never a task a user asks for. */
+const RULE_KINDS: ReadonlySet<string> = new Set(['instruction', 'gate', 'register']);
+
+/** Words that say little about what a text is for. */
+const COMMON = new Set(
+  'the and for with that this from into your you are can when where which who how not any each every after before only once then than also its it his her their our they them there here have has had will would could should shall may might must does did being been was were is a an of in on at to by or as if be do so up out all'.split(
+    ' ',
+  ),
+);
+
+const stemOf = (word: string): string => (word.length > 4 ? word.replace(/(?:ing|ed|es|s)$/, '') : word);
+
+function significant(text: string): Set<string> {
+  return new Set(
+    (text.toLowerCase().match(/[a-z]{3,}/g) ?? []).filter((word) => !COMMON.has(word)).map(stemOf),
+  );
+}
+
+/**
+ * The work of the route that shares most words with a rule. A route that shares none with the rule says nothing
+ * about it: no route stands in, and the rule stays without an ask rather than borrow the work of an unrelated one.
+ */
+function routeFor(estate: readonly EstateAtom[], ruleText: string): { act: string; id: string } | undefined {
+  const own = significant(ruleText);
+  let best: { act: string; id: string } | undefined;
+  let score = 0;
+  for (const route of estate) {
+    if (route.kind !== 'route' || !route.situation) continue;
+    const task = taskOf(firstSentence(route.situation));
+    if (!verbLed(task) || askable(task) !== undefined) continue;
+    const shared = [...significant(route.situation)].filter((word) => own.has(word)).length;
+    if (shared > score) {
+      best = { act: task, id: route.id };
+      score = shared;
+    }
+  }
+  return best;
+}
+
+/**
+ * The skill or helper a rule is read from: a helper file holds its own rules, a skill folder holds the rules of
+ * its files. Undefined for a rule of the standing instructions or of a settings file.
+ */
+export function owningUnit(atoms: Iterable<EstateAtom>, rule: EstateAtom): EstateAtom | undefined {
+  const file = rule.provenance?.file;
+  if (file === undefined) return undefined;
+  for (const unit of atoms) {
+    const home = unit.provenance?.file;
+    if ((unit.kind !== 'skill' && unit.kind !== 'subagent') || home === undefined) continue;
+    const folder = unit.kind === 'skill' ? home.slice(0, Math.max(0, home.lastIndexOf('/') + 1)) : undefined;
+    if (home === file || (folder !== undefined && folder !== '' && file.startsWith(folder))) return unit;
   }
   return undefined;
 }
@@ -827,14 +906,14 @@ export function taskOf(text: string, described = false): string {
 /** Verbs a task description starts with, in their imperative form. */
 const VERBS: ReadonlySet<string> = new Set(
   (
-    'add analyse analyze answer apply approve archive ask assess attach audit build bump calculate call change chase check ' +
+    'add analyse analyze answer apply approve archive ask assess attach audit book build bump calculate call cancel change chase check ' +
     'connect flag integrate request resolve wire ' +
     'close commit confirm give invent keep make mark note notify paste pull push quote recover reply restate retry return tell use ' +
     'clean collect compare compile compose configure connect convert copy count create debug deploy discover operate decide define ' +
     'delete deploy design diagnose dispatch document draft edit estimate evaluate execute explain export ' +
     'extract fetch file fill find fix format generate handle help import inspect install integrate list load log manage ' +
     'map match measure merge migrate monitor move open operate optimise optimize order organise organize ' +
-    'pick plan post prepare process publish read rebuild reconcile record refactor register reject release ' +
+    'pay pick plan post prepare process publish read rebuild reconcile record refactor refund register reject release reschedule ' +
     'remove rename render repair replace replay report research resolve restore retrieve review rewrite run ' +
     'save scan schedule score search send set ship show sort split start stop stream summarise summarize ' +
     'sync tag test trace track train transcribe translate triage update upload validate verify view watch write'

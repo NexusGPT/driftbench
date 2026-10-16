@@ -2,6 +2,7 @@ import {
   type Assertion,
   type CheckContext,
   type Count,
+  GUARD_INTERVENTIONS,
   globMatches,
   machineVerdict,
   sentStimulus,
@@ -599,18 +600,22 @@ function messageOf(run: GuardRun): string | undefined {
   return stderr !== '' ? stderr : stdout;
 }
 
-/** A verdict of a run that let the act through, or that did not answer: the guard told the agent nothing. */
-const SILENT = /^(allow|approve|ok|pass|error|timeout|timed_out|cancelled|canceled|no_response)$/i;
+/**
+ * The verdicts by which a guard acts on a run (`GUARD_INTERVENTIONS`): it stops the act or tells the agent
+ * something and lets the act through. A verdict outside the list (allow, a timeout, a verdict the estate names
+ * itself) is no intervention, so the guard told the agent nothing this check could judge.
+ */
+const INTERVENTIONS: ReadonlySet<string> = new Set(GUARD_INTERVENTIONS);
 
 /**
- * `{ name, mustNot?, block? }`. Every run of the guard that acted (blocked, or answered with its own verdict
- * such as warn or nudge) gives a message, and each message keeps the output rules: no pattern of `mustNot`
+ * `{ name, mustNot?, block? }`. Every run of the guard that acted (blocked, or answered with a warn or a nudge)
+ * gives a message, and each message keeps the output rules: no pattern of `mustNot`
  * matches it. Inconclusive when the guard did not act in the block, or the runtime reports no output for it.
  */
 export const guardMessage: CustomCheckFunction = (ctx, options) => {
   if (!isRecord(options) || typeof options.name !== 'string') throw new Error('guard_message needs { name }');
   if (typeof options.block === 'number' && options.block !== ctx.blockIndex) return [];
-  const blocked = runsOf(ctx, options.name).filter((run) => !SILENT.test(run.verdict));
+  const blocked = runsOf(ctx, options.name).filter((run) => INTERVENTIONS.has(run.verdict));
   if (blocked.length === 0) {
     return [
       machineVerdict('guard_message', 'present', 'inconclusive', `${options.name} did not act in this block`),

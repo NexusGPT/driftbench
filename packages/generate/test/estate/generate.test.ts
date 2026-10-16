@@ -1,5 +1,5 @@
-import { createHash } from 'node:crypto';
-import { readFile } from 'node:fs/promises';
+import { readdir, readFile } from 'node:fs/promises';
+import { join, relative } from 'node:path';
 import { parseSpecText, type Spec } from '@agent-nexus/driftbench-core';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { estateOwners, taskAtoms } from '../../src/estate/context';
@@ -12,7 +12,14 @@ import {
   SITUATION_OF,
 } from '../../src/estate/generate';
 import { MARKERS } from '../../src/estate/then';
-import { APPROVED_PLAN, fixtureInputs, HAND_PATHS, PLANNER_PATHS, PLANNER_PLAN } from './support';
+import {
+  APPROVED_PLAN,
+  FIXTURE_GENERATED,
+  fixtureInputs,
+  HAND_PATHS,
+  PLANNER_PATHS,
+  PLANNER_PLAN,
+} from './support';
 
 function specs(result: EstateGenerateResult): Map<string, Spec> {
   const out = new Map<string, Spec>();
@@ -483,14 +490,16 @@ describe('the committed suite', () => {
 
   it("matches the complete byte snapshot for the planner's plan, seed 1", async () => {
     const result = generateEstateSuite(await fixtureInputs(APPROVED_PLAN), { paths: PLANNER_PATHS });
-    const snapshot = JSON.parse(
-      await readFile(new URL('./fixtures/current-suite.sha256.json', import.meta.url), 'utf8'),
-    );
-    const bytes = JSON.stringify(
-      [...result.files].sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0)),
-    );
-    expect(createHash('sha256').update(bytes).digest('hex')).toBe(snapshot.sha256);
-    expect(result.report.summary).toEqual(snapshot.summary);
+    const committed = await tree(FIXTURE_GENERATED);
+    expect(Object.keys(committed).sort()).toEqual(result.files.map((file) => file.path).sort());
+    for (const file of result.files) expect(committed[file.path], file.path).toBe(file.text);
+    expect(result.report.summary).toEqual({
+      specs: 1562,
+      blocks: 1557,
+      complete: 1538,
+      incomplete: 24,
+      judged: 464,
+    });
     expect(result.report.invalid).toEqual([]);
     expect(result.report.lint).toEqual([]);
   }, 120_000);
@@ -627,3 +636,16 @@ describe('focus atoms get at least five complete specs, each with its own ask or
     expect(result.specs.some((record) => /\.v\d+$/.test(record.id))).toBe(false);
   }, 120_000);
 });
+
+async function tree(dir: string): Promise<Record<string, string>> {
+  const out: Record<string, string> = {};
+  const walk = async (at: string) => {
+    for (const entry of await readdir(at, { withFileTypes: true })) {
+      const full = join(at, entry.name);
+      if (entry.isDirectory()) await walk(full);
+      else out[relative(dir, full).split('\\').join('/')] = await readFile(full, 'utf8');
+    }
+  };
+  await walk(dir);
+  return out;
+}

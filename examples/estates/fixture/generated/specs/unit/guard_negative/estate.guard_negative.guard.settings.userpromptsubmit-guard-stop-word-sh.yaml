@@ -23,7 +23,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: What kinds of things can you help me with? One sentence, and please change nothing.
+      user: Without changing anything, tell me in one sentence what it would mean to add a reminder when the owner types stop.
     expect:
       guards:
         - name: stop-word.sh
@@ -48,7 +48,7 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: neutral
+    askFrom: guard.settings.userpromptsubmit-guard-stop-word-sh (ruleText)
     outcome: no-change:negative
     unit:
       target:

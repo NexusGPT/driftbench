@@ -12,6 +12,7 @@ tags:
   - test:obligation
   - mode:live
   - kind:instruction
+  - kind:skill
   - ask:code
 target:
   adapter: claude-code
@@ -25,8 +26,12 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please ask for the tracking number when none is given.
+      user: Please help me with a delivery, a tracking number or a late shipment. The user gives no tracking number.
     expect:
+      skills:
+        - name: shipment-tracker
+          count:
+            min: 1
       must:
         - tracking number
         - \?
@@ -43,6 +48,7 @@ metadata:
   estate:
     atoms:
       - instruction.shipment-tracker.ask-for-the-tracking-number-when
+      - skill.shipment-tracker.skill-shipment-tracker
     planRow: pairwise.1034
     cell:
       ask_class: change_estate
@@ -62,5 +68,5 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: instruction.shipment-tracker.ask-for-the-tracking-number-when (title)
+    askFrom: skill.shipment-tracker.skill-shipment-tracker (asks it names)
     outcome: no-delete

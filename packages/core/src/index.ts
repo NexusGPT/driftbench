@@ -311,6 +311,7 @@ export {
   Given,
   GivenDefaults,
   GivenOverride,
+  GUARD_INTERVENTIONS,
   GuardExpect,
   JsonExpect,
   LengthBound,

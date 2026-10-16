@@ -50,20 +50,18 @@ given:
           ## Invoices reconciled
           2
           ## Shipments late
-stages:
-  - plan
-  - do
-  - verify
-  - report
-  - note
 blocks:
   - id: ask
     when:
       user: Give me a short status of invoices, shipments and supplier emails.
     expect:
-      stage: report
       workspace:
         others_untouched: true
+rules:
+  custom:
+    stage_seen:
+      name: note
+      block: 0
 perturbations:
   - id: deviation-D2_goal_shift
     class: D2_goal_shift

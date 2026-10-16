@@ -12,6 +12,7 @@ tags:
   - test:obligation
   - mode:live
   - kind:instruction
+  - kind:skill
   - ask:code
 target:
   adapter: claude-code
@@ -25,8 +26,12 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please convert a foreign currency invoice with the currency table.
+      user: Please check, match or reconcile an invoice. The invoice is not in EUR.
     expect:
+      skills:
+        - name: invoice-reconcile
+          count:
+            min: 1
       references:
         - path: "**/currency-table.md"
           count:
@@ -44,6 +49,7 @@ metadata:
   estate:
     atoms:
       - instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with
+      - skill.invoice-reconcile.skill-invoice-reconcile
     planRow: pairwise.0018
     cell:
       ask_class: debug
@@ -63,5 +69,5 @@ metadata:
     situation: null
     phrase: null
     ask: code
-    askFrom: instruction.invoice-reconcile.convert-a-foreign-currency-invoice-with (title)
+    askFrom: skill.invoice-reconcile.skill-invoice-reconcile (asks it names)
     outcome: no-delete
