@@ -35,7 +35,6 @@ describe('a read target must be a reference', () => {
   const vague = [
     'it',
     'them',
-    'this',
     'this carefully',
     'that',
     'everything',
@@ -50,9 +49,7 @@ describe('a read target must be a reference', () => {
     'the files',
     'the docs',
     'the code',
-    'the relevant files',
     'what the user asked',
-    'the surrounding context',
     'the error',
     'up',
     'up on the policy',
@@ -94,6 +91,176 @@ describe('a read target must be a reference', () => {
       'Read `policy.md` before you run a migration.',
     ];
     expect(await gates(wanted)).toEqual(wanted);
+  });
+});
+
+describe('a target that names no file is kept with what it is', () => {
+  async function atoms(lines: string[], files: Record<string, string> = {}) {
+    const root = await estate({
+      'CLAUDE.md': `${lines.join('\n')}\n\nDocuments: \`pricing.md\`.\n`,
+      'pricing.md': '# Pricing\n',
+      'policy.md': '# Policy\n',
+      ...files,
+    });
+    try {
+      const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+      return map.atoms.filter((atom) => atom.kind === 'gate');
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  }
+
+  it.each([
+    ['Before any release, read `regions/<slug>/RULES.md` FULLY.', 'placeholder'],
+    ['Before any release, read `regions/{slug}/RULES.md`.', 'placeholder'],
+    ['Before any release, read regions/<slug>/RULES.md.', 'placeholder'],
+    ['Before editing the index, read the region\u2019s checklist.', 'role'],
+    ["Before editing the index, read the region's checklist (paths: see the top of this file).", 'role'],
+    ["Before editing the index, read the ledger's current state.", 'state'],
+    ['Before editing the index, read Plan C.', 'section'],
+    ['Before editing the index, read Phase 3 of the plan.', 'section'],
+    ['Before planning any edit, read the step of the pricing guide.', 'role'],
+  ])('keeps the gate for %s as %s', async (line, kind) => {
+    const found = await atoms([line]);
+    expect(found).toHaveLength(1);
+    expect(found[0]?.fields?.unresolved).toBe(kind);
+    expect(found[0]?.fields?.path).toBeUndefined();
+    // No file is invented for a name that matches no document.
+    expect(String(found[0]?.fields?.first)).not.toBe('pricing.md');
+    expect(found[0]?.evidence).toEqual([{ type: 'ordered', before: 'Read', after: expect.any(String) }]);
+  });
+
+  it.each([
+    'Read this before any version publish.',
+    'Before any version publish, read this.',
+    'Before any version publish: read this file.',
+    'Before any version publish, read this document.',
+  ])('reads "this" as the document the rule stands in: %s', async (line) => {
+    const found = await atoms([line]);
+    expect(found).toHaveLength(1);
+    expect(found[0]?.fields).toMatchObject({ self: true, path: 'CLAUDE.md' });
+    expect(found[0]?.evidence).toContainEqual({
+      type: 'tool_called',
+      label: 'Read',
+      input: { file_path: { contains: 'CLAUDE.md' } },
+    });
+  });
+
+  it('never gives a long phrase the file name of one word in it', async () => {
+    const found = await atoms(['Read the step of the pricing guide before planning any prompt edit.']);
+    for (const gate of found) expect(gate.fields?.first).not.toBe('pricing.md');
+  });
+});
+
+describe('a gate keeps its shape under decoration and phrase targets', () => {
+  async function found(lines: string[], files: Record<string, string> = {}) {
+    // The estate reads the documents its files name.
+    const root = await estate({
+      'CLAUDE.md': `${lines.join('\n')}\n\nDocuments: \`policy.md\`, \`pricing.md\`, \`notes/summary.md\`.\n`,
+      'policy.md': '# Policy\n',
+      'pricing.md': '# Pricing\n',
+      'references/pricing-rules.md': '# Rules\n',
+      'notes/summary.md': '# Summary\n',
+      ...files,
+    });
+    try {
+      const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+      return map.atoms.filter((atom) => atom.kind === 'gate');
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  }
+
+  it.each([
+    'Read `references/pricing-rules.md` before committing ANY base.',
+    'R#12 \u2014 Read `references/pricing-rules.md` before committing ANY base.',
+    '**R12 \u2014 Read `references/pricing-rules.md`** before committing ANY base.',
+    'Read `references/pricing-rules.md` (procedural) before committing ANY base.',
+    '> Read `references/pricing-rules.md` before committing ANY base.',
+    '| Gate | Read `references/pricing-rules.md` before committing ANY base |',
+    '## Read `references/pricing-rules.md` before committing ANY base',
+    'Read `references/pricing-rules.md` in full before committing ANY base.',
+    'Read the `references/pricing-rules.md` file before committing ANY base.',
+    'Rule 3: Read `references/pricing-rules.md` before committing ANY base.',
+    'Read `references/pricing-rules.md` BEFORE committing ANY base (see the rules table).',
+  ])('reads the path in: %s', async (line) => {
+    const gates = await found([line]);
+    expect(gates).toHaveLength(1);
+    expect(gates[0]?.fields).toMatchObject({ first: 'references/pricing-rules.md' });
+  });
+
+  it.each([
+    'R#12 \u2014 Read this before ANY version publish.',
+    '> Read this before ANY version publish.',
+    'Read this (the whole file) before ANY version publish.',
+  ])('reads "this" as the document in: %s', async (line) => {
+    const gates = await found([line]);
+    expect(gates).toHaveLength(1);
+    expect(gates[0]?.fields).toMatchObject({ self: true, path: 'CLAUDE.md' });
+  });
+
+  it.each([
+    ['Read Plan C before publishing.', 'section'],
+    ['Read the Plan C section before publishing.', 'section'],
+    ["Read the ledger's current state before every dispatch.", 'state'],
+    ['Read the current ledger state before every dispatch.', 'state'],
+    ["Read the region's checklist first, then publish.", 'role'],
+    ["Read the region's checklist first when publishing.", 'role'],
+    ["First, read the region's checklist, then publish.", 'role'],
+    ["Read the region's checklist prior to publishing.", 'role'],
+    ['Read the pricing guide before editing the index.', 'role'],
+  ])('keeps a phrase target in: %s', async (line, kind) => {
+    const gates = await found([line]);
+    expect(gates).toHaveLength(1);
+    expect(gates[0]?.fields?.unresolved).toBe(kind);
+  });
+
+  it.each([
+    ['Read the policy before editing the index.', 'policy.md'],
+    ['Read the policy first, then edit the index.', 'policy.md'],
+    ['Read the policy document before editing the index.', 'policy.md'],
+  ])('resolves a named document in: %s', async (line, file) => {
+    const gates = await found([line]);
+    expect(gates).toHaveLength(1);
+    expect(gates[0]?.fields).toMatchObject({ first: file, path: file });
+  });
+
+  it.each([
+    'Read the file and edit it before publishing.',
+    'Read it before editing the index.',
+    'Read them before editing the index.',
+    'Read it, then edit the index.',
+  ])('gives no gate for a pronoun without a document: %s', async (line) => {
+    expect(await found([line])).toEqual([]);
+  });
+
+  it('resolves "it" to the one document the sentence before names', async () => {
+    const gates = await found(['See `notes/summary.md`.', 'Read it before editing the index.']);
+    expect(gates).toHaveLength(1);
+    expect(gates[0]?.fields).toMatchObject({ first: 'notes/summary.md', path: 'notes/summary.md' });
+    const two = await found(['See `notes/summary.md` and `policy.md`.', 'Read it before editing the index.']);
+    expect(two).toEqual([]);
+  });
+
+  it('resolves a bare SKILL.md to the skill the rule stands in', async () => {
+    const skill = (name: string, body: string) => ({
+      [`.claude/skills/${name}/SKILL.md`]: `---\nname: ${name}\ndescription: ${name}\n---\n${body}\n`,
+    });
+    const root = await estate({
+      ...skill('alpha', 'Read SKILL.md before any edit.'),
+      ...skill('beta', 'Beta.'),
+      '.claude/skills/alpha/references/guide.md': 'Read SKILL.md before reviewing the index.\n',
+    });
+    try {
+      const { map } = await scanEstate({ root, reader: new ClaudeCodeReader(), now: NOW });
+      const paths = map.atoms
+        .filter((atom) => atom.kind === 'gate')
+        .map((atom) => String(atom.fields?.path))
+        .sort();
+      expect(paths).toEqual(['.claude/skills/alpha/SKILL.md', '.claude/skills/alpha/SKILL.md']);
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
   });
 });
 

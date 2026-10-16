@@ -4,6 +4,7 @@ import type { Atom, AtomKind, EvidencePredicate } from '../schema';
 import {
   CLOSE_TOKEN,
   collapseReads,
+  contentWords,
   continuation,
   dated,
   descriptive,
@@ -11,13 +12,17 @@ import {
   exampleOrHistory,
   isEvent,
   isUrl,
+  lineParts,
   OPEN_TOKEN,
   optionalQualifier,
+  plainClause,
+  selfReference,
   splitAddition,
   TOKEN,
   tagsOf,
   timeOffset,
   topicPhrase,
+  unresolvedKind,
   withoutEmphasis,
 } from './gate-grammar';
 import { guardRuleSources } from './guard-rules';
@@ -905,6 +910,8 @@ export function locateNamed(
     aliases?: Readonly<Record<string, readonly string[]>>;
     byName?: ReadonlyMap<string, readonly string[]>;
     externals?: readonly string[];
+    /** The skill folder the naming file stands in: a bare name is looked for there before anywhere else. */
+    within?: string;
   } = {},
 ): NamedTarget {
   const skipped = options.skipped ?? new Set<string>();
@@ -920,6 +927,11 @@ export function locateNamed(
       const hits = (byName.get(clean) ?? []).filter((candidate) => candidate.startsWith(`${folder}/`));
       if (hits.length === 1) return { path: hits[0] as string, via: 'suffix' };
       if (hits.length > 1) return { path: local, via: 'none', candidates: [...hits].sort() };
+    }
+    // `Read SKILL.md` in a skill's own files means that skill's file, not another skill's.
+    if (options.within) {
+      const inSkill = posix.join(options.within, clean);
+      if (known(inSkill)) return { path: inSkill, via: 'place' };
     }
   }
   const placed = resolveNamed(path, from, files, options.bases ?? [], skipped);
@@ -1471,6 +1483,8 @@ function routeAtoms(
  */
 /** What is read: one masked span, else the words up to the next form word. */
 const TARGET = String.raw`(${TOKEN}|\S+)`;
+/** What is read when it may be several words ("the policy", "Plan C"): a masked span, else the words up to the next form word. */
+const READ_PHRASE = String.raw`(${TOKEN}|.+?)`;
 const NEGATIVE = String.raw`(?:do\s+not|don't|never|must\s+not|mustn't|should\s+not|shouldn't|cannot|can't|may\s+not)`;
 /** `prose`: the form ends on what is read, so a step in words ("the output of the build") may be read. */
 const GATE_FORMS: Array<{
@@ -1506,20 +1520,22 @@ const GATE_FORMS: Array<{
   {
     form: 'context-read-first',
     pattern: new RegExp(
-      String.raw`^(?:to|for|when|whenever|if|(?:each|every|any)\s+time|the\s+(?:first|next)\s+time)\s+(.+?)\s*[:,]\s*(.*?)\bread\s+${TARGET}\s+first$`,
+      String.raw`^(?:to|for|when|whenever|if|(?:each|every|any)\s+time|the\s+(?:first|next)\s+time)\s+(.+?)\s*[:,]\s*(.*?)\bread\s+${READ_PHRASE}\s+first$`,
       'i',
     ),
     head: [2],
     read: 3,
     act: 1,
     positiveAct: true,
+    prose: true,
   },
   {
     form: 'read-first-context',
-    pattern: new RegExp(String.raw`^(.*?)\bread\s+${TARGET}\s+first\s+(?:when|for)\s+(.+)$`, 'i'),
+    pattern: new RegExp(String.raw`^(.*?)\bread\s+${READ_PHRASE}\s+first\s+(?:when|for)\s+(.+)$`, 'i'),
     head: [1],
     read: 2,
     act: 3,
+    prose: true,
   },
   {
     form: 'not-until-loaded',
@@ -1599,30 +1615,33 @@ const GATE_FORMS: Array<{
   },
   {
     form: 'read-first-then',
-    pattern: new RegExp(String.raw`^(.*?)\bread\s+${TARGET}\s+first,?\s+(?:and\s+)?then\s+(.+)$`, 'i'),
+    pattern: new RegExp(String.raw`^(.*?)\bread\s+${READ_PHRASE}\s+first,?\s+(?:and\s+)?then\s+(.+)$`, 'i'),
     head: [1],
     read: 2,
     act: 3,
+    prose: true,
   },
   {
     form: 'first-read-then',
     pattern: new RegExp(
-      String.raw`^first,?\s+(?:please\s+)?read\s+${TARGET},?\s+(?:and\s+)?then\s+(.+)$`,
+      String.raw`^first,?\s+(?:please\s+)?read\s+${READ_PHRASE},?\s+(?:and\s+)?then\s+(.+)$`,
       'i',
     ),
     head: [],
     read: 1,
     act: 2,
+    prose: true,
   },
   {
     form: 'read-before',
     pattern: new RegExp(
-      String.raw`^(.*?)\bread\s+${TARGET}(?:\s+first)?,?\s+(?:before|prior\s+to)\s+(.+)$`,
+      String.raw`^(.*?)\bread\s+${READ_PHRASE}(?:\s+first)?,?\s+(?:before|prior\s+to)\s+(.+)$`,
       'i',
     ),
     head: [1],
     read: 2,
     act: 3,
+    prose: true,
   },
   {
     form: 'not-until-read',
@@ -1657,10 +1676,11 @@ const GATE_FORMS: Array<{
   },
   {
     form: 'question-read-first',
-    pattern: new RegExp(String.raw`^(.+?)\?\s*(.*?)\bread\s+${TARGET}\s+first\b`, 'i'),
+    pattern: new RegExp(String.raw`^(.+?)\?\s*(.*?)\bread\s+${READ_PHRASE}\s+first\b`, 'i'),
     head: [2],
     read: 3,
     act: 1,
+    prose: true,
   },
 ];
 
@@ -1753,6 +1773,8 @@ function gateTarget(raw: string, spans: readonly string[], prose: boolean): { te
   const word = /^\S+/.exec(text)?.[0] ?? '';
   if (/[/\\]|\.[A-Za-z0-9]+[.,:;!?)]*$/.test(word))
     return { text: word.replace(/[.,:;!?)]+$/, ''), free: false };
+  if (/^(?:this|it|them|they|that|these|those)[.,:;!?)]*$/i.test(text))
+    return { text: text.replace(/[.,:;!?)]+$/, '').toLowerCase(), free: true };
   // Words of the clause: a reference only if they name a file or a skill of the estate.
   return prose
     ? { text: unmask(text, spans).replace(/[.,:;!?]+$/, ''), free: true }
@@ -1800,33 +1822,21 @@ function namedReference(
     }
     STEMS.set(files, stems);
   }
-  const function_ = new Set([
-    'Determiner',
-    'Pronoun',
-    'Preposition',
-    'Conjunction',
-    'Connector',
-    'Adverb',
-    'Modal',
-    'Copula',
-    'Expression',
-  ]);
-  const words = phrase
-    .toLowerCase()
-    .split(/[^\p{L}\p{N}_-]+/u)
-    .filter((word) => word.length >= 3 && ![...tagsOf(word)].some((tag) => function_.has(tag)));
-  const names = words.flatMap((word, index) => {
-    const next = words[index + 1];
-    return [
-      ...(next ? [`${word} ${next}`, `${word}-${next}`, `${word}_${next}`, `${word}${next}`] : []),
-      word,
-    ];
-  });
-  for (const name of names) {
-    const skill = raw.skills.find((candidate) => candidate.name.toLowerCase() === name);
-    if (skill) return { name: skill.name, skill: skill.name };
-    const documents = stems.get(name);
-    if (documents?.length === 1) return { name: basename(documents[0] ?? '') };
+  // The words that remain once pronouns, determiners and prepositions are set aside must be the whole name
+  // ("the policy"), or the name and a word that only says what kind of thing it is ("the policy document",
+  // "the editor skill"). One word out of a longer phrase never names a file: "the stage of the agent
+  // standard" is not `agent.md`.
+  const words = contentWords(phrase).map((word) => word.toLowerCase());
+  const KIND = new Set(['document', 'doc', 'file', 'page', 'skill', 'note']);
+  const wholes = [words, ...(KIND.has(words.at(-1) ?? '') ? [words.slice(0, -1)] : [])];
+  for (const whole of wholes) {
+    if (whole.length === 0) continue;
+    for (const name of [whole.join(' '), whole.join('-'), whole.join('_'), whole.join('')]) {
+      const skill = raw.skills.find((candidate) => candidate.name.toLowerCase() === name);
+      if (skill) return { name: skill.name, skill: skill.name };
+      const documents = stems.get(name);
+      if (documents?.length === 1) return { name: basename(documents[0] ?? '') };
+    }
   }
   return undefined;
 }
@@ -1840,14 +1850,24 @@ function gateAtoms(
   const source = files.get(chunk.file);
   const headings = gateHeadings(source);
   let headingIndex = -1;
+  const within = raw.skills.find(
+    (skill) => chunk.file === skill.file || chunk.file.startsWith(`${skill.folder}/`),
+  )?.folder;
+  let recentRefs: string[] = [];
   for (const line of chunkLines(chunk, files.get(chunk.file))) {
     const { text, spans } = maskLine(line.text);
+    // The documents this line and the one before it name: what "it" can stand for.
+    const earlierRefs = recentRefs;
+    const lineRefs = [...new Set(namedPaths(line.text))];
+    recentRefs = lineRefs;
     while (headings[headingIndex + 1] && (headings[headingIndex + 1]?.line ?? 0) < line.line) headingIndex++;
     // A line that says the read is optional gives no gate.
     if (optionalQualifier(text)) continue;
     // The last gate of this line: a clause that only adds things to read ("and with it `b.md`") joins it.
     let previous: ((read: string) => boolean) | undefined;
-    for (const decorated of gateClauses(text).flatMap(splitAddition)) {
+    for (const decorated of lineParts(text)
+      .flatMap((piece) => gateClauses(piece))
+      .flatMap(splitAddition)) {
       // Attention punctuation is decoration; neither its presence nor its absence establishes order.
       const original = decorated.replace(/^[!‼]+\s*|\s*[!‼]+$/g, '');
       const heading = headings[headingIndex];
@@ -1855,7 +1875,7 @@ function gateAtoms(
         heading && READ_FIRST_ONLY.test(original) && !original.includes('?') && isAct(heading.text);
       const stressed = contextual ? `${original}, then ${heading.text}` : original;
       // Emphasis adverbs ("FULLY") are taken out and a list of reads is cut to its first item.
-      const { clause, extra } = collapseReads(withoutEmphasis(stressed));
+      const { clause, extra } = collapseReads(withoutEmphasis(plainClause(stressed)));
       let added: ((read: string) => boolean) | undefined;
       for (const { form, pattern, head, read, act, prose, positiveAct, loaded } of GATE_FORMS) {
         const match = pattern.exec(clause);
@@ -1886,53 +1906,99 @@ function gateAtoms(
         const after = actLabel(act_ ? action : (eventHead(action) ?? action), raw);
         // What a piece of text to read stands for: a file (located), a declared skill, or a shell step.
         const resolveRead = (readText: string, structure: boolean) => {
-          const { text: target, free } = gateTarget(readText, spans, structure);
-          // A web address, a topic ("read up on X") and a pronoun or vague word are no reference.
+          let { text: target, free } = gateTarget(readText, spans, structure);
+          // "it", "them", "that": only a document named in this or the previous sentence, and only if it is one.
+          if (free && /^(?:it|them|they|that|these|those)$/.test(target)) {
+            const referents = [...new Set([...earlierRefs, ...lineRefs])];
+            if (referents.length !== 1) return undefined;
+            target = referents[0] ?? '';
+            free = false;
+          }
+          // A web address and a topic ("read up on X") are no reference.
           if (isUrl(target) || (free && topicPhrase(target))) return undefined;
           const named = namedPaths(`Read ${target}`)[0];
           let first = named ?? target.replace(/[`*"'\u201C\u201D]/g, '').trim();
           let declared: string | undefined;
           let fromName = false;
+          let self = false;
+          let unresolved: string | undefined;
           if (free && named === undefined) {
-            const found = namedReference(target, files, raw);
-            if (!found) return undefined;
-            first = found.name;
-            declared = found.skill;
-            fromName = true;
+            const found = selfReference(target) ? undefined : namedReference(target, files, raw);
+            if (selfReference(target)) {
+              // "Read this": the document the rule stands in.
+              self = true;
+              first = basename(chunk.file);
+            } else if (found) {
+              first = found.name;
+              declared = found.skill;
+              fromName = true;
+            } else {
+              // A section, a state or a part named by role: kept, with what it is, never given a file name.
+              const kind = loaded ? undefined : unresolvedKind(target);
+              if (!kind) return undefined;
+              unresolved = kind;
+              // The name ends at a parenthesis, a comma, a dash or a semicolon.
+              first = (target.split(/\s*\(|\s[\u2014\u2013]\s|[,;]/)[0] ?? target).trim();
+            }
+          } else if (!free && /<[^<>\s][^<>]*>|\{[^{}]+\}|\$\{?[A-Za-z_]|\*/.test(target)) {
+            // A path with a slot in it (`regions/<slug>/RULES.md`) names a family of files.
+            first = target.replace(/[`*"'\u201C\u201D]/g, '').trim();
+            unresolved = 'placeholder';
           }
           if (first === '') return undefined;
           // A file is a path the reference tokenizer accepts (a code span may hold spaces), else one bare word.
           const isFile =
-            /\.[A-Za-z0-9]+$/.test(first) && (named !== undefined || fromName || !/\s/.test(first));
+            self ||
+            (/\.[A-Za-z0-9]+$/.test(first) &&
+              (named !== undefined || fromName || !/\s/.test(first)) &&
+              unresolved === undefined);
           const skill =
             loaded || declared ? raw.skills.find((skill) => skill.name === (declared ?? first)) : undefined;
           if (loaded && !isFile && !skill) return undefined;
-          const located = isFile
-            ? locateNamed(first, chunk.file, files, {
-                bases: raw.bases ?? [],
-                skipped: skippedOf(raw),
-                aliases: raw.aliases ?? {},
-                byName: names(raw, files),
-                externals: raw.externals ?? [],
-              })
-            : undefined;
-          return { first, isFile, skill, located, path: located?.path };
+          const located =
+            isFile && !self
+              ? locateNamed(first, chunk.file, files, {
+                  bases: raw.bases ?? [],
+                  skipped: skippedOf(raw),
+                  aliases: raw.aliases ?? {},
+                  byName: names(raw, files),
+                  externals: raw.externals ?? [],
+                  ...(within ? { within } : {}),
+                })
+              : undefined;
+          return {
+            first,
+            isFile,
+            skill,
+            located,
+            path: self ? chunk.file : located?.path,
+            self,
+            unresolved,
+          };
         };
-        const required = (read: NonNullable<ReturnType<typeof resolveRead>>): EvidencePredicate =>
+        const required = (
+          read: NonNullable<ReturnType<typeof resolveRead>>,
+        ): EvidencePredicate | undefined =>
           read.skill
             ? { type: 'skill_loaded', name: read.skill.name }
             : read.path
               ? { type: 'tool_called', label: raw.labels.read, input: { file_path: { contains: read.path } } }
-              : {
-                  type: 'tool_called',
-                  label: raw.labels.shell,
-                  input: { command: { contains: read.first } },
-                };
+              : read.unresolved
+                ? undefined
+                : {
+                    type: 'tool_called',
+                    label: raw.labels.shell,
+                    input: { command: { contains: read.first } },
+                  };
         const emit = (readText: string, structure: boolean): Atom | undefined => {
           const read = resolveRead(readText, structure);
           if (!read) return undefined;
-          const { first, isFile, skill, located, path } = read;
-          const before = skill ? `skill:${skill.name}` : isFile ? raw.labels.read : raw.labels.shell;
+          const { first, isFile, skill, located, path, self, unresolved } = read;
+          const before = skill
+            ? `skill:${skill.name}`
+            : isFile || unresolved
+              ? raw.labels.read
+              : raw.labels.shell;
           return builder.add({
             kind: 'gate',
             title: `Read ${first} before ${trigger}`,
@@ -1949,7 +2015,9 @@ function gateAtoms(
                       .trim(),
                   }
                 : { file: chunk.file, startLine: line.line, endLine: line.line, quote: line.quote },
-            evidence: [{ type: 'ordered', before, after }, required(read)],
+            evidence: [{ type: 'ordered', before, after }, required(read)].filter(
+              (predicate): predicate is EvidencePredicate => predicate !== undefined,
+            ),
             situation: /^(?:if|when|whenever|unless)\b[^,]+,/i.test(clause) ? unmask(clause, spans) : trigger,
             fields: {
               form,
@@ -1957,6 +2025,8 @@ function gateAtoms(
               trigger,
               ...(skill ? { skill: skill.name } : {}),
               ...(path ? { path } : {}),
+              ...(self ? { self: true } : {}),
+              ...(unresolved ? { unresolved } : {}),
               ...(located?.via === 'alias' || located?.via === 'suffix' ? { resolvedBy: located.via } : {}),
               ...(located?.candidates ? { candidates: located.candidates } : {}),
               ...(located?.via === 'external' ? { external: true } : {}),
@@ -1970,7 +2040,8 @@ function gateAtoms(
         const join = (more: string): boolean => {
           const extraRead = resolveRead(more, false);
           if (!extraRead) return false;
-          gate.evidence.push(required(extraRead));
+          const requirement = required(extraRead);
+          if (requirement) gate.evidence.push(requirement);
           const fields = gate.fields ?? {};
           const also = Array.isArray(fields.also) ? (fields.also as string[]) : [];
           gate.fields = { ...fields, also: [...also, extraRead.first] };

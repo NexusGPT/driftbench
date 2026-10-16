@@ -266,7 +266,11 @@ function mainOf(head: string): string {
  * "Our editors usually read X"), or a permission or suggestion ("You may read", "It is fine to read").
  */
 export function descriptive(head: string): boolean {
-  const main = mainOf(head);
+  // A rule label ("R12 —", "Rule 3:", "Step 2.") numbers the sentence; it is no subject.
+  const main = mainOf(head)
+    .replace(/^(?:[A-Za-z]+\s+)?[A-Z]*#?\d+[a-z]?\s*[\u2014\u2013:.)-]*\s*/, '')
+    .replace(/^[\u2014\u2013-]+\s*/, '')
+    .trim();
   if (main === '') return false;
   if (WEAK_MODAL.test(main) || WEAK_LEAD.test(main)) return true;
   // "Nobody needs to read": a subject that denies the obligation.
@@ -281,4 +285,127 @@ export function descriptive(head: string): boolean {
   const first = tags(terms[0] ?? { tags: [] });
   if (first.has('Preposition') || first.has('Connector') || first.has('Conjunction')) return false;
   return terms.some((term) => tags(term).has('Noun') && !/^(?:you|your|yours|yourself)$/i.test(term.text));
+}
+
+/** Tags of function words: a phrase made only of these names nothing. */
+const FUNCTION_TAGS = new Set([
+  'Determiner',
+  'Pronoun',
+  'Preposition',
+  'Conjunction',
+  'Connector',
+  'Adverb',
+  'Modal',
+  'Copula',
+  'Expression',
+]);
+/** Quantifying or indefinite openers: the phrase says "any of them", not which one. */
+const INDEFINITE = new Set([
+  'all',
+  'every',
+  'each',
+  'any',
+  'both',
+  'some',
+  'many',
+  'most',
+  'few',
+  'several',
+  'either',
+  'neither',
+  'another',
+  'other',
+  'others',
+  'more',
+  'rest',
+  'same',
+  'whatever',
+  'whichever',
+  'whoever',
+  'what',
+  'which',
+  'who',
+  'anything',
+  'everything',
+  'something',
+  'nothing',
+  'one',
+  'ones',
+]);
+
+/** The content words of a phrase: the words that are not pronouns, determiners, adverbs or prepositions. */
+export function contentWords(phrase: string): string[] {
+  return phrase
+    .replace(/\([^)]*\)/g, ' ')
+    .split(/\s+/)
+    .map((word) => word.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}'’]+$/gu, ''))
+    .filter((word) => word !== '' && ![...tagsOf(word.toLowerCase())].some((tag) => FUNCTION_TAGS.has(tag)));
+}
+
+/** Whether the phrase says "this" for the document it stands in. */
+export function selfReference(phrase: string): boolean {
+  return /^this(?:\s+(?:file|document|doc|page|guide|section|rule|skill|note))?$/i.test(
+    phrase.trim().replace(/[.,:;!?)]+$/, ''),
+  );
+}
+
+/**
+ * What a read target that matches no file or skill still is, when it points at something specific: a
+ * `section` (a label such as "Plan C" or "Phase 3"), a `state` ("the ledger's current state"), or a document or
+ * part by `role` ("the region's checklist", "the step of the pricing guide"). A phrase that opens with a
+ * quantifier or a question word ("everything", "whatever applies", "what the user asked"), that has no content
+ * word, or that is one bare noun ("the file", "the docs", "the code") points at nothing in particular: none.
+ */
+export function unresolvedKind(phrase: string): 'section' | 'state' | 'role' | undefined {
+  const text = (phrase.split(/\s*\(|\s[\u2014\u2013]\s|[,;]/)[0] ?? phrase).trim();
+  const first = (text.split(/\s+/)[0] ?? '').toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
+  if (text === '' || INDEFINITE.has(first)) return undefined;
+  const content = contentWords(text);
+  if (content.length === 0) return undefined;
+  // A label: a single capital letter or a number after a noun ("Plan C", "Phase 3", "section 4").
+  // A phrase with a verb in it is an instruction, not a name: "the file and edit it".
+  const terms: Array<{ tags: string[] }> = nlp(text).json()[0]?.terms ?? [];
+  const acts = (term: { tags: string[] }) =>
+    term.tags.includes('Verb') &&
+    !['Noun', 'Adjective', 'Gerund', 'Participle', 'Copula', 'Auxiliary'].some((tag) =>
+      term.tags.includes(tag),
+    );
+  // A label: a single capital letter or a number after a name ("Plan C", "Phase 3 of the plan"). The name may
+  // read as a verb on its own ("Plan"); any other verb makes the phrase an instruction.
+  const label =
+    /\b[A-Z]\b|\b\d+\b/.test(text) &&
+    text.split(/\s+/).length >= 2 &&
+    content.filter((word) => word.length > 1).length >= 1;
+  // A phrase with a verb in it is an instruction, not a name: "the file and edit it".
+  if (terms.slice(label ? 1 : 0).some(acts)) return undefined;
+  if (label) return 'section';
+  if (content.length < 2) return undefined;
+  return /^(?:state|status)$/i.test(content.at(-1) ?? '') ? 'state' : 'role';
+}
+
+/**
+ * The pieces of a line a rule can stand in: a table row is one piece per cell, a quotation or heading loses
+ * its marker.
+ */
+export function lineParts(text: string): string[] {
+  const body = text.replace(/^\s*(?:>\s*)+/, '').replace(/^\s*#{1,6}\s+/, '');
+  if (!/^\s*\|/.test(body)) return [body];
+  return body
+    .split('|')
+    .map((cell) => cell.trim())
+    .filter((cell) => cell !== '' && !/^:?-{2,}:?$/.test(cell));
+}
+
+/**
+ * A clause without what only adds a remark or a name to the thing read: a parenthesis ("Read X (see Y)
+ * before Z"), "in full", and a kind word after a named file ("the `x.md` file").
+ */
+export function plainClause(clause: string): string {
+  return clause
+    .replace(/\s*\([^()]*\)/g, '')
+    .replace(/\s+in\s+(?:full|its\s+entirety|detail)\b/gi, '')
+    .replace(
+      new RegExp(String.raw`\b(?:the|this|that)\s+(${ITEM})\s+(?:file|document|doc|page|note)\b`, 'gi'),
+      '$1',
+    );
 }
