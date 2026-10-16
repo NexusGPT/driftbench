@@ -30,8 +30,8 @@ import { keyLine, type Located, lineAt, linesOf, readFrontmatter, readTables } f
  * `.claude/settings.json` (model, permissions, environment keys, hooks), the hooks a skill declares in its
  * frontmatter, a check registry (a file whose name holds "registry", every table keyed by check id), a
  * catalogue of checks (a JSON file of entries with kind, event, watches, work, step and status), and step
- * lists (a JSON file with a `steps` list or a `processes` map of them). Internal symbolic links are followed;
- * links outside the estate are recorded as external references and never read. A hook
+ * lists (a JSON file with a `steps` list or a `processes` map of them). Symbolic links in the layout are followed; a file
+ * that prose merely names and that links outside the estate is an external reference, never read. A hook
  * command behind a prefix or a dispatcher resolves to the script it runs. A frontmatter the YAML parser
  * refuses is read field by field. Prose (standing files, memory, skill bodies, the markdown files beside a
  * skill, helper bodies) is cut into chunks within a size budget. Claude Code calls a guard a hook; the
@@ -177,7 +177,7 @@ export class ClaudeCodeReader implements EstateReader {
     ];
     return [
       ...new Set([
-        ...(await present(root, ['CLAUDE.md', 'CLAUDE.local.md', '.mcp.json'], notes)),
+        ...(await present(root, ['CLAUDE.md', 'CLAUDE.local.md', '.mcp.json'])),
         ...walked,
         ...large,
         ...rootReferences,
@@ -207,14 +207,14 @@ export class ClaudeCodeReader implements EstateReader {
     const notes: ReadNote[] = [];
     const { config, chosen, ignored } = await this.ignoreOf(root, notes);
     const paths = [
-      ...(await present(root, ['CLAUDE.md', 'CLAUDE.local.md'], notes)),
+      ...(await present(root, ['CLAUDE.md', 'CLAUDE.local.md'])),
       ...(await walk(root, '.claude', notes, ignored)),
       ...(await nestedStanding(root, '', notes, ignored)),
     ];
     const files: EstateFile[] = [];
     const loaded = await readBatch(paths, async (path) => ({
       path,
-      text: await readFile(await estatePath(root, path), 'utf8'),
+      text: await readFile(join(root, path), 'utf8'),
     }));
     for (const { path, text: source } of loaded) {
       // A byte order mark is not part of the text any reader quotes.
@@ -445,8 +445,7 @@ async function nestedStanding(
   canonical?: string,
   found: string[] = [],
 ): Promise<string[]> {
-  const safe = canonical ?? (await localPath(root, folder, notes));
-  const real = safe;
+  const real = canonical ?? (await realpath(join(root, folder)).catch(() => undefined));
   if (!real) return [];
   if (ancestors.has(real)) {
     notes.push({ file: folder, message: 'skipped: a link back to a folder the walk is already inside' });
@@ -460,7 +459,6 @@ async function nestedStanding(
       // The regular layout walk already owns this tree and the root standing files.
       if (folder === '' && (entry.name === '.claude' || STANDING.has(path))) continue;
       if (ignored.rules.some((rule) => rule.test(path))) continue;
-      if (entry.isSymbolicLink() && (await localPath(root, path, notes)) === undefined) continue;
       const linked = entry.isSymbolicLink() ? await stat(join(root, path)).catch(() => undefined) : undefined;
       if (entry.isDirectory() || linked?.isDirectory()) {
         await nestedStanding(
@@ -484,12 +482,10 @@ async function nestedStanding(
   }
 }
 
-async function present(root: string, names: readonly string[], notes: ReadNote[]): Promise<string[]> {
+async function present(root: string, names: readonly string[]): Promise<string[]> {
   const found: string[] = [];
   for (const name of names) {
-    const safe = await localPath(root, name, notes);
-    if (safe === undefined) continue;
-    const info = await stat(safe).catch(() => undefined);
+    const info = await stat(join(root, name)).catch(() => undefined);
     if (info?.isFile()) found.push(name);
   }
   return found;
@@ -502,8 +498,7 @@ async function present(root: string, names: readonly string[], notes: ReadNote[]
  */
 async function readConfig(root: string, notes: ReadNote[]): Promise<EstateConfig> {
   const config: EstateConfig = { ignore: [], aliases: {} };
-  const safe = await localPath(root, ESTATE_CONFIG, notes);
-  const text = safe === undefined ? undefined : await readFile(safe, 'utf8').catch(() => undefined);
+  const text = await readFile(join(root, ESTATE_CONFIG), 'utf8').catch(() => undefined);
   if (text === undefined) return config;
   let parsed: unknown;
   try {
@@ -645,8 +640,7 @@ async function walk(
   canonical?: string,
   found: string[] = [],
 ): Promise<string[]> {
-  const safe = canonical ?? (await localPath(root, folder, notes));
-  const real = safe;
+  const real = canonical ?? (await realpath(join(root, folder)).catch(() => undefined));
   if (real === undefined) return [];
   if (ancestors.has(real)) {
     if (ignoredBy === undefined) {
@@ -662,18 +656,14 @@ async function walk(
     const inspected = await readBatch(ordered, async (entry) => {
       const path = posix.join(folder, entry.name);
       const by = ignoredBy ?? ignored.rules.find((rule) => rule.test(path))?.pattern;
-      const external = entry.isSymbolicLink() && (await localPath(root, path, notes)) === undefined;
       const info = entry.isSymbolicLink()
-        ? external
-          ? undefined
-          : await stat(join(root, path)).catch(() => undefined)
+        ? await stat(join(root, path)).catch(() => undefined)
         : entry.isFile() && by === undefined
           ? await stat(join(root, path))
           : undefined;
-      return { entry, path, by, info, external };
+      return { entry, path, by, info };
     });
-    for (const { entry, path, by, info, external } of inspected) {
-      if (external) continue;
+    for (const { entry, path, by, info } of inspected) {
       if (entry.isSymbolicLink() && !info) {
         if (by === undefined) notes.push({ file: path, message: 'skipped: a link that points at nothing' });
         continue;

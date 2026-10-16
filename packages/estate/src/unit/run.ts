@@ -25,7 +25,7 @@ import {
   untrackGroup,
 } from '@agent-nexus/driftbench-sandbox';
 import { parse as parseYaml } from 'yaml';
-import { estatePath } from '../paths';
+import { estatePath, estateSource } from '../paths';
 import { guardName } from '../scan/code';
 import type { EstateReader, GuardDecl } from '../scan/reader';
 
@@ -997,7 +997,7 @@ async function copyListed(root: string, to: string, reader: EstateReader): Promi
   // Validate the entire copy before creating any destination.
   const paths = await Promise.all(
     files.map(async (file) => ({
-      source: await estatePath(root, file),
+      source: estateSource(root, file),
       target: await estatePath(to, file),
     })),
   );

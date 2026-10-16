@@ -1,9 +1,9 @@
 import { constants, existsSync } from 'node:fs';
-import { copyFile, lstat, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
+import { copyFile, lstat, mkdir, readdir, readFile, realpath, rm, stat, writeFile } from 'node:fs/promises';
 import { basename, dirname, join, relative } from 'node:path';
 import { mapHash } from '../map/build';
 import { quoteDrift } from '../map/file';
-import { estatePath } from '../paths';
+import { estatePath, estateSource } from '../paths';
 import { readerFor } from '../scan/index';
 import { provenanceHash, quoteAtSpan } from '../scan/text';
 import type { Atom, EstateMap } from '../schema';
@@ -71,12 +71,13 @@ export async function copyEstate(
   const copied: string[] = [];
   const files = new Set(listed ?? []);
   const collect = async (file: string, ancestors = new Set<string>()): Promise<void> => {
-    const source = await estatePath(root, file);
+    const source = estateSource(root, file);
     const info = await stat(source).catch(() => undefined);
     if (!info) return;
     if (info.isDirectory()) {
-      if (ancestors.has(source)) throw new MutantError(`cyclic copy source ${file}; refused`);
-      const parents = new Set([...ancestors, source]);
+      const real = await realpath(source);
+      if (ancestors.has(real)) throw new MutantError(`cyclic copy source ${file}; refused`);
+      const parents = new Set([...ancestors, real]);
       for (const entry of await readdir(source)) await collect(join(file, entry), parents);
     } else if (info.isFile()) files.add(file);
   };
@@ -86,7 +87,7 @@ export async function copyEstate(
   const paths = await Promise.all(
     [...files].sort().map(async (file) => ({
       file,
-      source: await estatePath(root, file),
+      source: estateSource(root, file),
       target: await estatePath(to, file),
     })),
   );
