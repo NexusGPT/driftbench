@@ -298,6 +298,13 @@ The `cover` seeder uses only paths whose flow lists every behaviour the requeste
 annotations rank those eligible paths; they never grant membership in another flow. An unplaceable cell
 is reported under `cover.unbuilt` with its values and reasons, without falling back to an unrelated flow.
 
+The coverage target also respects the loaded inventory when the flow dimension is a detail. A behaviour
+can occur only on a flow that lists it. Pairs and triples must fit one such flow together with its stages
+and deviation recoveries. When inventory ownership excludes cells that the relation-only target admits,
+`coverage.reachability` lists every excluded pair and triple with its reason, plus allowed counts before
+and after for each strength. A reachable cell that cannot be built stays in `coverage.actual[].uncovered`
+and in `cover.unbuilt`; missing phrases or an output budget never remove it from the target.
+
 In `metadata.generated.blocks`, a move records the stage it reaches. A deviation records the stage where
 it is injected, even when its recovery moves elsewhere. These event stages match the map's reachability
 model; `expect.stage` continues to name the stage the reply must reach.

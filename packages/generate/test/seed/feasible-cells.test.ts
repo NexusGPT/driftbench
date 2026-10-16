@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { Proposal } from '../../src/extract/proposal';
 import { renderDraft } from '../../src/seed/assemble';
 import { prepareMap } from '../../src/seed/map';
-import { coverDraft } from '../../src/seed/seed-drafts';
+import { coverDraft, preferring, scenarioDraft } from '../../src/seed/seed-drafts';
 import { zedProposal } from '../enumerate/support';
 
 const evidence = { source: 'prompt.md', quote: 'Balance checks amounts; card replaces cards.' };
@@ -76,6 +76,31 @@ describe('cover flow membership', () => {
     const built = coverDraft(prepared, context, 'cover', { policy: 'CHECK-11' });
     if (!('draft' in built)) throw new Error(built.reasons.join('; '));
     expect(built.path.flow).toBe('balance');
+  });
+
+  it('preserves seeded draws when the preferred path already owns the behaviour', () => {
+    const prepared = map((proposal) => {
+      for (const relation of proposal.relations ?? []) {
+        if (relation.kind === 'path')
+          relation.behaviours = relation.flow === 'balance' ? ['CHECK-11'] : ['CHECK-22'];
+      }
+    });
+    const dimension = prepared.space.dimensions.findIndex((entry) => entry.id === 'policy');
+    const value = prepared.space.dimensions[dimension]?.index.get('CHECK-11');
+    if (value === undefined) throw new Error('missing handwritten value');
+    const reference = scenarioDraft(
+      prepared,
+      { ...context, usage: new Map() },
+      'cover',
+      'cover',
+      'Cell',
+      [[dimension, value]],
+      preferring(prepared.relations.paths, 'CHECK-11'),
+    );
+    const built = coverDraft(prepared, { ...context, usage: new Map() }, 'cover', { policy: 'CHECK-11' });
+    if (!('draft' in built) || !('draft' in reference)) throw new Error('handwritten cell did not build');
+    expect(built.draft.blocks).toEqual(reference.draft.blocks);
+    expect(built.draft.cell).toEqual(reference.draft.cell);
   });
 
   it('reports an unplaceable behaviour instead of falling back when its path cannot build', () => {
