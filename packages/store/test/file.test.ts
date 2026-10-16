@@ -83,7 +83,17 @@ describe('a store on disk', () => {
       .prepare("SELECT name FROM sqlite_schema WHERE type = 'table' ORDER BY name")
       .all()
       .map((row) => row.name);
-    expect(tables).toEqual(['blobs', 'blocks', 'cache', 'campaigns', 'runs', 'specs', 'units', 'versions']);
+    expect(tables).toEqual([
+      'blobs',
+      'blocks',
+      'cache',
+      'campaigns',
+      'runs',
+      'spec_objects',
+      'specs',
+      'units',
+      'versions',
+    ]);
     expect({ ...raw.prepare('SELECT spec_id, mode, repeat, status, cost FROM runs').get() }).toEqual({
       spec_id: 'acme-new-customer-coverage',
       mode: 'F',
@@ -247,6 +257,18 @@ describe('opening a store', () => {
       { path: 'acme-sales.md', bytes: new TextEncoder().encode('You are the Acme sales assistant.\n') },
     ]);
     expect(pushed.version.version).toBe(1);
+  });
+
+  it('upgrades schema 2 without changing stored spec hashes or run records', async () => {
+    const stored = await seed();
+    await store.close();
+    const before = raw.prepare('SELECT id, hash, yaml FROM specs ORDER BY id, hash').all();
+    raw.exec('DROP TABLE spec_objects; PRAGMA user_version = 2');
+    store = openStore(path);
+    expect(raw.prepare('PRAGMA user_version').get()?.user_version).toBe(SCHEMA_VERSION);
+    expect(raw.prepare('SELECT id, hash, yaml FROM specs ORDER BY id, hash').all()).toEqual(before);
+    expect(raw.prepare('SELECT count(*) AS count FROM spec_objects').get()?.count).toBe(0);
+    expect(await store.getRun(stored.runId)).toStrictEqual(stored);
   });
 
   it('refuses a file that is not a database', async () => {

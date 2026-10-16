@@ -5,15 +5,17 @@ import {
   type CompareMode,
   isZero,
   machineVerdict,
-  type ResolvedObject,
+  objectContextOfSpec,
   resolveBlockObjects,
   type Stimulus,
   sentStimulus,
   shippedObjectContext,
   type ToolCall,
   type ToolExpect,
+  type UsedObject,
   type Verdict,
 } from '@agent-nexus/driftbench-core';
+import { initializeShippedObjects } from '../initialize';
 import { checkAssertion } from '../support/assert';
 import { countAllows, describeCount, minimumOf } from '../support/count';
 import { entryKeys, isRecord, listed, plural, show, times } from '../support/values';
@@ -70,9 +72,12 @@ export function createToolsCheck(options: ToolsCheckOptions = {}): Check {
     name: NAME,
     applies: (ctx) => expectedTools(ctx).length > 0 || ctx.expect.tool_order !== undefined,
     async evaluate(ctx) {
-      const policy = policyFor(ctx, configured);
-      if ('problem' in policy) return [machineVerdict(NAME, 'value_check', 'fail', policy.problem)];
-      return evaluate(ctx, policy, services);
+      initializeShippedObjects();
+      const chosen = policyFor(ctx, configured);
+      const verdicts = await evaluate(ctx, chosen.policy, services);
+      return chosen.problem === undefined
+        ? verdicts
+        : [machineVerdict(NAME, 'value_check', 'fail', chosen.problem), ...verdicts];
     },
   };
 }
@@ -81,33 +86,44 @@ export function createToolsCheck(options: ToolsCheckOptions = {}): Check {
 export const tools: Check = createToolsCheck();
 
 /**
- * The value-check policy of one block, read through the object resolver: the object the block's or the spec's
- * `uses.value_check` names, else the configured policy, else the shipped `policy/value-check:default`. Only the
- * shipped objects and the spec's and block's own are visible here: a project or suite object reaches the check
- * once the run hands the resolved objects to it.
+ * The value-check policy of one block, read through the object resolver with the objects its spec was loaded
+ * against: shipped, project and suite objects, `uses.yaml` files included. A layer that names a `value_check`
+ * (the block, the spec, a suite or project `uses.yaml`, the command line) wins; else the configured policy;
+ * else the shipped `policy/value-check:default`. A spec no loader produced resolves against the shipped objects.
+ * An object that cannot resolve or cannot run is never replaced silently: the block gets a failing
+ * `tools.value_check` verdict, and its values are compared exactly, so its count, input and order verdicts stay.
  */
 function policyFor(
   ctx: CheckContext,
   configured: ValuePolicy | undefined,
-): ValuePolicy | { problem: string } {
-  const named = ctx.spec.uses?.value_check !== undefined || ctx.block.uses?.value_check !== undefined;
-  if (!named && configured !== undefined) return configured;
-  let object: ResolvedObject | undefined;
+): { policy: ValuePolicy; problem?: string } {
+  const context = objectContextOfSpec(ctx.spec) ?? shippedObjectContext();
+  let used: UsedObject | undefined;
   try {
-    object = resolveBlockObjects(ctx.spec, ctx.blockIndex, shippedObjectContext()).find(
-      (used) => used.key === 'value_check',
-    )?.object;
+    used = resolveBlockObjects(ctx.spec, ctx.blockIndex, context).find(
+      (entry) => entry.key === 'value_check',
+    );
   } catch (cause) {
-    if (!named) return configured ?? DEFAULT_VALUE_POLICY;
-    return { problem: `the value-check object this block uses cannot resolve: ${message(cause)}` };
+    return {
+      policy: EXACT_ONLY,
+      problem: `the value-check object of this block cannot resolve, so its values are compared exactly: ${message(cause)}`,
+    };
   }
-  if (object === undefined) return configured ?? DEFAULT_VALUE_POLICY;
-  const policy = policyOf(object);
+  if (used === undefined) return { policy: configured ?? DEFAULT_VALUE_POLICY };
+  if (used.setAt === 'shipped' && configured !== undefined) return { policy: configured };
+  const policy = policyOf(used.object);
   const problems = valuePolicyProblems(policy);
-  if (problems.length > 0)
-    return { problem: `the value-check object ${object.ref} cannot run: ${problems.join('; ')}` };
-  return policy;
+  if (problems.length > 0) {
+    return {
+      policy: EXACT_ONLY,
+      problem: `the value-check object ${used.object.ref} (set at ${used.place || used.setAt}) cannot run, so its values are compared exactly: ${problems.join('; ')}`,
+    };
+  }
+  return { policy };
 }
+
+/** A policy with no rung: every value that differs from the gold falls back to the exact compare. */
+const EXACT_ONLY: ValuePolicy = { id: 'exact-only', items: [] };
 
 function message(cause: unknown): string {
   return cause instanceof Error ? cause.message : String(cause);

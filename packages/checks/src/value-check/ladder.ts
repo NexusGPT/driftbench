@@ -310,8 +310,6 @@ function isPolicy(raw: unknown): raw is { kind?: unknown; id?: unknown } {
   return raw !== null && typeof raw === 'object';
 }
 
-registerValueCheck();
-
 /** A resolved `policy/value-check` object as the ladder runs it: its items in their resolved order. */
 export function policyOf(object: ResolvedObject): ValuePolicy {
   return {

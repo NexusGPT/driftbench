@@ -62,6 +62,7 @@ YAML is parsed with unique keys: a key written twice in one mapping is a `SPEC_P
 
 | Key | Type | Required | Default | Meaning |
 |---|---|---|---|---|
+| `schema_version` | whole number, 1 | no | 1 | The spec format the spec is written for. A driftbench that reads a lower version refuses the spec with `SPEC_SCHEMA_VERSION` and says to upgrade, instead of reporting its newer keys as unknown. Written, it is part of the spec and its hash. |
 | `id` | string matching `^[A-Za-z0-9][A-Za-z0-9._-]*$` | yes | none | The spec id. Run ids and reports use it. |
 | `version` | string | no | none | A free label. The content hash, not this label, is the cache key. Quote numbers: `version: '1'`. |
 | `kind` | `conversation` or `task` | no | `conversation` | A conversation with a chat agent, or a task for a code agent in a workspace. |
@@ -190,7 +191,7 @@ Every rule driftbench applies is an object: a kind (`policy/blame`, `policy/valu
 | `judges` | `judge-council` |
 | `diagnostics` | a list of `diagnostic` ids |
 
-A value is an id, such as `blame: acme`, or an inline object that extends one: `value_check: { extends: default, items: [{ id: rung3_same_referent, params: { repeats: 5 } }] }`. An item operation names an item of the parent and sets fields (`params` maps merge, lists replace, `+key: [values]` appends, `-key: [values]` removes); `enabled: false` disables it; `add: true` with `title`, `when`, `effect` and `impl` adds one; `before` or `after` moves it, or `order` lists every enabled item once.
+A value is an id, such as `blame: acme`, or an inline object that extends one: `value_check: { extends: default, items: [{ id: rung3_same_referent, params: { repeats: 5 } }] }`. An item operation names an item of the parent and sets fields (`params` maps merge, lists replace, `+key: [values]` appends, `-key: [values]` removes); `enabled: false` disables it; `add: true` with `title`, `when`, `effect` and `impl` adds one; `before` or `after` moves it, or `order` lists every enabled item once. An item may carry `applies_to: { skills, tools, units }`: it then fires only when the evidence names one of those skills or tools, or a unit matching one of the unit patterns (`R#41/*`); without it, everywhere.
 
 Where an id is looked up, weakest first: the shipped objects; the project, files `driftbench/<kind>/<id>.yaml` beside `driftbench.yaml` and its `objects:` list; each `_driftbench/<kind>/<id>.yaml` suite folder from the project down to the spec, a nearer one stronger. A `uses.yaml` in a `driftbench/` or `_driftbench/` folder sets `uses` for the specs below it. A block's key replaces the spec's, which replaces the suite's and the project's.
 

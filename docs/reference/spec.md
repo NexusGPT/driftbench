@@ -68,6 +68,7 @@ The loader rewrites these forms before it validates a spec.
 * [Uses](#uses)
 * [ObjectRef](#objectref)
 * [ItemPatch](#itempatch)
+* [AppliesTo](#appliesto)
 * [Spec end](#spec-end)
 * [Rules](#rules)
 * [EndState](#endstate)
@@ -85,6 +86,7 @@ One golden conversation, or one task for a code agent, written as a succession o
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
+| `schema_version` | integer, 1 to 1 | no |  | The spec format version the spec is written for. A driftbench that reads a lower version refuses the spec and says to upgrade. Absent means version 1. |
 | `id` | string matching `^[A-Za-z0-9][A-Za-z0-9._-]*$` | yes |  | The spec id: letters, digits, dots, underscores and hyphens. |
 | `version` | string | no |  | A free label. The content hash, not this label, is the cache key. |
 | `kind` | `conversation` or `task` | yes | `conversation`, set by the loader | conversation or task. The loader sets conversation when it is absent. |
@@ -683,8 +685,19 @@ An operation on one item of the parent object, or a new item with add: true.
 | `params` | map of string to any value | no |  | Params to set: maps merge, lists replace, +key appends, -key removes. |
 | `impl` | string matching `^(builtin\|plugin):\S+$` | no |  | Another implementation for the same rule. |
 | `cites` | string | no |  | A source for the reader. |
+| `applies_to` | [AppliesTo](#appliesto) | no |  | Where the rule applies: maps merge, lists replace. |
 | `before` | string matching `^[A-Za-z0-9][A-Za-z0-9._-]*$` | no |  | Moves the item just before this one. |
 | `after` | string matching `^[A-Za-z0-9][A-Za-z0-9._-]*$` | no |  | Moves the item just after this one. |
+
+## AppliesTo
+
+Where an item applies: skills, tools or unit patterns. Absent means everywhere.
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `skills` | list of strings, each not empty | no |  | Skill names the evidence must name one of. |
+| `tools` | list of strings, each not empty | no |  | Tool labels the failing call must have one of. |
+| `units` | list of strings, each not empty | no |  | Unit patterns, such as R#41/*, a unit must match one of. |
 
 ## Spec end
 
