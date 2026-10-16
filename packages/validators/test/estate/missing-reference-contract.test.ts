@@ -91,4 +91,71 @@ describe('a Read of a file the estate does not hold (docs/estate.md section 5, n
     expect(after).toMatchObject({ killed: false });
     expect(after?.untestable).toBeUndefined();
   });
+
+  it('takes "absent" from the hidden estate, not from the product: a product that lies about which files exist gains nothing', async () => {
+    for (const seed of [1, 2]) {
+      const run = await estateRun(seed);
+      const honest = await agentMutants(run);
+      const held = (atomId: string) => {
+        const hid = run.scanned.match.hidOf.get(atomId);
+        const truth = run.rendered.atoms.find((candidate) => candidate.hid === hid);
+        return truth?.kind === 'reference' && truth.key in run.rendered.files;
+      };
+      const present = run.scanned.map.atoms.filter((a) => a.kind === 'reference' && held(a.id));
+      expect(present.length, `seed ${seed}`).toBeGreaterThan(0);
+      expect(
+        present.some((a) => honest.find((m) => m.atom === a.id)?.killed),
+        `seed ${seed}: a present reference is judged`,
+      ).toBe(true);
+      // Planted product: the scan marks every reference absent, and every spec naming a reference waits on the marker.
+      const references = new Set(
+        run.scanned.map.atoms.filter((a) => a.kind === 'reference').map((a) => a.id),
+      );
+      const lying = {
+        ...run,
+        scanned: {
+          ...run.scanned,
+          map: {
+            ...run.scanned.map,
+            atoms: run.scanned.map.atoms.map((a) =>
+              a.kind === 'reference' ? { ...a, fields: { ...a.fields, exists: false } } : a,
+            ),
+          },
+        },
+        specs: run.specs.map((spec) => {
+          const named = (estateMeta(spec).atoms ?? []).filter((id) => references.has(id));
+          if (named.length === 0 || spec.loaded === undefined) return spec;
+          const metadata = spec.loaded.spec.metadata as { estate?: Record<string, unknown> };
+          return {
+            ...spec,
+            record: { ...spec.record, complete: false },
+            loaded: {
+              ...spec.loaded,
+              spec: {
+                ...spec.loaded.spec,
+                metadata: {
+                  ...metadata,
+                  estate: {
+                    ...metadata.estate,
+                    needs: named.map((atom) => ({ marker: 'needs-existing-file', atom, detail: 'planted' })),
+                  },
+                },
+              },
+            },
+          };
+        }),
+      };
+      const after = await agentMutants(lying);
+      for (const atom of present)
+        expect(after.find((m) => m.atom === atom.id)?.untestable, `seed ${seed} ${atom.id}`).toBeUndefined();
+      // The reference the estate truly lacks is still named, not counted alive.
+      const absent = run.scanned.map.atoms.filter((a) => a.kind === 'reference' && !held(a.id));
+      expect(absent.length, `seed ${seed}`).toBeGreaterThan(0);
+      for (const atom of absent)
+        expect(
+          after.find((m) => m.atom === atom.id),
+          `seed ${seed} ${atom.id}`,
+        ).toMatchObject({ untestable: true });
+    }
+  });
 });

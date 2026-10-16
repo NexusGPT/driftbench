@@ -475,7 +475,7 @@ export type MutantVerdict = {
    */
   equivalent?: true;
   /**
-   * The contract gives the atom no complete test: a reference to a file the estate does not hold. A Read of a missing
+   * The contract gives the atom no complete test: a reference to a file the hidden estate does not hold. A Read of a missing
    * file waits on `needs-existing-file` (docs/estate.md section 5), so there is no test to kill the mutant with. The
    * atom is judged by that marker; its mutant is named, not counted alive.
    */
@@ -520,6 +520,7 @@ export async function agentMutants(run: EstateRun): Promise<MutantVerdict[]> {
     ...phrases.flatMap((first) => phrases.map((second) => [first, second])),
   ];
   const base = new Map<string, string>();
+  const truthOf = new Map(run.rendered.atoms.map((truth) => [truth.hid, truth]));
   for (const atom of run.scanned.map.atoms.filter((candidate) => AGENT_KINDS.includes(candidate.kind))) {
     const hid = run.scanned.match.hidOf.get(atom.id);
     const named = all.filter((verdict) => (estateMeta(verdict.spec).atoms ?? []).includes(atom.id));
@@ -542,9 +543,12 @@ export async function agentMutants(run: EstateRun): Promise<MutantVerdict[]> {
         continue;
       }
     }
+    // The validator holds the hidden estate: a reference is absent when its path is no file of the rendered estate,
+    // whatever the product's scan says of it. The product's marker is the second condition.
+    const truth = hid === undefined ? undefined : truthOf.get(hid);
     if (
-      atom.kind === 'reference' &&
-      atom.fields?.exists === false &&
+      truth?.kind === 'reference' &&
+      !(truth.key in run.rendered.files) &&
       named.length > 0 &&
       named.every(
         (verdict) =>
