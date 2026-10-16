@@ -275,7 +275,7 @@ blocks:
       must: ['09:00']
 ```
 
-Each child starts from its parent's recorded end state: the conversation, the `catalog.search` result, the facts and the variables. Its own Given then adds or overrides, as the `phone` channel does on `alternative`. `plans` runs once for both branches. If `recap` fails, `order` and `receipt` are blocked and the report lists them under that one cause, while `alternative` and `hours` keep their own results. A missing parent or a cycle is a spec error. For a code agent the child's sandbox starts from the files its parent left. Run it with no key: `pnpm exec tsx examples/acme/parents/run.ts`. See [the reference](docs/reference/spec.md#block), [inheritance](docs/concepts/given-when-then.md#parent-blocks) and the [worked example](examples/acme/parents/README.md).
+Each child starts from its parent's recorded end state: the conversation, the `catalog.search` result, the facts and the variables. Its own Given then merges facts, variables and world by key, as the `phone` channel does on `alternative`; its own prefix or workspace replaces the inherited one whole. `plans` runs once for both branches. If `recap` fails, `order` and `receipt` are blocked and the report lists them under that one cause, while `alternative` and `hours` keep their own results. A missing parent or a cycle is a spec error. For a code agent the child's sandbox starts from the files its parent left. Run it with no key: `pnpm exec tsx examples/acme/parents/run.ts`. See [the reference](docs/reference/spec.md#block), [inheritance](docs/concepts/given-when-then.md#parent-blocks) and the [worked example](examples/acme/parents/README.md).
 
 </details>
 

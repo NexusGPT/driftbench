@@ -167,6 +167,8 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
   )
     throw new RunnerError('block subsets require the scripted driver and valid block indices');
   let selectedBlocks = options.blocks;
+  /** Ancestors a block subset replays for their end state only: they run, but are not measured. */
+  let replayOnly: Set<number> | undefined;
   if (linked && selectedBlocks) {
     const needed = new Set(selectedBlocks);
     const ids = new Map(spec.blocks.map((block, index) => [block.id, index]));
@@ -175,6 +177,8 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
       const at = parent === undefined ? undefined : ids.get(parent);
       if (at !== undefined) needed.add(at);
     }
+    const requested = selectedBlocks;
+    replayOnly = new Set([...needed].filter((index) => !requested.has(index)));
     selectedBlocks = needed;
   }
   let blockRerunReason: string | undefined;
@@ -190,6 +194,10 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
       selectedBlocks = options.blocks ?? reuse.indices;
       carriedBlocks = new Map([...reuse.carried].filter(([i]) => !selectedBlocks?.has(i)));
     }
+  }
+  if (replayOnly?.size && blockRerunReason === undefined) {
+    const names = [...replayOnly].sort((x, y) => x - y).map((index) => spec.blocks[index]?.id ?? `${index}`);
+    blockRerunReason = `parent blocks replayed for their end state, not measured: ${names.join(', ')}`;
   }
   if (
     options.blocks &&
@@ -221,6 +229,8 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
         ? runProvenance({ ...options, target })
         : undefined,
     selectedBlocks,
+    requestedBlocks: options.blocks,
+    replayOnly,
     parentOrder: linked ? parents.order : undefined,
     blockRerunReason,
     carriedBlocks,
@@ -287,6 +297,9 @@ export async function runSpec(spec: Spec, options: RunOptions): Promise<RunResul
 
 type RunContext = {
   parentOrder: number[] | undefined;
+  /** The block subset as asked for, before a parent-linked subset adds the ancestors it replays. */
+  requestedBlocks: ReadonlySet<number> | undefined;
+  replayOnly: ReadonlySet<number> | undefined;
   selectedBlocks: ReadonlySet<number> | undefined;
   blockRerunReason: string | undefined;
   carriedBlocks: Map<number, BlockResult> | undefined;
@@ -930,22 +943,30 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
 
   const note = await channel.close();
   if (channel.replay && blocks.length === 0) return undefined;
+  // A replayed ancestor gave its end state to the blocks asked for; it is no measurement of this run, so
+  // it adds no verdict or count. What it cost stays in the run's cost.
+  const executed = blocks;
+  const measured = run.replayOnly?.size
+    ? executed.filter((block) => block.specIndex === undefined || !run.replayOnly?.has(block.specIndex))
+    : executed;
   const recovery =
     run.mode === 'P'
-      ? recoveryOf(spec, { blocks, perturbationId: run.perturbationId }, run.recovery)
+      ? recoveryOf(spec, { blocks: measured, perturbationId: run.perturbationId }, run.recovery)
       : undefined;
   const message = [error, note].filter((part) => part !== undefined).join('; ');
   return {
     ...(run.provenance
       ? {
           provenance: run.provenance,
-          provenanceDigest: provenanceDigest({ provenance: run.provenance, blocks }),
+          provenanceDigest: provenanceDigest({ provenance: run.provenance, blocks: measured }),
         }
       : {}),
     ...(run.selectedBlocks || run.blockRerunReason
       ? {
           blockRerun: {
-            selected: [...(run.selectedBlocks ?? blocks.map((b) => b.index))].sort((a, b) => a - b),
+            selected: [...(run.requestedBlocks ?? run.selectedBlocks ?? measured.map((b) => b.index))].sort(
+              (a, b) => a - b,
+            ),
             downstreamNotRerun: [...(run.carriedBlocks?.keys() ?? [])].filter(
               (i) => i > Math.min(...(run.selectedBlocks ?? [])),
             ),
@@ -965,13 +986,13 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
     status,
     ...(endVerdict ? { endVerdict } : {}),
     ...(message ? { error: message } : {}),
-    blocks,
-    succession: succession(blocks),
+    blocks: measured,
+    succession: succession(measured),
     ...(recovery ? { recovery } : {}),
     ...(endState ? { endState } : {}),
     ...(value !== undefined ? { endStateValue: value } : {}),
-    cost: blocks.reduce((sum, block) => sum + (block.carried ? 0 : blockCost(block.observed)), 0),
-    latencyMs: blocks.reduce((sum, block) => sum + (block.carried ? 0 : block.observed.latencyMs), 0),
+    cost: executed.reduce((sum, block) => sum + (block.carried ? 0 : blockCost(block.observed)), 0),
+    latencyMs: executed.reduce((sum, block) => sum + (block.carried ? 0 : block.observed.latencyMs), 0),
     startedAt: run.startedAt,
     finishedAt: run.now().toISOString(),
     cacheHit: channel.replay,

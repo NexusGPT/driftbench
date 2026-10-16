@@ -178,7 +178,7 @@ describe('parent blocks', () => {
     expect(result.blocks.map(blockStatus)).toEqual(['not_run', 'blocked', 'pass']);
     expect(fakeRun.calls).toEqual(['hours']);
   });
-  it('replays missing ancestor recordings when selecting only a child', async () => {
+  it('replays missing ancestors when selecting only a child, and scores the child alone', async () => {
     const fakeRun = fake();
     const result = await runSpec(specOf({ id: 'subset', blocks }), {
       ...fakeRun,
@@ -188,8 +188,14 @@ describe('parent blocks', () => {
       repeat: 0,
       blocks: new Set([0]),
     });
+    // The root runs for its end state but is no measurement of this run: only the child is scored.
     expect(fakeRun.calls).toEqual(['open', 'child']);
-    expect(result.blocks.map((block) => block.blockId)).toEqual(['root', 'child']);
+    expect(result.blocks.map((block) => block.blockId)).toEqual(['child']);
+    expect(result.blockRerun).toMatchObject({
+      selected: [0],
+      reason: 'parent blocks replayed for their end state, not measured: root',
+    });
+    expect(fakeRun.starts[1]?.prefix).toHaveLength(2);
   });
   it('inherits exported mutable world and variables, and isolates each sibling', async () => {
     const starts: ResolvedGiven[] = [];

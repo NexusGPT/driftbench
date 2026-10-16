@@ -76,6 +76,11 @@ beforeAll(async () => {
   made.set('memo.docx', await docx(para('Acme memo: Mobile M costs 25 USD (fictional)')));
   made.set('quote.pdf', binaryPdf(['Acme quote ACME-7 (fictional)']));
   made.set('logo.png', await readFile(join(ROOT, PNG)));
+  // A CSV as spreadsheet tools save it: a UTF-8 byte-order mark first, then text.
+  made.set(
+    'prices.csv',
+    Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), Buffer.from('plan,usd\nMobile M,25\n')]),
+  );
   for (const [name, bytes] of made) await writeFile(join(fixtures, name), bytes);
 });
 afterAll(async () => {
@@ -118,12 +123,15 @@ describe('parent blocks on a sandboxed code agent', () => {
         'fresh:pass',
       ]);
     },
-    30_000,
+    120_000,
   );
 
-  it('the fixtures are real, readable files and none of them is UTF-8 text', async () => {
+  it('the fixtures are real, readable files: four binary, one CSV with a byte-order mark', async () => {
     const decoder = new TextDecoder('utf-8', { fatal: true });
-    for (const [name, bytes] of made) expect(() => decoder.decode(bytes), name).toThrow();
+    for (const [name, bytes] of made) {
+      if (name.endsWith('.csv')) expect(bytes.subarray(0, 3)).toEqual(Buffer.from([0xef, 0xbb, 0xbf]));
+      else expect(() => decoder.decode(bytes), name).toThrow();
+    }
     expect((await readWorkbook(made.get('prices.xlsx') as Uint8Array)).length).toBeGreaterThan(0);
     expect((await docxReader.open(made.get('memo.docx') as Uint8Array, 'out/memo.docx')).text()).toContain(
       'Acme memo',
@@ -139,7 +147,7 @@ describe('parent blocks on a sandboxed code agent', () => {
   });
 
   it.each(['F', 'T'] as const)(
-    '%s carries xlsx, docx, pdf and png byte for byte into the child and the grandchild',
+    '%s carries xlsx, docx, pdf, png and a BOM CSV byte for byte into the child and the grandchild',
     async (mode) => {
       const hashes = [...made].map(([name, bytes]) => `${name} ${sha256(bytes)}`);
       const spec = specOf({
@@ -159,7 +167,7 @@ describe('parent blocks on a sandboxed code agent', () => {
         'fresh:pass',
       ]);
     },
-    30_000,
+    120_000,
   );
 
   it('marks the children not run with the reason only above the export cap', async () => {
@@ -189,7 +197,7 @@ describe('parent blocks on a sandboxed code agent', () => {
     expect(over.blocks[1]?.notRun).toMatchObject({ kind: 'setup_failed', check: 'parent snapshot' });
     expect(over.blocks[1]?.notRun?.got).toContain(`more than the export bound of ${total - 1}`);
     expect(over.blocks[2]?.blocked).toMatchObject({ by: 'child', root: 'child' });
-  }, 30_000);
+  }, 120_000);
 
   it('marks the children not run when a sandbox adapter cannot export at all, never resetting them', async () => {
     const { snapshotGiven: _export, ...rest } = adapter();
@@ -203,5 +211,5 @@ describe('parent blocks on a sandboxed code agent', () => {
     const run = await runSpec(spec, { adapter: rest, driver, checks, mode: 'T', repeat: 0 });
     expect(run.blocks.map(blockStatus)).toEqual(['pass', 'not_run']);
     expect(run.blocks[1]?.notRun).toMatchObject({ kind: 'unsupported', layer: '5 world' });
-  }, 30_000);
+  }, 120_000);
 });

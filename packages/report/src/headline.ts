@@ -17,7 +17,7 @@ export const HEADLINE_POWER = 0.8;
  */
 export type SuiteHeadline = Estimate & {
   method: 'hierarchical' | 'none';
-  /** Linked specs contribute one outcome per root tree and repeat. */
+  /** Linked specs contribute one outcome per root tree and repeat: `n` counts those, `runs` the scored runs. */
   unit?: 'tree-run';
   /** The trees: goldens with at least one scored run. */
   trees: number;
@@ -75,8 +75,9 @@ export function suiteHeadline(
   all: readonly RunResult[],
   treeOf: (run: RunResult) => string,
 ): SuiteHeadline | undefined {
-  const scored = new Set(scoredRuns(all));
-  const runs = all.filter((run) => scored.has(run) || run.blocks.some((block) => block.parent !== undefined));
+  // Only scored runs count, linked or not: a run not run or blocked (no failure) is left out of every rate
+  // and count, whatever trees inside it were measured.
+  const runs = scoredRuns(all);
   if (runs.length === 0) return undefined;
   const linked = runs.some((run) => run.blocks.some((block) => block.parent !== undefined));
   const samples = new Map<string, boolean[]>();
@@ -101,12 +102,19 @@ export function suiteHeadline(
         return root.blockId ?? `block ${root.index}`;
       },
     );
+    const outcomes: Array<{ root: string; failed: boolean }> = [];
     for (const [root, blocks] of trees) {
       const statuses = blocks.map(blockStatus);
       const failed = statuses.includes('fail');
       if (!failed && statuses.some((status) => status === 'not_run' || status === 'blocked')) continue;
+      outcomes.push({ root, failed });
+    }
+    // A run that failed as a whole (incomplete, a failed end verdict or end state) with no failing block
+    // fails every tree it measured: the failure belongs to no one tree.
+    const whole = !runPassed(run) && !outcomes.some((outcome) => outcome.failed);
+    for (const { root, failed } of outcomes) {
       const key = JSON.stringify([treeOf(run), root]);
-      samples.set(key, [...(samples.get(key) ?? []), !failed]);
+      samples.set(key, [...(samples.get(key) ?? []), !(failed || whole)]);
     }
   }
   const counts = [...samples.values()].map((group) => ({ n: group.length, k: group.filter(Boolean).length }));
@@ -121,7 +129,7 @@ export function suiteHeadline(
   const pooled = counts.reduce((sum, c) => sum + c.k, 0) / measured;
   const base = {
     trees: counts.length,
-    runs: measured,
+    runs: runs.length,
     shares,
     pooledRate: pooled,
     ...(linked ? { unit: 'tree-run' as const } : {}),

@@ -47,7 +47,8 @@ describe('parent reports', () => {
     ]);
     expect(headline).toMatchObject({
       trees: 2,
-      runs: 4,
+      runs: 2,
+      n: 4,
       method: 'hierarchical',
       unit: 'tree-run',
       pooledRate: 0.5,
@@ -56,7 +57,7 @@ describe('parent reports', () => {
     expect(headline?.lower).toBe(interval.lower);
     expect(headline?.upper).toBe(interval.upper);
   });
-  it('retains an independently measured tree when another root was not run', () => {
+  it('leaves a not-run linked run out of every count, its measured tree included', () => {
     const unrun = {
       ...forest,
       blocks: forest.blocks.map((block, index) =>
@@ -77,7 +78,25 @@ describe('parent reports', () => {
           : block,
       ),
     };
-    const headline = suiteHeadline([unrun], (run) => run.specId);
-    expect(headline).toMatchObject({ trees: 1, runs: 1, estimate: 1, shares: { notRun: 1 } });
+    expect(suiteHeadline([unrun], (run) => run.specId)).toBeUndefined();
+    // Beside 16 scored runs, the unscored linked run adds nothing: 16 runs, 16 outcomes, its share shown.
+    const scored = Array.from({ length: 16 }, (_, repeat) => run({ specId: `plain-${repeat % 4}`, repeat }));
+    const headline = suiteHeadline([...scored, unrun], (run) => run.specId);
+    expect(headline).toMatchObject({ runs: 16, n: 16, trees: 4, shares: { notRun: 1 / 17 } });
+  });
+  it('fails every measured tree of a run that failed as a whole with no failing block', () => {
+    const shape = run({ specId: 'whole', blocks: [{}, {}, {}] });
+    const whole = {
+      ...shape,
+      endVerdict: 'failure' as const,
+      blocks: shape.blocks.map((block, index) => ({
+        ...block,
+        specIndex: index,
+        blockId: ['root', 'child', 'independent'][index],
+        ...(index === 1 ? { parent: 'root' } : {}),
+      })),
+    };
+    expect(whole.blocks.map(blockStatus)).toEqual(['pass', 'pass', 'pass']);
+    expect(suiteHeadline([whole], (run) => run.specId)).toMatchObject({ runs: 1, n: 2, pooledRate: 0 });
   });
 });
