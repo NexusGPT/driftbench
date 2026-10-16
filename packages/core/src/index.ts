@@ -363,6 +363,7 @@ export {
   Cost,
   Diagnosis,
   ExecutionRecord,
+  HistoryNormalization,
   JudgeConfig,
   NotRun,
   Observed,

@@ -5,6 +5,7 @@ import {
   type Count,
   compoundingIndex,
   type DriftClass,
+  type HistoryNormalization,
   isScored,
   type NotRun,
   type RunEvent,
@@ -113,6 +114,8 @@ export type BlockDetail = {
   drift: DriftClass[];
   text: string;
   toolCalls: ToolCall[];
+  /** Empty history turns omitted by the model wire, absent on unchanged histories and legacy runs. */
+  historyNormalizations?: HistoryNormalization[];
   /** The runtime events the block recorded: a guard that ran and a skill that was loaded, by name. */
   /** The key the block's record was cached under, when the run had a cache. */
   cacheKey?: string;
@@ -407,6 +410,7 @@ export function runDetailOf(
         retries: result.observed.retries?.length ?? 0,
         drift: [...result.drift],
         text: result.observed.text,
+        ...optional('historyNormalizations', result.observed.historyNormalizations),
         toolCalls: result.observed.toolCalls.map((call) => ({
           label: call.label,
           ...(call.input === undefined ? {} : { input: call.input }),

@@ -496,6 +496,12 @@ export const Expect = z
     execution: ExecutionExpect.optional().describe('What the agent runs.'),
     artifacts: z.array(ArtifactExpect).optional().describe('The files the block must produce.'),
     workspace: WorkspaceExpect.optional().describe('The workspace diff expected.'),
+    protected: z
+      .array(z.string().min(1))
+      .optional()
+      .describe(
+        'Paths or globs the agent must not change or delete, whoever wrote them: the tests, checkers and source-of-truth files it was given. The checks do not read it. When a gating verdict fails and the net workspace diff holds one, blame attributes the failure to the agent as an integrity fault.',
+      ),
     safety: SafetyExpect.optional().describe('Limits on destructive operations.'),
   })
   .describe('The expected output and state delta of a block. Every field is optional.');
@@ -640,13 +646,13 @@ export const CriterionDef = z
       .union([z.literal(1), z.literal(2)])
       .optional()
       .describe(
-        'The criterion prompt rules the judge reads. 1, the default; 2 adds the exact-identifier, stated-facts and stated-scope rules.',
+        'The criterion prompt rules the judge reads. 2, the default, adds the exact-identifier, stated-facts and stated-scope rules; 1 is the earlier rule set, to replay answers recorded with it.',
       ),
     decoder_version: z
       .union([z.literal(1), z.literal(2)])
       .optional()
       .describe(
-        'How a criterion ledger answer is read. 1, the default, rejects an ungrounded quote; 2 drops the quote and keeps the verdict.',
+        'How a criterion ledger answer is read. Unset, the default reader drops an ungrounded quote and keeps the verdict; 1 rejects an ungrounded quote; 2 drops the quote and keeps the verdict.',
       ),
     answer_contract: z
       .enum(['ledger', 'legacy'])

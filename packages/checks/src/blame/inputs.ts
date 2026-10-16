@@ -9,11 +9,14 @@ import {
   type Spec,
   type Verdict,
 } from '@agent-nexus/driftbench-core';
+import type { ValuePolicy } from '../value-check/ladder';
+import { toolSchemasOf, valueFacts } from './values';
 
 /**
  * The evidence inputs of a block's failing verdicts, joined from what the run stored and what the spec and the
- * estate map say: the trace, the verdicts, the user turn, the expected tools and skills, the atoms the spec
- * enforces (`metadata.estate.atoms`, read from the map `metadata.estate.map` names) and any stored confirm
+ * estate map say: the trace, the verdicts, the user turn, the expected tools and skills, the protected paths,
+ * the value check's record of each failing value, the tool definitions (`metadata.tool_schemas`), the atoms the
+ * spec enforces (`metadata.estate.atoms`, read from the map `metadata.estate.map` names) and any stored confirm
  * evidence. No agent call and no model call.
  */
 
@@ -66,11 +69,16 @@ export function estateMetadata(spec: Pick<Spec, 'metadata'>): {
   };
 }
 
-/** The labels and names a block expects: tools in order, routed skills. */
+/** The labels and names a block expects: tools in order, routed skills, and the paths it protects. */
 export function expectView(expect: Expect | undefined): evidence.BlockExpect {
   const tools = (expect?.tools ?? []).filter((tool) => tool.count !== 0).map((tool) => tool.label);
   const skills = (expect?.skills ?? []).map((skill) => skill.name);
-  return { ...(tools.length > 0 ? { tools } : {}), ...(skills.length > 0 ? { skills } : {}) };
+  const protectedPaths = expect?.protected ?? [];
+  return {
+    ...(tools.length > 0 ? { tools } : {}),
+    ...(skills.length > 0 ? { skills } : {}),
+    ...(protectedPaths.length > 0 ? { protected: protectedPaths } : {}),
+  };
 }
 
 export type BlockInputSource = {
@@ -86,6 +94,8 @@ export type BlockInputSource = {
   /** Confirm evidence stored for this block, by verdict id. */
   confirm?: Readonly<Record<string, evidence.ConfirmEvidence>>;
   planRows?: evidence.EvidenceInput['planRows'];
+  /** The `policy/value-check` object the block resolved, to read which implementation a stored rung id names. */
+  valuePolicy?: ValuePolicy;
   extra?: Partial<evidence.EvidenceInput>;
 };
 
@@ -101,17 +111,30 @@ export function blockEvidenceInputs(source: BlockInputSource): (verdict: Verdict
   const planRows = source.planRows ?? meta.planRows;
   const expect = expectView(source.expect);
   if (meta.situation !== undefined) expect.situation = meta.situation;
-  return (verdict) => ({
-    block: { observed: source.observed, verdicts: [...source.verdicts] },
-    verdict,
-    ...(source.user === undefined ? {} : { user: source.user }),
-    expect,
-    ...(meta.atoms.length > 0 ? { ruleAtoms: meta.atoms } : {}),
-    ...(map === undefined ? {} : { atoms: map.atoms, edges: map.edges }),
-    ...(source.confirm?.[verdict.id] === undefined ? {} : { confirm: source.confirm[verdict.id] }),
-    ...(planRows === undefined ? {} : { planRows }),
-    ...source.extra,
-  });
+  const toolSchemas = toolSchemasOf(source.spec);
+  return (verdict) => {
+    const values = valueFacts(
+      {
+        observed: source.observed,
+        ...(source.expect === undefined ? {} : { expect: source.expect }),
+        ...(source.valuePolicy === undefined ? {} : { policy: source.valuePolicy }),
+      },
+      verdict,
+    );
+    return {
+      block: { observed: source.observed, verdicts: [...source.verdicts] },
+      verdict,
+      ...(source.user === undefined ? {} : { user: source.user }),
+      expect,
+      ...(values.length > 0 ? { values } : {}),
+      ...(toolSchemas === undefined ? {} : { toolSchemas }),
+      ...(meta.atoms.length > 0 ? { ruleAtoms: meta.atoms } : {}),
+      ...(map === undefined ? {} : { atoms: map.atoms, edges: map.edges }),
+      ...(source.confirm?.[verdict.id] === undefined ? {} : { confirm: source.confirm[verdict.id] }),
+      ...(planRows === undefined ? {} : { planRows }),
+      ...source.extra,
+    };
+  };
 }
 
 /** The same, from the context the checks ran with. */

@@ -3341,6 +3341,15 @@
       "cause": "openStore refuses a database of a newer schema version without touching it"
     },
     {
+      "id": "claim/adapters/store-schema-holds-block-verdicts",
+      "family": "store-stress",
+      "tier": 1,
+      "level": 1,
+      "source": "contract",
+      "component": "packages/store/src/store.ts",
+      "cause": "SCHEMA_VERSION is at or above the version that introduced not_run and blocked, in the file and in a bundle"
+    },
+    {
       "id": "claim/adapters/store-older-schema-upgraded",
       "family": "store-stress",
       "tier": 2,

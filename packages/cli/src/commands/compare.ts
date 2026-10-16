@@ -9,6 +9,7 @@ import {
 } from '@agent-nexus/driftbench-core';
 import {
   createAnthropicJudge,
+  createDefaultJudge,
   createGoogleJudge,
   createOpenAiJudge,
   createReaderFirstJudge,
@@ -56,9 +57,8 @@ export type ReportDeps = {
 
 /** The provider judges a `--pairwise-judge` name stands for. Keys are read from the environment. */
 export function defaultPairwiseClient(kind: string): JudgeClient {
-  if (kind === 'openai') return createOpenAiJudge({ id: 'pairwise-openai' });
-  if (kind === 'anthropic') return createAnthropicJudge({ id: 'pairwise-anthropic' });
-  if (kind === 'google') return createGoogleJudge({ id: 'pairwise-google' });
+  if (kind === 'openai' || kind === 'anthropic' || kind === 'google')
+    return createDefaultJudge({ provider: kind, id: `pairwise-${kind}` });
   const registered = pluginPairwiseJudge(kind);
   if (registered !== undefined) return registered;
   throw new Error(`unknown pairwise judge ${kind}: use openai, anthropic or google`);
