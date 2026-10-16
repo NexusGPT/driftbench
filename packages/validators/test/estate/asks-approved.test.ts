@@ -226,9 +226,9 @@ describe('a disclosed code-written ask is made of the words of its source', { ti
     const { run, specs: donors } = await disclosed(1);
     const specs = structuredClone(run.specs);
     const target = specs.find((spec) => spec.record.id === donors[0]?.record.id);
-    Object.assign((target?.loaded?.spec as unknown as Loaded).metadata?.estate ?? {}, {
-      askFrom: 'a description',
-    });
+    const meta = (target?.loaded?.spec as unknown as Loaded | undefined)?.metadata?.estate;
+    if (!meta) throw new Error('the donor has no estate metadata');
+    Object.assign(meta, { askFrom: 'a description' });
     expect((await verdict(1, { ...run, specs }))?.pass).toBe(false);
   });
 
