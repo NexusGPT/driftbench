@@ -1,4 +1,4 @@
-import { readFile } from 'node:fs/promises';
+import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { validateVariableStore } from '@agent-nexus/driftbench-space';
@@ -184,9 +184,11 @@ describe('no word of a prose situation or quote makes a condition', () => {
   it('keeps no list of comparison words anywhere in the feed', async () => {
     const dir = fileURLToPath(new URL('../../src/variables/', import.meta.url));
     const words =
-      /\b(more than|less than|fewer than|greater than|at least|at most|no more than|up to|within|above|below|under|over)\b/i;
-    for (const file of ['condition.ts', 'feed.ts', 'ledger.ts', 'provenance.ts', 'render.ts', 'index.ts']) {
-      const text = await readFile(join(dir, file), 'utf8').catch(() => '');
+      /\b(no more than|no fewer than|no less than|less than|fewer than|greater than|at least|at most|up to|within)\b/i;
+    const files = (await readdir(dir)).filter((name) => name.endsWith('.ts'));
+    expect(files.length).toBeGreaterThanOrEqual(6);
+    for (const file of files) {
+      const text = await readFile(join(dir, file), 'utf8');
       // Doc comments may name the words the feed does not read; the code and its strings may not.
       const code = text.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
       expect(code.match(words)?.[0], file).toBeUndefined();

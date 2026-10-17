@@ -1,117 +1,59 @@
+import type { Atom } from '../schema';
+
 /**
- * The condition reader: the one place the feed reads a quantity out of words. It is a closed grammar, not a
- * guess: a comparison phrase, then a number (digits or a number word), then at most one unit word. A situation
- * with no such phrase, or with two, has no condition, and the feed makes no variable from it. The limit the
- * reader finds is always a word of the quote the value stands on, so it cannot invent one.
+ * A numeric condition of an atom, read from a field and nowhere else. No word of a situation or a quote is
+ * matched: "more than two days" in prose makes no condition. Two fields give one:
+ *
+ * - `fields.condition`, in the shape of a store boundary: `{ limit, comparison, unit? }`, where the comparison
+ *   is `lt`, `le`, `gt` or `ge` and says how the quantity is compared with the limit for the condition to hold.
+ *   A reader that finds a number (a structured file, or the labels of the pointer reader) writes it there;
+ * - the limits an estate check measures, listed in `STRUCTURED_LIMITS`: the invariant `standing_size` carries
+ *   the `ceiling` of the standing instructions, in characters, and the check fails above it.
  */
 
 export type Comparison = 'lt' | 'le' | 'gt' | 'ge';
-export type Condition = {
+export type Condition = { limit: number; comparison: Comparison; unit?: string };
+
+const COMPARISONS: ReadonlySet<string> = new Set(['lt', 'le', 'gt', 'ge']);
+
+/** The limits the estate itself measures: the kind and the check of the atom, the field that holds the limit. */
+const STRUCTURED_LIMITS: ReadonlyArray<{
+  kind: Atom['kind'];
+  check: string;
+  limit: string;
   comparison: Comparison;
-  limit: number;
-  unit?: string;
-  /** The words of the situation up to the end of the number and its unit: the condition itself, without what follows it. */
-  subject: string;
-};
+  unit: string;
+}> = [{ kind: 'invariant', check: 'standing_size', limit: 'ceiling', comparison: 'le', unit: 'characters' }];
 
-const PHRASES: ReadonlyArray<readonly [string, Comparison]> = [
-  ['no fewer than', 'ge'],
-  ['no less than', 'ge'],
-  ['no more than', 'le'],
-  ['more than', 'gt'],
-  ['greater than', 'gt'],
-  ['fewer than', 'lt'],
-  ['less than', 'lt'],
-  ['at least', 'ge'],
-  ['at most', 'le'],
-  ['up to', 'le'],
-  ['within', 'le'],
-  ['above', 'gt'],
-  ['over', 'gt'],
-  ['under', 'lt'],
-  ['below', 'lt'],
-];
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  value !== null && typeof value === 'object' && !Array.isArray(value);
 
-const WORDS: Readonly<Record<string, number>> = {
-  zero: 0,
-  one: 1,
-  two: 2,
-  three: 3,
-  four: 4,
-  five: 5,
-  six: 6,
-  seven: 7,
-  eight: 8,
-  nine: 9,
-  ten: 10,
-  eleven: 11,
-  twelve: 12,
-  thirteen: 13,
-  fourteen: 14,
-  fifteen: 15,
-  sixteen: 16,
-  seventeen: 17,
-  eighteen: 18,
-  nineteen: 19,
-  twenty: 20,
-  thirty: 30,
-  forty: 40,
-  fifty: 50,
-  sixty: 60,
-  seventy: 70,
-  eighty: 80,
-  ninety: 90,
-  hundred: 100,
-};
-
-/** Words that follow a number without being its unit. */
-const NOT_UNITS = new Set([
-  'a',
-  'an',
-  'and',
-  'or',
-  'the',
-  'of',
-  'in',
-  'on',
-  'to',
-  'for',
-  'is',
-  'are',
-  'it',
-  'then',
-  'before',
-  'after',
-  'by',
-  'but',
-]);
-
-const NUMBER = `(?:[0-9]+(?:\\.[0-9]+)?|${Object.keys(WORDS).join('|')})`;
-const PHRASE = new RegExp(
-  `(?<![a-z])(${PHRASES.map(([phrase]) => phrase.replace(' ', '\\s+')).join('|')})\\s+(${NUMBER})(?![a-z0-9.])(?:\\s+([a-z]+))?`,
-  'dg',
-);
-
-function numberOf(token: string): number {
-  return token in WORDS ? (WORDS[token] as number) : Number(token);
+/** The condition `fields.condition` holds, or undefined when it is not exactly `{ limit, comparison, unit? }`. */
+function declared(value: unknown): Condition | undefined {
+  if (!isRecord(value)) return undefined;
+  const extra = Object.keys(value).filter((key) => !['limit', 'comparison', 'unit'].includes(key));
+  const { limit, comparison, unit } = value;
+  if (extra.length > 0 || typeof limit !== 'number' || !Number.isFinite(limit)) return undefined;
+  if (typeof comparison !== 'string' || !COMPARISONS.has(comparison)) return undefined;
+  if (unit !== undefined && (typeof unit !== 'string' || unit === '')) return undefined;
+  return { limit, comparison: comparison as Comparison, ...(unit === undefined ? {} : { unit }) };
 }
 
-/** The condition a situation states, or undefined when it states none or more than one. */
-export function readCondition(situation: string): Condition | undefined {
-  const words = situation.replace(/\s+/g, ' ').trim();
-  const text = words.toLowerCase();
-  const found = [...text.matchAll(PHRASE)];
-  if (found.length !== 1 || text.length !== words.length) return undefined;
-  const [, phrase, number, word] = found[0] as RegExpMatchArray;
-  const comparison = PHRASES.find(([candidate]) => candidate === (phrase ?? '').replace(/\s+/g, ' '))?.[1];
-  if (comparison === undefined || number === undefined) return undefined;
-  const unit = word !== undefined && !NOT_UNITS.has(word) && !(word in WORDS) ? word : undefined;
-  const indices = (found[0] as RegExpMatchArray & { indices: Array<[number, number] | undefined> }).indices;
-  const end = (unit === undefined ? indices[2]?.[1] : indices[3]?.[1]) ?? text.length;
-  return {
-    comparison,
-    limit: numberOf(number),
-    ...(unit === undefined ? {} : { unit }),
-    subject: words.slice(0, end),
-  };
+/** The condition of an atom, with a base for its variable id, or undefined when its fields hold none. */
+export function conditionOf(atom: Atom): (Condition & { base: string }) | undefined {
+  const fields = atom.fields ?? {};
+  const own = declared(fields.condition);
+  if (own !== undefined) return { ...own, base: atom.id };
+  for (const rule of STRUCTURED_LIMITS) {
+    const limit = fields[rule.limit];
+    if (
+      atom.kind === rule.kind &&
+      fields.check === rule.check &&
+      typeof limit === 'number' &&
+      Number.isFinite(limit)
+    ) {
+      return { limit, comparison: rule.comparison, unit: rule.unit, base: rule.check };
+    }
+  }
+  return undefined;
 }

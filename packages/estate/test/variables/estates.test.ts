@@ -64,7 +64,7 @@ describe.each(ESTATES)('the variable store of the $dir estate', ({ dir, map }) =
       .flatMap((entry) => (entry.kind === 'structure' && 'pointer' in entry ? [entry] : []));
     expect(pointers.length).toBeGreaterThan(0);
     for (const entry of pointers)
-      expect(entry.pointer.startsWith('/'), `${entry.path} ${entry.pointer}`).toBe(true);
+      expect(entry.pointer?.startsWith('/'), `${entry.path} ${entry.pointer}`).toBe(true);
   });
 
   it('is byte for byte the store committed beside the estate', async () => {

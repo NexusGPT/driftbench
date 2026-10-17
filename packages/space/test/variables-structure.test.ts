@@ -50,7 +50,7 @@ describe('structure provenance: a place in a JSON or YAML file, or a range of li
   });
 
   it('is a provenance a store may carry on a value, a boundary and a constraint, and variableProvenance lists it', () => {
-    const entry = { kind: 'structure', path: 'a.json', pointer: '/limits/0', hash: HASH };
+    const entry = { kind: 'structure', path: 'a.json', pointer: '/limits/0', hash: HASH } as const;
     const store = {
       format: 1,
       agent: 'demo',
@@ -118,6 +118,15 @@ describe('resolveStructure: the hash of the place a provenance entry names', () 
       hash: sha('"Bash(git push*)"'),
     });
     expect(resolveStructure(JSON_TEXT, { pointer: '/a~1b/c~0d' })).toEqual({ ok: true, hash: sha('7') });
+    // ~01 is the two characters ~1, not a slash: ~1 is decoded before ~0.
+    expect(resolveStructure('{"x~1y": 5, "x/y": 6}', { pointer: '/x~01y' })).toEqual({
+      ok: true,
+      hash: sha('5'),
+    });
+    expect(resolveStructure('{"x~1y": 5, "x/y": 6}', { pointer: '/x~1y' })).toEqual({
+      ok: true,
+      hash: sha('6'),
+    });
     expect(resolveStructure(JSON_TEXT, { pointer: '/list/1' })).toEqual({ ok: true, hash: sha('{"n":2}') });
     expect(resolveStructure('a: 1\nb:\n  - x\n  - y\n', { pointer: '/b/1' })).toEqual({
       ok: true,

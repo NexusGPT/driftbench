@@ -10,7 +10,7 @@ Three sources feed it:
 | Past conversations | the values they show, and how often | counts and a hash of the private set, never a line of text |
 | The owner | a value that is missing, a combination that cannot occur, a weight | the owner's words and the day they said them |
 
-Status. Built: the format, a loader that checks it, the conversion from a space map and from a map proposal, the conversion back to a space map, the check of every quote against its file, and the feed that fills a store from an estate map ([below](#from-an-estate)). Not built yet: the readers that fill a store from past conversations and from an interview; the planner and the generator reading a store; a command for the store. The `space` commands read a space map, and `variablesToSpaceMap` makes one from a store.
+Status. Built: the format, a loader that checks it, the conversion from a space map and from a map proposal, the conversion back to a space map, the check of every quote and structure entry against its file, and the feed that fills a store from an estate map ([below](#from-an-estate)). Not built yet: the readers that fill a store from past conversations and from an interview; the planner and the generator reading a store; a command for the store. The `space` commands read a space map, and `variablesToSpaceMap` makes one from a store.
 
 ## The file
 
@@ -116,15 +116,23 @@ A strict comparison (`gt`, `lt`) leaves the limit itself on the failing side, so
 
 ## Provenance
 
-Every value, boundary and constraint may list where it comes from, in `provenance`. Each entry is one of three kinds, named by `kind`.
+Every value, boundary and constraint may list where it comes from, in `provenance`. Each entry is one of four kinds, named by `kind`.
 
 | Kind | Fields | Holds |
 |---|---|---|
 | `quote` | `path`, `quote`, `ledger` (optional) | text copied from a file of the agent |
+| `structure` | `path`, `pointer` or `lines`, `hash` | a place in a file that is not prose: a value of a JSON or YAML file, or a range of lines of a script |
 | `conversations` | `count`, `total`, `set_hash` | how many of the conversations read show the value |
 | `owner` | `words`, `date` | what the owner said, and the day |
 
 A quote has a `path`, relative to the folder of the store file and written with forward slashes: no leading `/`, no `~`, no scheme or drive letter (`file:`, `C:`) and no backslash, so a path never names a folder outside the repository by its full name. It has a `quote` of 1 to 1,000 characters that is not blank. A `ledger` is the ledger id of the prose the quote belongs to, 10 characters from `a` to `z` and `2` to `7`. The store checks its shape. A quote is checked against its file as the evidence of a map proposal is: word for word, with runs of white space, typographic quote marks, accents written composed or decomposed, characters that print nothing and the backslash of markdown folded first; case and punctuation must match.
+
+A `structure` entry is for what a quote cannot name: a guard, a permission or a stage that lives in `settings.json`, a steps file or a script. It has a `path` (the same rules as a quote's), a `hash`, and one of two places:
+
+* `pointer`, for a JSON or YAML file: a JSON pointer (RFC 6901) to the value, such as `/permissions/deny/0` or `/steps/2`. `~` is written `~0` and `/` is written `~1`; the empty pointer is the whole file. The `hash` is the SHA-256 of the canonical JSON of that value (keys sorted, no white space), so a reformatted file or another order of keys is the same value.
+* `lines`, for any other file: `{ start, end }`, the first and last line counted from 1. The `hash` is the SHA-256 of those lines joined by a line feed (a Windows line break reads the same).
+
+It has no other key: a structure entry keeps no text of the file. The store checks the shape (`hash` is 64 lowercase hexadecimal characters, exactly one of `pointer` and `lines`, `end` at least `start`). `verifyVariableQuotes` reads the file and resolves the place: a pointer that names nothing, or lines past the end of the file, is `VARIABLES_POINTER_UNRESOLVED`; a place that holds something else than when the entry was written is `VARIABLES_HASH_MISMATCH`.
 
 A `conversations` entry holds counts and a SHA-256 of the private set of conversations, 64 lowercase hexadecimal characters. `count` is a whole number from 0 to `total`, and `total` is at least 1. The entry has no other key: no text, no id and no person can enter a store through it.
 
@@ -200,6 +208,8 @@ const space = variablesToSpaceMap(loaded.store); // a result: ok with the map, o
 | `VARIABLES_BOUNDARY` | the two sides of a boundary are one value, or the edge is on the wrong side of a strict or an inclusive comparison | `variables.N.boundaries.B.fails` (one value on both sides) or `.edge` (wrong side) |
 | `VARIABLES_SOURCE_UNREADABLE` | `verifyVariableQuotes` cannot read the file a quote names; reported once per file | `PATH.path` of the first quote that names the file |
 | `VARIABLES_QUOTE_NOT_FOUND` | `verifyVariableQuotes` does not find a quote in its file | `PATH.quote` of the quote |
+| `VARIABLES_POINTER_UNRESOLVED` | `verifyVariableQuotes` finds that the pointer of a `structure` entry names nothing in its file (or the file is not valid JSON or YAML), or that its lines are past the end | `PATH.pointer` or `PATH.lines` of the entry |
+| `VARIABLES_HASH_MISMATCH` | the place a `structure` entry names holds something else than the entry's `hash`: the file changed since the entry was written | `PATH.hash` of the entry |
 | `VARIABLES_UNSOURCED` | advice only: a value, a boundary or a constraint has no provenance | `variables.N.values.M`, `variables.N.boundaries.B` or `constraints.N` |
 
 In these paths N, M, B and K are positions counted from 0, NAME is a key, and PATH is the path of a provenance entry, such as `variables.0.values.1.provenance.0`. A provenance entry is reached through the `provenance` list of a variable, a value, a boundary or a constraint.
@@ -228,26 +238,42 @@ Three conversions connect the store to the two files it replaces.
 |---|---|---|
 | `atoms.<kind>` for each atom kind that holds axis atoms | `axis`, kind `behaviour` | each atom |
 | `details.<kind>` for each kind that holds detail atoms | `detail`, kind `data` | each atom |
-| `condition.<subject>` for each condition a situation states with a number | `detail`, kind `data` | `above_N`, `at_N`, `below_N`, and the boundary between them with its `limit`, `comparison` and `unit` |
+| `condition.<id>` for each atom that carries a numeric condition in a field | `detail`, kind `data` | `above_N`, `at_N`, `below_N`, and the boundary between them with its `limit`, `comparison` and `unit` |
 
-The condition reader is a closed grammar, not a guess: one comparison phrase (`more than`, `over`, `above`, `less than`, `fewer than`, `under`, `below`, `at least`, `at most`, `no more than`, `up to`, `within`), then a number in digits or in words up to twenty and the round tens, then at most one unit word. A situation with no such phrase ("a tool failed twice in a row"), or with two, makes no variable. Two situations that state the same condition ("a credit note above 500.00 EUR waits for approval" and "... waits for the finance lead") make one variable with both quotes.
+**Where a value comes from.** Every value stands on the place its atom is read from, and the kind of file decides how that place is written:
 
-A value stands on a quote or it is refused. The quote is the atom's own, its file is the path, and its ledger id is the id of the pointer unit that holds it (`pointer.nextLedger`, or a committed ledger when one is given, so the ids agree with an `estate scan --pointer` of the same estate). An atom is refused, named in `refused` with the reason, and left out of the store when:
+| The atom is read from | The entry is |
+|---|---|
+| prose (`.md`) | a `quote` with the ledger id of the pointer unit that holds it (`pointer.nextLedger`, or a committed ledger when one is given, so the ids agree with an `estate scan --pointer` of the same estate) |
+| a JSON or YAML file | a `structure` entry with the JSON pointer to the value the quote is in, and the hash of that value |
+| any other file, such as a script | a `structure` entry with the range of lines and the hash of those lines |
 
-* its quote is empty or blank;
-* its quote is longer than 1,000 characters;
-* its file is not prose the pointer reader cuts (a script, a JSON file): it has no ledger unit and so no id;
-* no unit holds its quote, or the committed ledger no longer matches the text.
+An atom is refused, named in `refused` with the reason, and left out of the store only when its place does not resolve: its quote is empty; its quote is longer than 1,000 characters (a prose quote is kept in the store); its file was not given to the feed; its lines are past the end of the file; its quote is not at the lines it names; its JSON or YAML file does not parse or has no value at the quote; or no unit of a prose file holds the quote. Guards, tools, stages and settings, which live in JSON files, are values like any other.
 
-The fixed situation axes of every estate (`ask_class`, `session_state` and the others) name no source and are not part of the feed. The result depends on the map and the ledger alone: `renderVariableStore` writes the same bytes for the same estate. The three invented estates of `examples/estates` have their stores beside their maps: `fixture/variables.yaml`, `fixture-v2/variables.yaml` and `reader-cases/variables.yaml`. Each validates, every quote is in its file, and every value carries a ledger id. The atoms the feed refuses in them are the ones read from JSON and scripts (guards, stages, tools, settings, invariants).
+**Where a condition comes from.** A numeric condition comes from a structured field and from nowhere else. The feed matches no word of a situation or a quote, so "late by more than two days" in prose makes no condition. Two fields give one:
+
+* `fields.condition` on an atom, in the shape of a store boundary: `{ limit, comparison, unit? }`, where `comparison` is `lt`, `le`, `gt` or `ge`. A reader that finds a number in a structured file, or the labels of the pointer reader, writes it there. Anything else in the field (another comparison, a string for the limit, an extra key) makes no condition.
+* The limits the estate itself measures, listed in the feed: the invariant `standing_size` carries the `ceiling` of the standing instructions, and the check fails above it, so it gives `comparison: le` and `unit: characters`.
+
+**What the feed leaves out, and how it names things.**
+
+* The fixed situation axes of every estate (`ask_class`, `session_state` and the others in the estate map) name no source, so they are not in the feed. They come from a space map (`spaceMapToVariables`) and are merged beside it, as the Northwind example does.
+* A variable's id is a slug: `atoms.<kind>`, `details.<kind>`, and `condition.<slug of the atom id>` (the check name for a measured limit, `condition.standing_size`). A second atom with the same slug gets `_2`, `_3`. The values of a condition are `above_N`, `at_N` and `below_N`, with N the limit as written.
+
+The result depends on the map and the files only: `renderVariableStore` writes the same bytes for the same estate. The three invented estates of `examples/estates` have their stores beside their maps: `fixture/variables.yaml`, `fixture-v2/variables.yaml` and `reader-cases/variables.yaml`. Each validates, every provenance entry resolves in its file, and no atom is refused. Each holds one condition, the size ceiling.
 
 ```ts
 import { loadEstateMap, variables } from '@agent-nexus/driftbench-estate';
 
 const loaded = await loadEstateMap('examples/estates/fixture/approved.yaml');
 if (!loaded.ok) throw new Error('map refused');
-const texts = new Map([['CLAUDE.md', await readFile('examples/estates/fixture/CLAUDE.md', 'utf8')]]); // every file the atoms name
-const { store, refused } = variables.estateToVariables(loaded.map, variables.ledgerResolver(texts), { agent: 'northwind' });
+const texts = new Map<string, string>(); // every file the atoms name: path to text
+for (const file of new Set(loaded.map.atoms.map((atom) => atom.provenance.file))) {
+  texts.set(file, await readFile(`examples/estates/fixture/${file}`, 'utf8'));
+}
+const { store, refused } = variables.estateToVariables(loaded.map, variables.provenanceResolver(texts), {
+  agent: 'northwind',
+});
 await writeFile('variables.yaml', variables.renderVariableStore(store));
 ```
 

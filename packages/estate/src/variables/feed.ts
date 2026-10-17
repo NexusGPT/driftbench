@@ -1,8 +1,8 @@
-import type { VariableStore } from '@agent-nexus/driftbench-space';
+import type { QuoteProvenance, StructureProvenance, VariableStore } from '@agent-nexus/driftbench-space';
 import { TARGET_KINDS } from '../map/space';
 import type { Atom, EstateMap } from '../schema';
-import { type Condition, readCondition } from './condition';
-import type { LedgerResolver } from './ledger';
+import { type Condition, conditionOf } from './condition';
+import type { ProvenanceResolver } from './provenance';
 
 /**
  * The variable store of an estate (docs/variables.md). The estate map is the estate's proposal: every atom is a
@@ -11,13 +11,14 @@ import type { LedgerResolver } from './ledger';
  *
  * - One variable per atom kind (`atoms.<kind>`, role axis) and one per kind of detail atom (`details.<kind>`,
  *   role detail), as the estate map's own dimensions are laid out. Each atom is a value.
- * - One variable per condition a situation states with a number (`condition.<situation>`, role detail): its
- *   three values (above the limit, at it, below it) and the boundary between them. Only the closed grammar of
- *   `readCondition` makes one; a situation with no number makes none.
+ * - One variable per numeric condition an atom carries as a structured field (`condition.<id>`, role detail):
+ *   its three values (above the limit, at it, below it) and the boundary between them. A condition comes from
+ *   a field and nowhere else (`conditionOf`): no word of a situation or a quote is matched.
  *
- * Every value stands on a quote: the atom's quote, its file as the path, and the ledger id of the pointer
- * unit that holds it. An atom that cannot give all three is refused and named in `refused`; it never reaches
- * the store. The result depends on the map and the ledger only, so the same estate gives the same bytes.
+ * Every value stands on where its atom is read from (`provenanceResolver`): the quote and the ledger id of the
+ * pointer unit for prose, a JSON pointer and a hash for a JSON or YAML file, a line range and a hash for any
+ * other file. An atom whose place does not resolve is refused and named in `refused`; it never reaches the
+ * store. The result depends on the map and the files only, so the same estate gives the same bytes.
  */
 
 export type EstateVariablesOptions = {
@@ -34,10 +35,7 @@ export type Refusal = { atom: string; variable: string; reason: string };
 
 export type EstateVariables = { store: VariableStore; refused: Refusal[] };
 
-/** The longest quote a store takes (docs/variables.md, Provenance). */
-const MAX_QUOTE = 1000;
-
-type Quote = { kind: 'quote'; path: string; quote: string; ledger: string };
+type Source = QuoteProvenance | StructureProvenance;
 type Value = VariableStore['variables'][number]['values'][number];
 type Variable = VariableStore['variables'][number];
 
@@ -46,17 +44,15 @@ const POLARITY: Readonly<Record<string, 'must' | 'must_not'>> = {
   prohibition: 'must_not',
 };
 
-/** The quote of an atom with its ledger id, or the reason it cannot give one. */
-function quoteOf(atom: Atom, resolve: LedgerResolver): { quote: Quote } | { reason: string } {
-  const text = atom.provenance.quote;
-  if (text.trim() === '') return { reason: 'the quote is empty' };
-  if (text.length > MAX_QUOTE) return { reason: `the quote is longer than ${MAX_QUOTE} characters` };
-  const found = resolve(atom.provenance.file, text, {
+/** Where an atom is read from, or the reason it cannot say. */
+function sourceOf(atom: Atom, resolve: ProvenanceResolver): { entry: Source } | { reason: string } {
+  const found = resolve({
+    file: atom.provenance.file,
+    quote: atom.provenance.quote,
     startLine: atom.provenance.startLine,
     endLine: atom.provenance.endLine,
   });
-  if (!found.ok) return { reason: found.reason };
-  return { quote: { kind: 'quote', path: atom.provenance.file, quote: text, ledger: found.id } };
+  return found.ok ? { entry: found.entry } : { reason: found.reason };
 }
 
 function slug(text: string): string {
@@ -70,34 +66,28 @@ function slug(text: string): string {
 
 const num = (value: number): string => String(value);
 
-/** The three values and the boundary a condition gives, each standing on the quotes of its atoms. */
-function conditionVariable(condition: Condition, atoms: Array<{ atom: Atom; quote: Quote }>): Variable {
+/** The three values and the boundary a condition gives, each standing on the source of its atom. */
+function conditionVariable(id: string, atom: Atom, condition: Condition, source: Source): Variable {
   const { comparison, limit, unit } = condition;
   const suffix = unit === undefined ? '' : ` ${unit}`;
   const above = `above_${num(limit)}`;
   const at = `at_${num(limit)}`;
   const below = `below_${num(limit)}`;
   const holdsAbove = comparison === 'gt' || comparison === 'ge';
-  const first = atoms[0]?.atom as Atom;
-  const quotes: Quote[] = [];
-  for (const { quote } of atoms) {
-    if (!quotes.some((q) => q.path === quote.path && q.quote === quote.quote)) quotes.push(quote);
-  }
-  const approved = atoms.every(({ atom }) => atom.approved);
-  const value = (id: string, title: string): Value => ({
-    id,
+  const value = (valueId: string, title: string): Value => ({
+    id: valueId,
     title,
-    approved,
-    produced_by: first.producedBy,
-    provenance: quotes.map((q) => ({ ...q })),
+    approved: atom.approved,
+    produced_by: atom.producedBy,
+    provenance: [{ ...source }],
   });
   return {
-    id: `condition.${slug(condition.subject)}`,
-    title: condition.subject,
+    id,
+    title: atom.title,
     kind: 'data',
     role: 'detail',
-    approved,
-    produced_by: first.producedBy,
+    approved: atom.approved,
+    produced_by: atom.producedBy,
     values: [
       value(above, `More than ${num(limit)}${suffix}`),
       value(at, `Exactly ${num(limit)}${suffix}`),
@@ -111,7 +101,7 @@ function conditionVariable(condition: Condition, atoms: Array<{ atom: Atom; quot
         limit,
         comparison,
         ...(unit === undefined ? {} : { unit }),
-        provenance: quotes.map((q) => ({ ...q })),
+        provenance: [{ ...source }],
       },
     ],
   };
@@ -119,7 +109,7 @@ function conditionVariable(condition: Condition, atoms: Array<{ atom: Atom; quot
 
 export function estateToVariables(
   map: EstateMap,
-  resolve: LedgerResolver,
+  resolve: ProvenanceResolver,
   options: EstateVariablesOptions = {},
 ): EstateVariables {
   const refused: Refusal[] = [];
@@ -131,7 +121,7 @@ export function estateToVariables(
       const values: Value[] = [];
       for (const atom of atoms) {
         if (atom.kind !== atomKind || atom.role !== role) continue;
-        const given = quoteOf(atom, resolve);
+        const given = sourceOf(atom, resolve);
         if ('reason' in given) {
           refused.push({ atom: atom.id, variable: `${prefix}.${atomKind}`, reason: given.reason });
           continue;
@@ -142,7 +132,7 @@ export function estateToVariables(
           title: atom.title,
           approved: atom.approved,
           produced_by: atom.producedBy,
-          provenance: [given.quote],
+          provenance: [given.entry],
           ...(polarity === undefined ? {} : { polarity }),
         });
       }
@@ -160,26 +150,26 @@ export function estateToVariables(
     return out;
   };
 
-  const conditions = new Map<string, { condition: Condition; atoms: Array<{ atom: Atom; quote: Quote }> }>();
+  const conditions: Variable[] = [];
+  const taken = new Set<string>();
   for (const atom of atoms) {
-    if (atom.situation === undefined) continue;
-    const condition = readCondition(atom.situation);
+    const condition = conditionOf(atom);
     if (condition === undefined) continue;
-    const id = `condition.${slug(condition.subject)}`;
-    const given = quoteOf(atom, resolve);
+    let id = `condition.${slug(condition.base)}`;
+    for (let n = 2; taken.has(id); n++) id = `condition.${slug(condition.base)}_${n}`;
+    const given = sourceOf(atom, resolve);
     if ('reason' in given) {
       refused.push({ atom: atom.id, variable: id, reason: given.reason });
       continue;
     }
-    const known = conditions.get(id);
-    if (known) known.atoms.push({ atom, quote: given.quote });
-    else conditions.set(id, { condition, atoms: [{ atom, quote: given.quote }] });
+    taken.add(id);
+    conditions.push(conditionVariable(id, atom, condition, given.entry));
   }
 
   const variables = [
     ...byDimension('axis', 'atoms', 'behaviour'),
     ...byDimension('detail', 'details', 'data'),
-    ...[...conditions.values()].map((entry) => conditionVariable(entry.condition, entry.atoms)),
+    ...conditions,
   ];
   return {
     store: {

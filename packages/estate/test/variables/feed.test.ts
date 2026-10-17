@@ -113,7 +113,7 @@ describe('an atom read from a JSON or YAML file stands on a pointer, not on a le
 
   it('reads a YAML file the same way', () => {
     const result = estateToVariables(
-      mapOf([atom({ kind: 'stage', file: '.claude/steps.yaml', quote: '  - verify' })]),
+      mapOf([atom({ kind: 'stage', file: '.claude/steps.yaml', quote: '- verify' })]),
       resolver(),
     );
     expect(valuesOf(result.store)[0]?.provenance).toEqual([
@@ -270,7 +270,9 @@ describe('the store the feed makes', () => {
     ]);
 
   it('carries the flags of the atom: approval, who proposed it, the role, the rule polarity', () => {
-    const [axis, detail] = estateToVariables(MAP(), resolver()).store.variables;
+    const variables = estateToVariables(MAP(), resolver()).store.variables;
+    const axis = variables.find((v) => v.id === 'atoms.instruction');
+    const detail = variables.find((v) => v.id === 'details.instruction');
     expect(axis).toMatchObject({ id: 'atoms.instruction', kind: 'behaviour', role: 'axis', approved: false });
     expect(axis?.values.map((v) => [v.approved, v.produced_by, v.polarity])).toEqual([
       [true, 'model', 'must'],
@@ -309,8 +311,9 @@ describe('the store the feed makes', () => {
   });
 
   it('renders the same bytes for the same estate', () => {
-    const first = renderVariableStore(estateToVariables(MAP(), resolver()).store);
-    expect(renderVariableStore(estateToVariables(MAP(), resolver()).store)).toBe(first);
+    const map = MAP();
+    const first = renderVariableStore(estateToVariables(map, resolver()).store);
+    expect(renderVariableStore(estateToVariables(map, resolver()).store)).toBe(first);
     expect(first.startsWith('# driftbench variable store')).toBe(true);
   });
 });
