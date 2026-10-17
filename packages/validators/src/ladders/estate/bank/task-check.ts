@@ -6,6 +6,7 @@ import {
   RESUME_ASK,
   renderAsk,
   SLOT,
+  SUBJECT_SHAPE,
   TOOL_ACTS,
   VERBATIM,
 } from '@agent-nexus/driftbench-generate';
@@ -185,8 +186,11 @@ function pieceReasons(
     if (id === cited.id || enforced.includes(id)) actFields.push(...own);
   }
   const actSlots = shape.split(SLOT).length - 1;
+  // The subject of a file ask is taken from the path of the row's reference atom, not from the cited unit.
   for (const [index, piece] of list.entries())
-    if (!isClauseOf(piece, index < actSlots ? actFields : fields))
+    if (
+      !isClauseOf(piece, index < actSlots && !(shape === SUBJECT_SHAPE && index === 1) ? actFields : fields)
+    )
       reasons.push(`the piece "${piece}" is no whole clause of the text of ${cited.id}`);
   return reasons;
 }

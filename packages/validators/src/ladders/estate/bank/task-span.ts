@@ -1,5 +1,5 @@
 import type { Atom } from '@agent-nexus/driftbench-estate';
-import { askedClauses, pronounDerivation } from '@agent-nexus/driftbench-generate';
+import { askedClauses, fileSubjectDerivation, pronounDerivation } from '@agent-nexus/driftbench-generate';
 
 /**
  * Whether a piece of a code-written ask is a whole clause of the text it says it came from. The check reads
@@ -86,7 +86,9 @@ export function fieldsOf(atom: Atom): Field[] {
     const readBefore = /\b(?:read|load|check|review|consult)\s+.+?\s+before\s+(.+)$/i.exec(text)?.[1];
     return [
       ...askedClauses(text),
-      ...[found, condition, governed, readBefore].filter((part): part is string => part !== undefined),
+      ...[found, condition, governed, readBefore, fileSubjectDerivation(text)].filter(
+        (part): part is string => part !== undefined,
+      ),
     ];
   });
   // A stage's title is a labelled value, not a clause cut from its JSON provenance.
