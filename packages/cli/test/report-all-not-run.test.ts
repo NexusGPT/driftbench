@@ -122,4 +122,30 @@ describe('a campaign whose every run is not run', () => {
     expect(result.err).not.toContain('RangeError');
     expect([1, 2, 3]).toContain(result.code);
   }, 120_000);
+
+  it('ci with --change against a baseline of the same store whose every run is not run: no stack trace', async () => {
+    const manifest = fileURLToPath(
+      new URL('../../../examples/acme/radius/confirmation-rule.yaml', import.meta.url),
+    );
+    const result = await run([
+      'ci',
+      '--specs',
+      SPEC,
+      '--target',
+      'process:my-agent',
+      '--process-command',
+      'my-agent-that-does-not-exist',
+      '--baseline',
+      'nr.db',
+      '--store',
+      'nr.db',
+      '--change',
+      manifest,
+    ]);
+    expect(result.err).not.toContain('RangeError');
+    expect(result.err).not.toContain('    at ');
+    // The comparison pairs no golden: the gate says so with its own exit, never an uncaught error.
+    expect([1, 2, 3]).toContain(result.code);
+    expect(result.out + result.err).toContain('goldens paired');
+  }, 120_000);
 });
