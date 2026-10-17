@@ -1,0 +1,58 @@
+standing-instructions.md#1	A=description	B=none	Standing instructions for Quill, the booking assistant of the Tidewick Harbour Co-op.
+standing-instructions.md#8	A=rule	B=prohibition	Short sentences, plain words, no jokes about the weather.
+standing-instructions.md#29	A=prohibition	B=description	An apology that comes before the news only delays it.
+standing-instructions.md#42	A=description	B=prohibition	You quote fares; you do not set them.
+standing-instructions.md#51	A=description	B=rule	Refunds belong to the refund desk.
+standing-instructions.md#58	A=rule	B=prohibition	Give the harbour emergency number and ask nothing else.
+standing-instructions.md#60	A=rule	B=gate	When a customer says they feel unwell on a crossing, the answer is the same: call the number before anything e
+standing-instructions.md#73	A=rule	B=gate	Once the chat is passed, stay silent.
+standing-instructions.md#83	A=description	B=prohibition	Customer names are for the booking only.
+refund-desk-skill.md#1	A=description	B=none	refund-desk
+refund-desk-skill.md#32	A=rule	B=prohibition	No promise; the desk looks at each case
+refund-desk-skill.md#42	A=rule	B=description	The "Who decides" column is for you, not for the customer.
+refund-desk-skill.md#49	A=none	B=example	Example note:
+refund-desk-skill.md#56	A=rule	B=prohibition	A customer sends a photo of a card → do not open it, ask them to describe the problem in words
+refund-desk-skill.md#58	A=rule	B=prohibition	The fare in the ledger looks lower than the card → write the ledger figure, flag the difference, make no guess
+tide-tables-skill.md#1	A=description	B=none	tide-tables
+tide-tables-skill.md#43	A=rule	B=description	A customer who asks "can I get to Skarra at two?" wants a yes or a no, then the nearest boat that works.
+tide-tables-skill.md#49	A=rule	B=description	Tide too low → the boat waits, and the next sailing may be cancelled
+tide-tables-skill.md#50	A=rule	B=description	Tide too high under the bridge → the water taxi does not sail
+dock-notice-helper.md#1	A=description	B=none	dock-notice-writer
+dock-notice-helper.md#9	A=rule	B=prohibition	Anything the caller does not state is unknown to you,
+and unknown things stay out of the notice.
+dock-notice-helper.md#27	A=rule	B=prohibition	No exclamation marks
+dock-notice-helper.md#28	A=rule	B=prohibition	Avoid nautical slang the day-trippers will not know
+dock-notice-helper.md#71	A=rule	B=prohibition	Leave out any number the caller wrote on a scrap of paper.
+memory-notes.md#22	A=rule	B=prohibition	Name the quay: "Harbour Steps", never "the dock"
+memory-notes.md#24	A=rule	B=gate	Wait for the customer's reply before you offer a second option
+memory-notes.md#28	A=description	B=example	The ledger showed the boat as scheduled, not as running.
+memory-notes.md#37	A=rule	B=prohibition	Keep the note field plain, no ampersands and no brackets.
+memory-notes.md#55	A=rule	B=description	Remember that the harbour is dark by half past four in December.
+scheduler-reference.md#3	A=description	B=rule	Use the scheduler when you need the list of sailings for a day, or the free seats on one sailing.
+scheduler-reference.md#4	A=description	B=rule	Build a day view in one call by passing the date and no sailing id.
+scheduler-reference.md#11	A=none	B=description	list_day
+scheduler-reference.md#14	A=none	B=description	seats_free
+scheduler-reference.md#17	A=none	B=description	next_after
+scheduler-reference.md#20	A=none	B=description	tide_flag
+scheduler-reference.md#24	A=none	B=description	**The scheduler never retries a failed read.**
+scheduler-reference.md#29	A=gate	B=rule	On that morning, check the first sailing against the office clock.
+scheduler-reference.md#41	A=rule	B=gate	cancelled → say so first, then offer the next sailing
+scheduler-reference.md#59	A=rule	B=gate	Read again before you quote
+scheduler-reference.md#66	A=rule	B=gate	Wait half a minute, then try once more.
+scheduler-reference.md#83	A=description	B=example	A customer wants to get to Brannock before noon on the first of June.
+scheduler-reference.md#84	A=rule	B=example	Call list_day with the date, filter by destination, and read the status of each sailing before you answer.
+scheduler-reference.md#86	A=rule	B=example	On that day the 11:15 is the only one that gets the customer there before noon, and only just, so say that pla
+scheduler-reference.md#87	A=rule	B=example	Offer the 09:30 first, because it has room.
+scheduler-reference.md#94	A=none	B=description	Further reading is in the harbour office binder.
+lost-property-skill.md#1	A=description	B=none	lost-property
+lost-property-skill.md#15	A=rule	B=description	Item described in the customer's words
+lost-property-skill.md#16	A=rule	B=description	Place and sailing
+lost-property-skill.md#17	A=rule	B=description	Contact by email or phone, whichever they prefer
+lost-property-skill.md#18	A=rule	B=description	Date, written the day the item was lost
+lost-property-skill.md#19	A=rule	B=description	Any marks, such as a name tag or a broken zip
+lost-property-skill.md#34	A=rule	B=prohibition	A phone with a lock screen → do not try to unlock it, hand it to the office
+night-shift-handover.md#40	A=rule	B=gate	The heater takes twenty minutes, so put it on first and the kettle second.
+night-shift-handover.md#49	A=rule	B=gate	Move the forward to the next clerk before you leave, since a forward that points to a sleeping person is worse
+night-shift-handover.md#54	A=description	B=prohibition	It is not for booking questions.
+night-shift-handover.md#56	A=rule	B=prohibition	Phone the number yourself if someone on the quay reports an emergency; do not ask the caller to ring.
+night-shift-handover.md#57	A=rule	B=gate	Stay on the line until the harbour master says you can stop.
