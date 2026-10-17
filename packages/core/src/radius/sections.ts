@@ -49,9 +49,22 @@ export const PromptSection = z
       .describe('The SHA-256 of the section text.'),
     anchor: z
       .strictObject({
-        quote: z.string().min(1).describe('A verbatim quote inside the section, unique in the prompt.'),
+        quote: z
+          .string()
+          .min(1)
+          .describe(
+            'A verbatim quote inside the section. Unique in the prompt, unless the prompt repeats the text of the section: then `occurrence` says which copy of the quote lies in this section.',
+          ),
         prefix: z.string().optional().describe('The text just before the quote.'),
         suffix: z.string().optional().describe('The text just after the quote.'),
+        occurrence: z
+          .number()
+          .int()
+          .min(1)
+          .optional()
+          .describe(
+            'Which occurrence of the quote, from 1 in text order, lies in this section. Absent when the quote is found once; present when identical sections repeat the same text.',
+          ),
       })
       .describe('How to find the section again in the next version of the prompt.'),
     references: z
@@ -145,8 +158,9 @@ function count(text: string, quote: string): number[] {
 
 /**
  * Whether the registry describes this prompt text: the whole-text hash, each section's span and hash,
- * each anchor found once and inside its section, and no two sections overlapping. Stale sections are
- * not checked against the text. Returns the problems; empty when the registry matches.
+ * each anchor found once (or, with an `occurrence`, found at least that often, its own copy inside the
+ * section) and no two sections overlapping. Stale sections are not checked against the text. Returns the
+ * problems; empty when the registry matches.
  */
 export function checkSectionRegistry(registry: SectionRegistry, prompt: string): string[] {
   const text = normalizePrompt(prompt);
@@ -163,10 +177,20 @@ export function checkSectionRegistry(registry: SectionRegistry, prompt: string):
     if (sha256Hex(text.slice(start, end)) !== section.sha256)
       problems.push(`${section.id}: the text at ${start}-${end} does not match the section hash`);
     const at = count(text, section.anchor.quote);
-    if (at.length !== 1)
-      problems.push(`${section.id}: the anchor quote is found ${at.length} times, not once`);
-    else if ((at[0] ?? -1) < start || (at[0] ?? 0) + section.anchor.quote.length > end)
-      problems.push(`${section.id}: the anchor quote lies outside the section`);
+    const occurrence = section.anchor.occurrence;
+    const lies = (place: number | undefined) =>
+      (place ?? -1) < start || (place ?? 0) + section.anchor.quote.length > end;
+    if (occurrence === undefined) {
+      if (at.length !== 1)
+        problems.push(`${section.id}: the anchor quote is found ${at.length} times, not once`);
+      else if (lies(at[0])) problems.push(`${section.id}: the anchor quote lies outside the section`);
+    } else if (at.length < occurrence) {
+      problems.push(
+        `${section.id}: the anchor quote is found ${at.length} times, so it has no occurrence ${occurrence}`,
+      );
+    } else if (lies(at[occurrence - 1])) {
+      problems.push(`${section.id}: occurrence ${occurrence} of the anchor quote lies outside the section`);
+    }
   }
   const sorted = [...live].sort((a, b) => a.span.start - b.span.start);
   for (let index = 1; index < sorted.length; index++) {
@@ -206,14 +230,78 @@ function uniqueQuote(text: string, start: number, end: number): { quote: string;
   return undefined;
 }
 
-/** A section entry for the text at `start` to `end`. Undefined when no quote inside it is unique. */
+/** Where a section's quote may start: its first word after the heading line, then the heading itself. */
+function quoteOrigins(text: string, start: number, end: number): number[] {
+  let from = start;
+  const newline = text.indexOf('\n', start);
+  if (newline >= 0 && newline + 1 < end && /^#{1,6}\s/.test(text.slice(start, newline))) from = newline + 1;
+  while (from < end && /\s/.test(text[from] ?? '')) from++;
+  return from < end ? [from, start] : [start];
+}
+
+/** Where each needle occurs in the last text asked about: identical sections ask for the same needles. */
+let scans: { text: string; found: Map<string, number[]> } | undefined;
+function occurrencesIn(text: string, needle: string): number[] {
+  if (scans?.text !== text) scans = { text, found: new Map() };
+  let at = scans.found.get(needle);
+  if (!at) {
+    at = count(text, needle);
+    scans.found.set(needle, at);
+  }
+  return at;
+}
+
+/**
+ * For a section whose text the prompt repeats (identical sections): the shortest prefix of its body, at least 24
+ * units, that occurs as often as the whole body does, and which occurrence of it (from 1, in text order) lies in
+ * this section. The origin is the body or the heading, whichever the prompt repeats less.
+ */
+function repeatedQuote(
+  text: string,
+  start: number,
+  end: number,
+): { quote: string; at: number; occurrence?: number } | undefined {
+  let best: { origin: number; copies: number } | undefined;
+  for (const origin of quoteOrigins(text, start, end)) {
+    const whole = text.slice(origin, end);
+    if (whole.trim() === '') continue;
+    const copies = occurrencesIn(text, whole).length;
+    if (!best || copies < best.copies) best = { origin, copies };
+  }
+  if (!best) return undefined;
+  const { origin, copies } = best;
+  const room = end - origin;
+  let visible = 0;
+  while (visible < room && /\s/.test(text[origin + visible] ?? '')) visible++;
+  // Occurrences only fall as the prefix grows, so the shortest prefix with all the copies of the whole is a bisection.
+  let low = Math.max(Math.min(24, room), visible + 1);
+  let high = room;
+  while (low < high) {
+    const middle = (low + high) >> 1;
+    if (occurrencesIn(text, text.slice(origin, origin + middle)).length === copies) high = middle;
+    else low = middle + 1;
+  }
+  const quote = text.slice(origin, origin + low);
+  const places = occurrencesIn(text, quote);
+  return places.length > 1
+    ? { quote, at: origin, occurrence: places.indexOf(origin) + 1 }
+    : { quote, at: origin };
+}
+
+/**
+ * A section entry for the text at `start` to `end`. Undefined when no quote inside it is unique, unless
+ * `repeated` accepts a quote the prompt repeats: the anchor then carries the `occurrence` that lies in this
+ * section, so identical sections keep an entry each.
+ */
 export function sectionEntry(
   text: string,
   start: number,
   end: number,
   fields: Omit<PromptSection, 'span' | 'sha256' | 'anchor'>,
+  options: { repeated?: boolean } = {},
 ): PromptSection | undefined {
-  const found = uniqueQuote(text, start, end);
+  const found: { quote: string; at: number; occurrence?: number } | undefined =
+    uniqueQuote(text, start, end) ?? (options.repeated ? repeatedQuote(text, start, end) : undefined);
   if (!found) return undefined;
   return {
     ...fields,
@@ -223,6 +311,7 @@ export function sectionEntry(
       quote: found.quote,
       prefix: text.slice(Math.max(0, found.at - WINDOW), found.at),
       suffix: text.slice(found.at + found.quote.length, found.at + found.quote.length + WINDOW),
+      ...(found.occurrence === undefined ? {} : { occurrence: found.occurrence }),
     },
   };
 }
@@ -309,10 +398,10 @@ function insideContainers(line: string, stack: Container[]): string | undefined 
  * three spaces with their closing # sequence dropped, and setext headings (a paragraph underlined with = or -).
  * A # line inside a fenced code block is code, not a heading; a fence opened inside a quote or a list item ends
  * with it. A leading YAML front matter block is not read. `at` is where the heading starts, after its indentation;
- * for a setext heading, where the first line of its paragraph starts. `bodyAt` is where its own lines end.
+ * for a setext heading, where the first line of its paragraph starts.
  */
-function markdownHeadings(text: string, level: number): { at: number; title: string; bodyAt: number }[] {
-  const found: { at: number; title: string; bodyAt: number }[] = [];
+function markdownHeadings(text: string, level: number): { at: number; title: string }[] {
+  const found: { at: number; title: string }[] = [];
   let fence: { char: string; length: number; stack: Container[] } | undefined;
   let paragraph: { at: number; lines: string[] } | undefined;
   // After a quote or a list item, a line without a blank before it continues that container (lazily).
@@ -354,18 +443,14 @@ function markdownHeadings(text: string, level: number): { at: number; title: str
       container = false;
       if (atx[1].length <= level) {
         const title = (atx[2] ?? '').replace(/(?:^|[ \t]+)#+[ \t]*$/, '').trim();
-        found.push({ at: lineStart + indent, title, bodyAt: lineStart + line.length });
+        found.push({ at: lineStart + indent, title });
       }
       continue;
     }
     const underline = SETEXT_UNDERLINE.exec(line);
     if (underline?.[1] && paragraph && !container) {
       if (underline[1][0] === '=' ? 1 <= level : 2 <= level)
-        found.push({
-          at: paragraph.at,
-          title: paragraph.lines.join(' '),
-          bodyAt: lineStart + line.length,
-        });
+        found.push({ at: paragraph.at, title: paragraph.lines.join(' ') });
       paragraph = undefined;
       continue;
     }
@@ -397,10 +482,10 @@ function markdownHeadings(text: string, level: number): { at: number; title: str
  * A first registry for a markdown prompt: one section per CommonMark heading of level 1 to `level` (ATX or
  * setext, never one inside a fenced code block, none in a leading front matter block), from the heading to the
  * next one, the text before the first heading as `preamble`. Ids are the slugged titles; a repeated slug takes
- * the next free `_2`, `_3`, ... A heading whose section holds no quote that is unique in the prompt (an empty
- * heading next to another, one with no word of its own) is folded into the section before it, or into the one
- * after it when it comes first. Two sections with text and no unique quote stop with an error.
- * Every section starts global, the safe reading: the author marks local the sections that reach only
+ * the next free `_2`, `_3`, ... Sections with the same text keep an entry each: the anchor quote is then found
+ * in every copy, and its `occurrence` names the copy that lies in the section. A section with no word of its own
+ * (an empty heading next to another) is folded into the section before it, or into the one after it when it
+ * comes first. Every section starts global, the safe reading: the author marks local the sections that reach only
  * the blocks linked to them, and adds references and overrides.
  */
 export function sectionsFromHeadings(
@@ -412,7 +497,7 @@ export function sectionsFromHeadings(
   const starts = markdownHeadings(text, level);
   if (starts.length === 0 || (starts[0]?.at ?? 0) > 0) {
     const firstAt = starts[0]?.at ?? text.length;
-    if (text.slice(0, firstAt).trim() !== '') starts.unshift({ at: 0, title: 'preamble', bodyAt: 0 });
+    if (text.slice(0, firstAt).trim() !== '') starts.unshift({ at: 0, title: 'preamble' });
   }
   const spanEnd = (index: number): number => {
     const from = starts[index]?.at ?? 0;
@@ -420,18 +505,23 @@ export function sectionsFromHeadings(
     while (end > from + 1 && /\s/.test(text[end - 1] ?? '')) end--;
     return end;
   };
-  // Anchor each section; one that cannot be anchored is folded into a neighbour, then its neighbour is anchored again.
+  // Anchor each section. A section with words keeps an entry of its own, even when the prompt repeats its text.
+  // One with no word (an empty heading, a lone rule) cannot be told from its neighbours: it folds into the section
+  // before it, or into the one after it when it comes first, and that neighbour is anchored again.
   const entries: PromptSection[] = [];
   for (let index = 0; index < starts.length; ) {
     const start = starts[index];
-    const entry = start && sectionEntry(text, start.at, spanEnd(index), { id: 'section', scope: 'global' });
+    const entry =
+      start &&
+      sectionEntry(
+        text,
+        start.at,
+        spanEnd(index),
+        { id: 'section', scope: 'global' },
+        { repeated: /[\p{L}\p{N}]/u.test(text.slice(start.at, spanEnd(index))) },
+      );
     if (entry || !start || starts.length === 1) {
       if (entry) entries[index] = entry;
-      index++;
-      continue;
-    }
-    // Only a section with no words of its own (an empty heading, a lone rule) folds into a neighbour; two equal sections with text stop init.
-    if (/[\p{L}\p{N}]/u.test(text.slice(start.bodyAt, spanEnd(index)))) {
       index++;
       continue;
     }
@@ -467,7 +557,7 @@ export function sectionsFromHeadings(
   };
 }
 
-export type ReanchorMethod = 'same_hash' | 'quote' | 'window';
+export type ReanchorMethod = 'same_hash' | 'occurrence' | 'quote' | 'window';
 
 export type ReanchoredSection = {
   id: string;
@@ -498,11 +588,27 @@ export type Reanchoring = {
 const squash = (text: string) => text.replace(/\s+/g, '');
 
 /**
+ * The anchor of a section placed in `text` with its quote at `at`: the same quote and window, with the
+ * `occurrence` that lies in the section when the text repeats the quote, and none when it is found once.
+ */
+function anchorIn(text: string, anchor: PromptSection['anchor'], at: number): PromptSection['anchor'] {
+  if (at < 0 || text.slice(at, at + anchor.quote.length) !== anchor.quote) return anchor;
+  const { occurrence: _old, ...rest } = anchor;
+  const places = count(text, anchor.quote);
+  return places.length > 1 ? { ...rest, occurrence: places.indexOf(at) + 1 } : rest;
+}
+
+/**
  * Re-anchors a registry on the next version of its prompt. For each section, in order: the same text
  * found once in the new prompt (`same_hash`); else the anchor quote found once, and the old text found
  * at the same distance from it (`quote`); else the prefix, quote and suffix window found once, the same
  * way (`window`); else `stale`. A section is only ever placed where its text hashes as before, so a
  * section is never anchored to the wrong text: an edit inside a section makes it stale.
+ *
+ * A text the old prompt repeats (identical sections) is told apart by its place in the order of the copies:
+ * when the new prompt holds as many copies as the old one, the n-th copy is still the n-th (`occurrence`).
+ * When the number of copies changed, only a window that names one copy in the old prompt as well can place a
+ * section; else it is `stale`, so two sections never hold one place.
  *
  * `before` must be the text the registry describes (its `text_sha256`); a mismatch is an error.
  */
@@ -521,6 +627,16 @@ export function reanchorRegistry(
     };
   const sections: ReanchoredSection[] = [];
   const entries: PromptSection[] = [];
+  const inOld = new Map<string, number[]>();
+  const inNext = new Map<string, number[]>();
+  const where = (memo: Map<string, number[]>, text: string, needle: string): number[] => {
+    let at = memo.get(needle);
+    if (!at) {
+      at = count(text, needle);
+      memo.set(needle, at);
+    }
+    return at;
+  };
   for (const section of registry.sections) {
     const from = section.span;
     const body = old.slice(from.start, from.end);
@@ -531,16 +647,28 @@ export function reanchorRegistry(
     }
     let to: { start: number; end: number } | undefined;
     let method: ReanchorMethod | undefined;
-    const exact = count(next, body);
-    if (exact.length === 1 && exact[0] !== undefined) {
-      to = { start: exact[0], end: exact[0] + body.length };
-      method = 'same_hash';
+    const copies = where(inOld, old, body);
+    const exact = where(inNext, next, body);
+    const repeated = copies.length > 1;
+    if (!repeated) {
+      if (exact.length === 1 && exact[0] !== undefined) {
+        to = { start: exact[0], end: exact[0] + body.length };
+        method = 'same_hash';
+      }
+    } else {
+      const same = exact[copies.indexOf(from.start)];
+      if (exact.length === copies.length && same !== undefined) {
+        to = { start: same, end: same + body.length };
+        method = 'occurrence';
+      }
     }
     const quoteAt = old.indexOf(section.anchor.quote, from.start);
     const offset = quoteAt - from.start;
     const place = (needle: string, inner: number, how: ReanchorMethod) => {
       if (to || quoteAt < 0) return;
-      const found = count(next, needle);
+      // The surroundings of a repeated text tell its copies apart only if they name one copy in the old prompt too.
+      if (repeated && where(inOld, old, needle).length !== 1) return;
+      const found = where(inNext, next, needle);
       if (found.length !== 1 || found[0] === undefined) return;
       const start = found[0] + inner - offset;
       if (start >= 0 && next.slice(start, start + body.length) === body) {
@@ -557,9 +685,11 @@ export function reanchorRegistry(
         id: section.id,
         status: 'stale',
         from,
-        reason: quoteFound
-          ? 'the anchor is found but the section text changed: edited inside'
-          : 'neither the text nor the anchor is found once: edited or removed',
+        reason: repeated
+          ? `its text occurs ${copies.length} times in the old prompt and ${exact.length} in the new one, and its surroundings do not tell which copy it is`
+          : quoteFound
+            ? 'the anchor is found but the section text changed: edited inside'
+            : 'neither the text nor the anchor is found once: edited or removed',
       });
       entries.push({ ...section, stale: true });
       continue;
@@ -572,7 +702,11 @@ export function reanchorRegistry(
       to,
     });
     const { stale: _stale, ...live } = section;
-    entries.push({ ...live, span: to });
+    entries.push({
+      ...live,
+      span: to,
+      anchor: anchorIn(next, section.anchor, quoteAt < 0 ? -1 : to.start + offset),
+    });
   }
 
   // Order: the found sections must keep their relative order.

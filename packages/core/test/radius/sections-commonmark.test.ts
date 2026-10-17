@@ -236,17 +236,8 @@ describe('sectionsFromHeadings reads CommonMark headings', () => {
       expect(built(text)[0]?.span.start).toBe(0);
     });
 
-    it('does not fold sections that hold text: two identical non-empty sections stop init', () => {
-      const result = sectionsFromHeadings('## Same\nSame body line.\n## Same\nSame body line.\n', {
-        promptId: 'lighthouse',
-        version: 'v1',
-      });
-      expect(result.ok).toBe(false);
-      if (!result.ok)
-        expect(result.errors.slice(0, 2)).toEqual([
-          'same: no quote inside the section is unique in the prompt',
-          'same_2: no quote inside the section is unique in the prompt',
-        ]);
+    it('keeps two identical sections that hold text, each with an entry of its own', () => {
+      expect(ids('## Same\nSame body line.\n## Same\nSame body line.\n')).toEqual(['same', 'same_2']);
     });
 
     it('keeps the whole text as one section when every heading is empty, and reports an empty prompt', () => {
