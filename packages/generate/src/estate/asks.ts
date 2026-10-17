@@ -4,6 +4,7 @@ import {
   HAZARD_FRAME,
   pronounDerivation,
   TOOL_ACTS,
+  TRIGGER_VARIANTS,
   VERBATIM,
   variantFrame,
 } from './frames';
