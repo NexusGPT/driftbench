@@ -31,6 +31,8 @@ export const SCALE_REFERENCE_UNIT_MS = 35;
 export const SCALE_BUDGET_UNITS: Record<number, number> = { 10: 857, 100: 1714 };
 /** Fewer unit samples than this during the runs measure nothing: the time item fails. */
 export const SCALE_MIN_UNITS = 10;
+/** The sampler's units that end before the window starts: their code is still being compiled. */
+export const SCALE_UNIT_WARMUP = 5;
 
 export type ScaleReport = {
   factor: number;

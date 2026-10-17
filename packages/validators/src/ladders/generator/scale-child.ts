@@ -36,7 +36,7 @@ import {
 import { createFollower } from './follower';
 import { followerAdapter, MAP_PATH, runContext, writeAll } from './measure';
 import { MAP_FILES, renderMap } from './render';
-import { type ScaleReport, scaledSpec } from './scale';
+import { SCALE_UNIT_WARMUP, type ScaleReport, scaledSpec } from './scale';
 
 /** The disk API's call, as the generator documents it. */
 type ToDisk = (
@@ -135,6 +135,12 @@ sampler.stdout.on('data', (chunk) => {
     if (Number.isFinite(end) && Number.isFinite(ms)) units.push([end as number, ms as number]);
   }
 });
+
+// The sampler's first units run before its code is compiled and cost more: the window starts once
+// SCALE_UNIT_WARMUP units have ended (or after 30 s), so a short window is not read in cold units.
+const warmed = Date.now() + 30_000;
+while (units.length < SCALE_UNIT_WARMUP && Date.now() < warmed)
+  await new Promise((resolve) => setTimeout(resolve, 20));
 
 // Match the old generateFrom(spec, renderMap(spec), seed) window, including setup and the first load.
 // CPU time (user and system) excludes time spent waiting for a busy machine.
