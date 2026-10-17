@@ -74,6 +74,11 @@ export type SuiteHeadlineOptions = {
    * ancestor (a replayed ancestor adds no block), so the links name the root the run alone cannot.
    */
   parentsOf?: (run: RunResult) => ReadonlyMap<string, string> | undefined;
+  /**
+   * The root blocks of a run's spec. A run that failed and measured no block fails each of these families
+   * once; without them the roots are read from `parentsOf` and the recorded blocks.
+   */
+  rootsOf?: (run: RunResult) => readonly string[] | undefined;
 };
 
 const LINKS = new WeakMap<Spec, ReadonlyMap<string, string>>();
@@ -91,6 +96,14 @@ export function parentLinks(spec: Spec | undefined): ReadonlyMap<string, string>
     LINKS.set(spec, links);
   }
   return links.size > 0 ? links : undefined;
+}
+
+/** A spec's root blocks (no parent), by id, else `block <index>`; undefined when no block has a parent. */
+export function specRoots(spec: Spec | undefined): readonly string[] | undefined {
+  if (!parentLinks(spec)) return undefined;
+  return (spec as Spec).blocks.flatMap((block, index) =>
+    block.parent === undefined ? [block.id ?? `block ${index}`] : [],
+  );
 }
 
 /**
@@ -151,10 +164,17 @@ export function suiteHeadline(
       const key = JSON.stringify([treeOf(run), root]);
       samples.set(key, [...(samples.get(key) ?? []), !(failed || whole)]);
     }
-    // A run that failed before it recorded any block measured no tree: its failure counts for the golden.
-    if (outcomes.length === 0 && run.blocks.length === 0 && !runPassed(run)) {
-      const key = treeOf(run);
-      samples.set(key, [...(samples.get(key) ?? []), false]);
+    // A run that failed and measured no tree (it died before its first block, or every block was not run)
+    // fails each root family of its spec once, so a dead run weighs as many failures as the spec has families.
+    if (outcomes.length === 0 && !runPassed(run)) {
+      const roots = new Set(options.rootsOf?.(run) ?? []);
+      if (roots.size === 0) {
+        for (const parent of links?.values() ?? []) if (parentOf(parent) === undefined) roots.add(parent);
+        for (const root of trees.keys()) roots.add(root);
+      }
+      const keys =
+        roots.size > 0 ? [...roots].map((root) => JSON.stringify([treeOf(run), root])) : [treeOf(run)];
+      for (const key of keys) samples.set(key, [...(samples.get(key) ?? []), false]);
     }
   }
   const counts = [...samples.values()].map((group) => ({ n: group.length, k: group.filter(Boolean).length }));
