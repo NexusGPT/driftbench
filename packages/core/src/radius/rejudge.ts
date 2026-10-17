@@ -107,14 +107,20 @@ export function prepareRescore(
   run: RunResult,
   options: RescoreOptions,
 ): PreparedRejudge {
-  // A child of a parent-linked run was measured with the history, the previous stage and the Given of its
-  // ancestors; a re-score builds its contexts from the block order, which would hand it unrelated trees.
+  refuseParentLinked(spec);
+  return prepareStored(old, spec, run, options, [], true);
+}
+
+/**
+ * A child of a parent-linked run was measured with the history, the previous stage and the Given of its
+ * ancestors; a re-score builds its contexts from the block order, which would hand it unrelated trees.
+ */
+function refuseParentLinked(spec: Spec): void {
   if (spec.blocks.some((block) => block.parent !== undefined)) {
-    return refuse(
+    refuse(
       "A parent-linked run takes each child's history from its ancestors, which a re-score does not rebuild",
     );
   }
-  return prepareStored(old, spec, run, options, [], true);
 }
 
 /**
@@ -346,6 +352,9 @@ export async function rescoreRun(
   recordRealizedText = false,
 ): Promise<RunResult> {
   const { source, contexts, stamp, carried } = prepared;
+  // The sink of every door (prepareRescore, prepareRejudge, any later one): the contexts of a prepared re-score
+  // are built from the block order, so a parent-linked spec would hand a child the blocks of unrelated trees.
+  refuseParentLinked(prepared.spec);
   const spec = bindObjectContext({ ...prepared.spec }, objects);
   const issues = checkSpecObjects(spec, objects);
   if (issues.length) return refuse(issues.map((issue) => `${issue.code}: ${issue.message}`).join('; '));

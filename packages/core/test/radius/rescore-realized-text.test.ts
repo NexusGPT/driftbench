@@ -4,7 +4,7 @@ import { initializeShippedObjects } from '@agent-nexus/driftbench-checks';
 import { createScriptedDriver } from '@agent-nexus/driftbench-users';
 import { expect, it } from 'vitest';
 import { shippedObjectContext } from '../../src/objects';
-import { prepareRescore, rescoreRun } from '../../src/radius/rejudge';
+import { prepareRejudge, prepareRescore, rescoreRun } from '../../src/radius/rejudge';
 import { adapterProvenance, provenanceDigest, provenanceHash } from '../../src/runner/provenance';
 import { runSpec } from '../../src/runner/run';
 import { specHash, specIdentity } from '../../src/spec/identity';
@@ -97,4 +97,74 @@ it('refuses to prepare the re-score of a parent-linked run, so the cell runs fre
       baselineProvenance: { version: 2, adapters: [] },
     }),
   ).toThrow(/A parent-linked run takes each child's history from its ancestors/);
+});
+
+it('refuses, at the re-score itself, a parent-linked spec that reached it through prepareRejudge', async () => {
+  // Three blocks, an unrelated one between a root and its child: the child's history is the root alone. Each block
+  // writes an explicit empty prefix, so the recorded tree reconstructs and reaches scoring through the public door.
+  const tree = specOf({
+    id: 'rescore-parent-sink',
+    criteria: [{ name: 'quality', rubric: 'The reply is useful.', gating: true }],
+    blocks: [
+      { id: 'root', given: { prefix: [] }, when: { user: 'open' }, expect: { must: ['ok'] } },
+      { id: 'other', given: { prefix: [] }, when: { user: 'unrelated' }, expect: { must: ['ok'] } },
+      {
+        id: 'child',
+        parent: 'root',
+        given: { prefix: [] },
+        when: { user: 'more' },
+        expect: { must: ['ok'], criteria: ['quality'] },
+      },
+    ],
+  });
+  const source = await runSpec(tree, {
+    adapter: echoAdapter(),
+    driver: createScriptedDriver(),
+    checks: [mustCheck],
+    mode: 'T',
+    repeat: 0,
+    target,
+    recordProvenance: true,
+    now: () => new Date('2026-10-15T00:00:00Z'),
+  });
+  expect(source.blocks.map((block) => block.blockId)).toEqual(['root', 'other', 'child']);
+  // Only the rubric of the criterion changes: the one change a re-judge exists for.
+  const changed = {
+    ...tree,
+    criteria: [{ name: 'quality', rubric: 'The reply is useful and short.', gating: true }],
+  };
+  // The public re-judge door accepts the tree; nothing about it is invalid.
+  const input = prepareRejudge(tree, changed as never, source, {
+    fromCampaign: 'base',
+    agentVersion: 'v1',
+    criteria: ['quality'],
+    now: new Date('2026-10-15T01:00:00Z'),
+    baselineProvenance: {
+      version: 2,
+      adapters: [
+        {
+          ...adapterProvenance(echoAdapter(), target.adapter),
+          targetHash: provenanceHash(target),
+          agentVersionHash: provenanceHash('v1'),
+        },
+      ],
+    },
+  });
+  let evaluated = 0;
+  await expect(
+    rescoreRun(
+      input,
+      [
+        {
+          ...mustCheck,
+          evaluate: (ctx) => {
+            evaluated += 1;
+            return mustCheck.evaluate(ctx);
+          },
+        },
+      ],
+      shippedObjectContext(),
+    ),
+  ).rejects.toThrow(/A parent-linked run takes each child's history from its ancestors/);
+  expect(evaluated).toBe(0);
 });
