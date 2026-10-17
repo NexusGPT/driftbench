@@ -1,0 +1,113 @@
+# Blind pointer bank
+
+This bank is authored from `docs/estate-pointer-reader.md` at design commit
+`517e63aaeea25e668dac4f9b28abc8019d906c06` and `docs/validators.md` at main commit
+`346a8249d460fb0a73c1deb6cdfdc6fd10e0e6ec`. The authors never read the pointer
+reader implementation, its tests, or PR 692's code diff. Existing ladder banks
+were read only for their item and ladder conventions. All data is fictional.
+
+`pointerBank()` returns 340 items: 40 labels items and 30 in every other required family. Each has an id,
+family, tier, level, component, cause, design citation, and seeded generator.
+`pointerLadder(adapter)` wraps them in five levels with threshold 1. The existing
+ladder runner owns first-failure stopping and all-level reporting. This factory is
+deliberately not registered globally: there is no real-reader adapter in this PR.
+An implementation owner must wire that adapter without modifying the oracles.
+
+## Integration boundary
+
+`PointerAdapter.execute({ operation, input })` is the only reader call. Input and
+output shapes are bank-owned transport vocabulary, not claimed reader exports.
+The adapter must translate calls to the actual reader and return observations.
+It must not implement missing reader capabilities, import the bank, inspect the
+current item, or fabricate observation fields. An unsupported operation fails.
+JSON is deliberately broad enough to carry malformed answer fixtures.
+
+Every call is isolated. Histories and prerecorded responses are explicit inputs.
+Requests are deep-cloned before invocation. Expected outputs, projections, item
+ids, causes, and representative samples never reach the adapter. Raw results are
+projected only where the design omits serialization details. Exact deep equality
+judges the resulting observation, including missing and extra values.
+
+| Operation | Input and returned observation |
+|---|---|
+| `cut` | `{file,source}` → `{units:[{container,text,span:[start,end],path,yamlPath?}]}`. Ordered UTF-16 spans, verbatim source slices, no overlap. Container vocabulary: sentence, heading, list_item, table_cell, blockquote, frontmatter, fence, comment. YAML paths use dot notation. |
+| `fingerprint` | `{units:[{text,container},...]}` → raw fingerprint strings. The oracle checks equality relations; hash bytes remain opaque. |
+| `ledger` | `{scans,independent}` → ordered snapshots `{entries:[{id,status,quote}]}`. Independent scans start with empty ledgers; other scans carry the prior ledger. All units supplied here are already cut and explicitly labelled. |
+| `reanchor` | `{before,after,settings,selectIds}` → selected entries `{id,path,quote,lineage:[{event}],candidates:[{path,quote}]}`. Ambiguous observations retain the original pointer and all candidates. `observation:'lineage-edges'` instead returns `{event,sourceIds,targetTexts}[]`, without prescribing child-id assignment. |
+| `group` | `action:windows` → `{windows:[{selectable,contextOnly}]}`. `carry` → `{carried:[{n,set,label}],dirty:[{n,set}]}`. `questions` → `{batches:[{keys}]}` in unit/label order. `dense` → `{accepted,labels:[{n,label}],unlabeled}`. Full input fixtures document the respective units, prior fingerprints, sets and answers. |
+| `labels` | `action:decide` supplies set, numbered window, probabilities, system2 answer, mode and bounds → `{labels:[{n,label,target?}]}`. `validate-answer` supplies units, labelSet and sequential provider responses → `{accepted,attempts,failedWindow,labels:[{unit,label}],unlabeled}`. No natural-language classifier is provided or needed. |
+| `replay` | `{mode:'ci',entries:[{request,answer}],request}` → `{status:'hit',answer,networkCalls:0}` or `{status:'miss',differingField,networkCalls:0}`. Cut mismatch additionally reports `versionsRequired:['node','icu']`, normalized from an actual diagnostic naming both versions. |
+| `privacy` | Private source, fictional key, planted transport answer and record/CI mode → raw `{cassette,logs,plan,labels,networkCalls,keyReads,location,committed,status}`. `plan.characters` counts the supplied source. The projection searches the serialized cassette/log/plan for planted secrets. `location` normalizes a private uncommitted cache to `.cache/`. Counts are measured through the adapter's transport/key-access spy, not inferred from mode. |
+| `links` | `action:classify` supplies entries and links → `{links:[{test,span,state}]}` in link input order. `clear` supplies explicit acceptance → `{span,fp,reason}` from the new recorded review. |
+| `radius` | `impact` → sorted unique `{suspectTests,advisoryTests}`; `coverage` → sorted `{uncovered}`; `claim` → `{verifiedSpans}`. Precise and section-level links are supplied separately. |
+
+Replay entries are planted transport fixtures authored independently of the
+reader. The adapter installs them through the recording seam; it must not call a
+model or make a recording to obtain expected answers. Canonical object-key order
+must not affect a hit. The differing field is a normalized path to the changed
+input, not prescribed error-message prose. A changed set field may be diagnosed
+by the actual reader as `setHash`; the adapter may expand that diagnostic using
+the two input sets, but must not infer a cache miss when the reader returned a hit.
+The source fixture uses `output` as its normalized output-settings field.
+
+Privacy observations exercise the transport recorder and its public plan, before
+semantic label validation. A canned answer about a fenced source is recorder
+input, not a claim that the scanner should accept a label on an opaque unit.
+Opaque-label refusal is checked separately by the adversarial family.
+
+Materialization adds two label actions. `materialize` supplies source, already-cut
+units with ledger ids and UTF-16 spans, a label set, and planted labels. Its
+observation is `{ledgerLabels:[{id,label}],atoms}`. Atoms project to kind, polarity
+when present, provenance file/quote, producedBy, approved, pointer fields, and
+one evidence predicate normalized as `{type:'custom',name:'prose_pointer',reviewRequired:true}`.
+Other implementation atom fields are not part of this observation. `rerecord`
+processes one explicitly selected set against an existing entry and returns
+`{entries,diagnostics}`. The diagnostic is normalized to `{kind:'label_flip',id,set}`;
+old ids and live status survive changed labels. Untouched sets retain their labels.
+
+## Oracle boundaries
+
+- The design does not prescribe the hash algorithm or tuple encoding for ids.
+  Tests require ten lowercase base32 characters, clone consistency, uniqueness,
+  and persistence instead of inventing exact id bytes. Fixed ids in old ledgers
+  are fictional starting state, not expectations about minted hash bytes.
+- Cut projections allow unspecified surrounding whitespace and container
+  markers while checking raw source-slice fidelity first. They preserve emphasis,
+  case, internal whitespace, unit order, heading ancestry, and YAML value paths.
+- Re-anchoring pins the configurable exact-match floor to 20. Split/merge plants
+  use exact concatenation and threshold 0.99 to isolate that step from partial
+  fuzzy matching. They do not prescribe which child inherits an id.
+- Fitting files and question caps have exact grouping plants. Overflow token
+  accounting, fuzzy context scores, hash collision resolution, cross-file gate
+  targets, tie probabilities, and suspect/advisory overlap remain unspecified by
+  the design and are not assigned invented truths.
+- Tier labels describe diagnosis cost, not measured implementation hardness.
+  Shared cause tags stay shared. Counts do not establish the 100-iteration gate.
+
+## Harness evidence and limits
+
+The bank's tests use a scripted adapter that checks each request and returns its
+representative raw observation. This tests the harness, not the pointer reader.
+Each item has contrasting expected observations. The constant cheat gets the
+first correct raw answer of each item, a stronger test than one global canned
+answer. Empty and input-echo adapters must also score zero on every tested seed.
+
+Tests use visible seeds 1–20 and the documented commit-derived hidden seed.
+The seed changes fictional text, ids, handles, or paths. No word list is used.
+Scale plants exercise 1×/10×/100× sizes and a source exceeding 100k characters.
+The per-item 10-second and 64-MiB serialized-response budgets are validator
+policy, not production promises. The timer detects late returns but cannot
+preempt synchronous code or cancel arbitrary promises. Hostile real adapters
+need process isolation for hard termination and RSS limits.
+
+From the repository root:
+
+```sh
+pnpm exec vitest run --config packages/validators/src/ladders/pointer/vitest.config.ts --maxWorkers=2
+pnpm exec tsc --ignoreConfig --noEmit --strict --skipLibCheck --target ES2022 --module ESNext --moduleResolution Bundler --types node packages/validators/src/ladders/pointer/index.ts
+pnpm exec biome check packages/validators/src/ladders/pointer
+```
+
+On constrained shared machines, run each command through the assigned slot
+runner. Independent merge audits and the actual reader pilot remain pending in
+`validators/pointer/audit.md`.
