@@ -85,8 +85,11 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile --prefer-offline
+      # jobs=generator-scale,plants also runs the planted products once each at 100 times the behaviours.
       - name: The generator's scale items on seed 1, three runs
-        run: node --import tsx packages/validators/src/ladders/generator/scale-run.ts --seed 1 --repeat 3
+        env:
+          PLANTS: ${{ contains(format(',{0},', inputs.jobs), ',plants,') && '--plants' || '' }}
+        run: node --import tsx packages/validators/src/ladders/generator/scale-run.ts --seed 1 --repeat 3 $PLANTS
 
   protect:
     name: executor branches leave the validators alone

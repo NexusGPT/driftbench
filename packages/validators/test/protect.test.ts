@@ -469,8 +469,16 @@ describe('the validators workflow', () => {
     for (const id of VALIDATORS_HEAVY)
       expect(runs(dispatchOn('refs/heads/fix/scale', 'generator-scale'), id, workflow)).toBe(false);
     expect(stepRuns('generator-scale')).toContain(
-      'node --import tsx packages/validators/src/ladders/generator/scale-run.ts --seed 1 --repeat 3',
+      'node --import tsx packages/validators/src/ladders/generator/scale-run.ts --seed 1 --repeat 3 $PLANTS',
     );
+    const step = (workflow.jobs['generator-scale'].steps as { env?: { PLANTS?: string } }[]).find(
+      (entry) => entry.env?.PLANTS,
+    );
+    const plants = (jobs: string) =>
+      evaluateTemplate(step?.env?.PLANTS, dispatchOn('refs/heads/fix/scale', jobs));
+    expect(plants('generator-scale')).toBe('');
+    expect(plants('generator-scale,plants')).toBe('--plants');
+    expect(plants('generator-scale,plantsx')).toBe('');
     for (const step of workflow.jobs['generator-scale'].steps) expect(step.if).toBeUndefined();
   });
   it('checks every pull request for protected changes with the full history', () => {
