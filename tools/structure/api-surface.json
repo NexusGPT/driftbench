@@ -2223,6 +2223,7 @@
       "abundances": "value",
       "benjaminiHochberg": "value",
       "betaQuantile": "value",
+      "betaQuantileUpper": "value",
       "binomialCdf": "value",
       "bootstrapCI": "value",
       "chaoCoverage": "value",

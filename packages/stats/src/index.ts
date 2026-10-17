@@ -94,6 +94,7 @@ export {
 } from './simulate';
 export {
   betaQuantile,
+  betaQuantileUpper,
   binomialCdf,
   chiSquareSf,
   erfc,
