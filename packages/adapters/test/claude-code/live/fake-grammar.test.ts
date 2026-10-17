@@ -270,3 +270,52 @@ it('reads the standing file again after a compaction when the estate says so, an
   const silent = await estate(files('Keep replies short.'));
   expect(names(silent, true)).not.toContain('Read:CLAUDE.md');
 });
+
+it('after a compaction reads every file the rule names, on each wording the scanner reads as a compaction', async () => {
+  const { planStream } = await import('../../../../../examples/estates/fixture/live/fake/agent.mjs');
+  const reads = async (files: Record<string, string>) => {
+    const dir = await estate({
+      '.claude/skills/parcel-lookup/SKILL.md': skill('parcel-lookup', '- Look parcels up.'),
+      'notes/handover.md': 'Where the work stood.\n',
+      ...files,
+    });
+    return (
+      planStream({
+        ask: 'Look up the status of a parcel by its code.',
+        cwd: dir,
+        sessionId: 's',
+        env: {},
+        compacted: true,
+      }).records as Array<{
+        message?: { content?: Array<{ type?: string; name?: string; input?: { file_path?: string } }> };
+      }>
+    )
+      .flatMap((row) => row.message?.content ?? [])
+      .filter((part) => part.type === 'tool_use' && part.name === 'Read')
+      .map((part) => (part.input?.file_path ?? '').slice(dir.length + 1));
+  };
+  const rule = (line: string) => ({ 'CLAUDE.md': `# Rules\n\n- ${line}\n` });
+  expect(
+    await reads(rule('After a compaction, re-read this file and `notes/handover.md` before you continue.')),
+  ).toEqual(['CLAUDE.md', 'notes/handover.md']);
+  expect(await reads(rule('After a compaction, re-read notes/handover.md before you continue.'))).toEqual([
+    'notes/handover.md',
+  ]);
+  for (const line of [
+    'When the context is compacted, read this file again.',
+    'After compaction, re-read this file.',
+    'After an auto-compact, re-read this file.',
+    'If the context window fills up, re-read this file.',
+  ])
+    expect(await reads(rule(line))).toEqual(['CLAUDE.md']);
+  // "this file" is the standing file the rule sits in.
+  expect(
+    await reads({
+      'CLAUDE.md': '# Rules\n',
+      '.claude/CLAUDE.md': '- After a compaction, re-read this file.\n',
+    }),
+  ).toEqual(['.claude/CLAUDE.md']);
+  // A rule that forbids it, or one with no compaction, reads nothing.
+  expect(await reads(rule('After a compaction, never re-read this file.'))).toEqual([]);
+  expect(await reads(rule('At noon, re-read this file.'))).toEqual([]);
+});

@@ -48,9 +48,10 @@ function frontmatter(text) {
 }
 
 function readEstate(cwd) {
-  const standing = ['CLAUDE.md', '.claude/CLAUDE.md', 'CLAUDE.local.md']
-    .map((path) => read(join(cwd, path)) ?? '')
-    .join('\n');
+  const standingFiles = ['CLAUDE.md', '.claude/CLAUDE.md', 'CLAUDE.local.md']
+    .map((path) => ({ path, text: read(join(cwd, path)) }))
+    .filter((file) => file.text !== undefined);
+  const standing = standingFiles.map((file) => file.text).join('\n');
   const skills = [];
   const skillsDir = join(cwd, '.claude', 'skills');
   if (existsSync(skillsDir)) {
@@ -97,7 +98,7 @@ function readEstate(cwd) {
   } catch {
     steps = [];
   }
-  return { standing, skills, helpers, settings, steps };
+  return { standing, standingFiles, skills, helpers, settings, steps };
 }
 
 /** Rows of the standing file's tables that name a unit: the ask cell and the unit. */
@@ -160,6 +161,37 @@ function route(ask, estate) {
   return rowHits.length === 1 || (rowHits.length > 1 && rowHits[0].score > rowHits[1].score)
     ? rowHits[0].unit
     : undefined;
+}
+
+/**
+ * The compaction wordings the estate scanner reads as a compaction hazard (HAZARDS in
+ * packages/estate/src/scan/code.ts): kept equal to it, so a rule the generator tests is one the fake obeys.
+ */
+const COMPACTION =
+  /\b(compactions?|compacted|auto-?compact)\b|\b(?:conversation|context) is summari[sz]ed\b|\bcontext window (?:fills? up|is full)\b/i;
+const REREAD = /\bre-?read\b|\bread\b.*\bagain\b|\breload\b/i;
+
+/**
+ * The files the standing rules ask to read again after a compaction, in the order they name them: the standing
+ * file itself for "this file", and each path a rule names, quoted or not. A sentence that forbids it names none.
+ */
+function compactionRereads(standingFiles) {
+  const out = [];
+  for (const file of standingFiles) {
+    for (const sentence of file.text.split(/\n+|(?<=[.!?])\s+(?=[A-Z*`-])/)) {
+      if (!COMPACTION.test(sentence) || !REREAD.test(sentence) || negative(sentence)) continue;
+      if (/\bthis (?:file|document|page)\b/i.test(sentence)) out.push(file.path);
+      const quoted = [...sentence.matchAll(/`([^`]+)`/g)].map((match) => match[1].trim());
+      const bare = sentence
+        .replace(/`[^`]*`/g, ' ')
+        .split(/\s+/)
+        .map((token) => token.replace(/^[("']+|[)"',;:!?]+$|\.$/g, ''))
+        .filter((token) => /^[\w./-]+\.(?:md|markdown|txt|json|ya?ml|csv)$/i.test(token));
+      for (const path of [...quoted, ...bare])
+        if (/\.[A-Za-z]+$/.test(path) && !/\s/.test(path)) out.push(path);
+    }
+  }
+  return out;
 }
 
 /** The step list in its order: from the stage no next enters, along the first next; anytime steps last. */
@@ -941,14 +973,23 @@ export function planStream({ ask, cwd, sessionId, env, compacted = false }) {
       call('Read', { file_path: path }, () => ({ content: read(path) ?? '' }), start[1]);
     }
   }
-  // After a compaction the standing file asks to be read again ("After a compaction, re-read this file ..."):
-  // done first, before the work resumes, and only when the estate says so.
+  // After a compaction the files a standing rule names are read again before the work resumes: "this file" is the
+  // standing file the rule sits in, and every path it names is read too. Only an estate that says so does it.
   if (compacted) {
-    for (const line of statementsOf(estate.standing)) {
-      if (negative(line) || !/\bafter a compaction\b[^.]*\bre-?read\b[^.]*\bthis file\b/i.test(line))
-        continue;
-      const path = fileTarget('CLAUDE.md', cwd, '');
-      call('Read', { file_path: path }, () => ({ content: read(path) ?? '' }), 'CLAUDE.md');
+    const done = new Set();
+    for (const literal of compactionRereads(estate.standingFiles)) {
+      const path = fileTarget(literal, cwd, '');
+      if (done.has(path)) continue;
+      done.add(path);
+      call(
+        'Read',
+        { file_path: path },
+        () => {
+          const content = read(path);
+          return content === undefined ? { error: true, content: `File not found: ${literal}` } : { content };
+        },
+        literal,
+      );
     }
   }
   if (unit?.kind === 'skill') {
