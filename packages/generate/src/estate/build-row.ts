@@ -115,6 +115,28 @@ function siblingSituation(
   return best;
 }
 
+/** The atoms a code-written ask reads: the row's, and the unit that owns the rule by folder when the row lacks it. */
+function askAtomsOf(atoms: readonly EstateAtom[], ctx: Context): readonly EstateAtom[] {
+  const first = atoms[0] as EstateAtom;
+  const ownerUnit = ctx.atoms.get(ctx.owners.get(first.id) ?? '');
+  return ownerUnit && !atoms.includes(ownerUnit) ? [...atoms, ownerUnit] : atoms;
+}
+
+/** The ask code writes for a row from the atoms, or the reason it writes none. */
+function codeAskOf(
+  row: EstatePlanRow,
+  use: SituationUse,
+  askAtoms: readonly EstateAtom[],
+  ctx: Context,
+  variant?: number,
+): ReturnType<typeof codeAsk> {
+  return codeAsk(use, askAtoms, ctx.units, row.testType === 'twin', (id) => ctx.atoms.get(id), variant, {
+    testType: row.testType,
+    routesOf: (id) => ctx.routes.get(id) ?? [],
+    estate: [...ctx.atoms.values()],
+  });
+}
+
 /** The specs of one row: one, or one per recorded session of its situation for a replay row. */
 export function buildRow(row: EstatePlanRow, ctx: Context, used: Set<string>): Built[] {
   const atoms = taskAtoms(
@@ -123,7 +145,18 @@ export function buildRow(row: EstatePlanRow, ctx: Context, used: Set<string>): B
     ctx.owners,
   );
   const use = useOf(row);
-  const situation = use === 'none' ? undefined : situationOfRow(ctx, use, row, atoms[0]);
+  let situation = use === 'none' ? undefined : situationOfRow(ctx, use, row, atoms[0]);
+  // A live guard_positive row with no forced situation, and no ask code can write from the atoms (a guard on the
+  // end of a turn, which no request makes fire without asking for the exception), takes the situation the bank
+  // names for the guard itself: an approved phrase that sets the guard off, else the row waits for one.
+  if (use === 'forced' && !situation && ctx.fallback) {
+    const trigger = situationOfRow(ctx, 'trigger', row, atoms[0]);
+    if (
+      trigger?.phrases.some((entry) => entry.approved) &&
+      codeAskOf(row, use, askAtomsOf(atoms, ctx), ctx).text === undefined
+    )
+      situation = trigger;
+  }
   // The k positive asks of a route (`route_positive.<route>.<n>`) each take their own phrasing.
   const nth = row.testType === 'route_positive' ? /\.(\d+)$/.exec(row.id)?.[1] : undefined;
   const variant = nth !== undefined && Number(nth) > 1 ? Number(nth) - 1 : undefined;
@@ -156,8 +189,7 @@ export function build(
   const then = thenOf(own, polarity, { ...ctx, live: row.mode === 'live' });
   const first = atoms[0] as EstateAtom;
   // The unit that owns the rule supplies the task of a code-written ask even when the rule is not part of it.
-  const ownerUnit = ctx.atoms.get(ctx.owners.get(first.id) ?? '');
-  const askAtoms = ownerUnit && !atoms.includes(ownerUnit) ? [...atoms, ownerUnit] : atoms;
+  const askAtoms = askAtomsOf(atoms, ctx);
 
   // Test types that add to or change what the atoms say.
   if (row.testType === 'stage_order' || row.testType === 'stage_skip') {
@@ -232,19 +264,7 @@ export function build(
       } else phraseIndex = situation.phrases.indexOf(phrase);
     }
     if (missing && ctx.fallback) {
-      const written = codeAsk(
-        use,
-        askAtoms,
-        ctx.units,
-        row.testType === 'twin',
-        (id) => ctx.atoms.get(id),
-        variant,
-        {
-          testType: row.testType,
-          routesOf: (id) => ctx.routes.get(id) ?? [],
-          estate: [...ctx.atoms.values()],
-        },
-      );
+      const written = codeAskOf(row, use, askAtoms, ctx, variant);
       if (written.text === undefined) {
         // Never a nonsense ask: the row waits for an approved phrase, under its own gap.
         gap(then, MARKERS.askable, first, written.refused ?? 'the atom gives no task');
