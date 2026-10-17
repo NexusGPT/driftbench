@@ -122,3 +122,47 @@ describe('a full run and the bank summary', () => {
     expect(summary.passing).toBe(1);
   });
 });
+
+describe('catch items', () => {
+  it('counts catch items apart: the score, the counts and the causes read the hardness items alone', async () => {
+    const ladder = defineLadder({
+      component: 'roles',
+      levels: [
+        {
+          id: 'one',
+          name: 'one',
+          metric: 'a / b',
+          threshold: 1,
+          compute: () =>
+            bankMeasure([
+              { id: 'h1', component: 'c', family: 'f', tier: 1, cause: 'x', pass: true },
+              { id: 'h2', component: 'c', family: 'f', tier: 2, cause: 'y', pass: false, detail: 'missed' },
+              { id: 'k1', component: 'c', family: 'g', tier: 1, cause: 'z', role: 'catch', pass: true },
+              {
+                id: 'k2',
+                component: 'c',
+                family: 'g',
+                tier: 1,
+                cause: 'w',
+                role: 'catch',
+                pass: false,
+                detail: 'd',
+              },
+            ]),
+        },
+      ],
+    });
+    const report = await runSeeds(ladder, seedSpecs([1]), undefined, { full: true });
+    const summary = bankSummary(report);
+    expect(summary.size).toBe(2);
+    expect(summary.passing).toBe(1);
+    expect(summary.score).toBe(0.5);
+    expect(summary.failingCauses).toBe(1);
+    expect(summary.failingByFamily).toEqual({ f: 1 });
+    expect(summary.catch).toEqual({ size: 2, passing: 1, failingByFamily: { g: 1 } });
+    expect(summary.rows).toHaveLength(4);
+    const text = formatItems(summary, 'roles');
+    expect(text).toContain('Catch items, counted apart and for no hardness: 2, 1 pass on every seed.');
+    expect(text).toContain('Catch items of g: 2 items, 1 failing');
+  });
+});

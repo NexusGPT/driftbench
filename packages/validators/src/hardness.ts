@@ -44,6 +44,8 @@ export type Hardness = {
     passing: number;
     byFamilyTier: Record<string, Record<string, number>>;
     failingByFamily: Record<string, number>;
+    /** The catch items of that row, counted apart; absent when the row records none. */
+    catchItems?: { size: number; passing: number };
   };
   iteration0: { bankSize: number; passing: number; score: number };
   /** The pilot the forecast and the gate use: the blind one when it has rows, else the builder's. */
@@ -216,6 +218,7 @@ export function measureHardness(
       passing: latest.passing,
       byFamilyTier: latest.bankByFamilyTier ?? {},
       failingByFamily: latest.failingByFamily,
+      ...(latest.catchItems === undefined ? {} : { catchItems: latest.catchItems }),
     },
     iteration0: { bankSize: zero.bankSize, passing: zero.passing, score: score(zero) },
     source,
@@ -294,6 +297,8 @@ function round(value: number): string {
 export function formatHardness(component: string, h: Hardness): string {
   let text = `Hardness of ${component} (docs/validators.md section 12.4), from validators/${component}/journal.jsonl\n`;
   text += `Bank at iteration ${h.bank.iteration}: ${h.bank.size} items, ${h.bank.passing} pass on every seed.\n`;
+  if (h.bank.catchItems)
+    text += `Catch items, apart and counted for no hardness: ${h.bank.catchItems.size}, ${h.bank.catchItems.passing} pass on every seed.\n`;
   const tiers = ['1', '2', '3', '4', '5', 'none'];
   const header = ['Family', ...tiers.map((tier) => `tier ${tier}`), 'items', 'failing'];
   const rows = Object.entries(h.bank.byFamilyTier)
