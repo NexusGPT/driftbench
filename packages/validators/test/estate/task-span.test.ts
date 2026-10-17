@@ -1,6 +1,6 @@
 import type { Atom } from '@agent-nexus/driftbench-estate';
 import { describe, expect, it } from 'vitest';
-import { fieldsOf, isClauseOf, orderedShare } from '../../src/ladders/estate/bank/task-span';
+import { fieldsOf, isClauseOf, orderedShare, tokensOf } from '../../src/ladders/estate/bank/task-span';
 
 const atom = (over: Partial<Atom>): Atom =>
   ({
@@ -24,12 +24,12 @@ describe('a piece is a whole clause of its source', () => {
   it.each([
     'Check the tide tables for a harbour',
     'plan a departure',
-    'the tide tables for a harbour',
     'checks the tide tables for a harbour',
   ])('accepts %s', (piece) => expect(isClauseOf(piece, fields)).toBe(true));
 
   it.each([
     'Check the tide tables for a',
+    'the tide tables for a harbour',
     'tide tables for a harbour harbour',
     'a harbour for tide tables',
     'never plan a departure',
@@ -47,6 +47,9 @@ describe('a piece is a whole clause of its source', () => {
     );
     expect(isClauseOf('Never moor on a Sunday', rule)).toBe(false);
     expect(isClauseOf('moor on a Sunday', rule)).toBe(true);
+    expect(isClauseOf('auditor never edits a file', fieldsOf(atom({
+      kind: 'instruction', title: 'The auditor never edits a file',
+    })))).toBe(false);
   });
 
   it.each([
@@ -76,6 +79,23 @@ describe('a piece is a whole clause of its source', () => {
     ['Check an invoice', 'Check an invoice: match its reference first.'],
   ])('rejects the punctuation cut %s from %s', (piece, source) => {
     expect(isClauseOf(piece, fieldsOf(atom({ fields: { description: source } })))).toBe(false);
+  });
+
+  it('keeps a hidden path together instead of treating its dot as a sentence end', () => {
+    expect(tokensOf('Read .claude/memory/notes.md.')).toEqual(['read', '.claude/memory/notes.md', '.']);
+    expect(isClauseOf('Write in the language listed in', fieldsOf(atom({
+      fields: { description: 'Write in the language listed in `.claude/memory/notes.md`.' },
+    })))).toBe(false);
+  });
+
+  it('accepts declared stage titles and read-before and read-when clauses', () => {
+    expect(isClauseOf('Make the change', fieldsOf(atom({ kind: 'stage', title: 'Stage do: Make the change' })))).toBe(true);
+    const fields = fieldsOf(atom({ fields: {
+      readWhen: 'When an invoice is not in EUR, read currency.md.',
+      rule: 'Before editing any invoice file: Read matching.md.',
+    } }));
+    expect(isClauseOf('When an invoice is not in EUR', fields)).toBe(true);
+    expect(isClauseOf('edit any invoice file', fields)).toBe(true);
   });
 });
 

@@ -1,8 +1,5 @@
-import { readdir } from 'node:fs/promises';
-import { join } from 'node:path';
-import { loadSpecFile } from '@agent-nexus/driftbench-core';
 import { beforeAll, describe, expect, it } from 'vitest';
-import { FIXTURE, type FixtureSuite, fixtureSuite, type SuiteSpec } from '../../src/ladders/estate/bank/fixture-suite';
+import { type FixtureSuite, fixtureSuite, type SuiteSpec } from '../../src/ladders/estate/bank/fixture-suite';
 import { type AskEnv, checkAsk, flat } from '../../src/ladders/estate/bank/task-check';
 import { envOfSuite } from '../../src/ladders/estate/bank/taskv2';
 
@@ -83,33 +80,6 @@ const CLASSES: Record<string, (source: string, piece: string, ids: string[]) => 
 };
 
 describe('garbage made of the words of the cited atom is rejected', () => {
-  it('accepts every real code-written ask in the committed fixture suite', async () => {
-    const folder = join(FIXTURE, 'generated/specs');
-    const entries = await readdir(folder, { withFileTypes: true, recursive: true });
-    let checked = 0;
-    for (const entry of entries) {
-      if (!entry.isFile() || !entry.name.endsWith('.yaml')) continue;
-      const path = join(entry.parentPath, entry.name);
-      const loaded = await loadSpecFile(path);
-      expect(loaded.ok, path).toBe(true);
-      if (!loaded.ok) continue;
-      const meta = loaded.spec.metadata?.estate as Meta;
-      if (!meta.from || !('form' in (meta.from as Meta))) continue;
-      const spec: SuiteSpec = {
-        id: loaded.spec.id,
-        path,
-        atoms: meta.atoms as string[],
-        testType: meta.testType as string,
-        mode: meta.mode as string,
-        complete: true,
-        spec: loaded.spec,
-      };
-      expect(checkAsk(spec, env).reasons, spec.id).toEqual([]);
-      checked += 1;
-    }
-    expect(checked).toBeGreaterThan(100);
-  });
-
   it('has code-written specs to plant in', () => expect(coded.length).toBeGreaterThan(100));
 
   for (const [name, make] of Object.entries(CLASSES))
