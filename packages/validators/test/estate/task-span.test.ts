@@ -129,3 +129,29 @@ describe('the share of a rule an ask restates', () => {
     expect(orderedShare('', 'anything')).toBe(0);
   });
 });
+
+describe('the subject of a file is a clause the generator derives from its path', () => {
+  const reference = atom({
+    kind: 'reference',
+    title: 'Kiln notes',
+    fields: { path: 'references/glaze-recipes.md' },
+  });
+
+  it.each(['glaze recipes'])('accepts %s', (piece) =>
+    expect(isClauseOf(piece, fieldsOf(reference))).toBe(true),
+  );
+
+  it.each(['glaze', 'recipes glaze', 'glaze recipes of the kiln', 'firing curves'])('rejects %s', (piece) =>
+    expect(
+      isClauseOf(
+        piece,
+        fieldsOf(atom({ kind: 'reference', title: 'x', fields: { path: 'references/glaze-recipes.md' } })),
+      ),
+    ).toBe(piece === 'glaze recipes'),
+  );
+
+  it('derives nothing from a generic file name', () => {
+    const generic = atom({ kind: 'reference', title: 'x', fields: { path: 'references/README.md' } });
+    expect(isClauseOf('readme', fieldsOf(generic))).toBe(false);
+  });
+});

@@ -116,3 +116,30 @@ describe('garbage made of the words of the cited atom is rejected', () => {
     expect(kept.slice(0, 6), `${kept.length} accepted`).toEqual([]);
   });
 });
+
+describe('the subject piece of a file ask is the subject of the file the row tests', () => {
+  const subjects = () =>
+    coded.filter((spec) => (metaOf(spec).from as { shape?: string }).shape?.includes(', including the '));
+
+  it('has file asks to plant in', () => expect(subjects().length).toBeGreaterThan(0));
+
+  it('rejects a subject of another file, a word of the task and a doubled subject', () => {
+    const kept: string[] = [];
+    for (const spec of subjects()) {
+      const from = metaOf(spec).from as { pieces: string[] };
+      const subject = from.pieces[1] as string;
+      for (const garbage of [
+        'firing curves',
+        from.pieces[0]?.split(' ')[0] as string,
+        `${subject} ${subject}`,
+      ]) {
+        const copy = structuredClone(spec);
+        const f = metaOf(copy).from as { pieces: string[] };
+        blockOf(copy).when.user = blockOf(copy).when.user.replace(subject, garbage);
+        f.pieces[1] = garbage;
+        if (checkAsk(copy, env).reasons.length === 0) kept.push(`${spec.id}: ${garbage}`);
+      }
+    }
+    expect(kept.slice(0, 6), `${kept.length} accepted`).toEqual([]);
+  });
+});

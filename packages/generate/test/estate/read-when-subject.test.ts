@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { actOf, codeAsk } from '../../src/estate/asks';
+import { actOf, codeAsk, fileSubjectDerivation } from '../../src/estate/asks';
+import { renderAsk, SUBJECT_SHAPE } from '../../src/estate/frames';
+import { fromRecord } from '../../src/estate/record';
 import type { EstateAtom } from '../../src/estate/inputs';
 
 /** Hand-written shapes, with wordings written for this file only. */
@@ -68,5 +70,41 @@ describe('a file that states no moment is read at the work of its unit and the s
     expect(actOf([ref('references/weave-panel.md'), weaver]).act).toBe('weave a panel');
     // A word that only sits inside a longer one is not a repeat: "pan" is not in "panel".
     expect(actOf([ref('references/pan.md'), weaver]).act).toBe('weave a panel, including the pan');
+  });
+});
+
+describe('the ask that names the subject of a file records where it came from', () => {
+  const ref = reference('references/glaze-recipes.md', '- `references/glaze-recipes.md`');
+
+  it('derives the subject from the path alone, by a fixed rule', () => {
+    expect(fileSubjectDerivation('references/glaze-recipes.md')).toBe('glaze recipes');
+    expect(fileSubjectDerivation('data-3.json')).toBe('data 3');
+    for (const path of ['references/README.md', 'index.md', '12.json', undefined, 3])
+      expect(fileSubjectDerivation(path)).toBeUndefined();
+  });
+
+  it('names the unit of the task as its source, with no file suffix', () => {
+    const written = codeAsk('trigger', [ref, owner], []);
+    expect(written.source).toBe(`${owner.id} (asks it names)`);
+  });
+
+  it('records the frame, the shape of the act and the pieces so the ask is rebuilt from them', () => {
+    const written = codeAsk('trigger', [ref, owner], []);
+    const from = fromRecord({
+      askFrom: written.source,
+      built: {
+        frame: written.frame,
+        act: written.act,
+        ...(written.context ? { context: written.context } : {}),
+      },
+      atoms: new Map([[owner.id, owner]]),
+    });
+    expect(from).toMatchObject({
+      form: 'asks it names',
+      shape: SUBJECT_SHAPE,
+      pieces: ['fire a batch', 'glaze recipes'],
+    });
+    const parts = from as unknown as { frame: string; shape: string; context?: string; pieces: string[] };
+    expect(renderAsk(parts)).toBe(written.text);
   });
 });
