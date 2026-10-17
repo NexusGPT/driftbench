@@ -368,3 +368,19 @@ About 12,000 cases of the 57 exports against scipy, exact rational arithmetic or
 * `ksTest` with the exact method, p below 1e-9: `ksTest` of two samples of 38 and 76 values gives p = 3.2715e-12, where the exact lattice-path count (fractions.Fraction, confirmed against scipy) gives 3.2712e-12 (relative error 7.6e-5): `1 - inside` loses the small probability.
 
 Not defects: `ksTest` with `method: 'asymptotic'` differs from scipy's `method='asymp'` (the product uses the Kolmogorov limit with sqrt(m n / (m + n)), as documented; scipy uses kstwo), and the hierarchical bounds sit up to 2.2e-3 from a 2000 by 600 integration (its grid has 100 cells, which the items allow: half a cell).
+
+## Batch 9: closing the cheats of the audit (docs/validators.md 12.7)
+
+The independent audit of the bank at the commit before any fix (`validators/stats/audit.md` on `audit/stats-v3`) failed the cheater check: 8 of 16 cheats raised the score while the statistics stayed wrong. Re-measured on the bank of this batch (834 items plus 24 new, 858), each cheat run as a wrapper around a degraded copy of the package through `DRIFTBENCH_STATS_IMPL`:
+
+| Cheat of the audit | What closes it | Measured now |
+|---|---|---|
+| Read `roadmap.json` (or the exact fixtures) at run time and return the stored value (+629 on the old bank) | The roadmap items are not in this bank. Two guards stop the same trick on the current fixtures: the bank child refuses `fs` and `child_process` calls whose caller is a file of the package under test (`bank/trap.ts`), and five items scan the package source for file, process, call-stack, generated-code and fixture-name access (`exact.source.*`, `bank/source-guards.ts`) | the lookup cheat fails `exact.source.reads-files` and `exact.source.names-the-validator`, and its score falls from the degraded 590 to 586 with its trap errors |
+| Return a canned value for six named calls (+6) | One sibling item per call on other arguments of the same kind (`sibling.*`: `normalSf`, `normalCdf`, `erfc`, `chiSquareSf` at infinity, `mean` of other large values, `betaQuantile` with other shapes below 1, `hillNumber` near 1 from four sides) | the six hard-coded calls still gain their six items, and lose none; the siblings make the real fix the only way to the other 24 |
+| Throw a RangeError on any non-finite or empty argument (+44) | 13 valid-odd items: calls with odd but valid arguments that must not throw (`normalCdf(Infinity)`, `normalQuantile(0)`, `logGamma` at a pole, `benjaminiHochberg([])`, `abundances([])`, `hillNumber` at q < 0, `mde` at baseline 1 ...) | a blanket throw still gains 72 and loses 7 on the degraded package; see below |
+| `chao1` set to the observed class count (+4) | already closed in batch 6 (the `chao1-near` items hold the finite-sample formula to 1e-6, not 10 percent) | gains 0, loses 8 |
+| `varianceComponents` returns an empty list (+2) | the shift items now fail unless the result has four finite estimates | gains 0, loses 22 |
+
+What stays open, and why it is not a defect of the bank: a blanket throw on non-finite or empty arguments is, for most functions, the correct implementation of rule 1 of the degenerate level (`<function>: <argument>` named in a RangeError). The 72 items it gains are the 72 items a real fix of those functions would also gain. It becomes a cheat only where it throws on a valid input, and it loses exactly the valid-odd items that exist: 7 today. Every function with a valid odd input that the product documents now has one; a new one is added when a function is found whose odd input is valid. The audit helper's measured +44 on the old bank is the same cheat.
+
+Found while writing the sibling items: `erfc(Infinity)`, `normalSf(Infinity)` and `normalCdf(1e300)` returned NaN (the square of the argument overflowed). Fixed in its own pull request.
