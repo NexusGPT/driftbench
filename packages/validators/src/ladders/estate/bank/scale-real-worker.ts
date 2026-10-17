@@ -34,7 +34,10 @@ async function main(): Promise<void> {
   const scale = Number(scaleText);
   const planted = realEstate(seed, { scale });
   const root = await writeEstate(planted.files);
-  // The user-level skill layer is opt-in: the reader is told its folder, as a user passing --user-skills would.
+  // The platform's home is a fresh empty folder, so nothing of the machine's own home is ever read; the
+  // user-level skill layer is opt-in: the reader is told its folder, as a user passing --user-skills would.
+  const empty = await mkdtemp(join(tmpdir(), 'scale-real-home-'));
+  process.env.HOME = empty;
   const home = await plantHome(planted.home, root);
   const reader = readerFor(RUNTIME, { userSkills: userSkillsFolder(home) });
   if (!reader) throw new Error('no reader');
@@ -59,6 +62,10 @@ async function main(): Promise<void> {
       atoms: map.atoms.length,
       edges: map.edges.length,
       facts: readFacts(map, planted.truth),
+      userLayerSkills: map.atoms
+        .filter((atom) => atom.kind === 'skill' && atom.provenance.file.startsWith('~/'))
+        .map((atom) => String(atom.fields?.name))
+        .sort(),
     };
 
     started = Date.now();
@@ -153,6 +160,7 @@ async function main(): Promise<void> {
   } finally {
     await rm(root, { recursive: true, force: true });
     await rm(home, { recursive: true, force: true });
+    await rm(empty, { recursive: true, force: true });
   }
 }
 
