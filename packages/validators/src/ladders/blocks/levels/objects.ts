@@ -444,12 +444,39 @@ function hashItems(): BankItem[] {
           const b = await run(product, tailored.raw, agent(), { cache });
           const keysA = a.blocks.map((block) => (block as { cacheKey?: string }).cacheKey);
           const keysB = b.blocks.map((block) => (block as { cacheKey?: string }).cacheKey);
-          return expectAll([
+          const first = expectAll([
             [a.specHash !== b.specHash, 'the spec hash is the same with and without uses'],
             [keysA.every((key) => key !== undefined), 'a block records no cache key'],
             [
               keysA.join(',') === keysB.join(','),
               `uses changed the block cache keys: ${list(keysA, 3)} against ${list(keysB, 3)}`,
+            ],
+          ]);
+          if (!first.pass) return first;
+          // The twin: a change to uses re-scores the stored observations and never reruns the agent
+          // (block-contracts.md, Uses and the hashes). Disable a check that scored the first run: the replay calls
+          // the agent no time, and the blocks the object reaches lose that check's verdicts.
+          const disabled = kind === 'code' ? 'safety' : 'tools';
+          const strong = { extends: 'default', items: [{ id: disabled, enabled: false }] };
+          const uses = place.id === 'named-default' ? { spec: strong } : place.uses(strong);
+          const rescored = objectSpec(seed, id, kind, uses);
+          const replayAgent = plantedAgent(product, kind, plain.r.actions, { scratch });
+          const c = await run(product, rescored.raw, replayAgent.adapter, { cache });
+          const checkOf = (verdictId: string) => verdictId.split('.')[0] as string;
+          const reached = 'spec' in uses ? c.blocks : c.blocks.slice(-1);
+          const scoredBefore = a.blocks.some((block) =>
+            block.verdicts.some((v) => checkOf(v.id) === disabled),
+          );
+          const left = reached.filter((block) => block.verdicts.some((v) => checkOf(v.id) === disabled));
+          return expectAll([
+            [scoredBefore, `the first run gave no ${disabled} verdict to disable`],
+            [
+              replayAgent.delivered().length === 0,
+              `a change to uses reran the agent ${replayAgent.delivered().length} times; it should re-score the stored observations`,
+            ],
+            [
+              left.length === 0,
+              `uses disables ${disabled}, yet the re-scored blocks ${list(left.map((block) => String(block.index)))} keep its verdicts`,
             ],
           ]);
         },
@@ -1224,10 +1251,34 @@ function codeStampItems(): BankItem[] {
               (governed ? tailored : shipped).add(by.object as string);
             }
           }
-          if (place.id === 'shipped')
-            return [...shipped].every((object) => object.startsWith('check-set:default@'))
+          if (place.id === 'shipped') {
+            if (![...shipped].every((object) => object.startsWith('check-set:default@')))
+              return fail(
+                `the shipped check set should be check-set:default@<hash8>; got ${list([...shipped])}`,
+              );
+            // The twin: an inline spec object that changes nothing is named check-set:(spec)@hash8, and holds the
+            // same items and values, so the same hash (block-contracts.md, Content hash and Verdict.by).
+            const hash = [...shipped][0]?.split('@')[1];
+            const same = objectSpec(seed, `${id}#same`, 'code', { spec: { extends: 'default', items: [] } });
+            const again: RunRecord = await run(
+              product,
+              same.raw,
+              plantedAgent(product, 'code', same.r.actions, { scratch }).adapter,
+            );
+            const named = new Set(
+              again.blocks.flatMap((block) =>
+                block.verdicts
+                  .map((verdict) => (verdict.by as Stamp | undefined)?.object ?? '')
+                  .filter((object) => object.startsWith('check-set:')),
+              ),
+            );
+            const want = `check-set:(spec)@${hash}`;
+            return named.size === 1 && named.has(want)
               ? PASS
-              : fail(`the shipped check set should be check-set:default@<hash8>; got ${list([...shipped])}`);
+              : fail(
+                  `an inline spec check set equal to the default should be named ${want}; the verdicts name ${list([...named])}`,
+                );
+          }
           return tailored.size === 1 &&
             ![...tailored].some((object) => object.startsWith('check-set:default@'))
             ? PASS
