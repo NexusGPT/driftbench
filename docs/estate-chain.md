@@ -16,7 +16,7 @@ The run takes about a minute. It needs no network and no key. It works in a temp
 
 ## The chain
 
-The commands run from the repository root. They write into a scratch folder, which git ignores. The test runs the same commands through the CLI in its own process, with absolute paths. For some of them it adds `--json`, to read the result as data. That changes only how the result is printed.
+The commands run from the repository root. They write into a scratch folder, which git ignores. The test runs the same commands through the CLI entry point, with absolute paths. For some of them it adds `--json`, to read the result as data. That changes only how the result is printed.
 
 ```
 W=_captures/chain
