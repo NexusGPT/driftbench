@@ -12,7 +12,6 @@ tags:
   - test:ordered_pair
   - mode:live
   - kind:gate
-  - kind:skill
   - ask:code
 target:
   adapter: claude-code
@@ -80,7 +79,6 @@ metadata:
   estate:
     atoms:
       - gate.standing.read-claude-skills-invoice-reconcile-references
-      - skill.invoice-reconcile.skill-invoice-reconcile
     planRow: pairwise.1043
     cell:
       ask_class: chat

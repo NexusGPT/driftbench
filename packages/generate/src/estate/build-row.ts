@@ -54,12 +54,12 @@ export function useOf(row: Pick<EstatePlanRow, 'testType' | 'mode'>): SituationU
  * the tool).
  */
 export function situationOfRow(
-  ctx: Pick<Context, 'bank' | 'atoms'>,
+  ctx: Pick<Context, 'bank' | 'atoms'> & Partial<Pick<Context, 'owners'>>,
   use: SituationUse,
   row: EstatePlanRow,
   head: EstateAtom | undefined,
 ): Situation | undefined {
-  const own = findSituation(ctx.bank, use, row, ctx.atoms);
+  const own = findSituation(ctx.bank, use, row, ctx.atoms, ctx.owners?.get(row.atomIds[0] ?? ''));
   // An outside situation of one rule does not certify a control of every rule the guard enforces.
   if (own || (use !== 'trigger' && use !== 'forced')) return own;
   if (head?.kind === 'tool' && use === 'trigger') {
@@ -93,7 +93,7 @@ export function situationOfRow(
 
 /** The situation of the use that lists most atoms read from the file the head atom is read from. */
 function siblingSituation(
-  ctx: Pick<Context, 'bank' | 'atoms'>,
+  ctx: Pick<Context, 'bank' | 'atoms'> & Partial<Pick<Context, 'owners'>>,
   use: SituationUse,
   row: EstatePlanRow,
   head: EstateAtom,
@@ -113,18 +113,6 @@ function siblingSituation(
     }
   }
   return best;
-}
-
-/** Atom kinds whose rule may be written outside the unit that owns the file they gate. */
-const PREREQUISITE_HEADS: ReadonlySet<string> = new Set(['gate', 'reference']);
-
-/** Whether a rule written in `file` is part of the unit: a skill holds its folder, a helper its own file. */
-function unitHolds(unit: EstateAtom, file: string | undefined): boolean {
-  const home = unit.provenance?.file;
-  if (file === undefined || home === undefined) return true;
-  if (unit.kind === 'subagent') return file === home;
-  const folder = home.slice(0, home.lastIndexOf('/') + 1);
-  return file === home || (folder !== '' && file.startsWith(folder));
 }
 
 /** The specs of one row: one, or one per recorded session of its situation for a replay row. */
@@ -161,24 +149,15 @@ export function build(
   const polarity = NEGATIVE_TESTS.has(row.testType) ? 'negative' : 'positive';
   // A unit run uses no model, so it cannot observe the load of the skill or helper that owns the atom under
   // test: that owner supplies the task of a live row, never an expectation of a unit one.
-  const scoped =
+  const own =
     row.mode === 'unit' || row.testType === 'contract_alone'
       ? atoms.filter((atom) => atom.kind !== 'subagent' && (row.mode !== 'unit' || atom.kind !== 'skill'))
       : atoms;
-  // The unit that owns a prerequisite supplies the task of the ask. Its load is expected only when the rule is
-  // written in the unit's own files: a standing gate to read a file in a skill's folder does not require the skill.
-  const first0 = atoms[0];
-  const own =
-    first0 && PREREQUISITE_HEADS.has(first0.kind)
-      ? scoped.filter(
-          (atom) =>
-            atom === first0 ||
-            !['skill', 'subagent'].includes(atom.kind) ||
-            unitHolds(atom, first0.provenance?.file),
-        )
-      : scoped;
   const then = thenOf(own, polarity, { ...ctx, live: row.mode === 'live' });
   const first = atoms[0] as EstateAtom;
+  // The unit that owns the rule supplies the task of a code-written ask even when the rule is not part of it.
+  const ownerUnit = ctx.atoms.get(ctx.owners.get(first.id) ?? '');
+  const askAtoms = ownerUnit && !atoms.includes(ownerUnit) ? [...atoms, ownerUnit] : atoms;
 
   // Test types that add to or change what the atoms say.
   if (row.testType === 'stage_order' || row.testType === 'stage_skip') {
@@ -255,7 +234,7 @@ export function build(
     if (missing && ctx.fallback) {
       const written = codeAsk(
         use,
-        atoms,
+        askAtoms,
         ctx.units,
         row.testType === 'twin',
         (id) => ctx.atoms.get(id),
@@ -563,10 +542,14 @@ export function findSituation(
   use: SituationUse,
   row: Pick<EstatePlanRow, 'atomIds' | 'cell'>,
   atoms?: ReadonlyMap<string, EstateAtom>,
+  /** The unit that owns the rule by folder, when the row does not carry it (it does not hold the rule). */
+  taskOwner?: string,
 ): Situation | undefined {
   const head = row.atomIds[0];
   const homes = head !== undefined && atoms ? foldersNamedBy(atoms.get(head)) : [];
-  const owner = row.atomIds.slice(1).find((id) => ['skill', 'subagent'].includes(atoms?.get(id)?.kind ?? ''));
+  const owner =
+    row.atomIds.slice(1).find((id) => ['skill', 'subagent'].includes(atoms?.get(id)?.kind ?? '')) ??
+    taskOwner;
   let best: Situation | undefined;
   let score = -1;
   let near = -1;

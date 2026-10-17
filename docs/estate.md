@@ -635,6 +635,9 @@ Rules use their own source folder, and gated files use their target folder when 
 The longest matching declared skill folder wins; route edges identify route targets only. A standing gate can therefore use the skill whose reference it gates.
 Ambiguous and unowned targets stay unresolved. Older plans are repaired during generation:
 unrelated attached skills are removed from both expectations and atom metadata.
+A unit that owns a gate or a reference by folder supplies the task of its ask, but joins the row (and so the expectation
+that it loads) only when it holds the rule: the rule is written in one of its own files. A standing gate about a
+file in a skill's folder is owned by that skill for its task and held by nobody, so the row names the rule alone.
 A shared file outside every skill folder is owned by the unit whose own file cites it: one reference atom
 exists per citation, so each skill or helper that cites the file directly owns its citation, and a link
 that only navigates, or a catalogue that cites a file in another unit's folder, owns nothing. A file cited
