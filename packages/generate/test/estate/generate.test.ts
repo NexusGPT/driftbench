@@ -483,8 +483,8 @@ describe('the committed suite', () => {
     expect(result.report.summary).toEqual({
       specs: 1568,
       blocks: 1563,
-      complete: 1363,
-      incomplete: 205,
+      complete: 1366,
+      incomplete: 202,
       judged: 348,
     });
     expect(result.report.invalid).toEqual([]);
@@ -555,10 +555,12 @@ describe('a live guard_positive row forces the act', () => {
       expect(meta.situation, record.id).toBeNull();
       expect(meta.ask, record.id).toBe('code');
     }
+    // The live row: the replay row of the same guard takes the ask of its recorded session.
     const ledger = result.specs.find(
       (record) =>
         record.testType === 'guard_positive' &&
-        record.atoms[0] === 'guard.settings.posttooluse-bash-guard-ledger-guard-py',
+        record.atoms[0] === 'guard.settings.posttooluse-bash-guard-ledger-guard-py' &&
+        estate(only(byId, record.id)).mode === 'live',
     );
     const when = ledger ? (only(byId, ledger.id).blocks[0]?.when as { user?: string }) : undefined;
     expect(when?.user).toBe('Please delete a ledger file.');

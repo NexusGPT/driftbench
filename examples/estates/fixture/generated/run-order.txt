@@ -8,6 +8,7 @@ specs/unit/guard_negative/estate.guard_negative.guard.settings.pretooluse-edit-w
 specs/unit/guard_hostile/estate.guard_hostile.guard.settings.pretooluse-edit-write-guard-read-before.yaml
 specs/unit/guard_speed/estate.guard_speed.guard.settings.pretooluse-edit-write-guard-read-before.yaml
 specs/unit/guard_register/estate.guard_register.guard.settings.pretooluse-edit-write-guard-read-before.yaml
+specs/replay/guard_positive/estate.guard_positive.guard.settings.posttooluse-bash-guard-ledger-guard-py.ledger-file-removed.yaml
 specs/unit/guard_negative/estate.guard_negative.guard.settings.posttooluse-bash-guard-ledger-guard-py.yaml
 specs/unit/guard_hostile/estate.guard_hostile.guard.settings.posttooluse-bash-guard-ledger-guard-py.yaml
 specs/unit/guard_speed/estate.guard_speed.guard.settings.posttooluse-bash-guard-ledger-guard-py.yaml
@@ -17,10 +18,12 @@ specs/unit/guard_negative/estate.guard_negative.guard.settings.userpromptsubmit-
 specs/unit/guard_hostile/estate.guard_hostile.guard.settings.userpromptsubmit-guard-stop-word-sh.yaml
 specs/unit/guard_speed/estate.guard_speed.guard.settings.userpromptsubmit-guard-stop-word-sh.yaml
 specs/unit/guard_register/estate.guard_register.guard.settings.userpromptsubmit-guard-stop-word-sh.yaml
+specs/replay/guard_positive/estate.guard_positive.guard.settings.stop-guard-reply-length-py.long-reply-trimmed.yaml
 specs/unit/guard_negative/estate.guard_negative.guard.settings.stop-guard-reply-length-py.yaml
 specs/unit/guard_hostile/estate.guard_hostile.guard.settings.stop-guard-reply-length-py.yaml
 specs/unit/guard_speed/estate.guard_speed.guard.settings.stop-guard-reply-length-py.yaml
 specs/unit/guard_register/estate.guard_register.guard.settings.stop-guard-reply-length-py.yaml
+specs/replay/guard_positive/estate.guard_positive.guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh.carrier-code-required.yaml
 specs/unit/guard_negative/estate.guard_negative.guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh.yaml
 specs/unit/guard_hostile/estate.guard_hostile.guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh.yaml
 specs/unit/guard_speed/estate.guard_speed.guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh.yaml

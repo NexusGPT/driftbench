@@ -15,13 +15,13 @@
   },
   "phrases": {
     "path": "../phrases.yaml",
-    "situations": 26,
-    "phrases": 50,
+    "situations": 29,
+    "phrases": 56,
     "workspaces": 5
   },
   "sessions": {
     "path": "../sessions/index.yaml",
-    "sessions": 6
+    "sessions": 9
   },
   "options": {
     "seed": 1,
@@ -43,8 +43,8 @@
   "summary": {
     "specs": 1568,
     "blocks": 1563,
-    "complete": 1363,
-    "incomplete": 205,
+    "complete": 1366,
+    "incomplete": 202,
     "judged": 348
   },
   "unit": {
@@ -61,18 +61,18 @@
   },
   "sources": {
     "asks": {
-      "bank": 433,
-      "code": 919,
-      "session": 3,
+      "bank": 448,
+      "code": 904,
+      "session": 6,
       "none": 8
     },
     "outcomes": {
-      "bank": 984,
+      "bank": 1011,
       "no-change:denied": 2,
-      "no-change:guard": 27,
+      "no-change:guard": 26,
       "no-change:negative": 58,
       "no-change:read-only": 17,
-      "no-delete": 267,
+      "no-delete": 244,
       "static": 8
     },
     "judged": 201
@@ -160,8 +160,8 @@
     "guard_positive": {
       "rows": 84,
       "specs": 84,
-      "complete": 81,
-      "incomplete": 3
+      "complete": 84,
+      "incomplete": 0
     },
     "guard_negative": {
       "rows": 6,
@@ -252,8 +252,8 @@
     "replay": {
       "rows": 6,
       "specs": 6,
-      "complete": 3,
-      "incomplete": 3
+      "complete": 6,
+      "incomplete": 0
     },
     "unit": {
       "rows": 37,
@@ -334,16 +334,6 @@
       "details": ["Read before matching any line: \"matching any line\" is no tool label, skill or stage"]
     },
     {
-      "marker": "needs-recorded-session",
-      "specs": 3,
-      "atoms": [
-        "guard.settings.posttooluse-bash-guard-ledger-guard-py",
-        "guard.settings.stop-guard-reply-length-py",
-        "guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh"
-      ],
-      "details": ["no recorded session of this situation"]
-    },
-    {
       "marker": "needs-registered-check",
       "specs": 1,
       "atoms": ["tool.settings.ask-bash-git-commit"],
@@ -364,9 +354,27 @@
       "expect": "pass"
     },
     {
+      "spec": "estate.guard_positive.guard.settings.posttooluse-bash-guard-ledger-guard-py.ledger-file-removed",
+      "session": "ledger-file-removed",
+      "planRow": "guard_positive.guard.settings.posttooluse-bash-guard-ledger-guard-py",
+      "expect": "pass"
+    },
+    {
       "spec": "estate.guard_positive.guard.settings.userpromptsubmit-guard-stop-word-sh.stop-word-nudged",
       "session": "stop-word-nudged",
       "planRow": "guard_positive.guard.settings.userpromptsubmit-guard-stop-word-sh",
+      "expect": "pass"
+    },
+    {
+      "spec": "estate.guard_positive.guard.settings.stop-guard-reply-length-py.long-reply-trimmed",
+      "session": "long-reply-trimmed",
+      "planRow": "guard_positive.guard.settings.stop-guard-reply-length-py",
+      "expect": "pass"
+    },
+    {
+      "spec": "estate.guard_positive.guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh.carrier-code-required",
+      "session": "carrier-code-required",
+      "planRow": "guard_positive.guard.shipment-tracker.pretooluse-bash-guard-check-carrier-sh",
       "expect": "pass"
     }
   ],

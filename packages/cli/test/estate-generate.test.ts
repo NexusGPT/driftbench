@@ -13,7 +13,17 @@ const FIXTURE = join(ROOT, 'examples/estates/fixture');
 const MAP = join(FIXTURE, 'approved.yaml');
 const PLAN = join(ROOT, 'packages/generate/test/estate/fixtures/plan.yaml');
 const SESSIONS = join(FIXTURE, 'sessions');
-const NAMES = ['weekly-clean', 'weekly-skill-skipped', 'weekly-gate-violated'];
+const NAMES = [
+  'weekly-clean',
+  'weekly-skill-skipped',
+  'weekly-gate-violated',
+  'force-push-blocked',
+  'invoice-edit-gated',
+  'stop-word-nudged',
+  'ledger-file-removed',
+  'long-reply-trimmed',
+  'carrier-code-required',
+];
 
 async function run(argv: string[], cwd = ROOT) {
   const output = { out: '', err: '' };
@@ -74,7 +84,7 @@ describe('driftbench estate generate', () => {
   it('finds the phrase bank and the session index beside the map', async () => {
     const report = JSON.parse(await readFile(join(out, 'estate-generate-report.json'), 'utf8'));
     expect(report.phrases.path).toBe(relative(out, join(FIXTURE, 'phrases.yaml')));
-    expect(report.sessions).toEqual({ path: relative(out, join(SESSIONS, 'index.yaml')), sessions: 6 });
+    expect(report.sessions).toEqual({ path: relative(out, join(SESSIONS, 'index.yaml')), sessions: 9 });
   });
 
   it('gives replay specs that pass and fail over the three sessions as planned', async () => {
@@ -357,5 +367,47 @@ describe('estate generate with no phrase bank (bench defect D7)', () => {
     );
     expect(named.code).toBe(2);
     expect(named.err).toContain('the phrase bank cannot be read or is invalid');
+  }, 120_000);
+});
+
+describe('the planner suite of the fixture over its recorded sessions', () => {
+  it('gives every guard replay row a session, and each replay passes as planned', async () => {
+    const out = await mkdtemp(join(tmpdir(), 'estate-generate-planner-'));
+    const planner = join(ROOT, 'packages/generate/test/estate/fixtures/planner-plan.approved.yaml');
+    const made = await run([
+      'estate',
+      'generate',
+      '--map',
+      MAP,
+      '--plan',
+      planner,
+      '--out',
+      join(out, 'suite'),
+    ]);
+    expect(made.err).toBe('');
+    expect(made.out).toContain('Replay: 6 specs aligned to sessions, 6 planned to pass, 0 to fail.');
+    const report = JSON.parse(await readFile(join(out, 'suite/estate-generate-report.json'), 'utf8'));
+    expect(report.perMode.replay).toEqual({ rows: 6, specs: 6, complete: 6, incomplete: 0 });
+    expect(
+      report.gaps.find((gap: { marker: string }) => gap.marker === 'needs-recorded-session'),
+    ).toBeUndefined();
+    const replay = await run([
+      'replay',
+      ...NAMES.map((name) => join(SESSIONS, `${name}.jsonl`)),
+      '--decisions',
+      ...NAMES.map((name) => join(SESSIONS, `${name}.decisions.jsonl`)),
+      '--steps',
+      ...NAMES.map((name) => join(SESSIONS, `${name}.steps.jsonl`)),
+      '--suite',
+      join(out, 'suite/specs/replay'),
+      '--json',
+    ]);
+    const result = JSON.parse(replay.out) as {
+      runs: Array<{ spec: string; pass: boolean }>;
+      notes: string[];
+    };
+    expect(result.notes).toEqual([]);
+    expect(result.runs).toHaveLength(6);
+    expect(result.runs.filter((entry) => !entry.pass)).toEqual([]);
   }, 120_000);
 });
