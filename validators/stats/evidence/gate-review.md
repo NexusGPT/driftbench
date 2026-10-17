@@ -97,3 +97,21 @@ Functions without a witness: **none**. These are item-sensitivity results, not a
 Three isolated mutants are killed: disconnect the CLI's fingerprint check (7 failing tests); omit fixture hashing (1 failing test); bypass the journal append hash requirement (1 failing test). Production files are not modified by those transform-based mutants.
 
 The broader command adds `packages/cli/test/validate.test.ts`, `packages/validators/test/hardness.test.ts`, `packages/validators/test/audit.test.ts`, `packages/validators/test/causes.test.ts`, and `packages/validators/test/loop.test.ts`: 64 passed, 2 failed, 2 skipped. The failures are the real stats ladder's observed level 3 against recorded floor 7. The new command tests and the other five files pass. The floor and all validator items are preserved; this report does not claim the whole CLI suite is green.
+
+## Compiled child follow-up on PR 744
+
+PR 744 head `4e317a4d52a7dfff21ccdc9613ada6359de7bd2b` is included in this stack. Its separately bundled child installs the trap before dynamic target and bank imports. Caller capture uses wrapper function identity, so esbuild chunk filenames do not defeat it. The built launcher selects `dist/stats-bank/child.js`, never the public index.
+
+The tsup-built CLI regression runs a clean target (exit 0), an oracle-reading target at module load (exit 1), and a process-spawning target at module load (exit 1). The dedicated child is also exercised directly. A disposable copy selects one existing bank item for this launch-path regression; the live bank and its floor are untouched. Arbitrary direct imports of the public validators index are outside this fix's scope.
+
+On PR 744, `pnpm exec vitest run --maxWorkers=2 packages/validators/test/stats/built-child.test.ts packages/validators/test/stats/trap.test.ts packages/validators/test/stats/isolate-accounting.test.ts` passes 20 tests, following a red-first compiled-path failure. Type checking and Biome pass. Four compiled mutants expose the bypass: restore the public-index route, statically import the target, statically import the bank, or remove wrapper-based stack capture. Each attack then performs its planted operation and exits 0; the protected-path assertions reject that behavior.
+
+## Final combined measurement
+
+Measured source commit: `6e6b39a1ca969823241cfe9b04391e57ffc108cc`. The following documentation-only changes do not alter bank identity. The live bank fingerprint is `51f9969dc376c14def5a482b82d41f65e62e3a4e347fdb97b573d5b76006d2d0`.
+
+`pnpm --silent driftbench validate stats --hardness --json` exits 1. It retains the historical forecast, score and cause count above, reports `freshness.status: unverified` with 43 hashless journal rows, and lists all four pending audits. The existing provisional numerical terms are 70 / 0.7 / 60; their historical numerical pass does not satisfy the overall gate.
+
+The final combined command is `pnpm exec vitest run --maxWorkers=2 packages/validators/test/stats/exact.test.ts packages/validators/test/stats/exact-branches.test.ts packages/validators/test/stats/exact-capabilities.test.ts packages/validators/test/stats/exact-user-capabilities.test.ts packages/validators/test/stats/trap.test.ts packages/validators/test/stats/built-child.test.ts packages/validators/test/stats/isolate-accounting.test.ts`: **375 passed across seven files**. `pnpm exec tsc --noEmit` passes. Biome checks all 16 changed TypeScript files without changes. No existing item ID, cause, tolerance or floor is weakened.
+
+`node tools/structure/api-surface.mjs --build --check` passes: the built public API matches the committed snapshot, with 2507 exports.
