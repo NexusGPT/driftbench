@@ -79,38 +79,6 @@ driftbench ci --specs <path> --target <adapter[:agent]> --baseline <campaign|sto
 
 Global: `--plugin <module>` loads a plugin, which can register an adapter for your own agent.
 
-Judging and the checks take the same options as `campaign run`, with the same defaults (topics judging-council and judging-machine-checks):
-
-| Option | Default | Effect |
-|---|---|---|
-| `--judge <kind:model>` | none | judge the judged criteria with this judge, such as `claude:haiku`. Kinds: claude, openai, anthropic, google, openai-decisions, jev, http. Repeat it for a council. Paid calls |
-| `--judge-command <path>` | `claude` | the claude command a claude judge runs |
-| `--judge-budget <usd>` | none | stop judging once the judges have spent this much |
-| `--judges <cassette>` | none | add every judge of this recording as a player: no call |
-| `--judge-mode <mode>` | from the judge classes | the council mode: `system1`, `hybrid` or `llm` |
-| `--assignments <file>` | none | the council assignment table `judge calibrate` wrote |
-| `--cascade` | off | run the cheapest judge first and stop on a sure pass |
-| `--weights <weights>` | none | council vote weights, `judge=weight,...` or a YAML file |
-| `--judge-route <route>` | none | `escalation`: route each call through a label-blind router |
-| `--route-first <judge>` | none | with `--judge-route escalation`: the judge that answers first |
-| `--route-then <judge>` | none | with `--judge-route escalation`: a judge asked when a trigger fires; repeatable |
-| `--route-on <triggers>` | `order-split,inconclusive,reference-disagreement,low-confidence` | the escalation triggers, comma separated |
-| `--route-confidence <p>` | `0.5` | the low-confidence bar, from 0 to 1 |
-| `--route-decide <rule>` | `majority` | `majority` or `first-stands` |
-| `--panel-weights <weights>` | none | a weighted panel of every judge; a thin margin abstains |
-| `--panel-margin <share>` | `0.3` | with `--panel-weights`: the smallest winning margin, a share of the total weight |
-| `--reference-solve <kind:model>` | none | solve each question blind first, and judge against the agreed answer |
-| `--reference-samples <n>` | `5` | with `--reference-solve`: how many solves, from 1 to 20 |
-| `--reference-route <route>` | none | with `--reference-solve`: `auto` solves only a question with one checkable answer |
-| `--verify <kind>` | none | `arithmetic`: check explicit equations in the reply, in a bounded sandbox, before the judge reads it |
-| `--prompt-budget <chars>` | none | drop the oldest transcript entries until the judge prompt fits; the last block stays |
-| `--record <cassette>` | none | save every live judge answer as a cassette, to replay with `--judges` |
-| `--agent-family <family>` | none | the model family of the agent under test: a judge of that family is refused. `none` for no model |
-| `--owner <values...>` | none | the owner's own email, phone, IBAN or national number, left out by the `pii` check |
-| `--owner-file <file>` | none | owner values for the `pii` check, one per line; `#` starts a comment |
-| `--tool-policy <rules>` | none | a YAML list of `{ pattern, action: allow \| deny \| ask }`; a denied call fails its block's `tool_policy` check |
-| `--embedder <name>` | none | the embedder the `similarity` check scores with, as a plugin registered it |
-
 ### The GitHub Action
 
 `action/action.yml` at the repository root is a composite action around this command. Inputs (default):
@@ -157,9 +125,9 @@ line `Verdict: <VERDICT>. Exit <n>.` and `Summary: <file>`.
 
 `ci` prints no suite headline. To read the candidate's pass rate with its hierarchical interval and
 `n_eff`, run `driftbench report` on the candidate campaign in `--store` (see `results-statistics`). The gate
-itself is the paired comparison and the aggregates: neither reads the headline. An aggregate
-`pass-rate` pools every run as independent, with a Wilson interval over the runs, so its interval is
-usually narrower than the headline's.
+itself is the paired comparison and the aggregates: neither reads the headline. An aggregate `pass-rate`
+is the pooled rate over the runs, each run counting once. Its interval is the Wilson interval on the
+effective runs, clustered by golden. The headline is the mean over goldens, with the hierarchical interval.
 
 The JSON summary (`--out`, and standard output with `--json`) holds: `verdict`, `exitCode`, `reasons`,
 `aggregates`, `marginPoints`, `marginAuto` (`neededPoints`, `limitedBy`, `warning`), `minGoldens`,
@@ -358,4 +326,4 @@ $ driftbench ci --specs examples/acme/specs/conversations --target fault:control
 | verdict `NOT SHOWN NON-INFERIOR` on an unchanged agent | the suite is too small for the margin. Read "smallest margin these pairs can show"; add goldens, or accept the auto margin |
 | price-sheet task specs fail on `function:acme-sales` | the mixed Acme suites need `--route flow:price-sheet=process:acme-ops` |
 | every cell reran though `--cache` was not given | expected: the cache is off by default in `ci` |
-| the `pass-rate` aggregate passes while the suite headline of `report` is lower | expected: the aggregate pools every run and reads them as independent; the headline is the mean over goldens. Gate on the paired verdict, or set the aggregate threshold with that in mind |
+| the `pass-rate` aggregate passes while the suite headline of `report` is lower | expected: the aggregate is the pooled rate, each run counting once, with the Wilson interval on the effective runs clustered by golden; the headline is the mean over goldens. Gate on the paired verdict, or set the aggregate threshold with that in mind |

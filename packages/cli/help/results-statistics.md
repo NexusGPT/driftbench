@@ -28,9 +28,9 @@ as independent samples.
 
 | Method | Used for |
 |---|---|
-| Wilson score interval | a rate over independent units: goldens, holdout conversations, aggregates, recovery shares |
+| Wilson score interval | a rate over independent units: goldens, holdout conversations, recovery shares, and an aggregate over one golden or with one run in every golden |
 | Clopper-Pearson exact | library only (`clopperPearson`) |
-| Wilson on n_eff | a rate over clusters: the scorecard's pass rate over specs with repeats, and block accuracy over conversations. Wilson on the effective units `n_eff` (units divided by the design effect from the spread of the cluster rates), with the Student t quantile on clusters minus one. The cell prints `n_eff` and the design effect. Method name `wilson, design effect` |
+| Wilson on n_eff | a rate over clusters: the scorecard's pass rate over specs with repeats, and block accuracy over conversations. Wilson on the effective units `n_eff` (units divided by the design effect from the spread of the cluster rates), with the Student t quantile on clusters minus one. The cell prints `n_eff` and the design effect. An aggregate over several goldens (`report`, `ci`) takes it too, clustered by golden. Method name `wilson, design effect`, or `wilson, clusters` when every run agrees |
 | hierarchical Beta-Bernoulli | the suite headline, the pass rate of a whole suite: the mean over goldens (every golden weighs the same) with a model that learns from the spread between goldens how far the runs of one golden move together. No sampling, no seed. Method name `hierarchical` |
 | cluster bootstrap | anything pooled over blocks (block accuracy, the compounding index): 2000 percentile resamples of whole clusters, seed 1 |
 | Wilson raised to k | pass^k and pass@k: the Wilson bounds of the per-run rate raised to k, widened to contain the value; runs that did not complete count both ways |
@@ -152,8 +152,8 @@ When not to use the headline:
 * To decide whether a candidate is worse than a baseline. The headline is one campaign's rate. A
   comparison of two versions uses the paired tests of `compare` and `ci`, which pair each golden with
   itself.
-* As the threshold of `ci --aggregate pass-rate`. That aggregate reads every run as independent and is
-  not changed by the headline.
+* As the threshold of `ci --aggregate pass-rate`. That aggregate is the pooled rate over the runs, with the
+  Wilson interval on the effective runs clustered by golden, and is not changed by the headline.
 * With one golden. It prints no interval.
 
 ## Commands and every option
@@ -512,7 +512,7 @@ method's coverage with the 95% it promises.
 | a carried golden is missing from the pairs | carried results are never paired: they agree with the baseline by construction |
 | the headline reads `no interval: one cluster` and `(one golden)` | the mode ran one golden. Add specs; repeats of one spec never give an interval |
 | the headline reads `no drop detectable at 80% power` | the suite is too small to detect even a fall to 0%. Add goldens before you gate on it |
-| the headline differs from `aggregate pass-rate` on the same campaign | expected: the aggregate pools every run as independent; the headline is the mean over goldens. Quote the headline, gate with `compare` or `ci` |
+| the headline differs from `aggregate pass-rate` on the same campaign | expected: the aggregate is the pooled rate, each run counting once, with the Wilson interval on the effective runs clustered by golden; the headline is the mean over goldens. Quote the headline, gate with `compare` or `ci` |
 | the headline is below the pass rate you expected | runs that did not complete count as failed. Read the `did not complete` share on the same line |
 | more goldens than specs | a golden is one spec, one target and one mode (and one perturbation in P); a spec edited between runs is a new golden |
 | `hierarchicalBetaBinomial: trees must not be empty` (RangeError) | pass at least one golden |

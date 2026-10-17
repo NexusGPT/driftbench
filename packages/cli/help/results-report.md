@@ -223,4 +223,4 @@ The pass rate counts the one scored run. The JUnit file skips the other:
 | an aggregate line reads `fails` but the exit code is 0 | expected: `report` never gates. Use `driftbench ci --aggregate` for a failing exit code |
 | the Runs zone lists fewer runs than the campaign has | `--max-runs` (default 200) caps it; the page says how many runs it left out |
 | a `Suite pass rate` line reads `no interval: one cluster` | the mode ran one golden; add specs to get an interval |
-| the `Suite pass rate` differs from the `aggregate pass-rate` value | expected: the aggregate pools every run as independent, the headline is the mean over goldens |
+| the `Suite pass rate` differs from the `aggregate pass-rate` value | expected: the aggregate is the pooled rate, each run counting once, with the Wilson interval on the effective runs clustered by golden; the headline is the mean over goldens |
