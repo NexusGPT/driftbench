@@ -143,6 +143,13 @@ export const JournalRowSchema = z
     if (row.passing > row.bankSize) {
       ctx.addIssue({ code: 'custom', path: ['passing'], message: 'passing cannot exceed bankSize' });
     }
+    if (row.catchItems && row.catchItems.passing > row.catchItems.size) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['catchItems', 'passing'],
+        message: 'catchItems.passing cannot exceed catchItems.size',
+      });
+    }
     const failing = Object.values(row.failingByFamily).reduce((sum, value) => sum + value, 0);
     if (failing !== row.bankSize - row.passing) {
       ctx.addIssue({

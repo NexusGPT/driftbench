@@ -70,8 +70,18 @@ export function causeKey(row: Pick<BankRow, 'cause' | 'level' | 'id'>): string {
     : `item:${row.level}/${row.id}`;
 }
 
-/** The bank summary of a report. Run the report with `full` so the levels above a failure are known. */
-export function bankSummary(report: LadderReport): BankSummary {
+/**
+ * The catch ids a validator pins, each with the planted bug, cheat, shortcut or budget it guards
+ * (`validators/<component>/catch.json`, section 12.4). An item counts as a catch item only when it says
+ * `role: catch` and its id is pinned here.
+ */
+export type CatchList = ReadonlyMap<string, string>;
+
+/**
+ * The bank summary of a report. Run the report with `full` so the levels above a failure are known. Without a
+ * pinned catch list every item is a hardness item.
+ */
+export function bankSummary(report: LadderReport, pinned?: CatchList): BankSummary {
   const seeds = report.seeds.map(seedLabel);
   const rows = new Map<string, BankRow>();
   const levelCount = report.seeds[0]?.rows.length ?? 0;
@@ -107,7 +117,7 @@ export function bankSummary(report: LadderReport): BankSummary {
           rows.set(key, target);
         }
         if (target.cause === undefined && entry.cause !== undefined) target.cause = entry.cause;
-        if (entry.role === 'catch') target.role = 'catch';
+        if (entry.role === 'catch' && pinned?.has(entry.id)) target.role = 'catch';
         target.perSeed[seedIndex] = entry.pass ? 'pass' : 'fail';
       }
     });
