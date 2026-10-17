@@ -738,6 +738,15 @@ export function isOwnTrigger(ask: string, triggers: readonly string[]): boolean 
   });
 }
 
+/**
+ * Whether an ask is exempt from the task predicate as the own trigger of a prompt guard. The restatement check runs on
+ * the whole ask first, so the exemption never skips it: an ask that restates a rule of the estate is no trigger, with or
+ * without the stop word in front of it.
+ */
+export function exemptTrigger(ask: string, triggers: readonly string[], rules: readonly string[]): boolean {
+  return !restatesRule(ask, rules) && isOwnTrigger(ask, triggers);
+}
+
 export function taskFamily(): Family {
   return seedFreeFamily(
     'gen.task',
@@ -781,12 +790,13 @@ export function taskFamily(): Family {
           (spec) =>
             !(
               type.startsWith('guard_') &&
-              isOwnTrigger(
+              exemptTrigger(
                 firstAsk(spec) ?? '',
                 spec.atoms.flatMap((id) => {
                   const guard = promptGuards.get(id);
                   return guard ? triggersOfGuard(guard, atoms) : [];
                 }),
+                allRules,
               )
             ) &&
             !holdsTask(firstAsk(spec) ?? '', {

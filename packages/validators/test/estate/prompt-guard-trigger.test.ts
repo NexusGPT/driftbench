@@ -4,6 +4,7 @@ import { parseSpecText, type Spec } from '@agent-nexus/driftbench-core';
 import { describe, expect, it, vi } from 'vitest';
 import * as fixture from '../../src/ladders/estate/bank/fixture-suite';
 import {
+  exemptTrigger,
   holdsTask,
   isOwnTrigger,
   taskFamily,
@@ -158,4 +159,20 @@ describe('a session command is a task only as a whole request', () => {
   it('keeps a real task that follows a session command', () => {
     expect(holdsTask('Stop, then rename the March report to final.md.')).toBe(true);
   });
+});
+
+describe('the restatement check runs before the exemption', () => {
+  const rules = ['On stop, stop all work and confirm in one line'];
+
+  it.each(['stop', 'Stop now.', 'Stop, that is enough for now.'])('exempts the trigger: %s', (ask) =>
+    expect(exemptTrigger(ask, ['stop'], rules)).toBe(true),
+  );
+
+  it.each([
+    'Stop: on stop, stop all work and confirm in one line.',
+    'Stop. Stop all work and confirm in one line.',
+    'stop all work and confirm in one line',
+  ])('never exempts an ask that restates the rule: %s', (ask) =>
+    expect(exemptTrigger(ask, ['stop'], rules)).toBe(false),
+  );
 });
