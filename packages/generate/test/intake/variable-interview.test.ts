@@ -461,3 +461,85 @@ function validate(raw: unknown): VariableStore {
   if (!result.ok) throw new Error(JSON.stringify(result.errors));
   return result.store;
 }
+
+describe('ids that are also names of Object.prototype', () => {
+  const protoStore = () =>
+    validate({
+      format: 1,
+      agent: 'x',
+      version: '1',
+      variables: [
+        {
+          id: 'v',
+          title: 'V',
+          kind: 'data',
+          role: 'axis',
+          approved: true,
+          values: [
+            { id: 'constructor', title: 'A value named like a built-in' },
+            { id: 'normal', title: 'A normal value' },
+          ],
+        },
+      ],
+    });
+
+  it('asks again for weights that leave out a value named constructor', async () => {
+    const { result, refusals } = await refusalsOf(
+      'weights:v',
+      [
+        { weights: { normal: 1 }, ...words('Normal only.') },
+        { weights: { constructor: 0.5, normal: 0.5 }, ...words('Half each.') },
+      ],
+      protoStore(),
+    );
+    expect(refusals.map((e) => e.reason)).toEqual(['give a weight to every value; missing: constructor']);
+    expect(result.ok && result.store.variables[0]?.values.map((v) => [v.id, v.weight])).toEqual([
+      ['constructor', 0.5],
+      ['normal', 0.5],
+    ]);
+  });
+});
+
+describe('the pair question on a variable that is half weighted', () => {
+  it('asks again for a pair that removes the last possible situation, whatever the weights say', async () => {
+    const store = validate({
+      format: 1,
+      agent: 'x',
+      version: '1',
+      variables: [
+        {
+          id: 'channel',
+          title: 'Channel',
+          kind: 'channel',
+          role: 'axis',
+          approved: true,
+          values: [
+            { id: 'web', title: 'Web', weight: 0.5 },
+            { id: 'phone', title: 'Phone', weight: 0.5 },
+          ],
+        },
+        {
+          id: 'slot',
+          title: 'Slot',
+          kind: 'data',
+          role: 'axis',
+          approved: true,
+          values: [{ id: 'day', title: 'Day' }],
+        },
+      ],
+    });
+    const { asker, calls } = scripted({
+      'values:channel': [{ values: [{ id: 'kiosk', title: 'Kiosk', ...words('A kiosk.') }] }],
+      'pair:1': [pair({ channel: 'web', slot: 'day' })],
+      'pair:2': [pair({ channel: 'phone', slot: 'day' })],
+      'pair:3': [pair({ channel: 'kiosk', slot: 'day' }), { done: true }],
+      'weights:channel': [{ weights: { web: 0.4, phone: 0.4, kiosk: 0.2 }, ...words('Kiosk is small.') }],
+    });
+    const result = await interviewVariables(store, asker, { now: NOW });
+    expect(calls.filter((c) => c.key === 'pair:3').map((c) => c.refusal)).toEqual([
+      undefined,
+      'that would leave no possible situation: the constraints would forbid every cell',
+    ]);
+    expect(result.ok && result.store.constraints).toHaveLength(2);
+  });
+});
