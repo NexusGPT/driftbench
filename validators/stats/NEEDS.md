@@ -412,3 +412,15 @@ The floor of the ladder stays at the level of the pilot. These items are written
 The oracles were checked against an independent implementation written in TypeScript in a scratch file (not in the package): 32 of 32 pass, so an executor who writes the functions from the page gets green items.
 
 This is the honest size of capability growth. The statistics the pages lean on and the package lacks number four, not a hundred; the 155 quarantined methods have no page that needs them (batch 1 to 5), and adding them would be the padding section 12.1 rules out.
+
+
+## Batch 12: documented capabilities before the gate review
+
+The owner requires real capability additions before any provisional gate decision. These six items extend the existing `exact-estimators` family, without replacing or relaxing earlier items.
+
+| Capability | Product need | Added items | Oracle and shared causes |
+|---|---|---|---|
+| `simulateFamilyCoverage` | `docs/concepts/statistics.md`, Suites with parents: compare naive Wilson, children-as-trees and families-as-trees under the nested family model | `exact.simulateFamilyCoverage.user-fixed-children`, `exact.simulateFamilyCoverage.user-unequal-children` | Seeded model replay with direct beta-binomial likelihood products, checking coverage, widths and metadata. Both share one model/aggregation cause. |
+| `bootstrapCI` custom statistic | `docs/concepts/statistics.md`, Intervals: callers supply a statistic and clusters must remain whole during resampling | `exact.bootstrapCI.user-one-cluster-percentile`, `exact.bootstrapCI.user-one-cluster-basic`, `exact.bootstrapCI.user-resampled-clusters-percentile`, `exact.bootstrapCI.user-resampled-clusters-basic` | Independently resample a custom sum over unequal clusters. One shared point-estimate cause and one shared resampling cause. |
+
+The six items pass on the product on four seeds. Each rejects a changed 0.2 percent output and a throw. Source mutants check ignored callbacks, flattened clusters, swapped grouping, ignored seeds and ignored child-size pools. These are capability checks, not new pilot measurements. The expanded bank has no fresh pilot; the historical 651-item pilot remains labelled as historical in `GATE.md`.
