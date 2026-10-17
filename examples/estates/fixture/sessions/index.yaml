@@ -41,7 +41,7 @@ sessions:
     note: The stop word is typed, the guard nudges, and the agent stops and says so.
   - name: ledger-file-removed
     situation: ledger-file-removal
-    ask: "Delete ledger/2026-W41.csv, I keep a copy of it elsewhere."
+    ask: "Delete this week's ledger file, ledger/2026-W41.csv, I keep a copy of it elsewhere."
     violates: []
     note: The remove command is refused by the system, the PostToolUse guard still warns about the command, and the agent says the file is still there.
   - name: long-reply-trimmed

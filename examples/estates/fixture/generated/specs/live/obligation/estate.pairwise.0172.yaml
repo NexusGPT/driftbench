@@ -52,7 +52,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Delete ledger/2026-W41.csv, I keep a copy of it elsewhere.
+      user: Delete this week's ledger file, ledger/2026-W41.csv, I keep a copy of it elsewhere.
     expect:
       workspace:
         others_untouched: true

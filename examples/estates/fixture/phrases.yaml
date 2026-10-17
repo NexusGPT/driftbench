@@ -334,7 +334,7 @@ situations:
     workspace: northwind-ops
     touches: {}
     phrases:
-      - { text: 'Delete ledger/2026-W41.csv, I keep a copy of it elsewhere.', lang: en, approved: true }
+      - { text: 'Delete this week''s ledger file, ledger/2026-W41.csv, I keep a copy of it elsewhere.', lang: en, approved: true }
       - { text: 'Get rid of this week''s ledger file, ledger/2026-W41.csv, it is not needed any more.', lang: en, approved: true }
 
   - id: long-status-report
