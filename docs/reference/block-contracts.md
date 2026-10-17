@@ -242,7 +242,7 @@ The blame reading of value facts is not built yet. The shipped `value-mismatch` 
 * The fix plan is ranked by the `fix-plan` diagnostic: agent blocks first, then blocks, then cost class.
 * `nonDefault` lists every object a block was scored with whose id is not `default`.
 * An object appears once, even when many blocks resolved it. The list is sorted.
-* Each entry is written `kind:id@hash`, with the hash recorded in `BlockResult.resolved`.
+* Each entry is written `kind:id@hash8`: `hash8` is the first 8 hex characters of the hash recorded in `BlockResult.resolved`, as in `Verdict.by` (`config_framework.md` names an object `kind/id@<hash8>`). On `origin/feat/block-b4-report`, `attributionOf` prints the recorded hash whole, 12 hex characters.
 * The objects are read from `BlockResult.resolved.objects` of every block of every run. The `objects` option adds the objects the campaign was scored with, for records that do not carry them.
 * A fix keeps its own fields. Its `fixAction` is free text.
 * The text scorecard prints `Non-default rules: <list>.` The HTML scorecard prints a `non-default` badge.
@@ -254,6 +254,7 @@ The blame reading of value facts is not built yet. The shipped `value-mismatch` 
 * The rung family is `rung1`, `rung2`, `rung2b`, `rung3` or `rung4`.
 * Blame also reads the tool schemas of `metadata.tool_schemas` and the user text.
 * From these it computes the names `source`, `change` and `contract`.
+* The step that evaluates the value check writes the value facts, `source` and `change` included, into the verdict record of the tool input. Blame reads them there (default, owner may change). On `origin/feat/block-b4-report`, `valueFacts` sets no `source` and no `change` yet.
 * `source` is `user`, `agent_derived`, `prompt`, `tool_output`, `skill_file` or `workspace_file`.
 * `change` is `verbatim`, `case_only`, `unit_converted`, `reformatted` or `altered`.
 * `contract` is `tool`, `prompt`, `instruction`, `skill`, `error_seen`, `downstream` or `none`.
@@ -290,6 +291,7 @@ The merge commit of `origin/feat/block-phase-6-links` names PRs 423, 429, 433 an
 * `relation` is `verifies`, `exercises`, `derived_from` or `observed_in`. The default is `verifies`.
 * `status` is `declared`, `attributed`, `verified`, `refuted` or `stale`. It is required.
 * `created_by` is `generator`, `author`, `attribution`, `citation`, `ir` or `mutation`.
+* These lists are the ones of the design note `deep_3_links_localisation.md`, and the ones `spec validate` enforces (default, owner may change). The note `Driftbench block redesign.md` lists fewer: the relations `verifies`, `derived_from` and `observed_in`, and the creators `generator`, `attribution` and `verified`.
 * `block` is a block id or a block index. An absent `block` means every block.
 * A `block` that names no block of the spec is an error with the code `LINK_BLOCK_UNKNOWN` at `metadata.links.<i>.block`.
 * Links stay out of the spec hash.
@@ -342,8 +344,9 @@ Source: `docs/concepts/blast-radius.md`, "Prompt sections and block links" (one 
 ### Localize
 
 * `radius localize` ranks the local sections of a prompt by Ochiai suspiciousness over the block verdicts of a stored campaign.
-* A block covers a section when it holds a link to that section whose status is not `refuted`.
-* A `refuted` link adds nothing to `n_cf`, `n_cs` or the linked count of its section.
+* A block covers a section when it holds a link to that section whose status is `declared`, `attributed` or `verified` (`deep_3_links_localisation.md`, "C1").
+* A `refuted` or `stale` link adds nothing to `n_cf`, `n_cs` or the linked count of its section. A `stale` link is reported as advisory (default, owner may change).
+* On `origin/main`, the code leaves out only `refuted` links, so a `stale` link still counts there.
 * The score is `n_cf / sqrt(N_F * (n_cf + n_cs))`. It is 0 when `n_cf` or `N_F` is 0.
 * A block weighs `failed rows / rows`. `n_cf` sums the weights of the blocks linked to the section. `n_cs` sums one minus the weight. `N_F` sums every weight.
 * Global sections and stale sections are not ranked.
@@ -365,6 +368,7 @@ The research pull requests are 418 and 444. The object kinds `persona` and `scen
 * A parent chain run on k personas is k separate trees. A failure in one tree does not reach another tree.
 * A persona that fails a `requires` key of the block gives the cell `not_run` with the kind `persona_incompatible`. The cell is in no rate.
 * The result grid has blocks as rows and personas as columns.
+* The persona of a run is the run record's user persona id, the field `user.persona_id` (default, owner may change). No run record field holds it on the refs read.
 
 Source: `simuser_model.md`.
 Headings: "3.1 How a block names its personas", "3.3 Refusals: when a cell does not run", "3.4 Running the grid".
@@ -452,30 +456,12 @@ A rule marked "implied by" follows from the quoted sentence of `docs/concepts/gi
 
 Source: `docs/concepts/given-when-then.md`, section "Parent blocks", on `origin/feat/block-parents`.
 
-## Open
+## Defaults
 
-Each entry quotes the cause of a row that the design and the code do not fully support.
+The design and the code left five points open. Each is now answered on this page, from a design note where one states it, else by a default the owner may change.
 
-1. Hash length in the badge. The row reads "attributionOf names every non-default object once, sorted, as kind:id@hash."
-   * The design names an object `kind/id@<hash8>`, and `Verdict.by` uses `kind:id@hash8`.
-   * `attributionOf` prints the hash recorded in `BlockResult.resolved`, which holds 12 hex characters.
-   * Which length is the contract for the badge?
-2. Value facts for blame. Five rows share one cause, here for the pair R2 and R2b:
-   * "Blame reads the value's source and change, and the tool's contract, from the run's value facts: it separates altered (R2) from derived (R2b)."
-   * The other pairs are R2 with R1, R2 with R3, R2b with R3, and R1 with R3.
-   * The rules R1, R2, R2b and R3 are defined in the design.
-   * The run record that carries the value facts is defined in no design file.
-   * On `origin/feat/block-b4-report`, `valueFacts` sets no `source` and no `change`, and the shipped `value-mismatch` diagnostic stops at `value_ladder_unavailable`.
-   * Which step writes `source` and `change` into the value fact: the as given rung, or the evidence provider?
-3. Lists of a link. The row reads "metadata.links is checked by spec validate: the shape, the relation, the status and created_by lists, and the block they name".
-   * `Driftbench block redesign.md` ("Schema to adopt") lists the relations `verifies`, `derived_from` and `observed_in`, and the creators `generator`, `attribution` and `verified`.
-   * `deep_3_links_localisation.md` and the code list four relations and six creators. This page uses the second source.
-   * Is the second source the approved list?
-4. Stale links in the Ochiai counts. The row reads "radius localize leaves refuted links out of the Ochiai counts."
-   * `deep_3_links_localisation.md` ("C1") counts links with status `declared`, `attributed` or `verified`.
-   * The code leaves out only `refuted`, so a `stale` link counts.
-   * Does a `stale` link count in the Ochiai counts?
-5. Persona in the run record. The row reads "The same test played by another persona fails another block: each persona's run keeps its own failing block."
-   * The design defines the cell and the grid.
-   * It defines no run record field that holds the persona of a run. `run.ts` holds none on the refs read.
-   * Which field names the persona of a run?
+1. The badge hash is 8 hex characters (`config_framework.md`, "Identity"). See "Fix plan and badge".
+2. The step that evaluates a value check writes the value facts, and blame reads them there (default). See "Blame and value facts".
+3. The link relations and creators are the lists of `deep_3_links_localisation.md` (default). See "metadata.links".
+4. A `stale` link is out of the Ochiai counts and reported as advisory (`deep_3_links_localisation.md`, "C1"; the advisory report is a default). See "Localize".
+5. The persona of a run is the run record's user persona id (default). See "Personas".
