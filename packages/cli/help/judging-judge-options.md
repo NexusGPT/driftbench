@@ -254,7 +254,7 @@ All of these exit 2, before any run or judge call.
 
 | Message | Cause and fix |
 |---|---|
-| `--verify need --judge claude:<model>, another --judge <kind>:<model>, or --judges <cassette>` | an option of the group was given without a judge. The same message names `--judge-mode`, `--prompt-budget`, `--route-first`, `--panel-weights and --panel-margin`, `--reference-solve and --reference-samples`. Add a judge |
+| `--verify needs --judge claude:<model>, another --judge <kind>:<model>, or --judges <cassette>` | a flag that only shapes a judge was given without one. The message names every such flag given. One flag reads `needs`; several are joined by `and` and read `need`, such as `--panel-weights and --panel-margin need --judge ...`. Add a judge, or drop the flags |
 | `--judge-route escalation needs --route-first <judge>` | a route has no first judge. Add `--route-first` |
 | `escalation needs a cross-family pool` | the first judge and the `--route-then` judges are of one model family. Add a judge of another family |
 | `--judge-route takes escalation, not "<value>"` | `escalation` is the only route |
