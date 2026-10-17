@@ -8,4 +8,4 @@ cheater: fail Reading roadmap.json at run time lifted the bank from 430 to 1059 
 
 cause review: pass agreement 30/30 with the builder tags; 133 reviewed distinct causes against 132 declared.
 
-planted bugs: pending
+planted bugs: pass 20 of 20 planted bugs were caught, each losing at least one bank item (fewest 1, most 26), over 20 functions in 12 files.
