@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { mean, pageHinkley, quantile, quantileSorted, sampleVariance } from '../src/index';
+import { ksTest, mean, pageHinkley, quantile, quantileSorted, sampleVariance } from '../src/index';
 
 const bad = [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY];
 
@@ -46,5 +46,20 @@ describe('pageHinkley refuses input it cannot answer for', () => {
   it('still detects a shift', () => {
     const xs = [...new Array<number>(40).fill(0), ...new Array<number>(40).fill(10)];
     expect(pageHinkley(xs, { threshold: 20, minInstances: 5 }).alarms.length).toBeGreaterThan(0);
+  });
+});
+
+describe('ksTest refuses input it cannot answer for', () => {
+  it('throws a RangeError on a non-finite value in either sample (a NaN used to loop for ever)', () => {
+    for (const b of bad) {
+      expect(() => ksTest([1, 2, b, 4], [1.5, 2.5, 3.5])).toThrow(RangeError);
+      expect(() => ksTest([1, 2, 3], [1.5, b, 3.5])).toThrow(RangeError);
+    }
+  });
+  it('throws a RangeError on an unknown method', () => {
+    expect(() => ksTest([1, 2], [3, 4], { method: 'magic' as never })).toThrow(RangeError);
+  });
+  it('still answers on ordinary input', () => {
+    expect(ksTest([1, 2, 3], [4, 5, 6]).statistic).toBe(1);
   });
 });

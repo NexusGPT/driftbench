@@ -181,6 +181,12 @@ export function ksTest(
   const m = a.length;
   const n = b.length;
   if (m === 0 || n === 0) throw new RangeError('ksTest: both samples need at least one value');
+  assertFiniteValues('ksTest', a);
+  assertFiniteValues('ksTest', b);
+  const requestedMethod = options.method ?? 'auto';
+  if (requestedMethod !== 'auto' && requestedMethod !== 'exact' && requestedMethod !== 'asymptotic') {
+    throw new RangeError(`ksTest: method must be 'auto', 'exact' or 'asymptotic', got ${String(requestedMethod)}`);
+  }
   const x = [...a].sort((p, q) => p - q);
   const y = [...b].sort((p, q) => p - q);
   // D * m * n is an integer: track the integer gap i * n - j * m along the merged order.
@@ -197,7 +203,7 @@ export function ksTest(
     gap = Math.max(gap, Math.abs(i * n - j * m));
   }
   const statistic = gap / (m * n);
-  const requested = options.method ?? 'auto';
+  const requested = requestedMethod;
   const method = requested === 'auto' ? (Math.max(m, n) <= 10000 ? 'exact' : 'asymptotic') : requested;
   if (gap === 0) return { statistic, pValue: 1, method };
   if (method === 'asymptotic') {
