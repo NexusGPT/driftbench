@@ -17,8 +17,12 @@ import type { ConversationReader, ReaderAnswer, ReaderQuestion } from './reader'
 const GATEWAY_URL = 'https://jev-gateway.nexus-orga.gpt.nexus/v1/systemone';
 const TYPESAFE_URL = 'https://api.typesafe.ai/v1/systemone';
 
-/** About 45,000 tokens: below the 65,000 the service takes in one call, with room for the questions. */
-export const JEV_MAX_CONVERSATION_CHARS = 180_000;
+/**
+ * The service takes about 65,000 input tokens in one call. Redacted conversations tokenise worse than prose: on a
+ * private set, 5 of 9 conversations between 104,000 and 172,000 characters were refused by the service, and all
+ * below 104,000 were read. The cap leaves that margin.
+ */
+export const JEV_MAX_CONVERSATION_CHARS = 100_000;
 
 export type JevReaderOptions = HttpOptions & {
   env?: Record<string, string | undefined>;
