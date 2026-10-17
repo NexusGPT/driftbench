@@ -325,7 +325,7 @@ situations:
     workspace: northwind-ops
     touches: { changed: [invoices/INV-1001.json] }
     phrases:
-      - { text: 'In invoices/INV-1001.json set the note field to an empty string.', lang: en, approved: true }
+      - { text: 'In the file invoices/INV-1001.json, edit the note field to an empty string.', lang: en, approved: true }
 
   - id: carrier-page
     title: An ask to fetch a web page
