@@ -12,7 +12,6 @@ tags:
   - test:read_when
   - mode:live
   - kind:reference
-  - kind:skill
   - ask:code
 target:
   adapter: claude-code
@@ -36,7 +35,6 @@ metadata:
   estate:
     atoms:
       - reference.standing.read-claude-skills-invoice-reconcile-references
-      - skill.invoice-reconcile.skill-invoice-reconcile
     planRow: read_when.reference.standing.read-claude-skills-invoice-reconcile-references
     cell: {}
     seeder: estate

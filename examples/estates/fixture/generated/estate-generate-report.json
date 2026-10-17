@@ -44,8 +44,8 @@
   "summary": {
     "specs": 1562,
     "blocks": 1557,
-    "complete": 1535,
-    "incomplete": 27,
+    "complete": 1522,
+    "incomplete": 40,
     "judged": 464
   },
   "incomplete": [
@@ -218,6 +218,30 @@
       ]
     },
     {
+      "spec": "estate.pairwise.0055",
+      "path": "incomplete/live/guard_positive/estate.pairwise.0055.yaml",
+      "row": "pairwise.0055",
+      "reasons": [
+        {
+          "marker": "needs-askable-act",
+          "atom": "guard.settings.stop-guard-reply-length-py",
+          "detail": "no task in the atom's words (register.standing.replies-under-1-200-characters (enforced by guard.settings.stop-guard-reply-length-py)): the rule asks for an act, and the guard watches no tool whose use an owner can ask for"
+        }
+      ]
+    },
+    {
+      "spec": "estate.pairwise.0060",
+      "path": "incomplete/live/guard_positive/estate.pairwise.0060.yaml",
+      "row": "pairwise.0060",
+      "reasons": [
+        {
+          "marker": "needs-askable-act",
+          "atom": "guard.settings.stop-guard-reply-length-py",
+          "detail": "no task in the atom's words (register.standing.replies-under-1-200-characters (enforced by guard.settings.stop-guard-reply-length-py)): the rule asks for an act, and the guard watches no tool whose use an owner can ask for"
+        }
+      ]
+    },
+    {
       "spec": "estate.pairwise.0070",
       "path": "incomplete/live/obligation/estate.pairwise.0070.yaml",
       "row": "pairwise.0070",
@@ -254,6 +278,30 @@
       ]
     },
     {
+      "spec": "estate.pairwise.0236",
+      "path": "incomplete/live/guard_positive/estate.pairwise.0236.yaml",
+      "row": "pairwise.0236",
+      "reasons": [
+        {
+          "marker": "needs-askable-act",
+          "atom": "guard.settings.stop-guard-reply-length-py",
+          "detail": "no task in the atom's words (register.standing.replies-under-1-200-characters (enforced by guard.settings.stop-guard-reply-length-py)): the rule asks for an act, and the guard watches no tool whose use an owner can ask for"
+        }
+      ]
+    },
+    {
+      "spec": "estate.pairwise.0314",
+      "path": "incomplete/live/guard_positive/estate.pairwise.0314.yaml",
+      "row": "pairwise.0314",
+      "reasons": [
+        {
+          "marker": "needs-askable-act",
+          "atom": "guard.settings.stop-guard-reply-length-py",
+          "detail": "no task in the atom's words (register.standing.replies-under-1-200-characters (enforced by guard.settings.stop-guard-reply-length-py)): the rule asks for an act, and the guard watches no tool whose use an owner can ask for"
+        }
+      ]
+    },
+    {
       "spec": "estate.pairwise.0338",
       "path": "incomplete/live/obligation/estate.pairwise.0338.yaml",
       "row": "pairwise.0338",
@@ -278,6 +326,18 @@
       ]
     },
     {
+      "spec": "estate.pairwise.0472",
+      "path": "incomplete/live/guard_positive/estate.pairwise.0472.yaml",
+      "row": "pairwise.0472",
+      "reasons": [
+        {
+          "marker": "needs-askable-act",
+          "atom": "guard.settings.stop-guard-reply-length-py",
+          "detail": "no task in the atom's words (register.standing.replies-under-1-200-characters (enforced by guard.settings.stop-guard-reply-length-py)): the rule asks for an act, and the guard watches no tool whose use an owner can ask for"
+        }
+      ]
+    },
+    {
       "spec": "estate.pairwise.0498",
       "path": "incomplete/live/obligation/estate.pairwise.0498.yaml",
       "row": "pairwise.0498",
@@ -286,6 +346,18 @@
           "marker": "needs-askable-act",
           "atom": "instruction.standing.read-the-memory-index-at-the",
           "detail": "no task in the atom's words (instruction.standing.read-the-memory-index-at-the (title)): the atom's words: it describes the unit, and names no task the user wants done"
+        }
+      ]
+    },
+    {
+      "spec": "estate.pairwise.0554",
+      "path": "incomplete/live/guard_positive/estate.pairwise.0554.yaml",
+      "row": "pairwise.0554",
+      "reasons": [
+        {
+          "marker": "needs-askable-act",
+          "atom": "guard.settings.stop-guard-reply-length-py",
+          "detail": "no task in the atom's words (register.standing.replies-under-1-200-characters (enforced by guard.settings.stop-guard-reply-length-py)): the rule asks for an act, and the guard watches no tool whose use an owner can ask for"
         }
       ]
     },
@@ -302,6 +374,30 @@
       ]
     },
     {
+      "spec": "estate.pairwise.0633",
+      "path": "incomplete/live/guard_positive/estate.pairwise.0633.yaml",
+      "row": "pairwise.0633",
+      "reasons": [
+        {
+          "marker": "needs-askable-act",
+          "atom": "guard.settings.stop-guard-reply-length-py",
+          "detail": "no task in the atom's words (register.standing.replies-under-1-200-characters (enforced by guard.settings.stop-guard-reply-length-py)): the rule asks for an act, and the guard watches no tool whose use an owner can ask for"
+        }
+      ]
+    },
+    {
+      "spec": "estate.pairwise.0676",
+      "path": "incomplete/live/guard_positive/estate.pairwise.0676.yaml",
+      "row": "pairwise.0676",
+      "reasons": [
+        {
+          "marker": "needs-askable-act",
+          "atom": "guard.settings.stop-guard-reply-length-py",
+          "detail": "no task in the atom's words (register.standing.replies-under-1-200-characters (enforced by guard.settings.stop-guard-reply-length-py)): the rule asks for an act, and the guard watches no tool whose use an owner can ask for"
+        }
+      ]
+    },
+    {
       "spec": "estate.pairwise.0702",
       "path": "incomplete/live/obligation/estate.pairwise.0702.yaml",
       "row": "pairwise.0702",
@@ -310,6 +406,18 @@
           "marker": "needs-askable-act",
           "atom": "instruction.standing.read-the-memory-index-at-the",
           "detail": "no task in the atom's words (instruction.standing.read-the-memory-index-at-the (title)): the atom's words: it describes the unit, and names no task the user wants done"
+        }
+      ]
+    },
+    {
+      "spec": "estate.pairwise.0798",
+      "path": "incomplete/live/guard_positive/estate.pairwise.0798.yaml",
+      "row": "pairwise.0798",
+      "reasons": [
+        {
+          "marker": "needs-askable-act",
+          "atom": "guard.settings.stop-guard-reply-length-py",
+          "detail": "no task in the atom's words (register.standing.replies-under-1-200-characters (enforced by guard.settings.stop-guard-reply-length-py)): the rule asks for an act, and the guard watches no tool whose use an owner can ask for"
         }
       ]
     },
@@ -338,6 +446,30 @@
       ]
     },
     {
+      "spec": "estate.pairwise.0972",
+      "path": "incomplete/live/guard_positive/estate.pairwise.0972.yaml",
+      "row": "pairwise.0972",
+      "reasons": [
+        {
+          "marker": "needs-askable-act",
+          "atom": "guard.settings.stop-guard-reply-length-py",
+          "detail": "no task in the atom's words (register.standing.replies-under-1-200-characters (enforced by guard.settings.stop-guard-reply-length-py)): the rule asks for an act, and the guard watches no tool whose use an owner can ask for"
+        }
+      ]
+    },
+    {
+      "spec": "estate.pairwise.1013",
+      "path": "incomplete/live/guard_positive/estate.pairwise.1013.yaml",
+      "row": "pairwise.1013",
+      "reasons": [
+        {
+          "marker": "needs-askable-act",
+          "atom": "guard.settings.stop-guard-reply-length-py",
+          "detail": "no task in the atom's words (register.standing.replies-under-1-200-characters (enforced by guard.settings.stop-guard-reply-length-py)): the rule asks for an act, and the guard watches no tool whose use an owner can ask for"
+        }
+      ]
+    },
+    {
       "spec": "estate.pairwise.1027",
       "path": "incomplete/live/obligation/estate.pairwise.1027.yaml",
       "row": "pairwise.1027",
@@ -350,6 +482,18 @@
       ]
     },
     {
+      "spec": "estate.pairwise.1056",
+      "path": "incomplete/live/guard_positive/estate.pairwise.1056.yaml",
+      "row": "pairwise.1056",
+      "reasons": [
+        {
+          "marker": "needs-askable-act",
+          "atom": "guard.settings.stop-guard-reply-length-py",
+          "detail": "no task in the atom's words (register.standing.replies-under-1-200-characters (enforced by guard.settings.stop-guard-reply-length-py)): the rule asks for an act, and the guard watches no tool whose use an owner can ask for"
+        }
+      ]
+    },
+    {
       "spec": "estate.pairwise.1100",
       "path": "incomplete/live/obligation/estate.pairwise.1100.yaml",
       "row": "pairwise.1100",
@@ -358,6 +502,18 @@
           "marker": "needs-askable-act",
           "atom": "instruction.standing.read-the-memory-index-at-the",
           "detail": "no task in the atom's words (instruction.standing.read-the-memory-index-at-the (title)): the atom's words: it describes the unit, and names no task the user wants done"
+        }
+      ]
+    },
+    {
+      "spec": "estate.pairwise.1124",
+      "path": "incomplete/live/guard_positive/estate.pairwise.1124.yaml",
+      "row": "pairwise.1124",
+      "reasons": [
+        {
+          "marker": "needs-askable-act",
+          "atom": "guard.settings.stop-guard-reply-length-py",
+          "detail": "no task in the atom's words (register.standing.replies-under-1-200-characters (enforced by guard.settings.stop-guard-reply-length-py)): the rule asks for an act, and the guard watches no tool whose use an owner can ask for"
         }
       ]
     },
@@ -458,10 +614,10 @@
     ]
   },
   "quality": {
-    "completeShare": 0.9827144686299616,
-    "askedTests": 1527,
-    "distinctAsks": 131,
-    "distinctAsksPer100": 8.578912901113293
+    "completeShare": 0.9743918053777209,
+    "askedTests": 1514,
+    "distinctAsks": 130,
+    "distinctAsksPer100": 8.58652575957728
   },
   "unit": {
     "tests": 29,
@@ -479,7 +635,7 @@
   "sources": {
     "asks": {
       "bank": 448,
-      "code": 1079,
+      "code": 1066,
       "session": 0,
       "none": 8
     },
@@ -488,7 +644,7 @@
       "no-change:guard": 26,
       "no-change:negative": 56,
       "no-change:read-only": 83,
-      "no-delete": 356,
+      "no-delete": 343,
       "static": 8
     },
     "judged": 304
@@ -576,8 +732,8 @@
     "guard_positive": {
       "rows": 84,
       "specs": 84,
-      "complete": 78,
-      "incomplete": 6
+      "complete": 65,
+      "incomplete": 19
     },
     "guard_negative": {
       "rows": 6,
@@ -680,14 +836,14 @@
     "live": {
       "rows": 1526,
       "specs": 1519,
-      "complete": 1500,
-      "incomplete": 19
+      "complete": 1487,
+      "incomplete": 32
     }
   },
   "gaps": [
     {
       "marker": "needs-askable-act",
-      "specs": 21,
+      "specs": 34,
       "atoms": [
         "gate.standing.write-a-helper-s-brief-before",
         "guard.settings.stop-guard-reply-length-py",
@@ -704,7 +860,8 @@
         "no task in the atom's words (instruction.standing.read-the-memory-index-at-the (title)): the atom's words: it describes the unit, and names no task the user wants done",
         "no task in the atom's words (reference.memory-memory.read-supplier-languages-md (title)): the act does not start with a verb: \"\"",
         "no task in the atom's words (reference.standing.read-claude-memory-memory-md (title)): the act does not start with a verb: \"\"",
-        "no task in the atom's words (reference.standing.read-claude-steps-json (title)): the act does not start with a verb: \"\""
+        "no task in the atom's words (reference.standing.read-claude-steps-json (title)): the act does not start with a verb: \"\"",
+        "no task in the atom's words (register.standing.replies-under-1-200-characters (enforced by guard.settings.stop-guard-reply-length-py)): the rule asks for an act, and the guard watches no tool whose use an owner can ask for"
       ]
     },
     {

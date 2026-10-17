@@ -70,7 +70,8 @@ it('the target folder overrides a wrong citing skill, including stale plan metad
   const parsed = parseSpecText(file.text, 'yaml', file.path);
   if (!parsed.ok) throw new Error(JSON.stringify(parsed.errors));
   expect(suite.report.summary.complete).toBe(1);
-  expect(suite.specs[0]?.atoms).toEqual([ref.id, shipping.id]);
+  // The shipping skill owns the reference by folder, so it supplies the task; it does not join the row.
+  expect(suite.specs[0]?.atoms).toEqual([ref.id]);
   expect(parsed.spec.blocks[0]?.when).toEqual({
     user: 'Please track delayed parcels for the dispatch centre, including the carriers. When a carrier update arrives.',
   });
@@ -171,7 +172,9 @@ it('preserves folder ownership across hundreds of deliberately flattened citatio
     const expected = units.find((owner) =>
       String(ref?.fields?.path).startsWith(`skills/${owner.fields?.name}/`),
     );
-    expect(record.atoms).toEqual([ref?.id, expected?.id]);
+    // The unit owns the reference by folder (its task), and holds it only if the rule is written in its files.
+    expect(record.atoms).toEqual([ref?.id]);
+    expect(expected).toBeDefined();
   }
 });
 

@@ -96,11 +96,11 @@ describe('asks written by code from the atoms', () => {
       fields: { enforces: [{ atom: rule.id }], event: 'UserPromptSubmit' },
     });
     expect(codeAsk('forced', [prompt], [], false, () => rule).refused).toMatch(/no task/);
-    // A guard on the end of a turn judges the reply: the owner asks for a long answer.
+    // A guard on the end of a turn judges the reply: no request makes a reply break its rule, so it has no ask.
     const stop = atom('guard.settings.stop', { fields: { enforces: [{ atom: rule.id }], event: 'Stop' } });
-    expect(codeAsk('forced', [stop], [], false, () => rule).text).toBe(
-      'Please explain in full detail everything you can do for me here. The user asks for a change to a file.',
-    );
+    const written = codeAsk('forced', [stop], [], false, () => rule);
+    expect(written.text).toBeUndefined();
+    expect(written.refused).toMatch(/no task/);
   });
 
   it('asks to go on with the work after a hazard, never to "recover"', () => {
