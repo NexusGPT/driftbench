@@ -33,8 +33,9 @@ function failsAtEnd(spec: Spec): boolean {
  * block already written says the same turn, expects the same and is said from the same stage in the same
  * language and under the same rules, and when the suite keeps every obligation without it: each coverage tuple the walk placed is
  * placed by a spec already written, each ordered pair of consecutive moves it walked is walked by one, the
- * stage and class allocation is no further from balance. A perturbation declared on the block goes with it. The first block written stays; later repeats go. A cut that would leave
- * the walk ending, with more than one block, on a block another walk already says is undone. A block is the same
+ * stage and class allocation is no further from balance. A perturbation declared on the block goes with it. The first block written stays; later repeats go. Exactly one walk
+ * ends on a given block: a cut that would leave a walk ending, with more than one block, on the block another written
+ * walk ends on is taken back to the deepest cut that ends elsewhere. A block is the same
  * test on any channel and for any persona; the first twin of a written walk, per path and context axis, stays whole. A block that injects
  * a class stays. A walk with an end state,
  * a metamorphic variant, a task and a spec that is not complete are never reduced.
@@ -49,6 +50,8 @@ export class TerminalSubsumption {
   private readonly held: Uint8Array[];
   /** Blocks written so far, by what makes two blocks the same test. */
   private readonly blocks = new Set<string>();
+  /** The key of the last block of every walk written: one walk ends on each. */
+  private readonly ends = new Set<string>();
   /** The whole walks written, by what they say apart from the context, with the contexts each is written in. */
   private readonly walks = new Map<string, Set<string>>();
   /** The context axes a pair of whole twins is kept for, per path: the Then must hold across them. */
@@ -85,7 +88,7 @@ export class TerminalSubsumption {
     let spec = parsed.spec;
     // A metamorphic family keeps its variants identical but for the phrasing: its walks are never cut.
     if (spec.kind === 'conversation' && spec.end_state === undefined && draft.seeder !== 'metamorphic') {
-      const whole = { draft: draft.blocks, perturbations: draft.perturbations, spec };
+      const states = [{ blocks: draft.blocks, perturbations: draft.perturbations, spec }];
       // The Then must hold across channels and across personas, and that is read off a pair of whole walks that
       // differ only there (a twin). Each path keeps one such pair per axis; a twin beyond it is a repeat.
       const twin = this.keepsPair(spec);
@@ -110,18 +113,21 @@ export class TerminalSubsumption {
         draft.blocks = draft.blocks.slice(0, last);
         if (draft.perturbations) draft.perturbations = moveUp(draft.perturbations, last);
         spec = reduced.spec;
+        states.push({ blocks: draft.blocks, perturbations: draft.perturbations, spec });
       }
-      // A cut that stops, with more than one block left, on a block another walk already says leaves the two walks
-      // ending on the same test: the walk keeps its tail, which tells it apart.
-      if (
-        spec !== whole.spec &&
-        spec.blocks.length > 1 &&
-        this.blocks.has(this.key(spec, spec.blocks.length - 1))
-      ) {
-        draft.blocks = whole.draft;
-        draft.perturbations = whole.perturbations;
-        spec = whole.spec;
-      }
+      // Exactly one walk ends on a given block: a cut that stops, with more than one block left, on the block
+      // another written walk ends on is taken back to the deepest cut that ends elsewhere, or to the whole walk.
+      const settled = [...states]
+        .reverse()
+        .find(
+          (state) =>
+            state.spec.blocks.length === 1 ||
+            !this.ends.has(this.key(state.spec, state.spec.blocks.length - 1)),
+        );
+      const chosen = settled ?? (states[0] as (typeof states)[number]);
+      draft.blocks = chosen.blocks;
+      draft.perturbations = chosen.perturbations;
+      spec = chosen.spec;
     }
     this.observeSpec(spec);
   }
@@ -131,6 +137,7 @@ export class TerminalSubsumption {
     spec.blocks.forEach((_, index) => {
       this.blocks.add(this.key(spec, index));
     });
+    this.ends.add(this.key(spec, spec.blocks.length - 1));
     const walk = this.walkKey(spec);
     const contexts = this.walks.get(walk) ?? new Set<string>();
     contexts.add(this.contextOf(spec));

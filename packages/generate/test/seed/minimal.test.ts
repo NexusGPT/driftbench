@@ -103,7 +103,8 @@ describe('terminal subsumption', () => {
     const length = second.blocks.length;
     minimal.reduce(first);
     minimal.reduce(second);
-    expect(second.blocks).toHaveLength(length);
+    // The repeated blocks after the probe go; the block that injects the class never does.
+    expect(second.blocks.length).toBeLessThan(length);
     expect(second.blocks.some((block) => block.injection)).toBe(true);
   });
 
@@ -164,6 +165,7 @@ describe('terminal subsumption and the perturbations a block carries', () => {
     path: PathRelation,
     id: string,
     stage: string,
+    classId = 'D5_language_switch',
   ) => {
     const context: SeedContext = { seed: 1031, t: 2, max: 100 };
     const built = scenarioDraft(
@@ -174,7 +176,7 @@ describe('terminal subsumption and the perturbations a block carries', () => {
       id,
       [],
       { preferred: [path], others: [] },
-      { perturb: { classId: 'D5_language_switch', stage } },
+      { perturb: { classId, stage } },
     );
     if (!('draft' in built)) throw new Error(`${id} did not build`);
     return built.draft;
@@ -198,6 +200,39 @@ describe('terminal subsumption and the perturbations a block carries', () => {
     // No declaration is left on a block the walk no longer has.
     for (const entry of second.perturbations ?? [])
       expect(entry.inject_at).toBeLessThan(second.blocks.length);
+  });
+
+  it('lets exactly one walk end on a block: the first cut that ends elsewhere stays, a second is taken back', () => {
+    const prepared = fixture();
+    const path = prepared.relations.paths[0];
+    if (!path) throw new Error('missing parcel path');
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    // The first walk is written whole. The second declares a class no written walk places, so it can lose its
+    // last block but not the declaration: it ends on its second block, which no written walk ends on. The third
+    // declares another class of its own; cut the same way it would end on that same second block, so it keeps
+    // its tail.
+    const first = walk(prepared, 'first', path);
+    first.perturbations = undefined;
+    const second = perturbedAt(prepared, path, 'second', 'address', 'D5_language_switch');
+    const third = perturbedAt(prepared, path, 'third', 'address', 'D1_off_topic');
+    const length = first.blocks.length;
+    for (const draft of [first, second, third]) minimal.reduce(draft);
+    expect([first, second, third].map((draft) => draft.blocks.length)).toEqual([length, length - 1, length]);
+  });
+
+  it('cuts every identical walk after the first down to its first block, which no cut can go below', () => {
+    const prepared = fixture();
+    const path = prepared.relations.paths[0];
+    if (!path) throw new Error('missing parcel path');
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    const walks = ['first', 'second', 'third'].map((id) => {
+      const draft = walk(prepared, id, path);
+      draft.perturbations = undefined;
+      return draft;
+    });
+    const length = walks[0]?.blocks.length ?? 0;
+    for (const draft of walks) minimal.reduce(draft);
+    expect(walks.map((draft) => draft.blocks.length)).toEqual([length, 1, 1]);
   });
 
   it('keeps the block when no other written walk places the class it declares', () => {
