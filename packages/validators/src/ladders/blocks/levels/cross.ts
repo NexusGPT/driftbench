@@ -30,6 +30,19 @@ import { type BankItem, expectAll, fail, type ItemResult, PASS, type Tier } from
  * ancestors' turns and the agent's replies to them), a fact the agent asked for in another branch is not yet
  * asked in this one, and giving it there fails the run.
  *
+ * Heads (keep rule 6, one head per pair, merging the two owning heads when they differ):
+ * - personas x parents: train/sol-f7-personas-parents, feat/block-parents (PR 562) merged with main (main owns
+ *   the simulated user); the merge is clean. CI run 39000094960 at 7bb3e6905: 21 of 22 fail on seeds 1 to 3
+ *   and hidden; the shuffled star facts item passed on the hidden seed, where the draw wrote the asking block
+ *   after both other branches, so a shuffle now writes a block of another branch after it. On PR 562 alone
+ *   (run 38997558384) 22 of the 27 drawn then fail on every seed; the 5 that passed are dropped.
+ * - parents x objects, parents x values: dropped; feat/block-parents and feat/block-b4-report conflict in
+ *   packages/core/src/runner/run.ts, so no merged head can be measured without editing the product.
+ * - parents x radius in T: dropped; all 18 candidates pass on PR 562 (forest roots, mode T block subsets).
+ * - objects x blame: no item; on B4 merged with F3 every probed composition (spec and block overrides, stamp
+ *   layers, cache replay, OBJECT_* refusals) behaves as documented.
+ * - values x radius: no item; no document joins the two.
+ *
  * The persona's model is a fixture port: it records what it is shown and answers with the block's marker,
  * which it reads from the hint the driver gives it. Every id, marker and spec id is a token; which block asks
  * for the fact, and what each block should see, stays in the item.
@@ -46,6 +59,28 @@ function lineage(parents: readonly number[], at: number): number[] {
 }
 
 type Order = 'in-order' | 'interleaved' | 'reversed' | 'shuffled';
+
+/**
+ * A seeded shuffle in which some block of another branch is written after the asking block, so it runs after
+ * the asker's reply (the runner keeps the written order, parents first) and a leak of that reply can show.
+ */
+function shuffledAfter(
+  rng: Rng,
+  keys: readonly number[],
+  parents: readonly number[],
+  asker: number,
+): number[] {
+  const related = (i: number) =>
+    i === asker || lineage(parents, i).includes(asker) || lineage(parents, asker).includes(i);
+  let order = shuffled(rng, keys);
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    if (order.slice(order.indexOf(asker) + 1).some((i) => !related(i))) return order;
+    order = shuffled(rng, keys);
+  }
+  // Every draw put the other branches first: move the asking block to the front, its ancestors before it.
+  const front = [...lineage(parents, asker), asker];
+  return [...front, ...order.filter((i) => !front.includes(i))];
+}
 
 type Shape = {
   id: string;
@@ -130,7 +165,7 @@ function scenario(seed: number, tag: string, shape: Shape, order: Order): Scenar
         ? [...keys].reverse()
         : order === 'interleaved'
           ? [0, 2, 1, 3]
-          : shuffled(rng, keys);
+          : shuffledAfter(rng, keys, parents, asker);
   const ids = keys.map((i) => token(seed, `${tag}#id#${i}`));
   const markers = keys.map((i) => token(seed, `${tag}#marker#${i}`, 8));
   const codes = keys.map(
