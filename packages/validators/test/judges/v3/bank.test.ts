@@ -9,8 +9,10 @@ import {
   scriptedLabeller,
   VARIANTS,
 } from '../../../src/ladders/judges/v3';
+import { hiddenSeed } from '../../../src/seeds';
 
 const bank = labellerBank();
+const currentHiddenSeed = hiddenSeed(process.cwd()).seed;
 afterEach(() => vi.unstubAllGlobals());
 
 describe('judges version 3 labeller bank', () => {
@@ -82,6 +84,55 @@ describe('judges version 3 labeller bank', () => {
     }
     expect(passing).toEqual([]);
   });
+
+  it.each([
+    { seed: 10, variant: 'conjunction' },
+    { seed: 18, variant: 'direct' },
+  ])('rejects the reviewer pair-cycle on $variant seed $seed', async ({ seed, variant }) => {
+    const item = bank.find((entry) => entry.id === `labeller/agreement/${variant}/tier-1`);
+    if (!item) throw new Error('missing reviewer counterexample');
+    const result = await runLabellerItem(item, seed, () => {
+      let index = 0;
+      return {
+        id: 'pair-cycle',
+        label(request) {
+          return (
+            request.labelSet.labels[Math.floor(index++ / 2) % request.labelSet.labels.length]?.name ?? 'none'
+          );
+        },
+      };
+    });
+    expect(result.pass, result.detail).toBe(false);
+  });
+
+  it.each([...new Set([...Array.from({ length: 20 }, (_, i) => i + 1), 647384989, currentHiddenSeed])])(
+    'no period 1..8 or phase offset can reach even the lowest agreement bar on seed %i',
+    (seed) => {
+      const exploitable: string[] = [];
+      for (const item of bank) {
+        const { units } = buildLabellerFixture(item, seed);
+        const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b));
+        const labelCount = [...new Set(units.map((unit) => unit.request.labelSet.labels.length))].reduce(
+          (period, size) => (period * size) / gcd(period, size),
+          1,
+        );
+        for (let period = 1; period <= 8; period += 1) {
+          for (let offset = 0; offset < period * labelCount; offset += 1) {
+            let correct = 0;
+            for (const [i, unit] of units.entries()) {
+              const labels = unit.request.labelSet.labels;
+              const prediction = labels[Math.floor((i + offset) / period) % labels.length]?.name;
+              if (prediction === unit.gold) correct += 1;
+            }
+            // Raw agreement < .9 proves zero passing items independently of kappa and paired checks.
+            if (correct / units.length >= 0.9)
+              exploitable.push(`${item.id}: period=${period}, offset=${offset}`);
+          }
+        }
+      }
+      expect(exploitable).toEqual([]);
+    },
+  );
 
   it('regenerates the exact same fixtures but changes construction across seeds', () => {
     for (const item of bank) {

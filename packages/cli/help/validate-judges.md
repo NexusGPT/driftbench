@@ -60,7 +60,7 @@ Floors: the file holds a judges floor of 20 for ladder version 2, the registered
 level 20 prints `BELOW THE FLOOR.` and `--check-floor` exits 1. The earlier floor of 7 belonged to ladder
 version 1; it is history under `history.judges` and is not enforced.
 
-## Labellers, opt-in version 3
+### Labellers, opt-in version 3
 
 `driftbench validate judges --ladder-version 3 --items` runs the deterministic
 labeller bank. The default version 2 above remains registered and unchanged.

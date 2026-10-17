@@ -93,6 +93,10 @@ test('independent CHEATER audit of the public labeller request boundary', async 
     { name: 'constant-route-2', factory: asFactory('route-2', () => 'route-2') },
     { name: 'position-cycle', factory: asFactory('cycle', (request, index) => label(request, index)) },
     {
+      name: 'pair-aware-position-cycle',
+      factory: asFactory('pair-cycle', (request, index) => label(request, Math.floor(index / 2))),
+    },
+    {
       name: 'position-reverse-cycle',
       factory: asFactory('reverse', (request, index) =>
         label(request, request.labelSet.labels.length - 1 - (index % request.labelSet.labels.length)),
@@ -227,7 +231,7 @@ test('independent CHEATER audit of the public labeller request boundary', async 
       ids,
     });
   }
-  const verdict = rows.some((row) => row.passingItems > 0) || boundaryProblems.size > 0 ? 'fail' : 'pass';
+  const verdict = rows.some((row) => row.passingRuns > 0) || boundaryProblems.size > 0 ? 'fail' : 'pass';
   writeFileSync(
     '/tmp/astra-judges-cheater-audit.md',
     [
@@ -267,5 +271,5 @@ test('independent CHEATER audit of the public labeller request boundary', async 
   );
   for (const row of rows.filter((entry) => entry.required)) expect(row.passingItems, row.name).toBe(0);
   expect([...boundaryProblems]).toEqual([]);
-  expect(rows.filter((row) => row.passingItems > 0)).toEqual([]);
+  expect(rows.filter((row) => row.passingRuns > 0)).toEqual([]);
 }, 600_000);

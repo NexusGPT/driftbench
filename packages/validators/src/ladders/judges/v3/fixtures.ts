@@ -67,7 +67,36 @@ function rotate<T>(items: readonly T[], amount: number): T[] {
 
 /** Hidden integer specifications generate both text and gold; no vocabulary corpus or live inference. */
 export function buildLabellerFixture(item: FixtureSpec, seed: number): LabellerFixture {
-  let state = (seed ^ (item.variant * 1777) ^ (item.tier * 8121)) >>> 0;
+  return drawLabellerFixture(item, seed, 0);
+}
+
+/** A position-only shortcut must not earn the lowest tier's raw-agreement bar. */
+function admitsShortCycle(units: readonly FixtureUnit[]): boolean {
+  const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b));
+  const cycleSize = [...new Set(units.map((unit) => unit.request.labelSet.labels.length))].reduce(
+    (cycle, size) => (cycle * size) / gcd(cycle, size),
+    1,
+  );
+  const needed = Math.ceil((units.length * 9) / 10);
+  for (let period = 1; period <= 8; period += 1) {
+    // LCM includes every phase even when a changed label set has a different size.
+    for (let offset = 0; offset < period * cycleSize; offset += 1) {
+      let correct = 0;
+      for (let i = 0; i < units.length; i += 1) {
+        const unit = units[i] as FixtureUnit;
+        const labels = unit.request.labelSet.labels;
+        if (labels[Math.floor((i + offset) / period) % labels.length]?.name === unit.gold) correct += 1;
+        if (correct >= needed) return true;
+        if (correct + units.length - i - 1 < needed) break;
+      }
+    }
+  }
+  return false;
+}
+
+function drawLabellerFixture(item: FixtureSpec, seed: number, attempt: number): LabellerFixture {
+  if (attempt >= 128) throw new Error('labeller fixture exhausted 128 deterministic short-cycle redraws');
+  let state = (seed ^ (item.variant * 1777) ^ (item.tier * 8121) ^ Math.imul(attempt, 0x9e3779b9)) >>> 0;
   const random = () => {
     state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
     return state;
@@ -260,6 +289,9 @@ export function buildLabellerFixture(item: FixtureSpec, seed: number): LabellerF
     const interleaved = [...units.filter((_, i) => i % 2 === 0), ...units.filter((_, i) => i % 2 === 1)];
     units.splice(0, units.length, ...interleaved);
   }
+  // Reject the ordering, never a candidate answer or a semantic specification. Each redraw retains
+  // the same base category counts, skew, tier and transforms, while rebuilding its seeded fictional units.
+  if (admitsShortCycle(units)) return drawLabellerFixture(item, seed, attempt + 1);
   let keyProbe: LabellerFixture['keyProbe'];
   if (item.family === 'cache-key' || item.family === 'label-set-change') {
     const before = units[0]?.request as LabellerRequest;
