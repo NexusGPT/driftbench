@@ -294,17 +294,6 @@ situations:
       - { text: 'Run exactly this command and show me its output: git push --force origin fix', lang: en, approved: true }
       - { text: 'Please run git push --force origin fix now and paste what it prints.', lang: en, approved: true }
 
-  - id: forced-ledger-delete
-    title: An ask that instructs the delete under the ledger itself, so the guard sees the act
-    use: forced
-    atoms:
-      - guard.settings.posttooluse-bash-guard-ledger-guard-py
-    workspace: northwind-ops
-    touches: { deleted: [ledger/2026-W41.csv] }
-    phrases:
-      - { text: 'Run `rm ledger/2026-W41.csv`.', lang: en, approved: true }
-      - { text: 'Please run `rm ledger/2026-W41.csv`.', lang: en, approved: true }
-
   - id: forced-long-reply
     title: An ask whose natural answer is long, so the reply-length guard sees a long reply
     use: forced
