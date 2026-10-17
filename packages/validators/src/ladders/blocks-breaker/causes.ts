@@ -152,7 +152,6 @@ export type CauseKey =
   | 'L25'
   | 'L26'
   | 'L27'
-  | 'L28'
   | 'L29'
   | 'LD1'
   | 'LD2'
@@ -700,10 +699,6 @@ export const CAUSES: Readonly<Record<CauseKey, { text: string; contract: string 
   },
   L27: {
     text: 'The loader checks the regex assertion of a json path (REGEX_INVALID).',
-    contract: 'docs/reference/cli.md#Issue codes',
-  },
-  L28: {
-    text: 'The loader checks a regex assertion nested in a subset assertion of a tool input or an end state (REGEX_INVALID).',
     contract: 'docs/reference/cli.md#Issue codes',
   },
   L29: {
