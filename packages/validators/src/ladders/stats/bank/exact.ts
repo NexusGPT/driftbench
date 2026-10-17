@@ -17,12 +17,14 @@ import { attempt, type BankItem, fail, ok, show, type Tier } from './item';
  */
 
 const FIXTURE = 'packages/validators/fixtures/stats/exact.json';
+/** The fixture files of the exact items; a spec names one, `exact.json` by default. */
+export const BRANCH_FIXTURE = 'packages/validators/fixtures/stats/exact-branches.json';
 // biome-ignore lint/suspicious/noExplicitAny: the fixture is JSON read as data; each group reads the fields it compares
-type Row = Record<string, any>;
+export type Row = Record<string, any>;
 
 const cache = new Map<string, Row>();
-function fixture(root: string): Row {
-  const path = join(root, FIXTURE);
+function fixture(root: string, file: string = FIXTURE): Row {
+  const path = join(root, file);
   let data = cache.get(path);
   if (!data) {
     data = JSON.parse(readFileSync(path, 'utf8')) as Row;
@@ -31,11 +33,11 @@ function fixture(root: string): Row {
   return data;
 }
 
-type Tol = { rel: number; abs: number };
-const EXACT: Tol = { rel: 1e-12, abs: 1e-300 };
-const LIBRARY: Tol = { rel: 1e-6, abs: 1e-300 };
+export type Tol = { rel: number; abs: number };
+export const EXACT: Tol = { rel: 1e-12, abs: 1e-300 };
+export const LIBRARY: Tol = { rel: 1e-6, abs: 1e-300 };
 /** Double precision with a margin of about a hundred units in the last place. */
-const ACCURATE: Tol = { rel: 1e-11, abs: 1e-300 };
+export const ACCURATE: Tol = { rel: 1e-11, abs: 1e-300 };
 
 /** Walks `want` and `got` together; numbers match within the tolerance of their path, everything else exactly. */
 function compare(path: string, got: unknown, want: unknown, tol: (path: string) => Tol, out: string[]): void {
@@ -72,11 +74,13 @@ function compare(path: string, got: unknown, want: unknown, tol: (path: string) 
   if (got !== want) out.push(`${path}: got ${show(got)}, want ${show(want)}`);
 }
 
-type Spec = {
+export type Spec = {
   /** The exported function (the item id and the file it points at come from it). */
   fn: string;
   /** The fixture group. */
   group: string;
+  /** The fixture file; `exact.json` when absent. */
+  file?: string;
   /** What this item holds apart from the function's other items. */
   aspect: string;
   family: string;
@@ -93,14 +97,14 @@ type Spec = {
   budgetMs?: number;
 };
 
-const SRC = 'packages/stats/src';
+export const SRC = 'packages/stats/src';
 const HEADLINE = 'packages/report/src/headline.ts';
 const ESTIMATE = 'packages/report/src/estimate.ts';
 
 type Mod = Record<string, unknown>;
 const loaded = new Map<string, Promise<Mod>>();
 /** A module of the product, loaded from the repository root at run time (as the product items load theirs). */
-function load(root: string, path: string): Promise<Mod> {
+export function load(root: string, path: string): Promise<Mod> {
   const key = join(root, path);
   let mod = loaded.get(key);
   if (!mod) {
@@ -163,7 +167,7 @@ const headlineOf = async (
 ): Promise<Row | undefined> =>
   ((await load(root, HEADLINE)).suiteHeadline as HeadlineFn)(runsOfGoldens(goldens), (run) => run.specId);
 
-function exactItem(spec: Spec): BankItem {
+export function exactItem(spec: Spec): BankItem {
   const tolFor = typeof spec.tol === 'function' ? spec.tol : () => spec.tol as Tol;
   return {
     id: `exact.${spec.fn}.${spec.aspect}`,
@@ -174,8 +178,9 @@ function exactItem(spec: Spec): BankItem {
     cause: spec.cause,
     ...(spec.budgetMs ? { budgetMs: spec.budgetMs } : {}),
     check: async ({ s, root }) => {
-      const cases = ((fixture(root)[spec.group] ?? []) as Row[]).filter(spec.only ?? (() => true));
-      if (cases.length === 0) return fail(`no case of ${spec.group}/${spec.aspect} in ${FIXTURE}`);
+      const file = spec.file ?? FIXTURE;
+      const cases = ((fixture(root, file)[spec.group] ?? []) as Row[]).filter(spec.only ?? (() => true));
+      if (cases.length === 0) return fail(`no case of ${spec.group}/${spec.aspect} in ${file}`);
       const misses: string[] = [];
       for (const [i, c] of cases.entries()) {
         const got = await attemptAsync(async () => spec.call(s, c, root));
@@ -193,13 +198,13 @@ function exactItem(spec: Spec): BankItem {
       return misses.length === 0
         ? ok(`${cases.length} cases match`)
         : fail(
-            `${spec.fn} (${spec.aspect}) differs from the independent reference in ${misses.length} of ${cases.length} cases; fix the function so each matches ${FIXTURE}: ${misses.slice(0, 3).join(' | ')}`,
+            `${spec.fn} (${spec.aspect}) differs from the independent reference in ${misses.length} of ${cases.length} cases; fix the function so each matches ${file}: ${misses.slice(0, 3).join(' | ')}`,
           );
     },
   };
 }
 
-async function attemptAsync<T>(f: () => Promise<T>): Promise<{ value?: T; error?: Error }> {
+export async function attemptAsync<T>(f: () => Promise<T>): Promise<{ value?: T; error?: Error }> {
   try {
     return { value: await f() };
   } catch (cause) {
@@ -214,12 +219,12 @@ function inputOf(c: Row): Row {
 
 // A function is called through the package it exports from, so a planted fault in one function shows.
 type Fn = (...args: never[]) => unknown;
-const fn = (s: StatsImpl, name: string): Fn => {
+export const fn = (s: StatsImpl, name: string): Fn => {
   const f = (s as unknown as Record<string, unknown>)[name];
   if (typeof f !== 'function') throw new TypeError(`${name} is not exported by the statistics package`);
   return f as Fn;
 };
-const call = (s: StatsImpl, name: string, ...args: unknown[]): unknown =>
+export const call = (s: StatsImpl, name: string, ...args: unknown[]): unknown =>
   (fn(s, name) as (...a: unknown[]) => unknown)(...args);
 
 /** The hierarchical interval is read on 100 cells of theta: half a cell, 0.005, for the bounds and the posterior mean. */
