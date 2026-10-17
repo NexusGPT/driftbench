@@ -30,13 +30,13 @@ afterAll(async () => {
   for (const folder of folders) await rm(folder, { recursive: true, force: true });
 });
 
-async function desk(polarity: 'prohibition' | 'obligation') {
+async function desk(polarity: 'prohibition' | 'obligation', guard = GUARD) {
   const work = await mkdtemp(join(tmpdir(), 'kill-prohibition-'));
   folders.push(work);
   const root = join(work, 'desk');
   const files: Record<string, string> = {
     'CLAUDE.md': `# Studio desk\n\n## Rules\n\n- **A1.** ${RULE}\n`,
-    '.claude/guards/archive-guard.py': GUARD,
+    '.claude/guards/archive-guard.py': guard,
     '.claude/guards/CHECK-REGISTRY.md':
       '# Check registry\n\n| Id | Guard | Event | Enforces | Verdict |\n|---|---|---|---|---|\n| G1 | archive-guard.py | PostToolUse | A1 | warn |\n',
     '.claude/settings.json': JSON.stringify({
@@ -161,6 +161,25 @@ describe('kill.fake judges a guard that enforces only prohibitions by its unit t
     expect(verdict).toMatchObject({
       pass: false,
       detail: expect.stringContaining('no guard_positive unit test'),
+    });
+  });
+
+  it('gives no kill for a guard that never intervenes on the forbidden act', async () => {
+    // The guard is configured and its unit test runs, but it allows the act: the original records no warning, so the
+    // mutant that drops the guard loses nothing the guard did.
+    const { work, root, map, estate, natives } = await desk('prohibition', 'import sys\nsys.exit(0)\n');
+    const verdict = await judgeCell(
+      cell,
+      estate,
+      { specs: [], natives },
+      map,
+      join(work, 'dead'),
+      new Map(),
+      root,
+    );
+    expect(verdict).toMatchObject({
+      pass: false,
+      detail: expect.stringContaining('intervenes on the original'),
     });
   });
 });
