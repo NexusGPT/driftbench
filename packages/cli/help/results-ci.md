@@ -317,6 +317,7 @@ $ driftbench ci --specs examples/acme/specs/conversations --target fault:control
 
 | Message | Cause and fix |
 |---|---|
+| the `pass-rate` aggregate passes while the suite headline of `report` is lower | expected: the aggregate is the pooled rate, each run counting once, with the Wilson interval on the effective runs clustered by golden; the headline is the mean over goldens. Gate on the paired verdict, or set the aggregate threshold with that in mind |
 | `A fault:<id> target needs --faults <path>, the fault set that defines it.` (exit 2) | add `--faults examples/acme/faults` or your own fault set |
 | `--baseline <value>: no such file, and no campaign <value> in <store>.` (exit 2) | the baseline is neither a store file nor a campaign of `--store` |
 | `The baseline campaign <id> has no run.` (exit 2) | run the baseline campaign first |
@@ -326,4 +327,3 @@ $ driftbench ci --specs examples/acme/specs/conversations --target fault:control
 | verdict `NOT SHOWN NON-INFERIOR` on an unchanged agent | the suite is too small for the margin. Read "smallest margin these pairs can show"; add goldens, or accept the auto margin |
 | price-sheet task specs fail on `function:acme-sales` | the mixed Acme suites need `--route flow:price-sheet=process:acme-ops` |
 | every cell reran though `--cache` was not given | expected: the cache is off by default in `ci` |
-| the `pass-rate` aggregate passes while the suite headline of `report` is lower | expected: the aggregate is the pooled rate, each run counting once, with the Wilson interval on the effective runs clustered by golden; the headline is the mean over goldens. Gate on the paired verdict, or set the aggregate threshold with that in mind |
