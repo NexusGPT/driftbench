@@ -109,6 +109,12 @@ export const CONTRACTS: Readonly<Record<string, string>> = {
     'origin/feat/block-b4-report:docs/reference/blame.md#policy/blame:default',
   'Blame names core_rule_caught when an enforcing guard denied the act and later allowed it, the agent having complied.':
     'origin/feat/block-b4-report:docs/reference/blame.md#policy/blame:default',
+  'Blame names skill_not_loaded_undecided when the skill a failing check is about never loaded and nothing says whether its description covers the ask; a skill loaded, fewer times than expected, is no load failure and stays unassigned.':
+    'origin/feat/block-b4-report:docs/reference/blame.md#policy/blame:default',
+  'Blame names env_failure before any skill item for a failed command with an environment error, and skill_not_loaded_undecided for a skill that never loaded.':
+    'origin/feat/block-b4-report:docs/reference/blame.md#policy/blame:default',
+  'Blame names I1_protected_edit before any skill item, and skill_not_loaded_undecided for a skill that never loaded with nothing else to blame.':
+    'origin/feat/block-b4-report:docs/reference/blame.md#policy/blame:default',
   'Blame names env_failure for a command that failed with a network error, never the agent.':
     'origin/feat/block-b4-report:docs/reference/blame.md#policy/blame:default',
   'Blame names env_failure for a command that failed with a package error, never the agent.':

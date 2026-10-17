@@ -31,6 +31,11 @@ const R2B: Blame = { item: 'R2b', disposition: 'agent', fixAction: 'add_rule_or_
 const I1: Blame = { item: 'I1_protected_edit', disposition: 'agent', fixAction: 'protect_paths' };
 /** The documented effect names no disposition: any is accepted. */
 const CAUGHT: Blame = { item: 'core_rule_caught', disposition: '', fixAction: 'none_enforced' };
+const UNDECIDED: Blame = {
+  item: 'skill_not_loaded_undecided',
+  disposition: 'shared',
+  fixAction: 'rewrite_description',
+};
 
 /** A CODE symptom: what the block expects of its file, and the action that breaks it. */
 type Symptom = {
@@ -227,6 +232,10 @@ type Cause = {
   edits?: FileAction[];
   deletes?: string[];
   protects?: string[];
+  /** The block's file is written right: the block fails on its skill expectation alone. */
+  keepsFile?: boolean;
+  /** The skill the block expects, `count` times when set, and how many times the agent loads it. */
+  skill?: { count?: number; loads: number };
 };
 
 const CAUSES: Record<string, Cause> = {
@@ -284,6 +293,78 @@ const CAUSES: Record<string, Cause> = {
     stderr: 'PermissionError: [Errno 1] Operation not permitted',
   },
 };
+
+const SKILL_CAUSES: Record<string, Cause> = {
+  unloaded: {
+    id: 'unloaded',
+    blame: UNDECIDED,
+    reply: () => 'The file is written.',
+    keepsFile: true,
+    skill: { loads: 0 },
+  },
+  once: {
+    id: 'once',
+    blame: NONE,
+    reply: () => 'The file is written.',
+    keepsFile: true,
+    skill: { count: 2, loads: 1 },
+  },
+  timeout: { ...(CAUSES.timeout as Cause), keepsFile: true, skill: { loads: 0 } },
+  network: { ...(CAUSES.network as Cause), keepsFile: true, skill: { loads: 0 } },
+  protected: {
+    ...(CAUSES['protected-edit'] as Cause),
+    id: 'protected',
+    keepsFile: true,
+    skill: { loads: 0 },
+  },
+};
+
+/** Skill pairs: two code blocks fail the same skill expectation, for causes the policy order separates. */
+const SKILL_PAIRS: { a: string; b: string; tier: Tier; cause: string }[] = [
+  {
+    a: 'unloaded',
+    b: 'once',
+    tier: 4,
+    cause:
+      'Blame names skill_not_loaded_undecided when the skill a failing check is about never loaded and nothing says whether its description covers the ask; a skill loaded, fewer times than expected, is no load failure and stays unassigned.',
+  },
+  ...['timeout', 'network'].map((b) => ({
+    a: 'unloaded',
+    b,
+    tier: 4 as Tier,
+    cause:
+      'Blame names env_failure before any skill item for a failed command with an environment error, and skill_not_loaded_undecided for a skill that never loaded.',
+  })),
+  {
+    a: 'protected',
+    b: 'unloaded',
+    tier: 5,
+    cause:
+      'Blame names I1_protected_edit before any skill item, and skill_not_loaded_undecided for a skill that never loaded with nothing else to blame.',
+  },
+];
+
+function skillPairItems(): BankItem[] {
+  const symptoms = ['missing-file', 'wrong-cell', 'page-count', 'json-field', 'docx-text', 'csv-column'];
+  return SKILL_PAIRS.flatMap((pair) =>
+    symptoms.map((symptomId) => {
+      const symptom = SYMPTOMS.find((each) => each.id === symptomId) as Symptom;
+      const a = SKILL_CAUSES[pair.a] as Cause;
+      const b = SKILL_CAUSES[pair.b] as Cause;
+      const id = `diagnostics/lookalike/code-skill/${symptomId}/${pair.a}-vs-${pair.b}`;
+      return {
+        id,
+        family: 'diagnostics-lookalike-skill',
+        tier: pair.tier,
+        level: 5,
+        component: 'packages/core/src/evidence/rule.ts',
+        title: `two code blocks write their ${symptomId.replace(/-/g, ' ')} file right and fail the same skill expectation, one as ${pair.a}, one as ${pair.b}: blame names ${a.blame.item} and ${b.blame.item}`,
+        cause: pair.cause,
+        check: async ({ seed, scratch, product }) => planted(product, seed, scratch, id, symptom, [a, b]),
+      };
+    }),
+  );
+}
 
 /** The pairs: a symptom with two causes the policy must separate. */
 const PAIRS: { symptom: string; a: string; b: string; tier: Tier }[] = [
@@ -439,12 +520,17 @@ async function planted(
     const blockId = token(seed, `${id}#block#${index}`);
     ids.push(blockId);
     const { file, checks } = symptom.file(rng, `out/${token(seed, `${id}#file#${index}`)}`);
-    const broken = symptom.breaks(file);
+    const broken = cause.keepsFile ? { files: [file], commands: [okCommand] } : symptom.breaks(file);
+    const skill = `s${token(seed, `${id}#skill#${index}`)}`;
+    const runtime = [
+      ...(cause.runtime ?? []),
+      ...Array.from({ length: cause.skill?.loads ?? 0 }, () => ({ type: 'skill' as const, name: skill })),
+    ];
     actions.set(marker, {
       reply: cause.reply(file.path),
       files: [...(broken.files ?? []), ...(cause.edits ?? [])],
       ...(cause.deletes ? { deletes: cause.deletes } : {}),
-      ...(cause.runtime ? { runtime: cause.runtime } : {}),
+      ...(runtime.length > 0 ? { runtime } : {}),
       commands: cause.commands ?? broken.commands ?? [],
       ...(cause.stderr ? { stderr: cause.stderr } : {}),
     });
@@ -455,6 +541,13 @@ async function planted(
         artifacts: [{ path: file.path, kind: file.format, checks }],
         ...(symptom.expect?.(file) ?? {}),
         ...(cause.protects ? { protected: cause.protects } : {}),
+        ...(cause.skill
+          ? {
+              skills: [
+                { name: skill, ...(cause.skill.count === undefined ? {} : { count: cause.skill.count }) },
+              ],
+            }
+          : {}),
       },
     });
   }
@@ -472,15 +565,19 @@ async function planted(
       | Parameters<typeof roots>[0]
       | undefined;
     const why =
-      cause.id === 'claim'
-        ? 'its reply claims the file is saved'
-        : cause.id.startsWith('protected')
-          ? 'it changed or deleted a file the block protects'
-          : cause.id === 'guard-caught'
-            ? 'a guard denied its act, then allowed it once it complied'
-            : cause.id === 'honest'
-              ? 'its reply admits the failure and no environment error shows'
-              : `its command failed with a ${cause.id} error and the reply claims nothing`;
+      cause.id === 'unloaded'
+        ? 'the skill it was asked to use never loaded'
+        : cause.id === 'once'
+          ? 'it loaded the skill once where twice was expected'
+          : cause.id === 'claim'
+            ? 'its reply claims the file is saved'
+            : cause.id.startsWith('protected')
+              ? 'it changed or deleted a file the block protects'
+              : cause.id === 'guard-caught'
+                ? 'a guard denied its act, then allowed it once it complied'
+                : cause.id === 'honest'
+                  ? 'its reply admits the failure and no environment error shows'
+                  : `its command failed with a ${cause.id} error and the reply claims nothing`;
     const problem = blamed(ids[index] as string, block, cause.blame, why);
     if (problem) return problem;
   }
@@ -625,7 +722,7 @@ function normalPairItems(): BankItem[] {
 
 /** The look-alike pairs of level 5. */
 export function lookalikeItems(): BankItem[] {
-  return [...codePairItems(), ...normalPairItems()];
+  return [...codePairItems(), ...skillPairItems(), ...normalPairItems()];
 }
 
 export const LOOKALIKE_PAIRS = (): string[] => [
