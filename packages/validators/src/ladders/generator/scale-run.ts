@@ -9,8 +9,10 @@
  * reference unit, its sample count and the units, then every failing item with its detail. It exits 1 when any
  * item fails on any repeat, 0 otherwise.
  *
- * `--plants` then runs the 100 times size once for each planted product of the scale tests: twice as slow and
- * quadratic must fail the time item, and a host three times slower must give the verdict of the clean runs.
+ * `--plants` then runs one planted product at 10 times whose window is over 30 s, the earlier absolute budget,
+ * which must fail the 10 times item read with the clean 100 times unit; and the 100 times size once for each
+ * planted product of the scale tests: twice as slow and quadratic must fail the time item, and a host three
+ * times slower must give the verdict of the clean runs.
  * A planted run that does not, exits 1 as well: the measure no longer tells them apart on this host.
  */
 import { fileURLToPath } from 'node:url';
@@ -57,6 +59,11 @@ for (let round = 1; round <= repeat; round += 1) {
       })}\n`,
     );
   }
+  // The 10 times run as its time item reads it: by the unit of the 100 times run.
+  const [ten, hundred] = [await scaled(10), await scaled(100)];
+  process.stdout.write(
+    `${JSON.stringify({ round, seed, factor: 10, judgedBy: 100, unitMs: Number(hundred.unitMs.toFixed(2)), units: hundred.unitMs > 0 ? Math.round(ten.ms / hundred.unitMs) : null, budgetUnits: SCALE_BUDGET_UNITS[10] ?? null })}\n`,
+  );
   const results = await evaluate(items, new SeedData(seed, {}, scaled));
   for (const { item, verdict } of results) {
     if (verdict.pass) continue;
@@ -90,7 +97,22 @@ const plants: Array<{
   },
 ];
 if (process.argv.includes('--plants')) {
-  const clean = timeVerdict(await scaleReport(100, seed))[0];
+  const long = await scaleReport(100, seed);
+  const clean = timeVerdict(long)[0];
+  // A product the earlier absolute item failed at 10 times (a window over 30 s) must fail the new item: it is
+  // judged, as the ladder judges it, by the unit of the clean 100 times run.
+  const ten = await scaleReport(10, seed, undefined, { generator: fixture('window-product.ts') });
+  const [tenPass, tenDetail] = timeVerdict(ten, long);
+  const tenWanted = ten.ms <= 30_000;
+  process.stdout.write(
+    `${JSON.stringify({ plant: 'over 30 s at 10 times', seed, factor: 10, ms: ten.ms, unitMs: Number(long.unitMs.toFixed(2)), units: long.unitMs > 0 ? Math.round(ten.ms / long.unitMs) : null, timePass: tenPass, wantedPass: tenWanted, ...(ten.error ? { error: ten.error } : {}) })}\n`,
+  );
+  if (tenPass !== tenWanted) {
+    failing += 1;
+    process.stdout.write(
+      `plant over 30 s at 10 times: the time item gave ${tenPass ? 'pass' : 'fail'}, wanted ${tenWanted ? 'pass' : 'fail'}: ${tenDetail}\n`,
+    );
+  }
   for (const plant of plants) {
     for (const [key, value] of Object.entries(plant.env ?? {})) process.env[key] = value;
     const report = await scaleReport(100, seed, undefined, plant.options);

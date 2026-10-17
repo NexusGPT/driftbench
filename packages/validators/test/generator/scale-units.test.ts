@@ -54,6 +54,19 @@ describe('the scale time items count CPU time in reference units', () => {
     expect(await itemVerdict(100, report(100, 1097 * 30.8, 30.8, 176))).toBe(true);
   });
 
+  it('judge the 10 times run by the unit of the 100 times run, which a short window reads dearer', async () => {
+    // A product at 33 s at 10 times, the earlier absolute item's failure, on a runner whose unit takes 51.3 ms
+    // over the long 100 times window and 70 ms over the short 10 times one (as the CI runner reads it).
+    const ten = report(10, 33_000, 70, 20);
+    const hundred = report(100, 1100 * 51.3, 51.3, 170);
+    const item = bankItems().find((entry) => entry.id === 'scale.10x.time');
+    if (!item) throw new Error('no item scale.10x.time');
+    const verdict = await item.check(new SeedData(1, {}, async (factor) => (factor === 10 ? ten : hundred)));
+    // 33000 ms over 51.3 ms is 643 units, over the budget of 584; read in its own window it would be 471.
+    expect(verdict.pass).toBe(false);
+    expect(verdict.detail).toMatch(/643 reference units .* during the 100 times runs/);
+  });
+
   it('fail a product twice as slow and a quadratic one on the same host', async () => {
     // 1097 units is the lowest clean run on the runner (validators/CONSTANTS.md); twice that fails.
     expect(await itemVerdict(100, report(100, 1097 * 51.3, 51.3, 170))).toBe(true);

@@ -13,6 +13,7 @@ const fixture = (name: string) => fileURLToPath(new URL(`./fixtures/${name}`, im
 const SLOW_HOST = fixture('slow-host.ts');
 const SLOW_PRODUCT = fixture('slow-product.ts');
 const QUADRATIC = fixture('quadratic-product.ts');
+const WINDOW = fixture('window-product.ts');
 const WALL = 900_000;
 
 /** A finished scale report with everything right but the time, which the case sets. */
@@ -85,26 +86,39 @@ describe('the reference unit, measured beside a real scale run', () => {
   );
 
   it(
-    'runs the planted products: they cost more CPU time than the clean run, and the clean run passes at 10 times',
+    'counts more units for a product twice as slow and a quadratic one, and fails a product over the budget',
     async () => {
       const slow = await scaleReport(10, 1, undefined, { generator: SLOW_PRODUCT });
       process.stderr.write(
         `plain ${units(plain).toFixed(0)} units; twice as slow ${units(slow).toFixed(0)} units\n`,
       );
-      // On a busy machine the unit does not follow the contention, so units of two runs minutes apart may not
-      // compare (validators/CONSTANTS.md): this test reads CPU time. The verdicts at 100 times are read on the
-      // CI runner, by the generator-scale job with plants.
       expect(slow.error).toBeUndefined();
-      expect(slow.ms).toBeGreaterThan(plain.ms);
+      // The product is part of the window, with the harness's diff, reload and cleanup: twice its cost made the
+      // window 1.48 to 1.6 times on the CI runner and 1.28 to 1.35 times on a busy Mac.
+      expect(units(slow) / units(plain)).toBeGreaterThan(1.2);
       process.env.DRIFTBENCH_QUADRATIC_US = '2';
       try {
         const quadratic = await scaleReport(10, 1, undefined, { generator: QUADRATIC });
         expect(quadratic.error).toBeUndefined();
         process.stderr.write(`quadratic ${quadratic.ms} ms, ${units(quadratic).toFixed(0)} units\n`);
-        expect(timeVerdict(plain)[0]).toBe(true);
-        expect(quadratic.ms).toBeGreaterThan(1.5 * plain.ms);
+        expect(units(quadratic) / units(plain)).toBeGreaterThan(1.5);
       } finally {
         delete process.env.DRIFTBENCH_QUADRATIC_US;
+      }
+      // A product whose window costs half as much again as the 10 times budget, on this host: its second
+      // generation spends CPU time until the process has used 1.5 times the budget in this host's units. The
+      // spec count, and so a quadratic plant's cost, differs from one product version to the next; this plant
+      // is over the budget on any of them. The time item must fail it, and pass the clean run.
+      const budget = SCALE_BUDGET_UNITS[10] as number;
+      process.env.DRIFTBENCH_PLANT_WINDOW_MS = String(Math.round(1.5 * budget * plain.unitMs));
+      try {
+        const over = await scaleReport(10, 1, undefined, { generator: WINDOW });
+        expect(over.error).toBeUndefined();
+        process.stderr.write(`over the budget ${over.ms} ms, ${units(over).toFixed(0)} units\n`);
+        expect(timeVerdict(plain)[0]).toBe(true);
+        expect(timeVerdict(over)[0]).toBe(false);
+      } finally {
+        delete process.env.DRIFTBENCH_PLANT_WINDOW_MS;
       }
     },
     WALL,

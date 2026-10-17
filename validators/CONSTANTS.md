@@ -22,7 +22,7 @@ The time items `scale.10x.time` and `scale.100x.time` (docs/validators.md sectio
 * The units held across the jobs: 1097 to 1217 at 100 times, an 11% spread, while the CPU time nearly doubled. The pass condition was a spread under 15%.
 * The three jobs on the final sampler code (`ea28036fa`) alone give a mean of 47.01 ms, so 1276 units. The reference rests on six jobs, not three, because one runner (job 39040746597) ran the unit twice as fast as the others. A seventh job could move the mean again.
 * The minimum is 10 samples. A 10 times window on the runner gave 17 to 22 samples, and a 100 times window 166 to 184.
-* The warm-up is 5 units. Before it, the unit cost 13 to 37% more in the 10 times windows than in the 100 times windows (jobs 39032147370 to 39032157025). After it, it still cost 0 to 33% more (jobs 39040741057 to 39040752461). At 10 times, the units are therefore read low; the 10 times budget is far above them.
+* The warm-up is 5 units. Before it, the unit cost 13 to 37% more in the 10 times windows than in the 100 times windows (jobs 39032147370 to 39032157025). After it, it still cost 0 to 33% more (jobs 39040741057 to 39040752461). Alone on a Mac, the sampler's unit is flat from its second unit on, so the excess most likely comes from the product starting up beside it, a larger share of a short window. Both time items therefore divide by the unit of the 100 times window of the same ladder run; read in its own window, a 10 times run would count up to a quarter fewer units, and the 10 times budget would mean up to 39.6 s.
 
 ### The runs behind them
 

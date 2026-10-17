@@ -65,20 +65,24 @@ export type ScaleReport = {
 
 /**
  * The verdict of a scale time item: the CPU time of the two runs, in reference units, within the factor's
- * budget, with at least SCALE_MIN_UNITS unit samples taken during the runs.
+ * budget. The unit is read in a long window: the 100 times run of the same ladder run (`unit`), which the time
+ * items of both factors divide by. A short window reads the unit dearer, since the product is starting up
+ * beside the sampler for a larger share of it, and a dearer unit counts fewer units. Without `unit`, the report's
+ * own window is read. Fewer than SCALE_MIN_UNITS samples in the window read fail the item.
  */
-export function timeVerdict(report: ScaleReport): [boolean, string] {
+export function timeVerdict(report: ScaleReport, unit: ScaleReport = report): [boolean, string] {
   const budget = SCALE_BUDGET_UNITS[report.factor];
   if (budget === undefined) return [false, `no budget in reference units for ${report.factor} times`];
-  if (report.unitSamples < SCALE_MIN_UNITS)
+  const where = unit === report ? 'during the runs' : `during the ${unit.factor} times runs`;
+  if (unit.unitSamples < SCALE_MIN_UNITS)
     return [
       false,
-      `two runs took ${report.ms} ms of CPU time, but the reference unit was sampled ${report.unitSamples} times during them, fewer than the ${SCALE_MIN_UNITS} the budget needs`,
+      `two runs took ${report.ms} ms of CPU time, but the reference unit was sampled ${unit.unitSamples} times ${where}, fewer than the ${SCALE_MIN_UNITS} the budget needs`,
     ];
-  const units = report.ms / report.unitMs;
+  const units = report.ms / unit.unitMs;
   return [
     units <= budget,
-    `two runs took ${report.ms} ms of CPU time, ${Math.round(units)} reference units (a unit took ${report.unitMs.toFixed(1)} ms, the mean of ${report.unitSamples} samples taken during the runs); the budget is ${budget} units, ${Math.round(budget * SCALE_REFERENCE_UNIT_MS)} ms where a unit takes ${SCALE_REFERENCE_UNIT_MS} ms`,
+    `two runs took ${report.ms} ms of CPU time, ${Math.round(units)} reference units (a unit took ${unit.unitMs.toFixed(1)} ms, the mean of ${unit.unitSamples} samples taken ${where}); the budget is ${budget} units, ${Math.round(budget * SCALE_REFERENCE_UNIT_MS)} ms where a unit takes ${SCALE_REFERENCE_UNIT_MS} ms`,
   ];
 }
 
