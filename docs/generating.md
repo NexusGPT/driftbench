@@ -313,7 +313,7 @@ A stage, class or behaviour that no approved path or phrase can reach stays unde
 
 A walk often ends the way another walk already ended: the same turn, said from the same stage, expecting the same. The generator does not write that end again. As it builds the suite, it drops the last block of a walk when all of these hold:
 
-* Another block already written says the same turn from the same stage, expects the same, with the same tool answers, in the same language and under the same rules. The channel and the persona it is written for, and the perturbations it declares, are not part of that: no agent receives them, and a perturbed run still reaches every block it needs (see the last item). The first block written stays.
+* Another block already written is the same test: the same Given (the world, tool answers included), the same stage and cell, and the same Then, in the same language and under the same rules (see "Same test" in [the validators](validators.md#3-the-generator-validator-do-generated-tests-catch-what-they-claim)). The user wording, the channel, the persona and the declared perturbations are not part of it: no agent receives the channel or the persona, a perturbed run still reaches every block it needs (see the last item), and wording variants are the metamorphic family. The first block written stays.
 * Every coverage tuple the walk placed is placed by a spec already written, at the strengths the coverage grid counts (1, 2, 3 and `--t`).
 * Every ordered pair of consecutive moves the walk took (a stage move and the class said with it) is taken by a spec already written.
 * The stage and class allocation is no further from balance (see the previous section).
@@ -422,20 +422,20 @@ A block the map supports no machine Then for, or a value with no approved phrase
 
 ```
 $ pnpm -s driftbench generate --map examples/acme/map/approved.yaml --out generated --baseline examples/acme/specs --t 2
-Actual axis-map coverage (written complete specs): pairs 708 of 708 (100.0%); triples 3098 of 4064 (76.2%).
+Actual axis-map coverage (written complete specs): pairs 708 of 708 (100.0%); triples 3104 of 4064 (76.4%).
 Candidate t-wise array (before the total cap): covering array of 156 rows over 5 dimensions, 356 of 356 allowed 2-tuples (100.0%); 2 pairs no path reaches are left out.
-Uncovered on the axis map: 0 pairs, 966 triples (see coverage.actual[].uncovered).
+Uncovered on the axis map: 0 pairs, 960 triples (see coverage.actual[].uncovered).
 Map acme (../examples/acme/map/approved.yaml), hash 7a022d4e1380: 51 dimensions, 187 values, 463 constraints, 55 approved phrases.
 Seed 1, t = 2.
 
 Seeder        specs  blocks  complete  incomplete
 graph            12      48        12           0
-twise           156     793       153           3
+twise           156     792       153           3
 boundary         85     180        13          72
 deviation       137     526       137           0
 metamorphic      42     192        42           0
 task             67      71        67           0
-cover            11      50        11           0
+cover            12      55        12           0
 
 Stage graph: 18 of 23 edges covered in 12 paths from needs.
 Constraints applied: 463.
@@ -473,7 +473,7 @@ Specs with a block the map supports no machine Then for (18), in incomplete/: ge
      1  no approved path needs callback_phone=not-given
      1  no approved path needs catalog.search.in.unknown-key=catalog.search.in.unknown-key.sent
      1  no approved path needs coverage.check.in.unknown-key=coverage.check.in.unknown-key.sent
-Wrote 607 files to generated.
+Wrote 608 files to generated.
 exit 1
 ```
 

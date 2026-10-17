@@ -180,10 +180,10 @@ end_state:
         name: Jo Okafor
         email: jo.okafor@example.com
 perturbations:
-  - id: p1-D1_off_topic
-    class: D1_off_topic
+  - id: p1-D5_language_switch
+    class: D5_language_switch
     inject_at: 0
-    user: Are your stores open on Saturday?
+    user: Kunt u dat ook in het Nederlands uitleggen?
     expect:
       stage: needs
       stage_reported: true
@@ -195,7 +195,7 @@ perturbations:
         - label: order.create
           count: 0
       must:
-        - Monday to Saturday
+        - I can only help
       lang: EN
     recovery:
       within_blocks: 0

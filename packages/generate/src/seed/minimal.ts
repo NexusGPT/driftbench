@@ -1,4 +1,10 @@
-import { canonicalGiven, contentHash, type Spec, validateSpec } from '@agent-nexus/driftbench-core';
+import {
+  blockCell,
+  canonicalGiven,
+  contentHash,
+  type Spec,
+  validateSpec,
+} from '@agent-nexus/driftbench-core';
 import {
   addEventCodes,
   assertGridSize,
@@ -84,7 +90,7 @@ export class TerminalSubsumption {
       const twin = this.keepsPair(spec);
       while (!twin && spec.blocks.length > 1) {
         const last = spec.blocks.length - 1;
-        if (!this.blocks.has(this.key(spec, last))) break;
+        if (!this.blocks.has(this.identity(spec, last))) break;
         // A block that injects a class is that class's test, and the deviation of its row: it stays.
         if ('injection' in (spec.blocks[last]?.when ?? {})) break;
         // The move right after a restated request is the test of the latest value: a walk is never cut to end on
@@ -109,7 +115,7 @@ export class TerminalSubsumption {
         .find(
           (state) =>
             state.spec.blocks.length === 1 ||
-            !this.ends.has(this.key(state.spec, state.spec.blocks.length - 1)),
+            !this.ends.has(this.identity(state.spec, state.spec.blocks.length - 1)),
         );
       const chosen = settled ?? (states[0] as (typeof states)[number]);
       draft.blocks = chosen.blocks;
@@ -122,9 +128,9 @@ export class TerminalSubsumption {
   /** What a spec written by other code places: tasks are never reduced but their obligations are met. */
   observeSpec(spec: Spec): void {
     spec.blocks.forEach((_, index) => {
-      this.blocks.add(this.key(spec, index));
+      this.blocks.add(this.identity(spec, index));
     });
-    this.ends.add(this.key(spec, spec.blocks.length - 1));
+    this.ends.add(this.identity(spec, spec.blocks.length - 1));
     const walk = this.walkKey(spec);
     const contexts = this.walks.get(walk) ?? new Set<string>();
     contexts.add(this.contextOf(spec));
@@ -165,11 +171,15 @@ export class TerminalSubsumption {
   }
 
   private walkKey(spec: Spec): string {
-    return contentHash(spec.blocks.map((_, index) => this.key(spec, index)));
+    return contentHash(spec.blocks.map((_, index) => this.identity(spec, index)));
   }
 
-  /** The turn, the stage it is said from and what it expects, in the language and under the rules it is said in. */
-  private key(spec: Spec, index: number): string {
+  /**
+   * What makes a block the same test as another (docs/validators.md, generator section): its Given (the world, tool
+   * answers included), the stage it is said from, its cell and its Then, in the language and under the rules it
+   * is said in. The user wording, the channel, the persona and the declared perturbations are not part of it.
+   */
+  identity(spec: Spec, index: number): string {
     const block = spec.blocks[index];
     const { criteria: _criteria, ...machine } = block?.expect ?? {};
     const from = index === 0 ? spec.stages?.[0] : spec.blocks[index - 1]?.expect?.stage;
@@ -179,8 +189,7 @@ export class TerminalSubsumption {
       rules: spec.rules,
       state: canonicalGiven(spec, index).state,
       from,
-      when: block?.when,
-      given: block?.given,
+      cell: blockCell(spec, index),
       expect: machine,
     });
   }

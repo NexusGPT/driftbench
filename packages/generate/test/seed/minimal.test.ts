@@ -1,6 +1,7 @@
+import { validateSpec } from '@agent-nexus/driftbench-core';
 import { describe, expect, it } from 'vitest';
 import type { PathRelation } from '../../src/extract/proposal';
-import type { SpecDraft } from '../../src/seed/assemble';
+import { renderDraft, type SpecDraft } from '../../src/seed/assemble';
 import { TerminalSubsumption } from '../../src/seed/minimal';
 import { type SeedContext, scenarioDraft } from '../../src/seed/seed-drafts';
 import { fixture, split, twoChannels, twoPersonas } from './desk';
@@ -21,19 +22,22 @@ function walk(
   return built.draft;
 }
 
-// The same walk with its first message worded another way: not a twin of any other walk, same end.
-const reworded = (draft: ReturnType<typeof walk>) => {
-  const first = draft.blocks[0];
-  if (first?.stimulus.kind !== 'phrase') throw new Error('the first block says no phrase');
-  first.stimulus = {
-    ...first.stimulus,
-    phrase: { ...first.stimulus.phrase, text: 'Hello, I have a parcel.' },
-  };
+// The Given of a block: the tool answers its world holds. Two blocks with other answers are other tests.
+const answered = (draft: ReturnType<typeof walk>, index: number, found: boolean) => {
+  const block = draft.blocks[index];
+  if (!block) throw new Error('no such block');
+  block.given = { world: { tools: { lookup: { result: { found } } } } };
   return draft;
 };
 
-// The same walk with its last message worded another way: it ends on a block no other walk ends on.
-const endsElsewhere = (draft: ReturnType<typeof walk>) => {
+// The same walk with other tool answers from its first block on: not a twin of any other walk, another Given.
+const reworded = (draft: ReturnType<typeof walk>) => answered(draft, 0, false);
+
+// The same walk with another tool answer at its last block only: it ends on a block no other walk ends on.
+const endsElsewhere = (draft: ReturnType<typeof walk>) => answered(draft, draft.blocks.length - 1, false);
+
+// The same turn worded another way: the user wording is not part of what a block is.
+const wordedAnother = (draft: ReturnType<typeof walk>) => {
   const last = draft.blocks.at(-1);
   if (last?.stimulus.kind !== 'phrase') throw new Error('the last block says no phrase');
   last.stimulus = { ...last.stimulus, phrase: { ...last.stimulus.phrase, text: 'Pack it now, thank you.' } };
@@ -127,23 +131,30 @@ describe('terminal subsumption', () => {
     expect(second.blocks.some((block) => block.injection)).toBe(true);
   });
 
-  it('keeps the end of a walk that says another turn than any written block', () => {
+  it('keeps the end of a walk whose tool answers differ from any written block: another Given is another test', () => {
     const prepared = fixture();
     const path = prepared.relations.paths[0];
     if (!path) throw new Error('missing parcel path');
     const minimal = new TerminalSubsumption(prepared, run, 2);
     const first = walk(prepared, 'first', path);
-    const second = walk(prepared, 'second', path);
-    const last = second.blocks.at(-1);
-    if (last?.stimulus.kind !== 'phrase') throw new Error('the last block says no phrase');
-    last.stimulus = {
-      ...last.stimulus,
-      phrase: { ...last.stimulus.phrase, text: 'Pack it now, thank you.' },
-    };
+    const second = endsElsewhere(walk(prepared, 'second', path));
     const length = second.blocks.length;
     minimal.reduce(first);
     minimal.reduce(second);
     expect(second.blocks).toHaveLength(length);
+  });
+
+  it('cuts the end of a walk that only words its last turn another way: the wording is not part of the test', () => {
+    const prepared = fixture();
+    const path = prepared.relations.paths[0];
+    if (!path) throw new Error('missing parcel path');
+    const minimal = new TerminalSubsumption(prepared, run, 2);
+    const first = walk(prepared, 'first', path);
+    const second = wordedAnother(walk(prepared, 'second', path));
+    const length = second.blocks.length;
+    minimal.reduce(first);
+    minimal.reduce(second);
+    expect(second.blocks.length).toBeLessThan(length);
   });
 
   it('keeps the end of a walk that places a tuple no written walk places', () => {
@@ -280,21 +291,6 @@ describe('terminal subsumption and the context a walk is written in', () => {
     expect(third.blocks.length).toBeLessThan(length);
   });
 
-  it('reads a block as the same test on any channel: the end a walk on the counter says is a repeat on the phone', () => {
-    const prepared = twoChannels();
-    const path = prepared.relations.paths[0];
-    if (!path) throw new Error('missing parcel path');
-    const minimal = new TerminalSubsumption(prepared, run, 2);
-    // Only the counter walk says this end. The phone tuples are held by a phone walk that ends on another block,
-    // so the phone walk below is a repeat of the counter walk's end and of nothing written on the phone.
-    const written = walk(prepared, 'written', path, 'twise', [channelPick(prepared, 'counter')]);
-    const holder = endsElsewhere(walk(prepared, 'holder', path, 'twise', [channelPick(prepared, 'phone')]));
-    const again = reworded(walk(prepared, 'again', path, 'twise', [channelPick(prepared, 'phone')]));
-    const length = again.blocks.length;
-    for (const draft of [written, holder, again]) minimal.reduce(draft);
-    expect(again.blocks.length).toBeLessThan(length);
-  });
-
   it('keeps one pair of whole twins per path even when other walks already hold their tuples', () => {
     const prepared = twoChannels();
     const path = prepared.relations.paths[0];
@@ -348,17 +344,122 @@ describe('terminal subsumption and the persona a walk is written for', () => {
     expect(novice.blocks).toHaveLength(length);
     expect(twin.blocks).toHaveLength(length);
   });
+});
 
-  it('reads a block as the same test for any persona: the end a novice walk says is a repeat for an expert', () => {
+describe('what makes two blocks the same test', () => {
+  const identity = (
+    prepared: ReturnType<typeof fixture>,
+    draft: ReturnType<typeof walk>,
+    index = draft.blocks.length - 1,
+  ) => {
+    const parsed = validateSpec(renderDraft(prepared, draft, run).spec);
+    if (!parsed.ok) throw new Error('the walk is not a valid spec');
+    return new TerminalSubsumption(prepared, run, 2).identity(parsed.spec, index);
+  };
+
+  it('is the Given, the stage and cell and the Then: the same block on another channel is the same test', () => {
+    const prepared = twoChannels();
+    const path = prepared.relations.paths[0];
+    if (!path) throw new Error('missing parcel path');
+    const dimension = prepared.space.dimensions.findIndex((entry) => entry.kind === 'channel');
+    const on = (value: string) =>
+      [[dimension, prepared.space.dimensions[dimension]?.index.get(value) as number]] as Array<
+        [number, number]
+      >;
+    const counter = walk(prepared, 'a', path, 'twise', on('counter'));
+    const phone = walk(prepared, 'b', path, 'twise', on('phone'));
+    expect(identity(prepared, phone)).toBe(identity(prepared, counter));
+  });
+
+  it('is the same for another persona', () => {
     const prepared = twoPersonas();
     const path = prepared.relations.paths[0];
     if (!path) throw new Error('missing parcel path');
+    const dimension = prepared.space.dimensions.findIndex((entry) => entry.kind === 'persona');
+    const as = (value: string) =>
+      [[dimension, prepared.space.dimensions[dimension]?.index.get(value) as number]] as Array<
+        [number, number]
+      >;
+    const novice = walk(prepared, 'a', path, 'twise', as('novice'));
+    const expert = walk(prepared, 'b', path, 'twise', as('expert'));
+    expect(identity(prepared, expert)).toBe(identity(prepared, novice));
+  });
+
+  it('is the same whatever perturbations the walk declares before the block', () => {
+    const prepared = fixture();
+    const path = prepared.relations.paths[0];
+    if (!path) throw new Error('missing parcel path');
+    const plain = walk(prepared, 'a', path);
+    plain.perturbations = undefined;
+    const declared = walk(prepared, 'b', path);
+    declared.perturbations = [
+      {
+        id: 'p1',
+        class: 'D5_language_switch',
+        inject_at: 0,
+        user: 'Kunt u mij helpen?',
+        expect: { stage: 'welcome' },
+        recovery: { within_blocks: 0, stage_after: 'welcome' },
+      },
+    ] as never;
+    expect(identity(prepared, declared)).toBe(identity(prepared, plain));
+  });
+
+  it('is the same however the user words the turn (wording variants are the metamorphic family)', () => {
+    const prepared = fixture();
+    const path = prepared.relations.paths[0];
+    if (!path) throw new Error('missing parcel path');
+    const base = walk(prepared, 'a', path);
+    const other = wordedAnother(walk(prepared, 'b', path));
+    expect(identity(prepared, other)).toBe(identity(prepared, base));
+  });
+
+  it('differs when a tool answers another value: the block runs in another world', () => {
+    const prepared = fixture();
+    const path = prepared.relations.paths[0];
+    if (!path) throw new Error('missing parcel path');
+    const base = walk(prepared, 'a', path);
+    const other = endsElsewhere(walk(prepared, 'b', path));
+    expect(identity(prepared, other)).not.toBe(identity(prepared, base));
+  });
+
+  it('differs when the stage the block is said from differs', () => {
+    const prepared = fixture();
+    const path = prepared.relations.paths[0];
+    if (!path) throw new Error('missing parcel path');
+    const draft = walk(prepared, 'a', path);
+    expect(identity(prepared, draft, 1)).not.toBe(identity(prepared, draft, 2));
+  });
+
+  it('differs when an earlier block set a tool answer the block runs in, though its own Given is empty', () => {
+    const prepared = fixture();
+    const path = prepared.relations.paths[0];
+    if (!path) throw new Error('missing parcel path');
+    const base = walk(prepared, 'a', path);
+    const other = answered(walk(prepared, 'b', path), 0, false);
+    expect(other.blocks.at(-1)?.given).toBeUndefined();
+    expect(identity(prepared, other)).not.toBe(identity(prepared, base));
+  });
+
+  it('differs when the cell of the block differs', () => {
+    const prepared = fixture();
+    const path = prepared.relations.paths[0];
+    if (!path) throw new Error('missing parcel path');
+    const parse = (draft: ReturnType<typeof walk>) => {
+      const parsed = validateSpec(renderDraft(prepared, draft, run).spec);
+      if (!parsed.ok) throw new Error('the walk is not a valid spec');
+      return parsed.spec;
+    };
+    const spec = parse(walk(prepared, 'a', path));
+    const last = spec.blocks.length - 1;
+    const other = structuredClone(spec);
+    const generated = other.metadata?.generated as
+      | { blocks?: Array<{ cell?: Record<string, string> }> }
+      | undefined;
+    const entry = generated?.blocks?.[last];
+    if (!entry?.cell) throw new Error('the block records no cell');
+    entry.cell = { ...entry.cell, behaviour: 'another-value' };
     const minimal = new TerminalSubsumption(prepared, run, 2);
-    const written = walk(prepared, 'written', path, 'twise', [personaPick(prepared, 'novice')]);
-    const holder = endsElsewhere(walk(prepared, 'holder', path, 'twise', [personaPick(prepared, 'expert')]));
-    const again = reworded(walk(prepared, 'again', path, 'twise', [personaPick(prepared, 'expert')]));
-    const length = again.blocks.length;
-    for (const draft of [written, holder, again]) minimal.reduce(draft);
-    expect(again.blocks.length).toBeLessThan(length);
+    expect(minimal.identity(other, last)).not.toBe(minimal.identity(spec, last));
   });
 });
