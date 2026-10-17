@@ -3156,8 +3156,8 @@ function radiusItems(): void {
     7,
     4,
     RADIUS,
-    'A change no block names is the whole suite except a criterion, which selects nothing, shortcut: an unnamed change selects nothing, or a criterion is the whole suite',
-    'a change no block declares makes the radius the whole suite, a criterion no block names selects nothing',
+    'A change no block names is the whole suite, a criterion included (docs/concepts/blast-radius.md, Unknown means in), shortcut: an unnamed change selects nothing',
+    'a change no block declares makes the radius the whole suite, a criterion no block names included',
     async (ctx) => {
       const stage = word(ctx.seed, 'radius.nodecl:stage', 7);
       const spec = radiusSpec(ctx.seed, 'nodecl', [{ expect: { stage } }, { expect: { stage } }], {
@@ -3203,10 +3203,10 @@ function radiusItems(): void {
           ),
         ],
         [
-          criterion.json !== undefined && !wholeOf(criterion) && criterion.code === 0,
+          wholeOf(criterion) && criterion.code === 1,
           say(
             D_RADIUS,
-            'a criterion no block names selects nothing (exit 0)',
+            'a criterion no block names is the whole suite (exit 1), as any change no block declares',
             `exit ${criterion.code}, whole ${dumped(criterion.json?.whole)}`,
           ),
         ],

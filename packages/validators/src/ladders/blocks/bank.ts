@@ -67,7 +67,7 @@ export function blocksBank(): BankItem[] {
  * F5 scale items). They count for no hardness. The scale items that fail on a real defect of main stay hardness.
  */
 const CATCH = /^(boundaries\/|twins\/|adv\.|scale\/)/;
-const HARDNESS = /^scale\/(run-F|run-T|pii-scan)\//;
+const HARDNESS = /^(scale\/(run-F|run-T|pii-scan)\/|adv\.radius\.change-no-block-declares$)/;
 
 /** The shape rules of section 12.1, as problems: unique ids, sizes, causes, every tier, every level. */
 export function bankProblems(items: readonly BankItem[]): string[] {
