@@ -48,8 +48,13 @@ function stirlingRemainder(z: number): number {
  * series for |x - np| below a tenth of x + np keeps the digits that the direct form loses to cancellation.
  */
 export function bd0(x: number, np: number, logNp: number = Math.log(np)): number {
-  // log(x / np) is formed as log x - log np: the ratio itself overflows when np is below 1e-308 x.
-  if (Math.abs(x - np) >= 0.1 * (x + np)) return x * (Math.log(x) - logNp) + np - x;
+  if (Math.abs(x - np) >= 0.1 * (x + np)) {
+    // log(x / np) from the ratio keeps full precision; the ratio overflows when np is below 1e-308 x, and then the
+    // difference of logarithms (of which log np is passed in) takes over.
+    const ratio = x / np;
+    const logRatio = ratio < 1e300 && ratio > 1e-300 ? Math.log(ratio) : Math.log(x) - logNp;
+    return x * logRatio + np - x;
+  }
   let v = (x - np) / (x + np);
   let s = (x - np) * v;
   let ej = 2 * x * v;
