@@ -402,8 +402,8 @@ const SAME_LINES: Variant[] = [
 ];
 
 /**
- * The CPU time of a call, user plus system, in milliseconds: the best of `tries` runs. A run over ten times
- * `budget` ends the tries, so a product far over the budget costs the bank one run, not three.
+ * The CPU time of a call, user plus system, in milliseconds: the best of `tries` runs. A first run over
+ * `budget` ends the tries, so a product over the budget costs the bank one run, not three.
  */
 async function cpuBest<T>(
   tries: number,
@@ -417,7 +417,7 @@ async function cpuBest<T>(
     result = await call();
     const used = process.cpuUsage(start);
     best = Math.min(best, (used.user + used.system) / 1000);
-    if (best > 10 * budget) break;
+    if (best > budget) break;
   }
   return { ms: best, result: result as T };
 }

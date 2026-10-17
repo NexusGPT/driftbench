@@ -34,6 +34,9 @@ export type BankItem = {
   title: string;
   /** The one change that would make the item pass; items one change turns green share it word for word. */
   cause: string;
+  /** `catch` for an item that passes where its capability is built and guards against a bug, a shortcut or a
+   * cheat: it counts for no hardness. Absent for a hardness item. */
+  role?: 'catch';
   check(ctx: ItemContext): Promise<ItemResult>;
 };
 

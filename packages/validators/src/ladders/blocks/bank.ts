@@ -9,9 +9,11 @@ import { boundaryItems } from './levels/boundaries';
 import { carryBankItems } from './levels/carry';
 import { codeItems } from './levels/code';
 import { comboItems } from './levels/combos';
+import { crossItems } from './levels/cross';
 import { diagnosticItems } from './levels/diagnostics';
 import { forestItems } from './levels/forest';
 import { historyItems } from './levels/history';
+import { hostileItems } from './levels/hostile';
 import { intervalItems } from './levels/intervals';
 import { linkItems } from './levels/links';
 import { objectItems } from './levels/objects';
@@ -40,6 +42,8 @@ export function blocksBank(): BankItem[] {
     ...adversarialItems(),
     ...scaleItems(),
     ...twinItems(),
+    ...hostileItems(),
+    ...crossItems(),
     ...historyItems(),
     ...intervalItems(),
     ...objectItems(),
@@ -50,8 +54,20 @@ export function blocksBank(): BankItem[] {
     ...blastItems(),
     ...personaItems(),
   ];
-  return items.sort((a, b) => a.level - b.level);
+  return items
+    .map((item) =>
+      CATCH.test(item.id) && !HARDNESS.test(item.id) ? { ...item, role: 'catch' as const } : item,
+    )
+    .sort((a, b) => a.level - b.level);
 }
+
+/**
+ * The catch items (owner ruling, 2026-10-17): they pass where their capability is built and guard against a
+ * planted bug (boundaries), a cheat channel (twins), a shortcut (the F6 adversarial items) or a slow product (the
+ * F5 scale items). They count for no hardness. The scale items that fail on a real defect of main stay hardness.
+ */
+const CATCH = /^(boundaries\/|twins\/|adv\.|scale\/)/;
+const HARDNESS = /^scale\/(run-F|run-T|pii-scan)\//;
 
 /** The shape rules of section 12.1, as problems: unique ids, sizes, causes, every tier, every level. */
 export function bankProblems(items: readonly BankItem[]): string[] {
@@ -128,6 +144,7 @@ export async function levelMeasure(
         family: item.family,
         tier: item.tier,
         cause: item.cause,
+        ...(item.role ? { role: item.role } : {}),
         pass: result.pass,
         ...(result.pass
           ? {}
