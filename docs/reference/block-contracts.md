@@ -50,6 +50,9 @@ PR 449 (`origin/feat/block-f2-stamps`) builds `Verdict.by`. Neither is on `origi
 * A stronger layer may enable a disabled item again. The item is checked then.
 * An item whose params do not fit its implementation is refused with the code `OBJECT_PARAMS_INVALID`. The message names the path.
 
+* The checks of a block run in the order of its check set, and the block's verdicts keep that order. An `order` or a move changes it.
+* A disabled item gives no verdict on the blocks its object reaches.
+
 ### Item moves
 
 * A patch moves one item with `before: <id>` or `after: <id>`. The rest of the order stays as the parent had it.
