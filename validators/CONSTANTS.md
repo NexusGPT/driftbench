@@ -8,25 +8,42 @@ The time items `scale.10x.time` and `scale.100x.time` (docs/validators.md sectio
 
 | Constant | Value | What it is |
 |---|---|---|
-| `SCALE_REFERENCE_UNIT_MS` | 51.3 | the reference unit's CPU time, in ms, on the host class that judges: the CI runner (ubuntu-24.04) |
-| `SCALE_BUDGET_UNITS[10]` | 584 | the 10 times budget in units: floor(30000 / 51.3) |
-| `SCALE_BUDGET_UNITS[100]` | 1169 | the 100 times budget in units: floor(60000 / 51.3) |
+| `SCALE_REFERENCE_UNIT_MS` | 54.5 | the reference unit's CPU time, in ms, on the host class that judges: the CI runner (ubuntu-24.04) |
+| `SCALE_BUDGET_UNITS[10]` | 550 | the 10 times budget in units: floor(30000 / 54.5) |
+| `SCALE_BUDGET_UNITS[100]` | 1100 | the 100 times budget in units: floor(60000 / 54.5) |
 | `SCALE_MIN_UNITS` | 10 | the fewest unit samples in the window that measure anything |
 | `SCALE_UNIT_WARMUP` | 5 | the sampler's units that end before the window starts, while its code is compiled |
 | `SCALE_BUDGET_MS` | 60000 at 10 times, 120000 at 100 times | unchanged: the wall-clock cap is 10 times this |
 
 ### How they were derived
 
-* The second budgets, 30 s for the two runs at 10 times and 60 s at 100 times (half of `SCALE_BUDGET_MS`), are the earlier budgets. The unit budgets keep them on a runner whose unit takes 51.3 ms.
-* 51.3 ms is the mean unit over the 18 clean 100 times windows of six separate jobs on the CI runner, three windows each (the table below). Each job's three windows weigh the same. The runners differed: the jobs' CPU time at 100 times ranged from 37450 to 73549 ms, and their unit from 30.83 to 66.21 ms.
-* The units held across the jobs: 1097 to 1217 at 100 times, an 11% spread, while the CPU time nearly doubled. The pass condition was a spread under 15%.
-* The three jobs on the final sampler code (`ea28036fa`) alone give a mean of 47.01 ms, so 1276 units. The reference rests on six jobs, not three, because one runner (job 39040746597) ran the unit twice as fast as the others. A seventh job could move the mean again.
-* The minimum is 10 samples. A 10 times window on the runner gave 17 to 22 samples, and a 100 times window 166 to 184.
-* The warm-up is 5 units. Before it, the unit cost 13 to 37% more in the 10 times windows than in the 100 times windows (jobs 39032147370 to 39032157025). After it, it still cost 0 to 33% more (jobs 39040741057 to 39040752461). Alone on a Mac, the sampler's unit is flat from its second unit on, so the excess most likely comes from the product starting up beside it, a larger share of a short window. Both time items therefore divide by the unit of the 100 times window of the same ladder run; read in its own window, a 10 times run would count up to a quarter fewer units, and the 10 times budget would mean up to 39.6 s.
+* The second budgets, 30 s for the two runs at 10 times and 60 s at 100 times (half of `SCALE_BUDGET_MS`), are the earlier budgets. The unit budgets keep them on a runner whose unit takes 54.5 ms.
+* 54.5 ms is the mean unit over the 9 clean 100 times windows of three separate jobs on the CI runner (39062643545, 39062649024, 39062655220), three windows each, with the product of main `5b7aecea9` and PR 726. That is the product the item judges once PR 726 lands. The runners differed: the jobs' CPU time at 100 times ranged from 39603 to 53281 ms, and their unit from 46.57 to 62.95 ms.
+* The units held across those jobs: 823 to 850 at 100 times, a 3% spread, while the CPU time moved by a third. The pass condition was a spread under 15%. The six earlier jobs, on main `183abfd` (an older product with more specs), read 1097 to 1217 (11%); their mean unit was 51.3 ms.
+* Both time items divide by the unit of the 100 times window of the same ladder run. In the same job, the unit read 2 to 32% dearer in a 10 times window than in a 100 times one. Alone on a Mac the sampler's unit is flat from its second unit on, so the excess most likely comes from the product starting up beside it, a larger share of a short window. Read in its own window, a 10 times run would count up to a quarter fewer units, and the 10 times budget would mean up to 39.6 s.
+* The minimum is 10 samples. With the faster product, a 10 times window gave 11 to 14 samples and a 100 times window 127 to 134.
+* The warm-up is 5 units. Before it, the unit cost 13 to 37% more in the 10 times windows than in the 100 times windows (jobs 39032147370 to 39032157025); after it, 0 to 33% more (jobs 39040741057 to 39040752461).
 
 ### The runs behind them
 
-`validators/generator/evidence/scale-reference-unit-runner.jsonl` holds every row. The scale window at 10 and 100 times the behaviours of seed 1, beside the sampler, on the CI runner, dispatched separately (`jobs=generator-scale,plants`). The product is main `183abfd`:
+`validators/generator/evidence/scale-reference-unit-runner.jsonl` holds every row. The scale window at 10 and 100 times the behaviours of seed 1, beside the sampler, on the CI runner, dispatched separately (`jobs=generator-scale,plants`).
+
+**The calibration, product main `5b7aecea9` with PR 726** (head `816b2dd03`). The plants ran under the budgets of the time, 584 and 1169; the verdicts below are at 550 and 1100.
+
+| Job | Clean 100x CPU ms | 100x unit ms | Clean 100x units | Clean 10x units (100x unit) | Over 30 s at 10x | Twice as slow | Quadratic, 0.012 µs | Host three times slower |
+|---|---|---|---|---|---|---|---|---|
+| 39062643545 | 52965 to 53281 | 62.89 to 62.95 | 842 to 847 | 125 to 128 | 34227 ms, 549 | 1461 | 950 | 828 |
+| 39062649024 | 39603 to 40602 | 46.57 to 48.15 | 831 to 850 | 125 to 140 | 33574 ms, 709 | 1499 | 974 | 856 |
+| 39062655220 | 43502 to 44818 | 51.60 to 54.12 | 823 to 843 | 123 to 130 | 33459 ms, 664 | 1480 | 927 | 835 |
+
+At 550 and 1100 units:
+* **Clean passes** on every job (823 to 850 against 1100).
+* **Twice as slow fails** (1461 to 1499 units).
+* **The product over 30 s at 10 times fails on two jobs of three** (709 and 664 units). On the slowest runner (unit 62.3 ms, 14% slower than the reference), its 34.2 s is 549 units, which passes: 34.2 s there is 29.9 s of the reference runner's work. The item holds the earlier 30 s on a runner of the reference speed, and scales it with the runner's speed, as the 100 times item does.
+* **The planted quadratic at 0.012 µs no longer fails** (927 to 974 units). Its cost grows with the square of the specs written, and this product writes about half the specs of the earlier one, so the same constant adds about a fifth of the time. `scale-run.ts` now plants 0.05 µs; its runs are in the pull request that set these numbers.
+* **The planted slower host reads the clean units** (828 to 856). It cancels by construction: it checks the division, not a real slower host. The jobs above are that evidence.
+
+**The first calibration, product main `183abfd`**, six jobs, budgets 584 and 1169 at 51.3 ms:
 
 | Job | Head | Clean 100x CPU ms | Unit ms | Clean 100x units | Clean 10x units | Twice as slow | Quadratic | Host three times slower |
 |---|---|---|---|---|---|---|---|---|

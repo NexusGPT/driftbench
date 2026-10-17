@@ -87,7 +87,7 @@ const plants: Array<{
   {
     name: 'quadratic',
     options: { generator: fixture('quadratic-product.ts') },
-    env: { DRIFTBENCH_QUADRATIC_US: '0.012' },
+    env: { DRIFTBENCH_QUADRATIC_US: '0.05' },
     fails: true,
   },
   {
