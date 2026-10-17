@@ -367,7 +367,11 @@ function tallyItems(): BankItem[] {
               const r = recipe(seed, `${id}#${index}`, kind, plans, { parents: pattern.parents === true });
               const truth = settle(r, plans, settingOf(kind, {}, 'F', pattern.parents === true));
               want[runVerdict(truth) as keyof typeof want] += 1;
-              records.push((await play(product, r, scratch)).record);
+              // Parent links are written children first: the runner orders the forest, whatever the written order.
+              const written = pattern.parents
+                ? { ...r, raw: { ...r.raw, blocks: [...r.raw.blocks].reverse() } }
+                : r;
+              records.push((await play(product, written, scratch)).record);
             }
             const countRuns = need<(runs: unknown[]) => Record<string, number>>(
               product.core,

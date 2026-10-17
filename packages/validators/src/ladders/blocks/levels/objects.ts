@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parse, stringify } from 'yaml';
 import {
@@ -14,7 +14,6 @@ import {
   run,
   SHOP,
   scriptedAdapter,
-  shuffled,
 } from '../harness';
 import { KINDS, type Kind, plantedAgent, token } from '../kinds';
 import { type BlocksProduct, need } from '../product';
@@ -93,19 +92,20 @@ const OVERRIDES: Override[] = [
   {
     id: 'move-before',
     tier: 2,
-    build: (p, _rng, _order, pool) => {
-      const item = p(pool);
-      return {
-        ref: { extends: 'default', items: [{ id: item, before: p(others(item, pool)) }] },
-        code: undefined,
-      };
+    build: (p, _rng, order, pool) => {
+      // The later of two items moves before the earlier one, so the move changes the order.
+      const one = p(pool);
+      const two = p(others(one, pool));
+      const [early, late] = order.indexOf(one) < order.indexOf(two) ? [one, two] : [two, one];
+      return { ref: { extends: 'default', items: [{ id: late, before: early }] }, code: undefined };
     },
   },
   {
     id: 'order-permutation',
     tier: 2,
-    build: (_p, rng, order, _pool) => ({
-      ref: { extends: 'default', order: shuffled(rng, order) },
+    build: (_p, _rng, order, _pool) => ({
+      // The shipped order reversed: every pair of checks a block produces changes places.
+      ref: { extends: 'default', order: [...order].reverse() },
       code: undefined,
     }),
   },
@@ -290,12 +290,26 @@ function loaderItems(): BankItem[] {
               : `The loader's resolve pass refuses ${override.id.replace(/-/g, ' ')} with ${sample.code}.`,
           check: async ({ seed, scratch, product }) => {
             const rng = rngFor(seed, id);
-            const { ref, code } = override.build(
-              (xs) => pick(rng, xs),
-              rng,
-              override.id.startsWith('order') ? shippedOrder(product) : [],
-              KIND_ITEMS[kind],
-            );
+            const checkOfId = (verdictId: string) => verdictId.split('.')[0] as string;
+            let pool: readonly string[] = KIND_ITEMS[kind];
+            if (sample.code === undefined) {
+              // The override draws from the checks the reached blocks produce without it, so its effect shows.
+              const plain = objectSpec(seed, id, kind, {});
+              const before = await run(
+                product,
+                plain.raw,
+                plantedAgent(product, kind, plain.r.actions, { scratch }).adapter,
+              );
+              const reachedBefore = place === 'spec' ? before.blocks : before.blocks.slice(-1);
+              pool = KIND_ITEMS[kind].filter((item) =>
+                reachedBefore.every((block) => block.verdicts.some((v) => checkOfId(v.id) === item)),
+              );
+              if (pool.length < 2)
+                return fail(
+                  `without the override, the reached blocks give verdicts of ${list(pool)} only, out of ${list(KIND_ITEMS[kind])}: the override has nothing to change`,
+                );
+            }
+            const { ref, code } = override.build((xs) => pick(rng, xs), rng, shippedOrder(product), pool);
             const { raw, r } = objectSpec(seed, id, kind, place === 'spec' ? { spec: ref } : { block: ref });
             const result = loadIssues(product, raw);
             if (code === undefined) {
@@ -452,18 +466,19 @@ function hashItems(): BankItem[] {
               `uses changed the block cache keys: ${list(keysA, 3)} against ${list(keysB, 3)}`,
             ],
           ]);
-          if (!first.pass) return first;
-          // The twin: a change to uses re-scores the stored observations and never reruns the agent
+          if (!first.pass || kind === 'code') return first;
+          // The twin, on a normal block (a sandboxed code block is not replayed from the cache): a change to uses
+          // re-scores the stored observations and never reruns the agent
           // (block-contracts.md, Uses and the hashes). Disable a check that scored the first run: the replay calls
           // the agent no time, and the blocks the object reaches lose that check's verdicts.
-          const disabled = kind === 'code' ? 'safety' : 'tools';
+          const disabled = 'tools';
           const strong = { extends: 'default', items: [{ id: disabled, enabled: false }] };
           const uses = place.id === 'named-default' ? { spec: strong } : place.uses(strong);
           const rescored = objectSpec(seed, id, kind, uses);
           const replayAgent = plantedAgent(product, kind, plain.r.actions, { scratch });
           const c = await run(product, rescored.raw, replayAgent.adapter, { cache });
           const checkOf = (verdictId: string) => verdictId.split('.')[0] as string;
-          const reached = 'spec' in uses ? c.blocks : c.blocks.slice(-1);
+          const reached = place.id === 'spec' || place.id === 'named-default' ? c.blocks : c.blocks.slice(-1);
           const scoredBefore = a.blocks.some((block) =>
             block.verdicts.some((v) => checkOf(v.id) === disabled),
           );
@@ -518,8 +533,8 @@ function addInline(dir: string, ...objects: unknown[]) {
   writeFileSync(file, stringify({ ...config, objects: [...(config.objects ?? []), ...objects] }));
 }
 
-/** Policy kinds other than check-set and value-check: each ships a `default`. */
-const OTHER_KINDS = ['policy/blame', 'policy/placement', 'policy/gating', 'policy/stats', 'policy/selection'];
+/** Policy kinds other than check-set and value-check that ship a `default` (blame.md). */
+const OTHER_KINDS = ['policy/blame', 'policy/placement'];
 const inlineId = (seed: number) => token(seed, 'project#inline');
 
 const projectObject = (id: string, item: string) => ({
@@ -820,6 +835,7 @@ const CLI_CASES: CliCase[] = [
       return { args: ['validate', file], holds: [/immutable/] };
     },
     twin: (dir) => {
+      rmSync(join(dir, 'driftbench', 'check-set', 'default.yaml'));
       addInline(dir, { kind: 'check-set', id: 'default', extends: null, items: [] });
       return { args: ['validate'], exit: 1 };
     },
@@ -871,6 +887,8 @@ const CLI_CASES: CliCase[] = [
       return { args: ['validate'], holds: [/cycle/] };
     },
     twin: (dir, _p, seed) => {
+      rmSync(join(dir, 'driftbench', 'check-set', `${token(seed, 'graph#a')}.yaml`));
+      rmSync(join(dir, 'driftbench', 'check-set', `${token(seed, 'graph#b')}.yaml`));
       const a = token(seed, 'graph#inline-a');
       const b = token(seed, 'graph#inline-b');
       addInline(

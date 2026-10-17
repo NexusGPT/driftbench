@@ -416,10 +416,13 @@ function badgeItems(): BankItem[] {
           // blocks, and no object list given; a fix plan whose actions are any words.
           const records = structuredClone(planted.map((p) => p.record));
           const blocks = records.flatMap((record) => record.blocks);
-          objectCase.objects.forEach((object, index) => {
+          // One more non-default object, recorded only in the run, so the twin never holds an empty list.
+          const recordedOnly = { kind: 'policy/stats', id: token(seed, `${id}#recorded`), hash: '5a5a5a5a' };
+          [...objectCase.objects, recordedOnly].forEach((object, index) => {
             const block = blocks[index % blocks.length] as unknown as { resolved?: { objects: unknown[] } };
             block.resolved = { objects: [...(block.resolved?.objects ?? []), object] };
           });
+          const wantRecorded = [...want, `policy/stats:${recordedOnly.id}@${recordedOnly.hash}`].sort();
           const worded = fixes.map((fix) => ({
             ...fix,
             fixAction: `${token(seed, `${id}#${fix.fixAction}`)} the rule`,
@@ -433,8 +436,8 @@ function badgeItems(): BankItem[] {
           const recordedFixes = recorded.fixes.map((fix) => (fix as { fixAction: string }).fixAction);
           return expectAll([
             [
-              recorded.nonDefault.join(',') === want.join(','),
-              `with the objects in BlockResult.resolved, nonDefault ${list(recorded.nonDefault)}, expected ${list(want)}`,
+              recorded.nonDefault.join(',') === wantRecorded.join(','),
+              `with the objects in BlockResult.resolved, nonDefault ${list(recorded.nonDefault)}, expected ${list(wantRecorded)}`,
             ],
             [
               recordedFixes.join(',') === worded.map((fix) => fix.fixAction).join(','),
@@ -510,9 +513,10 @@ function invarianceItems(): BankItem[] {
             return fail('the diagnostics changed a verdict or a pass');
           for (const block of diagnosed.blocks) {
             const failing = new Set(failingIds(block));
-            // The diagnostics write a diagnosis on every failing block: a spec whose uses is kept and ignored writes none.
+            // code-agent-liability attributes every root of a failing chain, its last item `unassigned` matching
+            // always (blame.md, policy/blame:default): a spec whose uses is kept and ignored writes no diagnosis.
             const written = (block as { diagnoses?: unknown[] }).diagnoses ?? [];
-            if (failing.size > 0 && written.length === 0)
+            if (set.includes('code-agent-liability') && failing.size > 0 && written.length === 0)
               return fail(
                 `block ${block.index} fails ${list([...failing])} and the diagnostics ${set.join(', ')} wrote no diagnosis on it`,
               );

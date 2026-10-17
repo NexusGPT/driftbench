@@ -263,7 +263,29 @@ function outcomeItems(): BankItem[] {
             undefined,
             services,
           );
-          return judged(result, outcomeCase.want, `${JSON.stringify(value)} against ${JSON.stringify(gold)}`);
+          const verdict = judged(
+            result,
+            outcomeCase.want,
+            `${JSON.stringify(value)} against ${JSON.stringify(gold)}`,
+          );
+          if (!verdict.pass || outcomeCase.id !== 'same-referent-reformatted') return verdict;
+          // The twin: the same two writings against a tool that resolves the second to another record. The rung
+          // compares what the tool resolves, never the form of the two writings.
+          const strict: ToolSpec = {
+            ...spec,
+            resolve: (world2, written) =>
+              written === gold ? spec.resolve(world2, gold) : `elsewhere-${spec.resolved}`,
+          };
+          const twin = await ladder(product)(
+            { tool: spec.tool, field: spec.field, gold, value, input: { [spec.field]: value } },
+            undefined,
+            { replayer: replayer(w, strict, {}) },
+          );
+          return judged(
+            twin,
+            { outcome: 'fail', rung: 'rung1_outcome' },
+            `${JSON.stringify(value)} against ${JSON.stringify(gold)}, a tool that resolves them to two records`,
+          );
         },
       });
     }
@@ -819,7 +841,7 @@ function recomputeItems(): BankItem[] {
             formulaCase.want,
             `${JSON.stringify(produced)} against ${formulaCase.expected}`,
           );
-          if (!verdict.pass || variant === 'large') return verdict;
+          if (!verdict.pass) return verdict;
           // The twin: a formula equal to the gold on the given inputs and on any input set outside 0.5 to 1.5 times
           // them, and different inside: only the documented draws of the changed inputs tell it apart.
           const roots = [c, 2 * c - 3, 5 * c - 3, 11 * c - 3].map((r) => `(C2-(${r}))`).join('*');
@@ -975,13 +997,17 @@ function stateDiffItems(): BankItem[] {
           if (!verdict.pass) return verdict;
           // The twin: the observed diff expected with a leading ./ on every path is the same diff: paths compare
           // with forward slashes and no leading ./ (block-contracts.md, State diff).
+          // An empty run diff (a missing file) takes the expected changes as the observed diff of the twin.
+          const sets = ['created', 'changed', 'deleted'] as const;
+          const empty = sets.every((set) => (diff[set] ?? []).length === 0);
+          const seen = empty ? { created: [], changed: [], deleted: [], ...expected } : diff;
           const dotted = Object.fromEntries(
-            (['created', 'changed', 'deleted'] as const)
-              .filter((set) => (diff[set] ?? []).length > 0)
-              .map((set) => [set, (diff[set] ?? []).map((path: string) => `./${path}`)]),
+            sets
+              .filter((set) => (seen[set] ?? []).length > 0)
+              .map((set) => [set, (seen[set] ?? []).map((path: string) => `./${path}`)]),
           );
           const twin = await ladder(product)(
-            { field: 'workspace', gold: dotted, value: diff, stateDiff: { diff, expected: dotted } },
+            { field: 'workspace', gold: dotted, value: seen, stateDiff: { diff: seen, expected: dotted } },
             undefined,
             {},
           );

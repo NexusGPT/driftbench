@@ -124,8 +124,20 @@ async function play(
     log,
     ...(options.capabilities ? { capabilities: options.capabilities } : {}),
   });
-  const rec = await run(ctx.product, sc.raw, adapter, { mode: options.mode ?? 'F' });
+  const rec = await run(ctx.product, writtenChildrenFirst(sc.raw), adapter, { mode: options.mode ?? 'F' });
   return { rec, log };
+}
+
+/**
+ * A spec whose parent links all point to earlier blocks is written children first: the runner orders the forest
+ * whatever the written order (block-contracts.md, The forest), so a runner that only looks back cannot pass.
+ */
+function writtenChildrenFirst(raw: RawSpec): RawSpec {
+  const ids = raw.blocks.map((block) => (block as { id?: string }).id);
+  const parents = raw.blocks.map((block) => (block as { parent?: string }).parent);
+  if (parents.every((parent) => parent === undefined)) return raw;
+  const backward = parents.every((parent, index) => parent === undefined || ids.indexOf(parent) < index);
+  return backward ? { ...raw, blocks: [...raw.blocks].reverse() } : raw;
 }
 
 const verdictOf = (block: BlockRecord | undefined, id: string) => block?.verdicts.find((v) => v.id === id);

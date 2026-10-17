@@ -706,7 +706,18 @@ function chainItems(): BankItem[] {
             };
             const plans = [chain, other];
             const change: Change = { kind: 'tool', id: tool, part: 'input' };
-            return compare(radiusOf(product, seed, plans, change, [mode]), plans, change, mode);
+            const first = compare(radiusOf(product, seed, plans, change, [mode]), plans, change, mode);
+            if (!first.pass || order !== 'in-order') return first;
+            // The twin: the same chain written children first. Descendants are in the radius wherever the YAML
+            // writes them, so a radius that only walks forward from the changed block is not enough.
+            const back = [...order0].reverse();
+            const reversed: SpecPlan = {
+              ...chain,
+              blocks: back.map((i) => blocks[i] as BlockPlan),
+              parents: back.map((i) => (i === 0 ? -1 : back.indexOf(i - 1))),
+            };
+            const twin = [reversed, other];
+            return compare(radiusOf(product, seed, twin, change, [mode]), twin, change, mode);
           },
         });
       }
