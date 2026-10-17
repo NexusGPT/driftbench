@@ -356,6 +356,22 @@ The `scanPii` input is a reply of one unbroken run of the characters an email lo
 
 The budget is a property of the capability, not of one machine: it compares the product with its own time on the base input, so a slow runner moves both sides.
 
+Two older item groups state a fixed CPU limit in milliseconds instead of a growth factor. Each limit is the budget of one validator rule. It is not a statement of the product reference.
+
+| Capability | Input | CPU limit (best of 3) |
+|---|---|---|
+| `radius sections init` | a prompt of 50, 100 or 200 sections | 1500 ms |
+| `radius sections check` | a prompt of 50, 100 or 200 sections | 1500 ms |
+| `radius sections reanchor` | a prompt of 50, 100 or 200 sections | 3000 ms |
+| `radiusOf` | a suite of 1000 blocks | 400 ms |
+| `radiusOf` | a suite of 2500 blocks | 1000 ms |
+| `radiusOf` | a suite of 5000 blocks | 2000 ms |
+
+* The section items run on 50, 100 and 200 sections. The limit is the same on each size. The item at 200 sections is the one the stated limit names.
+* Each section command must also exit 0 on an unchanged prompt, and `init` must write a registry that holds every section.
+* The `radiusOf` items run in mode F and in mode T. Each runs a change to a tool input, a tool result, a stage and a criterion.
+* Each `radiusOf` item must also return exactly the documented radius, so a product that skips the work does not pass.
+
 ## Measurement cache during system sweeps
 
 A system sweep can invoke the statistics validator repeatedly with the same code and seed. Within that system command, these statistics sub-runs use a measurement cache keyed by the latest commit touching `packages/stats`, the statistics validator's source tree, the seed, the repository root and the full-run mode. Every system item still runs on every requested seed. Only an identical statistics sub-run can reuse its measured result.
