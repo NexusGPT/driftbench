@@ -269,6 +269,15 @@ The manifest records each changed region, its old and new offsets, the matched e
 Supported anchors are dimension values, phrases, and `states`, `path`, `recovery`, `uses_tool` and
 `reply_language` relations. Changed unsupported entries select the whole suite.
 
+`--map` also accepts an estate map from `estate scan`. The full map must pass schema and hash
+validation. `--source` names an atom's `provenance.file`, for example `CLAUDE.md`. Each quote must
+still occur at its recorded line span and have one exact occurrence in the old prompt. Approved
+atoms map to `kind: prompt`, with the atom id. Identical, nested or partially overlapping quote
+spans form one union anchor carrying every atom id in that group. This can select extra tests,
+but never extends an anchor to unquoted text on the same line. A changed group containing an
+unapproved atom selects everything; stale or ambiguous evidence also selects everything.
+All other diff and carry checks below still apply. Other source files are assumed unchanged.
+
 The diff normalizes CRLF and CR to LF, and Unicode to NFC. Offsets count UTF-16 code units in that
 normalized text. Every other whitespace character is retained and follows the same rule as other edits.
 Evidence quotes may match source whitespace runs so an extracted quote can span indentation. A
@@ -534,3 +543,7 @@ Snapshots hold raw values read from the agent's systems. They can hold personal 
 On Acme, a full mode T run of the planted fault `x5-drops-coverage-check` fails 86 blocks. A block rerun with the right manifest fails the same 86 blocks, and every one was sent. With the recap manifest, which does not name this fault, the failing blocks stay unsent, so the check can fail. A fault planted in an offer price, outside the coverage check radius, is found by the audit. `packages/cli/test/radius-blocks-acme.test.ts` runs these cases with no model call.
 
 A block rerun needs no new assumption about the agent beyond the one every radius makes, and one more: in mode T a block depends only on its Given, which the spec writes. [When it is sound](#when-it-is-sound) lists the rest.
+
+## Parent blocks
+
+A block that declares `parent` depends on that parent's recorded end state. A change that reaches a parent also reaches every descendant, in F, T and P, regardless of authored order. Explicit forest roots remain independent. Parent-linked specs conservatively run whole when partial block carry or input reconstruction would be needed. See [parent blocks](given-when-then.md#parent-blocks).
