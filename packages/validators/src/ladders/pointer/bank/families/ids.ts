@@ -4,9 +4,10 @@ import { type Block, compose } from '../../kit/compose';
 import { build, byId, liveByText, liveOf, scanOk } from '../../kit/estate';
 import { perfect } from '../../kit/labellers';
 import { norm } from '../../kit/norm';
+import { requireSourceWitness } from '../../kit/positive';
 import { headingText, Prose, rewordWords } from '../../kit/words';
 import { listOf, para } from '../../kit/world';
-import type { LedgerEntry, LedgerView, SourceFile } from '../../sut/port';
+import type { LedgerEntry, LedgerView, ScanResult, SourceFile } from '../../sut/port';
 import { fail, type ItemContext, type Outcome, pass, type Run } from '../types';
 
 const prose = (ctx: ItemContext) => new Prose(ctx.seed, ctx.id);
@@ -17,7 +18,9 @@ async function fresh(
   files: SourceFile[],
   extra: { location?: { parent: string; name: string } } = {},
 ) {
-  return scanOk(ctx.sut, { files, labeler, ...extra });
+  const result = await scanOk(ctx.sut, { files, labeler, ...extra });
+  requireSourceWitness(result, files);
+  return result;
 }
 
 const ordered = (ledger: LedgerView, path?: string): LedgerEntry[] =>
@@ -43,6 +46,8 @@ async function sameFingerprints(
   ]);
   const ea = ordered(ra.ledger);
   const eb = ordered(rb.ledger);
+  if (ea.length !== docA.units.length || eb.length !== docB.units.length)
+    return fail('positive witness: a variant omitted planted units');
   if (ea.length !== eb.length) return fail(`${ea.length} units in one variant, ${eb.length} in the other`);
   for (const [i, x] of ea.entries()) {
     const y = eb[i] as LedgerEntry;
@@ -94,6 +99,8 @@ export const idsRuns: Record<string, Run> = {
     ]);
     const ea = ordered(ra.ledger);
     const eb = ordered(rb.ledger);
+    if (ea.length !== sentences.length || eb.length !== sentences.length)
+      return fail('positive witness: whitespace variants omitted planted sentences');
     if (ea.length !== eb.length)
       return fail(`${ea.length} units against ${eb.length} after white space noise`);
     for (const [i, x] of ea.entries()) {
@@ -372,7 +379,8 @@ export const idsRuns: Record<string, Run> = {
           return fail(
             `a child scan failed: ${out.output && !out.output.ok ? out.output.error : out.stderr.slice(0, 200)}`,
           );
-        const res = out.output.result as { ok: boolean; ledger?: { raw: string }; error?: string };
+        const res = out.output.result as ScanResult;
+        requireSourceWitness(res, files);
         if (!res.ok || !res.ledger) return fail(`a child scan failed: ${res.error ?? 'no ledger'}`);
         seen.push(res.ledger.raw);
       } finally {
@@ -569,8 +577,10 @@ export const idsRuns: Record<string, Run> = {
   'ledger-sorted-keys': async (ctx) => {
     const w = worldOf(prose(ctx), { files: 2, perFile: 6 });
     const sets = `${DEFAULT_YAML}\n${SECOND_SET}`;
-    const raw = (await scanOk(ctx.sut, { files: build(filesOf(w)).files, labeler, labelsYaml: sets })).ledger
-      .raw;
+    const files = build(filesOf(w)).files;
+    const result = await scanOk(ctx.sut, { files, labeler, labelsYaml: sets });
+    requireSourceWitness(result, files);
+    const raw = result.ledger.raw;
     const bad = unsortedPath(JSON.parse(raw), '$');
     return bad ? fail(`the keys of ${bad} are not sorted`) : pass('sorted at every depth');
   },

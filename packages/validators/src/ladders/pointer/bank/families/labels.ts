@@ -14,6 +14,7 @@ import {
 } from '../../kit/labellers';
 import { squash } from '../../kit/norm';
 import { show } from '../../kit/oracle';
+import { requireSourceWitness } from '../../kit/positive';
 import { buildScript, filesOfSegments } from '../../kit/segments';
 import {
   FIVE_YAML,
@@ -261,10 +262,13 @@ export const labelsRuns: Record<string, Run> = {
     return pass('true text shown, labels follow it');
   },
   'none-labeller': async (ctx) => {
+    const texts = distinctSentences(prose(ctx), 20);
     const res = await scanOk(ctx.sut, {
-      files: docOf(distinctSentences(prose(ctx), 20)),
+      files: docOf(texts),
       labeler: constant('none'),
     });
+    if (!texts.every((text) => label(res.ledger, text) === 'none'))
+      return fail('positive witness: each planted sentence must retain its none label');
     if (res.atoms.length !== 0) return fail(`${res.atoms.length} atoms from a labeller that said none`);
     const bad = res.diagnostics.filter((d) => d.code === 'unlabeled' || /fail/.test(d.code));
     return bad.length === 0
@@ -457,14 +461,21 @@ export const labelsRuns: Record<string, Run> = {
       - name: plain
         description: A plain unit.
 `;
+    const files = docOf(distinctSentences(prose(ctx), 6));
+    const controlTransport = fakeTransport();
+    const control = await modelScan(ctx, files, 'haiku', controlTransport, { labelsYaml: RULES_YAML });
+    requireSourceWitness(control, files);
+    if (controlTransport.count === 0) return fail('positive witness: no request for the control set');
     const fake = fakeTransport();
-    const res = await modelScan(ctx, docOf(distinctSentences(prose(ctx), 6)), 'haiku', fake, {
+    const res = await modelScan(ctx, files, 'haiku', fake, {
       labelsYaml: yaml,
     });
     if (!res.ok)
       return /voice/.test(res.error ?? '')
         ? pass('refused, naming the label')
         : fail(`the set was refused without naming the label: ${res.error}`);
+    requireSourceWitness(res, files);
+    if (fake.count === 0) return fail('positive witness: no request for the valid label set');
     const text = fake.calls.map(bodyText).join('\n');
     const shown = ['one', 'two', 'three', 'four', 'five'].filter((n) =>
       text.includes(`Example ${n} is here.`),
@@ -625,6 +636,8 @@ export const labelsRuns: Record<string, Run> = {
   'carry-forward-unchanged-no-calls': async (ctx) => {
     const texts = distinctSentences(prose(ctx), 30);
     const first = await scanOk(ctx.sut, { files: docOf(texts), labeler: perfect() });
+    if (!texts.every((text) => label(first.ledger, text) === truthLabel(text)))
+      return fail('positive witness: the first scan omitted planted labels');
     const labeler = recording(perfect());
     const second = await scanOk(ctx.sut, { files: docOf(texts), previousLedger: first.ledger.raw, labeler });
     if (labeler.calls.length !== 0) return fail(`${labeler.calls.length} labeller calls on unchanged files`);

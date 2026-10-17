@@ -260,6 +260,7 @@ export async function runScaleOp(job: ScaleOp, sut: PointerSut): Promise<ScaleOu
         out.live.push(ledger2.entries.filter((e) => e.status === 'live').length);
         out.slims.push(slim(ledger2));
         out.extra = {
+          expectedLive: out.units + job.spec.files,
           edits: estate.edits,
           sameBytes: ledger1.raw === ledger2.raw,
           eventCounts: b.value.eventCounts,
@@ -283,7 +284,10 @@ export async function runScaleOp(job: ScaleOp, sut: PointerSut): Promise<ScaleOu
         }),
       );
       out.ms.push(ms);
+      out.live.push(ledger1.entries.filter((entry) => entry.status === 'live').length);
+      out.live.push(value.ledger?.entries.filter((entry) => entry.status === 'live').length ?? 0);
       out.extra = {
+        expectedLive: out.units + job.spec.files,
         calls: closed.count,
         same: value.ok && value.ledger?.raw === ledger1.raw,
         error: value.error,

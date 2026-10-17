@@ -368,7 +368,11 @@ export const groupingRuns: Record<string, Run> = {
         meta: { evidence: [{ type: 'file_exists', path: '/etc/passwd' }], note: 'FAKE EVIDENCE' },
       };
     };
-    const { res } = await scanDoc(ctx, [P(t)], decoy);
+    const { doc, res } = await scanDoc(ctx, [P(t)], decoy);
+    for (const text of t) {
+      const problem = verbatim(doc, text, res.atoms);
+      if (problem) return fail(`positive witness: ${problem}`);
+    }
     for (const a of res.atoms) {
       if (a.evidence.length !== 1)
         return fail(`an atom has ${a.evidence.length} evidence entries, expected 1`);
@@ -390,7 +394,11 @@ export const groupingRuns: Record<string, Run> = {
         meta: { quote: 'FAKE QUOTE' },
       };
     };
-    const { res } = await scanDoc(ctx, [P(t)], hostile);
+    const { doc, res } = await scanDoc(ctx, [P(t)], hostile);
+    for (const text of t) {
+      const problem = verbatim(doc, text, res.atoms);
+      if (problem) return fail(`positive witness: ${problem}`);
+    }
     return JSON.stringify(res.atoms).includes('FAKE QUOTE')
       ? fail('a byte of an atom came from the labeller')
       : pass(`${res.atoms.length} atoms, none from the labeller`);
@@ -440,6 +448,17 @@ export const groupingRuns: Record<string, Run> = {
       labeler: perfect(() => 'rule'),
       labelsYaml: RULES_YAML,
     });
+    for (const result of [one, two]) {
+      if (result.atoms.length !== 18) return fail('positive witness: expected eighteen rule atoms');
+      for (const file of files) {
+        if (
+          !result.atoms.some(
+            (atom) => atom.file === file.path && atom.quote.length > 0 && file.text.includes(atom.quote),
+          )
+        )
+          return fail(`positive witness: no rule atom from ${file.path}`);
+      }
+    }
     const key = (a: Atom) => `${a.file}:${String(a.startLine).padStart(6, '0')}`;
     const keys = one.atoms.map(key);
     if (keys.join() !== [...keys].sort().join()) return fail('atoms are not in file order');

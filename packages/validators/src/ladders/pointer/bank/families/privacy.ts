@@ -6,6 +6,7 @@ import { type ChildRun, runChild } from '../../kit/child-run';
 import { compose } from '../../kit/compose';
 import { build, liveOf } from '../../kit/estate';
 import { perfect } from '../../kit/labellers';
+import { requireSourceWitness } from '../../kit/positive';
 import { PROBE_YAML, RULES_YAML } from '../../kit/sets';
 import { fakeTransport } from '../../kit/transport';
 import { headingText, Prose } from '../../kit/words';
@@ -35,7 +36,13 @@ function privateEstate(
   return { files: [{ path: 'private/notes.md', text: doc.text }, ...extra], secrets };
 }
 
-type Seen = { run: ChildRun; result: ScanResult | undefined; bodies: string[]; all: string };
+type Seen = {
+  run: ChildRun;
+  result: ScanResult | undefined;
+  bodies: string[];
+  all: string;
+  files: SourceFile[];
+};
 
 async function go(job: Job, options: Parameters<typeof runChild>[1] = {}): Promise<Seen> {
   const run = await runChild(job, options);
@@ -57,7 +64,7 @@ async function go(job: Job, options: Parameters<typeof runChild>[1] = {}): Promi
   };
   for (const d of [run.sandbox.home, run.sandbox.tmp, run.sandbox.cwd]) read(d);
   const all = [run.stdout, run.stderr, ...files].join('\n');
-  return { run, result, bodies, all };
+  return { run, result, bodies, all, files: job.kind === 'scan' ? job.files : [] };
 }
 
 const mustRun = (seen: Seen): ScanResult => {
@@ -65,6 +72,7 @@ const mustRun = (seen: Seen): ScanResult => {
     throw new Error(
       `the child run failed: ${seen.run.output && !seen.run.output.ok ? seen.run.output.error : seen.run.stderr.slice(0, 300)}`,
     );
+  requireSourceWitness(seen.result, seen.files);
   return seen.result;
 };
 
@@ -153,7 +161,7 @@ export const privacyRuns: Record<string, Run> = {
     for (const arm of ['haiku', 'jev'] as const) {
       const seen = await go(modelJob(files, arm, { fake: { echoHeaders: false } }), { homeFiles });
       const where = await withClean(seen, () => {
-        const r = seen.result;
+        const r = mustRun(seen);
         const text = `${JSON.stringify(r ?? {})}\n${seen.run.stdout}\n${seen.run.stderr}\n${seen.bodies.join('\n')}`;
         return text.includes(key) ? `the ${arm} run exposed the key` : undefined;
       });
@@ -167,7 +175,10 @@ export const privacyRuns: Record<string, Run> = {
     const env = { ANTHROPIC_API_KEY: value, JEV_API_KEY: value, NEXUS_API_KEY: value };
     for (const fake of [{}, { badAnswers: true }]) {
       const seen = await go(modelJob(files, 'haiku', { fake }), { env });
-      const text = await withClean(seen, () => `${JSON.stringify(seen.result ?? {})}\n${seen.all}`);
+      const text = await withClean(seen, () => {
+        if (!('badAnswers' in fake)) mustRun(seen);
+        return `${JSON.stringify(seen.result ?? {})}\n${seen.all}`;
+      });
       if (text.includes(value)) return fail('an environment secret was printed or recorded');
     }
     return pass('environment secrets stay out of outputs');
@@ -238,6 +249,7 @@ net.Socket.prototype.connect = function (...args) { fs.appendFileSync(log, 'conn
     return withClean(seen, () => {
       const out = seen.run.output;
       if (!out?.ok) return fail(`the replay child failed: ${seen.run.stderr.slice(0, 200)}`);
+      mustRun(seen);
       if ((out.fakeCalls ?? 0) !== 0) return fail(`${out.fakeCalls} transport calls in a private replay`);
       return pass('no transport call, no connection');
     });
@@ -250,6 +262,14 @@ net.Socket.prototype.connect = function (...args) { fs.appendFileSync(log, 'conn
       labeler: perfect(),
     });
     if (!rec.ok || !rec.ledger) return fail(`the scan failed: ${rec.error}`);
+    for (const text of texts) {
+      if (
+        !liveOf(rec.ledger).some(
+          (entry) => entry.quote === text && entry.fp.length > 0 && entry.ctxFp.length > 0,
+        )
+      )
+        return fail('positive witness: no fingerprints for a planted sentence');
+    }
     const grams = new Set<string>();
     for (const t of texts) {
       const s = t.toLowerCase();
@@ -360,7 +380,10 @@ net.Socket.prototype.connect = function (...args) { fs.appendFileSync(log, 'conn
     const { files } = privateEstate(ctx);
     for (const fake of [{}, { badAnswers: true }]) {
       const seen = await go(modelJob(files, 'haiku', { fake }));
-      const left = await withClean(seen, () => seen.run.written.filter((p) => p.startsWith('tmp/')));
+      const left = await withClean(seen, () => {
+        if (!('badAnswers' in fake)) mustRun(seen);
+        return seen.run.written.filter((p) => p.startsWith('tmp/'));
+      });
       if (left.length > 0)
         return fail(`${left.length} files remain in the temporary folder: ${left.slice(0, 3).join(', ')}`);
     }
@@ -368,6 +391,9 @@ net.Socket.prototype.connect = function (...args) { fs.appendFileSync(log, 'conn
   },
   'crash-leaves-no-secret': async (ctx) => {
     const { files, secrets } = privateEstate(ctx);
+    // A crash may legitimately produce no ledger; pair it with a successful scan of the same estate.
+    const healthy = await go(modelJob(files, 'haiku'));
+    await withClean(healthy, () => mustRun(healthy));
     const seen = await go(modelJob(files, 'haiku', { fake: { throwWithRequest: true } }));
     return withClean(seen, () => {
       const out = seen.run.output;
@@ -385,6 +411,8 @@ net.Socket.prototype.connect = function (...args) { fs.appendFileSync(log, 'conn
   },
   'error-messages-quote-no-unit-text': async (ctx) => {
     const { files, secrets } = privateEstate(ctx);
+    const healthy = await go(modelJob(files, 'haiku'));
+    await withClean(healthy, () => mustRun(healthy));
     const seen = await go(modelJob(files, 'haiku', { fake: { badAnswers: true } }));
     return withClean(seen, () => {
       const out = seen.run.output;
@@ -408,6 +436,7 @@ net.Socket.prototype.connect = function (...args) { fs.appendFileSync(log, 'conn
       cassette: { mode: 'record' },
     });
     if (!rec.ok || !rec.ledger) return fail(`the record run failed: ${rec.error}`);
+    requireSourceWitness(rec, files);
     const again = await ctx.sut.scan({
       files: frozen,
       previousLedger: rec.ledger.raw,
@@ -415,6 +444,7 @@ net.Socket.prototype.connect = function (...args) { fs.appendFileSync(log, 'conn
       cassette: { mode: 'replay', text: rec.cassette },
     });
     if (!again.ok) return fail(`the replay failed: ${again.error}`);
+    requireSourceWitness(again, files);
     return JSON.stringify(files) === copy
       ? pass('files as they were')
       : fail('a scan changed the text of a private file');

@@ -3,6 +3,7 @@ import { runChild } from '../../kit/child-run';
 import { compose } from '../../kit/compose';
 import { loadFixture, perturb } from '../../kit/fixture';
 import { show } from '../../kit/oracle';
+import { requireSourceWitness } from '../../kit/positive';
 import { PROBE_YAML, RULES_YAML, TWO_SETS_YAML } from '../../kit/sets';
 import { type FakeTransport, fakeTransport } from '../../kit/transport';
 import { headingText, Prose, rewordWords } from '../../kit/words';
@@ -33,12 +34,16 @@ async function record(
   extra: Partial<ScanRequest> = {},
   ctx?: ItemContext,
 ): Promise<ScanResult> {
-  return (ctx as ItemContext).sut.scan({
+  const result = await (ctx as ItemContext).sut.scan({
     files,
     model: { arm, transport: fake },
     ...extra,
     cassette: { mode: 'record' },
   });
+  requireSourceWitness(result, files);
+  if (fake.count === 0 || !result.cassette?.trim())
+    throw new Error('positive witness: recording produced no request or cassette entry');
+  return result;
 }
 
 async function replay(
@@ -56,6 +61,7 @@ async function replay(
     cassette: { mode: 'replay', text: cassette },
     ...extra,
   });
+  if (res.ok) requireSourceWitness(res, files);
   return { res, fake };
 }
 
@@ -249,6 +255,8 @@ export const replayRuns: Record<string, Run> = {
   },
   'miss-fails-without-network': async (ctx) => {
     const { files } = threeFiles(ctx);
+    // A reader that always fails must first demonstrate a successful recording.
+    await record(files, 'haiku', fakeTransport(), {}, ctx);
     const { res, fake } = await replay(ctx, files, 'haiku', '');
     if (res.ok) return fail('a replay with an empty cassette succeeded');
     return fake.count === 0 ? pass('failed, no call') : fail(`${fake.count} transport calls on a miss`);
@@ -691,6 +699,7 @@ export const replayRuns: Record<string, Run> = {
           return fail(
             `a child replay failed: ${out.output && !out.output.ok ? out.output.error : (r?.error ?? out.stderr.slice(0, 200))}`,
           );
+        requireSourceWitness(r, files);
         if (r.ledger?.raw !== ledger)
           return fail(`the replay under ${JSON.stringify(e.env)} differs from the recording`);
       } finally {

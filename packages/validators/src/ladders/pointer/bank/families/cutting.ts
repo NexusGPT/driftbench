@@ -644,6 +644,8 @@ export const cuttingRuns: Record<string, Run> = {
       if (got.units.length !== 0) return fail(`${show(text)} gave ${got.units.length} units`);
       if (typeof got.cutDigest !== 'string') return fail(`${show(text)} gave no digest`);
     }
+    const positive = await cutCase(ctx, [sentenceBlock(prose(ctx).many(2))]);
+    if (!positive.pass) return fail(`positive witness: ${positive.detail}`);
     return pass('no unit, a digest each');
   },
   'coverage-every-prose-character': async (ctx) => {
@@ -672,6 +674,10 @@ export const cuttingRuns: Record<string, Run> = {
     const doc = compose(mixedBlocks(prose(ctx), { blocks: 10 }));
     const a = await digestOf(ctx, doc.text);
     const b = await digestOf(ctx, doc.text);
+    for (const got of [a.cut, b.cut]) {
+      const problem = compareCut(doc.text, got, doc.units);
+      if (problem) return fail(`positive witness: ${problem}`);
+    }
     return a.digest !== '' && a.digest === b.digest
       ? pass('equal digests')
       : fail('two cuts of one text gave different or empty digests');
@@ -723,17 +729,23 @@ export const cuttingRuns: Record<string, Run> = {
     );
     const a = await digestOf(ctx, plain.text);
     const b = await digestOf(ctx, wrapped.text);
+    const problem =
+      compareCut(plain.text, a.cut, plain.units) ?? compareCut(wrapped.text, b.cut, wrapped.units);
+    if (problem) return fail(`positive witness: ${problem}`);
     return a.digest === b.digest
       ? pass('equal digests')
       : fail('a rewrap, a bullet swap and CRLF changed the digest');
   },
   'cut-pure': async (ctx) => {
     const p = prose(ctx);
-    const a = compose(mixedBlocks(p, { blocks: 12, front: true })).text;
+    const doc = compose(mixedBlocks(p, { blocks: 12, front: true }));
+    const a = doc.text;
     const b = compose(mixedBlocks(p, { blocks: 12 })).text;
     const first = await ctx.sut.cut({ path: 'a.md', text: a });
     await ctx.sut.cut({ path: 'b.md', text: b });
     const again = await ctx.sut.cut({ path: 'a.md', text: a });
+    const problem = compareCut(a, first, doc.units) ?? compareCut(a, again, doc.units);
+    if (problem) return fail(`positive witness: ${problem}`);
     return JSON.stringify(first) === JSON.stringify(again)
       ? pass('equal')
       : fail('cutting B in between changed the cut of A');

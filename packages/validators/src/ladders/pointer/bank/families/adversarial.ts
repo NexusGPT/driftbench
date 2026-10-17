@@ -562,6 +562,11 @@ export const adversarialRuns: Record<string, Run> = {
       labeler: perfect(),
       labelsYaml: yaml,
     });
+    if (
+      liveOf(res.ledger).length !== t.length ||
+      !t.every((text) => liveOf(res.ledger).some((entry) => entry.quote === text))
+    )
+      return fail('positive witness: missing planted units with prototype-like labels');
     const names = new Set(['constructor', 'tostring', 'hasownproperty']);
     const labelled = liveOf(res.ledger).map((e) => e.labels.odd?.label);
     if (labelled.some((l) => !l || !names.has(l)))

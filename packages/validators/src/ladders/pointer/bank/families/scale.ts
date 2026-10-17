@@ -89,6 +89,12 @@ function rescanOk(kind: 'reword' | 'move' | 'rewrite' | 'none', max?: { calls?: 
     const [s1, s2] = out.slims;
     const edits = (out.extra.edits ?? []) as Array<{ kind: string; from: string; to?: string }>;
     if (!s1 || !s2) return 'the child gave no ledgers';
+    if (
+      !(Number(out.extra.expectedLive) > 0) ||
+      out.live[0] !== out.extra.expectedLive ||
+      out.live[1] !== out.extra.expectedLive
+    )
+      return 'positive witness: both scans must retain all planted live units';
     const byQuote1 = new Map(s1.map(([id, , q]) => [q, id]));
     const byId2 = new Map(s2.map(([id, st, q]) => [id, { st, q }]));
     const live2 = s2.filter(([, st]) => st === 'live');
@@ -127,10 +133,13 @@ const growth = async (
   ctx: ItemContext,
   op: (spec: ScaleSpec) => ScaleOp,
   pick: (out: ScaleOut) => number,
+  verify: (out: ScaleOut) => string | undefined,
 ): Promise<Outcome> => {
   const a = await run(ctx, op(X10));
   const b = await run(ctx, op(X100));
   if (!a.out || !b.out) return fail(a.error ?? b.error ?? 'no result');
+  const wrong = verify(a.out) ?? verify(b.out);
+  if (wrong) return fail(`positive witness: ${wrong}`);
   const t10 = pick(a.out);
   const t100 = pick(b.out);
   if (t10 < 300) return pass(`the 10x run took ${Math.round(t10)} ms: too fast to compare`);
@@ -193,10 +202,17 @@ export const scaleRuns: Record<string, Run> = {
     viaChild(
       ctx,
       { op: 'replay', spec: X100 },
-      (o) =>
-        o.extra.calls === 0 && o.extra.same === true
+      (o) => {
+        if (
+          o.live[0] !== o.extra.expectedLive ||
+          o.live[1] !== o.extra.expectedLive ||
+          Number(o.extra.entries) <= 0
+        )
+          return 'positive witness: record and replay must retain the planted units and a cassette';
+        return o.extra.calls === 0 && o.extra.same === true
           ? undefined
-          : `replay: ${String(o.extra.calls)} calls, same ledger ${String(o.extra.same)} ${String(o.extra.error ?? '')}`,
+          : `replay: ${String(o.extra.calls)} calls, same ledger ${String(o.extra.same)} ${String(o.extra.error ?? '')}`;
+      },
       { ms: 40_000 },
     ),
   'long-paragraph': (ctx) =>
@@ -238,11 +254,13 @@ export const scaleRuns: Record<string, Run> = {
       ctx,
       (spec) => ({ op: 'cut', spec }),
       (o) => o.ms[0] ?? 0,
+      cutOk,
     ),
   'growth-rescan': (ctx) =>
     growth(
       ctx,
       (spec) => rescan(editSpec(spec, 'reword', 0.01)),
       (o) => o.ms[1] ?? 0,
+      rescanOk('reword'),
     ),
 };
