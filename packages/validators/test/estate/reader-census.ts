@@ -150,6 +150,13 @@ export function blockOptionReads(text: string, fileName = 'check.ts'): string[] 
     return false;
   };
   const functionOf = (expression: ts.Expression): ts.SignatureDeclaration | undefined => {
+    if (
+      ts.isParenthesizedExpression(expression) ||
+      ts.isAsExpression(expression) ||
+      ts.isSatisfiesExpression(expression) ||
+      ts.isNonNullExpression(expression)
+    )
+      return functionOf(expression.expression);
     if (ts.isArrowFunction(expression) || ts.isFunctionExpression(expression)) return expression;
     if (!ts.isIdentifier(expression)) return undefined;
     const declaration = symbolOf(expression)?.valueDeclaration;
@@ -181,13 +188,53 @@ export function blockOptionReads(text: string, fileName = 'check.ts'): string[] 
     if (ts.isArrowFunction(fn) && !ts.isBlock(fn.body)) root(functionOf(fn.body));
     else if ('body' in fn && fn.body) visitReturns(fn.body);
   };
+  // Every way a function reaches the check registry roots its options parameter: a declaration typed as a custom
+  // check, a function value in an object literal typed to hold custom checks (the registry), a function (or a
+  // reference to one) given to a registering call, a `satisfies` or `as` custom check, a method of such an object,
+  // and the function a factory typed to return one hands back.
+  const REGISTERING_CALL = /^(?:register\w*|createCustomCheck|defineCheck)$/i;
+  const rootValue = (value: ts.Expression) => root(functionOf(value));
+  const rootObject = (object: ts.ObjectLiteralExpression) => {
+    for (const property of object.properties) {
+      if (ts.isPropertyAssignment(property)) rootValue(property.initializer);
+      else if (ts.isShorthandPropertyAssignment(property)) {
+        // The name stands for the value in scope, not for the property the literal makes.
+        const declaration = checker.getShorthandAssignmentValueSymbol(property)?.valueDeclaration;
+        if (declaration && ts.isFunctionDeclaration(declaration)) root(declaration);
+        else if (declaration && ts.isVariableDeclaration(declaration) && declaration.initializer)
+          rootValue(declaration.initializer);
+      } else if (ts.isMethodDeclaration(property)) root(property);
+    }
+  };
+  const unwrap = (expression: ts.Expression): ts.Expression =>
+    ts.isParenthesizedExpression(expression) ? unwrap(expression.expression) : expression;
   const visitRoots = (node: ts.Node) => {
     if (ts.isVariableDeclaration(node) && node.initializer) {
-      const fn = functionOf(node.initializer);
-      if (isCustomCheckType(node.type)) root(fn);
-      else if (fn && isCustomCheckType(fn.type)) returned(fn);
+      const initializer = unwrap(node.initializer);
+      const fn = functionOf(initializer);
+      if (isCustomCheckType(node.type)) {
+        root(fn);
+        if (ts.isObjectLiteralExpression(initializer)) rootObject(initializer);
+      } else if (fn && isCustomCheckType(fn.type)) returned(fn);
     }
     if (ts.isFunctionDeclaration(node) && isCustomCheckType(node.type)) returned(node);
+    if ((ts.isSatisfiesExpression(node) || ts.isAsExpression(node)) && isCustomCheckType(node.type)) {
+      const inner = unwrap(node.expression);
+      root(functionOf(inner));
+      if (ts.isObjectLiteralExpression(inner)) rootObject(inner);
+    }
+    if (ts.isCallExpression(node)) {
+      const callee = ts.isIdentifier(node.expression)
+        ? node.expression.text
+        : ts.isPropertyAccessExpression(node.expression)
+          ? node.expression.name.text
+          : '';
+      if (REGISTERING_CALL.test(callee))
+        for (const argument of node.arguments) {
+          rootValue(argument);
+          if (ts.isObjectLiteralExpression(argument)) rootObject(argument);
+        }
+    }
     ts.forEachChild(node, visitRoots);
   };
   visitRoots(source);
@@ -221,6 +268,14 @@ export function blockOptionReads(text: string, fileName = 'check.ts'): string[] 
   }
 
   const lines = new Set<number>();
+  const receiverOf = (expression: ts.Expression): ts.Expression =>
+    ts.isParenthesizedExpression(expression) ||
+    ts.isAsExpression(expression) ||
+    ts.isSatisfiesExpression(expression) ||
+    ts.isNonNullExpression(expression)
+      ? receiverOf(expression.expression)
+      : expression;
+  const lineOf = (node: ts.Node) => source.getLineAndCharacterOfPosition(node.getStart(source)).line;
   const collect = (node: ts.Node) => {
     const read =
       (ts.isPropertyAccessExpression(node) && node.name.text === 'block') ||
@@ -228,10 +283,22 @@ export function blockOptionReads(text: string, fileName = 'check.ts'): string[] 
         ts.isStringLiteralLike(node.argumentExpression) &&
         node.argumentExpression.text === 'block');
     if (read) {
-      const receiver = (node as ts.PropertyAccessExpression | ts.ElementAccessExpression).expression;
+      const receiver = receiverOf(
+        (node as ts.PropertyAccessExpression | ts.ElementAccessExpression).expression,
+      );
+      const symbol = ts.isIdentifier(receiver) ? symbolOf(receiver) : undefined;
+      if (symbol && derived.has(symbol)) lines.add(lineOf(node));
+    }
+    // `const { block } = options`: the option read through a binding pattern.
+    if (ts.isVariableDeclaration(node) && ts.isObjectBindingPattern(node.name) && node.initializer) {
+      const receiver = receiverOf(node.initializer);
       const symbol = ts.isIdentifier(receiver) ? symbolOf(receiver) : undefined;
       if (symbol && derived.has(symbol))
-        lines.add(source.getLineAndCharacterOfPosition(node.getStart(source)).line);
+        for (const element of node.name.elements) {
+          const key = element.propertyName ?? element.name;
+          if ((ts.isIdentifier(key) || ts.isStringLiteralLike(key)) && key.text === 'block')
+            lines.add(lineOf(element));
+        }
     }
     ts.forEachChild(node, collect);
   };

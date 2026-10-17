@@ -150,4 +150,100 @@ describe('blockOptionReads finds the reads of a custom check block option by wha
     );
     expect(lines).toEqual(["const a = options['block'];", 'const b = options?.block;']);
   });
+
+  describe('roots a check from the way it reaches the registry, not from an annotation', () => {
+    const preamble = [
+      "import type { CustomCheckFunction } from './types';",
+      'declare function registerCheck(name: string, check: CustomCheckFunction): void;',
+      'declare const registry: { register(name: string, check: CustomCheckFunction): void };',
+    ].join('\n');
+    const reads = (body: string) => blockOptionReads(`${preamble}\n${body}`);
+
+    it('counts an inline entry of an object typed to hold custom checks, shorthand and method forms included', () => {
+      expect(
+        reads(
+          [
+            'function plain(ctx: unknown, options: any) { return options.block; }',
+            'const shared = (ctx: unknown, options: any) => options.block;',
+            'export const CHECKS: Readonly<Record<string, CustomCheckFunction>> = {',
+            '  inline: (ctx, options: any) => (options.block === 1 ? [] : []),',
+            '  plain,',
+            '  alias: shared,',
+            '  method(ctx, options: any) { return options.block; },',
+            '};',
+          ].join('\n'),
+        ),
+      ).toEqual([
+        'function plain(ctx: unknown, options: any) { return options.block; }',
+        'const shared = (ctx: unknown, options: any) => options.block;',
+        'inline: (ctx, options: any) => (options.block === 1 ? [] : []),',
+        'method(ctx, options: any) { return options.block; },',
+      ]);
+    });
+
+    it('counts a function given to a registering call: an arrow, a plain function, a method call', () => {
+      expect(
+        reads(
+          [
+            "registerCheck('a', (ctx, options: any) => (options.block === 1 ? [] : []));",
+            'function named(ctx: unknown, options: any) { return options.block; }',
+            "registry.register('b', named);",
+          ].join('\n'),
+        ),
+      ).toEqual([
+        "registerCheck('a', (ctx, options: any) => (options.block === 1 ? [] : []));",
+        'function named(ctx: unknown, options: any) { return options.block; }',
+      ]);
+    });
+
+    it('counts a function that satisfies or is cast to a custom check', () => {
+      expect(
+        reads(
+          [
+            'export const one = ((ctx, options: any) => options.block) satisfies CustomCheckFunction;',
+            'export const two = ((ctx: unknown, options: any) => options.block) as CustomCheckFunction;',
+            'export const REG = { three: (ctx, options: any) => options.block } satisfies Record<string, CustomCheckFunction>;',
+          ].join('\n'),
+        ),
+      ).toEqual(
+        [
+          'export const one = ((ctx, options: any) => options.block) satisfies CustomCheckFunction;',
+          'export const two = ((ctx: unknown, options: any) => options.block) as CustomCheckFunction;',
+        ].concat(
+          'export const REG = { three: (ctx, options: any) => options.block } satisfies Record<string, CustomCheckFunction>;',
+        ),
+      );
+    });
+
+    it('counts a read through a cast receiver and through a binding pattern', () => {
+      expect(
+        reads(
+          [
+            'export const cast: CustomCheckFunction = (ctx, options) => {',
+            '  const a = (options as { block?: number }).block;',
+            '  const { block } = options as { block?: number };',
+            '  const { block: renamed } = options as { block?: number };',
+            '  return [a, block, renamed].map(() => options.label);',
+            '};',
+          ].join('\n'),
+        ),
+      ).toEqual([
+        'const a = (options as { block?: number }).block;',
+        'const { block } = options as { block?: number };',
+        'const { block: renamed } = options as { block?: number };',
+      ]);
+    });
+
+    it('still ignores a function that never reaches the registry', () => {
+      expect(
+        reads(
+          [
+            'export const loose = (ctx: unknown, options: any) => options.block;',
+            'const filter = (entry: { block: number }) => entry.block;',
+            "registerCheck('x', (ctx, options: any) => options.label);",
+          ].join('\n'),
+        ),
+      ).toEqual([]);
+    });
+  });
 });
