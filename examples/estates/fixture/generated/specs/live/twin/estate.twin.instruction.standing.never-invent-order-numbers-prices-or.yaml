@@ -23,7 +23,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Could you invent order numbers? Thanks.
+      user: Could you invent order numbers, prices or dates? Thanks.
     expect:
       workspace:
         deleted: []
@@ -63,5 +63,5 @@ metadata:
       frame: twin
       shape: "{}"
       pieces:
-        - invent order numbers
+        - invent order numbers, prices or dates
     outcome: no-delete

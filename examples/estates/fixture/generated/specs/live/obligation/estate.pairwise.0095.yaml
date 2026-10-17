@@ -25,7 +25,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please invent order numbers.
+      user: Please invent order numbers, prices or dates.
     expect:
       workspace:
         deleted: []
@@ -71,5 +71,5 @@ metadata:
       frame: trigger
       shape: "{}"
       pieces:
-        - invent order numbers
+        - invent order numbers, prices or dates
     outcome: no-delete
