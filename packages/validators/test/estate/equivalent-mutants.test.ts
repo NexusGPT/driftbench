@@ -88,6 +88,9 @@ describe('agent mutants the rule follower cannot show (level 5)', { timeout: 300
 
   it('keeps failing the classes whose deletion shows and that no test catches', async () => {
     const results = await mutantFamily().evaluate(1);
+    // The bare deny rule is seen by the follower too. Its deny test was incomplete while the follower
+    // offered no tool list; with offered tools derived from the estate it runs and kills the deletion.
+    expect(results.get('mutant.agent.tool-deny-bare')).toEqual({ pass: true, detail: 'holds' });
     expect(results.get('mutant.agent.register-reply-length')?.detail).toMatch(
       /no atom of the class changes the follower's session on this seed \(1 of 1 not judged/,
     );
