@@ -116,7 +116,26 @@
       "hierarchicalBetaBinomial.two-trees": "very few trees give a very wide interval",
       "hierarchicalBetaBinomial.levels": "alpha 0.2, 0.1 and 0.01",
       "hierarchicalBetaBinomial.single-block-trees": "trees of one block (the repeats of a golden run once): the mean of the flags and a wide interval",
-      "hierarchicalBetaBinomial.order-and-duplicates": "the same trees in another order, or a tree repeated as separate entries, give one interval"
+      "hierarchicalBetaBinomial.order-and-duplicates": "the same trees in another order, or a tree repeated as separate entries, give one interval",
+      "sibling.normalSf-infinite": "scipy.stats.norm.sf at +-Infinity",
+      "sibling.normalCdf-far": "scipy.stats.norm.cdf far out",
+      "sibling.erfc-infinite": "math.erfc at +-Infinity and far out",
+      "sibling.chiSquareSf-infinite": "scipy.stats.chi2.sf at Infinity for several degrees of freedom",
+      "sibling.mean-no-overflow": "the mean of equal finite values is that value, and values that cancel give 0 (exact rational arithmetic)",
+      "sibling.betaQuantile-u-shaped": "scipy.special.betaincinv with a shape below 1",
+      "sibling.hillNumber-near-one": "the Hill number is continuous in q: near q = 1 it is exp(Shannon entropy) (to 1e-5 relative for |q - 1| up to 1e-6)",
+      "valid-odd.normalCdf": "limits of the normal distribution",
+      "valid-odd.normalQuantile": "scipy.stats.norm.ppf(0) and ppf(1)",
+      "valid-odd.logGamma": "scipy.special.gammaln at the poles is +Infinity",
+      "valid-odd.kolmogorovSf": "the Kolmogorov survival function at and beyond the ends",
+      "valid-odd.benjaminiHochberg": "no hypotheses: empty lists and no threshold (scipy.stats.false_discovery_control([]) is empty)",
+      "valid-odd.abundances": "no labels: no classes",
+      "valid-odd.betaQuantile": "the quantile at p = 0 and p = 1 is the end of the support",
+      "valid-odd.incompleteBeta": "I_0 = 0 and I_1 = 1",
+      "valid-odd.binomialCdf": "scipy.stats.binom.cdf below 0 and at or above n",
+      "valid-odd.mde": "a baseline of 0 has no detectable drop (effect null); a baseline of 1 does",
+      "valid-odd.hillNumber": "negative orders are defined: (sum 1 / p)^(1 / 2) at q = -1",
+      "valid-odd.wilson": "k = 0 and k = n are valid and give the closed form (exact decimals)"
     }
   },
   "zFor.levels": [
@@ -12560,6 +12579,448 @@
         "upper": 0.7929954256795128,
         "posteriorMean": 0.5911531777544311
       }
+    }
+  ],
+  "sibling.normalSf-infinite": [
+    {
+      "z": "Infinity",
+      "expected": 0.0
+    },
+    {
+      "z": "-Infinity",
+      "expected": 1.0
+    },
+    {
+      "z": 1e300,
+      "expected": 0.0
+    },
+    {
+      "z": -1e300,
+      "expected": 1.0
+    }
+  ],
+  "sibling.normalCdf-far": [
+    {
+      "z": 1e300,
+      "expected": 1.0
+    },
+    {
+      "z": -1e300,
+      "expected": 0.0
+    },
+    {
+      "z": 40.0,
+      "expected": 1.0
+    },
+    {
+      "z": -40.0,
+      "expected": 0.0
+    }
+  ],
+  "sibling.erfc-infinite": [
+    {
+      "x": "Infinity",
+      "expected": 0.0
+    },
+    {
+      "x": "-Infinity",
+      "expected": 2.0
+    },
+    {
+      "x": 1e300,
+      "expected": 0.0
+    },
+    {
+      "x": -1e300,
+      "expected": 2.0
+    }
+  ],
+  "sibling.chiSquareSf-infinite": [
+    {
+      "x": "Infinity",
+      "df": 1,
+      "expected": 0.0
+    },
+    {
+      "x": "Infinity",
+      "df": 2,
+      "expected": 0.0
+    },
+    {
+      "x": "Infinity",
+      "df": 5,
+      "expected": 0.0
+    },
+    {
+      "x": "Infinity",
+      "df": 50.5,
+      "expected": 0.0
+    },
+    {
+      "x": "Infinity",
+      "df": 1000,
+      "expected": 0.0
+    },
+    {
+      "x": 1e300,
+      "df": 3,
+      "expected": 0.0
+    }
+  ],
+  "sibling.mean-no-overflow": [
+    {
+      "values": [1e308, 1e308, 1e308],
+      "expected": 1e308
+    },
+    {
+      "values": [-1e308, -1e308, -1e308],
+      "expected": -1e308
+    },
+    {
+      "values": [1.7e308, 1.7e308],
+      "expected": 1.7e308
+    },
+    {
+      "values": [5e307, 5e307, 5e307, 5e307, 5e307, 5e307, 5e307],
+      "expected": 5e307
+    },
+    {
+      "values": [1.5e308, 1.5e308, 1.5e308, 1.5e308],
+      "expected": 1.5e308
+    },
+    {
+      "values": [9e307, 9e307, 9e307, 9e307, 9e307],
+      "expected": 9e307
+    },
+    {
+      "values": [1e308, 1e308, -1e308, -1e308],
+      "expected": 0.0
+    },
+    {
+      "values": [1.7e308, -1.7e308],
+      "expected": 0.0
+    }
+  ],
+  "sibling.betaQuantile-u-shaped": [
+    {
+      "p": 0.0001,
+      "a": 0.3,
+      "b": 0.3,
+      "expected": 3.3105115572702293e-13
+    },
+    {
+      "p": 1e-8,
+      "a": 0.5,
+      "b": 0.5,
+      "expected": 2.4674011002723397e-16
+    },
+    {
+      "p": 0.01,
+      "a": 0.2,
+      "b": 0.4,
+      "expected": 4.784346045256022e-10
+    },
+    {
+      "p": 0.5,
+      "a": 0.1,
+      "b": 0.1,
+      "expected": 0.5000000000000001
+    },
+    {
+      "p": 0.001,
+      "a": 0.5,
+      "b": 0.25,
+      "expected": 6.8751621839872326e-6
+    },
+    {
+      "p": 1e-5,
+      "a": 0.4,
+      "b": 0.4,
+      "expected": 1.1749440345909528e-12
+    },
+    {
+      "p": 0.99,
+      "a": 0.3,
+      "b": 0.3,
+      "expected": 0.9999984633979236
+    }
+  ],
+  "sibling.hillNumber-near-one": [
+    {
+      "counts": [40, 12, 7, 3, 3, 2, 2, 1, 1, 1],
+      "q": 1.000000000001,
+      "expected": 4.4544011349947175
+    },
+    {
+      "counts": [40, 12, 7, 3, 3, 2, 2, 1, 1, 1],
+      "q": 0.999999999999,
+      "expected": 4.4544011349947175
+    },
+    {
+      "counts": [40, 12, 7, 3, 3, 2, 2, 1, 1, 1],
+      "q": 1.000000001,
+      "expected": 4.4544011349947175
+    },
+    {
+      "counts": [40, 12, 7, 3, 3, 2, 2, 1, 1, 1],
+      "q": 0.999999999,
+      "expected": 4.4544011349947175
+    },
+    {
+      "counts": [40, 12, 7, 3, 3, 2, 2, 1, 1, 1],
+      "q": 1.000001,
+      "expected": 4.4544011349947175
+    },
+    {
+      "counts": [100, 50, 25, 12, 6, 3],
+      "q": 1.000000000001,
+      "expected": 3.655378591282762
+    },
+    {
+      "counts": [100, 50, 25, 12, 6, 3],
+      "q": 0.999999999999,
+      "expected": 3.655378591282762
+    },
+    {
+      "counts": [100, 50, 25, 12, 6, 3],
+      "q": 1.000000001,
+      "expected": 3.655378591282762
+    },
+    {
+      "counts": [100, 50, 25, 12, 6, 3],
+      "q": 0.999999999,
+      "expected": 3.655378591282762
+    },
+    {
+      "counts": [100, 50, 25, 12, 6, 3],
+      "q": 1.000001,
+      "expected": 3.655378591282762
+    },
+    {
+      "counts": [5, 5, 5, 1],
+      "q": 1.000000000001,
+      "expected": 3.5386336544967523
+    },
+    {
+      "counts": [5, 5, 5, 1],
+      "q": 0.999999999999,
+      "expected": 3.5386336544967523
+    },
+    {
+      "counts": [5, 5, 5, 1],
+      "q": 1.000000001,
+      "expected": 3.5386336544967523
+    },
+    {
+      "counts": [5, 5, 5, 1],
+      "q": 0.999999999,
+      "expected": 3.5386336544967523
+    },
+    {
+      "counts": [5, 5, 5, 1],
+      "q": 1.000001,
+      "expected": 3.5386336544967523
+    },
+    {
+      "counts": [9, 1, 1, 1, 1, 1, 1, 1],
+      "q": 1.000000000001,
+      "expected": 4.64898956198259
+    },
+    {
+      "counts": [9, 1, 1, 1, 1, 1, 1, 1],
+      "q": 0.999999999999,
+      "expected": 4.64898956198259
+    },
+    {
+      "counts": [9, 1, 1, 1, 1, 1, 1, 1],
+      "q": 1.000000001,
+      "expected": 4.64898956198259
+    },
+    {
+      "counts": [9, 1, 1, 1, 1, 1, 1, 1],
+      "q": 0.999999999,
+      "expected": 4.64898956198259
+    },
+    {
+      "counts": [9, 1, 1, 1, 1, 1, 1, 1],
+      "q": 1.000001,
+      "expected": 4.64898956198259
+    }
+  ],
+  "valid-odd.normalCdf": [
+    {
+      "z": "Infinity",
+      "expected": 1.0
+    },
+    {
+      "z": "-Infinity",
+      "expected": 0.0
+    }
+  ],
+  "valid-odd.normalQuantile": [
+    {
+      "p": 0.0,
+      "expected": "-Infinity"
+    },
+    {
+      "p": 1.0,
+      "expected": "Infinity"
+    }
+  ],
+  "valid-odd.logGamma": [
+    {
+      "x": 0.0,
+      "expected": "Infinity"
+    },
+    {
+      "x": -1.0,
+      "expected": "Infinity"
+    },
+    {
+      "x": -2.0,
+      "expected": "Infinity"
+    },
+    {
+      "x": -7.0,
+      "expected": "Infinity"
+    }
+  ],
+  "valid-odd.kolmogorovSf": [
+    {
+      "x": "Infinity",
+      "expected": 0.0
+    },
+    {
+      "x": 0.0,
+      "expected": 1.0
+    },
+    {
+      "x": -1.0,
+      "expected": 1.0
+    }
+  ],
+  "valid-odd.benjaminiHochberg": [
+    {
+      "pvalues": [],
+      "q": 0.05,
+      "expected": {
+        "adjusted": [],
+        "rejected": [],
+        "threshold": null,
+        "q": 0.05
+      }
+    },
+    {
+      "pvalues": [],
+      "q": 0.2,
+      "expected": {
+        "adjusted": [],
+        "rejected": [],
+        "threshold": null,
+        "q": 0.2
+      }
+    }
+  ],
+  "valid-odd.abundances": [
+    {
+      "labels": [],
+      "expected": []
+    }
+  ],
+  "valid-odd.betaQuantile": [
+    {
+      "p": 0.0,
+      "a": 2.0,
+      "b": 3.0,
+      "expected": 0.0
+    },
+    {
+      "p": 1.0,
+      "a": 2.0,
+      "b": 3.0,
+      "expected": 1.0
+    },
+    {
+      "p": 0.0,
+      "a": 0.5,
+      "b": 0.5,
+      "expected": 0.0
+    }
+  ],
+  "valid-odd.incompleteBeta": [
+    {
+      "x": 0.0,
+      "a": 2.0,
+      "b": 3.0,
+      "expected": 0.0
+    },
+    {
+      "x": 1.0,
+      "a": 2.0,
+      "b": 3.0,
+      "expected": 1.0
+    }
+  ],
+  "valid-odd.binomialCdf": [
+    {
+      "k": -1,
+      "n": 10,
+      "p": 0.3,
+      "expected": 0.0
+    },
+    {
+      "k": 10,
+      "n": 10,
+      "p": 0.3,
+      "expected": 1.0
+    },
+    {
+      "k": 12,
+      "n": 10,
+      "p": 0.3,
+      "expected": 1.0
+    }
+  ],
+  "valid-odd.mde": [
+    {
+      "n": 50.0,
+      "baselineRate": 0.0,
+      "expected": {
+        "effect": null
+      }
+    },
+    {
+      "n": 50.0,
+      "baselineRate": 1.0,
+      "expected": {
+        "effect": 0.14239668879962777
+      }
+    }
+  ],
+  "valid-odd.hillNumber": [
+    {
+      "counts": [3, 2, 1],
+      "q": -1.0,
+      "expected": 3.3166247903554
+    },
+    {
+      "counts": [4, 4],
+      "q": -2.0,
+      "expected": 2.0
+    }
+  ],
+  "valid-odd.wilson": [
+    {
+      "k": 0,
+      "n": 10,
+      "z": 1.959963984540054,
+      "expected": [0.0, 0.2775327998628892]
+    },
+    {
+      "k": 10,
+      "n": 10,
+      "z": 1.959963984540054,
+      "expected": [0.7224672001371107, 1.0]
     }
   ]
 }

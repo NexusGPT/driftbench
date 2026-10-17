@@ -21,11 +21,12 @@ import numpy as np
 from exact_ref import (
     Z95,
     hier_ref,
+    mde_ref,
     newcombe,
     ph_ref,
     wilson_effective_ref,
 )
-from scipy import stats
+from scipy import special, stats
 
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "exact-branches.json")
 g = np.random.RandomState(20261018)
@@ -41,6 +42,20 @@ def put(name, source, cases):
 
 def f(x):
     return float(x)
+
+
+
+def wilson_dec_pair(k, n, z):
+    from decimal import Decimal, getcontext
+
+    getcontext().prec = 60
+    kk, nn, zz = Decimal(k), Decimal(n), Decimal(repr(z))
+    p = kk / nn
+    z2 = zz * zz
+    den = 1 + z2 / nn
+    centre = (p + z2 / (2 * nn)) / den
+    half = zz * (p * (1 - p) / nn + z2 / (4 * nn * nn)).sqrt() / den
+    return float(max(Decimal(0), centre - half)), float(min(Decimal(1), centre + half))
 
 
 # --- zFor -------------------------------------------------------------------------------------------------
@@ -737,6 +752,43 @@ put("hierarchicalBetaBinomial.two-trees", "very few trees give a very wide inter
 put("hierarchicalBetaBinomial.levels", "alpha 0.2, 0.1 and 0.01", [hb_case([(6, 4), (6, 5), (6, 1), (6, 6), (6, 2)], a) for a in [0.2, 0.1, 0.01]])
 put("hierarchicalBetaBinomial.single-block-trees", "trees of one block (the repeats of a golden run once): the mean of the flags and a wide interval", [hb_case([(1, 1)] * 5 + [(1, 0)] * 3), hb_case([(1, 1), (1, 0)] * 6)])
 put("hierarchicalBetaBinomial.order-and-duplicates", "the same trees in another order, or a tree repeated as separate entries, give one interval", [hb_case([(6, 4), (6, 5), (6, 1), (6, 6), (6, 2), (6, 4), (6, 4)])])
+
+# --- siblings of the calls a package could hard-code, and valid inputs that look odd ----------------------
+# The cheater audit raised the bank by returning the stored answer of six named calls (normalCdf(Infinity),
+# chiSquareSf(Infinity, 3), mean([1e308 x 3]), betaQuantile(1e-6, .5, .5), hillNumber near 1). Each now has
+# siblings on other arguments of the same kind, so a lookup of those calls gains nothing.
+INF = "Infinity"
+NINF = "-Infinity"
+put("sibling.normalSf-infinite", "scipy.stats.norm.sf at +-Infinity", [{"z": INF, "expected": 0.0}, {"z": NINF, "expected": 1.0}, {"z": 1e300, "expected": 0.0}, {"z": -1e300, "expected": 1.0}])
+put("sibling.normalCdf-far", "scipy.stats.norm.cdf far out", [{"z": 1e300, "expected": 1.0}, {"z": -1e300, "expected": 0.0}, {"z": 40.0, "expected": 1.0}, {"z": -40.0, "expected": f(stats.norm.cdf(-40.0))}])
+put("sibling.erfc-infinite", "math.erfc at +-Infinity and far out", [{"x": INF, "expected": 0.0}, {"x": NINF, "expected": 2.0}, {"x": 1e300, "expected": 0.0}, {"x": -1e300, "expected": 2.0}])
+put("sibling.chiSquareSf-infinite", "scipy.stats.chi2.sf at Infinity for several degrees of freedom", [{"x": INF, "df": d, "expected": 0.0} for d in [1, 2, 5, 50.5, 1000]] + [{"x": 1e300, "df": 3, "expected": 0.0}])
+put(
+    "sibling.mean-no-overflow",
+    "the mean of equal finite values is that value, and values that cancel give 0 (exact rational arithmetic)",
+    [{"values": [x] * n, "expected": x} for x, n in [(1e308, 3), (-1e308, 3), (1.7e308, 2), (5e307, 7), (1.5e308, 4), (9e307, 5)]]
+    + [{"values": [1e308, 1e308, -1e308, -1e308], "expected": 0.0}, {"values": [1.7e308, -1.7e308], "expected": 0.0}],
+)
+bq_sib = [(1e-4, 0.3, 0.3), (1e-8, 0.5, 0.5), (0.01, 0.2, 0.4), (0.5, 0.1, 0.1), (1e-3, 0.5, 0.25), (1e-5, 0.4, 0.4), (0.99, 0.3, 0.3)]
+put("sibling.betaQuantile-u-shaped", "scipy.special.betaincinv with a shape below 1", [{"p": p, "a": a, "b": b, "expected": f(special.betaincinv(a, b, p))} for p, a, b in bq_sib])
+hn = []
+for c in [[40, 12, 7, 3, 3, 2, 2, 1, 1, 1], [100, 50, 25, 12, 6, 3], [5, 5, 5, 1], [9, 1, 1, 1, 1, 1, 1, 1]]:
+    for d in [1e-12, -1e-12, 1e-9, -1e-9, 1e-6]:
+        hn.append({"counts": c, "q": 1 + d, "expected": hill_exact(c, 1)})
+put("sibling.hillNumber-near-one", "the Hill number is continuous in q: near q = 1 it is exp(Shannon entropy) (to 1e-5 relative for |q - 1| up to 1e-6)", hn)
+
+put("valid-odd.normalCdf", "limits of the normal distribution", [{"z": INF, "expected": 1.0}, {"z": NINF, "expected": 0.0}])
+put("valid-odd.normalQuantile", "scipy.stats.norm.ppf(0) and ppf(1)", [{"p": 0.0, "expected": NINF}, {"p": 1.0, "expected": INF}])
+put("valid-odd.logGamma", "scipy.special.gammaln at the poles is +Infinity", [{"x": 0.0, "expected": INF}, {"x": -1.0, "expected": INF}, {"x": -2.0, "expected": INF}, {"x": -7.0, "expected": INF}])
+put("valid-odd.kolmogorovSf", "the Kolmogorov survival function at and beyond the ends", [{"x": INF, "expected": 0.0}, {"x": 0.0, "expected": 1.0}, {"x": -1.0, "expected": 1.0}])
+put("valid-odd.benjaminiHochberg", "no hypotheses: empty lists and no threshold (scipy.stats.false_discovery_control([]) is empty)", [{"pvalues": [], "q": 0.05, "expected": {"adjusted": [], "rejected": [], "threshold": None, "q": 0.05}}, {"pvalues": [], "q": 0.2, "expected": {"adjusted": [], "rejected": [], "threshold": None, "q": 0.2}}])
+put("valid-odd.abundances", "no labels: no classes", [{"labels": [], "expected": []}])
+put("valid-odd.betaQuantile", "the quantile at p = 0 and p = 1 is the end of the support", [{"p": 0.0, "a": 2.0, "b": 3.0, "expected": 0.0}, {"p": 1.0, "a": 2.0, "b": 3.0, "expected": 1.0}, {"p": 0.0, "a": 0.5, "b": 0.5, "expected": 0.0}])
+put("valid-odd.incompleteBeta", "I_0 = 0 and I_1 = 1", [{"x": 0.0, "a": 2.0, "b": 3.0, "expected": 0.0}, {"x": 1.0, "a": 2.0, "b": 3.0, "expected": 1.0}])
+put("valid-odd.binomialCdf", "scipy.stats.binom.cdf below 0 and at or above n", [{"k": -1, "n": 10, "p": 0.3, "expected": 0.0}, {"k": 10, "n": 10, "p": 0.3, "expected": 1.0}, {"k": 12, "n": 10, "p": 0.3, "expected": 1.0}])
+put("valid-odd.mde", "a baseline of 0 has no detectable drop (effect null); a baseline of 1 does", [{"n": 50.0, "baselineRate": 0.0, "expected": {"effect": None}}, {"n": 50.0, "baselineRate": 1.0, "expected": {"effect": mde_ref(50.0, 1.0)}}])
+put("valid-odd.hillNumber", "negative orders are defined: (sum 1 / p)^(1 / 2) at q = -1", [{"counts": [3, 2, 1], "q": -1.0, "expected": math.sqrt(11)}, {"counts": [4, 4], "q": -2.0, "expected": 2.0}])
+put("valid-odd.wilson", "k = 0 and k = n are valid and give the closed form (exact decimals)", [{"k": 0, "n": 10, "z": Z95, "expected": list(wilson_dec_pair(0, 10, Z95))}, {"k": 10, "n": 10, "z": Z95, "expected": list(wilson_dec_pair(10, 10, Z95))}])
 
 doc = {
     "provenance": {

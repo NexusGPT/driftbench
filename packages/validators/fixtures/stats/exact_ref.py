@@ -228,7 +228,9 @@ def mde_ref(n_eff, p1, power=0.8, alpha=0.05):
 
     if p1 == 0 or gap(p1) > 0:
         return None
-    return float(optimize.brentq(gap, 0.0, p1, xtol=1e-15, rtol=1e-15))
+    # At a baseline of 1 the gap is exactly 0 at delta = 0 (a trivial root), so the bracket starts just above it.
+    lo = 0.0 if gap(0.0) > 0 else 1e-12
+    return float(optimize.brentq(gap, lo, p1, xtol=1e-15, rtol=1e-15))
 
 
 def reduce_ref(values, kind, k=None):

@@ -46,6 +46,10 @@ function compare(path: string, got: unknown, want: unknown, tol: (path: string) 
       out.push(`${path}: got ${show(got)}, want ${want}`);
       return;
     }
+    if (!Number.isFinite(want)) {
+      if (got !== want) out.push(`${path}: got ${got}, want ${want}`);
+      return;
+    }
     const t = tol(path);
     if (!(Math.abs(got - want) <= t.abs + t.rel * Math.abs(want)))
       out.push(`${path}: got ${got}, want ${want}`);
@@ -167,6 +171,16 @@ const headlineOf = async (
 ): Promise<Row | undefined> =>
   ((await load(root, HEADLINE)).suiteHeadline as HeadlineFn)(runsOfGoldens(goldens), (run) => run.specId);
 
+/** The fixture is JSON, which has no Infinity: the strings "Infinity" and "-Infinity" stand for the numbers. */
+export function revive(value: unknown): unknown {
+  if (value === 'Infinity') return Number.POSITIVE_INFINITY;
+  if (value === '-Infinity') return Number.NEGATIVE_INFINITY;
+  if (Array.isArray(value)) return value.map(revive);
+  if (value !== null && typeof value === 'object')
+    return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, revive(v)]));
+  return value;
+}
+
 export function exactItem(spec: Spec): BankItem {
   const tolFor = typeof spec.tol === 'function' ? spec.tol : () => spec.tol as Tol;
   return {
@@ -179,7 +193,9 @@ export function exactItem(spec: Spec): BankItem {
     ...(spec.budgetMs ? { budgetMs: spec.budgetMs } : {}),
     check: async ({ s, root }) => {
       const file = spec.file ?? FIXTURE;
-      const cases = ((fixture(root, file)[spec.group] ?? []) as Row[]).filter(spec.only ?? (() => true));
+      const cases = ((fixture(root, file)[spec.group] ?? []) as Row[])
+        .map((row) => revive(row) as Row)
+        .filter(spec.only ?? (() => true));
       if (cases.length === 0) return fail(`no case of ${spec.group}/${spec.aspect} in ${file}`);
       const misses: string[] = [];
       for (const [i, c] of cases.entries()) {
