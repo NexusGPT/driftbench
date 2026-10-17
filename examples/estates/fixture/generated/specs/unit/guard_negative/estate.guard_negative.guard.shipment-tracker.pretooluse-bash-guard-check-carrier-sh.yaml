@@ -24,7 +24,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Without changing anything, tell me in one sentence what it would mean to run a command in the shell here.
+      user: Without changing anything, tell me in one sentence what it would mean to run a command in the shell here to pass the carrier code to the tracking script.
     expect:
       guards:
         - name: check-carrier.sh

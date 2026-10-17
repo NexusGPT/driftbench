@@ -670,7 +670,7 @@ describe('the review of the guard and gate asks: no broken sentence from a prono
     expect(
       codeAsk('trigger', [guard({ ruleText: 'Ask before an Edit of a policy file.', matcher: 'Edit' })], [])
         .text,
-    ).toBe('Please change a file here.');
+    ).toBe('Please edit a file here.');
     expect(
       codeAsk(
         'trigger',
@@ -791,6 +791,38 @@ describe('a guard on the user prompt is set off by the message the rule says the
       'A late shipment',
     ]) {
       expect(askFor(situation).text, situation).toBeUndefined();
+    }
+  });
+});
+
+describe('a read-before ask comes from the most specific source, and a refusal says why', () => {
+  const owner = unit('apps', 'Builds and deploys hosted apps for the office.');
+  const row = (readWhen: string) => atom('reference.apps.x', { fields: { readWhen } });
+
+  it('asks the topic the citing line names, before the description of the whole unit', () => {
+    expect(codeAsk('trigger', [row('Read `refs/ux.md` for hosted screen design'), owner], []).text).toBe(
+      'Please help me with hosted screen design.',
+    );
+    // A bare content word, a pronoun or an obligation is no topic: the unit's work stays the ask.
+    for (const line of [
+      'Read `refs/ux.md` for it',
+      'Read `refs/ux.md` for design',
+      'Read `refs/ux.md` for what you must never skip',
+    ]) {
+      expect(codeAsk('trigger', [row(line), owner], []).text, line).toBe(
+        'Please build and deploy hosted apps for the office.',
+      );
+    }
+  });
+
+  it('names the shape that made a description fail', () => {
+    for (const [description, fault] of [
+      ['Install workflow 6 steps.', 'a heading with a count'],
+      ['Manages workspaces: mount, list, create.', 'a list after a colon'],
+      ['Plan import is ONE atomic write.', 'a statement'],
+    ] as const) {
+      const written = codeAsk('trigger', [unit('x', description)], []);
+      expect(written.refused, description).toContain(fault);
     }
   });
 });

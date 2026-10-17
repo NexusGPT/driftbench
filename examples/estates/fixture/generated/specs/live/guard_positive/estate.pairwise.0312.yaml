@@ -26,7 +26,7 @@ given:
 blocks:
   - id: ask
     when:
-      user: Please change a file here.
+      user: Please edit a file.
     expect:
       skills:
         - name: invoice-reconcile

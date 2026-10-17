@@ -578,7 +578,10 @@ export function findSituation(
       owner &&
       atoms?.get(head)?.kind !== 'guard' &&
       ['trigger', 'forced', 'pressure'].includes(use) &&
-      !situation.atoms.includes(owner)
+      !situation.atoms.includes(owner) &&
+      // A situation that names no unit at all is the rule's own, approved for it: only one that names another
+      // skill or helper belongs to that unit's task.
+      situation.atoms.some((id) => ['skill', 'subagent'].includes(atoms?.get(id)?.kind ?? ''))
     )
       continue;
     const pins = Object.entries(situation.cell ?? {});
