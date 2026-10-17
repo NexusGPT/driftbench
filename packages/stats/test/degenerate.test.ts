@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { betaQuantile, cusum, chiSquareSf, incompleteBeta, logGamma, designEffect, normalCdf, normalSf, effectiveSampleSize, ksTest, mean, wilcoxonSignedRank, pageHinkley, quantile, quantileSorted, sampleVariance } from '../src/index';
+import { wilson, betaQuantile, cusum, chiSquareSf, incompleteBeta, logGamma, designEffect, normalCdf, normalSf, effectiveSampleSize, ksTest, mean, wilcoxonSignedRank, pageHinkley, quantile, quantileSorted, sampleVariance } from '../src/index';
 
 const bad = [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY];
 
@@ -188,5 +188,19 @@ describe('cusum refuses options that are not finite or out of range', () => {
   });
   it('still answers with valid options', () => {
     expect(cusum(series, { sd: 1, target: 2 }).alarms).toEqual([]);
+  });
+});
+
+describe('wilson refuses a z that is not finite and positive', () => {
+  it('throws a RangeError on NaN, Infinity, a negative or a zero z', () => {
+    expect(() => wilson(3, 10, Number.NaN)).toThrow(RangeError);
+    expect(() => wilson(3, 10, Number.POSITIVE_INFINITY)).toThrow(RangeError);
+    expect(() => wilson(2, 10, -1.96)).toThrow(RangeError);
+    expect(() => wilson(2, 10, 0)).toThrow(RangeError);
+  });
+  it('still gives the interval for the default z', () => {
+    const r = wilson(3, 10);
+    expect(r.lower).toBeLessThan(0.3);
+    expect(r.upper).toBeGreaterThan(0.3);
   });
 });

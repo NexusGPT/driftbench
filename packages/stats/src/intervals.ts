@@ -19,6 +19,9 @@ export function wilson(k: number, n: number, z: number = Z95): Interval {
   assertCount('n', n);
   if (n === 0) throw new RangeError('wilson: n must be at least 1');
   if (k > n) throw new RangeError(`wilson: k (${k}) exceeds n (${n})`);
+  if (!(Number.isFinite(z) && z > 0)) {
+    throw new RangeError(`wilson: z must be finite and above 0, got ${z}`);
+  }
   const p = k / n;
   const z2 = z * z;
   const denom = 1 + z2 / n;
