@@ -33,6 +33,12 @@ describe('alpha below 1e-3 reaches the tail of the normal', () => {
     },
   );
 
+  it.each(reference.mde)('mde at alpha $alpha matches the 60-digit root of the power equation', (c) => {
+    const got = mde({ n: c.n, baselineRate: c.baselineRate, alpha: c.alpha, power: c.power })
+      .effect as number;
+    expect(Math.abs(got - c.expected) / c.expected).toBeLessThan(1e-11);
+  });
+
   it('mde grows as alpha shrinks to 1e-20 and stays finite', () => {
     const effect = (alpha: number): number => {
       const r = mde({ n: 5000, baselineRate: 0.5, alpha, power: 0.8 });

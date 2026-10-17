@@ -74,12 +74,37 @@ for alpha in (1e-12, 1e-17, 1e-20, 1e-100):
         lower, upper = wilson(k, n, z_for(alpha))
         wilson_cases.append(dict(k=k, n=n, alpha=alpha, lower=float(lower), upper=float(upper)))
 
+def mde(n, p1, alpha, power):
+    """The smallest detectable drop in a pass rate: the root of the power equation of stats.mde, at 60 digits."""
+    za = z_for(alpha)
+    zb = z_for(2 * (1 - mpf(power)))  # z_for halves its argument; the quantile at power is the upper quantile at 1 - power
+    n, p1 = mpf(n), mpf(p1)
+
+    def gap(delta):
+        p2 = p1 - delta
+        pbar = (p1 + p2) / 2
+        return za * sqrt(2 * pbar * (1 - pbar)) + zb * sqrt(p1 * (1 - p1) + p2 * (1 - p2)) - delta * sqrt(n)
+
+    lo, hi = mpf(0), p1
+    for _ in range(200):
+        mid = (lo + hi) / 2
+        if gap(mid) > 0:
+            lo = mid
+        else:
+            hi = mid
+    return (lo + hi) / 2
+
+
+mde_cases = [dict(n=5000, baselineRate=0.5, power=0.8, alpha=a, expected=float(mde(5000, 0.5, a, 0.8)))
+             for a in (0.05, 1e-10, 1e-17, 1e-20, 1e-50)]
+
 artifact = dict(
     method="normal quantile by findroot at 80 digits; Wilson and Newcombe method 10 evaluated at 80 digits",
     dependencies=dict(mpmath=mpmath.__version__),
     z=z_cases,
     paired=paired_cases,
     wilsonSingleCluster=wilson_cases,
+    mde=mde_cases,
 )
 out = here / "alpha-tail.json"
 out.write_text(json.dumps(artifact, indent=2, allow_nan=False) + "\n")

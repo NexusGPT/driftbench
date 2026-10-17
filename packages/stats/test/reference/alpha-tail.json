@@ -344,5 +344,42 @@
       "lower": 3.655577661078676e-5,
       "upper": 0.8871104805307077
     }
+  ],
+  "mde": [
+    {
+      "n": 5000,
+      "baselineRate": 0.5,
+      "power": 0.8,
+      "alpha": 0.05,
+      "expected": 0.02800156511926609
+    },
+    {
+      "n": 5000,
+      "baselineRate": 0.5,
+      "power": 0.8,
+      "alpha": 1e-10,
+      "expected": 0.07286899224295704
+    },
+    {
+      "n": 5000,
+      "baselineRate": 0.5,
+      "power": 0.8,
+      "alpha": 1e-17,
+      "expected": 0.09370418108929161
+    },
+    {
+      "n": 5000,
+      "baselineRate": 0.5,
+      "power": 0.8,
+      "alpha": 1e-20,
+      "expected": 0.1012105987736469
+    },
+    {
+      "n": 5000,
+      "baselineRate": 0.5,
+      "power": 0.8,
+      "alpha": 1e-50,
+      "expected": 0.1561653284118655
+    }
   ]
 }
