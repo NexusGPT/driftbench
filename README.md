@@ -453,14 +453,12 @@ blocks: # One exchange per entry
 - **Why no other framework does it.** A list of conversation turns does not itself declare which test depends on which starting state. Parent links make that dependency explicit. Our [comparison](docs/comparison.md) does not establish exclusivity for parent state or inherited failure counts.
 - **Measured impact.** In the [parent study](https://github.com/achammah/driftbench/pull/416), grouping inherited failures reduced root count error to 8.4, against 38.2 with flat linked counting. That result is a simulation on the Acme parent tree. On a live test agent, isolation checks caught 8 of 8 eligible planted dependencies and flagged 0 of 9 negative controls.
 
-<details>
-<summary>Parent blocks: one opening, two branches, one independent test</summary>
-
-<br/>
+<details><summary>See it in YAML</summary>
 
 The whole of [`checkout.yaml`](examples/acme/parents/checkout.yaml). `plans` is the parent; `recap` and `alternative` are its children, and `order` and `receipt` continue the `recap` branch. `hours` has no parent:
 
 ```yaml
+# file: checkout.spec.yaml
 id: acme-parent-checkout
 title: Two checkout branches share one recorded opening
 given:
