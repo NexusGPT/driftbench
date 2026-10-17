@@ -1,4 +1,4 @@
-import { readFile, readdir, writeFile } from 'node:fs/promises';
+import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { loadSpecFile } from '@agent-nexus/driftbench-core';
 import { loadEstateMap } from '@agent-nexus/driftbench-estate';
@@ -58,36 +58,79 @@ afterAll(async () => {
 });
 
 const synonyms: Readonly<Record<string, string>> = {
-  write: 'compose', report: 'describe', read: 'inspect', send: 'transmit', never: 'not', before: 'prior',
-  file: 'document', supplier: 'vendor', invoice: 'bill', order: 'purchase', error: 'failure', missing: 'absent',
-  ask: 'request', number: 'digit', use: 'employ', check: 'verify', request: 'appeal', tracking: 'tracing', code: 'identifier',
+  write: 'compose',
+  report: 'describe',
+  read: 'inspect',
+  send: 'transmit',
+  never: 'not',
+  before: 'prior',
+  file: 'document',
+  supplier: 'vendor',
+  invoice: 'bill',
+  order: 'purchase',
+  error: 'failure',
+  missing: 'absent',
+  ask: 'request',
+  number: 'digit',
+  use: 'employ',
+  check: 'verify',
+  request: 'appeal',
+  tracking: 'tracing',
+  code: 'identifier',
 };
 
 const ATTACKS: Record<string, Attack> = {
   'quote minus last word': { make: (_spec, _piece, quote) => words(quote).slice(0, -1).join(' ') },
   '5-word quote fragment': {
-    make: (_spec, _piece, quote) => words(quote).length >= 8 ? words(quote).slice(1, 6).join(' ') : undefined,
+    make: (_spec, _piece, quote) =>
+      words(quote).length >= 8 ? words(quote).slice(1, 6).join(' ') : undefined,
   },
   '5-word pool fragment': {
     make: (spec) => {
       const atom = env.byId.get(metaOf(spec).atoms[0] as string);
       if (!atom) throw new Error(`no primary atom for ${spec.id}`);
-      return words([
-        atom.title, atom.situation, atom.provenance.quote,
-        ...Object.values(atom.fields ?? {}).filter((value) => typeof value === 'string'),
-      ].filter(Boolean).join(' ')).slice(1, 6).join(' ');
+      return words(
+        [
+          atom.title,
+          atom.situation,
+          atom.provenance.quote,
+          ...Object.values(atom.fields ?? {}).filter((value) => typeof value === 'string'),
+        ]
+          .filter(Boolean)
+          .join(' '),
+      )
+        .slice(1, 6)
+        .join(' ');
     },
   },
-  'every other word': { make: (_spec, _piece, quote) => words(quote).filter((_word, index) => index % 2 === 0).join(' ') },
-  'tail half': { make: (_spec, _piece, quote) => words(quote).slice(Math.floor(words(quote).length / 2)).join(' ') },
-  'head half': { make: (_spec, _piece, quote) => words(quote).slice(0, Math.ceil(words(quote).length / 2)).join(' ') },
+  'every other word': {
+    make: (_spec, _piece, quote) =>
+      words(quote)
+        .filter((_word, index) => index % 2 === 0)
+        .join(' '),
+  },
+  'tail half': {
+    make: (_spec, _piece, quote) =>
+      words(quote)
+        .slice(Math.floor(words(quote).length / 2))
+        .join(' '),
+  },
+  'head half': {
+    make: (_spec, _piece, quote) =>
+      words(quote)
+        .slice(0, Math.ceil(words(quote).length / 2))
+        .join(' '),
+  },
   'piece minus last word': { make: (_spec, piece) => words(piece).slice(0, -1).join(' ') },
   'piece doubled': { make: (_spec, piece) => `${piece} ${piece}` },
   'not quote': { make: (_spec, _piece, quote) => `not ${quote}` },
   'never quote': { make: (_spec, _piece, quote) => `never ${quote}` },
   'never piece': { make: (_spec, piece) => `never ${piece}` },
   'reversed title': {
-    make: (spec) => words(env.byId.get(metaOf(spec).atoms[0] as string)?.title ?? '').reverse().join(' '),
+    make: (spec) =>
+      words(env.byId.get(metaOf(spec).atoms[0] as string)?.title ?? '')
+        .reverse()
+        .join(' '),
   },
   'middle banana': {
     make: (_spec, _piece, quote) => {
@@ -99,7 +142,10 @@ const ATTACKS: Record<string, Attack> = {
   'word shuffle': {
     make: (_spec, _piece, quote) => {
       const list = words(quote);
-      return [...list.filter((_word, index) => index % 2), ...list.filter((_word, index) => !(index % 2))].join(' ');
+      return [
+        ...list.filter((_word, index) => index % 2),
+        ...list.filter((_word, index) => !(index % 2)),
+      ].join(' ');
     },
   },
   'sorted words': { make: (_spec, _piece, quote) => words(quote).sort().join(' ') },
@@ -107,46 +153,61 @@ const ATTACKS: Record<string, Attack> = {
     make: (_spec, _piece, quote) => {
       const list = words(quote);
       let state = 1234567;
-      return list.map(() => {
-        state = (state * 1664525 + 1013904223) >>> 0;
-        return list[state % list.length];
-      }).join(' ');
+      return list
+        .map(() => {
+          state = (state * 1664525 + 1013904223) >>> 0;
+          return list[state % list.length];
+        })
+        .join(' ');
     },
   },
   'reversed words': { make: (_spec, _piece, quote) => words(quote).reverse().join(' ') },
   'off-topic': { make: () => 'Polish the invisible banana beside a purple galaxy' },
   'wrong atom title': {
-    make: (spec) => env.atoms.find(atom => !metaOf(spec).atoms.includes(atom.id) &&
-      atom.id !== metaOf(spec).from.field.split('#')[0] && atom.kind === 'instruction')?.title,
+    make: (spec) =>
+      env.atoms.find(
+        (atom) =>
+          !metaOf(spec).atoms.includes(atom.id) &&
+          atom.id !== metaOf(spec).from.field.split('#')[0] &&
+          atom.kind === 'instruction',
+      )?.title,
   },
   'wrong atom clause': {
     make: (spec) => {
       const ids = new Set([...metaOf(spec).atoms, metaOf(spec).from.field.split('#')[0]]);
-      return env.atoms.filter(atom => !ids.has(atom.id)).flatMap(fieldsOf).map(field => field.tokens.join(' '))
-        .find(text => words(text).length >= 5 && !/[.,;:!?]/.test(text));
+      return env.atoms
+        .filter((atom) => !ids.has(atom.id))
+        .flatMap(fieldsOf)
+        .map((field) => field.tokens.join(' '))
+        .find((text) => words(text).length >= 5 && !/[.,;:!?]/.test(text));
     },
   },
   'one synonym': {
     make: (_spec, piece) => {
       const list = words(piece);
-      const index = list.findIndex(word => synonyms[word.toLowerCase()]);
+      const index = list.findIndex((word) => synonyms[word.toLowerCase()]);
       if (index < 0) return undefined;
       list[index] = synonyms[(list[index] as string).toLowerCase()] as string;
       return list.join(' ');
     },
   },
-  'cut at comma': { make: (_spec, piece) => piece.includes(',') ? piece.slice(0, piece.indexOf(',')).trim() : undefined },
+  'cut at comma': {
+    make: (_spec, piece) => (piece.includes(',') ? piece.slice(0, piece.indexOf(',')).trim() : undefined),
+  },
   'garbage before piece': { make: (_spec, piece) => `Banana purple elephant, ${piece}` },
   'garbage after piece': { make: (_spec, piece) => `${piece} Then sing a song about the weather in space` },
-  'garbage before ask': { make: spec => `Banana purple elephant, ${whenOf(spec).user}`, ask: true },
-  'garbage after ask': { make: spec => `${whenOf(spec).user} Then sing a song about the weather in space.`, ask: true },
+  'garbage before ask': { make: (spec) => `Banana purple elephant, ${whenOf(spec).user}`, ask: true },
+  'garbage after ask': {
+    make: (spec) => `${whenOf(spec).user} Then sing a song about the weather in space.`,
+    ask: true,
+  },
 };
 
 describe('the independent primary-row attack classes', () => {
   it('accepts every committed code-written ask, including both hazards', () => {
     expect(coded).toHaveLength(467);
-    expect(coded.filter(spec => metaOf(spec).from.form === 'hazard')).toHaveLength(2);
-    const rejected = coded.filter(spec => checkAsk(spec, env).reasons.length > 0).map(spec => spec.id);
+    expect(coded.filter((spec) => metaOf(spec).from.form === 'hazard')).toHaveLength(2);
+    const rejected = coded.filter((spec) => checkAsk(spec, env).reasons.length > 0).map((spec) => spec.id);
     counts.real = { tried: coded.length, accepted: coded.length - rejected.length };
     expect(rejected).toEqual([]);
   });

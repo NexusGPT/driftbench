@@ -47,9 +47,17 @@ describe('a piece is a whole clause of its source', () => {
     );
     expect(isClauseOf('Never moor on a Sunday', rule)).toBe(false);
     expect(isClauseOf('moor on a Sunday', rule)).toBe(true);
-    expect(isClauseOf('auditor never edits a file', fieldsOf(atom({
-      kind: 'instruction', title: 'The auditor never edits a file',
-    })))).toBe(false);
+    expect(
+      isClauseOf(
+        'auditor never edits a file',
+        fieldsOf(
+          atom({
+            kind: 'instruction',
+            title: 'The auditor never edits a file',
+          }),
+        ),
+      ),
+    ).toBe(false);
   });
 
   it.each([
@@ -83,17 +91,30 @@ describe('a piece is a whole clause of its source', () => {
 
   it('keeps a hidden path together instead of treating its dot as a sentence end', () => {
     expect(tokensOf('Read .claude/memory/notes.md.')).toEqual(['read', '.claude/memory/notes.md', '.']);
-    expect(isClauseOf('Write in the language listed in', fieldsOf(atom({
-      fields: { description: 'Write in the language listed in `.claude/memory/notes.md`.' },
-    })))).toBe(false);
+    expect(
+      isClauseOf(
+        'Write in the language listed in',
+        fieldsOf(
+          atom({
+            fields: { description: 'Write in the language listed in `.claude/memory/notes.md`.' },
+          }),
+        ),
+      ),
+    ).toBe(false);
   });
 
   it('accepts declared stage titles and read-before and read-when clauses', () => {
-    expect(isClauseOf('Make the change', fieldsOf(atom({ kind: 'stage', title: 'Stage do: Make the change' })))).toBe(true);
-    const fields = fieldsOf(atom({ fields: {
-      readWhen: 'When an invoice is not in EUR, read currency.md.',
-      rule: 'Before editing any invoice file: Read matching.md.',
-    } }));
+    expect(
+      isClauseOf('Make the change', fieldsOf(atom({ kind: 'stage', title: 'Stage do: Make the change' }))),
+    ).toBe(true);
+    const fields = fieldsOf(
+      atom({
+        fields: {
+          readWhen: 'When an invoice is not in EUR, read currency.md.',
+          rule: 'Before editing any invoice file: Read matching.md.',
+        },
+      }),
+    );
     expect(isClauseOf('When an invoice is not in EUR', fields)).toBe(true);
     expect(isClauseOf('edit any invoice file', fields)).toBe(true);
   });

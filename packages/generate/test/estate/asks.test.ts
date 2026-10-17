@@ -28,7 +28,10 @@ const skill = atom('skill.invoice-reconcile.skill', {
 describe('asks written by code from the atoms', () => {
   it('keeps coordinated objects and dependent clauses in a forbidden act', () => {
     for (const [title, expected] of [
-      ['Never invent order numbers, prices or dates; ask for a missing value', 'invent order numbers, prices or dates'],
+      [
+        'Never invent order numbers, prices or dates; ask for a missing value',
+        'invent order numbers, prices or dates',
+      ],
       ['Never change a price, before checking the invoice.', 'change a price, before checking the invoice'],
     ]) {
       const rule = atom('instruction.standing.list', { title });

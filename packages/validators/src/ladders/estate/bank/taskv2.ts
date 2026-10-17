@@ -9,7 +9,7 @@ import { type AskEnv, checkAsk, checkTrace, envOf, firstAskOf, type TraceNeed } 
 import { observeOnFake } from './task-trace';
 
 /**
- * gen.task, version 2: every first ask of a complete spec of a test type is judged from ids, structure and the
+ * gen.task.v2: every first ask of a complete spec of a test type is judged from ids, structure and the
  * trace of the fake agent, not from its words (`task-check.ts`). One item per test type, as in version 1.
  */
 
@@ -78,7 +78,7 @@ export async function judgeSpecs(
 
 export function taskFamilyV2(): Family {
   const items = itemsOf(
-    'gen.task',
+    'gen.task.v2',
     4,
     GENERATE,
     TASK_TYPES.map((type) => ({
@@ -89,7 +89,7 @@ export function taskFamilyV2(): Family {
     })),
   );
   return {
-    id: 'gen.task',
+    id: 'gen.task.v2',
     level: 4,
     component: GENERATE,
     items,
@@ -116,7 +116,7 @@ export function taskFamilyV2(): Family {
         const own = verdicts.filter((entry) => entry.testType === type);
         const bad = own.filter((entry) => entry.reasons.length > 0);
         out.set(
-          `gen.task.${type}`,
+          `gen.task.v2.${type}`,
           own.length === 0
             ? { pass: false, detail: `no complete ${type} spec` }
             : bad.length === 0

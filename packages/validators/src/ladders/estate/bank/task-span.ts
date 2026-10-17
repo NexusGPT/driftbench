@@ -9,17 +9,36 @@ import { askedClauses, pronounDerivation } from '@agent-nexus/driftbench-generat
  * A piece is a clause of a field when its tokens are those of a run of the field's tokens, case folded, with
  * three allowances the generator declares: the first word may be another form of the source word (they share
  * their first three letters: "audits" gives "audit", "editing" gives "edit"), a run may follow up to
- * `LEAD_WORDS` words of its clause that the generator dropped ("the user asks to", "never", "before"), and a
+ * `LEAD_WORDS` words of a declared leading operator that the generator dropped ("never", "do not", "before"), and a
  * field also yields the acts the generator derives from it (`pronounDerivation`, `askedClauses`). The run must end where a clause
- * ends: at the end of the field or before a punctuation token. A cut in the middle of a clause, a run in another
+ * ends: at the end of the field, a sentence end or a semicolon. Other punctuation does not end a clause.
+ * A cut in the middle of a clause, a run in another
  * order, or words added to a clause are none of these.
  */
 
 /** The most words of a clause the generator drops before the piece it takes. */
 export const LEAD_WORDS = 3;
 
-const TOKEN = /[\p{L}\p{N}]+(?:['’_/.-][\p{L}\p{N}]+)*\/?|[^\s\p{L}\p{N}]/gu;
+const TOKEN = /(?:\.{1,2}\/|\.(?=[\p{L}\p{N}]))?[\p{L}\p{N}]+(?:['’_/.-][\p{L}\p{N}]+)*\/?|[^\s\p{L}\p{N}]/gu;
 const isWord = (token: string): boolean => /[\p{L}\p{N}]/u.test(token);
+const isBoundary = (token: string | undefined): boolean => token === undefined || /^[.!?;]$/.test(token);
+const LEADING_OPERATORS: ReadonlySet<string> = new Set([
+  'never',
+  'do not',
+  "don't",
+  'no one may',
+  'you must not',
+  'always',
+  'must',
+  'should',
+  'before',
+  'when',
+  'while',
+  'after',
+  'on',
+  'once',
+  'if',
+]);
 
 /** The tokens of a text, lower case, with markdown links and emphasis removed. */
 export function tokensOf(text: string): string[] {
@@ -58,8 +77,20 @@ export function fieldsOf(atom: Atom): Field[] {
   }
   const derived = texts.flatMap((text) => {
     const found = pronounDerivation(text);
-    return [...askedClauses(text), ...(found === undefined ? [] : [found])];
+    // These clauses are the generator's read-when context and read-before work, not arbitrary comma cuts.
+    const condition =
+      /\b((?:when|whenever|if|while|after|before|once)\b[^,]+),\s*(?:then\s+)?(?:read|see|open|load|consult)\b/i.exec(
+        text,
+      )?.[1];
+    const governed = /\bbefore\s+([^,:;]+?)\s*[:,]\s*(?:read|load|check|review|consult)\b/i.exec(text)?.[1];
+    return [
+      ...askedClauses(text),
+      ...[found, condition, governed].filter((part): part is string => part !== undefined),
+    ];
   });
+  // A stage's title is a labelled value, not a clause cut from its JSON provenance.
+  if (atom.kind === 'stage' && atom.title.includes(': '))
+    derived.push(atom.title.slice(atom.title.indexOf(': ') + 2));
   return [...texts, ...derived]
     .map((text) => ({ tokens: tokensOf(text), rule: own.includes(text) }))
     .filter((field) => field.tokens.length > 0);
@@ -78,9 +109,16 @@ export function isClauseOf(piece: string, fields: readonly Field[]): boolean {
       if (!wanted.every((token, index) => sameWord(token, field[at + index] as string, index === 0)))
         continue;
       const next = field[at + wanted.length];
-      if (next !== undefined && isWord(next)) continue;
+      if (!isBoundary(next)) continue;
       let dropped = 0;
       while (at - dropped - 1 >= 0 && isWord(field[at - dropped - 1] as string)) dropped += 1;
+      // A comma in a list or before a dependent clause starts no new clause either.
+      if (!isBoundary(field[at - dropped - 1])) continue;
+      const prefix = field
+        .slice(at - dropped, at)
+        .join(' ')
+        .replaceAll('’', "'");
+      if (dropped > 0 && !LEADING_OPERATORS.has(prefix)) continue;
       if (dropped <= LEAD_WORDS && !(rule && dropped === 0)) return true;
     }
   }

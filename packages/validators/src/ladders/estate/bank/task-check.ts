@@ -30,7 +30,7 @@ import { type Field, fieldsOf, isClauseOf, orderedShare } from './task-span';
  * - An ask written by the generator is rebuilt from the names of its frame and shapes and its pieces, and each
  *   piece must be a whole clause of the text it cites (`task-span.ts`). That proves provenance, not that the
  *   clause is a task: a whole clause of an atom that is not a request (a statement, a heading) passes, as does
- *   a clause with up to three leading words removed.
+ *   a clause with a declared leading operator removed.
  * - A spec that cites a true source and prints other text is a forged spec; only the trace of an explicit ask
  *   reaches it.
  * - A unit whose act no trace shows (a reply rule) rests on C1 to C3.
@@ -131,7 +131,7 @@ export function spansOf(ask: string): string[] {
 /**
  * What a code-written ask owes its source. The ask is rebuilt from the frame, the shapes and the pieces the spec
  * names (`renderAsk`) and must equal them: no word stands outside a declared frame or a piece. Each piece must be
- * a whole clause of a field of the cited atom or of the row's atoms (`isClauseOf`). The fixed phrase of a tool
+ * a whole clause of a field of the cited atom (`isClauseOf`); a context may also use the row's atoms. The fixed phrase of a tool
  * is the generator's table, and belongs to a tool the cited guard watches; the fixed words of a hazard ask are
  * its own frame. A shape with no piece in it is allowed for those two only.
  */
@@ -170,7 +170,8 @@ function pieceReasons(
   if (from.form === 'hazard' && !shape.startsWith('go on with'))
     reasons.push('a hazard ask without the fixed words of one');
   const fields: Field[] = [];
-  // The text a piece may come from: the cited atom, the atoms of the row, and the rules the cited guard enforces.
+  const actFields: Field[] = [];
+  // Acts owe their text to the cited source (or a rule its guard enforces); row atoms also supply context.
   const enforced = Array.isArray(cited.fields?.enforces)
     ? (cited.fields.enforces as Array<{ atom?: unknown }>).flatMap((link) =>
         typeof link.atom === 'string' ? [link.atom] : [],
@@ -178,10 +179,14 @@ function pieceReasons(
     : [];
   for (const id of new Set([cited.id, ...atomIds, ...enforced])) {
     const atom = env.byId.get(id);
-    if (atom) fields.push(...fieldsOf(atom));
+    if (!atom) continue;
+    const own = fieldsOf(atom);
+    fields.push(...own);
+    if (id === cited.id || enforced.includes(id)) actFields.push(...own);
   }
-  for (const piece of list)
-    if (!isClauseOf(piece, fields))
+  const actSlots = shape.split(SLOT).length - 1;
+  for (const [index, piece] of list.entries())
+    if (!isClauseOf(piece, index < actSlots ? actFields : fields))
       reasons.push(`the piece "${piece}" is no whole clause of the text of ${cited.id}`);
   return reasons;
 }

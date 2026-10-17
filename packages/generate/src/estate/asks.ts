@@ -1394,9 +1394,9 @@ const VERBS: ReadonlySet<string> = new Set(
   ).split(' '),
 );
 
-/** The first clause of a sentence: up to the first period, semicolon or comma. */
+/** The first clause of a sentence: up to the first period or semicolon; a comma keeps its list or dependent clause. */
 function firstClause(text: string): string {
-  return plain(text).split(/[.;,]\s/)[0] ?? text;
+  return plain(text).split(/[.;]\s/)[0] ?? text;
 }
 
 /** Words ending in s that are no third-person verb. */
