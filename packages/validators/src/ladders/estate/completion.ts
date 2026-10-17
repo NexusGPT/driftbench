@@ -24,6 +24,9 @@ const strings = (value: unknown): string[] =>
   Array.isArray(value) ? value.filter((v): v is string => typeof v === 'string') : [];
 const rows = (value: unknown): RecordValue[] => (Array.isArray(value) ? value.map(record) : []);
 const foreign = '__outside_assertion__';
+/** The verdicts by which a guard acts on a run (docs/estate.md, "guard_message"): it stops the act, or tells the agent
+ * something and lets the act through. A run of any other verdict is no intervention and has no message to judge. */
+const GUARD_INTERVENTIONS = ['deny', 'block', 'warn', 'nudge'];
 // A bounded universal witness basis exercises the beginning, interior and end.
 const positions = ['first', 'middle', 'last'] as const;
 function atPosition<T>(values: T[], position: (typeof positions)[number]): T | undefined {
@@ -281,7 +284,7 @@ export function completionComponents(spec: Spec): ComponentInventory {
       } else if (channel === 'custom' && check === 'guard_message') {
         keys(['name', 'mustNot', 'block']);
         const matches = (g: RecordValue) =>
-          g.name === opts.name && ['deny', 'block', 'warn'].includes(String(g.verdict));
+          g.name === opts.name && GUARD_INTERVENTIONS.includes(String(g.verdict));
         const selected = (o: Observed) => rows(o.runtime?.guards).filter(matches);
         add('intervention.exists', (o) => {
           if (o.runtime?.guards) o.runtime.guards = o.runtime.guards.filter((g) => !matches(g));
@@ -334,13 +337,12 @@ export function completionComponents(spec: Spec): ComponentInventory {
           prepare,
         );
         required(inventory.components.at(-1)).violationOutcome = 'inconclusive';
-        const interventions = ['deny', 'block', 'warn'];
         const excludedVerdicts = new Set([
           'allow',
-          ...interventions.flatMap((value) =>
+          ...GUARD_INTERVENTIONS.flatMap((value) =>
             comparisonWitnesses(value)
               .map((variant) => variant.value)
-              .filter((value) => !/^(deny|block)$/i.test(value) && value !== 'warn'),
+              .filter((value) => !/^(deny|block)$/i.test(value) && !GUARD_INTERVENTIONS.includes(value)),
           ),
         ]);
         for (const verdict of excludedVerdicts)
