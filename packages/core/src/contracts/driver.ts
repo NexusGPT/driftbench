@@ -21,6 +21,12 @@ export type DriverContext = {
    * the whole run, for a driver that tracks what it injected. Absent in a context written by hand: read `history`.
    */
   readonly branch?: readonly BlockResult[];
+  /**
+   * The branch of any spec block, for a driver that moves `blockIndex` before it passes the context on (the
+   * perturbing driver resumes at the block after the one a world change replaced). Absent in a context
+   * written by hand.
+   */
+  readonly branchOf?: (blockIndex: number) => readonly BlockResult[];
 };
 
 /** What a driver hands the runner for one block. */

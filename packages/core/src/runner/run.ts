@@ -435,10 +435,10 @@ async function execute(run: RunContext, channel: Channel): Promise<RunResult | u
         error = `the driver ${run.driver.id} did not stop within ${run.maxSteps} steps`;
         break;
       }
-      const branch = run.parentOrder
-        ? ancestorResults(spec.blocks[nextBlock]?.parent, recordings)
+      const branchOf = run.parentOrder
+        ? (index: number) => ancestorResults(spec.blocks[index]?.parent, recordings)
         : undefined;
-      const step = await nextStep(run, nextBlock, blocks, branch);
+      const step = await nextStep(run, nextBlock, blocks, branchOf);
       if (step.kind === 'stop') {
         endVerdict = step.verdict;
         if (step.verdict === 'inconclusive') {
@@ -1098,7 +1098,7 @@ async function nextStep(
   run: RunContext,
   blockIndex: number,
   blocks: BlockResult[],
-  branch: BlockResult[] | undefined,
+  branchOf: ((blockIndex: number) => BlockResult[]) | undefined,
 ): Promise<DriverStep> {
   try {
     return await run.driver.next({
@@ -1106,7 +1106,8 @@ async function nextStep(
       mode: run.mode,
       blockIndex,
       history: [...blocks],
-      branch: branch ?? [...blocks],
+      branch: branchOf ? branchOf(blockIndex) : [...blocks],
+      ...(branchOf ? { branchOf } : {}),
     });
   } catch (cause) {
     throw new RunnerError(
