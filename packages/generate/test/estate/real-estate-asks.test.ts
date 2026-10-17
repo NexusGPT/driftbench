@@ -661,12 +661,8 @@ describe('the review of the guard and gate asks: no broken sentence from a prono
   });
 
   it('never pastes a guard rule written as an imperative, nor an act with a condition inside it', () => {
-    expect(ask('End every reply with the clinic phone line.', 'Stop')).toBe(
-      'Please explain in full detail everything you can do for me here.',
-    );
-    expect(ask('Nudges when a reply lacks the phone line', 'Stop')).toBe(
-      'Please explain in full detail everything you can do for me here.',
-    );
+    expect(ask('End every reply with the clinic phone line.', 'Stop')).toBeUndefined();
+    expect(ask('Nudges when a reply lacks the phone line', 'Stop')).toBeUndefined();
     expect(
       codeAsk('trigger', [guard({ ruleText: 'Ask before an Edit of a policy file.', matcher: 'Edit' })], [])
         .text,
@@ -708,13 +704,42 @@ function ask(ruleText: string, event: string): string | undefined {
   return codeAsk('trigger', [guard], []).text;
 }
 
-it('does not read the exception of a rule ("unless the user asks for detail") as the act it guards', () => {
-  const guard = atom('guard.catalogue.length', {
-    fields: { ruleText: 'Keep every reply short unless the user asks for detail.', event: 'Stop' },
+describe('a guard on the end of a turn, with no tool and no strict act, has no ask', () => {
+  const stop = (ruleText: string, enforced?: string) =>
+    atom('guard.catalogue.length', {
+      fields: {
+        ruleText,
+        event: 'Stop',
+        ...(enforced ? { enforces: [{ atom: 'register.clinic.brief' }] } : {}),
+      },
+    });
+  const rule = atom('register.clinic.brief', {
+    title: 'Keep every note under 400 words unless the nurse asks for the full chart',
   });
-  expect(codeAsk('trigger', [guard], []).text).toBe(
-    'Please explain in full detail everything you can do for me here.',
-  );
+  const lookup = (id: string) => (id === rule.id ? rule : undefined);
+
+  it('does not read the exception of a rule as the act it guards, nor ask for the exception', () => {
+    for (const ruleText of [
+      'Keep every reply short unless the user asks for detail.',
+      'Keep every note short unless the nurse asks for the full chart.',
+    ]) {
+      const written = codeAsk('trigger', [stop(ruleText)], []);
+      expect(written.text, ruleText).toBeUndefined();
+      expect(written.refused, ruleText).toMatch(/no task/);
+    }
+  });
+
+  it('has no ask whether the rule comes from the guard text or from a rule it enforces', () => {
+    const written = codeAsk('forced', [stop('Judges the length of each note.', 'yes')], [], false, lookup);
+    expect(written.text).toBeUndefined();
+    expect(written.refused).toMatch(/no task/);
+  });
+
+  it('keeps a strict act of the rule text, which needs no tool', () => {
+    expect(codeAsk('trigger', [stop('Sending a discharge note while the chart is unsigned.')], []).text).toBe(
+      'Please send a discharge note.',
+    );
+  });
 });
 
 describe('a description gives its work only in the shape of a request', () => {

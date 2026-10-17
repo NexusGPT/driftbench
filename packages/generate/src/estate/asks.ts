@@ -1160,11 +1160,8 @@ function forcedAct(
       act: TOOL_ACTS[matcher] ?? `use the ${matcher} tool on the files here`,
       ...(context ? { context } : {}),
     };
-  if (event === 'Stop' || event === 'SubagentStop')
-    return {
-      act: 'explain in full detail everything you can do for me here',
-      ...(context ? { context } : {}),
-    };
+  // A guard on the end of a turn judges the reply, and no owner request makes a reply break its rule without
+  // asking for the very exception the rule allows: with no tool and no strict act in its rule it has no ask.
   return null;
 }
 
@@ -1325,7 +1322,7 @@ function guardAct(
       !candidate.split(/\s+/).some((word) => CLAUSE_WORDS.has(word.toLowerCase()))
         ? candidate
         : undefined;
-    if (forced && purpose && !forced.act.startsWith('explain') && !forced.message) {
+    if (forced && purpose && !forced.message) {
       const fused = `${forced.act} to ${purpose}`;
       if (askable(fused) === undefined) return { act: fused, source, forced: { ...forced, act: fused } };
     }
@@ -1336,7 +1333,7 @@ function guardAct(
   if (tool) {
     // The object the rule names (from its strict situation) joins the act: "run a command in the shell here for
     // a force push to the shared branch".
-    const object = situation && !tool.act.startsWith('explain') ? `${tool.act} for ${situation}` : tool.act;
+    const object = situation ? `${tool.act} for ${situation}` : tool.act;
     const fused = { act: askable(object) === undefined ? object : tool.act };
     return { act: fused.act, source: `${guard.id} (tool)`, forced: fused };
   }
