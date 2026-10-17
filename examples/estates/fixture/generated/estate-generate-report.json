@@ -3,13 +3,13 @@
   "map": {
     "path": "../approved.yaml",
     "runtime": "claude-code",
-    "hash": "be2e7a0919cb31aecf73102cd271e7611cb439be814983a47b9dc39e38775f10",
-    "atoms": 125
+    "hash": "e48ea73788c2fb36e8def0b10b39a3551139beb107f54959237f272c2aa7ba41",
+    "atoms": 126
   },
   "plan": {
     "path": "../../../../packages/generate/test/estate/fixtures/planner-plan.approved.yaml",
-    "rows": 1569,
-    "approved": 1569,
+    "rows": 1571,
+    "approved": 1571,
     "proposed": 0,
     "struck": 0
   },
@@ -42,9 +42,9 @@
     "judge": true
   },
   "summary": {
-    "specs": 1562,
-    "blocks": 1557,
-    "complete": 1535,
+    "specs": 1564,
+    "blocks": 1559,
+    "complete": 1537,
     "incomplete": 27,
     "judged": 464
   },
@@ -458,10 +458,10 @@
     ]
   },
   "quality": {
-    "completeShare": 0.9827144686299616,
-    "askedTests": 1527,
-    "distinctAsks": 128,
-    "distinctAsksPer100": 8.382449246889326
+    "completeShare": 0.9827365728900256,
+    "askedTests": 1529,
+    "distinctAsks": 129,
+    "distinctAsksPer100": 8.436886854153041
   },
   "unit": {
     "tests": 29,
@@ -478,17 +478,17 @@
   },
   "sources": {
     "asks": {
-      "bank": 443,
-      "code": 1084,
+      "bank": 444,
+      "code": 1085,
       "session": 0,
       "none": 8
     },
     "outcomes": {
-      "bank": 992,
+      "bank": 993,
       "no-change:guard": 26,
       "no-change:negative": 56,
       "no-change:read-only": 83,
-      "no-delete": 370,
+      "no-delete": 371,
       "static": 8
     },
     "judged": 304
@@ -544,9 +544,9 @@
       "incomplete": 0
     },
     "read_when": {
-      "rows": 9,
-      "specs": 9,
-      "complete": 6,
+      "rows": 10,
+      "specs": 10,
+      "complete": 7,
       "incomplete": 3
     },
     "script_fixture": {
@@ -658,9 +658,9 @@
       "incomplete": 0
     },
     "journey": {
-      "rows": 11,
-      "specs": 11,
-      "complete": 11,
+      "rows": 12,
+      "specs": 12,
+      "complete": 12,
       "incomplete": 0
     }
   },
@@ -678,9 +678,9 @@
       "incomplete": 2
     },
     "live": {
-      "rows": 1526,
-      "specs": 1519,
-      "complete": 1500,
+      "rows": 1528,
+      "specs": 1521,
+      "complete": 1502,
       "incomplete": 19
     }
   },
