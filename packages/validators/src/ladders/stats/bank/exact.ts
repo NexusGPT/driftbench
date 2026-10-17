@@ -203,8 +203,13 @@ export function exactItem(spec: Spec): BankItem {
       for (const [i, c] of cases.entries()) {
         const got = await attemptAsync(async () => spec.call(s, c, root));
         if (got.error) {
-          if (spec.missing && got.error.message.includes('is not exported'))
-            return fail(`${spec.fn} does not exist in @agent-nexus/driftbench-stats. ${spec.missing}`);
+          if (got.error.message.includes('is not exported'))
+            return fail(
+              `${spec.fn} does not exist in @agent-nexus/driftbench-stats. ${
+                spec.missing ??
+                `Add it to ${spec.component} and export it from packages/stats/src/index.ts; docs/concepts/statistics.md describes what it computes.`
+              }`,
+            );
           misses.push(`case ${i} threw ${got.error.name}: ${got.error.message}`);
           continue;
         }
