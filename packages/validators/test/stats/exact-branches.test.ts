@@ -2,6 +2,7 @@ import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:f
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { isDeepStrictEqual } from 'node:util';
 import { describe, expect, it } from 'vitest';
 import { branchItems } from '../../src/ladders/stats/bank/exact-branches';
 import { runItem } from '../../src/ladders/stats/bank/index';
@@ -40,6 +41,48 @@ const scale = (value: unknown): unknown => {
 
 /** Faults for the items whose numbers a relative change of 0.2 percent cannot move (zeros, ones, counts). */
 const OWN_FAULT: Record<string, (original: Fn) => Fn> = {
+  // Wrong limits, finite poles, a phantom class, and overflow: relative nudges cannot move these outputs.
+  'exact.normalSf.sibling-infinite':
+    (f) =>
+    (...a) =>
+      1 - (f(...a) as number),
+  'exact.normalCdf.sibling-far':
+    (f) =>
+    (...a) =>
+      1 - (f(...a) as number),
+  'exact.erfc.sibling-infinite':
+    (f) =>
+    (...a) =>
+      2 - (f(...a) as number),
+  'exact.chiSquareSf.sibling-infinite': () => () => 1,
+  'exact.mean.sibling-no-overflow':
+    () =>
+    (...a) =>
+      (a[0] as number[]).reduce((sum, x) => sum + x, 0) / (a[0] as number[]).length,
+  'exact.normalCdf.valid-odd':
+    (f) =>
+    (...a) =>
+      1 - (f(...a) as number),
+  'exact.normalQuantile.valid-odd': () => () => 0,
+  'exact.logGamma.valid-odd': () => () => 0,
+  'exact.kolmogorovSf.valid-odd':
+    (f) =>
+    (...a) =>
+      1 - (f(...a) as number),
+  'exact.abundances.valid-odd': () => () => [0],
+  'exact.betaQuantile.valid-odd':
+    (f) =>
+    (...a) =>
+      1 - (f(...a) as number),
+  'exact.incompleteBeta.valid-odd':
+    (f) =>
+    (...a) =>
+      1 - (f(...a) as number),
+  'exact.binomialCdf.valid-odd':
+    (f) =>
+    (...a) =>
+      1 - (f(...a) as number),
+
   'exact.binomialCdf.edges':
     (f) =>
     (...a) =>
@@ -164,7 +207,7 @@ const FUNCTION_FAULT: Record<string, (original: Fn) => Fn> = {
     },
 };
 
-function plant(id: string, how: 'nudge' | 'throw'): StatsImpl {
+function plant(id: string, how: 'nudge' | 'throw', changed: string[] = []): StatsImpl {
   const name = id.split('.')[1] as string;
   const original = S[name] as Fn;
   const bad: Fn =
@@ -177,7 +220,14 @@ function plant(id: string, how: 'nudge' | 'throw'): StatsImpl {
         : FUNCTION_FAULT[name]
           ? (FUNCTION_FAULT[name] as (f: Fn) => Fn)(original)
           : (...a) => nudge(original(...a));
-  return { ...real, [name]: bad } as unknown as StatsImpl;
+  return {
+    ...real,
+    [name]: (...a: unknown[]) => {
+      const result = bad(...a);
+      if (how === 'nudge' && !isDeepStrictEqual(result, original(...a))) changed.push(id);
+      return result;
+    },
+  } as unknown as StatsImpl;
 }
 
 describe('the branch items of the statistics bank', { timeout: 300_000 }, () => {
@@ -194,7 +244,9 @@ describe('the branch items of the statistics bank', { timeout: 300_000 }, () => 
 
   it.each(items.map((item) => item.id))('%s fails under a fault of its own function', async (id) => {
     const item = byId.get(id) as (typeof items)[number];
-    const nudged = await runItem(item, 1, ROOT, plant(id, 'nudge'));
+    const changed: string[] = [];
+    const nudged = await runItem(item, 1, ROOT, plant(id, 'nudge', changed));
+    expect(changed.length, 'the mutant must change an exercised result').toBeGreaterThan(0);
     expect(nudged.pass, `${id} passes with the numbers off`).toBe(false);
     const thrown = await runItem(item, 1, ROOT, plant(id, 'throw'));
     expect(thrown.pass, `${id} passes when the function throws`).toBe(false);
@@ -514,7 +566,7 @@ const MUTANTS: Mutant[] = [
 ];
 
 async function loadMutant(mutant: Mutant): Promise<{ impl: StatsImpl; dir: string }> {
-  const dir = mkdtempSync(join(tmpdir(), 'exact-branches-'));
+  const dir = mkdtempSync(join(tmpdir(), 'astra-stats-exact-branches-'));
   cpSync(join(ROOT, 'packages/stats/src'), join(dir, 'src'), { recursive: true });
   const path = join(dir, 'src', mutant.file);
   const before = readFileSync(path, 'utf8');

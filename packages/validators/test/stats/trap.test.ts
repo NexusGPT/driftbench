@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -11,6 +11,7 @@ import { describe, expect, it } from 'vitest';
  * node process of its own, because the trap patches `fs` for the whole process.
  */
 const TRAP = fileURLToPath(new URL('../../src/ladders/stats/bank/trap.ts', import.meta.url));
+const RUN_CHILD = fileURLToPath(new URL('../../src/ladders/stats/bank/run-child.ts', import.meta.url));
 
 function run(
   dir: string,
@@ -64,7 +65,7 @@ describe('the bank child trap', { timeout: 60_000 }, () => {
     ],
   ];
   it.each(cases)('stops %s', (_name, source, callStart) => {
-    const dir = mkdtempSync(join(tmpdir(), 'trap-'));
+    const dir = mkdtempSync(join(tmpdir(), 'astra-stats-trap-'));
     try {
       const call = callStart + (callStart.endsWith('(') ? `${JSON.stringify(join(dir, 'data.txt'))})` : '');
       const r = run(dir, source, call);
@@ -77,7 +78,7 @@ describe('the bank child trap', { timeout: 60_000 }, () => {
   });
 
   it('lets node load the sibling files of a package, and still stops the package reading', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'trap-'));
+    const dir = mkdtempSync(join(tmpdir(), 'astra-stats-trap-'));
     try {
       const sibling = { 'helper.cjs': 'module.exports = { double: (x) => x * 2 };' };
       const loads = run(
@@ -102,11 +103,66 @@ describe('the bank child trap', { timeout: 60_000 }, () => {
   });
 
   it('leaves a package that only computes alone, and the validator its own reads', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'trap-'));
+    const dir = mkdtempSync(join(tmpdir(), 'astra-stats-trap-'));
     try {
       const r = run(dir, 'export const f = (x) => x * 2;', 'pkg.f(21)');
       expect(r.out).toContain('"result":"42"');
       expect(r.out).toContain('"own":"expected"');
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});
+
+// The actual default-target bootstrap, with a bank import that also reaches the target transitively.
+describe('default-target initialization', { timeout: 60_000 }, () => {
+  it.each([false, true])('guards initialization before the bank loads (oracle read: %s)', (reads) => {
+    const dir = mkdtempSync(join(tmpdir(), 'astra-stats-bootstrap-'));
+    try {
+      const src = join(dir, 'packages/stats/src');
+      mkdirSync(src, { recursive: true });
+      cpSync(RUN_CHILD, join(dir, 'run-child.ts'));
+      cpSync(TRAP, join(dir, 'trap.ts'));
+      writeFileSync(join(dir, 'package.json'), '{"type":"module"}');
+      writeFileSync(join(dir, 'oracle.txt'), 'oracle');
+      writeFileSync(
+        join(src, 'index.ts'),
+        reads
+          ? `import { readFileSync } from 'node:fs'; readFileSync(${JSON.stringify(join(dir, 'oracle.txt'))}, 'utf8');`
+          : 'export const normalCdf = () => 0.5;',
+      );
+      writeFileSync(
+        join(dir, 'index.ts'),
+        `
+        import '@agent-nexus/driftbench-stats';
+        export const statsBank = () => [];
+        export const runItem = () => { throw new Error('no items requested'); };
+      `,
+      );
+      writeFileSync(
+        join(dir, 'tsconfig.json'),
+        JSON.stringify({
+          compilerOptions: {
+            paths: { '@agent-nexus/driftbench-stats': [join(src, 'index.ts')] },
+          },
+        }),
+      );
+      const env: NodeJS.ProcessEnv = { ...process.env, TSX_TSCONFIG_PATH: join(dir, 'tsconfig.json') };
+      delete env.DRIFTBENCH_STATS_IMPL;
+      const result = spawnSync(
+        process.execPath,
+        [
+          '--import',
+          'tsx',
+          '--input-type=module',
+          '-e',
+          `import { statsBankChild } from ${JSON.stringify(join(dir, 'run-child.ts'))};
+         await statsBankChild(['1', ${JSON.stringify(dir)}, '0']);`,
+        ],
+        { cwd: fileURLToPath(new URL('../../', import.meta.url)), env, input: '[]', encoding: 'utf8' },
+      );
+      expect(result.status, result.stderr).toBe(reads ? 1 : 0);
+      if (reads) expect(result.stderr).toContain('may not read files');
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

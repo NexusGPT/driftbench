@@ -1,6 +1,7 @@
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { isDeepStrictEqual } from 'node:util';
 import { describe, expect, it } from 'vitest';
 import { runItem, statsBank } from '../../src/ladders/stats/bank/index';
 import type { BankItem } from '../../src/ladders/stats/bank/item';
@@ -17,7 +18,7 @@ import { ROOT, real } from './support';
 const REPORT_FUNCTIONS = ['suiteHeadline', 'clusterRate'];
 const items: BankItem[] = statsBank(ROOT).filter((item) => item.id.startsWith('exact.'));
 const byFunction = new Map<string, BankItem[]>();
-for (const item of items) {
+for (const item of items.filter((item) => !item.id.startsWith('exact.source.'))) {
   const name = item.id.split('.')[1] as string;
   byFunction.set(name, [...(byFunction.get(name) ?? []), item]);
 }
@@ -34,6 +35,16 @@ function nudge(value: unknown): unknown {
 type Fn = (...args: unknown[]) => unknown;
 /** The planted fault of a function whose output has nothing a 0.2 percent nudge could move. */
 const FAULTS: Record<string, (real: Fn) => Fn> = {
+  // Overflow-prone sums, including integer-valued large finite means.
+  mean:
+    () =>
+    (...a) =>
+      (a[0] as number[]).reduce((sum, x) => sum + x, 0) / (a[0] as number[]).length,
+  // Boundary probabilities 0 and 1 do not move under the generic nudge.
+  incompleteBeta:
+    (f) =>
+    (...a) =>
+      (f(...a) as number) + 0.01,
   // counts in the wrong order
   abundances:
     (f) =>
@@ -62,7 +73,7 @@ const FAULTS: Record<string, (real: Fn) => Fn> = {
   mulberry32: (f) => (seed: unknown) => f((seed as number) + 1),
 };
 
-function plant(name: string, how: 'nudge' | 'throw'): StatsImpl {
+function plant(name: string, how: 'nudge' | 'throw', changed: string[] = []): StatsImpl {
   const original = (real as unknown as Record<string, unknown>)[name] as Fn;
   const bad: Fn =
     how === 'throw'
@@ -75,7 +86,14 @@ function plant(name: string, how: 'nudge' | 'throw'): StatsImpl {
             const r = original(...a);
             return nudge(r);
           };
-  return { ...real, [name]: bad } as unknown as StatsImpl;
+  return {
+    ...real,
+    [name]: (...a: unknown[]) => {
+      const result = bad(...a);
+      if (how === 'nudge' && !isDeepStrictEqual(result, original(...a))) changed.push(name);
+      return result;
+    },
+  } as unknown as StatsImpl;
 }
 
 async function losing(group: BankItem[], impl: StatsImpl): Promise<string[]> {
@@ -93,7 +111,7 @@ describe('the exact-value items of the statistics bank', { timeout: 180_000 }, (
     expect(items.length).toBeGreaterThanOrEqual(40);
     for (const item of items) {
       expect(item.cause?.length).toBeGreaterThan(10);
-      if (!REPORT_FUNCTIONS.includes(item.id.split('.')[1] as string))
+      if (!item.id.startsWith('exact.source.') && !REPORT_FUNCTIONS.includes(item.id.split('.')[1] as string))
         expect((real as unknown as Record<string, unknown>)[item.id.split('.')[1] as string]).toBeTypeOf(
           'function',
         );
@@ -112,7 +130,9 @@ describe('the exact-value items of the statistics bank', { timeout: 180_000 }, (
   const statsFunctions = [...byFunction.keys()].filter((name) => name in real);
 
   it.each(statsFunctions)('%s: an item fails when its numbers are 0.2 percent off', async (name) => {
-    const lost = await losing(byFunction.get(name) as BankItem[], plant(name, 'nudge'));
+    const changed: string[] = [];
+    const lost = await losing(byFunction.get(name) as BankItem[], plant(name, 'nudge', changed));
+    expect(changed.length, 'the mutant must change an exercised result').toBeGreaterThan(0);
     expect(lost.length, `no exact item of ${name} fails under the planted fault`).toBeGreaterThan(0);
   });
 
@@ -164,6 +184,40 @@ describe('the exact-value items of the statistics bank', { timeout: 180_000 }, (
   });
 });
 
+describe('source guards are source checks, not exported functions', () => {
+  const guards = items.filter((item) => item.id.startsWith('exact.source.'));
+  const faults = [
+    ['reads-files', "import { readFileSync } from 'node:fs';"],
+    ['reads-process-state', 'const args = process.argv;'],
+    ['reads-call-stack', 'const stack = new Error().stack;'],
+    ['runs-generated-code', "const f = new Function('return 1');"],
+    ['names-the-validator', "const oracle = 'validators/fixtures/exact.json';"],
+  ];
+
+  it('retains all five registered source items outside function grouping', () => {
+    expect(guards.map((item) => item.id).sort()).toEqual(faults.map(([id]) => `exact.source.${id}`).sort());
+    expect(byFunction.has('source')).toBe(false);
+  });
+
+  it.each(faults)('rejects forbidden source: %s', async (id, source) => {
+    const root = mkdtempSync(join(tmpdir(), 'astra-stats-source-'));
+    try {
+      const src = join(root, 'packages/stats/src');
+      mkdirSync(src, { recursive: true });
+      const file = join(src, 'index.ts');
+      const item = guards.find((item) => item.id === `exact.source.${id}`) as BankItem;
+      writeFileSync(file, 'export const identity = (x: number) => x;');
+      expect((await runItem(item, 1, root, real)).pass).toBe(true);
+      writeFileSync(file, source as string);
+      const result = await runItem(item, 1, root, real);
+      expect(result.pass, result.detail).toBe(false);
+      expect(result.detail).toContain('Remove it.');
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+});
+
 /**
  * The report-side items read the product's own report code, which is not a statistics function to replace in
  * the package object. A planted fault there is a changed copy of the report source: a root of its own holds the
@@ -173,7 +227,7 @@ describe('the exact-value items of the report', { timeout: 180_000 }, () => {
   const reportItems = items.filter((item) => REPORT_FUNCTIONS.includes(item.id.split('.')[1] as string));
 
   function rootWith(file: string, change: (text: string) => string): string {
-    const root = mkdtempSync(join(tmpdir(), 'exact-report-'));
+    const root = mkdtempSync(join(tmpdir(), 'astra-stats-exact-report-'));
     const report = join(root, 'packages', 'report');
     mkdirSync(report, { recursive: true });
     cpSync(join(ROOT, 'packages/report/src'), join(report, 'src'), { recursive: true });
