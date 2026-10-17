@@ -1,10 +1,9 @@
 import type { Provenance, StoreDoc } from '../interface';
 
 /**
- * The rules of the variable store format (docs/variables.md) that a store built by `buildStore` must keep, checked
- * on the bank's StoreDoc. Every store an item builds goes through it, so a store the format would refuse is a
- * failing item whatever else it gets right. The checks are written from the page: they are the bank's own, not the
- * loader's.
+ * Checks of the fields shared by StoreDoc and docs/variables.md. This is not a full file-schema validator:
+ * StoreDoc omits file metadata and permits an empty reader result. Missing provenance is warning-only in
+ * the file format; the stronger source-reader obligation is checked separately by build().
  */
 
 const ID = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
@@ -86,8 +85,6 @@ export function formatProblems(store: StoreDoc): string[] {
         add(`the value id ${JSON.stringify(x.id)} of ${v.id} does not match ${ID}`);
       if (seenVals.has(x.id)) add(`the value id ${x.id} of ${v.id} is written twice`);
       seenVals.add(x.id);
-      if (!Array.isArray(x.provenance) || x.provenance.length === 0)
-        add(`the value ${x.id} of ${v.id} names no provenance`);
       for (const p of x.provenance ?? []) {
         const bad = provenanceProblem(p);
         if (bad) add(`the value ${x.id} of ${v.id}: ${bad}`);

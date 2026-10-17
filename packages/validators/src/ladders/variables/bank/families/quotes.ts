@@ -1,6 +1,6 @@
 import type { EstateInput, Refusal, StoreDoc } from '../../interface';
 import { OWNER_DATE } from '../constants';
-import { build, type StemRun } from '../item';
+import { build, type ItemContext, type StemRun } from '../item';
 import { fileOf, QUANTITIES, ruleSentence } from '../oracle/conditions';
 import {
   estateOf,
@@ -162,9 +162,33 @@ function mutate(rng: Rng, quote: string, file: string, kind: string): string {
       default:
         throw new Error(`unknown mutation ${kind}`);
     }
-    if (m !== quote && !file.includes(m) && m.trim() !== '') return m;
+    if (m !== quote && !foldForGeneration(file).includes(foldForGeneration(m)) && m.trim() !== '') return m;
   }
   throw new Error(`could not mutate the quote ${quote} by ${kind}`);
+}
+
+/** Known positive equivalences from docs/variables.md Provenance, independent of the reader. */
+export const NORMALIZED_QUOTES = [
+  ['space runs', 'the account\t  is\r\nopen', 'the account is open'],
+  ['typographic quotes', 'the “café” account’s value', 'the "café" account\'s value'],
+  ['composed accents', 'cafe\u0301 is open', 'café is open'],
+  ['invisible characters', 'the ac\u200bcount is\u00ad open', 'the account is open'],
+  ['markdown escaping', 'the \\*open\\* account', 'the *open* account'],
+] as const;
+
+function normalizationControls(ctx: ItemContext): void {
+  for (const [label, text, quote] of NORMALIZED_QUOTES) {
+    const store = build(ctx, {
+      estate: toolEstate({ 'TOOLS.md': text }, [tool('account', 'TOOLS.md', [{ id: 'normalized', quote }])]),
+    });
+    mustKeep(store, quote, 'normalized', label, 'TOOLS.md');
+    must(store.refused.length === 0, () => `${label}: a normalized findable quote was refused`);
+  }
+}
+
+/** Generator guard only: changes of whitespace alone are not negative examples. */
+function foldForGeneration(text: string): string {
+  return text.normalize('NFC').replace(/\s+/g, ' ').trim();
 }
 
 export const QUOTES_RUNS: Record<string, StemRun> = {
@@ -256,6 +280,19 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
   },
 
   'quotes.refuse.inexact': (variant, ctx) => {
+    // Every negative mutation retains case/punctuation sensitivity after normalization.
+    const sensitivity = build(ctx, {
+      estate: toolEstate({ 'TOOLS.md': 'account value payable is open.' }, [
+        tool('account', 'TOOLS.md', [
+          { id: 'good', quote: 'account value payable' },
+          { id: 'casechange', quote: 'ACCOUNT value payable' },
+          { id: 'punctuationchange', quote: 'account value payable!' },
+        ]),
+      ]),
+    });
+    mustKeep(sensitivity, 'account value payable', 'good', 'case/punctuation positive control');
+    mustRefuse(sensitivity, 'ACCOUNT value payable', 'casechange', 'case sensitivity');
+    mustRefuse(sensitivity, 'account value payable!', 'punctuationchange', 'punctuation sensitivity');
     const { rng } = ctx;
     const t = threeValues(rng);
     const files: Record<string, string> = { 'TOOLS.md': t.file };
@@ -278,6 +315,7 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
   },
 
   'quotes.accept.multiline': (variant, ctx) => {
+    normalizationControls(ctx);
     const { rng } = ctx;
     const eol = variant === 'crlf' ? '\r\n' : '\n';
     const lines = [...plainLines(rng, 4)];
@@ -346,6 +384,7 @@ export const QUOTES_RUNS: Record<string, StemRun> = {
   },
 
   'quotes.accept.unicode': (variant, ctx) => {
+    normalizationControls(ctx);
     const { rng } = ctx;
     const quote =
       variant === 'accents'

@@ -39,7 +39,7 @@ describe('the variables bank', () => {
     expect(Object.keys(RUNS).sort()).toEqual(STEMS.map((s) => s.id).sort());
   });
 
-  it('has at least 100 distinct causes', () => {
+  it('has at least 100 candidate cause labels (independence requires the pending audit)', () => {
     expect(new Set(bank.map((item) => item.cause)).size).toBeGreaterThanOrEqual(100);
   });
 
@@ -125,13 +125,6 @@ describe('the store format check', () => {
         variable(s).id = '-bad';
       },
       /does not match/,
-    ],
-    [
-      'a value with no provenance',
-      (s) => {
-        value(s, 0).provenance = [];
-      },
-      /no provenance/,
     ],
     [
       'weights on some values only',

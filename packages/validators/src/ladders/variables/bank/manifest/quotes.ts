@@ -30,7 +30,7 @@ export const QUOTES: readonly StemDef[] = [
     generator:
       'A value whose quote is not in its file: unrelated text, text that sits in another file, or a findable quote with one extra word appended.',
     oracle: 'The value is not in the store and the refusal list names it.',
-    cause: 'a value whose quote is not in its source file is refused',
+    cause: 'a value whose normalized quote is absent from its named source is refused',
     variants: [
       ['unrelated-text', 1],
       ['other-file-text', 2],
@@ -72,8 +72,9 @@ export const QUOTES: readonly StemDef[] = [
     need: 'P4',
     generator:
       'A findable quote changed a little: written in capitals, first letter in another case, one character inserted, deleted or substituted, two neighbours swapped, one word skipped, or the end of line 1 joined to the start of line 3.',
-    oracle: 'The value is refused: a quote is copied word for word, contiguous, in the case of the file.',
-    cause: 'quote matching is exact: case, every character and contiguity count',
+    oracle:
+      'After the documented normalization the quote is still absent; case, punctuation and word order remain significant.',
+    cause: 'a value whose normalized quote is absent from its named source is refused',
     variants: [
       ['all-caps', 2],
       ['first-letter-case', 3],
@@ -93,7 +94,7 @@ export const QUOTES: readonly StemDef[] = [
     generator:
       'A quote that spans two or three lines of a file with LF line ends, or CRLF line ends and the CRLF in the quote.',
     oracle: 'The value is kept with its quote.',
-    cause: 'a quote that spans line breaks is matched against the raw file text',
+    cause: 'quote matching folds whitespace runs while keeping the stored quote unchanged',
     variants: [
       ['lf', 2],
       ['crlf', 3],
@@ -125,7 +126,7 @@ export const QUOTES: readonly StemDef[] = [
     generator:
       'Quotes with accents, CJK text, emoji above the basic plane, and right-to-left text, verbatim in the file.',
     oracle: 'The value is kept with its quote unchanged.',
-    cause: 'quotes with non-ASCII text are matched code point for code point',
+    cause: 'quote matching applies the documented Unicode and typography normalization',
     variants: [
       ['accents', 2],
       ['cjk', 3],
@@ -142,8 +143,8 @@ export const QUOTES: readonly StemDef[] = [
       'A tool field with 3 values where one, two, the first, or all of them have an unfindable quote.',
     oracle:
       'Only the values with an unfindable quote are missing; the others stay; a variable left with no value is not stored.',
-    cause:
-      'a refusal removes only the values whose quote is not findable, and a variable left with no value is dropped',
+    cause: 'refusing a value preserves its valid sibling values',
+    variantCauses: { 'all-bad': 'a variable left with no accepted value is dropped' },
     variants: [
       ['one-of-three', 3],
       ['two-of-three', 3],

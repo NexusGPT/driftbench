@@ -1,4 +1,6 @@
 {
+  "verificationStatus": "Historical, unverified report: the external reference and mutant implementations are unavailable. These numbers do not establish an independent audit pass or current bank soundness.",
+  "currentReproduction": "packages/validators/test/variables and validators/variables/compare-cheats.ts provide limited committed witnesses and mutations; see validators/variables/audit.md for pending gates.",
   "what": "Evidence that the bank can be passed and that it notices a bug. A reference implementation written from the specification and the store format, kept outside the repository, ran the bank; planted bugs (mutants of that reference) each lost at least one item. Data only: the reference and the mutants are not committed, so an executor cannot copy a solution from them.",
   "bankSize": 471,
   "referenceBySeed": {

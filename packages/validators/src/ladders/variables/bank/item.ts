@@ -99,9 +99,17 @@ export function build(ctx: ItemContext, sources: Sources): StoreDoc {
   const problems = formatProblems(store);
   must(
     problems.length === 0,
-    () =>
-      `buildStore returned a store the variable store format refuses (docs/variables.md): ${problems.join('; ')}`,
+    () => `buildStore returned invalid shared format fields (docs/variables.md): ${problems.join('; ')}`,
   );
+  for (const variable of store.variables) {
+    for (const value of variable.values) {
+      must(
+        Array.isArray(value.provenance) && value.provenance.length > 0,
+        () =>
+          `buildStore source-reader output: the value ${value.id} of ${variable.id} names no provenance (docs/variables.md R1)`,
+      );
+    }
+  }
   return store;
 }
 

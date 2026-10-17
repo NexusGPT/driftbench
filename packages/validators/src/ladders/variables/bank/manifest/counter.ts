@@ -145,9 +145,9 @@ export const COUNTER: readonly StemDef[] = [
     component: 'planner/counter',
     need: 'P13',
     generator:
-      'Rows that cover part of a small space; a limit of 5, no limit, and rows that cover everything.',
+      'Rows that cover part of a small space; a limit of 5, a limit larger than the uncovered set, and rows that cover everything.',
     oracle:
-      'The listed tuples are distinct, allowed and uncovered; their number is min(limit, uncovered); with no limit they are all of them.',
+      'The listed tuples are distinct, allowed and uncovered; their number is min(limit, uncovered); with a sufficiently large limit they are all of them.',
     cause: 'the counter lists the uncovered tuples, up to a limit',
     variants: [
       ['limit-five', 3],

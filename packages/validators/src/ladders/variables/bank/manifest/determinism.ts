@@ -42,7 +42,7 @@ export const DETERMINISM: readonly StemDef[] = [
     component: 'planner/determinism',
     need: 'P9',
     generator:
-      'The plan built in this process and in a new Node.js process: default environment; another time zone; a Turkish locale; ids that sort differently by code point and by locale (accents, dotless i).',
+      'The plan built in this process and in a new Node.js process: default environment; another time zone; a Turkish locale; valid ASCII IDs with mixed case and accented Unicode titles (the legacy item ID is unchanged).',
     oracle: 'The serialised plans are identical byte for byte.',
     cause: 'a plan does not depend on the process, its locale or its time zone',
     variants: [

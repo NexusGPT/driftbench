@@ -2,7 +2,7 @@
  * The neutral interface of the variables bank.
  *
  * The bank talks to the implementation through four functions on plain data (VariablesImpl) and reads a store as
- * a StoreDoc. StoreDoc follows the variable store format (docs/variables.md, PR 706): provenance kinds and
+ * a StoreDoc. StoreDoc is a projection of the variable store, not its serialized file schema: provenance kinds and
  * fields, relative weights, approval flags, boundaries. The readers that fill a store, the planner and the
  * counter are not built yet, so adapter.ts provides none of them and every item fails with the name of the
  * function it needs: that is the roadmap. When they land, only adapter.ts changes.
@@ -17,7 +17,7 @@ export type ValId = string;
 export type Row = Record<VarId, ValId>;
 
 /**
- * Where a value comes from. Every stored value has at least one. The three kinds and their fields are those of
+ * Where a value comes from. Source readers attach at least one to every value they produce; imported stores may omit provenance. The three kinds and their fields are those of
  * the variable store format (docs/variables.md "Provenance").
  */
 export type Provenance =
@@ -30,7 +30,8 @@ export type Provenance =
 
 export type StoreValue = {
   id: ValId;
-  provenance: Provenance[];
+  provenance?: Provenance[];
+  title?: string;
   /**
    * The bank's witness: a concrete case a test can use. For a numeric condition a number (below the limit, the
    * limit, above it), for a boolean condition true or false, for a membership condition and for a tool value a
@@ -56,6 +57,7 @@ export type StoreBoundary = {
 
 export type StoreVariable = {
   id: VarId;
+  title?: string;
   values: StoreValue[];
   /** A shared axis: crossed at strength 2 with the other shared axes. */
   shared?: boolean;

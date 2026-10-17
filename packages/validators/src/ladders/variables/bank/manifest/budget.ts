@@ -39,7 +39,7 @@ export const BUDGET: readonly StemDef[] = [
     generator:
       'Spaces of 4 and 10 variables with skewed shares, and a space with equal shares; a budget that keeps a tenth, a half, or all but the last third of the plan, with and without seeds.',
     oracle:
-      'After the seeds, the log weight of the new rows never decreases along the plan (most common first; equal weights may sit in any order); every new row a budget drops is at most as common as every new row it keeps, so the rarest rows are cut first and seed rows are always kept.',
+      'After the seeds, the log weight of the new rows never increases along the plan (most common first; equal weights may sit in any order); every new row a budget drops is at most as common as every new row it keeps, so the rarest rows are cut first and seed rows are always kept.',
     cause:
       'new rows are ordered by traffic weight, most common first, so a budget cuts the rarest rows first',
     variants: [
@@ -75,7 +75,7 @@ export const BUDGET: readonly StemDef[] = [
     assumption: ['A3'],
     generator:
       'Rows of 200 variables whose shares are about 0.01 (the product underflows to 0 in doubles) and 100 skewed variables.',
-    oracle: 'The log weight of the new rows never decreases along the plan.',
+    oracle: 'The log weight of the new rows never increases along the plan.',
     cause: 'row weights are compared in log space so long rows keep their order',
     variants: [
       ['two-hundred-variables', 5],

@@ -221,8 +221,8 @@ export const DETERMINISM_RUNS: Record<string, StemRun> = {
     } else if (variant === 'accented-ids-sort') {
       space = randomSpace(ctx.rng, { vars: 6, minArity: 3, maxArity: 3, shared: 3, rules: [3] });
       space.vars.forEach((v, i) => {
-        v.id = ['äpple', 'apple', 'zebra', 'öl', 'oil', 'åker'][i] as string;
-        v.values = ['ä', 'a', 'z'];
+        v.id = ['Apple', 'apple', 'zebra', 'Oil', 'oil', 'Aker'][i] as string;
+        v.values = ['A', 'a', 'z'];
       });
       for (const v of space.vars) v.weights = [0.34, 0.33, 0.33];
       env = { LC_ALL: 'sv_SE.UTF-8', LANG: 'sv_SE.UTF-8' };
@@ -238,6 +238,14 @@ export const DETERMINISM_RUNS: Record<string, StemRun> = {
       if (variant === 'other-time-zone') env = { TZ: 'Pacific/Kiritimati' };
     }
     const store = toStore(space);
+    if (variant === 'accented-ids-sort') {
+      store.variables.forEach((variable, i) => {
+        variable.title = ['äpple', 'apple', 'zebra', 'öl', 'oil', 'åker'][i];
+        variable.values.forEach((value, j) => {
+          value.title = ['ä', 'a', 'z'][j];
+        });
+      });
+    }
     const options: PlanOptions = { seed: ctx.seed };
     const here = planJson(planFresh(ctx, { space, store, options }));
     const there = inChild(ctx, { kind: 'plan', store, options }, env);

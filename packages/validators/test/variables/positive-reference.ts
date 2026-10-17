@@ -13,7 +13,7 @@ import type {
  * It enumerates small spaces independently of the bank oracle. The large binary fixture uses a bit-column
  * covering array: all-zero/all-one rows cover equal pairs; differing column bits cover unequal pairs.
  * Source construction only supports the tool fields and numeric triples used by these regression items.
- * IDs are passed through, including the bank's pre-existing accented-ID fixture (not grammar validation).
+ * IDs are checked against the product grammar; Unicode titles remain valid metadata.
  */
 const order = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
 const key = (row: Row) => JSON.stringify(Object.entries(row).sort(([a], [b]) => order(a, b)));
@@ -127,6 +127,11 @@ function buildStore(sources: Sources): StoreDoc {
 export const variablesImpl: VariablesImpl = {
   buildStore,
   plan(store, options) {
+    for (const variable of store.variables) {
+      for (const id of [variable.id, ...variable.values.map((value) => value.id)]) {
+        if (!/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(id)) throw new RangeError('invalid store ID');
+      }
+    }
     const seeds = options.seeds ?? [];
     const seeded = new Set(seeds.map(key));
     const rows = allRows(store)

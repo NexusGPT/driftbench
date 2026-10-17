@@ -57,7 +57,7 @@ export function variablesBank(): BankItem[] {
         tier,
         level: FAMILY_LEVEL[stem.family],
         component: stem.component,
-        cause: stem.cause,
+        cause: stem.variantCauses?.[key] ?? stem.cause,
         ...(heavy ? { budgetMs: HEAVY_ITEM_BUDGET_MS } : {}),
         check: (ctx) =>
           run

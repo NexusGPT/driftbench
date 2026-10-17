@@ -68,6 +68,8 @@ export type StemDef = {
   oracle: string;
   /** The one change that would make the stem's items pass. Stems sharing a cause count once. */
   cause: string;
+  /** Variant-specific candidate cause when a stem covers separate fixes. */
+  variantCauses?: Readonly<Record<string, string>>;
   /** The assumptions (ASSUMPTIONS) the oracle rests on, when it rests on any. */
   assumption?: readonly string[];
   variants: readonly Variant[];
@@ -93,11 +95,11 @@ export const COMPONENTS = {
 } as const;
 export type Component = keyof typeof COMPONENTS;
 
-/** The clauses of the specification the stems cite (the owner-approved plan of 17 October 2026). */
+/** The clauses now grounded in docs/variables.md, Programmatic readers and planning (R1–R15). */
 export const CLAUSES = {
   P1: 'One variable store shared by the prompt map and the estate map.',
   P2: 'Three sources feed it: the estate (a condition span names a variable; its values are the two sides of the condition plus the boundary), past conversations (values seen and how often; private, counts only), and the owner (missing values, impossible pairs, weights).',
-  P3: "Every value keeps its provenance (a quote with its source path, conversation counts, or the owner's words).",
+  P3: "Every reader-produced value keeps its provenance (a quote with its source path, conversation counts, or the owner's words).",
   P4: 'A value without a findable quote is refused.',
   P5: "Planner v2 is a variable-strength covering array: strength 3 on each rule's own variables (its condition and its tool evidence), strength 2 on the shared axes, strength 1 on every other variable.",
   P6: 'Real sessions enter first as seed rows, kept as they are; new rows cover only the tuples the seeds miss.',
@@ -118,22 +120,22 @@ export const CLAUSES = {
 } as const;
 export type ClauseId = keyof typeof CLAUSES;
 
-/** The assumptions the oracles rest on where the specification is silent or ambiguous. */
+/** Historical decision IDs, now grounded in the explicit product rules in docs/variables.md. */
 export const ASSUMPTIONS = {
-  A1: 'Budget order (ruled 2026-10-17): after the seed rows the new rows run most common first, a budget keeps a prefix, so the rarest rows are cut first. One constant (RARE_ROWS_CUT) holds the reading.',
-  A2: 'A tuple is allowed when some valid full row holds it (a pairwise-fine tuple that no valid row can hold is not allowed, so it is never required).',
-  A3: 'The traffic weight of a row is the product of the shares of its values, compared in log space. This assumes the variables are independent (ruled 2026-10-17); a joint distribution would need its own format.',
-  A4: 'A budget counts every plan row, seeds included. No item sets a budget below the number of seeds. A budget of 0 with no seeds gives an empty plan.',
-  A5: 'A value seen in conversations on a variable the store has, and absent from the store, is added as a proposal (approved false) with its counts as provenance; it counts in the plan only once a person approves it (ruled 2026-10-17).',
-  A6: 'A space with no valid row gives no rows or an error that names the conflict; never an invalid row, never a hang.',
-  A7: 'An argument outside its domain (budget, strength, unknown variable) raises a RangeError that names the argument.',
-  A8: 'A group with fewer variables than its strength is covered at its own size (the full cross product).',
-  A9: 'Ids follow the id grammar of the variable store format: variable and value ids match ^[A-Za-z0-9][A-Za-z0-9._-]*$.',
-  A10: 'An owner pair that names a variable or value the store lacks is refused with a reason.',
-  A11: 'An integer threshold gets integer samples on both sides (adjacent or further integers).',
-  A12: 'A boolean condition has two values (true, false); a membership condition has an in-list side and an out-of-list side; neither has a boundary.',
-  A13: 'The input format of the bank (files, rules, condition spans, tool evidence, sessions, owner entries) stands for the readers that fill a store, which are not built yet (docs/variables.md Status). The output follows the store format of PR 706.',
-  A14: 'Weights are relative (docs/variables.md Values): a variable weighs all its values or none, and a share is a weight over the total weight of its variable.',
-  A15: 'The 95 percent interval of a weight comes from a function weightInterval(count, total); the format stores the counts, not the interval.',
+  A1: 'docs/variables.md R9: Budget order (ruled 2026-10-17): after the seed rows the new rows run most common first, a budget keeps a prefix, so the rarest rows are cut first. One constant (RARE_ROWS_CUT) holds the reading.',
+  A2: 'docs/variables.md R6: A tuple is allowed when some valid full row holds it (a pairwise-fine tuple that no valid row can hold is not allowed, so it is never required).',
+  A3: 'docs/variables.md R9: The traffic weight of a row is the product of the shares of its values, compared in log space. This assumes the variables are independent (ruled 2026-10-17); a joint distribution would need its own format.',
+  A4: 'docs/variables.md R9: A budget counts every plan row, seeds included. No item sets a budget below the number of seeds. A budget of 0 with no seeds gives an empty plan.',
+  A5: 'docs/variables.md R5: A value seen in conversations on a variable the store has, and absent from the store, is added as a proposal (approved false) with its counts as provenance; it counts in the plan only once a person approves it (ruled 2026-10-17).',
+  A6: 'docs/variables.md R7: A space with no valid row gives no rows or an error that names the conflict; never an invalid row, never a hang.',
+  A7: 'docs/variables.md R10: An argument outside its domain (budget, strength, unknown variable) raises a RangeError that names the argument.',
+  A8: 'docs/variables.md R6: A group with fewer variables than its strength is covered at its own size (the full cross product).',
+  A9: 'docs/variables.md Limits of each field: Ids follow the id grammar of the variable store format: variable and value ids match ^[A-Za-z0-9][A-Za-z0-9._-]*$.',
+  A10: 'docs/variables.md R5: An owner pair that names a variable or value the store lacks is refused with a reason.',
+  A11: 'docs/variables.md R3: An integer threshold gets integer samples on both sides (adjacent or further integers).',
+  A12: 'docs/variables.md R3: A boolean condition has two values (true, false); a membership condition has an in-list side and an out-of-list side; neither has a boundary.',
+  A13: 'docs/variables.md Adapter projection: The input format of the bank (files, rules, condition spans, tool evidence, sessions, owner entries) stands for the readers that fill a store, which are not built yet (docs/variables.md Status). The output is a projection, not the serialized file schema; source-reader provenance is R1, not a file-format requirement.',
+  A14: 'docs/variables.md Values: Weights are relative (docs/variables.md Values): a variable weighs all its values or none, and a share is a weight over the total weight of its variable.',
+  A15: 'docs/variables.md R13: The 95 percent interval of a weight comes from a function weightInterval(count, total); the format stores the counts, not the interval.',
 } as const;
 export type AssumptionId = keyof typeof ASSUMPTIONS;
