@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   clearObjectContexts,
+  initializeShippedObjects,
   loadSpecFile,
   objectContextFor,
   objectRegistry,
@@ -240,5 +241,139 @@ describe('the plugin API of the rules framework', () => {
     const loud = await run([plugin, (api) => api.object(join(dir, 'loud.yaml'))]);
     loud.end();
     expect(loud.refused).toContain('check-set:loud: item tone params: params.tone: tone is plain or warm');
+  });
+});
+
+describe('the plugin API of the rules framework: what it checks of each registration', () => {
+  /** The refusal a plugin function that throws gives, with the plugin that threw. */
+  async function refusal(plugin: DriftbenchPlugin): Promise<string> {
+    const { refused, end } = await run([plugin]);
+    end();
+    return refused ?? '';
+  }
+
+  it('refuses a name that is not a plain name, for a kind, a rule, an evidence, a step and a template', async () => {
+    const bad: Array<[string, DriftbenchPlugin]> = [
+      ['kind', (api) => api.kind('Bad Name', { summary: 'S.' })],
+      ['rule', (api) => api.rule('check-set', 'Plugin/Name', { run: () => [] })],
+      ['evidence', (api) => api.evidence('check-set', 'Bad Name', () => 1)],
+      ['diagnostic step', (api) => api.diagnosticStep('Bad Name', () => ({}))],
+      ['prompt template', (api) => api.promptTemplate('Bad Name', { system: 'x' }, (answer) => answer)],
+    ];
+    for (const [what, plugin] of bad) {
+      expect(await refusal(plugin), what).toContain(`the ${what} name`);
+      expect(await refusal(plugin), what).toContain('is not a plain name');
+    }
+    // A slash between parts is a plain name for a kind and a template, as in policy/routing and linker/acme.
+    expect(await refusal((api) => api.kind('policy/ok', { summary: 'S.' }))).toBe('');
+  });
+
+  it('refuses a kind without a summary, a rule without run and an evidence without a function', async () => {
+    expect(await refusal((api) => api.kind('policy/mute', { summary: '' }))).toContain(
+      'the kind policy/mute needs a summary',
+    );
+    expect(await refusal((api) => api.kind('policy/mute', {} as never))).toContain(
+      'the kind policy/mute needs a summary',
+    );
+    expect(
+      await refusal((api) => {
+        api.kind('policy/ok', { summary: 'S.' });
+        api.rule('policy/ok', 'norun', {} as never);
+      }),
+    ).toContain('the rule norun needs a run function');
+    expect(
+      await refusal((api) => {
+        api.kind('policy/ok', { summary: 'S.' });
+        api.evidence('policy/ok', 'nofn', 'nope' as never);
+      }),
+    ).toContain('the evidence nofn needs a function that computes it');
+  });
+
+  it('refuses an evidence name for a kind no one registered', async () => {
+    expect(await refusal((api) => api.evidence('policy/nowhere', 'lost', () => 1))).toBe(
+      'The plugin given in code (1) registers the evidence lost for the kind policy/nowhere, which no one registered.',
+    );
+  });
+
+  it('lists the evidence names of one kind, sorted, and accepts one name for two kinds', async () => {
+    const { refused, end } = await run([
+      (api) => {
+        api.kind('policy/first', { summary: 'S.' });
+        api.kind('policy/second', { summary: 'S.' });
+        api.evidence('policy/first', 'zeta', () => 'z');
+        api.evidence('policy/first', 'alpha', () => 'a');
+        api.evidence('policy/second', 'alpha', () => 'second alpha');
+        api.evidence('policy/second', 'mid', () => 'm');
+      },
+    ]);
+    try {
+      expect(refused).toBeUndefined();
+      expect(pluginEvidenceNames('policy/first')).toEqual(['alpha', 'zeta']);
+      expect(pluginEvidenceNames('policy/second')).toEqual(['alpha', 'mid']);
+      expect(pluginEvidenceNames('policy/none')).toEqual([]);
+      expect(pluginEvidence('policy/first', 'alpha')?.()).toBe('a');
+      expect(pluginEvidence('policy/second', 'alpha')?.()).toBe('second alpha');
+      expect(pluginEvidence('policy/second', 'zeta')).toBeUndefined();
+    } finally {
+      end();
+    }
+  });
+
+  it('takes a diagnostic step as a function or as { params, run }, and checks the params of the second', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'driftbench-plugin-objects-'));
+    temps.push(dir);
+    const object = (id: string, params: string) =>
+      `kind: diagnostic\nid: ${id}\nsteps:\n  - id: step\n    title: A step\n    impl: plugin:both\n    params: ${params}\n`;
+    initializeShippedObjects();
+    const byFunction = await run([(api) => api.diagnosticStep('both', () => ({}))]);
+    byFunction.end();
+    expect(byFunction.refused).toBeUndefined();
+    await writeFile(join(dir, 'ok.yaml'), object('ok', '{ depth: 2 }'));
+    await writeFile(join(dir, 'bad.yaml'), object('bad', '{ depth: deep }'));
+    const params = {
+      safeParse: (value: unknown) =>
+        typeof (value as { depth?: unknown } | undefined)?.depth === 'number'
+          ? { success: true, data: value }
+          : { success: false, error: { issues: [{ path: ['depth'], message: 'depth is a number' }] } },
+    };
+    const step: DriftbenchPlugin = (api) =>
+      api.diagnosticStep('both', { params: params as never, run: () => ({}) });
+    const good = await run([step, (api) => api.object(join(dir, 'ok.yaml'))]);
+    good.end();
+    expect(good.refused).toBeUndefined();
+    const wrong = await run([step, (api) => api.object(join(dir, 'bad.yaml'))]);
+    wrong.end();
+    expect(wrong.refused).toContain('diagnostic:bad: item step params');
+    expect(wrong.refused).toContain('depth is a number');
+  });
+
+  it('checks the parts and the parser of a prompt template, and fingerprints the parts only', async () => {
+    expect(await refusal((api) => api.promptTemplate('t/one', null as never, (answer) => answer))).toContain(
+      'needs its parts as a map of named texts',
+    );
+    expect(
+      await refusal((api) => api.promptTemplate('t/one', { system: 1 } as never, (answer) => answer)),
+    ).toContain('needs its parts as a map of named texts');
+    expect(await refusal((api) => api.promptTemplate('t/one', { system: 'x' }, 'no' as never))).toContain(
+      'needs the parser of its answers',
+    );
+    const { refused, end } = await run([
+      (api) => {
+        api.promptTemplate('t/a', { system: 'same', rubric: 'r' }, (answer) => ['a', answer]);
+        api.promptTemplate('t/b', { system: 'same', rubric: 'r' }, (answer) => ['b', answer]);
+        api.promptTemplate('t/c', { system: 'other', rubric: 'r' }, (answer) => answer);
+      },
+    ]);
+    try {
+      expect(refused).toBeUndefined();
+      const [a, b, c] = ['t/a', 't/b', 't/c'].map((id) => pluginPromptTemplate(id));
+      expect(a?.fingerprint).toMatch(/^[0-9a-f]{12}$/);
+      expect(b?.fingerprint).toBe(a?.fingerprint);
+      expect(c?.fingerprint).not.toBe(a?.fingerprint);
+      expect(a?.contract('x')).toEqual(['a', 'x']);
+      expect(b?.contract('x')).toEqual(['b', 'x']);
+    } finally {
+      end();
+    }
   });
 });
