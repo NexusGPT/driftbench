@@ -36,6 +36,23 @@ describe('the forbid index', () => {
     expect(index.holds(cell)).toBe(scan(forbids, cell).length > 0);
   });
 
+  it('keeps every copy of a duplicate forbid, as the scan does, and so every reason it carries', () => {
+    const twice = new ForbidIndex();
+    twice.add({ desk: 'front', shelf: 'poetry' });
+    twice.add({ hour: 'late' });
+    twice.add({ shelf: 'poetry', desk: 'front' });
+    expect(twice.within({ shelf: 'poetry', desk: 'front', hour: 'early' })).toEqual([0, 2]);
+  });
+
+  it('holds a cell that only the last set of dimensions added forbids, with no empty forbid to hide a miss', () => {
+    const sets = new ForbidIndex();
+    sets.add({ hour: 'late' });
+    sets.add({ shelf: 'maps', desk: 'back' });
+    expect(sets.holds({ desk: 'back', shelf: 'maps' })).toBe(true);
+    expect(sets.holds({ hour: 'late' })).toBe(true);
+    expect(sets.holds({ hour: 'early', shelf: 'maps', desk: 'front' })).toBe(false);
+  });
+
   it('does not take a key a cell only inherits for one it holds', () => {
     const only = new ForbidIndex();
     only.add({ constructor: 'open' });
