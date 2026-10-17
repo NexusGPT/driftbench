@@ -47,22 +47,43 @@ export function labelItems(): BankItem[] {
               atom: { kind: 'gate' },
             });
           if (s === 1) definitions.reverse();
-          const unit = 1 + ((seed >>> 0) % 17);
+          const base = 1 + ((seed >>> 0) % 17);
+          // Display handles are deliberately neither consecutive nor sorted. A port
+          // must associate each opinion with its handle, not its array position.
+          const unit = base + 37;
+          const socket = base + 3;
+          const quiet = base + 91;
+          const units: Json[] = [
+            { n: unit, text: `Fictional panel ${name}.`, contextOnly: false },
+            { n: socket, text: `Fictional socket ${name}.`, contextOnly: false },
+            { n: quiet, text: `Fictional chamber ${name}.`, contextOnly: false },
+          ];
+          if (s === 2) {
+            units.splice(1, 0, {
+              n: base + 61,
+              text: `Fictional neighbouring panel ${name}.`,
+              contextOnly: true,
+            });
+            units.push({ n: base + 115, text: `Fictional fence ${name}.`, opaque: true });
+          }
           const make = (flip: boolean) => {
             const alternate = decision.want === 'b' ? a : b;
             const label = flip ? alternate : (names[decision.want] ?? 'none');
             const chat = flip ? alternate : (names[decision.chat] ?? 'none');
             const p = flip ? (alternate === a ? [0.99, 0.01] : [0.01, 0.99]) : decision.p;
-            const units: Json[] = [{ n: unit, text: `Fictional panel ${name}.`, contextOnly: false }];
-            // The target is selectable; it independently receives none.
-            if (target || s === 2)
-              units.push({ n: unit + 1, text: `Fictional socket ${name}.`, contextOnly: false });
+            // The target remains selectable and receives its own ordinary label.
+            // Its system-1 and system-2 opinions agree, avoiding any assumption
+            // about a target-required label competing with an extreme opinion.
             const chatLabels: Json[] = [
-              { units: String(unit), label: chat, ...(target && !flip ? { target: unit + 1 } : {}) },
+              { units: String(unit), label: chat, ...(target && !flip ? { target: socket } : {}) },
+              { units: String(socket), label: b },
+              { units: String(quiet), label: 'none' },
             ];
-            if (units.length > 1) chatLabels.push({ units: String(unit + 1), label: 'none' });
-            const result: Json[] = [{ n: unit, label, ...(target && !flip ? { target: unit + 1 } : {}) }];
-            if (units.length > 1) result.push({ n: unit + 1, label: 'none' });
+            const result: Json[] = [
+              { n: unit, label, ...(target && !flip ? { target: socket } : {}) },
+              { n: socket, label: b },
+              { n: quiet, label: 'none' },
+            ];
             return probe(
               'labels',
               {
@@ -73,7 +94,10 @@ export function labelItems(): BankItem[] {
                 probabilities: {
                   [`u${unit}__${a}`]: p[0] ?? 0,
                   [`u${unit}__${b}`]: p[1] ?? 0,
-                  ...(units.length > 1 ? { [`u${unit + 1}__${a}`]: 0.01, [`u${unit + 1}__${b}`]: 0.02 } : {}),
+                  [`u${socket}__${a}`]: 0.01,
+                  [`u${socket}__${b}`]: 0.99,
+                  [`u${quiet}__${a}`]: 0.01,
+                  [`u${quiet}__${b}`]: 0.02,
                 },
                 system2: { window: `window-${name}`, set: `set-${name}`, labels: chatLabels },
                 threshold: 0.4,
@@ -85,7 +109,60 @@ export function labelItems(): BankItem[] {
           };
           const first = make(false);
           const second = make(true);
-          return { probes: [first, second] };
+          // A separate, unchanged fixture is replayed under four policies. Only
+          // mode and threshold change: neither the chat answer nor the probability
+          // table contains the desired policy result. This contrast also protects
+          // legitimate chat-only and intermediate-stack items from a chat copier.
+          // No target-required label participates in this policy comparison.
+          const companion = {
+            action: 'decide',
+            set: {
+              name: `comparison-${name}`,
+              labels: definitions.filter((definition) => {
+                const entry = definition as { name: string };
+                return entry.name === a || entry.name === b;
+              }),
+            },
+            window: { id: `comparison-window-${name}`, units },
+            probabilities: {
+              [`u${unit}__${a}`]: 0.84,
+              [`u${unit}__${b}`]: 0.11,
+              [`u${socket}__${a}`]: 0.03,
+              [`u${socket}__${b}`]: 0.96,
+              [`u${quiet}__${a}`]: 0.08,
+              [`u${quiet}__${b}`]: 0.02,
+            },
+            system2: {
+              window: `comparison-window-${name}`,
+              set: `comparison-${name}`,
+              labels: [
+                { units: String(unit), label: b },
+                { units: String(socket), label: a },
+                { units: String(quiet), label: b },
+              ],
+            },
+            passAt: 0.9,
+            failAt: 0.1,
+          };
+          const policies = [
+            { mode: 'system1', threshold: 0.4, labels: [a, b, 'none'] },
+            { mode: 'system1', threshold: 0.9, labels: ['none', b, 'none'] },
+            { mode: 'system2', threshold: 0.4, labels: [b, a, b] },
+            { mode: 'stack', threshold: 0.4, labels: [b, b, 'none'] },
+          ];
+          const contrasts = policies.map((policy) =>
+            probe(
+              'labels',
+              { ...companion, mode: policy.mode, threshold: policy.threshold },
+              {
+                labels: [unit, socket, quiet].map((n, i) => ({
+                  n,
+                  label: policy.labels[i] ?? 'none',
+                })),
+              },
+            ),
+          );
+          return { probes: [first, second, ...contrasts] };
         },
       }),
     ),

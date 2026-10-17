@@ -15,16 +15,18 @@ An implementation owner must wire that adapter without modifying the oracles.
 
 ## Integration boundary
 
-`PointerAdapter.execute({ operation, input })` is the only reader call. Input and
+`PointerAdapter.execute({ operation, input }, io)` is the only reader call. Input and
 output shapes are bank-owned transport vocabulary, not claimed reader exports.
 The adapter must translate calls to the actual reader and return observations.
 It must not implement missing reader capabilities, import the bank, inspect the
 current item, or fabricate observation fields. An unsupported operation fails.
 JSON is deliberately broad enough to carry malformed answer fixtures.
 
-Every call is isolated. Histories and prerecorded responses are explicit inputs.
+Every call is isolated. Histories are explicit inputs; prerecorded responses are
+planted inputs or harness-owned transport fixtures.
 Requests are deep-cloned before invocation. Expected outputs, projections, item
-ids, causes, and representative samples never reach the adapter. Raw results are
+ids, causes, representative samples, and transport fixture setup never reach the
+adapter. The optional second argument supplies frozen harness-owned IO callbacks. Raw results are
 projected only where the design omits serialization details. Exact deep equality
 judges the resulting observation, including missing and extra values.
 
@@ -32,12 +34,12 @@ judges the resulting observation, including missing and extra values.
 |---|---|
 | `cut` | `{file,source}` → `{units:[{container,text,span:[start,end],path,yamlPath?}]}`. Ordered UTF-16 spans, verbatim source slices, no overlap. Container vocabulary: sentence, heading, list_item, table_cell, blockquote, frontmatter, fence, comment. YAML paths use dot notation. |
 | `fingerprint` | `{units:[{text,container},...]}` → raw fingerprint strings. The oracle checks equality relations; hash bytes remain opaque. |
-| `ledger` | `{scans,independent}` → ordered snapshots `{entries:[{id,status,quote}]}`. Independent scans start with empty ledgers; other scans carry the prior ledger. All units supplied here are already cut and explicitly labelled. |
-| `reanchor` | `{before,after,settings,selectIds}` → selected entries `{id,path,quote,lineage:[{event}],candidates:[{path,quote}]}`. Ambiguous observations retain the original pointer and all candidates. `observation:'lineage-edges'` instead returns `{event,sourceIds,targetTexts}[]`, without prescribing child-id assignment. |
+| `ledger` | `{scans,independent}` → ordered snapshots `{entries:[{id,path,status,quote}]}`. Independent scans start with empty ledgers; other scans carry the prior ledger. All units supplied here are already cut and explicitly labelled. IDs are compared as equivalence classes across the full history; duplicate entries are grouped by path, quote and status. Every ledger item also follows a unique unit through change, move and deletion beside identical-text duplicates. |
+| `reanchor` | `{before,after,settings,selectIds}` → selected entries `{id,path,quote,status,lineage:[{event}],candidates:[{path,quote}]}`. Ambiguous observations retain the original pointer and all candidates. `observation:'lineage-edges'` instead returns `{event,sourceIds,targetTexts}[]`, without prescribing child-id assignment. |
 | `group` | `action:windows` → `{windows:[{selectable,contextOnly}]}`. `carry` → `{carried:[{n,set,label}],dirty:[{n,set}]}`. `questions` → `{batches:[{keys}]}` in unit/label order. `dense` → `{accepted,labels:[{n,label}],unlabeled}`. Full input fixtures document the respective units, prior fingerprints, sets and answers. |
 | `labels` | `action:decide` supplies set, numbered window, probabilities, system2 answer, mode and bounds → `{labels:[{n,label,target?}]}`. `validate-answer` supplies units, labelSet and sequential provider responses → `{accepted,attempts,failedWindow,labels:[{unit,label}],unlabeled}`. No natural-language classifier is provided or needed. |
 | `replay` | `{mode:'ci',entries:[{request,answer}],request}` → `{status:'hit',answer,networkCalls:0}` or `{status:'miss',differingField,networkCalls:0}`. Cut mismatch additionally reports `versionsRequired:['node','icu']`, normalized from an actual diagnostic naming both versions. |
-| `privacy` | Private source, fictional key, planted transport answer and record/CI mode → raw `{cassette,logs,plan,labels,networkCalls,keyReads,location,committed,status}`. `plan.characters` counts the supplied source. The projection searches the serialized cassette/log/plan for planted secrets. `location` normalizes a private uncommitted cache to `.cache/`. Counts are measured through the adapter's transport/key-access spy, not inferred from mode. |
+| `privacy` | Private source, request and record/CI mode → `{labels,status}` through the recorder seam. The IO fixture supplies the fictional key and provider/cache answer. Trusted traces measure key access, fetches, cache consultation, cassette writes, logs and plans. Exact labels, stored answer metadata and counts are checked; no adapter-returned counters are trusted. |
 | `links` | `action:classify` supplies entries and links → `{links:[{test,span,state}]}` in link input order. `clear` supplies explicit acceptance → `{span,fp,reason}` from the new recorded review. |
 | `radius` | `impact` → sorted unique `{suspectTests,advisoryTests}`; `coverage` → sorted `{uncovered}`; `claim` → `{verifiedSpans}`. Precise and section-level links are supplied separately. |
 
@@ -54,6 +56,38 @@ Privacy observations exercise the transport recorder and its public plan, before
 semantic label validation. A canned answer about a fenced source is recorder
 input, not a claim that the scanner should accept a label on an opaque unit.
 Opaque-label refusal is checked separately by the adversarial family.
+
+### Harness-owned privacy IO
+
+The adapter installs these callbacks at the reader's key, HTTP, cache and public
+output boundaries. It must route actual effects through them, not synthesize
+callbacks from the requested mode. They perform no real network or key access.
+
+- `readKey()` returns the planted fictional key and increments the private trace.
+- `fetch(request)` returns the independently planted provider answer and counts
+  the transport call. The request is private and is not a public output surface.
+- `readCassette()` returns the pre-existing planted answer or a miss, and counts
+  the lookup. A CI hit and miss must consult it; neither may fetch or read a key.
+- `writeCassette(path, value, committed)` captures actual stored bytes as JSON.
+  The normalized stored value is an array of answers, with labels, returned model,
+  stop reason and usage. Private writes must be uncommitted under `.cache/`.
+- `log(value)` and `plan(value)` capture public output. A single-fixture plan is
+  normalized to `{characters: source.length}`. Normalization may remove display
+  formatting, but must retain every free-text value for the leak check.
+
+Only the harness closure can update the trace. Its snapshot is cloned and never
+passed to the adapter. Merely returning correct counters or copied answers earns
+no credit. Test-only `sampleEffects` scripts drive the positive stub through the
+same callbacks, independently of the sample result.
+
+Private markers use seeded BMP private-use characters; all legitimate public
+fixture metadata is ASCII. Any single marker character in any serialized public
+surface, object key or extra result field is a leak. This catches every nonempty
+substring, including fragments separated across fields, without treating common
+letters in legitimate labels as private text. Literal Unicode escapes are also
+checked. This is a sentinel-fragment test, not a claim to detect arbitrary encodings,
+hashes, timing channels or all possible exfiltration. The real adapter must expose
+all sinks; hostile adapters bypassing callbacks need external process instrumentation.
 
 Materialization adds two label actions. `materialize` supplies source, already-cut
 units with ledger ids and UTF-16 spans, a label set, and planted labels. Its
@@ -91,11 +125,24 @@ representative raw observation. This tests the harness, not the pointer reader.
 Each item has contrasting expected observations. The constant cheat gets the
 first correct raw answer of each item, a stronger test than one global canned
 answer. Empty and input-echo adapters must also score zero on every tested seed.
+The four independent review attacks (first-unit selection, raw-text hashing,
+response copying and split-text leaking) are retained verbatim in behavior in
+`cheats.ts`. Each must score zero individually on every seed. Additional effectful
+mutants leak each private marker character and every split while preserving all
+other privacy observations, so rejection cannot rely on missing IO alone.
+
+Fingerprint items pair semantic distinctions with byte-different NFC/whitespace
+equivalence. Ledger items include duplicate text within and across files, and
+verify quotes, statuses and ID continuity. Label decisions use several selectable
+handles with differing results, then replay identical opinions under system 1 at
+two thresholds, system 2, and the stack. Copying a recorded opinion does not compute
+these policy-dependent outputs. Shared companion witnesses do not create new
+items or distinct causes, and are not independent hardness evidence.
 
 Tests use visible seeds 1–20 and the documented commit-derived hidden seed.
 The seed changes fictional text, ids, handles, or paths. No word list is used.
 Scale plants exercise 1×/10×/100× sizes and a source exceeding 100k characters.
-The per-item 10-second and 64-MiB serialized-response budgets are validator
+The per-item 10-second and 64-MiB serialized-response-and-trace budgets are validator
 policy, not production promises. The timer detects late returns but cannot
 preempt synchronous code or cancel arbitrary promises. Hostile real adapters
 need process isolation for hard termination and RSS limits.

@@ -1,4 +1,5 @@
 import { isDeepStrictEqual } from 'node:util';
+import { captureIO } from './io';
 import type { BankItem, PointerAdapter } from './types';
 
 export type Outcome = { pass: boolean; detail: string };
@@ -17,9 +18,10 @@ export async function runItem(item: BankItem, seed: number, adapter: PointerAdap
     for (const [i, p] of plant.probes.entries()) {
       let timer: ReturnType<typeof setTimeout> | undefined;
       let actual: unknown;
+      const effects = captureIO(p.setup);
       try {
         actual = await Promise.race([
-          Promise.resolve().then(() => adapter.execute(structuredClone(p.request))),
+          Promise.resolve().then(() => adapter.execute(structuredClone(p.request), effects.io)),
           new Promise((_, reject) => {
             timer = setTimeout(
               () => reject(new Error('adapter exceeded item time budget')),
@@ -32,10 +34,11 @@ export async function runItem(item: BankItem, seed: number, adapter: PointerAdap
       }
       if (performance.now() - started > budget)
         return { pass: false, detail: `probe ${i}: time budget exceeded` };
-      const bytes = Buffer.byteLength(JSON.stringify(actual) ?? '');
+      const trace = effects.snapshot();
+      const bytes = Buffer.byteLength(JSON.stringify({ actual, trace }));
       if (bytes > (plant.budgetBytes ?? 64 * 1024 * 1024))
         return { pass: false, detail: `probe ${i}: response byte budget exceeded` };
-      const observed = p.observe ? p.observe(actual) : actual;
+      const observed = p.observe ? p.observe(actual, trace) : actual;
       if (!isDeepStrictEqual(observed, expected[i])) {
         // Do not dump actual: a deliberately leaky adapter must not leak through validator feedback.
         return {

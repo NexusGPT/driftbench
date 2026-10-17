@@ -37,7 +37,24 @@ const wrap = (kind: string, text: string): string => {
   }
 };
 
-/** Privacy scans inspect actual serialized surfaces, not an adapter's `private: true` claim. */
+/** A seeded private-use alphabet makes even one leaked marker character unambiguous.
+ * Public fixture metadata is ASCII; no ordinary public character is a secret sentinel.
+ */
+export function privateMarker(seed: number, salt: number): string {
+  const base = 0xe000 + (((seed >>> 0) + salt * 97) % 5120);
+  return Array.from({ length: 12 }, (_, i) => String.fromCharCode(base + i)).join('');
+}
+
+export function leaksPrivateFragment(value: unknown, markers: readonly string[]): boolean {
+  const serialized = JSON.stringify(value) ?? '';
+  // JSON string values may themselves contain escaped Unicode. Inspect that form too.
+  const decoded = serialized.replace(/\\u([0-9a-f]{4})/gi, (_, hex: string) =>
+    String.fromCharCode(Number.parseInt(hex, 16)),
+  );
+  return markers.some((marker) => [...marker].some((character) => decoded.includes(character)));
+}
+
+/** Public effects are measured by harness-owned sinks, never returned counters. */
 export function privacyItems(): BankItem[] {
   return placements.flatMap((placement, p) =>
     ['record', 'ci-hit', 'ci-miss'].map(
@@ -52,38 +69,28 @@ export function privacyItems(): BankItem[] {
         design: '5: stored answer, modes, where; 8; 11: private counts-only plan',
         generate(seed) {
           const probes: Probe[] = [0, 1].map((arm) => {
-            const t = token(seed, p * 6 + m * 2 + arm);
-            const secret = `FICTIONAL_PRIVATE_${t}_🪐`;
-            const key = `FICTIONAL_KEY_${t}`;
+            const salt = p * 6 + m * 2 + arm;
+            const t = token(seed, salt);
+            const secret = privateMarker(seed, salt);
+            const key = privateMarker(seed, salt + 31);
             const label = `class-${t}`;
-            const source = wrap(placement, secret);
+            const source = wrap(placement, secret) + (arm ? '\n\nFictional public padding.' : '');
             const answer = {
               labels: [{ units: '1', label }],
               model: `model-${t}`,
               stop_reason: 'end_turn',
               usage: { input_tokens: 31 + arm, output_tokens: 6 },
             };
+            const writes = mode === 'record' ? [{ path: '.cache/', value: [answer], committed: false }] : [];
             const expected: Json = {
               labels: mode === 'ci-miss' ? [] : answer.labels,
-              leaked: [],
+              leaked: false,
               networkCalls: mode === 'record' ? 1 : 0,
               keyReads: mode === 'record' ? 1 : 0,
-              location: '.cache/',
-              committed: false,
+              cacheConsulted: mode === 'record' ? null : true,
+              writes,
               status: mode === 'ci-miss' ? 'miss' : 'ok',
-              // Counts are adapter observations, not a text copy in the plan.
-              characters: source.length,
-            };
-            const sample: Json = {
-              cassette: mode === 'ci-miss' ? [] : [answer],
-              logs: [],
-              plan: { characters: source.length },
-              labels: mode === 'ci-miss' ? [] : answer.labels,
-              networkCalls: mode === 'record' ? 1 : 0,
-              keyReads: mode === 'record' ? 1 : 0,
-              location: '.cache/',
-              committed: false,
-              status: mode === 'ci-miss' ? 'miss' : 'ok',
+              plans: [{ characters: source.length }],
             };
             return {
               request: {
@@ -93,47 +100,57 @@ export function privacyItems(): BankItem[] {
                   private: true,
                   file: `fictional-${t}.md`,
                   source,
-                  apiKey: key,
                   request: { system: `Process ${secret}`, messages: [{ role: 'user', content: source }] },
-                  answer,
                   cassettePresent: mode === 'ci-hit',
                 },
               },
+              setup: { key, answer, cached: mode === 'ci-hit' ? answer : null },
               expected,
-              sample,
-              observe(actual) {
+              sample: {
+                labels: mode === 'ci-miss' ? [] : answer.labels,
+                status: mode === 'ci-miss' ? 'miss' : 'ok',
+              },
+              sampleEffects: [
+                { kind: 'plan', value: { characters: source.length } },
+                ...(mode === 'record'
+                  ? [
+                      { kind: 'key' as const },
+                      { kind: 'fetch' as const },
+                      {
+                        kind: 'write' as const,
+                        path: '.cache/cassette.jsonl',
+                        value: [answer],
+                        committed: false,
+                      },
+                    ]
+                  : [{ kind: 'cache' as const }]),
+              ],
+              observe(actual, trace) {
                 if (!actual || typeof actual !== 'object') return null;
                 const r = actual as Record<string, Json>;
-                if (
-                  !Array.isArray(r.cassette) ||
-                  !Array.isArray(r.logs) ||
-                  !r.plan ||
-                  typeof r.plan !== 'object'
-                )
-                  return null;
-                const publicSurfaces = JSON.stringify({ cassette: r.cassette, logs: r.logs, plan: r.plan });
                 return {
                   labels: r.labels,
-                  leaked: [secret, key].filter((value) => publicSurfaces.includes(value)),
-                  networkCalls: r.networkCalls,
-                  keyReads: r.keyReads,
-                  location: r.location,
-                  committed: r.committed,
+                  // Include the entire result, including unexpected fields and object keys.
+                  leaked: leaksPrivateFragment(
+                    { actual, writes: trace.writes, logs: trace.logs, plans: trace.plans },
+                    [secret, key],
+                  ),
+                  networkCalls: trace.networkCalls,
+                  keyReads: trace.keyReads,
+                  cacheConsulted: mode === 'record' ? null : trace.cacheReads > 0,
+                  writes: trace.writes.map((write) => ({
+                    ...write,
+                    path:
+                      write.path.startsWith('.cache/') && !write.path.split('/').includes('..')
+                        ? '.cache/'
+                        : write.path,
+                  })),
                   status: r.status,
-                  characters: (r.plan as Record<string, Json>).characters,
+                  plans: trace.plans,
                 };
               },
             };
           });
-          // ci-miss arms have different planted source lengths even if token lengths coincide.
-          const last = probes[1];
-          if (last && mode === 'ci-miss') {
-            const input = last.request.input as Record<string, Json>;
-            input.source = `${input.source}\n\nFictional public padding.`;
-            const n = String(input.source).length;
-            (last.expected as Record<string, Json>).characters = n;
-            ((last.sample as Record<string, Json>).plan as Record<string, Json>).characters = n;
-          }
           return { probes };
         },
       }),

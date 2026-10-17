@@ -19,5 +19,6 @@ export function pointerBank(): BankItem[] {
   ];
 }
 
+export type { IOSetup, IOTrace, PointerIO, SampleEffect } from './io';
 export { runItem } from './run';
 export type { BankItem, Json, Plant, PointerAdapter, Probe, Request, Tier } from './types';

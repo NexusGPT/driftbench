@@ -1,13 +1,13 @@
 # Pointer bank audit status
 
-This is the builder's handoff scaffold, not an independent audit verdict.
-No helper has certified a section 12.7 check. The pending markers keep the merge
-gate closed; independent auditors must replace them with their own findings.
+This handoff preserves the independent cheater failure. No helper has certified
+a passing section 12.7 check. The failure and pending markers keep the merge gate
+closed; only independent auditors can replace them with passing findings.
 
 | Check | Verdict | Note |
 |---|---|---|
 | blind pilot | pending | No real-reader adapter or executor pilot is included. An independent executor must run iteration 0 and ten pilot iterations. |
-| cheater | pending | The builder supplies empty, per-item constant, and input-echo regression tests. These do not replace an independent cheater search. |
+| cheater | fail | Independent review at a7672c443, [comment 6243006972](https://github.com/achammah/driftbench/pull/759#issuecomment-6243006972), found first-unit, text-hash, response-copy and split-text leak score gains. The builder adds regression tests; an independent rerun remains required. |
 | cause review | pending | Shared cause names are retained. No independent sample of 30 failing items or agreement measurement exists yet. |
 | planted bugs | pending | Harness corruption checks do not establish detection of 20 independently planted reader bugs. |
 
@@ -39,10 +39,32 @@ separate implementation owner supplies and verifies the real adapter.
    record real baseline and pilot rows. Do not fabricate a journal or floor
    from stub results. Apply section 12.4's score, forecast and distinct-cause gate.
 3. Run the four independent section 12.7 audits with fresh auditors. Their own
-   verdicts, reviewed causes and blind pilot rows replace this pending scaffold.
+   verdicts, reviewed causes and blind pilot rows replace the current failure and pending scaffold.
 
 Known bounded coverage: deterministic unit cuts, fingerprint relations, id
 persistence, move/change/delete/ambiguity/split/merge transitions, label stack
 bounds, dense-answer validation, request-key perturbations, private serialized
 surfaces, link classification and radius/coverage. No live model correctness,
 private estate, or unspecified scoring/tie/overflow behavior is claimed.
+
+## Review correction
+
+The independent review was reproduced on `a7672c4433d92f44fc6b1d7d20493f844f2d7be4`
+with visible seeds 1–20 and hidden seed 809556612. Stable passes across those seeds
+were 8 for first-unit selection, 13 for raw-text hashing, 45 for response copying,
+and 42 for split-text leaking (including 27 privacy items). Per-seed leak totals
+were 43 or 44. These measurements describe the rejected bank.
+
+The revision keeps all 340 items and their family/tier/cause assignments. It
+strengthens their witnesses and retains all four review attacks alongside the
+original three cheats. Label decisions contrast policy outcomes; identity checks
+retain quotes/status and compare duplicate identities over history. Privacy
+answers live in a separate transport fixture, effects are captured by the harness,
+and a single private marker character is sufficient to reject a result.
+
+The builder's regression suite requires zero passes for each of seven cheats on
+every seed, not merely zero items passing their intersection. Effectful leak
+mutants also preserve the honest trace except for an emitted fragment. These
+checks close the reported regressions; they do not certify the independent
+cheater audit, the reader, or the hardness forecast. The last independent verdict
+therefore remains **fail** until its author or another independent auditor reruns it.

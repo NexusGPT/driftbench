@@ -1,8 +1,11 @@
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { isDeepStrictEqual } from 'node:util';
 import { describe, expect, it } from 'vitest';
-import type { BankItem, PointerAdapter } from './bank';
+import type { BankItem, Json, PointerAdapter, PointerIO, Probe } from './bank';
 import { pointerBank, runItem } from './bank';
+import { leaksPrivateFragment, privateMarker } from './bank/privacy';
+import { reviewCheats } from './cheats';
 import { pointerLadder } from './index';
 
 const bank = pointerBank();
@@ -11,15 +14,42 @@ const hidden = 1_000_000 + (Number.parseInt(head.slice(0, 8), 16) % 1_000_000_00
 const seeds = [...Array.from({ length: 20 }, (_, i) => i + 1), hidden];
 
 /** A scripted transport stub, NOT a reference implementation and NOT reader evidence. */
-function stub(item: BankItem, seed: number): PointerAdapter {
+function stub(
+  item: BankItem,
+  seed: number,
+  mutate?: (response: Json, io: PointerIO, probe: Probe) => unknown,
+): PointerAdapter {
   const probes = item.generate(seed).probes;
   let i = 0;
   return {
-    execute(request) {
+    async execute(request, io) {
       const p = probes[i++];
-      expect(p).toBeDefined();
-      expect(request).toEqual(p?.request);
-      return structuredClone(p?.sample ?? p?.expected);
+      if (!p || !io) throw new Error('missing scripted probe or IO');
+      expect(request).toEqual(p.request);
+      for (const effect of p.sampleEffects ?? []) {
+        switch (effect.kind) {
+          case 'key':
+            io.readKey();
+            break;
+          case 'fetch':
+            await io.fetch(request.input);
+            break;
+          case 'cache':
+            io.readCassette();
+            break;
+          case 'write':
+            io.writeCassette(effect.path, effect.value, effect.committed);
+            break;
+          case 'log':
+            io.log(effect.value);
+            break;
+          case 'plan':
+            io.plan(effect.value);
+            break;
+        }
+      }
+      const response = structuredClone(p.sample ?? p.expected);
+      return mutate ? mutate(response, io, p) : response;
     },
   };
 }
@@ -105,7 +135,7 @@ describe('blind pointer bank harness', () => {
       const honest = stub(item, 3);
       let n = 0;
       const corrupt: PointerAdapter = {
-        execute: (r) => (n++ === 0 ? { corrupted: true } : honest.execute(r)),
+        execute: (r, io) => (n++ === 0 ? { corrupted: true } : honest.execute(r, io)),
       };
       expect((await runItem(item, 3, corrupt)).pass, item.id).toBe(false);
     }
@@ -123,16 +153,110 @@ describe('blind pointer bank harness', () => {
     expect(outcome.detail).not.toContain('FICTIONAL_SECRET_LEAK');
   });
 
-  it('rejects real source leakage even when the other privacy observations are correct', async () => {
+  it('rejects all four independent review cheats on EVERY seed, not just their intersection', async () => {
+    for (const seed of seeds) {
+      const totals = { firstUnit: 0, textHash: 0, copying: 0, leakyCopy: 0 };
+      for (const item of bank)
+        for (const name of Object.keys(reviewCheats) as (keyof typeof reviewCheats)[])
+          totals[name] += Number((await runItem(item, seed, reviewCheats[name])).pass);
+      expect(totals, `review cheats seed=${seed}`).toEqual({
+        firstUnit: 0,
+        textHash: 0,
+        copying: 0,
+        leakyCopy: 0,
+      });
+    }
+  }, 120_000);
+
+  it('rejects privacy effect spoofing even with the exact planted labels and public plan', async () => {
     for (const item of bank.filter((i) => i.family === 'privacy')) {
-      const first = item.generate(1).probes[0];
-      if (!first) throw new Error('missing privacy probe');
-      const input = first.request.input as { apiKey: string };
-      const response = structuredClone(first.sample) as { logs: string[] };
-      response.logs.push(input.apiKey);
-      const outcome = await runItem(item, 1, { execute: () => response });
-      expect(outcome.pass, item.id).toBe(false);
-      expect(outcome.detail).not.toContain(input.apiKey);
+      const probes = item.generate(1).probes;
+      let n = 0;
+      const fake: PointerAdapter = {
+        execute: () => {
+          const p = probes[n++];
+          return { ...(p?.sample as object), ...(p?.expected as object) };
+        },
+      };
+      expect((await runItem(item, 1, fake)).pass, item.id).toBe(false);
+    }
+  });
+
+  it('detects every marker character and every split, including escaped values and object keys', () => {
+    for (const seed of seeds) {
+      const marker = privateMarker(seed, 0);
+      expect(leaksPrivateFragment({ labels: 'class-public', characters: 12 }, [marker])).toBe(false);
+      for (let i = 0; i < marker.length; i++) {
+        const fragment = marker[i] as string;
+        expect(leaksPrivateFragment([fragment], [marker])).toBe(true);
+        expect(leaksPrivateFragment({ [fragment]: 'value' }, [marker])).toBe(true);
+        expect(leaksPrivateFragment(`\\u${fragment.charCodeAt(0).toString(16)}`, [marker])).toBe(true);
+        if (i > 0) expect(leaksPrivateFragment([marker.slice(0, i), marker.slice(i)], [marker])).toBe(true);
+      }
+    }
+  });
+
+  it('rejects split or single-character leaks with otherwise valid privacy effects on all placements and modes', async () => {
+    for (const item of bank.filter((i) => i.family === 'privacy')) {
+      for (let split = 1; split < 12; split++) {
+        const leak = stub(item, 1, (response, io, p) => {
+          if (!p.setup) throw new Error('missing private fixture');
+          // The key is test-only; CI adapters do not read it. Logs otherwise have no exact-content oracle.
+          io.log([p.setup.key.slice(0, split), p.setup.key.slice(split)]);
+          return response;
+        });
+        expect((await runItem(item, 1, leak)).pass, `${item.id} split=${split}`).toBe(false);
+      }
+      for (let character = 0; character < 12; character++) {
+        const leak = stub(item, 1, (response, io, p) => {
+          const input = p.request.input as { source: string };
+          const markers = [...input.source].filter(
+            (c) => c.charCodeAt(0) >= 0xe000 && c.charCodeAt(0) <= 0xf8ff,
+          );
+          const fragment = markers[character] as string;
+          io.log(fragment);
+          return response;
+        });
+        expect((await runItem(item, 1, leak)).pass, `${item.id} character=${character}`).toBe(false);
+      }
+      const returnedLeak = stub(item, 1, (response, _io, p) => ({
+        ...(response as object),
+        extra: [p.setup?.key.slice(0, 1)],
+      }));
+      expect((await runItem(item, 1, returnedLeak)).pass, item.id).toBe(false);
+    }
+  });
+
+  it('rejects text-only identities even when path, quote and status are otherwise correct', async () => {
+    for (const item of bank.filter((i) => i.component === 'pointer.ledger')) {
+      const textIds = stub(item, 2, (response) => {
+        const snapshots = response as { entries: { id: string; quote: string }[] }[];
+        for (const snapshot of snapshots)
+          for (const entry of snapshot.entries)
+            entry.id = Array.from(
+              createHash('sha256').update(entry.quote).digest().subarray(0, 10),
+              (byte) => 'abcdefghijklmnopqrstuvwxyz234567'[byte & 31],
+            ).join('');
+        return response;
+      });
+      expect((await runItem(item, 2, textIds)).pass, item.id).toBe(false);
+    }
+  });
+
+  it('checks ledger quotes and deleted status instead of discarding them during projection', async () => {
+    for (const item of bank.filter((i) => i.component === 'pointer.ledger')) {
+      for (const field of ['quote', 'status'] as const) {
+        const corrupt = stub(item, 2, (response) => {
+          const snapshots = response as { entries: { quote: string; status: string }[] }[];
+          for (const snapshot of snapshots) {
+            if (field === 'quote')
+              for (const entry of snapshot.entries) entry.quote = 'wrong fictional quote';
+            else for (const entry of snapshot.entries) if (entry.status === 'deleted') entry.status = 'live';
+          }
+          return response;
+        });
+        expect((await runItem(item, 2, corrupt)).pass, `${item.id} ${field}`).toBe(false);
+      }
     }
   });
 

@@ -197,21 +197,54 @@ function rawId(seed: number, salt: number): string {
   return out;
 }
 
+type LedgerEntry = { id: string; path: string; quote: string; status: string };
+
+/** Observe identities as equivalence classes across the complete scan history.
+ * Sorting duplicate ids only assigns local names; no hash byte is an oracle. */
 function ledgerObservation(actual: unknown): unknown {
-  if (!Array.isArray(actual)) return null;
-  const snapshots = actual as { entries?: { id?: unknown; status?: unknown; quote?: unknown }[] }[];
-  if (snapshots.length !== 2 || !snapshots.every((snapshot) => Array.isArray(snapshot.entries))) return null;
-  const first = snapshots[0]?.entries ?? [];
-  const second = snapshots[1]?.entries ?? [];
+  if (!Array.isArray(actual) || actual.length < 2) return null;
+  const snapshots = actual as { entries?: LedgerEntry[] }[];
+  if (!snapshots.every((snapshot) => Array.isArray(snapshot.entries))) return null;
   if (
-    ![...first, ...second].every((entry) => typeof entry.id === 'string' && /^[a-z2-7]{10}$/.test(entry.id))
+    !snapshots.every((snapshot) =>
+      snapshot.entries?.every(
+        (entry) =>
+          typeof entry.id === 'string' &&
+          /^[a-z2-7]{10}$/.test(entry.id) &&
+          typeof entry.path === 'string' &&
+          typeof entry.quote === 'string' &&
+          (entry.status === 'live' || entry.status === 'deleted'),
+      ),
+    )
   )
     return null;
-  return {
-    counts: [first.length, second.length],
-    sameIds: first.length === second.length && first.every((entry, index) => entry.id === second[index]?.id),
-    distinct: [new Set(first.map((entry) => entry.id)).size, new Set(second.map((entry) => entry.id)).size],
-  };
+  const names = new Map<string, number>();
+  return snapshots.map((snapshot) => {
+    const groups = new Map<string, { path: string; quote: string; status: string; ids: string[] }>();
+    for (const entry of snapshot.entries ?? []) {
+      const key = JSON.stringify([entry.path, entry.quote, entry.status]);
+      const group = groups.get(key) ?? {
+        path: entry.path,
+        quote: entry.quote,
+        status: entry.status,
+        ids: [],
+      };
+      group.ids.push(entry.id);
+      groups.set(key, group);
+    }
+    return [...groups.entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([, group]) => {
+        const identities = group.ids
+          .sort()
+          .map((id) => {
+            if (!names.has(id)) names.set(id, names.size);
+            return names.get(id) as number;
+          })
+          .sort((a, b) => a - b);
+        return { path: group.path, quote: group.quote, status: group.status, identities };
+      });
+  });
 }
 
 type LedgerCase = { name: string; cause: string; tier: Tier; mode: string };
@@ -228,43 +261,69 @@ const ledgerCases: LedgerCase[] = [
   { name: 'two-sets-one-unit', cause: 'one-id-per-unit', tier: 5, mode: 'sets' },
 ];
 
-function ledgerProbe(seed: number, mode: string, control: boolean): Probe {
+function ledgerProbe(seed: number, mode: string, lifecycle: boolean): Probe {
   const text = `Retain the fictional parcel ${token(seed)} until the sealed carrier returns with its receipt.`;
+  const trackedText = `Inspect the fictional vessel ${token(seed, 3)} under the painted cabinet before its keeper closes the register.`;
+  const editedText = trackedText.replace('painted', 'marked');
   const estate = `estate-${token(seed, 2)}`;
-  const unit = { text, container: 'sentence', labels: { demo: 'kept' }, linked: false };
-  const initial = {
-    estateKey: estate,
-    files: [{ path: 'a.md', units: [unit] }],
-    labelSets: { demo: 'Keep parcel instructions.' },
-  };
+  const unit = (quote: string) => ({
+    text: quote,
+    container: 'sentence',
+    labels: { demo: 'kept' },
+    linked: false,
+  });
+  const files = (tracked = trackedText, moved = false, removed = false) => [
+    { path: 'a.md', units: [unit(text), unit(text)] },
+    { path: 'b.md', units: [unit(text)] },
+    ...(removed ? [] : [{ path: moved ? 'relocated/tracked.md' : 'tracked.md', units: [unit(tracked)] }]),
+  ];
+  const initial = { estateKey: estate, files: files(), labelSets: { demo: 'Keep parcel instructions.' } };
+  const entries: LedgerEntry[] = [
+    { id: rawId(seed, 0), path: 'a.md', quote: text, status: 'live' },
+    { id: rawId(seed, 1), path: 'a.md', quote: text, status: 'live' },
+    { id: rawId(seed, 2), path: 'b.md', quote: text, status: 'live' },
+    { id: rawId(seed, 3), path: 'tracked.md', quote: trackedText, status: 'live' },
+  ];
+  const reviseTracked = (quote: string, path: string, status = 'live') =>
+    entries.map((entry, index) => (index === 3 ? { ...entry, quote, path, status } : { ...entry }));
   let scans: Json[] = [initial, initial];
-  let same = true;
-  let count = 1;
-  let independent = false;
-  if (mode === 'clone') independent = true;
-  if (mode === 'duplicate') {
-    count = 2;
-    const twice = { ...initial, files: [{ path: 'a.md', units: [unit, unit] }] };
-    scans = [twice, twice];
-  }
+  let later = entries.map((entry) => ({ ...entry }));
+  let independent = mode === 'clone' || mode === 'estate' || mode === 'path';
   if (mode === 'estate') {
-    independent = true;
-    same = false;
     scans = [initial, { ...initial, estateKey: `${estate}-other` }];
+    later = entries.map((entry, index) => ({ ...entry, id: rawId(seed, index + 40) }));
   }
   if (mode === 'path') {
-    independent = true;
-    same = false;
-    scans = [initial, { ...initial, files: [{ path: 'b.md', units: [unit] }] }];
-  }
-  if (mode === 'number')
-    scans = [initial, { ...initial, files: [{ path: 'a.md', units: [{ ...unit, displayNumber: 8 }] }] }];
-  if (mode === 'edit')
     scans = [
       initial,
-      { ...initial, files: [{ path: 'a.md', units: [{ ...unit, text: text.replace('sealed', 'closed') }] }] },
+      { ...initial, files: initial.files.map((file) => ({ ...file, path: `other/${file.path}` })) },
     ];
-  if (mode === 'move') scans = [initial, { ...initial, files: [{ path: 'relocated/b.md', units: [unit] }] }];
+    later = entries.map((entry, index) => ({
+      ...entry,
+      path: `other/${entry.path}`,
+      id: rawId(seed, index + 40),
+    }));
+  }
+  if (mode === 'number') {
+    scans = [
+      initial,
+      {
+        ...initial,
+        files: files().map((file) => ({
+          ...file,
+          units: file.units.map((u, index) => ({ ...u, displayNumber: index + 8 })),
+        })),
+      },
+    ];
+  }
+  if (mode === 'edit') {
+    scans = [initial, { ...initial, files: files(editedText) }];
+    later = reviseTracked(editedText, 'tracked.md');
+  }
+  if (mode === 'move') {
+    scans = [initial, { ...initial, files: files(trackedText, true) }];
+    later = reviseTracked(trackedText, 'relocated/tracked.md');
+  }
   if (mode === 'set') scans = [initial, { ...initial, labelSets: { demo: 'Keep all parcel instructions.' } }];
   if (mode === 'bounds')
     scans = [
@@ -276,30 +335,37 @@ function ledgerProbe(seed: number, mode: string, control: boolean): Probe {
       initial,
       {
         ...initial,
-        files: [{ path: 'a.md', units: [{ ...unit, labels: { demo: 'kept', second: 'selected' } }] }],
+        files: files().map((file) => ({
+          ...file,
+          units: file.units.map((u) => ({ ...u, labels: { demo: 'kept', second: 'selected' } })),
+        })),
         labelSets: { demo: 'Keep parcel instructions.', second: 'Select carrier procedures.' },
       },
     ];
-  if (control) {
-    // This distinct cardinality witness rejects even a constant valid ledger.
+  let sample: Json = [{ entries }, { entries: later }];
+  if (lifecycle) {
+    // These are the same occurrence/path identities as the named scenario, now
+    // followed through edits, a relocation, and a tombstone. Duplicate boilerplate
+    // remains live throughout; only the distinctive tracked unit changes.
+    independent = false;
     scans = [
-      { estateKey: estate, files: [] },
-      { estateKey: estate, files: [] },
+      initial,
+      { ...initial, files: files(editedText) },
+      { ...initial, files: files(editedText, true) },
+      { ...initial, files: files(editedText, true, true) },
     ];
-    count = 0;
-    same = true;
+    sample = [
+      { entries },
+      { entries: reviseTracked(editedText, 'tracked.md') },
+      { entries: reviseTracked(editedText, 'relocated/tracked.md') },
+      { entries: reviseTracked(editedText, 'relocated/tracked.md', 'deleted') },
+    ];
   }
-  const entries = Array.from({ length: count }, (_, i) => ({
-    id: rawId(seed, i),
-    status: 'live',
-    quote: text,
-  }));
-  const later = entries.map((entry, i) => ({ ...entry, id: same ? entry.id : rawId(seed, i + 40) }));
   return {
     request: { operation: 'ledger', input: { scans, independent } },
-    expected: { counts: [count, count], sameIds: same, distinct: [count, count] },
+    expected: ledgerObservation(sample) as Json,
     observe: ledgerObservation,
-    sample: [{ entries }, { entries: later }],
+    sample,
   };
 }
 
@@ -309,6 +375,7 @@ function reanchorObservation(actual: unknown): unknown {
     id?: unknown;
     path?: unknown;
     quote?: unknown;
+    status?: unknown;
     lineage?: { event?: unknown }[];
     candidates?: { path?: unknown; quote?: unknown }[];
   }[];
@@ -318,6 +385,7 @@ function reanchorObservation(actual: unknown): unknown {
         typeof entry.id === 'string' &&
         typeof entry.path === 'string' &&
         typeof entry.quote === 'string' &&
+        (entry.status === 'live' || entry.status === 'deleted') &&
         Array.isArray(entry.lineage) &&
         entry.lineage.length > 0,
     )
@@ -328,6 +396,7 @@ function reanchorObservation(actual: unknown): unknown {
       id: entry.id,
       path: entry.path,
       quote: entry.quote,
+      status: entry.status,
       event: entry.lineage?.at(-1)?.event,
       candidates: (entry.candidates ?? [])
         .map((candidate) => ({ path: candidate.path, quote: candidate.quote }))
@@ -519,7 +588,9 @@ function anchorProbe(
     quote = text;
     candidates = [];
   }
-  const sample = [{ id, path, quote, lineage: [{ event }], candidates }];
+  const sample = [
+    { id, path, quote, status: event === 'deleted' ? 'deleted' : 'live', lineage: [{ event }], candidates },
+  ];
   return {
     request: {
       operation: 'reanchor',
@@ -549,11 +620,18 @@ export function identityItems(): BankItem[] {
     generate(seed) {
       const text = `Parcel ${token(seed)}`;
       const [left, right] = c.pair(text);
-      const contrast: [string, string] = c.equal ? [left, `${left} extra`] : [left, left];
       return {
         probes: [
           fingerprints(left, right, c.equal, c.container),
-          fingerprints(...contrast, !c.equal, c.container),
+          // A distinct-byte equal pair proves normalization even in semantic-
+          // inequality cases; returning a hash of the raw text cannot pass.
+          fingerprints(
+            `${left.normalize('NFC')} Café witness`,
+            `${left}  Cafe\u0301\twitness`,
+            true,
+            c.container,
+          ),
+          fingerprints(left, `${left} extra`, false, c.container),
         ],
       };
     },

@@ -1,3 +1,5 @@
+import type { IOSetup, IOTrace, PointerIO, SampleEffect } from './io';
+
 /** Bank-owned integration boundary. No reader implementation is imported. */
 export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
 export type Tier = 1 | 2 | 3 | 4 | 5;
@@ -20,7 +22,7 @@ export type Request = { operation: Operation; input: Json };
  * Do not import the bank/oracles or infer answers from fixture names. See CONTRACT.md.
  */
 export interface PointerAdapter {
-  execute(request: Request): unknown | Promise<unknown>;
+  execute(request: Request, io?: PointerIO): unknown | Promise<unknown>;
 }
 
 export type Probe = {
@@ -28,7 +30,10 @@ export type Probe = {
   /** Exact planted observable, never passed to the adapter. */
   expected: Json;
   /** Optional projection for unspecified hash bytes, ordering, or raw span witnesses. */
-  observe?: (actual: unknown) => unknown;
+  observe?: (actual: unknown, effects: IOTrace) => unknown;
+  /** Harness-only transport fixture; absent from the request. */
+  setup?: IOSetup;
+  sampleEffects?: SampleEffect[];
   /** Only the harness tests use this representative raw response. It is not a reader. */
   sample?: Json;
 };
