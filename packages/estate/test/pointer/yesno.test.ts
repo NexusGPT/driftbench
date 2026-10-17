@@ -1,12 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import {
   askedLabels,
+  choiceKey,
+  choiceOpinions,
+  choiceQuestions,
   createJevLabeler,
   createOpenAiDecisionsLabeler,
   DEFAULT_THRESHOLD,
   isTooLarge,
   LabelerConfigError,
   type LabelSet,
+  NONE_DEFINITION,
   questionKey,
   yesNoOpinions,
 } from '../../src/pointer';
@@ -67,25 +71,69 @@ describe('the yes or no questions', () => {
   });
 });
 
+describe('the choice questions', () => {
+  it('lists the labels and none as options, with their definitions, one question per unit', () => {
+    const questions = choiceQuestions(askedLabels(BAKE, false), windowOf(2)) as Record<
+      string,
+      { type: string; instructions: string; criteria: Record<string, string> }
+    >;
+    expect(Object.keys(questions)).toEqual(['u1', 'u2']);
+    expect(questions.u2?.type).toBe('choice');
+    expect(questions.u2?.instructions).toContain('unit [2]');
+    expect(Object.keys(questions.u2?.criteria ?? {})).toEqual([
+      'greeting',
+      'price-claim',
+      'allergen-line',
+      'none',
+    ]);
+    expect(questions.u1?.criteria.greeting).toContain(BAKE.labels[0]?.description);
+    expect(questions.u1?.criteria.none).toBe(NONE_DEFINITION);
+  });
+
+  it('takes the option with the highest probability, none among them, and keeps the whole vector', () => {
+    const answer = recorded({
+      [choiceKey(1, 'greeting')]: 0.81,
+      [choiceKey(1, 'price-claim')]: 0.12,
+      [choiceKey(1, 'allergen-line')]: 0.02,
+      [choiceKey(1, 'none')]: 0.05,
+      [choiceKey(2, 'greeting')]: 0.1,
+      [choiceKey(2, 'price-claim')]: 0.1,
+      [choiceKey(2, 'allergen-line')]: 0.1,
+      [choiceKey(2, 'none')]: 0.7,
+    });
+    const opinions = choiceOpinions(answer, windowOf(2), askedLabels(BAKE, false));
+    expect([...opinions.byUnit.values()].map((opinion) => opinion.label)).toEqual(['greeting', 'none']);
+    expect(opinions.byUnit.get(0)?.probabilities).toEqual({
+      greeting: 0.81,
+      'price-claim': 0.12,
+      'allergen-line': 0.02,
+      none: 0.05,
+    });
+  });
+
+  it('leaves a unit without an opinion when an option has no probability', () => {
+    const answer = recorded({ [choiceKey(1, 'greeting')]: 0.9, [choiceKey(1, 'none')]: 0.1 });
+    expect(choiceOpinions(answer, windowOf(1), askedLabels(BAKE, false)).byUnit.size).toBe(0);
+  });
+});
+
 describe('the Jev labeler, a system 1 labeler', () => {
-  it('is system 1; one request per window, questions keyed u<n>__<label>', () => {
+  it('is system 1; one request per window, one choice question u<n> per unit', () => {
     const labeler = createJevLabeler({ env: {}, replayOnly: true });
     expect([labeler.id, labeler.cls]).toEqual(['jev', 'system1']);
     const wire = labeler.render(BAKE, windowOf(4));
     const questions = wire.body.questions as Record<string, { type: string }>;
-    expect(Object.keys(questions)).toHaveLength(4 * 3);
-    expect(questions[questionKey(2, 'price-claim')]?.type).toBe('noul');
+    expect(Object.keys(questions)).toEqual(['u1', 'u2', 'u3', 'u4']);
+    expect(questions.u2?.type).toBe('choice');
     expect(wire.body.state).toMatchObject({ set: 'counter-voice', window: 'notes.md#1' });
     expect(JSON.stringify(wire.body.state)).toContain('[4] Line 4 wrapped');
   });
 
-  it('cuts a window only when units times labels pass the question cap', () => {
-    const labeler = createJevLabeler({ env: {}, maxQuestions: 100, replayOnly: true });
-    expect(labeler.maxUnits(BAKE, 60)).toBe(33);
+  it('cuts a window at 30 units, or at the cap it is given', () => {
+    const labeler = createJevLabeler({ env: {}, replayOnly: true });
+    expect(labeler.maxUnits(BAKE, 60)).toBe(30);
     expect(labeler.maxUnits(BAKE, 10)).toBe(10);
-    expect(createJevLabeler({ env: {}, maxQuestions: 2, replayOnly: true }).maxUnits(BAKE, 60)).toBe(1);
-    // The default is 250 questions: 83 units of 3 labels.
-    expect(createJevLabeler({ env: {}, replayOnly: true }).maxUnits(BAKE, 200)).toBe(83);
+    expect(createJevLabeler({ env: {}, maxUnits: 12, replayOnly: true }).maxUnits(BAKE, 60)).toBe(12);
   });
 
   it('labels one unit per request in the unit state', () => {
@@ -93,23 +141,22 @@ describe('the Jev labeler, a system 1 labeler', () => {
     expect(labeler.id).toBe('jev-unit');
     expect(labeler.maxUnits(BAKE, 60)).toBe(1);
     expect(labeler.render(BAKE, windowOf(1)).labeler).toBe('jev-unit');
-    expect(labeler.settings).toEqual({ threshold: DEFAULT_THRESHOLD.unit });
   });
 
   it('refuses a set whose label needs a target on its own, and serves it inside a stack', () => {
     const alone = createJevLabeler({ env: {}, replayOnly: true });
     expect(() => alone.render(GATED, windowOf(2))).toThrow(LabelerConfigError);
     const inStack = createJevLabeler({ env: {}, replayOnly: true, skipTargetLabels: true });
-    const questions = inStack.render(GATED, windowOf(2)).body.questions as Record<string, unknown>;
-    expect(Object.keys(questions).some((key) => key.endsWith('__gate-line'))).toBe(false);
-    expect(Object.keys(questions)).toHaveLength(2 * 3);
+    const questions = inStack.render(GATED, windowOf(2)).body.questions as Record<
+      string,
+      { criteria: Record<string, string> }
+    >;
+    expect(Object.keys(questions.u1?.criteria ?? {})).not.toContain('gate-line');
+    expect(Object.keys(questions)).toHaveLength(2);
   });
 
-  it('puts the threshold in the settings, so the labels are re-made when it changes', () => {
-    expect(createJevLabeler({ env: {}, replayOnly: true }).settings).toEqual({ threshold: 0.4 });
-    expect(createJevLabeler({ env: {}, replayOnly: true, threshold: 0.7 }).settings).toEqual({
-      threshold: 0.7,
-    });
+  it('names the question in the settings, so the labels are re-made when it changes', () => {
+    expect(createJevLabeler({ env: {}, replayOnly: true }).settings).toEqual({ question: 'choice' });
   });
 
   it('posts the batch to the gateway with its key header and records the probabilities and the usage', async () => {
@@ -119,7 +166,15 @@ describe('the Jev labeler, a system 1 labeler', () => {
       fetch: fakeFetch(
         {
           model: 'jev-test',
-          answers: { [questionKey(1, 'greeting')]: { noul: 0.8 }, odd: { noul: 3 } },
+          answers: {
+            u1: {
+              type: 'choice',
+              choice: 'greeting',
+              confidence: 0.8,
+              probabilities: { greeting: 0.8, 'price-claim': 0.1, 'allergen-line': 0, none: 0.1, odd: 3 },
+            },
+            u2: { type: 'refusal' },
+          },
           usage: { input_tokens: 4200, output_tokens: 31 },
         },
         calls,
@@ -130,7 +185,12 @@ describe('the Jev labeler, a system 1 labeler', () => {
     expect(calls[0]?.url).toBe('https://jev-gateway.nexus-orga.gpt.nexus/v1/systemone');
     expect(calls[0]?.headers['api-key']).toBe('k-secret');
     expect(calls[0]?.body.model).toBe('jev-test');
-    expect(answer?.probabilities).toEqual({ [questionKey(1, 'greeting')]: 0.8 });
+    expect(answer?.probabilities).toEqual({
+      [choiceKey(1, 'greeting')]: 0.8,
+      [choiceKey(1, 'price-claim')]: 0.1,
+      [choiceKey(1, 'allergen-line')]: 0,
+      [choiceKey(1, 'none')]: 0.1,
+    });
     expect(answer?.usage).toEqual({ input: 4200, output: 31 });
   });
 

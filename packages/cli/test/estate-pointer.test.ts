@@ -72,15 +72,28 @@ const services: FetchLike = async (url, init) => {
   if (url.includes('systemone')) {
     const text = String((body.state as { text: string }).text);
     const lines = new Map(unitsOf(text));
-    const answers: Record<string, { noul: number }> = {};
-    for (const key of Object.keys(body.questions as object)) {
-      const [, n, label] = /^u(\d+)__(.+)$/.exec(key) ?? [];
-      const line = lines.get(Number(n)) ?? '';
-      // Sure of a prohibition for "Never" and of a rule for a clear imperative, unsure of "Close", sure of
-      // nothing for the rest.
-      const wanted = line.startsWith('Never') ? 'prohibition' : 'rule';
-      const p = label === wanted && imperative.test(line) ? (line.startsWith('Close') ? 0.4 : 0.9) : 0.02;
-      answers[key] = { noul: p };
+    const answers: Record<string, unknown> = {};
+    for (const [key, question] of Object.entries(
+      body.questions as Record<string, { criteria: Record<string, string> }>,
+    )) {
+      const line = lines.get(Number(key.slice(1))) ?? '';
+      // Sure of a prohibition for "Never" and of a rule for a clear imperative, torn on "Close", and sure
+      // of none for the rest.
+      const wanted = line.startsWith('Never') ? 'prohibition' : imperative.test(line) ? 'rule' : 'none';
+      const close = line.startsWith('Close');
+      const probabilities: Record<string, number> = {};
+      for (const option of Object.keys(question.criteria)) {
+        probabilities[option] = close
+          ? option === 'rule'
+            ? 0.45
+            : option === 'none'
+              ? 0.4
+              : 0.05
+          : option === wanted
+            ? 0.9
+            : 0.02;
+      }
+      answers[key] = { type: 'choice', choice: wanted, confidence: 0.9, probabilities };
     }
     return json({ model: 'jev-fake', answers, usage: { input_tokens: 1000, output_tokens: 10 } });
   }

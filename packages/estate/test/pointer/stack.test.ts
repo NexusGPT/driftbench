@@ -4,6 +4,7 @@ import {
   Cassette,
   DEFAULT_FAIL_AT,
   DEFAULT_LABELER_SPECS,
+  DEFAULT_MARGIN_CUT,
   DEFAULT_PASS_AT,
   margin,
   type Opinion,
@@ -91,7 +92,26 @@ describe('building a labelling', () => {
     ]);
     expect(built.labelling.members.every((member) => member.call === undefined)).toBe(true);
     expect(built.labelling.describe).toContain('system 1 jev');
-    expect(built.labelling.describe).toContain(`pass at ${DEFAULT_PASS_AT}, fail at ${DEFAULT_FAIL_AT}`);
+    // A choice model gives a vector, so the default stack reads the margin between its two likeliest labels.
+    expect(built.labelling.describe).toContain(`margin cut ${DEFAULT_MARGIN_CUT}`);
+  });
+
+  it('decides by the probability bounds when the caller sets them, or when system 1 answers yes or no', async () => {
+    const bounded = await buildLabelling(specs(DEFAULT_LABELER_SPECS), {
+      env,
+      record: false,
+      cwd: '.',
+      passAt: 0.8,
+    });
+    if (!bounded.ok) throw new Error(bounded.message);
+    expect(bounded.labelling.describe).toContain(`pass at 0.8, fail at ${DEFAULT_FAIL_AT}`);
+    const yesNo = await buildLabelling(specs(['system1:openai-decisions:d-1', 'system2:anthropic']), {
+      env,
+      record: false,
+      cwd: '.',
+    });
+    if (!yesNo.ok) throw new Error(yesNo.message);
+    expect(yesNo.labelling.describe).toContain(`pass at ${DEFAULT_PASS_AT}, fail at ${DEFAULT_FAIL_AT}`);
   });
 
   it('puts system 1 first, whatever the order of the specs', async () => {
@@ -175,7 +195,7 @@ describe('building a labelling', () => {
   it('changes the hash with the bounds, the threshold and the clients, and with nothing else', async () => {
     const hash = async (
       texts: readonly string[],
-      over: { passAt?: number; failAt?: number; threshold?: number } = {},
+      over: { passAt?: number; failAt?: number; threshold?: number; marginCut?: number } = {},
     ) => {
       const built = await buildLabelling(specs(texts), { env, record: false, cwd: '.', ...over });
       if (!built.ok) throw new Error(built.message);
@@ -185,7 +205,11 @@ describe('building a labelling', () => {
     expect(await hash(DEFAULT_LABELER_SPECS)).toBe(base);
     expect(await hash(DEFAULT_LABELER_SPECS, { passAt: 0.8 })).not.toBe(base);
     expect(await hash(DEFAULT_LABELER_SPECS, { failAt: 0.2 })).not.toBe(base);
-    expect(await hash(DEFAULT_LABELER_SPECS, { threshold: 0.5 })).not.toBe(base);
+    expect(await hash(DEFAULT_LABELER_SPECS, { marginCut: 0.5 })).not.toBe(base);
+    // The threshold is a setting of a yes or no model; a choice model has none.
+    expect(await hash(DEFAULT_LABELER_SPECS, { threshold: 0.5 })).toBe(base);
+    const decisions = ['system1:openai-decisions:d-1', 'system2:anthropic'];
+    expect(await hash(decisions, { threshold: 0.5 })).not.toBe(await hash(decisions));
     expect(await hash(['system2:anthropic'])).not.toBe(base);
     expect(await hash(['system2:anthropic:claude-opus-5-5'])).not.toBe(await hash(['system2:anthropic']));
   });

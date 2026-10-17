@@ -27,6 +27,14 @@ export const DEFAULT_LABELER_SPECS = ['system1:jev', 'system2:anthropic'] as con
 export const DEFAULT_PASS_AT = 0.9;
 export const DEFAULT_FAIL_AT = 0.1;
 
+/**
+ * A system 1 labeler that answers a choice question gives one probability per label, so the stack reads the
+ * margin between the two likeliest: system 1 decides a unit when its likeliest label leads the second by this
+ * much, and system 2 decides the rest. Measured on a fictional estate, 0.65 sends 40% of the units to system 2
+ * and the units system 1 keeps are right 93.5% of the time.
+ */
+export const DEFAULT_MARGIN_CUT = 0.65;
+
 export type LabelerSpec = {
   cls: LabelerClass;
   /** `jev`, `jev-unit`, `openai-decisions`, `anthropic`, `http` or `module`. */
@@ -117,13 +125,14 @@ function single(member: Labeler): Labelling {
 }
 
 /**
- * The margin of a system 1 opinion: the probability of the most likely label minus that of the second, over the
- * probabilities of the asked labels and an implicit `none` that takes what the labels leave of 1, normalised to 1.
+ * The margin of a system 1 opinion: the probability of the most likely label minus that of the second, normalised
+ * to 1. A vector with no `none` entry (a yes or no model) gets an implicit `none` that takes what the labels
+ * leave of 1; a choice model gives `none` itself.
  */
 export function margin(probabilities: Readonly<Record<string, number>>): { label: string; margin: number } {
   const entries = Object.entries(probabilities);
-  const none = Math.max(0, 1 - entries.reduce((sum, [, p]) => sum + p, 0));
-  const vector: Array<[string, number]> = [...entries, ['none', none]];
+  const none = 'none' in probabilities ? 0 : Math.max(0, 1 - entries.reduce((sum, [, p]) => sum + p, 0));
+  const vector: Array<[string, number]> = 'none' in probabilities ? entries : [...entries, ['none', none]];
   const total = vector.reduce((sum, [, p]) => sum + p, 0) || 1;
   const sorted = vector.map(([name, p]) => [name, p / total] as const).sort((a, b) => b[1] - a[1]);
   return { label: sorted[0]?.[0] ?? 'none', margin: (sorted[0]?.[1] ?? 0) - (sorted[1]?.[1] ?? 0) };
@@ -231,7 +240,6 @@ async function member(spec: LabelerSpec, inStack: boolean, options: LabellingOpt
     case 'jev-unit':
       return createJevLabeler({
         ...http,
-        ...threshold,
         env: options.env,
         state: spec.client === 'jev-unit' ? 'unit' : 'window',
         skipTargetLabels: inStack,
@@ -324,15 +332,21 @@ export async function buildLabelling(
       }
     }
     const [first, second] = members;
-    if (first && second)
+    if (first && second) {
+      // A choice model gives a vector: it decides by margin unless the caller set the two probability bounds.
+      const bounded = options.passAt !== undefined || options.failAt !== undefined;
+      const marginCut =
+        options.marginCut ??
+        (first.settings.question === 'choice' && !bounded ? DEFAULT_MARGIN_CUT : undefined);
       return {
         ok: true,
         labelling: stacked(first, second, {
           passAt,
           failAt,
-          ...(options.marginCut === undefined ? {} : { marginCut: options.marginCut }),
+          ...(marginCut === undefined ? {} : { marginCut }),
         }),
       };
+    }
     if (first) return { ok: true, labelling: single(first) };
     return { ok: false, message: 'no labeler' };
   } catch (cause) {
