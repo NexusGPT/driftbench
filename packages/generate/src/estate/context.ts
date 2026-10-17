@@ -164,14 +164,56 @@ export function navigationFiles(documents: readonly EstateDocument[] | undefined
 }
 
 /**
- * A reference whose target is a navigation document. Reading an example or a placeholder is not a behaviour
- * the estate demands, so it gives no test: the document is a place to look, never a rule. A prerequisite
- * (a gate) to read such a file stays a real order and is not a reference in this sense.
+ * Whether a reference only sits in a link list or an index: the line it is read from is a list item, a table
+ * row or a heading, and nothing but markup precedes the reference (it leads the item or the first cell). A
+ * reference with words before it ("Read `x.md` first", "fill in `x.md`") belongs to a sentence that acts on
+ * it. Position in the line decides, never a word. The line and the written name come from the atom itself.
  */
-export function navigationReference(atom: EstateAtom, navigation: ReadonlySet<string>): boolean {
+export function listedReference(atom: EstateAtom): boolean {
+  const line = atom.provenance?.quote ?? '';
+  const path = typeof atom.fields?.path === 'string' ? atom.fields.path : '';
+  const written = atom.title.startsWith('Read ') ? atom.title.slice(5) : (path.split('/').pop() ?? path);
+  const start = written === '' ? -1 : line.indexOf(written);
+  if (start < 0 || !/^\s*(?:[-*+]\s|\d+[.)]\s|\||#{1,6}\s)/.test(line)) return false;
+  // A link label before its target (`[The form](form.md)`) is markup of the list item, not an instruction.
+  return /^[\s>|*+\-#\d.)[\]`_(~]*$/.test(line.slice(0, start).replace(/\[[^\]]*\]\($/, ''));
+}
+
+/**
+ * A reference that only sits in a link list or an index and points at a navigation document (an example, a
+ * template, a history, a fixture, an archive). Reading such a document is not a behaviour the estate demands,
+ * so it gives no test. The target's folder or heading never decides it alone: a reference an instruction acts
+ * on (words before it in its line, or another atom of the estate, such as a read gate, anchored on its line)
+ * is testable whatever its target.
+ */
+export function navigationReference(
+  atom: EstateAtom,
+  navigation: ReadonlySet<string>,
+  anchored: ReadonlySet<string> = new Set(),
+): boolean {
   if (atom.kind !== 'reference' || navigation.size === 0) return false;
   const path = atom.fields?.path;
-  return typeof path === 'string' && navigation.has(path.replaceAll('\\', '/').replace(/^\.\//, ''));
+  if (typeof path !== 'string' || !navigation.has(path.replaceAll('\\', '/').replace(/^\.\//, '')))
+    return false;
+  const at = atom.provenance;
+  if (at?.file !== undefined && at.startLine !== undefined && anchored.has(`${at.file}:${at.startLine}`))
+    return false;
+  return listedReference(atom);
+}
+
+/**
+ * The lines of the estate that an atom other than a reference is anchored on: a gate, an instruction, a hazard.
+ * A reference on such a line is acted on by that atom, whatever its target.
+ */
+export function anchoredLines(atoms: readonly EstateAtom[]): ReadonlySet<string> {
+  const lines = new Set<string>();
+  for (const atom of atoms) {
+    const at = atom.provenance;
+    if (atom.kind === 'reference' || at?.file === undefined || at.startLine === undefined) continue;
+    for (let line = at.startLine; line <= (at.endLine ?? at.startLine) && line < at.startLine + 50; line++)
+      lines.add(`${at.file}:${line}`);
+  }
+  return lines;
 }
 
 /** The route atoms that name each unit, by unit atom id: the requests that load it. */
