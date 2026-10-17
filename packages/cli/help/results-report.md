@@ -86,7 +86,9 @@ Standard output, without `--json`:
 
 * `Margin auto: ...` when the margin is `auto`: the margin used and what set it, with a warning when it
   is above 15 points.
-* `Campaign <id>: <runs> runs, <n> pass, <n> fail, <n> did not complete.`
+* `Campaign <id>: <runs> runs, <n> pass, <n> fail, [<n> not run, ][<n> blocked, ]<n> did not complete.` A run
+  with a block not run or blocked, and no failure, is neither a pass nor a fail. Every rate leaves it out,
+  and the suite headline prints its share after the rate, such as `50.0% not run`.
 * One suite headline per mode the campaign ran: `Suite pass rate, mode <m>: <rate> [<lower>, <upper>]
   (hierarchical 95% interval); <n> goldens, n_eff <x> runs (design effect <d>), detectable drop <p> points
   at 80% power.` The rate is the mean over goldens, so every golden weighs the same whatever its repeats.
@@ -108,7 +110,9 @@ Standard output, without `--json`:
 The HTML file is described in `results-scorecard`: an overview, three zones (pass rate charts, tests,
 runs with a detail panel per run), and every detailed table folded under "All details". The JUnit file has one
 `<testsuite>` per spec and one `<testcase>` per run, named `<target> · <mode> · repeat <n>` (with the
-perturbation id in mode P); a failing run is a `<failure>`, a run that did not complete an `<error>`.
+perturbation id in mode P); a failing run is a `<failure>`, a run that did not complete an `<error>`, and a
+run with a block not run or blocked, and no failure, a `<skipped>` whose message is its first reason. The
+`skipped` attribute of each `<testsuite>` counts those runs.
 
 With `--json` the standard output is the scorecard object itself (the `compare` part with its maps
 written as plain objects); see `results-exports`. The suite headline of each mode is `modes[].headline`,
@@ -169,6 +173,42 @@ Suite pass rate, mode P: 100.0% [78.5%, 100.0%] (hierarchical 95% interval); 11 
 Wrote c-base.html.
 ```
 
+
+### A campaign with a run not run
+
+The tool failure spec forces two tool results. The Acme ops agent runs through the `process` adapter, which
+cannot apply them, so that run is not run. The price sheet spec runs on its own target and passes. No model
+is called.
+
+```sh setup
+mkdir mixed
+cp examples/acme/specs/conversations/tool-failure.yaml examples/acme/specs/tasks/price-sheet.yaml mixed
+```
+
+```sh
+driftbench campaign run mixed --target process:acme-ops --store not-run.db --campaign c-not-run # exit 3
+driftbench report c-not-run --store not-run.db --out not-run.html --junit not-run.xml
+```
+
+```text
+$ driftbench report c-not-run --store not-run.db --out not-run.html --junit not-run.xml
+...
+Campaign c-not-run: 2 runs, 1 pass, 0 fail, 1 not run, 0 did not complete.
+Suite pass rate, mode F: 100.0% no interval: one cluster (one golden); 1 golden, 50.0% not run.
+Wrote not-run.html and not-run.xml.
+```
+
+The pass rate counts the one scored run. The JUnit file skips the other:
+
+```text
+  <testsuite name="acme-tool-failure" tests="1" failures="0" errors="0" skipped="1" time="0.000" timestamp="...">
+    <testcase classname="acme-tool-failure" name="process:acme-ops · F · repeat 0" time="0.000">
+      <skipped message="block 0 not run: capability: process declares toolStubs false: the agent would never see it"/>
+    </testcase>
+  </testsuite>
+```
+
+`report` exits 0: it writes, it never gates. `driftbench ci` fails on blocks not run (topic running-not-run).
 ## Common errors
 
 | Message | Cause and fix |
