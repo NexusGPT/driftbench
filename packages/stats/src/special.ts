@@ -11,6 +11,9 @@ const LANCZOS = [
 
 /** Natural log of the gamma function, Lanczos approximation (g = 7, n = 9). */
 export function logGamma(x: number): number {
+  if (Number.isNaN(x)) return Number.NaN;
+  // The poles of the gamma function: 0, -1, -2, ... (scipy gammaln gives +Infinity there).
+  if (x <= 0 && Number.isInteger(x)) return Number.POSITIVE_INFINITY;
   if (x < 0.5) {
     // Reflection formula.
     return Math.log(Math.PI / Math.abs(Math.sin(Math.PI * x))) - logGamma(1 - x);
@@ -65,6 +68,7 @@ function betaContinuedFraction(a: number, b: number, x: number): number {
 
 /** Regularized incomplete beta function I_x(a, b). */
 export function incompleteBeta(x: number, a: number, b: number): number {
+  if (Number.isNaN(x) || !(a > 0) || !(b > 0) || x < 0 || x > 1) return Number.NaN;
   if (x <= 0) return 0;
   if (x >= 1) return 1;
   const front = Math.exp(logGamma(a + b) - logGamma(a) - logGamma(b) + a * Math.log(x) + b * Math.log(1 - x));
@@ -74,6 +78,7 @@ export function incompleteBeta(x: number, a: number, b: number): number {
 
 /** Quantile of the Beta(a, b) distribution, by bisection on the regularized incomplete beta. */
 export function betaQuantile(p: number, a: number, b: number): number {
+  if (Number.isNaN(p) || !(a > 0) || !(b > 0) || p < 0 || p > 1) return Number.NaN;
   if (p <= 0) return 0;
   if (p >= 1) return 1;
   let lo = 0;

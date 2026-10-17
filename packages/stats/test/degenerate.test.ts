@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { chiSquareSf, designEffect, normalCdf, normalSf, effectiveSampleSize, ksTest, mean, wilcoxonSignedRank, pageHinkley, quantile, quantileSorted, sampleVariance } from '../src/index';
+import { betaQuantile, chiSquareSf, incompleteBeta, logGamma, designEffect, normalCdf, normalSf, effectiveSampleSize, ksTest, mean, wilcoxonSignedRank, pageHinkley, quantile, quantileSorted, sampleVariance } from '../src/index';
 
 const bad = [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY];
 
@@ -135,5 +135,40 @@ describe('normalCdf and chiSquareSf at the edge of their domain (rule 2)', () =>
   it('ordinary values are unchanged', () => {
     expect(normalCdf(0)).toBeCloseTo(0.5, 15);
     expect(chiSquareSf(3.841458820694124, 1)).toBeCloseTo(0.05, 10);
+  });
+});
+
+describe('logGamma, incompleteBeta and betaQuantile outside their domain (rule 2)', () => {
+  const nanOrThrow = (f: () => number): boolean => {
+    try {
+      return Number.isNaN(f());
+    } catch (e) {
+      return e instanceof RangeError;
+    }
+  };
+  it('logGamma is +Infinity at the poles 0, -1, -2', () => {
+    expect(logGamma(0)).toBe(Number.POSITIVE_INFINITY);
+    expect(logGamma(-1)).toBe(Number.POSITIVE_INFINITY);
+    expect(logGamma(-2)).toBe(Number.POSITIVE_INFINITY);
+  });
+  it('logGamma still matches the reference between the poles', () => {
+    expect(logGamma(-0.5)).toBeCloseTo(1.2655121234846454, 12);
+    expect(logGamma(5)).toBeCloseTo(Math.log(24), 12);
+  });
+  it('incompleteBeta returns NaN or throws for x outside [0, 1], non-positive shapes and NaN', () => {
+    expect(nanOrThrow(() => incompleteBeta(1.5, 2, 3))).toBe(true);
+    expect(nanOrThrow(() => incompleteBeta(-0.1, 2, 3))).toBe(true);
+    expect(nanOrThrow(() => incompleteBeta(0.5, 0, 3))).toBe(true);
+    expect(nanOrThrow(() => incompleteBeta(0.5, 2, -1))).toBe(true);
+    expect(nanOrThrow(() => incompleteBeta(Number.NaN, 2, 3))).toBe(true);
+    expect(incompleteBeta(0, 2, 3)).toBe(0);
+    expect(incompleteBeta(1, 2, 3)).toBe(1);
+  });
+  it('betaQuantile returns NaN or throws for a NaN or out-of-range level and bad shapes', () => {
+    expect(nanOrThrow(() => betaQuantile(Number.NaN, 2, 3))).toBe(true);
+    expect(nanOrThrow(() => betaQuantile(1.5, 2, 3))).toBe(true);
+    expect(nanOrThrow(() => betaQuantile(0.5, 0, 3))).toBe(true);
+    expect(betaQuantile(0, 2, 3)).toBe(0);
+    expect(betaQuantile(1, 2, 3)).toBe(1);
   });
 });
