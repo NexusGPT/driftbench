@@ -3,7 +3,7 @@ import { blindFamilies } from './blind/index';
 import { comboFamily, generatedFamily } from './combo';
 import { determinismFamily } from './determinism';
 import type { Family } from './frame';
-import { coverageFamily, readsFamily, taskFamily } from './genquality';
+import { coverageFamily, readsFamily } from './genquality';
 import { decoysFamily, hostileFamily } from './hostile';
 import { killFamily } from './kill';
 import { lintCleanFamily, lintDefectFamily } from './lint';
@@ -20,16 +20,18 @@ import { registryFamily } from './scan-registry';
 import { standingFamily } from './scan-standing';
 import { stepsFamily } from './scan-steps';
 import { statsFamily } from './stats';
+import { taskFamilyV2 } from './taskv2';
 import { unitFamily } from './unit';
 
 export { benchFamily } from './bench';
 export { blindFamilies } from './blind/index';
 export { determinismFamily } from './determinism';
 export * from './frame';
-export { coverageFamily, holdsTask, readsFamily, taskFamily } from './genquality';
+export { coverageFamily, readsFamily } from './genquality';
 export { killFamily } from './kill';
 export { maintainFixtureFamily } from './maintain-fixture';
 export { statsFamily } from './stats';
+export { taskFamilyV2 as taskFamily } from './taskv2';
 export { unitFamily } from './unit';
 
 /** The levels of the estate bank, in order of the cost of diagnosis, each with its families. */
@@ -70,7 +72,7 @@ export const BANK_LEVELS = [
     families: () => [
       genCompleteFamily(),
       genAsksFamily(),
-      taskFamily(),
+      taskFamilyV2(),
       readsFamily(),
       coverageFamily(),
       unitFamily(),

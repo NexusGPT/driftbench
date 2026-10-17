@@ -5,6 +5,7 @@ import { parse } from 'yaml';
 import type { FixtureSuite, SuiteSpec } from './fixture-suite';
 import { FIXTURE, fixtureSuite } from './fixture-suite';
 import { type Family, type ItemResult, itemsOf, type Tier } from './frame';
+import { TEST_TYPES } from './genquality';
 import { type AskEnv, checkAsk, checkTrace, envOf, firstAskOf, type TraceNeed } from './task-check';
 import { observeOnFake } from './task-trace';
 
@@ -23,31 +24,7 @@ const GENERATE = 'packages/generate/src/estate/generate.ts';
  */
 export const TIE = { floor: 0.6, gram: 5 };
 
-export const TASK_TYPES = [
-  'obligation',
-  'outside_trigger',
-  'twin',
-  'ordered_pair',
-  'skip_pressure',
-  'route_positive',
-  'route_near_miss',
-  'misroute',
-  'read_when',
-  'script_fixture',
-  'dispatch',
-  'contract_alone',
-  'stop_resume',
-  'guard_positive',
-  'guard_negative',
-  'guard_hostile',
-  'tool_boundary',
-  'tool_denied',
-  'stage_order',
-  'stage_skip',
-  'register_sample',
-  'hazard_recovery',
-  'journey',
-] as const;
+export const TASK_TYPES = TEST_TYPES;
 
 export async function envOfSuite(suite: FixtureSuite): Promise<AskEnv> {
   const map = await loadEstateMap(suite.map);

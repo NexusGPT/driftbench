@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import * as fixture from '../../src/ladders/estate/bank/fixture-suite';
 import { fixtureSuite } from '../../src/ladders/estate/bank/fixture-suite';
-import { coverageFamily, readsFamily, taskFamily } from '../../src/ladders/estate/bank/genquality';
+import { coverageFamily, readsFamily } from '../../src/ladders/estate/bank/genquality';
+import { taskFamilyV2 } from '../../src/ladders/estate/bank/taskv2';
 import { killVerdict } from '../../src/ladders/estate/bank/unit';
 
 const specs = [{ id: 'a' }, { id: 'b' }, { id: 'c' }];
@@ -78,7 +79,7 @@ describe('the native unit records stay out of the generation-quality inputs', { 
     const mock = vi.spyOn(fixture, 'fixtureSuite').mockResolvedValue(bare);
     try {
       const reads = await readsFamily().evaluate(1);
-      const tasks = await taskFamily().evaluate(1);
+      const tasks = await taskFamilyV2().evaluate(1);
       const coverage = await coverageFamily().evaluate(1);
       for (const [id, result] of reads) expect(result.pass, id).toBe(false);
       for (const [id, result] of tasks) expect(result.pass, id).toBe(false);
