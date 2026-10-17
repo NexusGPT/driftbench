@@ -9,7 +9,7 @@ import {
   run,
   statusOf,
 } from '../harness';
-import { plantedAgent } from '../kinds';
+import { plantedAgent, token } from '../kinds';
 import { type BlocksProduct, need } from '../product';
 import { type BlockPlan, recipe } from '../recipe';
 import { type BankItem, expectAll, fail, PASS, type Tier } from '../types';
@@ -401,7 +401,7 @@ function badgeItems(): BankItem[] {
             ),
           ].sort();
           const gotFixes = got.fixes.map((fix) => (fix as { fixAction: string }).fixAction);
-          return expectAll([
+          const first = expectAll([
             [
               got.nonDefault.join(',') === want.join(','),
               `nonDefault ${list(got.nonDefault)}, expected ${list(want)}`,
@@ -409,6 +409,36 @@ function badgeItems(): BankItem[] {
             [
               gotFixes.join(',') === fixes.map((fix) => fix.fixAction).join(','),
               `fixes ${list(gotFixes)}, expected ${list(fixes.map((fix) => fix.fixAction))}`,
+            ],
+          ]);
+          if (!first.pass) return first;
+          // The twin: the same objects recorded where a run keeps them, in BlockResult.resolved, spread over the
+          // blocks, and no object list given; a fix plan whose actions are any words.
+          const records = structuredClone(planted.map((p) => p.record));
+          const blocks = records.flatMap((record) => record.blocks);
+          objectCase.objects.forEach((object, index) => {
+            const block = blocks[index % blocks.length] as unknown as { resolved?: { objects: unknown[] } };
+            block.resolved = { objects: [...(block.resolved?.objects ?? []), object] };
+          });
+          const worded = fixes.map((fix) => ({
+            ...fix,
+            fixAction: `${token(seed, `${id}#${fix.fixAction}`)} the rule`,
+          }));
+          const recorded = attributionOf(campaignOf(records), {
+            diagnoses: diagnosesOf(planted),
+            fixes: worded,
+          });
+          if (!recorded)
+            return fail('attributionOf gave nothing for runs with diagnoses and resolved objects');
+          const recordedFixes = recorded.fixes.map((fix) => (fix as { fixAction: string }).fixAction);
+          return expectAll([
+            [
+              recorded.nonDefault.join(',') === want.join(','),
+              `with the objects in BlockResult.resolved, nonDefault ${list(recorded.nonDefault)}, expected ${list(want)}`,
+            ],
+            [
+              recordedFixes.join(',') === worded.map((fix) => fix.fixAction).join(','),
+              `fixes ${list(recordedFixes)}, expected ${list(worded.map((fix) => fix.fixAction))}`,
             ],
           ]);
         },
