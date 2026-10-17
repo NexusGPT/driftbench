@@ -255,7 +255,7 @@ A combination that no valid row can hold is not a target. That includes a combin
 
 ### Seeds, order and budget
 
-* A seed row is a real session: `{ id, values }`, with the values of the variables the session shows. Seeds come first, in the order given, and no budget cuts them. A seed counts as covering every combination all of whose variables it sets. A seed that names a variable or a value the plan does not have is kept without that entry (`seed_unknown_value`). A seed that holds a combination the store forbids is kept (`seed_forbidden`).
+* A seed row is a real session: `{ id, values }`, with the values of the variables the session shows. Seeds come first, in the order given, and no budget cuts them. A seed counts as covering every combination all of whose variables it sets. A seed that names a variable or a value the store does not have is kept without that entry (`seed_unknown_value`). A seed that names a value the store has but nobody approved is kept whole, entry included, and each such entry is reported (`seed_unapproved_value`); it covers nothing and adds nothing to the weight. When nothing in the store is approved, the plan is the seeds alone (`no_variables`). A seed that holds a combination the store forbids is kept (`seed_forbidden`).
 * The weight of a row is the product of the shares of its values, written as a sum of logarithms (`logWeight`), so a row of hundreds of variables does not underflow. The share of a value is its weight over the weights of the approved values of its variable, or the same for all when the variable has no weights. A weight of 0 gives minus infinity, written `null` in the JSON.
 * The new rows come from the most common to the rarest. Rows of equal weight are ordered by a hash of the seed and the row, so the order is stable.
 * `budget` is the most rows the plan holds, seeds included. The plan keeps the first rows and cuts the rarest, and `layers` says what the cut leaves uncovered. A budget below the number of seeds keeps all the seeds and no new row.
@@ -270,7 +270,7 @@ A combination that no valid row can hold is not a target. That includes a combin
 | `layers` | per layer: `strength`, `groups`, `targets`, `infeasible`, `seeded` (targets the seeds hold), `covered` (targets the kept rows hold), `uncovered` |
 | `rules` | the rules read from the store: `id`, `label`, `variables` |
 | `rows` | `id` (`seed.NAME`, `row.001` ...), `source` (`seed` or `planned`), `values`, `logWeight` |
-| `warnings` | `no_variables`, `value_unreachable`, `seed_unknown_value`, `seed_forbidden`, each with a message |
+| `warnings` | `no_variables`, `value_unreachable`, `seed_unknown_value`, `seed_unapproved_value`, `seed_forbidden`, each with a message |
 
 ## Worked examples
 

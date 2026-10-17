@@ -113,6 +113,58 @@ describe('real sessions enter as seed rows', () => {
     );
   });
 
+  it('keeps every seed when nothing in the store is approved, at every budget, and says why', () => {
+    const store = makeStore([{ id: 'channel', approved: false, values: ['mail'] }]);
+    for (const budget of [0, 1, undefined]) {
+      const plan = planV2(store, { budget, seeds: [{ id: 'original', values: { channel: 'mail' } }] });
+      expect(
+        plan.rows.map((row) => row.id),
+        `budget ${budget}`,
+      ).toEqual(['seed.original']);
+      expect(plan.rows[0]).toMatchObject({ source: 'seed', values: { channel: 'mail' } });
+      expect(plan.warnings).toContainEqual(expect.objectContaining({ code: 'no_variables' }));
+      expect(plan.warnings).toContainEqual(
+        expect.objectContaining({
+          code: 'seed_unapproved_value',
+          seed: 'original',
+          variable: 'channel',
+          value: 'mail',
+        }),
+      );
+    }
+  });
+
+  it('keeps the entries of a seed that name a value nobody approved, reports each one, and counts only the rest', () => {
+    const store = makeStore([
+      { id: 'tide', values: ['ebb', 'flood', { id: 'slack', approved: false }] },
+      { id: 'lamp', values: ['steady', 'flashing'] },
+      { id: 'moon', approved: false, values: ['full', 'new'] },
+    ]);
+    const plan = planV2(store, {
+      seeds: [{ id: 'real', values: { tide: 'slack', lamp: 'steady', moon: 'full', crew: 'night' } }],
+    });
+    expect(plan.rows[0]).toMatchObject({ id: 'seed.real', source: 'seed' });
+    expect(plan.rows[0]?.values).toEqual({ lamp: 'steady', tide: 'slack', moon: 'full' });
+    const unapproved = plan.warnings.filter((warning) => warning.code === 'seed_unapproved_value');
+    expect(unapproved.map((warning) => `${warning.variable}=${warning.value}`)).toEqual([
+      'tide=slack',
+      'moon=full',
+    ]);
+    expect(plan.warnings).toContainEqual(
+      expect.objectContaining({ code: 'seed_unknown_value', variable: 'crew', value: 'night' }),
+    );
+    // The seed covers no pair of the plan through the value nobody approved: the planned rows still hold the tide values.
+    expect(new Set(planned(plan.rows).map((row) => row.values.tide))).toEqual(new Set(['ebb', 'flood']));
+    // An unapproved value has no share, so it adds nothing to the weight: lamp is one of two.
+    expect(plan.rows[0]?.logWeight).toBeCloseTo(Math.log(0.5), 12);
+  });
+
+  it('plans over a store with approved variables and an unapproved seed value as before', () => {
+    const store = harbour();
+    const base = planV2(store, { seeds });
+    expect(base.warnings.filter((warning) => warning.code === 'seed_unapproved_value')).toEqual([]);
+  });
+
   it('keeps a seed that breaks a constraint, and says so', () => {
     const store = makeStore(
       [

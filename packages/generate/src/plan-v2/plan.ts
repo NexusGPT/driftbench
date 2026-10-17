@@ -72,6 +72,7 @@ export type PlanV2Warning =
   | { code: 'no_variables'; message: string }
   | { code: 'value_unreachable'; variable: string; value: string; required: boolean; message: string }
   | { code: 'seed_unknown_value'; seed: string; variable: string; value: string; message: string }
+  | { code: 'seed_unapproved_value'; seed: string; variable: string; value: string; message: string }
   | { code: 'seed_forbidden'; seed: string; message: string };
 
 export type PlanV2 = {
@@ -124,21 +125,41 @@ const emptyLayer = (layer: Layer): PlanV2Layer => ({
   uncovered: 0,
 });
 
-/** A seed row as indexes: the value of each variable the seed names and the view knows, -1 elsewhere. */
-type SeedPart = { id: string; partial: Int16Array };
+/**
+ * A seed row as indexes: the value of each variable the seed names and the view knows, -1 elsewhere. `outside`
+ * keeps the entries that name a value the store has but nobody approved: a real session is kept whole, and those
+ * entries are reported but never counted as covering anything.
+ */
+type SeedPart = { id: string; partial: Int16Array; outside: Record<string, string> };
 
 function seedParts(
   seeds: readonly PlanSeedRow[],
+  store: VariableStore,
   view: View,
   solver: Solver,
   warnings: PlanV2Warning[],
 ): SeedPart[] {
   return seeds.map((seed) => {
     const partial = new Int16Array(view.variables.length).fill(-1);
+    const outside: Record<string, string> = {};
     for (const [variable, value] of Object.entries(seed.values)) {
       const at = view.variableIndex.get(variable);
       const valueAt = at === undefined ? undefined : view.valueIndex[at]?.get(value);
       if (at === undefined || valueAt === undefined) {
+        const known = store.variables
+          .find((entry) => entry.id === variable)
+          ?.values.some((entry) => entry.id === value);
+        if (known) {
+          outside[variable] = value;
+          warnings.push({
+            code: 'seed_unapproved_value',
+            seed: seed.id,
+            variable,
+            value,
+            message: `seed ${seed.id} names ${variable} = ${value}, which nobody approved: it is kept in the seed row and covers nothing`,
+          });
+          continue;
+        }
         warnings.push({
           code: 'seed_unknown_value',
           seed: seed.id,
@@ -156,7 +177,7 @@ function seedParts(
         seed: seed.id,
         message: `seed ${seed.id} holds a combination the store calls impossible: it is kept, and the store may be wrong`,
       });
-    return { id: seed.id, partial };
+    return { id: seed.id, partial, outside };
   });
 }
 
@@ -328,6 +349,15 @@ function layerCoverage(
   return layers;
 }
 
+function seedRow(view: View, row: SeedPart): PlanV2Row {
+  return {
+    id: `seed.${row.id}`,
+    source: 'seed',
+    values: { ...valuesOf(view, row.partial), ...row.outside },
+    logWeight: logWeight(view, row.partial),
+  };
+}
+
 export function planV2(store: VariableStore, options: PlanV2Options = {}): PlanV2 {
   checkOptions(options);
   const seed = options.seed ?? 1;
@@ -335,6 +365,11 @@ export function planV2(store: VariableStore, options: PlanV2Options = {}): PlanV
   const base = { agent: store.agent, version: store.version, seed };
   const budget = options.budget === undefined ? {} : { budget: options.budget };
   if (view.variables.length === 0) {
+    // Nothing to plan over, but the seeds are real sessions: they are kept, with what is wrong with them.
+    const warnings: PlanV2Warning[] = [
+      { code: 'no_variables', message: 'the store has no approved variable to plan over' },
+    ];
+    const seedRows = seedParts(options.seeds ?? [], store, view, new Solver(view), warnings);
     return {
       ...base,
       ...budget,
@@ -342,8 +377,8 @@ export function planV2(store: VariableStore, options: PlanV2Options = {}): PlanV
       cut: 0,
       layers: LAYERS.map(emptyLayer),
       rules: [],
-      rows: [],
-      warnings: [{ code: 'no_variables', message: 'the store has no approved variable to plan over' }],
+      rows: seedRows.map((row) => seedRow(view, row)),
+      warnings,
     };
   }
   const rules = rulesOfView(store, view, options);
@@ -353,7 +388,7 @@ export function planV2(store: VariableStore, options: PlanV2Options = {}): PlanV
   const baseline = groups.map((group) => Uint8Array.from(group.state));
   const warnings = unreachable(store, view, solver);
 
-  const seedRows = seedParts(options.seeds ?? [], view, solver, warnings);
+  const seedRows = seedParts(options.seeds ?? [], store, view, solver, warnings);
   for (const row of seedRows) cover(groups, row.partial);
 
   const ordered = build(view, solver, groups, seed)
@@ -385,12 +420,7 @@ export function planV2(store: VariableStore, options: PlanV2Options = {}): PlanV
     ),
     rules,
     rows: [
-      ...seedRows.map((row) => ({
-        id: `seed.${row.id}`,
-        source: 'seed' as const,
-        values: valuesOf(view, row.partial),
-        logWeight: logWeight(view, row.partial),
-      })),
+      ...seedRows.map((row) => seedRow(view, row)),
       ...kept.map((entry) => ({
         id: entry.id,
         source: 'planned' as const,
