@@ -15,6 +15,15 @@
 type Merge = { into: string; from: readonly RegExp[] };
 
 export const MERGES: readonly Merge[] = [
+  // Two growth lanes stated one change from two sides: a finish_reason the runtime does not report is
+  // inconclusive and does not gate, and such a verdict never fails its block.
+  {
+    into: 'finish_reason compares the reason the runtime reports with the expected one; no reported reason is inconclusive and does not gate.',
+    from: [
+      /^finish_reason compares the reason the runtime reports with the expected one; no reported reason is inconclusive and does not gate\.$/,
+      /^A block passes when every gating verdict passes: a verdict that does not gate, such as a finish_reason the runtime does not report, never fails it\.$/,
+    ],
+  },
   {
     into: 'A change the radius cannot map makes the radius the whole suite: unknown means in.',
     from: [/^A change the radius cannot map \(.*\) makes the radius the whole suite\.$/],
