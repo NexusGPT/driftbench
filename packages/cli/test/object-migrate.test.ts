@@ -1,4 +1,4 @@
-import { mkdtemp, readdir, readFile, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -45,8 +45,16 @@ beforeAll(async () => {
   dir = await mkdtemp(join(tmpdir(), 'driftbench-object-migrate-'));
   names = (await readdir(PERSONAS)).filter((name) => name.endsWith('.yaml')).sort();
 });
+const cleanup: string[] = [];
+/** A temp folder outside `dir`, which holds a driftbench.yaml of its own after the first migration. */
+async function fresh(): Promise<string> {
+  const folder = await mkdtemp(join(tmpdir(), 'driftbench-object-migrate-'));
+  cleanup.push(folder);
+  return folder;
+}
 afterAll(async () => {
   await rm(dir, { recursive: true, force: true });
+  for (const folder of cleanup) await rm(folder, { recursive: true, force: true });
 });
 
 function capture(cwd: string): Io & { text: () => { out: string; err: string } } {
@@ -175,12 +183,90 @@ describe('driftbench object migrate persona', { timeout: 120_000 }, () => {
     );
     expect(code).toBe(2);
     expect(io.text().err).toMatch(/plan-upgrade\.yaml: .*\nNothing was written\.\n$/);
-    const lonely = join(dir, 'lonely');
+    const lonely = await mkdtemp(join(tmpdir(), 'driftbench-object-lonely-'));
+    cleanup.push(lonely);
     const sam = 'examples/acme/personas/sam-upgrader.yaml';
     expect(await main(['object', 'migrate', 'persona', sam, '--out', lonely], capture(ROOT))).toBe(0);
     await rm(join(lonely, 'driftbench', 'persona'), { recursive: true });
     await expect(loadSituationalPersona(join(lonely, 'situational', 'sam-upgrader.yaml'))).rejects.toThrow(
       /unknown object persona:sam-upgrader/,
     );
+  });
+});
+
+describe('driftbench object migrate persona, where it writes', { timeout: 120_000 }, () => {
+  const SAM = join(PERSONAS, 'sam-upgrader.yaml');
+  const exists = (path: string) =>
+    stat(path).then(
+      () => true,
+      () => false,
+    );
+
+  it('refuses to overwrite an object file that exists, and writes none of the others', async () => {
+    const project = await fresh();
+    await mkdir(join(project, 'driftbench/persona'), { recursive: true });
+    await writeFile(join(project, 'driftbench.yaml'), '# project\n');
+    const mine = join(project, 'driftbench/persona/sam-upgrader.yaml');
+    const handwritten =
+      'kind: persona\nid: sam-upgrader\ndescription: hand-written, must survive\nparams: { name: Kept }\n';
+    await writeFile(mine, handwritten);
+    const io = capture(project);
+    expect(await main(['object', 'migrate', 'persona', SAM, '--out', '.'], io)).toBe(2);
+    expect(io.text().err).toContain(
+      'driftbench/persona/sam-upgrader.yaml already exists: nothing was written.',
+    );
+    expect(await readFile(mine, 'utf8')).toBe(handwritten);
+    expect(await exists(join(project, 'driftbench/scenario/sam-upgrader.yaml'))).toBe(false);
+    expect(await exists(join(project, 'situational/sam-upgrader.yaml'))).toBe(false);
+  });
+
+  it('refuses a second migration of the same persona and leaves the first untouched', async () => {
+    const out = await fresh();
+    expect(await main(['object', 'migrate', 'persona', SAM, '--out', out], capture(ROOT))).toBe(0);
+    const first = await readFile(join(out, 'situational/sam-upgrader.yaml'), 'utf8');
+    await writeFile(join(out, 'situational/sam-upgrader.yaml'), `${first}# edited by hand\n`);
+    const io = capture(ROOT);
+    expect(await main(['object', 'migrate', 'persona', SAM, '--out', out], io)).toBe(2);
+    expect(io.text().err).toContain('already exists: nothing was written.');
+    expect(await readFile(join(out, 'situational/sam-upgrader.yaml'), 'utf8')).toContain('# edited by hand');
+  });
+
+  it('writes no nested driftbench.yaml from a folder of a project, and names the project', async () => {
+    const project = await fresh();
+    await mkdir(join(project, 'specs'), { recursive: true });
+    await writeFile(join(project, 'driftbench.yaml'), '# project\n');
+    const io = capture(join(project, 'specs'));
+    expect(await main(['object', 'migrate', 'persona', SAM], io)).toBe(2);
+    expect(io.text().err).toContain('is inside the project at');
+    expect(io.text().err).toContain('Nothing was written.');
+    expect(await exists(join(project, 'specs/driftbench.yaml'))).toBe(false);
+    expect(await exists(join(project, 'specs/driftbench'))).toBe(false);
+    expect(await exists(join(project, 'specs/situational'))).toBe(false);
+    // From the project root the same migration writes into the project.
+    expect(await main(['object', 'migrate', 'persona', SAM, '--out', project], capture(ROOT))).toBe(0);
+    expect(await exists(join(project, 'driftbench/persona/sam-upgrader.yaml'))).toBe(true);
+  });
+});
+
+describe('driftbench object migrate persona, the scenario of a situational block', () => {
+  it('reads the scenario by the id the block gives, not by the persona id', async () => {
+    const out = await fresh();
+    expect(
+      await main(
+        ['object', 'migrate', 'persona', join(PERSONAS, 'sam-upgrader.yaml'), '--out', out],
+        capture(ROOT),
+      ),
+    ).toBe(0);
+    await writeFile(
+      join(out, 'driftbench/scenario/other-goal.yaml'),
+      'kind: scenario\nid: other-goal\ndescription: another goal\nparams:\n  goal: Ask about roaming.\n',
+    );
+    const situational = join(out, 'situational/sam-upgrader.yaml');
+    const text = await readFile(situational, 'utf8');
+    expect(text).toContain('scenario: sam-upgrader');
+    await writeFile(situational, text.replace('scenario: sam-upgrader', 'scenario: other-goal'));
+    const persona = await loadSituationalPersona(situational);
+    expect(persona.goal).toBe('Ask about roaming.');
+    expect(persona.name).toBe('Sam Rivera');
   });
 });

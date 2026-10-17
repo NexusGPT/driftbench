@@ -1,5 +1,5 @@
 import { readFile, stat } from 'node:fs/promises';
-import { extname, join, resolve, sep } from 'node:path';
+import { basename, dirname, extname, join, resolve, sep } from 'node:path';
 import {
   type CliOverrides,
   clearObjectContexts,
@@ -433,10 +433,15 @@ async function objectFromArg(
  * so the file is added to a store no other command has cached.
  */
 function scratchStore(file: string): ObjectStore {
+  return scratchContext(file).store;
+}
+
+/** The same context with the problems its folder load found, for a file the folder load has already read. */
+function scratchContext(file: string): ObjectContext {
   clearObjectContexts();
-  const { store } = objectContextFor(file);
+  const context = objectContextFor(file);
   clearObjectContexts();
-  return store;
+  return context;
 }
 
 type ItemChange = { item: string; status: 'added' | 'removed' | 'changed'; fields?: string[] };
@@ -592,6 +597,11 @@ async function objectFiles(path: string): Promise<string[]> {
 
 type Verdict = { path: string; ref?: string; problem?: string };
 
+/** `uses.yaml` in a `driftbench/` or `_driftbench/` folder names objects; it holds no object itself. */
+function isUsesFile(file: string): boolean {
+  return basename(file) === 'uses.yaml' && ['driftbench', '_driftbench'].includes(basename(dirname(file)));
+}
+
 async function validateCommand(paths: readonly string[], options: Json, io: Io): Promise<number> {
   const context = folderContext(io);
   const verdicts: Verdict[] = [];
@@ -618,7 +628,18 @@ async function validateCommand(paths: readonly string[], options: Json, io: Io):
         return 2;
       }
       for (const file of files) {
-        const store = scratchStore(file);
+        const { store, problems } = scratchContext(file);
+        // A file under driftbench/ or _driftbench/ that the folder load refuses stops every spec of the project:
+        // the verdict of the folder load stands, whatever the file would resolve to alone.
+        const refused = problems.find((problem) => problem.message.includes(file));
+        if (refused !== undefined) {
+          verdicts.push({ path: show(file, io), problem: describe(refused, io) });
+          continue;
+        }
+        if (isUsesFile(file)) {
+          verdicts.push({ path: show(file, io), ref: 'uses' });
+          continue;
+        }
         try {
           const { raw, lines } = parseObjectText(await readFile(file, 'utf8'), file);
           store.add(raw, 'project', { path: file, lines }, 1);
@@ -722,6 +743,34 @@ export async function migratePersonaCommand(
     io.err('Nothing was written.\n');
     return 2;
   }
+  const root = objectContextFor(join(out, 'driftbench.yaml')).root;
+  if (root !== undefined && resolve(root) !== out) {
+    io.err(
+      `${show(out, io)} is inside the project at ${show(root, io)}, whose driftbench.yaml the specs here read: run from there or pass --out ${show(root, io)}. Nothing was written.\n`,
+    );
+    return 2;
+  }
+  const planned = loaded.map(({ persona, path }) => ({
+    persona,
+    migrated: migratePersona(persona, path, out),
+  }));
+  const existing: string[] = [];
+  for (const { migrated } of planned) {
+    for (const file of migrated.texts.keys()) {
+      const target = join(out, file);
+      if (
+        await stat(target).then(
+          () => true,
+          () => false,
+        )
+      )
+        existing.push(show(target, io));
+    }
+  }
+  if (existing.length > 0) {
+    for (const target of existing) io.err(`${target} already exists: nothing was written.\n`);
+    return 2;
+  }
   const config = join(out, 'driftbench.yaml');
   if (
     !(await stat(config).then(
@@ -739,8 +788,7 @@ export async function migratePersonaCommand(
       return 2;
     io.out(`Wrote ${show(config, io)}: the project objects under driftbench/ are read beside it.\n`);
   }
-  for (const { persona, path } of loaded) {
-    const migrated = migratePersona(persona, path, out);
+  for (const { persona, migrated } of planned) {
     for (const [file, text] of migrated.texts) {
       if (!(await writeOut(join(out, file), text, io))) return 2;
     }

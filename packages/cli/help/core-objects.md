@@ -96,7 +96,8 @@ cache key: changing it re-scores stored runs and never reruns the agent.
 | `object push <kind> <path> --name <name>` | stores an object file, or a folder of them, as the next version of `<name>` in the store's registry, under the registry kind `object.<kind>` (`/` written as `.`); the same content again changes nothing | `--name <name>` and `--store <file>` (both required); `--note <text>`; `--json` |
 
 `object migrate persona` reads every file before it writes any: one file that does not load, or two files
-with one persona id, and nothing is written. `simulate --persona` and `campaign run --driver simulated --persona` take a
+with one persona id, and nothing is written. It also writes nothing when a target file already exists, and nothing when
+`--out` lies inside another project (a folder below a `driftbench.yaml`): run it from the project root or pass the root as `--out`. `simulate --persona` and `campaign run --driver simulated --persona` take a
 situational block where they take a persona file: its persona and scenario are found by id in the
 project layer and composed back into the persona the old file gave, so it plays the same conversation.
 
