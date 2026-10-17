@@ -81,6 +81,8 @@ export type Decision = {
   target?: number;
   by: LabelerClass;
   sources: string[];
+  /** True when the other labeler of a stack gave no opinion for the unit, so the one that did decided alone. */
+  fallback?: true;
 };
 
 export type Labelling = {
@@ -135,10 +137,10 @@ function stacked(system1: Labeler, system2: Labeler, bounds: { passAt: number; f
         by: 'system2',
         sources: sourcesOf(first, opinion),
       });
-      if (!first && second) return fromSecond(second);
+      if (!first && second) return { ...fromSecond(second), fallback: true };
       if (!first) return undefined;
       if (!second) {
-        return { label: first.label, by: 'system1', sources: sourcesOf(first) };
+        return { label: first.label, by: 'system1', sources: sourcesOf(first), fallback: true };
       }
       // A label that asks for a target cannot be asked of system 1: system 2 alone decides it.
       const asked = new Set(askedLabels(set, true).map((entry) => entry.name));

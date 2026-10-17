@@ -102,6 +102,8 @@ export type PointerResult = {
   decided: number;
   /** Of those, how many each class decided. */
   decidedBy: Record<LabelerClass, number>;
+  /** Of those, the units one labeler of a stack decided alone because the other gave no opinion. */
+  fellBack: number;
   calls: number;
   /** Units no accepted answer named. */
   unlabeled: number;
@@ -301,7 +303,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     for (let attempt = 1; attempt <= 2; attempt++) {
       try {
         counts.calls++;
-        const answer = await member.call(wire, task.set, window);
+        const answer = await member.call(wire, task.set, window, attempt);
         counts.input += answer.usage.input;
         counts.output += answer.usage.output;
         cassette.put(wire, readable, answer);
@@ -403,6 +405,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
   let unlabeled = 0;
   let decided = 0;
   const decidedBy: Record<LabelerClass, number> = { system1: 0, system2: 0 };
+  let fellBack = 0;
   for (const file of files) {
     for (const set of input.sets) {
       const want = needed.get(`${file.path}\0${set.set}`) as Set<number>;
@@ -422,6 +425,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
         }
         decided++;
         decidedBy[decision.by]++;
+        if (decision.fallback) fellBack++;
         const targetId = decision.target === undefined ? undefined : unitId(file.path, decision.target);
         entry.labels[set.set] = {
           label: decision.label,
@@ -490,6 +494,7 @@ export async function pointerScan(input: PointerInput): Promise<PointerResult> {
     carried,
     decided,
     decidedBy,
+    fellBack,
     calls: usage.reduce((sum, entry) => sum + entry.calls, 0),
     unlabeled,
     refusals,

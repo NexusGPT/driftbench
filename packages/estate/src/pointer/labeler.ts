@@ -46,7 +46,7 @@ export interface Labeler {
   /** The opinions a recorded answer gives. Pure: a threshold may change here without a new call. */
   opinions(answer: Recorded, set: LabelSet, window: Window): Opinions;
   /** The network call. Absent on a labeler that can only replay. */
-  call?(wire: Wire, set: LabelSet, window: Window): Promise<Recorded>;
+  call?(wire: Wire, set: LabelSet, window: Window, attempt?: number): Promise<Recorded>;
 }
 
 /** An answer that cannot be read. The window is retried once, then listed as failed. */

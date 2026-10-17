@@ -244,11 +244,20 @@ describe('a stack decides as a cascade', () => {
   });
 
   it('falls back to the one labeler that has an opinion', () => {
-    expect(stack.decide([undefined, two('order')], DUTY)).toMatchObject({ label: 'order', by: 'system2' });
+    expect(stack.decide([undefined, two('order')], DUTY)).toMatchObject({
+      label: 'order',
+      by: 'system2',
+      fallback: true,
+    });
     expect(stack.decide([one('order', { order: 0.5, remark: 0 }), undefined], DUTY)).toMatchObject({
       label: 'order',
       by: 'system1',
+      fallback: true,
     });
+    // A unit both labelers read is no fallback.
+    expect(
+      stack.decide([one('order', { order: 0.95, remark: 0 }), two('none')], DUTY)?.fallback,
+    ).toBeUndefined();
     expect(stack.decide([undefined, undefined], DUTY)).toBeUndefined();
   });
 

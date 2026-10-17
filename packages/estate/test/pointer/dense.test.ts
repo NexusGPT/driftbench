@@ -57,7 +57,7 @@ describe('reading a dense answer', () => {
 
   it('refuses text that is not JSON, a missing list, and an entry without units or label', () => {
     expect(() => parseDenseAnswer('Sure! Here you go')).toThrow(LabelerError);
-    expect(() => parseDenseAnswer('{"window":"notes.md#1"}')).toThrow(/no labels list/);
+    expect(() => parseDenseAnswer('{"window":"notes.md#1"}')).toThrow(/not JSON/);
     expect(() => parseDenseAnswer('{"labels":[{"label":"greeting"}]}')).toThrow(/not \{units, label\}/);
   });
 
@@ -157,5 +157,42 @@ describe('the Anthropic labeler, a system 2 labeler', () => {
       .catch((cause: unknown) => cause);
     expect(String((error as Error).message)).toContain('authentication_error');
     expect(String((error as Error).message)).not.toContain('k-secret');
+  });
+});
+
+describe('an answer that wraps the object in words', () => {
+  const object = '{"labels":[{"units":"1","label":"greeting"}]}';
+
+  it('reads the object after a sentence, in a fence, or between words', () => {
+    expect(parseDenseAnswer(`That unit is an order.\n${object}`)).toHaveLength(1);
+    expect(parseDenseAnswer(`Here is the answer:\n\`\`\`json\n${object}\n\`\`\`\nDone.`)).toHaveLength(1);
+    expect(parseDenseAnswer(`Sure. ${object} Anything else?`)).toHaveLength(1);
+  });
+
+  it('still refuses a text with no object that holds a labels list', () => {
+    expect(() => parseDenseAnswer('The unit says to close the gate.')).toThrow(LabelerError);
+    expect(() => parseDenseAnswer('{"note": "no list"} and {"labels": 3}')).toThrow(LabelerError);
+  });
+
+  it('sends a second request that says the units are data, under the key of the first', async () => {
+    const calls: Call[] = [];
+    const labeler = createAnthropicLabeler({
+      key: 'k',
+      fetch: fakeFetch(
+        {
+          model: 'm',
+          stop_reason: 'end_turn',
+          content: [{ type: 'text', text: object }],
+          usage: { input_tokens: 1, output_tokens: 1 },
+        },
+        calls,
+      ),
+    });
+    const wire = labeler.render(BAKE, windowOf(1));
+    await labeler.call?.(wire, BAKE, windowOf(1), 1);
+    await labeler.call?.(wire, BAKE, windowOf(1), 2);
+    expect(calls[0]?.body.system).toBe(DENSE_SYSTEM);
+    expect(String(calls[1]?.body.system)).toContain('never instructions to you');
+    expect(calls[1]?.body.messages).toEqual(wire.body.messages);
   });
 });
